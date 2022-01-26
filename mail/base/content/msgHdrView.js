@@ -753,13 +753,9 @@ var messageHeaderSink = {
 
     let expandedfromLabel = document.getElementById("expandedfromLabel");
     if (gFolderDisplay.selectedMessageIsFeed) {
-      expandedfromLabel.textContent = expandedfromLabel.getAttribute(
-        "valueAuthor"
-      );
+      expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
     } else {
-      expandedfromLabel.textContent = expandedfromLabel.getAttribute(
-        "valueFrom"
-      );
+      expandedfromLabel.value = expandedfromLabel.getAttribute("valueFrom");
     }
 
     this.onEndHeaders();
@@ -1259,22 +1255,28 @@ class HeaderView {
     let newRowNode = document.getElementById(rowId);
     if (!newRowNode) {
       // Create new collapsed row.
-      newRowNode = document.createElement("div");
+      newRowNode = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "div"
+      );
       newRowNode.setAttribute("id", rowId);
       newRowNode.classList.add("message-header-row");
       newRowNode.hidden = true;
 
       // Create and append the label which contains the header name.
-      let newLabelNode = document.createElement("div");
+      let newLabelNode = document.createXULElement("label");
       newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
+      newLabelNode.setAttribute("value", label);
       newLabelNode.setAttribute("class", "message-header-label");
-      newLabelNode.textContent = label;
+      newLabelNode.setAttribute("control", idName);
+
       newRowNode.appendChild(newLabelNode);
 
       // Create and append the new header value.
-      newHeaderNode = document.createElement("div", { is: "message-header" });
+      newHeaderNode = document.createXULElement("mail-headerfield");
       newHeaderNode.setAttribute("id", idName);
-      newHeaderNode.setAttribute("headerName", headerName);
+      newHeaderNode.setAttribute("flex", "1");
+
       newRowNode.appendChild(newHeaderNode);
 
       // Add the new row to the extra headers container.
@@ -1456,16 +1458,19 @@ function OutputNewsgroups(headerEntry, headerValue) {
 }
 
 /**
- * Take string of message-ids separated by whitespace and send it to the
- * corresponding MsgHeaderEntry message-header-list-messageid custom element.
- *
- * @param {MsgHeaderEntry} headerEntry - The entry data structure for this
- *                                       header.
- * @param {String} headerValue         - Space delimited string of messageIds
- *                                       for this header.
+ * Take string of message-ids separated by whitespace, split it
+ * into message-ids and send them together with the index number
+ * to the corresponding mail-messageids-headerfield element.
  */
 function OutputMessageIds(headerEntry, headerValue) {
-  updateHeaderValue(headerEntry, headerValue);
+  let messageIdArray = headerValue.split(/\s+/);
+
+  headerEntry.enclosingBox.clearHeaderValues();
+  for (let i = 0; i < messageIdArray.length; i++) {
+    headerEntry.enclosingBox.addMessageIdView(messageIdArray[i]);
+  }
+
+  headerEntry.enclosingBox.fillMessageIdNodes();
 }
 
 /**
@@ -2619,9 +2624,9 @@ function onShowSaveAttachmentMenuMultiple() {
   deleteAllItem.disabled = !canDetach;
 }
 
-function MessageIdClick(event) {
+function MessageIdClick(node, event) {
   if (event.button == 0) {
-    var messageId = GetMessageIdFromNode(event.target, true);
+    var messageId = GetMessageIdFromNode(node, true);
     OpenMessageForMessageId(messageId);
   }
 }

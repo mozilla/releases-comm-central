@@ -53,44 +53,33 @@
     "resource:///modules/TagUtils.jsm"
   );
 
-  class MozMessageHeader extends HTMLDivElement {
+  class MozMailHeaderfield extends MozXULElement {
     connectedCallback() {
-      if (this.hasConnected) {
-        return;
+      this.setAttribute("context", "copyPopup");
+      this.classList.add("headerValue");
+
+      this._ariaBaseLabel = null;
+      if (this.getAttribute("aria-labelledby")) {
+        this._ariaBaseLabel = document.getElementById(
+          this.getAttribute("aria-labelledby")
+        );
+        this.removeAttribute("aria-labelledby");
       }
-      this.hasConnected = true;
-
-      this.labelNode = this.parentElement.querySelector(
-        ".message-header-label"
-      );
-
-      this.setAttribute("is", "message-header");
-      this.setAttribute("tabindex", "0");
-      this.setAttribute("role", "menu");
-      this.classList.add("message-header-value");
-      this.oncontextmenu = this.onContextMenu;
     }
-
-    onContextMenu = event => {
-      document
-        .getElementById("copyPopup")
-        .openPopupAtScreen(event.screenX, event.screenY, true);
-      event.preventDefault();
-    };
 
     set headerValue(val) {
+      // Solve the accessibility problem by manually fetching the translated
+      // string from the label and updating the attribute. Bug 1493608
+      if (this._ariaBaseLabel) {
+        this.setAttribute("aria-label", `${this._ariaBaseLabel.value}: ${val}`);
+      }
+
       this.textContent = val;
-      this.setAttribute(
-        "aria-label",
-        `${this.labelNode.textContent}: ${this.textContent}`
-      );
     }
   }
-  customElements.define("message-header", MozMessageHeader, {
-    extends: "div",
-  });
+  customElements.define("mail-headerfield", MozMailHeaderfield);
 
-  class MozMessageUrl extends MozMessageHeader {
+  class MozMailUrlfield extends MozMailHeaderfield {
     constructor() {
       super();
       this.addEventListener("click", event => {
@@ -107,92 +96,71 @@
 
     connectedCallback() {
       super.connectedCallback();
-      this.setAttribute("is", "message-header-url");
-      this.oncontextmenu = this.onContextMenu;
+      this.setAttribute("context", "copyUrlPopup");
+      this.setAttribute("tabindex", "0");
+      this.classList.add("text-link", "headerValueUrl");
     }
-
-    onContextMenu = event => {
-      document
-        .getElementById("copyUrlPopup")
-        .openPopupAtScreen(event.screenX, event.screenY, true);
-      event.preventDefault();
-    };
   }
-  customElements.define("message-header-url", MozMessageUrl, {
-    extends: "div",
-  });
+  customElements.define("mail-urlfield", MozMailUrlfield);
 
-  class MozMessageTags extends HTMLUListElement {
-    constructor() {
-      super();
-      this.setAttribute("is", "message-header-tags");
-      this.classList.add("header-value-list");
-    }
-
+  class MozMailHeaderfieldTags extends MozXULElement {
     connectedCallback() {
-      if (this.hasConnected) {
-        return;
-      }
-      this.hasConnected = true;
-
-      this.labelNode = this.parentElement.querySelector(
-        ".message-header-label"
-      );
+      this.classList.add("headerValue");
     }
 
     set headerValue(val) {
       this.buildTags(val);
     }
 
-    /*
-     * @param {String} tags - Space delimited string of tag keys (not display
-     *                        names).
-     */
     buildTags(tags) {
-      // Remove any existing tag items we've appended to the list.
+      // tags contains a list of actual tag names (not the keys), delimited by spaces
+      // each tag name is encoded.
+
+      // remove any existing tag items we've appended to the list
       this.replaceChildren();
 
-      let tagKeysArray = tags.split(" ");
-      for (let tagKey of tagKeysArray) {
-        // For each tag, create a label, give it the font color that
-        // corresponds to the color of the tag and append it.
+      // tokenize the keywords based on ' '
+      const tagsArray = tags.split(" ");
+      for (let i = 0; i < tagsArray.length; i++) {
+        // for each tag, create a label, give it the font color that corresponds to the
+        // color of the tag and append it.
         let tagName;
         try {
-          // If we got a bad tag name, getTagForKey() will throw an exception;
-          // skip it and go to the next one.
-          tagName = MailServices.tags.getTagForKey(tagKey);
+          // if we got a bad tag name, getTagForKey will throw an exception, skip it
+          // and go to the next one.
+          tagName = MailServices.tags.getTagForKey(tagsArray[i]);
         } catch (ex) {
           continue;
         }
 
-        let color = MailServices.tags.getColorForKey(tagKey);
+        let color = MailServices.tags.getColorForKey(tagsArray[i]);
         let textColor = "black";
         if (!LazyModules.TagUtils.isColorContrastEnough(color)) {
           textColor = "white";
         }
 
-        // Now create a node for the tag name and set the color.
-        let valueNode = document.createElement("li");
-        valueNode.setAttribute("tabindex", "0");
-        valueNode.classList.add("message-header-value");
-        valueNode.textContent = tagName;
-        valueNode.setAttribute(
+        // now create a label for the tag name, and set the color
+        const label = document.createXULElement("label");
+        label.setAttribute("value", tagName);
+        label.className = "tagvalue";
+        label.setAttribute(
           "style",
           "color: " + textColor + "; background-color: " + color + ";"
         );
 
-        valueNode.setAttribute(
-          "aria-label",
-          `${this.labelNode.textContent}: ${tagName}`
+        // Solve the accessibility problem by manually fetching the translated
+        // string from the label and updating the attribute. Bug 1493608
+        let ariaLabel = document.getElementById(
+          this.getAttribute("aria-labelledby")
         );
+        label.setAttribute("aria-label", `${ariaLabel.value}: ${tagName}`);
+        label.removeAttribute("aria-labelledby");
 
-        this.appendChild(valueNode);
+        this.appendChild(label);
       }
     }
   }
-  customElements.define("message-header-tags", MozMessageTags, {
-    extends: "ul",
-  });
+  customElements.define("mail-tagfield", MozMailHeaderfieldTags);
 
   class MozMailNewsgroup extends MozXULElement {
     connectedCallback() {
@@ -207,7 +175,7 @@
       );
       this.setAttribute(
         "aria-label",
-        `${ariaLabel.textContent}: ${this.getAttribute("newsgroup")}`
+        `${ariaLabel.value}: ${this.getAttribute("newsgroup")}`
       );
       this.removeAttribute("aria-labelledby");
     }
@@ -246,95 +214,134 @@
     MozMailNewsgroupsHeaderfield
   );
 
-  /**
-   * MozMessageMessageIds is a list of Message-Id, In-Reply-To,
-   * and Reference message headers. Shown by default for nntp messages,
-   * not for regular emails.
-   *
-   * @extends {HTMLUListElement}
-   */
-  class MozMessageMessageIds extends HTMLUListElement {
+  class MozMailMessageid extends MozXULElement {
+    static get observedAttributes() {
+      return ["label"];
+    }
+
     constructor() {
       super();
-      this.setAttribute("is", "message-header-list-messageid");
-      this.classList.add("header-value-list");
+      this.addEventListener("click", event => {
+        MessageIdClick(this, event);
+      });
     }
 
     connectedCallback() {
-      if (this.hasConnected) {
+      this.classList.add("messageIdDisplayButton");
+      this.setAttribute("context", "messageIdContext");
+      this._updateAttributes();
+    }
+
+    attributeChangedCallback() {
+      this._updateAttributes();
+    }
+
+    _updateAttributes() {
+      this.textContent = this.label || "";
+    }
+
+    set label(val) {
+      if (val == null) {
+        this.removeAttribute("label");
+      } else {
+        this.setAttribute("label", val);
+      }
+    }
+
+    get label() {
+      return this.getAttribute("label");
+    }
+  }
+  customElements.define("mail-messageid", MozMailMessageid);
+
+  /**
+   * MozMailMessageidsHeaderfield is a widget used to show/link messages in the message header.
+   * Shown by default for nntp messages, not for regular emails.
+   * @extends {MozXULElement}
+   */
+  class MozMailMessageidsHeaderfield extends MozXULElement {
+    connectedCallback() {
+      if (this.hasChildNodes() || this.delayConnectedCallback()) {
         return;
       }
-      this.hasConnected = true;
 
-      this.labelNode = this.parentElement.parentElement.querySelector(
-        ".message-header-label"
-      );
-
-      this.toggleButton = this.parentElement.querySelector(
-        ".toggle-list-button"
-      );
-      this.toggleButton.addEventListener("click", () => {
-        this._toggleWrap();
-      });
+      this.setAttribute("context", "messageIdsHeaderfieldContext");
 
       this.mMessageIds = [];
       this.showFullMessageIds = false;
-    }
 
-    set headerValue(val) {
-      this.mMessageIds = val ? val.split(/\s+/) : [];
-      this.clearHeaderValues();
-      this.fillMessageIdNodes();
+      this.toggleButton = document.createElement("button");
+      this.toggleButton.classList.add("plain-button", "email-action-button");
+      // FIXME: Is the twisty icon the best representation since toggling the
+      // twisty icon does not expand hidden content vertically?
+      // A list of <details> elements may be more appropriate to capture this,
+      // and would be more accessible.
+      // NOTE: We currently style the toggle button as a twisty icon, which
+      // relies on the CSS -moz-locale-dir(rtl) selector to choose the image.
+      // Therefore, we use a <div> rather than an <img> for convenience.
+      // However, this means we cannot set alt text that describes the behaviour
+      // of the button to screen readers. We use aria-expanded to hint that the
+      // behaviour is _similar_ to tree expansion.
+      this.toggleButton.setAttribute("aria-expanded", this.showFullMessageIds);
+      this.toggleIcon = document.createElement("div");
+      this.toggleIcon.classList.add("emailToggleHeaderfield");
+      this.toggleButton.appendChild(this.toggleIcon);
+
+      this.toggleButton.addEventListener("click", () => {
+        this._toggleWrap();
+      });
+      this.appendChild(this.toggleButton);
+
+      this.headerValue = document.createXULElement("hbox");
+      this.headerValue.classList.add("headerValue");
+      this.headerValue.setAttribute("flex", "1");
+      this.appendChild(this.headerValue);
     }
 
     _toggleWrap() {
       this.showFullMessageIds = !this.showFullMessageIds;
       this.toggleButton.setAttribute("aria-expanded", this.showFullMessageIds);
-      //this.toggleButton.setAttribute("aria-labelledby", this.labelNode.id);
-      this.toggleButton.classList.toggle("open", this.showFullMessageIds);
-      for (let i = 0; i < this.children.length; i++) {
-        let valueNode = this.children[i];
+      this.toggleIcon.classList.toggle("open", this.showFullMessageIds);
+      for (let i = 0; i < this.headerValue.children.length; i += 2) {
         if (this.showFullMessageIds) {
-          valueNode.textContent = this.mMessageIds[i];
-          valueNode.removeAttribute("title");
+          this.headerValue.children[i].setAttribute(
+            "label",
+            this.mMessageIds[i / 2]
+          );
+          this.headerValue.children[i].removeAttribute("tooltiptext");
         } else {
-          valueNode.textContent = i + 1;
-          valueNode.setAttribute("title", this.mMessageIds[i]);
+          this.headerValue.children[i].setAttribute("label", i / 2 + 1);
+          this.headerValue.children[i].setAttribute(
+            "tooltiptext",
+            this.mMessageIds[i / 2]
+          );
         }
       }
     }
 
     fillMessageIdNodes() {
+      while (
+        this.headerValue.children.length >
+        this.mMessageIds.length * 2 - 1
+      ) {
+        this.headerValue.lastElementChild.remove();
+      }
+
+      this.toggleButton.hidden = this.mMessageIds.length <= 1;
+
       for (let i = 0; i < this.mMessageIds.length; i++) {
-        if (i < this.children.length - 1) {
+        if (i * 2 <= this.headerValue.children.length - 1) {
           this._updateMessageIdNode(
-            this.children[i],
+            this.headerValue.children[i * 2],
             i + 1,
             this.mMessageIds[i],
             this.mMessageIds.length
           );
         } else {
-          let valueNode = document.createElement("li");
-          valueNode.setAttribute("tabindex", "0");
-          // NOTE: if this role is set, the reader will note it's a menu
-          // (and the node does have a contextmenu) but this will lose the
-          // count of items - listitem role is required for that.
-          //valueNode.setAttribute("role", "menu");
-          valueNode.classList.add("message-header-value");
-          valueNode.addEventListener("click", event => {
-            MessageIdClick(event);
-          });
-          valueNode.oncontextmenu = event => {
-            document
-              .getElementById("messageIdContext")
-              .openPopupAtScreen(event.screenX, event.screenY, true);
-            event.preventDefault();
-          };
-
-          this.appendChild(valueNode);
-
+          let newMessageIdNode = document.createXULElement("mail-messageid");
+          let itemInDocument = this.headerValue.appendChild(newMessageIdNode);
           this._updateMessageIdNode(
-            valueNode,
+            itemInDocument,
             i + 1,
             this.mMessageIds[i],
             this.mMessageIds.length
@@ -343,36 +350,35 @@
       }
     }
 
-    _updateMessageIdNode(valueNode, index, messageId, lastId) {
+    _updateMessageIdNode(messageIdNode, index, messageId, lastId) {
       if (this.showFullMessageIds || index == lastId) {
-        valueNode.textContent = messageId;
-        valueNode.removeAttribute("title");
+        messageIdNode.setAttribute("label", messageId);
+        messageIdNode.removeAttribute("tooltiptext");
       } else {
-        valueNode.textContent = index;
-        valueNode.setAttribute("title", messageId);
+        messageIdNode.setAttribute("label", index);
+        messageIdNode.setAttribute("tooltiptext", messageId);
       }
 
-      valueNode.setAttribute("messageid", messageId);
-      valueNode.setAttribute("index", index);
-      valueNode.setAttribute("messageid", messageId);
-      valueNode.setAttribute(
-        "aria-label",
-        `${this.labelNode.textContent}: ${valueNode.textContent}`
-      );
+      messageIdNode.setAttribute("index", index);
+      messageIdNode.setAttribute("messageid", messageId);
+    }
+
+    addMessageIdView(messageId) {
+      this.mMessageIds.push(messageId);
     }
 
     clearHeaderValues() {
-      this.replaceChildren();
-      this.toggleButton.hidden = this.mMessageIds.length < 2;
+      this.mMessageIds = [];
       if (this.showFullMessageIds) {
         this.showFullMessageIds = false;
-        this.toggleButton.classList.remove("open");
+        this.toggleIcon.classList.remove("open");
       }
     }
   }
-  customElements.define("message-header-list-messageid", MozMessageMessageIds, {
-    extends: "ul",
-  });
+  customElements.define(
+    "mail-messageids-headerfield",
+    MozMailMessageidsHeaderfield
+  );
 
   class MozMailEmailaddress extends MozXULElement {
     static get observedAttributes() {
@@ -1084,7 +1090,7 @@
         );
         newAddressNode.setAttribute(
           "aria-label",
-          `${ariaLabel.textContent}: ${this.addresses[i].fullAddress ||
+          `${ariaLabel.value}: ${this.addresses[i].fullAddress ||
             this.addresses[i].displayName ||
             ""}`
         );

@@ -3,24 +3,24 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
   <menupopup id="messageIdContext" popupanchor="bottomleft"
-             onpopupshowing="FillMessageIdContextMenu(document.activeElement);">
+             onpopupshowing="FillMessageIdContextMenu(event.target.triggerNode);">
     <menuitem id="messageIdContext-messageIdTarget"
               disabled="true"/>
     <menuseparator id="messageIdContext-separator"/>
     <menuitem id="messageIdContext-openMessageForMsgId"
               label="&OpenMessageForMsgId.label;"
               accesskey="&OpenMessageForMsgId.accesskey;"
-              oncommand="var messageId = GetMessageIdFromNode(document.activeElement, true);
+              oncommand="var messageId = GetMessageIdFromNode(this.parentNode.triggerNode, true);
                          OpenMessageForMessageId(messageId)"/>
     <menuitem id="messageIdContext-openBrowserWithMsgId"
               label="&OpenBrowserWithMsgId.label;"
               accesskey="&OpenBrowserWithMsgId.accesskey;"
-              oncommand="var messageId = GetMessageIdFromNode(document.activeElement, true);
+              oncommand="var messageId = GetMessageIdFromNode(this.parentNode.triggerNode, true);
                          OpenBrowserWithMessageId(messageId)"/>
     <menuitem id="messageIdContext-copyMessageId"
               label="&CopyMessageId.label;"
               accesskey="&CopyMessageId.accesskey;"
-              oncommand="var messageId = GetMessageIdFromNode(document.activeElement, false);
+              oncommand="var messageId = GetMessageIdFromNode(this.parentNode.triggerNode, false);
                          CopyMessageId(messageId);"/>
   </menupopup>
 
@@ -114,5 +114,5 @@
              popupanchor="bottomleft">
     <menuitem label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
-              oncommand="CopyWebsiteAddress(document.activeElement)"/>
+              oncommand="CopyWebsiteAddress(this.parentNode.triggerNode)"/>
   </menupopup>

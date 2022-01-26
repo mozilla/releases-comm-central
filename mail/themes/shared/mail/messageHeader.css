@@ -17,7 +17,6 @@
 
 .message-header-container {
   padding: 3px;
-  user-select: text;
 }
 
 .message-header-row:not([hidden]) {
@@ -71,6 +70,10 @@
 #expandedBoxSpacer {
   display: block;
   height: 4px;
+}
+
+mail-tagfield[collapsed="true"] {
+  display: none;
 }
 
 /* ::::: msg header buttons ::::: */
@@ -178,10 +181,6 @@
 }
 
 /* ::::: expanded header pane ::::: */
-
-#expandedsubjectRow {
-  flex: 4;
-}
 
 #expandedsubjectBox {
   font-weight: bold;
@@ -313,8 +312,11 @@
 }
 
 .message-header-label {
+  padding: 0;
+  margin-block: 0;
   margin-inline: 6px 8px;
   text-align: end;
+  flex-shrink: 0;
   align-self: flex-start;
 }
 
@@ -346,48 +348,27 @@ mail-multi-emailheaderfield, mail-newsgroups-headerfield {
   margin: 0;
 }
 
-.header-value-list {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0;
-  padding: 0;
-  grid-gap: 4px;
-}
-
-.message-header-value {
-  display: flex;
-  border-radius: var(--toolbarbutton-border-radius);
-  word-break: break-word;
-}
-
-.message-header-value:focus-visible:not(:hover),
-.toggle-list-button:focus-visible:not(:hover) {
+mail-headerfield.headerValue:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
-  outline-offset: 1px;
-}
-
-.message-header-value:focus-visible:hover,
-.toggle-list-button:focus-visible:hover {
-  outline: 0;
 }
 
 /* Separator for multifield emailaddress/newsgroup and messageid header rows. */
 .emailDisplayButton:not(:last-child):after,
-.header-value-list[is="message-header-list-messageid"] > .message-header-value:not(:last-child):after {
+.messageIdDisplayButton:not(:last-child):after {
   content: ",";
 }
 
-.message-header-value[is="message-header-url"],
-.header-value-list[is="message-header-list-messageid"] > .message-header-value {
-  display: inline-block;
-  -moz-user-focus: normal;
+.headerValueUrl,
+.messageIdDisplayButton {
   cursor: pointer;
   color: -moz-hyperlinktext;
   text-decoration: underline;
+  display: inline-block;
+  word-break: break-all;
 }
 
-.message-header-value[is="message-header-url"]:hover,
-.header-value-list[is="message-header-list-messageid"] > .message-header-value:hover {
+.headerValueUrl:hover,
+.messageIdDisplayButton:hover {
   color: -moz-activehyperlinktext;
 }
 
@@ -409,26 +390,23 @@ mail-newsgroups-headerfield {
   color: darkred;
 }
 
-.header-value-list[is="message-header-tags"] >.message-header-value {
+.tagvalue {
   padding: 0 0.5ex;
-  margin-inline: 0 5px;
+  margin-inline-start: 0;
   background-image: linear-gradient(rgba(255,255,255,0.35),
                                     rgba(255,255,255,0.35));
-  outline-width: 0.5px;
-  outline-style: outset;
+  border-radius: 3px;
+  border-width: 0.5px;
+  border-style: outset;
   text-shadow: 0 1px 0 rgba(238, 238, 236, 0.4); /* Tango Alumninum 1 */
   color: #111111;
 }
 
 .message-header-datetime {
+  user-select: text;
+  -moz-user-focus: normal;
+  cursor: text;
   margin: 0 6px;
-  justify-content: end;
-  text-align: end;
-  flex: 1;
-}
-
-.message-header-datetime[hidden] {
-  display: none;
 }
 
 #expandedtoRow .message-header-datetime {
@@ -523,35 +501,49 @@ mail-emailaddress[selected="true"] > .emailDisplayButton .emailStar {
   overflow: hidden;
 }
 
-/* ::::: msg headers list of messageid, in-reply-to, references ::::: */
-
-.toggle-list-container {
-  display: inline-flex;
+mail-messageids-headerfield {
+  display: flex;
+  align-items: baseline;
 }
 
-.toggle-list-container > .toggle-list-button {
-  display: inline-block;
-  margin-inline: -4px 2px;
-  align-self: baseline;
+mail-messageids-headerfield button.email-action-button {
+  margin-inline: 0 2px;
 }
 
-.toggle-list-button > img {
+.emailToggleHeaderfield {
+  margin-block: auto;
+  background: url("chrome://global/skin/icons/arrow-right-12.svg") no-repeat center;
+  background-size: contain;
   -moz-context-properties: fill;
   fill: currentColor;
+  width: 10px;
+  height: 10px;
 }
 
-.toggle-list-button:-moz-locale-dir(rtl) > img {
+.emailToggleHeaderfield:-moz-locale-dir(rtl) {
   transform: rotate(180deg);
 }
 
-.toggle-list-button.open > img {
+.emailToggleHeaderfield.open {
   transform: rotate(90deg);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .toggle-list-button > img {
+  .emailToggleHeaderfield {
     transition: transform 200ms ease;
   }
+}
+
+mail-headerfield {
+  -moz-user-focus: normal;
+  user-select: text;
+  word-wrap: anywhere;
+  display: inherit;
+}
+
+mail-headerfield:focus-visible:not(:hover) {
+  outline: 1px solid var(--focus-outline-color);
+  outline-offset: -1px;
 }
 
 #attachmentView {
