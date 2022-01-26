@@ -1336,7 +1336,8 @@ const accessVksServer = {
           r,
           true,
           false,
-          true
+          true,
+          false
         );
         if (!keyList) {
           retObj.result = -1;

@@ -285,12 +285,19 @@ class RNPCryptoAPI extends CryptoAPI {
     return RNP.verifyDetached(signed, options);
   }
 
-  async getKeyListFromKeyBlockAPI(keyBlockStr, pubkey, seckey, permissive) {
+  async getKeyListFromKeyBlockAPI(
+    keyBlockStr,
+    pubkey,
+    seckey,
+    permissive,
+    withPubKey
+  ) {
     return RNP.getKeyListFromKeyBlockImpl(
       keyBlockStr,
       pubkey,
       seckey,
-      permissive
+      permissive,
+      withPubKey
     );
   }
 

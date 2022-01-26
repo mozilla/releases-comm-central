@@ -123,9 +123,11 @@ var EnigmailKey = {
   /**
    * Get details (key ID, UID) of the data contained in a OpenPGP key block
    *
-   * @param keyBlockStr  String: the contents of one or more public keys
-   * @param errorMsgObj  Object: obj.value will contain an error message in case of failures
-   * @param interactive  Boolean: if in interactive mode, may display dialogs (default: true)
+   * @param {string} keyBlockStr - the contents of one or more public keys
+   * @param {Object} errorMsgObj - obj.value will contain an error message in case of failures
+   * @param {Boolean} interactive - if in interactive mode, may display dialogs (default: true)
+   * @param {Boolean} pubkey - load public keys from the given block
+   * @param {Boolean} seckey - load secret keys from the given block
    *
    * @return {Object[]} an array of objects with the following structure:
    *          - id (key ID)
@@ -136,9 +138,10 @@ var EnigmailKey = {
   async getKeyListFromKeyBlock(
     keyBlockStr,
     errorMsgObj,
-    interactive = true,
+    interactive,
     pubkey,
-    seckey
+    seckey,
+    withPubKey = false
   ) {
     EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
     errorMsgObj.value = "";
@@ -181,11 +184,12 @@ var EnigmailKey = {
         keyBlockStr,
         pubkey,
         seckey,
-        true
+        true,
+        withPubKey
       );
     } catch (ex) {
       errorMsgObj.value = ex.toString();
-      if (updateCache) {
+      if (updateCache && !withPubKey) {
         this._keyListCache.set(keyBlockStr, {
           error: errorMsgObj.value,
           data: null,
@@ -228,14 +232,21 @@ var EnigmailKey = {
    *
    * @return {Object[]} An array of objects; see getKeyListFromKeyBlock()
    */
-  async getKeyListFromKeyFile(file, errorMsgObj, pubkey, seckey) {
+  async getKeyListFromKeyFile(
+    file,
+    errorMsgObj,
+    pubkey,
+    seckey,
+    withPubKey = false
+  ) {
     let contents = await IOUtils.readUTF8(file.path);
     return this.getKeyListFromKeyBlock(
       contents,
       errorMsgObj,
       true,
       pubkey,
-      seckey
+      seckey,
+      withPubKey
     );
   },
 

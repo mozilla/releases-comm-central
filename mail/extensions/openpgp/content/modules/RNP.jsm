@@ -201,12 +201,36 @@ var RNP = {
     return RNPLib.protectUnprotectedKeys();
   },
 
-  /* Some consumers want a different listing of keys, and expect
-   * slightly different attribute names...
-   * If forListing is true, we'll set those additional attributes
-   * If onlyKeys is given: only returns keys in that array
+  /**
+   * This function inspects the keys contained in the RNP space "ffi",
+   * and returns objects of type KeyObj that describe the keys.
+   *
+   * Some consumers want a different listing of keys, and expect
+   * slightly different attribute names.
+   * If forListing is true, we'll set those additional attributes.
+   * If onlyKeys is given: only returns keys in that array.
+   *
+   * @param {rnp_ffi_t} ffi - RNP library handle to key storage area
+   * @param {Boolean} forListing - Request additional attributes
+   *   in the returned objects, for backwards compatibility.
+   * @param {String[]} onlyKeys - An array of key IDs or fingerprints.
+   *   If non-null, only the given elements will be returned.
+   *   If null, all elements are returned.
+   * @param {Boolean} onlySecret - If true, only information for
+   *   available secret keys is returned.
+   * @param {Boolean} withPubKey - If true, an additional attribute
+   *   "pubKey" will be added to each returned KeyObj, which will
+   *   contain an ascii armor copy of the public key.
+   * @returns {KeyObj[]} - An array of KeyObj objects that describe the
+   *                       available keys.
    */
-  async getKeysFromFFI(ffi, forListing, onlyKeys = null, onlySecret = false) {
+  async getKeysFromFFI(
+    ffi,
+    forListing,
+    onlyKeys = null,
+    onlySecret = false,
+    withPubKey = false
+  ) {
     if (!!onlyKeys && onlySecret) {
       throw new Error(
         "filtering by both white list and only secret keys isn't supported"
@@ -240,6 +264,12 @@ var RNP = {
         }
 
         if (keyObj) {
+          if (withPubKey) {
+            let pubKey = await this.getPublicKey("0x" + keyObj.id, ffi);
+            if (pubKey) {
+              keyObj.pubKey = pubKey;
+            }
+          }
           keys.push(keyObj);
         }
       }
@@ -291,13 +321,17 @@ var RNP = {
         }
 
         if (keyObj) {
+          if (withPubKey) {
+            let pubKey = await this.getPublicKey("0x" + keyObj.id, ffi);
+            if (pubKey) {
+              keyObj.pubKey = pubKey;
+            }
+          }
           keys.push(keyObj);
         }
       }
-
       RNPLib.rnp_identifier_iterator_destroy(iter);
     }
-
     return keys;
   },
 
@@ -1645,7 +1679,8 @@ var RNP = {
     keyBlockStr,
     pubkey = true,
     seckey = false,
-    permissive = true
+    permissive = true,
+    withPubKey = false
   ) {
     if (!keyBlockStr) {
       throw new Error(`Invalid parameter; keyblock: ${keyBlockStr}`);
@@ -1662,7 +1697,13 @@ var RNP = {
 
     let keyList = null;
     if (!this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey, permissive)) {
-      keyList = await this.getKeysFromFFI(tempFFI, true);
+      keyList = await this.getKeysFromFFI(
+        tempFFI,
+        true,
+        null,
+        false,
+        withPubKey
+      );
     }
 
     RNPLib.rnp_ffi_destroy(tempFFI);

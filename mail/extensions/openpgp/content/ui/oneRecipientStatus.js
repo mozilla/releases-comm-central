@@ -12,6 +12,9 @@ var EnigmailKeyRing = ChromeUtils.import(
 var { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
 );
+var { EnigmailDialog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/dialog.jsm"
+);
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
@@ -149,7 +152,17 @@ function viewSelectedKey() {
 }
 
 async function discoverKey() {
-  if (await KeyLookupHelper.lookupAndImportByEmail(window, gAddr, true)) {
+  let keyIds = gRowToKey;
+  let foundNewData = await KeyLookupHelper.fullOnlineDiscovery(
+    "interactive-import",
+    window,
+    gAddr,
+    keyIds
+  );
+  if (foundNewData) {
     reloadAndSelect();
+  } else {
+    let value = await document.l10n.formatValue("no-key-found");
+    EnigmailDialog.alert(window, value);
   }
 }

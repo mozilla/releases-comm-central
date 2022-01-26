@@ -27,7 +27,12 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
 });
 
 var KeyLookupHelper = {
-  async lookupAndImportOnKeyserver(window, identifier, giveFeedbackToUser) {
+  async lookupAndImportOnKeyserver(
+    mode,
+    window,
+    identifier,
+    giveFeedbackToUser
+  ) {
     let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
     if (!defKs) {
       return false;
@@ -36,36 +41,71 @@ var KeyLookupHelper = {
     let somethingWasImported = false;
     let vks = await EnigmailKeyServer.downloadNoImport(identifier, defKs);
     if (vks && "keyData" in vks) {
+      let errorInfo = {};
       let keyList = await EnigmailKey.getKeyListFromKeyBlock(
         vks.keyData,
-        {},
+        errorInfo,
         false,
         true,
         false
       );
       if (keyList) {
-        somethingWasImported = EnigmailKeyRing.importKeyDataWithConfirmation(
-          window,
-          keyList,
-          vks.keyData,
-          true
-        );
-        if (!somethingWasImported) {
-          let db = await CollectedKeysDB.getInstance();
-          for (let newKey of keyList) {
-            // If key is known in the db: merge + update.
-            let key = await db.mergeExisting(newKey, vks.keyData, {
-              uri: EnigmailKeyServer.serverReqURL(`0x${newKey.fpr}`, defKs),
-              type: "keyserver",
-            });
-            await db.storeKey(key);
+        if (keyList.length != 1) {
+          throw new Error(
+            "Unexpected multiple results from verifying keyserver."
+          );
+        }
+
+        let oldKey = EnigmailKeyRing.getKeyById(keyList[0].fpr);
+        if (oldKey) {
+          await EnigmailKeyRing.importKeyDataSilent(
+            window,
+            vks.keyData,
+            true,
+            "0x" + keyList[0].fpr
+          );
+
+          let updatedKey = EnigmailKeyRing.getKeyById(keyList[0].fpr);
+          // If new imported/merged key is equal to old key,
+          // don't notify about new keys details.
+          if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
+            somethingWasImported = true;
+            if (mode == "interactive-import") {
+              EnigmailDialog.keyImportDlg(
+                window,
+                keyList.map(a => a.id)
+              );
+            }
+          }
+        } else {
+          if (mode == "interactive-import") {
+            somethingWasImported = await EnigmailKeyRing.importKeyDataWithConfirmation(
+              window,
+              keyList,
+              vks.keyData,
+              true
+            );
+          }
+          if (!somethingWasImported) {
+            let db = await CollectedKeysDB.getInstance();
+            for (let newKey of keyList) {
+              // If key is known in the db: merge + update.
+              let key = await db.mergeExisting(newKey, vks.keyData, {
+                uri: EnigmailKeyServer.serverReqURL(`0x${newKey.fpr}`, defKs),
+                type: "keyserver",
+              });
+              await db.storeKey(key);
+            }
+            somethingWasImported = true;
           }
         }
       } else {
-        EnigmailDialog.alert(window, await l10n.formatValue("preview-failed"));
+        console.log(
+          "failed to process data retrieved from keyserver: " + errorInfo.value
+        );
       }
     } else {
-      console.debug("searchKeysOnInternet no data in keys.openpgp.org");
+      console.debug("searchKeysOnInternet no data found on keyserver");
     }
 
     return somethingWasImported;
@@ -76,53 +116,174 @@ var KeyLookupHelper = {
    * @param {boolean} giveFeedbackToUser - Whether to show feedback to user or handle it silently.
    * @return {boolean} true if a key was imported
    */
-  async lookupAndImportBySearchTerm(window, searchTerm, giveFeedbackToUser) {
+  async lookupAndImportBySearchTerm(
+    mode,
+    window,
+    searchTerm,
+    giveFeedbackToUser
+  ) {
     let somethingWasImported = await this.lookupAndImportOnKeyserver(
+      mode,
       window,
       searchTerm,
       giveFeedbackToUser
     );
-    if (!somethingWasImported) {
+    return somethingWasImported;
+  },
+
+  async lookupAndImportByKeyID(mode, window, keyId, giveFeedbackToUser) {
+    if (!/^0x/i.test(keyId)) {
+      keyId = "0x" + keyId;
+    }
+    let somethingWasImported = await this.lookupAndImportBySearchTerm(
+      mode,
+      window,
+      keyId,
+      giveFeedbackToUser
+    );
+    if (
+      mode == "interactive-import" &&
+      giveFeedbackToUser &&
+      !somethingWasImported
+    ) {
       let value = await l10n.formatValue("no-key-found");
       EnigmailDialog.alert(window, value);
     }
     return somethingWasImported;
   },
 
-  async lookupAndImportByKeyID(window, keyId, giveFeedbackToUser) {
-    if (!/^0x/i.test(keyId)) {
-      keyId = "0x" + keyId;
-    }
-    return this.lookupAndImportBySearchTerm(window, keyId, giveFeedbackToUser);
-  },
+  async lookupAndImportByEmail(mode, window, email, giveFeedbackToUser) {
+    let somethingWasImported = false;
 
-  async lookupAndImportByEmail(window, email, giveFeedbackToUser) {
-    let wkdKeys = await EnigmailWkdLookup.downloadKey(email);
-    if (!wkdKeys) {
+    let wkdResult;
+    let wkdUrl;
+    if (EnigmailWkdLookup.isWkdAvailable(email)) {
+      wkdUrl = await EnigmailWkdLookup.getDownloadUrlFromEmail(email, true);
+      wkdResult = await EnigmailWkdLookup.downloadKey(wkdUrl);
+      if (!wkdResult) {
+        wkdUrl = await EnigmailWkdLookup.getDownloadUrlFromEmail(email, false);
+        wkdResult = await EnigmailWkdLookup.downloadKey(wkdUrl);
+      }
+    }
+
+    if (!wkdResult) {
       console.debug("searchKeysOnInternet no wkd data for " + email);
     } else {
+      let errorInfo = {};
       let keyList = await EnigmailKey.getKeyListFromKeyBlock(
-        wkdKeys.keyData,
-        {},
+        wkdResult,
+        errorInfo,
         false,
         true,
-        false
+        false,
+        true
       );
       if (!keyList) {
-        EnigmailDialog.alert(window, await l10n.formatValue("preview-failed"));
-      } else {
-        let somethingWasImported = EnigmailKeyRing.importKeyDataWithConfirmation(
-          window,
-          keyList,
-          wkdKeys.keyData,
-          true
+        console.log(
+          "failed to process data retrieved from WKD server: " + errorInfo.value
         );
-        if (somethingWasImported) {
-          return true;
+      } else {
+        let existingKeys = [];
+        let newKeys = [];
+
+        for (let wkdKey of keyList) {
+          let oldKey = EnigmailKeyRing.getKeyById(wkdKey.fpr);
+          if (oldKey) {
+            await EnigmailKeyRing.importKeyDataSilent(
+              window,
+              wkdKey.pubKey,
+              true,
+              "0x" + wkdKey.fpr
+            );
+
+            let updatedKey = EnigmailKeyRing.getKeyById(wkdKey.fpr);
+            // If new imported/merged key is equal to old key,
+            // don't notify about new keys details.
+            if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
+              existingKeys.push(wkdKey.id);
+            }
+          } else {
+            newKeys.push(wkdKey);
+          }
+        }
+
+        if (existingKeys.length) {
+          if (mode == "interactive-import") {
+            EnigmailDialog.keyImportDlg(window, existingKeys);
+          }
+          somethingWasImported = true;
+        }
+
+        if (newKeys.length && mode == "interactive-import") {
+          somethingWasImported = await EnigmailKeyRing.importKeyArrayWithConfirmation(
+            window,
+            newKeys,
+            true
+          );
+        }
+        if (!somethingWasImported) {
+          let db = await CollectedKeysDB.getInstance();
+          for (let newKey of newKeys) {
+            // If key is known in the db: merge + update.
+            let key = await db.mergeExisting(newKey, newKey.pubKey, {
+              uri: wkdUrl,
+              type: "WKD",
+            });
+            await db.storeKey(key);
+          }
+          somethingWasImported = true;
         }
       }
     }
 
-    return this.lookupAndImportBySearchTerm(window, email, giveFeedbackToUser);
+    let somethingWasImported2 = await this.lookupAndImportBySearchTerm(
+      mode,
+      window,
+      email,
+      giveFeedbackToUser
+    );
+
+    if (
+      mode == "interactive-import" &&
+      giveFeedbackToUser &&
+      !somethingWasImported &&
+      !somethingWasImported2
+    ) {
+      let value = await l10n.formatValue("no-key-found");
+      EnigmailDialog.alert(window, value);
+    }
+
+    return somethingWasImported || somethingWasImported2;
+  },
+
+  /**
+   * This function will perform discovery of new or updated OpenPGP
+   * keys using various mechanisms.
+   *
+   * @param {string} mode - "interactive-import" or "silent-collection"
+   * @param {string} email - search for keys for this email address,
+   *                         (parameter allowed to be null or empty)
+   * @param {string[]} keyIds - KeyIDs that should be updated.
+   *                            (parameter allowed to be null or empty)
+   *
+   * @return {Boolean} - Returns true if at least one key was imported.
+   */
+  async fullOnlineDiscovery(mode, window, email, keyIds) {
+    // Try to get updates for all existing keys from keyserver,
+    // by key ID, to get updated validy/revocation info.
+    // (A revoked key on the keyserver might have no user ID.)
+    let atLeastoneImport = false;
+    if (keyIds) {
+      for (let keyId of keyIds) {
+        // Ensure the function call goes first in the logic or expression,
+        // to ensure it's always called, even if atLeastoneImport is already true.
+        let rv = await this.lookupAndImportByKeyID(mode, window, keyId, false);
+        atLeastoneImport = rv || atLeastoneImport;
+      }
+    }
+    // Now check for updated or new keys by email address
+    let rv2 = await this.lookupAndImportByEmail(mode, window, email, false);
+    atLeastoneImport = rv2 || atLeastoneImport;
+    return atLeastoneImport;
   },
 };

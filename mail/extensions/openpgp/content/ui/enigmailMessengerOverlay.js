@@ -1762,7 +1762,12 @@ Enigmail.msg = {
     if (!keyId) {
       return false;
     }
-    return KeyLookupHelper.lookupAndImportByKeyID(window, keyId, true);
+    return KeyLookupHelper.lookupAndImportByKeyID(
+      "interactive-import",
+      window,
+      keyId,
+      true
+    );
   },
 
   notifySigKeyMissing(keyId) {
@@ -2908,7 +2913,12 @@ Enigmail.msg = {
       .closest("mail-emailaddress")
       .getAttribute("emailAddress");
 
-    return KeyLookupHelper.lookupAndImportByEmail(window, address, true);
+    return KeyLookupHelper.lookupAndImportByEmail(
+      "interactive-import",
+      window,
+      address,
+      true
+    );
   },
 
   importKeyFromKeyserver() {
@@ -3384,12 +3394,12 @@ Enigmail.msg = {
       }
 
       if (
-        !EnigmailKeyRing.importKeyDataSilent(
+        !(await EnigmailKeyRing.importKeyDataSilent(
           window,
           keyData,
           isBinaryAutocrypt,
           "0x" + newKey.fpr
-        )
+        ))
       ) {
         console.debug(
           "EnigmailKeyRing.importKeyDataSilent failed 0x" + newKey.fpr

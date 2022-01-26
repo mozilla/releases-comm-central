@@ -680,12 +680,14 @@ async function enigmailSearchKey() {
   let imported = false;
   if (EnigmailFuncs.stringLooksLikeEmailAddress(result.value)) {
     imported = await KeyLookupHelper.lookupAndImportByEmail(
+      "interactive-import",
       window,
       result.value,
       true
     );
   } else {
     imported = await KeyLookupHelper.lookupAndImportByKeyID(
+      "interactive-import",
       window,
       result.value,
       true

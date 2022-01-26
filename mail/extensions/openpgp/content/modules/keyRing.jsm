@@ -921,7 +921,7 @@ var EnigmailKeyRing = {
     return result.exitCode;
   },
 
-  importKeyDataWithConfirmation(
+  async importKeyDataWithConfirmation(
     window,
     preview,
     keyData,
@@ -930,18 +930,12 @@ var EnigmailKeyRing = {
   ) {
     let somethingWasImported = false;
     if (preview.length > 0) {
-      let confirmImport = false;
       let outParam = {};
-      confirmImport = EnigmailDialog.confirmPubkeyImport(
-        window,
-        preview,
-        outParam
-      );
-      if (confirmImport) {
+      if (EnigmailDialog.confirmPubkeyImport(window, preview, outParam)) {
         let exitStatus;
         let errorMsgObj = {};
         try {
-          exitStatus = EnigmailKeyRing.importKey(
+          exitStatus = await EnigmailKeyRing.importKeyAsync(
             window,
             false,
             keyData,
@@ -978,11 +972,70 @@ var EnigmailKeyRing = {
     return somethingWasImported;
   },
 
-  importKeyDataSilent(window, keyData, isBinary, onlyFingerprint = "") {
+  async importKeyArrayWithConfirmation(
+    window,
+    keyArray,
+    isBinary,
+    limitedUids = []
+  ) {
+    let somethingWasImported = false;
+    if (keyArray.length > 0) {
+      let outParam = {};
+      if (EnigmailDialog.confirmPubkeyImport(window, keyArray, outParam)) {
+        let importedKeys = [];
+        let allErrors = "";
+        for (let key of keyArray) {
+          let exitStatus;
+          let errorMsgObj = {};
+          try {
+            exitStatus = await EnigmailKeyRing.importKeyAsync(
+              window,
+              false,
+              key.pubKey,
+              isBinary,
+              "",
+              errorMsgObj,
+              null,
+              false,
+              limitedUids,
+              false,
+              true,
+              null,
+              outParam.acceptance
+            );
+          } catch (ex) {
+            console.debug(ex);
+          }
+
+          if (exitStatus === 0) {
+            importedKeys.push(key.id);
+          } else {
+            allErrors += "\n" + errorMsgObj.value;
+          }
+        }
+
+        if (importedKeys.length) {
+          EnigmailDialog.keyImportDlg(window, importedKeys);
+          somethingWasImported = true;
+        } else {
+          l10n.formatValue("fail-key-import").then(value => {
+            EnigmailDialog.alert(window, value + allErrors);
+          });
+        }
+      }
+    } else {
+      l10n.formatValue("no-key-found").then(value => {
+        EnigmailDialog.alert(window, value);
+      });
+    }
+    return somethingWasImported;
+  },
+
+  async importKeyDataSilent(window, keyData, isBinary, onlyFingerprint = "") {
     let errorMsgObj = {};
     let exitStatus = -1;
     try {
-      exitStatus = EnigmailKeyRing.importKey(
+      exitStatus = await EnigmailKeyRing.importKeyAsync(
         window,
         false,
         keyData,
@@ -993,6 +1046,7 @@ var EnigmailKeyRing = {
         false,
         onlyFingerprint ? [onlyFingerprint] : []
       );
+      this.clearCache();
     } catch (ex) {
       console.debug(ex);
     }

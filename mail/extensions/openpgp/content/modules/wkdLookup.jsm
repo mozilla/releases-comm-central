@@ -18,7 +18,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   DNS: "resource:///modules/DNS.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailSqliteDb: "chrome://openpgp/content/modules/sqliteDb.jsm",
   EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.jsm",
@@ -27,7 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 Cu.importGlobalProperties(["fetch"]);
 
 // Those domains are not expected to have WKD:
-var BLACKLIST_DOMAINS = [
+var EXCLUDE_DOMAINS = [
   /* Default domains included */
   "aol.com",
   "att.net",
@@ -214,6 +213,7 @@ var EnigmailWkdLookup = {
    *
    * @return {Promise<Boolean>}: true - new keys found
    */
+  /*
   findKeys(emails) {
     return new Promise((resolve, reject) => {
       EnigmailLog.DEBUG("wkdLookup.jsm: findKeys(" + emails.join(",") + ")\n");
@@ -306,6 +306,7 @@ var EnigmailWkdLookup = {
         });
     });
   },
+  */
 
   /**
    * Determine for an email address when we last attempted to
@@ -346,7 +347,6 @@ var EnigmailWkdLookup = {
    *
    * @return {Promise<String>}: URL (or null if not possible)
    */
-
   async getDownloadUrlFromEmail(email, advancedMethod) {
     email = email.toLowerCase().trim();
 
@@ -401,36 +401,11 @@ var EnigmailWkdLookup = {
    * Download a key for an email address
    *
    * @param {String} email: email address
+   * @param {String} url: url from getDownloadUrlFromEmail()
    *
    * @return {Promise<String>}: Key data (or null if not possible)
    */
-  async downloadKey(email) {
-    EnigmailLog.DEBUG("wkdLookup.jsm: downloadKey(" + email + ")\n");
-
-    if (!this.isWkdAvailable(email)) {
-      EnigmailLog.DEBUG("wkdLookup.jsm: downloadKey: no WKD for the domain\n");
-      return null;
-    }
-
-    let keyData = await this.doWkdKeyDownload(email, true);
-
-    if (!keyData) {
-      keyData = await this.doWkdKeyDownload(email, false);
-    }
-
-    return keyData;
-  },
-
-  async doWkdKeyDownload(email, advancedMethod) {
-    EnigmailLog.DEBUG(
-      `wkdLookup.jsm: doWkdKeyDownload(${email}, ${advancedMethod})\n`
-    );
-
-    let url = await EnigmailWkdLookup.getDownloadUrlFromEmail(
-      email,
-      advancedMethod
-    );
-
+  async downloadKey(url) {
     let padLen = (url.length % 512) + 1;
     let hdrs = new Headers({
       Authorization: "Basic " + btoa("no-user:"),
@@ -449,16 +424,14 @@ var EnigmailWkdLookup = {
 
     let response;
     try {
-      EnigmailLog.DEBUG(
-        "wkdLookup.jsm: doWkdKeyDownload: requesting " + url + "\n"
-      );
+      EnigmailLog.DEBUG("wkdLookup.jsm: downloadKey: requesting " + url + "\n");
       response = await fetch(myRequest);
       if (!response.ok) {
         return null;
       }
     } catch (ex) {
       EnigmailLog.DEBUG(
-        "wkdLookup.jsm: doWkdKeyDownload: error " + ex.toString() + "\n"
+        "wkdLookup.jsm: downloadKey: error " + ex.toString() + "\n"
       );
       return null;
     }
@@ -471,19 +444,12 @@ var EnigmailWkdLookup = {
         // if we get HTML output, we return nothing (for example redirects to error catching pages)
         return null;
       }
-      let keyData = EnigmailData.arrayBufferToString(
+      return EnigmailData.arrayBufferToString(
         Cu.cloneInto(await response.arrayBuffer(), this)
       );
-      EnigmailLog.DEBUG(
-        `wkdLookup.jsm: doWkdKeyDownload: got data for ${email}\n`
-      );
-      return {
-        email,
-        keyData,
-      };
     } catch (ex) {
       EnigmailLog.DEBUG(
-        "wkdLookup.jsm: doWkdKeyDownload: error " + ex.toString() + "\n"
+        "wkdLookup.jsm: downloadKey: error " + ex.toString() + "\n"
       );
       return null;
     }
@@ -492,7 +458,7 @@ var EnigmailWkdLookup = {
   isWkdAvailable(email) {
     let domain = email.toLowerCase().replace(/^.*@/, "");
 
-    return !BLACKLIST_DOMAINS.includes(domain);
+    return !EXCLUDE_DOMAINS.includes(domain);
   },
 };
 
