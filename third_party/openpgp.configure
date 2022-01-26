@@ -291,27 +291,3 @@ def clang_rt_builtins(compiler_info, target):
 
 set_config("COMPILER_RT_BUILTIN_PATH", clang_rt_builtins.clang_rt_path, when=is_windows)
 set_config("COMPILER_RT_BUILTIN_LIB", clang_rt_builtins.clang_rt_lib, when=is_windows)
-
-
-@depends(c_compiler, cxx_compiler, when=compile_environment)
-def rnp_compiler(c_compiler, cxx_compiler):
-    # Replace -std=gnu++17 or -std=c++17 with -std=gnu++11 or -std=c++11
-    _cxxflags = []
-    for f in cxx_compiler.flags:
-        if f == "-std=c++17":
-            _cxxflags.append("-std=c++14")
-        elif f == "-std=gnu++17":
-            _cxxflags.append("-std=gnu++11")
-        else:
-            _cxxflags.append(f)
-
-    rnp_cc = " ".join(
-        list(c_compiler.wrapper) + [c_compiler.compiler] + c_compiler.flags
-    )
-    rnp_cxx = " ".join(list(cxx_compiler.wrapper) + [cxx_compiler.compiler] + _cxxflags)
-
-    return namespace(rnp_cc=rnp_cc, rnp_cxx=rnp_cxx)
-
-
-set_config("MZLA_RNP_CC", rnp_compiler.rnp_cc)
-set_config("MZLA_RNP_CXX", rnp_compiler.rnp_cxx)

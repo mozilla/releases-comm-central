@@ -44,7 +44,7 @@ if CONFIG['COMPILE_ENVIRONMENT']:
     botan_build = GENERATED_FILES['build/build.h']
     botan_build.script = 'botan_configure.py'
     botan_build.flags = [
-        '--cc-bin={}'.format(CONFIG['MZLA_RNP_CXX']),
+        '--cc-bin={}'.format(CONFIG['CXX']),
         '--cpu={}'.format(CONFIG['target_cpu']),
         '--os={}'.format(botan_os),
         '--with-build-dir={}'.format(OBJDIR),
