@@ -4,6 +4,10 @@
 
 /* import-globals-from ../../../mail/base/content/folderPane.js */
 
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+
+window.addEventListener("DOMContentLoaded", () => { gSelectVirtual.load(); });
+
 var gSelectVirtual = {
   _treeElement: null,
   _selectedList: new Set(),

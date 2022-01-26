@@ -168,8 +168,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 /* virtual folder list dialog */
-
-:root[windowtype="mailnews:virtualFolderList"]:not(:-moz-lwtheme) {
+#virtualFolderList:not(:-moz-lwtheme) {
   background-color: -moz-dialog;
 }
 

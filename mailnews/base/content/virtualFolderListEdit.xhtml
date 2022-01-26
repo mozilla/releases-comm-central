@@ -8,30 +8,31 @@
 <?xml-stylesheet href="chrome://messenger/skin/mailWindow1.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/virtualFolderListDialog.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/virtualFolderListDialog.dtd">
 
-<window id="searchFolderWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&virtualFolderListTitle.title;"
-        windowtype="mailnews:virtualFolderList"
-        style="width: 27em; height: 25em;"
-        persist="width height screenX screenY"
-        lightweightthemes="true"
-        onload="gSelectVirtual.load();">
-<dialog>
-  <script src="chrome://messenger/content/virtualFolderListEdit.js"/>
-  <script src="chrome://messenger/content/folderPane.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+<html id="virtualFolderList" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      persist="width height screenX screenY"
+      width="400" height="370"
+      windowtype="mailnews:virtualFolderList"
+      scrolling="false">
+<head>
+  <title>&virtualFolderListTitle.title;</title>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/folderPane.js"></script>
+  <script defer="defer" src="chrome://messenger/content/virtualFolderListEdit.js"></script>
+  <style id="folderColorsStyle"></style>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <dialog>
+    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
-  <html:style id="folderColorsStyle" type="text/css"></html:style>
-
-  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-
-  <label control="folderPickerTree">&virtualFolderDesc.label;</label>
-
+    <label control="folderPickerTree">&virtualFolderDesc.label;</label>
     <tree id="folderPickerTree"
           flex="1"
+          style="height:290px;"
           hidecolumnpicker="true"
           seltype="multiple"
           disableKeyNavigation="true"
@@ -44,8 +45,8 @@
                  flex="10" primary="true" crop="center"/>
         <treecol id="selectedCol" label="&folderSearch.label;" flex="1" cycler="true"/>
       </treecols>
-
       <treechildren/>
     </tree>
-</dialog>
-</window>
+  </dialog>
+</html:body>
+</html>
