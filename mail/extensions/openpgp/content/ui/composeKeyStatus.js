@@ -71,8 +71,15 @@ async function setListEntries() {
         );
       }
     } else {
+      // We ask to include keys which are expired, because that's what
+      // our sub dialog oneRecipientStatus needs. This is for
+      // efficiency - because otherwise the sub dialog would have to
+      // query all keys again.
+      // The consequence is, we need to later call isValidForEncryption
+      // for the keys we have obtained, to confirm they are really valid.
       let foundKeys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(
-        addr
+        addr,
+        true
       );
       if (!foundKeys || !foundKeys.length) {
         statusStringID = "openpgp-recip-missing";
@@ -87,8 +94,9 @@ async function setListEntries() {
           }
           if (
             goodPersonal ||
-            keyObj.acceptance == "verified" ||
-            keyObj.acceptance == "unverified"
+            (EnigmailKeyRing.isValidForEncryption(keyObj) &&
+              (keyObj.acceptance == "verified" ||
+                keyObj.acceptance == "unverified"))
           ) {
             statusStringID = "openpgp-recip-good";
             break;

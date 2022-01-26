@@ -35,7 +35,7 @@ async function setListEntries(keys = null) {
   let index = 0;
 
   if (!keys) {
-    keys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(gAddr);
+    keys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(gAddr, true);
   }
 
   for (let keyObj of keys) {
@@ -48,7 +48,13 @@ async function setListEntries(keys = null) {
     listitem.appendChild(keyId);
 
     let acceptanceText;
-    if (keyObj.secretAvailable) {
+
+    // Further above, we called getMultValidKeysForOneRecipient
+    // and asked to ignore if a key is expired.
+    // If the following check fails, the key must be expired.
+    if (!EnigmailKeyRing.isValidForEncryption(keyObj)) {
+      acceptanceText = "openpgp-key-expired";
+    } else if (keyObj.secretAvailable) {
       if (await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr)) {
         acceptanceText = "openpgp-key-own";
       } else {

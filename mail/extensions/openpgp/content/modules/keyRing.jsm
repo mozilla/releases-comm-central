@@ -1085,17 +1085,21 @@ var EnigmailKeyRing = {
   },
 
   isValidForEncryption(keyObj) {
-    return this._getValidityLevelIgnoringAcceptance(keyObj, null) == 0;
+    return this._getValidityLevelIgnoringAcceptance(keyObj, null, false) == 0;
   },
 
   // returns an acceptanceLevel from -1 to 3,
   // or -2 for "doesn't match email" or "not usable"
-  async isValidKeyForRecipient(keyObj, emailAddr) {
+  async isValidKeyForRecipient(keyObj, emailAddr, allowExpired) {
     if (!emailAddr) {
       return -2;
     }
 
-    let level = this._getValidityLevelIgnoringAcceptance(keyObj, emailAddr);
+    let level = this._getValidityLevelIgnoringAcceptance(
+      keyObj,
+      emailAddr,
+      allowExpired
+    );
     if (level < 0) {
       return level;
     }
@@ -1113,11 +1117,13 @@ var EnigmailKeyRing = {
    * @return {Integer} - validity level, negative for invalid,
    *                     0 if no problem were found (neutral)
    */
-  _getValidityLevelIgnoringAcceptance(keyObj, emailAddr) {
-    switch (keyObj.keyTrust) {
-      case "e":
-      case "r":
-        return -2;
+  _getValidityLevelIgnoringAcceptance(keyObj, emailAddr, allowExpired) {
+    if (keyObj.keyTrust == "r") {
+      return -2;
+    }
+
+    if (keyObj.keyTrust == "e" && !allowExpired) {
+      return -2;
     }
 
     if (emailAddr) {
@@ -1152,10 +1158,11 @@ var EnigmailKeyRing = {
     let foundGoodEnc = keyObj.keyUseFor.match(/e/);
     if (!foundGoodEnc) {
       for (let aSub of keyObj.subKeys) {
-        switch (aSub.keyTrust) {
-          case "e":
-          case "r":
-            continue;
+        if (aSub.keyTrust == "r") {
+          continue;
+        }
+        if (aSub.keyTrust == "e" && !allowExpired) {
+          continue;
         }
         if (aSub.keyUseFor.match(/e/)) {
           foundGoodEnc = true;
@@ -1214,7 +1221,8 @@ var EnigmailKeyRing = {
     for (let keyObj of keyList) {
       let acceptanceLevel = await this.isValidKeyForRecipient(
         keyObj,
-        emailAddr
+        emailAddr,
+        false
       );
 
       // immediately return as best match, if a fully or ultimately
@@ -1449,7 +1457,7 @@ var EnigmailKeyRing = {
     return keyMissing;
   },
 
-  async getMultValidKeysForOneRecipient(emailAddr) {
+  async getMultValidKeysForOneRecipient(emailAddr, allowExpired = false) {
     EnigmailLog.DEBUG(
       'keyRing.jsm: getMultValidKeysForOneRecipient(): emailAddr="' +
         emailAddr +
@@ -1468,7 +1476,8 @@ var EnigmailKeyRing = {
     for (let keyObj of keyList) {
       let acceptanceLevel = await this.isValidKeyForRecipient(
         keyObj,
-        emailAddr
+        emailAddr,
+        allowExpired
       );
       if (acceptanceLevel < -1) {
         continue;
