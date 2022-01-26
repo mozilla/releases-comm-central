@@ -9,20 +9,11 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { BaseProfileImporter } = ChromeUtils.import(
+  "resource:///modules/BaseProfileImporter.jsm"
+);
 
 /**
- * An object to represent a source profile to import from.
- * @typedef {Object} SourceProfile
- * @property {string} name - The profile name.
- * @property {nsIFile} dir - The profile location.
- *
- * An object to represent items to import.
- * @typedef {Object} ImportItems
- * @property {boolean} accounts - Whether to import accounts and settings.
- * @property {boolean} addressBooks - Whether to import address books.
- * @property {boolean} calendars - Whether to import calendars.
- * @property {boolean} mailMessages - Whether to import mail messages.
- *
  * A pref is represented as [type, name, value].
  * @typedef {["Bool"|"Char"|"Int", string, number|string|boolean]} PrefItem
  *
@@ -70,21 +61,10 @@ const IGNORE_PREFS = [
 ];
 
 /**
- * A class that can import things from another thunderbird profile dir into the
+ * A module to import things from another thunderbird profile dir into the
  * current profile.
  */
-class ThunderbirdProfileImporter {
-  useFilePicker = true;
-
-  /** @type ImportItems */
-  supportedItems = {
-    accounts: true,
-    addressBooks: true,
-    calendars: true,
-    mailMessages: true,
-  };
-
-  /** When importing from a zip file, ignoring these folders. */
+class ThunderbirdProfileImporter extends BaseProfileImporter {
   IGNORE_DIRS = [
     "chrome_debugger_profile",
     "crashes",
@@ -99,23 +79,7 @@ class ThunderbirdProfileImporter {
     "xulstore",
   ];
 
-  /**
-   * Callback for progress updates.
-   * @param {number} current - Current imported items count.
-   * @param {number} total - Total items count.
-   */
-  onProgress = () => {};
-
-  _logger = console.createInstance({
-    prefix: "mail.import",
-    maxLogLevel: "Warn",
-    maxLogLevelPref: "mail.import.loglevel",
-  });
-
-  /**
-   * @type {SourceProfile[]} - Other thunderbird profiles found on this machine.
-   */
-  get sourceProfiles() {
+  async getSourceProfiles() {
     let profileService = Cc[
       "@mozilla.org/toolkit/profile-service;1"
     ].getService(Ci.nsIToolkitProfileService);
@@ -132,19 +96,6 @@ class ThunderbirdProfileImporter {
     return sourceProfiles;
   }
 
-  /**
-   * Increase _itemsImportedCount by one, and call onProgress.
-   */
-  async _updateProgress() {
-    this.onProgress(++this._itemsImportedCount, this._itemsTotalCount);
-    return new Promise(resolve => setTimeout(resolve));
-  }
-
-  /**
-   * Actually start importing things to the current profile.
-   * @param {nsIFile} sourceProfileDir - The source location to import from.
-   * @param {ImportItems} items - The items to import.
-   */
   async startImport(sourceProfileDir, items) {
     this._logger.debug(
       `Start importing from ${sourceProfileDir.path}, items=${JSON.stringify(
@@ -186,6 +137,14 @@ class ThunderbirdProfileImporter {
     }
 
     await this._updateProgress();
+  }
+
+  /**
+   * Increase _itemsImportedCount by one, and call onProgress.
+   */
+  async _updateProgress() {
+    this.onProgress(++this._itemsImportedCount, this._itemsTotalCount);
+    return new Promise(resolve => setTimeout(resolve));
   }
 
   /**
@@ -643,10 +602,13 @@ class ThunderbirdProfileImporter {
     }
     let localRootDir = localServer.rootMsgFolder.filePath;
 
-    // Import ImapMail folders.
+    // Import mail folders.
     for (let name of ["ImapMail", "News", "Mail"]) {
       let sourceDir = this._sourceProfileDir.clone();
       sourceDir.append(name);
+      if (!sourceDir.exists()) {
+        continue;
+      }
 
       for (let entry of sourceDir.directoryEntries) {
         if (entry.isDirectory()) {
@@ -732,6 +694,10 @@ class ThunderbirdProfileImporter {
       }
 
       let newName = `${newKey}${name.slice(key.length)}`;
+      if (newName.endsWith(".dirType") && value == 2) {
+        // dirType=2 is a Mab file, we will migrate it in _copyAddressBookDatabases.
+        value = Ci.nsIAbManager.JS_DIRECTORY_TYPE;
+      }
       branch[`set${type}Pref`](newName, value);
     }
 
@@ -761,6 +727,8 @@ class ThunderbirdProfileImporter {
    *   book key to new address book key.
    */
   _copyAddressBookDatabases(keyMap) {
+    let hasMabFile = false;
+
     // Copy user created address books.
     for (let key of keyMap.values()) {
       let branch = Services.prefs.getBranch(`${ADDRESS_BOOK}${key}.`);
@@ -777,19 +745,34 @@ class ThunderbirdProfileImporter {
         continue;
       }
 
+      let leafName = sourceFile.leafName;
+      let isMabFile = leafName.endsWith(".mab");
+      if (isMabFile) {
+        leafName = leafName.slice(0, -4) + ".sqlite";
+        hasMabFile = true;
+      }
       let targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       targetFile.append(sourceFile.leafName);
       targetFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
       this._logger.debug(`Copying ${sourceFile.path} to ${targetFile.path}`);
-      sourceFile.copyTo(targetFile.parent, targetFile.leafName);
+      if (isMabFile) {
+        this._migrateMabToSqlite(sourceFile, targetFile);
+      } else {
+        sourceFile.copyTo(targetFile.parent, targetFile.leafName);
+      }
 
       branch.setCharPref("filename", targetFile.leafName);
     }
 
-    // Copy or import Personal Address Book.
-    this._importAddressBookDatabase("abook.sqlite");
-    // Copy or import Collected Addresses.
-    this._importAddressBookDatabase("history.sqlite");
+    if (hasMabFile) {
+      this._importMorkDatabase("abook");
+      this._importMorkDatabase("history");
+    } else {
+      // Copy or import Personal Address Book.
+      this._importAddressBookDatabase("abook.sqlite");
+      // Copy or import Collected Addresses.
+      this._importAddressBookDatabase("history.sqlite");
+    }
   }
 
   /**
@@ -827,6 +810,55 @@ class ThunderbirdProfileImporter {
     }
 
     MailServices.ab.deleteAddressBook(tmpDirectory.URI);
+  }
+
+  /**
+   * Migrate an address book .mab file to a .sqlite file.
+   * @param {nsIFile} sourceMabFile - The source .mab file.
+   * @param {nsIFile} targetSqliteFile - The target .sqlite file, should already
+   *   exists in the profile dir.
+   */
+  _migrateMabToSqlite(sourceMabFile, targetSqliteFile) {
+    // It's better to use MailServices.ab.getDirectory, but we need to refresh
+    // AddrBookManager first.
+    let targetDirectory = Cc[
+      "@mozilla.org/addressbook/directory;1?type=jsaddrbook"
+    ].createInstance(Ci.nsIAbDirectory);
+    targetDirectory.init(`jsaddrbook://${targetSqliteFile.leafName}`);
+    let importMab = Cc[
+      "@mozilla.org/import/import-ab-file;1?type=mab"
+    ].createInstance(Ci.nsIImportABFile);
+    importMab.readFileToDirectory(sourceMabFile, targetDirectory);
+  }
+
+  /**
+   * Import pab/history address book from mab file into the corresponding sqlite
+   *   file.
+   * @param {string} basename - The filename without extension, e.g. "abook".
+   */
+  _importMorkDatabase(basename) {
+    this._logger.debug(`Importing ${basename}.mab into ${basename}.sqlite`);
+
+    let sourceMabFile = this._sourceProfileDir.clone();
+    sourceMabFile.append(`${basename}.mab`);
+    if (!sourceMabFile.exists()) {
+      return;
+    }
+
+    let targetDirectory;
+    try {
+      targetDirectory = MailServices.ab.getDirectory(
+        `jsaddrbook://${basename}.sqlite`
+      );
+    } catch (e) {
+      this._logger.warn(`Failed to open ${basename}.sqlite`, e);
+      return;
+    }
+
+    let importMab = Cc[
+      "@mozilla.org/import/import-ab-file;1?type=mab"
+    ].createInstance(Ci.nsIImportABFile);
+    importMab.readFileToDirectory(sourceMabFile, targetDirectory);
   }
 
   /**

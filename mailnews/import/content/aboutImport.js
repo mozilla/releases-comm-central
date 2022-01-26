@@ -58,6 +58,7 @@ class ProfileImporterController extends ImporterController {
    */
   _sourceModules = {
     Thunderbird: "ThunderbirdProfileImporter",
+    Seamonkey: "SeamonkeyProfileImporter",
   };
 
   /**
@@ -121,11 +122,11 @@ class ProfileImporterController extends ImporterController {
     let module = ChromeUtils.import(`resource:///modules/${sourceModule}.jsm`);
     this._importer = new module[sourceModule]();
 
-    let sourceProfiles = this._importer.sourceProfiles;
-    if (sourceProfiles.length > 1 || this._importer.useFilePicker) {
+    let sourceProfiles = await this._importer.getSourceProfiles();
+    if (sourceProfiles.length > 1 || this._importer.USE_FILE_PICKER) {
       this._skipProfilesPane = false;
       // Let the user pick a profile if there are multiple options.
-      this._showProfiles(sourceProfiles, this._importer.useFilePicker);
+      this._showProfiles(sourceProfiles, this._importer.USE_FILE_PICKER);
     } else if (sourceProfiles.length == 1) {
       this._skipProfilesPane = true;
       // Let the user pick what to import.
@@ -254,7 +255,7 @@ class ProfileImporterController extends ImporterController {
     this._sourceProfile = profile;
     document.getElementById("appSourceProfilePath").textContent =
       profile.dir.path;
-    this._setItemsChecked(this._importer.supportedItems);
+    this._setItemsChecked(this._importer.SUPPORTED_ITEMS);
     this.showPane("items");
   }
 
