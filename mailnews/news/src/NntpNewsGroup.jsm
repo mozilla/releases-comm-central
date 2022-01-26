@@ -21,7 +21,7 @@ class NntpNewsGroup {
   constructor(server, folder) {
     this._server = server;
     this._folder = folder;
-    this._db = this._folder.getDatabaseWithoutCache();
+    this._db = this._folder.msgDatabase;
     this._msgHdrs = [];
   }
 
@@ -41,7 +41,7 @@ class NntpNewsGroup {
    * @returns {[number, number]} A tuple of the first and last article to fetch.
    */
   getArticlesRangeToFetch(msgWindow, firstPossible, lastPossible) {
-    this._msgWindow = msgWindow;
+    this._msgWindow = msgWindow || MailServices.mailSession.topmostMsgWindow;
 
     this._folderFilterList = this._folder.getFilterList(this._msgWindow);
     this._serverFilterList = this._server.getFilterList(this._msgWindow);
@@ -94,7 +94,7 @@ class NntpNewsGroup {
         args.articleCount = end - start + 1;
         args.groupName = this._folder.unicodeName;
         args.serverKey = this._server.key;
-        msgWindow.domWindow.openDialog(
+        this._msgWindow.domWindow.openDialog(
           "chrome://messenger/content/downloadheaders.xhtml",
           "_blank",
           "centerscreen,chrome,modal,titlebar",
@@ -342,7 +342,7 @@ class NntpNewsGroup {
             action.strValue,
             null,
             Ci.nsMsgFilterType.NewsRule,
-            this._msgWindow
+            msgWindow
           );
           break;
         default:
