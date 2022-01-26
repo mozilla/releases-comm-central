@@ -128,8 +128,11 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
   }
 
   async function checkBoxItems(expectedCount, checkFunction) {
+    await TestUtils.waitForCondition(
+      () => view.querySelectorAll(boxSelector).length == expectedCount,
+      "waiting for the correct number of boxes to be displayed"
+    );
     let boxItems = view.querySelectorAll(boxSelector);
-    Assert.equal(boxItems.length, expectedCount, "correct number of boxes displayed");
 
     if (!checkFunction) {
       return;
