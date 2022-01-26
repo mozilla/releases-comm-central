@@ -31,8 +31,8 @@ class nsImportABFromMab : public nsIImportABFile {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTABFILE
 
- private:
-  ~nsImportABFromMab(){};
+ protected:
+  virtual ~nsImportABFromMab(){};
 };
 
 class MorkImport : public nsIImportModule {
