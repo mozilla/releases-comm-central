@@ -507,7 +507,7 @@ function matchTimers(timers, expected) {
   let delays = timers.map(timer => timer.delay / 1000);
   let matched = true;
   for (let i = 0; i < delays.length; i++) {
-    if (Math.abs(delays[i] - expected[i]) > 1) {
+    if (Math.abs(delays[i] - expected[i]) > 2) {
       matched = false;
       break;
     }
