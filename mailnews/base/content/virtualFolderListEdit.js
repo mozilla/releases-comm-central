@@ -6,7 +6,9 @@
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-window.addEventListener("DOMContentLoaded", () => { gSelectVirtual.load(); });
+window.addEventListener("DOMContentLoaded", () => {
+  gSelectVirtual.load();
+});
 
 var gSelectVirtual = {
   _treeElement: null,
