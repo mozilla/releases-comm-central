@@ -56,9 +56,6 @@ if CONFIG['COMPILE_ENVIRONMENT']:
         '--with-cmake',
     ]
 
-    # clock_gettime is not part of OSX until 10.12 sdk, Taskcluster builds with 10.11
-    if CONFIG['OS_ARCH'] == 'Darwin':
-        botan_build.flags.append('--without-os-features=clock_gettime')
 
 LOCAL_INCLUDES = ['!build/include']
 
