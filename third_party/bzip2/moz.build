@@ -13,6 +13,10 @@ if CONFIG["MZLA_SYSTEM_BZIP2"]:
 else:
     include("../rnpdefs.mozbuild")
 
+    COMPILE_FLAGS["WARNINGS_CFLAGS"] += [
+        "-Wno-unreachable-code-return",
+    ]
+
     SOURCES += [
         "blocksort.c",
         "bzlib.c",
