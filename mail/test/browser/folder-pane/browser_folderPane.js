@@ -107,17 +107,6 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   // folderB should be visible again
   assert_folder_tree_view_row_count(oneFolderCount + 1);
 
-  // Close folderA and delete folderB.
-  mc.folderTreeView.toggleOpenState(index);
-  MailServices.accounts.localFoldersServer.rootFolder.propagateDelete(
-    folderB,
-    true,
-    null
-  );
-  // Open folderA again and check folderB is deleted.
-  mc.folderTreeView.toggleOpenState(index);
-  assert_folder_tree_view_row_count(oneFolderCount);
-
   // Clean up
   expand_folder(pop3Server.rootFolder);
   folder.clearFlag(Ci.nsMsgFolderFlags.Archive);
