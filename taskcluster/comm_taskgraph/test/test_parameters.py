@@ -7,8 +7,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 import conftest  # noqa: F401
 
-import comm_taskgraph.parameters  # noqa: F401
-from gecko_taskgraph.parameters import Parameters
+from comm_taskgraph.parameters import register_parameters
+from taskgraph.parameters import Parameters
 from mozunit import main
 
 
@@ -30,6 +30,7 @@ class TestCommParameters(unittest.TestCase):
         "head_ref": "head_ref",
         "head_repository": "head_repository",
         "head_rev": "head_rev",
+        "head_tag": "",
         "hg_branch": "hg_branch",
         "level": "level",
         "message": "message",
@@ -52,6 +53,7 @@ class TestCommParameters(unittest.TestCase):
         "release_partner_build_number": 1,
         "release_type": "release_type",
         "release_product": None,
+        "repository_type": "hg",
         "required_signoffs": [],
         "signoff_urls": {},
         "target_tasks_method": "target_tasks_method",
@@ -62,6 +64,9 @@ class TestCommParameters(unittest.TestCase):
         "try_task_config": {},
         "version": "version",
     }
+
+    def setUp(self):
+        register_parameters()
 
     def test_Parameters_check(self):
         """
