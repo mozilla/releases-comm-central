@@ -4,14 +4,15 @@
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+var { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+);
+
 add_task(async function testCategoryColors() {
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-  calendar.name = "Mochitest";
-  manager.registerCalendar(calendar);
+  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
 
   registerCleanupFunction(async () => {
-    manager.unregisterCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneCalendar", "categorieslist");

@@ -4,11 +4,9 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 add_task(async () => {
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.name = "Mochitest";
   calendar.setProperty("organizerId", "mailto:mochitest@invalid");
-  manager.registerCalendar(calendar);
 
   let freeBusyService = cal.getFreeBusyService();
   freeBusyService.addProvider(freeBusyProvider);
@@ -51,7 +49,7 @@ add_task(async () => {
   };
 
   registerCleanupFunction(async () => {
-    manager.unregisterCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
     freeBusyService.removeProvider(freeBusyProvider);
     MailServices.ab.deleteAddressBook(book.URI);
   });
@@ -260,14 +258,11 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-  calendar.name = "Mochitest";
+  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.setProperty("organizerId", "mailto:mochitest@invalid");
-  manager.registerCalendar(calendar);
 
   registerCleanupFunction(async () => {
-    manager.unregisterCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   let defaults = {

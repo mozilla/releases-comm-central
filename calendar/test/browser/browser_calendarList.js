@@ -119,11 +119,8 @@ add_task(async () => {
   await dialogPromise;
 
   // Add some new calendars, check their properties.
-  let uri = Services.io.newURI("moz-memory-calendar://");
   for (let i = 1; i <= 3; i++) {
-    calendars[i] = manager.createCalendar("memory", uri);
-    calendars[i].name = `Mochitest ${i}`;
-    manager.registerCalendar(calendars[i]);
+    calendars[i] = CalendarTestUtils.createCalendar(`Mochitest ${i}`, "memory");
   }
 
   Assert.equal(manager.getCalendars().length, 4);
@@ -312,7 +309,7 @@ add_task(async () => {
   // Test deleting calendars.
 
   // Delete a calendar by unregistering it.
-  manager.unregisterCalendar(calendars[3]);
+  CalendarTestUtils.removeCalendar(calendars[3]);
   Assert.equal(manager.getCalendars().length, 3);
   Assert.equal(calendarList.rowCount, 3);
   checkSortOrder(0, 1, 2);

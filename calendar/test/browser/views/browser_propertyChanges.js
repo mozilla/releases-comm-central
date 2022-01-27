@@ -7,23 +7,15 @@
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 
-let manager = cal.getCalendarManager();
 let composite = cal.view.getCompositeCalendar(window);
 
 // This is the calendar we're going to change the properties of.
-let thisCalendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-thisCalendar.name = `This Calendar`;
+let thisCalendar = CalendarTestUtils.createCalendar("This Calendar", "memory");
 thisCalendar.setProperty("color", "#ffee22");
-manager.registerCalendar(thisCalendar);
 
 // This calendar isn't going to change, and we'll check it doesn't.
-let notThisCalendar = manager.createCalendar(
-  "memory",
-  Services.io.newURI("moz-memory-calendar://")
-);
-notThisCalendar.name = `Not This Calendar`;
+let notThisCalendar = CalendarTestUtils.createCalendar("Not This Calendar", "memory");
 notThisCalendar.setProperty("color", "#dd3333");
-manager.registerCalendar(notThisCalendar);
 
 add_task(async function setUp() {
   let { dedent } = CalendarTestUtils;
@@ -260,6 +252,6 @@ add_task(async function testDayView() {
 });
 
 registerCleanupFunction(async () => {
-  manager.unregisterCalendar(thisCalendar);
-  manager.unregisterCalendar(notThisCalendar);
+  CalendarTestUtils.removeCalendar(thisCalendar);
+  CalendarTestUtils.removeCalendar(notThisCalendar);
 });

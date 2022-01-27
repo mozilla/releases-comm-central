@@ -42,20 +42,16 @@ class TestCalFilter extends CalFilterMixin(class {}) {
   }
 }
 
-let manager, calendar, testWidget;
+let calendar, testWidget;
 let testItems = {};
 let addedTestItems = {};
 
 add_task(async function setUp() {
   await new Promise(resolve => do_calendar_startup(resolve));
 
-  manager = cal.getCalendarManager();
-
-  calendar = manager.createCalendar("storage", Services.io.newURI(`moz-storage-calendar://`));
-  calendar.name = "test";
+  calendar = CalendarTestUtils.createCalendar("test", "storage");
   calendar.setProperty("calendar-main-in-composite", true);
   Assert.ok(!calendar.getProperty("disabled"));
-  manager.registerCalendar(calendar);
 
   testWidget = new TestCalFilter();
   testWidget.startDate = cal.createDateTime("20210801");

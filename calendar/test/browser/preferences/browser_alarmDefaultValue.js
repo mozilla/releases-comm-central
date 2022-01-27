@@ -10,17 +10,17 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+var { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+);
+
 const DEFVALUE = 43;
 
 add_task(async function testDefaultAlarms() {
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-  calendar.name = "Mochitest";
+  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.setProperty("calendar-main-default", true);
-  manager.registerCalendar(calendar);
-
   registerCleanupFunction(async () => {
-    manager.unregisterCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   let localeUnitString = cal.l10n.getCalString("unitDays");

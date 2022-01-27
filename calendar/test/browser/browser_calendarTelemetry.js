@@ -15,16 +15,12 @@ let { TelemetryTestUtils } = ChromeUtils.import("resource://testing-common/Telem
 add_task(async function test_calendar_count() {
   Services.telemetry.clearScalars();
 
-  let manager = cal.getCalendarManager();
-  let uri = Services.io.newURI("moz-memory-calendar://");
-  let calendars = manager.getCalendars();
+  let calendars = cal.getCalendarManager().getCalendars();
   for (let i = 1; i <= 3; i++) {
-    calendars[i] = manager.createCalendar("memory", uri);
-    calendars[i].name = `Mochitest ${i}`;
+    calendars[i] = CalendarTestUtils.createCalendar(`Mochitest ${i}`, "memory");
     if (i === 1 || i === 3) {
       calendars[i].readOnly = true;
     }
-    manager.registerCalendar(calendars[i]);
   }
 
   reportCalendars();
@@ -43,6 +39,6 @@ add_task(async function test_calendar_count() {
 
   // Clean up.
   for (let i = 1; i <= 3; i++) {
-    manager.removeCalendar(calendars[i]);
+    CalendarTestUtils.removeCalendar(calendars[i]);
   }
 });
