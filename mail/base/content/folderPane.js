@@ -2820,6 +2820,18 @@ var gFolderTreeView = {
   },
 
   onFolderRemoved(aParentItem, aItem) {
+    this.clearFolderCacheProperty(aItem, "properties");
+
+    let parentIndex = this.getIndexOfFolder(aParentItem);
+    if (!parentIndex) {
+      return;
+    }
+    if (!this._rowMap[parentIndex].open) {
+      // If the parent folder is closed, just forget all the children, they'll
+      // be rebuilt.
+      this._rowMap[parentIndex]._children = null;
+      return;
+    }
     let index = this.getIndexOfFolder(aItem);
     if (index == null) {
       return;
@@ -2842,7 +2854,6 @@ var gFolderTreeView = {
     }
     this._rowMap.splice(index, kidCount);
     this._tree.rowCountChanged(index, -1 * kidCount);
-    this.clearFolderCacheProperty(aItem, "properties");
     this._tree.invalidateRow(index);
 
     if (aParentItem === null && MailServices.accounts.accounts.length === 0) {
