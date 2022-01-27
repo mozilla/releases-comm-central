@@ -41,7 +41,12 @@ class NntpNewsGroup {
    * @returns {[number, number]} A tuple of the first and last article to fetch.
    */
   getArticlesRangeToFetch(msgWindow, firstPossible, lastPossible) {
-    this._msgWindow = msgWindow || MailServices.mailSession.topmostMsgWindow;
+    this._msgWindow = msgWindow;
+    if (!this._msgWindow) {
+      try {
+        this._msgWindow = MailServices.mailSession.topmostMsgWindow;
+      } catch (e) {}
+    }
 
     this._folderFilterList = this._folder.getFilterList(this._msgWindow);
     this._serverFilterList = this._server.getFilterList(this._msgWindow);
