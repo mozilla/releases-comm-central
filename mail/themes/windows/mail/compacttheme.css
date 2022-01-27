@@ -24,6 +24,11 @@
 
 @media (-moz-os-version: windows-win7) {
   @media (-moz-windows-default-theme) {
+    /* Don't paint the background on aero surface */
+    :root[tabsintitlebar] #navigation-toolbox {
+      background-color: transparent;
+    }
+
     /* Always show light toolbar elements on aero surface. */
     #tabs-toolbar {
       color: hsl(240,9%,98%);
@@ -68,10 +73,6 @@
   /* Use opaque white icons on Aero Glass. */
   #tabs-toolbar {
     --toolbarbutton-icon-fill: white;
-  }
-
-  #navigation-toolbox {
-    background-color: transparent;
   }
 
   :root[tabsintitlebar] #mail-menubar,
