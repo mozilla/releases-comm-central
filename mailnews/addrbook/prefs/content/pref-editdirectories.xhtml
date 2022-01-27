@@ -5,18 +5,21 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/pref-directory.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/pref-directory.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&pref.ldap.window.title;"
-        onload="onInitEditDirectories();">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title>&pref.ldap.window.title;</title>
+  <link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
+  <script defer="defer" src="chrome://messenger/content/addressbook/abCommon.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/pref-editdirectories.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="editDirectories"
         buttons="accept">
-  <html:link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
-
-  <script src="chrome://messenger/content/addressbook/abCommon.js"/>
-  <script src="chrome://messenger/content/addressbook/pref-editdirectories.js"/>
-
   <stringbundle id="bundle_addressBook"
                 src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
@@ -40,4 +43,5 @@
     </vbox>
   </hbox>
 </dialog>
-</window>
+</html:body>
+</html>

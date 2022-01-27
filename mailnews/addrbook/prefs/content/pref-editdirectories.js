@@ -10,6 +10,8 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+window.addEventListener("DOMContentLoaded", onInitEditDirectories);
+
 // Listener to refresh the list items if something changes. In all these
 // cases we just rebuild the list as it is easier than searching/adding in the
 // correct places an would be an infrequent operation.
