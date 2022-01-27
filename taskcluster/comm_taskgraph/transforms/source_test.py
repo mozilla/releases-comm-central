@@ -5,7 +5,7 @@
 import logging
 import shlex
 
-from mozpack.path import match as mozpackmatch, join as join_path
+from taskgraph.util.path import match as match_path, join as join_path
 
 from gecko_taskgraph.transforms.base import TransformSequence
 from gecko_taskgraph.files_changed import get_changed_files
@@ -49,7 +49,7 @@ def changed_clang_format(config, jobs):
             cpp_files = []
             for pattern in match_patterns:
                 for path in changed_files:
-                    if mozpackmatch(path, pattern):
+                    if match_path(path, pattern):
                         cpp_files.append(path)
 
             # In the event that no C/C++ files were changed in the current push,

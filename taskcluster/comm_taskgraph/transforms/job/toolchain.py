@@ -11,7 +11,7 @@ import os.path
 import json
 from six import text_type, ensure_text
 from voluptuous import Any, Optional, Required
-import mozpack.path as mozpath
+import taskgraph.util.path as util_path
 from gecko_taskgraph.transforms.job import (
     configure_taskdesc_for_run,
     run_job_using,
@@ -51,7 +51,7 @@ def hash_paths(*args):
     function to pick the right function based on the presence of a comm/.hg
     directory.
     """
-    comm_hg_path = mozpath.join(GECKO, "comm", ".hg")
+    comm_hg_path = util_path.join(GECKO, "comm", ".hg")
     if os.path.exists(comm_hg_path):
         return hash_paths_extended(*args)
     else:

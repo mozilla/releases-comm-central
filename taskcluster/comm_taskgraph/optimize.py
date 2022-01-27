@@ -19,8 +19,8 @@ from gecko_taskgraph.optimize import (
 from gecko_taskgraph.optimize.schema import (
     default_optimizations,
 )
-from mozbuild.util import memoize
-from mozpack.path import match as mozpackmatch
+from taskgraph.util.memoize import memoize
+from taskgraph.util.path import match as match_path
 from gecko_taskgraph.files_changed import get_changed_files
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 def is_excluded(check_path, file_patterns):
     for pattern in file_patterns:
-        if mozpackmatch(check_path, pattern):
+        if match_path(check_path, pattern):
             return True
     return False
 

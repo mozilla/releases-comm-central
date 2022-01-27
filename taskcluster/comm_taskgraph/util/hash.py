@@ -6,7 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import hashlib
 import six
-import mozpack.path as mozpath
+import taskgraph.util.path as util_path
 from gecko_taskgraph.util.hash import hash_path, get_file_finder
 
 
@@ -26,7 +26,7 @@ def prefix_paths(prefix, paths):
     """
     Prepend a prefix to a list of paths.
     """
-    return [mozpath.join(prefix, p) for p in paths]
+    return [util_path.join(prefix, p) for p in paths]
 
 
 def process_found(found_gen, prefix=None):
@@ -36,7 +36,7 @@ def process_found(found_gen, prefix=None):
     """
     for filename, fileobj in found_gen:
         if prefix:
-            yield mozpath.join(prefix, filename)
+            yield util_path.join(prefix, filename)
         else:
             yield filename
 
@@ -49,7 +49,7 @@ def hash_paths_extended(base_path, patterns):
     """
     gecko_patterns, comm_patterns = split_patterns_list(patterns)
     gecko_finder = get_file_finder(base_path)
-    comm_finder = get_file_finder(mozpath.join(base_path, "comm"))
+    comm_finder = get_file_finder(util_path.join(base_path, "comm"))
 
     h = hashlib.sha256()
     files = []
@@ -71,8 +71,8 @@ def hash_paths_extended(base_path, patterns):
         h.update(
             six.ensure_binary(
                 "{} {}\n".format(
-                    hash_path(mozpath.abspath(mozpath.join(base_path, path))),
-                    mozpath.normsep(path),
+                    hash_path(util_path.abspath(util_path.join(base_path, path))),
+                    util_path.normsep(path),
                 )
             )
         )

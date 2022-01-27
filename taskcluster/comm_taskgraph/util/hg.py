@@ -8,8 +8,8 @@ import os.path
 import six
 import subprocess
 
-from mozbuild.util import memoize
-from mozpack import path as mozpath
+from taskgraph.util.memoize import memoize
+from taskgraph.util import path as util_path
 
 import logging
 
@@ -22,7 +22,7 @@ def is_hg_repo(root):
     :param six.text_type root: Repository root path
     :return boolean:
     """
-    dot_hg = mozpath.join(root, ".hg")
+    dot_hg = util_path.join(root, ".hg")
     if os.path.exists(root) and os.path.exists(dot_hg):
         return True
     return False
@@ -37,11 +37,11 @@ def get_last_modified_revision(root, paths):
     :return six.text_type: Most recent revision with changes to paths
     """
     logger.info("get_last_modified_revision called")
-    root = mozpath.abspath(root)
+    root = util_path.abspath(root)
     if not is_hg_repo(root):
         raise Exception("Not a valid Mercurial repo: {}", root)
 
-    if not all(map(lambda p: os.path.exists(mozpath.join(root, p)), paths)):
+    if not all(map(lambda p: os.path.exists(util_path.join(root, p)), paths)):
         # If any of the paths do not exist, Mercurial will throw an error.
         paths_repr = ", ".join(paths)
         raise Exception("Invalid paths specified: {}".format(paths_repr))
