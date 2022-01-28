@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!-- -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
    - This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,20 +6,22 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/junkLog.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/junkLog.dtd">
 
-<window id="viewLogWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="onLoad();"
-        title="&adaptiveJunkLog.title;"
-        windowtype="mailnews:junklog"
-        persist="screenX screenY width height"
-        style="width: 40em; height: 25em;">
+<html id="viewLogWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      persist="screenX screenY width height"
+      width="600" height="375"
+      scrolling="false">
+<head>
+  <title>&adaptiveJunkLog.title;</title>
+  <script defer="defer" src="chrome://messenger/content/junkLog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept"
         buttonlabelaccept="&closeLog.label;"
         buttonaccesskeyaccept="&closeLog.accesskey;">
-  <script src="chrome://messenger/content/junkLog.js"/>
 
   <vbox flex="1">
     <hbox>
@@ -42,4 +43,5 @@
     </hbox>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
