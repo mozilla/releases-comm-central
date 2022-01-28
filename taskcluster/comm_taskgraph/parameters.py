@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import sys
 import logging
 
 from six import text_type
@@ -15,13 +16,7 @@ from voluptuous import (
     Required,
 )
 
-from taskgraph.parameters import extend_parameters_schema
-from gecko_taskgraph.parameters import (
-    gecko_parameters_schema as comm_parameters_schema,
-    get_app_version,
-    get_defaults as get_gecko_defaults,
-    get_version,
-)
+from gecko_taskgraph.parameters import base_schema
 from gecko_taskgraph.util.partials import populate_release_history
 from gecko_taskgraph.util.backstop import is_backstop
 
@@ -57,29 +52,18 @@ INTEGRATION_PROJECTS = {"comm-central"}
 
 
 # Called at import time when comm_taskgraph:register is called
-comm_parameters_schema.update(
-    {
-        Required("comm_base_repository"): text_type,
-        Required("comm_head_ref"): text_type,
-        Required("comm_head_repository"): text_type,
-        Required("comm_head_rev"): text_type,
-    }
-)
-
-
-def get_defaults(repo_root=None):
-    defaults = get_gecko_defaults(repo_root)
-    defaults.update(
-        {
-            "app_version": get_app_version(product_dir="comm/mail"),
-            "version": get_version("comm/mail"),
-        }
-    )
-    return defaults
+comm_parameters_schema = {
+    Required("comm_base_repository"): text_type,
+    Required("comm_head_ref"): text_type,
+    Required("comm_head_repository"): text_type,
+    Required("comm_head_rev"): text_type,
+}
 
 
 def register_parameters():
-    extend_parameters_schema(comm_parameters_schema, defaults_fn=get_defaults)
+    logger.info("Updating Parameters schema")
+    bs = base_schema.extend(comm_parameters_schema)
+    sys.modules["gecko_taskgraph.parameters"].base_schema = bs
 
 
 def get_decision_parameters(graph_config, parameters):
