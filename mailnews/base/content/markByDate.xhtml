@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -8,20 +7,22 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/markByDate.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/markByDate.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&messageMarkByDate.label;"
-        lightweightthemes="true"
-        onload="onLoad();">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&messageMarkByDate.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel">
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/markByDate.js"/>
-  <script src="chrome://messenger/content/dateFormat.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
   <hbox align="center" pack="end">
     <label id="lowerDateLabel" control="lowerDate"
            value="&markByDateLower.label;"
@@ -43,4 +44,6 @@
                 size="11"/>
   </hbox>
 </dialog>
-</window>
+<html:script defer="defer" src="chrome://messenger/content/markByDate.js">//see bug 1752288</html:script>
+</html:body>
+</html>
