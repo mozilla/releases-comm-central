@@ -7,27 +7,33 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/renameFolderDialog.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/renameFolderDialog.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&renameFolderDialog.title;"
-        lightweightthemes="true"
-        style="width: 25em;"
-        onload="onLoad();">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&renameFolderDialog.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttonlabelaccept="&accept.label;"
         buttonaccesskeyaccept="&accept.accesskey;">
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/renameFolderDialog.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
-  <label id="nameLabel" value="&rename.label;" accesskey="&rename.accesskey;"
-         control="name"/>
+  <html:label id="nameLabel"
+              for="name"
+              style="display:inline-block;"
+              accesskey="&rename.accesskey;">&rename.label;</html:label>
   <html:input id="name"
               type="text"
               class="input-inline"
               aria-labelledby="nameLabel"
               oninput="doEnabling();"/>
 </dialog>
-</window>
+<html:script src="chrome://messenger/content/renameFolderDialog.js">//see bug 1752288</html:script>
+</html:body>
+</html>
