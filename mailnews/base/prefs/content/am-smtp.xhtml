@@ -5,17 +5,20 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-advanced.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-advanced.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&smtpServer.label;"
-        onload="gSmtpServerListWindow.onLoad();">
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/amUtils.js"/>
-  <script src="chrome://messenger/content/am-smtp.js"/>
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title>&smtpServer.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-smtp.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundle id="bundle_messenger"
                 src="chrome://messenger/locale/messenger.properties"/>
 
@@ -33,7 +36,8 @@
                    onselect="gSmtpServerListWindow.onSelectionChanged(event);"
                    ondblclick="gSmtpServerListWindow.onEditServer(event);"
                    seltype="single"
-                   flex="1"/>
+                   flex="1"
+                   style="height:400px"/>
 
       <vbox>
         <button id="addButton"
@@ -87,4 +91,5 @@
     </html:table>
     <separator flex="1"/>
   </vbox></vbox>
-</window>
+</html:body>
+</html>
