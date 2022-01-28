@@ -14,6 +14,8 @@ var gDeleteButton;
 
 var gAccount = null; // the account we are showing the identities for
 
+window.addEventListener("DOMContentLoaded", onLoad);
+
 document.addEventListener("dialogaccept", onOk);
 document.addEventListener("dialogcancel", onOk);
 

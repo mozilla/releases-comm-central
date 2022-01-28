@@ -1,21 +1,27 @@
 <?xml version="1.0"?>
-
-<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-identities-list.dtd">
+<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="onLoad();"
-        style="width: 40em; max-height: 20em;">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-identities-list.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="600"
+      scrolling="false">
+<head>
+  <title><!-- identity-list-title --></title>
+  <script defer="defer" src="chrome://messenger/content/am-identities-list.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept"
         buttonlabelaccept="&identitiesListClose.label;"
-        buttonaccesskeyaccept="&identitiesListClose.accesskey;">
+        buttonaccesskeyaccept="&identitiesListClose.accesskey;"
+        style="width:100vw; height:100vh;">
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
-<script src="chrome://messenger/content/am-identities-list.js"/>
 
 <commandset>
   <command id="cmd_add"     oncommand="openIdentityEditor(null);"/>
@@ -38,7 +44,8 @@
                ondblclick="onEdit(event);"
                onselect="updateButtons();"
                seltype="single"
-               flex="1"/>
+               flex="1"
+               style="height:10em;"/>
 
   <vbox>
     <button id="addButton"
@@ -56,4 +63,5 @@
   </vbox>
 </hbox>
 </dialog>
-</window>
+</html:body>
+</html>
