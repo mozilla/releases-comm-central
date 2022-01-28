@@ -182,6 +182,10 @@ registerCleanupFunction(function teardownModule(module) {
   if (Services.appinfo.OS != "Darwin") {
     Services.prefs.setIntPref("alerts.totalOpenTime", gTotalOpenTime);
   }
+
+  // Request focus on something in the main window so the test doesn't time
+  // out waiting for focus.
+  document.getElementById("searchInput").focus();
 });
 
 function setupTest(test) {

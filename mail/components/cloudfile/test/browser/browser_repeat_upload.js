@@ -257,4 +257,8 @@ add_task(async () => {
     "Should leave no cloudfile accounts when done"
   );
   composeWindow.close();
+
+  // Request focus on something in the main window so the test doesn't time
+  // out waiting for focus.
+  document.getElementById("searchInput").focus();
 });
