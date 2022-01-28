@@ -181,6 +181,59 @@
           }
         ]
       }
+    ],
+    "events": [
+      {
+        "name": "onCreated",
+        "type": "function",
+        "description": "Fired when a new account has been created.",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "account",
+            "$ref": "MailAccount"
+          }
+        ]
+      },
+      {
+        "name": "onDeleted",
+        "type": "function",
+        "description": "Fired when an account has been removed.",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "onUpdated",
+        "type": "function",
+        "description": "Fired when a property of an account has been modified. Folders and identities of accounts are not monitored by this event, use the dedicated folder and identity events instead. A changed ``defaultIdentity`` is reported only after a different identity has been assigned as default identity, but not after a property of the default identity has been changed.",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "changedValues",
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The human-friendly name of this account."
+              },
+              "defaultIdentity": {
+                "$ref": "identities.MailIdentity",
+                "description": "The default identity of this account."
+              }
+            }
+          }
+        ]
+      }
     ]
   }
 ]

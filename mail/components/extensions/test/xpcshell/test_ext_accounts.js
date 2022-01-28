@@ -806,3 +806,247 @@ add_task(async function test_identities_without_write_permissions() {
 
   cleanUpAccount(account);
 });
+
+add_task(async function test_accounts_events() {
+  let account1 = createAccount();
+  addIdentity(account1, "id1@invalid");
+
+  let files = {
+    "background.js": async () => {
+      // Register event listener.
+      let onCreatedLog = [];
+      await browser.accounts.onCreated.addListener((id, created) => {
+        onCreatedLog.push({ id, created });
+      });
+      let onUpdatedLog = [];
+      await browser.accounts.onUpdated.addListener((id, changed) => {
+        onUpdatedLog.push({ id, changed });
+      });
+      let onDeletedLog = [];
+      await browser.accounts.onDeleted.addListener(id => {
+        onDeletedLog.push(id);
+      });
+
+      // Create accounts.
+      let imapAccountKey = await window.sendMessage("createAccount", {
+        type: "imap",
+        identity: "invalidImap",
+      });
+      let localAccountKey = await window.sendMessage("createAccount", {
+        type: "local",
+        identity: "invalidLocal",
+      });
+      let popAccountKey = await window.sendMessage("createAccount", {
+        type: "pop3",
+        identity: "invalidPop",
+      });
+
+      // Update account identities.
+      let accounts = await browser.accounts.list();
+      let imapAccount = accounts.find(a => a.type == "imap");
+      let localAccount = accounts.find(a => a.type == "none");
+      let popAccount = accounts.find(a => a.type == "pop3");
+
+      let id1 = await browser.identities.create(imapAccount.id, {
+        composeHtml: true,
+        email: "user1@inter.net",
+        name: "user1",
+      });
+      let id2 = await browser.identities.create(localAccount.id, {
+        composeHtml: false,
+        email: "user2@inter.net",
+        name: "user2",
+      });
+      let id3 = await browser.identities.create(popAccount.id, {
+        composeHtml: false,
+        email: "user3@inter.net",
+        name: "user3",
+      });
+
+      await browser.identities.setDefault(imapAccount.id, id1.id);
+      browser.test.assertEq(
+        id1.id,
+        (await browser.identities.getDefault(imapAccount.id)).id
+      );
+      await browser.identities.setDefault(localAccount.id, id2.id);
+      browser.test.assertEq(
+        id2.id,
+        (await browser.identities.getDefault(localAccount.id)).id
+      );
+      await browser.identities.setDefault(popAccount.id, id3.id);
+      browser.test.assertEq(
+        id3.id,
+        (await browser.identities.getDefault(popAccount.id)).id
+      );
+
+      // Update account names.
+      await window.sendMessage("updateAccountName", {
+        accountKey: imapAccountKey,
+        name: "Test1",
+      });
+      await window.sendMessage("updateAccountName", {
+        accountKey: localAccountKey,
+        name: "Test2",
+      });
+      await window.sendMessage("updateAccountName", {
+        accountKey: popAccountKey,
+        name: "Test3",
+      });
+
+      // Delete accounts.
+      await window.sendMessage("removeAccount", {
+        accountKey: imapAccountKey,
+      });
+      await window.sendMessage("removeAccount", {
+        accountKey: localAccountKey,
+      });
+      await window.sendMessage("removeAccount", {
+        accountKey: popAccountKey,
+      });
+
+      // Check event listeners.
+      browser.test.assertEq(3, onCreatedLog.length);
+      window.assertDeepEqual(
+        [
+          {
+            id: "account7",
+            created: {
+              id: "account7",
+              type: "imap",
+              identities: [],
+              name: "Mail for account7user@localhost",
+              folders: null,
+            },
+          },
+          {
+            id: "account8",
+            created: {
+              id: "account8",
+              type: "none",
+              identities: [],
+              name: "Local Folders",
+              folders: null,
+            },
+          },
+          {
+            id: "account9",
+            created: {
+              id: "account9",
+              type: "pop3",
+              identities: [],
+              name: "account9user on localhost",
+              folders: null,
+            },
+          },
+        ],
+        onCreatedLog,
+        "captured onCreated events are correct"
+      );
+      window.assertDeepEqual(
+        [
+          {
+            id: "account7",
+            changed: {
+              id: "account7",
+              defaultIdentity: { id: "id11" },
+            },
+          },
+          {
+            id: "account8",
+            changed: {
+              id: "account8",
+              defaultIdentity: { id: "id12" },
+            },
+          },
+          {
+            id: "account9",
+            changed: {
+              id: "account9",
+              defaultIdentity: { id: "id13" },
+            },
+          },
+          {
+            id: "account7",
+            changed: {
+              id: "account7",
+              defaultIdentity: { id: "id14" },
+            },
+          },
+          {
+            id: "account8",
+            changed: {
+              id: "account8",
+              defaultIdentity: { id: "id15" },
+            },
+          },
+          {
+            id: "account9",
+            changed: {
+              id: "account9",
+              defaultIdentity: { id: "id16" },
+            },
+          },
+          {
+            id: "account7",
+            changed: {
+              id: "account7",
+              name: "Test1",
+            },
+          },
+          {
+            id: "account8",
+            changed: {
+              id: "account8",
+              name: "Test2",
+            },
+          },
+          {
+            id: "account9",
+            changed: {
+              id: "account9",
+              name: "Test3",
+            },
+          },
+        ],
+        onUpdatedLog,
+        "captured onUpdated events are correct"
+      );
+      window.assertDeepEqual(
+        ["account7", "account8", "account9"],
+        onDeletedLog,
+        "captured onDeleted events are correct"
+      );
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "accountsIdentities"],
+    },
+  });
+
+  extension.onMessage("createAccount", async details => {
+    let account = createAccount(details.type);
+    addIdentity(account, details.identity);
+    extension.sendMessage(account.key);
+  });
+  extension.onMessage("updateAccountName", async details => {
+    let account = MailServices.accounts.getAccount(details.accountKey);
+    account.incomingServer.prettyName = details.name;
+    extension.sendMessage();
+  });
+  extension.onMessage("removeAccount", async details => {
+    let account = MailServices.accounts.getAccount(details.accountKey);
+    MailServices.accounts.removeAccount(account, true);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  cleanUpAccount(account1);
+});

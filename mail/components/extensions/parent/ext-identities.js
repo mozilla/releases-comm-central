@@ -95,7 +95,7 @@ var identitiesTracker = new (class extends EventEmitter {
       for (let topic of this._notifications) {
         Services.obs.addObserver(this, topic);
       }
-      Services.prefs.getBranch(null).addObserver("mail.identity.", this);
+      Services.prefs.addObserver("mail.identity.", this);
     }
   }
   decrementListeners() {
@@ -104,7 +104,7 @@ var identitiesTracker = new (class extends EventEmitter {
       for (let topic of this._notifications) {
         Services.obs.removeObserver(this, topic);
       }
-      Services.prefs.getBranch(null).removeObserver("mail.identity.", this);
+      Services.prefs.removeObserver("mail.identity.", this);
     }
   }
 

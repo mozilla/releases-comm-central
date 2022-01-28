@@ -636,11 +636,20 @@ nsMsgAccountManager::RemoveAccount(nsIMsgAccount* aAccount,
     }
   }
 
+  nsCString accountKey;
+  aAccount->GetKey(accountKey);
+
   // It is not a critical problem if this fails as the account was already
   // removed from the list of accounts so should not ever be referenced.
   // Just print it out for debugging.
   rv = aAccount->ClearAllValues();
   NS_ASSERTION(NS_SUCCEEDED(rv), "removing of account prefs failed");
+
+  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+  if (obs) {
+    obs->NotifyObservers(nullptr, "message-account-removed",
+                         NS_ConvertUTF8toUTF16(accountKey).get());
+  }
   return NS_OK;
 }
 
