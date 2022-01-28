@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // This file tests undoing of an local folder message deleted to the trash.
 //
 // Original Author: David Bienvenu <dbienvenu@mozilla.com>
@@ -10,45 +14,19 @@ let gCurTestNum;
 let gMsgId1;
 let gTestFolder;
 
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var gTestArray = [
-  function deleteMessage() {
-    let msgToDelete = mailTestUtils.firstMsgHdr(gTestFolder);
-    gMsgId1 = msgToDelete.messageId;
-    gMessages.push(msgToDelete);
-    gTestFolder.deleteMessages(
-      gMessages,
-      gMsgWindow,
-      false,
-      true,
-      CopyListener,
-      true
-    );
-  },
-  function undoDelete() {
-    gMsgWindow.transactionManager.undoTransaction();
-    // There's no listener for this, so we'll just have to wait a little.
-    do_timeout(1500, function() {
-      doTest(++gCurTestNum);
-    });
-  },
-  function verifyFolders() {
-    let msgRestored = gTestFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    let msg = mailTestUtils.loadMessageToString(gTestFolder, msgRestored);
-    Assert.equal(msg, gMsg1.toMboxString());
-    doTest(++gCurTestNum);
-  },
-];
+var messageInjection = new MessageInjection({ mode: "local" });
 
-function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
-
+add_task(async function setupTest() {
   gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
@@ -60,81 +38,43 @@ function run_test() {
   let messages = [];
   messages = messages.concat([gMsg1, msg2]);
   let msgSet = new SyntheticMessageSet(messages);
-  gTestFolder = MessageInjection.make_empty_folder();
-  MessageInjection.add_sets_to_folder(gTestFolder, [msgSet]);
+  gTestFolder = await messageInjection.makeEmptyFolder();
+  await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
+});
 
-  // "Master" do_test_pending(), paired with a do_test_finished() at the end of
-  // all the operations.
-  do_test_pending();
-  // start first test
-  doTest(1);
-}
+add_task(async function deleteMessage() {
+  let msgToDelete = mailTestUtils.firstMsgHdr(gTestFolder);
+  gMsgId1 = msgToDelete.messageId;
+  gMessages.push(msgToDelete);
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  gTestFolder.deleteMessages(
+    gMessages,
+    gMsgWindow,
+    false,
+    true,
+    copyListener,
+    true
+  );
+  await copyListener.promise;
+});
 
-function doTest(test) {
-  if (test <= gTestArray.length) {
-    dump("Doing test " + test + "\n");
-    gCurTestNum = test;
+add_task(async function undoDelete() {
+  gMsgWindow.transactionManager.undoTransaction();
+  // There's no listener for this, so we'll just have to wait a little.
+  await PromiseTestUtils.promiseDelay(1500);
+});
 
-    var testFn = gTestArray[test - 1];
-    // Set a limit of ten seconds; if the notifications haven't arrived by then there's a problem.
-    do_timeout(10000, function() {
-      if (gCurTestNum == test) {
-        do_throw(
-          "Notifications not received in 10000 ms for operation " + testFn.name
-        );
-      }
-    });
-    try {
-      testFn();
-    } catch (ex) {
-      do_throw("TEST FAILED " + ex);
-    }
-  } else {
-    do_timeout(1000, endTest);
-  }
-}
+add_task(function verifyFolders() {
+  let msgRestored = gTestFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
+  let msg = mailTestUtils.loadMessageToString(gTestFolder, msgRestored);
+  Assert.equal(msg, gMsg1.toMboxString());
+});
 
-// nsIMsgCopyServiceListener implementation - runs next test when copy
-// is completed.
-var CopyListener = {
-  OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
-    dump("in OnStopCopy " + gCurTestNum + "\n");
-    // Check: message successfully copied.
-    Assert.equal(aStatus, 0);
-    // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
-    // This can happen with a bunch of synchronous functions grouped together, and
-    // can even cause tests to fail because they're still waiting for the listener
-    // to return
-    do_timeout(0, function() {
-      doTest(++gCurTestNum);
-    });
-  },
-};
-
-/* exported URLListener */
-// nsIURLListener implementation - runs next test
-var URLListener = {
-  OnStartRunningUrl(aURL) {},
-  OnStopRunningUrl(aURL, aStatus) {
-    dump("in OnStopRunningURL " + gCurTestNum + "\n");
-    Assert.equal(aStatus, 0);
-    do_timeout(0, function() {
-      doTest(++gCurTestNum);
-    });
-  },
-};
-
-function endTest() {
-  // Cleanup, null out everything
+add_task(function endTest() {
+  // Cleanup, null out everything.
   gMessages = [];
   gMsgWindow.closeWindow();
   gMsgWindow = null;
   localAccountUtils.inboxFolder = null;
   localAccountUtils.incomingServer = null;
-
-  do_test_finished(); // for the one in run_test()
-}
+});
