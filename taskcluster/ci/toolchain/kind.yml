@@ -69,6 +69,7 @@ reference-jobs:
     - sysroot-x86_64-linux-gnu
     - wasm32-wasi-compiler-rt
     - wasm32-wasi-compiler-rt-13
+    - win32-compiler-rt-13
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
@@ -76,6 +77,7 @@ reference-jobs:
     - win64-clang
     - win64-clang-13-2stage
     - win64-clang-toolchain
+    - win64-compiler-rt-13
     - win64-dump_syms
     - win64-llvm-symbolizer
     - win64-mozmake
