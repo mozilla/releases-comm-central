@@ -10,7 +10,9 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-window.addEventListener("DOMContentLoaded", event => { gSmtpServerListWindow.onLoad(); });
+window.addEventListener("DOMContentLoaded", event => {
+  gSmtpServerListWindow.onLoad();
+});
 
 var gSmtpServerListWindow = {
   mBundle: null,
