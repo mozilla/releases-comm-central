@@ -143,5 +143,10 @@ def debugqa(arg):
 
 set_config("MOZ_DEBUGQA", debugqa)
 
+# Miscellaneous programs
+# ==============================================================
+
+check_prog("ZIP", ("zip",))
+
 include("../mailnews/moz.configure")
 include("../../toolkit/moz.configure")
