@@ -5,26 +5,29 @@
 
 <?xml-stylesheet href="chrome://global/skin/checkbox.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % removalDTD SYSTEM "chrome://messenger/locale/removeAccount.dtd">
 %removalDTD;
 ]>
-
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&dialogTitle;"
-        width="600"
-        onload="onLoad();">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="600"
+      scrolling="false">
+<head>
+  <title>&dialogTitle;</title>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="removeAccountDialog"
         buttons="accept,disclosure,cancel"
         buttonlabelaccept="&removeButton.label;"
         buttonaccesskeyaccept="&removeButton.accesskey;"
-        defaultButton="cancel">
+        defaultButton="cancel"
+        style="width:100vw;">
   <stringbundle id="bundle_removeAccount"
                 src="chrome://messenger/locale/removeAccount.properties"/>
-  <script src="chrome://messenger/content/removeAccount.js"/>
   <vbox id="removeAccountSection">
     <label id="accountName"></label>
     <separator class="thin"/>
@@ -75,4 +78,6 @@
     <label id="failure" hidden="true">&progressFailure;</label>
   </vbox>
 </dialog>
-</window>
+<html:script src="chrome://messenger/content/removeAccount.js">//see bug 1752288</html:script>
+</html:body>
+</html>

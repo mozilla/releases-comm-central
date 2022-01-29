@@ -11,6 +11,8 @@ var { MailServices } = ChromeUtils.import(
 var gServer;
 var gDialog;
 
+window.addEventListener("DOMContentLoaded", onLoad);
+
 document.addEventListener("dialogdisclosure", showInfo);
 document.addEventListener("dialogaccept", onAccept);
 document.subDialogSetDefaultFocus = isInitialFocus => {
@@ -58,7 +60,6 @@ function onLoad(event) {
   }
 
   enableRemove();
-  window.sizeToContent();
 }
 
 function enableRemove() {
