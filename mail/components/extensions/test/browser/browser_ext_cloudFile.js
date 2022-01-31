@@ -126,7 +126,12 @@ add_task(async () => {
       let [createdAccount] = await createCloudfileAccount();
 
       let fileId = await new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(
+          account,
+          { id, name, data },
+          tab,
+          relatedFileInfo
+        ) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
@@ -135,6 +140,7 @@ add_task(async () => {
             new TextDecoder("utf-8").decode(data),
             "you got the moves!\n"
           );
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
           return { url: "https://example.com/" + name };
         }
@@ -145,8 +151,14 @@ add_task(async () => {
 
       browser.test.log("test upload error");
       await new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(
+          account,
+          { id, name, data },
+          tab,
+          relatedFileInfo
+        ) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
           return { error: true };
         }
@@ -163,8 +175,14 @@ add_task(async () => {
 
       browser.test.log("test upload error with message");
       await new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(
+          account,
+          { id, name, data },
+          tab,
+          relatedFileInfo
+        ) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
           return { error: "Service currently unavailable." };
         }
@@ -286,7 +304,12 @@ add_task(async () => {
 
       browser.test.log("test upload aborted");
       await new Promise(resolve => {
-        async function fileListener(account, { id, name, data }) {
+        async function fileListener(
+          account,
+          { id, name, data },
+          tab,
+          relatedFileInfo
+        ) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
 
           // The listener won't return until onFileUploadAbort fires. When that happens,
@@ -302,6 +325,7 @@ add_task(async () => {
             browser.test.sendMessage("cancelUpload", createdAccount.id);
           });
 
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(resolve);
           return { aborted: true };
         }
@@ -520,8 +544,14 @@ add_task(async () => {
       );
 
       let fileId = await new Promise(resolve => {
-        function fileListener(uploadAccount, { id, name, data }, tab) {
+        function fileListener(
+          uploadAccount,
+          { id, name, data },
+          tab,
+          relatedFileInfo
+        ) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+
           browser.test.assertEq(tab.id, composeTab.id);
           browser.test.assertEq(uploadAccount.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
@@ -530,6 +560,8 @@ add_task(async () => {
             new TextDecoder("utf-8").decode(data),
             "you got the moves!\n"
           );
+
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
           return { url: "https://example.com/" + name };
         }
@@ -558,7 +590,12 @@ add_task(async () => {
 
       browser.test.log("test upload aborted");
       await new Promise(resolve => {
-        async function fileListener(uploadAccount, { id, name, data }, tab) {
+        async function fileListener(
+          uploadAccount,
+          { id, name, data },
+          tab,
+          relatedFileInfo
+        ) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(tab.id, composeTab.id);
 
@@ -576,6 +613,7 @@ add_task(async () => {
             browser.test.sendMessage("cancelUpload", createdAccount.id);
           });
 
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(resolve);
           return { aborted: true };
         }
@@ -746,7 +784,7 @@ add_task(async () => {
 
     browser.test.log("test upload");
     await new Promise(resolve => {
-      function fileListener(account, { id, name, data }) {
+      function fileListener(account, { id, name, data }, tab, relatedFileInfo) {
         browser.cloudFile.onFileUpload.removeListener(fileListener);
         browser.test.assertEq(name, "cloudFile1.txt");
         browser.test.assertTrue(data instanceof File);
@@ -756,6 +794,7 @@ add_task(async () => {
           setTimeout(() => resolve(id));
         });
         reader.readAsText(data);
+        browser.test.assertEq(undefined, relatedFileInfo);
         return { url: "https://example.com/" + name };
       }
 

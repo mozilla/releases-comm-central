@@ -2357,8 +2357,9 @@ async function showLocalizedCloudFileAlert(
  * @typedef UpdateSettings
  * @property {CloudFileAccount} [cloudFileAccount] - cloud file account to store
  *   the attachment
- * @property {CloudFileUpload} [cloudFileUpload] - CloudFileUpload data to replace
- *   the current attachments cloudFileUpload data
+ * @property {CloudFileUpload} [relatedCloudFileUpload] - information about an
+ *   already uploaded file this upload is related to, e.g. renaming a repeatedly
+ *   used cloud file or updating the content of a cloud file
  * @property {nsIFile} [file] - file to replace the current attachments content
  * @property {string} [name] - name to replace the current attachments name
  */
@@ -2398,19 +2399,25 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
   };
 
   try {
-    if (updateSettings.cloudFileUpload && updateSettings.cloudFileAccount) {
-      // Bypass upload and set provided cloudFileUpload.
+    if (
+      updateSettings.relatedCloudFileUpload &&
+      updateSettings.cloudFileAccount &&
+      updateSettings.cloudFileAccount.reuseUploads &&
+      !updateSettings.file &&
+      !updateSettings.name
+    ) {
+      // Bypass upload and set provided relatedCloudFileUpload.
       attachmentItem.attachment.sendViaCloud = true;
       attachmentItem.attachment.contentLocation =
-        updateSettings.cloudFileUpload.url;
+        updateSettings.relatedCloudFileUpload.url;
       attachmentItem.attachment.cloudFileAccountKey =
         updateSettings.cloudFileAccount.accountKey;
 
       attachmentItem.cloudFileAccount = updateSettings.cloudFileAccount;
-      attachmentItem.cloudFileUpload = updateSettings.cloudFileUpload;
+      attachmentItem.cloudFileUpload = updateSettings.relatedCloudFileUpload;
       gAttachmentBucket.setCloudIcon(
         attachmentItem,
-        updateSettings.cloudFileUpload.serviceIcon
+        updateSettings.relatedCloudFileUpload.serviceIcon
       );
 
       eventOnDone = new CustomEvent("attachment-uploaded", {
@@ -2456,6 +2463,7 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
       // Handle a cloud -> cloud move/rename or a local -> cloud upload.
       let mode = attachmentItem.attachment.sendViaCloud ? "move" : "upload";
       if (
+        attachmentItem.cloudFileUpload &&
         attachmentItem.cloudFileAccount == destCloudFileAccount &&
         !updateSettings.file &&
         !destCloudFileAccount.isReusedUpload(attachmentItem.cloudFileUpload)
@@ -2498,9 +2506,13 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
             updateSettings.file ||
             fileHandler.getFileFromURLSpec(attachmentItem.attachment.url);
 
-          upload = await destCloudFileAccount.uploadFile(window, file, name);
+          upload = await destCloudFileAccount.uploadFile(
+            window,
+            file,
+            name,
+            updateSettings.relatedCloudFileUpload
+          );
 
-          delete upload.repeat;
           attachmentItem.cloudFileAccount = destCloudFileAccount;
           attachmentItem.attachment.sendViaCloud = true;
           attachmentItem.attachment.cloudFileAccountKey =
@@ -2590,11 +2602,8 @@ async function attachToCloudRepeat(upload, account) {
   if (addedAttachmentItems.length > 0) {
     try {
       await UpdateAttachment(addedAttachmentItems[0], {
-        cloudFileUpload: {
-          ...upload,
-          repeat: true,
-        },
         cloudFileAccount: account,
+        relatedCloudFileUpload: upload,
       });
     } catch (ex) {
       showLocalizedCloudFileAlert(ex);
@@ -5222,6 +5231,13 @@ async function CompleteGenericSendMessage(msgType) {
     ) {
       Services.telemetry.scalarAdd("tb.filelink.ignored", 1);
     }
+
+    // Keep track of send cloudFiles and mark them as immutable.
+    for (let item of items) {
+      if (item.attachment.sendViaCloud) {
+        item.cloudFileAccount.markAsImmutable(item.cloudFileUpload.id);
+      }
+    }
   }
 }
 
@@ -7104,7 +7120,10 @@ async function RenameSelectedAttachment() {
       return;
     }
     try {
-      await UpdateAttachment(item, { name: attachmentName.value });
+      await UpdateAttachment(item, {
+        name: attachmentName.value,
+        relatedCloudFileUpload: item.CloudFileUpload,
+      });
     } catch (ex) {
       showLocalizedCloudFileAlert(ex);
     }

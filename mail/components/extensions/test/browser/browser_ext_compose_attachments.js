@@ -12,7 +12,38 @@ const { ExtensionUtils } = ChromeUtils.import(
   "resource://gre/modules/ExtensionUtils.jsm"
 );
 
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
+
 addIdentity(createAccount());
+
+var MockCompleteGenericSendMessage = {
+  register() {
+    // For every compose window that opens, replace the function which does the
+    // actual sending with one that only records when it has been called.
+    MockCompleteGenericSendMessage._didTryToSendMessage = false;
+    ExtensionSupport.registerWindowListener("MockCompleteGenericSendMessage", {
+      chromeURLs: [
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+      ],
+      onLoadWindow(window) {
+        window.CompleteGenericSendMessage = function(msgType) {
+          let items = [...window.gAttachmentBucket.itemChildren];
+          for (let item of items) {
+            if (item.attachment.sendViaCloud) {
+              item.cloudFileAccount.markAsImmutable(item.cloudFileUpload.id);
+            }
+          }
+        };
+      },
+    });
+  },
+
+  unregister() {
+    ExtensionSupport.unregisterWindowListener("MockCompleteGenericSendMessage");
+  },
+};
 
 add_task(async function test_file_attachments() {
   let files = {
@@ -199,10 +230,18 @@ add_task(async function test_file_attachments() {
       // Convert the second attachment to a cloudFile attachment.
 
       await new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(1, fileInfo.id);
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve());
-          return { url: "https://cloud.provider.net/1" };
+          return {
+            url: "https://cloud.provider.net/1",
+            templateInfo: {
+              download_limit: "2",
+              service_name: "Superior Mochitest Service",
+            },
+          };
         }
 
         browser.cloudFile.onFileUpload.addListener(fileListener);
@@ -224,8 +263,9 @@ add_task(async function test_file_attachments() {
         "Provider should reject for missing rename support"
       );
 
-      function cloudFileRenameListener() {
+      function cloudFileRenameListener(account, id) {
         browser.cloudFile.onFileRename.removeListener(cloudFileRenameListener);
+        browser.test.assertEq(1, id);
         return { url: "https://cloud.provider.net/2" };
       }
       browser.cloudFile.onFileRename.addListener(cloudFileRenameListener);
@@ -249,8 +289,34 @@ add_task(async function test_file_attachments() {
         "Provider should reject due to upload errors"
       );
 
-      function cloudFileUploadListener() {
+      function cloudFileUploadListener(
+        account,
+        fileInfo,
+        tab,
+        relatedFileInfo
+      ) {
         browser.cloudFile.onFileUpload.removeListener(cloudFileUploadListener);
+        browser.test.assertEq(3, fileInfo.id);
+        browser.test.assertEq("cloud file2 with a new name.txt", fileInfo.name);
+        browser.test.assertEq(1, relatedFileInfo.id);
+        browser.test.assertEq(
+          "cloud file2 with a new name.txt",
+          relatedFileInfo.name
+        );
+        browser.test.assertTrue(
+          relatedFileInfo.dataChanged,
+          `data should have changed`
+        );
+        browser.test.assertEq(
+          "2",
+          relatedFileInfo.templateInfo.download_limit,
+          "templateInfo download_limit should be correct"
+        );
+        browser.test.assertEq(
+          "Superior Mochitest Service",
+          relatedFileInfo.templateInfo.service_name,
+          "templateInfo service_name should be correct"
+        );
         return { url: "https://cloud.provider.net/3" };
       }
       browser.cloudFile.onFileUpload.addListener(cloudFileUploadListener);
@@ -350,9 +416,7 @@ add_task(async function test_file_attachments() {
       item => item.attachment && item.attachment.name == attachmentName
     );
 
-    composeWindow.UpdateAttachment(attachmentItem, {
-      cloudFileAccount: account,
-    });
+    composeWindow.convertListItemsToCloudAttachment([attachmentItem], account);
   });
 
   await extension.startup();
@@ -549,8 +613,10 @@ add_task(async function test_compose_attachments() {
       // Convert the second attachment to a cloudFile attachment.
 
       await new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(1, fileInfo.id);
+          browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve());
           return { url: "https://cloud.provider.net/1" };
         }
@@ -586,10 +652,19 @@ add_task(async function test_compose_attachments() {
       // correct contentLocation. Both attachments will be renamed while cloning.
 
       // The cloud file rename should be handled as a new file upload, because
-      // the same url is used in tab1.
+      // the same url is used in tab1. The original attachment should be passed
+      // as relatedFileInfo.
       let tab2_uploadPromise = new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(2, fileInfo.id);
+          browser.test.assertEq("this is renamed file2.txt", fileInfo.name);
+          browser.test.assertEq(1, relatedFileInfo.id);
+          browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
+          browser.test.assertFalse(
+            relatedFileInfo.dataChanged,
+            `data should not have changed`
+          );
           setTimeout(() => resolve());
           return { url: "https://cloud.provider.net/2" };
         }
@@ -675,8 +750,19 @@ add_task(async function test_compose_attachments() {
       // upload, to not invalidate the original url still used in tab1.
 
       let tab3_uploadPromise = new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(3, fileInfo.id);
+          browser.test.assertEq(
+            "That is going to be interesting.txt",
+            fileInfo.name
+          );
+          browser.test.assertEq(1, relatedFileInfo.id);
+          browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
+          browser.test.assertFalse(
+            relatedFileInfo.dataChanged,
+            `data should not have changed`
+          );
           setTimeout(() => resolve());
           return { url: "https://cloud.provider.net/3" };
         }
@@ -719,8 +805,19 @@ add_task(async function test_compose_attachments() {
       // renaming both. This should trigger a new file upload.
 
       let tab4_uploadPromise = new Promise(resolve => {
-        function fileListener(account, { id, name, data }) {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(4, fileInfo.id);
+          browser.test.assertEq(
+            "I got renamed too, how crazy is that!.txt",
+            fileInfo.name
+          );
+          browser.test.assertEq(1, relatedFileInfo.id);
+          browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
+          browser.test.assertFalse(
+            relatedFileInfo.dataChanged,
+            `data should not have changed`
+          );
           setTimeout(() => resolve());
           return { url: "https://cloud.provider.net/4" };
         }
@@ -806,6 +903,13 @@ add_task(async function test_compose_attachments() {
       // Delete the cloud attachment2 in tab1, which should not trigger a cloud
       // delete, as the url is still used in tab5.
 
+      function fileListener(account, id, tab) {
+        browser.test.fail(
+          `The onFileDeleted listener should not fire for deleting a cloud file which is still used in another tab.`
+        );
+      }
+      browser.cloudFile.onFileDeleted.addListener(fileListener);
+
       await browser.compose.removeAttachment(
         composeTab1.id,
         tab1_attachment2.id
@@ -815,6 +919,7 @@ add_task(async function test_compose_attachments() {
         { id: composeTab1.id },
         tab1_attachment2.id
       );
+      browser.cloudFile.onFileDeleted.removeListener(fileListener);
 
       // Renaming cloud attachment2 in tab5 should now be a simple rename, as the
       // url is not used anywhere anymore.
@@ -977,9 +1082,829 @@ add_task(async function test_compose_attachments() {
       item => item.attachment && item.attachment.name == attachmentName
     );
 
-    composeWindow.UpdateAttachment(attachmentItem, {
-      cloudFileAccount: account,
-    });
+    composeWindow.convertListItemsToCloudAttachment([attachmentItem], account);
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function test_compose_attachments_immutable() {
+  MockCompleteGenericSendMessage.register();
+
+  let files = {
+    "background.js": async () => {
+      let listener = {
+        events: [],
+        currentPromise: null,
+
+        pushEvent(...args) {
+          browser.test.log(JSON.stringify(args));
+          this.events.push(args);
+          if (this.currentPromise) {
+            let p = this.currentPromise;
+            this.currentPromise = null;
+            p.resolve();
+          }
+        },
+        async checkEvent(expectedEvent, ...expectedArgs) {
+          if (this.events.length == 0) {
+            await new Promise(resolve => (this.currentPromise = { resolve }));
+          }
+          let [actualEvent, ...actualArgs] = this.events.shift();
+          browser.test.assertEq(expectedEvent, actualEvent);
+          browser.test.assertEq(expectedArgs.length, actualArgs.length);
+
+          for (let i = 0; i < expectedArgs.length; i++) {
+            browser.test.assertEq(typeof expectedArgs[i], typeof actualArgs[i]);
+            if (typeof expectedArgs[i] == "object") {
+              for (let key of Object.keys(expectedArgs[i])) {
+                browser.test.assertEq(expectedArgs[i][key], actualArgs[i][key]);
+              }
+            } else {
+              browser.test.assertEq(expectedArgs[i], actualArgs[i]);
+            }
+          }
+
+          return actualArgs;
+        },
+      };
+      browser.compose.onAttachmentAdded.addListener((...args) =>
+        listener.pushEvent("onAttachmentAdded", ...args)
+      );
+      browser.compose.onAttachmentRemoved.addListener((...args) =>
+        listener.pushEvent("onAttachmentRemoved", ...args)
+      );
+
+      let checkData = async (attachment, size) => {
+        let data = await browser.compose.getAttachmentFile(attachment.id);
+        browser.test.assertTrue(
+          data instanceof File,
+          "Returned file obj should be a File instance."
+        );
+        browser.test.assertEq(
+          size,
+          data.size,
+          "Reported size should be correct."
+        );
+        browser.test.assertEq(
+          attachment.name,
+          data.name,
+          "Name of the File object should match the name of the attachment."
+        );
+      };
+
+      let checkUI = async (composeTab, ...expected) => {
+        let attachments = await browser.compose.listAttachments(composeTab.id);
+        browser.test.assertEq(
+          expected.length,
+          attachments.length,
+          "Number of found attachments should be correct."
+        );
+        for (let i = 0; i < expected.length; i++) {
+          browser.test.assertEq(expected[i].id, attachments[i].id);
+        }
+
+        return window.sendMessage("checkUI", composeTab, expected);
+      };
+
+      let createCloudfileAccount = () => {
+        let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+        browser.test.sendMessage("createAccount");
+        return addListener;
+      };
+
+      let removeCloudfileAccount = id => {
+        let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+        browser.test.sendMessage("removeAccount", id);
+        return deleteListener;
+      };
+
+      async function cloneAttachment(
+        attachment,
+        composeTab,
+        name = attachment.name
+      ) {
+        let clone;
+
+        // If the name is not changed, try to pass in the full object.
+        if (name == attachment.name) {
+          clone = await browser.compose.addAttachment(
+            composeTab.id,
+            attachment
+          );
+        } else {
+          clone = await browser.compose.addAttachment(composeTab.id, {
+            id: attachment.id,
+            name,
+          });
+        }
+
+        browser.test.assertEq(name, clone.name);
+        browser.test.assertEq(attachment.size, clone.size);
+        await checkData(clone, attachment.size);
+
+        let [, added] = await listener.checkEvent(
+          "onAttachmentAdded",
+          { id: composeTab.id },
+          { id: clone.id, name }
+        );
+        await checkData(added, attachment.size);
+        return clone;
+      }
+
+      let [createdAccount] = await createCloudfileAccount();
+
+      let file1 = new File(["File number one!"], "file1.txt");
+      let file2 = new File(
+        ["File number two? Yes, this is number two."],
+        "file2.txt"
+      );
+
+      // -----------------------------------------------------------------------
+
+      let composeTab1 = await browser.compose.beginNew({
+        to: "user@inter.net",
+        subject: "Test",
+      });
+      await checkUI(composeTab1);
+
+      // Add an attachment to composeTab1.
+
+      let tab1_attachment1 = await browser.compose.addAttachment(
+        composeTab1.id,
+        {
+          file: file1,
+        }
+      );
+      browser.test.assertEq("file1.txt", tab1_attachment1.name);
+      browser.test.assertEq(16, tab1_attachment1.size);
+      await checkData(tab1_attachment1, file1.size);
+
+      let [, tab1_added1] = await listener.checkEvent(
+        "onAttachmentAdded",
+        { id: composeTab1.id },
+        { id: tab1_attachment1.id, name: "file1.txt" }
+      );
+      await checkData(tab1_added1, file1.size);
+
+      await checkUI(composeTab1, {
+        id: tab1_attachment1.id,
+        name: "file1.txt",
+        size: file1.size,
+      });
+
+      // Add another attachment to composeTab1.
+
+      let tab1_attachment2 = await browser.compose.addAttachment(
+        composeTab1.id,
+        {
+          file: file2,
+          name: "this is file2.txt",
+        }
+      );
+      browser.test.assertEq("this is file2.txt", tab1_attachment2.name);
+      browser.test.assertEq(41, tab1_attachment2.size);
+      await checkData(tab1_attachment2, file2.size);
+
+      let [, tab1_added2] = await listener.checkEvent(
+        "onAttachmentAdded",
+        { id: composeTab1.id },
+        { id: tab1_attachment2.id, name: "this is file2.txt" }
+      );
+      await checkData(tab1_added2, file2.size);
+
+      await checkUI(
+        composeTab1,
+        { id: tab1_attachment1.id, name: "file1.txt", size: file1.size },
+        { id: tab1_attachment2.id, name: "this is file2.txt", size: file2.size }
+      );
+
+      // Convert the second attachment to a cloudFile attachment.
+
+      await new Promise(resolve => {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(1, fileInfo.id);
+          browser.test.assertEq(undefined, relatedFileInfo);
+          setTimeout(() => resolve());
+          return { url: "https://cloud.provider.net/1" };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+        // Conversion/upload is not yet supported via WebExt API.
+        browser.test.sendMessage(
+          "convertFile",
+          createdAccount.id,
+          "this is file2.txt"
+        );
+      });
+
+      await checkUI(
+        composeTab1,
+        {
+          id: tab1_attachment1.id,
+          name: "file1.txt",
+          size: file1.size,
+        },
+        {
+          id: tab1_attachment2.id,
+          name: "this is file2.txt",
+          size: 0,
+          contentLocation: "https://cloud.provider.net/1",
+        }
+      );
+
+      // -----------------------------------------------------------------------
+
+      // Create a second compose window and clone both attachments from tab1. The
+      // second one should be cloned as a cloud attachment, having no size and the
+      // correct contentLocation.
+
+      let composeTab2 = await browser.compose.beginNew();
+      let tab2_attachment1 = await cloneAttachment(
+        tab1_attachment1,
+        composeTab2
+      );
+      await checkUI(composeTab2, {
+        id: tab2_attachment1.id,
+        name: "file1.txt",
+        size: file1.size,
+      });
+
+      let tab2_attachment2 = await cloneAttachment(
+        tab1_attachment2,
+        composeTab2,
+        "this is file2.txt"
+      );
+
+      await checkUI(
+        composeTab2,
+        {
+          id: tab2_attachment1.id,
+          name: "file1.txt",
+          size: file1.size,
+        },
+        {
+          id: tab2_attachment2.id,
+          name: "this is file2.txt",
+          size: 0,
+          contentLocation: "https://cloud.provider.net/1",
+        }
+      );
+
+      // Send the message and have its attachment marked as immutable.
+      await browser.compose.sendMessage(composeTab1.id, { mode: "sendNow" });
+      await browser.tabs.remove(composeTab1.id);
+
+      // Delete the cloud attachment2 in tab2, which should not trigger a cloud
+      // delete, as the url has been marked as immutable by sending the message
+      // in tab1.
+
+      function fileListener(account, id, tab) {
+        browser.test.fail(
+          `The onFileDeleted listener should not fire for deleting a cloud file marked as immutable.`
+        );
+      }
+      browser.cloudFile.onFileDeleted.addListener(fileListener);
+
+      await browser.compose.removeAttachment(
+        composeTab2.id,
+        tab2_attachment2.id
+      );
+      await listener.checkEvent(
+        "onAttachmentRemoved",
+        { id: composeTab2.id },
+        tab2_attachment2.id
+      );
+
+      // Clean up
+
+      await browser.tabs.remove(composeTab2.id);
+      browser.test.assertEq(0, listener.events.length);
+
+      await removeCloudfileAccount(createdAccount.id);
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      cloud_file: {
+        name: "mochitest",
+        management_url: "/content/management.html",
+        data_format: "ArrayBuffer",
+      },
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "compose.send"],
+      applications: { gecko: { id: "compose.attachments@mochi.test" } },
+    },
+  });
+
+  let seenWindows = new ExtensionUtils.DefaultMap(() =>
+    Services.wm.getMostRecentWindow("msgcompose")
+  );
+
+  extension.onMessage("checkUI", (composeTab, expected) => {
+    let composeWindow = seenWindows.get(composeTab.id);
+    let composeDocument = composeWindow.document;
+
+    let bucket = composeDocument.getElementById("attachmentBucket");
+    Assert.equal(bucket.itemCount, expected.length);
+
+    let totalSize = 0;
+    for (let i = 0; i < expected.length; i++) {
+      let { name, size, contentLocation } = expected[i];
+      let item = bucket.itemChildren[i];
+      totalSize += size;
+
+      // size and name are checked against the displayed values, contentLocation
+      // is checked against the associated attachment.
+
+      if (contentLocation) {
+        Assert.equal(
+          item.attachment.contentLocation,
+          contentLocation,
+          "contentLocation for cloud files should be correct."
+        );
+        Assert.equal(
+          item.attachment.sendViaCloud,
+          true,
+          "sendViaCloud for cloud files should be correct."
+        );
+      } else {
+        Assert.equal(
+          item.attachment.contentLocation,
+          "",
+          "contentLocation for cloud files should be correct."
+        );
+        Assert.equal(
+          item.attachment.sendViaCloud,
+          false,
+          "sendViaCloud for cloud files should be correct."
+        );
+      }
+
+      Assert.equal(
+        item.querySelector(".attachmentcell-name").textContent +
+          item.querySelector(".attachmentcell-extension").textContent,
+        name,
+        "Name should be correct."
+      );
+      if (size > 0) {
+        Assert.equal(
+          item.querySelector(".attachmentcell-size").textContent,
+          `${size} bytes`,
+          "Size should be correct."
+        );
+      } else {
+        Assert.equal(
+          item.querySelector(".attachmentcell-size").textContent,
+          "",
+          "Size should be correct."
+        );
+      }
+    }
+
+    let bucketTotal = composeDocument.getElementById("attachmentBucketSize");
+    if (totalSize == 0) {
+      Assert.equal(bucketTotal.textContent, "");
+    } else {
+      Assert.equal(bucketTotal.textContent, `${totalSize} bytes`);
+    }
+
+    extension.sendMessage();
+  });
+
+  extension.onMessage("createAccount", () => {
+    cloudFileAccounts.createAccount("ext-compose.attachments@mochi.test");
+  });
+
+  extension.onMessage("removeAccount", id => {
+    cloudFileAccounts.removeAccount(id);
+  });
+
+  extension.onMessage("convertFile", (cloudFileAccountId, attachmentName) => {
+    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    let composeDocument = composeWindow.document;
+    let bucket = composeDocument.getElementById("attachmentBucket");
+    let account = cloudFileAccounts.getAccount(cloudFileAccountId);
+
+    let attachmentItem = bucket.itemChildren.find(
+      item => item.attachment && item.attachment.name == attachmentName
+    );
+
+    composeWindow.convertListItemsToCloudAttachment([attachmentItem], account);
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  MockCompleteGenericSendMessage.unregister();
+});
+
+add_task(async function test_compose_attachments_no_reuse() {
+  let files = {
+    "background.js": async () => {
+      let listener = {
+        events: [],
+        currentPromise: null,
+
+        pushEvent(...args) {
+          browser.test.log(JSON.stringify(args));
+          this.events.push(args);
+          if (this.currentPromise) {
+            let p = this.currentPromise;
+            this.currentPromise = null;
+            p.resolve();
+          }
+        },
+        async checkEvent(expectedEvent, ...expectedArgs) {
+          if (this.events.length == 0) {
+            await new Promise(resolve => (this.currentPromise = { resolve }));
+          }
+          let [actualEvent, ...actualArgs] = this.events.shift();
+          browser.test.assertEq(expectedEvent, actualEvent);
+          browser.test.assertEq(expectedArgs.length, actualArgs.length);
+
+          for (let i = 0; i < expectedArgs.length; i++) {
+            browser.test.assertEq(typeof expectedArgs[i], typeof actualArgs[i]);
+            if (typeof expectedArgs[i] == "object") {
+              for (let key of Object.keys(expectedArgs[i])) {
+                browser.test.assertEq(expectedArgs[i][key], actualArgs[i][key]);
+              }
+            } else {
+              browser.test.assertEq(expectedArgs[i], actualArgs[i]);
+            }
+          }
+
+          return actualArgs;
+        },
+      };
+      browser.compose.onAttachmentAdded.addListener((...args) =>
+        listener.pushEvent("onAttachmentAdded", ...args)
+      );
+      browser.compose.onAttachmentRemoved.addListener((...args) =>
+        listener.pushEvent("onAttachmentRemoved", ...args)
+      );
+
+      let checkData = async (attachment, size) => {
+        let data = await browser.compose.getAttachmentFile(attachment.id);
+        browser.test.assertTrue(
+          data instanceof File,
+          "Returned file obj should be a File instance."
+        );
+        browser.test.assertEq(
+          size,
+          data.size,
+          "Reported size should be correct."
+        );
+        browser.test.assertEq(
+          attachment.name,
+          data.name,
+          "Name of the File object should match the name of the attachment."
+        );
+      };
+
+      let checkUI = async (composeTab, ...expected) => {
+        let attachments = await browser.compose.listAttachments(composeTab.id);
+        browser.test.assertEq(
+          expected.length,
+          attachments.length,
+          "Number of found attachments should be correct."
+        );
+        for (let i = 0; i < expected.length; i++) {
+          browser.test.assertEq(expected[i].id, attachments[i].id);
+        }
+
+        return window.sendMessage("checkUI", composeTab, expected);
+      };
+
+      let createCloudfileAccount = () => {
+        let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+        browser.test.sendMessage("createAccount");
+        return addListener;
+      };
+
+      let removeCloudfileAccount = id => {
+        let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+        browser.test.sendMessage("removeAccount", id);
+        return deleteListener;
+      };
+
+      async function cloneAttachment(
+        attachment,
+        composeTab,
+        name = attachment.name
+      ) {
+        let clone;
+
+        // If the name is not changed, try to pass in the full object.
+        if (name == attachment.name) {
+          clone = await browser.compose.addAttachment(
+            composeTab.id,
+            attachment
+          );
+        } else {
+          clone = await browser.compose.addAttachment(composeTab.id, {
+            id: attachment.id,
+            name,
+          });
+        }
+
+        browser.test.assertEq(name, clone.name);
+        browser.test.assertEq(attachment.size, clone.size);
+        await checkData(clone, attachment.size);
+
+        let [, added] = await listener.checkEvent(
+          "onAttachmentAdded",
+          { id: composeTab.id },
+          { id: clone.id, name }
+        );
+        await checkData(added, attachment.size);
+        return clone;
+      }
+
+      let [createdAccount] = await createCloudfileAccount();
+
+      let file1 = new File(["File number one!"], "file1.txt");
+      let file2 = new File(
+        ["File number two? Yes, this is number two."],
+        "file2.txt"
+      );
+
+      // -----------------------------------------------------------------------
+
+      let composeTab1 = await browser.compose.beginNew();
+      await checkUI(composeTab1);
+
+      // Add an attachment to composeTab1.
+
+      let tab1_attachment1 = await browser.compose.addAttachment(
+        composeTab1.id,
+        {
+          file: file1,
+        }
+      );
+      browser.test.assertEq("file1.txt", tab1_attachment1.name);
+      browser.test.assertEq(16, tab1_attachment1.size);
+      await checkData(tab1_attachment1, file1.size);
+
+      let [, tab1_added1] = await listener.checkEvent(
+        "onAttachmentAdded",
+        { id: composeTab1.id },
+        { id: tab1_attachment1.id, name: "file1.txt" }
+      );
+      await checkData(tab1_added1, file1.size);
+
+      await checkUI(composeTab1, {
+        id: tab1_attachment1.id,
+        name: "file1.txt",
+        size: file1.size,
+      });
+
+      // Add another attachment to composeTab1.
+
+      let tab1_attachment2 = await browser.compose.addAttachment(
+        composeTab1.id,
+        {
+          file: file2,
+          name: "this is file2.txt",
+        }
+      );
+      browser.test.assertEq("this is file2.txt", tab1_attachment2.name);
+      browser.test.assertEq(41, tab1_attachment2.size);
+      await checkData(tab1_attachment2, file2.size);
+
+      let [, tab1_added2] = await listener.checkEvent(
+        "onAttachmentAdded",
+        { id: composeTab1.id },
+        { id: tab1_attachment2.id, name: "this is file2.txt" }
+      );
+      await checkData(tab1_added2, file2.size);
+
+      await checkUI(
+        composeTab1,
+        { id: tab1_attachment1.id, name: "file1.txt", size: file1.size },
+        { id: tab1_attachment2.id, name: "this is file2.txt", size: file2.size }
+      );
+
+      // Convert the second attachment to a cloudFile attachment.
+
+      await new Promise(resolve => {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(1, fileInfo.id);
+          browser.test.assertEq(undefined, relatedFileInfo);
+          setTimeout(() => resolve());
+          return { url: "https://cloud.provider.net/1" };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+        // Conversion/upload is not yet supported via WebExt API.
+        browser.test.sendMessage(
+          "convertFile",
+          createdAccount.id,
+          "this is file2.txt"
+        );
+      });
+
+      await checkUI(
+        composeTab1,
+        {
+          id: tab1_attachment1.id,
+          name: "file1.txt",
+          size: file1.size,
+        },
+        {
+          id: tab1_attachment2.id,
+          name: "this is file2.txt",
+          size: 0,
+          contentLocation: "https://cloud.provider.net/1",
+        }
+      );
+
+      // -----------------------------------------------------------------------
+
+      // Create a second compose window and clone both attachments from tab1. The
+      // second one should be cloned as a cloud attachment, having no size and the
+      // correct contentLocation.
+      // Attachments are not renamed, but since reuse_uploads is disabled, a new
+      // upload request must be issued. The original attachment should be passed
+      // as relatedFileInfo.
+      let tab2_uploadPromise = new Promise(resolve => {
+        function fileListener(account, fileInfo, tab, relatedFileInfo) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(2, fileInfo.id);
+          browser.test.assertEq("this is file2.txt", fileInfo.name);
+          browser.test.assertEq(1, relatedFileInfo.id);
+          browser.test.assertEq("this is file2.txt", relatedFileInfo.name);
+          browser.test.assertFalse(
+            relatedFileInfo.dataChanged,
+            `data should not have changed`
+          );
+          setTimeout(() => resolve());
+          return { url: "https://cloud.provider.net/2" };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+      });
+
+      let composeTab2 = await browser.compose.beginNew();
+      let tab2_attachment1 = await cloneAttachment(
+        tab1_attachment1,
+        composeTab2
+      );
+      await checkUI(composeTab2, {
+        id: tab2_attachment1.id,
+        name: "file1.txt",
+        size: file1.size,
+      });
+
+      let tab2_attachment2 = await cloneAttachment(
+        tab1_attachment2,
+        composeTab2,
+        "this is file2.txt"
+      );
+
+      await checkUI(
+        composeTab2,
+        {
+          id: tab2_attachment1.id,
+          name: "file1.txt",
+          size: file1.size,
+        },
+        {
+          id: tab2_attachment2.id,
+          name: "this is file2.txt",
+          size: 0,
+          contentLocation: "https://cloud.provider.net/2",
+        }
+      );
+
+      await tab2_uploadPromise;
+
+      await browser.tabs.remove(composeTab2.id);
+      await browser.tabs.remove(composeTab1.id);
+      browser.test.assertEq(0, listener.events.length);
+
+      await removeCloudfileAccount(createdAccount.id);
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      cloud_file: {
+        name: "mochitest",
+        management_url: "/content/management.html",
+        reuse_uploads: false,
+        data_format: "ArrayBuffer",
+      },
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+      applications: { gecko: { id: "compose.attachments@mochi.test" } },
+    },
+  });
+
+  let seenWindows = new ExtensionUtils.DefaultMap(() =>
+    Services.wm.getMostRecentWindow("msgcompose")
+  );
+
+  extension.onMessage("checkUI", (composeTab, expected) => {
+    let composeWindow = seenWindows.get(composeTab.id);
+    let composeDocument = composeWindow.document;
+
+    let bucket = composeDocument.getElementById("attachmentBucket");
+    Assert.equal(bucket.itemCount, expected.length);
+
+    let totalSize = 0;
+    for (let i = 0; i < expected.length; i++) {
+      let { name, size, contentLocation } = expected[i];
+      let item = bucket.itemChildren[i];
+      totalSize += size;
+
+      // size and name are checked against the displayed values, contentLocation
+      // is checked against the associated attachment.
+
+      if (contentLocation) {
+        Assert.equal(
+          item.attachment.contentLocation,
+          contentLocation,
+          "contentLocation for cloud files should be correct."
+        );
+        Assert.equal(
+          item.attachment.sendViaCloud,
+          true,
+          "sendViaCloud for cloud files should be correct."
+        );
+      } else {
+        Assert.equal(
+          item.attachment.contentLocation,
+          "",
+          "contentLocation for cloud files should be correct."
+        );
+        Assert.equal(
+          item.attachment.sendViaCloud,
+          false,
+          "sendViaCloud for cloud files should be correct."
+        );
+      }
+
+      Assert.equal(
+        item.querySelector(".attachmentcell-name").textContent +
+          item.querySelector(".attachmentcell-extension").textContent,
+        name,
+        "Name should be correct."
+      );
+      if (size > 0) {
+        Assert.equal(
+          item.querySelector(".attachmentcell-size").textContent,
+          `${size} bytes`,
+          "Size should be correct."
+        );
+      } else {
+        Assert.equal(
+          item.querySelector(".attachmentcell-size").textContent,
+          "",
+          "Size should be correct."
+        );
+      }
+    }
+
+    let bucketTotal = composeDocument.getElementById("attachmentBucketSize");
+    if (totalSize == 0) {
+      Assert.equal(bucketTotal.textContent, "");
+    } else {
+      Assert.equal(bucketTotal.textContent, `${totalSize} bytes`);
+    }
+
+    extension.sendMessage();
+  });
+
+  extension.onMessage("createAccount", () => {
+    cloudFileAccounts.createAccount("ext-compose.attachments@mochi.test");
+  });
+
+  extension.onMessage("removeAccount", id => {
+    cloudFileAccounts.removeAccount(id);
+  });
+
+  extension.onMessage("convertFile", (cloudFileAccountId, attachmentName) => {
+    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    let composeDocument = composeWindow.document;
+    let bucket = composeDocument.getElementById("attachmentBucket");
+    let account = cloudFileAccounts.getAccount(cloudFileAccountId);
+
+    let attachmentItem = bucket.itemChildren.find(
+      item => item.attachment && item.attachment.name == attachmentName
+    );
+
+    composeWindow.convertListItemsToCloudAttachment([attachmentItem], account);
   });
 
   await extension.startup();

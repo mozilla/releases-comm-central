@@ -54,6 +54,7 @@ add_task(async () => {
         iconURL: ICON_URL,
         configured: true,
         managementURL: MANAGEMENT_URL,
+        reuseUploads: true,
       };
     },
   };

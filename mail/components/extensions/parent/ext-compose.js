@@ -530,19 +530,16 @@ async function AddAttachmentsToWindow(window, attachmentData) {
       continue;
     }
 
-    let cloudFileAccount = entry.originalCloudFileAccount;
-    // If the cloned attachment was renamed, treat it as a new upload instead of
-    // a reused upload.
-    let cloudFileUpload =
-      entry.originalAttachment.name == entry.attachment.name
-        ? entry.originalCloudFileUpload
-        : null;
+    let updateSettings = {
+      cloudFileAccount: entry.originalCloudFileAccount,
+      relatedCloudFileUpload: entry.originalCloudFileUpload,
+    };
+    if (entry.originalAttachment.name != entry.attachment.name) {
+      updateSettings.name = entry.attachment.name;
+    }
 
     try {
-      await window.UpdateAttachment(addedAttachmentItem, {
-        cloudFileUpload,
-        cloudFileAccount,
-      });
+      await window.UpdateAttachment(addedAttachmentItem, updateSettings);
     } catch (ex) {
       throw new ExtensionError(ex.message);
     }
@@ -989,6 +986,7 @@ this.compose = class extends ExtensionAPI {
             await window.UpdateAttachment(attachmentItem, {
               file: realFile,
               name: data.name,
+              relatedCloudFileUpload: attachmentItem.cloudFileUpload,
             });
           } catch (ex) {
             throw new ExtensionError(ex.message);

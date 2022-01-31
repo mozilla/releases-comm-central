@@ -27,6 +27,12 @@
                   "File"
                 ]
               },
+              "reuse_uploads": {
+                "description": "If a previously uploaded cloud file attachment is reused at a later time in a different message, Thunderbird may use the already known ``url`` and ``templateInfo`` values without triggering the registered :ref:`cloudFile.onFileUpload` listener again. Setting this option to false will always trigger the registered listener, providing the already known values through the ``relatedFileInfo`` parameter of the :ref:`cloudFile.onFileUpload` event, to let the provider decide how to handle these cases.",
+                "type": "boolean",
+                "optional": true,
+                "default": true
+              },
               "management_url": {
                 "type": "string",
                 "format": "relativeUrl",
@@ -85,6 +91,12 @@
             "name": "tab",
             "$ref": "tabs.Tab",
             "description": "The tab where the upload was initiated. Currently only available for the message composer."
+          },
+          {
+            "$ref": "RelatedCloudFile",
+            "name": "relatedFileInfo",
+            "optional": true,
+            "description": "Information about an already uploaded file, which is related to this upload."
           }
         ],
         "returns": {
@@ -114,7 +126,7 @@
             },
             "templateInfo": {
               "$ref": "CloudFileTemplateInfo",
-              "description": "Defines information to be used in the cloud file entry added to the message.",
+              "description": "Additional file information used in the cloud file entry added to the message.",
               "optional": true
             }
           }
@@ -361,6 +373,37 @@
                 "description": "Contents of the file to be transferred."
               }
             ]
+          }
+        }
+      },
+      {
+        "id": "RelatedCloudFile",
+        "type": "object",
+        "description": "Information about an already uploaded cloud file, which is related to a new upload. For example if the content of a cloud attachment is updated, if a repeatedly used cloud attachment is renamed (and therefore should be re-uploaded to not invalidate existing links) or if the provider has its manifest property ``reuse_uploads`` set to ``false``.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "optional": true,
+            "description": "The identifier for the related file. In some circumstances, the id is unavailable."
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL where the upload of the related file can be accessed.",
+            "optional": true
+          },
+          "templateInfo": {
+            "$ref": "CloudFileTemplateInfo",
+            "description": "Additional information of the related file, used in the cloud file entry added to the message.",
+            "optional": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Filename of the related file."
+          },
+          "dataChanged": {
+            "type": "boolean",
+            "description": "The content of the new upload differs from the related file."
           }
         }
       }

@@ -39,6 +39,7 @@ class CloudFileAccount {
     this.lastError = "";
     this.managementURL = this.extension.manifest.cloud_file.management_url;
     this.dataFormat = this.extension.manifest.cloud_file.data_format;
+    this.reuseUploads = this.extension.manifest.cloud_file.reuse_uploads;
     this.browserStyle = this.extension.manifest.cloud_file.browser_style;
     this.quota = {
       uploadSizeLimit: -1,
@@ -116,7 +117,22 @@ class CloudFileAccount {
    * @property {boolean} downloadPasswordProtected - link is password protected
    * @property {integer} downloadLimit - download limit of the link
    * @property {CloudFileDate} downloadExpiryDate - expiry date of the link
+   * // Usage tracking.
+   * @property {boolean} immutable - if the cloud file url may be changed
    */
+
+  /**
+   * Marks the specified upload as immutable.
+   *
+   * @param {integer} id - id of the upload
+   */
+  markAsImmutable(id) {
+    if (this._uploads.has(id)) {
+      let upload = this._uploads.get(id);
+      upload.immutable = true;
+      this._uploads.set(id, upload);
+    }
+  }
 
   /**
    * Initiate a WebExtension cloudFile upload by preparing a CloudFile object &
@@ -129,9 +145,12 @@ class CloudFileAccount {
    * @param {nsIFile} file File to be uploaded.
    * @param {String} [name] Name of the file after it has been uploaded. Defaults
    *   to the original filename of the uploaded file.
+   * @param {CloudFileUpload} relatedCloudFileUpload Information about an already
+   *   uploaded file this upload is related to, e.g. renaming a repeatedly used
+   *   cloud file or updating the content of a cloud file.
    * @returns {CloudFileUpload} Information about the uploaded file.
    */
-  async uploadFile(window, file, name = file.leafName) {
+  async uploadFile(window, file, name = file.leafName, relatedCloudFileUpload) {
     let data;
     if (this.dataFormat == "File") {
       data = await File.createFromNsIFile(file);
@@ -179,16 +198,30 @@ class CloudFileAccount {
       downloadPasswordProtected: false,
       downloadLimit: 0,
       downloadExpiryDate: null,
+      // Usage tracking.
+      immutable: false,
     };
-
     this._uploads.set(id, upload);
+
+    let relatedFileInfo;
+    if (relatedCloudFileUpload) {
+      relatedFileInfo = {
+        id: relatedCloudFileUpload.id,
+        name: relatedCloudFileUpload.name,
+        url: relatedCloudFileUpload.url,
+        templateInfo: relatedCloudFileUpload.templateInfo,
+        dataChanged: relatedCloudFileUpload.path != upload.path,
+      };
+    }
+
     let results;
     try {
       results = await this.extension.emit(
         "uploadFile",
         this,
         { id, name, data },
-        window
+        window,
+        relatedFileInfo
       );
     } catch (ex) {
       this._uploads.delete(id);
@@ -236,6 +269,8 @@ class CloudFileAccount {
       }
 
       if (results[0].templateInfo) {
+        upload.templateInfo = results[0].templateInfo;
+
         if (results[0].templateInfo.service_name) {
           upload.serviceName = results[0].templateInfo.service_name;
         }
@@ -299,8 +334,11 @@ class CloudFileAccount {
       extensions.loadModule("compose");
     }
 
+    let immutable = [...this._uploads.values()].some(
+      u => u.immutable && u.url == cloudFileUpload.url
+    );
     return (
-      !!cloudFileUpload.repeat ||
+      immutable ||
       global.composeAttachmentTracker.isDuplicateUrl(cloudFileUpload.url)
     );
   }
@@ -439,9 +477,9 @@ class CloudFileAccount {
         let upload = this._uploads.get(uploadId);
         if (!this.isReusedUpload(upload)) {
           await this.extension.emit("deleteFile", this, uploadId, window);
+          this._uploads.delete(uploadId);
         }
       }
-      this._uploads.delete(uploadId);
     } catch (ex) {
       throw Components.Exception(
         `Delete error: ${ex.message}`,
@@ -510,10 +548,21 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileUpload",
           register: fire => {
-            let listener = (event, account, { id, name, data }, tab) => {
+            let listener = (
+              event,
+              account,
+              { id, name, data },
+              tab,
+              relatedFileInfo
+            ) => {
               tab = tab ? tabManager.convert(tab) : null;
               account = convertCloudFileAccount(account);
-              return fire.async(account, { id, name, data }, tab);
+              return fire.async(
+                account,
+                { id, name, data },
+                tab,
+                relatedFileInfo
+              );
             };
 
             context.extension.on("uploadFile", listener);
