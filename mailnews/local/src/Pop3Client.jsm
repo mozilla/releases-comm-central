@@ -288,6 +288,7 @@ class Pop3Client {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
+    this.quit();
     let secInfo = event.target.transport?.securityInfo;
     if (secInfo) {
       this.runningUri.failedSecInfo = secInfo;

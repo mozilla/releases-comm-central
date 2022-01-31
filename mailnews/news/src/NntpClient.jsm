@@ -170,6 +170,7 @@ class NntpClient {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
+    this.quit();
     this._actionDone(event.errorCode);
   };
 

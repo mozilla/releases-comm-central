@@ -431,6 +431,7 @@ class SmtpClient {
    */
   _onError = e => {
     this.logger.error(e);
+    this.quit();
     let nsError = Cr.NS_ERROR_FAILURE;
     let secInfo = null;
     if (TCPSocketErrorEvent.isInstance(e)) {
@@ -440,7 +441,6 @@ class SmtpClient {
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.
     this.onerror(nsError, "", secInfo);
-    this.close();
   };
 
   /**
@@ -926,8 +926,8 @@ class SmtpClient {
       return;
     }
 
-    this._secureTransport = true;
     this.socket.upgradeToSecure();
+    this._secureTransport = true;
 
     // restart protocol flow
     this._currentAction = this._actionEHLO;
