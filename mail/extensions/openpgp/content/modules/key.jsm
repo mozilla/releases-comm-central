@@ -141,6 +141,7 @@ var EnigmailKey = {
     seckey
   ) {
     EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
+    errorMsgObj.value = "";
 
     let cacheEntry = this._keyListCache.get(keyBlockStr);
     if (cacheEntry) {
