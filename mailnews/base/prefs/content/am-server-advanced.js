@@ -8,6 +8,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+window.addEventListener("DOMContentLoaded", onLoad);
 document.addEventListener("dialogaccept", onOk);
 
 // pull stuff out of window.arguments
