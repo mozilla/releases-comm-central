@@ -363,7 +363,6 @@ MailGlue.prototype = {
       case "chrome-document-global-created":
         // Set up lwt, but only if the "lightweightthemes" attr is set on the root
         // (i.e. in messenger.xhtml).
-
         aSubject.addEventListener(
           "DOMContentLoaded",
           () => {
@@ -372,10 +371,6 @@ MailGlue.prototype = {
                 "lightweightthemes"
               )
             ) {
-              let bug1752752 = true; // disable to avoid crashes! See bug 1752752
-              if (bug1752752) {
-                return;
-              }
               new LightweightThemeConsumer(aSubject.document);
             }
           },
