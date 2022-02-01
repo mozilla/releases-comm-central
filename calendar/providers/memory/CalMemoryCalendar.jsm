@@ -513,15 +513,8 @@ CalMemoryCalendar.prototype = {
     return aItem && aItem.id in this.mOfflineFlags ? this.mOfflineFlags[aItem.id] : null;
   },
 
-  resetItemOfflineFlag(aItem, aListener) {
+  async resetItemOfflineFlag(aItem) {
     delete this.mOfflineFlags[aItem.id];
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.MODIFY,
-      aItem.id,
-      aItem
-    );
   },
 
   //

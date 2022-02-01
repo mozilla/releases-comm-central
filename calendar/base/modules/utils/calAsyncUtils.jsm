@@ -26,12 +26,6 @@ var promisifyProxyHandler = {
   },
   get(target, name) {
     switch (name) {
-      // calIOfflineStorage methods
-      case "resetItemOfflineFlag": {
-        let offline = target.QueryInterface(Ci.calIOfflineStorage);
-        return (...args) => this.promiseOperation(offline, name, args);
-      }
-
       // Special getAllItems shortcut
       case "getAllItems":
         return () => target.getItemsAsArray(cIC.ITEM_FILTER_ALL_ITEMS, 0, null, null);

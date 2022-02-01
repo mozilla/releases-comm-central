@@ -458,15 +458,8 @@ CalStorageCalendar.prototype = {
     this.observers.notify("onDeleteItem", [aItem]);
   },
 
-  async resetItemOfflineFlag(aItem, aListener) {
+  async resetItemOfflineFlag(aItem) {
     await this.mOfflineModel.setOfflineJournalFlag(aItem, null);
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.MODIFY,
-      aItem.id,
-      aItem
-    );
   },
 
   //

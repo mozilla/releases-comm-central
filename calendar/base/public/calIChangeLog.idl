@@ -40,8 +40,7 @@ interface calIOfflineStorage : calICalendar {
     Promise deleteOfflineItem(in calIItemBase aItem);
 
     /**
-     * Retrieves the offline flag for the given item. The flag is returned using the
-     * detail parameter of the onOperationComplete function in calIOperationLIstener.
+     * Retrieves the offline flag for the given item. 
      *
      * @param aItem       the item to reset
      * @return {Promise<number>}
@@ -52,9 +51,9 @@ interface calIOfflineStorage : calICalendar {
      * Remove any offline flag from the item record.
      *
      * @param aItem       the item to reset
-     * @param aListener   where to call back the results
+     * @return {Promise<void>}
      */
-    void resetItemOfflineFlag(in calIItemBase aItem, in calIOperationListener aListener);
+    Promise resetItemOfflineFlag(in calIItemBase aItem);
 };
 
 /**
