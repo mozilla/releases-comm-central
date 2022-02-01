@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % identityEditDTD SYSTEM "chrome://messenger/locale/am-identity-edit.dtd" >
 %identityEditDTD;
 <!ENTITY % identityDTD SYSTEM "chrome://messenger/locale/am-main.dtd" >
@@ -20,30 +20,40 @@
 %e2eDTD;
 ]>
 
-<window xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        onload="onLoadIdentityProperties();"
-        style="width: 105ch; height: 56em;">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="900">
+<head>
+  <title><!-- identityDialogTitleEdit --></title>
+  <style>
+   #identityTabsPanels &gt; vbox { overflow:auto; }
+  </style>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/preferencesBindings.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-copies.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-addressing.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-e2e.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-identity-edit.js"></script>
+  <script>
+    // NOTE: am-identity-edit.js is not only used for this page.
+    window.addEventListener("DOMContentLoaded", onLoadIdentityProperties);
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="identityDialog">
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
   <stringbundle id="bundle_messenger"
                 src="chrome://messenger/locale/messenger.properties"/>
 
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://global/content/preferencesBindings.js"/>
-  <script src="chrome://messenger/content/am-prefs.js"/>
-  <script src="chrome://messenger/content/am-identity-edit.js"/>
-  <script src="chrome://messenger/content/amUtils.js"/>
-  <script src="chrome://messenger/content/am-copies.js"/>
-  <script src="chrome://messenger/content/am-addressing.js"/>
-  <script src="chrome://messenger/content/am-e2e.js"/>
-
   <description>&identityListDesc.label;</description>
   <separator class="thin"/>
 
-  <tabbox flex="1" style="overflow: auto;">
+  <tabbox flex="1" style="overflow:hidden; height:50em;">
     <tabs id="identitySettings">
       <tab id="identitySettingsTab" label="&settingsTab.label;"/>
       <tab id="identityCopiesFoldersTab" label="&copiesFoldersTab.label;"/>
@@ -230,4 +240,5 @@
     </tabpanels>
   </tabbox>
 </dialog>
-</window>
+</html:body>
+</html>
