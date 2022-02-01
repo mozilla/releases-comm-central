@@ -657,24 +657,42 @@ var messageHeaderSink = {
         lowerCaseHeaderName = "user-agent";
       }
 
+      // See RFC 5322 section 3.6 for min-max number for given header.
+      // If multiple headers exist we need to make sure to use the first one.
+
       if (this.mDummyMsgHeader) {
-        if (lowerCaseHeaderName == "from") {
+        if (lowerCaseHeaderName == "from" && !this.mDummyMsgHeader.author) {
           this.mDummyMsgHeader.author = header.headerValue;
         } else if (lowerCaseHeaderName == "to") {
           this.mDummyMsgHeader.recipients = header.headerValue;
         } else if (lowerCaseHeaderName == "cc") {
           this.mDummyMsgHeader.ccList = header.headerValue;
-        } else if (lowerCaseHeaderName == "subject") {
+        } else if (
+          lowerCaseHeaderName == "subject" &&
+          !this.mDummyMsgHeader.subject
+        ) {
           this.mDummyMsgHeader.subject = header.headerValue;
-        } else if (lowerCaseHeaderName == "reply-to") {
+        } else if (
+          lowerCaseHeaderName == "reply-to" &&
+          !this.mDummyMsgHeader.replyTo
+        ) {
           this.mDummyMsgHeader.replyTo = header.headerValue;
-        } else if (lowerCaseHeaderName == "message-id") {
-          this.mDummyMsgHeader.messageId = header.headerValue;
+        } else if (
+          lowerCaseHeaderName == "message-id" &&
+          !this.mDummyMsgHeader.messageId
+        ) {
+          this.mDummyMsgHeader.messageId = header.headerValue.replace(
+            /^<(.*)>$/,
+            "$1"
+          );
         } else if (lowerCaseHeaderName == "list-post") {
           this.mDummyMsgHeader.listPost = header.headerValue;
         } else if (lowerCaseHeaderName == "delivered-to") {
           this.mDummyMsgHeader.deliveredTo = header.headerValue;
-        } else if (lowerCaseHeaderName == "date") {
+        } else if (
+          lowerCaseHeaderName == "date" &&
+          !this.mDummyMsgHeader.date
+        ) {
           this.mDummyMsgHeader.date = Date.parse(header.headerValue) * 1000;
         }
       }
@@ -3674,6 +3692,9 @@ nsDummyMsgHeader.prototype = {
   messageSize: 0,
   recipients: null,
   author: null,
+  get mime2DecodedAuthor() {
+    return this.author;
+  },
   subject: "",
   get mime2DecodedSubject() {
     return this.subject;

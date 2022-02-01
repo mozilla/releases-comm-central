@@ -54,6 +54,20 @@ add_task(async function test_copy_eml_message() {
   let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
   let msgc = await open_message_from_file(file);
 
+  // First check the properties are correct when opening the .eml form file.
+  // @see nsDummyMsgHeader.
+  let emlMessage = msgc.window.gMessageDisplay.displayedMessage;
+  Assert.equal(emlMessage.mime2DecodedSubject, "An email");
+  Assert.equal(emlMessage.mime2DecodedAuthor, "from@example.com");
+  Assert.equal(
+    emlMessage.date,
+    new Date("Mon, 10 Jan 2011 12:00:00 -0500").getTime() * 1000
+  );
+  Assert.equal(
+    emlMessage.messageId,
+    "11111111-bdfd-ca83-6479-3427940164a8@invalid"
+  );
+
   let documentChild = msgc.e("messagepane").contentDocument.firstElementChild;
   msgc.rightClick(documentChild);
   await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
@@ -63,7 +77,19 @@ add_task(async function test_copy_eml_message() {
   ]);
   close_window(msgc);
 
-  // Make sure the copy worked.
+  // Make sure the copy worked. Make sure the first header is the one used,
+  // in case the message (incorrectly) has multiple when max-number is 1
+  // according to RFC 5322.
   let copiedMessage = select_click_row(0);
   Assert.equal(copiedMessage.mime2DecodedSubject, "An email");
+  Assert.equal(copiedMessage.mime2DecodedAuthor, "from@example.com");
+  Assert.equal(
+    copiedMessage.date,
+    new Date("Mon, 10 Jan 2011 12:00:00 -0500").getTime() * 1000
+  );
+  Assert.equal(copiedMessage.numReferences, 2);
+  Assert.equal(
+    copiedMessage.messageId,
+    "11111111-bdfd-ca83-6479-3427940164a8@invalid"
+  );
 });

@@ -1,7 +1,16 @@
 Date: Mon, 10 Jan 2011 12:00:00 -0500
-From: user@example.com
-To: user@example.com
+From: from@example.com
+From: evil@example.com
+Sender: send1@example.com
+Sender: send2@example.com
+To: to@example.com
+Date: Tue, 12 Jan 2011 12:00:00 -0500
 Subject: An email
+Subject: Dup subject
+Message-ID: <11111111-bdfd-ca83-6479-3427940164a8@invalid>
+Message-ID: <22222222-bdfd-ca83-6479-3427940164a8@invalid>
+References: <aaaaaaaa-3d7b-22d2-f859-4c1e6a2164d6@invalid> <bbbbbbb-3d7b-22d2-f859-4c1e6a2164d6@invalid>
+References: <ccccccc-3d7b-22d2-f859-4c1e6a2164d6@invalid>
 Content-Type: text/plain
 
 Hello there

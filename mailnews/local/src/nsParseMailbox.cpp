@@ -833,18 +833,22 @@ nsresult nsParseMailMessageState::ParseHeaders() {
     // the colon. This is needed because First() asserts on an empty string.
     char firstChar = !headerStr.IsEmpty() ? headerStr.First() : *colon;
 
+    // See RFC 5322 section 3.6 for min-max number for given header.
+    // If multiple headers exist we need to make sure to use the first one.
+
     switch (firstChar) {
       case 'b':
-        if (headerStr.EqualsLiteral("bcc")) header = &m_bccList;
+        if (headerStr.EqualsLiteral("bcc") && !m_bccList.length)
+          header = &m_bccList;
         break;
       case 'c':
-        if (headerStr.EqualsLiteral("cc"))
+        if (headerStr.EqualsLiteral("cc"))  // XXX: RFC 5322 says it's 0 or 1.
           header = GetNextHeaderInAggregate(m_ccList);
         else if (headerStr.EqualsLiteral("content-type"))
           header = &m_content_type;
         break;
       case 'd':
-        if (headerStr.EqualsLiteral("date"))
+        if (headerStr.EqualsLiteral("date") && !m_date.length)
           header = &m_date;
         else if (headerStr.EqualsLiteral("disposition-notification-to"))
           header = &m_mdn_dnt;
@@ -852,13 +856,17 @@ nsresult nsParseMailMessageState::ParseHeaders() {
           header = &m_delivery_date;
         break;
       case 'f':
-        if (headerStr.EqualsLiteral("from")) header = &m_from;
+        if (headerStr.EqualsLiteral("from") && !m_from.length) {
+          header = &m_from;
+        }
         break;
       case 'i':
-        if (headerStr.EqualsLiteral("in-reply-to")) header = &m_in_reply_to;
+        if (headerStr.EqualsLiteral("in-reply-to") && !m_in_reply_to.length)
+          header = &m_in_reply_to;
         break;
       case 'm':
-        if (headerStr.EqualsLiteral("message-id")) header = &m_message_id;
+        if (headerStr.EqualsLiteral("message-id") && !m_message_id.length)
+          header = &m_message_id;
         break;
       case 'n':
         if (headerStr.EqualsLiteral("newsgroups")) header = &m_newsgroups;
@@ -876,7 +884,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
         if (headerStr.EqualsLiteral("priority")) header = &m_priority;
         break;
       case 'r':
-        if (headerStr.EqualsLiteral("references"))
+        if (headerStr.EqualsLiteral("references") && !m_references.length)
           header = &m_references;
         else if (headerStr.EqualsLiteral("return-path"))
           header = &m_return_path;
@@ -884,7 +892,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
         // Disposition-Notification-To
         else if (headerStr.EqualsLiteral("return-receipt-to"))
           header = &m_mdn_dnt;
-        else if (headerStr.EqualsLiteral("reply-to"))
+        else if (headerStr.EqualsLiteral("reply-to") && !m_replyTo.length)
           header = &m_replyTo;
         else if (headerStr.EqualsLiteral("received")) {
           header = &receivedBy;
@@ -894,13 +902,13 @@ nsresult nsParseMailMessageState::ParseHeaders() {
       case 's':
         if (headerStr.EqualsLiteral("subject") && !m_subject.length)
           header = &m_subject;
-        else if (headerStr.EqualsLiteral("sender"))
+        else if (headerStr.EqualsLiteral("sender") && !m_sender.length)
           header = &m_sender;
         else if (headerStr.EqualsLiteral("status"))
           header = &m_status;
         break;
       case 't':
-        if (headerStr.EqualsLiteral("to"))
+        if (headerStr.EqualsLiteral("to"))  // XXX: RFC 5322 says it's 0 or 1.
           header = GetNextHeaderInAggregate(m_toList);
         break;
       case 'x':
