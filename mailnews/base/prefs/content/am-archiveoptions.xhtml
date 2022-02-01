@@ -6,18 +6,20 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-archiveoptions.dtd" >
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-archiveoptions.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        id="archiveOptions"
-        title="&dialogTitle.label;"
-        width="350" height="350"
-        persist="width height"
-        onload="onLoadArchiveOptions();">
-<dialog id="archive-options">
-  <script src="chrome://messenger/content/am-archiveoptions.js"/>
-
+<html id="archiveOptions" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="350" height="350"
+      persist="width height"
+      scrolling="false">
+<head>
+  <title>&dialogTitle.label;</title>
+  <script defer="defer" src="chrome://messenger/content/am-archiveoptions.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog style="width:100vw; height:100vh;">
   <vbox flex="1">
     <label>&archiveGranularityPrefix.label;</label>
     <radiogroup id="archiveGranularity">
@@ -55,18 +57,18 @@
               </treeitem>
               <treeitem class="year">
                 <treerow>
-                  <treecell label="2010"/>
+                  <treecell label="2020"/>
                 </treerow>
                 <treechildren>
                   <treeitem class="month">
                     <treerow>
-                      <treecell label="2010-11"/>
+                      <treecell label="2020-11"/>
                     </treerow>
                     <treechildren/>
                   </treeitem>
                   <treeitem class="month">
                     <treerow>
-                      <treecell label="2010-12"/>
+                      <treecell label="2020-12"/>
                     </treerow>
                     <treechildren/>
                   </treeitem>
@@ -74,18 +76,18 @@
               </treeitem>
               <treeitem class="year">
                 <treerow>
-                  <treecell label="2011"/>
+                  <treecell label="2021"/>
                 </treerow>
                 <treechildren>
                   <treeitem class="month">
                     <treerow>
-                      <treecell label="2011-01"/>
+                      <treecell label="2021-01"/>
                     </treerow>
                     <treechildren/>
                   </treeitem>
                   <treeitem class="month">
                     <treerow>
-                      <treecell label="2011-02"/>
+                      <treecell label="2021-02"/>
                     </treerow>
                     <treechildren/>
                   </treeitem>
@@ -100,4 +102,5 @@
     </html:div>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>

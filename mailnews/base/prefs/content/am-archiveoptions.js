@@ -5,6 +5,7 @@
 
 var gIdentity = null;
 
+window.addEventListener("DOMContentLoaded", onLoadArchiveOptions);
 document.addEventListener("dialogaccept", onAcceptArchiveOptions);
 
 /**
