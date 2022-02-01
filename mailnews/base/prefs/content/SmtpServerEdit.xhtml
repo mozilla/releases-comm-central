@@ -6,23 +6,26 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/smtpEditOverlay.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/smtpEditOverlay.dtd">
 
-<window title="&smtpEditTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="onLoad();">
-<dialog>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title>&smtpEditTitle.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/SmtpServerEdit.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog style="width:100vw; height:100vh;">
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
   <stringbundle id="bundle_brand"
                 src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundle_messenger"
                 src="chrome://messenger/locale/messenger.properties"/>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/SmtpServerEdit.js"/>
 
   <vbox id="smtpServerEditor">
     <html:div>
@@ -141,4 +144,5 @@
     </html:div>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>

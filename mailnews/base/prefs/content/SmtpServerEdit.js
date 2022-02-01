@@ -25,9 +25,10 @@ var gSmtpSocketType;
 var gPort;
 var gDefaultPort;
 
+window.addEventListener("DOMContentLoaded", onLoad);
 document.addEventListener("dialogaccept", onAccept);
 
-function onLoad(event) {
+function onLoad() {
   gSmtpServer = window.arguments[0].server;
   initSmtpSettings(gSmtpServer);
 }
