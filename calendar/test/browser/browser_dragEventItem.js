@@ -12,12 +12,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-const calendar = CalendarTestUtils.createProxyCalendar("Drag Test", "memory");
+const calendar = CalendarTestUtils.createCalendar("Drag Test", "memory");
 // Set a low number of hours to reduce pixel -> minute rounding errors.
 Services.prefs.setIntPref("calendar.view.visiblehours", 3);
 
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
   Services.prefs.clearUserPref("calendar.view.visiblehours");
   // Reset the spaces toolbar to its default visible state.
   window.gSpacesToolbar.toggleToolbar(false);

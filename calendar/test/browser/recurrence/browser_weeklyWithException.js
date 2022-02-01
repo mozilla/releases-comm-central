@@ -19,9 +19,9 @@ const STARTDATE = cal.createDateTime("20090106T000000Z");
 const TITLE = "Event";
 
 add_task(async function testWeeklyWithExceptionRecurrence() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "day");

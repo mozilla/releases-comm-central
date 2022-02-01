@@ -18,8 +18,8 @@ const { SyntheticPartLeaf } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-const calendar = CalendarTestUtils.createProxyCalendar("Mochitest", "memory");
-registerCleanupFunction(() => CalendarTestUtils.removeProxyCalendar(calendar));
+const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
+registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
 /**
  * Ensures the today pane is visible for each test.

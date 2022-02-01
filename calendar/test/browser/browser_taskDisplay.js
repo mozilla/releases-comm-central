@@ -9,9 +9,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-var calendar = CalendarTestUtils.createProxyCalendar();
+var calendar = CalendarTestUtils.createCalendar();
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
 });
 
 let tree = document.getElementById("calendar-task-tree");

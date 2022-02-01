@@ -46,9 +46,9 @@ registerCleanupFunction(async () => {
 });
 
 add_task(async function testTimezones2_CreateEvents() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "day");

@@ -14,11 +14,11 @@ var { data, newlines } = setupData();
 
 var { dayView } = CalendarTestUtils;
 
-let calendar = CalendarTestUtils.createProxyCalendar();
+let calendar = CalendarTestUtils.createCalendar();
 // This is done so that calItemBase#isInvitation returns true.
-calendar.proxyTarget.setProperty("organizerId", "mailto:pillow@example.com");
+calendar.setProperty("organizerId", "mailto:pillow@example.com");
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
 });
 
 // Test that closing an event dialog with no changes does not prompt for save.

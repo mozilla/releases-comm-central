@@ -659,32 +659,29 @@ const CalendarTestUtils = {
 
   /**
    * Creates and registers a new calendar with the calendar manager. The
-   * created calendar will be set as the default calendar. The value returned
-   * is a Proxy with the CRUD calendar methods adapted to use Promises.
-   *
+   * created calendar will be set as the default calendar.
    * @param {string} - name
    * @param {string} - type
    *
-   * @returns {Proxy}
+   * @returns {calICalendar}
    */
-  createProxyCalendar(name = "Test", type = "storage") {
+  createCalendar(name = "Test", type = "storage") {
     let manager = cal.getCalendarManager();
     let calendar = manager.createCalendar(type, Services.io.newURI(`moz-${type}-calendar://`));
-
     calendar.name = name;
     calendar.setProperty("calendar-main-default", true);
     manager.registerCalendar(calendar);
-    return cal.async.promisifyCalendar(calendar);
+    return calendar;
   },
 
   /**
    * Convenience method for removing a calendar using its proxy.
    *
-   * @param {Proxy} calendar - A calendar Proxy created via promisifyCalendar().
+   * @param {calICalendar} calendar - A calendar to remove.
    */
-  removeProxyCalendar(calendar) {
+  removeCalendar(calendar) {
     let manager = cal.getCalendarManager();
-    manager.unregisterCalendar(manager.getCalendarById(calendar.id));
+    manager.unregisterCalendar(calendar);
   },
 
   /**

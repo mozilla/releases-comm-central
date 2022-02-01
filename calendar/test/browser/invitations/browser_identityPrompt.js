@@ -28,7 +28,7 @@ let gInbox;
 let calendar;
 
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
   MailServices.accounts.removeIncomingServer(receiverAcct.incomingServer, true);
   MailServices.accounts.removeAccount(receiverAcct);
 });
@@ -49,7 +49,7 @@ add_task(async function setUp() {
   receiverAcct.addIdentity(receiverIdentity);
 
   gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
-  calendar = CalendarTestUtils.createProxyCalendar("Test");
+  calendar = CalendarTestUtils.createCalendar("Test");
 });
 
 /**

@@ -42,7 +42,7 @@ class TestCalFilter extends CalFilterMixin(class {}) {
   }
 }
 
-let manager, calendar, asyncCalendar, testWidget;
+let manager, calendar, testWidget;
 let testItems = {};
 let addedTestItems = {};
 
@@ -56,8 +56,6 @@ add_task(async function setUp() {
   calendar.setProperty("calendar-main-in-composite", true);
   Assert.ok(!calendar.getProperty("disabled"));
   manager.registerCalendar(calendar);
-
-  asyncCalendar = cal.async.promisifyCalendar(calendar);
 
   testWidget = new TestCalFilter();
   testWidget.startDate = cal.createDateTime("20210801");
@@ -95,20 +93,20 @@ add_task(async function setUp() {
 add_task(async function testAddItems() {
   for (let title of ["before", "after"]) {
     testWidget.clearItems();
-    addedTestItems[title] = await asyncCalendar.addItem(testItems[title]);
+    addedTestItems[title] = await calendar.addItem(testItems[title]);
     Assert.equal(testWidget.addedItems.length, 0);
   }
 
   for (let title of ["during", "overlaps_start", "overlaps_end", "overlaps_both"]) {
     testWidget.clearItems();
-    addedTestItems[title] = await asyncCalendar.addItem(testItems[title]);
+    addedTestItems[title] = await calendar.addItem(testItems[title]);
 
     Assert.equal(testWidget.addedItems.length, 1);
     Assert.equal(testWidget.addedItems[0].title, title);
   }
 
   testWidget.clearItems();
-  addedTestItems.repeating = await asyncCalendar.addItem(testItems.repeating);
+  addedTestItems.repeating = await calendar.addItem(testItems.repeating);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "repeating");
@@ -163,20 +161,20 @@ add_task(async function testRefresh() {
 add_task(async function testRemoveItems() {
   for (let title of ["before", "after"]) {
     testWidget.clearItems();
-    await asyncCalendar.deleteItem(addedTestItems[title]);
+    await calendar.deleteItem(addedTestItems[title]);
     Assert.equal(testWidget.removedItems.length, 0);
   }
 
   for (let title of ["during", "overlaps_start", "overlaps_end", "overlaps_both"]) {
     testWidget.clearItems();
-    await asyncCalendar.deleteItem(addedTestItems[title]);
+    await calendar.deleteItem(addedTestItems[title]);
 
     Assert.equal(testWidget.removedItems.length, 1);
     Assert.equal(testWidget.removedItems[0].title, title);
   }
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(addedTestItems.repeating);
+  await calendar.deleteItem(addedTestItems.repeating);
 
   Assert.equal(testWidget.removedItems.length, 3);
   Assert.equal(testWidget.removedItems[0].title, "repeating");
@@ -198,7 +196,7 @@ add_task(async function testModifyItem() {
   item.endDate = cal.createDateTime("20210805T180000");
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "change me");
@@ -208,7 +206,7 @@ add_task(async function testModifyItem() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "changed");
@@ -217,7 +215,7 @@ add_task(async function testModifyItem() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 1);
   Assert.equal(testWidget.removedItems[0].title, "changed");
@@ -232,7 +230,7 @@ add_task(async function testMoveItemWithinRange() {
   item.endDate = cal.createDateTime("20210805T180000");
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "move me");
@@ -243,7 +241,7 @@ add_task(async function testMoveItemWithinRange() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "move me");
@@ -252,7 +250,7 @@ add_task(async function testMoveItemWithinRange() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 1);
   Assert.equal(testWidget.removedItems[0].title, "move me");
@@ -267,7 +265,7 @@ add_task(async function testMoveItemOutOfRange() {
   item.endDate = cal.createDateTime("20210805T180000");
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "move me");
@@ -278,7 +276,7 @@ add_task(async function testMoveItemOutOfRange() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 0);
   Assert.equal(testWidget.removedItems.length, 1);
@@ -286,7 +284,7 @@ add_task(async function testMoveItemOutOfRange() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 0);
 });
@@ -299,7 +297,7 @@ add_task(async function testMoveItemInToRange() {
   item.endDate = cal.createDateTime("20210705T180000");
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 0);
 
@@ -307,13 +305,13 @@ add_task(async function testMoveItemInToRange() {
   changedItem.startDate = cal.createDateTime("20210805T170000");
   changedItem.endDate = cal.createDateTime("20210805T180000");
 
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "move me");
   Assert.equal(testWidget.removedItems.length, 0);
 
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 1);
   Assert.equal(testWidget.removedItems[0].title, "move me");
@@ -330,7 +328,7 @@ add_task(async function testModifyRecurringItem() {
   item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3"));
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "change me");
@@ -342,7 +340,7 @@ add_task(async function testModifyRecurringItem() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "changed");
@@ -357,7 +355,7 @@ add_task(async function testModifyRecurringItem() {
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 3);
   Assert.equal(testWidget.removedItems[0].title, "changed");
@@ -378,7 +376,7 @@ add_task(async function testMoveRecurringItemWithinRange() {
   item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3"));
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "move me");
@@ -391,7 +389,7 @@ add_task(async function testMoveRecurringItemWithinRange() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   // This maybe should call modifyItems, but instead it calls addItems and removeItems.
 
@@ -416,7 +414,7 @@ add_task(async function testMoveRecurringItemWithinRange() {
 
   addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 3);
   Assert.equal(testWidget.removedItems[0].title, "move me");
@@ -437,7 +435,7 @@ add_task(async function testMoveRecurringItemOutOfRange() {
   item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3"));
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "move me");
@@ -450,7 +448,7 @@ add_task(async function testMoveRecurringItemOutOfRange() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 0);
   Assert.equal(testWidget.removedItems.length, 3);
@@ -462,7 +460,7 @@ add_task(async function testMoveRecurringItemOutOfRange() {
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 0);
 });
@@ -477,7 +475,7 @@ add_task(async function testMoveRecurringItemInToRange() {
   item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3"));
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 0);
 
@@ -485,7 +483,7 @@ add_task(async function testMoveRecurringItemInToRange() {
   changedItem.startDate = cal.createDateTime("20210805T170000");
   changedItem.endDate = cal.createDateTime("20210805T180000");
 
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "move me");
@@ -493,7 +491,7 @@ add_task(async function testMoveRecurringItemInToRange() {
   Assert.equal(testWidget.addedItems[2].title, "move me");
   Assert.equal(testWidget.removedItems.length, 0);
 
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 3);
   Assert.equal(testWidget.removedItems[0].title, "move me");
@@ -514,7 +512,7 @@ add_task(async function testModifyOccurrence() {
   item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3"));
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "change me");
@@ -531,7 +529,7 @@ add_task(async function testModifyOccurrence() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(
+  await calendar.modifyItem(
     cal.itip.prepareSequence(changedOccurrence, occurrences[1]),
     occurrences[1]
   );
@@ -549,7 +547,7 @@ add_task(async function testModifyOccurrence() {
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(item);
+  await calendar.deleteItem(item);
 
   Assert.equal(testWidget.removedItems.length, 3);
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
@@ -567,7 +565,7 @@ add_task(async function testDeleteOccurrence() {
   item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3"));
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "change me");
@@ -584,7 +582,7 @@ add_task(async function testDeleteOccurrence() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 2);
   Assert.equal(testWidget.addedItems[0].title, "change me");
@@ -597,7 +595,7 @@ add_task(async function testDeleteOccurrence() {
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(item);
+  await calendar.deleteItem(item);
 
   Assert.equal(testWidget.removedItems.length, 3);
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
@@ -615,7 +613,7 @@ add_task(async function testMoveOccurrenceWithinRange() {
   item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3"));
 
   testWidget.clearItems();
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 3);
   Assert.equal(testWidget.addedItems[0].title, "move me");
@@ -633,7 +631,7 @@ add_task(async function testMoveOccurrenceWithinRange() {
 
   let addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
-  await asyncCalendar.modifyItem(
+  await calendar.modifyItem(
     cal.itip.prepareSequence(changedOccurrence, occurrences[1]),
     occurrences[1]
   );
@@ -657,7 +655,7 @@ add_task(async function testMoveOccurrenceWithinRange() {
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
 
   testWidget.clearItems();
-  await asyncCalendar.deleteItem(item);
+  await calendar.deleteItem(item);
 
   Assert.equal(testWidget.removedItems.length, 3);
   Assert.equal(testWidget.removedItems[0].title, "move me");
@@ -669,7 +667,7 @@ add_task(async function testMoveOccurrenceWithinRange() {
 });
 
 add_task(async function testDisableEnableCalendar() {
-  addedTestItems.during = await asyncCalendar.addItem(testItems.during);
+  addedTestItems.during = await calendar.addItem(testItems.during);
 
   testWidget.clearItems();
   await testWidget.refresh();
@@ -736,7 +734,7 @@ add_task(async function testDisableEnableCalendar() {
   Assert.equal(testWidget.removedItems.length, 0);
   Assert.equal(testWidget.removedCalendarIds.length, 0);
 
-  await asyncCalendar.deleteItem(addedTestItems.during);
+  await calendar.deleteItem(addedTestItems.during);
 });
 
 add_task(async function testChangesWhileHidden() {
@@ -748,19 +746,19 @@ add_task(async function testChangesWhileHidden() {
 
   testWidget.clearItems();
   calendar.setProperty("calendar-main-in-composite", false);
-  item = await asyncCalendar.addItem(item);
+  item = await calendar.addItem(item);
 
   Assert.equal(testWidget.addedItems.length, 0);
   Assert.equal(testWidget.removedItems.length, 0);
 
   let changedItem = item.clone();
   changedItem.title = "changed";
-  await asyncCalendar.modifyItem(changedItem, item);
+  await calendar.modifyItem(changedItem, item);
 
   Assert.equal(testWidget.addedItems.length, 0);
   Assert.equal(testWidget.removedItems.length, 0);
 
-  await asyncCalendar.deleteItem(changedItem);
+  await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.addedItems.length, 0);
   Assert.equal(testWidget.removedItems.length, 0);

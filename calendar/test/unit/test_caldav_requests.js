@@ -938,8 +938,7 @@ add_task(async function test_freebusy_request() {
 
 add_task(async function test_caldav_client() {
   let client = await gServer.getClient();
-  let pclient = cal.async.promisifyCalendar(client);
-  let items = await pclient.getAllItems();
+  let items = await client.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
 
   equal(items.length, 1);
   equal(items[0].title, "会議");

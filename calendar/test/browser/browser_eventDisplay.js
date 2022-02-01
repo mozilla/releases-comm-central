@@ -8,9 +8,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-var calendar = CalendarTestUtils.createProxyCalendar();
+var calendar = CalendarTestUtils.createCalendar();
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
 });
 
 let formatter = cal.dtz.formatter;

@@ -10,10 +10,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
-let calendar = CalendarTestUtils.createProxyCalendar();
+let calendar = CalendarTestUtils.createCalendar();
 Services.prefs.setIntPref("calendar.agenda.days", 7);
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
   Services.prefs.clearUserPref("calendar.agenda.days");
 });
 

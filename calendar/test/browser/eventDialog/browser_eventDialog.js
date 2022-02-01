@@ -26,11 +26,11 @@ var firstDay;
 
 var { dayView, monthView } = CalendarTestUtils;
 
-let calendar = CalendarTestUtils.createProxyCalendar();
+let calendar = CalendarTestUtils.createCalendar();
 // This is done so that calItemBase#isInvitation returns true.
-calendar.proxyTarget.setProperty("organizerId", "mailto:pillow@example.com");
+calendar.setProperty("organizerId", "mailto:pillow@example.com");
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
 });
 
 add_task(async function testEventDialog() {
@@ -326,8 +326,7 @@ add_task(async function testEventReminderDisplay() {
     "END:VEVENT\r\n" +
     "END:VCALENDAR\r\n";
 
-  let calendarProxy = cal.async.promisifyCalendar(calendar);
-  let calendarEvent = await calendarProxy.addItem(new CalEvent(icalString));
+  let calendarEvent = await calendar.addItem(new CalEvent(icalString));
   await CalendarTestUtils.goToDate(window, 2020, 3, 1);
   eventBox = await dayView.waitForEventBoxAt(window, 1);
 
@@ -340,7 +339,7 @@ add_task(async function testEventReminderDisplay() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
   // Delete directly, as using the UI causes a prompt to appear.
-  calendarProxy.deleteItem(calendarEvent);
+  calendar.deleteItem(calendarEvent);
   await dayView.waitForNoEventBoxAt(window, 1);
 });
 

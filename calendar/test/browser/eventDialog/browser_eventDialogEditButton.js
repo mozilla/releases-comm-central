@@ -14,10 +14,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
-const calendar = CalendarTestUtils.createProxyCalendar("Edit Button Test", "storage");
+const calendar = CalendarTestUtils.createCalendar("Edit Button Test", "storage");
 
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
 });
 
 function createNonRecurringEvent() {

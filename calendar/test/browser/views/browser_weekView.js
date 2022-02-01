@@ -13,9 +13,9 @@ var TITLE2 = "Week View Event Changed";
 var DESC = "Week View Event Description";
 
 add_task(async function testWeekView() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "week");

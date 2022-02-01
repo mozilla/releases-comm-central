@@ -16,15 +16,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-let manager = cal.getCalendarManager();
-let _calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-_calendar.name = "Task Delete Test";
-manager.registerCalendar(_calendar);
-registerCleanupFunction(() => {
-  manager.unregisterCalendar(_calendar);
-});
-
-let calendar = cal.async.promisifyCalendar(_calendar);
+let calendar = CalendarTestUtils.createCalendar("Task Delete Test", "memory");
+registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
 /**
  * Test ensures its possible to delete a task in the task view. Creates two task

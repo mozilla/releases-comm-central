@@ -13,9 +13,9 @@ const TITLE2 = "Month View Event Changed";
 const DESC = "Month View Event Description";
 
 add_task(async function testMonthView() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "month");

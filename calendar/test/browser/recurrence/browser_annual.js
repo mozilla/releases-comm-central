@@ -18,9 +18,9 @@ const EPOCH = 1970;
 requestLongerTimeout(2);
 
 add_task(async function testAnnualRecurrence() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "day");

@@ -17,9 +17,9 @@ var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 const HOUR = 8;
 
 add_task(async function testWeeklyNRecurrence() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "day");

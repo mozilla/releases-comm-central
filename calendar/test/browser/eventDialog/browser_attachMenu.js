@@ -11,18 +11,16 @@ const { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileA
 const { MockFilePicker } = ChromeUtils.import("resource://specialpowers/MockFilePicker.jsm");
 
 let manager = cal.getCalendarManager();
-let _calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-_calendar.name = "Attachments";
-manager.registerCalendar(_calendar);
+let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+calendar.name = "Attachments";
+manager.registerCalendar(calendar);
 
 // Remove the save prompt observer that head.js added. It's causing trouble here.
 Services.ww.unregisterNotification(savePromptObserver);
 
 registerCleanupFunction(() => {
-  manager.unregisterCalendar(_calendar);
+  manager.unregisterCalendar(calendar);
 });
-
-let calendar = cal.async.promisifyCalendar(_calendar);
 
 async function getEventBox(selector) {
   let itemBox;

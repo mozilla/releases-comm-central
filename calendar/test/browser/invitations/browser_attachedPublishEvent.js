@@ -35,10 +35,10 @@ add_task(async function setUp() {
   receiverIdentity.email = "john.doe@example.com";
   receiverIdentity.fullAddress = `Jane <${receiverIdentity.email}>`;
   receiverAcct.addIdentity(receiverIdentity);
-  gCalendar = CalendarTestUtils.createProxyCalendar("EventTestCal");
+  gCalendar = CalendarTestUtils.createCalendar("EventTestCal");
 
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(gCalendar);
+    CalendarTestUtils.removeCalendar(gCalendar);
     MailServices.accounts.removeAccount(receiverAcct, true);
   });
 });

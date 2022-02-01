@@ -11,11 +11,11 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var UTF8STRING = " 💣 💥  ☣  ";
 
 add_task(async function testUTF8() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
 
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
     Services.prefs.clearUserPref("calendar.categories.names");
   });
 

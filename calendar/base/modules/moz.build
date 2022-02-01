@@ -6,7 +6,6 @@
 EXTRA_JS_MODULES.calendar.utils += [
     "utils/calACLUtils.jsm",
     "utils/calAlarmUtils.jsm",
-    "utils/calAsyncUtils.jsm",
     "utils/calAuthUtils.jsm",
     "utils/calCategoryUtils.jsm",
     "utils/calDataUtils.jsm",

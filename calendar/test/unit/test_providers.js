@@ -345,7 +345,6 @@ add_task(async function testMetaData() {
 async function testOfflineStorage(storageGetter, isRecurring) {
     let storage = storageGetter();
     print(`Running offline storage test for ${storage.type} calendar for ${isRecurring ? "recurring" : "normal"} item`);
-    let pcal = cal.async.promisifyCalendar(storage);
 
     let event1 = createEventFromIcalString("BEGIN:VEVENT\n" +
                                            "DTSTART;VALUE=DATE:20020402\n" +
@@ -354,69 +353,69 @@ async function testOfflineStorage(storageGetter, isRecurring) {
                                            (isRecurring ? "RRULE:FREQ=DAILY;INTERVAL=1;COUNT=10\n" : "") +
                                            "END:VEVENT\n");
 
-    event1 = await pcal.addItem(event1);
+    event1 = await storage.addItem(event1);
 
     // Make sure the event is really in the calendar
-    let result = await pcal.getAllItems();
+    let result = await storage.getAllItems();
     equal(result.length, 1);
 
     // When searching for offline added items, there are none
     let filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED;
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 0);
 
     // Mark the item as offline added
-    await pcal.addOfflineItem(event1);
+    await storage.addOfflineItem(event1);
 
     // Now there should be an offline item
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 1);
 
     let event2 = event1.clone();
     event2.title = "event2";
 
-    event2 = await pcal.modifyItem(event2, event1);
+    event2 = await storage.modifyItem(event2, event1);
 
-    await pcal.modifyOfflineItem(event2);
+    await storage.modifyOfflineItem(event2);
 
     // The flag should still be offline added, as it was already marked as such
     filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED;
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 1);
 
     // Reset the flag
-    await pcal.resetItemOfflineFlag(event2);
+    await storage.resetItemOfflineFlag(event2);
 
     // No more offline items after resetting the flag
     filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED;
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 0);
 
     // Setting modify flag without one set should actually set that flag
-    await pcal.modifyOfflineItem(event2);
+    await storage.modifyOfflineItem(event2);
     filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED;
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 0);
 
     filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_MODIFIED;
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 1);
 
     // Setting the delete flag should modify the flag accordingly
-    await pcal.deleteOfflineItem(event2);
+    await storage.deleteOfflineItem(event2);
     filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_MODIFIED;
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 0);
 
     filter = Ci.calICalendar.ITEM_FILTER_ALL_ITEMS | Ci.calICalendar.ITEM_FILTER_OFFLINE_DELETED;
-    result = await pcal.getItems(filter, 0, null, null);
+    result = await storage.getItems(filter, 0, null, null);
     equal(result.length, 1);
 
     // Setting the delete flag on an offline added item should remove it
-    await pcal.resetItemOfflineFlag(event2);
-    await pcal.addOfflineItem(event2);
-    await pcal.deleteOfflineItem(event2);
-    result = await pcal.getAllItems();
+    await storage.resetItemOfflineFlag(event2);
+    await storage.addOfflineItem(event2);
+    await storage.deleteOfflineItem(event2);
+    result = await storage.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
     equal(result.length, 0);
 }
 

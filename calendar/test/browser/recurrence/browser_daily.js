@@ -25,9 +25,9 @@ const HOUR = 8;
 const TITLE = "Event";
 
 add_task(async function testDailyRecurrence() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await setCalendarView(window, "day");

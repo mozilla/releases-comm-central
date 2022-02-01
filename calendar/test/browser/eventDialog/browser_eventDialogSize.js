@@ -11,9 +11,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const SMALL_TOLERANCE = 5;
 const LARGE_TOLERANCE = 10;
 
-let calendar = CalendarTestUtils.createProxyCalendar();
+let calendar = CalendarTestUtils.createCalendar();
 registerCleanupFunction(() => {
-  CalendarTestUtils.removeProxyCalendar(calendar);
+  CalendarTestUtils.removeCalendar(calendar);
 });
 
 add_task(async function testEventDialog() {

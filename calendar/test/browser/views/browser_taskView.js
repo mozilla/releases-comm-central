@@ -14,9 +14,9 @@ const DESCRIPTION = "1. Do A\n2. Do B";
 const PERCENTCOMPLETE = "50";
 
 add_task(async function setupModule(module) {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   // Open task view.

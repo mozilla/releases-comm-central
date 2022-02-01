@@ -22,10 +22,10 @@ add_task(async () => {
   MockFilePicker.setFiles([file]);
   MockFilePicker.returnValue = MockFilePicker.returnCancel;
 
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
 
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
     MockFilePicker.cleanup();
   });
 

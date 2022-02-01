@@ -10,9 +10,9 @@
 // In all cases today pane should not be visible in preferences or addons tab.
 // Also test that the today pane button is visible/hidden for various tab types.
 add_task(async () => {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   const todayPane = document.getElementById("today-pane-panel");

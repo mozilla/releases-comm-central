@@ -13,9 +13,9 @@ const TITLE2 = "Multiweek View Event Changed";
 const DESC = "Multiweek View Event Description";
 
 add_task(async function setupModule(module) {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "multiweek");

@@ -38,21 +38,15 @@ add_task(function setUp() {
  * Tests the "Edit" menu item is available and opens up the event dialog.
  */
 add_task(async function testEditEditableItem() {
-  let uri = Services.io.newURI("moz-memory-calendar://");
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", uri);
-  let calendarProxy = cal.async.promisifyCalendar(calendar);
-  calendar.name = "Editable";
-  manager.registerCalendar(calendar);
-
-  registerCleanupFunction(() => manager.removeCalendar(calendar));
+  let calendar = CalendarTestUtils.createCalendar("Editable", "memory");
+  registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
   let title = "Editable Event";
   let event = new CalEvent();
   event.title = title;
   event.startDate = cal.createDateTime("20200101T000001Z");
 
-  await calendarProxy.addItem(event);
+  await calendar.addItem(event);
   window.goToDate(event.startDate);
 
   let menu = document.querySelector("#calendar-item-context-menu");
@@ -93,14 +87,8 @@ add_task(async function testEditEditableItem() {
  * modify.
  */
 add_task(async function testEditNonEditableItem() {
-  let uri = Services.io.newURI("moz-memory-calendar://");
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", uri);
-  let calendarProxy = cal.async.promisifyCalendar(calendar);
-  calendar.name = "Non-Editable";
-  manager.registerCalendar(calendar);
-
-  registerCleanupFunction(() => manager.removeCalendar(calendar));
+  let calendar = CalendarTestUtils.createCalendar("Non-Editable", "memory");
+  registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
   let event = new CalEvent();
   let acl = {
@@ -118,7 +106,7 @@ add_task(async function testEditNonEditableItem() {
   event.startDate = cal.createDateTime("20200102T000001Z");
   event.mACLEntry = acl;
 
-  await calendarProxy.addItem(event);
+  await calendar.addItem(event);
   window.goToDate(event.startDate);
 
   let menu = document.querySelector("#calendar-item-context-menu");
@@ -135,15 +123,9 @@ add_task(async function testEditNonEditableItem() {
  * Tests that the "Edit" menu item is disabled when the event is an invitation.
  */
 add_task(async function testInvitation() {
-  let uri = Services.io.newURI("moz-memory-calendar://");
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", uri);
-  let calendarProxy = cal.async.promisifyCalendar(calendar);
-  calendar.name = "Invitation";
+  let calendar = CalendarTestUtils.createCalendar("Invitation", "memory");
   calendar.setProperty("organizerId", "mailto:attendee@example.com");
-  manager.registerCalendar(calendar);
-
-  registerCleanupFunction(() => manager.removeCalendar(calendar));
+  registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
   let icalString = CalendarTestUtils.dedent`
     BEGIN:VEVENT
@@ -163,7 +145,7 @@ add_task(async function testInvitation() {
   `;
 
   let invitation = new CalEvent(icalString);
-  await calendarProxy.addItem(invitation);
+  await calendar.addItem(invitation);
   window.goToDate(invitation.startDate);
 
   let menu = document.querySelector("#calendar-item-context-menu");
@@ -180,20 +162,14 @@ add_task(async function testInvitation() {
  * Tests that the "Edit" menu item is disabled when the calendar is read-only.
  */
 add_task(async function testCalendarReadOnly() {
-  let uri = Services.io.newURI("moz-memory-calendar://");
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", uri);
-  let calendarProxy = cal.async.promisifyCalendar(calendar);
-  calendar.name = "ReadOnly";
-  manager.registerCalendar(calendar);
-
-  registerCleanupFunction(() => manager.removeCalendar(calendar));
+  let calendar = CalendarTestUtils.createCalendar("ReadOnly", "memory");
+  registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
   let event = new CalEvent();
   event.title = "ReadOnly Event";
   event.startDate = cal.createDateTime("20200104T000001Z");
 
-  await calendarProxy.addItem(event);
+  await calendar.addItem(event);
   calendar.setProperty("readOnly", true);
   window.goToDate(event.startDate);
 

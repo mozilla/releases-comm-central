@@ -21,7 +21,7 @@ async function promiseItems(filter, calendar) {
 add_task(() => new Promise(resolve => do_calendar_startup(resolve)));
 
 add_task(async function testDateRangeFilter() {
-  let calendar = CalendarTestUtils.createProxyCalendar("test");
+  let calendar = CalendarTestUtils.createCalendar("test");
 
   let testItems = {};
   for (let [title, startDate, endDate] of [
@@ -106,7 +106,7 @@ add_task(async function testDateRangeFilter() {
 });
 
 add_task(async function testItemTypeFilter() {
-  let calendar = CalendarTestUtils.createProxyCalendar("test");
+  let calendar = CalendarTestUtils.createCalendar("test");
 
   let event = new CalEvent();
   event.id = cal.getUUID();

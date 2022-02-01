@@ -45,11 +45,11 @@ let identity;
  */
 add_task(async function setUp() {
   await new Promise(resolve => do_load_calmgr(resolve));
-  calendar = CalendarTestUtils.createProxyCalendar("Test", "memory");
+  calendar = CalendarTestUtils.createCalendar("Test", "memory");
   identity = MailServices.accounts.createIdentity();
   identity.email = identityEmail;
-  calendar.proxyTarget.setProperty("imip.identity.key", identity.key);
-  calendar.proxyTarget.setProperty("organizerId", calendarOrganizerId);
+  calendar.setProperty("imip.identity.key", identity.key);
+  calendar.setProperty("organizerId", calendarOrganizerId);
 });
 
 /**

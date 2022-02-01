@@ -17,7 +17,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-const calendar = CalendarTestUtils.createProxyCalendar("Undo Redo Test", "memory");
+const calendar = CalendarTestUtils.createCalendar("Undo Redo Test", "memory");
 const calTransManager = Cc["@mozilla.org/calendar/transactionmanager;1"].getService(
   Ci.calITransactionManager
 ).wrappedJSObject;
@@ -233,7 +233,7 @@ async function testDeleteUndoRedoTask(undoId, redoId) {
  */
 add_task(async function setUp() {
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   clearTransactions();

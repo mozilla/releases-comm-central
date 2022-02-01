@@ -26,9 +26,8 @@ notThisCalendar.setProperty("color", "#dd3333");
 manager.registerCalendar(notThisCalendar);
 
 add_task(async function setUp() {
-  let asyncThisCalendar = cal.async.promisifyCalendar(thisCalendar);
   let { dedent } = CalendarTestUtils;
-  await asyncThisCalendar.addItem(
+  await thisCalendar.addItem(
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:This Event 1
@@ -37,7 +36,7 @@ add_task(async function setUp() {
     END:VEVENT
   `)
   );
-  await asyncThisCalendar.addItem(
+  await thisCalendar.addItem(
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:This Event 2
@@ -46,7 +45,7 @@ add_task(async function setUp() {
     END:VEVENT
   `)
   );
-  await asyncThisCalendar.addItem(
+  await thisCalendar.addItem(
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:This Event 3
@@ -57,8 +56,7 @@ add_task(async function setUp() {
   `)
   );
 
-  let asyncNotThisCalendar = cal.async.promisifyCalendar(notThisCalendar);
-  await asyncNotThisCalendar.addItem(
+  await notThisCalendar.addItem(
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:Not This Event 1
@@ -67,7 +65,7 @@ add_task(async function setUp() {
     END:VEVENT
   `)
   );
-  await asyncNotThisCalendar.addItem(
+  await notThisCalendar.addItem(
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:Not This Event 2

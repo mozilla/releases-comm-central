@@ -21,7 +21,6 @@ add_task(async function testOpenEvent() {
   let uri = Services.io.newURI("moz-memory-calendar://");
   let manager = cal.getCalendarManager();
   let calendar = manager.createCalendar("memory", uri);
-  let calendarProxy = cal.async.promisifyCalendar(calendar);
 
   calendar.name = "Unifinder Test";
   manager.registerCalendar(calendar);
@@ -59,7 +58,7 @@ add_task(async function testOpenEvent() {
   }
 
   for (let event of [noRepeatEvent, repeatEvent]) {
-    await calendarProxy.addItem(event);
+    await calendar.addItem(event);
 
     let dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
     let tree = document.querySelector("#unifinder-search-results-tree");
@@ -73,6 +72,6 @@ add_task(async function testOpenEvent() {
     );
 
     await BrowserTestUtils.closeWindow(dialogWindow);
-    await calendarProxy.deleteItem(event);
+    await calendar.deleteItem(event);
   }
 });

@@ -10,15 +10,13 @@
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 const manager = cal.getCalendarManager();
-const _calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-_calendar.name = "Minimonths";
+const calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+calendar.name = "Minimonths";
 
-manager.registerCalendar(_calendar);
+manager.registerCalendar(calendar);
 registerCleanupFunction(() => {
-  manager.unregisterCalendar(_calendar);
+  manager.unregisterCalendar(calendar);
 });
-
-const calendar = cal.async.promisifyCalendar(_calendar);
 
 requestLongerTimeout(2);
 

@@ -13,9 +13,9 @@ const TITLE2 = "Day View Event Changed";
 const DESC = "Day View Event Description";
 
 add_task(async function testDayView() {
-  let calendar = CalendarTestUtils.createProxyCalendar();
+  let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
-    CalendarTestUtils.removeProxyCalendar(calendar);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "day");
