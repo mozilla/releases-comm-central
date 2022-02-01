@@ -907,7 +907,6 @@ pref("devtools.browsertoolbox.fission", false);
 pref("devtools.command-button-pick.enabled", true);
 pref("devtools.command-button-frames.enabled", true);
 pref("devtools.command-button-splitconsole.enabled", true);
-pref("devtools.command-button-paintflashing.enabled", false);
 pref("devtools.command-button-responsive.enabled", true);
 pref("devtools.command-button-screenshot.enabled", false);
 pref("devtools.command-button-rulers.enabled", false);
@@ -1052,6 +1051,13 @@ pref("devtools.netmonitor.features.requestBlocking", true);
 // Enable the Application panel
 pref("devtools.application.enabled", false);
 
+// Enable the custom formatters feature
+// TODO remove once the custom formatters feature is stable (see bug 1734614)
+pref("devtools.custom-formatters", false);
+// This preference represents the user's choice to enable the custom formatters feature.
+// While the preference above will be removed once the feature is stable, this one is menat to stay.
+pref("devtools.custom-formatters.enabled", false);
+
 // The default Network Monitor UI settings
 pref("devtools.netmonitor.panes-network-details-width", 550);
 pref("devtools.netmonitor.panes-network-details-height", 450);
@@ -1131,9 +1137,6 @@ pref("devtools.webconsole.input.autocomplete",true);
 #else
   pref("devtools.webconsole.input.context", false);
 #endif
-
-// Show context selector in console input, in the content toolbox
-pref("devtools.contenttoolbox.webconsole.input.context", false);
 
 // Set to true to eagerly show the results of webconsole terminal evaluations
 // when they don't have side effects.
@@ -1229,13 +1232,8 @@ pref("devtools.responsive.reloadConditions.userAgent", false);
 pref("devtools.responsive.reloadNotification.enabled", true);
 // Whether or not touch simulation is enabled.
 pref("devtools.responsive.touchSimulation.enabled", false);
-// Whether or not meta viewport is enabled, if and only if touchSimulation
-// is also enabled.
-pref("devtools.responsive.metaViewport.enabled", false);
 // The user agent of the viewport.
 pref("devtools.responsive.userAgent", "");
-// Whether or not the RDM UI is embedded in the browser.
-pref("devtools.responsive.browserUI.enabled", false);
 
 // Show the custom user agent input in Nightly builds.
 #if defined(NIGHTLY_BUILD)
