@@ -84,7 +84,11 @@ function checkInputValues(expected) {
 
 function checkCardValues(card, expected) {
   for (let [key, value] of Object.entries(expected)) {
-    Assert.equal(card.getProperty(key, "WRONG!"), value);
+    if (value) {
+      Assert.equal(card.getProperty(key, "WRONG!"), value);
+    } else {
+      Assert.equal(card.getProperty(key, "RIGHT!"), "RIGHT!");
+    }
   }
 }
 
@@ -311,9 +315,101 @@ add_task(async function test_basic_edit() {
     SecondEmail: "i@roman.invalid",
   });
 
+  // Cancel the edit by pressing the Escape key.
+
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  await notInEditingMode();
+
+  // Click to edit again. This time make some changes.
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  setInputValues({
+    FirstName: "person",
+    DisplayName: "person one",
+  });
+
+  // Cancel the edit by pressing the Escape key and cancel the prompt.
+
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => abWindow.setTimeout(resolve));
+  Assert.ok(
+    abWindow.detailsPane.isEditing,
+    "still editing after cancelling prompt"
+  );
+
+  // Cancel the edit by pressing the Escape key and accept the prompt.
+
+  promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  await promptPromise;
+  await notInEditingMode();
+  await new Promise(resolve => abWindow.setTimeout(resolve));
+
+  checkCardValues(book.childCards[0], {
+    FirstName: "person",
+    DisplayName: "person one",
+  });
+
+  // Click to edit again.
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  setInputValues({
+    LastName: "11",
+    DisplayName: "person 11",
+    SecondEmail: "xi@roman.invalid",
+  });
+
+  // Cancel the edit by pressing the Escape key and discard the changes.
+
+  promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  await promptPromise;
+  await notInEditingMode();
+  await new Promise(resolve => abWindow.setTimeout(resolve));
+
+  checkCardValues(book.childCards[0], {
+    FirstName: "person",
+    DisplayName: "person one",
+  });
+
+  // Click to edit again.
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  // Make some changes again, and this time save them by pressing Enter.
+
+  setInputValues({
+    FirstName: "contact",
+    LastName: "1",
+    DisplayName: "contact 1",
+    SecondEmail: "",
+  });
+
+  abDocument.getElementById("SecondEmail").focus();
+  EventUtils.synthesizeKey("VK_RETURN", {}, abWindow);
+  await notInEditingMode();
+
+  checkDisplayValues({
+    emailAddresses: ["contact.1@invalid"],
+  });
+  checkCardValues(book.childCards[0], {
+    FirstName: "contact",
+    LastName: "1",
+    DisplayName: "contact 1",
+    PrimaryEmail: "contact.1@invalid",
+    SecondEmail: "",
+  });
+
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
-}).__skipMe = true; // bug 1751290 needs finishing
+});
 
 add_task(async function test_special_fields() {
   Services.prefs.setStringPref("mail.addr_book.show_phonetic_fields", "true");

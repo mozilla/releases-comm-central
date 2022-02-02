@@ -144,6 +144,9 @@ about-addressbook-details-home-address-header = Home Address
 about-addressbook-details-work-address-header = Work Address
 about-addressbook-details-other-info-header = Other Information
 
+about-addressbook-unsaved-changes-prompt-title = Unsaved Changes
+about-addressbook-unsaved-changes-prompt = Do you want to save your changes before leaving the edit view?
+
 # Photo dialog
 
 about-addressbook-photo-drop-target = Drop or paste a photo here, or click to select a file.

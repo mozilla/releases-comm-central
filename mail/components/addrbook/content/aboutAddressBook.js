@@ -573,7 +573,19 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       },
     ]);
 
-    if (Services.prompt.confirm(window, title, message)) {
+    if (
+      Services.prompt.confirmEx(
+        window,
+        title,
+        message,
+        Ci.nsIPromptService.STD_YES_NO_BUTTONS,
+        null,
+        null,
+        null,
+        null,
+        {}
+      ) === 0
+    ) {
       MailServices.ab.deleteAddressBook(uri);
     }
   }
@@ -1362,7 +1374,19 @@ var cardsPane = {
     ]);
 
     // Finally, show our smart confirmation message, and act upon it!
-    if (!Services.prompt.confirm(window, title, message)) {
+    if (
+      Services.prompt.confirmEx(
+        window,
+        title,
+        message,
+        Ci.nsIPromptService.STD_YES_NO_BUTTONS,
+        null,
+        null,
+        null,
+        null,
+        {}
+      ) !== 0
+    ) {
       // Deletion cancelled by user.
       return;
     }
@@ -1665,7 +1689,7 @@ var detailsPane = {
     "Notes",
   ],
 
-  container: null,
+  form: null,
 
   editButton: null,
 
@@ -1673,18 +1697,81 @@ var detailsPane = {
 
   currentCard: null,
 
+  dirtyFields: new Set(),
+
   init() {
-    this.container = document.getElementById("detailsPane");
+    this.form = document.getElementById("detailsPane");
     this.editButton = document.getElementById("editButton");
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
 
-    this.container.addEventListener("change", () => {
-      this.isDirty = true;
+    this.editButton.addEventListener("click", () => this.editCurrentContact());
+    this.form.addEventListener("input", event => {
+      let { type, checked, value, _originalValue } = event.target;
+      let changed;
+      if (type == "checkbox") {
+        changed = checked != _originalValue;
+      } else {
+        changed = value != _originalValue;
+      }
+      if (changed) {
+        this.dirtyFields.add(event.target);
+      } else {
+        this.dirtyFields.delete(event.target);
+      }
+
+      // If there are no dirty fields, clear the flag, otherwise set it.
+      this.isDirty = this.dirtyFields.size > 0;
     });
-    this.editButton.addEventListener("click", this);
-    this.cancelEditButton.addEventListener("click", this);
-    this.saveEditButton.addEventListener("click", this);
+    this.form.addEventListener("keypress", async event => {
+      if (event.key != "Escape") {
+        return;
+      }
+
+      event.preventDefault();
+      if (!this.isDirty) {
+        this.form.reset();
+        return;
+      }
+
+      let [title, message] = await document.l10n.formatValues([
+        { id: `about-addressbook-unsaved-changes-prompt-title` },
+        { id: `about-addressbook-unsaved-changes-prompt` },
+      ]);
+
+      let buttonPressed = Services.prompt.confirmEx(
+        window,
+        title,
+        message,
+        Ci.nsIPrompt.BUTTON_TITLE_SAVE * Ci.nsIPrompt.BUTTON_POS_0 +
+          Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1 +
+          Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE * Ci.nsIPrompt.BUTTON_POS_2,
+        null,
+        null,
+        null,
+        null,
+        {}
+      );
+      if (buttonPressed === 0) {
+        // Don't call this.form.submit, the submit event won't fire.
+        if (this.form.checkValidity()) {
+          this.saveCurrentContact();
+        }
+      } else if (buttonPressed === 2) {
+        this.form.reset();
+      }
+    });
+    this.form.addEventListener("reset", event => {
+      event.preventDefault();
+      this.isEditing = false;
+      this.displayContact(this.currentCard);
+    });
+    this.form.addEventListener("submit", event => {
+      event.preventDefault();
+      if (this.form.checkValidity()) {
+        this.saveCurrentContact();
+      }
+    });
 
     this.photoOuter = document.getElementById("photoOuter");
     this.photo = document.getElementById("photo");
@@ -1752,14 +1839,6 @@ var detailsPane = {
     this.age.addEventListener("change", () => this.calculateYear());
   },
 
-  handleEvent(event) {
-    switch (event.type) {
-      case "click":
-        this._onClick(event);
-        break;
-    }
-  },
-
   /**
    * Is a card being edited?
    * @type {boolean}
@@ -1796,6 +1875,7 @@ var detailsPane = {
 
     if (!editing) {
       this.isDirty = false;
+      this.dirtyFields.clear();
     }
   },
 
@@ -1824,7 +1904,7 @@ var detailsPane = {
 
     this.currentCard = card;
     if (!card || card.isMailList) {
-      this.container.hidden = true;
+      this.form.hidden = true;
       return;
     }
 
@@ -1923,8 +2003,8 @@ var detailsPane = {
     this.editButton.disabled = book.readOnly;
 
     this.isEditing = false;
-    this.container.scrollTo(0, 0);
-    this.container.hidden = false;
+    this.form.scrollTo(0, 0);
+    this.form.hidden = false;
   },
 
   /**
@@ -1950,14 +2030,16 @@ var detailsPane = {
     }
 
     for (let field of this.PLAIN_CONTACT_FIELDS) {
-      document.getElementById(field).value = card
+      let element = document.getElementById(field);
+      element.value = element._originalValue = card
         ? card.getProperty(field, "")
         : "";
     }
 
     this.displayName._dirty = !!this.displayName.value;
 
-    document.getElementById("preferDisplayName").checked =
+    let preferDisplayName = document.getElementById("preferDisplayName");
+    preferDisplayName.checked = preferDisplayName._originalValue =
       // getProperty may return a "1" or "0" string, we want a boolean
       // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
       card ? card.getProperty("PreferDisplayName", true) == true : true;
@@ -1965,9 +2047,9 @@ var detailsPane = {
     this.calculateAge();
 
     this.isEditing = true;
-    this.container.hidden = false;
-    this.container.scrollTo(0, 0);
-    this.container.querySelector("input").focus();
+    this.form.hidden = false;
+    this.form.scrollTo(0, 0);
+    this.form.querySelector("input").focus();
   },
 
   /**
@@ -2170,21 +2252,6 @@ var detailsPane = {
     }
     this.birthYear.value = year;
     this.setDisabledMonthDays();
-  },
-
-  _onClick(event) {
-    switch (event.target.id) {
-      case "editButton":
-        this.editCurrentContact();
-        break;
-      case "cancelEditButton":
-        this.isEditing = false;
-        this.displayContact(this.currentCard);
-        break;
-      case "saveEditButton":
-        this.saveCurrentContact();
-        break;
-    }
   },
 
   async _onPhotoActivate(event) {
@@ -2544,6 +2611,7 @@ var photoDialog = {
     )}")`;
 
     this._dialog.close();
+    detailsPane.dirtyFields.add(this.photo);
     detailsPane.isDirty = true;
   },
 
