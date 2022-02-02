@@ -724,6 +724,8 @@ pref("browser.tabs.remote.autostart", true);
 pref("browser.tabs.remote.desktopbehavior", true);
 pref("extensions.webextensions.remote", true);
 
+pref("extensions.webextensions.background-delayed-startup", true);
+
 // Browser icon prefs
 pref("browser.chrome.site_icons", true);
 pref("browser.chrome.favicons", true);
