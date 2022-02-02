@@ -18,6 +18,14 @@ var { ExtensionSupport } = ChromeUtils.import(
 
 addIdentity(createAccount());
 
+function findWindow(subject) {
+  let windows = Array.from(Services.wm.getEnumerator("msgcompose"));
+  return windows.find(win => {
+    let composeFields = win.GetComposeDetails();
+    return composeFields.subject == subject;
+  });
+}
+
 var MockCompleteGenericSendMessage = {
   register() {
     // For every compose window that opens, replace the function which does the
@@ -96,14 +104,14 @@ add_task(async function test_file_attachments() {
         browser.test.assertEq(size, data.size);
       };
 
-      let checkUI = async (...expected) => {
+      let checkUI = async (composeTab, ...expected) => {
         let attachments = await browser.compose.listAttachments(composeTab.id);
         browser.test.assertEq(expected.length, attachments.length);
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
         }
-
-        return window.sendMessage("checkUI", expected);
+        let details = await browser.compose.getComposeDetails(composeTab.id);
+        return window.sendMessage("checkUI", details, expected);
       };
 
       let createCloudfileAccount = () => {
@@ -126,9 +134,11 @@ add_task(async function test_file_attachments() {
         "file2.txt"
       );
       let file3 = new File(["I'm pretending to be file two."], "file3.txt");
-      let composeTab = await browser.compose.beginNew();
+      let composeTab = await browser.compose.beginNew({
+        subject: "Message #1",
+      });
 
-      await checkUI();
+      await checkUI(composeTab);
 
       // Add an attachment.
 
@@ -146,7 +156,7 @@ add_task(async function test_file_attachments() {
       );
       await checkData(added1, file1.size);
 
-      await checkUI({
+      await checkUI(composeTab, {
         id: attachment1.id,
         name: "file1.txt",
         size: file1.size,
@@ -170,6 +180,7 @@ add_task(async function test_file_attachments() {
       await checkData(added2, file2.size);
 
       await checkUI(
+        composeTab,
         { id: attachment1.id, name: "file1.txt", size: file1.size },
         { id: attachment2.id, name: "this is file2.txt", size: file2.size }
       );
@@ -186,6 +197,7 @@ add_task(async function test_file_attachments() {
       await checkData(changed2, file2.size);
 
       await checkUI(
+        composeTab,
         { id: attachment1.id, name: "file1.txt", size: file1.size },
         {
           id: attachment2.id,
@@ -204,6 +216,7 @@ add_task(async function test_file_attachments() {
       await checkData(changed3, file3.size);
 
       await checkUI(
+        composeTab,
         { id: attachment1.id, name: "file1.txt", size: file1.size },
         {
           id: attachment2.id,
@@ -221,7 +234,7 @@ add_task(async function test_file_attachments() {
         attachment1.id
       );
 
-      await checkUI({
+      await checkUI(composeTab, {
         id: attachment2.id,
         name: "file2 with a new name.txt",
         size: file3.size,
@@ -340,7 +353,7 @@ add_task(async function test_file_attachments() {
         attachment2.id
       );
 
-      await checkUI();
+      await checkUI(composeTab);
 
       await browser.tabs.remove(composeTab.id);
       browser.test.assertEq(0, listener.events.length);
@@ -364,8 +377,8 @@ add_task(async function test_file_attachments() {
     },
   });
 
-  extension.onMessage("checkUI", expected => {
-    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+  extension.onMessage("checkUI", (details, expected) => {
+    let composeWindow = findWindow(details.subject);
     let composeDocument = composeWindow.document;
 
     let bucket = composeDocument.getElementById("attachmentBucket");
@@ -497,8 +510,8 @@ add_task(async function test_compose_attachments() {
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
         }
-
-        return window.sendMessage("checkUI", composeTab, expected);
+        let details = await browser.compose.getComposeDetails(composeTab.id);
+        return window.sendMessage("checkUI", details, expected);
       };
 
       let createCloudfileAccount = () => {
@@ -556,7 +569,9 @@ add_task(async function test_compose_attachments() {
 
       // -----------------------------------------------------------------------
 
-      let composeTab1 = await browser.compose.beginNew();
+      let composeTab1 = await browser.compose.beginNew({
+        subject: "Message #2",
+      });
       await checkUI(composeTab1);
 
       // Add an attachment to composeTab1.
@@ -672,7 +687,9 @@ add_task(async function test_compose_attachments() {
         browser.cloudFile.onFileUpload.addListener(fileListener);
       });
 
-      let composeTab2 = await browser.compose.beginNew();
+      let composeTab2 = await browser.compose.beginNew({
+        subject: "Message #3",
+      });
       let tab2_attachment1 = await cloneAttachment(
         tab1_attachment1,
         composeTab2,
@@ -715,7 +732,9 @@ add_task(async function test_compose_attachments() {
       // not be an upload request (which would fail without upload listener), as
       // we simply re-attach the cloudFileUpload data.
 
-      let composeTab3 = await browser.compose.beginNew();
+      let composeTab3 = await browser.compose.beginNew({
+        subject: "Message #4",
+      });
       let tab3_attachment1 = await cloneAttachment(
         tab1_attachment1,
         composeTab3
@@ -825,7 +844,7 @@ add_task(async function test_compose_attachments() {
         browser.cloudFile.onFileUpload.addListener(fileListener);
       });
 
-      let tab4_details = {};
+      let tab4_details = { subject: "Message #5" };
       tab4_details.attachments = [
         Object.assign({}, tab1_attachment1),
         Object.assign({}, tab1_attachment2),
@@ -879,7 +898,7 @@ add_task(async function test_compose_attachments() {
       // Open a 5th compose window and directly clone attachment1 and attachment2
       // from tab1.
 
-      let tab5_details = {};
+      let tab5_details = { subject: "Message #6" };
       tab5_details.attachments = [tab1_attachment1, tab1_attachment2];
       let composeTab5 = await browser.compose.beginNew(tab5_details);
 
@@ -989,12 +1008,8 @@ add_task(async function test_compose_attachments() {
     },
   });
 
-  let seenWindows = new ExtensionUtils.DefaultMap(() =>
-    Services.wm.getMostRecentWindow("msgcompose")
-  );
-
-  extension.onMessage("checkUI", (composeTab, expected) => {
-    let composeWindow = seenWindows.get(composeTab.id);
+  extension.onMessage("checkUI", (details, expected) => {
+    let composeWindow = findWindow(details.subject);
     let composeDocument = composeWindow.document;
 
     let bucket = composeDocument.getElementById("attachmentBucket");
@@ -1165,8 +1180,8 @@ add_task(async function test_compose_attachments_immutable() {
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
         }
-
-        return window.sendMessage("checkUI", composeTab, expected);
+        let details = await browser.compose.getComposeDetails(composeTab.id);
+        return window.sendMessage("checkUI", details, expected);
       };
 
       let createCloudfileAccount = () => {
@@ -1322,7 +1337,9 @@ add_task(async function test_compose_attachments_immutable() {
       // second one should be cloned as a cloud attachment, having no size and the
       // correct contentLocation.
 
-      let composeTab2 = await browser.compose.beginNew();
+      let composeTab2 = await browser.compose.beginNew({
+        subject: "Message #7",
+      });
       let tab2_attachment1 = await cloneAttachment(
         tab1_attachment1,
         composeTab2
@@ -1403,12 +1420,8 @@ add_task(async function test_compose_attachments_immutable() {
     },
   });
 
-  let seenWindows = new ExtensionUtils.DefaultMap(() =>
-    Services.wm.getMostRecentWindow("msgcompose")
-  );
-
-  extension.onMessage("checkUI", (composeTab, expected) => {
-    let composeWindow = seenWindows.get(composeTab.id);
+  extension.onMessage("checkUI", (details, expected) => {
+    let composeWindow = findWindow(details.subject);
     let composeDocument = composeWindow.document;
 
     let bucket = composeDocument.getElementById("attachmentBucket");
@@ -1579,8 +1592,8 @@ add_task(async function test_compose_attachments_no_reuse() {
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
         }
-
-        return window.sendMessage("checkUI", composeTab, expected);
+        let details = await browser.compose.getComposeDetails(composeTab.id);
+        return window.sendMessage("checkUI", details, expected);
       };
 
       let createCloudfileAccount = () => {
@@ -1638,7 +1651,9 @@ add_task(async function test_compose_attachments_no_reuse() {
 
       // -----------------------------------------------------------------------
 
-      let composeTab1 = await browser.compose.beginNew();
+      let composeTab1 = await browser.compose.beginNew({
+        subject: "Message #8",
+      });
       await checkUI(composeTab1);
 
       // Add an attachment to composeTab1.
@@ -1753,7 +1768,9 @@ add_task(async function test_compose_attachments_no_reuse() {
         browser.cloudFile.onFileUpload.addListener(fileListener);
       });
 
-      let composeTab2 = await browser.compose.beginNew();
+      let composeTab2 = await browser.compose.beginNew({
+        subject: "Message #9",
+      });
       let tab2_attachment1 = await cloneAttachment(
         tab1_attachment1,
         composeTab2
@@ -1811,12 +1828,8 @@ add_task(async function test_compose_attachments_no_reuse() {
     },
   });
 
-  let seenWindows = new ExtensionUtils.DefaultMap(() =>
-    Services.wm.getMostRecentWindow("msgcompose")
-  );
-
-  extension.onMessage("checkUI", (composeTab, expected) => {
-    let composeWindow = seenWindows.get(composeTab.id);
+  extension.onMessage("checkUI", (details, expected) => {
+    let composeWindow = findWindow(details.subject);
     let composeDocument = composeWindow.document;
 
     let bucket = composeDocument.getElementById("attachmentBucket");
