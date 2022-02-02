@@ -63,6 +63,8 @@
           "message_list",
           "folder_pane",
           "compose_attachments",
+          "message_attachments",
+          "all_message_attachments",
           "tools_menu"
         ],
         "description": "The different contexts a menu can appear in. Specifying <code>all</code> is equivalent to the combination of all other contexts excluding <code>tab</code> and <code>tools_menu</code>. More information about each context can be found in the `Supported UI Elements <https://developer.thunderbird.net/add-ons/mailextensions/supported-ui-elements#menu-items>`__ article on developer.thunderbird.net."
@@ -81,7 +83,7 @@
       {
         "id": "OnShowData",
         "type": "object",
-        "description": "Information sent when a context menu is being shown. For more information about each property, see :ref:`menus.OnClickData`. \nSome properties are only included if the extension has host permission for the given context, for example :permission:`activeTab` for content tabs, :permission:`compose` for compose tabs and :permission:`messagesRead` for message display tabs.",
+        "description": "Information sent when a context menu is being shown. Some properties are only included if the extension has host permission for the given context, for example :permission:`activeTab` for content tabs, :permission:`compose` for compose tabs and :permission:`messagesRead` for message display tabs.",
         "properties": {
           "menuIds": {
             "description": "A list of IDs of the menu items that were shown.",
@@ -104,76 +106,101 @@
               "$ref": "ContextType"
             }
           },
-          "viewType": {
-            "$ref": "extension.ViewType",
-            "optional": true
-          },
           "editable": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "A flag indicating whether the element is editable (text input, textarea, etc.)."
           },
           "mediaType": {
             "type": "string",
-            "optional": true
+            "optional": true,
+            "description": "One of 'image', 'video', or 'audio' if the context menu was activated on one of these types of elements."
           },
-          "linkUrl": {
-            "type": "string",
-            "description": "Host permission is required.",
-            "optional": true
+          "viewType": {
+            "$ref": "extension.ViewType",
+            "optional": true,
+            "description": "The type of view where the menu is shown. May be unset if the menu is not associated with a view."
           },
           "linkText": {
             "type": "string",
-            "description": "Host permission is required.",
-            "optional": true
+            "optional": true,
+            "description": "If the element is a link, the text of that link. **Note:** Host permission is required."
+          },
+          "linkUrl": {
+            "type": "string",
+            "optional": true,
+            "description": "If the element is a link, the URL it points to. **Note:** Host permission is required."
           },
           "srcUrl": {
             "type": "string",
-            "description": "Host permission is required.",
+            "description": "Will be present for elements with a 'src' URL. **Note:** Host permission is required.",
             "optional": true
           },
           "pageUrl": {
             "type": "string",
-            "description": "Host permission is required.",
+            "description": "The URL of the page where the menu item was clicked. This property is not set if the click occurred in a context where there is no current page, such as in a launcher context menu. **Note:** Host permission is required.",
             "optional": true
           },
           "frameUrl": {
             "type": "string",
-            "description": "Host permission is required.",
+            "description": "The URL of the frame of the element where the context menu was clicked, if it was in a frame. **Note:** Host permission is required.",
             "optional": true
           },
           "selectionText": {
             "type": "string",
-            "description": "Host permission is required.",
+            "description": "The text for the context selection, if any. **Note:** Host permission is required.",
             "optional": true
           },
           "targetElementId": {
             "type": "integer",
-            "optional": true
+            "optional": true,
+            "description": "An identifier of the clicked content element, if any. Use menus.getTargetElement in the page to find the corresponding element."
           },
           "fieldId": {
             "type": "string",
-            "optional": true
+            "optional": true,
+            "description": "An identifier of the clicked Thunderbird UI element, if any.",
+            "enum": [
+              "composeSubject",
+              "composeTo",
+              "composeCc",
+              "composeBcc",
+              "composeReplyTo",
+              "composeNewsgroupTo"
+            ]
           },
           "selectedMessages": {
             "$ref": "messages.MessageList",
-            "optional": true
+            "optional": true,
+            "description": "The selected messages, if the context menu was opened in the message list. The <permission>messagesRead</permission> permission is required."
           },
           "displayedFolder": {
             "$ref": "folders.MailFolder",
-            "optional": true
+            "optional": true,
+            "description": "The displayed folder, if the context menu was opened in the message list. The <permission>accountsRead</permission> permission is required."
           },
           "selectedFolder": {
             "$ref": "folders.MailFolder",
-            "optional": true
+            "optional": true,
+            "description": "The selected folder, if the context menu was opened in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
           "selectedAccount": {
             "$ref": "accounts.MailAccount",
-            "optional": true
+            "optional": true,
+            "description": "The selected account, if the context menu was opened on an account entry in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
           "attachments": {
             "type": "array",
             "optional": true,
+            "description": "The selected attachments. The <permission>compose</permission> permission is required to return attachments of a message being composed. The <permission>messagesRead</permission> permission is required to return attachments of displayed messages.",
             "items": {
-              "$ref": "compose.ComposeAttachment"
+              "choices": [
+                {
+                  "$ref": "compose.ComposeAttachment"
+                },
+                {
+                  "$ref": "messages.MessageAttachment"
+                }
+              ]
             }
           }
         }
@@ -206,15 +233,19 @@
             "optional": true,
             "description": "The parent ID, if any, for the item clicked."
           },
-          "viewType": {
-            "$ref": "extension.ViewType",
-            "optional": true,
-            "description": "The type of view where the menu is clicked. May be unset if the menu is not associated with a view."
+          "editable": {
+            "type": "boolean",
+            "description": "A flag indicating whether the element is editable (text input, textarea, etc.)."
           },
           "mediaType": {
             "type": "string",
             "optional": true,
             "description": "One of 'image', 'video', or 'audio' if the context menu was activated on one of these types of elements."
+          },
+          "viewType": {
+            "$ref": "extension.ViewType",
+            "optional": true,
+            "description": "The type of view where the menu is clicked. May be unset if the menu is not associated with a view."
           },
           "linkText": {
             "type": "string",
@@ -251,10 +282,6 @@
             "type": "string",
             "optional": true,
             "description": "The text for the context selection, if any."
-          },
-          "editable": {
-            "type": "boolean",
-            "description": "A flag indicating whether the element is editable (text input, textarea, etc.)."
           },
           "wasChecked": {
             "type": "boolean",
@@ -326,9 +353,16 @@
           "attachments": {
             "type": "array",
             "optional": true,
-            "description": "The selected attachments of a message being composed. The <permission>compose</permission> permission is required.",
+            "description": "The selected attachments. The <permission>compose</permission> permission is required to return attachments of a message being composed. The <permission>messagesRead</permission> permission is required to return attachments of displayed messages.",
             "items": {
-              "$ref": "compose.ComposeAttachment"
+              "choices": [
+                {
+                  "$ref": "compose.ComposeAttachment"
+                },
+                {
+                  "$ref": "messages.MessageAttachment"
+                }
+              ]
             }
           }
         }
@@ -420,7 +454,7 @@
                   {
                     "name": "tab",
                     "$ref": "tabs.Tab",
-                    "description": "The details of the tab where the click took place. Note: this parameter only present for extensions."
+                    "description": "The details of the tab where the click took place. **Note:** this parameter only present for extensions."
                   }
                 ]
               },
@@ -549,7 +583,7 @@
                   {
                     "name": "tab",
                     "$ref": "tabs.Tab",
-                    "description": "The details of the tab where the click took place. Note: this parameter only present for extensions."
+                    "description": "The details of the tab where the click took place. **Note:** this parameter only present for extensions."
                   }
                 ]
               },
@@ -563,7 +597,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Note: You cannot change an item to be a child of one of its own descendants."
+                "description": "**Note:** You cannot change an item to be a child of one of its own descendants."
               },
               "documentUrlPatterns": {
                 "type": "array",

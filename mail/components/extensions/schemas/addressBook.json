@@ -275,7 +275,7 @@
           {
             "name": "query",
             "type": "string",
-            "description": "The boolean query expression corresponding to the search. Note: This parameter may change in future releases of Thunderbird.",
+            "description": "The boolean query expression corresponding to the search. **Note:** This parameter may change in future releases of Thunderbird.",
             "optional": true
           }
         ],

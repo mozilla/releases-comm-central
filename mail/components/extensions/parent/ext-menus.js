@@ -610,7 +610,9 @@ const contextsMap = {
   inToolsMenu: "tools_menu",
   selectedMessages: "message_list",
   selectedFolder: "folder_pane",
-  attachments: "compose_attachments",
+  selectedComposeAttachments: "compose_attachments",
+  selectedMessageAttachments: "message_attachments",
+  allMessageAttachments: "all_message_attachments",
 };
 
 const chromeElementsMap = {
@@ -735,12 +737,32 @@ async function addMenuEventInfo(
       }
     }
   }
-  if (contextData.attachments && extension.hasPermission("compose")) {
+  if (
+    (contextData.selectedMessageAttachments ||
+      contextData.allMessageAttachments) &&
+    extension.hasPermission("messagesRead")
+  ) {
+    let attachments =
+      contextData.selectedMessageAttachments ||
+      contextData.allMessageAttachments;
+    info.attachments = attachments.map(attachment => {
+      return {
+        contentType: attachment.contentType,
+        name: attachment.name,
+        size: attachment.size,
+        partName: attachment.partID,
+      };
+    });
+  }
+  if (
+    contextData.selectedComposeAttachments &&
+    extension.hasPermission("compose")
+  ) {
     if (!("composeAttachmentTracker" in global)) {
       extensions.loadModule("compose");
     }
 
-    info.attachments = contextData.attachments.map(a =>
+    info.attachments = contextData.selectedComposeAttachments.map(a =>
       global.composeAttachmentTracker.convert(a, contextData.menu.ownerGlobal)
     );
   }
@@ -1086,15 +1108,65 @@ const menuTracker = {
         });
         break;
       }
+      case "attachmentListContext": {
+        let attachmentList = menu.ownerGlobal.document.getElementById(
+          "attachmentList"
+        );
+        let allMessageAttachments = [...attachmentList.children].map(
+          item => item.attachment
+        );
+        gMenuBuilder.build({
+          menu,
+          tab: menu.ownerGlobal,
+          allMessageAttachments,
+        });
+        break;
+      }
+      case "attachmentItemContext": {
+        let attachmentList = menu.ownerGlobal.document.getElementById(
+          "attachmentList"
+        );
+        let attachmentInfo = menu.ownerGlobal.document.getElementById(
+          "attachmentInfo"
+        );
+
+        // If we opened the context menu from the attachment info area (the paperclip,
+        // "1 attachment" label, filename, or file size, just grab the first (and
+        // only) attachment as our "selected" attachments.
+        let selectedMessageAttachments;
+        if (
+          menu.triggerNode == attachmentInfo ||
+          menu.triggerNode.parentNode == attachmentInfo
+        ) {
+          selectedMessageAttachments = [
+            attachmentList.getItemAtIndex(0).attachment,
+          ];
+        } else {
+          selectedMessageAttachments = [...attachmentList.selectedItems].map(
+            item => item.attachment
+          );
+        }
+
+        gMenuBuilder.build({
+          menu,
+          tab: menu.ownerGlobal,
+          selectedMessageAttachments,
+        });
+        break;
+      }
       case "msgComposeAttachmentItemContext": {
         let bucket = menu.ownerDocument.getElementById("attachmentBucket");
-        let attachments = [];
+        let selectedComposeAttachments = [];
         for (let item of bucket.itemChildren) {
           if (item.selected) {
-            attachments.push(item.attachment);
+            selectedComposeAttachments.push(item.attachment);
           }
         }
-        gMenuBuilder.build({ menu, tab: menu.ownerGlobal, attachments });
+        gMenuBuilder.build({
+          menu,
+          tab: menu.ownerGlobal,
+          selectedComposeAttachments,
+        });
         break;
       }
       default:

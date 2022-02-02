@@ -148,17 +148,17 @@
           },
           "body": {
             "type": "string",
-            "description": "The HTML content of the message. Ignored by ``setComposeDetails``, if used on a plain text composer. If only ``body`` is specified when used with ``beginNew``, ``beginReply`` and similar functions, an HTML message will be created. The recommended usage is to always specify both (``body`` and ``plainTextBody``) and use ``isPlainText`` to select the compose format, or use the users default compose format.",
+            "description": "The HTML content of the message.",
             "optional": true
           },
           "plainTextBody": {
             "type": "string",
-            "description": "The plain text content of the message. Ignored by ``setComposeDetails``, if used on an HTML composer. If only ``plainTextBody`` is specified when used with ``beginNew``, ``beginReply`` and similar functions, a plain text message will be created. The recommended usage is to always specify both (``body`` and ``plainTextBody``) and use ``isPlainText`` to select the compose format, or use the users default compose format.",
+            "description": "The plain text content of the message.",
             "optional": true
           },
           "isPlainText": {
             "type": "boolean",
-            "description": "Wether the message is an HTML message or a plain text message. Can be used to specify the message format in ``beginNew``, ``beginReply`` and similar functions. It is however not possible to change the compose format with ``setComposeDetails``. Note: Using ``isPlainText`` together with a single but conflicting body type (e.g.: ``isPlainText`` = ``true`` and ``body`` is set but not ``plainTextBody``) will cause an exception. ",
+            "description": "Whether the message is an HTML message or a plain text message.",
             "optional": true
           },
           "attachments": {
@@ -173,7 +173,7 @@
                 }
               ]
             },
-            "description": "Attachments to add to the message. Only used in the begin* functions.",
+            "description": "Only used in the begin* functions. Attachments to add to the message.",
             "optional": true
           }
         }
@@ -235,7 +235,7 @@
           {
             "name": "details",
             "$ref": "ComposeDetails",
-            "description": "The current state of the compose window. This is functionally the same as the :ref:`compose.getComposeDetails` function."
+            "description": "The current state of the compose window. This is functionally the same as calling the :ref:`compose.getComposeDetails` function."
           }
         ],
         "returns": {
@@ -249,7 +249,7 @@
             "details": {
               "$ref": "ComposeDetails",
               "optional": true,
-              "description": "Updates the compose window. See the :ref:`compose.setComposeDetails` function for more information."
+              "description": "Updates the compose window. This is functionally the same as calling the :ref:`compose.setComposeDetails` function."
             }
           }
         }
@@ -328,7 +328,7 @@
       {
         "name": "beginNew",
         "type": "function",
-        "description": "Open a new message compose window. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
+        "description": "Open a new message compose window.\n\n**Note:** The compose format can be set by ``details.isPlainText`` or by specifying only one of ``details.body`` or ``details.plainTextBody``. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying ``details.body`` and ``details.plainTextBody`` without also specifying ``details.isPlainText`` threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching ``details.body`` or ``details.plainTextBody`` value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
         "async": "callback",
         "parameters": [
           {
@@ -359,7 +359,7 @@
       {
         "name": "beginReply",
         "type": "function",
-        "description": "Open a new message compose window replying to a given message. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
+        "description": "Open a new message compose window replying to a given message.\n\n**Note:** The compose format can be set by ``details.isPlainText`` or by specifying only one of ``details.body`` or ``details.plainTextBody``. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying ``details.body`` and ``details.plainTextBody`` without also specifying ``details.isPlainText`` threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching ``details.body`` or ``details.plainTextBody`` value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
         "async": "callback",
         "parameters": [
           {
@@ -399,7 +399,7 @@
       {
         "name": "beginForward",
         "type": "function",
-        "description": "Open a new message compose window forwarding a given message. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
+        "description": "Open a new message compose window forwarding a given message.\n\n**Note:** The compose format can be set by ``details.isPlainText`` or by specifying only one of ``details.body`` or ``details.plainTextBody``. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying ``details.body`` and ``details.plainTextBody`` without also specifying ``details.isPlainText`` threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching ``details.body`` or ``details.plainTextBody`` value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
         "async": "callback",
         "parameters": [
           {
@@ -465,7 +465,7 @@
         "name": "setComposeDetails",
         "type": "function",
         "async": true,
-        "description": "Updates the compose window. Specify only fields that you want to change. Currently only the to/cc/bcc/replyTo/followupTo/newsgroups fields and the subject are implemented. It is not possible to change the compose format.",
+        "description": "Updates the compose window. Only fields that are to be changed should be specified. Currently only a limited amount of information can be set, more will be added in later versions.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` no longer throw an exception, instead the compose window chooses the matching ``details.body`` or ``details.plainTextBody`` value and ignores the other.",
         "permissions": [
           "compose"
         ],
@@ -477,8 +477,7 @@
           },
           {
             "name": "details",
-            "$ref": "ComposeDetails",
-            "description": "The compose format of an already opened compose window cannot be changed. Setting ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` will fail if the compose format of the compose window does not match. Use :ref:`compose.getComposeDetails` to get the current compose format."
+            "$ref": "ComposeDetails"
           }
         ]
       },
