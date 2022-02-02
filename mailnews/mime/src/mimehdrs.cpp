@@ -307,9 +307,11 @@ char* MimeHeaders_get(MimeHeaders* hdrs, const char* header_name, bool strip_p,
 
     NS_ASSERTION(head, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
     if (!head) continue;
+    size_t headLen = end - head;
 
     /* Quick hack to skip over BSD Mailbox delimiter. */
-    if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5)) continue;
+    if (i == 0 && head[0] == 'F' && headLen >= 5 && !strncmp(head, "From ", 5))
+      continue;
 
     /* Find the colon. */
     for (colon = head; colon < end; colon++)
@@ -494,9 +496,11 @@ int MimeHeaders_write_all_headers(MimeHeaders* hdrs, MimeDisplayOptions* opt,
                                    : hdrs->heads[i + 1]);
     char *colon, *ocolon;
     char* contents = end;
+    size_t headLen = end - head;
 
     /* Hack for BSD Mailbox delimiter. */
-    if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5)) {
+    if (i == 0 && head[0] == 'F' && headLen >= 5 &&
+        !strncmp(head, "From ", 5)) {
       /* For now, we don't really want this header to be output so
          we are going to just continue */
       continue;
