@@ -259,6 +259,11 @@ nsAbDirProperty::GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& childList) {
 }
 
 NS_IMETHODIMP
+nsAbDirProperty::GetChildCardCount(uint32_t* count) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP
 nsAbDirProperty::GetChildCards(nsTArray<RefPtr<nsIAbCard>>& childCards) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

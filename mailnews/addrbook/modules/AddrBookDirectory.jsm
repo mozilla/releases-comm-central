@@ -199,6 +199,13 @@ class AddrBookDirectory {
     lists.sort(compareAddressBooks);
     return lists;
   }
+  /** @abstract */
+  get childCardCount() {
+    throw new Components.Exception(
+      `${this.constructor.name} does not implement childCardCount getter.`,
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
   get childCards() {
     let results = Array.from(
       this.lists.values(),

@@ -1110,11 +1110,10 @@ function reportAddressBookTypes() {
     }
     report[type].count++;
 
-    // Ignore LDAP contacts for now.
-    if (type !== "moz-abldapdirectory") {
-      report[type].contactCount += dir.childCards.filter(
-        c => !c.isMailList
-      ).length;
+    try {
+      report[type].contactCount += dir.childCardCount;
+    } catch (ex) {
+      // Directories may throw NS_ERROR_NOT_IMPLEMENTED.
     }
   }
 

@@ -126,6 +126,10 @@ class LDAPDirectory extends AddrBookDirectory {
     this.setStringValue("uri", uri.spec);
   }
 
+  get childCardCount() {
+    return 0;
+  }
+
   get childCards() {
     if (Services.io.offline) {
       return this.replicationDB.childCards;

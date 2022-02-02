@@ -28,6 +28,7 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   // nsAbDirProperty methods
   NS_IMETHOD GetDirType(int32_t* aDirType) override;
   NS_IMETHOD GetURI(nsACString& aURI) override;
+  NS_IMETHOD GetChildCardCount(uint32_t* aCount) override;
   NS_IMETHOD GetChildCards(nsTArray<RefPtr<nsIAbCard>>& result) override;
   NS_IMETHOD GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& result) override;
   NS_IMETHOD HasCard(nsIAbCard* aCard, bool* aHasCard) override;

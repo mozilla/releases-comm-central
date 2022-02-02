@@ -168,6 +168,12 @@ interface nsIAbDirectory : nsISupports {
   readonly attribute Array<nsIAbDirectory> childNodes;
 
   /**
+   * Get the count of cards associated with the directory. This includes the
+   * cards associated with the mailing lists too.
+   */
+  readonly attribute unsigned long childCardCount;
+
+  /**
    * Get the cards associated with the directory. This will return the cards
    * associated with the mailing lists too.
    */

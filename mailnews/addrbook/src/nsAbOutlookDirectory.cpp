@@ -139,6 +139,11 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildNodes(
   return NS_OK;
 }
 
+NS_IMETHODIMP nsAbOutlookDirectory::GetChildCardCount(uint32_t* aCount) {
+  nsIMutableArray* srcCards = m_IsMailList ? m_AddressList : mCardList;
+  return srcCards->GetLength(aCount);
+}
+
 NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(
     nsTArray<RefPtr<nsIAbCard>>& aCards) {
   aCards.Clear();

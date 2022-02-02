@@ -622,6 +622,12 @@ NS_IMETHODIMP nsAbOSXDirectory::GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& 
 }
 
 NS_IMETHODIMP
+nsAbOSXDirectory::GetChildCardCount(uint32_t* aCount) {
+  nsIMutableArray* srcCards = m_IsMailList ? m_AddressList : mCardList;
+  return srcCards->GetLength(aCount);
+}
+
+NS_IMETHODIMP
 nsAbOSXDirectory::GetChildCards(nsTArray<RefPtr<nsIAbCard>>& aCards) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
   aCards.Clear();

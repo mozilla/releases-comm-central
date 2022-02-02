@@ -442,6 +442,15 @@ class SQLiteDirectory extends AddrBookDirectory {
 
   /* nsIAbDirectory */
 
+  get childCardCount() {
+    let countStatement = this._dbConnection.createStatement(
+      "SELECT COUNT(DISTINCT card) AS card_count FROM properties"
+    );
+    countStatement.executeStep();
+    let count = countStatement.row.card_count;
+    countStatement.finalize();
+    return count;
+  }
   getCardFromProperty(property, value, caseSensitive) {
     let sql = caseSensitive
       ? "SELECT card FROM properties WHERE name = :name AND value = :value LIMIT 1"
