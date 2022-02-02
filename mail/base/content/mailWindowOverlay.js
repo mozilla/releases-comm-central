@@ -3109,9 +3109,8 @@ function GetNewMsgs(server, folder) {
   // Note that for Global Inbox folder.server != server when we want to get
   // messages for a specific account.
 
-  const nsIMsgFolder = Ci.nsIMsgFolder;
   // Whenever we do get new messages, clear the old new messages.
-  folder.biffState = nsIMsgFolder.nsMsgBiffState_NoMail;
+  folder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   folder.clearNewMessages();
   server.getNewMessages(folder, msgWindow, new TransportErrorUrlListener());
 }
