@@ -476,6 +476,37 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   }
 
   /**
+   * Try to locate a file specified by the relative pref, if not possible, use
+   *   the absolute pref.
+   * @param {nsIPrefBranch} branch - A prefs branch.
+   * @param {string} relPrefName - The pref name for the relative file path.
+   * @param {string} absPrefName - The pref name for the absolute file path.
+   * @returns {nsIFile}
+   */
+  _getSourceFileValue(branch, relPrefName, absPrefName) {
+    let relPrefValue = branch.getCharPref(relPrefName, "");
+    let relPath = relPrefValue.slice("[ProfD]".length);
+    let parts = relPath.split("/");
+    if (!relPrefValue.startsWith("[ProfD]") || parts.includes("..")) {
+      // If we don't recognize this path or if it's a path outside the ProfD,
+      // use the absPrefName instead.
+      try {
+        return branch.getComplexValue(absPrefName, Ci.nsIFile);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // We can't use branch.getComplexValue with relPrefName, because that path
+    // is relative to this._sourceProfileDir.
+    let sourceFile = this._sourceProfileDir.clone();
+    for (let part of parts) {
+      sourceFile.append(part);
+    }
+    return sourceFile;
+  }
+
+  /**
    * Copy mail folders from this._sourceProfileDir to the current profile dir.
    * @param {PrefKeyMap} incomingServerKeyMap - A map from the source server key
    *   to new server key.
@@ -492,14 +523,6 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         continue;
       }
 
-      // Use .directory-rel instead of .directory because .directory is an
-      // absolute path which may not exists.
-      let directoryRel = branch.getCharPref("directory-rel", "");
-      if (!directoryRel.startsWith("[ProfD]")) {
-        continue;
-      }
-      directoryRel = directoryRel.slice("[ProfD]".length);
-
       let targetDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       if (type == "imap") {
         targetDir.append("ImapMail");
@@ -515,37 +538,37 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       targetDir.append(hostname);
       targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
 
-      let sourceDir = this._sourceProfileDir.clone();
-      for (let part of directoryRel.split("/")) {
-        sourceDir.append(part);
-      }
+      let sourceDir = this._getSourceFileValue(
+        branch,
+        "directory-rel",
+        "directory"
+      );
       if (sourceDir.exists()) {
         this._recursivelyCopyMsgFolder(sourceDir, targetDir);
       }
+
       branch.setCharPref("directory", targetDir.path);
       // .directory-rel may be outdated, it will be created when first needed.
       branch.clearUserPref("directory-rel");
 
       if (type == "nntp") {
-        // Use .file-rel instead of .file because .file is an absolute path
-        // which may not exists.
-        let fileRel = branch.getCharPref("newsrc.file-rel", "");
-        if (!fileRel.startsWith("[ProfD]")) {
-          continue;
-        }
-        fileRel = fileRel.slice("[ProfD]".length);
-        let sourceNewsrc = this._sourceProfileDir.clone();
-        for (let part of fileRel.split("/")) {
-          sourceNewsrc.append(part);
-        }
         let targetNewsrc = Services.dirsvc.get("ProfD", Ci.nsIFile);
         targetNewsrc.append("News");
         targetNewsrc.append(`newsrc-${hostname}`);
         targetNewsrc.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
-        this._logger.debug(
-          `Copying ${sourceNewsrc.path} to ${targetNewsrc.path}`
+
+        let sourceNewsrc = this._getSourceFileValue(
+          branch,
+          "newsrc.file-rel",
+          "newsrc.file"
         );
-        sourceNewsrc.copyTo(targetNewsrc.parent, targetNewsrc.leafName);
+        if (sourceNewsrc.exists()) {
+          this._logger.debug(
+            `Copying ${sourceNewsrc.path} to ${targetNewsrc.path}`
+          );
+          sourceNewsrc.copyTo(targetNewsrc.parent, targetNewsrc.leafName);
+        }
+
         branch.setCharPref("newsrc.file", targetNewsrc.path);
         // .file-rel may be outdated, it will be created when first needed.
         branch.clearUserPref("newsrc.file-rel");
