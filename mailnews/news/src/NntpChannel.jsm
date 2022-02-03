@@ -269,6 +269,8 @@ class NntpChannel {
     }
 
     this._server.wrappedJSObject.withClient(client => {
+      client.runningUri = this.URI;
+      this._listener.onStartRequest(this);
       client.onOpen = () => {
         if (this._messageId) {
           client.getArticleByMessageId(this._messageId);
@@ -279,7 +281,6 @@ class NntpChannel {
           );
         }
         this.loadGroup?.addRequest(this, null);
-        this._listener.onStartRequest(this);
       };
 
       client.onData = data => {
