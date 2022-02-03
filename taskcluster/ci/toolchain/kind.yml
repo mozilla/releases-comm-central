@@ -69,6 +69,7 @@ reference-jobs:
     - win32-node
     - win64-cbindgen
     - win64-clang
+    - win64-clang-13-raw
     - win64-clang-toolchain
     - win64-compiler-rt-13
     - win64-dump_syms
