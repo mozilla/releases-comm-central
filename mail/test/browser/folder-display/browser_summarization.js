@@ -27,6 +27,7 @@ var {
   assert_collapsed,
   assert_expanded,
   assert_messages_summarized,
+  assert_message_not_in_view,
   assert_nothing_selected,
   assert_selected,
   assert_selected_and_displayed,
@@ -38,6 +39,7 @@ var {
   create_thread,
   create_virtual_folder,
   make_display_threaded,
+  make_display_unthreaded,
   make_message_sets_in_folders,
   mc,
   open_folder_in_new_tab,
@@ -420,4 +422,49 @@ add_task(function test_display_name_abook_no_pdn() {
     undefined,
     "Test ran to completion successfully"
   );
+});
+
+add_task(async function test_archive_and_delete_messages() {
+  be_in_folder(folder);
+  select_none();
+  assert_nothing_selected();
+  make_display_unthreaded();
+  select_click_row(0);
+  select_shift_click_row(2);
+  let messages = mc.folderDisplay.selectedMessages;
+
+  let contentWindow = mc.window.document.getElementById("multimessage")
+    .contentWindow;
+  // Archive selected messages.
+  plan_to_wait_for_folder_events(
+    "DeleteOrMoveMsgCompleted",
+    "DeleteOrMoveMsgFailed"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    contentWindow.document.getElementById("hdrArchiveButton"),
+    {},
+    contentWindow
+  );
+
+  wait_for_folder_events();
+  assert_message_not_in_view(messages);
+
+  select_none();
+  assert_nothing_selected();
+  select_click_row(0);
+  select_shift_click_row(2);
+  messages = mc.folderDisplay.selectedMessages;
+
+  // Delete selected messages.
+  plan_to_wait_for_folder_events(
+    "DeleteOrMoveMsgCompleted",
+    "DeleteOrMoveMsgFailed"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    contentWindow.document.getElementById("hdrTrashButton"),
+    {},
+    contentWindow
+  );
+  wait_for_folder_events();
+  assert_message_not_in_view(messages);
 });

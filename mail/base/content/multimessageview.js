@@ -171,6 +171,19 @@ MultiMessageSummary.prototype = {
     let archiveBtn = document.getElementById("hdrArchiveButton");
     archiveBtn.collapsed = !MessageArchiver.canArchive(aMessages);
 
+    // Set archive and delete button listeners.
+    let msgWindow = window.browsingContext.topChromeWindow;
+    archiveBtn.onclick = event => {
+      if (event.button == 0) {
+        msgWindow.MsgArchiveSelectedMessages(null);
+      }
+    };
+    document.getElementById("hdrTrashButton").onclick = event => {
+      if (event.button == 0) {
+        msgWindow.goDoCommand("cmd_delete");
+      }
+    };
+
     let summarizer = this._summarizers[aType];
     if (!summarizer) {
       throw new Error('Unknown summarizer "' + aType + '"');
