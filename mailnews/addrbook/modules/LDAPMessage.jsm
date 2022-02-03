@@ -295,6 +295,10 @@ class SearchRequest extends LDAPMessage {
    * @returns {LocalBaseBlock}
    */
   _convertFilterToBlock(filter) {
+    if (!filter.startsWith("(")) {
+      // Make sure filter is wrapped in parens, see rfc2254#section-4.
+      filter = `(${filter})`;
+    }
     let tokens = this._parseFilter(filter);
     let stack = [];
     for (let { type, depth, value } of tokens) {

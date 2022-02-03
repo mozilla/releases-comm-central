@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 /**
  * Test suite for nsILDAPSyncQuery.
@@ -54,6 +54,14 @@ add_task(async function test_LDAPSyncQuery() {
   // Sanity check: make sure some non-Holmes people were excluded.
   Assert.ok(!out.includes("cn=John Watson"));
   Assert.ok(!out.includes("cn=Jim Moriarty"));
+
+  // Fetch again but this time the filter is without parens.
+  out = getLDAPAttributes(`ldap://localhost:${server.port}/??sub?sn=Holmes`);
+
+  // Make sure we got the contacts we expected:
+  Assert.ok(out.includes("cn=Eurus Holmes"));
+  Assert.ok(out.includes("cn=Mycroft Holmes"));
+  Assert.ok(out.includes("cn=Sherlock Holmes"));
 
   server.stop();
 });

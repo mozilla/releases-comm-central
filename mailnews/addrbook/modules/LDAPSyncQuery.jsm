@@ -41,6 +41,11 @@ class LDAPSyncQuery {
     }
   }
 
+  onLDAPError(status, secInfo, location) {
+    this._statusCode = status;
+    this._finished = true;
+  }
+
   /** @see nsILDAPSyncQuery */
   getQueryResults(ldapUrl, protocolVersion) {
     this._ldapUrl = ldapUrl;
@@ -49,6 +54,7 @@ class LDAPSyncQuery {
     ].createInstance(Ci.nsILDAPConnection);
     this._connection.init(ldapUrl, "", this, null, protocolVersion);
 
+    this._statusCode = 0;
     this._result = "";
     this._finished = false;
 
@@ -56,6 +62,9 @@ class LDAPSyncQuery {
       "getQueryResults is a sync function",
       () => this._finished
     );
+    if (this._statusCode) {
+      throw Components.Exception("getQueryResults failed", this._statusCode);
+    }
     return this._result;
   }
 
@@ -65,6 +74,7 @@ class LDAPSyncQuery {
    */
   _onLDAPBind(msg) {
     if (msg.errorCode != Ci.nsILDAPErrors.SUCCESS) {
+      this._statusCode = msg.errorCode;
       this._finished = true;
       return;
     }

@@ -19,87 +19,99 @@ class LDAPOperation {
   }
 
   simpleBind(password) {
-    this._messageId = this._client.bind(
-      this._connection.bindName,
-      password,
-      res => {
-        this._listener.onLDAPMessage({
-          errorCode: res.result.resultCode,
-          type: Ci.nsILDAPMessage.RES_BIND,
-        });
-      }
-    );
-  }
-
-  saslBind(service, mechanism, authModuleType, serverCredentials) {
-    this._client.saslBind(
-      service,
-      mechanism,
-      authModuleType,
-      serverCredentials,
-      res => {
-        if (res.result.resultCode == Ci.nsILDAPErrors.SASL_BIND_IN_PROGRESS) {
-          this.saslBind(
-            service,
-            mechanism,
-            authModuleType,
-            res.result.serverSaslCreds
-          );
-        } else if (res.result.resultCode == Ci.nsILDAPErrors.SUCCESS) {
+    try {
+      this._messageId = this._client.bind(
+        this._connection.bindName,
+        password,
+        res => {
           this._listener.onLDAPMessage({
             errorCode: res.result.resultCode,
             type: Ci.nsILDAPMessage.RES_BIND,
           });
         }
-      }
-    );
+      );
+    } catch (e) {
+      this._listener.onLDAPError(e.result, null, "");
+    }
+  }
+
+  saslBind(service, mechanism, authModuleType, serverCredentials) {
+    try {
+      this._client.saslBind(
+        service,
+        mechanism,
+        authModuleType,
+        serverCredentials,
+        res => {
+          if (res.result.resultCode == Ci.nsILDAPErrors.SASL_BIND_IN_PROGRESS) {
+            this.saslBind(
+              service,
+              mechanism,
+              authModuleType,
+              res.result.serverSaslCreds
+            );
+          } else if (res.result.resultCode == Ci.nsILDAPErrors.SUCCESS) {
+            this._listener.onLDAPMessage({
+              errorCode: res.result.resultCode,
+              type: Ci.nsILDAPMessage.RES_BIND,
+            });
+          }
+        }
+      );
+    } catch (e) {
+      this._listener.onLDAPError(e.result, null, "");
+    }
   }
 
   searchExt(baseDN, scope, filter, attributes, timeout, limit) {
-    this._messageId = this._client.search(
-      baseDN,
-      scope,
-      filter,
-      attributes,
-      timeout,
-      limit,
-      res => {
-        if (res.constructor.name == "SearchResultEntry") {
-          this._listener.onLDAPMessage({
-            QueryInterface: ChromeUtils.generateQI(["nsILDAPMessage"]),
-            errorCode: 0,
-            type: Ci.nsILDAPMessage.RES_SEARCH_ENTRY,
-            getAttributes() {
-              return Object.keys(res.result.attributes);
-            },
-            // Find the matching attribute name while ignoring the case.
-            _getAttribute(attr) {
-              attr = attr.toLowerCase();
-              return this.getAttributes().find(x => x.toLowerCase() == attr);
-            },
-            getValues(attr) {
-              attr = this._getAttribute(attr);
-              return res.result.attributes[attr]?.map(v =>
-                new TextDecoder().decode(v)
-              );
-            },
-            getBinaryValues(attr) {
-              attr = this._getAttribute(attr);
-              return res.result.attributes[attr]?.map(v => ({
-                // @see nsILDAPBERValue
-                get: () => new Uint8Array(v),
-              }));
-            },
-          });
-        } else if (res.constructor.name == "SearchResultDone") {
-          this._messageId = null;
-          this._listener.onLDAPMessage({
-            errorCode: res.result.resultCode,
-            type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
-          });
+    try {
+      this._messageId = this._client.search(
+        baseDN,
+        scope,
+        filter,
+        attributes,
+        timeout,
+        limit,
+        res => {
+          if (res.constructor.name == "SearchResultEntry") {
+            this._listener.onLDAPMessage({
+              QueryInterface: ChromeUtils.generateQI(["nsILDAPMessage"]),
+              errorCode: 0,
+              type: Ci.nsILDAPMessage.RES_SEARCH_ENTRY,
+              getAttributes() {
+                return Object.keys(res.result.attributes);
+              },
+              // Find the matching attribute name while ignoring the case.
+              _getAttribute(attr) {
+                attr = attr.toLowerCase();
+                return this.getAttributes().find(x => x.toLowerCase() == attr);
+              },
+              getValues(attr) {
+                attr = this._getAttribute(attr);
+                return res.result.attributes[attr]?.map(v =>
+                  new TextDecoder().decode(v)
+                );
+              },
+              getBinaryValues(attr) {
+                attr = this._getAttribute(attr);
+                return res.result.attributes[attr]?.map(v => ({
+                  // @see nsILDAPBERValue
+                  get: () => new Uint8Array(v),
+                }));
+              },
+            });
+          } else if (res.constructor.name == "SearchResultDone") {
+            this._messageId = null;
+            this._listener.onLDAPMessage({
+              errorCode: res.result.resultCode,
+              type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
+            });
+          }
         }
-      }
-    );
+      );
+    } catch (e) {
+      this._listener.onLDAPError(e.result, null, "");
+    }
   }
 
   abandonExt() {
