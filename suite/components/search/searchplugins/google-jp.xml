@@ -21,8 +21,6 @@
   <Param name="ie" value="utf-8"/>
   <Param name="oe" value="utf-8"/>
   <Param name="aq" value="t"/>
-  <!-- Dynamic parameters -->
-  <Param name="rls" value="{moz:distributionID}:{moz:locale}:{moz:official}"/>
   <Param name="hl" value="ja"/>
   <MozParam name="client"
             condition="defaultEngine"
