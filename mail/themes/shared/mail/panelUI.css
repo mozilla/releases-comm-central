@@ -382,7 +382,6 @@ panelview .toolbarbutton-1 {
 
 panelview .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus-visible),
 toolbarbutton.subviewbutton:not([disabled],[open],:active):is(:hover,:focus-visible),
-.navigable.subviewbutton:not([disabled],[open],:active):is(:hover,:focus-visible),
 menu.subviewbutton:not([disabled],:active)[_moz-menuactive],
 menuitem.subviewbutton:not([disabled],:active)[_moz-menuactive],
 .widget-overflow-list .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus-visible),
@@ -394,7 +393,6 @@ menuitem.subviewbutton:not([disabled],:active)[_moz-menuactive],
 
 panelview .toolbarbutton-1:not([disabled]):is([open],:hover:active),
 toolbarbutton.subviewbutton:not([disabled]):is([open],:hover:active),
-.navigable.subviewbutton:not([disabled]):is([open],:hover:active),
 menu.subviewbutton:not([disabled])[_moz-menuactive]:active,
 menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
 .widget-overflow-list .toolbarbutton-1:not([disabled]):is([open],:hover:active),
