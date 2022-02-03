@@ -9,7 +9,11 @@
   const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-  let formatter = new Services.intl.DateTimeFormat(undefined, { timeStyle: "short" });
+  // Leave these first arguments as `undefined`, to use the OS style if
+  // intl.regional_prefs.use_os_locales is true or the app language matches the OS language.
+  // Otherwise, the app language is used.
+  let dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "short" });
+  let timeFormatter = new Services.intl.DateTimeFormat(undefined, { timeStyle: "short" });
 
   let probeSucceeded;
   let alphaMonths;
@@ -901,8 +905,8 @@
         // Find the locale strings for the AM/PM prefix/suffix.
         let amTime = new Date(2000, 0, 1, 6, 12, 34);
         let pmTime = new Date(2000, 0, 1, 18, 12, 34);
-        amTime = formatter.format(amTime);
-        pmTime = formatter.format(pmTime);
+        amTime = timeFormatter.format(amTime);
+        pmTime = timeFormatter.format(pmTime);
         let amLabel = parseTimeRegExp.exec(amTime)[ampmIndex] || "AM";
         let pmLabel = parseTimeRegExp.exec(pmTime)[ampmIndex] || "PM";
 
@@ -1424,8 +1428,8 @@
       POST_INDEX = 8;
     let amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
     let pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
-    let amProbeString = formatter.format(amProbeTime);
-    let pmProbeString = formatter.format(pmProbeTime);
+    let amProbeString = timeFormatter.format(amProbeTime);
+    let pmProbeString = timeFormatter.format(pmProbeTime);
     let amFormatExpr = null,
       pmFormatExpr = null;
     if (amProbeString != pmProbeString) {
@@ -1510,11 +1514,16 @@
   function formatDate(aDate, aTimezone) {
     // Usually, floating is ok here, so no need to pass aTimezone - we just need to pass
     // it in if we need to make sure formatting happens without a timezone conversion.
-    let timezone = aTimezone || cal.dtz.floating;
-    return cal.dtz.formatter.formatDateShort(cal.dtz.jsDateToDateTime(aDate, timezone));
+    let formatter = aTimezone
+      ? new Services.intl.DateTimeFormat(undefined, {
+          dateStyle: "short",
+          timeZone: aTimezone.tzid,
+        })
+      : dateFormatter;
+    return formatter.format(aDate);
   }
 
   function formatTime(aValue) {
-    return formatter.format(aValue);
+    return timeFormatter.format(aValue);
   }
 }

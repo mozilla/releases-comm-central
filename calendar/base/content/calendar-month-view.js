@@ -157,8 +157,7 @@
       this.setAttribute("day", aDate.day);
 
       if (this.mShowMonthLabel) {
-        let monthName = cal.l10n.getDateFmtString(`month.${aDate.month + 1}.Mmm`);
-        this.setAttribute("value", aDate.day + " " + monthName);
+        this.setAttribute("value", cal.dtz.formatter.formatDateWithoutYear(this.mDate));
       } else {
         this.setAttribute("value", aDate.day);
       }

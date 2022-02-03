@@ -371,7 +371,10 @@ function inTimezone(aDate, aOptions) {
           // the locale of the test machine.
           formatter = new Services.intl.DateTimeFormat("en-US", optionsWithTimezone);
         } else {
-          formatter = new Services.intl.DateTimeFormat(undefined, optionsWithTimezone);
+          formatter = new Services.intl.DateTimeFormat(
+            Services.locale.appLocalesAsBCP47,
+            optionsWithTimezone
+          );
         }
         formatCache.set(cacheKey, formatter);
       } catch (ex) {
@@ -391,7 +394,7 @@ function inTimezone(aDate, aOptions) {
         // the locale of the test machine.
         formatter = new Services.intl.DateTimeFormat("en-US", aOptions);
       } else {
-        formatter = new Services.intl.DateTimeFormat(undefined, aOptions);
+        formatter = new Services.intl.DateTimeFormat(Services.locale.appLocalesAsBCP47, aOptions);
       }
       formatCache.set(cacheKey, formatter);
     }
