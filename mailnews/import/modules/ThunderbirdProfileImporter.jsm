@@ -438,7 +438,12 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       let newName = `${newAccountKey}${name.slice(key.length)}`;
       let newValue = value;
       if (name.endsWith(".identities")) {
-        newValue = identityKeyMap.get(value);
+        // An account can have multiple identities.
+        newValue = value
+          .split(",")
+          .map(v => identityKeyMap.get(v))
+          .filter(Boolean)
+          .join(",");
       } else if (name.endsWith(".server")) {
         newValue = incomingServerKeyMap.get(value);
       }
@@ -449,16 +454,13 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     let accounts = Services.prefs
       .getCharPref("mail.accountmanager.accounts", "")
       .split(",");
-    if (accounts.length == 1 && accounts[0] == "") {
-      accounts.length = 0;
-    }
     if (sourceAccounts) {
       for (let sourceAccountKey of sourceAccounts.split(",")) {
         accounts.push(accountKeyMap.get(sourceAccountKey));
       }
       Services.prefs.setCharPref(
         "mail.accountmanager.accounts",
-        accounts.join(",")
+        accounts.filter(Boolean).join(",")
       );
     }
 
