@@ -108,6 +108,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     this._itemsTotalCount = Object.values(items).filter(Boolean).length;
     this._itemsImportedCount = 0;
 
+    try {
+      this._localServer = MailServices.accounts.localFoldersServer;
+    } catch (e) {}
+
     if (items.accounts || items.addressBooks || items.calendars) {
       await this._loadPreferences();
     }
@@ -215,6 +219,16 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       this._branchPrefsMap.get(IM_ACCOUNT)
     );
 
+    let accountManager = this._collectPrefsToObject(
+      this._branchPrefsMap.get(ACCOUNT_MANAGER)
+    );
+    // Officially we only support one Local Folders account, if we already have
+    // one, do not import a new one.
+    this._sourceLocalServerKeyToSkip = this._localServer
+      ? accountManager.localfoldersserver
+      : null;
+    this._sourceLocalServerAttrs = {};
+
     // mail.server.serverN.imAccount depends on transformed im account key.
     let incomingServerKeyMap = await this._importIncomingServers(
       this._branchPrefsMap.get(MAIL_SERVER),
@@ -222,9 +236,6 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     );
 
     // mail.account.accountN.{identities, server} depends on previous steps.
-    let accountManager = this._collectPrefsToObject(
-      this._branchPrefsMap.get(ACCOUNT_MANAGER)
-    );
     this._importAccounts(
       this._branchPrefsMap.get(MAIL_ACCOUNT),
       accountManager.accounts,
@@ -234,6 +245,9 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     );
 
     await this._importMailMessages(incomingServerKeyMap);
+    if (this._sourceLocalServerKeyToSkip) {
+      this._mergeLocalFolders();
+    }
   }
 
   /**
@@ -383,7 +397,14 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     for (let [type, name, value] of prefs) {
-      let key = name.split(".")[0];
+      let [key, attr] = name.split(".");
+      if (key == this._sourceLocalServerKeyToSkip) {
+        if (["directory", "directory-rel"].includes(attr)) {
+          this._sourceLocalServerAttrs[attr] = value;
+        }
+        // We already have a Local Folders account.
+        continue;
+      }
       let newServerKey = incomingServerKeyMap.get(key);
       if (!newServerKey) {
         // For every incoming server, create a new one to avoid conflicts.
@@ -425,7 +446,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     let branch = Services.prefs.getBranch(MAIL_ACCOUNT);
     for (let [type, name, value] of prefs) {
       let key = name.split(".")[0];
-      if (key == "lastKey") {
+      if (key == "lastKey" || value == this._sourceLocalServerKeyToSkip) {
         continue;
       }
       let newAccountKey = accountKeyMap.get(key);
@@ -478,29 +499,25 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   }
 
   /**
-   * Try to locate a file specified by the relative pref, if not possible, use
-   *   the absolute pref.
-   * @param {nsIPrefBranch} branch - A prefs branch.
-   * @param {string} relPrefName - The pref name for the relative file path.
-   * @param {string} absPrefName - The pref name for the absolute file path.
+   * Try to locate a file specified by the relative path, if not possible, use
+   *   the absolute path.
+   * @param {string} relValue - The pref value for the relative file path.
+   * @param {string} absValue - The pref value for the absolute file path.
    * @returns {nsIFile}
    */
-  _getSourceFileValue(branch, relPrefName, absPrefName) {
-    let relPrefValue = branch.getCharPref(relPrefName, "");
-    let relPath = relPrefValue.slice("[ProfD]".length);
+  _getSourceFileFromPaths(relValue, absValue) {
+    let relPath = relValue.slice("[ProfD]".length);
     let parts = relPath.split("/");
-    if (!relPrefValue.startsWith("[ProfD]") || parts.includes("..")) {
+    if (!relValue.startsWith("[ProfD]") || parts.includes("..")) {
       // If we don't recognize this path or if it's a path outside the ProfD,
-      // use the absPrefName instead.
+      // use absValue instead.
+      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       try {
-        return branch.getComplexValue(absPrefName, Ci.nsIFile);
-      } catch (e) {
-        return null;
-      }
+        file.initWithPath(absValue);
+      } catch (e) {}
+      return file;
     }
 
-    // We can't use branch.getComplexValue with relPrefName, because that path
-    // is relative to this._sourceProfileDir.
     let sourceFile = this._sourceProfileDir.clone();
     for (let part of parts) {
       sourceFile.append(part);
@@ -540,10 +557,9 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       targetDir.append(hostname);
       targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
 
-      let sourceDir = this._getSourceFileValue(
-        branch,
-        "directory-rel",
-        "directory"
+      let sourceDir = this._getSourceFileFromPaths(
+        branch.getCharPref("directory-rel", ""),
+        branch.getCharPref("directory", "")
       );
       if (sourceDir.exists()) {
         this._recursivelyCopyMsgFolder(sourceDir, targetDir);
@@ -559,10 +575,9 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         targetNewsrc.append(`newsrc-${hostname}`);
         targetNewsrc.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
-        let sourceNewsrc = this._getSourceFileValue(
-          branch,
-          "newsrc.file-rel",
-          "newsrc.file"
+        let sourceNewsrc = this._getSourceFileFromPaths(
+          branch.getCharPref("newsrc.file-rel", ""),
+          branch.getCharPref("newsrc.file", "")
         );
         if (sourceNewsrc.exists()) {
           this._logger.debug(
@@ -576,6 +591,31 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         branch.clearUserPref("newsrc.file-rel");
       }
     }
+  }
+
+  /**
+   * Merge Local Folders from the source profile into the current profile.
+   * Source Local Folders become a subfoler of the current Local Folders.
+   */
+  _mergeLocalFolders() {
+    let sourceDir = this._getSourceFileFromPaths(
+      this._sourceLocalServerAttrs["directory-rel"],
+      this._sourceLocalServerAttrs.directory
+    );
+    if (!sourceDir.path || !sourceDir.exists()) {
+      return;
+    }
+    let rootMsgFolder = this._localServer.rootMsgFolder;
+    let folderName = rootMsgFolder.generateUniqueSubfolderName(
+      "Local Folders",
+      null
+    );
+    this._localServer.rootMsgFolder.createSubfolder(folderName, null);
+    folderName += ".sbd";
+    this._logger.debug(
+      `Copying ${sourceDir.path} to ${folderName} in Local Folders`
+    );
+    sourceDir.copyTo(rootMsgFolder.filePath, folderName);
   }
 
   /**
@@ -618,14 +658,11 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    */
   _importMailMessagesToLocal() {
     // Make sure Local Folders exist first.
-    let localServer;
-    try {
-      localServer = MailServices.accounts.localFoldersServer;
-    } catch (e) {
+    if (!this._localServer) {
       MailServices.accounts.createLocalMailAccount();
-      localServer = MailServices.accounts.localFoldersServer;
+      this._localServer = MailServices.accounts.localFoldersServer;
     }
-    let localRootDir = localServer.rootMsgFolder.filePath;
+    let localRootDir = this._localServer.rootMsgFolder.filePath;
 
     // Import mail folders.
     for (let name of ["ImapMail", "News", "Mail"]) {
@@ -641,11 +678,11 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
             continue;
           }
           let targetDir = localRootDir.clone();
-          let folderName = localServer.rootMsgFolder.generateUniqueSubfolderName(
+          let folderName = this._localServer.rootMsgFolder.generateUniqueSubfolderName(
             entry.leafName,
             null
           );
-          localServer.rootMsgFolder.createSubfolder(folderName, null);
+          this._localServer.rootMsgFolder.createSubfolder(folderName, null);
           targetDir.append(folderName + ".sbd");
           targetDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
           this._recursivelyCopyMsgFolder(entry, targetDir);

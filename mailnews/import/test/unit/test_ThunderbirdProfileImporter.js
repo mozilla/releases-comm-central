@@ -5,6 +5,9 @@
  */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { ThunderbirdProfileImporter } = ChromeUtils.import(
   "resource:///modules/ThunderbirdProfileImporter.jsm"
 );
@@ -118,4 +121,51 @@ add_task(async function test_importAccountsIntoEmptyProfile() {
   );
 
   Services.prefs.resetPrefs();
+});
+
+/**
+ * Test that when the source profile and current profile each has Local Folders,
+ * the source Local Folders will be merged into the current Local Folders.
+ */
+add_task(async function test_mergeLocalFolders() {
+  let prefs = [
+    ["mail.smtpserver.smtp1.username", "smtp-user-1"],
+    ["mail.smtpservers", "smtp1"],
+    ["mail.identity.id1.smtpServer", "smtp1"],
+    ["mail.server.server2.type", "none"],
+    ["mail.server.server2.directory-rel", "[ProfD]Mail/Local Folders"],
+    ["mail.server.server2.hostname", "Local Folders"],
+    ["mail.server.server3.type", "imap"],
+    ["mail.account.account2.server", "server2"],
+    ["mail.account.account3.server", "server3"],
+    ["mail.account.account3.identities", "id1"],
+    ["mail.accountmanager.accounts", "account3,account2"],
+    ["mail.accountmanager.localfoldersserver", "server2"],
+  ];
+  await createTmpProfileWithPrefs(prefs);
+
+  // Create a physical file in tmpProfileDir.
+  let sourceLocalFolder = tmpProfileDir.clone();
+  sourceLocalFolder.append("Mail");
+  sourceLocalFolder.append("Local Folders");
+  sourceLocalFolder.append("folder-xpcshell");
+  sourceLocalFolder.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+
+  // Create Local Folders in the current profile.
+  MailServices.accounts.createLocalMailAccount();
+
+  let importer = new ThunderbirdProfileImporter();
+  await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
+
+  // Test that sub msg folders are created in the current Local Folders.
+  let localFolders = MailServices.accounts.localFoldersServer.rootMsgFolder;
+  ok(localFolders.containsChildNamed("Local Folders0"));
+  let msgFolder = localFolders.getChildNamed("Local Folders0");
+  ok(msgFolder.containsChildNamed("folder-xpcshell"));
+
+  // Test that folder-xpcshell is copied into current Local Folders.
+  let importedFolder = localFolders.filePath;
+  importedFolder.append("Local Folders0.sbd");
+  importedFolder.append("folder-xpcshell");
+  ok(importedFolder.exists(), "Source Local Folders should be merged in.");
 });
