@@ -1503,7 +1503,7 @@ int32_t nsPop3Protocol::SendTLSResponse() {
     }
 
     if (NS_SUCCEEDED(rv)) {
-      m_pop3ConData->next_state = POP3_SEND_AUTH;
+      m_pop3ConData->next_state = POP3_SEND_CAPA;
       m_tlsEnabled = true;
 
       // certain capabilities like POP3_HAS_AUTH_APOP should be
@@ -3591,10 +3591,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI* url,
           m_currentAuthMethod = POP3_HAS_AUTH_USER;
           m_pop3ConData->next_state = POP3_SEND_USERNAME;
         } else {
-          if (TestCapFlag(POP3_AUTH_MECH_UNDEFINED))
-            m_pop3ConData->next_state = POP3_SEND_AUTH;
-          else
-            m_pop3ConData->next_state = POP3_SEND_CAPA;
+          m_pop3ConData->next_state = POP3_SEND_CAPA;
         }
         break;
       }
@@ -3623,10 +3620,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI* url,
             m_currentAuthMethod = POP3_HAS_AUTH_USER;
             m_pop3ConData->next_state = POP3_SEND_USERNAME;
           } else {
-            if (TestCapFlag(POP3_AUTH_MECH_UNDEFINED))
-              m_pop3ConData->next_state = POP3_SEND_AUTH;
-            else
-              m_pop3ConData->next_state = POP3_SEND_CAPA;
+            m_pop3ConData->next_state = POP3_SEND_CAPA;
           }
         }
 
