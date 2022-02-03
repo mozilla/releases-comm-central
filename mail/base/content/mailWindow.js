@@ -87,9 +87,22 @@ function onCopyOrDragStart(e) {
   if (!browser) {
     return;
   }
+
+  // We're only interested if this is in the message content.
   let sourceDoc = browser.contentDocument;
   if (e.target.ownerDocument != sourceDoc) {
-    return; // We're only interested if this is in the message content.
+    return;
+  }
+  let sourceURL = sourceDoc.URL;
+  let protocol = sourceURL.substr(0, sourceURL.indexOf(":")).toLowerCase();
+  if (
+    !(
+      Services.io.getProtocolHandler(protocol) instanceof
+      Ci.nsIMsgMessageFetchPartService
+    )
+  ) {
+    // Can't fetch parts, not a message protocol, don't process.
+    return;
   }
 
   let imgMap = new Map(); // Mapping img.src -> dataURL.
