@@ -16,8 +16,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Pop3Client: "resource:///modules/Pop3Client.jsm",
 });
 
-const POP3_AUTH_MECH_UNDEFINED = 0x200;
-
 /**
  * @implements {nsIPop3IncomingServer}
  * @implements {nsILocalMailIncomingServer}
@@ -153,16 +151,6 @@ class Pop3IncomingServer extends MsgIncomingServer {
   }
 
   /** @see nsIPop3IncomingServer */
-  _capFlags = POP3_AUTH_MECH_UNDEFINED;
-
-  get pop3CapabilityFlags() {
-    return this._capFlags;
-  }
-
-  set pop3CapabilityFlags(value) {
-    this._capFlags = value;
-  }
-
   get deferredToAccount() {
     let accountKey = this.getCharValue("deferred_to_account");
     if (!accountKey) {

@@ -41,8 +41,6 @@ const UIDL_DELETE = "d";
 const UIDL_TOO_BIG = "b";
 const UIDL_FETCH_BODY = "f";
 
-const POP3_AUTH_MECH_UNDEFINED = 0x200;
-
 /**
  * A class to interact with POP3 server.
  */
@@ -154,11 +152,7 @@ class Pop3Client {
     this._urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
 
     await this._loadUidlState();
-    if (this._server.pop3CapabilityFlags & POP3_AUTH_MECH_UNDEFINED) {
-      this._actionInitialAuth();
-    } else {
-      this._actionCapa();
-    }
+    this._actionCapa();
   }
 
   /**
@@ -440,37 +434,6 @@ class Pop3Client {
 
     this._socket.send(CommonUtils.byteStringToArrayBuffer(str + "\r\n").buffer);
   }
-
-  /**
-   * Send `AUTH` request without any parameters to the server, to get supported
-   * auth methods in case CAPA is not implemented by the server.
-   */
-  _actionInitialAuth = () => {
-    this._nextAction = this._actionInitialAuthResponse;
-    this._send("AUTH");
-  };
-
-  /**
-   * Handle `AUTH` response.
-   * @param {Pop3Response} res - AUTH response received from the server.
-   */
-  _actionInitialAuthResponse = res => {
-    if (!res.success) {
-      this._actionCapa();
-    }
-    this._lineReader(
-      res.data,
-      line => {
-        this._supportedAuthMethods.push(line);
-      },
-      () => {
-        // Clear the capability flags so that _actionInitialAuth is not needed
-        // next time, this is only here to make tests happy.
-        this._server.pop3CapabilityFlags = 0;
-        this._actionCapa();
-      }
-    );
-  };
 
   /**
    * Send `CAPA` request to the server.

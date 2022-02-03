@@ -153,6 +153,14 @@ function do_check_transaction(real, expected) {
     real.them.pop();
   }
 
+  if (
+    Services.prefs.getBoolPref("mailnews.pop3.jsmodule", false) &&
+    expected[0] == "AUTH"
+  ) {
+    // Pop3Client.jsm doesn't send inital AUTH command.
+    expected = expected.slice(1);
+  }
+
   Assert.equal(real.them.join(","), expected.join(","));
   dump("Passed test " + test + "\n");
 }
