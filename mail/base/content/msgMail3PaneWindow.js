@@ -1191,7 +1191,11 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   if (state) {
     let tabsState = state.tabs;
     let tabmail = document.getElementById("tabmail");
-    tabmail.restoreTabs(tabsState, aDontRestoreFirstTab);
+    try {
+      tabmail.restoreTabs(tabsState, aDontRestoreFirstTab);
+    } catch (e) {
+      Cu.reportError(e);
+    }
   }
 
   // it's now safe to load extra Tabs.
