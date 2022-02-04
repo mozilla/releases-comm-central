@@ -15,8 +15,6 @@ registerCleanupFunction(() => {
   CalendarTestUtils.removeCalendar(calendar);
 });
 
-requestLongerTimeout(2);
-
 /**
  * Test the custom recurrence dialog's minimonths take up the available space
  * when the window is resized. See bug 1679129.

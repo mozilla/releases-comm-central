@@ -15,8 +15,6 @@ var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 const STARTYEAR = 1950;
 const EPOCH = 1970;
 
-requestLongerTimeout(2);
-
 add_task(async function testAnnualRecurrence() {
   let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
