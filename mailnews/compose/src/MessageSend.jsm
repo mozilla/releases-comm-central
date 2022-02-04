@@ -614,7 +614,6 @@ MessageSend.prototype = {
           }
         }
       }
-      this.fail(exitCode, errorMsg);
       if (isNSSError) {
         let u = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
         this.notifyListenerOnTransportSecurityError(
@@ -625,6 +624,7 @@ MessageSend.prototype = {
         );
       }
       this.notifyListenerOnStopSending(null, exitCode, null, null);
+      this.fail(exitCode, errorMsg);
       return;
     }
 
