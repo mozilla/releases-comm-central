@@ -144,9 +144,6 @@ about-addressbook-details-home-address-header = Home Address
 about-addressbook-details-work-address-header = Work Address
 about-addressbook-details-other-info-header = Other Information
 
-about-addressbook-prompt-to-save-title = Save Changes?
-about-addressbook-prompt-to-save = Do you want to save your changes?
-
 # Photo dialog
 
 about-addressbook-photo-drop-target = Drop or paste a photo here, or click to select a file.

@@ -1678,9 +1678,9 @@ var detailsPane = {
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
 
-    this.container.addEventListener("change", () =>
-      this.container.classList.add("is-dirty")
-    );
+    this.container.addEventListener("change", () => {
+      this.isDirty = true;
+    });
     this.editButton.addEventListener("click", this);
     this.cancelEditButton.addEventListener("click", this);
     this.saveEditButton.addEventListener("click", this);
@@ -1760,13 +1760,64 @@ var detailsPane = {
   },
 
   /**
+   * Is a card being edited?
+   * @type {boolean}
+   */
+  get isEditing() {
+    return document.body.classList.contains("is-editing");
+  },
+
+  set isEditing(editing) {
+    if (editing == this.isEditing) {
+      return;
+    }
+
+    document.body.classList.toggle("is-editing", editing);
+
+    // Disable the toolbar buttons when starting to edit. Remember their state
+    // to restore it when editing stops.
+    for (let toolbarButton of document.querySelectorAll(
+      "#toolbox toolbarbutton"
+    )) {
+      if (editing) {
+        toolbarButton._wasDisabled = toolbarButton.disabled;
+        toolbarButton.disabled = true;
+      } else {
+        toolbarButton.disabled = toolbarButton._wasDisabled;
+        delete toolbarButton._wasDisabled;
+      }
+    }
+
+    // Remove these elements from (or add them back to) the tab focus cycle.
+    for (let id of ["books", "searchInput", "sortButton", "cards"]) {
+      document.getElementById(id).tabIndex = editing ? -1 : 0;
+    }
+
+    if (!editing) {
+      this.isDirty = false;
+    }
+  },
+
+  /**
+   * If a card is being edited, has any field changed?
+   * @type {boolean}
+   */
+  get isDirty() {
+    return this.isEditing && document.body.classList.contains("is-dirty");
+  },
+
+  set isDirty(dirty) {
+    document.body.classList.toggle("is-dirty", this.isEditing && dirty);
+  },
+
+  /**
    * Show a read-only representation of a card in the details pane.
    *
    * @param {nsIAbCard?} card - The card to display. This should not be a
    *     mailing list card. Pass null to hide the details pane.
    */
   displayContact(card) {
-    if (this.container.classList.contains("is-editing")) {
+    if (this.isEditing) {
       return;
     }
 
@@ -1870,7 +1921,7 @@ var detailsPane = {
     let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     this.editButton.disabled = book.readOnly;
 
-    this.container.classList.remove("is-editing");
+    this.isEditing = false;
     this.container.scrollTo(0, 0);
     this.container.hidden = false;
   },
@@ -1879,14 +1930,6 @@ var detailsPane = {
    * Show controls for editing a new card.
    */
   async editNewContact() {
-    try {
-      await this.promptToSave();
-    } catch (ex) {
-      if (ex.result == Cr.NS_ERROR_ABORT) {
-        return;
-      }
-    }
-
     detailsPane.currentCard = null;
     this.editCurrentContact();
   },
@@ -1920,65 +1963,10 @@ var detailsPane = {
 
     this.calculateAge();
 
-    this.container.classList.add("is-editing");
+    this.isEditing = true;
     this.container.hidden = false;
     this.container.scrollTo(0, 0);
     this.container.querySelector("input").focus();
-  },
-
-  /**
-   * If a card is being edited, ask the user if they want to save it and, if
-   * they do, perform the save.
-   */
-  async promptToSave() {
-    if (!this.container.classList.contains("is-editing")) {
-      return;
-    }
-
-    // It's possible that we have edited a field but not left it, therefore
-    // not triggering the "change" event and not marking everything as dirty.
-    let activeElement = document.activeElement;
-    if (activeElement.localName == "input") {
-      activeElement.blur();
-    } else {
-      activeElement = null;
-    }
-
-    if (!this.container.classList.contains("is-dirty")) {
-      return;
-    }
-
-    let [title, message] = await document.l10n.formatValues([
-      { id: "about-addressbook-prompt-to-save-title" },
-      { id: "about-addressbook-prompt-to-save" },
-    ]);
-
-    let prompt = Services.ww.getNewPrompter(
-      window.browsingContext.topChromeWindow
-    );
-    let whichButton = prompt.confirmEx(
-      title,
-      message,
-      Ci.nsIPrompt.BUTTON_TITLE_SAVE * Ci.nsIPrompt.BUTTON_POS_0 +
-        Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1 +
-        Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE * Ci.nsIPrompt.BUTTON_POS_2,
-      null,
-      null,
-      null,
-      null,
-      {}
-    );
-    if (whichButton == 1) {
-      if (activeElement) {
-        activeElement.focus();
-      }
-      throw new Components.Exception("User clicked cancel.", Cr.NS_ERROR_ABORT);
-    }
-
-    this.container.classList.remove("is-dirty");
-    if (whichButton === 0) {
-      this.saveCurrentContact();
-    }
   },
 
   /**
@@ -2041,7 +2029,7 @@ var detailsPane = {
       delete this.photo._blob;
     }
 
-    this.container.classList.remove("is-dirty", "is-editing");
+    this.isEditing = false;
 
     if (!card.directoryUID) {
       card = book.addCard(card);
@@ -2189,7 +2177,7 @@ var detailsPane = {
         this.editCurrentContact();
         break;
       case "cancelEditButton":
-        this.container.classList.remove("is-dirty", "is-editing");
+        this.isEditing = false;
         this.displayContact(this.currentCard);
         break;
       case "saveEditButton":
@@ -2199,7 +2187,7 @@ var detailsPane = {
   },
 
   async _onPhotoActivate(event) {
-    if (!this.container.classList.contains("is-editing")) {
+    if (!this.isEditing) {
       return;
     }
     if (event.type == "keypress" && ![" ", "Enter"].includes(event.key)) {
@@ -2555,7 +2543,7 @@ var photoDialog = {
     )}")`;
 
     this._dialog.close();
-    detailsPane.container.classList.add("is-dirty");
+    detailsPane.isDirty = true;
   },
 
   /**

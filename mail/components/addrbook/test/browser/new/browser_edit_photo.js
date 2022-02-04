@@ -15,18 +15,16 @@ let photo1Name, photo1Path;
 
 async function inEditingMode() {
   let abWindow = getAddressBookWindow();
-  let detailsPane = abWindow.document.getElementById("detailsPane");
   await TestUtils.waitForCondition(
-    () => detailsPane.classList.contains("is-editing"),
+    () => abWindow.detailsPane.isEditing,
     "entering editing mode"
   );
 }
 
 async function notInEditingMode() {
   let abWindow = getAddressBookWindow();
-  let detailsPane = abWindow.document.getElementById("detailsPane");
   await TestUtils.waitForCondition(
-    () => !detailsPane.classList.contains("is-editing"),
+    () => !abWindow.detailsPane.isEditing,
     "leaving editing mode"
   );
 }
