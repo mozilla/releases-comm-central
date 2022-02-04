@@ -23,6 +23,8 @@ jobs-from:
 
 # These apply to all included test yml files listed in jobs-from
 job-defaults:
+    attributes:
+        retrigger: true
     optimization:
         by-test-platform:
             .*-tsan.*/opt:
