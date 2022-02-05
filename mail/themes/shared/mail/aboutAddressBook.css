@@ -768,17 +768,3 @@ input[type="number"]::-moz-number-spin-down {
 #photoDialog .extra1 {
   margin-inline-end: auto;
 }
-
-/* Align the elements correctly */
-#directoryTabPanels radiogroup {
-  margin-inline-start: 4px;
-}
-
-#directoryTabPanels textarea {
-  width: calc(100% - 22px);
-}
-
-#directoryTabPanels menulist {
-  width: calc(100% - 4px);
-  margin-inline-start: 4px;
-}

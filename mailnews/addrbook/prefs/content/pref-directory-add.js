@@ -24,6 +24,8 @@ var gDownloadInProgress = false;
 var kDefaultLDAPPort = 389;
 var kDefaultSecureLDAPPort = 636;
 
+window.addEventListener("DOMContentLoaded", Startup);
+window.addEventListener("unload", onUnload);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 

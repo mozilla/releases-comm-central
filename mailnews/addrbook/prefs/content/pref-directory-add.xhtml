@@ -8,25 +8,37 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/pref-directory-add.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/pref-directory-add.dtd">
 
-<window style="width: &newDirectoryWidth;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        onload="Startup();"
-        lightweightthemes="true"
-        onunload="onUnload();">
-<dialog id="addDirectory"
-        buttons="accept,cancel">
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/addressbook/pref-directory-add.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title><!-- directoryTitleEdit --></title>
+  <style>
+    #directoryTabPanels radiogroup {
+      margin-inline-start: 4px;
+    }
+    #directoryTabPanels textarea {
+      width: calc(100% - 22px);
+    }
+    #directoryTabPanels menulist {
+      width: calc(100% - 4px);
+      margin-inline-start: 4px;
+    }
+  </style>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/pref-directory-add.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog id="addDirectory" buttons="accept,cancel" style="width:100vw; min-width:&newDirectoryWidth;">
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   <stringbundle id="bundle_replication" src="chrome://messenger/locale/addressbook/replicationProgress.properties"/>
 
-  <keyset id="keyset"/>
   <vbox id="editDirectory">
 
     <tabbox style="margin:5px">
@@ -152,7 +164,7 @@
                            control="search"/>
               </div>
               <div>
-                <textarea id="search" flex="1" disableiflocked="true"/>
+                <textarea id="search" disableiflocked="true"></textarea>
               </div>
               <div class="flex-items-center">
                 <xul:label value="&saslMechanism.label;" control="saslMechanism"
@@ -174,4 +186,5 @@
     </tabbox>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
