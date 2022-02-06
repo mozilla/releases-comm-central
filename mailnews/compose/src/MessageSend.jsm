@@ -985,8 +985,8 @@ MessageSend.prototype = {
           `OnStopCopy failed with 0x${e.result.toString(16)}\n${e.stack}`
         );
       }
+      this._cleanup();
     });
-    this._cleanup();
   },
 
   /**
