@@ -37,6 +37,10 @@ window,
   padding: 0;
 }
 
+body > dialog {
+  background-color: unset;
+}
+
 .contentPane {
   margin: 0;
 }

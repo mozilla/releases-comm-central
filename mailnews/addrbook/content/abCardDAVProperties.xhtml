@@ -4,28 +4,26 @@
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/shared/cardDAV.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/cardDAV.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
 
-<window style="width: 36em;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-<dialog id="carddav-properties-dialog">
-
-  <linkset>
-    <html:link rel="localization" href="messenger/addressbook/abCardDAVProperties.ftl"/>
-  </linkset>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/addressbook/abCardDAVProperties.js"/>
-
-  <div id="carddav-properties-table"
-       xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="540" height="210"
+      scrolling="false">
+<head>
+  <title><!-- addressBookTitleEdit --></title>
+  <link rel="localization" href="messenger/addressbook/abCardDAVProperties.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abCardDAVProperties.js"></script>
+</head>
+<body>
+<xul:dialog id="carddav-properties-dialog">
+  <div id="carddav-properties-table">
     <div>
       <xul:label control="carddav-name"
                  value="&name.label;"
@@ -67,5 +65,6 @@
                     data-l10n-attrs="label,accesskey"/>
     </div>
   </div>
-</dialog>
-</window>
+</xul:dialog>
+</body>
+</html>

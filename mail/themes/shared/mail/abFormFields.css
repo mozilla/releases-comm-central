@@ -1,0 +1,81 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --in-content-button-border-radius: 3px;
+}
+
+@media not (prefers-contrast) {
+  :root {
+    --in-content-button-background: var(--grey-90-a10);
+    --in-content-button-background-hover: var(--grey-90-a20);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --in-content-button-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+    }
+  }
+}
+
+button {
+  padding: 0 12px;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+input[type="number"] {
+  min-height: 28px;
+  padding: 1px;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+/* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
+input[type="number"].size3 {
+  width: calc(3ch + 55px);
+}
+input[type="number"].size5 {
+  width: calc(5ch + 55px);
+}
+
+input[type="number"]::-moz-number-spin-box {
+  padding-inline-start: 10px;
+}
+
+input[type="number"]::-moz-number-spin-up,
+input[type="number"]::-moz-number-spin-down {
+  appearance: none;
+  min-width: 25px;
+  border-color: var(--in-content-box-border-color);
+  border-radius: 0;
+  background-color: var(--in-content-button-background);
+  background-position: center;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+input[type="number"]::-moz-number-spin-up:hover,
+input[type="number"]::-moz-number-spin-down:hover {
+  background-color: var(--in-content-button-background-hover);
+}
+
+input[type="number"]::-moz-number-spin-up {
+  min-height: 13px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-start-end-radius: var(--in-content-button-border-radius);
+  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+}
+
+input[type="number"]::-moz-number-spin-down {
+  min-height: 12px;
+  border-end-end-radius: var(--in-content-button-border-radius);
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+}
+
+input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
+  border-radius: var(--in-content-button-border-radius);
+  padding-block: initial;
+  min-height: 30px; /* it should be 32px but input doesn't include the border */
+}

@@ -37,7 +37,8 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
     dialogOptions: {
       styleSheets: [
         "chrome://messenger/skin/preferences/dialog.css",
-        "chrome://messenger/skin/aboutAddressBook.css",
+        "chrome://messenger/skin/shared/preferences/subdialog.css",
+        "chrome://messenger/skin/abFormFields.css",
       ],
     },
   });

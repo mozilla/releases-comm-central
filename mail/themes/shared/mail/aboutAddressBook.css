@@ -3,15 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/preferences/subdialog.css");
-
-:root {
-  --in-content-button-border-radius: 3px;
-}
+@import url("chrome://messenger/skin/abFormFields.css");
 
 @media not (prefers-contrast) {
   :root {
-    --in-content-button-background: var(--grey-90-a10);
-    --in-content-button-background-hover: var(--grey-90-a20);
     --in-content-button-background-active: var(--grey-90-a30);
     --in-content-categories-background: #ebebef;
     --in-content-item-selected-unfocused: var(--grey-20);
@@ -21,8 +16,6 @@
     :root {
       --in-content-categories-background: rgba(249, 249, 250, 0.1);
       --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
-      --in-content-button-background: rgba(249, 249, 250, 0.1);
-      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
       --in-content-button-background-active: rgba(249, 249, 250, 0.2);
       --in-content-primary-button-background: #45a1ff;
       --in-content-primary-button-background-hover: #65c1ff;
@@ -30,11 +23,6 @@
       --in-content-focus-outline-color: #45a1ff;
     }
   }
-}
-
-button {
-  padding: 0 12px;
-  border-radius: var(--in-content-button-border-radius);
 }
 
 :root {
@@ -527,12 +515,6 @@ body.is-editing #detailsPane #photoOverlay {
 
 .editGrid select > button {
   padding-block: 0;
-}
-
-input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
-  border-radius: var(--in-content-button-border-radius);
-  padding-block: initial;
-  min-height: 30px; /* it should be 32px but input doesn't include the border */
 }
 
 #BirthDay > option:disabled {
