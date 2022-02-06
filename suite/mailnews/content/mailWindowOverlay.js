@@ -1586,10 +1586,11 @@ function MsgFilters(emailAddress, folder) {
     window.openDialog("chrome://messenger/content/FilterEditor.xul", "",
                       "chrome, modal, resizable,centerscreen,dialog", args);
 
-    // args.refresh is set to true in the filterEditor, if the user hits ok.
-    // We check this here in args to show the filterList dialog.
+    // If the user hits ok in the filterEditor dialog we set args.refresh=true
+    // there and we check this here in args to show filterList dialog.
+    // We also received the filter created via args.newFilter.
     if ("refresh" in args && args.refresh) {
-       args = { refresh: true, folder };
+       args = { refresh: true, folder, filter: args.newFilter };
        MsgFilterList(args);
     }
   } else // just launch filterList dialog

@@ -144,6 +144,10 @@ function processWindowArguments(aArguments) {
     // to show potential new filters if we were called for refresh.
     rebuildFilterList();
   }
+
+  // If a specific filter was requested, try to select it.
+  if ("filter" in aArguments)
+    selectFilter(aArguments.filter);
 }
 
 /**
@@ -289,6 +293,31 @@ function toggleFilter(aFilterItem)
   aFilterItem.childNodes[1].setAttribute("enabled", filter.enabled);
   // For accessibility set the checked state on listitem
   aFilterItem.setAttribute("aria-checked", filter.enabled);
+}
+
+/**
+ * Selects a specific filter in the filter list.
+ * The listbox view is scrolled to the corresponding item.
+ *
+ * @param aFilter  The nsIMsgFilter to select.
+ *
+ * @return  true/false indicating whether the filter was found and selected.
+ */
+function selectFilter(aFilter) {
+  if (currentFilter() == aFilter)
+    return true;
+
+  resetSearchBox(aFilter);
+
+  let filterCount = gCurrentFilterList.filterCount;
+  for (let i = 0; i < filterCount; i++) {
+    if (gCurrentFilterList.getFilterAt(i) == aFilter) {
+      gFilterListbox.ensureIndexIsVisible(i);
+      gFilterListbox.selectedIndex = i;
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
