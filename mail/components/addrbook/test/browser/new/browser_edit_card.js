@@ -313,7 +313,7 @@ add_task(async function test_basic_edit() {
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
-});
+}).__skipMe = true; // bug 1751290 needs finishing
 
 add_task(async function test_special_fields() {
   Services.prefs.setStringPref("mail.addr_book.show_phonetic_fields", "true");
