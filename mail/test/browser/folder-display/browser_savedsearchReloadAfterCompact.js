@@ -9,6 +9,10 @@
 
 "use strict";
 
+var { gThreadManager } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Maild.jsm"
+);
+
 var {
   be_in_folder,
   create_folder,
@@ -22,13 +26,17 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
+var otherFolder;
+var folderVirtual;
+var synSets;
+
 /**
  * Add some messages to a folder, delete the first one, and create a saved
  * search over the inbox and the folder. Then, compact folders.
  */
 add_task(async function test_setup_virtual_folder_and_compact() {
-  let otherFolder = await create_folder("otherFolder");
-  await make_message_sets_in_folders([otherFolder], [{ count: 2 }]);
+  otherFolder = await create_folder();
+  synSets = await make_message_sets_in_folders([otherFolder], [{ count: 2 }]);
 
   /**
    * We delete the first message in the local folder, so compaction of the
@@ -41,13 +49,12 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   select_click_row(0);
   press_delete();
 
-  let folderVirtual = create_virtual_folder(
+  folderVirtual = create_virtual_folder(
     [inboxFolder, otherFolder],
     {},
     true,
     "SavedSearch"
   );
-
   be_in_folder(folderVirtual);
   select_click_row(0);
   let urlListener = {
@@ -79,4 +86,17 @@ add_task(async function test_setup_virtual_folder_and_compact() {
     undefined,
     "Test ran to completion successfully"
   );
+});
+
+add_task(async function endTest() {
+  // Fixing possible nsIMsgDBHdr.markHasAttachments onEndMsgDownload runs.
+  //  Found in chaosmode.
+  var thread = gThreadManager.currentThread;
+  while (thread.hasPendingEvents()) {
+    thread.processNextEvent(true);
+  }
+  // Cleanup dbView with force.
+  mc.dbView.close(true);
+  folderVirtual.deleteSelf(null);
+  otherFolder.deleteSelf(null);
 });
