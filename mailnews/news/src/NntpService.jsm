@@ -65,7 +65,7 @@ class NntpService {
       client.urlListener = urlListener;
 
       client.onOpen = () => {
-        client.post();
+        client.post(msgWindow);
       };
 
       client.onReadyToPost = () => {

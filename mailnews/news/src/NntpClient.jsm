@@ -20,6 +20,9 @@ const AUTH_REQUIRED = 480;
 const AUTH_FAILED = 481;
 const SERVICE_UNAVAILABLE = 502;
 const NOT_SUPPORTED = 503;
+const XPAT_OK = 221;
+
+const NNTP_ERROR_MESSAGE = -304;
 
 /**
  * A structure to represent a response received from the server. A response can
@@ -232,7 +235,6 @@ class NntpClient {
    */
   sendEnd() {
     this.send("\r\n.\r\n");
-    this._nextAction = this._actionDone;
   }
 
   /**
@@ -357,8 +359,10 @@ class NntpClient {
 
   /**
    * Send `POST` request to the server.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  post() {
+  post(msgWindow) {
+    this._msgWindow = msgWindow;
     this._sendCommand("POST");
     this._nextAction = this._actionHandlePost;
   }
@@ -655,11 +659,13 @@ class NntpClient {
    * Handle POST response.
    * @param {NntpResponse} res - POST response received from the server.
    */
-  _actionHandlePost({ status }) {
+  _actionHandlePost({ status, statusText }) {
     if (status == 340) {
       this.onReadyToPost();
-    } else if ([440, 441].includes(status)) {
-      this._actionDone(Cr.NS_ERROR_FAILURE);
+    } else if (status == 240) {
+      this._actionDone();
+    } else {
+      this._actionError(NNTP_ERROR_MESSAGE, statusText);
     }
   }
 
@@ -735,10 +741,40 @@ class NntpClient {
 
   /**
    * Handle XPAT response.
-   * @param {NntpResponse} res - XOVER response received from the server.
+   * @param {NntpResponse} res - XPAT response received from the server.
    */
-  _actionXPatResponse({ data }) {
+  _actionXPatResponse({ status, statusText, data }) {
+    if (status != XPAT_OK) {
+      this._actionError(NNTP_ERROR_MESSAGE, statusText);
+      return;
+    }
     this._lineReader(data, this.onData, this._actionXPat);
+  }
+
+  /**
+   * Show an error prompt.
+   * @param {number} errorId - An error name corresponds to an entry of
+   *   news.properties.
+   * @param {string} serverErrorMsg - Error message returned by the server.
+   */
+  _actionError(errorId, serverErrorMsg) {
+    this._logger.error(`Got an error id=${errorId}`);
+    let msgWindow = this._msgWindow;
+
+    if (!msgWindow) {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
+    }
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/news.properties"
+    );
+    let errorMsg = bundle.GetStringFromID(errorId);
+    if (serverErrorMsg) {
+      errorMsg += " " + serverErrorMsg;
+    }
+    msgWindow.promptDialog.alert(null, errorMsg);
+
+    this._actionDone(Cr.NS_ERROR_FAILURE);
   }
 
   /**

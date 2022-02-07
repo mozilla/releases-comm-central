@@ -589,7 +589,7 @@ MessageSend.prototype = {
             );
           isNSSError = true;
         } catch (e) {
-          if (errorName == "sendFailed") {
+          if (errorName != "sendFailed") {
             // Not the default string. A mailnews error occurred that does not
             // require the server name to be encoded. Just print the descriptive
             // string.
