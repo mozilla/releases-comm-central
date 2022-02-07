@@ -6,18 +6,21 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width: 36em;"
-        onload="abNameOnLoad();">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="540"
+      scrolling="false">
+<head>
+  <title><!-- addressBookTitleEdit --></title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog>
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/addressbook/abAddressBookNameDialog.js"/>
 
   <hbox align="center" class="input-container">
     <label id="nameLabel" control="name" value="&name.label;"
@@ -26,4 +29,6 @@
                 aria-labelledby="nameLabel" oninput="abNameDoOkEnabling();"/>
   </hbox>
 </dialog>
-</window>
+<html:script src="chrome://messenger/content/addressbook/abAddressBookNameDialog.js">//see bug 1752288</html:script>
+</html:body>
+</html>

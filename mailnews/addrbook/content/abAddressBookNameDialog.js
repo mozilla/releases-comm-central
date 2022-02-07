@@ -15,6 +15,8 @@ var kPersonalAddressbookURI = "jsaddrbook://abook.sqlite";
 var kCollectedAddressbookURI = "jsaddrbook://history.sqlite";
 var kAllDirectoryRoot = "moz-abdirectory://";
 
+window.addEventListener("load", abNameOnLoad);
+
 function abNameOnLoad() {
   // Get the document elements.
   gOkButton = document.querySelector("dialog").getButton("accept");
