@@ -102,9 +102,11 @@ class Pop3Client {
         Date.now() / 1000 - this._server.numDaysToLeaveOnServer * 24 * 60 * 60;
     }
 
-    this._maxMessageSize = 50 * 1024;
-    if (this._server.limitOfflineMessageSize && this._server.maxMessageSize) {
-      this._maxMessageSize = this._server.maxMessageSize * 1024;
+    this._maxMessageSize = Infinity;
+    if (this._server.limitOfflineMessageSize) {
+      this._maxMessageSize = this._server.maxMessageSize
+        ? this._server.maxMessageSize * 1024
+        : 50 * 1024;
     }
 
     this._messagesToHandle = [];

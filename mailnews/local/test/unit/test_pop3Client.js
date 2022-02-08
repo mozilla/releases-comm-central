@@ -54,8 +54,8 @@ add_task(async function testSTARTTLS() {
  */
 async function testTopOrRetr(incomingServer, transaction) {
   server.resetTest();
-  // Any message file larger than 1KB is good for this test.
-  daemon.setMessages(["mailformed_recipients.eml"]);
+  // Any message file larger than 50KB is good for this test.
+  daemon.setMessages(["mailformed_subject.eml"]);
 
   let urlListener = {
     OnStartRunningUrl() {},
