@@ -1286,7 +1286,6 @@ class HeaderView {
       newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
       newLabelNode.setAttribute("value", label);
       newLabelNode.setAttribute("class", "message-header-label");
-      newLabelNode.setAttribute("control", idName);
 
       newRowNode.appendChild(newLabelNode);
 

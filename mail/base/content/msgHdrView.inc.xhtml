@@ -234,9 +234,8 @@
     <html:div id="expandedfromRow" class="header-row-grow">
       <label id="expandedfromLabel" class="message-header-label header-pill-label"
              value="&fromField4.label;"
-             valueFrom="&fromField4.label;" valueAuthor="&author.label;"
-             control="expandedfromBox"/>
-      <mail-multi-emailheaderfield id="expandedfromBox" aria-labelledby="expandedfromLabel"/>
+             valueFrom="&fromField4.label;" valueAuthor="&author.label;"/>
+      <mail-multi-emailheaderfield id="expandedfromBox"/>
     </html:div>
   </html:div>
 
@@ -244,9 +243,8 @@
   <html:div id="expandedtoRow" class="message-header-row">
     <html:div class="header-row-grow">
       <label id="expandedtoLabel" class="message-header-label header-pill-label"
-             value="&toField4.label;" control="expandedtoBox"/>
-      <mail-multi-emailheaderfield id="expandedtoBox"
-                                   aria-labelledby="expandedtoLabel"/>
+             value="&toField4.label;"/>
+      <mail-multi-emailheaderfield id="expandedtoBox"/>
     </html:div>
     <html:time id="dateLabel"
                class="message-header-datetime"
@@ -256,72 +254,58 @@
   <!-- Cc recipients -->
   <html:div id="expandedccRow" class="message-header-row" hidden="hidden">
     <label id="expandedccLabel" class="message-header-label header-pill-label"
-           value="&ccField4.label;" control="expandedccBox"/>
-    <mail-multi-emailheaderfield id="expandedccBox"
-                                 aria-labelledby="expandedccLabel"/>
+           value="&ccField4.label;"/>
+    <mail-multi-emailheaderfield id="expandedccBox"/>
   </html:div>
 
   <!-- Bcc recipients -->
   <html:div id="expandedbccRow" class="message-header-row" hidden="hidden">
     <label id="expandedbccLabel" class="message-header-label header-pill-label"
-           value="&bccField4.label;" control="expandedbccBox"/>
-    <mail-multi-emailheaderfield id="expandedbccBox"
-                                 aria-labelledby="expandedbccLabel"/>
+           value="&bccField4.label;"/>
+    <mail-multi-emailheaderfield id="expandedbccBox"/>
   </html:div>
 
   <!-- Reply-to -->
   <html:div id="expandedreply-toRow" class="message-header-row" hidden="hidden">
     <label id="expandedreply-toLabel" class="message-header-label header-pill-label"
-           value="&replyToField4.label;"
-           control="expandedreply-toBox"/>
-    <mail-multi-emailheaderfield id="expandedreply-toBox"
-                                 aria-labelledby="expandedreply-toLabel"/>
+           value="&replyToField4.label;"/>
+    <mail-multi-emailheaderfield id="expandedreply-toBox"/>
   </html:div>
 
   <!-- Organization -->
   <html:div id="expandedorganizationRow" class="message-header-row" hidden="hidden">
     <label id="expandedorganizationLabel" class="message-header-label"
-           value="&organizationField4.label;"
-           control="expandedorganizationBox"/>
-    <mail-headerfield id="expandedorganizationBox"
-                      aria-labelledby="expandedorganizationLabel"/>
+           value="&organizationField4.label;"/>
+    <mail-headerfield id="expandedorganizationBox"/>
   </html:div>
 
   <!-- Sender -->
   <html:div id="expandedsenderRow" class="message-header-row" hidden="hidden">
     <label id="expandedsenderLabel" class="message-header-label header-pill-label"
-           value="&senderField4.label;" control="expandedsenderBox"/>
-    <mail-emailheaderfield id="expandedsenderBox"
-                           aria-labelledby="expandedsenderLabel"/>
+           value="&senderField4.label;"/>
+    <mail-emailheaderfield id="expandedsenderBox"/>
   </html:div>
 
   <!-- Newsgroups -->
   <html:div id="expandednewsgroupsRow" class="message-header-row" hidden="hidden">
     <label id="expandednewsgroupsLabel" class="message-header-label header-pill-label"
-           value="&newsgroupsField4.label;"
-           control="expandednewsgroupsBox"/>
-    <mail-newsgroups-headerfield id="expandednewsgroupsBox"
-                                 aria-labelledby="expandednewsgroupsLabel"/>
+           value="&newsgroupsField4.label;"/>
+    <mail-newsgroups-headerfield id="expandednewsgroupsBox"/>
   </html:div>
 
   <!-- Follow up -->
   <html:div id="expandedfollowup-toRow" class="message-header-row" hidden="hidden">
     <label id="expandedfollowup-toLabel" class="message-header-label header-pill-label"
-           value="&followupToField4.label;"
-           control="expandedfollowup-toBox"/>
-    <mail-newsgroups-headerfield id="expandedfollowup-toBox"
-                                 aria-labelledby="expandedfollowup-toLabel"/>
+           value="&followupToField4.label;"/>
+    <mail-newsgroups-headerfield id="expandedfollowup-toBox"/>
   </html:div>
 
   <!-- Subject + security info + extra date label for hidden To variation -->
   <html:div class="message-header-row">
      <html:div id="expandedsubjectRow" class="header-row-grow">
       <label id="expandedsubjectLabel" class="message-header-label"
-             value="&subjectField4.label;"
-             control="expandedsubjectBox"/>
-      <mail-headerfield id="expandedsubjectBox"
-                        aria-labelledby="expandedsubjectLabel"
-                        headerName="subject"/>
+             value="&subjectField4.label;"/>
+      <mail-headerfield id="expandedsubjectBox" headerName="subject"/>
     </html:div>
     <html:div id="cryptoBox" hidden="hidden">
       <html:button id="encryptionTechBtn"
@@ -341,61 +325,50 @@
   <!-- Tags -->
   <html:div id="expandedtagsRow" class="message-header-row" hidden="hidden">
     <label id="expandedtagsLabel" class="message-header-label"
-           value="&tagsHdr4.label;" control="expandedtagsBox"/>
-    <mail-tagfield id="expandedtagsBox" aria-labelledby="expandedtagsLabel"/>
+           value="&tagsHdr4.label;"/>
+    <mail-tagfield id="expandedtagsBox"/>
   </html:div>
 
   <!-- Date -->
   <html:div id="expandeddateRow" class="message-header-row" hidden="hidden">
     <label id="expandeddateLabel" class="message-header-label"
-           value="&dateField4.label;" control="expandeddateBox"/>
-    <mail-headerfield id="expandeddateBox"
-                      aria-labelledby="expandeddateLabel"/>
+           value="&dateField4.label;"/>
+    <mail-headerfield id="expandeddateBox"/>
   </html:div>
 
   <!-- Message ID -->
   <html:div id="expandedmessage-idRow" class="message-header-row" hidden="hidden">
     <label id="expandedmessage-idLabel" class="message-header-label"
-           value="&messageIdField4.label;"
-           control="expandedmessage-idBox"/>
-    <mail-messageids-headerfield id="expandedmessage-idBox"
-                                 aria-labelledby="expandedmessage-idLabel"/>
+           value="&messageIdField4.label;"/>
+    <mail-messageids-headerfield id="expandedmessage-idBox"/>
   </html:div>
 
   <!-- In reply to -->
   <html:div id="expandedin-reply-toRow" class="message-header-row" hidden="hidden">
     <label id="expandedin-reply-toLabel" class="message-header-label"
-           value="&inReplyToField4.label;"
-           control="expandedin-reply-toBox"/>
-    <mail-messageids-headerfield id="expandedin-reply-toBox"
-                                 aria-labelledby="expandedin-reply-toLabel"/>
+           value="&inReplyToField4.label;"/>
+    <mail-messageids-headerfield id="expandedin-reply-toBox"/>
   </html:div>
 
   <!-- Reference -->
   <html:div id="expandedreferencesRow" class="message-header-row" hidden="hidden">
     <label id="expandedreferencesLabel" class="message-header-label"
-           value="&referencesField4.label;"
-           control="expandedreferencesBox"/>
-    <mail-messageids-headerfield id="expandedreferencesBox"
-                                 aria-labelledby="expandedreferencesLabel"/>
+           value="&referencesField4.label;"/>
+    <mail-messageids-headerfield id="expandedreferencesBox"/>
   </html:div>
 
   <!-- Content base -->
   <html:div id="expandedcontent-baseRow" class="message-header-row" hidden="hidden">
     <label id="expandedcontent-baseLabel" class="message-header-label"
-           value="&originalWebsite4.label;"
-           control="expandedcontent-baseBox"/>
-    <mail-urlfield id="expandedcontent-baseBox"
-                   aria-labelledby="expandedcontent-baseLabel"/>
+           value="&originalWebsite4.label;"/>
+    <mail-urlfield id="expandedcontent-baseBox"/>
   </html:div>
 
   <!-- User agent -->
   <html:div id="expandeduser-agentRow" class="message-header-row" hidden="hidden">
     <label id="expandeduser-agentLabel" class="message-header-label"
-           value="&userAgentField4.label;"
-           control="expandeduser-agentBox"/>
-    <mail-headerfield id="expandeduser-agentBox"
-                      aria-labelledby="expandeduser-agentLabel"/>
+           value="&userAgentField4.label;"/>
+    <mail-headerfield id="expandeduser-agentBox"/>
   </html:div>
 
   <!-- All extra headers will be dynamically added here. -->
