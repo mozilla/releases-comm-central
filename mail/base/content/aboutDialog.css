@@ -133,6 +133,10 @@
   text-decoration: var(--link-decoration);
 }
 
+#updateNotes {
+  margin-inline-start: 5px;
+}
+
 #currentChannel {
   margin: 0;
   padding: 0;

@@ -236,6 +236,12 @@ appUpdater.prototype = {
           let month = buildID.slice(4, 6);
           let day = buildID.slice(6, 8);
           updateVersion += ` (${year}-${month}-${day})`;
+        } else {
+          let updateNotesLink = document.getElementById("updateNotes");
+          if (updateNotesLink) {
+            updateNotesLink.href = gAppUpdater.update.detailsURL;
+            updateNotesLink.hidden = false;
+          }
         }
         button.textContent = this.bundle.formatStringFromName(
           "update.downloadAndInstallButton.label",

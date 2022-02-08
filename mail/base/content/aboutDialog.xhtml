@@ -31,6 +31,9 @@
         role="dialog"
         aria-describedby="version distribution distributionId currentChannelText communityDesc contributeDesc trademark"
         >
+  <linkset>
+    <html:link rel="localization" href="messenger/aboutDialog.ftl"/>
+  </linkset>
 
   <script src="chrome://messenger/content/aboutDialog.js"/>
 #ifdef MOZ_UPDATER
@@ -64,6 +67,8 @@
                 <html:button id="downloadAndInstallButton"
                              onclick="gAppUpdater.startDownload();">
                 </html:button>
+                <html:a id="updateNotes" class="text-link download-link" hidden="hidden"
+                        data-l10n-id="about-update-whats-new"></html:a>
               </html:div>
               <html:div id="apply" class="update-deck-container">
                 <html:button id="updateButton"
