@@ -240,7 +240,8 @@ async function ComposeMessage(type, format, folder, messageArray) {
             Ci.nsIMsgCompType.Reply,
             Ci.nsIMsgCompType.ReplyAll,
             Ci.nsIMsgCompType.ReplyToSender,
-            Ci.nsIMsgCompType.ReplyToGroup,
+            // Author's address doesn't matter for followup to a newsgroup.
+            // Ci.nsIMsgCompType.ReplyToGroup,
             Ci.nsIMsgCompType.ReplyToSenderAndGroup,
             Ci.nsIMsgCompType.ReplyWithTemplate,
             Ci.nsIMsgCompType.ReplyToList,
