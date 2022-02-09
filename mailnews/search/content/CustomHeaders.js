@@ -14,6 +14,7 @@ var gContainer;
 var gFilterBundle = null;
 var gCustomBundle = null;
 
+window.addEventListener("DOMContentLoaded", onLoad);
 document.addEventListener("dialogaccept", onOk);
 document.addEventListener("dialogextra1", onAddHeader);
 document.addEventListener("dialogextra2", onRemoveHeader);

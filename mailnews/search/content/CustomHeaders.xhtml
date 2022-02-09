@@ -9,21 +9,22 @@
 #endif
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/CustomHeaders.dtd">
-<window id="customHeaderDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="onLoad();"
-        style="width: 30em; height: 25em;"
-        persist="width height screenX screenY"
-        title="&window.title;">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/CustomHeaders.dtd">
+<html id="customHeaderDialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="450" height="375"
+      persist="width height screenX screenY"
+      scrolling="false">
+<head>
+  <title>&window.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel,extra1,extra2">
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_custom" src="chrome://messenger/locale/custom.properties"/>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/CustomHeaders.js"/>
 
   <hbox flex="1">
     <vbox flex="1">
@@ -54,4 +55,6 @@
     </vbox>
   </hbox>
 </dialog>
-</window>
+<html:script src="chrome://messenger/content/CustomHeaders.js">//see bug 1752288</html:script>
+</html:body>
+</html>
