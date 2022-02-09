@@ -41,7 +41,6 @@ XPIDL_SOURCES += [
     "calITimezone.idl",
     "calITimezoneProvider.idl",
     "calITodo.idl",
-    "calITransactionManager.idl",
     "calIWeekInfoService.idl",
 ]
 

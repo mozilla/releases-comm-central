@@ -15,12 +15,11 @@ var { mailTestUtils } = ChromeUtils.import("resource://testing-common/mailnews/M
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
+  CalTransactionManager: "resource:///modules/CalTransactionManager.jsm",
 });
 
 const calendar = CalendarTestUtils.createCalendar("Undo Redo Test", "memory");
-const calTransManager = Cc["@mozilla.org/calendar/transactionmanager;1"].getService(
-  Ci.calITransactionManager
-).wrappedJSObject;
+const calTransManager = CalTransactionManager.getInstance();
 
 /**
  * Checks the value of the "disabled" property for items in either the "Edit"

@@ -12,12 +12,11 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTransactionManager: "resource:///modules/CalTransactionManager.jsm",
 });
 
 const calendar = CalendarTestUtils.createCalendar("Undo Redo Test");
-const calTransManager = Cc["@mozilla.org/calendar/transactionmanager;1"].getService(
-  Ci.calITransactionManager
-).wrappedJSObject;
+const calTransManager = CalTransactionManager.getInstance();
 
 /**
  * Checks the value of the "disabled" property for items in either the "Edit"

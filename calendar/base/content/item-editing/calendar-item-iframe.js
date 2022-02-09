@@ -3163,8 +3163,9 @@ function onCommandSave(aIsClosing) {
   // before the call is complete. In that case, we do need a progress bar and
   // the ability to cancel the operation though.
   let listener = {
-    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-    onOperationComplete(aCalendar, aStatus, aOpType, aId, aItem) {
+    onTransactionComplete(aItem) {
+      let aId = aItem.id;
+      let aCalendar = aItem.calendar;
       // Check if the current window has a calendarItem first, because in case of undo
       // window refers to the main window and we would get a 'calendarItem is undefined' warning.
       if (!aIsClosing && "calendarItem" in window) {
@@ -3172,8 +3173,7 @@ function onCommandSave(aIsClosing) {
         // times. We need to make sure we're receiving the update on the right calendar.
         if (
           (!window.calendarItem.id || aId == window.calendarItem.id) &&
-          aCalendar.id == window.calendarItem.calendar.id &&
-          Components.isSuccessCode(aStatus)
+          aCalendar.id == window.calendarItem.calendar.id
         ) {
           if (window.calendarItem.recurrenceId) {
             // TODO This workaround needs to be removed in bug 396182
@@ -3224,11 +3224,11 @@ function onCommandDeleteItem() {
   } else {
     let deleteListener = {
       // when deletion of item is complete, close the dialog
-      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
+      onTransactionComplete(item) {
         // Check if the current window has a calendarItem first, because in case of undo
         // window refers to the main window and we would get a 'calendarItem is undefined' warning.
         if ("calendarItem" in window) {
-          if (aId == window.calendarItem.id && Components.isSuccessCode(aStatus)) {
+          if (item.id == window.calendarItem.id) {
             cancelItem();
           } else {
             eventDialogCalendarObserver.observe(window.calendarItem.calendar);
