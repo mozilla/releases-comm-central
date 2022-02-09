@@ -614,15 +614,10 @@ html[dir="rtl"] .message-attachment-icon {
 
 .message-tag {
   display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */
-  margin-inline-start: 0;
-  margin-inline-end: 3px;
+  margin-inline-start: 3px;
   padding: 0 0.5ex;
-  background-image: linear-gradient(rgba(255,255,255,0.35),
-                                    rgba(255,255,255,0.35));
-  border-radius: var(--borderRadius);
-  border-style: outset;
-  border-width: 0.5px;
-  text-shadow: 0 1px 0 rgba(238,238,236,0.4); /* Tango Alumninum 1 */
+  border-radius: 3px;
+  border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
 }
 
 .show-more {

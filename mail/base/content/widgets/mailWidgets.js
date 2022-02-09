@@ -140,20 +140,20 @@
           continue;
         }
 
-        let color = MailServices.tags.getColorForKey(tagsArray[i]);
-        let textColor = "black";
-        if (!LazyModules.TagUtils.isColorContrastEnough(color)) {
-          textColor = "white";
-        }
-
-        // now create a label for the tag name, and set the color
+        // Create a label for the tag name and set the color.
         const label = document.createXULElement("label");
         label.setAttribute("value", tagName);
         label.className = "tagvalue";
-        label.setAttribute(
-          "style",
-          "color: " + textColor + "; background-color: " + color + ";"
-        );
+        let color = MailServices.tags.getColorForKey(tagsArray[i]);
+        if (color) {
+          let textColor = !LazyModules.TagUtils.isColorContrastEnough(color)
+            ? "white"
+            : "black";
+          label.setAttribute(
+            "style",
+            "color: " + textColor + "; background-color: " + color + ";"
+          );
+        }
 
         this.appendChild(label);
         setHeaderAriaLabel(label, tagName);

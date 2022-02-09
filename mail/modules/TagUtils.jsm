@@ -48,38 +48,63 @@ function addTagToSheet(aKey, aColor, aSheet) {
   }
 
   // Add rules to sheet.
+  let ruleString1;
+  let ruleString2;
+  let ruleString3;
+  let ruleString4;
   let selector = MailServices.tags.getSelectorForKey(aKey);
-  let ruleString1 =
-    "treechildren::-moz-tree-row(" +
-    selector +
-    ", selected, focus) { background-color: " +
-    aColor +
-    " !important; }";
-  let ruleString2 =
-    "treechildren::-moz-tree-cell-text(" +
-    selector +
-    ") { color: " +
-    aColor +
-    "; }";
-  let textColor = "black";
-  if (!isColorContrastEnough(aColor)) {
-    textColor = "white";
+  if (!aColor) {
+    ruleString1 =
+      ":root[lwt-tree] treechildren::-moz-tree-row(" +
+      selector +
+      ", selected, focus) { background-color: " +
+      "var(--sidebar-highlight-background-color) !important; }";
+    ruleString2 =
+      "treechildren::-moz-tree-cell-text(" +
+      selector +
+      ", selected, focus) { color: SelectedItemText !important; }";
+    ruleString3 =
+      "tree:-moz-lwtheme treechildren::-moz-tree-cell-text(" +
+      selector +
+      ", selected) { color: currentColor !important; }";
+    ruleString4 =
+      ":root[lwt-tree] treechildren::-moz-tree-cell-text(" +
+      selector +
+      ", selected, focus) { color: var(--sidebar-highlight-text-color, " +
+      "var(--sidebar-text-color)) !important; }";
+  } else {
+    ruleString1 =
+      "treechildren::-moz-tree-row(" +
+      selector +
+      ", selected, focus) { background-color: " +
+      aColor +
+      " !important; }";
+    ruleString2 =
+      "treechildren::-moz-tree-cell-text(" +
+      selector +
+      ") { color: " +
+      aColor +
+      "; }";
+    let textColor = "black";
+    if (!isColorContrastEnough(aColor)) {
+      textColor = "white";
+    }
+    ruleString3 =
+      "treechildren::-moz-tree-cell-text(" +
+      selector +
+      ", selected, focus) { color: " +
+      textColor +
+      " }";
+    ruleString4 =
+      "treechildren::-moz-tree-image(" +
+      selector +
+      ", selected, focus)," +
+      "treechildren::-moz-tree-twisty(" +
+      selector +
+      ", selected, focus) { --select-focus-text-color: " +
+      textColor +
+      "; }";
   }
-  let ruleString3 =
-    "treechildren::-moz-tree-cell-text(" +
-    selector +
-    ", selected, focus) { color: " +
-    textColor +
-    " }";
-  let ruleString4 =
-    "treechildren::-moz-tree-image(" +
-    selector +
-    ", selected, focus)," +
-    "treechildren::-moz-tree-twisty(" +
-    selector +
-    ", selected, focus) { --select-focus-text-color: " +
-    textColor +
-    "; }";
   try {
     aSheet.insertRule(ruleString1, aSheet.cssRules.length);
     aSheet.insertRule(ruleString2, aSheet.cssRules.length);

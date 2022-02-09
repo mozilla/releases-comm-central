@@ -410,17 +410,18 @@ MultiMessageSummary.prototype = {
 
     for (let tag of sortedTags) {
       let tagNode = document.createElement("span");
-      let color = MailServices.tags.getColorForKey(tag.key);
-      let textColor = "black";
-      if (!TagUtils.isColorContrastEnough(color)) {
-        textColor = "white";
-      }
 
       tagNode.className = "tag";
-      tagNode.setAttribute(
-        "style",
-        "color: " + textColor + "; background-color: " + color + ";"
-      );
+      let color = MailServices.tags.getColorForKey(tag.key);
+      if (color) {
+        let textColor = !TagUtils.isColorContrastEnough(color)
+          ? "white"
+          : "black";
+        tagNode.setAttribute(
+          "style",
+          "color: " + textColor + "; background-color: " + color + ";"
+        );
+      }
       tagNode.dataset.tag = tag.tag;
       tagNode.textContent = tag.tag;
       aTagsNode.appendChild(tagNode);

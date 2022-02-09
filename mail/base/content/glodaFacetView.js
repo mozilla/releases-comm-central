@@ -107,15 +107,16 @@ const QueryExplanation = {
           const tag = constraint[2];
           const tagNode = document.createElement("span");
           const color = MailServices.tags.getColorForKey(tag.key);
-          let textColor = "black";
-          if (!TagUtils.isColorContrastEnough(color)) {
-            textColor = "white";
-          }
           tagNode.setAttribute("class", "message-tag");
-          tagNode.setAttribute(
-            "style",
-            "color: " + textColor + "; background-color: " + color + ";"
-          );
+          if (color) {
+            let textColor = !TagUtils.isColorContrastEnough(color)
+              ? "white"
+              : "black";
+            tagNode.setAttribute(
+              "style",
+              "color: " + textColor + "; background-color: " + color + ";"
+            );
+          }
           tagNode.textContent = tag.tag;
           spanify(tagLabel, "explanation-query-tagged");
           this.node.appendChild(tagNode);

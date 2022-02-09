@@ -1652,16 +1652,17 @@
       if ("tags" in message && message.tags.length) {
         for (let tag of message.tags) {
           let tagNode = document.createElement("span");
-          let color = MailServices.tags.getColorForKey(tag.key);
-          let textColor = "black";
-          if (!TagUtils.isColorContrastEnough(color)) {
-            textColor = "white";
-          }
           tagNode.setAttribute("class", "message-tag");
-          tagNode.setAttribute(
-            "style",
-            "color: " + textColor + "; background-color: " + color + ";"
-          );
+          let color = MailServices.tags.getColorForKey(tag.key);
+          if (color) {
+            let textColor = !TagUtils.isColorContrastEnough(color)
+              ? "white"
+              : "black";
+            tagNode.setAttribute(
+              "style",
+              "color: " + textColor + "; background-color: " + color + ";"
+            );
+          }
           tagNode.textContent = tag.tag;
           tagsNode.appendChild(tagNode);
         }
