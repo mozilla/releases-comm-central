@@ -1,25 +1,27 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/viewLog.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/viewLog.dtd">
 
-<window id="viewLogWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="onLoad();"
-        title="&viewLog.title;"
-        windowtype="mailnews:filterlog"
-        persist="screenX screenY width height"
-        style="width: 40em; height: 25em;">
+<html id="viewLogWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mailnews:filterlog"
+      width="600" height="375"
+      persist="screenX screenY width height"
+      scrolling="false">
+<head>
+  <title>&viewLog.title;</title>
+  <script defer="defer" src="chrome://messenger/content/viewLog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept"
         buttonlabelaccept="&closeLog.label;"
         buttonaccesskeyaccept="&closeLog.accesskey;">
-  <script src="chrome://messenger/content/viewLog.js"/>
 
   <vbox flex="1">
     <description>&viewLogInfo.text;</description>
@@ -46,4 +48,5 @@
     </hbox>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>

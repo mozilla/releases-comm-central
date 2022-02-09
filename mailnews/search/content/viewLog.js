@@ -10,6 +10,8 @@ var gFilterList;
 var gLogFilters;
 var gLogView;
 
+window.addEventListener("DOMContentLoaded", onLoad);
+
 function onLoad() {
   gFilterList = window.arguments[0].filterList;
 
