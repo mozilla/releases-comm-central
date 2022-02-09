@@ -33,14 +33,15 @@ typedef struct MimeHeaders {
   bool done_p; /* Whether we've read the end-of-headers marker
                  (the terminating blank line.) */
 
-  char** heads;       /* An array of length n_headers which points
+  char** heads;       /* An array of length heads_size which points
                         to the beginning of each distinct header:
                         just after the newline which terminated
                         the previous one.  This is to speed search.
                         This is not initialized until all the
                         headers have been read.
                       */
-  int32_t heads_size; /* The length (and consequently, how many
+  int32_t heads_size; /* The number of entries (pointers) in the heads
+                         array (and consequently, how many
                          distinct headers are in here.) */
 
   char* obuffer; /* This buffer is used for output. */

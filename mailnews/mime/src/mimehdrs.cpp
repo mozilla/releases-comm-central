@@ -163,64 +163,17 @@ MimeHeaders* MimeHeaders_copy(MimeHeaders* hdrs) {
   return hdrs2;
 }
 
-int MimeHeaders_build_heads_list(MimeHeaders* hdrs) {
-  char* s;
-  char* end;
-  int i;
-  NS_ASSERTION(hdrs, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (!hdrs) return -1;
+static bool find_header_starts(MimeHeaders* hdrs, bool counting) {
+  const char *end = hdrs->all_headers + hdrs->all_headers_fp;
+  char* s = hdrs->all_headers;
+  int i = 0;
 
-  NS_ASSERTION(hdrs->done_p && !hdrs->heads,
-               "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (!hdrs->done_p || hdrs->heads) return -1;
-
-  if (hdrs->all_headers_fp == 0) {
-    /* Must not have been any headers (we got the blank line right away.) */
-    PR_FREEIF(hdrs->all_headers);
-    hdrs->all_headers_size = 0;
-    return 0;
+  if (counting) {
+    // For the start pointer
+    hdrs->heads_size = 1;
+  } else {
+    hdrs->heads[i++] = hdrs->all_headers;
   }
-
-  /* At this point, we might as well realloc all_headers back down to the
-   minimum size it must be (it could be up to 1k bigger.)  But don't
-   bother if we're only off by a tiny bit. */
-  NS_ASSERTION(hdrs->all_headers_fp <= hdrs->all_headers_size,
-               "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (hdrs->all_headers_fp + 60 <= hdrs->all_headers_size) {
-    char* ls = (char*)PR_Realloc(hdrs->all_headers, hdrs->all_headers_fp);
-    if (ls) /* can this ever fail?  we're making it smaller... */
-    {
-      hdrs->all_headers = ls; /* in case it got relocated */
-      hdrs->all_headers_size = hdrs->all_headers_fp;
-    }
-  }
-
-  /* First go through and count up the number of headers in the block.
-   */
-  end = hdrs->all_headers + hdrs->all_headers_fp;
-  for (s = hdrs->all_headers; s < end; s++) {
-    if (s < (end - 1) && s[0] == '\r' && s[1] == '\n') /* CRLF -> LF */
-      s++;
-
-    if ((s[0] == '\r' || s[0] == '\n') && /* we're at a newline, and */
-        (s >= (end - 1) ||                /* we're at EOF, or */
-         !(s[1] == ' ' || s[1] == '\t'))) /* next char is nonwhite */
-      hdrs->heads_size++;
-  }
-
-  /* Now allocate storage for the pointers to each of those headers.
-   */
-  hdrs->heads = (char**)PR_MALLOC((hdrs->heads_size + 1) * sizeof(char*));
-  if (!hdrs->heads) return MIME_OUT_OF_MEMORY;
-  memset(hdrs->heads, 0, (hdrs->heads_size + 1) * sizeof(char*));
-
-  /* Now make another pass through the headers, and this time, record the
-   starting position of each header.
-   */
-
-  i = 0;
-  hdrs->heads[i++] = hdrs->all_headers;
-  s = hdrs->all_headers;
 
   while (s < end) {
   SEARCH_NEWLINE:
@@ -252,11 +205,64 @@ int MimeHeaders_build_heads_list(MimeHeaders* hdrs) {
     if (*s == '\n') s++;
 
     if (s < end) {
-      NS_ASSERTION(!(i > hdrs->heads_size),
-                   "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-      if (i > hdrs->heads_size) return -1;
-      hdrs->heads[i++] = s;
+      if (counting) {
+        hdrs->heads_size++;
+      } else {
+        NS_ASSERTION(i < hdrs->heads_size,
+                     "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+        if (i >= hdrs->heads_size) return false;
+        hdrs->heads[i++] = s;
+      }
     }
+  }
+  if (!counting) {
+    NS_ASSERTION(i == hdrs->heads_size, "unexpected");
+  }
+  return true;
+}
+
+int MimeHeaders_build_heads_list(MimeHeaders* hdrs) {
+  NS_ASSERTION(hdrs, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+  if (!hdrs) return -1;
+
+  NS_ASSERTION(hdrs->done_p && !hdrs->heads,
+               "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+  if (!hdrs->done_p || hdrs->heads) return -1;
+
+  if (hdrs->all_headers_fp == 0) {
+    /* Must not have been any headers (we got the blank line right away.) */
+    PR_FREEIF(hdrs->all_headers);
+    hdrs->all_headers_size = 0;
+    return 0;
+  }
+
+  /* At this point, we might as well realloc all_headers back down to the
+   minimum size it must be (it could be up to 1k bigger.)  But don't
+   bother if we're only off by a tiny bit. */
+  NS_ASSERTION(hdrs->all_headers_fp <= hdrs->all_headers_size,
+               "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+  if (hdrs->all_headers_fp + 60 <= hdrs->all_headers_size) {
+    char* ls = (char*)PR_Realloc(hdrs->all_headers, hdrs->all_headers_fp);
+    if (ls) /* can this ever fail?  we're making it smaller... */
+    {
+      hdrs->all_headers = ls; /* in case it got relocated */
+      hdrs->all_headers_size = hdrs->all_headers_fp;
+    }
+  }
+
+  find_header_starts(hdrs, true);
+
+  /* Now allocate storage for the pointers to each of those headers.
+   */
+  hdrs->heads = (char**)PR_MALLOC((hdrs->heads_size) * sizeof(char*));
+  if (!hdrs->heads) return MIME_OUT_OF_MEMORY;
+  memset(hdrs->heads, 0, (hdrs->heads_size) * sizeof(char*));
+
+  /* Now make another pass through the headers, and this time, record the
+   starting position of each header.
+   */
+  if (!find_header_starts(hdrs, false)) {
+    return -1;
   }
 
   return 0;
