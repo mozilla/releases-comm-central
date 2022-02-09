@@ -223,6 +223,9 @@ InvitationsManager.prototype = {
         self.mItemList.sort((a, b) => {
           return a.startDate.compare(b.startDate);
         });
+
+        controller.enqueue(self.mItemList.slice());
+        controller.close();
       },
       close() {
         self.mPendingRequests = null;

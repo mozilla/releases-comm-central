@@ -252,7 +252,7 @@ async function onLoad() {
  */
 async function onUnload() {
   let args = window.arguments[0];
-  return args.InvitationsManager.cancelPendingRequests();
+  return args.invitationsManager.cancelPendingRequests();
 }
 
 /**
