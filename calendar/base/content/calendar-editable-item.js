@@ -259,12 +259,16 @@
       let cssSafeId = cal.view.formatStringForCSSRule(item.calendar.id);
       this.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
       this.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
-      let categoriesArray = item.getCategories();
       let categoriesBox = this.querySelector(".calendar-category-box");
-      if (categoriesArray.length > 0) {
-        let cssClassesArray = categoriesArray.map(cal.view.formatStringForCSSRule);
+
+      let categoriesArray = item.getCategories().map(cal.view.formatStringForCSSRule);
+      // Find the first category with a colour.
+      let firstCategory = categoriesArray.find(
+        category => Services.prefs.getStringPref("calendar.category.color." + category, "") != ""
+      );
+      if (firstCategory) {
         categoriesBox.hidden = false;
-        categoriesBox.style.backgroundColor = `var(--category-${cssClassesArray[0]}-color)`;
+        categoriesBox.style.backgroundColor = `var(--category-${firstCategory}-color)`;
       } else {
         categoriesBox.hidden = true;
       }
