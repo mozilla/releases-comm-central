@@ -281,14 +281,14 @@ calCachedCalendar.prototype = {
     return this.mPendingSync;
   },
   async _doSynchronize() {
+    let clearPending = () => {
+      this.mPendingSync = null;
+    };
+
     if (this.getProperty("disabled")) {
       clearPending();
       return;
     }
-
-    let clearPending = () => {
-      this.mPendingSync = null;
-    };
 
     if (this.offline) {
       clearPending();
