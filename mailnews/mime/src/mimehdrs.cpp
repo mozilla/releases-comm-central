@@ -164,7 +164,7 @@ MimeHeaders* MimeHeaders_copy(MimeHeaders* hdrs) {
 }
 
 static bool find_header_starts(MimeHeaders* hdrs, bool counting) {
-  const char *end = hdrs->all_headers + hdrs->all_headers_fp;
+  const char* end = hdrs->all_headers + hdrs->all_headers_fp;
   char* s = hdrs->all_headers;
   int i = 0;
 
