@@ -2,6 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "DownloadPaths",
+  "resource://gre/modules/DownloadPaths.jsm"
+);
 ChromeUtils.defineModuleGetter(
   this,
   "PromiseUtils",
@@ -12,7 +21,181 @@ ChromeUtils.defineModuleGetter(
   "MailE10SUtils",
   "resource:///modules/MailE10SUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  clearInterval: "resource://gre/modules/Timer.jsm",
+  setInterval: "resource://gre/modules/Timer.jsm",
+});
+
+XPCOMUtils.defineLazyGlobalGetters(this, ["IOUtils", "PathUtils"]);
+
+XPCOMUtils.defineLazyGetter(this, "strBundle", function() {
+  return Services.strings.createBundle(
+    "chrome://global/locale/extensions.properties"
+  );
+});
+
 var { ExtensionError } = ExtensionUtils;
+
+// eslint-disable-next-line mozilla/reject-importGlobalProperties
+Cu.importGlobalProperties(["File", "FileReader"]);
+
+// List of tab types supporting print and the required host permissions.
+const tabs_supporting_print = {
+  mail: "messagesRead",
+  messageDisplay: "messagesRead",
+  addressBook: "addressBooks",
+  content: "activeTab",
+};
+
+/**
+ * Returns a sanitized filename based on the provided toFileName or the title of
+ * the provided tabBrowser.
+ *
+ * @param {String} toFileName - a file name
+ * @param {DOMElement} tabBrowser - a browser
+ * @returns {String} The sanitized file name
+ */
+function getSanitizedFileName(toFileName, tabBrowser) {
+  let filename;
+  if (toFileName !== null && toFileName != "") {
+    filename = toFileName;
+  } else if (tabBrowser.contentTitle != "") {
+    filename = `${tabBrowser.contentTitle}.pdf`;
+  } else {
+    let url = new URL(tabBrowser.currentURI.spec);
+    let path = decodeURIComponent(url.pathname);
+    path = path.replace(/\/$/, "");
+    filename = path.split("/").pop();
+    if (filename == "") {
+      filename = url.hostname;
+    }
+    filename = `${filename}.pdf`;
+  }
+  return DownloadPaths.sanitize(filename);
+}
+
+/**
+ * @typedef {Object} PageSettings
+ * @type {Object}
+ * @property {integer} paperSizeUnit - The page size unit: 0 = inches, 1 = millimeters. Default: 0.
+ * @property {number} paperWidth - The paper width in paper size units. Default: 8.5.
+ * @property {number} paperHeight - The paper height in paper size units. Default: 11.0.
+ * @property {integer} orientation - The page content orientation: 0 = portrait, 1 = landscape. Default: 0.
+ * @property {number} scaling - The page content scaling factor: 1.0 = 100% = normal size. Default: 1.0.
+ * @property {boolean} shrinkToFit - Whether the page content should shrink to fit the page width (overrides scaling). Default: true.
+ * @property {boolean} showBackgroundColors - Whether the page background colors should be shown. Default: false.
+ * @property {boolean} showBackgroundImages - Whether the page background images should be shown. Default: false.
+ * @property {number} edgeLeft - The spacing between the left header/footer and the left edge of the paper (inches). Default: 0.
+ * @property {number} edgeRight - The spacing between the right header/footer and the right edge of the paper (inches). Default: 0.
+ * @property {number} edgeTop - The spacing between the top of the headers and the top edge of the paper (inches). Default: 0.
+ * @property {number} edgeBottom - The spacing between the bottom of the footers and the bottom edge of the paper (inches). Default: 0.
+ * @property {number} marginLeft - The margin between the page content and the left edge of the paper (inches). Default: 0.5.
+ * @property {number} marginRight - The margin between the page content and the right edge of the paper (inches). Default: 0.5.
+ * @property {number} marginTop - The margin between the page content and the top edge of the paper (inches). Default: 0.5.
+ * @property {number} marginBottom - The margin between the page content and the bottom edge of the paper (inches). Default: 0.5.
+ * @property {string} headerLeft - The text for the page's left header. Default: '&T'.
+ * @property {string} headerCenter - The text for the page's center header. Default: ''.
+ * @property {string} headerRight - The text for the page's right header. Default: '&U'.
+ * @property {string} footerLeft - The text for the page's left footer. Default: '&PT'.
+ * @property {string} footerCenter - The text for the page's center footer. Default: ''.
+ * @property {string} footerRight - The text for the page's right footer. Default: '&D'.
+ */
+
+/**
+ * Returns a nsIPrintSettings with default values needed for PDF print, also
+ * applying custom user provided settings.
+ *
+ * @param {String} path - path to a temporary file in the local filesystem to
+ *   store the PDF
+ * @param {PageSettings} pageSettings - custom page settings
+ * @returns {nsIPrintSettings}
+ */
+function getPDFPrintSettings(path, pageSettings) {
+  let psService = Cc["@mozilla.org/gfx/printsettings-service;1"].getService(
+    Ci.nsIPrintSettingsService
+  );
+  let printSettings = psService.newPrintSettings;
+
+  printSettings.printerName = "";
+  printSettings.isInitializedFromPrinter = true;
+  printSettings.isInitializedFromPrefs = true;
+
+  printSettings.printToFile = true;
+  printSettings.toFileName = path;
+
+  printSettings.printSilent = true;
+
+  printSettings.outputFormat = Ci.nsIPrintSettings.kOutputFormatPDF;
+
+  if (pageSettings.paperSizeUnit !== null) {
+    printSettings.paperSizeUnit = pageSettings.paperSizeUnit;
+  }
+  if (pageSettings.paperWidth !== null) {
+    printSettings.paperWidth = pageSettings.paperWidth;
+  }
+  if (pageSettings.paperHeight !== null) {
+    printSettings.paperHeight = pageSettings.paperHeight;
+  }
+  if (pageSettings.orientation !== null) {
+    printSettings.orientation = pageSettings.orientation;
+  }
+  if (pageSettings.scaling !== null) {
+    printSettings.scaling = pageSettings.scaling;
+  }
+  if (pageSettings.shrinkToFit !== null) {
+    printSettings.shrinkToFit = pageSettings.shrinkToFit;
+  }
+  if (pageSettings.showBackgroundColors !== null) {
+    printSettings.printBGColors = pageSettings.showBackgroundColors;
+  }
+  if (pageSettings.showBackgroundImages !== null) {
+    printSettings.printBGImages = pageSettings.showBackgroundImages;
+  }
+  if (pageSettings.edgeLeft !== null) {
+    printSettings.edgeLeft = pageSettings.edgeLeft;
+  }
+  if (pageSettings.edgeRight !== null) {
+    printSettings.edgeRight = pageSettings.edgeRight;
+  }
+  if (pageSettings.edgeTop !== null) {
+    printSettings.edgeTop = pageSettings.edgeTop;
+  }
+  if (pageSettings.edgeBottom !== null) {
+    printSettings.edgeBottom = pageSettings.edgeBottom;
+  }
+  if (pageSettings.marginLeft !== null) {
+    printSettings.marginLeft = pageSettings.marginLeft;
+  }
+  if (pageSettings.marginRight !== null) {
+    printSettings.marginRight = pageSettings.marginRight;
+  }
+  if (pageSettings.marginTop !== null) {
+    printSettings.marginTop = pageSettings.marginTop;
+  }
+  if (pageSettings.marginBottom !== null) {
+    printSettings.marginBottom = pageSettings.marginBottom;
+  }
+  if (pageSettings.headerLeft !== null) {
+    printSettings.headerStrLeft = pageSettings.headerLeft;
+  }
+  if (pageSettings.headerCenter !== null) {
+    printSettings.headerStrCenter = pageSettings.headerCenter;
+  }
+  if (pageSettings.headerRight !== null) {
+    printSettings.headerStrRight = pageSettings.headerRight;
+  }
+  if (pageSettings.footerLeft !== null) {
+    printSettings.footerStrLeft = pageSettings.footerLeft;
+  }
+  if (pageSettings.footerCenter !== null) {
+    printSettings.footerStrCenter = pageSettings.footerCenter;
+  }
+  if (pageSettings.footerRight !== null) {
+    printSettings.footerStrRight = pageSettings.footerRight;
+  }
+  return printSettings;
+}
 
 /**
  * A listener that allows waiting until tabs are fully loaded, e.g. off of about:blank.
@@ -691,6 +874,147 @@ this.tabs = class extends ExtensionAPI {
             tabmail.restoreTab(state);
             return tabManager.convert(mode.tabs[mode.tabs.length - 1]);
           }
+        },
+
+        print() {
+          let nativeTabInfo = getTabOrActive(null);
+          let tabType = tabManager.wrapTab(nativeTabInfo).type;
+          if (!tabs_supporting_print[tabType]) {
+            throw new ExtensionError(
+              "tabs.print() is not applicable to this tab."
+            );
+          }
+
+          let tabBrowser = getTabBrowser(nativeTabInfo);
+          let { PrintUtils } = getTabWindow(nativeTabInfo);
+          PrintUtils.startPrintWindow(tabBrowser.browsingContext);
+        },
+
+        saveAsPDF(pageSettings) {
+          let nativeTabInfo = getTabOrActive(null);
+          let tabType = tabManager.wrapTab(nativeTabInfo).type;
+          if (!tabs_supporting_print[tabType]) {
+            throw new ExtensionError(
+              "tabs.saveAsPDF() is not applicable to this tab."
+            );
+          }
+
+          let tabBrowser = getTabBrowser(nativeTabInfo);
+          let filename = getSanitizedFileName(
+            pageSettings.toFileName,
+            tabBrowser
+          );
+
+          let picker = Cc["@mozilla.org/filepicker;1"].createInstance(
+            Ci.nsIFilePicker
+          );
+          let title = strBundle.GetStringFromName(
+            "saveaspdf.saveasdialog.title"
+          );
+
+          picker.init(tabBrowser.ownerGlobal, title, Ci.nsIFilePicker.modeSave);
+          picker.appendFilter("PDF", "*.pdf");
+          picker.defaultExtension = "pdf";
+          picker.defaultString = filename;
+
+          return new Promise(resolve => {
+            picker.open(function(retval) {
+              if (retval == 0 || retval == 2) {
+                // OK clicked (retval == 0) or replace confirmed (retval == 2)
+
+                // Workaround: When trying to replace an existing file that is
+                // open in another application (i.e. a locked file), the print
+                // progress listener is never called. This workaround ensures
+                // that a correct status is always returned.
+                try {
+                  let fstream = Cc[
+                    "@mozilla.org/network/file-output-stream;1"
+                  ].createInstance(Ci.nsIFileOutputStream);
+                  // ioflags = write|create|truncate, file permissions = rw-rw-rw-
+                  fstream.init(picker.file, 0x2a, 0o666, 0);
+                  fstream.close();
+                } catch (e) {
+                  resolve(retval == 0 ? "not_saved" : "not_replaced");
+                  return;
+                }
+
+                let printSettings = getPDFPrintSettings(
+                  picker.file.path,
+                  pageSettings
+                );
+
+                tabBrowser.browsingContext
+                  .print(printSettings)
+                  .then(() => resolve(retval == 0 ? "saved" : "replaced"))
+                  .catch(() =>
+                    resolve(retval == 0 ? "not_saved" : "not_replaced")
+                  );
+              } else {
+                // Cancel clicked (retval == 1)
+                resolve("canceled");
+              }
+            });
+          });
+        },
+
+        async getAsPDF(pageSettings, tabId) {
+          let nativeTabInfo = getTabOrActive(tabId);
+          let tabType = tabManager.wrapTab(nativeTabInfo).type;
+          // Check for required host permissions.
+          if (tabs_supporting_print[tabType]) {
+            if (!extension.hasPermission(tabs_supporting_print[tabType])) {
+              throw new ExtensionError(
+                `tabs.getAsPDF() requires the ${tabs_supporting_print[tabType]} permission to get the content this tab as PDF.`
+              );
+            }
+          } else {
+            throw new ExtensionError(
+              "tabs.getAsPDF() is not applicable to this tab."
+            );
+          }
+
+          let tabBrowser = getTabBrowser(nativeTabInfo);
+          let filename = getSanitizedFileName(
+            pageSettings.toFileName,
+            tabBrowser
+          );
+
+          let pathTempDir = await PathUtils.getTempDir();
+          let pathTempFile = await IOUtils.createUniqueFile(
+            pathTempDir,
+            "PrintToPDF.pdf",
+            0o666
+          );
+
+          let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(
+            Ci.nsIFile
+          );
+          tempFile.initWithPath(pathTempFile);
+          let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
+            Ci.nsPIExternalAppLauncher
+          );
+          extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+          let printSettings = getPDFPrintSettings(pathTempFile, pageSettings);
+          await tabBrowser.browsingContext.print(printSettings);
+
+          // Bug 1603739 - With e10s enabled the promise returned by print() resolves
+          // too early, which means the file hasn't been completely written.
+          await new Promise(resolve => {
+            const DELAY_CHECK_FILE_COMPLETELY_WRITTEN = 100;
+
+            let lastSize = 0;
+            const timerId = setInterval(async () => {
+              const fileInfo = await IOUtils.stat(pathTempFile);
+              if (lastSize > 0 && fileInfo.size == lastSize) {
+                clearInterval(timerId);
+                resolve();
+              }
+              lastSize = fileInfo.size;
+            }, DELAY_CHECK_FILE_COMPLETELY_WRITTEN);
+          });
+
+          return File.createFromNsIFile(tempFile, { name: filename });
         },
       },
     };
