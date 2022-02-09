@@ -185,7 +185,15 @@ class Pop3Client {
     await this._loadUidlState();
 
     let uidlState = this._uidlMap.get(uidl);
-    if (!uidlState || uidlState.status != UIDL_TOO_BIG) {
+    if (!uidlState) {
+      // This uidl is no longer on the server, use this._sink to delete the
+      // msgHdr.
+      this._sink.beginMailDelivery(true, null);
+      this._sink.incorporateBegin(uidl, 0);
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
+    }
+    if (uidlState.status != UIDL_TOO_BIG) {
       this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
     }
@@ -837,6 +845,10 @@ class Pop3Client {
 
     let numberOfMessages = Number.parseInt(res.statusText);
     if (!numberOfMessages) {
+      if (this._uidlMap.size) {
+        this._uidlMap.clear();
+        this._uidlMapChanged = true;
+      }
       // Finish if there is no message.
       this._actionDone();
       return;
