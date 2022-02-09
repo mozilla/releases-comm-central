@@ -756,6 +756,20 @@ class PropfindResponse extends CalDavSimpleResponse {
     }
 
     /**
+     * Returns a Set for the "current-user-privilege-set" properties. If a 404
+     * status is detected, null is returned indicating the server does not
+     * support this directive.
+     *
+     * @param {string} path         The css path to search
+     * @param {Element} parent      The parent element to search in
+     * @param {string} status       The status of the enclosing <propstat>
+     * @return {Set<string>}
+     */
+    function privSet(path, parent, status = "") {
+      return status.includes("404") ? null : nodeNames(path, parent);
+    }
+
+    /**
      * Returns a Set with the respective attribute values in the path
      *
      * @param {String} path         The css path to search
@@ -788,7 +802,7 @@ class PropfindResponse extends CalDavSimpleResponse {
       "C:calendar-home-set": href,
       "C:calendar-user-address-set": href,
       "D:current-user-principal": singleHref,
-      "D:current-user-privilege-set": nodeNames.bind(null, ":scope > privilege > *"),
+      "D:current-user-privilege-set": privSet.bind(null, ":scope > privilege > *"),
       "D:owner": singleHref,
       "D:supported-report-set": nodeNames.bind(null, ":scope > supported-report > report > *"),
       "D:resourcetype": nodeNames.bind(null, ":scope > *"),
@@ -812,13 +826,16 @@ class PropfindResponse extends CalDavSimpleResponse {
 
         // This will throw 200's and 400's in one pot, but since 400's are empty that is ok
         // for our needs.
-        for (let prop of response.querySelectorAll(":scope > propstat > prop > *")) {
-          let prefix = CalDavNsUnresolver(prop.namespaceURI) || prop.prefix;
-          let qname = prefix + ":" + prop.localName;
-          if (qname in this.decorators) {
-            this._data[href][qname] = this.decorators[qname](prop) || null;
-          } else {
-            this._data[href][qname] = prop.textContent.trim() || null;
+        for (let propStat of response.querySelectorAll(":scope > propstat")) {
+          let status = propStat.querySelector(":scope > status").textContent;
+          for (let prop of propStat.querySelectorAll(":scope > prop > *")) {
+            let prefix = CalDavNsUnresolver(prop.namespaceURI) || prop.prefix;
+            let qname = prefix + ":" + prop.localName;
+            if (qname in this.decorators) {
+              this._data[href][qname] = this.decorators[qname](prop, status) || null;
+            } else {
+              this._data[href][qname] = prop.textContent.trim() || null;
+            }
           }
         }
       }

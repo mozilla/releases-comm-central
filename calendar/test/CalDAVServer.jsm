@@ -27,6 +27,11 @@ var CalDAVServer = {
   server: null,
   isOpen: false,
 
+  /**
+   * The "current-user-privilege-set" in responses. Set to null to have no privilege set.
+   */
+  privileges: "<d:privilege><d:all/></d:privilege>",
+
   open(username, password) {
     this.server = new HttpServer();
     this.server.start(-1);
@@ -43,6 +48,7 @@ var CalDAVServer = {
     this.items.clear();
     this.deletedItems.clear();
     this.changeCount = 0;
+    this.privileges = "<d:privilege><d:all/></d:privilege>";
     this.resetHandlers();
   },
 
@@ -203,6 +209,12 @@ var CalDAVServer = {
     );
 
     let propNames = this._inputProps(input);
+    let propValues = {
+      "d:resourcetype": "<collection/><c:calendar/>",
+      "d:displayname": "CalDAV Test",
+      "i:calendar-color": "#ff8000",
+      "d:current-user-privilege-set": this.privileges,
+    };
 
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
@@ -217,11 +229,7 @@ var CalDAVServer = {
         </response>
         <response>
           <href>${this.path}</href>
-          ${this._outputProps(propNames, {
-            "d:resourcetype": "<collection/><c:calendar/>",
-            "d:displayname": "CalDAV Test",
-            "i:calendar-color": "#ff8000",
-          })}
+          ${this._outputProps(propNames, propValues)}
         </response>
       </multistatus>`.replace(/>\s+</g, "><")
     );
@@ -309,7 +317,7 @@ var CalDAVServer = {
       "d:resourcetype": "<d:collection/><c:calendar/>",
       "d:owner": "/principals/me/",
       "d:current-user-principal": "<href>/principals/me/</href>",
-      "d:current-user-privilege-set": "<d:privilege><d:all/></d:privilege>",
+      "d:current-user-privilege-set": this.privileges,
       "d:supported-report-set":
         "<d:supported-report><d:report><c:calendar-multiget/></d:report></d:supported-report>" +
         "<d:supported-report><d:report><sync-collection/></d:report></d:supported-report>",
@@ -435,7 +443,7 @@ var CalDAVServer = {
     let found = [];
     let notFound = [];
     for (let p of propNames) {
-      if (p in propValues) {
+      if (p in propValues && propValues[p] != null) {
         found.push(`<${p}>${propValues[p]}</${p}>`);
       } else {
         notFound.push(`<${p}/>`);

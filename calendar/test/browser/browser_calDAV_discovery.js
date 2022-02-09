@@ -83,8 +83,15 @@ async function handleWizard(wizardWindow, { username, url, password, expectedCal
       expectedCalendars[i].color
     );
     Assert.equal(item.querySelector(".calendar-name").value, expectedCalendars[i].name);
-  }
 
+    if (expectedCalendars[i].hasOwnProperty("readOnly")) {
+      Assert.equal(
+        item.calendar.readOnly,
+        expectedCalendars[i].readOnly,
+        `calendar read-only property is ${expectedCalendars[i].readOnly}`
+      );
+    }
+  }
   EventUtils.synthesizeMouseAtCenter(cancelButton, {}, wizardWindow);
 }
 
@@ -159,5 +166,74 @@ add_task(async function testWellKnown() {
     ],
   });
 
+  CalDAVServer.close();
+});
+
+/**
+ * Tests calendars with only the "read" "current-user-privilege-set" are
+ * flagged read-only.
+ */
+add_task(async function testCalendarWithOnlyReadPriv() {
+  CalDAVServer.open("alice", "alice");
+  CalDAVServer.privileges = "<d:privilege><d:read/></d:privilege>";
+  await openWizard({
+    username: "alice",
+    url: CalDAVServer.origin,
+    password: "alice",
+    expectedCalendars: [
+      {
+        uri: CalDAVServer.url,
+        name: "CalDAV Test",
+        color: "rgb(255, 128, 0)",
+        readOnly: true,
+      },
+    ],
+  });
+  CalDAVServer.close();
+});
+
+/**
+ * Tests calendars that return none of the expected values for "current-user-privilege-set"
+ * are flagged read-only.
+ */
+add_task(async function testCalendarWithoutPrivs() {
+  CalDAVServer.open("alice", "alice");
+  CalDAVServer.privileges = "";
+  await openWizard({
+    username: "alice",
+    url: CalDAVServer.origin,
+    password: "alice",
+    expectedCalendars: [
+      {
+        uri: CalDAVServer.url,
+        name: "CalDAV Test",
+        color: "rgb(255, 128, 0)",
+        readOnly: true,
+      },
+    ],
+  });
+  CalDAVServer.close();
+});
+
+/**
+ * Tests calendars that return status 404 for "current-user-privilege-set" are
+ * not flagged read-only.
+ */
+add_task(async function testCalendarWithNoPrivSupport() {
+  CalDAVServer.open("alice", "alice");
+  CalDAVServer.privileges = null;
+  await openWizard({
+    username: "alice",
+    url: CalDAVServer.origin,
+    password: "alice",
+    expectedCalendars: [
+      {
+        uri: CalDAVServer.url,
+        name: "CalDAV Test",
+        color: "rgb(255, 128, 0)",
+        readOnly: false,
+      },
+    ],
+  });
   CalDAVServer.close();
 });

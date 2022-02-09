@@ -44,3 +44,18 @@ add_task(async function() {
   info("deleting the item");
   await runDeleteItem(calendar);
 });
+
+/**
+ * Tests calendars that return status 404 for "current-user-privilege-set" are
+ * not flagged read-only.
+ */
+add_task(async function testCalendarWithNoPrivSupport() {
+  CalDAVServer.privileges = null;
+  calendarObserver._onLoadPromise = PromiseUtils.defer();
+
+  let calendar = createCalendar("caldav", CalDAVServer.url, true);
+  await calendarObserver._onLoadPromise.promise;
+  info("calendar set-up complete");
+
+  Assert.ok(!calendar.readOnly, "calendar was not marked read-only");
+});
