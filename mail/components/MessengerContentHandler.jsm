@@ -350,6 +350,8 @@ MailDefaultHandler.prototype = {
       }
     }
     if (uri) {
+      // Check for protocols first then look at the file ending.
+      // Protocols are able to contain file endings like '.ics'.
       if (/^https?:/i.test(uri)) {
         Cc["@mozilla.org/newsblog-feed-downloader;1"]
           .getService(Ci.nsINewsBlogFeedDownloader)
@@ -452,6 +454,31 @@ MailDefaultHandler.prototype = {
 
           Services.prompt.alert(null, title, message);
         }
+      } else if (/^webcals?:\/\//i.test(uri)) {
+        Services.ww.openWindow(
+          null,
+          "chrome://calendar/content/calendar-creation.xhtml",
+          "_blank",
+          "chrome,titlebar,modal,centerscreen",
+          Services.io.newURI(uri)
+        );
+      } else if (/^mid:/i.test(uri)) {
+        let { MailUtils } = ChromeUtils.import(
+          "resource:///modules/MailUtils.jsm"
+        );
+        MailUtils.openMessageByMessageId(uri.slice(4));
+      } else if (uri.toLowerCase().endsWith(".ics")) {
+        // An .ics calendar file! Open the ics file dialog.
+        let file = cmdLine.resolveFile(uri);
+        if (file.exists() && file.fileSize > 0) {
+          Services.ww.openWindow(
+            null,
+            "chrome://calendar/content/calendar-ics-file-dialog.xhtml",
+            "_blank",
+            "chrome,titlebar,modal,centerscreen",
+            file
+          );
+        }
       } else if (uri.toLowerCase().endsWith(".vcf")) {
         // A VCard! Be smart and open the "add contact" dialog.
         let file = cmdLine.resolveFile(uri);
@@ -493,31 +520,6 @@ MailDefaultHandler.prototype = {
             }
           );
         }
-      } else if (uri.toLowerCase().endsWith(".ics")) {
-        // An .ics calendar file! Open the ics file dialog.
-        let file = cmdLine.resolveFile(uri);
-        if (file.exists() && file.fileSize > 0) {
-          Services.ww.openWindow(
-            null,
-            "chrome://calendar/content/calendar-ics-file-dialog.xhtml",
-            "_blank",
-            "chrome,titlebar,modal,centerscreen",
-            file
-          );
-        }
-      } else if (/^webcals?:\/\//i.test(uri)) {
-        Services.ww.openWindow(
-          null,
-          "chrome://calendar/content/calendar-creation.xhtml",
-          "_blank",
-          "chrome,titlebar,modal,centerscreen",
-          Services.io.newURI(uri)
-        );
-      } else if (/^mid:/i.test(uri)) {
-        let { MailUtils } = ChromeUtils.import(
-          "resource:///modules/MailUtils.jsm"
-        );
-        MailUtils.openMessageByMessageId(uri.slice(4));
       } else {
         // This must be a regular filename. Use it to create a new message with attachment.
         let msgParams = Cc[
