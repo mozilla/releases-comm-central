@@ -432,6 +432,8 @@ var gMenuBuilder = {
         // to notifying onclicked.
         let actionFor = {
           _execute_browser_action: global.browserActionFor,
+          _execute_compose_action: global.composeActionFor,
+          _execute_message_display_action: global.messageDisplayActionFor,
         }[item.command];
         if (actionFor) {
           let win = event.target.ownerGlobal;

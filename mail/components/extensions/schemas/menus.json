@@ -494,7 +494,7 @@
               "command": {
                 "type": "string",
                 "optional": true,
-                "description": "Specifies a command to issue for the context click.  Currently supports internal command _execute_browser_action."
+                "description": "Specifies a command to issue for the context click.  Currently supports internal commands ``_execute_browser_action``, ``_execute_compose_action`` and ``_execute_message_display_action``."
               }
             }
           },

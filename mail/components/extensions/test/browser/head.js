@@ -30,14 +30,19 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
 
 check3PaneInInitialState();
 registerCleanupFunction(() => {
-  MailServices.accounts.accounts.forEach(cleanUpAccount);
-
   let tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1);
 
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(tabmail.tabInfo[1]);
   }
+
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out.
+  Services.focus.focusedWindow = window;
+  window.gFolderDisplay.tree.focus();
+
+  MailServices.accounts.accounts.forEach(cleanUpAccount);
 
   // Put the 3-pane back how we found it.
   document
@@ -48,11 +53,6 @@ registerCleanupFunction(() => {
   }
 
   check3PaneInInitialState();
-
-  // Some tests that open new windows don't return focus to the main window
-  // in a way that satisfies mochitest, and the test times out.
-  Services.focus.focusedWindow = window;
-  window.gFolderDisplay.tree.focus();
 });
 
 function check3PaneInInitialState() {
@@ -579,4 +579,376 @@ function contentTabOpenPromise(tabmail, url) {
     };
     tabmail.registerTabMonitor(tabMonitor);
   });
+}
+
+/**
+ * @typedef ConfigData
+ * @property {string} actionType - type of action button in underscore notation
+ * @property {string} window - the window to perform the test in
+ * @property {string} [testType] - supported tests are "open-with-mouse-click" and
+ *   "open-with-menu-command"
+ * @property {string} [default_area] - area to be used for the test
+ * @property {boolean} [use_default_popup] - select if the default_popup should be
+ *  used for the test
+ * @property {function} [backend_script] - custom backend script to be used for the
+ *  test, will override the default backend_script of the selected test
+ * @property {function} [background_script] - custom background script to be used for the
+ *  test, will override the default background_script of the selected test
+ * @property {[string]} [permissions] - custom permissions to be used for the test,
+ *  must not be specified together with testType
+ */
+
+/**
+ * Creates an extension with an action button and either runs one of the default
+ * tests, or loads a custom background script and a custom backend scripts to run
+ * an arbitrary test.
+ *
+ * @param {ConfigData} configData - test configuration
+ */
+async function run_popup_test(configData) {
+  if (!configData.actionType) {
+    throw new Error("Mandatory configData.actionType is missing");
+  }
+  if (!configData.window) {
+    throw new Error("Mandatory configData.window is missing");
+  }
+
+  // Get camelCase API names from action type.
+  configData.apiName = configData.actionType.replace(/_([a-z])/g, function(g) {
+    return g[1].toUpperCase();
+  });
+  let backend_script = configData.backend_script;
+
+  let extensionDetails = {
+    files: {
+      "popup.html": `<!DOCTYPE html>
+                      <html>
+                        <head>
+                          <title>Popup</title>
+                        </head>
+                        <body>
+                          <p>Hello</p>
+                          <script src="popup.js"></script>
+                        </body>
+                      </html>`,
+      "popup.js": async function() {
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => window.setTimeout(resolve, 1000));
+        await browser.runtime.sendMessage("popup opened");
+        await new Promise(resolve => window.setTimeout(resolve));
+        window.close();
+      },
+      "utils.js": await getUtilsJS(),
+      "helper.js": function() {
+        window.actionType = browser.runtime.getManifest().description;
+        // Get camelCase API names from action type.
+        window.apiName = window.actionType.replace(/_([a-z])/g, function(g) {
+          return g[1].toUpperCase();
+        });
+        window.getPopupOpenedPromise = function() {
+          return new Promise(resolve => {
+            const handleMessage = async (message, sender, sendResponse) => {
+              if (message && message == "popup opened") {
+                sendResponse();
+                window.setTimeout(resolve);
+                browser.runtime.onMessage.removeListener(handleMessage);
+              }
+            };
+            browser.runtime.onMessage.addListener(handleMessage);
+          });
+        };
+      },
+    },
+    manifest: {
+      applications: {
+        gecko: {
+          id: `${configData.actionType}@mochi.test`,
+        },
+      },
+      description: configData.actionType,
+      background: { scripts: ["utils.js", "helper.js", "background.js"] },
+    },
+    useAddonManager: "temporary",
+  };
+
+  switch (configData.testType) {
+    case "open-with-mouse-click":
+      backend_script = async function(extension, configData) {
+        let win = configData.window;
+
+        await extension.startup();
+        await promiseAnimationFrame(win);
+        await new Promise(resolve => win.setTimeout(resolve));
+        await extension.awaitMessage("ready");
+
+        let buttonId = `${configData.actionType}_mochi_test-${configData.apiName}-toolbarbutton`;
+        let toolbarId;
+        let checkXulStore = true;
+        let checkCurrentSetAttribute = true;
+        switch (configData.actionType) {
+          case "compose_action":
+            toolbarId = "composeToolbar2";
+            if (configData.default_area == "formattoolbar") {
+              toolbarId = "FormatToolbar";
+              checkXulStore = false;
+              checkCurrentSetAttribute = false;
+            }
+            break;
+          case "browser_action":
+            toolbarId = "mail-bar3";
+            break;
+          case "message_display_action":
+            toolbarId = "header-view-toolbar";
+            checkXulStore = false;
+            break;
+          default:
+            throw new Error(
+              `Unsupported configData.actionType: ${configData.actionType}`
+            );
+        }
+
+        try {
+          let toolbar = win.document.getElementById(toolbarId);
+          let button = win.document.getElementById(buttonId);
+          ok(button, "Button created");
+          is(toolbar.id, button.parentNode.id, "Button added to toolbar");
+          ok(
+            toolbar.currentSet.split(",").includes(buttonId),
+            "Button added to toolbar current set"
+          );
+
+          if (checkXulStore) {
+            ok(
+              toolbar
+                .getAttribute("currentset")
+                .split(",")
+                .includes(buttonId),
+              "Button added to toolbar current set attribute"
+            );
+          }
+          if (checkCurrentSetAttribute) {
+            ok(
+              Services.xulStore
+                .getValue(win.location.href, toolbarId, "currentset")
+                .split(",")
+                .includes(buttonId),
+              "Button added to toolbar current set persistence"
+            );
+          }
+
+          let icon = button.querySelector(".toolbarbutton-icon");
+          is(
+            getComputedStyle(icon).listStyleImage,
+            `url("chrome://messenger/content/extension.svg")`,
+            "Default icon"
+          );
+          let label = button.querySelector(".toolbarbutton-text");
+          is(label.value, "This is a test", "Correct label");
+
+          let clickedPromise = extension.awaitMessage("actionButtonClicked");
+          EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);
+          await clickedPromise;
+          await promiseAnimationFrame(win);
+          await new Promise(resolve => win.setTimeout(resolve));
+
+          is(win.document.getElementById(buttonId), button);
+          label = button.querySelector(".toolbarbutton-text");
+          is(label.value, "New title", "Correct label");
+        } finally {
+          // Check the open state of the action button.
+          let button = win.document.getElementById(buttonId);
+          await TestUtils.waitForCondition(
+            () => button.getAttribute("open") != "true",
+            "Button should not have open state after the popup closed."
+          );
+
+          await extension.unload();
+          await promiseAnimationFrame(win);
+          await new Promise(resolve => win.setTimeout(resolve));
+
+          ok(!win.document.getElementById(buttonId), "Button destroyed");
+          if (checkXulStore) {
+            ok(
+              !Services.xulStore
+                .getValue(win.location.href, toolbarId, "currentset")
+                .split(",")
+                .includes(buttonId),
+              "Button removed from toolbar current set persistence"
+            );
+          }
+        }
+      };
+      if (configData.use_default_popup) {
+        // With popup.
+        extensionDetails.files["background.js"] = async function() {
+          browser.test.log("popup background script ran");
+          let popupPromise = window.getPopupOpenedPromise();
+          browser.test.sendMessage("ready");
+          await popupPromise;
+          await browser[window.apiName].setTitle({ title: "New title" });
+          browser.test.sendMessage("actionButtonClicked");
+        };
+      } else {
+        // Without popup.
+        extensionDetails.files["background.js"] = async function() {
+          browser.test.log("nopopup background script ran");
+          browser[window.apiName].onClicked.addListener(async (tab, info) => {
+            browser.test.assertEq("object", typeof tab);
+            browser.test.assertEq("object", typeof info);
+            browser.test.assertEq(0, info.button);
+            browser.test.assertTrue(Array.isArray(info.modifiers));
+            browser.test.assertEq(0, info.modifiers.length);
+            browser.test.log(`Tab ID is ${tab.id}`);
+            await browser[window.apiName].setTitle({ title: "New title" });
+            await new Promise(resolve => window.setTimeout(resolve));
+            browser.test.sendMessage("actionButtonClicked");
+          });
+          browser.test.sendMessage("ready");
+        };
+      }
+      break;
+
+    case "open-with-menu-command":
+      extensionDetails.manifest.permissions = ["menus"];
+      backend_script = async function(extension, configData) {
+        let win = configData.window;
+        let buttonId = `${configData.actionType}_mochi_test-${configData.apiName}-toolbarbutton`;
+        let menuId = "toolbar-context-menu";
+        if (
+          configData.actionType == "compose_action" &&
+          configData.default_area == "formattoolbar"
+        ) {
+          menuId = "format-toolbar-context-menu";
+        }
+        if (configData.actionType == "message_display_action") {
+          menuId = "header-toolbar-context-menu";
+        }
+
+        extension.onMessage("triggerClick", async () => {
+          let button = win.document.getElementById(buttonId);
+          let menu = win.document.getElementById(menuId);
+          let onShownPromise = extension.awaitMessage("onShown");
+          let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+          EventUtils.synthesizeMouseAtCenter(
+            button,
+            { type: "contextmenu" },
+            win
+          );
+          await shownPromise;
+          await onShownPromise;
+          await new Promise(resolve => win.setTimeout(resolve));
+
+          let menuitem = win.document.getElementById(
+            `${configData.actionType}_mochi_test-menuitem-_testmenu`
+          );
+          Assert.ok(menuitem);
+          menuitem.parentNode.activateItem(menuitem);
+
+          // Sometimes, the popup will open then instantly disappear. It seems to
+          // still be hiding after the previous appearance. If we wait a little bit,
+          // this doesn't happen.
+          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+          await new Promise(r => win.setTimeout(r, 250));
+        });
+
+        await extension.startup();
+        await extension.awaitFinish();
+
+        // Check the open state of the action button.
+        let button = win.document.getElementById(buttonId);
+        await TestUtils.waitForCondition(
+          () => button.getAttribute("open") != "true",
+          "Button should not have open state after the popup closed."
+        );
+
+        await extension.unload();
+      };
+      if (configData.use_default_popup) {
+        // With popup.
+        extensionDetails.files["background.js"] = async function() {
+          browser.test.log("popup background script ran");
+          await new Promise(resolve => {
+            browser.menus.create(
+              {
+                id: "testmenu",
+                title: `Open ${window.actionType}`,
+                contexts: [window.actionType],
+                command: `_execute_${window.actionType}`,
+              },
+              resolve
+            );
+          });
+
+          await browser.menus.onShown.addListener((...args) => {
+            browser.test.sendMessage("onShown", args);
+          });
+
+          let popupPromise = window.getPopupOpenedPromise();
+          window.sendMessage("triggerClick");
+          await popupPromise;
+
+          browser.test.notifyPass();
+        };
+      } else {
+        // Without popup.
+        extensionDetails.files["background.js"] = async function() {
+          browser.test.log("nopopup background script ran");
+          await new Promise(resolve => {
+            browser.menus.create(
+              {
+                id: "testmenu",
+                title: `Open ${window.actionType}`,
+                contexts: [window.actionType],
+                command: `_execute_${window.actionType}`,
+              },
+              resolve
+            );
+          });
+
+          await browser.menus.onShown.addListener((...args) => {
+            browser.test.sendMessage("onShown", args);
+          });
+
+          let clickPromise = new Promise(resolve => {
+            let listener = async (tab, info) => {
+              browser[window.apiName].onClicked.removeListener(listener);
+              browser.test.assertEq("object", typeof tab);
+              browser.test.assertEq("object", typeof info);
+              browser.test.assertEq(0, info.button);
+              browser.test.assertTrue(Array.isArray(info.modifiers));
+              browser.test.assertEq(0, info.modifiers.length);
+              browser.test.log(`Tab ID is ${tab.id}`);
+              resolve();
+            };
+            browser[window.apiName].onClicked.addListener(listener);
+          });
+          window.sendMessage("triggerClick");
+          await clickPromise;
+
+          browser.test.notifyPass();
+        };
+      }
+      break;
+  }
+
+  extensionDetails.manifest[configData.actionType] = {
+    default_title: "This is a test",
+  };
+  if (configData.use_default_popup) {
+    extensionDetails.manifest[configData.actionType].default_popup =
+      "popup.html";
+  }
+  if (configData.default_area) {
+    extensionDetails.manifest[configData.actionType].default_area =
+      configData.default_area;
+  }
+  if (configData.hasOwnProperty("background")) {
+    extensionDetails.files["background.js"] = configData.background_script;
+  }
+  if (configData.hasOwnProperty("permissions")) {
+    extensionDetails.manifest.permissions = configData.permissions;
+  }
+
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  await backend_script(extension, configData);
 }

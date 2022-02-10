@@ -620,13 +620,7 @@ class ViewPopup extends BasePopup {
   }
 
   closePopup() {
-    if (this.shown) {
-      this.viewNode.hidePopup();
-    } else if (this.attached) {
-      this.destroyed = true;
-    } else {
-      this.destroy();
-    }
+    this.viewNode.hidePopup();
   }
 }
 
