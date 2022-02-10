@@ -941,11 +941,7 @@ pref("devtools.inspector.showAllAnonymousContent", false);
 // Enable the inline CSS compatiblity warning in inspector rule view
 pref("devtools.inspector.ruleview.inline-compatibility-warning.enabled", false);
 // Enable the compatibility tool in the inspector.
-#ifdef NIGHTLY_BUILD
 pref("devtools.inspector.compatibility.enabled", true);
-#else
-pref("devtools.inspector.compatibility.enabled", false);
-#endif
 // Enable color scheme simulation in the inspector.
 pref("devtools.inspector.color-scheme-simulation.enabled", true);
 
