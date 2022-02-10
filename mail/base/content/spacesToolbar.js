@@ -143,6 +143,7 @@ var gSpacesToolbar = {
   toggleToolbar(state) {
     this.isHidden = state;
     document.getElementById("spacesToolbar").hidden = state;
+    document.getElementById("spacesToolbarReveal").hidden = !state;
     // Update the window UI after the visibility state of the spaces toolbar
     // has changed.
     this.updateUI(

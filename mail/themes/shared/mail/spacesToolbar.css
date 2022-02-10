@@ -73,17 +73,40 @@
   color: var(--spaces-button-text-color);
 }
 
-.spaces-toolbar-button > img {
+.spaces-toolbar-button > img,
+.spaces-toolbar-statusbar-button > img {
   -moz-context-properties: fill, stroke-opacity;
   fill: currentColor;
+}
+
+.spaces-toolbar-statusbar-button {
+  min-width: auto;
+  min-height: auto;
+  padding-inline: 2px;
+  margin-inline: 3px 0 !important;
+  line-height: 0;
+  background: none;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.spaces-toolbar-statusbar-button:is(:not([disabled])):hover {
+  background: none;
+  border: none;
+  opacity: 1;
 }
 
 #chatButton > img {
   stroke-opacity: 0;
 }
 
-#collapseButton:-moz-locale-dir(rtl) img {
+#collapseButton:-moz-locale-dir(rtl) img,
+#spacesToolbarReveal img {
   transform: scaleX(-1);
+}
+
+#spacesToolbarReveal:-moz-locale-dir(rtl) img {
+  transform: none;
 }
 
 :root[uidensity="compact"] .spaces-toolbar:not([hidden]) {

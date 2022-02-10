@@ -215,4 +215,7 @@ spaces-toolbar-button-settings =
     .title = Switch to the settings tab
 
 spaces-toolbar-button-collapse =
-    .title = Collapse spaces toolbar
+    .title = Collapse the spaces toolbar
+
+spaces-toolbar-button-reveal =
+    .title = Show the spaces toolbar

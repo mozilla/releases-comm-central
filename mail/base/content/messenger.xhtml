@@ -901,6 +901,13 @@
         class="statusbar chromeclass-status"
         role="status"
         aria-live="off">
+    <html:button type="button" id="spacesToolbarReveal"
+                 onclick="gSpacesToolbar.toggleToolbar(false);"
+                 data-l10n-id="spaces-toolbar-button-reveal"
+                 class="plain spaces-toolbar-statusbar-button"
+                 hidden="hidden">
+      <html:img src="chrome://messenger/skin/icons/collapse.svg" alt="" />
+    </html:button>
 #include mainStatusbar.inc.xhtml
     <hbox id="calendar-invitations-panel"
           class="statusbarpanel"

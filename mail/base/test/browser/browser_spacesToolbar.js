@@ -117,8 +117,10 @@ async function sub_test_cycle_through_primary_tabs() {
 
 add_task(async function testSpacesToolbarExists() {
   let spacesToolbar = document.getElementById("spacesToolbar");
+  let toggleButton = document.getElementById("spacesToolbarReveal");
   Assert.ok(spacesToolbar, "The spaces toolbar exists");
   Assert.ok(!spacesToolbar.hidden, "The spaces toolbar is visible");
+  Assert.ok(toggleButton.hidden, "The status bar toggle button is hidden");
 
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("collapseButton"),
@@ -126,6 +128,7 @@ add_task(async function testSpacesToolbarExists() {
     window
   );
   Assert.ok(spacesToolbar.hidden, "The spaces toolbar is hidden");
+  Assert.ok(!toggleButton.hidden, "The status bar toggle button is visible");
 
   // Test the app menu button.
   let appMenu = document.getElementById("appMenu-popup");
@@ -165,6 +168,7 @@ add_task(async function testSpacesToolbarExists() {
   EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
 
   Assert.ok(!spacesToolbar.hidden, "The spaces toolbar is visible");
+  Assert.ok(toggleButton.hidden, "The status bar toggle button is hidden");
   Assert.ok(appMenuButton.checked, "The app menu item is checked");
 
   // Close the appmenu.
@@ -188,6 +192,10 @@ add_task(async function testSpacesToolbarMenubar() {
     window
   );
   Assert.ok(spacesToolbar.hidden, "The spaces toolbar is hidden");
+  Assert.ok(
+    !document.getElementById("spacesToolbarReveal").hidden,
+    "The status bar toggle button is visible"
+  );
 
   // Test the menubar button.
   let viewShownPromise = BrowserTestUtils.waitForEvent(
