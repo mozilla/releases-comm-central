@@ -1723,46 +1723,45 @@ var detailsPane = {
       // If there are no dirty fields, clear the flag, otherwise set it.
       this.isDirty = this.dirtyFields.size > 0;
     });
-    this.form.addEventListener("keypress", async event => {
+    this.form.addEventListener("keypress", event => {
       if (event.key != "Escape") {
         return;
       }
 
       event.preventDefault();
-      if (!this.isDirty) {
-        this.form.reset();
-        return;
-      }
-
-      let [title, message] = await document.l10n.formatValues([
-        { id: `about-addressbook-unsaved-changes-prompt-title` },
-        { id: `about-addressbook-unsaved-changes-prompt` },
-      ]);
-
-      let buttonPressed = Services.prompt.confirmEx(
-        window,
-        title,
-        message,
-        Ci.nsIPrompt.BUTTON_TITLE_SAVE * Ci.nsIPrompt.BUTTON_POS_0 +
-          Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1 +
-          Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE * Ci.nsIPrompt.BUTTON_POS_2,
-        null,
-        null,
-        null,
-        null,
-        {}
-      );
-      if (buttonPressed === 0) {
-        // Don't call this.form.submit, the submit event won't fire.
-        if (this.form.checkValidity()) {
-          this.saveCurrentContact();
-        }
-      } else if (buttonPressed === 2) {
-        this.form.reset();
-      }
+      this.form.reset();
     });
-    this.form.addEventListener("reset", event => {
+    this.form.addEventListener("reset", async event => {
       event.preventDefault();
+      if (this.isDirty) {
+        let [title, message] = await document.l10n.formatValues([
+          { id: `about-addressbook-unsaved-changes-prompt-title` },
+          { id: `about-addressbook-unsaved-changes-prompt` },
+        ]);
+
+        let buttonPressed = Services.prompt.confirmEx(
+          window,
+          title,
+          message,
+          Ci.nsIPrompt.BUTTON_TITLE_SAVE * Ci.nsIPrompt.BUTTON_POS_0 +
+            Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1 +
+            Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE * Ci.nsIPrompt.BUTTON_POS_2,
+          null,
+          null,
+          null,
+          null,
+          {}
+        );
+        if (buttonPressed === 0) {
+          // Don't call this.form.submit, the submit event won't fire.
+          if (this.form.checkValidity()) {
+            this.saveCurrentContact();
+          }
+          return;
+        } else if (buttonPressed === 1) {
+          return;
+        }
+      }
       this.isEditing = false;
       this.displayContact(this.currentCard);
     });

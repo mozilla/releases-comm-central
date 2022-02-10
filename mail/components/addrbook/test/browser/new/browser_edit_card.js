@@ -224,7 +224,10 @@ add_task(async function test_basic_edit() {
     SecondEmail: "i@roman.invalid",
   });
 
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => abWindow.setTimeout(resolve));
   await notInEditingMode();
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
@@ -332,7 +335,7 @@ add_task(async function test_basic_edit() {
 
   // Cancel the edit by pressing the Escape key and cancel the prompt.
 
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+  promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
   await promptPromise;
   await new Promise(resolve => abWindow.setTimeout(resolve));
@@ -572,7 +575,10 @@ add_task(async function test_generate_display_name() {
   setInputValues({ FirstName: "first" });
   checkInputValues({ DisplayName: "last, fourth" });
 
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => abWindow.setTimeout(resolve));
   await notInEditingMode();
 
   await closeAddressBookWindow();
