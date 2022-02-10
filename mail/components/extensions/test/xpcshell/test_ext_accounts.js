@@ -815,30 +815,35 @@ add_task(async function test_accounts_events() {
     "background.js": async () => {
       // Register event listener.
       let onCreatedLog = [];
-      await browser.accounts.onCreated.addListener((id, created) => {
-        onCreatedLog.push({ id, created });
-      });
       let onUpdatedLog = [];
-      await browser.accounts.onUpdated.addListener((id, changed) => {
-        onUpdatedLog.push({ id, changed });
-      });
       let onDeletedLog = [];
-      await browser.accounts.onDeleted.addListener(id => {
+
+      let createListener = (id, created) => {
+        onCreatedLog.push({ id, created });
+      };
+      let updateListener = (id, changed) => {
+        onUpdatedLog.push({ id, changed });
+      };
+      let deleteListener = id => {
         onDeletedLog.push(id);
-      });
+      };
+
+      await browser.accounts.onCreated.addListener(createListener);
+      await browser.accounts.onUpdated.addListener(updateListener);
+      await browser.accounts.onDeleted.addListener(deleteListener);
 
       // Create accounts.
       let imapAccountKey = await window.sendMessage("createAccount", {
         type: "imap",
-        identity: "invalidImap",
+        identity: "user@invalidImap",
       });
       let localAccountKey = await window.sendMessage("createAccount", {
         type: "local",
-        identity: "invalidLocal",
+        identity: "user@invalidLocal",
       });
       let popAccountKey = await window.sendMessage("createAccount", {
         type: "pop3",
-        identity: "invalidPop",
+        identity: "user@invalidPop",
       });
 
       // Update account identities.
@@ -903,6 +908,10 @@ add_task(async function test_accounts_events() {
       await window.sendMessage("removeAccount", {
         accountKey: popAccountKey,
       });
+
+      await browser.accounts.onCreated.removeListener(createListener);
+      await browser.accounts.onUpdated.removeListener(updateListener);
+      await browser.accounts.onDeleted.removeListener(deleteListener);
 
       // Check event listeners.
       browser.test.assertEq(3, onCreatedLog.length);
@@ -1016,6 +1025,9 @@ add_task(async function test_accounts_events() {
         onDeletedLog,
         "captured onDeleted events are correct"
       );
+
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      await new Promise(r => window.setTimeout(r, 250));
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
@@ -1028,17 +1040,17 @@ add_task(async function test_accounts_events() {
     },
   });
 
-  extension.onMessage("createAccount", async details => {
+  extension.onMessage("createAccount", details => {
     let account = createAccount(details.type);
     addIdentity(account, details.identity);
     extension.sendMessage(account.key);
   });
-  extension.onMessage("updateAccountName", async details => {
+  extension.onMessage("updateAccountName", details => {
     let account = MailServices.accounts.getAccount(details.accountKey);
     account.incomingServer.prettyName = details.name;
     extension.sendMessage();
   });
-  extension.onMessage("removeAccount", async details => {
+  extension.onMessage("removeAccount", details => {
     let account = MailServices.accounts.getAccount(details.accountKey);
     MailServices.accounts.removeAccount(account, true);
     extension.sendMessage();
