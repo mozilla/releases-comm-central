@@ -3,41 +3,42 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % filterEditorDTD SYSTEM "chrome://messenger/locale/FilterEditor.dtd">
   %filterEditorDTD;
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
 
-<window id="FilterEditor"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&window.title;"
-        style="&filterEditorDialog.dimensions;"
-        windowtype="mailnews:filtereditor"
-        persist="width height screenX screenY"
-        lightweightthemes="true"
-        onload="filterEditorOnLoad();">
+<html id="FilterEditor" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mailnews:filtereditor"
+      persist="width height screenX screenY"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&window.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchTerm.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/FilterEditor.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/searchWidgets.js"/>
-  <script src="chrome://messenger/content/mailWindowOverlay.js"/>
-  <script src="chrome://messenger/content/mailCommands.js"/>
-  <script src="chrome://messenger/content/FilterEditor.js"/>
-  <script src="chrome://messenger/content/searchTerm.js"/>
-  <script src="chrome://messenger/content/dateFormat.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <commandset>
     <command id="cmd_updateFilterType" oncommand="updateFilterType();"/>
@@ -137,4 +138,5 @@
     </hbox>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>

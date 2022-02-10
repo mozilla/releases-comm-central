@@ -54,16 +54,12 @@ var gFilterActionStrings = [
 
 // A temporary filter with the current state of actions in the UI.
 var gTempFilter = null;
-// A nsIArray of the currently defined actions in the order they will be run.
+// nsIMsgRuleAction[] - the currently defined actions in the order they will be run.
 var gActionListOrdered = null;
 
 var gFilterEditorMsgWindow = null;
 
-var nsMsgFilterAction = Ci.nsMsgFilterAction;
-var nsMsgFilterType = Ci.nsMsgFilterType;
-var nsIMsgRuleAction = Ci.nsIMsgRuleAction;
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-
+window.addEventListener("DOMContentLoaded", filterEditorOnLoad);
 document.addEventListener("dialogaccept", onAccept);
 
 function filterEditorOnLoad() {
@@ -137,9 +133,9 @@ function filterEditorOnLoad() {
         // for everything else, it's MoveToFolder
         var filterAction = gFilter.createAction();
         filterAction.type =
-          getScopeFromFilterList(gFilterList) == nsMsgSearchScope.newsFilter
-            ? nsMsgFilterAction.Delete
-            : nsMsgFilterAction.MoveToFolder;
+          getScopeFromFilterList(gFilterList) == Ci.nsMsgSearchScope.newsFilter
+            ? Ci.nsMsgFilterAction.Delete
+            : Ci.nsMsgFilterAction.MoveToFolder;
         gFilter.appendAction(filterAction);
         initializeDialog(gFilter);
       } else if ("copiedFilter" in args) {
@@ -188,7 +184,7 @@ function filterEditorOnLoad() {
   if (!gFilter) {
     // This is a new filter. Set to both Incoming and Manual contexts.
     gFilterTypeSelector.setType(
-      nsMsgFilterType.Incoming | nsMsgFilterType.Manual
+      Ci.nsMsgFilterType.Incoming | Ci.nsMsgFilterType.Manual
     );
   }
 
@@ -244,7 +240,7 @@ function duplicateFilterNameExists(filterName) {
 function getScopeFromFilterList(filterList) {
   if (!filterList) {
     dump("yikes, null filterList\n");
-    return nsMsgSearchScope.offlineMail;
+    return Ci.nsMsgSearchScope.offlineMail;
   }
   return filterList.folder.server.filterScope;
 }
@@ -279,37 +275,37 @@ function initializeFilterTypeSelector() {
 
     /**
      * Returns the currently set filter type (checkboxes) in terms
-     * of a Ci.nsMsgFilterType value.
+     * of a Ci.Ci.nsMsgFilterType value.
      */
     getType() {
-      let type = nsMsgFilterType.None;
+      let type = Ci.nsMsgFilterType.None;
 
       if (this.checkBoxManual.checked) {
-        type |= nsMsgFilterType.Manual;
+        type |= Ci.nsMsgFilterType.Manual;
       }
 
       if (this.checkBoxIncoming.checked) {
         if (this.menulistIncoming.selectedItem == this.menuitemAfterPlugins) {
-          type |= nsMsgFilterType.PostPlugin;
+          type |= Ci.nsMsgFilterType.PostPlugin;
         } else if (
-          getScopeFromFilterList(gFilterList) == nsMsgSearchScope.newsFilter
+          getScopeFromFilterList(gFilterList) == Ci.nsMsgSearchScope.newsFilter
         ) {
-          type |= nsMsgFilterType.NewsRule;
+          type |= Ci.nsMsgFilterType.NewsRule;
         } else {
-          type |= nsMsgFilterType.InboxRule;
+          type |= Ci.nsMsgFilterType.InboxRule;
         }
       }
 
       if (this.checkBoxArchive.checked) {
-        type |= nsMsgFilterType.Archive;
+        type |= Ci.nsMsgFilterType.Archive;
       }
 
       if (this.checkBoxOutgoing.checked) {
-        type |= nsMsgFilterType.PostOutgoing;
+        type |= Ci.nsMsgFilterType.PostOutgoing;
       }
 
       if (this.checkBoxPeriodic.checked) {
-        type |= nsMsgFilterType.Periodic;
+        type |= Ci.nsMsgFilterType.Periodic;
       }
 
       return type;
@@ -319,29 +315,29 @@ function initializeFilterTypeSelector() {
      * Sets the checkboxes to represent the filter type passed in.
      *
      * @param aType  the filter type to set in terms
-     *               of Ci.nsMsgFilterType values.
+     *               of Ci.Ci.nsMsgFilterType values.
      */
     setType(aType) {
       // If there is no type (event) requested, force "when manually run"
-      if (aType == nsMsgFilterType.None) {
-        aType = nsMsgFilterType.Manual;
+      if (aType == Ci.nsMsgFilterType.None) {
+        aType = Ci.nsMsgFilterType.Manual;
       }
 
-      this.checkBoxManual.checked = aType & nsMsgFilterType.Manual;
+      this.checkBoxManual.checked = aType & Ci.nsMsgFilterType.Manual;
 
       this.checkBoxIncoming.checked =
-        aType & (nsMsgFilterType.PostPlugin | nsMsgFilterType.Incoming);
+        aType & (Ci.nsMsgFilterType.PostPlugin | Ci.nsMsgFilterType.Incoming);
 
       this.menulistIncoming.selectedItem =
-        aType & nsMsgFilterType.PostPlugin
+        aType & Ci.nsMsgFilterType.PostPlugin
           ? this.menuitemAfterPlugins
           : this.menuitemBeforePlugins;
 
-      this.checkBoxArchive.checked = aType & nsMsgFilterType.Archive;
+      this.checkBoxArchive.checked = aType & Ci.nsMsgFilterType.Archive;
 
-      this.checkBoxOutgoing.checked = aType & nsMsgFilterType.PostOutgoing;
+      this.checkBoxOutgoing.checked = aType & Ci.nsMsgFilterType.PostOutgoing;
 
-      this.checkBoxPeriodic.checked = aType & nsMsgFilterType.Periodic;
+      this.checkBoxPeriodic.checked = aType & Ci.nsMsgFilterType.Periodic;
       const periodMinutes = gFilterList.folder.server.getIntValue(
         "periodicFilterRateMinutes"
       );
@@ -388,7 +384,7 @@ function initializeDialog(filter) {
     gFilterActionList.appendChild(newActionRow);
     newActionRow.setAttribute(
       "value",
-      filterAction.type == nsMsgFilterAction.Custom
+      filterAction.type == Ci.nsMsgFilterAction.Custom
         ? filterAction.customId
         : gFilterActionStrings[filterAction.type]
     );
@@ -419,7 +415,7 @@ function ensureActionRow() {
 // move to overlay
 function saveFilter() {
   // See if at least one filter type (activation event) is selected.
-  if (gFilterType == nsMsgFilterType.None) {
+  if (gFilterType == Ci.nsMsgFilterType.None) {
     Services.prompt.alert(
       window,
       gFilterBundle.getString("mustHaveFilterTypeTitle"),
@@ -787,17 +783,17 @@ function setFilterScope(aFilterType, aFilterList) {
 // hierarchy of contexts, with incoming the most restrictive,
 // followed by manual and post-plugin.
 function getFilterScope(aServerFilterScope, aFilterType, aFilterList) {
-  if (aFilterType & nsMsgFilterType.Incoming) {
+  if (aFilterType & Ci.nsMsgFilterType.Incoming) {
     return aServerFilterScope;
   }
 
   // Manual or PostPlugin
   // local mail allows body and junk types
-  if (aServerFilterScope == nsMsgSearchScope.offlineMailFilter) {
-    return nsMsgSearchScope.offlineMail;
+  if (aServerFilterScope == Ci.nsMsgSearchScope.offlineMailFilter) {
+    return Ci.nsMsgSearchScope.offlineMail;
   }
   // IMAP and NEWS online don't allow body
-  return nsMsgSearchScope.onlineManual;
+  return Ci.nsMsgSearchScope.onlineManual;
 }
 
 /**
