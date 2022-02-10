@@ -41,6 +41,11 @@ class LDAPConnection {
     this.client.connect();
   }
 
+  close() {
+    this.client.onError = () => {};
+    this.client.unbind();
+  }
+
   get wrappedJSObject() {
     return this;
   }

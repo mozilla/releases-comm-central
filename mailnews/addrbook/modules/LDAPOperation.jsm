@@ -101,6 +101,9 @@ class LDAPOperation {
               },
             });
           } else if (res.constructor.name == "SearchResultDone") {
+            // NOTE: we create a new connection for every search, can be changed
+            // to reuse connections.
+            this._connection.wrappedJSObject.close();
             this._messageId = null;
             this._listener.onLDAPMessage({
               errorCode: res.result.resultCode,

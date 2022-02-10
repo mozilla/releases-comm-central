@@ -9,6 +9,7 @@ var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var {
   AbandonRequest,
   BindRequest,
+  UnbindRequest,
   SearchRequest,
   LDAPResponse,
 } = ChromeUtils.import("resource:///modules/LDAPMessage.jsm");
@@ -107,6 +108,13 @@ class LDAPClient {
     let credentials = CommonUtils.byteStringToArrayBuffer(atob(token));
     let req = new BindRequest("", "", { mechanism, credentials });
     return this._send(req, callback);
+  }
+
+  /**
+   * Send an unbind request to the server.
+   */
+  unbind() {
+    return this._send(new UnbindRequest(), () => this._socket.close());
   }
 
   /**

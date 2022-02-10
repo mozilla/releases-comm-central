@@ -5,6 +5,7 @@
 const EXPORTED_SYMBOLS = [
   "AbandonRequest",
   "BindRequest",
+  "UnbindRequest",
   "SearchRequest",
   "LDAPResponse",
 ];
@@ -122,6 +123,15 @@ class BindRequest extends LDAPMessage {
       ],
     });
   }
+}
+
+class UnbindRequest extends LDAPMessage {
+  static APPLICATION = 2;
+
+  protocolOp = new asn1js.Primitive({
+    // [APPLICATION 2]
+    idBlock: this._getApplicationId(UnbindRequest.APPLICATION),
+  });
 }
 
 class SearchRequest extends LDAPMessage {
