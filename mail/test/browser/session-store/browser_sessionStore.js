@@ -237,13 +237,13 @@ function test_restore_single_3pane_persistence() {
   abwc.window.close();
   wait_for_window_close();
 }
-add_task(test_restore_single_3pane_persistence);
+add_task(test_restore_single_3pane_persistence).skip(); // Bug 1753963.
 
 add_task(function test_restore_single_3pane_persistence_again() {
   // test that repeating the save w/o changing the state restores
   // correctly.
   test_restore_single_3pane_persistence();
-});
+}).skip(); // Bug 1753963.
 
 add_task(function test_message_pane_height_persistence() {
   be_in_folder(folderA);
@@ -339,7 +339,7 @@ add_task(function test_message_pane_height_persistence() {
   plan_for_window_close(abwc);
   abwc.window.close();
   wait_for_window_close();
-});
+}).skip(); // Bug 1753963.
 
 add_task(function test_message_pane_width_persistence() {
   be_in_folder(folderA);
@@ -466,7 +466,7 @@ add_task(function test_message_pane_width_persistence() {
   plan_for_window_close(abwc);
   abwc.window.close();
   wait_for_window_close();
-});
+}).skip(); // Bug 1753963.
 
 add_task(async function test_multiple_3pane_periodic_session_persistence() {
   // open a few more 3pane windows
@@ -506,7 +506,7 @@ add_task(async function test_multiple_3pane_periodic_session_persistence() {
   for (let win of windows) {
     win.close();
   }
-});
+}).skip(); // Bug 1753963.
 
 async function test_bad_session_file_simple() {
   // forcefully write a bad session file
@@ -582,7 +582,7 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
   plan_for_window_close(abwc);
   abwc.window.close();
   wait_for_window_close();
-});
+}).skip(); // Bug 1753963.
 
 /*
  * A set of private helper functions for drag'n'drop
