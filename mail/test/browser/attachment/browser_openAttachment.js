@@ -27,48 +27,63 @@ const IMPROVEMENTS_PREF_SET = Services.prefs.getBoolPref(
   true
 );
 
-let tempDir = FileUtils.getDir("TmpD", [], false);
-let saveDestination = FileUtils.getFile("TmpD", ["saveDestination"]);
-saveDestination.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-
-Services.prefs.setStringPref("browser.download.dir", saveDestination.path);
-Services.prefs.setIntPref("browser.download.folderList", 2);
-Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
-Services.prefs.setIntPref("security.dialog_enable_delay", 0);
+let tmpD;
+let savePath;
 
 let folder;
 
-let mockedExecutable = FileUtils.getFile("TmpD", ["mockedExecutable"]);
-if (!mockedExecutable.exists()) {
-  mockedExecutable.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
-}
-
-let mockedHandlerApp = Cc[
-  "@mozilla.org/uriloader/local-handler-app;1"
-].createInstance(Ci.nsILocalHandlerApp);
-mockedHandlerApp.executable = mockedExecutable;
-mockedHandlerApp.detailedDescription = "Mocked handler app";
-
+let mockedHandlerApp;
 let mockedHandlers = new Set();
+
+function pathToNsFile(path) {
+  let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  file.initWithPath(path);
+  return file;
+}
 
 add_task(async function setupModule(module) {
   folder = await create_folder("OpenAttachment");
   be_in_folder(folder);
+
+  // @see logic for tmpD in msgHdrView.js
+  tmpD = PathUtils.join(
+    Services.dirsvc.get("TmpD", Ci.nsIFile).path,
+    "pid-" + Services.appinfo.processID
+  );
+
+  savePath = await IOUtils.createUniqueDirectory(tmpD, "saveDestination");
+  Services.prefs.setStringPref("browser.download.dir", savePath);
+
+  Services.prefs.setIntPref("browser.download.folderList", 2);
+  Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
+  Services.prefs.setIntPref("security.dialog_enable_delay", 0);
+
+  let mockedExecutable = FileUtils.getFile("TmpD", ["mockedExecutable"]);
+  if (!mockedExecutable.exists()) {
+    mockedExecutable.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
+  }
+
+  mockedHandlerApp = Cc[
+    "@mozilla.org/uriloader/local-handler-app;1"
+  ].createInstance(Ci.nsILocalHandlerApp);
+  mockedHandlerApp.executable = mockedExecutable;
+  mockedHandlerApp.detailedDescription = "Mocked handler app";
+  registerCleanupFunction(() => {
+    if (mockedExecutable.exists()) {
+      mockedExecutable.remove(true);
+    }
+  });
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(async function() {
   MockFilePicker.cleanup();
 
-  saveDestination.remove(true);
+  await IOUtils.remove(savePath, { recursive: true });
 
   Services.prefs.clearUserPref("browser.download.dir");
   Services.prefs.clearUserPref("browser.download.folderList");
   Services.prefs.clearUserPref("browser.download.useDownloadDir");
   Services.prefs.clearUserPref("security.dialog.dialog_enable_delay");
-
-  if (mockedExecutable.exists()) {
-    mockedExecutable.remove(true);
-  }
 
   for (let type of mockedHandlers) {
     let handlerInfo = mimeService.getFromTypeAndExtension(type, null);
@@ -76,6 +91,9 @@ registerCleanupFunction(function() {
       handlerService.remove(handlerInfo);
     }
   }
+
+  // Remove created folders.
+  folder.deleteSelf(null);
 });
 
 function createMockedHandler(type, preferredAction, alwaysAskBeforeHandling) {
@@ -179,8 +197,8 @@ async function clickWithoutDialog() {
   );
 }
 
-async function checkFileSaved(parent = saveDestination, leafName) {
-  let expectedFile = parent.clone();
+async function checkFileSaved(parentPath = savePath, leafName) {
+  let expectedFile = pathToNsFile(parentPath);
   if (leafName) {
     expectedFile.append(leafName);
   } else {
@@ -188,13 +206,15 @@ async function checkFileSaved(parent = saveDestination, leafName) {
   }
   await TestUtils.waitForCondition(
     () => expectedFile.exists(),
-    `attachment was saved to ${expectedFile.path}`
+    `attachment was not saved to ${expectedFile.path}`
   );
   Assert.ok(expectedFile.exists(), `${expectedFile.path} exists`);
+
   // Wait a moment in case the file is still locked for writing.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 250));
-  expectedFile.remove(false);
+
+  return expectedFile;
 }
 
 function checkHandler(type, preferredAction, alwaysAskBeforeHandling) {
@@ -231,7 +251,7 @@ function promiseFileOpened() {
 add_task(async function sanityCheck() {
   Assert.equal(
     await Downloads.getPreferredDownloadsDirectory(),
-    saveDestination.path,
+    savePath,
     "sanity check: correct downloads directory"
   );
 });
@@ -244,7 +264,8 @@ add_task(async function sanityCheck() {
 add_task(async function noHandler() {
   await createAndLoadMessage("test/foo");
   await clickWithDialog({ rememberExpected: false, remember: true }, "accept");
-  await checkFileSaved();
+  let file = await checkFileSaved();
+  file.remove(false);
   checkHandler("test/foo", Ci.nsIHandlerInfo.saveToDisk, false);
 });
 
@@ -255,7 +276,8 @@ add_task(async function noHandler() {
 add_task(async function noHandlerNoSave() {
   await createAndLoadMessage("test/bar");
   await clickWithDialog({ rememberExpected: false, remember: false }, "accept");
-  await checkFileSaved();
+  let file = await checkFileSaved();
+  file.remove(false);
   checkHandler("test/bar", Ci.nsIHandlerInfo.saveToDisk, true);
 });
 
@@ -266,7 +288,8 @@ add_task(async function noHandlerNoSave() {
 add_task(async function applicationOctetStream() {
   await createAndLoadMessage("application/octet-stream");
   await clickWithDialog({ rememberExpected: false }, "accept");
-  await checkFileSaved();
+  let file = await checkFileSaved();
+  file.remove(false);
 });
 
 // Now we'll test the various states that handler info objects might be in.
@@ -284,7 +307,8 @@ add_task(async function saveToDiskAlwaysAsk() {
   );
   await createAndLoadMessage("test/saveToDisk-true");
   await clickWithDialog({ rememberExpected: false }, "accept");
-  await checkFileSaved();
+  let file = await checkFileSaved();
+  file.remove(false);
   checkHandler("test/saveToDisk-true", Ci.nsIHandlerInfo.saveToDisk, true);
 });
 
@@ -302,13 +326,14 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
   );
   await createAndLoadMessage("test/saveToDisk-true");
 
-  let expectedFile = tempDir.clone();
+  let expectedFile = pathToNsFile(tmpD);
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
   MockFilePicker.setFiles([expectedFile]);
   MockFilePicker.returnValue = Ci.nsIFilePicker.returnOK;
 
   await clickWithDialog({ rememberExpected: false }, "accept");
-  await checkFileSaved(tempDir);
+  let file = await checkFileSaved(tmpD);
+  file.remove(false);
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
   MockFilePicker.reset();
@@ -367,7 +392,8 @@ add_task(async function saveToDisk() {
   createMockedHandler("test/saveToDisk-false", saveToDisk, false);
   await createAndLoadMessage("test/saveToDisk-false");
   await clickWithoutDialog();
-  await checkFileSaved();
+  let file = await checkFileSaved();
+  file.remove(false);
 });
 
 /**
@@ -384,13 +410,14 @@ add_task(async function saveToDiskPromptLocation() {
   );
   await createAndLoadMessage("test/saveToDisk-false");
 
-  let expectedFile = tempDir.clone();
+  let expectedFile = pathToNsFile(tmpD);
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
   MockFilePicker.setFiles([expectedFile]);
   MockFilePicker.returnValue = Ci.nsIFilePicker.returnOK;
 
   await clickWithoutDialog();
-  await checkFileSaved(tempDir);
+  let file = await checkFileSaved(tmpD);
+  file.remove(false);
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
   MockFilePicker.reset();
@@ -409,7 +436,8 @@ add_task(async function alwaysAskRemember() {
   );
   await createAndLoadMessage("test/alwaysAsk-false");
   await clickWithDialog(undefined, "accept");
-  await checkFileSaved();
+  let file = await checkFileSaved();
+  file.remove(false);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, false);
 }).__skipMe = !IMPROVEMENTS_PREF_SET;
 
@@ -426,7 +454,8 @@ add_task(async function alwaysAskForget() {
   );
   await createAndLoadMessage("test/alwaysAsk-false");
   await clickWithDialog({ remember: false }, "accept");
-  await checkFileSaved();
+  let file = await checkFileSaved();
+  file.remove(false);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, true);
 }).__skipMe = !IMPROVEMENTS_PREF_SET;
 
@@ -443,10 +472,18 @@ add_task(async function useHelperApp() {
   );
   await createAndLoadMessage("test/useHelperApp-false");
   await clickWithoutDialog();
-  await checkFileSaved(tempDir);
+  let file = await checkFileSaved(tmpD);
 
   let { tempFile } = await openedPromise;
   Assert.ok(tempFile.path);
+
+  // In the temp dir, files should be read only.
+  if (AppConstants.platform != "win") {
+    let fileInfo = await IOUtils.stat(tempFile.path);
+    Assert.equal(fileInfo.permissions, 0o400);
+  }
+  file.permissions = 0o755;
+  file.remove(false);
 });
 
 /**
@@ -462,10 +499,17 @@ add_task(async function useSystemDefault() {
   );
   await createAndLoadMessage("test/useSystemDefault-false");
   await clickWithoutDialog();
-  await checkFileSaved(tempDir);
-
+  let file = await checkFileSaved(tmpD);
   let { tempFile } = await openedPromise;
   Assert.ok(tempFile.path);
+
+  // In the temp dir, files should be read only.
+  if (AppConstants.platform != "win") {
+    let fileInfo = await IOUtils.stat(tempFile.path);
+    Assert.equal(fileInfo.permissions, 0o400);
+  }
+  file.permissions = 0o755;
+  file.remove(false);
 });
 
 /**
@@ -479,15 +523,18 @@ add_task(async function filenameSanitisedSave() {
   // Backslash is double-escaped here because of the message generator.
   await createAndLoadMessage("test/bar", "f:i\\\\le/123.bar");
   await clickWithoutDialog();
-  await checkFileSaved(undefined, "f i_le_123.bar");
+  let file = await checkFileSaved(undefined, "f i_le_123.bar");
+  file.remove(false);
 
   // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
   await createAndLoadMessage("test/bar", "f*i?|le<123>.bar");
   await clickWithoutDialog();
   if (AppConstants.platform == "win") {
-    await checkFileSaved(undefined, "f i le(123).bar");
+    file = await checkFileSaved(undefined, "f i le(123).bar");
+    file.remove(false);
   } else {
-    await checkFileSaved(undefined, "f*i?|le<123>.bar");
+    file = await checkFileSaved(undefined, "f*i?|le<123>.bar");
+    file.remove(false);
   }
 });
 
@@ -505,8 +552,15 @@ add_task(async function filenameSanitisedOpen() {
   await createAndLoadMessage("test/bar", "f:i\\\\le/123.bar");
   await clickWithoutDialog();
   let { tempFile } = await openedPromise;
-  await checkFileSaved(tempDir, "f i_le_123.bar");
+  let file = await checkFileSaved(tmpD, "f i_le_123.bar");
   Assert.equal(tempFile.leafName, "f i_le_123.bar");
+  // In the temp dir, files should be read only.
+  if (AppConstants.platform != "win") {
+    let fileInfo = await IOUtils.stat(tempFile.path);
+    Assert.equal(fileInfo.permissions, 0o400);
+  }
+  file.permissions = 0o755;
+  file.remove(false);
 
   openedPromise = promiseFileOpened();
 
@@ -515,15 +569,14 @@ add_task(async function filenameSanitisedOpen() {
   await clickWithoutDialog();
   ({ tempFile } = await openedPromise);
   if (AppConstants.platform == "win") {
-    await checkFileSaved(tempDir, "f i le(123).bar");
+    file = await checkFileSaved(tmpD, "f i le(123).bar");
     Assert.equal(tempFile.leafName, "f i le(123).bar");
+    file.permissions = 0o755;
+    file.remove(false);
   } else {
-    await checkFileSaved(tempDir, "f*i?|le<123>.bar");
+    let file = await checkFileSaved(tmpD, "f*i?|le<123>.bar");
     Assert.equal(tempFile.leafName, "f*i?|le<123>.bar");
+    file.permissions = 0o755;
+    file.remove(false);
   }
-});
-
-registerCleanupFunction(() => {
-  // Remove created folders.
-  folder.deleteSelf(null);
 });

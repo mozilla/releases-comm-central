@@ -2187,9 +2187,18 @@ AttachmentInfo.prototype = {
       }
 
       let saveAndOpen = async mimeInfo => {
-        let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+        let tmpPath = PathUtils.join(
+          Services.dirsvc.get("TmpD", Ci.nsIFile).path,
+          "pid-" + Services.appinfo.processID
+        );
+        await IOUtils.makeDirectory(tmpPath, { permissions: 0o700 });
+        let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(
+          Ci.nsIFile
+        );
+        tempFile.initWithPath(tmpPath);
+
         tempFile.append(name);
-        tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
+        tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
         tempFile.remove(false);
 
         Cc["@mozilla.org/mime;1"]
@@ -2197,6 +2206,9 @@ AttachmentInfo.prototype = {
           .deleteTemporaryFileOnExit(tempFile);
 
         await saveToFile(tempFile.path);
+        // Before opening from the temp dir, make the file read only so that
+        // users don't edit and lose their edits...
+        tempFile.permissions = 0o400;
         this._openTemporaryFile(mimeInfo, tempFile);
       };
 
