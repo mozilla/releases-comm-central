@@ -143,7 +143,9 @@ class BaseMessageService {
     let server = MailServices.accounts
       .FindServer("", host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
-    let folder = server.rootFolder.getChildNamed(groupName);
+    let folder = server.rootFolder
+      .getChildNamed(groupName)
+      .QueryInterface(Ci.nsIMsgNewsFolder);
     return [folder, key];
   }
 

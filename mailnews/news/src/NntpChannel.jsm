@@ -233,7 +233,6 @@ class NntpChannel {
     pump.init(cacheStream, 0, 0, true);
     pump.asyncRead({
       onStartRequest: () => {
-        this.loadGroup?.addRequest(this, null);
         this._listener.onStartRequest(this);
       },
       onStopRequest: (request, status) => {
@@ -280,7 +279,6 @@ class NntpChannel {
             this._articleNumber
           );
         }
-        this.loadGroup?.addRequest(this, null);
       };
 
       client.onData = data => {
@@ -289,13 +287,13 @@ class NntpChannel {
       };
 
       client.onDone = () => {
+        try {
+          this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
+        } catch (e) {}
         this._listener.onStopRequest(null, Cr.NS_OK);
         this._newsFolder?.msgDatabase.Commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
-        try {
-          this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
-        } catch (e) {}
       };
     });
   }
