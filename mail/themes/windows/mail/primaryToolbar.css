@@ -28,7 +28,7 @@
   appearance: none;
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu[disabled="true"] {
     background-color: transparent;
   }
@@ -206,7 +206,7 @@
    * On Win 7, the menubar fog disappears for inactive windows, and renders gray
    * illegible.
    */
-  @media not all and (-moz-os-version: windows-win7) {
+  @media not all and (-moz-platform: windows-win7) {
     #toolbar-menubar:not(:-moz-lwtheme):-moz-window-inactive {
       color: ThreeDShadow;
     }
@@ -259,7 +259,7 @@
   }
 }
 
-@media (-moz-os-version: windows-win8) {
+@media (-moz-platform: windows-win8) {
   @media (-moz-windows-default-theme) {
     #messengerWindow[darkwindowframe="true"]:not(:-moz-lwtheme,:-moz-window-inactive) #navigation-toolbox {
       color: white;
@@ -276,8 +276,8 @@
   }
 }
 
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win8) and (-moz-windows-default-theme),
+       (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #navigation-toolbox > #toolbar-menubar {
     background-color: transparent;
     padding-top: 0;

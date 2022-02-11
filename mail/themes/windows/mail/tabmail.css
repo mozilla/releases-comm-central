@@ -139,7 +139,7 @@ tabpanels {
   padding-right: 10px;
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
   @media (-moz-windows-glass: 0) {
     :root[tabsintitlebar][sizemode=normal] #toolbar-menubar[autohide=true][inactive] ~
       #tabs-toolbar > *:not(.titlebar-buttonbox-container) {
@@ -160,7 +160,7 @@ tabpanels {
 }
 
 @media (-moz-windows-glass),
-       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   :root[sizemode=normal]:not([spacestoolbar]) .tabmail-tab[visuallyselected]:first-child::before {
     content: '';
     display: -moz-box;
@@ -176,7 +176,7 @@ tabpanels {
   }
 }
 
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   #messengerWindow[darkwindowframe="true"]
   #tabs-toolbar:not(:-moz-lwtheme,:-moz-window-inactive),
   #messengerWindow[darkwindowframe="true"]
@@ -185,7 +185,7 @@ tabpanels {
   }
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   .tab-label:-moz-window-inactive {
     /* Calculated to match the opacity change of Windows Explorer
        titlebar text change for inactive windows. */

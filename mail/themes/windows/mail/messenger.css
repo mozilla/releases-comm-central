@@ -176,7 +176,7 @@
 }
 
 @media (-moz-windows-default-theme: 0),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+       (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
     appearance: none;
     color: inherit;
@@ -193,8 +193,8 @@
   -moz-box-align: stretch;
 }
 
-@media (-moz-os-version: windows-win7),
-       (-moz-os-version: windows-win8) {
+@media (-moz-platform: windows-win7),
+       (-moz-platform: windows-win8) {
   /* Preserve window control buttons position at the top of the button box. */
   .titlebar-buttonbox-container {
     -moz-box-align: start;
@@ -549,8 +549,8 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
   border-inline-end-color: var(--lwt-tabs-border-color);
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme),
+       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   #status-bar:not(:-moz-lwtheme) {
     appearance: none;
     border-style: none;
@@ -646,7 +646,7 @@ fieldset > radiogroup {
   appearance: none;
 }
 
-@media (-moz-os-version: windows-win7) {
+@media (-moz-platform: windows-win7) {
   @media (-moz-windows-classic) {
     /* Add a window top border behind the titlebar */
     :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {

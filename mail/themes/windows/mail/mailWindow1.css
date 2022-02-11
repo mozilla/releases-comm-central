@@ -48,8 +48,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   -moz-default-appearance: -moz-window-titlebar-maximized;
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme),
+       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   :root[tabsintitlebar][sizemode="normal"] #titlebar {
     appearance: none;
   }
@@ -125,8 +125,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (-moz-windows-compositor) {
-  @media (-moz-os-version: windows-win7),
-         (-moz-os-version: windows-win8) {
+  @media (-moz-platform: windows-win7),
+         (-moz-platform: windows-win8) {
     :root {
       appearance: auto;
       -moz-default-appearance: -moz-win-borderless-glass;
@@ -147,7 +147,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 
-  @media (-moz-os-version: windows-win10) {
+  @media (-moz-platform: windows-win10) {
     @media (-moz-windows-default-theme) {
       :root:not(:-moz-lwtheme) {
         background-color: #d1d1d1;
@@ -441,7 +441,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   min-height: 16px;
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
   @media (-moz-windows-glass: 0) {
     #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
       background-color: #d1d1d1;
@@ -459,8 +459,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme),
+       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   @media (-moz-windows-compositor) {
     :root:not(:-moz-lwtheme) {
       --lwt-tabs-border-color: var(--glassShadowColor);
@@ -488,14 +488,14 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win8) and (-moz-windows-default-theme),
+       (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #folderPaneHeader {
     border-bottom-color: #c2c2c2;
   }
 }
 
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
     background-color: #d1d1d1;
   }

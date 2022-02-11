@@ -14,8 +14,8 @@
   background-color: transparent;
 }
 
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win8) and (-moz-windows-default-theme),
+       (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #today-pane-panel:not(:-moz-lwtheme) {
     --chrome-content-separator-color: #c2c2c2;
   }
@@ -25,7 +25,7 @@
   height: 35px;
 }
 
-@media (-moz-os-version: windows-win7) {
+@media (-moz-platform: windows-win7) {
   #today-pane-panel > .sidebar-header {
     box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
   }
@@ -46,7 +46,7 @@
 }
 
 @media all and (-moz-windows-compositor) {
-  @media not all and (-moz-os-version: windows-win10) {
+  @media not all and (-moz-platform: windows-win10) {
     #messengerWindow[sizemode=normal] #today-pane-panel {
       border-inline-end: 1px solid hsla(240, 5%, 5%, .3);
       border-bottom: 1px solid hsla(240, 5%, 5%, .3);

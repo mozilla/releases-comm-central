@@ -27,8 +27,8 @@
 }
 
 @media (-moz-windows-default-theme) {
-  @media (-moz-os-version: windows-win8),
-         (-moz-os-version: windows-win10) {
+  @media (-moz-platform: windows-win8),
+         (-moz-platform: windows-win10) {
     #ab-toolbox:not(:-moz-lwtheme) {
       --chrome-content-separator-color: #c2c2c2;
     }
@@ -57,7 +57,7 @@ toolbox > toolbar:last-of-type {
   padding-bottom: 1px;
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu[disabled="true"] {
     background-color: transparent;
   }

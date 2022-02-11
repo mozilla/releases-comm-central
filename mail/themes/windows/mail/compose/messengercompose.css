@@ -13,7 +13,7 @@
 
 /* ::::: special toolbar colors ::::: */
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu[disabled="true"] {
     background-color: transparent;
   }
@@ -225,8 +225,8 @@ toolbarbutton.formatting-button {
 }
 
 @media (-moz-windows-default-theme) {
-  @media (-moz-os-version: windows-win8),
-         (-moz-os-version: windows-win10) {
+  @media (-moz-platform: windows-win8),
+         (-moz-platform: windows-win10) {
     #compose-toolbox:not(:-moz-lwtheme) {
       --chrome-content-separator-color: #c2c2c2;
     }

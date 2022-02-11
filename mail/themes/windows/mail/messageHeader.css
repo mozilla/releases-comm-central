@@ -28,7 +28,7 @@
     }
   }
 
-  @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+  @media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
     #displayBox[collapsed="true"] + splitter + #messagepaneboxwrapper
     #singleMessage {
       background-image: none;

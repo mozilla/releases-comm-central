@@ -22,7 +22,7 @@
   }
 }
 
-@media (-moz-os-version: windows-win7) {
+@media (-moz-platform: windows-win7) {
   @media (-moz-windows-default-theme) {
     /* Don't paint the background on aero surface */
     :root[tabsintitlebar] #navigation-toolbox {
@@ -81,8 +81,8 @@
   }
 }
 
-@media (-moz-os-version: windows-win7),
-       (-moz-os-version: windows-win8) {
+@media (-moz-platform: windows-win7),
+       (-moz-platform: windows-win8) {
   #messengerWindow .statusbar {
     background-color: var(--lwt-accent-color);
   }

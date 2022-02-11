@@ -23,7 +23,7 @@ menulist::part(text-input) {
   padding-inline-end: 0;
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme: 0) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme: 0) {
   menulist::part(text-input) {
     margin-top: 0;
     margin-bottom: 0;
@@ -31,7 +31,7 @@ menulist::part(text-input) {
   }
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme: 0) {
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme: 0) {
   menulist::part(text-input) {
     margin-top: -1px;
     margin-bottom: -1px;

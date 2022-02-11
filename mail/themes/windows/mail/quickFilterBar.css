@@ -4,14 +4,14 @@
 
 @import url("chrome://messenger/skin/shared/quickFilterBar.css");
 
-@media (-moz-os-version: windows-win7) {
+@media (-moz-platform: windows-win7) {
   #qfb-qs-textbox {
     margin-block: 4px;
   }
 }
 
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
+@media (-moz-platform: windows-win8),
+       (-moz-platform: windows-win10) {
   #qfb-qs-textbox {
     margin-block: 5px;
   }

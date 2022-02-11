@@ -23,7 +23,7 @@
   color: -moz-DialogText;
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+@media (-moz-windows-default-theme) and (-moz-platform: windows-win7) {
   #main-column {
     --borderRadius: 2px;
   }

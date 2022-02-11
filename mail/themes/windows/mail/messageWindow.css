@@ -24,7 +24,7 @@
   text-shadow: none;
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
     appearance: auto;
     -moz-default-appearance: menuitem;

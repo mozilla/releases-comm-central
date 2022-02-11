@@ -4,8 +4,8 @@
 
 @import url("chrome://messenger/skin/shared/spacesToolbar.css");
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme),
+       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   @media (-moz-windows-compositor) {
     #messengerWindow[sizemode="normal"][spacestoolbar="true"] #tabpanelcontainer,
     #messengerWindow[sizemode="normal"][spacestoolbar="true"] .statusbar {

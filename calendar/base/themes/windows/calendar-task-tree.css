@@ -37,7 +37,7 @@
     color: white !important;
   }
 
-  @media (-moz-os-version: windows-win7) {
+  @media (-moz-platform: windows-win7) {
     .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
       background: linear-gradient(rgba(0, 128, 0, .28), rgba(0, 128, 0, .5));
     }
@@ -47,8 +47,8 @@
     }
   }
 
-  @media (-moz-os-version: windows-win8),
-         (-moz-os-version: windows-win10) {
+  @media (-moz-platform: windows-win8),
+         (-moz-platform: windows-win10) {
     .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
       background: linear-gradient(rgba(0, 128, 0, .5), rgba(0, 128, 0, .5));
     }

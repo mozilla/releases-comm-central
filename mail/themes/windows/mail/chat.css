@@ -118,7 +118,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   }
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
   :root:not([lwt-tree]) #listPaneBox {
     background-color: rgb(238, 243, 250);
   }
@@ -133,13 +133,13 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   }
 }
 
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   :root:not([lwt-tree]) #listPaneBox {
     background-color: -moz-Dialog;
   }
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   :root:not([lwt-tree],:-moz-lwtheme-brighttext) #listPaneBox {
     background-color: #fafafa;
   }

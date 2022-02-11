@@ -508,7 +508,7 @@ var gMailInit = {
     if (AppConstants.platform == "win") {
       // On Win8 set an attribute when the window frame color is too dark for black text.
       if (
-        window.matchMedia("(-moz-os-version: windows-win8)").matches &&
+        window.matchMedia("(-moz-platform: windows-win8)").matches &&
         window.matchMedia("(-moz-windows-default-theme)").matches
       ) {
         let { Windows8WindowFrameColor } = ChromeUtils.import(
