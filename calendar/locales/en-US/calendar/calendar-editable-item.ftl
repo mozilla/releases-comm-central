@@ -8,6 +8,12 @@ calendar-editable-item-privacy-icon-private =
 calendar-editable-item-privacy-icon-confidential =
   .alt = Privacy: Show Time and Date Only
 
+calendar-editable-item-recurrence =
+  .alt = Recurring
+
+calendar-editable-item-recurrence-exception =
+  .alt = Recurrence exception
+
 calendar-editable-item-todo-icon-task =
   .alt = Task
 

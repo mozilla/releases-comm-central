@@ -317,6 +317,7 @@
                       placeholder='${cal.l10n.getCalString("newEvent")}' />
           <html:div class="alarm-icons-box"></html:div>
           <html:img class="item-classification-icon" />
+          <html:img class="item-recurrence-icon" />
           <html:div class="calendar-category-box"></html:div>
         `)
       );

@@ -130,33 +130,11 @@
 
 /* Calendar Items */
 
-.calendar-item-grid {
-  display: grid;
-  /* NOTE: area "b" may be empty when the location is hidden, so we want it to
-   * be able to shrink to 0 height.
-   * Moreover, "a" will be calendar-item-flex, which is padded.
-   * Therefore, we don't use the "gap" attribute, but provide a margin for each
-   * child individually. */
-  grid-template: "a c" auto
-                 "b c" auto
-                 ". c" 1fr / 1fr auto;
-  overflow: hidden;
-  min-height: 100%;
-  width: 100%;
+.calendar-item-container {
+  display: flow-root;
 }
 
-.calendar-item-grid > .calendar-item-flex {
-  grid-area: a;
-}
-
-.calendar-item-grid > .location-desc {
-  grid-area: b;
-  /* Margin matches the padding of .calendar-item-flex. */
-  margin: 2px;
-}
-
-.calendar-item-grid > .calendar-category-box {
-  grid-area: c;
+.calendar-item-container > .location-desc {
   /* Margin matches the padding of .calendar-item-flex. */
   margin: 2px;
 }
@@ -181,11 +159,6 @@
   flex: 0 0 auto;
   width: 12px;
   height: 12px;
-}
-
-.calendar-item-flex .calendar-category-box {
-  flex: 0 0 auto;
-  align-self: stretch;
 }
 
 .item-type-icon {
@@ -242,17 +215,31 @@
   white-space: pre;
 }
 
-.item-classification-icon {
+.item-classification-icon,
+.item-recurrence-icon {
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-.item-classification-icon:not([src]) {
+.item-classification-icon:not([src]),
+.item-recurrence-icon:not([src]) {
   display: none;
 }
 
 .calendar-category-box {
-  width: 7px;
+  display: block;
+  height: 12px;
+  width: 12px;
+  position: absolute;
+  inset-block-start: -1px;
+  inset-inline-end: -1px;
+  clip-path: polygon(0% 0%, 100% 100%, 100% 0%);
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.calendar-category-box:-moz-locale-dir(rtl) {
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%);
 }
 
 /* Multiday view */
@@ -907,6 +894,8 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
   border-radius: 2px;
   background-color: var(--item-backcolor);
   color: var(--item-forecolor);
+  position: relative;
+  overflow: hidden;
 }
 
 calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color-box {
