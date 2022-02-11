@@ -235,6 +235,10 @@ static int MimeObject_parse_line(const char* line, int32_t length,
 }
 
 static int MimeObject_parse_eof(MimeObject* obj, bool abort_p) {
+  if (abort_p) {
+    obj->closed_p = true;
+    return 0;
+  }
   if (obj->closed_p) return 0;
   NS_ASSERTION(!obj->parsed_p, "obj already parsed");
 
@@ -243,7 +247,7 @@ static int MimeObject_parse_eof(MimeObject* obj, bool abort_p) {
    the parse_line method will be called with a string with no trailing
    newline, which isn't the usual case.)
    */
-  if (!abort_p && obj->ibuffer_fp > 0) {
+  if (obj->ibuffer_fp > 0) {
     int status = obj->clazz->parse_line(obj->ibuffer, obj->ibuffer_fp, obj);
     obj->ibuffer_fp = 0;
     if (status < 0) {
