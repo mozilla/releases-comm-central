@@ -601,6 +601,35 @@ add_task(async function test_generalContentPolicy() {
   }
 });
 
+/** Test that an image requiring auth won't ask for credentials in compose. */
+add_task(async function test_imgAuth() {
+  addToFolder(
+    `Image auth test - msg ${gMsgNo}`,
+    `${msgBodyStart}<img alt="[401!]" id="401img" src="${url}401.sjs"/>${msgBodyEnd}`,
+    folder
+  );
+  ++gMsgNo;
+
+  // Allow loading remote, to be able to test.
+  Services.prefs.setBoolPref(
+    "mailnews.message_display.disable_remote_image",
+    false
+  );
+
+  // Select the newly created message.
+  be_in_folder(folder);
+  select_click_row(gMsgNo);
+
+  // Open reply/fwd. If we get a prompt the test will timeout.
+  let rwc = open_compose_with_reply();
+  close_compose_window(rwc);
+
+  let fwc = open_compose_with_forward();
+  close_compose_window(fwc);
+
+  Services.prefs.clearUserPref("mailnews.message_display.disable_remote_image");
+});
+
 // Copied from test-blocked-content.js.
 function putHTMLOnClipboard(html) {
   let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
