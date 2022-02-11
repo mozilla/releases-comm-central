@@ -1013,7 +1013,6 @@ function reportAccountTypes() {
     nntp: 0,
     exchange: 0,
     rss: 0,
-    none: 0,
     im_gtalk: 0,
     im_irc: 0,
     im_jabber: 0,
@@ -1022,6 +1021,10 @@ function reportAccountTypes() {
   };
   for (let account of MailServices.accounts.accounts) {
     let type = account.incomingServer.type;
+    if (type == "none") {
+      // Reporting one Local Folders account is not that useful. Skip it.
+      continue;
+    }
     if (type === "im") {
       let protocol =
         account.incomingServer.wrappedJSObject.imAccount.protocol

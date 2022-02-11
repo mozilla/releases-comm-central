@@ -95,6 +95,11 @@ add_task(async function test_account_types() {
     NUM_IRC,
     "IRC account number must be correct"
   );
+  Assert.equal(
+    scalars["tb.account.count"].none,
+    undefined,
+    "Should not report Local Folders account"
+  );
 
   for (let account of addedAccounts) {
     MailServices.accounts.removeAccount(account);
