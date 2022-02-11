@@ -144,6 +144,9 @@ PreviewController.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsITaskbarPreviewController,
                                          Ci.nsIDOMEventListener]),
 
+  _cachedWidth: 0,
+  _cachedHeight: 0,
+
   destroy: function () {
     this.tab.removeEventListener("TabAttrModified", this);
 
@@ -360,6 +363,8 @@ function TabWindow(win) {
 
 TabWindow.prototype = {
   _enabled: false,
+  _cachedWidth: 0,
+  _cachedHeight: 0,
   tabEvents: ["TabOpen", "TabClose", "TabSelect", "TabMove"],
   winEvents: ["resize"],
 
@@ -577,7 +582,7 @@ TabWindow.prototype = {
     if (aIconURL) {
       let shouldRequestFaviconURL = true;
       try {
-        urlObject = NetUtil.newURI(aIconURL);
+        let urlObject = NetUtil.newURI(aIconURL);
         shouldRequestFaviconURL =
           !this.directRequestProtocols.has(urlObject.scheme);
       } catch (ex) {}
