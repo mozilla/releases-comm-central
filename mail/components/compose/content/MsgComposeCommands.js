@@ -9140,20 +9140,10 @@ function toggleAddressPicker(aFocus = true) {
     }
     sidebarBox.setAttribute("sidebarVisible", "true");
   } else {
-    // Hide contacts sidebar.
-    // If something in the sidebar was left marked focused,
-    // clear out the attribute so that it does not keep focus in a hidden element.
-    let sidebarContent = sidebar.contentDocument;
-    let sideFocused = Array.from(
-      sidebarContent.querySelectorAll('[focused="true"]')
-    ).concat(Array.from(sidebarContent.querySelectorAll(":focus")));
-    for (let elem of sideFocused) {
-      if ("blur" in elem) {
-        elem.blur();
-      }
-      elem.removeAttribute("focused");
-    }
+    // Before closing, check if the focus was within the contacts sidebar.
+    let sidebarFocussed = sidebarBox.contains(document.activeElement);
 
+    // Hide contacts sidebar.
     sidebarBox.hidden = true;
     sidebarSplitter.hidden = true;
     sidebarBox.setAttribute("sidebarVisible", "false");
@@ -9162,17 +9152,13 @@ function toggleAddressPicker(aFocus = true) {
       contactsButton.removeAttribute("checked");
     }
 
-    // If nothing is focused in the main compose frame, focus subject if empty
-    // otherwise the body. If we didn't do that, focus may stay inside the closed
-    // Contacts sidebar and then the main window/frame does not respond to accesskeys.
-    // This may be fixed by bug 570835.
-    let composerBox = document.getElementById("headers-parent");
-    let focusedElement =
-      composerBox.querySelector(":focus") ||
-      composerBox.querySelector('[focused="true"]');
-    if (focusedElement) {
-      focusedElement.focus();
-    } else if (!document.getElementById("msgSubject").value) {
+    // Don't change the focus unless it was within the contacts sidebar.
+    if (!sidebarFocussed) {
+      return;
+    }
+    // Else, we need to explicitly move the focus out of the contacts sidebar.
+    // We choose the subject input if it is empty, otherwise the message body.
+    if (!document.getElementById("msgSubject").value) {
       focusSubjectInput();
     } else {
       focusMsgBody();
