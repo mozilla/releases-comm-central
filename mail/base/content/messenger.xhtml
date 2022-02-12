@@ -909,9 +909,7 @@
       <html:img src="chrome://messenger/skin/icons/collapse.svg" alt="" />
     </html:button>
 #include mainStatusbar.inc.xhtml
-    <hbox id="calendar-invitations-panel"
-          class="statusbarpanel"
-          oncommand="openInvitationsDialog()">
+    <hbox id="calendar-invitations-panel" class="statusbarpanel" hidden="true">
       <label id="calendar-invitations-label"
              class="text-link"
              onclick="openInvitationsDialog()"

@@ -118,12 +118,13 @@ InvitationsManager.prototype = {
   },
 
   async _doInvitationsUpdate() {
+    let items;
     try {
-      this.toggleInvitationsPanel(await cal.iterate.streamToArray(this.getInvitations()));
+      items = await cal.iterate.streamToArray(this.getInvitations());
     } catch (e) {
       cal.ERROR(e);
-      this.toggleInvitationsPanel();
     }
+    this.toggleInvitationsPanel(items);
   },
 
   /**
@@ -131,7 +132,7 @@ InvitationsManager.prototype = {
    * on the number of invitation items found.
    *
    * @param {calIItemBase[]?} items - The invitations found, if empty or not
-   *                                  provided, the panel will not be displayed.
+   *   provided, the panel will not be displayed.
    */
   toggleInvitationsPanel(items) {
     let invitationsBox = document.getElementById("calendar-invitations-panel");
@@ -139,10 +140,13 @@ InvitationsManager.prototype = {
       let count = items.length;
       let value = cal.l10n.getLtnString("invitationsLink.label", [count]);
       document.getElementById("calendar-invitations-label").value = value;
-      invitationsBox.hidden = count < 1;
-    } else {
-      invitationsBox.setAttribute("hidden", "true");
+      if (count) {
+        invitationsBox.removeAttribute("hidden");
+        return;
+      }
     }
+
+    invitationsBox.setAttribute("hidden", "true");
   },
 
   /**
