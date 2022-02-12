@@ -9048,8 +9048,7 @@ function moveFocusToNeighbouringArea(event) {
   for (let i = 0; i < gFocusAreas.length; i++) {
     // Go through each area and check if focus is within.
     let area = gFocusAreas[i];
-    let root = area.root || document.getElementById(area.rootId);
-    if (!root.contains(currentElement)) {
+    if (!area.root.contains(currentElement)) {
       continue;
     }
     // Focus is within, so we find the neighbouring area to move focus to.
@@ -9072,8 +9071,7 @@ function moveFocusToNeighbouringArea(event) {
         break;
       }
       area = gFocusAreas[i];
-      root = area.root || document.getElementById(area.rootId);
-      if (area.focus(root)) {
+      if (area.focus(area.root)) {
         // Successfully moved focus.
         break;
       }
