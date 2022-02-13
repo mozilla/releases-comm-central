@@ -51,8 +51,12 @@ var gShrunkenWindowWidth = 600;
 
 var gTodayPane;
 
-add_task(async function setupModule(module) {
+add_task(async function setupModule() {
   folder = await create_folder("QuickFilterBarDisplayIssues");
+  registerCleanupFunction(() => {
+    mc.window.gFolderTreeView.selectFolder(folder.rootFolder);
+    folder.deleteSelf(null);
+  });
   be_in_folder(folder);
 
   // Let's check window dimensions so we can enlarge from them.
