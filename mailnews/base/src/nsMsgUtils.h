@@ -207,9 +207,6 @@ NS_MSG_BASE nsresult MsgCleanupTempFiles(const char* fileName,
 NS_MSG_BASE nsresult MsgGetFileStream(nsIFile* file,
                                       nsIOutputStream** fileStream);
 
-NS_MSG_BASE nsresult MsgReopenFileStream(nsIFile* file,
-                                         nsIInputStream* fileStream);
-
 // Automatically creates an output stream with a suitable buffer
 NS_MSG_BASE nsresult MsgNewBufferedFileOutputStream(nsIOutputStream** aResult,
                                                     nsIFile* aFile,

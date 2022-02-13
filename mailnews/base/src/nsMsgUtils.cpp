@@ -1281,14 +1281,6 @@ nsresult MsgGetFileStream(nsIFile* file, nsIOutputStream** fileStream) {
   return rv;
 }
 
-nsresult MsgReopenFileStream(nsIFile* file, nsIInputStream* fileStream) {
-  nsMsgFileStream* msgFileStream = static_cast<nsMsgFileStream*>(fileStream);
-  if (msgFileStream) {
-    return msgFileStream->InitWithFile(file);
-  }
-  return NS_ERROR_FAILURE;
-}
-
 nsresult MsgNewBufferedFileOutputStream(nsIOutputStream** aResult,
                                         nsIFile* aFile, int32_t aIOFlags,
                                         int32_t aPerm) {
