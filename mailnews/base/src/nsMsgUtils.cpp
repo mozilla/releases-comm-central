@@ -1275,10 +1275,9 @@ nsresult MsgCleanupTempFiles(const char* fileName, const char* extension) {
 nsresult MsgGetFileStream(nsIFile* file, nsIOutputStream** fileStream) {
   RefPtr<nsMsgFileStream> newFileStream = new nsMsgFileStream;
   nsresult rv = newFileStream->InitWithFile(file);
-  if (NS_SUCCEEDED(rv))
-    rv = newFileStream->QueryInterface(NS_GET_IID(nsIOutputStream),
-                                       (void**)fileStream);
-  return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
+  newFileStream.forget(fileStream);
+  return NS_OK;
 }
 
 nsresult MsgNewBufferedFileOutputStream(nsIOutputStream** aResult,
