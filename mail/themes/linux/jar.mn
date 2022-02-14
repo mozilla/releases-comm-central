@@ -76,6 +76,10 @@ classic.jar:
   skin/classic/messenger/icons/arrow/arrow-right-dim.png      (mail/icons/arrow/arrow-right-dim.png)
   skin/classic/messenger/icons/arrow/arrow-down-dim.png       (mail/icons/arrow/arrow-down-dim.png)
   skin/classic/messenger/icons/connecting.png                 (mail/icons/connecting.png)
+  skin/classic/messenger/window-controls/close.svg            (../windows/mail/window-controls/close.svg)
+  skin/classic/messenger/window-controls/maximize.svg         (../windows/mail/window-controls/maximize.svg)
+  skin/classic/messenger/window-controls/minimize.svg         (../windows/mail/window-controls/minimize.svg)
+  skin/classic/messenger/window-controls/restore.svg          (../windows/mail/window-controls/restore.svg)
 % skin editor classic/1.0 %skin/classic/editor/
   skin/classic/editor/EditorDialog.css                        (editor/EditorDialog.css)
   skin/classic/editor/icons/img-align-bottom.gif              (editor/img-align-bottom.gif)
