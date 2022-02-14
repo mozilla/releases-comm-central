@@ -3159,7 +3159,7 @@ function UpdateStructToolbar() {
     return;
   }
   // We need to leave the <label> to flex the buttons to the left.
-  for (let node of toolbar.querySelectorAll("toolbarbutton")) {
+  for (let node of toolbar.querySelectorAll("toolbarbutton,textbox")) {
     node.remove();
   }
 
