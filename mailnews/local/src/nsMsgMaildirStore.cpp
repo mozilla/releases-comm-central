@@ -14,6 +14,7 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsISimpleEnumerator.h"
 #include "nsIDirectoryEnumerator.h"
+#include "nsIInputStream.h"
 #include "nsMsgFolderFlags.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
@@ -1306,35 +1307,34 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(
     bool aAdd) {
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
-  nsCOMPtr<nsIOutputStream> outputStream;
-  nsCOMPtr<nsISeekableStream> seekableStream;
+  nsTArray<nsCString> keywordsToAdd;
+  nsTArray<nsCString> keywordsToRemove;
+  if (aAdd) {
+    ParseString(aKeywords, ' ', keywordsToAdd);
+  } else {
+    ParseString(aKeywords, ' ', keywordsToRemove);
+  }
 
-  mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
-
-  nsTArray<nsCString> keywordArray;
-  ParseString(aKeywords, ' ', keywordArray);
-
-  for (auto message : aHdrArray)  // for each message
-  {
-    // get output stream for header
-    nsCOMPtr<nsIOutputStream> outputStream;
-    nsresult rv = GetOutputStream(message, outputStream);
+  for (auto msgHdr : aHdrArray) {
+    // Open the message file.
+    nsCOMPtr<nsIOutputStream> output;
+    nsresult rv = GetOutputStream(msgHdr, output);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(outputStream, &rv);
+    nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(output, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsISeekableStream> seekableStream(
-        do_QueryInterface(inputStream, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    uint32_t statusOffset = 0;
-    (void)message->GetStatusOffset(&statusOffset);
-    uint64_t desiredOffset = statusOffset;
 
-    ChangeKeywordsHelper(message, desiredOffset, *lineBuffer, keywordArray,
-                         aAdd, outputStream, seekableStream, inputStream);
-    if (inputStream) inputStream->Close();
-    // ### TODO - if growKeywords property is set on the message header,
-    // we need to rewrite the message file with extra room for the keywords,
-    // or schedule some sort of background task to do this.
+    bool notEnoughRoom;
+    rv = ChangeKeywordsHelper(seekable, keywordsToAdd, keywordsToRemove,
+                              notEnoughRoom);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (notEnoughRoom) {
+      // The growKeywords property indicates that the X-Mozilla-Keys header
+      // doesn't have enough space, and should be rebuilt during the next
+      // folder compaction.
+      // TODO: For maildir there is no compaction, so this'll have no effect!
+      msgHdr->SetUint32Property("growKeywords", 1);
+    }
+    output->Close();
   }
   return NS_OK;
 }

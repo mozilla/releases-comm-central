@@ -11,6 +11,7 @@
 #define nsMsgMaildirStore_h__
 
 #include "nsMsgLocalStoreUtils.h"
+#include "nsIOutputStream.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIFile.h"
 #include "nsMsgMessageFlags.h"

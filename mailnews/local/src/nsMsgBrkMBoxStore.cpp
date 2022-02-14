@@ -14,6 +14,7 @@
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgLocalMailFolder.h"
+#include "nsIInputStream.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsIDirectoryEnumerator.h"
@@ -26,7 +27,6 @@
 #include "nsIDBFolderInfo.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMailHeaders.h"
-#include "nsReadLine.h"
 #include "nsParseMailbox.h"
 #include "nsIMailboxService.h"
 #include "nsMsgLocalCID.h"
@@ -887,55 +887,47 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
     bool aAdd) {
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
-  nsCOMPtr<nsIOutputStream> outputStream;
-  nsCOMPtr<nsISeekableStream> seekableStream;
+  nsTArray<nsCString> keywordsToAdd;
+  nsTArray<nsCString> keywordsToRemove;
+  if (aAdd) {
+    ParseString(aKeywords, ' ', keywordsToAdd);
+  } else {
+    ParseString(aKeywords, ' ', keywordsToRemove);
+  }
+
+  // Get the (possibly-cached) seekable & writable stream for this mbox.
+  nsCOMPtr<nsIOutputStream> output;
+  nsCOMPtr<nsISeekableStream> seekable;
   int64_t restoreStreamPos;
-
-  nsresult rv = GetOutputStream(aHdrArray[0], outputStream, seekableStream,
-                                restoreStreamPos);
+  nsresult rv =
+      GetOutputStream(aHdrArray[0], output, seekable, restoreStreamPos);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(outputStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  for (auto msgHdr : aHdrArray) {
+    uint64_t msgStart;
+    msgHdr->GetMessageOffset(&msgStart);
+    seekable->Seek(nsISeekableStream::NS_SEEK_SET, msgStart);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-  mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
+    bool notEnoughRoom;
+    rv = ChangeKeywordsHelper(seekable, keywordsToAdd, keywordsToRemove,
+                              notEnoughRoom);
 
-  // For each message, we seek to the beginning of the x-mozilla-status header,
-  // and start reading lines, looking for x-mozilla-keys: headers; If we're
-  // adding the keyword and we find
-  // a header with the desired keyword already in it, we don't need to
-  // do anything. Likewise, if removing keyword and we don't find it,
-  // we don't need to do anything. Otherwise, if adding, we need to
-  // see if there's an x-mozilla-keys
-  // header with room for the new keyword. If so, we replace the
-  // corresponding number of spaces with the keyword. If no room,
-  // we can't do anything until the folder is compacted and another
-  // x-mozilla-keys header is added. In that case, we set a property
-  // on the header, which the compaction code will check.
-
-  nsTArray<nsCString> keywordArray;
-  ParseString(aKeywords, ' ', keywordArray);
-
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  for (auto msgHdr : aHdrArray)  // for each message
-  {
-    uint64_t messageOffset;
-    msgHdr->GetMessageOffset(&messageOffset);
-    uint32_t statusOffset = 0;
-    (void)msgHdr->GetStatusOffset(&statusOffset);
-    uint64_t desiredOffset = messageOffset + statusOffset;
-
-    ChangeKeywordsHelper(msgHdr, desiredOffset, *lineBuffer, keywordArray, aAdd,
-                         outputStream, seekableStream, inputStream);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (notEnoughRoom) {
+      // The growKeywords property indicates that the X-Mozilla-Keys header
+      // doesn't have enough space, and should be rebuilt during the next
+      // folder compaction.
+      msgHdr->SetUint32Property("growKeywords", 1);
+    }
   }
-  lineBuffer.reset();
-  if (restoreStreamPos != -1)
-    seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, restoreStreamPos);
-  else if (outputStream)
-    outputStream->Close();
-  if (!aHdrArray.IsEmpty()) {
-    SetDBValid(aHdrArray[0]);
+
+  if (restoreStreamPos != -1) {
+    seekable->Seek(nsISeekableStream::NS_SEEK_SET, restoreStreamPos);
+  } else if (output) {
+    output->Close();
   }
+  SetDBValid(aHdrArray[0]);
   return NS_OK;
 }
 

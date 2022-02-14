@@ -7,14 +7,13 @@
 
 #include "msgCore.h"
 #include "nsString.h"
-#include "nsReadLine.h"
 #include "nsISeekableStream.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMailHeaders.h"
 #include "nsMsgUtils.h"
-#include "nsIOutputStream.h"
 #include "nsMsgMessageFlags.h"
+#include "nsArray.h"
 
 /**
  * Utility Class for handling local mail stores. Berkeley Mailbox
@@ -27,12 +26,10 @@ class nsMsgLocalStoreUtils {
 
   static nsresult AddDirectorySeparator(nsIFile* path);
   static bool nsShouldIgnoreFile(nsAString& name, nsIFile* path);
-  static void ChangeKeywordsHelper(nsIMsgDBHdr* message, uint64_t desiredOffset,
-                                   nsLineBuffer<char>& lineBuffer,
-                                   nsTArray<nsCString>& keywordArray, bool aAdd,
-                                   nsIOutputStream* outputStream,
-                                   nsISeekableStream* seekableStream,
-                                   nsIInputStream* inputStream);
+  static nsresult ChangeKeywordsHelper(
+      nsISeekableStream* seekable, nsTArray<nsCString> const& keywordsToAdd,
+      nsTArray<nsCString> const& keywordsToRemove, bool& notEnoughSpace);
+
   static void ResetForceReparse(nsIMsgDatabase* aMsgDB);
 
   nsresult RewriteMsgFlags(nsISeekableStream* seekable, uint32_t flags);

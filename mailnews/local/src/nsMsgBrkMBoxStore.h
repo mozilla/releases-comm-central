@@ -15,6 +15,7 @@
 #include "nsIFile.h"
 #include "nsInterfaceHashtable.h"
 #include "nsISeekableStream.h"
+#include "nsIOutputStream.h"
 
 class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
                                 nsIMsgPluggableStore {
