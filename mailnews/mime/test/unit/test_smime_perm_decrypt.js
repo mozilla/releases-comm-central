@@ -8,6 +8,9 @@
  * or bad as expected.
  */
 
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
@@ -21,16 +24,6 @@ const { EnigmailPersistentCrypto } = ChromeUtils.import(
   "chrome://openpgp/content/modules/persistentCrypto.jsm"
 );
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
 
 let gCertValidityResult = 0;
 
@@ -68,7 +61,8 @@ function testCertValidity(cert, date) {
 }
 
 add_task(async function setup() {
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
+  let messageInjection = new MessageInjection({ mode: "local" });
+  gInbox = messageInjection.getInboxFolder();
   SmimeUtils.ensureNSS();
 
   SmimeUtils.loadPEMCertificate(

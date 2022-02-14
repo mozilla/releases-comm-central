@@ -26,13 +26,12 @@ const { EnigmailDecryption } = ChromeUtils.import(
   "chrome://openpgp/content/modules/decryption.jsm"
 );
 
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/asyncTestUtils.js");
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/messageInjection.js");
-
-let gInbox;
+var messageInjection = new MessageInjection({ mode: "local" });
+let gInbox = messageInjection.getInboxFolder();
 
 const keyDir = "../../../../mail/test/browser/openpgp/data/keys/";
 const browserEMLDir = "../../../../mail/test/browser/openpgp/data/eml/";
@@ -280,10 +279,6 @@ add_task(async function setUp() {
     null,
     do_get_file(`${keyDir}bob@openpgp.example-0xfbfcc82a015e7330-pub.asc`)
   );
-
-  gInbox = MessageInjection.configure_message_injection({
-    mode: "local",
-  });
 
   for (let test of tests) {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();

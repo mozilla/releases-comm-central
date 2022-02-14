@@ -7,34 +7,40 @@
  * type reported in bug 659355.
  * Adapted from test_attachment_size.js
  */
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
 
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+var messageGenerator = new MessageGenerator();
+var messageInjection = new MessageInjection({ mode: "local" });
+var inbox = messageInjection.getInboxFolder();
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
-// Create a message generator
-var gMessageGenerator = new MessageGenerator();
-
-var imageAttachment =
+const IMAGE_ATTACHMENT =
   "iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS" +
   "FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA" +
   "A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe" +
   "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
 
-// create some messages that have various types of attachments
-var messages = [
-  // image attachment (normal content type sanity test)
-  {
+add_task(function setupTest() {
+  // Stub.
+});
+
+add_task(async function test_image_attachment_normal_content_type() {
+  await test_message_attachments({
     attachments: [
       {
-        body: imageAttachment,
+        body: IMAGE_ATTACHMENT,
         contentType: "image/png",
         filename: "lines.png",
         encoding: "base64",
@@ -42,11 +48,14 @@ var messages = [
       },
     ],
     testContentType: "image/png",
-  },
-  {
+  });
+});
+
+add_task(async function test_image_attachment_bad_content_type() {
+  await test_message_attachments({
     attachments: [
       {
-        body: imageAttachment,
+        body: IMAGE_ATTACHMENT,
         contentType: "=?windows-1252?q?application/pdf",
         filename: "lines.pdf",
         encoding: "base64",
@@ -54,92 +63,27 @@ var messages = [
       },
     ],
     testContentType: "application/pdf",
-  },
-];
+  });
+});
 
-var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+add_task(function endTest() {
+  messageInjection.teardownMessageInjection();
+});
 
-  // nsIRequestObserver part
-  onStartRequest(aRequest) {
-    // We reset the size here because we know that we only expect one attachment
-    //  per test email
-    // msgHdrViewOverlay.js has a stack of attachment infos that properly
-    //  handles this.
-    gMessageHeaderSink.size = null;
-  },
-  onStopRequest(aRequest, aStatusCode) {
-    dump(
-      "*** ContentType is " +
-        gMessageHeaderSink.contentType +
-        " (expecting " +
-        this.expectedContentType +
-        ")\n\n"
-    );
-    Assert.equal(gMessageHeaderSink.contentType, this.expectedContentType);
-    this._stream = null;
-    async_driver();
-  },
-
-  // nsIStreamListener part
-  _stream: null,
-
-  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      this._stream.init(aInputStream);
-    }
-    this._stream.read(aCount);
-  },
-};
-
-var gMessageHeaderSink = {
-  handleAttachment(
-    aContentType,
-    aUrl,
-    aDisplayName,
-    aUri,
-    aIsExternalAttachment
-  ) {
-    gMessageHeaderSink.contentType = aContentType;
-  },
-
-  // stub functions from nsIMsgHeaderSink
-  addAttachmentField(aName, aValue) {},
-  onStartHeaders() {},
-  onEndHeaders() {},
-  processHeaders(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
-  onEndAllAttachments() {},
-  onEndMsgDownload() {},
-  onEndMsgHeaders(aUrl) {},
-  onMsgHasRemoteContent(aMsgHdr, aContentURI) {},
-  securityInfo: null,
-  mDummyMsgHeader: null,
-  properties: null,
-  resetProperties() {},
-};
-
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-msgWindow.msgHeaderSink = gMessageHeaderSink;
-
-function* test_message_attachments(info) {
-  let synMsg = gMessageGenerator.makeMessage(info);
+async function test_message_attachments(info) {
+  let synMsg = messageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  await messageInjection.addSetsToFolders([inbox], [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
-  let msgService = gMessenger.messageServiceFromURI(msgURI);
+  let msgService = messenger.messageServiceFromURI(msgURI);
 
-  gStreamListener.expectedContentType = info.testContentType;
-
-  dump("*** original ContentType=" + info.attachments[0].contentType + "\n");
+  let msgHeaderSinkProm = new MsgHeaderSinkHandleAttachments();
+  msgWindow.msgHeaderSink = msgHeaderSinkProm;
+  let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgService.streamMessage(
     msgURI,
-    gStreamListener,
+    streamListener,
     msgWindow,
     null,
     true, // have them create the converter
@@ -148,17 +92,29 @@ function* test_message_attachments(info) {
     false
   );
 
-  yield false;
+  await streamListener.promise;
+  let msgHdrSinkContentType = await msgHeaderSinkProm.promise;
+  Assert.equal(msgHdrSinkContentType, info.testContentType);
 }
 
-/* ===== Driver ===== */
-
-var tests = [parameterizeTest(test_message_attachments, messages)];
-
-var gInbox;
-
-function run_test() {
-  // use mbox injection because the fake server chokes sometimes right now
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
-  async_run_tests(tests);
+function MsgHeaderSinkHandleAttachments() {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
 }
+
+MsgHeaderSinkHandleAttachments.prototype = {
+  handleAttachment(
+    aContentType,
+    aUrl,
+    aDisplayName,
+    aUri,
+    aIsExternalAttachment
+  ) {
+    this._resolve(aContentType);
+  },
+
+  get promise() {
+    return this._promise;
+  },
+};

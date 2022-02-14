@@ -1,66 +1,58 @@
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
-
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
 
-// Create a message generator
-var gMessageGenerator = new MessageGenerator();
+const P7M_ATTACHMENT = "dGhpcyBpcyBub3QgYSByZWFsIHMvbWltZSBwN20gZW50aXR5";
+var messageGenerator = new MessageGenerator();
+var messageInjection = new MessageInjection({ mode: "local" });
+var inbox = messageInjection.getInboxFolder();
+var msgHdr;
 
-var p7mAttachment = "dGhpcyBpcyBub3QgYSByZWFsIHMvbWltZSBwN20gZW50aXR5";
-
-// create a message with a p7m attachment
-var messages = {
-  attachments: [
-    {
-      body: p7mAttachment,
-      filename: "test.txt.p7m",
-      contentType: "application/pkcs7-mime",
-      format: "",
-      encoding: "base64",
-    },
-  ],
-};
-
-function* worker(params) {
-  let synMsg = gMessageGenerator.makeMessage(params.messages);
-  let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
-
-  let msgHdr = synSet.getMsgHdr(0);
-
-  Services.prefs.setBoolPref("mailnews.p7m_external", params.all_external);
-
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-    try {
-      Assert.ok(aMimeMsg.allUserAttachments.length == params.count);
-      async_driver();
-    } catch (err) {
-      do_throw(err);
-    }
+add_task(async function setupTest() {
+  // Create a message with a p7m attachment.
+  let synMsg = messageGenerator.makeMessage({
+    attachments: [
+      {
+        body: P7M_ATTACHMENT,
+        filename: "test.txt.p7m",
+        contentType: "application/pkcs7-mime",
+        format: "",
+        encoding: "base64",
+      },
+    ],
   });
+  let synSet = new SyntheticMessageSet([synMsg]);
+  await messageInjection.addSetsToFolders([inbox], [synSet]);
+  msgHdr = synSet.getMsgHdr(0);
+});
 
-  yield false;
-}
+add_task(async function test_mime_p7m_external_foo_pref() {
+  Services.prefs.setBoolPref("mailnews.p7m_external", true);
 
-/* ===== Driver ===== */
+  await new Promise(resolve => {
+    MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+      Assert.ok(aMimeMsg.allUserAttachments.length == 1);
+      resolve();
+    });
+  });
+});
+add_task(async function test_mime_p7m_external_all_external_pref() {
+  Services.prefs.setBoolPref("mailnews.p7m_external", false);
 
-var tests = [
-  parameterizeTest(worker, [{ messages, all_external: false, count: 1 }]),
-  parameterizeTest(worker, [{ messages, all_external: true, count: 1 }]),
-];
-
-var gInbox;
-
-function run_test() {
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
-  async_run_tests(tests);
-}
+  await new Promise(resolve => {
+    MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+      Assert.ok(aMimeMsg.allUserAttachments.length == 1);
+      resolve();
+    });
+  });
+});

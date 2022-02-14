@@ -6,86 +6,75 @@
  * This test verifies that we don't display text attachments inline
  * when mail.inline_attachments is false.
  */
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
 
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+const TEXT_ATTACHMENT = "inline text attachment";
 
-// Create a message generator
-var gMessageGenerator = new MessageGenerator();
-
-var textAttachment = "inline text attachment";
-
-// create a message with a text attachment
-var messages = [
-  {
-    // text attachment
-    attachments: [
-      {
-        body: textAttachment,
-        filename: "test.txt",
-        format: "",
-      },
-    ],
-  },
-];
-
-var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-
-  _str: "",
-  // nsIRequestObserver part
-  onStartRequest(aRequest) {
-    this.str = "";
-    this._stream = null;
-  },
-  onStopRequest(aRequest, aStatusCode) {
-    // check that text attachment contents didn't end up inline.
-    Assert.ok(!this._str.includes(textAttachment));
-    async_driver();
-  },
-
-  /* okay, our onDataAvailable should actually never be called.  the stream
-     converter is actually eating everything except the start and stop
-     notification. */
-  // nsIStreamListener part
-  _stream: null,
-
-  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      this._stream.init(aInputStream);
-    }
-    this._str += this._stream.read(aCount);
-  },
-};
-
+var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+var msgGen = new MessageGenerator();
+var inbox;
+var messageInjection = new MessageInjection({ mode: "local" });
 var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
 
-function* test_message_attachments(info, inline, inline_text) {
-  Services.prefs.setBoolPref("mail.inline_attachments", inline);
-  Services.prefs.setBoolPref("mail.inline_attachments.text", inline_text);
-  let synMsg = gMessageGenerator.makeMessage(info);
+add_task(function setupTest() {
+  inbox = messageInjection.getInboxFolder();
+});
+
+add_task(async function test_message_attachments_no_inline() {
+  Services.prefs.setBoolPref("mail.inline_attachments", false);
+  Services.prefs.setBoolPref("mail.inline_attachments.text", true);
+  await test_message_attachments({
+    // text attachment
+    attachments: [
+      {
+        body: TEXT_ATTACHMENT,
+        filename: "test.txt",
+        format: "",
+      },
+    ],
+  });
+});
+
+add_task(async function test_message_attachments_no_inline_text() {
+  Services.prefs.setBoolPref("mail.inline_attachments", true);
+  Services.prefs.setBoolPref("mail.inline_attachments.text", false);
+  await PromiseTestUtils.promiseDelay(100);
+  await test_message_attachments({
+    // text attachment
+    attachments: [
+      {
+        body: TEXT_ATTACHMENT,
+        filename: "test.txt",
+        format: "",
+      },
+    ],
+  });
+});
+
+async function test_message_attachments(info) {
+  let synMsg = msgGen.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  await messageInjection.addSetsToFolders([inbox], [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
-  let msgService = gMessenger.messageServiceFromURI(msgURI);
+  let msgService = messenger.messageServiceFromURI(msgURI);
+
+  let streamListener = new PromiseTestUtils.PromiseStreamListener();
 
   msgService.streamMessage(
     msgURI,
-    gStreamListener,
+    streamListener,
     msgWindow,
     null,
     true, // have them create the converter
@@ -94,27 +83,7 @@ function* test_message_attachments(info, inline, inline_text) {
     false
   );
 
-  yield false;
-}
-
-function test_message_attachments_no_inline(info) {
-  return test_message_attachments(info, false, true);
-}
-
-function test_message_attachments_no_inline_text(info) {
-  return test_message_attachments(info, true, false);
-}
-
-/* ===== Driver ===== */
-
-var tests = [
-  parameterizeTest(test_message_attachments_no_inline, messages),
-  parameterizeTest(test_message_attachments_no_inline_text, messages),
-];
-
-var gInbox;
-
-function run_test() {
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
-  async_run_tests(tests);
+  let data = await streamListener.promise;
+  // check that text attachment contents didn't end up inline.
+  Assert.ok(!data.includes(TEXT_ATTACHMENT));
 }

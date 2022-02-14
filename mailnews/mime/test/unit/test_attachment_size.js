@@ -6,15 +6,21 @@
  * This test creates some messages with attachments of different types and
  * checks that libmime reports the expected size for each of them.
  */
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
 
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
+var {
+  MessageGenerator,
+  SyntheticPartLeaf,
+  SyntheticPartMultiMixed,
+  SyntheticMessageSet,
+} = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 // Somehow we hit the blocklist service, and that needs appInfo defined
 const { updateAppInfo } = ChromeUtils.import(
@@ -22,10 +28,12 @@ const { updateAppInfo } = ChromeUtils.import(
 );
 updateAppInfo();
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-var msgGen = (gMessageGenerator = new MessageGenerator());
+var msgGen = new MessageGenerator();
+var messageInjection = new MessageInjection({ mode: "local" });
+var inbox = messageInjection.getInboxFolder();
 
 /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
  * counts the trailing newline for an attachment MIME part. Most of the time,
@@ -34,24 +42,24 @@ var msgGen = (gMessageGenerator = new MessageGenerator());
  * holds. However, on Windows, if the attachment is not encoded (that is, is
  * inline text), libmime will return N + 2 bytes.
  */
-var epsilon = "@mozilla.org/windows-registry-key;1" in Cc ? 4 : 2;
+const EPSILON = "@mozilla.org/windows-registry-key;1" in Cc ? 4 : 2;
 
-var textAttachment =
+const TEXT_ATTACHMENT =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +
   "Ubik! Ubik drops you back in the thick of things fast. Taken as " +
   "directed, Ubik speeds relief to head and stomach. Remember: Ubik is " +
   "only seconds away. Avoid prolonged use.";
 
-var binaryAttachment = textAttachment;
+const BINARY_ATTACHMENT = TEXT_ATTACHMENT;
 
-var imageAttachment =
+const IMAGE_ATTACHMENT =
   "iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS" +
   "FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA" +
   "A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe" +
   "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
-var imageSize = 188;
+const IMAGE_SIZE = 188;
 
-var uuAttachment =
+const UU_ATTACHMENT =
   "begin 644 /home/jvporter/Desktop/out.txt\n" +
   'M0V%N)W0@;6%K92!T:&4@9G)U9R!C;VYT97-T+"!(96QE;CL@<W1O;6%C:"=S\n' +
   "M('5P<V5T+B!))VQL(&9I>\"!Y;W4L(%5B:6LA(%5B:6L@9')O<',@>6]U(&)A\n" +
@@ -62,7 +70,7 @@ var uuAttachment =
   "`\n" +
   "end";
 
-var yencText =
+const YENC_TEXT =
   "Hello there --\n" +
   "=ybegin line=128 size=174 name=jane\n" +
   "\x76\x99\x98\x91\x9e\x8f\x97\x9a\x9d\x56\x4a\x94\x8f\x4a\x97\x8f" +
@@ -78,19 +86,19 @@ var yencText =
   "\x74\x8f\x4a\x97\x51\x8f\x98\x8e\x99\x9c\x9d\x58\x4a\xec\xe5\x34" +
   "\x0d\x0a" +
   "=yend size=174 crc32=7efccd8e\n";
-var yencSize = 174;
+const YENC_SIZE = 174;
 
-var partHtml = new SyntheticPartLeaf(
+const PART_HTML = new SyntheticPartLeaf(
   "<html><head></head><body>I am HTML! Woo! </body></html>",
   { contentType: "text/html" }
 );
 
-var attachedMessage1 = msgGen.makeMessage({ body: { body: textAttachment } });
+var attachedMessage1 = msgGen.makeMessage({ body: { body: TEXT_ATTACHMENT } });
 var attachedMessage2 = msgGen.makeMessage({
-  body: { body: textAttachment },
+  body: { body: TEXT_ATTACHMENT },
   attachments: [
     {
-      body: imageAttachment,
+      body: IMAGE_ATTACHMENT,
       contentType: "application/x-ubik",
       filename: "ubik",
       encoding: "base64",
@@ -99,120 +107,139 @@ var attachedMessage2 = msgGen.makeMessage({
   ],
 });
 
-/**
- * Return the size of a synthetic message. Much like the above comment, libmime
- * counts bytes differently on Windows, where it counts newlines (\r\n) as 2
- * bytes. Mac and Linux treats them as 1 byte.
- *
- * @param message a synthetic message from makeMessage()
- * @return the message's size in bytes
- */
-function get_message_size(message) {
-  let messageString = message.toMessageString();
-  if (epsilon == 4) {
-    // Windows
-    return messageString.length;
-  }
-  return messageString.replace(/\r\n/g, "\n").length;
-}
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
-// create some messages that have various types of attachments
-var messages = [
-  {
-    // text attachment
+add_task(function setupTest() {
+  // Stub.
+});
+
+add_task(async function test_text_attachment() {
+  await test_message_attachments({
     attachments: [
       {
-        body: textAttachment,
+        body: TEXT_ATTACHMENT,
         filename: "ubik.txt",
         format: "",
       },
     ],
-    size: textAttachment.length,
-  },
-  {
-    // (inline) image attachment
+    size: TEXT_ATTACHMENT.length,
+  });
+});
+
+// (inline) image attachment
+add_task(async function test_inline_image_attachment() {
+  await test_message_attachments({
     attachments: [
       {
-        body: imageAttachment,
+        body: IMAGE_ATTACHMENT,
         contentType: "image/png",
         filename: "lines.png",
         encoding: "base64",
         format: "",
       },
     ],
-    size: imageSize,
-  },
-  {
-    // binary attachment, no encoding
+    size: IMAGE_SIZE,
+  });
+});
+
+// binary attachment, no encoding
+add_task(async function test_binary_attachment_no_encoding() {
+  await test_message_attachments({
     attachments: [
       {
-        body: binaryAttachment,
+        body: BINARY_ATTACHMENT,
         contentType: "application/x-ubik",
         filename: "ubik",
         format: "",
       },
     ],
-    size: binaryAttachment.length,
-  },
-  {
-    // binary attachment, b64 encoding
+    size: BINARY_ATTACHMENT.length,
+  });
+});
+
+// binary attachment, b64 encoding
+add_task(async function test_binary_attachment_b64_encoding() {
+  await test_message_attachments({
     attachments: [
       {
-        body: imageAttachment,
+        body: IMAGE_ATTACHMENT,
         contentType: "application/x-ubik",
         filename: "ubik",
         encoding: "base64",
         format: "",
       },
     ],
-    size: imageSize,
-  },
-  {
-    // uuencoded attachment
+    size: IMAGE_SIZE,
+  });
+});
+
+// uuencoded attachment
+add_task(async function test_uuencoded_attachment() {
+  await test_message_attachments({
     attachments: [
       {
-        body: uuAttachment,
+        body: UU_ATTACHMENT,
         contentType: "application/x-uuencode",
         filename: "ubik",
         format: "",
         encoding: "uuencode",
       },
     ],
-    size: textAttachment.length,
-  },
-  {
-    // yencoded attachment
-    bodyPart: new SyntheticPartLeaf("I am text! Woo!\n\n" + yencText, {
+    size: TEXT_ATTACHMENT.length,
+  });
+});
+
+// yencoded attachment
+add_task(async function test_yencoded_attachment() {
+  await test_message_attachments({
+    bodyPart: new SyntheticPartLeaf("I am text! Woo!\n\n" + YENC_TEXT, {
       contentType: "",
     }),
     subject: 'yEnc-Prefix: "jane" 174 yEnc bytes - yEnc test (1)',
-    size: yencSize,
-  },
-  {
-    // an attached eml that used to return a size that's -1
-    bodyPart: new SyntheticPartMultiMixed([partHtml, attachedMessage1]),
+    size: YENC_SIZE,
+  });
+});
+
+// an attached eml that used to return a size that's -1
+add_task(async function test_incorrect_attached_eml() {
+  await test_message_attachments({
+    bodyPart: new SyntheticPartMultiMixed([PART_HTML, attachedMessage1]),
     size: get_message_size(attachedMessage1),
-  },
-  {
-    // this is an attached message that itself has an attachment
-    bodyPart: new SyntheticPartMultiMixed([partHtml, attachedMessage2]),
+  });
+});
+
+// this is an attached message that itself has an attachment
+add_task(async function test_recursive_attachment() {
+  await test_message_attachments({
+    bodyPart: new SyntheticPartMultiMixed([PART_HTML, attachedMessage2]),
     size: get_message_size(attachedMessage2),
-  },
-  {
-    // an "attachment" that's really the body of the message
+  });
+});
+
+// an "attachment" that's really the body of the message
+add_task(async function test_body_attachment() {
+  await test_message_attachments({
     body: {
-      body: textAttachment,
+      body: TEXT_ATTACHMENT,
       contentType: "application/x-ubik; name=attachment.ubik",
     },
-    size: textAttachment.length,
-  },
-  {
-    // a message/rfc822 "attachment" that's really the body of the message
+    size: TEXT_ATTACHMENT.length,
+  });
+});
+
+// a message/rfc822 "attachment" that's really the body of the message
+add_task(async function test_rfc822_attachment() {
+  await test_message_attachments({
     bodyPart: attachedMessage1,
     size: get_message_size(attachedMessage1),
-  },
-  {
-    // an external http link attachment (as constructed for feed enclosures) - no 'size' parm.
+  });
+});
+
+// an external http link attachment (as constructed for feed enclosures) - no 'size' parm.
+add_task(async function test_external_http_link_without_size() {
+  await test_message_attachments({
     attachments: [
       {
         body: "This MIME attachment is stored separately from the message.",
@@ -224,9 +251,12 @@ var messages = [
       },
     ],
     size: -1,
-  },
-  {
-    // an external http link attachment (as constructed for feed enclosures) - file with 'size' parm.
+  });
+});
+
+// an external http link attachment (as constructed for feed enclosures) - file with 'size' parm.
+add_task(async function test_external_http_link_wit_file_size() {
+  await test_message_attachments({
     attachments: [
       {
         body: "This MIME attachment is stored separately from the message.",
@@ -238,95 +268,27 @@ var messages = [
       },
     ],
     size: 123456789,
-  },
-];
+  });
+});
 
-var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+add_task(function endTest() {
+  messageInjection.teardownMessageInjection();
+});
 
-  // nsIRequestObserver part
-  onStartRequest(aRequest) {
-    // We reset the size here because we know that we only expect one attachment
-    //  per test email. In the case of the attached .eml with nested
-    //  attachments, this allows us to properly discard the nested attachment
-    //  sizes.
-    // msgHdrViewOverlay.js has a stack of attachment infos that properly
-    //  handles this.
-    gMessageHeaderSink.size = null;
-  },
-  onStopRequest(aRequest, aStatusCode) {
-    dump(
-      "*** Size is " +
-        gMessageHeaderSink.size +
-        " (expecting " +
-        this.expectedSize +
-        ")\n\n"
-    );
-    Assert.ok(Math.abs(gMessageHeaderSink.size - this.expectedSize) <= epsilon);
-    this._stream = null;
-    async_driver();
-  },
-
-  // nsIStreamListener part
-  _stream: null,
-
-  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      this._stream.init(aInputStream);
-    }
-    this._stream.read(aCount);
-  },
-};
-
-var gMessageHeaderSink = {
-  handleAttachment(
-    aContentType,
-    aUrl,
-    aDisplayName,
-    aUri,
-    aIsExternalAttachment
-  ) {},
-  addAttachmentField(aName, aValue) {
-    // Only record the information for the first attachment.
-    if (aName == "X-Mozilla-PartSize" && this.size == null) {
-      this.size = parseInt(aValue);
-    }
-  },
-
-  // stub functions from nsIMsgHeaderSink
-  onStartHeaders() {},
-  onEndHeaders() {},
-  processHeaders(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
-  onEndAllAttachments() {},
-  onEndMsgDownload() {},
-  onEndMsgHeaders(aUrl) {},
-  onMsgHasRemoteContent(aMsgHdr, aContentURI) {},
-  securityInfo: null,
-  mDummyMsgHeader: null,
-  properties: null,
-  resetProperties() {},
-};
-
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-msgWindow.msgHeaderSink = gMessageHeaderSink;
-
-function* test_message_attachments(info) {
-  let synMsg = gMessageGenerator.makeMessage(info);
+async function test_message_attachments(info) {
+  let synMsg = msgGen.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  await messageInjection.addSetsToFolders([inbox], [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
-  let msgService = gMessenger.messageServiceFromURI(msgURI);
-
-  gStreamListener.expectedSize = info.size;
+  let msgService = messenger.messageServiceFromURI(msgURI);
+  let msgHdrSinkProm = new MsgHeaderSinkAddAttachmentField();
+  msgWindow.msgHeaderSink = msgHdrSinkProm;
+  await PromiseTestUtils.promiseDelay(200);
+  let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgService.streamMessage(
     msgURI,
-    gStreamListener,
+    streamListener,
     msgWindow,
     null,
     true, // have them create the converter
@@ -335,17 +297,46 @@ function* test_message_attachments(info) {
     false
   );
 
-  yield false;
+  let headerSinkSize = await msgHdrSinkProm.promise;
+  await streamListener.promise;
+
+  info("*** Size is " + headerSinkSize + " (expecting " + info.size + ")");
+  Assert.ok(Math.abs(headerSinkSize - info.size) <= EPSILON);
 }
 
-/* ===== Driver ===== */
-
-var tests = [parameterizeTest(test_message_attachments, messages)];
-
-var gInbox;
-
-function run_test() {
-  // use mbox injection because the fake server chokes sometimes right now
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
-  async_run_tests(tests);
+/**
+ * Return the size of a synthetic message. Much like the above comment, libmime
+ * counts bytes differently on Windows, where it counts newlines (\r\n) as 2
+ * bytes. Mac and Linux treats them as 1 byte.
+ *
+ * @param message a synthetic message from makeMessage()
+ * @return the message's size in bytes
+ */
+function get_message_size(message) {
+  let messageString = message.toMessageString();
+  if (EPSILON == 4) {
+    // Windows
+    return messageString.length;
+  }
+  return messageString.replace(/\r\n/g, "\n").length;
 }
+
+function MsgHeaderSinkAddAttachmentField() {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
+}
+
+MsgHeaderSinkAddAttachmentField.prototype = {
+  addAttachmentField(aName, aValue) {
+    // Only record the information for the first attachment.
+    if (aName == "X-Mozilla-PartSize" && this.size == null) {
+      let parsedValue = parseInt(aValue);
+      this._resolve(parsedValue);
+    }
+  },
+
+  get promise() {
+    return this._promise;
+  },
+};
