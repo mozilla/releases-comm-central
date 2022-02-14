@@ -300,7 +300,7 @@ async function test_message_attachments(info) {
   let headerSinkSize = await msgHdrSinkProm.promise;
   await streamListener.promise;
 
-  info("*** Size is " + headerSinkSize + " (expecting " + info.size + ")");
+  dump("*** Size is " + headerSinkSize + " (expecting " + info.size + ")\n");
   Assert.ok(Math.abs(headerSinkSize - info.size) <= EPSILON);
 }
 
