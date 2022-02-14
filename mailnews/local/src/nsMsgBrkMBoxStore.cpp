@@ -851,10 +851,26 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   for (auto msgHdr : aHdrArray) {
-    // Seek to x-mozilla-status offset and rewrite value.
-    rv = UpdateFolderFlag(msgHdr, aSet, aFlags, outputStream);
+    // Work out the flags we want to write.
+    uint32_t flags = 0;
+    (void)msgHdr->GetFlags(&flags);
+    flags &= ~(nsMsgMessageFlags::RuntimeOnly | nsMsgMessageFlags::Offline);
+    if (aSet) {
+      flags |= aFlags;
+    } else {
+      flags &= ~aFlags;
+    }
+
+    // Rewrite flags into X-Mozilla-Status headers.
+    nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(outputStream, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    uint64_t msgOffset;
+    rv = msgHdr->GetMessageOffset(&msgOffset);
+    NS_ENSURE_SUCCESS(rv, rv);
+    seekable->Seek(nsISeekableStream::NS_SEEK_SET, msgOffset);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = RewriteMsgFlags(seekable, flags);
     if (NS_FAILED(rv)) {
-      NS_WARNING("updateFolderFlag failed");
       break;
     }
   }

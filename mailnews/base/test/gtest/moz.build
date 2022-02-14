@@ -3,17 +3,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
-
 FINAL_LIBRARY = "xul-gtest"
 
 UNIFIED_SOURCES += [
-    "TestMsgStripRE.cpp",
+    "TestHeaderReader.cpp",
+    "TestLineReader.cpp",
 ]
 
-LOCAL_INCLUDES += [
-    "/%s/netwerk/test" % CONFIG["mozreltopsrcdir"],
-    "/%s/xpcom/tests" % CONFIG["mozreltopsrcdir"],
-]
+#LOCAL_INCLUDES += [
+#    "../../src",
+#]
 
-TEST_DIRS += ["gtest"]

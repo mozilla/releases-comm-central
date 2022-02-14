@@ -8,6 +8,9 @@
 #include "nsIFile.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
+#include "HeaderReader.h"
+#include "nsPrintfCString.h"
+#include "mozilla/Buffer.h"
 #include "prprf.h"
 
 #define EXTRA_SAFETY_SPACE 0x400000  // (4MiB)
@@ -182,98 +185,129 @@ void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
   }
 }
 
-nsresult nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr* mailHdr, bool bSet,
-                                                nsMsgMessageFlagType flag,
-                                                nsIOutputStream* fileStream) {
-  uint32_t statusOffset;
-  uint64_t msgOffset;
-  nsresult rv = mailHdr->GetStatusOffset(&statusOffset);
-  // This probably means there's no x-mozilla-status header, so
-  // we just ignore this.
-  if (NS_FAILED(rv) || (statusOffset == 0)) return NS_OK;
-  rv = mailHdr->GetMessageOffset(&msgOffset);
-  NS_ENSURE_SUCCESS(rv, rv);
-  uint64_t statusPos = msgOffset + statusOffset;
-  nsCOMPtr<nsISeekableStream> seekableStream(
-      do_QueryInterface(fileStream, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, statusPos);
-  NS_ENSURE_SUCCESS(rv, rv);
-  char buf[50];
-  buf[0] = '\0';
-  nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(fileStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  uint32_t bytesRead;
-  if (NS_SUCCEEDED(
-          inputStream->Read(buf, X_MOZILLA_STATUS_LEN + 6, &bytesRead))) {
-    buf[bytesRead] = '\0';
-    if (strncmp(buf, X_MOZILLA_STATUS, X_MOZILLA_STATUS_LEN) == 0 &&
-        strncmp(buf + X_MOZILLA_STATUS_LEN, ": ", 2) == 0 &&
-        strlen(buf) >= X_MOZILLA_STATUS_LEN + 6) {
-      uint32_t flags;
-      uint32_t bytesWritten;
-      (void)mailHdr->GetFlags(&flags);
-      if (!(flags & nsMsgMessageFlags::Expunged)) {
-        char* p = buf + X_MOZILLA_STATUS_LEN + 2;
+// Attempts to fill a buffer. Returns a span holding the data read.
+// Might be less than buffer size, if EOF was encountered.
+// Upon error, an empty span is returned.
+static mozilla::Span<char> readBuf(nsIInputStream* readable,
+                                   mozilla::Buffer<char>& buf) {
+  uint32_t total = 0;
+  while (total < buf.Length()) {
+    uint32_t n;
+    nsresult rv =
+        readable->Read(buf.Elements() + total, buf.Length() - total, &n);
+    if (NS_FAILED(rv)) {
+      total = 0;
+      break;
+    }
+    if (n == 0) {
+      break;  // EOF
+    }
+    total += n;
+  }
+  return mozilla::Span<char>(buf.Elements(), total);
+}
 
-        nsresult errorCode = NS_OK;
-        flags = nsDependentCString(p).ToInteger(&errorCode, 16);
+// Write data to outputstream, until complete or error.
+static nsresult writeBuf(nsIOutputStream* writeable, const char* data,
+                         size_t dataSize) {
+  uint32_t written = 0;
+  while (written < dataSize) {
+    uint32_t n;
+    nsresult rv = writeable->Write(data + written, dataSize - written, &n);
+    NS_ENSURE_SUCCESS(rv, rv);
+    written += n;
+  }
+  return NS_OK;
+}
 
-        uint32_t curFlags;
-        (void)mailHdr->GetFlags(&curFlags);
-        flags = (flags & nsMsgMessageFlags::Queued) |
-                (curFlags & ~nsMsgMessageFlags::RuntimeOnly);
-        if (bSet)
-          flags |= flag;
-        else
-          flags &= ~flag;
-      } else {
-        flags &= ~nsMsgMessageFlags::RuntimeOnly;
-      }
-      seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, statusPos);
-      // We are filing out x-mozilla-status flags here
-      PR_snprintf(buf, sizeof(buf), X_MOZILLA_STATUS_FORMAT,
-                  flags & 0x0000FFFF);
-      int32_t lineLen = PL_strlen(buf);
-      uint64_t status2Pos = statusPos + lineLen;
-      fileStream->Write(buf, lineLen, &bytesWritten);
+/**
+ * Attempt to update X-Mozilla-Status and X-Mozilla-Status2 headers with
+ * new message flags by rewriting them in place.
+ */
+nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
+                                               uint32_t msgFlags) {
+  nsresult rv;
 
-      if (flag & 0xFFFF0000) {
-        // Time to update x-mozilla-status2,
-        // first find it by finding end of previous line, see bug 234935.
-        seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, status2Pos);
-        do {
-          rv = inputStream->Read(buf, 1, &bytesRead);
-          status2Pos++;
-        } while (NS_SUCCEEDED(rv) && (*buf == '\n' || *buf == '\r'));
-        status2Pos--;
-        seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, status2Pos);
-        if (NS_SUCCEEDED(inputStream->Read(buf, X_MOZILLA_STATUS2_LEN + 10,
-                                           &bytesRead))) {
-          if (strncmp(buf, X_MOZILLA_STATUS2, X_MOZILLA_STATUS2_LEN) == 0 &&
-              strncmp(buf + X_MOZILLA_STATUS2_LEN, ": ", 2) == 0 &&
-              strlen(buf) >= X_MOZILLA_STATUS2_LEN + 10) {
-            uint32_t dbFlags;
-            (void)mailHdr->GetFlags(&dbFlags);
-            dbFlags &= 0xFFFF0000;
-            seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, status2Pos);
-            PR_snprintf(buf, sizeof(buf), X_MOZILLA_STATUS2_FORMAT, dbFlags);
-            fileStream->Write(buf, PL_strlen(buf), &bytesWritten);
+  // Remember where we started.
+  int64_t msgStart;
+  rv = seekable->Tell(&msgStart);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // We edit the file in-place, so need to be able to read and write too.
+  nsCOMPtr<nsIInputStream> readable(do_QueryInterface(seekable, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIOutputStream> writable = do_QueryInterface(seekable, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Read in the first chunk of the header and search for the X-Mozilla-Status
+  // headers. We know that those headers always appear at the beginning, so
+  // don't need to look too far in.
+  mozilla::Buffer<char> buf(512);
+  mozilla::Span<char> data = readBuf(readable, buf);
+
+  HeaderReader::Header statusHdr;
+  HeaderReader::Header status2Hdr;
+  auto findHeadersFn = [&](auto const& hdr) {
+    if (hdr.name.EqualsLiteral(X_MOZILLA_STATUS)) {
+      statusHdr = hdr;
+    } else if (hdr.name.EqualsLiteral(X_MOZILLA_STATUS2)) {
+      status2Hdr = hdr;
+    } else {
+      return true;  // Keep looking.
+    }
+    // Stop looking if we've found both.
+    return !(statusHdr.IsSet() && status2Hdr.IsSet());
+  };
+  HeaderReader rdr;
+  rdr.Feed(data, findHeadersFn);
+  rdr.Flush(findHeadersFn);
+
+  // Update X-Mozilla-Status (holds the lower 16bits worth of flags).
+  if (statusHdr.IsSet()) {
+    uint32_t oldFlags = statusHdr.value.ToInteger(&rv, 16);
+    if (NS_SUCCEEDED(rv)) {
+      // Preserve the Queued flag from existing X-Mozilla-Status header.
+      // (Note: not sure why we do this, but keeping it in for now. - BenC)
+      msgFlags |= oldFlags & nsMsgMessageFlags::Queued;
+
+      if ((msgFlags & 0xFFFF) != oldFlags) {
+        auto out = nsPrintfCString("%04.4x", msgFlags & 0xFFFF);
+        if (out.Length() <= statusHdr.rawValueLength) {
+          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
+                              msgStart + statusHdr.rawValuePos);
+          NS_ENSURE_SUCCESS(rv, rv);
+          // Should be an exact fit already, but just in case...
+          while (out.Length() < statusHdr.rawValueLength) {
+            out.Append(' ');
           }
+          rv = writeBuf(writable, out.BeginReading(), out.Length());
+          NS_ENSURE_SUCCESS(rv, rv);
         }
       }
-    } else {
-#ifdef DEBUG
-      printf(
-          "Didn't find %s where expected at position %ld\n"
-          "instead, found %s.\n",
-          X_MOZILLA_STATUS, (long)statusPos, buf);
-#endif
-      rv = NS_ERROR_FAILURE;
     }
-  } else
-    rv = NS_ERROR_FAILURE;
-  return rv;
+  }
+
+  // Update X-Mozilla-Status2 (holds the upper 16bit flags only(!)).
+  if (status2Hdr.IsSet()) {
+    uint32_t oldFlags = status2Hdr.value.ToInteger(&rv, 16);
+    if (NS_SUCCEEDED(rv)) {
+      if ((msgFlags & 0xFFFF0000) != oldFlags) {
+        auto out = nsPrintfCString("%08.8x", msgFlags & 0xFFFF0000);
+        if (out.Length() <= status2Hdr.rawValueLength) {
+          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
+                              msgStart + status2Hdr.rawValuePos);
+          NS_ENSURE_SUCCESS(rv, rv);
+          while (out.Length() < status2Hdr.rawValueLength) {
+            out.Append(' ');
+          }
+          rv = writeBuf(writable, out.BeginReading(), out.Length());
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
+      }
+    }
+  }
+
+  return NS_OK;
 }
 
 /**

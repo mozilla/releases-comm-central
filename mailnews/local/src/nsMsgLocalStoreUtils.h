@@ -35,9 +35,7 @@ class nsMsgLocalStoreUtils {
                                    nsIInputStream* inputStream);
   static void ResetForceReparse(nsIMsgDatabase* aMsgDB);
 
-  nsresult UpdateFolderFlag(nsIMsgDBHdr* mailHdr, bool bSet,
-                            nsMsgMessageFlagType flag,
-                            nsIOutputStream* fileStream);
+  nsresult RewriteMsgFlags(nsISeekableStream* seekable, uint32_t flags);
   bool DiskSpaceAvailableInStore(nsIFile* aFile, uint64_t aSpaceRequested);
 };
 

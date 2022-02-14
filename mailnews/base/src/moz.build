@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
+    "HeaderReader.h",
+    "LineReader.h",
     "nsImapMoveCoalescer.h",
     "nsMailAuthModule.h",
     "nsMailDirServiceDefs.h",
