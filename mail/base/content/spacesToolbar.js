@@ -17,6 +17,50 @@ var gSpacesToolbar = {
   isHidden: false,
   prefFile: "spacesToolbar.json",
 
+  /**
+   * @callback TabInSpace
+   * @param {Object} tabInfo - The tabInfo object (a member of tabmail.tabInfo)
+   *   for the tab.
+   * @return {0|1|2} - The relation between the tab and the space. 0 means it
+   *   does not belong to the space. 1 means it is a primary tab of the space.
+   *   2 means it is a secondary tab of the space.
+   */
+  /**
+   * @callback OpenSpace
+   * @param {"tab"|"window"} where - Where to open the space: in a new tab or in
+   *   a new window.
+   * @return {?Object|Window} - The tabInfo for the newly opened tab, or the
+   *   newly opened messenger window, or null if neither was created.
+   */
+  /**
+   * Data and methods for a space.
+   *
+   * @typedef {Object} SpaceInfo
+   * @property {string} name - The name for this space.
+   * @property {boolean} allowMultipleTabs - Whether to allow the user to open
+   *   multiple tabs in this space.
+   * @property {HTMLButtonElement} button - The toolbar button for this space.
+   * @property {TabInSpace} tabInSpace - A callback that determines whether an
+   *   existing tab is considered outside this space, a primary tab of this
+   *   space (a tab that is similar to the tab created by the open method) or
+   *   a secondary tab of this space (a related tab that still belongs to this
+   *   space).
+   * @property {OpenSpace} open - A callback to open this space.
+   */
+  /**
+   * The main spaces in this toolbar. This will be constructed on load.
+   *
+   * @type {?SpaceInfo[]}
+   */
+  spaces: null,
+  /**
+   * The current space the window is in, or undefined if it is not in any of the
+   * known spaces.
+   *
+   * @type {SpaceInfo|undefined}
+   */
+  currentSpace: undefined,
+
   tabMonitor: {
     monitorName: "spacesToolbarMonitor",
 
@@ -26,49 +70,22 @@ var gSpacesToolbar = {
     onTabRestored() {},
     onTabClosing() {},
 
-    onTabSwitched(newTab, oldTab) {
+    onTabSwitched(newTabInfo, oldTabInfo) {
       // Bail out if for whatever reason something went wrong.
-      if (!newTab) {
+      if (!newTabInfo) {
         Cu.reportError(
           "Spaces Toolbar: Missing new tab on monitored tab switching"
         );
         return;
       }
 
-      for (let button of document.querySelectorAll(".spaces-toolbar-button")) {
-        button.classList.remove("current");
-      }
-
-      let buttonID;
-      switch (newTab.mode.name) {
-        case "folder":
-          buttonID = "mailButton";
-          break;
-        case "chat":
-          buttonID = "chatButton";
-          break;
-        case "calendar":
-          buttonID = "calendarButton";
-          break;
-        case "tasks":
-          buttonID = "tasksButton";
-          break;
-        case "contentTab":
-          if (newTab?.urlbar?.value == "about:addressbook") {
-            buttonID = "addressBookButton";
-          }
-          break;
-        case "preferencesTab":
-          buttonID = "settingsButton";
-          break;
-
-        default:
-          buttonID = null;
-          break;
-      }
-
-      if (buttonID) {
-        document.getElementById(buttonID).classList.add("current");
+      let tabSpace = gSpacesToolbar.spaces.find(space =>
+        space.tabInSpace(newTabInfo)
+      );
+      if (gSpacesToolbar.currentSpace != tabSpace) {
+        gSpacesToolbar.currentSpace?.button.classList.remove("current");
+        gSpacesToolbar.currentSpace = tabSpace;
+        gSpacesToolbar.currentSpace?.button.classList.add("current");
       }
     },
   },
@@ -77,6 +94,139 @@ var gSpacesToolbar = {
     if (this.isLoaded) {
       return;
     }
+
+    let tabmail = document.getElementById("tabmail");
+
+    this.spaces = [
+      {
+        name: "mail",
+        button: document.getElementById("mailButton"),
+        tabInSpace(tabInfo) {
+          switch (tabInfo.mode.name) {
+            case "folder":
+            case "mail3PaneTab":
+              return 1;
+            default:
+              return 0;
+          }
+        },
+        open(where) {
+          // Prefer the current tab, else the earliest tab.
+          let existingTab = [tabmail.currentTabInfo, ...tabmail.tabInfo].find(
+            tabInfo => this.tabInSpace(tabInfo) == 1
+          );
+          let folderURI = null;
+          switch (existingTab?.mode.name) {
+            case "folder":
+              folderURI =
+                existingTab.folderDisplay.displayedFolder?.URI || null;
+              break;
+            case "mail3PaneTab":
+              folderURI = existingTab.folderURI || null;
+              break;
+          }
+          if (where == "window") {
+            return window.openDialog(
+              "chrome://messenger/content/messenger.xhtml",
+              "_blank",
+              "chrome,dialog=no,all",
+              folderURI,
+              -1
+            );
+          }
+          if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+            return openTab("mail3PaneTab", { folderURI }, "tab");
+          }
+          return openTab(
+            "folder",
+            {
+              folder: folderURI ? MailUtils.getExistingFolder(folderURI) : null,
+            },
+            "tab"
+          );
+        },
+        allowMultipleTabs: true,
+      },
+      {
+        name: "addressbook",
+        button: document.getElementById("addressBookButton"),
+        // If "mail.addr_book.useNewAddressBook" is not true, then the
+        // addressbook will never belong to a tab, so we only need to test for
+        // the new addressbook.
+        tabInSpace(tabInfo) {
+          if (
+            tabInfo.mode.name == "contentTab" &&
+            tabInfo.urlbar?.value == "about:addressbook"
+          ) {
+            return 1;
+          }
+          return 0;
+        },
+        open(where) {
+          if (Services.prefs.getBoolPref("mail.addr_book.useNewAddressBook")) {
+            return openContentTab("about:addressbook", where);
+          }
+          // Else, ignore the "where" argument since we can only open a dialog.
+          toOpenWindowByType(
+            "mail:addressbook",
+            "chrome://messenger/content/addressbook/addressbook.xhtml"
+          );
+          // Didn't open either a tab or a messenger window.
+          return null;
+        },
+      },
+      {
+        name: "calendar",
+        button: document.getElementById("calendarButton"),
+        tabInSpace(tabInfo) {
+          return tabInfo.mode.name == "calendar" ? 1 : 0;
+        },
+        open(where) {
+          return openTab("calendar", {}, where);
+        },
+      },
+      {
+        name: "tasks",
+        button: document.getElementById("tasksButton"),
+        tabInSpace(tabInfo) {
+          return tabInfo.mode.name == "tasks" ? 1 : 0;
+        },
+        open(where) {
+          return openTab("tasks", {}, where);
+        },
+      },
+      {
+        name: "chat",
+        button: document.getElementById("chatButton"),
+        tabInSpace(tabInfo) {
+          return tabInfo.mode.name == "chat" ? 1 : 0;
+        },
+        open(where) {
+          return openTab("chat", {}, where);
+        },
+      },
+      {
+        name: "settings",
+        button: document.getElementById("settingsButton"),
+        tabInSpace(tabInfo) {
+          switch (tabInfo.mode.name) {
+            case "preferencesTab":
+              // A primary tab that the open method creates.
+              return 1;
+            case "contentTab":
+              let url = tabInfo.urlbar?.value;
+              if (url == "about:accountsettings" || url == "about:addons") {
+                // A secondary tab, that is related to this space.
+                return 2;
+              }
+          }
+          return 0;
+        },
+        open(where) {
+          return openTab("preferencesTab", { url: "about:preferences" }, where);
+        },
+      },
+    ];
 
     this.setupEventListeners();
     this.toggleToolbar(
@@ -88,7 +238,7 @@ var gSpacesToolbar = {
     );
 
     // The tab monitor will inform us when a different tab is selected.
-    document.getElementById("tabmail").registerTabMonitor(this.tabMonitor);
+    tabmail.registerTabMonitor(this.tabMonitor);
 
     this.isLoaded = true;
     // Update the window UI after the spaces toolbar has been loaded.
@@ -99,36 +249,112 @@ var gSpacesToolbar = {
 
   setupEventListeners() {
     // Prevent buttons from stealing the focus on click since the focus is
-    // handled when a specific tab is opened of switched to.
+    // handled when a specific tab is opened or switched to.
     for (let button of document.querySelectorAll(".spaces-toolbar-button")) {
       button.onmousedown = event => event.preventDefault();
     }
 
-    document.getElementById("mailButton").addEventListener("click", () => {
-      switchToMailTab();
-    });
+    let tabmail = document.getElementById("tabmail");
+    let contextMenu = document.getElementById("spacesContextMenu");
+    let newTabItem = document.getElementById("spacesContextNewTabItem");
+    let newWindowItem = document.getElementById("spacesContextNewWindowItem");
+    let separator = document.getElementById("spacesContextMenuSeparator");
 
+    // The space that we (last) opened the context menu for, which we share
+    // between methods.
+    let contextSpace;
+    newTabItem.addEventListener("command", () => contextSpace.open("tab"));
+    newWindowItem.addEventListener("command", () =>
+      contextSpace.open("window")
+    );
+
+    let settingsContextMenu = document.getElementById("settingsContextMenu");
     document
-      .getElementById("addressBookButton")
-      .addEventListener("click", () => {
-        toAddressBook();
+      .getElementById("settingsContextOpenSettingsItem")
+      .addEventListener("command", () =>
+        openTab("preferencesTab", { url: "about:preferences" })
+      );
+    document
+      .getElementById("settingsContextOpenAccountSettingsItem")
+      .addEventListener("command", () =>
+        openTab("contentTab", { url: "about:accountsettings" })
+      );
+    document
+      .getElementById("settingsContextOpenAddonsItem")
+      .addEventListener("command", () =>
+        openTab("contentTab", { url: "about:addons" })
+      );
+
+    for (let space of this.spaces) {
+      space.button.addEventListener("click", () => {
+        // Find the earliest primary tab that belongs to this space.
+        let existing = tabmail.tabInfo.find(
+          tabInfo => space.tabInSpace(tabInfo) == 1
+        );
+        if (!existing) {
+          space.open("tab");
+        } else if (this.currentSpace != space) {
+          // Only switch to the tab if it is in a different space to the
+          // current one. In particular, if we are in a later tab we won't
+          // switch to the earliest tab.
+          tabmail.switchToTab(existing);
+        }
       });
+      if (space.name == "settings") {
+        space.button.addEventListener("contextmenu", event => {
+          settingsContextMenu.openPopupAtScreen(
+            event.screenX,
+            event.screenY,
+            true,
+            event
+          );
+        });
+        continue;
+      }
+      space.button.addEventListener("contextmenu", event => {
+        contextSpace = space;
+        // Clean up old items.
+        for (let menuitem of contextMenu.querySelectorAll(".switch-to-tab")) {
+          menuitem.remove();
+        }
 
-    document.getElementById("calendarButton").addEventListener("click", () => {
-      switchToCalendarTab();
-    });
+        let existingTabs = tabmail.tabInfo.filter(space.tabInSpace);
+        // Show opening in new tab if no existing tabs or can open multiple.
+        // NOTE: We always show at least one item: either the switch to tab
+        // items, or the new tab item.
+        newTabItem.hidden = !!existingTabs.length && !space.allowMultipleTabs;
+        newWindowItem.hidden = !space.allowMultipleTabs;
 
-    document.getElementById("tasksButton").addEventListener("click", () => {
-      switchToTasksTab();
-    });
+        for (let tabInfo of existingTabs) {
+          let menuitem = document.createXULElement("menuitem");
+          document.l10n.setAttributes(
+            menuitem,
+            "spaces-context-switch-tab-item",
+            { tabName: tabInfo.title }
+          );
+          menuitem.classList.add(
+            "switch-to-tab",
+            "subviewbutton",
+            "menuitem-iconic"
+          );
+          menuitem.addEventListener("command", () =>
+            tabmail.switchToTab(tabInfo)
+          );
+          contextMenu.appendChild(menuitem);
+        }
+        // The separator splits the "Open in new tab" and "Open in new window"
+        // items from the switch-to-tab items. Only show separator if there
+        // are non-hidden items on both sides.
+        separator.hidden = !existingTabs.length || !space.allowMultipleTabs;
 
-    document.getElementById("chatButton").addEventListener("click", () => {
-      showChatTab();
-    });
-
-    document.getElementById("settingsButton").addEventListener("click", () => {
-      openOptionsDialog();
-    });
+        contextMenu.openPopupAtScreen(
+          event.screenX,
+          event.screenY,
+          true,
+          event
+        );
+      });
+    }
 
     document.getElementById("collapseButton").addEventListener("click", () => {
       this.toggleToolbar(true);

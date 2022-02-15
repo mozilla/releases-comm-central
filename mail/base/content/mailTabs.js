@@ -87,7 +87,7 @@ var mailTabType = {
         ).browser = document.getElementById("messagepane");
       },
       /**
-       * @param aArgs.folder The nsIMsgFolder to display.
+       * @param [aArgs.folder] The nsIMsgFolder to display.
        * @param [aArgs.msgHdr] Optional message header to display.
        * @param [aArgs.folderPaneVisible] Whether the folder pane should be
        *            visible. If this isn't specified, the current or first tab's
@@ -170,7 +170,7 @@ var mailTabType = {
           aTab.folderDisplay.selectMessage(msgHdr, forceSelectMessage);
         }
 
-        if (!background) {
+        if (!background && aArgs.folder) {
           // This only makes sure the selection in the folder pane is correct --
           // the actual displaying is handled by the show() call above. This
           // also means that we don't have to bother about making
@@ -282,8 +282,8 @@ var mailTabType = {
       },
       onTitleChanged(aTab, aTabNode) {
         if (!aTab.folderDisplay || !aTab.folderDisplay.displayedFolder) {
-          // Don't show "undefined" as title when there is no account.
-          aTab.title = " ";
+          // Show "Home" as title when there is no account.
+          aTab.title = document.documentElement.getAttribute("defaultTabTitle");
           return;
         }
         // The user may have changed folders, triggering our onTitleChanged

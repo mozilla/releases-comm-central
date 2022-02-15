@@ -2,6 +2,34 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+<popupset id="spacesToolbarPopupSet">
+  <menupopup id="spacesContextMenu"
+             class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
+             type="arrow">
+    <menuitem id="spacesContextNewTabItem"
+              class="subviewbutton menuitem-iconic"
+              data-l10n-id="spaces-context-new-tab-item"/>
+    <menuitem id="spacesContextNewWindowItem"
+              class="subviewbutton menuitem-iconic"
+              data-l10n-id="spaces-context-new-window-item"/>
+    <toolbarseparator id="spacesContextMenuSeparator" hidden="true"/>
+  </menupopup>
+
+  <menupopup id="settingsContextMenu"
+             class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
+             type="arrow">
+    <menuitem id="settingsContextOpenSettingsItem"
+              class="subviewbutton menuitem-iconic"
+              data-l10n-id="settings-context-open-settings-item"/>
+    <menuitem id="settingsContextOpenAccountSettingsItem"
+              class="subviewbutton menuitem-iconic"
+              data-l10n-id="settings-context-open-account-settings-item"/>
+    <menuitem id="settingsContextOpenAddonsItem"
+              class="subviewbutton menuitem-iconic"
+              data-l10n-id="settings-context-open-addons-item"/>
+  </menupopup>
+</popupset>
+
 <html:div role="toolbar" id="spacesToolbar" xmlns="http://www.w3.org/1999/xhtml"
           class="spaces-toolbar"
           data-l10n-id="spaces-toolbar"

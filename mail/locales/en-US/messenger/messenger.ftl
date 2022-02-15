@@ -219,3 +219,23 @@ spaces-toolbar-button-collapse =
 
 spaces-toolbar-button-reveal =
     .title = Show the spaces toolbar
+
+spaces-context-new-tab-item =
+    .label = Open in new tab
+
+spaces-context-new-window-item =
+    .label = Open in new window
+
+# Variables:
+# $tabName (String) - The name of the tab this item will switch to.
+spaces-context-switch-tab-item =
+    .label = Switch to { $tabName }
+
+settings-context-open-settings-item =
+    .label = Open Settings
+
+settings-context-open-account-settings-item =
+    .label = Open Account Settings
+
+settings-context-open-addons-item =
+    .label = Open Add-ons and Themes
