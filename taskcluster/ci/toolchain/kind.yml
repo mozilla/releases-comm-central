@@ -15,6 +15,7 @@ reference-jobs:
     - linux64-cbindgen
     - linux64-cctools-port
     - linux64-clang
+    - linux64-clang-13-profile
     - linux64-clang-aarch64-cross
     - linux64-clang-macosx-cross
     - linux64-clang-mingw-x64
