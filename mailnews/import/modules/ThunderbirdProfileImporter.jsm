@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["ThunderbirdProfileImporter"];
 
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -141,14 +140,6 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     await this._updateProgress();
-  }
-
-  /**
-   * Increase _itemsImportedCount by one, and call onProgress.
-   */
-  async _updateProgress() {
-    this.onProgress(++this._itemsImportedCount, this._itemsTotalCount);
-    return new Promise(resolve => setTimeout(resolve));
   }
 
   /**

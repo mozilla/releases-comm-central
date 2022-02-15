@@ -4,6 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["BaseProfileImporter"];
 
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+
 /**
  * An object to represent a source profile to import from.
  * @typedef {Object} SourceProfile
@@ -64,6 +66,14 @@ class BaseProfileImporter {
       `startImport not implemented in ${this.constructor.name}`,
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
+  }
+
+  /**
+   * Increase _itemsImportedCount by one, and call onProgress.
+   */
+  async _updateProgress() {
+    this.onProgress(++this._itemsImportedCount, this._itemsTotalCount);
+    return new Promise(resolve => setTimeout(resolve));
   }
 
   _logger = console.createInstance({

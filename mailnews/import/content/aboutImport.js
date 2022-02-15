@@ -59,6 +59,7 @@ class ProfileImporterController extends ImporterController {
   _sourceModules = {
     Thunderbird: "ThunderbirdProfileImporter",
     Seamonkey: "SeamonkeyProfileImporter",
+    Outlook: "OutlookProfileImporter",
   };
 
   /**
@@ -272,8 +273,11 @@ class ProfileImporterController extends ImporterController {
    * @param {ImportItems} items.
    */
   _setItemsChecked(items) {
-    for (let id in this._itemCheckboxes) {
-      document.getElementById(id).checked = items[this._itemCheckboxes[id]];
+    for (let [id, field] of Object.entries(this._itemCheckboxes)) {
+      let supported = items[field];
+      let checkbox = document.getElementById(id);
+      checkbox.checked = supported;
+      checkbox.disabled = !supported;
     }
   }
 

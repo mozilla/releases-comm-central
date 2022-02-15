@@ -8,3 +8,8 @@ EXTRA_JS_MODULES += [
     "SeamonkeyProfileImporter.jsm",
     "ThunderbirdProfileImporter.jsm",
 ]
+
+if CONFIG["OS_ARCH"] == "WINNT":
+    EXTRA_JS_MODULES += [
+        "OutlookProfileImporter.jsm",
+    ]
