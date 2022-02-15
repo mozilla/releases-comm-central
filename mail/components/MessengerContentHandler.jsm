@@ -300,6 +300,8 @@ MailDefaultHandler.prototype = {
 
     // The URI might be passed as the argument to the file parameter
     uri = cmdLine.handleFlagWithParam("file", false);
+    // macOS passes `-url mid:<msgid>` into the command line, drop the -url flag.
+    cmdLine.handleFlag("url", false);
 
     var count = cmdLine.length;
     if (count) {
