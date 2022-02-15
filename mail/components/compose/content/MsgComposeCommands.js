@@ -6984,7 +6984,7 @@ function updateAttachmentPane(aShowPane) {
 
   document.l10n.setAttributes(
     document.getElementById("attachmentBucketCount"),
-    "attachment-bucket-count",
+    "attachment-bucket-count-value",
     { count }
   );
 
