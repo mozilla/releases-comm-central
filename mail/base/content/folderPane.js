@@ -2829,7 +2829,7 @@ var gFolderTreeView = {
 
     if (aParentItem) {
       let parentIndex = this.getIndexOfFolder(aParentItem);
-      if (!parentIndex) {
+      if (parentIndex == null) {
         return;
       }
       if (!this._rowMap[parentIndex].open) {
