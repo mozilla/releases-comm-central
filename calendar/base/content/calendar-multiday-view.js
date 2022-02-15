@@ -1762,7 +1762,7 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <!-- NOTE: The following div is the same markup as EditableItem. -->
-          <html:div class="calendar-item-container">
+          <html:div class="calendar-item-grid">
             <html:div class="calendar-item-flex">
               <html:img class="item-type-icon" alt="" />
               <html:div class="event-name-label"></html:div>
@@ -1771,7 +1771,6 @@
                           placeholder='${cal.l10n.getCalString("newEvent")}'/>
               <html:div class="alarm-icons-box"></html:div>
               <html:img class="item-classification-icon" />
-              <html:img class="item-recurrence-icon" />
             </html:div>
             <html:div class="location-desc"></html:div>
             <html:div class="calendar-category-box"></html:div>

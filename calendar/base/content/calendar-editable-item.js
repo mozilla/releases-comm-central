@@ -133,14 +133,13 @@
                         placeholder='${cal.l10n.getCalString("newEvent")}'/>
             <html:div class="alarm-icons-box"></html:div>
             <html:img class="item-classification-icon" />
-            <html:img class="item-recurrence-icon" />
           </html:div>
           <html:div class="location-desc"></html:div>
           <html:div class="calendar-category-box"></html:div>
         `)
       );
 
-      this.classList.add("calendar-color-box", "calendar-item-container");
+      this.classList.add("calendar-color-box", "calendar-item-grid");
 
       // We have two event listeners for dragstart. This event listener is for the bubbling phase
       // where we are setting up the document.monthDragEvent which will be used in the event listener
@@ -316,29 +315,6 @@
             classificationIcon.setAttribute("alt", "");
             break;
         }
-      }
-
-      let recurrenceIcon = this.querySelector(".item-recurrence-icon");
-      if (item.parentItem != item && item.parentItem.recurrenceInfo) {
-        if (item.parentItem.recurrenceInfo.getExceptionFor(item.recurrenceId)) {
-          recurrenceIcon.setAttribute(
-            "src",
-            "chrome://calendar/skin/shared/icons/recurrence-exception.svg"
-          );
-          document.l10n.setAttributes(
-            recurrenceIcon,
-            "calendar-editable-item-recurrence-exception"
-          );
-        } else {
-          recurrenceIcon.setAttribute("src", "chrome://calendar/skin/shared/icons/recurrence.svg");
-          document.l10n.setAttributes(recurrenceIcon, "calendar-editable-item-recurrence");
-        }
-        recurrenceIcon.hidden = false;
-      } else {
-        recurrenceIcon.removeAttribute("src");
-        recurrenceIcon.removeAttribute("data-l10n-id");
-        recurrenceIcon.setAttribute("alt", "");
-        recurrenceIcon.hidden = true;
       }
 
       // Event type specific properties.
