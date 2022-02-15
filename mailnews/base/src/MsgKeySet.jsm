@@ -78,11 +78,12 @@ class MsgKeySet {
   getLastMissingRange(low, high) {
     let length = this._ranges.length;
     for (let i = length - 1; i >= 0; i--) {
-      let [, end] = this._ranges[i];
+      let [start, end] = this._ranges[i];
       if (end < high) {
         return [Math.max(low, end + 1), high];
-      }
-      if (end >= high) {
+      } else if (low < start && high > start) {
+        high = start - 1;
+      } else {
         return [];
       }
     }

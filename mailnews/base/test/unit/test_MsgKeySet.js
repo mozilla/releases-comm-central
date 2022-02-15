@@ -78,9 +78,8 @@ add_task(function testGetLastMissingRange() {
   equal(start, 33);
   equal(end, 33);
 
-  // Test `start` and `end` should be undefined if keySet already contains the
-  // input range.
+  // Test get missing old messages range works.
   [start, end] = keySet.getLastMissingRange(3, 23);
-  equal(start, undefined);
-  equal(end, undefined);
+  equal(start, 10);
+  equal(end, 11);
 });

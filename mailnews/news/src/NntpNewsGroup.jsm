@@ -65,15 +65,15 @@ class NntpNewsGroup {
       if (lastPossible < groupInfo.highWater) {
         groupInfo.highWater = lastPossible;
       }
-      this._keySet = new MsgKeySet(groupInfo.knownArtsSet);
+      this._knownKeySet = new MsgKeySet(groupInfo.knownArtsSet);
     } else {
-      this._keySet = new MsgKeySet();
-      this._keySet.addRange(
+      this._knownKeySet = new MsgKeySet();
+      this._knownKeySet.addRange(
         this._db.lowWaterArticleNum,
         this._db.highWaterArticleNum
       );
     }
-    if (this._keySet.has(lastPossible)) {
+    if (this._knownKeySet.has(lastPossible)) {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
       );
@@ -82,11 +82,14 @@ class NntpNewsGroup {
       );
     }
 
-    if (this._getOldMessages || !this._keySet.has(lastPossible)) {
-      let [start, end] = this._keySet.getLastMissingRange(
+    if (this._getOldMessages || !this._knownKeySet.has(lastPossible)) {
+      let [start, end] = this._knownKeySet.getLastMissingRange(
         firstPossible,
         lastPossible
       );
+      if (this._getOldMessages) {
+        return [Math.max(start, end - this._server.maxArticles + 1), end];
+      }
       if (
         start &&
         end - start > this._server.maxArticles &&
@@ -109,6 +112,12 @@ class NntpNewsGroup {
           return [];
         }
         start = args.downloadAll ? start : end - this._server.maxArticles + 1;
+        if (this._server.markOldRead) {
+          this._readKeySet = new MsgKeySet(
+            this._folder.newsrcLine.split(":")[1].trim()
+          );
+          this._readKeySet.addRange(firstPossible, start - 1);
+        }
       }
       return [start, end];
     }
@@ -144,7 +153,7 @@ class NntpNewsGroup {
     msgHdr.messageSize = bytes;
     msgHdr.lineCount = lines;
     this._msgHdrs.push(msgHdr);
-    this._keySet.add(articleNumber);
+    this._knownKeySet.add(articleNumber);
   }
 
   /**
@@ -154,7 +163,7 @@ class NntpNewsGroup {
     this._runFilters();
     let groupInfo = this._db.dBFolderInfo;
     if (groupInfo) {
-      groupInfo.knownArtsSet = this._keySet.toString();
+      groupInfo.knownArtsSet = this._knownKeySet.toString();
     }
   }
 
@@ -364,6 +373,9 @@ class NntpNewsGroup {
    * Commit changes to msg db.
    */
   cleanUp() {
+    if (this._readKeySet) {
+      this._folder.setReadSetFromStr(this._readKeySet);
+    }
     this._folder.notifyFinishedDownloadinghdrs();
     this._db.Commit(Ci.nsMsgDBCommitType.kSessionCommit);
     this._db.Close(true);
