@@ -33,6 +33,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await setData(dialogWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
   await saveAndCloseItemDialog(dialogWindow);
 
+  let eventItem = await dayView.waitForEventBoxAt(window, 1);
+  let icon = eventItem.querySelector(".item-recurrence-icon");
+  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.ok(!icon.hidden);
+
   // Move 5th January occurrence to 6th January.
   ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrenceAt(window, 1));
   await setData(dialogWindow, iframeWindow, {
@@ -43,7 +48,9 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await saveAndCloseItemDialog(dialogWindow);
 
   await CalendarTestUtils.goToDate(window, 2009, 1, 6);
-  await dayView.waitForEventBoxAt(window, 1);
+  eventItem = await dayView.waitForEventBoxAt(window, 1);
+  icon = eventItem.querySelector(".item-recurrence-icon");
+  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence-exception.svg");
 
   // Change recurrence rule.
   await CalendarTestUtils.goToDate(window, 2009, 1, 7);
@@ -101,7 +108,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(!!(await weekView.waitForEventBoxAt(window, 3, 2)));
 
   // Wait for the last occurrence because this appears last.
-  await weekView.waitForEventBoxAt(window, 6, 1);
+  eventItem = await weekView.waitForEventBoxAt(window, 6, 1);
+  icon = eventItem.querySelector(".item-recurrence-icon");
+  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.ok(!icon.hidden);
+
   Assert.ok(!weekView.getEventBoxAt(window, 1, 1));
   Assert.ok(!weekView.getEventBoxAt(window, 2, 1));
   Assert.ok(!!weekView.getEventBoxAt(window, 4, 1));
@@ -140,6 +151,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(multiweekView.getItemAt(window, 2, 6, 1));
   Assert.ok(!multiweekView.getItemAt(window, 2, 7, 1));
 
+  eventItem = multiweekView.getItemAt(window, 2, 4, 1);
+  icon = eventItem.querySelector(".item-recurrence-icon");
+  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.ok(!icon.hidden);
+
   // month view
   await CalendarTestUtils.setCalendarView(window, "month");
   // Wait for the first items, then check the ones not to be present.
@@ -162,6 +178,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(!monthView.getItemAt(window, 3, 5, 1));
   Assert.ok(monthView.getItemAt(window, 3, 6, 1));
   Assert.ok(!monthView.getItemAt(window, 3, 7, 1));
+
+  eventItem = monthView.getItemAt(window, 3, 6, 1);
+  icon = eventItem.querySelector(".item-recurrence-icon");
+  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.ok(!icon.hidden);
 
   // Delete event.
   await CalendarTestUtils.setCalendarView(window, "day");

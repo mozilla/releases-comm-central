@@ -78,6 +78,9 @@ async function assertWeekEvents(date, expect, message) {
       expect.name,
       `Day ${day} event name should match: ${message}`
     );
+    let icon = element.querySelector(".item-recurrence-icon");
+    Assert.equal(icon.src, "");
+    Assert.ok(icon.hidden);
     await CalendarTestUtils.assertEventBoxDraggable(
       element,
       expect.startInView && day == expect.start,
