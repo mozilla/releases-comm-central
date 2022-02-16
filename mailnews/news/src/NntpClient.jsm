@@ -173,8 +173,7 @@ class NntpClient {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
-    this.quit();
-    this._actionDone(event.errorCode);
+    this.quit(event.errorCode);
   };
 
   /**
@@ -370,10 +369,11 @@ class NntpClient {
   /**
    * Send `QUIT` request to the server.
    */
-  quit() {
+  quit(status = Cr.NS_OK) {
     this._sendCommand("QUIT");
     this._nextAction = this.close;
     this.close();
+    this._actionDone(status);
   }
 
   /**
