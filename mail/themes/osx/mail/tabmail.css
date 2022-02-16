@@ -72,7 +72,7 @@
 }
 
 .tabmail-tab:focus .tab-label-container {
-  box-shadow: var(--focus-ring-box-shadow);
+  outline: var(--focus-outline);
 }
 
 :root[tabsintitlebar][extradragspace] .tabmail-tab::after,

@@ -9,7 +9,7 @@ menulist[is="menulist-editable"][editable="true"] {
 }
 
 menulist[is="menulist-editable"][editable="true"]:focus-within {
-  box-shadow: var(--focus-ring-box-shadow);
+  outline: var(--focus-outline);
 }
 
 menulist[is="menulist-editable"][editable="true"] > menupopup,

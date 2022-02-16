@@ -12,7 +12,7 @@
 }
 
 #editContactAddressBookList:focus {
-  box-shadow: var(--focus-ring-box-shadow);
+  outline: var(--focus-outline);
 }
 
 #editContactAddressBookList[disabled="true"] {
