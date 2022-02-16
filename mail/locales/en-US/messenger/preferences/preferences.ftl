@@ -253,6 +253,9 @@ autoscroll-label =
 smooth-scrolling-label =
     .label = Use smooth scrolling
     .accesskey = m
+browsing-gtk-use-non-overlay-scrollbars =
+    .label = Always show scrollbars
+    .accesskey = c
 
 system-integration-legend = System Integration
 always-check-default =

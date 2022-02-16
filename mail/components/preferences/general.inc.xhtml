@@ -376,6 +376,14 @@
                   preference="general.smoothScroll"/>
         <spacer flex="1"/>
       </hbox>
+#ifdef MOZ_WIDGET_GTK
+      <hbox>
+        <checkbox id="useOverlayScrollbars"
+                  data-l10n-id="browsing-gtk-use-non-overlay-scrollbars"
+                  preference="widget.gtk.overlay-scrollbars.enabled"/>
+        <spacer flex="1"/>
+      </hbox>
+#endif
     </html:fieldset>
     </html:div>
 
