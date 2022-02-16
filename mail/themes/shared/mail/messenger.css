@@ -366,8 +366,8 @@ toolbar[brighttext] {
 }
 
 treechildren::-moz-tree-row(selected, current, focus) {
-  outline-color: color-mix(in srgb, SelectedItem, black 10%);
-  outline-style: solid;
+  outline: 1px solid color-mix(in srgb, SelectedItem, black 10%);
+  outline-offset: -1px;
 }
 
 tree > treechildren::-moz-tree-row(hover) {
@@ -405,12 +405,20 @@ treechildren::-moz-tree-twisty(selected, focus) {
   outline: none;
 }
 
+:root[lwt-tree] treechildren::-moz-tree-row(current, focus) {
+  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
+}
+
 /* Dark theme adaptions */
 :root[lwt-tree-brighttext] #threadTree treechildren::-moz-tree-row(untagged, selected),
 :root[lwt-tree-brighttext]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
 :root[lwt-tree-brighttext] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
   border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
   background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
+}
+
+:root[lwt-tree-brighttext] treechildren::-moz-tree-row(current, focus) {
+  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
 }
 
 /* Make the new mail indicator better visible on dark theme */

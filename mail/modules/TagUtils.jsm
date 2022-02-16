@@ -78,7 +78,9 @@ function addTagToSheet(aKey, aColor, aSheet) {
       selector +
       ", selected, focus) { background-color: " +
       aColor +
-      " !important; }";
+      " !important; outline-color: color-mix(in srgb, " +
+      aColor +
+      ", black 25%); }";
     ruleString2 =
       "treechildren::-moz-tree-cell-text(" +
       selector +
