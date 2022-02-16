@@ -155,8 +155,9 @@ static char* test_passwd_prompt(PK11SlotInfo* slot, void* wincx) {
   fprintf(stdout, "#### Password required: ");
   s = fgets(buf, sizeof(buf) - 1, stdin);
   if (!s) return s;
-  if (s[strlen(s) - 1] == '\r' || s[strlen(s) - 1] == '\n')
-    s[strlen(s) - 1] = '\0';
+  size_t s_len = strlen(s);
+  if (s_len && s[slen - 1] == '\r' || s[slen - 1] == '\n')
+    s[slen - 1] = '\0';
   return s;
 }
 

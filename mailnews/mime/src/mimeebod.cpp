@@ -327,6 +327,8 @@ static int MimeExternalBody_parse_eof(MimeObject* obj, bool abort_p) {
         const char* pre = "<P><PRE>";
         const char* suf = "</PRE>";
         int32_t i;
+        // The end condition requires i to be negative, so it's ok to
+        // allow the starting value to be negative.
         for (i = strlen(s) - 1; i >= 0 && IS_SPACE(s[i]); i--) s[i] = 0;
         nsCString s2;
         nsAppendEscapedHTML(nsDependentCString(s), s2);

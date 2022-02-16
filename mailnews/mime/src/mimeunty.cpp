@@ -349,14 +349,23 @@ static bool MimeUntypedText_uu_begin_line_p(const char* line, int32_t length,
 
   while (IS_SPACE(*s)) s++;
 
-  name = (char*)PR_MALLOC(((line + length) - s) + 1);
-  if (!name) return false; /* grr... */
-  memcpy(name, s, (line + length) - s);
-  name[(line + length) - s] = 0;
+  int name_len = (line + length) - s;
 
-  /* take off newline. */
-  if (name[strlen(name) - 1] == '\n') name[strlen(name) - 1] = 0;
-  if (name[strlen(name) - 1] == '\r') name[strlen(name) - 1] = 0;
+  name = (char*)PR_MALLOC(name_len + 1);
+  if (!name) return false; /* grr... */
+  memcpy(name, s, name_len);
+  name[name_len] = 0;
+
+  if (name_len) {
+    /* take off newline. */
+    if (name_len && name[name_len - 1] == '\n') {
+      name[name_len] = 0;
+      name_len--;
+    }
+    if (name_len && name[name_len - 1] == '\r') {
+      name[name_len] = 0;
+    }
+  }
 
   /* Now try and figure out a type.
    */
@@ -439,14 +448,24 @@ static bool MimeUntypedText_yenc_begin_line_p(const char* line, int32_t length,
 
   /* anything left is the file name */
   s += 6;
-  name = (char*)PR_MALLOC((endofline - s) + 1);
-  if (!name) return false; /* grr... */
-  memcpy(name, s, endofline - s);
-  name[endofline - s] = 0;
 
-  /* take off newline. */
-  if (name[strlen(name) - 1] == '\n') name[strlen(name) - 1] = 0;
-  if (name[strlen(name) - 1] == '\r') name[strlen(name) - 1] = 0;
+  int name_len = endofline - s;
+
+  name = (char*)PR_MALLOC(name_len + 1);
+  if (!name) return false; /* grr... */
+  memcpy(name, s, name_len);
+  name[name_len] = 0;
+
+  if (name_len) {
+    /* take off newline. */
+    if (name_len && name[name_len - 1] == '\n') {
+      name[name_len] = 0;
+      name_len--;
+    }
+    if (name_len && name[name_len - 1] == '\r') {
+      name[name_len] = 0;
+    }
+  }
 
   /* Now try and figure out a type.
    */
