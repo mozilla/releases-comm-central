@@ -2073,9 +2073,9 @@ AttachmentInfo.prototype = {
       return;
     }
 
+    let bundleMessenger = document.getElementById("bundle_messenger");
     let empty = await this.isEmpty();
     if (empty) {
-      let bundleMessenger = document.getElementById("bundle_messenger");
       let prompt = bundleMessenger.getString(
         this.isExternalAttachment
           ? "externalAttachmentNotFound"
@@ -2227,7 +2227,13 @@ AttachmentInfo.prototype = {
               let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
                 Ci.nsIFilePicker
               );
-              filePicker.init(window, "title", Ci.nsIFilePicker.modeSave);
+              filePicker.defaultString = this.name;
+              filePicker.defaultExtension = extension;
+              filePicker.init(
+                window,
+                bundleMessenger.getString("SaveAttachment"),
+                Ci.nsIFilePicker.modeSave
+              );
               let rv = await new Promise(resolve => filePicker.open(resolve));
               if (rv != Ci.nsIFilePicker.returnCancel) {
                 await saveToFile(filePicker.file.path);
@@ -2258,7 +2264,7 @@ AttachmentInfo.prototype = {
               this,
               window,
               this.suggestedFileName,
-              extension,
+              "." + extension, // Dot stripped by promptForSaveToFileAsync.
               false
             );
           },
