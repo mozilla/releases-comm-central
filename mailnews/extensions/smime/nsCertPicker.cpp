@@ -25,8 +25,22 @@
 #include "nsComponentManagerUtils.h"  // for do_CreateInstance
 #include "nsString.h"
 #include "mozpkix/pkixtypes.h"
+#include "mozilla/Maybe.h"
+#include "mozilla/Unused.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 
 using namespace mozilla;
+
+// Copied from security/manager/ssl/nsCertTree.cpp
+static void PRTimeToLocalDateString(PRTime time, nsAString& result) {
+  PRExplodedTime explodedTime;
+  PR_ExplodeTime(time, PR_LocalTimeParameters, &explodedTime);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
+  style.time = mozilla::Nothing();
+  mozilla::Unused << intl::AppDateTimeFormat::Format(style, &explodedTime,
+                                                     result);
+}
 
 MOZ_TYPE_SPECIFIC_UNIQUE_PTR_TEMPLATE(UniqueCERTCertNicknames,
                                       CERTCertNicknames, CERT_FreeNicknames)
@@ -102,26 +116,29 @@ nsresult FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
       details.Append(info);
     }
 
-    if (NS_SUCCEEDED(validity->GetNotBeforeLocalTime(temp1)) &&
-        !temp1.IsEmpty()) {
+    PRTime notBefore;
+    rv = validity->GetNotBefore(&notBefore);
+    if (NS_SUCCEEDED(rv)) {
       details.Append(char16_t(' '));
       if (NS_SUCCEEDED(mcs->GetSMIMEBundleString(u"CertInfoFrom", info))) {
         details.Append(info);
         details.Append(char16_t(' '));
       }
+      PRTimeToLocalDateString(notBefore, temp1);
       details.Append(temp1);
     }
 
-    if (NS_SUCCEEDED(validity->GetNotAfterLocalTime(temp1)) &&
-        !temp1.IsEmpty()) {
+    PRTime notAfter;
+    rv = validity->GetNotAfter(&notAfter);
+    if (NS_SUCCEEDED(rv)) {
       details.Append(char16_t(' '));
       if (NS_SUCCEEDED(mcs->GetSMIMEBundleString(u"CertInfoTo", info))) {
         details.Append(info);
         details.Append(char16_t(' '));
       }
+      PRTimeToLocalDateString(notAfter, temp1);
       details.Append(temp1);
     }
-
     details.Append(char16_t('\n'));
   }
 

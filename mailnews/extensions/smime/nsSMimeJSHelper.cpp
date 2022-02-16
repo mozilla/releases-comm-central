@@ -15,6 +15,11 @@
 #include "nsIX509CertValidity.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCRTGlue.h"
+#include "mozilla/Maybe.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
+#include "mozilla/Maybe.h"
+#include "mozilla/Unused.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 
 using namespace mozilla::mailnews;
 
@@ -23,6 +28,17 @@ NS_IMPL_ISUPPORTS(nsSMimeJSHelper, nsISMimeJSHelper)
 nsSMimeJSHelper::nsSMimeJSHelper() {}
 
 nsSMimeJSHelper::~nsSMimeJSHelper() {}
+
+// Copied from security/manager/ssl/nsCertTree.cpp
+static void PRTimeToLocalDateString(PRTime time, nsAString& result) {
+  PRExplodedTime explodedTime;
+  PR_ExplodeTime(time, PR_LocalTimeParameters, &explodedTime);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
+  style.time = mozilla::Nothing();
+  mozilla::Unused << mozilla::intl::AppDateTimeFormat::Format(
+      style, &explodedTime, result);
+}
 
 NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
     nsIMsgCompFields* compFields, nsTArray<nsString>& emailAddresses,
@@ -68,8 +84,16 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
       nsCOMPtr<nsIX509CertValidity> validity;
       rv = cert->GetValidity(getter_AddRefs(validity));
       if (NS_SUCCEEDED(rv)) {
-        validity->GetNotBeforeLocalDay(certIssuedInfo);
-        validity->GetNotAfterLocalDay(certExpiresInfo);
+        PRTime notBefore;
+        rv = validity->GetNotBefore(&notBefore);
+        if (NS_SUCCEEDED(rv)) {
+          PRTimeToLocalDateString(notBefore, certIssuedInfo);
+        }
+        PRTime notAfter;
+        rv = validity->GetNotAfter(&notAfter);
+        if (NS_SUCCEEDED(rv)) {
+          PRTimeToLocalDateString(notAfter, certExpiresInfo);
+        }
       }
     } else {
       *canEncrypt = false;
