@@ -465,8 +465,8 @@ add_task(async function test_getFolderInfo() {
       let onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      browser.test.sendMessage("markAllAsRead");
-      browser.test.sendMessage("setFavorite", true);
+      await browser.test.sendMessage("markAllAsRead");
+      await browser.test.sendMessage("setFavorite", true);
       let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual(
         { unreadMessageCount: 0, favorite: true },
@@ -484,7 +484,7 @@ add_task(async function test_getFolderInfo() {
       onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      browser.test.sendMessage("setFavorite", false);
+      await browser.test.sendMessage("setFavorite", false);
       [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual({ favorite: false }, mailFolderInfo);
       browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
@@ -493,7 +493,7 @@ add_task(async function test_getFolderInfo() {
       onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      browser.test.sendMessage("markSomeAsUnread", 5);
+      await browser.test.sendMessage("markSomeAsUnread", 5);
       [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual({ unreadMessageCount: 5 }, mailFolderInfo);
 
