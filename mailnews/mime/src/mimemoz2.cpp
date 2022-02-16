@@ -601,18 +601,16 @@ extern "C" nsresult MimeGetAttachmentList(MimeObject* tobj,
                                 *data);
     if (NS_FAILED(rv)) {
       delete[] * data;  // release data in case of error return.
+      *data = nullptr;
       return rv;
     }
   }
   rv = BuildAttachmentList((MimeObject*)cobj, *data, aMessageURL);
   if (NS_FAILED(rv)) {
     delete[] * data;  // release data in case of error return.
+    *data = nullptr;
   }
   return rv;
-}
-
-extern "C" void MimeFreeAttachmentList(nsMsgAttachmentData* data) {
-  delete[] data;
 }
 
 extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions* opt,
@@ -886,7 +884,7 @@ extern "C" void mime_display_stream_complete(nsMIMESession* stream) {
       if (NS_SUCCEEDED(rv)) {
         NotifyEmittersOfAttachmentList(msd->options, attachments);
       }
-      MimeFreeAttachmentList(attachments);
+      delete [] attachments;
     }
 
     // Release the conversion object - this has to be done after
