@@ -9,12 +9,13 @@
   --error-color: #5A0002;
 }
 
-.dialog-container {
-  width: 36em;
+body {
+  margin: 0;
 }
 
-.header-container {
-  margin: 0px 10px 5px;
+dialog {
+  width: 100vw;
+  height: 100vh;
 }
 
 .label-title {
@@ -31,7 +32,7 @@
 
 .form-control {
   position: relative;
-  margin: 0px 0px 10px;
+  margin: 0;
 }
 
 .input-control {
@@ -40,17 +41,14 @@
 }
 
 .input-field {
-  padding: 5px 30px 5px 6px;
+  padding-block: 5px;
+  padding-inline: 6px 30px;
   flex-grow: 1;
   margin: 2px 4px;
 }
 
 .input-field:invalid {
   box-shadow: 0 0 2px 1px var(--warning-color);
-}
-
-.input-helper-container {
-  margin-top: -6px;
 }
 
 .input-helper {
@@ -73,7 +71,6 @@
   cursor: pointer;
   -moz-context-properties: fill, stroke-opacity;
   fill: currentColor;
-  margin-left: -26px;
-  margin-right: 10px;
+  margin-inline: -26px 10px;
   color: var(--warning-color);
 }

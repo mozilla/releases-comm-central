@@ -5,6 +5,10 @@
 var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
+window.addEventListener("DOMContentLoaded", () => {
+  otrAddFinger.onload();
+});
+
 var otrAddFinger = {
   onload() {
     let args = window.arguments[0].wrappedJSObject;
@@ -40,8 +44,6 @@ var otrAddFinger = {
       }
       OTR.setTrust(finger, true, context);
     });
-
-    window.sizeToContent();
   },
 
   addBlankSpace(value) {
@@ -65,15 +67,11 @@ var otrAddFinger = {
       this.fingerError.hidden = true;
     }
 
-    document
-      .getElementById("otrAddFingerDialog")
-      .querySelector("dialog")
-      .getButton("accept").disabled = input.value && !input.validity.valid;
+    document.querySelector("dialog").getButton("accept").disabled =
+      input.value && !input.validity.valid;
 
     this.keyCount.value = `${hex.length}/40`;
     input.value = this.addBlankSpace(input.value);
-
-    window.sizeToContent();
   },
 
   onblur(input) {

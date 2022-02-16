@@ -6,29 +6,23 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css" ?>
 <?xml-stylesheet href="chrome://chat/skin/otrFingerprintDialog.css" type="text/css"?>
 
-<!DOCTYPE window>
-
-<window data-l10n-id="otr-add-finger"
-        id="otrAddFingerDialog"
-        windowtype="OTR:AddFinger"
-        onload="otrAddFinger.onload()"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="OTR:AddFinger"
+      width="540" height="200"
+      scrolling="false">
+<head>
+  <title data-l10n-id="otr-add-finger-title"></title>
+  <link rel="localization" href="messenger/otr/add-finger.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://chat/content/otr-add-fingerprint.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <dialog buttons="accept,cancel"
           buttondisabledaccept="true">
-
-    <keyset id="mailKeys">
-      <key keycode="VK_ESCAPE" oncommand="window.close();"/>
-    </keyset>
-
-    <linkset>
-      <html:link rel="localization" href="messenger/otr/add-finger.ftl"/>
-    </linkset>
-
-    <script src="chrome://chat/content/otr-add-fingerprint.js"/>
-    <script src="chrome://global/content/globalOverlay.js"/>
-    <script src="chrome://global/content/editMenuOverlay.js"/>
-    <vbox class="dialog-container" flex="1">
       <hbox align="center" pack="center" class="header-container">
         <vbox>
           <html:img class="header-icon"
@@ -55,7 +49,7 @@
         </hbox>
         <html:img id="fingerWarning" class="warning-icon"
                   src="chrome://global/skin/icons/warning.svg" alt=""
-                  hidden="hidden" />
+                  width="16" height="16" hidden="hidden" />
       </hbox>
       <vbox class="input-helper-container" flex="1" align="end">
         <label id="fingerError"
@@ -64,6 +58,6 @@
                hidden="true"/>
         <label id="keyCount" class="input-helper" value="0/40"/>
       </vbox>
-    </vbox>
   </dialog>
-</window>
+</html:body>
+</html>
