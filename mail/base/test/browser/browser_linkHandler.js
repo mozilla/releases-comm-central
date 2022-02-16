@@ -171,6 +171,19 @@ async function clickOnLink(
 
   await Promise.any([webProgressPromise, externalProtocolPromise]);
 
+  if (selector == "#this-hash") {
+    await SpecialPowers.spawn(browser, [], () => {
+      let doc = content.document;
+      let target = doc.querySelector("#hash");
+      let targetRect = target.getBoundingClientRect();
+      Assert.less(
+        targetRect.bottom,
+        doc.documentElement.clientHeight,
+        "page did scroll"
+      );
+    });
+  }
+
   if (shouldLoadInternally) {
     Assert.equal(
       await webProgressPromise,
