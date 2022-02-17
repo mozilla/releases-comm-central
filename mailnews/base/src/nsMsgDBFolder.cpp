@@ -3799,7 +3799,9 @@ NS_IMETHODIMP nsMsgDBFolder::GenerateUniqueSubfolderName(
   for (int count = 0; count < 256; count++) {
     nsAutoString uniqueName;
     uniqueName.Assign(prefix);
-    uniqueName.AppendInt(count);
+    if (count > 0) {
+      uniqueName.AppendInt(count);
+    }
     bool containsChild;
     bool otherContainsChild = false;
     ContainsChildNamed(uniqueName, &containsChild);
