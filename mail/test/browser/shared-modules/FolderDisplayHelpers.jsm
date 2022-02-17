@@ -260,11 +260,6 @@ function setupModule() {
   //  we want them to log extra stuff.
   testHelperModule._logHelperInterestedListeners = true;
 
-  load_via_src_path(
-    "../../../testing/mochitest/resources/viewWrapperTestUtils.js",
-    testHelperModule
-  );
-
   // provide super helpful folder event info (when logHelper cares)
   load_via_src_path(
     "../../../testing/mochitest/resources/folderEventLogHelper.js",
@@ -2075,6 +2070,17 @@ function wait_for_folder_events() {
  * Assert that the given synthetic message sets are present in the folder
  *  display.
  *
+ * Verify that the messages in the provided SyntheticMessageSets are the only
+ *  visible messages in the provided DBViewWrapper. If dummy headers are present
+ *  in the view for group-by-sort, the code will ensure that the dummy header's
+ *  underlying header corresponds to a message in the synthetic sets.  However,
+ *  you should generally not rely on this code to test for anything involving
+ *  dummy headers.
+ *
+ * In the event the view does not contain all of the messages from the provided
+ *  sets or contains messages not in the provided sets, throw_and_dump_view_state
+ *  will be invoked with a human readable explanation of the problem.
+ *
  * @param aSynSets Either a single SyntheticMessageSet or a list of them.
  * @param aController Optional controller, which we get the folderDisplay
  *     property from.  If omitted, we use mc.
@@ -2083,10 +2089,51 @@ function assert_messages_in_view(aSynSets, aController) {
   if (aController == null) {
     aController = mc;
   }
-  testHelperModule.verify_messages_in_view(
-    aSynSets,
-    aController.folderDisplay.view
+  if (!("length" in aSynSets)) {
+    aSynSets = [aSynSets];
+  }
+
+  // - Iterate over all the message sets, retrieving the message header.  Use
+  //  this to construct a URI to populate a dictionary mapping.
+  let synMessageURIs = {}; // map URI to message header
+  for (let messageSet of aSynSets) {
+    for (let msgHdr of messageSet.msgHdrs()) {
+      synMessageURIs[msgHdr.folder.getUriForMsg(msgHdr)] = msgHdr;
+    }
+  }
+
+  // - Iterate over the contents of the view, nulling out values in
+  //  synMessageURIs for found messages, and exploding for missing ones.
+  let dbView = aController.folderDisplay.view.dbView;
+  let treeView = aController.folderDisplay.view.dbView.QueryInterface(
+    Ci.nsITreeView
   );
+  let rowCount = treeView.rowCount;
+
+  for (let iViewIndex = 0; iViewIndex < rowCount; iViewIndex++) {
+    let msgHdr = dbView.getMsgHdrAt(iViewIndex);
+    let uri = msgHdr.folder.getUriForMsg(msgHdr);
+    // expected hit, null it out. (in the dummy case, we will just null out
+    //  twice, which is also why we do an 'in' test and not a value test.
+    if (uri in synMessageURIs) {
+      synMessageURIs[uri] = null;
+    } else {
+      // the view is showing a message that should not be shown, explode.
+      throw_and_dump_view_state(
+        "The view should show the message header" + msgHdr.messageKey
+      );
+    }
+  }
+
+  // - Iterate over our URI set and make sure every message got nulled out.
+  for (let uri in synMessageURIs) {
+    let msgHdr = synMessageURIs[uri];
+    if (msgHdr != null) {
+      throw_and_dump_view_state(
+        "The view is should include the message header" + msgHdr.messageKey
+      );
+    }
+  }
 }
 
 /**
