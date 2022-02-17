@@ -347,7 +347,7 @@ body.is-editing #detailsPane {
 
 #detailsPaneBackdrop {
   grid-column: 1 / -1;
-  grid-row: 1 / -1;
+  grid-row: 2 / -1;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1;
 }
