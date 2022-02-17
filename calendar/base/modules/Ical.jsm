@@ -8,7 +8,7 @@
  * If you would like to change anything in ical.js, it is required to do so
  * upstream first.
  *
- * Current ical.js git revision: 7c99a434b38ad5d670a0e778ef055a2e17ccb3db (v1.4.0)
+ * Current ical.js git revision: 3ec17951aad61bd53818f934879cc0857ee7b42d (v1.5.0)
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -42,21 +42,9 @@ function unwrapSingle(type, val) {
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * Portions Copyright (C) Philipp Kewisch, 2011-2015 */
+ * Portions Copyright (C) Philipp Kewisch, 2021 */
 
-var ICAL;
-
-/* istanbul ignore next */
-/* jshint ignore:start */
-if (typeof module === 'object') {
-  // CommonJS, where exports may be different each time.
-  ICAL = module.exports;
-} else if (typeof ICAL !== 'object') {/* istanbul ignore next */
-  /** @ignore */
-  ICAL = {};
-}
-/* jshint ignore:end */
-
+var ICAL = {};
 
 /**
  * The number of characters before iCalendar line folding should occur
@@ -329,11 +317,22 @@ ICAL.helpers = {
    */
   foldline: function foldline(aLine) {
     var result = "";
-    var line = aLine || "";
-
+    var line = aLine || "", pos = 0, line_length = 0;
+    //pos counts position in line for the UTF-16 presentation
+    //line_length counts the bytes for the UTF-8 presentation
     while (line.length) {
-      result += ICAL.newLineChar + " " + line.substr(0, ICAL.foldLength);
-      line = line.substr(ICAL.foldLength);
+      var cp = line.codePointAt(pos);
+      if (cp < 128) ++line_length;
+      else if (cp < 2048) line_length += 2;//needs 2 UTF-8 bytes
+      else if (cp < 65536) line_length += 3;
+      else line_length += 4; //cp is less than 1114112
+      if (line_length < ICAL.foldLength + 1)
+        pos += cp > 65535 ? 2 : 1;
+      else {
+        result += ICAL.newLineChar + " " + line.substring(0, pos);
+        line = line.substring(pos);
+        pos = line_length = 0;
+      }
     }
     return result.substr(ICAL.newLineChar.length + 1);
   },
@@ -665,7 +664,7 @@ ICAL.design = (function() {
       allowIanaToken: true
     },
     "range": {
-      values: ["THISLANDFUTURE"]
+      values: ["THISANDFUTURE"]
     },
     "related": {
       values: ["START", "END"]
@@ -1908,11 +1907,11 @@ ICAL.parse = (function() {
      *    // ROLE= is a param because : has not happened yet
      */
       // when the parameter delimiter is after the
-      // value delimiter then its not a parameter.
+      // value delimiter then it is not a parameter.
 
     if ((paramPos !== -1 && valuePos !== -1)) {
       // when the parameter delimiter is after the
-      // value delimiter then its not a parameter.
+      // value delimiter then it is not a parameter.
       if (paramPos > valuePos) {
         paramPos = -1;
       }
@@ -1955,14 +1954,14 @@ ICAL.parse = (function() {
         state.component = state.stack.pop();
         return;
       }
-      // If its not begin/end, then this is a property with an empty value,
+      // If it is not begin/end, then this is a property with an empty value,
       // which should be considered valid.
     } else {
       /**
        * Invalid line.
        * The rational to throw an error is we will
        * never be certain that the rest of the file
-       * is sane and its unlikely that we can serialize
+       * is sane and it is unlikely that we can serialize
        * the result correctly either.
        */
       throw new ParserError(
@@ -2012,7 +2011,7 @@ ICAL.parse = (function() {
      *
      * I observed that building the array in pieces has adverse
      * effects on performance, so where possible we inline the creation.
-     * Its a little ugly but resulted in ~2000 additional ops/sec.
+     * It is a little ugly but resulted in ~2000 additional ops/sec.
      */
 
     var result;
@@ -2345,7 +2344,7 @@ ICAL.Component = (function() {
   Component.prototype = {
     /**
      * Hydrated properties are inserted into the _properties array at the same
-     * position as in the jCal array, so its possible the array contains
+     * position as in the jCal array, so it is possible that the array contains
      * undefined values for unhydrdated properties. To avoid iterating the
      * array when checking if all properties have been hydrated, we save the
      * count here.
@@ -2836,7 +2835,7 @@ ICAL.Property = (function() {
    * property, with its parameters and value.
    *
    * @description
-   * Its important to note that mutations done in the wrapper
+   * It is important to note that mutations done in the wrapper
    * directly mutate the jCal object used to initialize.
    *
    * Can also be used to create new properties by passing
@@ -3019,8 +3018,8 @@ ICAL.Property = (function() {
     /**
      * Gets a parameter on the property.
      *
-     * @param {String}        name   Property name (lowercase)
-     * @return {Array|String}        Property value
+     * @param {String}        name   Parameter name (lowercase)
+     * @return {Array|String}        Parameter value
      */
     getParameter: function(name) {
       if (name in this.jCal[PROP_INDEX]) {
@@ -3033,8 +3032,8 @@ ICAL.Property = (function() {
     /**
      * Gets first parameter on the property.
      *
-     * @param {String}        name   Property name (lowercase)
-     * @return {String}        Property value
+     * @param {String}        name   Parameter name (lowercase)
+     * @return {String}        Parameter value
      */
     getFirstParameter: function(name) {
       var parameters = this.getParameter(name);
@@ -3121,7 +3120,7 @@ ICAL.Property = (function() {
       var len = this.jCal.length - VALUE_INDEX;
 
       if (len < 1) {
-        // its possible for a property to have no value.
+        // it is possible for a property to have no value.
         return [];
       }
 
@@ -4742,7 +4741,7 @@ ICAL.TimezoneService = (function() {
 
   /**
    * @classdesc
-   * Singleton class to contain timezones.  Right now its all manual registry in
+   * Singleton class to contain timezones.  Right now it is all manual registry in
    * the future we may use this class to download timezone information or handle
    * loading pre-expanded timezones.
    *
@@ -5271,7 +5270,7 @@ ICAL.TimezoneService = (function() {
 
 
         // if the offset goes into the past
-        // week we add 7 so its goes into the next
+        // week we add 7 so it goes into the next
         // week. We only want to go forward in time here.
         if (offset < 0)
           // this is really important otherwise we would
@@ -5320,7 +5319,7 @@ ICAL.TimezoneService = (function() {
      *
      * @param {ICAL.Time.weekDay} aDayOfWeek       Day of week to check
      * @param {Number} aPos                        Relative position
-     * @return {Boolean}                           True, if its the nth weekday
+     * @return {Boolean}                           True, if it is the nth weekday
      */
     isNthWeekDay: function(aDayOfWeek, aPos) {
       var dow = this.dayOfWeek();
@@ -5483,7 +5482,7 @@ ICAL.TimezoneService = (function() {
     },
 
     /**
-     * Convert the instance into another timzone. The returned ICAL.Time
+     * Convert the instance into another timezone. The returned ICAL.Time
      * instance is always a copy.
      *
      * @param {ICAL.Timezone} zone      The zone to convert to
@@ -6014,6 +6013,9 @@ ICAL.TimezoneService = (function() {
 
   /**
    * Creates a new ICAL.Time instance from the current moment.
+   * The instance is “floating” - has no timezone relation.
+   * To create an instance considering the time zone, call
+   * ICAL.Time.fromJSDate(new Date(), true)
    * @return {ICAL.Time}
    */
   ICAL.Time.now = function icaltime_now() {
@@ -6812,7 +6814,7 @@ ICAL.TimezoneService = (function() {
     BYMONTHDAY: parseNumericValue.bind(this, 'BYMONTHDAY', -31, 31),
     BYYEARDAY: parseNumericValue.bind(this, 'BYYEARDAY', -366, 366),
     BYWEEKNO: parseNumericValue.bind(this, 'BYWEEKNO', -53, 53),
-    BYMONTH: parseNumericValue.bind(this, 'BYMONTH', 0, 12),
+    BYMONTH: parseNumericValue.bind(this, 'BYMONTH', 1, 12),
     BYSETPOS: parseNumericValue.bind(this, 'BYSETPOS', -366, 366)
   };
 
@@ -7394,11 +7396,11 @@ ICAL.RecurIterator = (function() {
 
         // negative case
         if (rule < 0) {
-          // we add (not subtract its a negative number)
+          // we add (not subtract it is a negative number)
           // one from the rule because 1 === last day of month
           rule = daysInMonth + (rule + 1);
         } else if (rule === 0) {
-          // skip zero its invalid.
+          // skip zero: it is invalid.
           continue;
         }
 
@@ -7534,7 +7536,7 @@ ICAL.RecurIterator = (function() {
           }
         }
 
-        // Its completely possible that the combination
+        // It is completely possible that the combination
         // cannot be matched in the current month.
         // When we reach the end of possible combinations
         // in the current month we iterate to the next one.
@@ -8371,7 +8373,7 @@ ICAL.RecurExpansion = (function() {
    * });
    *
    * // remember there are infinite rules
-   * // so its a good idea to limit the scope
+   * // so it is a good idea to limit the scope
    * // of the iterations then resume later on.
    *
    * // next is always an ICAL.Time or null
@@ -9121,7 +9123,7 @@ ICAL.Event = (function() {
      * Checks if the event describes a recurrence exception. See
      * {@tutorial terminology} for details.
      *
-     * @return {Boolean}    True, if the even describes a recurrence exception
+     * @return {Boolean}    True, if the event describes a recurrence exception
      */
     isRecurrenceException: function() {
       return this.component.hasProperty('recurrence-id');
@@ -9275,6 +9277,18 @@ ICAL.Event = (function() {
 
     set description(value) {
       this._setProp('description', value);
+    },
+
+    /**
+     * The event color from [rfc7986](https://datatracker.ietf.org/doc/html/rfc7986)
+     * @type {String}
+     */
+    get color() {
+      return this._firstProp('color');
+    },
+
+    set color(value) {
+      this._setProp('color', value);
     },
 
     /**
