@@ -811,19 +811,14 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   NS_ENSURE_ARG_POINTER(aContentLocation);
   NS_ENSURE_ARG_POINTER(aLoadInfo);
 
-  nsresult rv;
-  bool isAllowedContent = !ShouldBlockUnexposedProtocol(aContentLocation);
-  nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(aContentLocation, &rv);
-  mozilla::Unused << msgUrl;
-  if (NS_FAILED(rv) && !isAllowedContent) {
-    // If it's not a mailnews url or allowed content url (http[s]|file) then
-    // bail; otherwise set whether js and plugins are allowed.
-    return NS_OK;
-  }
-
   RefPtr<mozilla::dom::BrowsingContext> browsingContext =
       aLoadInfo->GetTargetBrowsingContext();
   if (!browsingContext) {
+    return NS_OK;
+  }
+
+  // We're only worried about policy settings in content docshells.
+  if (!browsingContext->IsContent()) {
     return NS_OK;
   }
 
@@ -834,8 +829,15 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     return NS_OK;
   }
 
-  // We're only worried about policy settings in content docshells.
-  if (!browsingContext->IsContent()) {
+  // Ensure starting off unsandboxed. We sandbox later if needed.
+  MOZ_ALWAYS_SUCCEEDS(browsingContext->SetSandboxFlags(SANDBOXED_NONE));
+
+  nsresult rv;
+  bool isAllowedContent = !ShouldBlockUnexposedProtocol(aContentLocation);
+  nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(aContentLocation);
+  if (!msgUrl && !isAllowedContent) {
+    // If it's not a mailnews url or allowed content url (http[s]|file) then
+    // bail; otherwise set whether JavaScript is allowed.
     return NS_OK;
   }
 
