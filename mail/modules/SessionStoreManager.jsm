@@ -43,12 +43,6 @@ var SessionStoreManager = {
   _shutdownStateSaved: false,
 
   /**
-   * Is the application closing down? This should never be set to false after
-   * being set to true.
-   */
-  _quittingApplication: false,
-
-  /**
    * The JSONFile store object.
    */
   get store() {
@@ -150,20 +144,7 @@ var SessionStoreManager = {
     }
 
     this.store.data = aStateObj;
-
-    if (this._quittingApplication) {
-      // Do the last write then tell CrashMonitor we've finished.
-      this.store
-        .finalize()
-        .then(() =>
-          Services.obs.notifyObservers(
-            null,
-            "sessionstore-final-state-write-complete"
-          )
-        );
-    } else {
-      this.store.saveSoon();
-    }
+    this.store.saveSoon();
   },
 
   /**
@@ -209,14 +190,7 @@ var SessionStoreManager = {
       // than the last 3pane window closing requested the application be
       // shutdown. For example, when the user quits via the file menu.
       case "quit-application-granted":
-        if (this._shutdownStateSaved) {
-          Services.obs.notifyObservers(
-            null,
-            "sessionstore-final-state-write-complete"
-          );
-        } else {
-          this._quittingApplication = true;
-
+        if (!this._shutdownStateSaved) {
           this.stopPeriodicSave();
           this._saveState();
 
