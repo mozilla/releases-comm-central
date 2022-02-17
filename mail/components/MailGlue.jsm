@@ -343,6 +343,9 @@ MailGlue.prototype = {
         Cc["@mozilla.org/msgFolder/msgFolderService;1"]
           .getService(Ci.nsIMsgFolderService)
           .initializeFolderStrings();
+        Cc["@mozilla.org/msgDBView/msgDBViewService;1"]
+          .getService(Ci.nsIMsgDBViewService)
+          .initializeDBViewStrings();
         this._beforeUIStartup();
         break;
       case "mail-startup-done":
@@ -356,6 +359,15 @@ MailGlue.prototype = {
         Cc["@mozilla.org/msgFolder/msgFolderService;1"]
           .getService(Ci.nsIMsgFolderService)
           .initializeFolderStrings();
+        Cc["@mozilla.org/msgDBView/msgDBViewService;1"]
+          .getService(Ci.nsIMsgDBViewService)
+          .initializeDBViewStrings();
+        let windows = Services.wm.getEnumerator("mail:3pane");
+        while (windows.hasMoreElements()) {
+          let win = windows.getNext();
+          win.document.getElementById("threadTree")?.invalidate();
+        }
+        // XXX TODO: Work required here to refresh the folder tree.
         break;
       case "handle-xul-text-link":
         this._handleLink(aSubject, aData);

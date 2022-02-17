@@ -357,6 +357,18 @@
   }
 
 //
+// nsMsgDBViewService
+//
+#define NS_MSGDBVIEWSERVICE_CONTRACTID \
+  "@mozilla.org/msgDBView/msgDBViewService;1"
+#define NS_MSGDBVIEWSERVICE_CID                      \
+  {                                                  \
+    0xbcf6afbe, 0x7d4f, 0x11ec, {                    \
+      0x90, 0x92, 0xeb, 0x4f, 0xed, 0x0a, 0x5a, 0xaa \
+    }                                                \
+  }
+
+//
 // nsMsgAccountManager
 //
 #define NS_MSGOFFLINEMANAGER_CONTRACTID \

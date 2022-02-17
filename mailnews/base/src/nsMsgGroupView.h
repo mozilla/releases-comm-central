@@ -74,14 +74,6 @@ class nsMsgGroupView : public nsMsgDBView {
   nsInterfaceHashtable<nsStringHashKey, nsIMsgThread> m_groupsTable;
   PRExplodedTime m_lastCurExplodedTime{0};
   bool m_dayChanged;
-
- private:
-  nsString m_kTodayString;
-  nsString m_kYesterdayString;
-  nsString m_kLastWeekString;
-  nsString m_kTwoWeeksAgoString;
-  nsString m_kOldMailString;
-  nsString m_kFutureDateString;
 };
 
 #endif

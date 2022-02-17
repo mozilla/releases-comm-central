@@ -114,6 +114,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
                                        nsIInputStream* stream);
   nsresult HandleAutoCompactEvent(nsIMsgWindow* aMsgWindow);
+  static int gIsEnglishApp;
 
  protected:
   virtual ~nsMsgDBFolder();

@@ -196,6 +196,19 @@ interface nsMsgNavigationType : nsISupports
   const nsMsgNavigationTypeValue toggleSubthreadKilled = 23;
 };
 
+/*
+ * The contract ID for this component is @mozilla.org/msgDBView/msgDBViewService;1.
+ */
+[scriptable, uuid(bcf6afbe-7d4f-11ec-9092-eb4fed0a5aaa)]
+interface nsIMsgDBViewService : nsISupports
+{
+  /**
+   * JS-callable service to initialize static variables in nsMsgDBView.cpp
+   * upon initialization or when locale changes.
+   */
+  void initializeDBViewStrings();
+};
+
 [scriptable, uuid(fe8a2326-4dd0-11e5-8b8a-206a8aa7a25c)]
 interface nsIMsgDBView : nsISupports
 {

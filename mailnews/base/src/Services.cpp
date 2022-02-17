@@ -19,6 +19,7 @@
 #include "nsIMsgComposeService.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDatabase.h"
+#include "nsIMsgDBView.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgHeaderParser.h"

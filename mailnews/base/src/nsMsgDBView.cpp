@@ -52,22 +52,34 @@
 #include "mozilla/intl/AppDateTimeFormat.h"
 
 using namespace mozilla::mailnews;
-nsrefcnt nsMsgDBView::gInstanceCount = 0;
 
-char16_t* nsMsgDBView::kHighestPriorityString = nullptr;
-char16_t* nsMsgDBView::kHighPriorityString = nullptr;
-char16_t* nsMsgDBView::kLowestPriorityString = nullptr;
-char16_t* nsMsgDBView::kLowPriorityString = nullptr;
-char16_t* nsMsgDBView::kNormalPriorityString = nullptr;
-char16_t* nsMsgDBView::kReadString = nullptr;
-char16_t* nsMsgDBView::kRepliedString = nullptr;
-char16_t* nsMsgDBView::kForwardedString = nullptr;
-char16_t* nsMsgDBView::kRedirectedString = nullptr;
-char16_t* nsMsgDBView::kNewString = nullptr;
+nsString nsMsgDBView::kHighestPriorityString;
+nsString nsMsgDBView::kHighPriorityString;
+nsString nsMsgDBView::kLowestPriorityString;
+nsString nsMsgDBView::kLowPriorityString;
+nsString nsMsgDBView::kNormalPriorityString;
 
+nsString nsMsgDBView::kReadString;
+nsString nsMsgDBView::kRepliedString;
+nsString nsMsgDBView::kForwardedString;
+nsString nsMsgDBView::kRedirectedString;
+nsString nsMsgDBView::kNewString;
+
+nsString nsMsgDBView::kTodayString;
+nsString nsMsgDBView::kYesterdayString;
+nsString nsMsgDBView::kLastWeekString;
+nsString nsMsgDBView::kTwoWeeksAgoString;
+nsString nsMsgDBView::kOldMailString;
+nsString nsMsgDBView::kFutureDateString;
+
+bool nsMsgDBView::m_dateFormatsInitialized = false;
 nsDateFormatSelectorComm nsMsgDBView::m_dateFormatDefault = kDateFormatShort;
 nsDateFormatSelectorComm nsMsgDBView::m_dateFormatThisWeek = kDateFormatShort;
 nsDateFormatSelectorComm nsMsgDBView::m_dateFormatToday = kDateFormatNone;
+
+nsString nsMsgDBView::m_connectorPattern;
+nsCOMPtr<nsIStringBundle> nsMsgDBView::mMessengerStringBundle;
+nsString nsMsgDBView::mLabelPrefDescriptions[PREF_LABELS_MAX];
 
 static const uint32_t kMaxNumSortColumns = 2;
 
@@ -93,6 +105,19 @@ class viewSortInfo {
   bool isSecondarySort;
   bool ascendingSort;
 };
+
+NS_IMPL_ISUPPORTS(nsMsgDBViewService, nsIMsgDBViewService)
+NS_IMETHODIMP nsMsgDBViewService::InitializeDBViewStrings() {
+  nsMsgDBView::InitializeLiterals();
+  nsMsgDBView::InitLabelStrings();
+  nsMsgDBView::m_connectorPattern.Truncate();
+  nsMsgDBView::mMessengerStringBundle = nullptr;
+  // Initialize date display format.
+  if (!nsMsgDBView::m_dateFormatsInitialized) {
+    nsMsgDBView::InitDisplayFormats();
+  }
+  return NS_OK;
+}
 
 NS_IMPL_ADDREF(nsMsgDBView)
 NS_IMPL_RELEASE(nsMsgDBView)
@@ -142,48 +167,32 @@ nsMsgDBView::nsMsgDBView() {
   mRemovingRow = false;
   m_saveRestoreSelectionDepth = 0;
   mRecentlyDeletedArrayIndex = 0;
-  // Initialize any static atoms or unicode strings.
-  if (gInstanceCount == 0) {
-    InitializeLiterals();
-    InitDisplayFormats();
-  }
-
-  InitLabelStrings();
-  gInstanceCount++;
 }
 
 void nsMsgDBView::InitializeLiterals() {
   // Priority strings.
-  kHighestPriorityString = GetString(u"priorityHighest");
-  kHighPriorityString = GetString(u"priorityHigh");
-  kLowestPriorityString = GetString(u"priorityLowest");
-  kLowPriorityString = GetString(u"priorityLow");
-  kNormalPriorityString = GetString(u"priorityNormal");
+  GetString(u"priorityHighest", kHighestPriorityString);
+  GetString(u"priorityHigh", kHighPriorityString);
+  GetString(u"priorityLowest", kLowestPriorityString);
+  GetString(u"priorityLow", kLowPriorityString);
+  GetString(u"priorityNormal", kNormalPriorityString);
 
-  kReadString = GetString(u"read");
-  kRepliedString = GetString(u"replied");
-  kForwardedString = GetString(u"forwarded");
-  kRedirectedString = GetString(u"redirected");
-  kNewString = GetString(u"new");
+  GetString(u"read", kReadString);
+  GetString(u"replied", kRepliedString);
+  GetString(u"forwarded", kForwardedString);
+  GetString(u"redirected", kRedirectedString);
+  GetString(u"new", kNewString);
+
+  GetString(u"today", kTodayString);
+  GetString(u"yesterday", kYesterdayString);
+  GetString(u"last7Days", kLastWeekString);
+  GetString(u"last14Days", kTwoWeeksAgoString);
+  GetString(u"older", kOldMailString);
+  GetString(u"futureDate", kFutureDateString);
 }
 
 nsMsgDBView::~nsMsgDBView() {
   if (m_db) m_db->RemoveListener(this);
-
-  gInstanceCount--;
-  if (gInstanceCount <= 0) {
-    free(kHighestPriorityString);
-    free(kHighPriorityString);
-    free(kLowestPriorityString);
-    free(kLowPriorityString);
-    free(kNormalPriorityString);
-
-    free(kReadString);
-    free(kRepliedString);
-    free(kForwardedString);
-    free(kRedirectedString);
-    free(kNewString);
-  }
 }
 
 nsresult nsMsgDBView::InitLabelStrings() {
@@ -193,34 +202,33 @@ nsresult nsMsgDBView::InitLabelStrings() {
   for (int32_t i = 0; i < PREF_LABELS_MAX; i++) {
     prefString.Assign(PREF_LABELS_DESCRIPTION);
     prefString.AppendInt(i + 1);
-    rv = GetPrefLocalizedString(prefString.get(), mLabelPrefDescriptions[i]);
+    rv = GetPrefLocalizedString(prefString.get(),
+                                nsMsgDBView::mLabelPrefDescriptions[i]);
   }
   return rv;
 }
 
 // Helper function used to fetch strings from the messenger string bundle
-char16_t* nsMsgDBView::GetString(const char16_t* aStringName) {
+void nsMsgDBView::GetString(const char16_t* aStringName, nsAString& aValue) {
   nsresult res = NS_ERROR_UNEXPECTED;
-  nsAutoString str;
 
-  if (!mMessengerStringBundle) {
+  if (!nsMsgDBView::mMessengerStringBundle) {
     static const char propertyURL[] = MESSENGER_STRING_URL;
     nsCOMPtr<nsIStringBundleService> sBundleService =
         mozilla::services::GetStringBundleService();
 
     if (sBundleService)
       res = sBundleService->CreateBundle(
-          propertyURL, getter_AddRefs(mMessengerStringBundle));
+          propertyURL, getter_AddRefs(nsMsgDBView::mMessengerStringBundle));
   }
 
-  if (mMessengerStringBundle)
+  if (nsMsgDBView::mMessengerStringBundle)
     res = mMessengerStringBundle->GetStringFromName(
-        NS_ConvertUTF16toUTF8(aStringName).get(), str);
+        NS_ConvertUTF16toUTF8(aStringName).get(), aValue);
 
-  if (NS_SUCCEEDED(res))
-    return ToNewUnicode(str);
-  else
-    return NS_xstrdup(aStringName);
+  if (NS_FAILED(res)) {
+    aValue = aStringName;
+  }
 }
 
 // Helper function used to fetch localized strings from the prefs
@@ -391,7 +399,9 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
 
   if (multipleAuthors) {
     aSenderString.AppendLiteral(" ");
-    aSenderString.Append(GetString(u"andOthers"));
+    nsAutoString val;
+    GetString(u"andOthers", val);
+    aSenderString.Append(val);
   }
 
   UpdateCachedName(aHdr, "sender_name", aSenderString);
@@ -629,12 +639,7 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
           components, &explodedMsgTime, weekdayString);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      // Note that this `static` value will need revisiting once M-C
-      // can switch locales without a restart of the application.
-      // For now, it's a cheap cache to avoid getting locale and
-      // connector pattern all the time.
-      static nsString connectorPattern;
-      if (connectorPattern.IsEmpty()) {
+      if (nsMsgDBView::m_connectorPattern.IsEmpty()) {
         nsAutoCString locale;
         AutoTArray<nsCString, 10> regionalPrefsLocales;
         mozilla::intl::LocaleService::GetInstance()->GetRegionalPrefsLocales(
@@ -643,10 +648,10 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
         nsAutoCString str;
         mozilla::intl::OSPreferences::GetInstance()
             ->GetDateTimeConnectorPattern(locale, str);
-        connectorPattern = NS_ConvertUTF8toUTF16(str);
+        nsMsgDBView::m_connectorPattern = NS_ConvertUTF8toUTF16(str);
       }
 
-      nsAutoString pattern(connectorPattern);
+      nsAutoString pattern(nsMsgDBView::m_connectorPattern);
       int32_t ind = pattern.Find(u"{1}"_ns);
       if (ind != kNotFound) {
         pattern.Replace(ind, 3, weekdayString);
@@ -860,7 +865,7 @@ nsresult nsMsgDBView::FetchLabel(nsIMsgDBHdr* aHdr, nsAString& aLabelString) {
   }
 
   // We need to subtract 1 because mLabelPrefDescriptions is 0 based.
-  aLabelString = mLabelPrefDescriptions[label - 1];
+  aLabelString = nsMsgDBView::mLabelPrefDescriptions[label - 1];
   return NS_OK;
 }
 
@@ -1691,17 +1696,13 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
     case 'a':
       if (colID.EqualsLiteral("attachmentCol") &&
           flags & nsMsgMessageFlags::Attachment) {
-        nsString tmp_str;
-        tmp_str.Adopt(GetString(u"messageHasAttachment"));
-        aValue.Assign(tmp_str);
+        GetString(u"messageHasAttachment", aValue);
       }
       break;
     case 'f':
       if (colID.EqualsLiteral("flaggedCol") &&
           flags & nsMsgMessageFlags::Marked) {
-        nsString tmp_str;
-        tmp_str.Adopt(GetString(u"messageHasFlag"));
-        aValue.Assign(tmp_str);
+        GetString(u"messageHasFlag", aValue);
       }
       break;
     case 'j':
@@ -1727,11 +1728,10 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
         if (isContainer) {
           IsContainerEmpty(aRow, &isContainerEmpty);
           if (!isContainerEmpty) {
-            nsString tmp_str;
             IsContainerOpen(aRow, &isContainerOpen);
-            tmp_str.Adopt(GetString(isContainerOpen ? u"messageExpanded"
-                                                    : u"messageCollapsed"));
-            aValue.Assign(tmp_str);
+            GetString(
+                isContainerOpen ? u"messageExpanded" : u"messageCollapsed",
+                aValue);
           }
         }
       }
@@ -1739,9 +1739,7 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
     case 'u':
       if (colID.EqualsLiteral("unreadButtonColHeader") &&
           !(flags & nsMsgMessageFlags::Read)) {
-        nsString tmp_str;
-        tmp_str.Adopt(GetString(u"messageUnread"));
-        aValue.Assign(tmp_str);
+        GetString(u"messageUnread", aValue);
       }
       break;
     default:
@@ -3114,11 +3112,11 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
     nsString confirmString;
     nsString checkboxText;
     nsString buttonApplyNowText;
-    dialogTitle.Adopt(GetString(u"confirmMsgDelete.title"));
-    checkboxText.Adopt(GetString(u"confirmMsgDelete.dontAsk.label"));
-    buttonApplyNowText.Adopt(GetString(u"confirmMsgDelete.delete.label"));
+    GetString(u"confirmMsgDelete.title", dialogTitle);
+    GetString(u"confirmMsgDelete.dontAsk.label", checkboxText);
+    GetString(u"confirmMsgDelete.delete.label", buttonApplyNowText);
 
-    confirmString.Adopt(GetString(warningName.get()));
+    GetString(warningName.get(), confirmString);
 
     const uint32_t buttonFlags =
         (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
@@ -7438,9 +7436,7 @@ static void getDateFormatPref(nsIPrefBranch *_prefBranch,
 }
 
 nsresult nsMsgDBView::InitDisplayFormats() {
-  m_dateFormatDefault = kDateFormatShort;
-  m_dateFormatThisWeek = kDateFormatShort;
-  m_dateFormatToday = kDateFormatNone;
+  m_dateFormatsInitialized = true;
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIPrefService> prefs =

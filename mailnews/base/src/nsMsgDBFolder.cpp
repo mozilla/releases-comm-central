@@ -155,6 +155,7 @@ NS_IMPL_ISUPPORTS(nsMsgFolderService, nsIMsgFolderService)
 NS_IMETHODIMP nsMsgFolderService::InitializeFolderStrings() {
   nsMsgDBFolder::initializeStrings();
   nsMsgDBFolder::gInitializeStringsDone = true;
+  nsMsgDBFolder::gIsEnglishApp = -1;
   return NS_OK;
 }
 
@@ -174,6 +175,10 @@ nsString nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount = 0;
 bool nsMsgDBFolder::gInitializeStringsDone = false;
+// This is used in `nonEnglishApp()` to determine localised
+// folders strings.
+// -1: not retrieved yet, 1: English, 0: non-English.
+int nsMsgDBFolder::gIsEnglishApp;
 
 // We define strings for folder properties and events.
 // Properties:
@@ -3109,18 +3114,15 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyName(nsAString& name) {
   return GetName(name);
 }
 
-// -1: not retrieved yet, 1: English, 0: non-English.
-static int isEnglish = -1;
-
 static bool nonEnglishApp() {
-  if (isEnglish == -1) {
+  if (nsMsgDBFolder::gIsEnglishApp == -1) {
     nsAutoCString locale;
     mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsBCP47(locale);
-    isEnglish =
+    nsMsgDBFolder::gIsEnglishApp =
         (locale.EqualsLiteral("en") || StringBeginsWith(locale, "en-"_ns)) ? 1
                                                                            : 0;
   }
-  return isEnglish ? false : true;
+  return nsMsgDBFolder::gIsEnglishApp ? false : true;
 }
 
 static bool hasTrashName(const nsAString& name) {

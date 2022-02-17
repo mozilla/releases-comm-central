@@ -13,6 +13,8 @@ MOZ_SERVICE(CopyService, nsIMsgCopyService,
             "@mozilla.org/messenger/messagecopyservice;1")
 MOZ_SERVICE(DBService, nsIMsgDBService,
             "@mozilla.org/msgDatabase/msgDBService;1")
+MOZ_SERVICE(DBViewService, nsIMsgDBViewService,
+            "@mozilla.org/msgDBView/msgDBViewService;1")
 MOZ_SERVICE(FolderService, nsIMsgFolderService,
             "@mozilla.org/msgFolder/msgFolderService;1")
 MOZ_SERVICE(FilterService, nsIMsgFilterService,

@@ -85,6 +85,17 @@ struct IdKey : public IdUint32 {
   nsTArray<uint8_t> key;
 };
 
+class nsMsgDBViewService final : public nsIMsgDBViewService {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIMSGDBVIEWSERVICE
+
+  nsMsgDBViewService(){};
+
+ protected:
+  ~nsMsgDBViewService(){};
+};
+
 // This is an abstract implementation class.
 // The actual view objects will be instances of sub-classes of this class.
 class nsMsgDBView : public nsIMsgDBView,
@@ -92,6 +103,7 @@ class nsMsgDBView : public nsIMsgDBView,
                     public nsITreeView,
                     public nsIJunkMailClassificationListener {
  public:
+  friend class nsMsgDBViewService;
   nsMsgDBView();
 
   NS_DECL_ISUPPORTS
@@ -112,19 +124,25 @@ class nsMsgDBView : public nsIMsgDBView,
  protected:
   virtual ~nsMsgDBView();
 
-  static nsrefcnt gInstanceCount;
+  static nsString kHighestPriorityString;
+  static nsString kHighPriorityString;
+  static nsString kLowestPriorityString;
+  static nsString kLowPriorityString;
+  static nsString kNormalPriorityString;
 
-  static char16_t* kHighestPriorityString;
-  static char16_t* kHighPriorityString;
-  static char16_t* kLowestPriorityString;
-  static char16_t* kLowPriorityString;
-  static char16_t* kNormalPriorityString;
+  static nsString kReadString;
+  static nsString kRepliedString;
+  static nsString kForwardedString;
+  static nsString kRedirectedString;
+  static nsString kNewString;
 
-  static char16_t* kReadString;
-  static char16_t* kRepliedString;
-  static char16_t* kForwardedString;
-  static char16_t* kRedirectedString;
-  static char16_t* kNewString;
+  // Used for group views.
+  static nsString kTodayString;
+  static nsString kYesterdayString;
+  static nsString kLastWeekString;
+  static nsString kTwoWeeksAgoString;
+  static nsString kOldMailString;
+  static nsString kFutureDateString;
 
   RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsIMsgJSTree> mJSTree;
@@ -392,16 +410,17 @@ class nsMsgDBView : public nsIMsgDBView,
                                bool* resultToggleState);
   bool OfflineMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
   bool NonDummyMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
-  char16_t* GetString(const char16_t* aStringName);
-  nsresult GetPrefLocalizedString(const char* aPrefName, nsString& aResult);
+  static void GetString(const char16_t* aStringName, nsAString& aValue);
+  static nsresult GetPrefLocalizedString(const char* aPrefName,
+                                         nsString& aResult);
   nsresult AppendKeywordProperties(const nsACString& keywords,
                                    nsAString& properties, bool* tagAdded);
-  nsresult InitLabelStrings(void);
+  static nsresult InitLabelStrings(void);
   nsresult CopyDBView(nsMsgDBView* aNewMsgDBView,
                       nsIMessenger* aMessengerInstance,
                       nsIMsgWindow* aMsgWindow,
                       nsIMsgDBViewCommandUpdater* aCmdUpdater);
-  void InitializeLiterals();
+  static void InitializeLiterals();
   virtual int32_t FindLevelInThread(nsIMsgDBHdr* msgHdr,
                                     nsMsgViewIndex startOfThread,
                                     nsMsgViewIndex viewIndex);
@@ -474,10 +493,10 @@ class nsMsgDBView : public nsIMsgDBView,
   nsWeakPtr mMsgWindowWeak;
   // We push command update notifications to the UI from this.
   nsCOMPtr<nsIMsgDBViewCommandUpdater> mCommandUpdater;
-  nsCOMPtr<nsIStringBundle> mMessengerStringBundle;
+  static nsCOMPtr<nsIStringBundle> mMessengerStringBundle;
 
   // Used for the preference labels.
-  nsString mLabelPrefDescriptions[PREF_LABELS_MAX];
+  static nsString mLabelPrefDescriptions[PREF_LABELS_MAX];
   nsString mLabelPrefColors[PREF_LABELS_MAX];
 
   // Used to determine when to start and end junk plugin batches.
@@ -521,9 +540,12 @@ class nsMsgDBView : public nsIMsgDBView,
   static nsresult InitDisplayFormats();
 
  private:
+  static bool m_dateFormatsInitialized;
   static nsDateFormatSelectorComm m_dateFormatDefault;
   static nsDateFormatSelectorComm m_dateFormatThisWeek;
   static nsDateFormatSelectorComm m_dateFormatToday;
+  static nsString m_connectorPattern;
+
   bool ServerSupportsFilterAfterTheFact();
 
   nsresult PerformActionsOnJunkMsgs(bool msgsAreJunk);

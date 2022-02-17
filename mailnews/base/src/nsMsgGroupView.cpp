@@ -759,7 +759,6 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
     bool rcvDate = false;
     msgHdr->GetFlags(&flags);
     aValue.Truncate();
-    nsString tmp_str;
     switch (m_sortType) {
       case nsMsgViewSortType::byReceived:
         rcvDate = true;
@@ -769,41 +768,23 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         GetAgeBucketValue(msgHdr, &ageBucket, rcvDate);
         switch (ageBucket) {
           case 1:
-            if (m_kTodayString.IsEmpty())
-              m_kTodayString.Adopt(GetString(u"today"));
-
-            aValue.Assign(m_kTodayString);
+            aValue.Assign(nsMsgDBView::kTodayString);
             break;
           case 2:
-            if (m_kYesterdayString.IsEmpty())
-              m_kYesterdayString.Adopt(GetString(u"yesterday"));
-
-            aValue.Assign(m_kYesterdayString);
+            aValue.Assign(nsMsgDBView::kYesterdayString);
             break;
           case 3:
-            if (m_kLastWeekString.IsEmpty())
-              m_kLastWeekString.Adopt(GetString(u"last7Days"));
-
-            aValue.Assign(m_kLastWeekString);
+            aValue.Assign(nsMsgDBView::kLastWeekString);
             break;
           case 4:
-            if (m_kTwoWeeksAgoString.IsEmpty())
-              m_kTwoWeeksAgoString.Adopt(GetString(u"last14Days"));
-
-            aValue.Assign(m_kTwoWeeksAgoString);
+            aValue.Assign(nsMsgDBView::kTwoWeeksAgoString);
             break;
           case 5:
-            if (m_kOldMailString.IsEmpty())
-              m_kOldMailString.Adopt(GetString(u"older"));
-
-            aValue.Assign(m_kOldMailString);
+            aValue.Assign(nsMsgDBView::kOldMailString);
             break;
           default:
             // Future date, error/spoofed.
-            if (m_kFutureDateString.IsEmpty())
-              m_kFutureDateString.Adopt(GetString(u"futureDate"));
-
-            aValue.Assign(m_kFutureDateString);
+            aValue.Assign(nsMsgDBView::kFutureDateString);
             break;
         }
         break;
@@ -817,22 +798,19 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
       case nsMsgViewSortType::byStatus:
         rv = FetchStatus(m_flags[aRow], aValue);
         if (aValue.IsEmpty()) {
-          tmp_str.Adopt(GetString(u"messagesWithNoStatus"));
-          aValue.Assign(tmp_str);
+          GetString(u"messagesWithNoStatus", aValue);
         }
         break;
       case nsMsgViewSortType::byTags:
         rv = FetchTags(msgHdr, aValue);
         if (aValue.IsEmpty()) {
-          tmp_str.Adopt(GetString(u"untaggedMessages"));
-          aValue.Assign(tmp_str);
+          GetString(u"untaggedMessages", aValue);
         }
         break;
       case nsMsgViewSortType::byPriority:
         FetchPriority(msgHdr, aValue);
         if (aValue.IsEmpty()) {
-          tmp_str.Adopt(GetString(u"noPriority"));
-          aValue.Assign(tmp_str);
+          GetString(u"noPriority", aValue);
         }
         break;
       case nsMsgViewSortType::byAccount:
@@ -842,16 +820,14 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         FetchRecipients(msgHdr, aValue);
         break;
       case nsMsgViewSortType::byAttachments:
-        tmp_str.Adopt(GetString(flags & nsMsgMessageFlags::Attachment
-                                    ? u"attachments"
-                                    : u"noAttachments"));
-        aValue.Assign(tmp_str);
+        GetString(flags & nsMsgMessageFlags::Attachment ? u"attachments"
+                                                        : u"noAttachments",
+                  aValue);
         break;
       case nsMsgViewSortType::byFlagged:
-        tmp_str.Adopt(GetString(flags & nsMsgMessageFlags::Marked
-                                    ? u"groupFlagged"
-                                    : u"notFlagged"));
-        aValue.Assign(tmp_str);
+        GetString(
+            flags & nsMsgMessageFlags::Marked ? u"groupFlagged" : u"notFlagged",
+            aValue);
         break;
       // byLocation is a special case; we don't want to have duplicate
       // all this logic in nsMsgSearchDBView, and its hash key is what we

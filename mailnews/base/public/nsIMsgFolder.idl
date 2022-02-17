@@ -34,6 +34,10 @@ typedef long nsMsgDispositionState;
 [scriptable, uuid(5639c204-48ac-4115-897f-3b16821fe118)]
 interface nsIMsgFolderService : nsISupports
 {
+  /**
+   * JS-callable service to initialize static variables in nsMsgDBFolder.cpp
+   * upon initialization or when locale changes.
+   */
   void initializeFolderStrings();
 };
 
