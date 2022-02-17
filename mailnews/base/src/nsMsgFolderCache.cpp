@@ -167,7 +167,7 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
     if (NS_FAILED(rv)) {
       MOZ_LOG(sFolderCacheLog, LogLevel::Error,
               ("Failed to load %s (code 0x%x)",
-               cacheFile->HumanReadablePath().get(), rv));
+               cacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
     }
     // Ignore error. If load fails, we'll just start off with empty cache.
     return NS_OK;
@@ -195,11 +195,11 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
         legacyFile->Remove(false);
       } else {
         MOZ_LOG(sFolderCacheLog, LogLevel::Error,
-                ("Migration: save failed (code 0x%x)", rv));
+                ("Migration: save failed (code 0x%x)", static_cast<uint32_t>(rv)));
       }
     } else {
       MOZ_LOG(sFolderCacheLog, LogLevel::Error,
-              ("Migration: import failed (code 0x%x)", rv));
+              ("Migration: import failed (code 0x%x)", static_cast<uint32_t>(rv)));
     }
   }
   // Never fails.
@@ -220,7 +220,7 @@ NS_IMETHODIMP nsMsgFolderCache::Flush() {
     if (NS_FAILED(rv)) {
       MOZ_LOG(sFolderCacheLog, LogLevel::Error,
               ("Failed to write to %s (code 0x%x)",
-               mCacheFile->HumanReadablePath().get(), rv));
+               mCacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
     }
   }
   return NS_OK;
@@ -334,7 +334,7 @@ void nsMsgFolderCache::doSave(nsITimer*, void* closure) {
   if (NS_FAILED(rv)) {
     MOZ_LOG(sFolderCacheLog, LogLevel::Error,
             ("Failed writing %s (code 0x%x)",
-             that->mCacheFile->HumanReadablePath().get(), rv));
+             that->mCacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
   }
   that->mSavePending = false;
 }
