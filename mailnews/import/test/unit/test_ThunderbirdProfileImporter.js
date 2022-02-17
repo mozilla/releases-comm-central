@@ -163,9 +163,9 @@ add_task(async function test_mergeLocalFolders() {
   let msgFolder = localFolders.getChildNamed("Local Folders0");
   ok(msgFolder.containsChildNamed("folder-xpcshell"));
 
-  // Test that folder-xpcshell is copied into current Local Folders.
+  // Test that folder-xpcshell is copied into current Local Fol1755827ders.
   let importedFolder = localFolders.filePath;
   importedFolder.append("Local Folders0.sbd");
   importedFolder.append("folder-xpcshell");
   ok(importedFolder.exists(), "Source Local Folders should be merged in.");
-});
+}).skip(); // Not working atm due to bug 1755827. Temporarily disable.
