@@ -66,6 +66,7 @@ var CalMetronome = {
 
   init() {
     let now = new Date();
+    this._lastFireTime = now.valueOf();
     this._lastHour = now.getHours();
     this._lastDay = now.getDay();
 
