@@ -10,19 +10,22 @@ kind-dependencies:
     - packages
 
 reference-jobs:
+    - android-aarch64-compiler-rt-13
+    - android-arm-compiler-rt-13
+    - android-x64-compiler-rt-13
+    - android-x86-compiler-rt-13
     - linux64-aarch64-compiler-rt-13
+    - linux64-android-ndk-linux-repack
     - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port
     - linux64-clang
     - linux64-clang-13-profile
-    - linux64-clang-aarch64-cross
-    - linux64-clang-macosx-cross
+    - linux64-clang-13-raw
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-tidy
     - linux64-clang-toolchain
-    - linux64-clang-win-cross
     - linux64-dump_syms
     - linux64-fix-stacks
     - linux64-gcc
@@ -38,8 +41,8 @@ reference-jobs:
     - linux64-rust
     - linux64-rust-1.47
     - linux64-rust-1.57
-    - linux64-rust-dev
     - linux64-rust-cross
+    - linux64-rust-dev
     - linux64-rust-macos
     - linux64-rust-macos-1.57
     - linux64-rust-size
@@ -50,13 +53,15 @@ reference-jobs:
     - linux64-upx
     - linux64-winchecksec
     - linux64-wine
+    - linux64-x64-compiler-rt-13
+    - linux64-x86-compiler-rt-13
     - macosx64-aarch64-compiler-rt-13
-    - macosx64-x64-compiler-rt-13
     - macosx64-clang-13-raw
     - macosx64-clang-toolchain
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
+    - macosx64-x64-compiler-rt-13
     - mingw32-rust
     - nsis
     - sysroot-aarch64-linux-gnu
@@ -76,9 +81,9 @@ reference-jobs:
     - win64-dump_syms
     - win64-llvm-symbolizer
     - win64-mozmake
-    - win64-pdbstr
     - win64-nasm
     - win64-node
+    - win64-pdbstr
     - win64-rust
     - win64-rust-1.57
     - win64-rust-size

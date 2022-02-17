@@ -16,6 +16,7 @@ treeherder:
         'Ub18': 'Packages for Ubuntu 18.04'
         'Ub20': 'Packages for Ubuntu 20.04'
         'I': 'Docker Image Builds'
+        'TA': 'Toolchain builds for Android'
         'TL': 'Toolchain builds for Linux 64-bits'
         'TM': 'Toolchain builds for OSX'
         'TMW': 'Toolchain builds for Windows MinGW'
