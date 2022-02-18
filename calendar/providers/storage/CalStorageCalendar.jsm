@@ -392,7 +392,7 @@ CalStorageCalendar.prototype = {
       rangeEnd,
       filters: {
         wantUnrespondedInvitations:
-          ((itemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0) &
+          (itemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0 &&
           this.superCalendar.supportsScheduling,
         wantEvents: (itemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0,
         wantTodos: (itemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0,

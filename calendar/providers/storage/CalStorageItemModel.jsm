@@ -39,12 +39,17 @@ const DEFAULT_END_TIME = 9223372036854776000;
  */
 class CalStorageItemModel extends CalStorageModelBase {
   /**
+   * calCachedCalendar modifies the superCalendar property so this is made
+   * lazy.
    * @type {calISchedulingSupport}
    */
-  _schedulingSupport =
-    (this.calendar.superCalendar.supportsScheduling &&
-      this.calendar.superCalendar.getSchedulingSupport()) ||
-    null;
+  get schedulingSupport() {
+    return (
+      (this.calendar.superCalendar.supportsScheduling &&
+        this.calendar.superCalendar.getSchedulingSupport()) ||
+      null
+    );
+  }
 
   /**
    * Update the item passed.
@@ -313,7 +318,7 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   _checkUnrespondedInvitation(item) {
-    let att = this._schedulingSupport.getInvitedAttendee(item);
+    let att = this.schedulingSupport.getInvitedAttendee(item);
     return att && att.participationStatus == "NEEDS-ACTION";
   }
 
