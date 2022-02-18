@@ -166,7 +166,7 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
       msgFlags |= oldFlags & nsMsgMessageFlags::Queued;
 
       if ((msgFlags & 0xFFFF) != oldFlags) {
-        auto out = nsPrintfCString("%04.4x", msgFlags & 0xFFFF);
+        auto out = nsPrintfCString("%4.4x", msgFlags & 0xFFFF);
         if (out.Length() <= statusHdr.rawValueLength) {
           rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
                               msgStart + statusHdr.rawValuePos);
@@ -187,7 +187,7 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
     uint32_t oldFlags = status2Hdr.value.ToInteger(&rv, 16);
     if (NS_SUCCEEDED(rv)) {
       if ((msgFlags & 0xFFFF0000) != oldFlags) {
-        auto out = nsPrintfCString("%08.8x", msgFlags & 0xFFFF0000);
+        auto out = nsPrintfCString("%8.8x", msgFlags & 0xFFFF0000);
         if (out.Length() <= status2Hdr.rawValueLength) {
           rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
                               msgStart + status2Hdr.rawValuePos);

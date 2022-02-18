@@ -11,11 +11,11 @@
    various bits of state in mail folders.
  */
 #define X_MOZILLA_STATUS           "X-Mozilla-Status"
-#define X_MOZILLA_STATUS_FORMAT     X_MOZILLA_STATUS ": %04.4x"
+#define X_MOZILLA_STATUS_FORMAT     X_MOZILLA_STATUS ": %4.4x"
 #define X_MOZILLA_STATUS_LEN      /*1234567890123456*/      16
 
 #define X_MOZILLA_STATUS2          "X-Mozilla-Status2"
-#define X_MOZILLA_STATUS2_FORMAT    X_MOZILLA_STATUS2 ": %08.8x"
+#define X_MOZILLA_STATUS2_FORMAT    X_MOZILLA_STATUS2 ": %8.8x"
 #define X_MOZILLA_STATUS2_LEN     /*12345678901234567*/     17
 
 #define X_MOZILLA_DRAFT_INFO       "X-Mozilla-Draft-Info"
