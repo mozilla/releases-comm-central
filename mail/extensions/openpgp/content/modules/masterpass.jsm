@@ -66,7 +66,7 @@ var OpenPGPMasterpass = {
       // This could either mean the file doesn't exist, which indicates
       // either a corruption, or the condition after a failed migration
       // from early Enigmail migrator versions (bug 1656287).
-      // Or it could mean the user has a master password set,
+      // Or it could mean the user has a primary password set,
       // but the user failed to enter it correctly,
       // or we are facing the consequences of multiple password prompts.
 
@@ -156,7 +156,7 @@ var OpenPGPMasterpass = {
 
     // Make sure we don't use the new password unless we're successful
     // in encrypting and storing it to disk.
-    // (This may fail if the user has a master password set,
+    // (This may fail if the user has a primary password set,
     // but refuses to enter it.)
     let newPass = this.generatePassword();
     let sdr = this.getSDR();

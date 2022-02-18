@@ -31,7 +31,7 @@ add_task(async function test_policy_masterpassword_set() {
   is(
     contentDocument.getElementById("useMasterPassword").disabled,
     true,
-    "Master Password checkbox should be disabled"
+    "Primary Password checkbox should be disabled"
   );
 
   let tabmail = document.getElementById("tabmail");

@@ -301,13 +301,13 @@ var gPrivacyPane = {
   },
 
   /**
-   * Initializes master password UI: the "use primary password" checkbox, selects
-   * the master password button to show, and enables/disables it as necessary.
-   * The master password is controlled by various bits of NSS functionality,
+   * Initializes primary password UI: the "use primary password" checkbox, selects
+   * the primary password button to show, and enables/disables it as necessary.
+   * The primary password is controlled by various bits of NSS functionality,
    * so the UI for it can't be controlled by the normal preference bindings.
    */
   _initMasterPasswordUI() {
-    var noMP = !LoginHelper.isMasterPasswordSet();
+    var noMP = !LoginHelper.isPrimaryPasswordSet();
 
     var button = document.getElementById("changeMasterPassword");
     button.disabled = noMP;
@@ -320,8 +320,8 @@ var gPrivacyPane = {
   },
 
   /**
-   * Enables/disables the master password button depending on the state of the
-   * "use master password" checkbox, and prompts for master password removal
+   * Enables/disables the primary password button depending on the state of the
+   * "use primary password" checkbox, and prompts for primary password removal
    * if one is set.
    */
   async updateMasterPasswordButton() {
@@ -344,8 +344,8 @@ var gPrivacyPane = {
   },
 
   /**
-   * Displays the "remove master password" dialog to allow the user to remove
-   * the current master password.  When the dialog is dismissed, master password
+   * Displays the "remove primary password" dialog to allow the user to remove
+   * the current primary password.  When the dialog is dismissed, primary password
    * UI is automatically updated.
    */
   async _removeMasterPassword() {
@@ -366,12 +366,12 @@ var gPrivacyPane = {
   },
 
   /**
-   * Displays a dialog in which the master password may be changed.
+   * Displays a dialog in which the primary password may be changed.
    */
   async changeMasterPassword() {
     // OS reauthenticate functionality is not available on Linux yet (bug 1527745)
     if (
-      !LoginHelper.isMasterPasswordSet() &&
+      !LoginHelper.isPrimaryPasswordSet() &&
       Services.prefs.getBoolPref("signon.management.page.os-auth.enabled") &&
       AppConstants.platform != "linux"
     ) {

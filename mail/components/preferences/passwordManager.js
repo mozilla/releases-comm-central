@@ -770,7 +770,7 @@ async function masterPasswordLogin(noPasswordCallback) {
   );
   let token = tokendb.getInternalKeyToken();
 
-  // If there is no master password, still give the user a chance to opt-out of displaying passwords
+  // If there is no primary password, still give the user a chance to opt-out of displaying passwords
   if (token.checkPassword("")) {
     // The OS re-authentication on Linux isn't working (Bug 1527745),
     // still add the confirm dialog for Linux.
@@ -808,9 +808,9 @@ async function masterPasswordLogin(noPasswordCallback) {
     return noPasswordCallback ? noPasswordCallback() : true;
   }
 
-  // So there's a master password. But since checkPassword didn't succeed, we're logged out (per nsIPK11Token.idl).
+  // So there's a primary password. But since checkPassword didn't succeed, we're logged out (per nsIPK11Token.idl).
   try {
-    // Relogin and ask for the master password.
+    // Relogin and ask for the primary password.
     token.login(true); // 'true' means always prompt for token password. User will be prompted until
     // clicking 'Cancel' or entering the correct password.
   } catch (e) {

@@ -29,7 +29,7 @@ var ChatCore = {
     Services.obs.addObserver(this, "contact-added");
     Services.obs.addObserver(this, "contact-removed");
 
-    // The initialization of the im core may trigger a master password prompt,
+    // The initialization of the im core may trigger a primary password prompt,
     // so wrap it with the async prompter service. Note this service already
     // waits for the asynchronous initialization of the password service.
     Cc["@mozilla.org/messenger/msgAsyncPrompter;1"]

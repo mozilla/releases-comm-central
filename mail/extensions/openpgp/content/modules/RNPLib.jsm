@@ -226,7 +226,7 @@ function enableRNPLibJS() {
     async _fixUnprotectedKeys() {
       // Bug 1710290, protect all unprotected keys.
       // To do so, we require that the user has already unlocked
-      // by entering the global master password, if it is set.
+      // by entering the global primary password, if it is set.
       // Ensure that other repairing is done first, if necessary,
       // as handled by masterpass.jsm (OpenPGP automatic password).
 
@@ -304,7 +304,7 @@ function enableRNPLibJS() {
       );
 
       if (unprot) {
-        // We need automatic repair, which can involve a master password
+        // We need automatic repair, which can involve a primary password
         // prompt. Let's use a short timer, so we keep it out of the
         // early startup code.
         console.log(

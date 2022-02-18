@@ -87,7 +87,7 @@ class CalDavGoogleOAuth extends OAuth2 {
       try {
         cal.auth.passwordManagerGet(this.id, pass, this.origin, this.pwMgrId);
       } catch (e) {
-        // User might have cancelled the master password prompt, that's ok
+        // User might have cancelled the primary password prompt, that's ok
         if (e.result != Cr.NS_ERROR_ABORT) {
           throw e;
         }
@@ -109,7 +109,7 @@ class CalDavGoogleOAuth extends OAuth2 {
         cal.auth.passwordManagerRemove(this.id, this.origin, this.pwMgrId);
       }
     } catch (e) {
-      // User might have cancelled the master password prompt, that's ok
+      // User might have cancelled the primary password prompt, that's ok
       if (e.result != Cr.NS_ERROR_ABORT) {
         throw e;
       }

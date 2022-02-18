@@ -1420,7 +1420,7 @@ CalDavCalendar.prototype = {
   //
 
   oauthConnect(authSuccessCb, authFailureCb, aRefresh = false) {
-    // Use the async prompter to avoid multiple master password prompts
+    // Use the async prompter to avoid multiple primary password prompts
     let self = this;
     let promptlistener = {
       onPromptStartAsync(callback) {

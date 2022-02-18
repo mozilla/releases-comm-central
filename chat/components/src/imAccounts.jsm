@@ -48,7 +48,7 @@ XPCOMUtils.defineLazyServiceGetter(
   "nsIHttpProtocolHandler"
 );
 
-var gUserCanceledMasterPasswordPrompt = false;
+var gUserCanceledPrimaryPasswordPrompt = false;
 
 var SavePrefTimer = {
   saveNow() {
@@ -581,8 +581,8 @@ imAccount.prototype = {
       return this._password;
     }
 
-    // Avoid prompting the user for the master password more than once at startup.
-    if (gUserCanceledMasterPasswordPrompt) {
+    // Avoid prompting the user for the primary password more than once at startup.
+    if (gUserCanceledPrimaryPasswordPrompt) {
       return "";
     }
 
@@ -591,7 +591,7 @@ imAccount.prototype = {
     try {
       logins = Services.logins.findLogins(passwordURI, null, passwordURI);
     } catch (e) {
-      this._handleMasterPasswordException(e);
+      this._handlePrimaryPasswordException(e);
       return "";
     }
     let normalizedName = this.normalizedName;
@@ -628,7 +628,7 @@ imAccount.prototype = {
   },
   set password(aPassword) {
     this._password = aPassword;
-    if (gUserCanceledMasterPasswordPrompt) {
+    if (gUserCanceledPrimaryPasswordPrompt) {
       return;
     }
     let newLogin = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
@@ -662,7 +662,7 @@ imAccount.prototype = {
         Services.logins.addLogin(newLogin);
       }
     } catch (e) {
-      this._handleMasterPasswordException(e);
+      this._handlePrimaryPasswordException(e);
     }
 
     this._connectionInfoChanged();
@@ -676,14 +676,14 @@ imAccount.prototype = {
     }
     this._sendUpdateNotification();
   },
-  _handleMasterPasswordException(aException) {
+  _handlePrimaryPasswordException(aException) {
     if (aException.result != Cr.NS_ERROR_ABORT) {
       throw aException;
     }
 
-    gUserCanceledMasterPasswordPrompt = true;
+    gUserCanceledPrimaryPasswordPrompt = true;
     executeSoon(function() {
-      gUserCanceledMasterPasswordPrompt = false;
+      gUserCanceledPrimaryPasswordPrompt = false;
     });
   },
 

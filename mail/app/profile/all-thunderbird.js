@@ -427,7 +427,7 @@ pref("security.aboutcertificate.enabled", true);
 // Don't show a prompt for external applications.
 pref("security.external_protocol_requires_permission", false);
 
-// Prompt for the master password prior to opening application windows,
+// Prompt for the primary password prior to opening application windows,
 // to avoid the race that triggers multiple prompts (see bug 177175).
 #ifdef XP_MACOSX
 // disabled because of platform specific bug 1612456

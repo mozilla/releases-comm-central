@@ -440,7 +440,7 @@ var calauth = {
       Services.logins.addLogin(newLoginInfo);
     } catch (exc) {
       // Only show the message if its not an abort, which can happen if
-      // the user canceled the master password dialog
+      // the user canceled the primary password dialog
       cal.ASSERT(exc.result == Cr.NS_ERROR_ABORT, exc);
     }
   },
