@@ -159,13 +159,13 @@ add_task(async function test_mergeLocalFolders() {
 
   // Test that sub msg folders are created in the current Local Folders.
   let localFolders = MailServices.accounts.localFoldersServer.rootMsgFolder;
-  ok(localFolders.containsChildNamed("Local Folders0"));
-  let msgFolder = localFolders.getChildNamed("Local Folders0");
+  ok(localFolders.containsChildNamed("Local Folders"));
+  let msgFolder = localFolders.getChildNamed("Local Folders");
   ok(msgFolder.containsChildNamed("folder-xpcshell"));
 
-  // Test that folder-xpcshell is copied into current Local Fol1755827ders.
+  // Test that folder-xpcshell is copied into current Local Folders.
   let importedFolder = localFolders.filePath;
-  importedFolder.append("Local Folders0.sbd");
+  importedFolder.append("Local Folders.sbd");
   importedFolder.append("folder-xpcshell");
   ok(importedFolder.exists(), "Source Local Folders should be merged in.");
-}).skip(); // Not working atm due to bug 1755827. Temporarily disable.
+});

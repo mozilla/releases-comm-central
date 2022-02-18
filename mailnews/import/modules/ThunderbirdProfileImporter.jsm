@@ -64,6 +64,8 @@ const IGNORE_PREFS = [
  * current profile.
  */
 class ThunderbirdProfileImporter extends BaseProfileImporter {
+  NAME = "Thunderbird";
+
   IGNORE_DIRS = [
     "chrome_debugger_profile",
     "crashes",
@@ -601,32 +603,33 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       "Local Folders",
       null
     );
-    this._localServer.rootMsgFolder.createSubfolder(folderName, null);
-    folderName += ".sbd";
+    rootMsgFolder.createSubfolder(folderName, null);
+    let targetDir = rootMsgFolder.filePath;
+    targetDir.append(folderName + ".sbd");
     this._logger.debug(
-      `Copying ${sourceDir.path} to ${folderName} in Local Folders`
+      `Copying ${sourceDir.path} to ${targetDir.path} in Local Folders`
     );
-    sourceDir.copyTo(rootMsgFolder.filePath, folderName);
+    this._recursivelyCopyMsgFolder(sourceDir, targetDir, true);
   }
 
   /**
    * Copy a source msg folder to a destination.
    * @param {nsIFile} sourceDir - The source msg folder location.
    * @param {nsIFile} targetDir - The target msg folder location.
+   * @param {boolean} isTargetLocal - Whether the targetDir is a subfolder in
+   *   the Local Folders.
    */
-  _recursivelyCopyMsgFolder(sourceDir, targetDir) {
+  _recursivelyCopyMsgFolder(sourceDir, targetDir, isTargetLocal) {
     this._logger.debug(`Copying ${sourceDir.path} to ${targetDir.path}`);
 
     // Copy the whole sourceDir.
-    if (this._items.mailMessages) {
+    if (!isTargetLocal && this._items.accounts && this._items.mailMessages) {
       // Remove the folder so that nsIFile.copyTo doesn't copy into targetDir.
       targetDir.remove(false);
       sourceDir.copyTo(targetDir.parent, targetDir.leafName);
       return;
     }
 
-    // Copy only the folder structure, databases and filter rules. Ignore the
-    // messages themselves.
     for (let entry of sourceDir.directoryEntries) {
       if (entry.isDirectory()) {
         let newFolder = targetDir.clone();
@@ -636,7 +639,20 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       } else {
         let leafName = entry.leafName;
         let extName = leafName.slice(leafName.lastIndexOf(".") + 1);
-        if (extName != leafName && ["msf", "dat"].includes(extName)) {
+        if (isTargetLocal) {
+          // When copying to Local Folders, drop database files so that special
+          // folders (Inbox, Trash) become normal folders. Otherwise, imported
+          // special folders can't be deleted.
+          if (extName != "msf") {
+            entry.copyTo(targetDir, leafName);
+          }
+        } else if (
+          this._items.accounts &&
+          extName != leafName &&
+          ["msf", "dat"].includes(extName)
+        ) {
+          // Copy only the folder structure, databases and filter rules.
+          // Ignore the messages themselves.
           entry.copyTo(targetDir, leafName);
         }
       }
@@ -653,7 +669,19 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       MailServices.accounts.createLocalMailAccount();
       this._localServer = MailServices.accounts.localFoldersServer;
     }
+    let localMsgFolder = this._localServer.rootMsgFolder;
     let localRootDir = this._localServer.rootMsgFolder.filePath;
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/importMsgs.properties"
+    );
+
+    // Create a "Thunderbird Import" folder, and import into it.
+    let wrapFolderName = localMsgFolder.generateUniqueSubfolderName(
+      bundle.formatStringFromName("ImportModuleFolderName", [this.NAME]),
+      null
+    );
+    localMsgFolder.createSubfolder(wrapFolderName, null);
+    let targetRootMsgFolder = localMsgFolder.getChildNamed(wrapFolderName);
 
     // Import mail folders.
     for (let name of ["ImapMail", "News", "Mail"]) {
@@ -669,14 +697,15 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
             continue;
           }
           let targetDir = localRootDir.clone();
-          let folderName = this._localServer.rootMsgFolder.generateUniqueSubfolderName(
+          let folderName = targetRootMsgFolder.generateUniqueSubfolderName(
             entry.leafName,
             null
           );
-          this._localServer.rootMsgFolder.createSubfolder(folderName, null);
+          targetRootMsgFolder.createSubfolder(folderName, null);
+          targetDir.append(wrapFolderName + ".sbd");
           targetDir.append(folderName + ".sbd");
           targetDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-          this._recursivelyCopyMsgFolder(entry, targetDir);
+          this._recursivelyCopyMsgFolder(entry, targetDir, true);
         }
       }
     }

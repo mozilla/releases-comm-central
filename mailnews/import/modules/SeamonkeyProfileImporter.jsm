@@ -17,6 +17,8 @@ var { ThunderbirdProfileImporter } = ChromeUtils.import(
  * profile.
  */
 class SeamonkeyProfileImporter extends ThunderbirdProfileImporter {
+  NAME = "SeaMonkey";
+
   /** @see BaseProfileImporter */
   async getSourceProfiles() {
     let slugs = {
