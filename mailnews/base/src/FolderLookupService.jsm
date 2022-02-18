@@ -104,6 +104,19 @@ FolderLookupService.prototype = {
     return folder;
   },
 
+  /**
+   * Set pretty name again from original name on all folders,
+   * typically used when locale changes.
+   */
+  setPrettyNameFromOriginalAllFolders() {
+    for (const val of this._map.values()) {
+      try {
+        let folder = val.QueryReferent(Ci.nsIMsgFolder);
+        folder.setPrettyNameFromOriginal();
+      } catch (e) {}
+    }
+  },
+
   // "private" stuff starts here.
 
   /**

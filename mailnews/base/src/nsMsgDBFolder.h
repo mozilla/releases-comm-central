@@ -271,6 +271,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   bool mIsServerIsValid;
   bool mIsServer;
   nsString mName;
+  nsString mOriginalName;
   nsCOMPtr<nsIFile> mPath;
   nsCString mBaseMessageURI;  // The uri with the message scheme
 

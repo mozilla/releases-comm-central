@@ -367,7 +367,11 @@ MailGlue.prototype = {
           let win = windows.getNext();
           win.document.getElementById("threadTree")?.invalidate();
         }
-        // XXX TODO: Work required here to refresh the folder tree.
+        // Refresh the folder tree.
+        let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+          Ci.nsIFolderLookupService
+        );
+        fls.setPrettyNameFromOriginalAllFolders();
         break;
       case "handle-xul-text-link":
         this._handleLink(aSubject, aData);

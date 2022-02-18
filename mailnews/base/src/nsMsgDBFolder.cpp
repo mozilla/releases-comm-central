@@ -3150,6 +3150,8 @@ static bool hasSentName(const nsAString& name) {
 
 NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsAString& name) {
   nsresult rv;
+  // Keep original name.
+  mOriginalName = name;
 
   // Set pretty name only if special flag is set and if it the default folder
   // name
@@ -3176,6 +3178,11 @@ NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsAString& name) {
   else
     rv = SetName(name);
   return rv;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::SetPrettyNameFromOriginal(void) {
+  if (mOriginalName.IsEmpty()) return NS_OK;
+  return SetPrettyName(mOriginalName);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetName(nsAString& name) {

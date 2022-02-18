@@ -39,6 +39,12 @@ interface nsIFolderLookupService : nsISupports
    * @param aUrl The folder URL
    */
   nsIMsgFolder getOrCreateFolderForURL(in AUTF8String aUrl);
+
+  /**
+   * Set pretty name again from original name on all folders,
+   * typically used when locale changes.
+   */
+  void setPrettyNameFromOriginalAllFolders();
 };
 
 %{C++

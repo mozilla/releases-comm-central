@@ -54,6 +54,12 @@ interface nsIMsgFolder : nsISupports {
   attribute AString prettyName;
   readonly attribute AString abbreviatedName;
 
+  /**
+   * Set pretty name again from original name,
+   * typically used when locale changes.
+   */
+  void setPrettyNameFromOriginal();
+
   attribute nsIMsgFolder parent;
 
   /// Returns an enumerator containing the messages within the current database.
