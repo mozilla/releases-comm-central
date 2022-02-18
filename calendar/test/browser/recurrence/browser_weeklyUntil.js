@@ -6,7 +6,7 @@ var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 
-var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
+var { formatDate, menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
@@ -161,7 +161,7 @@ async function setRecurrence(recurrenceWindow) {
   untilInput.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, recurrenceWindow);
 
-  let endDateString = cal.dtz.formatter.formatDateShort(ENDDATE);
+  let endDateString = formatDate(ENDDATE);
   EventUtils.sendString(endDateString, recurrenceWindow);
 
   // Move focus to ensure the date is selected.

@@ -4,6 +4,8 @@
 
 const EXPORTED_SYMBOLS = [
   "cancelItemDialog",
+  "formatDate",
+  "formatTime",
   "menulistSelect",
   "saveAndCloseItemDialog",
   "setData",
@@ -22,6 +24,32 @@ var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 function sleep(window, time = 0) {
   return new Promise(resolve => window.setTimeout(resolve, time));
+}
+
+/**
+ * Formats a date for input in a datepicker. Don't use cal.dtz.formatter methods
+ * for this as they use the application locale but datepicker uses the OS locale.
+ *
+ * @param {calIDateTime} date
+ * @returns {string}
+ */
+function formatDate(date) {
+  return cal.dtz
+    .dateTimeToJsDate(date)
+    .toLocaleString(undefined, { dateStyle: "short", timeZone: "UTC" });
+}
+
+/**
+ * Formats a time for input in a timepicker. Don't use cal.dtz.formatter methods
+ * for this as they use the application locale but timepicker uses the OS locale.
+ *
+ * @param {calIDateTime} time
+ * @returns {string}
+ */
+function formatTime(time) {
+  return cal.dtz
+    .dateTimeToJsDate(time)
+    .toLocaleString(undefined, { timeStyle: "short", timeZone: "UTC" });
 }
 
 /**
@@ -87,7 +115,6 @@ async function setData(dialogWindow, iframeWindow, data) {
   let completeddateInput = iframeDocument.getElementById("completed-date-picker")._inputField;
   let untilDateInput = iframeDocument.getElementById("repeat-until-datepicker")._inputField;
 
-  let dateFormatter = cal.dtz.formatter;
   // Wait for input elements' values to be populated.
   await sleep(iframeWindow, 500);
 
@@ -138,7 +165,7 @@ async function setData(dialogWindow, iframeWindow, data) {
 
   // startdate
   if (data.startdate !== undefined && data.startdate instanceof Ci.calIDateTime) {
-    let startdate = dateFormatter.formatDateShort(data.startdate);
+    let startdate = formatDate(data.startdate);
 
     if (!isEvent) {
       let checkbox = iframeDocument.getElementById("todo-has-entrydate");
@@ -151,14 +178,14 @@ async function setData(dialogWindow, iframeWindow, data) {
 
   // starttime
   if (data.starttime !== undefined && data.starttime instanceof Ci.calIDateTime) {
-    let starttime = dateFormatter.formatTime(data.starttime);
+    let starttime = formatTime(data.starttime);
     replaceText(starttimeInput, starttime);
     await sleep(iframeWindow);
   }
 
   // enddate
   if (data.enddate !== undefined && data.enddate instanceof Ci.calIDateTime) {
-    let enddate = dateFormatter.formatDateShort(data.enddate);
+    let enddate = formatDate(data.enddate);
     if (!isEvent) {
       let checkbox = iframeDocument.getElementById("todo-has-duedate");
       if (!checkbox.checked) {
@@ -170,7 +197,7 @@ async function setData(dialogWindow, iframeWindow, data) {
 
   // endtime
   if (data.endtime !== undefined && data.endtime instanceof Ci.calIDateTime) {
-    let endtime = dateFormatter.formatTime(data.endtime);
+    let endtime = formatTime(data.endtime);
     replaceText(endtimeInput, endtime);
   }
 
@@ -182,7 +209,7 @@ async function setData(dialogWindow, iframeWindow, data) {
         "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
         {
           async callback(recurrenceWindow) {
-            Assert.report(false, undefined, undefined, "Reccurrence dialog opened");
+            Assert.report(false, undefined, undefined, "Recurrence dialog opened");
             if (Services.focus.activeWindow != recurrenceWindow) {
               await BrowserTestUtils.waitForEvent(recurrenceWindow, "focus");
             }
@@ -195,7 +222,7 @@ async function setData(dialogWindow, iframeWindow, data) {
         menulistSelect(iframeDocument.getElementById("item-repeat"), "custom"),
         repeatWindowPromise,
       ]);
-      Assert.report(false, undefined, undefined, "Reccurrence dialog closed");
+      Assert.report(false, undefined, undefined, "Recurrence dialog closed");
     } else {
       await menulistSelect(iframeDocument.getElementById("item-repeat"), data.repeat);
     }
@@ -203,7 +230,7 @@ async function setData(dialogWindow, iframeWindow, data) {
   if (data.repeatuntil !== undefined && data.repeatuntil instanceof Ci.calIDateTime) {
     // Only fill in date, when the Datepicker is visible.
     if (!iframeDocument.getElementById("repeat-untilDate").hidden) {
-      let untildate = dateFormatter.formatDateShort(data.repeatuntil);
+      let untildate = formatDate(data.repeatuntil);
       replaceText(untilDateInput, untildate);
     }
   }
@@ -247,7 +274,7 @@ async function setData(dialogWindow, iframeWindow, data) {
 
   // completed on
   if (data.completed !== undefined && data.completed instanceof Ci.calIDateTime && !isEvent) {
-    let completeddate = dateFormatter.formatDateShort(data.completed);
+    let completeddate = formatDate(data.completed);
     if (currentStatus == "COMPLETED") {
       replaceText(completeddateInput, completeddate);
     }
