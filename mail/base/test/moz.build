@@ -9,7 +9,10 @@ BROWSER_CHROME_MANIFESTS += [
     "webextensions/browser.ini",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
+XPCSHELL_TESTS_MANIFESTS += [
+    "unit/xpcshell.ini",
+    "unit/xpcshell_maildir.ini",
+]
 
 TESTING_JS_MODULES += [
     "../../../../browser/components/customizableui/test/CustomizableUITestUtils.jsm",
