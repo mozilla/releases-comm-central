@@ -84,7 +84,7 @@
 @media (-moz-platform: windows-win7),
        (-moz-platform: windows-win8) {
   #messengerWindow .statusbar {
-    background-color: var(--lwt-frame);
+    background-color: var(--lwt-accent-color);
   }
 
   @media (-moz-windows-compositor) {
@@ -102,7 +102,7 @@
   /* Show border on tabs with background colors and
    * show the tabs toolbar background color inside tabs. */
   .tabmail-tab {
-    background-color: var(--lwt-frame) !important;
+    background-color: var(--lwt-accent-color) !important;
     border-top: 1px solid var(--lwt-tabs-border-color);
     background-clip: padding-box;
   }

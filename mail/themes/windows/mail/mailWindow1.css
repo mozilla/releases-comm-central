@@ -154,11 +154,11 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       }
 
       :root[tabsintitlebar]:-moz-lwtheme {
-        background-color: var(--lwt-frame);
+        background-color: var(--lwt-accent-color);
       }
 
       :root[tabsintitlebar]:-moz-lwtheme:-moz-window-inactive {
-        background-color: var(--lwt-frame-inactive, var(--lwt-frame));
+        background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
       }
 
       :root[tabsintitlebar] #navigation-toolbox {
