@@ -30,7 +30,7 @@ add_task(async function test_secure_mails_read() {
   const NUM_PLAIN_MAILS = 4;
   const NUM_SMIME_MAILS = 2;
   const NUM_OPENPGP_MAILS = 3;
-  let headers = "from: alice@t1.example.com\r\nto: bob@t2.example.net\r\n";
+  let headers = { from: "alice@t1.example.com", to: "bob@t2.example.net" };
   let folder = await create_folder("secure-mail");
 
   // normal message should not be counted
