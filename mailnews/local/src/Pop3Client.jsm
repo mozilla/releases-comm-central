@@ -1071,7 +1071,6 @@ class Pop3Client {
           this._sink.incorporateWrite(line, line.length);
         } catch (e) {
           this._actionError("pop3MessageWriteError");
-          return;
         }
       },
       () => {
@@ -1130,7 +1129,6 @@ class Pop3Client {
           this._sink.incorporateWrite(line, line.length);
         } catch (e) {
           this._actionError("pop3MessageWriteError");
-          return;
         }
       },
       () => {
