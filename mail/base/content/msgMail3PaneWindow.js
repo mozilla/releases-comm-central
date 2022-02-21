@@ -1413,9 +1413,8 @@ function AddToSession() {
     return;
   }
 
-  var nsIFolderListener = Ci.nsIFolderListener;
   var notifyFlags =
-    nsIFolderListener.intPropertyChanged | nsIFolderListener.event;
+    Ci.nsIFolderListener.intPropertyChanged | Ci.nsIFolderListener.event;
   MailServices.mailSession.AddFolderListener(folderListener, notifyFlags);
 }
 
