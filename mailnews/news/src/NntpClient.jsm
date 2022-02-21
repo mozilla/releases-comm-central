@@ -9,6 +9,7 @@ var { AppConstants } = ChromeUtils.import(
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
 var { NntpNewsGroup } = ChromeUtils.import(
   "resource:///modules/NntpNewsGroup.jsm"
 );
@@ -45,6 +46,7 @@ class NntpClient {
    */
   constructor(server) {
     this._server = server;
+    this._lineReader = new LineReader();
 
     this._reset();
     this._logger = console.createInstance({
@@ -189,6 +191,10 @@ class NntpClient {
    * @returns {NntpResponse}
    */
   _parse(str) {
+    if (this._lineReader.processingMultiLineResponse) {
+      // When processing multi-line response, no parsing should happen.
+      return { data: str };
+    }
     let matches = /^(\d{3}) (.+)\r\n([^]*)/.exec(str);
     if (matches) {
       let [, status, statusText, data] = matches;
@@ -493,7 +499,7 @@ class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXOver({ data }) {
-    this._lineReader(
+    this._lineReader.read(
       data,
       line => {
         this._newsGroup.processXOverLine(line);
@@ -533,7 +539,7 @@ class NntpClient {
       return;
     }
 
-    this._lineReader(
+    this._lineReader.read(
       data,
       line => {
         this._newsGroup.processXHdrLine(this._curXHdrHeader, line);
@@ -562,7 +568,7 @@ class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadHead({ data }) {
-    this._lineReader(
+    this._lineReader.read(
       data,
       line => {
         this._newsGroup.processHeadLine(line);
@@ -589,7 +595,7 @@ class NntpClient {
   _actionArticleResponse = ({ data }) => {
     let lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
 
-    this._lineReader(
+    this._lineReader.read(
       data,
       line => {
         // NewsFolder will decide whether to save it to the offline storage.
@@ -610,49 +616,12 @@ class NntpClient {
   };
 
   /**
-   * Read multi-line data blocks response, emit each line through a callback.
-   * @param {string} data - Response received from the server.
-   * @param {Function} lineCallback - A line will be passed to the callback each
-   *   time.
-   * @param {Function} doneCallback - A function to be called when data is ended.
-   */
-  _lineReader(data, lineCallback, doneCallback) {
-    if (this._leftoverData) {
-      data = this._leftoverData + data;
-      this._leftoverData = null;
-    }
-    let ended = false;
-    if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
-      ended = true;
-      data = data.slice(0, -3);
-    }
-    while (data) {
-      let index = data.indexOf("\r\n");
-      if (index == -1) {
-        // Not enough data, save it for the next round.
-        this._leftoverData = data;
-        break;
-      }
-      let line = data.slice(0, index + 2);
-      if (line.startsWith("..")) {
-        // Remove stuffed dot.
-        line = line.slice(1);
-      }
-      lineCallback(line);
-      data = data.slice(index + 2);
-    }
-    if (ended) {
-      doneCallback(null);
-    }
-  }
-
-  /**
    * Handle multi-line data blocks response, e.g. ARTICLE/LIST response. Emit
    * each line through onData.
    * @param {NntpResponse} res - Response received from the server.
    */
   _actionReadData({ data }) {
-    this._lineReader(data, this.onData, this._actionDone);
+    this._lineReader.read(data, this.onData, this._actionDone);
   }
 
   /**
@@ -748,7 +717,7 @@ class NntpClient {
       this._actionError(NNTP_ERROR_MESSAGE, statusText);
       return;
     }
-    this._lineReader(data, this.onData, this._actionXPat);
+    this._lineReader.read(data, this.onData, this._actionXPat);
   }
 
   /**

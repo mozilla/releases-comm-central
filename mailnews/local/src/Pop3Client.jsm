@@ -10,6 +10,7 @@ var { AppConstants } = ChromeUtils.import(
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
 var { MailCryptoUtils } = ChromeUtils.import(
   "resource:///modules/MailCryptoUtils.jsm"
 );
@@ -51,6 +52,7 @@ class Pop3Client {
   constructor(server) {
     this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
     this._authenticator = new Pop3Authenticator(server);
+    this._lineReader = new LineReader();
 
     // Somehow, Services.io.newURI("pop3://localhost") doesn't work, what we
     // need is just a valid nsIMsgMailNewsUrl to propagate OnStopRunningUrl and
@@ -260,6 +262,12 @@ class Pop3Client {
    * @returns {Pop3Response}
    */
   _parse(str) {
+    if (this._lineReader.processingMultiLineResponse) {
+      // When processing multi-line response, no parsing should happen. If
+      // `+something` is treated as status line, _actionRetrResponse will treat
+      // it as a new message.
+      return { data: str };
+    }
     let matches = /^(\+OK|-ERR|\+) ?(.*)\r\n([^]*)/.exec(str);
     if (matches) {
       let [, status, statusText, data] = matches;
@@ -381,45 +389,6 @@ class Pop3Client {
   }
 
   /**
-   * Read multi-line data blocks response, emit each line through a callback.
-   * @param {string} data - Response received from the server.
-   * @param {Function} lineCallback - A line will be passed to the callback each
-   *   time.
-   * @param {Function} doneCallback - A function to be called when data is ended.
-   */
-  _lineReader(data, lineCallback, doneCallback) {
-    if (this._leftoverData) {
-      // For a single request, the response can span multiple ondata events.
-      // Concatenate the leftover data from last event to the current data.
-      data = this._leftoverData + data;
-      this._leftoverData = null;
-    }
-    let ended = false;
-    if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
-      ended = true;
-      data = data.slice(0, -3);
-    }
-    while (data) {
-      let index = data.indexOf("\r\n");
-      if (index == -1) {
-        // Not enough data, save it for the next round.
-        this._leftoverData = data;
-        break;
-      }
-      let line = data.slice(0, index + 2);
-      if (line.startsWith("..")) {
-        // Remove stuffed dot.
-        line = line.slice(1);
-      }
-      lineCallback(line);
-      data = data.slice(index + 2);
-    }
-    if (ended) {
-      doneCallback(null);
-    }
-  }
-
-  /**
    * Send a command to the server.
    * @param {string} str - The command string to send.
    * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
@@ -459,10 +428,11 @@ class Pop3Client {
    * @param {Pop3Response} res - CAPA response received from the server.
    */
   _actionCapaResponse = res => {
-    if (!res.success) {
+    if (res.status && !res.success) {
       this._actionChooseFirstAuthMethod();
+      return;
     }
-    this._lineReader(
+    this._lineReader.read(
       res.data,
       line => {
         if (line.startsWith("SASL ")) {
@@ -897,11 +867,11 @@ class Pop3Client {
    * @param {Pop3Response} res - LIST response received from the server.
    */
   _actionListResponse = res => {
-    if (!res.success) {
+    if (res.status && !res.success) {
       this._actionError("pop3ListFailure", [], res.statusText);
       return;
     }
-    this._lineReader(
+    this._lineReader.read(
       res.data,
       line => {
         let [messageNumber, messageSize] = line.split(" ");
@@ -928,7 +898,7 @@ class Pop3Client {
    * @param {Pop3Response} res - UIDL response received from the server.
    */
   _actionUidlResponse = ({ data }) => {
-    this._lineReader(
+    this._lineReader.read(
       data,
       line => {
         let [messageNumber, uidl] = line.split(" ");
@@ -1089,9 +1059,10 @@ class Pop3Client {
         );
       } catch (e) {
         this._actionError("pop3MessageWriteError");
+        return;
       }
     }
-    this._lineReader(
+    this._lineReader.read(
       res.data,
       line => {
         // Remove \r\n and use the OS native line ending.
@@ -1100,6 +1071,7 @@ class Pop3Client {
           this._sink.incorporateWrite(line, line.length);
         } catch (e) {
           this._actionError("pop3MessageWriteError");
+          return;
         }
       },
       () => {
@@ -1111,6 +1083,7 @@ class Pop3Client {
           );
         } catch (e) {
           this._actionError("pop3MessageWriteError");
+          return;
         }
 
         this._uidlMap.set(this._currentMessage.uidl, {
@@ -1141,19 +1114,35 @@ class Pop3Client {
         this._actionError("pop3RetrFailure", [], res.statusText);
         return;
       }
-      // Call incorporateBegin only once for each message.
-      this._sink.incorporateBegin(this._currentMessage.uidl, 0);
+      try {
+        // Call incorporateBegin only once for each message.
+        this._sink.incorporateBegin(this._currentMessage.uidl, 0);
+      } catch (e) {
+        this._actionError("pop3MessageWriteError");
+        return;
+      }
     }
-    this._lineReader(
+    this._lineReader.read(
       res.data,
       line => {
-        this._sink.incorporateWrite(line, line.length);
+        line = line.slice(0, -2) + this._lineSeparator;
+        try {
+          this._sink.incorporateWrite(line, line.length);
+        } catch (e) {
+          this._actionError("pop3MessageWriteError");
+          return;
+        }
       },
       () => {
-        this._sink.incorporateComplete(
-          this._msgWindow,
-          0 // Set size only when it's a partial message.
-        );
+        try {
+          this._sink.incorporateComplete(
+            this._msgWindow,
+            0 // Set size only when it's a partial message.
+          );
+        } catch (e) {
+          this._actionError("pop3MessageWriteError");
+          return;
+        }
         if (this._server.leaveMessagesOnServer) {
           this._uidlMap.set(this._currentMessage.uidl, {
             status: UIDL_KEEP,
