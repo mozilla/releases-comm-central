@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+var { formatDate, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
@@ -37,14 +37,11 @@ add_task(async function testDayView() {
 
   // Check that the start time is correct.
   let someDate = cal.createDateTime();
-  someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.floating);
+  someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.UTC);
 
   let startPicker = iframeDocument.getElementById("event-starttime");
-  Assert.equal(startPicker._timepicker._inputField.value, cal.dtz.formatter.formatTime(someDate));
-  Assert.equal(
-    startPicker._datepicker._inputField.value,
-    cal.dtz.formatter.formatDateShort(someDate)
-  );
+  Assert.equal(startPicker._datepicker._inputField.value, formatDate(someDate));
+  Assert.equal(startPicker._timepicker._inputField.value, formatTime(someDate));
 
   // Fill in title, description and calendar.
   await setData(dialogWindow, iframeWindow, {

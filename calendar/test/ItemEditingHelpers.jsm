@@ -26,6 +26,16 @@ function sleep(window, time = 0) {
   return new Promise(resolve => window.setTimeout(resolve, time));
 }
 
+var dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "short" });
+var dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
+  dateStyle: "short",
+  timeZone: "UTC",
+});
+var timeFormatter = new Services.intl.DateTimeFormat(undefined, {
+  timeStyle: "short",
+  timeZone: "UTC",
+});
+
 /**
  * Formats a date for input in a datepicker. Don't use cal.dtz.formatter methods
  * for this as they use the application locale but datepicker uses the OS locale.
@@ -34,9 +44,11 @@ function sleep(window, time = 0) {
  * @returns {string}
  */
 function formatDate(date) {
-  return cal.dtz
-    .dateTimeToJsDate(date)
-    .toLocaleString(undefined, { dateStyle: "short", timeZone: "UTC" });
+  if (date.isDate) {
+    return dateFormatter.format(cal.dtz.dateTimeToJsDate(date));
+  }
+
+  return dateTimeFormatter.format(cal.dtz.dateTimeToJsDate(date));
 }
 
 /**
@@ -47,9 +59,7 @@ function formatDate(date) {
  * @returns {string}
  */
 function formatTime(time) {
-  return cal.dtz
-    .dateTimeToJsDate(time)
-    .toLocaleString(undefined, { timeStyle: "short", timeZone: "UTC" });
+  return timeFormatter.format(cal.dtz.dateTimeToJsDate(time));
 }
 
 /**

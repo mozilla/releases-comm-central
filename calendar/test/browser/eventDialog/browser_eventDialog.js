@@ -7,7 +7,7 @@ var {
   checkMonthAlarmIcon,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
-var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
+var { cancelItemDialog, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -57,8 +57,8 @@ add_task(async function testEventDialog() {
   let startHour = hour == 23 ? hour : (hour + 1) % 24;
 
   let nextHour = cal.dtz.now();
-  nextHour.resetTo(firstDay.year, firstDay.month, firstDay.day, startHour, 0, 0, cal.dtz.floating);
-  let startTime = cal.dtz.formatter.formatTime(nextHour);
+  nextHour.resetTo(firstDay.year, firstDay.month, firstDay.day, startHour, 0, 0, cal.dtz.UTC);
+  let startTime = formatTime(nextHour);
   nextHour.resetTo(
     firstDay.year,
     firstDay.month,
@@ -66,9 +66,9 @@ add_task(async function testEventDialog() {
     (startHour + 1) % 24,
     0,
     0,
-    cal.dtz.floating
+    cal.dtz.UTC
   );
-  let endTime = cal.dtz.formatter.formatTime(nextHour);
+  let endTime = formatTime(nextHour);
 
   // Create new event on first day in view.
   EventUtils.synthesizeMouseAtCenter(monthView.getDayBox(window, 1, 1), {}, window);
