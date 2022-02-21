@@ -1322,10 +1322,6 @@ pref("prompts.contentPromptSubDialog", false);
 // The URL for the privacy policy related to recommended extensions.
 pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/en-US/privacy/thunderbird/#addons");
 
-// Completely disable pdf.js as an option to preview pdfs within Thunderbird.
-// Note: if this is not disabled it does not necessarily mean pdf.js is the pdf
-// handler just that it is an option.
-pref("pdfjs.disabled", false);
 // Used by pdf.js to know the first time Thunderbird is run with it installed
 // so it can become the default pdf viewer.
 pref("pdfjs.firstRun", true);
