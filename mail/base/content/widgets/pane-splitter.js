@@ -8,18 +8,21 @@
    * variable which is named for the id of the element plus "width" or
    * "height" as appropriate (e.g. --splitter1-width). The variable should
    * be used to set the width/height of one of the adjacent elements.
-   * Typically this would be the preceding element. To use the following
-   * element instead, set resize="next".
+   *
+   * By default, the splitter will resize the height of the preceding element.
+   * Use the "resize-direction" and "resize" attributes to change this.
    *
    * Fires a "splitter-resizing" event as dragging begins, and
    * "splitter-resized" when it ends.
    *
    * The controlled pane can be collapsed and expanded. "splitter-collapsed"
    * and "splitter-expanded" events are fired as appropriate. If the splitter
-   * has a data-min-width/data-min-height attribute, collapsing and expanding
+   * has a "min-width"/"min-height" attribute, collapsing and expanding
    * happens automatically when below the minimum size.
    */
   class PaneSplitter extends HTMLHRElement {
+    static observedAttributes = ["resize-direction"];
+
     /**
      * The sibling pane this splitter controls the size of.
      * @type {HTMLElement}
@@ -54,13 +57,14 @@
       }
       this.hasConnected = true;
 
-      this._adjacent = this.previousElementSibling;
-      this._opposite = this.nextElementSibling;
       if (this.getAttribute("resize") == "next") {
-        [this._adjacent, this._opposite] = [this._opposite, this._adjacent];
+        this._adjacent = this.nextElementSibling;
+        this._opposite = this.previousElementSibling;
+      } else {
+        this._adjacent = this.previousElementSibling;
+        this._opposite = this.nextElementSibling;
       }
-
-      if (this.orientation == "vertical") {
+      if (this.resizeDirection == "vertical") {
         this._height = this._adjacent.clientHeight;
       } else {
         this._width = this._adjacent.clientWidth;
@@ -69,14 +73,36 @@
       this.addEventListener("mousedown", this);
     }
 
+    attributeChangedCallback(name, oldValue, newValue) {
+      switch (name) {
+        case "resize-direction":
+          this._updateResizeDirection();
+          break;
+      }
+    }
+
     /**
-     * The axis of the splitter's movement. A splitter in the vertical
-     * orientation has panes above and below it. In horizontal orientation,
-     * the panes are beside it.
+     * The direction the splitter resizes the controlled element. Resizing
+     * horizontally changes its width, whilst resizing vertically changes its
+     * height.
+     *
+     * This corresponds to the "resize-direction" attribute and defaults to
+     * "vertical" when none is given.
+     *
      * @type {"vertical"|"horizontal"}
      */
-    get orientation() {
-      return this.clientWidth > this.clientHeight ? "vertical" : "horizontal";
+    get resizeDirection() {
+      return this.getAttribute("resize-direction") ?? "vertical";
+    }
+
+    set resizeDirection(val) {
+      this.setAttribute("resize-direction", val);
+    }
+
+    _updateResizeDirection() {
+      // The resize direction has changed. To be safe, make sure we're no longer
+      // resizing.
+      this.endResize();
     }
 
     /**
@@ -121,7 +147,7 @@
       if (this.isCollapsed) {
         return;
       }
-      if (this.orientation == "vertical") {
+      if (this.resizeDirection == "vertical") {
         this.parentNode.style.setProperty(`--${this.id}-height`, "0");
       } else {
         this.parentNode.style.setProperty(`--${this.id}-width`, "0");
@@ -140,7 +166,7 @@
       if (!this.isCollapsed) {
         return;
       }
-      if (this.orientation == "vertical") {
+      if (this.resizeDirection == "vertical") {
         this.parentNode.style.setProperty(
           `--${this.id}-height`,
           this._height + "px"
@@ -192,50 +218,39 @@
         return;
       }
 
-      let { width, height } = this.parentNode.getBoundingClientRect();
+      let vertical = this.resizeDirection == "vertical";
 
-      let oppositeStyle = getComputedStyle(this._opposite);
+      let parentSize = this.parentNode.getBoundingClientRect()[
+        vertical ? "height" : "width"
+      ];
+      let minSize = this.getAttribute(vertical ? "min-height" : "min-width");
+      let oppositeMinSize = getComputedStyle(this._opposite)[
+        vertical ? "min-height" : "min-width"
+      ];
+
+      let min =
+        minSize == null ? 0 : Math.min(parentSize, parseInt(minSize, 10));
+      let max =
+        oppositeMinSize == "auto"
+          ? parentSize
+          : Math.max(min, parentSize - parseInt(oppositeMinSize, 10));
+
+      let resizeNext = this.getAttribute("resize") == "next";
+      let ltrDir = this.parentNode.matches(":dir(ltr)");
 
       this._dragStartInfo = {
         wasCollapsed: this.isCollapsed,
-        x: event.clientX,
-        y: event.clientY,
-        width: this._adjacent.getBoundingClientRect().width,
-        height: this._adjacent.getBoundingClientRect().height,
-        min: 0,
+        // Whether this will resize vertically.
+        vertical,
+        pos: vertical ? event.clientY : event.clientX,
+        // Whether decreasing X/Y should increase the size.
+        negative: vertical ? resizeNext : resizeNext == ltrDir,
+        size: this._adjacent.getBoundingClientRect()[
+          vertical ? "height" : "width"
+        ],
+        min,
+        max,
       };
-
-      if (this.orientation == "vertical") {
-        this._dragStartInfo.max = height;
-
-        if (this.hasAttribute("min-height")) {
-          this._dragStartInfo.min = Math.min(
-            height,
-            parseInt(this.getAttribute("min-height"), 10)
-          );
-        }
-        if (oppositeStyle.minHeight != "auto") {
-          this._dragStartInfo.max = Math.max(
-            this._dragStartInfo.min,
-            height - parseInt(oppositeStyle.minHeight, 10)
-          );
-        }
-      } else {
-        this._dragStartInfo.max = width;
-
-        if (this.hasAttribute("min-width")) {
-          this._dragStartInfo.min = Math.min(
-            width,
-            parseInt(this.getAttribute("min-width"), 10)
-          );
-        }
-        if (oppositeStyle.minWidth != "auto") {
-          this._dragStartInfo.max = Math.max(
-            this._dragStartInfo.min,
-            width - parseInt(oppositeStyle.minWidth, 10)
-          );
-        }
-      }
 
       event.preventDefault();
       window.addEventListener("mousemove", this);
@@ -244,34 +259,28 @@
 
     _onMouseMove(event) {
       if (event.buttons != 1) {
-        // The button was released and we didn't get a mouseup event, or the
+        // The button was released and we didn't get a mouseup event (e.g.
+        // releasing the mouse above a disabled html:button), or the
         // button(s) pressed changed. Either way, stop dragging.
-        this._onMouseUp(event);
+        this.endResize();
         return;
       }
 
       event.preventDefault();
 
-      let delta, position, property;
-      let { wasCollapsed, x, y, width, height, min, max } = this._dragStartInfo;
+      let {
+        wasCollapsed,
+        vertical,
+        negative,
+        pos,
+        size,
+        min,
+        max,
+      } = this._dragStartInfo;
 
-      if (this.orientation == "vertical") {
-        delta = event.clientY - y;
-        if (this.getAttribute("resize") == "next") {
-          delta *= -1;
-        }
-        position = height + delta;
-        property = "height";
-      } else {
-        delta = event.clientX - x;
-        if (this.matches(":dir(rtl)")) {
-          delta *= -1;
-        }
-        if (this.getAttribute("resize") == "next") {
-          delta *= -1;
-        }
-        position = width + delta;
-        property = "width";
+      let delta = (vertical ? event.clientY : event.clientX) - pos;
+      if (negative) {
+        delta *= -1;
       }
 
       if (!this._started) {
@@ -284,14 +293,14 @@
         );
       }
 
-      let clampedPosition = Math.min(Math.max(position, min), max);
+      size += delta;
       if (min) {
-        let pastCollapseThreshold = position < min - 20;
+        let pastCollapseThreshold = size < min - 20;
         if (wasCollapsed) {
           if (!pastCollapseThreshold) {
             this._dragStartInfo.wasCollapsed = false;
           }
-          pastCollapseThreshold = position < 20;
+          pastCollapseThreshold = size < 20;
         }
 
         if (pastCollapseThreshold) {
@@ -301,16 +310,26 @@
 
         this.expand();
       }
-      this[property] = clampedPosition;
+      this[vertical ? "height" : "width"] = Math.min(Math.max(size, min), max);
     }
 
     _onMouseUp(event) {
+      event.preventDefault();
+      this.endResize();
+    }
+
+    /**
+     * Stop the resizing operation if it is currently active.
+     */
+    endResize() {
+      if (!this._dragStartInfo) {
+        return;
+      }
       let didStart = this._started;
 
       delete this._dragStartInfo;
       delete this._started;
 
-      event.preventDefault();
       window.removeEventListener("mousemove", this);
       window.removeEventListener("mouseup", this);
 

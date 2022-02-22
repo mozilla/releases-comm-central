@@ -79,14 +79,17 @@ window.addEventListener("DOMContentLoaded", event => {
       case 1:
         document.body.classList.remove("layout-classic", "layout-vertical");
         document.body.classList.add("layout-wide");
+        splitter2.resizeDirection = "vertical";
         break;
       case 2:
         document.body.classList.remove("layout-classic", "layout-wide");
         document.body.classList.add("layout-vertical");
+        splitter2.resizeDirection = "horizontal";
         break;
       default:
         document.body.classList.remove("layout-wide", "layout-vertical");
         document.body.classList.add("layout-classic");
+        splitter2.resizeDirection = "vertical";
         break;
     }
   }

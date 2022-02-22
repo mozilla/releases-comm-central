@@ -47,10 +47,15 @@ body {
 }
 
 hr[is="pane-splitter"] {
-  margin: 0 -3px;
+  margin: -3px 0;
   z-index: 1;
-  cursor: ew-resize;
+  cursor: ns-resize;
   border: none;
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"] {
+  margin: 0 -3px;
+  cursor: ew-resize;
 }
 
 hr[is="pane-splitter"]:hover {
@@ -75,11 +80,6 @@ body.layout-classic :is(#threadTreePane, #splitter2, #messageBrowserPane, #messa
 body.layout-classic #messageBrowserPane {
   border-top: 1px solid ThreeDShadow;
   border-inline-start: 1px solid ThreeDShadow;
-}
-
-body.layout-classic #splitter2 {
-  margin: -3px 0;
-  cursor: ns-resize;
 }
 
 body.layout-classic :is(#messageBrowserPane, #messageBrowserPaneCover) {
@@ -118,11 +118,6 @@ body.layout-wide :is(#folderTreePane, #splitter1, #threadTreePane) {
 
 body.layout-wide :is(#splitter2, #messageBrowserPane, #messageBrowserPaneCover) {
   grid-column: 1 / -1;
-}
-
-body.layout-wide #splitter2 {
-  margin: -3px 0;
-  cursor: ns-resize;
 }
 
 body.layout-wide #messageBrowserPane {
