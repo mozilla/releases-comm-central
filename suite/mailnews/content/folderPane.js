@@ -1980,11 +1980,9 @@ var gFolderTreeController = {
   compactAllFoldersForAccount(aFolders) {
     let folders = aFolders || GetSelectedMsgFolders();
     for (let folder of folders) {
-      let isImapFolder = folder.server.type == "imap";
-      folder.compactAll(null, msgWindow, isImapFolder ||
-                                         folder.server.type == "nntp");
+      folder.compactAll(null, msgWindow);
       // Reset thread pane for non-imap folders.
-      if (gDBView && !isImapFolder)
+      if (gDBView && folder.server.type != "imap")
         this._resetThreadPane();
     }
   },

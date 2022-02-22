@@ -349,11 +349,7 @@ function startContinue(aSelectedStoreType, aResponse) {
           });
       },
     };
-    gServer.rootFolder.compactAll(
-      urlListener,
-      null,
-      gServer.type == "imap" || gServer.type == "nntp"
-    );
+    gServer.rootFolder.compactAll(urlListener, null);
   } else {
     let pConvert = MailstoreConverter.convertMailStoreTo(
       originalStoreContractID,

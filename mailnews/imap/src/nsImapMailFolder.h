@@ -233,8 +233,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD Compact(nsIUrlListener* aListener,
                      nsIMsgWindow* aMsgWindow) override;
-  NS_IMETHOD CompactAll(nsIUrlListener* aListener, nsIMsgWindow* aMsgWindow,
-                        bool aCompactOfflineAlso) override;
+  NS_IMETHOD CompactAll(nsIUrlListener* aListener,
+                        nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD EmptyTrash(nsIMsgWindow* msgWindow,
                         nsIUrlListener* aListener) override;
   NS_IMETHOD CopyDataToOutputStreamForAppend(

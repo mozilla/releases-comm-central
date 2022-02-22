@@ -3496,8 +3496,7 @@ NS_IMETHODIMP nsMsgDBFolder::Compact(nsIUrlListener* aListener,
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CompactAll(nsIUrlListener* aListener,
-                                        nsIMsgWindow* aMsgWindow,
-                                        bool aCompactOfflineAlso) {
+                                        nsIMsgWindow* aMsgWindow) {
   NS_ASSERTION(false, "should be overridden by child class");
   return NS_ERROR_NOT_IMPLEMENTED;
 }

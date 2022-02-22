@@ -278,7 +278,7 @@ var gTestArray = [
       },
     };
     let listener = new PromiseTestUtils.PromiseUrlListener(checkResult);
-    localAccountUtils.inboxFolder.compactAll(listener, null, true);
+    localAccountUtils.inboxFolder.compactAll(listener, null);
     await listener.promise;
 
     showMessages(localAccountUtils.inboxFolder, "after compactAll");

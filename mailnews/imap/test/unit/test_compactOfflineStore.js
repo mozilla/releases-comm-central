@@ -159,7 +159,7 @@ add_task(async function test_deleteOneMessage() {
 add_task(async function compactOfflineStore() {
   gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  gRootFolder.compactAll(listener, null, true);
+  gRootFolder.compactAll(listener, null);
   await listener.promise;
 });
 
@@ -172,7 +172,7 @@ add_task(async function pendingRemoval() {
   IMAPPump.inbox.markPendingRemoval(msgHdr, true);
   gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  gRootFolder.compactAll(listener, null, true);
+  gRootFolder.compactAll(listener, null);
   await listener.promise;
 });
 

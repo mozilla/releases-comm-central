@@ -483,8 +483,7 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
-                                               nsIMsgWindow* aMsgWindow,
-                                               bool aCompactOfflineAlso) {
+                                               nsIMsgWindow* aMsgWindow) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));

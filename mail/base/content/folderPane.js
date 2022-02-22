@@ -3673,11 +3673,7 @@ var gFolderTreeController = {
   compactAllFoldersForAccount(aFolders) {
     let folders = aFolders || gFolderTreeView.getSelectedFolders();
     for (let i = 0; i < folders.length; i++) {
-      folders[i].compactAll(
-        null,
-        msgWindow,
-        folders[i].server.type == "imap" || folders[i].server.type == "nntp"
-      );
+      folders[i].compactAll(null, msgWindow);
     }
   },
 

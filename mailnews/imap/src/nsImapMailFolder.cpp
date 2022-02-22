@@ -1302,11 +1302,9 @@ NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
 }
 
 NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
-                                           nsIMsgWindow* aMsgWindow,
-                                           bool aCompactOfflineAlso) {
+                                           nsIMsgWindow* aMsgWindow) {
   nsresult rv;
   nsTArray<RefPtr<nsIMsgFolder>> folderArray;
-  nsTArray<RefPtr<nsIMsgFolder>> offlineFolderArray;
 
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
@@ -1319,7 +1317,6 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
       if (!(folderFlags &
             (nsMsgFolderFlags::Virtual | nsMsgFolderFlags::ImapNoselect))) {
         folderArray.AppendElement(folder);
-        if (aCompactOfflineAlso) offlineFolderArray.AppendElement(folder);
       }
     }
     if (folderArray.IsEmpty()) return NotifyCompactCompleted();
@@ -1327,8 +1324,8 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
       do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->CompactFolders(folderArray, offlineFolderArray,
-                                         aListener, aMsgWindow);
+  return folderCompactor->CompactFolders(folderArray, folderArray, aListener,
+                                         aMsgWindow);
 }
 
 NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener,

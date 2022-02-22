@@ -267,19 +267,15 @@ interface nsIMsgFolder : nsISupports {
    */
   void compact(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
   /**
-   * Compact all folders in the account corresponding to this folder/
-   * Optionally compact their offline stores as well (imap/news)
+   * Compact all folders in the account corresponding to this folder.
    *
    * @param aListener   Notified of completion, can be null.
    *                    OnStartRunningUrl() will not be called.
    *                    OnStopRunningUrl() will be called upon completion,
    *                    with a null URL.
    * @param aMsgWindow  For progress/status, can be null.
-   * @param aCompactOfflineAlso  This controls whether we compact all
-   *                             offline stores as well.
    */
-  void compactAll(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow,
-                  in boolean aCompactOfflineAlso);
+  void compactAll(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
 
   void compactAllOfflineStores(in nsIUrlListener aListener,
                                in nsIMsgWindow aMsgWindow,

@@ -66,7 +66,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
     },
   };
   if (otherFolder.msgStore.supportsCompaction) {
-    otherFolder.compactAll(urlListener, null, false);
+    otherFolder.compactAll(urlListener, null);
 
     mc.waitFor(
       () => urlListener.compactDone,
