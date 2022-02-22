@@ -83,18 +83,14 @@ hr[is="pane-splitter"]:hover {
   grid-area: splitter2;
 }
 
-#messageBrowserPane, #messageBrowserPaneCover {
+#messageBrowserPane {
   grid-area: message;
 }
 
-#accountCentralBrowser, #accountCentralBrowserCover {
+#accountCentralBrowser {
   grid-area: account-central;
   box-sizing: border-box;
   min-width: 400px;
-}
-
-body:not(.dragging) .dragcover {
-  display: none;
 }
 
 /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
@@ -146,15 +142,11 @@ body.account-central :is(
   #threadTreePane,
   #splitter2,
   #messageBrowserPane,
-  #messageBrowserPaneCover
 ) {
   display: none;
 }
 
-body:not(.account-central) :is(
-  #accountCentralBrowser,
-  #accountCentralBrowserCover
-) {
+body:not(.account-central) #accountCentralBrowser {
   display: none;
 }
 

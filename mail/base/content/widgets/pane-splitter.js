@@ -384,6 +384,15 @@
       event.preventDefault();
       window.addEventListener("mousemove", this);
       window.addEventListener("mouseup", this);
+      // Block all other pointer events whilst resizing. This ensures we don't
+      // trigger any styling or other effects whilst resizing. This also ensures
+      // that the MouseEvent's clientX and clientY will always be relative to
+      // the current window, rather than some ancestor xul:browser's window.
+      document.documentElement.style.pointerEvents = "none";
+      // Maintain an appropriate cursor whilst resizing.
+      document.documentElement.style.cursor = vertical
+        ? "ns-resize"
+        : "ew-resize";
     }
 
     _onMouseMove(event) {
@@ -461,6 +470,8 @@
 
       window.removeEventListener("mousemove", this);
       window.removeEventListener("mouseup", this);
+      document.documentElement.style.pointerEvents = null;
+      document.documentElement.style.cursor = null;
 
       if (didStart) {
         this.dispatchEvent(

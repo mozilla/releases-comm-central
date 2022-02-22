@@ -158,15 +158,6 @@ window.addEventListener("DOMContentLoaded", event => {
     );
   });
 
-  for (let s of [splitter1, splitter2]) {
-    s.addEventListener("mousedown", () =>
-      document.body.classList.add("dragging")
-    );
-  }
-  window.addEventListener("mouseup", () =>
-    document.body.classList.remove("dragging")
-  );
-
   folderTree = document.getElementById("folderTree");
   folderListener.init();
 
