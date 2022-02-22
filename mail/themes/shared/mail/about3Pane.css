@@ -99,9 +99,10 @@ body:not(.dragging) .dragcover {
 
 /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
 body.layout-classic {
-  grid-template: "folders splitter1 threads" auto
+  grid-template: "folders splitter1 threads" minmax(auto, 1fr)
                  "folders splitter1 splitter2" 0
-                 "folders splitter1 message" var(--splitter2-height) / var(--splitter1-width) 0 auto;
+                 "folders splitter1 message" minmax(0, var(--splitter2-height))
+                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr);
 }
 
 body.layout-classic #messageBrowserPane {
@@ -111,7 +112,8 @@ body.layout-classic #messageBrowserPane {
 
 /* Vertical layout: three columns. */
 body.layout-vertical {
-  grid-template: "folders splitter1 threads splitter2 message" auto / var(--splitter1-width) 0 auto 0 var(--splitter2-width);
+  grid-template: "folders splitter1 threads splitter2 message" auto
+                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr) 0 minmax(0, var(--splitter2-width));
 }
 
 body.layout-vertical #messageBrowserPane {
@@ -120,9 +122,10 @@ body.layout-vertical #messageBrowserPane {
 
 /* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
 body.layout-wide {
-  grid-template: "folders splitter1 threads" auto
+  grid-template: "folders splitter1 threads" minmax(auto, 1fr)
                  "splitter2 splitter2 splitter2" 0
-                 "message message message" var(--splitter2-height) / var(--splitter1-width) 0 auto;
+                 "message message message" minmax(0, var(--splitter2-height))
+                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr);
 }
 
 body.layout-wide #messageBrowserPane {
@@ -131,7 +134,8 @@ body.layout-wide #messageBrowserPane {
 
 /* If Account Central is shown, it overrides the layout setting. */
 body.account-central {
-  grid-template: "folders splitter1 account-central" auto / var(--splitter1-width) 0 auto;
+  grid-template: "folders splitter1 account-central" auto
+                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr);
 }
 
 #accountCentralBrowser {

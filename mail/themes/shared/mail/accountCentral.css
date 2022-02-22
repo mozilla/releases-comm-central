@@ -62,8 +62,11 @@ html {
 }
 
 body {
+  /* Overwrite rules in messenger.css. */
+  display: block;
+  overflow: auto;
   margin: 0;
-  height: 100%;
+  height: 100vh;
   background-color: var(--body-background-color);
   text-shadow: none;
 }
@@ -76,8 +79,7 @@ body {
   background-position: bottom right;
   background-repeat: no-repeat;
   color: var(--text-color);
-  overflow: auto;
-  height: 100vh;
+  height: 100%;
 }
 
 #brandLogo {
