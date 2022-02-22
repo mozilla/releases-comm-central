@@ -1692,15 +1692,6 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
   return NS_OK;
 }
 
-nsresult nsMsgDBFolder::CompactOfflineStore(nsIMsgWindow* inWindow,
-                                            nsIUrlListener* aListener) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGOFFLINESTORECOMPACTOR_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->Compact(this, true, aListener, inWindow);
-}
-
 class AutoCompactEvent : public mozilla::Runnable {
  public:
   AutoCompactEvent(nsIMsgWindow* aMsgWindow, nsMsgDBFolder* aFolder)

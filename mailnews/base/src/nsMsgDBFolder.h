@@ -171,8 +171,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult StartNewOfflineMessage();
   nsresult WriteStartOfNewLocalMessage();
   nsresult EndNewOfflineMessage();
-  nsresult CompactOfflineStore(nsIMsgWindow* inWindow,
-                               nsIUrlListener* aUrlListener);
   nsresult AutoCompact(nsIMsgWindow* aWindow);
   // this is a helper routine that ignores whether nsMsgMessageFlags::Offline is
   // set for the folder

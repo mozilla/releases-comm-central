@@ -1255,7 +1255,11 @@ NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
   // just be called by the UI.
   if (aMsgWindow && (mFlags & nsMsgFolderFlags::Offline)) {
     m_compactingOfflineStore = true;
-    CompactOfflineStore(aMsgWindow, this);
+    nsresult rv;
+    nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
+        do_CreateInstance(NS_MSGOFFLINESTORECOMPACTOR_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    folderCompactor->Compact(this, true, aListener, aMsgWindow);
   }
   if (WeAreOffline()) return NS_OK;
   m_expunging = true;
