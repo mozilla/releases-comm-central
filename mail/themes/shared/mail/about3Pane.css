@@ -62,43 +62,51 @@ hr[is="pane-splitter"]:hover {
   background-color: SelectedItem;
 }
 
+/* Different layouts */
+
+#folderTreePane {
+  grid-area: folders;
+}
+
+#splitter1 {
+  grid-area: splitter1;
+}
+
+#threadTreePane {
+  grid-area: threads;
+}
+
+#splitter2 {
+  grid-area: splitter2;
+}
+
+#messageBrowserPane, #messageBrowserPaneCover {
+  grid-area: message;
+}
+
+#accountCentralBrowser, #accountCentralBrowserCover {
+  grid-area: account-central;
+}
+
+body:not(.dragging) .dragcover {
+  display: none;
+}
+
 /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
-
 body.layout-classic {
-  grid-template-columns: var(--splitter1-width) 0 auto;
-  grid-template-rows: auto 0 var(--splitter2-height);
-}
-
-body.layout-classic :is(#folderTreePane, #splitter1) {
-  grid-row: 1 / -1;
-}
-
-body.layout-classic :is(#threadTreePane, #splitter2, #messageBrowserPane, #messageBrowserPaneCover) {
-  grid-column: 3;
+  grid-template: "folders splitter1 threads" auto
+                 "folders splitter1 splitter2" 0
+                 "folders splitter1 message" var(--splitter2-height) / var(--splitter1-width) 0 auto;
 }
 
 body.layout-classic #messageBrowserPane {
-  border-top: 1px solid ThreeDShadow;
+  border-block-start: 1px solid ThreeDShadow;
   border-inline-start: 1px solid ThreeDShadow;
 }
 
-body.layout-classic :is(#messageBrowserPane, #messageBrowserPaneCover) {
-  grid-row: 3;
-}
-
 /* Vertical layout: three columns. */
-
 body.layout-vertical {
-  grid-template-columns: var(--splitter1-width) 0 auto 0 var(--splitter2-width);
-}
-
-body.layout-vertical :is(#folderTreePane, #splitter1) {
-  grid-row: 1 / -1;
-}
-
-body.layout-vertical :is(#messageBrowserPane, #messageBrowserPaneCover) {
-  grid-column: 5;
-  grid-row: 1;
+  grid-template: "folders splitter1 threads splitter2 message" auto / var(--splitter1-width) 0 auto 0 var(--splitter2-width);
 }
 
 body.layout-vertical #messageBrowserPane {
@@ -106,42 +114,39 @@ body.layout-vertical #messageBrowserPane {
 }
 
 /* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
-
 body.layout-wide {
-  grid-template-columns: var(--splitter1-width) 0 auto;
-  grid-template-rows: auto 0 var(--splitter2-height);
-}
-
-body.layout-wide :is(#folderTreePane, #splitter1, #threadTreePane) {
-  grid-row: 1;
-}
-
-body.layout-wide :is(#splitter2, #messageBrowserPane, #messageBrowserPaneCover) {
-  grid-column: 1 / -1;
+  grid-template: "folders splitter1 threads" auto
+                 "splitter2 splitter2 splitter2" 0
+                 "message message message" var(--splitter2-height) / var(--splitter1-width) 0 auto;
 }
 
 body.layout-wide #messageBrowserPane {
-  border-top: 1px solid ThreeDShadow;
-}
-
-body.layout-wide :is(#messageBrowserPane, #messageBrowserPaneCover) {
-  grid-row: 3;
+  border-block-start: 1px solid ThreeDShadow;
 }
 
 /* If Account Central is shown, it overrides the layout setting. */
-
 body.account-central {
-  grid-template-columns: var(--splitter1-width) 0 auto;
-  grid-template-rows: unset;
+  grid-template: "folders splitter1 account-central" auto / var(--splitter1-width) 0 auto;
 }
 
-body.account-central :is(#threadTreePane, #splitter2, #messageBrowserPane, #messageBrowserPaneCover) {
+#accountCentralBrowser {
+  border-inline-start: 1px solid ThreeDShadow;
+}
+
+body.account-central :is(
+  #threadTreePane,
+  #splitter2,
+  #messageBrowserPane,
+  #messageBrowserPaneCover
+) {
   display: none;
 }
 
-body.account-central :is(#accountCentralBrowser, #accountCentralBrowserCover) {
-  grid-column: 3;
-  grid-row: 1;
+body:not(.account-central) :is(
+  #accountCentralBrowser,
+  #accountCentralBrowserCover
+) {
+  display: none;
 }
 
 /* Folder tree pane. */
@@ -302,18 +307,4 @@ thread-listrow > .dateCol {
 #messageBrowser,
 #multiMessageBrowser {
   flex: 1;
-}
-
-/* Account Central pane. */
-
-#accountCentralBrowser {
-  border-inline-start: 1px solid ThreeDShadow;
-}
-
-body:not(.account-central) #accountCentralBrowser {
-  display: none;
-}
-
-body:not(.dragging) .dragcover {
-  display: none;
 }
