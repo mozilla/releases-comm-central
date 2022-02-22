@@ -308,6 +308,7 @@
   color: var(--viewTimeBoxColor);
   text-align: end;
   padding: 1px 5px;
+  white-space: nowrap;
 }
 
 .day-column-container {
