@@ -226,6 +226,7 @@
       }
       this._isCollapsed = true;
       this._updateStyling();
+      this._updateDragCursor();
       this.dispatchEvent(
         new CustomEvent("splitter-collapsed", { bubbles: true })
       );
@@ -241,6 +242,7 @@
       }
       this._isCollapsed = false;
       this._updateStyling();
+      this._updateDragCursor();
       this.dispatchEvent(
         new CustomEvent("splitter-expanded", { bubbles: true })
       );
@@ -308,6 +310,14 @@
       this.resizeElement.style.visibility = this.isCollapsed
         ? "collapse"
         : null;
+      this.classList.toggle(
+        "before-collapsed",
+        this.isCollapsed && this._beforeElement
+      );
+      this.classList.toggle(
+        "after-collapsed",
+        this.isCollapsed && !this._beforeElement
+      );
     }
 
     handleEvent(event) {
@@ -389,10 +399,25 @@
       // that the MouseEvent's clientX and clientY will always be relative to
       // the current window, rather than some ancestor xul:browser's window.
       document.documentElement.style.pointerEvents = "none";
-      // Maintain an appropriate cursor whilst resizing.
-      document.documentElement.style.cursor = vertical
-        ? "ns-resize"
-        : "ew-resize";
+      this._updateDragCursor();
+    }
+
+    _updateDragCursor() {
+      if (!this._dragStartInfo) {
+        return;
+      }
+      let cursor;
+      let { vertical, negative } = this._dragStartInfo;
+      if (this.isCollapsed) {
+        if (vertical) {
+          cursor = negative ? "n-resize" : "s-resize";
+        } else {
+          cursor = negative ? "w-resize" : "e-resize";
+        }
+      } else {
+        cursor = vertical ? "ns-resize" : "ew-resize";
+      }
+      document.documentElement.style.cursor = cursor;
     }
 
     _onMouseMove(event) {
