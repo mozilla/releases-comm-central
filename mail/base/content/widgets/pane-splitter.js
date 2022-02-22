@@ -4,79 +4,65 @@
 
 {
   /**
-   * A widget for resizing two adjacent panes. If the dragged, sets a CSS
-   * variable which is named for the id of the element plus "width" or
-   * "height" as appropriate (e.g. --splitter1-width). The variable should
-   * be used to set the width/height of one of the adjacent elements.
+   * A widget for dividing and exchanging space between two sibling panes: the
+   * {@link PaneSplitter#resizeElement} and the
+   * {@link PaneSplitter#oppositeElement}. If dragged, the splitter will set a
+   * CSS variable on the parent element, which is named from the id of the
+   * element plus "width" or "height" as appropriate (e.g. --splitter-width).
+   * The variable should be used to set the width/height of the resizeElement,
+   * whilst the oppositeElement should occupy the remaining space.
    *
-   * By default, the splitter will resize the height of the preceding element.
-   * Use the "resize-direction" and "resize" attributes to change this.
+   * By default, the splitter will resize the height of the resizeElement, but
+   * this can be changed using the "resize-direction" attribute.
    *
-   * Fires a "splitter-resizing" event as dragging begins, and
+   * This element fires a "splitter-resizing" event as dragging begins, and
    * "splitter-resized" when it ends.
    *
-   * The controlled pane can be collapsed and expanded. "splitter-collapsed"
-   * and "splitter-expanded" events are fired as appropriate. If the splitter
-   * has a "min-width"/"min-height" attribute, collapsing and expanding
-   * happens automatically when below the minimum size.
+   * The resizeElement can be collapsed and expanded. Whilst collapsed, the CSS
+   * visibility of the resizeElement is set to "collapse" and the "--<id>-width"
+   * or "--<id>-height" CSS variable, will be be set to "0px". The
+   * "splitter-collapsed" and "splitter-expanded" events are fired as
+   * appropriate. If the splitter has a "min-width" or "min-height" attribute,
+   * collapsing and expanding happens automatically when below the minimum size.
    */
   class PaneSplitter extends HTMLHRElement {
-    static observedAttributes = ["resize-direction"];
-
-    /**
-     * The sibling pane this splitter controls the size of.
-     * @type {HTMLElement}
-     */
-    _adjacent = null;
-
-    /**
-     * The sibling pane which fills any remaining space.
-     * @type {HTMLElement}
-     */
-    _opposite = null;
-
-    /**
-     * The width of the controlled pane. If the splitter is collapsed or in
-     * the vertical orientation, this value probably will not match the true
-     * width of the pane - it is remembered in case conditions change.
-     * @type {integer}
-     */
-    _width = null;
-
-    /**
-     * The height of the controlled pane. If the splitter is collapsed or in
-     * the horizontal orientation, this value probably will not match the true
-     * height of the pane - it is remembered in case conditions change.
-     * @type {HTMLElement}
-     */
-    _height = null;
+    static observedAttributes = [
+      "resize-direction",
+      "resize-id",
+      "opposite-id",
+      "id",
+    ];
 
     connectedCallback() {
-      if (this.hasConnected) {
-        return;
-      }
-      this.hasConnected = true;
-
-      if (this.getAttribute("resize") == "next") {
-        this._adjacent = this.nextElementSibling;
-        this._opposite = this.previousElementSibling;
-      } else {
-        this._adjacent = this.previousElementSibling;
-        this._opposite = this.nextElementSibling;
-      }
-      if (this.resizeDirection == "vertical") {
-        this._height = this._adjacent.clientHeight;
-      } else {
-        this._width = this._adjacent.clientWidth;
-      }
-
       this.addEventListener("mousedown", this);
+      this._updateStyling();
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
       switch (name) {
         case "resize-direction":
           this._updateResizeDirection();
+          break;
+        case "resize-id":
+          // Make sure we don't loop when resize-id is set in the resizeElement
+          // setter.
+          if (newValue == null && this.resizeElement) {
+            this.resizeElement = null;
+          } else if (newValue != null && newValue != this.resizeElement?.id) {
+            this.resizeElement = this.ownerDocument.getElementById(newValue);
+          }
+          break;
+        case "opposite-id":
+          // Make sure we don't loop when opposite-id is set in the
+          // oppositeElement setter.
+          if (newValue == null && this.oppositeElement) {
+            this.oppositeElement = null;
+          } else if (newValue != null && newValue != this.oppositeElement?.id) {
+            this.oppositeElement = this.ownerDocument.getElementById(newValue);
+          }
+          break;
+        case "id":
+          this._updateStyling();
           break;
       }
     }
@@ -103,12 +89,99 @@
       // The resize direction has changed. To be safe, make sure we're no longer
       // resizing.
       this.endResize();
+      this._updateStyling();
     }
 
+    _resizeElement = null;
+
     /**
-     * The width of the controlled pane. Use this value in persistent storage.
-     * @type {integer}
-     * @see _width
+     * The element that is being sized by the splitter. It must have a set id.
+     *
+     * If the "resize-id" attribute is set, it will be used to choose this
+     * element by its id.
+     *
+     * @type {?HTMLElement}
+     */
+    get resizeElement() {
+      return this._resizeElement;
+    }
+
+    set resizeElement(element) {
+      if (!element?.id) {
+        element = null;
+      }
+      if (element == this._resizeElement) {
+        return;
+      }
+      this.endResize();
+      if (this._resizeElement) {
+        // Clean up previous element.
+        this._resizeElement.style.visibility = null;
+      }
+      this._resizeElement = element;
+      if (element) {
+        this.setAttribute("resize-id", element.id);
+      } else {
+        this.removeAttribute("resize-id");
+      }
+      this._beforeElement =
+        element &&
+        !!(
+          this.compareDocumentPosition(element) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+        );
+      this._updateStyling();
+    }
+
+    _oppositeElement = null;
+
+    /**
+     * The element that resizeElement exchanges space with. It must have a set
+     * id.
+     *
+     * A set "min-width" or "min-height" style on this element will limit the
+     * growth of the resizeElement. If such styles are set, the element should
+     * also use "box-sizing: border-box".
+     *
+     * If the "opposite-id" attribute is set, it will be used to choose this
+     * element by its id.
+     *
+     * @type {?HTMLElement}
+     */
+    get oppositeElement() {
+      return this._oppositeElement;
+    }
+
+    set oppositeElement(element) {
+      if (!element?.id) {
+        element = null;
+      }
+      if (element == this._oppositeElement) {
+        return;
+      }
+      this.endResize();
+      this._oppositeElement = element;
+      if (element) {
+        this.setAttribute("opposite-id", element.id);
+      } else {
+        this.removeAttribute("opposite-id");
+      }
+    }
+
+    _width = null;
+
+    /**
+     * The desired width of the resizeElement. This is used to set the
+     * --<id>-width CSS variable on the parent when the resizeDirection is
+     * "horizontal" and the resizeElement is not collapsed. If its value is
+     * null, the same CSS variable is removed from the parent instead.
+     *
+     * Note, this value is persistent across collapse states, so the width
+     * before collapsing can be returned to on expansion.
+     *
+     * Use this value in persistent storage.
+     *
+     * @type {?integer}
      */
     get width() {
       return this._width;
@@ -116,16 +189,23 @@
 
     set width(width) {
       this._width = width;
-      if (this.isCollapsed) {
-        return;
-      }
-      this.parentNode.style.setProperty(`--${this.id}-width`, width + "px");
+      this._updateStyling();
     }
 
+    _height = null;
+
     /**
-     * The height of the controlled pane. Use this value in persistent storage.
-     * @type {integer}
-     * @see _height
+     * The desired height of the resizeElement. This is used to set the
+     * -<id>-height CSS variable on the parent when the resizeDirection is
+     *  "vertical" and the resizeElement is not collapsed. If its value is null,
+     *  the same CSS variable is removed from the parent instead.
+     *
+     * Note, this value is persistent across collapse states, so the height
+     * before collapsing can be returned to on expansion.
+     *
+     * Use this value in persistent storage.
+     *
+     * @type {?integer}
      */
     get height() {
       return this._height;
@@ -133,10 +213,7 @@
 
     set height(height) {
       this._height = height;
-      if (this.isCollapsed) {
-        return;
-      }
-      this.parentNode.style.setProperty(`--${this.id}-height`, height + "px");
+      this._updateStyling();
     }
 
     /**
@@ -144,15 +221,11 @@
      * `width` or `height` properties. Fires a "splitter-collapsed" event.
      */
     collapse() {
-      if (this.isCollapsed) {
+      if (this._isCollapsed) {
         return;
       }
-      if (this.resizeDirection == "vertical") {
-        this.parentNode.style.setProperty(`--${this.id}-height`, "0");
-      } else {
-        this.parentNode.style.setProperty(`--${this.id}-width`, "0");
-      }
-      this._adjacent.style.visibility = "collapse";
+      this._isCollapsed = true;
+      this._updateStyling();
       this.dispatchEvent(
         new CustomEvent("splitter-collapsed", { bubbles: true })
       );
@@ -163,32 +236,24 @@
      * when collapsed. Fires a "splitter-expanded" event.
      */
     expand() {
-      if (!this.isCollapsed) {
+      if (!this._isCollapsed) {
         return;
       }
-      if (this.resizeDirection == "vertical") {
-        this.parentNode.style.setProperty(
-          `--${this.id}-height`,
-          this._height + "px"
-        );
-      } else {
-        this.parentNode.style.setProperty(
-          `--${this.id}-width`,
-          this._width + "px"
-        );
-      }
-      this._adjacent.style.visibility = null;
+      this._isCollapsed = false;
+      this._updateStyling();
       this.dispatchEvent(
         new CustomEvent("splitter-expanded", { bubbles: true })
       );
     }
+
+    _isCollapsed = false;
 
     /**
      * If the controlled pane is collapsed.
      * @type {boolean}
      */
     get isCollapsed() {
-      return this._adjacent.style.visibility == "collapse";
+      return this._isCollapsed;
     }
 
     set isCollapsed(collapsed) {
@@ -197,6 +262,52 @@
       } else {
         this.expand();
       }
+    }
+
+    /**
+     * Update styling to reflect the current state.
+     */
+    _updateStyling() {
+      if (!this.resizeElement || !this.parentNode || !this.id) {
+        // Wait until we have a resizeElement, a parent and an id.
+        return;
+      }
+
+      if (this.id != this._cssName?.basis) {
+        // Clear the old names.
+        if (this._cssName) {
+          this.parentNode.style.removeProperty(this._cssName.width);
+          this.parentNode.style.removeProperty(this._cssName.height);
+        }
+        this._cssName = {
+          basis: this.id,
+          height: `--${this.id}-height`,
+          width: `--${this.id}-width`,
+        };
+      }
+
+      let vertical = this.resizeDirection == "vertical";
+      let height = this.isCollapsed ? 0 : this.height;
+      if (!vertical || height == null) {
+        // If we are resizing horizontally or the "height" property is set to
+        // null, we remove the CSS height variable. The height of the element
+        // is left to be determined by the CSS stylesheet rules.
+        this.parentNode.style.removeProperty(this._cssName.height);
+      } else {
+        this.parentNode.style.setProperty(this._cssName.height, `${height}px`);
+      }
+      let width = this.isCollapsed ? 0 : this.width;
+      if (vertical || width == null) {
+        // If we are resizing vertically or the "width" property is set to
+        // null, we remove the CSS width variable. The width of the element
+        // is left to be determined by the CSS stylesheet rules.
+        this.parentNode.style.removeProperty(this._cssName.width);
+      } else {
+        this.parentNode.style.setProperty(this._cssName.width, `${width}px`);
+      }
+      this.resizeElement.style.visibility = this.isCollapsed
+        ? "collapse"
+        : null;
     }
 
     handleEvent(event) {
@@ -214,28 +325,46 @@
     }
 
     _onMouseDown(event) {
+      if (!this.resizeElement || !this.oppositeElement) {
+        return;
+      }
+
       if (event.buttons != 1) {
         return;
       }
 
       let vertical = this.resizeDirection == "vertical";
 
-      let parentSize = this.parentNode.getBoundingClientRect()[
-        vertical ? "height" : "width"
-      ];
-      let minSize = this.getAttribute(vertical ? "min-height" : "min-width");
-      let oppositeMinSize = getComputedStyle(this._opposite)[
+      // We can only consume the available size occupied by the opposite
+      // element.
+      // NOTE: The following only works under a number of assumptions,
+      // including:
+      //  + There is no margins on the two elements, such that their border
+      //    boxes match their occupying size in the parent layout.
+      //  + The opposite element's min-height or min-width styles, if defined,
+      //    have pixel values that correspond to their actual possible minimum
+      //    size in the parent's layout. As such:
+      //     + The opposite element should use box-sizing: border-box.
+      //     + The style must be the only relevant limiting sizing effects. For
+      //       example, a grid-template where minmax(500px, 1fr) applies to the
+      //       element would break this assumption.
+      let resizeRect = this.resizeElement.getBoundingClientRect();
+      let oppositeRect = this.oppositeElement.getBoundingClientRect();
+      let jointSize = vertical
+        ? resizeRect.height + oppositeRect.height
+        : resizeRect.width + oppositeRect.width;
+      let oppositeMinSize = getComputedStyle(this.oppositeElement)[
         vertical ? "min-height" : "min-width"
       ];
+      let minSize = this.getAttribute(vertical ? "min-height" : "min-width");
 
       let min =
-        minSize == null ? 0 : Math.min(parentSize, parseInt(minSize, 10));
+        minSize == null ? 0 : Math.min(jointSize, parseInt(minSize, 10));
       let max =
         oppositeMinSize == "auto"
-          ? parentSize
-          : Math.max(min, parentSize - parseInt(oppositeMinSize, 10));
+          ? jointSize
+          : Math.max(min, jointSize - parseInt(oppositeMinSize, 10));
 
-      let resizeNext = this.getAttribute("resize") == "next";
       let ltrDir = this.parentNode.matches(":dir(ltr)");
 
       this._dragStartInfo = {
@@ -244,10 +373,10 @@
         vertical,
         pos: vertical ? event.clientY : event.clientX,
         // Whether decreasing X/Y should increase the size.
-        negative: vertical ? resizeNext : resizeNext == ltrDir,
-        size: this._adjacent.getBoundingClientRect()[
-          vertical ? "height" : "width"
-        ],
+        negative: vertical
+          ? this._beforeElement
+          : this._beforeElement == ltrDir,
+        size: vertical ? resizeRect.height : resizeRect.width,
         min,
         max,
       };

@@ -74,6 +74,9 @@ hr[is="pane-splitter"]:hover {
 
 #threadTreePane {
   grid-area: threads;
+  box-sizing: border-box;
+  min-height: 200px;
+  min-width: 400px;
 }
 
 #splitter2 {
@@ -86,6 +89,8 @@ hr[is="pane-splitter"]:hover {
 
 #accountCentralBrowser, #accountCentralBrowserCover {
   grid-area: account-central;
+  box-sizing: border-box;
+  min-width: 400px;
 }
 
 body:not(.dragging) .dragcover {
@@ -261,7 +266,6 @@ li.collapsed > ul {
   overflow: auto;
   display: flex;
   border-inline-start: 1px solid ThreeDShadow;
-  min-height: 200px;
 }
 
 #threadTreePane > tree-view-listbox {

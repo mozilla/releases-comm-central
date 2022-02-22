@@ -43,6 +43,8 @@ window.addEventListener("DOMContentLoaded", event => {
     return;
   }
 
+  let threadTreePane = document.getElementById("threadTreePane");
+
   splitter1 = document.getElementById("splitter1");
   let splitter1Width = Services.xulStore.getValue(
     "chrome://messenger/content/messenger.xhtml",
@@ -202,11 +204,16 @@ window.addEventListener("DOMContentLoaded", event => {
       );
       document.body.classList.add("account-central");
       accountCentralBrowser.hidden = false;
+      // Splitter now exchanges size with the account central instead of the
+      // hidden thread tree.
+      splitter1.oppositeElement = accountCentralBrowser;
       return;
     }
     document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
     document.body.classList.remove("account-central");
     accountCentralBrowser.hidden = true;
+    // Splitter exchanges size with the thread tree.
+    splitter1.oppositeElement = threadTreePane;
 
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper._viewFlags = 1;

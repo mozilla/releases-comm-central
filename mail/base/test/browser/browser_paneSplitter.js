@@ -422,8 +422,8 @@ async function subtestCollapseExpand() {
   Assert.equal(collapsedEvents, 0, "no collapsed events have fired");
 
   splitter.collapse();
-  Assert.equal(splitter._adjacent[sizeProperty], 0);
-  Assert.equal(splitter._opposite[sizeProperty], 500);
+  Assert.equal(splitter.resizeElement[sizeProperty], 0);
+  Assert.equal(splitter.oppositeElement[sizeProperty], 500);
   Assert.ok(splitter.isCollapsed, "splitter is collapsed");
   Assert.equal(collapsedEvents, 1, "a collapsed event fired");
 

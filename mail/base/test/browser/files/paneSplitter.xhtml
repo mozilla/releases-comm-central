@@ -63,50 +63,57 @@
       background-color: lightslategrey;
     }
   </style>
-  <!-- This stylesheet is used for the automated test. -->
+  <!-- This path is used for the automated test. -->
   <script src="chrome://messenger/content/pane-splitter.js"></script>
-  <!-- This stylesheet is used when this file is loaded in a browser. -->
+  <!-- This path is used when this file is loaded in a browser. -->
   <script src="../../../content/widgets/pane-splitter.js"></script>
   <script>
     function moveMarker(event) {
       let markerX = document.getElementById("markerX");
-      markerX.style.left = `${event.clientX}px`;
+      markerX.style.left = `${event.clientX + window.scrollX}px`;
       markerX.textContent = `${event.type} event here`;
 
       let markerY = document.getElementById("markerY");
-      markerY.style.top = `${event.clientY}px`;
+      markerY.style.top = `${event.clientY + window.scrollY}px`;
       markerY.textContent = `${event.type} event here`;
     }
 
     document.addEventListener("mousedown", moveMarker);
     document.addEventListener("mousemove", moveMarker);
     document.addEventListener("mouseup", moveMarker);
+
+    window.addEventListener("load", () => {
+      for (let splitter of document.querySelectorAll('hr[is="pane-splitter"]')) {
+        splitter.resizeElement = splitter.parentNode.querySelector(".resized");
+        splitter.oppositeElement = splitter.parentNode.querySelector(".fill");
+      }
+    });
   </script>
 </head>
 <body>
   <div id="horizontal-before">
-    <div class="resized"></div>
+    <div id="splitter1-before" class="resized"></div>
     <hr is="pane-splitter" id="splitter1" resize-direction="horizontal" />
-    <div class="fill"></div>
+    <div id="splitter1-after" class="fill"></div>
   </div>
 
   <div id="horizontal-after">
-    <div class="fill"></div>
+    <div id="splitter2-before" class="fill"></div>
     <hr is="pane-splitter" id="splitter2" resize="next" resize-direction="horizontal" />
-    <div class="resized"></div>
+    <div id="splitter2-after" class="resized"></div>
   </div>
 
   <div style="display: flex;">
     <div id="vertical-before">
-      <div class="resized"></div>
+      <div id="splitter3-before" class="resized"></div>
       <hr is="pane-splitter" id="splitter3" />
-      <div class="fill"></div>
+      <div id="splitter3-after" class="fill"></div>
     </div>
 
     <div id="vertical-after">
-      <div class="fill"></div>
+      <div id="splitter4-before" class="fill"></div>
       <hr is="pane-splitter" id="splitter4" resize="next" />
-      <div class="resized"></div>
+      <div id="splitter4-after" class="resized"></div>
     </div>
   </div>
 
