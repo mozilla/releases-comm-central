@@ -202,6 +202,9 @@ class LDAPClient {
           ? `resultCode=${res.result.resultCode} message="${res.result.diagnosticMessage}"`
           : ""
       );
+      if (res.constructor.name == "SearchResultReference") {
+        this._logger.debug("References=", res.result);
+      }
       let callback = this._callbackMap.get(res.messageId);
       if (callback) {
         callback(res);

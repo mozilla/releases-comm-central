@@ -4,6 +4,12 @@
 
 const EXPORTED_SYMBOLS = ["LDAPOperation"];
 
+ChromeUtils.defineModuleGetter(
+  this,
+  "LDAPClient",
+  "resource:///modules/LDAPClient.jsm"
+);
+
 /**
  * A module to manage LDAP operation.
  *
@@ -16,19 +22,22 @@ class LDAPOperation {
     this._listener = listener;
     this._connection = connection;
     this._client = connection.wrappedJSObject.client;
+
+    this._referenceUrls = [];
+
+    // Cache request arguments to use when searching references.
+    this._simpleBindPassword = null;
+    this._saslBindArgs = null;
+    this._searchArgs = null;
   }
 
   simpleBind(password) {
+    this._password = password;
     try {
       this._messageId = this._client.bind(
         this._connection.bindName,
         password,
-        res => {
-          this._listener.onLDAPMessage({
-            errorCode: res.result.resultCode,
-            type: Ci.nsILDAPMessage.RES_BIND,
-          });
-        }
+        res => this._onBindSuccess(res.result.resultCode)
       );
     } catch (e) {
       this._listener.onLDAPError(e.result, null, "");
@@ -36,6 +45,7 @@ class LDAPOperation {
   }
 
   saslBind(service, mechanism, authModuleType, serverCredentials) {
+    this._saslBindArgs = [service, mechanism, authModuleType];
     try {
       this._client.saslBind(
         service,
@@ -51,10 +61,7 @@ class LDAPOperation {
               res.result.serverSaslCreds
             );
           } else if (res.result.resultCode == Ci.nsILDAPErrors.SUCCESS) {
-            this._listener.onLDAPMessage({
-              errorCode: res.result.resultCode,
-              type: Ci.nsILDAPMessage.RES_BIND,
-            });
+            this._onBindSuccess(res.result.resultCode);
           }
         }
       );
@@ -64,6 +71,7 @@ class LDAPOperation {
   }
 
   searchExt(baseDN, scope, filter, attributes, timeout, limit) {
+    this._searchArgs = [baseDN, scope, filter, attributes, timeout, limit];
     try {
       this._messageId = this._client.search(
         baseDN,
@@ -100,15 +108,22 @@ class LDAPOperation {
                 }));
               },
             });
+          } else if (res.constructor.name == "SearchResultReference") {
+            this._referenceUrls.push(...res.result);
           } else if (res.constructor.name == "SearchResultDone") {
             // NOTE: we create a new connection for every search, can be changed
             // to reuse connections.
-            this._connection.wrappedJSObject.close();
+            this._client.onError = () => {};
+            this._client.unbind();
             this._messageId = null;
-            this._listener.onLDAPMessage({
-              errorCode: res.result.resultCode,
-              type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
-            });
+            if (this._referenceUrls.length) {
+              this._searchReference(this._referenceUrls.shift());
+            } else {
+              this._listener.onLDAPMessage({
+                errorCode: res.result.resultCode,
+                type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
+              });
+            }
           }
         }
       );
@@ -121,6 +136,56 @@ class LDAPOperation {
     if (this._messageId) {
       this._client.abandon(this._messageId);
     }
+  }
+
+  /**
+   * Decide what to do on bind success. When searching a reference url, trigger
+   * a new search. Otherwise, emit a message to this._listener.
+   * @param {number} errorCode - The result code of BindResponse.
+   */
+  _onBindSuccess(errorCode) {
+    if (this._searchingReference) {
+      this.searchExt(...this._searchArgs);
+    } else {
+      this._listener.onLDAPMessage({
+        errorCode,
+        type: Ci.nsILDAPMessage.RES_BIND,
+      });
+    }
+  }
+
+  /**
+   * Connect to a reference url and continue the search.
+   * @param {string} urlStr - A url string we get from SearchResultReference.
+   */
+  _searchReference(urlStr) {
+    this._searchingReference = true;
+    let urlParser = Cc["@mozilla.org/network/ldap-url-parser;1"].createInstance(
+      Ci.nsILDAPURLParser
+    );
+    let url;
+    try {
+      url = urlParser.parse(urlStr);
+    } catch (e) {
+      Cu.reportError(e);
+      return;
+    }
+    this._client = new LDAPClient(
+      url.host,
+      url.port,
+      url.options & Ci.nsILDAPURL.OPT_SECURE
+    );
+    this._client.onOpen = () => {
+      if (this._password) {
+        this.simpleBind(this._password);
+      } else {
+        this.saslBind(...this._saslBindData);
+      }
+    };
+    this._client.onError = (status, secInfo) => {
+      this._listener.onLDAPError(status, secInfo, `${url.host}:${url.port}`);
+    };
+    this._client.connect();
   }
 }
 

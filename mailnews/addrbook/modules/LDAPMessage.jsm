@@ -610,7 +610,10 @@ class SearchResultReference extends LDAPResponse {
   static APPLICATION = 19;
 
   parse() {
-    this.result = {};
+    let value = this.protocolOp.valueBlock.value;
+    this.result = value.map(block =>
+      new TextDecoder().decode(block.valueBlock.valueHex)
+    );
   }
 }
 
