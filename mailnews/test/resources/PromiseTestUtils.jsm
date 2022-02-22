@@ -310,4 +310,7 @@ PromiseTestUtils.PromiseSearchNotify.prototype = {
       this.wrapped.onNewSearch();
     }
   },
+  get promise() {
+    return this._promise;
+  },
 };
