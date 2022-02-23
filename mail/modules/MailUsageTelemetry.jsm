@@ -117,8 +117,23 @@ function telemetryId(widgetId, obscureAddons = true) {
     // Webextension command shortcuts don't have an id on their key element so
     // we see the id from the keyset that contains them.
     widgetId = addonId(widgetId.substring("ext-keyset-id-".length));
+  } else if (widgetId.includes("-menuitem--")) {
+    widgetId = addonId(widgetId.substring(0, widgetId.indexOf("-menuitem--")));
+  } else if (/^qfb-tag-(?!\$label\d$)/.test(widgetId)) {
+    // Only record the full ID of buttons for tags named label0...label9.
+    // The data for other tags are of no use to us and could contain personal
+    // information, so hide it behind this generic ID.
+    widgetId = "qfb-tag-";
   }
-
+  // Collapse these IDs as each element is given a unique ID.
+  widgetId = widgetId.replace(/^folderPanelView\d+/, "folderPanelView");
+  // Strip UUIDs in widget IDs.
+  widgetId = widgetId.replace(
+    /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
+    ""
+  );
+  // Strip mail URLs as they could contain personal information.
+  widgetId = widgetId.replace(/(imap|mailbox):\/\/.*/, "");
   return widgetId.replace(/_/g, "-");
 }
 
