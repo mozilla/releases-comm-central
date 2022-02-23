@@ -37,7 +37,10 @@ var gFakeSelection = new JSTreeSelection(null);
 
 var gMessageGenerator = new MessageGenerator();
 
-var messageInjection = new MessageInjection({ mode: "local" });
+var messageInjection = new MessageInjection(
+  { mode: "local" },
+  gMessageGenerator
+);
 
 var gLocalInboxFolder = messageInjection.getInboxFolder();
 var gListener;
@@ -118,11 +121,7 @@ add_task(async function setup_test() {
   MailServices.mfn.addListener(gListener, flags);
 
   // Build up a message.
-  await messageInjection.makeNewSetsInFolders(
-    [gLocalInboxFolder],
-    [{}],
-    gMessageGenerator
-  );
+  await messageInjection.makeNewSetsInFolders([gLocalInboxFolder], [{}]);
   let view_type = "threaded";
   let view_flag = Ci.nsMsgViewFlagsType.kThreadedDisplay;
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + view_type;
@@ -165,11 +164,7 @@ add_task(async function test_first_junking_create_folder() {
 
 add_task(async function test_add_further_message() {
   // Add another message in case the first one moved.
-  await messageInjection.makeNewSetsInFolders(
-    [gLocalInboxFolder],
-    [{}],
-    gMessageGenerator
-  );
+  await messageInjection.makeNewSetsInFolders([gLocalInboxFolder], [{}]);
 });
 
 add_task(async function test_second_junking_move_msgs() {

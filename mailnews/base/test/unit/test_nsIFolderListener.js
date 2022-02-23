@@ -30,7 +30,8 @@ var targetFolder;
 var messageInjection;
 
 add_task(async function setup() {
-  messageInjection = new MessageInjection({ mode: "local" });
+  let msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
 
   targetFolder = await messageInjection.makeEmptyFolder();
   targetFolder.AddFolderListener(folderListener);
@@ -40,10 +41,5 @@ add_task(async function setup() {
 });
 
 add_task(async function create_new_message() {
-  let msgGen = new MessageGenerator();
-  await messageInjection.makeNewSetsInFolders(
-    [targetFolder],
-    [{ count: 1 }],
-    msgGen
-  );
+  await messageInjection.makeNewSetsInFolders([targetFolder], [{ count: 1 }]);
 });

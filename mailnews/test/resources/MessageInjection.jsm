@@ -105,8 +105,12 @@ class MessageInjection {
    * @param {"local"|"imap"} injectionConfig.mode mode One of "local", "imap".
    * @param {boolean} [injectionConfig.offline] Should the folder be marked offline (and
    *     fully downloaded)?  Only relevant for IMAP.
+   * @param {MessageGenerator} [msgGen] The MessageGenerator which generates the new
+   *     SyntheticMessages. We do not create our own because we would lose track of
+   *     messages created from another MessageGenerator.
+   *     It's optional as it is used only for a subset of methods.
    */
-  constructor(injectionConfig) {
+  constructor(injectionConfig, msgGen) {
     // Set the injection Mode.
     this._mis.injectionConfig = injectionConfig;
 
@@ -115,6 +119,11 @@ class MessageInjection {
     Services.prefs.setBoolPref("mail.biff.show_alert", false);
     Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
     Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
+
+    // Set msgGen if given.
+    if (msgGen) {
+      this.msgGen = msgGen;
+    }
 
     // we need to pull in the notification service so we get events?
     this._mis.mfnService = MailServices.mfn;
@@ -496,32 +505,7 @@ class MessageInjection {
     msgFolder.downloadAllForOffline(promiseUrlListener, null);
     await promiseUrlListener.promise;
   }
-  /**
-   * Create a new local folder, populating it with messages according to the set
-   *  definition provided.
-   *
-   * @param {MakeMessageOptions[]} synSetDefs A synthetic set definition,
-   *     as appropriate to pass to makeNewSetsInFolders.
-   * @return {[nsIMsgFolder[]|string[], ...SyntheticMessageSet]}
-   *     A Promise with a list whose first element is the folder created and whose subsequent
-   *     items are the SyntheticMessageSets used to populate the folder (as returned
-   *     by makeNewSetsInFolders).
-   *  Please note that the folder is either a nsIMsgFolder, or a folder
-   *     URI, depending on whether we're in local injection mode, or on IMAP. This
-   *     should be transparent to you, unless you start trying to inject messages
-   *     into a folder that hasn't been created by makeFolderWithSets. See
-   *     test_folder_deletion_nested in base_index_messages.js for an example of
-   *     such pain.
-   */
-  async makeFolderWithSets(synSetDefs) {
-    let msgFolder = await this.makeEmptyFolder();
-    let results = await this.makeNewSetsInFolders([msgFolder], synSetDefs);
-    // results may be referenced by addSetsToFolders in an async fashion, so
-    //  don't change it.
-    results = results.concat();
-    results.unshift(msgFolder);
-    return results;
-  }
+
   /**
    * Create multiple new local folders, populating them with messages according to
    *  the set definitions provided.  Differs from makeFolderWithSets by taking
@@ -531,11 +515,18 @@ class MessageInjection {
    *
    * @param {number} folderCount
    * @param {MakeMessageOptions[]} synSetDefs A synthetic set
-   *     definition, as appropriate to pass to makeNewSetsInFolder.
-   * @return {[nsIMsgFolder, ...SyntheticMessageSet]} A Promise with a list whose
-   *     first element is the nsIMsgFolder created and
+   *     definition, as appropriate to pass to makeNewSetsInFolders.
+   * @return {[nsIMsgFolder[], ...SyntheticMessageSet]} A Promise with a list whose
+   *     first element are the nsIMsgFolders created and
    *     whose subsequent items are the SyntheticMessageSets used to populate the
    *     folder (as returned by makeNewSetsInFolders).
+   *
+   *  Please note that the folders are either nsIMsgFolder, or folder
+   *     URIs, depending on whether we're in local injection mode, or on IMAP. This
+   *     should be transparent to you, unless you start trying to inject messages
+   *     into a folder that hasn't been created by makeFoldersWithSets. See
+   *     test_folder_deletion_nested in base_index_messages.js for an example of
+   *     such pain.
    */
   async makeFoldersWithSets(folderCount, synSetDefs) {
     let msgFolders = [];
@@ -557,9 +548,6 @@ class MessageInjection {
    *     The synthetic messages will be added to the folder(s).
    * @param {MakeMessageOptions[]} synSetDefs A list of set definition objects as
    *     defined by MessageGenerator.makeMessages.
-   * @param {MessageGenerator} msgGen The MessageGenerator which generates the new
-   *     SyntheticMessages. We do not create our own because we would lose track of
-   *     messages created from another MessageGenerator.
    * @param {boolean} [doNotForceUpdate=false] By default we force an updateFolder on IMAP
    *     folders to ensure Thunderbird knows about the newly injected messages.
    *     If you are testing Thunderbird's use of updateFolder itself, you will
@@ -567,11 +555,12 @@ class MessageInjection {
    * @return {SyntheticMessageSet[]} A Promise with a list of SyntheticMessageSet objects,
    *     each corresponding to the entry in synSetDefs (or implied if an integer was passed).
    */
-  async makeNewSetsInFolders(msgFolders, synSetDefs, msgGen, doNotForceUpdate) {
+  async makeNewSetsInFolders(msgFolders, synSetDefs, doNotForceUpdate) {
     // - create the synthetic message sets
     let messageSets = [];
     for (let synSetDef of synSetDefs) {
-      let messages = msgGen.makeMessages(synSetDef);
+      // Using the getter of the MessageGenerator for error handling.
+      let messages = this.messageGenerator.makeMessages(synSetDef);
       messageSets.push(new SyntheticMessageSet(messages));
     }
 
@@ -977,5 +966,24 @@ class MessageInjection {
       yield list[i];
       i = (i + 1) % length;
     }
+  }
+
+  get messageGenerator() {
+    if (this.msgGen === undefined) {
+      throw new Error(
+        "MessageInjection.jsm needs a MessageGenerator for new messages. " +
+          "The MessageGenerator helps you with threaded messages. If you use " +
+          "two different MessageGenerators the behaviour with threads are complicated."
+      );
+    }
+    return this.msgGen;
+  }
+  /**
+   * @param {MessageGenerator} msgGen The MessageGenerator which generates the new
+   *     SyntheticMessages. We do not create our own because we would lose track of
+   *     messages created from another MessageGenerator.
+   */
+  set messageGenerator(msgGen) {
+    this.msgGen = msgGen;
   }
 }

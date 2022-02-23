@@ -300,9 +300,12 @@ function smimeUtils_loadCertificateAndKey(file) {
 }
 
 function setupAccountStuff() {
-  messageInjection = new MessageInjection({
-    mode: "local",
-  });
+  messageInjection = new MessageInjection(
+    {
+      mode: "local",
+    },
+    msgGen
+  );
   inboxFolder = messageInjection.getInboxFolder();
 }
 
@@ -455,7 +458,7 @@ async function add_message_sets_to_folders(aFolders, aMsg) {
  * @return {SyntheticMessageSet[]}
  */
 async function make_message_sets_in_folders(aFolders, aOptions) {
-  return messageInjection.makeNewSetsInFolders(aFolders, aOptions, msgGen);
+  return messageInjection.makeNewSetsInFolders(aFolders, aOptions);
 }
 
 /**
