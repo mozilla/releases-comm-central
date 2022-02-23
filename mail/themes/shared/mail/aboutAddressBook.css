@@ -207,7 +207,9 @@ body {
 }
 
 .bookRow-container:hover .bookRow-menu,
-.listRow-container:hover .listRow-menu {
+.listRow-container:hover .listRow-menu,
+#books:focus-visible .bookRow.selected .bookRow-menu,
+#books:focus-visible .listRow.selected .listRow-menu {
   display: unset;
 }
 

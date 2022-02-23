@@ -765,7 +765,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _showContextMenu(event) {
-    let row = event.target.closest("li");
+    let row;
+    if (event.target == this) {
+      row = this.rows[this.selectedIndex];
+    } else {
+      row = event.target.closest("li");
+    }
     if (!row) {
       return;
     }
@@ -821,7 +826,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       startupDefaultItem.removeAttribute("checked");
     }
 
-    if (event.type == "contextmenu") {
+    if (event.type == "contextmenu" && event.buttons) {
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
       popup.openPopup(
@@ -1400,7 +1405,15 @@ var cardsPane = {
   },
 
   _showContextMenu(event) {
-    let row = event.target.closest("ab-card-listrow");
+    let row;
+    if (event.target == this.cardsList) {
+      if (this.cardsList.selectedIndex == -1) {
+        return;
+      }
+      row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
+    } else {
+      row = event.target.closest("ab-card-listrow");
+    }
     if (!row) {
       return;
     }
@@ -1464,7 +1477,16 @@ var cardsPane = {
     removeItem.hidden = !inMailList;
     deleteItem.disabled = removeItem.disabled = !this._canDeleteSelected();
 
-    this.cardContext.openPopupAtScreen(event.screenX, event.screenY, true);
+    if (event.type == "contextmenu" && event.buttons) {
+      this.cardContext.openPopupAtScreen(event.screenX, event.screenY, true);
+    } else {
+      this.cardContext.openPopup(row, {
+        triggerEvent: event,
+        position: "end_before",
+        x: -26,
+        y: row.clientHeight,
+      });
+    }
     event.preventDefault();
   },
 
