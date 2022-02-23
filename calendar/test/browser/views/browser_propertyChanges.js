@@ -152,7 +152,7 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
 
     if (isThisCalendar) {
       Assert.equal(style.backgroundColor, "rgb(255, 238, 34)", "item background correct");
-      Assert.equal(style.color, "rgb(0, 0, 0)", "item foreground correct");
+      Assert.equal(style.color, "rgb(34, 34, 34)", "item foreground correct");
     } else {
       Assert.equal(
         style.backgroundColor,
