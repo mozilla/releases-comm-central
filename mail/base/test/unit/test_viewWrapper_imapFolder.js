@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /**
  * Test DBViewWrapper against a single imap folder.  Try and test all the
  *  features we can without having a fake newsgroup.  (Some features are
@@ -16,41 +20,36 @@ initViewWrapperTestUtils({ mode: "imap", offline: false });
  * (It will fail to update if the db change listener ended up detaching itself
  *  and not reattaching correctly when the updateFolder completes.)
  */
-function* test_enter_imap_folder_requiring_update_folder_immediately() {
-  // - create the folder and wait for the IMAP op to complete
-  let folderHandle = MessageInjection.make_empty_folder();
-  yield wait_for_async_promises();
-  let msgFolder = MessageInjection.get_real_injection_folder(folderHandle);
+add_task(
+  async function test_enter_imap_folder_requiring_update_folder_immediately() {
+    // - create the folder and wait for the IMAP op to complete
+    let folderHandle = await messageInjection.makeEmptyFolder();
+    let msgFolder = messageInjection.getRealInjectionFolder(folderHandle);
 
-  // - add the messages
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(
-    folderHandle,
-    [{ count: 1 }],
-    true
-  );
-  yield MessageInjection.wait_for_message_injection();
+    // - add the messages
+    let [msgSet] = await messageInjection.makeNewSetsInFolders(
+      [folderHandle],
+      [{ count: 1 }],
+      true
+    );
 
-  let viewWrapper = make_view_wrapper();
+    let viewWrapper = make_view_wrapper();
 
-  // - make sure we don't know about the message!
-  Assert.equal(msgFolder.getTotalMessages(false), 0);
+    // - make sure we don't know about the message!
+    Assert.equal(msgFolder.getTotalMessages(false), 0);
 
-  // - sync open the folder, verify we claim we entered, and make sure it has
-  //  nothing in it!
-  viewWrapper.listener.pendingLoad = true;
-  viewWrapper.open(msgFolder);
-  Assert.ok(viewWrapper._enteredFolder);
-  verify_empty_view(viewWrapper);
+    // - sync open the folder, verify we claim we entered, and make sure it has
+    //  nothing in it!
+    viewWrapper.listener.pendingLoad = true;
+    viewWrapper.open(msgFolder);
+    Assert.ok(viewWrapper._enteredFolder);
+    verify_empty_view(viewWrapper);
 
-  // - async wait for all the messages to load
-  yield false;
+    // Wait for all the messages to load.
+    await gMockViewWrapperListener.promise;
+    gMockViewWrapperListener.resetPromise();
 
-  // - make sure the view sees the message though...
-  verify_messages_in_view(msgSet, viewWrapper);
-}
-
-var tests = [test_enter_imap_folder_requiring_update_folder_immediately];
-
-function run_test() {
-  async_run_tests(tests);
-}
+    // - make sure the view sees the message though...
+    verify_messages_in_view(msgSet, viewWrapper);
+  }
+);

@@ -1,48 +1,43 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils({ mode: "imap", offline: false });
 
-function* test_real_folder_load_and_move_to_trash() {
+add_task(async function test_real_folder_load_and_move_to_trash() {
   let viewWrapper = make_view_wrapper();
-  let [msgFolder, msgSet] = MessageInjection.make_folder_with_sets([
+  let [[msgFolder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
 
-  yield MessageInjection.wait_for_message_injection();
-  yield async_view_open(
+  await view_open(
     viewWrapper,
-    MessageInjection.get_real_injection_folder(msgFolder)
+    messageInjection.getRealInjectionFolder(msgFolder)
   );
   verify_messages_in_view(msgSet, viewWrapper);
 
-  yield MessageInjection.async_trash_messages(msgSet);
+  await messageInjection.trashMessages(msgSet);
   verify_empty_view(viewWrapper);
-}
+});
 
-function* test_empty_trash() {
+add_task(async function test_empty_trash() {
   let viewWrapper = make_view_wrapper();
-  let trashHandle = MessageInjection.get_trash_folder();
+  let trashHandle = await messageInjection.getTrashFolder();
+  let trashFolder = messageInjection.getRealInjectionFolder(trashHandle);
 
-  yield wait_for_async_promises();
-  let trashFolder = MessageInjection.get_real_injection_folder(trashHandle);
+  await view_open(viewWrapper, trashFolder);
 
-  yield async_view_open(viewWrapper, trashFolder);
-
-  yield MessageInjection.async_empty_trash();
+  await messageInjection.emptyTrash();
   verify_empty_view(viewWrapper);
 
   Assert.ok(viewWrapper.displayedFolder !== null);
 
-  let [msgSet] = MessageInjection.make_new_sets_in_folders(
+  let [msgSet] = await messageInjection.makeNewSetsInFolders(
     [trashHandle],
     [{ count: 1 }]
   );
-  yield MessageInjection.wait_for_message_injection();
+
   verify_messages_in_view(msgSet, viewWrapper);
-}
-
-var tests = [test_real_folder_load_and_move_to_trash, test_empty_trash];
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

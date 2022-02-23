@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /**
  * Test DBViewWrapper against a virtual folder with a custom search term.
  *
@@ -43,27 +47,19 @@ MailServices.filters.addCustomTerm(gCustomSearchTermSubject);
  * Make sure we open a virtual folder backed by a single underlying folder
  *  correctly, with a custom search term.
  */
-function* test_virtual_folder_single_load_custom_pred() {
+add_task(async function test_virtual_folder_single_load_custom_pred() {
   let viewWrapper = make_view_wrapper();
 
-  let [folderOne, oneSubjFoo] = MessageInjection.make_folder_with_sets([
-    { subject: "foo" },
-    {},
-  ]);
+  let [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
+    1,
+    [{ subject: "foo" }, {}]
+  );
 
-  yield MessageInjection.wait_for_message_injection();
-
-  let virtFolder = MessageInjection.make_virtual_folder(folderOne, {
+  let virtFolder = messageInjection.makeVirtualFolder(folderOne, {
     custom: "foo",
   });
 
-  yield async_view_open(viewWrapper, virtFolder);
+  await view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view(oneSubjFoo, viewWrapper);
-}
-
-var tests = [test_virtual_folder_single_load_custom_pred];
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

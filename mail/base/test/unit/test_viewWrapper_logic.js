@@ -1,18 +1,22 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 load("../../../../mailnews/resources/abSetup.js");
 
 /* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
-initViewWrapperTestUtils();
+initViewWrapperTestUtils({ mode: "local" });
 
 /**
  * Verify that flipping between threading and grouped by sort settings properly
  *  clears the other flag.  (Because they're mutually exclusive, you see.)
  */
-function* test_threading_grouping_mutual_exclusion() {
+add_task(async function test_threading_grouping_mutual_exclusion() {
   let viewWrapper = make_view_wrapper();
-  let folder = MessageInjection.make_empty_folder();
+  let folder = await messageInjection.makeEmptyFolder();
 
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   // enter an update that will never conclude.  this is fine.
   viewWrapper.beginViewUpdate();
   viewWrapper.showThreaded = true;
@@ -25,18 +29,18 @@ function* test_threading_grouping_mutual_exclusion() {
   viewWrapper.showGroupedBySort = true;
   assert_false(viewWrapper.showThreaded, "view should not be threaded");
   assert_true(viewWrapper.showGroupedBySort, "view should be grouped by sort");
-}
+});
 
 /**
  * Verify that flipping between the "View... Threads..." menu cases supported by
  *  |showUnreadOnly| / |specialViewThreadsWithUnread| /
  *  |specialViewThreadsWithUnread| has them all be properly mutually exclusive.
  */
-function* test_threads_special_views_mutual_exclusion() {
+add_task(async function test_threads_special_views_mutual_exclusion() {
   let viewWrapper = make_view_wrapper();
-  let folder = MessageInjection.make_empty_folder();
+  let folder = await messageInjection.makeEmptyFolder();
 
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   // enter an update that will never conclude. this is fine.
   viewWrapper.beginViewUpdate();
 
@@ -68,20 +72,20 @@ function* test_threads_special_views_mutual_exclusion() {
   Assert.ok(!viewWrapper.showUnreadOnly);
   Assert.ok(!viewWrapper.specialViewThreadsWithUnread);
   Assert.ok(!viewWrapper.specialViewWatchedThreadsWithUnread);
-}
+});
 
 /**
  * Do a quick test of primary sorting to make sure we're actually changing the
  *  sort order.  (However, we are not responsible for verifying correctness of
  *  the sort.)
  */
-function* test_sort_primary() {
+add_task(async function test_sort_primary() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = MessageInjection.make_folder_with_sets(1);
+  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   viewWrapper.sort(
     Ci.nsMsgViewSortType.byDate,
     Ci.nsMsgViewSortOrder.ascending
@@ -115,18 +119,18 @@ function* test_sort_primary() {
     "sort order should be descending",
     true
   );
-}
+});
 
 /**
  * Verify that we handle explicit secondary sorts correctly.
  */
-function* test_sort_secondary_explicit() {
+add_task(async function test_sort_secondary_explicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = MessageInjection.make_folder_with_sets(1);
+  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   viewWrapper.sort(
     Ci.nsMsgViewSortType.byAuthor,
     Ci.nsMsgViewSortOrder.ascending,
@@ -156,9 +160,9 @@ function* test_sort_secondary_explicit() {
       Ci.nsMsgViewSortOrder.descending,
       "secondary sort order should be descending"
     );
-    yield async_view_refresh(viewWrapper);
+    await view_refresh(viewWrapper);
   }
-}
+});
 
 /**
  * Verify that we handle implicit secondary sorts correctly.
@@ -168,13 +172,13 @@ function* test_sort_secondary_explicit() {
  *  be explicit about these things.  We can't simply depend on the view to do
  *  this for us.  Why?  Because we re-create the view all the bloody time.
  */
-function* test_sort_secondary_implicit() {
+add_task(async function test_sort_secondary_implicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = MessageInjection.make_folder_with_sets(1);
+  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   viewWrapper.magicSort(
     Ci.nsMsgViewSortType.bySubject,
     Ci.nsMsgViewSortOrder.descending
@@ -206,9 +210,9 @@ function* test_sort_secondary_implicit() {
       Ci.nsMsgViewSortOrder.descending,
       "secondary sort order should be descending"
     );
-    yield async_view_refresh(viewWrapper);
+    await view_refresh(viewWrapper);
   }
-}
+});
 
 /**
  * Test that group-by-sort does not explode even if we try and get it to use
@@ -219,18 +223,18 @@ function* test_sort_secondary_implicit() {
  * Note: Sorting changes are synchronous, but toggling grouped by sort requires
  *  a view rebuild.
  */
-function* test_sort_group_by_sort() {
+add_task(async function test_sort_group_by_sort() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = MessageInjection.make_folder_with_sets(1);
-  yield async_view_open(viewWrapper, folder);
+  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
+  await view_open(viewWrapper, folder);
 
   // - start out by being in an illegal (for group-by-sort) sort mode and
   //  switch to group-by-sort.
   // (sorting changes are synchronous)
   viewWrapper.sort(Ci.nsMsgViewSortType.byId, Ci.nsMsgViewSortOrder.descending);
-  yield async_view_group_by_sort(viewWrapper, true);
+  await view_group_by_sort(viewWrapper, true);
 
   // there should have been no explosion, and we should have changed to date
   assert_equals(
@@ -240,7 +244,7 @@ function* test_sort_group_by_sort() {
   );
 
   // - return to unthreaded, have an illegal secondary sort, go group-by-sort
-  yield async_view_group_by_sort(viewWrapper, false);
+  await view_group_by_sort(viewWrapper, false);
 
   viewWrapper.sort(
     Ci.nsMsgViewSortType.byDate,
@@ -249,7 +253,7 @@ function* test_sort_group_by_sort() {
     Ci.nsMsgViewSortOrder.descending
   );
 
-  yield async_view_group_by_sort(viewWrapper, true);
+  await view_group_by_sort(viewWrapper, true);
   // we should now only have a single sort type and it should be date
   assert_equals(
     viewWrapper._sort.length,
@@ -273,19 +277,19 @@ function* test_sort_group_by_sort() {
     Ci.nsMsgViewSortType.byDate,
     "remaining (primary) sort type should be date"
   );
-}
+});
 
 /**
  * Verify that mailview changes are properly persisted but that we only use them
  *  when the listener indicates we should use them (because the widget is
  *  presumably visible).
  */
-function* test_mailviews_persistence() {
+add_task(async function test_mailviews_persistence() {
   let viewWrapper = make_view_wrapper();
-  let folder = MessageInjection.make_empty_folder();
+  let folder = await messageInjection.makeEmptyFolder();
 
   // open the folder, ensure it is using the default mail view
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   Assert.equal(viewWrapper.mailViewIndex, MailViewConstants.kViewItemAll);
 
   // set the view so as to be persisted
@@ -295,19 +299,19 @@ function* test_mailviews_persistence() {
 
   // close, re-open and verify it took
   viewWrapper.close();
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   Assert.equal(viewWrapper.mailViewIndex, MailViewConstants.kViewItemUnread);
 
   // close, turn off the mailview usage indication by the listener...
   viewWrapper.close();
   gMockViewWrapperListener.shouldUseMailViews = false;
   // ...open and verify that it did not take!
-  yield async_view_open(viewWrapper, folder);
+  await view_open(viewWrapper, folder);
   Assert.equal(viewWrapper.mailViewIndex, MailViewConstants.kViewItemAll);
 
   // put the mailview setting back so other tests work
   gMockViewWrapperListener.shouldUseMailViews = true;
-}
+});
 
 /**
  * Make sure:
@@ -319,7 +323,7 @@ function* test_mailviews_persistence() {
  *
  * @bug 498145
  */
-function test_view_update_depth_logic() {
+add_task(function test_view_update_depth_logic() {
   let viewWrapper = make_view_wrapper();
 
   // create an instance-specific dummy method that counts calls t
@@ -352,19 +356,4 @@ function test_view_update_depth_logic() {
   viewWrapper.beginViewUpdate();
   viewWrapper.close(); // this does little else because there is nothing open
   Assert.equal(viewWrapper._viewUpdateDepth, 0);
-}
-
-var tests = [
-  test_threading_grouping_mutual_exclusion,
-  test_threads_special_views_mutual_exclusion,
-  test_sort_primary,
-  test_sort_secondary_explicit,
-  test_sort_secondary_implicit,
-  test_sort_group_by_sort,
-  test_mailviews_persistence,
-  test_view_update_depth_logic,
-];
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

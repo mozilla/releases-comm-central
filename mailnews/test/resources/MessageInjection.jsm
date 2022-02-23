@@ -440,7 +440,8 @@ class MessageInjection {
    *     to build the list of search terms that populate this virtual folder.
    *     Keys should be stuff from SEARCH_TERM_MAP_HELPER and values should be
    *     strings to search for within those attribute things.
-   * @param {boolean} booleanAnd Should the search terms be and-ed together.
+   * @param {boolean} [booleanAnd] Should the search terms be and-ed together.
+   *     Defaults to false.
    * @param {string} [folderName] Name to use.
    * @return {nsIMsgFolder|string} In local usage returns a nsIMsgFolder
    *     in imap usage returns a Folder URI.
