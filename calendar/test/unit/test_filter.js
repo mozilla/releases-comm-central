@@ -11,7 +11,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 const { CalTodo } = ChromeUtils.import("resource:///modules/CalTodo.jsm");
 
-/* globals calFilter */
+/* globals calFilter, CalReadableStreamFactory */
 Services.scriptloader.loadSubScript("chrome://calendar/content/widgets/calendar-filter.js");
 
 async function promiseItems(filter, calendar) {
@@ -182,4 +182,141 @@ add_task(async function testItemTypeFilter() {
 
   items = await promiseItems(filter, calendar);
   Assert.equal(items.length, 0, "getItems returns expected number of items");
+});
+
+/**
+ * Tests that calFilter.getItems uses the correct flags when calling
+ * calICalendar.getItems. This is important because calFilter is used both by
+ * setting the itemType filter and with a calFilterProperties object.
+ */
+add_task(async function testGetItemsFilterFlags() {
+  let fakeCalendar = {
+    getItems(filter, count, rangeStart, rangeEndEx) {
+      Assert.equal(filter, expected.filter, "getItems called with the right filter");
+      if (expected.rangeStart) {
+        Assert.equal(
+          rangeStart.compare(expected.rangeStart),
+          0,
+          "getItems called with the right start date"
+        );
+      }
+      if (expected.rangeEndEx) {
+        Assert.equal(
+          rangeEndEx.compare(expected.rangeEndEx),
+          0,
+          "getItems called with the right end date"
+        );
+      }
+      return CalReadableStreamFactory.createEmptyReadableStream();
+    },
+  };
+
+  // Test the basic item types.
+  // A request for TODO items requires one of the ITEM_FILTER_COMPLETED flags,
+  // if none are supplied then ITEM_FILTER_COMPLETED_ALL is added.
+  // (These flags have no effect on EVENT items.)
+
+  let filter = new calFilter();
+  let expected = {
+    filter: Ci.calICalendar.ITEM_FILTER_TYPE_ALL | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL,
+  };
+  filter.getItems(fakeCalendar);
+
+  filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
+  expected.filter = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_TODO;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_ALL | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+  filter.getItems(fakeCalendar);
+
+  // Test that we get occurrences if we have an end date.
+
+  filter.startDate = cal.createDateTime("20220201T000000Z");
+  filter.endDate = cal.createDateTime("20220301T000000Z");
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_ALL |
+    Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL |
+    Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
+  expected.rangeStart = filter.startDate;
+  expected.rangeEndEx = filter.endDate;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_EVENT | Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_TODO;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO |
+    Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL |
+    Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_ALL |
+    Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL |
+    Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
+  filter.getItems(fakeCalendar);
+
+  filter.startDate = null;
+  filter.endDate = null;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_ALL | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+  delete expected.rangeStart;
+  delete expected.rangeEndEx;
+  filter.getItems(fakeCalendar);
+
+  // Test that completed tasks are correctly filtered.
+
+  filter.itemType =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_YES;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_YES;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_NO;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_NO;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+  filter.getItems(fakeCalendar);
+
+  filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_TODO;
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+  filter.getItems(fakeCalendar);
+
+  // Using `applyFilter` needs a selected date or the test dies trying to find the
+  // `currentView` function, which doesn't exist in an XPCShell test.
+  filter.selectedDate = cal.dtz.now();
+  filter.applyFilter("completed");
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO |
+    Ci.calICalendar.ITEM_FILTER_COMPLETED_YES |
+    Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
+  filter.getItems(fakeCalendar);
+
+  filter.applyFilter("open");
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_NO;
+  filter.getItems(fakeCalendar);
+
+  filter.applyFilter();
+  expected.filter =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
+  filter.getItems(fakeCalendar);
 });

@@ -492,13 +492,11 @@ calFilter.prototype = {
    * @return {boolean} - True if the item matches the item type, false otherwise.
    */
   itemTypeFilter(aItem) {
-    switch (this.mItemType) {
-      case Ci.calICalendar.ITEM_FILTER_TYPE_TODO:
-        return aItem.isTodo();
-      case Ci.calICalendar.ITEM_FILTER_TYPE_EVENT:
-        return aItem.isEvent();
-      case Ci.calICalendar.ITEM_FILTER_TYPE_ALL:
-        return true;
+    if (aItem.isTodo() && this.mItemType & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) {
+      return true;
+    }
+    if (aItem.isEvent() && this.mItemType & Ci.calICalendar.ITEM_FILTER_TYPE_EVENT) {
+      return true;
     }
     return false;
   },
@@ -643,8 +641,10 @@ calFilter.prototype = {
   },
 
   /**
-   * One of the calICalendar.ITEM_FILTER_TYPE constants. Only items of this type
-   * will pass the filter.
+   * One of the calICalendar.ITEM_FILTER_TYPE constants, optionally bitwise-OR-ed with a
+   * calICalendar.ITEM_FILTER_COMPLETED value. Only items of this type will pass the filter.
+   *
+   * If an ITEM_FILTER_COMPLETED bit is set it will will take priority over applyFilter.
    */
   set itemType(aItemType) {
     this.mItemType = aItemType;
@@ -913,31 +913,40 @@ calFilter.prototype = {
     }
     let props = this.mFilterProperties;
 
-    // build the filter argument for calICalendar.getItems() from the filter properties
+    // Build the filter argument for calICalendar.getItems() from the filter properties.
     let filter = this.mItemType;
-    if (filter & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) {
+
+    // For tasks, if `mItemType` doesn't specify a completion status, add one.
+    if (
+      filter & Ci.calICalendar.ITEM_FILTER_TYPE_TODO &&
+      (filter & Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL) == 0
+    ) {
       if (
         !props.status ||
         props.status & (props.FILTER_STATUS_COMPLETED_TODAY | props.FILTER_STATUS_COMPLETED_BEFORE)
       ) {
-        filter |= aCalendar.ITEM_FILTER_COMPLETED_YES;
+        filter |= Ci.calICalendar.ITEM_FILTER_COMPLETED_YES;
       }
       if (
         !props.status ||
         props.status & (props.FILTER_STATUS_INCOMPLETE | props.FILTER_STATUS_IN_PROGRESS)
       ) {
-        filter |= aCalendar.ITEM_FILTER_COMPLETED_NO;
+        filter |= Ci.calICalendar.ITEM_FILTER_COMPLETED_NO;
       }
+    }
+
+    if (!filter) {
+      return CalReadableStreamFactory.createEmptyReadableStream();
     }
 
     let startDate = this.startDate;
     let endDate = this.endDate;
 
-    // we only want occurrences returned from calICalendar.getItems() with a default
+    // We only want occurrences returned from calICalendar.getItems() with a default
     // occurrence filter property and a bound date range, otherwise the local listener
     // will handle occurrence expansion.
     if (!props.occurrences && this.endDate) {
-      filter |= aCalendar.ITEM_FILTER_CLASS_OCCURRENCES;
+      filter |= Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
       startDate = startDate || cal.createDateTime();
       endDate = endDate || cal.dtz.now();
     }
