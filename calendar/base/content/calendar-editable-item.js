@@ -97,9 +97,9 @@
         }
       });
 
-      // We have two event listeners for dragstart. This event listener is for the capturing phase.
+      // We have two event listeners for dragstart. This event listener is for the bubbling phase.
       this.addEventListener("dragstart", event => {
-        if (document.monthDragEvent.localName == "calendar-event-box") {
+        if (document.monthDragEvent?.localName == "calendar-event-box") {
           return;
         }
         let item = this.occurrence;
@@ -142,9 +142,9 @@
 
       this.classList.add("calendar-color-box", "calendar-item-container");
 
-      // We have two event listeners for dragstart. This event listener is for the bubbling phase
+      // We have two event listeners for dragstart. This event listener is for the capturing phase
       // where we are setting up the document.monthDragEvent which will be used in the event listener
-      // in the capturing phase.
+      // in the bubbling phase.
       this.addEventListener(
         "dragstart",
         event => {
