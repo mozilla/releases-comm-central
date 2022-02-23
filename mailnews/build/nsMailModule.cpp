@@ -1003,7 +1003,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     // News Entries
     {NS_NNTPURL_CONTRACTID, &kNS_NNTPURL_CID},
     {NS_NNTPSERVICE_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_NEWSSTARTUPHANDLER_CONTRACTID, &kNS_NNTPSERVICE_CID},
     {NS_NNTPPROTOCOLINFO_CONTRACTID, &kNS_NNTPSERVICE_CID},
     {NS_NNTPMESSAGESERVICE_CONTRACTID, &kNS_NNTPSERVICE_CID},
     {NS_NEWSMESSAGESERVICE_CONTRACTID, &kNS_NNTPSERVICE_CID},
@@ -1073,8 +1072,6 @@ static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
      NS_PLAIN_MIME_EMITTER_CONTRACTID},
     {"mime-emitter", NS_RAW_MIME_EMITTER_CONTRACTID,
      NS_RAW_MIME_EMITTER_CONTRACTID},
-    // News Entries
-    {"command-line-handler", "m-news", NS_NEWSSTARTUPHANDLER_CONTRACTID},
     {NULL}};
 
 static void msgMailNewsModuleDtor() {}

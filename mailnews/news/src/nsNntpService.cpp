@@ -63,7 +63,7 @@ nsNntpService::~nsNntpService() {
 }
 
 NS_IMPL_ISUPPORTS(nsNntpService, nsINntpService, nsIMsgMessageService,
-                  nsIProtocolHandler, nsIMsgProtocolInfo, nsICommandLineHandler,
+                  nsIProtocolHandler, nsIMsgProtocolInfo,
                   nsIMsgMessageFetchPartService, nsIContentHandler)
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1494,36 +1494,6 @@ nsNntpService::GetListOfGroupsOnServer(nsINntpIncomingServer* aNntpServer,
 
   // now run the url to add the rest of the groups
   return RunNewsUrl(url, aMsgWindow, nullptr);
-}
-
-NS_IMETHODIMP
-nsNntpService::Handle(nsICommandLine* aCmdLine) {
-  NS_ENSURE_ARG_POINTER(aCmdLine);
-
-  nsresult rv;
-  bool found;
-
-  rv = aCmdLine->HandleFlag(u"news"_ns, false, &found);
-  if (NS_SUCCEEDED(rv) && found) {
-    nsCOMPtr<nsIWindowWatcher> wwatch(
-        do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    NS_ENSURE_TRUE(wwatch, NS_ERROR_FAILURE);
-
-    nsCOMPtr<mozIDOMWindowProxy> opened;
-    wwatch->OpenWindow(
-        nullptr, "chrome://messenger/content/messenger.xhtml"_ns, "_blank"_ns,
-        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"_ns,
-        nullptr, getter_AddRefs(opened));
-    aCmdLine->SetPreventDefault(true);
-  }
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsNntpService::GetHelpInfo(nsACString& aResult) {
-  aResult.AssignLiteral("  -news              Open the news client.\n");
-  return NS_OK;
 }
 
 NS_IMETHODIMP

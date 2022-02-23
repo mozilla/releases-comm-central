@@ -18,8 +18,6 @@
 #include "nsIContentHandler.h"
 #include "nsICacheStorage.h"
 
-#include "nsICommandLineHandler.h"
-
 class nsIURI;
 class nsIUrlListener;
 
@@ -28,7 +26,6 @@ class nsNntpService : public nsINntpService,
                       public nsIMsgMessageFetchPartService,
                       public nsIProtocolHandler,
                       public nsIMsgProtocolInfo,
-                      public nsICommandLineHandler,
                       public nsIContentHandler {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -38,7 +35,6 @@ class nsNntpService : public nsINntpService,
   NS_DECL_NSIMSGPROTOCOLINFO
   NS_DECL_NSICONTENTHANDLER
   NS_DECL_NSIMSGMESSAGEFETCHPARTSERVICE
-  NS_DECL_NSICOMMANDLINEHANDLER
 
   // nsNntpService
   nsNntpService();

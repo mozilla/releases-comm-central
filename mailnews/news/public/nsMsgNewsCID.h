@@ -53,8 +53,6 @@
 #define NS_NNTPMESSAGESERVICE_CONTRACTID \
   "@mozilla.org/messenger/messageservice;1?type=news"
 #define NS_NNTPSERVICE_CONTRACTID "@mozilla.org/messenger/nntpservice;1"
-#define NS_NEWSSTARTUPHANDLER_CONTRACTID \
-  "@mozilla.org/commandlinehandler/general-startup;1?type=news"
 
 #define NS_NNTPSERVICE_CID                         \
   { /* 4C9F90E1-E19B-11d2-806E-006008128C4E */     \
