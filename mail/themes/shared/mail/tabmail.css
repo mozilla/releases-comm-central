@@ -498,3 +498,12 @@ button.tab-close-button {
 .forward-btn:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
 }
+
+/*
+ Show the ::before pseudo element if the pinned button of the spaces toolbar is visible.
+*/
+#spacesPinnedButton:not([collapsed="true"]) + #tabmail-tabs .tabmail-tab:first-child::before {
+  content: '';
+  display: -moz-box;
+  margin-inline-start: 0;
+}

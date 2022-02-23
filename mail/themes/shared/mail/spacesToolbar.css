@@ -2,9 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Colors variables */
+
 :root {
   --spaces-bg-color: #e8e8e8;
-  --spaces-button-text-color: SelectedItemText;
+  --spaces-bg-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
+  --spaces-button-text-color: currentColor;
+  --spaces-button-active-text-color: SelectedItemText;
+  --spaces-button-active-bg-color: SelectedItem;
+}
+
+:root:-moz-window-inactive {
+  --spaces-bg-image: none;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,18 +26,49 @@
 @media (prefers-contrast) {
   :root {
     --spaces-bg-color: -moz-Dialog;
+    -spaces-bg-image: none;
   }
+}
+
+/* Density variations */
+
+:root {
+  --spaces-icon-size: 18px;
+  --spaces-padding: 7px;
+  --spaces-gap: 15px;
+  --spaces-container-gap: 15px;
+  --spaces-button-padding: 5px;
+  --spaces-pinned-button-margin: 4px;
+}
+
+:root[uidensity="compact"] {
+  --spaces-icon-size: 16px;
+  --spaces-padding: 6px;
+  --spaces-gap: 9px;
+  --spaces-container-gap: 9px;
+  --spaces-button-padding: 4px;
+  --spaces-pinned-button-margin: 3px;
+}
+
+:root[uidensity="touch"] {
+  --spaces-icon-size: 20px;
+  --spaces-padding: 9px;
+  --spaces-gap: 18px;
+  --spaces-container-gap: 18px;
+  --spaces-button-padding: 6px;
+  --spaces-pinned-button-margin: 6px;
 }
 
 .spaces-toolbar:not([hidden]) {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 15px;
+  gap: var(--spaces-gap);
   background-color: var(--spaces-bg-color);
-  border-inline-end: 1px solid color-mix(in srgb, var(--splitter-color) 40%, transparent);
+  background-image: var(--spaces-bg-image);
+  border-inline-end: 1px solid color-mix(in srgb, var(--spaces-bg-color) 85%, black);
   margin-top: calc(-1 * var(--tab-min-height));
-  padding: 9px;
+  padding: var(--spaces-padding);
   z-index: 2;
 }
 
@@ -36,46 +76,62 @@
   display: flex;
   flex-direction: column;
   align-items: start;
-  gap: 15px;
+  gap: var(--spaces-container-gap);
 }
 
 .spaces-toolbar-button {
   height: auto;
   min-width: auto;
   margin: 0;
-  padding: 6px;
+  padding: var(--spaces-button-padding);
   line-height: 0; /* We never show text in these buttons */
   border: none;
   background-color: transparent;
   opacity: 0.75;
+  color: var(--spaces-button-text-color);
+  outline: none;
+}
+
+.spaces-toolbar-button:focus-visible:not(:hover) {
+  outline: 2px solid SelectedItem;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .spaces-toolbar-button {
     transition: background-color 280ms ease, opacity 280ms ease, color 280ms;
   }
+
+  .spaces-toolbar-button > img {
+    transition: fill 280ms ease, stroke 280ms ease;
+  }
+
+  .spaces-toolbar-pinned-button {
+    transition: background-color 280ms ease, box-shadow 280ms ease;
+  }
 }
 
 .spaces-toolbar-button.current,
 .spaces-toolbar-button.current:hover {
-  background-color: var(--toolbar-field-focus-border-color);
-  color: var(--spaces-button-text-color);
+  background-color: var(--spaces-button-active-bg-color);
+  color: var(--spaces-button-active-text-color);
   opacity: 1;
 }
 
 .spaces-toolbar-button:hover:not(.current) {
-  background-color: color-mix(in srgb, var(--toolbar-field-focus-border-color) 20%, transparent);
+  background-color: color-mix(in srgb, var(--spaces-button-active-bg-color) 30%, transparent);
   opacity: 1;
 }
 
 .spaces-toolbar-button:is(:not([disabled])):hover:active {
-  background-color: var(--toolbar-field-focus-border-color);
-  color: var(--spaces-button-text-color);
+  background-color: var(--spaces-button-active-bg-color);
+  color: var(--spaces-button-active-text-color);
 }
 
 .spaces-toolbar-button > img,
-.spaces-toolbar-statusbar-button > img {
-  -moz-context-properties: fill, stroke-opacity;
+.spaces-toolbar-statusbar-button > img,
+.spaces-toolbar-pinned-button > img,
+.spaces-popup-menuitem image {
+  -moz-context-properties: fill, stroke, stroke-opacity;
   fill: currentColor;
 }
 
@@ -96,39 +152,55 @@
   opacity: 1;
 }
 
-#chatButton > img {
+#spacesPinnedButton {
+  margin: var(--spaces-pinned-button-margin) !important;
+  list-style-image: url("chrome://messenger/skin/icons/spaces.svg");
+  min-width: auto;
+}
+
+#spacesPinnedButton .toolbarbutton-text,
+#spacesPinnedButton[type="menu"] > .toolbarbutton-menu-dropmarker {
+  display: none;
+}
+
+#spacesPopupButtonMail {
+  list-style-image: url("chrome://messenger/skin/icons/message.svg");
+}
+
+#spacesPopupButtonAddressBook {
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+}
+
+#spacesPopupButtonCalendar {
+  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
+}
+
+#spacesPopupButtonTasks {
+  list-style-image: url("chrome://calendar/skin/shared/icons/task-tab.svg");
+}
+
+#spacesPopupButtonChat {
+  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
+}
+
+#spacesPopupButtonReveal {
+  list-style-image: url("chrome://messenger/skin/icons/collapse.svg");
+}
+
+#chatButton > img,
+#spacesPopupButtonChat image {
   stroke-opacity: 0;
 }
 
 #collapseButton:-moz-locale-dir(rtl) img,
-#spacesToolbarReveal img {
+#spacesToolbarReveal img,
+#spacesPopupButtonReveal image {
   transform: scaleX(-1);
 }
 
-#spacesToolbarReveal:-moz-locale-dir(rtl) img {
+#spacesToolbarReveal:-moz-locale-dir(rtl) img,
+#spacesPopupButtonReveal:-moz-locale-dir(rtl) image {
   transform: none;
-}
-
-:root[uidensity="compact"] .spaces-toolbar:not([hidden]) {
-  padding: 6px;
-  gap: 9px;
-}
-
-:root[uidensity="compact"] .spaces-toolbar-container {
-  gap: 9px;
-}
-
-:root[uidensity="compact"] .spaces-toolbar-button {
-  padding: 4px;
-}
-
-:root[uidensity="touch"] .spaces-toolbar:not([hidden]) {
-  padding: 9px;
-  gap: 18px;
-}
-
-:root[uidensity="touch"] .spaces-toolbar-container {
-  gap: 18px;
 }
 
 :root[uidensity="touch"] .spaces-toolbar-button > img {

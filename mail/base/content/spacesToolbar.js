@@ -40,6 +40,8 @@ var gSpacesToolbar = {
    * @property {boolean} allowMultipleTabs - Whether to allow the user to open
    *   multiple tabs in this space.
    * @property {HTMLButtonElement} button - The toolbar button for this space.
+   * @property {?XULMenuItem} menuitem - The menuitem for this space, if
+   *   available.
    * @property {TabInSpace} tabInSpace - A callback that determines whether an
    *   existing tab is considered outside this space, a primary tab of this
    *   space (a tab that is similar to the tab created by the open method) or
@@ -101,6 +103,7 @@ var gSpacesToolbar = {
       {
         name: "mail",
         button: document.getElementById("mailButton"),
+        menuitem: document.getElementById("spacesPopupButtonMail"),
         tabInSpace(tabInfo) {
           switch (tabInfo.mode.name) {
             case "folder":
@@ -150,6 +153,7 @@ var gSpacesToolbar = {
       {
         name: "addressbook",
         button: document.getElementById("addressBookButton"),
+        menuitem: document.getElementById("spacesPopupButtonAddressBook"),
         // If "mail.addr_book.useNewAddressBook" is not true, then the
         // addressbook will never belong to a tab, so we only need to test for
         // the new addressbook.
@@ -178,6 +182,7 @@ var gSpacesToolbar = {
       {
         name: "calendar",
         button: document.getElementById("calendarButton"),
+        menuitem: document.getElementById("spacesPopupButtonCalendar"),
         tabInSpace(tabInfo) {
           return tabInfo.mode.name == "calendar" ? 1 : 0;
         },
@@ -188,6 +193,7 @@ var gSpacesToolbar = {
       {
         name: "tasks",
         button: document.getElementById("tasksButton"),
+        menuitem: document.getElementById("spacesPopupButtonTasks"),
         tabInSpace(tabInfo) {
           return tabInfo.mode.name == "tasks" ? 1 : 0;
         },
@@ -198,6 +204,7 @@ var gSpacesToolbar = {
       {
         name: "chat",
         button: document.getElementById("chatButton"),
+        menuitem: document.getElementById("spacesPopupButtonChat"),
         tabInSpace(tabInfo) {
           return tabInfo.mode.name == "chat" ? 1 : 0;
         },
@@ -287,18 +294,10 @@ var gSpacesToolbar = {
 
     for (let space of this.spaces) {
       space.button.addEventListener("click", () => {
-        // Find the earliest primary tab that belongs to this space.
-        let existing = tabmail.tabInfo.find(
-          tabInfo => space.tabInSpace(tabInfo) == 1
-        );
-        if (!existing) {
-          space.open("tab");
-        } else if (this.currentSpace != space) {
-          // Only switch to the tab if it is in a different space to the
-          // current one. In particular, if we are in a later tab we won't
-          // switch to the earliest tab.
-          tabmail.switchToTab(existing);
-        }
+        this._setSpaceOpenAction(tabmail, space);
+      });
+      space.menuitem?.addEventListener("click", () => {
+        this._setSpaceOpenAction(tabmail, space);
       });
       if (space.name == "settings") {
         space.button.addEventListener("contextmenu", event => {
@@ -359,6 +358,33 @@ var gSpacesToolbar = {
     document.getElementById("collapseButton").addEventListener("click", () => {
       this.toggleToolbar(true);
     });
+
+    document
+      .getElementById("spacesPopupButtonReveal")
+      .addEventListener("click", () => {
+        this.toggleToolbar(false);
+      });
+  },
+
+  /**
+   * Define the action to open a new tab or switch to an existing tab.
+   *
+   * @param {XULElement} tabmail - The tabmail element.
+   * @param {SpaceInfo[]} space - The main spaces in this toolbar.
+   */
+  _setSpaceOpenAction(tabmail, space) {
+    // Find the earliest primary tab that belongs to this space.
+    let existing = tabmail.tabInfo.find(
+      tabInfo => space.tabInSpace(tabInfo) == 1
+    );
+    if (!existing) {
+      space.open("tab");
+    } else if (this.currentSpace != space) {
+      // Only switch to the tab if it is in a different space to the
+      // current one. In particular, if we are in a later tab we won't
+      // switch to the earliest tab.
+      tabmail.switchToTab(existing);
+    }
   },
 
   /**
@@ -370,6 +396,7 @@ var gSpacesToolbar = {
     this.isHidden = state;
     document.getElementById("spacesToolbar").hidden = state;
     document.getElementById("spacesToolbarReveal").hidden = !state;
+    document.getElementById("spacesPinnedButton").collapsed = !state;
     // Update the window UI after the visibility state of the spaces toolbar
     // has changed.
     this.updateUI(
