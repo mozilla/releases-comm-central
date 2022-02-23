@@ -329,7 +329,6 @@ ab-card-listrow:not(.selected) > div.address {
   overflow: auto;
   color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
-  z-index: 2;
 }
 
 #detailsPane:not([hidden]) {
@@ -342,6 +341,7 @@ ab-card-listrow:not(.selected) > div.address {
 }
 
 body.is-editing #detailsPane {
+  z-index: 2;
   background-color: var(--in-content-page-background);
   color: var(--in-content-page-color);
   box-shadow: 0 2px 6px -5px #000;
