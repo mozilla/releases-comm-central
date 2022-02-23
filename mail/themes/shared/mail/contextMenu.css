@@ -3,24 +3,24 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --appmenu-button-margin: 0 8px;
-  --appmenu-button-padding: 6px;
+  --appmenu-button-margin: 0 4px;
+  --appmenu-button-padding: 4px;
 }
 
 menupopup {
   /* Complement the :is(menu, menuitem) margin. */
-  --arrowpanel-padding: 8px 0;
+  --arrowpanel-padding: 4px 0;
 }
 
 /* UI Density customization */
 
 :root[uidensity="compact"] {
-  --appmenu-button-margin: 0 4px;
+  --appmenu-button-margin: 0 3px;
   --appmenu-button-padding: 3px;
 }
 
 :root[uidensity="compact"] menupopup {
-  --arrowpanel-padding: 4px 0;
+  --arrowpanel-padding: 3px 0;
 }
 
 :root[uidensity="touch"] {

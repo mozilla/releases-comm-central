@@ -30,17 +30,31 @@
 
 /* UI Density customization */
 
-:root[uidensity="compact"] {
+:root:not([uidensity]) menupopup.cui-widget-panel {
+  --arrowpanel-padding: 4px 0;
+  --appmenu-button-padding: 4px;
+  --appmenu-button-margin: 0 4px;
+}
+
+:root[uidensity="compact"] panel.cui-widget-panel {
+  --arrowpanel-padding: 4px 0;
   --appmenu-button-margin: 0 4px;
   --appmenu-button-padding: 3px;
 }
 
-:root[uidensity="compact"] .cui-widget-panel {
-  --arrowpanel-padding: 4px 0;
+:root[uidensity="compact"] menupopup.cui-widget-panel {
+  --arrowpanel-padding: 3px 0;
+  --appmenu-button-margin: 0 3px;
+  --appmenu-button-padding: 3px;
 }
 
 :root[uidensity="touch"] {
   --appmenu-button-padding: 9px;
+}
+
+:root[uidensity="touch"] menupopup.cui-widget-panel {
+  --arrowpanel-padding: 4px 0;
+  --appmenu-button-margin: 0 4px;
 }
 
 :root[lwt-popup-brighttext] {
