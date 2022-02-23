@@ -140,14 +140,12 @@ const accessHkpInternal = {
    *
    */
   async buildHkpPayload(actionFlag, searchTerms) {
-    let payLoad = null,
-      keyData = "";
-
     switch (actionFlag) {
+      /*
       case EnigmailConstants.UPLOAD_KEY:
-        keyData = await EnigmailKeyRing.extractKey(
-          false,
-          searchTerms,
+        let keyData = await EnigmailKeyRing.extractPublicKeys(
+          searchTerms, // TODO: confirm input is ID or fingerprint
+          null,
           null,
           {},
           {}
@@ -156,8 +154,9 @@ const accessHkpInternal = {
           return null;
         }
 
-        payLoad = "keytext=" + encodeURIComponent(keyData);
+        let payLoad = "keytext=" + encodeURIComponent(keyData);
         return payLoad;
+      */
 
       case EnigmailConstants.DOWNLOAD_KEY:
       case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
@@ -883,14 +882,12 @@ const accessVksServer = {
    *
    */
   async buildJsonPayload(actionFlag, searchTerms, locale) {
-    let payLoad = null,
-      keyData = "";
-
     switch (actionFlag) {
+      /*
       case EnigmailConstants.UPLOAD_KEY:
-        keyData = await EnigmailKeyRing.extractKey(
-          false,
-          searchTerms,
+        let keyData = await EnigmailKeyRing.extractPublicKeys(
+          searchTerms, // must be id or fingerprint
+          null,
           null,
           {},
           {}
@@ -899,13 +896,14 @@ const accessVksServer = {
           return null;
         }
 
-        payLoad = JSON.stringify({
+        let payLoad = JSON.stringify({
           keytext: keyData,
         });
         return payLoad;
+      */
 
       case EnigmailConstants.GET_CONFIRMATION_LINK:
-        payLoad = JSON.stringify({
+        let payLoad = JSON.stringify({
           token: searchTerms.token,
           addresses: searchTerms.addresses,
           locale: [locale],

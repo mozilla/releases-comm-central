@@ -2878,7 +2878,120 @@ var RNP = {
     return result;
   },
 
-  async getMultiplePublicKeys(idArray) {
+  /**
+   * Exports a public key, strips all user ID and all signatures
+   * added by others, but keeping self-signatures.
+   * The given key handle will not be modified. The input key will be
+   * copied to a temporary area, only the temporary copy will be
+   * modified. The result key will be streamed to tghe given output.
+   *
+   * @param {rnp_key_handle_t} expKey - RNP key handle
+   * @param {string} id - key ID or fingerprint
+   * @param {rnp_output_t} out_binary - output stream handle
+   *
+   */
+  export_pubkey_strip_sigs_uids(expKey, id, out_binary) {
+    let tempFFI = new RNPLib.rnp_ffi_t();
+    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+      throw new Error("Couldn't initialize librnp.");
+    }
+
+    let exportFlags =
+      RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_PUBLIC;
+    let importFlags = RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS;
+
+    let output_to_memory = new RNPLib.rnp_output_t();
+    if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
+      throw new Error("rnp_output_to_memory failed");
+    }
+
+    if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
+      throw new Error("rnp_key_export failed");
+    }
+
+    let result_buf = new ctypes.uint8_t.ptr();
+    let result_len = new ctypes.size_t();
+    if (
+      RNPLib.rnp_output_memory_get_buf(
+        output_to_memory,
+        result_buf.address(),
+        result_len.address(),
+        false
+      )
+    ) {
+      throw new Error("rnp_output_memory_get_buf failed");
+    }
+
+    let input_from_memory = new RNPLib.rnp_input_t();
+
+    if (
+      RNPLib.rnp_input_from_memory(
+        input_from_memory.address(),
+        result_buf,
+        result_len,
+        false
+      )
+    ) {
+      throw new Error("rnp_input_from_memory failed");
+    }
+
+    if (RNPLib.rnp_import_keys(tempFFI, input_from_memory, importFlags, null)) {
+      throw new Error("rnp_import_keys failed");
+    }
+
+    let tempKey = this.getKeyHandleByKeyIdOrFingerprint(tempFFI, id);
+
+    // Strip
+
+    let uid_count = new ctypes.size_t();
+    if (RNPLib.rnp_key_get_uid_count(tempKey, uid_count.address())) {
+      throw new Error("rnp_key_get_uid_count failed");
+    }
+    for (let i = uid_count.value; i > 0; i--) {
+      let uid_handle = new RNPLib.rnp_uid_handle_t();
+      if (
+        RNPLib.rnp_key_get_uid_handle_at(tempKey, i - 1, uid_handle.address())
+      ) {
+        throw new Error("rnp_key_get_uid_handle_at failed");
+      }
+      if (RNPLib.rnp_uid_remove(tempKey, uid_handle)) {
+        throw new Error("rnp_uid_remove failed");
+      }
+      RNPLib.rnp_uid_handle_destroy(uid_handle);
+    }
+
+    if (
+      RNPLib.rnp_key_remove_signatures(
+        tempKey,
+        RNPLib.RNP_KEY_SIGNATURE_NON_SELF_SIG,
+        null,
+        null
+      )
+    ) {
+      throw new Error("rnp_key_remove_signatures failed");
+    }
+
+    if (RNPLib.rnp_key_export(tempKey, out_binary, exportFlags)) {
+      throw new Error("rnp_key_export failed");
+    }
+    RNPLib.rnp_key_handle_destroy(tempKey);
+
+    RNPLib.rnp_input_destroy(input_from_memory);
+    RNPLib.rnp_output_destroy(output_to_memory);
+    RNPLib.rnp_ffi_destroy(tempFFI);
+  },
+
+  /**
+   * Export one or multiple public keys.
+   *
+   * @param {String[]} idArrayFull - an array of key IDs or fingerprints
+   *   that should be exported as full keys including all attributes.
+   * @param {String[]} idArrayMinimal - an array of key IDs or
+   *   fingerprints that should be exported as minimized keys.
+   * @return {String} - An ascii armored key block containing all
+   *   requested (available) keys.
+   */
+  getMultiplePublicKeys(idArrayFull, idArrayMinimal = null) {
     let out_final = new RNPLib.rnp_output_t();
     RNPLib.rnp_output_to_memory(out_final.address(), 0);
 
@@ -2900,17 +3013,32 @@ var RNP = {
 
     let flags = RNPLib.RNP_KEY_EXPORT_PUBLIC | RNPLib.RNP_KEY_EXPORT_SUBKEYS;
 
-    for (let id of idArray) {
-      let key = await this.getKeyHandleByIdentifier(RNPLib.ffi, id);
-      if (key.isNull()) {
-        continue;
-      }
+    if (idArrayFull) {
+      for (let id of idArrayFull) {
+        let key = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, id);
+        if (key.isNull()) {
+          continue;
+        }
 
-      if (RNPLib.rnp_key_export(key, out_binary, flags)) {
-        throw new Error("rnp_key_export failed");
-      }
+        if (RNPLib.rnp_key_export(key, out_binary, flags)) {
+          throw new Error("rnp_key_export failed");
+        }
 
-      RNPLib.rnp_key_handle_destroy(key);
+        RNPLib.rnp_key_handle_destroy(key);
+      }
+    }
+
+    if (idArrayMinimal) {
+      for (let id of idArrayMinimal) {
+        let key = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, id);
+        if (key.isNull()) {
+          continue;
+        }
+
+        this.export_pubkey_strip_sigs_uids(key, id, out_binary);
+
+        RNPLib.rnp_key_handle_destroy(key);
+      }
     }
 
     if ((rv = RNPLib.rnp_output_finish(out_binary))) {

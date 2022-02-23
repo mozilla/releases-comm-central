@@ -537,41 +537,38 @@ var EnigmailKeyRing = {
   },
 
   /**
-   * Export public and possibly secret key(s) to a file
+   * Export public key(s) to a file
    *
-   * @param includeSecretKey  Boolean  - if true, secret keys are exported
-   * @param userId            String   - space or comma separated list of keys to export. Specification by
-   *                                     key ID, fingerprint, or userId
-   * @param outputFile        String or nsIFile - output file name or Object - or NULL
-   * @param exitCodeObj       Object   - o.value will contain exit code
-   * @param errorMsgObj       Object   - o.value will contain error message from GnuPG
+   * @param {String[]} idArrayFull - array of key IDs or fingerprints
+   *   to export (full keys).
+   * @param {String[]] idArrayMinimal - array of key IDs or fingerprints
+   *   to export (minimal keys, user IDs and non-self signatures stripped).
+   * @param {String or nsIFile} outputFile - output file name or Object - or NULL
+   * @param {Object} exitCodeObj - o.value will contain exit code
+   * @param {Object} errorMsgObj - o.value will contain error message
    *
    * @return String - if outputFile is NULL, the key block data; "" if a file is written
    */
-  async extractKey(
-    includeSecretKey,
-    idArray,
+  async extractPublicKeys(
+    idArrayFull,
+    idArrayMinimal,
     outputFile,
     exitCodeObj,
     errorMsgObj
   ) {
-    EnigmailLog.DEBUG(
-      "keyRing.jsm: EnigmailKeyRing.extractKey: " + idArray + "\n"
-    );
-    exitCodeObj.value = -1;
-
-    if (includeSecretKey) {
-      throw new Error("extractKey with secret key not implemented");
-    }
-
-    if (!Array.isArray(idArray) || !idArray.length) {
+    // At least one array must have valid input
+    if (
+      (!idArrayFull || !Array.isArray(idArrayFull) || !idArrayFull.length) &&
+      (!idArrayMinimal ||
+        !Array.isArray(idArrayMinimal) ||
+        !idArrayMinimal.length)
+    ) {
       throw new Error("invalid parameter given to EnigmailKeyRing.extractKey");
     }
 
-    const cApi = EnigmailCryptoAPI();
-    let keyBlock;
+    exitCodeObj.value = -1;
 
-    keyBlock = cApi.sync(cApi.getMultiplePublicKeys(idArray));
+    let keyBlock = RNP.getMultiplePublicKeys(idArrayFull, idArrayMinimal);
     if (!keyBlock) {
       errorMsgObj.value = l10n.formatValueSync("fail-key-extract");
       return "";
@@ -621,9 +618,9 @@ var EnigmailKeyRing = {
     var exitCodeObj = {};
     var errorMsgObj = {};
 
-    await EnigmailKeyRing.extractKey(
-      false, // public
+    await EnigmailKeyRing.extractPublicKeys(
       keyIdArray,
+      null,
       outFile,
       exitCodeObj,
       errorMsgObj
@@ -1591,27 +1588,39 @@ var EnigmailKeyRing = {
   },
 
   findRevokedPersonalKeysByEmail(email) {
-    // TODO: this might return substring matches.
-    // Try to do better and check for exact matches.
-
-    // Escape regex chars.
-    email = email.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-    let s = new RegExp(email, "i");
     let res = [];
-    this.getAllKeys(); // ensure keylist is loaded;
     if (email === "") {
       return res;
     }
+    email = email.toLowerCase();
+    this.getAllKeys(); // ensure keylist is loaded;
     for (let k of gKeyListObj.keyList) {
       if (k.keyTrust != "r") {
         continue;
       }
+      let hasAdditionalEmail = false;
+      let isMatch = false;
 
       for (let userId of k.userIds) {
-        if (userId.type === "uid" && userId.userId.search(s) >= 0) {
-          res.push("0x" + k.fpr);
+        if (userId.type !== "uid") {
+          continue;
+        }
+
+        let emailInUid = EnigmailFuncs.getEmailFromUserID(
+          userId.userId
+        ).toLowerCase();
+        if (emailInUid == email) {
+          isMatch = true;
+        } else {
+          // For privacy reasons, exclude revoked keys that point to
+          // other email addresses.
+          hasAdditionalEmail = true;
           break;
         }
+      }
+
+      if (isMatch && !hasAdditionalEmail) {
+        res.push("0x" + k.fpr);
       }
     }
     return res;

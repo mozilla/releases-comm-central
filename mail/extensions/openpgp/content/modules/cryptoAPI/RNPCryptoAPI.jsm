@@ -322,10 +322,6 @@ class RNPCryptoAPI extends CryptoAPI {
   async getPublicKey(id) {
     return RNP.getPublicKey(id);
   }
-
-  async getMultiplePublicKeys(idArray) {
-    return RNP.getMultiplePublicKeys(idArray);
-  }
 }
 
 function getRNPAPI() {

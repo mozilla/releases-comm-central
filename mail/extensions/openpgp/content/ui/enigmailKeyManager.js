@@ -435,9 +435,9 @@ async function enigCreateKeyMsg() {
     keyIdArray.push("0x" + id);
   }
 
-  await EnigmailKeyRing.extractKey(
-    false,
+  await EnigmailKeyRing.extractPublicKeys(
     keyIdArray,
+    null,
     tmpFile,
     exitCodeObj,
     errorMsgObj
@@ -631,9 +631,9 @@ async function enigmailCopyToClipbrd() {
     keyIdArray.push("0x" + id);
   }
 
-  let keyData = await EnigmailKeyRing.extractKey(
-    0,
+  let keyData = await EnigmailKeyRing.extractPublicKeys(
     keyIdArray,
+    null,
     null,
     exitCodeObj,
     errorMsgObj
@@ -1092,6 +1092,7 @@ function accessKeyServer(accessType, callbackFunc) {
           })
           .join(", ");
         break;
+      /*
       case EnigmailConstants.UPLOAD_KEY:
         inputObj.upload = true;
         inputObj.keyId = keyList
@@ -1104,6 +1105,7 @@ function accessKeyServer(accessType, callbackFunc) {
           })
           .join(", ");
         break;
+      */
       default:
         inputObj.upload = true;
         inputObj.keyId = "";

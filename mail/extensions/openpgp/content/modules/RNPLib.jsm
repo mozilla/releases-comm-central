@@ -136,6 +136,13 @@ const rnp_password_cb_t = ctypes.FunctionType(abi, ctypes.bool, [
   ctypes.size_t,
 ]).ptr;
 
+const rnp_key_signatures_cb = ctypes.FunctionType(abi, ctypes.void_t, [
+  rnp_ffi_t,
+  ctypes.void_t.ptr,
+  rnp_signature_handle_t,
+  ctypes.uint32_t.ptr,
+]).ptr;
+
 var RNPLib;
 
 function enableRNPLibJS() {
@@ -1144,6 +1151,24 @@ function enableRNPLibJS() {
       ctypes.uint32_t
     ),
 
+    rnp_uid_remove: librnp.declare(
+      "rnp_uid_remove",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      rnp_uid_handle_t
+    ),
+
+    rnp_key_remove_signatures: librnp.declare(
+      "rnp_key_remove_signatures",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.uint32_t,
+      rnp_key_signatures_cb,
+      ctypes.void_t.ptr
+    ),
+
     rnp_op_encrypt_create: librnp.declare(
       "rnp_op_encrypt_create",
       abi,
@@ -1692,6 +1717,8 @@ function enableRNPLibJS() {
     RNP_KEY_EXPORT_PUBLIC: 2,
     RNP_KEY_EXPORT_SECRET: 4,
     RNP_KEY_EXPORT_SUBKEYS: 8,
+
+    RNP_KEY_SIGNATURE_NON_SELF_SIG: 4,
 
     RNP_SUCCESS: 0x00000000,
 

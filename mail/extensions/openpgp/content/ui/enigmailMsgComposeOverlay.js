@@ -732,10 +732,9 @@ Enigmail.msg = {
 
     if (!this.attachOwnKeyObj.attachedKey) {
       let hex = "0x" + id;
-      let myID = [hex];
-      let allIds = myID.concat(revokedIDs);
       var attachedObj = await this.extractAndAttachKey(
-        allIds,
+        hex,
+        revokedIDs,
         gCurrentIdentity.email,
         true,
         true // one key plus revocations
@@ -747,37 +746,11 @@ Enigmail.msg = {
     }
   },
 
-  async attachKey() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.attachKey: \n"
-    );
-
-    var resultObj = {};
-    var inputObj = {};
-    inputObj.dialogHeader = await document.l10n.formatValue("keys-to-export");
-    inputObj.options = "multisel,allowexpired,nosending";
-    window.openDialog(
-      "chrome://openpgp/content/ui/enigmailKeySelection.xhtml",
-      "",
-      "dialog,modal,centerscreen,resizable",
-      inputObj,
-      resultObj
-    );
-    try {
-      if (resultObj.cancelled) {
-        return;
-      }
-      await this.extractAndAttachKey(resultObj.userList, null, true, false);
-    } catch (ex) {
-      // cancel pressed -> do nothing
-    }
-  },
-
   async extractAndAttachKey(
-    uidArray,
+    primaryId,
+    revokedIds,
     emailForFilename,
-    warnOnError,
-    additionalKeysAreRevocations
+    warnOnError
   ) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.extractAndAttachKey: \n"
@@ -795,9 +768,9 @@ Enigmail.msg = {
     var exitCodeObj = {};
     var errorMsgObj = {};
 
-    await EnigmailKeyRing.extractKey(
-      false,
-      uidArray,
+    await EnigmailKeyRing.extractPublicKeys(
+      [primaryId],
+      revokedIds,
       tmpFile,
       exitCodeObj,
       errorMsgObj
@@ -815,25 +788,18 @@ Enigmail.msg = {
       "@mozilla.org/messengercompose/attachment;1"
     ].createInstance(Ci.nsIMsgAttachment);
     keyAttachment.url = tmpFileURI.spec;
-    if (
-      (uidArray.length == 1 || additionalKeysAreRevocations) &&
-      uidArray[0].search(/^(0x)?[a-fA-F0-9]+$/) === 0
-    ) {
-      keyAttachment.name = uidArray[0].substr(-16, 16);
-      if (keyAttachment.name.search(/^0x/) < 0) {
-        keyAttachment.name = "0x" + keyAttachment.name;
-      }
-      let withRevSuffix = "";
-      if (uidArray.length > 1 && additionalKeysAreRevocations) {
-        withRevSuffix = "_and_old_rev";
-      }
-      // let normalizedEmail = emailForFilename.replace(" ", "_");
-      // emailForFilename is currently unused
-      keyAttachment.name =
-        "OpenPGP_" + keyAttachment.name + withRevSuffix + ".asc";
-    } else {
-      keyAttachment.name = "pgpkeys.asc";
+    keyAttachment.name = primaryId.substr(-16, 16);
+    if (keyAttachment.name.search(/^0x/) < 0) {
+      keyAttachment.name = "0x" + keyAttachment.name;
     }
+    let withRevSuffix = "";
+    if (revokedIds && revokedIds.length) {
+      withRevSuffix = "_and_old_rev";
+    }
+    // let normalizedEmail = emailForFilename.replace(" ", "_");
+    // emailForFilename is currently unused
+    keyAttachment.name =
+      "OpenPGP_" + keyAttachment.name + withRevSuffix + ".asc";
     keyAttachment.temporary = true;
     keyAttachment.contentType = "application/pgp-keys";
 

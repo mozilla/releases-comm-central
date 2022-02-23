@@ -292,8 +292,4 @@ class CryptoAPI {
   async getPublicKey(id) {
     return null;
   }
-
-  async getMultiplePublicKeys(idArray) {
-    return null;
-  }
 }
