@@ -146,7 +146,7 @@
   display: flex;
   align-items: baseline;
   gap: 4px;
-  padding: 2px;
+  padding: 4px 5px;
   overflow-x: hidden;
 }
 
@@ -156,6 +156,7 @@
 
 .item-time-label {
   flex: 0 0 auto;
+  font-weight: 600;
 }
 
 .calendar-item-flex img {
@@ -232,18 +233,12 @@
 
 .calendar-category-box {
   display: block;
-  height: 12px;
-  width: 12px;
+  width: 4px;
   position: absolute;
-  inset-block-start: -1px;
-  inset-inline-end: -1px;
-  clip-path: polygon(0% 0%, 100% 100%, 100% 0%);
+  inset-block: 2px;
+  inset-inline-end: 2px;
   border-radius: 2px;
   z-index: -1;
-}
-
-.calendar-category-box:-moz-locale-dir(rtl) {
-  clip-path: polygon(0% 0%, 0% 100%, 100% 0%);
 }
 
 /* Multiday view */
@@ -895,7 +890,6 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
 .calendar-color-box {
   /* FIXME: Is min-height needed? */
   min-height: 13px;
-  border: 1px solid transparent;
   border-radius: 2px;
   background-color: var(--item-backcolor);
   color: var(--item-forecolor);
@@ -904,8 +898,8 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
 }
 
 calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color-box {
-  border-color: rgba(0, 0, 0, 0.5);
-  box-shadow: inset -1px -1px 0 rgba(255, 255, 255, 0.7), inset 1px 1px 0 rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, black 35%, var(--item-backcolor)),
+              inset 0 0 0 2px color-mix(in srgb, white 50%, var(--item-backcolor));
 }
 
 .dropshadow {

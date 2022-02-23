@@ -296,7 +296,7 @@ var calview = {
       return "white";
     }
 
-    return "black";
+    return "#222";
   },
 
   /**
