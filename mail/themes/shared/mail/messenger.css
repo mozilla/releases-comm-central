@@ -236,10 +236,6 @@ p {
   appearance: none !important;
 }
 
-#titlebar {
-  -moz-window-dragging: drag;
-}
-
 #titlebar-spacer {
   pointer-events: none;
 }
