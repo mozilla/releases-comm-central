@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+/**
+ * Tests the replace of alerts service with our own. This will let us check if we're
+ * prompting or not.
+ */
+
 var { alertHook } = ChromeUtils.import(
   "resource:///modules/activity/alertHook.jsm"
 );
@@ -14,70 +16,104 @@ var { MailServices } = ChromeUtils.import(
 var { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { PromiseUtils } = ChromeUtils.import(
+  "resource://gre/modules/PromiseUtils.jsm"
+);
+
 alertHook.init();
 
-// Replace the alerts service with our own. This will let us check if we're
-// prompting or not.
-var gAlertShown = false;
+// Wait time of 1s for slow debug builds.
+const TEST_WAITTIME = 1000;
 
-var mockAlertsService = {
-  QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
+var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
+var mockAlertsService;
+var cid;
+var mailnewsURL;
 
-  showAlertNotification(
-    imageUrl,
-    title,
-    text,
-    textClickable,
-    cookie,
-    alertListener,
-    name
-  ) {
-    gAlertShown = true;
-  },
-};
-
-var gMsgWindow = {};
-
-var mailnewsURL = {
-  get msgWindow() {
-    if (gMsgWindow) {
-      return gMsgWindow;
-    }
-
-    throw Components.Exception("", Cr.NS_ERROR_INVALID_POINTER);
-  },
-};
-
-function run_test() {
-  // First register the mock alerts service
-  let cid = MockRegistrar.register(
+add_task(function setupTest() {
+  // First register the mock alerts service.
+  mockAlertsService = new MockAlertsService();
+  cid = MockRegistrar.register(
     "@mozilla.org/alerts-service;1",
     mockAlertsService
   );
-  registerCleanupFunction(function() {
-    MockRegistrar.unregister(cid);
-  });
+  // A random URL.
+  let uri = Services.io.newURI("news://localhost:80/1@regular.invalid");
+  mailnewsURL = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+});
 
+add_task(async function test_not_shown_to_user_no_url_no_window() {
   // Just text, no url or window => expect no error shown to user
-  gAlertShown = false;
   MailServices.mailSession.alertUser("test error");
-  Assert.ok(!gAlertShown);
+  await Promise.race([
+    PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(result => {
+      Assert.ok(true, "Alert is not shown with no window or no url present");
+    }),
+    mockAlertsService.promise.then(result => {
+      throw new Error(
+        "Alert is shown to the user although neither window nor url is present"
+      );
+    }),
+  ]);
+});
+
+add_task(async function test_shown_to_user() {
+  // Reset promise state.
+  mockAlertsService.deferPromise();
+  // Set a window for the URL.
+  mailnewsURL.msgWindow = gMsgWindow;
 
   // Text, url and window => expect error shown to user
-  gAlertShown = false;
   MailServices.mailSession.alertUser("test error 2", mailnewsURL);
-  Assert.ok(gAlertShown);
+  let alertShown = await mockAlertsService.promise;
+  Assert.ok(alertShown);
+});
+
+add_task(async function test_not_shown_to_user_no_window() {
+  // Reset promise state.
+  mockAlertsService.deferPromise();
+  // No window for the URL.
+  mailnewsURL.msgWindow = null;
 
   // Text, url and no window => export no error shown to user
-  gAlertShown = false;
-  gMsgWindow = null;
-  MailServices.mailSession.alertUser("test error 2", mailnewsURL);
-  Assert.ok(!gAlertShown);
+  MailServices.mailSession.alertUser("test error 3", mailnewsURL);
+  await Promise.race([
+    PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(result => {
+      Assert.ok(true, "Alert is not shown with no window but a url present");
+    }),
+    mockAlertsService.promise.then(result => {
+      throw new Error(
+        "Alert is shown to the user although no window in the mailnewsURL present"
+      );
+    }),
+  ]);
+});
 
-  // XXX There appears to be a shutdown leak within the activity manager when
-  // unless it is cleaned up, however as it is only shutdown, it doesn't really
-  // matter, so we'll just ignore it here.
-  Cc["@mozilla.org/activity-manager;1"]
-    .getService(Ci.nsIActivityManager)
-    .cleanUp();
+add_task(function endTest() {
+  MockRegistrar.unregister(cid);
+});
+
+class MockAlertsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+
+  constructor() {
+    this._deferredPromise = PromiseUtils.defer();
+  }
+
+  showAlert() {
+    this._deferredPromise.resolve(true);
+  }
+
+  deferPromise() {
+    this._deferredPromise = PromiseUtils.defer();
+  }
+
+  get promise() {
+    return this._deferredPromise.promise;
+  }
 }
