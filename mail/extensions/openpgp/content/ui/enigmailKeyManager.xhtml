@@ -138,7 +138,7 @@
         <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- view menu -->
           <menuitem id="keyDetails"
                     data-l10n-id="openpgp-key-man-key-props"
-                    class="requires-key-selection"
+                    class="requires-single-key-selection"
                     key="key_keyDetails"
                     oncommand="enigmailKeyDetails();"/>
           <menuseparator/>
@@ -178,25 +178,24 @@
   </toolbar>
 
   <popupset>
-    <menupopup id="ctxmenu"
-               onpopupshowing="return enigmailKeyMenu();">
+    <menupopup id="ctxmenu" onpopupshowing="return enigmailKeyMenu();">
       <menu id="ctxmenu-copy"
             data-l10n-id="openpgp-key-man-ctx-copy">
         <menupopup id="ctxmenu-copy-popup">
           <menuitem id="ctxCopyFprs"
                     data-l10n-id="openpgp-key-man-ctx-copy-fprs"
                     data-l10n-args='{"count": 0}'
-                    class="enigmail-bulk-key-operation"
+                    class="requires-key-selection enigmail-bulk-key-operation"
                     oncommand="copyOpenPGPFingerPrints()"/>
           <menuitem id="ctxCopyKeyIds"
                     data-l10n-id="openpgp-key-man-ctx-copy-key-ids"
                     data-l10n-args='{"count": 0}'
-                    class="enigmail-bulk-key-operation"
+                    class="requires-key-selection enigmail-bulk-key-operation"
                     oncommand="copyOpenPGPKeyIds()"/>
           <menuitem id="ctxCopyPublicKeys"
                     data-l10n-id="openpgp-key-man-ctx-copy-public-keys"
                     data-l10n-args='{"count": 0}'
-                    class="enigmail-bulk-key-operation"
+                    class="requires-key-selection enigmail-bulk-key-operation"
                     oncommand="enigmailCopyToClipbrd()"/>
         </menupopup>
       </menu>
@@ -209,10 +208,16 @@
 
       <menuseparator/>
 
-      <menuitem id="ctxRevokeKey" data-l10n-id="openpgp-key-man-revoke-key" oncommand="enigmailRevokeKey()"/>
-      <menuitem id="ctxDeleteKey" data-l10n-id="openpgp-key-man-del-key" oncommand="enigmailDeleteKey()"/>
-      <menuitem id="ctxDetails" data-l10n-id="openpgp-key-man-key-props"
+      <menuitem id="ctxRevokeKey"
+                data-l10n-id="openpgp-key-man-revoke-key"
+                oncommand="enigmailRevokeKey()"/>
+      <menuitem id="ctxDeleteKey"
+                data-l10n-id="openpgp-key-man-del-key"
                 class="requires-key-selection"
+                oncommand="enigmailDeleteKey()"/>
+      <menuitem id="ctxDetails"
+                data-l10n-id="openpgp-key-man-key-props"
+                class="requires-single-key-selection"
                 oncommand="enigmailKeyDetails()"/>
     </menupopup>
   </popupset>

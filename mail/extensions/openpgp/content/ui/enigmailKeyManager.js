@@ -284,8 +284,14 @@ function enigmailKeyMenu() {
     Ci.nsIClipboard.kGlobalClipboard
   );
 
-  for (let item of document.querySelectorAll(".requires-key-selection")) {
+  for (let item of document.querySelectorAll(
+    ".requires-single-key-selection"
+  )) {
     item.disabled = keyList.length != 1;
+  }
+
+  for (let item of document.querySelectorAll(".requires-key-selection")) {
+    item.disabled = keyList.length == 0;
   }
 
   // Disable the "Generate key" menu item if no mail account is available.
