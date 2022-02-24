@@ -33,20 +33,15 @@
 static bool
 test_load_g10_check_key(rnp_key_store_t *pub, rnp_key_store_t *sec, const char *id)
 {
-    pgp_key_id_t            keyid = {};
-    pgp_key_t *             key = NULL;
+    pgp_key_t *key = rnp_tests_get_key_by_id(pub, id);
+    if (!key) {
+        return false;
+    }
+    if (!(key = rnp_tests_get_key_by_id(sec, id))) {
+        return false;
+    }
     pgp_password_provider_t pswd_prov = {.callback = string_copy_password_callback,
                                          .userdata = (void *) "password"};
-
-    if (!rnp::hex_decode(id, keyid.data(), keyid.size())) {
-        return false;
-    }
-    if (!rnp_key_store_get_key_by_id(pub, keyid, NULL)) {
-        return false;
-    }
-    if (!(key = rnp_key_store_get_key_by_id(sec, keyid, NULL))) {
-        return false;
-    }
     return key->is_protected() && key->unlock(pswd_prov) && key->lock();
 }
 
@@ -60,10 +55,12 @@ TEST_F(rnp_tests, test_load_g10)
     pgp_key_provider_t key_provider = {.callback = rnp_key_provider_store, .userdata = NULL};
 
     // load pubring
-    pub_store = new rnp_key_store_t(PGP_KEY_STORE_KBX, "data/keyrings/3/pubring.kbx");
+    pub_store =
+      new rnp_key_store_t(PGP_KEY_STORE_KBX, "data/keyrings/3/pubring.kbx", global_ctx);
     assert_true(rnp_key_store_load_from_path(pub_store, NULL));
     // load secring
-    sec_store = new rnp_key_store_t(PGP_KEY_STORE_G10, "data/keyrings/3/private-keys-v1.d");
+    sec_store =
+      new rnp_key_store_t(PGP_KEY_STORE_G10, "data/keyrings/3/private-keys-v1.d", global_ctx);
     key_provider.userdata = pub_store;
     assert_true(rnp_key_store_load_from_path(sec_store, &key_provider));
 
@@ -76,11 +73,11 @@ TEST_F(rnp_tests, test_load_g10)
     delete sec_store;
 
     /* another store */
-    pub_store =
-      new rnp_key_store_t(PGP_KEY_STORE_KBX, "data/test_stream_key_load/g10/pubring.kbx");
+    pub_store = new rnp_key_store_t(
+      PGP_KEY_STORE_KBX, "data/test_stream_key_load/g10/pubring.kbx", global_ctx);
     assert_true(rnp_key_store_load_from_path(pub_store, NULL));
-    sec_store = new rnp_key_store_t(PGP_KEY_STORE_G10,
-                                    "data/test_stream_key_load/g10/private-keys-v1.d");
+    sec_store = new rnp_key_store_t(
+      PGP_KEY_STORE_G10, "data/test_stream_key_load/g10/private-keys-v1.d", global_ctx);
     key_provider.userdata = pub_store;
     assert_true(rnp_key_store_load_from_path(sec_store, &key_provider));
 
@@ -91,6 +88,10 @@ TEST_F(rnp_tests, test_load_g10)
     /* rsa/rsa key */
     assert_true(test_load_g10_check_key(pub_store, sec_store, "2FB9179118898E8B"));
     assert_true(test_load_g10_check_key(pub_store, sec_store, "6E2F73008F8B8D6E"));
+
+    /* rsa/rsa new key. Now fails since uses new s-exp syntax */
+    assert_false(test_load_g10_check_key(pub_store, sec_store, "BD860A52D1899C0F"));
+    assert_false(test_load_g10_check_key(pub_store, sec_store, "8E08D46A37414996"));
 
     /* ed25519 key */
     assert_true(test_load_g10_check_key(pub_store, sec_store, "CC786278981B0728"));

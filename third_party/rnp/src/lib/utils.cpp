@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2021, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,36 +23,43 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef RNP_JSON_UTILS_H_
-#define RNP_JSON_UTILS_H_
 
-#include <stdio.h>
 #include "types.h"
-#include <limits.h>
-#include "json_object.h"
-#include "json.h"
+#include "str-utils.h"
 
-/**
- * @brief Add field to the json object.
- *        Note: this function is for convenience, it will check val for NULL and destroy val
- *        on failure.
- * @param obj allocated json_object of object type.
- * @param name name of the field
- * @param val json object of any type. Will be checked for NULL.
- * @return true if val is not NULL and field was added successfully, false otherwise.
- */
-bool obj_add_field_json(json_object *obj, const char *name, json_object *val);
+const char *
+id_str_pair::lookup(const id_str_pair pair[], int id, const char *notfound)
+{
+    while (pair && pair->str) {
+        if (pair->id == id) {
+            return pair->str;
+        }
+        pair++;
+    }
+    return notfound;
+}
 
-/**
- * @brief Add hex representation of binary data as string field to JSON object.
- *        Note: this function follows conventions of obj_add_field_json().
- */
-bool obj_add_hex_json(json_object *obj, const char *name, const uint8_t *val, size_t val_len);
+int
+id_str_pair::lookup(const id_str_pair pair[], const char *str, int notfound)
+{
+    while (pair && pair->str) {
+        if (rnp::str_case_eq(str, pair->str)) {
+            return pair->id;
+        }
+        pair++;
+    }
+    return notfound;
+}
 
-/**
- * @brief Add element to JSON array.
- *        Note: this function follows convention of the obj_add_field_json.
- */
-bool array_add_element_json(json_object *obj, json_object *val);
-
-#endif
+int
+id_str_pair::lookup(const id_str_pair pair[], const std::vector<uint8_t> &bytes, int notfound)
+{
+    while (pair && pair->str) {
+        if ((strlen(pair->str) == bytes.size()) &&
+            !memcmp(pair->str, bytes.data(), bytes.size())) {
+            return pair->id;
+        }
+        pair++;
+    }
+    return notfound;
+}

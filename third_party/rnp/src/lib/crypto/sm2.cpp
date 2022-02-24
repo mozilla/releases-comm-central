@@ -29,6 +29,7 @@
 #include "sm2.h"
 #include "hash.h"
 #include "utils.h"
+#include "bn.h"
 
 static bool
 sm2_load_public_key(botan_pubkey_t *pubkey, const pgp_ec_key_t *keydata)
@@ -80,26 +81,21 @@ sm2_load_secret_key(botan_privkey_t *seckey, const pgp_ec_key_t *keydata)
 }
 
 rnp_result_t
-sm2_compute_za(const pgp_ec_key_t *key, pgp_hash_t *hash, const char *ident_field)
+sm2_compute_za(const pgp_ec_key_t &key, rnp::Hash &hash, const char *ident_field)
 {
-    uint8_t *            digest_buf = NULL;
-    size_t               digest_len = 0;
-    rnp_result_t         result = RNP_ERROR_GENERIC;
-    botan_pubkey_t       sm2_key = NULL;
-    int                  rc;
-    const pgp_hash_alg_t hash_alg = pgp_hash_alg_type(hash);
+    rnp_result_t   result = RNP_ERROR_GENERIC;
+    botan_pubkey_t sm2_key = NULL;
+    int            rc;
 
-    const char *hash_algo = pgp_hash_name_botan(hash_alg);
-    digest_len = pgp_digest_length(hash_alg);
+    const char *hash_algo = rnp::Hash::name_backend(hash.alg());
+    size_t      digest_len = hash.size();
 
-    digest_buf = (uint8_t *) malloc(digest_len);
-
-    if (digest_buf == NULL) {
-        result = RNP_ERROR_OUT_OF_MEMORY;
-        goto done;
+    uint8_t *digest_buf = (uint8_t *) malloc(digest_len);
+    if (!digest_buf) {
+        return RNP_ERROR_OUT_OF_MEMORY;
     }
 
-    if (!sm2_load_public_key(&sm2_key, key)) {
+    if (!sm2_load_public_key(&sm2_key, &key)) {
         RNP_LOG("Failed to load SM2 key");
         goto done;
     }
@@ -110,30 +106,32 @@ sm2_compute_za(const pgp_ec_key_t *key, pgp_hash_t *hash, const char *ident_fiel
     rc = botan_pubkey_sm2_compute_za(digest_buf, &digest_len, ident_field, hash_algo, sm2_key);
 
     if (rc != 0) {
-        printf("compute_za failed %d\n", rc);
+        RNP_LOG("compute_za failed %d", rc);
         goto done;
     }
 
-    pgp_hash_add(hash, digest_buf, digest_len);
+    try {
+        hash.add(digest_buf, digest_len);
+    } catch (const std::exception &e) {
+        RNP_LOG("Failed to update hash: %s", e.what());
+        goto done;
+    }
 
     result = RNP_SUCCESS;
-
 done:
     free(digest_buf);
     botan_pubkey_destroy(sm2_key);
-
     return result;
 }
 
 rnp_result_t
-sm2_validate_key(rng_t *rng, const pgp_ec_key_t *key, bool secret)
+sm2_validate_key(rnp::RNG *rng, const pgp_ec_key_t *key, bool secret)
 {
     botan_pubkey_t  bpkey = NULL;
     botan_privkey_t bskey = NULL;
     rnp_result_t    ret = RNP_ERROR_BAD_PARAMETERS;
 
-    if (!sm2_load_public_key(&bpkey, key) ||
-        botan_pubkey_check_key(bpkey, rng_handle(rng), 0)) {
+    if (!sm2_load_public_key(&bpkey, key) || botan_pubkey_check_key(bpkey, rng->handle(), 0)) {
         goto done;
     }
 
@@ -143,7 +141,7 @@ sm2_validate_key(rng_t *rng, const pgp_ec_key_t *key, bool secret)
     }
 
     if (!sm2_load_secret_key(&bskey, key) ||
-        botan_privkey_check_key(bskey, rng_handle(rng), 0)) {
+        botan_privkey_check_key(bskey, rng->handle(), 0)) {
         goto done;
     }
     ret = RNP_SUCCESS;
@@ -154,7 +152,7 @@ done:
 }
 
 rnp_result_t
-sm2_sign(rng_t *             rng,
+sm2_sign(rnp::RNG *          rng,
          pgp_ec_signature_t *sig,
          pgp_hash_alg_t      hash_alg,
          const uint8_t *     hash,
@@ -174,7 +172,7 @@ sm2_sign(rng_t *             rng,
         return RNP_ERROR_NOT_SUPPORTED;
     }
 
-    if (hash_len != pgp_digest_length(hash_alg)) {
+    if (hash_len != rnp::Hash::size(hash_alg)) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
@@ -198,7 +196,7 @@ sm2_sign(rng_t *             rng,
         goto end;
     }
 
-    if (botan_pk_op_sign_finish(signer, rng_handle(rng), out_buf, &sig_len)) {
+    if (botan_pk_op_sign_finish(signer, rng->handle(), out_buf, &sig_len)) {
         RNP_LOG("Signing failed");
         goto end;
     }
@@ -234,7 +232,7 @@ sm2_verify(const pgp_ec_signature_t *sig,
         return RNP_ERROR_NOT_SUPPORTED;
     }
 
-    if (hash_len != pgp_digest_length(hash_alg)) {
+    if (hash_len != rnp::Hash::size(hash_alg)) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
@@ -277,7 +275,7 @@ end:
 }
 
 rnp_result_t
-sm2_encrypt(rng_t *              rng,
+sm2_encrypt(rnp::RNG *           rng,
             pgp_sm2_encrypted_t *out,
             const uint8_t *      in,
             size_t               in_len,
@@ -297,7 +295,7 @@ sm2_encrypt(rng_t *              rng,
         return RNP_ERROR_GENERIC;
     }
     point_len = BITS_TO_BYTES(curve->bitlen);
-    hash_alg_len = pgp_digest_length(hash_algo);
+    hash_alg_len = rnp::Hash::size(hash_algo);
     if (!hash_alg_len) {
         RNP_LOG("Unknown hash algorithm for SM2 encryption");
         goto done;
@@ -323,13 +321,12 @@ sm2_encrypt(rng_t *              rng,
     it's an all in one scheme, only the hash (used for the integrity
     check) is specified.
     */
-    if (botan_pk_op_encrypt_create(&enc_op, sm2_key, pgp_hash_name_botan(hash_algo), 0) != 0) {
+    if (botan_pk_op_encrypt_create(&enc_op, sm2_key, rnp::Hash::name_backend(hash_algo), 0)) {
         goto done;
     }
 
     out->m.len = sizeof(out->m.mpi);
-    if (botan_pk_op_encrypt(enc_op, rng_handle(rng), out->m.mpi, &out->m.len, in, in_len) ==
-        0) {
+    if (botan_pk_op_encrypt(enc_op, rng->handle(), out->m.mpi, &out->m.len, in, in_len) == 0) {
         out->m.mpi[out->m.len++] = hash_algo;
         ret = RNP_SUCCESS;
     }
@@ -365,7 +362,7 @@ sm2_decrypt(uint8_t *                  out,
     }
 
     hash_id = in->m.mpi[in_len - 1];
-    hash_name = pgp_hash_name_botan((pgp_hash_alg_t) hash_id);
+    hash_name = rnp::Hash::name_backend((pgp_hash_alg_t) hash_id);
     if (!hash_name) {
         RNP_LOG("Unknown hash used in SM2 ciphertext");
         goto done;

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2017-2020 Ribose Inc.
+ * Copyright (c) 2017-2021 Ribose Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,6 +108,19 @@ typedef uint32_t rnp_result_t;
 #define RNP_USER_ATTR (2U)
 
 /**
+ * Predefined feature security levels
+ */
+#define RNP_SECURITY_PROHIBITED (0U)
+#define RNP_SECURITY_INSECURE (1U)
+#define RNP_SECURITY_DEFAULT (2U)
+
+/**
+ * Flags for feature security rules.
+ */
+#define RNP_SECURITY_OVERRIDE (1U << 0)
+#define RNP_SECURITY_REMOVE_ALL (1U << 16)
+
+/**
  * Return a constant string describing the result code
  */
 RNP_API const char *rnp_result_to_string(rnp_result_t result);
@@ -165,19 +178,22 @@ RNP_API uint32_t rnp_version_patch(uint32_t version);
  **/
 RNP_API uint64_t rnp_version_commit_timestamp();
 
-/** Enable debugging for the specified source file. Use 'all' or NULL as parameter to
- *  enable debug for all sources.
- *  Note: this must be only used during development since may print out confidential data.
+#ifndef RNP_NO_DEPRECATED
+/** @brief This function is deprecated and should not be used anymore. It would just silently
+ *         return RNP_SUCCESS.
  *
  * @param file name of the sourcer file. Use 'all' to enable debug for all code.
- */
-RNP_API rnp_result_t rnp_enable_debug(const char *file);
-
-/**
- * @brief Disable previously enabled debug for all files.
  *
  */
-RNP_API rnp_result_t rnp_disable_debug();
+RNP_API RNP_DEPRECATED rnp_result_t rnp_enable_debug(const char *file);
+
+/**
+ * @brief This function is deprecated and should not be used anymore. It would just silently
+ *        return RNP_SUCCESS.
+ *
+ */
+RNP_API RNP_DEPRECATED rnp_result_t rnp_disable_debug();
+#endif
 
 /*
  * Opaque structures
@@ -413,6 +429,100 @@ RNP_API rnp_result_t rnp_supports_feature(const char *type, const char *name, bo
  * @return RNP_SUCCESS on success or any other value on error.
  */
 RNP_API rnp_result_t rnp_supported_features(const char *type, char **result);
+
+/**
+ * @brief Add new security rule to the FFI. Security rules allows to override default algorithm
+ *        security settings by disabling them or marking as insecure. After creation of FFI
+ *        object default rules are added, however caller may add more strict rules or
+ *        completely overwrite rule table by calling rnp_remove_security_rule().
+ *        Note: key signature validation status is cached, so rules should be changed before
+ *        keyrings are loaded or keyring should be reloaded after updating rules.
+ *
+ * @param ffi initialized FFI object.
+ * @param type type of the feature, cannot be NULL. Currently only RNP_FEATURE_HASH_ALG is
+ *             supported.
+ * @param name name of the feature, i.e. SHA1, MD5. The same values are used in
+ *             rnp_supports_feature()/rnp_supported_features().
+ * @param flags additional flags. Following ones currently supported:
+ *              - RNP_SECURITY_OVERRIDE : override all other rules for the specified feature.
+ *                May be used to temporarily enable or disable some feature value (e.g., to
+ *                enable verification of SHA1 or MD5 signature), and then revert changes via
+ *                rnp_remove_security_rule().
+ * @param from timestamp, from when the rule is active. Objects that have creation time (like
+ *             signatures) are matched with the closest rules from the past, unless there is
+ *             a rule with an override flag. For instance, given a single rule with algorithm
+ *             'MD5', level 'insecure' and timestamp '2012-01-01', all signatures made before
+ *             2012-01-01 using the MD5 hash algorithm are considered to be at the default
+ *             security level (i.e., valid),  whereas all signatures made after 2021-01-01 will
+ *             be marked as 'insecure' (i.e., invalid).
+ * @param level security level of the rule. Currently the following ones are defined:
+ *              - RNP_SECURITY_PROHIBITED : feature (for instance, MD5 algorithm) is completely
+ *                disabled, so no processing can be done. In terms of signature check, that
+ *                would mean the check will fail right after the hashing begins.
+ *                Note: Currently it works in the same way as RNP_SECURITY_INSECURE.
+ *              - RNP_SECURITY_INSECURE : feature (for instance, SHA1 algorithm) is marked as
+ *                insecure. So even valid signatures, produced later than `from`, will be
+ *                marked as invalid.
+ *              - RNP_SECURITY_DEFAULT : feature is secure enough. Default value when there are
+ *                no other rules for feature.
+ *
+ * @return RNP_SUCCESS or any other value on error.
+ */
+RNP_API rnp_result_t rnp_add_security_rule(rnp_ffi_t   ffi,
+                                           const char *type,
+                                           const char *name,
+                                           uint32_t    flags,
+                                           uint64_t    from,
+                                           uint32_t    level);
+
+/**
+ * @brief Get security rule applicable for the corresponding feature value and timestamp.
+ *        Note: if there is no matching rule, it will fall back to the default security level
+ *        with empty flags and `from`.
+ *
+ * @param ffi initialized FFI object.
+ * @param type feature type to search for. Only RNP_FEATURE_HASH_ALG is supported right now.
+ * @param name feature name, i.e. SHA1 or so on.
+ * @param time timestamp for which feature should be checked.
+ * @param flags if non-NULL then rule's flags will be put here.
+ * @param from if non-NULL then rule's from time will be put here.
+ * @param level cannot be NULL. Security level will be stored here.
+ * @return RNP_SUCCESS or any other value on error.
+ */
+RNP_API rnp_result_t rnp_get_security_rule(rnp_ffi_t   ffi,
+                                           const char *type,
+                                           const char *name,
+                                           uint64_t    time,
+                                           uint32_t *  flags,
+                                           uint64_t *  from,
+                                           uint32_t *  level);
+
+/**
+ * @brief Remove security rule(s), matching the parameters.
+ *        Note: use this with caution, as this may also clear default security rules, so
+ *        all affected features would be considered of the default security level.
+ *
+ * @param ffi populated FFI structure, cannot be NULL.
+ * @param type type of the feature. If NULL, then all of the rules will be cleared.
+ * @param name name of the feature. If NULL, then all rules of the type will be cleared.
+ * @param level security level of the rule.
+ * @param flags additional flags, following are defined at the moment:
+ *          - RNP_SECURITY_OVERRIDE : rule should match this flag
+ *          - RNP_SECURITY_REMOVE_ALL : remove all rules for type and name.
+ * @param from timestamp, for when the rule should be removed. Ignored if
+ *             RNP_SECURITY_REMOVE_ALL_FROM is specified.
+ * @param removed if non-NULL then number of removed rules will be stored here.
+ * @return RNP_SUCCESS on success or any other value on error. Please note that if no rules are
+ *         matched, execution will be marked as successful. Use the `removed` parameter to
+ *         check for this case.
+ */
+RNP_API rnp_result_t rnp_remove_security_rule(rnp_ffi_t   ffi,
+                                              const char *type,
+                                              const char *name,
+                                              uint32_t    level,
+                                              uint32_t    flags,
+                                              uint64_t    from,
+                                              size_t *    removed);
 
 /**
  * @brief Request password via configured FFI's callback
@@ -957,6 +1067,37 @@ RNP_API rnp_result_t rnp_key_revoke(rnp_key_handle_t key,
                                     const char *     code,
                                     const char *     reason);
 
+/**
+ * @brief Check whether Curve25519 secret key's bits are correctly set, i.e. 3 least
+ *        significant bits are zero and key is exactly 255 bits in size. See RFC 7748, section
+ *        5 for the details. RNP interpreted RFC requirements in the way that Curve25519 secret
+ *        key is random 32-byte string, which bits are correctly tweaked afterwards within
+ *        secret key operation. However, for compatibility reasons, it would be more correct to
+ *        store/transfer secret key with bits already tweaked.
+ *
+ *        Note: this operation requires unlocked secret key, so make sure to call
+ *        rnp_key_lock() afterwards.
+ *
+ * @param key key handle, cannot be NULL. Must be ECDH Curve25519 unlocked secret key.
+ * @param result true will be stored here if secret key's low/high bits are not correctly set.
+ *               In this case you may need to call `rnp_key_25519_bits_tweak()` on it to set
+ *               bits to correct values so exported secret key will be compatible with
+ *               implementations which do not tweak these bits automatically.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_key_25519_bits_tweaked(rnp_key_handle_t key, bool *result);
+
+/**
+ * @brief Make sure Curve25519 secret key's least significant and most significant bits are
+ *        correctly set, see rnp_key_25519_bits_tweaked() documentation for the details.
+ *        Note: this operation requires unprotected secret key since it would modify secret
+ *        key's data, so make sure to call rnp_key_protect() afterwards.
+ *
+ * @param key key handle, cannot be NULL. Must be ECDH Curve25519 unprotected secret key.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_key_25519_bits_tweak(rnp_key_handle_t key);
+
 /** remove a key from keyring(s)
  *  Note: you need to call rnp_save_keys() to write updated keyring(s) out.
  *        Other handles of the same key should not be used after this call.
@@ -1226,6 +1367,15 @@ RNP_API rnp_result_t rnp_signature_get_hash_alg(rnp_signature_handle_t sig, char
  * @return RNP_SUCCESS or error code if failed.
  */
 RNP_API rnp_result_t rnp_signature_get_creation(rnp_signature_handle_t sig, uint32_t *create);
+
+/** Get the signature expiration time as number of seconds after creation time
+ *
+ * @param sig signature handle.
+ * @param expires on success result will be stored here. Cannot be NULL.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_signature_get_expiration(rnp_signature_handle_t sig,
+                                                  uint32_t *             expires);
 
 /** Get signer's key id from the signature.
  *  Note: if key id is not available from the signature then NULL value will
@@ -2732,6 +2882,21 @@ RNP_API rnp_result_t rnp_output_pipe(rnp_input_t input, rnp_output_t output);
  *  @return RNP_SUCCESS on success, or any other value on error
  */
 RNP_API rnp_result_t rnp_output_armor_set_line_length(rnp_output_t output, size_t llen);
+
+/**
+ * @brief Return cryptographic backend library name.
+ *
+ * @return Backend name string. Currently supported
+ * backends are "Botan" and "OpenSSL".
+ */
+RNP_API const char *rnp_backend_string();
+
+/**
+ * @brief Return cryptographic backend library version.
+ *
+ * @return Version string.
+ */
+RNP_API const char *rnp_backend_version();
 
 #if defined(__cplusplus)
 }

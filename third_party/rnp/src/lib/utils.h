@@ -27,31 +27,11 @@
 #define RNP_UTILS_H_
 
 #include <stdio.h>
-#include "types.h"
 #include <limits.h>
 #include "logging.h"
 
-#define RNP_DLOG(...)                    \
-    if (rnp_get_debug(__FILE__)) {       \
-        RNP_LOG_FD(stderr, __VA_ARGS__); \
-    }
-
-#define RNP_DHEX(msg, mem, len)         \
-    if (rnp_get_debug(__FILE__)) {      \
-        hexdump(stderr, msg, mem, len); \
-    }
-
 /* number of elements in an array */
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(*(a)))
-
-#define CHECK(exp, val, err)                          \
-    do {                                              \
-        if ((exp) != (val)) {                         \
-            RNP_LOG("ERROR: (" #exp ")!=(" #val ")"); \
-            ret = (err);                              \
-            goto end;                                 \
-        }                                             \
-    } while (false)
 
 /*
  * @params
@@ -70,44 +50,6 @@
             }                                                             \
         }                                                                 \
     } while (0)
-
-/*
- * @params
- * array:       array of the structures to lookup
- * str_field    name of the field to compare against
- * ret_field    filed to return
- * lookup_value lookup value
- * ret          return value
- */
-#define ARRAY_LOOKUP_BY_STRCASE(array, str_field, ret_field, lookup_value, ret) \
-    do {                                                                        \
-        for (size_t i__ = 0; i__ < ARRAY_SIZE(array); i__++) {                  \
-            if (!rnp_strcasecmp((array)[i__].str_field, (lookup_value))) {      \
-                (ret) = static_cast<decltype(ret)>(((array)[i__].ret_field));   \
-                break;                                                          \
-            }                                                                   \
-        }                                                                       \
-    } while (0)
-
-#ifndef RNP_CONST_TO_VOID_PTR
-#define RNP_CONST_TO_VOID_PTR(a) (reinterpret_cast<void *>(const_cast<char *>(a)))
-#endif
-
-int rnp_strcasecmp(const char *, const char *);
-
-char *rnp_strhexdump_upper(char *dest, const uint8_t *src, size_t length, const char *sep);
-
-char *rnp_strlwr(char *s);
-
-/* debugging helpers*/
-void hexdump(FILE *, const char *, const uint8_t *, size_t);
-
-const char *pgp_str_from_map(int, pgp_map_t *);
-
-/* debugging, reflection and information */
-bool rnp_set_debug(const char *);
-bool rnp_get_debug(const char *);
-void rnp_clear_debug();
 
 /* Portable way to convert bits to bytes */
 
@@ -145,10 +87,6 @@ STORE64BE(uint8_t x[8], uint64_t y)
     x[6] = (uint8_t)(y >> 8) & 0xff;
     x[7] = (uint8_t)(y >> 0) & 0xff;
 }
-
-#ifndef MAX
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#endif
 
 inline char *
 getenv_logname(void)

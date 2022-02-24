@@ -771,6 +771,9 @@ TEST_F(rnp_tests, test_ffi_sig_validity)
     assert_string_equal(sigtype, "certification (generic)");
     rnp_buffer_destroy(sigtype);
     assert_int_equal(rnp_signature_is_valid(sig, 0), RNP_ERROR_SIGNATURE_EXPIRED);
+    uint32_t expires = 0;
+    assert_rnp_success(rnp_signature_get_expiration(sig, &expires));
+    assert_int_equal(expires, 86400);
     rnp_signature_handle_destroy(sig);
     rnp_uid_handle_destroy(uid);
     rnp_key_handle_destroy(key);
@@ -1391,4 +1394,105 @@ TEST_F(rnp_tests, test_ffi_remove_signatures)
     assert_string_equal(key_packets(key).c_str(), ":sub(DD23):sig(24, ea55, 0451)");
     rnp_key_handle_destroy(key);
     assert_rnp_success(rnp_ffi_destroy(ffi));
+}
+
+TEST_F(rnp_tests, test_ffi_rsa_small_sig)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+    assert_true(import_pub_keys(ffi, "data/test_key_validity/rsa_key_small_sig-pub.asc"));
+    rnp_key_handle_t key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "ED23B0105947F283", &key));
+    rnp_uid_handle_t uid = NULL;
+    assert_rnp_success(rnp_key_get_uid_handle_at(key, 0, &uid));
+    bool valid = false;
+    assert_rnp_success(rnp_uid_is_valid(uid, &valid));
+    assert_true(valid);
+    rnp_uid_handle_destroy(uid);
+    rnp_key_handle_destroy(key);
+    assert_rnp_success(rnp_ffi_destroy(ffi));
+}
+
+TEST_F(rnp_tests, test_ffi_key_critical_notations)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    /* Load key with 2 unknown critical notations in certification */
+    assert_true(import_all_keys(ffi, "data/test_key_edge_cases/key-critical-notations.pgp"));
+    rnp_key_handle_t key = NULL;
+    /* key is valid since it has valid subkey binding, but userid is not valid */
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "critical-key", &key));
+    assert_null(key);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "ddc610bb7b8f689c", &key));
+    assert_non_null(key);
+    assert_true(check_key_valid(key, true));
+    /* uid is not valid, as certification has unknown critical notation */
+    assert_true(check_uid_valid(key, 0, false));
+    assert_true(check_sub_valid(key, 0, true));
+    rnp_key_handle_destroy(key);
+    rnp_ffi_destroy(ffi);
+
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+    /* Load key with unknown critical notations in both certification and binding */
+    assert_true(import_all_keys(ffi, "data/test_key_edge_cases/key-sub-crit-note-pub.pgp"));
+    /* key is not valid, as well as sub and uid */
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "critical_notation", &key));
+    assert_null(key);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "9988c1bcb55391d6", &key));
+    assert_non_null(key);
+    assert_true(check_key_valid(key, false));
+    assert_true(check_uid_valid(key, 0, false));
+    assert_true(check_sub_valid(key, 0, false));
+    rnp_key_handle_destroy(key);
+    rnp_ffi_destroy(ffi);
+
+    /* Verify data signature with unknown critical notation */
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+    assert_true(load_keys_gpg(ffi, "data/keyrings/1/pubring.gpg"));
+    rnp_input_t input = NULL;
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed.crit-notation"));
+    rnp_output_t output = NULL;
+    assert_rnp_success(rnp_output_to_null(&output));
+    rnp_op_verify_t verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    size_t sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    rnp_op_verify_signature_t sig = NULL;
+    assert_rnp_success(rnp_op_verify_get_signature_at(verify, 0, &sig));
+    assert_int_equal(rnp_op_verify_signature_get_status(sig), RNP_ERROR_SIGNATURE_INVALID);
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_key_import_invalid_issuer)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    /* public key + secret subkey with invalid signer's keyfp */
+    rnp_input_t input = NULL;
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/alice-sub-sig-fp.pgp"));
+    char *   keys = NULL;
+    uint32_t flags =
+      RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS | RNP_LOAD_SAVE_SINGLE;
+    assert_rnp_success(rnp_import_keys(ffi, input, flags, &keys));
+    rnp_input_destroy(input);
+    rnp_buffer_destroy(keys);
+
+    /* public key + secret subkey with invalid signer's keyid */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/alice-sub-sig-keyid.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, flags, &keys));
+    rnp_input_destroy(input);
+    rnp_buffer_destroy(keys);
+
+    rnp_ffi_destroy(ffi);
 }

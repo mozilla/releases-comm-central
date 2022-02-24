@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <botan/ffi.h>
 #include <stdio.h>
 #include "config.h"
 #ifndef _MSC_VER
@@ -42,6 +41,9 @@
 #include "rnp.h"
 #include "types.h"
 #include "utils.h"
+#ifdef CRYPTO_BACKEND_BOTAN
+#include <botan/ffi.h>
+#endif
 
 bool
 pgp_s2k_derive_key(pgp_s2k_t *s2k, const char *password, uint8_t *key, int keysize)
@@ -75,6 +77,7 @@ pgp_s2k_derive_key(pgp_s2k_t *s2k, const char *password, uint8_t *key, int keysi
     return true;
 }
 
+#ifdef CRYPTO_BACKEND_BOTAN
 int
 pgp_s2k_iterated(pgp_hash_alg_t alg,
                  uint8_t *      out,
@@ -84,7 +87,8 @@ pgp_s2k_iterated(pgp_hash_alg_t alg,
                  size_t         iterations)
 {
     char s2k_algo_str[128];
-    snprintf(s2k_algo_str, sizeof(s2k_algo_str), "OpenPGP-S2K(%s)", pgp_hash_name_botan(alg));
+    snprintf(
+      s2k_algo_str, sizeof(s2k_algo_str), "OpenPGP-S2K(%s)", rnp::Hash::name_backend(alg));
 
     return botan_pwdhash(s2k_algo_str,
                          iterations,
@@ -97,6 +101,7 @@ pgp_s2k_iterated(pgp_hash_alg_t alg,
                          salt,
                          salt ? PGP_SALT_SIZE : 0);
 }
+#endif
 
 size_t
 pgp_s2k_decode_iterations(uint8_t c)
@@ -157,23 +162,22 @@ pgp_s2k_compute_iters(pgp_hash_alg_t alg, size_t desired_msec, size_t trial_msec
         trial_msec = DEFAULT_S2K_TUNE_MSEC;
     }
 
-    pgp_hash_t hash = {};
-    if (!pgp_hash_create(&hash, alg)) {
-        RNP_LOG("failed to create hash object");
-        return 0;
-    }
-
     uint64_t start = get_timestamp_usec();
     uint64_t end = start;
-    uint8_t  buf[8192] = {0};
     size_t   bytes = 0;
-    while (end - start < trial_msec * 1000ull) {
-        pgp_hash_add(&hash, buf, sizeof(buf));
-        bytes += sizeof(buf);
-        end = get_timestamp_usec();
+    try {
+        rnp::Hash hash(alg);
+        uint8_t   buf[8192] = {0};
+        while (end - start < trial_msec * 1000ull) {
+            hash.add(buf, sizeof(buf));
+            bytes += sizeof(buf);
+            end = get_timestamp_usec();
+        }
+        hash.finish(buf);
+    } catch (const std::exception &e) {
+        RNP_LOG("Failed to hash data: %s", e.what());
+        return 0;
     }
-
-    pgp_hash_finish(&hash, buf);
 
     uint64_t      duration = end - start;
     const uint8_t MIN_ITERS = 96;
@@ -185,14 +189,6 @@ pgp_s2k_compute_iters(pgp_hash_alg_t alg, size_t desired_msec, size_t trial_msec
     const double  desired_usec = desired_msec * 1000.0;
     const double  bytes_for_target = bytes_per_usec * desired_usec;
     const uint8_t iters = pgp_s2k_encode_iterations(bytes_for_target);
-
-    RNP_DLOG(
-      "PGP S2K hash %d tuned bytes/usec=%f desired_usec=%f bytes_for_target=%f iters %d",
-      alg,
-      bytes_per_usec,
-      desired_usec,
-      bytes_for_target,
-      iters);
 
     return pgp_s2k_decode_iterations((iters > MIN_ITERS) ? iters : MIN_ITERS);
 }

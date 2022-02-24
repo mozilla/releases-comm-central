@@ -60,8 +60,8 @@
 #include <rekey/rnp_key_store.h>
 
 /* raw key generation */
-bool pgp_generate_seckey(const rnp_keygen_crypto_params_t *params,
-                         pgp_key_pkt_t *                   seckey,
+bool pgp_generate_seckey(const rnp_keygen_crypto_params_t &params,
+                         pgp_key_pkt_t &                   seckey,
                          bool                              primary);
 
 /** generate a new primary key
@@ -73,10 +73,10 @@ bool pgp_generate_seckey(const rnp_keygen_crypto_params_t *params,
  *  @param primary_pub pointer to store the generated public key, must not be NULL
  *  @return true if successful, false otherwise.
  **/
-bool pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
+bool pgp_generate_primary_key(rnp_keygen_primary_desc_t &desc,
                               bool                       merge_defaults,
-                              pgp_key_t *                primary_sec,
-                              pgp_key_t *                primary_pub,
+                              pgp_key_t &                primary_sec,
+                              pgp_key_t &                primary_pub,
                               pgp_key_store_format_t     secformat);
 
 /** generate a new subkey
@@ -94,18 +94,17 @@ bool pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
  *         decrypt the primary key, may be NULL if primary key is unlocked
  *  @return true if successful, false otherwise.
  **/
-bool pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
+bool pgp_generate_subkey(rnp_keygen_subkey_desc_t &     desc,
                          bool                           merge_defaults,
-                         pgp_key_t *                    primary_sec,
-                         pgp_key_t *                    primary_pub,
-                         pgp_key_t *                    subkey_sec,
-                         pgp_key_t *                    subkey_pub,
-                         const pgp_password_provider_t *password_provider,
+                         pgp_key_t &                    primary_sec,
+                         pgp_key_t &                    primary_pub,
+                         pgp_key_t &                    subkey_sec,
+                         pgp_key_t &                    subkey_pub,
+                         const pgp_password_provider_t &password_provider,
                          pgp_key_store_format_t         secformat);
 
 /** generate a new primary key and subkey
  *
- *  @param rng initialized RNG
  *  @param primary_desc primary keygen description
  *  @param subkey_desc subkey keygen description
  *  @param merge_defaults true if you want defaults to be set for unset
@@ -116,14 +115,13 @@ bool pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
  *  @param subkey_pub pointer to store the generated public key, must not be NULL
  *  @return true if successful, false otherwise.
  **/
-bool pgp_generate_keypair(rng_t *                    rng,
-                          rnp_keygen_primary_desc_t *primary_desc,
-                          rnp_keygen_subkey_desc_t * subkey_desc,
+bool pgp_generate_keypair(rnp_keygen_primary_desc_t &primary_desc,
+                          rnp_keygen_subkey_desc_t & subkey_desc,
                           bool                       merge_defaults,
-                          pgp_key_t *                primary_sec,
-                          pgp_key_t *                primary_pub,
-                          pgp_key_t *                subkey_sec,
-                          pgp_key_t *                subkey_pub,
+                          pgp_key_t &                primary_sec,
+                          pgp_key_t &                primary_pub,
+                          pgp_key_t &                subkey_sec,
+                          pgp_key_t &                subkey_pub,
                           pgp_key_store_format_t     secformat);
 
 /**
@@ -136,6 +134,6 @@ bool pgp_generate_keypair(rng_t *                    rng,
  */
 bool key_material_equal(const pgp_key_material_t *key1, const pgp_key_material_t *key2);
 
-rnp_result_t validate_pgp_key_material(const pgp_key_material_t *material, rng_t *rng);
+rnp_result_t validate_pgp_key_material(const pgp_key_material_t *material, rnp::RNG *rng);
 
 #endif /* CRYPTO_H_ */

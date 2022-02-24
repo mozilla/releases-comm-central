@@ -227,9 +227,10 @@ rnp_result_t file_to_mem_src(pgp_source_t *src, const char *filename);
 
 /** @brief get memory from the memory source
  *  @param src initialized memory source
+ *  @param own transfer ownership of the memory
  *  @return pointer to the memory or NULL if it is not a memory source
  **/
-const void *mem_src_get_memory(pgp_source_t *src);
+const void *mem_src_get_memory(pgp_source_t *src, bool own = false);
 
 typedef struct pgp_dest_t {
     pgp_dest_write_func_t * write;
@@ -349,6 +350,13 @@ void *mem_dest_get_memory(pgp_dest_t *dst);
  *          failure, this case can be identified by non-zero dst->writeb.
  **/
 void *mem_dest_own_memory(pgp_dest_t *dst);
+
+/** @brief mark memory dest as secure, so it will be deallocated securely
+ *  @param dst pre-allocated and initialized memory dest
+ *  @param secure whether memory should be considered as secure or not
+ *  @return void
+ **/
+void mem_dest_secure_memory(pgp_dest_t *dst, bool secure);
 
 /** @brief init null destination which silently discards all the output
  *  @param dst pre-allocated dest structure

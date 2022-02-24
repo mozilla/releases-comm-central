@@ -39,11 +39,11 @@ TEST_F(rnp_tests, rnpkeys_exportkey_verifyUserId)
     /* Initialize the rnp structure. */
     assert_true(setup_cli_rnp_common(&rnp, RNP_KEYSTORE_GPG, NULL, pipefd));
     /* Generate the key */
-    cli_set_default_rsa_key_desc(cli_rnp_cfg(rnp), "SHA256");
+    cli_set_default_rsa_key_desc(rnp.cfg(), "SHA256");
     assert_true(cli_rnp_generate_key(&rnp, NULL));
 
     /* Loading keyrings and checking whether they have correct key */
-    assert_true(cli_rnp_load_keyrings(&rnp, true));
+    assert_true(rnp.load_keyrings(true));
     size_t keycount = 0;
     assert_rnp_success(rnp_get_public_key_count(rnp.ffi, &keycount));
     assert_int_equal(keycount, 2);
@@ -65,5 +65,5 @@ TEST_F(rnp_tests, rnpkeys_exportkey_verifyUserId)
     if (pipefd[0] != -1) {
         close(pipefd[0]);
     }
-    cli_rnp_end(&rnp); // Free memory and other allocated resources.
+    rnp.end(); // Free memory and other allocated resources.
 }

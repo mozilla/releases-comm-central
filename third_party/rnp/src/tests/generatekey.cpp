@@ -40,8 +40,6 @@
 #include "defaults.h"
 #include <fstream>
 
-extern rng_t global_rng;
-
 static bool
 generate_test_key(const char *keystore, const char *userid, const char *hash, const char *home)
 {
@@ -57,12 +55,12 @@ generate_test_key(const char *keystore, const char *userid, const char *hash, co
 
     std::vector<rnp_key_handle_t> keys;
     /* Generate the key */
-    cli_set_default_rsa_key_desc(cli_rnp_cfg(rnp), hash);
+    cli_set_default_rsa_key_desc(rnp.cfg(), hash);
     if (!cli_rnp_generate_key(&rnp, userid)) {
         goto done;
     }
 
-    if (!cli_rnp_load_keyrings(&rnp, true)) {
+    if (!rnp.load_keyrings(true)) {
         goto done;
     }
     if (rnp_get_public_key_count(rnp.ffi, &keycount) || (keycount != 2)) {
@@ -84,8 +82,23 @@ done:
         close(pipefd[0]);
     }
     clear_key_handles(keys);
-    cli_rnp_end(&rnp);
+    rnp.end();
     return res;
+}
+
+static bool
+hash_supported(const std::string &hash)
+{
+    if (!sm2_enabled() && lowercase(hash) == "sm3") {
+        return false;
+    }
+    return true;
+}
+
+static bool
+hash_secure(const std::string &hash)
+{
+    return (lowercase(hash) != "md5") && (lowercase(hash) != "sha1");
 }
 
 TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
@@ -132,13 +145,13 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
                 /* Setup password input and rnp structure */
                 assert_true(setup_cli_rnp_common(&rnp, RNP_KEYSTORE_GPG, NULL, pipefd));
                 /* Load keyring */
-                assert_true(cli_rnp_load_keyrings(&rnp, true));
+                assert_true(rnp.load_keyrings(true));
                 size_t seccount = 0;
                 assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &seccount));
                 assert_true(seccount > 0);
 
                 /* Setup signing context */
-                rnp_cfg &cfg = cli_rnp_cfg(rnp);
+                rnp_cfg &cfg = rnp.cfg();
                 cfg.load_defaults();
                 cfg.set_bool(CFG_ARMOR, armored);
                 cfg.set_bool(CFG_SIGN_NEEDED, true);
@@ -150,6 +163,12 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
                 cfg.add_str(CFG_SIGNERS, userId);
 
                 /* Sign the file */
+                if (!hash_supported(hashAlg[i])) {
+                    assert_false(cli_rnp_protect_file(&rnp));
+                    rnp.end();
+                    assert_int_equal(rnp_unlink("dummyfile.dat.pgp"), -1);
+                    continue;
+                }
                 assert_true(cli_rnp_protect_file(&rnp));
                 if (pipefd[0] != -1) {
                     close(pipefd[0]);
@@ -162,6 +181,12 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
                 cfg.set_bool(CFG_OVERWRITE, true);
                 cfg.set_str(CFG_INFILE, "dummyfile.dat.pgp");
                 cfg.set_str(CFG_OUTFILE, "dummyfile.verify");
+                if (!hash_secure(hashAlg[i])) {
+                    assert_false(cli_rnp_process_file(&rnp));
+                    rnp.end();
+                    assert_int_equal(rnp_unlink("dummyfile.dat.pgp"), 0);
+                    continue;
+                }
                 assert_true(cli_rnp_process_file(&rnp));
 
                 /* Ensure signature verification passed */
@@ -187,7 +212,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
                     assert_false(cli_rnp_process_file(&rnp));
                 }
 
-                cli_rnp_end(&rnp);
+                rnp.end();
                 assert_int_equal(rnp_unlink("dummyfile.dat.pgp"), 0);
                 rnp_unlink("dummyfile.verify");
             }
@@ -196,13 +221,25 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
     assert_int_equal(rnp_unlink("dummyfile.dat"), 0);
 }
 
+static bool
+cipher_supported(const std::string &cipher)
+{
+    if (!sm2_enabled() && lowercase(cipher) == "sm4") {
+        return false;
+    }
+    if (!twofish_enabled() && lowercase(cipher) == "twofish") {
+        return false;
+    }
+    return true;
+}
+
 TEST_F(rnp_tests, rnpkeys_generatekey_testEncryption)
 {
     const char *cipherAlg[] = {
-      "BLOWFISH",    "TWOFISH",     "CAST5",       "TRIPLEDES",   "AES128",   "AES192",
-      "AES256",      "CAMELLIA128", "CAMELLIA192", "CAMELLIA256", "blowfish", "twofish",
-      "cast5",       "tripledes",   "aes128",      "aes192",      "aes256",   "camellia128",
-      "camellia192", "camellia256", NULL};
+      "BLOWFISH",    "TWOFISH",     "CAST5",       "TRIPLEDES",   "AES128", "AES192",
+      "AES256",      "CAMELLIA128", "CAMELLIA192", "CAMELLIA256", "SM4",    "blowfish",
+      "twofish",     "cast5",       "tripledes",   "aes128",      "aes192", "aes256",
+      "camellia128", "camellia192", "camellia256", "sm4",         NULL};
 
     cli_rnp_t   rnp = {};
     char        memToEncrypt[] = "A simple test message";
@@ -219,12 +256,12 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testEncryption)
             /* Set up rnp and encrypt the dataa */
             assert_true(setup_cli_rnp_common(&rnp, RNP_KEYSTORE_GPG, NULL, NULL));
             /* Load keyring */
-            assert_true(cli_rnp_load_keyrings(&rnp, false));
+            assert_true(rnp.load_keyrings(false));
             size_t seccount = 0;
             assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &seccount));
             assert_true(seccount == 0);
             /* Set the cipher and armored flags */
-            rnp_cfg &cfg = cli_rnp_cfg(rnp);
+            rnp_cfg &cfg = rnp.cfg();
             cfg.load_defaults();
             cfg.set_bool(CFG_ARMOR, armored);
             cfg.set_bool(CFG_ENCRYPT_PK, true);
@@ -234,23 +271,27 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testEncryption)
             cfg.set_str(CFG_CIPHER, cipherAlg[i]);
             cfg.add_str(CFG_RECIPIENTS, userid);
             /* Encrypt the file */
-            assert_true(cli_rnp_protect_file(&rnp));
-            cli_rnp_end(&rnp);
+            bool supported = cipher_supported(cipherAlg[i]);
+            assert_true(cli_rnp_protect_file(&rnp) == supported);
+            rnp.end();
+            if (!supported) {
+                continue;
+            }
 
             /* Set up rnp again and decrypt the file */
             assert_true(setup_cli_rnp_common(&rnp, RNP_KEYSTORE_GPG, NULL, pipefd));
             /* Load the keyrings */
-            assert_true(cli_rnp_load_keyrings(&rnp, true));
+            assert_true(rnp.load_keyrings(true));
             assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &seccount));
             assert_true(seccount > 0);
             /* Setup the decryption context and decrypt */
-            rnp_cfg &newcfg = cli_rnp_cfg(rnp);
+            rnp_cfg &newcfg = rnp.cfg();
             newcfg.load_defaults();
             newcfg.set_bool(CFG_OVERWRITE, true);
             newcfg.set_str(CFG_INFILE, "dummyfile.dat.pgp");
             newcfg.set_str(CFG_OUTFILE, "dummyfile.decrypt");
             assert_true(cli_rnp_process_file(&rnp));
-            cli_rnp_end(&rnp);
+            rnp.end();
             if (pipefd[0] != -1) {
                 close(pipefd[0]);
             }
@@ -290,13 +331,17 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifySupportedHashAlg)
     for (size_t i = 0; i < ARRAY_SIZE(hashAlg); i++) {
         const char *keystore = keystores[i % ARRAY_SIZE(keystores)];
         /* Setting up rnp again and decrypting memory */
-        printf("keystore: %s\n", keystore);
+        printf("keystore: %s, hashalg %s\n", keystore, hashAlg[i]);
         /* Generate key with specified hash algorithm */
-        assert_true(generate_test_key(keystore, hashAlg[i], hashAlg[i], NULL));
+        bool supported = hash_supported(hashAlg[i]);
+        assert_true(generate_test_key(keystore, hashAlg[i], hashAlg[i], NULL) == supported);
+        if (!supported) {
+            continue;
+        }
         /* Load and check key */
         assert_true(setup_cli_rnp_common(&rnp, keystore, NULL, NULL));
         /* Loading the keyrings */
-        assert_true(cli_rnp_load_keyrings(&rnp, true));
+        assert_true(rnp.load_keyrings(true));
         /* Some minor checks */
         size_t keycount = 0;
         assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &keycount));
@@ -306,9 +351,16 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifySupportedHashAlg)
         assert_true(keycount > 0);
         rnp_key_handle_t handle = NULL;
         assert_rnp_success(rnp_locate_key(rnp.ffi, "userid", hashAlg[i], &handle));
-        assert_non_null(handle);
+        if (hash_secure(hashAlg[i])) {
+            assert_non_null(handle);
+            bool valid = false;
+            rnp_key_is_valid(handle, &valid);
+            assert_true(valid);
+        } else {
+            assert_null(handle);
+        }
         rnp_key_handle_destroy(handle);
-        cli_rnp_end(&rnp);
+        rnp.end();
         delete_recursively(".rnp");
     }
 }
@@ -338,7 +390,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifyUserIdOption)
         /* Initialize the basic RNP structure. */
         assert_true(setup_cli_rnp_common(&rnp, keystore, NULL, NULL));
         /* Load the newly generated rnp key*/
-        assert_true(cli_rnp_load_keyrings(&rnp, true));
+        assert_true(rnp.load_keyrings(true));
         size_t keycount = 0;
         assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &keycount));
         assert_true(keycount > 0);
@@ -350,7 +402,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifyUserIdOption)
         assert_rnp_success(rnp_locate_key(rnp.ffi, "userid", userIds[i], &handle));
         assert_non_null(handle);
         rnp_key_handle_destroy(handle);
-        cli_rnp_end(&rnp);
+        rnp.end();
         delete_recursively(".rnp");
     }
 }
@@ -375,7 +427,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyHomeDirOption)
     assert_true(path_rnp_file_exists(".rnp/secring.gpg", NULL));
 
     /* Loading keyrings and checking whether they have correct key */
-    assert_true(cli_rnp_load_keyrings(&rnp, true));
+    assert_true(rnp.load_keyrings(true));
     size_t keycount = 0;
     assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &keycount));
     assert_int_equal(keycount, 2);
@@ -389,7 +441,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyHomeDirOption)
     assert_rnp_success(rnp_locate_key(rnp.ffi, "userid", userid.c_str(), &handle));
     assert_non_null(handle);
     rnp_key_handle_destroy(handle);
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* Now we start over with a new home. When home is specified explicitly then it should
      * include .rnp as well */
@@ -412,7 +464,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyHomeDirOption)
     assert_true(path_rnp_file_exists(newhome.c_str(), "secring.gpg", NULL));
 
     /* Loading keyrings and checking whether they have correct key */
-    assert_true(cli_rnp_load_keyrings(&rnp, true));
+    assert_true(rnp.load_keyrings(true));
     keycount = 0;
     assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &keycount));
     assert_int_equal(keycount, 2);
@@ -426,7 +478,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyHomeDirOption)
     assert_rnp_success(rnp_locate_key(rnp.ffi, "userid", "newhomekey", &handle));
     assert_non_null(handle);
     rnp_key_handle_destroy(handle);
-    cli_rnp_end(&rnp); // Free memory and other allocated resources.
+    rnp.end(); // Free memory and other allocated resources.
 }
 
 TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyKBXHomeDirOption)
@@ -451,7 +503,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyKBXHomeDirOption)
     assert_false(path_rnp_file_exists(".rnp/secring.gpg", NULL));
 
     /* Loading keyrings and checking whether they have correct key */
-    assert_true(cli_rnp_load_keyrings(&rnp, true));
+    assert_true(rnp.load_keyrings(true));
     size_t keycount = 0;
     assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &keycount));
     assert_int_equal(keycount, 2);
@@ -464,7 +516,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyKBXHomeDirOption)
     assert_rnp_success(rnp_locate_key(rnp.ffi, "userid", userid.c_str(), &handle));
     assert_non_null(handle);
     rnp_key_handle_destroy(handle);
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* Now we start over with a new home. */
     path_mkdir(0700, newhome, NULL);
@@ -484,7 +536,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyKBXHomeDirOption)
     assert_false(path_rnp_file_exists(newhome, "pubring.gpg", NULL));
     assert_false(path_rnp_file_exists(newhome, "secring.gpg", NULL));
     /* Loading keyrings and checking whether they have correct key */
-    assert_true(cli_rnp_load_keyrings(&rnp, true));
+    assert_true(rnp.load_keyrings(true));
     keycount = 0;
     assert_rnp_success(rnp_get_secret_key_count(rnp.ffi, &keycount));
     assert_int_equal(keycount, 2);
@@ -497,7 +549,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyKBXHomeDirOption)
     assert_rnp_success(rnp_locate_key(rnp.ffi, "userid", "newhomekey", &handle));
     assert_non_null(handle);
     rnp_key_handle_destroy(handle);
-    cli_rnp_end(&rnp);
+    rnp.end();
 }
 
 TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyHomeDirNoPermission)
@@ -544,13 +596,13 @@ ask_expert_details(cli_rnp_t *ctx, rnp_cfg &ops, const char *rsp)
     close(user_input_pipefd[1]);
 
     /* Mock user-input*/
-    cli_rnp_cfg(*ctx).set_int(CFG_USERINPUTFD, user_input_pipefd[0]);
+    ctx->cfg().set_int(CFG_USERINPUTFD, user_input_pipefd[0]);
 
     if (!rnp_cmd(ctx, CMD_GENERATE_KEY, NULL)) {
         ret = false;
         goto end;
     }
-    ops.copy(cli_rnp_cfg(*ctx));
+    ops.copy(ctx->cfg());
     ret = true;
 end:
     /* Close & clean fd*/
@@ -689,7 +741,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testExpertMode)
     assert_true(check_cfg_props(ops, "ECDSA", "ECDH", "NIST P-256", "NIST P-256", 0, 0));
     assert_true(check_key_props(
       &rnp, "expert_ecdsa_p256", "ECDSA", "ECDH", "NIST P-256", "NIST P-256", 0, 0, "SHA256"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* ecdsa/ecdh p384 keypair */
     ops.unset(CFG_USERID);
@@ -700,7 +752,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testExpertMode)
       &rnp, "expert_ecdsa_p256", "ECDSA", "ECDH", "NIST P-384", "NIST P-384", 0, 0, "SHA384"));
     assert_true(check_key_props(
       &rnp, "expert_ecdsa_p384", "ECDSA", "ECDH", "NIST P-384", "NIST P-384", 0, 0, "SHA384"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* ecdsa/ecdh p521 keypair */
     ops.unset(CFG_USERID);
@@ -709,67 +761,100 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testExpertMode)
     assert_true(check_cfg_props(ops, "ECDSA", "ECDH", "NIST P-521", "NIST P-521", 0, 0));
     assert_true(check_key_props(
       &rnp, "expert_ecdsa_p521", "ECDSA", "ECDH", "NIST P-521", "NIST P-521", 0, 0, "SHA512"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* ecdsa/ecdh brainpool256 keypair */
     ops.unset(CFG_USERID);
     ops.add_str(CFG_USERID, "expert_ecdsa_bp256");
     assert_true(ask_expert_details(&rnp, ops, "19\n4\n"));
-    assert_true(
-      check_cfg_props(ops, "ECDSA", "ECDH", "brainpoolP256r1", "brainpoolP256r1", 0, 0));
-    assert_true(check_key_props(&rnp,
-                                "expert_ecdsa_bp256",
-                                "ECDSA",
-                                "ECDH",
-                                "brainpoolP256r1",
-                                "brainpoolP256r1",
-                                0,
-                                0,
-                                "SHA256"));
-    cli_rnp_end(&rnp);
+    if (brainpool_enabled()) {
+        assert_true(
+          check_cfg_props(ops, "ECDSA", "ECDH", "brainpoolP256r1", "brainpoolP256r1", 0, 0));
+        assert_true(check_key_props(&rnp,
+                                    "expert_ecdsa_bp256",
+                                    "ECDSA",
+                                    "ECDH",
+                                    "brainpoolP256r1",
+                                    "brainpoolP256r1",
+                                    0,
+                                    0,
+                                    "SHA256"));
+    } else {
+        /* secp256k1 will be selected instead */
+        assert_true(check_cfg_props(ops, "ECDSA", "ECDH", "secp256k1", "secp256k1", 0, 0));
+        assert_true(check_key_props(&rnp,
+                                    "expert_ecdsa_bp256",
+                                    "ECDSA",
+                                    "ECDH",
+                                    "secp256k1",
+                                    "secp256k1",
+                                    0,
+                                    0,
+                                    "SHA256"));
+    }
+    rnp.end();
 
     /* ecdsa/ecdh brainpool384 keypair */
     ops.unset(CFG_USERID);
     ops.add_str(CFG_USERID, "expert_ecdsa_bp384");
-    assert_true(ask_expert_details(&rnp, ops, "19\n5\n"));
-    assert_true(
-      check_cfg_props(ops, "ECDSA", "ECDH", "brainpoolP384r1", "brainpoolP384r1", 0, 0));
-    assert_true(check_key_props(&rnp,
-                                "expert_ecdsa_bp384",
-                                "ECDSA",
-                                "ECDH",
-                                "brainpoolP384r1",
-                                "brainpoolP384r1",
-                                0,
-                                0,
-                                "SHA384"));
-    cli_rnp_end(&rnp);
+    if (brainpool_enabled()) {
+        assert_true(ask_expert_details(&rnp, ops, "19\n5\n"));
+        assert_true(
+          check_cfg_props(ops, "ECDSA", "ECDH", "brainpoolP384r1", "brainpoolP384r1", 0, 0));
+        assert_true(check_key_props(&rnp,
+                                    "expert_ecdsa_bp384",
+                                    "ECDSA",
+                                    "ECDH",
+                                    "brainpoolP384r1",
+                                    "brainpoolP384r1",
+                                    0,
+                                    0,
+                                    "SHA384"));
+    } else {
+        assert_false(ask_expert_details(&rnp, ops, "19\n5\n"));
+    }
+    rnp.end();
 
     /* ecdsa/ecdh brainpool512 keypair */
     ops.unset(CFG_USERID);
     ops.add_str(CFG_USERID, "expert_ecdsa_bp512");
-    assert_true(ask_expert_details(&rnp, ops, "19\n6\n"));
-    assert_true(
-      check_cfg_props(ops, "ECDSA", "ECDH", "brainpoolP512r1", "brainpoolP512r1", 0, 0));
-    assert_true(check_key_props(&rnp,
-                                "expert_ecdsa_bp512",
-                                "ECDSA",
-                                "ECDH",
-                                "brainpoolP512r1",
-                                "brainpoolP512r1",
-                                0,
-                                0,
-                                "SHA512"));
-    cli_rnp_end(&rnp);
+    if (brainpool_enabled()) {
+        assert_true(ask_expert_details(&rnp, ops, "19\n6\n"));
+        assert_true(
+          check_cfg_props(ops, "ECDSA", "ECDH", "brainpoolP512r1", "brainpoolP512r1", 0, 0));
+        assert_true(check_key_props(&rnp,
+                                    "expert_ecdsa_bp512",
+                                    "ECDSA",
+                                    "ECDH",
+                                    "brainpoolP512r1",
+                                    "brainpoolP512r1",
+                                    0,
+                                    0,
+                                    "SHA512"));
+    } else {
+        assert_false(ask_expert_details(&rnp, ops, "19\n6\n"));
+    }
+    rnp.end();
 
     /* ecdsa/ecdh secp256k1 keypair */
     ops.unset(CFG_USERID);
     ops.add_str(CFG_USERID, "expert_ecdsa_p256k1");
-    assert_true(ask_expert_details(&rnp, ops, "19\n7\n"));
-    assert_true(check_cfg_props(ops, "ECDSA", "ECDH", "secp256k1", "secp256k1", 0, 0));
-    assert_true(check_key_props(
-      &rnp, "expert_ecdsa_p256k1", "ECDSA", "ECDH", "secp256k1", "secp256k1", 0, 0, "SHA256"));
-    cli_rnp_end(&rnp);
+    if (brainpool_enabled()) {
+        assert_true(ask_expert_details(&rnp, ops, "19\n7\n"));
+        assert_true(check_cfg_props(ops, "ECDSA", "ECDH", "secp256k1", "secp256k1", 0, 0));
+        assert_true(check_key_props(&rnp,
+                                    "expert_ecdsa_p256k1",
+                                    "ECDSA",
+                                    "ECDH",
+                                    "secp256k1",
+                                    "secp256k1",
+                                    0,
+                                    0,
+                                    "SHA256"));
+    } else {
+        assert_false(ask_expert_details(&rnp, ops, "19\n7\n"));
+    }
+    rnp.end();
 
     /* eddsa/x25519 keypair */
     ops.clear();
@@ -781,7 +866,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testExpertMode)
     assert_true(check_cfg_props(ops, "EDDSA", "ECDH", NULL, "Curve25519", 0, 0));
     assert_true(check_key_props(
       &rnp, "expert_eddsa_ecdh", "EDDSA", "ECDH", "Ed25519", "Curve25519", 0, 0, "SHA256"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* rsa/rsa 1024 key */
     ops.clear();
@@ -793,7 +878,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testExpertMode)
     assert_true(check_cfg_props(ops, "RSA", "RSA", NULL, NULL, 1024, 1024));
     assert_true(check_key_props(
       &rnp, "expert_rsa_1024", "RSA", "RSA", NULL, NULL, 1024, 1024, "SHA256"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* rsa 4096 key, asked twice */
     ops.unset(CFG_USERID);
@@ -802,7 +887,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testExpertMode)
     assert_true(check_cfg_props(ops, "RSA", "RSA", NULL, NULL, 4096, 4096));
     assert_true(check_key_props(
       &rnp, "expert_rsa_4096", "RSA", "RSA", NULL, NULL, 4096, 4096, "SHA256"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 
     /* sm2 key */
     ops.clear();
@@ -810,11 +895,15 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testExpertMode)
     ops.set_int(CFG_S2K_ITER, 1);
     ops.unset(CFG_USERID);
     ops.add_str(CFG_USERID, "expert_sm2");
-    assert_true(ask_expert_details(&rnp, ops, "99\n"));
-    assert_true(check_cfg_props(ops, "SM2", "SM2", NULL, NULL, 0, 0));
-    assert_true(check_key_props(
-      &rnp, "expert_sm2", "SM2", "SM2", "SM2 P-256", "SM2 P-256", 0, 0, "SM3"));
-    cli_rnp_end(&rnp);
+    if (!sm2_enabled()) {
+        assert_false(ask_expert_details(&rnp, ops, "99\n"));
+    } else {
+        assert_true(ask_expert_details(&rnp, ops, "99\n"));
+        assert_true(check_cfg_props(ops, "SM2", "SM2", NULL, NULL, 0, 0));
+        assert_true(check_key_props(
+          &rnp, "expert_sm2", "SM2", "SM2", "SM2 P-256", "SM2 P-256", 0, 0, "SM3"));
+    }
+    rnp.end();
 }
 
 TEST_F(rnp_tests, generatekeyECDSA_explicitlySetSmallOutputDigest_DigestAlgAdjusted)
@@ -837,7 +926,7 @@ TEST_F(rnp_tests, generatekeyECDSA_explicitlySetSmallOutputDigest_DigestAlgAdjus
                                 0,
                                 0,
                                 "SHA384"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 }
 
 TEST_F(rnp_tests, generatekey_multipleUserIds_ShouldFail)
@@ -850,7 +939,7 @@ TEST_F(rnp_tests, generatekey_multipleUserIds_ShouldFail)
     ops.add_str(CFG_USERID, "multi_userid_1");
     ops.add_str(CFG_USERID, "multi_userid_2");
     assert_false(ask_expert_details(&rnp, ops, "1\n1024\n"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 }
 
 TEST_F(rnp_tests, generatekeyECDSA_explicitlySetBiggerThanNeededDigest_ShouldSuceed)
@@ -873,7 +962,7 @@ TEST_F(rnp_tests, generatekeyECDSA_explicitlySetBiggerThanNeededDigest_ShouldSuc
                                 0,
                                 0,
                                 "SHA512"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 }
 
 TEST_F(rnp_tests, generatekeyECDSA_explicitlySetUnknownDigest_ShouldFail)
@@ -887,7 +976,7 @@ TEST_F(rnp_tests, generatekeyECDSA_explicitlySetUnknownDigest_ShouldFail)
 
     // Finds out that hash doesn't exist and returns an error
     assert_false(ask_expert_details(&rnp, ops, "19\n2\n"));
-    cli_rnp_end(&rnp);
+    rnp.end();
 }
 
 /* This tests some of the mid-level key generation functions and their
@@ -895,8 +984,8 @@ TEST_F(rnp_tests, generatekeyECDSA_explicitlySetUnknownDigest_ShouldFail)
  */
 TEST_F(rnp_tests, test_generated_key_sigs)
 {
-    rnp_key_store_t *pubring = new rnp_key_store_t();
-    rnp_key_store_t *secring = new rnp_key_store_t();
+    rnp_key_store_t *pubring = new rnp_key_store_t(global_ctx);
+    rnp_key_store_t *secring = new rnp_key_store_t(global_ctx);
     pgp_key_t *      primary_pub = NULL, *primary_sec = NULL;
     pgp_key_t *      sub_pub = NULL, *sub_sec = NULL;
 
@@ -913,18 +1002,18 @@ TEST_F(rnp_tests, test_generated_key_sigs)
 
         desc.crypto.key_alg = PGP_PKA_RSA;
         desc.crypto.rsa.modulus_bit_len = 1024;
-        desc.crypto.rng = &global_rng;
+        desc.crypto.ctx = &global_ctx;
         memcpy(desc.cert.userid, "test", 5);
 
         // generate
-        assert_true(pgp_generate_primary_key(&desc, true, &sec, &pub, PGP_KEY_STORE_GPG));
+        assert_true(pgp_generate_primary_key(desc, true, sec, pub, PGP_KEY_STORE_GPG));
 
         // add to our rings
         assert_true(rnp_key_store_add_key(pubring, &pub));
         assert_true(rnp_key_store_add_key(secring, &sec));
         // retrieve back from our rings (for later)
-        primary_pub = rnp_key_store_get_key_by_grip(pubring, pub.grip());
-        primary_sec = rnp_key_store_get_key_by_grip(secring, pub.grip());
+        primary_pub = rnp_tests_get_key_by_grip(pubring, pub.grip());
+        primary_sec = rnp_tests_get_key_by_grip(secring, pub.grip());
         assert_non_null(primary_pub);
         assert_non_null(primary_sec);
         assert_true(primary_pub->valid());
@@ -951,9 +1040,8 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         // validate the userid self-sig
 
         psiginfo.sig = psig;
-        psiginfo.signer = &pub;
-        assert_rnp_success(
-          signature_check_certification(&psiginfo, &pub.pkt(), &pub.get_uid(0).pkt));
+        pub.validate_cert(psiginfo, pub.pkt(), pub.get_uid(0).pkt, global_ctx);
+        assert_true(psiginfo.valid);
         assert_true(psig->keyfp() == pub.fp());
         // check subpackets and their contents
         subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_ISSUER_FPR);
@@ -970,19 +1058,18 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         assert_true(subpkt->fields.create <= time(NULL));
 
         ssiginfo.sig = ssig;
-        ssiginfo.signer = &sec;
-        assert_rnp_success(
-          signature_check_certification(&ssiginfo, &sec.pkt(), &sec.get_uid(0).pkt));
+        sec.validate_cert(ssiginfo, sec.pkt(), sec.get_uid(0).pkt, global_ctx);
+        assert_true(ssiginfo.valid);
         assert_true(ssig->keyfp() == sec.fp());
 
         // modify a hashed portion of the sig packets
         psig->hashed_data[32] ^= 0xff;
         ssig->hashed_data[32] ^= 0xff;
         // ensure validation fails
-        assert_rnp_failure(
-          signature_check_certification(&psiginfo, &pub.pkt(), &pub.get_uid(0).pkt));
-        assert_rnp_failure(
-          signature_check_certification(&ssiginfo, &sec.pkt(), &sec.get_uid(0).pkt));
+        pub.validate_cert(psiginfo, pub.pkt(), pub.get_uid(0).pkt, global_ctx);
+        assert_false(psiginfo.valid);
+        sec.validate_cert(ssiginfo, sec.pkt(), sec.get_uid(0).pkt, global_ctx);
+        assert_false(ssiginfo.valid);
         // restore the original data
         psig->hashed_data[32] ^= 0xff;
         ssig->hashed_data[32] ^= 0xff;
@@ -993,8 +1080,10 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         uid.uid_len = 4;
         memcpy(uid.uid, "fake", 4);
 
-        assert_rnp_failure(signature_check_certification(&psiginfo, &pub.pkt(), &uid));
-        assert_rnp_failure(signature_check_certification(&ssiginfo, &sec.pkt(), &uid));
+        pub.validate_cert(psiginfo, pub.pkt(), uid, global_ctx);
+        assert_false(psiginfo.valid);
+        sec.validate_cert(ssiginfo, sec.pkt(), uid, global_ctx);
+        assert_false(ssiginfo.valid);
 
         // validate via an alternative method
         // primary_pub + pubring
@@ -1049,11 +1138,12 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         memset(&desc, 0, sizeof(desc));
         desc.crypto.key_alg = PGP_PKA_RSA;
         desc.crypto.rsa.modulus_bit_len = 1024;
-        desc.crypto.rng = &global_rng;
+        desc.crypto.ctx = &global_ctx;
 
         // generate
+        pgp_password_provider_t prov = {};
         assert_true(pgp_generate_subkey(
-          &desc, true, primary_sec, primary_pub, &sec, &pub, NULL, PGP_KEY_STORE_GPG));
+          desc, true, *primary_sec, *primary_pub, sec, pub, prov, PGP_KEY_STORE_GPG));
         assert_true(pub.valid());
         assert_true(pub.validated());
         assert_false(pub.expired());
@@ -1076,8 +1166,8 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         assert_int_equal(PGP_PKT_SIGNATURE, sec.get_sig(0).rawpkt.tag);
         // validate the binding sig
         psiginfo.sig = psig;
-        psiginfo.signer = primary_pub;
-        assert_rnp_success(signature_check_binding(&psiginfo, &primary_pub->pkt(), &pub));
+        primary_pub->validate_binding(psiginfo, pub, global_ctx);
+        assert_true(psiginfo.valid);
         assert_true(psig->keyfp() == primary_pub->fp());
         // check subpackets and their contents
         subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_ISSUER_FPR);
@@ -1094,16 +1184,18 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         assert_true(subpkt->fields.create <= time(NULL));
 
         ssiginfo.sig = ssig;
-        ssiginfo.signer = primary_pub;
-        assert_rnp_success(signature_check_binding(&ssiginfo, &primary_pub->pkt(), &sec));
+        primary_pub->validate_binding(ssiginfo, sec, global_ctx);
+        assert_true(ssiginfo.valid);
         assert_true(ssig->keyfp() == primary_sec->fp());
 
         // modify a hashed portion of the sig packets
         psig->hashed_data[10] ^= 0xff;
         ssig->hashed_data[10] ^= 0xff;
         // ensure validation fails
-        assert_rnp_failure(signature_check_binding(&psiginfo, &primary_pub->pkt(), &pub));
-        assert_rnp_failure(signature_check_binding(&ssiginfo, &primary_pub->pkt(), &sec));
+        primary_pub->validate_binding(psiginfo, pub, global_ctx);
+        assert_false(psiginfo.valid);
+        primary_pub->validate_binding(ssiginfo, sec, global_ctx);
+        assert_false(ssiginfo.valid);
         // restore the original data
         psig->hashed_data[10] ^= 0xff;
         ssig->hashed_data[10] ^= 0xff;
@@ -1112,8 +1204,8 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         assert_true(rnp_key_store_add_key(pubring, &pub));
         assert_true(rnp_key_store_add_key(secring, &sec));
         // retrieve back from our rings
-        sub_pub = rnp_key_store_get_key_by_grip(pubring, pub.grip());
-        sub_sec = rnp_key_store_get_key_by_grip(secring, pub.grip());
+        sub_pub = rnp_tests_get_key_by_grip(pubring, pub.grip());
+        sub_sec = rnp_tests_get_key_by_grip(secring, pub.grip());
         assert_non_null(sub_pub);
         assert_non_null(sub_sec);
         assert_true(sub_pub->valid());

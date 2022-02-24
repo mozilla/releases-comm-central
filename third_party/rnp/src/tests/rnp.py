@@ -3,7 +3,6 @@ from cli_common import (
     run_proc
 )
 import os
-import logging
 import copy
 
 class Rnp(object):
@@ -58,6 +57,11 @@ class Rnp(object):
         retcode, _, _ = run_proc(cmd, params, batch_input)
         return retcode == 0
 
+    def list_keys(self, secret = False):
+        params = ['--list-keys', '--secret'] if secret else ['--list-keys']
+        params = params + self.common_params
+        return self._run(self.key_mgm_bin, params)
+
     def generate_key_batch(self, batch_input):
         pipe = pswd_pipe(self.__password)
         params = self.common_params
@@ -76,7 +80,7 @@ class Rnp(object):
         params = self.common_params
         params += ["--output", output]
         params += ["--userid", self.userid]
-        params += ["--force"]
+        params += ["--overwrite"]
         params += ["--export-key"]
         if secure:
             params += ["--secret"]

@@ -36,15 +36,72 @@
 #include "rnpcfg.h"
 #include "json.h"
 
-typedef struct cli_rnp_t {
+class cli_rnp_t {
+  private:
+    rnp_cfg cfg_{};
+    bool    load_keyring(bool secret);
+    bool    is_cv25519_subkey(rnp_key_handle_t handle);
+    bool    get_protection(rnp_key_handle_t handle,
+                           std::string &    hash,
+                           std::string &    cipher,
+                           size_t &         iterations);
+    bool    check_cv25519_bits(rnp_key_handle_t key, char *prot_password, bool &tweaked);
+
+  public:
     rnp_ffi_t ffi{};
-    rnp_cfg   cfg{};
     FILE *    resfp{};      /* where to put result messages, defaults to stdout */
     FILE *    passfp{};     /* file pointer for password input */
     FILE *    userio_in{};  /* file pointer for user's inputs */
     FILE *    userio_out{}; /* file pointer for user's outputs */
     int       pswdtries{};  /* number of password tries, -1 for unlimited */
-} cli_rnp_t;
+
+    bool init(const rnp_cfg &cfg);
+    void end();
+
+    bool load_keyrings(bool loadsecret = false);
+
+    const std::string &
+    defkey()
+    {
+        return cfg_.get_str(CFG_KR_DEF_KEY);
+    }
+
+    void set_defkey();
+
+    const std::string &
+    pubpath()
+    {
+        return cfg_.get_str(CFG_KR_PUB_PATH);
+    }
+
+    const std::string &
+    secpath()
+    {
+        return cfg_.get_str(CFG_KR_SEC_PATH);
+    }
+
+    const std::string &
+    pubformat()
+    {
+        return cfg_.get_str(CFG_KR_PUB_FORMAT);
+    }
+
+    const std::string &
+    secformat()
+    {
+        return cfg_.get_str(CFG_KR_SEC_FORMAT);
+    }
+
+    rnp_cfg &
+    cfg()
+    {
+        return cfg_;
+    }
+
+    bool fix_cv25519_subkey(const std::string &key, bool checkonly = false);
+
+    bool edit_key(const std::string &key);
+};
 
 typedef enum cli_search_flags_t {
     CLI_SEARCH_SECRET = 1 << 0,     /* search secret keys only */
@@ -65,19 +122,37 @@ typedef enum cli_search_flags_t {
  */
 bool cli_cfg_set_keystore_info(rnp_cfg &cfg);
 
-rnp_cfg &         cli_rnp_cfg(cli_rnp_t &rnp);
-const std::string cli_rnp_defkey(cli_rnp_t *rnp);
-const std::string cli_rnp_pubpath(cli_rnp_t *rnp);
-const std::string cli_rnp_secpath(cli_rnp_t *rnp);
-const std::string cli_rnp_pubformat(cli_rnp_t *rnp);
-const std::string cli_rnp_secformat(cli_rnp_t *rnp);
+/**
+ * @brief Create input object from the specifier, which may represent:
+ *        - path
+ *        - stdin (if `-` or empty string is passed)
+ *        - environment variable contents, if path looks like `env:VARIABLE_NAME`
+ * @param rnp initialized CLI rnp object
+ * @param spec specifier
+ * @param is_path optional parameter. If specifier is path (not stdin, env variable), then true
+ *                will be stored here, false otherwise. May be NULL if this information is not
+ *                needed.
+ * @return rnp_input_t object or NULL if operation failed.
+ */
+rnp_input_t cli_rnp_input_from_specifier(cli_rnp_t &        rnp,
+                                         const std::string &spec,
+                                         bool *             is_path);
 
-bool cli_rnp_init(cli_rnp_t *, const rnp_cfg &);
-bool cli_rnp_baseinit(cli_rnp_t *);
-void cli_rnp_end(cli_rnp_t *);
-bool cli_rnp_load_keyrings(cli_rnp_t *rnp, bool loadsecret);
+/**
+ * @brief Create output object from the specifier, which may represent:
+ *        - path
+ *        - stdout (if `-` or empty string is passed)
+ *
+ * @param rnp initialized CLI rnp object
+ * @param spec specifier
+ * @param discard just discard output
+ * @return rnp_output_t  or NULL if operation failed.
+ */
+rnp_output_t cli_rnp_output_to_specifier(cli_rnp_t &        rnp,
+                                         const std::string &spec,
+                                         bool               discard = false);
+
 bool cli_rnp_save_keyrings(cli_rnp_t *rnp);
-void cli_rnp_set_default_key(cli_rnp_t *rnp);
 void cli_rnp_print_key_info(
   FILE *fp, rnp_ffi_t ffi, rnp_key_handle_t key, bool psecret, bool psigs);
 bool cli_rnp_set_generate_params(rnp_cfg &cfg);
@@ -130,6 +205,17 @@ bool        cli_rnp_setup(cli_rnp_t *rnp);
 bool        cli_rnp_protect_file(cli_rnp_t *rnp);
 bool        cli_rnp_process_file(cli_rnp_t *rnp);
 std::string cli_rnp_escape_string(const std::string &src);
+void        cli_rnp_print_praise(void);
+void        cli_rnp_print_feature(FILE *fp, const char *type, const char *printed_type);
+/**
+ * @brief Convert algorithm name representation to one used by FFI.
+ *        I.e. aes-128 to AES128, 3DES to TRIPLEDES, SHA-1 to SHA1 and so on.
+ *
+ * @param alg algorithm string
+ * @return string with FFI algorithm's name. In case alias is not found the source string will
+ * be returned.
+ */
+const std::string cli_rnp_alg_to_ffi(const std::string alg);
 
 void clear_key_handles(std::vector<rnp_key_handle_t> &keys);
 

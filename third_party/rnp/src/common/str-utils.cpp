@@ -29,6 +29,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <cctype>
 #include "str-utils.h"
 #ifdef _WIN32
 #include <locale>
@@ -38,8 +39,9 @@
 using std::size_t;
 using std::strlen;
 
+namespace rnp {
 char *
-rnp_strip_eol(char *s)
+strip_eol(char *s)
 {
     size_t len = strlen(s);
 
@@ -51,7 +53,21 @@ rnp_strip_eol(char *s)
 }
 
 bool
-rnp_is_blank_line(const char *line, size_t len)
+strip_eol(std::string &s)
+{
+    size_t len = s.size();
+    while (len && ((s[len - 1] == '\n') || (s[len - 1] == '\r'))) {
+        len--;
+    }
+    if (len == s.size()) {
+        return false;
+    }
+    s.resize(len);
+    return true;
+}
+
+bool
+is_blank_line(const char *line, size_t len)
 {
     for (size_t i = 0; i < len && line[i]; i++) {
         if (line[i] != ' ' && line[i] != '\t' && line[i] != '\r') {
@@ -60,6 +76,20 @@ rnp_is_blank_line(const char *line, size_t len)
     }
     return true;
 }
+
+bool
+str_case_eq(const char *s1, const char *s2)
+{
+    while (*s1 && *s2) {
+        if (std::tolower(*s1) != std::tolower(*s2)) {
+            return false;
+        }
+        s1++;
+        s2++;
+    }
+    return !*s1 && !*s2;
+}
+} // namespace rnp
 
 #ifdef _WIN32
 std::wstring

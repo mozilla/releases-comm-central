@@ -27,11 +27,16 @@ please use _rnpkeys(1)_ for that purpose.
 
 By default, *rnp* will apply a _COMMAND_, additionally configured with _OPTIONS_,
 to all _INPUT_FILE_(s) or _stdin_ if no _INPUT_FILE_ is given.
+There are some special cases for _INPUT_FILE_ :
+
+* _-_ (dash) substitutes to _stdin_
+* env:VARIABLE_NAME substitutes to the contents of environment variable VARIABLE_NAME
 
 Depending on the input, output may be written:
 
-* to the specified file with a removed or added file extension (_.pgp_, _.asc_, _.sig_); or
-* to _stdout_.
+* if *--output* option is given output is written to the path specified (or to the *stdout* if *-* is used)
+* to the _INPUT_FILE_ with a removed or added file extension (_.pgp_, _.asc_, _.sig_); or
+* to the _stdout_ if input was read from the _stdin_.
 
 Without the *--armor* option, output will be in binary.
 
@@ -67,8 +72,8 @@ Specify one or more recipients.
 *--cipher*:::
 Select a specific cipher.
 
-*-z*, *--zip*, *--bzip*:::
-Select a compression algorithm.
+*-z 0..9*, *--zlib*, *--zip*, *--bzip*:::
+Select a compression algorithm and level.
 
 *--armor*:::
 Output ASCII data instead of binary via the *--armor* option. If the input file is _file.ext_, and *--output* is not specified, then the data will be written (depending on *--armor* option) to _file.ext.pgp_ or _file.ext.asc_. +
@@ -129,7 +134,7 @@ Output, if not overridden with this option, will be written to the file with str
 Depending on encryption options, you may be asked for the password of one of your secret keys, or for the encryption password. These options override that behavior such that you can input the password through automated means.
 
 *-v*, *--verify*::
-Verify signature(s) without writing embedded data out, if any. +
+Verify signature(s) without writing embedded data out, if any (unless option _--output_ is specified). +
 +
 To verify the detached signature of a file _file.ext_, the detached signature file in the file name pattern of _file.ext.sig_ or _file.ext.asc_ must exist. +
 +
@@ -298,9 +303,12 @@ RNP automatically detects the keystore format. +
 +
 This option allows the auto-detection behavior to be overridden.
 
-*--debug* _FILENAME.CPP_::
-Enable debug output for the source file specified. For development use only.
-
+*--notty*::
+Disable use of tty. +
++
+By default RNP would detect whether TTY is attached and use it for user prompts. +
++
+This option overrides default behaviour so user input may be passed in batch mode.
 
 == EXIT STATUS
 
@@ -353,6 +361,11 @@ so *any* of these may be used to decrypt the resulting file.
 
 Additionally, the message will be signed with key _0x44616E69656C2057_.
 
+=== EXAMPLE 5
+
+*printf* _"Message"_ | *rnp* *--keyfile* _env:PGP_ENCRYPTION_KEY_ *-e* *-* *--armor*
+
+Encrypt message, passed via stdin, using the key, stored in environment variable *PGP_ENCRYPTION_KEY*, add ascii armoring, and print result to the stdout.
 
 == BUGS
 

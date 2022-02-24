@@ -193,40 +193,36 @@ TEST_F(rnp_tests, test_cli_rnp_keyfile)
 static bool
 test_cli_g10_key_sign(const char *userid)
 {
-    int ret;
-
     /* create signature */
-    ret = call_rnp("rnp",
-                   "--homedir",
-                   G10KEYS,
-                   "--password",
-                   "password",
-                   "-u",
-                   userid,
-                   "-s",
-                   FILES "/hello.txt",
-                   NULL);
+    int ret = call_rnp("rnp",
+                       "--homedir",
+                       G10KEYS,
+                       "--password",
+                       "password",
+                       "-u",
+                       userid,
+                       "-s",
+                       FILES "/hello.txt",
+                       NULL);
     if (ret) {
+        rnp_unlink(FILES "/hello.txt.pgp");
         return false;
     }
 
     /* verify back */
     ret = call_rnp("rnp", "--homedir", G10KEYS, "-v", FILES "/hello.txt.pgp", NULL);
-    if (ret) {
-        return false;
-    }
     rnp_unlink(FILES "/hello.txt.pgp");
-    return true;
+    return !ret;
 }
 
 static bool
 test_cli_g10_key_encrypt(const char *userid)
 {
-    int ret;
-
     /* encrypt */
-    ret = call_rnp("rnp", "--homedir", G10KEYS, "-r", userid, "-e", FILES "/hello.txt", NULL);
+    int ret =
+      call_rnp("rnp", "--homedir", G10KEYS, "-r", userid, "-e", FILES "/hello.txt", NULL);
     if (ret) {
+        rnp_unlink(FILES "/hello.txt.pgp");
         return false;
     }
 
@@ -239,11 +235,8 @@ test_cli_g10_key_encrypt(const char *userid)
                    "-d",
                    FILES "/hello.txt.pgp",
                    NULL);
-    if (ret) {
-        return false;
-    }
     rnp_unlink(FILES "/hello.txt.pgp");
-    return true;
+    return !ret;
 }
 
 TEST_F(rnp_tests, test_cli_g10_operations)
@@ -282,11 +275,18 @@ TEST_F(rnp_tests, test_cli_g10_operations)
     assert_false(test_cli_g10_key_sign("02a5715c3537717e"));   // fail - encrypting subkey
     assert_true(test_cli_g10_key_encrypt("02a5715c3537717e")); // success
 
-    /* check rsa/rsa key, key is SC while subkey is E */
-    assert_true(test_cli_g10_key_sign("2fb9179118898e8b"));
-    assert_true(test_cli_g10_key_encrypt("2fb9179118898e8b"));
+    /* check rsa/rsa key, key is SC while subkey is E. Must fail as uses SHA1 */
+    assert_false(test_cli_g10_key_sign("2fb9179118898e8b"));
+    assert_false(test_cli_g10_key_encrypt("2fb9179118898e8b"));
     assert_false(test_cli_g10_key_sign("6e2f73008f8b8d6e"));
-    assert_true(test_cli_g10_key_encrypt("6e2f73008f8b8d6e"));
+    assert_false(test_cli_g10_key_encrypt("6e2f73008f8b8d6e"));
+
+    /* check new rsa/rsa key, key is SC while subkey is E. */
+    /* Now fails since we cannot parse new S-exps */
+    assert_false(test_cli_g10_key_sign("bd860a52d1899c0f"));
+    assert_false(test_cli_g10_key_encrypt("bd860a52d1899c0f"));
+    assert_false(test_cli_g10_key_sign("8e08d46a37414996"));
+    assert_false(test_cli_g10_key_encrypt("8e08d46a37414996"));
 
     /* check ed25519 key */
     assert_true(test_cli_g10_key_sign("cc786278981b0728"));
@@ -317,22 +317,22 @@ TEST_F(rnp_tests, test_cli_g10_operations)
     assert_true(test_cli_g10_key_encrypt("9853df2f6d297442"));
 
     /* check bp256 key */
-    assert_true(test_cli_g10_key_sign("d0c8a3daf9e0634a"));
-    assert_true(test_cli_g10_key_encrypt("d0c8a3daf9e0634a"));
+    assert_true(test_cli_g10_key_sign("d0c8a3daf9e0634a") == brainpool_enabled());
+    assert_true(test_cli_g10_key_encrypt("d0c8a3daf9e0634a") == brainpool_enabled());
     assert_false(test_cli_g10_key_sign("2edabb94d3055f76"));
-    assert_true(test_cli_g10_key_encrypt("2edabb94d3055f76"));
+    assert_true(test_cli_g10_key_encrypt("2edabb94d3055f76") == brainpool_enabled());
 
     /* check bp384 key */
-    assert_true(test_cli_g10_key_sign("6cf2dce85599ada2"));
-    assert_true(test_cli_g10_key_encrypt("6cf2dce85599ada2"));
+    assert_true(test_cli_g10_key_sign("6cf2dce85599ada2") == brainpool_enabled());
+    assert_true(test_cli_g10_key_encrypt("6cf2dce85599ada2") == brainpool_enabled());
     assert_false(test_cli_g10_key_sign("cff1bb6f16d28191"));
-    assert_true(test_cli_g10_key_encrypt("cff1bb6f16d28191"));
+    assert_true(test_cli_g10_key_encrypt("cff1bb6f16d28191") == brainpool_enabled());
 
     /* check bp512 key */
-    assert_true(test_cli_g10_key_sign("aa5c58d14f7b8f48"));
-    assert_true(test_cli_g10_key_encrypt("aa5c58d14f7b8f48"));
+    assert_true(test_cli_g10_key_sign("aa5c58d14f7b8f48") == brainpool_enabled());
+    assert_true(test_cli_g10_key_encrypt("aa5c58d14f7b8f48") == brainpool_enabled());
     assert_false(test_cli_g10_key_sign("20cdaa1482ba79ce"));
-    assert_true(test_cli_g10_key_encrypt("20cdaa1482ba79ce"));
+    assert_true(test_cli_g10_key_encrypt("20cdaa1482ba79ce") == brainpool_enabled());
 
     /* check secp256k1 key */
     assert_true(test_cli_g10_key_sign("3ea5bb6f9692c1a0"));
@@ -662,6 +662,8 @@ key_generate(const char *homedir, const char *userid, const char *expiration)
                        expiration,
                        "--userid",
                        userid,
+                       "--s2k-iterations",
+                       "65536",
                        "--numbits",
                        "1024",
                        NULL);
@@ -688,6 +690,8 @@ TEST_F(rnp_tests, test_cli_rnpkeys_genkey)
         tm2100.tm_mday = 1;
         tm2100.tm_mon = 0;
         tm2100.tm_year = 200;
+        /* line below is required to correctly handle DST changes */
+        tm2100.tm_isdst = -1;
         expected_diff_beyond2038_absolute = mktime(&tm2100) - basetime;
     }
     struct tm *timeinfo = localtime(&rawtime);
@@ -726,7 +730,7 @@ TEST_F(rnp_tests, test_cli_rnpkeys_genkey)
     assert_int_not_equal(key_generate(GENKEYS, "expiration_overflow@rnp", "200y"), 0);
     assert_int_not_equal(key_generate(GENKEYS, "expiration_past@rnp", "2021-01-01"), 0);
 
-    // these should pass and go to the keystore -- 15 primary keys and 15 subkeys
+    // these should pass and go to the keystore -- 17 primary keys and 17 subkeys
     assert_int_equal(key_generate(GENKEYS, "expiration_beyond2038_relative@rnp", "20y"), 0);
     assert_int_equal(key_generate(GENKEYS, "expiration_beyond2038_absolute@rnp", "2100-01-01"),
                      0);
@@ -746,7 +750,7 @@ TEST_F(rnp_tests, test_cli_rnpkeys_genkey)
     assert_int_equal(key_generate(GENKEYS, "expiration_2months@rnp", "2m"), 0);
     assert_int_equal(key_generate(GENKEYS, "expiration_2years@rnp", "2y"), 0);
 
-    auto         keystore = new rnp_key_store_t(PGP_KEY_STORE_GPG, "");
+    auto         keystore = new rnp_key_store_t(PGP_KEY_STORE_GPG, "", global_ctx);
     pgp_source_t src = {};
     assert_rnp_success(init_file_src(&src, GENKEYS "/pubring.gpg"));
     assert_true(rnp_key_store_load_from_src(keystore, &src, NULL));

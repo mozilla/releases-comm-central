@@ -31,7 +31,14 @@ find_package(ZLIB REQUIRED)
 
 # required packages
 find_package(JSON-C 0.11 REQUIRED)
-find_package(Botan2 2.14.0 REQUIRED)
+if (CRYPTO_BACKEND_BOTAN)
+  find_package(Botan2 2.14.0 REQUIRED)
+endif()
+if (CRYPTO_BACKEND_OPENSSL)
+  include(FindOpenSSL)
+  find_package(OpenSSL 1.1.1 REQUIRED)
+  include(FindOpenSSLFeatures)
+endif()
 
 # generate a config.h
 include(CheckIncludeFileCXX)
@@ -61,35 +68,141 @@ configure_file(config.h.in config.h)
 # generate a version.h
 configure_file(version.h.in version.h)
 
-# check botan's enabled features
-set(CMAKE_REQUIRED_INCLUDES "${BOTAN2_INCLUDE_DIRS}")
-set(_botan_required_features
-    # base
-    BIGINT FFI HEX_CODEC PGP_S2K
-    # AEAD
-    BLOCK_CIPHER AEAD_EAX AEAD_OCB
-    # symmetric ciphers
-    AES BLOWFISH CAMELLIA CAST_128 DES IDEA RIPEMD_160 SM4 TWOFISH
-    # cipher modes
-    MODE_CBC MODE_CFB
-    # RNG
-    AUTO_RNG AUTO_SEEDING_RNG HMAC HMAC_DRBG
-    # hash
-    CRC24 HASH MD5 SHA1 SHA2_32 SHA2_64 SHA3 SM3
-    # public-key core
-    DL_GROUP DL_PUBLIC_KEY_FAMILY ECC_GROUP ECC_PUBLIC_KEY_CRYPTO PUBLIC_KEY_CRYPTO
-    # public-key algs
-    CURVE_25519 DSA ECDH ECDSA ED25519 ELGAMAL RSA SM2
-    # public-key operations etc
-    EME_PKCS1v15 EMSA_PKCS1 EMSA_RAW KDF_BASE RFC3394_KEYWRAP SP800_56A
-)
-foreach(feature ${_botan_required_features})
-  check_cxx_symbol_exists("BOTAN_HAS_${feature}" botan/build.h _botan_has_${feature})
-  if (NOT _botan_has_${feature})
-    message(FATAL_ERROR "A required botan feature is missing: ${feature}")
+if(CRYPTO_BACKEND_BOTAN)
+  # check botan's enabled features
+  set(CMAKE_REQUIRED_INCLUDES "${BOTAN2_INCLUDE_DIRS}")
+  set(_botan_required_features
+      # base
+      BIGINT FFI HEX_CODEC PGP_S2K
+      # symmetric ciphers
+      BLOCK_CIPHER AES BLOWFISH CAMELLIA CAST_128 DES IDEA
+      # cipher modes
+      MODE_CBC MODE_CFB
+      # RNG
+      AUTO_RNG AUTO_SEEDING_RNG HMAC HMAC_DRBG
+      # hash
+      CRC24 HASH MD5 SHA1 SHA2_32 SHA2_64 SHA3 RIPEMD_160
+      # public-key core
+      DL_GROUP DL_PUBLIC_KEY_FAMILY ECC_GROUP ECC_PUBLIC_KEY_CRYPTO PUBLIC_KEY_CRYPTO
+      # public-key algs
+      CURVE_25519 DSA ECDH ECDSA ED25519 ELGAMAL RSA
+      # public-key operations etc
+      EME_PKCS1v15 EMSA_PKCS1 EMSA_RAW KDF_BASE RFC3394_KEYWRAP SP800_56A
+  )
+  # SM2 algorithms suite
+  if (ENABLE_SM2)
+    list(APPEND _botan_required_features SM2 SM3 SM4)
   endif()
-endforeach()
-set(CMAKE_REQUIRED_INCLUDES)
+  # AEAD algorithms
+  if (ENABLE_AEAD)
+    list(APPEND _botan_required_features AEAD_EAX AEAD_OCB)
+  endif()
+  # Twofish
+  if (ENABLE_TWOFISH)
+    list(APPEND _botan_required_features TWOFISH)
+  endif()
+  foreach(feature ${_botan_required_features})
+    check_cxx_symbol_exists("BOTAN_HAS_${feature}" botan/build.h _botan_has_${feature})
+    if (NOT _botan_has_${feature})
+      message(FATAL_ERROR "A required botan feature is missing: ${feature}")
+    endif()
+  endforeach()
+  set(CMAKE_REQUIRED_INCLUDES)
+endif()
+if(CRYPTO_BACKEND_OPENSSL)
+  # check OpenSSL features
+  set(_openssl_required_features
+    # symmetric ciphers
+    AES-128-ECB AES-192-ECB AES-256-ECB AES-128-CBC AES-192-CBC AES-256-CBC
+    BF-ECB CAMELLIA-128-ECB CAMELLIA-192-ECB CAMELLIA-256-ECB CAST5-ECB
+    DES-EDE3 IDEA-ECB IDEA-CBC
+    # hashes
+    MD5 SHA1 SHA224 SHA256 SHA384 SHA512 SHA3-256 SHA3-512 RIPEMD160
+    # curves
+    PRIME256V1 SECP384R1 SECP521R1 SECP256K1
+    # public key
+    RSAENCRYPTION DSAENCRYPTION DHKEYAGREEMENT ID-ECPUBLICKEY X25519 ED25519
+  )
+  # SM2 algorithms suite
+  if (ENABLE_SM2)
+    list(APPEND _openssl_required_features SM2 SM3 SM4-ECB)
+  endif()
+  # Brainpool curves
+  if (ENABLE_BRAINPOOL)
+    list(APPEND _openssl_required_features BRAINPOOLP256R1 BRAINPOOLP384R1 BRAINPOOLP512R1)
+  endif()
+  foreach(feature ${_openssl_required_features})
+    message(STATUS "Looking for OpenSSL feature ${feature}")
+    OpenSSLHasFeature("${feature}" _openssl_has_${feature})
+    if (NOT _openssl_has_${feature})
+      message(FATAL_ERROR "A required OpenSSL feature is missing: ${feature}")
+    endif()
+    message(STATUS "Looking for OpenSSL feature ${feature} - found")
+  endforeach()
+endif()
+
+if(CRYPTO_BACKEND_OPENSSL)
+  set(CRYPTO_SOURCES
+    crypto/bn_ossl.cpp
+    crypto/dsa_ossl.cpp
+    crypto/ec_curves.cpp
+    crypto/ec_ossl.cpp
+    crypto/ecdh_utils.cpp
+    crypto/ecdh_ossl.cpp
+    crypto/ecdsa_ossl.cpp
+    crypto/eddsa_ossl.cpp
+    crypto/dl_ossl.cpp
+    crypto/elgamal_ossl.cpp
+    crypto/hash_common.cpp
+    crypto/hash_ossl.cpp
+    crypto/hash_crc24.cpp
+    crypto/mpi.cpp
+    crypto/rng_ossl.cpp
+    crypto/rsa_ossl.cpp
+    crypto/s2k.cpp
+    crypto/s2k_ossl.cpp
+    crypto/symmetric_ossl.cpp
+    crypto/signatures.cpp
+    crypto/mem_ossl.cpp
+    crypto/cipher.cpp
+    crypto/cipher_ossl.cpp
+  )
+  if(ENABLE_SM2)
+    list(APPEND CRYPTO_SOURCES crypto/sm2_ossl.cpp)
+  endif()
+elseif(CRYPTO_BACKEND_BOTAN)
+  set(CRYPTO_SOURCES
+    crypto/bn.cpp
+    crypto/dsa.cpp
+    crypto/ec_curves.cpp
+    crypto/ec.cpp
+    crypto/ecdh_utils.cpp
+    crypto/ecdh.cpp
+    crypto/ecdsa.cpp
+    crypto/eddsa.cpp
+    crypto/elgamal.cpp
+    crypto/hash_common.cpp
+    crypto/hash.cpp
+    crypto/mpi.cpp
+    crypto/rng.cpp
+    crypto/rsa.cpp
+    crypto/s2k.cpp
+    crypto/symmetric.cpp
+    crypto/signatures.cpp
+    crypto/mem.cpp
+    crypto/cipher.cpp
+    crypto/cipher_botan.cpp
+  )
+  if(ENABLE_SM2)
+    list(APPEND CRYPTO_SOURCES crypto/sm2.cpp)
+  endif()
+else()
+  message(FATAL_ERROR "Unknown crypto backend: ${CRYPTO_BACKEND}.")
+endif()
+list(APPEND CRYPTO_SOURCES crypto/backend_version.cpp)
+
+# sha11collisiondetection sources
+list(APPEND CRYPTO_SOURCES crypto/sha1cd/hash_sha1cd.cpp crypto/sha1cd/sha1.c crypto/sha1cd/ubc_check.c)
 
 add_library(librnp-obj OBJECT
   # librepgp
@@ -109,33 +222,33 @@ add_library(librnp-obj OBJECT
   ../librekey/key_store_pgp.cpp
   ../librekey/rnp_key_store.cpp
 
-  crypto/bn.cpp
-  crypto/dsa.cpp
-  crypto/ec.cpp
-  crypto/ecdh.cpp
-  crypto/ecdsa.cpp
-  crypto/eddsa.cpp
-  crypto/elgamal.cpp
-  crypto/hash.cpp
-  crypto/mpi.cpp
-  crypto/rng.cpp
-  crypto/rsa.cpp
-  crypto/s2k.cpp
-  crypto/sm2.cpp
-  crypto/symmetric.cpp
-  crypto/signatures.cpp
-  crypto/mem.cpp
+  # cryptography
+  ${CRYPTO_SOURCES}
+
+  # other sources
+  sec_profile.cpp
   crypto.cpp
   fingerprint.cpp
   generate-key.cpp
   key-provider.cpp
   logging.cpp
-  misc.cpp
+  json-utils.cpp
+  utils.cpp
   pass-provider.cpp
   pgp-key.cpp
   rnp.cpp
   $<TARGET_OBJECTS:rnp-common>
 )
+
+get_target_property(_comp_options librnp-obj COMPILE_OPTIONS)
+string(REGEX MATCH "\\-fsanitize=[a-z,]*undefined" _comp_sanitizers "${_comp_options}" "${CMAKE_C_FLAGS}")
+if (ENABLE_SANITIZERS OR _comp_sanitizers)
+  # sha1cd attempts to use unaligned access for optimisations on intel CPUs
+  # CFLAGS is checked as sanitizers may be enabled without CMake var
+  set_source_files_properties(crypto/sha1cd/sha1.c
+    PROPERTIES COMPILE_DEFINITIONS "SHA1DC_FORCE_ALIGNED_ACCESS"
+  )
+endif()
 
 set_target_properties(librnp-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(librnp-obj
@@ -148,11 +261,13 @@ target_include_directories(librnp-obj
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/src"
 )
-target_link_libraries(librnp-obj
-  PRIVATE
-    Botan2::Botan2
-    JSON-C::JSON-C
-)
+target_link_libraries(librnp-obj PRIVATE JSON-C::JSON-C)
+if (CRYPTO_BACKEND_BOTAN)
+  target_link_libraries(librnp-obj PRIVATE Botan2::Botan2)
+elseif (CRYPTO_BACKEND_OPENSSL)
+  target_link_libraries(librnp-obj PRIVATE OpenSSL::Crypto)
+endif()
+
 set_target_properties(librnp-obj PROPERTIES CXX_VISIBILITY_PRESET hidden)
 if (TARGET BZip2::BZip2)
   target_link_libraries(librnp-obj PRIVATE BZip2::BZip2)
@@ -177,6 +292,15 @@ set_target_properties(librnp
 
 if (BUILD_SHARED_LIBS)
   add_library(librnp-static STATIC $<TARGET_OBJECTS:librnp-obj> $<TARGET_OBJECTS:rnp-common>)
+ # Limit symbols export only to rnp_* functions.
+  if (APPLE)
+    # use -export_symbols_list on Apple OSs
+    target_link_options(librnp PRIVATE -Wl,-exported_symbols_list "${CMAKE_CURRENT_SOURCE_DIR}/librnp.symbols")
+    set_target_properties(librnp PROPERTIES LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/librnp.symbols")
+  elseif(NOT WIN32)
+    target_link_options(librnp PRIVATE "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/librnp.vsc")
+    set_target_properties(librnp PROPERTIES LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/librnp.vsc")
+  endif()
 else()
   add_library(librnp-static ALIAS librnp)
 endif()
@@ -190,9 +314,11 @@ foreach (prop LINK_LIBRARIES INTERFACE_LINK_LIBRARIES INCLUDE_DIRECTORIES INTERF
 endforeach()
 
 generate_export_header(librnp
-  BASE_NAME rnp/rnp
+  BASE_NAME rnp
   EXPORT_MACRO_NAME RNP_API
+  EXPORT_FILE_NAME rnp/rnp_export.h
   STATIC_DEFINE RNP_STATIC
+  INCLUDE_GUARD_NAME RNP_EXPORT
 )
 
 # This has precedence and can cause some confusion when the binary

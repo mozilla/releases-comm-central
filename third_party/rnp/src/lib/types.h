@@ -60,6 +60,7 @@
 
 #include <rnp/rnp_def.h>
 #include "crypto/common.h"
+#include "sec_profile.hpp"
 
 /* SHA1 Hash Size */
 #define PGP_SHA1_HASH_SIZE 20
@@ -73,17 +74,28 @@
 /* Maximum supported password length */
 #define MAX_PASSWORD_LENGTH 256
 
-/** pgp_map_t
- */
-typedef struct {
-    int         type;
-    const char *string;
-} pgp_map_t;
+class id_str_pair {
+  public:
+    int         id;
+    const char *str;
 
-typedef struct {
-    uint8_t     mask;
-    const char *string;
-} pgp_bit_map_t;
+    /**
+     * @brief Lookup constant pair array for the specified id or string value.
+     *        Note: array must be finished with NULL string to stop the lookup.
+     *
+     * @param pair pointer to the const array with pairs.
+     * @param id identifier to search for
+     * @param notfound value to return if identifier is not found.
+     * @return string, representing the identifier.
+     */
+    static const char *lookup(const id_str_pair pair[],
+                              int               id,
+                              const char *      notfound = "unknown");
+    static int         lookup(const id_str_pair pair[], const char *str, int notfound = 0);
+    static int         lookup(const id_str_pair           pair[],
+                              const std::vector<uint8_t> &bytes,
+                              int                         notfound = 0);
+};
 
 /** pgp_fingerprint_t */
 typedef struct pgp_fingerprint_t {
@@ -147,12 +159,24 @@ class rnp_exception : public std::exception {
 };
 } // namespace rnp
 
+/* validity information for the signature/key/userid */
+typedef struct pgp_validity_t {
+    bool validated{}; /* item was validated */
+    bool valid{};     /* item is valid by signature/key checks and calculations.
+                         Still may be revoked or expired. */
+    bool expired{};   /* item is expired */
+
+    void mark_valid();
+    void reset();
+} pgp_validity_t;
+
 /**
  * Type to keep public/secret key mpis without any openpgp-dependent data.
  */
 typedef struct pgp_key_material_t {
-    pgp_pubkey_alg_t alg;    /* algorithm of the key */
-    bool             secret; /* secret part of the key material is populated */
+    pgp_pubkey_alg_t alg;      /* algorithm of the key */
+    bool             secret;   /* secret part of the key material is populated */
+    pgp_validity_t   validity; /* key material validation status */
 
     union {
         pgp_rsa_key_t rsa;
@@ -163,6 +187,8 @@ typedef struct pgp_key_material_t {
 
     size_t bits() const;
     size_t qbits() const;
+    void   validate(rnp::SecurityContext &ctx, bool reset = true);
+    bool   valid() const;
 } pgp_key_material_t;
 
 /**
@@ -251,11 +277,12 @@ typedef struct pgp_sig_subpkt_t {
         } revocation_key; /* 5.2.3.15.  Revocation Key */
         uint8_t *issuer;  /* 5.2.3.5.   Issuer */
         struct {
-            uint8_t     flags[4];
-            unsigned    nlen;
-            unsigned    vlen;
-            const char *name;
-            const char *value;
+            uint8_t        flags[4];
+            unsigned       nlen;
+            unsigned       vlen;
+            bool           human;
+            const uint8_t *name;
+            const uint8_t *value;
         } notation; /* 5.2.3.16.  Notation Data */
         struct {
             bool no_modify;
@@ -390,13 +417,17 @@ struct rnp_keygen_elgamal_params_t {
 };
 
 /* structure used to hold context of key generation */
+namespace rnp {
+class SecurityContext;
+}
+
 typedef struct rnp_keygen_crypto_params_t {
     // Asymmteric algorithm that user requesed key for
     pgp_pubkey_alg_t key_alg;
     // Hash to be used for key signature
     pgp_hash_alg_t hash_alg;
-    // Pointer to initialized RNG engine
-    rng_t *rng;
+    // Pointer to security context
+    rnp::SecurityContext *ctx;
     union {
         struct rnp_keygen_ecc_params_t     ecc;
         struct rnp_keygen_rsa_params_t     rsa;
@@ -411,6 +442,12 @@ typedef struct rnp_selfsig_cert_info_t {
     uint32_t         key_expiration{}; /* key expiration time (sec), 0 = no expiration */
     pgp_user_prefs_t prefs{};          /* user preferences, optional */
     bool             primary : 1;      /* mark this as the primary user id */
+
+    /**
+     * @brief Populate uid and sig packet with data stored in this struct.
+     *        At some point we should get rid of it.
+     */
+    void populate(pgp_userid_pkt_t &uid, pgp_signature_t &sig);
 } rnp_selfsig_cert_info_t;
 
 typedef struct rnp_selfsig_binding_info_t {

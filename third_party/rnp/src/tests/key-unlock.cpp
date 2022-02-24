@@ -47,7 +47,7 @@ TEST_F(rnp_tests, test_key_unlock_pgp)
                                    "326ef111425d14a5"};
 
     assert_true(setup_cli_rnp_common(&rnp, RNP_KEYSTORE_GPG, "data/keyrings/1/", NULL));
-    assert_true(cli_rnp_load_keyrings(&rnp, true));
+    assert_true(rnp.load_keyrings(true));
 
     for (size_t i = 0; i < ARRAY_SIZE(keyids); i++) {
         rnp_key_handle_t handle = NULL;
@@ -67,10 +67,10 @@ TEST_F(rnp_tests, test_key_unlock_pgp)
     // try signing with a failing password provider (should fail)
     assert_rnp_success(
       rnp_ffi_set_pass_provider(rnp.ffi, ffi_failing_password_provider, NULL));
-    rnp_cfg &cfg = cli_rnp_cfg(rnp);
+    rnp_cfg &cfg = rnp.cfg();
     cfg.load_defaults();
     cfg.set_bool(CFG_SIGN_NEEDED, true);
-    cfg.set_str(CFG_HASH, "SHA1");
+    cfg.set_str(CFG_HASH, "SHA256");
     cfg.set_int(CFG_ZLEVEL, 0);
     cfg.set_str(CFG_INFILE, "dummyfile.dat");
     cfg.set_str(CFG_OUTFILE, "dummyfile.dat.pgp");
@@ -127,7 +127,7 @@ TEST_F(rnp_tests, test_key_unlock_pgp)
     cfg.clear();
     cfg.load_defaults();
     cfg.set_bool(CFG_SIGN_NEEDED, true);
-    cfg.set_str(CFG_HASH, "SHA1");
+    cfg.set_str(CFG_HASH, "SHA256");
     cfg.set_int(CFG_ZLEVEL, 0);
     cfg.set_str(CFG_INFILE, "dummyfile.dat");
     cfg.set_str(CFG_OUTFILE, "dummyfile.dat.pgp");
@@ -217,6 +217,6 @@ TEST_F(rnp_tests, test_key_unlock_pgp)
     // cleanup
     assert_rnp_success(rnp_key_handle_destroy(key));
     assert_rnp_success(rnp_key_handle_destroy(subkey));
-    cli_rnp_end(&rnp);
+    rnp.end();
     assert_int_equal(rnp_unlink("dummyfile.dat"), 0);
 }

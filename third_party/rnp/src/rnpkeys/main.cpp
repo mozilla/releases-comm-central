@@ -41,8 +41,6 @@
 extern struct option options[];
 extern const char *  usage;
 
-const char *rnp_keys_progname = NULL;
-
 #ifndef RNP_RUN_TESTS
 int
 main(int argc, char **argv)
@@ -59,8 +57,6 @@ rnpkeys_main(int argc, char **argv)
     int       ret = EXIT_FAILURE;
     int       ch;
 
-    rnp_keys_progname = argv[0];
-
     if (argc < 2) {
         print_usage(usage);
         return EXIT_FAILURE;
@@ -76,7 +72,7 @@ rnpkeys_main(int argc, char **argv)
     }
 #endif
 
-    while ((ch = getopt_long(argc, argv, "Vglo:", options, &optindex)) != -1) {
+    while ((ch = getopt_long(argc, argv, "Vgl", options, &optindex)) != -1) {
         if (ch >= CMD_LIST_KEYS) {
             /* getopt_long returns 0 for long options */
             if (!setoption(cfg, &cmd, options[optindex].val, optarg)) {
@@ -86,7 +82,7 @@ rnpkeys_main(int argc, char **argv)
         } else {
             switch (ch) {
             case 'V':
-                print_praise();
+                cli_rnp_print_praise();
                 ret = EXIT_SUCCESS;
                 goto end;
             case 'g':
@@ -95,12 +91,10 @@ rnpkeys_main(int argc, char **argv)
             case 'l':
                 cmd = CMD_LIST_KEYS;
                 break;
-            case 'o':
-                if (!parse_option(cfg, &cmd, optarg)) {
-                    ERR_MSG("Bad parse_option");
-                    goto end;
-                }
-                break;
+            case '?':
+                print_usage(usage);
+                ret = EXIT_FAILURE;
+                goto end;
             default:
                 cmd = CMD_HELP;
                 break;
@@ -133,7 +127,7 @@ rnpkeys_main(int argc, char **argv)
     }
 
 end:
-    cli_rnp_end(&rnp);
+    rnp.end();
 #if !defined(RNP_RUN_TESTS) && defined(_WIN32)
     if (args_are_substituted) {
         rnp_win_clear_args(argc, argv);

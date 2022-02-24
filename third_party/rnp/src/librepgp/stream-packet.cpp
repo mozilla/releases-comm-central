@@ -564,7 +564,7 @@ pgp_packet_body_t::get(pgp_key_id_t &val) noexcept
 bool
 pgp_packet_body_t::get(pgp_mpi_t &val) noexcept
 {
-    uint16_t bits;
+    uint16_t bits = 0;
     if (!get(bits)) {
         return false;
     }
@@ -582,14 +582,12 @@ pgp_packet_body_t::get(pgp_mpi_t &val) noexcept
         return false;
     }
     /* check the mpi bit count */
-    unsigned hbits = bits & 7 ? bits & 7 : 8;
-    if ((((unsigned) val.mpi[0] >> hbits) != 0) ||
-        !((unsigned) val.mpi[0] & (1U << (hbits - 1)))) {
-        RNP_LOG("Warning! Wrong mpi bit count: got %" PRIu16 ", but high byte is %" PRIu8,
-                bits,
-                val.mpi[0]);
-    }
     val.len = len;
+    size_t mbits = mpi_bits(&val);
+    if (mbits != bits) {
+        RNP_LOG(
+          "Warning! Wrong mpi bit count: got %" PRIu16 ", but actual is %zu", bits, mbits);
+    }
     return true;
 }
 
@@ -886,10 +884,10 @@ void
 pgp_packet_body_t::write(pgp_dest_t &dst, bool hdr) noexcept
 {
     if (hdr) {
-        uint8_t hdr[6] = {
+        uint8_t hdrbt[6] = {
           (uint8_t)(tag_ | PGP_PTAG_ALWAYS_SET | PGP_PTAG_NEW_FORMAT), 0, 0, 0, 0, 0};
-        size_t hlen = 1 + write_packet_len(&hdr[1], data_.size());
-        dst_write(&dst, hdr, hlen);
+        size_t hlen = 1 + write_packet_len(&hdrbt[1], data_.size());
+        dst_write(&dst, hdrbt, hlen);
     }
     dst_write(&dst, data_.data(), data_.size());
 }

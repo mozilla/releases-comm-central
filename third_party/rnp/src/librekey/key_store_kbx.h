@@ -28,9 +28,9 @@
 #define RNP_KEY_STORE_KBX_H
 
 #include <rekey/rnp_key_store.h>
+#include "sec_profile.hpp"
 
 bool rnp_key_store_kbx_from_src(rnp_key_store_t *, pgp_source_t *, const pgp_key_provider_t *);
 bool rnp_key_store_kbx_to_dst(rnp_key_store_t *, pgp_dest_t *);
-void free_kbx_pgp_blob(kbx_pgp_blob_t *);
 
 #endif // RNP_KEY_STORE_KBX_H

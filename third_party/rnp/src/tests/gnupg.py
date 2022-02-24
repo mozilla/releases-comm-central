@@ -1,6 +1,4 @@
-import logging
 import copy
-import os
 from cli_common import run_proc
 
 class GnuPG(object):
@@ -17,7 +15,6 @@ class GnuPG(object):
 
     @property
     def common_params(self):
-        import copy
         return copy.copy(self.__common_params)
 
     @property
@@ -50,6 +47,11 @@ class GnuPG(object):
     def _run(self, cmd, params, batch_input = None):
         retcode, _, _ = run_proc(cmd, params, batch_input)
         return retcode == 0
+
+    def list_keys(self, secret = False):
+        params = ['--list-secret-keys'] if secret else ['--list-keys']
+        params = params + self.common_params
+        return self._run(self.__gpg, params)
 
     def generate_key_batch(self, batch_input):
         params = ['--gen-key', '--expert', '--batch',
@@ -86,6 +88,7 @@ class GnuPG(object):
         params += ['--passphrase', self.password]
         params += ['--batch']
         params += ['--pinentry-mode', 'loopback']
+        params += ['-u', self.userid]
         params += ['-o', out]
         params += ['--sign', input]
         if self.hash:

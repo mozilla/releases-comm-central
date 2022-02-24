@@ -105,9 +105,9 @@ typedef struct pgp_signature_t {
     bool has_keyid() const;
     /**
      * @brief Get signer's key id if available. Availability may be checked via has_keyid().
-     * @return signer's key id if available, or throws an exception otherwise.
+     * @return signer's key id if available, or empty (zero-filled) keyid otherwise.
      */
-    pgp_key_id_t keyid() const;
+    pgp_key_id_t keyid() const noexcept;
     /** @brief Set the signer's key id for the signature being populated. Version should be set
      *         prior of setting key id. */
     void set_keyid(const pgp_key_id_t &id);
@@ -120,9 +120,9 @@ typedef struct pgp_signature_t {
     /**
      * @brief Get signing key's fingerprint if it is available. Availability may be checked via
      *        has_keyfp() method.
-     * @return fingerprint or throws an error if it is unavailable.
+     * @return fingerprint (or empty zero-size fp in case it is unavailable)
      */
-    pgp_fingerprint_t keyfp() const;
+    pgp_fingerprint_t keyfp() const noexcept;
 
     /** @brief Set signing key's fingerprint. Works only for signatures with version 4 and up,
      *         so version should be set prior to fingerprint. */
@@ -253,7 +253,7 @@ typedef struct pgp_signature_t {
     void set_revocable(bool status);
 
     /** @brief Get the key/subkey revocation reason in humand-readable form. If there is no
-     * revocation reason subpacket, then empty string will be returned.
+     *         revocation reason subpacket, then empty string will be returned.
      */
     std::string revocation_reason() const;
 
@@ -270,17 +270,17 @@ typedef struct pgp_signature_t {
 
     /**
      * @brief Check whether signer's key supports certain feature(s). Makes sense only for
-     * self-signature, for more details see the RFC 4880bis, 5.2.3.25. If there is no
-     * corresponding subpacket then false will be returned.
+     *        self-signature, for more details see the RFC 4880bis, 5.2.3.25. If there is
+     *        no corresponding subpacket then false will be returned.
      * @param flags one or more flags, combined via bitwise OR operation.
      * @return true if key is claimed to support all of the features listed in flags, or false
-     * otherwise
+     *         otherwise
      */
     bool key_has_features(pgp_key_feature_t flags) const;
 
     /**
      * @brief Set the features supported by the signer's key, makes sense only for
-     * self-signature. For more details see the RFC 4880bis, 5.2.3.25.
+     *        self-signature. For more details see the RFC 4880bis, 5.2.3.25.
      * @param flags one or more flags, combined via bitwise OR operation.
      */
     void set_key_features(pgp_key_feature_t flags);
@@ -292,9 +292,30 @@ typedef struct pgp_signature_t {
 
     /**
      * @brief Set the signer's uid, responcible for the signature creation. See the RFC
-     * 4880bis, 5.2.3.23 for details.
+     *        4880bis, 5.2.3.23 for details.
      */
     void set_signer_uid(const std::string &uid);
+
+    /**
+     * @brief Add notation.
+     */
+    void add_notation(const std::string &         name,
+                      const std::vector<uint8_t> &value,
+                      bool                        human = true,
+                      bool                        critical = false);
+
+    /**
+     * @brief Add human-readable notation.
+     */
+    void add_notation(const std::string &name,
+                      const std::string &value,
+                      bool               critical = false);
+
+    /**
+     * @brief Set the embedded signature.
+     * @param esig populated and calculated embedded signature.
+     */
+    void set_embedded_sig(const pgp_signature_t &esig);
 
     /**
      * @brief Add subpacket of the specified type to v4 signature
@@ -354,6 +375,12 @@ typedef struct pgp_signature_t {
      * @param material populated signature material.
      */
     void write_material(const pgp_signature_material_t &material);
+
+    /**
+     * @brief Fill signature's hashed data. This includes all the fields from signature which
+     * are hashed after the previous document or key fields.
+     */
+    void fill_hashed_data();
 } pgp_signature_t;
 
 typedef std::vector<pgp_signature_t> pgp_signature_list_t;
@@ -361,7 +388,6 @@ typedef std::vector<pgp_signature_t> pgp_signature_list_t;
 /* information about the validated signature */
 typedef struct pgp_signature_info_t {
     pgp_signature_t *sig{};     /* signature, or NULL if there were parsing error */
-    const pgp_key_t *signer{};  /* signer's public key if found */
     bool             valid{};   /* signature is cryptographically valid (but may be expired) */
     bool             unknown{}; /* signature is unknown - parsing error, wrong version, etc */
     bool             no_signer{};     /* no signer's public key available */
@@ -370,74 +396,29 @@ typedef struct pgp_signature_info_t {
     bool             ignore_expiry{}; /* ignore signer's key expiration time */
 } pgp_signature_info_t;
 
-bool signature_set_embedded_sig(pgp_signature_t *sig, pgp_signature_t *esig);
-
-bool signature_add_notation_data(pgp_signature_t *sig,
-                                 bool             readable,
-                                 const char *     name,
-                                 const char *     value);
-
-/**
- * @brief Fill signature's hashed data. This includes all the fields from signature which are
- *        hashed after the previous document or key fields.
- * @param sig Signature being populated
- * @return true if sig->hashed_data is filled up correctly or false otherwise
- */
-bool signature_fill_hashed_data(pgp_signature_t *sig);
-
 /**
  * @brief Hash key packet. Used in signatures and v4 fingerprint calculation.
+ *        Throws exception on error.
  * @param key key packet, must be populated
- * @param hash pointer to initialized hash context
- * @return true if sig->hashed_data is filled up correctly or false otherwise
+ * @param hash initialized hash context
  */
-bool signature_hash_key(const pgp_key_pkt_t *key, pgp_hash_t *hash);
+void signature_hash_key(const pgp_key_pkt_t &key, rnp::Hash &hash);
 
-bool signature_hash_userid(const pgp_userid_pkt_t *uid,
-                           pgp_hash_t *            hash,
-                           pgp_version_t           sigver);
+void signature_hash_userid(const pgp_userid_pkt_t &uid, rnp::Hash &hash, pgp_version_t sigver);
 
-bool signature_hash_signature(pgp_signature_t *sig, pgp_hash_t *hash);
+void signature_hash_certification(const pgp_signature_t & sig,
+                                  const pgp_key_pkt_t &   key,
+                                  const pgp_userid_pkt_t &userid,
+                                  rnp::Hash &             hash);
 
-bool signature_hash_certification(const pgp_signature_t * sig,
-                                  const pgp_key_pkt_t *   key,
-                                  const pgp_userid_pkt_t *userid,
-                                  pgp_hash_t *            hash);
+void signature_hash_binding(const pgp_signature_t &sig,
+                            const pgp_key_pkt_t &  key,
+                            const pgp_key_pkt_t &  subkey,
+                            rnp::Hash &            hash);
 
-bool signature_hash_binding(const pgp_signature_t *sig,
-                            const pgp_key_pkt_t *  key,
-                            const pgp_key_pkt_t *  subkey,
-                            pgp_hash_t *           hash);
-
-bool signature_hash_direct(const pgp_signature_t *sig,
-                           const pgp_key_pkt_t *  key,
-                           pgp_hash_t *           hash);
-
-/**
- * @brief Check signature, including the expiration time, key validity and so on.
- *
- * @param sinfo populated signature info structure. Method will set flags valid, no_signer,
- *              expired.
- * @param hash populated hash
- * @return RNP_SUCCESS if all checks were passed, RNP_ERROR_SIGNATURE_INVALID for invalid sig,
- *         RNP_ERROR_SIGNATURE_EXPIRED for expired signature. Other error code means problems
- *         during the signature validation (out of memory, wrong parameters, etc).
- */
-rnp_result_t signature_check(pgp_signature_info_t *sinfo, pgp_hash_t *hash);
-
-rnp_result_t signature_check_certification(pgp_signature_info_t *  sinfo,
-                                           const pgp_key_pkt_t *   key,
-                                           const pgp_userid_pkt_t *uid);
-
-rnp_result_t signature_check_binding(pgp_signature_info_t *sinfo,
-                                     const pgp_key_pkt_t * key,
-                                     const pgp_key_t *     subkey);
-
-rnp_result_t signature_check_direct(pgp_signature_info_t *sinfo, const pgp_key_pkt_t *key);
-
-rnp_result_t signature_check_subkey_revocation(pgp_signature_info_t *sinfo,
-                                               const pgp_key_pkt_t * key,
-                                               const pgp_key_pkt_t * subkey);
+void signature_hash_direct(const pgp_signature_t &sig,
+                           const pgp_key_pkt_t &  key,
+                           rnp::Hash &            hash);
 
 /**
  * @brief Parse stream with signatures to the signatures list.

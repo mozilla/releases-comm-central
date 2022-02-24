@@ -26,7 +26,6 @@
 
 #include "../librekey/key_store_pgp.h"
 #include "pgp-key.h"
-
 #include "rnp_tests.h"
 #include "support.h"
 #include "crypto/hash.h"
@@ -47,14 +46,14 @@ TEST_F(rnp_tests, test_key_add_userid)
                                    "54505a936a4a970e",
                                    "326ef111425d14a5"};
 
-    rnp_key_store_t *ks = new rnp_key_store_t();
+    rnp_key_store_t *ks = new rnp_key_store_t(global_ctx);
 
     assert_rnp_success(init_file_src(&src, "data/keyrings/1/secring.gpg"));
     assert_rnp_success(rnp_key_store_pgp_read_from_src(ks, &src));
     src_close(&src);
 
     // locate our key
-    assert_non_null(key = rnp_tests_get_key_by_id(ks, keyids[0], NULL));
+    assert_non_null(key = rnp_tests_get_key_by_id(ks, keyids[0]));
     assert_non_null(key);
 
     // unlock the key
@@ -72,7 +71,16 @@ TEST_F(rnp_tests, test_key_add_userid)
     selfsig0.key_flags = 0x2;
     selfsig0.key_expiration = base_expiry;
     selfsig0.primary = false;
-    assert_true(pgp_key_add_userid_certified(key, &key->pkt(), PGP_HASH_SHA1, &selfsig0));
+    key->add_uid_cert(selfsig0, PGP_HASH_SHA1, global_ctx);
+    // attempt to add sha1-signed uid and make sure it fails
+    assert_int_equal(0, key->expiration());
+    assert_int_equal(0x3, key->flags());
+    assert_false(key->get_uid(uidc).valid);
+    // delete invalid uid and add valid one
+    key->del_uid(uidc);
+    assert_int_equal(uidc, key->uid_count());
+    assert_int_equal(subsigc, key->sig_count());
+    key->add_uid_cert(selfsig0, PGP_HASH_SHA256, global_ctx);
     // make sure this userid has not been marked as primary
     assert_false(key->has_primary_uid());
     // make sure key expiration and flags are set
@@ -86,7 +94,7 @@ TEST_F(rnp_tests, test_key_add_userid)
     selfsig1.key_flags = 0xAB;
     selfsig1.key_expiration = base_expiry + 1;
     selfsig1.primary = 1;
-    assert_true(pgp_key_add_userid_certified(key, &key->pkt(), PGP_HASH_SHA1, &selfsig1));
+    key->add_uid_cert(selfsig1, PGP_HASH_SHA256, global_ctx);
 
     // make sure this userid has been marked as primary
     assert_int_equal(key->uid_count() - 1, key->get_primary_uid());
@@ -98,20 +106,20 @@ TEST_F(rnp_tests, test_key_add_userid)
     // try to add the same userid (should fail)
     rnp_selfsig_cert_info_t dup_selfsig = {};
     memcpy(dup_selfsig.userid, "added1", 7);
-    assert_false(pgp_key_add_userid_certified(key, &key->pkt(), PGP_HASH_SHA1, &dup_selfsig));
+    assert_throw(key->add_uid_cert(dup_selfsig, PGP_HASH_SHA256, global_ctx));
 
     // try to add another primary userid (should fail)
     rnp_selfsig_cert_info_t selfsig2 = {};
     memcpy(selfsig2.userid, "added2", 7);
     selfsig2.primary = 1;
-    assert_false(pgp_key_add_userid_certified(key, &key->pkt(), PGP_HASH_SHA1, &selfsig2));
+    assert_throw(key->add_uid_cert(selfsig2, PGP_HASH_SHA256, global_ctx));
 
     memcpy(selfsig2.userid, "added2", 7);
     selfsig2.key_flags = 0xCD;
     selfsig2.primary = 0;
 
     // actually add another userid
-    assert_true(pgp_key_add_userid_certified(key, &key->pkt(), PGP_HASH_SHA1, &selfsig2));
+    key->add_uid_cert(selfsig2, PGP_HASH_SHA256, global_ctx);
 
     // confirm that the counts have increased as expected
     assert_int_equal(key->uid_count(), uidc + 3);
@@ -143,14 +151,14 @@ TEST_F(rnp_tests, test_key_add_userid)
     key = NULL;
 
     // start over
-    ks = new rnp_key_store_t();
+    ks = new rnp_key_store_t(global_ctx);
     assert_non_null(ks);
     // read from the saved packets
     assert_rnp_success(init_mem_src(&src, mem_dest_get_memory(&dst), dst.writeb, false));
     assert_rnp_success(rnp_key_store_pgp_read_from_src(ks, &src));
     src_close(&src);
     dst_close(&dst, true);
-    assert_non_null(key = rnp_tests_get_key_by_id(ks, keyids[0], NULL));
+    assert_non_null(key = rnp_tests_get_key_by_id(ks, keyids[0]));
 
     // confirm that the counts have increased as expected
     assert_int_equal(key->uid_count(), uidc + 3);

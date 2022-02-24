@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2021 [Ribose Inc](https://www.ribose.com).
  * Copyright (c) 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
@@ -62,6 +62,7 @@
 #include "../librepgp/stream-packet.h"
 #include "crypto/symmetric.h"
 #include "types.h"
+#include "sec_profile.hpp"
 
 /** pgp_rawpacket_t */
 typedef struct pgp_rawpacket_t {
@@ -78,17 +79,6 @@ typedef struct pgp_rawpacket_t {
 
     void write(pgp_dest_t &dst) const;
 } pgp_rawpacket_t;
-
-/* validity information for the signature/key/userid */
-typedef struct pgp_validity_t {
-    bool validated{}; /* item was validated */
-    bool valid{};     /* item is valid by signature/key checks and calculations.
-                         Still may be revoked or expired. */
-    bool expired{};   /* item is expired */
-
-    void mark_valid();
-    void reset();
-} pgp_validity_t;
 
 /** information about the signature */
 typedef struct pgp_subsig_t {
@@ -171,16 +161,17 @@ struct pgp_key_t {
     void          validate_primary(rnp_key_store_t &keyring);
     void          merge_validity(const pgp_validity_t &src);
     uint64_t      valid_till_common(bool expiry) const;
-    /** @brief helper function: write secret key data to the rawpkt, encrypting with password
-     */
-    bool write_sec_rawpkt(pgp_key_pkt_t &seckey, const std::string &password);
-    bool write_sec_pgp(pgp_dest_t &dst, pgp_key_pkt_t &seckey, const std::string &password);
+    bool          write_sec_pgp(pgp_dest_t &       dst,
+                                pgp_key_pkt_t &    seckey,
+                                const std::string &password,
+                                rnp::RNG &         rng);
 
   public:
     pgp_key_store_format_t format{}; /* the format of the key in packets[0] */
 
     pgp_key_t() = default;
     pgp_key_t(const pgp_key_pkt_t &pkt);
+    pgp_key_t(const pgp_key_pkt_t &pkt, pgp_key_t &primary);
     pgp_key_t(const pgp_key_t &src, bool pubonly = false);
     pgp_key_t(const pgp_transferable_key_t &src);
     pgp_key_t(const pgp_transferable_subkey_t &src, pgp_key_t *primary);
@@ -215,7 +206,7 @@ struct pgp_key_t {
     pgp_key_pkt_t &      pkt();
     void                 set_pkt(const pgp_key_pkt_t &pkt);
 
-    const pgp_key_material_t &material() const;
+    pgp_key_material_t &material();
 
     pgp_pubkey_alg_t alg() const;
     pgp_curve_t      curve() const;
@@ -286,15 +277,18 @@ struct pgp_key_t {
     pgp_rawpacket_t &      rawpkt();
     const pgp_rawpacket_t &rawpkt() const;
     void                   set_rawpkt(const pgp_rawpacket_t &src);
+    /** @brief write secret key data to the rawpkt, optionally encrypting with password */
+    bool write_sec_rawpkt(pgp_key_pkt_t &seckey, const std::string &password, rnp::RNG &rng);
 
     /** @brief Unlock a key, i.e. decrypt its secret data so it can be used for
-     *signing/decryption. Note: Key locking does not apply to unprotected keys.
+     *         signing/decryption.
+     *         Note: Key locking does not apply to unprotected keys.
      *
-     *  @param pass_provider the password provider that may be used
-     *         to unlock the key, if necessary
+     *  @param pass_provider the password provider that may be used to unlock the key
+     *  @param op operation for which secret key should be unloacked
      *  @return true if the key was unlocked, false otherwise
      **/
-    bool unlock(const pgp_password_provider_t &provider);
+    bool unlock(const pgp_password_provider_t &provider, pgp_op_t op = PGP_OP_UNLOCK);
     /** @brief Lock a key, i.e. cleanup decrypted secret data.
      *  Note: Key locking does not apply to unprotected keys.
      *
@@ -305,13 +299,15 @@ struct pgp_key_t {
     /** @brief Add protection to an unlocked key, i.e. encrypt its secret data with specified
      *         parameters. */
     bool protect(const rnp_key_protection_params_t &protection,
-                 const pgp_password_provider_t &    password_provider);
+                 const pgp_password_provider_t &    password_provider,
+                 rnp::RNG &                         rng);
     /** @brief Add/change protection of a key */
     bool protect(pgp_key_pkt_t &                    decrypted,
                  const rnp_key_protection_params_t &protection,
-                 const std::string &                new_password);
+                 const std::string &                new_password,
+                 rnp::RNG &                         rng);
     /** @brief Remove protection from a key, i.e. leave secret fields unencrypted */
-    bool unprotect(const pgp_password_provider_t &password_provider);
+    bool unprotect(const pgp_password_provider_t &password_provider, rnp::RNG &rng);
 
     /** @brief Write key's packets to the output. */
     void write(pgp_dest_t &dst) const;
@@ -381,33 +377,212 @@ struct pgp_key_t {
      *
      * @param key key or subkey to which signature belongs.
      * @param sig signature to validate.
+     * @param ctx Populated security context.
      */
-    void validate_sig(const pgp_key_t &key, pgp_subsig_t &sig) const;
-    void validate_self_signatures();
-    void validate_self_signatures(pgp_key_t &primary);
+    void validate_sig(const pgp_key_t &           key,
+                      pgp_subsig_t &              sig,
+                      const rnp::SecurityContext &ctx) const noexcept;
+
+    /**
+     * @brief Validate signature, assuming that 'this' is a signing key.
+     *
+     * @param sinfo populated signature info. Validation results will be stored here.
+     * @param hash hash, feed with all signed data except signature trailer.
+     * @param ctx Populated security context.
+     */
+    void validate_sig(pgp_signature_info_t &      sinfo,
+                      rnp::Hash &                 hash,
+                      const rnp::SecurityContext &ctx) const noexcept;
+
+    /**
+     * @brief Validate certification.
+     *
+     * @param sinfo populated signature info. Validation results will be stored here.
+     * @param key key packet to which certification belongs.
+     * @param uid userid which is bound by certification to the key packet.
+     */
+    void validate_cert(pgp_signature_info_t &      sinfo,
+                       const pgp_key_pkt_t &       key,
+                       const pgp_userid_pkt_t &    uid,
+                       const rnp::SecurityContext &ctx) const;
+
+    /**
+     * @brief Validate subkey binding.
+     *
+     * @param sinfo populated signature info. Validation results will be stored here.
+     * @param subkey subkey packet.
+     */
+    void validate_binding(pgp_signature_info_t &      sinfo,
+                          const pgp_key_t &           subkey,
+                          const rnp::SecurityContext &ctx) const;
+
+    /**
+     * @brief Validate subkey revocation.
+     *
+     * @param sinfo populated signature info. Validation results will be stored here.
+     * @param subkey subkey packet.
+     */
+    void validate_sub_rev(pgp_signature_info_t &      sinfo,
+                          const pgp_key_pkt_t &       subkey,
+                          const rnp::SecurityContext &ctx) const;
+
+    /**
+     * @brief Validate direct-key signature.
+     *
+     * @param sinfo populated signature info. Validation results will be stored here.
+     */
+    void validate_direct(pgp_signature_info_t &sinfo, const rnp::SecurityContext &ctx) const;
+
+    void validate_self_signatures(const rnp::SecurityContext &ctx);
+    void validate_self_signatures(pgp_key_t &primary, const rnp::SecurityContext &ctx);
     void validate(rnp_key_store_t &keyring);
-    void validate_subkey(pgp_key_t *primary = NULL);
+    void validate_subkey(pgp_key_t *primary, const rnp::SecurityContext &ctx);
     void revalidate(rnp_key_store_t &keyring);
     void mark_valid();
+    /**
+     * @brief Fill common signature parameters, assuming that current key is a signing one.
+     * @param sig signature to init.
+     * @param hash hash algorithm to use (may be changed if it is not suitable for public key
+     *             algorithm).
+     */
+    void sign_init(pgp_signature_t &sig, pgp_hash_alg_t hash) const;
+    /**
+     * @brief Calculate a certification and fill signature material.
+     *        Note: secret key must be unlocked before calling this function.
+     *
+     * @param key key packet to sign. May be both public and secret. Could be signing key's
+     *            packet for self-signature, or any other one for cross-key certification.
+     * @param uid uid to certify.
+     * @param sig signature, pre-populated with all of the required data, except the
+     *            signature material.
+     */
+    void sign_cert(const pgp_key_pkt_t &   key,
+                   const pgp_userid_pkt_t &uid,
+                   pgp_signature_t &       sig,
+                   rnp::SecurityContext &  ctx);
+
+    /**
+     * @brief Calculate direct-key signature.
+     *        Note: secret key must be unlocked before calling this function.
+     *
+     * @param key key packet to sign. May be both public and secret.
+     * @param sig signature, pre-populated with all of the required data, except the
+     *            signature material.
+     */
+    void sign_direct(const pgp_key_pkt_t & key,
+                     pgp_signature_t &     sig,
+                     rnp::SecurityContext &ctx);
+
+    /**
+     * @brief Calculate subkey or primary key binding.
+     *        Note: this will not embed primary key binding for the signing subkey, it should
+     *        be added by the caller.
+     *
+     * @param key subkey or primary key packet, may be both public or secret.
+     * @param sig signature, pre-populated with all of the required data, except the
+     *            signature material.
+     */
+    void sign_binding(const pgp_key_pkt_t & key,
+                      pgp_signature_t &     sig,
+                      rnp::SecurityContext &ctx);
+
+    /**
+     * @brief Calculate subkey binding.
+     *        Note: secret key must be unlocked before calling this function. If subsign is
+     *        true then subkey must be secret and unlocked as well so function can calculate
+     *        primary key binding.
+     *
+     * @param sub subkey to bind to the primary key. If subsign is true then must be unlocked
+     *            secret key.
+     * @param sig signature, pre-populated with all of the required data, except the
+     *            signature material.
+     */
+    void sign_subkey_binding(pgp_key_t &           sub,
+                             pgp_signature_t &     sig,
+                             rnp::SecurityContext &ctx,
+                             bool                  subsign = false);
+
+    /**
+     * @brief Generate key or subkey revocation signature.
+     *
+     * @param revoke revocation information.
+     * @param key key or subkey packet to revoke.
+     * @param sig object to store revocation signature. Will be populated in method call.
+     */
+    void gen_revocation(const pgp_revoke_t &  revoke,
+                        pgp_hash_alg_t        hash,
+                        const pgp_key_pkt_t & key,
+                        pgp_signature_t &     sig,
+                        rnp::SecurityContext &ctx);
+
+    /**
+     * @brief Add and certify userid.
+     *        Note: secret key must be unlocked before calling this function.
+     *
+     * @param cert certification and userid parameters.
+     * @param hash hash algorithm to use during signing. See sign_init() for more details.
+     * @param ctx  security context.
+     * @param pubkey if non-NULL then userid and certification will be added to this key as
+     *               well.
+     */
+    void add_uid_cert(rnp_selfsig_cert_info_t &cert,
+                      pgp_hash_alg_t           hash,
+                      rnp::SecurityContext &   ctx,
+                      pgp_key_t *              pubkey = nullptr);
+
+    /**
+     * @brief Calculate and add subkey binding signature.
+     *        Note: must be called on the unlocked secret primary key. Calculated signature is
+     *        added to the subkey.
+     *
+     * @param subsec secret subkey.
+     * @param subpub subkey's public part (so signature is added to both).
+     * @param binding information about subkey to put to the signature.
+     * @param hash hash algorithm to use (may be adjusted according to key and subkey
+     *             algorithms)
+     */
+    void add_sub_binding(pgp_key_t &                       subsec,
+                         pgp_key_t &                       subpub,
+                         const rnp_selfsig_binding_info_t &binding,
+                         pgp_hash_alg_t                    hash,
+                         rnp::SecurityContext &            ctx);
 
     /** @brief Refresh internal fields after primary key is updated */
-    bool refresh_data();
+    bool refresh_data(const rnp::SecurityContext &ctx);
     /** @brief Refresh internal fields after subkey is updated */
-    bool refresh_data(pgp_key_t *primary);
+    bool refresh_data(pgp_key_t *primary, const rnp::SecurityContext &ctx);
     /** @brief Merge primary key with the src, i.e. add all new userids/signatures/subkeys */
     bool merge(const pgp_key_t &src);
     /** @brief Merge subkey with the source, i.e. add all new signatures */
     bool merge(const pgp_key_t &src, pgp_key_t *primary);
 };
 
-pgp_key_pkt_t *pgp_decrypt_seckey_pgp(const uint8_t *,
-                                      size_t,
-                                      const pgp_key_pkt_t *,
-                                      const char *);
+namespace rnp {
+class KeyLocker {
+    bool       lock_;
+    pgp_key_t &key_;
 
-pgp_key_pkt_t *pgp_decrypt_seckey(const pgp_key_t *,
-                                  const pgp_password_provider_t *,
-                                  const pgp_password_ctx_t *);
+  public:
+    KeyLocker(pgp_key_t &key) : lock_(key.is_locked()), key_(key)
+    {
+    }
+
+    ~KeyLocker()
+    {
+        if (lock_ && !key_.is_locked()) {
+            key_.lock();
+        }
+    }
+};
+}; // namespace rnp
+
+pgp_key_pkt_t *pgp_decrypt_seckey_pgp(const pgp_rawpacket_t &raw,
+                                      const pgp_key_pkt_t &  key,
+                                      const char *           password);
+
+pgp_key_pkt_t *pgp_decrypt_seckey(const pgp_key_t &,
+                                  const pgp_password_provider_t &,
+                                  const pgp_password_ctx_t &);
 
 /**
  * @brief Get the signer's key for signature
@@ -433,29 +608,18 @@ pgp_key_t *pgp_key_get_subkey(const pgp_key_t *key, rnp_key_store_t *store, size
 
 pgp_key_flags_t pgp_pk_alg_capabilities(pgp_pubkey_alg_t alg);
 
-/** add a new certified userid to a key
- *
- *  @param key
- *  @param seckey the decrypted seckey for signing
- *  @param hash_alg the hash algorithm to be used for the signature
- *  @param cert the self-signature information
- *  @return true if the userid was added, false otherwise
- */
-bool pgp_key_add_userid_certified(pgp_key_t *              key,
-                                  const pgp_key_pkt_t *    seckey,
-                                  pgp_hash_alg_t           hash_alg,
-                                  rnp_selfsig_cert_info_t *cert);
-
 bool pgp_key_set_expiration(pgp_key_t *                    key,
                             pgp_key_t *                    signer,
                             uint32_t                       expiry,
-                            const pgp_password_provider_t &prov);
+                            const pgp_password_provider_t &prov,
+                            rnp::SecurityContext &         ctx);
 
 bool pgp_subkey_set_expiration(pgp_key_t *                    sub,
                                pgp_key_t *                    primsec,
                                pgp_key_t *                    secsub,
                                uint32_t                       expiry,
-                               const pgp_password_provider_t &prov);
+                               const pgp_password_provider_t &prov,
+                               rnp::SecurityContext &         ctx);
 
 /** find a key suitable for a particular operation
  *

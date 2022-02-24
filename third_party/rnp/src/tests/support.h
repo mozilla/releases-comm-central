@@ -69,6 +69,8 @@ char *mkdtemp(char *templ);
 #define realpath(N, R) _fullpath((R), (N), _MAX_PATH)
 #endif
 
+extern rnp::SecurityContext global_ctx;
+
 /* Check if a file is empty
  * Use with assert_true and rnp_assert_false(rstate, .
  */
@@ -135,10 +137,10 @@ bool bin_eq_hex(const uint8_t *data, size_t len, const char *val);
 bool hex2mpi(pgp_mpi_t *val, const char *hex);
 
 /* check whether key id is equal to hex string */
-bool cmp_keyid(const pgp_key_id_t &id, const char *val);
+bool cmp_keyid(const pgp_key_id_t &id, const std::string &val);
 
 /* check whether key fp is equal to hex string */
-bool cmp_keyfp(const pgp_fingerprint_t &fp, const char *val);
+bool cmp_keyfp(const pgp_fingerprint_t &fp, const std::string &val);
 
 /*
  */
@@ -211,6 +213,7 @@ bool ends_with(const std::string &data, const std::string &match);
 
 std::string fmt(const char *format, ...);
 std::string strip_eol(const std::string &str);
+std::string lowercase(const std::string &str);
 
 bool check_json_field_str(json_object *      obj,
                           const std::string &field,
@@ -221,9 +224,11 @@ bool check_json_pkt_type(json_object *pkt, int tag);
 
 pgp_key_t *rnp_tests_get_key_by_id(rnp_key_store_t *  keyring,
                                    const std::string &keyid,
-                                   pgp_key_t *        after);
+                                   pgp_key_t *        after = NULL);
 pgp_key_t *rnp_tests_get_key_by_fpr(rnp_key_store_t *keyring, const std::string &keyid);
-pgp_key_t *rnp_tests_key_search(rnp_key_store_t *keyring, const std::string &keyid);
+pgp_key_t *rnp_tests_get_key_by_grip(rnp_key_store_t *keyring, const std::string &grip);
+pgp_key_t *rnp_tests_get_key_by_grip(rnp_key_store_t *keyring, const pgp_key_grip_t &grip);
+pgp_key_t *rnp_tests_key_search(rnp_key_store_t *keyring, const std::string &uid);
 
 /* key load/reload  shortcuts */
 void reload_pubring(rnp_ffi_t *ffi);
@@ -238,5 +243,34 @@ bool import_sec_keys(rnp_ffi_t ffi, const std::string &path);
 bool import_all_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
 bool import_pub_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
 bool import_sec_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
+/* key export shortcut */
+std::vector<uint8_t> export_key(rnp_key_handle_t key,
+                                bool             armored = false,
+                                bool             secret = false);
+/* Dump key to the stdout. Not used in real tests, but useful for artefact generation */
+void dump_key_stdout(rnp_key_handle_t key, bool secret = false);
+
+/* some shortcuts for less code */
+bool     check_key_valid(rnp_key_handle_t key, bool validity);
+uint32_t get_key_expiry(rnp_key_handle_t key);
+size_t   get_key_uids(rnp_key_handle_t key);
+bool     check_sub_valid(rnp_key_handle_t key, size_t idx, bool validity);
+bool     check_uid_valid(rnp_key_handle_t key, size_t idx, bool valid);
+bool     check_uid_primary(rnp_key_handle_t key, size_t idx, bool primary);
+
+bool sm2_enabled();
+bool aead_eax_enabled();
+bool aead_ocb_enabled();
+bool twofish_enabled();
+bool brainpool_enabled();
+
+inline size_t
+rnp_round_up(size_t n, size_t align_to)
+{
+    if (n % align_to) {
+        n += align_to - (n % align_to);
+    }
+    return n;
+}
 
 #endif /* SUPPORT_H_ */

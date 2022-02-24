@@ -92,7 +92,7 @@ typedef struct pgp_source_encrypted_param_t {
     bool                          aead;           /* AEAD encrypted data packet, tag 20 */
     bool                          aead_validated; /* we read and validated last chunk */
     pgp_crypt_t                   decrypt;        /* decrypting crypto */
-    pgp_hash_t                    mdc;            /* mdc SHA1 hash */
+    rnp::Hash                     mdc;            /* mdc SHA1 hash */
     size_t                        chunklen;       /* size of AEAD chunk in bytes */
     size_t                        chunkin;  /* number of bytes read from the current chunk */
     size_t                        chunkidx; /* index of the current chunk */
@@ -125,11 +125,11 @@ typedef struct pgp_source_signed_param_t {
     std::vector<pgp_one_pass_sig_t>   onepasses;  /* list of one-pass singatures */
     std::list<pgp_signature_t>        sigs;       /* list of signatures */
     std::vector<pgp_signature_info_t> siginfos;   /* signature validation info */
-    std::vector<pgp_hash_t>           hashes;     /* hash contexts */
-    std::vector<pgp_hash_t>           txt_hashes; /* hash contexts for text-mode sigs */
+    rnp::HashList                     hashes;     /* hash contexts */
+    rnp::HashList                     txt_hashes; /* hash contexts for text-mode sigs */
 
     pgp_source_signed_param_t() = default;
-    ~pgp_source_signed_param_t();
+    ~pgp_source_signed_param_t() = default;
 } pgp_source_signed_param_t;
 
 typedef struct pgp_source_compressed_param_t {
@@ -314,7 +314,7 @@ static bool
 compressed_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
 {
     pgp_source_compressed_param_t *param = (pgp_source_compressed_param_t *) src->param;
-    if (param == NULL) {
+    if (!param) {
         return false;
     }
 
@@ -323,6 +323,13 @@ compressed_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
         return true;
     }
 
+    if (param->alg == PGP_C_NONE) {
+        if (!src_read(param->pkt.readsrc, buf, len, readres)) {
+            RNP_LOG("failed to read uncompressed data");
+            return false;
+        }
+        return true;
+    }
     if ((param->alg == PGP_C_ZIP) || (param->alg == PGP_C_ZLIB)) {
         param->z.next_out = (Bytef *) buf;
         param->z.avail_out = len;
@@ -434,6 +441,7 @@ compressed_src_close(pgp_source_t *src)
     src->param = NULL;
 }
 
+#if defined(ENABLE_AEAD)
 static bool
 encrypted_start_aead_chunk(pgp_source_encrypted_param_t *param, size_t idx, bool last)
 {
@@ -468,9 +476,6 @@ encrypted_start_aead_chunk(pgp_source_encrypted_param_t *param, size_t idx, bool
 
     /* set chunk index for nonce */
     nlen = pgp_cipher_aead_nonce(param->aead_hdr.aalg, param->aead_hdr.iv, nonce, idx);
-
-    RNP_DHEX("authenticated data: ", param->aead_ad, param->aead_adlen);
-    RNP_DHEX("nonce: ", nonce, nlen);
 
     /* start cipher */
     return pgp_cipher_aead_start(&param->decrypt, nonce, nlen);
@@ -544,8 +549,6 @@ encrypted_src_read_aead_part(pgp_source_encrypted_param_t *param)
             src_skip(param->pkt.readsrc, tagread - taglen);
         }
 
-        RNP_DHEX("tag: ", param->cache + read + tagread - 2 * taglen, taglen);
-
         res = pgp_cipher_aead_finish(
           &param->decrypt, param->cache, param->cache, read + tagread - taglen);
         if (!res) {
@@ -554,8 +557,6 @@ encrypted_src_read_aead_part(pgp_source_encrypted_param_t *param)
         }
         param->cachelen = read + tagread - 2 * taglen;
         param->chunkin += param->cachelen;
-
-        RNP_DHEX("decrypted data: ", param->cache, param->cachelen);
     }
 
     size_t chunkidx = param->chunkidx;
@@ -574,9 +575,6 @@ encrypted_src_read_aead_part(pgp_source_encrypted_param_t *param)
         }
 
         size_t off = read + tagread - taglen;
-
-        RNP_DHEX("tag: ", param->cache + off, taglen);
-
         res = pgp_cipher_aead_finish(
           &param->decrypt, param->cache + off, param->cache + off, taglen);
         if (!res) {
@@ -588,10 +586,14 @@ encrypted_src_read_aead_part(pgp_source_encrypted_param_t *param)
 
     return res;
 }
+#endif
 
 static bool
 encrypted_src_read_aead(pgp_source_t *src, void *buf, size_t len, size_t *read)
 {
+#if !defined(ENABLE_AEAD)
+    return false;
+#else
     pgp_source_encrypted_param_t *param = (pgp_source_encrypted_param_t *) src->param;
     size_t                        cbytes;
     size_t                        left = len;
@@ -623,6 +625,7 @@ encrypted_src_read_aead(pgp_source_t *src, void *buf, size_t len, size_t *read)
 
     *read = len - left;
     return true;
+#endif
 }
 
 static bool
@@ -670,25 +673,30 @@ encrypted_src_read_cfb(pgp_source_t *src, void *buf, size_t len, size_t *readres
     pgp_cipher_cfb_decrypt(&param->decrypt, (uint8_t *) buf, (uint8_t *) buf, read);
 
     if (param->has_mdc) {
-        pgp_hash_add(&param->mdc, buf, read);
+        try {
+            param->mdc.add(buf, read);
 
-        if (parsemdc) {
-            pgp_cipher_cfb_decrypt(&param->decrypt, mdcbuf, mdcbuf, MDC_V1_SIZE);
-            pgp_cipher_cfb_finish(&param->decrypt);
-            pgp_hash_add(&param->mdc, mdcbuf, 2);
-            uint8_t hash[PGP_SHA1_HASH_SIZE] = {0};
-            pgp_hash_finish(&param->mdc, hash);
+            if (parsemdc) {
+                pgp_cipher_cfb_decrypt(&param->decrypt, mdcbuf, mdcbuf, MDC_V1_SIZE);
+                pgp_cipher_cfb_finish(&param->decrypt);
+                param->mdc.add(mdcbuf, 2);
+                uint8_t hash[PGP_SHA1_HASH_SIZE] = {0};
+                param->mdc.finish(hash);
 
-            if ((mdcbuf[0] != MDC_PKT_TAG) || (mdcbuf[1] != MDC_V1_SIZE - 2)) {
-                RNP_LOG("mdc header check failed");
-                return false;
+                if ((mdcbuf[0] != MDC_PKT_TAG) || (mdcbuf[1] != MDC_V1_SIZE - 2)) {
+                    RNP_LOG("mdc header check failed");
+                    return false;
+                }
+
+                if (memcmp(&mdcbuf[2], hash, PGP_SHA1_HASH_SIZE) != 0) {
+                    RNP_LOG("mdc hash check failed");
+                    return false;
+                }
+                param->mdc_validated = true;
             }
-
-            if (memcmp(&mdcbuf[2], hash, PGP_SHA1_HASH_SIZE) != 0) {
-                RNP_LOG("mdc hash check failed");
-                return false;
-            }
-            param->mdc_validated = true;
+        } catch (const std::exception &e) {
+            RNP_LOG("mdc update failed: %s", e.what());
+            return false;
         }
     }
     *readres = read;
@@ -737,7 +745,9 @@ encrypted_src_close(pgp_source_t *src)
     }
 
     if (param->aead) {
+#if defined(ENABLE_AEAD)
         pgp_cipher_aead_destroy(&param->decrypt);
+#endif
     } else {
         pgp_cipher_cfb_finish(&param->decrypt);
     }
@@ -746,41 +756,69 @@ encrypted_src_close(pgp_source_t *src)
     src->param = NULL;
 }
 
-static bool
+static void
 add_hash_for_sig(pgp_source_signed_param_t *param, pgp_sig_type_t stype, pgp_hash_alg_t halg)
 {
     /* Cleartext always uses param->hashes instead of param->txt_hashes */
     if (!param->cleartext && (stype == PGP_SIG_TEXT)) {
-        return pgp_hash_list_add(param->txt_hashes, halg);
+        param->txt_hashes.add_alg(halg);
     }
-    return pgp_hash_list_add(param->hashes, halg);
+    param->hashes.add_alg(halg);
 }
 
-static const pgp_hash_t *
-get_hash_for_sig(pgp_source_signed_param_t *param, pgp_signature_info_t *sinfo)
+static const rnp::Hash *
+get_hash_for_sig(pgp_source_signed_param_t &param, pgp_signature_info_t &sinfo)
 {
     /* Cleartext always uses param->hashes instead of param->txt_hashes */
-    if (!param->cleartext && (sinfo->sig->type() == PGP_SIG_TEXT)) {
-        return pgp_hash_list_get(param->txt_hashes, sinfo->sig->halg);
+    if (!param.cleartext && (sinfo.sig->type() == PGP_SIG_TEXT)) {
+        return param.txt_hashes.get(sinfo.sig->halg);
     }
-    return pgp_hash_list_get(param->hashes, sinfo->sig->halg);
+    return param.hashes.get(sinfo.sig->halg);
 }
 
 static void
-signed_validate_signature(pgp_source_signed_param_t *param, pgp_signature_info_t *sinfo)
+signed_validate_signature(pgp_source_signed_param_t &param, pgp_signature_info_t &sinfo)
 {
-    pgp_hash_t shash = {};
+    /* Find signing key */
+    pgp_key_request_ctx_t keyctx = {
+      .op = PGP_OP_VERIFY, .secret = false, .search = {.type = PGP_KEY_SEARCH_FINGERPRINT}};
 
-    /* Get the hash context and clone it. */
-    const pgp_hash_t *hash = get_hash_for_sig(param, sinfo);
-    if (!hash || !pgp_hash_copy(&shash, hash)) {
-        RNP_LOG("failed to clone hash context");
-        sinfo->valid = false;
+    /* Get signer's fp or keyid */
+    if (sinfo.sig->has_keyfp()) {
+        keyctx.search.by.fingerprint = sinfo.sig->keyfp();
+    } else if (sinfo.sig->has_keyid()) {
+        keyctx.search.type = PGP_KEY_SEARCH_KEYID;
+        keyctx.search.by.keyid = sinfo.sig->keyid();
+    } else {
+        RNP_LOG("cannot get signer's key fp or id from signature.");
+        sinfo.unknown = true;
         return;
     }
-
-    /* fill the signature info */
-    signature_check(sinfo, &shash);
+    /* Get the public key */
+    pgp_key_t *key = pgp_request_key(param.handler->key_provider, &keyctx);
+    if (!key) {
+        /* fallback to secret key */
+        keyctx.secret = true;
+        if (!(key = pgp_request_key(param.handler->key_provider, &keyctx))) {
+            RNP_LOG("signer's key not found");
+            sinfo.no_signer = true;
+            return;
+        }
+    }
+    /* Get the hash context and clone it. */
+    const rnp::Hash *hash = get_hash_for_sig(param, sinfo);
+    if (!hash) {
+        RNP_LOG("failed to get hash context.");
+        return;
+    }
+    try {
+        rnp::Hash shash;
+        hash->clone(shash);
+        key->validate_sig(sinfo, shash, *param.handler->ctx->ctx);
+    } catch (const std::exception &e) {
+        RNP_LOG("Signature validation failed: %s", e.what());
+        sinfo.valid = false;
+    }
 }
 
 static long
@@ -808,7 +846,11 @@ signed_src_update(pgp_source_t *src, const void *buf, size_t len)
         signed_src_update(src, &last, 1);
     }
     pgp_source_signed_param_t *param = (pgp_source_signed_param_t *) src->param;
-    pgp_hash_list_update(param->hashes, buf, len);
+    try {
+        param->hashes.add(buf, len);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+    }
     /* update text-mode sig hashes */
     if (param->txt_hashes.empty()) {
         return;
@@ -823,7 +865,11 @@ signed_src_update(pgp_source_t *src, const void *buf, size_t len)
         if (*ch != CH_LF) {
             if (*ch != CH_CR && param->stripped_crs > 0) {
                 while (param->stripped_crs--) {
-                    pgp_hash_list_update(param->txt_hashes, ST_CR, 1);
+                    try {
+                        param->txt_hashes.add(ST_CR, 1);
+                    } catch (const std::exception &e) {
+                        RNP_LOG("%s", e.what());
+                    }
                 }
                 param->stripped_crs = 0;
             }
@@ -845,12 +891,19 @@ signed_src_update(pgp_source_t *src, const void *buf, size_t len)
         if (ch > linebeg) {
             long stripped_len = stripped_line_len(linebeg, ch);
             if (stripped_len > 0) {
-                pgp_hash_list_update(param->txt_hashes, linebeg, stripped_len);
+                try {
+                    param->txt_hashes.add(linebeg, stripped_len);
+                } catch (const std::exception &e) {
+                    RNP_LOG("%s", e.what());
+                }
             }
         }
         /* dump EOL */
-        pgp_hash_list_update(param->txt_hashes, ST_CRLF, 2);
-
+        try {
+            param->txt_hashes.add(ST_CRLF, 2);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
+        }
         ch++;
         linebeg = ch;
     }
@@ -861,7 +914,11 @@ signed_src_update(pgp_source_t *src, const void *buf, size_t len)
             param->stripped_crs = end - linebeg - stripped_len;
         }
         if (stripped_len > 0) {
-            pgp_hash_list_update(param->txt_hashes, linebeg, stripped_len);
+            try {
+                param->txt_hashes.add(linebeg, stripped_len);
+            } catch (const std::exception &e) {
+                RNP_LOG("%s", e.what());
+            }
         }
     }
 }
@@ -887,6 +944,8 @@ signed_src_close(pgp_source_t *src)
     src->param = NULL;
 }
 
+#define MAX_SIGNATURES 16384
+
 static rnp_result_t
 signed_read_single_signature(pgp_source_signed_param_t *param,
                              pgp_source_t *             readsrc,
@@ -901,6 +960,11 @@ signed_read_single_signature(pgp_source_signed_param_t *param,
     int ptype = get_packet_type(ptag);
     if (ptype != PGP_PKT_SIGNATURE) {
         RNP_LOG("unexpected packet %d", ptype);
+        return RNP_ERROR_BAD_FORMAT;
+    }
+
+    if (param->siginfos.size() >= MAX_SIGNATURES) {
+        RNP_LOG("Too many signatures in the stream.");
         return RNP_ERROR_BAD_FORMAT;
     }
 
@@ -978,8 +1042,6 @@ static rnp_result_t
 signed_src_finish(pgp_source_t *src)
 {
     pgp_source_signed_param_t *param = (pgp_source_signed_param_t *) src->param;
-    pgp_key_request_ctx_t      keyctx;
-    pgp_key_t *                key = NULL;
     rnp_result_t               ret = RNP_ERROR_GENERIC;
 
     if (param->cleartext) {
@@ -988,7 +1050,7 @@ signed_src_finish(pgp_source_t *src)
         ret = signed_read_signatures(src);
     }
 
-    if (ret != RNP_SUCCESS) {
+    if (ret) {
         return ret;
     }
 
@@ -997,38 +1059,11 @@ signed_src_finish(pgp_source_t *src)
     }
 
     /* validating signatures */
-    keyctx.op = PGP_OP_VERIFY;
-    keyctx.search.type = PGP_KEY_SEARCH_KEYID;
-
     for (auto &sinfo : param->siginfos) {
         if (!sinfo.sig) {
             continue;
         }
-
-        /* we need public key, however may fallback to secret later on */
-        keyctx.secret = false;
-
-        /* Get the key id */
-        if (!sinfo.sig->has_keyid()) {
-            RNP_LOG("cannot get signer's key id from signature");
-            sinfo.unknown = true;
-            continue;
-        }
-        keyctx.search.by.keyid = sinfo.sig->keyid();
-
-        /* Get the public key */
-        if (!(key = pgp_request_key(param->handler->key_provider, &keyctx))) {
-            // fallback to secret key
-            keyctx.secret = true;
-            if (!(key = pgp_request_key(param->handler->key_provider, &keyctx))) {
-                RNP_LOG("signer's key not found");
-                sinfo.no_signer = true;
-                continue;
-            }
-        }
-        sinfo.signer = key;
-        /* validate signature */
-        signed_validate_signature(param, &sinfo);
+        signed_validate_signature(*param, sinfo);
     }
 
     /* checking the validation results */
@@ -1098,29 +1133,35 @@ cleartext_parse_headers(pgp_source_t *src)
             break;
         }
 
-        if (rnp_is_blank_line(hdr, hdrlen)) {
+        if (rnp::is_blank_line(hdr, hdrlen)) {
             src_skip(param->readsrc, hdrlen);
             break;
         }
 
-        if ((hdrlen >= 6) && !strncmp(hdr, ST_HEADER_HASH, 6)) {
-            hval = hdr + 6;
+        try {
+            if ((hdrlen >= 6) && !strncmp(hdr, ST_HEADER_HASH, 6)) {
+                hval = hdr + 6;
 
-            std::string remainder = hval;
+                std::string remainder = hval;
 
-            const std::string        delimiters = ", \t";
-            std::vector<std::string> tokens;
+                const std::string        delimiters = ", \t";
+                std::vector<std::string> tokens;
 
-            tokenize(remainder, delimiters, tokens);
+                tokenize(remainder, delimiters, tokens);
 
-            for (const auto &token : tokens) {
-                if ((halg = pgp_str_to_hash_alg(token.c_str())) == PGP_HASH_UNKNOWN) {
-                    RNP_LOG("unknown halg: %s", token.c_str());
+                for (const auto &token : tokens) {
+                    if ((halg = rnp::Hash::alg(token.c_str())) == PGP_HASH_UNKNOWN) {
+                        RNP_LOG("unknown halg: %s", token.c_str());
+                        continue;
+                    }
+                    add_hash_for_sig(param, PGP_SIG_TEXT, halg);
                 }
-                add_hash_for_sig(param, PGP_SIG_TEXT, halg);
+            } else {
+                RNP_LOG("unknown header '%s'", hdr);
             }
-        } else {
-            RNP_LOG("unknown header '%s'", hdr);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
+            return false;
         }
 
         src_skip(param->readsrc, hdrlen);
@@ -1247,8 +1288,8 @@ cleartext_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
 
         /* if line is larger then 4k then just dump it out */
         if ((bg == srcb) && !param->clr_eod) {
-            /* if last char is \r then do not dump it */
-            if ((en > bg) && (*(en - 1) == CH_CR)) {
+            /* if last char is \r, and it's not the end of stream, then do not dump it */
+            if ((en > bg) && (*(en - 1) == CH_CR) && (read > 1)) {
                 en--;
             }
             cleartext_process_line(src, bg, en - bg, false);
@@ -1323,14 +1364,14 @@ encrypted_decrypt_cfb_header(pgp_source_encrypted_param_t *param,
         return true;
     }
 
-    if (!pgp_hash_create(&param->mdc, PGP_HASH_SHA1)) {
-        RNP_LOG("cannot create sha1 hash");
+    try {
+        param->mdc = rnp::Hash(PGP_HASH_SHA1);
+        param->mdc.add(dechdr, blsize + 2);
+    } catch (const std::exception &e) {
+        RNP_LOG("cannot create sha1 hash: %s", e.what());
         goto error;
     }
-
-    pgp_hash_add(&param->mdc, dechdr, blsize + 2);
     return true;
-
 error:
     pgp_cipher_cfb_finish(&crypt);
     return false;
@@ -1339,6 +1380,10 @@ error:
 static bool
 encrypted_start_aead(pgp_source_encrypted_param_t *param, pgp_symm_alg_t alg, uint8_t *key)
 {
+#if !defined(ENABLE_AEAD)
+    RNP_LOG("AEAD is not enabled.");
+    return false;
+#else
     size_t gran;
 
     if (alg != param->aead_hdr.ealg) {
@@ -1358,17 +1403,23 @@ encrypted_start_aead(pgp_source_encrypted_param_t *param, pgp_symm_alg_t alg, ui
     }
 
     return encrypted_start_aead_chunk(param, 0, false);
+#endif
 }
 
 static bool
 encrypted_try_key(pgp_source_encrypted_param_t *param,
                   pgp_pk_sesskey_t *            sesskey,
                   pgp_key_pkt_t *               seckey,
-                  rng_t *                       rng)
+                  rnp::SecurityContext &        ctx)
 {
     pgp_encrypted_material_t encmaterial;
     try {
         if (!sesskey->parse_material(encmaterial)) {
+            return false;
+        }
+        seckey->material.validate(ctx, false);
+        if (!seckey->material.valid()) {
+            RNP_LOG("Attempt to decrypt using the key with invalid material.");
             return false;
         }
     } catch (const std::exception &e) {
@@ -1385,14 +1436,15 @@ encrypted_try_key(pgp_source_encrypted_param_t *param,
     switch (sesskey->alg) {
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
-        err =
-          rsa_decrypt_pkcs1(rng, decbuf.data(), &declen, &encmaterial.rsa, &keymaterial->rsa);
+        err = rsa_decrypt_pkcs1(
+          &ctx.rng, decbuf.data(), &declen, &encmaterial.rsa, &keymaterial->rsa);
         if (err) {
             RNP_LOG("RSA decryption failure");
             return false;
         }
         break;
     case PGP_PKA_SM2:
+#if defined(ENABLE_SM2)
         declen = decbuf.size();
         err = sm2_decrypt(decbuf.data(), &declen, &encmaterial.sm2, &keymaterial->ec);
         if (err != RNP_SUCCESS) {
@@ -1400,10 +1452,14 @@ encrypted_try_key(pgp_source_encrypted_param_t *param,
             return false;
         }
         break;
+#else
+        RNP_LOG("SM2 decryption is not available.");
+        return false;
+#endif
     case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN: {
         const rnp_result_t ret = elgamal_decrypt_pkcs1(
-          rng, decbuf.data(), &declen, &encmaterial.eg, &keymaterial->eg);
+          &ctx.rng, decbuf.data(), &declen, &encmaterial.eg, &keymaterial->eg);
         if (ret) {
             RNP_LOG("ElGamal decryption failure [%X]", ret);
             return false;
@@ -1411,10 +1467,17 @@ encrypted_try_key(pgp_source_encrypted_param_t *param,
         break;
     }
     case PGP_PKA_ECDH: {
+        if (!curve_supported(keymaterial->ec.curve)) {
+            RNP_LOG("ECDH decrypt: curve %d is not supported.", (int) keymaterial->ec.curve);
+            return false;
+        }
         pgp_fingerprint_t fingerprint;
         if (pgp_fingerprint(fingerprint, *seckey)) {
             RNP_LOG("ECDH fingerprint calculation failed");
             return false;
+        }
+        if (!x25519_bits_tweaked(keymaterial->ec)) {
+            RNP_LOG("Warning: bits of 25519 secret key are not tweaked.");
         }
         declen = decbuf.size();
         err = ecdh_decrypt_pkcs5(
@@ -1468,6 +1531,7 @@ encrypted_try_key(pgp_source_encrypted_param_t *param,
     return res;
 }
 
+#if defined(ENABLE_AEAD)
 static bool
 encrypted_sesk_set_ad(pgp_crypt_t *crypt, pgp_sk_sesskey_t *skey)
 {
@@ -1479,9 +1543,9 @@ encrypted_sesk_set_ad(pgp_crypt_t *crypt, pgp_sk_sesskey_t *skey)
     ad_data[2] = skey->alg;
     ad_data[3] = skey->aalg;
 
-    RNP_DHEX("sesk ad: ", ad_data, 4);
     return pgp_cipher_aead_set_ad(crypt, ad_data, 4);
 }
+#endif
 
 static int
 encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password)
@@ -1495,7 +1559,6 @@ encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password
         if (!keysize || !pgp_s2k_derive_key(&skey.s2k, password, keybuf.data(), keysize)) {
             continue;
         }
-        RNP_DHEX("derived key: ", keybuf.data(), keysize);
         pgp_crypt_t    crypt;
         pgp_symm_alg_t alg;
 
@@ -1525,6 +1588,9 @@ encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password
             }
             keyavail = true;
         } else if (skey.version == PGP_SKSK_V5) {
+#if !defined(ENABLE_AEAD)
+            continue;
+#else
             /* v5 AEAD-encrypted session key */
             size_t  taglen = pgp_cipher_aead_tag_len(skey.aalg);
             uint8_t nonce[PGP_AEAD_MAX_NONCE_LEN];
@@ -1549,17 +1615,10 @@ encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password
             /* calculate nonce */
             noncelen = pgp_cipher_aead_nonce(skey.aalg, skey.iv, nonce, 0);
 
-            RNP_DHEX("nonce: ", nonce, noncelen);
-            RNP_DHEX("encrypted key: ", skey.enckey, skey.enckeylen);
-
             /* start cipher, decrypt key and verify tag */
             keyavail = pgp_cipher_aead_start(&crypt, nonce, noncelen);
             bool decres = keyavail && pgp_cipher_aead_finish(
                                         &crypt, keybuf.data(), skey.enckey, skey.enckeylen);
-
-            if (decres) {
-                RNP_DHEX("decrypted key: ", keybuf.data(), pgp_key_size(param->aead_hdr.ealg));
-            }
 
             pgp_cipher_aead_destroy(&crypt);
 
@@ -1567,6 +1626,7 @@ encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password
             if (!keyavail || !decres) {
                 continue;
             }
+#endif
         } else {
             continue;
         }
@@ -1585,6 +1645,11 @@ encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password
             param->handler->on_decryption_start(NULL, &skey, param->handler->param);
         }
         return 1;
+    }
+
+    if (param->aead && pgp_block_size(param->aead_hdr.ealg)) {
+        /* we know aead symm alg even if we wasn't able to start decryption */
+        param->salg = param->aead_hdr.ealg;
     }
 
     if (!keyavail) {
@@ -1698,9 +1763,7 @@ init_literal_src(pgp_source_t *src, pgp_source_t *readsrc)
         ret = RNP_ERROR_READ;
         goto finish;
     }
-
-    param->hdr.timestamp = ((uint32_t) tstbuf[0] << 24) | ((uint32_t) tstbuf[1] << 16) |
-                           ((uint32_t) tstbuf[2] << 8) | (uint32_t) tstbuf[3];
+    param->hdr.timestamp = read_uint32(tstbuf);
 
     if (!param->pkt.indeterminate && !param->pkt.partial) {
         /* format filename-length filename timestamp */
@@ -1769,6 +1832,8 @@ init_compressed_src(pgp_source_t *src, pgp_source_t *readsrc)
 
     /* Initializing decompression */
     switch (alg) {
+    case PGP_C_NONE:
+        break;
     case PGP_C_ZIP:
     case PGP_C_ZLIB:
         (void) memset(&param->z, 0x0, sizeof(param->z));
@@ -1845,6 +1910,8 @@ get_aead_src_hdr(pgp_source_t *src, pgp_aead_hdr_t *hdr)
     return src_read_eq(src, hdr->iv, hdr->ivlen);
 }
 
+#define MAX_RECIPIENTS 16384
+
 static rnp_result_t
 encrypted_read_packet_data(pgp_source_encrypted_param_t *param)
 {
@@ -1853,6 +1920,10 @@ encrypted_read_packet_data(pgp_source_encrypted_param_t *param)
     try {
         bool stop = false;
         while (!stop) {
+            if (param->pubencs.size() + param->symencs.size() > MAX_RECIPIENTS) {
+                RNP_LOG("Too many recipients of the encrypted message. Aborting.");
+                return RNP_ERROR_BAD_STATE;
+            }
             uint8_t ptag;
             if (!src_peek_eq(param->pkt.readsrc, &ptag, 1)) {
                 RNP_LOG("failed to read packet header");
@@ -2025,7 +2096,7 @@ init_encrypted_src(pgp_parse_handler_t *handler, pgp_source_t *src, pgp_source_t
             if (seckey->encrypted()) {
                 pgp_password_ctx_t pass_ctx{.op = PGP_OP_DECRYPT, .key = seckey};
                 decrypted_seckey =
-                  pgp_decrypt_seckey(seckey, handler->password_provider, &pass_ctx);
+                  pgp_decrypt_seckey(*seckey, *handler->password_provider, pass_ctx);
                 if (!decrypted_seckey) {
                     errcode = RNP_ERROR_BAD_PASSWORD;
                     continue;
@@ -2035,8 +2106,7 @@ init_encrypted_src(pgp_parse_handler_t *handler, pgp_source_t *src, pgp_source_t
             }
 
             /* Try to initialize the decryption */
-            if (encrypted_try_key(
-                  param, &pubenc, decrypted_seckey, rnp_ctx_rng_handle(handler->ctx))) {
+            if (encrypted_try_key(param, &pubenc, decrypted_seckey, *handler->ctx->ctx)) {
                 have_key = true;
                 /* inform handler that we used this pubenc */
                 if (handler->on_decryption_start) {
@@ -2076,18 +2146,18 @@ init_encrypted_src(pgp_parse_handler_t *handler, pgp_source_t *src, pgp_source_t
         }
     }
 
+    /* report decryption start to the handler */
+    if (handler->on_decryption_info) {
+        handler->on_decryption_info(
+          param->has_mdc, param->aead_hdr.aalg, param->salg, handler->param);
+    }
+
     if (!have_key) {
         RNP_LOG("failed to obtain decrypting key or password");
         if (!errcode) {
             errcode = RNP_ERROR_NO_SUITABLE_KEY;
         }
         goto finish;
-    }
-
-    /* report decryption start to the handler */
-    if (handler->on_decryption_info) {
-        handler->on_decryption_info(
-          param->has_mdc, param->aead_hdr.aalg, param->salg, handler->param);
     }
     errcode = RNP_SUCCESS;
 finish:
@@ -2129,16 +2199,6 @@ init_cleartext_signed_src(pgp_source_t *src)
     /* now we are good to go */
     param->clr_fline = true;
     return RNP_SUCCESS;
-}
-
-pgp_source_signed_param_t::~pgp_source_signed_param_t()
-{
-    for (auto &hash : hashes) {
-        pgp_hash_finish(&hash, NULL);
-    }
-    for (auto &hash : txt_hashes) {
-        pgp_hash_finish(&hash, NULL);
-    }
 }
 
 #define MAX_SIG_ERRORS 65536
@@ -2206,6 +2266,11 @@ init_signed_src(pgp_parse_handler_t *handler, pgp_source_t *src, pgp_source_t *r
         ptype = get_packet_type(ptag);
 
         if (ptype == PGP_PKT_ONE_PASS_SIG) {
+            if (param->onepasses.size() >= MAX_SIGNATURES) {
+                RNP_LOG("Too many one-pass signatures.");
+                errcode = RNP_ERROR_BAD_FORMAT;
+                goto finish;
+            }
             pgp_one_pass_sig_t onepass;
             try {
                 errcode = onepass.parse(*readsrc);
@@ -2233,10 +2298,13 @@ init_signed_src(pgp_parse_handler_t *handler, pgp_source_t *src, pgp_source_t *r
             }
 
             /* adding hash context */
-            if (!add_hash_for_sig(param, onepass.type, onepass.halg)) {
-                RNP_LOG("Failed to create hash %d for onepass %d.",
+            try {
+                add_hash_for_sig(param, onepass.type, onepass.halg);
+            } catch (const std::exception &e) {
+                RNP_LOG("Failed to create hash %d for onepass %d : %s.",
                         (int) onepass.halg,
-                        (int) onepass.type);
+                        (int) onepass.type,
+                        e.what());
                 errcode = RNP_ERROR_BAD_PARAMETERS;
                 goto finish;
             }
@@ -2251,11 +2319,17 @@ init_signed_src(pgp_parse_handler_t *handler, pgp_source_t *src, pgp_source_t *r
                 sigerrors++;
             }
             /* adding hash context */
-            if (sig && !add_hash_for_sig(param, sig->type(), sig->halg)) {
-                RNP_LOG(
-                  "Failed to create hash %d for sig %d.", (int) sig->halg, (int) sig->type());
-                errcode = RNP_ERROR_BAD_PARAMETERS;
-                goto finish;
+            if (sig) {
+                try {
+                    add_hash_for_sig(param, sig->type(), sig->halg);
+                } catch (const std::exception &e) {
+                    RNP_LOG("Failed to create hash %d for sig %d : %s.",
+                            (int) sig->halg,
+                            (int) sig->type(),
+                            e.what());
+                    errcode = RNP_ERROR_BAD_PARAMETERS;
+                    goto finish;
+                }
             }
         } else {
             break;
@@ -2443,7 +2517,6 @@ process_pgp_source(pgp_parse_handler_t *handler, pgp_source_t &src)
     pgp_dest_t *         outdest = NULL;
     bool                 closeout = true;
     uint8_t *            readbuf = NULL;
-    char *               filename = NULL;
 
     ctx.handler = *handler;
     /* Building readers sequence. Checking whether it is binary data */
@@ -2506,12 +2579,17 @@ process_pgp_source(pgp_parse_handler_t *handler, pgp_source_t &src)
         }
         /* file processing case */
         decsrc = &ctx.sources.back();
+        char *   filename = NULL;
+        uint32_t mtime = 0;
+
         if (ctx.literal_src) {
-            filename = ((pgp_source_literal_param_t *) ctx.literal_src)->hdr.fname;
+            auto *param = static_cast<pgp_source_literal_param_t *>(ctx.literal_src->param);
+            filename = param->hdr.fname;
+            mtime = param->hdr.timestamp;
         }
 
         if (!handler->dest_provider ||
-            !handler->dest_provider(handler, &outdest, &closeout, filename)) {
+            !handler->dest_provider(handler, &outdest, &closeout, filename, mtime)) {
             res = RNP_ERROR_WRITE;
             goto finish;
         }
@@ -2540,8 +2618,8 @@ process_pgp_source(pgp_parse_handler_t *handler, pgp_source_t &src)
 
     /* finalizing the input. Signatures are checked on this step */
     if (res == RNP_SUCCESS) {
-        for (auto &src : ctx.sources) {
-            fres = src_finish(&src);
+        for (auto &ctxsrc : ctx.sources) {
+            fres = src_finish(&ctxsrc);
             if (fres) {
                 res = fres;
             }

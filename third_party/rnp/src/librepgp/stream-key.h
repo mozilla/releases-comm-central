@@ -115,25 +115,6 @@ rnp_result_t transferable_subkey_from_key(pgp_transferable_subkey_t &dst,
 rnp_result_t transferable_subkey_merge(pgp_transferable_subkey_t &      dst,
                                        const pgp_transferable_subkey_t &src);
 
-pgp_transferable_userid_t *transferable_key_add_userid(pgp_transferable_key_t &key,
-                                                       const char *            userid);
-
-pgp_signature_t *transferable_userid_certify(const pgp_key_pkt_t &          key,
-                                             pgp_transferable_userid_t &    userid,
-                                             const pgp_key_pkt_t &          signer,
-                                             pgp_hash_alg_t                 hash_alg,
-                                             const rnp_selfsig_cert_info_t &cert);
-
-pgp_signature_t *transferable_subkey_bind(const pgp_key_pkt_t &             primary_key,
-                                          pgp_transferable_subkey_t &       subkey,
-                                          pgp_hash_alg_t                    hash_alg,
-                                          const rnp_selfsig_binding_info_t &binding);
-
-pgp_signature_t *transferable_key_revoke(const pgp_key_pkt_t &key,
-                                         const pgp_key_pkt_t &signer,
-                                         pgp_hash_alg_t       hash_alg,
-                                         const pgp_revoke_t & revoke);
-
 /* Process single primary key or subkey, skipping all key-related packets on error.
    If key.key.tag is zero, then (on success) result is subkey and it is stored in
    key.subkeys[0].
@@ -159,22 +140,8 @@ rnp_result_t write_pgp_keys(pgp_key_sequence_t &keys, pgp_dest_t *dst, bool armo
 
 rnp_result_t decrypt_secret_key(pgp_key_pkt_t *key, const char *password);
 
-rnp_result_t encrypt_secret_key(pgp_key_pkt_t *key, const char *password, rng_t *rng);
+rnp_result_t encrypt_secret_key(pgp_key_pkt_t *key, const char *password, rnp::RNG &rng);
 
 void forget_secret_key_fields(pgp_key_material_t *key);
-
-bool signature_calculate_certification(const pgp_key_pkt_t *   key,
-                                       const pgp_userid_pkt_t *uid,
-                                       pgp_signature_t *       sig,
-                                       const pgp_key_pkt_t *   signer);
-
-bool signature_calculate_direct(const pgp_key_pkt_t *key,
-                                pgp_signature_t *    sig,
-                                const pgp_key_pkt_t *signer);
-
-bool signature_calculate_binding(const pgp_key_pkt_t *key,
-                                 const pgp_key_pkt_t *sub,
-                                 pgp_signature_t *    sig,
-                                 bool                 subsign);
 
 #endif

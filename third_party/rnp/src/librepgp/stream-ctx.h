@@ -35,6 +35,7 @@
 #include <list>
 #include "pgp-key.h"
 #include "crypto/mem.h"
+#include "sec_profile.hpp"
 
 typedef enum rnp_operation_t {
     RNP_OP_UNKNOWN = 0,
@@ -111,7 +112,7 @@ typedef struct rnp_ctx_t {
     std::list<rnp_symmetric_pass_info_t> passwords{}; /* passwords to encrypt message */
     std::list<rnp_signer_info_t>         signers{};   /* keys to which sign message */
     bool                                 discard{};   /* discard the output */
-    rng_t *                              rng{};       /* pointer to rng_t */
+    rnp::SecurityContext *               ctx{};       /* pointer to rnp::RNG */
     rnp_operation_t                      operation{}; /* current operation type */
 
     rnp_ctx_t() = default;
@@ -121,8 +122,6 @@ typedef struct rnp_ctx_t {
     rnp_ctx_t &operator=(const rnp_ctx_t &) = delete;
     rnp_ctx_t &operator=(rnp_ctx_t &&) = delete;
 } rnp_ctx_t;
-
-struct rng_st_t *rnp_ctx_rng_handle(const rnp_ctx_t *ctx);
 
 rnp_result_t rnp_ctx_add_encryption_password(rnp_ctx_t &    ctx,
                                              const char *   password,

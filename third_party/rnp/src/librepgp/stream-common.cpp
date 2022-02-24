@@ -47,7 +47,9 @@
 #include "stream-common.h"
 #include "types.h"
 #include "file-utils.h"
+#include "crypto/mem.h"
 #include <algorithm>
+#include <memory>
 
 bool
 src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
@@ -486,6 +488,7 @@ typedef struct pgp_dest_mem_param_t {
     void *   memory;
     bool     free;
     bool     discard_overflow;
+    bool     secure;
 } pgp_dest_mem_param_t;
 
 static bool
@@ -601,10 +604,8 @@ file_to_mem_src(pgp_source_t *src, const char *filename)
 }
 
 const void *
-mem_src_get_memory(pgp_source_t *src)
+mem_src_get_memory(pgp_source_t *src, bool own)
 {
-    pgp_source_mem_param_t *param;
-
     if (src->type != PGP_STREAM_MEMORY) {
         RNP_LOG("wrong function call");
         return NULL;
@@ -614,7 +615,10 @@ mem_src_get_memory(pgp_source_t *src)
         return NULL;
     }
 
-    param = (pgp_source_mem_param_t *) src->param;
+    pgp_source_mem_param_t *param = (pgp_source_mem_param_t *) src->param;
+    if (own) {
+        param->free = false;
+    }
     return param->memory;
 }
 
@@ -722,16 +726,15 @@ dst_close(pgp_dest_t *dst, bool discard)
 }
 
 typedef struct pgp_dest_file_param_t {
-    int  fd;
-    int  errcode;
-    bool overwrite;
-    char path[PATH_MAX];
+    int         fd;
+    int         errcode;
+    bool        overwrite;
+    std::string path;
 } pgp_dest_file_param_t;
 
 static rnp_result_t
 file_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
 {
-    ssize_t                ret;
     pgp_dest_file_param_t *param = (pgp_dest_file_param_t *) dst->param;
 
     if (!param) {
@@ -740,7 +743,7 @@ file_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
     }
 
     /* we assyme that blocking I/O is used so everything is written or error received */
-    ret = write(param->fd, buf, len);
+    ssize_t ret = write(param->fd, buf, len);
     if (ret < 0) {
         param->errcode = errno;
         RNP_LOG("write failed, error %d", param->errcode);
@@ -755,7 +758,6 @@ static void
 file_dst_close(pgp_dest_t *dst, bool discard)
 {
     pgp_dest_file_param_t *param = (pgp_dest_file_param_t *) dst->param;
-
     if (!param) {
         return;
     }
@@ -763,52 +765,42 @@ file_dst_close(pgp_dest_t *dst, bool discard)
     if (dst->type == PGP_STREAM_FILE) {
         close(param->fd);
         if (discard) {
-            rnp_unlink(param->path);
+            rnp_unlink(param->path.c_str());
         }
     }
 
-    free(param);
+    delete param;
     dst->param = NULL;
 }
 
 static rnp_result_t
 init_fd_dest(pgp_dest_t *dst, int fd, const char *path)
 {
-    pgp_dest_file_param_t *param;
-    size_t                 path_len = strlen(path);
-    if (path_len >= sizeof(param->path)) {
-        RNP_LOG("path too long");
-        return RNP_ERROR_BAD_PARAMETERS;
-    }
-    if (!init_dst_common(dst, sizeof(*param))) {
+    if (!init_dst_common(dst, 0)) {
         return RNP_ERROR_OUT_OF_MEMORY;
     }
 
-    param = (pgp_dest_file_param_t *) dst->param;
-    param->fd = fd;
-    memcpy(param->path, path, path_len + 1);
+    try {
+        std::unique_ptr<pgp_dest_file_param_t> param(new pgp_dest_file_param_t());
+        param->path = path;
+        param->fd = fd;
+        dst->param = param.release();
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
+
     dst->write = file_dst_write;
     dst->close = file_dst_close;
     dst->type = PGP_STREAM_FILE;
-
     return RNP_SUCCESS;
 }
 
 rnp_result_t
 init_file_dest(pgp_dest_t *dst, const char *path, bool overwrite)
 {
-    int                    fd;
-    int                    flags;
-    struct stat            st;
-    pgp_dest_file_param_t *param;
-
-    size_t path_len = strlen(path);
-    if (path_len >= sizeof(param->path)) {
-        RNP_LOG("path too long");
-        return RNP_ERROR_BAD_PARAMETERS;
-    }
-
     /* check whether file/dir already exists */
+    struct stat st;
     if (!rnp_stat(path, &st)) {
         if (!overwrite) {
             RNP_LOG("file already exists: '%s'", path);
@@ -824,7 +816,7 @@ init_file_dest(pgp_dest_t *dst, const char *path, bool overwrite)
         }
     }
 
-    flags = O_WRONLY | O_CREAT;
+    int flags = O_WRONLY | O_CREAT;
     flags |= overwrite ? O_TRUNC : O_EXCL;
 #ifdef HAVE_O_BINARY
     flags |= O_BINARY;
@@ -833,8 +825,7 @@ init_file_dest(pgp_dest_t *dst, const char *path, bool overwrite)
     flags |= _O_BINARY;
 #endif
 #endif
-    fd = rnp_open(path, flags, S_IRUSR | S_IWUSR);
-
+    int fd = rnp_open(path, flags, S_IRUSR | S_IWUSR);
     if (fd < 0) {
         RNP_LOG("failed to create file '%s'. Error %d.", path, errno);
         return RNP_ERROR_WRITE;
@@ -853,58 +844,57 @@ static rnp_result_t
 file_tmpdst_finish(pgp_dest_t *dst)
 {
     pgp_dest_file_param_t *param = (pgp_dest_file_param_t *) dst->param;
-    size_t                 plen = 0;
-    struct stat            st;
-    char                   origpath[PATH_MAX] = {0};
-
     if (!param) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    /* remove suffix so we have required path */
-    plen = strnlen(param->path, sizeof(param->path));
-    if (plen < strlen(TMPDST_SUFFIX)) {
-        return RNP_ERROR_BAD_PARAMETERS;
-    }
-    strncpy(origpath, param->path, plen - strlen(TMPDST_SUFFIX));
-
-    /* rename the temporary file */
+    /* close the file */
     close(param->fd);
     param->fd = -1;
 
-    /* check if file already exists */
-    if (!rnp_stat(origpath, &st)) {
-        if (!param->overwrite) {
-            RNP_LOG("target path already exists");
-            return RNP_ERROR_BAD_STATE;
-        }
+    /* rename the temporary file */
+    if (param->path.size() < strlen(TMPDST_SUFFIX)) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    try {
+        /* remove suffix so we have required path */
+        std::string origpath(param->path.begin(), param->path.end() - strlen(TMPDST_SUFFIX));
+        /* check if file already exists */
+        struct stat st;
+        if (!rnp_stat(origpath.c_str(), &st)) {
+            if (!param->overwrite) {
+                RNP_LOG("target path already exists");
+                return RNP_ERROR_BAD_STATE;
+            }
 #ifdef _WIN32
-        /* rename() call on Windows fails if destination exists */
-        else {
-            rnp_unlink(origpath);
-        }
+            /* rename() call on Windows fails if destination exists */
+            else {
+                rnp_unlink(origpath.c_str());
+            }
 #endif
 
-        /* we should remove dir if overwriting, file will be unlinked in rename call */
-        if (S_ISDIR(st.st_mode) && rmdir(origpath)) {
-            RNP_LOG("failed to remove directory");
+            /* we should remove dir if overwriting, file will be unlinked in rename call */
+            if (S_ISDIR(st.st_mode) && rmdir(origpath.c_str())) {
+                RNP_LOG("failed to remove directory");
+                return RNP_ERROR_BAD_STATE;
+            }
+        }
+
+        if (rnp_rename(param->path.c_str(), origpath.c_str())) {
+            RNP_LOG("failed to rename temporary path to target file: %s", strerror(errno));
             return RNP_ERROR_BAD_STATE;
         }
-    }
-
-    if (rnp_rename(param->path, origpath)) {
-        RNP_LOG("failed to rename temporary path to target file: %s", strerror(errno));
+        return RNP_SUCCESS;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         return RNP_ERROR_BAD_STATE;
     }
-
-    return RNP_SUCCESS;
 }
 
 static void
 file_tmpdst_close(pgp_dest_t *dst, bool discard)
 {
     pgp_dest_file_param_t *param = (pgp_dest_file_param_t *) dst->param;
-
     if (!param) {
         return;
     }
@@ -913,43 +903,44 @@ file_tmpdst_close(pgp_dest_t *dst, bool discard)
     if (!dst->finished && (dst->type == PGP_STREAM_FILE)) {
         close(param->fd);
         if (discard) {
-            rnp_unlink(param->path);
+            rnp_unlink(param->path.c_str());
         }
     }
 
-    free(param);
+    delete param;
     dst->param = NULL;
 }
 
 rnp_result_t
 init_tmpfile_dest(pgp_dest_t *dst, const char *path, bool overwrite)
 {
-    char                   tmp[PATH_MAX];
-    pgp_dest_file_param_t *param = NULL;
-    rnp_result_t           res = RNP_ERROR_GENERIC;
-    int                    ires = 0;
-
-    ires = snprintf(tmp, sizeof(tmp), "%s%s", path, TMPDST_SUFFIX);
-    if ((ires < 0) || ((size_t) ires >= sizeof(tmp))) {
-        RNP_LOG("failed to build file path");
-        return RNP_ERROR_BAD_PARAMETERS;
-    }
+    try {
+        std::string tmp = std::string(path) + std::string(TMPDST_SUFFIX);
+        /* make sure tmp.data() is zero-terminated */
+        tmp.push_back('\0');
 #if defined(HAVE_MKSTEMP) && !defined(_WIN32)
-    int fd = mkstemp(tmp);
+        int fd = mkstemp(&tmp[0]);
 #else
-    int fd = rnp_mkstemp(tmp);
+        int fd = rnp_mkstemp(&tmp[0]);
 #endif
-    if (fd < 0) {
-        RNP_LOG("failed to create temporary file with template '%s'. Error %d.", tmp, errno);
-        return RNP_ERROR_WRITE;
-    }
-    if ((res = init_fd_dest(dst, fd, tmp))) {
-        close(fd);
-        return res;
+        if (fd < 0) {
+            RNP_LOG("failed to create temporary file with template '%s'. Error %d.",
+                    tmp.c_str(),
+                    errno);
+            return RNP_ERROR_WRITE;
+        }
+        rnp_result_t res = init_fd_dest(dst, fd, tmp.c_str());
+        if (res) {
+            close(fd);
+            return res;
+        }
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_BAD_STATE;
     }
 
     /* now let's change some parameters to handle temporary file correctly */
-    param = (pgp_dest_file_param_t *) dst->param;
+    pgp_dest_file_param_t *param = (pgp_dest_file_param_t *) dst->param;
     param->overwrite = overwrite;
     dst->finish = file_tmpdst_finish;
     dst->close = file_tmpdst_close;
@@ -959,28 +950,18 @@ init_tmpfile_dest(pgp_dest_t *dst, const char *path, bool overwrite)
 rnp_result_t
 init_stdout_dest(pgp_dest_t *dst)
 {
-    pgp_dest_file_param_t *param;
-
-    if (!init_dst_common(dst, sizeof(*param))) {
-        return RNP_ERROR_OUT_OF_MEMORY;
+    rnp_result_t res = init_fd_dest(dst, STDOUT_FILENO, "");
+    if (res) {
+        return res;
     }
-
-    param = (pgp_dest_file_param_t *) dst->param;
-    param->fd = STDOUT_FILENO;
-    dst->write = file_dst_write;
-    dst->close = file_dst_close;
     dst->type = PGP_STREAM_STDOUT;
-
     return RNP_SUCCESS;
 }
 
 static rnp_result_t
 mem_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
 {
-    size_t                alloc;
-    void *                newalloc;
     pgp_dest_mem_param_t *param = (pgp_dest_mem_param_t *) dst->param;
-
     if (!param) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
@@ -1000,15 +981,20 @@ mem_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
         }
 
         /* round up to the page boundary and do it exponentially */
-        alloc = ((dst->writeb + len) * 2 + 4095) / 4096 * 4096;
+        size_t alloc = ((dst->writeb + len) * 2 + 4095) / 4096 * 4096;
         if ((param->maxalloc > 0) && (alloc > param->maxalloc)) {
             alloc = param->maxalloc;
         }
 
-        if ((newalloc = realloc(param->memory, alloc)) == NULL) {
+        void *newalloc = param->secure ? calloc(1, alloc) : realloc(param->memory, alloc);
+        if (!newalloc) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
-
+        if (param->secure) {
+            memcpy(newalloc, param->memory, dst->writeb);
+            secure_clear(param->memory, dst->writeb);
+            free(param->memory);
+        }
         param->memory = newalloc;
         param->allocated = alloc;
     }
@@ -1021,14 +1007,18 @@ static void
 mem_dst_close(pgp_dest_t *dst, bool discard)
 {
     pgp_dest_mem_param_t *param = (pgp_dest_mem_param_t *) dst->param;
-
-    if (param) {
-        if (param->free) {
-            free(param->memory);
-        }
-        free(param);
-        dst->param = NULL;
+    if (!param) {
+        return;
     }
+
+    if (param->free) {
+        if (param->secure) {
+            secure_clear(param->memory, param->allocated);
+        }
+        free(param->memory);
+    }
+    free(param);
+    dst->param = NULL;
 }
 
 rnp_result_t
@@ -1046,6 +1036,7 @@ init_mem_dest(pgp_dest_t *dst, void *mem, unsigned len)
     param->allocated = mem ? len : 0;
     param->memory = mem;
     param->free = !mem;
+    param->secure = false;
 
     dst->write = mem_dst_write;
     dst->close = mem_dst_close;
@@ -1127,6 +1118,19 @@ mem_dest_own_memory(pgp_dest_t *dst)
         memcpy(res, param->memory, dst->writeb);
     }
     return res;
+}
+
+void
+mem_dest_secure_memory(pgp_dest_t *dst, bool secure)
+{
+    if (!dst || (dst->type != PGP_STREAM_MEMORY)) {
+        RNP_LOG("wrong function call");
+        return;
+    }
+    pgp_dest_mem_param_t *param = (pgp_dest_mem_param_t *) dst->param;
+    if (param) {
+        param->secure = secure;
+    }
 }
 
 static rnp_result_t

@@ -5,6 +5,26 @@ Binaries that will be installed:
 * `rnp`
 * `rnpkeys`
 
+
+== On NixOS or Nix package manager
+
+We provide a Nix package for easy installation on NixOS and any OS with Nix
+installed (including Linux and macOS, even NixOS on WSL).
+
+[source,console]
+----
+nix-env -iA nixpkgs.rnp
+----
+
+== With Nix Flakes
+
+We provide a Nix flake.
+
+[source,console]
+----
+nix profile install github:rnpgp/rnp
+----
+
 == On macOS using Homebrew
 
 We provide a Homebrew tap for easy installation of RNP on macOS.
@@ -34,15 +54,15 @@ Prerequisite: please ensure `git` is installed on the system.
 [source,console]
 ----
 # Clone the repository by version tag (or omit it to get the latest sources)
-git clone https://github.com/rnpgp/rnp.git -b v0.15.2
+git clone https://github.com/rnpgp/rnp.git -b v0.16.0
 
 # Install required packages
 sudo apt install g++-8 cmake libbz2-dev zlib1g-dev libjson-c-dev \
   build-essential python-minimal
 
 # Download, build and install Botan2
-wget -qO- https://botan.randombit.net/releases/Botan-2.14.0.tar.xz | tar xvJ
-cd Botan-2.14.0
+wget -qO- https://botan.randombit.net/releases/Botan-2.18.2.tar.xz | tar xvJ
+cd Botan-2.18.2
 ./configure.py --prefix=/usr
 make
 sudo make install
@@ -70,7 +90,7 @@ Prerequisite: please ensure `git` is installed on the system.
 [source,console]
 ----
 # Clone the repository by version tag (or omit it to get the latest sources)
-git clone https://github.com/rnpgp/rnp.git -b v0.15.2
+git clone https://github.com/rnpgp/rnp.git -b v0.16.0
 
 # Enable access to `testing` packages by editing /etc/apt/sources.list
 # deb http://deb.debian.org/debian testing main
@@ -89,6 +109,32 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=on \
 
 # Compile and install
 sudo make install
+----
+
+== On Gentoo Linux
+
+RNP ebuilds are available from an overlay repository named `rnp`.
+
+=== Using eselect-repository (the current way)
+
+Prerequisite: ensure `eselect-repository` is installed on your system.
+
+[source,console]
+----
+eselect repository enable rnp
+emaint sync -r rnp
+emerge -av app-crypt/rnp
+----
+
+=== Using layman (the old way)
+
+Prerequisite: ensure `layman` is installed on your system.
+
+[source,console]
+----
+layman -a rnp
+layman -s rnp
+emerge -av app-crypt/rnp
 ----
 
 == Compile from source
@@ -185,4 +231,3 @@ executables):
 
 You may check dependencies and their paths via `ntldd.exe` in the MSYS command
 prompt.
-

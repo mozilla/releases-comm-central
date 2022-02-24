@@ -23,6 +23,7 @@ typedef enum {
     CMD_EXPORT_REV,
     CMD_REVOKE_KEY,
     CMD_REMOVE_KEY,
+    CMD_EDIT_KEY,
     CMD_VERSION,
     CMD_HELP,
 
@@ -32,15 +33,14 @@ typedef enum {
     OPT_HOMEDIR,
     OPT_NUMBITS,
     OPT_HASH_ALG,
-    OPT_VERBOSE,
     OPT_COREDUMPS,
     OPT_PASSWDFD,
     OPT_PASSWD,
     OPT_RESULTS,
     OPT_CIPHER,
-    OPT_FORMAT,
     OPT_EXPERT,
     OPT_OUTPUT,
+    OPT_OVERWRITE,
     OPT_FORCE,
     OPT_SECRET,
     OPT_S2K_ITER,
@@ -50,6 +50,9 @@ typedef enum {
     OPT_REV_TYPE,
     OPT_REV_REASON,
     OPT_PERMISSIVE,
+    OPT_NOTTY,
+    OPT_FIX_25519_BITS,
+    OPT_CHK_25519_BITS,
 
     /* debug */
     OPT_DEBUG
@@ -57,9 +60,7 @@ typedef enum {
 
 bool rnp_cmd(cli_rnp_t *rnp, optdefs_t cmd, const char *f);
 bool setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg);
-void print_praise(void);
 void print_usage(const char *usagemsg);
-bool parse_option(rnp_cfg &cfg, optdefs_t *cmd, const char *s);
 
 /**
  * @brief Initializes rnpkeys. Function allocates memory dynamically for

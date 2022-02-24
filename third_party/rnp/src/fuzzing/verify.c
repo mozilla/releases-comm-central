@@ -27,8 +27,14 @@
 #include <rnp/rnp.h>
 #include "stdio.h"
 
+#ifdef RNP_RUN_TESTS
+int verify_LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+int
+verify_LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+#else
 int
 LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+#endif
 {
     rnp_ffi_t    ffi = NULL;
     rnp_input_t  input = NULL;

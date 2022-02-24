@@ -62,8 +62,13 @@ else()
 endif()
 
 find_package(JSON-C 0.11 REQUIRED)
-# We do not link against Botan, but need headers.
-find_package(Botan2 2.14.0 REQUIRED)
+if (CRYPTO_BACKEND STREQUAL "botan")
+  find_package(Botan2 2.14.0 REQUIRED)
+endif()
+if (CRYPTO_BACKEND STREQUAL "openssl")
+  find_package(OpenSSL 1.1.1 REQUIRED)
+endif()
+
 add_executable(rnp_tests
   ../rnp/rnpcfg.cpp
   ../rnp/fficli.cpp
@@ -75,9 +80,12 @@ add_executable(rnp_tests
   ../fuzzing/keyring_g10.cpp
   ../fuzzing/keyring_kbx.c
   ../fuzzing/keyimport.c
+  ../fuzzing/sigimport.c
   ../fuzzing/dump.c
   ../fuzzing/verify_detached.c
+  ../fuzzing/verify.c
   cipher.cpp
+  cipher_cxx.cpp
   cli.cpp
   exportkey.cpp
   ffi.cpp
@@ -103,12 +111,12 @@ add_executable(rnp_tests
   partial-length.cpp
   pipe.cpp
   rnp_tests.cpp
+  rng-randomness.cpp
   s2k-iterations.cpp
   streams.cpp
   support.cpp
   user-prefs.cpp
   utils-hex2bin.cpp
-  utils-list.cpp
   utils-rnpcfg.cpp
   issues/1030.cpp
   issues/1115.cpp
@@ -118,8 +126,10 @@ add_executable(rnp_tests
   fuzz_keyring_g10.cpp
   fuzz_keyring_kbx.cpp
   fuzz_keyimport.cpp
+  fuzz_sigimport.cpp
   fuzz_dump.cpp
   fuzz_verify_detached.cpp
+  fuzz_verify.cpp
 )
 if(MSVC)
   find_package(WindowsSDK)
@@ -162,7 +172,10 @@ target_link_libraries(rnp_tests
     JSON-C::JSON-C
     ${GTestMain}
 )
-if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CRYPTO_BACKEND STREQUAL "openssl")
+  target_link_libraries(rnp_tests PRIVATE OpenSSL::Crypto)
+endif()
+if (WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
   target_link_libraries(rnp_tests PRIVATE regex)
 elseif(MSVC)
   add_compile_definitions(RNP_USE_STD_REGEX)
@@ -187,7 +200,7 @@ if (DOWNLOAD_RUBYRNP AND NOT ENABLE_SANITIZERS AND BUILD_SHARED_LIBS AND NOT WIN
   if (DEFINED ENV{RUBY_RNP_INSTALL})
     set(_sourcedir "$ENV{RUBY_RNP_INSTALL}")
   endif()
-  set(_ruby_rnp_ver "master")
+  set(_ruby_rnp_ver "main")
   if (DEFINED ENV{RUBY_RNP_VERSION})
     set(_ruby_rnp_ver "$ENV{RUBY_RNP_VERSION}")
   endif()

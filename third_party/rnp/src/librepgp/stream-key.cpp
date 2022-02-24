@@ -50,6 +50,7 @@
 #include "../librekey/key_store_pgp.h"
 #include <set>
 #include <algorithm>
+#include <cassert>
 
 /**
  * @brief Add signatures from src to dst, skipping the duplicates.
@@ -207,356 +208,6 @@ transferable_key_merge(pgp_transferable_key_t &dst, const pgp_transferable_key_t
         }
     }
     return RNP_SUCCESS;
-}
-
-pgp_transferable_userid_t *
-transferable_key_add_userid(pgp_transferable_key_t &key, const char *userid)
-{
-    try {
-        key.userids.emplace_back();
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        return NULL;
-    }
-
-    pgp_transferable_userid_t &uid = key.userids.back();
-    uid.uid.tag = PGP_PKT_USER_ID;
-    uid.uid.uid_len = strlen(userid);
-    if (!(uid.uid.uid = (uint8_t *) malloc(uid.uid.uid_len))) {
-        key.userids.pop_back();
-        return NULL;
-    }
-    memcpy(uid.uid.uid, userid, uid.uid.uid_len);
-    return &uid;
-}
-
-bool
-signature_calculate_certification(const pgp_key_pkt_t *   key,
-                                  const pgp_userid_pkt_t *uid,
-                                  pgp_signature_t *       sig,
-                                  const pgp_key_pkt_t *   signer)
-{
-    if (!key || !uid || !sig || !signer) {
-        RNP_LOG("NULL parameter(s)");
-        return false;
-    }
-
-    rng_t rng = {};
-    if (!rng_init(&rng, RNG_SYSTEM)) {
-        RNP_LOG("RNG init failed");
-        return false;
-    }
-
-    pgp_hash_t hash = {};
-    bool       res = signature_fill_hashed_data(sig) &&
-               signature_hash_certification(sig, key, uid, &hash) &&
-               !signature_calculate(sig, &signer->material, &hash, &rng);
-    rng_destroy(&rng);
-    return res;
-}
-
-bool
-signature_calculate_direct(const pgp_key_pkt_t *key,
-                           pgp_signature_t *    sig,
-                           const pgp_key_pkt_t *signer)
-{
-    if (!key || !sig || !signer) {
-        RNP_LOG("NULL parameter(s)");
-        return false;
-    }
-
-    rng_t rng = {};
-    if (!rng_init(&rng, RNG_SYSTEM)) {
-        RNP_LOG("RNG init failed");
-        return false;
-    }
-
-    pgp_hash_t hash = {};
-    bool res = signature_fill_hashed_data(sig) && signature_hash_direct(sig, key, &hash) &&
-               !signature_calculate(sig, &signer->material, &hash, &rng);
-    rng_destroy(&rng);
-    return res;
-}
-
-pgp_signature_t *
-transferable_userid_certify(const pgp_key_pkt_t &          key,
-                            pgp_transferable_userid_t &    userid,
-                            const pgp_key_pkt_t &          signer,
-                            pgp_hash_alg_t                 hash_alg,
-                            const rnp_selfsig_cert_info_t &cert)
-{
-    pgp_signature_t   sig;
-    pgp_key_id_t      keyid = {};
-    pgp_fingerprint_t keyfp;
-
-    if (pgp_keyid(keyid, signer)) {
-        RNP_LOG("failed to calculate keyid");
-        return NULL;
-    }
-
-    if (pgp_fingerprint(keyfp, signer)) {
-        RNP_LOG("failed to calculate keyfp");
-        return NULL;
-    }
-
-    sig.version = PGP_V4;
-    sig.halg = pgp_hash_adjust_alg_to_key(hash_alg, &signer);
-    sig.palg = signer.alg;
-    sig.set_type(PGP_CERT_POSITIVE);
-
-    try {
-        sig.set_keyfp(keyfp);
-        sig.set_creation(time(NULL));
-        if (cert.key_expiration) {
-            sig.set_key_expiration(cert.key_expiration);
-        }
-        if (cert.key_flags) {
-            sig.set_key_flags(cert.key_flags);
-        }
-        if (cert.primary) {
-            sig.set_primary_uid(true);
-        }
-        if (!cert.prefs.symm_algs.empty()) {
-            sig.set_preferred_symm_algs(cert.prefs.symm_algs);
-        }
-        if (!cert.prefs.hash_algs.empty()) {
-            sig.set_preferred_hash_algs(cert.prefs.hash_algs);
-        }
-        if (!cert.prefs.z_algs.empty()) {
-            sig.set_preferred_z_algs(cert.prefs.z_algs);
-        }
-        if (!cert.prefs.ks_prefs.empty()) {
-            sig.set_key_server_prefs(cert.prefs.ks_prefs[0]);
-        }
-        if (!cert.prefs.key_server.empty()) {
-            sig.set_key_server(cert.prefs.key_server);
-        }
-        sig.set_keyid(keyid);
-    } catch (const std::exception &e) {
-        RNP_LOG("failed to setup signature: %s", e.what());
-        return NULL;
-    }
-
-    if (!signature_calculate_certification(&key, &userid.uid, &sig, &signer)) {
-        RNP_LOG("failed to calculate signature");
-        return NULL;
-    }
-    try {
-        userid.signatures.emplace_back(std::move(sig));
-        return &userid.signatures.back();
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        return NULL;
-    }
-}
-
-static bool
-signature_calculate_primary_binding(const pgp_key_pkt_t *key,
-                                    const pgp_key_pkt_t *subkey,
-                                    pgp_hash_alg_t       halg,
-                                    pgp_signature_t *    sig,
-                                    rng_t *              rng)
-{
-    pgp_key_id_t keyid = {};
-    pgp_hash_t   hash = {};
-    bool         res = false;
-
-    sig->version = PGP_V4;
-    sig->halg = pgp_hash_adjust_alg_to_key(halg, subkey);
-    sig->palg = subkey->alg;
-    sig->set_type(PGP_SIG_PRIMARY);
-
-    if (pgp_keyid(keyid, *subkey)) {
-        RNP_LOG("failed to calculate keyid");
-        return false;
-    }
-    try {
-        sig->set_creation(time(NULL));
-        sig->set_keyid(keyid);
-    } catch (const std::exception &e) {
-        RNP_LOG("failed to setup embedded signature: %s", e.what());
-        return false;
-    }
-    if (!signature_hash_binding(sig, key, subkey, &hash)) {
-        RNP_LOG("failed to hash key and subkey");
-        goto end;
-    }
-    if (!signature_fill_hashed_data(sig)) {
-        RNP_LOG("failed to hash signature");
-        goto end;
-    }
-    if (signature_calculate(sig, &subkey->material, &hash, rng)) {
-        RNP_LOG("failed to calculate signature");
-        goto end;
-    }
-    res = true;
-end:
-    if (!res) {
-        pgp_hash_finish(&hash, NULL);
-    }
-    return res;
-}
-
-bool
-signature_calculate_binding(const pgp_key_pkt_t *key,
-                            const pgp_key_pkt_t *sub,
-                            pgp_signature_t *    sig,
-                            bool                 subsign)
-{
-    pgp_hash_t   hash = {};
-    rng_t        rng = {};
-    pgp_key_id_t keyid;
-
-    if (pgp_keyid(keyid, *key)) {
-        RNP_LOG("failed to calculate keyid");
-        return false;
-    }
-
-    if (!rng_init(&rng, RNG_SYSTEM)) {
-        RNP_LOG("RNG init failed");
-        return false;
-    }
-
-    bool res = false;
-    if (!signature_fill_hashed_data(sig) || !signature_hash_binding(sig, key, sub, &hash)) {
-        RNP_LOG("failed to hash signature");
-        goto end;
-    }
-
-    if (signature_calculate(sig, &key->material, &hash, &rng)) {
-        RNP_LOG("failed to calculate signature");
-        goto end;
-    }
-
-    /* unhashed subpackets. Primary key binding signature and issuer key id */
-    if (subsign) {
-        pgp_signature_t embsig;
-
-        if (!signature_calculate_primary_binding(key, sub, sig->halg, &embsig, &rng)) {
-            RNP_LOG("failed to calculate primary key binding signature");
-            goto end;
-        }
-        if (!signature_set_embedded_sig(sig, &embsig)) {
-            RNP_LOG("failed to add primary key binding signature");
-            goto end;
-        }
-    }
-
-    /* add keyid since it should (probably) be after the primary key binding if any */
-    try {
-        sig->set_keyid(keyid);
-    } catch (const std::exception &e) {
-        RNP_LOG("failed to set issuer key id: %s", e.what());
-        goto end;
-    }
-    res = true;
-end:
-    rng_destroy(&rng);
-    return res;
-}
-
-pgp_signature_t *
-transferable_subkey_bind(const pgp_key_pkt_t &             key,
-                         pgp_transferable_subkey_t &       subkey,
-                         pgp_hash_alg_t                    hash_alg,
-                         const rnp_selfsig_binding_info_t &binding)
-{
-    pgp_fingerprint_t keyfp;
-    if (pgp_fingerprint(keyfp, key)) {
-        RNP_LOG("failed to calculate keyfp");
-        return NULL;
-    }
-
-    pgp_signature_t sig;
-    pgp_key_flags_t realkf = (pgp_key_flags_t) 0;
-
-    sig.version = PGP_V4;
-    sig.halg = pgp_hash_adjust_alg_to_key(hash_alg, &key);
-    sig.palg = key.alg;
-    sig.set_type(PGP_SIG_SUBKEY);
-
-    try {
-        sig.set_keyfp(keyfp);
-        sig.set_creation(time(NULL));
-        if (binding.key_expiration) {
-            sig.set_key_expiration(binding.key_expiration);
-        }
-        if (binding.key_flags) {
-            sig.set_key_flags(binding.key_flags);
-        }
-    } catch (const std::exception &e) {
-        RNP_LOG("failed to setup signature: %s", e.what());
-        return NULL;
-    }
-
-    realkf = (pgp_key_flags_t) binding.key_flags;
-    if (!realkf) {
-        realkf = pgp_pk_alg_capabilities(subkey.subkey.alg);
-    }
-
-    if (!signature_calculate_binding(&key, &subkey.subkey, &sig, realkf & PGP_KF_SIGN)) {
-        return NULL;
-    }
-    try {
-        subkey.signatures.emplace_back(std::move(sig));
-        return &subkey.signatures.back();
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        return NULL;
-    }
-}
-
-pgp_signature_t *
-transferable_key_revoke(const pgp_key_pkt_t &key,
-                        const pgp_key_pkt_t &signer,
-                        pgp_hash_alg_t       hash_alg,
-                        const pgp_revoke_t & revoke)
-{
-    pgp_signature_t   sig;
-    bool              res = false;
-    pgp_key_id_t      keyid;
-    pgp_fingerprint_t keyfp;
-
-    if (pgp_keyid(keyid, signer)) {
-        RNP_LOG("failed to calculate keyid");
-        return NULL;
-    }
-    if (pgp_fingerprint(keyfp, signer)) {
-        RNP_LOG("failed to calculate keyfp");
-        return NULL;
-    }
-
-    sig.version = PGP_V4;
-    sig.halg = pgp_hash_adjust_alg_to_key(hash_alg, &signer);
-    sig.palg = signer.alg;
-    sig.set_type(is_primary_key_pkt(key.tag) ? PGP_SIG_REV_KEY : PGP_SIG_REV_SUBKEY);
-
-    try {
-        sig.set_keyfp(keyfp);
-        sig.set_creation(time(NULL));
-        sig.set_revocation_reason(revoke.code, revoke.reason);
-        sig.set_keyid(keyid);
-    } catch (const std::exception &e) {
-        RNP_LOG("failed to setup signature: %s", e.what());
-        return NULL;
-    }
-
-    if (is_primary_key_pkt(key.tag)) {
-        res = signature_calculate_direct(&key, &sig, &signer);
-    } else {
-        res = signature_calculate_binding(&signer, &key, &sig, false);
-    }
-    if (!res) {
-        RNP_LOG("failed to calculate signature");
-        return NULL;
-    }
-
-    try {
-        return new pgp_signature_t(std::move(sig));
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        return NULL;
-    }
 }
 
 static bool
@@ -1016,8 +667,9 @@ parse_secret_key_mpis(pgp_key_pkt_t &key, const uint8_t *mpis, size_t len)
         for (size_t idx = 0; idx < len; idx++) {
             sum += mpis[idx];
         }
-        if (sum != read_uint16(mpis + len)) {
-            RNP_LOG("wrong key checksum");
+        uint16_t expsum = read_uint16(mpis + len);
+        if (sum != expsum) {
+            RNP_LOG("Wrong key checksum, got 0x%X instead of 0x%X.", (int) sum, (int) expsum);
             return RNP_ERROR_DECRYPT_FAILED;
         }
         break;
@@ -1028,15 +680,17 @@ parse_secret_key_mpis(pgp_key_pkt_t &key, const uint8_t *mpis, size_t len)
             return RNP_ERROR_BAD_FORMAT;
         }
         /* calculate and check sha1 hash of the cleartext */
-        pgp_hash_t hash;
-        uint8_t    hval[PGP_MAX_HASH_SIZE];
-
-        if (!pgp_hash_create(&hash, PGP_HASH_SHA1)) {
-            return RNP_ERROR_BAD_STATE;
-        }
-        len -= PGP_SHA1_HASH_SIZE;
-        pgp_hash_add(&hash, mpis, len);
-        if (pgp_hash_finish(&hash, hval) != PGP_SHA1_HASH_SIZE) {
+        uint8_t hval[PGP_SHA1_HASH_SIZE];
+        try {
+            rnp::Hash hash(PGP_HASH_SHA1);
+            assert(hash.size() == sizeof(hval));
+            len -= PGP_SHA1_HASH_SIZE;
+            hash.add(mpis, len);
+            if (hash.finish(hval) != PGP_SHA1_HASH_SIZE) {
+                return RNP_ERROR_BAD_STATE;
+            }
+        } catch (const std::exception &e) {
+            RNP_LOG("hash calculation failed: %s", e.what());
             return RNP_ERROR_BAD_STATE;
         }
         if (memcmp(hval, mpis + len, PGP_SHA1_HASH_SIZE)) {
@@ -1111,6 +765,8 @@ decrypt_secret_key(pgp_key_pkt_t *key, const char *password)
     if (!is_secret_key_pkt(key->tag)) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
+    /* mark material as not validated as it may be valid for public part */
+    key->material.validity.reset();
 
     /* check whether data is not encrypted */
     if (!key->sec_protection.s2k.usage) {
@@ -1222,14 +878,11 @@ write_secret_key_mpis(pgp_packet_body_t &body, pgp_key_pkt_t &key)
     }
 
     /* add sha1 hash */
-    pgp_hash_t hash;
-    if (!pgp_hash_create(&hash, PGP_HASH_SHA1)) {
-        RNP_LOG("failed to create sha1 hash");
-        throw rnp::rnp_exception(RNP_ERROR_BAD_STATE);
-    }
-    pgp_hash_add(&hash, body.data(), body.size());
-    uint8_t hval[PGP_MAX_HASH_SIZE];
-    if (pgp_hash_finish(&hash, hval) != PGP_SHA1_HASH_SIZE) {
+    rnp::Hash hash(PGP_HASH_SHA1);
+    hash.add(body.data(), body.size());
+    uint8_t hval[PGP_SHA1_HASH_SIZE];
+    assert(sizeof(hval) == hash.size());
+    if (hash.finish(hval) != PGP_SHA1_HASH_SIZE) {
         RNP_LOG("failed to finish hash");
         throw rnp::rnp_exception(RNP_ERROR_BAD_STATE);
     }
@@ -1237,7 +890,7 @@ write_secret_key_mpis(pgp_packet_body_t &body, pgp_key_pkt_t &key)
 }
 
 rnp_result_t
-encrypt_secret_key(pgp_key_pkt_t *key, const char *password, rng_t *rng)
+encrypt_secret_key(pgp_key_pkt_t *key, const char *password, rnp::RNG &rng)
 {
     if (!is_secret_key_pkt(key->tag) || !key->material.secret) {
         return RNP_ERROR_BAD_PARAMETERS;
@@ -1280,23 +933,9 @@ encrypt_secret_key(pgp_key_pkt_t *key, const char *password, rng_t *rng)
             return RNP_ERROR_BAD_PARAMETERS;
         }
         /* generate iv and s2k salt */
-        if (rng) {
-            if (!rng_get_data(rng, key->sec_protection.iv, blsize)) {
-                return RNP_ERROR_RNG;
-            }
-            if ((key->sec_protection.s2k.specifier != PGP_S2KS_SIMPLE) &&
-                !rng_get_data(rng, key->sec_protection.s2k.salt, PGP_SALT_SIZE)) {
-                return RNP_ERROR_RNG;
-            }
-        } else {
-            /* temporary solution! */
-            if (!rng_generate(key->sec_protection.iv, blsize)) {
-                return RNP_ERROR_RNG;
-            }
-            if ((key->sec_protection.s2k.specifier != PGP_S2KS_SIMPLE) &&
-                !rng_generate(key->sec_protection.s2k.salt, PGP_SALT_SIZE)) {
-                return RNP_ERROR_RNG;
-            }
+        rng.get(key->sec_protection.iv, blsize);
+        if ((key->sec_protection.s2k.specifier != PGP_S2KS_SIMPLE)) {
+            rng.get(key->sec_protection.s2k.salt, PGP_SALT_SIZE);
         }
         /* derive key */
         rnp::secure_array<uint8_t, PGP_MAX_KEY_SIZE> keybuf;

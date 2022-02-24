@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2017 Ribose Inc.
+ * Copyright (c) 2017-2022 Ribose Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,66 +22,18 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */
-
-/*-
- * Copyright (c) 2009 The NetBSD Foundation, Inc.
- * All rights reserved.
- *
- * This code is derived from software contributed to The NetBSD Foundation
- * by Alistair Crooks (agc@NetBSD.org)
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-/*
- * Copyright (c) 2005-2008 Nominet UK (www.nic.uk)
- * All rights reserved.
- * Contributors: Ben Laurie, Rachel Willmer. The Contributors have asserted
- * their moral rights under the UK Copyright Design and Patents Act 1988 to
- * be recorded as the authors of this copyright work.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.
- *
- * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/** \file
  */
 
 #include <stdlib.h>
 #include <string.h>
 #include <botan/ffi.h>
+#include <botan/bigint.h>
+#include <botan/numthry.h>
+#include <botan/reducer.h>
 #include <rnp/rnp_def.h>
 #include "elgamal.h"
 #include "utils.h"
+#include "bn.h"
 
 // Max supported key byte size
 #define ELGAMAL_MAX_P_BYTELEN BITS_TO_BYTES(PGP_MPINT_BITS)
@@ -140,37 +92,53 @@ done:
     return res;
 }
 
-rnp_result_t
-elgamal_validate_key(rng_t *rng, const pgp_eg_key_t *key, bool secret)
+bool
+elgamal_validate_key(const pgp_eg_key_t *key, bool secret)
 {
-    botan_pubkey_t  bpkey = NULL;
-    botan_privkey_t bskey = NULL;
-    rnp_result_t    ret = RNP_ERROR_BAD_PARAMETERS;
-
     // Check if provided public key byte size is not greater than ELGAMAL_MAX_P_BYTELEN.
-    if (!elgamal_load_public_key(&bpkey, key) ||
-        botan_pubkey_check_key(bpkey, rng_handle(rng), 0)) {
-        goto done;
+    if (mpi_bytes(&key->p) > ELGAMAL_MAX_P_BYTELEN) {
+        return false;
     }
 
-    if (!secret) {
-        ret = RNP_SUCCESS;
-        goto done;
-    }
+    /* Use custom validation since we added some custom validation, and Botan has slow test for
+     * prime for p */
+    try {
+        Botan::BigInt p(key->p.mpi, key->p.len);
+        Botan::BigInt g(key->g.mpi, key->g.len);
 
-    if (!elgamal_load_secret_key(&bskey, key) ||
-        botan_privkey_check_key(bskey, rng_handle(rng), 0)) {
-        goto done;
+        /* 1 < g < p */
+        if ((g.cmp_word(1) != 1) || (g.cmp(p) != -1)) {
+            return false;
+        }
+        /* g ^ (p - 1) = 1 mod p */
+        if (Botan::power_mod(g, p - 1, p).cmp_word(1)) {
+            return false;
+        }
+        /* check for small order subgroups */
+        Botan::Modular_Reducer reducer(p);
+        Botan::BigInt          v = g;
+        for (size_t i = 2; i < (1 << 17); i++) {
+            v = reducer.multiply(v, g);
+            if (!v.cmp_word(1)) {
+                RNP_LOG("Small subgroup detected. Order %zu", i);
+                return false;
+            }
+        }
+        if (!secret) {
+            return true;
+        }
+        /* check that g ^ x = y (mod p) */
+        Botan::BigInt y(key->y.mpi, key->y.len);
+        Botan::BigInt x(key->x.mpi, key->x.len);
+        return Botan::power_mod(g, x, p) == y;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return false;
     }
-    ret = RNP_SUCCESS;
-done:
-    botan_privkey_destroy(bskey);
-    botan_pubkey_destroy(bpkey);
-    return ret;
 }
 
 rnp_result_t
-elgamal_encrypt_pkcs1(rng_t *             rng,
+elgamal_encrypt_pkcs1(rnp::RNG *          rng,
                       pgp_eg_encrypted_t *out,
                       const uint8_t *     in,
                       size_t              in_len,
@@ -197,7 +165,7 @@ elgamal_encrypt_pkcs1(rng_t *             rng,
     p_len = mpi_bytes(&key->p) * 2;
 
     if (botan_pk_op_encrypt_create(&op_ctx, b_key, "PKCS1v15", 0) ||
-        botan_pk_op_encrypt(op_ctx, rng_handle(rng), enc_buf, &p_len, in, in_len)) {
+        botan_pk_op_encrypt(op_ctx, rng->handle(), enc_buf, &p_len, in, in_len)) {
         RNP_LOG("Failed to create operation context");
         goto end;
     }
@@ -224,7 +192,7 @@ end:
 }
 
 rnp_result_t
-elgamal_decrypt_pkcs1(rng_t *                   rng,
+elgamal_decrypt_pkcs1(rnp::RNG *                rng,
                       uint8_t *                 out,
                       size_t *                  out_len,
                       const pgp_eg_encrypted_t *in,
@@ -278,7 +246,7 @@ end:
 }
 
 rnp_result_t
-elgamal_generate(rng_t *rng, pgp_eg_key_t *key, size_t keybits)
+elgamal_generate(rnp::RNG *rng, pgp_eg_key_t *key, size_t keybits)
 {
     if ((keybits < 1024) || (keybits > PGP_MPINT_BITS)) {
         return RNP_ERROR_BAD_PARAMETERS;
@@ -290,7 +258,6 @@ elgamal_generate(rng_t *rng, pgp_eg_key_t *key, size_t keybits)
     bignum_t *      g = bn_new();
     bignum_t *      y = bn_new();
     bignum_t *      x = bn_new();
-    size_t          ybytes = 0;
 
     if (!p || !g || !y || !x) {
         ret = RNP_ERROR_OUT_OF_MEMORY;
@@ -298,19 +265,17 @@ elgamal_generate(rng_t *rng, pgp_eg_key_t *key, size_t keybits)
     }
 
 start:
-    if (botan_privkey_create_elgamal(&key_priv, rng_handle(rng), keybits, keybits - 1)) {
+    if (botan_privkey_create_elgamal(&key_priv, rng->handle(), keybits, keybits - 1)) {
         RNP_LOG("Wrong parameters");
         ret = RNP_ERROR_BAD_PARAMETERS;
         goto end;
     }
 
-    if (botan_privkey_get_field(BN_HANDLE_PTR(y), key_priv, "y") ||
-        !bn_num_bytes(y, &ybytes)) {
+    if (botan_privkey_get_field(BN_HANDLE_PTR(y), key_priv, "y")) {
         RNP_LOG("Failed to obtain public key");
         goto end;
     }
-    if (ybytes < BITS_TO_BYTES(keybits)) {
-        RNP_DLOG("Generated ElGamal key has too few bits - retrying");
+    if (bn_num_bytes(*y) < BITS_TO_BYTES(keybits)) {
         botan_privkey_destroy(key_priv);
         goto start;
     }

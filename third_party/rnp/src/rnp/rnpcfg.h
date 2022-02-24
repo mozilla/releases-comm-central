@@ -50,7 +50,6 @@
 #define CFG_USERID "userid"              /* userid for the ongoing operation */
 #define CFG_RECIPIENTS "recipients"      /* list of encrypted data recipients */
 #define CFG_SIGNERS "signers"            /* list of signers */
-#define CFG_VERBOSE "verbose"            /* verbose logging */
 #define CFG_HOMEDIR "homedir"            /* home directory - folder with keyrings and so on */
 #define CFG_KEYFILE "keyfile"     /* path to the file with key(s), used instead of keyring */
 #define CFG_PASSFD "pass-fd"      /* password file descriptor */
@@ -68,7 +67,6 @@
 #define CFG_ENCRYPT_SK "encrypt_sk"     /* password encryption should be used */
 #define CFG_IO_RESS "ress"              /* results stream */
 #define CFG_NUMBITS "numbits"           /* number of bits in generated key */
-#define CFG_KEYFORMAT "format"          /* key format : "human" for human-readable or ... */
 #define CFG_EXPERT "expert"             /* expert key generation mode */
 #define CFG_ZLEVEL "zlevel"             /* compression level: 0..9 (0 for no compression) */
 #define CFG_ZALG "zalg"                 /* compression algorithm: zip, zlib or bzip2 */
@@ -86,6 +84,9 @@
 #define CFG_REV_TYPE "rev-type"     /* revocation reason code */
 #define CFG_REV_REASON "rev-reason" /* revocation reason human-readable string */
 #define CFG_PERMISSIVE "permissive" /* ignore bad packets during key import */
+#define CFG_NOTTY "notty" /* disable tty usage and do input/output via stdin/stdout */
+#define CFG_FIX_25519_BITS "fix-25519-bits"   /* fix Cv25519 secret key via --edit-key */
+#define CFG_CHK_25519_BITS "check-25519-bits" /* check Cv25519 secret key bits */
 
 /* rnp keyring setup variables */
 #define CFG_KR_PUB_FORMAT "kr-pub-format"
@@ -116,6 +117,15 @@ class rnp_cfg {
   private:
     std::unordered_map<std::string, rnp_cfg_val *> vals_;
     std::string                                    empty_str_;
+
+    /** @brief Parse date from the string in %Y-%m-%d format (using "-", "/", "." as a
+     * separator)
+     *
+     *  @param s string with the date
+     *  @param t UNIX timestamp of successfully parsed date
+     *  @return true when parsed successfully or false otherwise
+     */
+    bool parse_date(const std::string &s, uint64_t &t) const;
 
   public:
     /** @brief load default settings */
@@ -155,6 +165,29 @@ class rnp_cfg {
     int get_pswdtries() const;
     /** @brief get hash algorithm */
     const std::string get_hashalg() const;
+
+    /** @brief Get expiration time from the cfg variable, as value relative to the current
+     * time. As per OpenPGP standard it should fit in 32 bit value, otherwise error is
+     * returned.
+     *
+     *  Expiration may be specified in different formats:
+     *  - 10d : 10 days (you can use [h]ours, d[ays], [w]eeks, [m]onthes)
+     *  - 2017-07-12 : as the exact date
+     *  - 60000 : number of seconds
+     *
+     *  @param seconds On successfull return result will be placed here
+     *  @return true on success or false otherwise
+     */
+    bool get_expiration(const std::string &key, uint32_t &seconds) const;
+
+    /** @brief Get signature creation time from the config.
+     *  Creation time may be specified in different formats:
+     *  - 2017-07-12 : as the exact date
+     *  - 1499334073 : timestamp
+     *
+     *  @return timestamp of the signature creation.
+     */
+    uint64_t get_sig_creation() const;
     /** @brief copy or override a configuration.
      *  @param src vals will be overridden (if key exist) or copied (if not) from this object
      */
@@ -166,34 +199,5 @@ class rnp_cfg {
     /** @brief destructor */
     ~rnp_cfg();
 };
-
-/* rnp CLI helper functions */
-
-/** @brief Get signature validity expiration time from the user input
- *
- *  Signature expiration may be specified in different formats:
- *  - 10d : 10 days (you can use [h]ours, d[ays], [w]eeks, [m]onthes)
- *  - 2017-07-12 : as the exact date when signature becomes invalid
- *  - 60000 : number of seconds
- *
- *  @param s [in] NULL-terminated string with the date
- *  @param t [out] On successfull return result will be placed here
- *  @return 0 on success
- *          -1 on parse error
- *          -2 if a date in the past was specified
- *          -3 overflow
- */
-int get_expiration(const char *s, uint32_t *t);
-
-/** @brief Get signature validity start time from the user input
- *
- *  Signature validity may be specified in different formats:
- *  - 2017-07-12 : as the exact date when signature becomes invalid
- *  - 1499334073 : timestamp
- *
- *  @param s [in] NULL-terminated string with the date
- *  @return timestamp of the validity start
- */
-int64_t get_creation(const char *s);
 
 #endif

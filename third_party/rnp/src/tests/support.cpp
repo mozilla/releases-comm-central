@@ -44,12 +44,11 @@
 #include <pgp-key.h>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 #ifndef WINSHELLAPI
 #include <ftw.h>
 #endif
-
-extern rng_t global_rng;
 
 #ifdef _WIN32
 int
@@ -205,17 +204,19 @@ get_tmp()
 static bool
 is_tmp_path(const char *path)
 {
-    char rlpath[PATH_MAX] = {0};
-    char rltmp[PATH_MAX] = {0};
-    if (!realpath(path, rlpath)) {
-        strncpy(rlpath, path, sizeof(rlpath));
-        rlpath[sizeof(rlpath) - 1] = '\0';
+    char *rlpath = realpath(path, NULL);
+    if (!rlpath) {
+        rlpath = strdup(path);
     }
     const char *tmp = get_tmp();
-    if (!realpath(tmp, rltmp)) {
-        strncpy(rltmp, tmp, sizeof(rltmp));
+    char *      rltmp = realpath(tmp, NULL);
+    if (!rltmp) {
+        rltmp = strdup(tmp);
     }
-    return strncmp(rlpath, rltmp, strlen(rltmp)) == 0;
+    bool res = rlpath && rltmp && !strncmp(rlpath, rltmp, strlen(rltmp));
+    free(rlpath);
+    free(rltmp);
+    return res;
 }
 
 /* Recursively remove a directory.
@@ -448,15 +449,15 @@ hex2mpi(pgp_mpi_t *val, const char *hex)
 }
 
 bool
-cmp_keyid(const pgp_key_id_t &id, const char *val)
+cmp_keyid(const pgp_key_id_t &id, const std::string &val)
 {
-    return bin_eq_hex(id.data(), id.size(), val);
+    return bin_eq_hex(id.data(), id.size(), val.c_str());
 }
 
 bool
-cmp_keyfp(const pgp_fingerprint_t &fp, const char *val)
+cmp_keyfp(const pgp_fingerprint_t &fp, const std::string &val)
 {
-    return bin_eq_hex(fp.fingerprint, fp.length, val);
+    return bin_eq_hex(fp.fingerprint, fp.length, val.c_str());
 }
 
 int
@@ -604,7 +605,7 @@ setup_cli_rnp_common(cli_rnp_t *rnp, const char *ks_format, const char *homedir,
     }
 
     /*initialize the basic RNP structure. */
-    return cli_rnp_init(rnp, cfg);
+    return rnp->init(cfg);
 }
 
 void
@@ -734,6 +735,15 @@ strip_eol(const std::string &str)
     return str;
 }
 
+std::string
+lowercase(const std::string &str)
+{
+    std::string res = str;
+    std::transform(
+      res.begin(), res.end(), res.begin(), [](unsigned char ch) { return std::tolower(ch); });
+    return res;
+}
+
 static bool
 jso_get_field(json_object *obj, json_object **fld, const std::string &name)
 {
@@ -838,7 +848,36 @@ rnp_tests_get_key_by_id(rnp_key_store_t *keyring, const std::string &keyid, pgp_
     if (binlen > PGP_KEY_ID_SIZE) {
         return NULL;
     }
-    return rnp_key_store_get_key_by_id(keyring, keyid_bin, after);
+    pgp_key_search_t search = {};
+    search.by.keyid = keyid_bin;
+    search.type = PGP_KEY_SEARCH_KEYID;
+    return rnp_key_store_search(keyring, &search, after);
+}
+
+pgp_key_t *
+rnp_tests_get_key_by_grip(rnp_key_store_t *keyring, const std::string &grip)
+{
+    if (!keyring || grip.empty() || !ishex(grip)) {
+        return NULL;
+    }
+    pgp_key_grip_t grip_bin = {};
+    size_t         binlen = rnp::hex_decode(grip.c_str(), grip_bin.data(), grip_bin.size());
+    if (binlen > PGP_KEY_GRIP_SIZE) {
+        return NULL;
+    }
+    return rnp_tests_get_key_by_grip(keyring, grip_bin);
+}
+
+pgp_key_t *
+rnp_tests_get_key_by_grip(rnp_key_store_t *keyring, const pgp_key_grip_t &grip)
+{
+    if (!keyring) {
+        return NULL;
+    }
+    pgp_key_search_t search = {};
+    search.by.grip = grip;
+    search.type = PGP_KEY_SEARCH_GRIP;
+    return rnp_key_store_search(keyring, &search, NULL);
 }
 
 pgp_key_t *
@@ -858,14 +897,14 @@ rnp_tests_get_key_by_fpr(rnp_key_store_t *keyring, const std::string &keyid)
 }
 
 pgp_key_t *
-rnp_tests_key_search(rnp_key_store_t *keyring, const std::string &keyid)
+rnp_tests_key_search(rnp_key_store_t *keyring, const std::string &uid)
 {
-    if (!keyring || keyid.empty()) {
+    if (!keyring || uid.empty()) {
         return NULL;
     }
 
     pgp_key_search_t srch_userid = {PGP_KEY_SEARCH_USERID};
-    strncpy(srch_userid.by.userid, keyid.c_str(), sizeof(srch_userid.by.userid));
+    strncpy(srch_userid.by.userid, uid.c_str(), sizeof(srch_userid.by.userid));
     srch_userid.by.userid[sizeof(srch_userid.by.userid) - 1] = '\0';
     return rnp_key_store_search(keyring, &srch_userid, NULL);
 }
@@ -1014,4 +1053,154 @@ bool
 import_sec_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len)
 {
     return import_keys(ffi, data, len, RNP_LOAD_SAVE_SECRET_KEYS);
+}
+
+std::vector<uint8_t>
+export_key(rnp_key_handle_t key, bool armored, bool secret)
+{
+    uint32_t flags = RNP_KEY_EXPORT_SUBKEYS;
+    if (armored) {
+        flags = flags | RNP_KEY_EXPORT_ARMORED;
+    }
+    if (secret) {
+        flags = flags | RNP_KEY_EXPORT_SECRET;
+    } else {
+        flags = flags | RNP_KEY_EXPORT_PUBLIC;
+    }
+    rnp_output_t output = NULL;
+    rnp_output_to_memory(&output, 0);
+    rnp_key_export(key, output, flags);
+    size_t   len = 0;
+    uint8_t *buf = NULL;
+    rnp_output_memory_get_buf(output, &buf, &len, false);
+    std::vector<uint8_t> res(buf, buf + len);
+    rnp_output_destroy(output);
+    return res;
+}
+
+void
+dump_key_stdout(rnp_key_handle_t key, bool secret)
+{
+    auto pub = export_key(key, true, false);
+    printf("%.*s", (int) pub.size(), (char *) pub.data());
+    if (!secret) {
+        return;
+    }
+    auto sec = export_key(key, true, true);
+    printf("%.*s", (int) sec.size(), (char *) sec.data());
+}
+
+bool
+check_uid_valid(rnp_key_handle_t key, size_t idx, bool valid)
+{
+    rnp_uid_handle_t uid = NULL;
+    if (rnp_key_get_uid_handle_at(key, idx, &uid)) {
+        return false;
+    }
+    bool val = !valid;
+    rnp_uid_is_valid(uid, &val);
+    rnp_uid_handle_destroy(uid);
+    return val == valid;
+}
+
+bool
+check_uid_primary(rnp_key_handle_t key, size_t idx, bool primary)
+{
+    rnp_uid_handle_t uid = NULL;
+    if (rnp_key_get_uid_handle_at(key, idx, &uid)) {
+        return false;
+    }
+    bool prim = !primary;
+    rnp_uid_is_primary(uid, &prim);
+    rnp_uid_handle_destroy(uid);
+    return prim == primary;
+}
+
+bool
+check_key_valid(rnp_key_handle_t key, bool validity)
+{
+    bool valid = !validity;
+    if (rnp_key_is_valid(key, &valid)) {
+        return false;
+    }
+    return valid == validity;
+}
+
+uint32_t
+get_key_expiry(rnp_key_handle_t key)
+{
+    uint32_t expiry = (uint32_t) -1;
+    rnp_key_get_expiration(key, &expiry);
+    return expiry;
+}
+
+size_t
+get_key_uids(rnp_key_handle_t key)
+{
+    size_t count = (size_t) -1;
+    rnp_key_get_uid_count(key, &count);
+    return count;
+}
+
+bool
+check_sub_valid(rnp_key_handle_t key, size_t idx, bool validity)
+{
+    rnp_key_handle_t sub = NULL;
+    if (rnp_key_get_subkey_at(key, idx, &sub)) {
+        return false;
+    }
+    bool valid = !validity;
+    rnp_key_is_valid(sub, &valid);
+    rnp_key_handle_destroy(sub);
+    return valid == validity;
+}
+
+bool
+sm2_enabled()
+{
+    bool enabled = false;
+    if (rnp_supports_feature(RNP_FEATURE_PK_ALG, "SM2", &enabled)) {
+        return false;
+    }
+    return enabled;
+}
+
+bool
+aead_eax_enabled()
+{
+    bool enabled = false;
+    if (rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "EAX", &enabled)) {
+        return false;
+    }
+    return enabled;
+}
+
+bool
+aead_ocb_enabled()
+{
+    bool enabled = false;
+    if (rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "OCB", &enabled)) {
+        return false;
+    }
+    return enabled;
+}
+
+bool
+twofish_enabled()
+{
+    bool enabled = false;
+    if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "Twofish", &enabled)) {
+        return false;
+    }
+    return enabled;
+}
+
+bool
+brainpool_enabled()
+{
+    bool enabled = false;
+    if (rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP256r1", &enabled)) {
+        return false;
+    }
+    return enabled;
 }

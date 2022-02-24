@@ -37,13 +37,13 @@
 #include "utils.h"
 
 static const uint8_t DEFAULT_SYMMETRIC_ALGS[] = {
-  PGP_SA_AES_256, PGP_SA_AES_192, PGP_SA_AES_128, PGP_SA_TRIPLEDES};
+  PGP_SA_AES_256, PGP_SA_AES_192, PGP_SA_AES_128};
 static const uint8_t DEFAULT_HASH_ALGS[] = {
-  PGP_HASH_SHA256, PGP_HASH_SHA384, PGP_HASH_SHA512, PGP_HASH_SHA224, PGP_HASH_SHA1};
+  PGP_HASH_SHA256, PGP_HASH_SHA384, PGP_HASH_SHA512, PGP_HASH_SHA224};
 static const uint8_t DEFAULT_COMPRESS_ALGS[] = {
   PGP_C_ZLIB, PGP_C_BZIP2, PGP_C_ZIP, PGP_C_NONE};
 
-static pgp_map_t pubkey_alg_map[] = {
+static const id_str_pair pubkey_alg_map[] = {
   {PGP_PKA_RSA, "RSA (Encrypt or Sign)"},
   {PGP_PKA_RSA_ENCRYPT_ONLY, "RSA Encrypt-Only"},
   {PGP_PKA_RSA_SIGN_ONLY, "RSA Sign-Only"},
@@ -66,21 +66,21 @@ static pgp_map_t pubkey_alg_map[] = {
   {PGP_PKA_PRIVATE08, "Private/Experimental"},
   {PGP_PKA_PRIVATE09, "Private/Experimental"},
   {PGP_PKA_PRIVATE10, "Private/Experimental"},
-  {0x00, NULL}, /* this is the end-of-array marker */
-};
+  {0, NULL}};
 
 static bool
-load_generated_g10_key(pgp_key_t *    dst,
-                       pgp_key_pkt_t *newkey,
-                       pgp_key_t *    primary_key,
-                       pgp_key_t *    pubkey)
+load_generated_g10_key(pgp_key_t *           dst,
+                       pgp_key_pkt_t *       newkey,
+                       pgp_key_t *           primary_key,
+                       pgp_key_t *           pubkey,
+                       rnp::SecurityContext &ctx)
 {
-    bool               ok = false;
-    pgp_dest_t         memdst = {};
-    pgp_source_t       memsrc = {};
-    rnp_key_store_t *  key_store = NULL;
-    list               key_ptrs = NULL; /* holds primary and pubkey, when used */
-    pgp_key_provider_t prov = {};
+    bool                     ok = false;
+    pgp_dest_t               memdst = {};
+    pgp_source_t             memsrc = {};
+    rnp_key_store_t *        key_store = NULL;
+    std::vector<pgp_key_t *> key_ptrs; /* holds primary and pubkey, when used */
+    pgp_key_provider_t       prov = {};
 
     // this should generally be zeroed
     assert(dst->type() == 0);
@@ -95,30 +95,33 @@ load_generated_g10_key(pgp_key_t *    dst,
         goto end;
     }
 
-    if (!g10_write_seckey(&memdst, newkey, NULL)) {
+    if (!g10_write_seckey(&memdst, newkey, NULL, ctx.rng)) {
         RNP_LOG("failed to write generated seckey");
         goto end;
     }
 
     // this would be better on the stack but the key store does not allow it
     try {
-        key_store = new rnp_key_store_t();
+        key_store = new rnp_key_store_t(ctx);
     } catch (const std::exception &e) {
         RNP_LOG("%s", e.what());
         goto end;
     }
 
     // if this is a subkey, add the primary in first
-    if (primary_key && !list_append(&key_ptrs, &primary_key, sizeof(primary_key))) {
-        goto end;
-    }
-    // G10 needs the pubkey for copying some attributes (key version, creation time, etc)
-    if (!list_append(&key_ptrs, &pubkey, sizeof(pubkey))) {
+    try {
+        if (primary_key) {
+            key_ptrs.push_back(primary_key);
+        }
+        // G10 needs the pubkey for copying some attributes (key version, creation time, etc)
+        key_ptrs.push_back(pubkey);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         goto end;
     }
 
     prov.callback = rnp_key_provider_key_ptr_list;
-    prov.userdata = key_ptrs;
+    prov.userdata = &key_ptrs;
 
     if (init_mem_src(&memsrc, mem_dest_get_memory(&memdst), memdst.writeb, false)) {
         goto end;
@@ -143,7 +146,6 @@ end:
     delete key_store;
     src_close(&memsrc);
     dst_close(&memdst, true);
-    list_destroy(&key_ptrs);
     return ok;
 }
 
@@ -171,7 +173,7 @@ adjust_hash_alg(rnp_keygen_crypto_params_t &crypto)
                                 ecdsa_get_min_hash(crypto.ecc.curve) :
                                 dsa_get_min_hash(crypto.dsa.q_bitlen);
 
-    if (pgp_digest_length(crypto.hash_alg) < pgp_digest_length(min_hash)) {
+    if (rnp::Hash::size(crypto.hash_alg) < rnp::Hash::size(min_hash)) {
         crypto.hash_alg = min_hash;
     }
 }
@@ -231,30 +233,29 @@ keygen_merge_crypto_defaults(rnp_keygen_crypto_params_t &crypto)
 }
 
 static bool
-validate_keygen_primary(const rnp_keygen_primary_desc_t *desc)
+validate_keygen_primary(const rnp_keygen_primary_desc_t &desc)
 {
     /* Confirm that the specified pk alg can certify.
      * gpg requires this, though the RFC only says that a V4 primary
      * key SHOULD be a key capable of certification.
      */
-    if (!(pgp_pk_alg_capabilities(desc->crypto.key_alg) & PGP_KF_CERTIFY)) {
-        RNP_LOG("primary key alg (%d) must be able to sign", desc->crypto.key_alg);
+    if (!(pgp_pk_alg_capabilities(desc.crypto.key_alg) & PGP_KF_CERTIFY)) {
+        RNP_LOG("primary key alg (%d) must be able to sign", desc.crypto.key_alg);
         return false;
     }
 
     // check key flags
-    if (!desc->cert.key_flags) {
+    if (!desc.cert.key_flags) {
         // these are probably not *technically* required
         RNP_LOG("key flags are required");
         return false;
-    } else if (desc->cert.key_flags & ~pgp_pk_alg_capabilities(desc->crypto.key_alg)) {
+    } else if (desc.cert.key_flags & ~pgp_pk_alg_capabilities(desc.crypto.key_alg)) {
         // check the flags against the alg capabilities
         RNP_LOG("usage not permitted for pk algorithm");
         return false;
     }
-
     // require a userid
-    if (!desc->cert.userid[0]) {
+    if (!desc.cert.userid[0]) {
         RNP_LOG("userid is required for primary key");
         return false;
     }
@@ -307,12 +308,6 @@ set_default_user_prefs(pgp_user_prefs_t &prefs)
     }
 }
 
-static const char *
-pgp_show_pka(pgp_pubkey_alg_t pka)
-{
-    return pgp_str_from_map(pka, pubkey_alg_map);
-}
-
 static void
 keygen_primary_merge_defaults(rnp_keygen_primary_desc_t &desc)
 {
@@ -327,106 +322,83 @@ keygen_primary_merge_defaults(rnp_keygen_primary_desc_t &desc)
         snprintf((char *) desc.cert.userid,
                  sizeof(desc.cert.userid),
                  "%s %d-bit key <%s@localhost>",
-                 pgp_show_pka(desc.crypto.key_alg),
+                 id_str_pair::lookup(pubkey_alg_map, desc.crypto.key_alg),
                  get_numbits(&desc.crypto),
                  getenv_logname());
     }
 }
 
 bool
-pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
+pgp_generate_primary_key(rnp_keygen_primary_desc_t &desc,
                          bool                       merge_defaults,
-                         pgp_key_t *                primary_sec,
-                         pgp_key_t *                primary_pub,
+                         pgp_key_t &                primary_sec,
+                         pgp_key_t &                primary_pub,
                          pgp_key_store_format_t     secformat)
 {
     // validate args
-    if (!desc || !primary_pub || !primary_sec) {
-        return false;
-    }
-    if (primary_sec->type() || primary_pub->type()) {
+    if (primary_sec.type() || primary_pub.type()) {
         RNP_LOG("invalid parameters (should be zeroed)");
         return false;
     }
 
-    // merge some defaults in, if requested
-    if (merge_defaults) {
-        try {
-            keygen_primary_merge_defaults(*desc);
-        } catch (const std::exception &e) {
-            RNP_LOG("%s", e.what());
-            return false;
-        }
-    }
-
-    // now validate the keygen fields
-    if (!validate_keygen_primary(desc)) {
-        return false;
-    }
-
-    // generate the raw key and fill tag/secret fields
-    pgp_transferable_key_t tkeysec;
-    if (!pgp_generate_seckey(&desc->crypto, &tkeysec.key, true)) {
-        return false;
-    }
-
-    pgp_transferable_userid_t *uid =
-      transferable_key_add_userid(tkeysec, (char *) desc->cert.userid);
-    if (!uid) {
-        RNP_LOG("failed to add userid");
-        return false;
-    }
-
-    if (!transferable_userid_certify(
-          tkeysec.key, *uid, tkeysec.key, desc->crypto.hash_alg, desc->cert)) {
-        RNP_LOG("failed to certify key");
-        return false;
-    }
-
-    pgp_transferable_key_t tkeypub;
     try {
-        tkeypub = pgp_transferable_key_t(tkeysec, true);
-        *primary_pub = tkeypub;
-    } catch (const std::exception &e) {
-        RNP_LOG("failed to copy public key part: %s", e.what());
-        return false;
-    }
+        // merge some defaults in, if requested
+        if (merge_defaults) {
+            keygen_primary_merge_defaults(desc);
+        }
+        // now validate the keygen fields
+        if (!validate_keygen_primary(desc)) {
+            return false;
+        }
 
-    switch (secformat) {
-    case PGP_KEY_STORE_GPG:
-    case PGP_KEY_STORE_KBX:
-        try {
-            *primary_sec = tkeysec;
-        } catch (const std::exception &e) {
-            RNP_LOG("%s", e.what());
+        // generate the raw key and fill tag/secret fields
+        pgp_key_pkt_t secpkt;
+        if (!pgp_generate_seckey(desc.crypto, secpkt, true)) {
             return false;
         }
-        break;
-    case PGP_KEY_STORE_G10:
-        if (!load_generated_g10_key(primary_sec, &tkeysec.key, NULL, primary_pub)) {
-            RNP_LOG("failed to load generated key");
+
+        pgp_key_t sec(secpkt);
+        pgp_key_t pub(secpkt, true);
+        sec.add_uid_cert(desc.cert, desc.crypto.hash_alg, *desc.crypto.ctx, &pub);
+
+        switch (secformat) {
+        case PGP_KEY_STORE_GPG:
+        case PGP_KEY_STORE_KBX:
+            primary_sec = std::move(sec);
+            primary_pub = std::move(pub);
+            break;
+        case PGP_KEY_STORE_G10:
+            primary_pub = std::move(pub);
+            if (!load_generated_g10_key(
+                  &primary_sec, &secpkt, NULL, &primary_pub, *desc.crypto.ctx)) {
+                RNP_LOG("failed to load generated key");
+                return false;
+            }
+            break;
+        default:
+            RNP_LOG("invalid format");
             return false;
         }
-        break;
-    default:
-        RNP_LOG("invalid format");
+    } catch (const std::exception &e) {
+        RNP_LOG("Failure: %s", e.what());
         return false;
     }
 
     /* mark it as valid */
-    primary_pub->mark_valid();
-    primary_sec->mark_valid();
+    primary_pub.mark_valid();
+    primary_sec.mark_valid();
     /* refresh key's data */
-    return primary_pub->refresh_data() && primary_sec->refresh_data();
+    return primary_pub.refresh_data(*desc.crypto.ctx) &&
+           primary_sec.refresh_data(*desc.crypto.ctx);
 }
 
 static bool
-validate_keygen_subkey(rnp_keygen_subkey_desc_t *desc)
+validate_keygen_subkey(rnp_keygen_subkey_desc_t &desc)
 {
-    if (!desc->binding.key_flags) {
+    if (!desc.binding.key_flags) {
         RNP_LOG("key flags are required");
         return false;
-    } else if (desc->binding.key_flags & ~pgp_pk_alg_capabilities(desc->crypto.key_alg)) {
+    } else if (desc.binding.key_flags & ~pgp_pk_alg_capabilities(desc.crypto.key_alg)) {
         // check the flags against the alg capabilities
         RNP_LOG("usage not permitted for pk algorithm");
         return false;
@@ -445,201 +417,131 @@ keygen_subkey_merge_defaults(rnp_keygen_subkey_desc_t &desc)
 }
 
 bool
-pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
+pgp_generate_subkey(rnp_keygen_subkey_desc_t &     desc,
                     bool                           merge_defaults,
-                    pgp_key_t *                    primary_sec,
-                    pgp_key_t *                    primary_pub,
-                    pgp_key_t *                    subkey_sec,
-                    pgp_key_t *                    subkey_pub,
-                    const pgp_password_provider_t *password_provider,
+                    pgp_key_t &                    primary_sec,
+                    pgp_key_t &                    primary_pub,
+                    pgp_key_t &                    subkey_sec,
+                    pgp_key_t &                    subkey_pub,
+                    const pgp_password_provider_t &password_provider,
                     pgp_key_store_format_t         secformat)
 {
-    pgp_transferable_subkey_t tskeysec;
-    pgp_transferable_subkey_t tskeypub;
-    const pgp_key_pkt_t *     primary_seckey = NULL;
-    pgp_key_pkt_t *           decrypted_primary_seckey = NULL;
-    pgp_password_ctx_t        ctx = {};
-    bool                      ok = false;
-
     // validate args
-    if (!desc || !primary_sec || !primary_pub || !subkey_sec || !subkey_pub) {
-        RNP_LOG("NULL args");
-        goto end;
-    }
-    if (!primary_sec->is_primary() || !primary_pub->is_primary() ||
-        !primary_sec->is_secret() || !primary_pub->is_public()) {
+    if (!primary_sec.is_primary() || !primary_pub.is_primary() || !primary_sec.is_secret() ||
+        !primary_pub.is_public()) {
         RNP_LOG("invalid parameters");
-        goto end;
+        return false;
     }
-    if (subkey_sec->type() || subkey_pub->type()) {
+    if (subkey_sec.type() || subkey_pub.type()) {
         RNP_LOG("invalid parameters (should be zeroed)");
-        goto end;
+        return false;
     }
 
     // merge some defaults in, if requested
     if (merge_defaults) {
-        keygen_subkey_merge_defaults(*desc);
+        keygen_subkey_merge_defaults(desc);
     }
 
     // now validate the keygen fields
     if (!validate_keygen_subkey(desc)) {
-        goto end;
-    }
-
-    ctx = {.op = PGP_OP_ADD_SUBKEY, .key = primary_sec};
-
-    // decrypt the primary seckey if needed (for signatures)
-    if (primary_sec->encrypted()) {
-        decrypted_primary_seckey = pgp_decrypt_seckey(primary_sec, password_provider, &ctx);
-        if (!decrypted_primary_seckey) {
-            goto end;
-        }
-        primary_seckey = decrypted_primary_seckey;
-    } else {
-        primary_seckey = &primary_sec->pkt();
-    }
-
-    // generate the raw key pair
-    if (!pgp_generate_seckey(&desc->crypto, &tskeysec.subkey, false)) {
-        goto end;
-    }
-
-    if (!transferable_subkey_bind(
-          *primary_seckey, tskeysec, desc->crypto.hash_alg, desc->binding)) {
-        RNP_LOG("failed to add subkey binding signature");
-        goto end;
+        return false;
     }
 
     try {
-        *subkey_pub = pgp_key_t(pgp_transferable_subkey_t(tskeysec, true), primary_pub);
+        /* decrypt the primary seckey if needed (for signatures) */
+        rnp::KeyLocker primlock(primary_sec);
+        if (primary_sec.encrypted() &&
+            !primary_sec.unlock(password_provider, PGP_OP_ADD_SUBKEY)) {
+            RNP_LOG("Failed to unlock primary key.");
+            return false;
+        }
+        /* generate the raw subkey */
+        pgp_key_pkt_t secpkt;
+        if (!pgp_generate_seckey(desc.crypto, secpkt, false)) {
+            return false;
+        }
+        pgp_key_pkt_t pubpkt = pgp_key_pkt_t(secpkt, true);
+        pgp_key_t     sec(secpkt, primary_sec);
+        pgp_key_t     pub(pubpkt, primary_pub);
+        /* add binding */
+        primary_sec.add_sub_binding(
+          sec, pub, desc.binding, desc.crypto.hash_alg, *desc.crypto.ctx);
+        /* copy to the result */
+        subkey_pub = std::move(pub);
+        switch (secformat) {
+        case PGP_KEY_STORE_GPG:
+        case PGP_KEY_STORE_KBX:
+            subkey_sec = std::move(sec);
+            break;
+        case PGP_KEY_STORE_G10:
+            if (!load_generated_g10_key(
+                  &subkey_sec, &secpkt, &primary_sec, &subkey_pub, *desc.crypto.ctx)) {
+                RNP_LOG("failed to load generated key");
+                return false;
+            }
+            break;
+        default:
+            RNP_LOG("invalid format");
+            return false;
+        }
+
+        subkey_pub.mark_valid();
+        subkey_sec.mark_valid();
+        return subkey_pub.refresh_data(&primary_pub, *desc.crypto.ctx) &&
+               subkey_sec.refresh_data(&primary_sec, *desc.crypto.ctx);
     } catch (const std::exception &e) {
-        RNP_LOG("failed to copy public subkey part: %s", e.what());
-        goto end;
+        RNP_LOG("Subkey generation failed: %s", e.what());
+        return false;
     }
-
-    switch (secformat) {
-    case PGP_KEY_STORE_GPG:
-    case PGP_KEY_STORE_KBX:
-        try {
-            *subkey_sec = pgp_key_t(tskeysec, primary_sec);
-        } catch (const std::exception &e) {
-            RNP_LOG("%s", e.what());
-            goto end;
-        }
-        break;
-    case PGP_KEY_STORE_G10:
-        if (!load_generated_g10_key(subkey_sec, &tskeysec.subkey, primary_sec, subkey_pub)) {
-            RNP_LOG("failed to load generated key");
-            goto end;
-        }
-        break;
-    default:
-        RNP_LOG("invalid format");
-        goto end;
-        break;
-    }
-
-    subkey_pub->mark_valid();
-    subkey_sec->mark_valid();
-    ok = subkey_pub->refresh_data(primary_pub) && subkey_sec->refresh_data(primary_sec);
-end:
-    if (decrypted_primary_seckey) {
-        delete decrypted_primary_seckey;
-    }
-    return ok;
 }
 
 static void
-keygen_merge_defaults(rnp_keygen_primary_desc_t *primary_desc,
-                      rnp_keygen_subkey_desc_t * subkey_desc)
+keygen_merge_defaults(rnp_keygen_primary_desc_t &primary_desc,
+                      rnp_keygen_subkey_desc_t & subkey_desc)
 {
-    if (!primary_desc->cert.key_flags && !subkey_desc->binding.key_flags) {
+    if (!primary_desc.cert.key_flags && !subkey_desc.binding.key_flags) {
         // if no flags are set for either the primary key nor subkey,
         // we can set up some typical defaults here (these are validated
         // later against the alg capabilities)
-        primary_desc->cert.key_flags = PGP_KF_SIGN | PGP_KF_CERTIFY;
-        subkey_desc->binding.key_flags = PGP_KF_ENCRYPT;
+        primary_desc.cert.key_flags = PGP_KF_SIGN | PGP_KF_CERTIFY;
+        subkey_desc.binding.key_flags = PGP_KF_ENCRYPT;
     }
-}
-
-static void
-print_keygen_crypto(const rnp_keygen_crypto_params_t *crypto)
-{
-    printf("key_alg: %s (%d)\n", pgp_show_pka(crypto->key_alg), crypto->key_alg);
-    if (crypto->key_alg == PGP_PKA_RSA) {
-        printf("bits: %u\n", crypto->rsa.modulus_bit_len);
-    } else {
-        printf("curve: %d\n", crypto->ecc.curve);
-    }
-    printf("hash_alg: %s (%d)\n", pgp_show_hash_alg(crypto->hash_alg), crypto->hash_alg);
-}
-
-static void
-print_keygen_primary(const rnp_keygen_primary_desc_t *desc)
-{
-    printf("Keygen (primary)\n");
-    print_keygen_crypto(&desc->crypto);
-}
-
-static void
-print_keygen_subkey(const rnp_keygen_subkey_desc_t *desc)
-{
-    printf("Keygen (subkey)\n");
-    print_keygen_crypto(&desc->crypto);
 }
 
 bool
-pgp_generate_keypair(rng_t *                    rng,
-                     rnp_keygen_primary_desc_t *primary_desc,
-                     rnp_keygen_subkey_desc_t * subkey_desc,
+pgp_generate_keypair(rnp_keygen_primary_desc_t &primary_desc,
+                     rnp_keygen_subkey_desc_t & subkey_desc,
                      bool                       merge_defaults,
-                     pgp_key_t *                primary_sec,
-                     pgp_key_t *                primary_pub,
-                     pgp_key_t *                subkey_sec,
-                     pgp_key_t *                subkey_pub,
+                     pgp_key_t &                primary_sec,
+                     pgp_key_t &                primary_pub,
+                     pgp_key_t &                subkey_sec,
+                     pgp_key_t &                subkey_pub,
                      pgp_key_store_format_t     secformat)
 {
-    bool ok = false;
-
-    if (rnp_get_debug(__FILE__)) {
-        print_keygen_primary(primary_desc);
-        print_keygen_subkey(subkey_desc);
-    }
-
-    // validate args
-    if (!primary_desc || !subkey_desc || !primary_sec || !primary_pub || !subkey_sec ||
-        !subkey_pub) {
-        RNP_LOG("NULL args");
-        goto end;
-    }
-
     // merge some defaults in, if requested
     if (merge_defaults) {
         keygen_merge_defaults(primary_desc, subkey_desc);
     }
 
     // generate the primary key
-    primary_desc->crypto.rng = rng;
     if (!pgp_generate_primary_key(
           primary_desc, merge_defaults, primary_sec, primary_pub, secformat)) {
         RNP_LOG("failed to generate primary key");
-        goto end;
+        return false;
     }
 
     // generate the subkey
-    subkey_desc->crypto.rng = rng;
+    pgp_password_provider_t prov = {};
     if (!pgp_generate_subkey(subkey_desc,
                              merge_defaults,
                              primary_sec,
                              primary_pub,
                              subkey_sec,
                              subkey_pub,
-                             NULL,
+                             prov,
                              secformat)) {
         RNP_LOG("failed to generate subkey");
-        goto end;
+        return false;
     }
-    ok = true;
-end:
-    return ok;
+    return true;
 }

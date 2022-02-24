@@ -41,7 +41,7 @@
 
 #include "rnpcfg.h"
 #include "defaults.h"
-#include "logging.h"
+#include "utils.h"
 #include "time-utils.h"
 #include <rnp/rnp.h>
 
@@ -187,8 +187,7 @@ rnp_cfg::add_str(const std::string &key, const std::string &val)
         RNP_LOG("expected list val for \"%s\"", key.c_str());
         throw std::invalid_argument("type");
     }
-    rnp_cfg_list_val *list = dynamic_cast<rnp_cfg_list_val *>(vals_[key]);
-    list->val().push_back(val);
+    (dynamic_cast<rnp_cfg_list_val &>(*vals_[key])).val().push_back(val);
 }
 
 bool
@@ -203,7 +202,7 @@ rnp_cfg::get_str(const std::string &key) const
     if (!has(key) || (vals_.at(key)->type() != RNP_CFG_VAL_STRING)) {
         return empty_str_;
     }
-    return (dynamic_cast<const rnp_cfg_str_val *>(vals_.at(key)))->val();
+    return (dynamic_cast<const rnp_cfg_str_val &>(*vals_.at(key))).val();
 }
 
 const char *
@@ -212,7 +211,7 @@ rnp_cfg::get_cstr(const std::string &key) const
     if (!has(key) || (vals_.at(key)->type() != RNP_CFG_VAL_STRING)) {
         return NULL;
     }
-    return (dynamic_cast<const rnp_cfg_str_val *>(vals_.at(key)))->val().c_str();
+    return (dynamic_cast<const rnp_cfg_str_val &>(*vals_.at(key))).val().c_str();
 }
 
 int
@@ -224,11 +223,11 @@ rnp_cfg::get_int(const std::string &key, int def) const
     const rnp_cfg_val *val = vals_.at(key);
     switch (val->type()) {
     case RNP_CFG_VAL_INT:
-        return (dynamic_cast<const rnp_cfg_int_val *>(val))->val();
+        return (dynamic_cast<const rnp_cfg_int_val &>(*val)).val();
     case RNP_CFG_VAL_BOOL:
-        return (dynamic_cast<const rnp_cfg_bool_val *>(val))->val();
+        return (dynamic_cast<const rnp_cfg_bool_val &>(*val)).val();
     case RNP_CFG_VAL_STRING:
-        return atoi((dynamic_cast<const rnp_cfg_str_val *>(val))->val().c_str());
+        return atoi((dynamic_cast<const rnp_cfg_str_val &>(*val)).val().c_str());
     default:
         return def;
     }
@@ -243,11 +242,11 @@ rnp_cfg::get_bool(const std::string &key) const
     const rnp_cfg_val *val = vals_.at(key);
     switch (val->type()) {
     case RNP_CFG_VAL_INT:
-        return (dynamic_cast<const rnp_cfg_int_val *>(val))->val();
+        return (dynamic_cast<const rnp_cfg_int_val &>(*val)).val();
     case RNP_CFG_VAL_BOOL:
-        return (dynamic_cast<const rnp_cfg_bool_val *>(val))->val();
+        return (dynamic_cast<const rnp_cfg_bool_val &>(*val)).val();
     case RNP_CFG_VAL_STRING: {
-        const std::string &str = (dynamic_cast<const rnp_cfg_str_val *>(val))->val();
+        const std::string &str = (dynamic_cast<const rnp_cfg_str_val &>(*val)).val();
         return !strcasecmp(str.c_str(), "true") || (atoi(str.c_str()) > 0);
     }
     default:
@@ -261,8 +260,7 @@ rnp_cfg::get_count(const std::string &key) const
     if (!has(key) || (vals_.at(key)->type() != RNP_CFG_VAL_LIST)) {
         return 0;
     }
-    const rnp_cfg_list_val *val = dynamic_cast<const rnp_cfg_list_val *>(vals_.at(key));
-    return val->val().size();
+    return (dynamic_cast<const rnp_cfg_list_val &>(*vals_.at(key))).val().size();
 }
 
 const std::string &
@@ -272,8 +270,7 @@ rnp_cfg::get_str(const std::string &key, size_t idx) const
         RNP_LOG("idx is out of bounds for \"%s\"", key.c_str());
         throw std::invalid_argument("idx");
     }
-    const rnp_cfg_list_val *val = dynamic_cast<const rnp_cfg_list_val *>(vals_.at(key));
-    return val->val().at(idx);
+    return (dynamic_cast<const rnp_cfg_list_val &>(*vals_.at(key))).val().at(idx);
 }
 
 std::vector<std::string>
@@ -287,8 +284,7 @@ rnp_cfg::get_list(const std::string &key) const
         RNP_LOG("no list at the key \"%s\"", key.c_str());
         throw std::invalid_argument("key");
     }
-    const rnp_cfg_list_val *val = dynamic_cast<const rnp_cfg_list_val *>(vals_.at(key));
-    return val->val();
+    return (dynamic_cast<const rnp_cfg_list_val &>(*vals_.at(key))).val();
 }
 
 int
@@ -314,6 +310,109 @@ rnp_cfg::get_hashalg() const
     return DEFAULT_HASH_ALG;
 }
 
+bool
+rnp_cfg::get_expiration(const std::string &key, uint32_t &seconds) const
+{
+    if (!has(key)) {
+        return false;
+    }
+    const std::string &val = get_str(key);
+    uint64_t           delta;
+    uint64_t           t;
+    if (parse_date(val, t)) {
+        uint64_t now = time(NULL);
+        if (t > now) {
+            delta = t - now;
+            if (delta > UINT32_MAX) {
+                RNP_LOG("Expiration time exceeds 32-bit value");
+                return false;
+            }
+            seconds = delta;
+            return true;
+        }
+        return false;
+    }
+    const char *reg = "^([0-9]+)([hdwmy]?)$";
+#ifndef RNP_USE_STD_REGEX
+    static regex_t r;
+    static int     compiled;
+    regmatch_t     matches[3];
+
+    if (!compiled) {
+        compiled = 1;
+        if (regcomp(&r, reg, REG_EXTENDED | REG_ICASE)) {
+            RNP_LOG("failed to compile regexp");
+            return false;
+        }
+    }
+    if (regexec(&r, val.c_str(), ARRAY_SIZE(matches), matches, 0)) {
+        return false;
+    }
+    auto delta_str = &val.c_str()[matches[1].rm_so];
+    char mult = val.c_str()[matches[2].rm_so];
+#else
+    static std::regex re(reg, std::regex_constants::extended | std::regex_constants::icase);
+    std::smatch       result;
+
+    if (!std::regex_search(val, result, re)) {
+        return false;
+    }
+    std::string delta_stdstr = result[1].str();
+    const char *delta_str = delta_stdstr.c_str();
+    char        mult = result[2].str()[0];
+#endif
+    errno = 0;
+    delta = strtoul(delta_str, NULL, 10);
+    if (errno || delta > UINT_MAX) {
+        RNP_LOG("Invalid expiration '%s'.", delta_str);
+        return false;
+    }
+    switch (std::tolower(mult)) {
+    case 'h':
+        delta *= 60 * 60;
+        break;
+    case 'd':
+        delta *= 60 * 60 * 24;
+        break;
+    case 'w':
+        delta *= 60 * 60 * 24 * 7;
+        break;
+    case 'm':
+        delta *= 60 * 60 * 24 * 31;
+        break;
+    case 'y':
+        delta *= 60 * 60 * 24 * 365;
+        break;
+    }
+    if (delta > UINT32_MAX) {
+        RNP_LOG("Expiration value exceed 32 bit.");
+        return false;
+    }
+    seconds = delta;
+    return true;
+}
+
+uint64_t
+rnp_cfg::get_sig_creation() const
+{
+    if (!has(CFG_CREATION)) {
+        return time(NULL);
+    }
+    const std::string &cr = get_str(CFG_CREATION);
+    /* Check if string is date */
+    uint64_t t;
+    if (parse_date(cr, t)) {
+        return t;
+    }
+    /* Check if string is UNIX timestamp */
+    for (auto c : cr) {
+        if (!isdigit(c)) {
+            return time(NULL);
+        }
+    }
+    return std::stoll(cr);
+}
+
 void
 rnp_cfg::copy(const rnp_cfg &src)
 {
@@ -324,16 +423,16 @@ rnp_cfg::copy(const rnp_cfg &src)
         rnp_cfg_val *val = NULL;
         switch (it.second->type()) {
         case RNP_CFG_VAL_INT:
-            val = new rnp_cfg_int_val(*(dynamic_cast<rnp_cfg_int_val *>(it.second)));
+            val = new rnp_cfg_int_val(dynamic_cast<const rnp_cfg_int_val &>(*it.second));
             break;
         case RNP_CFG_VAL_BOOL:
-            val = new rnp_cfg_bool_val(*(dynamic_cast<rnp_cfg_bool_val *>(it.second)));
+            val = new rnp_cfg_bool_val(dynamic_cast<const rnp_cfg_bool_val &>(*it.second));
             break;
         case RNP_CFG_VAL_STRING:
-            val = new rnp_cfg_str_val(*(dynamic_cast<rnp_cfg_str_val *>(it.second)));
+            val = new rnp_cfg_str_val(dynamic_cast<const rnp_cfg_str_val &>(*it.second));
             break;
         case RNP_CFG_VAL_LIST:
-            val = new rnp_cfg_list_val(*(dynamic_cast<rnp_cfg_list_val *>(it.second)));
+            val = new rnp_cfg_list_val(dynamic_cast<const rnp_cfg_list_val &>(*it.second));
             break;
         default:
             continue;
@@ -389,27 +488,8 @@ days_in_month(int year, int month)
     }
 }
 
-/**
- * @brief Grabs date from the string in %Y-%m-%d format
- *
- * @param s [in] NULL-terminated string with the date
- * @param t [out] On successful return result will be placed here
- * @return true on success or false otherwise
- */
-
-/** @brief
- *
- *  @param s [in] NULL-terminated string with the date
- *  @param t [out] UNIX timestamp of
- * successfully parsed date
- *  @return 0 when parsed successfully
- *          1 when s doesn't match the regex
- * -1 when
- * s matches the regex but the date is not acceptable
- *          -2 failure
- */
-static int
-grabdate(const char *s, uint64_t *t)
+bool
+rnp_cfg::parse_date(const std::string &s, uint64_t &t) const
 {
     /* fill time zone information */
     const time_t now = time(NULL);
@@ -417,45 +497,45 @@ grabdate(const char *s, uint64_t *t)
     tm.tm_hour = 0;
     tm.tm_min = 0;
     tm.tm_sec = 0;
+    const char *reg = "^([0-9]{4})[-/\\.]([0-9]{2})[-/\\.]([0-9]{2})$";
 #ifndef RNP_USE_STD_REGEX
     static regex_t r;
     static int     compiled;
-    regmatch_t     matches[10];
 
     if (!compiled) {
         compiled = 1;
-        if (regcomp(&r,
-                    "^([0-9][0-9][0-9][0-9])[-/]([0-9][0-9])[-/]([0-9][0-9])$",
-                    REG_EXTENDED) != 0) {
+        if (regcomp(&r, reg, REG_EXTENDED)) {
             RNP_LOG("failed to compile regexp");
-            return -2;
+            return false;
         }
     }
-    if (regexec(&r, s, 10, matches, 0) != 0) {
-        return 1;
+    regmatch_t matches[4];
+    if (regexec(&r, s.c_str(), ARRAY_SIZE(matches), matches, 0)) {
+        return false;
     }
-    int year = (int) strtol(&s[(int) matches[1].rm_so], NULL, 10);
-    int mon = (int) strtol(&s[(int) matches[2].rm_so], NULL, 10);
-    int mday = (int) strtol(&s[(int) matches[3].rm_so], NULL, 10);
+    int year = strtol(&s[matches[1].rm_so], NULL, 10);
+    int mon = strtol(&s[matches[2].rm_so], NULL, 10);
+    int mday = strtol(&s[matches[3].rm_so], NULL, 10);
 #else
-    static std::regex re("^([0-9][0-9][0-9][0-9])[-/]([0-9][0-9])[-/]([0-9][0-9])$",
-                         std::regex_constants::ECMAScript);
+    static std::regex re(reg, std::regex_constants::extended);
     std::smatch       result;
-    std::string       input = s;
 
-    if (!std::regex_search(input, result, re)) {
-        return 1;
+    if (!std::regex_search(s, result, re)) {
+        return false;
     }
-    int year = (int) strtol(result[1].str().c_str(), NULL, 10);
-    int mon = (int) strtol(result[2].str().c_str(), NULL, 10);
-    int mday = (int) strtol(result[3].str().c_str(), NULL, 10);
+    int year = std::stoi(result[1].str());
+    int mon = std::stoi(result[2].str());
+    int mday = std::stoi(result[3].str());
 #endif
     if (year < 1970 || mon < 1 || mon > 12 || !mday || (mday > days_in_month(year, mon))) {
-        return -1;
+        RNP_LOG("invalid date: %s.", s.c_str());
+        return false;
     }
     tm.tm_year = year - 1900;
     tm.tm_mon = mon - 1;
     tm.tm_mday = mday;
+    /* line below is required to correctly handle DST changes */
+    tm.tm_isdst = -1;
 
     struct tm check_tm = tm;
     time_t    built_time = rnp_mktime(&tm);
@@ -465,104 +545,8 @@ grabdate(const char *s, uint64_t *t)
          * timestamp */
         RNP_LOG("Warning: date %s is beyond of 32-bit time_t, so timestamp was reduced to "
                 "maximum supported value.",
-                s);
+                s.c_str());
     }
-    *t = built_time;
-    return 0;
-}
-
-int
-get_expiration(const char *s, uint32_t *res)
-{
-    if (!s || !strlen(s)) {
-        return -1;
-    }
-    uint64_t delta;
-    uint64_t t;
-    int      grabdate_result = grabdate(s, &t);
-    if (!grabdate_result) {
-        uint64_t now = time(NULL);
-        if (t > now) {
-            delta = t - now;
-            if (delta > UINT32_MAX) {
-                return -3;
-            }
-            *res = delta;
-            return 0;
-        }
-        return -2;
-    } else if (grabdate_result < 0) {
-        return -2;
-    }
-#ifndef RNP_USE_STD_REGEX
-    static regex_t r;
-    static int     compiled;
-    regmatch_t     matches[10];
-
-    if (!compiled) {
-        compiled = 1;
-        if (regcomp(&r, "^([0-9]+)([hdwmy]?)$", REG_EXTENDED | REG_ICASE) != 0) {
-            RNP_LOG("failed to compile regexp");
-            return -2;
-        }
-    }
-    if (regexec(&r, s, 10, matches, 0) != 0) {
-        return -2;
-    }
-    auto delta_str = &s[(int) matches[1].rm_so];
-    char mult = s[(int) matches[2].rm_so];
-#else
-    static std::regex re("^([0-9]+)([hdwmy]?)$",
-                         std::regex_constants::ECMAScript | std::regex_constants::icase);
-    std::smatch       result;
-    std::string       input = s;
-
-    if (!std::regex_search(input, result, re)) {
-        return -2;
-    }
-    std::string delta_stdstr = result[1].str();
-    const char *delta_str = delta_stdstr.c_str();
-    char        mult = result[2].str()[0];
-#endif
-    errno = 0;
-    delta = (uint64_t) strtoul(delta_str, NULL, 10);
-    if (errno || delta > UINT_MAX) {
-        return -3;
-    }
-    switch (std::tolower(mult)) {
-    case 'h':
-        delta *= 60 * 60;
-        break;
-    case 'd':
-        delta *= 60 * 60 * 24;
-        break;
-    case 'w':
-        delta *= 60 * 60 * 24 * 7;
-        break;
-    case 'm':
-        delta *= 60 * 60 * 24 * 31;
-        break;
-    case 'y':
-        delta *= 60 * 60 * 24 * 365;
-        break;
-    }
-    if (delta > UINT32_MAX) {
-        return -4;
-    }
-    *res = delta;
-    return 0;
-}
-
-int64_t
-get_creation(const char *s)
-{
-    uint64_t t;
-
-    if (!s || !strlen(s)) {
-        return time(NULL);
-    }
-    if (!grabdate(s, &t)) {
-        return t;
-    }
-    return (uint64_t) strtoll(s, NULL, 10);
+    t = built_time;
+    return true;
 }

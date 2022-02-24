@@ -35,12 +35,9 @@
 #include "support.h"
 #include "fingerprint.h"
 
-extern rng_t global_rng;
-
 TEST_F(rnp_tests, hash_test_success)
 {
-    pgp_hash_t hash = {0};
-    uint8_t    hash_output[PGP_MAX_HASH_SIZE];
+    uint8_t hash_output[PGP_MAX_HASH_SIZE];
 
     const pgp_hash_alg_t hash_algs[] = {PGP_HASH_MD5,
                                         PGP_HASH_SHA1,
@@ -71,19 +68,27 @@ TEST_F(rnp_tests, hash_test_success)
       "0E116E9192AF3C91A7EC57647E3934057340B4CF408D5A56592F8274EEC53F0"};
 
     for (int i = 0; hash_algs[i] != PGP_HASH_UNKNOWN; ++i) {
-        assert_int_equal(1, pgp_hash_create(&hash, hash_algs[i]));
-        size_t hash_size = pgp_digest_length(hash_algs[i]);
-
+#if !defined(ENABLE_SM2)
+        if (hash_algs[i] == PGP_HASH_SM3) {
+            assert_throw({ rnp::Hash hash(hash_algs[i]); });
+            size_t hash_size = rnp::Hash::size(hash_algs[i]);
+            assert_int_equal(hash_size * 2, strlen(hash_alg_expected_outputs[i]));
+            continue;
+        }
+#endif
+        rnp::Hash hash(hash_algs[i]);
+        size_t    hash_size = rnp::Hash::size(hash_algs[i]);
         assert_int_equal(hash_size * 2, strlen(hash_alg_expected_outputs[i]));
 
-        pgp_hash_add(&hash, test_input, 1);
-        pgp_hash_add(&hash, test_input + 1, sizeof(test_input) - 1);
-        pgp_hash_finish(&hash, hash_output);
+        hash.add(test_input, 1);
+        hash.add(test_input + 1, sizeof(test_input) - 1);
+        hash.finish(hash_output);
 
-        assert_int_equal(
-          0,
-          test_value_equal(
-            pgp_hash_name(&hash), hash_alg_expected_outputs[i], hash_output, hash_size));
+        assert_int_equal(0,
+                         test_value_equal(rnp::Hash::name(hash_algs[i]),
+                                          hash_alg_expected_outputs[i],
+                                          hash_output,
+                                          hash_size));
     }
 }
 
@@ -124,42 +129,42 @@ TEST_F(rnp_tests, pkcs1_rsa_test_success)
     uint8_t             dec[1024 / 8];
     pgp_rsa_encrypted_t enc;
     size_t              dec_size;
-    pgp_key_pkt_t       seckey;
-
-    const pgp_rsa_key_t *key_rsa;
 
     rnp_keygen_crypto_params_t key_desc;
     key_desc.key_alg = PGP_PKA_RSA;
     key_desc.hash_alg = PGP_HASH_SHA256;
     key_desc.rsa.modulus_bit_len = 1024;
-    key_desc.rng = &global_rng;
-    assert_true(pgp_generate_seckey(&key_desc, &seckey, true));
-    key_rsa = &seckey.material.rsa;
+    key_desc.ctx = &global_ctx;
+    pgp_key_pkt_t seckey;
+    assert_true(pgp_generate_seckey(key_desc, seckey, true));
+    const pgp_rsa_key_t *key_rsa = &seckey.material.rsa;
 
-    assert_rnp_success(rsa_encrypt_pkcs1(&global_rng, &enc, ptext, 3, key_rsa));
+    assert_rnp_success(rsa_encrypt_pkcs1(&global_ctx.rng, &enc, ptext, 3, key_rsa));
     assert_int_equal(enc.m.len, 1024 / 8);
 
     memset(dec, 0, sizeof(dec));
     dec_size = 0;
-    assert_rnp_success(rsa_decrypt_pkcs1(&global_rng, dec, &dec_size, &enc, key_rsa));
+    assert_rnp_success(rsa_decrypt_pkcs1(&global_ctx.rng, dec, &dec_size, &enc, key_rsa));
     test_value_equal("RSA 1024 decrypt", "616263", dec, 3);
     assert_int_equal(dec_size, 3);
 }
 
 TEST_F(rnp_tests, rnp_test_eddsa)
 {
+    rnp::SecurityContext       ctx;
     rnp_keygen_crypto_params_t key_desc;
     key_desc.key_alg = PGP_PKA_EDDSA;
     key_desc.hash_alg = PGP_HASH_SHA256;
-    key_desc.rng = &global_rng;
+    key_desc.ctx = &ctx;
 
     pgp_key_pkt_t seckey;
-    assert_true(pgp_generate_seckey(&key_desc, &seckey, true));
+    assert_true(pgp_generate_seckey(key_desc, seckey, true));
 
     const uint8_t      hash[32] = {0};
     pgp_ec_signature_t sig = {{{0}}};
 
-    assert_rnp_success(eddsa_sign(&global_rng, &sig, hash, sizeof(hash), &seckey.material.ec));
+    assert_rnp_success(
+      eddsa_sign(&global_ctx.rng, &sig, hash, sizeof(hash), &seckey.material.ec));
 
     assert_rnp_success(eddsa_verify(&sig, hash, sizeof(hash), &seckey.material.ec));
 
@@ -185,13 +190,18 @@ TEST_F(rnp_tests, rnp_test_x25519)
 
     key_desc.key_alg = PGP_PKA_ECDH;
     key_desc.hash_alg = PGP_HASH_SHA256;
-    key_desc.rng = &global_rng;
+    key_desc.ctx = &global_ctx;
     key_desc.ecc.curve = PGP_CURVE_25519;
 
-    assert_true(pgp_generate_seckey(&key_desc, &seckey, true));
+    assert_true(pgp_generate_seckey(key_desc, seckey, true));
+    /* check for length and correctly tweaked bits */
+    assert_int_equal(seckey.material.ec.x.len, 32);
+    assert_int_equal(seckey.material.ec.x.mpi[31] & 7, 0);
+    assert_int_equal(seckey.material.ec.x.mpi[0] & 128, 0);
+    assert_int_equal(seckey.material.ec.x.mpi[0] & 64, 64);
     assert_rnp_success(pgp_fingerprint(fp, seckey));
     assert_rnp_success(
-      ecdh_encrypt_pkcs5(&global_rng, &enc, in, sizeof(in), &seckey.material.ec, fp));
+      ecdh_encrypt_pkcs5(&global_ctx.rng, &enc, in, sizeof(in), &seckey.material.ec, fp));
     assert_true(enc.mlen > 16);
     assert_true((enc.p.mpi[0] == 0x40) && (enc.p.len == 33));
     outlen = sizeof(out);
@@ -223,9 +233,9 @@ elgamal_roundtrip(pgp_eg_key_t *key)
     uint8_t            res[1024];
     size_t             res_len = 0;
 
-    assert_int_equal(elgamal_encrypt_pkcs1(&global_rng, &enc, in_b, sizeof(in_b), key),
+    assert_int_equal(elgamal_encrypt_pkcs1(&global_ctx.rng, &enc, in_b, sizeof(in_b), key),
                      RNP_SUCCESS);
-    assert_int_equal(elgamal_decrypt_pkcs1(&global_rng, res, &res_len, &enc, key),
+    assert_int_equal(elgamal_decrypt_pkcs1(&global_ctx.rng, res, &res_len, &enc, key),
                      RNP_SUCCESS);
     assert_int_equal(res_len, sizeof(in_b));
     assert_int_equal(0, test_value_equal("ElGamal decrypt", "0102030417", res, res_len));
@@ -235,7 +245,7 @@ TEST_F(rnp_tests, raw_elgamal_random_key_test_success)
 {
     pgp_eg_key_t key;
 
-    assert_int_equal(elgamal_generate(&global_rng, &key, 1024), RNP_SUCCESS);
+    assert_int_equal(elgamal_generate(&global_ctx.rng, &key, 1024), RNP_SUCCESS);
     elgamal_roundtrip(&key);
 }
 
@@ -252,26 +262,26 @@ TEST_F(rnp_tests, ecdsa_signverify_success)
 
     for (size_t i = 0; i < ARRAY_SIZE(curves); i++) {
         // Generate test data. Mainly to make valgrind not to complain about uninitialized data
-        assert_true(rng_get_data(&global_rng, message, sizeof(message)));
+        global_ctx.rng.get(message, sizeof(message));
 
         pgp_ec_signature_t         sig = {{{0}}};
         rnp_keygen_crypto_params_t key_desc;
         key_desc.key_alg = PGP_PKA_ECDSA;
         key_desc.hash_alg = hash_alg;
         key_desc.ecc.curve = curves[i].id;
-        key_desc.rng = &global_rng;
+        key_desc.ctx = &global_ctx;
 
         pgp_key_pkt_t seckey1;
         pgp_key_pkt_t seckey2;
 
-        assert_true(pgp_generate_seckey(&key_desc, &seckey1, true));
-        assert_true(pgp_generate_seckey(&key_desc, &seckey2, true));
+        assert_true(pgp_generate_seckey(key_desc, seckey1, true));
+        assert_true(pgp_generate_seckey(key_desc, seckey2, true));
 
         const pgp_ec_key_t *key1 = &seckey1.material.ec;
         const pgp_ec_key_t *key2 = &seckey2.material.ec;
 
         assert_rnp_success(
-          ecdsa_sign(&global_rng, &sig, hash_alg, message, sizeof(message), key1));
+          ecdsa_sign(&global_ctx.rng, &sig, hash_alg, message, sizeof(message), key1));
 
         assert_rnp_success(ecdsa_verify(&sig, hash_alg, message, sizeof(message), key1));
 
@@ -303,16 +313,20 @@ TEST_F(rnp_tests, ecdh_roundtrip)
         key_desc.key_alg = PGP_PKA_ECDH;
         key_desc.hash_alg = PGP_HASH_SHA512;
         key_desc.ecc.curve = curves[i].id;
-        key_desc.rng = &global_rng;
+        key_desc.ctx = &global_ctx;
 
         pgp_key_pkt_t ecdh_key1;
-        assert_true(pgp_generate_seckey(&key_desc, &ecdh_key1, true));
+        assert_true(pgp_generate_seckey(key_desc, ecdh_key1, true));
 
         pgp_fingerprint_t ecdh_key1_fpr = {};
         assert_rnp_success(pgp_fingerprint(ecdh_key1_fpr, ecdh_key1));
 
-        assert_rnp_success(ecdh_encrypt_pkcs5(
-          &global_rng, &enc, plaintext, plaintext_len, &ecdh_key1.material.ec, ecdh_key1_fpr));
+        assert_rnp_success(ecdh_encrypt_pkcs5(&global_ctx.rng,
+                                              &enc,
+                                              plaintext,
+                                              plaintext_len,
+                                              &ecdh_key1.material.ec,
+                                              ecdh_key1_fpr));
 
         assert_rnp_success(ecdh_decrypt_pkcs5(
           result, &result_len, &enc, &ecdh_key1.material.ec, ecdh_key1_fpr));
@@ -334,16 +348,16 @@ TEST_F(rnp_tests, ecdh_decryptionNegativeCases)
     key_desc.key_alg = PGP_PKA_ECDH;
     key_desc.hash_alg = PGP_HASH_SHA512;
     key_desc.ecc = {.curve = PGP_CURVE_NIST_P_256};
-    key_desc.rng = &global_rng;
+    key_desc.ctx = &global_ctx;
 
     pgp_key_pkt_t ecdh_key1;
-    assert_true(pgp_generate_seckey(&key_desc, &ecdh_key1, true));
+    assert_true(pgp_generate_seckey(key_desc, ecdh_key1, true));
 
     pgp_fingerprint_t ecdh_key1_fpr = {};
     assert_rnp_success(pgp_fingerprint(ecdh_key1_fpr, ecdh_key1));
 
     assert_rnp_success(ecdh_encrypt_pkcs5(
-      &global_rng, &enc, plaintext, plaintext_len, &ecdh_key1.material.ec, ecdh_key1_fpr));
+      &global_ctx.rng, &enc, plaintext, plaintext_len, &ecdh_key1.material.ec, ecdh_key1_fpr));
 
     assert_int_equal(ecdh_decrypt_pkcs5(NULL, 0, &enc, &ecdh_key1.material.ec, ecdh_key1_fpr),
                      RNP_ERROR_BAD_PARAMETERS);
@@ -374,6 +388,7 @@ TEST_F(rnp_tests, ecdh_decryptionNegativeCases)
     ecdh_key1.material.ec.key_wrap_alg = (pgp_symm_alg_t) key_wrapping_alg;
 }
 
+#if defined(ENABLE_SM2)
 TEST_F(rnp_tests, sm2_roundtrip)
 {
     uint8_t key[27] = {0};
@@ -384,12 +399,12 @@ TEST_F(rnp_tests, sm2_roundtrip)
     key_desc.key_alg = PGP_PKA_SM2;
     key_desc.hash_alg = PGP_HASH_SM3;
     key_desc.ecc = {.curve = PGP_CURVE_SM2_P_256};
-    key_desc.rng = &global_rng;
+    key_desc.ctx = &global_ctx;
 
-    assert_true(rng_get_data(&global_rng, key, sizeof(key)));
+    global_ctx.rng.get(key, sizeof(key));
 
     pgp_key_pkt_t seckey;
-    assert_true(pgp_generate_seckey(&key_desc, &seckey, true));
+    assert_true(pgp_generate_seckey(key_desc, seckey, true));
 
     const pgp_ec_key_t *eckey = &seckey.material.ec;
 
@@ -398,7 +413,7 @@ TEST_F(rnp_tests, sm2_roundtrip)
     rnp_result_t        ret;
 
     for (size_t i = 0; i < ARRAY_SIZE(hashes); ++i) {
-        ret = sm2_encrypt(&global_rng, &enc, key, sizeof(key), hashes[i], eckey);
+        ret = sm2_encrypt(&global_ctx.rng, &enc, key, sizeof(key), hashes[i], eckey);
         assert_int_equal(ret, RNP_SUCCESS);
 
         memset(decrypted, 0, sizeof(decrypted));
@@ -411,22 +426,20 @@ TEST_F(rnp_tests, sm2_roundtrip)
         }
     }
 }
+#endif
 
+#if defined(ENABLE_SM2)
 TEST_F(rnp_tests, sm2_sm3_signature_test)
 {
     const char *msg = "no backdoors here";
 
     pgp_ec_key_t       sm2_key;
-    pgp_hash_t         hash;
-    rng_t              rng;
     pgp_ec_signature_t sig;
 
     pgp_hash_alg_t hash_alg = PGP_HASH_SM3;
-    const size_t   hash_len = pgp_digest_length(hash_alg);
+    const size_t   hash_len = rnp::Hash::size(hash_alg);
 
     uint8_t digest[PGP_MAX_HASH_SIZE];
-
-    rng_init(&rng, RNG_SYSTEM);
 
     sm2_key.curve = PGP_CURVE_NIST_P_256;
 
@@ -435,91 +448,74 @@ TEST_F(rnp_tests, sm2_sm3_signature_test)
             "c82f49ee0a5b11df22cb0c3c6d9d5526d9e24d02ff8c83c06a859c26565f1");
     hex2mpi(&sm2_key.x, "110E7973206F68C19EE5F7328C036F26911C8C73B4E4F36AE3291097F8984FFC");
 
-    assert_int_equal(sm2_validate_key(&rng, &sm2_key, true), RNP_SUCCESS);
+    assert_int_equal(sm2_validate_key(&global_ctx.rng, &sm2_key, true), RNP_SUCCESS);
 
-    pgp_hash_create(&hash, hash_alg);
+    rnp::Hash hash(hash_alg);
 
-    assert_int_equal(sm2_compute_za(&sm2_key, &hash, "sm2_p256_test@example.com"),
-                     RNP_SUCCESS);
-
-    pgp_hash_add(&hash, msg, strlen(msg));
-
-    pgp_hash_finish(&hash, digest);
+    assert_int_equal(sm2_compute_za(sm2_key, hash, "sm2_p256_test@example.com"), RNP_SUCCESS);
+    hash.add(msg, strlen(msg));
+    assert_int_equal(hash.finish(digest), hash_len);
 
     // First generate a signature, then verify it
-    assert_int_equal(sm2_sign(&rng, &sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
-
+    assert_int_equal(sm2_sign(&global_ctx.rng, &sig, hash_alg, digest, hash_len, &sm2_key),
+                     RNP_SUCCESS);
     assert_int_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
 
     // Check that invalid signatures are rejected
     digest[0] ^= 1;
-
     assert_int_not_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
 
     digest[0] ^= 1;
-
     assert_int_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
 
     // Now verify a known good signature for this key/message (generated by GmSSL)
     hex2mpi(&sig.r, "96AA39A0C4A5C454653F394E86386F2E38BE14C57D0E555F3A27A5CEF30E51BD");
     hex2mpi(&sig.s, "62372BE4AC97DBE725AC0B279BB8FD15883858D814FD792DDB0A401DCC988E70");
     assert_int_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
-    rng_destroy(&rng);
 }
+#endif
 
+#if defined(ENABLE_SM2)
 TEST_F(rnp_tests, sm2_sha256_signature_test)
 {
-    const char *msg = "hi chappy";
-
+    const char *       msg = "hi chappy";
     pgp_ec_key_t       sm2_key;
-    pgp_hash_t         hash;
-    rng_t              rng;
     pgp_ec_signature_t sig;
-
-    pgp_hash_alg_t hash_alg = PGP_HASH_SHA256;
-    const size_t   hash_len = pgp_digest_length(hash_alg);
-
-    uint8_t digest[PGP_MAX_HASH_SIZE];
-
-    rng_init(&rng, RNG_SYSTEM);
+    pgp_hash_alg_t     hash_alg = PGP_HASH_SHA256;
+    const size_t       hash_len = rnp::Hash::size(hash_alg);
+    uint8_t            digest[PGP_MAX_HASH_SIZE];
 
     sm2_key.curve = PGP_CURVE_SM2_P_256;
-
     hex2mpi(&sm2_key.p,
             "04d03d30dd01ca3422aeaccf9b88043b554659d3092b0a9e8cce3e8c4530a98cb79d7"
             "05e6213eee145b748e36e274e5f101dc10d7bbc9dab9a04022e73b76e02cd");
     hex2mpi(&sm2_key.x, "110E7973206F68C19EE5F7328C036F26911C8C73B4E4F36AE3291097F8984FFC");
 
-    assert_int_equal(sm2_validate_key(&rng, &sm2_key, true), RNP_SUCCESS);
+    assert_int_equal(sm2_validate_key(&global_ctx.rng, &sm2_key, true), RNP_SUCCESS);
 
-    pgp_hash_create(&hash, hash_alg);
-
-    assert_int_equal(sm2_compute_za(&sm2_key, &hash, "sm2test@example.com"), RNP_SUCCESS);
-
-    pgp_hash_add(&hash, msg, strlen(msg));
-
-    pgp_hash_finish(&hash, digest);
+    rnp::Hash hash(hash_alg);
+    assert_int_equal(sm2_compute_za(sm2_key, hash, "sm2test@example.com"), RNP_SUCCESS);
+    hash.add(msg, strlen(msg));
+    assert_int_equal(hash.finish(digest), hash_len);
 
     // First generate a signature, then verify it
-    assert_int_equal(sm2_sign(&rng, &sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
-
+    assert_int_equal(sm2_sign(&global_ctx.rng, &sig, hash_alg, digest, hash_len, &sm2_key),
+                     RNP_SUCCESS);
     assert_int_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
 
     // Check that invalid signatures are rejected
     digest[0] ^= 1;
-
     assert_int_not_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
 
     digest[0] ^= 1;
-
     assert_int_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
 
     // Now verify a known good signature for this key/message (generated by GmSSL)
     hex2mpi(&sig.r, "94DA20EA69E4FC70692158BF3D30F87682A4B2F84DF4A4829A1EFC5D9C979D3F");
     hex2mpi(&sig.s, "EE15AF8D455B728AB80E592FCB654BF5B05620B2F4D25749D263D5C01FAD365F");
     assert_int_equal(sm2_verify(&sig, hash_alg, digest, hash_len, &sm2_key), RNP_SUCCESS);
-    rng_destroy(&rng);
 }
+#endif
 
 TEST_F(rnp_tests, test_dsa_roundtrip)
 {
@@ -547,7 +543,7 @@ TEST_F(rnp_tests, test_dsa_roundtrip)
       {1024, 256, PGP_HASH_SHA256},
     };
 
-    assert_true(rng_get_data(&global_rng, message, sizeof(message)));
+    global_ctx.rng.get(message, sizeof(message));
 
     for (size_t i = 0; i < ARRAY_SIZE(keys); i++) {
         sig = {};
@@ -556,20 +552,20 @@ TEST_F(rnp_tests, test_dsa_roundtrip)
         key_desc.hash_alg = keys[i].h;
         key_desc.dsa.p_bitlen = keys[i].p;
         key_desc.dsa.q_bitlen = keys[i].q;
-        key_desc.rng = &global_rng;
+        key_desc.ctx = &global_ctx;
 
-        assert_true(pgp_generate_seckey(&key_desc, &seckey, true));
+        assert_true(pgp_generate_seckey(key_desc, seckey, true));
         // try to prevent timeouts in travis-ci
         printf("p: %zu q: %zu h: %s\n",
                key_desc.dsa.p_bitlen,
                key_desc.dsa.q_bitlen,
-               pgp_show_hash_alg(key_desc.hash_alg));
+               rnp::Hash::name(key_desc.hash_alg));
         fflush(stdout);
 
         pgp_dsa_key_t *key1 = &seckey.material.dsa;
 
-        size_t h_size = pgp_digest_length(keys[i].h);
-        assert_int_equal(dsa_sign(&global_rng, &sig, message, h_size, key1), RNP_SUCCESS);
+        size_t h_size = rnp::Hash::size(keys[i].h);
+        assert_int_equal(dsa_sign(&global_ctx.rng, &sig, message, h_size, key1), RNP_SUCCESS);
         assert_int_equal(dsa_verify(&sig, message, h_size, key1), RNP_SUCCESS);
     }
 }
@@ -587,34 +583,40 @@ TEST_F(rnp_tests, test_dsa_verify_negative)
         pgp_hash_alg_t h;
     } key = {1024, 160, PGP_HASH_SHA1};
 
-    assert_true(rng_get_data(&global_rng, message, sizeof(message)));
+    global_ctx.rng.get(message, sizeof(message));
 
     rnp_keygen_crypto_params_t key_desc;
     key_desc.key_alg = PGP_PKA_DSA;
     key_desc.hash_alg = key.h;
     key_desc.dsa.p_bitlen = key.p;
     key_desc.dsa.q_bitlen = key.q;
-    key_desc.rng = &global_rng;
+    key_desc.ctx = &global_ctx;
 
-    assert_true(pgp_generate_seckey(&key_desc, &sec_key1, true));
+    assert_true(pgp_generate_seckey(key_desc, sec_key1, true));
     // try to prevent timeouts in travis-ci
     printf("p: %zu q: %zu h: %s\n",
            key_desc.dsa.p_bitlen,
            key_desc.dsa.q_bitlen,
-           pgp_show_hash_alg(key_desc.hash_alg));
-    assert_true(pgp_generate_seckey(&key_desc, &sec_key2, true));
+           rnp::Hash::name(key_desc.hash_alg));
+    assert_true(pgp_generate_seckey(key_desc, sec_key2, true));
 
     pgp_dsa_key_t *key1 = &sec_key1.material.dsa;
     pgp_dsa_key_t *key2 = &sec_key2.material.dsa;
 
-    size_t h_size = pgp_digest_length(key.h);
-    assert_int_equal(dsa_sign(&global_rng, &sig, message, h_size, key1), RNP_SUCCESS);
+    size_t h_size = rnp::Hash::size(key.h);
+    assert_int_equal(dsa_sign(&global_ctx.rng, &sig, message, h_size, key1), RNP_SUCCESS);
     // wrong key used
     assert_int_equal(dsa_verify(&sig, message, h_size, key2), RNP_ERROR_SIGNATURE_INVALID);
     // different message
     message[0] = ~message[0];
     assert_int_equal(dsa_verify(&sig, message, h_size, key1), RNP_ERROR_SIGNATURE_INVALID);
 }
+
+// platforms known to not have a robust response can compile with
+// -DS2K_MINIMUM_TUNING_RATIO=2 (or whatever they need)
+#ifndef S2K_MINIMUM_TUNING_RATIO
+#define S2K_MINIMUM_TUNING_RATIO 6
+#endif
 
 TEST_F(rnp_tests, s2k_iteration_tuning)
 {
@@ -629,9 +631,10 @@ TEST_F(rnp_tests, s2k_iteration_tuning)
     const size_t iters_100 = pgp_s2k_compute_iters(hash_alg, 100, TRIAL_MSEC);
     const size_t iters_10 = pgp_s2k_compute_iters(hash_alg, 10, TRIAL_MSEC);
 
-    // fprintf(stderr, "%d %d\n", iters_10, iters_100);
+    double ratio = static_cast<double>(iters_100) / iters_10;
+    printf("s2k iteration tuning ratio: %g, (%zu:%zu)\n", ratio, iters_10, iters_100);
     // Test roughly linear cost, often skeyed by clock idle
-    assert_greater_than(static_cast<double>(iters_100) / iters_10, 6);
+    assert_greater_than(ratio, S2K_MINIMUM_TUNING_RATIO);
 
     // Should not crash for unknown hash algorithm
     assert_int_equal(pgp_s2k_compute_iters(PGP_HASH_UNKNOWN, 1000, TRIAL_MSEC), 0);
@@ -678,8 +681,7 @@ read_key_pkt(pgp_key_pkt_t *key, const char *path)
 TEST_F(rnp_tests, test_validate_key_material)
 {
     pgp_key_pkt_t key;
-    rng_t         rng = {};
-    rng_init(&rng, RNG_SYSTEM);
+    rnp::RNG &    rng = global_ctx.rng;
 
     /* RSA key and subkey */
     assert_true(read_key_pkt(&key, KEYS "rsa-pub.pgp"));
@@ -701,7 +703,13 @@ TEST_F(rnp_tests, test_validate_key_material)
     key = pgp_key_pkt_t();
 
     assert_true(read_key_pkt(&key, KEYS "rsa-sec.pgp"));
+    key.material.validate(global_ctx);
+    assert_true(key.material.validity.valid);
+    assert_true(key.material.validity.validated);
     assert_rnp_success(decrypt_secret_key(&key, NULL));
+    /* make sure validity is reset after decryption */
+    assert_false(key.material.validity.valid);
+    assert_false(key.material.validity.validated);
     assert_true(key.material.secret);
     assert_rnp_success(validate_pgp_key_material(&key.material, &rng));
     key.material.rsa.e.mpi[key.material.rsa.e.len - 1] += 1;
@@ -766,6 +774,17 @@ TEST_F(rnp_tests, test_validate_key_material)
     assert_rnp_failure(validate_pgp_key_material(&key.material, &rng));
     key = pgp_key_pkt_t();
 
+    /* ElGamal key with small subgroup */
+    assert_true(read_key_pkt(&key, KEYS "eg-sec-small-group.pgp"));
+    assert_rnp_failure(validate_pgp_key_material(&key.material, &rng));
+    assert_rnp_success(decrypt_secret_key(&key, NULL));
+    key = pgp_key_pkt_t();
+
+    assert_true(read_key_pkt(&key, KEYS "eg-sec-small-group-enc.pgp"));
+    assert_rnp_failure(validate_pgp_key_material(&key.material, &rng));
+    assert_rnp_success(decrypt_secret_key(&key, "password"));
+    key = pgp_key_pkt_t();
+
     /* ECDSA key */
     assert_true(read_key_pkt(&key, KEYS "ecdsa-p256-sec.pgp"));
     assert_rnp_success(validate_pgp_key_material(&key.material, &rng));
@@ -807,6 +826,167 @@ TEST_F(rnp_tests, test_validate_key_material)
     assert_rnp_failure(validate_pgp_key_material(&key.material, &rng));
     key.material.ec.p.mpi[0] -= 2;
     key = pgp_key_pkt_t();
+}
 
-    rng_destroy(&rng);
+TEST_F(rnp_tests, test_sm2_enabled)
+{
+    char *features = NULL;
+    bool  supported = false;
+    /* check whether FFI returns value which corresponds to defines */
+#if defined(ENABLE_SM2)
+    assert_true(sm2_enabled());
+    /* SM2 */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_PK_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM2") != std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "SM2", &supported));
+    assert_true(supported);
+    /* SM3 */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_HASH_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM3") != std::string::npos);
+    rnp_buffer_destroy(features);
+    supported = false;
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "SM3", &supported));
+    assert_true(supported);
+    /* SM4 */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_SYMM_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM4") != std::string::npos);
+    rnp_buffer_destroy(features);
+    supported = false;
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "SM4", &supported));
+    assert_true(supported);
+    /* Curve */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_CURVE, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM2 P-256") != std::string::npos);
+    rnp_buffer_destroy(features);
+    supported = false;
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "SM2 P-256", &supported));
+    assert_true(supported);
+#else
+    assert_false(sm2_enabled());
+    /* SM2 */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_PK_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM2") == std::string::npos);
+    rnp_buffer_destroy(features);
+    supported = true;
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "SM2", &supported));
+    assert_false(supported);
+    /* SM3 */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_HASH_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM3") == std::string::npos);
+    rnp_buffer_destroy(features);
+    supported = true;
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "SM3", &supported));
+    assert_false(supported);
+    /* SM4 */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_SYMM_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM4") == std::string::npos);
+    rnp_buffer_destroy(features);
+    supported = true;
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "SM4", &supported));
+    assert_false(supported);
+    /* Curve */
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_CURVE, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("SM2 P-256") == std::string::npos);
+    rnp_buffer_destroy(features);
+    supported = true;
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "SM2 P-256", &supported));
+    assert_false(supported);
+#endif
+}
+
+TEST_F(rnp_tests, test_aead_enabled)
+{
+    char *features = NULL;
+    bool  supported = false;
+    /* check whether FFI returns value which corresponds to defines */
+#if defined(ENABLE_AEAD)
+    assert_true(aead_eax_enabled());
+    assert_true(aead_ocb_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_AEAD_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("EAX") != std::string::npos);
+    assert_true(std::string(features).find("OCB") != std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "EAX", &supported));
+    assert_true(supported);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "OCB", &supported));
+    assert_true(supported);
+#else
+    assert_false(aead_eax_enabled());
+    assert_false(aead_ocb_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_AEAD_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("EAX") == std::string::npos);
+    assert_true(std::string(features).find("OCB") == std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "EAX", &supported));
+    assert_false(supported);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "OCB", &supported));
+    assert_false(supported);
+#endif
+}
+
+TEST_F(rnp_tests, test_twofish_enabled)
+{
+    char *features = NULL;
+    bool  supported = false;
+    /* check whether FFI returns value which corresponds to defines */
+#if defined(ENABLE_TWOFISH)
+    assert_true(twofish_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_SYMM_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("TWOFISH") != std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "TWOFISH", &supported));
+    assert_true(supported);
+#else
+    assert_false(twofish_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_SYMM_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("TWOFISH") == std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "TWOFISH", &supported));
+    assert_false(supported);
+#endif
+}
+
+TEST_F(rnp_tests, test_brainpool_enabled)
+{
+    char *features = NULL;
+    bool  supported = false;
+    /* check whether FFI returns value which corresponds to defines */
+#if defined(ENABLE_BRAINPOOL)
+    assert_true(brainpool_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_CURVE, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("brainpool") != std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP256r1", &supported));
+    assert_true(supported);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP384r1", &supported));
+    assert_true(supported);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP512r1", &supported));
+    assert_true(supported);
+#else
+    assert_false(brainpool_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_CURVE, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("brainpool") == std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP256r1", &supported));
+    assert_false(supported);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP384r1", &supported));
+    assert_false(supported);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP512r1", &supported));
+    assert_false(supported);
+#endif
 }

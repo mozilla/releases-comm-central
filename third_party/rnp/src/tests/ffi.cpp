@@ -35,9 +35,8 @@
 #include "librepgp/stream-packet.h"
 #include "librepgp/stream-sig.h"
 #include <json.h>
-#include <vector>
-#include <string>
 #include "file-utils.h"
+#include "str-utils.h"
 #include <librepgp/stream-ctx.h>
 #include "pgp-key.h"
 #include "ffi-priv-types.h"
@@ -52,12 +51,24 @@ TEST_F(rnp_tests, test_ffi_homedir)
 
     // get the default homedir (not a very thorough test)
     {
+        assert_rnp_failure(rnp_get_default_homedir(NULL));
         char *homedir = NULL;
         assert_rnp_success(rnp_get_default_homedir(&homedir));
         assert_non_null(homedir);
         rnp_buffer_destroy(homedir);
     }
 
+    // check NULL params
+    assert_rnp_failure(
+      rnp_detect_homedir_info(NULL, &pub_format, &pub_path, &sec_format, &sec_path));
+    assert_rnp_failure(
+      rnp_detect_homedir_info("data/keyrings/1", NULL, &pub_path, &sec_format, &sec_path));
+    assert_rnp_failure(
+      rnp_detect_homedir_info("data/keyrings/1", &pub_format, NULL, &sec_format, &sec_path));
+    assert_rnp_failure(
+      rnp_detect_homedir_info("data/keyrings/1", &pub_format, &pub_path, NULL, &sec_path));
+    assert_rnp_failure(
+      rnp_detect_homedir_info("data/keyrings/1", &pub_format, &pub_path, &sec_format, NULL));
     // detect the formats+paths
     assert_rnp_success(rnp_detect_homedir_info(
       "data/keyrings/1", &pub_format, &pub_path, &sec_format, &sec_path));
@@ -67,6 +78,12 @@ TEST_F(rnp_tests, test_ffi_homedir)
     // check paths
     assert_string_equal(pub_path, "data/keyrings/1/pubring.gpg");
     assert_string_equal(sec_path, "data/keyrings/1/secring.gpg");
+    // setup FFI with wrong parameters
+    assert_rnp_failure(rnp_ffi_create(NULL, "GPG", "GPG"));
+    assert_rnp_failure(rnp_ffi_create(&ffi, "GPG", NULL));
+    assert_rnp_failure(rnp_ffi_create(&ffi, NULL, "GPG"));
+    assert_rnp_failure(rnp_ffi_create(&ffi, "ZZG", "GPG"));
+    assert_rnp_failure(rnp_ffi_create(&ffi, "GPG", "ZZG"));
     // setup FFI
     assert_rnp_success(rnp_ffi_create(&ffi, pub_format, sec_format));
     // load our keyrings
@@ -176,6 +193,16 @@ TEST_F(rnp_tests, test_ffi_detect_key_format)
     char * data = NULL;
     size_t data_size = 0;
     char * format = NULL;
+
+    // Wrong parameters
+    data = NULL;
+    format = NULL;
+    load_test_data("keyrings/1/pubring.gpg", &data, &data_size);
+    assert_rnp_failure(rnp_detect_key_format(NULL, data_size, &format));
+    assert_rnp_failure(rnp_detect_key_format((uint8_t *) data, 0, &format));
+    assert_rnp_failure(rnp_detect_key_format((uint8_t *) data, data_size, NULL));
+    free(data);
+    free(format);
 
     // GPG
     data = NULL;
@@ -321,6 +348,12 @@ TEST_F(rnp_tests, test_ffi_load_keys)
     // load
     assert_rnp_success(rnp_input_from_memory(&input, buf, buf_len, true));
     assert_non_null(input);
+    // try wrong parameters
+    assert_rnp_failure(rnp_load_keys(NULL, "GPG", input, RNP_LOAD_SAVE_SECRET_KEYS));
+    assert_rnp_failure(rnp_load_keys(ffi, NULL, input, RNP_LOAD_SAVE_SECRET_KEYS));
+    assert_rnp_failure(rnp_load_keys(ffi, "GPG", NULL, RNP_LOAD_SAVE_SECRET_KEYS));
+    assert_rnp_failure(rnp_load_keys(ffi, "WRONG", input, RNP_LOAD_SAVE_SECRET_KEYS));
+    assert_rnp_failure(rnp_load_keys(ffi, "WRONG", input, 0));
     assert_rnp_success(rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_SECRET_KEYS));
     rnp_input_destroy(input);
     input = NULL;
@@ -422,6 +455,11 @@ TEST_F(rnp_tests, test_ffi_save_keys)
     pub_path = rnp_compose_path(temp_dir, "pubring.gpg", NULL);
     assert_false(rnp_file_exists(pub_path));
     assert_rnp_success(rnp_output_to_path(&output, pub_path));
+    assert_rnp_failure(rnp_save_keys(NULL, "GPG", output, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    assert_rnp_failure(rnp_save_keys(ffi, NULL, output, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    assert_rnp_failure(rnp_save_keys(ffi, "GPG", NULL, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    assert_rnp_failure(rnp_save_keys(ffi, "WRONG", output, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    assert_rnp_failure(rnp_save_keys(ffi, "GPG", output, 0));
     assert_rnp_success(rnp_save_keys(ffi, "GPG", output, RNP_LOAD_SAVE_PUBLIC_KEYS));
     assert_rnp_success(rnp_output_destroy(output));
     output = NULL;
@@ -1635,6 +1673,11 @@ TEST_F(rnp_tests, test_ffi_key_generate_sm2)
 
     /* generate sm2 key */
     rnp_key_handle_t key = NULL;
+    if (!sm2_enabled()) {
+        assert_rnp_failure(rnp_generate_key_sm2(ffi, "sm2", NULL, &key));
+        assert_rnp_success(rnp_ffi_destroy(ffi));
+        return;
+    }
     assert_rnp_success(rnp_generate_key_sm2(ffi, "sm2", NULL, &key));
     assert_non_null(key);
     /* check properties of the generated key */
@@ -1976,34 +2019,52 @@ TEST_F(rnp_tests, test_ffi_key_generate_ex)
     assert_rnp_success(rnp_key_handle_destroy(subkey));
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ECDSA"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP256r1"));
     assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "AES128"));
     assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "SHA1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
-    assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
+    if (brainpool_enabled()) {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP256r1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    } else {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "brainpoolP256r1"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+    }
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ECDSA"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP384r1"));
     assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "AES128"));
     assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "SHA1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
-    assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
+    if (brainpool_enabled()) {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP384r1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    } else {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "brainpoolP384r1"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+    }
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ECDSA"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP512r1"));
     assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "AES128"));
     assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "SHA1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
-    assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
+    if (brainpool_enabled()) {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP512r1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    } else {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "brainpoolP512r1"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+    }
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ECDSA"));
     assert_rnp_success(rnp_op_generate_set_curve(keygen, "secp256k1"));
@@ -2027,8 +2088,12 @@ TEST_F(rnp_tests, test_ffi_key_generate_ex)
     assert_rnp_success(rnp_op_generate_destroy(keygen));
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ECDSA"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "SM2 P-256"));
-    assert_rnp_failure(rnp_op_generate_execute(keygen));
+    if (!sm2_enabled()) {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "SM2 P-256"));
+    } else {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "SM2 P-256"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+    }
     assert_rnp_success(rnp_op_generate_destroy(keygen));
 
     /* Add EDDSA subkey */
@@ -2098,15 +2163,19 @@ TEST_F(rnp_tests, test_ffi_key_generate_ex)
     assert_rnp_success(rnp_key_handle_destroy(subkey));
 
     /* Add SM2 subkey */
-    assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "SM2"));
-    assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "AES128"));
-    assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "SHA1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
+    if (!sm2_enabled()) {
+        keygen = NULL;
+        assert_rnp_failure(rnp_op_generate_subkey_create(&keygen, ffi, key, "SM2"));
+    } else {
+        assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "SM2"));
+        assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "AES128"));
+        assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "SHA1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    }
     assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
-
     assert_rnp_success(rnp_key_handle_destroy(key));
     assert_rnp_success(rnp_ffi_destroy(ffi));
 }
@@ -2239,34 +2308,52 @@ TEST_F(rnp_tests, test_ffi_key_generate_algnamecase)
     assert_rnp_success(rnp_key_handle_destroy(subkey));
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ecdsa"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP256r1"));
     assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "aes128"));
     assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "sha1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
-    assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
+    if (brainpool_enabled()) {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP256r1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    } else {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "brainpoolP256r1"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+    }
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ecdsa"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP384r1"));
     assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "aes128"));
     assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "sha1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
-    assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
+    if (brainpool_enabled()) {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP384r1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    } else {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "brainpoolP384r1"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+    }
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ecdsa"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP512r1"));
     assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "aes128"));
     assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "sha1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
-    assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
+    if (brainpool_enabled()) {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "brainpoolP512r1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    } else {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "brainpoolP512r1"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_destroy(keygen));
+    }
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ecdsa"));
     assert_rnp_success(rnp_op_generate_set_curve(keygen, "secp256k1"));
@@ -2278,7 +2365,7 @@ TEST_F(rnp_tests, test_ffi_key_generate_algnamecase)
     assert_rnp_success(rnp_op_generate_destroy(keygen));
     assert_rnp_success(rnp_key_handle_destroy(subkey));
 
-    /* These curves will not work with ECDSA*/
+    /* These curves will not work with ECDSA */
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ecdsa"));
     assert_rnp_success(rnp_op_generate_set_curve(keygen, "Ed25519"));
     assert_rnp_failure(rnp_op_generate_execute(keygen));
@@ -2290,8 +2377,12 @@ TEST_F(rnp_tests, test_ffi_key_generate_algnamecase)
     assert_rnp_success(rnp_op_generate_destroy(keygen));
 
     assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "ecdsa"));
-    assert_rnp_success(rnp_op_generate_set_curve(keygen, "SM2 P-256"));
-    assert_rnp_failure(rnp_op_generate_execute(keygen));
+    if (!sm2_enabled()) {
+        assert_rnp_failure(rnp_op_generate_set_curve(keygen, "SM2 P-256"));
+    } else {
+        assert_rnp_success(rnp_op_generate_set_curve(keygen, "SM2 P-256"));
+        assert_rnp_failure(rnp_op_generate_execute(keygen));
+    }
     assert_rnp_success(rnp_op_generate_destroy(keygen));
 
     /* Add EDDSA subkey */
@@ -2328,15 +2419,19 @@ TEST_F(rnp_tests, test_ffi_key_generate_algnamecase)
     assert_rnp_success(rnp_key_handle_destroy(subkey));
 
     /* Add SM2 subkey */
-    assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "sm2"));
-    assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "aes128"));
-    assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "sha1"));
-    assert_rnp_success(rnp_op_generate_execute(keygen));
-    assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
-    assert_non_null(subkey);
+    if (!sm2_enabled()) {
+        keygen = NULL;
+        assert_rnp_failure(rnp_op_generate_subkey_create(&keygen, ffi, key, "sm2"));
+    } else {
+        assert_rnp_success(rnp_op_generate_subkey_create(&keygen, ffi, key, "sm2"));
+        assert_rnp_success(rnp_op_generate_set_protection_cipher(keygen, "aes128"));
+        assert_rnp_success(rnp_op_generate_set_protection_hash(keygen, "sha1"));
+        assert_rnp_success(rnp_op_generate_execute(keygen));
+        assert_rnp_success(rnp_op_generate_get_key(keygen, &subkey));
+        assert_non_null(subkey);
+        assert_rnp_success(rnp_key_handle_destroy(subkey));
+    }
     assert_rnp_success(rnp_op_generate_destroy(keygen));
-    assert_rnp_success(rnp_key_handle_destroy(subkey));
-
     assert_rnp_success(rnp_key_handle_destroy(key));
     assert_rnp_success(rnp_ffi_destroy(ffi));
 }
@@ -2501,8 +2596,18 @@ TEST_F(rnp_tests, test_ffi_add_userid)
     assert_int_equal(1, count);
 
     // protect+lock the key
-    assert_rnp_success(rnp_key_protect(key_handle, "pass", "SM4", "CFB", "SM3", 999999));
+    if (!sm2_enabled()) {
+        assert_rnp_failure(rnp_key_protect(key_handle, "pass", "SM4", "CFB", "SM3", 999999));
+        assert_rnp_success(
+          rnp_key_protect(key_handle, "pass", "AES128", "CFB", "SHA256", 999999));
+    } else {
+        assert_rnp_success(rnp_key_protect(key_handle, "pass", "SM4", "CFB", "SM3", 999999));
+    }
     assert_rnp_success(rnp_key_lock(key_handle));
+
+    // add with NULL parameters
+    assert_rnp_failure(rnp_key_add_uid(NULL, new_userid, NULL, 2147317200, 0x00, false));
+    assert_rnp_failure(rnp_key_add_uid(key_handle, NULL, NULL, 2147317200, 0x00, false));
 
     // add the userid (no pass provider, should fail)
     assert_int_equal(
@@ -2512,9 +2617,15 @@ TEST_F(rnp_tests, test_ffi_add_userid)
     // actually add the userid
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "pass"));
+    // attempt to add empty uid
+    assert_rnp_failure(rnp_key_add_uid(key_handle, "", NULL, 2147317200, 0, false));
     // add with default hash algorithm
     assert_rnp_success(
       rnp_key_add_uid(key_handle, default_hash_userid, NULL, 2147317200, 0, false));
+    // check whether key was locked back
+    bool locked = false;
+    assert_rnp_success(rnp_key_is_locked(key_handle, &locked));
+    assert_true(locked);
     // check if default hash was used
     assert_rnp_success(rnp_key_get_uid_handle_at(key_handle, 1, &uid));
     assert_rnp_success(rnp_uid_get_signature_at(uid, 0, &sig));
@@ -2874,6 +2985,9 @@ TEST_F(rnp_tests, test_ffi_signatures_memory)
     // execute the operation
     assert_rnp_success(rnp_op_sign_execute(op));
     // make sure the output file was created
+    assert_rnp_failure(rnp_output_memory_get_buf(NULL, &signed_buf, &signed_len, true));
+    assert_rnp_failure(rnp_output_memory_get_buf(output, NULL, &signed_len, true));
+    assert_rnp_failure(rnp_output_memory_get_buf(output, &signed_buf, NULL, true));
     assert_rnp_success(rnp_output_memory_get_buf(output, &signed_buf, &signed_len, true));
     assert_non_null(signed_buf);
     assert_true(signed_len > 0);
@@ -3373,10 +3487,9 @@ TEST_F(rnp_tests, test_ffi_signatures_dump)
     assert_true(check_json_field_int(subpkt, "length", 51));
     assert_true(check_json_field_bool(subpkt, "hashed", true));
     assert_true(check_json_field_bool(subpkt, "critical", false));
-    assert_true(check_json_field_str(subpkt,
-                                     "raw",
-                                     "800000000021000a73657269616c6e756d62657240646f74732e7465"
-                                     "7374646f6d61696e2e7465737454455354303030303031"));
+    assert_true(check_json_field_bool(subpkt, "human", true));
+    assert_true(check_json_field_str(subpkt, "name", "serialnumber@dots.testdomain.test"));
+    assert_true(check_json_field_str(subpkt, "value", "TEST000001"));
     /* subpacket 4 */
     subpkt = json_object_array_get_idx(subpkts, 4);
     assert_true(check_json_field_int(subpkt, "type", 26));
@@ -3501,64 +3614,54 @@ TEST_F(rnp_tests, test_ffi_key_to_json)
     jso = json_tokener_parse(json);
     assert_non_null(jso);
     // validate some properties
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "type")), "ECDSA"), 0);
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "type")), "ECDSA"));
     assert_int_equal(json_object_get_int(get_json_obj(jso, "length")), 256);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "curve")), "NIST P-256"), 0);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "keyid")), "0E33FD46FF10F19C"),
-      0);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "fingerprint")),
-                                    "B6B5E497A177551ECB8862200E33FD46FF10F19C"),
-                     0);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "grip")),
-                                    "20A48B3C61525DCDF8B3B9D82C6BBCF4D8BFB5E5"),
-                     0);
+    assert_true(
+      rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "curve")), "NIST P-256"));
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "keyid")),
+                                 "0E33FD46FF10F19C"));
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "fingerprint")),
+                                 "B6B5E497A177551ECB8862200E33FD46FF10F19C"));
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "grip")),
+                                 "20A48B3C61525DCDF8B3B9D82C6BBCF4D8BFB5E5"));
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "revoked")), false);
     assert_int_equal(json_object_get_int64(get_json_obj(jso, "creation time")), 1511313500);
     assert_int_equal(json_object_get_int64(get_json_obj(jso, "expiration")), 0);
     // usage
     assert_int_equal(json_object_array_length(get_json_obj(jso, "usage")), 2);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(json_object_array_get_idx(
-                                      get_json_obj(jso, "usage"), 0)),
-                                    "sign"),
-                     0);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(json_object_array_get_idx(
-                                      get_json_obj(jso, "usage"), 1)),
-                                    "certify"),
-                     0);
+    assert_true(rnp::str_case_eq(
+      json_object_get_string(json_object_array_get_idx(get_json_obj(jso, "usage"), 0)),
+      "sign"));
+    assert_true(rnp::str_case_eq(
+      json_object_get_string(json_object_array_get_idx(get_json_obj(jso, "usage"), 1)),
+      "certify"));
     // primary key grip
     assert_null(get_json_obj(jso, "primary key grip"));
     // subkey grips
     assert_int_equal(json_object_array_length(get_json_obj(jso, "subkey grips")), 1);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(json_object_array_get_idx(
-                                      get_json_obj(jso, "subkey grips"), 0)),
-                                    "FFFA72FC225214DC712D0127172EE13E88AF93B4"),
-                     0);
+    assert_true(rnp::str_case_eq(
+      json_object_get_string(json_object_array_get_idx(get_json_obj(jso, "subkey grips"), 0)),
+      "FFFA72FC225214DC712D0127172EE13E88AF93B4"));
     // public key
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "public key.present")), true);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "public key.mpis.point")),
-                     "04B0C6F2F585C1EEDF805C4492CB683839D5EAE6246420780F063D558"
-                     "A33F607876BE6F818A665722F8204653CC4DCFAD4F4765521AC8A6E9F"
-                     "793CEBAE8600BEEF"),
-      0);
+    assert_true(
+      rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "public key.mpis.point")),
+                       "04B0C6F2F585C1EEDF805C4492CB683839D5EAE6246420780F063D558"
+                       "A33F607876BE6F818A665722F8204653CC4DCFAD4F4765521AC8A6E9F"
+                       "793CEBAE8600BEEF"));
     // secret key
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "secret key.present")), true);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "secret key.mpis.x")),
-                     "46DE93CA439735F36B9CF228F10D8586DA824D88BBF4E24566D5312D061802C8"),
-      0);
+    assert_true(
+      rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "secret key.mpis.x")),
+                       "46DE93CA439735F36B9CF228F10D8586DA824D88BBF4E24566D5312D061802C8"));
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "secret key.locked")), false);
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "secret key.protected")),
                      false);
     // userids
     assert_int_equal(json_object_array_length(get_json_obj(jso, "userids")), 1);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(json_object_array_get_idx(
-                                      get_json_obj(jso, "userids"), 0)),
-                                    "test0"),
-                     0);
+    assert_true(rnp::str_case_eq(
+      json_object_get_string(json_object_array_get_idx(get_json_obj(jso, "userids"), 0)),
+      "test0"));
     // signatures
     assert_int_equal(json_object_array_length(get_json_obj(jso, "signatures")), 1);
     json_object *jsosig = json_object_array_get_idx(get_json_obj(jso, "signatures"), 0);
@@ -3581,55 +3684,45 @@ TEST_F(rnp_tests, test_ffi_key_to_json)
     jso = json_tokener_parse(json);
     assert_non_null(jso);
     // validate some properties
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "type")), "ECDH"),
-                     0);
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "type")), "ECDH"));
     assert_int_equal(json_object_get_int(get_json_obj(jso, "length")), 256);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "curve")), "NIST P-256"), 0);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "keyid")), "074131BC8D16C5C9"),
-      0);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "fingerprint")),
-                                    "481E6A41B10ECD71A477DB02074131BC8D16C5C9"),
-                     0);
+    assert_true(
+      rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "curve")), "NIST P-256"));
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "keyid")),
+                                 "074131BC8D16C5C9"));
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "fingerprint")),
+                                 "481E6A41B10ECD71A477DB02074131BC8D16C5C9"));
     // ECDH-specific
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "kdf hash")), "SHA256"), 0);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "key wrap cipher")), "AES128"),
-      0);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "grip")),
-                                    "FFFA72FC225214DC712D0127172EE13E88AF93B4"),
-                     0);
+    assert_true(
+      rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "kdf hash")), "SHA256"));
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "key wrap cipher")),
+                                 "AES128"));
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "grip")),
+                                 "FFFA72FC225214DC712D0127172EE13E88AF93B4"));
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "revoked")), false);
     assert_int_equal(json_object_get_int64(get_json_obj(jso, "creation time")), 1511313500);
     assert_int_equal(json_object_get_int64(get_json_obj(jso, "expiration")), 0);
     // usage
     assert_int_equal(json_object_array_length(get_json_obj(jso, "usage")), 1);
-    assert_int_equal(rnp_strcasecmp(json_object_get_string(json_object_array_get_idx(
-                                      get_json_obj(jso, "usage"), 0)),
-                                    "encrypt"),
-                     0);
+    assert_true(rnp::str_case_eq(
+      json_object_get_string(json_object_array_get_idx(get_json_obj(jso, "usage"), 0)),
+      "encrypt"));
     // primary key grip
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "primary key grip")),
-                     "20A48B3C61525DCDF8B3B9D82C6BBCF4D8BFB5E5"),
-      0);
+    assert_true(rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "primary key grip")),
+                                 "20A48B3C61525DCDF8B3B9D82C6BBCF4D8BFB5E5"));
     // subkey grips
     assert_null(get_json_obj(jso, "subkey grips"));
     // public key
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "public key.present")), true);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "public key.mpis.point")),
-                     "04E2746BA4D180011B17A6909EABDBF2F3733674FBE00B20A3B857C2597233651544150B"
-                     "896BCE7DCDF47C49FC1E12D5AD86384D26336A48A18845940A3F65F502"),
-      0);
+    assert_true(rnp::str_case_eq(
+      json_object_get_string(get_json_obj(jso, "public key.mpis.point")),
+      "04E2746BA4D180011B17A6909EABDBF2F3733674FBE00B20A3B857C2597233651544150B"
+      "896BCE7DCDF47C49FC1E12D5AD86384D26336A48A18845940A3F65F502"));
     // secret key
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "secret key.present")), true);
-    assert_int_equal(
-      rnp_strcasecmp(json_object_get_string(get_json_obj(jso, "secret key.mpis.x")),
-                     "DF8BEB7272117AD7AFE2B7E882453113059787FBC785C82F78624EE7EF2117FB"),
-      0);
+    assert_true(
+      rnp::str_case_eq(json_object_get_string(get_json_obj(jso, "secret key.mpis.x")),
+                       "DF8BEB7272117AD7AFE2B7E882453113059787FBC785C82F78624EE7EF2117FB"));
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "secret key.locked")), false);
     assert_int_equal(json_object_get_boolean(get_json_obj(jso, "secret key.protected")),
                      false);
@@ -3765,7 +3858,7 @@ TEST_F(rnp_tests, test_ffi_key_iter)
                 ident = NULL;
                 assert_rnp_success(rnp_identifier_iterator_next(it, &ident));
                 if (ident) {
-                    assert_int_equal(0, rnp_strcasecmp(expected[i], ident));
+                    assert_true(rnp::str_case_eq(expected[i], ident));
                     i++;
                 }
             } while (ident);
@@ -3793,7 +3886,7 @@ TEST_F(rnp_tests, test_ffi_key_iter)
                 ident = NULL;
                 assert_rnp_success(rnp_identifier_iterator_next(it, &ident));
                 if (ident) {
-                    assert_int_equal(0, rnp_strcasecmp(expected[i], ident));
+                    assert_true(rnp::str_case_eq(expected[i], ident));
                     i++;
                 }
             } while (ident);
@@ -3816,7 +3909,7 @@ TEST_F(rnp_tests, test_ffi_key_iter)
                 ident = NULL;
                 assert_rnp_success(rnp_identifier_iterator_next(it, &ident));
                 if (ident) {
-                    assert_int_equal(0, rnp_strcasecmp(expected[i], ident));
+                    assert_true(rnp::str_case_eq(expected[i], ident));
                     i++;
                 }
             } while (ident);
@@ -4447,6 +4540,19 @@ TEST_F(rnp_tests, test_ffi_version)
     assert_true(rnp_version_for(1, 0, 1) > rnp_version_for(1, 0, 0));
     assert_true(rnp_version_for(1, 1, 0) > rnp_version_for(1, 0, 1023));
     assert_true(rnp_version_for(2, 0, 0) > rnp_version_for(1, 1023, 1023));
+
+    // commit timestamp
+    const uint64_t timestamp = rnp_version_commit_timestamp();
+    assert_true(!timestamp || (timestamp >= 1639439116));
+}
+
+TEST_F(rnp_tests, test_ffi_backend_version)
+{
+    assert_non_null(rnp_backend_string());
+    assert_non_null(rnp_backend_version());
+
+    assert_true(strlen(rnp_backend_string()) > 0 && strlen(rnp_backend_string()) < 255);
+    assert_true(strlen(rnp_backend_version()) > 0 && strlen(rnp_backend_version()) < 255);
 }
 
 static void
@@ -5769,6 +5875,15 @@ TEST_F(rnp_tests, test_ffi_malformed_keys_import)
     assert_true(secret);
     assert_rnp_success(rnp_key_handle_destroy(key));
 
+    /* import unprotected secret key with wrong crc */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_false(
+      import_sec_keys(ffi, "data/test_key_edge_cases/key-25519-tweaked-wrong-crc.asc"));
+    assert_rnp_success(rnp_get_public_key_count(ffi, &keycount));
+    assert_int_equal(keycount, 0);
+    assert_rnp_success(rnp_get_secret_key_count(ffi, &keycount));
+    assert_int_equal(keycount, 0);
+
     /* cleanup */
     rnp_ffi_destroy(ffi);
 }
@@ -6101,6 +6216,9 @@ TEST_F(rnp_tests, test_ffi_import_keys_check_pktlen)
 TEST_F(rnp_tests, test_ffi_calculate_iterations)
 {
     size_t iterations = 0;
+    assert_rnp_failure(rnp_calculate_iterations(NULL, 500, &iterations));
+    assert_rnp_failure(rnp_calculate_iterations("SHA256", 500, NULL));
+    assert_rnp_failure(rnp_calculate_iterations("WRONG", 500, &iterations));
     assert_rnp_success(rnp_calculate_iterations("SHA256", 500, &iterations));
     assert_true(iterations > 65536);
 }
@@ -6146,9 +6264,16 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     /* symmetric algorithms */
     assert_rnp_success(rnp_supported_features("Symmetric Algorithm", &features));
     assert_non_null(features);
-    assert_true(check_features(RNP_FEATURE_SYMM_ALG, features, 12));
+    bool has_sm2 = sm2_enabled();
+    bool has_tf = twofish_enabled();
+    bool has_brainpool = brainpool_enabled();
+    assert_true(check_features(RNP_FEATURE_SYMM_ALG, features, 10 + has_sm2 + has_tf));
     rnp_buffer_destroy(features);
     bool supported = false;
+    assert_rnp_failure(rnp_supports_feature(NULL, "IDEA", &supported));
+    assert_rnp_failure(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, NULL, &supported));
+    assert_rnp_failure(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "IDEA", NULL));
+    assert_rnp_failure(rnp_supports_feature("WRONG", "IDEA", &supported));
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "IDEA", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "TRIPLEDES", &supported));
@@ -6164,7 +6289,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "AES256", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "TWOFISH", &supported));
-    assert_true(supported);
+    assert_true(supported == has_tf);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "CAMELLIA128", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "CAMELLIA192", &supported));
@@ -6172,7 +6297,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "CAMELLIA256", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "SM4", &supported));
-    assert_true(supported);
+    assert_true(supported == has_sm2);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "idea", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "tripledes", &supported));
@@ -6188,7 +6313,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "aes256", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "twofish", &supported));
-    assert_true(supported);
+    assert_true(supported == has_tf);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "camellia128", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "camellia192", &supported));
@@ -6196,17 +6321,21 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "camellia256", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "sm4", &supported));
-    assert_true(supported);
+    assert_true(supported == has_sm2);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "wrong", &supported));
     assert_false(supported);
     /* aead algorithms */
+    bool has_eax = aead_eax_enabled();
+    bool has_ocb = aead_ocb_enabled();
     assert_rnp_success(rnp_supported_features(RNP_FEATURE_AEAD_ALG, &features));
     assert_non_null(features);
-    assert_true(check_features(RNP_FEATURE_AEAD_ALG, features, 2));
+    assert_true(check_features(RNP_FEATURE_AEAD_ALG, features, 1 + has_eax + has_ocb));
     rnp_buffer_destroy(features);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "eax", &supported));
-    assert_true(supported);
+    assert_true(supported == has_eax);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "ocb", &supported));
+    assert_true(supported == has_ocb);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "none", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "wrong", &supported));
     assert_false(supported);
@@ -6222,7 +6351,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     /* public key algorithm */
     assert_rnp_success(rnp_supported_features(RNP_FEATURE_PK_ALG, &features));
     assert_non_null(features);
-    assert_true(check_features(RNP_FEATURE_PK_ALG, features, 7));
+    assert_true(check_features(RNP_FEATURE_PK_ALG, features, 6 + has_sm2));
     rnp_buffer_destroy(features);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "RSA", &supported));
     assert_true(supported);
@@ -6237,7 +6366,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "EDDSA", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "SM2", &supported));
-    assert_true(supported);
+    assert_true(supported == has_sm2);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "rsa", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "dsa", &supported));
@@ -6251,13 +6380,13 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "eddsa", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "sm2", &supported));
-    assert_true(supported);
+    assert_true(supported == has_sm2);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_PK_ALG, "wrong", &supported));
     assert_false(supported);
     /* hash algorithm */
     assert_rnp_success(rnp_supported_features(RNP_FEATURE_HASH_ALG, &features));
     assert_non_null(features);
-    assert_true(check_features(RNP_FEATURE_HASH_ALG, features, 10));
+    assert_true(check_features(RNP_FEATURE_HASH_ALG, features, 9 + has_sm2));
     rnp_buffer_destroy(features);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "MD5", &supported));
     assert_true(supported);
@@ -6278,7 +6407,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "SHA3-512", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "SM3", &supported));
-    assert_true(supported);
+    assert_true(supported == has_sm2);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "md5", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "sha1", &supported));
@@ -6298,7 +6427,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "sha3-512", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "sm3", &supported));
-    assert_true(supported);
+    assert_true(supported == has_sm2);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "wrong", &supported));
     assert_false(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_HASH_ALG, "CRC24", &supported));
@@ -6321,7 +6450,7 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     /* elliptic curve */
     assert_rnp_success(rnp_supported_features(RNP_FEATURE_CURVE, &features));
     assert_non_null(features);
-    assert_true(check_features(RNP_FEATURE_CURVE, features, 10));
+    assert_true(check_features(RNP_FEATURE_CURVE, features, 6 + has_sm2 + 3 * has_brainpool));
     rnp_buffer_destroy(features);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "NIST P-256", &supported));
     assert_true(supported);
@@ -6334,37 +6463,17 @@ TEST_F(rnp_tests, test_ffi_supported_features)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "curve25519", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP256r1", &supported));
-    assert_true(supported);
+    assert_true(supported == has_brainpool);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP384r1", &supported));
-    assert_true(supported);
+    assert_true(supported == has_brainpool);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP512r1", &supported));
-    assert_true(supported);
+    assert_true(supported == has_brainpool);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "secp256k1", &supported));
     assert_true(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "SM2 P-256", &supported));
-    assert_true(supported);
+    assert_true(supported == has_sm2);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_CURVE, "wrong", &supported));
     assert_false(supported);
-}
-
-TEST_F(rnp_tests, test_ffi_enable_debug)
-{
-    assert_rnp_success(rnp_enable_debug("dummy.c"));
-    assert_rnp_success(rnp_enable_debug("1.c"));
-    assert_true(rnp_get_debug("dummy.c"));
-    assert_true(rnp_get_debug("1.c"));
-    assert_false(rnp_get_debug("dummy"));
-    /* NULL enables debug for all sources */
-    assert_rnp_success(rnp_enable_debug(NULL));
-    assert_true(rnp_get_debug("anything"));
-    assert_rnp_success(rnp_disable_debug());
-    assert_false(rnp_get_debug("anything"));
-    assert_false(rnp_get_debug("dummy.c"));
-    assert_false(rnp_get_debug("1.c"));
-    assert_rnp_success(rnp_enable_debug("all"));
-    assert_true(rnp_get_debug("anything other"));
-    /* need to clean it up afterwards - otherwise tests will go crazy */
-    assert_rnp_success(rnp_disable_debug());
 }
 
 TEST_F(rnp_tests, test_ffi_rnp_key_get_primary_grip)
@@ -6737,7 +6846,15 @@ TEST_F(rnp_tests, test_ffi_op_set_hash)
     assert_rnp_failure(rnp_op_sign_set_hash(op, NULL));
     assert_rnp_failure(rnp_op_sign_set_hash(op, "Unknown"));
     assert_rnp_success(rnp_op_sign_set_hash(op, "SHA256"));
-    // execute the operation
+    // execute the operation with wrong password
+    assert_rnp_success(
+      rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "wrong"));
+    assert_int_equal(rnp_op_sign_execute(op), RNP_ERROR_BAD_PASSWORD);
+    assert_rnp_success(rnp_op_sign_destroy(op));
+    // execute the operation with valid password
+    assert_rnp_success(rnp_op_sign_create(&op, ffi, input, output));
+    // setup signature(s)
+    test_ffi_setup_signatures(&ffi, &op);
     assert_rnp_success(rnp_op_sign_execute(op));
     // make sure the output file was created
     assert_rnp_success(rnp_output_memory_get_buf(output, &signed_buf, &signed_len, true));
@@ -6816,12 +6933,31 @@ TEST_F(rnp_tests, test_ffi_aead_params)
     // create encrypt operation
     assert_rnp_success(rnp_op_encrypt_create(&op, ffi, input, output));
     // setup AEAD params
-    assert_rnp_success(rnp_op_encrypt_set_aead(op, "OCB"));
+    assert_rnp_failure(rnp_op_encrypt_set_aead(NULL, "OCB"));
+    assert_rnp_failure(rnp_op_encrypt_set_aead(op, NULL));
+    assert_rnp_failure(rnp_op_encrypt_set_aead(op, "WRONG"));
+    if (!aead_ocb_enabled()) {
+        assert_rnp_failure(rnp_op_encrypt_set_aead(op, "OCB"));
+    } else {
+        assert_rnp_success(rnp_op_encrypt_set_aead(op, "OCB"));
+    }
+    assert_rnp_failure(rnp_op_encrypt_set_aead_bits(NULL, 10));
     assert_rnp_failure(rnp_op_encrypt_set_aead_bits(op, -1));
     assert_rnp_failure(rnp_op_encrypt_set_aead_bits(op, 60));
     assert_rnp_success(rnp_op_encrypt_set_aead_bits(op, 10));
     // add password (using all defaults)
     assert_rnp_success(rnp_op_encrypt_add_password(op, "pass1", NULL, 0, NULL));
+    // setup compression
+    assert_rnp_failure(rnp_op_encrypt_set_compression(NULL, "ZLIB", 6));
+    assert_rnp_failure(rnp_op_encrypt_set_compression(op, NULL, 6));
+    assert_rnp_failure(rnp_op_encrypt_set_compression(op, "WRONG", 6));
+    assert_rnp_success(rnp_op_encrypt_set_compression(op, "ZLIB", 6));
+    // set filename and mtime
+    assert_rnp_failure(rnp_op_encrypt_set_file_name(NULL, "filename"));
+    assert_rnp_success(rnp_op_encrypt_set_file_name(op, NULL));
+    assert_rnp_success(rnp_op_encrypt_set_file_name(op, "filename"));
+    assert_rnp_failure(rnp_op_encrypt_set_file_mtime(NULL, 1000));
+    assert_rnp_success(rnp_op_encrypt_set_file_mtime(op, 1000));
     // execute the operation
     assert_rnp_success(rnp_op_encrypt_execute(op));
     // make sure the output file was created
@@ -6848,14 +6984,24 @@ TEST_F(rnp_tests, test_ffi_aead_params)
     /* check the symmetric-key encrypted session key packet */
     json_object *pkt = json_object_array_get_idx(jso, 0);
     assert_true(check_json_pkt_type(pkt, PGP_PKT_SK_SESSION_KEY));
-    assert_true(check_json_field_int(pkt, "version", 5));
-    assert_true(check_json_field_str(pkt, "aead algorithm.str", "OCB"));
+    if (!aead_ocb_enabled()) {
+        // if AEAD is not enabled then v4 encrypted packet will be created
+        assert_true(check_json_field_int(pkt, "version", 4));
+        assert_true(check_json_field_str(pkt, "algorithm.str", "AES-256"));
+    } else {
+        assert_true(check_json_field_int(pkt, "version", 5));
+        assert_true(check_json_field_str(pkt, "aead algorithm.str", "OCB"));
+    }
     /* check the aead-encrypted packet */
     pkt = json_object_array_get_idx(jso, 1);
-    assert_true(check_json_pkt_type(pkt, PGP_PKT_AEAD_ENCRYPTED));
-    assert_true(check_json_field_int(pkt, "version", 1));
-    assert_true(check_json_field_str(pkt, "aead algorithm.str", "OCB"));
-    assert_true(check_json_field_int(pkt, "chunk size", 10));
+    if (!aead_ocb_enabled()) {
+        assert_true(check_json_pkt_type(pkt, PGP_PKT_SE_IP_DATA));
+    } else {
+        assert_true(check_json_pkt_type(pkt, PGP_PKT_AEAD_ENCRYPTED));
+        assert_true(check_json_field_int(pkt, "version", 1));
+        assert_true(check_json_field_str(pkt, "aead algorithm.str", "OCB"));
+        assert_true(check_json_field_int(pkt, "chunk size", 10));
+    }
     json_object_put(jso);
 
     /* decrypt */
@@ -7155,7 +7301,11 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "password"));
     assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(verify));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(verify));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(verify));
+    }
     assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
     assert_int_equal(sigcount, 0);
     rnp_op_verify_destroy(verify);
@@ -7232,6 +7382,21 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_input_destroy(input);
     rnp_output_destroy(output);
 
+    /* signed and password-encrypted data with 0 compression algo */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed-sym-none-z"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_SUCCESS));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
     /* signed message with one-pass with wrong version */
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.signed-no-z-malf"));
@@ -7282,6 +7447,52 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_input_destroy(input);
     rnp_output_destroy(output);
 
+    /* sha1 detached signature over the collision-suspicious data */
+    /* allow sha1 temporary */
+    rnp::SecurityRule allow_sha1(
+      rnp::FeatureType::Hash, PGP_HASH_SHA1, rnp::SecurityLevel::Default, 1547856001);
+    global_ctx.profile.add_rule(allow_sha1);
+    sigcount = 255;
+    assert_rnp_success(rnp_input_from_path(&source, "data/test_messages/shattered-1.pdf"));
+    assert_rnp_success(rnp_input_from_path(&input, "data/test_messages/shattered-1.pdf.sig"));
+    assert_rnp_success(rnp_op_verify_detached_create(&verify, ffi, source, input));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_ERROR_SIGNATURE_INVALID));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(source);
+    rnp_input_destroy(input);
+
+    /* sha1 detached signature over the document with collision*/
+    sigcount = 255;
+    assert_rnp_success(rnp_input_from_path(&source, "data/test_messages/shattered-2.pdf"));
+    assert_rnp_success(rnp_input_from_path(&input, "data/test_messages/shattered-1.pdf.sig"));
+    assert_rnp_success(rnp_op_verify_detached_create(&verify, ffi, source, input));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_ERROR_SIGNATURE_INVALID));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(source);
+    rnp_input_destroy(input);
+
+    /* sha1 attached signature over the collision-suspicious data */
+    sigcount = 255;
+    assert_rnp_success(rnp_input_from_path(&input, "data/test_messages/shattered-2.pdf.gpg"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_ERROR_SIGNATURE_INVALID));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* remove sha1 rule */
+    assert_true(global_ctx.profile.del_rule(allow_sha1));
+
     /* signed message with key which is now expired */
     assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
     import_pub_keys(ffi, "data/test_messages/expired_signing_key-pub.asc");
@@ -7324,6 +7535,96 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
     assert_int_equal(sigcount, 1);
     assert_true(check_signature(verify, 0, RNP_SUCCESS));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* signed message with md5 hash */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_true(load_keys_gpg(ffi, "data/keyrings/1/pubring.gpg"));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed.md5"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_ERROR_SIGNATURE_INVALID));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* signed message with md5 hash before the cut-off date */
+    assert_true(import_all_keys(ffi, "data/test_key_edge_cases/key-rsa-2001-pub.asc"));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed-md5-before"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_SUCCESS));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* signed message with md5 hash right after the cut-off date */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed-md5-after"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_ERROR_SIGNATURE_INVALID));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* signed message with sha1 hash */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed.sha1"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_ERROR_SIGNATURE_INVALID));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* message signed with sha1 before the cut-off date */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed-sha1-before"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_SUCCESS));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* message signed with sha1 right after the cut-off date */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed-sha1-after"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_ERROR_SIGNATURE_INVALID));
     rnp_op_verify_destroy(verify);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -7414,14 +7715,18 @@ TEST_F(rnp_tests, test_ffi_op_verify_get_protection_info)
       rnp_input_from_path(&input, "data/test_messages/message.txt.enc-aead-ocb"));
     assert_rnp_success(rnp_output_to_null(&output));
     assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(verify));
+    if (!aead_ocb_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(verify));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(verify));
+    }
     mode = NULL;
     cipher = NULL;
     valid = false;
     assert_rnp_success(rnp_op_verify_get_protection_info(verify, &mode, &cipher, &valid));
     assert_string_equal(mode, "aead-ocb");
     assert_string_equal(cipher, "CAMELLIA192");
-    assert_true(valid);
+    assert_true(valid == aead_ocb_enabled());
     rnp_buffer_destroy(mode);
     rnp_buffer_destroy(cipher);
     rnp_op_verify_destroy(verify);
@@ -7452,14 +7757,18 @@ TEST_F(rnp_tests, test_ffi_op_verify_get_protection_info)
       rnp_input_from_path(&input, "data/test_messages/message.txt.enc-aead-eax"));
     assert_rnp_success(rnp_output_to_null(&output));
     assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(verify));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(verify));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(verify));
+    }
     mode = NULL;
     cipher = NULL;
     valid = false;
     assert_rnp_success(rnp_op_verify_get_protection_info(verify, &mode, &cipher, &valid));
     assert_string_equal(mode, "aead-eax");
     assert_string_equal(cipher, "AES256");
-    assert_true(valid);
+    assert_true(valid == aead_eax_enabled());
     rnp_buffer_destroy(mode);
     rnp_buffer_destroy(cipher);
     rnp_op_verify_destroy(verify);
@@ -7535,6 +7844,21 @@ TEST_F(rnp_tests, test_ffi_op_verify_recipients_info)
     rnp_op_verify_t verify = NULL;
     assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
     assert_rnp_success(rnp_op_verify_execute(verify));
+    /* check filename and mtime */
+    char *   filename = NULL;
+    uint32_t mtime = 0;
+    assert_rnp_failure(rnp_op_verify_get_file_info(NULL, &filename, &mtime));
+    assert_rnp_success(rnp_op_verify_get_file_info(verify, &filename, &mtime));
+    assert_string_equal(filename, "message.txt");
+    assert_int_equal(mtime, 1571991574);
+    rnp_buffer_destroy(filename);
+    filename = NULL;
+    assert_rnp_success(rnp_op_verify_get_file_info(verify, &filename, NULL));
+    assert_string_equal(filename, "message.txt");
+    rnp_buffer_destroy(filename);
+    mtime = 0;
+    assert_rnp_success(rnp_op_verify_get_file_info(verify, NULL, &mtime));
+    assert_int_equal(mtime, 1571991574);
     /* rnp_op_verify_get_recipient_count */
     assert_rnp_failure(rnp_op_verify_get_recipient_count(verify, NULL));
     size_t count = 255;
@@ -7618,7 +7942,11 @@ TEST_F(rnp_tests, test_ffi_op_verify_recipients_info)
       rnp_input_from_path(&input, "data/test_messages/message.txt.enc-aead-ocb"));
     assert_rnp_success(rnp_output_to_null(&output));
     assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(verify));
+    if (!aead_ocb_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(verify));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(verify));
+    }
     count = 255;
     assert_rnp_success(rnp_op_verify_get_recipient_count(verify, &count));
     assert_int_equal(count, 0);
@@ -7652,26 +7980,30 @@ TEST_F(rnp_tests, test_ffi_op_verify_recipients_info)
     assert_rnp_success(rnp_symenc_get_s2k_iterations(symenc, &iterations));
     assert_int_equal(iterations, 30408704);
     assert_rnp_success(rnp_op_verify_get_used_symenc(verify, &symenc));
-    assert_non_null(symenc);
-    cipher = NULL;
-    assert_rnp_success(rnp_symenc_get_cipher(symenc, &cipher));
-    assert_string_equal(cipher, "CAMELLIA192");
-    rnp_buffer_destroy(cipher);
-    aead = NULL;
-    assert_rnp_success(rnp_symenc_get_aead_alg(symenc, &aead));
-    assert_string_equal(aead, "OCB");
-    rnp_buffer_destroy(aead);
-    hash = NULL;
-    assert_rnp_success(rnp_symenc_get_hash_alg(symenc, &hash));
-    assert_string_equal(hash, "SHA1");
-    rnp_buffer_destroy(hash);
-    s2k = NULL;
-    assert_rnp_success(rnp_symenc_get_s2k_type(symenc, &s2k));
-    assert_string_equal(s2k, "Iterated and salted");
-    rnp_buffer_destroy(s2k);
-    iterations = 0;
-    assert_rnp_success(rnp_symenc_get_s2k_iterations(symenc, &iterations));
-    assert_int_equal(iterations, 30408704);
+    if (!aead_ocb_enabled()) {
+        assert_null(symenc);
+    } else {
+        assert_non_null(symenc);
+        cipher = NULL;
+        assert_rnp_success(rnp_symenc_get_cipher(symenc, &cipher));
+        assert_string_equal(cipher, "CAMELLIA192");
+        rnp_buffer_destroy(cipher);
+        aead = NULL;
+        assert_rnp_success(rnp_symenc_get_aead_alg(symenc, &aead));
+        assert_string_equal(aead, "OCB");
+        rnp_buffer_destroy(aead);
+        hash = NULL;
+        assert_rnp_success(rnp_symenc_get_hash_alg(symenc, &hash));
+        assert_string_equal(hash, "SHA1");
+        rnp_buffer_destroy(hash);
+        s2k = NULL;
+        assert_rnp_success(rnp_symenc_get_s2k_type(symenc, &s2k));
+        assert_string_equal(s2k, "Iterated and salted");
+        rnp_buffer_destroy(s2k);
+        iterations = 0;
+        assert_rnp_success(rnp_symenc_get_s2k_iterations(symenc, &iterations));
+        assert_int_equal(iterations, 30408704);
+    }
     rnp_op_verify_destroy(verify);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -7698,32 +8030,36 @@ TEST_F(rnp_tests, test_ffi_op_verify_recipients_info)
     rnp_buffer_destroy(keyid);
     recipient = NULL;
     assert_rnp_success(rnp_op_verify_get_used_recipient(verify, &recipient));
-    assert_non_null(recipient);
-    assert_rnp_success(rnp_recipient_get_alg(recipient, &alg));
-    assert_string_equal(alg, "RSA");
-    rnp_buffer_destroy(alg);
-    assert_rnp_success(rnp_recipient_get_keyid(recipient, &keyid));
-    assert_string_equal(keyid, "1ED63EE56FADC34D");
-    rnp_buffer_destroy(keyid);
-    assert_rnp_success(rnp_op_verify_get_used_recipient(verify, &recipient));
-    assert_non_null(recipient);
-    alg = NULL;
-    assert_rnp_success(rnp_recipient_get_alg(recipient, &alg));
-    assert_string_equal(alg, "RSA");
-    rnp_buffer_destroy(alg);
-    keyid = NULL;
-    assert_rnp_success(rnp_recipient_get_keyid(recipient, &keyid));
-    assert_string_equal(keyid, "1ED63EE56FADC34D");
-    rnp_buffer_destroy(keyid);
-    recipient = NULL;
-    assert_rnp_success(rnp_op_verify_get_used_recipient(verify, &recipient));
-    assert_non_null(recipient);
-    assert_rnp_success(rnp_recipient_get_alg(recipient, &alg));
-    assert_string_equal(alg, "RSA");
-    rnp_buffer_destroy(alg);
-    assert_rnp_success(rnp_recipient_get_keyid(recipient, &keyid));
-    assert_string_equal(keyid, "1ED63EE56FADC34D");
-    rnp_buffer_destroy(keyid);
+    if (!aead_eax_enabled()) {
+        assert_null(recipient);
+    } else {
+        assert_non_null(recipient);
+        assert_rnp_success(rnp_recipient_get_alg(recipient, &alg));
+        assert_string_equal(alg, "RSA");
+        rnp_buffer_destroy(alg);
+        assert_rnp_success(rnp_recipient_get_keyid(recipient, &keyid));
+        assert_string_equal(keyid, "1ED63EE56FADC34D");
+        rnp_buffer_destroy(keyid);
+        assert_rnp_success(rnp_op_verify_get_used_recipient(verify, &recipient));
+        assert_non_null(recipient);
+        alg = NULL;
+        assert_rnp_success(rnp_recipient_get_alg(recipient, &alg));
+        assert_string_equal(alg, "RSA");
+        rnp_buffer_destroy(alg);
+        keyid = NULL;
+        assert_rnp_success(rnp_recipient_get_keyid(recipient, &keyid));
+        assert_string_equal(keyid, "1ED63EE56FADC34D");
+        rnp_buffer_destroy(keyid);
+        recipient = NULL;
+        assert_rnp_success(rnp_op_verify_get_used_recipient(verify, &recipient));
+        assert_non_null(recipient);
+        assert_rnp_success(rnp_recipient_get_alg(recipient, &alg));
+        assert_string_equal(alg, "RSA");
+        rnp_buffer_destroy(alg);
+        assert_rnp_success(rnp_recipient_get_keyid(recipient, &keyid));
+        assert_string_equal(keyid, "1ED63EE56FADC34D");
+        rnp_buffer_destroy(keyid);
+    }
 
     count = 255;
     assert_rnp_success(rnp_op_verify_get_symenc_count(verify, &count));
@@ -7761,7 +8097,11 @@ TEST_F(rnp_tests, test_ffi_op_verify_recipients_info)
       rnp_input_from_path(&input, "data/test_messages/message.txt.enc-aead-eax"));
     assert_rnp_success(rnp_output_to_null(&output));
     assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(verify));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(verify));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(verify));
+    }
     count = 255;
     assert_rnp_success(rnp_op_verify_get_recipient_count(verify, &count));
     assert_int_equal(count, 1);
@@ -7773,26 +8113,30 @@ TEST_F(rnp_tests, test_ffi_op_verify_recipients_info)
     assert_rnp_success(rnp_op_verify_get_symenc_at(verify, 0, &symenc));
     assert_non_null(symenc);
     assert_rnp_success(rnp_op_verify_get_used_symenc(verify, &symenc));
-    assert_non_null(symenc);
-    cipher = NULL;
-    assert_rnp_success(rnp_symenc_get_cipher(symenc, &cipher));
-    assert_string_equal(cipher, "AES256");
-    rnp_buffer_destroy(cipher);
-    aead = NULL;
-    assert_rnp_success(rnp_symenc_get_aead_alg(symenc, &aead));
-    assert_string_equal(aead, "EAX");
-    rnp_buffer_destroy(aead);
-    hash = NULL;
-    assert_rnp_success(rnp_symenc_get_hash_alg(symenc, &hash));
-    assert_string_equal(hash, "SHA256");
-    rnp_buffer_destroy(hash);
-    s2k = NULL;
-    assert_rnp_success(rnp_symenc_get_s2k_type(symenc, &s2k));
-    assert_string_equal(s2k, "Iterated and salted");
-    rnp_buffer_destroy(s2k);
-    iterations = 0;
-    assert_rnp_success(rnp_symenc_get_s2k_iterations(symenc, &iterations));
-    assert_int_equal(iterations, 3932160);
+    if (!aead_eax_enabled()) {
+        assert_null(symenc);
+    } else {
+        assert_non_null(symenc);
+        cipher = NULL;
+        assert_rnp_success(rnp_symenc_get_cipher(symenc, &cipher));
+        assert_string_equal(cipher, "AES256");
+        rnp_buffer_destroy(cipher);
+        aead = NULL;
+        assert_rnp_success(rnp_symenc_get_aead_alg(symenc, &aead));
+        assert_string_equal(aead, "EAX");
+        rnp_buffer_destroy(aead);
+        hash = NULL;
+        assert_rnp_success(rnp_symenc_get_hash_alg(symenc, &hash));
+        assert_string_equal(hash, "SHA256");
+        rnp_buffer_destroy(hash);
+        s2k = NULL;
+        assert_rnp_success(rnp_symenc_get_s2k_type(symenc, &s2k));
+        assert_string_equal(s2k, "Iterated and salted");
+        rnp_buffer_destroy(s2k);
+        iterations = 0;
+        assert_rnp_success(rnp_symenc_get_s2k_iterations(symenc, &iterations));
+        assert_int_equal(iterations, 3932160);
+    }
     rnp_op_verify_destroy(verify);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -8351,14 +8695,15 @@ TEST_F(rnp_tests, test_ffi_key_set_expiry)
     assert_non_null(key);
     assert_rnp_success(rnp_locate_key(ffi, "keyid", "22F3A217C0E439CB", &sub));
     assert_rnp_success(rnp_key_is_valid(key, &valid));
-    /* key is not valid since function checks public key */
+    /* key is not valid since expired */
     assert_false(valid);
     assert_rnp_success(rnp_key_valid_till(key, &till));
     assert_int_equal(till, 1577369391 + 16324055);
     assert_rnp_success(rnp_key_valid_till64(key, &till64));
     assert_int_equal(till64, 1577369391 + 16324055);
     assert_false(key->pub->valid());
-    assert_true(key->sec->valid());
+    /* secret key part is also not valid till new sig is added */
+    assert_false(key->sec->valid());
     assert_rnp_success(rnp_key_is_valid(sub, &valid));
     assert_false(valid);
     assert_rnp_success(rnp_key_valid_till(sub, &till));
@@ -8367,7 +8712,7 @@ TEST_F(rnp_tests, test_ffi_key_set_expiry)
     assert_rnp_success(rnp_key_valid_till64(sub, &till64));
     assert_int_equal(till64, 1577369391 + 16324055);
     assert_false(sub->pub->valid());
-    assert_true(sub->sec->valid());
+    assert_false(sub->sec->valid());
     creation = 0;
     uint32_t validity = 2 * 30 * 24 * 60 * 60; // 2 monthes
     assert_rnp_success(rnp_key_get_creation(key, &creation));
@@ -8613,7 +8958,11 @@ TEST_F(rnp_tests, test_ffi_decrypt_wrong_mpi_bits)
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "password"));
     assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(op));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(op));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(op));
+    }
     rnp_op_verify_destroy(op);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -8625,7 +8974,11 @@ TEST_F(rnp_tests, test_ffi_decrypt_wrong_mpi_bits)
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "password"));
     assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(op));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(op));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(op));
+    }
     rnp_op_verify_destroy(op);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -8637,7 +8990,11 @@ TEST_F(rnp_tests, test_ffi_decrypt_wrong_mpi_bits)
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "password"));
     assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(op));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(op));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(op));
+    }
     rnp_op_verify_destroy(op);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -8649,7 +9006,11 @@ TEST_F(rnp_tests, test_ffi_decrypt_wrong_mpi_bits)
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "password"));
     assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(op));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(op));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(op));
+    }
     rnp_op_verify_destroy(op);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -8661,7 +9022,11 @@ TEST_F(rnp_tests, test_ffi_decrypt_wrong_mpi_bits)
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "password"));
     assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
-    assert_rnp_success(rnp_op_verify_execute(op));
+    if (!aead_eax_enabled()) {
+        assert_rnp_failure(rnp_op_verify_execute(op));
+    } else {
+        assert_rnp_success(rnp_op_verify_execute(op));
+    }
     rnp_op_verify_destroy(op);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -10256,6 +10621,219 @@ TEST_F(rnp_tests, test_ffi_key_protection_change)
 
     rnp_key_handle_destroy(key);
     rnp_key_handle_destroy(sub);
+
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_set_log_fd)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+    assert_rnp_failure(rnp_ffi_set_log_fd(NULL, 0));
+#ifndef _WIN32
+    /* on windows one below will terminate processing due to invalid parameters to fdopen()
+     * until we use _set_invalid_parameter_handler */
+    assert_rnp_failure(rnp_ffi_set_log_fd(ffi, 100));
+#endif
+    int file_fd = rnp_open("tests.txt", O_RDWR | O_CREAT | O_TRUNC, 0777);
+    assert_true(file_fd > 0);
+    assert_rnp_success(rnp_ffi_set_log_fd(ffi, file_fd));
+    rnp_input_t input = NULL;
+    const char *msg = "hello";
+    assert_rnp_success(
+      rnp_input_from_memory(&input, (const uint8_t *) msg, strlen(msg), true));
+    char *saved_env = NULL;
+    if (getenv(RNP_LOG_CONSOLE)) {
+        saved_env = strdup(getenv(RNP_LOG_CONSOLE));
+    }
+    setenv(RNP_LOG_CONSOLE, "1", 1);
+    assert_rnp_failure(rnp_load_keys(ffi, "GPG", input, 119));
+    assert_rnp_success(rnp_input_destroy(input));
+    rnp_ffi_destroy(ffi);
+    if (saved_env) {
+        assert_int_equal(0, setenv(RNP_LOG_CONSOLE, saved_env, 1));
+        free(saved_env);
+    } else {
+        unsetenv(RNP_LOG_CONSOLE);
+    }
+#ifndef _WIN32
+    assert_int_equal(fcntl(file_fd, F_GETFD), -1);
+    assert_int_equal(errno, EBADF);
+#endif
+    char buffer[128] = {0};
+    file_fd = rnp_open("tests.txt", O_RDONLY, 0);
+    int64_t rres = read(file_fd, buffer, sizeof(buffer));
+    assert_true(rres > 0);
+    assert_non_null(strstr(buffer, "unexpected flags remaining: 0x"));
+    close(file_fd);
+}
+
+TEST_F(rnp_tests, test_ffi_security_profile)
+{
+#define MD5_FROM 1325376000
+#define SHA1_FROM 1547856000
+    rnp_ffi_t ffi = NULL;
+    rnp_ffi_create(&ffi, "GPG", "GPG");
+    /* check predefined rules */
+    uint32_t flags = 0;
+    uint64_t from = 0;
+    uint32_t level = 0;
+    assert_rnp_failure(
+      rnp_get_security_rule(NULL, RNP_FEATURE_HASH_ALG, "SHA1", 0, &flags, &from, &level));
+    assert_rnp_failure(rnp_get_security_rule(ffi, NULL, "SHA1", 0, &flags, &from, &level));
+    assert_rnp_failure(
+      rnp_get_security_rule(ffi, RNP_FEATURE_SYMM_ALG, "AES256", 0, &flags, &from, &level));
+    assert_rnp_failure(
+      rnp_get_security_rule(ffi, RNP_FEATURE_HASH_ALG, "Unknown", 0, &flags, &from, &level));
+    assert_rnp_failure(
+      rnp_get_security_rule(ffi, RNP_FEATURE_HASH_ALG, "SHA1", 0, NULL, NULL, NULL));
+    /* default rule */
+    from = 256;
+    assert_rnp_success(
+      rnp_get_security_rule(ffi, RNP_FEATURE_HASH_ALG, "SHA256", 0, &flags, &from, &level));
+    assert_int_equal(level, RNP_SECURITY_DEFAULT);
+    assert_int_equal(from, 0);
+    /* MD5 */
+    from = 256;
+    assert_rnp_success(
+      rnp_get_security_rule(ffi, RNP_FEATURE_HASH_ALG, "MD5", 0, &flags, &from, &level));
+    assert_int_equal(from, 0);
+    assert_int_equal(level, RNP_SECURITY_DEFAULT);
+    assert_rnp_success(rnp_get_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "MD5", time(NULL), &flags, &from, &level));
+    assert_int_equal(from, MD5_FROM);
+    assert_int_equal(level, RNP_SECURITY_INSECURE);
+    assert_rnp_success(rnp_get_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "MD5", MD5_FROM - 1, &flags, &from, &level));
+    assert_int_equal(from, 0);
+    assert_int_equal(flags, 0);
+    assert_int_equal(level, RNP_SECURITY_DEFAULT);
+    /* Override it */
+    assert_rnp_failure(rnp_add_security_rule(
+      NULL, RNP_FEATURE_HASH_ALG, "MD5", RNP_SECURITY_OVERRIDE, 0, RNP_SECURITY_DEFAULT));
+    assert_rnp_failure(rnp_add_security_rule(
+      ffi, RNP_FEATURE_SYMM_ALG, "MD5", RNP_SECURITY_OVERRIDE, 0, RNP_SECURITY_DEFAULT));
+    assert_rnp_failure(
+      rnp_add_security_rule(ffi, NULL, "MD5", RNP_SECURITY_OVERRIDE, 0, RNP_SECURITY_DEFAULT));
+    assert_rnp_failure(rnp_add_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, NULL, RNP_SECURITY_OVERRIDE, 0, RNP_SECURITY_DEFAULT));
+    assert_rnp_failure(rnp_add_security_rule(ffi,
+                                             RNP_FEATURE_HASH_ALG,
+                                             "MD5",
+                                             RNP_SECURITY_OVERRIDE | 0x17,
+                                             0,
+                                             RNP_SECURITY_DEFAULT));
+    assert_rnp_failure(
+      rnp_add_security_rule(ffi, RNP_FEATURE_HASH_ALG, "MD5", RNP_SECURITY_OVERRIDE, 0, 25));
+    assert_rnp_success(rnp_add_security_rule(ffi,
+                                             RNP_FEATURE_HASH_ALG,
+                                             "MD5",
+                                             RNP_SECURITY_OVERRIDE,
+                                             MD5_FROM - 1,
+                                             RNP_SECURITY_DEFAULT));
+    assert_rnp_success(rnp_get_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "MD5", time(NULL), &flags, &from, &level));
+    assert_int_equal(from, MD5_FROM - 1);
+    assert_int_equal(flags, RNP_SECURITY_OVERRIDE);
+    assert_int_equal(level, RNP_SECURITY_DEFAULT);
+    /* Remove and check back */
+    size_t removed = 0;
+    assert_rnp_failure(rnp_remove_security_rule(NULL,
+                                                RNP_FEATURE_HASH_ALG,
+                                                "MD5",
+                                                RNP_SECURITY_DEFAULT,
+                                                RNP_SECURITY_OVERRIDE,
+                                                MD5_FROM - 1,
+                                                &removed));
+    assert_rnp_failure(rnp_remove_security_rule(ffi,
+                                                RNP_FEATURE_SYMM_ALG,
+                                                "MD5",
+                                                RNP_SECURITY_DEFAULT,
+                                                RNP_SECURITY_OVERRIDE,
+                                                MD5_FROM - 1,
+                                                &removed));
+    assert_rnp_success(rnp_remove_security_rule(ffi,
+                                                RNP_FEATURE_HASH_ALG,
+                                                "SHA256",
+                                                RNP_SECURITY_DEFAULT,
+                                                RNP_SECURITY_OVERRIDE,
+                                                MD5_FROM - 1,
+                                                &removed));
+    assert_int_equal(removed, 0);
+    removed = 1;
+    assert_rnp_success(rnp_remove_security_rule(ffi,
+                                                RNP_FEATURE_HASH_ALG,
+                                                "MD5",
+                                                RNP_SECURITY_INSECURE,
+                                                RNP_SECURITY_OVERRIDE,
+                                                MD5_FROM - 1,
+                                                &removed));
+    assert_int_equal(removed, 0);
+    removed = 1;
+    assert_rnp_success(rnp_remove_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "MD5", RNP_SECURITY_DEFAULT, 0, MD5_FROM - 1, &removed));
+    assert_int_equal(removed, 0);
+    removed = 1;
+    assert_rnp_success(rnp_remove_security_rule(ffi,
+                                                RNP_FEATURE_HASH_ALG,
+                                                "MD5",
+                                                RNP_SECURITY_DEFAULT,
+                                                RNP_SECURITY_OVERRIDE,
+                                                MD5_FROM,
+                                                &removed));
+    assert_int_equal(removed, 0);
+    assert_rnp_success(rnp_remove_security_rule(ffi,
+                                                RNP_FEATURE_HASH_ALG,
+                                                "MD5",
+                                                RNP_SECURITY_DEFAULT,
+                                                RNP_SECURITY_OVERRIDE,
+                                                MD5_FROM - 1,
+                                                &removed));
+    assert_int_equal(removed, 1);
+    assert_rnp_success(rnp_get_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "MD5", time(NULL), &flags, &from, &level));
+    assert_int_equal(from, 1325376000);
+    assert_int_equal(level, RNP_SECURITY_INSECURE);
+    assert_int_equal(flags, 0);
+    /* Remove all */
+    removed = 0;
+    assert_rnp_failure(rnp_remove_security_rule(ffi, NULL, NULL, 0, 0x17, 0, &removed));
+    assert_rnp_success(rnp_remove_security_rule(ffi, NULL, NULL, 0, 0, 0, &removed));
+    assert_int_equal(removed, 2);
+    rnp_ffi_destroy(ffi);
+    rnp_ffi_create(&ffi, "GPG", "GPG");
+    /* Remove all rules for hash */
+    assert_rnp_failure(
+      rnp_remove_security_rule(ffi, RNP_FEATURE_SYMM_ALG, NULL, 0, 0, 0, &removed));
+    removed = 0;
+    assert_rnp_success(
+      rnp_remove_security_rule(ffi, RNP_FEATURE_HASH_ALG, NULL, 0, 0, 0, &removed));
+    assert_int_equal(removed, 2);
+    rnp_ffi_destroy(ffi);
+    rnp_ffi_create(&ffi, "GPG", "GPG");
+    /* Remove all rules for specific hash */
+    assert_rnp_success(rnp_remove_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "MD5", 0, RNP_SECURITY_REMOVE_ALL, 0, &removed));
+    assert_int_equal(removed, 1);
+    assert_rnp_success(rnp_remove_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "SHA1", 0, RNP_SECURITY_REMOVE_ALL, 0, &removed));
+    assert_int_equal(removed, 1);
+    rnp_ffi_destroy(ffi);
+    rnp_ffi_create(&ffi, "GPG", "GPG");
+    /* SHA1 */
+    from = 256;
+    assert_rnp_success(
+      rnp_get_security_rule(ffi, RNP_FEATURE_HASH_ALG, "SHA1", 0, &flags, &from, &level));
+    assert_int_equal(from, 0);
+    assert_int_equal(level, RNP_SECURITY_DEFAULT);
+    assert_rnp_success(rnp_get_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "SHA1", time(NULL), &flags, &from, &level));
+    assert_int_equal(from, SHA1_FROM);
+    assert_int_equal(level, RNP_SECURITY_INSECURE);
+    assert_rnp_success(rnp_get_security_rule(
+      ffi, RNP_FEATURE_HASH_ALG, "SHA1", SHA1_FROM - 1, &flags, &from, &level));
+    assert_int_equal(from, 0);
+    assert_int_equal(level, RNP_SECURITY_DEFAULT);
 
     rnp_ffi_destroy(ffi);
 }
