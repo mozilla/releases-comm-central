@@ -808,11 +808,10 @@ class nsContextMenu {
    */
   isLinkSaveable() {
     try {
-      const nsIScriptSecurityManager = Ci.nsIScriptSecurityManager;
       Services.scriptSecurityManager.checkLoadURIWithPrincipal(
         this.target.nodePrincipal,
         this.linkURI,
-        nsIScriptSecurityManager.STANDARD
+        Ci.nsIScriptSecurityManager.STANDARD
       );
     } catch (e) {
       // Don't save things we can't link to.
