@@ -1,12 +1,12 @@
 diff --git a/third_party/rnp/src/lib/crypto/signatures.cpp b/third_party/rnp/src/lib/crypto/signatures.cpp
 --- a/third_party/rnp/src/lib/crypto/signatures.cpp
 +++ b/third_party/rnp/src/lib/crypto/signatures.cpp
-@@ -188,29 +188,89 @@ signature_calculate(pgp_signature_t *   
-         sig->write_material(material);
-         return RNP_SUCCESS;
+@@ -178,22 +178,83 @@ signature_calculate(pgp_signature_t &   
+     try {
+         sig.write_material(material);
      } catch (const std::exception &e) {
          RNP_LOG("%s", e.what());
-         return RNP_ERROR_GENERIC;
+         throw;
      }
  }
  
@@ -64,30 +64,24 @@ diff --git a/third_party/rnp/src/lib/crypto/signatures.cpp b/third_party/rnp/src
 +}
 +
  rnp_result_t
- signature_validate(const pgp_signature_t *sig, const pgp_key_material_t *key, pgp_hash_t *hash)
+ signature_validate(const pgp_signature_t &     sig,
+                    const pgp_key_material_t &  key,
+                    rnp::Hash &                 hash,
+                    const rnp::SecurityContext &ctx)
  {
-     uint8_t      hval[PGP_MAX_HASH_SIZE];
-     size_t       hlen = 0;
-     rnp_result_t ret = RNP_ERROR_GENERIC;
- 
-     const pgp_hash_alg_t hash_alg = pgp_hash_alg_type(hash);
-+    if (!is_hash_alg_allowed_in_sig(hash_alg)) {
-+        return RNP_ERROR_SIGNATURE_INVALID;
-+    }
- 
-     if (!key) {
-         return RNP_ERROR_NULL_POINTER;
-     }
- 
-+    if (!is_pubkey_alg_allowed_in_sig(sig->palg)) {
++    if (!is_hash_alg_allowed_in_sig(hash.alg())) {
 +        return RNP_ERROR_SIGNATURE_INVALID;
 +    }
 +
-     if (sig->palg != key->alg) {
++    if (!is_pubkey_alg_allowed_in_sig(sig.palg)) {
++        return RNP_ERROR_SIGNATURE_INVALID;
++    }
++
+     if (sig.palg != key.alg) {
          RNP_LOG("Signature and key do not agree on algorithm type: %d vs %d",
-                 (int) sig->palg,
-                 (int) key->alg);
+                 (int) sig.palg,
+                 (int) key.alg);
          return RNP_ERROR_BAD_PARAMETERS;
      }
  
-     /* Finalize hash */
+     /* Check signature security */
