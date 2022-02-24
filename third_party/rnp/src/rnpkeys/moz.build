@@ -27,7 +27,6 @@ else:
 
 SOURCES += [
     "../common/file-utils.cpp",
-    "../common/list.cpp",
     "../common/str-utils.cpp",
     "../common/time-utils.cpp",
     "../lib/logging.cpp",
