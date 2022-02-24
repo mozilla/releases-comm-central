@@ -884,7 +884,7 @@ extern "C" void mime_display_stream_complete(nsMIMESession* stream) {
       if (NS_SUCCEEDED(rv)) {
         NotifyEmittersOfAttachmentList(msd->options, attachments);
       }
-      delete [] attachments;
+      delete[] attachments;
     }
 
     // Release the conversion object - this has to be done after
