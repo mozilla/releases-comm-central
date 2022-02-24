@@ -301,9 +301,12 @@
 
 .multiday-timebar-time {
   color: var(--viewTimeBoxColor);
-  text-align: end;
   padding: 1px 5px;
   white-space: nowrap;
+}
+
+.multiday-grid:not(.multiday-grid-rotated) .multiday-timebar-time {
+  text-align: end;
 }
 
 .day-column-container {
