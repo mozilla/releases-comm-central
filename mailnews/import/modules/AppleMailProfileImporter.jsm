@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["BeckyProfileImporter"];
+const EXPORTED_SYMBOLS = ["AppleMailProfileImporter"];
 
 var { BaseProfileImporter } = ChromeUtils.import(
   "resource:///modules/BaseProfileImporter.jsm"
@@ -10,20 +10,22 @@ var { BaseProfileImporter } = ChromeUtils.import(
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 /**
- * A module to import things from an becky profile dir into the current
+ * A module to import things from an apple mail profile dir into the current
  * profile.
  */
-class BeckyProfileImporter extends BaseProfileImporter {
+class AppleMailProfileImporter extends BaseProfileImporter {
+  USE_FILE_PICKER = true;
+
   SUPPORTED_ITEMS = {
     accounts: false,
-    addressBooks: true,
+    addressBooks: false,
     calendars: false,
     mailMessages: true,
   };
 
   async getSourceProfiles() {
     this._importModule = Cc[
-      "@mozilla.org/import/import-becky;1"
+      "@mozilla.org/import/import-applemail;1"
     ].createInstance(Ci.nsIImportModule);
     this._importMailGeneric = this._importModule
       .GetImportInterface("mail")
@@ -80,41 +82,6 @@ class BeckyProfileImporter extends BaseProfileImporter {
       }
       if (errorStr.data) {
         this._logger.error("Failed to import mail messages:", errorStr.data);
-        throw new Error(errorStr.data);
-      }
-      await this._updateProgress();
-    }
-
-    if (items.addressBooks) {
-      successStr.data = "";
-      errorStr.data = "";
-
-      let importABGeneric = this._importModule
-        .GetImportInterface("addressbook")
-        .QueryInterface(Ci.nsIImportGeneric);
-      importABGeneric.SetData("addressLocation", sourceProfileDir);
-
-      // @see nsIImportGeneric.
-      let wantsProgress = importABGeneric.WantsProgress();
-      importABGeneric.BeginImport(successStr, errorStr);
-      if (wantsProgress) {
-        while (importABGeneric.GetProgress() < 100) {
-          this._logger.debug(
-            "Import address books progress:",
-            importABGeneric.GetProgress()
-          );
-          await new Promise(resolve => setTimeout(resolve, 50));
-          importABGeneric.ContinueImport();
-        }
-      }
-      if (successStr.data) {
-        this._logger.debug(
-          "Finished importing address books:",
-          successStr.data
-        );
-      }
-      if (errorStr.data) {
-        this._logger.error("Failed to import address books:", errorStr.data);
         throw new Error(errorStr.data);
       }
       await this._updateProgress();

@@ -14,3 +14,7 @@ if CONFIG["OS_ARCH"] == "WINNT":
         "BeckyProfileImporter.jsm",
         "OutlookProfileImporter.jsm",
     ]
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+    EXTRA_JS_MODULES += [
+        "AppleMailProfileImporter.jsm",
+    ]

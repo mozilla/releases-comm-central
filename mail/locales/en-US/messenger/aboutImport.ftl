@@ -32,6 +32,8 @@ app-name-outlook = Outlook
 
 app-name-becky = Becky! Internet Mail
 
+app-name-apple-mail = Apple Mail
+
 # Variables:
 #   $app (String) - The name of the app to import from
 profiles-pane-title = Import from { $app }

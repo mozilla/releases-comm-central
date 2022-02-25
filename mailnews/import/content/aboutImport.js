@@ -61,6 +61,7 @@ class ProfileImporterController extends ImporterController {
     Seamonkey: "SeamonkeyProfileImporter",
     Outlook: "OutlookProfileImporter",
     Becky: "BeckyProfileImporter",
+    AppleMail: "AppleMailProfileImporter",
   };
 
   /**
