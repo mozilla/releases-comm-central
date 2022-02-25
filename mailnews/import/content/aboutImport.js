@@ -60,6 +60,7 @@ class ProfileImporterController extends ImporterController {
     Thunderbird: "ThunderbirdProfileImporter",
     Seamonkey: "SeamonkeyProfileImporter",
     Outlook: "OutlookProfileImporter",
+    Becky: "BeckyProfileImporter",
   };
 
   /**
@@ -112,10 +113,11 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the sources pane.
    */
   async _onSelectSource() {
-    this._sourceAppName = [
+    let checkedInput = [
       ...document.querySelectorAll("input[name=appSource]"),
-    ].find(el => el.checked)?.value;
-    let sourceModule = this._sourceModules[this._sourceAppName];
+    ].find(el => el.checked);
+    this._sourceAppName = checkedInput.parentElement.innerText;
+    let sourceModule = this._sourceModules[checkedInput.value];
     if (!sourceModule) {
       return;
     }

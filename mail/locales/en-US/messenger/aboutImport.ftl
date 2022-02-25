@@ -24,6 +24,14 @@ button-continue = Continue
 
 ## Import from app steps
 
+app-name-thunderbird = Thunderbird
+
+app-name-seamonkey = SeaMonkey
+
+app-name-outlook = Outlook
+
+app-name-becky = Becky! Internet Mail
+
 # Variables:
 #   $app (String) - The name of the app to import from
 profiles-pane-title = Import from { $app }
