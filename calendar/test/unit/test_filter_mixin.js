@@ -11,10 +11,10 @@ const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 const { CalRecurrenceInfo } = ChromeUtils.import("resource:///modules/CalRecurrenceInfo.jsm");
 const { CalTodo } = ChromeUtils.import("resource:///modules/CalTodo.jsm");
 
-/* globals CalFilterMixin */
+/* globals CalendarFilteredViewMixin, CalReadableStreamFactory */
 Services.scriptloader.loadSubScript("chrome://calendar/content/widgets/calendar-filter.js");
 
-class TestCalFilter extends CalFilterMixin(class {}) {
+class TestCalFilter extends CalendarFilteredViewMixin(class {}) {
   addedItems = [];
   removedItems = [];
   removedCalendarIds = [];
@@ -119,7 +119,7 @@ add_task(async function testAddItems() {
 add_task(async function testRefresh() {
   testWidget.startDate = cal.createDateTime("20210801");
   testWidget.endDate = cal.createDateTime("20210831");
-  await testWidget.refresh();
+  await testWidget.refreshItems();
 
   Assert.equal(testWidget.addedItems.length, 7, "getItems returns expected number of items");
   Assert.equal(testWidget.addedItems[0].title, "during", "correct item returned");
@@ -138,7 +138,7 @@ add_task(async function testRefresh() {
 
   testWidget.startDate = cal.createDateTime("20210825");
   testWidget.endDate = cal.createDateTime("20210905");
-  await testWidget.refresh();
+  await testWidget.refreshItems();
 
   Assert.equal(testWidget.addedItems.length, 4, "getItems returns expected number of items");
   Assert.equal(testWidget.addedItems[0].title, "overlaps_end", "correct item returned");
@@ -666,7 +666,7 @@ add_task(async function testDisableEnableCalendar() {
   addedTestItems.during = await calendar.addItem(testItems.during);
 
   testWidget.clearItems();
-  await testWidget.refresh();
+  await testWidget.refreshItems();
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.removedItems.length, 0);
@@ -760,4 +760,174 @@ add_task(async function testChangesWhileHidden() {
   Assert.equal(testWidget.removedItems.length, 0);
 
   calendar.setProperty("calendar-main-in-composite", true);
+});
+
+add_task(async function testChangeWhileRefreshing() {
+  CalendarTestUtils.removeCalendar(calendar);
+
+  // Create a calendar we can control the output of.
+
+  let pumpCalendar = {
+    type: "pump",
+    uri: Services.io.newURI("pump:test-calendar"),
+    getProperty(name) {
+      switch (name) {
+        case "disabled":
+          return false;
+        case "calendar-main-in-composite":
+          return true;
+      }
+      return null;
+    },
+    addObserver() {},
+
+    getItems(filter, count, rangeStart, rangeEndEx) {
+      return CalReadableStreamFactory.createReadableStream({
+        async start(controller) {
+          pumpCalendar.controller = controller;
+        },
+      });
+    },
+  };
+  cal.getCalendarManager().registerCalendar(pumpCalendar);
+
+  // Create a new widget and a Promise waiting for it to be ready.
+
+  let widget = new TestCalFilter();
+  widget.id = "test-filter";
+
+  let ready1 = widget.ready;
+  let ready1Resolved, ready1Rejected;
+  ready1.then(
+    arg => {
+      ready1Resolved = true;
+    },
+    arg => {
+      ready1Rejected = true;
+    }
+  );
+
+  // Ask the calendars for items. Get a waiting Promise before and after doing so.
+  // These should be the same as the earlier Promise.
+
+  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  Assert.equal(widget.refreshItems(), ready1, ".refreshItems should return the same Promise");
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+
+  // Return some items from the calendar. They should be sent to addItems.
+
+  pumpCalendar.controller.enqueue([testItems.during]);
+  await TestUtils.waitForCondition(() => widget.addedItems.length == 1, "first added item");
+  Assert.equal(widget.addedItems[0].title, testItems.during.title, "added item was expected");
+
+  // Change the item type again. This invalidates the earlier call to `refreshItems`.
+
+  widget.itemType = 0;
+
+  // Return some more items from the calendar. These should be ignored.
+
+  // Even though the data is now invalid the original Promise should not have been replaced with a
+  // new one.
+
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+
+  pumpCalendar.controller.enqueue([testItems.after]);
+  pumpCalendar.controller.close();
+
+  // We're testing that nothing happens. Give it time to potentially happen.
+  await new Promise(resolve => do_timeout(500, resolve));
+
+  Assert.equal(widget.addedItems.length, 1, "no more items added");
+  Assert.equal(widget.addedItems[0].title, testItems.during.title, "added item was expected");
+  Assert.equal(ready1Resolved, undefined, "Promise did not yet resolve");
+  Assert.equal(ready1Rejected, undefined, "Promise did not yet reject");
+
+  // Reset the item type so we can test some other things.
+
+  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  widget.clearItems();
+
+  // Start a refresh...
+
+  Assert.equal(widget.refreshItems(), ready1, ".refreshItems should return the same Promise");
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+
+  pumpCalendar.controller.enqueue([testItems.during]);
+  await TestUtils.waitForCondition(() => widget.addedItems.length == 1, "first added item");
+  Assert.equal(widget.addedItems[0].title, testItems.during.title, "added item was expected");
+
+  // ... then before it finishes, force another refresh. We're still waiting for the original
+  // Promise because no refresh has completed yet.
+  // Return a different item, just to be sure we got the one we expected.
+
+  Assert.equal(widget.refreshItems(true), ready1, ".refreshItems should return the same Promise");
+  Assert.equal(widget.addedItems.length, 0, "items were cleared");
+
+  pumpCalendar.controller.enqueue([testItems.before]);
+  pumpCalendar.controller.close();
+
+  // Finally we have a completed refresh. The Promise should resolve now.
+
+  await ready1;
+  await TestUtils.waitForCondition(() => widget.addedItems.length == 1, "first added item");
+  Assert.equal(widget.addedItems[0].title, testItems.before.title, "added item was expected");
+
+  // The Promise should not be replaced until the dates or item type change, or we force a refresh.
+
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  Assert.equal(widget.refreshItems(), ready1, ".refreshItems should return the same Promise");
+
+  // Force refresh again. There should be a new ready Promise, since the old one was resolved and
+  // we forced a refresh.
+
+  let ready2 = widget.refreshItems(true);
+  Assert.notEqual(ready2, ready1, ".refreshItems should return a new Promise");
+  Assert.equal(widget.addedItems.length, 0, "items were cleared");
+
+  pumpCalendar.controller.enqueue([testItems.after]);
+  pumpCalendar.controller.close();
+
+  await ready2;
+  await TestUtils.waitForCondition(() => widget.addedItems.length == 1, "first added item");
+  Assert.equal(widget.addedItems[0].title, testItems.after.title, "added item was expected");
+
+  // Change the item type. There should be a new ready Promise, since the old one was resolved and
+  // the item type changed.
+
+  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
+  let ready3 = widget.ready;
+  Assert.notEqual(ready3, ready2, ".ready should return a new Promise");
+  Assert.equal(widget.refreshItems(), ready3, ".refreshItems should return the same Promise");
+  Assert.equal(widget.addedItems.length, 0, "items were cleared");
+
+  pumpCalendar.controller.enqueue([testItems.during]);
+  pumpCalendar.controller.close();
+
+  await ready3;
+  await TestUtils.waitForCondition(() => widget.addedItems.length == 1, "first added item");
+  Assert.equal(widget.addedItems[0].title, testItems.during.title, "added item was expected");
+
+  // Change the start date. There should be a new ready Promise, since the old one was resolved and
+  // the start date changed.
+
+  widget.startDate = cal.createDateTime("20220317");
+  let ready4 = widget.ready;
+  Assert.notEqual(ready4, ready3, ".ready should return a new Promise");
+  Assert.equal(widget.refreshItems(), ready4, ".refreshItems should return the same Promise");
+
+  pumpCalendar.controller.close();
+  await ready4;
+
+  // Change the end date. There should be a new ready Promise, since the old one was resolved and
+  // the end date changed.
+
+  widget.endDate = cal.createDateTime("20220318");
+  let ready5 = widget.ready;
+  Assert.notEqual(ready5, ready4, ".ready should return a new Promise");
+  Assert.equal(widget.refreshItems(), ready5, ".refreshItems should return the same Promise");
+
+  pumpCalendar.controller.close();
+  await ready5;
 });

@@ -14,7 +14,7 @@
   const { CalMetronome } = ChromeUtils.import("resource:///modules/CalMetronome.jsm");
   const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-  class Agenda extends CalFilterMixin(customElements.get("tree-listbox")) {
+  class Agenda extends CalendarFilteredViewMixin(customElements.get("tree-listbox")) {
     _showsToday = false;
 
     constructor() {
@@ -81,7 +81,7 @@
     }
 
     /**
-     * Implementation as required by CalFilterMixin.
+     * Implementation as required by CalendarFilteredViewMixin.
      */
     clearItems() {
       while (this.lastChild) {
@@ -90,7 +90,7 @@
     }
 
     /**
-     * Implementation as required by CalFilterMixin.
+     * Implementation as required by CalendarFilteredViewMixin.
      *
      * @param {calIItemBase[]} items
      */
@@ -113,7 +113,7 @@
     }
 
     /**
-     * Implementation as required by CalFilterMixin.
+     * Implementation as required by CalendarFilteredViewMixin.
      *
      * @param {calIItemBase[]} items
      */
@@ -131,7 +131,7 @@
     }
 
     /**
-     * Implementation as required by CalFilterMixin.
+     * Implementation as required by CalendarFilteredViewMixin.
      *
      * @param {string} calendarId
      */
@@ -168,7 +168,7 @@
       }
 
       this.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
-      await this.refresh();
+      await this.refreshItems();
       this.selectedIndex = 0;
     }
 

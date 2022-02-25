@@ -986,35 +986,86 @@ calFilter.prototype = {
  * and removeItemsFromCalendar to receive this information.
  *
  * To update the display (e.g. if the user wants to display a different month),
- * just set the new date values and call refresh().
+ * just set the new date values and call refreshItems().
  *
  * This mixin handles disabled and/or hidden calendars, so you don't have to.
+ *
+ * @note Instances must have an `id` for logging purposes.
  */
-let CalFilterMixin = Base =>
+let CalendarFilteredViewMixin = Base =>
   class extends Base {
     /**
-     * @type calFilter
+     * The filter responsible for collecting items when this view is refreshed,
+     * and checking new items as they appear.
+     *
+     * @type {calFilter}
      */
-    _filter = null;
+    #filter = null;
+
+    /**
+     * An object representing the most recent refresh job.
+     * This is used to check if a job that completes is still the most recent.
+     *
+     * @type {?Object}
+     */
+    #currentRefresh = null;
+
+    /**
+     * The current PromiseUtils.jsm `Deferred` object (containing a Promise
+     * and methods to resolve/reject it).
+     *
+     * @type {Object}
+     */
+    #deferred = PromiseUtils.defer();
+
+    /**
+     * Any async iterator currently reading from a calendar.
+     *
+     * @type {Set<CalReadableStreamIterator>}
+     */
+    #iterators = new Set();
 
     constructor(...args) {
       super(...args);
 
-      this._filter = new calFilter();
-      this._filter.itemType = 0;
+      this.#filter = new calFilter();
+      this.#filter.itemType = 0;
+    }
+
+    /**
+     * A Promise that resolves when the next refreshing of items is complete,
+     * or instantly if refreshing is already complete and still valid.
+     *
+     * Changes to the startDate, endDate, or itemType properties, or a call to
+     * refreshItems with the force argument, will delay this Promise until the
+     * refresh settles for the new values.
+     *
+     * @type {Promise}
+     */
+    get ready() {
+      return this.#deferred.promise;
     }
 
     /**
      * The start of the filter range. Can be either a date or a datetime.
      *
-     * @type calIDateTime
+     * @type {calIDateTime}
      */
     get startDate() {
-      return this._filter.startDate;
+      return this.#filter.startDate;
     }
 
     set startDate(value) {
-      this._filter.startDate = value;
+      if (
+        this.startDate?.compare(value) == 0 &&
+        this.startDate.timezone.tzid == value.timezone.tzid
+      ) {
+        return;
+      }
+
+      this.#filter.startDate = value.clone();
+      this.#filter.startDate.makeImmutable();
+      this.#invalidate();
     }
 
     /**
@@ -1022,14 +1073,20 @@ let CalFilterMixin = Base =>
      * If it is a date, the filter won't include items on that date, so use the
      * day after the last day to be displayed.
      *
-     * @type calIDateTime
+     * @type {calIDateTime}
      */
     get endDate() {
-      return this._filter.endDate;
+      return this.#filter.endDate;
     }
 
     set endDate(value) {
-      this._filter.endDate = value;
+      if (this.endDate?.compare(value) == 0 && this.endDate.timezone.tzid == value.timezone.tzid) {
+        return;
+      }
+
+      this.#filter.endDate = value.clone();
+      this.#filter.endDate.makeImmutable();
+      this.#invalidate();
     }
 
     /**
@@ -1038,35 +1095,82 @@ let CalFilterMixin = Base =>
      * Set this to a value to begin notification of item changes in calendars.
      * Set it to 0 to stop notifications.
      *
-     * @type number
+     * @type {number}
      */
     get itemType() {
-      return this._filter.itemType;
+      return this.#filter.itemType;
     }
 
     set itemType(value) {
-      this._filter.itemType = value;
-      this._calendarObserver.self = this;
-      if (value) {
-        cal.getCalendarManager().addCalendarObserver(this._calendarObserver);
-      } else {
-        cal.getCalendarManager().removeCalendarObserver(this._calendarObserver);
+      if (this.itemType == value) {
+        return;
       }
+
+      this.#filter.itemType = value;
+      this.#calendarObserver.self = this;
+      if (value) {
+        cal.getCalendarManager().addCalendarObserver(this.#calendarObserver);
+      } else {
+        cal.getCalendarManager().removeCalendarObserver(this.#calendarObserver);
+      }
+
+      this.#invalidate();
     }
 
     /**
      * Clears the display and adds items that match the filter from all enabled
      * and visible calendars.
      *
-     * @return {Promise} A promise resolved when all calendars have refreshed.
+     * @param {boolean} force - Start refreshing again, even if a refresh is already in progress.
+     * @return {Promise} A Promise resolved when all calendars have refreshed. This is the same
+     *   Promise as returned from the `ready` getter.
      */
-    async refresh() {
+    refreshItems(force = false) {
+      if (force) {
+        // Refresh, even if already refreshing or refreshed.
+        this.#invalidate();
+      } else if (this.#currentRefresh) {
+        // We already have an ongoing refresh job, or one that has already completed.
+        return this.#deferred.promise;
+      }
+
+      // Create a new refresh job.
+      let refresh = (this.#currentRefresh = { completed: false });
+
+      // Collect items from all of the calendars.
       this.clearItems();
       let promises = [];
       for (let calendar of cal.getCalendarManager().getCalendars()) {
-        promises.push(this._refreshCalendar(calendar));
+        promises.push(this.#refreshCalendar(calendar));
       }
-      return Promise.all(promises);
+
+      Promise.all(promises).then(() => {
+        refresh.completed = true;
+        // Resolve the Promise if the current job is still the most recent one.
+        // In other words, if nothing has called `#invalidate` since `currentRefresh` was created.
+        if (this.#currentRefresh == refresh) {
+          this.#deferred.resolve();
+        }
+      });
+
+      return this.#deferred.promise;
+    }
+
+    /**
+     * Cancels any refresh in progress.
+     */
+    #invalidate() {
+      for (let iterator of this.#iterators) {
+        iterator.cancel();
+      }
+      this.#iterators.clear();
+      if (this.#currentRefresh?.completed) {
+        // If a previous refresh completed, start a new Promise that resolves when the next refresh
+        // completes. Otherwise, continue with the current Promise.
+        // If #currentRefresh is completed, #deferred is already resolved, so we can safely discard it.
+        this.#deferred = PromiseUtils.defer();
+      }
+      this.#currentRefresh = null;
     }
 
     /**
@@ -1075,7 +1179,7 @@ let CalFilterMixin = Base =>
      * @param {calICalendar} calendar
      * @return {boolean} True if both enabled and visible.
      */
-    _isCalendarVisible(calendar) {
+    #isCalendarVisible(calendar) {
       if (!calendar) {
         // If this happens then something's wrong, but it's not our problem so just ignore it.
         return false;
@@ -1093,13 +1197,16 @@ let CalFilterMixin = Base =>
      * @param {calICalendar} calendar
      * @return {Promise} A promise resolved when this calendar has refreshed.
      */
-    async _refreshCalendar(calendar) {
-      if (!this._isCalendarVisible(calendar)) {
+    async #refreshCalendar(calendar) {
+      if (!this.itemType || !this.#isCalendarVisible(calendar)) {
         return;
       }
-      for await (let chunk of cal.iterate.streamValues(this._filter.getItems(calendar))) {
+      let iterator = cal.iterate.streamValues(this.#filter.getItems(calendar));
+      this.#iterators.add(iterator);
+      for await (let chunk of iterator) {
         this.addItems(chunk);
       }
+      this.#iterators.delete(iterator);
     }
 
     /**
@@ -1129,8 +1236,10 @@ let CalFilterMixin = Base =>
      */
     removeItemsFromCalendar(calendarId) {}
 
-    // calIObserver
-    _calendarObserver = {
+    /**
+     * @implements {calIObserver}
+     */
+    #calendarObserver = {
       QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
       onStartBatch(calendar) {},
@@ -1141,21 +1250,21 @@ let CalFilterMixin = Base =>
           // sync'ing, so just throw them all out and reload. This should get
           // fixed somehow, and this hack removed.
           this.self.removeItemsFromCalendar(calendar.id);
-          this.self._refreshCalendar(calendar);
+          this.self.#refreshCalendar(calendar);
         }
       },
       onAddItem(item) {
-        if (!this.self._isCalendarVisible(item.calendar)) {
+        if (!this.self.#isCalendarVisible(item.calendar)) {
           return;
         }
 
-        let occurrences = this.self._filter.getOccurrences(item);
+        let occurrences = this.self.#filter.getOccurrences(item);
         if (occurrences.length) {
           this.self.addItems(occurrences);
         }
       },
       onModifyItem(newItem, oldItem) {
-        if (!this.self._isCalendarVisible(newItem.calendar)) {
+        if (!this.self.#isCalendarVisible(newItem.calendar)) {
           return;
         }
 
@@ -1164,22 +1273,22 @@ let CalFilterMixin = Base =>
         // unreliable in some situations, so instead we remove and replace
         // the occurrences.
 
-        let oldOccurrences = this.self._filter.getOccurrences(oldItem);
+        let oldOccurrences = this.self.#filter.getOccurrences(oldItem);
         if (oldOccurrences.length) {
           this.self.removeItems(oldOccurrences);
         }
 
-        let newOccurrences = this.self._filter.getOccurrences(newItem);
+        let newOccurrences = this.self.#filter.getOccurrences(newItem);
         if (newOccurrences.length) {
           this.self.addItems(newOccurrences);
         }
       },
       onDeleteItem(deletedItem) {
-        if (!this.self._isCalendarVisible(deletedItem.calendar)) {
+        if (!this.self.#isCalendarVisible(deletedItem.calendar)) {
           return;
         }
 
-        this.self.removeItems(this.self._filter.getOccurrences(deletedItem));
+        this.self.removeItems(this.self.#filter.getOccurrences(deletedItem));
       },
       onError(calendar, errNo, message) {},
       onPropertyChanged(calendar, name, newValue, oldValue) {
@@ -1195,7 +1304,7 @@ let CalFilterMixin = Base =>
           return;
         }
 
-        this.self._refreshCalendar(calendar);
+        this.self.#refreshCalendar(calendar);
       },
       onPropertyDeleting(calendar, name) {},
     };
