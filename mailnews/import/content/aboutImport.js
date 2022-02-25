@@ -2,8 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  Services: "resource://gre/modules/Services.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+  AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.jsm",
+});
 
 /**
  * An object to represent a source profile to import from.
@@ -42,6 +50,21 @@ class ImporterController {
       pane.hidden = pane.id != id;
     }
   }
+
+  /**
+   * Show the previous pane.
+   */
+  back() {}
+
+  /**
+   * Show the next pane.
+   */
+  next() {}
+
+  /**
+   * Show the first pane.
+   */
+  reset() {}
 }
 
 /**
@@ -54,7 +77,7 @@ class ProfileImporterController extends ImporterController {
   }
 
   /**
-   * A map from button id to the importer module name.
+   * A map from radio input value to the importer module name.
    */
   _sourceModules = {
     Thunderbird: "ThunderbirdProfileImporter",
@@ -64,9 +87,6 @@ class ProfileImporterController extends ImporterController {
     AppleMail: "AppleMailProfileImporter",
   };
 
-  /**
-   * Show the previous pane.
-   */
   back() {
     switch (this._currentPane) {
       case "sources":
@@ -83,9 +103,6 @@ class ProfileImporterController extends ImporterController {
     }
   }
 
-  /**
-   * Show the next pane.
-   */
   next() {
     switch (this._currentPane) {
       case "sources":
@@ -98,6 +115,10 @@ class ProfileImporterController extends ImporterController {
         this._onSelectItems();
         break;
     }
+  }
+
+  reset() {
+    this._showSources();
   }
 
   /**
@@ -119,9 +140,6 @@ class ProfileImporterController extends ImporterController {
     ].find(el => el.checked);
     this._sourceAppName = checkedInput.parentElement.innerText;
     let sourceModule = this._sourceModules[checkedInput.value];
-    if (!sourceModule) {
-      return;
-    }
 
     let module = ChromeUtils.import(`resource:///modules/${sourceModule}.jsm`);
     this._importer = new module[sourceModule]();
@@ -350,7 +368,7 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the items pane.
    */
   async _onSelectItems() {
-    importDialog.showProgress();
+    importDialog.showProgress(this, true);
     if (this._importingFromZip) {
       this._extractedFileCount = 0;
       try {
@@ -383,6 +401,171 @@ class ProfileImporterController extends ImporterController {
       if (this._importingFromZip) {
         IOUtils.remove(this._sourceProfile.dir.path, { recursive: true });
       }
+    }
+  }
+}
+
+/**
+ * Control the #tabPane-addressBook element, to support importing from an
+ * address book file.
+ */
+class AddrBookImporterController extends ImporterController {
+  constructor() {
+    super("tabPane-addressBook", "addr-book");
+    this._showSources();
+  }
+
+  back() {
+    switch (this._currentPane) {
+      case "sources":
+        window.close();
+        break;
+      case "directories":
+        this._showSources();
+        break;
+    }
+  }
+
+  /**
+   * Show the next pane.
+   */
+  next() {
+    switch (this._currentPane) {
+      case "sources":
+        this._onSelectSource();
+        break;
+      case "directories":
+        this._onSelectDirectory();
+        break;
+    }
+  }
+
+  reset() {
+    this._showSources();
+  }
+
+  /**
+   * Show the sources pane.
+   */
+  async _showSources() {
+    this.showPane("sources");
+    document.getElementById(
+      "addrBookBackButton"
+    ).textContent = await document.l10n.formatValue("button-cancel");
+  }
+
+  /**
+   * Handler for the Continue button on the sources pane.
+   */
+  async _onSelectSource() {
+    let fileType = [
+      ...document.querySelectorAll("input[name=addrBookSource]"),
+    ].find(el => el.checked).value;
+    this._importer = new AddrBookFileImporter(fileType);
+
+    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+      Ci.nsIFilePicker
+    );
+    let [filePickerTitle, backButtonText] = await document.l10n.formatValues([
+      "addr-book-file-picker",
+      "button-back",
+    ]);
+    filePicker.init(window, filePickerTitle, filePicker.modeOpen);
+    let filter = {
+      csv: "*.csv; *.tsv; *.tab",
+      ldif: "*.ldif",
+      vcard: "*.vcf",
+      mab: "*.mab",
+    }[fileType];
+    if (filter) {
+      filePicker.appendFilter("", filter);
+    }
+    filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
+    let rv = await new Promise(resolve => filePicker.open(resolve));
+    if (rv != Ci.nsIFilePicker.returnOK) {
+      return;
+    }
+
+    this._showDirectories(filePicker.file);
+
+    document.getElementById("addrBookSourcePath").textContent =
+      filePicker.file.path;
+    document.getElementById("addrBookBackButton").textContent = backButtonText;
+  }
+
+  /**
+   * Show the directories pane, with a list of existing directories and an
+   * option to create a new directory.
+   * @param {nsIFile} sourceFile - The user selected source file.
+   */
+  async _showDirectories(sourceFile) {
+    this._sourceFile = sourceFile;
+    let elList = document.getElementById("directoryList");
+    this._directories = MailServices.ab.directories.filter(
+      dir => dir.dirType == Ci.nsIAbManager.JS_DIRECTORY_TYPE
+    );
+    for (let directory of this._directories) {
+      let item = document.createElement("div");
+      item.className = "content-blocking-category";
+
+      let label = document.createElement("label");
+      label.className = "toggle-container-with-text";
+
+      let input = document.createElement("input");
+      input.type = "radio";
+      input.name = "addrBookDirectory";
+      input.value = directory.dirPrefId;
+      label.append(input);
+
+      let name = document.createElement("div");
+      name.className = "strong";
+      name.textContent = directory.dirName;
+      label.append(name);
+
+      item.append(label);
+      elList.append(item);
+    }
+    document.querySelector("input[name=addrBookDirectory]").checked = true;
+
+    this.showPane("directories");
+  }
+
+  /**
+   * Handler for the Continue button on the directories pane.
+   */
+  async _onSelectDirectory() {
+    let index = [
+      ...document.querySelectorAll("input[name=addrBookDirectory]"),
+    ].findIndex(el => el.checked);
+    let targetDirectory = this._directories[index];
+    if (!targetDirectory) {
+      // User selected to create a new address book and import into it. Create
+      // one based on the file name.
+      let sourceFileName = this._sourceFile.leafName;
+      let dirId = MailServices.ab.newAddressBook(
+        sourceFileName.slice(
+          0,
+          sourceFileName.lastIndexOf(".") == -1
+            ? Infinity
+            : sourceFileName.lastIndexOf(".")
+        ),
+        "",
+        Ci.nsIAbManager.JS_DIRECTORY_TYPE
+      );
+      targetDirectory = MailServices.ab.getDirectoryFromId(dirId);
+    }
+
+    importDialog.showProgress(this);
+    this._importer.onProgress = (current, total) => {
+      importDialog.updateProgress(current / total);
+    };
+    try {
+      await this._importer.startImport(this._sourceFile, targetDirectory);
+    } catch (e) {
+      importDialog.showError(
+        await document.l10n.formatValue("error-message-failed")
+      );
+      throw e;
     }
   }
 }
@@ -434,17 +617,29 @@ let importDialog = {
 
   /**
    * Show the progress pane.
+   * @param {ImporterController} importerController - An instance of the
+   *   controller.
+   * @param {boolean} restartOnOk - Whether a restart is needed after importing.
    */
-  showProgress() {
+  showProgress(importerController, restartOnOk) {
     this._showPane("progress");
-    this._restartOnOk = true;
+    this._importerController = importerController;
+    this._restartOnOk = restartOnOk;
     this._disableCancel(true);
     this._disableAccept(true);
   },
 
-  updateProgress(value) {
+  async updateProgress(value) {
     document.getElementById("importDialogProgressBar").value = value;
     if (value >= 1) {
+      let [restartDesc, finishedDesc] = await document.l10n.formatValues([
+        "progress-pane-restart-desc",
+        "progress-pane-finished-desc",
+      ]);
+      document.getElementById("progressPaneDesc").textContent = this
+        ._restartOnOk
+        ? restartDesc
+        : finishedDesc;
       this._disableAccept(false);
     }
   },
@@ -472,7 +667,12 @@ let importDialog = {
    * The click handler of the accept button.
    */
   onAccept() {
-    this._restartOnOk ? MailUtils.restartApplication() : this._el.close();
+    if (this._restartOnOk) {
+      MailUtils.restartApplication();
+    } else {
+      this._el.close();
+      this._importerController?.reset();
+    }
   },
 };
 
@@ -495,9 +695,11 @@ function showTab(tabId) {
 }
 
 let profileController;
+let addrBookController;
 
 document.addEventListener("DOMContentLoaded", () => {
   profileController = new ProfileImporterController();
+  addrBookController = new AddrBookImporterController();
   importDialog.init();
 
   for (let tab of document.querySelectorAll("[id^=tab-]")) {

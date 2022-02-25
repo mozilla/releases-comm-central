@@ -72,7 +72,7 @@
       </section>
       <section id="app-profiles">
         <h1 id="profilesPaneTitle"/>
-        <p data-l10n-id="profiles-pane-desc"/>
+        <p data-l10n-id="profiles-pane-source"/>
         <div class="profile-list" id="profileList"/>
         <div class="profile-list" id="filePickerList">
           <div class="content-blocking-category">
@@ -129,14 +129,68 @@
     </div>
 
     <div id="tabPane-addressBook" class="tabPane">
-      <h1 id="importAddressBook" data-l10n-id="import-address-book"></h1>
+      <section id="addr-book-sources">
+        <h1 id="importAddressBook" data-l10n-id="import-address-book"></h1>
+        <p data-l10n-id="import-from-addr-book-file-desc"/>
+        <div class="source-list">
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="csv"
+                   name="addrBookSource"
+                   checked=""/>
+            <p data-l10n-id="addr-book-csv-file"/>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="ldif"
+                   name="addrBookSource"/>
+            <p data-l10n-id="addr-book-ldif-file"/>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="vcard"
+                   name="addrBookSource"/>
+            <p data-l10n-id="addr-book-vcard-file"/>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="mab"
+                   name="addrBookSource"/>
+            <p data-l10n-id="addr-book-mab-file"/>
+          </label>
+        </div>
+      </section>
+      <section id="addr-book-directories">
+        <h1 data-l10n-id="addr-book-directories-pane-title"/>
+        <p>
+          <span data-l10n-id="addr-book-directories-pane-source"/>
+          <span id="addrBookSourcePath"/>
+        </p>
+        <div class="profile-list" id="directoryList"/>
+        <div class="content-blocking-category">
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value=".new"
+                   name="addrBookDirectory"/>
+            <p data-l10n-id="addr-book-import-into-new-directory"/>
+          </label>
+        </div>
+      </section>
+      <footer class="buttons-container">
+        <button id="addrBookBackButton"
+                onclick="addrBookController.back()"
+                data-l10n-id="button-cancel"/>
+        <button class="primary"
+                onclick="addrBookController.next()"
+                data-l10n-id="button-continue"/>
+      </footer>
     </div>
   </main>
   <dialog id="importDialog">
     <section id="dialogPane-progress">
       <h3 data-l10n-id="progress-pane-title"></h3>
       <progress id="importDialogProgressBar"></progress>
-      <p data-l10n-id="progress-pane-restart-desc"/>
+      <p id="progressPaneDesc"/>
     </section>
     <section id="dialogPane-error">
       <h3 data-l10n-id="error-pane-title"></h3>

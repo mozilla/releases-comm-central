@@ -46,7 +46,7 @@ profile-file-picker-zip = Select a zip file (smaller than 2GB)
 
 items-pane-title = Select what to import
 
-items-pane-desc = Import from
+items-pane-source = Source location:
 
 items-pane-checkbox-accounts = Accounts and Settings
 
@@ -56,9 +56,31 @@ items-pane-checkbox-calendars = Calendars
 
 items-pane-checkbox-mail-messages = Mail Messages
 
+## Import from address book file steps
+
+import-from-addr-book-file-desc = Select the file type you would like to import:
+
+addr-book-csv-file = Comma or tab separated file (.csv, .tsv)
+
+addr-book-ldif-file = LDIF file (.ldif)
+
+addr-book-vcard-file = vCard file (.vcf, .vcard)
+
+addr-book-mab-file = Mork database file (.mab)
+
+addr-book-file-picker = Select an address book file
+
+addr-book-directories-pane-title = Select the directory you would like to import into:
+
+addr-book-directories-pane-source = Source file:
+
+addr-book-import-into-new-directory = Create a new directory
+
 ## Import dialog
 
 progress-pane-title = Importing
+
+progress-pane-finished-desc = Finished.
 
 progress-pane-restart-desc = Restart to finish importing.
 
