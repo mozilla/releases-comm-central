@@ -11,7 +11,10 @@ import os.path
 import json
 from six import text_type, ensure_text
 from voluptuous import Any, Optional, Required
+
 import taskgraph.util.path as util_path
+from taskgraph.util.taskcluster import find_task_id
+
 from gecko_taskgraph.transforms.job import (
     configure_taskdesc_for_run,
     run_job_using,
@@ -24,9 +27,8 @@ from gecko_taskgraph.transforms.job.common import (
     docker_worker_add_artifacts,
 )
 
-from gecko_taskgraph.util import taskcluster
-from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 from comm_taskgraph.util.hash import hash_paths_extended
+from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 from gecko_taskgraph import GECKO
 import gecko_taskgraph
 
@@ -197,7 +199,7 @@ def docker_macos_sdk_fetch(config, job, taskdesc):
     for level in reversed(range(int(config.params["level"]), 4)):
         gecko_index = attributes["gecko_index"].format(level=level)
         try:
-            sdk_task_id = taskcluster.find_task_id(gecko_index)
+            sdk_task_id = find_task_id(gecko_index)
             break
         except KeyError:
             continue
