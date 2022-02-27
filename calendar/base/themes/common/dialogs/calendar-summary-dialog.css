@@ -20,11 +20,13 @@ notification {
   margin-top: 1em;
 }
 
-#edit-button-context-menu {
-  appearance: none;
-  border: 1px solid var(--box-border-color);
-  border-radius: var(--button-border-radius);
-  background-color: var(--box-background-color);
+@media not (-moz-platform: linux) {
+  #edit-button-context-menu {
+    appearance: none;
+    border: 1px solid var(--box-border-color);
+    border-radius: var(--button-border-radius);
+    background-color: var(--box-background-color);
+  }
 }
 
 #edit-button-context-menu > menuitem {
