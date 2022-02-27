@@ -7,6 +7,10 @@ var { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
 var l10n = new Localization(["messenger/otr/finger-sync.ftl"], true);
 
+window.addEventListener("DOMContentLoaded", event => {
+  otrFinger.onload();
+});
+
 var gFingers;
 var fingerTreeView = {
   selection: null,
