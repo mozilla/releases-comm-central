@@ -73,11 +73,29 @@ add_task(function test_addEventRedacted() {
   const event = makeEvent({
     sender: "@user:example.com",
     redacted: true,
+    redaction: {
+      event_id: 2,
+      type: EventType.RoomRedaction,
+    },
     type: EventType.RoomMessage,
   });
-  const roomStub = {};
+  let updatedMessage;
+  const roomStub = {
+    updateMessage(sender, message, opts) {
+      updatedMessage = {
+        sender,
+        message,
+        opts,
+      };
+    },
+  };
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
-  equal(roomStub._mostRecentEventId, 0);
+  equal(roomStub._mostRecentEventId, 2);
+  equal(typeof updatedMessage, "object");
+  ok(!updatedMessage.opts.system);
+  ok(updatedMessage.opts.deleted);
+  equal(typeof updatedMessage.message, "string");
+  equal(updatedMessage.sender, "@user:example.com");
 });
 
 add_task(function test_addEventMessageIncoming() {
@@ -613,6 +631,7 @@ add_task(async function test_addEventDecryptionError() {
   ok(!result.system);
   roomStub.forget();
 });
+
 add_task(async function test_addEventPendingDecryption() {
   const event = makeEvent({
     sender: "@user:example.com",
@@ -627,6 +646,24 @@ add_task(async function test_addEventPendingDecryption() {
   ok(!result.error);
   ok(!result.system);
   roomStub.forget();
+});
+
+add_task(async function test_addEventRedaction() {
+  const event = makeEvent({
+    sender: "@user:example.com",
+    id: 1443,
+    type: EventType.RoomRedaction,
+  });
+  const roomStub = {
+    writeMessage() {
+      ok(false, "called writeMessage");
+    },
+    updateMessage() {
+      ok(false, "called updateMessage");
+    },
+  };
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  equal(roomStub._mostRecentEventId, undefined);
 });
 
 function waitForNotification(target, expectedTopic) {

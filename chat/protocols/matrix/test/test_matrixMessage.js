@@ -179,7 +179,18 @@ add_task(async function test_getActions() {
   const event = makeEvent({
     type: EventType.RoomMessage,
   });
-  const message = new matrix.MatrixMessage("foo", "bar", { event });
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    { event },
+    {
+      roomState: {
+        maySendRedactionForEvent() {
+          return false;
+        },
+      },
+    }
+  );
   const actions = message.getActions();
   ok(Array.isArray(actions));
   equal(actions.length, 0);
@@ -206,6 +217,11 @@ add_task(async function test_getActions_decryptionFailure() {
           },
         },
       },
+      roomState: {
+        maySendRedactionForEvent() {
+          return false;
+        },
+      },
     }
   );
   const actions = message.getActions();
@@ -215,4 +231,60 @@ add_task(async function test_getActions_decryptionFailure() {
   ok(action.label);
   action.run();
   strictEqual(eventKeysWereRequestedFor, event);
+});
+
+add_task(async function test_getActions_redact() {
+  const event = makeEvent({
+    type: EventType.RoomMessage,
+    content: {
+      msgtxpe: "m.text",
+      body: "foo bar",
+    },
+    roomId: "!actions:example.com",
+    threadRootId: "$thread:example.com",
+    id: "$ev:example.com",
+  });
+  let eventRedacted = false;
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    { event },
+    {
+      _account: {
+        userId: 0,
+        _client: {
+          redactEvent(roomId, threadRootId, eventId) {
+            equal(roomId, "!actions:example.com");
+            equal(threadRootId, "$thread:example.com");
+            equal(eventId, "$ev:example.com");
+            eventRedacted = true;
+            return Promise.resolve();
+          },
+        },
+      },
+      roomState: {
+        maySendRedactionForEvent(ev, userId) {
+          equal(ev, event);
+          equal(userId, 0);
+          return true;
+        },
+      },
+    }
+  );
+  const actions = message.getActions();
+  ok(Array.isArray(actions));
+  equal(actions.length, 1);
+  const [action] = actions;
+  ok(action.label);
+  action.run();
+  ok(eventRedacted);
+});
+
+add_task(async function test_getActions_noEvent() {
+  const message = new matrix.MatrixMessage("system", "test", {
+    system: true,
+  });
+  const actions = message.getActions();
+  ok(Array.isArray(actions));
+  equal(actions.length, 0);
 });

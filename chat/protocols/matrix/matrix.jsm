@@ -135,21 +135,40 @@ MatrixMessage.prototype = {
   },
 
   getActions() {
+    const actions = [];
     if (this.event?.isDecryptionFailure()) {
-      return [
-        {
-          label: _("message.action.requestKey"),
-          run: () => {
-            if (this.event) {
-              this.conversation?._account?._client
-                ?.cancelAndResendEventRoomKeyRequest(this.event)
-                .catch(error => this.conversation._account.ERROR(error));
-            }
-          },
+      actions.push({
+        label: _("message.action.requestKey"),
+        run: () => {
+          if (this.event) {
+            this.conversation?._account?._client
+              ?.cancelAndResendEventRoomKeyRequest(this.event)
+              .catch(error => this.conversation._account.ERROR(error));
+          }
         },
-      ];
+      });
     }
-    return [];
+    if (
+      this.event &&
+      this.conversation?.roomState.maySendRedactionForEvent(
+        this.event,
+        this.conversation._account?.userId
+      )
+    ) {
+      actions.push({
+        label: _("message.action.redact"),
+        run: () => {
+          this.conversation?._account?._client
+            ?.redactEvent(
+              this.event.getRoomId(),
+              this.event.threadRootId,
+              this.event.getId()
+            )
+            .catch(error => this.conversation._account.ERROR(error));
+        },
+      });
+    }
+    return actions;
   },
 };
 
@@ -621,14 +640,19 @@ MatrixRoom.prototype = {
    * @param {boolean} [delayed=false] - Event is added while catching up to a live state.
    */
   addEvent(event, delayed = false) {
-    // Redacted events have no content, nothing for us to display.
-    // TODO full redaction support is Bug 1701218
-    if (event.isRedacted()) {
-      this._mostRecentEventId = event.getId();
+    if (event.isRedaction()) {
+      // Handled by the SDK.
       return;
     }
+    // Set to true to update an existing message instead.
     let replace = false;
+    // If the event we got isn't actually a new event in the conversation,
+    // change this to the appropriate value.
+    let newestEventId = event.getId();
+    // Contents of the message to write/update
     let message;
+    // Options for the message. Many options derrived from event are set in
+    // createMessage.
     let opts = {
       event,
       delayed,
@@ -646,7 +670,14 @@ MatrixRoom.prototype = {
       }
     }
     const eventType = event.getType();
-    if (
+    if (event.isRedacted()) {
+      newestEventId = event.getRedactionEvent()?.event_id;
+      replace = true;
+      opts.system =
+        eventType != EventType.RoomMessage && eventType != EventType.Sticker;
+      opts.deleted = true;
+      message = _("message.redacted");
+    } else if (
       eventType === EventType.RoomMessage ||
       eventType === EventType.RoomMessageEncrypted ||
       eventType === EventType.Sticker
@@ -710,7 +741,7 @@ MatrixRoom.prototype = {
         this.writeMessage(event.getSender(), message, opts);
       }
     }
-    this._mostRecentEventId = event.getId();
+    this._mostRecentEventId = newestEventId;
   },
 
   _typingTimer: null,
@@ -1921,6 +1952,16 @@ MatrixAccount.prototype = {
         conv.addEvent(event);
       }
     );
+    // An event that was already in the room timeline was redacted
+    this._client.on("Room.redaction", (event, room) => {
+      let conv = this.roomList.get(room.roomId);
+      if (conv) {
+        const redactedEvent = conv.room?.findEventById(event.getAssociatedId());
+        if (redactedEvent) {
+          conv.addEvent(redactedEvent);
+        }
+      }
+    });
     this._client.on("Event.decrypted", (event, error) => {
       if (error) {
         this.ERROR(error);

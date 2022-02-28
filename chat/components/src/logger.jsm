@@ -249,7 +249,9 @@ LogWriter.prototype = {
         "notification",
         "noLinkification",
         "isEncrypted",
+        "deleted",
       ].filter(f => aMessage[f]),
+      remoteId: aMessage.remoteId,
     };
     let alias = aMessage.alias;
     if (alias && alias != msg.who) {
@@ -326,6 +328,7 @@ function LogMessage(aData, aConversation) {
   if ("alias" in aData) {
     this._alias = aData.alias;
   }
+  this.remoteId = aData.remoteId;
   if (aData.flags) {
     for (let flag of aData.flags) {
       this[flag] = true;
@@ -365,7 +368,20 @@ LogConversation.prototype = {
     };
   },
   getMessages() {
-    return this._messages.map(m => new LogMessage(m, this));
+    let seenMessages = new Set();
+    // Start with the newest message to filter out older versions of the same
+    // message. Also filter out deleted messages.
+    return this._messages
+      .reverse()
+      .filter(message => {
+        if (message.remoteId && seenMessages.has(message.remoteId)) {
+          return false;
+        }
+        seenMessages.add(message.remoteId);
+        return !message.flags.deleted;
+      })
+      .reverse()
+      .map(m => new LogMessage(m, this));
   },
 };
 

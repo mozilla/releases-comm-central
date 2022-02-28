@@ -239,8 +239,18 @@ function makeEvent(eventSpec = {}) {
     isDecryptionFailure() {
       return eventSpec.content?.msgtype == "m.bad.encrypted";
     },
+    isRedaction() {
+      return eventSpec.type == EventType.RoomRedaction;
+    },
+    getRedactionEvent() {
+      return eventSpec.redaction;
+    },
     target: eventSpec.target,
     replyEventId:
       eventSpec.content?.["m.relates_to"]?.["m.in_reply_to"]?.event_id,
+    threadRootId: eventSpec.threadRootId || null,
+    getRoomId() {
+      return eventSpec.roomId || "!test:example.com";
+    },
   };
 }

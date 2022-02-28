@@ -883,6 +883,7 @@ var GenericMessagePrototype = {
   noLinkification: false,
   noCollapse: false,
   isEncrypted: false,
+  deleted: false,
 
   getActions() {
     return [];

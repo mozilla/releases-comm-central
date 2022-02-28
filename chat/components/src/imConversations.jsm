@@ -123,6 +123,9 @@ imMessage.prototype = {
   get isEncrypted() {
     return this.prplMessage.isEncrypted || this.otrEncrypted;
   },
+  get deleted() {
+    return this.prplMessage.deleted;
+  },
   get originalMessage() {
     return this.prplMessage.originalMessage;
   },
