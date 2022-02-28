@@ -262,6 +262,7 @@ add_task(async function editContact() {
       newValue: "a new property",
     },
   });
+  contact = book.childCards[0];
   equal(contact.firstName, "updated");
   equal(contact.lastName, "contact");
   equal(contact.displayName, "updated contact");

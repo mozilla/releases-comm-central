@@ -270,48 +270,26 @@ class SQLiteDirectory extends AddrBookDirectory {
     propertyStatement.finalize();
     return properties;
   }
-  saveCardProperties(card) {
-    let cachedCard;
-    if (this.hasOwnProperty("cards")) {
-      cachedCard = this.cards.get(card.UID);
-      cachedCard.clear();
-    }
-
+  saveCardProperties(uid, properties) {
     this._dbConnection.beginTransaction();
     let deleteStatement = this._dbConnection.createStatement(
       "DELETE FROM properties WHERE card = :card"
     );
-    deleteStatement.params.card = card.UID;
+    deleteStatement.params.card = uid;
     deleteStatement.execute();
     let insertStatement = this._dbConnection.createStatement(
       "INSERT INTO properties VALUES (:card, :name, :value)"
     );
-    let saveProp = function(name, value) {
-      insertStatement.params.card = card.UID;
-      insertStatement.params.name = name;
-      insertStatement.params.value = value;
-      insertStatement.execute();
-      insertStatement.reset();
 
-      if (cachedCard) {
-        cachedCard.set(name, value);
-      }
-    };
-
-    for (let { name, value } of card.properties) {
-      if (
-        name != "LastModifiedDate" &&
-        value !== null &&
-        value !== undefined &&
-        value !== ""
-      ) {
-        saveProp(name, value);
+    for (let [name, value] of properties) {
+      if (value !== null && value !== undefined && value !== "") {
+        insertStatement.params.card = uid;
+        insertStatement.params.name = name;
+        insertStatement.params.value = value;
+        insertStatement.execute();
+        insertStatement.reset();
       }
     }
-    // Always set the last modified date.
-    let now = "" + Math.floor(Date.now() / 1000);
-    card.setProperty("LastModifiedDate", now);
-    saveProp("LastModifiedDate", now);
 
     this._dbConnection.commitTransaction();
     deleteStatement.finalize();

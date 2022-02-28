@@ -1782,7 +1782,16 @@ var detailsPane = {
         }
       }
       this.isEditing = false;
-      this.displayContact(this.currentCard);
+      if (this.currentCard) {
+        // Refresh the card from the book to get exactly what was saved.
+        let book = MailServices.ab.getDirectoryFromUID(
+          this.currentCard.directoryUID
+        );
+        let card = book.childCards.find(c => c.UID == this.currentCard.UID);
+        this.displayContact(card);
+      } else {
+        this.displayContact(null);
+      }
     });
     this.form.addEventListener("submit", event => {
       event.preventDefault();
@@ -2139,6 +2148,8 @@ var detailsPane = {
       );
     } else {
       book.modifyCard(card);
+      // Refresh the card from the book to get exactly what was saved.
+      card = book.childCards.find(c => c.UID == card.UID);
       this.displayContact(card);
     }
     cardsPane.cardsList.focus();

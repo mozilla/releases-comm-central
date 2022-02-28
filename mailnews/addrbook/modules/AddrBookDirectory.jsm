@@ -105,7 +105,7 @@ class AddrBookDirectory {
     );
   }
   /** @abstract */
-  saveCardProperties(card) {
+  saveCardProperties(uid, properties) {
     throw new Components.Exception(
       `${this.constructor.name} does not implement saveCardProperties.`,
       Cr.NS_ERROR_NOT_IMPLEMENTED
@@ -131,6 +131,27 @@ class AddrBookDirectory {
       `${this.constructor.name} does not implement deleteList.`,
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
+  }
+  /**
+   * Create a Map of the properties to record when saving `card`, including
+   * any changes we want to make just before saving.
+   *
+   * @param {nsIAbCard} card
+   * @return {Map<string, string>}
+   */
+  prepareToSaveCard(card) {
+    let newProperties = new Map();
+
+    // Collect only the properties we intend to keep.
+    for (let { name, value } of card.properties) {
+      if (value !== null && value !== undefined && value !== "") {
+        newProperties.set(name, value);
+      }
+    }
+
+    // Always set the last modified date.
+    newProperties.set("LastModifiedDate", "" + Math.floor(Date.now() / 1000));
+    return newProperties;
   }
 
   /* nsIAbDirectory */
@@ -438,40 +459,39 @@ class AddrBookDirectory {
     }
 
     let oldProperties = this.loadCardProperties(card.UID);
-    let changedProperties = new Set(oldProperties.keys());
+    let newProperties = this.prepareToSaveCard(card);
 
-    for (let { name, value } of card.properties) {
-      if (!oldProperties.has(name) && ![null, undefined, ""].includes(value)) {
-        changedProperties.add(name);
-      } else if (oldProperties.get(name) == value) {
-        changedProperties.delete(name);
-      }
+    let allProperties = new Set(oldProperties.keys());
+    for (let key of newProperties.keys()) {
+      allProperties.add(key);
     }
-    changedProperties.delete("LastModifiedDate");
 
-    this.saveCardProperties(card);
-
-    if (changedProperties.size == 0) {
-      return;
+    if (this.hasOwnProperty("cards")) {
+      this.cards.set(card.UID, newProperties);
     }
+    this.saveCardProperties(card.UID, newProperties);
 
     // Send the card as it is in this directory, not as passed to this function.
-    card = this.getCard(card.UID);
-    Services.obs.notifyObservers(card, "addrbook-contact-updated", this.UID);
+    let newCard = this.getCard(card.UID);
+    Services.obs.notifyObservers(newCard, "addrbook-contact-updated", this.UID);
 
-    let data = {};
+    let changeData = {};
+    for (let name of allProperties) {
+      if (name == "LastModifiedDate" || name == "_vCard") {
+        continue;
+      }
 
-    for (let name of changedProperties) {
-      data[name] = {
-        oldValue: oldProperties.get(name) || null,
-        newValue: card.getProperty(name, null),
-      };
+      let oldValue = oldProperties.get(name) || null;
+      let newValue = newProperties.get(name) || null;
+      if (oldValue != newValue) {
+        changeData[name] = { oldValue, newValue };
+      }
     }
 
     Services.obs.notifyObservers(
-      card,
+      newCard,
       "addrbook-contact-properties-updated",
-      JSON.stringify(data)
+      JSON.stringify(changeData)
     );
   }
   deleteCards(cards) {
@@ -517,38 +537,21 @@ class AddrBookDirectory {
       throw new Error("Card must have a UID to be added to this directory.");
     }
 
-    let newCard = new AddrBookCard();
-    newCard.directoryUID = this.UID;
-    newCard._uid = needToCopyCard ? newUID() : card.UID;
+    let newProperties = this.prepareToSaveCard(card);
+    if (card.directoryUID && card.directoryUID != this._uid) {
+      // These properties belong to a different directory. Don't keep them.
+      newProperties.delete("_etag");
+      newProperties.delete("_href");
+    }
 
+    let uid = needToCopyCard ? newUID() : card.UID;
     if (this.hasOwnProperty("cards")) {
-      this.cards.set(newCard._uid, new Map());
+      this.cards.set(uid, newProperties);
     }
+    this.saveCardProperties(uid, newProperties);
 
-    for (let { name, value } of card.properties) {
-      if (
-        [
-          "DbRowID",
-          "LowercasePrimaryEmail",
-          "LowercaseSecondEmail",
-          "RecordKey",
-          "UID",
-        ].includes(name)
-      ) {
-        // These properties are either stored elsewhere (DbRowID, UID), or no
-        // longer needed. Don't store them.
-        continue;
-      }
-      if (card.directoryUID && ["_etag", "_href"].includes(name)) {
-        // These properties belong to a different directory. Don't keep them.
-        continue;
-      }
-      newCard.setProperty(name, value);
-    }
-    this.saveCardProperties(newCard);
-
+    let newCard = this.getCard(uid);
     Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);
-
     return newCard;
   }
   useForAutocomplete(identityKey) {
