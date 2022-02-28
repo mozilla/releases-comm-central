@@ -331,6 +331,8 @@ pref("mailnews.send.loglevel", "Warn");
 
 pref("mailnews.nntp.jsmodule", true);
 
+pref("mailnews.pop3.jsmodule", true);
+
 // End core mailnews.js pref overrides
 /////////////////////////////////////////////////////////////////
 
