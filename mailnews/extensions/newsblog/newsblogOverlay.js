@@ -212,7 +212,12 @@ var FeedMessageHandler = {
             .getService(Ci.nsIExternalProtocolService)
             .loadURI(uri);
         } else if (aWhere.messagepane) {
-          MailE10SUtils.loadURI(getMessagePaneBrowser(), url);
+          let browser = getMessagePaneBrowser();
+          // Load about:blank in the browser before (potentially) switching
+          // to a remote process. This prevents sandbox flags being carried
+          // over to the web document.
+          MailE10SUtils.loadAboutBlank(browser);
+          MailE10SUtils.loadURI(browser, url);
         } else if (aWhere.tab) {
           openContentTab(url, "tab", null);
         } else if (aWhere.window) {
