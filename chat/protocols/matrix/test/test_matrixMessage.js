@@ -17,10 +17,14 @@ add_task(function test_whenDisplayed() {
       },
     },
   };
-  const message = new matrix.MatrixMessage("foo", "bar", {
-    event: "baz",
-    conversation: mockConv,
-  });
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    {
+      event: "baz",
+    },
+    mockConv
+  );
 
   message.whenDisplayed();
 
@@ -51,10 +55,14 @@ add_task(async function test_whenDisplayedError() {
       },
     },
   };
-  const message = new matrix.MatrixMessage("foo", "bar", {
-    event: "baz",
-    conversation: mockConv,
-  });
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    {
+      event: "baz",
+    },
+    mockConv
+  );
 
   message.whenDisplayed();
   const error = await errorPromise;
@@ -75,14 +83,18 @@ add_task(function test_whenRead() {
       },
     },
   };
-  const message = new matrix.MatrixMessage("foo", "bar", {
-    event: {
-      getId() {
-        return "baz";
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    {
+      event: {
+        getId() {
+          return "baz";
+        },
       },
     },
-    conversation: mockConv,
-  });
+    mockConv
+  );
 
   message.whenRead();
 
@@ -114,14 +126,18 @@ add_task(async function test_whenReadError() {
       },
     },
   };
-  const message = new matrix.MatrixMessage("foo", "bar", {
-    event: {
-      getId() {
-        return "baz";
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    {
+      event: {
+        getId() {
+          return "baz";
+        },
       },
     },
-    conversation: mockConv,
-  });
+    mockConv
+  );
 
   message.whenRead();
   const error = await errorPromise;
@@ -157,4 +173,46 @@ add_task(async function test_hideReadReceipts() {
   strictEqual(message2.hideReadReceipts, initialSendRead);
   strictEqual(message.hideReadReceipts, !initialSendRead);
   Services.prefs.setBoolPref(kSendReadPref, initialSendRead);
+});
+
+add_task(async function test_getActions() {
+  const event = makeEvent({
+    type: EventType.RoomMessage,
+  });
+  const message = new matrix.MatrixMessage("foo", "bar", { event });
+  const actions = message.getActions();
+  ok(Array.isArray(actions));
+  equal(actions.length, 0);
+});
+
+add_task(async function test_getActions_decryptionFailure() {
+  const event = makeEvent({
+    type: EventType.RoomMessage,
+    content: {
+      msgtype: "m.bad.encrypted",
+    },
+  });
+  let eventKeysWereRequestedFor;
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    { event },
+    {
+      _account: {
+        _client: {
+          cancelAndResendEventRoomKeyRequest(matrixEvent) {
+            eventKeysWereRequestedFor = matrixEvent;
+            return Promise.resolve();
+          },
+        },
+      },
+    }
+  );
+  const actions = message.getActions();
+  ok(Array.isArray(actions));
+  equal(actions.length, 1);
+  const [action] = actions;
+  ok(action.label);
+  action.run();
+  strictEqual(eventKeysWereRequestedFor, event);
 });

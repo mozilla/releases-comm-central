@@ -4,11 +4,14 @@
 
 this.EXPORTED_SYMBOLS = ["MatrixMessageContent"];
 
-var { XPCOMUtils } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 XPCOMUtils.defineLazyModuleGetters(this, {
   getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
   EventType: "resource:///modules/matrix-sdk.jsm",
   MsgType: "resource:///modules/matrix-sdk.jsm",
+  getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
 });
 
 const kRichBodiedTypes = [MsgType.Text, MsgType.Notice, MsgType.Emote];
@@ -25,6 +28,9 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });
+XPCOMUtils.defineLazyGetter(this, "_", () =>
+  l10nHelper("chrome://chat/locale/matrix.properties")
+);
 
 /**
  * Gets the user-consumable URI to an attachment from an mxc URI and
@@ -223,8 +229,11 @@ var MatrixMessageContent = {
     }
     const type = event.getType();
     const content = event.getContent();
-    if (type == EventType.RoomMessage) {
-      if (kRichBodiedTypes.includes(content.msgtype)) {
+    if (
+      type == EventType.RoomMessage ||
+      type == EventType.RoomMessageEncrypted
+    ) {
+      if (kRichBodiedTypes.includes(content?.msgtype)) {
         let body = TXTToHTML(content.body);
         const eventId = event.replyEventId;
         if (body.startsWith("&gt;") && eventId) {
@@ -267,11 +276,18 @@ ${replyContent}`;
           body = kEmotePrefix + body.trimStart();
         }
         return body;
-      } else if (kAttachmentTypes.includes(content.msgtype)) {
+      } else if (kAttachmentTypes.includes(content?.msgtype)) {
         const attachmentUrl = getAttachmentUrl(content, homeserverUrl);
         if (attachmentUrl) {
           return attachmentUrl;
         }
+      } else if (
+        content?.msgtype == MsgType.KeyVerificationRequest ||
+        event.isDecryptionFailure()
+      ) {
+        return getMatrixTextForEvent(event);
+      } else if (event.isBeingDecrypted()) {
+        return _("message.decrypting");
       }
     } else if (type == EventType.Sticker) {
       const attachmentUrl = getAttachmentUrl(content, homeserverUrl);

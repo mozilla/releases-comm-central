@@ -4,12 +4,15 @@
 var { MatrixMessageContent } = ChromeUtils.import(
   "resource:///modules/matrixMessageContent.jsm"
 );
-var { EventType, MsgType } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
+var { MsgType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 const { XPCShellContentUtils } = ChromeUtils.import(
   "resource://testing-common/XPCShellContentUtils.jsm"
 );
+var { getMatrixTextForEvent } = ChromeUtils.import(
+  "resource:///modules/matrixTextForEvent.jsm"
+);
+var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var _ = l10nHelper("chrome://chat/locale/matrix.properties");
 
 // Required to make it so the DOMParser can handle images and such.
 XPCShellContentUtils.init(this);
@@ -174,6 +177,35 @@ dolor sit amet`,
       sender: "@bar:example.com",
     },
     result: "hello.jpg",
+  },
+  {
+    description: "Key verification request",
+    event: {
+      type: EventType.RoomMessage,
+      content: {
+        msgtype: MsgType.KeyVerificationRequest,
+      },
+      sender: "@bar:example.com",
+    },
+    isGetTextForEvent: true,
+  },
+  {
+    description: "Decryption failure",
+    event: {
+      type: EventType.RoomMessageEncrypted,
+      content: {
+        msgtype: "m.bad.encrypted",
+      },
+    },
+    isGetTextForEvent: true,
+  },
+  {
+    description: "Being decrypted",
+    event: {
+      type: EventType.RoomMessageEncrypted,
+      decrypting: true,
+    },
+    result: _("message.decrypting"),
   },
 ];
 
@@ -431,7 +463,11 @@ add_task(function test_plainBody() {
         return undefined;
       }
     );
-    equal(result, fixture.result, fixture.description);
+    if (fixture.isGetTextForEvent) {
+      equal(result, getMatrixTextForEvent(event));
+    } else {
+      equal(result, fixture.result, fixture.description);
+    }
   }
 });
 

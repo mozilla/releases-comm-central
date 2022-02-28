@@ -4,7 +4,6 @@
 var { MatrixPowerLevels } = ChromeUtils.import(
   "resource:///modules/matrixPowerLevels.jsm"
 );
-var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var _ = l10nHelper("chrome://chat/locale/matrix.properties");
 

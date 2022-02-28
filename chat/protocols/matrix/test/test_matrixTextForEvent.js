@@ -5,9 +5,7 @@ var { getMatrixTextForEvent } = ChromeUtils.import(
   "resource:///modules/matrixTextForEvent.jsm"
 );
 var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { EventType, MsgType } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
+var { MsgType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 var _ = l10nHelper("chrome://chat/locale/matrix.properties");
 
 function run_test() {
@@ -806,6 +804,16 @@ const FIXTURES = [
     }),
     result: _("message.verification.done"),
     name: "Key verification done",
+  },
+  {
+    event: makeEvent({
+      type: EventType.RoomMessageEncrypted,
+      content: {
+        msgtype: "m.bad.encrypted",
+      },
+    }),
+    result: _("message.decryptionError"),
+    name: "Decryption error",
   },
 ];
 

@@ -40,6 +40,7 @@ const roomMessage = {
   pivot: "msgtype",
   handlers: {
     [MsgType.KeyVerificationRequest]: keyVerificationRequest,
+    "m.bad.encrypted": () => _("message.decryptionError"),
   },
 };
 
@@ -290,7 +291,7 @@ const MATRIX_EVENT_HANDLERS = {
   // 'm.call.answer'
   // 'm.call.hangup'
   // 'm.room.third_party_invite'
-  // 'm.room.encryption'
+  // 'm.room.encryption' - currently handled directly in matrix.jsm
 
   // NOTE : No need to add string messages for 'm.room.topic' events,
   // as setTopic is used which handles the messages too.

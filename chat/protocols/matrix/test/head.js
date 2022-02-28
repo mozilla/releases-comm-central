@@ -3,6 +3,7 @@
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { MatrixProtocol } = ChromeUtils.import("resource:///modules/matrix.jsm");
+var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 var matrix = {};
 function loadMatrix() {
   Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
@@ -224,7 +225,19 @@ function makeEvent(eventSpec = {}) {
       return eventSpec.id || 0;
     },
     isEncrypted() {
-      return false;
+      return (
+        eventSpec.type == EventType.RoomMessageEncrypted ||
+        eventSpec.isEncrypted
+      );
+    },
+    shouldAttemptDecryption() {
+      return Boolean(eventSpec.shouldDecrypt);
+    },
+    isBeingDecrypted() {
+      return Boolean(eventSpec.decrypting);
+    },
+    isDecryptionFailure() {
+      return eventSpec.content?.msgtype == "m.bad.encrypted";
     },
     target: eventSpec.target,
     replyEventId:

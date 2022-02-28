@@ -133,6 +133,24 @@ MatrixMessage.prototype = {
         }
       });
   },
+
+  getActions() {
+    if (this.event?.isDecryptionFailure()) {
+      return [
+        {
+          label: _("message.action.requestKey"),
+          run: () => {
+            if (this.event) {
+              this.conversation?._account?._client
+                ?.cancelAndResendEventRoomKeyRequest(this.event)
+                .catch(error => this.conversation._account.ERROR(error));
+            }
+          },
+        },
+      ];
+    }
+    return [];
+  },
 };
 
 /**
@@ -375,6 +393,7 @@ function MatrixRoom(account, isMUC, name) {
   this._initialized = new Promise(resolve => {
     this._resolveInitializer = resolve;
   });
+  this._eventsWaitingForDecryption = new Set();
 }
 MatrixRoom.prototype = {
   __proto__: GenericConvChatPrototype,
@@ -389,8 +408,15 @@ MatrixRoom.prototype = {
 
   /**
    * ID of the most recent event written to the conversation.
+   * @type {string}
    */
   _mostRecentEventId: null,
+
+  /**
+   * Event IDs that we showed a decryption error in the conversation for.
+   * @type {Set<string>}
+   */
+  _eventsWaitingForDecryption: null,
 
   /**
    * Leave the room if we close the conversation.
@@ -601,19 +627,30 @@ MatrixRoom.prototype = {
       this._mostRecentEventId = event.getId();
       return;
     }
+    let replace = false;
+    let message;
+    let opts = {
+      event,
+      delayed,
+    };
+    if (event.isEncrypted()) {
+      if (event.shouldAttemptDecryption()) {
+        // Wait for the decryption event for this message.
+        return;
+      }
+      if (event.isDecryptionFailure() || event.isBeingDecrypted()) {
+        this._eventsWaitingForDecryption.add(event.getId());
+      } else if (this._eventsWaitingForDecryption.has(event.getId())) {
+        replace = true;
+        this._eventsWaitingForDecryption.delete(event.getId());
+      }
+    }
     const eventType = event.getType();
     if (
       eventType === EventType.RoomMessage ||
       eventType === EventType.RoomMessageEncrypted ||
       eventType === EventType.Sticker
     ) {
-      if (event.isEncrypted()) {
-        const clearContent = event.getClearContent();
-        if (!clearContent) {
-          this.ERROR("Missing decrypted event content for " + event.getId());
-          return;
-        }
-      }
       const eventContent = event.getContent();
       // Only print server notices when we're in a server notice room.
       if (
@@ -622,31 +659,21 @@ MatrixRoom.prototype = {
       ) {
         return;
       }
-      let message = MatrixMessageContent.getIncomingPlain(
+      message = MatrixMessageContent.getIncomingPlain(
         event,
         this._account._client.getHomeserverUrl(),
         eventId => this.room.findEventById(eventId)
       );
-      if (eventContent.msgtype === MsgType.KeyVerificationRequest) {
-        message = getMatrixTextForEvent(event);
-      }
-      this.writeMessage(event.getSender(), message, {
-        system: [
-          MsgType.Notice,
-          "m.server_notice",
-          "m.bad.encrypted",
-          MsgType.KeyVerificationRequest,
-        ].includes(eventContent.msgtype),
-        delayed,
-        event,
-      });
+      opts.system = [
+        MsgType.Notice,
+        "m.server_notice",
+        MsgType.KeyVerificationRequest,
+      ].includes(eventContent.msgtype);
+      opts.error = event.isDecryptionFailure();
     } else if (eventType === EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
-      this.writeMessage(event.getSender(), _("message.encryptionStart"), {
-        system: true,
-        delayed,
-        event,
-      });
+      message = _("message.encryptionStart");
+      opts.system = true;
       this.updateUnverifiedDevices();
     } else if (eventType == EventType.RoomTopic) {
       this.setTopic(event.getContent().topic, event.getSender());
@@ -669,18 +696,19 @@ MatrixRoom.prototype = {
       // Update the icon of this room.
       this.updateConvIcon();
     } else {
-      let message = getMatrixTextForEvent(event);
+      message = getMatrixTextForEvent(event);
+      opts.system = true;
       // We don't think we should show a notice for this event.
       if (!message) {
         this.LOG("Unhandled event: " + JSON.stringify(event.toJSON()));
-        this._mostRecentEventId = event.getId();
-        return;
       }
-      this.writeMessage(event.getSender(), message, {
-        system: true,
-        delayed,
-        event,
-      });
+    }
+    if (message) {
+      if (replace) {
+        this.updateMessage(event.getSender(), message, opts);
+      } else {
+        this.writeMessage(event.getSender(), message, opts);
+      }
     }
     this._mostRecentEventId = event.getId();
   },
@@ -795,6 +823,7 @@ MatrixRoom.prototype = {
           "scale",
           false
         ) || "";
+      properties.remoteId = properties.event.getId();
     }
     if (this.isChat && !properties.containsNick) {
       properties.containsNick =
@@ -1858,15 +1887,6 @@ MatrixAccount.prototype = {
       "Room.timeline",
       (event, room, toStartOfTimeline, removed, data) => {
         if (toStartOfTimeline || this._catchingUp || room.isSpaceRoom()) {
-          return;
-        }
-        // Encrypted events are handled through separate SDK event to wait for
-        // decryption
-        if (
-          event.isEncrypted() &&
-          !event.getClearContent() &&
-          !event.isDecryptionFailure()
-        ) {
           return;
         }
         let conv = this.roomList.get(room.roomId);

@@ -4,9 +4,7 @@
 const { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-var { EventType, MsgType } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
+var { MsgType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
 loadMatrix();
 
@@ -100,6 +98,7 @@ add_task(function test_addEventMessageIncoming() {
         },
       },
     },
+    _eventsWaitingForDecryption: new Set(),
     writeMessage(who, message, options) {
       this.who = who;
       this.message = message;
@@ -132,6 +131,7 @@ add_task(function test_addEventMessageOutgoing() {
         },
       },
     },
+    _eventsWaitingForDecryption: new Set(),
     writeMessage(who, message, options) {
       this.who = who;
       this.message = message;
@@ -164,6 +164,7 @@ add_task(function test_addEventMessageEmote() {
         },
       },
     },
+    _eventsWaitingForDecryption: new Set(),
     writeMessage(who, message, options) {
       this.who = who;
       this.message = message;
@@ -196,6 +197,7 @@ add_task(function test_addEventMessageDelayed() {
         },
       },
     },
+    _eventsWaitingForDecryption: new Set(),
     writeMessage(who, message, options) {
       this.who = who;
       this.message = message;
@@ -220,6 +222,7 @@ add_task(function test_addEventTopic() {
     sender: "@user:example.com",
   });
   const roomStub = {
+    _eventsWaitingForDecryption: new Set(),
     setTopic(topic, who) {
       this.who = who;
       this.topic = topic;
@@ -481,6 +484,7 @@ add_task(function test_addEventSticker() {
         },
       },
     },
+    _eventsWaitingForDecryption: new Set(),
     writeMessage(who, message, options) {
       this.who = who;
       this.message = message;
@@ -551,6 +555,77 @@ add_task(function test_createMessage() {
   ok(message.containsNick);
   equal(message.time, Math.floor(time / 1000));
   equal(message.iconURL, "https://example.com/avatar");
+  equal(message.remoteId, 0);
+  roomStub.forget();
+});
+
+add_task(function test_addEventWaitingForDecryption() {
+  const event = makeEvent({
+    sender: "@user:example.com",
+    type: EventType.RoomMessageEncrypted,
+    shouldDecrypt: true,
+  });
+  let createMessageCalled = false;
+  const roomStub = {
+    createMessage() {
+      createMessageCalled = true;
+    },
+  };
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  equal(roomStub._mostRecentEventId, undefined);
+  ok(!createMessageCalled);
+});
+
+add_task(async function test_addEventReplaceDecryptedEvent() {
+  const event = makeEvent({
+    sender: "@user:example.com",
+    type: EventType.RoomMessage,
+    isEncrypted: true,
+    content: {
+      msgtype: MsgType.Text,
+      body: "foo",
+    },
+  });
+  const roomStub = getRoom(true, "#test:example.com");
+  roomStub._eventsWaitingForDecryption.add(event.getId());
+  const updatePromise = waitForNotification(roomStub, "update-text");
+  roomStub.addEvent(event);
+  const { subject: result } = await updatePromise;
+  equal(result.who, "@user:example.com");
+  equal(result.message, "foo");
+  roomStub.forget();
+});
+
+add_task(async function test_addEventDecryptionError() {
+  const event = makeEvent({
+    sender: "@user:example.com",
+    type: EventType.RoomMessageEncrypted,
+    content: {
+      msgtype: "m.bad.encrypted",
+    },
+  });
+  const roomStub = getRoom(true, "#test:example.com");
+  const writePromise = waitForNotification(roomStub, "new-text");
+  roomStub.addEvent(event);
+  ok(roomStub._eventsWaitingForDecryption.has(event.getId()));
+  const { subject: result } = await writePromise;
+  ok(result.error);
+  ok(!result.system);
+  roomStub.forget();
+});
+add_task(async function test_addEventPendingDecryption() {
+  const event = makeEvent({
+    sender: "@user:example.com",
+    type: EventType.RoomMessageEncrypted,
+    decrypting: true,
+  });
+  const roomStub = getRoom(true, "#test:example.com");
+  const writePromise = waitForNotification(roomStub, "new-text");
+  roomStub.addEvent(event);
+  ok(roomStub._eventsWaitingForDecryption.has(event.getId()));
+  const { subject: result } = await writePromise;
+  ok(!result.error);
+  ok(!result.system);
   roomStub.forget();
 });
 
