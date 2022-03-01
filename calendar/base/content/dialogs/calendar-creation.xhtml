@@ -4,40 +4,35 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-creation.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-creation.css"?>
 
 <!-- TODO: messenger.dtd is used for the "Next" button; some relocation is needed. -->
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
   <!ENTITY % dtd3 SYSTEM "chrome://lightning/locale/lightning.dtd" > %dtd3;
   <!ENTITY % dtd4 SYSTEM "chrome://messenger/locale/messenger.dtd" > %dtd4;
 ]>
-
-<window id="calendar-creation-window"
-        title="&wizard.title;"
-        windowtype="Calendar:CreateCalendarDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        lightweightthemes="true"
-        minheight="380"
-        width="500"
-        persist="screenX screenY">
-  <linkset>
-    <html:link rel="localization" href="toolkit/global/wizard.ftl"/>
-  </linkset>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://calendar/content/calendar-creation.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://calendar/content/calendar-identity-utils.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <dialog id="calendar-creation-dialog"
-          buttons="accept,cancel">
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      width="500" height="380"
+      scrolling="false">
+<head>
+  <title>&wizard.title;</title>
+  <link rel="localization" href="toolkit/global/wizard.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-identity-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-creation.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <dialog id="calendar-creation-dialog" buttons="accept,cancel">
       <!-- Panel: Select Calendar Type -->
       <vbox id="panel-select-calendar-type"
             buttonlabelaccept="&nextButton.label;"
@@ -213,4 +208,5 @@
             buttonaccesskeyextra2="&buttons.back.accesskey;"
             hidden="true"/>
   </dialog>
-</window>
+</html:body>
+</html>
