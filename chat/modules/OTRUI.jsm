@@ -24,7 +24,6 @@ function _strArgs(id, args) {
   return l10n.formatValueSync(id, args);
 }
 
-const OTR_AUTH_DIALOG_URL = "chrome://chat/content/otr-auth.xhtml";
 const OTR_ADD_FINGER_DIALOG_URL =
   "chrome://chat/content/otr-add-fingerprint.xhtml";
 
@@ -307,7 +306,7 @@ var OTRUI = {
     let otrAuth = this.globalDoc.querySelector(".otr-auth");
     otrAuth.disabled = true;
     let win = window.openDialog(
-      OTR_AUTH_DIALOG_URL,
+      "chrome://chat/content/otr-auth.xhtml",
       "auth=" + name,
       "centerscreen,resizable=no,minimizable=no",
       mode,

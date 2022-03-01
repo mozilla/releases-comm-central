@@ -8,6 +8,10 @@ const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
 );
 const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
+window.addEventListener("DOMContentLoaded", event => {
+  otrAuth.onload();
+});
+
 var [mode, uiConv, contactInfo] = window.arguments;
 
 function showSection(selected, hideMenu) {
@@ -176,10 +180,7 @@ var otrAuth = {
   },
 
   oninput(e) {
-    document
-      .getElementById("otrAuthDialog")
-      .querySelector("dialog")
-      .getButton("accept").disabled = !e.value;
+    document.querySelector("dialog").getButton("accept").disabled = !e.value;
   },
 
   how() {

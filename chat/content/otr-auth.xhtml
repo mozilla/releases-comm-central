@@ -7,25 +7,23 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE window>
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        id="otrAuthDialog"
-        data-l10n-id="otr-auth"
-        data-l10n-attrs="buttonlabelaccept"
-        windowtype="OTR:Auth"
-        onload="otrAuth.onload()">
-
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title><!-- auth-title --></title>
+  <link rel="localization" href="messenger/otr/auth.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://chat/content/otr-auth.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <dialog buttons="accept,cancel,help"
-          buttondisabledaccept="true">
-
-    <linkset>
-      <html:link rel="localization" href="messenger/otr/auth.ftl"/>
-    </linkset>
-
-    <script src="chrome://global/content/globalOverlay.js"/>
-    <script src="chrome://global/content/editMenuOverlay.js"/>
-    <script src="chrome://chat/content/otr-auth.js"/>
+          buttondisabledaccept="true"
+          data-l10n-id="otr-auth"
+          data-l10n-attrs="buttonlabelaccept">
 
     <html:fieldset id="how" hidden="hidden">
       <html:legend data-l10n-id="auth-how"></html:legend>
@@ -102,4 +100,5 @@
       </vbox>
     </html:fieldset>
   </dialog>
-</window>
+</html:body>
+</html>
