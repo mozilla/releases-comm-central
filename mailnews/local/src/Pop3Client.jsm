@@ -150,10 +150,10 @@ class Pop3Client {
   async getMail(downloadMail, msgWindow, urlListener, folder) {
     this._downloadMail = downloadMail;
     this._msgWindow = msgWindow;
-    this._urlListener = urlListener;
+    this.urlListener = urlListener;
     this._sink.folder = folder;
     this._actionAfterAuth = this._actionStat;
-    this._urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
+    this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
 
     await this._loadUidlState();
     this._actionCapa();
@@ -162,11 +162,9 @@ class Pop3Client {
   /**
    * Verify that we can logon to the server. Exit after auth success/failure.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
-   * @param {nsIUrlListener} urlListener - Callback for the request.
    */
-  verifyLogon(msgWindow, urlListener) {
+  verifyLogon(msgWindow) {
     this._msgWindow = msgWindow;
-    this._urlListener = urlListener;
     this._verifyLogon = true;
     this._actionAfterAuth = this._actionDone;
     this._actionCapa();
@@ -181,8 +179,8 @@ class Pop3Client {
     this._downloadMail = true;
     this._sink = sink;
     this._sink.buildMessageUri = true;
-    this._urlListener = sink.folder.QueryInterface(Ci.nsIUrlListener);
-    this._urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
+    this.urlListener = sink.folder.QueryInterface(Ci.nsIUrlListener);
+    this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
 
     await this._loadUidlState();
 
@@ -1223,7 +1221,7 @@ class Pop3Client {
       }
     }
     this._writeUidlState();
-    this._urlListener?.OnStopRunningUrl(this.runningUri, status);
+    this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     this.quit();
   };
 

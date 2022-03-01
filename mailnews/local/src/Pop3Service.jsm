@@ -28,9 +28,10 @@ class Pop3Service {
 
   verifyLogon(server, urlListener, msgWindow) {
     let client = new Pop3Client(server);
+    client.urlListener = urlListener;
     client.connect();
     client.onOpen = () => {
-      client.verifyLogon(msgWindow, urlListener);
+      client.verifyLogon(msgWindow);
     };
     return client.runningUri;
   }

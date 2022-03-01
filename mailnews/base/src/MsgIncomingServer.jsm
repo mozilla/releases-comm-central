@@ -574,10 +574,27 @@ class MsgIncomingServer {
     // Clear the clientid because the user or host have changed.
     this.clientid = "";
 
-    if (hostnameChanged) {
-      this.prettyName = this._constructPrettyName(this.realUsername, newValue);
-    } else {
-      this.prettyName = this._constructPrettyName(newValue, this.realHostName);
+    if (!this.prettyName || (!hostnameChanged && atIndex != -1)) {
+      // If new username contains @ then better not update the pretty name.
+      return;
+    }
+
+    atIndex = this.prettyName.indexOf("@");
+    if (
+      !hostnameChanged &&
+      atIndex != -1 &&
+      oldValue == this.prettyName.slice(0, atIndex)
+    ) {
+      // If username changed and the pretty name has the old username before @,
+      // update to the new username.
+      this.prettyName = newValue + this.prettyName.slice(atIndex);
+    } else if (
+      hostnameChanged &&
+      oldValue == this.prettyName.slice(atIndex + 1)
+    ) {
+      // If hostname changed and the pretty name has the old hostname after @,
+      // update to the new hostname.
+      this.prettyName = this.prettyName.slice(0, atIndex + 1) + newValue;
     }
   }
 
