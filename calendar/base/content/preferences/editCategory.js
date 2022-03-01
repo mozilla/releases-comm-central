@@ -6,6 +6,8 @@
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+window.addEventListener("DOMContentLoaded", editCategoryLoad);
+
 // Global variable, set to true if the user has picked a custom color.
 var customColorSelected = false;
 

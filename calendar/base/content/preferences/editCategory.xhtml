@@ -5,25 +5,20 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
-<!DOCTYPE window>
-
-<window id="editCategoryWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="editCategoryLoad();">
-
-<dialog id="editCategory"
-        buttons="accept,cancel">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://calendar/content/preferences/editCategory.js"/>
-
-  <linkset>
-    <html:link rel="localization" href="calendar/category-dialog.ftl"/>
-  </linkset>
-
-  <vbox id="dialog-box">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title><!-- category-new-label / category-edit-label --></title>
+  <link rel="localization" href="calendar/category-dialog.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://calendar/content/preferences/editCategory.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog id="editCategory" buttons="accept,cancel" style="width:100vw; height:100vh;">
     <label id="categoryNameLabel"
            data-l10n-id="category-name-label"
            control="categoryName"/>
@@ -43,6 +38,6 @@
                   onchange="colorPickerChanged()"
                   aria-labelledby="useColor"/>
     </hbox>
-  </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
