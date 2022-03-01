@@ -195,7 +195,7 @@ add_task(async function createContact() {
   contact.firstName = "new";
   contact.lastName = "contact";
   contact.primaryEmail = "test@invalid";
-  contact.setProperty("Notes", "This will be deleted later.");
+  contact.setProperty("Foo", "This will be deleted later.");
   contact = book.addCard(contact);
   observer.checkEvents(["addrbook-contact-created", contact, book.UID]);
 
@@ -210,7 +210,7 @@ add_task(async function createContact() {
   equal(contact.lastName, "contact");
   equal(contact.displayName, "a new contact");
   equal(contact.primaryEmail, "test@invalid");
-  equal(contact.getProperty("Notes", ""), "This will be deleted later.");
+  equal(contact.getProperty("Foo", ""), "This will be deleted later.");
   equal(contact.isMailList, false);
   let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
@@ -237,7 +237,7 @@ add_task(async function editContact() {
   contact.displayName = "updated contact";
   contact.setProperty("Custom1", "a new property");
   contact.setProperty("Custom2", "");
-  contact.setProperty("Notes", null);
+  contact.setProperty("Foo", null);
   contact.setProperty("LastModifiedDate", 0);
   book.modifyCard(contact);
   let [, propertyEvent] = observer.checkEvents(
@@ -249,7 +249,7 @@ add_task(async function editContact() {
       oldValue: "a new contact",
       newValue: "updated contact",
     },
-    Notes: {
+    Foo: {
       oldValue: "This will be deleted later.",
       newValue: null,
     },
@@ -261,6 +261,24 @@ add_task(async function editContact() {
       oldValue: null,
       newValue: "a new property",
     },
+    _vCard: {
+      oldValue: formatVCard`
+        BEGIN:VCARD
+        VERSION:4.0
+        FN:a new contact
+        EMAIL;PREF=1:test@invalid
+        N:contact;new;;;
+        UID:${contact.UID}
+        END:VCARD`,
+      newValue: formatVCard`
+        BEGIN:VCARD
+        VERSION:4.0
+        FN:updated contact
+        EMAIL;PREF=1:test@invalid
+        N:contact;updated;;;
+        UID:${contact.UID}
+        END:VCARD`,
+    },
   });
   contact = book.childCards[0];
   equal(contact.firstName, "updated");
@@ -268,7 +286,7 @@ add_task(async function editContact() {
   equal(contact.displayName, "updated contact");
   equal(contact.getProperty("Custom1", ""), "a new property");
   equal(contact.getProperty("Custom2", "no value"), "no value");
-  equal(contact.getProperty("Notes", "empty"), "empty");
+  equal(contact.getProperty("Foo", "empty"), "empty");
   let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
   Assert.greater(modifiedDate, Date.now() / 1000 - 10);
@@ -371,7 +389,7 @@ add_task(async function createContactWithUID() {
   Assert.throws(() => {
     // Set the UID after it already exists.
     contactWithUID.UID = "This should not be possible";
-  }, /NS_ERROR_FAILURE/);
+  }, /NS_ERROR_UNEXPECTED/);
 
   // Setting the UID to it's existing value should not fail.
   contactWithUID.UID = contactWithUID.UID; // eslint-disable-line no-self-assign

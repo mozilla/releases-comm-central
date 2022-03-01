@@ -8,9 +8,18 @@ const EXPORTED_SYMBOLS = [
   "VCardProperties",
   "VCardPropertyEntry",
   "VCardUtils",
+  "BANISHED_PROPERTIES",
 ];
 
 const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
+});
 
 /**
  * Utilities for working with vCard data. This file uses ICAL.js as parser and
@@ -170,113 +179,35 @@ var VCardUtils = {
   vCardToAbCard(vCard) {
     vCard = this.translateVCard21(vCard);
 
-    let [, vProps] = ICAL.parse(vCard);
-    let vPropMap = this._parse(vProps);
-
-    let abCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-      Ci.nsIAbCard
-    );
-    for (let [name, , , value] of vProps) {
-      if (name == "uid") {
-        abCard.UID = value;
-        break;
-      }
+    let abCard = new AddrBookCard();
+    abCard.setProperty("_vCard", vCard);
+    let uid = abCard.vCardProperties.getFirstValue("uid");
+    if (uid) {
+      abCard.UID = uid;
     }
-    for (let [name, props] of vPropMap) {
-      // Store the value(s) on the abCard.
-      for (let [abPropName, abPropValue] of typeMap[name].toAbCard(
-        props[0].value
-      )) {
-        if (abPropValue) {
-          abCard.setProperty(abPropName, abPropValue);
-        }
-      }
 
-      // Special case for email, which can also have a second preference.
-      if (name == "email" && props.length > 1) {
-        abCard.setProperty("SecondEmail", props[1].value);
-      }
-    }
     return abCard;
   },
-  modifyVCard(vCard, abCard) {
-    let card = ICAL.parse(vCard);
-    let [, vProps] = card;
-    let vPropMap = this._parse(vProps);
+  abCardToVCard(abCard, version) {
+    if (abCard.supportsVCard && abCard.getProperty("_vCard")) {
+      return abCard.vCardProperties.toVCard();
+    }
 
     // Collect all of the AB card properties into a Map.
-    let abProps = new Map();
-    for (let abProp of abCard.properties) {
-      if (abProp.value) {
-        abProps.set(abProp.name, abProp.value);
-      }
-    }
+    let abProps = new Map(
+      Array.from(abCard.properties, p => [p.name, p.value])
+    );
+    abProps.set("UID", abCard.UID);
 
-    // Update the vCard.
-    let indicesToRemove = [];
-    for (let vPropName of Object.keys(typeMap)) {
-      let existingVProps = vPropMap.get(vPropName) || [];
-      let newVProps = [...typeMap[vPropName].fromAbCard(abProps)];
-
-      if (newVProps.length == 0) {
-        // Removed property, remove it.
-        for (let existingVProp of existingVProps) {
-          indicesToRemove.push(existingVProp.index);
-        }
-        continue;
-      }
-
-      for (let i = 0; i < newVProps.length; i++) {
-        let newValue = newVProps[i][3];
-        if (existingVProps[i]) {
-          if (newValue === undefined) {
-            // Empty property, remove it.
-            indicesToRemove.push(existingVProps[i].index);
-          } else {
-            // Existing property, update it.
-            vProps[existingVProps[i].index][3] = newVProps[i][3];
-          }
-        } else if (newValue !== undefined) {
-          // New property, add it.
-          vProps.push(newVProps[i]);
-        }
-      }
-
-      // There may be more existing properties than new properties, because we
-      // haven't stored them. Don't truncate!
-    }
-
-    // Remove the props we don't want, from end to start to avoid changing indices.
-    indicesToRemove.sort();
-    for (let i = indicesToRemove.length - 1; i >= 0; i--) {
-      vProps.splice(indicesToRemove[i], 1);
-    }
-
-    // Always set the UID.
-    let uidIndex = vProps.findIndex(prop => prop[0] == "uid");
-    if (uidIndex == -1) {
-      vProps.push(["uid", {}, "text", abCard.UID]);
-    } else {
-      vProps[uidIndex] = ["uid", {}, "text", abCard.UID];
-    }
-
-    return ICAL.stringify(card);
+    return this.propertyMapToVCard(abProps, version);
   },
-  abCardToVCard(abCard, version = "4.0") {
+  propertyMapToVCard(abProps, version = "4.0") {
     let vProps = [["version", {}, "text", version]];
-
-    // Collect all of the AB card properties into a Map.
-    let abProps = new Map();
-    for (let abProp of abCard.properties) {
-      if (abProp.value) {
-        abProps.set(abProp.name, abProp.value);
-      }
-    }
 
     // Add the properties to the vCard.
     for (let vPropName of Object.keys(typeMap)) {
       for (let vProp of typeMap[vPropName].fromAbCard(abProps, vPropName)) {
-        if (vProp[3] !== undefined) {
+        if (vProp[3] !== null && vProp[3] !== undefined && vProp[3] !== "") {
           vProps.push(vProp);
         }
       }
@@ -292,7 +223,9 @@ var VCardUtils = {
       delete telProps[0][1].type;
     }
 
-    vProps.push(["uid", {}, "text", abCard.UID]);
+    if (abProps.has("UID")) {
+      vProps.push(["uid", {}, "text", abProps.get("UID")]);
+    }
     return ICAL.stringify(["vcard", vProps]);
   },
 };
@@ -376,6 +309,50 @@ VCardMimeConverter.prototype = {
   },
 };
 
+const BANISHED_PROPERTIES = [
+  "UID",
+  "PrimaryEmail",
+  "SecondEmail",
+  "DisplayName",
+  "NickName",
+  "Notes",
+  "Company",
+  "Department",
+  "JobTitle",
+  "BirthDay",
+  "BirthMonth",
+  "BirthYear",
+  "AnniversaryDay",
+  "AnniversaryMonth",
+  "AnniversaryYear",
+  "LastName",
+  "FirstName",
+  "AdditionalNames",
+  "NamePrefix",
+  "NameSuffix",
+  "HomePOBox",
+  "HomeAddress2",
+  "HomeAddress",
+  "HomeCity",
+  "HomeState",
+  "HomeZipCode",
+  "HomeCountry",
+  "WorkPOBox",
+  "WorkAddress2",
+  "WorkAddress",
+  "WorkCity",
+  "WorkState",
+  "WorkZipCode",
+  "WorkCountry",
+  "HomePhone",
+  "WorkPhone",
+  "FaxNumber",
+  "PagerNumber",
+  "CellularNumber",
+  "WebPage1",
+  "WebPage2",
+];
+
 /** Helper functions for typeMap. */
 
 function singleTextProperty(
@@ -412,22 +389,21 @@ function singleTextProperty(
 function dateProperty(abCardPrefix, vPropName) {
   return {
     *fromAbCard(map) {
-      if (
-        !map.has(`${abCardPrefix}Year`) ||
-        !map.has(`${abCardPrefix}Month`) ||
-        !map.has(`${abCardPrefix}Day`)
-      ) {
+      let year = map.get(`${abCardPrefix}Year`);
+      let month = map.get(`${abCardPrefix}Month`);
+      let day = map.get(`${abCardPrefix}Day`);
+
+      if (!year && !month && !day) {
         return;
       }
-      let dateValue = new ICAL.VCardTime(
-        {
-          year: Number(map.get(`${abCardPrefix}Year`)),
-          month: Number(map.get(`${abCardPrefix}Month`)),
-          day: Number(map.get(`${abCardPrefix}Day`)),
-        },
-        null,
-        "date"
-      );
+
+      let dateValue = new ICAL.VCardTime({}, null, "date");
+      // Set the properties directly instead of using the VCardTime
+      // constructor argument, which causes null values to become 0.
+      dateValue.year = year ? Number(year) : null;
+      dateValue.month = month ? Number(month) : null;
+      dateValue.day = day ? Number(day) : null;
+
       yield [vPropName, {}, "date", dateValue.toString()];
     },
     *toAbCard(value) {
@@ -444,12 +420,10 @@ function multiTextProperty(abPropNames, vPropName, vPropParams = {}) {
       if (abPropNames.every(name => !map.has(name))) {
         return;
       }
-      yield [
-        vPropName,
-        { ...vPropParams },
-        "text",
-        abPropNames.map(name => map.get(name) || ""),
-      ];
+      let vPropValues = abPropNames.map(name => map.get(name) || "");
+      if (vPropValues.some(Boolean)) {
+        yield [vPropName, { ...vPropParams }, "text", vPropValues];
+      }
     },
     *toAbCard(value) {
       if (Array.isArray(value)) {
@@ -483,6 +457,7 @@ function multiTextProperty(abPropNames, vPropName, vPropParams = {}) {
  * singleTextProperty.
  */
 var typeMap = {
+  fn: singleTextProperty("DisplayName", "fn"),
   email: {
     *fromAbCard(map) {
       yield ["email", { pref: "1" }, "text", map.get("PrimaryEmail")];
@@ -491,7 +466,6 @@ var typeMap = {
     toAbCard: singleTextProperty("PrimaryEmail", "email", { pref: "1" })
       .toAbCard,
   },
-  fn: singleTextProperty("DisplayName", "fn"),
   nickname: singleTextProperty("NickName", "nickname"),
   note: singleTextProperty("Notes", "note"),
   org: multiTextProperty(["Company", "Department"], "org"),
@@ -570,6 +544,15 @@ class VCardPropertyEntry {
     this.#name = name;
     this.#params = params;
     this.#type = type;
+    if (params.encoding?.toUpperCase() == "QUOTED-PRINTABLE") {
+      if (Array.isArray(value)) {
+        value = value.map(VCardUtils._decodeQuotedPrintable);
+      } else {
+        value = VCardUtils._decodeQuotedPrintable(value);
+      }
+      delete params.encoding;
+      delete params.charset;
+    }
     this.#value = value;
     this._original = this;
   }

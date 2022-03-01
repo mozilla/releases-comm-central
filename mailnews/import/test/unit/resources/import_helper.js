@@ -189,6 +189,7 @@ function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName) {
     "Custom4",
     "Notes",
     "_AimScreenName",
+    "_vCard",
   ];
 
   // get the extra attributes supported for the given type of import
@@ -324,9 +325,23 @@ AbImportHelper.prototype = {
    * @param aCard     The imported card to compare with.
    */
   compareCards(aJsonCard, aCard) {
-    for (var i in aJsonCard) {
-      if (this.mSupportedAttributes.includes(i)) {
-        Assert.equal(aJsonCard[i], aCard.getProperty(i, "BAD"));
+    for (let [key, value] of Object.entries(aJsonCard)) {
+      if (!this.mSupportedAttributes.includes(key)) {
+        continue;
+      }
+      if (key == "_vCard") {
+        equal(
+          aCard
+            .getProperty(key, "")
+            .replace(
+              /UID:[a-f0-9-]{36}/i,
+              "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            ),
+          `BEGIN:VCARD\r\n${value.join("\r\n")}\r\nEND:VCARD\r\n`,
+          "_vCard should be correct"
+        );
+      } else {
+        equal(aCard.getProperty(key, ""), value, `${key} should be correct`);
       }
     }
   },

@@ -103,52 +103,14 @@ class CardDAVDirectory extends SQLiteDirectory {
   modifyCard(card) {
     // Well this is awkward. Because it's defined in nsIAbDirectory,
     // modifyCard must not be async, but we need to do async operations.
-
-    if (this._readOnly) {
-      throw new Components.Exception(
-        "Directory is read-only",
-        Cr.NS_ERROR_FAILURE
-      );
-    }
-
-    // We've thrown the most likely exception synchronously, now do the rest.
-
-    this._modifyCard(card);
+    let newCard = super.modifyCard(card);
+    this._modifyCard(newCard);
   }
   async _modifyCard(card) {
-    let oldProperties = this.loadCardProperties(card.UID);
-
-    let newProperties = new Map();
-    for (let { name, value } of card.properties) {
-      newProperties.set(name, value);
-    }
-
-    let sendSucceeded;
     try {
-      sendSucceeded = await this._sendCardToServer(card);
+      await this._sendCardToServer(card);
     } catch (ex) {
       Cu.reportError(ex);
-      super.modifyCard(card);
-      return;
-    }
-
-    if (!sendSucceeded) {
-      // _etag and _vCard properties have now been updated. Work out what
-      // properties changed on the server, and copy them to `card`, but only
-      // if they haven't also changed on the client.
-      let serverCard = VCardUtils.vCardToAbCard(card.getProperty("_vCard", ""));
-      for (let { name, value } of serverCard.properties) {
-        if (
-          value != newProperties.get(name) &&
-          newProperties.get(name) == oldProperties.get(name)
-        ) {
-          card.setProperty(name, value);
-        }
-      }
-
-      // Send the card back to the server. This time, the ETag matches what's
-      // on the server, so this should succeed.
-      await this._sendCardToServer(card);
     }
   }
   deleteCards(cards) {
@@ -327,7 +289,6 @@ class CardDAVDirectory extends SQLiteDirectory {
         let abCard = VCardUtils.vCardToAbCard(vCard);
         abCard.setProperty("_etag", etag);
         abCard.setProperty("_href", href);
-        abCard.setProperty("_vCard", vCard);
 
         if (!this.cards.has(abCard.UID)) {
           super.dropCard(abCard, false);
@@ -400,17 +361,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       contentType: "text/vcard",
     };
 
-    let existingVCard = card.getProperty("_vCard", "");
-    if (existingVCard) {
-      requestDetails.body = VCardUtils.modifyVCard(existingVCard, card);
-      let existingETag = card.getProperty("_etag", "");
-      if (existingETag) {
-        requestDetails.headers = { "If-Match": existingETag };
-      }
-    } else {
-      // TODO 3.0 is the default, should we be able to use other versions?
-      requestDetails.body = VCardUtils.abCardToVCard(card, "3.0");
-    }
+    requestDetails.body = card.getProperty("_vCard", "");
 
     let response;
     try {
@@ -422,8 +373,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       throw ex;
     }
 
-    let conflictResponse = [409, 412].includes(response.status);
-    if (response.status >= 400 && !conflictResponse) {
+    if (response.status >= 400) {
       throw Components.Exception(
         `Sending card to the server failed, response was ${response.status} ${response.statusText}`,
         Cr.NS_ERROR_FAILURE
@@ -447,17 +397,9 @@ class CardDAVDirectory extends SQLiteDirectory {
         properties.querySelector("address-data")?.textContent
       );
 
-      if (conflictResponse) {
-        card.setProperty("_etag", etag);
-        card.setProperty("_href", href);
-        card.setProperty("_vCard", vCard);
-        return false;
-      }
-
       let abCard = VCardUtils.vCardToAbCard(vCard);
       abCard.setProperty("_etag", etag);
       abCard.setProperty("_href", href);
-      abCard.setProperty("_vCard", vCard);
 
       if (abCard.UID == card.UID) {
         super.modifyCard(abCard);
@@ -466,8 +408,6 @@ class CardDAVDirectory extends SQLiteDirectory {
         super.deleteCards([card]);
       }
     }
-
-    return !conflictResponse;
   }
 
   /**
@@ -567,7 +507,6 @@ class CardDAVDirectory extends SQLiteDirectory {
           let abCard = VCardUtils.vCardToAbCard(vCard);
           abCard.setProperty("_etag", etag);
           abCard.setProperty("_href", href);
-          abCard.setProperty("_vCard", vCard);
           abCards.push(abCard);
         } catch (ex) {
           log.error(`Error parsing: ${vCard}`);
@@ -830,7 +769,6 @@ class CardDAVDirectory extends SQLiteDirectory {
         let abCard = VCardUtils.vCardToAbCard(vCard);
         abCard.setProperty("_etag", etag);
         abCard.setProperty("_href", href);
-        abCard.setProperty("_vCard", vCard);
 
         if (card) {
           if (card.getProperty("_etag", "") != etag) {

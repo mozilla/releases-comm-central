@@ -36,7 +36,7 @@ var connections = new Map();
  * the database schema if necessary.
  */
 function openConnectionTo(file) {
-  const CURRENT_VERSION = 3;
+  const CURRENT_VERSION = 4;
 
   let connection = connections.get(file.path);
   if (!connection) {
@@ -79,8 +79,12 @@ function openConnectionTo(file) {
       // Falls through.
       case 2:
         connection.executeSimpleSQL("DROP TABLE IF EXISTS cards");
-        // The lists table may have a localId column we no longer use, but
-        // since SQLite can't drop columns it's not worth effort to remove it.
+      // The lists table may have a localId column we no longer use, but
+      // since SQLite can't drop columns it's not worth effort to remove it.
+      // Falls through.
+      case 3:
+        // This version exists only to create an automatic backup before cards
+        // are transitioned to vCard.
         connection.schemaVersion = CURRENT_VERSION;
         break;
     }
@@ -366,18 +370,7 @@ class SQLiteDirectory extends AddrBookDirectory {
         this.cards.set(uid, cachedCard);
       }
 
-      for (let { name, value } of card.properties) {
-        if (
-          [
-            "DbRowID",
-            "LowercasePrimaryEmail",
-            "LowercaseSecondEmail",
-            "RecordKey",
-            "UID",
-          ].includes(name)
-        ) {
-          continue;
-        }
+      for (let [name, value] of this.prepareToSaveCard(card)) {
         let propertiesParams = propertiesArray.newBindingParams();
         propertiesParams.bindByName("card", uid);
         propertiesParams.bindByName("name", name);

@@ -3,10 +3,6 @@
  * Test suite for basic nsIAbCard functions.
  */
 
-const { AddrBookCard } = ChromeUtils.import(
-  "resource:///modules/AddrBookCard.jsm"
-);
-
 // Intersperse these with UTF-8 values to check we handle them correctly.
 var kFNValue = "testFirst\u00D0";
 var kLNValue = "testLast";
@@ -18,16 +14,11 @@ var kEmailValue2 = "test@test.foo.invalid";
 var kEmailReducedValue = "testEmail\u00D2";
 var kCompanyValue = "Test\u00D0 Company";
 
-add_task(function test_cpp_card() {
-  subtest(
-    Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard)
+add_task(function testAbCardProperty() {
+  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
   );
-});
-add_task(function test_js_card() {
-  subtest(new AddrBookCard());
-});
 
-function subtest(card) {
   // Test - Set First, Last and Display Names and Email Address
   // via setProperty, and check correctly saved via their
   // attributes. We're using firstName to check UTF-8 values.
@@ -184,4 +175,4 @@ function subtest(card) {
   Assert.equal(card.hasEmailAddress(kEmailValue), false);
   Assert.equal(card.hasEmailAddress(kEmailValueLC), false);
   Assert.equal(card.hasEmailAddress(kEmailValue2), true);
-}
+});

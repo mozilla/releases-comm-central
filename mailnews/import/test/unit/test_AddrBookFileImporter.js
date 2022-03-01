@@ -42,10 +42,23 @@ async function test_importAbFile(type, filePath, refDataKey, csvFieldMap) {
   for (let i = 0; i < refData.length; i++) {
     let card = targetDir.childCards[i];
     for (let [key, value] of Object.entries(refData[i])) {
-      if (["LastModifiedDate", "Organization"].includes(key)) {
+      if (key == "LastModifiedDate") {
         continue;
       }
-      equal(value, card.getProperty(key, ""), `${key} should be correct`);
+      if (key == "_vCard") {
+        equal(
+          card
+            .getProperty(key, "")
+            .replace(
+              /UID:[a-f0-9-]{36}/i,
+              "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            ),
+          `BEGIN:VCARD\r\n${value.join("\r\n")}\r\nEND:VCARD\r\n`,
+          "_vCard should be correct"
+        );
+      } else {
+        equal(card.getProperty(key, ""), value, `${key} should be correct`);
+      }
     }
   }
 }

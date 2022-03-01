@@ -367,6 +367,9 @@ var AddrBookUtils = {
         // Use LDIF for that.
         continue;
       }
+      let propertyMap = card.supportsVCard
+        ? card.vCardProperties.toPropertyMap()
+        : null;
       for (let i = 0; i < exportAttributes.length; i++) {
         let [abPropertyName, plainTextStringID] = exportAttributes[i];
         if (plainTextStringID == 0) {
@@ -375,7 +378,13 @@ var AddrBookUtils = {
         if (i != 0) {
           output += delimiter;
         }
-        let value = card.getProperty(abPropertyName, "");
+        let value;
+        if (propertyMap) {
+          value = propertyMap.get(abPropertyName);
+        }
+        if (!value) {
+          value = card.getProperty(abPropertyName, "");
+        }
 
         // If a string contains at least one comma, tab, double quote or line
         // break then we need to quote the entire string. Also if double quote
@@ -473,11 +482,20 @@ var AddrBookUtils = {
         appendProperty("objectclass", "inetOrgPerson");
         appendProperty("objectclass", "mozillaAbPersonAlpha");
 
-        for (let i = 0; i < exportAttributes.length; i++) {
-          let [abPropertyName] = exportAttributes[i];
+        let propertyMap = card.supportsVCard
+          ? card.vCardProperties.toPropertyMap()
+          : null;
+        for (let [abPropertyName] of exportAttributes) {
           let attrName = attrMap.getFirstAttribute(abPropertyName);
           if (attrName) {
-            appendProperty(attrName, card.getProperty(abPropertyName, ""));
+            let attrValue;
+            if (propertyMap) {
+              attrValue = propertyMap.get(abPropertyName);
+            }
+            if (!attrValue) {
+              attrValue = card.getProperty(abPropertyName, "");
+            }
+            appendProperty(attrName, attrValue);
           }
         }
       }

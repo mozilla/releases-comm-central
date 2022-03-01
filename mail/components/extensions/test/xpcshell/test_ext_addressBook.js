@@ -211,14 +211,16 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("contact", newContact.type);
       browser.test.assertEq(false, newContact.readOnly);
       browser.test.assertEq(false, newContact.remote);
-      browser.test.assertEq(2, Object.keys(newContact.properties).length);
+      browser.test.assertEq(3, Object.keys(newContact.properties).length);
       browser.test.assertEq("first", newContact.properties.FirstName);
       browser.test.assertEq("last", newContact.properties.LastName);
+      browser.test.assertEq(
+        `BEGIN:VCARD\r\nVERSION:4.0\r\nN:last;first;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
+        newContact.properties._vCard
+      );
 
       await browser.contacts.update(newContactId, {
-        PrimaryEmail: "first@last",
-        LastName: null,
-        Notes: "",
+        _vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
       });
       checkEvents([
         "contacts",
@@ -231,7 +233,7 @@ add_task(async function test_addressBooks() {
       ]);
 
       let updatedContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(2, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(3, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("first", updatedContact.properties.FirstName);
       browser.test.assertEq(
         "first@last",
@@ -239,6 +241,10 @@ add_task(async function test_addressBooks() {
       );
       browser.test.assertTrue(!("LastName" in updatedContact.properties));
       browser.test.assertTrue(!("Notes" in updatedContact.properties));
+      browser.test.assertEq(
+        `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
+        updatedContact.properties._vCard
+      );
 
       let fixedContactId = await browser.contacts.create(
         firstBookId,

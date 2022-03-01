@@ -9,16 +9,15 @@
  */
 
 function check_correct_card(card) {
-  Assert.notEqual(card, null);
+  Assert.ok(!!card);
 
   Assert.equal(card.firstName, "FirstName1");
   Assert.equal(card.lastName, "LastName1");
   Assert.equal(card.displayName, "DisplayName1");
-  Assert.equal(card.primaryEmail, "PrimaryEmail1@test.invalid");
-  Assert.equal(
-    card.getProperty("SecondEmail", "BAD"),
-    "SecondEmail1\u00D0@test.invalid"
-  );
+  Assert.deepEqual(card.emailAddresses, [
+    "PrimaryEmail1@test.invalid",
+    "SecondEmail1\u00D0@test.invalid",
+  ]);
 }
 
 function run_test() {
@@ -60,18 +59,18 @@ function run_test() {
   check_correct_card(card);
 
   // Check getCardFromProperty returns null correctly for non-extant properties
-  Assert.equal(AB.getCardFromProperty("JobTitle", "", false), null);
-  Assert.equal(AB.getCardFromProperty("JobTitle", "JobTitle", false), null);
+  Assert.equal(AB.getCardFromProperty("NickName", "", false), null);
+  Assert.equal(AB.getCardFromProperty("NickName", "NickName", false), null);
 
   // Check case-insensitive searching works
-  card = AB.getCardFromProperty("JobTitle", "JobTitle1", true);
+  card = AB.getCardFromProperty("NickName", "NickName1", true);
   check_correct_card(card);
-  card = AB.getCardFromProperty("JobTitle", "JobTitle1", false);
+  card = AB.getCardFromProperty("NickName", "NickName1", false);
   check_correct_card(card);
 
-  Assert.equal(AB.getCardFromProperty("JobTitle", "jobtitle1", true), null);
+  Assert.equal(AB.getCardFromProperty("NickName", "nickName1", true), null);
 
-  card = AB.getCardFromProperty("JobTitle", "jobtitle1", false);
+  card = AB.getCardFromProperty("NickName", "nickName1", false);
   check_correct_card(card);
 
   var cards = AB.getCardsFromProperty("LastName", "DOE", true);

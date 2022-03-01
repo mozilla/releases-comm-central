@@ -206,6 +206,7 @@ var collectChecker = {
   part: 0,
 
   checkAddress(aDetails) {
+    info("checkAddress: " + aDetails.emailHeader);
     try {
       this.addressCollect.collectAddress(aDetails.emailHeader, true);
 
@@ -247,16 +248,14 @@ var collectChecker = {
   },
 
   checkCardResult(aDetails) {
+    info("checkCardResult: " + aDetails.emailHeader);
     try {
       var card = this.AB.cardForEmailAddress(aDetails.primaryEmail);
 
       Assert.ok(card != null);
 
       if ("secondEmail" in aDetails) {
-        Assert.equal(
-          card.getProperty("SecondEmail", "BAD"),
-          aDetails.secondEmail
-        );
+        Assert.equal(card.emailAddresses[1], aDetails.secondEmail);
       }
 
       Assert.equal(card.displayName, aDetails.displayName);

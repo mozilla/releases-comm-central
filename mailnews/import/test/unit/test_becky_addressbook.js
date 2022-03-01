@@ -52,6 +52,7 @@ function run_test() {
     "Custom4",
     "Notes",
     "_AimScreenName",
+    "_vCard",
   ];
   helper.setSupportedAttributes(vcfSupportedAttributes);
   helper.beginImport();

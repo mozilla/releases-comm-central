@@ -4,6 +4,9 @@
 
 "use strict";
 
+var { AddrBookCard } = ChromeUtils.import(
+  "resource:///modules/AddrBookCard.jsm"
+);
 var { AddrBookUtils } = ChromeUtils.import(
   "resource:///modules/AddrBookUtils.jsm"
 );
@@ -15,7 +18,7 @@ var { MailServices } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-add_task(async () => {
+async function subtest(cardConstructor) {
   let dirPrefId = MailServices.ab.newAddressBook(
     "new book",
     "",
@@ -23,9 +26,7 @@ add_task(async () => {
   );
   let book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
-  let contact1 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
-  );
+  let contact1 = cardConstructor();
   contact1.UID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
   contact1.displayName = "contact number one";
   contact1.firstName = "contact";
@@ -33,20 +34,23 @@ add_task(async () => {
   contact1.primaryEmail = "contact1@invalid";
   contact1 = book.addCard(contact1);
 
-  let contact2 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
-  );
+  let contact2 = cardConstructor();
   contact2.UID = "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy";
   contact2.displayName = "contact number two";
   contact2.firstName = "contact";
   contact2.lastName = "two";
   contact2.primaryEmail = "contact2@invalid";
-  contact2.setProperty("JobTitle", `"worker"`);
+  if (contact2.supportsVCard) {
+    contact2.vCardProperties.addValue("title", `"worker"`);
+    contact2.vCardProperties.addValue("note", "here's some unicode text…");
+  } else {
+    contact2.setProperty("JobTitle", `"worker"`);
+    contact2.setProperty("Notes", "here's some unicode text…");
+  }
   contact2.setProperty("Custom1", "custom, 1");
   contact2.setProperty("Custom2", "custom\t2");
   contact2.setProperty("Custom3", "custom\r3");
   contact2.setProperty("Custom4", "custom\n4");
-  contact2.setProperty("Notes", "here's some unicode text…");
   contact2 = book.addCard(contact2);
 
   let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
@@ -77,7 +81,7 @@ add_task(async () => {
       "modifytimestamp: 12345"
     )
   );
-});
+}
 
 async function compareAgainstFile(fileName, actual) {
   info(`checking against ${fileName}`);
@@ -97,30 +101,42 @@ async function compareAgainstFile(fileName, actual) {
   // on lines where Windows line endings exist.
   let expectedLines = expected.split("\n");
   let actualLines = actual.split("\n");
-  equal(actualLines.length, expectedLines.length, "correct number of lines");
+  info(actual);
+  Assert.deepEqual(actualLines.sort(), expectedLines.sort());
+  // equal(actualLines.length, expectedLines.length, "correct number of lines");
 
-  for (let l = 0; l < expectedLines.length; l++) {
-    let expectedLine = expectedLines[l];
-    let actualLine = actualLines[l];
-    if (actualLine == expectedLine) {
-      ok(true, `line ${l + 1} matches`);
-    } else {
-      for (let c = 0; c < expectedLine.length && c < actualLine.length; c++) {
-        if (actualLine[c] != expectedLine[c]) {
-          // This call to equal automatically prints some extra characters of
-          // context. Hopefully that helps with debugging.
-          equal(
-            actualLine.substring(c - 10, c + 10),
-            expectedLine.substring(c - 10, c + 10),
-            `line ${l + 1} does not match at character ${c + 1}`
-          );
-        }
-      }
-      equal(
-        expectedLine.length,
-        actualLine.length,
-        `line ${l + 1} lengths differ`
-      );
-    }
-  }
+  // for (let l = 0; l < expectedLines.length; l++) {
+  //   let expectedLine = expectedLines[l];
+  //   let actualLine = actualLines[l];
+  //   if (actualLine == expectedLine) {
+  //     ok(true, `line ${l + 1} matches`);
+  //   } else {
+  //     for (let c = 0; c < expectedLine.length && c < actualLine.length; c++) {
+  //       if (actualLine[c] != expectedLine[c]) {
+  //         // This call to equal automatically prints some extra characters of
+  //         // context. Hopefully that helps with debugging.
+  //         equal(
+  //           actualLine.substring(c - 10, c + 10),
+  //           expectedLine.substring(c - 10, c + 10),
+  //           `line ${l + 1} does not match at character ${c + 1}`
+  //         );
+  //       }
+  //     }
+  //     equal(
+  //       expectedLine.length,
+  //       actualLine.length,
+  //       `line ${l + 1} lengths differ`
+  //     );
+  //   }
+  // }
 }
+
+add_task(async function addrBookCard() {
+  return subtest(() => new AddrBookCard());
+});
+
+add_task(async function cardProperty() {
+  return subtest(() =>
+    Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard)
+  );
+});

@@ -1,137 +1,162 @@
 {
-  "basic_addressbook" :
-  [
+  "basic_addressbook": [
     {
-      "DisplayName"      : "Display Name",
-      "PrimaryEmail"     : "primaryemail@host.invalid",
-      "FirstName"        : "First",
-      "LastName"         : "Last",
-      "NickName"         : "Nickname",
-      "SecondEmail"      : "secondemail@host.invalid",
-      "_AimScreenName"   : "screenname",
-      "LastModifiedDate" : 1213818826,
-      "WorkPhone"        : "123-456-7890",
-      "HomePhone"        : "234-567-8901",
-      "FaxNumber"        : "345-678-9012",
-      "PagerNumber"      : "456-789-0123",
-      "CellularNumber"   : "567-890-1234",
-      "HomeAddress"      : "Home Address Line 1",
-      "HomeAddress2"     : "Home Address Line 2",
-      "HomeCity"         : "Home City",
-      "HomeState"        : "Home State",
-      "HomeZipCode"      : "Home Zip",
-      "HomeCountry"      : "Home Country",
-      "WorkAddress"      : "Work Address Line 1",
-      "WorkAddress2"     : "Work Address Line 2",
-      "WorkCity"         : "Work City",
-      "WorkState"        : "Work State",
-      "WorkZipCode"      : "Work Zip",
-      "WorkCountry"      : "Work Country",
-      "JobTitle"         : "Job Title",
-      "Department"       : "Department",
-      "Company"          : "Organization Name",
-      "WebPage1"         : "http://127.0.0.1",
-      "WebPage2"         : "http://localhost",
-      "BirthYear"        : "1900",
-      "BirthMonth"       : "1",
-      "BirthDay"         : "2",
-      "Custom1"          : "Custom Field 1",
-      "Custom2"          : "Custom Field 2",
-      "Custom3"          : "Custom Field 3",
-      "Custom4"          : "Custom Field 4",
-      "Notes"            : "Notes line 1\nNotes line 2\nNotes line 3\nNotes line 4"
+      "DisplayName": "Display Name",
+      "PrimaryEmail": "primaryemail@host.invalid",
+      "FirstName": "First",
+      "LastName": "Last",
+      "NickName": "Nickname",
+      "SecondEmail": "secondemail@host.invalid",
+      "_AimScreenName": "screenname",
+      "LastModifiedDate": 1213818826,
+      "_vCard": [
+        "VERSION:4.0",
+        "FN:Display Name",
+        "EMAIL;PREF=1:primaryemail@host.invalid",
+        "EMAIL:secondemail@host.invalid",
+        "NICKNAME:Nickname",
+        "NOTE:Notes line 1\\nNotes line 2\\nNotes line 3\\nNotes line 4",
+        "ORG:Organization Name;Department",
+        "TITLE:Job Title",
+        "BDAY;VALUE=DATE:19000102",
+        "N:Last;First;;;",
+        "ADR;TYPE=home:;Home Address Line 2;Home Address Line 1;Home City;Home State",
+        " ;Home Zip;Home Country",
+        "ADR;TYPE=work:;Work Address Line 2;Work Address Line 1;Work City;Work State",
+        " ;Work Zip;Work Country",
+        "TEL;TYPE=home;VALUE=TEXT:234-567-8901",
+        "TEL;TYPE=work;VALUE=TEXT:123-456-7890",
+        "TEL;TYPE=fax;VALUE=TEXT:345-678-9012",
+        "TEL;TYPE=pager;VALUE=TEXT:456-789-0123",
+        "TEL;TYPE=cell;VALUE=TEXT:567-890-1234",
+        "URL;TYPE=work;VALUE=URL:http://127.0.0.1",
+        "URL;TYPE=home;VALUE=URL:http://localhost",
+        "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      ],
+      "Custom1": "Custom Field 1",
+      "Custom2": "Custom Field 2",
+      "Custom3": "Custom Field 3",
+      "Custom4": "Custom Field 4"
     }
   ],
-  "bug_263304" :
-  [
+  "bug_263304": [
     {
-      "DisplayName"      : "Display Name",
-      "PrimaryEmail"     : "primaryemail@host.invalid",
-      "WebPage1"         : "http://127.0.0.1"
+      "DisplayName": "Display Name",
+      "PrimaryEmail": "primaryemail@host.invalid",
+      "_vCard": [
+        "VERSION:4.0",
+        "FN:Display Name",
+        "EMAIL;PREF=1:primaryemail@host.invalid",
+        "URL;TYPE=work;VALUE=URL:http://127.0.0.1",
+        "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      ]
     }
   ],
-  "utf16_csv" :
-  [
+  "utf16_csv": [
     {
-      "DisplayName"      : "John Doe",
-      "PrimaryEmail"     : "johndoe@host.invalid",
-      "FirstName"        : "John",
-      "LastName"         : "Doe"
+      "DisplayName": "John Doe",
+      "PrimaryEmail": "johndoe@host.invalid",
+      "FirstName": "John",
+      "LastName": "Doe"
     }
   ],
-  "shiftjis_csv" :
-  [
+  "shiftjis_csv": [
     {
-      "DisplayName"      : "名無しの権兵衛",
-      "PrimaryEmail"     : "名無しの権兵衛@host.invalid"
+      "DisplayName": "名無しの権兵衛",
+      "PrimaryEmail": "名無しの権兵衛@host.invalid"
     }
   ],
-  "quote_csv" :
-  [
+  "quote_csv": [
     {
-      "DisplayName"      : "Acer America",
-      "WorkPhone"        : "(800) 000-0000",
-      "Organization"     : "Acer America"
+      "DisplayName": "Acer America",
+      "_vCard": [
+        "VERSION:4.0",
+        "FN:Acer America",
+        "ORG:Acer America;",
+        "TEL;TYPE=work;VALUE=TEXT:(800) 000-0000",
+        "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      ]
     }
   ],
-  "vcard_import" :
-  [
+  "vcard_import": [
     {
-      "DisplayName"      : "John Doe",
-      "FirstName"        : "John",
-      "LastName"         : "Doe",
-      "PrimaryEmail"     : "john.doe@genericemail.invalid"
+      "DisplayName": "John Doe",
+      "FirstName": "John",
+      "LastName": "Doe",
+      "PrimaryEmail": "john.doe@genericemail.invalid"
     },
     {
-      "DisplayName"      : "Jane Doe",
-      "FirstName"        : "Jane",
-      "LastName"         : "Doe",
-      "PrimaryEmail"     : "jane.doe@genericemail.invalid"
+      "DisplayName": "Jane Doe",
+      "FirstName": "Jane",
+      "LastName": "Doe",
+      "PrimaryEmail": "jane.doe@genericemail.invalid"
     }
   ],
-  "csv_import" :
-  [
+  "csv_import": [
     {
-      "DisplayName"      : "John Doe",
-      "FirstName"        : "John",
-      "LastName"         : "Doe",
-      "PrimaryEmail"     : "john@doe.invalid"
+      "DisplayName": "John Doe",
+      "FirstName": "John",
+      "LastName": "Doe",
+      "PrimaryEmail": "john@doe.invalid"
     },
     {
-      "DisplayName"      : "Jane Doe",
-      "FirstName"        : "Jane",
-      "LastName"         : "Doe",
-      "PrimaryEmail"     : "jane@doe.invalid"
+      "DisplayName": "Jane Doe",
+      "FirstName": "Jane",
+      "LastName": "Doe",
+      "PrimaryEmail": "jane@doe.invalid"
     }
   ],
-  "becky_addressbook" :
-  [
+  "becky_addressbook": [
     {
-      "DisplayName"      : "The first man",
-      "PrimaryEmail"     : "first@host.invalid",
-      "HomePhone"        : "11-1111-1111",
-      "WorkPhone"        : "22-2222-2222",
-      "CellularNumber"   : "333-3333-3333",
-      "Company"          : "Organization",
-      "Notes"            : "This is a note."
+      "DisplayName": "The first man",
+      "PrimaryEmail": "first@host.invalid",
+      "_vCard": [
+        "VERSION:3.0",
+        "FN:The first man",
+        "ORG:Organization;Post;",
+        "X-BECKY-IMAGE:0",
+        "N:The nick name of the first man",
+        "TEL;TYPE=HOME:11-1111-1111",
+        "TEL;TYPE=WORK:22-2222-2222",
+        "TEL;TYPE=CELL:333-3333-3333",
+        "EMAIL;TYPE=INTERNET:first@host.invalid",
+        "NOTE:This is a note.",
+        "UID:4E4D17E8.0043655C"
+      ]
     },
     {
-      "DisplayName"      : "The second man",
-      "PrimaryEmail"     : "second@host.invalid",
-      "HomePhone"        : "44-4444-4444",
-      "WorkPhone"        : "55-5555-5555",
-      "CellularNumber"   : "666-6666-6666",
-      "Company"          : "Organization",
-      "Notes"            : "This is a note."
+      "DisplayName": "The second man",
+      "PrimaryEmail": "second@host.invalid",
+      "_vCard": [
+        "VERSION:3.0",
+        "FN:The second man",
+        "ORG:Organization;post;",
+        "X-BECKY-IMAGE:0",
+        "N:The nick name of the second man",
+        "TEL;TYPE=HOME:44-4444-4444",
+        "TEL;TYPE=WORK:55-5555-5555",
+        "TEL;TYPE=CELL:666-6666-6666",
+        "EMAIL;TYPE=INTERNET:second@host.invalid",
+        "NOTE:This is a note.",
+        "UID:4EBBF6FE.00AC632B"
+      ]
     },
     {
-      "DisplayName"      : "The third man",
-      "PrimaryEmail"     : "third@host.invalid",
-      "HomePhone"        : "77-7777-7777",
-      "WorkPhone"        : "88-8888-8888",
-      "CellularNumber"   : "999-9999-9999",
-      "Company"          : "Organization",
-      "Notes"            : "This is a note."
+      "DisplayName": "The third man",
+      "PrimaryEmail": "third@host.invalid",
+      "_vCard": [
+        "VERSION:3.0",
+        "FN:The third man",
+        "ORG:Organization;post;",
+        "X-BECKY-IMAGE:0",
+        "N:The third man",
+        "TEL;TYPE=HOME:77-7777-7777",
+        "TEL;TYPE=WORK:88-8888-8888",
+        "TEL;TYPE=CELL:999-9999-9999",
+        "EMAIL;TYPE=INTERNET:third@host.invalid",
+        "NOTE:This is a note.",
+        "UID:4E57AB44.0001D53E"
+      ]
     }
   ]
 }

@@ -9,8 +9,10 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
   VCardProperties: "resource:///modules/VCardUtils.jsm",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
 
 /**
@@ -25,12 +27,21 @@ function AddrBookCard() {
     ["LastModifiedDate", 0],
   ]);
 
+  this._hasVCard = false;
   XPCOMUtils.defineLazyGetter(this, "_vCardProperties", () => {
-    let vCard = this.getProperty(
-      "_vCard",
-      "BEGIN:VCARD\r\nVERSION:4.0\r\nEND:VCARD\r\n"
-    );
-    return VCardProperties.fromVCard(vCard);
+    // Lazy creation of the VCardProperties object. Change the `_properties`
+    // object as much as you like (e.g. loading in properties from a database)
+    // before running this code. After it runs, the `_vCardProperties` object
+    // takes over and anything in `_properties` which could be stored in the
+    // vCard will be ignored!
+
+    this._hasVCard = true;
+
+    let vCard = this.getProperty("_vCard", "");
+    if (vCard) {
+      return VCardProperties.fromVCard(vCard);
+    }
+    return VCardProperties.fromPropertyMap(this._properties);
   });
 }
 
@@ -62,10 +73,16 @@ AddrBookCard.prototype = {
     }
 
     if (result == "") {
-      result = this.getProperty("Company", "");
+      let org = this._vCardProperties.getFirstValue("org");
+      if (org) {
+        result = org[0];
+      }
     }
     if (result == "") {
-      result = this.primaryEmail.split("@", 1)[0];
+      let email = this.primaryEmail;
+      if (email) {
+        result = this.primaryEmail.split("@", 1)[0];
+      }
     }
 
     return result;
@@ -83,9 +100,13 @@ AddrBookCard.prototype = {
     return this._uid;
   },
   set UID(value) {
-    if (value != this._uid) {
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+    if (this._uid && value != this._uid) {
+      throw Components.Exception(
+        `Bad UID: got ${value} != ${this.uid}`,
+        Cr.NS_ERROR_UNEXPECTED
+      );
     }
+    this._uid = value;
   },
   get properties() {
     let props = [];
@@ -109,28 +130,80 @@ AddrBookCard.prototype = {
     return this._vCardProperties;
   },
   get firstName() {
-    return this.getProperty("FirstName", "");
+    if (!this._hasVCard) {
+      return this.getProperty("FirstName", "");
+    }
+    let name = this._vCardProperties.getFirstValue("n");
+    return name ? name[1] : "";
   },
   set firstName(value) {
-    this.setProperty("FirstName", value);
+    let n = this._vCardProperties.getFirstEntry("n");
+    if (n) {
+      n.value[1] = value;
+    } else {
+      this._vCardProperties.addEntry(
+        new VCardPropertyEntry("n", {}, "text", ["", value, "", "", ""])
+      );
+    }
   },
   get lastName() {
-    return this.getProperty("LastName", "");
+    if (!this._hasVCard) {
+      return this.getProperty("LastName", "");
+    }
+    let name = this._vCardProperties.getFirstValue("n");
+    return name ? name[0] : "";
   },
   set lastName(value) {
-    this.setProperty("LastName", value);
+    let n = this._vCardProperties.getFirstEntry("n");
+    if (n) {
+      n.value[0] = value;
+    } else {
+      this._vCardProperties.addEntry(
+        new VCardPropertyEntry("n", {}, "text", [value, "", "", "", ""])
+      );
+    }
   },
   get displayName() {
-    return this.getProperty("DisplayName", "");
+    if (!this._hasVCard) {
+      return this.getProperty("DisplayName", "");
+    }
+    return this._vCardProperties.getFirstValue("fn") || "";
   },
   set displayName(value) {
-    this.setProperty("DisplayName", value);
+    let fn = this._vCardProperties.getFirstEntry("fn");
+    if (fn) {
+      fn.value = value;
+    } else {
+      this._vCardProperties.addEntry(
+        new VCardPropertyEntry("fn", {}, "text", value)
+      );
+    }
   },
   get primaryEmail() {
-    return this.getProperty("PrimaryEmail", "");
+    if (!this._hasVCard) {
+      return this.getProperty("PrimaryEmail", "");
+    }
+    return this._vCardProperties.getAllValuesSorted("email")[0] ?? "";
   },
   set primaryEmail(value) {
-    this.setProperty("PrimaryEmail", value);
+    let entries = this._vCardProperties.getAllEntriesSorted("email");
+    if (entries.length && entries[0].value != value) {
+      this._vCardProperties.removeEntry(entries[0]);
+      entries.shift();
+    }
+
+    if (value) {
+      let existing = entries.find(e => e.value == value);
+      if (existing) {
+        existing.params.pref = "1";
+      } else {
+        this._vCardProperties.addEntry(
+          new VCardPropertyEntry("email", { pref: "1" }, "text", value)
+        );
+      }
+    } else if (entries.length) {
+      entries[0].params.pref = "1";
+    }
   },
   get isMailList() {
     return false;
@@ -139,19 +212,7 @@ AddrBookCard.prototype = {
     return "";
   },
   get emailAddresses() {
-    let addresses = [];
-
-    let primary = this.getProperty("PrimaryEmail", "");
-    if (primary) {
-      addresses.push(primary);
-    }
-
-    let secondary = this.getProperty("SecondEmail", "");
-    if (secondary) {
-      addresses.push(secondary);
-    }
-
-    return addresses;
+    return this._vCardProperties.getAllValuesSorted("email");
   },
 
   getProperty(name, defaultValue) {
@@ -200,6 +261,12 @@ AddrBookCard.prototype = {
     );
   },
   setProperty(name, value) {
+    if (BANISHED_PROPERTIES.includes(name)) {
+      throw new Components.Exception(
+        `Unable to set ${name} as a property, use vCardProperties`,
+        Cr.NS_ERROR_UNEXPECTED
+      );
+    }
     if ([null, undefined, ""].includes(value)) {
       this._properties.delete(name);
       return;
@@ -226,15 +293,15 @@ AddrBookCard.prototype = {
   },
   hasEmailAddress(emailAddress) {
     emailAddress = emailAddress.toLowerCase();
-    if (this.getProperty("PrimaryEmail", "").toLowerCase() == emailAddress) {
-      return true;
-    }
-    if (this.getProperty("SecondEmail", "").toLowerCase() == emailAddress) {
-      return true;
-    }
-    return false;
+    return this.emailAddresses.some(e => e.toLowerCase() == emailAddress);
   },
   translateTo(type) {
+    if (type == "vcard") {
+      if (!this._vCardProperties.getFirstValue("uid")) {
+        this._vCardProperties.addValue("uid", this.UID);
+      }
+      return encodeURIComponent(this._vCardProperties.toVCard());
+    }
     // Get nsAbCardProperty to do the work, the code is in C++ anyway.
     let cardCopy = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard

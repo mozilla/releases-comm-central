@@ -174,6 +174,11 @@ async function subtest() {
       await observer.waitFor("addrbook-contact-updated"),
       "change-me"
     );
+    observer.checkAndClearNotifications({
+      "addrbook-contact-created": [],
+      "addrbook-contact-updated": ["change-me"],
+      "addrbook-contact-deleted": [],
+    });
 
     changeMeCard = directory.childCards.find(c => c.UID == "change-me");
     cardMap.set("change-me", changeMeCard);

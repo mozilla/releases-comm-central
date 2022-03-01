@@ -11,9 +11,11 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookMailingList: "resource:///modules/AddrBookMailingList.jsm",
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  VCardProperties: "resource:///modules/VCardUtils.jsm",
 });
 
 /**
@@ -137,16 +139,65 @@ class AddrBookDirectory {
    * any changes we want to make just before saving.
    *
    * @param {nsIAbCard} card
+   * @param {?string} uid
    * @return {Map<string, string>}
    */
-  prepareToSaveCard(card) {
+  prepareToSaveCard(card, uid) {
+    let propertyMap = new Map(
+      Array.from(card.properties, p => [p.name, p.value])
+    );
     let newProperties = new Map();
 
+    // Get a VCardProperties object for the card.
+    let vCardProperties;
+    if (card.supportsVCard) {
+      vCardProperties = card.vCardProperties;
+    } else {
+      vCardProperties = VCardProperties.fromPropertyMap(propertyMap);
+    }
+
+    if (uid) {
+      // Force the UID to be as passed.
+      vCardProperties.clearValues("uid");
+      vCardProperties.addValue("uid", uid);
+    } else if (vCardProperties.getFirstValue("uid") != card.UID) {
+      vCardProperties.clearValues("uid");
+      vCardProperties.addValue("uid", card.UID);
+    }
+
     // Collect only the properties we intend to keep.
-    for (let { name, value } of card.properties) {
+    for (let [name, value] of propertyMap) {
+      if (BANISHED_PROPERTIES.includes(name)) {
+        continue;
+      }
       if (value !== null && value !== undefined && value !== "") {
         newProperties.set(name, value);
       }
+    }
+
+    // Add the vCard and the properties from it we want to cache.
+    newProperties.set("_vCard", vCardProperties.toVCard());
+
+    let displayName = vCardProperties.getFirstValue("fn");
+    newProperties.set("DisplayName", displayName || "");
+
+    let name = vCardProperties.getFirstValue("n");
+    if (name) {
+      newProperties.set("FirstName", name[1]);
+      newProperties.set("LastName", name[0]);
+    }
+
+    let email = vCardProperties.getAllValuesSorted("email");
+    if (email[0]) {
+      newProperties.set("PrimaryEmail", email[0]);
+    }
+    if (email[1]) {
+      newProperties.set("SecondEmail", email[1]);
+    }
+
+    let nickname = vCardProperties.getAllValues("nickname");
+    if (nickname[0]) {
+      newProperties.set("NickName", nickname[0]);
     }
 
     // Always set the last modified date.
@@ -477,7 +528,7 @@ class AddrBookDirectory {
 
     let changeData = {};
     for (let name of allProperties) {
-      if (name == "LastModifiedDate" || name == "_vCard") {
+      if (name == "LastModifiedDate") {
         continue;
       }
 
@@ -502,6 +553,10 @@ class AddrBookDirectory {
       "addrbook-contact-properties-updated",
       JSON.stringify(changeData)
     );
+
+    // Return the card, even though the interface says not to, because
+    // subclasses may want it.
+    return newCard;
   }
   deleteCards(cards) {
     if (this._readOnly && !this._overrideReadOnly) {
@@ -546,14 +601,14 @@ class AddrBookDirectory {
       throw new Error("Card must have a UID to be added to this directory.");
     }
 
-    let newProperties = this.prepareToSaveCard(card);
+    let uid = needToCopyCard ? newUID() : card.UID;
+    let newProperties = this.prepareToSaveCard(card, uid);
     if (card.directoryUID && card.directoryUID != this._uid) {
       // These properties belong to a different directory. Don't keep them.
       newProperties.delete("_etag");
       newProperties.delete("_href");
     }
 
-    let uid = needToCopyCard ? newUID() : card.UID;
     if (this.hasOwnProperty("cards")) {
       this.cards.set(uid, newProperties);
     }

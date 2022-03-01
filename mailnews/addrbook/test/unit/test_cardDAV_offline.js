@@ -154,9 +154,9 @@ async function subtestCreateCard() {
     "68",
     "card should have been given _etag property"
   );
-  Assert.equal(
+  vCardEqual(
     notificationCard.getProperty("_vCard", "WRONG"),
-    "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
+    "BEGIN:VCARD\r\nVERSION:4.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
     "card should have been given _vCard property"
   );
 
@@ -177,7 +177,7 @@ async function subtestCreateCard() {
       etag: "68",
       href: `${CardDAVServer.path}a-new-card.vcf`,
       vCard:
-        "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
+        "BEGIN:VCARD\r\nVERSION:4.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
     },
   });
 }
@@ -245,7 +245,7 @@ async function subtestUpdateCard() {
     "58",
     "card _etag property did change"
   );
-  Assert.equal(
+  vCardEqual(
     notificationCard.getProperty("_vCard", "WRONG"),
     "BEGIN:VCARD\r\nUID:change-me\r\nFN:I'm a new man!\r\nEND:VCARD\r\n",
     "card _vCard property did change"
@@ -268,7 +268,7 @@ async function subtestUpdateCard() {
       etag: "68",
       href: `${CardDAVServer.path}a-new-card.vcf`,
       vCard:
-        "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
+        "BEGIN:VCARD\r\nVERSION:4.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
     },
   });
 }
@@ -332,7 +332,7 @@ async function subtestDeleteCard() {
       etag: "68",
       href: `${CardDAVServer.path}a-new-card.vcf`,
       vCard:
-        "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
+        "BEGIN:VCARD\r\nVERSION:4.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
     },
   });
 }
@@ -420,7 +420,7 @@ async function subtestCreateDeleteCard() {
       etag: "68",
       href: `${CardDAVServer.path}a-new-card.vcf`,
       vCard:
-        "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
+        "BEGIN:VCARD\r\nVERSION:4.0\r\nFN:A New Card\r\nUID:a-new-card\r\nEND:VCARD\r\n",
     },
   });
 }
@@ -521,7 +521,7 @@ async function subtestStillOffline() {
       etag: "80",
       href: `${CardDAVServer.path}another-new-card.vcf`,
       vCard:
-        "BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Another New Card\r\nUID:another-new-card\r\nEND:VCARD\r\n",
+        "BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Another New Card\r\nUID:another-new-card\r\nEND:VCARD\r\n",
     },
   });
 }

@@ -82,7 +82,7 @@ async function checkCardsOnServer(expectedCards) {
     info(baseName);
     Assert.equal(etag, expectedCards[baseName].etag);
     Assert.equal(href, expectedCards[baseName].href);
-    Assert.equal(vCard, expectedCards[baseName].vCard);
+    vCardEqual(vCard, expectedCards[baseName].vCard);
   }
 }
 
@@ -111,6 +111,7 @@ let observer = {
   },
   observe(subject, topic) {
     let uid = subject.QueryInterface(Ci.nsIAbCard).UID;
+    info(`${topic}: ${uid}`);
     if (this.pendingPromise && this.pendingPromise.topic == topic) {
       let promise = this.pendingPromise;
       this.pendingPromise = null;
@@ -132,3 +133,11 @@ add_task(async () => {
     await CardDAVServer.close();
   });
 });
+
+// Checks two vCard strings have the same lines, in any order.
+// Not very smart but smart enough.
+function vCardEqual(lhs, rhs, message) {
+  let lhsLines = lhs.split("\r\n").sort();
+  let rhsLines = rhs.split("\r\n").sort();
+  Assert.deepEqual(lhsLines, rhsLines, message);
+}
