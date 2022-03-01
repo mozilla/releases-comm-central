@@ -281,6 +281,17 @@ NS_IMETHODIMP nsAbCardProperty::DeleteProperty(const nsACString& name) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsAbCardProperty::GetSupportsVCard(bool* aSupportsVCard) {
+  *aSupportsVCard = false;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsAbCardProperty::GetVCardProperties(
+    JS::MutableHandle<JS::Value> properties) {
+  properties.setNull();
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsAbCardProperty::GetUID(nsACString& uid) {
   nsAutoString aString;
   nsresult rv = GetPropertyAsAString(kUIDProperty, aString);

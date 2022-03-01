@@ -4,11 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookCard"];
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "newUID",
-  "resource:///modules/AddrBookUtils.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  newUID: "resource:///modules/AddrBookUtils.jsm",
+  VCardProperties: "resource:///modules/VCardUtils.jsm",
+});
 
 /**
  * Prototype for nsIAbCard objects that are not mailing lists.
@@ -21,6 +24,14 @@ function AddrBookCard() {
     ["PopularityIndex", 0],
     ["LastModifiedDate", 0],
   ]);
+
+  XPCOMUtils.defineLazyGetter(this, "_vCardProperties", () => {
+    let vCard = this.getProperty(
+      "_vCard",
+      "BEGIN:VCARD\r\nVERSION:4.0\r\nEND:VCARD\r\n"
+    );
+    return VCardProperties.fromVCard(vCard);
+  });
 }
 
 AddrBookCard.prototype = {
@@ -90,6 +101,12 @@ AddrBookCard.prototype = {
       });
     }
     return props;
+  },
+  get supportsVCard() {
+    return true;
+  },
+  get vCardProperties() {
+    return this._vCardProperties;
   },
   get firstName() {
     return this.getProperty("FirstName", "");

@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["VCardService", "VCardMimeConverter", "VCardUtils"];
+const EXPORTED_SYMBOLS = [
+  "VCardService",
+  "VCardMimeConverter",
+  "VCardProperties",
+  "VCardPropertyEntry",
+  "VCardUtils",
+];
 
 const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
@@ -114,42 +120,55 @@ var VCardUtils = {
     }
     return vPropMap;
   },
-  vCardToAbCard(vCard) {
-    // ICAL.js's parser only supports vCard 3.0 and 4.0. To maintain
-    // interoperability with other applications, here we convert vCard 2.1
-    // cards into a "good-enough" mimic of vCard 4.0 so that the parser will
-    // read it without throwing an error.
-    if (/\bVERSION:2.1\b/i.test(vCard)) {
-      // Convert known type parameters to valid vCard 4.0, ignore unknown ones.
-      vCard = vCard.replace(/\n(([A-Z]+)(;[\w-]*)+):/gi, (match, key) => {
-        let parts = key.split(";");
-        let newParts = [parts[0]];
-        for (let i = 1; i < parts.length; i++) {
-          if (parts[i] == "") {
-            continue;
-          }
-          if (
-            ["HOME", "WORK", "FAX", "PAGER", "CELL"].includes(
-              parts[i].toUpperCase()
-            )
-          ) {
-            newParts.push(`TYPE=${parts[i]}`);
-          } else if (parts[i].toUpperCase() == "PREF") {
-            newParts.push("PREF=1");
-          } else if (parts[i].toUpperCase() == "QUOTED-PRINTABLE") {
-            newParts.push("ENCODING=QUOTED-PRINTABLE");
-          }
-        }
-        return "\n" + newParts.join(";") + ":";
-      });
-
-      // Join quoted-printable wrapped lines together. This regular expression
-      // only matches lines that are quoted-printable and end with `=`.
-      let quotedNewLineRegExp = /(;ENCODING=QUOTED-PRINTABLE[;:][^\r\n]*)=\r?\n/i;
-      while (vCard.match(quotedNewLineRegExp)) {
-        vCard = vCard.replace(quotedNewLineRegExp, "$1");
-      }
+  /**
+   * ICAL.js's parser only supports vCard 3.0 and 4.0. To maintain
+   * interoperability with other applications, here we convert vCard 2.1
+   * cards into a "good-enough" mimic of vCard 4.0 so that the parser will
+   * read it without throwing an error.
+   *
+   * @param {string} vCard
+   * @return {string}
+   */
+  translateVCard21(vCard) {
+    if (!/\bVERSION:2.1\b/i.test(vCard)) {
+      return vCard;
     }
+
+    // Convert known type parameters to valid vCard 4.0, ignore unknown ones.
+    vCard = vCard.replace(/\n(([A-Z]+)(;[\w-]*)+):/gi, (match, key) => {
+      let parts = key.split(";");
+      let newParts = [parts[0]];
+      for (let i = 1; i < parts.length; i++) {
+        if (parts[i] == "") {
+          continue;
+        }
+        if (
+          ["HOME", "WORK", "FAX", "PAGER", "CELL"].includes(
+            parts[i].toUpperCase()
+          )
+        ) {
+          newParts.push(`TYPE=${parts[i]}`);
+        } else if (parts[i].toUpperCase() == "PREF") {
+          newParts.push("PREF=1");
+        } else if (parts[i].toUpperCase() == "QUOTED-PRINTABLE") {
+          newParts.push("ENCODING=QUOTED-PRINTABLE");
+        }
+      }
+      return "\n" + newParts.join(";") + ":";
+    });
+
+    // Join quoted-printable wrapped lines together. This regular expression
+    // only matches lines that are quoted-printable and end with `=`.
+    let quotedNewLineRegExp = /(;ENCODING=QUOTED-PRINTABLE[;:][^\r\n]*)=\r?\n/i;
+    while (vCard.match(quotedNewLineRegExp)) {
+      vCard = vCard.replace(quotedNewLineRegExp, "$1");
+    }
+
+    // Strip the version.
+    return vCard.replace(/(\r?\n)VERSION:2.1\r?\n/i, "$1");
+  },
+  vCardToAbCard(vCard) {
+    vCard = this.translateVCard21(vCard);
 
     let [, vProps] = ICAL.parse(vCard);
     let vPropMap = this._parse(vProps);
@@ -517,3 +536,389 @@ var typeMap = {
   "url.work": singleTextProperty("WebPage1", "url", { type: "work" }, "url"),
   "url.home": singleTextProperty("WebPage2", "url", { type: "home" }, "url"),
 };
+
+/**
+ * Any value that can be represented in a vCard. A value can be a boolean,
+ * number, string, or an array, depending on the data. A top-level array might
+ * contain primitives and/or second-level arrays of primitives.
+ *
+ * @see ICAL.design
+ * @see RFC6350
+ *
+ * @typedef {vCardValue}
+ * @type {boolean|number|string|vCardValue[]}
+ */
+
+/**
+ * Represents a single entry in a vCard ("contentline" in RFC6350 terms).
+ * The name, params, type and value are as returned by ICAL.
+ */
+class VCardPropertyEntry {
+  #name = null;
+  #params = null;
+  #type = null;
+  #value = null;
+  _original = null;
+
+  /**
+   * @param {string} name
+   * @param {object} params
+   * @param {string} type
+   * @param {vCardValue} value
+   */
+  constructor(name, params, type, value) {
+    this.#name = name;
+    this.#params = params;
+    this.#type = type;
+    this.#value = value;
+    this._original = this;
+  }
+
+  /**
+   * @type {string}
+   */
+  get name() {
+    return this.#name;
+  }
+
+  /**
+   * @type {object}
+   */
+  get params() {
+    return this.#params;
+  }
+
+  /**
+   * @type {string}
+   */
+  get type() {
+    return this.#type;
+  }
+  set type(type) {
+    this.#type = type;
+  }
+
+  /**
+   * @type {vCardValue}
+   */
+  get value() {
+    return this.#value;
+  }
+  set value(value) {
+    this.#value = value;
+  }
+
+  /**
+   * Clone this object.
+   *
+   * @return {VCardPropertyEntry}
+   */
+  clone() {
+    let cloneValue;
+    if (Array.isArray(this.#value)) {
+      cloneValue = this.#value.map(v => (Array.isArray(v) ? v.slice() : v));
+    } else {
+      cloneValue = this.#value;
+    }
+
+    let clone = new VCardPropertyEntry(
+      this.#name,
+      { ...this.#params },
+      this.#type,
+      cloneValue
+    );
+    clone._original = this;
+    return clone;
+  }
+
+  /**
+   * @param {VCardPropertyEntry} other
+   */
+  equals(other) {
+    if (other.constructor.name != "VCardPropertyEntry") {
+      return false;
+    }
+    return this._original == other._original;
+  }
+}
+
+/**
+ * Represents an entire vCard as a collection of `VCardPropertyEntry` objects.
+ */
+class VCardProperties {
+  /**
+   * All of the vCard entries in this object.
+   *
+   * @type {VCardPropertyEntry[]}
+   */
+  entries = [];
+
+  /**
+   * Parse a vCard into a VCardProperties object.
+   *
+   * @param {string} vCard
+   * @return {VCardProperties}
+   */
+  static fromVCard(vCard) {
+    vCard = VCardUtils.translateVCard21(vCard);
+
+    let rv = new VCardProperties();
+    let [, properties] = ICAL.parse(vCard);
+    for (let [name, params, type, value] of properties) {
+      rv.addEntry(new VCardPropertyEntry(name, params, type, value));
+    }
+    return rv;
+  }
+
+  /**
+   * Parse a Map of Address Book properties into a VCardProperties object.
+   *
+   * @param {Map<string, string>} propertyMap
+   * @param {string="4.0"} version
+   * @return {VCardProperties}
+   */
+  static fromPropertyMap(propertyMap, version = "4.0") {
+    if (!["3.0", "4.0"].includes(version)) {
+      throw new Error(`Unsupported vCard version: ${version}`);
+    }
+
+    let rv = new VCardProperties();
+    rv.addEntry(new VCardPropertyEntry("version", {}, "text", version));
+
+    for (let vPropName of Object.keys(typeMap)) {
+      for (let vProp of typeMap[vPropName].fromAbCard(propertyMap, vPropName)) {
+        if (vProp[3] !== null && vProp[3] !== undefined && vProp[3] !== "") {
+          rv.addEntry(new VCardPropertyEntry(...vProp));
+        }
+      }
+    }
+
+    return rv;
+  }
+
+  /**
+   * Used to determine the default value type when adding values.
+   * Either `ICAL.design.vcard` for (vCard 4.0) or `ICAL.design.vcard3` (3.0).
+   *
+   * @type {ICAL.design.designSet}
+   */
+  designSet = ICAL.design.vcard;
+
+  /**
+   * Add an entry to this object.
+   *
+   * @param {VCardPropertyEntry}
+   */
+  addEntry(entry) {
+    if (entry.constructor.name != "VCardPropertyEntry") {
+      throw new Error("Not a VCardPropertyEntry");
+    }
+
+    if (entry.name == "version") {
+      if (entry.value == "3.0") {
+        this.designSet = ICAL.design.vcard3;
+      } else if (entry.value == "4.0") {
+        this.designSet = ICAL.design.vcard;
+      } else {
+        throw new Error(`Unsupported vCard version: ${entry.value}`);
+      }
+    }
+
+    this.entries.push(entry);
+  }
+
+  /**
+   * Add an entry to this object by name and value.
+   *
+   * @param {string} name
+   * @param {string} value
+   * @return {VCardPropertyEntry}
+   */
+  addValue(name, value) {
+    for (let entry of this.getAllEntries(name)) {
+      if (entry.value == value) {
+        return entry;
+      }
+    }
+
+    let newEntry = new VCardPropertyEntry(
+      name,
+      {},
+      this.designSet.property[name].defaultType,
+      value
+    );
+    this.entries.push(newEntry);
+    return newEntry;
+  }
+
+  /**
+   * Remove an entry from this object.
+   *
+   * @param {VCardPropertyEntry}
+   * @return {boolean} - If an entry was found and removed.
+   */
+  removeEntry(entry) {
+    if (entry.constructor.name != "VCardPropertyEntry") {
+      throw new Error("Not a VCardPropertyEntry");
+    }
+
+    let index = this.entries.findIndex(e => e.equals(entry));
+    if (index >= 0) {
+      this.entries.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Remove entries from this object by name and value. All entries matching
+   * the name and value will be removed.
+   *
+   * @param {string} name
+   * @param {string} value
+   */
+  removeValue(name, value) {
+    for (let entry of this.getAllEntries(name)) {
+      if (entry.value == value) {
+        this.removeEntry(entry);
+      }
+    }
+  }
+
+  /**
+   * Remove entries from this object by name. All entries matching the name
+   * will be removed.
+   *
+   * @param {string} name
+   */
+  clearValues(name) {
+    for (let entry of this.getAllEntries(name)) {
+      this.removeEntry(entry);
+    }
+  }
+
+  /**
+   * Get the first value matching the given name, or null if no entry matches.
+   *
+   * @param {string} name
+   * @return {?vCardValue}
+   */
+  getFirstValue(name) {
+    let entry = this.entries.find(e => e.name == name);
+    if (entry) {
+      return entry.value;
+    }
+    return null;
+  }
+
+  /**
+   * Get all values matching the given name.
+   *
+   * @param {string} name
+   * @return {vCardValue[]}
+   */
+  getAllValues(name) {
+    return this.getAllEntries(name).map(e => e.value);
+  }
+
+  /**
+   * Get all values matching the given name, sorted in order of preference.
+   * Preference is determined by the `pref` parameter if it exists, then by
+   * the position in `entries`.
+   *
+   * @param {string} name
+   * @return {vCardValue[]}
+   */
+  getAllValuesSorted(name) {
+    return this.getAllEntriesSorted(name).map(e => e.value);
+  }
+
+  /**
+   * Get the first entry matching the given name, or null if no entry matches.
+   *
+   * @param {string} name
+   * @return {?VCardPropertyEntry}
+   */
+  getFirstEntry(name) {
+    return this.entries.find(e => e.name == name) ?? null;
+  }
+
+  /**
+   * Get all entries matching the given name.
+   *
+   * @param {string} name
+   * @return {VCardPropertyEntry[]}
+   */
+  getAllEntries(name) {
+    return this.entries.filter(e => e.name == name);
+  }
+
+  /**
+   * Get all entries matching the given name, sorted in order of preference.
+   * Preference is determined by the `pref` parameter if it exists, then by
+   * the position in `entries`.
+   *
+   * @param {string} name
+   * @return {VCardPropertyEntry[]}
+   */
+  getAllEntriesSorted(name) {
+    let nextPref = 101;
+    let entries = this.getAllEntries(name).map(e => {
+      return { entry: e, pref: e.params.pref || nextPref++ };
+    });
+    entries.sort((a, b) => a.pref - b.pref);
+    return entries.map(e => e.entry);
+  }
+
+  /**
+   * Clone this object.
+   *
+   * @return {VCardProperties}
+   */
+  clone() {
+    let copy = new VCardProperties();
+    copy.entries = this.entries.map(e => e.clone());
+    return copy;
+  }
+
+  /**
+   * Get a Map of Address Book properties from this object.
+   *
+   * @return {Map<string, string>} propertyMap
+   */
+  toPropertyMap() {
+    let vPropMap = VCardUtils._parse(
+      this.entries.map(e => [e.name, e.params, e.type, e.value])
+    );
+    let propertyMap = new Map();
+
+    for (let [name, props] of vPropMap) {
+      // Store the value(s) on the abCard.
+      for (let [abPropName, abPropValue] of typeMap[name].toAbCard(
+        props[0].value
+      )) {
+        if (abPropValue) {
+          propertyMap.set(abPropName, abPropValue);
+        }
+      }
+      // Special case for email, which can also have a second preference.
+      if (name == "email" && props.length > 1) {
+        propertyMap.set("SecondEmail", props[1].value);
+      }
+    }
+
+    return propertyMap;
+  }
+
+  /**
+   * Serialize this object into a vCard.
+   *
+   * @return {string} vCard
+   */
+  toVCard() {
+    return ICAL.stringify([
+      "vcard",
+      this.entries.map(e => [e.name, e.params, e.type, e.value]),
+    ]);
+  }
+}

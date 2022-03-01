@@ -202,6 +202,21 @@ interface nsIAbCard : nsISupports {
   void deleteProperty(in AUTF8String name);
 
   /**
+   * Whether this card supports vCard properties. Currently only AddrBookCard
+   * supports vCard properties.
+   */
+  readonly attribute boolean supportsVCard;
+
+  /**
+   * A `VCardProperties` object for this card, or null. If `supportsVCard` is
+   * true, this attribute MUST be a `VCardProperties` object, otherwise it
+   * MUST be null.
+   *
+   * @see VCardProperties in VCardUtils.jsm
+   */
+  readonly attribute jsval vCardProperties;
+
+  /**
    * @{
    * These properties are shorthand for getProperty and setProperty.
    */

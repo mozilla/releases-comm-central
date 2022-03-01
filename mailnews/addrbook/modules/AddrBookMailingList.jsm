@@ -406,6 +406,12 @@ AddrBookMailingList.prototype = {
         }
         return props;
       },
+      get supportsVCard() {
+        return false;
+      },
+      get vCardProperties() {
+        return null;
+      },
       translateTo(type) {
         // Get nsAbCardProperty to do the work, the code is in C++ anyway.
         let cardCopy = Cc[

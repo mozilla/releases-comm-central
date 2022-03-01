@@ -768,15 +768,3 @@ add_task(function() {
   Assert.equal(a.getProperty("Company", "BAD"), "Organization");
   Assert.equal(a.getProperty("Notes", "BAD"), "This is a note.");
 });
-
-function formatVCard([str]) {
-  let lines = str.split("\n");
-  let indent = lines[1].length - lines[1].trimLeft().length;
-  let outLines = [];
-  for (let line of lines) {
-    if (line.length > 0) {
-      outLines.push(line.substring(indent) + "\r\n");
-    }
-  }
-  return outLines.join("");
-}
