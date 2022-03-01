@@ -148,6 +148,7 @@ var OTR = {
     this._convos = new Map();
     this._observers = [];
     this._buffer = [];
+    this._pendingSystemMessages = [];
     this._poll_timer = null;
 
     // Async sending may fail in the transport protocols, so periodically
@@ -164,6 +165,9 @@ var OTR = {
           i += 1;
         }
       }
+      this._pendingSystemMessages = this._pendingSystemMessages.filter(
+        info => info.time + pluck_time < Date.now()
+      );
     }, pluck_time);
   },
 
@@ -633,8 +637,25 @@ var OTR = {
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=1536108
     let noNumbersName = conv.account.normalizedName.replace(/[0-9]/g, "#");
     queryMsg += _strArgs("query-msg", { name: noNumbersName });
-    conv.sendMsg(queryMsg);
+    this.sendOTRSystemMessage(conv, queryMsg);
     OTRLib.otrl_message_free(query);
+  },
+
+  _pendingSystemMessages: null,
+  /**
+   * Wrapper for system messages sent by OTR to ensure they are correctly
+   * handled through the OutgoingMessage event handlers.
+   *
+   * @param {prplIConversation} conv
+   * @param {string} message
+   */
+  sendOTRSystemMessage(conv, message) {
+    this._pendingSystemMessages.push({
+      message,
+      convId: conv.id,
+      time: Date.now(),
+    });
+    conv.sendMsg(message, false, false);
   },
 
   trustState: {
@@ -729,11 +750,14 @@ var OTR = {
   inject_message_cb(opdata, accountname, protocol, recipient, message) {
     let aMsg = message.readString();
     this.log("inject_message_cb (msglen:" + aMsg.length + "): " + aMsg);
-    this.getUIConvForRecipient(
-      accountname.readString(),
-      protocol.readString(),
-      recipient.readString()
-    ).target.sendMsg(aMsg);
+    this.sendOTRSystemMessage(
+      this.getUIConvForRecipient(
+        accountname.readString(),
+        protocol.readString(),
+        recipient.readString()
+      ).target,
+      aMsg
+    );
   },
 
   /**
@@ -1238,13 +1262,22 @@ var OTR = {
       return;
     }
 
-    // check for irc action messages
     if (om.action) {
-      om.cancelled = true;
-      let uiConv = this.getUIConvFromConv(conv);
-      if (uiConv) {
-        uiConv.sendMsg("/me " + om.message);
+      // embed /me into the message text for encrypted actions.
+      let context = this.getContext(conv);
+      if (context.msgstate != this.trustState.TRUST_NOT_PRIVATE) {
+        om.cancelled = true;
+        conv.sendMsg("/me " + om.message, false, false);
       }
+      return;
+    }
+
+    // Skip if OTR sent this message.
+    let pendingIndex = this._pendingSystemMessages.findIndex(
+      info => info.convId == conv.id && info.message == om.message
+    );
+    if (pendingIndex > -1) {
+      this._pendingSystemMessages.splice(pendingIndex, 1);
       return;
     }
 
@@ -1402,8 +1435,17 @@ var OTR = {
 
   // buffer messages
 
+  /**
+   * Remove messages that were making it through the system related to a
+   * conversation.
+   *
+   * @param {number} convId - ID of the conversation to purge all messages for.
+   */
   clearMsgs(convId) {
     this._buffer = this._buffer.filter(msg => msg.convId !== convId);
+    this._pendingSystemMessages = this._pendingSystemMessages.filter(
+      info => info.convId !== convId
+    );
   },
 
   /**

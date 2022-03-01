@@ -261,11 +261,8 @@ var commands = [
         return false;
       }
 
-      // XEP-0245: The /me Command.
-      // We need to append "/me " in the first four characters of the message
-      // body.
       let conv = getConv(aConv);
-      conv.sendMsg("/me " + params);
+      conv.sendMsg(params, true);
 
       return true;
     },

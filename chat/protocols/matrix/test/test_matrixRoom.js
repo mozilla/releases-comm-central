@@ -536,7 +536,30 @@ add_task(function test_sendMsg() {
       return Promise.resolve();
     },
   });
-  roomStub.sendMsg("foo bar");
+  roomStub.dispatchMessage("foo bar");
+  ok(!isTyping);
+  equal(message, "foo bar");
+  roomStub._cleanUpTimers();
+  roomStub.forget();
+});
+
+add_task(function test_sendMsg_emote() {
+  let isTyping = true;
+  let message;
+  const roomStub = getRoom(true, "#test:example.com", {
+    sendTyping(roomId, typing) {
+      equal(roomId, roomStub._roomId);
+      isTyping = typing;
+      return Promise.resolve();
+    },
+    sendEmoteMessage(roomId, threadId, msg) {
+      equal(roomId, roomStub._roomId);
+      equal(threadId, null);
+      message = msg;
+      return Promise.resolve();
+    },
+  });
+  roomStub.dispatchMessage("foo bar", true);
   ok(!isTyping);
   equal(message, "foo bar");
   roomStub._cleanUpTimers();

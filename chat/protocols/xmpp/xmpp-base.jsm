@@ -302,7 +302,13 @@ var XMPPMUCConversationPrototype = {
   },
 
   /* Called when the user enters a chat message */
-  sendMsg(aMsg) {
+  dispatchMessage(aMsg, aAction = false) {
+    if (aAction) {
+      // XEP-0245: The /me Command.
+      // We need to prepend "/me " as the first four characters of the message
+      // body.
+      aMsg = "/me " + aMsg;
+    }
     // XEP-0045 (7.4): Sending a message to all occupants in a room.
     let s = Stanza.message(this.name, aMsg, null, { type: "groupchat" });
     let notInRoom = _(
@@ -891,7 +897,13 @@ var XMPPConversationPrototype = {
   },
 
   /* Called when the user enters a chat message */
-  sendMsg(aMsg) {
+  dispatchMessage(aMsg, aAction = false) {
+    if (aAction) {
+      // XEP-0245: The /me Command.
+      // We need to prepend "/me " as the first four characters of the message
+      // body.
+      aMsg = "/me" + aMsg;
+    }
     this._cancelTypingTimer();
     let cs = this.shouldSendTypingNotifications ? "active" : null;
     let s = Stanza.message(this.to, aMsg, cs);

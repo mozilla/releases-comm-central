@@ -36,6 +36,17 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
+function OutgoingMessage(aMsg, aConversation) {
+  this.message = aMsg;
+  this.conversation = aConversation;
+}
+OutgoingMessage.prototype = {
+  __proto__: ClassInfo("imIOutgoingMessage", "Outgoing Message"),
+  cancelled: false,
+  action: false,
+  notification: false,
+};
+
 var GenericAccountPrototype = {
   __proto__: ClassInfo("prplIAccount", "generic account object"),
   get wrappedJSObject() {
@@ -965,7 +976,40 @@ var GenericConversationPrototype = {
       );
     }
   },
-  sendMsg(aMsg) {
+  sendMsg(aMsg, aAction = false, aNotification = false) {
+    // Add-ons (eg. pastebin) have an opportunity to cancel the message at this
+    // point, or change the text content of the message.
+    // If an add-on wants to split a message, it should truncate the first
+    // message, and insert new messages using the conversation's sendMsg method.
+    let om = new OutgoingMessage(aMsg, this);
+    om.action = aAction;
+    om.notification = aNotification;
+    this.notifyObservers(om, "preparing-message");
+    if (om.cancelled) {
+      return;
+    }
+
+    // Protocols have an opportunity here to preprocess messages before they are
+    // sent (eg. split long messages). If a message is split here, the split
+    // will be visible in the UI.
+    let messages = this.prepareForSending(om);
+    let isAction = om.action;
+    let isNotification = om.notification;
+
+    for (let msg of messages) {
+      // Add-ons (eg. OTR) have an opportunity to tweak or cancel the message
+      // at this point.
+      om = new OutgoingMessage(msg, this);
+      om.action = isAction;
+      om.notification = isNotification;
+      this.notifyObservers(om, "sending-message");
+      if (om.cancelled) {
+        continue;
+      }
+      this.dispatchMessage(om.message, om.action, om.notification);
+    }
+  },
+  dispatchMessage(message, action, notification) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   sendTyping: aString => Ci.prplIConversation.NO_TYPING_LIMIT,

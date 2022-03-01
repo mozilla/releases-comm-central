@@ -25,7 +25,7 @@ Conversation.prototype = {
       this.account.disconnect(true);
     }
   },
-  sendMsg(aMsg) {
+  dispatchMessage(aMsg) {
     if (this._disconnected) {
       this.writeMessage(
         "jstest",

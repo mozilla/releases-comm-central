@@ -300,15 +300,26 @@ var GenericIRCConversation = {
 
     return messages;
   },
-  sendMsg(aMessage, aIsNotice) {
-    if (!aMessage.length) {
+  dispatchMessage(message, action = false, isNotice = false) {
+    if (!message.length) {
       return;
     }
 
-    if (
-      !this._account.sendMessage(aIsNotice ? "NOTICE" : "PRIVMSG", [
+    if (action) {
+      if (!this.sendCTCPMessage(this.name, false, "ACTION", message)) {
+        this.writeMessage(
+          this._account._currentServerName,
+          _("error.sendMessageFailed"),
+          { error: true, system: true }
+        );
+        return;
+      }
+      // Prefix with /me for local display.
+      message = "/me " + message;
+    } else if (
+      !this._account.sendMessage(isNotice ? "NOTICE" : "PRIVMSG", [
         this.name,
-        aMessage,
+        message,
       ])
     ) {
       this.writeMessage(
@@ -327,7 +338,7 @@ var GenericIRCConversation = {
         this._account.imAccount.alias ||
           this._account.imAccount.statusInfo.displayName ||
           this._account._nickname,
-        aMessage,
+        message,
         { outgoing: true }
       );
     }

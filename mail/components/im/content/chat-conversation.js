@@ -599,17 +599,11 @@
             }
           }
         }
-        this._conv.sendMsg(msg);
+        this._conv.sendMsg(msg, false, false);
       } else {
         msg = account.HTMLEscapePlainText ? msg : aMsg;
 
-        if (account.noNewlines) {
-          // 'Illegal operation on WrappedNative prototype object' if the this
-          // object is not specified (since this._conv implements nsIClassInfo)
-          msg.split("\n").forEach(this._conv.sendMsg, this._conv);
-        } else {
-          this._conv.sendMsg(msg);
-        }
+        this._conv.sendMsg(msg, false, false);
       }
       // reset the textbox to its original size
       this.resetInput();

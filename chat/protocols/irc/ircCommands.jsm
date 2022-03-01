@@ -7,7 +7,6 @@
 const EXPORTED_SYMBOLS = ["commands"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { ClassInfo } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { _ } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Shortcut to get the JavaScript conversation object.
@@ -24,16 +23,6 @@ function getAccount(aConv) {
 function splitInput(aString) {
   return aString.trim().split(/\s+/);
 }
-
-function OutgoingMessage(aMsg, aConversation, aAction) {
-  this.message = aMsg;
-  this.conversation = aConversation;
-  this.action = !!aAction;
-}
-OutgoingMessage.prototype = {
-  __proto__: ClassInfo("imIOutgoingMessage", "Outgoing Message"),
-  cancelled: false,
-};
 
 // Kick a user from a channel
 // aMsg is <user> [comment]
@@ -83,15 +72,7 @@ function messageCommand(aMsg, aConv, aReturnedConv, aIsNotice = false) {
     return true;
   }
 
-  // Give add-ons an opportunity to tweak or cancel the message.
-  let om = new OutgoingMessage(message, conv);
-  conv.notifyObservers(om, "sending-message");
-  // If a NOTICE is cancelled and resent, it will end up being sent as PRIVMSG.
-  if (om.cancelled) {
-    return true;
-  }
-
-  return privateMessage(aConv, om.message, nickname, aReturnedConv, aIsNotice);
+  return privateMessage(aConv, message, nickname, aReturnedConv, aIsNotice);
 }
 
 // aAdd is true to add a mode, false to remove a mode.
@@ -118,32 +99,8 @@ function actionCommand(aMsg, aConv) {
 
   let conv = getConv(aConv);
 
-  // Give add-ons an opportunity to tweak or cancel the action.
-  let om = new OutgoingMessage(aMsg, aConv, true);
-  conv.notifyObservers(om, "sending-message");
-  if (om.cancelled) {
-    return true;
-  }
+  conv.sendMsg(aMsg, true);
 
-  let account = getAccount(aConv);
-  if (!ctcpCommand(aConv, aConv.name, "ACTION", om.message)) {
-    conv.writeMessage(
-      account._currentServerName,
-      _("error.sendMessageFailed"),
-      { error: true, system: true }
-    );
-    return true;
-  }
-
-  // By default the server doesn't send the message back, but this can be
-  // enabled with the echo-message capability. If this is not enabled, just
-  // assume the message was received and immediately show it.
-  if (!account._activeCAPs.has("echo-message")) {
-    // Show the action on our conversation.
-    conv.writeMessage(account._nickname, "/me " + om.message, {
-      outgoing: true,
-    });
-  }
   return true;
 }
 
@@ -156,7 +113,7 @@ function privateMessage(aConv, aMsg, aNickname, aReturnedConv, aIsNotice) {
   }
 
   let conv = getAccount(aConv).getConversation(aNickname);
-  conv.sendMsg(aMsg, aIsNotice);
+  conv.sendMsg(aMsg, false, aIsNotice);
   if (aReturnedConv) {
     aReturnedConv.value = conv;
   }

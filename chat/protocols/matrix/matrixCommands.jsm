@@ -431,11 +431,10 @@ var commands = [
     get helpString() {
       return _("command.me", "me");
     },
-    run: clientCommand("sendEmoteMessage", 1, {
-      formatParams(conv, [message]) {
-        return [conv._roomId, null, message];
-      },
-    }),
+    run: runCommand((account, conv, [roomId, message]) => {
+      conv.sendMsg(message, true);
+      return true;
+    }, 1),
   },
   {
     name: "msg",

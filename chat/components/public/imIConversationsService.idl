@@ -89,8 +89,10 @@ interface imIConversationsService: nsISupports {
 interface imIOutgoingMessage: nsISupports {
            attribute AUTF8String message;
            attribute boolean cancelled;
-  // Outgoing message is an action command.
+  /** Outgoing message is an action command. */
   readonly attribute boolean action;
+  /** Outgoing message is a notice */
+  readonly attribute boolean notification;
   readonly attribute prplIConversation conversation;
 };
 

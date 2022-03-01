@@ -18,16 +18,6 @@ XPCOMUtils.defineLazyGetter(this, "bundle", () =>
   Services.strings.createBundle("chrome://chat/locale/conversations.properties")
 );
 
-function OutgoingMessage(aMsg, aConversation) {
-  this.message = aMsg;
-  this.conversation = aConversation;
-}
-OutgoingMessage.prototype = {
-  __proto__: ClassInfo("imIOutgoingMessage", "Outgoing Message"),
-  cancelled: false,
-  action: false,
-};
-
 function imMessage(aPrplMessage) {
   this.prplMessage = aPrplMessage;
 }
@@ -542,32 +532,8 @@ UIConversation.prototype = {
   initializeEncryption() {
     this.target.initializeEncryption();
   },
-  sendMsg(aMsg) {
-    // Add-ons (eg. pastebin) have an opportunity to cancel the message at this
-    // point, or change the text content of the message.
-    // If an add-on wants to split a message, it should truncate the first
-    // message, and insert new messages using the conversation's sendMsg method.
-    let om = new OutgoingMessage(aMsg, this);
-    this.notifyObservers(om, "preparing-message");
-    if (om.cancelled) {
-      return;
-    }
-
-    // Protocols have an opportunity here to preprocess messages before they are
-    // sent (eg. split long messages). If a message is split here, the split
-    // will be visible in the UI.
-    let messages = this.target.prepareForSending(om);
-
-    for (let msg of messages) {
-      // Add-ons (eg. OTR) have an opportunity to tweak or cancel the message
-      // at this point.
-      om = new OutgoingMessage(msg, this.target);
-      this.notifyObservers(om, "sending-message");
-      if (om.cancelled) {
-        continue;
-      }
-      this.target.sendMsg(om.message);
-    }
+  sendMsg(aMsg, aAction = false, aNotice = false) {
+    this.target.sendMsg(aMsg, aAction, aNotice);
   },
   unInit() {
     for (let id in this._prplConv) {

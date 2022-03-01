@@ -466,14 +466,28 @@ MatrixRoom.prototype = {
    * create the local copy, that is handled by the local echo of the SDK.
    *
    * @param {string} msg - Message to send.
+   * @param {boolean} [action=false] - If the message is an emote.
+   * @param {boolean} [notice=false]
    */
-  sendMsg(msg) {
+  dispatchMessage(msg, action = false, notice = false) {
     this.sendTyping("");
-    this._account._client
-      .sendTextMessage(this._roomId, null, msg)
-      .catch(error => {
-        this._account.ERROR("Failed to send message to: " + this._roomId);
+    if (action) {
+      this._account._client
+        .sendEmoteMessage(this._roomId, null, msg)
+        .catch(error => {
+          this._account.ERROR("Failed to send emote to: " + this._roomId);
+        });
+    } else if (notice) {
+      this._account._client.sendNotice(this._roomId, null, msg).catch(error => {
+        this._account.ERROR("Failed to send notice to: " + this._roomId);
       });
+    } else {
+      this._account._client
+        .sendTextMessage(this._roomId, null, msg)
+        .catch(error => {
+          this._account.ERROR("Failed to send message to: " + this._roomId);
+        });
+    }
   },
 
   /**
@@ -696,11 +710,11 @@ MatrixRoom.prototype = {
         eventId => this.room.findEventById(eventId)
       );
       opts.system = [
-        MsgType.Notice,
         "m.server_notice",
         MsgType.KeyVerificationRequest,
       ].includes(eventContent.msgtype);
       opts.error = event.isDecryptionFailure();
+      opts.notification = eventContent.msgtype === MsgType.Notice;
     } else if (eventType === EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
       message = _("message.encryptionStart");

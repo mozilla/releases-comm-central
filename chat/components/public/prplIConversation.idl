@@ -85,7 +85,7 @@ interface prplIConversation: nsISupports {
    * Send a message in the conversation. Protocols should consider resetting
    * the typing state with this call, similar to |sendTyping("")|.
    */
-  void sendMsg(in AUTF8String aMsg);
+  void sendMsg(in AUTF8String aMsg, in boolean aAction, in boolean aNotice);
 
   /**
    * Preprocess messages before they are sent (eg. split long messages).

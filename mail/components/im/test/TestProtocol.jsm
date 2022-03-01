@@ -95,11 +95,11 @@ const SharedConversationPrototype = {
    * @param {string} aMsg - Message to send.
    * @returns
    */
-  sendMsg(aMsg) {
+  dispatchMessage(aMsg, aAction = false, aNotice = false) {
     if (this._disconnected) {
       return;
     }
-    this.writeMessage("You", aMsg, { outgoing: true });
+    this.writeMessage("You", aMsg, { outgoing: true, notification: aNotice });
   },
 
   /**
