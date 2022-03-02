@@ -7,59 +7,25 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-views.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<window id="calendar-conflicts-dialog"
-        windowtype="Calendar:Conflicts"
-        onload="onLoad()"
-        persist="screenX screenY"
-        lightweightthemes="true"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+<html id="calendar-conflicts-dialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:Conflicts"
+      persist="screenX screenY"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <script defer="defer" src="chrome://calendar/content/widgets/mouseoverPreviews.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog>
-  <script src="chrome://calendar/content/widgets/mouseoverPreviews.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-  <script><![CDATA[
-    var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-    function onLoad() {
-      let dialog = document.querySelector("dialog");
-      let item = window.arguments[0].item;
-      let vbox = getPreviewForItem(item, false);
-      if (vbox) {
-        document.getElementById("item-box").replaceWith(vbox);
-      }
-
-      let descr = document.getElementById("conflicts-description");
-
-      // TODO These strings should move to DTD files, but we don't want to
-      // disrupt string freeze right now. For that matter, this dialog
-      // should be reworked!
-      dialog.title =  cal.l10n.getCalString("itemModifiedOnServerTitle");
-      descr.textContent = cal.l10n.getCalString("itemModifiedOnServer");
-
-      if (window.arguments[0].mode == "modify") {
-        descr.textContent += cal.l10n.getCalString("modifyWillLoseData");
-        dialog.getButton("accept").setAttribute("label", cal.l10n.getCalString("proceedModify"));
-      } else {
-        descr.textContent += cal.l10n.getCalString("deleteWillLoseData");
-        dialog.getButton("accept").setAttribute("label", cal.l10n.getCalString("proceedDelete"));
-      }
-
-      dialog.getButton("cancel").setAttribute("label", cal.l10n.getCalString("updateFromServer"));
-
-      window.sizeToContent();
-    }
-
-    document.addEventListener("dialogaccept", () => {
-      window.arguments[0].overwrite = true;
-    });
-
-    document.addEventListener("dialogcancel", () => {
-      window.arguments[0].overwrite = false;
-    });
-  ]]></script>
-
   <vbox id="conflicts-vbox" flex="1">
     <vbox id="item-box" flex="1"/>
     <description id="conflicts-description"
                  style="max-width: 40em; margin-top: 1ex"/>
   </vbox>
 </dialog>
-</window>
+</html:body>
+<html:script src="chrome://calendar/content/calendar-conflicts-dialog.js">//see bug 1752288</html:script>
+</html>
