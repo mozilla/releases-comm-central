@@ -83,6 +83,8 @@ XPCOMUtils.defineLazyGetter(this, "gEventNotification", () => {
 });
 
 var eventDialogRequestObserver = {
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+
   observe(aSubject, aTopic, aData) {
     if (
       aTopic == "http-on-modify-request" &&
@@ -98,6 +100,8 @@ var eventDialogRequestObserver = {
 };
 
 var eventDialogQuitObserver = {
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+
   observe(aSubject, aTopic, aData) {
     // Check whether or not we want to veto the quit request (unless another
     // observer already did.
@@ -112,6 +116,8 @@ var eventDialogQuitObserver = {
 };
 
 var eventDialogCalendarObserver = {
+  QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
+
   target: null,
   isObserving: false,
 
