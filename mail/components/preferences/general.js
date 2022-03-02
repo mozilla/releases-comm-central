@@ -344,18 +344,16 @@ var gGeneralPane = {
         );
       }
 
-      let distroId = Services.prefs.getCharPref("distribution.id", "");
+      let defaults = Services.prefs.getDefaultBranch(null);
+      let distroId = defaults.getCharPref("distribution.id", "");
       if (distroId) {
-        let distroVersion = Services.prefs.getCharPref("distribution.version");
+        let distroVersion = defaults.getCharPref("distribution.version", "");
 
         let distroIdField = document.getElementById("distributionId");
         distroIdField.value = distroId + " - " + distroVersion;
         distroIdField.style.display = "block";
 
-        let distroAbout = Services.prefs.getStringPref(
-          "distribution.about",
-          ""
-        );
+        let distroAbout = defaults.getStringPref("distribution.about", "");
         if (distroAbout) {
           let distroField = document.getElementById("distribution");
           distroField.value = distroAbout;
