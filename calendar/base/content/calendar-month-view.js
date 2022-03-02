@@ -321,6 +321,7 @@
           <html:div class="calendar-category-box"></html:div>
         `)
       );
+      this.timeLabel = this.querySelector(".item-time-label");
 
       this.classList.add("calendar-color-box", "calendar-item-flex");
 
@@ -344,33 +345,50 @@
     set occurrence(val) {
       cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
       this.mOccurrence = val;
-      let labelTime;
+      let displayTime;
       if (val.isEvent()) {
         let type;
         if (!val.startDate.isDate) {
-          let timezone = this.calendarView ? this.calendarView.mTimezone : cal.dtz.defaultTimezone;
-          let parentDate = this.parentBox.date;
-          let parentTime = cal.createDateTime();
-          parentTime.resetTo(parentDate.year, parentDate.month, parentDate.day, 0, 0, 0, timezone);
-          let startTime = val.startDate.getInTimezone(timezone);
-          let endTime = val.endDate.getInTimezone(timezone);
-          let nextDay = parentTime.clone();
-          nextDay.day++;
-          let comp = endTime.compare(nextDay);
-          if (startTime.compare(parentTime) == -1) {
-            if (comp == 1) {
-              type = "continue";
-            } else if (comp == 0) {
-              type = "start";
-            } else {
-              type = "end";
-              labelTime = endTime;
+          let formatter = cal.dtz.formatter;
+          let parentTime = this.parentBox.date.clone();
+          // Convert to the date-time for the start of the day.
+          parentTime.isDate = false;
+          // NOTE: Since this event was placed in this box, then we should be
+          // able to assume that the event starts before or on the same day, and
+          // it ends after or on the same day.
+          let startCompare = val.startDate.compare(parentTime);
+          // Go to the end of the day (midnight).
+          parentTime.day++;
+          let endCompare = val.endDate.compare(parentTime);
+          if (startCompare == -1) {
+            // Starts before this day.
+            switch (endCompare) {
+              case 1: // Ends on a later day.
+                type = "continue";
+                // We have no time to show in this case.
+                break;
+              case 0: // Ends at midnight.
+              case -1: // Ends on this day.
+                type = "end";
+                displayTime = formatter.formatTime(
+                  val.endDate.getInTimezone(this.parentBox.date.timezone),
+                  // We prefer to show midnight as 24:00 if possible to indicate
+                  // that the event ends at the end of this day, rather than the
+                  // start of the next day.
+                  true
+                );
+                break;
             }
-          } else if (comp == 1) {
-            type = "start";
-            labelTime = startTime;
           } else {
-            labelTime = startTime;
+            // Starts on this day.
+            if (endCompare == 1) {
+              // Ends on a later day.
+              type = "start";
+            }
+            // Use the same format as ending on the day.
+            displayTime = formatter.formatTime(
+              val.startDate.getInTimezone(this.parentBox.date.timezone)
+            );
           }
         }
         let icon = this.querySelector(".item-type-icon");
@@ -397,14 +415,13 @@
             icon.setAttribute("alt", "");
         }
       }
-      let timeLabel = this.querySelector(".item-time-label");
-      if (labelTime === undefined) {
-        timeLabel.textContent = "";
-        timeLabel.hidden = true;
+
+      if (displayTime) {
+        this.timeLabel.textContent = displayTime;
+        this.timeLabel.hidden = false;
       } else {
-        let formatter = cal.dtz.formatter;
-        timeLabel.textContent = formatter.formatTime(labelTime);
-        timeLabel.hidden = false;
+        this.timeLabel.textContent = "";
+        this.timeLabel.hidden = true;
       }
 
       this.setEditableLabel();

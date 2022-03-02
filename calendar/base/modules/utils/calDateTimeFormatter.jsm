@@ -86,18 +86,50 @@ var formatter = {
   },
 
   /**
-   * Format a time into the format specified by the OS settings. Will omit the seconds from the
-   * output.
+   * Format the time portion of a date-time object. Note: only the hour and
+   * minutes are shown.
    *
-   * @param {calIDateTime} aDate    The datetime to format.
-   * @return {string}               A string representing the time part of the datetime.
+   * @param {calIDateTime} time - The date-time to format the time of.
+   * @param {boolean} [preferEndOfDay = false] - Whether to prefer showing a
+   *   midnight time as the end of a day, rather than the start of the day, if
+   *   the time formatting allows for it. I.e. if the formatter would use a
+   *   24-hour format, then this would show midnight as 24:00, rather than
+   *   00:00.
+   *
+   * @return {string} A string representing the time.
    */
-  formatTime(aDate) {
-    if (aDate.isDate) {
+  formatTime(time, preferEndOfDay = false) {
+    if (time.isDate) {
       return gDateStringBundle.GetStringFromName("AllDay");
     }
 
-    return inTimezone(aDate, { timeStyle: "short" });
+    let options = { timeStyle: "short" };
+    let formatter = getFormatterWithTimezone(options, time.timezone);
+    if (preferEndOfDay && time.hour == 0 && time.minute == 0) {
+      // Midnight. Note that the timeStyle is short, so we don't test for
+      // seconds.
+      // Test what hourCycle the default formatter would use.
+      if (formatter.resolvedOptions().hourCycle == "h23") {
+        // Midnight start-of-day is 00:00, so we can show midnight end-of-day
+        // as 24:00.
+        options.hourCycle = "h24";
+        formatter = getFormatterWithTimezone(options, time.timezone);
+      }
+      // NOTE: Regarding the other hourCycle values:
+      // + "h24": This is not expected in any locale.
+      // + "h12": In a 12-hour format that cycles 12 -> 1 -> ... -> 11, there is
+      //   no convention to distinguish between midnight start-of-day and
+      //   midnight end-of-day. So we do nothing.
+      // + "h11": The ja-JP locale with a 12-hour format returns this. In this
+      //   locale, midnight start-of-day is shown as "午前0:00" (i.e. 0 AM),
+      //   which means midnight end-of-day can be shown as "午後12:00" (12 PM).
+      //   However, Intl.DateTimeFormatter does not expose a means to do this.
+      //   Just forcing a h12 hourCycle will show midnight as "午前12:00", which
+      //   would be incorrect in this locale. Therefore, we similarly do nothing
+      //   in this case as well.
+    }
+
+    return formatter.format(cal.dtz.dateTimeToJsDate(time));
   },
 
   /**
@@ -347,60 +379,73 @@ var formatter = {
 };
 
 /**
- * inTimezone returns a string with date formatted.
+ * Get a formatter that can be used to format a date-time in a
+ * locale-appropriate way.
  *
- * @param  {calIDateTime} aDate    The date object holding the tz information.
- * @param  {Object} aOptions       The Intl.DateTimeFormatter options object.
- * @return {string}                The date as a string.
+ * NOTE: formatters are cached for future requests.
+ *
+ * @param {Object} formatOptions - Intl.DateTimeFormatter options.
+ *
+ * @return {DateTimeFormatter} - The formatter.
  */
-function inTimezone(aDate, aOptions) {
-  let cacheKey;
+function getFormatter(formatOptions) {
+  let cacheKey = JSON.stringify(formatOptions);
+  if (formatCache.has(cacheKey)) {
+    return formatCache.get(cacheKey);
+  }
+  // Use en-US when running in a test to make the result independent of the test
+  // machine.
+  let locale = Services.appinfo.name == "xpcshell" ? "en-US" : Services.locale.appLocalesAsBCP47;
   let formatter;
-  let timezone = aDate.timezone;
+  if ("hourCycle" in formatOptions) {
+    // FIXME: The hourCycle property is currently ignored by Services.intl, so
+    // we use Intl instead. Once bug 1749459 is closed, we should only use
+    // Services.intl again.
+    formatter = new Intl.DateTimeFormat(locale, formatOptions);
+  } else {
+    formatter = new Services.intl.DateTimeFormat(locale, formatOptions);
+  }
+  formatCache.set(cacheKey, formatter);
+  return formatter;
+}
 
-  if (!aDate.isDate && timezone && (timezone.isUTC || timezone.icalComponent)) {
-    let optionsWithTimezone = { ...aOptions, timeZone: timezone.tzid };
-
-    cacheKey = JSON.stringify(optionsWithTimezone);
-    if (formatCache.has(cacheKey)) {
-      formatter = formatCache.get(cacheKey);
-    } else {
-      try {
-        if (Services.appinfo.name === "xpcshell") {
-          // Use en-US when running in a test to make the result independent of
-          // the locale of the test machine.
-          formatter = new Services.intl.DateTimeFormat("en-US", optionsWithTimezone);
-        } else {
-          formatter = new Services.intl.DateTimeFormat(
-            Services.locale.appLocalesAsBCP47,
-            optionsWithTimezone
-          );
-        }
-        formatCache.set(cacheKey, formatter);
-      } catch (ex) {
-        // Non-IANA timezones throw a RangeError.
-        cal.WARN(ex);
-      }
+/**
+ * Get a formatter that can be used to format a date-time within the given
+ * timezone. NOTE: some timezones may be ignored if they are not properly
+ * handled.
+ *
+ * @param {Object} formatOptions - The basis Intl.DateTimeFormatter options.
+ * @param {?calITimezone} timezone - The timezone to try and use.
+ *
+ * @return {DateTimeFormatter} - The formatter.
+ */
+function getFormatterWithTimezone(formatOptions, timezone) {
+  if (timezone && (timezone.isUTC || timezone.icalComponent)) {
+    let optionsWithTimezone = { ...formatOptions, timeZone: timezone.tzid };
+    try {
+      return getFormatter(optionsWithTimezone);
+    } catch (ex) {
+      // Non-IANA timezones throw a RangeError.
+      cal.WARN(ex);
     }
   }
+  return getFormatter(formatOptions);
+}
 
-  if (!formatter) {
-    cacheKey = JSON.stringify(aOptions);
-    if (formatCache.has(cacheKey)) {
-      formatter = formatCache.get(cacheKey);
-    } else {
-      if (Services.appinfo.name === "xpcshell") {
-        // Use en-US when running in a test to make the result independent of
-        // the locale of the test machine.
-        formatter = new Services.intl.DateTimeFormat("en-US", aOptions);
-      } else {
-        formatter = new Services.intl.DateTimeFormat(Services.locale.appLocalesAsBCP47, aOptions);
-      }
-      formatCache.set(cacheKey, formatter);
-    }
-  }
-
-  return formatter.format(cal.dtz.dateTimeToJsDate(aDate));
+/**
+ * Format the given date or date-time. If a date-time object is given, it will
+ * be shown in its timezone.
+ *
+ * @param {calIDateTime} date - The date or date-time to format.
+ * @param {Object} formatOptions - The Intl.DateTimeFormatter options
+ *   describing how to format the date.
+ *
+ * @return {string} - The date formatted as a string.
+ */
+function inTimezone(date, formatOptions) {
+  return getFormatterWithTimezone(formatOptions, date.isDate ? null : date.timezone).format(
+    cal.dtz.dateTimeToJsDate(date)
+  );
 }
 
 /**
