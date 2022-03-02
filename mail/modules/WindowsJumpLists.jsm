@@ -220,7 +220,7 @@ var WinTaskbarJumpList = {
    */
 
   _initTaskbar() {
-    this._builder = _taskbarService.createJumpListBuilder();
+    this._builder = _taskbarService.createJumpListBuilder(false);
     if (!this._builder || !this._builder.available) {
       return false;
     }
