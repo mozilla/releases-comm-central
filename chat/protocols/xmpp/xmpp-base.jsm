@@ -2421,7 +2421,9 @@ var XMPPAccountPrototype = {
     if (!x) {
       return null;
     }
-    let retVal = {};
+    let retVal = {
+      shouldDecline: false,
+    };
 
     // XEP-0045. Direct Invitation (7.8.1)
     // Described in XEP-0249.
@@ -2453,6 +2455,7 @@ var XMPPAccountPrototype = {
       }
       retVal.mucJid = this.normalize(aStanza.attributes.from);
       retVal.from = this.normalize(invite.attributes.from);
+      retVal.shouldDecline = true;
       let continueElement = invite.getElement(["continue"]);
       retVal.continue = !!continueElement;
       if (continueElement) {
@@ -2565,27 +2568,41 @@ var XMPPAccountPrototype = {
       ].filter(s => s);
       let message = _(messageID, ...params);
 
-      if (
-        Services.prefs.getIntPref(
-          "messenger.conversations.autoAcceptChatInvitations"
-        ) == 1
-      ) {
-        // Auto-accept the invitation.
-        let chatRoomFields = this.getChatRoomDefaultFieldValues(
-          invitation.mucJid
-        );
-        if (invitation.password) {
-          chatRoomFields.setValue("password", invitation.password);
+      this.addChatRequest(
+        invitation.mucJid,
+        () => {
+          let chatRoomFields = this.getChatRoomDefaultFieldValues(
+            invitation.mucJid
+          );
+          if (invitation.password) {
+            chatRoomFields.setValue("password", invitation.password);
+          }
+          let muc = this.joinChat(chatRoomFields);
+          muc.writeMessage(muc.name, message, { system: true });
+        },
+        (request, tryToDeny) => {
+          // Only mediated invitations (XEP-0045) can explicitly decline.
+          if (invitation.shouldDecline && tryToDeny) {
+            let decline = Stanza.node(
+              "decline",
+              null,
+              { from: invitation.from },
+              null
+            );
+            let x = Stanza.node("x", Stanza.NS.muc_user, null, decline);
+            let s = Stanza.node("message", null, { to: invitation.mucJid }, x);
+            this.sendStanza(s);
+          }
+          // Always show invite reason or password, even if the invite wasn't
+          // automatically declined based on the setting.
+          if (!request || invitation.reason || invitation.password) {
+            let conv = this.createConversation(invitation.from);
+            if (conv) {
+              conv.writeMessage(invitation.from, message, { system: true });
+            }
+          }
         }
-        let muc = this.joinChat(chatRoomFields);
-        muc.writeMessage(muc.name, message, { system: true });
-      } else {
-        // Otherwise, just notify the user.
-        let conv = this.createConversation(invitation.from);
-        if (conv) {
-          conv.writeMessage(invitation.from, message, { system: true });
-        }
-      }
+      );
     }
 
     if (body) {

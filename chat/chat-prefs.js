@@ -23,7 +23,7 @@ pref("messenger.accounts.maxDebugMessages", 200);
 // "Other contacts" group.
 pref("messenger.buddies.hiddenTags", "");
 
-//  1 accepts invitations automatically,
+//  1 prompts the user about the invite,
 //  0 ignores the invitations,
 // -1 rejects the invitations.
 pref("messenger.conversations.autoAcceptChatInvitations", 1);

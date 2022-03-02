@@ -25,7 +25,6 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 var { nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { ircHandlers } = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 var {
   _,
@@ -177,22 +176,23 @@ var ircBase = {
     },
     INVITE(aMessage) {
       // INVITE <nickname> <channel>
-      if (
-        Services.prefs.getIntPref(
-          "messenger.conversations.autoAcceptChatInvitations"
-        ) == 1
-      ) {
-        // Auto-accept the invite.
-        this.joinChat(this.getChatRoomDefaultFieldValues(aMessage.params[1]));
-        this.LOG(
-          "Received invite for " + aMessage.params[1] + ", auto-accepting."
-        );
-      }
-      // Otherwise, just notify the user.
-      this.getConversation(aMessage.params[1]).writeMessage(
-        aMessage.origin,
-        _("message.inviteReceived", aMessage.origin, aMessage.params[1]),
-        { system: true }
+      let channel = aMessage.params[1];
+      this.addChatRequest(
+        channel,
+        () => {
+          this.joinChat(this.getChatRoomDefaultFieldValues(channel));
+        },
+        request => {
+          // Inform the user when an invitation was automatically ignored.
+          if (!request) {
+            // Otherwise just notify the user.
+            this.getConversation(channel).writeMessage(
+              aMessage.origin,
+              _("message.inviteReceived", aMessage.origin, channel),
+              { system: true }
+            );
+          }
+        }
       );
       return true;
     },

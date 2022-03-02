@@ -282,14 +282,26 @@ var GenericAccountPrototype = {
    *
    * @param {string} conversationName - Name of the conversation the user is
    *   invited to.
-   * @param {function} grantCallback - Function to be called when the invite is
-   *   accepted.
-   * @param {function} [denyCallback] - Function to be called whent he invite
-   *   is rejected. If omitted, |canDeny| will be |false|.
+   * @param {(prplIChatRequest) => void} grantCallback - Function to be called
+   *   when the invite is accepted.
+   * @param {(prplIChatRequest?, boolean) => void} [denyCallback] - Function to
+   *   be called when the invite is rejected. If omitted, |canDeny| will be
+   *   |false|. Callback is passed a boolean indicating whether the rejection should be
+   *   sent to the other party. It being false is equivalent to ignoring the invite, in
+   *   which case the callback should try to apply the ignore on the protocol level.
    */
   addChatRequest(conversationName, grantCallback, denyCallback) {
     if (!this._pendingChatRequests) {
       this._pendingChatRequests = new Set();
+    }
+    let inviteHandling = Services.prefs.getIntPref(
+      "messenger.conversations.autoAcceptChatInvitations"
+    );
+    // Only auto-reject invites that can be denied.
+    if (inviteHandling <= 0 && denyCallback) {
+      const shouldReject = inviteHandling == -1;
+      denyCallback(null, shouldReject);
+      return;
     }
     let resolvePromise;
     let rejectPromise;
@@ -321,7 +333,7 @@ var GenericAccountPrototype = {
           throw new Error("Can not deny this invitation.");
         }
         resolvePromise(false);
-        denyCallback(this);
+        denyCallback(this, true);
         this._remove();
       },
       cancel() {
