@@ -501,6 +501,7 @@ class AddrBookImporterController extends ImporterController {
   async _showDirectories(sourceFile) {
     this._sourceFile = sourceFile;
     let elList = document.getElementById("directoryList");
+    elList.innerHTML = "";
     this._directories = MailServices.ab.directories.filter(
       dir => dir.dirType == Ci.nsIAbManager.JS_DIRECTORY_TYPE
     );

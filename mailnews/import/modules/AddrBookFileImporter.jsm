@@ -4,7 +4,24 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookFileImporter"];
 
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  Services: "resource://gre/modules/Services.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+  exportAttributes: "resource:///modules/AddrBookUtils.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "d3", () => {
+  let d3Scope = Cu.Sandbox(null);
+  Services.scriptloader.loadSubScript(
+    "chrome://global/content/third_party/d3/d3.js",
+    d3Scope
+  );
+  return Cu.waiveXrays(d3Scope.d3);
+});
 
 /**
  * A module to import address book files.
@@ -44,6 +61,9 @@ class AddrBookFileImporter {
     this._targetDirectory = targetDirectory;
 
     switch (this._type) {
+      case "csv":
+        await this._importCsvFile();
+        break;
       case "ldif":
         await this._importLdifFile();
         break;
@@ -59,6 +79,65 @@ class AddrBookFileImporter {
           Cr.NS_ERROR_NOT_IMPLEMENTED
         );
     }
+  }
+
+  /**
+   * Import the .csv/.tsv source file into the target directory.
+   */
+  async _importCsvFile() {
+    let content = await IOUtils.readUTF8(this._sourceFile.path);
+
+    let csvRows = d3.csv.parseRows(content);
+    let tsvRows = d3.tsv.parseRows(content);
+    // If we have more CSV columns, then it's a CSV file, otherwise a TSV file.
+    let rows = csvRows[0].length > tsvRows[0].length ? csvRows : tsvRows;
+
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/importMsgs.properties"
+    );
+    let supportedFieldNames = [];
+    let supportedProperties = [];
+    // Collect field names in an exported CSV file, and their corresponding
+    // nsIAbCard property names.
+    for (let [property, stringId] of exportAttributes) {
+      if (stringId) {
+        supportedProperties.push(property);
+        supportedFieldNames.push(
+          bundle.GetStringFromID(stringId).toLowerCase()
+        );
+      }
+    }
+    let properties = [];
+    // Get the nsIAbCard properties corresponding to the user supplied file.
+    for (let field of rows[0]) {
+      let index = supportedFieldNames.indexOf(field.toLowerCase());
+      properties.push(supportedProperties[index]);
+    }
+
+    let totalLines = rows.length - 1;
+    let currentLine = 0;
+
+    for (let row of rows.slice(1)) {
+      currentLine++;
+      let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+        Ci.nsIAbCard
+      );
+      for (let i = 0; i < row.length; i++) {
+        let property = properties[i];
+        if (!property) {
+          continue;
+        }
+        // Set the field value to the property.
+        card.setProperty(property, row[i]);
+      }
+      this._targetDirectory.addCard(card);
+      if (currentLine % 10 == 0) {
+        this.onProgress(currentLine, totalLines);
+        // Give UI a chance to update the progress bar.
+        await new Promise(resolve => setTimeout(resolve));
+      }
+    }
+    this.onProgress(totalLines, totalLines);
   }
 
   /**

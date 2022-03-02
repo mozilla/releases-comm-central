@@ -228,6 +228,10 @@ AbImportHelper.prototype = {
     var fieldMap = importService.CreateNewFieldMap();
 
     fieldMap.DefaultFieldMap(fieldMap.numMozFields);
+    this.mInterface
+      .GetData("addressInterface")
+      .QueryInterface(Ci.nsIImportAddressBooks)
+      .InitFieldMap(fieldMap);
     fieldMap.skipFirstRecord = aSkipFirstRecord;
 
     return fieldMap;

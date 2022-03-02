@@ -34,13 +34,24 @@ async function test_importAbFile(type, testFile, refDataKey) {
   for (let i = 0; i < refData.length; i++) {
     let card = targetDir.childCards[i];
     for (let [key, value] of Object.entries(refData[i])) {
-      if (["LastModifiedDate"].includes(key)) {
+      if (["LastModifiedDate", "Organization"].includes(key)) {
         continue;
       }
       equal(value, card.getProperty(key, ""), `${key} should be correct`);
     }
   }
 }
+
+/** Test importing .csv file works. */
+add_task(async function test_importCsvFile() {
+  await test_importAbFile(
+    "csv",
+    "resources/basic_csv_addressbook.csv",
+    "csv_import"
+  );
+
+  await test_importAbFile("csv", "resources/quote.csv", "quote_csv");
+});
 
 /** Test importing .vcf file works. */
 add_task(async function test_importVCardFile() {

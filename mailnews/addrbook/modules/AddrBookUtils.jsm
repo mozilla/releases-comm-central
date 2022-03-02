@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const EXPORTED_SYMBOLS = [
+  "exportAttributes",
   "AddrBookUtils",
   "compareAddressBooks",
   "newUID",
