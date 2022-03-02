@@ -67,6 +67,10 @@ function appUpdater(options = {}) {
   document.getElementById("manualLink").href = manualURL;
   document.getElementById("failedLink").href = manualURL;
 
+  if (this.updateDisabledByPackage) {
+    return;
+  }
+
   if (this.updateDisabledByPolicy) {
     this.selectPanel("policyDisabled");
     return;
@@ -204,7 +208,10 @@ appUpdater.prototype = {
     } catch (_ex) {
       // The hasWinPackageId property doesn't exist; assume it would be false.
     }
-    return false;
+    // Check for distributor.id and updates disabled via policy
+    let defaults = Services.prefs.getDefaultBranch(null);
+    let distribId = Boolean(defaults.getCharPref("distribution.id", ""));
+    return distribId && this.updateDisabledByPolicy;
   },
 
   // true when updating in background is enabled.

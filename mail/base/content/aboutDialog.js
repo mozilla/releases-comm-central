@@ -84,9 +84,12 @@ function init(aEvent) {
   if (AppConstants.MOZ_UPDATER) {
     gAppUpdater = new appUpdater({ buttonAutoFocus: true });
 
-    let defaults = Services.prefs.getDefaultBranch("");
     let channelLabel = document.getElementById("currentChannel");
-    channelLabel.value = defaults.getCharPref("app.update.channel");
+    let currentChannelText = document.getElementById("currentChannelText");
+    channelLabel.value = UpdateUtils.UpdateChannel;
+    if (gAppUpdater.updateDisabledByPackage) {
+      currentChannelText.hidden = true;
+    }
   }
 
   window.sizeToContent();

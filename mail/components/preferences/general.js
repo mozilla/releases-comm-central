@@ -311,9 +311,8 @@ var gGeneralPane = {
     if (AppConstants.MOZ_UPDATER) {
       this.updateReadPrefs();
       gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
-      let updateDisabled =
-        Services.policies && !Services.policies.isAllowed("appUpdate");
-      if (gHasWinPackageId) {
+      let updateDisabled = gAppUpdater.updateDisabledByPolicy;
+      if (gAppUpdater.updateDisabledByPackage) {
         // When we're running inside an app package, there's no point in
         // displaying any update content here, and it would get confusing if we
         // did, because our updater is not enabled.
