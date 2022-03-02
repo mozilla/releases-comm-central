@@ -94,6 +94,9 @@ function getClientRoom(roomId, clientHandler, client) {
           },
         };
       },
+      guessDMUserId() {
+        return "@other:example.com";
+      },
     },
     makeProxyHandler(clientHandler)
   );
@@ -159,6 +162,15 @@ function getAccount(clientHandler) {
       },
       leave(roomId) {
         this._rooms.delete(roomId);
+      },
+      downloadKeys() {
+        return Promise.resolve({});
+      },
+      getUser(userId) {
+        return {
+          displayName: userId,
+          userId,
+        };
       },
     },
     makeProxyHandler(clientHandler)

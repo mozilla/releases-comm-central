@@ -61,6 +61,8 @@ const HOMESERVER_WELL_KNOWN = "m.homeserver";
 const USER_ICON_SIZE = 48;
 const SERVER_NOTICE_TAG = "m.server_notice";
 
+const MEGOLM_AES_SHA2 = "m.megolm.v1.aes-sha2";
+
 /**
  * @param {string} who - Message sender ID.
  * @param {string} text - Message text.
@@ -1321,7 +1323,7 @@ MatrixRoom.prototype = {
     this._account._client.sendStateEvent(
       this._roomId,
       EventType.RoomEncryption,
-      { algorithm: "m.megolm.v1.aes-sha2" }
+      { algorithm: MEGOLM_AES_SHA2 }
     );
   },
 };
@@ -2998,10 +3000,12 @@ MatrixAccount.prototype = {
       return conv;
     }
 
+    // Check if we're already creating a DM room with userId
     if (this._pendingDirectChats.has(userId)) {
       return this._pendingDirectChats.get(userId);
     }
 
+    // Create new DM room with userId
     let conv = new MatrixRoom(this, false, userId);
     this.createRoom(
       this._pendingDirectChats,
@@ -3031,11 +3035,36 @@ MatrixAccount.prototype = {
    * @param {Object} roomInit - Parameters for room creation.
    * @param {function} [onCreated] - Callback to execute before room creation
    *  is finalized.
-   * @returns {Promise}
+   * @returns {Promise} The returned promise should never reject.
    */
   async createRoom(pendingMap, key, conversation, roomInit, onCreated) {
     conversation.joining = true;
     pendingMap.set(key, conversation);
+    if (roomInit.is_direct && roomInit.invite) {
+      try {
+        const userDeviceMap = await this._client.downloadKeys(roomInit.invite);
+        const shouldEncrypt = Object.values(userDeviceMap).every(
+          deviceMap => Object.keys(deviceMap).length > 0
+        );
+        if (shouldEncrypt) {
+          if (!roomInit.initial_state) {
+            roomInit.initial_state = [];
+          }
+          roomInit.initial_state.push({
+            type: EventType.RoomEncryption,
+            state_key: "",
+            content: {
+              algorithm: MEGOLM_AES_SHA2,
+            },
+          });
+        }
+      } catch (error) {
+        const users = roomInit.invite.join(", ");
+        this.WARN(
+          `Error while checking encryption devices for ${users}: ${error}`
+        );
+      }
+    }
     try {
       const res = await this._client.createRoom(roomInit);
       const newRoomId = res.room_id;
