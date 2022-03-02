@@ -140,26 +140,25 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
   mozilla::Buffer<char> buf(512);
   mozilla::Span<char> data = readBuf(readable, buf);
 
-  HeaderReader::Header statusHdr;
-  HeaderReader::Header status2Hdr;
+  HeaderReader::Hdr statusHdr;
+  HeaderReader::Hdr status2Hdr;
   auto findHeadersFn = [&](auto const& hdr) {
-    if (hdr.name.EqualsLiteral(X_MOZILLA_STATUS)) {
+    if (hdr.Name(data).EqualsLiteral(X_MOZILLA_STATUS)) {
       statusHdr = hdr;
-    } else if (hdr.name.EqualsLiteral(X_MOZILLA_STATUS2)) {
+    } else if (hdr.Name(data).EqualsLiteral(X_MOZILLA_STATUS2)) {
       status2Hdr = hdr;
     } else {
       return true;  // Keep looking.
     }
-    // Stop looking if we've found both.
-    return !(statusHdr.IsSet() && status2Hdr.IsSet());
+    // Keep looking until we find both.
+    return statusHdr.IsEmpty() || status2Hdr.IsEmpty();
   };
   HeaderReader rdr;
-  rdr.Feed(data, findHeadersFn);
-  rdr.Flush(findHeadersFn);
+  rdr.Parse(data, findHeadersFn);
 
   // Update X-Mozilla-Status (holds the lower 16bits worth of flags).
-  if (statusHdr.IsSet()) {
-    uint32_t oldFlags = statusHdr.value.ToInteger(&rv, 16);
+  if (!statusHdr.IsEmpty()) {
+    uint32_t oldFlags = statusHdr.Value(data).ToInteger(&rv, 16);
     if (NS_SUCCEEDED(rv)) {
       // Preserve the Queued flag from existing X-Mozilla-Status header.
       // (Note: not sure why we do this, but keeping it in for now. - BenC)
@@ -167,12 +166,13 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
 
       if ((msgFlags & 0xFFFF) != oldFlags) {
         auto out = nsPrintfCString("%4.4x", msgFlags & 0xFFFF);
-        if (out.Length() <= statusHdr.rawValueLength) {
-          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
-                              msgStart + statusHdr.rawValuePos);
+        if (out.Length() <= statusHdr.rawValLen) {
+          rv =
+              seekable->Seek(nsISeekableStream::NS_SEEK_SET,
+                             msgStart + statusHdr.pos + statusHdr.rawValOffset);
           NS_ENSURE_SUCCESS(rv, rv);
           // Should be an exact fit already, but just in case...
-          while (out.Length() < statusHdr.rawValueLength) {
+          while (out.Length() < statusHdr.rawValLen) {
             out.Append(' ');
           }
           rv = writeBuf(writable, out.BeginReading(), out.Length());
@@ -183,16 +183,17 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
   }
 
   // Update X-Mozilla-Status2 (holds the upper 16bit flags only(!)).
-  if (status2Hdr.IsSet()) {
-    uint32_t oldFlags = status2Hdr.value.ToInteger(&rv, 16);
+  if (!status2Hdr.IsEmpty()) {
+    uint32_t oldFlags = status2Hdr.Value(data).ToInteger(&rv, 16);
     if (NS_SUCCEEDED(rv)) {
       if ((msgFlags & 0xFFFF0000) != oldFlags) {
         auto out = nsPrintfCString("%8.8x", msgFlags & 0xFFFF0000);
-        if (out.Length() <= status2Hdr.rawValueLength) {
-          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
-                              msgStart + status2Hdr.rawValuePos);
+        if (out.Length() <= status2Hdr.rawValLen) {
+          rv = seekable->Seek(
+              nsISeekableStream::NS_SEEK_SET,
+              msgStart + status2Hdr.pos + status2Hdr.rawValOffset);
           NS_ENSURE_SUCCESS(rv, rv);
-          while (out.Length() < status2Hdr.rawValueLength) {
+          while (out.Length() < status2Hdr.rawValLen) {
             out.Append(' ');
           }
           rv = writeBuf(writable, out.BeginReading(), out.Length());
@@ -294,19 +295,18 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
   mozilla::Buffer<char> buf(512);
   mozilla::Span<char> data = readBuf(readable, buf);
 
-  HeaderReader::Header kwHdr;
+  HeaderReader::Hdr kwHdr;
   auto findHeaderFn = [&](auto const& hdr) {
-    if (hdr.name.EqualsLiteral(HEADER_X_MOZILLA_KEYWORDS)) {
+    if (hdr.Name(data).EqualsLiteral(HEADER_X_MOZILLA_KEYWORDS)) {
       kwHdr = hdr;
       return false;
     }
     return true;  // Keep looking.
   };
   HeaderReader rdr;
-  rdr.Feed(data, findHeaderFn);
-  rdr.Flush(findHeaderFn);
+  rdr.Parse(data, findHeaderFn);
 
-  if (!kwHdr.IsSet()) {
+  if (kwHdr.IsEmpty()) {
     NS_WARNING("X-Mozilla-Keys header not found.");
     notEnoughRoom = true;
     return NS_OK;
@@ -314,7 +314,7 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
 
   // Get existing keywords.
   nsTArray<nsCString> keywords;
-  auto old = kwHdr.value;
+  nsAutoCString old(kwHdr.Value(data));
   old.CompressWhitespace();
   for (nsACString const& kw : old.Split(' ')) {
     keywords.AppendElement(kw);
@@ -344,17 +344,17 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
 
   // Write updated keywords over existing value.
   auto out = StringJoin(" "_ns, keywords);
-  if (out.Length() > kwHdr.rawValueLength) {
+  if (out.Length() > kwHdr.rawValLen) {
     NS_WARNING("X-Mozilla-Keys too small for new value.");
     notEnoughRoom = true;
     return NS_OK;
   }
-  while (out.Length() < kwHdr.rawValueLength) {
+  while (out.Length() < kwHdr.rawValLen) {
     out.Append(' ');
   }
 
   rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
-                      msgStart + kwHdr.rawValuePos);
+                      msgStart + kwHdr.pos + kwHdr.rawValOffset);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = writeBuf(writable, out.BeginReading(), out.Length());
   NS_ENSURE_SUCCESS(rv, rv);

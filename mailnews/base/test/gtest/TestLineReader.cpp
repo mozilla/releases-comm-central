@@ -154,3 +154,47 @@ TEST(TestLineReader, Stop)
     ASSERT_EQ(t.expectedLines, gotLineCount);
   }
 }
+
+// Test the SplitLines() fn.
+TEST(TestLineReader, SplitLines)
+{
+  struct {
+    nsCString input;
+    nsTArray<nsCString> expect;  // The lines we expect to see.
+    nsCString expectLeftover;    // The unconsumed data we expect at the end.
+  } testCases[] = {
+      // Empty string -> no lines.
+      {""_ns, {}, ""_ns},
+      // Incomplete line
+      {"foo"_ns, {}, "foo"_ns},
+      // Blank lines split as expected?
+      {"\r\n\r\n\r\n"_ns, {"\r\n"_ns, "\r\n"_ns, "\r\n"_ns}, ""_ns},
+      // A couple of normal-looking lines.
+      {"one\r\ntwo\r\n"_ns, {"one\r\n"_ns, "two\r\n"_ns}, ""_ns},
+      // Handles bare LFs?
+      {"one\ntwo\n"_ns, {"one\n"_ns, "two\n"_ns}, ""_ns},
+      // Ignores bare CRs?
+      {"one\rtwo\r"_ns, {}, "one\rtwo\r"_ns},
+
+      // Early-out works?
+      {"one\r\nSTOP\r\n3\r\n4\r\n"_ns,
+       {"one\r\n"_ns, "STOP\r\n"_ns},
+       "3\r\n4\r\n"_ns},
+  };
+
+  for (auto const& t : testCases) {
+    nsTArray<nsCString> got;
+    auto fn = [&](mozilla::Span<const char> line) -> bool {
+      got.AppendElement(line);
+      // Finish early if line contains "STOP".
+      return nsCString(line).Find("STOP"_ns) == kNotFound;
+    };
+    mozilla::Span<const char> leftover = SplitLines(t.input, fn);
+
+    ASSERT_EQ(t.expect.Length(), got.Length());
+    for (size_t i = 0; i < t.expect.Length(); ++i) {
+      ASSERT_EQ(t.expect[i], got[i]);
+    }
+    ASSERT_EQ(t.expectLeftover, nsCString(leftover));
+  }
+}

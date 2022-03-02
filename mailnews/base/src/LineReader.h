@@ -120,4 +120,53 @@ class LineReader {
   mozilla::Vector<char, 80> mBuf;
 };
 
+/**
+ * SplitLines() invokes a callback for every complete line it finds in the
+ * input data.
+ *
+ * The callback is of the form:
+ *   bool callback(mozilla::Span<const char> line);
+ * where line is a span pointing to the range of bytes in the input data
+ * which comprises the line.
+ *
+ * If the callback returns false, processing is halted.
+ *
+ * The lines passed to the callback include end-of-line (EOL) character(s).
+ *
+ * Lines are considered terminated by '\n' (LF) but this means CRLF-delimited
+ * data is also handled correctly.
+ *
+ * This function is byte-exact: if you concatenate all the line spans, along
+ * with the unconsumed data returned at the end, you'll end up with the exact
+ * same byte sequence as the original input data.
+ *
+ * @param data - The input bytes.
+ * @param callback - The callback to invoke for each line.
+ *
+ * @returns the unconsumed data. Usually this will be empty, or an incomplete
+ *          line at the end (with no EOL). However if the callback returned
+ *          false, all the unused data will be returned.
+ */
+template <typename LineFn>
+mozilla::Span<const char> SplitLines(mozilla::Span<const char> data,
+                                     LineFn callback) {
+  while (!data.IsEmpty()) {
+    auto eol = std::find(data.cbegin(), data.cend(), '\n');
+    if (eol == data.cend()) {
+      // No LF - we're done. May or may not be some leftover data.
+      break;
+    }
+
+    // Consume everything up to and including the LF.
+    ++eol;
+    mozilla::Span<const char> line(data.cbegin(), eol);
+    data = mozilla::Span<const char>(eol, data.cend());
+
+    if (callback(line) == false) {
+      break;
+    }
+  }
+  return data;
+}
+
 #endif
