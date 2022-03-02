@@ -168,6 +168,16 @@ MatrixMessage.prototype = {
         },
       });
     }
+    if (this.incoming && this.event) {
+      actions.push({
+        label: _("message.action.report"),
+        run: () => {
+          this.conversation?._account?._client
+            ?.reportEvent(this.event.getRoomId(), this.event.getId(), -100, "")
+            .catch(error => this.conversation._account.ERROR(error));
+        },
+      });
+    }
     return actions;
   },
 };

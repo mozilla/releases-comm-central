@@ -237,7 +237,7 @@ add_task(async function test_getActions_redact() {
   const event = makeEvent({
     type: EventType.RoomMessage,
     content: {
-      msgtxpe: "m.text",
+      msgtype: "m.text",
       body: "foo bar",
     },
     roomId: "!actions:example.com",
@@ -287,4 +287,47 @@ add_task(async function test_getActions_noEvent() {
   const actions = message.getActions();
   ok(Array.isArray(actions));
   equal(actions.length, 0);
+});
+
+add_task(async function test_getActions_report() {
+  const event = makeEvent({
+    type: EventType.RoomMessage,
+    content: {
+      msgtype: "m.text",
+      body: "lorem ipsum",
+    },
+    roomId: "!actions:example.com",
+    id: "$ev:example.com",
+  });
+  let eventReported = false;
+  const message = new matrix.MatrixMessage(
+    "user",
+    "lorem ipsum",
+    { event, incoming: true },
+    {
+      _account: {
+        _client: {
+          reportEvent(roomId, eventId, score, reason) {
+            equal(roomId, "!actions:example.com");
+            equal(eventId, "$ev:example.com");
+            equal(score, -100);
+            equal(reason, "");
+            eventReported = true;
+            return Promise.resolve();
+          },
+        },
+      },
+      roomState: {
+        maySendRedactionForEvent(ev, userId) {
+          return false;
+        },
+      },
+    }
+  );
+  const actions = message.getActions();
+  ok(Array.isArray(actions));
+  const [action] = actions;
+  ok(action.label);
+  action.run();
+  ok(eventReported);
 });
