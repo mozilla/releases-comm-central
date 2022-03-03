@@ -1873,4 +1873,3 @@ nsCString CEscapeString(nsACString const& s) {
   }
   return out;
 }
-
