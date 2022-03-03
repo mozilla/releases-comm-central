@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>@MOZ_APP_NAME@</string>
 	<key>CFBundleGetInfoString</key>
-	<string>@MAC_APP_NAME@ @APP_VERSION@</string>
+	<string>@MAC_APP_NAME@ @APP_VERSION_DISPLAY@</string>
 	<key>CFBundleIconFile</key>
 	<string>thunderbird.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -23,7 +23,7 @@
 	<key>CFBundleSignature</key>
 	<string>MOZM</string>
 	<key>CFBundleVersion</key>
-	<string>@APP_VERSION@</string>
+	<string>@MAC_BUNDLE_VERSION@</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
