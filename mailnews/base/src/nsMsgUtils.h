@@ -437,4 +437,11 @@ void MsgLogToConsole4(const nsAString& aErrorText, const nsAString& aFilename,
     fprintf(stderr, "(info) %s (%s:%d)\n", _txt, __FILE__, __LINE__); \
   } while (0)
 
+
+/**
+ * Perform C-style string escaping. E.g. "foo\r\n" => "foo\\r\\n"
+ * This is primarily intended for debuggin purposes.
+ */
+nsCString CEscapeString(nsACString const& s); 
+
 #endif

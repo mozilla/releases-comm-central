@@ -1828,3 +1828,49 @@ void MsgRemoveQueryPart(nsCString& aSpec) {
   ind = aSpec.Find("/;");
   if (ind != kNotFound) aSpec.SetLength(ind);
 }
+
+// Perform C-style string escaping.
+// e.g. "foo\r\n" => "foo\\r\\n"
+// (See also CEscape(), in protobuf, for similar function).
+nsCString CEscapeString(nsACString const& s) {
+  nsCString out;
+  for (size_t i = 0; i < s.Length(); ++i) {
+    char c = s[i];
+    if (c & 0x80) {
+      out.AppendPrintf("\\x%02x", (uint8_t)c);
+      continue;
+    }
+    switch (c) {
+      case '\a':
+        out += "\\a";
+        break;
+      case '\b':
+        out += "\\b";
+        break;
+      case '\f':
+        out += "\\f";
+        break;
+      case '\n':
+        out += "\\n";
+        break;
+      case '\r':
+        out += "\\r";
+        break;
+      case '\t':
+        out += "\\t";
+        break;
+      case '\v':
+        out += "\\v";
+        break;
+      default:
+        if (c < ' ') {
+          out.AppendPrintf("\\x%02x", (uint8_t)c);
+        } else {
+          out += c;
+        }
+        break;
+    }
+  }
+  return out;
+}
+
