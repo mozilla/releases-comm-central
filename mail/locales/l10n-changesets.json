@@ -179,6 +179,16 @@
         ],
         "revision": "default"
     },
+    "es-MX": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
     "et": {
         "platforms": [
             "linux",
