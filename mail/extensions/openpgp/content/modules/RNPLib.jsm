@@ -1639,6 +1639,29 @@ function enableRNPLibJS() {
       ctypes.size_t
     ),
 
+    rnp_key_25519_bits_tweaked: librnp.declare(
+      "rnp_key_25519_bits_tweaked",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
+
+    rnp_key_25519_bits_tweak: librnp.declare(
+      "rnp_key_25519_bits_tweak",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t
+    ),
+
+    rnp_key_get_curve: librnp.declare(
+      "rnp_key_get_curve",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,

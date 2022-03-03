@@ -2856,6 +2856,63 @@ var RNP = {
     return result;
   },
 
+  /**
+   * The RNP library may store keys in a format that isn't compatible
+   * with GnuPG, see bug 1713621 for an example where this happened.
+   *
+   * This function modifies the input key to make it compatible.
+   *
+   * If this function decides that a modification is necessary,
+   * it will remove encryption (protection) from the key.
+   *
+   * The caller must ensure to protect the returned key.
+   *
+   * At the time of writing this function, the only existing caller
+   * always applies protection after calling this function.
+   */
+  ensureECCSubkeyIsGnuPGCompatible(tempKey, pw) {
+    let algo = new ctypes.char.ptr();
+    if (RNPLib.rnp_key_get_alg(tempKey, algo.address())) {
+      throw new Error("rnp_key_get_alg failed");
+    }
+    let algoStr = algo.readString();
+    RNPLib.rnp_buffer_destroy(algo);
+
+    if (algoStr.toLowerCase() != "ecdh") {
+      return;
+    }
+
+    let curve = new ctypes.char.ptr();
+    if (RNPLib.rnp_key_get_curve(tempKey, curve.address())) {
+      throw new Error("rnp_key_get_curve failed");
+    }
+    let curveStr = curve.readString();
+    RNPLib.rnp_buffer_destroy(curve);
+
+    if (curveStr.toLowerCase() != "curve25519") {
+      return;
+    }
+
+    let tweak_status = new ctypes.bool();
+    let rc = RNPLib.rnp_key_25519_bits_tweaked(tempKey, tweak_status.address());
+    if (rc) {
+      throw new Error("rnp_key_25519_bits_tweaked failed: " + rc);
+    }
+
+    // If it's not tweaked yet, then tweak to make it compatible.
+    if (!tweak_status.value) {
+      rc = RNPLib.rnp_key_unprotect(tempKey, pw);
+      if (rc) {
+        throw new Error("rnp_key_unprotect failed: " + rc);
+      }
+
+      rc = RNPLib.rnp_key_25519_bits_tweak(tempKey);
+      if (rc) {
+        throw new Error("rnp_key_25519_bits_tweak failed: " + rc);
+      }
+    }
+  },
+
   async backupSecretKeys(fprs, backupPassword) {
     if (!fprs.length) {
       throw new Error("invalid fprs parameter");
@@ -2980,6 +3037,7 @@ var RNP = {
         }
 
         try {
+          this.ensureECCSubkeyIsGnuPGCompatible(sub_handle, internalPassword);
           if (
             RNPLib.rnp_key_protect(
               sub_handle,
