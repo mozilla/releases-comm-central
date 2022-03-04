@@ -310,22 +310,44 @@ class EnigmailKeyObj {
    * @param {boolean} requireDecryptionKey:
    *                  If true, require secret key material to be available
    *                  for at least one encryption key.
+   * @param {string} exceptionReason:
+   *                 Can be used to override the requirement to check for
+   *                 full validity, and accept certain scenarios as valid.
+   *                 If value is set to "ignoreExpired",
+   *                 then an expired key isn't treated as invalid.
+   *                 Set to null to get the default behavior.
+   * @param {string} subId:
+   *                 A key ID of a subkey or null.
+   *                 If subId is null, any part of the key will be
+   *                 considered when looking for a valid encryption key.
+   *                 If subId is non-null, only this subkey will be
+   *                 checked.
    *
    * @return Object:
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
-  getEncryptionValidity(requireDecryptionKey, exceptionReason = null) {
+  getEncryptionValidity(
+    requireDecryptionKey,
+    exceptionReason = null,
+    subId = null
+  ) {
     let retVal = this.getPubKeyValidity(exceptionReason);
     if (!retVal.keyValid) {
       return retVal;
     }
 
     if (
-      requireDecryptionKey &&
+      !subId &&
       this.keyUseFor.search(/e/) >= 0 &&
-      this.secretMaterial
+      (!requireDecryptionKey || this.secretMaterial)
     ) {
+      // We can stop and return the result we already found,
+      // because we aren't looking at a specific subkey (!subId),
+      // and the primary key is usable for encryption.
+      // If we must own secret key material (requireDecryptionKey),
+      // in this scenario it's sufficient to have secret material for
+      // the primary key.
       return retVal;
     }
 
@@ -336,13 +358,17 @@ class EnigmailKeyObj {
     let found = 0;
     let noSecret = 0;
 
-    for (let sk in this.subKeys) {
-      if (this.subKeys[sk].keyUseFor.search(/e/) >= 0) {
-        if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
+    for (let sk of this.subKeys) {
+      if (subId && subId != sk.keyId) {
+        continue;
+      }
+
+      if (sk.keyUseFor.search(/e/) >= 0) {
+        if (sk.keyTrust.search(/e/i) >= 0) {
           ++expired;
-        } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
+        } else if (sk.keyTrust.search(/r/i) >= 0) {
           ++revoked;
-        } else if (requireDecryptionKey && !this.subKeys[sk].secretMaterial) {
+        } else if (requireDecryptionKey && !sk.secretMaterial) {
           ++noSecret;
         } else {
           // found subkey usable
@@ -352,27 +378,29 @@ class EnigmailKeyObj {
     }
 
     if (!found) {
+      let idToShow = subId ? subId : this.keyId;
+
       if (exceptionReason != "ignoreExpired" && expired) {
         retVal.reason = l10n.formatValueSync("key-ring-enc-sub-keys-expired", {
           userId: this.userId,
-          keyId: "0x" + this.keyId,
+          keyId: "0x" + idToShow,
         });
       } else if (revoked) {
         retVal.reason = l10n.formatValueSync("key-ring-enc-sub-keys-revoked", {
           userId: this.userId,
-          keyId: "0x" + this.keyId,
+          keyId: "0x" + idToShow,
         });
       } else if (noSecret) {
         retVal.reason = l10n.formatValueSync("key-ring-no-secret-key", {
           userId: this.userId,
-          keyId: "0x" + this.keyId,
+          keyId: "0x" + idToShow,
         });
       } else {
         retVal.reason = l10n.formatValueSync(
           "key-ring-pub-key-not-for-encryption",
           {
             userId: this.userId,
-            keyId: "0x" + this.keyId,
+            keyId: "0x" + idToShow,
           }
         );
       }

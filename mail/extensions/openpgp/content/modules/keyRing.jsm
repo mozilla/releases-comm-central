@@ -130,6 +130,18 @@ var EnigmailKeyRing = {
     return keyObj !== undefined ? keyObj : null;
   },
 
+  isSubkeyId(keyId) {
+    if (!keyId) {
+      throw new Error("keyId parameter not set");
+    }
+
+    keyId = keyId.replace(/^0x/, "").toUpperCase();
+
+    let keyObj = gSubkeyIndex[keyId];
+
+    return keyObj !== undefined;
+  },
+
   /**
    * get all key objects that match a given email address
    *

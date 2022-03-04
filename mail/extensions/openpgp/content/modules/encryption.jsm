@@ -306,22 +306,52 @@ var EnigmailEncryption = {
 
     if (isExternalGnuPG) {
       canSign = true;
-    } else if (sign) {
-      if (foundKey && foundKey.getSigningValidity().keyValid) {
+    } else if (sign && foundKey) {
+      let v = foundKey.getSigningValidity();
+      if (v.keyValid) {
         canSign = true;
+      } else {
+        // If we already have a reason for the key not being valid,
+        // use that as error message.
+        ret.errorMsg = v.reason;
       }
     }
 
-    if (encrypt) {
-      if (foundKey && foundKey.getEncryptionValidity(true).keyValid) {
+    if (encrypt && foundKey) {
+      let v;
+      if (EnigmailKeyRing.isSubkeyId(fromKeyId)) {
+        // If the configured own key ID points to a subkey, check
+        // specifically that this subkey is a valid encryption key.
+
+        let id = fromKeyId.replace(/^0x/, "");
+        v = foundKey.getEncryptionValidity(false, null, id);
+      } else {
+        // Use parameter "false", because for isExternalGnuPG we cannot
+        // confirm that the user has the secret key.
+        // And for users of internal encryption code, we don't need to
+        // check that here either, public key is sufficient for encryption.
+        v = foundKey.getEncryptionValidity(false);
+      }
+
+      if (v.keyValid) {
         canEncrypt = true;
+      } else {
+        // If we already have a reason for the key not being valid,
+        // use that as error message.
+        ret.errorMsg = v.reason;
       }
     }
 
     if (sign && !canSign) {
-      ret.errorMsg = this.determineInvSignReason(fromKeyId);
+      if (!ret.errorMsg) {
+        // Only if we don't have an error message yet.
+        ret.errorMsg = this.determineInvSignReason(fromKeyId);
+      }
     } else if (encrypt && !canEncrypt) {
-      ret.errorMsg = this.determineInvRcptReason(fromKeyId);
+      if (!ret.errorMsg) {
+        // Only if we don't have an error message yet.
+        ret.errorMsg = this.determineInvRcptReason(fromKeyId);
+      }
     }
 
     return ret;
