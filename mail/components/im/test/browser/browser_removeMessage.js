@@ -1,0 +1,51 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+add_task(async function testRemove() {
+  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  account.password = "this is a test";
+  account.connect();
+
+  await openChatTab();
+  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+
+  const conversation = account.prplAccount.wrappedJSObject.makeMUC("collapse");
+  const convNode = getConversationItem(conversation);
+  ok(convNode);
+
+  conversation.writeMessage("mochitest", "hello world", {
+    incoming: true,
+    remoteId: "foo",
+  });
+
+  await EventUtils.synthesizeMouseAtCenter(convNode, {});
+
+  const chatConv = getChatConversationElement(conversation);
+  ok(chatConv, "found conversation");
+  const browserDisplayed = BrowserTestUtils.waitForEvent(
+    chatConv.convBrowser,
+    "MessagesDisplayed"
+  );
+  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  const messageParent = await getChatMessageParent(chatConv);
+  await browserDisplayed;
+
+  is(
+    messageParent.querySelector(".message.incoming:nth-child(1) .ib-msg-txt")
+      .textContent,
+    "hello world",
+    "message added to conv"
+  );
+
+  const updateTextPromise = waitForNotification(conversation, "remove-text");
+  conversation.removeMessage("foo");
+  await updateTextPromise;
+  await TestUtils.waitForTick();
+
+  ok(!messageParent.querySelector(".message"));
+
+  conversation.close();
+  account.disconnect();
+  Services.accounts.deleteAccount(account.id);
+});

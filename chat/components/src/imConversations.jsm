@@ -466,6 +466,7 @@ UIConversation.prototype = {
       aTargetId != this._currentTargetId &&
       (aTopic == "new-text" ||
         aTopic == "update-text" ||
+        aTopic == "remove-text" ||
         (aTopic == "update-typing" &&
           this._prplConv[aTargetId].typingState == Ci.prplIConvIM.TYPING))
     ) {
@@ -594,6 +595,11 @@ UIConversation.prototype = {
       );
       if (index != -1) {
         this._messages.splice(index, 1, aSubject);
+      }
+    } else if (aTopic == "remove-text") {
+      const index = this._messages.findIndex(msg => msg.remoteId == aData);
+      if (index != -1) {
+        this._messages.splice(index, 1);
       }
     }
 

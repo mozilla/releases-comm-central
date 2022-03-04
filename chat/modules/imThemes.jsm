@@ -15,6 +15,7 @@ const EXPORTED_SYMBOLS = [
   "getDocumentFragmentFromHTML",
   "replaceHTMLForMessage",
   "wasNextMessage",
+  "removeMessage",
 ];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
@@ -708,7 +709,7 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
  *
  * @param {imIMessage} msg - Message to insert the updated contents of.
  * @param {string} html - The HTML contents to insert.
- * @param {DOMDocument} doc - The HTML document the message should be replaced
+ * @param {Document} doc - The HTML document the message should be replaced
  *   in.
  * @param {boolean} isNext - If this message is immediately following a
  *   message of the same origin. Used for visual grouping.
@@ -718,10 +719,7 @@ function replaceHTMLForMessage(msg, html, doc, isNext) {
   if (!msg.remoteId) {
     return;
   }
-  let parent = doc.getElementById("Chat");
-  let message = parent.querySelectorAll(
-    `[data-remote-id="${CSS.escape(msg.remoteId)}"]`
-  );
+  let message = getExistingMessage(msg.remoteId, doc);
 
   // If we couldn't find a matching message, do nothing.
   if (!message.length) {
@@ -754,6 +752,28 @@ function replaceHTMLForMessage(msg, html, doc, isNext) {
   }
   // Insert the new message into the DOM
   message[0].replaceWith(documentFragment);
+}
+
+/**
+ * Remove all elements belonging to a message from the document, based on the
+ * remote ID of the message.
+ *
+ * @param {string} remoteId
+ * @param {Document} doc
+ */
+function removeMessage(remoteId, doc) {
+  let message = getExistingMessage(remoteId, doc);
+
+  // If we couldn't find a matching message, do nothing.
+  if (!message.length) {
+    return;
+  }
+
+  // Remove all elements of the original message
+  let range = doc.createRange();
+  range.setStartBefore(message[0]);
+  range.setEndAfter(message[message.length - 1]);
+  range.deleteContents();
 }
 
 function hasMetadataKey(aTheme, aKey) {
@@ -1299,4 +1319,17 @@ function getDocumentFragmentFromHTML(doc, html) {
   let flags = Ci.nsIParserUtils.SanitizerAllowStyle;
   let context = doc.createElement("div");
   return ParserUtils.parseFragment(html, flags, false, uri, context);
+}
+
+/**
+ * Get all nodes that make up the given message if any.
+ *
+ * @param {string} remoteId - Remote ID of the message to get
+ * @param {Document} doc - Document the message is in.
+ * @returns {NodeList} Node list of all the parts of the message, or an empty
+ *  list if the message is not found.
+ */
+function getExistingMessage(remoteId, doc) {
+  let parent = doc.getElementById("Chat");
+  return parent.querySelectorAll(`[data-remote-id="${CSS.escape(remoteId)}"]`);
 }

@@ -1066,6 +1066,16 @@ var GenericConversationPrototype = {
     this.notifyObservers(message, "update-text");
   },
 
+  /**
+   * Remove a message from the conversation. Does not affect logs, use
+   * updateMessage with a deleted property to remove from logs.
+   *
+   * @param {string} remoteId - Remote ID of the event to remove.
+   */
+  removeMessage(remoteId) {
+    this.notifyObservers(null, "remove-text", remoteId);
+  },
+
   get account() {
     return this._account.imAccount;
   },

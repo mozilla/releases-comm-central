@@ -135,6 +135,9 @@ interface prplIConversation: nsISupports {
    * aSubject will contain the message (prplIMessage). For update-text the
    * update applies to any message with the same |remoteId| in the same
    * conversation.
+   * The remove-text notification has no subject, but a remote ID as data.
+   * It indicates that the message should be removed from the conversation.
+   * Neither update-text nor remove-text affect unread counts.
    */
 };
 

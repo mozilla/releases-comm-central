@@ -141,3 +141,19 @@ add_task(function test_split_message_before_sending() {
   ok(prepared, "Message wasn't prepared for sending.");
   equal(msgCount, 3, "Not enough messages were sent.");
 });
+
+add_task(function test_removeMessage() {
+  let didRemove = false;
+  let conv = new Conversation();
+  conv.addObserver({
+    observe(subject, topic, data) {
+      if (topic === "remove-text") {
+        equal(data, "foo");
+        didRemove = true;
+      }
+    },
+  });
+
+  conv.removeMessage("foo");
+  ok(didRemove);
+});

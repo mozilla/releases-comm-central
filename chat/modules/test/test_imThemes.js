@@ -8,6 +8,7 @@ const {
   getHTMLForMessage,
   replaceHTMLForMessage,
   wasNextMessage,
+  removeMessage,
 } = ChromeUtils.import("resource:///modules/imThemes.jsm");
 const { MockDocument } = ChromeUtils.import(
   "resource://testing-common/MockDocument.jsm"
@@ -209,4 +210,46 @@ add_task(function test_wasNextMessage_noPreviousVersion() {
     remoteId: "foo",
   };
   ok(!wasNextMessage(message, document));
+});
+
+add_task(function test_removeMessage() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const html = '<div style="background: blue;">foo bar</div>';
+  const message = {
+    remoteId: "foo",
+  };
+  insertHTMLForMessage(message, html, document, false);
+  const messageElement = document.querySelector("#Chat > div");
+  strictEqual(messageElement._originalMsg, message);
+  equal(messageElement.style.backgroundColor, "blue");
+  equal(messageElement.textContent, "foo bar");
+  equal(messageElement.dataset.remoteId, "foo");
+  ok(!messageElement.dataset.isNext);
+  removeMessage("foo", document);
+  const messageElements = document.querySelectorAll("#Chat > div");
+  equal(messageElements.length, 0);
+});
+
+add_task(function test_removeMessage_noMatchingMessage() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const html = '<div style="background: blue;">foo bar</div>';
+  const message = {
+    remoteId: "foo",
+  };
+  insertHTMLForMessage(message, html, document, false);
+  const messageElement = document.querySelector("#Chat > div");
+  strictEqual(messageElement._originalMsg, message);
+  equal(messageElement.style.backgroundColor, "blue");
+  equal(messageElement.textContent, "foo bar");
+  equal(messageElement.dataset.remoteId, "foo");
+  ok(!messageElement.dataset.isNext);
+  removeMessage("bar", document);
+  const messageElements = document.querySelectorAll("#Chat > div");
+  notEqual(messageElements.length, 0);
 });

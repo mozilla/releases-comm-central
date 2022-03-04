@@ -26,6 +26,7 @@
     isNextMessage: "resource:///modules/imThemes.jsm",
     wasNextMessage: "resource:///modules/imThemes.jsm",
     replaceHTMLForMessage: "resource:///modules/imThemes.jsm",
+    removeMessage: "resource:///modules/imThemes.jsm",
     serializeSelection: "resource:///modules/imThemes.jsm",
     smileTextNode: "resource:///modules/imSmileys.jsm",
   });
@@ -441,6 +442,17 @@
           this.contentDocument,
           isNext
         );
+      }
+    }
+
+    /**
+     * Remove an existing message in the conversation based on the remote ID.
+     *
+     * @param {string} remoteId - Remote ID of the message to remove.
+     */
+    removeMessage(remoteId) {
+      if (this.browsingContext.isActive) {
+        LazyModules.removeMessage(remoteId, this.contentDocument);
       }
     }
 

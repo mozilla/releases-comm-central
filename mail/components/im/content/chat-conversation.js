@@ -82,6 +82,12 @@
               }
               break;
 
+            case "remove-text":
+              if (this.loaded) {
+                this.removeMsg(data);
+              }
+              break;
+
             case "status-text-changed":
               this._statusText = data || "";
               this.displayStatusText();
@@ -484,6 +490,19 @@
       }
 
       this.convBrowser.replaceMessage(aMsg);
+    }
+
+    /**
+     * Removes an existing message with matching remote ID.
+     *
+     * @param {string} remoteId - Remote ID of the message to remove.
+     */
+    removeMsg(remoteId) {
+      if (!this.loaded) {
+        throw new Error("Calling removeMsg before the browser is ready?");
+      }
+
+      this.convBrowser.removeMessage(remoteId);
     }
 
     sendMsg(aMsg) {
