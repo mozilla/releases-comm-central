@@ -51,6 +51,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
+  EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
@@ -285,8 +286,13 @@ Enigmail.msg = {
       cryptoBox.removeAttribute("decryptDone");
     }
 
-    Enigmail.msg.authorEmailFetched = false;
+    Enigmail.msg.toAndCCSet = null;
     Enigmail.msg.authorEmail = "";
+
+    Enigmail.msg.keyCollectCandidates = new Map();
+
+    EnigmailKeyRing.emailAddressesWithSecretKey = null;
+
     Enigmail.msg.attachedKeys = [];
     Enigmail.msg.attachedSenderEmailKeysIndex = [];
 
@@ -509,12 +515,6 @@ Enigmail.msg = {
   async notifyMessageDecryptDone() {
     Enigmail.msg.messageDecryptDone = true;
     await Enigmail.msg.processAfterAttachmentsAndDecrypt();
-
-    document.dispatchEvent(
-      new CustomEvent("openpgpprocessed", {
-        detail: { messageDecryptDone: true },
-      })
-    );
 
     // Show the partial inline encryption reminder only if the decryption action
     // came from a partially inline encrypted message.
@@ -3247,12 +3247,10 @@ Enigmail.msg = {
       return;
     }
 
-    this.fetchAuthorEmail();
+    this.fetchParticipants();
 
     let addedToIndex = false;
     let nextIndex = Enigmail.msg.attachedKeys.length;
-
-    let db = await CollectedKeysDB.getInstance();
 
     for (let newKey of preview) {
       let oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
@@ -3263,7 +3261,41 @@ Enigmail.msg = {
           continue;
         }
 
+        // It doesn't make sense to import a public key,
+        // if we have a secret key for that email address.
+        // Because, if we are the owner of that email address, why would
+        // we need a public key referring to our own email address,
+        // sent to us by someone else?
+
+        let keyInOurName = false;
+        for (let userId of newKey.userIds) {
+          if (userId.type !== "uid") {
+            continue;
+          }
+          if (EnigmailTrust.isInvalid(userId.keyTrust)) {
+            continue;
+          }
+          if (
+            await EnigmailKeyRing.hasSecretKeyForEmail(
+              EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase()
+            )
+          ) {
+            keyInOurName = true;
+            break;
+          }
+        }
+        if (keyInOurName) {
+          continue;
+        }
+
+        // Only advertise the key for import if it contains a user ID
+        // that points to the email author email address.
+        let relatedParticipantEmailAddress = null;
         if (this.hasUserIdForEmail(newKey.userIds, this.authorEmail)) {
+          relatedParticipantEmailAddress = this.authorEmail;
+        }
+
+        if (relatedParticipantEmailAddress) {
           // If it's a non expired, non revoked new key, in the email
           // author's name (email address match), then offer it for
           // manual (immediate) import.
@@ -3277,20 +3309,57 @@ Enigmail.msg = {
           addedToIndex = true;
         }
 
-        // Regardless of a sender/email match, collect the key for
-        // potentially using it in the future.
-        let pubKey = isBinaryAutocrypt
-          ? RNP.enArmorString(keyData, "public key")
-          : keyData;
+        // We want to collect keys for potential later use, however,
+        // we also want to avoid that an attacker can send us a large
+        // number of keys to poison our cache, so we only collect keys
+        // that are related to the author or one of the recipients.
+        // Also, we don't want a public key, if we already have a
+        // secret key for that email address.
 
-        // If key is known in the db: merge + update.
-        let key = await db.mergeExisting(newKey, pubKey, {
-          uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
-          type: isBinaryAutocrypt ? "autocrypt" : "attachment",
-          description,
-        });
+        if (!relatedParticipantEmailAddress) {
+          // Not related to the author
+          for (let toOrCc of this.toAndCCSet) {
+            if (this.hasUserIdForEmail(newKey.userIds, toOrCc)) {
+              // Might be ok to import, so remember to which email
+              // the key is related and leave the loop.
+              relatedParticipantEmailAddress = toOrCc;
+              break;
+            }
+          }
+        }
 
-        await db.storeKey(key);
+        if (relatedParticipantEmailAddress) {
+          // It seems OK to import, however, don't import yet.
+          // Wait until after we have processed all attachments to
+          // the current message. Because we don't want to import
+          // multiple keys for the same email address, that wouldn't
+          // make sense. Remember the import candidate, and postpone
+          // until we are done looking at all attachments.
+
+          if (this.keyCollectCandidates.has(relatedParticipantEmailAddress)) {
+            // The email contains more than one public key for this
+            // email address.
+            this.keyCollectCandidates.set(relatedParticipantEmailAddress, {
+              skip: true,
+            });
+          } else {
+            let candidate = {};
+            candidate.skip = false;
+            candidate.newKeyObj = newKey;
+            candidate.pubKey = isBinaryAutocrypt
+              ? RNP.enArmorString(keyData, "public key")
+              : keyData;
+            candidate.source = {
+              uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
+              type: isBinaryAutocrypt ? "autocrypt" : "attachment",
+              description,
+            };
+            this.keyCollectCandidates.set(
+              relatedParticipantEmailAddress,
+              candidate
+            );
+          }
+        }
 
         // done with processing for new keys (!oldKey)
         continue;
@@ -3358,11 +3427,19 @@ Enigmail.msg = {
     document.getElementById("openpgpKeyBox").removeAttribute("hidden");
   },
 
+  /*
+   * This function is called from several places. Any call may trigger
+   * the final processing for this message, it depends on the amount
+   * of attachments present, and whether we decrypt immediately, or
+   * after a delay (for inline encryption).
+   */
   async processAfterAttachmentsAndDecrypt() {
+    // Return early if message processing isn't ready yet.
     if (!Enigmail.msg.allAttachmentsDone || !Enigmail.msg.messageDecryptDone) {
       return;
     }
 
+    // Return early if we haven't yet processed all attachments.
     if (
       Enigmail.msg.autoProcessPgpKeyAttachmentProcessed <
       Enigmail.msg.autoProcessPgpKeyAttachmentCount
@@ -3378,39 +3455,57 @@ Enigmail.msg = {
     // to make final decisions on how to notify the user about
     // available or missing keys.
 
-    if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
-      this.unhideImportKeyBox();
-      // If we already found a good key for the sender's email
-      // in attachments, then ignore the autocrypt header.
-      return;
+    if (this.keyCollectCandidates && this.keyCollectCandidates.size) {
+      let db = await CollectedKeysDB.getInstance();
+
+      for (let candidate of this.keyCollectCandidates.values()) {
+        if (candidate.skip) {
+          continue;
+        }
+
+        // If key is known in the db: merge + update.
+        let key = await db.mergeExisting(
+          candidate.newKeyObj,
+          candidate.pubKey,
+          candidate.source
+        );
+
+        await db.storeKey(key);
+      }
     }
 
-    let senderAutocryptKey = null;
-    if (
+    // If we already found a good key for the sender's email
+    // in attachments, then don't look at the autocrypt header.
+    if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
+      this.unhideImportKeyBox();
+    } else if (
       Enigmail.msg.savedHeaders &&
       "autocrypt" in Enigmail.msg.savedHeaders &&
       Enigmail.msg.savedHeaders.autocrypt.length > 0 &&
       "from" in currentHeaderData
     ) {
-      senderAutocryptKey = EnigmailAutocrypt.getKeyFromHeader(
+      let senderAutocryptKey = EnigmailAutocrypt.getKeyFromHeader(
         currentHeaderData.from.headerValue,
         Enigmail.msg.savedHeaders.autocrypt
       );
+      if (senderAutocryptKey) {
+        let keyData = EnigmailData.decodeBase64(senderAutocryptKey);
+        // Make sure to let the message load before doing potentially *very*
+        // time consuming auto processing (seconds!?).
+        await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
+        await this.commonProcessAttachedKey(keyData, true);
+
+        if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
+          this.unhideImportKeyBox();
+        }
+      }
     }
 
-    if (!senderAutocryptKey) {
-      return;
-    }
-
-    let keyData = EnigmailData.decodeBase64(senderAutocryptKey);
-    // Make sure to let the message load before doing potentially *very*
-    // time consuming auto processing (seconds!?).
-    await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
-    await this.commonProcessAttachedKey(keyData, true);
-
-    if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
-      this.unhideImportKeyBox();
-    }
+    document.dispatchEvent(
+      new CustomEvent("openpgpprocessed", {
+        detail: { messageDecryptDone: true },
+      })
+    );
   },
 
   async notifyEndAllAttachments() {
@@ -3421,31 +3516,45 @@ Enigmail.msg = {
     }
   },
 
-  authorEmailFetched: false,
+  toAndCCSet: null,
   authorEmail: "",
+
+  // Used to remember the list of keys that we might want to add to
+  // our cache of seen keys. Will be used after we are done looking
+  // at all attachments.
+  keyCollectCandidates: new Map(),
+
   attachedKeys: [],
   attachedSenderEmailKeysIndex: [], // each: {idx (to-attachedKeys), keyInfo, binary}
 
-  fetchAuthorEmail() {
-    if (this.authorEmailFetched) {
+  fetchParticipants() {
+    if (this.toAndCCSet) {
       return;
     }
+
+    // toAndCCSet non-null indicates that we already fetched.
+    this.toAndCCSet = new Set();
 
     // This message may have already disappeared.
     if (!gMessageDisplay.displayedMessage) {
       return;
     }
 
-    this.authorEmailFetched = true;
-
     let addresses = MailServices.headerParser.parseEncodedHeader(
       gMessageDisplay.displayedMessage.author
     );
-    if (!addresses.length) {
-      return;
+    if (addresses.length) {
+      this.authorEmail = addresses[0].email.toLowerCase();
     }
 
-    this.authorEmail = addresses[0].email;
+    addresses = MailServices.headerParser.parseEncodedHeader(
+      gMessageDisplay.displayedMessage.recipients +
+        "," +
+        gMessageDisplay.displayedMessage.ccList
+    );
+    for (let addr of addresses) {
+      this.toAndCCSet.add(addr.email.toLowerCase());
+    }
   },
 
   hasUserIdForEmail(userIds, authorEmail) {

@@ -196,6 +196,50 @@ var EnigmailKeyRing = {
     return res;
   },
 
+  emailAddressesWithSecretKey: null,
+
+  async _populateEmailHasSecretKeyCache() {
+    this.emailAddressesWithSecretKey = new Set();
+
+    this.getAllKeys(); // ensure keylist is loaded;
+
+    for (let key of gKeyListObj.keyList) {
+      if (!key.secretAvailable) {
+        continue;
+      }
+      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
+      if (!isPersonal) {
+        continue;
+      }
+      for (let userId of key.userIds) {
+        if (userId.type !== "uid") {
+          continue;
+        }
+        if (EnigmailTrust.isInvalid(userId.keyTrust)) {
+          continue;
+        }
+        this.emailAddressesWithSecretKey.add(
+          EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase()
+        );
+      }
+    }
+  },
+
+  /**
+   * This API uses a cache. It helps when making lookups from multiple
+   * places, during a longer transaction.
+   * Currently, the cache isn't refreshed automatically.
+   * Set this.emailAddressesWithSecretKey to null when starting a new
+   * operation that needs fresh information.
+   */
+  async hasSecretKeyForEmail(emailAddr) {
+    if (!this.emailAddressesWithSecretKey) {
+      await this._populateEmailHasSecretKeyCache();
+    }
+
+    return this.emailAddressesWithSecretKey.has(emailAddr);
+  },
+
   /**
    * Specialized function that takes into account
    * the specifics of email addresses in UIDs.

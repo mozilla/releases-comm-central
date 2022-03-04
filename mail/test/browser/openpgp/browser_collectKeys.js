@@ -128,6 +128,83 @@ add_task(async function testCollectKeyAttachment() {
   close_window(mc);
 });
 
+/**
+ * Test that we don't collect keys that refer to an email address that
+ * isn't one of the message participants, and that we don't collect keys
+ * if we already have a personal key for an email address.
+ */
+add_task(async function testSkipFakeOrUnrelatedKeys() {
+  let opengpgprocessed = openpgpProcessed();
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/unrelated-and-fake-keys-attached.eml")
+    )
+  );
+  await opengpgprocessed;
+
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+
+  let db = await CollectedKeysDB.getInstance();
+
+  let keys = await db.findKeysForEmail("alice@openpgp.example");
+  Assert.equal(
+    keys.length,
+    0,
+    "the attached key for alice should have been ignored because we have a personal key for that address"
+  );
+
+  keys = await db.findKeysForEmail("stranger@example.com");
+  Assert.equal(
+    keys.length,
+    0,
+    "the attached key for stranger should have been ignored because stranger isn't a participant of this message"
+  );
+
+  keys = await db.findKeysForEmail("bob@openpgp.example");
+  Assert.equal(keys.length, 1, "bob's key should have been collected");
+
+  close_window(mc);
+});
+
+/**
+ * If an email contains two different keys for the same email address,
+ * don't import any keys for that email address.
+ */
+add_task(async function testSkipDuplicateKeys() {
+  let opengpgprocessed = openpgpProcessed();
+  let mc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/eve-duplicate.eml"))
+  );
+  await opengpgprocessed;
+
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+
+  let db = await CollectedKeysDB.getInstance();
+
+  let keys = await db.findKeysForEmail("eve@example.com");
+  Assert.equal(
+    keys.length,
+    0,
+    "the attached keys for eve should have been ignored"
+  );
+
+  close_window(mc);
+});
+
 registerCleanupFunction(async function tearDown() {
   MailServices.accounts.removeAccount(aliceAcct, true);
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
