@@ -27,6 +27,7 @@ const EXPORTED_SYMBOLS = [
   "EventType",
   "MsgType",
   "MatrixCrypto",
+  "EventStatus",
 ];
 
 // Set-up loading so require works properly in CommonJS modules.
@@ -259,5 +260,6 @@ let getHttpUriForMxc = require("../content-repo").getHttpUriForMxc;
 let EventTimeline = require("./models/event-timeline.js").EventTimeline;
 
 let { EventType, MsgType } = require("@types/event");
+let { EventStatus } = require("./models/event.js");
 
 let MatrixCrypto = require("./crypto");

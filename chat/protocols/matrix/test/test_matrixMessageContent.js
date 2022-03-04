@@ -4,7 +4,9 @@
 var { MatrixMessageContent } = ChromeUtils.import(
   "resource:///modules/matrixMessageContent.jsm"
 );
-var { MsgType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+var { MsgType, EventStatus } = ChromeUtils.import(
+  "resource:///modules/matrix-sdk.jsm"
+);
 const { XPCShellContentUtils } = ChromeUtils.import(
   "resource://testing-common/XPCShellContentUtils.jsm"
 );
@@ -206,6 +208,19 @@ dolor sit amet`,
       decrypting: true,
     },
     result: _("message.decrypting"),
+  },
+  {
+    description: "Unsent event",
+    event: {
+      type: EventType.RoomMessage,
+      content: {
+        body: "foo",
+        msgtype: MsgType.Text,
+      },
+      sender: "@bar:example.com",
+      status: EventStatus.NOT_SENT,
+    },
+    result: "",
   },
 ];
 
@@ -442,6 +457,19 @@ dolor sit amet`,
     },
     result:
       '<font style="color: rgb(255, 0, 0);">ra</font><span style="color: rgb(0, 255, 0);">inb</span><i data-mx-color="0000ff">ow</i>',
+  },
+  {
+    description: "Unsent event",
+    event: {
+      type: EventType.RoomMessage,
+      content: {
+        body: "foo",
+        msgtype: MsgType.Text,
+      },
+      sender: "@bar:example.com",
+      status: EventStatus.NOT_SENT,
+    },
+    result: "",
   },
 ];
 

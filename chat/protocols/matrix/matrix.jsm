@@ -41,6 +41,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
   EventTimeline: "resource:///modules/matrix-sdk.jsm",
   EventType: "resource:///modules/matrix-sdk.jsm",
+  EventStatus: "resource:///modules/matrix-sdk.jsm",
   MsgType: "resource:///modules/matrix-sdk.jsm",
   MatrixCrypto: "resource:///modules/matrix-sdk.jsm",
   MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
@@ -83,6 +84,11 @@ MatrixMessage.prototype = {
    * @type {MatrixEvent}
    */
   event: null,
+
+  /**
+   * @type {{msg: string, action: boolean, notice: boolean}}
+   */
+  retryInfo: null,
 
   get hideReadReceipts() {
     // Cache pref value. If this pref gets exposed in UI we need cache busting.
@@ -180,6 +186,31 @@ MatrixMessage.prototype = {
           this.conversation?._account?._client
             ?.reportEvent(this.event.getRoomId(), this.event.getId(), -100, "")
             .catch(error => this.conversation._account.ERROR(error));
+        },
+      });
+    }
+    if (this.event?.status === EventStatus.NOT_SENT) {
+      actions.push({
+        label: _("message.action.retry"),
+        run: () => {
+          this.conversation?._account?._client?.resendEvent(
+            this.event,
+            this.conversation.room
+          );
+        },
+      });
+    }
+    if (
+      [
+        EventStatus.NOT_SENT,
+        EventStatus.QUEUED,
+        EventStatus.ENCRYPTING,
+      ].includes(this.event?.status)
+    ) {
+      actions.push({
+        label: _("message.action.cancel"),
+        run: () => {
+          this.conversation?._account?._client?.cancelPendingEvent(this.event);
         },
       });
     }
@@ -485,23 +516,24 @@ MatrixRoom.prototype = {
    * @param {boolean} [notice=false]
    */
   dispatchMessage(msg, action = false, notice = false) {
+    const handleSendError = type => error => {
+      this._account.ERROR(
+        `Failed to send ${type} to ${this._roomId}: ${error.message}`
+      );
+    };
     this.sendTyping("");
     if (action) {
       this._account._client
         .sendEmoteMessage(this._roomId, null, msg)
-        .catch(error => {
-          this._account.ERROR("Failed to send emote to: " + this._roomId);
-        });
+        .catch(handleSendError("emote"));
     } else if (notice) {
-      this._account._client.sendNotice(this._roomId, null, msg).catch(error => {
-        this._account.ERROR("Failed to send notice to: " + this._roomId);
-      });
+      this._account._client
+        .sendNotice(this._roomId, null, msg)
+        .catch(handleSendError("notice"));
     } else {
       this._account._client
         .sendTextMessage(this._roomId, null, msg)
-        .catch(error => {
-          this._account.ERROR("Failed to send message to: " + this._roomId);
-        });
+        .catch(handleSendError("message"));
     }
   },
 
@@ -1484,6 +1516,7 @@ function MatrixAccount(aProtocol, aImAccount) {
   this._pendingRoomAliases = new Map();
   this._pendingRoomInvites = new Set();
   this._pendingOutgoingVerificationRequests = new Map();
+  this._failedEvents = new Set();
   this._verificationRequestTimeouts = new Set();
 }
 MatrixAccount.prototype = {
@@ -1864,6 +1897,13 @@ MatrixAccount.prototype = {
     return this._client?.getSyncState() !== "SYNCING";
   },
 
+  /**
+   * Set of event IDs for events that have failed to send. Used to avoid
+   * showing an error after resending a message fails again.
+   * @type {Set<string>}
+   */
+  _failedEvents: null,
+
   /*
    * Hook up the Matrix Client to callbacks to handle various events.
    *
@@ -1993,6 +2033,47 @@ MatrixAccount.prototype = {
           }
         }
         conv.addEvent(event);
+      }
+    );
+    // Queued, sending and failed events
+    this._client.on(
+      "Room.localEchoUpdated",
+      (event, room, oldEventId, oldStatus) => {
+        if (
+          this._catchingUp ||
+          room.isSpaceRoom() ||
+          event.getType() !== EventType.RoomMessage
+        ) {
+          return;
+        }
+        const conv = this.roomList.get(room.roomId);
+        if (!conv) {
+          return;
+        }
+        if (event.status === EventStatus.NOT_SENT) {
+          if (this._failedEvents.has(event.getId())) {
+            return;
+          }
+          this._failedEvents.add(event.getId());
+          conv.writeMessage(
+            this._roomId,
+            _("error.sendMessageFailed", event.getContent().body),
+            {
+              error: true,
+              system: true,
+              event,
+            }
+          );
+        } else if (
+          (event.status === EventStatus.SENT || event.status === null) &&
+          oldEventId
+        ) {
+          this._failedEvents.delete(oldEventId);
+          conv.removeMessage(oldEventId);
+        } else if (event.status === EventStatus.CANCELLED) {
+          this._failedEvents.delete(event.getId());
+          conv.removeMessage(event.getId());
+        }
       }
     );
     // An event that was already in the room timeline was redacted

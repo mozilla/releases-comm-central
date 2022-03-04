@@ -264,5 +264,6 @@ function makeEvent(eventSpec = {}) {
     getRoomId() {
       return eventSpec.roomId || "!test:example.com";
     },
+    status: eventSpec.status || null,
   };
 }

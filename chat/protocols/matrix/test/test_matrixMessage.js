@@ -1,6 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+var { MsgType, EventStatus } = ChromeUtils.import(
+  "resource:///modules/matrix-sdk.jsm"
+);
 const kSendReadPref = "purple.conversations.im.send_read";
 
 loadMatrix();
@@ -237,7 +240,7 @@ add_task(async function test_getActions_redact() {
   const event = makeEvent({
     type: EventType.RoomMessage,
     content: {
-      msgtype: "m.text",
+      msgtype: MsgType.Text,
       body: "foo bar",
     },
     roomId: "!actions:example.com",
@@ -286,14 +289,14 @@ add_task(async function test_getActions_noEvent() {
   });
   const actions = message.getActions();
   ok(Array.isArray(actions));
-  equal(actions.length, 0);
+  deepEqual(actions, []);
 });
 
 add_task(async function test_getActions_report() {
   const event = makeEvent({
     type: EventType.RoomMessage,
     content: {
-      msgtype: "m.text",
+      msgtype: MsgType.Text,
       body: "lorem ipsum",
     },
     roomId: "!actions:example.com",
@@ -330,4 +333,57 @@ add_task(async function test_getActions_report() {
   ok(action.label);
   action.run();
   ok(eventReported);
+});
+
+add_task(async function test_getActions_notSent() {
+  let resendCalled = false;
+  let cancelCalled = false;
+  const event = makeEvent({
+    status: EventStatus.NOT_SENT,
+    type: EventType.RoomMessage,
+    content: {
+      msgtype: MsgType.Text,
+      body: "foo bar",
+    },
+  });
+  const message = new matrix.MatrixMessage(
+    "!test:example.com",
+    "Error sending message",
+    {
+      event,
+      error: true,
+    },
+    {
+      _account: {
+        _client: {
+          resendEvent(ev, room) {
+            equal(ev, event);
+            ok(room);
+            resendCalled = true;
+          },
+          cancelPendingEvent(ev) {
+            equal(ev, event);
+            cancelCalled = true;
+          },
+        },
+      },
+      roomState: {
+        maySendRedactionForEvent(ev, userId) {
+          return false;
+        },
+      },
+      room: {},
+    }
+  );
+  const actions = message.getActions();
+  ok(Array.isArray(actions));
+  equal(actions.length, 2);
+  const [retryAction, cancelAction] = actions;
+  ok(retryAction.label);
+  ok(cancelAction.label);
+  retryAction.run();
+  ok(resendCalled);
+  ok(!cancelCalled);
+  cancelAction.run();
+  ok(cancelCalled);
 });

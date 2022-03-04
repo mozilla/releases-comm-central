@@ -11,6 +11,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
   EventType: "resource:///modules/matrix-sdk.jsm",
   MsgType: "resource:///modules/matrix-sdk.jsm",
+  EventStatus: "resource:///modules/matrix-sdk.jsm",
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
 });
 
@@ -224,7 +225,10 @@ var MatrixMessageContent = {
    *  string if formatting wasn't possible.
    */
   getIncomingPlain(event, homeserverUrl, getEvent, includeReply = true) {
-    if (!event) {
+    if (
+      !event ||
+      (event.status !== null && event.status !== EventStatus.SENT)
+    ) {
       return "";
     }
     const type = event.getType();
@@ -310,7 +314,10 @@ ${replyContent}`;
    *  string if formatting wasn't possible.
    */
   getIncomingHTML(event, homeserverUrl, getEvent, includeReply = true) {
-    if (!event) {
+    if (
+      !event ||
+      (event.status !== null && event.status !== EventStatus.SENT)
+    ) {
       return "";
     }
     const type = event.getType();
