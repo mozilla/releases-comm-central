@@ -75,12 +75,13 @@ NS_IMETHODIMP nsMsgAttachment::SetSendViaCloud(bool aSendViaCloud) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::SetHtmlAnnotation(const nsAString& aAnnotation) {
+NS_IMETHODIMP nsMsgAttachment::SetHtmlAnnotation(
+    const nsACString& aAnnotation) {
   mHtmlAnnotation = aAnnotation;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::GetHtmlAnnotation(nsAString& aAnnotation) {
+NS_IMETHODIMP nsMsgAttachment::GetHtmlAnnotation(nsACString& aAnnotation) {
   aAnnotation = mHtmlAnnotation;
   return NS_OK;
 }
@@ -95,6 +96,18 @@ nsMsgAttachment::SetCloudFileAccountKey(
 NS_IMETHODIMP
 nsMsgAttachment::GetCloudFileAccountKey(nsACString& aCloudFileAccountKey) {
   aCloudFileAccountKey = mCloudFileAccountKey;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachment::GetCloudPartHeaderData(
+    nsACString& aCloudPartHeaderData) {
+  aCloudPartHeaderData = mCloudPartHeaderData;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachment::SetCloudPartHeaderData(
+    const nsACString& aCloudPartHeaderData) {
+  mCloudPartHeaderData = aCloudPartHeaderData;
   return NS_OK;
 }
 

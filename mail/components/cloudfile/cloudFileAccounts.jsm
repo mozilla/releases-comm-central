@@ -25,6 +25,8 @@ var cloudFileAccounts = new (class extends EventEmitter {
       renameErrWithCustomMessage: 0x80553121,
       renameNotSupported: 0x80553122,
       deleteErr: 0x80553123,
+      attachmentErr: 0x80553124,
+      accountErr: 0x80553125,
     };
   }
 

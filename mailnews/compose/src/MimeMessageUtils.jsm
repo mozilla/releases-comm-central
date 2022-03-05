@@ -417,13 +417,23 @@ var MsgUtils = {
    * @returns {string}
    */
   getXMozillaCloudPart(deliverMode, attachment) {
-    let value = `cloudFile; url=${attachment.contentLocation}`;
-    if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft) {
-      value += `; provider=${attachment.cloudFileAccountKey}`;
-      value += `; file=${attachment.url}`;
+    let value = "";
+    if (attachment.contentLocation) {
+      value += `cloudFile; url=${attachment.contentLocation}`;
+
+      if (
+        (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft ||
+          deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate) &&
+        attachment.cloudFileAccountKey &&
+        attachment.cloudPartHeaderData
+      ) {
+        value += `; provider=${attachment.cloudFileAccountKey}`;
+        value += `; ${this.rfc2231ParamFolding(
+          "data",
+          attachment.cloudPartHeaderData
+        )}`;
+      }
     }
-    value += "; ";
-    value += this.rfc2231ParamFolding("name", attachment.name);
     return value;
   },
 

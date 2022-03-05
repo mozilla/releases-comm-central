@@ -39,7 +39,7 @@ var MockCompleteGenericSendMessage = {
         window.CompleteGenericSendMessage = function(msgType) {
           let items = [...window.gAttachmentBucket.itemChildren];
           for (let item of items) {
-            if (item.attachment.sendViaCloud) {
+            if (item.attachment.sendViaCloud && item.cloudFileAccount) {
               item.cloudFileAccount.markAsImmutable(item.cloudFileUpload.id);
             }
           }
@@ -109,6 +109,7 @@ add_task(async function test_file_attachments() {
         browser.test.assertEq(expected.length, attachments.length);
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
+          browser.test.assertEq(expected[i].size, attachments[i].size);
         }
         let details = await browser.compose.getComposeDetails(composeTab.id);
         return window.sendMessage("checkUI", details, expected);
@@ -266,6 +267,17 @@ add_task(async function test_file_attachments() {
         );
       });
 
+      // File retrieved by WebExt API should still be the real file.
+      await checkData(attachment2, 30);
+
+      // UI should show both file size.
+      await checkUI(composeTab, {
+        id: attachment2.id,
+        name: "file2 with a new name.txt",
+        size: file3.size,
+        htmlSize: 4537,
+      });
+
       // Rename the second/cloud attachment.
 
       await browser.test.assertRejects(
@@ -290,7 +302,16 @@ add_task(async function test_file_attachments() {
       );
       browser.test.assertEq("cloud file2 with a new name.txt", changed4.name);
       browser.test.assertEq(30, changed4.size);
-      await checkData(changed4, file3.size);
+
+      await checkUI(composeTab, {
+        id: attachment2.id,
+        name: "cloud file2 with a new name.txt",
+        size: file3.size,
+        htmlSize: 4555,
+      });
+
+      // File retrieved by WebExt API should still be the real file.
+      await checkData(changed4, 30);
 
       // Update the second/cloud attachment.
 
@@ -339,6 +360,7 @@ add_task(async function test_file_attachments() {
         attachment2.id,
         { file: file2 }
       );
+
       browser.test.assertEq("cloud file2 with a new name.txt", changed5.name);
       browser.test.assertEq(41, changed5.size);
       await checkData(changed5, file2.size);
@@ -363,6 +385,11 @@ add_task(async function test_file_attachments() {
     },
     "utils.js": await getUtilsJS(),
   };
+
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+
   let extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
@@ -386,18 +413,30 @@ add_task(async function test_file_attachments() {
 
     let totalSize = 0;
     for (let i = 0; i < expected.length; i++) {
-      let { name, size } = expected[i];
-      totalSize += size;
-
       let item = bucket.itemChildren[i];
+      let { name, size, htmlSize } = expected[i];
+      totalSize += htmlSize ? htmlSize : size;
+
+      let displaySize = messenger.formatFileSize(size);
+      if (htmlSize) {
+        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        Assert.equal(
+          item.cloudHtmlFileSize,
+          htmlSize,
+          "htmlSize should be correct."
+        );
+      }
+
       Assert.equal(
         item.querySelector(".attachmentcell-name").textContent +
           item.querySelector(".attachmentcell-extension").textContent,
-        name
+        name,
+        "Displayed name should be correct."
       );
       Assert.equal(
         item.querySelector(".attachmentcell-size").textContent,
-        `${size} bytes`
+        displaySize,
+        "Displayed size should be correct."
       );
     }
 
@@ -405,7 +444,11 @@ add_task(async function test_file_attachments() {
     if (totalSize == 0) {
       Assert.equal(bucketTotal.textContent, "");
     } else {
-      Assert.equal(bucketTotal.textContent, `${totalSize} bytes`);
+      Assert.equal(
+        bucketTotal.textContent,
+        messenger.formatFileSize(totalSize),
+        "Total size should match."
+      );
     }
 
     extension.sendMessage();
@@ -509,6 +552,7 @@ add_task(async function test_compose_attachments() {
         );
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
+          browser.test.assertEq(expected[i].size, attachments[i].size);
         }
         let details = await browser.compose.getComposeDetails(composeTab.id);
         return window.sendMessage("checkUI", details, expected);
@@ -655,7 +699,8 @@ add_task(async function test_compose_attachments() {
         {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4301,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -717,7 +762,8 @@ add_task(async function test_compose_attachments() {
         {
           id: tab2_attachment2.id,
           name: "this is renamed file2.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4325,
           contentLocation: "https://cloud.provider.net/2",
         }
       );
@@ -760,7 +806,8 @@ add_task(async function test_compose_attachments() {
         {
           id: tab3_attachment2.id,
           name: "this is file2.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4301,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -811,7 +858,8 @@ add_task(async function test_compose_attachments() {
         {
           id: tab3_attachment2.id,
           name: "That is going to be interesting.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4355,
           contentLocation: "https://cloud.provider.net/3",
         }
       );
@@ -886,7 +934,8 @@ add_task(async function test_compose_attachments() {
         {
           id: tab4_attachment2.id,
           name: "I got renamed too, how crazy is that!.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4373,
           contentLocation: "https://cloud.provider.net/4",
         }
       );
@@ -994,6 +1043,11 @@ add_task(async function test_compose_attachments() {
     },
     "utils.js": await getUtilsJS(),
   };
+
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+
   let extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
@@ -1017,9 +1071,19 @@ add_task(async function test_compose_attachments() {
 
     let totalSize = 0;
     for (let i = 0; i < expected.length; i++) {
-      let { name, size, contentLocation } = expected[i];
       let item = bucket.itemChildren[i];
-      totalSize += size;
+      let { name, size, htmlSize, contentLocation } = expected[i];
+      totalSize += htmlSize ? htmlSize : size;
+
+      let displaySize = messenger.formatFileSize(size);
+      if (htmlSize) {
+        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        Assert.equal(
+          item.cloudHtmlFileSize,
+          htmlSize,
+          "htmlSize should be correct."
+        );
+      }
 
       // size and name are checked against the displayed values, contentLocation
       // is checked against the associated attachment.
@@ -1054,26 +1118,21 @@ add_task(async function test_compose_attachments() {
         name,
         "Name should be correct."
       );
-      if (size > 0) {
-        Assert.equal(
-          item.querySelector(".attachmentcell-size").textContent,
-          `${size} bytes`,
-          "Size should be correct."
-        );
-      } else {
-        Assert.equal(
-          item.querySelector(".attachmentcell-size").textContent,
-          "",
-          "Size should be correct."
-        );
-      }
+      Assert.equal(
+        item.querySelector(".attachmentcell-size").textContent,
+        displaySize,
+        "Displayed size should be correct."
+      );
     }
 
     let bucketTotal = composeDocument.getElementById("attachmentBucketSize");
     if (totalSize == 0) {
       Assert.equal(bucketTotal.textContent, "");
     } else {
-      Assert.equal(bucketTotal.textContent, `${totalSize} bytes`);
+      Assert.equal(
+        bucketTotal.textContent,
+        messenger.formatFileSize(totalSize)
+      );
     }
 
     extension.sendMessage();
@@ -1179,6 +1238,7 @@ add_task(async function test_compose_attachments_immutable() {
         );
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
+          browser.test.assertEq(expected[i].size, attachments[i].size);
         }
         let details = await browser.compose.getComposeDetails(composeTab.id);
         return window.sendMessage("checkUI", details, expected);
@@ -1326,7 +1386,8 @@ add_task(async function test_compose_attachments_immutable() {
         {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4301,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1366,7 +1427,8 @@ add_task(async function test_compose_attachments_immutable() {
         {
           id: tab2_attachment2.id,
           name: "this is file2.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4301,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1406,6 +1468,11 @@ add_task(async function test_compose_attachments_immutable() {
     },
     "utils.js": await getUtilsJS(),
   };
+
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+
   let extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
@@ -1429,9 +1496,19 @@ add_task(async function test_compose_attachments_immutable() {
 
     let totalSize = 0;
     for (let i = 0; i < expected.length; i++) {
-      let { name, size, contentLocation } = expected[i];
       let item = bucket.itemChildren[i];
-      totalSize += size;
+      let { name, size, htmlSize, contentLocation } = expected[i];
+      totalSize += htmlSize ? htmlSize : size;
+
+      let displaySize = messenger.formatFileSize(size);
+      if (htmlSize) {
+        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        Assert.equal(
+          item.cloudHtmlFileSize,
+          htmlSize,
+          "htmlSize should be correct."
+        );
+      }
 
       // size and name are checked against the displayed values, contentLocation
       // is checked against the associated attachment.
@@ -1466,26 +1543,21 @@ add_task(async function test_compose_attachments_immutable() {
         name,
         "Name should be correct."
       );
-      if (size > 0) {
-        Assert.equal(
-          item.querySelector(".attachmentcell-size").textContent,
-          `${size} bytes`,
-          "Size should be correct."
-        );
-      } else {
-        Assert.equal(
-          item.querySelector(".attachmentcell-size").textContent,
-          "",
-          "Size should be correct."
-        );
-      }
+      Assert.equal(
+        item.querySelector(".attachmentcell-size").textContent,
+        displaySize,
+        "Displayed size should be correct."
+      );
     }
 
     let bucketTotal = composeDocument.getElementById("attachmentBucketSize");
     if (totalSize == 0) {
       Assert.equal(bucketTotal.textContent, "");
     } else {
-      Assert.equal(bucketTotal.textContent, `${totalSize} bytes`);
+      Assert.equal(
+        bucketTotal.textContent,
+        messenger.formatFileSize(totalSize)
+      );
     }
 
     extension.sendMessage();
@@ -1591,6 +1663,7 @@ add_task(async function test_compose_attachments_no_reuse() {
         );
         for (let i = 0; i < expected.length; i++) {
           browser.test.assertEq(expected[i].id, attachments[i].id);
+          browser.test.assertEq(expected[i].size, attachments[i].size);
         }
         let details = await browser.compose.getComposeDetails(composeTab.id);
         return window.sendMessage("checkUI", details, expected);
@@ -1737,7 +1810,8 @@ add_task(async function test_compose_attachments_no_reuse() {
         {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4301,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1797,7 +1871,8 @@ add_task(async function test_compose_attachments_no_reuse() {
         {
           id: tab2_attachment2.id,
           name: "this is file2.txt",
-          size: 0,
+          size: 41,
+          htmlSize: 4301,
           contentLocation: "https://cloud.provider.net/2",
         }
       );
@@ -1813,6 +1888,11 @@ add_task(async function test_compose_attachments_no_reuse() {
     },
     "utils.js": await getUtilsJS(),
   };
+
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+
   let extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
@@ -1837,9 +1917,19 @@ add_task(async function test_compose_attachments_no_reuse() {
 
     let totalSize = 0;
     for (let i = 0; i < expected.length; i++) {
-      let { name, size, contentLocation } = expected[i];
       let item = bucket.itemChildren[i];
-      totalSize += size;
+      let { name, size, htmlSize, contentLocation } = expected[i];
+      totalSize += htmlSize ? htmlSize : size;
+
+      let displaySize = messenger.formatFileSize(size);
+      if (htmlSize) {
+        displaySize = `${messenger.formatFileSize(htmlSize)} (${displaySize})`;
+        Assert.equal(
+          item.cloudHtmlFileSize,
+          htmlSize,
+          "htmlSize should be correct."
+        );
+      }
 
       // size and name are checked against the displayed values, contentLocation
       // is checked against the associated attachment.
@@ -1874,26 +1964,21 @@ add_task(async function test_compose_attachments_no_reuse() {
         name,
         "Name should be correct."
       );
-      if (size > 0) {
-        Assert.equal(
-          item.querySelector(".attachmentcell-size").textContent,
-          `${size} bytes`,
-          "Size should be correct."
-        );
-      } else {
-        Assert.equal(
-          item.querySelector(".attachmentcell-size").textContent,
-          "",
-          "Size should be correct."
-        );
-      }
+      Assert.equal(
+        item.querySelector(".attachmentcell-size").textContent,
+        displaySize,
+        "Displayed size should be correct."
+      );
     }
 
     let bucketTotal = composeDocument.getElementById("attachmentBucketSize");
     if (totalSize == 0) {
       Assert.equal(bucketTotal.textContent, "");
     } else {
-      Assert.equal(bucketTotal.textContent, `${totalSize} bytes`);
+      Assert.equal(
+        bucketTotal.textContent,
+        messenger.formatFileSize(totalSize)
+      );
     }
 
     extension.sendMessage();
@@ -1974,6 +2059,7 @@ add_task(async function test_without_permission() {
     },
     "utils.js": await getUtilsJS(),
   };
+
   let extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {

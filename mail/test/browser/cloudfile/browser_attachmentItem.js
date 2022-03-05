@@ -267,15 +267,23 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   provider.init("someKey");
 
   // Override the uploadFile function of the MockCloudfileAccount.
-  let promises = {};
+  let promises = [];
   provider.uploadFile = function(window, aFile) {
     return new Promise((resolve, reject) => {
-      promises[aFile.leafName] = { resolve, reject };
+      promises.push({
+        resolve,
+        reject,
+        upload: {
+          url: `https://example.org/${aFile.leafName}`,
+          size: aFile.fileSize,
+          path: aFile.path,
+        },
+      });
     });
   };
 
   add_cloud_attachments(cw, provider, false);
-  cw.waitFor(() => Object.keys(promises).length == kFiles.length);
+  cw.waitFor(() => promises.length == kFiles.length);
 
   let bucket = cw.e("attachmentBucket");
   Assert.equal(
@@ -292,11 +300,11 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
     );
   }
 
-  for (let [name, promise] of Object.entries(promises)) {
+  for (let promise of promises) {
     if (error) {
       promise.reject(error);
     } else {
-      promise.resolve({ url: "https://example.org/" + name });
+      promise.resolve(promise.upload);
     }
   }
   cw.sleep();

@@ -13,7 +13,7 @@ var { cloudFileAccounts } = ChromeUtils.import(
  * events (onAccountAdded, onAccountDeleted, onFileUpload, onFileUploadAbort,
  * onFileDeleted, onFileRename) without UI interaction.
  */
-add_task(async () => {
+add_task(async function test_without_UI() {
   async function background() {
     function createCloudfileAccount() {
       let addListener = window.waitForEvent("cloudFile.onAccountAdded");
@@ -516,7 +516,7 @@ add_task(async () => {
  * cloudFile.onFileRename and cloudFile.onFileUploadAbort listeners with UI
  * interaction.
  */
-add_task(async () => {
+add_task(async function test_compose_window() {
   let testFiles = {
     cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
     cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
@@ -540,7 +540,7 @@ add_task(async () => {
     async function test_tab_in_upload_rename_abort_delete_listener(composeTab) {
       browser.test.log("test_upload_delete");
       let [createdAccount] = await createCloudfileAccount(
-        "ext-cloudfile@mochitest"
+        "ext-cloudfile@mochi.test"
       );
 
       let fileId = await new Promise(resolve => {
@@ -646,10 +646,10 @@ add_task(async () => {
       await new Promise(resolve => setTimeout(resolve));
     }
 
-    let composerTabs = await browser.tabs.query({
+    let [composerTab] = await browser.tabs.query({
       windowType: "messageCompose",
     });
-    await test_tab_in_upload_rename_abort_delete_listener(composerTabs[0]);
+    await test_tab_in_upload_rename_abort_delete_listener(composerTab);
 
     browser.test.notifyPass("finished");
   }
@@ -665,7 +665,7 @@ add_task(async () => {
         management_url: "/content/management.html",
         data_format: "ArrayBuffer",
       },
-      applications: { gecko: { id: "cloudfile@mochitest" } },
+      applications: { gecko: { id: "cloudfile@mochi.test" } },
       background: { scripts: ["utils.js", "background.js"] },
     },
   });
@@ -764,9 +764,174 @@ add_task(async () => {
   composeWindow.close();
 });
 
+/**
+ * Test cloudFiles without accounts and removed local files.
+ */
+add_task(async function test_incomplete_cloudFiles() {
+  let testFiles = {
+    cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
+    cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
+  };
+  let uploads = {};
+  let composeWindow;
+  let cloudFileAccount = null;
+
+  async function background() {
+    function createCloudfileAccount(id) {
+      let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+      browser.test.sendMessage("createAccount", id);
+      return addListener;
+    }
+
+    function removeCloudfileAccount(id) {
+      let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+      browser.test.sendMessage("removeAccount", id);
+      return deleteListener;
+    }
+
+    let [composerTab] = await browser.tabs.query({
+      windowType: "messageCompose",
+    });
+
+    let [createdAccount] = await createCloudfileAccount(
+      "ext-cloudfile@mochi.test"
+    );
+
+    await new Promise(resolve => {
+      function fileListener(
+        uploadAccount,
+        { id, name, data },
+        tab,
+        relatedFileInfo
+      ) {
+        browser.cloudFile.onFileUpload.removeListener(fileListener);
+        setTimeout(() => resolve(id));
+        return { url: "https://example.com/" + name };
+      }
+
+      browser.cloudFile.onFileUpload.addListener(fileListener);
+      browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile1");
+    });
+
+    await window.sendMessage("attachAndInvalidate", "cloudFile1");
+    let attachments = await browser.compose.listAttachments(composerTab.id);
+    let [attachmentId] = attachments
+      .filter(e => e.name == "cloudFile1.txt")
+      .map(e => e.id);
+
+    await browser.test.assertRejects(
+      browser.compose.updateAttachment(composerTab.id, attachmentId, {
+        name: "cloudFile3",
+      }),
+      e => {
+        return (
+          e.message.startsWith(
+            "CloudFile Error: Attachment file not found: "
+          ) && e.message.endsWith("cloudFile1.txt_invalid")
+        );
+      },
+      "browser.compose.updateAttachment() should reject, if the local file does not exist."
+    );
+
+    await removeCloudfileAccount(createdAccount.id);
+    await browser.test.assertRejects(
+      browser.compose.updateAttachment(composerTab.id, attachmentId, {
+        name: "cloudFile3",
+      }),
+      `CloudFile Error: Account not found: account7`,
+      "browser.compose.updateAttachment() should reject, if the local file does not exist."
+    );
+
+    browser.test.notifyPass("finished");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      cloud_file: {
+        name: "mochitest",
+        management_url: "/content/management.html",
+      },
+      permissions: ["compose"],
+      applications: { gecko: { id: "cloudfile@mochi.test" } },
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  extension.onMessage("createAccount", id => {
+    cloudFileAccount = cloudFileAccounts.createAccount(id);
+  });
+
+  extension.onMessage("removeAccount", id => {
+    cloudFileAccounts.removeAccount(id);
+  });
+
+  extension.onMessage("attachAndInvalidate", async filename => {
+    let upload = uploads[filename];
+    await composeWindow.attachToCloudRepeat(
+      uploads[filename],
+      cloudFileAccount
+    );
+
+    let bucket = composeWindow.document.getElementById("attachmentBucket");
+    let item = [...bucket.children].find(e => e.attachment.name == upload.name);
+    Assert.ok(item, "Should have found the attachment item");
+
+    // Invalidate the cloud attachment, simulating a file move/delete.
+    item.attachment.url = `${item.attachment.url}_invalid`;
+    item.cloudFileAccount.markAsImmutable(item.cloudFileUpload.id);
+    extension.sendMessage();
+  });
+
+  extension.onMessage(
+    "uploadFile",
+    (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
+      let cloudFileAccount = cloudFileAccounts.getAccount(id);
+
+      if (typeof expectedErrorStatus == "string") {
+        expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
+      }
+
+      cloudFileAccount.uploadFile(composeWindow, testFiles[filename]).then(
+        upload => {
+          Assert.equal(Cr.NS_OK, expectedErrorStatus);
+          uploads[filename] = upload;
+        },
+        status => {
+          Assert.equal(
+            status.result,
+            expectedErrorStatus,
+            `Error status should be correct for ${testFiles[filename].leafName}`
+          );
+          Assert.equal(
+            status.message,
+            expectedErrorMessage,
+            `Error message should be correct for ${testFiles[filename].leafName}`
+          );
+        }
+      );
+    }
+  );
+
+  let account = createAccount();
+  addIdentity(account);
+
+  composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  composeWindow.close();
+});
+
 /** Test data_format "File", which is the default if none is specified in the
  * manifest. */
-add_task(async () => {
+add_task(async function test_file_format() {
   async function background() {
     function createCloudfileAccount() {
       let addListener = window.waitForEvent("cloudFile.onAccountAdded");

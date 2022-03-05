@@ -13,6 +13,7 @@
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from ../../../base/content/viewZoomOverlay.js */
 /* import-globals-from addressingWidgetOverlay.js */
+/* import-globals-from cloudAttachmentLinkManager.js */
 /* import-globals-from ComposerCommands.js */
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
@@ -2146,6 +2147,7 @@ function addAttachCloudMenuItems(aParentMenu) {
     aParentMenu.appendChild(item);
 
     let previousUploads = account.getPreviousUploads();
+    let addedFiles = [];
     for (let upload of previousUploads) {
       let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       file.initWithPath(upload.path);
@@ -2154,14 +2156,16 @@ function addAttachCloudMenuItems(aParentMenu) {
       if (!file.exists()) {
         continue;
       }
-
-      let fileItem = document.createXULElement("menuitem");
-      fileItem.cloudFileUpload = upload;
-      fileItem.cloudFileAccount = account;
-      fileItem.setAttribute("label", file.leafName);
-      fileItem.setAttribute("class", "menuitem-iconic");
-      fileItem.setAttribute("image", "moz-icon://" + file.leafName);
-      aParentMenu.appendChild(fileItem);
+      if (!addedFiles.find(f => f.name == upload.name || f.url == upload.url)) {
+        let fileItem = document.createXULElement("menuitem");
+        fileItem.cloudFileUpload = upload;
+        fileItem.cloudFileAccount = account;
+        fileItem.setAttribute("label", upload.name);
+        fileItem.setAttribute("class", "menuitem-iconic");
+        fileItem.setAttribute("image", "moz-icon://" + upload.name);
+        aParentMenu.appendChild(fileItem);
+        addedFiles.push({ name: upload.name, url: upload.url });
+      }
     }
   }
 }
@@ -2200,9 +2204,21 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
 
     aParentMenu.appendChild(item);
   }
+
+  // Check if the cloudFile has an invalid account and deselect the default
+  // option, allowing to convert it back to a regular file.
+  if (
+    gAttachmentBucket.selectedItem.attachment.sendViaCloud &&
+    !gAttachmentBucket.selectedItem.cloudFileAccount
+  ) {
+    let regularItem = document.getElementById(
+      "convertCloudMenuItems_popup_convertAttachment"
+    );
+    regularItem.removeAttribute("checked");
+  }
 }
 
-function updateAttachmentItemProperties(attachmentItem) {
+async function updateAttachmentItemProperties(attachmentItem) {
   // FIXME: The UI logic should be handled by the attachment list or item
   // itself.
   if (attachmentItem.uploading) {
@@ -2214,14 +2230,35 @@ function updateAttachmentItemProperties(attachmentItem) {
       ])
     );
     gAttachmentBucket.setCloudIcon(attachmentItem, "");
-  } else if (attachmentItem.cloudFileAccount) {
+  } else if (attachmentItem.attachment.sendViaCloud) {
+    let [
+      tooltipUnknownAccountText,
+      introText,
+      titleText,
+    ] = await document.l10n.formatValues([
+      "cloud-file-unknown-account-tooltip",
+      {
+        id: "cloud-file-placeholder-intro",
+        args: { filename: attachmentItem.attachment.name },
+      },
+      {
+        id: "cloud-file-placeholder-title",
+        args: { filename: attachmentItem.attachment.name },
+      },
+    ]);
+
     // uploaded
-    attachmentItem.setAttribute(
-      "tooltiptext",
-      getComposeBundle().getFormattedString("cloudFileUploadedTooltip", [
-        cloudFileAccounts.getDisplayName(attachmentItem.cloudFileAccount),
-      ])
-    );
+    let tooltiptext;
+    if (attachmentItem.cloudFileAccount) {
+      tooltiptext = getComposeBundle().getFormattedString(
+        "cloudFileUploadedTooltip",
+        [cloudFileAccounts.getDisplayName(attachmentItem.cloudFileAccount)]
+      );
+    } else {
+      tooltiptext = tooltipUnknownAccountText;
+    }
+    attachmentItem.setAttribute("tooltiptext", tooltiptext);
+
     gAttachmentBucket.setAttachmentName(
       attachmentItem,
       attachmentItem.attachment.name
@@ -2230,6 +2267,41 @@ function updateAttachmentItemProperties(attachmentItem) {
       attachmentItem,
       attachmentItem.cloudFileUpload.serviceIcon
     );
+
+    // Update the CloudPartHeaderData, if there is a valid cloudFileUpload.
+    if (attachmentItem.cloudFileUpload) {
+      attachmentItem.attachment.cloudPartHeaderData = btoa(
+        JSON.stringify(attachmentItem.cloudFileUpload)
+      );
+    }
+
+    // Update the cloudFile placeholder file.
+    attachmentItem.attachment.htmlAnnotation = `<!DOCTYPE html>
+<html>
+ <head>
+  <title>${titleText}</title>
+  <meta charset="utf-8" />
+ </head>
+ <body>
+  <div style="padding: 15px; font-family: Calibri, sans-serif;"> 
+   <div style="margin-bottom: 15px;" id="cloudAttachmentListHeader">${introText}</div>
+   <ul>${
+     (
+       await gCloudAttachmentLinkManager._createNode(
+         document,
+         attachmentItem.cloudFileUpload,
+         true
+       )
+     ).outerHTML
+   }</ul>
+  </div>
+ </body>
+</html>`;
+
+    // Calculate size of placeholder attachment.
+    attachmentItem.cloudHtmlFileSize = new TextEncoder().encode(
+      attachmentItem.attachment.htmlAnnotation
+    ).length;
   } else {
     // local
     attachmentItem.setAttribute("tooltiptext", attachmentItem.attachment.url);
@@ -2238,7 +2310,11 @@ function updateAttachmentItemProperties(attachmentItem) {
       attachmentItem.attachment.name
     );
     gAttachmentBucket.setCloudIcon(attachmentItem, "");
+
+    // Remove placeholder file size information.
+    delete attachmentItem.cloudHtmlFileSize;
   }
+  updateAttachmentPane();
 }
 
 async function showLocalizedCloudFileAlert(
@@ -2342,6 +2418,28 @@ async function showLocalizedCloudFileAlert(
         }
       );
       break;
+    case cloudFileAccounts.constants.attachmentErr:
+      localizedTitle = await l10nCompose.formatValue(
+        "cloud-file-attachment-error-title"
+      );
+      localizedMessage = await l10nCompose.formatValue(
+        "cloud-file-attachment-error",
+        {
+          filename,
+        }
+      );
+      break;
+    case cloudFileAccounts.constants.accountErr:
+      localizedTitle = await l10nCompose.formatValue(
+        "cloud-file-account-error-title"
+      );
+      localizedMessage = await l10nCompose.formatValue(
+        "cloud-file-account-error",
+        {
+          filename,
+        }
+      );
+      break;
     default:
       localizedTitle = bundle.getString("errorCloudFileOther.title");
       localizedMessage = bundle.getFormattedString(
@@ -2387,26 +2485,15 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
     ? updateSettings.cloudFileAccount
     : attachmentItem.cloudFileAccount;
 
-  const events = {
-    "upload-starting": "attachment-uploading",
-    "upload-finished": "attachment-uploaded",
-    "upload-failed": "attachment-upload-failed",
-    "move-starting": "attachment-moving",
-    "move-finished": "attachment-moved",
-    "move-failed": "attachment-move-failed",
-    "convert-finished": "attachment-converted-to-regular",
-    "rename-finished": "attachment-renamed",
-  };
-
   try {
     if (
+      // Bypass upload and set provided relatedCloudFileUpload.
       updateSettings.relatedCloudFileUpload &&
       updateSettings.cloudFileAccount &&
       updateSettings.cloudFileAccount.reuseUploads &&
       !updateSettings.file &&
       !updateSettings.name
     ) {
-      // Bypass upload and set provided relatedCloudFileUpload.
       attachmentItem.attachment.sendViaCloud = true;
       attachmentItem.attachment.contentLocation =
         updateSettings.relatedCloudFileUpload.url;
@@ -2424,51 +2511,110 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
         bubbles: true,
         cancelable: true,
       });
-    } else if (!destCloudFileAccount) {
-      // Handle a cloud -> local conversion or a local -> local replace/rename.
-      let mode = attachmentItem.attachment.sendViaCloud ? "convert" : "replace";
-      if (mode == "replace" && !updateSettings.file) {
-        mode = "rename";
+    } else if (
+      // Handle a local -> local replace/rename.
+      !attachmentItem.attachment.sendViaCloud &&
+      !updateSettings.hasOwnProperty("cloudFileAccount")
+    ) {
+      // Both modes - rename and replace - require the same UI handling.
+      eventOnDone = new CustomEvent("attachment-renamed", {
+        bubbles: true,
+        cancelable: true,
+        detail: originalAttachment,
+      });
+    } else if (
+      // Handle a cloud -> local conversion.
+      attachmentItem.attachment.sendViaCloud &&
+      updateSettings.cloudFileAccount === null
+    ) {
+      // Throw if the linked local file does not exists (i.e. invalid draft).
+      if (!(await IOUtils.exists(attachmentItem.cloudFileUpload.path))) {
+        throw Components.Exception(
+          `CloudFile Error: Attachment file not found: ${attachmentItem.cloudFileUpload.path}`,
+          cloudFileAccounts.constants.attachmentErr
+        );
       }
 
-      if (mode == "convert") {
+      if (attachmentItem.cloudFileAccount) {
         // A cloud delete error is not considered to be a fatal error. It is
         // not preventing the attachment from being removed from the composer.
         attachmentItem.cloudFileAccount
           .deleteFile(window, attachmentItem.cloudFileUpload.id)
           .catch(ex => console.warn(ex.message));
-
-        // Clean up attachment from cloud bits.
-        attachmentItem.attachment.sendViaCloud = false;
-        delete attachmentItem.attachment.contentLocation;
-        delete attachmentItem.attachment.cloudFileAccountKey;
-        delete attachmentItem.cloudFileAccount;
-        delete attachmentItem.cloudFileUpload;
       }
+      // Clean up attachment from cloud bits.
+      attachmentItem.attachment.sendViaCloud = false;
+      attachmentItem.attachment.htmlAnnotation = "";
+      attachmentItem.attachment.contentLocation = "";
+      attachmentItem.attachment.cloudFileAccountKey = "";
+      attachmentItem.attachment.cloudPartHeaderData = "";
+      delete attachmentItem.cloudFileAccount;
+      delete attachmentItem.cloudFileUpload;
 
-      if (events[`${mode}-finished`]) {
-        eventOnDone = new CustomEvent(events[`${mode}-finished`], {
-          bubbles: true,
-          cancelable: true,
-          detail: originalAttachment,
-        });
-      }
-    } else if (Services.io.offline) {
+      eventOnDone = new CustomEvent("attachment-converted-to-regular", {
+        bubbles: true,
+        cancelable: true,
+        detail: originalAttachment,
+      });
+    } else if (
       // Exit early if offline.
+      Services.io.offline
+    ) {
       throw Components.Exception(
         "Connection error: Offline",
         cloudFileAccounts.constants.offlineErr
       );
     } else {
       // Handle a cloud -> cloud move/rename or a local -> cloud upload.
-      let mode = attachmentItem.attachment.sendViaCloud ? "move" : "upload";
-      if (
-        attachmentItem.cloudFileUpload &&
-        attachmentItem.cloudFileAccount == destCloudFileAccount &&
-        !updateSettings.file &&
-        !destCloudFileAccount.isReusedUpload(attachmentItem.cloudFileUpload)
-      ) {
-        mode = "rename";
+      let fileHandler = Services.io
+        .getProtocolHandler("file")
+        .QueryInterface(Ci.nsIFileProtocolHandler);
+
+      let mode = "upload";
+      if (attachmentItem.attachment.sendViaCloud) {
+        // Throw if the used cloudFile account does not exists (invalid draft,
+        // disabled add-on, removed account).
+        if (
+          !destCloudFileAccount ||
+          !cloudFileAccounts.getAccount(destCloudFileAccount.accountKey)
+        ) {
+          throw Components.Exception(
+            `CloudFile Error: Account not found: ${destCloudFileAccount?.accountKey}`,
+            cloudFileAccounts.constants.accountErr
+          );
+        }
+
+        if (
+          attachmentItem.cloudFileUpload &&
+          attachmentItem.cloudFileAccount == destCloudFileAccount &&
+          !updateSettings.file &&
+          !destCloudFileAccount.isReusedUpload(attachmentItem.cloudFileUpload)
+        ) {
+          mode = "rename";
+        } else {
+          mode = "move";
+          // Throw if the linked local file does not exists (invalid draft, removed
+          // local file).
+          if (
+            !fileHandler
+              .getFileFromURLSpec(attachmentItem.attachment.url)
+              .exists()
+          ) {
+            throw Components.Exception(
+              `CloudFile Error: Attachment file not found: ${
+                fileHandler.getFileFromURLSpec(attachmentItem.attachment.url)
+                  .path
+              }`,
+              cloudFileAccounts.constants.attachmentErr
+            );
+          }
+          if (!(await IOUtils.exists(attachmentItem.cloudFileUpload.path))) {
+            throw Components.Exception(
+              `CloudFile Error: Attachment file not found: ${attachmentItem.cloudFileUpload.path}`,
+              cloudFileAccounts.constants.attachmentErr
+            );
+          }
+        }
       }
 
       // Notify the UI that we're starting the upload process: disable send commands
@@ -2477,11 +2623,15 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
       updateSendCommands(true);
 
       attachmentItem.uploading = destCloudFileAccount;
-      updateAttachmentItemProperties(attachmentItem);
+      await updateAttachmentItemProperties(attachmentItem);
 
-      if (events[`${mode}-starting`]) {
+      const eventsOnStart = {
+        upload: "attachment-uploading",
+        move: "attachment-moving",
+      };
+      if (eventsOnStart[mode]) {
         attachmentItem.dispatchEvent(
-          new CustomEvent(events[`${mode}-starting`], {
+          new CustomEvent(eventsOnStart[mode], {
             bubbles: true,
             cancelable: true,
             detail: attachmentItem.attachment,
@@ -2498,10 +2648,6 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
             name
           );
         } else {
-          let fileHandler = Services.io
-            .getProtocolHandler("file")
-            .QueryInterface(Ci.nsIFileProtocolHandler);
-
           let file =
             updateSettings.file ||
             fileHandler.getFileFromURLSpec(attachmentItem.attachment.url);
@@ -2528,16 +2674,25 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
         attachmentItem.cloudFileUpload = upload;
         attachmentItem.attachment.contentLocation = upload.url;
 
-        if (events[`${mode}-finished`]) {
-          eventOnDone = new CustomEvent(events[`${mode}-finished`], {
+        const eventsOnSuccess = {
+          upload: "attachment-uploaded",
+          move: "attachment-moved",
+          rename: "attachment-renamed",
+        };
+        if (eventsOnSuccess[mode]) {
+          eventOnDone = new CustomEvent(eventsOnSuccess[mode], {
             bubbles: true,
             cancelable: true,
             detail: originalAttachment,
           });
         }
       } catch (ex) {
-        if (events[`${mode}-failed`]) {
-          eventOnDone = new CustomEvent(events[`${mode}-failed`], {
+        const eventsOnFailure = {
+          upload: "attachment-upload-failed",
+          move: "attachment-move-failed",
+        };
+        if (eventsOnFailure[mode]) {
+          eventOnDone = new CustomEvent(eventsOnFailure[mode], {
             bubbles: true,
             cancelable: true,
             detail: ex.result,
@@ -2566,11 +2721,13 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
   } catch (ex) {
     // Attach provider and fileName to the Exception, so showLocalizedCloudFileAlert()
     // can display the proper alert message.
-    ex.cloudProvider = cloudFileAccounts.getDisplayName(destCloudFileAccount);
+    ex.cloudProvider = destCloudFileAccount
+      ? cloudFileAccounts.getDisplayName(destCloudFileAccount)
+      : "";
     ex.cloudFileName = originalAttachment?.name || name;
     throw ex;
   } finally {
-    updateAttachmentItemProperties(attachmentItem);
+    await updateAttachmentItemProperties(attachmentItem);
     if (eventOnDone) {
       attachmentItem.dispatchEvent(eventOnDone);
     }
@@ -2598,6 +2755,8 @@ function attachToCloud(event) {
 async function attachToCloudRepeat(upload, account) {
   let file = FileUtils.File(upload.path);
   let attachment = FileToAttachment(file);
+  attachment.name = upload.name;
+
   let addedAttachmentItems = AddAttachments([attachment]);
   if (addedAttachmentItems.length > 0) {
     try {
@@ -2726,7 +2885,7 @@ function convertToCloudAttachment(aAttachments, aAccount) {
 async function convertListItemsToRegularAttachment(aItems) {
   let promises = [];
   for (let item of aItems) {
-    if (!item.attachment.sendViaCloud || !item.cloudFileAccount) {
+    if (!item.attachment.sendViaCloud) {
       continue;
     }
     promises.push(
@@ -2742,7 +2901,9 @@ async function convertListItemsToRegularAttachment(aItems) {
  * Convert the selected attachments to regular (non-cloud) attachments.
  */
 function convertSelectedToRegularAttachment() {
-  convertListItemsToRegularAttachment([...gAttachmentBucket.selectedItems]);
+  return convertListItemsToRegularAttachment([
+    ...gAttachmentBucket.selectedItems,
+  ]);
 }
 
 /**
@@ -2759,7 +2920,7 @@ function convertToRegularAttachment(aAttachments) {
     }
   }
 
-  convertListItemsToRegularAttachment(items);
+  return convertListItemsToRegularAttachment(items);
 }
 
 /* messageComposeOfflineQuitObserver is notified whenever the network
@@ -3410,7 +3571,7 @@ function onPasteOrDrop(e) {
 }
 
 /* eslint-disable complexity */
-function ComposeStartup(aParams) {
+async function ComposeStartup() {
   // Findbar overlay
   if (!document.getElementById("findbar-replaceButton")) {
     let replaceButton = document.createXULElement("toolbarbutton");
@@ -3448,9 +3609,7 @@ function ComposeStartup(aParams) {
   var args = null; // old way, parameters are passed as a string
   gBodyFromArgs = false;
 
-  if (aParams) {
-    params = aParams;
-  } else if (window.arguments && window.arguments[0]) {
+  if (window.arguments && window.arguments[0]) {
     try {
       if (window.arguments[0] instanceof Ci.nsIMsgComposeParams) {
         params = window.arguments[0];
@@ -3894,7 +4053,98 @@ function ComposeStartup(aParams) {
 
   document.getElementById("msgSubject").value = gMsgCompose.compFields.subject;
 
-  AddAttachments(gMsgCompose.compFields.attachments, false);
+  let addedAttachmentItems = AddAttachments(
+    gMsgCompose.compFields.attachments,
+    false
+  );
+  // If any of the pre-loaded attachments is a cloudFile, this is most probably a
+  // re-opened draft. Restore the cloudFile information.
+  for (let attachmentItem of addedAttachmentItems) {
+    if (
+      attachmentItem.attachment.sendViaCloud &&
+      attachmentItem.attachment.contentLocation &&
+      attachmentItem.attachment.cloudFileAccountKey &&
+      attachmentItem.attachment.cloudPartHeaderData
+    ) {
+      let uploadFromDraft = JSON.parse(
+        atob(attachmentItem.attachment.cloudPartHeaderData)
+      );
+      if (uploadFromDraft && uploadFromDraft.path && uploadFromDraft.name) {
+        let cloudFileUpload;
+        let cloudFileAccount = cloudFileAccounts.getAccount(
+          attachmentItem.attachment.cloudFileAccountKey
+        );
+        let bigFile = Cc["@mozilla.org/file/local;1"].createInstance(
+          Ci.nsIFile
+        );
+        bigFile.initWithPath(uploadFromDraft.path);
+
+        if (cloudFileAccount) {
+          // Try to find the upload for the draft attachment in the already known
+          // uploads.
+          cloudFileUpload = cloudFileAccount
+            .getPreviousUploads()
+            .find(
+              upload =>
+                upload.url == attachmentItem.attachment.contentLocation &&
+                upload.url == uploadFromDraft.url &&
+                upload.id == uploadFromDraft.id &&
+                upload.name == uploadFromDraft.name &&
+                upload.size == uploadFromDraft.size &&
+                upload.path == uploadFromDraft.path &&
+                upload.serviceName == uploadFromDraft.serviceName &&
+                upload.serviceIcon == uploadFromDraft.serviceIcon &&
+                upload.serviceUrl == uploadFromDraft.serviceUrl &&
+                upload.downloadPasswordProtected ==
+                  uploadFromDraft.downloadPasswordProtected &&
+                upload.downloadLimit == uploadFromDraft.downloadLimit &&
+                upload.downloadExpiryDate == uploadFromDraft.downloadExpiryDate
+            );
+          if (!cloudFileUpload) {
+            // Create a new upload from the data stored in the draft.
+            cloudFileUpload = cloudFileAccount.newUploadForFile(
+              bigFile,
+              uploadFromDraft
+            );
+          }
+          // A restored cloudFile may have been send/used already in a previous
+          // session, or may be changed and reverted again by not saving a draft.
+          // Mark it as immutable.
+          cloudFileAccount.markAsImmutable(cloudFileUpload.id);
+          attachmentItem.cloudFileAccount = cloudFileAccount;
+          attachmentItem.cloudFileUpload = cloudFileUpload;
+        } else {
+          attachmentItem.cloudFileUpload = uploadFromDraft;
+          delete attachmentItem.cloudFileUpload.id;
+        }
+
+        // Restore file information from the linked real file.
+        attachmentItem.attachment.name = uploadFromDraft.name;
+        attachmentItem.attachment.size = uploadFromDraft.size;
+        let bigAttachment;
+        if (bigFile.exists()) {
+          bigAttachment = FileToAttachment(bigFile);
+        }
+        if (bigAttachment && bigAttachment.size == uploadFromDraft.size) {
+          // Remove the temporary html placeholder file.
+          let uri = Services.io
+            .newURI(attachmentItem.attachment.url)
+            .QueryInterface(Ci.nsIFileURL);
+          await IOUtils.remove(uri.file.path);
+
+          attachmentItem.attachment.url = bigAttachment.url;
+          attachmentItem.attachment.contentType = "";
+          attachmentItem.attachment.temporary = false;
+        }
+
+        await updateAttachmentItemProperties(attachmentItem);
+        continue;
+      }
+    }
+    // Did not find the required data in the draft to reconstruct the cloudFile
+    // information. Fall back to no-draft-restore-support.
+    attachmentItem.attachment.sendViaCloud = false;
+  }
 
   if (Services.prefs.getBoolPref("mail.compose.show_attachment_pane")) {
     toggleAttachmentPane("show");
@@ -4193,7 +4443,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   setEncSigStatusUI();
 }
 
-function ComposeLoad() {
+async function ComposeLoad() {
   updateTroubleshootMenuItem();
   let otherHeaders = Services.prefs.getCharPref(
     "mail.compose.other.header",
@@ -4332,7 +4582,7 @@ function ComposeLoad() {
 
   try {
     SetupCommandUpdateHandlers();
-    ComposeStartup(null);
+    await ComposeStartup();
   } catch (ex) {
     Cu.reportError(ex);
     Services.prompt.alert(
@@ -5180,6 +5430,14 @@ async function CompleteGenericSendMessage(msgType) {
       SetContentAndBodyAsUnmodified();
     }
 
+    // Keep track of send/saved cloudFiles and mark them as immutable.
+    let items = [...gAttachmentBucket.itemChildren];
+    for (let item of items) {
+      if (item.attachment.sendViaCloud && item.cloudFileAccount) {
+        item.cloudFileAccount.markAsImmutable(item.cloudFileUpload.id);
+      }
+    }
+
     var progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
       Ci.nsIMsgProgress
     );
@@ -5230,13 +5488,6 @@ async function CompleteGenericSendMessage(msgType) {
       )
     ) {
       Services.telemetry.scalarAdd("tb.filelink.ignored", 1);
-    }
-
-    // Keep track of send cloudFiles and mark them as immutable.
-    for (let item of items) {
-      if (item.attachment.sendViaCloud) {
-        item.cloudFileAccount.markAsImmutable(item.cloudFileUpload.id);
-      }
     }
   }
 }
@@ -6991,9 +7242,9 @@ function updateAttachmentPane(aShowPane) {
   let attachmentsSize = 0;
   for (let item of gAttachmentBucket.itemChildren) {
     gAttachmentBucket.invalidateItem(item);
-    if (!item.attachment.sendViaCloud) {
-      attachmentsSize += item.attachment.size;
-    }
+    attachmentsSize += item.cloudHtmlFileSize
+      ? item.cloudHtmlFileSize
+      : item.attachment.size;
   }
 
   document.getElementById("attachmentBucketSize").textContent =

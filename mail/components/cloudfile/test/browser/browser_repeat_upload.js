@@ -134,7 +134,7 @@ add_task(async () => {
   uploadedFiles = [
     {
       id: 1,
-      leafName: "green_eggs.txt",
+      name: "green_eggs.txt",
       path: getFileFromChromeURL("green_eggs.txt").path,
       size: 30,
       url: "https://mochi.test/green_eggs.txt",
@@ -143,7 +143,7 @@ add_task(async () => {
     },
     {
       id: 2,
-      leafName: "ham.zip",
+      name: "ham.zip",
       path: getFileFromChromeURL("ham.zip").path,
       size: 1234,
       url: "https://mochi.test/ham.zip",

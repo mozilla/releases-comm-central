@@ -9,6 +9,7 @@ const EXPORTED_SYMBOLS = [
   "MockCloudfileAccount",
   "getFile",
   "collectFiles",
+  "CloudFileTestProvider",
 ];
 
 var fdh = ChromeUtils.import(
@@ -68,7 +69,7 @@ function MockCloudfileAccount() {
 }
 
 MockCloudfileAccount.prototype = {
-  nextId: 1,
+  _nextId: 1,
   _uploads: new Map(),
 
   init(aAccountKey, aOverrides = {}) {
@@ -85,6 +86,7 @@ MockCloudfileAccount.prototype = {
       "mail.cloud_files.accounts." + aAccountKey + ".type",
       aAccountKey
     );
+    cloudFileAccounts._accounts.set(aAccountKey, this);
   },
 
   renameFile(window, uploadId, newName) {
@@ -115,12 +117,12 @@ MockCloudfileAccount.prototype = {
     return new Promise((resolve, reject) => {
       let upload = {
         // Values used in the WebExtension CloudFile type.
-        id: this.nextId++,
+        id: this._nextId++,
         url: this.urlForFile(aFile),
         name: aFile.leafName,
         // Properties of the local file.
-        leafName: aFile.leafName,
         path: aFile.path,
+        size: aFile.exists() ? aFile.fileSize : 0,
         // Use aOverrides to set these.
         serviceIcon: this.serviceIcon || this.iconURL,
         serviceName: this.serviceName || this.displayName,
@@ -128,6 +130,8 @@ MockCloudfileAccount.prototype = {
         downloadPasswordProtected: this.downloadPasswordProtected || false,
         downloadLimit: this.downloadLimit || 0,
         downloadExpiryDate: this.downloadExpiryDate || null,
+        // Usage tracking.
+        immutable: false,
       };
       this._uploads.set(upload.id, upload);
       gMockCloudfileManager.inProgressUploads.add({
@@ -210,3 +214,64 @@ var gMockCloudfileManager = {
     this.inProgressUploads.clear();
   },
 };
+
+class CloudFileTestProvider {
+  constructor(name = "CloudFileTestProvider") {
+    this.extension = null;
+    this.name = name;
+  }
+
+  get providerType() {
+    return `ext-${this.extension.id}`;
+  }
+
+  /**
+   * Register an extension based cloudFile provider.
+   *
+   * @param testScope - scope of the test, mostly "this"
+   * @param [background] - optional background script, overriding the default
+   */
+  async register(testScope, background) {
+    if (!testScope) {
+      throw new Error("Missing testScope for CloudFileTestProvider.init().");
+    }
+
+    async function default_background() {
+      function fileListener(account, { id, name, data }, tab, relatedFileInfo) {
+        return { url: "https://example.com/" + name };
+      }
+      browser.cloudFile.onFileUpload.addListener(fileListener);
+    }
+
+    this.extension = testScope.ExtensionTestUtils.loadExtension({
+      files: {
+        "background.js": background || default_background,
+      },
+      manifest: {
+        cloud_file: {
+          name: this.name,
+          management_url: "/content/management.html",
+        },
+        applications: { gecko: { id: `${this.name}@mochi.test` } },
+        background: { scripts: ["background.js"] },
+      },
+    });
+
+    await this.extension.startup();
+  }
+
+  async unregister() {
+    cloudFileAccounts.unregisterProvider(this.providerType);
+    await this.extension.unload();
+  }
+
+  async createAccount(displayName) {
+    let account = await cloudFileAccounts.createAccount(this.providerType);
+    cloudFileAccounts.setDisplayName(account, displayName);
+    return account;
+  }
+
+  removeAccount(aKeyOrAccount) {
+    return cloudFileAccounts.removeAccount(aKeyOrAccount);
+  }
+}

@@ -299,7 +299,7 @@ add_task(function test_link_insertion_goes_away_on_error() {
  * a Filelink back into a normal attachment. Also test, that the privacy
  * notification is correctly shown and hidden.
  */
-add_task(function test_no_offer_on_conversion() {
+add_task(async function test_no_offer_on_conversion() {
   const kFiles = ["./data/testFile1", "./data/testFile2"];
   // Set the notification threshold to 0 to ensure that we get it.
   Services.prefs.setIntPref(kOfferThreshold, 0);
@@ -315,6 +315,9 @@ add_task(function test_no_offer_on_conversion() {
   provider.uploadFile = function(window, aFile) {
     return Promise.resolve({
       id: 1,
+      url: "https://some.cloud.net/1",
+      path: aFile.path,
+      size: aFile.fileSize,
     });
   };
 
@@ -326,14 +329,14 @@ add_task(function test_no_offer_on_conversion() {
 
   // Now convert the file back into a normal attachment
   select_attachments(cw, 0);
-  cw.window.convertSelectedToRegularAttachment();
+  await cw.window.convertSelectedToRegularAttachment();
   assert_cloudfile_notification_displayed(cw, false);
   assert_privacy_warning_notification_displayed(cw, true);
 
   // Convert also the other file, the privacy notification should no longer
   // be shown as well.
   select_attachments(cw, 1);
-  cw.window.convertSelectedToRegularAttachment();
+  await cw.window.convertSelectedToRegularAttachment();
   assert_cloudfile_notification_displayed(cw, false);
   assert_privacy_warning_notification_displayed(cw, false);
 
@@ -347,7 +350,7 @@ add_task(function test_no_offer_on_conversion() {
  * Test that when we kick off an upload via the offer notification, then
  * the upload notification is shown.
  */
-add_task(function test_offer_then_upload_notifications() {
+add_task(async function test_offer_then_upload_notifications() {
   const kFiles = ["./data/testFile1", "./data/testFile2"];
   // Set the notification threshold to 0 to ensure that we get it.
   Services.prefs.setIntPref(kOfferThreshold, 0);
@@ -369,6 +372,9 @@ add_task(function test_offer_then_upload_notifications() {
   provider.uploadFile = function(window, aFile) {
     return Promise.resolve({
       id: 1,
+      url: "https://some.cloud.net/1",
+      path: aFile.path,
+      size: aFile.fileSize,
     });
   };
 
@@ -383,7 +389,7 @@ add_task(function test_offer_then_upload_notifications() {
   // them.
   select_attachments(cw, 0, 1);
   // Convert them.
-  cw.window.convertSelectedToCloudAttachment(provider);
+  await cw.window.convertSelectedToCloudAttachment(provider);
 
   // The offer should now be gone...
   assert_cloudfile_notification_displayed(cw, false);

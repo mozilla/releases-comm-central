@@ -1622,13 +1622,16 @@
       let attachment = item.attachment;
 
       this.setAttachmentName(item, name || attachment.name);
-      let size = attachment.size;
-      this.setAttachmentSize(
-        item,
-        size == null || size == -1 || attachment.sendViaCloud
+      let size =
+        attachment.size == null || attachment.size == -1
           ? ""
-          : this.messenger.formatFileSize(size)
-      );
+          : this.messenger.formatFileSize(attachment.size);
+      if (size && item.cloudHtmlFileSize > 0) {
+        size = `${this.messenger.formatFileSize(
+          item.cloudHtmlFileSize
+        )} (${size})`;
+      }
+      this.setAttachmentSize(item, size);
 
       // By default, items are considered loaded.
       item.loaded = true;

@@ -26,6 +26,7 @@ class nsMsgAttachment : public nsIMsgAttachment {
   bool mTemporary;
   bool mSendViaCloud;
   nsCString mCloudFileAccountKey;
+  nsCString mCloudPartHeaderData;
   nsCString mContentLocation;
   nsCString mContentType;
   nsCString mContentTypeParam;
@@ -33,7 +34,7 @@ class nsMsgAttachment : public nsIMsgAttachment {
   nsCString mCharset;
   nsCString mMacType;
   nsCString mMacCreator;
-  nsString mHtmlAnnotation;
+  nsCString mHtmlAnnotation;
   int64_t mSize;
 };
 

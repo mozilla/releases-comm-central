@@ -143,10 +143,13 @@ add_task(async function testAttachProvider() {
         iconURL,
         configured: true,
         managementURL: "",
-        uploadFile() {
+        uploadFile(window, aFile) {
           return new Promise(resolve =>
             setTimeout(() =>
               resolve({
+                id: 1,
+                path: aFile.path,
+                size: aFile.fileSize,
                 url: fileUrl,
                 // The uploadFile() function should return serviceIcon, serviceName
                 // and serviceUrl - either default or user defined values specified

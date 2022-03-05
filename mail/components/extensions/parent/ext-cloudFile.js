@@ -107,7 +107,6 @@ class CloudFileAccount {
    * @property {string} name - name of the file
    * @property {string} url - url of the uploaded file
    * // Properties of the local file.
-   * @property {string} leafName - name of the local file
    * @property {string} path - path of the local file
    * @property {string} size - size of the local file
    * // Template information.
@@ -132,6 +131,38 @@ class CloudFileAccount {
       upload.immutable = true;
       this._uploads.set(id, upload);
     }
+  }
+
+  /**
+   * Returns a new upload entry, based on the provided file and data.
+   *
+   * @param {nsIFile} file
+   * @param {CloudFileUpload} data
+   * @returns {CloudFileUpload}
+   */
+  newUploadForFile(file, data = {}) {
+    let id = this._nextId++;
+    let upload = {
+      // Values used in the WebExtension CloudFile type.
+      id,
+      name: data.name ?? file.leafName,
+      url: data.url ?? null,
+      // Properties of the local file.
+      path: file.path,
+      size: file.exists() ? file.fileSize : data.size || 0,
+      // Template information.
+      serviceName: data.serviceName ?? this.displayName,
+      serviceIcon: data.serviceIcon ?? this.iconURL,
+      serviceUrl: data.serviceUrl ?? "",
+      downloadPasswordProtected: data.downloadPasswordProtected ?? false,
+      downloadLimit: data.downloadLimit ?? 0,
+      downloadExpiryDate: data.downloadExpiryDate ?? null,
+      // Usage tracking.
+      immutable: data.immutable ?? false,
+    };
+
+    this._uploads.set(id, upload);
+    return upload;
   }
 
   /**
@@ -181,28 +212,8 @@ class CloudFileAccount {
       );
     }
 
-    let id = this._nextId++;
-    let upload = {
-      // Values used in the WebExtension CloudFile type.
-      id,
-      name,
-      url: null,
-      // Properties of the local file.
-      leafName: file.leafName,
-      path: file.path,
-      size: file.fileSize,
-      // Template information.
-      serviceName: this.displayName,
-      serviceIcon: this.iconURL,
-      serviceUrl: "",
-      downloadPasswordProtected: false,
-      downloadLimit: 0,
-      downloadExpiryDate: null,
-      // Usage tracking.
-      immutable: false,
-    };
-    this._uploads.set(id, upload);
-
+    let upload = this.newUploadForFile(file, { name });
+    let id = upload.id;
     let relatedFileInfo;
     if (relatedCloudFileUpload) {
       relatedFileInfo = {

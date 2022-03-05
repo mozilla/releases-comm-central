@@ -44,7 +44,6 @@ var gCloudAttachmentLinkManager = {
       event.type == "attachment-renamed" ||
       event.type == "attachment-moved"
     ) {
-      let attachment = event.target.attachment;
       let cloudFileUpload = event.target.cloudFileUpload;
       let items = [];
 
@@ -55,10 +54,8 @@ var gCloudAttachmentLinkManager = {
 
       for (let item of items) {
         // The original attachment is stored in the events detail property.
-        if (item.contentLocation == event.detail.contentLocation) {
-          item.replaceWith(
-            await this._createNode(mailDoc, attachment, cloudFileUpload)
-          );
+        if (item.dataset.contentLocation == event.detail.contentLocation) {
+          item.replaceWith(await this._createNode(mailDoc, cloudFileUpload));
         }
       }
       if (event.type == "attachment-moved") {
@@ -72,7 +69,7 @@ var gCloudAttachmentLinkManager = {
       let cloudFileUpload = event.target.cloudFileUpload;
       let attachment = event.target.attachment;
       this.cloudAttachments.push(attachment);
-      await this._insertItem(mailDoc, attachment, cloudFileUpload);
+      await this._insertItem(mailDoc, cloudFileUpload);
     } else if (
       event.type == "attachments-removed" ||
       event.type == "attachment-converted-to-regular"
@@ -90,7 +87,7 @@ var gCloudAttachmentLinkManager = {
         // Remove the attachment from the message body.
         if (list) {
           for (let item of items) {
-            if (item.contentLocation == attachment.contentLocation) {
+            if (item.dataset.contentLocation == attachment.contentLocation) {
               item.remove();
             }
           }
@@ -471,21 +468,17 @@ var gCloudAttachmentLinkManager = {
    * Insert the information for a cloud attachment.
    *
    * @param {Document} aDocument - the document to insert the item into
-   * @param {nsIMsgAttachment} aAttachment - the attachment to insert
    * @param {CloudFileTemplate} aCloudFileUpload - object with information about
    *   the uploaded file
    */
-  async _insertItem(aDocument, aAttachment, aCloudFileUpload) {
+  async _insertItem(aDocument, aCloudFileUpload) {
     let list = aDocument.getElementById("cloudAttachmentList");
 
     if (!list) {
       this._insertHeader(aDocument);
       list = aDocument.getElementById("cloudAttachmentList");
     }
-
-    list.appendChild(
-      await this._createNode(aDocument, aAttachment, aCloudFileUpload)
-    );
+    list.appendChild(await this._createNode(aDocument, aCloudFileUpload));
     await this._updateAttachmentCount(aDocument);
     await this._updateServiceProviderLinks(aDocument);
   },
@@ -510,11 +503,15 @@ var gCloudAttachmentLinkManager = {
    * Create the link node for a cloud attachment.
    *
    * @param {Document} aDocument - the document to insert the item into
-   * @param {nsIMsgAttachment} aAttachment - the attachment to insert
    * @param {CloudFileTemplate} aCloudFileUpload - object with information about
    *   the uploaded file
+   * @param {} composeHTML - override gMsgCompose.composeHTML
    */
-  async _createNode(aDocument, aAttachment, aCloudFileUpload) {
+  async _createNode(
+    aDocument,
+    aCloudFileUpload,
+    composeHTML = gMsgCompose.composeHTML
+  ) {
     const iconSize = 32;
     const locales = {
       service: 0,
@@ -527,7 +524,7 @@ var gCloudAttachmentLinkManager = {
     };
 
     let l10n_values = await l10nCompose.formatValues([
-      { id: "cloud-file-template-service" },
+      { id: "cloud-file-template-service-name" },
       { id: "cloud-file-template-size" },
       { id: "cloud-file-template-link" },
       { id: "cloud-file-template-password-protected-link" },
@@ -546,7 +543,7 @@ var gCloudAttachmentLinkManager = {
     node.style.gridTemplateColumns = "0fr 1fr 0fr 0fr";
     node.style.alignItems = "center";
 
-    const statsRow = (name, content) => {
+    const statsRow = (name, content, contentLink) => {
       let entry = aDocument.createElement("span");
       entry.style.gridColumn = `2 / span 3`;
       entry.style.fontSize = "small";
@@ -556,9 +553,14 @@ var gCloudAttachmentLinkManager = {
       description.textContent = `${l10n_values[locales[name]]} `;
       entry.appendChild(description);
 
-      let value = aDocument.createElement("span");
-      value.style.color = "#595959";
-      value.textContent = content;
+      let value;
+      if (composeHTML && contentLink) {
+        value = this._generateLink(aDocument, content, contentLink, "#595959");
+      } else {
+        value = aDocument.createElement("span");
+        value.style.color = "#595959";
+        value.textContent = content;
+      }
       value.classList.add(`cloudfile-${name}`);
       entry.appendChild(value);
 
@@ -589,12 +591,12 @@ var gCloudAttachmentLinkManager = {
     // If this message is send in plain text only, do not add a link to the file
     // name.
     let name = aDocument.createElement("span");
-    name.textContent = aAttachment.name;
-    if (gMsgCompose.composeHTML) {
+    name.textContent = aCloudFileUpload.name;
+    if (composeHTML) {
       name = this._generateLink(
         aDocument,
-        aAttachment.name,
-        aAttachment.contentLocation,
+        aCloudFileUpload.name,
+        aCloudFileUpload.url,
         "#0F7EDB"
       );
       name.setAttribute("moz-do-not-send", "true");
@@ -629,25 +631,27 @@ var gCloudAttachmentLinkManager = {
     serviceIcon.height = `${iconSize}`;
     node.appendChild(serviceIcon);
 
-    if (!/^(chrome|moz-extension):\/\//i.test(aCloudFileUpload.serviceIcon)) {
-      serviceIcon.src = aCloudFileUpload.serviceIcon;
-    } else {
-      try {
-        // Let's use the goodness from MsgComposeCommands.js since we're
-        // sitting right in a compose window.
-        serviceIcon.src = window.loadBlockedImage(
-          aCloudFileUpload.serviceIcon,
-          true
-        );
-      } catch (e) {
-        // Couldn't load the referenced image.
-        Cu.reportError(e);
+    if (aCloudFileUpload.serviceIcon) {
+      if (!/^(chrome|moz-extension):\/\//i.test(aCloudFileUpload.serviceIcon)) {
+        serviceIcon.src = aCloudFileUpload.serviceIcon;
+      } else {
+        try {
+          // Let's use the goodness from MsgComposeCommands.js since we're
+          // sitting right in a compose window.
+          serviceIcon.src = window.loadBlockedImage(
+            aCloudFileUpload.serviceIcon,
+            true
+          );
+        } catch (e) {
+          // Couldn't load the referenced image.
+          Cu.reportError(e);
+        }
       }
     }
     node.appendChild(aDocument.createElement("br"));
 
     node.appendChild(
-      statsRow("size", gMessenger.formatFileSize(aAttachment.size))
+      statsRow("size", gMessenger.formatFileSize(aCloudFileUpload.size))
     );
 
     if (aCloudFileUpload.downloadExpiryDate) {
@@ -677,27 +681,26 @@ var gCloudAttachmentLinkManager = {
       );
     }
 
-    if (gMsgCompose.composeHTML || aCloudFileUpload.serviceUrl) {
+    if (composeHTML || aCloudFileUpload.serviceUrl) {
       node.appendChild(serviceRow());
     }
 
-    if (aCloudFileUpload.downloadPasswordProtected) {
-      node.appendChild(
-        statsRow("password-protected-link", aAttachment.contentLocation)
-      );
-    } else {
-      node.appendChild(statsRow("link", aAttachment.contentLocation));
-    }
+    let linkElementLocaleId = aCloudFileUpload.downloadPasswordProtected
+      ? "password-protected-link"
+      : "link";
+    node.appendChild(
+      statsRow(linkElementLocaleId, aCloudFileUpload.url, aCloudFileUpload.url)
+    );
 
     // An extra line break is needed for the converted plain text version, if it
     // should have a gap between its <li> elements.
-    if (gMsgCompose.composeHTML) {
+    if (composeHTML) {
       node.appendChild(aDocument.createElement("br"));
     }
 
     // Generate the plain text version from the HTML. The used method needs a <ul>
     // element wrapped around the <li> element to produce the correct content.
-    if (!gMsgCompose.composeHTML) {
+    if (!composeHTML) {
       let ul = aDocument.createElement("ul");
       ul.appendChild(node);
       node = aDocument.createElement("p");
@@ -705,8 +708,7 @@ var gCloudAttachmentLinkManager = {
     }
 
     node.className = "cloudAttachmentItem";
-    node.contentLocation = aAttachment.contentLocation;
-
+    node.dataset.contentLocation = aCloudFileUpload.url;
     node.dataset.serviceName = aCloudFileUpload.serviceName;
     node.dataset.serviceUrl = aCloudFileUpload.serviceUrl;
     return node;

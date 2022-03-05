@@ -379,19 +379,30 @@ class MimeMessage {
     let localParts = [];
 
     for (let attachment of attachments) {
-      if (attachment.sendViaCloud) {
-        let part = new MimePart();
-        let mozillaCloudPart = MsgUtils.getXMozillaCloudPart(
-          this._deliverMode,
-          attachment
+      let part;
+      if (attachment.htmlAnnotation) {
+        part = new MimePart();
+        part.bodyText = attachment.htmlAnnotation;
+        part.setHeader("content-type", "text/html");
+
+        let suffix = attachment.name.endsWith(".html") ? "" : ".html";
+        part.setHeader(
+          "content-disposition",
+          `attachment; filename=${attachment.name}${suffix}`
         );
-        part.setHeader("x-mozilla-cloud-part", mozillaCloudPart);
-        part.setHeader("content-type", "application/octet-stream");
-        cloudParts.push(part);
-        continue;
+      } else {
+        part = new MimePart(null, this._compFields.forceMsgEncoding, false);
+        part.setBodyAttachment(attachment);
       }
-      let part = new MimePart(null, this._compFields.forceMsgEncoding, false);
-      part.setBodyAttachment(attachment);
+
+      let cloudPartHeader = MsgUtils.getXMozillaCloudPart(
+        this._deliverMode,
+        attachment
+      );
+      if (cloudPartHeader) {
+        part.setHeader("x-mozilla-cloud-part", cloudPartHeader);
+      }
+
       localParts.push(part);
     }
     // Cloud attachments are handled before local attachments in the C++
@@ -412,7 +423,7 @@ class MimeMessage {
   }
 
   /**
-   * If crypto encaspsulation is required, returns an nsIMsgComposeSecure instance.
+   * If crypto encapsulation is required, returns an nsIMsgComposeSecure instance.
    * @returns {nsIMsgComposeSecure}
    */
   _getComposeSecure() {
@@ -441,7 +452,7 @@ class MimeMessage {
 
   /**
    * Pass a stream and other params to this._composeSecure to start crypto
-   * encaspsulation.
+   * encapsulation.
    * @param {nsIOutputStream} stream - The stream to write to.
    */
   _startCryptoEncapsulation() {
@@ -483,11 +494,11 @@ class MimeMessage {
     }
 
     if (depth == 0 && this._composeSecure) {
-      // Crypto encaspsulation will add a new content-type header.
+      // Crypto encapsulation will add a new content-type header.
       curPart.deleteHeader("content-type");
       if (curPart.parts.length > 1) {
         // Move child parts one layer deeper so that the message is still well
-        // formed after crypto encaspsulation.
+        // formed after crypto encapsulation.
         let newChild = new MimeMultiPart(curPart.subtype);
         newChild.parts = curPart._parts;
         curPart.parts = [newChild];
@@ -497,7 +508,7 @@ class MimeMessage {
     // Write out headers.
     this._writeString(curPart.getHeaderString());
 
-    // Start crypto encaspsulation if needed.
+    // Start crypto encapsulation if needed.
     if (depth == 0 && this._composeSecure) {
       this._startCryptoEncapsulation();
     }

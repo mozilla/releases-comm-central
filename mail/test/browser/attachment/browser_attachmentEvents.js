@@ -318,10 +318,14 @@ add_task(function test_attachment_renamed() {
   ]);
 
   select_attachments(cw, 0);
+  Assert.equal(0, eventCount);
   cw.window.goDoCommand("cmd_renameAttachment");
 
-  // Ensure that we saw the attachment-renamed event
-  Assert.equal(1, eventCount);
+  // Wait until we saw the attachment-renamed event.
+  cw.waitFor(function() {
+    return eventCount == 1;
+  });
+
   // Ensure that the event mentions the right attachment
   let renamedAttachment1 = lastEvent.target.attachment;
   let originalAttachment1 = lastEvent.detail;
@@ -336,9 +340,14 @@ add_task(function test_attachment_renamed() {
   gMockPromptService.returnValue = true;
 
   select_attachments(cw, 0);
+  Assert.equal(1, eventCount);
   cw.window.goDoCommand("cmd_renameAttachment");
 
-  Assert.equal(2, eventCount);
+  // Wait until we saw the attachment-renamed event.
+  cw.waitFor(function() {
+    return eventCount == 2;
+  });
+
   let renamedAttachment2 = lastEvent.target.attachment;
   let originalAttachment2 = lastEvent.detail;
   Assert.ok(renamedAttachment2 instanceof Ci.nsIMsgAttachment);
@@ -353,10 +362,14 @@ add_task(function test_attachment_renamed() {
 
   // We'll select the second attachment this time.
   select_attachments(cw, 1);
+  Assert.equal(2, eventCount);
   cw.window.goDoCommand("cmd_renameAttachment");
 
-  // Ensure we saw the attachment-renamed event
-  Assert.equal(3, eventCount);
+  // Wait until we saw the attachment-renamed event.
+  cw.waitFor(function() {
+    return eventCount == 3;
+  });
+
   // Ensure that the event mentions the right attachment
   let renamedAttachment3 = lastEvent.target.attachment;
   let originalAttachment3 = lastEvent.detail;

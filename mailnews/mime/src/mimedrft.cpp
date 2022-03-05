@@ -199,14 +199,21 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
           if (!curAttachment->m_cloudPartInfo.IsEmpty()) {
             nsCString provider;
             nsCString cloudUrl;
-            attachment->SetSendViaCloud(true);
+            nsCString cloudPartHeaderData;
+
             provider.Adopt(
                 MimeHeaders_get_parameter(curAttachment->m_cloudPartInfo.get(),
                                           "provider", nullptr, nullptr));
             cloudUrl.Adopt(MimeHeaders_get_parameter(
                 curAttachment->m_cloudPartInfo.get(), "url", nullptr, nullptr));
+            cloudPartHeaderData.Adopt(
+                MimeHeaders_get_parameter(curAttachment->m_cloudPartInfo.get(),
+                                          "data", nullptr, nullptr));
+
+            attachment->SetSendViaCloud(true);
             attachment->SetCloudFileAccountKey(provider);
             attachment->SetContentLocation(cloudUrl);
+            attachment->SetCloudPartHeaderData(cloudPartHeaderData);
           }
           compFields->AddAttachment(attachment);
         }
@@ -1806,18 +1813,6 @@ int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
 
   newAttachment->m_cloudPartInfo.Adopt(
       MimeHeaders_get(headers, HEADER_X_MOZILLA_CLOUD_PART, false, false));
-
-  // There's no file in the message if it's a cloud part.
-  if (!newAttachment->m_cloudPartInfo.IsEmpty()) {
-    nsAutoCString fileURL;
-    fileURL.Adopt(MimeHeaders_get_parameter(
-        newAttachment->m_cloudPartInfo.get(), "file", nullptr, nullptr));
-    if (!fileURL.IsEmpty())
-      nsMimeNewURI(getter_AddRefs(newAttachment->m_origUrl), fileURL.get(),
-                   nullptr);
-    mdd->tmpFile = nullptr;
-    return 0;
-  }
 
   nsCOMPtr<nsIFile> tmpFile = nullptr;
   {

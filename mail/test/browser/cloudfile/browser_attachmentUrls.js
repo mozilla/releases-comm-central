@@ -339,11 +339,6 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
       aUploads[i].serviceIcon,
       `CloudFile icon should be correct for ${aUploads[i].serviceName} / ${aUploads[i].name}`
     );
-    Assert.equal(
-      items[0].querySelector("span.attachmentcell-size").textContent,
-      "",
-      `CloudFile size should be empty.`
-    );
   }
 
   return [root, list, urls];
@@ -1301,7 +1296,6 @@ function subtest_renaming_filelink_updates_urls() {
       {
         url: "http://www.example.com/providerA/testFile1Renamed",
         name: "testFile1Renamed",
-        leafName: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
         serviceUrl: "https://www.provider-A.org",
@@ -1313,7 +1307,6 @@ function subtest_renaming_filelink_updates_urls() {
       {
         url: "http://www.example.com/providerA/testFile2Renamed",
         name: "testFile2Renamed",
-        leafName: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
         serviceUrl: "https://www.provider-A.org",
@@ -1388,15 +1381,18 @@ function subtest_converting_filelink_to_normal_removes_url() {
     let [selectedItem] = select_attachments(cw, i);
     cw.window.convertSelectedToRegularAttachment();
 
+    // Wait until the cloud file entry has been removed.
+    cw.waitFor(function() {
+      let urls = list.querySelectorAll(".cloudAttachmentItem");
+      return urls.length == kFiles.length - (i + 1);
+    });
+
     // Check that the cloud icon has been removed.
     Assert.equal(
       selectedItem.querySelector("img.attachmentcell-icon").src,
       `moz-icon://${selectedItem.attachment.name}?size=16`,
       `CloudIcon should be correctly removed for ${selectedItem.attachment.name}`
     );
-
-    let urls = list.querySelectorAll(".cloudAttachmentItem");
-    Assert.equal(urls.length, kFiles.length - (i + 1));
   }
 
   // At this point, the root should also have been removed.

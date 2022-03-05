@@ -51,10 +51,16 @@ interface nsIMsgAttachment : nsISupports {
   attribute ACString cloudFileAccountKey;
 
   /**
+   * A data string stored in the x-mozilla-cloud-part header of draft messages,
+   * to be able to restore cloudFile information of re-opened drafts.
+   */
+  attribute AUTF8String cloudPartHeaderData;
+
+  /**
    * This allows the compose front end code to put whatever html annotation
    * it wants for the cloud part, e.g., with expiration time, etc.
    */
-  attribute AString htmlAnnotation;
+  attribute AUTF8String htmlAnnotation;
 
   /**
    * contentLocation attribute
