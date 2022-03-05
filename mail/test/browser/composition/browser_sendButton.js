@@ -247,15 +247,16 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
   check_send_commands_state(cwc, false);
 
   // Open Contacts sidebar and use our contact.
-  cwc.window.toggleAddressPicker();
+  // FIXME: Use UI to open contacts sidebar.
+  cwc.window.toggleContactsSidebar();
 
-  let sidebar = cwc.e("sidebar");
+  let contactsBrowser = cwc.e("contactsBrowser");
   wait_for_frame_load(
-    sidebar,
+    contactsBrowser,
     "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"
   );
 
-  let abTree = sidebar.contentDocument.getElementById("abResultsTree");
+  let abTree = contactsBrowser.contentDocument.getElementById("abResultsTree");
   // The results are loaded async so wait for the population of the tree.
   utils.waitFor(
     () => abTree.view.rowCount > 0,
@@ -263,11 +264,12 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
   );
   click_tree_row(abTree, 0, cwc);
 
-  sidebar.contentDocument.getElementById("ccButton").click();
+  contactsBrowser.contentDocument.getElementById("ccButton").click();
 
   // The recipient is filled in, Send must be enabled.
   check_send_commands_state(cwc, true);
 
-  cwc.window.toggleAddressPicker();
+  // FIXME: Use UI to close contacts sidebar.
+  cwc.window.toggleContactsSidebar();
   close_compose_window(cwc);
 });

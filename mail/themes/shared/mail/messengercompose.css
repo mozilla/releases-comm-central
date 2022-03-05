@@ -47,7 +47,7 @@ splitter:not([orient="vertical"]) {
   border-inline-start: 1px solid var(--splitter-color);
 }
 
-#sidebar-box .sidebar-header {
+#contactsSidebar .sidebar-header {
   appearance: none;
   height: 30px;
   text-shadow: none;
@@ -57,17 +57,17 @@ splitter:not([orient="vertical"]) {
   border-bottom: 1px solid var(--lwt-tabs-border-color);
 }
 
-:root[lwt-tree] #sidebar-box .sidebar-header {
+:root[lwt-tree] #contactsSidebar .sidebar-header {
   background-color: var(--toolbar-bgcolor);
   color: var(--lwt-text-color);
   border-bottom: 1px solid var(--lwt-tabs-border-color);
 }
 
-:root[lwt-tree-brighttext] #sidebar-box .sidebar-header {
+:root[lwt-tree-brighttext] #contactsSidebar .sidebar-header {
   background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
 }
 
-#sidebarCloseButton {
+#contactsSidebar toolbarbutton.close-icon {
   margin-inline-end: 3px;
 }
 

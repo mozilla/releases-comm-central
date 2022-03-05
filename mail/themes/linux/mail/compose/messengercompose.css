@@ -171,11 +171,8 @@ toolbarbutton.formatting-button {
 }
 
 /* ::::: address book sidebar ::::: */
-.ab-closebutton > .toolbarbutton-icon {
-  margin-inline-end: 0; /* override toolkit's default value */
-}
 
-#sidebar {
+#contactsBrowser {
   background-color: Window;
 }
 

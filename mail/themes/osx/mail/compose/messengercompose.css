@@ -212,16 +212,7 @@ toolbarbutton.formatting-button {
 
 /* ::::: address book sidebar ::::: */
 
-.ab-closebutton > .toolbarbutton-text {
-   display: none;
-}
-
-#sidebarHeader {
-  background: transparent;
-  text-shadow: none;
-}
-
-#sidebar-title {
+#contactsBrowserTitle {
   font: icon;
 }
 

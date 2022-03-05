@@ -72,7 +72,7 @@ async function checkFocusCycling(controller, options) {
     // Open the contacts sidebar.
     EventUtils.synthesizeKey("VK_F9", {}, win);
     contactsInput = await TestUtils.waitForCondition(() => {
-      contactDoc = doc.getElementById("sidebar").contentDocument;
+      contactDoc = doc.getElementById("contactsBrowser").contentDocument;
       return contactDoc.getElementById("peopleSearchInput");
     }, "Waiting for the contacts pane to load");
   }

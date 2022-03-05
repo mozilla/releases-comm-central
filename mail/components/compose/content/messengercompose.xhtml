@@ -448,7 +448,7 @@
        modifiers="alt" command="cmd_sortAttachmentsToggle"/>
 
   <!-- View Menu -->
-  <key id="key_addressSidebar" keycode="VK_F9" oncommand="toggleAddressPicker();"/>
+  <key id="key_addressSidebar" keycode="VK_F9" oncommand="toggleContactsSidebar();"/>
 
   <keyset id="viewZoomKeys">
     <key id="key_fullZoomReduce"  key="&fullZoomReduceCmd.commandkey;"
@@ -1096,7 +1096,7 @@
                     label="&addressSidebar.label;" accesskey="&addressSidebar.accesskey;"
                     type="checkbox"
                     key="key_addressSidebar"
-                    oncommand="toggleAddressPicker();"/>
+                    oncommand="toggleContactsSidebar();"/>
           <menuitem id="menu_toggleAttachmentPane"
                     data-l10n-id="menuitem-toggle-attachment-pane"
                     data-l10n-attrs="acceltext"
@@ -1885,7 +1885,7 @@
                id="button-contacts" label="&addressButton.label;"
                tooltiptext="&addressButton.tooltip;"
                autoCheck="false" type="checkbox"
-               oncommand="toggleAddressPicker();"/>
+               oncommand="toggleContactsSidebar();"/>
 
     <toolbarbutton is="toolbarbutton-menu-button" id="button-attach"
                    data-l10n-id="toolbar-button-add-attachment"
@@ -2108,19 +2108,18 @@
 </toolbox>
 
   <hbox id="composeContentBox" class="printPreviewStack" flex="1">
-    <vbox id="sidebar-box" persist="sidebarVisible width" hidden="true">
-      <box id="sidebarHeader" class="sidebar-header" align="center">
-        <label id="sidebar-title" value="&addressesSidebarTitle.label;"/>
+    <vbox id="contactsSidebar" persist="sidebarVisible width" hidden="true">
+      <box class="sidebar-header" align="center">
+        <label id="contactsTitle" value="&addressesSidebarTitle.label;"/>
         <spacer flex="1"/>
-        <toolbarbutton id="sidebarCloseButton"
-                       class="ab-closebutton close-icon"
-                       oncommand="sidebarCloseButtonOnCommand();"/>
+        <toolbarbutton class="close-icon"
+                       oncommand="toggleContactsSidebar();"/>
       </box>
-      <browser id="sidebar" flex="1" src="" disablehistory="true"
+      <browser id="contactsBrowser" flex="1" src="" disablehistory="true"
                style="min-width: 150px; width: 200px; max-width: 400px;"/>
     </vbox>
 
-    <splitter id="sidebar-splitter" hidden="true"/>
+    <splitter id="contactsSplitter" hidden="true"/>
 
     <vbox id="headers-parent" flex="1">
       <toolbox id="headers-box" class="toolbox-top themeable-full" mode="icons">

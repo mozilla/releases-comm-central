@@ -153,7 +153,7 @@ function AbPanelLoad() {
 
   InitCommonJS();
 
-  document.title = parent.document.getElementById("sidebar-title").value;
+  document.title = parent.document.getElementById("contactsTitle").value;
 
   // Get the URI of the directory to display.
   let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");

@@ -7,8 +7,6 @@
 /* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
 /* import-globals-from abView.js */
 /* globals GetAbViewListener */
-// gCurFrame is SeaMonkey-only */
-/* globals gCurFrame */
 
 /**
  * Use of items in this file require:
@@ -211,22 +209,7 @@ function GetSelectedCard() {
 function GetSelectedAbCards() {
   var abView = gAbView;
 
-  // if sidebar is open, and addressbook panel is open and focused,
-  // then use the ab view from sidebar (gCurFrame is from sidebarOverlay.js)
-  if (document.getElementById("sidebar-box")) {
-    const abPanelUrl =
-      "chrome://messenger/content/addressbook/addressbook-panel.xhtml";
-    if (
-      gCurFrame &&
-      gCurFrame.getAttribute("src") == abPanelUrl &&
-      document.commandDispatcher.focusedWindow ==
-        gCurFrame.contentDocument.defaultView
-    ) {
-      abView = gCurFrame.contentDocument.defaultView.gAbView;
-    }
-  }
-
-  if (!abView || !abView.selection) {
+  if (!abView?.selection) {
     return [];
   }
 

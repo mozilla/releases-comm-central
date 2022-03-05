@@ -51,25 +51,26 @@ add_task(function test_sidebar_add_to_compose() {
   let cwc = open_compose_new_mail();
 
   // Open Contacts sidebar.
-  cwc.window.toggleAddressPicker();
+  // FIXME: Use UI to open contacts sidebar.
+  cwc.window.toggleContactsSidebar();
 
-  let sidebar = cwc.e("sidebar");
-  let sidebarController = wait_for_frame_load(
-    sidebar,
+  let contactsBrowser = cwc.e("contactsBrowser");
+  let contactsController = wait_for_frame_load(
+    contactsBrowser,
     "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"
   );
 
-  let abTree = sidebar.contentDocument.getElementById("abResultsTree");
+  let abTree = contactsBrowser.contentDocument.getElementById("abResultsTree");
 
   // The results are loaded async so wait for the population of the tree.
-  sidebarController.waitFor(
+  contactsController.waitFor(
     () => abTree.view.rowCount > 0,
     "Addressbook cards didn't load"
   );
 
   // Dblclick the first cell, which should be the mail list. By doing this
   // the list should get added to the To: addressing field.
-  mailTestUtils.treeClick(EventUtils, sidebarController.window, abTree, 0, 0, {
+  mailTestUtils.treeClick(EventUtils, contactsController.window, abTree, 0, 0, {
     clickCount: 2,
   });
 
@@ -80,7 +81,8 @@ add_task(function test_sidebar_add_to_compose() {
   Assert.equal(pill.getAttribute("label"), `${LISTNAME} <${LISTNAME}>`);
 
   delete_address_book(addrBook);
-  cwc.window.toggleAddressPicker();
+  // FIXME: Use UI to close contacts sidebar.
+  cwc.window.toggleContactsSidebar();
   close_compose_window(cwc);
 });
 
@@ -101,18 +103,19 @@ add_task(async function test_sidebar_contact_delete() {
   let cwc = open_compose_new_mail(); // compose controller
 
   // Open Contacts sidebar.
-  cwc.window.toggleAddressPicker();
+  // FIXME: Use UI to open contacts sidebar.
+  cwc.window.toggleContactsSidebar();
 
-  let sidebar = cwc.e("sidebar");
-  let sidebarController = wait_for_frame_load(
-    sidebar,
+  let contactsBrowser = cwc.e("contactsBrowser");
+  let contactsController = wait_for_frame_load(
+    contactsBrowser,
     "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"
   );
 
-  let abTree = sidebar.contentDocument.getElementById("abResultsTree");
+  let abTree = contactsBrowser.contentDocument.getElementById("abResultsTree");
 
   // The results are loaded async so wait for the population of the tree.
-  sidebarController.waitFor(
+  contactsController.waitFor(
     () => abTree.view.rowCount > 0,
     "Addressbook cards didn't load"
   );
@@ -127,12 +130,13 @@ add_task(async function test_sidebar_contact_delete() {
     "Expected a confirmEx prompt"
   );
 
-  sidebarController.waitFor(
+  contactsController.waitFor(
     () => abTree.view.rowCount == 0,
     "Card didn't delete"
   );
 
-  cwc.window.toggleAddressPicker();
+  // FIXME: Use UI to close contacts sidebar.
+  cwc.window.toggleContactsSidebar();
   close_compose_window(cwc);
 
   gMockPromptService.unregister();

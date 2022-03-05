@@ -215,10 +215,6 @@ toolbarbutton.formatting-button {
 
 /* ::::: address book sidebar ::::: */
 
-.ab-closebutton > .toolbarbutton-icon {
-  margin-inline-end: 0; /* override toolkit's default value */
-}
-
 #compose-toolbox {
   appearance: none;
   border-bottom: 1px solid var(--chrome-content-separator-color);
@@ -260,7 +256,7 @@ toolbar:not(:-moz-lwtheme) {
 
 /* ::::: address book sidebar ::::: */
 
-#sidebar {
+#contactsBrowser {
   background-color: -moz-Dialog;
 }
 

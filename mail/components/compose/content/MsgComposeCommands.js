@@ -467,33 +467,6 @@ function updateEditableFields(aDisable) {
   }
 }
 
-function sidebar_is_hidden() {
-  let sidebar_box = document.getElementById("sidebar-box");
-  return sidebar_box.hidden;
-}
-
-function sidebar_is_collapsed() {
-  let sidebar_splitter = document.getElementById("sidebar-splitter");
-  return (
-    sidebar_splitter && sidebar_splitter.getAttribute("state") == "collapsed"
-  );
-}
-
-function SidebarSetState(aState) {
-  document.getElementById("sidebar-box").hidden = aState != "visible";
-  document.getElementById("sidebar-splitter").hidden = aState == "hidden";
-}
-
-function SidebarGetState() {
-  if (sidebar_is_hidden()) {
-    return "hidden";
-  }
-  if (sidebar_is_collapsed()) {
-    return "collapsed";
-  }
-  return "visible";
-}
-
 /**
  * Small helper function to check whether the node passed in is a signature.
  * Note that a text node is not a DOM element, hence .localName can't be used.
@@ -4185,14 +4158,14 @@ async function ComposeStartup() {
   gEditingDraft = gMsgCompose.compFields.draftId;
 
   // Check if we need to re-open contacts sidebar.
-  let sideBarBox = document.getElementById("sidebar-box");
-  if (sideBarBox.getAttribute("sidebarVisible") == "true") {
+  let contactsSidebar = document.getElementById("contactsSidebar");
+  if (contactsSidebar.getAttribute("sidebarVisible") == "true") {
     // Sidebar is supposed to be visible, so let's ensure it is loaded.
-    if (document.getElementById("sidebar").getAttribute("src") == "") {
+    if (document.getElementById("contactsBrowser").getAttribute("src") == "") {
       // Load contacts sidebar document asynchronously so that we don't hurt
       // performance on bringing up a new compose window. Pass false into
-      // toggleAddressPicker() so that sidebar doesn't get focus.
-      setTimeout(toggleAddressPicker, 0, false);
+      // toggleContactsSidebar() so that sidebar doesn't get focus.
+      setTimeout(toggleContactsSidebar, 0, false);
     }
   }
 
@@ -4642,8 +4615,8 @@ async function ComposeLoad() {
       // #abContactsPanel.
       // NOTE: If focus is within the browser shadow document, then the
       // top.document.activeElement points to the browser, which is below
-      // #sidebar-box.
-      root: document.getElementById("sidebar-box"),
+      // #contactsSidebar.
+      root: document.getElementById("contactsSidebar"),
       focus: focusContactsSidebarSearchInput,
     },
     {
@@ -8950,8 +8923,8 @@ var envelopeDragObserver = {
 
         // Show the #addInline box only if the user is dragging only images and
         // this is not a plain text message.
-        // NOTE: We're using event.dataTransfer.files.lenght instead of
-        // attachments.lenght because we only need to consider images coming
+        // NOTE: We're using event.dataTransfer.files.length instead of
+        // attachments.length because we only need to consider images coming
         // from outside the application. The attachments array might contain
         // files dragged from other compose windows or received message, which
         // should not trigger the inline attachment overlay.
@@ -9142,16 +9115,16 @@ function DisplaySaveFolderDlg(folderURI) {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @param {Element} sideBarBox - The contacts side panel container.
+ * @param {Element} contactsSidebar - The contacts side panel container.
  *
  * @return {boolean} - Whether the peopleSearchInput was focused.
  */
-function focusContactsSidebarSearchInput(sideBarBox) {
-  if (sideBarBox.hidden) {
+function focusContactsSidebarSearchInput(contactsSidebar) {
+  if (contactsSidebar.hidden) {
     return false;
   }
   let input = document
-    .getElementById("sidebar")
+    .getElementById("contactsBrowser")
     .contentDocument.getElementById("peopleSearchInput");
   if (!input) {
     return false;
@@ -9333,10 +9306,6 @@ function moveFocusToNeighbouringArea(event) {
   // Focus is currently outside the gFocusAreas list, so do nothing.
 }
 
-function sidebarCloseButtonOnCommand() {
-  toggleAddressPicker();
-}
-
 /**
  * Show or hide contacts side bar,
  * and optionally focus peopleSearchInput when shown.
@@ -9344,28 +9313,28 @@ function sidebarCloseButtonOnCommand() {
  * @param {Boolean} aFocus  Whether to focus peopleSearchInput after the sidebar
  *                          is shown. If omitted, defaults to true.
  */
-function toggleAddressPicker(aFocus = true) {
+function toggleContactsSidebar(aFocus = true) {
   // Caveat: This function erroneously assumes that only abContactsPanel can
   // be shown in the sidebar browser, so it will fail if any other src is shown
   // as we do not reliably enforce abContactsPanel.xhtml as src of the sidebar
   // <browser>. Currently we don't show anything else in the sidebar, but
   // add-ons might.
-  let sidebarBox = document.getElementById("sidebar-box");
-  let sidebarSplitter = document.getElementById("sidebar-splitter");
-  let sidebar = document.getElementById("sidebar");
+  let contactsSidebar = document.getElementById("contactsSidebar");
+  let contactsSplitter = document.getElementById("contactsSplitter");
+  let contactsBrowser = document.getElementById("contactsBrowser");
   let sidebarAddrMenu = document.getElementById("menu_AddressSidebar");
   let contactsButton = document.getElementById("button-contacts");
 
-  if (sidebarBox.hidden) {
+  if (contactsSidebar.hidden) {
     // Show contacts sidebar.
-    sidebarBox.hidden = false;
-    sidebarSplitter.hidden = false;
+    contactsSidebar.hidden = false;
+    contactsSplitter.hidden = false;
     sidebarAddrMenu.setAttribute("checked", "true");
     if (contactsButton) {
       contactsButton.setAttribute("checked", "true");
     }
 
-    let sidebarUrl = sidebar.getAttribute("src");
+    let sidebarUrl = contactsBrowser.getAttribute("src");
     // If we have yet to initialize the src URL on the sidebar, then go ahead
     // and do so now... We do this lazily here, so we don't spend time when
     // bringing up the compose window loading the address book data sources.
@@ -9382,20 +9351,20 @@ function toggleAddressPicker(aFocus = true) {
       if (aFocus) {
         url += "?focus";
       }
-      sidebar.setAttribute("src", url);
+      contactsBrowser.setAttribute("src", url);
     } else if (aFocus) {
       // sidebarUrl already set, so we can focus immediately if applicable.
-      focusContactsSidebarSearchInput(sidebarBox);
+      focusContactsSidebarSearchInput(contactsSidebar);
     }
-    sidebarBox.setAttribute("sidebarVisible", "true");
+    contactsSidebar.setAttribute("sidebarVisible", "true");
   } else {
     // Before closing, check if the focus was within the contacts sidebar.
-    let sidebarFocussed = sidebarBox.contains(document.activeElement);
+    let sidebarFocussed = contactsSidebar.contains(document.activeElement);
 
     // Hide contacts sidebar.
-    sidebarBox.hidden = true;
-    sidebarSplitter.hidden = true;
-    sidebarBox.setAttribute("sidebarVisible", "false");
+    contactsSidebar.hidden = true;
+    contactsSplitter.hidden = true;
+    contactsSidebar.setAttribute("sidebarVisible", "false");
     sidebarAddrMenu.removeAttribute("checked");
     if (contactsButton) {
       contactsButton.removeAttribute("checked");
