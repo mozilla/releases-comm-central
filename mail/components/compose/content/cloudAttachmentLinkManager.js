@@ -505,7 +505,7 @@ var gCloudAttachmentLinkManager = {
    * @param {Document} aDocument - the document to insert the item into
    * @param {CloudFileTemplate} aCloudFileUpload - object with information about
    *   the uploaded file
-   * @param {} composeHTML - override gMsgCompose.composeHTML
+   * @param {boolean} composeHTML - override gMsgCompose.composeHTML
    */
   async _createNode(
     aDocument,

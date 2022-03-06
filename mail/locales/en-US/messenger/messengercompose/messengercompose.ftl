@@ -235,7 +235,7 @@ compose-tool-button-remove-text-styling =
 
 ## Filelink
 
-# An text used in a tooltip of Filelink attachments, whose account has been
+# A text used in a tooltip of Filelink attachments, whose account has been
 # removed or is unknown.
 cloud-file-unknown-account-tooltip = Uploaded to an unknown Filelink account.
 
@@ -245,7 +245,7 @@ cloud-file-unknown-account-tooltip = Uploaded to an unknown Filelink account.
 # $filename - name of the file
 cloud-file-placeholder-title = { $filename } - Filelink Attachment
 
-# An text describing that the file was attached as a Filelink and can be downloaded
+# A text describing that the file was attached as a Filelink and can be downloaded
 # from the link shown below.
 # $filename - name of the file
 cloud-file-placeholder-intro = The file { $filename } was attached as a Filelink. It can be downloaded from the link below.
