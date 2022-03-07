@@ -980,7 +980,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
           } else {
             oldEtag = null;
           }
-          if (!oldEtag || oldEtag != resp.getetag) {
+          if (!oldEtag || oldEtag != resp.getetag || this.listener) {
             await this.calendar.addTargetCalendarItem(
               resp.href,
               resp.calendardata,

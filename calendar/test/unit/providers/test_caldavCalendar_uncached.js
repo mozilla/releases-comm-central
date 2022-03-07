@@ -59,3 +59,29 @@ add_task(async function testCalendarWithNoPrivSupport() {
 
   Assert.ok(!calendar.readOnly, "calendar was not marked read-only");
 });
+
+/**
+ * Tests modifyItem() does not hang when the server reports no actual
+ * modifications were made.
+ */
+add_task(async function testModifyItemWithNoChanges() {
+  let event = new CalEvent();
+  let calendar = createCalendar("caldav", CalDAVServer.url, false);
+  event.id = "6f6dd7b6-0fbd-39e4-359a-a74c4c3745bb";
+  event.title = "A New Event";
+  event.startDate = cal.createDateTime("20200303T205500Z");
+  event.endDate = cal.createDateTime("20200303T210200Z");
+  await calendar.addItem(event);
+
+  let clone = event.clone();
+  clone.title = "A Modified Event";
+
+  let putItemInternal = CalDAVServer.putItemInternal;
+  CalDAVServer.putItemInternal = () => {};
+
+  let modifiedEvent = await calendar.modifyItem(clone, event);
+  CalDAVServer.putItemInternal = putItemInternal;
+
+  Assert.ok(modifiedEvent, "an event was returned");
+  Assert.equal(modifiedEvent.title, event.title, "the un-modified event is returned");
+});
