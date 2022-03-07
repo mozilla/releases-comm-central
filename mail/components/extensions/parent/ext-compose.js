@@ -666,20 +666,6 @@ var composeAttachmentTracker = {
     return this._attachments.has(id);
   },
 
-  /**
-   * Checks if a download url is used more then once by any of the known cloud
-   * file attachments.
-   *
-   * @param {String} url - download url of a cloud file attachment
-   */
-  isDuplicateUrl(url) {
-    return (
-      Array.from(this._attachments.values()).filter(
-        data => data.attachment.contentLocation == url
-      ).length > 1
-    );
-  },
-
   forgetAttachment(attachment) {
     // This is called on all attachments when the window closes, whether the
     // attachments have been assigned IDs or not.

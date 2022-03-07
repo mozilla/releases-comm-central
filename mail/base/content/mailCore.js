@@ -847,14 +847,9 @@ function SanitizeAttachmentDisplayName(aAttachment) {
  * @param {nsIMsgAttachment[]} attachments - The attachments to setup
  */
 function setupDataTransfer(event, attachments) {
-  // For now, disallow drag-and-drop on cloud attachments. In the future, we
-  // should allow this.
   let index = 0;
   for (let attachment of attachments) {
-    if (
-      attachment.contentType == "text/x-moz-deleted" ||
-      attachment.sendViaCloud
-    ) {
+    if (attachment.contentType == "text/x-moz-deleted") {
       return;
     }
 
@@ -866,23 +861,24 @@ function setupDataTransfer(event, attachments) {
 
     // Only add type/filename info for non-file URLs that don't already
     // have it.
-    let info;
+    let info = [];
     if (/(^file:|&filename=)/.test(attachment.url)) {
-      info = attachment.url;
+      info.push(attachment.url);
     } else {
-      info =
+      info.push(
         attachment.url +
-        "&type=" +
-        attachment.contentType +
-        "&filename=" +
-        encodeURIComponent(name);
+          "&type=" +
+          attachment.contentType +
+          "&filename=" +
+          encodeURIComponent(name)
+      );
+    }
+    info.push(name, attachment.size);
+    if (attachment.sendViaCloud) {
+      info.push(attachment.cloudFileAccountKey, attachment.cloudPartHeaderData);
     }
 
-    event.dataTransfer.mozSetDataAt(
-      "text/x-moz-url",
-      info + "\n" + name + "\n" + attachment.size,
-      index
-    );
+    event.dataTransfer.mozSetDataAt("text/x-moz-url", info.join("\n"), index);
     event.dataTransfer.mozSetDataAt(
       "text/x-moz-url-data",
       attachment.url,

@@ -8640,6 +8640,7 @@ var envelopeDragObserver = {
       let isValidAttachment = false;
       let prettyName;
       let size;
+      let cloudFileInfo;
 
       // We could be dropping an attachment of various flavors OR an address;
       // check and do the right thing.
@@ -8681,6 +8682,12 @@ var envelopeDragObserver = {
           if (pieces.length > 2) {
             size = parseInt(pieces[2]);
           }
+          if (pieces.length > 4) {
+            cloudFileInfo = {
+              cloudFileAccountKey: pieces[3],
+              cloudPartHeaderData: pieces[4],
+            };
+          }
 
           // If this is a URL (or selected text), check if it's a valid URL
           // by checking if we can extract a scheme using Services.io.
@@ -8717,6 +8724,11 @@ var envelopeDragObserver = {
 
         if (size !== undefined) {
           attachment.size = size;
+        }
+
+        if (cloudFileInfo) {
+          attachment.cloudFileAccountKey = cloudFileInfo.cloudFileAccountKey;
+          attachment.cloudPartHeaderData = cloudFileInfo.cloudPartHeaderData;
         }
 
         attachments.push(attachment);
@@ -8803,7 +8815,7 @@ var envelopeDragObserver = {
     gAttachmentBucket.currentItem = focus;
   },
 
-  onDrop(event) {
+  async onDrop(event) {
     this._hideDropOverlay();
 
     let dragSession = gDragService.getCurrentSession();
@@ -8846,7 +8858,30 @@ var envelopeDragObserver = {
       return;
     }
 
-    AddAttachments(attachments);
+    let addedAttachmentItems = AddAttachments(attachments);
+    // Convert attachments back to cloudFiles, if any.
+    for (let attachmentItem of addedAttachmentItems) {
+      if (
+        !attachmentItem.attachment.cloudFileAccountKey ||
+        !attachmentItem.attachment.cloudPartHeaderData
+      ) {
+        continue;
+      }
+      try {
+        let account = cloudFileAccounts.getAccount(
+          attachmentItem.attachment.cloudFileAccountKey
+        );
+        let upload = JSON.parse(
+          atob(attachmentItem.attachment.cloudPartHeaderData)
+        );
+        await UpdateAttachment(attachmentItem, {
+          cloudFileAccount: account,
+          relatedCloudFileUpload: upload,
+        });
+      } catch (ex) {
+        showLocalizedCloudFileAlert(ex);
+      }
+    }
     gAttachmentBucket.focus();
 
     // Stop the propagation only if we actually attached something.

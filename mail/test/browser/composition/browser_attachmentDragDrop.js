@@ -11,12 +11,21 @@
 
 "use strict";
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { CloudFileTestProvider } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+);
+var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+
 var {
   open_compose_new_mail,
   close_compose_window,
   add_attachments,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-
 var {
   mc,
   create_folder,
@@ -29,19 +38,40 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-
 const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
-add_task(function setupModule(module) {
+var gCloudFileProvider;
+var gCloudFileAccount;
+const kFiles = [
+  "./data/attachment.txt",
+  "./data/base64-bug1586890.eml",
+  "./data/base64-encoded-msg.eml",
+  "./data/base64-with-whitespace.eml",
+  "./data/body-greek.eml",
+  "./data/body-utf16.eml",
+];
+
+add_task(async function setupModule(module) {
   gFolderTreeView._tree.focus();
+
+  // Prepare the mock file picker.
+  gMockFilePickReg.register();
+  gMockFilePicker.returnFiles = collectFiles(kFiles);
+
+  // Register an extension based cloudFile provider.
+  gCloudFileProvider = new CloudFileTestProvider("testProvider");
+  await gCloudFileProvider.register(this);
+  gCloudFileAccount = await gCloudFileProvider.createAccount("testAccount");
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(async function teardownModule(module) {
+  gMockFilePickReg.unregister();
+  // Remove the cloudFile account and unregister the provider.
+  await gCloudFileProvider.removeAccount(gCloudFileAccount);
+  await gCloudFileProvider.unregister();
+
   // Work around this test timing out at completion because of focus weirdness.
   window.gFolderDisplay.tree.focus();
 });
@@ -394,21 +424,15 @@ async function drag_between_buckets(srcBucket, destBucket) {
 }
 
 /**
- * Test dragging attachments from one composition window to another.
+ * Test dragging regular attachments from one composition window to another.
  */
 add_task(async function test_drag_and_drop_between_composition_windows() {
   let ctrlSrc = open_compose_new_mail();
   let ctrlDest = open_compose_new_mail();
 
-  let prefix = AppConstants.platform == "win" ? "file:///C:/" : "file:///";
-  add_attachments(ctrlSrc, [
-    `${prefix}compose-file0.txt`,
-    `${prefix}compose-file1.txt`,
-    `${prefix}compose-file2.txt`,
-    `${prefix}compose-file3.txt`,
-    `${prefix}compose-file4.txt`,
-    `${prefix}compose-file5.txt`,
-  ]);
+  // Add attachments (via mocked file picker).
+  await ctrlSrc.window.AttachFile();
+
   let srcAttachmentArea = ctrlSrc.window.document.getElementById(
     "attachmentArea"
   );
@@ -419,10 +443,70 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     "Attachment area is visible and open"
   );
 
-  await drag_between_buckets(
-    ctrlSrc.window.document.getElementById("attachmentBucket"),
-    ctrlDest.window.document.getElementById("attachmentBucket")
+  let srcBucket = ctrlSrc.window.document.getElementById("attachmentBucket");
+  let dstBucket = ctrlDest.window.document.getElementById("attachmentBucket");
+  await drag_between_buckets(srcBucket, dstBucket);
+
+  // Make sure a dragged attachment can be converted to a cloudFile attachment.
+  try {
+    await ctrlSrc.window.UpdateAttachment(dstBucket.childNodes[0], {
+      cloudFileAccount: gCloudFileAccount,
+    });
+    Assert.ok(
+      dstBucket.childNodes[0].attachment.sendViaCloud,
+      "Regular attachment should have been converted to a cloudFile attachment."
+    );
+  } catch (ex) {
+    Assert.ok(
+      false,
+      `Converting a drag'n'dropped regular attachment to a cloudFile attachment should succeed: ${ex.message}`
+    );
+  }
+
+  close_compose_window(ctrlSrc);
+  close_compose_window(ctrlDest);
+});
+
+/**
+ * Test dragging cloudFile attachments from one composition window to another.
+ */
+add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
+  let ctrlSrc = open_compose_new_mail();
+  let ctrlDest = open_compose_new_mail();
+
+  // Add cloudFile attachments (via mocked file picker).
+  await ctrlSrc.window.attachToCloudNew(gCloudFileAccount);
+
+  let srcAttachmentArea = ctrlSrc.window.document.getElementById(
+    "attachmentArea"
   );
+
+  // Wait for attachment area to be visible and open in response.
+  await TestUtils.waitForCondition(
+    () => !srcAttachmentArea.hidden && srcAttachmentArea.open,
+    "Attachment area is visible and open"
+  );
+
+  let srcBucket = ctrlSrc.window.document.getElementById("attachmentBucket");
+  let dstBucket = ctrlDest.window.document.getElementById("attachmentBucket");
+  await drag_between_buckets(srcBucket, dstBucket);
+
+  // Make sure a dragged cloudFile attachment can be converted to a regular
+  // attachment.
+  try {
+    await ctrlSrc.window.UpdateAttachment(dstBucket.childNodes[0], {
+      cloudFileAccount: null,
+    });
+    Assert.ok(
+      !dstBucket.childNodes[0].attachment.sendViaCloud,
+      "CloudFile Attachment should have been converted to a regular attachment."
+    );
+  } catch (ex) {
+    Assert.ok(
+      false,
+      `Converting a drag'n'dropped cloudFile attachment to a regular attachment should succeed: ${ex.message}`
+    );
+  }
 
   close_compose_window(ctrlSrc);
   close_compose_window(ctrlDest);
@@ -468,3 +552,7 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
 
   close_compose_window(ctrlDest);
 });
+
+function collectFiles(files) {
+  return files.map(filename => new FileUtils.File(getTestFilePath(filename)));
+}

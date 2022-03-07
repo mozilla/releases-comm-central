@@ -341,16 +341,32 @@ class CloudFileAccount {
       return false;
     }
 
-    if (!("composeAttachmentTracker" in global)) {
-      extensions.loadModule("compose");
-    }
+    // Find matching url in known uploads and check if it is immutable.
+    let isImmutableUrl = url => {
+      return [...this._uploads.values()].some(u => u.immutable && u.url == url);
+    };
 
-    let immutable = [...this._uploads.values()].some(
-      u => u.immutable && u.url == cloudFileUpload.url
-    );
+    // Check all open windows if the url is used elsewhere.
+    let isDuplicateUrl = url => {
+      let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+      if (composeWindows.length == 0) {
+        return false;
+      }
+      let countsPerWindow = composeWindows.map(window => {
+        let bucket = window.document.getElementById("attachmentBucket");
+        if (!bucket) {
+          return 0;
+        }
+        return [...bucket.childNodes].filter(
+          node => node.attachment.contentLocation == url
+        ).length;
+      });
+
+      return countsPerWindow.reduce((prev, curr) => prev + curr) > 1;
+    };
+
     return (
-      immutable ||
-      global.composeAttachmentTracker.isDuplicateUrl(cloudFileUpload.url)
+      isImmutableUrl(cloudFileUpload.url) || isDuplicateUrl(cloudFileUpload.url)
     );
   }
 
