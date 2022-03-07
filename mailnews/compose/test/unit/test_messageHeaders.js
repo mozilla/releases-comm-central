@@ -455,18 +455,20 @@ async function testContentHeaders() {
   let cloudAttachment = makeAttachment({
     url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
     sendViaCloud: true,
+    htmlAnnotation:
+      "<html><body>This is an html placeholder file.</body></html>",
     cloudFileAccountKey: "akey",
+    cloudPartHeaderData: "0123456789ABCDE",
     name: "attachment.html",
     contentLocation: "http://localhost.invalid/",
   });
   let cloudAttachmentHeaders = {
-    "Content-Type": "application/octet-stream",
+    "Content-Type": "text/html",
     "X-Mozilla-Cloud-Part":
-      "cloudFile; url=http://localhost.invalid/; " +
+      "cloudFile; " +
+      "url=http://localhost.invalid/; " +
       "provider=akey; " +
-      "file=" +
-      cloudAttachment.url +
-      '; name="attachment.html"',
+      'data="0123456789ABCDE"',
   };
   await richCreateMessage(fields, [cloudAttachment], identity);
   checkDraftHeaders(cloudAttachmentHeaders, "2");
@@ -475,18 +477,20 @@ async function testContentHeaders() {
   cloudAttachment = makeAttachment({
     url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
     sendViaCloud: true,
+    htmlAnnotation:
+      "<html><body>This is an html placeholder file.</body></html>",
     cloudFileAccountKey: "akey",
+    cloudPartHeaderData: "0123456789ABCDE",
     name: "ファイル.txt",
     contentLocation: "http://localhost.invalid/",
   });
   cloudAttachmentHeaders = {
-    "Content-Type": "application/octet-stream",
+    "Content-Type": "text/html",
     "X-Mozilla-Cloud-Part":
-      "cloudFile; url=http://localhost.invalid/; " +
+      "cloudFile; " +
+      "url=http://localhost.invalid/; " +
       "provider=akey; " +
-      "file=" +
-      cloudAttachment.url +
-      "; name*=UTF-8''%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%2E%74%78%74",
+      'data="0123456789ABCDE"',
   };
   await richCreateMessage(fields, [cloudAttachment], identity);
   checkDraftHeaders(cloudAttachmentHeaders, "2");
@@ -574,9 +578,9 @@ async function testContentHeaders() {
     },
     "1.2"
   );
-  checkDraftHeaders(cloudAttachmentHeaders, "2");
-  checkDraftHeaders(plainAttachmentHeaders, "3");
-  checkDraftHeaders(httpAttachmentHeaders, "4");
+  checkDraftHeaders(plainAttachmentHeaders, "2");
+  checkDraftHeaders(httpAttachmentHeaders, "3");
+  checkDraftHeaders(cloudAttachmentHeaders, "4");
 
   // Test a request for plain text with text/html.
   fields.forcePlainText = true;
@@ -642,7 +646,10 @@ async function testSentMessage() {
     let cloudAttachment = makeAttachment({
       url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
       sendViaCloud: true,
+      htmlAnnotation:
+        "<html><body>This is an html placeholder file.</body></html>",
       cloudFileAccountKey: "akey",
+      cloudPartHeaderData: "0123456789ABCDE",
       name: "attachment.html",
       contentLocation: "http://localhost.invalid/",
     });
@@ -653,9 +660,8 @@ async function testSentMessage() {
     checkMessageHeaders(
       daemon.post,
       {
-        "Content-Type": "application/octet-stream",
-        "X-Mozilla-Cloud-Part":
-          'cloudFile; url=http://localhost.invalid/; name="attachment.html"',
+        "Content-Type": "text/html",
+        "X-Mozilla-Cloud-Part": "cloudFile; url=http://localhost.invalid/",
       },
       "2"
     );
