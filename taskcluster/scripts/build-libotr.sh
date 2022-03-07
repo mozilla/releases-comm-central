@@ -140,7 +140,7 @@ function build_libotr() {
     case "${_TARGET_OS}" in
         win*)
             cd src
-            "${CC}" -static-libgcc -shared -Wl,-no-undefined ${LDFLAGS} -o libotr.dll \
+            "${CC}" -static-libgcc -s -shared -Wl,-no-undefined ${LDFLAGS} -o libotr.dll \
                 *.o \
                 -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
                 -L"${_LIBDIR}" -lws2_32 -lssp
