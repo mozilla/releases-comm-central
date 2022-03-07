@@ -8,11 +8,7 @@ const ANY_UID = "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
 add_task(function testVCardToAbCard() {
   function check(vCardLine, expectedProps) {
-    const propWhitelist = [
-      "LastModifiedDate",
-      "PopularityIndex",
-      "PreferMailFormat",
-    ];
+    const propWhitelist = ["LastModifiedDate", "PopularityIndex"];
 
     let vCard = `BEGIN:VCARD\r\n${vCardLine}\r\nEND:VCARD\r\n`;
     info(vCard);
@@ -36,16 +32,6 @@ add_task(function testVCardToAbCard() {
   // UID
   check("UID:12345678-1234-1234-1234-123456789012", {
     UID: "12345678-1234-1234-1234-123456789012",
-  });
-
-  // PreferMailFormat
-  check("X-MOZILLA-HTML;VALUE=BOOLEAN:TRUE", {
-    PreferMailFormat: Ci.nsIAbPreferMailFormat.html,
-  });
-
-  // PreferMailFormat
-  check("X-MOZILLA-HTML;VALUE=BOOLEAN:FALSE", {
-    PreferMailFormat: Ci.nsIAbPreferMailFormat.plaintext,
   });
 
   // Name

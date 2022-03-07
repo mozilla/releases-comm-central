@@ -4644,15 +4644,10 @@ nsMsgCompose::DetermineHTMLAction(int32_t aConvertible, int32_t* result) {
     for (uint32_t j = 0; j < nbrRecipients && (allHtml || allPlain); ++j) {
       nsMsgRecipient& recipient = recipientsList[i][j];
       uint32_t preferFormat = nsIAbPreferMailFormat::unknown;
-      if (recipient.mCard) {
-        recipient.mCard->GetPropertyAsUint32(kPreferMailFormatProperty,
-                                             &preferFormat);
-      }
 
       // if we don't have a prefer format for a recipient, check the domain in
       // case we have a format defined for it
-      if (preferFormat == nsIAbPreferMailFormat::unknown &&
-          (!plaintextDomains.IsEmpty() || !htmlDomains.IsEmpty())) {
+      if (!plaintextDomains.IsEmpty() || !htmlDomains.IsEmpty()) {
         int32_t atPos = recipient.mEmail.FindChar('@');
         if (atPos < 0) continue;
 

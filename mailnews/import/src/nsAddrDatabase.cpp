@@ -103,7 +103,6 @@ nsAddrDatabase::nsAddrDatabase()
       m_Custom4ColumnToken(0),
       m_NotesColumnToken(0),
       m_LastModDateColumnToken(0),
-      m_MailFormatColumnToken(0),
       m_PopularityIndexColumnToken(0),
       m_AddressCharSetColumnToken(0) {}
 
@@ -314,8 +313,6 @@ nsresult nsAddrDatabase::InitMDBInfo() {
                                 &m_2ndEmailColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv, kLower2ndEmailColumn,
                                 &m_Lower2ndEmailColumnToken);
-      m_mdbStore->StringToToken(m_mdbEnv, kPreferMailFormatProperty,
-                                &m_MailFormatColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv, kPopularityIndexProperty,
                                 &m_PopularityIndexColumnToken);
       m_mdbStore->StringToToken(m_mdbEnv, kWorkPhoneProperty,

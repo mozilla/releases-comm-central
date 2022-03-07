@@ -8,9 +8,7 @@
  * Tests against cards in different ABs are done in test_collection_2.js.
  */
 
-var nsIAbPMF = Ci.nsIAbPreferMailFormat;
-
-// Source fields (emailHeader/mailFormat) and expected results for use for
+// Source fields (emailHeader) and expected results for use for
 // testing the addition of new addresses to the database.
 //
 // Note: these email addresses should be different to allow collecting an
@@ -21,7 +19,6 @@ var addEmailChecks =
     {
       emailHeader: "test0@foo.invalid",
       primaryEmail: "test0@foo.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -30,7 +27,6 @@ var addEmailChecks =
     {
       emailHeader: "test1@foo.invalid",
       primaryEmail: "test1@foo.invalid",
-      mailFormat: nsIAbPMF.plaintext,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -39,7 +35,6 @@ var addEmailChecks =
     {
       emailHeader: "test2@foo.invalid",
       primaryEmail: "test2@foo.invalid",
-      mailFormat: nsIAbPMF.html,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -49,7 +44,6 @@ var addEmailChecks =
     {
       emailHeader: "test0@\u00D0.invalid",
       primaryEmail: "test0@\u00D0.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -58,7 +52,6 @@ var addEmailChecks =
     {
       emailHeader: "test0\u00D0@foo.invalid",
       primaryEmail: "test0\u00D0@foo.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -68,7 +61,6 @@ var addEmailChecks =
     {
       emailHeader: "invalid\u00D00@aol.com",
       primaryEmail: "invalid\u00D00@aol.com",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -77,7 +69,6 @@ var addEmailChecks =
     {
       emailHeader: "invalid1\u00D00@cs.com",
       primaryEmail: "invalid1\u00D00@cs.com",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -86,7 +77,6 @@ var addEmailChecks =
     {
       emailHeader: "invalid2\u00D00@netscape.net",
       primaryEmail: "invalid2\u00D00@netscape.net",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -96,7 +86,6 @@ var addEmailChecks =
     {
       emailHeader: "Test User <test3@foo.invalid>",
       primaryEmail: "test3@foo.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "Test User",
       firstName: "Test",
       lastName: "User",
@@ -105,7 +94,6 @@ var addEmailChecks =
     {
       emailHeader: "Test <test4@foo.invalid>",
       primaryEmail: "test4@foo.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "Test",
       firstName: "",
       lastName: "",
@@ -115,7 +103,6 @@ var addEmailChecks =
     {
       emailHeader: "Test\u00D0 User <test5@foo.invalid>",
       primaryEmail: "test5@foo.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "Test\u00D0 User",
       firstName: "Test\u00D0",
       lastName: "User",
@@ -124,7 +111,6 @@ var addEmailChecks =
     {
       emailHeader: "Test\u00D0 <test6@foo.invalid>",
       primaryEmail: "test6@foo.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "Test\u00D0",
       firstName: "",
       lastName: "",
@@ -132,7 +118,7 @@ var addEmailChecks =
     },
   ];
 
-// Source fields (emailHeader/mailFormat) and expected results for use for
+// Source fields (emailHeader) and expected results for use for
 // testing the modification of cards in the database.
 //
 // Note: these sets re-use some of the ones for ease of definition.
@@ -142,7 +128,6 @@ var modifyEmailChecks =
     {
       emailHeader: "Modify User\u00D0 <test0@\u00D0.invalid>",
       primaryEmail: "test0@\u00D0.invalid",
-      mailFormat: nsIAbPMF.html,
       displayName: "Modify User\u00D0",
       firstName: "Modify",
       lastName: "User\u00D0",
@@ -151,7 +136,6 @@ var modifyEmailChecks =
     {
       emailHeader: "Modify <test0\u00D0@foo.invalid>",
       primaryEmail: "test0\u00D0@foo.invalid",
-      mailFormat: nsIAbPMF.plaintext,
       displayName: "Modify",
       firstName: "",
       lastName: "",
@@ -161,7 +145,6 @@ var modifyEmailChecks =
     {
       emailHeader: "Modify2 User\u00D02 <test0@\u00D0.invalid>",
       primaryEmail: "test0@\u00D0.invalid",
-      mailFormat: nsIAbPMF.html,
       displayName: "Modify User\u00D0",
       firstName: "Modify",
       lastName: "User\u00D0",
@@ -170,7 +153,6 @@ var modifyEmailChecks =
     {
       emailHeader: "Modify3 <test0\u00D0@foo.invalid>",
       primaryEmail: "test0\u00D0@foo.invalid",
-      mailFormat: nsIAbPMF.plaintext,
       displayName: "Modify",
       firstName: "",
       lastName: "",
@@ -181,8 +163,6 @@ var modifyEmailChecks =
     {
       emailHeader: "Modify User\u00D0 <test0@\u00D0.invalid>",
       primaryEmail: "test0@\u00D0.invalid",
-      mailFormat: nsIAbPMF.plaintext,
-      mailFormatOut: nsIAbPMF.html,
       displayName: "Modify User\u00D0",
       firstName: "Modify",
       lastName: "User\u00D0",
@@ -191,8 +171,6 @@ var modifyEmailChecks =
     {
       emailHeader: "Modify <test0\u00D0@foo.invalid>",
       primaryEmail: "test0\u00D0@foo.invalid",
-      mailFormat: nsIAbPMF.html,
-      mailFormatOut: nsIAbPMF.plaintext,
       displayName: "Modify",
       firstName: "",
       lastName: "",
@@ -203,7 +181,6 @@ var modifyEmailChecks =
       emailHeader: "Modify Secondary <usersec\u00D0@foo.invalid>",
       primaryEmail: "userprim\u00D0@foo.invalid",
       secondEmail: "usersec\u00D0@foo.invalid",
-      mailFormat: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -213,8 +190,6 @@ var modifyEmailChecks =
       emailHeader: "Modify <usersec\u00D0@foo.invalid>",
       primaryEmail: "userprim\u00D0@foo.invalid",
       secondEmail: "usersec\u00D0@foo.invalid",
-      mailFormat: nsIAbPMF.html,
-      mailFormatOut: nsIAbPMF.unknown,
       displayName: "",
       firstName: "",
       lastName: "",
@@ -229,11 +204,7 @@ var collectChecker = {
 
   checkAddress(aDetails) {
     try {
-      this.addressCollect.collectAddress(
-        aDetails.emailHeader,
-        true,
-        aDetails.mailFormat
-      );
+      this.addressCollect.collectAddress(aDetails.emailHeader, true);
 
       this.checkCardResult(aDetails, false);
     } catch (e) {
@@ -262,7 +233,7 @@ var collectChecker = {
       emailHeader += aDetailsArray[aDetailsArray.length - 1].emailHeader;
 
       // Now add it. In this case we just set the Mail format Type to unknown.
-      this.addressCollect.collectAddress(emailHeader, true, nsIAbPMF.unknown);
+      this.addressCollect.collectAddress(emailHeader, true);
 
       for (i = 0; i < aDetailsArray.length; ++i) {
         this.checkCardResult(aDetailsArray[i], true);
@@ -272,7 +243,7 @@ var collectChecker = {
     }
   },
 
-  checkCardResult(aDetails, overrideMailFormat) {
+  checkCardResult(aDetails) {
     try {
       var card = this.AB.cardForEmailAddress(aDetails.primaryEmail);
 
@@ -282,23 +253,6 @@ var collectChecker = {
         Assert.equal(
           card.getProperty("SecondEmail", "BAD"),
           aDetails.secondEmail
-        );
-      }
-
-      if (overrideMailFormat) {
-        Assert.equal(
-          card.getProperty("PreferMailFormat", "BAD"),
-          nsIAbPMF.unknown
-        );
-      } else if ("mailFormatOut" in aDetails) {
-        Assert.equal(
-          card.getProperty("PreferMailFormat", "BAD"),
-          aDetails.mailFormatOut
-        );
-      } else {
-        Assert.equal(
-          card.getProperty("PreferMailFormat", "BAD"),
-          aDetails.mailFormat
         );
       }
 
@@ -337,11 +291,7 @@ function run_test() {
 
   // Test - Addition of header without email address.
 
-  collectChecker.addressCollect.collectAddress(
-    "MyTest <>",
-    true,
-    nsIAbPMF.unknown
-  );
+  collectChecker.addressCollect.collectAddress("MyTest <>", true);
 
   // Address book should have no cards present.
   Assert.equal(collectChecker.AB.childCards.length, 0);
@@ -352,8 +302,7 @@ function run_test() {
   // AB, so just try and collect without adding.
   collectChecker.addressCollect.collectAddress(
     addEmailChecks[0].emailHeader,
-    false,
-    addEmailChecks[0].mailFormat
+    false
   );
 
   var card = collectChecker.AB.cardForEmailAddress(
@@ -416,7 +365,6 @@ function run_test() {
     kSingleAddress,
     kSingleDisplayName,
     true,
-    nsIAbPMF.unknown,
     true
   );
 
@@ -426,7 +374,6 @@ function run_test() {
     kSingleAddress.toUpperCase(),
     kSingleDisplayName,
     true,
-    nsIAbPMF.unknown,
     true
   );
 

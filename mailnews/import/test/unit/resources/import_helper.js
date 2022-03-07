@@ -147,8 +147,7 @@ function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName) {
 
   this.mAbName = aAbName;
   /* Attribute notes:  The attributes listed in the declaration below are
-   * supported by all three text export/import types. PreferMailFormat is only
-   * supported by LDIF.
+   * supported by all three text export/import types.
    * The following are not supported: anniversaryYear, anniversaryMonth,
    * anniversaryDay, popularityIndex, isMailList, mailListURI, lastModifiedDate.
    */
@@ -194,10 +193,7 @@ function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName) {
 
   // get the extra attributes supported for the given type of import
   if (this.mFile.leafName.toLowerCase().endsWith(".ldif")) {
-    // LDIF: add PreferMailFormat
-    this.mSupportedAttributes = supportedAttributes.concat([
-      "PreferMailFormat",
-    ]);
+    this.mSupportedAttributes = supportedAttributes;
   } else if (this.mFile.leafName.toLowerCase().endsWith(".csv")) {
     this.mSupportedAttributes = supportedAttributes;
     this.setFieldMap(this.getDefaultFieldMap(true));

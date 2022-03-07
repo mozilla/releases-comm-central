@@ -1099,13 +1099,12 @@ MessageSend.prototype = {
       "mail.collect_email_address_outgoing",
       false
     );
-    let sendFormat = Ci.nsIAbPreferMailFormat.unknown;
 
     let addressCollector = Cc[
       "@mozilla.org/addressbook/services/addressCollector;1"
     ].getService(Ci.nsIAbAddressCollector);
     for (let recipient of recipients) {
-      addressCollector.collectAddress(recipient, createCard, sendFormat);
+      addressCollector.collectAddress(recipient, createCard);
     }
   },
 

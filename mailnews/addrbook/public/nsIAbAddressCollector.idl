@@ -23,13 +23,8 @@ interface nsIAbAddressCollector : nsISupports {
    *                     to collect into the address book.
    * @param  aCreateCard Set to true if a card should be created if the
    *                     email address doesn't exist.
-   * @param  aSendFormat The send format to save for the card. See
-   *                     nsIAbPreferMailFormat for values. If updating a card
-   *                     this value will only be changed if the current value
-   *                     for the card is "unknown".
    */
-  void collectAddress(in AUTF8String aAddresses, in boolean aCreateCard,
-                      in unsigned long aSendFormat);
+  void collectAddress(in AUTF8String aAddresses, in boolean aCreateCard);
 
   /**
    * Collects a single name and email address into the address book.
@@ -41,16 +36,11 @@ interface nsIAbAddressCollector : nsISupports {
    * @param  aCreateCard    Set to true if a card should be created if the
    *                        email address doesn't exist (ignored if
    *                        aSkipCheckExisting is true).
-   * @param  aSendFormat    The send format to save for the card. See
-   *                        nsIAbPreferMailFormat for values. If updating a card
-   *                        this value will only be changed if the current value
-   *                        for the card is "unknown".
    * @param  aSkipCheckExisting Optional parameter, if this is set then the
    *                            implementation will skip checking for an
    *                            existing card, and just create a new card.
    */
   void collectSingleAddress(in AUTF8String aEmail, in AUTF8String aDisplayName,
                             in boolean aCreateCard,
-                            in unsigned long aSendFormat,
                             [optional] in boolean aSkipCheckExisting);
 };

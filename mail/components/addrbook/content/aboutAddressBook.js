@@ -1681,7 +1681,6 @@ var detailsPane = {
     "NickName",
     "PrimaryEmail",
     "SecondEmail",
-    "PreferMailFormat",
     "WorkPhone",
     "HomePhone",
     "FaxNumber",

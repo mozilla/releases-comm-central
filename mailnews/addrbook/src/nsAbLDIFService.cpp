@@ -547,19 +547,6 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAbDirectory* aDirectory,
       else if (colType.EqualsLiteral("mozillasecondemail"))
         newCard->SetPropertyAsAString(k2ndEmailProperty, value);
 
-      else if (colType.EqualsLiteral("mozillausehtmlmail")) {
-        ToLowerCase(column);
-        if (-1 != column.Find("true"))
-          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
-                                       nsIAbPreferMailFormat::html);
-        else if (-1 != column.Find("false"))
-          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
-                                       nsIAbPreferMailFormat::plaintext);
-        else
-          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
-                                       nsIAbPreferMailFormat::unknown);
-      }
-
       else if (colType.EqualsLiteral("mozillaworkstreet2"))
         newCard->SetPropertyAsAString(kWorkAddress2Property, value);
 
@@ -667,19 +654,6 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAbDirectory* aDirectory,
     case 'x':
       if (colType.EqualsLiteral("xmozillanickname")) {
         newCard->SetPropertyAsAString(kNicknameProperty, value);
-      }
-
-      else if (colType.EqualsLiteral("xmozillausehtmlmail")) {
-        ToLowerCase(column);
-        if (-1 != column.Find("true"))
-          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
-                                       nsIAbPreferMailFormat::html);
-        else if (-1 != column.Find("false"))
-          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
-                                       nsIAbPreferMailFormat::plaintext);
-        else
-          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
-                                       nsIAbPreferMailFormat::unknown);
       }
 
       break;  // 'x'

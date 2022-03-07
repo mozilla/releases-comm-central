@@ -18,7 +18,6 @@ ChromeUtils.defineModuleGetter(
 function AddrBookCard() {
   this._directoryUID = "";
   this._properties = new Map([
-    ["PreferMailFormat", Ci.nsIAbPreferMailFormat.unknown],
     ["PopularityIndex", 0],
     ["LastModifiedDate", 0],
   ]);

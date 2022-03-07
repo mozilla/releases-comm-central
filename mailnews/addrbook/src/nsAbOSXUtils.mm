@@ -100,7 +100,6 @@ const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
     DONT_MAP(Custom3, "custom3", nil, nil)
     DONT_MAP(Custom4, "custom4", nil, nil)
     DEFINE_PROPERTY(Note, kABNoteProperty, nil, nil)
-    DONT_MAP("PreferMailFormat", nil, nil, nil)
     DONT_MAP("LastModifiedDate", modifytimestamp, nil, nil)
 };
 // clang-format on

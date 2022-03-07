@@ -211,8 +211,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("contact", newContact.type);
       browser.test.assertEq(false, newContact.readOnly);
       browser.test.assertEq(false, newContact.remote);
-      browser.test.assertEq(3, Object.keys(newContact.properties).length);
-      browser.test.assertEq("0", newContact.properties.PreferMailFormat);
+      browser.test.assertEq(2, Object.keys(newContact.properties).length);
       browser.test.assertEq("first", newContact.properties.FirstName);
       browser.test.assertEq("last", newContact.properties.LastName);
 
@@ -232,8 +231,7 @@ add_task(async function test_addressBooks() {
       ]);
 
       let updatedContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(3, Object.keys(updatedContact.properties).length);
-      browser.test.assertEq("0", updatedContact.properties.PreferMailFormat);
+      browser.test.assertEq(2, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("first", updatedContact.properties.FirstName);
       browser.test.assertEq(
         "first@last",

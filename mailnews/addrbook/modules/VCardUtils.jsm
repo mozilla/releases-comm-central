@@ -516,37 +516,4 @@ var typeMap = {
   "tel.cell": singleTextProperty("CellularNumber", "tel", { type: "cell" }),
   "url.work": singleTextProperty("WebPage1", "url", { type: "work" }, "url"),
   "url.home": singleTextProperty("WebPage2", "url", { type: "home" }, "url"),
-  "x-mozilla-html": {
-    *fromAbCard(map) {
-      if (!map.has("PreferMailFormat")) {
-        return;
-      }
-      switch (parseInt(map.get("PreferMailFormat"), 10)) {
-        case Ci.nsIAbPreferMailFormat.html:
-          yield ["x-mozilla-html", {}, "boolean", true];
-          break;
-        case Ci.nsIAbPreferMailFormat.plaintext:
-          yield ["x-mozilla-html", {}, "boolean", false];
-          break;
-        default:
-          console.warn(
-            `Unexpected value for PreferMailFormat: ${map.get(
-              "PreferMailFormat"
-            )}`
-          );
-      }
-    },
-    *toAbCard(value) {
-      if (typeof value != "boolean") {
-        console.warn(`Unexpected value for x-mozilla-html: ${value}`);
-        return;
-      }
-      yield [
-        "PreferMailFormat",
-        value
-          ? Ci.nsIAbPreferMailFormat.html
-          : Ci.nsIAbPreferMailFormat.plaintext,
-      ];
-    },
-  },
 };

@@ -141,7 +141,6 @@ class nsAddrDatabase {
   mdb_token m_LowerPriEmailColumnToken;
   mdb_token m_Lower2ndEmailColumnToken;
 
-  mdb_token m_MailFormatColumnToken;
   mdb_token m_PopularityIndexColumnToken;
 
   mdb_token m_AddressCharSetColumnToken;

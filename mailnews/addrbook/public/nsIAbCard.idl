@@ -53,7 +53,6 @@ interface nsIAbPreferMailFormat : nsISupports {
  * - Integral properties:
  *   - LastModifiedDate
  *   - PopularityIndex
- *   - PreferMailFormat (see nsIAbPreferMailFormat)
  * - Photo properties:
  *   - PhotoName
  *   - PhotoType
@@ -310,7 +309,6 @@ interface nsIAbCard : nsISupports {
 #define kDisplayNameProperty        "DisplayName"
 #define kNicknameProperty           "NickName"
 #define kPriEmailProperty           "PrimaryEmail"
-#define kPreferMailFormatProperty   "PreferMailFormat"
 #define kLastModifiedDateProperty   "LastModifiedDate"
 #define kPopularityIndexProperty    "PopularityIndex"
 

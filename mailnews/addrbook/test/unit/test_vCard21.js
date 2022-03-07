@@ -11,11 +11,7 @@ add_task(async () => {
   }
 
   function checkWithCase(vCardLines, expectedProps, lowerCase) {
-    const propWhitelist = [
-      "LastModifiedDate",
-      "PopularityIndex",
-      "PreferMailFormat",
-    ];
+    const propWhitelist = ["LastModifiedDate", "PopularityIndex"];
 
     let vCard = `BEGIN:VCARD\r\nVERSION:2.1\r\n${vCardLines}\r\nEND:VCARD\r\n`;
     if (lowerCase) {

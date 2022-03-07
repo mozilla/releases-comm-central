@@ -14,13 +14,7 @@ var gInbox;
 function add_card(aEmailAddress, aDisplayName) {
   Cc["@mozilla.org/addressbook/services/addressCollector;1"]
     .getService(Ci.nsIAbAddressCollector)
-    .collectSingleAddress(
-      aEmailAddress,
-      aDisplayName,
-      true,
-      Ci.nsIAbPreferMailFormat.unknown,
-      true
-    );
+    .collectSingleAddress(aEmailAddress, aDisplayName, true, true);
 }
 
 function get_card_for_email(aEmailAddress) {

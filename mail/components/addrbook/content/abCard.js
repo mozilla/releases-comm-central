@@ -29,7 +29,6 @@ var kVcardFields = [
   // Contact > Internet
   ["PrimaryEmail", "PrimaryEmail"],
   ["SecondEmail", "SecondEmail"],
-  ["PreferMailFormat", "PreferMailFormat"],
   // Contact > Phones
   ["WorkPhone", "WorkPhone"],
   ["HomePhone", "HomePhone"],
@@ -291,9 +290,6 @@ function OnLoadEditCard() {
         // And the phonetic fields
         document.getElementById(kPhoneticFields[0]).readOnly = true;
         document.getElementById(kPhoneticFields[2]).readOnly = true;
-
-        // Also disable the mail format popup and allow remote content items.
-        document.getElementById("PreferMailFormat").disabled = true;
 
         // And the "prefer display name" checkbox
         document.getElementById("preferDisplayName").disabled = true;
@@ -561,11 +557,6 @@ function GetCardValues(cardproperty, doc) {
   var age = doc.getElementById("Age");
   age.addEventListener("change", calculateYear);
 
-  var popup = document.getElementById("PreferMailFormat");
-  if (popup) {
-    popup.value = cardproperty.getProperty("PreferMailFormat", "");
-  }
-
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
   if (preferDisplayNameEl) {
     // getProperty may return a "1" or "0" string, we want a boolean
@@ -654,11 +645,6 @@ function CheckAndSetCardValues(cardproperty, doc, check) {
   cardproperty.setProperty("BirthDay", birthDay == -1 ? null : birthDay);
   cardproperty.setProperty("BirthMonth", birthMonth == -1 ? null : birthMonth);
   cardproperty.setProperty("BirthYear", birthYear);
-
-  var popup = document.getElementById("PreferMailFormat");
-  if (popup) {
-    cardproperty.setProperty("PreferMailFormat", popup.value);
-  }
 
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
   if (preferDisplayNameEl) {

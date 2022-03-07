@@ -428,7 +428,6 @@ pref("ldap_2.servers.default.attrmap.Custom2", "mozillaCustom2,custom2");
 pref("ldap_2.servers.default.attrmap.Custom3", "mozillaCustom3,custom3");
 pref("ldap_2.servers.default.attrmap.Custom4", "mozillaCustom4,custom4");
 pref("ldap_2.servers.default.attrmap.Notes", "description,notes");
-pref("ldap_2.servers.default.attrmap.PreferMailFormat", "mozillaUseHtmlMail,xmozillausehtmlmail");
 pref("ldap_2.servers.default.attrmap.LastModifiedDate", "modifytimestamp");
 
 pref("ldap_2.user_id", 0);

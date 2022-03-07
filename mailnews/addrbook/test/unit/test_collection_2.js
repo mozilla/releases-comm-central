@@ -6,8 +6,6 @@
  * in other address books.
  */
 
-var nsIAbPMF = Ci.nsIAbPreferMailFormat;
-
 function run_test() {
   // Test - Get the address collector
   loadABFile("data/collect", kPABData.fileName);
@@ -24,11 +22,7 @@ function run_test() {
   // address collector can't currently create ABs itself (bug 314448).
   MailServices.ab.directories;
 
-  addressCollect.collectAddress(
-    "Other Book <other@book.invalid>",
-    true,
-    nsIAbPMF.unknown
-  );
+  addressCollect.collectAddress("Other Book <other@book.invalid>", true);
 
   let PAB = MailServices.ab.getDirectory(kPABData.URI);
 

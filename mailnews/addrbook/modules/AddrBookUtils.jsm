@@ -122,7 +122,6 @@ const exportAttributes = [
   ["PrimaryEmail", 2104],
   ["SecondEmail", 2105],
   ["_AimScreenName", 2136],
-  ["PreferMailFormat", 0],
   ["LastModifiedDate", 0],
   ["WorkPhone", 2106],
   ["WorkPhoneType", 0],
@@ -478,20 +477,7 @@ var AddrBookUtils = {
           let [abPropertyName] = exportAttributes[i];
           let attrName = attrMap.getFirstAttribute(abPropertyName);
           if (attrName) {
-            let attrValue = card.getProperty(abPropertyName, "");
-            if (abPropertyName == "PreferMailFormat") {
-              if (attrValue == "html") {
-                attrValue = "true";
-              } else if (attrValue == "plaintext") {
-                attrValue = "false";
-              }
-              // unknown.
-              else {
-                attrValue = "";
-              }
-            }
-
-            appendProperty(attrName, attrValue);
+            appendProperty(attrName, card.getProperty(abPropertyName, ""));
           }
         }
       }
