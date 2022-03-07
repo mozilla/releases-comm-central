@@ -4,34 +4,35 @@
 
 {
   /**
-   * A widget for dividing and exchanging space between two sibling panes: the
-   * {@link PaneSplitter#resizeElement} and the
-   * {@link PaneSplitter#oppositeElement}. If dragged, the splitter will set a
-   * CSS variable on the parent element, which is named from the id of the
-   * element plus "width" or "height" as appropriate (e.g. --splitter-width).
-   * The variable should be used to set the width/height of the resizeElement,
-   * whilst the oppositeElement should occupy the remaining space.
-   *
+   * A widget for adjusting the size of its {@link PaneSplitter#resizeElement}.
    * By default, the splitter will resize the height of the resizeElement, but
    * this can be changed using the "resize-direction" attribute.
    *
-   * This element fires a "splitter-resizing" event as dragging begins, and
-   * "splitter-resized" when it ends.
+   * If dragged, the splitter will set a CSS variable on the parent element,
+   * which is named from the id of the element plus "width" or "height" as
+   * appropriate (e.g. --splitter-width). The variable should be used to set the
+   * border-area width or height of the resizeElement.
+   *
+   * Often, you will want to naturally limit the size of the resizeElement to
+   * prevent it exceeding its min or max size bounds, and to remain within the
+   * available space of its container. One way to do this is to use a grid
+   * layout on the container and size the resizeElement's row with
+   * "minmax(auto, --splitter-height)", or similar for the column when adjusting
+   * the width.
+   *
+   * This splitter element fires a "splitter-resizing" event as dragging begins,
+   * and "splitter-resized" when it ends.
    *
    * The resizeElement can be collapsed and expanded. Whilst collapsed, the CSS
    * visibility of the resizeElement is set to "collapse" and the "--<id>-width"
    * or "--<id>-height" CSS variable, will be be set to "0px". The
    * "splitter-collapsed" and "splitter-expanded" events are fired as
-   * appropriate. If the splitter has a "min-width" or "min-height" attribute,
-   * collapsing and expanding happens automatically when below the minimum size.
+   * appropriate. If the splitter has a "collapse-width" or "collapse-height"
+   * attribute, collapsing and expanding happens automatically when below the
+   * given size.
    */
   class PaneSplitter extends HTMLHRElement {
-    static observedAttributes = [
-      "resize-direction",
-      "resize-id",
-      "opposite-id",
-      "id",
-    ];
+    static observedAttributes = ["resize-direction", "resize-id", "id"];
 
     connectedCallback() {
       this.addEventListener("mousedown", this);
@@ -50,15 +51,6 @@
             this.resizeElement = null;
           } else if (newValue != null && newValue != this.resizeElement?.id) {
             this.resizeElement = this.ownerDocument.getElementById(newValue);
-          }
-          break;
-        case "opposite-id":
-          // Make sure we don't loop when opposite-id is set in the
-          // oppositeElement setter.
-          if (newValue == null && this.oppositeElement) {
-            this.oppositeElement = null;
-          } else if (newValue != null && newValue != this.oppositeElement?.id) {
-            this.oppositeElement = this.ownerDocument.getElementById(newValue);
           }
           break;
         case "id":
@@ -133,41 +125,6 @@
       this._updateStyling();
     }
 
-    _oppositeElement = null;
-
-    /**
-     * The element that resizeElement exchanges space with. It must have a set
-     * id.
-     *
-     * A set "min-width" or "min-height" style on this element will limit the
-     * growth of the resizeElement. If such styles are set, the element should
-     * also use "box-sizing: border-box".
-     *
-     * If the "opposite-id" attribute is set, it will be used to choose this
-     * element by its id.
-     *
-     * @type {?HTMLElement}
-     */
-    get oppositeElement() {
-      return this._oppositeElement;
-    }
-
-    set oppositeElement(element) {
-      if (!element?.id) {
-        element = null;
-      }
-      if (element == this._oppositeElement) {
-        return;
-      }
-      this.endResize();
-      this._oppositeElement = element;
-      if (element) {
-        this.setAttribute("opposite-id", element.id);
-      } else {
-        this.removeAttribute("opposite-id");
-      }
-    }
-
     _width = null;
 
     /**
@@ -181,13 +138,16 @@
      *
      * Use this value in persistent storage.
      *
-     * @type {?integer}
+     * @type {?number}
      */
     get width() {
       return this._width;
     }
 
     set width(width) {
+      if (width == this._width) {
+        return;
+      }
       this._width = width;
       this._updateStyling();
     }
@@ -205,15 +165,65 @@
      *
      * Use this value in persistent storage.
      *
-     * @type {?integer}
+     * @type {?number}
      */
     get height() {
       return this._height;
     }
 
     set height(height) {
+      if (height == this._height) {
+        return;
+      }
       this._height = height;
       this._updateStyling();
+    }
+
+    /**
+     * Update the width or height of the splitter, depending on its
+     * resizeDirection.
+     *
+     * If a trySize is given, the width or height of the splitter will be set to
+     * the given value, before being set to the actual size of the
+     * resizeElement. This acts as an automatic bounding process, without
+     * knowing the details of the layout and its constraints.
+     *
+     * If no trySize is given, then the width and height will be set to the
+     * actual size of the resizeElement.
+     *
+     * @param {?number} [trySize] - The size to try and achieve.
+     */
+    _updateSize(trySize) {
+      let vertical = this.resizeDirection == "vertical";
+      if (trySize != undefined) {
+        if (vertical) {
+          this.height = trySize;
+        } else {
+          this.width = trySize;
+        }
+      }
+      // Now that the width and height are updated, we fetch the size the
+      // element actually took.
+      let actual = this._getActualResizeSize();
+      if (vertical) {
+        this.height = actual;
+      } else {
+        this.width = actual;
+      }
+    }
+
+    /**
+     * Get the actual size of the resizeElement, regardless of the current
+     * width or height property values.
+     *
+     * @return {number} - The border area size of the resizeElement.
+     */
+    _getActualResizeSize() {
+      let resizeRect = this.resizeElement.getBoundingClientRect();
+      if (this.resizeDirection == "vertical") {
+        return resizeRect.height;
+      }
+      return resizeRect.width;
     }
 
     /**
@@ -329,46 +339,18 @@
     }
 
     _onMouseDown(event) {
-      if (!this.resizeElement || !this.oppositeElement) {
+      if (!this.resizeElement) {
         return;
       }
-
       if (event.buttons != 1) {
         return;
       }
 
       let vertical = this.resizeDirection == "vertical";
-
-      // We can only consume the available size occupied by the opposite
-      // element.
-      // NOTE: The following only works under a number of assumptions,
-      // including:
-      //  + There is no margins on the two elements, such that their border
-      //    boxes match their occupying size in the parent layout.
-      //  + The opposite element's min-height or min-width styles, if defined,
-      //    have pixel values that correspond to their actual possible minimum
-      //    size in the parent's layout. As such:
-      //     + The opposite element should use box-sizing: border-box.
-      //     + The style must be the only relevant limiting sizing effects. For
-      //       example, a grid-template where minmax(500px, 1fr) applies to the
-      //       element would break this assumption.
-      let resizeRect = this.resizeElement.getBoundingClientRect();
-      let oppositeRect = this.oppositeElement.getBoundingClientRect();
-      let jointSize = vertical
-        ? resizeRect.height + oppositeRect.height
-        : resizeRect.width + oppositeRect.width;
-      let oppositeMinSize = getComputedStyle(this.oppositeElement)[
-        vertical ? "min-height" : "min-width"
-      ];
-      let minSize = this.getAttribute(vertical ? "min-height" : "min-width");
-
-      let min =
-        minSize == null ? 0 : Math.min(jointSize, parseInt(minSize, 10));
-      let max =
-        oppositeMinSize == "auto"
-          ? jointSize
-          : Math.max(min, jointSize - parseInt(oppositeMinSize, 10));
-
+      let collapseSize =
+        Number(
+          this.getAttribute(vertical ? "collapse-height" : "collapse-width")
+        ) || 0;
       let ltrDir = this.parentNode.matches(":dir(ltr)");
 
       this._dragStartInfo = {
@@ -380,9 +362,8 @@
         negative: vertical
           ? this._beforeElement
           : this._beforeElement == ltrDir,
-        size: vertical ? resizeRect.height : resizeRect.width,
-        min,
-        max,
+        size: this._getActualResizeSize(),
+        collapseSize,
       };
 
       event.preventDefault();
@@ -432,8 +413,7 @@
         negative,
         pos,
         size,
-        min,
-        max,
+        collapseSize,
       } = this._dragStartInfo;
 
       let delta = (vertical ? event.clientY : event.clientX) - pos;
@@ -452,8 +432,8 @@
       }
 
       size += delta;
-      if (min) {
-        let pastCollapseThreshold = size < min - 20;
+      if (collapseSize) {
+        let pastCollapseThreshold = size < collapseSize - 20;
         if (wasCollapsed) {
           if (!pastCollapseThreshold) {
             this._dragStartInfo.wasCollapsed = false;
@@ -467,8 +447,9 @@
         }
 
         this.expand();
+        size = Math.max(size, collapseSize);
       }
-      this[vertical ? "height" : "width"] = Math.min(Math.max(size, min), max);
+      this._updateSize(Math.max(0, size));
     }
 
     _onMouseUp(event) {
@@ -493,6 +474,9 @@
       document.documentElement.style.pointerEvents = null;
       document.documentElement.style.cursor = null;
       this.classList.remove("splitter-resizing");
+
+      // Make sure our property corresponds to the actual final size.
+      this._updateSize();
 
       if (didStart) {
         this.dispatchEvent(

@@ -21,7 +21,7 @@
 
     #horizontal-before {
       display: grid;
-      grid-template-columns: var(--splitter1-width) 0 auto;
+      grid-template-columns: minmax(auto, var(--splitter1-width)) 0 auto;
       width: 500px;
       height: 100px;
       --splitter1-width: 200px;
@@ -30,7 +30,7 @@
 
     #horizontal-after {
       display: grid;
-      grid-template-columns: auto 0 var(--splitter2-width);
+      grid-template-columns: auto 0 minmax(auto, var(--splitter2-width));
       width: 500px;
       height: 100px;
       --splitter2-width: 200px;
@@ -39,7 +39,7 @@
 
     #vertical-before {
       display: inline-grid;
-      grid-template-rows: var(--splitter3-height) 0 auto;
+      grid-template-rows: minmax(auto, var(--splitter3-height)) 0 auto;
       width: 100px;
       height: 500px;
       --splitter3-height: 200px;
@@ -48,7 +48,7 @@
 
     #vertical-after {
       display: inline-grid;
-      grid-template-rows: auto 0 var(--splitter4-height);
+      grid-template-rows: auto 0 minmax(auto, var(--splitter4-height));
       width: 100px;
       height: 500px;
       --splitter4-height: 200px;
@@ -85,7 +85,6 @@
     window.addEventListener("load", () => {
       for (let splitter of document.querySelectorAll('hr[is="pane-splitter"]')) {
         splitter.resizeElement = splitter.parentNode.querySelector(".resized");
-        splitter.oppositeElement = splitter.parentNode.querySelector(".fill");
       }
     });
   </script>

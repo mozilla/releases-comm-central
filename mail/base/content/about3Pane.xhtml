@@ -58,16 +58,14 @@
   <hr is="pane-splitter" id="splitter1"
       resize-direction="horizontal"
       resize-id="folderTreePane"
-      opposite-id="threadTreePane"
-      min-width="200" />
+      collapse-width="200" />
   <div id="threadTreePane">
     <tree-view-listbox id="threadTree" rows="thread-listrow"></tree-view-listbox>
   </div>
   <hr is="pane-splitter" id="splitter2"
       resize-id="messageBrowserPane"
-      opposite-id="threadTreePane"
-      min-width="200"
-      min-height="200" />
+      collapse-width="200"
+      collapse-height="200" />
   <div id="messageBrowserPane">
     <xul:browser id="webBrowser"
                  type="content"

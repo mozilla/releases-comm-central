@@ -22,43 +22,59 @@ let expandedEvents = 0;
 let testRunner = {
   outer: null, // The container for the splitter and panes.
   splitter: null, // The splitter.
+  resizedIsBefore: null, // Whether resized is before the splitter.
   resized: null, // The pane the splitter controls the size of.
   fill: null, // The pane that splitter doesn't control.
-  before: null, // The pane to the left/top of outer.
-  after: null, // The pane to right/bottom of outer.
   dimension: null, // Which dimension the splitter resizes.
 
-  get sizeProperty() {
-    return this.dimension == "width" ? "clientWidth" : "clientHeight";
+  getSize(element) {
+    return element.getBoundingClientRect()[this.dimension];
   },
 
-  get minSizeAttribute() {
-    return this.dimension == "width" ? "min-width" : "min-height";
+  assertElementSizes(size, msg = "") {
+    Assert.equal(
+      this.getSize(this.resized),
+      size,
+      `Resized element should take up the expected ${this.dimension}: ${msg}`
+    );
+    Assert.equal(
+      this.getSize(this.fill),
+      500 - size,
+      `Fill element should take up the rest of the ${this.dimension}: ${msg}`
+    );
+  },
+
+  assertSplitterSize(size, msg = "") {
+    Assert.equal(
+      this.splitter[this.dimension],
+      size,
+      `Splitter ${this.dimension} should match expected ${size}: ${msg}`
+    );
   },
 
   get minSizeProperty() {
     return this.dimension == "width" ? "minWidth" : "minHeight";
   },
 
-  setMinSizeOnResized(size) {
-    this.splitter.setAttribute(this.minSizeAttribute, size);
+  get maxSizeProperty() {
+    return this.dimension == "width" ? "maxWidth" : "maxHeight";
   },
 
-  clearMinSizeOnResized() {
-    this.splitter.removeAttribute(this.minSizeAttribute);
+  get collapseSizeAttribute() {
+    return this.dimension == "width" ? "collapse-width" : "collapse-height";
   },
 
-  setMinSizeOnFill(size) {
-    this.fill.style[this.minSizeProperty] = size + "px";
+  setCollapseSize(size) {
+    this.splitter.setAttribute(this.collapseSizeAttribute, size);
   },
 
-  clearMinSizeOnFill() {
-    this.fill.style[this.minSizeProperty] = null;
+  clearCollapseSize() {
+    this.splitter.removeAttribute(this.collapseSizeAttribute);
   },
 
   async synthMouse(position, type = "mousemove", otherPosition = 50) {
     let x, y;
-    if (this.before != this.resized) {
+    if (!this.resizedIsBefore) {
       position = 500 - position;
     }
     if (this.dimension == "width") {
@@ -111,12 +127,14 @@ add_task(async function testHorizontalBefore() {
 
   testRunner.outer = outer;
   testRunner.splitter = splitter;
-  testRunner.resized = testRunner.before = resized;
-  testRunner.fill = testRunner.after = fill;
+  testRunner.resizedIsBefore = true;
+  testRunner.resized = resized;
+  testRunner.fill = fill;
   testRunner.dimension = "width";
 
   await subtestDrag();
-  await subtestDragMinSize();
+  await subtestDragSizeBounds();
+  await subtestDragAutoCollapse();
   await subtestCollapseExpand();
 });
 
@@ -132,12 +150,14 @@ add_task(async function testHorizontalAfter() {
 
   testRunner.outer = outer;
   testRunner.splitter = splitter;
-  testRunner.resized = testRunner.after = resized;
-  testRunner.fill = testRunner.before = fill;
+  testRunner.resizedIsBefore = false;
+  testRunner.resized = resized;
+  testRunner.fill = fill;
   testRunner.dimension = "width";
 
   await subtestDrag();
-  await subtestDragMinSize();
+  await subtestDragSizeBounds();
+  await subtestDragAutoCollapse();
   await subtestCollapseExpand();
 });
 
@@ -153,12 +173,14 @@ add_task(async function testVerticalBefore() {
 
   testRunner.outer = outer;
   testRunner.splitter = splitter;
-  testRunner.resized = testRunner.before = resized;
-  testRunner.fill = testRunner.after = fill;
+  testRunner.resizedIsBefore = true;
+  testRunner.resized = resized;
+  testRunner.fill = fill;
   testRunner.dimension = "height";
 
   await subtestDrag();
-  await subtestDragMinSize();
+  await subtestDragSizeBounds();
+  await subtestDragAutoCollapse();
   await subtestCollapseExpand();
 });
 
@@ -170,8 +192,9 @@ add_task(async function testVerticalAfter() {
 
   testRunner.outer = outer;
   testRunner.splitter = splitter;
-  testRunner.resized = testRunner.after = resized;
-  testRunner.fill = testRunner.before = fill;
+  testRunner.resizedIsBefore = false;
+  testRunner.resized = resized;
+  testRunner.fill = fill;
   testRunner.dimension = "height";
 
   Assert.equal(fill.clientHeight, 300);
@@ -179,7 +202,8 @@ add_task(async function testVerticalAfter() {
   Assert.equal(win.getComputedStyle(splitter).cursor, "ns-resize");
 
   await subtestDrag();
-  await subtestDragMinSize();
+  await subtestDragSizeBounds();
+  await subtestDragAutoCollapse();
   await subtestCollapseExpand();
 });
 
@@ -188,9 +212,7 @@ async function subtestDrag() {
   resizingEvents = 0;
   resizedEvents = 0;
 
-  let { resized, fill, sizeProperty } = testRunner;
-
-  let originalPosition = resized[sizeProperty];
+  let originalPosition = testRunner.getSize(testRunner.resized);
   let position = 200;
 
   await testRunner.synthMouse(position, "mousedown");
@@ -215,28 +237,24 @@ async function subtestDrag() {
   // Drag in steps to the left-hand/top end.
   for (; position >= 0; position -= 50) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], position);
-    Assert.equal(fill[sizeProperty], 500 - position);
+    testRunner.assertElementSizes(position);
   }
 
   // Drag beyond the left-hand/top end.
   position = -50;
   await testRunner.synthMouse(position);
-  Assert.equal(resized[sizeProperty], 0);
-  Assert.equal(fill[sizeProperty], 500);
+  testRunner.assertElementSizes(0);
 
   // Drag in steps to the right-hand/bottom end.
   for (let position = 0; position <= 500; position += 50) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], position);
-    Assert.equal(fill[sizeProperty], 500 - position);
+    testRunner.assertElementSizes(position);
   }
 
   // Drag beyond the right-hand/bottom end.
   position = 550;
   await testRunner.synthMouse(position);
-  Assert.equal(resized[sizeProperty], 500);
-  Assert.equal(fill[sizeProperty], 0);
+  testRunner.assertElementSizes(500);
 
   // Drop.
   position = 400;
@@ -244,8 +262,7 @@ async function subtestDrag() {
   Assert.equal(resizedEvents, 0, "no resized events fired");
   await testRunner.synthMouse(position);
   await testRunner.synthMouse(position, "mouseup");
-  Assert.equal(resized[sizeProperty], 400);
-  Assert.equal(fill[sizeProperty], 100);
+  testRunner.assertElementSizes(400);
   Assert.equal(resizingEvents, 1, "no more resizing events fired");
   Assert.equal(resizedEvents, 1, "a resized event fired");
 
@@ -261,40 +278,134 @@ async function subtestDrag() {
   Assert.equal(resizingEvents, 2, "a resizing event fired");
   Assert.equal(resizedEvents, 1, "no more resized events fired");
   await testRunner.synthMouse(position, "mouseup");
-  Assert.equal(resized[sizeProperty], originalPosition);
-  Assert.equal(fill[sizeProperty], 500 - originalPosition);
+  testRunner.assertElementSizes(originalPosition);
   Assert.equal(resizingEvents, 2, "no more resizing events fired");
   Assert.equal(resizedEvents, 2, "a resized event fired");
 }
 
-async function subtestDragMinSize() {
-  info("subtestDragMinSize");
-  testRunner.setMinSizeOnResized(78);
-  testRunner.setMinSizeOnFill(123);
+async function subtestDragSizeBounds() {
+  info("subtestDragSizeBounds");
+
+  let {
+    splitter,
+    resized,
+    fill,
+    minSizeProperty,
+    maxSizeProperty,
+  } = testRunner;
+
+  // Various min or max sizes to set on the resized and fill elements.
+  // NOTE: the sum of the max sizes is greater than 500px.
+  // Moreover, the resized element's min size is below 200px, and the max size
+  // above it. Similarly, the fill element's min size is below 300px. This
+  // ensures that the initial sizes of 200px and 300px are within their
+  // respective min-max bounds.
+  // NOTE: We do not set a max size on the fill element. The grid layout does
+  // not handle this. Nor is it an expected usage of the splitter.
+  for (let [minResized, min] of [
+    [null, 0],
+    ["100.5px", 100.5],
+  ]) {
+    for (let [maxResized, expectMax1] of [
+      [null, 500],
+      ["360px", 360],
+    ]) {
+      for (let [minFill, expectMax2] of [
+        [null, 500],
+        ["148px", 352],
+      ]) {
+        info(`Bounds [${minResized}, ${maxResized}] and [${minFill}, none]`);
+        let max = Math.min(expectMax1, expectMax2);
+        info(`Overall bound [${min}px, ${max}px]`);
+
+        // Construct a set of positions we are interested in.
+        let roundMin = Math.floor(min);
+        let roundMax = Math.ceil(max);
+        let positionSet = [-50, 150, 350, 550];
+        // Include specific positions around the minimum and maximum points.
+        positionSet.push(roundMin - 1, roundMin, roundMin + 1);
+        positionSet.push(roundMax - 1, roundMax, roundMax + 1);
+        positionSet.sort();
+
+        // Reset the splitter.
+        splitter.width = null;
+        splitter.height = null;
+
+        resized.style[minSizeProperty] = minResized;
+        resized.style[maxSizeProperty] = maxResized;
+        fill.style[minSizeProperty] = minFill;
+
+        testRunner.assertElementSizes(200, "initial position");
+        await testRunner.synthMouse(200, "mousedown");
+
+        for (let position of positionSet) {
+          await testRunner.synthMouse(position);
+          let size = Math.min(Math.max(position, min), max);
+          testRunner.assertElementSizes(size, `Moved forward to ${position}`);
+          testRunner.assertSplitterSize(size, `Moved forward to ${position}`);
+        }
+
+        await testRunner.synthMouse(500);
+        await testRunner.synthMouse(500, "mouseup");
+        testRunner.assertElementSizes(max, "positioned at max");
+        testRunner.assertSplitterSize(max, "positioned at max");
+
+        // Reverse.
+        await testRunner.synthMouse(max, "mousedown");
+
+        for (let position of positionSet.reverse()) {
+          await testRunner.synthMouse(position);
+          let size = Math.min(Math.max(position, min), max);
+          testRunner.assertElementSizes(size, `Moved backward to ${position}`);
+          testRunner.assertSplitterSize(size, `Moved backward to ${position}`);
+        }
+
+        await testRunner.synthMouse(0);
+        await testRunner.synthMouse(0, "mouseup");
+        testRunner.assertElementSizes(min, "positioned at min");
+        testRunner.assertSplitterSize(min, "positioned at min");
+      }
+    }
+  }
+
+  // Reset.
+  splitter.width = null;
+  splitter.height = null;
+  resized.style[minSizeProperty] = null;
+  resized.style[maxSizeProperty] = null;
+  fill.style[minSizeProperty] = null;
+}
+
+async function subtestDragAutoCollapse() {
+  info("subtestDragAutoCollapse");
+  testRunner.setCollapseSize(78);
 
   collapsedEvents = 0;
   expandedEvents = 0;
 
-  let { splitter, resized, fill, sizeProperty } = testRunner;
+  let { splitter } = testRunner;
 
   let originalPosition = 200;
-  let position = 200;
 
   // Drag in steps toward the left-hand/top end.
-  await testRunner.synthMouse(position, "mousedown");
+  await testRunner.synthMouse(200, "mousedown");
   for (let position of [180, 160, 140, 120, 100, 80, 78]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], position);
-    Assert.equal(fill[sizeProperty], 500 - position);
-    Assert.ok(!splitter.isCollapsed);
+    testRunner.assertElementSizes(
+      position,
+      `Should have ${position} size at ${position}`
+    );
+    Assert.ok(!splitter.isCollapsed, `Should not be collapsed at ${position}`);
   }
 
   // For the first 20 pixels inside the minimum size, nothing happens.
   for (let position of [74, 68, 64, 60, 58]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], 78);
-    Assert.equal(fill[sizeProperty], 422);
-    Assert.ok(!splitter.isCollapsed);
+    testRunner.assertElementSizes(
+      78,
+      `Should be at collapse-size at ${position}`
+    );
+    Assert.ok(!splitter.isCollapsed, `Should not be collapsed at ${position}`);
   }
 
   // Then the pane collapses.
@@ -302,23 +413,26 @@ async function subtestDragMinSize() {
   Assert.equal(collapsedEvents, 1, "collapsed event fired");
   for (let position of [57, 55, 51, 40, 20, 0, -20]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], 0);
-    Assert.equal(fill[sizeProperty], 500);
-    Assert.ok(splitter.isCollapsed);
+    testRunner.assertElementSizes(0, `Should have no size at ${position}`);
+    Assert.ok(splitter.isCollapsed, `Should be collapsed at ${position}`);
   }
 
-  await testRunner.synthMouse(position, "mouseup");
-  Assert.equal(resized[sizeProperty], 0);
-  Assert.equal(fill[sizeProperty], 500);
-  Assert.ok(splitter.isCollapsed);
+  await testRunner.synthMouse(-20, "mouseup");
+  testRunner.assertElementSizes(
+    0,
+    "Should be at min size after releasing mouse"
+  );
+  Assert.ok(splitter.isCollapsed, "Should be collapsed after releasing mouse");
 
   // Drag it from the collapsed state.
   await testRunner.synthMouse(0, "mousedown");
   for (let position of [0, 8, 16, 19]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], 0);
-    Assert.equal(fill[sizeProperty], 500);
-    Assert.ok(splitter.isCollapsed);
+    testRunner.assertElementSizes(
+      0,
+      `Should still have no size at ${position}`
+    );
+    Assert.ok(splitter.isCollapsed, `Should still be collapsed at ${position}`);
   }
 
   // Then the pane expands. For the first 20 pixels, nothing happens.
@@ -326,37 +440,38 @@ async function subtestDragMinSize() {
   Assert.equal(expandedEvents, 1, "expanded event fired");
   for (let position of [40, 60, 78]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], 78);
-    Assert.equal(fill[sizeProperty], 422);
-    Assert.ok(!splitter.isCollapsed);
+    testRunner.assertElementSizes(
+      78,
+      `Should expand to collapse-size at ${position}`
+    );
+    Assert.ok(
+      !splitter.isCollapsed,
+      `Should no longer be collapsed at ${position}`
+    );
   }
 
-  for (let position of [79, 100, 120]) {
+  for (let position of [79, 100, 120, 200, 250, 300, 400, 450]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], position);
-    Assert.equal(fill[sizeProperty], 500 - position);
-    Assert.ok(!splitter.isCollapsed);
+    testRunner.assertElementSizes(
+      position,
+      `Should have ${position} size at ${position}`
+    );
+    Assert.ok(!splitter.isCollapsed, `Should not be collapsed at ${position}`);
   }
 
-  // Drag in steps to the right-hand/bottom end.
-  for (; position <= 377; position += 50) {
-    await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], position);
-    Assert.equal(fill[sizeProperty], 500 - position);
-  }
-
-  for (; position <= 550; position += 50) {
-    await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], 377);
-    Assert.equal(fill[sizeProperty], 123);
-  }
-
-  await testRunner.synthMouse(position, "mouseup");
-  Assert.equal(resized[sizeProperty], 377);
-  Assert.equal(fill[sizeProperty], 123);
+  await testRunner.synthMouse(450, "mouseup");
+  testRunner.assertElementSizes(
+    450,
+    "Should be at final size after releasing mouse"
+  );
+  Assert.ok(
+    !splitter.isCollapsed,
+    "Should not be collapsed after releasing mouse"
+  );
 
   // Test that collapse and expand can happen in the same drag.
-  await testRunner.synthMouse(377, "mousedown");
+  await testRunner.synthMouse(450, "mousedown");
+  let position;
   let expectedSize;
   for ([position, expectedSize] of [
     [58, 78],
@@ -365,8 +480,10 @@ async function subtestDragMinSize() {
     [57, 0],
   ]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], expectedSize);
-    Assert.equal(fill[sizeProperty], 500 - expectedSize);
+    testRunner.assertElementSizes(
+      expectedSize,
+      `Should have ${expectedSize} size at ${position}`
+    );
   }
   Assert.equal(collapsedEvents, 3, "collapsed events fired");
   Assert.equal(expandedEvents, 2, "expanded events fired");
@@ -388,8 +505,10 @@ async function subtestDragMinSize() {
     [100, 100],
   ]) {
     await testRunner.synthMouse(position);
-    Assert.equal(resized[sizeProperty], expectedSize);
-    Assert.equal(fill[sizeProperty], 500 - expectedSize);
+    testRunner.assertElementSizes(
+      expectedSize,
+      `Should have ${expectedSize} size at ${position}`
+    );
   }
   Assert.equal(collapsedEvents, 5, "collapsed events fired");
   Assert.equal(expandedEvents, 5, "expanded events fired");
@@ -400,11 +519,9 @@ async function subtestDragMinSize() {
   position = originalPosition;
   await testRunner.synthMouse(position);
   await testRunner.synthMouse(position, "mouseup");
-  Assert.equal(resized[sizeProperty], originalPosition);
-  Assert.equal(fill[sizeProperty], 500 - originalPosition);
+  testRunner.assertElementSizes(originalPosition);
 
-  testRunner.clearMinSizeOnResized();
-  testRunner.clearMinSizeOnFill();
+  testRunner.clearCollapseSize();
 }
 
 async function subtestCollapseExpand() {
@@ -412,18 +529,16 @@ async function subtestCollapseExpand() {
   collapsedEvents = 0;
   expandedEvents = 0;
 
-  let { splitter, resized, fill, before, after, sizeProperty } = testRunner;
+  let { splitter } = testRunner;
 
-  let beforeSize = before[sizeProperty];
-  let afterSize = after[sizeProperty];
+  let originalSize = testRunner.getSize(testRunner.resized);
 
   // Collapse.
   Assert.ok(!splitter.isCollapsed, "splitter is not collapsed");
   Assert.equal(collapsedEvents, 0, "no collapsed events have fired");
 
   splitter.collapse();
-  Assert.equal(splitter.resizeElement[sizeProperty], 0);
-  Assert.equal(splitter.oppositeElement[sizeProperty], 500);
+  testRunner.assertElementSizes(0);
   Assert.ok(splitter.isCollapsed, "splitter is collapsed");
   Assert.equal(collapsedEvents, 1, "a collapsed event fired");
 
@@ -433,8 +548,7 @@ async function subtestCollapseExpand() {
 
   // Expand.
   splitter.expand();
-  Assert.equal(before[sizeProperty], beforeSize);
-  Assert.equal(after[sizeProperty], afterSize);
+  testRunner.assertElementSizes(originalSize);
   Assert.ok(!splitter.isCollapsed, "splitter is not collapsed");
   Assert.equal(expandedEvents, 1, "an expanded event fired");
 
@@ -449,15 +563,14 @@ async function subtestCollapseExpand() {
   splitter.collapse();
   Assert.equal(collapsedEvents, 1, "a collapsed event fired");
 
-  testRunner.setMinSizeOnResized(78);
+  testRunner.setCollapseSize(78);
 
   await testRunner.synthMouse(0, "mousedown");
   await testRunner.synthMouse(200);
   await testRunner.synthMouse(200, "mouseup");
-  Assert.equal(resized[sizeProperty], 200);
-  Assert.equal(fill[sizeProperty], 300);
+  testRunner.assertElementSizes(200);
   Assert.ok(!splitter.isCollapsed, "splitter is not collapsed");
   Assert.equal(expandedEvents, 1, "an expanded event fired");
 
-  testRunner.clearMinSizeOnResized();
+  testRunner.clearCollapseSize();
 }
