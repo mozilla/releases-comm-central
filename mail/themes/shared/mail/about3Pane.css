@@ -46,44 +46,6 @@ body {
   font: message-box;
 }
 
-hr[is="pane-splitter"] {
-  margin: -3px 0;
-  z-index: 1;
-  cursor: ns-resize;
-  border: none;
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"] {
-  margin: 0 -3px;
-  cursor: ew-resize;
-}
-
-hr[is="pane-splitter"]:hover {
-  background-color: SelectedItem;
-}
-
-hr[is="pane-splitter"].before-collapsed {
-  cursor: n-resize;
-}
-
-hr[is="pane-splitter"].after-collapsed {
-  cursor: s-resize;
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"]:is(
-  .before-collapsed:dir(ltr),
-  .after-collapsed:dir(rtl)
-) {
-  cursor: w-resize;
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"]:is(
-  .after-collapsed:dir(ltr),
-  .before-collapsed:dir(rtl)
-) {
-  cursor: e-resize;
-}
-
 /* Different layouts */
 
 #folderTreePane {
@@ -118,46 +80,29 @@ hr[is="pane-splitter"][resize-direction="horizontal"]:is(
 /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
 body.layout-classic {
   grid-template: "folders splitter1 threads" minmax(auto, 1fr)
-                 "folders splitter1 splitter2" 0
+                 "folders splitter1 splitter2" min-content
                  "folders splitter1 message" minmax(0, var(--splitter2-height))
-                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr);
-}
-
-body.layout-classic #messageBrowserPane {
-  border-block-start: 1px solid ThreeDShadow;
-  border-inline-start: 1px solid ThreeDShadow;
+                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr);
 }
 
 /* Vertical layout: three columns. */
 body.layout-vertical {
   grid-template: "folders splitter1 threads splitter2 message" auto
-                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr) 0 minmax(0, var(--splitter2-width));
-}
-
-body.layout-vertical #messageBrowserPane {
-  border-inline-start: 1px solid ThreeDShadow;
+                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr) min-content minmax(0, var(--splitter2-width));
 }
 
 /* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
 body.layout-wide {
   grid-template: "folders splitter1 threads" minmax(auto, 1fr)
-                 "splitter2 splitter2 splitter2" 0
+                 "splitter2 splitter2 splitter2" min-content
                  "message message message" minmax(0, var(--splitter2-height))
-                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr);
-}
-
-body.layout-wide #messageBrowserPane {
-  border-block-start: 1px solid ThreeDShadow;
+                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr);
 }
 
 /* If Account Central is shown, it overrides the layout setting. */
 body.account-central {
   grid-template: "folders splitter1 account-central" auto
-                 / minmax(0, var(--splitter1-width)) 0 minmax(auto, 1fr);
-}
-
-#accountCentralBrowser {
-  border-inline-start: 1px solid ThreeDShadow;
+                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr);
 }
 
 body.account-central :is(
@@ -283,7 +228,6 @@ li.collapsed > ul {
 #threadTreePane {
   overflow: auto;
   display: flex;
-  border-inline-start: 1px solid ThreeDShadow;
 }
 
 #threadTreePane > tree-view-listbox {

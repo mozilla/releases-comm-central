@@ -310,14 +310,8 @@
       this.resizeElement.style.visibility = this.isCollapsed
         ? "collapse"
         : null;
-      this.classList.toggle(
-        "before-collapsed",
-        this.isCollapsed && this._beforeElement
-      );
-      this.classList.toggle(
-        "after-collapsed",
-        this.isCollapsed && !this._beforeElement
-      );
+      this.classList.toggle("splitter-collapsed", this.isCollapsed);
+      this.classList.toggle("splitter-before", this._beforeElement);
     }
 
     handleEvent(event) {
@@ -400,6 +394,7 @@
       // the current window, rather than some ancestor xul:browser's window.
       document.documentElement.style.pointerEvents = "none";
       this._updateDragCursor();
+      this.classList.add("splitter-resizing");
     }
 
     _updateDragCursor() {
@@ -497,6 +492,7 @@
       window.removeEventListener("mouseup", this);
       document.documentElement.style.pointerEvents = null;
       document.documentElement.style.cursor = null;
+      this.classList.remove("splitter-resizing");
 
       if (didStart) {
         this.dispatchEvent(

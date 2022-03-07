@@ -818,6 +818,159 @@ img.invisible-on-broken:-moz-broken {
   visibility: hidden;
 }
 
+/* PaneSplitter / pane-splitter elements */
+
+hr[is="pane-splitter"] {
+  margin: 0;
+  --splitter-z-index: 1;
+  z-index: var(--splitter-z-index);
+  /* Make sure border-box's height and width remain the same when we grow or
+   * shrink the border width. */
+  box-sizing: border-box;
+  /* We use a default border-style of none so we can set a border width and
+   * color without it producing a border on all sides. */
+  border-style: none;
+  /* The defining sizes of the splitter:
+   * + content-size: The dimension for the clickable area of the splitter.
+   * + occupy-size: The amount of space the splitter should occupy in the
+   *   layout.
+   */
+  --splitter-content-size: 5px;
+  --splitter-occupy-size: 1px;
+  --splitter-margin-size: calc(var(--splitter-occupy-size) - var(--splitter-content-size));
+  border-width: var(--splitter-occupy-size);
+  border-color: var(--splitter-color);
+}
+
+hr[is="pane-splitter"]:not([resize-direction="horizontal"]):not(.splitter-before) {
+  height: var(--splitter-content-size);
+  border-block-start-style: solid;
+  margin-block-end: var(--splitter-margin-size);
+}
+
+hr[is="pane-splitter"]:not([resize-direction="horizontal"]).splitter-before {
+  height: var(--splitter-content-size);
+  border-block-end-style: solid;
+  margin-block-start: var(--splitter-margin-size);
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"]:not(.splitter-before) {
+  width: var(--splitter-content-size);
+  border-inline-start-style: solid;
+  margin-inline-end: var(--splitter-margin-size);
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"].splitter-before {
+  width: var(--splitter-content-size);
+  border-inline-end-style: solid;
+  margin-inline-start: var(--splitter-margin-size);
+}
+
+/* Collapsed splitters. */
+
+hr[is="pane-splitter"].splitter-collapsed {
+  /* Occupy zero space. */
+  --splitter-occupy-size: 0px;
+  /* Make sure we appear above other splitters. */
+  z-index: calc(var(--splitter-z-index) + 1);
+}
+
+hr[is="pane-splitter"]::after {
+  /* We create a pseudo-element that occupies the splitter content. We will only
+   * show this when the splitter is collapsed and being resized or hovered. */
+  background-color: SelectedItem;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* We hide this element with scaleY(0) or scaleX(0) so we can smoothly
+   * grow the element between the hidden and full-height or full-width
+   * states. */
+  transform: scaleY(0);
+}
+
+hr[is="pane-splitter"]:not(.splitter-before)::after {
+  /* Grow top-to-bottom. */
+  transform-origin: top;
+}
+
+hr[is="pane-splitter"].splitter-before::after {
+  transform-origin: bottom;
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"]::after {
+  /* Grow left-to-right or right-to-left instead. */
+  transform: scaleX(0);
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"]:is(
+  :not(.splitter-before):dir(ltr),
+  .splitter-before:dir(rtl)
+)::after {
+  transform-origin: left;
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"]:is(
+  .splitter-before:dir(ltr),
+  :not(.splitter-before):dir(rtl)
+)::after {
+  transform-origin: right;
+}
+
+hr[is="pane-splitter"].splitter-collapsed:is(
+  :hover,
+  .splitter-resizing
+)::after {
+  /* Grow to full height. */
+  transform: scaleY(1);
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
+  :hover,
+  .splitter-resizing
+)::after {
+  /* Grow to full width. */
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  hr[is="pane-splitter"]::after {
+    transition: transform 200ms ease;
+  }
+}
+
+/* Splitter cursors. */
+
+hr[is="pane-splitter"] {
+  cursor: ns-resize;
+}
+
+hr[is="pane-splitter"].splitter-collapsed:not(.splitter-before) {
+  cursor: s-resize;
+}
+
+hr[is="pane-splitter"].splitter-collapsed.splitter-before {
+  cursor: n-resize;
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"] {
+  cursor: ew-resize;
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
+  .splitter-before:dir(ltr),
+  :not(.splitter-before):dir(rtl)
+) {
+  cursor: w-resize;
+}
+
+hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
+  :not(.splitter-before):dir(ltr),
+  .splitter-before:dir(rtl)
+) {
+  cursor: e-resize;
+}
+
 .popup-notification-button {
   height: auto;
   border-style: none;
