@@ -50,6 +50,9 @@ body {
 
 #folderTreePane {
   grid-area: folders;
+  box-sizing: border-box;
+  /* Matches the collapse-width on the splitter. */
+  min-width: 200px;
 }
 
 #splitter1 {
@@ -60,7 +63,7 @@ body {
   grid-area: threads;
   box-sizing: border-box;
   min-height: 200px;
-  min-width: 400px;
+  min-width: 300px;
 }
 
 #splitter2 {
@@ -69,6 +72,10 @@ body {
 
 #messageBrowserPane {
   grid-area: message;
+  box-sizing: border-box;
+  /* Matches the collapse-height and collapse-width on the splitter. */
+  min-height: 200px;
+  min-width: 300px;
 }
 
 #accountCentralBrowser {
@@ -77,32 +84,47 @@ body {
   min-width: 400px;
 }
 
+:is(
+  #messageBrowserPane,
+  #folderTreePane
+).collapsed-by-splitter {
+  /* NOTE: We use "display: none" rather than "visibility: collapse". In the
+   * latter case, the min-width of min-height of the element would still
+   * influence the "auto" track sizing in the grid layout. In the former case
+   * the grid is completely missing a grid item for this track, so the "auto"
+   * size properly reduces to 0, as desired. Note that the track is indeed
+   * missing a grid item because each element in the body is explicitly placed
+   * in a grid-area, which means that there is no auto-placement of the grid
+   * items that would fill the track. */
+  display: none;
+}
+
 /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
 body.layout-classic {
   grid-template: "folders splitter1 threads" minmax(auto, 1fr)
                  "folders splitter1 splitter2" min-content
-                 "folders splitter1 message" minmax(0, var(--splitter2-height))
-                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr);
+                 "folders splitter1 message" minmax(auto, var(--splitter2-height))
+                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr);
 }
 
 /* Vertical layout: three columns. */
 body.layout-vertical {
   grid-template: "folders splitter1 threads splitter2 message" auto
-                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr) min-content minmax(0, var(--splitter2-width));
+                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr) min-content minmax(auto, var(--splitter2-width));
 }
 
 /* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
 body.layout-wide {
   grid-template: "folders splitter1 threads" minmax(auto, 1fr)
                  "splitter2 splitter2 splitter2" min-content
-                 "message message message" minmax(0, var(--splitter2-height))
-                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr);
+                 "message message message" minmax(auto, var(--splitter2-height))
+                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr);
 }
 
 /* If Account Central is shown, it overrides the layout setting. */
 body.account-central {
   grid-template: "folders splitter1 account-central" auto
-                 / minmax(0, var(--splitter1-width)) min-content minmax(auto, 1fr);
+                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr);
 }
 
 body.account-central :is(

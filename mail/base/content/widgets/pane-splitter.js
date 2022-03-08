@@ -23,10 +23,10 @@
    * This splitter element fires a "splitter-resizing" event as dragging begins,
    * and "splitter-resized" when it ends.
    *
-   * The resizeElement can be collapsed and expanded. Whilst collapsed, the CSS
-   * visibility of the resizeElement is set to "collapse" and the "--<id>-width"
-   * or "--<id>-height" CSS variable, will be be set to "0px". The
-   * "splitter-collapsed" and "splitter-expanded" events are fired as
+   * The resizeElement can be collapsed and expanded. Whilst collapsed, the
+   * "collapsed-by-splitter" class will be added to the resizeElement and the
+   * "--<id>-width" or "--<id>-height" CSS variable, will be be set to "0px".
+   * The "splitter-collapsed" and "splitter-expanded" events are fired as
    * appropriate. If the splitter has a "collapse-width" or "collapse-height"
    * attribute, collapsing and expanding happens automatically when below the
    * given size.
@@ -317,9 +317,10 @@
       } else {
         this.parentNode.style.setProperty(this._cssName.width, `${width}px`);
       }
-      this.resizeElement.style.visibility = this.isCollapsed
-        ? "collapse"
-        : null;
+      this.resizeElement.classList.toggle(
+        "collapsed-by-splitter",
+        this.isCollapsed
+      );
       this.classList.toggle("splitter-collapsed", this.isCollapsed);
       this.classList.toggle("splitter-before", this._beforeElement);
     }
