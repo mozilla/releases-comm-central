@@ -560,10 +560,14 @@ function setLeftAndWidth(element, startTime, endTime) {
       this.input.setAttribute("autocompletesearch", "addrbook ldap");
       this.input.setAttribute("autocompletesearchparam", "{}");
       this.input.setAttribute("forcecomplete", "true");
+      this.input.setAttribute("timeout", "200");
       this.input.setAttribute("completedefaultindex", "true");
       this.input.setAttribute("completeselectedindex", "true");
       this.input.setAttribute("minresultsforpopup", "1");
       this.input.addEventListener("change", this);
+      this.input.addEventListener("keydown", this);
+      this.input.addEventListener("input", this);
+      this.input.addEventListener("click", this);
 
       this.freeBusyDiv = freebusyGridInner.appendChild(document.createElement("div"));
       this.freeBusyDiv.classList.add("freebusy-row");
@@ -681,7 +685,16 @@ function setLeftAndWidth(element, startTime, endTime) {
       this.input.focus();
     }
     handleEvent(event) {
-      if (event.type == "change") {
+      if (
+        event.type == "change" ||
+        (event.type == "keydown" && event.key == "Enter") ||
+        // A click on the line of the input field
+        (event.type == "click" && event.target.nodeName == "input") ||
+        // A click on an autocomplete suggestion
+        (event.type == "input" &&
+          event.inputType == "insertReplacementText" &&
+          event.explicitOriginalTarget != event.originalTarget)
+      ) {
         let nextElement = this.nextElementSibling;
         if (this.value) {
           let entries = MailServices.headerParser.makeFromDisplayAddress(this.value);
@@ -753,6 +766,16 @@ function setLeftAndWidth(element, startTime, endTime) {
             target.setAttribute("usertype", nextValue);
             this._updateTooltip(target);
           }
+        }
+      } else if (event.type == "keydown" && event.key == "ArrowRight") {
+        let nextElement = this.nextElementSibling;
+        if (this.value) {
+          if (!nextElement) {
+            attendeeList.appendChild(document.createXULElement("event-attendee"));
+          }
+        } else if (this.nextElementSibling) {
+          // No value but not the last row? Remove.
+          this.remove();
         }
       }
     }
