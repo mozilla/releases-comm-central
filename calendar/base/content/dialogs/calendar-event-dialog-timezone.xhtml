@@ -10,31 +10,28 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/datetimepickers.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
   <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %dtd3;
 ]>
-
-<window id="calendar-event-dialog-timezone"
-        title="&timezone.title.label;"
-        windowtype="Calendar:EventDialog:Timezone"
-        onload="onLoad()"
-        persist="screenX screenY width height"
-        lightweightthemes="true"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml">
-
+<html id="calendar-event-dialog-timezone" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:EventDialog:Timezone"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&timezone.title.label;</title>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-event-dialog-timezone.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog>
-
-  <!-- Javascript includes -->
-  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
-  <script src="chrome://calendar/content/calendar-event-dialog-timezone.js"/>
-  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://calendar/content/widgets/datetimepickers.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
   <hbox align="center">
     <spacer flex="1"/>
     <datetimepicker id="timezone-time" disabled="true"/>
@@ -54,4 +51,5 @@
               tzid="+0000" />
   </stack>
 </dialog>
-</window>
+</html:body>
+</html>
