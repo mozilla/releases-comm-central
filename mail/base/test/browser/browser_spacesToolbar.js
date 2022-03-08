@@ -6,6 +6,8 @@
  * Test the spaces toolbar features.
  */
 
+const DEFAULT_ICON = "chrome://mozapps/skin/extensions/category-extensions.svg";
+
 registerCleanupFunction(async () => {
   // Close all opened tabs.
   let tabmail = document.getElementById("tabmail");
@@ -336,4 +338,47 @@ add_task(async function testSpacesToolbarClearedAlignment() {
       !document.getElementById("navigation-toolbox").hasAttribute("style"),
     "The custom styling was cleared from all toolbars"
   );
+});
+
+add_task(async function testSpacesToolbarExtension() {
+  window.gSpacesToolbar.toggleToolbar(false);
+
+  for (let i = 0; i < 10; i++) {
+    window.gSpacesToolbar
+      .createToolbarButton(`testButton${i}`, `Title ${i}`, "about:addons")
+      .then(() => {
+        let button = document.getElementById(`testButton${i}`);
+        Assert.ok(button);
+        Assert.equal(button.title, `Title ${i}`);
+        Assert.equal(button.querySelector("img").src, DEFAULT_ICON);
+
+        let menuitem = document.getElementById(`testButton${i}-menuitem`);
+        Assert.ok(menuitem);
+        Assert.equal(menuitem.label, `Title ${i}`);
+        Assert.equal(
+          menuitem.getAttribute("style"),
+          `list-style-image: url("${DEFAULT_ICON}")`
+        );
+      });
+  }
+
+  let originalHeight = window.innerHeight;
+  // Set a ridiculous tiny height to be sure all add-on buttons are hidden.
+  let windowResized = TestUtils.waitForCondition(
+    () => window.innerHeight == 300,
+    "waiting for window to be resized"
+  );
+  window.resizeTo(window.innerWidth, 300);
+  await windowResized;
+  await new Promise(resolve => setTimeout(resolve));
+
+  let overflowPopup = document.getElementById("spacesToolbarAddonsPopup");
+  let popupshown = BrowserTestUtils.waitForEvent(overflowPopup, "popupshown");
+  document.getElementById("spacesToolbarAddonsOverflowButton").click();
+  await popupshown;
+
+  Assert.ok(overflowPopup.hasChildNodes());
+
+  // Restore the original height.
+  window.resizeTo(window.innerWidth, originalHeight);
 });

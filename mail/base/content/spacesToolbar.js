@@ -62,6 +62,21 @@ var gSpacesToolbar = {
    * @type {SpaceInfo|undefined}
    */
   currentSpace: undefined,
+  /**
+   * The number of buttons created by add-ons.
+   *
+   * @returns {integer}
+   */
+  get addonButtonCount() {
+    return document.querySelectorAll(".spaces-addon-button").length;
+  },
+  /**
+   * The number of pixel spacing to add to the add-ons button height calculation
+   * based on the current UI density.
+   *
+   * @type {integer}
+   */
+  densitySpacing: 0,
 
   tabMonitor: {
     monitorName: "spacesToolbarMonitor",
@@ -364,6 +379,11 @@ var gSpacesToolbar = {
       .addEventListener("click", () => {
         this.toggleToolbar(false);
       });
+    document
+      .getElementById("spacesToolbarAddonsOverflowButton")
+      .addEventListener("click", event => {
+        this.openSpacesToolbarAddonsPopup(event);
+      });
   },
 
   /**
@@ -420,11 +440,25 @@ var gSpacesToolbar = {
       return;
     }
 
+    let density = Services.prefs.getIntPref("mail.uidensity", 1);
+    switch (density) {
+      case 0:
+        this.densitySpacing = 10;
+        break;
+      case 1:
+        this.densitySpacing = 15;
+        break;
+      case 2:
+        this.densitySpacing = 20;
+        break;
+    }
+
     // Toggle the window attribute for those CSS selectors that need it.
     if (this.isHidden) {
       document.documentElement.removeAttribute("spacestoolbar");
     } else {
       document.documentElement.setAttribute("spacestoolbar", "true");
+      this.updateAddonButtonsUI();
     }
 
     // Reset the style whenever something changes.
@@ -470,6 +504,87 @@ var gSpacesToolbar = {
   },
 
   /**
+   * Update the UI based on the window sizing.
+   */
+  onWindowResize() {
+    if (!this.isLoaded) {
+      return;
+    }
+
+    this.updateUImacOS();
+    this.updateAddonButtonsUI();
+  },
+
+  /**
+   * Update the location of buttons added by addons based on the space available
+   * in the toolbar. If the number of buttons is greater than the height of the
+   * visible container, move those buttons inside an overflow popup.
+   */
+  updateAddonButtonsUI() {
+    if (this.isHidden) {
+      return;
+    }
+
+    let overflowButton = document.getElementById(
+      "spacesToolbarAddonsOverflowButton"
+    );
+    let separator = document.getElementById("spacesPopupAddonsSeparator");
+    // Bail out if we don't have any add-ons button.
+    if (!this.addonButtonCount) {
+      overflowButton.hidden = true;
+      separator.collapsed = true;
+      return;
+    }
+
+    separator.collapsed = false;
+    // Use the first available button's height as reference, and include the gap
+    // defined by the UIDensity pref.
+    let buttonHeight =
+      document.querySelector(".spaces-toolbar-button").getBoundingClientRect()
+        .height + this.densitySpacing;
+
+    let containerHeight = document
+      .getElementById("spacesToolbarAddonsContainer")
+      .getBoundingClientRect().height;
+
+    // Calculate the visible threshold of add-on buttons by:
+    // - Multiplying the space occupied by one button for the number of the
+    //   add-on buttons currently present.
+    // - Subtracting the height of the add-ons container from the height
+    //   occupied by all add-on buttons.
+    // - Dividing the returned value by the height of a single button.
+    // Doing so we will get an integer representing how many buttons might or
+    // might not fit in the available area.
+    let threshold = Math.ceil(
+      (buttonHeight * this.addonButtonCount - containerHeight) / buttonHeight
+    );
+
+    // Always reset the visibility of all buttons to avoid unnecessary
+    // calculations when needing to reveal hidden buttons.
+    for (let btn of document.querySelectorAll(".spaces-addon-button[hidden]")) {
+      btn.hidden = false;
+    }
+
+    // If we get a negative threshold, it means we have plenty of empty space
+    // so we don't need to do anything.
+    if (threshold <= 0) {
+      overflowButton.hidden = true;
+      return;
+    }
+
+    overflowButton.hidden = false;
+    // Hide as many buttons as needed based on the threshold value.
+    for (let i = 0; i <= threshold; i++) {
+      let btn = document.querySelector(
+        `.spaces-addon-button:nth-last-child(${i})`
+      );
+      if (btn) {
+        btn.hidden = true;
+      }
+    }
+  },
+
+  /**
    * Update the spacesToolbar UI and adjacent tabs exclusively for macOS. This
    * is necessary mostly to tackle the changes when switching fullscreen mode.
    */
@@ -492,6 +607,179 @@ var gSpacesToolbar = {
 
     // Reset the style if we exited full screen mode.
     this.resetInlineStyle();
+  },
+
+  /**
+   * Helper function for extensions in order to add buttons to the spaces
+   * toolbar.
+   *
+   * @param {string} id - The ID of the newly created button.
+   * @param {string} title - The text of the button tooltip and menuitem value.
+   * @param {string} url - The URL of the content tab to open.
+   * @param {?string} src - The option location of the image used in the button.
+   *
+   * @returns {Promise} - A Promise that resolves when the button is created.
+   */
+  async createToolbarButton(id, title, url, src) {
+    return new Promise((resolve, reject) => {
+      if (!this.isLoaded) {
+        return reject("Unable to add spaces toolbar button! Toolbar not ready");
+      }
+      if (!id || !title || !url) {
+        return reject(
+          "Unable to add spaces toolbar button! Missing ID, Title, or space URL"
+        );
+      }
+
+      // Create the button.
+      let button = document.createElement("button");
+      button.classList.add("spaces-toolbar-button", "spaces-addon-button");
+      button.id = id;
+      button.title = title;
+      let icon =
+        src || "chrome://mozapps/skin/extensions/category-extensions.svg";
+      let img = document.createElement("img");
+      img.setAttribute("src", icon);
+      img.setAttribute("alt", "");
+      button.appendChild(img);
+      document
+        .getElementById("spacesToolbarAddonsContainer")
+        .appendChild(button);
+
+      // Create the menuitem.
+      let menuitem = document.createXULElement("menuitem");
+      menuitem.classList.add(
+        "subviewbutton",
+        "menuitem-iconic",
+        "spaces-popup-menuitem"
+      );
+      menuitem.id = `${id}-menuitem`;
+      menuitem.label = title;
+      menuitem.setAttribute("style", `list-style-image: url("${icon}")`);
+      document
+        .getElementById("spacesButtonMenuPopup")
+        .insertBefore(
+          menuitem,
+          document.getElementById("spacesPopupRevealSeparator")
+        );
+
+      // Use global event handlers instead of event listener because these
+      // elements can be updated and we don't want to allow stacking a bunch of
+      // event listeners on top of each other.
+      button.onclick = () => openTab("contentTab", { url });
+      // TODO: We will need to handle the keypress event of the menuitem once
+      // we make this keyboard accessible.
+      menuitem.onclick = () => openTab("contentTab", { url });
+
+      this.updateAddonButtonsUI();
+      return resolve();
+    });
+  },
+
+  /**
+   * Helper function for extensions in order to update buttons previously added
+   * to the spaces toolbar.
+   *
+   * @param {string} id - The ID of the button that needs to be updated.
+   * @param {string} title - The text of the button tooltip and menuitem value.
+   * @param {?string} url - The URL of the content tab to open.
+   * @param {?string} src - The optional icon image url.
+   *
+   * @returns {Promise} - A promise that resolves when the button is updated.
+   */
+  async updateToolbarButton(id, title, url, src) {
+    return new Promise((resolve, reject) => {
+      if (!id || !title) {
+        return reject(
+          "Unable to updated spaces toolbar button! Missing ID or Title"
+        );
+      }
+
+      let button = document.getElementById(`${id}`);
+      let menuitem = document.getElementById(`${id}-menuitem`);
+      if (!button || !menuitem) {
+        return reject(
+          "Unable to update spaces toolbar button! Button or menuitem don't exist"
+        );
+      }
+
+      button.title = title;
+      button
+        .querySelector("img")
+        .setAttribute(
+          "src",
+          src || "chrome://mozapps/skin/extensions/category-extensions.svg"
+        );
+      menuitem.label = title;
+
+      if (url) {
+        button.onclick = () => openTab("contentTab", { url });
+        menuitem.onclick = () => openTab("contentTab", { url });
+      }
+
+      return resolve();
+    });
+  },
+
+  /**
+   * Helper function for extensions allowing the removal of previously created
+   * buttons.
+   *
+   * @param {string} id - The ID of the button that needs to be removed.
+   * @returns {Promise} - A promise that resolves when the button is removed.
+   */
+  async removeToolbarButton(id) {
+    return new Promise((resolve, reject) => {
+      if (!this.isLoaded) {
+        return reject(
+          "Unable to remove spaces toolbar button! Toolbar not ready"
+        );
+      }
+      if (!id) {
+        return reject("Unable to remove spaces toolbar button! Missing ID");
+      }
+
+      document.getElementById(`${id}`)?.remove();
+      document.getElementById(`${id}-menuitem`)?.remove();
+      this.updateAddonButtonsUI();
+
+      return resolve();
+    });
+  },
+
+  /**
+   * Populate the overflow container with a copy of all the currently hidden
+   * buttons generated by add-ons.
+   *
+   * @param {DOMEvent} event - The DOM click event.
+   */
+  openSpacesToolbarAddonsPopup(event) {
+    let popup = document.getElementById("spacesToolbarAddonsPopup");
+
+    for (let button of document.querySelectorAll(
+      ".spaces-addon-button[hidden]"
+    )) {
+      let menuitem = document.createXULElement("menuitem");
+      menuitem.classList.add(
+        "subviewbutton",
+        "menuitem-iconic",
+        "spaces-popup-menuitem"
+      );
+      menuitem.label = button.title;
+      let img = button.querySelector("img");
+      menuitem.setAttribute("style", `list-style-image: url("${img.src}")`);
+      menuitem.addEventListener("command", () => button.click());
+      popup.appendChild(menuitem);
+    }
+
+    popup.openPopup(event.target, "after_start", 0, 0);
+  },
+
+  /**
+   * Empty the overflow container.
+   */
+  spacesToolbarAddonsPopupClosed() {
+    document.getElementById("spacesToolbarAddonsPopup").replaceChildren();
   },
 
   /**

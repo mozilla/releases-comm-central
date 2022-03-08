@@ -28,6 +28,11 @@
               class="subviewbutton menuitem-iconic"
               data-l10n-id="settings-context-open-addons-item"/>
   </menupopup>
+
+  <menupopup id="spacesToolbarAddonsPopup" type="arrow"
+             class="no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
+             onpopuphidden="gSpacesToolbar.spacesToolbarAddonsPopupClosed();">
+  </menupopup>
 </popupset>
 
 <html:div role="toolbar" id="spacesToolbar" xmlns="http://www.w3.org/1999/xhtml"
@@ -65,6 +70,19 @@
       <img src="chrome://messenger/skin/icons/chat.svg" alt="" />
     </button>
   </div>
+
+  <div id="spacesToolbarAddonsContainer" class="spaces-toolbar-container">
+    <!-- Special container to allow add-ons to add buttons. -->
+  </div>
+  <button id="spacesToolbarAddonsOverflowButton"
+          data-l10n-id="spaces-toolbar-button-chat"
+          class="spaces-toolbar-button"
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-controls="spacesToolbarAddonsPopup"
+          hidden="hidden">
+    <img src="chrome://messenger/skin/icons/overflow.svg" alt="" />
+  </button>
 
   <div class="spaces-toolbar-container spaces-toolbar-bottom-container">
     <!-- Settings button. -->

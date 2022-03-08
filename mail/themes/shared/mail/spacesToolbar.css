@@ -135,6 +135,11 @@
   fill: currentColor;
 }
 
+.spaces-toolbar-button > img {
+  width: var(--spaces-icon-size);
+  height: var(--spaces-icon-size);
+}
+
 .spaces-toolbar-statusbar-button {
   min-width: auto;
   min-height: auto;
@@ -203,7 +208,9 @@
   transform: none;
 }
 
-:root[uidensity="touch"] .spaces-toolbar-button > img {
-  width: 22px;
-  height: 22px;
+/* Add-ons section */
+
+#spacesToolbarAddonsContainer {
+  flex: 1;
+  overflow: hidden;
 }

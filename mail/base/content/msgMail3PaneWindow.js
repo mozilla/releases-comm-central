@@ -2133,9 +2133,8 @@ var TabsInTitlebar = {
         }
         break;
       case "resize":
-        // The spaces toolbar needs special styling for the fullscreen mode
-        // only on macos.
-        gSpacesToolbar.updateUImacOS();
+        // The spaces toolbar needs special styling for the fullscreen mode.
+        gSpacesToolbar.onWindowResize();
         if (window.fullScreen || aEvent.target != window) {
           break;
         }
