@@ -165,9 +165,10 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
   if (NS_SUCCEEDED(rv) && exists) {
     rv = LoadFolderCache(cacheFile);
     if (NS_FAILED(rv)) {
-      MOZ_LOG(sFolderCacheLog, LogLevel::Error,
-              ("Failed to load %s (code 0x%x)",
-               cacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
+      MOZ_LOG(
+          sFolderCacheLog, LogLevel::Error,
+          ("Failed to load %s (code 0x%x)",
+           cacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
     }
     // Ignore error. If load fails, we'll just start off with empty cache.
     return NS_OK;
@@ -194,12 +195,14 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
         // We're done with the legacy panacea.dat - remove it.
         legacyFile->Remove(false);
       } else {
-        MOZ_LOG(sFolderCacheLog, LogLevel::Error,
-                ("Migration: save failed (code 0x%x)", static_cast<uint32_t>(rv)));
+        MOZ_LOG(
+            sFolderCacheLog, LogLevel::Error,
+            ("Migration: save failed (code 0x%x)", static_cast<uint32_t>(rv)));
       }
     } else {
-      MOZ_LOG(sFolderCacheLog, LogLevel::Error,
-              ("Migration: import failed (code 0x%x)", static_cast<uint32_t>(rv)));
+      MOZ_LOG(
+          sFolderCacheLog, LogLevel::Error,
+          ("Migration: import failed (code 0x%x)", static_cast<uint32_t>(rv)));
     }
   }
   // Never fails.
@@ -218,9 +221,10 @@ NS_IMETHODIMP nsMsgFolderCache::Flush() {
     MOZ_LOG(sFolderCacheLog, LogLevel::Debug, ("Forced save."));
     nsresult rv = SaveFolderCache(mCacheFile);
     if (NS_FAILED(rv)) {
-      MOZ_LOG(sFolderCacheLog, LogLevel::Error,
-              ("Failed to write to %s (code 0x%x)",
-               mCacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
+      MOZ_LOG(
+          sFolderCacheLog, LogLevel::Error,
+          ("Failed to write to %s (code 0x%x)",
+           mCacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
     }
   }
   return NS_OK;
@@ -334,7 +338,8 @@ void nsMsgFolderCache::doSave(nsITimer*, void* closure) {
   if (NS_FAILED(rv)) {
     MOZ_LOG(sFolderCacheLog, LogLevel::Error,
             ("Failed writing %s (code 0x%x)",
-             that->mCacheFile->HumanReadablePath().get(), static_cast<uint32_t>(rv)));
+             that->mCacheFile->HumanReadablePath().get(),
+             static_cast<uint32_t>(rv)));
   }
   that->mSavePending = false;
 }
