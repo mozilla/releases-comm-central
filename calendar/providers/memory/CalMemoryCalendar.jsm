@@ -186,10 +186,10 @@ CalMemoryCalendar.prototype = {
       throw Ci.calIErrors.CAL_IS_READONLY;
     }
     if (!aNewItem) {
-      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
+      throw Components.Exception("aNewItem must be set", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    function reportError(errStr, errId = Cr.NS_ERROR_FAILURE) {
+    let reportError = (errStr, errId = Cr.NS_ERROR_FAILURE) => {
       this.notifyOperationComplete(
         null,
         errId,
@@ -198,7 +198,7 @@ CalMemoryCalendar.prototype = {
         errStr
       );
       return Promise.reject(new Components.Exception(errStr, errId));
-    }
+    };
 
     if (!aNewItem.id) {
       // this is definitely an error

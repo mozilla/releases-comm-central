@@ -246,7 +246,7 @@ CalStorageCalendar.prototype = {
     let offlineFlag = await this.getItemOfflineFlag(aOldItem);
     let oldOfflineFlag = offlineFlag;
 
-    function reportError(errStr, errId = Cr.NS_ERROR_FAILURE) {
+    let reportError = (errStr, errId = Cr.NS_ERROR_FAILURE) => {
       this.notifyOperationComplete(
         null,
         errId,
@@ -255,7 +255,7 @@ CalStorageCalendar.prototype = {
         errStr
       );
       return Promise.reject(new Components.Exception(errStr, errId));
-    }
+    };
 
     if (this.readOnly) {
       return reportError("Calendar is readonly", Ci.calIErrors.CAL_IS_READONLY);
