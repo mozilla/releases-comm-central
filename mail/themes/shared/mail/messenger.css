@@ -934,7 +934,13 @@ hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  hr[is="pane-splitter"]::after {
+  /* NOTE: We only show a smooth transition from scale 0 to scale 1, or
+   * vice versa, whilst the splitter is collapsed. In particular, we do *not*
+   * want a smooth transition when we switch from collapsed to not collapsed: in
+   * this case we want to immediately shrink back to zero size. In contrast, the
+   * switch from not collapsed to collapsed whilst dragging *is* a smooth
+   * transition. */
+  hr[is="pane-splitter"].splitter-collapsed::after {
     transition: transform 200ms ease;
   }
 }
