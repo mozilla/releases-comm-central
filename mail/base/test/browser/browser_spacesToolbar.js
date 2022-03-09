@@ -343,42 +343,54 @@ add_task(async function testSpacesToolbarClearedAlignment() {
 add_task(async function testSpacesToolbarExtension() {
   window.gSpacesToolbar.toggleToolbar(false);
 
-  for (let i = 0; i < 10; i++) {
-    window.gSpacesToolbar
-      .createToolbarButton(`testButton${i}`, `Title ${i}`, "about:addons")
-      .then(() => {
-        let button = document.getElementById(`testButton${i}`);
-        Assert.ok(button);
-        Assert.equal(button.title, `Title ${i}`);
-        Assert.equal(button.querySelector("img").src, DEFAULT_ICON);
+  for (let i = 0; i < 6; i++) {
+    await window.gSpacesToolbar.createToolbarButton(
+      `testButton${i}`,
+      `Title ${i}`,
+      "about:addons"
+    );
+    let button = document.getElementById(`testButton${i}`);
+    Assert.ok(button);
+    Assert.equal(button.title, `Title ${i}`);
+    Assert.equal(button.querySelector("img").src, DEFAULT_ICON);
 
-        let menuitem = document.getElementById(`testButton${i}-menuitem`);
-        Assert.ok(menuitem);
-        Assert.equal(menuitem.label, `Title ${i}`);
-        Assert.equal(
-          menuitem.getAttribute("style"),
-          `list-style-image: url("${DEFAULT_ICON}")`
-        );
-      });
+    let menuitem = document.getElementById(`testButton${i}-menuitem`);
+    Assert.ok(menuitem);
+    Assert.equal(menuitem.label, `Title ${i}`);
+    Assert.equal(
+      menuitem.getAttribute("style"),
+      `list-style-image: url("${DEFAULT_ICON}")`
+    );
   }
 
-  let originalHeight = window.innerHeight;
-  // Set a ridiculous tiny height to be sure all add-on buttons are hidden.
-  let windowResized = TestUtils.waitForCondition(
-    () => window.innerHeight == 300,
-    "waiting for window to be resized"
+  let overflowButton = document.getElementById(
+    "spacesToolbarAddonsOverflowButton"
   );
-  window.resizeTo(window.innerWidth, 300);
-  await windowResized;
-  await new Promise(resolve => setTimeout(resolve));
+
+  let originalHeight = window.outerHeight;
+  // Set a ridiculous tiny height to be sure all add-on buttons are hidden.
+  window.resizeTo(window.outerWidth, 300);
+  await new Promise(resolve => requestAnimationFrame(resolve));
+  await BrowserTestUtils.waitForCondition(
+    () => !overflowButton.hidden,
+    "The overflow button is visible"
+  );
 
   let overflowPopup = document.getElementById("spacesToolbarAddonsPopup");
   let popupshown = BrowserTestUtils.waitForEvent(overflowPopup, "popupshown");
-  document.getElementById("spacesToolbarAddonsOverflowButton").click();
+  overflowButton.click();
   await popupshown;
 
   Assert.ok(overflowPopup.hasChildNodes());
 
+  let popuphidden = BrowserTestUtils.waitForEvent(overflowPopup, "popuphidden");
   // Restore the original height.
-  window.resizeTo(window.innerWidth, originalHeight);
+  window.resizeTo(window.outerWidth, originalHeight);
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
+  await popuphidden;
+  await BrowserTestUtils.waitForCondition(
+    () => overflowButton.hidden,
+    "The overflow button is hidden"
+  );
 });

@@ -529,10 +529,12 @@ var gSpacesToolbar = {
       "spacesToolbarAddonsOverflowButton"
     );
     let separator = document.getElementById("spacesPopupAddonsSeparator");
+    let popup = document.getElementById("spacesToolbarAddonsPopup");
     // Bail out if we don't have any add-ons button.
     if (!this.addonButtonCount) {
       overflowButton.hidden = true;
       separator.collapsed = true;
+      popup.hidePopup();
       return;
     }
 
@@ -569,6 +571,7 @@ var gSpacesToolbar = {
     // so we don't need to do anything.
     if (threshold <= 0) {
       overflowButton.hidden = true;
+      popup.hidePopup();
       return;
     }
 
