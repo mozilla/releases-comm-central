@@ -221,3 +221,55 @@ add_task(async function testImportOfflinePrimaryKey() {
     "should obtain key ID of encryption subkey"
   );
 });
+
+add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
+  let secBlock = await IOUtils.readUTF8(
+    do_get_file(
+      `${keyDir}/secret-for-preferred-sign-subkey-is-missing--a-without-second-sub--sec.asc`
+    ).path
+  );
+
+  let cancelPassword = function(win, keyId, resultFlags) {
+    resultFlags.canceled = true;
+    return "";
+  };
+
+  let importResult = await RNP.importKeyBlockImpl(
+    null,
+    cancelPassword,
+    secBlock,
+    false,
+    true
+  );
+
+  Assert.ok(importResult.exitCode == 0);
+
+  let pubBlock = await IOUtils.readUTF8(
+    do_get_file(
+      `${keyDir}/secret-for-preferred-sign-subkey-is-missing--b-with-second-sub--pub.asc`
+    ).path
+  );
+
+  importResult = await RNP.importKeyBlockImpl(
+    null,
+    cancelPassword,
+    pubBlock,
+    true,
+    false
+  );
+
+  Assert.ok(importResult.exitCode == 0);
+
+  let primaryKey = await RNP.findKeyByEmail(
+    "<secret-for-preferred-sign-subkey-is-missing@example.com>",
+    false
+  );
+
+  let signSubKey = RNP.getSuitableSubkey(primaryKey, "sign");
+  let keyId = RNP.getKeyIDFromHandle(signSubKey);
+  Assert.equal(
+    keyId,
+    "625D4819F02EE727",
+    "should obtain key ID of older, non-preferred subkey that has the secret key available"
+  );
+});
