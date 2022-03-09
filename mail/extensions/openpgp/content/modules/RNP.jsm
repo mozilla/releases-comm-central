@@ -2179,7 +2179,18 @@ var RNP = {
     if (RNPLib.rnp_key_allows_usage(key, usage, allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
-    return allowed.value;
+    if (!allowed.value) {
+      return false;
+    }
+
+    if (usage != str_sign) {
+      return true;
+    }
+
+    return (
+      RNPLib.getSecretAvailableFromHandle(key) &&
+      RNPLib.isSecretKeyMaterialAvailable(key)
+    );
   },
 
   getSuitableSubkey(primary, usage) {
@@ -2407,7 +2418,7 @@ var RNP = {
 
         let use_sub = this.getSuitableSubkey(senderKey, str_sign);
         if (!use_sub && !this.isKeyUsableFor(senderKey, str_sign)) {
-          throw new Error("no suitable subkey found for " + str_sign);
+          throw new Error("no suitable (sub)key found for " + str_sign);
         }
 
         if (args.encrypt) {
