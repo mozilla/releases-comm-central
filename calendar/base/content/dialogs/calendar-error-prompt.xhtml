@@ -6,44 +6,40 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window
+<!DOCTYPE html
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
 ]>
-
-
-<window id="calendar-error-prompt"
-        title="&calendar.error.title;"
-        windowtype="Calendar:ErrorPrompt"
-        onload="loadErrorPrompt()"
-        lightweightthemes="true"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        width="500"
-        persist="screenX screenY">
-<dialog buttons="accept">
-    <script src="chrome://global/content/globalOverlay.js"/>
-    <script src="chrome://global/content/editMenuOverlay.js"/>
-    <script src="chrome://calendar/content/calendar-error-prompt.js"/>
-    <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
+<html id="calendar-error-prompt" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&calendar.error.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-error-prompt.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog buttons="accept" style="width:500px;">
+  <html:textarea id="general-text" class="plain" readonly="readonly" rows="3" style="resize:none;"></html:textarea>
+  <hbox>
+    <button id="details-button" label="&calendar.error.detail;" oncommand="toggleDetails()"/>
+    <spacer flex="1"/>
+  </hbox>
+  <vbox id="details-box" collapsed="true" persist="collapsed">
+    <hbox>
+      <label value="&calendar.error.code;"/>
+      <label id="error-code" value=""/>
+    </hbox>
     <vbox>
-        <html:textarea id="general-text" class="plain" readonly="readonly" rows="3"/>
-        <hbox>
-            <button id="details-button" label="&calendar.error.detail;" oncommand="toggleDetails()"/>
-            <spacer flex="1"/>
-        </hbox>
-        <vbox id="details-box" collapsed="true" persist="collapsed">
-            <hbox>
-                <label value="&calendar.error.code;"/>
-                <label id="error-code" value=""/>
-            </hbox>
-            <vbox>
-                <label value="&calendar.error.description;" control="error-description"/>
-                <html:textarea id="error-description" class="plain" readonly="readonly" rows="5"/>
-            </vbox>
-        </vbox>
+      <label value="&calendar.error.description;" control="error-description"/>
+      <html:textarea id="error-description" class="plain" readonly="readonly" rows="5" style="resize:none;"></html:textarea>
     </vbox>
+  </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
