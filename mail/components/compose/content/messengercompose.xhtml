@@ -1837,10 +1837,10 @@
                       key="key_addressbook"
                       oncommand="toAddressBook();"/>
 #endif
-
 #ifndef XP_UNIX
             <menuseparator id="prefSep"/>
-            <menuitem label="&accountManagerCmd2.label;"
+            <menuitem id="menu_accountmgr"
+                      label="&accountManagerCmd2.label;"
                       accesskey="&accountManagerCmd2.accesskey;"
                       command="cmd_account"/>
             <menuitem id="menu_preferences"
@@ -1848,7 +1848,8 @@
                       oncommand="openOptionsDialog('paneCompose');"/>
 #else
 #ifdef XP_MACOSX
-            <menuitem label="&accountManagerCmd2.label;"
+            <menuitem id="menu_accountmgr"
+                      label="&accountManagerCmd2.label;"
                       accesskey="&accountManagerCmd2.accesskey;"
                       command="cmd_account"/>
             <menuitem id="menu_preferences"
