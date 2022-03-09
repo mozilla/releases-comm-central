@@ -70,6 +70,10 @@ addr-book-mab-file = Mork database file (.mab)
 
 addr-book-file-picker = Select an address book file
 
+addr-book-csv-field-map-title = Match field names
+
+addr-book-csv-field-map-desc = Select address book fields corresponding to the source fields. Uncheck fields you do not want to import.
+
 addr-book-directories-pane-title = Select the directory you would like to import into:
 
 addr-book-directories-pane-source = Source file:
@@ -91,3 +95,15 @@ error-message-zip-file-too-big = The selected zip file is larger than 2GB. Pleas
 error-message-extract-zip-file-failed = Failed to extract the zip file. Please extract it manually, then import from the extracted folder instead.
 
 error-message-failed = Import failed unexpectedly, more information may be available in the Error Console.
+
+## <csv-field-map> element
+
+csv-first-row-contains-headers = First row contains field names
+
+csv-source-field = Source field
+
+csv-source-first-record = First record
+
+csv-source-second-record = Second record
+
+csv-target-field = Address book field

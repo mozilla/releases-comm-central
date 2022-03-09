@@ -15,6 +15,7 @@
   <link rel="localization" href="messenger/aboutImport.ftl"/>
 
   <script defer="" src="chrome://messenger/content/aboutImport.js"></script>
+  <script defer="" src="chrome://messenger/content/csv-field-map.js"></script>
 </head>
 <body>
   <nav id="leftNav">
@@ -159,6 +160,11 @@
             <p data-l10n-id="addr-book-mab-file"/>
           </label>
         </div>
+      </section>
+      <section id="addr-book-csvFieldMap">
+        <h1 data-l10n-id="addr-book-csv-field-map-title"/>
+        <p data-l10n-id="addr-book-csv-field-map-desc"/>
+        <csv-field-map id="csvFieldMap"/>
       </section>
       <section id="addr-book-directories">
         <h1 data-l10n-id="addr-book-directories-pane-title"/>

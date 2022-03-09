@@ -82,48 +82,85 @@ class AddrBookFileImporter {
   }
 
   /**
-   * Import the .csv/.tsv source file into the target directory.
+   * Parse a CSV/TSV file to an array of rows, each row is an array of columns.
+   * The first row is expected to contain field names. If we recognize all the
+   * field names, return an empty array, which means everything is parsed fine.
+   * Otherwise, return all the rows.
+   * @param {nsIFile} sourceFile - The source file to import from.
+   * @returns {string[][]}
    */
-  async _importCsvFile() {
-    let content = await IOUtils.readUTF8(this._sourceFile.path);
+  async parseCsvFile(sourceFile) {
+    let content = await IOUtils.readUTF8(sourceFile.path);
 
     let csvRows = d3.csv.parseRows(content);
     let tsvRows = d3.tsv.parseRows(content);
     // If we have more CSV columns, then it's a CSV file, otherwise a TSV file.
-    let rows = csvRows[0].length > tsvRows[0].length ? csvRows : tsvRows;
+    this._csvRows = csvRows[0].length > tsvRows[0].length ? csvRows : tsvRows;
 
     let bundle = Services.strings.createBundle(
       "chrome://messenger/locale/importMsgs.properties"
     );
     let supportedFieldNames = [];
-    let supportedProperties = [];
+    this._supportedCsvProperties = [];
     // Collect field names in an exported CSV file, and their corresponding
     // nsIAbCard property names.
     for (let [property, stringId] of exportAttributes) {
       if (stringId) {
-        supportedProperties.push(property);
+        this._supportedCsvProperties.push(property);
         supportedFieldNames.push(
           bundle.GetStringFromID(stringId).toLowerCase()
         );
       }
     }
-    let properties = [];
+    this._csvProperties = [];
     // Get the nsIAbCard properties corresponding to the user supplied file.
-    for (let field of rows[0]) {
+    for (let field of this._csvRows[0]) {
       let index = supportedFieldNames.indexOf(field.toLowerCase());
-      properties.push(supportedProperties[index]);
+      if (index == -1) {
+        return this._csvRows;
+      }
+      this._csvProperties.push(this._supportedCsvProperties[index]);
     }
+    this._csvSkipFirstRow = true;
+    return [];
+  }
 
-    let totalLines = rows.length - 1;
+  /**
+   * Set the address book properties to use when importing.
+   * @param {number[]} fieldIndexes - An array of indexes representing the
+   *   mapping between the source fields and nsIAbCard fields. For example, [2,
+   *   4] means the first field maps to the 2nd property, the second field maps
+   *   to the 4th property.
+   */
+  setCsvFields(fieldIndexes) {
+    Services.prefs.setCharPref(
+      "mail.import.csv.fields",
+      fieldIndexes.join(",")
+    );
+    this._csvProperties = fieldIndexes.map(
+      i => this._supportedCsvProperties[i]
+    );
+    this._csvSkipFirstRow = Services.prefs.getBoolPref(
+      "mail.import.csv.skipfirstrow",
+      true
+    );
+  }
+
+  /**
+   * Import the .csv/.tsv source file into the target directory.
+   */
+  async _importCsvFile() {
+    let totalLines = this._csvRows.length - 1;
     let currentLine = 0;
 
-    for (let row of rows.slice(1)) {
+    let startRow = this._csvSkipFirstRow ? 1 : 0;
+    for (let row of this._csvRows.slice(startRow)) {
       currentLine++;
       let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
         Ci.nsIAbCard
       );
       for (let i = 0; i < row.length; i++) {
-        let property = properties[i];
+        let property = this._csvProperties[i];
         if (!property) {
           continue;
         }

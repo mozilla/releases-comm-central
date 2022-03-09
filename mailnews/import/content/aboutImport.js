@@ -420,8 +420,15 @@ class AddrBookImporterController extends ImporterController {
       case "sources":
         window.close();
         break;
-      case "directories":
+      case "csvFieldMap":
         this._showSources();
+        break;
+      case "directories":
+        if (this._csvFieldMapShown) {
+          this._showCsvFieldMap();
+        } else {
+          this._showSources();
+        }
         break;
     }
   }
@@ -433,6 +440,9 @@ class AddrBookImporterController extends ImporterController {
     switch (this._currentPane) {
       case "sources":
         this._onSelectSource();
+        break;
+      case "csvFieldMap":
+        this._onSubmitCsvFieldMap();
         break;
       case "directories":
         this._onSelectDirectory();
@@ -458,10 +468,10 @@ class AddrBookImporterController extends ImporterController {
    * Handler for the Continue button on the sources pane.
    */
   async _onSelectSource() {
-    let fileType = [
+    this._fileType = [
       ...document.querySelectorAll("input[name=addrBookSource]"),
     ].find(el => el.checked).value;
-    this._importer = new AddrBookFileImporter(fileType);
+    this._importer = new AddrBookFileImporter(this._fileType);
 
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
@@ -476,7 +486,7 @@ class AddrBookImporterController extends ImporterController {
       ldif: "*.ldif",
       vcard: "*.vcf",
       mab: "*.mab",
-    }[fileType];
+    }[this._fileType];
     if (filter) {
       filePicker.appendFilter("", filter);
     }
@@ -486,20 +496,45 @@ class AddrBookImporterController extends ImporterController {
       return;
     }
 
-    this._showDirectories(filePicker.file);
-
+    this._sourceFile = filePicker.file;
     document.getElementById("addrBookSourcePath").textContent =
       filePicker.file.path;
     document.getElementById("addrBookBackButton").textContent = backButtonText;
+
+    if (this._fileType == "csv") {
+      let unmatchedRows = await this._importer.parseCsvFile(filePicker.file);
+      if (unmatchedRows.length) {
+        document.getElementById("csvFieldMap").data = unmatchedRows;
+        this._csvFieldMapShown = true;
+        this._showCsvFieldMap();
+        return;
+      }
+    }
+    this._csvFieldMapShown = false;
+    this._showDirectories();
+  }
+
+  /**
+   * Show the csvFieldMap pane, user can map source CSV fields to address book
+   * fields.
+   */
+  _showCsvFieldMap() {
+    this.showPane("csvFieldMap");
+  }
+
+  /**
+   * Handler for the Continue button on the csvFieldMap pane.
+   */
+  async _onSubmitCsvFieldMap() {
+    this._importer.setCsvFields(document.getElementById("csvFieldMap").value);
+    this._showDirectories();
   }
 
   /**
    * Show the directories pane, with a list of existing directories and an
    * option to create a new directory.
-   * @param {nsIFile} sourceFile - The user selected source file.
    */
-  async _showDirectories(sourceFile) {
-    this._sourceFile = sourceFile;
+  async _showDirectories() {
     let elList = document.getElementById("directoryList");
     elList.innerHTML = "";
     this._directories = MailServices.ab.directories.filter(

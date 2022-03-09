@@ -66,6 +66,52 @@ progress {
   width: 100%;
 }
 
+table {
+  margin-top: 1rem;
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+th {
+  font-weight: 600;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--in-content-page-color);
+}
+
+th:last-child {
+  width: 2rem;
+}
+
+td:last-child {
+  text-align: end;
+}
+
+#csvFieldMap {
+  margin-top: 2rem;
+  display: block;
+}
+
+#csvFieldMap select {
+  line-height: 1.2;
+  background-position-x: right 10px;
+  padding-inline-start: 8px;
+  margin-inline-start: 0;
+  width: 100%;
+}
+
+#csvFieldMap select:dir(rtl) {
+  background-position-x: left 10px;
+}
+
+#csvFieldMap input {
+  margin-top: 4px;
+}
+
 #leftNav {
   color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);

@@ -101,6 +101,7 @@ messenger.jar:
     content/messenger/exportDialog.xhtml                                       (export/content/exportDialog.xhtml)
     content/messenger/aboutImport.js                                           (import/content/aboutImport.js)
 *   content/messenger/aboutImport.xhtml                                        (import/content/aboutImport.xhtml)
+    content/messenger/csv-field-map.js                                         (import/content/csv-field-map.js)
     content/messenger/importDialog.js                                          (import/content/importDialog.js)
     content/messenger/importDialog.xhtml                                       (import/content/importDialog.xhtml)
     content/messenger/fieldMapImport.xhtml                                     (import/content/fieldMapImport.xhtml)
