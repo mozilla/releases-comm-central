@@ -15,6 +15,18 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+window.addEventListener("load", event => {
+  setupWindow();
+  window.arguments[0].wrappedJSObject.window_onLoad();
+});
+window.addEventListener("unload", finishWindow);
+window.addEventListener("focus", onFocusWindow);
+window.addEventListener("keypress", event => {
+  if (event.key == "Escape") {
+    window.close();
+  }
+});
+
 var gShutdownDetected = false;
 
 /**
