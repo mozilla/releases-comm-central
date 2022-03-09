@@ -62,6 +62,9 @@ const USER_ICON_SIZE = 48;
 const SERVER_NOTICE_TAG = "m.server_notice";
 
 const MEGOLM_AES_SHA2 = "m.megolm.v1.aes-sha2";
+const MAX_CATCHUP_EVENTS = 300;
+// Should always be smaller or equal to MAX_CATCHUP_EVENTS
+const CATCHUP_PAGE_SIZE = 100;
 
 /**
  * @param {string} who - Message sender ID.
@@ -621,41 +624,55 @@ MatrixRoom.prototype = {
     // Get the timeline for the event, or just the current live timeline of the room
     let timelineWindow = new MatrixSDK.TimelineWindow(
       this._account._client,
-      this.room.getUnfilteredTimelineSet()
+      this.room.getUnfilteredTimelineSet(),
+      {
+        windowLimit: MAX_CATCHUP_EVENTS,
+      }
     );
-    const windowChunkSize = 100;
-    await timelineWindow.load(latestOldEvent, windowChunkSize);
-    // load() only makes sure the event is in the timeline window. The following
-    // ensures that the first event in the window is the event immediately after
-    // latestOldEvent.
-    let firstEventOffset = 0;
+    const newestEvent = this.room
+      .getLiveTimeline()
+      .getEvents()
+      .at(-1);
+    // Start the window at the newest event.
+    await timelineWindow.load(newestEvent.getId(), CATCHUP_PAGE_SIZE);
+    // Check if the oldest event we want to see is already in the window
+    let endIndex = -1;
     if (latestOldEvent) {
-      for (const event of timelineWindow.getEvents()) {
-        ++firstEventOffset;
-        if (event.getId() === latestOldEvent) {
-          break;
-        }
+      endIndex = timelineWindow
+        .getEvents()
+        .findIndex(event => event.getId() === latestOldEvent);
+    }
+    // Paginate backward until we either find our oldest event or we reach the max backscroll length.
+    while (
+      endIndex === -1 &&
+      timelineWindow.getEvents().length < MAX_CATCHUP_EVENTS &&
+      timelineWindow.canPaginate(EventTimeline.BACKWARDS)
+    ) {
+      const baseSize = timelineWindow.getEvents().length;
+      const windowSize = Math.min(
+        MAX_CATCHUP_EVENTS - baseSize,
+        CATCHUP_PAGE_SIZE
+      );
+      const didLoadEvents = await timelineWindow.paginate(
+        EventTimeline.BACKWARDS,
+        windowSize
+      );
+      // Only search in the newly added events
+      endIndex = timelineWindow
+        .getEvents()
+        .slice(0, -baseSize)
+        .findIndex(event => event.getId() === latestOldEvent);
+      if (!didLoadEvents) {
+        break;
       }
     }
     // Remove the old event from the window.
-    timelineWindow.unpaginate(firstEventOffset, true);
-    let newEvents = timelineWindow.getEvents();
+    if (endIndex !== -1) {
+      timelineWindow.unpaginate(endIndex + 1, true);
+    }
+    const newEvents = timelineWindow.getEvents();
     for (const event of newEvents) {
       this.addEvent(event, true);
-    }
-    while (timelineWindow.canPaginate(EventTimeline.FORWARDS)) {
-      if (
-        await timelineWindow.paginate(EventTimeline.FORWARDS, windowChunkSize)
-      ) {
-        timelineWindow.unpaginate(newEvents.length, true);
-        newEvents = timelineWindow.getEvents();
-        for (const event of newEvents) {
-          this.addEvent(event, true);
-        }
-      } else {
-        // Pagination was unable to add any more events
-        break;
-      }
     }
   },
 
