@@ -262,3 +262,11 @@ spaces-pinned-button-menuitem-chat =
 
 spaces-pinned-button-menuitem-reveal =
     .label = { spaces-toolbar-button-reveal.title }
+
+# Variables:
+# $count (Number) - Number of unread messages.
+chat-button-unread-messages = { $count }
+    .title = { $count ->
+        [one] One unread message
+        *[other] { $count } unread messages
+    }

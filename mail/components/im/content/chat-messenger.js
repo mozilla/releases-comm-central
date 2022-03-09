@@ -542,51 +542,61 @@ var chatHandler = {
   _notifiedUnreadCount: 0,
   _updateChatButtonState() {
     delete this._chatButtonUpdatePending;
-    let chatButton = document.getElementById("button-chat");
-    if (!chatButton) {
-      return;
-    }
 
     let [
-      unreadTargettedCount,
+      unreadTargetedCount,
       unreadTotalCount,
       unreadOTRNotificationCount,
     ] = this.countUnreadMessages();
-    let unreadMsgAndNotificationCount =
-      unreadTargettedCount + unreadOTRNotificationCount;
-    chatButton.badgeCount = unreadMsgAndNotificationCount;
+    let unreadCount = unreadTargetedCount + unreadOTRNotificationCount;
 
-    if (unreadTotalCount || unreadOTRNotificationCount) {
-      chatButton.setAttribute("unreadMessages", "true");
-    } else {
-      chatButton.removeAttribute("unreadMessages");
+    let chatButton = document.getElementById("button-chat");
+    if (chatButton) {
+      chatButton.badgeCount = unreadCount;
+      if (unreadTotalCount || unreadOTRNotificationCount) {
+        chatButton.setAttribute("unreadMessages", "true");
+      } else {
+        chatButton.removeAttribute("unreadMessages");
+      }
     }
 
-    if (unreadMsgAndNotificationCount != this._notifiedUnreadCount) {
+    let spacesChatButton = document.getElementById("chatButton");
+    if (spacesChatButton) {
+      spacesChatButton.classList.toggle("has-unread", unreadCount);
+      document.l10n.setAttributes(
+        spacesChatButton.querySelector(".spaces-unread-container"),
+        "chat-button-unread-messages",
+        {
+          count: unreadCount,
+        }
+      );
+    }
+
+    if (unreadCount != this._notifiedUnreadCount) {
       let unreadInt = Cc["@mozilla.org/supports-PRInt32;1"].createInstance(
         Ci.nsISupportsPRInt32
       );
-      unreadInt.data = unreadMsgAndNotificationCount;
+      unreadInt.data = unreadCount;
       Services.obs.notifyObservers(
         unreadInt,
         "unread-im-count-changed",
-        unreadMsgAndNotificationCount
+        unreadCount
       );
-      this._notifiedUnreadCount = unreadMsgAndNotificationCount;
+      this._notifiedUnreadCount = unreadCount;
     }
   },
 
   countUnreadMessages() {
     let convs = imServices.conversations.getUIConversations();
-    let unreadTargettedCount = 0;
+    let unreadTargetedCount = 0;
     let unreadTotalCount = 0;
     let unreadOTRNotificationCount = 0;
     for (let conv of convs) {
-      unreadTargettedCount += conv.unreadTargetedMessageCount;
+      unreadTargetedCount += conv.unreadTargetedMessageCount;
       unreadTotalCount += conv.unreadIncomingMessageCount;
       unreadOTRNotificationCount += conv.unreadOTRNotificationCount;
     }
-    return [unreadTargettedCount, unreadTotalCount, unreadOTRNotificationCount];
+    return [unreadTargetedCount, unreadTotalCount, unreadOTRNotificationCount];
   },
 
   updateTitle() {
@@ -595,9 +605,9 @@ var chatHandler = {
     }
 
     let title = gChatBundle.GetStringFromName("chatTabTitle");
-    let [unreadTargettedCount] = this.countUnreadMessages();
-    if (unreadTargettedCount) {
-      title += " (" + unreadTargettedCount + ")";
+    let [unreadTargetedCount] = this.countUnreadMessages();
+    if (unreadTargetedCount) {
+      title += " (" + unreadTargetedCount + ")";
     } else {
       let selectedItem = document.getElementById("contactlistbox").selectedItem;
       if (
