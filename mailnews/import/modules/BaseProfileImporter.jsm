@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["BaseProfileImporter"];
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 /**
@@ -60,12 +61,22 @@ class BaseProfileImporter {
    * Actually start importing things to the current profile.
    * @param {nsIFile} sourceProfileDir - The source location to import from.
    * @param {ImportItems} items - The items to import.
+   * @returns {boolean} Returns true when accounts have been imported, which
+   *   means a restart is needed. Otherwise, no restart is needed.
    */
   async startImport(sourceProfileDir, items) {
     throw Components.Exception(
       `startImport not implemented in ${this.constructor.name}`,
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
+  }
+
+  /**
+   * Reset use_without_mail_account, so that imported accounts are correctly
+   * rendered in the folderPane.
+   */
+  _onImportAccounts() {
+    Services.prefs.setBoolPref("app.use_without_mail_account", false);
   }
 
   /**

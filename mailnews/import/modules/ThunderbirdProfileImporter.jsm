@@ -145,6 +145,8 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     await this._updateProgress();
+
+    return true;
   }
 
   /**
@@ -243,6 +245,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     await this._importMailMessages(incomingServerKeyMap);
     if (this._sourceLocalServerKeyToSkip) {
       this._mergeLocalFolders();
+    }
+
+    if (accountManager.accounts) {
+      this._onImportAccounts();
     }
   }
 
@@ -399,6 +405,11 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
           this._sourceLocalServerAttrs[attr] = value;
         }
         // We already have a Local Folders account.
+        continue;
+      }
+      if (attr == "deferred_to_account") {
+        // Handling deferred account is a bit complicated, to prevent potential
+        // problems, just skip this pref so it becomes a normal account.
         continue;
       }
       let newServerKey = incomingServerKeyMap.get(key);

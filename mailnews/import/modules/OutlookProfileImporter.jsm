@@ -59,6 +59,7 @@ class OutlookProfileImporter extends BaseProfileImporter {
       let outLocalAccount = {};
       importSettings.Import(outLocalAccount);
       await this._updateProgress();
+      this._onImportAccounts();
     }
 
     let successStr = Cc["@mozilla.org/supports-string;1"].createInstance(
@@ -134,5 +135,7 @@ class OutlookProfileImporter extends BaseProfileImporter {
       }
       await this._updateProgress();
     }
+
+    return items.accounts;
   }
 }

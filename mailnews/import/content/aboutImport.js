@@ -368,7 +368,7 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the items pane.
    */
   async _onSelectItems() {
-    importDialog.showProgress(this, true);
+    importDialog.showProgress(this);
     if (this._importingFromZip) {
       this._extractedFileCount = 0;
       try {
@@ -388,9 +388,11 @@ class ProfileImporterController extends ImporterController {
       );
     };
     try {
-      await this._importer.startImport(
-        this._sourceProfile.dir,
-        this._getItemsChecked()
+      importDialog.finish(
+        await this._importer.startImport(
+          this._sourceProfile.dir,
+          this._getItemsChecked()
+        )
       );
     } catch (e) {
       importDialog.showError(
@@ -597,7 +599,9 @@ class AddrBookImporterController extends ImporterController {
       importDialog.updateProgress(current / total);
     };
     try {
-      await this._importer.startImport(this._sourceFile, targetDirectory);
+      importDialog.finish(
+        await this._importer.startImport(this._sourceFile, targetDirectory)
+      );
     } catch (e) {
       importDialog.showError(
         await document.l10n.formatValue("error-message-failed")
@@ -656,29 +660,39 @@ let importDialog = {
    * Show the progress pane.
    * @param {ImporterController} importerController - An instance of the
    *   controller.
-   * @param {boolean} restartOnOk - Whether a restart is needed after importing.
    */
-  showProgress(importerController, restartOnOk) {
+  showProgress(importerController) {
     this._showPane("progress");
     this._importerController = importerController;
-    this._restartOnOk = restartOnOk;
     this._disableCancel(true);
     this._disableAccept(true);
   },
 
-  async updateProgress(value) {
+  /**
+   * Update the progress bar.
+   * @param {number} value - A number between 0 and 1 to represent the progress.
+   */
+  updateProgress(value) {
     document.getElementById("importDialogProgressBar").value = value;
     if (value >= 1) {
-      let [restartDesc, finishedDesc] = await document.l10n.formatValues([
-        "progress-pane-restart-desc",
-        "progress-pane-finished-desc",
-      ]);
-      document.getElementById("progressPaneDesc").textContent = this
-        ._restartOnOk
-        ? restartDesc
-        : finishedDesc;
       this._disableAccept(false);
     }
+  },
+
+  /**
+   * Show the finish text.
+   * @param {boolean} restartNeeded - Whether restart is needed to finish the
+   *   importing.
+   */
+  async finish(restartNeeded) {
+    this._restartOnOk = restartNeeded;
+    let [restartDesc, finishedDesc] = await document.l10n.formatValues([
+      "progress-pane-restart-desc",
+      "progress-pane-finished-desc",
+    ]);
+    document.getElementById("progressPaneDesc").textContent = restartNeeded
+      ? restartDesc
+      : finishedDesc;
   },
 
   /**
