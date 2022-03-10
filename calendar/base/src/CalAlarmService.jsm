@@ -25,6 +25,51 @@ function newTimerWithCallback(aCallback, aDelay, aRepeating) {
   return timer;
 }
 
+/**
+ * Keeps track of seemingly immutable items with alarms that we can't dismiss.
+ * Some servers quietly discard our modifications to repeating events which will
+ * cause dismissed alarms to re-appear if we do not keep track.
+ *
+ * We track the items by their "hashId" property storing it in the calendar
+ * property "alarms.ignored".
+ */
+const IgnoredAlarmsStore = {
+  /**
+   * @type {number}
+   */
+  maxItemsPerCalendar: 1500,
+
+  _getCache(item) {
+    return item.calendar.getProperty("alarms.ignored")?.split(",") || [];
+  },
+
+  /**
+   * Adds an item to the store. No alarms will be created for this item again.
+   * @param {calIItemBase} item
+   */
+  add(item) {
+    let cache = this._getCache(item);
+    let id = item.parentItem.hashId;
+    if (!cache.includes(id)) {
+      if (cache.length >= this.maxItemsPerCalendar) {
+        cache[0] = id;
+      } else {
+        cache.push(id);
+      }
+    }
+    item.calendar.setProperty("alarms.ignored", cache.join(","));
+  },
+
+  /**
+   * Returns true if the item's hashId is in the store.
+   * @param {calIItemBase} item
+   * @return {boolean}
+   */
+  has(item) {
+    return this._getCache(item).includes(item.parentItem.hashId);
+  },
+};
+
 function CalAlarmService() {
   this.wrappedJSObject = this;
 
@@ -179,7 +224,7 @@ CalAlarmService.prototype = {
     this.mTimezone = aTimezone;
   },
 
-  snoozeAlarm(aItem, aAlarm, aDuration) {
+  async snoozeAlarm(aItem, aAlarm, aDuration) {
     // Right now we only support snoozing all alarms for the given item for
     // aDuration.
 
@@ -194,25 +239,31 @@ CalAlarmService.prototype = {
     alarmTime = alarmTime.clone();
     alarmTime.addDuration(aDuration);
 
-    if (aItem.parentItem == aItem) {
-      newEvent.setProperty("X-MOZ-SNOOZE-TIME", alarmTime.icalString);
-    } else {
+    let propName = "X-MOZ-SNOOZE-TIME";
+    if (aItem.parentItem != aItem) {
       // This is the *really* hard case where we've snoozed a single
       // instance of a recurring event.  We need to not only know that
       // there was a snooze, but also which occurrence was snoozed.  Part
       // of me just wants to create a local db of snoozes here...
-      newEvent.setProperty(
-        "X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime,
-        alarmTime.icalString
-      );
+      propName = "X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime;
     }
+    newEvent.setProperty(propName, alarmTime.icalString);
+
     // calling modifyItem will cause us to get the right callback
     // and update the alarm properly
-    return newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
+    let modifiedItem = await newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
+
+    if (modifiedItem.getProperty(propName) == alarmTime.icalString) {
+      return;
+    }
+
+    // The server did not persist our changes for some reason.
+    // Include the item in the ignored list so we skip displaying alarms for
+    // this item in the future.
+    IgnoredAlarmsStore.add(aItem);
   },
 
-  dismissAlarm(aItem, aAlarm) {
-    let rv;
+  async dismissAlarm(aItem, aAlarm) {
     if (cal.acl.isCalendarWritable(aItem.calendar) && cal.acl.userCanModifyItem(aItem)) {
       let now = nowUTC();
       // We want the parent item, otherwise we're going to accidentally
@@ -228,16 +279,23 @@ CalAlarmService.prototype = {
       } else {
         newParent.deleteProperty("X-MOZ-SNOOZE-TIME");
       }
-      rv = newParent.calendar.modifyItem(newParent, oldParent);
-    } else {
-      // if the calendar of the item is r/o, we simple remove the alarm
-      // from the list without modifying the item, so this works like
-      // effectively dismissing from a user's pov, since the alarm neither
-      // popups again in the current user session nor will be added after
-      // next restart, since it is missed then already
-      this.removeAlarmsForItem(aItem);
+
+      let modifiedItem = await newParent.calendar.modifyItem(newParent, oldParent);
+      if (modifiedItem.alarmLastAck && now.compare(modifiedItem.alarmLastAck) == 0) {
+        return;
+      }
+
+      // The server did not persist our changes for some reason.
+      // Include the item in the ignored list so we skip displaying alarms for
+      // this item in the future.
+      IgnoredAlarmsStore.add(aItem);
     }
-    return rv;
+    // if the calendar of the item is r/o, we simple remove the alarm
+    // from the list without modifying the item, so this works like
+    // effectively dismissing from a user's pov, since the alarm neither
+    // popups again in the current user session nor will be added after
+    // next restart, since it is missed then already
+    this.removeAlarmsForItem(aItem);
   },
 
   addObserver(aObserver) {
@@ -345,8 +403,9 @@ CalAlarmService.prototype = {
   },
 
   addAlarmsForItem(aItem) {
-    if (aItem.isTodo() && aItem.isCompleted) {
-      // If this is a task and it is completed, don't add the alarm.
+    if ((aItem.isTodo() && aItem.isCompleted) || IgnoredAlarmsStore.has(aItem)) {
+      // If this is a task and it is completed or the id is in the ignored list,
+      // don't add the alarm.
       return;
     }
 
