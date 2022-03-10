@@ -29,6 +29,15 @@
               data-l10n-id="settings-context-open-addons-item"/>
   </menupopup>
 
+  <menupopup id="spacesToolbarContextMenu"
+             class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
+             type="arrow">
+    <menuitem id="spacesToolbarContextCustomize"
+              class="subviewbutton menuitem-iconic"
+              data-l10n-id="spaces-context-customize"
+              oncommand="gSpacesToolbar.showCustomize();"/>
+  </menupopup>
+
   <menupopup id="spacesToolbarAddonsPopup" type="arrow"
              class="no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
              onpopuphidden="gSpacesToolbar.spacesToolbarAddonsPopupClosed();">
@@ -41,6 +50,9 @@
           data-l10n-attrs="toolbarname"
           aria-orientation="vertical"
           hidden="hidden">
+  <!-- Hidden element used to fetch the style of an "active" button. -->
+  <span id="spacesAccentPlaceholder" hidden="hidden"></span>
+
   <!-- Primary tabs. -->
   <div class="spaces-toolbar-container spaces-toolbar-top-container">
     <button id="mailButton"
@@ -101,3 +113,46 @@
     </button>
   </div>
 </html:div>
+
+<panel id="spacesToolbarCustomizationPanel"
+       type="arrow"
+       orient="vertical"
+       class="cui-widget-panel"
+       noautohide="true"
+       onpopuphidden="gSpacesToolbar.onCustomizePopupHidden();">
+  <!-- Keep the noautohide attribute to true to prevent the panel from closing
+    when the color picker appears. -->
+  <html:div class="spaces-customize-panel" xmlns="http://www.w3.org/1999/xhtml">
+    <h3 data-l10n-id="spaces-customize-panel-title"></h3>
+
+    <div class="spaces-options-grid">
+      <label for="spacesBackgroundColor"
+             data-l10n-id="spaces-customize-background-color"></label>
+      <input type="color" id="spacesBackgroundColor" />
+
+      <label for="spacesIconsColor"
+             data-l10n-id="spaces-customize-icon-color"></label>
+      <input type="color" id="spacesIconsColor" />
+
+      <label for="spacesAccentBgColor"
+             data-l10n-id="spaces-customize-accent-background-color"></label>
+      <input type="color" id="spacesAccentBgColor" />
+
+      <label for="spacesAccentTextColor"
+             data-l10n-id="spaces-customize-accent-text-color"></label>
+      <input type="color" id="spacesAccentTextColor" />
+    </div>
+
+    <div class="spaces-buttons-container">
+      <button type="button"
+              data-l10n-id="spaces-customize-button-restore"
+              onclick="gSpacesToolbar.resetColorCustomization();">
+      </button>
+      <button type="button"
+              data-l10n-id="spaces-customize-button-save"
+              onclick="gSpacesToolbar.closeCustomize();"
+              class="primary">
+      </button>
+    </div>
+  </html:div>
+</panel>

@@ -270,3 +270,28 @@ chat-button-unread-messages = { $count }
         [one] One unread message
         *[other] { $count } unread messages
     }
+
+## Spaces toolbar customize panel
+
+spaces-context-customize =
+    .label = Customize…
+
+spaces-customize-panel-title = Spaces Toolbar Settings
+
+spaces-customize-background-color = Background color
+
+spaces-customize-icon-color = Button color
+
+# The background color used on the buttons of the spaces toolbar when they are
+# `current`, meaning the related space/tab is active and visible.
+spaces-customize-accent-background-color = Selected button background color
+
+# The icon color used on the buttons of the spaces toolbar when they are
+# `current`, meaning the related space/tab is active and visible.
+spaces-customize-accent-text-color = Selected button color
+
+spaces-customize-button-restore = Restore Defaults
+    .accesskey = R
+
+spaces-customize-button-save = Done
+    .accesskey = D

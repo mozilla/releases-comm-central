@@ -13,9 +13,21 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * Special vertical toolbar to organize all the buttons opening a tab.
  */
 var gSpacesToolbar = {
+  docURL: "chrome://messenger/content/messenger.xhtml",
   isLoaded: false,
   isHidden: false,
-  prefFile: "spacesToolbar.json",
+  /**
+   * The DOM element panel collecting all customization options.
+   */
+  customizePanel: null,
+  /**
+   * The object storing all saved customization options:
+   * - background: The toolbar background color.
+   * - color: The default icon color of the buttons.
+   * - accentColor: The background color of an active/current button.
+   * - accentBackground: The icon color of an active/current button.
+   */
+  customizeData: {},
 
   /**
    * @callback TabInSpace
@@ -105,6 +117,29 @@ var gSpacesToolbar = {
         gSpacesToolbar.currentSpace?.button.classList.add("current");
       }
     },
+  },
+
+  /**
+   * Convert an rgb() string to an hexadecimal color string.
+   *
+   * @param {string} color - The RGBA color string that needs conversion.
+   * @returns {string} - The converted hexadecimal color.
+   */
+  _rgbToHex(color) {
+    let rgb = color
+      .split("(")[1]
+      .split(")")[0]
+      .split(",");
+
+    // For each array element convert ot a base16 string and add zero if we get
+    // only one character.
+    let hash = rgb.map(x =>
+      parseInt(x)
+        .toString(16)
+        .padStart(2, "0")
+    );
+
+    return `#${hash.join("")}`;
   },
 
   onLoad() {
@@ -252,15 +287,17 @@ var gSpacesToolbar = {
 
     this.setupEventListeners();
     this.toggleToolbar(
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "spacesToolbar",
-        "hidden"
-      ) == "true"
+      Services.xulStore.getValue(this.docURL, "spacesToolbar", "hidden") ==
+        "true"
     );
 
     // The tab monitor will inform us when a different tab is selected.
     tabmail.registerTabMonitor(this.tabMonitor);
+
+    this.customizePanel = document.getElementById(
+      "spacesToolbarCustomizationPanel"
+    );
+    this.loadCustomization();
 
     this.isLoaded = true;
     // Update the window UI after the spaces toolbar has been loaded.
@@ -270,6 +307,10 @@ var gSpacesToolbar = {
   },
 
   setupEventListeners() {
+    document
+      .getElementById("spacesToolbar")
+      .addEventListener("contextmenu", event => this._showContextMenu(event));
+
     // Prevent buttons from stealing the focus on click since the focus is
     // handled when a specific tab is opened or switched to.
     for (let button of document.querySelectorAll(".spaces-toolbar-button")) {
@@ -316,6 +357,7 @@ var gSpacesToolbar = {
       });
       if (space.name == "settings") {
         space.button.addEventListener("contextmenu", event => {
+          event.stopPropagation();
           settingsContextMenu.openPopupAtScreen(
             event.screenX,
             event.screenY,
@@ -326,6 +368,7 @@ var gSpacesToolbar = {
         continue;
       }
       space.button.addEventListener("contextmenu", event => {
+        event.stopPropagation();
         contextSpace = space;
         // Clean up old items.
         for (let menuitem of contextMenu.querySelectorAll(".switch-to-tab")) {
@@ -408,6 +451,201 @@ var gSpacesToolbar = {
   },
 
   /**
+   * Open a popup context menu at the location of the right on the toolbar.
+   *
+   * @param {DOMEvent} event - The click event.
+   */
+  _showContextMenu(event) {
+    document
+      .getElementById("spacesToolbarContextMenu")
+      .openPopupAtScreen(event.screenX, event.screenY, true);
+  },
+
+  /**
+   * Load the saved customization from the xulStore, if we have any.
+   */
+  async loadCustomization() {
+    let xulStore = Services.xulStore;
+    if (xulStore.hasValue(this.docURL, "spacesToolbar", "colors")) {
+      this.customizeData = JSON.parse(
+        xulStore.getValue(this.docURL, "spacesToolbar", "colors")
+      );
+      this.updateCustomization();
+    }
+  },
+
+  /**
+   * Reset the colors shown on the button colors to the default state to remove
+   * any previously applied custom color.
+   */
+  _resetColorInputs() {
+    // Update colors with the current values. If we don't have any customization
+    // data, we fetch the current colors from the DOM elements.
+    // IMPORTANT! Always clear the onchange method before setting a new value
+    // since this method might be called after the popup is already opened.
+    let bgButton = document.getElementById("spacesBackgroundColor");
+    bgButton.onchange = null;
+    bgButton.value =
+      this.customizeData.background ||
+      this._rgbToHex(
+        getComputedStyle(document.getElementById("spacesToolbar"))
+          .backgroundColor
+      );
+    bgButton.onchange = event => {
+      this.customizeData.background = event.target.value;
+      this.updateCustomization();
+    };
+
+    let iconButton = document.getElementById("spacesIconsColor");
+    iconButton.onchange = null;
+    iconButton.value =
+      this.customizeData.color ||
+      this._rgbToHex(
+        getComputedStyle(
+          document.querySelector(".spaces-toolbar-button:not(.current)")
+        ).color
+      );
+    iconButton.onchange = event => {
+      this.customizeData.color = event.target.value;
+      this.updateCustomization();
+    };
+
+    let accentStyle = getComputedStyle(
+      document.getElementById("spacesAccentPlaceholder")
+    );
+    let accentBgButton = document.getElementById("spacesAccentBgColor");
+    accentBgButton.onchange = null;
+    accentBgButton.value =
+      this.customizeData.accentBackground ||
+      this._rgbToHex(accentStyle.backgroundColor);
+    accentBgButton.onchange = event => {
+      this.customizeData.accentBackground = event.target.value;
+      this.updateCustomization();
+    };
+
+    let accentFgButton = document.getElementById("spacesAccentTextColor");
+    accentFgButton.onchange = null;
+    accentFgButton.value =
+      this.customizeData.accentColor || this._rgbToHex(accentStyle.color);
+    accentFgButton.onchange = event => {
+      this.customizeData.accentColor = event.target.value;
+      this.updateCustomization();
+    };
+  },
+
+  /**
+   * Update the color buttons to reflect the current state of the toolbar UI,
+   * then open the customization panel.
+   */
+  showCustomize() {
+    // Reset the color inputs to be sure we're showing the correct colors.
+    this._resetColorInputs();
+
+    // Since we're forcing the panel to stay open with noautohide, we need to
+    // listen for the Escape keypress to maintain that usability exit point.
+    window.addEventListener("keypress", this.onWindowKeypress);
+    this.customizePanel.openPopup(
+      document.getElementById("collapseButton"),
+      "end_after",
+      6,
+      0,
+      false
+    );
+  },
+
+  /**
+   * Listen for the keypress event on the window after the customize panel was
+   * opened to enable the closing on Escape.
+   *
+   * @param {Event} event - The DOM Event.
+   */
+  onWindowKeypress(event) {
+    if (event.key == "Escape") {
+      gSpacesToolbar.customizePanel.hidePopup();
+    }
+  },
+
+  /**
+   * Close the customization panel.
+   */
+  closeCustomize() {
+    this.customizePanel.hidePopup();
+  },
+
+  /**
+   * Reset all event listeners and store the custom colors.
+   */
+  onCustomizePopupHidden() {
+    // Always remove the keypress event listener set on opening.
+    window.removeEventListener("keypress", this.onWindowKeypress);
+
+    // Save the custom colors, or delete it if we don't have any.
+    if (!Object.keys(this.customizeData).length) {
+      Services.xulStore.removeValue(this.docURL, "spacesToolbar", "colors");
+      return;
+    }
+
+    Services.xulStore.setValue(
+      this.docURL,
+      "spacesToolbar",
+      "colors",
+      JSON.stringify(this.customizeData)
+    );
+  },
+
+  /**
+   * Apply the customization to the CSS file.
+   */
+  updateCustomization() {
+    let data = this.customizeData;
+    let style = document.documentElement.style;
+
+    // Toolbar background color.
+    style.setProperty("--spaces-bg-color", data.background ?? null);
+    // Icons color.
+    style.setProperty("--spaces-button-text-color", data.color ?? null);
+    // Icons color for current/active buttons.
+    style.setProperty(
+      "--spaces-button-active-text-color",
+      data.accentColor ?? null
+    );
+    // Background color for current/active buttons.
+    style.setProperty(
+      "--spaces-button-active-bg-color",
+      data.accentBackground ?? null
+    );
+  },
+
+  /**
+   * Reset all color customizations to show the user the default UI.
+   */
+  resetColorCustomization() {
+    if (!matchMedia("(prefers-reduced-motion)").matches) {
+      // We set an event listener for the transition of any element inside the
+      // toolbar so we can reset the color for the buttons only after the
+      // toolbar and its elements reverted to their original colors.
+      document.getElementById("spacesToolbar").addEventListener(
+        "transitionend",
+        () => {
+          this._resetColorInputs();
+        },
+        {
+          once: true,
+        }
+      );
+    }
+
+    this.customizeData = {};
+    this.updateCustomization();
+
+    // If the user required reduced motion, the transitionend listener will not
+    // work.
+    if (matchMedia("(prefers-reduced-motion)").matches) {
+      this._resetColorInputs();
+    }
+  },
+
+  /**
    * Toggle the spaces toolbar and toolbar buttons visibility.
    *
    * @param {boolean} state - The visibility state to update the elements.
@@ -424,6 +662,9 @@ var gSpacesToolbar = {
     );
   },
 
+  /**
+   * Toggle the spaces toolbar from a menuitem.
+   */
   toggleToolbarFromMenu() {
     this.toggleToolbar(!this.isHidden);
   },
@@ -496,6 +737,10 @@ var gSpacesToolbar = {
     }
   },
 
+  /**
+   * Reset the inline style of the various titlebars and toolbars that interact
+   * with the spaces toolbar.
+   */
   resetInlineStyle() {
     document.getElementById("titlebar").removeAttribute("style");
     document.getElementById("toolbar-menubar").removeAttribute("style");
@@ -790,7 +1035,7 @@ var gSpacesToolbar = {
    */
   onUnload() {
     Services.xulStore.setValue(
-      "chrome://messenger/content/messenger.xhtml",
+      this.docURL,
       "spacesToolbar",
       "hidden",
       this.isHidden

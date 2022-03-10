@@ -22,7 +22,6 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --spaces-bg-color: #252525;
-    --spaces-button-text-color: --toolbar-field-color;
   }
 }
 
@@ -107,6 +106,10 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .spaces-toolbar {
+    transition: background-color 280ms ease;
+  }
+
   .spaces-toolbar-button {
     transition: background-color 280ms ease, opacity 280ms ease, color 280ms;
   }
@@ -121,7 +124,8 @@
 }
 
 .spaces-toolbar-button.current,
-.spaces-toolbar-button.current:hover {
+.spaces-toolbar-button.current:hover,
+#spacesAccentPlaceholder {
   background-color: var(--spaces-button-active-bg-color);
   color: var(--spaces-button-active-text-color);
   opacity: 1;
@@ -241,4 +245,34 @@
 
 .has-unread .spaces-unread-container {
   display: block;
+}
+
+/* Customize panel */
+
+panel#spacesToolbarCustomizationPanel {
+  margin-block: 0;
+}
+
+.spaces-customize-panel {
+  padding: var(--appmenu-button-margin);
+  min-width: 300px;
+}
+
+.spaces-customize-panel h3 {
+  margin-block: 0 12px;
+}
+
+.spaces-buttons-container {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  justify-content: end;
+}
+
+.spaces-options-grid {
+  display: grid;
+  margin-block: 6px 12px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px;
 }
