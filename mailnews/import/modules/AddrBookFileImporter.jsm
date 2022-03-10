@@ -116,6 +116,7 @@ class AddrBookFileImporter {
         );
       }
     }
+    this._csvSkipFirstRow = true;
     this._csvProperties = [];
     // Get the nsIAbCard properties corresponding to the user supplied file.
     for (let field of this._csvRows[0]) {
@@ -125,7 +126,6 @@ class AddrBookFileImporter {
       }
       this._csvProperties.push(this._supportedCsvProperties[index]);
     }
-    this._csvSkipFirstRow = true;
     return [];
   }
 

@@ -10,10 +10,10 @@ var { AddrBookFileImporter } = ChromeUtils.import(
  * Create a temporary address book, import a source file into it, then test the
  * cards are correct.
  * @param {string} type - A source file type supported by AddrBookFileImporter.
- * @param {string} testFile - The path of a source file.
+ * @param {string} filePath - The path of a source file.
  * @param {string} refDataKey - The key of an object in addressbook.json.
  */
-async function test_importAbFile(type, testFile, refDataKey) {
+async function test_importAbFile(type, filePath, refDataKey) {
   // Create an address book and init the importer.
   let dirId = MailServices.ab.newAddressBook(
     `tmp-${type}`,
@@ -24,7 +24,11 @@ async function test_importAbFile(type, testFile, refDataKey) {
   let importer = new AddrBookFileImporter(type);
 
   // Start importing.
-  await importer.startImport(do_get_file(testFile), targetDir);
+  let sourceFile = do_get_file(filePath);
+  if (type == "csv") {
+    await importer.parseCsvFile(sourceFile);
+  }
+  await importer.startImport(sourceFile, targetDir);
 
   // Read in the reference data.
   let refFile = do_get_file("resources/addressbook.json");
