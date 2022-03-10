@@ -11,6 +11,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
   exportAttributes: "resource:///modules/AddrBookUtils.jsm",
 });
 
@@ -69,6 +70,9 @@ class AddrBookFileImporter {
         break;
       case "vcard":
         await this._importVCardFile();
+        break;
+      case "sqlite":
+        await this._importSqliteFile();
         break;
       case "mab":
         await this._importMabFile();
@@ -248,6 +252,56 @@ class AddrBookFileImporter {
       }
     }
     this.onProgress(totalLines, totalLines);
+  }
+
+  /**
+   * Import the .sqlite source file into the target directory.
+   */
+  async _importSqliteFile() {
+    this.onProgress(2, 10);
+    // Create a temporary address book.
+    let dirId = MailServices.ab.newAddressBook(
+      "tmp",
+      "",
+      Ci.nsIAbManager.JS_DIRECTORY_TYPE
+    );
+    let tmpDirectory = MailServices.ab.getDirectoryFromId(dirId);
+
+    try {
+      // Close the connection to release the file handler.
+      await tmpDirectory.cleanUp();
+      // Overwrite the sqlite database file.
+      this._sourceFile.copyTo(
+        Services.dirsvc.get("ProfD", Ci.nsIFile),
+        tmpDirectory.fileName
+      );
+      // Open a new connection to use the new database file.
+      let uri = tmpDirectory.URI;
+      tmpDirectory = Cc[
+        "@mozilla.org/addressbook/directory;1?type=jsaddrbook"
+      ].createInstance(Ci.nsIAbDirectory);
+      tmpDirectory.init(uri);
+
+      for (let card of tmpDirectory.childCards) {
+        this._targetDirectory.addCard(card);
+      }
+      this.onProgress(8, 10);
+
+      for (let sourceList of tmpDirectory.childNodes) {
+        let targetList = this._targetDirectory.getMailListFromName(
+          sourceList.dirName
+        );
+        if (!targetList) {
+          targetList = this._targetDirectory.addMailList(sourceList);
+        }
+        for (let card of sourceList.childCards) {
+          targetList.addCard(card);
+        }
+      }
+      this.onProgress(10, 10);
+    } finally {
+      MailServices.ab.deleteAddressBook(tmpDirectory.URI);
+    }
   }
 
   /**

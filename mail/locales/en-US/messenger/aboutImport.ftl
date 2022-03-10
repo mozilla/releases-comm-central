@@ -66,6 +66,8 @@ addr-book-ldif-file = LDIF file (.ldif)
 
 addr-book-vcard-file = vCard file (.vcf, .vcard)
 
+addr-book-sqlite-file = SQLite database file (.sqlite)
+
 addr-book-mab-file = Mork database file (.mab)
 
 addr-book-file-picker = Select an address book file

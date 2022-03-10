@@ -485,6 +485,7 @@ class AddrBookImporterController extends ImporterController {
       csv: "*.csv; *.tsv; *.tab",
       ldif: "*.ldif",
       vcard: "*.vcf",
+      sqlite: "*.sqlite",
       mab: "*.mab",
     }[this._fileType];
     if (filter) {

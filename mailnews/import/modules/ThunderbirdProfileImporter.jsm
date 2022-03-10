@@ -11,6 +11,9 @@ var { MailServices } = ChromeUtils.import(
 var { BaseProfileImporter } = ChromeUtils.import(
   "resource:///modules/BaseProfileImporter.jsm"
 );
+var { AddrBookFileImporter } = ChromeUtils.import(
+  "resource:///modules/AddrBookFileImporter.jsm"
+);
 
 /**
  * A pref is represented as [type, name, value].
@@ -864,34 +867,20 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   _importAddressBookDatabase(filename) {
     let sourceFile = this._sourceProfileDir.clone();
     sourceFile.append(filename);
-    let targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    targetFile.append(filename);
-
     if (!sourceFile.exists()) {
       return;
     }
 
-    if (!targetFile.exists()) {
-      sourceFile.copyTo(targetFile.parent, "");
-      return;
-    }
-
-    let dirId = MailServices.ab.newAddressBook(
-      "tmp",
-      "",
-      Ci.nsIAbManager.JS_DIRECTORY_TYPE
-    );
-    let tmpDirectory = MailServices.ab.getDirectoryFromId(dirId);
-    sourceFile.copyTo(targetFile.parent, tmpDirectory.fileName);
-
     let targetDirectory = MailServices.ab.getDirectory(
       `jsaddrbook://${filename}`
     );
-    for (let card of tmpDirectory.childCards) {
-      targetDirectory.addCard(card);
+    if (!targetDirectory) {
+      sourceFile.copyTo(Services.dirsvc.get("ProfD", Ci.nsIFile), "");
+      return;
     }
 
-    MailServices.ab.deleteAddressBook(tmpDirectory.URI);
+    let importer = new AddrBookFileImporter("sqlite");
+    importer.startImport(sourceFile, targetDirectory);
   }
 
   /**
@@ -907,10 +896,9 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       "@mozilla.org/addressbook/directory;1?type=jsaddrbook"
     ].createInstance(Ci.nsIAbDirectory);
     targetDirectory.init(`jsaddrbook://${targetSqliteFile.leafName}`);
-    let importMab = Cc[
-      "@mozilla.org/import/import-ab-file;1?type=mab"
-    ].createInstance(Ci.nsIImportABFile);
-    importMab.readFileToDirectory(sourceMabFile, targetDirectory);
+
+    let importer = new AddrBookFileImporter("mab");
+    importer.startImport(sourceMabFile, targetDirectory);
   }
 
   /**
@@ -937,10 +925,8 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       return;
     }
 
-    let importMab = Cc[
-      "@mozilla.org/import/import-ab-file;1?type=mab"
-    ].createInstance(Ci.nsIImportABFile);
-    importMab.readFileToDirectory(sourceMabFile, targetDirectory);
+    let importer = new AddrBookFileImporter("mab");
+    importer.startImport(sourceMabFile, targetDirectory);
   }
 
   /**
