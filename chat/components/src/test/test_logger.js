@@ -331,6 +331,23 @@ var test_logging = async function() {
         displayMessage: "Nothing much!",
         incoming: true,
       },
+      {
+        time: startTime + 5,
+        who: "personB",
+        displayMessage: "Encrypted msg",
+        remoteId: "identifier",
+        incoming: true,
+        isEncrypted: true,
+      },
+      {
+        time: startTime + 6,
+        who: "personA",
+        displayMessage: "Deleted",
+        remoteId: "otherID",
+        outgoing: true,
+        isEncrypted: true,
+        deleted: true,
+      },
     ];
   };
   let firstDayMsgs = getMsgsForConv(dummyConv);
@@ -404,8 +421,14 @@ var test_logging = async function() {
 
   // Group expected messages by day.
   let messagesByDay = new Map();
-  messagesByDay.set(reduceTimeToDate(firstDayMsgs[0].time), firstDayMsgs);
-  messagesByDay.set(reduceTimeToDate(secondDayMsgs[0].time), secondDayMsgs);
+  messagesByDay.set(
+    reduceTimeToDate(firstDayMsgs[0].time),
+    firstDayMsgs.filter(msg => !msg.deleted)
+  );
+  messagesByDay.set(
+    reduceTimeToDate(secondDayMsgs[0].time),
+    secondDayMsgs.filter(msg => !msg.deleted)
+  );
 
   let logs = await logger.getLogsForConversation(dummyConv);
   for (let log of logs) {
@@ -526,6 +549,129 @@ var test_logFileSplitting = async function() {
   // Clean up.
   await IOUtils.remove(logDirPath, { recursive: true });
 };
+
+add_task(function test_logWithEdits() {
+  const conv = new gLogger.LogConversation(
+    [
+      {
+        date: "2022-03-04T11:59:48.000Z",
+        who: "@other:example.com",
+        text: "Decrypting...",
+        flags: ["incoming", "delayed", "isEncrypted"],
+        remoteId: "$AjmS57jkBbYnSnC01r3fXya8BfuHIMAw9mOYQRlnkFk",
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:51.000Z",
+        who: "@other:example.com",
+        text: "Decrypting...",
+        flags: ["incoming", "delayed", "isEncrypted"],
+        remoteId: "$00zdmKvErkDR4wMaxZBCFsV1WwqPQRolP0kYiXPIXsQ",
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:53.000Z",
+        who: "@other:example.com",
+        text: "Decrypting...",
+        flags: ["incoming", "delayed", "isEncrypted"],
+        remoteId: "$Z6ILSf7cBMRbr_B6Z6DPHJWzf-Utxa8_s0f6vxhR_VQ",
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:56.000Z",
+        who: "@other:example.com",
+        text: "Decrypting...",
+        flags: ["incoming", "delayed", "isEncrypted"],
+        remoteId: "$GFlcel-9tWrTvSb7HM_113-WpkzEdB4neglPVpZn3dM",
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:56.000Z",
+        who: "@other:example.com",
+        text: "Lorem ipsum dolor sit amet",
+        flags: ["incoming", "isEncrypted"],
+        remoteId: "$GFlcel-9tWrTvSb7HM_113-WpkzEdB4neglPVpZn3dM",
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:53.000Z",
+        who: "@other:example.com",
+        text: "consectetur adipiscing elit",
+        flags: ["incoming", "isEncrypted"],
+        remoteId: "$Z6ILSf7cBMRbr_B6Z6DPHJWzf-Utxa8_s0f6vxhR_VQ",
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:51.000Z",
+        who: "@other:example.com",
+        text:
+          "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+        flags: ["incoming", "isEncrypted"],
+        remoteId: "$00zdmKvErkDR4wMaxZBCFsV1WwqPQRolP0kYiXPIXsQ",
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:48.000Z",
+        who: "@other:example.com",
+        text: "Ut enim ad minim veniam",
+        flags: ["incoming", "isEncrypted"],
+        remoteId: "$AjmS57jkBbYnSnC01r3fXya8BfuHIMAw9mOYQRlnkFk",
+        alias: "other",
+      },
+    ],
+    {
+      startDate: new Date("2022-03-04T12:00:03.508Z"),
+      name: "test",
+      title: "test",
+      _accountName: "@test:example.com",
+      _protocolName: "matrix",
+      _isChat: false,
+      normalizedName: "!foobar:example.com",
+    }
+  );
+  const messages = conv.getMessages();
+  equal(messages.length, 4);
+  for (const msg of messages) {
+    notEqual(msg.displayMessage, "Decrypting...");
+  }
+});
+
+// Ensure that any message with a remoteId that has a deleted flag in the
+// latest version is not visible in logs.
+add_task(function test_logWithDeletedMessages() {
+  const remoteId = "$GFlcel-9tWrTvSb7HM_113-WpkzEdB4neglPVpZn3dM";
+  const conv = new gLogger.LogConversation(
+    [
+      {
+        date: "2022-03-04T11:59:56.000Z",
+        who: "@other:example.com",
+        text: "Decrypting...",
+        flags: ["incoming", "isEncrypted"],
+        remoteId,
+        alias: "other",
+      },
+      {
+        date: "2022-03-04T11:59:56.000Z",
+        who: "@other:example.com",
+        text: "Message was redacted.",
+        flags: ["incoming", "isEncrypted", "deleted"],
+        remoteId,
+        alias: "other",
+      },
+    ],
+    {
+      startDate: new Date("2022-03-04T12:00:03.508Z"),
+      name: "test",
+      title: "test",
+      _accountName: "@test:example.com",
+      _protocolName: "matrix",
+      _isChat: false,
+      normalizedName: "!foobar:example.com",
+    }
+  );
+  const messages = conv.getMessages();
+  equal(messages.length, 0);
+});
 
 function run_test() {
   // Test encodeName().

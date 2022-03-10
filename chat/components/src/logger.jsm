@@ -378,7 +378,7 @@ LogConversation.prototype = {
           return false;
         }
         seenMessages.add(message.remoteId);
-        return !message.flags.deleted;
+        return !message.flags.includes("deleted");
       })
       .reverse()
       .map(m => new LogMessage(m, this));
