@@ -120,11 +120,6 @@ var LOG = console.createInstance({
   maxLogLevelPref: "gloda.test.loglevel",
 });
 
-/* exported GLODA_BAD_MESSAGE_ID, GLODA_OLD_BAD_MESSAGE_ID */
-// index_msg does not export this, so we need to provide it.
-var GLODA_BAD_MESSAGE_ID = 2;
-var GLODA_OLD_BAD_MESSAGE_ID = 1;
-
 // -- Add a hook that makes folders not filthy when we first see them.
 MessageInjection.register_message_injection_listener({
   /**

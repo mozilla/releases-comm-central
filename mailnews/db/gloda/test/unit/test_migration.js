@@ -13,6 +13,8 @@
 /* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
+const GLODA_OLD_BAD_MESSAGE_ID = 1;
+
 /**
  * Fix the fallout from bug 732372 (with this patch for bug 734507) which left
  *  identities whose e-mails were in the address book without contacts and then

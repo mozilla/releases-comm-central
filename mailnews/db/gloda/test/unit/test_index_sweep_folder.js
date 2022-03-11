@@ -14,9 +14,7 @@
  */
 
 /* import-globals-from resources/glodaTestHelper.js */
-/* import-globals-from resources/asyncCallbackHandler.js */
 load("resources/glodaTestHelper.js");
-load("resources/asyncCallbackHandler.js");
 
 /**
  * How many more enumerations before we should throw; 0 means don't throw.
@@ -163,4 +161,41 @@ function run_test() {
   // we do not want the event-driven indexer crimping our style
   configure_gloda_indexing({ event: false });
   glodaHelperRunTests(tests);
+}
+
+/**
+ * Implements GlodaIndexer._callbackHandle's interface adapted to our async
+ *  test driver.  This allows us to run indexing workers directly in tests
+ *  or support code.
+ *
+ * We do not do anything with the context stack or recovery.  Use the actual
+ *  indexer callback handler for that!
+ *
+ * Actually, we do very little at all right now.  This will fill out as needs
+ *  arise.
+ */
+var asyncCallbackHandle = {
+  pushAndGo: function asyncCallbackHandle_push(aIterator, aContext) {
+    asyncGeneratorStack.push([
+      _asyncCallbackHandle_glodaWorkerAdapter(aIterator),
+      "callbackHandler pushAndGo",
+    ]);
+    return async_driver();
+  },
+};
+
+function* _asyncCallbackHandle_glodaWorkerAdapter(aIter) {
+  while (true) {
+    switch (aIter.next().value) {
+      case GlodaIndexer.kWorkSync:
+        yield true;
+        break;
+      case GlodaIndexer.kWorkDone:
+      case GlodaIndexer.kWorkDoneWithResult:
+        return;
+      default:
+        yield false;
+        break;
+    }
+  }
 }

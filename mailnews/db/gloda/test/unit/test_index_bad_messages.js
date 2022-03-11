@@ -10,6 +10,8 @@
 /* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
+const GLODA_BAD_MESSAGE_ID = 2;
+
 var gInbox;
 
 var illegalMessageTemplates = [
