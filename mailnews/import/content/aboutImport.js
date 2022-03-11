@@ -11,6 +11,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.jsm",
+  ProfileExporter: "resource:///modules/ProfileExporter.jsm",
 });
 
 /**
@@ -154,7 +155,7 @@ class ProfileImporterController extends ImporterController {
       // Let the user pick what to import.
       this._showItems(sourceProfiles[0]);
     } else {
-      importDialog.showError("No profile found.");
+      progressDialog.showError("No profile found.");
     }
 
     document.getElementById(
@@ -259,7 +260,7 @@ class ProfileImporterController extends ImporterController {
     if (!selectedFile.isDirectory()) {
       if (selectedFile.fileSize > 2147483647) {
         // nsIZipReader only supports zip file less than 2GB.
-        importDialog.showError(
+        progressDialog.showError(
           await document.l10n.formatValue("error-message-zip-file-too-big")
         );
         return;
@@ -352,7 +353,7 @@ class ProfileImporterController extends ImporterController {
         this._extractedFileCount++;
         if (this._extractedFileCount % 10 == 0) {
           let progress = Math.min((this._extractedFileCount / 200) * 0.2, 0.2);
-          importDialog.updateProgress(progress);
+          progressDialog.updateProgress(progress);
           await new Promise(resolve => setTimeout(resolve));
         }
       } catch (e) {
@@ -361,20 +362,20 @@ class ProfileImporterController extends ImporterController {
     }
     // Use the tmp dir as source profile dir.
     this._sourceProfile = { dir: targetDir };
-    importDialog.updateProgress(0.2);
+    progressDialog.updateProgress(0.2);
   }
 
   /**
    * Handler for the Continue button on the items pane.
    */
   async _onSelectItems() {
-    importDialog.showProgress(this);
+    progressDialog.showProgress(this);
     if (this._importingFromZip) {
       this._extractedFileCount = 0;
       try {
         await this._extractZipFile();
       } catch (e) {
-        importDialog.showError(
+        progressDialog.showError(
           await document.l10n.formatValue(
             "error-message-extract-zip-file-failed"
           )
@@ -383,19 +384,19 @@ class ProfileImporterController extends ImporterController {
       }
     }
     this._importer.onProgress = (current, total) => {
-      importDialog.updateProgress(
+      progressDialog.updateProgress(
         this._importingFromZip ? 0.2 + (0.8 * current) / total : current / total
       );
     };
     try {
-      importDialog.finish(
+      progressDialog.finish(
         await this._importer.startImport(
           this._sourceProfile.dir,
           this._getItemsChecked()
         )
       );
     } catch (e) {
-      importDialog.showError(
+      progressDialog.showError(
         await document.l10n.formatValue("error-message-failed")
       );
       throw e;
@@ -594,16 +595,16 @@ class AddrBookImporterController extends ImporterController {
       targetDirectory = MailServices.ab.getDirectoryFromId(dirId);
     }
 
-    importDialog.showProgress(this);
+    progressDialog.showProgress(this);
     this._importer.onProgress = (current, total) => {
-      importDialog.updateProgress(current / total);
+      progressDialog.updateProgress(current / total);
     };
     try {
-      importDialog.finish(
+      progressDialog.finish(
         await this._importer.startImport(this._sourceFile, targetDirectory)
       );
     } catch (e) {
-      importDialog.showError(
+      progressDialog.showError(
         await document.l10n.formatValue("error-message-failed")
       );
       throw e;
@@ -612,17 +613,71 @@ class AddrBookImporterController extends ImporterController {
 }
 
 /**
- * Control the #importDialog element, to show importing progress and result.
+ * Control the #tabPane-export element, to support exporting the current profile
+ * to a zip file.
  */
-let importDialog = {
+class ExportController {
+  back() {
+    window.close();
+  }
+
+  async next() {
+    let [
+      filePickerTitle,
+      brandName,
+      progressPaneTitle,
+      errorMsg,
+    ] = await document.l10n.formatValues([
+      "export-file-picker",
+      "export-brand-name",
+      "progress-pane-exporting",
+      "error-export-failed",
+    ]);
+    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+      Ci.nsIFilePicker
+    );
+    filePicker.init(window, filePickerTitle, Ci.nsIFilePicker.modeSave);
+    filePicker.defaultString = `${brandName}_profile_backup.zip`;
+    filePicker.defaultExtension = "zip";
+    filePicker.appendFilter("", "*.zip");
+    let rv = await new Promise(resolve => filePicker.open(resolve));
+    if (
+      ![Ci.nsIFilePicker.returnOK, Ci.nsIFilePicker.returnReplace].includes(rv)
+    ) {
+      return;
+    }
+
+    let exporter = new ProfileExporter();
+    progressDialog.showProgress(null, progressPaneTitle);
+    exporter.onProgress = (current, total) => {
+      progressDialog.updateProgress(current / total);
+    };
+    try {
+      await exporter.startExport(filePicker.file);
+      progressDialog.finish();
+    } catch (e) {
+      progressDialog.showError(errorMsg);
+      throw e;
+    }
+  }
+
+  openProfileFolder() {
+    Services.dirsvc.get("ProfD", Ci.nsIFile).reveal();
+  }
+}
+
+/**
+ * Control the #progressDialog element, to show importing progress and result.
+ */
+let progressDialog = {
   /**
    * Init internal variables and event bindings.
    */
   init() {
-    this._el = document.getElementById("importDialog");
+    this._el = document.getElementById("progressDialog");
     this._elFooter = this._el.querySelector("footer");
-    this._btnCancel = this._el.querySelector("#importDialogCancel");
-    this._btnAccept = this._el.querySelector("#importDialogAccept");
+    this._btnCancel = this._el.querySelector("#progressDialogCancel");
+    this._btnAccept = this._el.querySelector("#progressDialogAccept");
   },
 
   /**
@@ -660,8 +715,12 @@ let importDialog = {
    * Show the progress pane.
    * @param {ImporterController} importerController - An instance of the
    *   controller.
+   * @param {string} [title] - Pane title.
    */
-  showProgress(importerController) {
+  async showProgress(importerController, title) {
+    document.getElementById("progressPaneTitle").textContent = title
+      ? title
+      : await document.l10n.formatValue("progress-pane-importing");
     this._showPane("progress");
     this._importerController = importerController;
     this._disableCancel(true);
@@ -673,7 +732,7 @@ let importDialog = {
    * @param {number} value - A number between 0 and 1 to represent the progress.
    */
   updateProgress(value) {
-    document.getElementById("importDialogProgressBar").value = value;
+    document.getElementById("progressDialogProgressBar").value = value;
     if (value >= 1) {
       this._disableAccept(false);
     }
@@ -729,7 +788,7 @@ let importDialog = {
 
 /**
  * Show a specific importing tab.
- * @param {string} tabId - One of ["tab-app", "tab-addressBook"].
+ * @param {string} tabId - One of ["tab-app", "tab-addressBook", "tab-export"].
  */
 function showTab(tabId) {
   let selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
@@ -747,11 +806,13 @@ function showTab(tabId) {
 
 let profileController;
 let addrBookController;
+let exportController;
 
 document.addEventListener("DOMContentLoaded", () => {
   profileController = new ProfileImporterController();
   addrBookController = new AddrBookImporterController();
-  importDialog.init();
+  exportController = new ExportController();
+  progressDialog.init();
 
   for (let tab of document.querySelectorAll("[id^=tab-]")) {
     tab.onclick = () => showTab(tab.id);

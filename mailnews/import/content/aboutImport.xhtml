@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/accountSetup.css"/>
   <link rel="stylesheet" href="chrome://messenger/skin/aboutImport.css"/>
 
+  <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/aboutImport.ftl"/>
 
   <script defer="" src="chrome://messenger/content/aboutImport.js"></script>
@@ -22,10 +23,15 @@
     <ul>
       <li id="tab-app"
           class="tab"
-          data-l10n-id="import-from-app"></li>
+          data-l10n-id="import-from-app"/>
       <li id="tab-addressBook"
           class="tab"
-          data-l10n-id="import-address-book"></li>
+          data-l10n-id="import-address-book"/>
+    </ul>
+    <ul>
+      <li id="tab-export"
+          class="tab"
+          data-l10n-id="export-profile"/>
     </ul>
   </nav>
   <main id="main">
@@ -197,11 +203,27 @@
                 data-l10n-id="button-continue"/>
       </footer>
     </div>
+    <div id="tabPane-export" class="tabPane">
+      <h1 data-l10n-id="export-profile"/>
+      <p data-l10n-id="export-profile-desc"/>
+      <p>
+        <span data-l10n-id="export-profile-desc2"/>
+        <a data-l10n-id="export-open-profile-folder"
+           onclick="exportController.openProfileFolder()"/>
+      </p>
+      <footer class="buttons-container">
+        <button onclick="exportController.back()"
+                data-l10n-id="button-cancel"/>
+        <button class="primary"
+                onclick="exportController.next()"
+                data-l10n-id="button-export"/>
+      </footer>
+    </div>
   </main>
-  <dialog id="importDialog">
+  <dialog id="progressDialog">
     <section id="dialogPane-progress">
-      <h3 data-l10n-id="progress-pane-title"></h3>
-      <progress id="importDialogProgressBar"></progress>
+      <h3 id="progressPaneTitle"></h3>
+      <progress id="progressDialogProgressBar"></progress>
       <p id="progressPaneDesc"/>
     </section>
     <section id="dialogPane-error">
@@ -209,10 +231,10 @@
       <p id="dialogError"/>
     </section>
     <footer>
-      <button id="importDialogCancel"
-              onclick="importDialog.onCancel()">Cancel</button>
-      <button id="importDialogAccept"
-              onclick="importDialog.onAccept()">OK</button>
+      <button id="progressDialogCancel"
+              onclick="progressDialog.onCancel()">Cancel</button>
+      <button id="progressDialogAccept"
+              onclick="progressDialog.onAccept()">OK</button>
     </footer>
   </dialog>
 </body>

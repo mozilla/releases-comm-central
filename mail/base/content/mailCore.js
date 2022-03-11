@@ -519,9 +519,24 @@ function showChatTab() {
   }
 }
 
-function toImport() {
+/**
+ * Open about:import or importDialog.xhtml.
+ * @param {string} [tabId] - The tab to open in about:import, can be one of
+ *   ["app", "addressBook", "export"].
+ */
+function toImport(tabId = "app") {
   if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
-    toMessengerWindow().openContentTab("about:import");
+    let tab = toMessengerWindow().openTab("contentTab", {
+      url: "about:import",
+      onLoad(event, browser) {
+        if (tabId) {
+          browser.contentWindow.showTab(`tab-${tabId}`);
+        }
+      },
+    });
+    // Somehow DOMContentLoaded is called even when about:import is already
+    // open, which resets the active tab. Use setTimeout here as a workaround.
+    setTimeout(() => tab.browser.contentWindow.showTab(`tab-${tabId}`), 100);
     return;
   }
   window.openDialog(
@@ -532,6 +547,10 @@ function toImport() {
 }
 
 function toExport() {
+  if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
+    toImport("export");
+    return;
+  }
   window.openDialog(
     "chrome://messenger/content/exportDialog.xhtml",
     "exportDialog",

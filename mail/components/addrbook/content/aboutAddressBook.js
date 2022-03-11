@@ -274,7 +274,7 @@ function importBook() {
   };
 
   Services.obs.addObserver(observer, "addrbook-directory-created");
-  window.browsingContext.topChromeWindow.toImport();
+  window.browsingContext.topChromeWindow.toImport("addressBook");
   Services.obs.removeObserver(observer, "addrbook-directory-created");
 
   // Select the directory after the import UI closes, so the user sees the change.

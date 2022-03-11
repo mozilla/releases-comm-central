@@ -116,6 +116,10 @@ td:last-child {
   color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
   padding-top: 60px;
+  padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 #main {
@@ -168,4 +172,8 @@ td:last-child {
   grid-template-areas:
     "i text"
     ". text";
+}
+
+#tabPane-export p {
+  margin-bottom: 1rem;
 }

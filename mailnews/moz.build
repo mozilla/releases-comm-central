@@ -10,6 +10,7 @@ DIRS += [
     "db/gloda",
     "db/mork",
     "db/msgdb",
+    "export/modules",
     "extensions",
     "imap/public",
     "imap/src",

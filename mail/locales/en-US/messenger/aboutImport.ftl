@@ -14,6 +14,8 @@ import-address-book = Import Address Book File
 
 import-calendar = Import Calendar File
 
+export-profile = Export
+
 ## Buttons
 
 button-cancel = Cancel
@@ -21,6 +23,8 @@ button-cancel = Cancel
 button-back = Back
 
 button-continue = Continue
+
+button-export = Export
 
 ## Import from app steps
 
@@ -84,7 +88,9 @@ addr-book-import-into-new-directory = Create a new directory
 
 ## Import dialog
 
-progress-pane-title = Importing
+progress-pane-importing = Importing
+
+progress-pane-exporting = Exporting
 
 progress-pane-finished-desc = Finished.
 
@@ -98,6 +104,8 @@ error-message-extract-zip-file-failed = Failed to extract the zip file. Please e
 
 error-message-failed = Import failed unexpectedly, more information may be available in the Error Console.
 
+error-export-failed = Export failed unexpectedly, more information may be available in the Error Console.
+
 ## <csv-field-map> element
 
 csv-first-row-contains-headers = First row contains field names
@@ -109,3 +117,15 @@ csv-source-first-record = First record
 csv-source-second-record = Second record
 
 csv-target-field = Address book field
+
+## Export tab
+
+export-profile-desc = Export mail accounts, mail messages, address books, settings to a zip file. When needed, you can import the zip file to restore your profile.
+
+export-profile-desc2 = If your current profile is larger than 2GB, we suggest you back it up by yourself.
+
+export-open-profile-folder = Open profile folder
+
+export-file-picker = Export to a zip file
+
+export-brand-name = { -brand-product-name }
