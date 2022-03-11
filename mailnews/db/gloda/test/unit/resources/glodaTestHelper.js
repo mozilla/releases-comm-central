@@ -210,66 +210,6 @@ function _prepareIndexerForTesting() {
   GlodaIndexer._unitTestHookCleanup = _indexMessageState._testHookCleanup;
 }
 
-/*
- * Add logsploder helpers to let us see what is being passed to the database
- *  manipulation functions and what is being extracted.
- */
-if (logHelperHasInterestedListeners) {
-  let msgNounDef = GlodaMessage.prototype.NOUN_DEF;
-  let orig_insertMessage = GlodaDatastore.insertMessage;
-  GlodaDatastore.insertMessage = msgNounDef.objInsert = function(...aArgs) {
-    mark_action("glodaWrapped", "insertMessage", [aArgs[0]]);
-    return orig_insertMessage.apply(GlodaDatastore, aArgs);
-  };
-
-  let orig_updateMessage = GlodaDatastore.updateMessage;
-  GlodaDatastore.updateMessage = msgNounDef.objUpdate = function(...aArgs) {
-    mark_action("glodaWrapped", "updateMessage", [aArgs[0]]);
-    return orig_updateMessage.apply(GlodaDatastore, aArgs);
-  };
-
-  let orig__messageFromRow = GlodaDatastore._messageFromRow;
-  GlodaDatastore._messageFromRow = msgNounDef.objFromRow = function(...aArgs) {
-    let rv = orig__messageFromRow.apply(GlodaDatastore, aArgs);
-    mark_action("glodaWrapped", "_messageFromRow", [rv]);
-    return rv;
-  };
-
-  let orig_updateMessageLocations = GlodaDatastore.updateMessageLocations;
-  GlodaDatastore.updateMessageLocations = function(...aArgs) {
-    mark_action("glodaWrapped", "updateMessageLocations", [
-      "ids",
-      aArgs[0],
-      "keys",
-      aArgs[1],
-      "dest folder",
-      aArgs[2],
-      "do not notify?",
-      aArgs[3],
-    ]);
-    orig_updateMessageLocations.apply(GlodaDatastore, aArgs);
-  };
-  let orig_updateMessageKeys = GlodaDatastore.updateMessageKeys;
-  GlodaDatastore.updateMessageKeys = function(...aArgs) {
-    mark_action("glodaWrapped", "updateMessageKeys", [
-      "ids",
-      aArgs[0],
-      "keys",
-      aArgs[1],
-    ]);
-    orig_updateMessageKeys.apply(GlodaDatastore, aArgs);
-  };
-
-  /* also, let us see the results of cache lookups so we can know if we are
-     performing cache unification when a load occurs. */
-  let orig_cacheLookupOne = GlodaCollectionManager.cacheLookupOne;
-  GlodaCollectionManager.cacheLookupOne = function(...aArgs) {
-    let rv = orig_cacheLookupOne.apply(GlodaCollectionManager, aArgs);
-    mark_action("glodaWrapped", "cacheLookupOne", ["hit?", rv !== null]);
-    return rv;
-  };
-}
-
 var _wait_for_gloda_indexer_defaults = {
   verifier: null,
   augment: false,

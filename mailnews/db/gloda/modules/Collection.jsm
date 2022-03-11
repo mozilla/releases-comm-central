@@ -100,6 +100,7 @@ var GlodaCollectionManager = {
       }
     }
 
+    LOG.debug("cacheLookupOne:\nhit null");
     return null;
   },
 

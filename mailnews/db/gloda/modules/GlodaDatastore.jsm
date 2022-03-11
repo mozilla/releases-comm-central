@@ -2659,6 +2659,7 @@ var GlodaDatastore = {
   },
 
   insertMessage(aMessage) {
+    this._log.debug("insertMessage " + aMessage);
     let ims = this._insertMessageStatement;
     ims.bindByIndex(0, aMessage.id);
     if (aMessage.folderID == null) {
@@ -2788,6 +2789,7 @@ var GlodaDatastore = {
    * we don't do anything.
    */
   updateMessage(aMessage) {
+    this._log.debug("updateMessage " + aMessage);
     let ums = this._updateMessageStatement;
     ums.bindByIndex(8, aMessage.id);
     if (aMessage.folderID === null) {
@@ -2898,6 +2900,21 @@ var GlodaDatastore = {
     aDestFolder,
     aDoNotNotify
   ) {
+    this._log.debug(
+      "updateMessageLocations:\n" +
+        "ids: " +
+        aMessageIds +
+        "\n" +
+        "keys: " +
+        aNewMessageKeys +
+        "\n" +
+        "dest folder: " +
+        aDestFolder +
+        "\n" +
+        "do not notify?" +
+        aDoNotNotify +
+        "\n"
+    );
     let statement = this._updateMessageLocationStatement;
     let destFolderID =
       typeof aDestFolder == "number"
@@ -2961,6 +2978,15 @@ var GlodaDatastore = {
    *  intended to be relevant to the gloda message abstraction).
    */
   updateMessageKeys(aMessageIds, aNewMessageKeys) {
+    this._log.debug(
+      "updateMessageKeys:\n" +
+        "ids: " +
+        aMessageIds +
+        "\n" +
+        "keys:" +
+        aNewMessageKeys +
+        "\n"
+    );
     let statement = this._updateMessageKeyStatement;
 
     // map gloda id to the new message key for in-memory rep transform below
@@ -3024,6 +3050,7 @@ var GlodaDatastore = {
   },
 
   _messageFromRow(aRow) {
+    this._log.debug("_messageFromRow " + aRow);
     let folderId,
       messageKey,
       date,
