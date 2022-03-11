@@ -316,25 +316,6 @@ add_task(async function testSpacesToolbarContextMenu() {
     await hiddenPromise;
   }
 
-  let numTabs = 0;
-  /**
-   * Wait for and return the latest tab.
-   *
-   * This should be called every time a tab is created so the test can keep
-   * track of the expected number of tabs.
-   *
-   * @return {MozTabmailTab} - The last tab.
-   */
-  async function getLastTab() {
-    numTabs++;
-    let tabs;
-    await TestUtils.waitForCondition(() => {
-      tabs = document.querySelectorAll("tab.tabmail-tab");
-      return tabs.length == numTabs;
-    }, `Waiting for ${numTabs} tabs`);
-    return tabs[numTabs - 1];
-  }
-
   let tabScroll = document.getElementById("tabmail-arrowscrollbox").scrollbox;
   /**
    * Ensure the tab is scrolled into view.
@@ -359,11 +340,30 @@ add_task(async function testSpacesToolbarContextMenu() {
     );
   }
 
+  let numTabs = 0;
+  /**
+   * Wait for and return the latest tab.
+   *
+   * This should be called every time a tab is created so the test can keep
+   * track of the expected number of tabs.
+   *
+   * @return {MozTabmailTab} - The last tab.
+   */
+  async function waitForNewTab() {
+    numTabs++;
+    let tabs;
+    await TestUtils.waitForCondition(() => {
+      tabs = document.querySelectorAll("tab.tabmail-tab");
+      return tabs.length == numTabs;
+    }, `Waiting for ${numTabs} tabs`);
+    return tabs[numTabs - 1];
+  }
+
   /**
    * Close a tab and wait for it to close.
    *
-   * This should be used alongside getLastTab so the test can keep track of the
-   * expected number of tabs.
+   * This should be used alongside waitForNewTab so the test can keep track of
+   * the expected number of tabs.
    *
    * @param {MozTabmailTab} - The tab to close.
    */
@@ -419,12 +419,14 @@ add_task(async function testSpacesToolbarContextMenu() {
   }
 
   // -- Test initial tab --
+
   let mailButton = document.getElementById("mailButton");
-  let firstTab = await getLastTab();
+  let firstTab = await waitForNewTab();
   await assertTab(firstTab, mailButton, "First tab is mail tab");
   await assertMailShown();
 
   // -- Test spaces that only open one tab --
+
   let calendarTab;
   let calendarButton = document.getElementById("calendarButton");
   for (let { name, button, assertShown } of [
@@ -456,7 +458,7 @@ add_task(async function testSpacesToolbarContextMenu() {
       { newTab: true },
       `Opening ${name} tab`
     );
-    let newTab = await getLastTab();
+    let newTab = await waitForNewTab();
     if (name == "calendar") {
       calendarTab = newTab;
     }
@@ -487,13 +489,14 @@ add_task(async function testSpacesToolbarContextMenu() {
   }
 
   // -- Test opening mail space in a new tab --
+
   // Open new mail tabs whilst we are still in a non-mail tab.
   await useContextMenu(
     { button: mailButton, item: newTabItem },
     { newWindow: true, newTab: true, numSwitch: 1 },
     "Opening the second mail tab"
   );
-  let secondMailTab = await getLastTab();
+  let secondMailTab = await waitForNewTab();
   await assertTab(secondMailTab, mailButton, "Opened second mail tab");
   await assertMailShown();
   // Displayed folder should be the same as in the first mail tab.
@@ -510,7 +513,7 @@ add_task(async function testSpacesToolbarContextMenu() {
     { newWindow: true, newTab: true, numSwitch: 2 },
     "Opening the third mail tab"
   );
-  let thirdMailTab = await getLastTab();
+  let thirdMailTab = await waitForNewTab();
   await assertTab(thirdMailTab, mailButton, "Opened third mail tab");
   await assertMailShown();
   // Displayed folder should be the same as in the mail tab that was in view
@@ -522,6 +525,7 @@ add_task(async function testSpacesToolbarContextMenu() {
   );
 
   // -- Test switching between the multiple mail tabs --
+
   await useContextMenu(
     { button: mailButton, switchItem: 1 },
     { newWindow: true, newTab: true, numSwitch: 3 },
@@ -547,6 +551,7 @@ add_task(async function testSpacesToolbarContextMenu() {
   await assertMailShown();
 
   // -- Test the mail button with multiple mail tabs --
+
   // Clicking the mail button whilst in the mail space does nothing.
   // Specifically, we do not want it to take us to the first tab.
   EventUtils.synthesizeMouseAtCenter(mailButton, {}, window);
@@ -573,33 +578,35 @@ add_task(async function testSpacesToolbarContextMenu() {
   );
 
   // -- Test opening the mail space in a new window --
+
   let windowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   await useContextMenu(
     { button: mailButton, item: newWindowItem },
     { newWindow: true, newTab: true, numSwitch: 3 },
     "Opening mail tab in new window"
   );
-  let win = await windowPromise;
+  let newMailWindow = await windowPromise;
   // Expect the same folder as the previously focused tab.
   await TestUtils.waitForCondition(
-    () => win.gFolderDisplay.displayedFolder?.URI == folderB.URI,
+    () => newMailWindow.gFolderDisplay.displayedFolder?.URI == folderB.URI,
     "Waiting for folder B to be displayed in the new window"
   );
   Assert.equal(
-    win.document.querySelectorAll("tab.tabmail-tab").length,
+    newMailWindow.document.querySelectorAll("tab.tabmail-tab").length,
     1,
     "Should only have one tab in the new window"
   );
-  await assertMailShown(win);
+  await assertMailShown(newMailWindow);
 
   // -- Test opening different tabs that belong to the settings space --
+
   let settingsButton = document.getElementById("settingsButton");
   await useContextMenu(
     { button: settingsButton, item: accountItem },
     { settings: true },
     "Opening account settings"
   );
-  let accountTab = await getLastTab();
+  let accountTab = await waitForNewTab();
   // Shown as part of the settings space.
   await assertTab(accountTab, settingsButton, "Opened account settings tab");
   await assertContentShown("about:accountsettings");
@@ -609,7 +616,7 @@ add_task(async function testSpacesToolbarContextMenu() {
     { settings: true },
     "Opening settings"
   );
-  let settingsTab = await getLastTab();
+  let settingsTab = await waitForNewTab();
   // Shown as part of the settings space.
   await assertTab(settingsTab, settingsButton, "Opened settings tab");
   await assertSettingsShown();
@@ -619,12 +626,13 @@ add_task(async function testSpacesToolbarContextMenu() {
     { settings: true },
     "Opening add-ons"
   );
-  let addonsTab = await getLastTab();
+  let addonsTab = await waitForNewTab();
   // Shown as part of the settings space.
   await assertTab(addonsTab, settingsButton, "Opened add-ons tab");
   await assertContentShown("about:addons");
 
   // -- Test the settings button with multiple settings tabs --
+
   // Clicking the settings button whilst in the settings space does nothing.
   EventUtils.synthesizeMouseAtCenter(settingsButton, {}, window);
   // Wait one cycle to see if the tab would change.
@@ -646,11 +654,12 @@ add_task(async function testSpacesToolbarContextMenu() {
   await closeTab(settingsTab);
   await switchTab(calendarTab, calendarButton, "Settings to calendar tab");
   EventUtils.synthesizeMouseAtCenter(settingsButton, {}, window);
-  settingsTab = await getLastTab();
+  settingsTab = await waitForNewTab();
   await assertTab(settingsTab, settingsButton, "Re-opened settings tab");
   await assertSettingsShown();
 
   // -- Test opening different settings tabs when they already exist --
+
   await useContextMenu(
     { button: settingsButton, item: addonsItem },
     { settings: true },
@@ -676,12 +685,13 @@ add_task(async function testSpacesToolbarContextMenu() {
   await assertSettingsShown();
 
   // -- Test clicking the spaces buttons when all the tabs are already open.
+
   await sub_test_cycle_through_primary_tabs();
 
   // Tidy up the opened window.
   // FIXME: Closing the window earlier in the test causes a test failure on the
   // osx build on the try server.
-  await BrowserTestUtils.closeWindow(win);
+  await BrowserTestUtils.closeWindow(newMailWindow);
 });
 
 add_task(async function testSpacesToolbarMenubar() {
