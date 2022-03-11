@@ -11,10 +11,6 @@ var { AddrBookDirectory } = ChromeUtils.import(
 );
 var { newUID } = ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 
-const AB_WINDOW_TYPE = "mail:addressbook";
-const AB_WINDOW_URI =
-  "chrome://messenger/content/addressbook/addressbook.xhtml";
-
 // nsIAbCard.idl contains a list of properties that Thunderbird uses. Extensions are not
 // restricted to using only these properties, but the following properties cannot
 // be modified by an extension.
@@ -555,9 +551,6 @@ this.addressBook = class extends ExtensionAPI {
                 tabmail.closeTab(tab);
               }
             }
-          }
-          for (let win of Services.wm.getEnumerator(AB_WINDOW_TYPE)) {
-            win.close();
           }
         },
 

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../../toolkit/content/editMenuOverlay.js */
+/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
 /* import-globals-from abCommon.js */
 
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
@@ -9,6 +12,9 @@ var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"
 );
 
+// A boolean variable determining whether AB column should be shown
+// in Contacts Sidebar in compose window.
+var gShowAbColumnInComposeSidebar = false;
 var gQueryURIFormat = null;
 
 UIDensity.registerWindow(window);
@@ -132,6 +138,7 @@ function AddressBookMenuListChange(aValue) {
 
   // Hide the addressbook column if the selected addressbook isn't
   // "All address books". Since the column is redundant in all other cases.
+  let abList = document.getElementById("addressbookList");
   let addrbookColumn = document.getElementById("addrbook");
   if (abList.value.startsWith(kAllDirectoryRoot + "?")) {
     addrbookColumn.hidden = !gShowAbColumnInComposeSidebar;
@@ -150,8 +157,6 @@ function AbPanelLoad() {
   if (location.search == "?focus") {
     document.getElementById("peopleSearchInput").focus();
   }
-
-  InitCommonJS();
 
   document.title = parent.document.getElementById("contactsTitle").value;
 
@@ -208,29 +213,9 @@ function AbPanelUnload() {
   CloseAbView();
 }
 
-function AbPanelNewCard() {
-  goNewCardDialog(abList.value);
-}
-
-function AbPanelNewList() {
-  goNewListDialog(abList.value);
-}
-
-function ResultsPaneSelectionChanged() {
-  // do nothing for ab panel
-}
-
-function OnClickedCard() {
-  // do nothing for ab panel
-}
-
 function AbResultsPaneDoubleClick(card) {
   // double click for ab panel means "send mail to this person / list"
   AbNewMessage();
-}
-
-function UpdateCardView() {
-  // do nothing for ab panel
 }
 
 function CommandUpdate_AddressBook() {
@@ -241,7 +226,6 @@ function CommandUpdate_AddressBook() {
   document.getElementById("cmd_addrBcc").setAttribute("disabled", disabled);
 
   goUpdateCommand("cmd_delete");
-  goUpdateCommand("cmd_properties");
 }
 
 /**
@@ -301,4 +285,55 @@ function showContextMenu(aContextMenuID, aEvent, aPositionArray) {
     aPositionArray = [null, "", aEvent.clientX, aEvent.clientY, true];
   }
   theContextMenu.openPopup(...aPositionArray);
+}
+
+/**
+ * Get the URI of the selected directory.
+ *
+ * @return The URI of the currently selected directory
+ */
+function getSelectedDirectoryURI() {
+  return document.getElementById("addressbookList").value;
+}
+
+function abToggleSelectedDirStartup() {
+  let selectedDirURI = getSelectedDirectoryURI();
+  if (!selectedDirURI) {
+    return;
+  }
+
+  let isDefault = Services.prefs.getBoolPref(
+    "mail.addr_book.view.startupURIisDefault"
+  );
+  let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
+
+  if (isDefault && startupURI == selectedDirURI) {
+    // The current directory has been the default startup view directory;
+    // toggle that off now. So there's no default startup view directory any more.
+    Services.prefs.setBoolPref(
+      "mail.addr_book.view.startupURIisDefault",
+      false
+    );
+  } else {
+    // The current directory will now be the default view
+    // when starting up the main AB window.
+    Services.prefs.setCharPref(
+      "mail.addr_book.view.startupURI",
+      selectedDirURI
+    );
+    Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", true);
+  }
+
+  // Update the checkbox in the menuitem.
+  goUpdateCommand("cmd_abToggleStartupDir");
+}
+
+function ChangeDirectoryByURI(uri = kPersonalAddressbookURI) {
+  SetAbView(uri);
+
+  // Actively de-selecting if there are any pre-existing selections
+  // in the results list.
+  if (gAbView && gAbView.selection && gAbView.getCardFromRow(0)) {
+    gAbView.selection.clearSelection();
+  }
 }

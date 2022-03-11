@@ -230,9 +230,6 @@ var gSpacesToolbar = {
         name: "addressbook",
         button: document.getElementById("addressBookButton"),
         menuitem: document.getElementById("spacesPopupButtonAddressBook"),
-        // If "mail.addr_book.useNewAddressBook" is not true, then the
-        // addressbook will never belong to a tab, so we only need to test for
-        // the new addressbook.
         tabInSpace(tabInfo) {
           if (tabInfo.mode.name == "addressBookTab") {
             return 1;

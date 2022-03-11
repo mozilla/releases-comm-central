@@ -4,26 +4,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mail/base/content/utilityOverlay.js */
 /* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
 /* import-globals-from abView.js */
-/* globals GetAbViewListener */
 
 /**
  * Use of items in this file require:
  *
- * getSelectedDirectoryURI()
- *   returns the URI of the selected directory
  * AbResultsPaneDoubleClick(card)
  *   Is called when the results pane is double-clicked, with the clicked card.
- * AbEditCard(card)
- *   Is called when a card is to be edited, with the card as the parameter.
- *
- * The following function is only required if ResultsPaneController is used:
- *
- * goSetMenuValue()
- *   Core function in globalOverlay.js
+ * GetAbViewListener()
+ *   Called when creating a new view
  */
-/* globals getSelectedDirectoryURI, AbResultsPaneDoubleClick, AbEditCard, updateDeleteControls */
+/* globals AbResultsPaneDoubleClick, GetAbViewListener */ // abContactsPane.js or abSearchDialog.js
+
+var kDefaultSortColumn = "GeneratedName";
 
 // List/card selections in the results pane.
 var kNothingSelected = 0;
@@ -122,10 +117,6 @@ function CloseAbView() {
   if (gAbResultsTree) {
     gAbResultsTree.view = null;
   }
-}
-
-function GetOneOrMoreCardsSelected() {
-  return gAbView && gAbView.selection.getRangeCount() > 0;
 }
 
 function GetSelectedAddresses() {
@@ -259,10 +250,6 @@ function GetSelectedRows() {
   return selectedRows;
 }
 
-function AbEditSelectedCard() {
-  AbEditCard(GetSelectedCard());
-}
-
 function AbResultsPaneOnClick(event) {
   // we only care about button 0 (left click) events
   if (event.button != 0) {
@@ -302,25 +289,6 @@ function AbResultsPaneOnClick(event) {
   }
 }
 
-function AbSortAscending() {
-  var sortColumn = gAbResultsTree.getAttribute("sortCol");
-  SortAndUpdateIndicators(sortColumn, kDefaultAscending);
-}
-
-function AbSortDescending() {
-  var sortColumn = gAbResultsTree.getAttribute("sortCol");
-  SortAndUpdateIndicators(sortColumn, kDefaultDescending);
-}
-
-function SortResultPane(sortColumn) {
-  var sortDirection = kDefaultAscending;
-  if (gAbView) {
-    sortDirection = gAbView.sortDirection;
-  }
-
-  SortAndUpdateIndicators(sortColumn, sortDirection);
-}
-
 function SortAndUpdateIndicators(sortColumn, sortDirection) {
   UpdateSortIndicators(sortColumn, sortDirection);
 
@@ -352,12 +320,6 @@ function UpdateSortIndicators(colID, sortDirection) {
   }
 }
 
-function InvalidateResultsPane() {
-  if (gAbResultsTree) {
-    gAbResultsTree.invalidate();
-  }
-}
-
 // Controller object for Results Pane
 var ResultsPaneController = {
   supportsCommand(command) {
@@ -367,9 +329,6 @@ var ResultsPaneController = {
       case "button_delete":
       case "cmd_print":
       case "cmd_printcard":
-      case "cmd_properties":
-      case "cmd_newlist":
-      case "cmd_newCard":
         return true;
       default:
         return false;
@@ -439,47 +398,6 @@ var ResultsPaneController = {
         // Prevent printing when we don't have an opener (browserDOMWindow is
         // null).
         return window.browserDOMWindow && GetNumSelectedCards() > 0;
-      case "cmd_properties": {
-        let attrs = {
-          label: "valueGeneric",
-          accesskey: "valueGenericAccessKey",
-          tooltiptext: "valueGenericTooltipText",
-        };
-        switch (GetSelectedCardTypes()) {
-          // Set cmd_properties UI according to the type of the selected item(s),
-          // even with multiple selections for which cmd_properties is
-          // not yet available and hence disabled.
-          case kMultipleListsOnly:
-          case kSingleListOnly:
-            attrs.label = "valueMailingList";
-            attrs.accesskey = "valueMailingListAccessKey";
-            attrs.tooltiptext = "valueMailingListTooltipText";
-            break;
-          case kCardsOnly:
-            attrs.label = "valueContact";
-            attrs.accesskey = "valueContactAccessKey";
-            attrs.tooltiptext = "valueContactTooltipText";
-            break;
-          case kListsAndCards:
-          default:
-            // use generic set of attributes declared above
-            break;
-        }
-
-        let enabled = GetNumSelectedCards() == 1;
-        document.querySelectorAll("[command=cmd_properties]").forEach(e => {
-          e.disabled = !enabled;
-          for (let [attr, name] of Object.entries(attrs)) {
-            if (e.hasAttribute(attr) && e.getAttribute(name)) {
-              e.setAttribute(attr, e.getAttribute(name));
-            }
-          }
-        });
-        return enabled;
-      }
-      case "cmd_newlist":
-      case "cmd_newCard":
-        return true;
       default:
         return false;
     }
@@ -496,21 +414,68 @@ var ResultsPaneController = {
       case "button_delete":
         AbDelete();
         break;
-      case "cmd_properties":
-        AbEditSelectedCard();
-        break;
-      case "cmd_newlist":
-        AbNewList();
-        break;
-      case "cmd_newCard":
-        AbNewCard();
-        break;
     }
   },
 };
 
-function SelectFirstCard() {
-  if (gAbView && gAbView.selection && gAbView.selection.count > 0) {
-    gAbView.selection.select(0);
+function updateDeleteControls(
+  labelAttribute,
+  accessKeyAttribute = "accesskeyDefault"
+) {
+  goSetMenuValue("cmd_delete", labelAttribute);
+  goSetAccessKey("cmd_delete", accessKeyAttribute);
+
+  // The toolbar button doesn't update itself from the command. Do that now.
+  let button = document.getElementById("button-abdelete");
+  if (!button) {
+    return;
   }
+
+  let command = document.getElementById("cmd_delete");
+  button.label = command.getAttribute("label");
+  button.setAttribute(
+    "tooltiptext",
+    button.getAttribute(
+      labelAttribute == "valueCardDAV" ? "tooltipCardDAV" : "tooltipDefault"
+    )
+  );
+}
+
+/**
+ * Generate a comma separated list of addresses from the given cards.
+ * @param {nsIAbCard[]} cards - The cards to get addresses for.
+ * @returns {string} A string of comma separated mailboxes.
+ */
+function GetAddressesForCards(cards) {
+  if (!cards) {
+    return "";
+  }
+
+  return cards
+    .map(makeMimeAddressFromCard)
+    .filter(addr => addr)
+    .join(",");
+}
+
+/**
+ * Make a MIME encoded string output of the card. This will make a difference
+ * e.g. in scenarios where non-ASCII is used in the mailbox, or when then
+ * display name include special characters such as comma.
+ *
+ * @param {nsIAbCard} - The card to use.
+ * @returns {string} A MIME encoded mailbox representation of the card.
+ */
+function makeMimeAddressFromCard(card) {
+  if (!card) {
+    return "";
+  }
+
+  let email;
+  if (card.isMailList) {
+    let directory = GetDirectoryFromURI(card.mailListURI);
+    email = directory.description || card.displayName;
+  } else {
+    email = card.emailAddresses[0];
+  }
+  return MailServices.headerParser.makeMimeAddress(card.displayName, email);
 }

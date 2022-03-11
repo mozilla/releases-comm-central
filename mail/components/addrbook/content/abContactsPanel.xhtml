@@ -25,7 +25,6 @@
         onunload="AbPanelUnload();">
 
   <html:link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
-  <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -36,7 +35,6 @@
   <script src="chrome://messenger/content/addressbook/abContactsPanel.js"/>
   <script src="chrome://messenger/content/jsTreeView.js"/>
   <script src="chrome://messenger/content/addressbook/abView.js"/>
-  <script src="chrome://messenger/content/addressbook/abTrees.js"/>
 
   <commandset id="CommandUpdate_AddressBook"
               commandupdater="true"
@@ -46,21 +44,12 @@
     <command id="cmd_addrCc" oncommand="addSelectedAddresses('addr_cc')" disabled="true"/>
     <command id="cmd_addrBcc" oncommand="addSelectedAddresses('addr_bcc')" disabled="true"/>
     <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');"/>
-    <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');"/>
-    <command id="cmd_newCard" oncommand="AbPanelNewCard();"/>
-    <command id="cmd_newlist" oncommand="AbPanelNewList();"/>
   </commandset>
 
   <keyset id="keyset_abContactsPanel">
     <!-- This key (key_delete) does not trigger any command, but it is used
          only to show the hotkey on the corresponding menuitem. -->
     <key id="key_delete" keycode="VK_DELETE" internal="true"/>
-#ifdef XP_MACOSX
-    <key id="key_properties" modifiers="accel" key="&propertiesCmd.key;" command="cmd_properties"/>
-#else
-    <key id="key_properties" modifiers="alt" keycode="VK_RETURN" command="cmd_properties"/>
-    <key id="key_properties2" modifiers="accel" key="&propertiesCmd.key;" command="cmd_properties"/>
-#endif
   </keyset>
 
   <menupopup id="cardProperties">
@@ -78,31 +67,11 @@
               accesskey="&deleteAddrBookCard.accesskey;"
               key="key_delete"
               command="cmd_delete"/>
-    <menuseparator/>
-    <menuitem label="&propertiesContext.label;"
-              key="key_properties"
-              command="cmd_properties"
-              accesskey="&propertiesContext.accesskey;"
-              valueGeneric="&propertiesContext.label;"
-              valueGenericAccessKey="&propertiesContext.accesskey;"
-              valueAddressBook="&abPropertiesContext.label;"
-              valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
-              valueContact="&editContactContext.label;"
-              valueContactAccessKey="&editContactContext.accesskey;"
-              valueMailingList="&editMailingListContext.label;"
-              valueMailingListAccessKey="&editMailingListContext.accesskey;"
-              />
   </menupopup>
 
   <menupopup id="sidebarAbContextMenu"
              class="no-accel-menupopup"
              onpopupshowing="onAbContextShowing();">
-    <menuitem label="&newContactAbContext.label;"
-              accesskey="&newContactAbContext.accesskey;"
-              command="cmd_newCard"/>
-    <menuitem label="&newListAbContext.label;"
-              accesskey="&newListAbContext.accesskey;"
-              command="cmd_newlist"/>
     <menuitem id="sidebarAbContext-startupDir"
               label="&showAsDefault.label;"
               accesskey="&showAsDefault.accesskey;"

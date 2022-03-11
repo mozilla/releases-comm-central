@@ -3,20 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-    content/messenger/addressbook/abCardView.js                 (content/abCardView.js)
-    content/messenger/addressbook/addressbook.js                (content/addressbook.js)
-*   content/messenger/addressbook/addressbook.xhtml             (content/addressbook.xhtml)
     content/messenger/addressbook/abCommon.js                   (content/abCommon.js)
-    content/messenger/addressbook/abCard.js                     (content/abCard.js)
-*   content/messenger/addressbook/abEditCardDialog.xhtml        (content/abEditCardDialog.xhtml)
     content/messenger/addressbook/abEditListDialog.xhtml        (content/abEditListDialog.xhtml)
     content/messenger/addressbook/abMailListDialog.xhtml        (content/abMailListDialog.xhtml)
-*   content/messenger/addressbook/abNewCardDialog.xhtml         (content/abNewCardDialog.xhtml)
-*   content/messenger/addressbook/abContactsPanel.xhtml         (content/abContactsPanel.xhtml)
+    content/messenger/addressbook/abContactsPanel.xhtml         (content/abContactsPanel.xhtml)
     content/messenger/addressbook/abContactsPanel.js            (content/abContactsPanel.js)
 *   content/messenger/addressbook/abSearchDialog.xhtml          (content/abSearchDialog.xhtml)
     content/messenger/addressbook/abSearchDialog.js             (content/abSearchDialog.js)
-    content/messenger/addressbook/abTrees.js                    (content/abTrees.js)
     content/messenger/addressbook/menulist-addrbooks.js         (content/menulist-addrbooks.js)
 
     content/messenger/addressbook/aboutAddressBook.js           (content/aboutAddressBook.js)

@@ -1358,11 +1358,6 @@ pref("mail.compose.warn_public_recipients.threshold", 15);
 // too many public recipients notification is shown.
 pref("mail.compose.warn_public_recipients.aggressive", false);
 
-// Temporary pref while both Address Book UIs exist.
-// Set to false for addressbook.xhtml in a window, or true for
-// about:addressbook in a tab.
-pref("mail.addr_book.useNewAddressBook", true);
-
 // Temporary pref while both 3-pane UIs exist.
 // Opens folders in about:3pane and messages in about:message if true.
 pref("mail.useNewMailTabs", false);

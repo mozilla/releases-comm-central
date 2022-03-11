@@ -358,19 +358,6 @@ add_task(async function test_messagewindow_tools_menu() {
   await BrowserTestUtils.closeWindow(testWindow);
 }).__skipMe = AppConstants.platform == "macosx";
 
-add_task(async function test_addressbook_tools_menu() {
-  let testWindow = await openAddressbookWindow();
-  await focusWindow(testWindow);
-  await subtest_tools_menu(
-    testWindow,
-    {
-      menuItemId: "tools_menu",
-    },
-    { active: true, index: 0, mailTab: false }
-  );
-  await BrowserTestUtils.closeWindow(testWindow);
-}).__skipMe = AppConstants.platform == "macosx";
-
 async function subtest_folder_pane(...permissions) {
   let extensionDetails = getExtensionDetails(...permissions);
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);

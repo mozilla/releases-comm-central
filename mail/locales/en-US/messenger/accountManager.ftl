@@ -9,3 +9,8 @@ open-addons-sidebar-button = Add-ons and Themes
 account-action-add-newsgroup-account =
     .label = Add Newsgroup Account…
     .accesskey = N
+
+edit-vcard-dialog-accept-button = Save
+    .accesskey = S
+edit-vcard-dialog-cancel-button = Cancel
+    .accesskey = C

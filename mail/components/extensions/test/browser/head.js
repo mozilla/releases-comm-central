@@ -261,23 +261,6 @@ function closeBrowserAction(extension, win = window) {
   return hidden;
 }
 
-async function openAddressbookWindow() {
-  let abWindow = Services.ww.openWindow(
-    null,
-    "chrome://messenger/content/addressbook/addressbook.xhtml",
-    "_blank",
-    "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-    null
-  );
-  if (abWindow.document.readyState != "complete") {
-    await new Promise(resolve => {
-      abWindow.addEventListener("load", resolve, { once: true });
-    });
-  }
-  abWindow.focus();
-  return abWindow;
-}
-
 async function openNewMailWindow(options = {}) {
   if (!options.newAccountWizard) {
     Services.prefs.setBoolPref(

@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let defaultUseNewAddressBook = Services.prefs.getBoolPref(
-  "mail.addr_book.useNewAddressBook",
-  false
-);
-
-async function subTest(checkCallback) {
+add_task(async function testWithNewUI() {
   async function background() {
     await window.sendMessage("checkNumberOfAddressBookWindows", 0);
 
@@ -33,30 +28,7 @@ async function subTest(checkCallback) {
     },
   });
 
-  extension.onMessage("checkNumberOfAddressBookWindows", count =>
-    checkCallback(extension, count)
-  );
-
-  await extension.startup();
-  await extension.awaitFinish("addressBooks");
-  await extension.unload();
-}
-
-add_task(async function testWithOldUI() {
-  Services.prefs.setBoolPref("mail.addr_book.useNewAddressBook", false);
-  await subTest((extension, count) => {
-    Assert.equal(
-      [...Services.wm.getEnumerator("mail:addressbook")].length,
-      count,
-      "Right number of address books open"
-    );
-    extension.sendMessage();
-  });
-});
-
-add_task(async function testWithNewUI() {
-  Services.prefs.setBoolPref("mail.addr_book.useNewAddressBook", true);
-  await subTest((extension, count) => {
+  extension.onMessage("checkNumberOfAddressBookWindows", count => {
     let tabmail = document.getElementById("tabmail");
     let tabs = tabmail.tabInfo.filter(
       tab => tab.browser?.currentURI.spec == "about:addressbook"
@@ -64,11 +36,8 @@ add_task(async function testWithNewUI() {
     Assert.equal(tabs.length, count, "Right number of address books open");
     extension.sendMessage();
   });
-});
 
-registerCleanupFunction(() =>
-  Services.prefs.setBoolPref(
-    "mail.addr_book.useNewAddressBook",
-    defaultUseNewAddressBook
-  )
-);
+  await extension.startup();
+  await extension.awaitFinish("addressBooks");
+  await extension.unload();
+});

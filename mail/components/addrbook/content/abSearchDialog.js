@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
 /* import-globals-from ../../../../mailnews/base/content/dateFormat.js */
 /* import-globals-from ../../../../mailnews/search/content/searchTerm.js */
 /* import-globals-from ../../../base/content/commandglue.js */
@@ -27,7 +28,6 @@ var gSearchSession;
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 var nsMsgSearchOp = Ci.nsMsgSearchOp;
 var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsIAbDirectory = Ci.nsIAbDirectory;
 
 var gStatusText;
 var gSearchBundle;
@@ -46,11 +46,11 @@ var gSearchAbViewListener = {
   onCountChanged(aTotal) {
     let statusText;
     if (aTotal == 0) {
-      statusText = gAddressBookBundle.getString("noMatchFound");
+      statusText = gAddressBookBundle.GetStringFromName("noMatchFound");
     } else {
       statusText = PluralForm.get(
         aTotal,
-        gAddressBookBundle.getString("matchesFound1")
+        gAddressBookBundle.GetStringFromName("matchesFound1")
       ).replace("#1", aTotal);
     }
 
@@ -73,7 +73,9 @@ function searchOnLoad() {
     "accesskey",
     gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
   );
-  gAddressBookBundle = document.getElementById("bundle_addressBook");
+  gAddressBookBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
+  );
   gSearchSession = Cc[searchSessionContractID].createInstance(
     Ci.nsIMsgSearchSession
   );
@@ -83,9 +85,6 @@ function searchOnLoad() {
     "mail.addr_book.show_phonetic_fields",
     Ci.nsIPrefLocalizedString
   ).data;
-
-  // Initialize globals, see abCommon.js , InitCommonJS()
-  abList = document.getElementById("abPopup");
 
   if (window.arguments && window.arguments[0]) {
     SelectDirectory(window.arguments[0].directory);
@@ -356,7 +355,7 @@ function GetAbViewListener() {
 
 function onProperties() {
   if (!gPropertiesCmd.hasAttribute("disabled")) {
-    AbEditSelectedCard();
+    // TODO fix in a later patch
   }
 }
 
@@ -384,7 +383,7 @@ function AbResultsPaneKeyPress(event) {
 }
 
 function AbResultsPaneDoubleClick(card) {
-  AbEditCard(card);
+  // Kept for abResultsPane.js.
 }
 
 function UpdateCardView() {

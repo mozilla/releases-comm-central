@@ -180,8 +180,10 @@ if (!customElements.get("menulist")) {
         // Insert a menuitem representing All Addressbooks.
         let allABLabel = this.getAttribute("alladdressbooks");
         if (allABLabel == "true") {
-          let bundle = document.getElementById("bundle_addressBook");
-          allABLabel = bundle.getString("allAddressBooks");
+          let bundle = Services.strings.createBundle(
+            "chrome://messenger/locale/addressbook/addressBook.properties"
+          );
+          allABLabel = bundle.GetStringFromName("allAddressBooks");
         }
 
         this._directories.unshift(null);

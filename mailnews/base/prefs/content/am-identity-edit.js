@@ -461,29 +461,35 @@ function setupSignatureItems() {
   }
 }
 
-function editVCardCallback(escapedVCardStr) {
-  var escapedVCard = document.getElementById("identity.escapedVCard");
-  escapedVCard.value = escapedVCardStr;
-  // Trigger a change event so for the am-main view the event listener
-  // set up in AccountManager.js onLoad() can make sure to save the change.
-  escapedVCard.dispatchEvent(new CustomEvent("change"));
-}
-
 function editVCard() {
-  var escapedVCard = document.getElementById("identity.escapedVCard");
-  let args = {
-    escapedVCardStr: escapedVCard.value,
-    okCallback: editVCardCallback,
-    titleProperty: "editVCardTitle",
-    hideABPicker: true,
-  };
+  // Read vCard hidden value from UI.
+  let escapedVCard = document.getElementById("identity.escapedVCard");
 
-  // read vCard hidden value from UI
-  parent.gSubDialog.open(
-    "chrome://messenger/content/am-card-dialog.xhtml",
-    { features: "resizable=no" },
-    args
-  );
+  let dialog = top.document.getElementById("editVCardDialog");
+  // TODO connect vCard editing UI
+  // dialog.querySelector("vcard-edit").vCardString = decodeURIComponent(
+  //   escapedVCard.value
+  // );
+
+  dialog.querySelector(".accept").addEventListener("click", () => {
+    // escapedVCard.value = encodeURIComponent(
+    //   dialog.querySelector("vcard-edit").vCardString
+    // );
+    // Trigger a change event so for the am-main view the event listener
+    // set up in AccountManager.js onLoad() can make sure to save the change.
+    escapedVCard.dispatchEvent(new CustomEvent("change"));
+
+    top.gSubDialog._topDialog?._overlay.setAttribute("topmost", "true");
+    dialog.close();
+  });
+
+  dialog.querySelector(".cancel").addEventListener("click", () => {
+    top.gSubDialog._topDialog?._overlay.setAttribute("topmost", "true");
+    dialog.close();
+  });
+
+  top.gSubDialog._topDialog?._overlay.removeAttribute("topmost");
+  dialog.showModal();
 }
 
 function getAccountForFolderPickerState() {

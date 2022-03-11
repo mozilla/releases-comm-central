@@ -3,9 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/shared/accountManager.css" type="text/css"?>
-
 <!DOCTYPE html [
   <!ENTITY % accountManagerDTD SYSTEM "chrome://messenger/locale/AccountManager.dtd">
   %accountManagerDTD;
@@ -19,11 +16,19 @@
       scrolling="false">
 <head>
   <title>&accountManagerTitle.label;</title>
+
   <meta http-equiv="Content-Security-Policy" content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'" />
   <meta name="color-scheme" content="light dark" />
+
+  <link rel="icon" href="chrome://messenger/skin/icons/sidebar-left.svg" />
+
+  <link rel="stylesheet" href="chrome://messenger/skin/inContentDialog.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/folderPane.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/shared/accountManager.css" />
+
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/accountManager.ftl" />
-  <link rel="icon" href="chrome://messenger/skin/icons/sidebar-left.svg" />
+
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
@@ -143,5 +148,17 @@
                disablehistory="true"/>
     </vbox>
   </vbox>
+
+  <dialog xmlns="http://www.w3.org/1999/xhtml" id="editVCardDialog">
+    <!-- TODO add vCard editing UI -->
+    <menu class="dialog-menu-container">
+      <button class="cancel"
+              data-l10n-id="edit-vcard-dialog-cancel-button"
+              data-l10n-attrs="accesskey"></button>
+      <button class="accept primary"
+              data-l10n-id="edit-vcard-dialog-accept-button"
+              data-l10n-attrs="accesskey"></button>
+    </menu>
+  </dialog>
 </html:body>
 </html>

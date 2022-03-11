@@ -107,20 +107,6 @@ add_task(async () => {
         mailTab: true,
       });
 
-      browser.test.log("Open the address book window (addressbook.xhtml).");
-
-      await browser.addressBooks.openUI();
-      let [{ id: addressBookWindow }] = await listener.checkEvent(
-        "windows.onCreated",
-        {
-          type: "addressBook",
-        }
-      );
-      let [{ id: addressBookTab }] = await listener.checkEvent(
-        "tabs.onCreated",
-        { index: 0, windowId: addressBookWindow, active: true, mailTab: false }
-      );
-
       browser.test.log("Open a compose window (messengercompose.xhtml).");
 
       await browser.compose.beginNew();
@@ -186,15 +172,6 @@ add_task(async () => {
       await listener.checkEvent("windows.onRemoved", mainWindow);
       await listener.checkEvent("tabs.onRemoved", mainTab, {
         windowId: mainWindow,
-        isWindowClosing: true,
-      });
-
-      browser.test.log("Close the address book window.");
-
-      await browser.addressBooks.closeUI();
-      await listener.checkEvent("windows.onRemoved", addressBookWindow);
-      await listener.checkEvent("tabs.onRemoved", addressBookTab, {
-        windowId: addressBookWindow,
         isWindowClosing: true,
       });
 

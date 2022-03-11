@@ -29,8 +29,6 @@ XPCOMUtils.defineLazyPreferenceGetter(
   100
 );
 
-const ADDRESS_BOOK_WINDOW_URI =
-  "chrome://messenger/content/addressbook/addressbook.xhtml";
 const COMPOSE_WINDOW_URI =
   "chrome://messenger/content/messengercompose/messengercompose.xhtml";
 const MESSAGE_WINDOW_URI = "chrome://messenger/content/messageWindow.xhtml";
@@ -782,8 +780,6 @@ class Tab extends TabBase {
   /** What sort of tab is this? */
   get type() {
     switch (this.nativeTab.location?.href) {
-      case ADDRESS_BOOK_WINDOW_URI:
-        return "addressBook";
       case COMPOSE_WINDOW_URI:
         return "messageCompose";
       case MESSAGE_WINDOW_URI:

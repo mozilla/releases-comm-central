@@ -6,7 +6,6 @@
 BROWSER_CHROME_MANIFESTS += [
     "account/browser-clear.ini",
     "account/browser.ini",
-    "addrbook/browser.ini",
     "attachment/browser.ini",
     "cloudfile/browser.ini",
     "composition/browser.ini",

@@ -37,9 +37,6 @@ var gAddressBookAbListener = {
 };
 
 function onInitEditDirectories() {
-  // For AbDeleteDirectory in abCommon.js
-  gAddressBookBundle = document.getElementById("bundle_addressBook");
-
   // If the pref is locked disable the "Add" button
   if (Services.prefs.prefIsLocked("ldap_2.disable_button_add")) {
     document.getElementById("addButton").setAttribute("disabled", true);
@@ -127,6 +124,14 @@ function dblClickDirectory(event) {
   editDirectory();
 }
 
+function addDirectory() {
+  window.browsingContext.topChromeWindow.openDialog(
+    "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
+    "",
+    "chrome,resizable=no,centerscreen"
+  );
+}
+
 function editDirectory() {
   var abList = document.getElementById("directoriesList");
 
@@ -143,10 +148,44 @@ function editDirectory() {
   }
 }
 
-function removeDirectory() {
-  var abList = document.getElementById("directoriesList");
+async function removeDirectory() {
+  let abList = document.getElementById("directoriesList");
 
-  if (abList && abList.selectedItem) {
-    AbDeleteDirectory(abList.value);
+  if (!abList.selectedItem) {
+    return;
+  }
+
+  let directory = GetDirectoryFromURI(abList.value);
+  if (
+    !directory ||
+    ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(
+      directory.dirPrefId
+    )
+  ) {
+    return;
+  }
+
+  let action = "delete-book";
+  if (directory.isMailList) {
+    action = "delete-lists";
+  } else if (
+    [
+      Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
+      Ci.nsIAbManager.LDAP_DIRECTORY_TYPE,
+    ].includes(directory.dirType)
+  ) {
+    action = "remove-remote-book";
+  }
+
+  let [title, message] = await document.l10n.formatValues([
+    { id: `about-addressbook-confirm-${action}-title`, args: { count: 1 } },
+    {
+      id: `about-addressbook-confirm-${action}`,
+      args: { name: directory.dirName, count: 1 },
+    },
+  ]);
+
+  if (Services.prompt.confirm(window, title, message)) {
+    MailServices.ab.deleteAddressBook(directory.URI);
   }
 }

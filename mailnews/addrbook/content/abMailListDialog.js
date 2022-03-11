@@ -14,13 +14,10 @@ var { AppConstants } = ChromeUtils.import(
 );
 
 top.MAX_RECIPIENTS = 1;
-var inputElementType = "";
 
 var gListCard;
 var gEditList;
 var gOldListName = "";
-var gLoadListeners = [];
-var gSaveListeners = [];
 
 var gAWContentHeight = 0;
 var gAWRowHeight = 0;
@@ -50,10 +47,13 @@ function getLoadContext() {
 
 function mailingListExists(listname) {
   if (MailServices.ab.mailListNameExists(listname)) {
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addressbook/addressBook.properties"
+    );
     Services.prompt.alert(
       window,
-      gAddressBookBundle.getString("mailListNameExistsTitle"),
-      gAddressBookBundle.getString("mailListNameExistsMessage")
+      bundle.GetStringFromName("mailListNameExistsTitle"),
+      bundle.GetStringFromName("mailListNameExistsMessage")
     );
     return true;
   }
@@ -70,21 +70,24 @@ function mailingListExists(listname) {
  * @return {boolean} - Whether the operation succeeded or not.
  */
 function updateMailList(mailList, isNewList) {
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
+  );
   let listname = document.getElementById("ListName").value.trim();
 
   if (listname.length == 0) {
-    alert(gAddressBookBundle.getString("emptyListName"));
+    alert(bundle.GetStringFromName("emptyListName"));
     return false;
   }
 
   if (listname.match("  ")) {
-    alert(gAddressBookBundle.getString("badListNameSpaces"));
+    alert(bundle.GetStringFromName("badListNameSpaces"));
     return false;
   }
 
   for (let char of ',;"<>') {
     if (listname.includes(char)) {
-      alert(gAddressBookBundle.getString("badListNameCharacters"));
+      alert(bundle.GetStringFromName("badListNameCharacters"));
       return false;
     }
   }
@@ -183,8 +186,6 @@ function MailListOKButton(event) {
       var parentDirectory = GetDirectoryFromURI(uri);
       mailList = parentDirectory.addMailList(mailList);
       updateMailListMembers(mailList, parentDirectory);
-      NotifySaveListeners(mailList);
-
       window.arguments[0].newListUID = mailList.UID;
       window.arguments[0].newListURI = mailList.URI;
     } else {
@@ -195,8 +196,6 @@ function MailListOKButton(event) {
 
 function OnLoadNewMailList() {
   var selectedAB = null;
-
-  InitCommonJS();
 
   if ("arguments" in window && window.arguments[0]) {
     var abURI = window.arguments[0].selectedAB;
@@ -243,8 +242,6 @@ function OnLoadNewMailList() {
     );
   }
 
-  NotifyLoadListeners(directory);
-
   let input = document.getElementById("addressCol1#1");
   input.popup.addEventListener("click", () => {
     awReturnHit(input);
@@ -267,7 +264,6 @@ function EditListOKButton(event) {
       gListCard.setProperty("Notes", gEditList.description);
     }
 
-    NotifySaveListeners(gEditList);
     gEditList.editMailListToDatabase(gListCard);
 
     window.arguments[0].refresh = true;
@@ -277,8 +273,6 @@ function EditListOKButton(event) {
 }
 
 function OnLoadEditList() {
-  InitCommonJS();
-
   gListCard = window.arguments[0].abCard;
   var listUri = window.arguments[0].listURI;
 
@@ -289,10 +283,12 @@ function OnLoadEditList() {
   document.getElementById("ListDescription").value = gEditList.description;
   gOldListName = gEditList.dirName;
 
-  document.title = gAddressBookBundle.getFormattedString(
-    "mailingListTitleEdit",
-    [gOldListName]
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
   );
+  document.title = bundle.formatStringFromName("mailingListTitleEdit", [
+    gOldListName,
+  ]);
 
   let cards = gEditList.childCards;
   if (cards.length > 0) {
@@ -339,7 +335,6 @@ function OnLoadEditList() {
   // the first row then appears to be duplicated at the end although it is actually empty.
   // see awAppendNewRow which copies first row and clears it
   setTimeout(AppendLastRow, 0);
-  NotifyLoadListeners(gEditList);
 
   document.querySelectorAll(`input[is="autocomplete-input"]`).forEach(input => {
     input.popup.addEventListener("click", () => {
@@ -428,17 +423,6 @@ function awDeleteRow(rowToDelete) {
   awTestRowSequence();
 }
 
-function awInputChanged(inputElement) {
-  //  AutoCompleteAddress(inputElement);
-
-  // Do we need to add a new row?
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if (lastInput && lastInput.value && !top.doNotCreateANewRow) {
-    awAppendNewRow(false);
-  }
-  top.doNotCreateANewRow = false;
-}
-
 /**
  * Append a new row.
  *
@@ -478,17 +462,6 @@ function awAppendNewRow(setFocus) {
 }
 
 // functions for accessing the elements in the addressing widget
-
-/**
- * Returns the recipient type popup for a row.
- *
- * @param {String} row - Index of the recipient row to return. Starts at 1.
- * @return {HTMLElement} This returns the menulist (not its child menupopup),
- *   despite the function name.
- */
-function awGetPopupElement(row) {
-  return document.getElementById("addressCol1#" + row);
-}
 
 /**
  * Returns the recipient inputbox for a row.
@@ -589,60 +562,6 @@ function DropListAddress(target, address) {
     let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
     lastInput.value = addr.toString();
     awAppendNewRow(true);
-  }
-}
-
-/* Allows extensions to register a listener function for
- * when a mailing list is loaded.  The listener function
- * should take two parameters - the first being the
- * mailing list being loaded, the second one being the
- * current window document.
- */
-function RegisterLoadListener(aListener) {
-  gLoadListeners.push(aListener);
-}
-
-/* Allows extensions to unload a load listener function.
- */
-function UnregisterLoadListener(aListener) {
-  var fIndex = gLoadListeners.indexOf(aListener);
-  if (fIndex != -1) {
-    gLoadListeners.splice(fIndex, 1);
-  }
-}
-
-/* Allows extensions to register a listener function for
- * when a mailing list is saved.  Like a load listener,
- * the save listener should take two parameters: the first
- * being a copy of the mailing list that is being saved,
- * and the second being the current window document.
- */
-function RegisterSaveListener(aListener) {
-  gSaveListeners.push(aListener);
-}
-
-/* Allows extensions to unload a save listener function.
- */
-function UnregisterSaveListener(aListener) {
-  var fIndex = gSaveListeners.indexOf(aListener);
-  if (fIndex != -1) {
-    gSaveListeners.splice(fIndex, 1);
-  }
-}
-
-/* Notifies all load listeners.
- */
-function NotifyLoadListeners(aMailingList) {
-  for (let i = 0; i < gLoadListeners.length; i++) {
-    gLoadListeners[i](aMailingList, document);
-  }
-}
-
-/* Notifies all save listeners.
- */
-function NotifySaveListeners(aMailingList) {
-  for (let i = 0; i < gSaveListeners.length; i++) {
-    gSaveListeners[i](aMailingList, document);
   }
 }
 
@@ -992,4 +911,33 @@ function awSetFocusTo(element) {
 
 function _awSetFocusTo() {
   top.awInputToFocus.focus();
+}
+
+// returns null if abURI is not a mailing list URI
+function GetParentDirectoryFromMailingListURI(abURI) {
+  var abURIArr = abURI.split("/");
+  /*
+   Turn "jsaddrbook://abook.sqlite/MailList6"
+   into ["jsaddrbook:","","abook.sqlite","MailList6"],
+   then into "jsaddrbook://abook.sqlite".
+
+   Turn "moz-aboutlookdirectory:///<top dir ID>/<ML dir ID>"
+   into ["moz-aboutlookdirectory:","","","<top dir ID>","<ML dir ID>"],
+   and then into: "moz-aboutlookdirectory:///<top dir ID>".
+  */
+  if (
+    abURIArr.length == 4 &&
+    ["jsaddrbook:", "moz-abmdbdirectory:"].includes(abURIArr[0]) &&
+    abURIArr[3] != ""
+  ) {
+    return abURIArr[0] + "//" + abURIArr[2];
+  } else if (
+    abURIArr.length == 5 &&
+    abURIArr[0] == "moz-aboutlookdirectory:" &&
+    abURIArr[4] != ""
+  ) {
+    return abURIArr[0] + "///" + abURIArr[3];
+  }
+
+  return null;
 }

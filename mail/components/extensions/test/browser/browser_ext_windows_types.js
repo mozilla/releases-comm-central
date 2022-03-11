@@ -6,45 +6,17 @@ let { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
 
-let defaultUseNewAddressBook = Services.prefs.getBoolPref(
-  "mail.addr_book.useNewAddressBook",
-  false
-);
-Services.prefs.setBoolPref("mail.addr_book.useNewAddressBook", false);
-
 add_task(async () => {
   let files = {
     "background.js": async () => {
-      // Address book window.
-
-      let createdWindowPromise = window.waitForEvent("windows.onCreated");
-      await browser.addressBooks.openUI();
-      let [createdWindow] = await createdWindowPromise;
-      browser.test.assertEq("addressBook", createdWindow.type);
-
-      let windowDetail = await browser.windows.get(createdWindow.id, {
-        populate: true,
-      });
-      browser.test.assertEq("addressBook", windowDetail.type);
-      browser.test.assertEq(1, windowDetail.tabs.length);
-      browser.test.assertEq("addressBook", windowDetail.tabs[0].type);
-      // These three properties should not be present, but not fail either.
-      browser.test.assertEq(undefined, windowDetail.tabs[0].favIconUrl);
-      browser.test.assertEq(undefined, windowDetail.tabs[0].title);
-      browser.test.assertEq(undefined, windowDetail.tabs[0].url);
-
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
-      await browser.addressBooks.closeUI();
-      await removedWindowPromise;
-
       // Message compose window.
 
-      createdWindowPromise = window.waitForEvent("windows.onCreated");
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew();
-      [createdWindow] = await createdWindowPromise;
+      let [createdWindow] = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
-      windowDetail = await browser.windows.get(createdWindow.id, {
+      let windowDetail = await browser.windows.get(createdWindow.id, {
         populate: true,
       });
       browser.test.assertEq("messageCompose", windowDetail.type);
@@ -55,7 +27,7 @@ add_task(async () => {
       browser.test.assertEq(undefined, windowDetail.tabs[0].title);
       browser.test.assertEq(undefined, windowDetail.tabs[0].url);
 
-      removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
       await browser.tabs.remove(windowDetail.tabs[0].id);
       await removedWindowPromise;
 
@@ -114,10 +86,3 @@ add_task(async () => {
   await extension.awaitFinish();
   await extension.unload();
 });
-
-registerCleanupFunction(() =>
-  Services.prefs.setBoolPref(
-    "mail.addr_book.useNewAddressBook",
-    defaultUseNewAddressBook
-  )
-);
