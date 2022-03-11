@@ -13,6 +13,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
@@ -49,6 +50,17 @@ var KeyLookupHelper = {
           vks.keyData,
           true
         );
+        if (!somethingWasImported) {
+          let db = await CollectedKeysDB.getInstance();
+          for (let newKey of keyList) {
+            // If key is known in the db: merge + update.
+            let key = await db.mergeExisting(newKey, vks.keyData, {
+              uri: EnigmailKeyServer.serverReqURL(`0x${newKey.fpr}`, defKs),
+              type: "keyserver",
+            });
+            await db.storeKey(key);
+          }
+        }
       } else {
         EnigmailDialog.alert(window, await l10n.formatValue("preview-failed"));
       }

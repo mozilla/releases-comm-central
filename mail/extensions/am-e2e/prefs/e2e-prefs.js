@@ -22,6 +22,8 @@ pref("mail.identity.default.signing_cert_name", "");
 // OpenPGP prefs
 //
 
+pref("openpgp.loglevel", "Warn");
+
 // If false, hide and disable the OpenPGP functionality
 pref("mail.openpgp.enable", true);
 

@@ -30,6 +30,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
+  CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
@@ -56,6 +57,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -3208,7 +3210,13 @@ Enigmail.msg = {
     Enigmail = undefined;
   },
 
-  async commonProcessAttachedKey(keyData, isBinaryAutocrypt) {
+  /**
+   * Process key data from a message.
+   * @param {string} keyData - The key data.
+   * @param {boolean} isBinaryAutocrypt - false if ASCII armored data.
+   * @param {string} [description] - Key source description, if any.
+   */
+  async commonProcessAttachedKey(keyData, isBinaryAutocrypt, description) {
     if (!keyData) {
       return;
     }
@@ -3233,6 +3241,8 @@ Enigmail.msg = {
       false
     );
 
+    // If we cannot analyze the keyblock, or if it's empty, or if we
+    // got an error message, then the key is bad and shouldn't be used.
     if (!preview || !preview.length || errorMsgObj.value) {
       return;
     }
@@ -3242,31 +3252,59 @@ Enigmail.msg = {
     let addedToIndex = false;
     let nextIndex = Enigmail.msg.attachedKeys.length;
 
+    let db = await CollectedKeysDB.getInstance();
+
     for (let newKey of preview) {
       let oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
       if (!oldKey) {
+        // If the key is unknown, an expired/revoked key cannot help us
+        // for anything new, so don't use it.
         if (newKey.keyTrust == "r" || newKey.keyTrust == "e") {
           continue;
         }
 
-        if (!this.hasUserIdForEmail(newKey.userIds, this.authorEmail)) {
-          continue;
+        if (this.hasUserIdForEmail(newKey.userIds, this.authorEmail)) {
+          // If it's a non expired, non revoked new key, in the email
+          // author's name (email address match), then offer it for
+          // manual (immediate) import.
+          let info = {
+            fpr: "0x" + newKey.fpr,
+            idx: nextIndex,
+            keyInfo: newKey,
+            binary: isBinaryAutocrypt,
+          };
+          Enigmail.msg.attachedSenderEmailKeysIndex.push(info);
+          addedToIndex = true;
         }
 
-        let info = {
-          fpr: "0x" + newKey.fpr,
-          idx: nextIndex,
-          keyInfo: newKey,
-          binary: isBinaryAutocrypt,
-        };
-        Enigmail.msg.attachedSenderEmailKeysIndex.push(info);
-        addedToIndex = true;
+        // Regardless of a sender/email match, collect the key for
+        // potentially using it in the future.
+        let pubKey = isBinaryAutocrypt
+          ? RNP.enArmorString(keyData, "public key")
+          : keyData;
+
+        // If key is known in the db: merge + update.
+        let key = await db.mergeExisting(newKey, pubKey, {
+          uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
+          type: isBinaryAutocrypt ? "autocrypt" : "attachment",
+          description,
+        });
+
+        await db.storeKey(key);
+
+        // done with processing for new keys (!oldKey)
         continue;
       }
 
-      if (oldKey.keyCreated != newKey.keyCreated) {
-        continue;
-      }
+      // The key is known (we have an oldKey), then it makes sense to
+      // import, even if it's expired/revoked, to learn about the
+      // changed validity.
+
+      // Also, we auto import/merge such keys, even if the sender
+      // doesn't match any key user ID. Why is this useful?
+      // If I am Alice, and the email is from Bob, the email could have
+      // Charlie's revoked or extended key attached. It's useful for
+      // me to learn that.
 
       let newHasNewValidity =
         oldKey.expiryTime < newKey.expiryTime ||
@@ -3434,7 +3472,10 @@ Enigmail.msg = {
   unhideMissingSigKey: null,
 
   autoProcessPgpKeyAttachment(attachment) {
-    if (attachment.contentType != "application/pgp-keys") {
+    if (
+      attachment.contentType != "application/pgp-keys" &&
+      !attachment.name.endsWith(".asc")
+    ) {
       return;
     }
 
@@ -3444,7 +3485,7 @@ Enigmail.msg = {
       // Make sure to let the message load before doing potentially *very*
       // time consuming auto processing (seconds!?).
       await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
-      await this.commonProcessAttachedKey(data, false);
+      await this.commonProcessAttachedKey(data, false, attachment.name);
       Enigmail.msg.autoProcessPgpKeyAttachmentProcessed++;
       if (
         Enigmail.msg.autoProcessPgpKeyAttachmentProcessed ==

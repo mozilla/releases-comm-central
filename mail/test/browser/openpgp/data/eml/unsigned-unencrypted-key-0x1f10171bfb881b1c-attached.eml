@@ -1,0 +1,69 @@
+Content-Type: multipart/mixed; boundary="------------8uVAxTvHI06bBILkEFaO2Vfu"
+Message-ID: <4a735c72-dc19-48ff-4fa5-2c1f65513b27@invalid>
+Date: Thu, 30 Dec 2021 23:06:03 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:97.0) Gecko/20100101
+ Thunderbird/97.0a1
+Content-Language: en-US
+To: homer@raspberrypi.local
+From: Johnny <jdoe@invalid>
+Subject: my openpgp key attached
+
+This is a multi-part message in MIME format.
+--------------8uVAxTvHI06bBILkEFaO2Vfu
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Hey, the key 0x1F10171BFB881B1C (for jdoe@invalid) attached!
+
+  -Johnny
+
+
+--------------8uVAxTvHI06bBILkEFaO2Vfu
+Content-Type: application/pgp-keys; name="OpenPGP_0x1F10171BFB881B1C.asc"
+Content-Disposition: attachment; filename="OpenPGP_0x1F10171BFB881B1C.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=MfFc
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------8uVAxTvHI06bBILkEFaO2Vfu--

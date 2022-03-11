@@ -1138,7 +1138,7 @@ var RNP = {
       GPGME.allDependenciesLoaded()
     ) {
       // failure processing with RNP, attempt decryption with GPGME
-      let r2 = await GPGME.decrypt(encrypted, RNP.enArmor);
+      let r2 = await GPGME.decrypt(encrypted, RNP.enArmorCDataMessage);
       if (!r2.exitCode && r2.decryptedData) {
         // TODO: obtain info which key ID was used for decryption
         //       and set result.decryptKey*
@@ -1667,6 +1667,41 @@ var RNP = {
 
     RNPLib.rnp_ffi_destroy(tempFFI);
     return keyList;
+  },
+
+  /**
+   * Take two or more ASCII armored key blocks and import them into memory,
+   * and output a public key of what importing those keys would yield.
+   * The intention is to use it to combine keys obtained from different places,
+   * possibly with updated/different expiration date and userIds etc. to
+   * a canonical represenation of them.
+   *
+   * @param {string} fingerprint - Key fingerprint.
+   * @param {...string} - Key blocks.
+   * @returns {string} the resulting public key of the blocks
+   */
+  async mergePublicKeyBlocks(fingerprint, ...keyBlocks) {
+    if (keyBlocks.some(b => b.length > RNP.maxImportKeyBlockSize)) {
+      throw new Error("keyBlock too big");
+    }
+
+    let tempFFI = new RNPLib.rnp_ffi_t();
+    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+      throw new Error("Couldn't initialize librnp.");
+    }
+
+    let pubkey = true;
+    let seckey = false;
+    let permissive = false;
+    for (let block of new Set(keyBlocks)) {
+      if (this.importToFFI(tempFFI, block, pubkey, seckey, permissive)) {
+        throw new Error("Merging public keys failed");
+      }
+    }
+    let pubKey = await this.getPublicKey(`0x${fingerprint}`, tempFFI);
+
+    RNPLib.rnp_ffi_destroy(tempFFI);
+    return pubKey;
   },
 
   async importRevImpl(data) {
@@ -2761,9 +2796,9 @@ var RNP = {
     return foundHandle;
   },
 
-  async getPublicKey(id) {
+  async getPublicKey(id, store = RNPLib.ffi) {
     let result = "";
-    let key = await this.getKeyHandleByIdentifier(RNPLib.ffi, id);
+    let key = await this.getKeyHandleByIdentifier(store, id);
 
     if (key.isNull()) {
       return result;
@@ -3169,10 +3204,19 @@ var RNP = {
     return result;
   },
 
-  enArmor(buf, len) {
-    let result = "";
+  enArmorString(input, type) {
+    let arr = input.split("").map(e => e.charCodeAt());
+    let input_array = ctypes.uint8_t.array()(arr);
 
-    var input_array = ctypes.cast(buf, ctypes.uint8_t.array(len));
+    return this.enArmorCData(input_array, input_array.length, type);
+  },
+
+  enArmorCDataMessage(buf, len) {
+    return this.enArmorCData(buf, len, "message");
+  },
+
+  enArmorCData(buf, len, type) {
+    let input_array = ctypes.cast(buf, ctypes.uint8_t.array(len));
 
     let input_from_memory = new RNPLib.rnp_input_t();
     RNPLib.rnp_input_from_memory(
@@ -3187,10 +3231,11 @@ var RNP = {
     let output_to_memory = new RNPLib.rnp_output_t();
     RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);
 
-    if (RNPLib.rnp_enarmor(input_from_memory, output_to_memory, "message")) {
+    if (RNPLib.rnp_enarmor(input_from_memory, output_to_memory, type)) {
       throw new Error("rnp_enarmor failed");
     }
 
+    let result = "";
     let result_buf = new ctypes.uint8_t.ptr();
     let result_len = new ctypes.size_t();
     if (

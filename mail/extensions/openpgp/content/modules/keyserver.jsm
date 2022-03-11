@@ -931,7 +931,7 @@ const accessVksServer = {
 
     let method = "GET";
 
-    let url = "https://" + keySrv.host + ":443";
+    let url = "https://" + keySrv.host;
 
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       url += "/vks/v1/upload";
@@ -1390,6 +1390,16 @@ var EnigmailKeyServer = {
   downloadNoImport(keyIDs, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.download(false, keyIDs, keyserver, listener);
+  },
+
+  serverReqURL(keyIDs, keyserver) {
+    let acc = getAccessType(keyserver);
+    let { url } = acc.createRequestUrl(
+      keyserver,
+      EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
+      keyIDs
+    );
+    return url;
   },
 
   /**

@@ -796,7 +796,7 @@ var messageHeaderSink = {
     currentAttachments.push(newAttachment);
 
     if (
-      contentType == "application/pgp-keys" &&
+      (contentType == "application/pgp-keys" || displayName.endsWith(".asc")) &&
       MailConstants.MOZ_OPENPGP &&
       BondOpenPGP.isEnabled()
     ) {
