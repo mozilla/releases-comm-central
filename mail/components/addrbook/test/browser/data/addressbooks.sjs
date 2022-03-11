@@ -23,7 +23,7 @@ function handleRequest(request, response) {
 
   response.write(`<multistatus xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
     <response>
-      <href>/browser/comm/mail/components/addrbook/test/browser/new/data/addressbooks.sjs</href>
+      <href>/browser/comm/mail/components/addrbook/test/browser/data/addressbooks.sjs</href>
       <propstat>
         <prop>
           <resourcetype>
@@ -41,7 +41,7 @@ function handleRequest(request, response) {
       </propstat>
     </response>
     <response>
-      <href>/browser/comm/mail/components/addrbook/test/browser/new/data/addressbook.sjs</href>
+      <href>/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs</href>
       <propstat>
         <prop>
           <resourcetype>

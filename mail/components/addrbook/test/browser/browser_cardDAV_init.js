@@ -300,7 +300,7 @@ add_task(async function testDNS() {
     return [
       {
         data:
-          "path=/browser/comm/mail/components/addrbook/test/browser/new/data/dns.sjs",
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
       },
     ];
   };
@@ -317,7 +317,7 @@ add_task(async function testDNS() {
         {
           label: "You found me!",
           url:
-            "https://example.org/browser/comm/mail/components/addrbook/test/browser/new/data/addressbook.sjs",
+            "https://example.org/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs",
         },
       ],
     });

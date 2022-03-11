@@ -21,14 +21,14 @@ function handleRequest(request, response) {
 
   response.write(`<multistatus xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
     <response>
-      <href>/browser/comm/mail/components/addrbook/test/browser/new/data/principal.sjs</href>
+      <href>/browser/comm/mail/components/addrbook/test/browser/data/principal.sjs</href>
       <propstat>
         <prop>
           <resourcetype>
             <principal/>
           </resourcetype>
           <card:addressbook-home-set>
-            <href>/browser/comm/mail/components/addrbook/test/browser/new/data/addressbooks.sjs</href>
+            <href>/browser/comm/mail/components/addrbook/test/browser/data/addressbooks.sjs</href>
           </card:addressbook-home-set>
         </prop>
         <status>HTTP/1.1 200 OK</status>

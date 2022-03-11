@@ -439,7 +439,7 @@ add_task(async function test_paste_url() {
   let previewChangePromise = waitForPreviewChange();
 
   wrapper.data =
-    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/photo1.jpg";
+    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo1.jpg";
   transfer.setTransferData("text/unicode", wrapper);
   Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
@@ -470,7 +470,7 @@ add_task(async function test_paste_url() {
   previewChangePromise = waitForPreviewChange();
 
   wrapper.data =
-    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/photo2.jpg";
+    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo2.jpg";
   transfer.setTransferData("text/unicode", wrapper);
   Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
@@ -498,7 +498,7 @@ add_task(async function test_paste_url() {
   // Paste an invalid URL.
 
   wrapper.data =
-    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/fake.jpg";
+    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/fake.jpg";
   transfer.setTransferData("text/unicode", wrapper);
   Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);

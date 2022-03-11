@@ -143,7 +143,7 @@ DNS.txt = function(name) {
     return [
       {
         data:
-          "path=/browser/comm/mail/components/addrbook/test/browser/new/data/dns.sjs",
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
       },
     ];
   }
@@ -775,7 +775,7 @@ add_task(async function test_full_account_setup() {
   Assert.equal(abDirectory.dirType, Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
   Assert.equal(
     abDirectory.getStringValue("carddav.url", ""),
-    "https://example.org/browser/comm/mail/components/addrbook/test/browser/new/data/addressbook.sjs"
+    "https://example.org/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs"
   );
 
   // Wait for the linked calendar section to be visible.

@@ -252,9 +252,9 @@ class CalDavTestOAuth extends CalDavGoogleOAuth {
 
     // Override these values with test values.
     this.authorizationEndpoint =
-      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/redirect_auto.sjs";
+      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/redirect_auto.sjs";
     this.tokenEndpoint =
-      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/token.sjs";
+      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/token.sjs";
     this.scope = "test_scope";
     this.clientId = "test_client_id";
     this.consumerSecret = "test_scope";

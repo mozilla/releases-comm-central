@@ -16,30 +16,29 @@ function handleRequest(request, response) {
   // <propfind>
   //   <prop>
   //     <resourcetype/>
-  //     <displayname/>
-  //     <current-user-principal/>
-  //     <current-user-privilege-set/>
+  //     <getetag/>
+  //     <getctag/>
   //   </prop>
   // </propfind>
 
-  response.write(`<multistatus xmlns="DAV:">
+  response.write(`<multistatus xmlns="DAV:"
+                               xmlns:card="urn:ietf:params:xml:ns:carddav"
+                               xmlns:cs="http://calendarserver.org/ns/">
     <response>
-      <href>/browser/comm/mail/components/addrbook/test/browser/new/data/dns.sjs</href>
+      <href>/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs</href>
       <propstat>
         <prop>
           <resourcetype>
             <collection/>
+            <card:addressbook/>
           </resourcetype>
-          <current-user-principal>
-            <href>/browser/comm/mail/components/addrbook/test/browser/new/data/principal.sjs</href>
-          </current-user-principal>
+          <cs:getctag>0</cs:getctag>
         </prop>
         <status>HTTP/1.1 200 OK</status>
       </propstat>
       <propstat>
         <prop>
-          <current-user-principal/>
-          <current-user-privilege-set/>
+          <getetag/>
         </prop>
         <status>HTTP/1.1 404 Not Found</status>
       </propstat>
