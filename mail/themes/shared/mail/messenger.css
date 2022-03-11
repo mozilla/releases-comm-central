@@ -750,7 +750,8 @@ menupopup.no-icon-menupopup .menu-iconic-left {
 
 /* Buttons */
 
-button {
+button,
+html|input[type="color"] {
   appearance: none;
   min-height: 24px;
   min-width: 5.5em;
@@ -771,9 +772,15 @@ html|button:is(:not([disabled])):hover {
 
 xul|button:is(:not([disabled="true"])):hover:active,
 html|button:is(:not([disabled])):hover:active,
-xul|button:is(:not([disabled="true"]))[open="true"] {
+xul|button:is(:not([disabled="true"]))[open="true"],
+html|input[type="color"]:not([disabled="true"]):hover,
+html|input[type="color"]:not([disabled="true"]):hover:active {
   border-color: var(--button-border-color);
   background-color: var(--button-active-bgcolor);
+}
+
+html|input[type="color"] {
+  padding: 4px;
 }
 
 /* For buttons that wraps its content with no outline or background.

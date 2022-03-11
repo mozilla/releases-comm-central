@@ -132,7 +132,7 @@
 }
 
 .spaces-toolbar-button:hover:not(.current) {
-  background-color: color-mix(in srgb, var(--spaces-button-active-bg-color) 30%, transparent);
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
   opacity: 1;
 }
 
@@ -275,4 +275,10 @@ panel#spacesToolbarCustomizationPanel {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 6px;
+}
+
+button:focus-visible,
+input[type="color"]:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: -1px;
 }
