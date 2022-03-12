@@ -5,6 +5,7 @@ module.exports = {
     // These are defined in the WebExtension script scopes by ExtensionCommon.jsm.
     // From toolkit/components/extensions/.eslintrc.js.
     ExtensionAPI: true,
+    ExtensionAPIPersistent: true,
     ExtensionCommon: true,
     ExtensionUtils: true,
     extensions: true,
