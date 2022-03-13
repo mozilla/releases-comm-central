@@ -147,6 +147,12 @@ function FillMailContextMenu(aTarget, aEvent) {
                inThreadPane || (numSelected > 1));
 
   ShowMenuItem("mailContext-editAsNew", showMailItems && oneOrMore);
+  // Show "Edit Draft Message" menus only in a drafts folder;
+  // otherwise hide them.
+  let showEditDraft = showCommandInSpecialFolder("cmd_editDraftMsg",
+                                                 Ci.nsMsgFolderFlags.Drafts);
+  ShowMenuItem("mailContext-editDraftMsg",
+               showMailItems && oneOrMore && showEditDraft);
   ShowMenuItem("mailContext-replySender", showMailItems && single);
   ShowMenuItem("mailContext-replyList",
                showMailItems && single && !isNewsgroup && IsListPost());

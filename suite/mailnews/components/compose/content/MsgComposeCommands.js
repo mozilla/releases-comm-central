@@ -200,6 +200,16 @@ var stateListener = {
       case Ci.nsIMsgCompType.ForwardInline:
         this.NotifyComposeBodyReadyForwardInline();
         break;
+
+      case Ci.nsIMsgCompType.Draft:
+      case Ci.nsIMsgCompType.Template:
+      case Ci.nsIMsgCompType.Redirect:
+      case Ci.nsIMsgCompType.EditAsNew:
+        break;
+
+      default:
+        dump("Unexpected nsIMsgCompType in NotifyComposeBodyReady (" +
+             gComposeType + ")\n");
     }
 
     // Set the selected item in the identity list as needed, which will cause

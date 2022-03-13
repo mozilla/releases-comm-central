@@ -310,6 +310,10 @@ function InitMessageMenu() {
   document.getElementById("forwardAsMenu").disabled = !selectedMsg;
   document.getElementById("tagMenu").disabled = !selectedMsg;
 
+  // Show "Edit Draft Message" menus only in a drafts folder;
+  // otherwise hide them.
+  showCommandInSpecialFolder("cmd_editDraftMsg", Ci.nsMsgFolderFlags.Drafts);
+
   // Initialize the Open Message menuitem
   var winType = document.documentElement.getAttribute("windowtype");
   if (winType == "mail:3pane")
@@ -329,6 +333,26 @@ function InitMessageMenu() {
   document.getElementById("markMenu").disabled = !msgFolder;
 
   document.commandDispatcher.updateCommands("create-menu-message");
+}
+
+/**
+ * Show folder-specific menu items only for messages in special folders, e.g.
+ * show 'cmd_editDraftMsg' in Drafts folder.
+ *
+ * aCommandId   the ID of a command to be shown in folders having aFolderFlag
+ * aFolderFlag  the nsMsgFolderFlag that the folder must have to show the
+ *              command
+ */
+function showCommandInSpecialFolder(aCommandId, aFolderFlag) {
+  let msg = gFolderDisplay.selectedMessage;
+  let folder = gFolderDisplay.displayedFolder;
+  // Check msg.folder exists as messages opened from a file have none.
+  let inSpecialFolder = (msg &&
+                         msg.folder &&
+                         msg.folder.isSpecialFolder(aFolderFlag, true)) ||
+                        (folder && folder.getFlag(aFolderFlag));
+  document.getElementById(aCommandId).setAttribute("hidden", !inSpecialFolder);
+  return inSpecialFolder;
 }
 
 function InitViewHeadersMenu() {
@@ -1210,8 +1234,12 @@ function MsgForwardAsInline(event) {
   ComposeMsgByType(msgComposeType.ForwardInline, event);
 }
 
-function MsgEditMessageAsNew() {
-  ComposeMsgByType(msgComposeType.Template);
+function MsgEditMessageAsNew(aEvent) {
+  ComposeMsgByType(msgComposeType.EditAsNew, aEvent);
+}
+
+function MsgEditDraftMessage(aEvent) {
+  ComposeMsgByType(msgComposeType.Draft, aEvent);
 }
 
 function MsgComposeDraftMessage() {
