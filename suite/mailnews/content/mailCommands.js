@@ -81,6 +81,7 @@ function GetIdentityForHeader(aMsgHdr, aType)
   if (aType == Ci.nsIMsgCompType.ReplyToList)
     hintForIdentity = findDeliveredToIdentityEmail();
   else if (aType == Ci.nsIMsgCompType.Template ||
+           aType == Ci.nsIMsgCompType.EditTemplate ||
            aType == Ci.nsIMsgCompType.EditAsNew)
     hintForIdentity = aMsgHdr.author;
   else

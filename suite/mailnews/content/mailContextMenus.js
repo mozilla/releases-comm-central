@@ -153,6 +153,17 @@ function FillMailContextMenu(aTarget, aEvent) {
                                                  Ci.nsMsgFolderFlags.Drafts);
   ShowMenuItem("mailContext-editDraftMsg",
                showMailItems && oneOrMore && showEditDraft);
+  // Show "New Message from Template" and "Edit Template" menus only in a
+  // templates folder; otherwise hide them.
+  let showTemplates = showCommandInSpecialFolder("cmd_newMsgFromTemplate",
+                                                 Ci.nsMsgFolderFlags.Templates);
+  ShowMenuItem("mailContext-newMsgFromTemplate",
+               showMailItems && oneOrMore && showTemplates);
+  showTemplates = showCommandInSpecialFolder("cmd_editTemplateMsg",
+                                             Ci.nsMsgFolderFlags.Templates);
+  ShowMenuItem("mailContext-editTemplateMsg",
+               showMailItems && oneOrMore && showTemplates);
+
   ShowMenuItem("mailContext-replySender", showMailItems && single);
   ShowMenuItem("mailContext-replyList",
                showMailItems && single && !isNewsgroup && IsListPost());

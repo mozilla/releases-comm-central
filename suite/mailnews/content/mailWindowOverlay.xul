@@ -237,6 +237,9 @@
   <command id="cmd_forwardAttachment" oncommand="goDoCommand('cmd_forwardAttachment')"/>
   <command id="cmd_editAsNew" oncommand="MsgEditMessageAsNew(event);"/>
   <command id="cmd_editDraftMsg" oncommand="MsgEditDraftMessage(event);"/>
+  <command id="cmd_newMsgFromTemplate"
+           oncommand="MsgNewMessageFromTemplate(event);"/>
+  <command id="cmd_editTemplateMsg" oncommand="MsgEditTemplateMessage(event);"/>
   <command id="cmd_openMessage" oncommand="goDoCommand('cmd_openMessage')"/>
   <command id="cmd_createFilterFromMenu" oncommand="goDoCommand('cmd_createFilterFromMenu')"/>
   <command id="cmd_cancel" oncommand="goDoCommand('cmd_cancel')"/>
@@ -370,6 +373,9 @@
        key="&editAsNewMsgCmd.key;"
        modifiers="accel"
        oncommand="goDoCommand('cmd_editAsNew');"/>
+  <!-- for display on menus only -->
+  <key id="key_newMsgFromTemplate"
+       keycode="&newMsgFromTemplateCmd.keycode;"/>
   <key id="key_watchThread" key="&watchThreadMenu.key;"              oncommand="goDoCommand('cmd_watchThread')" />
   <key id="key_killThread" key="&killThreadMenu.key;"                oncommand="goDoCommand('cmd_killThread')" />
   <key id="key_killSubthread" key="&killSubthreadMenu.key;"          oncommand="goDoCommand('cmd_killSubthread')" modifiers="shift" />
@@ -581,6 +587,14 @@
               label="&contextEditDraftMsg.label;"
               default="true"
               oncommand="MsgEditDraftMessage(event);"/>
+    <menuitem id="mailContext-newMsgFromTemplate"
+              label="&contextNewMsgFromTemplate.label;"
+              default="true"
+              oncommand="MsgNewMessageFromTemplate(event);"/>
+    <menuitem id="mailContext-editTemplateMsg"
+              label="&contextEditTemplate.label;"
+              accesskey="&contextEditTemplate.accesskey;"
+              oncommand="MsgEditTemplateMessage(event);"/>
     <menuseparator id="mailContext-sep-tags"/>
     <menu id="mailContext-tags"
           label="&tagMenu.label;"
@@ -1370,6 +1384,14 @@
                 label="&editDraftMsgCmd.label;"
                 accesskey="&editDraftMsgCmd.accesskey;"
                 command="cmd_editDraftMsg"/>
+      <menuitem id="menu_newMsgFromTemplate"
+                label="&newMsgFromTemplateCmd.label;"
+                key="key_newMsgFromTemplate"
+                command="cmd_newMsgFromTemplate"/>
+      <menuitem id="menu_editTemplate"
+                label="&editTemplateMsgCmd.label;"
+                accesskey="&editTemplateMsgCmd.accesskey;"
+                command="cmd_editTemplateMsg"/>
       <menuitem id="openMessageWindowMenuitem"
                 label="&openMessageWindowCmd.label;"
                 command="cmd_openMessage"

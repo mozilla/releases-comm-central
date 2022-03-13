@@ -313,6 +313,12 @@ function InitMessageMenu() {
   // Show "Edit Draft Message" menus only in a drafts folder;
   // otherwise hide them.
   showCommandInSpecialFolder("cmd_editDraftMsg", Ci.nsMsgFolderFlags.Drafts);
+  // Show "New Message from Template" and "Edit Template" menus only in a
+  // templates folder; otherwise hide them.
+  showCommandInSpecialFolder("cmd_newMsgFromTemplate",
+                             Ci.nsMsgFolderFlags.Templates);
+  showCommandInSpecialFolder("cmd_editTemplateMsg",
+                             Ci.nsMsgFolderFlags.Templates);
 
   // Initialize the Open Message menuitem
   var winType = document.documentElement.getAttribute("windowtype");
@@ -338,6 +344,7 @@ function InitMessageMenu() {
 /**
  * Show folder-specific menu items only for messages in special folders, e.g.
  * show 'cmd_editDraftMsg' in Drafts folder.
+ * show 'cmd_newMsgFromTemplate' in Templates folder.
  *
  * aCommandId   the ID of a command to be shown in folders having aFolderFlag
  * aFolderFlag  the nsMsgFolderFlag that the folder must have to show the
@@ -1240,6 +1247,14 @@ function MsgEditMessageAsNew(aEvent) {
 
 function MsgEditDraftMessage(aEvent) {
   ComposeMsgByType(msgComposeType.Draft, aEvent);
+}
+
+function MsgNewMessageFromTemplate(aEvent) {
+  ComposeMsgByType(msgComposeType.Template, aEvent);
+}
+
+function MsgEditTemplateMessage(aEvent) {
+  ComposeMsgByType(msgComposeType.EditTemplate, aEvent);
 }
 
 function MsgComposeDraftMessage() {
