@@ -363,7 +363,8 @@ var messageHeaderSink = {
       gBuildAttachmentsForCurrentMsg = false;
       gBuildAttachmentPopupForCurrentMsg = true;
       ClearAttachmentList();
-      ClearEditMessageBox();
+      ClearEditMessageBox("editDraftBox");
+      ClearEditMessageBox("editTemplateBox");
       gMessageNotificationBar.clearMsgNotifications();
 
       for (let index in gMessageListeners)
@@ -385,7 +386,8 @@ var messageHeaderSink = {
 
       ShowMessageHeaderPane();
       UpdateMessageHeaders();
-      ShowEditMessageBox();
+      ShowEditMessageBox("editDraftBox", Ci.nsMsgFolderFlags.Drafts);
+      ShowEditMessageBox("editTemplateBox", Ci.nsMsgFolderFlags.Templates);
 
       for (let index in gMessageListeners)
         gMessageListeners[index].onEndHeaders();
@@ -1845,23 +1847,20 @@ function ClearAttachmentList()
     list.lastChild.remove();
 }
 
-function ShowEditMessageBox()
-{
-  try
-  {
+function ShowEditMessageBox(aMessageBox, aFlag) {
+  try {
     // it would be nice if we passed in the msgHdr from the back end
     var msgHdr = gDBView.hdrForFirstSelectedMessage;
     if (!msgHdr || !msgHdr.folder)
-     return;
-    if (msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true))
-      document.getElementById("editMessageBox").collapsed = false;
+      return;
+    if (msgHdr.folder.isSpecialFolder(aFlag, true))
+      document.getElementById(aMessageBox).collapsed = false;
   }
   catch (ex) {}
 }
 
-function ClearEditMessageBox()
-{
-  var editBox = document.getElementById("editMessageBox");
+function ClearEditMessageBox(aMessageBox) {
+  var editBox = document.getElementById(aMessageBox);
   if (editBox)
     editBox.collapsed = true;
 }

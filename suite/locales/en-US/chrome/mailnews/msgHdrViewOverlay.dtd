@@ -23,8 +23,10 @@
 <!ENTITY inReplyToField.label "In-Reply-To: ">
 <!ENTITY originalWebsite.label "Website: ">
 
-<!ENTITY editMessage.label                 "Edit Draft…">
-<!ENTITY editMessage.accesskey             "D">
+<!ENTITY editDraft.label                   "Edit Draft…">
+<!ENTITY editDraft.accesskey               "D">
+<!ENTITY editTemplate.label                "Edit Template…">
+<!ENTITY editTemplate.accesskey            "d">
 
 <!ENTITY attachmentsTree.label             "Attachments:">
 <!ENTITY attachmentsTree.accesskey         "c">

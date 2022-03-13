@@ -233,12 +233,21 @@
     <spacer flex="1"/>
   </vbox>
 
-  <vbox id="editMessageBox" class="header-part1" collapsed="true">
+  <vbox id="editDraftBox" class="header-part1" collapsed="true">
     <spacer flex="1"/>
-    <button id="editMessageButton"
-            label="&editMessage.label;"
-            accesskey="&editMessage.accesskey;"
-            oncommand="MsgComposeDraftMessage()"/>
+    <button id="editDraftButton"
+            label="&editDraft.label;"
+            accesskey="&editDraft.accesskey;"
+            oncommand="MsgComposeDraftMessage(null);"/>
+    <spacer flex="1"/>
+  </vbox>
+
+  <vbox id="editTemplateBox" class="header-part1" collapsed="true">
+    <spacer flex="1"/>
+    <button id="editTemplateButton"
+            label="&editTemplate.label;"
+            accesskey="&editTemplate.accesskey;"
+            oncommand="MsgEditTemplateMessage(null);"/>
     <spacer flex="1"/>
   </vbox>
 
