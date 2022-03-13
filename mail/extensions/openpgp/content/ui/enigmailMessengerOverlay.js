@@ -3172,8 +3172,6 @@ Enigmail.msg = {
   },
 
   onUnloadEnigmail() {
-    //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: onUnloadEnigmail()\n");
-
     window.removeEventListener("unload", Enigmail.msg.messengerClose);
     window.removeEventListener(
       "unload-enigmail",
