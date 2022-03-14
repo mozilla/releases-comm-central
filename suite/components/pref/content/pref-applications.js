@@ -29,13 +29,6 @@ const TYPE_MAYBE_FEED = "application/vnd.mozilla.maybe.feed";
 const TYPE_MAYBE_VIDEO_FEED = "application/vnd.mozilla.maybe.video.feed";
 const TYPE_MAYBE_AUDIO_FEED = "application/vnd.mozilla.maybe.audio.feed";
 
-const PREF_DISABLED_PLUGIN_TYPES = "plugin.disable_full_page_plugin_for_types";
-
-// Preferences that affect which entries to show in the list.
-const PREF_SHOW_PLUGINS_IN_LIST = "browser.download.show_plugins_in_list";
-const PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS =
-  "browser.download.hide_plugins_without_extensions";
-
 /*
  * Preferences where we store handling information about the feed type.
  *
@@ -76,9 +69,6 @@ const PREF_AUDIO_FEED_SELECTED_READER = "browser.audioFeeds.handler.default";
 
 // The nsHandlerInfoAction enumeration values in nsIHandlerInfo identify
 // the actions the application can take with content of various types.
-// But since nsIHandlerInfo doesn't support plugins, there's no value
-// identifying the "use plugin" action, so we use this constant instead.
-const kActionUsePlugin = -3;
 const kActionChooseApp = -2;
 const kActionManageApp = -1;
 
@@ -147,7 +137,7 @@ function isFeedType(t) {
  *
  * We create an instance of this wrapper for each entry we might display
  * in the prefpane, and we compose the instances from various sources,
- * including navigator.plugins and the handler service.
+ * including the handler service.
  *
  * We don't implement all the original nsIHandlerInfo functionality,
  * just the stuff that the prefpane needs.
@@ -240,10 +230,6 @@ HandlerInfoWrapper.prototype = {
 
   // What to do with content of this type.
   get preferredAction() {
-    // If we have an enabled plugin, then the action is to use that plugin.
-    if (this.plugin && !this.isDisabledPluginType)
-      return kActionUsePlugin;
-
     // If the action is to use a helper app, but we don't have a preferred
     // handler app, then switch to using the system default, if any; otherwise
     // fall back to saving to disk, which is the default action in nsMIMEInfo.
@@ -261,32 +247,10 @@ HandlerInfoWrapper.prototype = {
   },
 
   set preferredAction(aNewValue) {
-    // If the action is to use the plugin,
-    // we must set the preferred action to "save to disk".
-    // But only if it's not currently the preferred action.
-    if ((aNewValue == kActionUsePlugin) &&
-        (this.preferredAction != Ci.nsIHandlerInfo.saveToDisk)) {
-      aNewValue = Ci.nsIHandlerInfo.saveToDisk;
-    }
-
-    // We don't modify the preferred action if the new action is to use a plugin
-    // because handler info objects don't understand our custom "use plugin"
-    // value.  Also, leaving it untouched means that we can automatically revert
-    // to the old setting if the user ever removes the plugin.
-
-    if (aNewValue != kActionUsePlugin)
-      this.wrappedHandlerInfo.preferredAction = aNewValue;
+    this.wrappedHandlerInfo.preferredAction = aNewValue;
   },
 
   get alwaysAskBeforeHandling() {
-    // If this type is handled only by a plugin, we can't trust the value
-    // in the handler info object, since it'll be a default based on the absence
-    // of any user configuration, and the default in that case is to always ask,
-    // even though we never ask for content handled by a plugin, so special case
-    // plugin-handled types by returning false here.
-    if (this.plugin && this.handledOnlyByPlugin)
-      return false;
-
     // If this is a protocol type and the preferred action is "save to disk",
     // which is invalid for such types, then return true here to override that
     // action.  This could happen when the preferred action is to use a helper
@@ -309,10 +273,6 @@ HandlerInfoWrapper.prototype = {
   // nsIMIMEInfo
 
   // The primary file extension associated with this type, if any.
-  //
-  // XXX Plugin objects contain an array of MimeType objects with "suffixes"
-  // properties; if this object has an associated plugin, shouldn't we check
-  // those properties for an extension?
   get primaryExtension() {
     try {
       if (this.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
@@ -322,80 +282,6 @@ HandlerInfoWrapper.prototype = {
 
     return null;
   },
-
-
-  //**************************************************************************//
-  // Plugin Handling
-
-  // A plugin that can handle this type, if any.
-  //
-  // Note: just because we have one doesn't mean it *will* handle the type.
-  // That depends on whether or not the type is in the list of types for which
-  // plugin handling is disabled.
-  plugin: null,
-
-  // Whether or not this type is only handled by a plugin or is also handled
-  // by some user-configured action as specified in the handler info object.
-  //
-  // Note: we can't just check if there's a handler info object for this type,
-  // because OS and user configuration is mixed up in the handler info object,
-  // so we always need to retrieve it for the OS info and can't tell whether
-  // it represents only OS-default information or user-configured information.
-  //
-  // FIXME: once handler info records are broken up into OS-provided records
-  // and user-configured records, stop using this boolean flag and simply
-  // check for the presence of a user-configured record to determine whether
-  // or not this type is only handled by a plugin.  Filed as bug 395142.
-  handledOnlyByPlugin: undefined,
-
-  get isDisabledPluginType() {
-    return this._getDisabledPluginTypes().includes(this.type);
-  },
-
-  _getDisabledPluginTypes() {
-    var types = "";
-
-    if (Services.prefs.prefHasUserValue(PREF_DISABLED_PLUGIN_TYPES))
-      types = Services.prefs.getCharPref(PREF_DISABLED_PLUGIN_TYPES);
-
-    // Only split if the string isn't empty so we don't end up with an array
-    // containing a single empty string.
-    return types ? types.split(",") : [];
-  },
-
-  disablePluginType() {
-    var disabledPluginTypes = this._getDisabledPluginTypes();
-
-    if (!disabledPluginTypes.includes(this.type))
-      disabledPluginTypes.push(this.type);
-
-    Services.prefs.setCharPref(PREF_DISABLED_PLUGIN_TYPES,
-                               disabledPluginTypes.join(","));
-
-    // Update the category manager so existing browser windows update.
-    gCategoryManager.deleteCategoryEntry("Gecko-Content-Viewers",
-                                         this.type,
-                                         false);
-  },
-
-  enablePluginType() {
-    var disabledPluginTypes = this._getDisabledPluginTypes();
-
-    var type = this.type;
-    disabledPluginTypes = disabledPluginTypes.filter(v => v != type);
-
-    Services.prefs.setCharPref(PREF_DISABLED_PLUGIN_TYPES,
-                               disabledPluginTypes.join(","));
-
-    // Update the category manager so existing browser windows update.
-    gCategoryManager.addCategoryEntry(
-                       "Gecko-Content-Viewers",
-                       this.type,
-                       "@mozilla.org/content/plugin/document-loader-factory;1",
-                       false,
-                       true);
-  },
-
 
   //**************************************************************************//
   // Storage
@@ -816,8 +702,6 @@ var gApplicationsPane = {
 
     // Observe preferences that influence what we display so we can rebuild
     // the view when they change.
-    Services.prefs.addObserver(PREF_SHOW_PLUGINS_IN_LIST, this);
-    Services.prefs.addObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this);
     Services.prefs.addObserver(PREF_FEED_SELECTED_APP, this);
     Services.prefs.addObserver(PREF_FEED_SELECTED_WEB, this);
     Services.prefs.addObserver(PREF_FEED_SELECTED_ACTION, this);
@@ -863,8 +747,6 @@ var gApplicationsPane = {
     this._list.removeEventListener("command", this);
     this._list.removeEventListener("select", this);
     window.removeEventListener("unload", this);
-    Services.prefs.removeObserver(PREF_SHOW_PLUGINS_IN_LIST, this);
-    Services.prefs.removeObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this);
     Services.prefs.removeObserver(PREF_FEED_SELECTED_APP, this);
     Services.prefs.removeObserver(PREF_FEED_SELECTED_WEB, this);
     Services.prefs.removeObserver(PREF_FEED_SELECTED_ACTION, this);
@@ -892,14 +774,6 @@ var gApplicationsPane = {
     // Rebuild the list when there are changes to preferences that influence
     // whether or not to show certain entries in the list.
     if (aTopic == "nsPref:changed" && !this._storingAction) {
-      // These two prefs alter the list of visible types, so we have to rebuild
-      // that list when they change.
-      if (aData == PREF_SHOW_PLUGINS_IN_LIST ||
-          aData == PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS) {
-        this._rebuildVisibleTypes();
-        this._sortVisibleTypes();
-      }
-
       // All the prefs we observe can affect what we display, so we rebuild
       // the view when any of them changes.
       this._rebuildView();
@@ -954,60 +828,15 @@ var gApplicationsPane = {
 
   _loadData() {
     this._loadFeedHandler();
-    this._loadPluginHandlers();
     this._loadApplicationHandlers();
   },
 
   _loadFeedHandler() {
     this._handledTypes[TYPE_MAYBE_FEED] = feedHandlerInfo;
-    feedHandlerInfo.handledOnlyByPlugin = false;
 
     this._handledTypes[TYPE_MAYBE_VIDEO_FEED] = videoFeedHandlerInfo;
-    videoFeedHandlerInfo.handledOnlyByPlugin = false;
 
     this._handledTypes[TYPE_MAYBE_AUDIO_FEED] = audioFeedHandlerInfo;
-    audioFeedHandlerInfo.handledOnlyByPlugin = false;
-  },
-
-  /**
-   * Load the set of handlers defined by plugins.
-   *
-   * Note: if there's more than one plugin for a given MIME type, we assume
-   * the last one is the one that the application will use.  That may not be
-   * correct, but it's how we've been doing it for years.
-   *
-   * Perhaps we should instead query navigator.mimeTypes for the set of types
-   * supported by the application and then get the plugin from each MIME type's
-   * enabledPlugin property.  But if there's a plugin for a type, we need
-   * to know about it even if it isn't enabled, since we're going to give
-   * the user an option to enable it.
-   *
-   * I'll also note that my reading of nsPluginTag::RegisterWithCategoryManager
-   * suggests that enabledPlugin is only determined during registration
-   * and does not get updated when plugin.disable_full_page_plugin_for_types
-   * changes (unless modification of that preference spawns reregistration).
-   * So even if we could use enabledPlugin to get the plugin that would be used,
-   * we'd still need to check the pref ourselves to find out if it's enabled.
-   */
-  _loadPluginHandlers() {
-    let pluginHost = Cc["@mozilla.org/plugin/host;1"]
-                       .getService(Ci.nsIPluginHost);
-    for (let pluginTag of pluginHost.getPluginTags()) {
-      for (let type of pluginTag.getMimeTypes()) {
-        let handlerInfoWrapper;
-        if (type in this._handledTypes)
-          handlerInfoWrapper = this._handledTypes[type];
-        else {
-          let wrappedHandlerInfo =
-            gMIMEService.getFromTypeAndExtension(type, null);
-          handlerInfoWrapper = new HandlerInfoWrapper(type, wrappedHandlerInfo);
-          handlerInfoWrapper.handledOnlyByPlugin = true;
-          this._handledTypes[type] = handlerInfoWrapper;
-        }
-
-        handlerInfoWrapper.plugin = pluginHost.getPluginTagForType(type);
-      }
-    }
   },
 
   /**
@@ -1027,8 +856,6 @@ var gApplicationsPane = {
         handlerInfoWrapper = new HandlerInfoWrapper(type, wrappedHandlerInfo);
         this._handledTypes[type] = handlerInfoWrapper;
       }
-
-      handlerInfoWrapper.handledOnlyByPlugin = false;
     }
   },
 
@@ -1041,29 +868,8 @@ var gApplicationsPane = {
     this._visibleTypes = [];
     this._visibleTypeDescriptionCount = {};
 
-    // Get the preferences that help determine what types to show.
-    var showPlugins = Services.prefs.getBoolPref(PREF_SHOW_PLUGINS_IN_LIST);
-    var hidePluginsWithoutExtensions =
-        Services.prefs.getBoolPref(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS);
-
     for (let type in this._handledTypes) {
       let handlerInfo = this._handledTypes[type];
-
-      // Hide plugins without associated extensions if so prefed so we don't
-      // show a whole bunch of obscure types handled by plugins on Mac.
-      // Note: though protocol types don't have extensions, we still show them;
-      // the pref is only meant to be applied to MIME types, since plugins are
-      // only associated with MIME types.
-      // FIXME: should we also check the "suffixes" property of the plugin?
-      // Filed as bug 395135.
-      if (hidePluginsWithoutExtensions && handlerInfo.handledOnlyByPlugin &&
-          handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
-          !handlerInfo.primaryExtension)
-        continue;
-
-      // Hide types handled only by plugins if so prefed.
-      if (handlerInfo.handledOnlyByPlugin && !showPlugins)
-        continue;
 
       // We couldn't find any reason to exclude the type, so include it.
       this._visibleTypes.push(handlerInfo);
@@ -1159,6 +965,12 @@ var gApplicationsPane = {
       return this._prefsBundle.getString("alwaysAsk");
     }
 
+    // The nsHandlerInfoAction enumeration values in nsIHandlerInfo identify
+    // the actions the application can take with content of various types.
+    // But since we've stopped support for plugins, there's no value
+    // identifying the "use plugin" action, so we use this constant instead.
+    const kActionUsePlugin = -3;
+
     switch (aHandlerInfo.preferredAction) {
       case Ci.nsIHandlerInfo.saveToDisk:
         return this._prefsBundle.getString("saveFile");
@@ -1192,10 +1004,9 @@ var gApplicationsPane = {
         return this._prefsBundle.getFormattedString("useDefault",
                                                     [aHandlerInfo.defaultDescription]);
 
+      // We no longer support plugins, select "ask" instead:
       case kActionUsePlugin:
-        return this._prefsBundle.getFormattedString("usePluginIn",
-                                                    [aHandlerInfo.plugin.name,
-                                                     this._brandShortName]);
+        return this._prefsBundle.getString("alwaysAsk");
     }
     // we should never end up here but do a return to end up with a value
     return null;
@@ -1398,20 +1209,6 @@ var gApplicationsPane = {
       }
     }
 
-    // Create a menu item for the plugin.
-    if (handlerInfo.plugin) {
-      let pluginMenuItem = document.createElement("menuitem");
-      pluginMenuItem.setAttribute("class", "handler-action");
-      pluginMenuItem.setAttribute("value", kActionUsePlugin);
-      let label = this._prefsBundle.getFormattedString("usePluginIn",
-                                                       [handlerInfo.plugin.name,
-                                                        this._brandShortName]);
-      pluginMenuItem.setAttribute("label", label);
-      pluginMenuItem.setAttribute("tooltiptext", label);
-      pluginMenuItem.setAttribute("appHandlerIcon", "plugin");
-      menuPopup.appendChild(pluginMenuItem);
-    }
-
     // Create a menu item for selecting a local application.
     let canOpenWithOtherApp = true;
     if (AppConstants.platform == "win") {
@@ -1538,12 +1335,6 @@ var gApplicationsPane = {
 
     let action = parseInt(aActionItem.getAttribute("value"));
 
-    // Set the plugin state if we're enabling or disabling a plugin.
-    if (action == kActionUsePlugin)
-      handlerInfo.enablePluginType();
-    else if (handlerInfo.plugin && !handlerInfo.isDisabledPluginType)
-      handlerInfo.disablePluginType();
-
     // Set the preferred application handler.
     // We leave the existing preferred app in the list when we set
     // the preferred action to something other than useHelperApp so that
@@ -1563,7 +1354,6 @@ var gApplicationsPane = {
 
     // Make sure the handler info object is flagged to indicate that there is
     // now some user configuration for the type.
-    handlerInfo.handledOnlyByPlugin = false;
 
     // Update the action label and image to reflect the new preferred action.
     typeItem.setAttribute("actionDescription",
@@ -1733,10 +1523,6 @@ var gApplicationsPane = {
           return true;
         }
         break;
-
-      case kActionUsePlugin:
-        aElement.setAttribute("appHandlerIcon", "plugin");
-        return true;
     }
     aElement.removeAttribute("appHandlerIcon");
     return false;

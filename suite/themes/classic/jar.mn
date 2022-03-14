@@ -197,7 +197,6 @@ classic.jar:
   skin/classic/communicator/icons/notification-16.png                   (communicator/icons/notification-16.png)
   skin/classic/communicator/icons/notification-64.png                   (communicator/icons/notification-64.png)
   skin/classic/communicator/icons/geo.png                               (communicator/icons/geo.png)
-  skin/classic/communicator/icons/plugin.png                            (communicator/icons/plugin.png)
   skin/classic/communicator/icons/save.png                              (communicator/icons/save.png)
   skin/classic/communicator/icons/smileys/smiley-smile.png              (communicator/icons/smileys/smiley-smile.png)
   skin/classic/communicator/icons/smileys/smiley-frown.png              (communicator/icons/smileys/smiley-frown.png)
@@ -502,7 +501,6 @@ classic.jar:
   skin/classic/navigator/icons/tab-arrow-left.png                       (navigator/icons/tab-arrow-left.png)
   skin/classic/navigator/icons/tab-arrow-right.png                      (navigator/icons/tab-arrow-right.png)
 #endif
-  skin/classic/navigator/click-to-play-warning-stripes.png              (navigator/click-to-play-warning-stripes.png)
   skin/classic/navigator/btn1/feeds.png                                 (navigator/btn1/feeds.png)
   skin/classic/navigator/btn1/first.png                                 (navigator/btn1/first.png)
   skin/classic/navigator/btn1/last.png                                  (navigator/btn1/last.png)

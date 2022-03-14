@@ -207,7 +207,7 @@
                 url="chrome://communicator/content/pref/pref-advanced.xul">
         <treechildren id="advancedChildren">
           <treeitem id="scriptsItem"
-                    label="&scriptsAndWindows.label;"
+                    label="&scriptsAndWindows2.label;"
                     prefpane="scripts_pane"
                     helpTopic="advanced_pref_scripts"
                     url="chrome://communicator/content/pref/pref-scripts.xul"/>

@@ -93,10 +93,6 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
   list-style-image: url("chrome://communicator/skin/icons/feedIcon16.png");
 }
 
-.handler-action[appHandlerIcon="plugin"] {
-  list-style-image: url("chrome://communicator/skin/icons/plugin.png");
-}
-
 .handler-type[typeClass="unknown"] {
   list-style-image: url("moz-icon://goat?size=16");
 }

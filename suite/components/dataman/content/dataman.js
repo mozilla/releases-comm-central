@@ -1443,7 +1443,7 @@ var gPerms = {
       this.addType.removeAllItems(); // Make sure list is clean.
       let permTypes = ["allowXULXBL", "cookie", "geo", "image", "indexedDB",
                        "install", "login-saving", "object", "offline-app",
-                       "plugins", "popup", "script", "stylesheet",
+                       "popup", "script", "stylesheet",
                        "trackingprotection"];
 
       // Look for a translation.
@@ -1539,10 +1539,6 @@ var gPerms = {
         if (Services.prefs.getBoolPref("browser.offline-apps.notify"))
           return Services.perms.DENY_ACTION;
         return Services.perms.UNKNOWN_ACTION;
-      case "plugins":
-        if (Services.prefs.getBoolPref("plugins.click_to_play"))
-          return Services.perms.UNKNOWN_ACTION;
-        return Services.perms.ALLOW_ACTION;
       case "popup":
         if (Services.prefs.getBoolPref("dom.disable_open_during_load"))
           return Services.perms.DENY_ACTION;

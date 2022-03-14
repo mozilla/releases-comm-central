@@ -86,7 +86,7 @@ function toOpenWindow( aWindow )
     // Try to focus the previously focused window e.g. message compose body
     aWindow.document.commandDispatcher.focusedWindow.focus();
   } catch (e) {
-    // e.g. full-page plugin or non-XUL document; just raise the top window
+    // e.g. non-XUL document; just raise the top window
     aWindow.focus();
   }
 }

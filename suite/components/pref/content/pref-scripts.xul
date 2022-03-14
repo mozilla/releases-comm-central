@@ -7,7 +7,7 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <prefpane id="scripts_pane"
-            label="&pref.scripts.title;"
+            label="&pref.scripts2.title;"
             script="chrome://communicator/content/pref/pref-scripts.js">
 
     <preferences id="scripts_preferences">

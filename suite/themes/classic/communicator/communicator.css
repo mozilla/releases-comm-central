@@ -174,10 +174,6 @@ treecols:-moz-lwtheme {
   list-style-image: url("chrome://communicator/skin/icons/application.png");
 }
 
-.messageImage[value="blocked-plugins"],
-.messageImage[value="disabled-plugins"],
-.messageImage[value="outdated-plugins"],
-.messageImage[value="click-to-play-plugins"],
 .messageImage[value="plugin-crashed"] {
   list-style-image: url("chrome://mozapps/skin/plugins/pluginGeneric-16.png");
 }

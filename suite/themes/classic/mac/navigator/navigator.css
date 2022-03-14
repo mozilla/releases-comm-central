@@ -284,12 +284,6 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   list-style-image: url("chrome://communicator/skin/icons/key-64.png");
 }
 
-.popup-notification-icon[popupid="click-to-play-plugins"] {
-  list-style-image: url("chrome://mozapps/skin/plugins/pluginGeneric.png");
-  width: 32px;
-  height: 32px;
-}
-
 .addon-progress-description {
   width: 350px;
   max-width: 350px;
@@ -341,60 +335,6 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   height: 16px;
 }
 
-#plugins-notification-icon {
-  list-style-image: url("chrome://mozapps/skin/plugins/pluginGeneric-16.png");
-  width: 16px;
-  height: 16px;
-}
-
-.click-to-play-plugins-notification-content {
-  margin: -16px;
-  border-radius: 5px;
-}
-
-.click-to-play-plugins-notification-icon-box {
-  background-color: rgba(255, 255, 255, 0.4);
-  border-inline-end: 1px solid rgba(255, 255, 255, 0.2);
-  padding-top: 16px;
-  padding-inline-end: 12px;
-  padding-inline-start: 20px;
-}
-
-.click-to-play-plugins-notification-icon-box:-moz-locale-dir(ltr) {
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-}
-
-.click-to-play-plugins-notification-icon-box:-moz-locale-dir(rtl) {
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-}
-
-.click-to-play-plugins-notification-separator {
-  border-inline-start: 1px solid rgba(3, 14, 27, 0.1);
-  border-top: 1px solid rgba(3, 14, 27, 0.1);
-}
-
-.click-to-play-plugins-notification-description-box {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  border-inline-start: 1px solid rgba(255, 255, 255, 0.2);
-  max-width: 28em;
-  padding: 14px 16px 9px 16px;
-}
-
-.click-to-play-plugins-notification-center-box {
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: rgba(3, 14, 27, 0.05);
-}
-
-.click-to-play-plugins-notification-button-container {
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  border-inline-start: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 0;
-  padding: 16px 16px 17px 16px;
-}
-
 .center-item-box {
   border-inline-start: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 7px;
@@ -414,15 +354,6 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   width: 16px;
   margin-bottom: 4px;
   margin-inline-end: 6px;
-}
-
-.center-item-box[warn="true"] {
-  background-image: url("chrome://navigator/skin/click-to-play-warning-stripes.png");
-  background-repeat: repeat-x;
-  padding-top: 3px;
-  padding-inline-end: 11px;
-  padding-bottom: 9px;
-  padding-inline-start: 16px;
 }
 
 .center-item-box[padbottom="true"][warn="true"] {

@@ -81,8 +81,6 @@
         <body>
           <![CDATA[
             this.crashNotified = false;
-            this.clickToPlayPluginsActivated = false;
-            this.clickToPlayTypes = new Set();
             if (this.popupCount) {
               this.popupCount = 0;
               this.notifyPopupCountChanged();
@@ -453,28 +451,6 @@
                     this.removeNotification(popupNotification);
                 }
 
-                if (aData == "plugins.hide_infobar_for_outdated_plugin") {
-                  if (!Services.prefs.getBoolPref(aData))
-                    return;
-
-                  var outdatedNotification = this.getNotificationWithValue("outdated-plugins");
-                  if (outdatedNotification)
-                    this.removeNotification(outdatedNotification);
-                }
-
-                if (aData == "plugins.hide_infobar_for_missing_plugin") {
-                  if (!Services.prefs.getBoolPref(aData))
-                    return;
-
-                  var disabledNotification = this.getNotificationWithValue("disabled-plugins");
-                  if (disabledNotification)
-                    this.removeNotification(disabledNotification);
-
-                  var blockedNotification = this.getNotificationWithValue("blocked-plugins");
-                  if (blockedNotification)
-                    this.removeNotification(blockedNotification);
-                }
-
                 if (aData == "dom.disable_open_during_load") {
                   // remove notifications when popup blocking has been turned off
                   if (Services.prefs.getBoolPref(aData) || !this.popupCount)
@@ -514,192 +490,6 @@
 
       <field name="crashNotified">false</field>
 
-      <field name="clickToPlayPluginsActivated">false</field>
-
-      <field name="clickToPlayTypes">new Set()</field>
-
-      <method name="getPluginInfo">
-        <parameter name="pluginElement"/>
-        <body>
-          <![CDATA[
-            var mimetype;
-            var pluginsPage;
-            var pluginName = this._stringBundle.GetStringFromName("pluginInfo.unknownPlugin");
-
-            if (pluginElement instanceof HTMLObjectElement) {
-              pluginsPage = pluginElement.codebase;
-            } else {
-              pluginsPage = pluginElement.getAttribute("pluginspage");
-              if (pluginsPage) {
-                var doc = pluginElement.ownerDocument;
-                pluginsPage = Services.io.newURI(pluginsPage,
-                                                 doc.characterSet,
-                                                 doc.documentURIObject).spec;
-              }
-            }
-
-            mimetype = pluginElement.QueryInterface(Ci.nsIObjectLoadingContent)
-                                    .actualType;
-
-            if (!mimetype) {
-              mimetype = pluginElement.type;
-            }
-
-            var navMimeType = navigator.mimeTypes.namedItem(mimetype);
-            if (navMimeType && navMimeType.enabledPlugin)
-              pluginName = this.makeNicePluginName(navMimeType.enabledPlugin.name);
-
-            return {
-              mimetype: mimetype,
-              pluginsPage: pluginsPage,
-              pluginName: pluginName
-            };
-          ]]>
-        </body>
-      </method>
-
-      <method name="pluginUnavailable">
-        <parameter name="aPlugin"/>
-        <parameter name="aNotification"/>
-        <parameter name="aMessage"/>
-        <parameter name="aButtons"/>
-        <parameter name="aPref"/>
-        <body>
-          <![CDATA[
-            // Show the in-content UI if it's not too big. The crashed plugin handler already does this.
-            var overlay = this.getPluginUI(aPlugin, "main");
-            aPlugin.addEventListener("overflow", this);
-            aPlugin.addEventListener("underflow", this);
-            overlay.classList.toggle("visible",
-                                     !this.isTooSmall(aPlugin, overlay));
-
-            if (Services.prefs.getBoolPref(aPref || "plugins.hide_infobar_for_missing_plugin"))
-              return;
-
-            var notification;
-            var notifications = [
-              "blocked-plugins",
-              "disabled-plugins",
-              "outdated-plugins",
-            ];
-
-            // Remove lower priority notifications.
-            for (var i = 0; notifications[i] != aNotification; i++) {
-              notification = this.getNotificationWithValue(notifications[i]);
-              if (notification)
-                notification.close();
-            }
-
-            // Skip if an equal or higher priority notification exists.
-            while (i < notifications.length) {
-              notification = this.getNotificationWithValue(notifications[i++]);
-              if (notification)
-                return;
-            }
-
-            // Now we can display our notification.
-            const priority = this.PRIORITY_WARNING_MEDIUM;
-            this.appendNotification(aMessage, aNotification,
-                                    null, priority, aButtons);
-          ]]>
-        </body>
-      </method>
-
-      <method name="canActivatePlugin">
-        <parameter name="aPlugin"/>
-        <parameter name="aSkipFallbackType"/>
-        <body>
-          <![CDATA[
-            var objLoadingContent = aPlugin.QueryInterface(Ci.nsIObjectLoadingContent);
-            var actualType = objLoadingContent.actualType;
-            if (objLoadingContent.getContentTypeForMIMEType(actualType) != Ci.nsIObjectLoadingContent.TYPE_PLUGIN ||
-                objLoadingContent.activated ||
-                (!aSkipFallbackType &&
-                 (objLoadingContent.pluginFallbackType < Ci.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY ||
-                  objLoadingContent.pluginFallbackType > Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE)))
-              return false;
-
-            var ph = Cc["@mozilla.org/plugin/host;1"]
-                       .getService(Ci.nsIPluginHost);
-            var permissionString = ph.getPermissionStringForType(actualType);
-            var pluginPermission = Services.perms.testPermission(this.activeBrowser.currentURI, permissionString);
-            return pluginPermission != Ci.nsIPermissionManager.DENY_ACTION;
-          ]]>
-        </body>
-      </method>
-
-      <method name="setPermissionForPlugins">
-        <parameter name="aPermission"/>
-        <body>
-          <![CDATA[
-            var ph = Cc["@mozilla.org/plugin/host;1"]
-                       .getService(Ci.nsIPluginHost);
-            for (var type of this.clickToPlayTypes) {
-              var permissionString = ph.getPermissionStringForType(type);
-              Services.perms.add(this.activeBrowser.currentURI, permissionString, aPermission);
-            }
-          ]]>
-        </body>
-      </method>
-
-      <method name="activatePlugins">
-        <parameter name="aCheckForReload"/>
-        <body>
-          <![CDATA[
-            this.clickToPlayPluginsActivated = true;
-            var plugins = this.contentWindowUtils.plugins;
-            for (let plugin of plugins) {
-              if (this.canActivatePlugin(plugin))
-                this.clickToPlayTypes.delete(plugin.actualType);
-            }
-            if (aCheckForReload && this.clickToPlayTypes.size)
-              this.reloadPage();
-            else {
-              for (let plugin of plugins) {
-                if (this.canActivatePlugin(plugin))
-                  plugin.playPlugin();
-              }
-              if (!this.clickToPlayTypes.size)
-                this.removePluginClickToPlayPrompt();
-            }
-          ]]>
-        </body>
-      </method>
-
-      <method name="activateSinglePlugin">
-        <parameter name="aPlugin"/>
-        <body>
-          <![CDATA[
-            if (this.canActivatePlugin(aPlugin))
-              aPlugin.playPlugin();
-
-            var pluginNeedsActivation = this.pluginNeedsActivationExceptThese([aPlugin]);
-
-            if (pluginNeedsActivation)
-              this.showPluginClickToPlayPrompt();
-            else
-              this.removePluginClickToPlayPrompt();
-          ]]>
-        </body>
-      </method>
-
-      <method name="stopPlayPreview">
-        <parameter name="aPlugin"/>
-        <parameter name="aPlayPlugin"/>
-        <body>
-          <![CDATA[
-            var objLoadingContent = aPlugin.QueryInterface(Ci.nsIObjectLoadingContent);
-            if (objLoadingContent.activated)
-              return;
-
-            if (aPlayPlugin)
-              objLoadingContent.playPlugin();
-            else
-              objLoadingContent.cancelPlayPreview();
-          ]]>
-        </body>
-      </method>
-
       <method name="openURLPref">
         <parameter name="aPref"/>
         <body>
@@ -737,46 +527,10 @@
         </body>
       </method>
 
-      <method name="getBindingType">
-        <parameter name="aPlugin"/>
-        <body>
-          <![CDATA[
-            // Helper to get the binding handler type from a plugin object
-            if (!(aPlugin instanceof Ci.nsIObjectLoadingContent))
-              return null;
-
-            switch (aPlugin.pluginFallbackType) {
-              case Ci.nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
-                return "PluginNotFound";
-              case Ci.nsIObjectLoadingContent.PLUGIN_DISABLED:
-                return "PluginDisabled";
-              case Ci.nsIObjectLoadingContent.PLUGIN_BLOCKLISTED:
-                return "PluginBlocklisted";
-              case Ci.nsIObjectLoadingContent.PLUGIN_OUTDATED:
-                return "PluginOutdated";
-              case Ci.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY:
-                return "PluginClickToPlay";
-              case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE:
-                return "PluginVulnerableUpdatable";
-              case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE:
-                return "PluginVulnerableNoUpdate";
-              case Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW:
-                return "PluginPlayPreview";
-              default:
-                // Not all states map to a handler
-                return null;
-            }
-          ]]>
-        </body>
-      </method>
-
       <method name="makeNicePluginName">
         <parameter name="aName"/>
         <body>
           <![CDATA[
-            if (aName == "Shockwave Flash")
-              return "Adobe Flash";
-
             // Clean up the plugin name by stripping off any trailing version
             // numbers or "plugin". EG, "Foo Bar Plugin 1.23_02" --> "Foo Bar"
             // Do this by first stripping the numbers, etc. off the end, and
@@ -785,21 +539,6 @@
             // 1.7.0_07" gets mangled.
             var newName = aName.replace(/[\s\d\.\-\_\(\)]+$/, "").replace(/\bplug-?in\b/i, "").trim();
             return newName;
-          ]]>
-        </body>
-      </method>
-
-      <method name="isTooSmall">
-        <parameter name="aPlugin"/>
-        <parameter name="aOverlay"/>
-        <body>
-          <![CDATA[
-            // Is the <object>'s size too small to hold what we want to show?
-            var pluginRect = aPlugin.getBoundingClientRect();
-            // XXX bug 446693. The text-shadow on the submitted-report text at
-            //     the bottom causes scrollHeight to be larger than it should be.
-            return (aOverlay.scrollWidth > pluginRect.width) ||
-                   (aOverlay.scrollHeight - 5 > pluginRect.height);
           ]]>
         </body>
       </method>
@@ -821,11 +560,7 @@
           <![CDATA[
             // XXX just doing (callback)(arg) was giving a same-origin error. bug?
 
-            /* We use event bubbling for the event listeners so that inside a
-               click-to-play plugin we don't activate the plugin when the user
-               clicks on a link in the click-to-play UI (e.g. to check for
-               plugin updates)
-             */
+            // We use event bubbling for the event listeners.
             let callbackArgs = Array.from(arguments).slice(2);
             linkNode.addEventListener("click",
                                       function(aEvent) {
@@ -859,7 +594,6 @@
       <!-- Callback for user clicking "submit a report" link -->
       <method name="submitReport">
         <parameter name="pluginDumpID"/>
-        <parameter name="browserDumpID"/>
         <parameter name="plugin"/>
         <body>
           <![CDATA[
@@ -873,8 +607,6 @@
             }
             this.CrashSubmit.submit(pluginDumpID, { extraExtraKeyVals: keyVals,
                                                     recordSubmission: true });
-            if (browserDumpID)
-              this.CrashSubmit.submit(browserDumpID);
           ]]>
         </body>
       </method>
@@ -901,7 +633,6 @@
 
       <method name="showPluginCrashedNotification">
         <parameter name="pluginDumpID"/>
-        <parameter name="browserDumpID"/>
         <parameter name="messageString"/>
         <body>
           <![CDATA[
@@ -929,7 +660,7 @@
                 label: submitLabel,
                 accessKey: submitKey,
                 popup: null,
-                callback: this.submitReport.bind(this, pluginDumpID, browserDumpID)
+                callback: this.submitReport.bind(this, pluginDumpID)
               };
               buttons.push(submitButton);
             }
@@ -955,31 +686,6 @@
           <![CDATA[
             if (!aEvent.isTrusted)
               return;
-
-            switch (aEvent.type) {
-              case "overflow":
-              case "underflow":
-                var plugin = aEvent.target;
-                var overlay = this.getPluginUI(plugin, "main");
-                if (overlay)
-                  overlay.classList.toggle("visible",
-                                           !this.isTooSmall(plugin, overlay));
-                break;
-
-              case "MozPlayPlugin":
-                var previewContent = aEvent.currentTarget;
-                previewContent.removeEventListener("MozPlayPlugin", this, true);
-
-                var pluginElement = previewContent.ownerDocument.getBindingParent(previewContent);
-                var playPlugin = !aEvent.detail;
-                this.stopPlayPreview(pluginElement, playPlugin);
-
-                // cleaning up: removes overlay iframe from the DOM
-                var iframe = previewContent.getElementsByClassName("previewPluginContentFrame")[0];
-                if (iframe)
-                  iframe.remove();
-                break;
-            }
           ]]>
         </body>
       </method>
@@ -1286,161 +992,6 @@
                                               buttons);
             box.persistence = 1;
             box.timeout = Date.now() + 20000; // 20 seconds
-          ]]>
-        </body>
-      </method>
-
-      <method name="removePluginClickToPlayPrompt">
-        <body>
-          <![CDATA[
-            var notification = this.getNotificationWithValue("click-to-play-plugins");
-            if (notification)
-              this.removeNotification(notification);
-          ]]>
-        </body>
-      </method>
-
-      <method name="showPluginClickToPlayPrompt">
-        <parameter name="aTriggeredByNewPlugin"/>
-        <body>
-          <![CDATA[
-            // If there's already an existing notification bar, don't do anything.
-            // Also don't display a notification bar unless showPluginClickToPlayPrompt
-            // has been triggered by a new plugin object on the website; the other code
-            // path to this function here is by clicking on the click-to-play overlay on
-            // a plugin object. We don't want to re-show the notification bar in that
-            // case
-            var notification = this.getNotificationWithValue("click-to-play-plugins");
-            if (notification || !aTriggeredByNewPlugin)
-              return;
-
-            var checkbox = document.createElement("checkbox");
-            checkbox.className = "rememberChoice";
-            checkbox.setAttribute("label", this._stringBundle.GetStringFromName("activatepluginsMessage.remember"));
-
-            var messageString = this._stringBundle.GetStringFromName("activatepluginsMessage.title");
-            var buttons = [{
-              label: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.label"),
-              accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.accesskey"),
-              callback: (function () {
-                if (checkbox.checked)
-                  this.setPermissionForPlugins(Ci.nsIPermissionManager.ALLOW_ACTION);
-                this.activatePlugins(checkbox.checked);
-              }).bind(this)
-            }, {
-              label: this._stringBundle.GetStringFromName("activatepluginsMessage.dismiss.label"),
-              accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.dismiss.accesskey"),
-              callback: (function () {
-                if (checkbox.checked)
-                  this.setPermissionForPlugins(Ci.nsIPermissionManager.DENY_ACTION);
-                this.hideAllPluginOverlays();
-              }).bind(this)
-            }];
-            var box = this.appendNotification(messageString,
-                                              "click-to-play-plugins",
-                                              null,
-                                              this.PRIORITY_INFO_HIGH,
-                                              buttons);
-            // Force a style flush, so that we ensure the binding is attached.
-            box.clientTop;
-            box.appendChild(checkbox);
-          ]]>
-        </body>
-      </method>
-
-      <method name="hideAllPluginOverlays">
-        <body>
-          <![CDATA[
-            var plugins = this.contentWindowUtils.plugins;
-            for (let plugin of plugins)
-              this.hidePluginOverlay(plugin);
-          ]]>
-        </body>
-      </method>
-
-      <method name="hidePluginOverlay">
-        <parameter name="pluginElement"/>
-        <body>
-          <![CDATA[
-            var overlay = this.getPluginUI(pluginElement, "main");
-            if (overlay) // no overlay if plugin has been activated
-              overlay.classList.remove("visible");
-          ]]>
-        </body>
-      </method>
-
-      <method name="pluginNeedsActivationExceptThese">
-        <parameter name="aExceptThese"/>
-        <body>
-          <![CDATA[
-            var pluginNeedsActivation = this.contentWindowUtils
-                                            .plugins.some(function(aPlugin) {
-              return !aExceptThese.includes(aPlugin) &&
-                     this.canActivatePlugin(aPlugin);
-            }, this);
-
-            return pluginNeedsActivation;
-          ]]>
-        </body>
-      </method>
-
-      <method name="setupPluginClickToPlay">
-        <parameter name="pluginElement"/>
-        <parameter name="aTriggeredByNewPlugin"/>
-        <body>
-          <![CDATA[
-            var overlay = this.getPluginUI(pluginElement, "main");
-
-            if (!this.canActivatePlugin(pluginElement)) {
-              overlay.classList.remove("visible");
-              return;
-            }
-
-            if (this.clickToPlayPluginsActivated) {
-              pluginElement.playPlugin();
-              return;
-            }
-
-            this.clickToPlayTypes.add(pluginElement.actualType);
-            this.showPluginClickToPlayPrompt(aTriggeredByNewPlugin);
-
-            // Show the in-content UI if it's not too big. The crashed plugin handler already does this.
-            pluginElement.addEventListener("overflow", this);
-            pluginElement.addEventListener("underflow", this);
-            overlay.classList.toggle("visible",
-                                     !this.isTooSmall(pluginElement, overlay));
-
-            var pluginName = this.getPluginInfo(pluginElement).pluginName;
-            var messageString = this._stringBundle.formatStringFromName("PluginClickToActivate", [pluginName], 1);
-            var overlayText = this.getPluginUI(pluginElement, "clickToPlay");
-            overlayText.textContent = messageString;
-            this.addLinkClickCallback(overlay, this.activateSinglePlugin, pluginElement);
-          ]]>
-        </body>
-      </method>
-
-      <method name="handlePlayPreviewEvent">
-        <parameter name="pluginElement"/>
-        <body>
-          <![CDATA[
-            var doc = pluginElement.ownerDocument;
-            var previewContent = this.getPluginUI(pluginElement, "previewPluginContent");
-
-            var iframe = previewContent.getElementsByClassName("previewPluginContentFrame")[0];
-            if (!iframe) {
-              // lazy initialization of the iframe
-              iframe = doc.createElementNS("http://www.w3.org/1999/xhtml", "iframe");
-              iframe.className = "previewPluginContentFrame";
-              previewContent.appendChild(iframe);
-            }
-
-            var pluginInfo = this.getPluginInfo(pluginElement);
-            var playPreviewUri = "data:application/x-moz-playpreview;," + pluginInfo.mimetype;
-            iframe.src = playPreviewUri;
-
-            // The MozPlayPlugin event can be dispatched from the extension chrome
-            // code to replace the preview content with the native plugin.
-            previewContent.addEventListener("MozPlayPlugin", this, true);
           ]]>
         </body>
       </method>
@@ -1847,8 +1398,6 @@
           Services.obs.addObserver(this, "perm-changed");
           Services.obs.addObserver(this, "formsubmit");
 
-          Services.prefs.addObserver("plugins.hide_infobar_for_outdated_plugin", this);
-          Services.prefs.addObserver("plugins.hide_infobar_for_missing_plugin", this);
           Services.prefs.addObserver("privacy.popups.showBrowserMessage", this);
           Services.prefs.addObserver("dom.disable_open_during_load", this);
 
@@ -1917,12 +1466,6 @@
             } catch (ex) {}
 
             try {
-              Services.prefs.removeObserver("plugins.hide_infobar_for_outdated_plugin", this);
-            } catch (ex) {}
-            try {
-              Services.prefs.removeObserver("plugins.hide_infobar_for_missing_plugin", this);
-            } catch (ex) {}
-            try {
               Services.prefs.removeObserver("privacy.popups.showBrowserMessage", this);
             } catch (ex) {}
             try {
@@ -1990,91 +1533,6 @@
         ]]>
       </handler>
 
-      <handler event="PluginBindingAttached" phase="capturing" allowuntrusted="true">
-        <![CDATA[
-          var plugin = event.target;
-          // Since we are expecting also untrusted events, make sure
-          // that the target is a plugin
-          if (!(plugin instanceof Ci.nsIObjectLoadingContent))
-            return;
-
-          var closeIcon = this.getPluginUI(plugin, "closeIcon");
-          this.addLinkClickCallback(closeIcon, this.hidePluginOverlay, plugin);
-
-          var notification, message, buttons, pref;
-          switch (plugin.pluginFallbackType) {
-            case Ci.nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
-              // NOP. Plugin finder service (PFS) is dead.
-              return;
-
-            case Ci.nsIObjectLoadingContent.PLUGIN_DISABLED:
-              if (!this.canActivatePlugin(plugin, true))
-                return;
-
-              notification = "disabled-plugins";
-              message = this._stringBundle.GetStringFromName("missingpluginsMessage.title");
-              if ("toEM" in window) {
-                buttons = [{
-                  label: this._stringBundle.GetStringFromName("addonInstallManageButton"),
-                  accessKey: this._stringBundle.GetStringFromName("addonInstallManageButton.accesskey"),
-                  popup: null,
-                  callback: function() {
-                    window.toEM("addons://list/plugin");
-                  }
-                }];
-
-                var manageLink = this.getPluginUI(plugin, "managePluginsLink");
-                this.addLinkClickCallback(manageLink, window.toEM, "addons://list/plugin");
-              }
-              break;
-
-            case Ci.nsIObjectLoadingContent.PLUGIN_BLOCKLISTED:
-              notification = "blocked-plugins";
-              message = this._stringBundle.GetStringFromName("blockedpluginsMessage.title");
-              buttons = [{
-                label: this._stringBundle.GetStringFromName("blockedpluginsMessage.infoButton.label"),
-                accessKey: this._stringBundle.GetStringFromName("blockedpluginsMessage.infoButton.accesskey"),
-                popup: null,
-                callback: this.openURLPref.bind(this, "extensions.blocklist.detailsURL")
-              }];
-              break;
-
-            case Ci.nsIObjectLoadingContent.PLUGIN_OUTDATED:
-              notification = "outdated-plugins";
-              message = this._stringBundle.GetStringFromName("outdatedpluginsMessage.title");
-              buttons = [{
-                label: this._stringBundle.GetStringFromName("outdatedpluginsMessage.button.label"),
-                accessKey: this._stringBundle.GetStringFromName("outdatedpluginsMessage.button.accesskey"),
-                popup: null,
-                callback: null,
-              }];
-              pref = "plugins.hide_infobar_for_outdated_plugin";
-              break;
-
-            case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE:
-              // fall through
-            case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE:
-              var eventType = this.getBindingType(plugin);
-              // When we got here, we deal with a vulnerable plugin object, so setup UI elements for this case
-              var vulnerabilityString = this._stringBundle.GetStringFromName(eventType);
-              var vulnerabilityText = this.getPluginUI(plugin, "vulnerabilityStatus");
-              vulnerabilityText.textContent = vulnerabilityString;
-              // fall through
-            case Ci.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY:
-              this.setupPluginClickToPlay(plugin, true);
-              return;
-
-            case Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW:
-              this.handlePlayPreviewEvent(plugin);
-              return;
-
-            default:
-              return;
-          }
-          this.pluginUnavailable(plugin, notification, message, buttons, pref);
-        ]]>
-      </handler>
-
       <handler event="PluginCrashed" phase="capturing">
         <![CDATA[
           // Ensure the plugin and event are of the right type.
@@ -2089,7 +1547,6 @@
           var pluginName      = detail.getPropertyAsAString("pluginName");
           var pluginFilename  = detail.getPropertyAsAString("pluginFilename");
           var pluginDumpID    = detail.getPropertyAsAString("pluginDumpID");
-          var browserDumpID   = detail.getPropertyAsAString("browserDumpID");
 
           // Remap the plugin name to a more user-presentable form.
           pluginName = this.makeNicePluginName(pluginName);
@@ -2117,7 +1574,7 @@
                 function (event) {
                   if (event.button != 0 || !event.isTrusted)
                     return;
-                  this.submitReport(pluginDumpID, browserDumpID, plugin);
+                  this.submitReport(pluginDumpID, plugin);
                   Services.prefs.setBoolPref("dom.ipc.plugins.reportCrashURL", optInCB.checked);
                 }.bind(this));
                 let optInCB = this.getPluginUI(plugin, "submitURLOptIn");
@@ -2175,33 +1632,14 @@
           var link = this.getPluginUI(plugin, "reloadLink");
           this.addLinkClickCallback(link, this.reloadPage);
 
-          var isShowing = true;
-
-          // Is the <object>'s size too small to hold what we want to show?
-          if (this.isTooSmall(plugin, overlay)) {
-            // Try hiding the comment box and related report submission UI.
-            statusDiv.removeAttribute("status");
-
-            if (this.isTooSmall(plugin, overlay))
-              isShowing = false;
-          }
-
-          if (isShowing) {
-            overlay.classList.add("visible");
-            // If a previous plugin on the page was too small and resulted in
-            // adding a notification bar, then remove it because this plugin
-            // instance it big enough to serve as in-content notification.
-            var notification = this.getNotificationWithValue("plugin-crashed");
-            if (notification)
-              this.removeNotification(notification, true);
-            this.crashNotified = true;
-          } else {
-            overlay.classList.remove("visible");
-            // If another plugin on the page was large enough to show our UI, we don't
-            // want to show a notification bar.
-            if (!this.crashNotified)
-              this.showPluginCrashedNotification(pluginDumpID, browserDumpID, messageString);
-          }
+          overlay.classList.add("visible");
+          // If a previous plugin on the page was too small and resulted in
+          // adding a notification bar, then remove it because this plugin
+          // instance it big enough to serve as in-content notification.
+          var notification = this.getNotificationWithValue("plugin-crashed");
+          if (notification)
+            this.removeNotification(notification, true);
+          this.crashNotified = true;
         ]]>
       </handler>
 
@@ -2222,14 +1660,10 @@
 
       <handler event="pageshow" phase="capturing">
         <![CDATA[
-          // The PluginClickToPlay events are not fired when navigating using the
-          // BF cache. |event.persisted| is true when the page is loaded from the
+          // |event.persisted| is true when the page is loaded from the
           // BF cache, so this code reshows the notification if necessary.
           if (!event.persisted)
             return;
-
-          if (pluginNeedsActivationExceptThese([]))
-            this.showPluginClickToPlayPrompt(true);
         ]]>
       </handler>
     </handlers>
@@ -2334,128 +1768,6 @@
                                     "addons-notification-icon", action, null,
                                     options);
           ]]>
-        </body>
-      </method>
-
-      <method name="makeCenterActions">
-        <body>
-          <![CDATA[
-            let pluginsDictionary = new Map();
-            for (let plugin of this.contentWindowUtils.plugins) {
-              if (this.canActivatePlugin(plugin)) {
-                let pluginName = this.getPluginInfo(plugin).pluginName;
-                if (!pluginsDictionary.has(pluginName)) {
-                  pluginsDictionary.set(pluginName, []);
-                }
-                pluginsDictionary.get(pluginName).push(plugin);
-              }
-            }
-
-            let centerActions = [];
-            for (let [pluginName, namedPluginArray] of pluginsDictionary) {
-              let plugin = namedPluginArray[0];
-              let warn = false;
-              let warningText = "";
-              let updateLink = "";
-
-              if (plugin.pluginFallbackType) {
-                if (plugin.pluginFallbackType ==
-                      Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE ||
-                    plugin.pluginFallbackType ==
-                      Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE) {
-                  warn = true;
-                  warningText = this._stringBundle.GetStringFromName("vulnerableNoUpdatePluginWarning");
-                }
-              }
-
-              let action = {
-                message: pluginName,
-                warn: warn,
-                warningText: warningText,
-                updateLink: updateLink,
-                label: this._stringBundle.GetStringFromName("activateSinglePlugin"),
-                callback: (function(aName) {
-                  /* Play all plugins currently in the page of the given name
-                     and, if needed, remove the notification */
-                  for (let plugin of this.contentWindowUtils.plugins) {
-                    if (this.canActivatePlugin(plugin) &&
-                        this.getPluginInfo(plugin).pluginName == aName)
-                      plugin.playPlugin();
-                  }
-
-                  let notification = PopupNotifications.getNotification("click-to-play-plugins", this.activeBrowser)
-;
-                  if (notification &&
-                      !this.pluginNeedsActivationExceptThese([]))
-                    notification.remove();
-                }).bind(this, pluginName)
-              };
-              centerActions.push(action);
-            }
-
-            return centerActions;
-          ]]>
-        </body>
-      </method>
-
-
-      <method name="removePluginClickToPlayPrompt">
-        <body>
-          <![CDATA[
-            var notification = PopupNotifications.getNotification("click-to-play-plugins",
-                                                                  this.activeBrowser);
-            if (notification)
-              notification.remove();
-          ]]>
-        </body>
-      </method>
-
-      <method name="showPluginClickToPlayPrompt">
-        <body>
-          <![CDATA[
-            var mainAction = {
-              label: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.label"),
-              accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.accesskey"),
-              callback: this.activatePlugins.bind(this)
-            };
-            var centerActions = this.makeCenterActions();
-            var haveVulnerablePlugin = this.contentWindowUtils.plugins.some(function(plugin) {
-              return (this.canActivatePlugin(plugin) &&
-                      (plugin.pluginFallbackType ==
-                       Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE ||
-                       plugin.pluginFallbackType ==
-                       Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE));
-            }, this);
-            var messageString = this._stringBundle.GetStringFromName(haveVulnerablePlugin ?
-                                                                     "vulnerablePluginsMessage" :
-                                                                     "activatepluginsMessage.title");
-            var secondaryActions = [{
-              label: this._stringBundle.GetStringFromName("activatepluginsMessage.always.label"),
-              accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.always.accesskey"),
-              callback: (function () {
-                this.setPermissionForPlugins(Ci.nsIPermissionManager.ALLOW_ACTION);
-                this.activatePlugins(true);
-              }).bind(this)
-            }, {
-              label: this._stringBundle.GetStringFromName("activatepluginsMessage.never.label"),
-              accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.never.accesskey"),
-              callback: (function () {
-                this.setPermissionForPlugins(Ci.nsIPermissionManager.DENY_ACTION);
-                var notification = PopupNotifications.getNotification("click-to-play-plugins",
-                                                                      this.activeBrowser);
-                if (notification)
-                  notification.remove();
-                this.hideAllPluginOverlays();
-              }).bind(this)
-            }];
-            var options = {
-              dismissed: true,
-              centerActions: centerActions
-            };
-            PopupNotifications.show(this.activeBrowser, "click-to-play-plugins",
-                                    messageString, "plugins-notification-icon",
-                                    mainAction, secondaryActions, options);
-           ]]>
         </body>
       </method>
 
@@ -3105,84 +2417,6 @@
           PopupNotifications._dismiss();
         ]]></body>
       </method>
-    </implementation>
-  </binding>
-
-  <binding id="click-to-play-plugins-notification" extends="chrome://global/content/bindings/notification.xml#popup-notification">
-    <content class="click-to-play-plugins-notification-content">
-      <xul:hbox flex="1">
-        <xul:vbox class="click-to-play-plugins-notification-icon-box">
-          <xul:image class="popup-notification-icon"
-                     xbl:inherits="popupid,src=icon"/>
-        </xul:vbox>
-        <xul:spacer class="click-to-play-plugins-notification-separator"/>
-        <xul:vbox flex="1" class="popup-notification-main-box"
-                  xbl:inherits="popupid">
-          <xul:box class="click-to-play-plugins-notification-description-box" flex="1">
-            <xul:description xbl:inherits="xbl:text=label"/>
-          </xul:box>
-          <xul:spacer class="click-to-play-plugins-notification-separator"/>
-          <xul:vbox class="click-to-play-plugins-notification-center-box">
-            <children includes="popupnotification-centeritem"/>
-          </xul:vbox>
-          <xul:spacer class="click-to-play-plugins-notification-separator"/>
-          <xul:hbox class="click-to-play-plugins-notification-button-container"
-                    pack="end" align="center">
-            <xul:button anonid="button"
-                        class="popup-notification-menubutton"
-                        type="menu-button"
-                        xbl:inherits="oncommand=buttoncommand,label=buttonlabel,accesskey=buttonaccesskey">
-              <xul:menupopup anonid="menupopup"
-                             xbl:inherits="oncommand=menucommand">
-                <children/>
-                <xul:menuitem class="menuitem-iconic popup-notification-closeitem"
-                              label="&closeNotificationItem.label;"
-                              xbl:inherits="oncommand=closeitemcommand"/>
-              </xul:menupopup>
-            </xul:button>
-          </xul:hbox>
-        </xul:vbox>
-      </xul:hbox>
-    </content>
-    <resources>
-      <stylesheet src="chrome://global/skin/notification.css"/>
-    </resources>
-    <implementation>
-      <field name="button" readonly="true">
-        document.getAnonymousElementByAttribute(this, "anonid", "button");
-      </field>
-      <field name="menupopup" readonly="true">
-        document.getAnonymousElementByAttribute(this, "anonid", "menupopup");
-      </field>
-      <constructor><![CDATA[
-        const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-        let popupnotification = this;
-        let item = null;
-        let prev = null;
-        this.notification.options.centerActions.forEach(function(action) {
-          action.popupnotification = popupnotification;
-          item = document.createElementNS(XUL_NS, "popupnotification-centeritem");
-          item.action = action;
-          item.setAttribute("itemtext", action.message);
-          item.setAttribute("buttonlabel", action.label);
-          item.setAttribute("warn", action.warn);
-          item.setAttribute("warningText", action.warningText);
-          item.setAttribute("updateLink", action.updateLink);
-          if (prev &&
-              (prev.getAttribute("warn") == "true" ||
-               item.getAttribute("warn") == "true")) {
-            item.setAttribute("showseparator", true);
-            if (prev.getAttribute("warn") != "true") {
-              prev.setAttribute("padbottom", true);
-            }
-          }
-          popupnotification.appendChild(item);
-          prev = item;
-        });
-        if (item) {
-          item.setAttribute("padbottom", "true");
-        }
-      ]]></constructor>
     </implementation>
   </binding>
 

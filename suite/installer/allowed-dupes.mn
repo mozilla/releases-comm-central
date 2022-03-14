@@ -220,8 +220,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extension
 chrome/toolkit/skin/classic/mozapps/extensions/rating-won.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/contentPluginCrashed.png
 chrome/toolkit/skin/classic/mozapps/plugins/contentPluginCrashed.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/navigator/click-to-play-warning-stripes.png
-chrome/classic/skin/classic/navigator/click-to-play-warning-stripes.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/category-dictionaries.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/dictionaryGeneric.png
 chrome/toolkit/skin/classic/mozapps/extensions/dictionaryGeneric.png

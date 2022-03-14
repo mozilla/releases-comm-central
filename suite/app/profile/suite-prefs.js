@@ -414,9 +414,6 @@ pref("browser.preferences.animateFadeIn", true);
 pref("browser.preferences.animateFadeIn", false);
 #endif
 
-pref("browser.download.show_plugins_in_list", true);
-pref("browser.download.hide_plugins_without_extensions", true);
-
 // initial web feed readers list - add enough entries for locales to add theirs
 pref("browser.contentHandlers.types.0.title", "chrome://navigator-region/locale/region.properties");
 pref("browser.contentHandlers.types.0.uri", "chrome://navigator-region/locale/region.properties");
@@ -772,25 +769,6 @@ pref("dom.event.contextmenu.enabled",  true);
 
 pref("dom.identity.enabled", false);
 
-#ifdef XP_MACOSX
-// This pref governs whether we attempt to work around problems caused by
-// plugins using OS calls to manipulate the cursor while running out-of-
-// process.  These workarounds all involve intercepting (hooking) certain
-// OS calls in the plugin process, then arranging to make certain OS calls
-// in the browser process.  Eventually plugins will be required to use the
-// NPAPI to manipulate the cursor, and these workarounds will be removed.
-// See bug 621117.
-pref("dom.ipc.plugins.nativeCursorSupport", true);
-#endif
-
-pref("plugins.hide_infobar_for_outdated_plugin", true);
-pref("plugins.hide_infobar_for_missing_plugin", true);
-pref("plugins.click_to_play", false);
-pref("plugin.disable", false);
-pref("plugin.default.state", 0);
-pref("plugins.favorfallback.mode", "always");
-pref("plugins.favorfallback.rules", "nosrc,video");
-
 // Digital Rights Management, Encrypted Media Extensions
 pref("media.eme.enabled", false);
 
@@ -1025,18 +1003,6 @@ pref("devtools.selfxss.count", 5);
 // process and also if they are subsequently allowed by the broker process.
 // This will require a restart.
 pref("security.sandbox.windows.log", false);
-
-// Controls whether and how the Windows NPAPI plugin process is sandboxed.
-// To get a different setting for a particular plugin replace "default", with
-// the plugin's nice file name, see: nsPluginTag::GetNiceFileName.
-// On windows these levels are:
-// 0 - no sandbox
-// 1 - sandbox with USER_NON_ADMIN access token level
-// 2 - a more strict sandbox, which might cause functionality issues. This now
-//     includes running at low integrity.
-// 3 - the strongest settings we seem to be able to use without breaking
-//     everything, but will probably cause some functionality restrictions
-pref("dom.ipc.plugins.sandbox-level.default", 0);
 
 #if defined(MOZ_CONTENT_SANDBOX)
 // This controls the strength of the Windows content process sandbox for testing
