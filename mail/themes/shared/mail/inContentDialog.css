@@ -1,0 +1,97 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+dialog {
+  border-radius: 6px;
+  border: none;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
+  box-shadow: 0 2px 6px -5px #000;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-title {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  margin-block: 0px 9px;
+}
+
+.dialog-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dialog-container.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dialog-header-image {
+  -moz-context-properties: fill;
+  fill: var(--in-content-primary-button-background);
+  margin-inline-end: 12px;
+  height: 32px;
+}
+
+.dialog-header-image.small {
+  height: 16px;
+}
+
+.dialog-description {
+  margin-block: 0.2em;
+  line-height: 1.4em;
+}
+
+.dialog-menu-container {
+  display: flex;
+  align-items: center;
+  margin-block-end: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+  justify-content: end;
+}
+
+.dialog-menu-container.two-columns {
+  justify-content: space-between;
+}
+
+/* Warning dialog */
+
+dialog.dialog-critical {
+  box-shadow: 0 2px 20px -8px var(--red-70);
+}
+
+.warning-title {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  background-color: var(--red-60);
+  color: #fff;
+  border-radius: var(--in-content-button-border-radius);
+  padding: 6px;
+}
+
+.warning-icon {
+  fill: #fff;
+}
+
+.insecure-section h3 {
+  margin-top: 0;
+}
+
+.insecure-section-description {
+  font-size: 1.05rem;
+  line-height: 1.5em;
+}
+
+.dialog-footnote {
+  margin-inline: 6px;
+  font-size: 1.05rem;
+  line-height: 1.4em;
+}
