@@ -1646,7 +1646,7 @@ function toggleGlobalSignMessage() {
 
   if (!gUserTouchedAttachMyPubKey) {
     if (gSendSigned) {
-      gAttachMyPublicPGPKey = gCurrentIdentity.getBoolAttribute("attachPgpKey");
+      gAttachMyPublicPGPKey = gCurrentIdentity.attachPgpKey;
     } else {
       gAttachMyPublicPGPKey = gAttachMyPublicPGPKeyInitial;
     }
@@ -1694,14 +1694,14 @@ function setGlobalEncryptMessage(mode) {
 
   if (!gUserTouchedAttachMyPubKey) {
     if (gSendSigned) {
-      gAttachMyPublicPGPKey = gCurrentIdentity.getBoolAttribute("attachPgpKey");
+      gAttachMyPublicPGPKey = gCurrentIdentity.attachPgpKey;
     } else {
       gAttachMyPublicPGPKey = gAttachMyPublicPGPKeyInitial;
     }
   }
 
   if (!gUserTouchedEncryptSubject) {
-    gEncryptSubject = gCurrentIdentity.getBoolAttribute("protectSubject");
+    gEncryptSubject = gCurrentIdentity.protectSubject;
   }
 
   setEncSigStatusUI();
@@ -4296,7 +4296,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
 
   if (gSelectedTechnologyIsPGP) {
     if (!gUserTouchedEncryptSubject) {
-      gEncryptSubject = gCurrentIdentity.getBoolAttribute("protectSubject");
+      gEncryptSubject = gCurrentIdentity.protectSubject;
     }
   }
 
@@ -4306,10 +4306,8 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
 
   if (!prevIdentity) {
     if (configuredOpenPGP || configuredSMIME) {
-      setSendEncrypted(
-        gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0
-      );
-      gSendSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
+      setSendEncrypted(gCurrentIdentity.encryptionPolicy > 0);
+      gSendSigned = gCurrentIdentity.signMail;
     }
 
     gSendEncryptedInitial = gSendEncrypted;
@@ -4318,11 +4316,11 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
 
     // automatic changes after this line
     if (gSendSigned && gSelectedTechnologyIsPGP) {
-      gAttachMyPublicPGPKey = gCurrentIdentity.getBoolAttribute("attachPgpKey");
+      gAttachMyPublicPGPKey = gCurrentIdentity.attachPgpKey;
     }
 
     if (gSelectedTechnologyIsPGP) {
-      gEncryptSubject = gCurrentIdentity.getBoolAttribute("protectSubject");
+      gEncryptSubject = gCurrentIdentity.protectSubject;
     }
   } else {
     // When switching the Sender identity, use the more secure setting
@@ -4343,8 +4341,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     // encryption by default, then enable it.
 
     if (!gSendEncrypted) {
-      let newDefaultEncrypted =
-        gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
+      let newDefaultEncrypted = gCurrentIdentity.encryptionPolicy > 0;
 
       if (newDefaultEncrypted) {
         setSendEncrypted(true);
@@ -4364,7 +4361,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     // to send the message.
 
     if (gSendSigned) {
-      let newDefaultSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
+      let newDefaultSigned = gCurrentIdentity.signMail;
 
       if (!newDefaultSigned) {
         gSendSigned = false;

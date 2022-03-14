@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+/* import-globals-from ../../../mailnews/base/prefs/content/am-identity-edit.js */
 
 /* global GetEnigmailSvc, EnigRevokeKey */
 
@@ -92,8 +93,8 @@ async function initE2EEncryption(identity) {
   }
 
   if (!identity) {
-    // We're setting up a new identity. Set everything to default values.
-    // Do not take over the values from gAccount.defaultIdentity
+    // We're setting up a new identity. Set most prefs to default values.
+    // Only take selected values from gAccount.defaultIdentity
     // as the new identity is going to have a different mail address.
 
     gEncryptionCertName.value = "";
@@ -109,8 +110,13 @@ async function initE2EEncryption(identity) {
     gEncryptSubject.disabled = true;
     gEncryptDrafts.disabled = true;
     gSignMessages.disabled = true;
-    gSignMessages.checked = false;
-    gEncryptionChoices.value = 0;
+
+    gAttachKey.checked = gAccount.defaultIdentity.attachPgpKey;
+    gEncryptSubject.checked = gAccount.defaultIdentity.protectSubject;
+    gEncryptDrafts.checked = gAccount.defaultIdentity.autoEncryptDrafts;
+    gSignMessages.checked = gAccount.defaultIdentity.signMail;
+    gEncryptionChoices.value = gAccount.defaultIdentity.encryptionPolicy;
+
     if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       gTechChoices.value = 0;
     }
@@ -126,10 +132,10 @@ async function initE2EEncryption(identity) {
     }
     enableEncryptionControls(enableEnc);
 
-    gSignMessages.checked = identity.getBoolAttribute("sign_mail");
-    gAttachKey.checked = identity.getBoolAttribute("attachPgpKey");
-    gEncryptSubject.checked = identity.getBoolAttribute("protectSubject");
-    gEncryptDrafts.checked = identity.getBoolAttribute("autoEncryptDrafts");
+    gSignMessages.checked = identity.signMail;
+    gAttachKey.checked = identity.attachPgpKey;
+    gEncryptSubject.checked = identity.protectSubject;
+    gEncryptDrafts.checked = identity.autoEncryptDrafts;
 
     let enableSig = gSignCertName.value;
     if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
@@ -174,7 +180,7 @@ function initSMIMESettings() {
     }
   } catch (e) {}
 
-  gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
+  gEncryptionChoices.value = gIdentity.encryptionPolicy;
   if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
   }
@@ -247,7 +253,7 @@ function saveE2EEncryptionSettings(identity) {
   // Find out which radio for the encryption radio group is selected and set
   // that on our hidden encryptionChoice pref.
   let newValue = gEncryptionChoices.value;
-  identity.setIntAttribute("encryptionpolicy", newValue);
+  identity.encryptionPolicy = newValue;
 
   if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     newValue = gTechChoices.value;
@@ -260,16 +266,16 @@ function saveE2EEncryptionSettings(identity) {
   );
   identity.setCharAttribute("encryption_cert_dbkey", gEncryptionCertName.dbKey);
 
-  identity.setBoolAttribute("sign_mail", gSignMessages.checked);
+  identity.signMail = gSignMessages.checked;
   identity.setUnicharAttribute(
     "signing_cert_name",
     gSignCertName.displayName || gSignCertName.value
   );
   identity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 
-  identity.setBoolAttribute("attachPgpKey", gAttachKey.checked);
-  identity.setBoolAttribute("protectSubject", gEncryptSubject.checked);
-  identity.setBoolAttribute("autoEncryptDrafts", gEncryptDrafts.checked);
+  identity.attachPgpKey = gAttachKey.checked;
+  identity.protectSubject = gEncryptSubject.checked;
+  identity.autoEncryptDrafts = gEncryptDrafts.checked;
 }
 
 function alertUser(message) {
@@ -570,7 +576,7 @@ function openKeyWizard() {
 }
 
 /**
- * Show a succesfull notification after a new OpenPGP key was created, and
+ * Show a successful notification after a new OpenPGP key was created, and
  * trigger the reload of the key listing UI.
  *
  * @param {string} keyId - Id of key that the key wizard set up.
@@ -586,7 +592,7 @@ async function keyWizardSuccess(keyId) {
 }
 
 /**
- * Show a succesfull notification after an external key was saved, and trigger
+ * Show a successful notification after an external key was saved, and trigger
  * the reload of the key listing UI.
  *
  * @param {string} keyId - Id of key that the key wizard set up.
@@ -630,7 +636,7 @@ function useOpenPGPKey(keyId) {
 }
 
 /**
- * Show a succesfull notification after an import of keys, and trigger the
+ * Show a successful notification after an import of keys, and trigger the
  * reload of the key listing UI.
  */
 async function keyImportSuccess() {

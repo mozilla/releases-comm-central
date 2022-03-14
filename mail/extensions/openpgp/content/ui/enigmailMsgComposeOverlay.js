@@ -202,7 +202,7 @@ Enigmail.msg = {
       switch (key) {
         case 'sign':
           if (preferSmimeByDefault) {
-            res = (this.identity.getBoolAttribute("sign_mail"));
+            res = (this.identity.signMail);
           }
           else {
             res = (this.identity.getIntAttribute("defaultSigningPolicy") > 0);
@@ -210,7 +210,7 @@ Enigmail.msg = {
           break;
         case 'encrypt':
           if (preferSmimeByDefault) {
-            res = (this.identity.getIntAttribute("encryptionpolicy") > 0);
+            res = (this.identity.encryptionPolicy > 0);
           }
           else {
             res = (this.identity.getIntAttribute("defaultEncryptionPolicy") > 0);
@@ -223,7 +223,7 @@ Enigmail.msg = {
           res = this.identity.getBoolAttribute(key);
           break;
         case 'attachPgpKey':
-          res = this.identity.getBoolAttribute(key);
+          res = this.identity.attachPgpKey;
           break;
       }
       //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.getAccDefault:   "+key+"="+res+"\n");
@@ -232,10 +232,10 @@ Enigmail.msg = {
     else if (Enigmail.msg.isSmimeEnabled()) {
       switch (key) {
         case 'sign':
-          res = this.identity.getBoolAttribute("sign_mail");
+          res = this.identity.signMail;
           break;
         case 'encrypt':
-          res = (this.identity.getIntAttribute("encryptionpolicy") > 0);
+          res = (this.identity.encryptionPolicy > 0);
           break;
         default:
           res = false;
@@ -297,7 +297,7 @@ Enigmail.msg = {
 
     if (!id.getUnicharAttribute("signing_cert_name")) return false;
 
-    return id.getBoolAttribute("sign_mail");
+    return id.signMail;
   },
   */
 
@@ -1072,7 +1072,7 @@ Enigmail.msg = {
         //gSMFields.signMessage = true;
 
       // smime policy
-      //if (this.identity.getIntAttribute("encryptionpolicy") > 0)
+      //if (this.identity.encryptionPolicy > 0)
 
       // update the S/MIME GUI elements
       try {
@@ -1422,7 +1422,7 @@ Enigmail.msg = {
     // However, we allow the user to disable encrypted drafts.
     let doEncrypt =
       Enigmail.msg.isEnigmailEnabledForIdentity() &&
-      gCurrentIdentity.getBoolAttribute("autoEncryptDrafts");
+      gCurrentIdentity.autoEncryptDrafts;
 
     this.setDraftStatus(doEncrypt);
 

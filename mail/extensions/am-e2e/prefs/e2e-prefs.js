@@ -99,7 +99,7 @@ pref("temp.openpgp.inlineSigAttachExt", ".sig");
 // debug log directory (if set, also enabled debugging)
 pref("temp.openpgp.logDirectory", "");
 
-// list of keyservers to use (comma separated list)
+// list of key servers to use (comma separated list)
 pref("temp.openpgp.keyserver", "vks://keys.openpgp.org");
 
 // auto select the first keyserver in the key server list
@@ -109,7 +109,7 @@ pref("temp.openpgp.autoKeyServerSelection", true);
 pref("temp.openpgp.maxIdleMinutes", 5);
 
 // maximum number of parallel decrypt processes that Enigmaik will handle
-// (requests aboved the threshold are ignored)
+// (requests above the threshold are ignored)
 pref("temp.openpgp.maxNumProcesses", 3);
 
 // GnuPG hash algorithm
@@ -236,14 +236,9 @@ pref("temp.openpgp.enableExperiments", false);
 // Default pref values for the enigmail per-identity
 // settings
 
-pref("mail.identity.default.defaultSigningPolicy", 0);
-pref("mail.identity.default.defaultEncryptionPolicy", 0);
-pref("mail.identity.default.openPgpUrlName", "");
-pref("mail.identity.default.pgpMimeMode", true);
 pref("mail.identity.default.attachPgpKey", true);
 pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);
-pref("mail.identity.default.warnWeakReply", false);
 
 // prefer S/MIME or PGP/MIME (0: S/MIME, 1: PGP/MIME)
 pref("mail.identity.default.mimePreferOpenPGP", 1);

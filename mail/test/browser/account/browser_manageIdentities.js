@@ -111,6 +111,26 @@ add_task(async function setup() {
     gOriginalAccountCount + 1
   );
 
+  let firstIdentity = gPopAccount.identities[0];
+
+  Assert.equal(
+    firstIdentity.autoEncryptDrafts,
+    true,
+    "encrypted drafts should be enabled by default"
+  );
+  Assert.equal(
+    firstIdentity.protectSubject,
+    true,
+    "protected subject should be enabled by default"
+  );
+  Assert.equal(
+    firstIdentity.signMail,
+    false,
+    "signing should be disabled by default"
+  );
+
+  firstIdentity.autoEncryptDrafts = false;
+
   registerCleanupFunction(function rmAccount() {
     // Remove our test account to leave the profile clean.
     MailServices.accounts.removeAccount(gPopAccount);
@@ -241,14 +261,14 @@ async function test_identity_idx(idx) {
 
   Assert.equal(
     identityWin.document.getElementById("encryptionChoices").value,
-    identity.getIntAttribute("encryptionpolicy"),
+    identity.encryptionPolicy,
     "Encrypt setting should be correct"
   );
 
   // Signing checked based on the pref.
   Assert.equal(
     identityWin.document.getElementById("identity_sign_mail").checked,
-    identity.getBoolAttribute("sign_mail")
+    identity.signMail
   );
   // Disabled if the identity don't have a key configured.
   Assert.equal(
@@ -264,8 +284,26 @@ add_task(async function test_identity_idx_1() {
 });
 
 add_task(async function test_identity_changes() {
-  // Let's poke identity 1 and check the changes got applied
   let identity = gPopAccount.identities[1];
+
+  // Check that prefs were copied from identity 0 to identity 1
+  Assert.equal(
+    identity.autoEncryptDrafts,
+    false,
+    "encrypted drafts should be disabled in [1] because we disabled it in [0]"
+  );
+  Assert.equal(
+    identity.protectSubject,
+    true,
+    "protected subject should be enabled in [1] because it is enabled in [0]"
+  );
+  Assert.equal(
+    identity.signMail,
+    false,
+    "signing should be disabled in [1] because it is disabled in [0]"
+  );
+
+  // Let's poke identity 1 and check the changes got applied
   // Note: can't set the prefs to encrypt/sign unless there's also a key.
 
   let [id] = await OpenPGPTestUtils.importPrivateKey(
@@ -279,8 +317,8 @@ add_task(async function test_identity_changes() {
   info(`Set up openpgp key; id=${id}`);
 
   identity.setUnicharAttribute("openpgp_key_id", id.split("0x").join(""));
-  identity.setBoolAttribute("sign_mail", "true"); // Sign by default.
-  identity.setIntAttribute("encryptionpolicy", 2); // Require encryption.
+  identity.signMail = "true"; // Sign by default.
+  identity.encryptionPolicy = 2; // Require encryption.
   info("Modified identity 1 - will check it now");
   await test_identity_idx(1);
 

@@ -184,6 +184,12 @@ NS_IMPL_IDPREF_BOOL(SuppressSigSep, "suppress_signature_separator")
 NS_IMPL_IDPREF_BOOL(DoCc, "doCc")
 NS_IMPL_IDPREF_STR(DoCcList, "doCcList")
 
+NS_IMPL_IDPREF_BOOL(AttachPgpKey, "attachPgpKey")
+NS_IMPL_IDPREF_BOOL(AutoEncryptDrafts, "autoEncryptDrafts")
+NS_IMPL_IDPREF_BOOL(ProtectSubject, "protectSubject")
+NS_IMPL_IDPREF_INT(EncryptionPolicy, "encryptionpolicy")
+NS_IMPL_IDPREF_BOOL(SignMail, "sign_mail")
+
 NS_IMETHODIMP
 nsMsgIdentity::GetDoBcc(bool* aValue) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
@@ -540,6 +546,12 @@ nsMsgIdentity::Copy(nsIMsgIdentity* identity) {
   COPY_IDENTITY_STR_VALUE(identity, GetEscapedVCard, SetEscapedVCard)
   COPY_IDENTITY_STR_VALUE(identity, GetSmtpServerKey, SetSmtpServerKey)
   COPY_IDENTITY_BOOL_VALUE(identity, GetSuppressSigSep, SetSuppressSigSep)
+
+  COPY_IDENTITY_BOOL_VALUE(identity, GetAttachPgpKey, SetAttachPgpKey)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetAutoEncryptDrafts, SetAutoEncryptDrafts)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetProtectSubject, SetProtectSubject)
+  COPY_IDENTITY_INT_VALUE(identity, GetEncryptionPolicy, SetEncryptionPolicy)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetSignMail, SetSignMail)
   return NS_OK;
 }
 

@@ -238,6 +238,43 @@ interface nsIMsgIdentity : nsISupports {
    */
   readonly attribute boolean requestDSN;
 
+  /**
+   * If true, automatically attach the user's own public OpenPGP key
+   * whenever adding an OpenPGP digital signature.
+   */
+  attribute boolean attachPgpKey;
+
+  /**
+   * If true, encrypt draft messages that are saved to disk or on the
+   * mail server. This requires that a personal OpenPGP key or S/MIME
+   * certificate is configured and valid, matching the selected
+   * encryption technology for the current message.
+   */
+  attribute boolean autoEncryptDrafts;
+
+  /*
+   * If true, when sending an OpenPGP encrypted message, encrypt the
+   * email's subject, too.
+   */
+  attribute boolean protectSubject;
+
+  /*
+   * The default encryption setting for new emails that aren't already
+   * in an encryption context. (When forwarding or replying to an
+   * encrypted message we always automatically turn on encryption.)
+   * 0: disable encryption
+   * 1: optional encryption (not implemented)
+   * 2: require encryption
+   */
+  attribute long encryptionPolicy;
+
+  /*
+   * If true, add a digital signature for messages that aren't using
+   * encryption. (A message that uses encryption will automatically
+   * have signing enabled.)
+   */
+  attribute boolean signMail;
+
   /* copy the attributes of the identity we pass in */
   void copy(in nsIMsgIdentity identity);
 
