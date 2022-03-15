@@ -128,7 +128,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     if (this._items.addressBooks) {
-      this._importAddressBooks(
+      await this._importAddressBooks(
         this._branchPrefsMap.get(ADDRESS_BOOK),
         this._collectPrefsToObject(this._branchPrefsMap.get(LDAP_AUTO_COMPLETE))
       );
@@ -767,7 +767,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {boolean} ldapAutoComplete.useDirectory
    * @param {string} ldapAutoComplete.directoryServer
    */
-  _importAddressBooks(prefs, ldapAutoComplete) {
+  async _importAddressBooks(prefs, ldapAutoComplete) {
     let keyMap = new Map();
     let branch = Services.prefs.getBranch(ADDRESS_BOOK);
     for (let [type, name, value] of prefs) {
@@ -814,7 +814,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       }
     }
 
-    this._copyAddressBookDatabases(keyMap);
+    await this._copyAddressBookDatabases(keyMap);
   }
 
   /**
@@ -822,7 +822,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {Map<string, string>} keyMap - A map from the source address
    *   book key to new address book key.
    */
-  _copyAddressBookDatabases(keyMap) {
+  async _copyAddressBookDatabases(keyMap) {
     let hasMabFile = false;
 
     // Copy user created address books.
@@ -848,26 +848,25 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         hasMabFile = true;
       }
       let targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      targetFile.append(sourceFile.leafName);
+      targetFile.append(leafName);
       targetFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+      branch.setCharPref("filename", targetFile.leafName);
       this._logger.debug(`Copying ${sourceFile.path} to ${targetFile.path}`);
       if (isMabFile) {
-        this._migrateMabToSqlite(sourceFile, targetFile);
+        await this._migrateMabToSqlite(sourceFile, targetFile);
       } else {
         sourceFile.copyTo(targetFile.parent, targetFile.leafName);
       }
-
-      branch.setCharPref("filename", targetFile.leafName);
     }
 
     if (hasMabFile) {
-      this._importMorkDatabase("abook");
-      this._importMorkDatabase("history");
+      await this._importMorkDatabase("abook");
+      await this._importMorkDatabase("history");
     } else {
       // Copy or import Personal Address Book.
-      this._importAddressBookDatabase("abook.sqlite");
+      await this._importAddressBookDatabase("abook.sqlite");
       // Copy or import Collected Addresses.
-      this._importAddressBookDatabase("history.sqlite");
+      await this._importAddressBookDatabase("history.sqlite");
     }
   }
 
@@ -875,7 +874,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * Copy a sqlite file from this._sourceProfileDir to the current profile dir.
    * @param {string} filename - The name of the sqlite file.
    */
-  _importAddressBookDatabase(filename) {
+  async _importAddressBookDatabase(filename) {
     let sourceFile = this._sourceProfileDir.clone();
     sourceFile.append(filename);
     if (!sourceFile.exists()) {
@@ -891,7 +890,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     let importer = new AddrBookFileImporter("sqlite");
-    importer.startImport(sourceFile, targetDirectory);
+    await importer.startImport(sourceFile, targetDirectory);
   }
 
   /**
@@ -900,7 +899,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {nsIFile} targetSqliteFile - The target .sqlite file, should already
    *   exists in the profile dir.
    */
-  _migrateMabToSqlite(sourceMabFile, targetSqliteFile) {
+  async _migrateMabToSqlite(sourceMabFile, targetSqliteFile) {
     // It's better to use MailServices.ab.getDirectory, but we need to refresh
     // AddrBookManager first.
     let targetDirectory = Cc[
@@ -909,7 +908,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     targetDirectory.init(`jsaddrbook://${targetSqliteFile.leafName}`);
 
     let importer = new AddrBookFileImporter("mab");
-    importer.startImport(sourceMabFile, targetDirectory);
+    await importer.startImport(sourceMabFile, targetDirectory);
   }
 
   /**
@@ -917,7 +916,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    *   file.
    * @param {string} basename - The filename without extension, e.g. "abook".
    */
-  _importMorkDatabase(basename) {
+  async _importMorkDatabase(basename) {
     this._logger.debug(`Importing ${basename}.mab into ${basename}.sqlite`);
 
     let sourceMabFile = this._sourceProfileDir.clone();
@@ -937,7 +936,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     let importer = new AddrBookFileImporter("mab");
-    importer.startImport(sourceMabFile, targetDirectory);
+    await importer.startImport(sourceMabFile, targetDirectory);
   }
 
   /**
