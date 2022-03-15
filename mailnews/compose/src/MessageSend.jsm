@@ -589,15 +589,15 @@ MessageSend.prototype = {
             );
           isNSSError = true;
         } catch (e) {
-          if (errorName != "sendFailed") {
+          if (url.errorMessage) {
+            // url.errorMessage is an already localized message, usually
+            // combined with the error message from SMTP server.
+            errorMsg = url.errorMessage;
+          } else if (errorName != "sendFailed") {
             // Not the default string. A mailnews error occurred that does not
             // require the server name to be encoded. Just print the descriptive
             // string.
             errorMsg = this._composeBundle.GetStringFromName(errorName);
-          } else if (url.errorMessage) {
-            // url.errorMessage is an already localized message, usually
-            // combined with the error message from SMTP server.
-            errorMsg = url.errorMessage;
           } else {
             errorMsg = this._composeBundle.GetStringFromName(
               "sendFailedUnexpected"

@@ -1098,7 +1098,7 @@ class SmtpClient {
    * @param {Object} command Parsed command from the server {statusCode, data}
    */
   _actionIdle(command) {
-    this._onError(new Error(command.data));
+    this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
   }
 
   /**
@@ -1248,7 +1248,11 @@ class SmtpClient {
       }
 
       this._currentAction = this._actionIdle;
-      this.ondone(command.success ? 0 : MsgUtils.NS_ERROR_SENDING_MESSAGE);
+      if (command.success) {
+        this.ondone(0);
+      } else {
+        this._onNsError(MsgUtils.NS_ERROR_SENDING_MESSAGE, command.data);
+      }
     }
 
     // If the client wanted to do something else (eg. to quit), do not force idle
