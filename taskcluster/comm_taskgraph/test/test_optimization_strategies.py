@@ -15,7 +15,7 @@ import conftest  # noqa: F401
 
 from comm_taskgraph.optimize import SkipSuiteOnly
 from gecko_taskgraph.optimize import registry
-from gecko_taskgraph.task import Task
+from taskgraph.task import Task
 
 
 def generate_task():
