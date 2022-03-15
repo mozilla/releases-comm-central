@@ -1,13 +1,25 @@
-/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /**
  * Tests the operation of the GlodaContent (in GlodaContent.jsm) and its exposure
  * via Gloda.getMessageContent for local messages.
  */
 
+var { glodaTestHelperInitialize } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+);
+
+glodaTestHelperInitialize({ mode: "local" });
+
 /* import-globals-from base_gloda_content.js */
 load("base_gloda_content.js");
 
-function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
-  glodaHelperRunTests(tests);
-}
+add_task(async function setupTest() {
+  // Stub. We're fine here.
+});
+
+base_gloda_content_tests.forEach(e => {
+  add_task(e);
+});

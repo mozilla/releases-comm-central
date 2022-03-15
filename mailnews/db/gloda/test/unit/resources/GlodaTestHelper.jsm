@@ -23,9 +23,10 @@
 const EXPORTED_SYMBOLS = [
   "assertExpectedMessagesIndexed",
   "glodaTestHelperInitialize",
-  "waitForGlodaIndexer",
   "messageInjection",
+  "msgGen",
   "scenarios",
+  "waitForGlodaIndexer",
 ];
 
 var { MailServices } = ChromeUtils.import(
@@ -557,8 +558,6 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
   indexMessageState.synMessageSets = aSynMessageSets;
 
   indexMessageState.applyGlodaIndexerData(aConfig);
-  let verifier = indexMessageState.verifier();
-  let previousValue = undefined;
 
   // Check that we have a gloda message for every syn message and verify.
   for (let msgSet of indexMessageState.synMessageSets) {
@@ -584,6 +583,9 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
       }
 
       indexMessageState._glodaMessagesByMessageId[synMsg.messageId] = null;
+
+      let verifier = indexMessageState.verifier();
+      let previousValue = undefined;
       if (verifier) {
         try {
           // Looking if a previous value have been present.

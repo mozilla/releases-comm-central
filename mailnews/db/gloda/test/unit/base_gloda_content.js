@@ -14,17 +14,23 @@
  * care about the quoted blocks.)
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
-
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var {
+  assertExpectedMessagesIndexed,
+  messageInjection,
+  msgGen,
+  waitForGlodaIndexer,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+// We need to be able to get at GlodaFundAttr to check the number of whittler
+//   invocations.
+var { GlodaFundAttr } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaFundAttr.jsm"
+);
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
-
-// we need to be able to get at GlodaFundAttr to check the number of whittler
-//   invocations
-var { GlodaFundAttr } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaFundAttr.jsm"
+var { SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
 /* ===== Data ===== */
@@ -51,7 +57,7 @@ var messageInfos = [
     bode: [
       [false, "John wrote:"],
       [false, "> I like hats"],
-      [false, ">"], // this quoted blank line is significant! no lose!
+      [false, ">"], // This quoted blank line is significant! no lose!
       [false, "> yes I do!"],
       [false, ""],
       [true, "I do enjoy them as well."],
@@ -124,8 +130,6 @@ var messageInfos = [
   },
 ];
 
-/* ===== Tests ===== */
-
 function setup_create_message(info) {
   info.body = { body: info.bode.map(tupe => tupe[1]).join("\r\n") };
   info.expected = info.bode
@@ -142,7 +146,7 @@ function setup_create_message(info) {
  *  we can cram this in various places.
  */
 function glodaInfoStasher(aSynthMessage, aGlodaMessage) {
-  // let's not assume an ordering
+  // Let's not assume an ordering.
   for (let iMsg = 0; iMsg < messageInfos.length; iMsg++) {
     if (messageInfos[iMsg]._synMsg == aSynthMessage) {
       messageInfos[iMsg]._glodaMsg = aGlodaMessage;
@@ -153,28 +157,38 @@ function glodaInfoStasher(aSynthMessage, aGlodaMessage) {
 /**
  * Actually inject all the messages we created above.
  */
-function* setup_inject_messages() {
+async function setup_inject_messages() {
+  // Create the messages from messageInfo.
+  messageInfos.forEach(info => {
+    setup_create_message(info);
+  });
   let msgSet = new SyntheticMessageSet(messageInfos.map(info => info._synMsg));
-  let folder = MessageInjection.make_empty_folder();
-  yield MessageInjection.add_sets_to_folders(folder, [msgSet]);
-  yield wait_for_gloda_indexer(msgSet, { verifier: glodaInfoStasher });
+  let folder = await messageInjection.makeEmptyFolder();
+  await messageInjection.addSetsToFolders([folder], [msgSet]);
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], { verifier: glodaInfoStasher })
+  );
 }
 
 function test_stream_message(info) {
-  let msgHdr = info._glodaMsg.folderMessage;
+  // Currying the function for simpler usage with `base_gloda_content_tests`.
+  return () => {
+    let msgHdr = info._glodaMsg.folderMessage;
 
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
-    verify_message_content(
-      info,
-      info._synMsg,
-      info._glodaMsg,
-      aMsgHdr,
-      aMimeMsg
-    );
-  });
+    MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+      verify_message_content(
+        info,
+        info._synMsg,
+        info._glodaMsg,
+        aMsgHdr,
+        aMimeMsg
+      );
+    });
+  };
 }
 
-// instrument GlodaFundAttr so we can check the count
+// Instrument GlodaFundAttr so we can check the count.
 var originalWhittler = GlodaFundAttr.contentWhittle;
 var whittleCount = 0;
 GlodaFundAttr.contentWhittle = function(...aArgs) {
@@ -184,23 +198,23 @@ GlodaFundAttr.contentWhittle = function(...aArgs) {
 
 function verify_message_content(aInfo, aSynMsg, aGlodaMsg, aMsgHdr, aMimeMsg) {
   if (aMimeMsg == null) {
-    do_throw("Message streaming should work; check test_mime_emitter.js first");
+    throw new Error(
+      "Message streaming should work; check test_mime_emitter.js first"
+    );
   }
 
   whittleCount = 0;
   let content = Gloda.getMessageContent(aGlodaMsg, aMimeMsg);
   if (whittleCount != 1) {
-    do_throw("Whittle count is " + whittleCount + " but should be 1!");
+    throw new Error("Whittle count is " + whittleCount + " but should be 1!");
   }
 
-  Assert.equal(content.getContentString(), aInfo.expected);
+  Assert.equal(content.getContentString(), aInfo.expected, "Message streamed");
 }
 
-/* ===== Driver ===== */
-
-/* exported tests */
-var tests = [
-  parameterizeTest(setup_create_message, messageInfos),
+var base_gloda_content_tests = [
   setup_inject_messages,
-  parameterizeTest(test_stream_message, messageInfos),
+  ...messageInfos.map(e => {
+    return test_stream_message(e);
+  }),
 ];
