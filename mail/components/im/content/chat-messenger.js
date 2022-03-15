@@ -1431,10 +1431,6 @@ var chatHandler = {
       return;
     }
     if (aTopic == "ui-conversation-closed") {
-      this.updateChatButtonState();
-      if (!chatTabType.hasBeenOpened) {
-        return;
-      }
       let conv = document
         .getElementById("conversationsGroup")
         .removeContact(aSubject);
