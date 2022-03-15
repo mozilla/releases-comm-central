@@ -4,3 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
+
+TESTING_JS_MODULES.gloda += [
+    "unit/resources/GlodaQueryHelper.jsm",
+    "unit/resources/GlodaTestHelper.jsm",
+]

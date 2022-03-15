@@ -10,35 +10,51 @@
  *  base_index_messages.js.
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaMsgIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/IndexMsg.jsm"
+);
+var { queryExpect } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var {
+  assertExpectedMessagesIndexed,
+  messageInjection,
+  waitForGlodaIndexer,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
-var SPAM_BODY = { body: "superspam superspam superspam eevil eevil eevil" };
-var HAM_BODY = { body: "ham ham ham nice nice nice happy happy happy" };
+const SPAM_BODY = { body: "superspam superspam superspam eevil eevil eevil" };
+const HAM_BODY = { body: "ham ham ham nice nice nice happy happy happy" };
 
 /**
  * Make SPAM_BODY be known as spammy and HAM_BODY be known as hammy.
  */
-function* setup_spam_filter() {
-  let [, spamSet, hamSet] = MessageInjection.make_folder_with_sets([
+async function setup_spam_filter() {
+  let [, spamSet, hamSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1, body: SPAM_BODY },
     { count: 1, body: HAM_BODY },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([spamSet, hamSet]);
-
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([spamSet, hamSet], []));
+  let promiseResolve;
+  let promise = new Promise(resolve => {
+    promiseResolve = resolve;
+  });
   let junkListener = {
     onMessageClassified() {
-      async_driver();
+      promiseResolve();
     },
   };
 
-  // ham
-  mark_action("actual", "marking message as ham", [hamSet.getMsgHdr(0)]);
+  // Ham.
+  dump(`Marking message: ${hamSet.getMsgHdr(0)} as ham.`);
   MailServices.junk.setMessageClassification(
     hamSet.getMsgURI(0),
     null, // no old classification
@@ -46,18 +62,23 @@ function* setup_spam_filter() {
     null,
     junkListener
   );
-  yield false;
+  await promise;
 
-  // spam
-  mark_action("actual", "marking message as spam", [spamSet.getMsgHdr(0)]);
+  // Reset promise for junkListener.
+  promise = new Promise(resolve => {
+    promiseResolve = resolve;
+  });
+
+  // Spam.
+  dump(`Marking message: ${spamSet.getMsgHdr(0)} as spam.`);
   MailServices.junk.setMessageClassification(
     spamSet.getMsgURI(0),
-    null, // no old classification
+    null, // No old classification.
     MailServices.junk.JUNK,
     null,
     junkListener
   );
-  yield false;
+  await promise;
 }
 
 /**
@@ -68,18 +89,21 @@ function* setup_spam_filter() {
  *
  * ONLY THIS TEST ACTUALLY RELIES ON THE BAYESIAN CLASSIFIER.
  */
-function* test_never_indexes_a_message_marked_as_junk() {
-  mark_sub_test_start("event-driven does not index junk");
+async function test_never_indexes_a_message_marked_as_junk() {
+  // Event-driven does not index junk.
 
-  // make a message that will be marked as junk from the get-go
-  MessageInjection.make_folder_with_sets([{ count: 1, body: SPAM_BODY }]);
-  yield MessageInjection.wait_for_message_injection();
-  // since the message is junk, gloda should not index it!
-  yield wait_for_gloda_indexer([]);
+  // Make a message that will be marked as junk from the get-go.
+  await messageInjection.makeFoldersWithSets(1, [
+    { count: 1, body: SPAM_BODY },
+  ]);
+  // Since the message is junk, gloda should not index it!
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 
-  mark_sub_test_start("folder sweep does not index junk");
+  // Folder sweep does not index junk.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  yield wait_for_gloda_indexer([]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 }
 
 /**
@@ -95,26 +119,26 @@ function reset_spam_filter() {
  *
  * THIS TEST DOES NOT RELY ON THE BAYESIAN CLASSIFIER.
  */
-function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
-  mark_sub_test_start("mark as junk is deletion");
-  // create a message; it should get indexed
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([msgSet], { augment: true });
 
+async function test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
+  // Mark as junk is deletion.
+  // Create a message; it should get indexed.
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
   let glodaId = msgSet.glodaMessages[0].id;
-
-  // mark it as junk!
+  // Mark it as junk.
   msgSet.setJunk(true);
-
-  // it will appear deleted after the event...
-  yield wait_for_gloda_indexer([], { deleted: msgSet });
-
-  mark_sub_test_start("mark as non-junk gets indexed");
+  // It will appear deleted after the event.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [msgSet] }));
+  // Mark as non-junk gets indexed.
   msgSet.setJunk(false);
-  yield wait_for_gloda_indexer([msgSet], { augment: true });
-
-  // we should have reused the existing gloda message so it should keep the id
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
+  // We should have reused the existing gloda message so it should keep the id.
   Assert.equal(glodaId, msgSet.glodaMessages[0].id);
 }
 
@@ -127,57 +151,56 @@ function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
  *  support code.  This ends up being effectively the same underlying logic test
  *  as base_index_messages' test of moving a message to the trash folder.
  */
-function* test_message_moving_to_junk_folder_is_deletion() {
-  // create and index two messages in a conversation
-  let [, msgSet] = MessageInjection.make_folder_with_sets([
+async function test_message_moving_to_junk_folder_is_deletion() {
+  // Create and index two messages in a conversation.
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 2, msgsPerThread: 2 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([msgSet], { augment: true });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
 
   let convId = msgSet.glodaMessages[0].conversation.id;
   let firstGlodaId = msgSet.glodaMessages[0].id;
   let secondGlodaId = msgSet.glodaMessages[1].id;
 
-  // move them to the junk folder.
-  yield MessageInjection.async_move_messages(
+  // Move them to the junk folder.
+  await messageInjection.moveMessages(
     msgSet,
-    MessageInjection.get_junk_folder()
+    await messageInjection.getJunkFolder()
   );
 
-  // they will appear deleted after the events
-  yield wait_for_gloda_indexer([], { deleted: msgSet });
+  // They will appear deleted after the events.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [msgSet] }));
 
-  // we do not index the junk folder so this should actually make them appear
+  // We do not index the junk folder so this should actually make them appear
   //  deleted to an unprivileged query.
   let msgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   msgQuery.id(firstGlodaId, secondGlodaId);
-  queryExpect(msgQuery, []);
-  yield false; // queryExpect is async
+  Assert.ok(...(await queryExpect(msgQuery, [])));
 
-  // force a sweep
+  // Force a sweep.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  // there should be no apparent change as the result of this pass
-  // (well, the conversation will die, but we can't see that.)
-  yield wait_for_gloda_indexer([]);
+  // There should be no apparent change as the result of this pass.
+  // (Well, the conversation will die, but we can't see that.)
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 
-  // the conversation should be gone
+  // The conversation should be gone.
   let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
   convQuery.id(convId);
-  queryExpect(convQuery, []);
-  yield false; // queryExpect is async
+  Assert.ok(...(await queryExpect(convQuery, [])));
 
-  // the messages should be entirely gone
+  // The messages should be entirely gone.
   let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);
-  queryExpect(msgPrivQuery, []);
-  yield false; // queryExpect is async
+  Assert.ok(...(await queryExpect(msgPrivQuery, [])));
 }
 
 /* exported tests */
-var tests = [
+var base_index_junk_tests = [
   setup_spam_filter,
   test_never_indexes_a_message_marked_as_junk,
   reset_spam_filter,
