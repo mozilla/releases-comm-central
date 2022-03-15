@@ -21,12 +21,14 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
   return ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 });
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
 XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
   const { SubDialogManager } = ChromeUtils.import(
@@ -1669,50 +1671,6 @@ var cardsPane = {
 // Details
 
 var detailsPane = {
-  PHOTOS_DIR: PathUtils.join(
-    Services.dirsvc.get("ProfD", Ci.nsIFile).path,
-    "Photos"
-  ),
-
-  /** These properties are displayed exactly as-is. */
-  PLAIN_CONTACT_FIELDS: [
-    "FirstName",
-    "LastName",
-    "PhoneticFirstName",
-    "PhoneticLastName",
-    "DisplayName",
-    "NickName",
-    "PrimaryEmail",
-    "SecondEmail",
-    "WorkPhone",
-    "HomePhone",
-    "FaxNumber",
-    "PagerNumber",
-    "CellularNumber",
-    "HomeAddress",
-    "HomeAddress2",
-    "HomeCity",
-    "HomeState",
-    "HomeZipCode",
-    "HomeCountry",
-    "WebPage2",
-    "WorkAddress",
-    "WorkAddress2",
-    "WorkCity",
-    "WorkState",
-    "WorkZipCode",
-    "WorkCountry",
-    "WebPage1",
-    "BirthDay",
-    "BirthMonth",
-    "BirthYear",
-    "Custom1",
-    "Custom2",
-    "Custom3",
-    "Custom4",
-    "Notes",
-  ],
-
   form: null,
 
   editButton: null,
@@ -1820,59 +1778,6 @@ var detailsPane = {
     this.photoOuter.addEventListener("keypress", event =>
       this._onPhotoActivate(event)
     );
-
-    // Set up phonetic name fields if required.
-
-    if (
-      Services.prefs.getComplexValue(
-        "mail.addr_book.show_phonetic_fields",
-        Ci.nsIPrefLocalizedString
-      ).data != "true"
-    ) {
-      for (let field of document.querySelectorAll(".phonetic")) {
-        field.hidden = true;
-      }
-    }
-
-    // Generate display name automatically.
-
-    this.firstName = document.getElementById("FirstName");
-    this.lastName = document.getElementById("LastName");
-    this.displayName = document.getElementById("DisplayName");
-
-    this.firstName.addEventListener("input", () => this.generateDisplayName());
-    this.lastName.addEventListener("input", () => this.generateDisplayName());
-    this.displayName.addEventListener("input", () => {
-      this.displayName._dirty = !!this.displayName.value;
-    });
-
-    // Set up birthday fields.
-
-    this.birthMonth = document.getElementById("BirthMonth");
-    this.birthDay = document.getElementById("BirthDay");
-    this.birthYear = document.getElementById("BirthYear");
-    this.age = document.getElementById("Age");
-
-    let formatter = Intl.DateTimeFormat(undefined, { month: "long" });
-    for (let m = 1; m <= 12; m++) {
-      let option = document.createElement("option");
-      option.setAttribute("value", m);
-      option.setAttribute("label", formatter.format(new Date(2000, m - 1, 2)));
-      this.birthMonth.appendChild(option);
-    }
-
-    formatter = Intl.DateTimeFormat(undefined, { day: "numeric" });
-    for (let d = 1; d <= 31; d++) {
-      let option = document.createElement("option");
-      option.setAttribute("value", d);
-      option.setAttribute("label", formatter.format(new Date(2000, 0, d)));
-      this.birthDay.appendChild(option);
-    }
-
-    this.birthDay.addEventListener("change", () => this.calculateAge());
-    this.birthMonth.addEventListener("change", () => this.calculateAge());
-    this.birthYear.addEventListener("change", () => this.calculateAge());
-    this.age.addEventListener("change", () => this.calculateYear());
   },
 
   /**
@@ -1944,99 +1849,39 @@ var detailsPane = {
       return;
     }
 
-    document.querySelector("h1").textContent = card.generateName(
-      ABView.nameFormat
-    );
+    let photoURL = null;
 
-    for (let [section, fields] of Object.entries({
-      emailAddresses: ["PrimaryEmail", "SecondEmail"],
-      phoneNumbers: [
-        "WorkPhone",
-        "HomePhone",
-        "FaxNumber",
-        "PagerNumber",
-        "CellularNumber",
-      ],
-    })) {
-      let list = document.getElementById(section);
-      while (list.lastChild) {
-        list.lastChild.remove();
+    if (card.supportsVCard) {
+      let photoEntry = card.vCardProperties.getFirstEntry("photo");
+      if (photoEntry?.type == "binary") {
+        // TODO are these always JPEG?
+        photoURL = `data:image/jpeg;base64,${photoEntry.value}`;
+      } else if (photoEntry?.type == "uri") {
+        // TODO only allow data URLs?
+        photoURL = photoEntry.value;
       }
-      for (let field of fields) {
-        let value = card.getProperty(field, "");
-        if (value) {
-          let li = document.createElement("li");
-          if (field.includes("Email")) {
-            let addr = MailServices.headerParser.makeMimeAddress(
-              card.displayName,
-              value
-            );
-            let a = document.createElement("a");
-            a.href = "mailto:" + encodeURIComponent(addr);
-            a.textContent = value;
-            li.appendChild(a);
-          } else {
-            li.textContent = value;
-          }
-          list.append(li);
-        }
-      }
-      list.parentNode.previousElementSibling.classList.toggle(
-        "noValue",
-        !list.childElementCount
-      );
     }
 
-    for (let prefix of ["Home", "Work"]) {
-      let list = document.getElementById(`${prefix.toLowerCase()}Addresses`);
-      while (list.lastChild) {
-        list.lastChild.remove();
+    if (!photoURL) {
+      let photoName = card.getProperty("PhotoName", "");
+      if (photoName) {
+        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        file.append("Photos");
+        file.append(photoName);
+        photoURL = Services.io.newFileURI(file).spec;
       }
-
-      let address = "";
-      for (let field of [
-        "Address",
-        "Address2",
-        "City",
-        "State",
-        "ZipCode",
-        "Country",
-      ]) {
-        let value = card.getProperty(`${prefix}${field}`, "");
-        if (!value) {
-          continue;
-        }
-        if (address) {
-          address += field == "ZipCode" ? " " : ", ";
-        }
-        address += value;
-      }
-      if (address) {
-        list.appendChild(document.createElement("li")).textContent = address;
-      }
-      list.parentNode.previousElementSibling.classList.toggle(
-        "noValue",
-        !address
-      );
     }
 
-    let photoName = card.getProperty("PhotoName", "");
-    if (photoName) {
-      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      file.append("Photos");
-      file.append(photoName);
-      let url = Services.io.newFileURI(file).spec;
-      this.photo.style.backgroundImage = `url("${url}")`;
-      this.photo._url = url;
+    if (photoURL) {
+      this.photo.style.backgroundImage = `url("${photoURL}")`;
+      this.photo._url = photoURL;
     } else {
       this.photo.style.backgroundImage = null;
       delete this.photo._url;
     }
+
     delete this.photo._blob;
     delete this.photo._cropRect;
-
-    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
-    this.editButton.disabled = book.readOnly;
 
     this.isEditing = false;
     this.form.scrollTo(0, 0);
@@ -2065,29 +1910,11 @@ var detailsPane = {
       delete this.photo._url;
     }
 
-    for (let field of this.PLAIN_CONTACT_FIELDS) {
-      let element = document.getElementById(field);
-      element.value = element._originalValue = card
-        ? card.getProperty(field, "")
-        : "";
-    }
-
-    this.displayName._dirty = !!this.displayName.value;
-
-    let preferDisplayName = document.getElementById("preferDisplayName");
-    preferDisplayName.checked = preferDisplayName._originalValue =
-      // getProperty may return a "1" or "0" string, we want a boolean
-      // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
-      card ? card.getProperty("PreferDisplayName", true) == true : true;
-
-    this.calculateAge();
-
     this.deleteEditButton.hidden = !card;
 
     this.isEditing = true;
     this.form.hidden = false;
     this.form.scrollTo(0, 0);
-    this.form.querySelector("input").focus();
   },
 
   /**
@@ -2099,9 +1926,7 @@ var detailsPane = {
     if (card) {
       book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     } else {
-      card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-        Ci.nsIAbCard
-      );
+      card = new AddrBookCard();
 
       let row = booksList.getRowAtIndex(booksList.selectedIndex);
       let bookUID = row.dataset.book ?? row.dataset.uid;
@@ -2117,35 +1942,46 @@ var detailsPane = {
       );
     }
 
-    for (let field of this.PLAIN_CONTACT_FIELDS) {
-      card.setProperty(field, document.getElementById(field).value ?? null);
-    }
-
-    card.setProperty(
-      "PreferDisplayName",
-      document.getElementById("preferDisplayName").checked
-    );
-
     // No photo or a new photo. Delete the old one.
     if (!this.photo.style.backgroundImage || this.photo._blob) {
       let oldLeafName = card.getProperty("PhotoName", "");
       if (oldLeafName) {
-        let oldPath = PathUtils.join(this.PHOTOS_DIR, oldLeafName);
+        let oldPath = PathUtils.join(
+          PathUtils.profileDir,
+          "Photos",
+          oldLeafName
+        );
         IOUtils.remove(oldPath);
 
         card.setProperty("PhotoName", "");
         card.setProperty("PhotoType", "");
         card.setProperty("PhotoURI", "");
       }
+      if (card.supportsVCard) {
+        for (let entry of card.vCardProperties.getAllEntries("photo")) {
+          card.vCardProperties.remove(entry);
+        }
+      }
     }
 
     // Save the new photo.
     if (this.photo._blob) {
-      let leafName = `${AddrBookUtils.newUID()}.jpg`;
-      let path = PathUtils.join(this.PHOTOS_DIR, leafName);
-      let buffer = await this.photo._blob.arrayBuffer();
-      await IOUtils.write(path, new Uint8Array(buffer));
-      card.setProperty("PhotoName", leafName);
+      if (book.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
+        let reader = new FileReader();
+        await new Promise(resolve => {
+          reader.onloadend = resolve;
+          reader.readAsDataURL(this.photo._blob);
+        });
+        card.vCardProperties.add(
+          new VCardPropertyEntry("photo", {}, "uri", reader.result)
+        );
+      } else {
+        let leafName = `${AddrBookUtils.newUID()}.jpg`;
+        let path = PathUtils.join(PathUtils.profileDir, "Photos", leafName);
+        let buffer = await this.photo._blob.arrayBuffer();
+        await IOUtils.write(path, new Uint8Array(buffer));
+        card.setProperty("PhotoName", leafName);
+      }
 
       delete this.photo._blob;
     }
@@ -2269,82 +2105,6 @@ var detailsPane = {
         this.lastName.value,
       ]);
     }
-  },
-
-  /**
-   * Disable the 29th, 30th and 31st days in a month where appropriate.
-   */
-  setDisabledMonthDays() {
-    let month = this.birthMonth.value;
-    let year = this.birthYear.value;
-
-    if (!isNaN(year) && year >= 1 && year <= 9999) {
-      this.birthDay.children[29].disabled = year % 4 != 0 && month == "2";
-    }
-    this.birthDay.children[30].disabled = month == "2";
-    this.birthDay.children[31].disabled = ["2", "4", "6", "9", "11"].includes(
-      month
-    );
-
-    if (this.birthDay.options[this.birthDay.selectedIndex].disabled) {
-      this.birthDay.value = "";
-    }
-  },
-
-  /**
-   * Calculate the contact's age based on their birth date.
-   */
-  calculateAge() {
-    this.setDisabledMonthDays();
-
-    let month = this.birthMonth.value;
-    let day = this.birthDay.value;
-    let year = this.birthYear.value;
-    this.age.value = "";
-
-    if (isNaN(year) || year < 1 || year > 9999 || month == "" || day == "") {
-      return;
-    }
-
-    month--; // Date object months are 0-indexed.
-    let today = new Date();
-    let age = today.getFullYear() - year;
-    if (
-      month > today.getMonth() ||
-      (month == today.getMonth() && day > today.getDate())
-    ) {
-      age--;
-    }
-    if (age >= 0) {
-      this.age.value = age;
-    }
-  },
-
-  /**
-   * Calculate the contact's birth year based on their age.
-   */
-  calculateYear() {
-    let age = this.age.value;
-    if (isNaN(age)) {
-      return;
-    }
-
-    let today = new Date();
-    let year = today.getFullYear() - age;
-
-    let month = this.birthMonth.value;
-    if (month != "") {
-      month--; // Date object months are 0-indexed.
-      let day = this.birthDay.value;
-      if (
-        month > today.getMonth() ||
-        (month == today.getMonth() && day > today.getDate())
-      ) {
-        year--;
-      }
-    }
-    this.birthYear.value = year;
-    this.setDisabledMonthDays();
   },
 
   async _onPhotoActivate(event) {
