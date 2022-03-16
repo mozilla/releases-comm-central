@@ -71,7 +71,7 @@ class Pop3Client {
     // Auth method set by user preference.
     this._preferredAuthMethods =
       {
-        [Ci.nsMsgAuthMethod.passwordCleartext]: ["PLAIN", "LOGIN"],
+        [Ci.nsMsgAuthMethod.passwordCleartext]: ["USERPASS", "PLAIN", "LOGIN"],
         [Ci.nsMsgAuthMethod.passwordEncrypted]: ["CRAM-MD5"],
         [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
         [Ci.nsMsgAuthMethod.NTLM]: ["NTLM"],
@@ -433,13 +433,13 @@ class Pop3Client {
     this._lineReader.read(
       res.data,
       line => {
-        if (line.startsWith("SASL ")) {
-          this._supportedAuthMethods = line
-            .slice(5)
-            .trim()
-            .split(" ");
+        line = line.trim();
+        if (line == "USER") {
+          this._supportedAuthMethods.push("USERPASS");
+        } else if (line.startsWith("SASL ")) {
+          this._supportedAuthMethods.push(...line.slice(5).split(" "));
         } else {
-          this._capabilities.push(line.trim().split(" ")[0]);
+          this._capabilities.push(line.split(" ")[0]);
         }
       },
       () => this._actionChooseFirstAuthMethod()
