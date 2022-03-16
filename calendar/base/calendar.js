@@ -90,6 +90,9 @@ pref("calendar.itip.showImipBar", true);
 // Whether to always expand the iMIP details, instead of collapsing them.
 pref("calendar.itip.imipDetailsOpen", true);
 
+// Temporary pref for using the new invitation display instead of the old one.
+pref("calendar.itip.newInvitationDisplay", false);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 

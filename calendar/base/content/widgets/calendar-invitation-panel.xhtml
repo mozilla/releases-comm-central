@@ -1,0 +1,105 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!-- Template for <calendar-invitation-panel /> -->
+<template id="calendarInvitationPanel" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="calendar-invitation-panel-body">
+    <div class="calendar-invitation-panel-preview">
+      <calendar-minidate id="minidate"/>
+    </div>
+    <div class="calendar-invitation-panel-details">
+      <calendar-invitation-panel-header id="header"/>
+      <calendar-invitation-panel-properties id="properties"/>
+    </div>
+  </div>
+  <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel-header/> -->
+<template id="calendarInvitationPanelHeader" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="calendar-invitation-panel-details-header">
+    <div class="calendar-invitation-panel-intro" 
+         data-l10n-id="calendar-invitation-panel-intro"></div>
+    <div class="calendar-invitation-panel-summary">
+      <h1 class="calendar-invitation-panel-title" 
+          data-l10n-id="calendar-invitation-panel-title"></h1>
+      <button id="actionButton"
+              class="calendar-invitation-panel-action-button"
+              data-l10n-id="calendar-invitation-panel-action-button"/>
+    </div>
+  </div>
+</template>
+
+<!-- Template for <calendar-invitation-panel-properties/> -->
+<template id="calendarInvitationPanelProperties" xmlns="http://www.w3.org/1999/xhtml">
+  <table class="calendar-invitation-panel-props">
+    <tbody>
+      <tr>
+        <th data-l10n-id="calendar-invitation-panel-prop-title-when"></th>
+        <td id="when" class="calendar-invitation-when"></td>
+      </tr>
+      <tr>
+        <th data-l10n-id="calendar-invitation-panel-prop-title-location"></th>
+        <td id="location" class="content"></td>
+      </tr>
+      <tr>
+        <th data-l10n-id="calendar-invitation-panel-prop-title-attendees"></th>
+        <td id="attendees">
+          <calendar-invitation-partstat-summary id="summary"/>
+          <calendar-invitation-attendee-list id="list"/>
+        </td>
+      </tr>
+      <tr>
+        <th data-l10n-id="calendar-invitation-panel-prop-title-description"></th>
+        <td id="description" class="content"></td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+
+<!-- Template for <calendar-invitation-datetime /> -->
+<template id="calendarInvitationDatetime" xmlns="http://www.w3.org/1999/xhtml">
+  <div id="datetime" class="calendar-invitation-datetime">
+    <div id="date"
+         class="calendar-invitation-datetime-date"></div>
+    <div id="time"
+         class="calendar-invitation-datetime-time"
+         data-l10n-id="calendar-invitation-datetime-time"></div>
+  </div>
+</template>
+
+<!-- Template for <calendar-invitation-partstat-summary /> -->
+<template id="calendarInvitationPartStatSummary" xmlns="http://www.w3.org/1999/xhtml">
+  <div id="summary" class="calendar-invitation-attendees-summary">
+    <span id="total" 
+          class="calendar-invitation-panel-partstat-summary-total"></span>
+    <span id="breakdown" class="calendar-invitation-panel-partstat-breakdown"></span>
+  </div>
+</template>
+
+<!-- Template for <calendar-invitation-attendees-list /> -->
+<template id="calendarInvitationAttendeesList" xmlns="http://www.w3.org/1999/xhtml">
+  <ul id="attendeeList" class="calendar-invitation-attendee-list"></ul>
+</template>
+
+<!-- Template for <calendar-invitation-panel-footer/> -->
+<template id="calendarInvitationPanelFooter" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="calendar-invitation-panel-details-footer">
+    <div id="status"
+              class="calendar-invitation-panel-reply-status"></div>
+    <div id="actionButtons" class="calendar-invitation-panel-response-buttons">
+      <button id="acceptButton"
+              name="accept"
+              class="primary"
+              data-l10n-id="calendar-invitation-panel-accept-button"/>
+      <button id="declineButton"
+              name="decline"
+              data-l10n-id="calendar-invitation-panel-decline-button"/>
+      <button id="tentativeButton"
+              name="tentative"
+              data-l10n-id="calendar-invitation-panel-tentative-button"/>
+      </div>
+    </div>
+</template>
+

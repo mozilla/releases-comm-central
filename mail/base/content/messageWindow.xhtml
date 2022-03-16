@@ -13,6 +13,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/panelUI.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/content/calendar-invitation-display.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
 <!DOCTYPE html [
@@ -80,6 +81,7 @@
   <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="toolkit/printing/printUI.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
+  <link rel="localization" href="calendar/calendar-invitation-panel.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
   <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
@@ -130,6 +132,8 @@
   <script defer="defer" src="chrome://calendar/content/calendar-modes.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-chrome-startup.js"></script>
   <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-invitation-display.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-invitation-panel.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-management.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
   <script>
@@ -266,6 +270,11 @@
              information like: junk, mdn, remote content and phishing warnings -->
         <vbox id="mail-notification-top">
           <!-- notificationbox will be added here lazily. -->
+        </vbox>
+
+        <!-- The calendar invitation panel is displayed here. -->
+        <vbox flex="1">
+          <html:div id="calendarInvitationDisplay"></html:div>
         </vbox>
 
         <!-- message view -->

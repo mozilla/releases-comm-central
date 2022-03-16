@@ -115,6 +115,10 @@ var calImipBar = {
       let imipMethod = gMessageDisplay.displayedMessage.getStringProperty("imip_method");
       cal.itip.initItemFromMsgData(itipItem, imipMethod, gMessageDisplay.displayedMessage);
 
+      if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+        window.dispatchEvent(new CustomEvent("onItipItemCreation", { detail: itipItem }));
+      }
+
       imipBar.collapsed = false;
       imipBar.label = cal.itip.getMethodText(itipItem.receivedMethod);
 
@@ -122,32 +126,35 @@ var calImipBar = {
       // the message is not yet loaded with the invite. Keep track of this for
       // displayModifications.
       calImipBar.overlayLoaded = false;
-      document.getElementById("messagepane").addEventListener(
-        "DOMContentLoaded",
-        () => {
-          calImipBar.overlayLoaded = true;
 
-          let doc = document.getElementById("messagepane").contentDocument;
-          let details = doc.getElementById("imipHTMLDetails");
-          let msgbody = doc.querySelector("div.moz-text-html");
-          if (!msgbody) {
-            details.setAttribute("open", "open");
-          } else {
-            // The HTML representation can contain important notes.
+      if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+        document.getElementById("messagepane").addEventListener(
+          "DOMContentLoaded",
+          () => {
+            calImipBar.overlayLoaded = true;
 
-            // For consistent appearance, move the generated meeting details first.
-            msgbody.prepend(details);
-
-            if (Services.prefs.getBoolPref("calendar.itip.imipDetailsOpen", true)) {
-              // Expand the iMIP details if pref says so.
+            let doc = document.getElementById("messagepane").contentDocument;
+            let details = doc.getElementById("imipHTMLDetails");
+            let msgbody = doc.querySelector("div.moz-text-html");
+            if (!msgbody) {
               details.setAttribute("open", "open");
+            } else {
+              // The HTML representation can contain important notes.
+
+              // For consistent appearance, move the generated meeting details first.
+              msgbody.prepend(details);
+
+              if (Services.prefs.getBoolPref("calendar.itip.imipDetailsOpen", true)) {
+                // Expand the iMIP details if pref says so.
+                details.setAttribute("open", "open");
+              }
             }
+          },
+          {
+            once: true,
           }
-        },
-        {
-          once: true,
-        }
-      );
+        );
+      }
       // NOTE: processItipItem may call setupOptions asynchronously because the
       // getItem method it triggers is async for *some* calendars. In theory,
       // this could complete after a different item has been loaded, so we
@@ -373,13 +380,17 @@ var calImipBar = {
       }
 
       let browser = document.getElementById("messagepane");
-      let doUpdate = () =>
+      let doUpdate = () => {
+        if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+          return;
+        }
         cal.invitation.updateInvitationOverlay(
           browser.contentDocument,
           newEvent,
           itipItem,
           oldEvent
         );
+      };
       if (calImipBar.overlayLoaded) {
         // Document is already loaded.
         doUpdate();

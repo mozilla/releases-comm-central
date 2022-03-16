@@ -59,8 +59,12 @@ CalMimeConverter.prototype = {
 
     // msgOverlay needs to be defined irrespectively of the existence of msgWindow to not break
     // printing of invitation emails
-    let dom = cal.invitation.createInvitationOverlay(event, itipItem);
-    let msgOverlay = cal.xml.serializeDOM(dom);
+    let msgOverlay = "";
+
+    if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+      let dom = cal.invitation.createInvitationOverlay(event, itipItem);
+      msgOverlay = cal.xml.serializeDOM(dom);
+    }
 
     if (msgWindow) {
       let sinkProps = msgWindow.msgHeaderSink.properties;
@@ -69,6 +73,7 @@ CalMimeConverter.prototype = {
       // Notify the observer that the itipItem is available
       Services.obs.notifyObservers(null, "onItipItemCreation");
     }
+
     return msgOverlay;
   },
 };

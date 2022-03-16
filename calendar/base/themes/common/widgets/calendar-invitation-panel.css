@@ -1,0 +1,129 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+@import url("chrome://global/skin/in-content/common.css");
+
+:host(calendar-invitation-panel) {
+  background-color: Field;
+  width: auto;
+  border: 1px solid var(--splitter-color);
+}
+
+.calendar-invitation-panel-body {
+  display: flex;
+  padding: 10px 20px;
+}
+
+.calendar-invitation-panel-details {
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-invitation-panel-details-header {
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.calendar-invitation-panel-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.calendar-invitation-panel-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 1em;
+  flex-grow: 2;
+  align-self: flex-end;
+  display: inline-block;
+}
+
+.calendar-invitation-panel-action-button {
+  margin: 0;
+  margin-inline-start: auto;
+}
+
+.calendar-invitation-panel-action-button,
+.calendar-invitation-panel-response-buttons button {
+  min-height: 2.5em;
+  font-size: .8em;
+}
+
+.calendar-invitation-panel-details-footer {
+  flex-grow: 2;
+  display: flex;
+  align-items: baseline;
+  padding: 10px 20px;
+}
+
+.calendar-invitation-panel-reply-status {
+  margin-inline-end: 2rem;
+  font-size: .8rem;
+}
+
+.calendar-invitation-panel-response-buttons {
+  margin-inline-start: auto;
+}
+
+.calendar-invitation-panel-props {
+  margin: 1.5em 0px;
+}
+
+.calendar-invitation-panel-props > dt,
+.calendar-invitation-panel-props > dd {
+  display: inline-block;
+  text-align: baseline;
+}
+
+.calendar-invitation-panel-props th, .calendar-invitation-panel-props td {
+  vertical-align: top;
+}
+
+.calendar-invitation-panel-props th {
+  text-align: right;
+  padding-inline-end: 1em;
+}
+
+.calendar-invitation-panel-props td.content {
+  overflow-y: auto;
+  max-width: 28em;
+  word-break: break-word;
+}
+
+.calendar-invitation-when {
+  display: flex;
+  flex-direction: column;
+}
+
+calendar-invitation-datetime + calendar-invitation-datetime {
+  margin-top: 0.5em;
+}
+
+.calendar-invitation-datetime-time {
+  font-weight: 800;
+}
+
+.calendar-invitation-panel-partstat-breakdown:before {
+  content: "("
+}
+
+.calendar-invitation-panel-partstat-breakdown:after {
+  content: ")"
+}
+
+.calendar-invitation-panel-partstat-summary +
+.calendar-invitation-panel-partstat-summary {
+  margin-inline-start: 0.5em;
+}
+
+.calendar-invitation-panel-partstat-summary-total {
+  margin-inline-end: 0.5em;
+}
+
+.calendar-invitation-attendee-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5em 0;
+}

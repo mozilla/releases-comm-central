@@ -1926,3 +1926,6 @@ printpreview-pagination:focus-within,
   background-color: rgba(28, 27, 34, 0.45);
 }
 
+.messagepane-container {
+  overflow-y: auto;
+}

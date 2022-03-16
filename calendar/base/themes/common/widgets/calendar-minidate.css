@@ -1,0 +1,36 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+@import url("chrome://global/skin/in-content/common.css");
+
+:host(calendar-minidate) {
+  display: block;
+  border: 1px solid var(--splitter-color);
+  align-self: center;
+}
+
+.calendar-minidate-header {
+  padding: 1px 30px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.5rem;
+  background-color: var(--viewTodayLabelBackground);
+  color: var(--viewTodayLabelColor);
+}
+
+.calendar-minidate-body {
+  padding: 1px 30px;
+  text-align: center;
+  background-color: Field;
+}
+
+.calendar-minidate-day {
+  font-weight: 700;
+  font-size: 2rem;
+  display: block;
+  color: var(--viewMonthDayBoxLabelColor); 
+}
+
+.calendar-minidate-year {
+  font-size: 1.2rem;
+}

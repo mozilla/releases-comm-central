@@ -37,6 +37,7 @@
 
 <?xml-stylesheet href="chrome://calendar/skin/calendar-views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/shared/calendar-alarms.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/skin/shared/calendar-invitation-display.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/shared/widgets/minimonth.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/widgets/calendar-widgets.css" type="text/css"?>
 
@@ -81,6 +82,7 @@
   <link rel="localization" href="calendar/calendar-widgets.ftl" />
   <link rel="localization" href="calendar/calendar-context-menus.ftl" />
   <link rel="localization" href="calendar/calendar-editable-item.ftl" />
+  <link rel="localization" href="calendar/calendar-invitation-panel.ftl" />
   <link rel="localization" href="messenger/chat.ftl" />
 
   <title>&titledefault.label;@PRE_RELEASE_SUFFIX@</title>
@@ -161,6 +163,8 @@
 
   <!-- calendar imip bar -->
   <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
+  <!-- calendar invitation display -->
+  <script defer="defer" src="chrome://calendar/content/calendar-invitation-display.js"></script>
   <!-- calendar-management.js also needed for multiple calendar support and today pane -->
   <script defer="defer" src="chrome://calendar/content/calendar-management.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
@@ -190,6 +194,8 @@
 
   <script defer="defer" src="chrome://calendar/content/calendar-dnd-listener.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-statusbar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-invitation-panel.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minidate.js"></script>
   <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
   <script defer="defer" src="chrome://calendar/content/widgets/calendar-modebox.js"></script>
 
@@ -754,7 +760,8 @@
                       <vbox id="mail-notification-top">
                         <!-- notificationbox will be added here lazily. -->
                       </vbox>
-                      <vbox flex="1">
+                      <vbox flex="1" class="messagepane-container">
+                        <hbox id="calendarInvitationDisplay" hidden="true"></hbox>
                         <!-- The messagepanewrapper hbox exists to allow
                              extensions to add sidebars to the message. -->
                         <hbox id="messagepanewrapper" flex="1">
@@ -823,6 +830,8 @@
                    messagemanagergroup="single-page"/>
         </stack>
       </html:template>
+      #include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
+      #include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
       <!-- Hidden browser used for printing documents without displaying them. -->
       <browser id="hiddenPrintContent" type="content" remote="true" hidden="true"/>
     </tabmail>
