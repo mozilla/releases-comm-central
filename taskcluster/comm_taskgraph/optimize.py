@@ -56,6 +56,10 @@ class SkipSuiteOnly(OptimizationStrategy):
         if params.get("pushlog_id") == -1:
             return False
 
+        if params.get("project") == "try-comm-central":
+            # Do not try to use this optimization on try-c-c builds
+            return False
+
         repository = params.get("comm_head_repository")
         revision = params.get("comm_head_rev")
         non_suite_changed_files = get_non_suite_changed_files(repository, revision)
