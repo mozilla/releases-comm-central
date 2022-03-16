@@ -72,7 +72,7 @@ ABView.prototype = {
 
   deleteSelectedCards() {
     let directoryMap = new Map();
-    for (let i of this.tree.selectedIndicies) {
+    for (let i of this.tree.selectedIndices) {
       let card = this.getCardFromRow(i);
       let cardSet = directoryMap.get(card.directoryUID);
       if (!cardSet) {
@@ -110,11 +110,11 @@ ABView.prototype = {
   sortBy(sortColumn, sortDirection, resort) {
     let selectionExists = false;
     if (this.tree) {
-      let { selectedIndicies, currentIndex } = this.tree;
-      selectionExists = selectedIndicies.length;
+      let { selectedIndices, currentIndex } = this.tree;
+      selectionExists = selectedIndices.length;
       // Remember what was selected.
       for (let i = 0; i < this._rowMap.length; i++) {
-        this._rowMap[i].wasSelected = selectedIndicies.includes(i);
+        this._rowMap[i].wasSelected = selectedIndices.includes(i);
         this._rowMap[i].wasCurrent = currentIndex == i;
       }
     }
@@ -238,9 +238,9 @@ ABView.prototype = {
           this.sortBy(this.sortColumn, this.sortDirection, true);
         } else {
           // Remember what was selected.
-          let { selectedIndicies, currentIndex } = this.tree;
+          let { selectedIndices, currentIndex } = this.tree;
           for (let i = 0; i < this._rowMap.length; i++) {
-            this._rowMap[i].wasSelected = selectedIndicies.includes(i);
+            this._rowMap[i].wasSelected = selectedIndices.includes(i);
             this._rowMap[i].wasCurrent = currentIndex == i;
           }
 

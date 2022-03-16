@@ -1269,7 +1269,7 @@ var cardsPane = {
   writeToSelected() {
     let selectedAddresses = [];
 
-    for (let index of this.cardsList.selectedIndicies) {
+    for (let index of this.cardsList.selectedIndices) {
       let card = this.cardsList.view.getCardFromRow(index);
 
       let email;
@@ -1295,7 +1295,7 @@ var cardsPane = {
   printSelected() {
     let selectedCards = [];
 
-    for (let index of this.cardsList.selectedIndicies) {
+    for (let index of this.cardsList.selectedIndices) {
       let card = this.cardsList.view.getCardFromRow(index);
       selectedCards.push(card);
     }
@@ -1309,7 +1309,7 @@ var cardsPane = {
     }
 
     let seenDirectories = new Set();
-    for (let index of this.cardsList.selectedIndicies) {
+    for (let index of this.cardsList.selectedIndices) {
       let { directoryUID } = this.cardsList.view.getCardFromRow(index);
       if (seenDirectories.has(directoryUID)) {
         continue;
@@ -1333,7 +1333,7 @@ var cardsPane = {
     let selectedLists = [];
     let selectedContacts = [];
 
-    for (let index of this.cardsList.selectedIndicies) {
+    for (let index of this.cardsList.selectedIndices) {
       let card = this.cardsList.view.getCardFromRow(index);
       if (card.isMailList) {
         selectedLists.push(card);
@@ -1417,7 +1417,7 @@ var cardsPane = {
     if (!row) {
       return;
     }
-    if (!this.cardsList.selectedIndicies.includes(row.index)) {
+    if (!this.cardsList.selectedIndices.includes(row.index)) {
       this.cardsList.selectedIndex = row.index;
     }
 
@@ -1428,7 +1428,7 @@ var cardsPane = {
     let writeMenuSeparator = document.getElementById(
       "cardContextWriteSeparator"
     );
-    if (this.cardsList.selectedIndicies.length == 1) {
+    if (this.cardsList.selectedIndices.length == 1) {
       let card = this.cardsList.view.getCardFromRow(
         this.cardsList.selectedIndex
       );
@@ -1578,14 +1578,12 @@ var cardsPane = {
       return;
     }
 
-    let indicies = this.cardsList.selectedIndicies;
-    if (indicies.length === 0) {
+    let indices = this.cardsList.selectedIndices;
+    if (indices.length === 0) {
       event.preventDefault();
       return;
     }
-    let cards = indicies.map(index =>
-      this.cardsList.view.getCardFromRow(index)
-    );
+    let cards = indices.map(index => this.cardsList.view.getCardFromRow(index));
 
     let addresses = cards.map(makeMimeAddressFromCard);
     event.dataTransfer.mozSetDataAt("moz/abcard-array", cards, 0);

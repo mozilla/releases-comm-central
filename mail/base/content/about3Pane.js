@@ -458,7 +458,7 @@ async function displayMessages(messages = []) {
     messages,
     gDBView,
     function(messages) {
-      threadTree.selectedIndicies = messages
+      threadTree.selectedIndices = messages
         .map(m => gDBView.findIndexOfMsgHdr(m, true))
         .filter(i => i != nsMsgViewIndex_None);
     }
@@ -919,11 +919,11 @@ function restoreThreadState() {
 
 var _savedSelection;
 function saveSelection() {
-  _savedSelection = threadTree.selectedIndicies.map(gDBView.getKeyAt);
+  _savedSelection = threadTree.selectedIndices.map(gDBView.getKeyAt);
 }
 
 function restoreSelection() {
-  threadTree.selectedIndicies = _savedSelection
+  threadTree.selectedIndices = _savedSelection
     .map(gDBView.findIndexFromKey)
     .filter(i => i != nsMsgViewIndex_None);
   _savedSelection = null;

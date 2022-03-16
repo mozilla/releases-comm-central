@@ -88,7 +88,7 @@ testView.toggleOpenState(5);
 window.addEventListener("load", () => {
   let list = document.getElementById("testList");
   list.addEventListener("select", event => {
-    console.log("select event, selected indicies:", list.selectedIndicies);
+    console.log("select event, selected indices:", list.selectedIndices);
   });
   list.view = testView;
 });

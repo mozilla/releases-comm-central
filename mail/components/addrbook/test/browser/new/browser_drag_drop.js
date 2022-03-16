@@ -56,7 +56,7 @@ function doDragToBooksList(sourceIndex, destIndex, modifiers, expectedEffect) {
   dragService.endDragSession(true);
 }
 
-async function doDragToComposeWindow(sourceIndicies, expectedPills) {
+async function doDragToComposeWindow(sourceIndices, expectedPills) {
   let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
@@ -77,9 +77,9 @@ async function doDragToComposeWindow(sourceIndicies, expectedPills) {
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
 
-  cardsList.selectedIndicies = sourceIndicies;
+  cardsList.selectedIndices = sourceIndices;
   let [result, dataTransfer] = EventUtils.synthesizeDragOver(
-    cardsList.getRowAtIndex(sourceIndicies[0]),
+    cardsList.getRowAtIndex(sourceIndices[0]),
     toAddrInput,
     null,
     null,

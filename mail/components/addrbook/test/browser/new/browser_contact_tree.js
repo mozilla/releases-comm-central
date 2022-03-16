@@ -267,7 +267,7 @@ add_task(async function test_name_column() {
     "zulu, bravo"
   );
   Assert.equal(cardsList.selectedIndex, 0);
-  Assert.deepEqual(cardsList.selectedIndicies, [0]);
+  Assert.deepEqual(cardsList.selectedIndices, [0]);
 
   // Change the format to first last.
   await showSortMenu("format", GENERATE_FIRST_LAST_ORDER);
@@ -574,7 +574,7 @@ add_task(async function test_context_menu_compose() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  cardsList.selectedIndicies = [0, 3];
+  cardsList.selectedIndices = [0, 3];
   await rightClickOnIndex(3);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
@@ -590,7 +590,7 @@ add_task(async function test_context_menu_compose() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  cardsList.selectedIndicies = [1, 2];
+  cardsList.selectedIndices = [1, 2];
   await rightClickOnIndex(2);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
@@ -607,7 +607,7 @@ add_task(async function test_context_menu_compose() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  cardsList.selectedIndicies = [1, 4];
+  cardsList.selectedIndices = [1, 4];
   await rightClickOnIndex(4);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
@@ -686,7 +686,7 @@ add_task(async function test_context_menu_delete() {
   await checkDeleteItems(0, false, true, false); // normal contact
   await checkDeleteItems(1, false, true, false); // normal list
 
-  cardsList.selectedIndicies = [0, 1];
+  cardsList.selectedIndices = [0, 1];
   await checkDeleteItems(0, false, true, false); // normal contact + normal list
   await checkDeleteItems(1, false, true, false); // normal contact + normal list
 
@@ -710,16 +710,16 @@ add_task(async function test_context_menu_delete() {
   await checkDeleteItems(2, false, true, true); // read-only contact
   await checkDeleteItems(3, false, true, true); // read-only list
 
-  cardsList.selectedIndicies = [0, 1];
+  cardsList.selectedIndices = [0, 1];
   await checkDeleteItems(1, false, true, false); // normal contact + normal list
 
-  cardsList.selectedIndicies = [0, 2];
+  cardsList.selectedIndices = [0, 2];
   await checkDeleteItems(2, false, true, true); // normal contact + read-only contact
 
-  cardsList.selectedIndicies = [1, 3];
+  cardsList.selectedIndices = [1, 3];
   await checkDeleteItems(3, false, true, true); // normal list + read-only list
 
-  cardsList.selectedIndicies = [0, 1, 2, 3];
+  cardsList.selectedIndices = [0, 1, 2, 3];
   await checkDeleteItems(3, false, true, true); // everything
 
   await closeAddressBookWindow();

@@ -68,7 +68,7 @@ class TestView {
 window.addEventListener("load", () => {
   let list = document.getElementById("testList");
   list.addEventListener("select", event => {
-    console.log("select event, selected indicies:", list.selectedIndicies);
+    console.log("select event, selected indices:", list.selectedIndices);
   });
   list.view = new TestView(0, 50);
 });

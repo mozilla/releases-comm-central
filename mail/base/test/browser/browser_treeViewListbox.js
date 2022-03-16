@@ -74,7 +74,7 @@ async function testKeyboardAndMouse() {
     handleEvent(event) {
       this.seenEvent = event;
       this.currentAtEvent = list.currentIndex;
-      this.selectedAtEvent = list.selectedIndicies;
+      this.selectedAtEvent = list.selectedIndices;
     },
   };
 
@@ -101,28 +101,28 @@ async function testKeyboardAndMouse() {
     }
   }
 
-  function checkSelected(...expectedIndicies) {
+  function checkSelected(...expectedIndices) {
     Assert.deepEqual(
-      list.selectedIndicies,
-      expectedIndicies,
-      "selectedIndicies are correct"
+      list.selectedIndices,
+      expectedIndices,
+      "selectedIndices are correct"
     );
     if (selectHandler.selectedAtEvent !== null) {
       // Check the value was already set when the select event fired.
       Assert.deepEqual(
         selectHandler.selectedAtEvent,
-        expectedIndicies,
-        "selectedIndicies were correct at the last 'select' event"
+        expectedIndices,
+        "selectedIndices were correct at the last 'select' event"
       );
     }
 
     let selected = [...list.querySelectorAll(".selected")].map(
       row => row.index
     );
-    expectedIndicies.sort((a, b) => a - b);
+    expectedIndices.sort((a, b) => a - b);
     Assert.deepEqual(
       selected,
-      expectedIndicies,
+      expectedIndices,
       "correct rows have the 'selected' class"
     );
   }
@@ -323,11 +323,7 @@ async function testKeyboardAndMouse() {
     !list.querySelector(".current"),
     "no visible rows have the 'current' class"
   );
-  Assert.deepEqual(
-    list.selectedIndicies,
-    [0],
-    "selectedIndicies are still set"
-  );
+  Assert.deepEqual(list.selectedIndices, [0], "selectedIndices are still set");
   Assert.ok(
     !list.querySelector(".selected"),
     "no visible rows have the 'selected' class"
@@ -422,14 +418,14 @@ async function testRowCountChange() {
   // Check the initial state.
 
   function checkRows(first, last) {
-    let expectedIndicies = [];
+    let expectedIndices = [];
     for (let i = first; i <= last; i++) {
-      expectedIndicies.push(i);
+      expectedIndices.push(i);
     }
     rows = list.querySelectorAll("test-listrow");
     Assert.deepEqual(
       Array.from(rows, r => r.index),
-      expectedIndicies,
+      expectedIndices,
       "the list has the right rows"
     );
     Assert.deepEqual(
@@ -439,12 +435,12 @@ async function testRowCountChange() {
     );
   }
 
-  function checkSelected(indicies, existingIndicies) {
-    Assert.deepEqual(list.selectedIndicies, indicies);
+  function checkSelected(indices, existingIndices) {
+    Assert.deepEqual(list.selectedIndices, indices);
     let selectedRows = list.querySelectorAll("test-listrow.selected");
     Assert.deepEqual(
       Array.from(selectedRows, r => r.index),
-      existingIndicies
+      existingIndices
     );
   }
 
@@ -452,7 +448,7 @@ async function testRowCountChange() {
 
   // Select every tenth row. We'll check what is selected remains selected.
 
-  list.selectedIndicies = [4, 14, 24, 34, 44];
+  list.selectedIndices = [4, 14, 24, 34, 44];
 
   function addValues(index, values) {
     view.values.splice(index, 0, ...values);
@@ -802,7 +798,7 @@ async function testRowCountChange() {
 
   // Remove some consecutive selected rows.
 
-  list.selectedIndicies = [6, 7, 8, 9];
+  list.selectedIndices = [6, 7, 8, 9];
   checkSelected([6, 7, 8, 9], [6, 7, 8, 9]);
 
   removeValues(7, 1, [7]);

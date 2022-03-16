@@ -888,7 +888,7 @@
     _lastRowIndex = 0;
 
     /**
-     * Row indicies mapped to the row elements that exist in the DOM.
+     * Row indices mapped to the row elements that exist in the DOM.
      *
      * @type {Map(integer -> Element)}
      */
@@ -1481,12 +1481,12 @@
     }
 
     /**
-     * An array of the indicies of all selected rows.
+     * An array of the indices of all selected rows.
      *
      * @type {integer[]}
      */
-    get selectedIndicies() {
-      let indicies = [];
+    get selectedIndices() {
+      let indices = [];
       let rangeCount = this._selection.getRangeCount();
 
       for (let range = 0; range < rangeCount; range++) {
@@ -1499,16 +1499,16 @@
         }
 
         for (let index = min.value; index <= max.value; index++) {
-          indicies.push(index);
+          indices.push(index);
         }
       }
 
-      return indicies;
+      return indices;
     }
 
-    set selectedIndicies(indicies) {
+    set selectedIndices(indices) {
       this._selection.clearSelection();
-      for (let index of indicies) {
+      for (let index of indices) {
         this._selection.toggleSelect(index);
       }
       this.dispatchEvent(new CustomEvent("select"));
