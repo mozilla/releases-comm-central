@@ -9,13 +9,13 @@
 <html id="newMailAlertNotification" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
-      role="alert"
       windowtype="alert:alert"
       scrolling="false">
 <head>
   <script defer="defer" src="chrome://messenger/content/newmailalert.js"></script>
 </head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+           role="alert">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
   <hbox id="alertContainer" align="start">
