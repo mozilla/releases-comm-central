@@ -19,33 +19,16 @@ interface nsIUrlListener;
 interface nsIMsgFolderCompactor :  nsISupports
 {
   /**
-   * Compact the given folder, or its offline store (imap/news only)
+   * Compact the passed in array of folders.
    *
-   * @param aFolder        The folder to compact
-   * @param aOfflineStore  Just compact the offline store?
-   * @param aListener      Notified of completion, can be null.
-   *                       OnStartRunningUrl() will not be called.
-   *                       OnStopRunningUrl() will be called upon completion,
-   *                       with a null URL.
-   * @param aMsgWindow     Used for progress/status, can be null
-   */
-  void compact(in nsIMsgFolder aFolder, in boolean aOfflineStore,
-               in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
-
-  /**
-   * Compact the passed in array of folders, and the passed in offline stores.
-   *
-   * @param aArrayOfFoldersToCompact  The folders to compact.
-   * @param aOfflineFolderArray  Folders whose offline stores we
-   *                             should compact, can be empty.
-   * @param aListener            Notified of completion, can be null.
+   * @param folders              The folders to compact.
+   * @param listener             Notified of completion, can be null.
    *                             OnStartRunningUrl() will not be called.
    *                             OnStopRunningUrl() will be called upon
    *                             completion, with a null URL.
-   * @param aMsgWindow           Used for progress/status, can be null
+   * @param window               Used for progress/status, can be null.
    */
-  void compactFolders(in Array<nsIMsgFolder> aArrayOfFoldersToCompact,
-                      in Array<nsIMsgFolder> aOfflineFolderArray,
-                      in nsIUrlListener aListener,
-                      in nsIMsgWindow aMsgWindow);
+  void compactFolders(in Array<nsIMsgFolder> folders,
+                      in nsIUrlListener listener,
+                      in nsIMsgWindow window);
 };

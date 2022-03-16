@@ -27,6 +27,7 @@
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgMessageFlags.h"
+#include "nsMsgFolderFlags.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -35,23 +36,152 @@
 #include "nsIInputStream.h"
 #include "nsPrintfCString.h"
 
+static nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
+  NS_ENSURE_ARG_POINTER(aBundle);
+  nsCOMPtr<nsIStringBundleService> bundleService =
+      mozilla::services::GetStringBundleService();
+  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+  nsCOMPtr<nsIStringBundle> bundle;
+  return bundleService->CreateBundle(
+      "chrome://messenger/locale/messenger.properties", aBundle);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// nsMsgFolderCompactor
+//////////////////////////////////////////////////////////////////////////////
+
+NS_IMPL_ISUPPORTS(nsMsgFolderCompactor, nsIMsgFolderCompactor, nsIUrlListener)
+
+nsMsgFolderCompactor::nsMsgFolderCompactor() {}
+
+nsMsgFolderCompactor::~nsMsgFolderCompactor() {}
+
+NS_IMETHODIMP nsMsgFolderCompactor::CompactFolders(
+    const nsTArray<RefPtr<nsIMsgFolder>>& folders, nsIUrlListener* listener,
+    nsIMsgWindow* window) {
+  MOZ_ASSERT(mQueue.IsEmpty());
+  mWindow = window;
+  mListener = listener;
+  mTotalBytesGained = 0;
+  mQueue = folders.Clone();
+  mQueue.Reverse();
+
+  // Can't guarantee that anyone will keep us in scope until we're done, so...
+  MOZ_ASSERT(!mKungFuDeathGrip);
+  mKungFuDeathGrip = this;
+
+  // nsIMsgFolderCompactor idl states this isn't called...
+  // but maybe it should be?
+  //  if (mListener) {
+  //    mListener->OnStartRunningUrl(nullptr);
+  //  }
+
+  NextFolder();
+
+  return NS_OK;
+}
+
+void nsMsgFolderCompactor::NextFolder() {
+  while (!mQueue.IsEmpty()) {
+    // Should only ever have one compactor running.
+    MOZ_ASSERT(mCompactor == nullptr);
+    nsCOMPtr<nsIMsgFolder> folder = mQueue.PopLastElement();
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(folder));
+    if (imapFolder) {
+      uint32_t flags;
+      folder->GetFlags(&flags);
+      if (flags & nsMsgFolderFlags::Offline) {
+        mCompactor = new nsOfflineStoreCompactState();
+      }
+    } else {
+      mCompactor = new nsFolderCompactState();
+    }
+    if (!mCompactor) {
+      NS_WARNING("skipping compact of non-offline folder");
+      continue;
+    }
+    nsCString uri;
+    folder->GetURI(uri);
+    nsresult rv = mCompactor->Compact(folder, this, mWindow);
+    if (NS_SUCCEEDED(rv)) {
+      // Now wait for the compactor to let us know it's finished,
+      // via OnStopRunningUrl().
+      return;
+    }
+    mOverallStatus = rv;
+    mCompactor = nullptr;
+    NS_WARNING("folder compact failed - skipping folder");
+  }
+
+  // Done. No more folders to compact.
+
+  if (mListener) {
+    // If there were multiple failures, this will communicate only the
+    // last one, but that's OK. Main thing is to indicate that _something_
+    // went wrong.
+    mListener->OnStopRunningUrl(nullptr, mOverallStatus);
+  }
+  ShowDoneStatus();
+
+  // We're not needed any more.
+  mKungFuDeathGrip = nullptr;
+  return;
+}
+
+NS_IMETHODIMP nsMsgFolderCompactor::OnStartRunningUrl(nsIURI* url) {
+  return NS_OK;
+}
+
+// Called by compactor when folder has finished compacting.
+NS_IMETHODIMP nsMsgFolderCompactor::OnStopRunningUrl(nsIURI* url,
+                                                     nsresult status) {
+  if (NS_FAILED(status)) {
+    // Make sure we return a failing code upon overall completion, for
+    // now try to keep going.
+    mOverallStatus = status;
+    NS_WARNING("folder compact failed.");
+  }
+  // Release our lock on the compactor - it's done.
+  mTotalBytesGained += mCompactor->ExpungedBytes();
+  mCompactor = nullptr;
+
+  NextFolder();
+  return NS_OK;
+}
+
+void nsMsgFolderCompactor::ShowDoneStatus() {
+  if (!mWindow) {
+    return;
+  }
+  nsCOMPtr<nsIStringBundle> bundle;
+  nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
+  NS_ENSURE_SUCCESS_VOID(rv);
+  nsAutoString expungedAmount;
+  FormatFileSize(mTotalBytesGained, true, expungedAmount);
+  AutoTArray<nsString, 1> params = {expungedAmount};
+  nsString msg;
+  rv = bundle->FormatStringFromName("compactingDone", params, msg);
+  NS_ENSURE_SUCCESS_VOID(rv);
+
+  nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
+  mWindow->GetStatusFeedback(getter_AddRefs(statusFeedback));
+  if (statusFeedback) {
+    statusFeedback->SetStatusString(msg);
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // nsFolderCompactState
 //////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIMsgFolderCompactor,
-                  nsIRequestObserver, nsIStreamListener,
+NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIRequestObserver, nsIStreamListener,
                   nsICopyMessageStreamListener, nsIUrlListener)
 
 nsFolderCompactState::nsFolderCompactState() {
   m_fileStream = nullptr;
   m_curIndex = 0;
   m_status = NS_OK;
-  m_compactAll = false;
-  m_compactOfflineAlso = false;
-  m_compactingOfflineFolders = false;
   m_parsingFolder = false;
-  m_folderIndex = 0;
   m_startOfMsg = true;
   m_needStatusLine = false;
   m_totalExpungedBytes = 0;
@@ -68,16 +198,6 @@ nsFolderCompactState::~nsFolderCompactState() {
     CleanupTempFilesAfterError();
     // if for some reason we failed remove the temp folder and database
   }
-}
-
-nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
-  NS_ENSURE_ARG_POINTER(aBundle);
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-  nsCOMPtr<nsIStringBundle> bundle;
-  return bundleService->CreateBundle(
-      "chrome://messenger/locale/messenger.properties", aBundle);
 }
 
 void nsFolderCompactState::CloseOutputStream() {
@@ -124,48 +244,11 @@ nsresult nsFolderCompactState::InitDB(nsIMsgDatabase* db) {
   return rv;
 }
 
-NS_IMETHODIMP nsFolderCompactState::CompactFolders(
-    const nsTArray<RefPtr<nsIMsgFolder>>& aArrayOfFoldersToCompact,
-    const nsTArray<RefPtr<nsIMsgFolder>>& aOfflineFolderArray,
-    nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow) {
-  m_window = aMsgWindow;
-  m_listener = aUrlListener;
-  if (!aArrayOfFoldersToCompact.IsEmpty()) {
-    m_folderArray = aArrayOfFoldersToCompact.Clone();
-    if (!aOfflineFolderArray.IsEmpty()) {
-      // Also compacting offline folders.
-      m_compactOfflineAlso = true;
-      m_offlineFolderArray = aOfflineFolderArray.Clone();
-    }
-  } else if (!aOfflineFolderArray.IsEmpty()) {
-    // Only compacting offline folders.
-    m_folderArray = aOfflineFolderArray.Clone();
-    m_compactingOfflineFolders = true;
-  } else {
-    // Nothing to compact.
-    return NS_OK;
-  }
-
-  m_compactAll = true;
-
-  m_folderIndex = 0;
-  nsCOMPtr<nsIMsgFolder> firstFolder(m_folderArray[m_folderIndex]);
-  // Make a start on the first folder.
-  return Compact(firstFolder, m_compactingOfflineFolders, aUrlListener,
-                 aMsgWindow);
-}
-
-NS_IMETHODIMP
-nsFolderCompactState::Compact(nsIMsgFolder* folder, bool aOfflineStore,
-                              nsIUrlListener* aListener,
-                              nsIMsgWindow* aMsgWindow) {
+nsresult nsFolderCompactState::Compact(nsIMsgFolder* folder,
+                                       nsIUrlListener* aListener,
+                                       nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(folder);
   m_listener = aListener;
-  if (!m_compactingOfflineFolders && !aOfflineStore) {
-    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
-    if (imapFolder) return imapFolder->Expunge(this, aMsgWindow);
-  }
-
   m_window = aMsgWindow;
   nsresult rv;
   nsCOMPtr<nsIMsgDatabase> db;
@@ -189,10 +272,10 @@ nsFolderCompactState::Compact(nsIMsgFolder* folder, bool aOfflineStore,
       if (!valid)  // we are probably parsing the folder because we selected it.
       {
         folder->NotifyCompactCompleted();
-        if (m_compactAll)
-          return CompactNextFolder();
-        else
-          return NS_OK;
+        if (m_listener) {
+          m_listener->OnStopRunningUrl(nullptr, NS_OK);
+        }
+        return NS_OK;
       }
     }
   } else {
@@ -274,19 +357,20 @@ nsFolderCompactState::Compact(nsIMsgFolder* folder, bool aOfflineStore,
     }
 
     // If we got here start the real compacting.
-    nsCOMPtr<nsISupports> supports =
-        do_QueryInterface(static_cast<nsIMsgFolderCompactor*>(this));
+    nsCOMPtr<nsISupports> supports;
+    QueryInterface(NS_GET_IID(nsISupports), getter_AddRefs(supports));
     m_folder->AcquireSemaphore(supports);
     m_totalExpungedBytes += expunged;
     return StartCompacting();
 
   } while (false);  // block for easy skipping the compaction using 'break'
 
+  // Skipped folder, for whatever reason.
   folder->NotifyCompactCompleted();
-  if (m_compactAll)
-    return CompactNextFolder();
-  else
-    return NS_OK;
+  if (m_listener) {
+    m_listener->OnStopRunningUrl(nullptr, NS_OK);
+  }
+  return NS_OK;
 }
 
 nsresult nsFolderCompactState::ShowStatusMsg(const nsString& aMsg) {
@@ -367,24 +451,30 @@ NS_IMETHODIMP nsFolderCompactState::OnStartRunningUrl(nsIURI* url) {
   return NS_OK;
 }
 
+// If we had to kick off a folder parse, this will be called when it
+// completes.
 NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI* url,
                                                      nsresult status) {
   if (m_parsingFolder) {
     m_parsingFolder = false;
     if (NS_SUCCEEDED(status)) {
-      status =
-          Compact(m_folder, m_compactingOfflineFolders, m_listener, m_window);
-    } else if (m_compactAll) {
-      CompactNextFolder();
+      // Folder reparse succeeded. Start compacting it.
+      status = Compact(m_folder, m_listener, m_window);
+      if (NS_SUCCEEDED(status)) {
+        return NS_OK;
+      }
     }
-  } else if (m_compactAll) {
-    // this should be the imap case only
-    if (m_folderIndex < m_folderArray.Length()) {
-      m_folderArray[m_folderIndex]->SetMsgDatabase(nullptr);
-    }
-    CompactNextFolder();
-  } else if (m_listener) {
-    CompactCompleted(status);
+  }
+
+  // This is from bug 249754. The aim is to close the DB file to avoid
+  // running out of filehandles when large numbers of folders are compacted.
+  // But it seems like filehandle management would be better off being
+  // handled by the DB class itself (it might be already, but it's hard to
+  // tell)...
+  m_folder->SetMsgDatabase(nullptr);
+
+  if (m_listener) {
+    m_listener->OnStopRunningUrl(nullptr, status);
   }
   return NS_OK;
 }
@@ -573,67 +663,25 @@ nsresult nsFolderCompactState::FinishCompact() {
   if (notifier) {
     notifier->NotifyFolderCompactFinish(m_folder);
   }
+
   m_folder->NotifyCompactCompleted();
+  if (m_listener) {
+    m_listener->OnStopRunningUrl(nullptr, rv);
+  }
 
-  if (m_compactAll)
-    rv = CompactNextFolder();
-  else
-    CompactCompleted(rv);
-
-  return rv;
-}
-
-void nsFolderCompactState::CompactCompleted(nsresult exitCode) {
-  NS_WARNING_ASSERTION(NS_SUCCEEDED(exitCode),
-                       "nsFolderCompactState::CompactCompleted failed");
-  if (m_listener) m_listener->OnStopRunningUrl(nullptr, exitCode);
-  ShowDoneStatus();
+  return NS_OK;
 }
 
 nsresult nsFolderCompactState::ReleaseFolderLock() {
   nsresult result = NS_OK;
   if (!m_folder) return result;
   bool haveSemaphore;
-  nsCOMPtr<nsISupports> supports =
-      do_QueryInterface(static_cast<nsIMsgFolderCompactor*>(this));
+  nsCOMPtr<nsISupports> supports;
+  QueryInterface(NS_GET_IID(nsISupports), getter_AddRefs(supports));
   result = m_folder->TestSemaphore(supports, &haveSemaphore);
   if (NS_SUCCEEDED(result) && haveSemaphore)
     result = m_folder->ReleaseSemaphore(supports);
   return result;
-}
-
-void nsFolderCompactState::ShowDoneStatus() {
-  if (m_folder) {
-    nsString statusString;
-    nsCOMPtr<nsIStringBundle> bundle;
-    nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
-    NS_ENSURE_SUCCESS_VOID(rv);
-    nsAutoString expungedAmount;
-    FormatFileSize(m_totalExpungedBytes, true, expungedAmount);
-    AutoTArray<nsString, 1> params = {expungedAmount};
-    rv = bundle->FormatStringFromName("compactingDone", params, statusString);
-
-    if (!statusString.IsEmpty() && NS_SUCCEEDED(rv))
-      ShowStatusMsg(statusString);
-  }
-}
-
-nsresult nsFolderCompactState::CompactNextFolder() {
-  m_folderIndex++;
-  // m_folderIndex might be > m_folderArray len if we compact offline stores,
-  // and get back here from OnStopRunningUrl.
-  if (m_folderIndex >= m_folderArray.Length()) {
-    if (!m_compactOfflineAlso || m_compactingOfflineFolders) {
-      CompactCompleted(NS_OK);
-      return NS_OK;
-    }
-    m_compactingOfflineFolders = true;
-    nsCOMPtr<nsIMsgFolder> folder(m_folderArray[m_folderIndex - 1]);
-    return folder->CompactAllOfflineStores(this, m_window,
-                                           m_offlineFolderArray);
-  }
-  nsCOMPtr<nsIMsgFolder> folder(m_folderArray[m_folderIndex]);
-  return Compact(folder, m_compactingOfflineFolders, m_listener, m_window);
 }
 
 nsresult nsFolderCompactState::GetMessage(nsIMsgDBHdr** message) {
@@ -1078,7 +1126,9 @@ nsresult nsOfflineStoreCompactState::FinishCompact() {
 
   ShowStatusMsg(EmptyString());
   m_folder->NotifyCompactCompleted();
-  if (m_compactAll) rv = CompactNextFolder();
+  if (m_listener) {
+    m_listener->OnStopRunningUrl(nullptr, NS_OK);
+  }
   return rv;
 }
 

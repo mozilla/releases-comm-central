@@ -263,23 +263,14 @@
     }                                                \
   }
 
-#define NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID \
-  "@mozilla.org/messenger/localfoldercompactor;1"
+// nsMsgFolderCompactor
+#define NS_MSGFOLDERCOMPACTOR_CONTRACTID \
+  "@mozilla.org/messenger/foldercompactor;1"
 
-#define NS_MSGLOCALFOLDERCOMPACTOR_CID               \
+#define NS_MSGFOLDERCOMPACTOR_CID                    \
   {                                                  \
-    0x7d1d315c, 0xe5c6, 0x11d4, {                    \
-      0xa5, 0xb7, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7 \
-    }                                                \
-  }
-
-#define NS_MSGOFFLINESTORECOMPACTOR_CONTRACTID \
-  "@mozilla.org/messenger/offlinestorecompactor;1"
-
-#define NS_MSG_OFFLINESTORECOMPACTOR_CID             \
-  {                                                  \
-    0x2db43d16, 0xe5c8, 0x11d4, {                    \
-      0xa5, 0xb7, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7 \
+    0x56c4c2ac, 0xfe4a, 0x4528, {                    \
+      0xaa, 0x78, 0xf8, 0xfb, 0x57, 0x9b, 0x02, 0x9c \
     }                                                \
   }
 

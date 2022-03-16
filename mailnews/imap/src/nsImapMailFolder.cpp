@@ -1257,9 +1257,9 @@ NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
     m_compactingOfflineStore = true;
     nsresult rv;
     nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-        do_CreateInstance(NS_MSGOFFLINESTORECOMPACTOR_CONTRACTID, &rv);
+        do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    folderCompactor->Compact(this, true, aListener, aMsgWindow);
+    folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
   }
   if (WeAreOffline()) return NS_OK;
   m_expunging = true;
@@ -1322,10 +1322,9 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
     if (folderArray.IsEmpty()) return NotifyCompactCompleted();
   }
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);
+      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->CompactFolders(folderArray, folderArray, aListener,
-                                         aMsgWindow);
+  return folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener,

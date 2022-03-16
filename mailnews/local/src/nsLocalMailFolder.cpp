@@ -510,10 +510,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
     if (folderArray.IsEmpty()) return NotifyCompactCompleted();
   }
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->CompactFolders(folderArray, {}, aListener,
-                                         aMsgWindow);
+      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+  return folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,

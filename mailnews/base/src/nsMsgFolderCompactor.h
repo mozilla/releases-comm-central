@@ -16,10 +16,51 @@
 #include "nsIStringBundle.h"
 #include "nsIMsgMessageService.h"
 
+class nsFolderCompactState;
+
+/**
+ * nsMsgFolderCompactor implements nsIMsgFolderCompactor, which allows the
+ * caller to kick off a batch of folder compactions (via compactFolders()).
+ */
+class nsMsgFolderCompactor : public nsIMsgFolderCompactor,
+                             public nsIUrlListener {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIURLLISTENER
+  NS_DECL_NSIMSGFOLDERCOMPACTOR
+
+  nsMsgFolderCompactor();
+
+ protected:
+  virtual ~nsMsgFolderCompactor();
+
+  nsTArray<RefPtr<nsIMsgFolder>> mQueue;
+
+  // If any individual folders fail to compact, we stash the latest fail code
+  // here (to return via listener, upon overall completion).
+  nsresult mOverallStatus{NS_OK};
+
+  // If set, OnStopRunningUrl() will be called when all folders done.
+  nsCOMPtr<nsIUrlListener> mListener;
+  // If set, progress status updates will be sent here.
+  nsCOMPtr<nsIMsgWindow> mWindow;
+  RefPtr<nsMsgFolderCompactor> mKungFuDeathGrip;
+  uint64_t mTotalBytesGained{0};
+
+  // The currently-running compactor.
+  RefPtr<nsFolderCompactState> mCompactor;
+
+  void NextFolder();
+  void ShowDoneStatus();
+};
+
 #define COMPACTOR_READ_BUFF_SIZE 16384
 
-class nsFolderCompactState : public nsIMsgFolderCompactor,
-                             public nsIStreamListener,
+/**
+ * nsFolderCompactState is a helper class for nsFolderCompactor, which
+ * handles compacting the mbox for a single local folder.
+ */
+class nsFolderCompactState : public nsIStreamListener,
                              public nsICopyMessageStreamListener,
                              public nsIUrlListener {
  public:
@@ -28,9 +69,13 @@ class nsFolderCompactState : public nsIMsgFolderCompactor,
   NS_DECL_NSISTREAMLISTENER
   NS_DECL_NSICOPYMESSAGESTREAMLISTENER
   NS_DECL_NSIURLLISTENER
-  NS_DECL_NSIMSGFOLDERCOMPACTOR
 
   nsFolderCompactState(void);
+
+  nsresult Compact(nsIMsgFolder* folder, nsIUrlListener* aListener,
+                   nsIMsgWindow* aMsgWindow);
+  // Upon completion, access the number of bytes expunged.
+  uint64_t ExpungedBytes() const { return m_totalExpungedBytes; }
 
  protected:
   virtual ~nsFolderCompactState(void);
@@ -48,9 +93,6 @@ class nsFolderCompactState : public nsIMsgFolderCompactor,
   nsresult ShowStatusMsg(const nsString& aMsg);
   nsresult ReleaseFolderLock();
   void ShowCompactingStatusMsg();
-  void CompactCompleted(nsresult exitCode);
-  void ShowDoneStatus();
-  nsresult CompactNextFolder();
 
   nsCString m_baseMessageUri;       // base message uri
   nsCString m_messageUri;           // current message uri being copy
@@ -73,26 +115,22 @@ class nsFolderCompactState : public nsIMsgFolderCompactor,
   nsresult m_status;  // the status of the copying operation
   nsCOMPtr<nsIMsgMessageService> m_messageService;  // message service for
                                                     // copying
-  nsTArray<RefPtr<nsIMsgFolder>> m_folderArray;  // folders we are compacting,
-                                                 // if compacting multiple.
   nsCOMPtr<nsIMsgWindow> m_window;
   nsCOMPtr<nsIMsgDBHdr> m_curSrcHdr;
-  uint32_t m_folderIndex;           // tells which folder to compact in case of
-                                    // compact all
-  bool m_compactAll;                // flag for compact all
-  bool m_compactOfflineAlso;        // whether to compact offline also
-  bool m_compactingOfflineFolders;  // are we in offline folder compact phase
-  bool m_parsingFolder;             // flag for parsing local folders;
+  bool m_parsingFolder;  // flag for parsing local folders;
   // these members are used to add missing status lines to compacted messages.
   bool m_needStatusLine;
   bool m_startOfMsg;
   int32_t m_statusOffset;
   uint32_t m_addedHeaderSize;
-  nsTArray<RefPtr<nsIMsgFolder>> m_offlineFolderArray;
   nsCOMPtr<nsIUrlListener> m_listener;
   bool m_alreadyWarnedDiskSpace;
 };
 
+/**
+ * nsOfflineStoreCompactState is a helper class for nsFolderCompactor which
+ * handles compacting the mbox for a single offline IMAP folder.
+ */
 class nsOfflineStoreCompactState : public nsFolderCompactState {
  public:
   nsOfflineStoreCompactState(void);

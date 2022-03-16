@@ -757,14 +757,14 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CompactFolder(nsIMsgFolder* aFolder,
   NS_ENSURE_ARG_POINTER(aFolder);
   nsresult rv;
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);
+      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   int64_t expungedBytes = 0;
   aFolder->GetExpungedBytes(&expungedBytes);
   // check if we need to compact the folder
   return (expungedBytes > 0)
-             ? folderCompactor->Compact(aFolder, false, aListener, aMsgWindow)
+             ? folderCompactor->CompactFolders({aFolder}, aListener, aMsgWindow)
              : aFolder->NotifyCompactCompleted();
 }
 

@@ -94,20 +94,18 @@ function generate_messages() {
 }
 
 async function compact_with_exception(expectedException) {
-  let compactor = Cc[
-    "@mozilla.org/messenger/localfoldercompactor;1"
-  ].createInstance(Ci.nsIMsgFolderCompactor);
-  let listener = new PromiseTestUtils.PromiseUrlListener({
-    OnStopRunningUrl: (url, exitCode) => {
-      do_throw("This listener should not be called back.");
-    },
-  });
+  let compactor = Cc["@mozilla.org/messenger/foldercompactor;1"].createInstance(
+    Ci.nsIMsgFolderCompactor
+  );
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  compactor.compactFolders([gTargetFolder], listener, null);
   try {
-    compactor.compact(gTargetFolder, false, listener, null);
     await listener.promise;
-    do_throw("nsIMsgFolderCompactor.compact did not fail.");
-  } catch (ex) {
-    Assert.equal(expectedException, ex.result);
+    do_throw(
+      "nsIMsgFolderCompactor listener wasn't called with a failure code."
+    );
+  } catch (failureCode) {
+    Assert.equal(expectedException, failureCode);
   }
 }
 
