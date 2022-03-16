@@ -419,12 +419,14 @@ var calImipBar = {
      */
     function _execAction(aActionFunc, aItipItem, aWindow, aPartStat, aExtResponse) {
       let method = aActionFunc.method;
-      if (
-        cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow) &&
-        ((method == "REQUEST" &&
-          cal.itip.promptInvitedAttendee(window, aItipItem, Ci.calIItipItem[aResponse])) ||
-          method == "PUBLISH")
-      ) {
+      if (cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
+        if (
+          method == "REQUEST" &&
+          !cal.itip.promptInvitedAttendee(window, aItipItem, Ci.calIItipItem[aResponse])
+        ) {
+          return false;
+        }
+
         let isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
         // filter out fake partstats
         if (aPartStat.startsWith("X-")) {
