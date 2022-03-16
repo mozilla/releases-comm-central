@@ -418,6 +418,8 @@ class Pop3Client {
   _actionCapa = () => {
     this._nextAction = this._actionCapaResponse;
     this._capabilities = [];
+    this._newMessageDownloaded = 0;
+    this._newMessageTotal = 0;
     this._send("CAPA");
   };
 
@@ -485,6 +487,7 @@ class Pop3Client {
     }
 
     if (this._nextAuthMethod) {
+      this._updateStatus("hostContact");
       this._actionAuth();
       return;
     }
@@ -928,6 +931,7 @@ class Pop3Client {
             this._newUidlMap.set(uidl, uidlState);
           }
         } else {
+          this._newMessageTotal++;
           // Fetch the full message or only headers depending on server settings
           // and message size.
           let status =
@@ -1041,6 +1045,10 @@ class Pop3Client {
     this._nextAction = this._actionTopResponse;
     let lineNumber = this._server.headersOnly ? 0 : 20;
     this._send(`TOP ${this._currentMessage.messageNumber} ${lineNumber}`);
+    this._updateStatus("receivingMessages", [
+      ++this._newMessageDownloaded,
+      this._newMessageTotal,
+    ]);
   };
 
   /**
@@ -1099,6 +1107,10 @@ class Pop3Client {
   _actionRetr = () => {
     this._nextAction = this._actionRetrResponse;
     this._send(`RETR ${this._currentMessage.messageNumber}`);
+    this._updateStatus("receivingMessages", [
+      ++this._newMessageDownloaded,
+      this._newMessageTotal,
+    ]);
   };
 
   /**
@@ -1213,7 +1225,16 @@ class Pop3Client {
 
   _actionDone = (status = Cr.NS_OK) => {
     this._authenticating = false;
-    if (status != Cr.NS_OK) {
+    if (status == Cr.NS_OK) {
+      if (this._newMessageTotal) {
+        this._updateStatus("receivedMsgs", [
+          this._newMessageTotal,
+          this._newMessageTotal,
+        ]);
+      } else {
+        this._updateStatus("noNewMessages");
+      }
+    } else {
       this._sink.abortMailDelivery(this);
       if (this._currentMessage) {
         // Put _currentMessage back to the queue to prevent loss of popstate.
@@ -1224,6 +1245,34 @@ class Pop3Client {
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     this.quit();
   };
+
+  /**
+   * Show a status message in the status bar.
+   * @param {string} statusName - A string name in localMsgs.properties.
+   * @param {string[]} [params] - Params to format the string.
+   */
+  _updateStatus(statusName, params) {
+    if (!this._msgWindow?.statusFeedback) {
+      return;
+    }
+    if (!this._localBundle) {
+      this._localBundle = Services.strings.createBundle(
+        "chrome://messenger/locale/localMsgs.properties"
+      );
+      this._messengerBundle = Services.strings.createBundle(
+        "chrome://messenger/locale/messenger.properties"
+      );
+    }
+    let status = params
+      ? this._localBundle.formatStringFromName(statusName, params)
+      : this._localBundle.GetStringFromName(statusName);
+    this._msgWindow.statusFeedback.showStatusString(
+      this._messengerBundle.formatStringFromName("statusMessage", [
+        this._server.prettyName,
+        status,
+      ])
+    );
+  }
 
   /** @see nsIPop3Protocol */
   checkMessage(uidl) {
