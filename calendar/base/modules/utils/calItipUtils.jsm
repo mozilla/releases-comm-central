@@ -700,7 +700,7 @@ var calitip = {
   promptInvitedAttendee(window, itipItem, responseMode) {
     let cancelled = false;
     for (let item of itipItem.getItemList()) {
-      let att = calitip.getInvitedAttendee(item, null, true);
+      let att = calitip.getInvitedAttendee(item, itipItem.targetCalendar);
       if (!att) {
         window.openDialog(
           "chrome://calendar/content/calendar-itip-identity-dialog.xhtml",
