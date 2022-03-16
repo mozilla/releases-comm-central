@@ -21,7 +21,7 @@ function reallyHandleRequest(request, response) {
 
   var expected_user = "", expected_pass = "", realm = "mochitest";
   var proxy_expected_user = "", proxy_expected_pass = "", proxy_realm = "mochi-proxy";
-  var huge = false, plugin = false, anonymous = false;
+  var huge = false, anonymous = false;
   var authHeaderCount = 1;
   // user=xxx
   match = /[^_]user=([^&]*)/.exec(query);
@@ -57,11 +57,6 @@ function reallyHandleRequest(request, response) {
   match = /huge=1/.exec(query);
   if (match)
     huge = true;
-
-  // plugin=1
-  match = /plugin=1/.exec(query);
-  if (match)
-    plugin = true;
 
   // multiple=1
   match = /multiple=([^&]*)/.exec(query);
@@ -157,11 +152,6 @@ function reallyHandleRequest(request, response) {
     }
     response.write("</div>");
     response.write("<span id='footnote'>This is a footnote after the huge content fill</span>");
-  }
-
-  if (plugin) {
-    response.write("<embed id='embedtest' style='width: 400px; height: 100px;' " + 
-           "type='application/x-test'></embed>\n");
   }
 
   response.write("</html>");

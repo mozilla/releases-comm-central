@@ -12,22 +12,6 @@ function findChromeWindowByURI(aURI) {
   return null;
 }
 
-function getTestPlugin(aName) {
-  var pluginName = aName || "Test Plug-in";
-  var ph = Cc["@mozilla.org/plugin/host;1"]
-             .getService(Ci.nsIPluginHost);
-  var tags = ph.getPluginTags();
-
-  // Find the test plugin
-  for (var i = 0; i < tags.length; i++) {
-    if (tags[i].name == pluginName)
-      return tags[i];
-  }
-
-  ok(false, "Unable to find plugin");
-  return null;
-}
-
 function waitForCondition(condition, nextTest, errorMsg) {
   var tries = 0;
   var interval = setInterval(function() {
