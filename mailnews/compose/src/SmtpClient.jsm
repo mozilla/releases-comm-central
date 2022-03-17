@@ -910,7 +910,20 @@ class SmtpClient {
       }
     }
 
-    this._authenticateUser();
+    if (
+      command.data.match(/\bCLIENTID\b/) &&
+      (this._secureTransport ||
+        // For test purpose.
+        ["localhost", "127.0.0.1", "::1"].includes(this._server.hostname)) &&
+      this._server.clientidEnabled &&
+      this._server.clientid
+    ) {
+      // Client identity extension, still a draft.
+      this._currentAction = this._actionCLIENTID;
+      this._sendCommand("CLIENTID UUID " + this._server.clientid, true);
+    } else {
+      this._authenticateUser();
+    }
   }
 
   /**
@@ -940,6 +953,20 @@ class SmtpClient {
    * @param {Object} command Parsed command from the server {statusCode, data}
    */
   _actionHELO(command) {
+    if (!command.success) {
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
+      return;
+    }
+    this._authenticateUser();
+  }
+
+  /**
+   * Handles server response for CLIENTID command. If successful then will
+   * initiate the authenticateUser process.
+   *
+   * @param {Object} command Parsed command from the server {statusCode, data}
+   */
+  _actionCLIENTID(command) {
     if (!command.success) {
       this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
       return;

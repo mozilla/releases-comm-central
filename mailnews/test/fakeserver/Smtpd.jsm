@@ -43,7 +43,7 @@ SMTP_RFC2821_handler.prototype = {
   kUsername: "testsmtp",
   kPassword: "smtptest",
   kAuthSchemes: ["CRAM-MD5", "PLAIN", "LOGIN"],
-  kCapabilities: ["8BITMIME", "SIZE"],
+  kCapabilities: ["8BITMIME", "SIZE", "CLIENTID"],
   _nextAuthFunction: undefined,
 
   resetTest() {
@@ -62,6 +62,9 @@ SMTP_RFC2821_handler.prototype = {
     }
     capa += "\n250 HELP"; // the odd one: no "-", per RFC 2821
     return capa;
+  },
+  CLIENTID(args) {
+    return "250 ok";
   },
   AUTH(lineRest) {
     if (this._state == kStateAuthenticated) {
