@@ -74,7 +74,6 @@
 .calendar-invitation-panel-props > dt,
 .calendar-invitation-panel-props > dd {
   display: inline-block;
-  text-align: baseline;
 }
 
 .calendar-invitation-panel-props th, .calendar-invitation-panel-props td {
@@ -82,7 +81,7 @@
 }
 
 .calendar-invitation-panel-props th {
-  text-align: right;
+  text-align: end;
   padding-inline-end: 1em;
 }
 
