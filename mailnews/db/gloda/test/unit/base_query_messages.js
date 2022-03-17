@@ -19,8 +19,19 @@
  *  define a bunch of message corpuses entirely specialized for each test.
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
+var {
+  assertExpectedMessagesIndexed,
+  messageInjection,
+  waitForGlodaIndexer,
+  msgGen,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { queryExpect } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
 
 /**
  * Whether we expect fulltext results. IMAP folders that are offline shouldn't
@@ -38,40 +49,40 @@ var goOffline = false;
 var world = {
   phase: 0,
 
-  // a list of tuples of [name, email] of length NUM_AUTHORS
+  // A list of tuples of [name, email] of length NUM_AUTHORS.
   peoples: null,
   NUM_AUTHORS: 5,
-  // maps each author (as defined by their email address) to the list of
-  //  (synthetic) messages they have 'authored'
+  // Maps each author (as defined by their email address) to the list of
+  //  (synthetic) messages they have 'authored'.
   authorGroups: {},
 
   NUM_CONVERSATIONS: 3,
-  // the last message (so far) in each conversation
+  // The last message (so far) in each conversation.
   lastMessagesInConvos: [],
-  // maps the message-id of the root message in a conversation to the list of
-  //  synthetic messages in the conversation
+  // Maps the message-id of the root message in a conversation to the list of
+  //  synthetic messages in the conversation.
   conversationGroups: {},
-  // a list of lists of synthetic messages, organized by the conversation they
+  // A list of lists of synthetic messages, organized by the conversation they
   //  belong to.
   conversationLists: [],
-  // a list of gloda conversation id's, each corresponding to the entries in
-  // converastionLists.
+  // A list of gloda conversation id's, each corresponding to the entries in
+  //  converastionLists.
   glodaConversationIds: [],
 
   NUM_FOLDERS: 2,
   MESSAGES_PER_FOLDER: 11,
-  // a list of lists of synthetic messages, one list per folder
+  // A list of lists of synthetic messages, one list per folder.
   folderClumps: [],
-  // a list of nsIMsgFolders, with each folder containing the messages in the
-  //  corresponding list in folderClumps
+  // A list of nsIMsgFolders, with each folder containing the messages in the
+  //  corresponding list in folderClumps.
   glodaFolders: [],
 
   outlierAuthor: null,
   outlierFriend: null,
 
-  // messages authored by contacts in the "peoples" group
+  // Messages authored by contacts in the "peoples" group.
   peoplesMessages: [],
-  // messages authored by outlierAuthor and outlierFriend
+  // Messages authored by outlierAuthor and outlierFriend.
   outlierMessages: [],
 };
 
@@ -106,14 +117,14 @@ var UNIQUE_OFFSET_ATTACHMENT = 26 * 26 * 26;
  * @param aSynthMessage The synthetic message.
  */
 function categorizeMessage(aSynthMessage) {
-  // lump by author
+  // Lump by author.
   let author = aSynthMessage.fromAddress;
   if (!(author in world.authorGroups)) {
     world.authorGroups[author] = [];
   }
   world.authorGroups[author].push(aSynthMessage);
 
-  // lump by conversation, keying off of the originator's message id
+  // Lump by conversation, keying off of the originator's message id.
   let originator = aSynthMessage;
   while (originator.parent) {
     originator = originator.parent;
@@ -124,7 +135,7 @@ function categorizeMessage(aSynthMessage) {
   world.conversationGroups[originator.messageId].push(aSynthMessage);
   world.conversationLists[aSynthMessage.iConvo].push(aSynthMessage);
 
-  // folder lumping happens in a big glob
+  // Folder lumping happens in a big glob.
 }
 
 /**
@@ -142,9 +153,9 @@ function generateFolderMessages() {
   for (let iMessage = 0; iMessage < world.MESSAGES_PER_FOLDER; iMessage++) {
     let iConvo = iMessage % world.NUM_CONVERSATIONS;
 
-    // we need missing messages to create ghosts, so periodically add an extra
+    // We need missing messages to create ghosts, so periodically add an extra
     //  unknown into the equation.  we do this prior to the below step because
-    //  then we don't hose up all the fancy body creation the next step does
+    //  then we don't hose up all the fancy body creation the next step does.
     if (iMessage % 3 == 1) {
       smsg = msgGen.makeMessage({ inReplyTo: smsg });
     }
@@ -163,7 +174,7 @@ function generateFolderMessages() {
     );
     smsg = msgGen.makeMessage({
       inReplyTo: world.lastMessagesInConvos[iConvo],
-      // note that the reply-logic will ignore our subject, luckily that does
+      // Note that the reply-logic will ignore our subject, luckily that does
       //  not matter! (since it will just copy the subject)
       subject: convUniqueSubject,
       body: {
@@ -178,14 +189,14 @@ function generateFolderMessages() {
       ],
     });
 
-    // makeMessage is not exceedingly clever right now, we need to overwrite
-    //  From and To...
+    // MakeMessage is not exceedingly clever right now, we need to overwrite
+    //  From and To.
     smsg.from = world.peoples[iAuthor];
     iAuthor = (iAuthor + iConvo + 1) % world.NUM_AUTHORS;
-    // so, everyone is talking to everyone for this stuff
+    // So, everyone is talking to everyone for this stuff.
     smsg.to = world.peoples;
     world.lastMessagesInConvos[iConvo] = smsg;
-    // simplify categorizeMessage and glodaInfoStasher's life
+    // Simplify categorizeMessage and glodaInfoStasher's life.
     smsg.iConvo = iConvo;
 
     categorizeMessage(smsg);
@@ -196,7 +207,7 @@ function generateFolderMessages() {
   smsg = msgGen.makeMessage();
   smsg.from = world.outlierAuthor;
   smsg.to = [world.outlierFriend];
-  // do not lump it
+  // Do not lump it.
   messages.push(smsg);
   world.outlierMessages.push(smsg);
 
@@ -220,12 +231,12 @@ function glodaInfoStasher(aSynthMessage, aGlodaMessage) {
   }
 }
 
-// We override these for the IMAP tests
+// We override these for the IMAP tests.
 var pre_setup_populate_hook = function default_pre_setup_populate_hook() {};
 var post_setup_populate_hook = function default_post_setup_populate_hook() {};
 
-// first, we must populate our message store with delicious messages.
-function* setup_populate() {
+// First, we must populate our message store with delicious messages.
+async function setup_populate() {
   world.glodaHolderCollection = Gloda.explicitCollection(
     Gloda.NOUN_MESSAGE,
     []
@@ -234,7 +245,7 @@ function* setup_populate() {
   world.peoples = msgGen.makeNamesAndAddresses(world.NUM_AUTHORS);
   world.outlierAuthor = msgGen.makeNameAndAddress();
   world.outlierFriend = msgGen.makeNameAndAddress();
-  // set up the per-conversation values with blanks initially
+  // Set up the per-conversation values with blanks initially.
   for (let iConvo = 0; iConvo < world.NUM_CONVERSATIONS; iConvo++) {
     world.lastMessagesInConvos.push(null);
     world.conversationLists.push([]);
@@ -242,27 +253,35 @@ function* setup_populate() {
   }
 
   let setOne = generateFolderMessages();
-  let folderOne = MessageInjection.make_empty_folder();
-  yield MessageInjection.add_sets_to_folders(folderOne, [setOne]);
+  let folderOne = await messageInjection.makeEmptyFolder();
+  await messageInjection.addSetsToFolders([folderOne], [setOne]);
   // If this is the online_to_offline variant (indicated by goOffline) we want
   //  to make the messages available offline.  This should trigger an event
   //  driven re-indexing of the messages which should make the body available
   //  for fulltext queries.
   if (goOffline) {
-    yield wait_for_gloda_indexer(setOne);
-    yield MessageInjection.make_folder_and_contents_offline(folderOne);
+    await waitForGlodaIndexer();
+    Assert.ok(...assertExpectedMessagesIndexed([setOne]));
+    await messageInjection.makeFolderAndContentsOffline(folderOne);
   }
-  yield wait_for_gloda_indexer(setOne, { verifier: glodaInfoStasher });
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([setOne], { verifier: glodaInfoStasher })
+  );
 
   world.phase++;
   let setTwo = generateFolderMessages();
-  let folderTwo = MessageInjection.make_empty_folder();
-  yield MessageInjection.add_sets_to_folders(folderTwo, [setTwo]);
+  let folderTwo = await messageInjection.makeEmptyFolder();
+  await messageInjection.addSetsToFolders([folderTwo], [setTwo]);
   if (goOffline) {
-    yield wait_for_gloda_indexer(setTwo);
-    yield MessageInjection.make_folder_and_contents_offline(folderTwo);
+    await waitForGlodaIndexer();
+    Assert.ok(...assertExpectedMessagesIndexed([setTwo]));
+    await messageInjection.makeFolderAndContentsOffline(folderTwo);
   }
-  yield wait_for_gloda_indexer(setTwo, { verifier: glodaInfoStasher });
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([setTwo], { verifier: glodaInfoStasher })
+  );
 }
 
 /* ===== Non-text queries ===== */
@@ -308,14 +327,15 @@ var ts_convCollections = [];
  * @tests gloda.noun.message.attr.conversation
  * @tests gloda.datastore.sqlgen.kConstraintIn
  */
-function test_query_messages_by_conversation() {
+async function test_query_messages_by_conversation() {
   let convNum = ts_convNum++;
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.conversation(world.glodaConversationIds[convNum]);
 
   ts_convQueries.push(query);
-  ts_convCollections.push(queryExpect(query, world.conversationLists[convNum]));
-  return false; // async pend on queryExpect
+  ts_convCollections.push(
+    await queryExpect(query, world.conversationLists[convNum])
+  );
 }
 
 /**
@@ -332,14 +352,15 @@ var ts_folderCollections = [];
  * @tests gloda.noun.message.attr.folder
  * @tests gloda.datastore.sqlgen.kConstraintIn
  */
-function test_query_messages_by_folder() {
+async function test_query_messages_by_folder() {
   let folderNum = ts_folderNum++;
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.folder(world.glodaFolders[folderNum]);
 
   ts_folderQueries.push(query);
-  ts_folderCollections.push(queryExpect(query, world.folderClumps[folderNum]));
-  return false; // async pend on queryExpect
+  ts_folderCollections.push(
+    await queryExpect(query, world.folderClumps[folderNum])
+  );
 }
 
 /**
@@ -352,14 +373,14 @@ function test_query_messages_by_folder_nonmatches() {
 /**
  * @tests Gloda.ns.getMessageCollectionForHeader()
  */
-function test_get_message_for_header() {
-  // pick an arbitrary message
+async function test_get_message_for_header() {
+  // Pick an arbitrary message.
   let glodaMessage = ts_convCollections[1].items[0];
-  // find the synthetic message that matches (ordering must not be assumed)
+  // Find the synthetic message that matches (ordering must not be assumed).
   let synthMessage = world.conversationLists[1].find(
     sm => sm.messageId == glodaMessage.headerMessageID
   );
-  queryExpect(
+  await queryExpect(
     {
       queryFunc: Gloda.getMessageCollectionForHeader,
       queryThis: Gloda,
@@ -368,16 +389,15 @@ function test_get_message_for_header() {
     },
     [synthMessage]
   );
-  return false; // async pend on queryExpect
 }
 
 /**
  * @tests Gloda.ns.getMessageCollectionForHeaders()
  */
-function test_get_messages_for_headers() {
+async function test_get_messages_for_headers() {
   let messageCollection = ts_convCollections[0];
   let headers = messageCollection.items.map(m => m.folderMessage);
-  queryExpect(
+  await queryExpect(
     {
       queryFunc: Gloda.getMessageCollectionForHeaders,
       queryThis: Gloda,
@@ -386,10 +406,9 @@ function test_get_messages_for_headers() {
     },
     world.conversationLists[0]
   );
-  return false; // async pend on queryExpect
 }
 
-// at this point we go run the identity and contact tests for side-effects
+// At this point we go run the identity and contact tests for side-effects.
 
 var ts_messageIdentityQueries = [];
 var ts_messageIdentityCollections = [];
@@ -397,27 +416,29 @@ var ts_messageIdentityCollections = [];
  * @tests gloda.noun.message.attr.involves
  * @tests gloda.datastore.sqlgen.kConstraintIn
  */
-function test_query_messages_by_identity_peoples() {
+async function test_query_messages_by_identity_peoples() {
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.involves(peoplesIdentityCollection.items[0]);
 
   ts_messageIdentityQueries.push(query);
-  ts_messageIdentityCollections.push(queryExpect(query, world.peoplesMessages));
-  return false; // async pend on queryExpect
+  ts_messageIdentityCollections.push(
+    await queryExpect(query, world.peoplesMessages)
+  );
 }
 
 /**
  * @tests gloda.noun.message.attr.involves
  */
-function test_query_messages_by_identity_outlier() {
+async function test_query_messages_by_identity_outlier() {
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.involves(outlierIdentityCollection.items[0]);
-  // this also tests our ability to have two intersecting constraints! hooray!
+  // This also tests our ability to have two intersecting constraints! hooray!.
   query.involves(outlierIdentityCollection.items[1]);
 
   ts_messageIdentityQueries.push(query);
-  ts_messageIdentityCollections.push(queryExpect(query, world.outlierMessages));
-  return false; // async pend on queryExpect
+  ts_messageIdentityCollections.push(
+    await queryExpect(query, world.outlierMessages)
+  );
 }
 
 /**
@@ -437,16 +458,15 @@ var ts_messagesDateQuery;
  * @tests gloda.noun.message.attr.date
  * @tests gloda.datastore.sqlgen.kConstraintRanges
  */
-function test_query_messages_by_date() {
+async function test_query_messages_by_date() {
   ts_messagesDateQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
-  // we are clearly relying on knowing the generation sequence here,
-  //  fuggedaboutit
+  // We are clearly relying on knowing the generation sequence here,
+  //  fuggedaboutit.
   ts_messagesDateQuery.dateRange([
     world.peoplesMessages[1].date,
     world.peoplesMessages[2].date,
   ]);
-  queryExpect(ts_messagesDateQuery, world.peoplesMessages.slice(1, 3));
-  return false; // async pend on queryExpect
+  await queryExpect(ts_messagesDateQuery, world.peoplesMessages.slice(1, 3));
 }
 
 /**
@@ -484,17 +504,16 @@ function test_query_conversations_by_subject_text() {}
  * @tests gloda.noun.message.attr.subjectMatches
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
-function test_query_messages_by_subject_text() {
-  // we only need to use one conversation
+async function test_query_messages_by_subject_text() {
+  // We only need to use one conversation.
   let convNum = 0;
-  // dump("convNum: " + convNum + " blah: " + world.conversationLists[convNum] + "\n");
+
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   let convSubjectTerm = uniqueTermGenerator(
     UNIQUE_OFFSET_SUBJECT + UNIQUE_OFFSET_CONV + convNum
   );
   query.subjectMatches(convSubjectTerm);
-  queryExpect(query, world.conversationLists[convNum]);
-  return false; // async pend on queryExpect
+  await queryExpect(query, world.conversationLists[convNum]);
 }
 
 /**
@@ -503,19 +522,18 @@ function test_query_messages_by_subject_text() {
  * @tests gloda.noun.message.attr.bodyMatches
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
-function test_query_messages_by_body_text() {
-  // we only need to use one conversation
+async function test_query_messages_by_body_text() {
+  // We only need to use one conversation.
   let convNum = 0;
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   let convBodyTerm = uniqueTermGenerator(
     UNIQUE_OFFSET_BODY + UNIQUE_OFFSET_CONV + convNum
   );
   query.bodyMatches(convBodyTerm);
-  queryExpect(
+  await queryExpect(
     query,
     expectFulltextResults ? world.conversationLists[convNum] : []
   );
-  return false; // async pend on queryExpect
 }
 
 /**
@@ -524,18 +542,17 @@ function test_query_messages_by_body_text() {
  * @tests gloda.noun.message.attr.attachmentNamesMatch
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
-function test_query_messages_by_attachment_names() {
+async function test_query_messages_by_attachment_names() {
   let convNum = 0;
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   let convUniqueAttachment = uniqueTermGenerator(
     UNIQUE_OFFSET_ATTACHMENT + UNIQUE_OFFSET_CONV + convNum
   );
   query.attachmentNamesMatch(convUniqueAttachment);
-  queryExpect(
+  await queryExpect(
     query,
     expectFulltextResults ? world.conversationLists[convNum] : []
   );
-  return false; // async pend on queryExpect
 }
 
 /**
@@ -544,12 +561,11 @@ function test_query_messages_by_attachment_names() {
  * @tests gloda.noun.message.attr.authorMatches
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
-function test_query_messages_by_authorMatches_name() {
+async function test_query_messages_by_authorMatches_name() {
   let [authorName, authorMail] = world.peoples[0];
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.authorMatches(authorName);
-  queryExpect(query, world.authorGroups[authorMail]);
-  return false; // async pend on queryExpect
+  await queryExpect(query, world.authorGroups[authorMail]);
 }
 
 /**
@@ -558,12 +574,11 @@ function test_query_messages_by_authorMatches_name() {
  * @tests gloda.noun.message.attr.authorMatches
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
-function test_query_messages_by_authorMatches_email() {
+async function test_query_messages_by_authorMatches_email() {
   let [, authorMail] = world.peoples[0];
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.authorMatches(authorMail);
-  queryExpect(query, world.authorGroups[authorMail]);
-  return false; // async pend on queryExpect
+  await queryExpect(query, world.authorGroups[authorMail]);
 }
 
 /**
@@ -574,12 +589,11 @@ function test_query_messages_by_authorMatches_email() {
  * @tests gloda.noun.message.attr.recipientsMatch
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
-function test_query_messages_by_recipients_name() {
+async function test_query_messages_by_recipients_name() {
   let name = world.peoples[0][0];
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.recipientsMatch(name);
-  queryExpect(query, world.peoplesMessages);
-  return false; // async pend on queryExpect
+  await queryExpect(query, world.peoplesMessages);
 }
 
 /**
@@ -590,12 +604,11 @@ function test_query_messages_by_recipients_name() {
  * @tests gloda.noun.message.attr.recipientsMatch
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
-function test_query_messages_by_recipients_email() {
+async function test_query_messages_by_recipients_email() {
   let [, mail] = world.peoples[0];
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.recipientsMatch(mail);
-  queryExpect(query, world.peoplesMessages);
-  return false; // async pend on queryExpect
+  await queryExpect(query, world.peoplesMessages);
 }
 
 /* === contacts === */
@@ -605,11 +618,11 @@ var contactLikeQuery;
  * @tests gloda.noun.contact.attr.name
  * @tests gloda.datastore.sqlgen.kConstraintStringLike
  */
-function test_query_contacts_by_name() {
-  // let's use like... we need to test that...
+async function test_query_contacts_by_name() {
+  // Let's use like... we need to test that.
   contactLikeQuery = Gloda.newQuery(Gloda.NOUN_CONTACT);
   let personName = world.peoples[0][0];
-  // chop off the first and last letter...  this isn't the most edge-case
+  // Chop off the first and last letter...  this isn't the most edge-case
   //  handling way to roll, but LOOK OVER THERE? IS THAT ELVIS?
   let personNameSubstring = personName.substring(1, personName.length - 1);
   contactLikeQuery.nameLike(
@@ -618,8 +631,7 @@ function test_query_contacts_by_name() {
     contactLikeQuery.WILDCARD
   );
 
-  queryExpect(contactLikeQuery, [personName]);
-  return false; // async pend on queryExpect
+  await queryExpect(contactLikeQuery, [personName]);
 }
 
 /**
@@ -636,24 +648,28 @@ function test_query_contacts_by_name_nonmatch() {
 
 var peoplesIdentityQuery;
 var peoplesIdentityCollection;
-function test_query_identities_for_peoples() {
+async function test_query_identities_for_peoples() {
   peoplesIdentityQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
   peoplesIdentityQuery.kind("email");
   let peopleAddrs = world.peoples.map(nameAndAddr => nameAndAddr[1]);
   peoplesIdentityQuery.value.apply(peoplesIdentityQuery, peopleAddrs);
-  peoplesIdentityCollection = queryExpect(peoplesIdentityQuery, peopleAddrs);
-  return false; // async pend on queryExpect
+  peoplesIdentityCollection = await queryExpect(
+    peoplesIdentityQuery,
+    peopleAddrs
+  );
 }
 
 var outlierIdentityQuery;
 var outlierIdentityCollection;
-function test_query_identities_for_outliers() {
+async function test_query_identities_for_outliers() {
   outlierIdentityQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
   outlierIdentityQuery.kind("email");
   let outlierAddrs = [world.outlierAuthor[1], world.outlierFriend[1]];
   outlierIdentityQuery.value.apply(outlierIdentityQuery, outlierAddrs);
-  outlierIdentityCollection = queryExpect(outlierIdentityQuery, outlierAddrs);
-  return false; // async pend on queryExpect
+  outlierIdentityCollection = await queryExpect(
+    outlierIdentityQuery,
+    outlierAddrs
+  );
 }
 
 function test_query_identities_by_kind_and_value_nonmatches() {
@@ -666,7 +682,7 @@ function test_query_identities_by_kind_and_value_nonmatches() {
 /* ===== Driver ===== */
 
 /* exported tests */
-var tests = [
+var base_query_messages_tests = [
   function pre_setup_populate() {
     pre_setup_populate_hook();
   },
@@ -682,18 +698,18 @@ var tests = [
   test_query_messages_by_folder_nonmatches,
   test_get_message_for_header,
   test_get_messages_for_headers,
-  // need to do the identity and contact lookups so we can have their results
-  //  for the other message-related queries
+  // Need to do the identity and contact lookups so we can have their results
+  //  for the other message-related queries.
   test_query_identities_for_peoples,
   test_query_identities_for_outliers,
   test_query_identities_by_kind_and_value_nonmatches,
-  // back to messages!
+  // Back to messages!
   test_query_messages_by_identity_peoples,
   test_query_messages_by_identity_outlier,
   test_query_messages_by_identity_nonmatches,
   test_query_messages_by_date,
   test_query_messages_by_date_nonmatches,
-  // fulltext
+  // Fulltext
   test_query_messages_by_subject_text,
   test_query_messages_by_body_text,
   test_query_messages_by_attachment_names,
@@ -701,7 +717,7 @@ var tests = [
   test_query_messages_by_authorMatches_email,
   test_query_messages_by_recipients_name,
   test_query_messages_by_recipients_email,
-  // like
+  // Like
   test_query_contacts_by_name,
   test_query_contacts_by_name_nonmatch,
 ];
