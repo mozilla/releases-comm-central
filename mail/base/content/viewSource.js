@@ -126,6 +126,7 @@ function ViewSourceSavePage() {
     "SaveLinkTitle",
     null,
     null,
+    gBrowser.cookieJarSettings,
     gBrowser.contentDocument,
     null,
     gBrowser.webNavigation.QueryInterface(Ci.nsIWebPageDescriptor),
