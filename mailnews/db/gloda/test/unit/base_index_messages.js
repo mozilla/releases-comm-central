@@ -15,12 +15,51 @@
  * - Full-text search.  Happens in query testing.
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
-
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaMsgIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/IndexMsg.jsm"
+);
+var { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaIndexer.jsm"
+);
+var { queryExpect, sqlExpectCount } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var {
+  assertExpectedMessagesIndexed,
+  messageInjection,
+  waitForGlodaIndexer,
+  scenarios,
+  msgGen,
+  nukeGlodaCachesAndCollections,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var {
+  configureGlodaIndexing,
+  waitForGlodaDBFlush,
+  waitForIndexingHang,
+  resumeFromSimulatedHang,
+  permuteMessages,
+  makeABCardForAddressPair,
+} = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var {
+  SyntheticMessageSet,
+  SyntheticPartMultiMixed,
+  SyntheticPartLeaf,
+} = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 
 // Whether we can expect fulltext results
 var expectFulltextResults = true;
@@ -38,40 +77,43 @@ var goOffline = false;
  *  set correctly.  Then modify the message, verify the dirty property shows
  *  up, flush again, and make sure the dirty property goes clean again.
  */
-function* test_pending_commit_tracker_flushes_correctly() {
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, { augment: true });
+async function test_pending_commit_tracker_flushes_correctly() {
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
 
-  // before the flush, there should be no gloda-id property
+  // Before the flush, there should be no gloda-id property.
   let msgHdr = msgSet.getMsgHdr(0);
-  // get it as a string to make sure it's empty rather than possessing a value
+  // Get it as a string to make sure it's empty rather than possessing a value.
   Assert.equal(msgHdr.getStringProperty("gloda-id"), "");
 
-  yield wait_for_gloda_db_flush();
+  await waitForGlodaDBFlush();
 
-  // after the flush there should be a gloda-id property and it should
-  //  equal the gloda id
+  // After the flush there should be a gloda-id property and it should
+  //  equal the gloda id.
   let gmsg = msgSet.glodaMessages[0];
   Assert.equal(msgHdr.getUint32Property("gloda-id"), gmsg.id);
 
-  // make sure no dirty property was written...
+  // Make sure no dirty property was written.
   Assert.equal(msgHdr.getStringProperty("gloda-dirty"), "");
 
-  // modify the message
+  // Modify the message.
   msgSet.setRead(true);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer(msgSet);
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
 
-  // now there should be a dirty property and it should be 1...
+  // Now there should be a dirty property and it should be 1.
   Assert.equal(
     msgHdr.getUint32Property("gloda-dirty"),
     GlodaMsgIndexer.kMessageDirty
   );
 
-  // flush
-  yield wait_for_gloda_db_flush();
+  // Flush.
+  await waitForGlodaDBFlush();
 
-  // now dirty should be 0 and the gloda id should still be the same
+  // Now dirty should be 0 and the gloda id should still be the same.
   Assert.equal(
     msgHdr.getUint32Property("gloda-dirty"),
     GlodaMsgIndexer.kMessageClean
@@ -85,21 +127,24 @@ function* test_pending_commit_tracker_flushes_correctly() {
  *  (which is normally how we force a msgdb commit), that the changes to the
  *  header actually hit the disk.
  */
-function* test_pending_commit_causes_msgdb_commit() {
-  // new message, index it
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, { augment: true });
+async function test_pending_commit_causes_msgdb_commit() {
+  // New message, index it.
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
 
-  // force the msgDatabase closed; the sqlite commit will not yet have occurred
-  MessageInjection.get_real_injection_folder(folder).msgDatabase = null;
-  // make the commit happen, this causes the header to get set.
-  yield wait_for_gloda_db_flush();
-  // Force a GC.  this will kill off the header and the database, losing data
+  // Force the msgDatabase closed; the sqlite commit will not yet have occurred.
+  messageInjection.getRealInjectionFolder(folder).msgDatabase = null;
+  // Make the commit happen, this causes the header to get set.
+  await waitForGlodaDBFlush();
+
+  // Force a GC. This will kill off the header and the database, losing data
   //  if we are not protecting it.
   Cu.forceGC();
 
-  // now retrieve the header and make sure it has the gloda id set!
+  // Now retrieve the header and make sure it has the gloda id set!
   let msgHdr = msgSet.getMsgHdr(0);
   Assert.equal(
     msgHdr.getUint32Property("gloda-id"),
@@ -115,89 +160,87 @@ function* test_pending_commit_causes_msgdb_commit() {
  * - Indexing sweep across folders with just some changes.
  * - Filthy pass.
  */
-function* test_indexing_sweep() {
-  // -- Never-before-indexed folders
-  mark_sub_test_start("never before indexed folders");
-  // turn off event-driven indexing
-  configure_gloda_indexing({ event: false });
+async function test_indexing_sweep() {
+  // -- Never-before-indexed folders.
+  // Turn off event-driven indexing.
+  configureGlodaIndexing({ event: false });
 
-  let [folderA, setA1, setA2] = MessageInjection.make_folder_with_sets([
+  let [[folderA], setA1, setA2] = await messageInjection.makeFoldersWithSets(
+    1,
+    [{ count: 3 }, { count: 2 }]
+  );
+  let [, setB1, setB2] = await messageInjection.makeFoldersWithSets(1, [
     { count: 3 },
     { count: 2 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  let [, setB1, setB2] = MessageInjection.make_folder_with_sets([
-    { count: 3 },
-    { count: 2 },
-  ]);
-  yield MessageInjection.wait_for_message_injection();
-  let [folderC, setC1, setC2] = MessageInjection.make_folder_with_sets([
-    { count: 3 },
-    { count: 2 },
-  ]);
-  yield MessageInjection.wait_for_message_injection();
+  let [[folderC], setC1, setC2] = await messageInjection.makeFoldersWithSets(
+    1,
+    [{ count: 3 }, { count: 2 }]
+  );
 
   // Make sure that event-driven job gets nuked out of existence
   GlodaIndexer.purgeJobsUsingFilter(() => true);
 
-  // turn on event-driven indexing again; this will trigger a sweep.
-  configure_gloda_indexing({ event: true });
+  // Turn on event-driven indexing again; this will trigger a sweep.
+  configureGlodaIndexing({ event: true });
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  yield wait_for_gloda_indexer([setA1, setA2, setB1, setB2, setC1, setC2]);
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([setA1, setA2, setB1, setB2, setC1, setC2])
+  );
 
-  // -- Folders with some changes, pending commits
-  mark_sub_test_start("folders with some changes, pending commits");
-  // indexing off
-  configure_gloda_indexing({ event: false });
+  // -- Folders with some changes, pending commits.
+  // Indexing off.
+  configureGlodaIndexing({ event: false });
 
   setA1.setRead(true);
   setB2.setRead(true);
 
-  // indexing on, killing all outstanding jobs, trigger sweep
+  // Indexing on, killing all outstanding jobs, trigger sweep.
   GlodaIndexer.purgeJobsUsingFilter(() => true);
-  configure_gloda_indexing({ event: true });
+  configureGlodaIndexing({ event: true });
   GlodaMsgIndexer.indexingSweepNeeded = true;
 
-  yield wait_for_gloda_indexer([setA1, setB2]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([setA1, setB2]));
 
-  // -- Folders with some changes, no pending commits
-  mark_sub_test_start("folders with some changes, no pending commits");
-  // force a commit to clear out our pending commits
-  yield wait_for_gloda_db_flush();
-  // indexing off
-  configure_gloda_indexing({ event: false });
+  // -- Folders with some changes, no pending commits.
+  // Force a commit to clear out our pending commits.
+  await waitForGlodaDBFlush();
+  // Indexing off.
+  configureGlodaIndexing({ event: false });
 
   setA2.setRead(true);
   setB1.setRead(true);
 
-  // indexing on, killing all outstanding jobs, trigger sweep
+  // Indexing on, killing all outstanding jobs, trigger sweep.
   GlodaIndexer.purgeJobsUsingFilter(() => true);
-  configure_gloda_indexing({ event: true });
+  configureGlodaIndexing({ event: true });
   GlodaMsgIndexer.indexingSweepNeeded = true;
 
-  yield wait_for_gloda_indexer([setA2, setB1]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([setA2, setB1]));
 
-  // -- Filthy foldering indexing
+  // -- Filthy foldering indexing.
   // Just mark the folder filthy and make sure that we reindex everyone.
   // IMPORTANT!  The trick of marking the folder filthy only works because
   //  we flushed/committed the database above; the PendingCommitTracker
   //  is not aware of bogus filthy-marking of folders.
   // We leave the verification of the implementation details to
   //  test_index_sweep_folder.js.
-  mark_sub_test_start("filthy folder indexing");
   let glodaFolderC = Gloda.getFolderForFolder(
-    MessageInjection.get_real_injection_folder(folderC)
+    messageInjection.getRealInjectionFolder(folderC)
   );
+  // Marked gloda folder dirty.
   glodaFolderC._dirtyStatus = glodaFolderC.kFolderFilthy;
-  mark_action("actual", "marked gloda folder dirty", [glodaFolderC]);
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  yield wait_for_gloda_indexer([setC1, setC2]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([setC1, setC2]));
 
   // -- Forced folder indexing.
   var callbackInvoked = false;
-  mark_sub_test_start("forced folder indexing");
   GlodaMsgIndexer.indexFolder(
-    MessageInjection.get_real_injection_folder(folderA),
+    messageInjection.getRealInjectionFolder(folderA),
     {
       force: true,
       callback() {
@@ -205,7 +248,8 @@ function* test_indexing_sweep() {
       },
     }
   );
-  yield wait_for_gloda_indexer([setA1, setA2]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([setA1, setA2]));
   Assert.ok(callbackInvoked);
 }
 
@@ -214,111 +258,120 @@ function* test_indexing_sweep() {
  *  happen in the folder before we got to the folder; this tests that we no
  *  longer do that.
  */
-function* test_event_driven_indexing_does_not_mess_with_filthy_folders() {
-  // add a folder with a message.
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([msgSet]);
+async function test_event_driven_indexing_does_not_mess_with_filthy_folders() {
+  // Add a folder with a message.
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
 
-  // fake marking the folder filthy.
+  // Fake marking the folder filthy.
   let glodaFolder = Gloda.getFolderForFolder(
-    MessageInjection.get_real_injection_folder(folder)
+    messageInjection.getRealInjectionFolder(folder)
   );
   glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
 
-  // generate an event in the folder
+  // Generate an event in the folder.
   msgSet.setRead(true);
-  // make sure the indexer did not do anything and the folder is still filthy.
-  yield wait_for_gloda_indexer([]);
+  // Make sure the indexer did not do anything and the folder is still filthy.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
   Assert.equal(glodaFolder._dirtyStatus, glodaFolder.kFolderFilthy);
-  // also, the message should not have actually gotten marked dirty
+  // Also, the message should not have actually gotten marked dirty.
   Assert.equal(msgSet.getMsgHdr(0).getUint32Property("gloda-dirty"), 0);
 
-  // let's make the message un-read again for consistency with the gloda state
+  // Let's make the message un-read again for consistency with the gloda state.
   msgSet.setRead(false);
-  // make the folder dirty and let an indexing sweep take care of this so we
+  // Make the folder dirty and let an indexing sweep take care of this so we
   //  don't get extra events in subsequent tests.
   glodaFolder._dirtyStatus = glodaFolder.kFolderDirty;
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  // (the message won't get indexed though)
-  yield wait_for_gloda_indexer([]);
+  // The message won't get indexed though.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 }
 
-function* test_indexing_never_priority() {
-  // add a folder with a bunch of messages
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+async function test_indexing_never_priority() {
+  // Add a folder with a bunch of messages.
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
 
-  // index it, and augment the msgSet with the glodaMessages array
-  // for later use by sqlExpectCount
-  yield wait_for_gloda_indexer([msgSet], { augment: true });
+  // Index it, and augment the msgSet with the glodaMessages array
+  //  for later use by sqlExpectCount.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
 
-  // explicitly tell gloda to never index this folder
-  let XPCOMFolder = MessageInjection.get_real_injection_folder(folder);
+  // Explicitly tell gloda to never index this folder.
+  let XPCOMFolder = messageInjection.getRealInjectionFolder(folder);
   let glodaFolder = Gloda.getFolderForFolder(XPCOMFolder);
   GlodaMsgIndexer.setFolderIndexingPriority(
     XPCOMFolder,
     glodaFolder.kIndexingNeverPriority
   );
 
-  // verify that the setter and getter do the right thing
+  // Verify that the setter and getter do the right thing.
   Assert.equal(
     glodaFolder.indexingPriority,
     glodaFolder.kIndexingNeverPriority
   );
 
-  // check that existing message is marked as deleted
-  yield wait_for_gloda_indexer([], { deleted: [msgSet] });
+  // Check that existing message is marked as deleted.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [msgSet] }));
 
-  // make sure the deletion hit the database
-  yield sqlExpectCount(
+  // Make sure the deletion hit the database.
+  await sqlExpectCount(
     1,
     "SELECT COUNT(*) from folderLocations WHERE id = ? AND indexingPriority = ?",
     glodaFolder.id,
     glodaFolder.kIndexingNeverPriority
   );
 
-  // add another message
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+  // Add another message.
+  await messageInjection.makeNewSetsInFolders([folder], [{ count: 1 }]);
 
-  // make sure that indexing returns nothing
+  // Make sure that indexing returns nothing.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  yield wait_for_gloda_indexer([]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 }
 
-function* test_setting_indexing_priority_never_while_indexing() {
-  if (!MessageInjection.message_injection_is_local()) {
+async function test_setting_indexing_priority_never_while_indexing() {
+  if (!messageInjection.messageInjectionIsLocal()) {
     return;
   }
 
   // Configure the gloda indexer to hang while streaming the message.
-  configure_gloda_indexing({ hangWhile: "streaming" });
+  configureGlodaIndexing({ hangWhile: "streaming" });
 
-  // create a folder with a message inside.
-  let [folder] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+  // Create a folder with a message inside.
+  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
 
-  yield wait_for_indexing_hang();
+  await waitForIndexingHang();
 
-  // explicitly tell gloda to never index this folder
-  let XPCOMFolder = MessageInjection.get_real_injection_folder(folder);
+  // Explicitly tell gloda to never index this folder.
+  let XPCOMFolder = messageInjection.getRealInjectionFolder(folder);
   let glodaFolder = Gloda.getFolderForFolder(XPCOMFolder);
   GlodaMsgIndexer.setFolderIndexingPriority(
     XPCOMFolder,
     glodaFolder.kIndexingNeverPriority
   );
 
-  // reset indexing to not hang
-  configure_gloda_indexing({});
+  // Reset indexing to not hang.
+  configureGlodaIndexing({});
 
-  // sorta get the event chain going again...
-  resume_from_simulated_hang(true);
+  // Sorta get the event chain going again.
+  await resumeFromSimulatedHang(true);
 
   // Because the folder was dirty it should actually end up getting indexed,
   //  so in the end the message will get indexed.  Also, make sure a cleanup
   //  was observed.
-  yield wait_for_gloda_indexer([], { cleanedUp: 1 });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { cleanedUp: 1 }));
 }
 
 /* ===== Threading / Conversation Grouping ===== */
@@ -330,7 +383,7 @@ function allMessageInSameConversation(aSynthMessage, aGlodaMessage, aConvID) {
   }
   Assert.equal(aConvID, aGlodaMessage.conversationID);
   // Cheat and stash the synthetic message (we need them for one of the IMAP
-  // tests)
+  //  tests).
   gSynMessages.push(aSynthMessage);
   return aConvID;
 }
@@ -341,22 +394,45 @@ function allMessageInSameConversation(aSynthMessage, aGlodaMessage, aConvID) {
  *  parent case.  We also test all permutations of receipt of those messages.
  * (Also tests that we index new messages.)
  */
-function* test_threading() {
-  mark_sub_test_start("direct reply");
-  yield indexAndPermuteMessages(
+async function test_threading_direct_reply() {
+  let permutationMessages = await permuteMessages(
     scenarios.directReply,
-    allMessageInSameConversation
+    messageInjection
   );
-  mark_sub_test_start("missing intermediary");
-  yield indexAndPermuteMessages(
+  for (const preparedMessage of permutationMessages) {
+    let message = await preparedMessage();
+    await waitForGlodaIndexer();
+    Assert.ok(
+      ...assertExpectedMessagesIndexed([message], allMessageInSameConversation)
+    );
+  }
+}
+
+async function test_threading_missing_intermediary() {
+  let permutationMessages = await permuteMessages(
     scenarios.missingIntermediary,
-    allMessageInSameConversation
+    messageInjection
   );
-  mark_sub_test_start("siblings missing parent");
-  yield indexAndPermuteMessages(
+  for (const preparedMessage of permutationMessages) {
+    let message = await preparedMessage();
+    await waitForGlodaIndexer();
+    Assert.ok(
+      ...assertExpectedMessagesIndexed([message], allMessageInSameConversation)
+    );
+  }
+}
+async function test_threading_siblings_missing_parent() {
+  let permutationMessages = await permuteMessages(
     scenarios.siblingsMissingParent,
-    allMessageInSameConversation
+    messageInjection
   );
+  for (const preparedMessage of permutationMessages) {
+    let message = await preparedMessage();
+    await waitForGlodaIndexer();
+    Assert.ok(
+      ...assertExpectedMessagesIndexed([message], allMessageInSameConversation)
+    );
+  }
 }
 
 /**
@@ -364,10 +440,10 @@ function* test_threading() {
  *  discover it didn't have any attachments, clear the attachment bit from the
  *  message header".
  */
-function* test_attachment_flag() {
-  // create a synthetic message with an attachment that won't normally be listed
-  // in the attachment pane (Content-Disposition: inline, no filename, and
-  // displayable inline)
+async function test_attachment_flag() {
+  // Create a synthetic message with an attachment that won't normally be listed
+  //  in the attachment pane (Content-Disposition: inline, no filename, and
+  //  displayable inline).
   let smsg = msgGen.makeMessage({
     name: "test message with part 1.2 attachment",
     attachments: [
@@ -378,23 +454,29 @@ function* test_attachment_flag() {
       },
     ],
   });
-  // save it off for test_attributes_fundamental_from_disk
+  // Save it off for test_attributes_fundamental_from_disk.
   let msgSet = new SyntheticMessageSet([smsg]);
-  let folder = (fundamentalFolderHandle = MessageInjection.make_empty_folder());
-  yield MessageInjection.add_sets_to_folders(folder, [msgSet]);
+  let folder = (fundamentalFolderHandle = await messageInjection.makeEmptyFolder());
+  await messageInjection.addSetsToFolders([folder], [msgSet]);
 
-  // if we need to go offline, let the indexing pass run, then force us offline
+  // If we need to go offline, let the indexing pass run, then force us offline.
   if (goOffline) {
-    yield wait_for_gloda_indexer(msgSet);
-    yield MessageInjection.make_folder_and_contents_offline(folder);
-    // now the next indexer wait will wait for the next indexing pass...
+    await waitForGlodaIndexer();
+    Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
+    await messageInjection.makeFolderAndContentsOffline(folder);
+    // Now the next indexer wait will wait for the next indexing pass.
   }
 
-  yield wait_for_gloda_indexer(msgSet, { verifier: verify_attachment_flag });
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      verifier: verify_attachment_flag,
+    })
+  );
 }
 
 function verify_attachment_flag(smsg, gmsg) {
-  // -- attachments. We won't have these if we don't have fulltext results
+  // -- Attachments. We won't have these if we don't have fulltext results.
   if (expectFulltextResults) {
     Assert.equal(gmsg.attachmentNames.length, 0);
     Assert.equal(gmsg.attachmentInfos.length, 0);
@@ -430,39 +512,43 @@ var fundamentalGlodaMessageId;
  *  by gloda's GlodaFundAttr.jsm and perhaps the core message indexing logic itself
  *  (which show up as kSpecial* attributes in GlodaFundAttr.jsm anyways.)
  */
-function* test_attributes_fundamental() {
-  // create a synthetic message with attachment
+async function test_attributes_fundamental() {
+  // Create a synthetic message with attachment.
   let smsg = msgGen.makeMessage({
     name: "test message",
     bodyPart: new SyntheticPartMultiMixed([
       new SyntheticPartLeaf({ body: "I like cheese!" }),
-      msgGen.makeMessage({ body: { body: "I like wine!" } }), // that's one attachment
+      msgGen.makeMessage({ body: { body: "I like wine!" } }), // That's one attachment.
     ]),
     attachments: [
-      { filename: "bob.txt", body: "I like bread!" }, // and that's another one
+      { filename: "bob.txt", body: "I like bread!" }, // And that's another one.
     ],
   });
-  // save it off for test_attributes_fundamental_from_disk
+  // Save it off for test_attributes_fundamental_from_disk.
   fundamentalSyntheticMessage = smsg;
   let msgSet = new SyntheticMessageSet([smsg]);
   fundamentalMsgSet = msgSet;
-  let folder = (fundamentalFolderHandle = MessageInjection.make_empty_folder());
-  yield MessageInjection.add_sets_to_folders(folder, [msgSet]);
+  let folder = (fundamentalFolderHandle = await messageInjection.makeEmptyFolder());
+  await messageInjection.addSetsToFolders([folder], [msgSet]);
 
-  // if we need to go offline, let the indexing pass run, then force us offline
+  // If we need to go offline, let the indexing pass run, then force us offline.
   if (goOffline) {
-    yield wait_for_gloda_indexer(msgSet);
-    yield MessageInjection.make_folder_and_contents_offline(folder);
-    // now the next indexer wait will wait for the next indexing pass...
+    await waitForGlodaIndexer();
+    Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
+    await messageInjection.makeFolderAndContentsOffline(folder);
+    // Now the next indexer wait will wait for the next indexing pass.
   }
 
-  yield wait_for_gloda_indexer(msgSet, {
-    verifier: verify_attributes_fundamental,
-  });
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      verifier: verify_attributes_fundamental,
+    })
+  );
 }
 
 function verify_attributes_fundamental(smsg, gmsg) {
-  // save off the message id for test_attributes_fundamental_from_disk
+  // Save off the message id for test_attributes_fundamental_from_disk.
   fundamentalGlodaMessageId = gmsg.id;
   if (gmsg.attachmentInfos) {
     fundamentalGlodaMsgAttachmentUrls = gmsg.attachmentInfos.map(
@@ -474,32 +560,32 @@ function verify_attributes_fundamental(smsg, gmsg) {
 
   Assert.equal(
     gmsg.folderURI,
-    MessageInjection.get_real_injection_folder(fundamentalFolderHandle).URI
+    messageInjection.getRealInjectionFolder(fundamentalFolderHandle).URI
   );
 
-  // -- subject
+  // -- Subject
   Assert.equal(smsg.subject, gmsg.conversation.subject);
   Assert.equal(smsg.subject, gmsg.subject);
 
-  // -- contact/identity information
-  // - from
-  // check the e-mail address
+  // -- Contact/identity information.
+  // - From
+  // Check the e-mail address.
   Assert.equal(gmsg.from.kind, "email");
   Assert.equal(smsg.fromAddress, gmsg.from.value);
-  // check the name
+  // Check the name.
   Assert.equal(smsg.fromName, gmsg.from.contact.name);
 
-  // - to
+  // - To
   Assert.equal(smsg.toAddress, gmsg.to[0].value);
   Assert.equal(smsg.toName, gmsg.to[0].contact.name);
 
-  // date
+  // Date
   Assert.equal(smsg.date.valueOf(), gmsg.date.valueOf());
 
-  // -- message ID
+  // -- Message ID
   Assert.equal(smsg.messageId, gmsg.headerMessageID);
 
-  // -- attachments. We won't have these if we don't have fulltext results
+  // -- Attachments. We won't have these if we don't have fulltext results.
   if (expectFulltextResults) {
     Assert.equal(gmsg.attachmentTypes.length, 1);
     Assert.equal(gmsg.attachmentTypes[0], "text/plain");
@@ -507,7 +593,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
     Assert.equal(gmsg.attachmentNames[0], "bob.txt");
 
     let expectedInfos = [
-      // the name for that one is generated randomly
+      // The name for that one is generated randomly.
       { contentType: "message/rfc822" },
       { name: "bob.txt", contentType: "text/plain" },
     ];
@@ -517,9 +603,9 @@ function verify_attributes_fundamental(smsg, gmsg) {
       for (let k in expectedInfos[i]) {
         Assert.equal(attInfos[k], expectedInfos[i][k]);
       }
-      // because it's unreliable and depends on the platform
+      // Because it's unreliable and depends on the platform.
       Assert.ok(Math.abs(attInfos.size - expectedSize) <= 2);
-      // check that the attachment URLs are correct
+      // Check that the attachment URLs are correct.
       let channel = NetUtil.newChannel({
         uri: attInfos.url,
         loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
@@ -529,7 +615,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
       });
 
       try {
-        // will throw if the URL is invalid
+        // Will throw if the URL is invalid.
         channel.open();
       } catch (e) {
         do_throw(new Error("Invalid attachment URL"));
@@ -547,54 +633,54 @@ function verify_attributes_fundamental(smsg, gmsg) {
  * and make sure the magic url getter for GlodaAttachment returns a proper
  * URL.
  */
-function* test_moved_message_attributes() {
+async function test_moved_message_attributes() {
   if (!expectFulltextResults) {
     return;
   }
 
   // Don't ask me why, let destFolder = MessageInjection.make_empty_folder would result in a
-  // random error when running test_index_messages_imap_offline.js ...
-  let [destFolder, ignoreSet] = MessageInjection.make_folder_with_sets([
-    { count: 2 },
-  ]);
-  fundamentalFolderHandle = destFolder;
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([ignoreSet]);
-
-  // this is a fast move (third parameter set to true)
-  yield MessageInjection.async_move_messages(
-    fundamentalMsgSet,
-    destFolder,
-    true
+  //  random error when running test_index_messages_imap_offline.js ...
+  let [[destFolder], ignoreSet] = await messageInjection.makeFoldersWithSets(
+    1,
+    [{ count: 2 }]
   );
+  fundamentalFolderHandle = destFolder;
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([ignoreSet]));
 
-  yield wait_for_gloda_indexer(fundamentalMsgSet, {
-    verifier(newSynMsg, newGlodaMsg) {
-      // verify we still have the same number of attachments
-      Assert.equal(
-        fundamentalGlodaMsgAttachmentUrls.length,
-        newGlodaMsg.attachmentInfos.length
-      );
-      for (let [i, attInfos] of newGlodaMsg.attachmentInfos.entries()) {
-        // verify the url has changed
-        Assert.notEqual(fundamentalGlodaMsgAttachmentUrls[i], attInfos.url);
-        // and verify that the new url is still valid
-        let channel = NetUtil.newChannel({
-          uri: attInfos.url,
-          loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-          securityFlags:
-            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-          contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
-        });
-        try {
-          channel.open();
-        } catch (e) {
-          do_throw(new Error("Invalid attachment URL"));
+  // This is a fast move (third parameter set to true).
+  await messageInjection.moveMessages(fundamentalMsgSet, destFolder, true);
+
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([fundamentalMsgSet], {
+      verifier(newSynMsg, newGlodaMsg) {
+        // Verify we still have the same number of attachments.
+        Assert.equal(
+          fundamentalGlodaMsgAttachmentUrls.length,
+          newGlodaMsg.attachmentInfos.length
+        );
+        for (let [i, attInfos] of newGlodaMsg.attachmentInfos.entries()) {
+          // Verify the url has changed.
+          Assert.notEqual(fundamentalGlodaMsgAttachmentUrls[i], attInfos.url);
+          // And verify that the new url is still valid.
+          let channel = NetUtil.newChannel({
+            uri: attInfos.url,
+            loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+            securityFlags:
+              Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+            contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
+          });
+          try {
+            channel.open();
+          } catch (e) {
+            new Error("Invalid attachment URL");
+          }
         }
-      }
-    },
-    fullyIndexed: 0,
-  });
+      },
+      fullyIndexed: 0,
+    })
+  );
 }
 
 /**
@@ -604,11 +690,11 @@ function* test_moved_message_attributes() {
  *  does not perform a full load-out like a query does, so we need to use our
  *  query mechanism for this.
  */
-function test_attributes_fundamental_from_disk() {
+async function test_attributes_fundamental_from_disk() {
   nukeGlodaCachesAndCollections();
 
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE).id(fundamentalGlodaMessageId);
-  queryExpect(
+  await queryExpect(
     query,
     [fundamentalSyntheticMessage],
     verify_attributes_fundamental_from_disk,
@@ -616,7 +702,6 @@ function test_attributes_fundamental_from_disk() {
       return smsg.messageId;
     }
   );
-  return false;
 }
 
 /**
@@ -626,7 +711,7 @@ function test_attributes_fundamental_from_disk() {
  * @param aGlodaMessageLists This should be [[theGlodaMessage]].
  */
 function verify_attributes_fundamental_from_disk(aGlodaMessage) {
-  // return the message id for test_attributes_fundamental_from_disk's benefit
+  // Teturn the message id for test_attributes_fundamental_from_disk's benefit.
   verify_attributes_fundamental(fundamentalSyntheticMessage, aGlodaMessage);
   return aGlodaMessage.headerMessageID;
 }
@@ -636,35 +721,38 @@ function verify_attributes_fundamental_from_disk(aGlodaMessage) {
 /**
  * Test the attributes defined by GlodaExplicitAttr.jsm.
  */
-function* test_attributes_explicit() {
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, { augment: true });
+async function test_attributes_explicit() {
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
   let gmsg = msgSet.glodaMessages[0];
 
   // -- Star
-  mark_sub_test_start("Star");
   msgSet.setStarred(true);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.starred, true);
 
   msgSet.setStarred(false);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.starred, false);
 
   // -- Read / Unread
-  mark_sub_test_start("Read/Unread");
   msgSet.setRead(true);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.read, true);
 
   msgSet.setRead(false);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.read, false);
 
   // -- Tags
-  mark_sub_test_start("Tags");
-  // note that the tag service does not guarantee stable nsIMsgTag references,
+  // Note that the tag service does not guarantee stable nsIMsgTag references,
   //  nor does noun_tag go too far out of its way to provide stability.
   //  However, it is stable as long as we don't spook it by bringing new tags
   //  into the equation.
@@ -672,21 +760,25 @@ function* test_attributes_explicit() {
   let tagTwo = TagNoun.getTag("$label2");
 
   msgSet.addTag(tagOne.key);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.notEqual(gmsg.tags.indexOf(tagOne), -1);
 
   msgSet.addTag(tagTwo.key);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.notEqual(gmsg.tags.indexOf(tagOne), -1);
   Assert.notEqual(gmsg.tags.indexOf(tagTwo), -1);
 
   msgSet.removeTag(tagOne.key);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.tags.indexOf(tagOne), -1);
   Assert.notEqual(gmsg.tags.indexOf(tagTwo), -1);
 
   msgSet.removeTag(tagTwo.key);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.tags.indexOf(tagOne), -1);
   Assert.equal(gmsg.tags.indexOf(tagTwo), -1);
 
@@ -698,36 +790,40 @@ function* test_attributes_explicit() {
 /**
  * Test non-query-able attributes
  */
-function* test_attributes_cant_query() {
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, { augment: true });
+async function test_attributes_cant_query() {
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
   let gmsg = msgSet.glodaMessages[0];
 
   // -- Star
-  mark_sub_test_start("Star");
   msgSet.setStarred(true);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.starred, true);
 
   msgSet.setStarred(false);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.starred, false);
 
   // -- Read / Unread
-  mark_sub_test_start("Read/Unread");
   msgSet.setRead(true);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.read, true);
 
   msgSet.setRead(false);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.read, false);
 
   let readDbAttr = Gloda.getAttrDef(Gloda.BUILT_IN, "read");
   let readId = readDbAttr.id;
 
-  yield sqlExpectCount(
+  await sqlExpectCount(
     0,
     "SELECT COUNT(*) FROM messageAttributes WHERE attributeID = ?1",
     readId
@@ -742,19 +838,19 @@ function* test_attributes_cant_query() {
  * Have the participants be in our addressbook prior to indexing so that we can
  *  verify that the hand-off to the addressbook indexer does not cause breakage.
  */
-function* test_people_in_addressbook() {
+async function test_people_in_addressbook() {
   var senderPair = msgGen.makeNameAndAddress(),
     recipPair = msgGen.makeNameAndAddress();
 
-  // - add both people to the address book
+  // - Add both people to the address book.
   makeABCardForAddressPair(senderPair);
   makeABCardForAddressPair(recipPair);
 
-  let [, msgSet] = MessageInjection.make_folder_with_sets([
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1, to: [recipPair], from: senderPair },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, { augment: true });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
   let gmsg = msgSet.glodaMessages[0],
     senderIdentity = gmsg.from,
     recipIdentity = gmsg.to[0];
@@ -766,7 +862,7 @@ function* test_people_in_addressbook() {
   Assert.ok(recipIdentity.inAddressBook);
 }
 
-/* ===== fulltexts Indexing ===== */
+/* ===== Fulltexts Indexing ===== */
 
 /**
  * Make sure that we are using the saneBodySize flag.  This is basically the
@@ -774,7 +870,7 @@ function* test_people_in_addressbook() {
  *  off the message to check and also make sure that the text contents slice
  *  off the end rather than the beginning.
  */
-function* test_streamed_bodies_are_size_capped() {
+async function test_streamed_bodies_are_size_capped() {
   if (!expectFulltextResults) {
     return;
   }
@@ -787,26 +883,28 @@ function* test_streamed_bodies_are_size_capped() {
   }
   let bodyString = "aabb" + hugeString + "xxyy";
 
-  let synMsg = gMessageGenerator.makeMessage({
+  let synMsg = msgGen.makeMessage({
     body: { body: bodyString, contentType: "text/plain" },
   });
   let msgSet = new SyntheticMessageSet([synMsg]);
-  let folder = MessageInjection.make_empty_folder();
-  yield MessageInjection.add_sets_to_folder(folder, [msgSet]);
+  let folder = await messageInjection.makeEmptyFolder();
+  await messageInjection.addSetsToFolders([folder], [msgSet]);
 
   if (goOffline) {
-    yield wait_for_gloda_indexer(msgSet);
-    yield MessageInjection.make_folder_and_contents_offline(folder);
+    await waitForGlodaIndexer();
+    Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
+    await messageInjection.makeFolderAndContentsOffline(folder);
   }
 
-  yield wait_for_gloda_indexer(msgSet, { augment: true });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
   let gmsg = msgSet.glodaMessages[0];
   Assert.ok(gmsg.indexedBodyText.startsWith("aabb"));
   Assert.ok(!gmsg.indexedBodyText.includes("xxyy"));
 
   if (gmsg.indexedBodyText.length > 20 * 1024 + 58 + 10) {
     do_throw(
-      "indexed body text is too big! (" + gmsg.indexedBodyText.length + ")"
+      "Indexed body text is too big! (" + gmsg.indexedBodyText.length + ")"
     );
   }
 }
@@ -821,346 +919,330 @@ function* test_streamed_bodies_are_size_capped() {
  * - Non-last message in a conversation, not a twin.
  * - Last message in a conversation
  */
-function* test_message_deletion() {
-  mark_sub_test_start("non-last message in conv, twin");
-  // create and index two messages in a conversation
-  let [, convSet] = MessageInjection.make_folder_with_sets([
+async function test_message_deletion() {
+  // Non-last message in conv, twin.
+  // Create and index two messages in a conversation.
+  let [, convSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 2, msgsPerThread: 2 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([convSet], { augment: true });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([convSet], { augment: true }));
 
   // Twin the first message in a different folder owing to our reliance on
   //  message-id's in the SyntheticMessageSet logic.  (This is also why we broke
   //  up the indexing waits too.)
-  let twinFolder = MessageInjection.make_empty_folder();
+  let twinFolder = await messageInjection.makeEmptyFolder();
   let twinSet = new SyntheticMessageSet([convSet.synMessages[0]]);
-  yield MessageInjection.add_sets_to_folder(twinFolder, [twinSet]);
-  yield wait_for_gloda_indexer([twinSet], { augment: true });
+  await messageInjection.addSetsToFolders([twinFolder], [twinSet]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([twinSet], { augment: true }));
 
-  // Split the conv set into two helper sets...
-  let firstSet = convSet.slice(0, 1); // the twinned first message in the thread
-  let secondSet = convSet.slice(1, 2); // the un-twinned second thread message
+  // Split the conv set into two helper sets.
+  let firstSet = convSet.slice(0, 1); // The twinned first message in the thread.
+  let secondSet = convSet.slice(1, 2); // The un-twinned second thread message.
 
-  // make sure we can find the message (paranoia)
+  // Make sure we can find the message (paranoia).
   let firstQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   firstQuery.id(firstSet.glodaMessages[0].id);
-  let firstColl = queryExpect(firstQuery, firstSet);
-  yield false; // queryExpect is async but returns a value...
+  let firstColl = await queryExpect(firstQuery, firstSet);
 
-  // delete it (not trash! delete!)
-  yield MessageInjection.async_delete_messages(firstSet);
-  // which should result in an apparent deletion
-  yield wait_for_gloda_indexer([], { deleted: firstSet });
-  // and our collection from that query should now be empty
+  // Delete it (not trash! delete!).
+  await MessageInjection.deleteMessages(firstSet);
+  // Which should result in an apparent deletion.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [firstSet] }));
+  // And our collection from that query should now be empty.
   Assert.equal(firstColl.items.length, 0);
 
-  // make sure it no longer shows up in a standard query
-  firstColl = queryExpect(firstQuery, []);
-  yield false; // queryExpect is async
+  // Make sure it no longer shows up in a standard query.
+  firstColl = await queryExpect(firstQuery, []);
 
-  // make sure it shows up in a privileged query
+  // Make sure it shows up in a privileged query.
   let privQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   let firstGlodaId = firstSet.glodaMessages[0].id;
   privQuery.id(firstGlodaId);
-  queryExpect(privQuery, firstSet);
-  yield false; // queryExpect is async
+  await queryExpect(privQuery, firstSet);
 
-  // force a deletion pass
+  // Force a deletion pass.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  yield wait_for_gloda_indexer([]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 
   // Make sure it no longer shows up in a privileged query; since it has a twin
   //  we don't need to leave it as a ghost.
-  queryExpect(privQuery, []);
-  yield false; // queryExpect is async
+  await queryExpect(privQuery, []);
 
-  // make sure the messagesText entry got blown away
-  yield sqlExpectCount(
+  // Make sure that the messagesText entry got blown away.
+  await sqlExpectCount(
     0,
     "SELECT COUNT(*) FROM messagesText WHERE docid = ?1",
     firstGlodaId
   );
 
-  // make sure the conversation still exists...
+  // Make sure the conversation still exists.
   let conv = twinSet.glodaMessages[0].conversation;
   let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
   convQuery.id(conv.id);
-  let convColl = queryExpect(convQuery, [conv]);
-  yield false; // queryExpect is async
+  let convColl = await queryExpect(convQuery, [conv]);
 
-  // -- non-last message, no longer a twin => ghost
-  mark_sub_test_start("non-last message in conv, no longer a twin");
+  // -- Non-last message, no longer a twin => ghost.
 
-  // make sure nuking the twin didn't somehow kill them both
+  // Make sure nuking the twin didn't somehow kill them both.
   let twinQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
-  // (let's search on the message-id now that there is no ambiguity.)
+  // Let's search on the message-id now that there is no ambiguity.
   twinQuery.headerMessageID(twinSet.synMessages[0].messageId);
-  let twinColl = queryExpect(twinQuery, twinSet);
-  yield false; // queryExpect is async
+  let twinColl = await queryExpect(twinQuery, twinSet);
 
-  // delete the twin
-  yield MessageInjection.async_delete_messages(twinSet);
-  // which should result in an apparent deletion
-  yield wait_for_gloda_indexer([], { deleted: twinSet });
-  // it should disappear from the collection
+  // Delete the twin.
+  await MessageInjection.deleteMessages(twinSet);
+  // Which should result in an apparent deletion.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [twinSet] }));
+  // It should disappear from the collection.
   Assert.equal(twinColl.items.length, 0);
 
-  // no longer show up in the standard query
-  twinColl = queryExpect(twinQuery, []);
-  yield false; // queryExpect is async
+  // No longer show up in the standard query.
+  twinColl = await queryExpect(twinQuery, []);
 
-  // still show up in a privileged query
+  // Still show up in a privileged query.
   privQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   privQuery.headerMessageID(twinSet.synMessages[0].messageId);
-  queryExpect(privQuery, twinSet);
-  yield false; // queryExpect is async
+  await queryExpect(privQuery, twinSet);
 
-  // force a deletion pass
+  // Force a deletion pass.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  yield wait_for_gloda_indexer([]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 
   // The message should be marked as a ghost now that the deletion pass.
   // Ghosts have no fulltext rows, so check for that.
-  yield sqlExpectCount(
+  await sqlExpectCount(
     0,
     "SELECT COUNT(*) FROM messagesText WHERE docid = ?1",
     twinSet.glodaMessages[0].id
   );
 
-  // it still should show up in the privileged query; it's a ghost!
-  let privColl = queryExpect(privQuery, twinSet);
-  yield false; // queryExpect is async
-  // make sure it looks like a ghost.
+  // It still should show up in the privileged query; it's a ghost!
+  let privColl = await queryExpect(privQuery, twinSet);
+  // Make sure it looks like a ghost.
   let twinGhost = privColl.items[0];
   Assert.equal(twinGhost._folderID, null);
   Assert.equal(twinGhost._messageKey, null);
 
-  // make sure the conversation still exists...
-  queryExpect(convQuery, [conv]);
-  yield false; // queryExpect is async
+  // Make sure the conversation still exists.
+  await queryExpect(convQuery, [conv]);
 
-  // -- non-last message, not a twin
+  // -- Non-last message, not a twin.
   // This should blow away the message, the ghosts, and the conversation.
-  mark_sub_test_start("last message in conv");
 
-  // second message should still be around
+  // Second message should still be around.
   let secondQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   secondQuery.headerMessageID(secondSet.synMessages[0].messageId);
-  let secondColl = queryExpect(secondQuery, secondSet);
-  yield false; // queryExpect is async
+  let secondColl = await queryExpect(secondQuery, secondSet);
 
-  // delete it and make sure it gets marked deleted appropriately
-  yield MessageInjection.async_delete_messages(secondSet);
-  yield wait_for_gloda_indexer([], { deleted: secondSet });
+  // Delete it and make sure it gets marked deleted appropriately.
+  await MessageInjection.deleteMessages(secondSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [secondSet] }));
   Assert.equal(secondColl.items.length, 0);
 
-  // still show up in a privileged query
+  // Still show up in a privileged query.
   privQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   privQuery.headerMessageID(secondSet.synMessages[0].messageId);
-  queryExpect(privQuery, secondSet);
-  yield false; // queryExpect is async
+  await queryExpect(privQuery, secondSet);
 
-  // force a deletion pass
+  // Force a deletion pass.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  yield wait_for_gloda_indexer([]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 
-  // it should no longer show up in a privileged query; we killed the ghosts
-  queryExpect(privQuery, []);
-  yield false; // queryExpect is async
+  // It should no longer show up in a privileged query; we killed the ghosts.
+  await queryExpect(privQuery, []);
 
-  // - the conversation should have disappeared too
+  // - The conversation should have disappeared too.
   // (we have no listener to watch for it to have disappeared from convQuery but
   //  this is basically how glodaTestHelper does its thing anyways.)
   Assert.equal(convColl.items.length, 0);
 
-  // make sure the query fails to find it too
-  queryExpect(convQuery, []);
-  yield false; // queryExpect is async
+  // Make sure the query fails to find it too.
+  await queryExpect(convQuery, []);
 
-  // -- identity culling verification
-  mark_sub_test_start("identity culling verification");
+  // -- Identity culling verification.
   // The identities associated with that message should no longer exist, nor
   //  should their contacts.
 }
 
-function* test_moving_to_trash_marks_deletion() {
-  // create and index two messages in a conversation
-  let [, msgSet] = MessageInjection.make_folder_with_sets([
+async function test_moving_to_trash_marks_deletion() {
+  // Create and index two messages in a conversation.
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 2, msgsPerThread: 2 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([msgSet], { augment: true });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
 
   let convId = msgSet.glodaMessages[0].conversation.id;
   let firstGlodaId = msgSet.glodaMessages[0].id;
   let secondGlodaId = msgSet.glodaMessages[1].id;
 
-  // move them to the trash.
-  yield MessageInjection.async_trash_messages(msgSet);
+  // Move them to the trash.
+  await messageInjection.trashMessages(msgSet);
 
-  // we do not index the trash folder so this should actually make them appear
+  // We do not index the trash folder so this should actually make them appear
   //  deleted to an unprivileged query.
   let msgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   msgQuery.id(firstGlodaId, secondGlodaId);
-  queryExpect(msgQuery, []);
-  yield false; // queryExpect is async
+  await queryExpect(msgQuery, []);
 
-  // they will appear deleted after the events
-  yield wait_for_gloda_indexer([], { deleted: msgSet });
+  // They will appear deleted after the events.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [msgSet] }));
 
-  // force a sweep
+  // Force a sweep.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  // there should be no apparent change as the result of this pass
-  // (well, the conversation will die, but we can't see that.)
-  yield wait_for_gloda_indexer([]);
+  // There should be no apparent change as the result of this pass.
+  // Well, the conversation will die, but we can't see that.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 
-  // the conversation should be gone
+  // The conversation should be gone.
   let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
   convQuery.id(convId);
-  queryExpect(convQuery, []);
-  yield false; // queryExpect is async
+  await queryExpect(convQuery, []);
 
-  // the messages should be entirely gone
+  // The messages should be entirely gone.
   let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);
-  queryExpect(msgPrivQuery, []);
-  yield false; // queryExpect is async
+  await queryExpect(msgPrivQuery, []);
 }
 
 /**
  * Deletion that occurs because a folder got deleted.
  *  There is no hand-holding involving the headers that were in the folder.
  */
-function* test_folder_nuking_message_deletion() {
-  // create and index two messages in a conversation
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([
+async function test_folder_nuking_message_deletion() {
+  // Create and index two messages in a conversation.
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 2, msgsPerThread: 2 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer([msgSet], { augment: true });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
 
   let convId = msgSet.glodaMessages[0].conversation.id;
   let firstGlodaId = msgSet.glodaMessages[0].id;
   let secondGlodaId = msgSet.glodaMessages[1].id;
 
-  // Delete the folder
-  yield MessageInjection.async_delete_folder(folder);
+  // Delete the folder.
+  messageInjection.deleteFolder(folder);
   // That does generate the deletion events if the messages were in-memory,
   //  which these are.
-  yield wait_for_gloda_indexer([], { deleted: msgSet });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([], { deleted: [msgSet] }));
 
-  // this should have caused us to mark all the messages as deleted; the
-  //  messages should no longer show up in an unprivileged query
+  // This should have caused us to mark all the messages as deleted; the
+  //  messages should no longer show up in an unprivileged query.
   let msgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   msgQuery.id(firstGlodaId, secondGlodaId);
-  queryExpect(msgQuery, []);
-  yield false; // queryExpect is async
+  await queryExpect(msgQuery, []);
 
-  // force a sweep
+  // Force a sweep.
   GlodaMsgIndexer.indexingSweepNeeded = true;
-  // there should be no apparent change as the result of this pass
-  // (well, the conversation will die, but we can't see that.)
-  yield wait_for_gloda_indexer([]);
+  // There should be no apparent change as the result of this pass.
+  // Well, the conversation will die, but we can't see that.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 
-  // the conversation should be gone
+  // The conversation should be gone.
   let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
   convQuery.id(convId);
-  queryExpect(convQuery, []);
-  yield false; // queryExpect is async
+  await queryExpect(convQuery, []);
 
-  // the messages should be entirely gone
+  // The messages should be entirely gone.
   let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);
-  queryExpect(msgPrivQuery, []);
-  yield false; // queryExpect is async
+  await queryExpect(msgPrivQuery, []);
 }
 
 /* ===== Folder Move/Rename/Copy (Single and Nested) ===== */
 
-function get_nsIMsgFolder(aFolder) {
-  if (!(aFolder instanceof Ci.nsIMsgFolder)) {
-    return MailUtils.getOrCreateFolder(aFolder);
-  }
-  return aFolder;
-}
-
-function* test_folder_deletion_nested() {
-  // add a folder with a bunch of messages
-  let [folder1, msgSet1] = MessageInjection.make_folder_with_sets([
+async function test_folder_deletion_nested() {
+  // Add a folder with a bunch of messages.
+  let [[folder1], msgSet1] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
 
-  let [folder2, msgSet2] = MessageInjection.make_folder_with_sets([
+  let [[folder2], msgSet2] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
 
-  // index these folders, and augment the msgSet with the glodaMessages array
-  // for later use by sqlExpectCount
-  yield wait_for_gloda_indexer([msgSet1, msgSet2], { augment: true });
-  // the move has to be performed after the indexing, because otherwise, on
-  // IMAP, the moved message header are different entities and it's not msgSet2
-  // that ends up indexed, but the fresh headers
-  yield MessageInjection.move_folder(folder2, folder1);
+  // Index these folders, and augment the msgSet with the glodaMessages array
+  //  for later use by sqlExpectCount.
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet1, msgSet2], { augment: true })
+  );
+  // The move has to be performed after the indexing, because otherwise, on
+  //  IMAP, the moved message header are different entities and it's not msgSet2
+  //  that ends up indexed, but the fresh headers
+  await MessageInjection.moveFolder(folder2, folder1);
 
-  // add a trash folder, and move folder1 into it
-  let trash = MessageInjection.make_empty_folder(null, [
+  // Add a trash folder, and move folder1 into it.
+  let trash = await messageInjection.makeEmptyFolder(null, [
     Ci.nsMsgFolderFlags.Trash,
   ]);
-  yield MessageInjection.move_folder(folder1, trash);
+  await MessageInjection.moveFolder(folder1, trash);
 
-  let folders = get_nsIMsgFolder(trash).descendants;
+  let folders = MessageInjection.get_nsIMsgFolder(trash).descendants;
   Assert.equal(folders.length, 2);
   let [newFolder1, newFolder2] = folders;
 
   let glodaFolder1 = Gloda.getFolderForFolder(newFolder1);
   let glodaFolder2 = Gloda.getFolderForFolder(newFolder2);
 
-  // verify that Gloda properly marked this folder as not to be indexed anymore
+  // Verify that Gloda properly marked this folder as not to be indexed anymore.
   Assert.equal(
     glodaFolder1.indexingPriority,
     glodaFolder1.kIndexingNeverPriority
   );
 
-  // check that existing message is marked as deleted
-  yield wait_for_gloda_indexer([], { deleted: [msgSet1, msgSet2] });
+  // Check that existing message is marked as deleted.
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([], { deleted: [msgSet1, msgSet2] })
+  );
 
-  // make sure the deletion hit the database
-  yield sqlExpectCount(
+  // Make sure the deletion hit the database.
+  await sqlExpectCount(
     1,
     "SELECT COUNT(*) from folderLocations WHERE id = ? AND indexingPriority = ?",
     glodaFolder1.id,
     glodaFolder1.kIndexingNeverPriority
   );
-  yield sqlExpectCount(
+  await sqlExpectCount(
     1,
     "SELECT COUNT(*) from folderLocations WHERE id = ? AND indexingPriority = ?",
     glodaFolder2.id,
     glodaFolder2.kIndexingNeverPriority
   );
 
-  if (_messageInjectionSetup.injectionConfig.mode == "local") {
-    // add another message
-    MessageInjection.make_new_sets_in_folder(newFolder1, [{ count: 1 }]);
-    yield MessageInjection.wait_for_message_injection();
-    MessageInjection.make_new_sets_in_folder(newFolder2, [{ count: 1 }]);
-    yield MessageInjection.wait_for_message_injection();
+  if (messageInjection.messageInjectionIsLocal()) {
+    // Add another message.
+    await messageInjection.makeNewSetsInFolders([newFolder1], [{ count: 1 }]);
+    await messageInjection.makeNewSetsInFolders([newFolder2], [{ count: 1 }]);
 
-    // make sure that indexing returns nothing
+    // Make sure that indexing returns nothing.
     GlodaMsgIndexer.indexingSweepNeeded = true;
-    yield wait_for_gloda_indexer([]);
+    await waitForGlodaIndexer();
+    Assert.ok(...assertExpectedMessagesIndexed([]));
   }
 }
 
@@ -1170,16 +1252,16 @@ function* test_folder_deletion_nested() {
  * Verify that for IMAP folders we still see an index a message that is added
  *  as read.
  */
-function* test_imap_add_unread_to_folder() {
-  if (MessageInjection.message_injection_is_local()) {
+async function test_imap_add_unread_to_folder() {
+  if (messageInjection.messageInjectionIsLocal()) {
     return;
   }
 
-  let [, msgSet] = MessageInjection.make_folder_with_sets([
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1, read: true },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
 }
 
 /* ===== Message Moving ===== */
@@ -1188,70 +1270,75 @@ function* test_imap_add_unread_to_folder() {
  * Moving a message between folders should result in us knowing that the message
  *  is in the target location.
  */
-function* test_message_moving() {
-  // - inject and insert
-  // source folder with the message we care about
-  let [srcFolder, msgSet] = MessageInjection.make_folder_with_sets([
+async function test_message_moving() {
+  // - Inject and insert.
+  // Source folder with the message we care about.
+  let [[srcFolder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
-  // dest folder with some messages in it to test some wacky local folder moving
+  // Dest folder with some messages in it to test some wacky local folder moving
   //  logic.  (Local moves try and update the correspondence immediately.)
-  let [destFolder, ignoreSet] = MessageInjection.make_folder_with_sets([
-    { count: 2 },
-  ]);
-  yield MessageInjection.wait_for_message_injection();
+  let [[destFolder], ignoreSet] = await messageInjection.makeFoldersWithSets(
+    1,
+    [{ count: 2 }]
+  );
 
-  // (we want the gloda message mapping...)
-  yield wait_for_gloda_indexer([msgSet, ignoreSet], { augment: true });
+  // We want the gloda message mapping.
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet, ignoreSet], { augment: true })
+  );
   let gmsg = msgSet.glodaMessages[0];
-  // save off the message key so we can make sure it changes.
+  // Save off the message key so we can make sure it changes.
   let oldMessageKey = msgSet.getMsgHdr(0).messageKey;
 
-  // - fastpath (offline) move it to a new folder
-  mark_sub_test_start("initial move");
-  yield MessageInjection.async_move_messages(msgSet, destFolder, true);
+  // - Fastpath (offline) move it to a new folder.
+  // Initial move.
+  await messageInjection.moveMessages(msgSet, destFolder, true);
 
-  // - make sure gloda sees it in the new folder
+  // - Make sure gloda sees it in the new folder.
   // Since we are doing offline IMAP moves, the fast-path should be taken and
   //  so we should receive an itemsModified notification without a call to
   //  Gloda.grokNounItem.
-  yield wait_for_gloda_indexer(msgSet, { fullyIndexed: 0 });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { fullyIndexed: 0 }));
 
   Assert.equal(
     gmsg.folderURI,
-    MessageInjection.get_real_injection_folder(destFolder).URI
+    messageInjection.getRealInjectionFolder(destFolder).URI
   );
 
-  // - make sure the message key is correct!
+  // - Make sure the message key is correct!
   Assert.equal(gmsg.messageKey, msgSet.getMsgHdr(0).messageKey);
-  // (sanity check that the messageKey actually changed for the message...)
+  // Sanity check that the messageKey actually changed for the message.
   Assert.notEqual(gmsg.messageKey, oldMessageKey);
 
-  // - make sure the indexer's _keyChangedBatchInfo dict is empty
+  // - Make sure the indexer's _keyChangedBatchInfo dict is empty.
   for (let evilKey in GlodaMsgIndexer._keyChangedBatchInfo) {
     let evilValue = GlodaMsgIndexer._keyChangedBatchInfo[evilKey];
-    mark_failure([
-      "GlodaMsgIndexer._keyChangedBatchInfo should be empty but",
-      "has key:",
-      evilKey,
-      "and value:",
-      evilValue,
-      ".",
-    ]);
+    throw new Error(
+      "GlodaMsgIndexer._keyChangedBatchInfo should be empty but" +
+        "has key:\n" +
+        evilKey +
+        "\nAnd value:\n",
+      evilValue + "."
+    );
   }
 
-  // - slowpath (IMAP online) move it back to its origin folder
-  mark_sub_test_start("move it back");
-  yield MessageInjection.async_move_messages(msgSet, srcFolder, false);
+  // - Slowpath (IMAP online) move it back to its origin folder.
+  // Move it back.
+  await messageInjection.moveMessages(msgSet, srcFolder, false);
   // In the IMAP case we will end up reindexing the message because we will
   //  not be able to fast-path, but the local case will still be fast-pathed.
-  yield wait_for_gloda_indexer(msgSet, {
-    fullyIndexed: MessageInjection.message_injection_is_local() ? 0 : 1,
-  });
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      fullyIndexed: messageInjection.messageInjectionIsLocal() ? 0 : 1,
+    })
+  );
   Assert.equal(
     gmsg.folderURI,
-    MessageInjection.get_real_injection_folder(srcFolder).URI
+    messageInjection.getRealInjectionFolder(srcFolder).URI
   );
   Assert.equal(gmsg.messageKey, msgSet.getMsgHdr(0).messageKey);
 }
@@ -1269,18 +1356,19 @@ function* test_message_moving() {
  * Make sure that a message indexed by event-driven indexing does not
  *  get reindexed by sweep indexing that follows.
  */
-function* test_sweep_indexing_does_not_reindex_event_indexed() {
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+async function test_sweep_indexing_does_not_reindex_event_indexed() {
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
 
-  // wait for the event sweep to complete
-  yield wait_for_gloda_indexer([msgSet]);
+  // Wait for the event sweep to complete.
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
 
-  // force a sweep of the folder
-  GlodaMsgIndexer.indexFolder(
-    MessageInjection.get_real_injection_folder(folder)
-  );
-  yield wait_for_gloda_indexer([]);
+  // Force a sweep of the folder.
+  GlodaMsgIndexer.indexFolder(messageInjection.getRealInjectionFolder(folder));
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
 }
 
 /**
@@ -1292,46 +1380,48 @@ function* test_sweep_indexing_does_not_reindex_event_indexed() {
  *  filthy gloda-id off of it given that it is moving from a folder that is not
  *  indexed to one that is indexed.
  */
-function* test_filthy_moves_slash_move_from_unindexed_to_indexed() {
-  // - inject
-  // the source folder needs a flag so we don't index it
-  let srcFolder = MessageInjection.make_empty_folder(null, [
+async function test_filthy_moves_slash_move_from_unindexed_to_indexed() {
+  // - Inject.
+  // The source folder needs a flag so we don't index it.
+  let srcFolder = await messageInjection.makeEmptyFolder(null, [
     Ci.nsMsgFolderFlags.Junk,
   ]);
-  // the destination folder has to be something we want to index though;
-  let destFolder = MessageInjection.make_empty_folder();
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(srcFolder, [
-    { count: 1 },
-  ]);
-  yield MessageInjection.wait_for_message_injection();
+  // The destination folder has to be something we want to index though.
+  let destFolder = await messageInjection.makeEmptyFolder();
+  let [msgSet] = await messageInjection.makeNewSetsInFolders(
+    [srcFolder],
+    [{ count: 1 }]
+  );
 
-  // - mark with a bogus gloda-id
+  // - Mark with a bogus gloda-id.
   msgSet.getMsgHdr(0).setUint32Property("gloda-id", 9999);
 
-  // - disable event driven indexing so we don't get interference from indexing
-  configure_gloda_indexing({ event: false });
+  // - Disable event driven indexing so we don't get interference from indexing.
+  configureGlodaIndexing({ event: false });
 
-  // - move
-  yield MessageInjection.async_move_messages(msgSet, destFolder);
+  // - Move.
+  await messageInjection.moveMessages(msgSet, destFolder);
 
-  // - verify the target has no gloda-id!
-  mark_action("actual", "checking", [msgSet.getMsgHdr(0)]);
+  // - Verify the target has no gloda-id!
+  dump(`checking  ${msgSet.getMsgHdr(0)}`);
   Assert.equal(msgSet.getMsgHdr(0).getUint32Property("gloda-id"), 0);
 
-  // - re-enable indexing and let the indexer run
-  // (we don't want to affect other tests)
-  configure_gloda_indexing({});
-  yield wait_for_gloda_indexer([msgSet]);
+  // - Re-enable indexing and let the indexer run.
+  // We don't want to affect other tests.
+  configureGlodaIndexing({});
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
 }
 
-/* exported tests */
-var tests = [
+var base_index_messages_tests = [
   test_pending_commit_tracker_flushes_correctly,
   test_pending_commit_causes_msgdb_commit,
   test_indexing_sweep,
   test_event_driven_indexing_does_not_mess_with_filthy_folders,
 
-  test_threading,
+  test_threading_direct_reply,
+  test_threading_missing_intermediary,
+  test_threading_siblings_missing_parent,
   test_attachment_flag,
   test_attributes_fundamental,
   test_moved_message_attributes,

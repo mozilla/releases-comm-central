@@ -1,34 +1,57 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Test indexing support for local messages.
  */
 
+var {
+  glodaTestHelperInitialize,
+  assertExpectedMessagesIndexed,
+  waitForGlodaIndexer,
+  messageInjection,
+  nukeGlodaCachesAndCollections,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { waitForGlodaDBFlush } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+);
+
+glodaTestHelperInitialize({ mode: "local" });
+
 /* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
+
+add_task(async function setupTest() {
+  // Stub. We're fine here.
+});
 
 /**
  * Make sure that if we have to reparse a local folder we do not hang or
  *  anything.  (We had a regression where we would hang.)
  */
-function* test_reparse_of_local_folder_works() {
-  // index a folder
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet);
+add_task(async function test_reparse_of_local_folder_works() {
+  // Index a folder.
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
 
-  // force a db flush so we do not have any outstanding references to the
+  // Force a db flush so we do not have any outstanding references to the
   //  folder or its headers.
-  yield wait_for_gloda_db_flush();
+  await waitForGlodaDBFlush();
 
-  // mark the summary invalid
+  // Mark the summary invalid.
   folder.msgDatabase.summaryValid = false;
-  // clear the database so next time we have to reparse
+  // Clear the database so next time we have to reparse.
   folder.msgDatabase.ForceClosed();
 
-  // force gloda to re-parse the folder again...
+  // Force gloda to re-parse the folder again.
   GlodaMsgIndexer.indexFolder(folder);
-  yield wait_for_gloda_indexer();
-}
-tests.unshift(test_reparse_of_local_folder_works);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([]));
+});
 
 /**
  * Ensure that fromJSON for a non-singular attribute properly filters out
@@ -39,49 +62,50 @@ tests.unshift(test_reparse_of_local_folder_works);
  * We directly monkey with the state of NounTag for no really good reason, but
  *  maybe it cuts down on disk I/O because we don't have to touch prefs.
  */
-function* test_fromjson_of_removed_tag() {
-  // -- inject
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, { augment: true });
+add_task(async function test_fromjson_of_removed_tag() {
+  // -- Inject
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { augment: true }));
   let gmsg = msgSet.glodaMessages[0];
 
-  // -- tag
+  // -- Tag
   let tag = TagNoun.getTag("$label4");
   msgSet.addTag(tag.key);
-  yield wait_for_gloda_indexer(msgSet);
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.tags.length, 1);
   Assert.equal(gmsg.tags[0].key, tag.key);
 
-  // -- forget about the tag, TagNoun!
+  // -- Forget about the tag, TagNoun!
   delete TagNoun._tagMap[tag.key];
-  // this also means we have to replace the tag service with a liar.
+  // This also means we have to replace the tag service with a liar.
   let realTagService = TagNoun._msgTagService;
   TagNoun._msgTagService = {
     isValidKey() {
       return false;
-    }, // lies!
+    }, // Lies!
   };
 
-  // -- forget about the message, gloda!
+  // -- Forget about the message, gloda!
   let glodaId = gmsg.id;
   nukeGlodaCachesAndCollections();
 
-  // -- re-load the message
+  // -- Re-load the message.
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.id(glodaId);
-  let coll = queryExpect(query, msgSet);
-  yield false; // queryExpect is async
+  let coll = await queryExpect(query, msgSet);
 
-  // -- put the tag back in TagNoun before we check and possibly explode
+  // -- Put the tag back in TagNoun before we check and possibly explode.
   TagNoun._tagMap[tag.key] = tag;
   TagNoun._msgTagService = realTagService;
 
-  // -- verify the message apparently has no tags (despite no reindex)
+  // -- Verify the message apparently has no tags (despite no reindex).
   gmsg = coll.items[0];
   Assert.equal(gmsg.tags.length, 0);
-}
-tests.unshift(test_fromjson_of_removed_tag);
+});
 
 /**
  * Test that we are using hasOwnProperty or a properly guarding dict for
@@ -91,12 +115,12 @@ tests.unshift(test_fromjson_of_removed_tag);
  * Strictly speaking, this does not really belong here, but it's a matched set
  *  with the previous test.
  */
-function test_nountag_does_not_think_it_has_watch_tag_when_it_does_not() {
-  Assert.equal(TagNoun.fromJSON("watch"), undefined);
-}
-tests.unshift(test_nountag_does_not_think_it_has_watch_tag_when_it_does_not);
+add_task(
+  function test_nountag_does_not_think_it_has_watch_tag_when_it_does_not() {
+    Assert.equal(TagNoun.fromJSON("watch"), undefined);
+  }
+);
 
-function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
-  glodaHelperRunTests(tests);
-}
+base_index_messages_tests.forEach(e => {
+  add_task(e);
+});
