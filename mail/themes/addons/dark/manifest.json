@@ -46,6 +46,7 @@
       "input_border": "#8f8f9d"
     },
     "properties": {
+      "color_scheme": "dark",
       "panel_hover": "color-mix(in srgb, currentColor 9%, transparent)",
       "panel_active": "color-mix(in srgb, currentColor 14%, transparent)",
       "panel_active_darker": "color-mix(in srgb, currentColor 25%, transparent)"
