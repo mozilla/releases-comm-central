@@ -9,17 +9,26 @@
 var { glodaTestHelperInitialize } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
-glodaTestHelperInitialize({
-  mode: "imap",
-  offline: false,
-});
+var msgGen;
+var messageInjection;
 
 /* import-globals-from base_index_junk.js */
 load("base_index_junk.js");
 
 add_task(async function setupTest() {
-  // Stub. We're fine here.
+  msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection(
+    { mode: "imap", offline: false },
+    msgGen
+  );
+  glodaTestHelperInitialize(messageInjection);
 });
 
 base_index_junk_tests.forEach(e => {

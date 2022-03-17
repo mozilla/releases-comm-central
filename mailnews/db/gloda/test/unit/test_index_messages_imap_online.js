@@ -9,17 +9,26 @@
 var { glodaTestHelperInitialize } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
-glodaTestHelperInitialize({ mode: "imap", offline: false });
-
-// Most of the definitions are common, so just re-use those
 /* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
 
 expectFulltextResults = false;
 
 add_task(async function setupTest() {
-  // Stub. We're fine here.
+  msgGen = new MessageGenerator();
+  scenarios = new MessageScenarioFactory(msgGen);
+  messageInjection = new MessageInjection(
+    { mode: "imap", offline: false },
+    msgGen
+  );
+  glodaTestHelperInitialize(messageInjection);
 });
 
 base_index_messages_tests.forEach(e => {

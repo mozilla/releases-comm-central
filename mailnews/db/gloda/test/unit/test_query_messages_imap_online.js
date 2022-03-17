@@ -9,17 +9,30 @@
 var { glodaTestHelperInitialize } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-glodaTestHelperInitialize({
-  mode: "imap",
-  offline: false,
-});
+var msgGen;
+var messageInjection;
 
 /* import-globals-from base_query_messages.js */
 load("base_query_messages.js");
 
 expectFulltextResults = false;
+
+add_task(async function setupTest() {
+  msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection(
+    { mode: "imap", offline: false },
+    msgGen
+  );
+  glodaTestHelperInitialize(messageInjection);
+});
 
 base_query_messages_tests.forEach(test => {
   add_task(test);

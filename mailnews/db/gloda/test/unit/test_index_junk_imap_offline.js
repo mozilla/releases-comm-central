@@ -9,12 +9,16 @@
 var { glodaTestHelperInitialize } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-glodaTestHelperInitialize({
-  mode: "imap",
-  offline: true,
-});
+var msgGen;
+var messageInjection;
 
 /* import-globals-from base_index_junk.js */
 load("base_index_junk.js");
@@ -33,6 +37,12 @@ add_task(function setupTest() {
     Ci.nsIFile,
     do_get_profile()
   );
+  msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection(
+    { mode: "imap", offline: true },
+    msgGen
+  );
+  glodaTestHelperInitialize(messageInjection);
 });
 
 base_index_junk_tests.forEach(e => {

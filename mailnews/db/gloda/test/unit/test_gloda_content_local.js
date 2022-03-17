@@ -10,14 +10,20 @@
 var { glodaTestHelperInitialize } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
-
-glodaTestHelperInitialize({ mode: "local" });
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 /* import-globals-from base_gloda_content.js */
 load("base_gloda_content.js");
 
 add_task(async function setupTest() {
-  // Stub. We're fine here.
+  msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  glodaTestHelperInitialize(messageInjection);
 });
 
 base_gloda_content_tests.forEach(e => {

@@ -15,12 +15,9 @@
  */
 
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var {
-  assertExpectedMessagesIndexed,
-  messageInjection,
-  msgGen,
-  waitForGlodaIndexer,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+);
 // We need to be able to get at GlodaFundAttr to check the number of whittler
 //   invocations.
 var { GlodaFundAttr } = ChromeUtils.import(
@@ -32,6 +29,9 @@ var { MsgHdrToMimeMessage } = ChromeUtils.import(
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+
+var msgGen;
+var messageInjection;
 
 /* ===== Data ===== */
 var messageInfos = [
@@ -212,7 +212,13 @@ function verify_message_content(aInfo, aSynMsg, aGlodaMsg, aMsgHdr, aMimeMsg) {
   Assert.equal(content.getContentString(), aInfo.expected, "Message streamed");
 }
 
+function test_sanity_test_environment() {
+  Assert.ok(msgGen, "Sanity that msgGen is set.");
+  Assert.ok(messageInjection, "Sanity that messageInjection is set.");
+}
+
 var base_gloda_content_tests = [
+  test_sanity_test_environment,
   setup_inject_messages,
   ...messageInfos.map(e => {
     return test_stream_message(e);

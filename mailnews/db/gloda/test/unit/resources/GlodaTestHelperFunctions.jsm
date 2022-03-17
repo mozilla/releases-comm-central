@@ -34,9 +34,6 @@ var { MsgHdrToMimeMessage } = ChromeUtils.import(
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-// var { PromiseTestUtils } = ChromeUtils.import(
-//   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
-// );
 
 var log = console.createInstance({
   prefix: "gloda.helperFunctions",

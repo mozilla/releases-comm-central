@@ -19,12 +19,9 @@
  *  define a bunch of message corpuses entirely specialized for each test.
  */
 
-var {
-  assertExpectedMessagesIndexed,
-  messageInjection,
-  waitForGlodaIndexer,
-  msgGen,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+);
 var { queryExpect } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaQueryHelper.jsm"
 );
@@ -32,6 +29,9 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+
+var msgGen;
+var messageInjection;
 
 /**
  * Whether we expect fulltext results. IMAP folders that are offline shouldn't
@@ -679,10 +679,13 @@ function test_query_identities_by_kind_and_value_nonmatches() {
   );
 }
 
-/* ===== Driver ===== */
+function test_sanity_test_environment() {
+  Assert.ok(msgGen, "Sanity that msgGen is set.");
+  Assert.ok(messageInjection, "Sanity that messageInjection is set.");
+}
 
-/* exported tests */
 var base_query_messages_tests = [
+  test_sanity_test_environment,
   function pre_setup_populate() {
     pre_setup_populate_hook();
   },

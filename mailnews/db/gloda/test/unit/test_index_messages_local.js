@@ -16,14 +16,21 @@ var {
 var { waitForGlodaDBFlush } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
 );
-
-glodaTestHelperInitialize({ mode: "local" });
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 /* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
 
 add_task(async function setupTest() {
-  // Stub. We're fine here.
+  msgGen = new MessageGenerator();
+  scenarios = new MessageScenarioFactory(msgGen);
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  glodaTestHelperInitialize(messageInjection);
 });
 
 /**

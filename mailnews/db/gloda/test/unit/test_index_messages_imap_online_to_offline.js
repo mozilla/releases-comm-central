@@ -10,8 +10,12 @@
 var { glodaTestHelperInitialize } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
-
-glodaTestHelperInitialize({ mode: "imap", offline: false });
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 /* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
@@ -19,8 +23,18 @@ load("base_index_messages.js");
 // We want to go offline once the messages have already been indexed online.
 goOffline = true;
 
+var msgGen;
+var scenarios;
+var messageInjection;
+
 add_task(async function setupTest() {
-  // Stub. We're fine here.
+  msgGen = new MessageGenerator();
+  scenarios = new MessageScenarioFactory(msgGen);
+  messageInjection = new MessageInjection(
+    { mode: "imap", offline: false },
+    msgGen
+  );
+  glodaTestHelperInitialize(messageInjection);
 });
 
 base_index_messages_tests.forEach(e => {

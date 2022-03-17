@@ -23,21 +23,12 @@
 const EXPORTED_SYMBOLS = [
   "assertExpectedMessagesIndexed",
   "glodaTestHelperInitialize",
-  "messageInjection",
-  "msgGen",
   "nukeGlodaCachesAndCollections",
-  "scenarios",
   "waitForGlodaIndexer",
 ];
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
-);
-var { MessageInjection } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageInjection.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { TestUtils } = ChromeUtils.import(
@@ -60,9 +51,6 @@ var log = console.createInstance({
   maxLogLevelPref: "gloda.loglevel",
 });
 
-var msgGen = new MessageGenerator();
-var scenarios = new MessageScenarioFactory(msgGen);
-var messageInjection;
 var indexMessageState;
 
 /**
@@ -112,13 +100,12 @@ for (let { envVar, prefName } of ENVIRON_MAPPINGS) {
 var collectionListener;
 
 /**
- * Provides MessageInjection and Listeners for our gloda tests.
+ * Registers MessageInjection listeners and Gloda listeners for our tests.
  *
- * @param {MessageInjection} messageInjectionConfig
- *     @see MessageInjection.constructor
+ * @param {MessageInjection} messageInjection Instance of MessageInjection
+ *                                            to register Events to.
  */
-function glodaTestHelperInitialize(messageInjectionConfig) {
-  messageInjection = new MessageInjection(messageInjectionConfig, msgGen);
+function glodaTestHelperInitialize(messageInjection) {
   // Initialize the message state if we are dealing with messages.  At some
   //  point we probably want to just completely generalize the indexing state.
   //  That point is likely when our testing infrastructure needs the support

@@ -30,10 +30,7 @@ var { queryExpect, sqlExpectCount } = ChromeUtils.import(
 );
 var {
   assertExpectedMessagesIndexed,
-  messageInjection,
   waitForGlodaIndexer,
-  scenarios,
-  msgGen,
   nukeGlodaCachesAndCollections,
 } = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
 var {
@@ -69,6 +66,10 @@ var expectFulltextResults = true;
  * this in the online_to_offline test variant.
  */
 var goOffline = false;
+
+var messageInjection;
+var msgGen;
+var scenarios;
 
 /* ===== Indexing Basics ===== */
 
@@ -1413,7 +1414,14 @@ async function test_filthy_moves_slash_move_from_unindexed_to_indexed() {
   Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
 }
 
+function test_sanity_test_environment() {
+  Assert.ok(msgGen, "Sanity that msgGen is set.");
+  Assert.ok(scenarios, "Sanity that scenarios is set");
+  Assert.ok(messageInjection, "Sanity that messageInjection is set.");
+}
+
 var base_index_messages_tests = [
+  test_sanity_test_environment,
   test_pending_commit_tracker_flushes_correctly,
   test_pending_commit_causes_msgdb_commit,
   test_indexing_sweep,

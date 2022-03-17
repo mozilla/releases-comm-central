@@ -20,15 +20,15 @@ var { GlodaMsgIndexer } = ChromeUtils.import(
 var { queryExpect } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaQueryHelper.jsm"
 );
-var {
-  assertExpectedMessagesIndexed,
-  messageInjection,
-  waitForGlodaIndexer,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
+
+var messageInjection;
 
 const SPAM_BODY = { body: "superspam superspam superspam eevil eevil eevil" };
 const HAM_BODY = { body: "ham ham ham nice nice nice happy happy happy" };
@@ -199,8 +199,14 @@ async function test_message_moving_to_junk_folder_is_deletion() {
   await queryExpect(msgPrivQuery, []);
 }
 
+function test_sanity_test_environment() {
+  Assert.ok(messageInjection, "Sanity that messageInjection is set.");
+  Assert.ok(messageInjection.messageGenerator, "Sanity that msgGen is set.");
+}
+
 /* exported tests */
 var base_index_junk_tests = [
+  test_sanity_test_environment,
   setup_spam_filter,
   test_never_indexes_a_message_marked_as_junk,
   reset_spam_filter,
