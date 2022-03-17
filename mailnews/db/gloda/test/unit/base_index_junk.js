@@ -177,7 +177,7 @@ async function test_message_moving_to_junk_folder_is_deletion() {
   //  deleted to an unprivileged query.
   let msgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   msgQuery.id(firstGlodaId, secondGlodaId);
-  Assert.ok(...(await queryExpect(msgQuery, [])));
+  await queryExpect(msgQuery, []);
 
   // Force a sweep.
   GlodaMsgIndexer.indexingSweepNeeded = true;
@@ -189,14 +189,14 @@ async function test_message_moving_to_junk_folder_is_deletion() {
   // The conversation should be gone.
   let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
   convQuery.id(convId);
-  Assert.ok(...(await queryExpect(convQuery, [])));
+  await queryExpect(convQuery, []);
 
   // The messages should be entirely gone.
   let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);
-  Assert.ok(...(await queryExpect(msgPrivQuery, [])));
+  await queryExpect(msgPrivQuery, []);
 }
 
 /* exported tests */

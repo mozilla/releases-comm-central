@@ -214,7 +214,6 @@ class QueryExpectationListener {
  * @param aOrderVerifier Optional function to verify the order the results are
  *     received in.  Function signature should be of the form (aZeroBasedIndex,
  *     aItem, aCollectionResultIsFor).
- * @return {[true, string]}
  */
 async function queryExpect(
   aQuery,
@@ -275,9 +274,10 @@ async function queryExpect(
     Components.stack.caller
   );
   aQuery.args.push(listener);
-  aQuery.queryFunc.apply(aQuery.queryThis, aQuery.args);
+  let queryValue = aQuery.queryFunc.apply(aQuery.queryThis, aQuery.args);
+  // Wait for the QueryListener to finish.
   await listener.promise;
-  return [true, "Contents for the query are exactly as expected."];
+  return queryValue;
 }
 
 /**

@@ -802,7 +802,7 @@ class MessageInjection {
    *     pseudo-offline operations instead of trying to do things online.)
    */
   async moveMessages(synMessageSet, destFolder, allowUndo) {
-    let realDestFolder = await this.getRealInjectionFolder(destFolder);
+    let realDestFolder = this.getRealInjectionFolder(destFolder);
 
     for (let [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
       // In the IMAP case tell listeners we are moving messages without

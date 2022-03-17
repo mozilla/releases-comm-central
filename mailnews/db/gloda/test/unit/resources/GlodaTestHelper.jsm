@@ -25,6 +25,7 @@ const EXPORTED_SYMBOLS = [
   "glodaTestHelperInitialize",
   "messageInjection",
   "msgGen",
+  "nukeGlodaCachesAndCollections",
   "scenarios",
   "waitForGlodaIndexer",
 ];
@@ -43,6 +44,9 @@ var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaCollectionManager } = ChromeUtils.import(
+  "resource:///modules/gloda/Collection.jsm"
+);
 var { GlodaIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
@@ -102,7 +106,13 @@ for (let { envVar, prefName } of ENVIRON_MAPPINGS) {
 }
 
 /**
- * Provides MessageInjection and listeners for our gloda tests.
+ * Side note:
+ *  Keep them in the global scope so that a Cu.forceGC() call won't purge them.
+ */
+var collectionListener;
+
+/**
+ * Provides MessageInjection and Listeners for our gloda tests.
  *
  * @param {MessageInjection} messageInjectionConfig
  *     @see MessageInjection.constructor
@@ -115,7 +125,7 @@ function glodaTestHelperInitialize(messageInjectionConfig) {
   //  provided by `indexMessageState` for things other than messages.
   indexMessageState = new IndexMessageState();
 
-  new GlodaCollectionListener();
+  collectionListener = new GlodaCollectionListener();
   new TestAttributeProvider();
   new MsgsClassifiedListener();
 
@@ -169,7 +179,7 @@ class IndexMessageState {
   data = new GlodaIndexerData();
 
   constructor() {
-    IndexMessageState._prepareIndexerForTesting();
+    this._prepareIndexerForTesting();
   }
 
   resetData() {
@@ -200,6 +210,7 @@ class IndexMessageState {
   }
   // Expected value of |_workerCleanedUpCount| at assertion time.
   expectedCleanedUpCount() {
+    console.log("check", this._workerCleanedUpCount);
     return this.data.data.cleanedUp;
   }
   // Expected value of |_workerHadNoCleanUpCount| at assertion time.
@@ -225,31 +236,76 @@ class IndexMessageState {
   // The number of times a worker had no cleanup helper but there was a cleanup.
   _workerHadNoCleanUpCount = 0;
 
+  /**
+   * Beware this scoping for this class is lost where _testHookRecover is used.
+   *
+   * @param aRecoverResult
+   * @param aOriginEx
+   * @param aActiveJob
+   * @param aCallbackHandle
+   */
   _testHookRecover(aRecoverResult, aOriginEx, aActiveJob, aCallbackHandle) {
+    log.debug(
+      "indexer recovery hook fired" +
+        "\nrecover result:\n" +
+        aRecoverResult +
+        "\noriginating exception:\n" +
+        aOriginEx +
+        "\nactive job:\n" +
+        aActiveJob +
+        "\ncallbackHandle:\n" +
+        indexMessageState._jsonifyCallbackHandleState(aCallbackHandle)
+    );
     if (aRecoverResult) {
-      this._workerRecoveredCount++;
+      indexMessageState._workerRecoveredCount++;
     } else {
-      this._workerFailedToRecoverCount++;
+      indexMessageState._workerFailedToRecoverCount++;
     }
   }
 
+  /**
+   * Beware this scoping for this class is lost where _testHookCleanup is used.
+   *
+   * @param aHadCleanupFunc
+   * @param aOriginEx
+   * @param aActiveJob
+   * @param aCallbackHandle
+   */
   _testHookCleanup(aHadCleanupFunc, aOriginEx, aActiveJob, aCallbackHandle) {
+    log.debug(
+      "indexer cleanup hook fired" +
+        "\nhad cleanup?\n" +
+        aHadCleanupFunc +
+        "\noriginating exception:\n" +
+        aOriginEx +
+        "\nactive job:\n" +
+        aActiveJob +
+        "\ncallbackHandle\n" +
+        indexMessageState._jsonifyCallbackHandleState(aCallbackHandle)
+    );
     if (aHadCleanupFunc) {
-      this._workerCleanedUpCount++;
+      indexMessageState._workerCleanedUpCount++;
     } else {
-      this._workerHadNoCleanUpCount++;
+      indexMessageState._workerHadNoCleanUpCount++;
     }
+  }
+  _jsonifyCallbackHandleState(aCallbackHandle) {
+    return {
+      _stringRep: aCallbackHandle.activeStack.length + " active generators",
+      activeStackLength: aCallbackHandle.activeStack.length,
+      contextStack: aCallbackHandle.contextStack,
+    };
   }
 
   /**
    * The gloda messages indexed since the last call to |waitForGlodaIndexer|.
    */
-  _glodaMessagesByMessageId = {};
-  _glodaDeletionsByMessageId = {};
+  _glodaMessagesByMessageId = [];
+  _glodaDeletionsByMessageId = [];
 
   _numItemsAdded = 0;
 
-  static _prepareIndexerForTesting() {
+  _prepareIndexerForTesting() {
     if (!GlodaIndexer.enabled) {
       throw new Error(
         "The gloda indexer is somehow not enabled. This is problematic."
@@ -716,8 +772,22 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
 
   // Cleanup of internal tracking values in the IndexMessageState
   //  for new tests.
-  indexMessageState._glodaMessagesByMessageId = {};
-  indexMessageState._glodaDeletionsByMessageId = {};
+  resetIndexMessageState();
+
+  // If no error has been thrown till here were fine!
+  // Return values for Assert.ok.
+  // Using like Assert.ok(...assertExpectedMessagesIndexed()).
+  return [true, "Expected messages were indexed."];
+}
+
+/**
+ * Resets the IndexMessageState
+ * @TODO more docs
+ */
+function resetIndexMessageState() {
+  indexMessageState.synMessageSets = [];
+  indexMessageState._glodaMessagesByMessageId = [];
+  indexMessageState._glodaDeletionsByMessageId = [];
 
   indexMessageState._workerRecoveredCount = 0;
   indexMessageState._workerFailedToRecoverCount = 0;
@@ -726,9 +796,61 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
 
   indexMessageState._numFullIndexed = 0;
   indexMessageState.resetData();
+}
 
-  // If no error has been thrown till here were fine!
-  // Return values for Assert.ok.
-  // Using like Assert.ok(...assertExpectedMessagesIndexed()).
-  return [true, "Expected messages were indexed."];
+/**
+ * Wipe out almost everything from the clutches of the GlodaCollectionManager.
+ * By default, it is caching things and knows about all the non-GC'ed
+ *  collections.  Tests may want to ensure that their data is loaded from disk
+ *  rather than relying on the cache, and so, we exist.
+ * The exception to everything is that Gloda's concept of myContact and
+ *  myIdentities needs to have its collections still be reachable or invariants
+ *  are in danger of being "de-invarianted".
+ * The other exception to everything are any catch-all-collections used by our
+ *  testing/indexing process.  We don't scan for them, we just hard-code their
+ *  addition if they exist.
+ */
+function nukeGlodaCachesAndCollections() {
+  // Explode if the GlodaCollectionManager somehow doesn't work like we think it
+  //  should.  (I am reluctant to put this logic in there, especially because
+  //  knowledge of the Gloda contact/identity collections simply can't be known
+  //  by the colleciton manager.)
+  if (
+    GlodaCollectionManager._collectionsByNoun === undefined ||
+    GlodaCollectionManager._cachesByNoun === undefined
+  ) {
+    // We don't check the Gloda contact/identities things because they might not
+    //  get initialized if there are no identities, which is the case for our
+    //  unit tests right now...
+    throw new Error(
+      "Try and remember to update the testing infrastructure when you " +
+        "change things!"
+    );
+  }
+
+  // We can just blow away the known collections.
+  GlodaCollectionManager._collectionsByNoun = {};
+  // But then we have to put the myContact / myIdentities junk back.
+  if (Gloda._myContactCollection) {
+    GlodaCollectionManager.registerCollection(Gloda._myContactCollection);
+    GlodaCollectionManager.registerCollection(Gloda._myIdentitiesCollection);
+  }
+  // Don't forget our testing catch-all collection.
+  if (collectionListener.catchAllCollection) {
+    // Empty it out in case it has anything in it.
+    collectionListener.catchAllCollection.clear();
+    // And now we can register it.
+    GlodaCollectionManager.registerCollection(
+      collectionListener.catchAllCollection
+    );
+  }
+
+  // Caches aren't intended to be cleared, but we also don't want to lose our
+  //  caches, so we need to create new ones from the ashes of the old ones.
+  let oldCaches = GlodaCollectionManager._cachesByNoun;
+  GlodaCollectionManager._cachesByNoun = {};
+  for (let nounId in oldCaches) {
+    let cache = oldCaches[nounId];
+    GlodaCollectionManager.defineCache(cache._nounDef, cache._maxCacheSize);
+  }
 }
