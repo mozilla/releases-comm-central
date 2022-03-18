@@ -1,5 +1,6 @@
 comm/calendar/libical/src/libical
 comm/chat/protocols/matrix/lib
+comm/chat/protocols/xmpp/lib
 comm/mailnews/mapi/include
 comm/third_party/botan
 comm/third_party/bzip2
