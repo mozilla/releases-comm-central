@@ -296,6 +296,27 @@
   customElements.define("agenda-list", Agenda, { extends: "ul" });
 
   class AgendaListItem extends HTMLLIElement {
+    /**
+     * If this element represents the end of an event that starts on a different day.
+     *
+     * @type {boolean}
+     */
+    overlapsStart = false;
+
+    /**
+     * If this element represents the start of an event that ends on a different day.
+     *
+     * @type {boolean}
+     */
+    overlapsMidnight = false;
+
+    /**
+     * If this element represents the start of an event that ends after the displayed date(s).
+     *
+     * @type {boolean}
+     */
+    overlapsEnd = false;
+
     constructor() {
       super();
       this.setAttribute("is", "agenda-listitem");
@@ -419,23 +440,38 @@
       }
       this.overlapsStart = this._localStartDate.compare(TodayPane.agenda.startDate) < 0;
 
-      if (this.classList.contains("agenda-listitem-end")) {
+      // Work out the date and time to use when sorting events, and the date header.
+
+      let isEndItem = this.classList.contains("agenda-listitem-end");
+      if (isEndItem) {
         this.id = `agenda-listitem-end-${item.hashId}`;
         this.overlapsStart = true;
 
-        let endDate = this._localEndDate.clone();
-        if (endDate.isDate || (endDate.hour == 0 && endDate.minute == 0 && endDate.second == 0)) {
-          endDate.day--;
+        let sortDate = this._localEndDate.clone();
+        if (isAllDay) {
+          // Sort all-day events at midnight on the previous day.
+          sortDate.day--;
+          this.sortValue = sortDate.getInTimezone(defaultTimezone).nativeTime;
+        } else {
+          // Sort at the end time of the event.
+          this.sortValue = this._localEndDate.nativeTime;
+
+          // If the event ends at midnight, remove a microsecond so that
+          // it is placed at the end of the previous day's events.
+          if (sortDate.hour == 0 && sortDate.minute == 0 && sortDate.second == 0) {
+            sortDate.day--;
+            this.sortValue--;
+          }
         }
-        this.dateString = endDate.icalString;
-        this.sortValue = endDate.getInTimezone(defaultTimezone).nativeTime;
+        this.dateString = sortDate.icalString;
       } else {
         this.id = `agenda-listitem-${item.hashId}`;
 
-        let labelDate;
+        let sortDate;
         if (this.overlapsStart) {
-          labelDate = cal.createDateTime();
-          labelDate.resetTo(
+          // Use midnight for sorting.
+          sortDate = cal.createDateTime();
+          sortDate.resetTo(
             TodayPane.agenda.startDate.year,
             TodayPane.agenda.startDate.month,
             TodayPane.agenda.startDate.day,
@@ -444,49 +480,59 @@
             0,
             defaultTimezone
           );
-          this.sortValue = labelDate.nativeTime;
         } else {
-          labelDate = this._localStartDate.clone();
-          this.sortValue = labelDate.nativeTime;
+          // Use the real start time for sorting.
+          sortDate = this._localStartDate.clone();
         }
+        this.dateString = sortDate.icalString;
 
         let nextDay = cal.createDateTime();
-        nextDay.resetTo(
-          labelDate.year,
-          labelDate.month,
-          labelDate.day + 1,
-          0,
-          0,
-          0,
-          defaultTimezone
-        );
+        nextDay.resetTo(sortDate.year, sortDate.month, sortDate.day + 1, 0, 0, 0, defaultTimezone);
         this.overlapsMidnight = this._localEndDate.compare(nextDay) > 0;
         this.overlapsEnd =
           this.overlapsMidnight && this._localEndDate.compare(TodayPane.agenda.endDate) >= 0;
 
-        this.dateString = labelDate.icalString;
+        if (isAllDay || !this.overlapsStart || this.overlapsMidnight) {
+          // Sort using the start of the event.
+          this.sortValue = sortDate.nativeTime;
+        } else {
+          // Sort using the end of the event.
+          this.sortValue = this._localEndDate.nativeTime;
+        }
       }
+
+      // Set the element's colours.
 
       let cssSafeCalendar = cal.view.formatStringForCSSRule(this.item.calendar.id);
       this.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeCalendar}-backcolor)`);
       this.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeCalendar}-forecolor)`);
 
+      // Set the time label if necessary.
+
       this.timeElement.removeAttribute("datetime");
       this.timeElement.textContent = "";
       if (!isAllDay) {
-        if (this.overlapsStart) {
-          if (!this.overlapsMidnight) {
-            this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.endDate));
-            this.timeElement.textContent = cal.dtz.formatter.formatTime(this._localEndDate);
-            this.sortValue = this._localEndDate.nativeTime;
-          }
-        } else {
+        if (!this.overlapsStart) {
           this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.startDate));
           this.timeElement.textContent = cal.dtz.formatter.formatTime(this._localStartDate);
+        } else if (!this.overlapsMidnight) {
+          this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.endDate));
+          this.timeElement.textContent = cal.dtz.formatter.formatTime(
+            this._localEndDate,
+            // We prefer to show midnight as 24:00 if possible to indicate
+            // that the event ends at the end of this day, rather than the
+            // start of the next day.
+            isEndItem
+          );
         }
         this.setRelativeTime();
       }
+
+      // Set the title.
+
       this.titleElement.textContent = this.item.title;
+
+      // Display icons indicating if this event starts or ends on another day.
 
       if (this.overlapsStart) {
         if (this.overlapsMidnight) {
@@ -513,6 +559,8 @@
         this.overlapElement.removeAttribute("data-l10n-id");
         this.overlapElement.removeAttribute("alt");
       }
+
+      // Set the invitation status.
 
       if (cal.itip.isInvitation(item)) {
         this.setAttribute("status", cal.itip.getInvitedAttendee(item).participationStatus);

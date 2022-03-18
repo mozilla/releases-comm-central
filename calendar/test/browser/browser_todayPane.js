@@ -291,15 +291,24 @@ add_task(async function testOverlapInside() {
   );
 
   let timedEvent = await addEvent("Timed Event", "P0D", "P2D");
+  // Starts at the same time as `timedEvent` ends to prove the ordering is correct.
+  let nextEvent = await addEvent("Next Event", "P2D", "P3D", true);
   checkEvents(
     { dateHeader: "Today", title: "All Day Event", overlap: "start" },
     { time: timedEvent.startDate, title: "Timed Event", overlap: "start" },
     { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" },
-    { time: timedEvent.endDate, title: "Timed Event", overlap: "end" }
+    // Should show "24:00" as the time.
+    {
+      time: cal.dtz.formatter.formatTime(timedEvent.endDate, true),
+      title: "Timed Event",
+      overlap: "end",
+    },
+    { dateHeader: nextEvent.startDate, title: "Next Event" }
   );
 
   await calendar.deleteItem(allDayEvent);
   await calendar.deleteItem(timedEvent);
+  await calendar.deleteItem(nextEvent);
 });
 
 /**
