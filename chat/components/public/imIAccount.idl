@@ -239,7 +239,7 @@ interface prplIAccount: nsISupports {
   Array<prplISession> getSessions();
 
   /**
-   * Information as to the state of encryption capabilites of this account. For
+   * Information as to the state of encryption capabilities of this account. For
    * example Matrix surfaces the secret storage, key backup and cross-signing
    * status info here.
    * The protocol sends a "account-encryption-status-changed" notification when

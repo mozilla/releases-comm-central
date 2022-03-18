@@ -1611,7 +1611,7 @@ var GenericProtocolPrototype = {
   /**
    * Protocol agnostic implementation that splits the username by the pattern
    * defined with |usernamePrefix| and |usernameSplits| on the protocol.
-   * Prefers the first occurence of a separator.
+   * Prefers the first occurrence of a separator.
    *
    * @param {string} aName - Username to split.
    * @returns {string[]} Parts of the username or empty array if the username

@@ -591,7 +591,7 @@ MatrixRoom.prototype = {
   },
 
   /**
-   * Function to mark this room instance superceded by another one.
+   * Function to mark this room instance superseded by another one.
    * Useful when converting between DM and MUC or possibly room version
    * upgrades.
    *
@@ -726,7 +726,7 @@ MatrixRoom.prototype = {
     let newestEventId = event.getId();
     // Contents of the message to write/update
     let message;
-    // Options for the message. Many options derrived from event are set in
+    // Options for the message. Many options derived from event are set in
     // createMessage.
     let opts = {
       event,
@@ -1242,7 +1242,7 @@ MatrixRoom.prototype = {
     );
     // Limit how far back we search. Three days seems like it would catch most
     // relevant verification requests. We might get even older events in the
-    // intial load of 25 events.
+    // initial load of 25 events.
     const windowChunkSize = 25;
     const threeDaysMs = 1000 * 60 * 60 * 24 * 3;
     const newerThanMs = Date.now() - threeDaysMs;
@@ -1378,7 +1378,7 @@ MatrixRoom.prototype = {
 };
 
 /**
- * Initialize the verification, chosing the challenge method and calculating
+ * Initialize the verification, choosing the challenge method and calculating
  * the challenge string and description.
  *
  * @param {VerificationRequest} request - Matrix SDK verification request.
@@ -1931,7 +1931,7 @@ MatrixAccount.prototype = {
         case "RECONNECTING":
           this.reportConnecting();
           break;
-        case "ERRROR":
+        case "ERROR":
           this.reportDisconnecting(
             Ci.prplIAccount.ERROR_OTHER_ERROR,
             data.error.message
@@ -2391,7 +2391,7 @@ MatrixAccount.prototype = {
     const password = this.getString("backupPassphrase");
     if (!password) {
       // We do not support setting up secret storage, so we need a passphrase
-      // to boostrap.
+      // to bootstrap.
       return;
     }
     const backupInfo = await this._client.getKeyBackupVersion();
@@ -2930,7 +2930,7 @@ MatrixAccount.prototype = {
 
   /**
    * Sets the room ID for for corresponding user ID for direct messaging
-   * by setting the "m.direct" event of accont data of the SDK client.
+   * by setting the "m.direct" event of account data of the SDK client.
    *
    * @param {string} roomId - ID of the user.
    *

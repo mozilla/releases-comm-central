@@ -10,7 +10,7 @@ var irc = {};
 Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
 
 function getTags(aRawMsg) {
-  const { tags } = irc.ircMessage(aRawMsg, "doesnt@matter");
+  const { tags } = irc.ircMessage(aRawMsg, "does.not@matter");
 
   return tags;
 }

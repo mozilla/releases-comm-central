@@ -181,7 +181,7 @@ Account.prototype = {
 
   /**
    *
-   * @param {string} name - Name of the converstion.
+   * @param {string} name - Name of the conversation.
    * @returns {MUC}
    */
   makeMUC(name) {

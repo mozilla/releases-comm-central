@@ -438,7 +438,7 @@ var OTRUI = {
   /**
    * Set encryption state on selector for conversation.
    *
-   * @param {prplIConversation} _conv - Must match the visibile conversation.
+   * @param {prplIConversation} _conv - Must match the visible conversation.
    * @param {Context} [context] - The OTR context for the conversation.
    * @param {DOMDocument} doc
    * @param {boolean} [addSystemMessage] - If a system message with the conversation security.

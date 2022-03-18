@@ -664,7 +664,7 @@ var GlodaIMIndexer = {
    *   modified times at the time they were last indexed. The value for the file
    *   currently being indexed is updated to the aLastModifiedTime parameter's
    *   value once indexing is complete.
-   * @param {GlodaIMConversation} [aGlodaConv] - An optional inout param that
+   * @param {GlodaIMConversation} [aGlodaConv] - An optional in-out param that
    *   lets the caller save and reuse the GlodaIMConversation instance created
    *   when the conversation is indexed the first time. After a conversation is
    *   indexed for the first time, the GlodaIMConversation instance has its id

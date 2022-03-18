@@ -68,7 +68,7 @@ var ChatIcons = {
    *
    * @param {string} statusName - The name for the chat status.
    *
-   * @return {sting|null} - The icon URI for the given status, or null if none
+   * @return {string|null} - The icon URI for the given status, or null if none
    *   exists.
    */
   getStatusIconURI(statusName) {

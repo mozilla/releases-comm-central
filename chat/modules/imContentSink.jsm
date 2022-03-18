@@ -432,7 +432,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
       }
 
       // If the style attribute is now empty or if it contained unsupported or
-      // unparseable CSS it should be dropped completely.
+      // unparsable CSS it should be dropped completely.
       if (!style.length) {
         node.removeAttribute("style");
       }
