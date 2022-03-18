@@ -10,15 +10,6 @@
 let { TelemetryTestUtils } = ChromeUtils.import(
   "resource://testing-common/TelemetryTestUtils.jsm"
 );
-let {
-  create_address_book,
-  delete_address_book,
-  create_contact,
-  create_ldap_address_book,
-  load_contacts_into_address_book,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
-);
 
 /**
  * Test we're counting address books and contacts.
@@ -27,15 +18,19 @@ add_task(async function test_address_book_count() {
   Services.telemetry.clearScalars();
 
   // Adding some address books and contracts.
-  let addrBook1 = create_address_book("AB 1");
-  let addrBook2 = create_address_book("AB 2");
-  let ldapBook = create_ldap_address_book("LDAP Book");
+  let addrBook1 = createAddressBook("AB 1");
+  let addrBook2 = createAddressBook("AB 2");
+  let ldapBook = createAddressBook(
+    "LDAP Book",
+    Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
+  );
 
-  let contact1 = create_contact("test1@example.com", "test1", true);
-  let contact2 = create_contact("test2@example.com", "test2", true);
-  let contact3 = create_contact("test3@example.com", "test3", true);
-  load_contacts_into_address_book(addrBook1, [contact1]);
-  load_contacts_into_address_book(addrBook2, [contact2, contact3]);
+  let contact1 = createContact("test1", "example");
+  let contact2 = createContact("test2", "example");
+  let contact3 = createContact("test3", "example");
+  addrBook1.addCard(contact1);
+  addrBook2.addCard(contact2);
+  addrBook2.addCard(contact3);
 
   // Run the probe.
   reportAddressBookTypes();
@@ -57,9 +52,7 @@ add_task(async function test_address_book_count() {
     "Contact count must be correct"
   );
 
-  registerCleanupFunction(() => {
-    delete_address_book(addrBook1);
-    delete_address_book(addrBook2);
-    delete_address_book(ldapBook);
-  });
+  await promiseDirectoryRemoved(addrBook1.URI);
+  await promiseDirectoryRemoved(addrBook2.URI);
+  await promiseDirectoryRemoved(ldapBook.URI);
 });
