@@ -101,6 +101,7 @@ class NntpChannel {
       // the original listener and outStream (memory cache).
       tee.init(this._listener, outStream, null);
       this._listener = tee;
+      this._cacheEntry = entry;
       this._readFromServer();
       return;
     }
@@ -160,6 +161,7 @@ class NntpChannel {
     }
 
     this._listener = listener;
+    this._cacheEntry = null;
     if (this.URI.spec.includes("?part=") || this.URI.spec.includes("&part=")) {
       let converter = Cc["@mozilla.org/streamConverters;1"].getService(
         Ci.nsIStreamConverterService
@@ -286,11 +288,17 @@ class NntpChannel {
         this._listener.onDataAvailable(null, inputStream, 0, data.length);
       };
 
-      client.onDone = () => {
+      client.onDone = status => {
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
-        this._listener.onStopRequest(null, Cr.NS_OK);
+        if (status != Cr.NS_OK) {
+          // Prevent marking a message as read.
+          this.URI.errorCode = status;
+          // Remove the invalid cache.
+          this._cacheEntry?.asyncDoom(null);
+        }
+        this._listener.onStopRequest(null, status);
         this._newsFolder?.msgDatabase.Commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );

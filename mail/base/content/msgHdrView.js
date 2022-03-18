@@ -944,7 +944,10 @@ var messageHeaderSink = {
   },
 
   onEndMsgHeaders(url) {
-    OnMsgLoaded(url);
+    if (!url.errorCode) {
+      // Should not mark a message as read if failed to load.
+      OnMsgLoaded(url);
+    }
   },
 
   onMsgHasRemoteContent(aMsgHdr, aContentURI, aCanOverride) {

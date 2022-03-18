@@ -751,7 +751,7 @@ class NntpClient {
    */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
-    this.onDone();
+    this.onDone(status);
     this._newsGroup?.cleanUp();
     this._newsFolder?.OnStopRunningUrl?.(this.runningUri, status);
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
