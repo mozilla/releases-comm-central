@@ -64,6 +64,12 @@ add_task(async () => {
   let searchBox = abDocument.getElementById("searchInput");
   let cardsList = abDocument.getElementById("cards");
 
+  Assert.equal(
+    abDocument.activeElement,
+    searchBox,
+    "search box was focused when the page loaded"
+  );
+
   // All address books.
 
   checkCardsListed(

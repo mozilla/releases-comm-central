@@ -121,7 +121,7 @@ window.addEventListener("load", () => {
     booksList.dispatchEvent(new CustomEvent("select"));
   }
 
-  cardsPane.cardsList.focus();
+  document.getElementById("searchInput").focus();
 });
 
 window.addEventListener("unload", () => {
