@@ -13,7 +13,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/panelUI.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/content/calendar-invitation-display.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/skin/shared/calendar-invitation-display.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
 <!DOCTYPE html [
@@ -272,10 +272,11 @@
           <!-- notificationbox will be added here lazily. -->
         </vbox>
 
+#include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
+#include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
+
         <!-- The calendar invitation panel is displayed here. -->
-        <vbox flex="1">
-          <html:div id="calendarInvitationDisplay"></html:div>
-        </vbox>
+        <html:div id="calendarInvitationDisplay" hidden="hidden"></html:div>
 
         <!-- message view -->
         <browser id="messagepane"

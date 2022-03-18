@@ -1925,7 +1925,3 @@ printpreview-pagination:focus-within,
 .dialogOverlay[topmost="true"] {
   background-color: rgba(28, 27, 34, 0.45);
 }
-
-.messagepane-container {
-  overflow-y: auto;
-}

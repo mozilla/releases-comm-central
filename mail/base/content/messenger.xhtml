@@ -761,7 +761,7 @@
                         <!-- notificationbox will be added here lazily. -->
                       </vbox>
                       <vbox flex="1" class="messagepane-container">
-                        <hbox id="calendarInvitationDisplay" hidden="true"></hbox>
+                        <html:div id="calendarInvitationDisplay" hidden="hidden"></html:div>
                         <!-- The messagepanewrapper hbox exists to allow
                              extensions to add sidebars to the message. -->
                         <hbox id="messagepanewrapper" flex="1">
@@ -830,8 +830,8 @@
                    messagemanagergroup="single-page"/>
         </stack>
       </html:template>
-      #include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
-      #include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
+#include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
+#include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
       <!-- Hidden browser used for printing documents without displaying them. -->
       <browser id="hiddenPrintContent" type="content" remote="true" hidden="true"/>
     </tabmail>
