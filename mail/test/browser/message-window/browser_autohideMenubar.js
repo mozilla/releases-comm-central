@@ -111,8 +111,7 @@ add_task(async function test_autohidden_menubar_message_window() {
   close_message_window(msgc);
 });
 
-// We don't have an autohidable menu bar item for compose nor for address book:
-// compose-toolbar-menubar2 and addrbook-toolbar-menubar2.
+// We don't have an autohidable menu bar item for compose.
 /*
 add_task(async function test_autohidden_menubar_compose_window() {
   let cwc = open_compose_new_mail();
@@ -120,13 +119,6 @@ add_task(async function test_autohidden_menubar_compose_window() {
 
   await help_test_autohide(cwc, menubar);
   close_compose_window(cwc);
-});
-
-add_task(function async test_autohidden_menubar_address_book() {
-  let abc = open_address_book_window();
-  let menubar = abc.e("addrbook-toolbar-menubar2");
-
-  await help_test_autohide(abc, menubar);
 });
 */
 

@@ -8,15 +8,15 @@
 
 /* globals gFolderTreeView */
 
-var {
-  close_address_book_window,
-  open_address_book_window,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
-);
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
+var {
+  plan_for_new_window,
+  plan_for_window_close,
+  wait_for_new_window,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { ExtensionSupport } = ChromeUtils.import(
   "resource:///modules/ExtensionSupport.jsm"
@@ -137,14 +137,19 @@ add_task(function test_windowListeners() {
   Assert.equal(addonCount("test-addon2", "unload"), 2);
   Assert.equal(addonCount("test-addon3", "unload"), 0);
 
-  let abc = open_address_book_window();
+  plan_for_new_window("Activity:Manager");
+  window.openActivityMgr();
+  let amController = wait_for_new_window("Activity:Manager");
+
   // Only Addon1 listens to any window.
   Assert.equal(addonCount("test-addon1", "load"), 5);
   Assert.equal(addonCount("test-addon2", "load"), 2);
   Assert.equal(addonCount("test-addon3", "load"), 1);
   Assert.equal(addonCount("test-addon4", "load"), 1);
 
-  close_address_book_window(abc);
+  plan_for_window_close(amController);
+  amController.window.close();
+  wait_for_window_close(amController);
 
   Assert.equal(addonCount("test-addon1", "unload"), 3);
   Assert.equal(addonCount("test-addon2", "unload"), 2);
