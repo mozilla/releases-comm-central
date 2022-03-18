@@ -4226,7 +4226,8 @@ void nsImapProtocol::AbortMessageDownLoad() {
   m_curHdrInfo = nullptr;
 }
 
-void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
+void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
+    NO_THREAD_SAFETY_ANALYSIS {
   if (DeathSignalReceived()) return;
 
   // Update quota information
