@@ -1342,6 +1342,7 @@ this.menus = class extends ExtensionAPI {
         onClicked: new EventManager({
           context,
           name: "menus.onClicked",
+          inputHandling: true,
           register: fire => {
             let listener = (event, info, nativeTab) => {
               let { linkedBrowser } = nativeTab || tabTracker.activeTab;
