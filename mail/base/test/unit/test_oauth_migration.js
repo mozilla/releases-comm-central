@@ -52,7 +52,7 @@ var gAccountList = [
         user: "imapout",
         password: "imapoutpassword",
         isDefault: false,
-        hostname: "smtp.mail.google.com",
+        hostname: "smtp.gmail.com",
         socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
         authMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
       },
@@ -64,7 +64,7 @@ var gAccountList = [
     port: 2345,
     user: "imap2user",
     password: "imap2password",
-    hostname: "imap.mail.google.com",
+    hostname: "imap.gmail.com",
     socketType: Ci.nsMsgSocketType.trySTARTTLS,
     authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     smtpServers: [
@@ -142,6 +142,27 @@ var gAccountList = [
       },
     ],
   },
+  // Google POP3 account.
+  {
+    type: "pop3",
+    port: 995,
+    user: "gmailpop3",
+    password: "abc",
+    hostname: "pop.gmail.com",
+    socketType: Ci.nsMsgSocketType.trySTARTTLS,
+    authMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+    smtpServers: [
+      {
+        port: 465,
+        user: "gmailpopout",
+        password: "aaa",
+        isDefault: true,
+        hostname: "smtp.gmail.com",
+        socketType: Ci.nsMsgAuthMethod.alwaysSTARTTLS,
+        authMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+      },
+    ],
+  },
 ];
 
 // An array of the incoming servers created from the setup_accounts() method.
@@ -196,7 +217,7 @@ function setup_accounts() {
   }
 }
 
-function test_yahoo_oauth_migration() {
+function test_oauth_migration() {
   setup_accounts();
 
   for (let server of gIncomingServers) {
@@ -204,7 +225,7 @@ function test_yahoo_oauth_migration() {
     Assert.notEqual(
       server.authMethod,
       Ci.nsMsgAuthMethod.OAuth2,
-      "Incoming server doesn't use OAuth2"
+      "Incoming server should not use OAuth2"
     );
   }
 
@@ -213,7 +234,7 @@ function test_yahoo_oauth_migration() {
     Assert.notEqual(
       server.authMethod,
       Ci.nsMsgAuthMethod.OAuth2,
-      "Outgoing server doesn't use OAuth2"
+      "Outgoing server should not use OAuth2"
     );
   }
 
@@ -225,12 +246,13 @@ function test_yahoo_oauth_migration() {
     // Confirm only the correct incoming servers are using OAuth2 after migration.
     if (
       !server.hostName.endsWith("mail.yahoo.com") &&
-      !server.hostName.endsWith("aol.com")
+      !server.hostName.endsWith("aol.com") &&
+      !server.hostName.endsWith("gmail.com")
     ) {
       Assert.notEqual(
         server.authMethod,
         Ci.nsMsgAuthMethod.OAuth2,
-        `Incoming server ${server.hostName} doesn't use OAuth2 after migration`
+        `Incoming server ${server.hostName} should not use OAuth2 after migration`
       );
       continue;
     }
@@ -246,12 +268,13 @@ function test_yahoo_oauth_migration() {
     // Confirm only the correct outgoing servers are using OAuth2 after migration.
     if (
       !server.hostname.endsWith("mail.yahoo.com") &&
-      !server.hostname.endsWith("aol.com")
+      !server.hostname.endsWith("aol.com") &&
+      !server.hostname.endsWith("gmail.com")
     ) {
       Assert.notEqual(
         server.authMethod,
         Ci.nsMsgAuthMethod.OAuth2,
-        `Outgoing server ${server.hostname} doesn't use OAuth2 after migration`
+        `Outgoing server ${server.hostname} should not use OAuth2 after migration`
       );
       continue;
     }
@@ -274,5 +297,5 @@ function test_yahoo_oauth_migration() {
 }
 
 function run_test() {
-  test_yahoo_oauth_migration();
+  test_oauth_migration();
 }

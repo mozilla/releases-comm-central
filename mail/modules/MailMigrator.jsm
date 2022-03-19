@@ -54,7 +54,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 31;
+    const UI_VERSION = 32;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -573,6 +573,12 @@ var MailMigrator = {
           "migration-task-test-fast",
           () => new Promise(r => setTimeout(r, 500))
         );
+      }
+
+      if (currentUIVersion < 32) {
+        this._migrateIncomingToOAuth2("imap.gmail.com");
+        this._migrateIncomingToOAuth2("pop.gmail.com");
+        this._migrateSMTPToOAuth2("smtp.gmail.com");
       }
 
       MigrationTasks.runTasks();
