@@ -1,0 +1,126 @@
+[
+  {
+    "namespace": "spacesToolbar",
+    "types": [
+      {
+        "id": "ButtonProperties",
+        "type": "object",
+        "properties": {
+          "badgeBackgroundColor": {
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "ColorArray"
+              }
+            ],
+            "optional": true,
+            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <code>[255, 0, 0, 255]</code>. Can also be a string with an HTML color name (<code>red</code>) or a HEX color value (<code>#FF0000</code> or <code>#F00</code>). Reset when set to an empty string."
+          },
+          "badgeText": {
+            "type": "string",
+            "optional": true,
+            "description": "Sets the badge text for the spaces toolbar button. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to an empty string."
+          },
+          "defaultIcons": {
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "manifest.IconPath"
+              }
+            ],
+            "optional": true,
+            "description": "Either a relative image path defining a single icon used for all sizes or an IconPathDictionary object defining dedicated icons for different sizes. At least the ``16px`` icon should be specified. The ``32px`` icon will be used on screens with a very high pixel density, if specified. Defaults to the extension icon, if set to an empty string."
+          },
+          "themeIcons": {
+            "type": "array",
+            "optional": true,
+            "items": {
+              "$ref": "manifest.ThemeIcons"
+            },
+            "description": "Specifies dark and light icons for the spaces toolbar button to be used with themes: The ``light`` icons will be used on dark backgrounds and vice versa. At least the set for ``16px`` icons should be specified. The set for ``32px`` icons will be used on screens with a very high pixel density, if specified."
+          },
+          "title": {
+            "type": "string",
+            "optional": true,
+            "description": "The title for the spaces toolbar button, used in the tooltip of the button and as the displayed name in the overflow menu. Defaults to the name of the extension, if set to an empty string."
+          },
+          "url": {
+            "type": "string",
+            "optional": true,
+            "description": "The page url, loaded into a tab when the button is clicked. Supported are ``https://`` and ``http://`` links, as well as links to WebExtension pages."
+          }
+        }
+      },
+      {
+        "id": "ColorArray",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <code>[255, 0, 0, 255]</code>.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "minItems": 4,
+        "maxItems": 4
+      }
+    ],
+    "functions": [
+      {
+        "name": "addButton",
+        "type": "function",
+        "description": "Adds a new button to the spaces toolbar. Throws an exception, if the used ``id`` is not unique within the extension.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "description": "The unique id to assign to this button. May only contain alphanumeric characters and underscores."
+          },
+          {
+            "name": "properties",
+            "description": "Properties of the new button. The ``url`` is mandatory.",
+            "$ref": "spacesToolbar.ButtonProperties"
+          }
+        ]
+      },
+      {
+        "name": "removeButton",
+        "type": "function",
+        "description": "Removes the specified button from the spaces toolbar. Throws an exception if the requested spaces toolbar button does not exist. If the tab of this button is currently open, it will be closed.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "description": "The id of the button which is to be removed. May only contain alphanumeric characters and underscores."
+          }
+        ]
+      },
+      {
+        "name": "updateButton",
+        "type": "function",
+        "description": "Updates properties of the specified spaces toolbar button. Throws an exception if the requested spaces toolbar button does not exist.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "The id of the button which is to be updated. May only contain alphanumeric characters and underscores.",
+            "pattern": "^[a-zA-Z0-9_]+$"
+          },
+          {
+            "name": "properties",
+            "description": "Only specified properties will be updated.",
+            "$ref": "spacesToolbar.ButtonProperties"
+          }
+        ]
+      }
+    ]
+  }
+]

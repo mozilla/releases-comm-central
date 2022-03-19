@@ -13,29 +13,41 @@
 }
 
 @media not all and (min-resolution: 1.1dppx) {
+  :root .spaces-addon-menuitem,
+  :root .spaces-popup-menuitem,
   .webextension-action {
     list-style-image: var(--webextension-toolbar-image, inherit);
   }
-
+  :root .spaces-addon-menuitem:-moz-lwtheme,
+  :root .spaces-popup-menuitem:-moz-lwtheme,
   .webextension-action:-moz-lwtheme,
   toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
     list-style-image: var(--webextension-toolbar-image-dark, inherit);
   }
-
+  :root .spaces-addon-menuitem:-moz-lwtheme-brighttext,
+  :root .spaces-popup-menuitem:-moz-lwtheme-brighttext,
   toolbar[brighttext] .webextension-action,
   .webextension-action:-moz-lwtheme-brighttext,
   :root[lwt-tree-brighttext] .webextension-action {
     list-style-image: var(--webextension-toolbar-image-light, inherit);
   }
 
+  :root .spaces-addon-button img {
+    content: var(--webextension-toolbar-image, inherit);
+  }
+  :root .spaces-addon-button:-moz-lwtheme img {
+    content: var(--webextension-toolbar-image-dark, inherit);
+  }
+  :root .spaces-addon-button:-moz-lwtheme-brighttext img {
+    content: var(--webextension-toolbar-image-light, inherit);
+  }
+
   .webextension-action[cui-areatype="menu-panel"] {
     list-style-image: var(--webextension-menupanel-image, inherit);
   }
-
   :root[lwt-popup-brighttext] .webextension-action[cui-areatype="menu-panel"] {
     list-style-image: var(--webextension-menupanel-image-light, inherit);
   }
-
   :root:not([lwt-popup-brighttext]) .webextension-action[cui-areatype="menu-panel"]:-moz-lwtheme {
     list-style-image: var(--webextension-menupanel-image-dark, inherit);
   }
@@ -46,29 +58,41 @@
 }
 
 @media (min-resolution: 1.1dppx) {
+  :root .spaces-addon-menuitem,
+  :root .spaces-popup-menuitem,
   .webextension-action {
     list-style-image: var(--webextension-toolbar-image-2x, inherit);
   }
-
+  :root .spaces-addon-menuitem:-moz-lwtheme,
+  :root .spaces-popup-menuitem:-moz-lwtheme,
   .webextension-action:-moz-lwtheme,
   toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
     list-style-image: var(--webextension-toolbar-image-2x-dark, inherit);
   }
-
+  :root .spaces-addon-menuitem:-moz-lwtheme-brighttext,
+  :root .spaces-popup-menuitem:-moz-lwtheme-brighttext,
   toolbar[brighttext] .webextension-action,
   .webextension-action:-moz-lwtheme-brighttext,
   :root[lwt-tree-brighttext] .webextension-action {
     list-style-image: var(--webextension-toolbar-image-2x-light, inherit);
   }
 
+  :root .spaces-addon-button img {
+    content: var(--webextension-toolbar-image-2x, inherit);
+  }
+  :root .spaces-addon-button:-moz-lwtheme img {
+    content: var(--webextension-toolbar-image-2x-dark, inherit);
+  }
+  :root .spaces-addon-button:-moz-lwtheme-brighttext img {
+    content: var(--webextension-toolbar-image-2x-light, inherit);
+  }
+
   .webextension-action[cui-areatype="menu-panel"] {
     list-style-image: var(--webextension-menupanel-image-2x, inherit);
   }
-
   :root[lwt-popup-brighttext] .webextension-action[cui-areatype="menu-panel"] {
     list-style-image: var(--webextension-menupanel-image-2x-light, inherit);
   }
-
   :root:not([lwt-popup-brighttext]) .webextension-action[cui-areatype="menu-panel"]:-moz-lwtheme {
     list-style-image: var(--webextension-menupanel-image-2x-dark, inherit);
   }

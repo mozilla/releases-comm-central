@@ -170,6 +170,14 @@
       ["pkcs11"]
     ]
   },
+  "spacesToolbar": {
+    "url": "chrome://messenger/content/parent/ext-spacesToolbar.js",
+    "schema": "chrome://messenger/content/schemas/spacesToolbar.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["spacesToolbar"]
+    ]
+  },
   "tabs": {
     "url": "chrome://messenger/content/parent/ext-tabs.js",
     "schema": "chrome://messenger/content/schemas/tabs.json",

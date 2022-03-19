@@ -13,6 +13,15 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * Special vertical toolbar to organize all the buttons opening a tab.
  */
 var gSpacesToolbar = {
+  SUPPORTED_BADGE_STYLES: ["--spaces-button-badge-bg-color"],
+  SUPPORTED_ICON_STYLES: [
+    "--webextension-toolbar-image",
+    "--webextension-toolbar-image-dark",
+    "--webextension-toolbar-image-light",
+    "--webextension-toolbar-image-2x",
+    "--webextension-toolbar-image-2x-dark",
+    "--webextension-toolbar-image-2x-light",
+  ],
   docURL: "chrome://messenger/content/messenger.xhtml",
   isLoaded: false,
   isHidden: false,
@@ -300,6 +309,7 @@ var gSpacesToolbar = {
     this.loadCustomization();
 
     this.isLoaded = true;
+    window.dispatchEvent(new CustomEvent("spaces-toolbar-ready"));
     // Update the window UI after the spaces toolbar has been loaded.
     this.updateUI(
       document.documentElement.getAttribute("tabsintitlebar") == "true"
@@ -352,7 +362,7 @@ var gSpacesToolbar = {
       space.button.addEventListener("click", () => {
         this._setSpaceOpenAction(tabmail, space);
       });
-      space.menuitem?.addEventListener("click", () => {
+      space.menuitem?.addEventListener("command", () => {
         this._setSpaceOpenAction(tabmail, space);
       });
       if (space.name == "settings") {
@@ -858,24 +868,36 @@ var gSpacesToolbar = {
   },
 
   /**
+   * @typedef NativeButtonProperties
+   * @property {string} title - The text of the button tooltip and menuitem value.
+   * @property {string} url - The URL of the content tab to open.
+   * @property {Map} iconStyles - The icon styles Map.
+   * @property {?string} badgeText - The optional badge text.
+   * @property {?Map} badgeStyles - The optional badge styles Map.
+   */
+
+  /**
    * Helper function for extensions in order to add buttons to the spaces
    * toolbar.
    *
    * @param {string} id - The ID of the newly created button.
-   * @param {string} title - The text of the button tooltip and menuitem value.
-   * @param {string} url - The URL of the content tab to open.
-   * @param {?string} src - The option location of the image used in the button.
+   * @param {NativeButtonProperties} properties - The properties of the new button.
    *
    * @returns {Promise} - A Promise that resolves when the button is created.
    */
-  async createToolbarButton(id, title, url, src) {
+  async createToolbarButton(id, properties = {}) {
     return new Promise((resolve, reject) => {
       if (!this.isLoaded) {
         return reject("Unable to add spaces toolbar button! Toolbar not ready");
       }
-      if (!id || !title || !url) {
+      if (
+        !id ||
+        !properties.title ||
+        !properties.url ||
+        !properties.iconStyles
+      ) {
         return reject(
-          "Unable to add spaces toolbar button! Missing ID, Title, or space URL"
+          "Unable to add spaces toolbar button! Missing ID, Title, IconStyles, or space URL"
         );
       }
 
@@ -883,11 +905,13 @@ var gSpacesToolbar = {
       let button = document.createElement("button");
       button.classList.add("spaces-toolbar-button", "spaces-addon-button");
       button.id = id;
-      button.title = title;
-      let icon =
-        src || "chrome://mozapps/skin/extensions/category-extensions.svg";
+      button.title = properties.title;
+
+      let badge = document.createElement("span");
+      badge.classList.add("spaces-badge-container");
+      button.appendChild(badge);
+
       let img = document.createElement("img");
-      img.setAttribute("src", icon);
       img.setAttribute("alt", "");
       button.appendChild(img);
       document
@@ -897,13 +921,13 @@ var gSpacesToolbar = {
       // Create the menuitem.
       let menuitem = document.createXULElement("menuitem");
       menuitem.classList.add(
+        "spaces-addon-menuitem",
         "subviewbutton",
         "menuitem-iconic",
         "spaces-popup-menuitem"
       );
       menuitem.id = `${id}-menuitem`;
-      menuitem.label = title;
-      menuitem.setAttribute("style", `list-style-image: url("${icon}")`);
+      menuitem.label = properties.title;
       document
         .getElementById("spacesButtonMenuPopup")
         .insertBefore(
@@ -911,13 +935,61 @@ var gSpacesToolbar = {
           document.getElementById("spacesPopupRevealSeparator")
         );
 
-      // Use global event handlers instead of event listener because these
-      // elements can be updated and we don't want to allow stacking a bunch of
-      // event listeners on top of each other.
-      button.onclick = () => openTab("contentTab", { url });
-      // TODO: We will need to handle the keypress event of the menuitem once
-      // we make this keyboard accessible.
-      menuitem.onclick = () => openTab("contentTab", { url });
+      // Set icons.
+      for (let style of this.SUPPORTED_ICON_STYLES) {
+        if (properties.iconStyles.has(style)) {
+          img.style.setProperty(style, properties.iconStyles.get(style));
+          menuitem.style.setProperty(style, properties.iconStyles.get(style));
+        }
+      }
+
+      // Add space.
+      gSpacesToolbar.spaces.push({
+        name: id,
+        button,
+        menuitem,
+        url: properties.url,
+        tabInSpace(tabInfo) {
+          // TODO: Store the spaceId in the XULStore (or somewhere), so the
+          // space is recognized after a restart. Or force closing of all spaces
+          // on shutdown.
+          return tabInfo.spaceId == this.name ? 1 : 0;
+        },
+        open(where) {
+          let tab = openContentTab(this.url, where);
+          tab.spaceId = this.name;
+          // TODO: Make sure the spaceId is set during load, and not here, where
+          // it is too late.
+          gSpacesToolbar.currentSpace = this;
+          button.classList.add("current");
+          return tab;
+        },
+      });
+
+      // Set click actions.
+      let tabmail = document.getElementById("tabmail");
+      button.addEventListener("click", () => {
+        let space = gSpacesToolbar.spaces.find(space => space.name == id);
+        this._setSpaceOpenAction(tabmail, space);
+      });
+      menuitem.addEventListener("command", () => {
+        let space = gSpacesToolbar.spaces.find(space => space.name == id);
+        this._setSpaceOpenAction(tabmail, space);
+      });
+
+      // Set badge.
+      if (properties.badgeText) {
+        button.classList.add("has-badge");
+        badge.textContent = properties.badgeText;
+      }
+
+      if (properties.badgeStyles) {
+        for (let style of this.SUPPORTED_BADGE_STYLES) {
+          if (properties.badgeStyles.has(style)) {
+            badge.style.setProperty(style, properties.badgeStyles.get(style));
+          }
+        }
+      }
 
       this.updateAddonButtonsUI();
       return resolve();
@@ -929,17 +1001,21 @@ var gSpacesToolbar = {
    * to the spaces toolbar.
    *
    * @param {string} id - The ID of the button that needs to be updated.
-   * @param {string} title - The text of the button tooltip and menuitem value.
-   * @param {?string} url - The URL of the content tab to open.
-   * @param {?string} src - The optional icon image url.
+   * @param {NativeButtonProperties} properties - The new properties of the button.
+   *   Not specifying the optional badgeText or badgeStyles will remove them.
    *
    * @returns {Promise} - A promise that resolves when the button is updated.
    */
-  async updateToolbarButton(id, title, url, src) {
+  async updateToolbarButton(id, properties = {}) {
     return new Promise((resolve, reject) => {
-      if (!id || !title) {
+      if (
+        !id ||
+        !properties.title ||
+        !properties.url ||
+        !properties.iconStyles
+      ) {
         return reject(
-          "Unable to updated spaces toolbar button! Missing ID or Title"
+          "Unable to update spaces toolbar button! Missing ID, Title, IconsStyles, or space URL"
         );
       }
 
@@ -951,18 +1027,40 @@ var gSpacesToolbar = {
         );
       }
 
-      button.title = title;
-      button
-        .querySelector("img")
-        .setAttribute(
-          "src",
-          src || "chrome://mozapps/skin/extensions/category-extensions.svg"
-        );
-      menuitem.label = title;
+      button.title = properties.title;
+      menuitem.label = properties.title;
 
-      if (url) {
-        button.onclick = () => openTab("contentTab", { url });
-        menuitem.onclick = () => openTab("contentTab", { url });
+      // Update icons.
+      let img = button.querySelector("img");
+      for (let style of this.SUPPORTED_ICON_STYLES) {
+        let value = properties.iconStyles.get(style);
+        img.style.setProperty(style, value ?? null);
+        menuitem.style.setProperty(style, value ?? null);
+      }
+
+      // Update url.
+      let space = gSpacesToolbar.spaces.find(space => space.name == id);
+      if (space.url != properties.url) {
+        // TODO: Reload the space, when the url is changed (or close and re-open
+        // the tab).
+        space.url = properties.url;
+      }
+
+      // Update badge.
+      let badge = button.querySelector(".spaces-badge-container");
+      if (properties.badgeText) {
+        button.classList.add("has-badge");
+        badge.textContent = properties.badgeText;
+      } else {
+        button.classList.remove("has-badge");
+        badge.textContent = "";
+      }
+
+      for (let style of this.SUPPORTED_BADGE_STYLES) {
+        badge.style.setProperty(
+          style,
+          properties.badgeStyles?.get(style) ?? null
+        );
       }
 
       return resolve();
@@ -989,6 +1087,17 @@ var gSpacesToolbar = {
 
       document.getElementById(`${id}`)?.remove();
       document.getElementById(`${id}-menuitem`)?.remove();
+
+      let space = gSpacesToolbar.spaces.find(space => space.name == id);
+      let tabmail = document.getElementById("tabmail");
+      let existing = tabmail.tabInfo.find(
+        tabInfo => space.tabInSpace(tabInfo) == 1
+      );
+      if (existing) {
+        tabmail.closeTab(existing);
+      }
+
+      gSpacesToolbar.spaces = gSpacesToolbar.spaces.filter(e => e.name != id);
       this.updateAddonButtonsUI();
 
       return resolve();
@@ -1014,8 +1123,15 @@ var gSpacesToolbar = {
         "spaces-popup-menuitem"
       );
       menuitem.label = button.title;
+
       let img = button.querySelector("img");
-      menuitem.setAttribute("style", `list-style-image: url("${img.src}")`);
+      for (let style of this.SUPPORTED_ICON_STYLES) {
+        menuitem.style.setProperty(
+          style,
+          img.style.getPropertyValue(style) ?? null
+        );
+      }
+
       menuitem.addEventListener("command", () => button.click());
       popup.appendChild(menuitem);
     }

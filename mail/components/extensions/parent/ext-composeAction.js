@@ -14,6 +14,11 @@ ChromeUtils.defineModuleGetter(
 
 const composeActionMap = new WeakMap();
 
+var { ExtensionCommon } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionCommon.jsm"
+);
+var { makeWidgetId } = ExtensionCommon;
+
 this.composeAction = class extends ToolbarButtonAPI {
   static for(extension) {
     return composeActionMap.get(extension);

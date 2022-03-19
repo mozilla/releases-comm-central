@@ -6,7 +6,7 @@
 
 "use strict";
 
-const EXPORTED_SYMBOLS = ["ToolbarButtonAPI"];
+const EXPORTED_SYMBOLS = ["ToolbarButtonAPI", "getIconData"];
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -45,6 +45,70 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 
 var DEFAULT_ICON = "chrome://messenger/content/extension.svg";
+
+/**
+ * Get icon properties for updating the UI.
+ *
+ * @param {Object} icons
+ *        Contains the icon information, typically the extension manifest
+ */
+function getIconData(icons, extension) {
+  let baseSize = 16;
+  let { icon, size } = IconDetails.getPreferredIcon(icons, extension, baseSize);
+
+  let legacy = false;
+
+  // If the best available icon size is not divisible by 16, check if we have
+  // an 18px icon to fall back to, and trim off the padding instead.
+  if (size % 16 && typeof icon === "string" && !icon.endsWith(".svg")) {
+    let result = IconDetails.getPreferredIcon(icons, extension, 18);
+
+    if (result.size % 18 == 0) {
+      baseSize = 18;
+      icon = result.icon;
+      legacy = true;
+    }
+  }
+
+  let getIcon = (size, theme) => {
+    let { icon } = IconDetails.getPreferredIcon(icons, extension, size);
+    if (typeof icon === "object") {
+      if (icon[theme] == IconDetails.DEFAULT_ICON) {
+        icon[theme] = DEFAULT_ICON;
+      }
+      return IconDetails.escapeUrl(icon[theme]);
+    }
+    if (icon == IconDetails.DEFAULT_ICON) {
+      return DEFAULT_ICON;
+    }
+    return IconDetails.escapeUrl(icon);
+  };
+
+  let style = [];
+  let getStyle = (name, size) => {
+    style.push([
+      `--webextension-${name}`,
+      `url("${getIcon(size, "default")}")`,
+    ]);
+    style.push([
+      `--webextension-${name}-light`,
+      `url("${getIcon(size, "light")}")`,
+    ]);
+    style.push([
+      `--webextension-${name}-dark`,
+      `url("${getIcon(size, "dark")}")`,
+    ]);
+  };
+
+  getStyle("menupanel-image", 32);
+  getStyle("menupanel-image-2x", 64);
+  getStyle("toolbar-image", baseSize);
+  getStyle("toolbar-image-2x", baseSize * 2);
+
+  let realIcon = getIcon(size, "default");
+
+  return { style, legacy, realIcon };
+}
 
 var ToolbarButtonAPI = class extends ExtensionAPI {
   constructor(extension, global) {
@@ -127,13 +191,13 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
         )
     );
 
-    this.iconData = new DefaultWeakMap(icons => this.getIconData(icons));
+    this.iconData = new DefaultWeakMap(icons => getIconData(icons, extension));
     this.iconData.set(
       this.defaults.icon,
       await StartupCache.get(
         extension,
         [this.manifestName, "default_icon_data"],
-        () => this.getIconData(this.defaults.icon)
+        () => getIconData(this.defaults.icon, extension)
       )
     );
 
@@ -404,74 +468,6 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     } else {
       node.ownerGlobal.requestAnimationFrame(callback);
     }
-  }
-
-  /**
-   * Get icon properties for updating the UI.
-   *
-   * @param {Object} icons
-   *        Contains the icon information, typically the extension manifest
-   */
-  getIconData(icons) {
-    let baseSize = 16;
-    let { icon, size } = IconDetails.getPreferredIcon(
-      icons,
-      this.extension,
-      baseSize
-    );
-
-    let legacy = false;
-
-    // If the best available icon size is not divisible by 16, check if we have
-    // an 18px icon to fall back to, and trim off the padding instead.
-    if (size % 16 && typeof icon === "string" && !icon.endsWith(".svg")) {
-      let result = IconDetails.getPreferredIcon(icons, this.extension, 18);
-
-      if (result.size % 18 == 0) {
-        baseSize = 18;
-        icon = result.icon;
-        legacy = true;
-      }
-    }
-
-    let getIcon = (size, theme) => {
-      let { icon } = IconDetails.getPreferredIcon(icons, this.extension, size);
-      if (typeof icon === "object") {
-        if (icon[theme] == IconDetails.DEFAULT_ICON) {
-          icon[theme] = DEFAULT_ICON;
-        }
-        return IconDetails.escapeUrl(icon[theme]);
-      }
-      if (icon == IconDetails.DEFAULT_ICON) {
-        return DEFAULT_ICON;
-      }
-      return IconDetails.escapeUrl(icon);
-    };
-
-    let style = [];
-    let getStyle = (name, size) => {
-      style.push([
-        `--webextension-${name}`,
-        `url("${getIcon(size, "default")}")`,
-      ]);
-      style.push([
-        `--webextension-${name}-light`,
-        `url("${getIcon(size, "light")}")`,
-      ]);
-      style.push([
-        `--webextension-${name}-dark`,
-        `url("${getIcon(size, "dark")}")`,
-      ]);
-    };
-
-    getStyle("menupanel-image", 32);
-    getStyle("menupanel-image-2x", 64);
-    getStyle("toolbar-image", baseSize);
-    getStyle("toolbar-image-2x", baseSize * 2);
-
-    let realIcon = getIcon(size, "default");
-
-    return { style, legacy, realIcon };
   }
 
   /**

@@ -56,7 +56,6 @@ module.exports = {
     getTabBrowser: true,
     getTabTabmail: true,
     getTabWindow: true,
-    makeWidgetId: true,
     messageListTracker: true,
     messageTracker: true,
     tabGetSender: true,

@@ -575,7 +575,7 @@ SettingsImportHelper.prototype = {
  * @param aModuleSearchString
  *                   The string to search the module names for, such as
  *                   "Outlook Express", etc.
- * @param aExpected  The number of filters that should exists after import.
+ * @param aExpected  The number of filters that should exist after import.
  *
  * @constructor
  * @class

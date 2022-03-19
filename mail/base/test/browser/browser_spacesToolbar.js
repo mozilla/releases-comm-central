@@ -6,8 +6,6 @@
  * Test the spaces toolbar features.
  */
 
-const DEFAULT_ICON = "chrome://mozapps/skin/extensions/category-extensions.svg";
-
 var folderA;
 var folderB;
 var testAccount;
@@ -850,22 +848,90 @@ add_task(async function testSpacesToolbarExtension() {
   window.gSpacesToolbar.toggleToolbar(false);
 
   for (let i = 0; i < 6; i++) {
-    await window.gSpacesToolbar.createToolbarButton(
-      `testButton${i}`,
-      `Title ${i}`,
-      "about:addons"
-    );
+    await window.gSpacesToolbar.createToolbarButton(`testButton${i}`, {
+      title: `Title ${i}`,
+      url: `https://test.invalid/${i}`,
+      iconStyles: new Map([
+        [
+          "--webextension-toolbar-image",
+          'url("chrome://messenger/content/extension.svg")',
+        ],
+      ]),
+    });
     let button = document.getElementById(`testButton${i}`);
     Assert.ok(button);
     Assert.equal(button.title, `Title ${i}`);
-    Assert.equal(button.querySelector("img").src, DEFAULT_ICON);
+
+    let img = button.querySelector("img");
+    Assert.equal(
+      img.style.getPropertyValue("--webextension-toolbar-image"),
+      `url("chrome://messenger/content/extension.svg")`,
+      `Button image should have the correct icon.`
+    );
 
     let menuitem = document.getElementById(`testButton${i}-menuitem`);
     Assert.ok(menuitem);
     Assert.equal(menuitem.label, `Title ${i}`);
     Assert.equal(
-      menuitem.getAttribute("style"),
-      `list-style-image: url("${DEFAULT_ICON}")`
+      menuitem.style.getPropertyValue("--webextension-toolbar-image"),
+      `url("chrome://messenger/content/extension.svg")`,
+      `Menuitem should have the correct icon.`
+    );
+
+    let space = window.gSpacesToolbar.spaces.find(
+      space => space.name == `testButton${i}`
+    );
+    Assert.ok(space);
+    Assert.equal(
+      space.url,
+      `https://test.invalid/${i}`,
+      "Added url should be correct."
+    );
+  }
+
+  for (let i = 0; i < 6; i++) {
+    await window.gSpacesToolbar.updateToolbarButton(`testButton${i}`, {
+      title: `Modified Title ${i}`,
+      url: `https://test.invalid/${i + 1}`,
+      iconStyles: new Map([
+        [
+          "--webextension-toolbar-image",
+          'url("chrome://messenger/skin/icons/new-addressbook.svg")',
+        ],
+      ]),
+    });
+    let button = document.getElementById(`testButton${i}`);
+    Assert.ok(button);
+    Assert.equal(button.title, `Modified Title ${i}`);
+
+    let img = button.querySelector("img");
+    Assert.equal(
+      img.style.getPropertyValue("--webextension-toolbar-image"),
+      `url("chrome://messenger/skin/icons/new-addressbook.svg")`,
+      `Button image should have the correct icon.`
+    );
+
+    let menuitem = document.getElementById(`testButton${i}-menuitem`);
+    Assert.ok(menuitem);
+    Assert.equal(
+      menuitem.label,
+      `Modified Title ${i}`,
+      "Updated title should be correct."
+    );
+    Assert.equal(
+      menuitem.style.getPropertyValue("--webextension-toolbar-image"),
+      `url("chrome://messenger/skin/icons/new-addressbook.svg")`,
+      `Menuitem should have the correct icon.`
+    );
+
+    let space = window.gSpacesToolbar.spaces.find(
+      space => space.name == `testButton${i}`
+    );
+    Assert.ok(space);
+    Assert.equal(
+      space.url,
+      `https://test.invalid/${i + 1}`,
+      "Updated url should be correct."
     );
   }
 

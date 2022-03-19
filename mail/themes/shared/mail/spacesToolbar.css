@@ -10,12 +10,11 @@
   --spaces-button-text-color: currentColor;
   --spaces-button-active-text-color: SelectedItemText;
   --spaces-button-active-bg-color: SelectedItem;
-  --spaces-button-unread-text-color: #FFF;
-  --spaces-button-unread-bg-color: #E60202;
+  --spaces-button-badge-text-color: #FFF;
+  --spaces-button-badge-bg-color: #E60202;
 }
 
 :root:-moz-window-inactive {
-  --spaces-button-unread-bg-color: rgba(215, 6, 6, 0.5);
   --spaces-bg-image: none;
 }
 
@@ -41,8 +40,8 @@
   --spaces-container-gap: 15px;
   --spaces-button-padding: 5px;
   --spaces-pinned-button-margin: 4px;
-  --spaces-unread-padding: 1px 6px;
-  --spaces-unread-font: 0.9rem;
+  --spaces-button-badge-padding: 1px 6px;
+  --spaces-button-badge-font: 0.9rem;
 }
 
 :root[uidensity="compact"] {
@@ -52,8 +51,8 @@
   --spaces-container-gap: 9px;
   --spaces-button-padding: 4px;
   --spaces-pinned-button-margin: 3px;
-  --spaces-unread-padding: 1px 4px;
-  --spaces-unread-font: 0.85rem;
+  --spaces-button-badge-padding: 1px 4px;
+  --spaces-button-badge-font: 0.85rem;
 }
 
 :root[uidensity="touch"] {
@@ -63,8 +62,8 @@
   --spaces-container-gap: 18px;
   --spaces-button-padding: 6px;
   --spaces-pinned-button-margin: 6px;
-  --spaces-unread-padding: 3px 8px;
-  --spaces-unread-font: 1rem;
+  --spaces-button-badge-padding: 3px 8px;
+  --spaces-button-badge-font: 1rem;
 }
 
 .spaces-toolbar:not([hidden]) {
@@ -226,24 +225,27 @@
 
 #spacesToolbarAddonsContainer {
   flex: 1;
-  overflow: hidden;
 }
 
-.spaces-unread-container {
+.spaces-badge-container {
   display: none;
   position: absolute;
   inset-inline-end: -3px;
   inset-block-start: -2px;
-  padding: var(--spaces-unread-padding);
+  padding: var(--spaces-button-badge-padding);
   font-weight: 600;
-  font-size: var(--spaces-unread-font);
+  font-size: var(--spaces-button-badge-font);
   border-radius: 12px;
-  background-color: var(--spaces-button-unread-bg-color);
-  color: var(--spaces-button-unread-text-color);
+  background-color: var(--spaces-button-badge-bg-color);
+  color: var(--spaces-button-badge-text-color);
   line-height: 1em;
 }
 
-.has-unread .spaces-unread-container {
+.spaces-badge-container:-moz-window-inactive {
+  background-color: color-mix(in srgb, var(--spaces-button-badge-bg-color) 50%, black);
+}
+
+.has-badge .spaces-badge-container {
   display: block;
 }
 

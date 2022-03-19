@@ -562,9 +562,9 @@ var chatHandler = {
 
     let spacesChatButton = document.getElementById("chatButton");
     if (spacesChatButton) {
-      spacesChatButton.classList.toggle("has-unread", unreadCount);
+      spacesChatButton.classList.toggle("has-badge", unreadCount);
       document.l10n.setAttributes(
-        spacesChatButton.querySelector(".spaces-unread-container"),
+        spacesChatButton.querySelector(".spaces-badge-container"),
         "chat-button-unread-messages",
         {
           count: unreadCount,

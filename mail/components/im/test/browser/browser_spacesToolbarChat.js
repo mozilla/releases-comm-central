@@ -15,7 +15,7 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
   const chatButton = document.getElementById("chatButton");
 
   ok(
-    !chatButton.classList.contains("has-unread"),
+    !chatButton.classList.contains("has-badge"),
     "Initially no unread chat messages"
   );
 
@@ -32,12 +32,12 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
   await TestUtils.waitForTick();
 
   ok(
-    !chatButton.classList.contains("has-unread"),
+    !chatButton.classList.contains("has-badge"),
     "Untargeted MUC message doesn't change badge"
   );
 
   // Send a new targeted message in the conversation
-  const unreadContainer = chatButton.querySelector(".spaces-unread-container");
+  const unreadContainer = chatButton.querySelector(".spaces-badge-container");
   const unreadContainerText = unreadContainer.textContent;
   const unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
   conversation.writeMessage("spaceBadge", "new direct message", {
@@ -45,7 +45,7 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
     containsNick: true,
   });
   await unreadCountChanged;
-  ok(chatButton.classList.contains("has-unread"), "Unread badge is shown");
+  ok(chatButton.classList.contains("has-badge"), "Unread badge is shown");
 
   // Fluent doesn't immediately apply the translation, wait for it.
   await TestUtils.waitForCondition(
@@ -73,11 +73,11 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
   const chatButton = document.getElementById("chatButton");
 
   ok(
-    !chatButton.classList.contains("has-unread"),
+    !chatButton.classList.contains("has-badge"),
     "Initially no unread chat messages"
   );
 
-  const unreadContainer = chatButton.querySelector(".spaces-unread-container");
+  const unreadContainer = chatButton.querySelector(".spaces-badge-container");
   if (unreadContainer.textContent !== "0") {
     await BrowserTestUtils.waitForMutationCondition(
       unreadContainer,
@@ -98,7 +98,7 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
     incoming: true,
   });
   await unreadCountChanged;
-  ok(chatButton.classList.contains("has-unread"), "Unread badge is shown");
+  ok(chatButton.classList.contains("has-badge"), "Unread badge is shown");
 
   // Fluent doesn't immediately apply the translation, wait for it.
   await TestUtils.waitForCondition(
@@ -120,7 +120,7 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
   await unreadCountChanged;
 
   ok(
-    !chatButton.classList.contains("has-unread"),
+    !chatButton.classList.contains("has-badge"),
     "Unread badge is hidden again"
   );
 

@@ -25,8 +25,12 @@ var { DefaultMap, ExtensionError } = ExtensionUtils;
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
-
 var { IconDetails } = ExtensionParent;
+
+var { ExtensionCommon } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionCommon.jsm"
+);
+var { makeWidgetId } = ExtensionCommon;
 
 const ACTION_MENU_TOP_LEVEL_LIMIT = 6;
 

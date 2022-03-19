@@ -143,12 +143,6 @@ global.openOptionsPage = extension => {
   return window.openAddonsMgr(viewId);
 };
 
-global.makeWidgetId = id => {
-  id = id.toLowerCase();
-  // FIXME: This allows for collisions.
-  return id.replace(/[^a-z0-9_-]/g, "_");
-};
-
 /*
  * Get raw message for a given msgHdr. This is not using aConvertData
  * and therefore also works for nntp/news.

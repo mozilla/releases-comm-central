@@ -12,6 +12,11 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/ExtensionToolbarButtons.jsm"
 );
 
+var { ExtensionCommon } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionCommon.jsm"
+);
+var { makeWidgetId } = ExtensionCommon;
+
 const browserActionMap = new WeakMap();
 
 this.browserAction = class extends ToolbarButtonAPI {

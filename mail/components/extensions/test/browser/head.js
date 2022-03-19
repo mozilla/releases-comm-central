@@ -12,6 +12,11 @@ var { MessageGenerator } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+var { ExtensionCommon } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionCommon.jsm"
+);
+var { makeWidgetId } = ExtensionCommon;
+
 // There are shutdown issues for which multiple rejections are left uncaught.
 // This bug should be fixed, but for the moment this directory is whitelisted.
 //
@@ -168,11 +173,6 @@ async function promiseAnimationFrame(win = window) {
   await new Promise(win.requestAnimationFrame);
   // dispatchToMainThread throws if used as the first argument of Promise.
   return new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
-}
-
-function makeWidgetId(id) {
-  id = id.toLowerCase();
-  return id.replace(/[^a-z0-9_-]/g, "_");
 }
 
 async function focusWindow(win) {
