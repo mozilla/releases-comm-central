@@ -122,8 +122,10 @@ var gSpacesToolbar = {
       );
       if (gSpacesToolbar.currentSpace != tabSpace) {
         gSpacesToolbar.currentSpace?.button.classList.remove("current");
+        gSpacesToolbar.currentSpace?.menuitem?.classList.remove("current");
         gSpacesToolbar.currentSpace = tabSpace;
         gSpacesToolbar.currentSpace?.button.classList.add("current");
+        gSpacesToolbar.currentSpace?.menuitem?.classList.add("current");
       }
     },
   },
@@ -274,6 +276,7 @@ var gSpacesToolbar = {
       {
         name: "settings",
         button: document.getElementById("settingsButton"),
+        menuitem: document.getElementById("spacesPopupButtonSettings"),
         tabInSpace(tabInfo) {
           switch (tabInfo.mode.name) {
             case "preferencesTab":

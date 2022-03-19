@@ -12,9 +12,11 @@
   --spaces-button-active-bg-color: SelectedItem;
   --spaces-button-badge-text-color: #FFF;
   --spaces-button-badge-bg-color: #E60202;
+  --spaces-button-opacity: 1;
 }
 
 :root:-moz-window-inactive {
+  --spaces-button-opacity: 0.7;
   --spaces-bg-image: none;
 }
 
@@ -27,7 +29,7 @@
 @media (prefers-contrast) {
   :root {
     --spaces-bg-color: -moz-Dialog;
-    -spaces-bg-image: none;
+    --spaces-bg-image: none;
   }
 }
 
@@ -42,6 +44,7 @@
   --spaces-pinned-button-margin: 4px;
   --spaces-button-badge-padding: 1px 6px;
   --spaces-button-badge-font: 0.9rem;
+  --spaces-menuitem-current-indicator-size: 3px;
 }
 
 :root[uidensity="compact"] {
@@ -53,6 +56,7 @@
   --spaces-pinned-button-margin: 3px;
   --spaces-button-badge-padding: 1px 4px;
   --spaces-button-badge-font: 0.85rem;
+  --spaces-menuitem-current-indicator-size: 3px;
 }
 
 :root[uidensity="touch"] {
@@ -64,6 +68,7 @@
   --spaces-pinned-button-margin: 6px;
   --spaces-button-badge-padding: 3px 8px;
   --spaces-button-badge-font: 1rem;
+  --spaces-menuitem-current-indicator-size: 4px;
 }
 
 .spaces-toolbar:not([hidden]) {
@@ -95,7 +100,7 @@
   line-height: 0; /* We never show text in these buttons */
   border: none;
   background-color: transparent;
-  opacity: 0.75;
+  opacity: var(--spaces-button-opacity);
   color: var(--spaces-button-text-color);
   outline: none;
 }
@@ -114,7 +119,7 @@
   }
 
   .spaces-toolbar-button > img {
-    transition: fill 280ms ease, stroke 280ms ease;
+    transition: fill 280ms ease, stroke 280ms ease, opacity 280ms ease;
   }
 
   .spaces-toolbar-pinned-button {
@@ -127,12 +132,31 @@
 #spacesAccentPlaceholder {
   background-color: var(--spaces-button-active-bg-color);
   color: var(--spaces-button-active-text-color);
-  opacity: 1;
 }
 
 .spaces-toolbar-button:hover:not(.current) {
   background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.spaces-toolbar-button.current > img,
+.spaces-toolbar-button.current:hover > img,
+.spaces-toolbar-button:hover:not(.current) > img {
   opacity: 1;
+}
+
+.spaces-popup-menuitem > .menu-iconic-left {
+  position: relative;
+}
+
+.spaces-popup-menuitem.current > .menu-iconic-left:before {
+  content: '';
+  display: block;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--spaces-menuitem-current-indicator-size) * -1.75);
+  width: var(--spaces-menuitem-current-indicator-size);
+  border-radius: 2px;
+  background-color: var(--spaces-button-active-bg-color);
 }
 
 .spaces-toolbar-button:is(:not([disabled])):hover:active {
@@ -151,6 +175,7 @@
 .spaces-toolbar-button > img {
   width: var(--spaces-icon-size);
   height: var(--spaces-icon-size);
+  opacity: 0.75;
 }
 
 .spaces-toolbar-statusbar-button {
@@ -201,6 +226,10 @@
   list-style-image: url("chrome://messenger/skin/icons/chat.svg");
 }
 
+#spacesPopupButtonSettings {
+  list-style-image: url("chrome://global/skin/icons/settings.svg");
+}
+
 #spacesPopupButtonReveal {
   list-style-image: url("chrome://messenger/skin/icons/collapse.svg");
 }
@@ -239,6 +268,7 @@
   background-color: var(--spaces-button-badge-bg-color);
   color: var(--spaces-button-badge-text-color);
   line-height: 1em;
+  z-index: 1;
 }
 
 .spaces-badge-container:-moz-window-inactive {

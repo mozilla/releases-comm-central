@@ -196,29 +196,32 @@ decrypt-and-copy-failures = { $failures } of { $total } messages could not be de
 spaces-toolbar =
     .toolbarname = Spaces Toolbar
 
-spaces-toolbar-button-mail =
-    .title = Switch to the mail tab
+spaces-toolbar-button-mail2 =
+    .title = Mail
 
-spaces-toolbar-button-address-book =
-    .title = Switch to the address book tab
+spaces-toolbar-button-address-book2 =
+    .title = Address Book
 
-spaces-toolbar-button-calendar =
-    .title = Switch to the calendar tab
+spaces-toolbar-button-calendar2 =
+    .title = Calendar
 
-spaces-toolbar-button-tasks =
-    .title = Switch to the tasks tab
+spaces-toolbar-button-tasks2 =
+    .title = Tasks
 
-spaces-toolbar-button-chat =
-    .title = Switch to the chat tab
+spaces-toolbar-button-chat2 =
+    .title = Chat
 
-spaces-toolbar-button-settings =
-    .title = Switch to the settings tab
+spaces-toolbar-button-overflow =
+    .title = More spaces…
 
-spaces-toolbar-button-collapse =
-    .title = Collapse the spaces toolbar
+spaces-toolbar-button-settings2 =
+    .title = Settings
 
-spaces-toolbar-button-reveal =
-    .title = Show the spaces toolbar
+spaces-toolbar-button-hide =
+    .title = Hide Spaces Toolbar
+
+spaces-toolbar-button-show =
+    .title = Show Spaces Toolbar
 
 spaces-context-new-tab-item =
     .label = Open in new tab
@@ -243,25 +246,28 @@ settings-context-open-addons-item =
 ## Spaces toolbar pinned tab menupopup
 
 spaces-toolbar-pinned-tab-button =
-    .tooltiptext = Open spaces menu
+    .tooltiptext = Spaces Menu
 
 spaces-pinned-button-menuitem-mail =
-    .label = { spaces-toolbar-button-mail.title }
+    .label = { spaces-toolbar-button-mail2.title }
 
 spaces-pinned-button-menuitem-address-book =
-    .label = { spaces-toolbar-button-address-book.title }
+    .label = { spaces-toolbar-button-address-book2.title }
 
 spaces-pinned-button-menuitem-calendar =
-    .label = { spaces-toolbar-button-calendar.title }
+    .label = { spaces-toolbar-button-calendar2.title }
 
 spaces-pinned-button-menuitem-tasks =
-    .label = { spaces-toolbar-button-tasks.title }
+    .label = { spaces-toolbar-button-tasks2.title }
 
 spaces-pinned-button-menuitem-chat =
-    .label = { spaces-toolbar-button-chat.title }
+    .label = { spaces-toolbar-button-chat2.title }
 
-spaces-pinned-button-menuitem-reveal =
-    .label = { spaces-toolbar-button-reveal.title }
+spaces-pinned-button-menuitem-settings =
+    .label = { spaces-toolbar-button-settings2.title }
+
+spaces-pinned-button-menuitem-show =
+    .label = { spaces-toolbar-button-show.title }
 
 # Variables:
 # $count (Number) - Number of unread messages.
