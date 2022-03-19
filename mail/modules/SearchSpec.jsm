@@ -515,7 +515,7 @@ SearchSpecListener.prototype = {
     // searching should already be true by the time this happens.  if it's not,
     //  it means some code is poking at the search session.  bad!
     if (!this.searchSpec.owner.searching) {
-      Cu.reportErrror("Search originated from unknown initiator! Confusion!");
+      Cu.reportError("Search originated from unknown initiator! Confusion!");
       this.searchSpec.owner.searching = true;
     }
   },
