@@ -10,39 +10,58 @@
  *  other tests unless you take care to fix all our meddling.
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
+var {
+  assertExpectedMessagesIndexed,
+  glodaTestHelperInitialize,
+  waitForGlodaIndexer,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaDatastore.jsm"
+);
+var { GlodaFolder } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaDataModel.jsm"
+);
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
-/**
- * @return the number of live gloda folders tracked by
- *     GlodaDatastore._liveGlodaFolders.
- */
-function getLiveFolderCount() {
-  return Object.keys(GlodaDatastore._liveGlodaFolders).length;
-}
+var messageInjection;
+
+add_task(function setupTest() {
+  let msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  glodaTestHelperInitialize(messageInjection);
+});
 
 /**
  * Meddle with internals of live folder tracking, create a synthetic message and
  *  index it. We do the actual work involving the headers and folders in
  *  poke_and_verify_msf_closure.
  */
-function* test_msf_closure() {
-  // before doing anything, the indexer should not be tracking any live folders
+add_task(async function test_msf_closure() {
+  // Before doing anything, the indexer should not be tracking any live folders.
   Assert.ok(!GlodaDatastore._folderCleanupActive);
   Assert.equal(0, getLiveFolderCount());
 
-  // make the datastore's folder cleanup timer never be at risk of firing
+  // Make the datastore's folder cleanup timer never be at risk of firing.
   GlodaDatastore._folderCleanupTimerInterval = 1000000000;
-  // set the acceptably old threshold so it will never age out
+  // Set the acceptably old threshold so it will never age out.
   GlodaFolder.prototype.ACCEPTABLY_OLD_THRESHOLD = 1000000000;
 
-  // create a synthetic message
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
-  yield wait_for_gloda_indexer(msgSet, {
-    verifier: poke_and_verify_msf_closure,
-  });
-}
+  // Create a synthetic message.
+  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 1 },
+  ]);
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      verifier: poke_and_verify_msf_closure,
+    })
+  );
+});
 
 /**
  * Grab the message header, see live folder, cleanup live folders, make sure
@@ -53,58 +72,57 @@ function* test_msf_closure() {
  * @param aGlodaMessage Its exciting gloda representation
  */
 function poke_and_verify_msf_closure(aSynthMessage, aGlodaMessage) {
-  // get the nsIMsgDBHdr
+  // Get the nsIMsgDBHdr.
   let header = aGlodaMessage.folderMessage;
-  // if we don't have a header, this test is unlikely to work...
+  // If we don't have a header, this test is unlikely to work.
   Assert.ok(header !== null);
 
-  // we need a reference to the glodaFolder
+  // We need a reference to the glodaFolder.
   let glodaFolder = aGlodaMessage.folder;
 
-  // -- check that everyone is tracking things correctly
-  // the message's folder should be holding an XPCOM reference to the folder
+  // -- Check that everyone is tracking things correctly.
+  // The message's folder should be holding an XPCOM reference to the folder.
   Assert.ok(glodaFolder._xpcomFolder !== null);
-  // the cleanup timer should now be alive
+  // The cleanup timer should now be alive.
   Assert.ok(GlodaDatastore._folderCleanupActive);
-  // live folder count should be one
+  // The live folder count should be one.
   Assert.equal(1, getLiveFolderCount());
 
-  // -- simulate a timer cleanup firing...
+  // -- Simulate a timer cleanup firing.
   GlodaDatastore._performFolderCleanup();
 
-  // -- verify that things are still as they were before the cleanup firing
-  // the message's folder should be holding an XPCOM reference to the folder
+  // -- Verify that things are still as they were before the cleanup firing.
+  // The message's folder should be holding an XPCOM reference to the folder.
   Assert.ok(glodaFolder._xpcomFolder !== null);
-  // the cleanup timer should now be alive
+  // The cleanup timer should now be alive.
   Assert.ok(GlodaDatastore._folderCleanupActive);
-  // live folder count should be one
+  // Live folder count should be one.
   Assert.equal(1, getLiveFolderCount());
 
-  // -- change oldness constant so that it cannot help but be true
-  // (the goal is to avoid getting tricked by the granularity of the timer
+  // -- Change oldness constant so that it cannot help but be true.
+  // (The goal is to avoid getting tricked by the granularity of the timer
   //  updates, as well as to make sure our logic is right by skewing the
   //  constant wildly, so that if our logic was backwards, we would fail.)
-  // put the threshold 1000 seconds in the future; the event must be older than
+  // Put the threshold 1000 seconds in the future; the event must be older than
   //  the future, for obvious reasons.
   GlodaFolder.prototype.ACCEPTABLY_OLD_THRESHOLD = -1000000;
 
-  // -- simulate a timer cleanup firing...
+  // -- Simulate a timer cleanup firing.
   GlodaDatastore._performFolderCleanup();
 
-  // -- verify that cleanup has occurred and the cleanup mechanism shutdown.
-  // the message's folder should no longer be holding an XPCOM reference
+  // -- Verify that cleanup has occurred and the cleanup mechanism shutdown.
+  // The message's folder should no longer be holding an XPCOM reference.
   Assert.ok(glodaFolder._xpcomFolder === null);
-  // the cleanup timer should now be dead
+  // The cleanup timer should now be dead.
   Assert.ok(!GlodaDatastore._folderCleanupActive);
-  // live folder count should be zero
+  // Live folder count should be zero.
   Assert.equal(0, getLiveFolderCount());
 }
 
-var tests = [test_msf_closure];
-
-function run_test() {
-  // we only need to test using local folders, although it is important that
-  //  we are using a non-Inbox folder (which we are).
-  MessageInjection.configure_message_injection({ mode: "local" });
-  glodaHelperRunTests(tests);
+/**
+ * @return {number} the number of live gloda folders tracked by
+ *     GlodaDatastore._liveGlodaFolders.
+ */
+function getLiveFolderCount() {
+  return Object.keys(GlodaDatastore._liveGlodaFolders).length;
 }

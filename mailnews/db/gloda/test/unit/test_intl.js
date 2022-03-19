@@ -11,10 +11,27 @@
  * - Check that we can fulltext search on those things afterwards.
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
-
-/* ===== Tests ===== */
+var {
+  assertExpectedMessagesIndexed,
+  glodaTestHelperInitialize,
+  waitForGlodaIndexer,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { waitForGlodaDBFlush } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+);
+var { queryExpect } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaMsgIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/IndexMsg.jsm"
+);
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 /**
  * To make the encoding pairs:
@@ -46,25 +63,25 @@ var intlPhrases = [
       ],
     },
     searchPhrases: [
-      // match bi-gram driven matches starting from the front
+      // Match bi-gram driven matches starting from the front.
       { body: '"\u81ea\u52d5"', match: true },
       { body: '"\u81ea\u52d5\u552e"', match: true },
       { body: '"\u81ea\u52d5\u552e\u8ca8"', match: true },
       { body: '"\u81ea\u52d5\u552e\u8ca8\u6a5f"', match: true },
-      // now match from the back (bi-gram based)
+      // Now match from the back (bi-gram based).
       { body: '"\u52d5\u552e\u8ca8\u6a5f"', match: true },
       { body: '"\u552e\u8ca8\u6a5f"', match: true },
       { body: '"\u8ca8\u6a5f"', match: true },
-      // now everybody in the middle!
+      // Now everybody in the middle!
       { body: '"\u52d5\u552e\u8ca8"', match: true },
       { body: '"\u552e\u8ca8"', match: true },
       { body: '"\u52d5\u552e"', match: true },
-      // -- now match nobody!
-      // nothing in common with the right answer
+      // -- Now match nobody!
+      // Nothing in common with the right answer.
       { body: '"\u81eb\u52dc"', match: false },
-      // too long, no match
+      // Too long, no match!
       { body: '"\u81ea\u52d5\u552e\u8ca8\u6a5f\u6a5f"', match: false },
-      // minor change at the end
+      // Minor change at the end.
       { body: '"\u81ea\u52d5\u552e\u8ca8\u6a5e"', match: false },
     ],
   },
@@ -83,7 +100,7 @@ var intlPhrases = [
       ],
     },
     searchPhrases: [
-      // -- desired
+      // -- Desired
       // Match on exact for either word should work
       { body: "Slov\u00e1cko", match: true },
       { body: "Moravsk\u00e9", match: true },
@@ -94,7 +111,7 @@ var intlPhrases = [
       { body: "rODIN\u011b", match: true },
     ],
   },
-  // ignore accent search
+  // Ignore accent search!
   {
     name: "having accent: Paris",
     actual: "Par\u00eds",
@@ -103,7 +120,7 @@ var intlPhrases = [
     },
     searchPhrases: [{ body: "paris", match: true }],
   },
-  // case insentive case for non-ASCII characters
+  // Case insensitive case for non-ASCII characters.
   {
     name: "Russian: new",
     actual: "\u041d\u043e\u0432\u043e\u0435",
@@ -115,7 +132,7 @@ var intlPhrases = [
     },
     searchPhrases: [{ body: "\u043d\u043e\u0432\u043e\u0435", match: true }],
   },
-  // case-folding happens after decomposition
+  // Case-folding happens after decomposition.
   {
     name: "Awesome where A has a bar over it",
     actual: "\u0100wesome",
@@ -123,13 +140,13 @@ var intlPhrases = [
       "utf-8": ["=?utf-8?q?=C4=80wesome?=", "\xc4\x80wesome"],
     },
     searchPhrases: [
-      { body: "\u0100wesome", match: true }, // upper A-bar
-      { body: "\u0101wesome", match: true }, // lower a-bar
-      { body: "Awesome", match: true }, // upper A
-      { body: "awesome", match: true }, // lower a
+      { body: "\u0100wesome", match: true }, // Upper A-bar
+      { body: "\u0101wesome", match: true }, // Lower a-bar
+      { body: "Awesome", match: true }, // Upper A
+      { body: "awesome", match: true }, // Lower a
     ],
   },
-  // deep decomposition happens and after that, case folding
+  // Deep decomposition happens and after that, case folding.
   {
     name: "Upper case upsilon with diaeresis and hook goes to small upsilon",
     actual: "\u03d4esterday",
@@ -144,7 +161,7 @@ var intlPhrases = [
       { body: "\u03c5esterday", match: true }, // y   03c5 (final state)
     ],
   },
-  // full-width alphabet
+  // Full-width alphabet.
   // Even if search phrases are ASCII, it has to hit.
   {
     name: "Full-width Thunderbird",
@@ -157,17 +174,17 @@ var intlPhrases = [
       ],
     },
     searchPhrases: [
-      // full-width lower
+      // Full-width lower.
       {
         body:
           "\uff34\uff28\uff35\uff2e\uff24\uff25\uff32\uff22\uff29\uff32\uff24",
         match: true,
       },
-      // half-width
+      // Half-width.
       { body: "Thunderbird", match: true },
     ],
   },
-  // half-width Katakana with voiced sound mark
+  // Half-width Katakana with voiced sound mark.
   // Even if search phrases are full-width, it has to hit.
   {
     name: "Half-width Katakana: Thunderbird (SANDAABAADO)",
@@ -197,94 +214,47 @@ var intlPhrases = [
   },
 ];
 
-/**
- * For each phrase in the intlPhrases array (we are parameterized over it using
- *  parameterizeTest in the 'tests' declaration), create a message where the
- *  subject, body, and attachment name are populated using the encodings in
- *  the phrase's "encodings" attribute, one encoding per message.  Make sure
- *  that the strings as exposed by the gloda representation are equal to the
- *  expected/actual value.
- * Stash each created synthetic message in a resultList list on the phrase so
- *  that we can use them as expected query results in
- *  |test_fulltextsearch|.
- */
-function* test_index(aPhrase) {
-  // create a synthetic message for each of the delightful encoding types
-  let messages = [];
-  aPhrase.resultList = [];
-  for (let charset in aPhrase.encodings) {
-    let [quoted, bodyEncoded] = aPhrase.encodings[charset];
+var msgGen;
+var messageInjection;
 
-    let smsg = gMessageGenerator.makeMessage({
-      subject: quoted,
-      body: { charset, encoding: "8bit", body: bodyEncoded },
-      attachments: [{ filename: quoted, body: "gabba gabba hey" }],
-      // save off the actual value for checking
-      callerData: [charset, aPhrase.actual],
-    });
+add_task(function setupTest() {
+  msgGen = new MessageGenerator();
+  // Use mbox injection because the fake server chokes sometimes right now.
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  glodaTestHelperInitialize(messageInjection);
+});
 
-    messages.push(smsg);
-    aPhrase.resultList.push(smsg);
+add_task(async function test_index_all_phrases() {
+  for (let phrase of intlPhrases) {
+    await indexPhrase(phrase);
   }
-  let synSet = new SyntheticMessageSet(messages);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+});
 
-  yield wait_for_gloda_indexer(synSet, { verifier: verify_index });
-}
+add_task(async function flush_db() {
+  // Force a db flush so I can investigate the database if I want.
+  await waitForGlodaDBFlush();
+});
 
-/**
- * Does the per-message verification for test_index.  Knows what is right for
- *  each message because of the callerData attribute on the synthetic message.
- */
-function verify_index(smsg, gmsg) {
-  let [charset, actual] = smsg.callerData;
-  let subject = gmsg.subject;
-  let indexedBodyText = gmsg.indexedBodyText.trim();
-  let attachmentName = gmsg.attachmentNames[0];
-  LOG.debug("using character set: " + charset + " actual: " + actual);
-  LOG.debug("subject: " + subject + " (len: " + subject.length + ")");
-  Assert.equal(actual, subject);
-  LOG.debug(
-    "body: " + indexedBodyText + " (len: " + indexedBodyText.length + ")"
-  );
-  Assert.equal(actual, indexedBodyText);
-  LOG.debug(
-    "attachment name:" +
-      attachmentName +
-      " (len: " +
-      attachmentName.length +
-      ")"
-  );
-  Assert.equal(actual, attachmentName);
-}
-
-/**
- * For each phrase, make sure that all of the searchPhrases either match or fail
- *  to match as appropriate.
- */
-function* test_fulltextsearch(aPhrase) {
-  for (let searchPhrase of aPhrase.searchPhrases) {
-    let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
-    query.bodyMatches(searchPhrase.body);
-    queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);
-    yield false; // queryExpect is async
+add_task(async function test_fulltextsearch_all_phrases() {
+  for (let phrase of intlPhrases) {
+    await fulltextsearchPhrase(phrase);
   }
-}
+});
 
 /**
  * Names with encoded commas in them can screw up our mail address parsing if
  *  we perform the mime decoding prior to handing the mail address off for
  *  parsing.
  */
-function* test_encoding_complications_with_mail_addresses() {
-  let basePair = gMessageGenerator.makeNameAndAddress();
+add_task(async function test_encoding_complications_with_mail_addresses() {
+  let basePair = msgGen.makeNameAndAddress();
   // The =2C encodes a comma!
   let encodedCommaPair = ["=?iso-8859-1?Q?=DFnake=2C_=DFammy?=", basePair[1]];
   // "Snake, Sammy", but with a much cooler looking S-like character!
   let decodedName = "\u00dfnake, \u00dfammy";
   // Use the thing with the comma in it for all cases; previously there was an
   //  asymmetry between to and cc...
-  let smsg = gMessageGenerator.makeMessage({
+  let smsg = msgGen.makeMessage({
     from: encodedCommaPair,
     to: [encodedCommaPair],
     cc: [encodedCommaPair],
@@ -298,26 +268,89 @@ function* test_encoding_complications_with_mail_addresses() {
   }
 
   let synSet = new SyntheticMessageSet([smsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
-  yield wait_for_gloda_indexer(synSet, { verifier: verify_sammy_snake });
+  await messageInjection.addSetsToFolders(
+    [messageInjection.getInboxFolder()],
+    [synSet]
+  );
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([synSet], { verifier: verify_sammy_snake })
+  );
+});
+
+/**
+ * For each phrase in the intlPhrases array (we are parameterized over it using
+ *  parameterizeTest in the 'tests' declaration), create a message where the
+ *  subject, body, and attachment name are populated using the encodings in
+ *  the phrase's "encodings" attribute, one encoding per message.  Make sure
+ *  that the strings as exposed by the gloda representation are equal to the
+ *  expected/actual value.
+ * Stash each created synthetic message in a resultList list on the phrase so
+ *  that we can use them as expected query results in
+ *  |fulltextsearchPhrase|.
+ */
+async function indexPhrase(aPhrase) {
+  // Create a synthetic message for each of the delightful encoding types.
+  let messages = [];
+  aPhrase.resultList = [];
+  for (let charset in aPhrase.encodings) {
+    let [quoted, bodyEncoded] = aPhrase.encodings[charset];
+
+    let smsg = msgGen.makeMessage({
+      subject: quoted,
+      body: { charset, encoding: "8bit", body: bodyEncoded },
+      attachments: [{ filename: quoted, body: "gabba gabba hey" }],
+      // Save off the actual value for checking.
+      callerData: [charset, aPhrase.actual],
+    });
+
+    messages.push(smsg);
+    aPhrase.resultList.push(smsg);
+  }
+  let synSet = new SyntheticMessageSet(messages);
+  await messageInjection.addSetsToFolders(
+    [messageInjection.getInboxFolder()],
+    [synSet]
+  );
+
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([synSet], { verifier: verify_index })
+  );
 }
 
-/* ===== Driver ===== */
+/**
+ * Does the per-message verification for indexPhrase.  Knows what is right for
+ *  each message because of the callerData attribute on the synthetic message.
+ */
+function verify_index(smsg, gmsg) {
+  let [charset, actual] = smsg.callerData;
+  let subject = gmsg.subject;
+  let indexedBodyText = gmsg.indexedBodyText.trim();
+  let attachmentName = gmsg.attachmentNames[0];
+  dump("using character set: " + charset + " actual: " + actual + "\n");
+  dump("subject: " + subject + " (len: " + subject.length + ")\n");
+  Assert.equal(actual, subject);
+  dump("Body: " + indexedBodyText + " (len: " + indexedBodyText.length + ")\n");
+  Assert.equal(actual, indexedBodyText);
+  dump(
+    "Attachment name: " +
+      attachmentName +
+      " (len: " +
+      attachmentName.length +
+      ")\n"
+  );
+  Assert.equal(actual, attachmentName);
+}
 
-var tests = [
-  parameterizeTest(test_index, intlPhrases),
-  // force a db flush so I can investigate the database if I want.
-  function() {
-    return wait_for_gloda_db_flush();
-  },
-  parameterizeTest(test_fulltextsearch, intlPhrases),
-  test_encoding_complications_with_mail_addresses,
-];
-
-var gInbox;
-
-function run_test() {
-  // use mbox injection because the fake server chokes sometimes right now
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
-  glodaHelperRunTests(tests);
+/**
+ * For each phrase, make sure that all of the searchPhrases either match or fail
+ *  to match as appropriate.
+ */
+async function fulltextsearchPhrase(aPhrase) {
+  for (let searchPhrase of aPhrase.searchPhrases) {
+    let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+    query.bodyMatches(searchPhrase.body);
+    await queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);
+  }
 }

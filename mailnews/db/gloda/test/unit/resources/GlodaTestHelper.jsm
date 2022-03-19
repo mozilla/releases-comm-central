@@ -197,7 +197,6 @@ class IndexMessageState {
   }
   // Expected value of |_workerCleanedUpCount| at assertion time.
   expectedCleanedUpCount() {
-    console.log("check", this._workerCleanedUpCount);
     return this.data.data.cleanedUp;
   }
   // Expected value of |_workerHadNoCleanUpCount| at assertion time.

@@ -14,8 +14,33 @@
  * terms to avoid issuing a query that will definitely return no results.
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
+var {
+  assertExpectedMessagesIndexed,
+  glodaTestHelperInitialize,
+  waitForGlodaIndexer,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { waitForGlodaDBFlush } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+);
+var { queryExpect, sqlExpectCount } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaDatastore.jsm"
+);
+var { GlodaFolder } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaDataModel.jsm"
+);
+var { GlodaMsgSearcher } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaMsgSearcher.jsm"
+);
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 /* ===== Tests ===== */
 
@@ -41,7 +66,7 @@ var intlPhrases = [
       ],
     },
     searchPhrases: [
-      // match bi-gram driven matches starting from the front
+      // Match bi-gram driven matches starting from the front.
       { body: '"\u81ea\u52d5"', match: true },
     ],
   },
@@ -61,6 +86,69 @@ var intlPhrases = [
   },
 ];
 
+var msgGen;
+var messageInjection;
+
+add_task(function setupTest() {
+  msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  glodaTestHelperInitialize(messageInjection);
+});
+
+add_task(async function test_index_cjk() {
+  await indexPhrase(intlPhrases[0]);
+});
+
+add_task(async function test_index_regular() {
+  await indexPhrase(intlPhrases[1]);
+});
+
+/**
+ * - Check that the 'aa' token was never emitted (we don't emit two-letter
+ *   tokens unless they're CJK).
+ * - Check that the '\u81ea\u52d5' token was emitted, because it's CJK.
+ * - Check that the 'bbb' token was duly emitted (three letters is more than two
+ *   letters so it's tokenized).
+ */
+add_task(async function test_token_count() {
+  // Force a db flush so I can investigate the database if I want.
+  await waitForGlodaDBFlush();
+  await sqlExpectCount(
+    0,
+    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'aa'"
+  );
+  await sqlExpectCount(
+    1,
+    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'bbb'"
+  );
+  await sqlExpectCount(
+    1,
+    "SELECT COUNT(*) FROM messagesText where messagesText MATCH '\u81ea\u52d5'"
+  );
+});
+
+add_task(async function test_fulltextsearch_cjk() {
+  await test_fulltextsearch(intlPhrases[0]);
+});
+
+add_task(async function test_fulltextsearch_regular() {
+  await test_fulltextsearch(intlPhrases[1]);
+});
+
+/**
+ * We make sure that the Gloda module that builds the query drops two-letter
+ * tokens, otherwise this would result in an empty search (no matches for
+ * two-letter tokens).
+ */
+add_task(async function test_query_builder() {
+  // aa should be dropped, and we have one message containing the bbb token.
+  await msgSearchExpectCount(1, "aa bbb");
+  // The CJK part should not be dropped, and match message 1; the bbb token
+  // should not be dropped, and match message 2; 0 results returned because no
+  // message has the two tokens in it.
+  await msgSearchExpectCount(0, "\u81ea\u52d5 bbb");
+});
+
 /**
  * For each phrase in the intlPhrases array (we are parameterized over it using
  *  parameterizeTest in the 'tests' declaration), create a message where the
@@ -72,18 +160,18 @@ var intlPhrases = [
  *  that we can use them as expected query results in
  *  |test_fulltextsearch|.
  */
-function* test_index(aPhrase) {
-  // create a synthetic message for each of the delightful encoding types
+async function indexPhrase(aPhrase) {
+  // Create a synthetic message for each of the delightful encoding types.
   let messages = [];
   aPhrase.resultList = [];
   for (let charset in aPhrase.encodings) {
     let [quoted, bodyEncoded] = aPhrase.encodings[charset];
 
-    let smsg = gMessageGenerator.makeMessage({
+    let smsg = msgGen.makeMessage({
       subject: quoted,
       body: { charset, encoding: "8bit", body: bodyEncoded },
       attachments: [{ filename: quoted, body: "gabba gabba hey" }],
-      // save off the actual value for checking
+      // Save off the actual value for checking.
       callerData: [charset, aPhrase.actual],
     });
 
@@ -91,13 +179,19 @@ function* test_index(aPhrase) {
     aPhrase.resultList.push(smsg);
   }
   let synSet = new SyntheticMessageSet(messages);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  await messageInjection.addSetsToFolders(
+    [messageInjection.getInboxFolder()],
+    [synSet]
+  );
 
-  yield wait_for_gloda_indexer(synSet, { verifier: verify_index });
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([synSet], { verifier: verify_index })
+  );
 }
 
 /**
- * Does the per-message verification for test_index.  Knows what is right for
+ * Does the per-message verification for indexPhrase.  Knows what is right for
  *  each message because of the callerData attribute on the synthetic message.
  */
 function verify_index(smsg, gmsg) {
@@ -105,73 +199,41 @@ function verify_index(smsg, gmsg) {
   let subject = gmsg.subject;
   let indexedBodyText = gmsg.indexedBodyText.trim();
   let attachmentName = gmsg.attachmentNames[0];
-  LOG.debug("using character set: " + charset + " actual: " + actual);
-  LOG.debug("subject: " + subject + " (len: " + subject.length + ")");
+  dump("Using character set:\n" + charset + "\nActual:\n" + actual + "\n");
+  dump("Subject:\n" + subject + "\nSubject length:\n" + subject.length + "\n");
   Assert.equal(actual, subject);
-  LOG.debug(
-    "body: " + indexedBodyText + " (len: " + indexedBodyText.length + ")"
-  );
+  dump("Body: " + indexedBodyText + " (len: " + indexedBodyText.length + ")\n");
   Assert.equal(actual, indexedBodyText);
-  LOG.debug(
-    "attachment name:" +
+  dump(
+    "Attachment name:" +
       attachmentName +
       " (len: " +
       attachmentName.length +
-      ")"
+      ")\n"
   );
   Assert.equal(actual, attachmentName);
-}
-
-/**
- * - Check that the 'aa' token was never emitted (we don't emit two-letter
- *   tokens unless they're CJK).
- * - Check that the '\u81ea\u52d5' token was emitted, because it's CJK.
- * - Check that the 'bbb' token was duly emitted (three letters is more than two
- *   letters so it's tokenized).
- */
-function* test_token_count() {
-  yield sqlExpectCount(
-    0,
-    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'aa'"
-  );
-  yield sqlExpectCount(
-    1,
-    "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'bbb'"
-  );
-  yield sqlExpectCount(
-    1,
-    "SELECT COUNT(*) FROM messagesText where messagesText MATCH '\u81ea\u52d5'"
-  );
 }
 
 /**
  * For each phrase, make sure that all of the searchPhrases either match or fail
  *  to match as appropriate.
  */
-function* test_fulltextsearch(aPhrase) {
+async function test_fulltextsearch(aPhrase) {
   for (let searchPhrase of aPhrase.searchPhrases) {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
     query.bodyMatches(searchPhrase.body);
-    queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);
-    yield false; // queryExpect is async
+    await queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);
   }
 }
-
-var { GlodaMsgSearcher } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaMsgSearcher.jsm"
-);
-var { GlodaDatastore } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDatastore.jsm"
-);
 
 /**
  * Pass a query string to the GlodaMsgSearcher, run the corresponding SQL query,
  * and check the resulted count is what we want.
  *
  * Use like so:
- *  yield msgSearchExpectCount(1, "I like cheese");
+ *  await msgSearchExpectCount(1, "I like cheese");
  */
-function msgSearchExpectCount(aCount, aFulltextStr) {
+async function msgSearchExpectCount(aCount, aFulltextStr) {
   // Let the GlodaMsgSearcher build its query
   let searcher = new GlodaMsgSearcher(null, aFulltextStr);
   let conn = GlodaDatastore.asyncConnection;
@@ -192,6 +254,11 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
   for (let [iBinding, bindingValue] of args.entries()) {
     GlodaDatastore._bindVariant(stmt, iBinding, bindingValue);
   }
+
+  let promiseResolve;
+  let promise = new Promise(resolve => {
+    promiseResolve = resolve;
+  });
 
   let i = 0;
   stmt.executeAsync({
@@ -215,54 +282,18 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
       }
 
       if (i != aCount) {
-        mark_failure([
-          "Didn't get the expected number of rows: got",
-          i,
-          "expected",
-          aCount,
-          "SQL:",
-          sql,
-        ]);
-        do_throw();
+        throw new Error(
+          "Didn't get the expected number of rows: got " +
+            i +
+            " expected " +
+            aCount +
+            " SQL: " +
+            sql
+        );
       }
-      async_driver();
+      promiseResolve();
     },
   });
   stmt.finalize();
-  return false;
-}
-
-/**
- * We make sure that the Gloda module that builds the query drops two-letter
- * tokens, otherwise this would result in an empty search (no matches for
- * two-letter tokens).
- */
-function* test_query_builder() {
-  // aa should be dropped, and we have one message containing the bbb token.
-  yield msgSearchExpectCount(1, "aa bbb");
-  // the CJK part should not be dropped, and match message 1; the bbb token
-  // should not be dropped, and match message 2; 0 results returned because no
-  // message has the two tokens in it
-  yield msgSearchExpectCount(0, "\u81ea\u52d5 bbb");
-}
-
-/* ===== Driver ===== */
-
-var tests = [
-  parameterizeTest(test_index, intlPhrases),
-  // force a db flush so I can investigate the database if I want.
-  function() {
-    return wait_for_gloda_db_flush();
-  },
-  test_token_count,
-  parameterizeTest(test_fulltextsearch, intlPhrases),
-  test_query_builder,
-];
-
-var gInbox;
-
-function run_test() {
-  // use mbox injection because the fake server chokes sometimes right now
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
-  glodaHelperRunTests(tests);
+  await promise;
 }

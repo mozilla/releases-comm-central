@@ -116,7 +116,7 @@ async function waitForIndexingHang() {
  * @param [aArgs.hangWhile] Must be either omitted (for don't force a hang) or
  *     "streaming" indicating that we should do a no-op instead of performing
  *     the message streaming.  This will manifest as a hang until
- *     |resume_from_simulated_hang| is invoked or the test explicitly causes the
+ *     |resumeFromSimulatedHang| is invoked or the test explicitly causes the
  *     indexer to abort (in which case you do not need to call the resume
  *     function.)  You must omit injectFaultIn if you use hangWhile.
  * @param [aArgs.injectFaultIn=null] Must be omitted (for don't inject a
@@ -163,7 +163,7 @@ function configureGlodaIndexing(aArgs) {
 
 /**
  * Call this to resume from the hang induced by configuring the indexer with
- *  a "hangWhile" argument to |configure_gloda_indexing|.
+ *  a "hangWhile" argument to |configureGlodaIndexing|.
  *
  * @param [aJustResumeExecution=false] Should we just poke the callback driver
  *     for the indexer rather than continuing the call.  You would likely want

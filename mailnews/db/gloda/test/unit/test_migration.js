@@ -10,61 +10,95 @@
  *  that.)
  **/
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
+var {
+  assertExpectedMessagesIndexed,
+  glodaTestHelperInitialize,
+  nukeGlodaCachesAndCollections,
+  waitForGlodaIndexer,
+} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+var { waitForGlodaDBFlush, makeABCardForAddressPair } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+);
+var { sqlRun } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var { GlodaMsgIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/IndexMsg.jsm"
+);
+var { GlodaDatastore } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaDatastore.jsm"
+);
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 const GLODA_OLD_BAD_MESSAGE_ID = 1;
+
+var msgGen;
+var messageInjection;
+
+add_task(function setupTest() {
+  msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  glodaTestHelperInitialize(messageInjection);
+});
 
 /**
  * Fix the fallout from bug 732372 (with this patch for bug 734507) which left
  *  identities whose e-mails were in the address book without contacts and then
  *  broke messages involving them.
  */
-function* test_fix_missing_contacts_and_fallout() {
-  // -- setup
+add_task(async function test_fix_missing_contacts_and_fallout() {
+  // -- Setup
 
   // - Create 4 e-mail addresses, 2 of which are in the address book.  (We want
   //    to make sure we have to iterate, hence >1).
-  let abPeeps = gMessageGenerator.makeNamesAndAddresses(2),
-    nonAbPeeps = gMessageGenerator.makeNamesAndAddresses(2);
+  let abPeeps = msgGen.makeNamesAndAddresses(2);
+  let nonAbPeeps = msgGen.makeNamesAndAddresses(2);
   makeABCardForAddressPair(abPeeps[0]);
   makeABCardForAddressPair(abPeeps[1]);
 
   // - Create messages of the genres [from, to]: [inAB, inAB], [inAB, !inAB],
   //    [!inAB, inAB], [!inAB, !inAB].  The permutations are black box overkill.
-  // smear the messages over multiple folders for realism
+  // Smear the messages over multiple folders for realism.
   let [
     ,
     yesyesMsgSet,
     yesnoMsgSet,
     noyesMsgSet,
     nonoMsgSet,
-  ] = MessageInjection.make_folders_with_sets(3, [
+  ] = await messageInjection.makeFoldersWithSets(3, [
     { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
     { count: 2, from: abPeeps[1], to: nonAbPeeps },
     { count: 2, from: nonAbPeeps[0], to: abPeeps },
     { count: 2, from: nonAbPeeps[1], to: [nonAbPeeps[0]] },
   ]);
 
-  yield MessageInjection.wait_for_message_injection();
-  // union the yeses together; we don't care about their composition
+  // Union the yeses together; we don't care about their composition.
   let yesMsgSet = yesyesMsgSet.union(yesnoMsgSet).union(noyesMsgSet),
     noMsgSet = nonoMsgSet;
 
   // - Let gloda index the messages so the identities get created.
-  yield wait_for_gloda_indexer([yesMsgSet, noMsgSet], { augment: true });
-  // the messages are now indexed and the contacts created
+  await waitForGlodaIndexer();
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([yesMsgSet, noMsgSet], { augment: true })
+  );
+  // The messages are now indexed and the contacts created.
 
   // - Compel an indexing sweep so the folder's dirty statuses get cleared
   GlodaMsgIndexer.initialSweep();
-  yield wait_for_gloda_indexer(); // (no new messages to index)
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([])); // (no new messages to index)
 
   // - Force a DB commit so the pending commit tracker gets emptied out
   // (otherwise we need to worry about its state overriding our clobbering)
-  yield wait_for_gloda_db_flush();
+  await waitForGlodaDBFlush();
 
-  // - delete the contact records for the people in the address book.
-  yield sqlRun(
+  // - Delete the contact records for the people in the address book.
+  await sqlRun(
     "DELETE FROM contacts WHERE id IN (" +
       yesMsgSet.glodaMessages[0].from.contact.id +
       ", " +
@@ -81,48 +115,42 @@ function* test_fix_missing_contacts_and_fallout() {
     msgHdr.setUint32Property("gloda-id", GLODA_OLD_BAD_MESSAGE_ID);
   }
 
-  // - mark the db schema version to the version with the bug (26)
-  // sanity check that gloda actually populates the value with the current
-  //  version correctly...
+  // - Mark the db schema version to the version with the bug (26).
+  // Sanity check that gloda actually populates the value with the current
+  //  version correctly.
   Assert.equal(
     GlodaDatastore._actualSchemaVersion,
     GlodaDatastore._schemaVersion
   );
   GlodaDatastore._actualSchemaVersion = 26;
-  yield sqlRun("PRAGMA user_version = 26");
-  // make sure that took, since we check it below as a success indicator.
-  let verRows = yield sqlRun("PRAGMA user_version");
+  await sqlRun("PRAGMA user_version = 26");
+  // Make sure that took, since we check it below as a success indicator.
+  let verRows = await sqlRun("PRAGMA user_version");
   Assert.equal(verRows[0].getInt64(0), 26);
 
-  // -- test
-  // - trigger the migration logic and request an indexing sweep
+  // -- Test
+  // - Trigger the migration logic and request an indexing sweep.
   GlodaMsgIndexer.disable();
   GlodaMsgIndexer.enable();
   GlodaMsgIndexer.initialSweep();
 
-  // - wait for the indexer to complete, expecting that the messages that we
+  // - Wait for the indexer to complete, expecting that the messages that we
   //    marked bad will get indexed but not the good messages.
-  yield wait_for_gloda_indexer(yesMsgSet, { augment: true });
+  await waitForGlodaIndexer();
+  Assert.ok(...assertExpectedMessagesIndexed([yesMsgSet], { augment: true }));
 
-  // - verify that the identities have contacts again
-  // must have the contact object
+  // - Verify that the identities have contacts again.
+  // Must have the contact object.
   Assert.notEqual(yesMsgSet.glodaMessages[0].from.contact, undefined);
-  // the contact's name should come from the address book card
+  // The contact's name should come from the address book card
   Assert.equal(yesMsgSet.glodaMessages[0].from.contact.name, abPeeps[0][0]);
 
-  // - verify that the schema version changed from gloda's perspective and from
-  //    the db's perspective
-  verRows = yield sqlRun("PRAGMA user_version");
+  // - Verify that the schema version changed from gloda's perspective and from
+  //    the db's perspective.
+  verRows = await sqlRun("PRAGMA user_version");
   Assert.equal(verRows[0].getInt64(0), GlodaDatastore._schemaVersion);
   Assert.equal(
     GlodaDatastore._actualSchemaVersion,
     GlodaDatastore._schemaVersion
   );
-}
-
-var tests = [test_fix_missing_contacts_and_fallout];
-
-function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
-  glodaHelperRunTests(tests);
-}
+});
