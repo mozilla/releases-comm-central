@@ -3,90 +3,51 @@
 
 loadMatrix();
 
-function FakeAccount() {
-  this.roomList = new Map();
-  this._usersToRoom = {};
-}
-FakeAccount.prototype = {
-  __proto__: matrix.MatrixAccount.prototype,
-
-  _pendingOutgoingVerificationRequests: new Map(),
-  get _client() {
-    return {
-      getRoom: () => {
-        return this._room;
-      },
-      leave() {},
-      getHomeserverUrl() {
-        return "https://example.com";
-      },
-      isCryptoEnabled() {
-        return false;
-      },
-    };
-  },
-
-  get userId() {
-    return "@test:example.com";
-  },
-
-  directRoomId: "",
-  isDirectRoom(roomId) {
-    return this.directRoomId === roomId;
-  },
-
-  prepareClientRoom(roomId) {
-    this._room = {
-      roomId,
-      getJoinedMembers() {
-        return [];
-      },
-      getLiveTimeline() {
-        return {
-          getState() {
-            return {
-              getStateEvents() {
-                return [];
-              },
-            };
-          },
-        };
-      },
-      guessDMUserId() {
-        return "@test:example.com";
-      },
-      getAvatarUrl() {
-        return "";
-      },
-      isSpaceRoom() {
-        return false;
-      },
-      // Avoid running searchForVerificationRequests
-      getMyMembership() {
-        return "leave";
-      },
-    };
-  },
-};
-
 add_task(async function test_toDMConversation() {
-  const acc = new FakeAccount();
+  const acc = getAccount({});
   const roomId = "#test:example.com";
-  acc.prepareClientRoom(roomId);
-  acc.directRoomId = roomId;
+  acc.isDirectRoom = rId => roomId === rId;
   const conversation = new matrix.MatrixRoom(acc, true, roomId);
-  conversation.initRoom(acc._room);
+  conversation.initRoom(
+    getClientRoom(
+      roomId,
+      {
+        guessDMUserId() {
+          return "@user:example.com";
+        },
+        // Avoid running searchForVerificationRequests
+        getMyMembership() {
+          return "leave";
+        },
+      },
+      acc._client
+    )
+  );
   await conversation.checkForUpdate();
   ok(!conversation.isChat);
   conversation.forget();
 });
 
 add_task(async function test_toGroupConversation() {
-  const acc = new FakeAccount();
+  const acc = getAccount({});
   const roomId = "#test:example.com";
-  acc.prepareClientRoom(roomId);
+  acc.isDirectRoom = rId => roomId !== rId;
   const conversation = new matrix.MatrixRoom(acc, false, roomId);
-  conversation.initRoom(acc._room);
+  conversation.initRoom(
+    getClientRoom(
+      roomId,
+      {
+        guessDMUserId() {
+          return "@user:example.com";
+        },
+        // Avoid running searchForVerificationRequests
+        getMyMembership() {
+          return "leave";
+        },
+      },
+      acc._client
+    )
+  );
   await conversation.checkForUpdate();
   ok(conversation.isChat);
   conversation.forget();

@@ -97,6 +97,9 @@ function getClientRoom(roomId, clientHandler, client) {
       guessDMUserId() {
         return "@other:example.com";
       },
+      loadMembersIfNeeded() {
+        return Promise.resolve();
+      },
     },
     makeProxyHandler(clientHandler)
   );

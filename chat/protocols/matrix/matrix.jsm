@@ -1114,21 +1114,23 @@ MatrixRoom.prototype = {
    * @param {Object} room - associated room with the conversation.
    */
   initRoomMuc(room) {
-    // If there are any participants, create them.
-    let participants = [];
-    room.getJoinedMembers().forEach(roomMember => {
-      if (!this._participants.has(roomMember.userId)) {
-        let participant = new MatrixParticipant(roomMember, this._account);
-        participants.push(participant);
-        this._participants.set(roomMember.userId, participant);
+    room.loadMembersIfNeeded().then(() => {
+      // If there are any participants, create them.
+      let participants = [];
+      room.getJoinedMembers().forEach(roomMember => {
+        if (!this._participants.has(roomMember.userId)) {
+          let participant = new MatrixParticipant(roomMember, this._account);
+          participants.push(participant);
+          this._participants.set(roomMember.userId, participant);
+        }
+      });
+      if (participants.length) {
+        this.notifyObservers(
+          new nsSimpleEnumerator(participants),
+          "chat-buddy-add"
+        );
       }
     });
-    if (participants.length) {
-      this.notifyObservers(
-        new nsSimpleEnumerator(participants),
-        "chat-buddy-add"
-      );
-    }
 
     let roomState = this.roomState;
     if (roomState.getStateEvents(EventType.RoomTopic).length) {
@@ -1564,6 +1566,13 @@ MatrixAccount.prototype = {
       pendingClientOperations.finally(() => {
         this._client.clearStores();
       });
+    } else {
+      // Without client we can still clear the stores at least.
+      pendingClientOperations.finally(async () => {
+        const opts = await this.getClientOptions();
+        opts.store.deleteAllData();
+        opts.cryptoStore.deleteAllData();
+      });
     }
   },
   unInit() {
@@ -1932,6 +1941,13 @@ MatrixAccount.prototype = {
           this.reportConnecting();
           break;
         case "ERROR":
+          if (
+            data.error.reason ==
+            MatrixSDK.InvalidStoreError.TOGGLED_LAZY_LOADING
+          ) {
+            this._client.store.deleteAllData().then(() => this.connect());
+            break;
+          }
           this.reportDisconnecting(
             Ci.prplIAccount.ERROR_OTHER_ERROR,
             data.error.message
@@ -2159,6 +2175,9 @@ MatrixAccount.prototype = {
     this._client.on("RoomMember.typing", (event, member) => {
       if (member.userId != this.userId) {
         let conv = this.roomList.get(member.roomId);
+        if (!conv) {
+          return;
+        }
         if (!conv.isChat) {
           let typingState = Ci.prplIConvIM.NOT_TYPING;
           if (member.typing) {
@@ -2253,6 +2272,7 @@ MatrixAccount.prototype = {
         Promise.all([
           this._client.startClient({
             pendingEventOrdering: "detached",
+            lazyLoadMembers: true,
           }),
           this.updateEncryptionStatus(),
           this.bootstrapSSSS(),

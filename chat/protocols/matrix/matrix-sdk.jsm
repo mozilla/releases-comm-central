@@ -59,6 +59,7 @@ let globals = {
   imIDebugMessage: Ci.imIDebugMessage,
   URL,
   URLSearchParams,
+  IDBKeyRange,
 };
 let loaderGlobal = {
   /**
