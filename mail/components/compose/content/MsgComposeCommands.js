@@ -9919,6 +9919,7 @@ function InitEditor() {
       ${citationColor}
       }`
     );
+    gMsgCompose.bodyModified = false;
   }
 }
 
