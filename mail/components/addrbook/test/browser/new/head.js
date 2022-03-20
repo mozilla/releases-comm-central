@@ -6,24 +6,34 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-registerCleanupFunction(async function() {
-  Assert.equal(
-    MailServices.ab.directories.length,
-    2,
-    "all test directories have been removed"
-  );
-  for (let directory of MailServices.ab.directories) {
-    if (
-      directory.dirPrefId != "ldap_2.servers.history" &&
-      directory.dirPrefId != "ldap_2.servers.pab"
-    ) {
-      await promiseDirectoryRemoved(directory.URI);
+// We want to check that everything has been removed/reset, but if we register
+// a cleanup function here, it will run before any other cleanup function has
+// had a chance to run. Instead, when it runs register another cleanup
+// function which will run last.
+registerCleanupFunction(function() {
+  registerCleanupFunction(async function() {
+    Assert.equal(
+      MailServices.ab.directories.length,
+      2,
+      "all test directories have been removed"
+    );
+    for (let directory of MailServices.ab.directories) {
+      if (
+        directory.dirPrefId != "ldap_2.servers.history" &&
+        directory.dirPrefId != "ldap_2.servers.pab"
+      ) {
+        await promiseDirectoryRemoved(directory.URI);
+      }
     }
-  }
-  closeAddressBookWindow();
+    closeAddressBookWindow();
 
-  Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
-  Services.prefs.clearUserPref("mail.addr_book.view.startupURIisDefault");
+    // TODO: convert this to UID.
+    Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
+    Services.prefs.clearUserPref("mail.addr_book.view.startupURIisDefault");
+
+    Services.focus.focusedWindow = window;
+    document.getElementById("searchInput").focus();
+  });
 });
 
 async function openAddressBookWindow() {

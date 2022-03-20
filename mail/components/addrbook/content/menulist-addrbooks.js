@@ -37,11 +37,36 @@ if (!customElements.get("menulist")) {
       this._rebuild();
 
       // Store as a member of `this` so there's a strong reference.
-      this.addressBookListener = {
+      this._addressBookListener = {
         QueryInterface: ChromeUtils.generateQI([
           "nsIObserver",
           "nsISupportsWeakReference",
         ]),
+
+        _notifications: [
+          "addrbook-directory-created",
+          "addrbook-directory-updated",
+          "addrbook-directory-deleted",
+          "addrbook-reloaded",
+        ],
+
+        init() {
+          for (let topic of this._notifications) {
+            Services.obs.addObserver(this, topic, true);
+          }
+          window.addEventListener("unload", this);
+        },
+
+        cleanUp() {
+          for (let topic of this._notifications) {
+            Services.obs.removeObserver(this, topic);
+          }
+          window.removeEventListener("unload", this);
+        },
+
+        handleEvent(event) {
+          this.cleanUp();
+        },
 
         observe: (subject, topic, data) => {
           // Test-only reload of the address book manager.
@@ -103,14 +128,7 @@ if (!customElements.get("menulist")) {
         },
       };
 
-      for (let topic of [
-        "addrbook-directory-created",
-        "addrbook-directory-updated",
-        "addrbook-directory-deleted",
-        "addrbook-reloaded",
-      ]) {
-        Services.obs.addObserver(this.addressBookListener, topic, true);
-      }
+      this._addressBookListener.init();
     }
 
     /**
@@ -126,6 +144,7 @@ if (!customElements.get("menulist")) {
 
     disconnectedCallback() {
       super.disconnectedCallback();
+      this._addressBookListener.cleanUp();
       this._teardown();
     }
 

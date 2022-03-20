@@ -160,6 +160,10 @@ directoryTreeView.prototype = {
       );
       await IOUtils.writeJSON(spec, this._persistOpenMap);
     }
+
+    for (let topic of this._notifications) {
+      Services.obs.removeObserver(this, topic);
+    }
   },
 
   // Override the dnd methods for those functions in abDragDrop.js

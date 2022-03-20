@@ -46,11 +46,6 @@ add_task(async () => {
   Assert.equal(davDirectory.readOnly, false);
 
   let abWindow = await openAddressBookWindow();
-  registerCleanupFunction(async () => {
-    // TODO: convert this to UID.
-    Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
-  });
-
   let abDocument = abWindow.document;
   let booksList = abWindow.booksList;
 
