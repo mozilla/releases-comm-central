@@ -20,13 +20,10 @@
 }
 
 #ab-toolbox:-moz-lwtheme::after {
-  content: "";
-  display: -moz-box;
-  position: absolute;
   top: 100%;
   margin-top: -1px;
-  height: 1px;
   border-bottom: 1px solid var(--chrome-content-separator-color);
+  z-index: 1;
 }
 
 #ab-toolbox > toolbar {
