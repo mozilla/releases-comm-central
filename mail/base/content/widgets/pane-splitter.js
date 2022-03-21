@@ -36,6 +36,8 @@
 
     connectedCallback() {
       this.addEventListener("mousedown", this);
+      // Try and find the _resizeElement from the resize-id attribute.
+      this._updateResizeElement();
       this._updateStyling();
     }
 
@@ -45,13 +47,7 @@
           this._updateResizeDirection();
           break;
         case "resize-id":
-          // Make sure we don't loop when resize-id is set in the resizeElement
-          // setter.
-          if (newValue == null && this.resizeElement) {
-            this.resizeElement = null;
-          } else if (newValue != null && newValue != this.resizeElement?.id) {
-            this.resizeElement = this.ownerDocument.getElementById(newValue);
-          }
+          this._updateResizeElement();
           break;
         case "id":
           this._updateStyling();
@@ -95,6 +91,8 @@
      * @type {?HTMLElement}
      */
     get resizeElement() {
+      // Make sure the resizeElement is up to date.
+      this._updateResizeElement();
       return this._resizeElement;
     }
 
@@ -102,20 +100,53 @@
       if (!element?.id) {
         element = null;
       }
-      if (element == this._resizeElement) {
-        return;
-      }
-      this.endResize();
-      if (this._resizeElement) {
-        // Clean up previous element.
-        this._resizeElement.style.visibility = null;
-      }
-      this._resizeElement = element;
+      this._updateResizeElement(element);
+      // Set the resize-id attribute.
+      // NOTE: This will trigger a second call to _updateResizeElement, but it
+      // should end early because the resize-id matches the just set
+      // _resizeElement.
       if (element) {
         this.setAttribute("resize-id", element.id);
       } else {
         this.removeAttribute("resize-id");
       }
+    }
+
+    /**
+     * Update the _resizeElement property.
+     *
+     * @param {?HTMLElement} [element] - The resizeElement to set, or leave
+     *   undefined to use the resize-id attribute to find the element.
+     */
+    _updateResizeElement(element) {
+      if (element == undefined) {
+        // Use the resize-id to find the element.
+        let resizeId = this.getAttribute("resize-id");
+        if (resizeId) {
+          if (this._resizeElement?.id == resizeId) {
+            // Avoid looking up the element since we already have it.
+            return;
+          }
+          // Try and find the element.
+          // NOTE: If we don't find the element now, then we still keep the same
+          // resize-id attribute and we'll try again the next time this method
+          // is called.
+          element = this.ownerDocument.getElementById(resizeId);
+        } else {
+          element = null;
+        }
+      }
+      if (element == this._resizeElement) {
+        return;
+      }
+
+      // Make sure we stop resizing the current _resizeElement.
+      this.endResize();
+      if (this._resizeElement) {
+        // Clean up previous element.
+        this._resizeElement.classList.remove("collapsed-by-splitter");
+      }
+      this._resizeElement = element;
       this._beforeElement =
         element &&
         !!(
