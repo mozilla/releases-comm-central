@@ -28,16 +28,11 @@ registerCleanupFunction(async () => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   // Reset the spaces toolbar to its default visible state.
   window.gSpacesToolbar.toggleToolbar(false);
-  // Reset the titlebar pref.
-  Services.prefs.clearUserPref("mail.tabs.drawInTitlebar");
   // Reset the menubar visibility.
   let menubar = document.getElementById("toolbar-menubar");
   menubar.removeAttribute("autohide");
   menubar.removeAttribute("inactive");
   await new Promise(resolve => requestAnimationFrame(resolve));
-  // Changing the drawInTitlebar pref causes the whole window to reload and we
-  // lose the focus.
-  window.focus();
 });
 
 async function assertMailShown(win = window) {
@@ -780,59 +775,6 @@ add_task(async function testSpacesToolbarOSX() {
   await new Promise(resolve => requestAnimationFrame(resolve));
   await styleRemovedPromise;
 }).__skipMe = AppConstants.platform != "macosx";
-
-async function sub_test_toolbar_alignment(drawInTitlebar, hideMenu) {
-  let menubar = document.getElementById("toolbar-menubar");
-
-  Services.prefs.setBoolPref("mail.tabs.drawInTitlebar", drawInTitlebar);
-  if (hideMenu) {
-    menubar.setAttribute("autohide", true);
-    menubar.setAttribute("inactive", true);
-  } else {
-    menubar.removeAttribute("autohide");
-    menubar.removeAttribute("inactive");
-  }
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  // Changing the drawInTitlebar pref causes the whole window to reload and we
-  // lose the focus.
-  window.focus();
-
-  let size = document.getElementById("spacesToolbar").getBoundingClientRect()
-    .width;
-  if (
-    document.documentElement.getAttribute("tabsintitlebar") == "true" &&
-    menubar.getAttribute("autohide") &&
-    menubar.getAttribute("inactive")
-  ) {
-    Assert.equal(
-      document.getElementById("navigation-toolbox").getAttribute("style"),
-      `margin-inline-start: ${size}px;`,
-      "The correct style was applied to #navigation-toolbox"
-    );
-  } else {
-    Assert.equal(
-      document.getElementById("titlebar").getAttribute("style"),
-      `margin-inline-start: ${size}px;`,
-      "The correct style was applied to the #titlebar"
-    );
-    Assert.equal(
-      document.getElementById("toolbar-menubar").getAttribute("style"),
-      `margin-inline-start: -${size}px;`,
-      "The correct style was applied to the #toolbar-menubar"
-    );
-  }
-}
-
-add_task(async function testSpacesToolbarAlignment() {
-  // Show titlebar in toolbar, show menu.
-  await sub_test_toolbar_alignment(true, false);
-  // Show titlebar in toolbar, hide menu.
-  await sub_test_toolbar_alignment(true, true);
-  // Hide titlebar in toolbar, show menu.
-  await sub_test_toolbar_alignment(false, false);
-  // Hide titlebar in toolbar, hide menu.
-  await sub_test_toolbar_alignment(false, true);
-}).__skipMe = AppConstants.platform == "macosx";
 
 add_task(async function testSpacesToolbarClearedAlignment() {
   // Hide the spaces toolbar to check if the style it's cleared.
