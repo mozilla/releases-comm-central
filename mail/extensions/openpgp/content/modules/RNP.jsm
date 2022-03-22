@@ -1712,7 +1712,8 @@ var RNP = {
 
   /**
    * Take two or more ASCII armored key blocks and import them into memory,
-   * and output a public key of what importing those keys would yield.
+   * and return the merged public key for the given fingerprint.
+   * (Other keys included in the key blocks are ignored.)
    * The intention is to use it to combine keys obtained from different places,
    * possibly with updated/different expiration date and userIds etc. to
    * a canonical represenation of them.
@@ -1731,9 +1732,9 @@ var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    let pubkey = true;
-    let seckey = false;
-    let permissive = false;
+    const pubkey = true;
+    const seckey = false;
+    const permissive = false;
     for (let block of new Set(keyBlocks)) {
       if (this.importToFFI(tempFFI, block, pubkey, seckey, permissive)) {
         throw new Error("Merging public keys failed");
