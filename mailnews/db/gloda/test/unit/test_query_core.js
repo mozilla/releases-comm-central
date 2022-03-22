@@ -10,136 +10,22 @@
  *  to test for.)
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
+var { prepareIndexerForTesting } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+);
+var { queryExpect } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaIndexer, IndexingJob } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaIndexer.jsm"
+);
 
 /* ===== Test Noun ===== */
 /*
  * Introduce a simple noun type for our testing so that we can avoid having to
  * deal with the semantics of messages/friends and all their complexity.
  */
-
-/**
- * Simple test object.
- *
- * Has some tricks for gloda indexing to deal with gloda's general belief that
- *  things are immutable.  When we get indexed we stash all of our attributes
- *  at that time in _indexStash.  Then when we get cloned we propagate our
- *  current attributes over to the cloned object and restore _indexStash.  This
- *  sets things up the way gloda expects them as long as we never de-persist
- *  from the db.
- */
-function Widget(inum, date, str, notability, text1, text2) {
-  this._id = undefined;
-  this._inum = inum;
-  this._date = date;
-  this._str = str;
-  this._notability = notability;
-  this._text1 = text1;
-  this._text2 = text2;
-
-  this._indexStash = null;
-  this._restoreStash = null;
-}
-Widget.prototype = {
-  _clone() {
-    let clonus = new Widget(
-      this._inum,
-      this._date,
-      this._str,
-      this._notability,
-      this._text1,
-      this._text2
-    );
-    clonus._id = this._id;
-    clonus._iAmAClone = true;
-
-    for (let key of Object.keys(this)) {
-      let value = this[key];
-      if (key.startsWith("_")) {
-        continue;
-      }
-      clonus[key] = value;
-      if (key in this._indexStash) {
-        this[key] = this._indexStash[key];
-      }
-    }
-
-    return clonus;
-  },
-  _stash() {
-    this._indexStash = {};
-    for (let key of Object.keys(this)) {
-      let value = this[key];
-      if (key[0].startsWith("_")) {
-        continue;
-      }
-      this._indexStash[key] = value;
-    }
-  },
-
-  get id() {
-    return this._id;
-  },
-  set id(aVal) {
-    this._id = aVal;
-  },
-
-  // gloda's attribute idiom demands that row attributes be prefixed with a '_'
-  //  (because Gloda.grokNounItem detects attributes by just walking...).  This
-  //  could be resolved by having the special attributes moot these dudes, but
-  //  that's not how things are right now.
-  get inum() {
-    return this._inum;
-  },
-  set inum(aVal) {
-    this._inum = aVal;
-  },
-  get date() {
-    return this._date;
-  },
-  set date(aVal) {
-    this._date = aVal;
-  },
-
-  get datePRTime() {
-    return this._date.valueOf() * 1000;
-  },
-  // We need a special setter to convert back from PRTime to an actual
-  //  date object.
-  set datePRTime(aVal) {
-    this._date = new Date(aVal / 1000);
-  },
-
-  get str() {
-    return this._str;
-  },
-  set str(aVal) {
-    this._str = aVal;
-  },
-  get notability() {
-    return this._notability;
-  },
-  set notability(aVal) {
-    this._notability = aVal;
-  },
-  get text1() {
-    return this._text1;
-  },
-  set text1(aVal) {
-    this._text1 = aVal;
-  },
-  get text2() {
-    return this._text2;
-  },
-  set text2(aVal) {
-    this._text2 = aVal;
-  },
-
-  toString() {
-    return "" + this.id;
-  },
-};
 
 var WidgetProvider = {
   providerName: "widget",
@@ -148,8 +34,15 @@ var WidgetProvider = {
   },
 };
 
+add_task(function setupTest() {
+  // Don't initialize the index message state
+  prepareIndexerForTesting();
+  GlodaIndexer.registerIndexer(GenericIndexer);
+  Gloda.addIndexerListener(genericIndexerCallback);
+});
+
 var WidgetNoun;
-function setup_test_noun_and_attributes() {
+add_task(function setup_test_noun_and_attributes() {
   // --- noun
   WidgetNoun = Gloda.defineNoun({
     name: "widget",
@@ -284,21 +177,21 @@ function setup_test_noun_and_attributes() {
     objectNoun: Gloda.NOUN_NUMBER,
     canQuery: true,
   });
-}
+});
 
 /* ===== Tests ===== */
 
-var ALPHABET = "abcdefghijklmnopqrstuvwxyz";
-function test_lots_of_string_constraints() {
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+add_task(async function test_lots_of_string_constraints() {
   let stringConstraints = [];
   for (let i = 0; i < 2049; i++) {
     stringConstraints.push(
       ALPHABET[Math.floor(i / (ALPHABET.length * 2)) % ALPHABET.length] +
         ALPHABET[Math.floor(i / ALPHABET.length) % ALPHABET.length] +
         ALPHABET[i % ALPHABET.length] +
-        // throw in something that will explode if not quoted
-        // (and use an uneven number of things so if we fail
-        // to quote it won't get quietly eaten.)
+        // Throw in something that will explode if not quoted
+        // and use an uneven number of things so if we fail
+        // to quote it won't get quietly eaten.
         "'\""
     );
   }
@@ -306,9 +199,8 @@ function test_lots_of_string_constraints() {
   let query = Gloda.newQuery(WidgetNoun.id);
   query.str.apply(query, stringConstraints);
 
-  queryExpect(query, []);
-  return false; // queryExpect is async
-}
+  await queryExpect(query, []);
+});
 
 /* === Query === */
 
@@ -329,7 +221,7 @@ var nonSingularWidgets;
  */
 var singularWidgets;
 
-function* setup_non_singular_values() {
+add_task(async function setup_non_singular_values() {
   testUnique++;
   let origin = new Date("2007/01/01");
   nonSingularWidgets = [
@@ -343,18 +235,23 @@ function* setup_non_singular_values() {
   nonSingularWidgets[0].multiIntAttr = [1, 2];
   nonSingularWidgets[1].multiIntAttr = [3];
   singularWidgets[0].multiIntAttr = [];
-  // and don't bother setting it on singularWidgets[1]
+  // And don't bother setting it on singularWidgets[1].
 
-  yield GenericIndexer.indexObjects(nonSingularWidgets.concat(singularWidgets));
-}
+  GenericIndexer.indexObjects(nonSingularWidgets.concat(singularWidgets));
+  await promiseGenericIndexerCallback;
 
-function test_query_has_value_for_non_singular() {
+  // Reset promise.
+  promiseGenericIndexerCallback = new Promise(resolve => {
+    promiseGenericIndexerCallbackResolve = resolve;
+  });
+});
+
+add_task(async function test_query_has_value_for_non_singular() {
   let query = Gloda.newQuery(WidgetNoun.id);
   query.inum(testUnique);
   query.multiIntAttr();
-  queryExpect(query, nonSingularWidgets);
-  return false;
-}
+  await queryExpect(query, nonSingularWidgets);
+});
 
 /**
  * We should find the one singular object where we set the multiIntAttr to an
@@ -366,36 +263,37 @@ function test_query_has_value_for_non_singular() {
  * @tests gloda.datastore.sqlgen.kConstraintIn.emptySet
  * @tests gloda.query.test.kConstraintIn.emptySet
  */
-function* test_empty_set_logic() {
-  // - initial query based on the setup previously
-  mark_sub_test_start("initial index case");
+add_task(async function test_empty_set_logic() {
+  // - Initial query based on the setup previously.
+  dump("Initial index case\n");
   let query = Gloda.newQuery(WidgetNoun.id);
   query.inum(testUnique);
   query.multiIntAttr(null);
-  queryExpect(query, [singularWidgets[0]]);
-  yield false;
+  await queryExpect(query, [singularWidgets[0]]);
 
-  // - make one of the non-singulars move to empty and move the guy who matched
+  // - Make one of the non-singulars move to empty and move the guy who matched
   //  to no longer match.
-  mark_sub_test_start("incremental index case");
+  dump("Incremental index case\n");
   nonSingularWidgets[0].multiIntAttr = [];
   singularWidgets[0].multiIntAttr = [4, 5];
 
-  yield GenericIndexer.indexObjects([
-    nonSingularWidgets[0],
-    singularWidgets[0],
-  ]);
+  GenericIndexer.indexObjects([nonSingularWidgets[0], singularWidgets[0]]);
+  await promiseGenericIndexerCallback;
+
+  // Reset promise;
+  promiseGenericIndexerCallback = new Promise(resolve => {
+    promiseGenericIndexerCallbackResolve = resolve;
+  });
 
   query = Gloda.newQuery(WidgetNoun.id);
   query.inum(testUnique);
   query.multiIntAttr(null);
-  queryExpect(query, [nonSingularWidgets[0]]);
-  yield false;
+  await queryExpect(query, [nonSingularWidgets[0]]);
 
-  // make sure that the query doesn't explode when it has to handle a case
-  //  that's not supposed to match
+  // Make sure that the query doesn't explode when it has to handle a case
+  //  that's not supposed to match.
   Assert.ok(!query.test(singularWidgets[0]));
-}
+});
 
 /* === Search === */
 /*
@@ -417,30 +315,30 @@ function* test_empty_set_logic() {
  *  Gloda and storage like to store things as PRTime and so we do it too,
  *  even though milliseconds are the actual granularity of JS Date instances.
  */
-var SCORE_TIMESTAMP_FACTOR = 1000 * 1000 * 60 * 60 * 24 * 7;
+const SCORE_TIMESTAMP_FACTOR = 1000 * 1000 * 60 * 60 * 24 * 7;
 
 /**
  * How many score points for each fulltext match?
  */
-var SCORE_FOR_FULLTEXT_MATCH = 1;
+const SCORE_FOR_FULLTEXT_MATCH = 1;
 
 /**
  * Roughly how many characters are in each offset match.
  */
-var OFFSET_CHARS_PER_FULLTEXT_MATCH = 8;
+const OFFSET_CHARS_PER_FULLTEXT_MATCH = 8;
 
 var fooWidgets = null;
 var barBazWidgets = null;
 
-function* setup_search_ranking_idiom() {
-  // --- build some widgets for testing.  use inum to represent the expected
-  //  result sequence
-  // setup a base date...
+add_task(async function setup_search_ranking_idiom() {
+  // --- Build some widgets for testing.
+  // Use inum to represent the expected result sequence
+  // Setup a base date.
   let origin = new Date("2008/01/01");
   let daymore = new Date("2008/01/02");
   let monthmore = new Date("2008/02/01");
   fooWidgets = [
-    // -- setup the term "foo" to do frequency tests
+    // -- Setup the term "foo" to do frequency tests.
     new Widget(5, origin, "", 0, "", "foo"),
     new Widget(4, origin, "", 0, "", "foo foo"),
     new Widget(3, origin, "", 0, "foo", "foo foo"),
@@ -449,7 +347,7 @@ function* setup_search_ranking_idiom() {
     new Widget(0, origin, "", 0, "foo foo foo", "foo foo foo"),
   ];
   barBazWidgets = [
-    // -- setup score and matches to boost older messages over newer messages
+    // -- Setup score and matches to boost older messages over newer messages.
     new Widget(7, origin, "", 0, "", "bar"), // score boost: 1 + date: 0
     new Widget(6, daymore, "", 0, "", "bar"), // 1 + 0+
     new Widget(5, origin, "", 1, "", "bar"), // 2 + 0
@@ -460,23 +358,29 @@ function* setup_search_ranking_idiom() {
     new Widget(0, origin, "", 1, "bar baz", "bar baz bar bar"), // 7 + 0
   ];
 
-  yield GenericIndexer.indexObjects(fooWidgets.concat(barBazWidgets));
-}
+  GenericIndexer.indexObjects(fooWidgets.concat(barBazWidgets));
+  await promiseGenericIndexerCallback;
 
-// add one because the last snippet shouldn't have a trailing space
-var OFFSET_SCORE_SQL_SNIPPET =
+  // Reset promise.
+  promiseGenericIndexerCallback = new Promise(resolve => {
+    promiseGenericIndexerCallbackResolve = resolve;
+  });
+});
+
+// Add one because the last snippet shouldn't have a trailing space.
+const OFFSET_SCORE_SQL_SNIPPET =
   "(((length(osets) + 1) / " +
   OFFSET_CHARS_PER_FULLTEXT_MATCH +
   ") * " +
   SCORE_FOR_FULLTEXT_MATCH +
   ")";
 
-var SCORE_SQL_SNIPPET = "(" + OFFSET_SCORE_SQL_SNIPPET + " + notabilityCol)";
+const SCORE_SQL_SNIPPET = "(" + OFFSET_SCORE_SQL_SNIPPET + " + notabilityCol)";
 
-var DASCORE_SQL_SNIPPET =
+const DASCORE_SQL_SNIPPET =
   "((" + SCORE_SQL_SNIPPET + " * " + SCORE_TIMESTAMP_FACTOR + ") + dateCol)";
 
-var WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL =
+const WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL =
   "SELECT ext_widget.*, offsets(ext_widgetText) AS osets " +
   "FROM ext_widget, ext_widgetText WHERE ext_widgetText MATCH ?" +
   " AND ext_widget.id == ext_widgetText.docid";
@@ -502,22 +406,27 @@ function verify_widget_order_and_stashing(
  * Test the fundamentals of the search ranking idiom we use elsewhere.  This
  *  is primarily a simplified
  */
-function test_search_ranking_idiom_offsets() {
+add_task(async function test_search_ranking_idiom_offsets() {
   let query = Gloda.newQuery(WidgetNoun.id, {
     explicitSQL: WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL,
-    // osets becomes 0-based column number 7
-    // dascore becomes 0-based column number 8
+    // osets becomes 0-based column number 7.
+    // dascore becomes 0-based column number 8.
     outerWrapColumns: [DASCORE_SQL_SNIPPET + " AS dascore"],
-    // save our extra columns for analysis and debugging
+    // Save our extra columns for analysis and debugging.
     stashColumns: [7, 8],
   });
   query.fulltextAll("foo");
   query.orderBy("-dascore");
-  queryExpect(query, fooWidgets, null, null, verify_widget_order_and_stashing);
-  return false; // queryExpect is async
-}
+  await queryExpect(
+    query,
+    fooWidgets,
+    null,
+    null,
+    verify_widget_order_and_stashing
+  );
+});
 
-function test_search_ranking_idiom_score() {
+add_task(async function test_search_ranking_idiom_score() {
   let query = Gloda.newQuery(WidgetNoun.id, {
     explicitSQL: WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL,
     // osets becomes 0-based column number 7
@@ -527,38 +436,19 @@ function test_search_ranking_idiom_score() {
       SCORE_SQL_SNIPPET + " AS dabore",
       "dateCol",
     ],
-    // save our extra columns for analysis and debugging
+    // Save our extra columns for analysis and debugging.
     stashColumns: [7, 8, 9, 10],
   });
   query.fulltextAll("bar OR baz");
   query.orderBy("-dascore");
-  queryExpect(
+  await queryExpect(
     query,
     barBazWidgets,
     null,
     null,
     verify_widget_order_and_stashing
   );
-  return false; // queryExpect is async
-}
-
-/* ===== Driver ===== */
-
-var tests = [
-  setup_test_noun_and_attributes,
-  test_lots_of_string_constraints,
-  setup_non_singular_values,
-  test_query_has_value_for_non_singular,
-  test_empty_set_logic,
-  setup_search_ranking_idiom,
-  test_search_ranking_idiom_offsets,
-  test_search_ranking_idiom_score,
-];
-
-function run_test() {
-  // Don't initialize the index message state
-  glodaHelperRunTests(tests, "widget");
-}
+});
 
 /**
  * Generic indexing mechanism; does nothing special, just uses
@@ -627,15 +517,139 @@ var GenericIndexer = {
     this._log.debug("Done indexing");
   },
 };
-GlodaIndexer.registerIndexer(GenericIndexer);
 
 var indexingInProgress = false;
+var promiseGenericIndexerCallbackResolve;
+var promiseGenericIndexerCallback = new Promise(resolve => {
+  promiseGenericIndexerCallbackResolve = resolve;
+});
 function genericIndexerCallback(aStatus) {
   // If indexingInProgress is false, we've received the synthetic
-  // notification, so ignore it
+  // notification, so ignore it.
   if (indexingInProgress && aStatus == Gloda.kIndexerIdle) {
     indexingInProgress = false;
-    async_driver();
+    promiseGenericIndexerCallbackResolve();
   }
 }
-Gloda.addIndexerListener(genericIndexerCallback);
+
+/**
+ * Simple test object.
+ *
+ * Has some tricks for gloda indexing to deal with gloda's general belief that
+ *  things are immutable.  When we get indexed we stash all of our attributes
+ *  at that time in _indexStash.  Then when we get cloned we propagate our
+ *  current attributes over to the cloned object and restore _indexStash.  This
+ *  sets things up the way gloda expects them as long as we never de-persist
+ *  from the db.
+ */
+function Widget(inum, date, str, notability, text1, text2) {
+  this._id = undefined;
+  this._inum = inum;
+  this._date = date;
+  this._str = str;
+  this._notability = notability;
+  this._text1 = text1;
+  this._text2 = text2;
+
+  this._indexStash = null;
+  this._restoreStash = null;
+}
+Widget.prototype = {
+  _clone() {
+    let clonus = new Widget(
+      this._inum,
+      this._date,
+      this._str,
+      this._notability,
+      this._text1,
+      this._text2
+    );
+    clonus._id = this._id;
+    clonus._iAmAClone = true;
+
+    for (let key of Object.keys(this)) {
+      let value = this[key];
+      if (key.startsWith("_")) {
+        continue;
+      }
+      clonus[key] = value;
+      if (key in this._indexStash) {
+        this[key] = this._indexStash[key];
+      }
+    }
+
+    return clonus;
+  },
+  _stash() {
+    this._indexStash = {};
+    for (let key of Object.keys(this)) {
+      let value = this[key];
+      if (key[0].startsWith("_")) {
+        continue;
+      }
+      this._indexStash[key] = value;
+    }
+  },
+
+  get id() {
+    return this._id;
+  },
+  set id(aVal) {
+    this._id = aVal;
+  },
+
+  // Gloda's attribute idiom demands that row attributes be prefixed with a '_'
+  //  (Because Gloda.grokNounItem detects attributes by just walking.).  This
+  //  could be resolved by having the special attributes moot these dudes, but
+  //  that's not how things are right now.
+  get inum() {
+    return this._inum;
+  },
+  set inum(aVal) {
+    this._inum = aVal;
+  },
+  get date() {
+    return this._date;
+  },
+  set date(aVal) {
+    this._date = aVal;
+  },
+
+  get datePRTime() {
+    return this._date.valueOf() * 1000;
+  },
+  // We need a special setter to convert back from PRTime to an actual
+  //  date object.
+  set datePRTime(aVal) {
+    this._date = new Date(aVal / 1000);
+  },
+
+  get str() {
+    return this._str;
+  },
+  set str(aVal) {
+    this._str = aVal;
+  },
+  get notability() {
+    return this._notability;
+  },
+  set notability(aVal) {
+    this._notability = aVal;
+  },
+  get text1() {
+    return this._text1;
+  },
+  set text1(aVal) {
+    this._text1 = aVal;
+  },
+  get text2() {
+    return this._text2;
+  },
+  set text2(aVal) {
+    this._text2 = aVal;
+  },
+
+  toString() {
+    return "" + this.id;
+  },
+};

@@ -13,54 +13,74 @@
  *  indexing gets.  We also clobber or wrap other functions as needed.
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var { glodaTestHelperInitialize } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+);
+var { configureGlodaIndexing } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+);
+var { sqlExpectCount } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+);
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaIndexer.jsm"
+);
+var { GlodaMsgIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/IndexMsg.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
+);
+
+/**
+ * We want to stop the GlodaMsgIndexer._indexerGetEnumerator after a
+ * set amount of folder indexing.
+ */
+const ENUMERATOR_SIGNAL_WORD = "STOP Me!";
 /**
  * How many more enumerations before we should throw; 0 means don't throw.
  */
-var explode_enumeration_after = 0;
+var stop_enumeration_after = 0;
+/**
+ * We hide the error in the promise chain. But we do have to know if it happens
+ * at another cycle.
+ */
+var error_is_thrown = false;
+/**
+ * Inject GlodaMsgIndexer._indexerGetEnumerator with our test indexerGetEnumerator.
+ */
 GlodaMsgIndexer._original_indexerGetEnumerator =
   GlodaMsgIndexer._indexerGetEnumerator;
 /**
  * Wrapper for GlodaMsgIndexer._indexerGetEnumerator to cause explosions.
  */
 GlodaMsgIndexer._indexerGetEnumerator = function(...aArgs) {
-  if (explode_enumeration_after && !--explode_enumeration_after) {
-    throw asyncExpectedEarlyAbort;
+  if (stop_enumeration_after && !--stop_enumeration_after) {
+    error_is_thrown = true;
+    throw new Error(ENUMERATOR_SIGNAL_WORD);
   }
 
   return GlodaMsgIndexer._original_indexerGetEnumerator(...aArgs);
 };
 
-/**
- * Create a folder indexing job for the given injection folder handle and
- * run it until completion.
- */
-function spin_folder_indexer(...aArgs) {
-  return async_run({ func: _spin_folder_indexer_gen, args: aArgs });
-}
-function* _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
-  let msgFolder = MessageInjection.get_real_injection_folder(aFolderHandle);
+var messageInjection;
 
-  // cheat and use indexFolder to build the job for us
-  GlodaMsgIndexer.indexFolder(msgFolder);
-  // steal that job...
-  let job = GlodaIndexer._indexQueue.pop();
-  GlodaIndexer._indexingJobGoal--;
-
-  // create the worker
-  let worker = GlodaMsgIndexer._worker_folderIndex(job, asyncCallbackHandle);
-  try {
-    yield asyncCallbackHandle.pushAndGo(worker);
-  } catch (ex) {
-    do_throw(ex);
-  }
-
-  if (aExpectedJobGoal !== undefined) {
-    Assert.equal(job.goal, aExpectedJobGoal);
-  }
-}
+add_task(function setupTest() {
+  let msgGen = new MessageGenerator();
+  messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  // We do not want the event-driven indexer crimping our style.
+  configureGlodaIndexing({ event: false });
+  glodaTestHelperInitialize(messageInjection);
+});
 
 /**
  * The value itself does not matter; it just needs to be present and be in a
@@ -72,20 +92,22 @@ var arbitraryGlodaId = 4096;
  * When we enter a filthy folder we should be marking all the messages as filthy
  *  that have gloda-id's and committing.
  */
-function* test_propagate_filthy_from_folder_to_messages() {
-  // mark the folder as filthy
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 3 }]);
+add_task(async function test_propagate_filthy_from_folder_to_messages() {
+  // Mark the folder as filthy.
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 3 },
+  ]);
   let glodaFolder = Gloda.getFolderForFolder(folder);
   glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
 
-  // mark each header with a gloda-id so they can get marked filthy
+  // Mark each header with a gloda-id so they can get marked filthy.
   for (let msgHdr of msgSet.msgHdrs()) {
     msgHdr.setUint32Property("gloda-id", arbitraryGlodaId);
   }
 
-  // force the database to see it as filthy so we can verify it changes
+  // Force the database to see it as filthy so we can verify it changes.
   glodaFolder._datastore.updateFolderDirtyStatus(glodaFolder);
-  yield sqlExpectCount(
+  await sqlExpectCount(
     1,
     "SELECT COUNT(*) FROM folderLocations WHERE id = ? " +
       "AND dirtyStatus = ?",
@@ -93,14 +115,15 @@ function* test_propagate_filthy_from_folder_to_messages() {
     glodaFolder.kFolderFilthy
   );
 
-  // index the folder, aborting at the second get enumerator request
-  explode_enumeration_after = 2;
-  yield spin_folder_indexer(folder);
+  // Index the folder, aborting at the second get enumerator request.
+  stop_enumeration_after = 2;
 
-  // the folder should only be dirty
+  await spin_folder_indexer(folder);
+
+  // The folder should only be dirty.
   Assert.equal(glodaFolder.dirtyStatus, glodaFolder.kFolderDirty);
-  // make sure the database sees it as dirty
-  yield sqlExpectCount(
+  // Make sure the database sees it as dirty.
+  await sqlExpectCount(
     1,
     "SELECT COUNT(*) FROM folderLocations WHERE id = ? " +
       "AND dirtyStatus = ?",
@@ -108,59 +131,93 @@ function* test_propagate_filthy_from_folder_to_messages() {
     glodaFolder.kFolderDirty
   );
 
-  // The messages should be filthy per the headers (we force a commit of the
-  //  database.)
+  // The messages should be filthy per the headers.
+  //  We force a commit of the database.
   for (let msgHdr of msgSet.msgHdrs()) {
     Assert.equal(
       msgHdr.getUint32Property("gloda-dirty"),
       GlodaMsgIndexer.kMessageFilthy
     );
   }
-}
+});
 
 /**
  * Make sure our counting pass and our indexing passes gets it right.  We test
  *  with 0,1,2 messages matching.
  */
-function* test_count_pass() {
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 2 }]);
-  yield MessageInjection.wait_for_message_injection();
+add_task(async function test_count_pass() {
+  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+    { count: 2 },
+  ]);
 
   let hdrs = msgSet.msgHdrList;
 
   // - (clean) messages with gloda-id's do not get indexed
-  // nothing is indexed at this point, so all 2.
-  explode_enumeration_after = 2;
-  yield spin_folder_indexer(folder, 2);
+  // Nothing is indexed at this point, so all 2.
+  error_is_thrown = false;
+  stop_enumeration_after = 2;
+  await spin_folder_indexer(folder, 2);
 
-  // pretend the first is indexed, leaving a count of 1.
+  // Pretend the first is indexed, leaving a count of 1.
   hdrs[0].setUint32Property("gloda-id", arbitraryGlodaId);
-  explode_enumeration_after = 2;
-  yield spin_folder_indexer(folder, 1);
+  error_is_thrown = false;
+  stop_enumeration_after = 2;
+  await spin_folder_indexer(folder, 1);
 
-  // pretend both are indexed, count of 0
+  // Pretend both are indexed, count of 0.
   hdrs[1].setUint32Property("gloda-id", arbitraryGlodaId);
-  // (No explosion should happen since we should never get to the second
-  //  enumerator.)
-  yield spin_folder_indexer(folder, 0);
+  // No explosion should happen since we should never get to the second
+  //  enumerator.
+  error_is_thrown = false;
+  await spin_folder_indexer(folder, 0);
 
-  // - dirty messages get indexed
+  // - Dirty messages get indexed.
   hdrs[0].setUint32Property("gloda-dirty", GlodaMsgIndexer.kMessageDirty);
-  explode_enumeration_after = 2;
-  yield spin_folder_indexer(folder, 1);
+  stop_enumeration_after = 2;
+  error_is_thrown = false;
+  await spin_folder_indexer(folder, 1);
 
   hdrs[1].setUint32Property("gloda-dirty", GlodaMsgIndexer.kMessageDirty);
-  explode_enumeration_after = 2;
-  yield spin_folder_indexer(folder, 2);
-}
+  stop_enumeration_after = 2;
+  error_is_thrown = false;
+  await spin_folder_indexer(folder, 2);
+});
 
-var tests = [test_propagate_filthy_from_folder_to_messages, test_count_pass];
+/**
+ * Create a folder indexing job for the given injection folder handle and
+ * run it until completion.
+ *
+ * The folder indexer will continue running on its own if we dont throw an Error in the
+ * GlodaMsgIndexer._indexerGetEnumerator
+ */
+async function spin_folder_indexer(aFolderHandle, aExpectedJobGoal) {
+  let msgFolder = messageInjection.getRealInjectionFolder(aFolderHandle);
 
-function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
-  // we do not want the event-driven indexer crimping our style
-  configure_gloda_indexing({ event: false });
-  glodaHelperRunTests(tests);
+  // Cheat and use indexFolder to build the job for us.
+  GlodaMsgIndexer.indexFolder(msgFolder);
+  // Steal that job.
+  let job = GlodaIndexer._indexQueue.pop();
+  GlodaIndexer._indexingJobGoal--;
+
+  // Create the callbackHandle.
+  let callbackHandle = new CallbackHandle();
+  // Create the worker.
+  let worker = GlodaMsgIndexer._worker_folderIndex(job, callbackHandle);
+  try {
+    callbackHandle.pushAndGo(worker, null);
+    await Promise.race([
+      callbackHandle.promise,
+      TestUtils.waitForCondition(() => {
+        return error_is_thrown;
+      }),
+    ]);
+  } catch (ex) {
+    do_throw(ex);
+  }
+
+  if (aExpectedJobGoal !== undefined) {
+    Assert.equal(job.goal, aExpectedJobGoal);
+  }
 }
 
 /**
@@ -174,28 +231,36 @@ function run_test() {
  * Actually, we do very little at all right now.  This will fill out as needs
  *  arise.
  */
-var asyncCallbackHandle = {
-  pushAndGo: function asyncCallbackHandle_push(aIterator, aContext) {
-    asyncGeneratorStack.push([
-      _asyncCallbackHandle_glodaWorkerAdapter(aIterator),
-      "callbackHandler pushAndGo",
-    ]);
-    return async_driver();
-  },
-};
+class CallbackHandle {
+  constructor() {
+    this._promise = new Promise(resolve => {
+      this._resolve = resolve;
+    });
+  }
 
-function* _asyncCallbackHandle_glodaWorkerAdapter(aIter) {
-  while (true) {
-    switch (aIter.next().value) {
-      case GlodaIndexer.kWorkSync:
-        yield true;
-        break;
-      case GlodaIndexer.kWorkDone:
-      case GlodaIndexer.kWorkDoneWithResult:
-        return;
-      default:
-        yield false;
-        break;
+  pushAndGo(aIterator, aContext) {
+    this.glodaWorkerAdapter(aIterator, this._resolve).catch(reason => {
+      if (!reason.message.match(ENUMERATOR_SIGNAL_WORD)) {
+        throw reason;
+      }
+    });
+  }
+
+  async glodaWorkerAdapter(aIter, resolve) {
+    while (!error_is_thrown) {
+      switch (aIter.next().value) {
+        case GlodaIndexer.kWorkSync:
+          break;
+        case GlodaIndexer.kWorkDone:
+        case GlodaIndexer.kWorkDoneWithResult:
+          resolve();
+          return;
+        default:
+          break;
+      }
     }
+  }
+  get promise() {
+    return this._promise;
   }
 }

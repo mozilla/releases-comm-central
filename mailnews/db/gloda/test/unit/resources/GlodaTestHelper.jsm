@@ -24,6 +24,7 @@ const EXPORTED_SYMBOLS = [
   "assertExpectedMessagesIndexed",
   "glodaTestHelperInitialize",
   "nukeGlodaCachesAndCollections",
+  "prepareIndexerForTesting",
   "waitForGlodaIndexer",
 ];
 
@@ -166,7 +167,10 @@ class IndexMessageState {
   data = new GlodaIndexerData();
 
   constructor() {
-    this._prepareIndexerForTesting();
+    prepareIndexerForTesting();
+    // Continue the preparing by assigning the hook recover and hook cleanup.
+    GlodaIndexer._unitTestHookRecover = this._testHookRecover;
+    GlodaIndexer._unitTestHookCleanup = this._testHookCleanup;
   }
 
   resetData() {
@@ -291,58 +295,6 @@ class IndexMessageState {
 
   _numItemsAdded = 0;
 
-  _prepareIndexerForTesting() {
-    if (!GlodaIndexer.enabled) {
-      throw new Error(
-        "The gloda indexer is somehow not enabled. This is problematic."
-      );
-    }
-    // Make the indexer be more verbose about indexing for us.
-    GlodaIndexer._unitTestSuperVerbose = true;
-    GlodaMsgIndexer._unitTestSuperVerbose = true;
-    // Lobotomize the adaptive indexer.
-    // The indexer doesn't need to worry about load; zero his rescheduling time.
-    GlodaIndexer._INDEX_INTERVAL = 0;
-    // The indexer already registered for the idle service; we must remove this
-    //  or "idle" notifications will still get sent via the observer mechanism.
-    let realIdleService = GlodaIndexer._idleService;
-    realIdleService.removeIdleObserver(
-      GlodaIndexer,
-      GlodaIndexer._indexIdleThresholdSecs
-    );
-    // Pretend we are always idle.
-    GlodaIndexer._idleService = {
-      idleTime: 1000,
-      addIdleObserver() {
-        // There is no actual need to register with the idle observer, and if
-        //  we do, the stupid "idle" notification will trigger commits.
-      },
-      removeIdleObserver() {},
-    };
-    // We want the event-driven indexer to always handle indexing and never spill
-    //  to an indexing sweep unless a test intentionally does so.
-    GlodaIndexer._indexMaxEventQueueMessages = 10000;
-    // Lobotomize the adaptive indexer's constants.
-    GlodaIndexer._cpuTargetIndexTime = 10000000;
-    GlodaIndexer._CPU_TARGET_INDEX_TIME_ACTIVE = 10000000;
-    GlodaIndexer._CPU_TARGET_INDEX_TIME_IDLE = 10000000;
-    GlodaIndexer._CPU_IS_BUSY_TIME = 10000000;
-    GlodaIndexer._PAUSE_LATE_IS_BUSY_TIME = 10000000;
-
-    delete GlodaIndexer._indexTokens;
-    GlodaIndexer.__defineGetter__("_indexTokens", function() {
-      return GlodaIndexer._CPU_MAX_TOKENS_PER_BATCH;
-    });
-    GlodaIndexer.__defineSetter__("_indexTokens", function() {});
-
-    // This includes making commits only happen when we the unit tests explicitly
-    //  tell them to.
-    GlodaIndexer._MINIMUM_COMMIT_TIME = 10000000;
-    GlodaIndexer._MAXIMUM_COMMIT_TIME = 10000000;
-    GlodaIndexer._unitTestHookRecover = this._testHookRecover;
-    GlodaIndexer._unitTestHookCleanup = this._testHookCleanup;
-  }
-
   applyGlodaIndexerData(data) {
     this.data.applyData(data);
   }
@@ -354,6 +306,56 @@ class IndexMessageState {
    *  seen that msgsClassified event.
    */
   interestingEvents = [];
+}
+
+function prepareIndexerForTesting() {
+  if (!GlodaIndexer.enabled) {
+    throw new Error(
+      "The gloda indexer is somehow not enabled. This is problematic."
+    );
+  }
+  // Make the indexer be more verbose about indexing for us.
+  GlodaIndexer._unitTestSuperVerbose = true;
+  GlodaMsgIndexer._unitTestSuperVerbose = true;
+  // Lobotomize the adaptive indexer.
+  // The indexer doesn't need to worry about load; zero his rescheduling time.
+  GlodaIndexer._INDEX_INTERVAL = 0;
+  // The indexer already registered for the idle service; we must remove this
+  //  or "idle" notifications will still get sent via the observer mechanism.
+  let realIdleService = GlodaIndexer._idleService;
+  realIdleService.removeIdleObserver(
+    GlodaIndexer,
+    GlodaIndexer._indexIdleThresholdSecs
+  );
+  // Pretend we are always idle.
+  GlodaIndexer._idleService = {
+    idleTime: 1000,
+    addIdleObserver() {
+      // There is no actual need to register with the idle observer, and if
+      //  we do, the stupid "idle" notification will trigger commits.
+    },
+    removeIdleObserver() {},
+  };
+  // We want the event-driven indexer to always handle indexing and never spill
+  //  to an indexing sweep unless a test intentionally does so.
+  GlodaIndexer._indexMaxEventQueueMessages = 10000;
+  // Lobotomize the adaptive indexer's constants.
+  GlodaIndexer._cpuTargetIndexTime = 10000000;
+  GlodaIndexer._CPU_TARGET_INDEX_TIME_ACTIVE = 10000000;
+  GlodaIndexer._CPU_TARGET_INDEX_TIME_IDLE = 10000000;
+  GlodaIndexer._CPU_IS_BUSY_TIME = 10000000;
+  GlodaIndexer._PAUSE_LATE_IS_BUSY_TIME = 10000000;
+
+  delete GlodaIndexer._indexTokens;
+  GlodaIndexer.__defineGetter__("_indexTokens", function() {
+    return GlodaIndexer._CPU_MAX_TOKENS_PER_BATCH;
+  });
+  GlodaIndexer.__defineSetter__("_indexTokens", function() {});
+
+  // This includes making commits only happen when we the unit tests explicitly
+  //  tell them to.
+  GlodaIndexer._MINIMUM_COMMIT_TIME = 10000000;
+  GlodaIndexer._MAXIMUM_COMMIT_TIME = 10000000;
 }
 
 class GlodaIndexerData {
