@@ -306,7 +306,7 @@ var GenericIRCConversation = {
     }
 
     if (action) {
-      if (!this.sendCTCPMessage(this.name, false, "ACTION", message)) {
+      if (!this._account.sendCTCPMessage(this.name, false, "ACTION", message)) {
         this.writeMessage(
           this._account._currentServerName,
           _("error.sendMessageFailed"),
