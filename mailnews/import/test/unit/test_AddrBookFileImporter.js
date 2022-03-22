@@ -12,8 +12,9 @@ var { AddrBookFileImporter } = ChromeUtils.import(
  * @param {string} type - A source file type supported by AddrBookFileImporter.
  * @param {string} filePath - The path of a source file.
  * @param {string} refDataKey - The key of an object in addressbook.json.
+ * @param {string[]} [csvFieldMap] - Map of CSV fields to address book fields.
  */
-async function test_importAbFile(type, filePath, refDataKey) {
+async function test_importAbFile(type, filePath, refDataKey, csvFieldMap) {
   // Create an address book and init the importer.
   let dirId = MailServices.ab.newAddressBook(
     `tmp-${type}`,
@@ -26,7 +27,10 @@ async function test_importAbFile(type, filePath, refDataKey) {
   // Start importing.
   let sourceFile = do_get_file(filePath);
   if (type == "csv") {
-    await importer.parseCsvFile(sourceFile);
+    let unmatched = await importer.parseCsvFile(sourceFile);
+    if (unmatched.length) {
+      importer.setCsvFields(csvFieldMap);
+    }
   }
   await importer.startImport(sourceFile, targetDir);
 
@@ -48,12 +52,27 @@ async function test_importAbFile(type, filePath, refDataKey) {
 
 /** Test importing .csv file works. */
 add_task(async function test_importCsvFile() {
+  // A comma separated file.
   await test_importAbFile(
     "csv",
     "resources/basic_csv_addressbook.csv",
     "csv_import"
   );
 
+  // A semicolon separated file.
+  await test_importAbFile("csv", "resources/csv_semicolon.csv", "csv_import");
+
+  // A comma separated file without header row.
+  Services.prefs.setBoolPref("mail.import.csv.skipfirstrow", false);
+  await test_importAbFile("csv", "resources/csv_no_header.csv", "csv_import", [
+    2, // DisplayName
+    0, // FirstName
+    1, // LastName
+    4, // PrimaryEmail
+  ]);
+  Services.prefs.clearUserPref("mail.import.csv.skipfirstrow");
+
+  // A comma separated file with some fields containing quotes.
   await test_importAbFile("csv", "resources/quote.csv", "quote_csv");
 });
 

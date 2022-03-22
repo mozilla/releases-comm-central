@@ -95,7 +95,13 @@
       "DisplayName"      : "John Doe",
       "FirstName"        : "John",
       "LastName"         : "Doe",
-      "PrimaryEmail"     : "johndoe@host.invalid"
+      "PrimaryEmail"     : "john@doe.invalid"
+    },
+    {
+      "DisplayName"      : "Jane Doe",
+      "FirstName"        : "Jane",
+      "LastName"         : "Doe",
+      "PrimaryEmail"     : "jane@doe.invalid"
     }
   ],
   "becky_addressbook" :
