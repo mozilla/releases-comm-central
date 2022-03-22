@@ -68,8 +68,9 @@ class QueryExpectationListener {
     //  but also so we can provide slightly more useful debug output.
     this.nextIndex = 0;
 
-    this._promise = new Promise(resolve => {
+    this._promise = new Promise((resolve, reject) => {
       this._resolve = resolve;
+      this._reject = reject;
     });
   }
   onItemsAdded(aItems, aCollection) {
@@ -79,28 +80,34 @@ class QueryExpectationListener {
       try {
         glodaStringRep = this.glodaExtractor(item);
       } catch (ex) {
-        throw new Error(
-          "Gloda extractor threw during query expectation.\n" +
-            "Item:\n" +
-            item +
-            "\nException:\n" +
-            ex
+        this._reject(
+          new Error(
+            "Gloda extractor threw during query expectation.\n" +
+              "Item:\n" +
+              item +
+              "\nException:\n" +
+              ex
+          )
         );
+        return; // We don't have to continue for more checks.
       }
 
       // Make sure we were expecting this guy.
       if (glodaStringRep in this.expectedSet) {
         delete this.expectedSet[glodaStringRep];
       } else {
-        throw new Error(
-          "Query returned unexpected result!\n" +
-            "Item:\n" +
-            item +
-            "\nExpected set:\n" +
-            this.expectedSet +
-            "\nCaller:\n" +
-            this.callerStackFrame
+        this._reject(
+          new Error(
+            "Query returned unexpected result!\n" +
+              "Item:\n" +
+              item +
+              "\nExpected set:\n" +
+              this.expectedSet +
+              "\nCaller:\n" +
+              this.callerStackFrame
+          )
         );
+        return; // We don't have to continue for more checks.
       }
 
       if (this.orderVerifier) {
@@ -121,19 +128,22 @@ class QueryExpectationListener {
                 "\n"
             );
           }
-          throw ex;
+          this._reject(ex);
+          return; // We don't have to continue for more checks.
         }
       }
       this.nextIndex++;
 
       // Make sure the query's test method agrees with the database about this.
       if (!aCollection.query.test(item)) {
-        throw new Error(
-          "Query test returned false when it should have been true on.\n" +
-            "Extracted:\n" +
-            glodaStringRep +
-            "\nItem:\n" +
-            item
+        this._reject(
+          new Error(
+            "Query test returned false when it should have been true on.\n" +
+              "Extracted:\n" +
+              glodaStringRep +
+              "\nItem:\n" +
+              item
+          )
         );
       }
     }
@@ -157,16 +167,19 @@ class QueryExpectationListener {
     // `expectedSet` should now be empty.
     for (let key in this.expectedSet) {
       let value = this.expectedSet[key];
-      throw new Error(
-        "Query should have returned:\n" +
-          key +
-          " (" +
-          value +
-          ").\n" +
-          "But " +
-          this.nextIndex +
-          " was seen."
+      this._reject(
+        new Error(
+          "Query should have returned:\n" +
+            key +
+            " (" +
+            value +
+            ").\n" +
+            "But " +
+            this.nextIndex +
+            " was seen."
+        )
       );
+      return; // We don't have to continue for more checks.
     }
 
     // If no error is thrown then we're fine here.
@@ -292,8 +305,10 @@ async function sqlRun(sql) {
   let rows = null;
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  let promiseReject;
+  let promise = new Promise((resolve, reject) => {
     promiseResolve = resolve;
+    promiseReject = reject;
   });
   // Running SQL.
   stmt.executeAsync({
@@ -307,7 +322,9 @@ async function sqlRun(sql) {
       }
     },
     handleError(aError) {
-      throw new Error("SQL error!\nResult:\n" + aError + "\nSQL:\n" + sql);
+      promiseReject(
+        new Error("SQL error!\nResult:\n" + aError + "\nSQL:\n" + sql)
+      );
     },
     handleCompletion() {
       promiseResolve(rows);
@@ -353,46 +370,55 @@ class SqlExpectationListener {
     this.sqlDesc = aDesc;
     this.callerStackFrame = aCallerStackFrame;
 
-    this._promise = new Promise(resolve => {
+    this._promise = new Promise((resolve, reject) => {
       this._resolve = resolve;
+      this._reject = reject;
     });
   }
   handleResult(aResultSet) {
     let row = aResultSet.getNextRow();
     if (!row) {
-      throw new Error(
-        "No result row returned from caller:\n" +
-          this.callerStackFrame +
-          "\nSQL:\n" +
-          this.sqlDesc
+      this._reject(
+        new Error(
+          "No result row returned from caller:\n" +
+            this.callerStackFrame +
+            "\nSQL:\n" +
+            this.sqlDesc
+        )
       );
+      return; // We don't have to continue for more checks.
     }
     this.actualCount = row.getInt64(0);
   }
 
   handleError(aError) {
-    throw new Error(
-      "SQL error from caller:\n" +
-        this.callerStackFrame +
-        "\nResult:\n" +
-        aError +
-        "\nSQL:\n" +
-        this.sqlDesc
+    this._reject(
+      new Error(
+        "SQL error from caller:\n" +
+          this.callerStackFrame +
+          "\nResult:\n" +
+          aError +
+          "\nSQL:\n" +
+          this.sqlDesc
+      )
     );
   }
 
   handleCompletion(aReason) {
     if (this.actualCount != this.expectedCount) {
-      throw new Error(
-        "Actual count of " +
-          this.actualCount +
-          "does not match expected count of:\n" +
-          this.expectedCount +
-          "\nFrom caller:" +
-          this.callerStackFrame +
-          "\nSQL:\n" +
-          this.sqlDesc
+      this._reject(
+        new Error(
+          "Actual count of " +
+            this.actualCount +
+            "does not match expected count of:\n" +
+            this.expectedCount +
+            "\nFrom caller:" +
+            this.callerStackFrame +
+            "\nSQL:\n" +
+            this.sqlDesc
+        )
       );
+      return; // We don't have to continue for more checks.
     }
     this._resolve();
   }
