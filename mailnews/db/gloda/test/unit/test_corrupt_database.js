@@ -12,17 +12,12 @@
  * We do use the rest of the test infrastructure though.
  */
 
-/* import-globals-from ../../../../test/resources/logHelper.js */
-/* import-globals-from ../../../../test/resources/asyncTestUtils.js */
-load("../../../../resources/logHelper.js");
-load("../../../../resources/asyncTestUtils.js");
-
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // -- Do configure the gloda prefs though...
-// yes to indexing
+// Yes to indexing.
 Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled", true);
-// no to a sweep we don't control
+// No to a sweep we don't control.
 Services.prefs.setBoolPref(
   "mailnews.database.global.indexer.perform_initial_sweep",
   false
@@ -38,12 +33,12 @@ Services.prefs.setCharPref(kDatastoreIDPref, kOriginalDatastoreID);
  * Create an illegal=corrupt database and make sure that we log a message and
  * still end up happy.
  */
-function test_corrupt_databases_get_reported_and_blown_away() {
-  // - get the file path
+add_task(function test_corrupt_databases_get_reported_and_blown_away() {
+  // - Get the file path.
   let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   dbFile.append("global-messages-db.sqlite");
 
-  // - protect dangerous people from themselves
+  // - Protect dangerous people from themselves.
   // (There should not be a database at this point; if there is one, we are
   // not in the sandbox profile we expect.  I wouldn't bother except we're
   // going out of our way to write gibberish whereas gloda accidentally
@@ -52,8 +47,8 @@ function test_corrupt_databases_get_reported_and_blown_away() {
     do_throw("There should not be a database at this point.");
   }
 
-  // - create the file
-  mark_sub_test_start("creating gibberish file");
+  // - Create the file.
+  dump("Creating gibberish file\n");
   let ostream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
     Ci.nsIFileOutputStream
   );
@@ -62,14 +57,14 @@ function test_corrupt_databases_get_reported_and_blown_away() {
   ostream.write(fileContents, fileContents.length);
   ostream.close();
 
-  // - init gloda, get warnings
-  mark_sub_test_start("init gloda");
+  // - Init gloda, get warnings.
+  dump("Init gloda\n");
   var { Gloda } = ChromeUtils.import(
     "resource:///modules/gloda/GlodaPublic.jsm"
   );
-  mark_sub_test_start("gloda inited, checking");
+  dump("Gloda inited, checking\n");
 
-  // - make sure the datastore has an actual database
+  // - Make sure the datastore has an actual database.
   let { GlodaDatastore } = ChromeUtils.import(
     "resource:///modules/gloda/GlodaDatastore.jsm"
   );
@@ -90,10 +85,4 @@ function test_corrupt_databases_get_reported_and_blown_away() {
   if (!GlodaDatastore.asyncConnection) {
     do_throw("No database connection suggests no database!");
   }
-}
-
-var tests = [test_corrupt_databases_get_reported_and_blown_away];
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

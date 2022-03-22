@@ -9,25 +9,73 @@
  * also the easy thing to do?)
  */
 
-/* import-globals-from resources/glodaTestHelper.js */
-load("resources/glodaTestHelper.js");
-
+var { glodaTestHelperInitialize } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+);
+var { waitForGlodaDBFlush } = ChromeUtils.import(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+);
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 var { MimeTypeNoun } = ChromeUtils.import(
   "resource:///modules/gloda/NounMimetype.jsm"
 );
 
-/* ===== Tests ===== */
-
 var passResults = [];
 var curPassResults;
+
+add_task(async function setupTest() {
+  let msgGen = new MessageGenerator();
+  let messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  glodaTestHelperInitialize(messageInjection);
+});
+
+add_task(async function test_new_pass_first_time() {
+  await new_pass();
+});
+
+add_task(function test_basics_first_time() {
+  test_basics();
+});
+
+/**
+ * Do two passes of test_basics making sure that persisted values really
+ *  persist.
+ */
+add_task(async function test_new_pass_second_time() {
+  await new_pass();
+});
+
+add_task(function test_basics_second_time() {
+  test_basics();
+});
+
+add_task(function verify_passes_are_the_same() {
+  var firstPassResults = passResults[0];
+  for (let iType = 0; iType < curPassResults.length; iType++) {
+    for (let iPass = 1; iPass < passResults.length; iPass++) {
+      Assert.equal(firstPassResults[iType].id, passResults[iPass][iType].id);
+    }
+  }
+});
+
+add_task(function test_parameters() {
+  let plain = MimeTypeNoun.getMimeType("text/plain");
+  Assert.equal(plain, MimeTypeNoun.getMimeType('text/plain; charset="UTF-8"'));
+});
+
 /**
  * Setup a new 'pass' by nuking the MimeTypeNoun's state if it has any.  The
  *  goal here is to verify that the database persistence is actually working,
  *  and we can only do that if we convince it to nuke its authoritative 'cache'
  *  and grab a new copy.
  */
-function* new_pass() {
-  // we have to nuke if it has already happened...
+async function new_pass() {
+  // We have to nuke if it has already happened.
   if (passResults.length) {
     MimeTypeNoun._mimeTypes = {};
     MimeTypeNoun._mimeTypesByID = {};
@@ -38,16 +86,16 @@ function* new_pass() {
   curPassResults = [];
   passResults.push(curPassResults);
 
-  // the mime type does some async stuff... make sure we don't advance until
+  // The mime type does some async stuff... make sure we don't advance until
   //  it is done with said stuff.
-  yield wait_for_gloda_db_flush();
+  await waitForGlodaDBFlush();
 }
 
 function test_basics() {
   let python;
-  // if this is not the first pass, check for python before other things to
+  // If this is not the first pass, check for python before other things to
   //  make sure we're not just relying on consistent logic rather than actual
-  //  persistence
+  //  persistence.
   if (passResults.length) {
     python = MimeTypeNoun.getMimeType("text/x-python");
   }
@@ -64,22 +112,22 @@ function test_basics() {
   let plain = MimeTypeNoun.getMimeType("text/plain");
   curPassResults.push(plain);
 
-  // if this is for the first time, check for python now (see above)
+  // If this is for the first time, check for python now (see above).
   if (!passResults.length) {
     python = MimeTypeNoun.getMimeType("text/x-python");
   }
-  // but always add it to the results now, as we need consistent ordering
+  // But always add it to the results now, as we need consistent ordering
   //  since we use a list.
   curPassResults.push(python);
 
-  // sanity-checking the parsing
+  // Sanity-checking the parsing.
   Assert.equal(jpeg.type, "image");
   Assert.equal(jpeg.subType, "jpeg");
 
-  // - make sure the numeric trickiness for the block stuff is actually doing
+  // - Make sure the numeric trickiness for the block stuff is actually doing
   //  the right thing!
   const BLOCK_SIZE = MimeTypeNoun.TYPE_BLOCK_SIZE;
-  // same blocks
+  // Same blocks.
   Assert.equal(
     Math.floor(jpeg.id / BLOCK_SIZE),
     Math.floor(png.id / BLOCK_SIZE)
@@ -88,41 +136,9 @@ function test_basics() {
     Math.floor(html.id / BLOCK_SIZE),
     Math.floor(plain.id / BLOCK_SIZE)
   );
-  // different blocks
+  // Different blocks.
   Assert.notEqual(
     Math.floor(jpeg.id / BLOCK_SIZE),
     Math.floor(html.id / BLOCK_SIZE)
   );
-}
-
-function test_parameters() {
-  let plain = MimeTypeNoun.getMimeType("text/plain");
-  Assert.equal(plain, MimeTypeNoun.getMimeType('text/plain; charset="UTF-8"'));
-}
-
-function verify_passes_are_the_same() {
-  var firstPassResults = passResults[0];
-  for (let iType = 0; iType < curPassResults.length; iType++) {
-    for (let iPass = 1; iPass < passResults.length; iPass++) {
-      Assert.equal(firstPassResults[iType].id, passResults[iPass][iType].id);
-    }
-  }
-}
-
-/* ===== Driver ===== */
-
-var tests = [
-  // do two passes of test_basics making sure that persisted values really
-  //  persist...
-  new_pass,
-  test_basics,
-  new_pass,
-  test_basics,
-  verify_passes_are_the_same,
-
-  test_parameters,
-];
-
-function run_test() {
-  glodaHelperRunTests(tests);
 }
