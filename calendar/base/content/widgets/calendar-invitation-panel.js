@@ -183,7 +183,7 @@
   }
   customElements.define("calendar-invitation-datetime", InvitationDatetime);
 
-  const partStatOrder = ["ACCEPTED", "DECLINED", "TENTATIVE", "NEEDS-ACTION", "OTHER"];
+  const partStatOrder = ["ACCEPTED", "DECLINED", "TENTATIVE", "NEEDS-ACTION"];
 
   /**
    * InvitationPartStatSummary generates text indicating the aggregated
@@ -217,8 +217,8 @@
       }
       document.l10n.setAttributes(
         this.shadowRoot.getElementById("total"),
-        "calendar-invitation-panel-partstat-summary",
-        { partStat: "TOTAL", count: counts.TOTAL }
+        "calendar-invitation-panel-partstat-total",
+        { count: counts.TOTAL }
       );
 
       let shownPartStats = partStatOrder.filter(partStat => counts[partStat]);
@@ -226,10 +226,18 @@
       for (let partStat of shownPartStats) {
         let span = document.createElement("span");
         span.setAttribute("class", "calendar-invitation-panel-partstat-summary");
-        document.l10n.setAttributes(span, "calendar-invitation-panel-partstat-summary", {
-          partStat,
-          count: counts[partStat],
-        });
+
+        // calendar-invitation-panel-partstat-accepted
+        // calendar-invitation-panel-partstat-declined
+        // calendar-invitation-panel-partstat-tentative
+        // calendar-invitation-panel-partstat-needs-action
+        document.l10n.setAttributes(
+          span,
+          `calendar-invitation-panel-partstat-${partStat.toLowerCase()}`,
+          {
+            count: counts[partStat],
+          }
+        );
         breakdown.appendChild(span);
       }
     }
