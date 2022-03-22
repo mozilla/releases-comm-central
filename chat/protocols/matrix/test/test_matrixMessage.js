@@ -387,3 +387,53 @@ add_task(async function test_getActions_notSent() {
   cancelAction.run();
   ok(cancelCalled);
 });
+
+add_task(function test_whenDisplayedUnsent() {
+  const mockConv = {
+    _account: {
+      _client: {
+        sendReadReceipt(event, options) {
+          ok(false, "Should not send read receipt for unsent event");
+        },
+      },
+    },
+  };
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    {
+      event: makeEvent({
+        status: EventStatus.NOT_SENT,
+      }),
+    },
+    mockConv
+  );
+
+  message.whenDisplayed();
+  ok(!message._displayed);
+});
+
+add_task(function test_whenReadUnsent() {
+  const mockConv = {
+    _account: {
+      _client: {
+        setRoomReadMarkers(event, options) {
+          ok(false, "Should not send read marker for unsent event");
+        },
+      },
+    },
+  };
+  const message = new matrix.MatrixMessage(
+    "foo",
+    "bar",
+    {
+      event: makeEvent({
+        status: EventStatus.NOT_SENT,
+      }),
+    },
+    mockConv
+  );
+
+  message.whenRead();
+  ok(!message._read);
+});

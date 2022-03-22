@@ -104,7 +104,11 @@ MatrixMessage.prototype = {
   _read: false,
 
   whenDisplayed() {
-    if (this._displayed || !this.event) {
+    if (
+      this._displayed ||
+      !this.event ||
+      (this.event.status && this.event.status !== EventStatus.SENT)
+    ) {
       return;
     }
     this._displayed = true;
@@ -121,7 +125,8 @@ MatrixMessage.prototype = {
       this._read ||
       !this.event ||
       !this.conversation._account ||
-      this.conversation._account.noFullyRead
+      this.conversation._account.noFullyRead ||
+      (this.event.status && this.event.status !== EventStatus.SENT)
     ) {
       return;
     }
@@ -1570,6 +1575,7 @@ MatrixAccount.prototype = {
     } else {
       // Without client we can still clear the stores at least.
       pendingClientOperations.finally(async () => {
+        // getClientOptions wipes the session storage.
         const opts = await this.getClientOptions();
         opts.store.deleteAllData();
         opts.cryptoStore.deleteAllData();
@@ -1757,6 +1763,8 @@ MatrixAccount.prototype = {
       accountPrincipal,
       ""
     );
+    // Ensure we start a new session in our storage.
+    localStorage.clear();
 
     const opts = {
       useAuthorizationHeader: true,
