@@ -1150,6 +1150,18 @@ var gSpacesToolbar = {
   },
 
   /**
+   * Copy the badges from the contained menu items to the pinned button.
+   * Should be called whenever one of the menu item's badge state changes.
+   */
+  updatePinnedBadgeState() {
+    let hasBadge = Boolean(
+      document.querySelector("#spacesButtonMenuPopup .has-badge")
+    );
+    let spacesPinnedButton = document.getElementById("spacesPinnedButton");
+    spacesPinnedButton.classList.toggle("has-badge", hasBadge);
+  },
+
+  /**
    * Save the preferred state when the app is closed.
    */
   onUnload() {

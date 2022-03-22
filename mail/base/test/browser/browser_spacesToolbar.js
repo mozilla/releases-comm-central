@@ -966,3 +966,32 @@ add_task(async function testSpacesToolbarExtension() {
     "The overflow button is hidden"
   );
 });
+
+add_task(function testPinnedSpacesBadge() {
+  window.gSpacesToolbar.toggleToolbar(true);
+  let spacesPinnedButton = document.getElementById("spacesPinnedButton");
+  let spacesPopupButtonChat = document.getElementById("spacesPopupButtonChat");
+
+  window.gSpacesToolbar.updatePinnedBadgeState();
+
+  Assert.ok(
+    !spacesPinnedButton.classList.contains("has-badge"),
+    "Pinned button does not indicate badged items without any"
+  );
+
+  spacesPopupButtonChat.classList.add("has-badge");
+  window.gSpacesToolbar.updatePinnedBadgeState();
+
+  Assert.ok(
+    spacesPinnedButton.classList.contains("has-badge"),
+    "Pinned button indicates it has badged items"
+  );
+
+  spacesPopupButtonChat.classList.remove("has-badge");
+  window.gSpacesToolbar.updatePinnedBadgeState();
+
+  Assert.ok(
+    !spacesPinnedButton.classList.contains("has-badge"),
+    "Badge state is reset from pinned button"
+  );
+});

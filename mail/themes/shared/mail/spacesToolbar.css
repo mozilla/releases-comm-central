@@ -314,3 +314,30 @@ input[type="color"]:focus-visible {
   outline: 2px solid var(--focus-outline-color);
   outline-offset: -1px;
 }
+
+.has-badge:not([open="true"]) > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+  display: block;
+  box-shadow: none;
+  box-sizing: content-box;
+  margin: -2px -3px 0 !important;
+  min-width: 6px;
+  height: 6px;
+  width: 6px;
+  padding: 0;
+  background: var(--spaces-button-badge-bg-color);
+  border: 2px solid var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+  border-radius: 6px;
+}
+
+.has-badge > .menu-iconic-left::after {
+  display: block;
+  content: "";
+  height: 6px;
+  width: 6px;
+  background: var(--spaces-button-badge-bg-color);
+  border: 2px solid var(--arrowpanel-background);
+  border-radius: 6px;
+  position: absolute;
+  inset-block-start: -3px;
+  inset-inline-end: -1px;
+}

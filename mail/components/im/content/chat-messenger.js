@@ -7,7 +7,7 @@
 
 // This file is loaded in messenger.xhtml.
 /* globals MailToolboxCustomizeDone, openIMAccountMgr,
-   PROTO_TREE_VIEW, Status, statusSelector, ZoomManager */
+   PROTO_TREE_VIEW, Status, statusSelector, ZoomManager, gSpacesToolbar */
 
 var { Notifications } = ChromeUtils.import(
   "resource:///modules/chatNotifications.jsm"
@@ -570,6 +570,13 @@ var chatHandler = {
           count: unreadCount,
         }
       );
+    }
+    let spacesPopupButtonChat = document.getElementById(
+      "spacesPopupButtonChat"
+    );
+    if (spacesPopupButtonChat) {
+      spacesPopupButtonChat.classList.toggle("has-badge", unreadCount);
+      gSpacesToolbar.updatePinnedBadgeState();
     }
 
     if (unreadCount != this._notifiedUnreadCount) {
@@ -1762,6 +1769,7 @@ var chatHandler = {
     if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
       [
         "chatButton",
+        "spacesPopupButtonChat",
         "button-chat",
         "menu_goChat",
         "goChatSeparator",

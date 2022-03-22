@@ -19,7 +19,7 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
     "Initially no unread chat messages"
   );
 
-  // Send a new message in a MUC that is not currently open
+  // Send a new message in a MUC that is not currently open.
   const conversation = account.prplAccount.wrappedJSObject.makeMUC(
     "noSpaceBadge"
   );
@@ -28,7 +28,7 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
     incoming: true,
   });
   await messagePromise;
-  // Make sure nothing else was waiting to happen
+  // Make sure nothing else was waiting to happen.
   await TestUtils.waitForTick();
 
   ok(
@@ -36,7 +36,7 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
     "Untargeted MUC message doesn't change badge"
   );
 
-  // Send a new targeted message in the conversation
+  // Send a new targeted message in the conversation.
   const unreadContainer = chatButton.querySelector(".spaces-badge-container");
   const unreadContainerText = unreadContainer.textContent;
   const unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
@@ -90,7 +90,7 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
     );
   }
 
-  // Send a new message in a DM conversation that is not currently open
+  // Send a new message in a DM conversation that is not currently open.
   const unreadContainerText = unreadContainer.textContent;
   let unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
   const conversation = account.prplAccount.wrappedJSObject.makeDM("spaceBadge");
@@ -108,7 +108,7 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
   is(unreadContainer.textContent, "1", "Unread count is in badge");
   ok(unreadContainer.title);
 
-  // Display the DM conversation
+  // Display the DM conversation.
   unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
   await openChatTab();
   const convNode = getConversationItem(conversation);
@@ -123,6 +123,121 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
     !chatButton.classList.contains("has-badge"),
     "Unread badge is hidden again"
   );
+
+  conversation.close();
+  account.disconnect();
+  Services.accounts.deleteAccount(account.id);
+});
+
+add_task(async function test_spacesToolbarPinnedChatBadgeMUC() {
+  window.gSpacesToolbar.toggleToolbar(true);
+  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  account.password = "this is a test";
+  account.connect();
+
+  if (window.chatHandler._chatButtonUpdatePending) {
+    await TestUtils.waitForTick();
+  }
+
+  const spacesPopupButtonChat = document.getElementById(
+    "spacesPopupButtonChat"
+  );
+
+  ok(
+    !spacesPopupButtonChat.classList.contains("has-badge"),
+    "Initially no unread chat messages"
+  );
+
+  // Send a new message in a MUC that is not currently open.
+  const conversation = account.prplAccount.wrappedJSObject.makeMUC(
+    "noSpaceBadge"
+  );
+  const messagePromise = waitForNotification(conversation, "new-text");
+  conversation.writeMessage("spaceBadge", "just a normal message", {
+    incoming: true,
+  });
+  await messagePromise;
+  // Make sure nothing else was waiting to happen.
+  await TestUtils.waitForTick();
+
+  ok(
+    !spacesPopupButtonChat.classList.contains("has-badge"),
+    "Untargeted MUC message doesn't change badge"
+  );
+
+  // Send a new targeted message in the conversation.
+  const unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
+  conversation.writeMessage("spaceBadge", "new direct message", {
+    incoming: true,
+    containsNick: true,
+  });
+  await unreadCountChanged;
+  ok(
+    spacesPopupButtonChat.classList.contains("has-badge"),
+    "Unread badge is shown"
+  );
+  ok(
+    document
+      .getElementById("spacesPinnedButton")
+      .classList.contains("has-badge"),
+    "Unread state is propagated to pinned menu button"
+  );
+
+  conversation.close();
+  account.disconnect();
+  Services.accounts.deleteAccount(account.id);
+});
+
+add_task(async function test_spacesToolbarPinnedChatBadgeDM() {
+  window.gSpacesToolbar.toggleToolbar(true);
+  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  account.password = "this is a test";
+  account.connect();
+
+  if (window.chatHandler._chatButtonUpdatePending) {
+    await TestUtils.waitForTick();
+  }
+
+  const spacesPopupButtonChat = document.getElementById(
+    "spacesPopupButtonChat"
+  );
+  const spacesPinnedButton = document.getElementById("spacesPinnedButton");
+
+  ok(
+    !spacesPopupButtonChat.classList.contains("has-badge"),
+    "Initially no unread chat messages"
+  );
+  ok(!spacesPinnedButton.classList.contains("has-badge"));
+
+  // Send a new message in a DM conversation that is not currently open.
+  let unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
+  const conversation = account.prplAccount.wrappedJSObject.makeDM("spaceBadge");
+  conversation.writeMessage("spaceBadge", "new direct message", {
+    incoming: true,
+  });
+  await unreadCountChanged;
+  ok(
+    spacesPopupButtonChat.classList.contains("has-badge"),
+    "Unread badge is shown"
+  );
+  ok(spacesPinnedButton.classList.contains("has-badge"));
+
+  // Display the DM conversation.
+  unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
+  await openChatTab();
+  const convNode = getConversationItem(conversation);
+  ok(convNode);
+  await EventUtils.synthesizeMouseAtCenter(convNode, {});
+  const chatConv = getChatConversationElement(conversation);
+  ok(chatConv);
+  ok(BrowserTestUtils.is_visible(chatConv));
+  await unreadCountChanged;
+
+  ok(
+    !spacesPopupButtonChat.classList.contains("has-badge"),
+    "Unread badge is hidden again"
+  );
+  ok(!spacesPinnedButton.classList.contains("has-badge"));
 
   conversation.close();
   account.disconnect();
