@@ -525,7 +525,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       try {
         file.initWithPath(absValue);
-      } catch (e) {}
+      } catch (e) {
+        this._logger.warn("nsIFile.initWithPath failed for path=", absValue);
+        return null;
+      }
       return file;
     }
 
@@ -564,21 +567,22 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         continue;
       }
 
-      // Use the hostname as mail folder name and ensure it's unique.
-      targetDir.append(hostname);
-      targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+      this._logger.debug("Importing mail messages for", key);
 
       let sourceDir = this._getSourceFileFromPaths(
         branch.getCharPref("directory-rel", ""),
         branch.getCharPref("directory", "")
       );
-      if (sourceDir.exists()) {
-        this._recursivelyCopyMsgFolder(sourceDir, targetDir);
-      }
+      if (sourceDir?.exists()) {
+        // Use the hostname as mail folder name and ensure it's unique.
+        targetDir.append(hostname);
+        targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
 
-      branch.setCharPref("directory", targetDir.path);
-      // .directory-rel may be outdated, it will be created when first needed.
-      branch.clearUserPref("directory-rel");
+        this._recursivelyCopyMsgFolder(sourceDir, targetDir);
+        branch.setCharPref("directory", targetDir.path);
+        // .directory-rel may be outdated, it will be created when first needed.
+        branch.clearUserPref("directory-rel");
+      }
 
       if (type == "nntp") {
         let targetNewsrc = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -590,7 +594,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
           branch.getCharPref("newsrc.file-rel", ""),
           branch.getCharPref("newsrc.file", "")
         );
-        if (sourceNewsrc.exists()) {
+        if (sourceNewsrc?.exists()) {
           this._logger.debug(
             `Copying ${sourceNewsrc.path} to ${targetNewsrc.path}`
           );
@@ -613,7 +617,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       this._sourceLocalServerAttrs["directory-rel"],
       this._sourceLocalServerAttrs.directory
     );
-    if (!sourceDir.path || !sourceDir.exists()) {
+    if (!sourceDir?.exists()) {
       return;
     }
     let rootMsgFolder = this._localServer.rootMsgFolder;

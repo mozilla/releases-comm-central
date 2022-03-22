@@ -124,6 +124,28 @@ add_task(async function test_importAccountsIntoEmptyProfile() {
 });
 
 /**
+ * Test that importing a server without directory works. A server without
+ * directory can happen after clicking a news url.
+ */
+add_task(async function test_serverWithoutDirectory() {
+  let prefs = [
+    ["mail.server.server1.type", "nntp"],
+    ["mail.server.server1.hostname", "news.invalid"],
+  ];
+  await createTmpProfileWithPrefs(prefs);
+
+  let importer = new ThunderbirdProfileImporter();
+  await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
+  for (let [name, value] of prefs) {
+    equal(
+      Services.prefs.getCharPref(name, ""),
+      value,
+      `${name} should be correct`
+    );
+  }
+});
+
+/**
  * Test that when the source profile and current profile each has Local Folders,
  * the source Local Folders will be merged into the current Local Folders.
  */
