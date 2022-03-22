@@ -471,7 +471,7 @@ calItemBase.prototype = {
 
   // boolean hasProperty(in AString name);
   hasProperty(aName) {
-    return this.getProperty(aName.toUpperCase()) != null;
+    return this.getProperty(aName) != null;
   },
 
   // void setProperty(in AString name, in nsIVariant value);
@@ -511,20 +511,21 @@ calItemBase.prototype = {
   getPropertyParameter(aPropName, aParamName) {
     let propName = aPropName.toUpperCase();
     let paramName = aParamName.toUpperCase();
-    if (propName in this.mPropertyParams && paramName in this.mPropertyParams[propName]) {
-      // If the property is not in mPropertyParams, then this just means
-      // there are no properties set.
-      return this.mPropertyParams[propName][paramName];
+    if (propName in this.mPropertyParams) {
+      if (paramName in this.mPropertyParams[propName]) {
+        // If the property is not in mPropertyParams, then this just means
+        // there are no properties set.
+        return this.mPropertyParams[propName][paramName];
+      }
+      return null;
     }
-    return null;
+    return this.mIsProxy ? this.mParentItem.getPropertyParameter(propName, paramName) : null;
   },
 
   // boolean hasPropertyParameter(in AString aPropertyName,
   //                              in AString aParameterName);
   hasPropertyParameter(aPropName, aParamName) {
-    let propName = aPropName.toUpperCase();
-    let paramName = aParamName.toUpperCase();
-    return propName in this.mPropertyParams && paramName in this.mPropertyParams[propName];
+    return this.getPropertyParameter(aPropName, aParamName) != null;
   },
 
   // void setPropertyParameter(in AString aPropertyName,
