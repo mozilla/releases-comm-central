@@ -117,8 +117,8 @@ var Notifications = {
 
         // Handle third person messages
         name = aMessage.alias || aMessage.who;
-        if (messageText && messageText.startsWith("/me ")) {
-          messageText = messageText.replace(/^\/me/, name);
+        if (messageText && aMessage.action) {
+          messageText = name + " " + messageText;
         }
       // Falls through
       case 2:

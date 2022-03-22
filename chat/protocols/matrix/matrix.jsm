@@ -776,6 +776,7 @@ MatrixRoom.prototype = {
       ].includes(eventContent.msgtype);
       opts.error = event.isDecryptionFailure();
       opts.notification = eventContent.msgtype === MsgType.Notice;
+      opts.action = eventContent.msgtype === MsgType.Emote;
     } else if (eventType === EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
       message = _("message.encryptionStart");

@@ -17,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 const kRichBodiedTypes = [MsgType.Text, MsgType.Notice, MsgType.Emote];
 const kHtmlFormat = "org.matrix.custom.html";
-const kEmotePrefix = "/me ";
 const kAttachmentTypes = [
   MsgType.Image,
   MsgType.File,
@@ -108,11 +107,8 @@ function getReplyContent(replyEvent, homeserverUrl, getEvent, rich) {
       getEvent,
       false
     );
-  const isEmoteReply = replyEvent.getContent()?.msgtype == MsgType.Emote;
-  if (replyContent.startsWith(kEmotePrefix) && isEmoteReply) {
-    replyContent = `* ${replyEvent.getSender()} ${replyContent.slice(
-      kEmotePrefix.length
-    )} *`;
+  if (replyEvent.getContent()?.msgtype === MsgType.Emote) {
+    replyContent = `* ${replyEvent.getSender()} ${replyContent} *`;
   }
   return replyContent;
 }
@@ -204,9 +200,6 @@ function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
     }
   }
   //TODO spoilers
-  if (content.msgtype == MsgType.Emote) {
-    parsedBody.body.insertAdjacentText("afterbegin", kEmotePrefix);
-  }
   return parsedBody.body.innerHTML;
 }
 
@@ -275,9 +268,6 @@ ${replyContent}`;
             }
             body = replyContent + "\n" + body;
           }
-        }
-        if (content.msgtype == MsgType.Emote) {
-          body = kEmotePrefix + body.trimStart();
         }
         return body;
       } else if (kAttachmentTypes.includes(content?.msgtype)) {

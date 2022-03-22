@@ -141,8 +141,8 @@ var ctcpBase = {
       return displayMessage(
         this,
         aMessage,
-        false,
-        "/me " + aMessage.ctcp.param
+        { action: true },
+        aMessage.ctcp.param
       );
     },
 

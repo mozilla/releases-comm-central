@@ -306,7 +306,7 @@ var ircBase = {
       if (!this.connected || aMessage.origin == this._currentServerName) {
         return serverMessage(this, aMessage);
       }
-      return displayMessage(this, aMessage, true);
+      return displayMessage(this, aMessage, { notification: true });
     },
     PART(aMessage) {
       // PART <channel> *( "," <channel> ) [ <Part Message> ]

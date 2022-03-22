@@ -906,6 +906,7 @@ var GenericMessagePrototype = {
   noLinkification: false,
   noCollapse: false,
   isEncrypted: false,
+  action: false,
   deleted: false,
 
   getActions() {
@@ -1044,8 +1045,7 @@ var GenericConversationPrototype = {
    * @returns {prplIMessage}
    */
   createMessage(who, text, properties) {
-    const message = new Message(who, text, properties, this);
-    return message;
+    return new Message(who, text, properties, this);
   },
 
   writeMessage(aWho, aText, aProperties) {

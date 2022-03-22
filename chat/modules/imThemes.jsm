@@ -459,7 +459,7 @@ var statusMessageReplacements = {
         msgClass.push("outgoing");
       }
 
-      if (/^(<[^>]+>)*\/me /.test(aMsg.displayMessage)) {
+      if (aMsg.action) {
         msgClass.push("action");
       }
 
@@ -635,13 +635,7 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext) {
     html += aIsContext ? "Context" : "Content";
     html = aTheme.html[html];
     replacements = messageReplacements;
-    let meRegExp = /^((<[^>]+>)*)\/me /;
-    // We must test displayMessage here as aMsg.message loses its /me
-    // in the following, so if getHTMLForMessage is called a second time for
-    // the same aMsg (e.g. because it follows the unread ruler), the test
-    // would fail otherwise.
-    if (meRegExp.test(aMsg.displayMessage)) {
-      aMsg.message = aMsg.message.replace(meRegExp, "$1");
+    if (aMsg.action) {
       let actionMessageTemplate = "* %message% *";
       if (hasMetadataKey(aTheme, "ActionMessageTemplate")) {
         actionMessageTemplate = getMetadata(aTheme, "ActionMessageTemplate");
@@ -1176,7 +1170,7 @@ SelectedMessage.prototype = {
       );
     } else {
       replacements = messageReplacements;
-      if (/^(<[^>]+>)*\/me /.test(msg.displayMessage)) {
+      if (msg.action) {
         html = getLocalizedPrefWithDefault(
           "actionMessagesTemplate",
           "%time% * %sender% %message%"

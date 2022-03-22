@@ -1388,8 +1388,14 @@ var OTR = {
       null
     );
 
+    // An OTR message was properly decrypted.
     if (!newMessage.isNull()) {
       im.displayMessage = newMessage.readString();
+      // Check if it was an encrypted action message.
+      if (im.displayMessage.startsWith("/me ")) {
+        im.action = true;
+        im.displayMessage = im.displayMessage.slice(4);
+      }
     }
 
     // search tlvs for a disconnect msg

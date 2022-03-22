@@ -267,12 +267,17 @@ function conversationErrorMessage(
 
 /**
  * Display a PRIVMSG or NOTICE in a conversation.
+ *
+ * @param {ircAccount} aAccount - The current account.
+ * @param {ircMessage} aMessage - The IRC message to display, provides the IRC
+ *  tags, conversation name, and sender.
+ * @param {object} aExtraParams - (Extra) parameters to pass to ircConversation.writeMessage.
+ * @param {string|null} aText - The text to display, defaults to the second parameter
+ *  on aMessage.
+ * @returns {boolean} True if the message was sent successfully.
  */
-function displayMessage(aAccount, aMessage, aIsNotification, aText) {
-  let params = { tags: aMessage.tags };
-  if (aIsNotification) {
-    params.notification = true;
-  }
+function displayMessage(aAccount, aMessage, aExtraParams, aText) {
+  let params = { tags: aMessage.tags, ...aExtraParams };
   // If the the message is from our nick, it is outgoing to the conversation it
   // is targeting. Otherwise, the message is incoming, but could be for a
   // private message or a channel.

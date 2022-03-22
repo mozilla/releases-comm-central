@@ -670,24 +670,9 @@
       // Right trim before displaying. This removes any OTR related
       // whitespace when the extension isn't enabled.
       let msg = message.displayMessage?.trimRight() ?? "";
-
-      // The slash of a leading '/me' should not be used to
-      // format as italic, so we remove the '/me' text before
-      // scanning the HTML, and we add it back later.
-      let meRegExp = /^((<[^>]+>)*)\/me /;
-      let me = false;
-      if (meRegExp.test(msg)) {
-        me = true;
-        msg = msg.replace(meRegExp, "$1");
-      }
-
       msg = cs
         .scanHTML(msg.replace(/&/g, "FROM-DTD-amp"), csFlags)
         .replace(/FROM-DTD-amp/g, "&");
-
-      if (me) {
-        msg = msg.replace(/^((<[^>]+>)*)/, "$1/me ");
-      }
 
       return LazyModules.cleanupImMarkup(
         msg.replace(/\r?\n/g, "<br/>"),

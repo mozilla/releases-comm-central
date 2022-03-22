@@ -134,9 +134,10 @@ add_task(async function test_dispatchMessage_action() {
   irc.ircChannel.prototype.dispatchMessage.call(channelStub, "foo", true);
   ok(didSend);
   const { subject: sentMessage } = await newText;
-  equal(sentMessage.message, "/me foo");
+  equal(sentMessage.message, "foo");
   ok(sentMessage.outgoing);
   ok(!sentMessage.notification);
+  ok(sentMessage.action);
   equal(sentMessage.who, "user");
 });
 

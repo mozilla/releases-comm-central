@@ -249,6 +249,7 @@ LogWriter.prototype = {
         "notification",
         "noLinkification",
         "isEncrypted",
+        "action",
         "deleted",
       ].filter(f => aMessage[f]),
       remoteId: aMessage.remoteId,
@@ -502,6 +503,16 @@ Log.prototype = {
           break;
         }
         try {
+          let message = JSON.parse(nextLine);
+
+          // Backwards compatibility for old action messages.
+          if (
+            !message.flags.includes("action") &&
+            message.text.startsWith("/me ")
+          ) {
+            message.flags.push("action");
+          }
+
           messages.push(JSON.parse(nextLine));
         } catch (e) {
           // If a message line contains junk, just ignore the error and

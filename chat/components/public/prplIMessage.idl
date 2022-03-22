@@ -79,6 +79,8 @@ interface prplIMessage: nsISupports {
   readonly attribute boolean noCollapse;
   /** Message is encrypted. */
   readonly attribute boolean isEncrypted;
+  /** The message should be displayed as an action/emote. */
+  readonly attribute boolean action;
   /** Message was deleted, this is a placeholder for it */
   readonly attribute boolean deleted;
 

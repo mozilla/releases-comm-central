@@ -314,8 +314,6 @@ var GenericIRCConversation = {
         );
         return;
       }
-      // Prefix with /me for local display.
-      message = "/me " + message;
     } else if (
       !this._account.sendMessage(isNotice ? "NOTICE" : "PRIVMSG", [
         this.name,
@@ -342,6 +340,7 @@ var GenericIRCConversation = {
         {
           outgoing: true,
           notification: isNotice,
+          action,
         }
       );
     }

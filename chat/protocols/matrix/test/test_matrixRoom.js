@@ -191,7 +191,8 @@ add_task(function test_addEventMessageEmote() {
   };
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
-  equal(roomStub.message, "/me foo");
+  equal(roomStub.message, "foo");
+  ok(roomStub.options.action);
   ok(!roomStub.options.system);
   ok(!roomStub.options.delayed);
   equal(roomStub._mostRecentEventId, 0);

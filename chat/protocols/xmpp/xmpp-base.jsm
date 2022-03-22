@@ -1050,6 +1050,11 @@ var XMPPConversationPrototype = {
       flags.error = true;
     } else {
       flags = { incoming: true, _alias: this.contactDisplayName };
+      // XEP-0245: The /me Command.
+      if (aMsg.startsWith("/me ")) {
+        flags.action = true;
+        aMsg = aMsg.slice(4);
+      }
     }
     if (aDate) {
       flags.time = aDate / 1000;
