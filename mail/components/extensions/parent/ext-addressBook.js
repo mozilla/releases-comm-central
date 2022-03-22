@@ -532,11 +532,12 @@ var addressBookCache = new (class extends EventEmitter {
 })();
 
 this.addressBook = class extends ExtensionAPI {
-  onShutdown() {
+  close() {
     addressBookCache.decrementListeners();
   }
 
   getAPI(context) {
+    context.callOnClose(this);
     addressBookCache.incrementListeners();
 
     return {

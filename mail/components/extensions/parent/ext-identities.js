@@ -193,11 +193,12 @@ var identitiesTracker = new (class extends EventEmitter {
 })();
 
 this.identities = class extends ExtensionAPI {
-  onShutdown() {
+  close() {
     identitiesTracker.decrementListeners();
   }
 
   getAPI(context) {
+    context.callOnClose(this);
     identitiesTracker.incrementListeners();
 
     return {

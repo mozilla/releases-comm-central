@@ -159,7 +159,21 @@ add_task(async function testContentTab() {
     return tabmail.currentTabInfo.browser;
   }
 
-  return subTest(createTab, getBrowser);
+  let tabmail = document.getElementById("tabmail");
+  Assert.equal(
+    tabmail.tabInfo.length,
+    1,
+    "Should find the correct number of tabs before the test."
+  );
+  // Run the subtest without removing the created tab, to check if extension tabs
+  // are removed automatically, when the extension is removed.
+  let rv = await subTest(createTab, getBrowser, false);
+  Assert.equal(
+    tabmail.tabInfo.length,
+    1,
+    "Should find the correct number of tabs after the test."
+  );
+  return rv;
 });
 
 add_task(async function testPopupWindow() {
@@ -185,6 +199,19 @@ add_task(async function testPopupWindow() {
 
     return popupBrowser;
   }
-
-  return subTest(createTab, getBrowser);
+  let popups = [...Services.wm.getEnumerator("mail:extensionPopup")];
+  Assert.equal(
+    popups.length,
+    0,
+    "Should find the no extension windows before the test."
+  );
+  // Run the subtest without removing the created window, to check if extension
+  // windows are removed automatically, when the extension is removed.
+  let rv = await subTest(createTab, getBrowser, false);
+  Assert.equal(
+    popups.length,
+    0,
+    "Should find the no extension windows after the test."
+  );
+  return rv;
 });

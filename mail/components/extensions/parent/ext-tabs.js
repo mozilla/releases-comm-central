@@ -238,6 +238,21 @@ class TabsUpdateFilterEventManager extends EventManager {
 }
 
 this.tabs = class extends ExtensionAPI {
+  onShutdown(isAppShutdown) {
+    if (isAppShutdown) {
+      return;
+    }
+    for (let window of Services.wm.getEnumerator("mail:3pane")) {
+      let tabmail = window.document.getElementById("tabmail");
+      for (let nativeTabInfo of tabmail.tabInfo) {
+        let uri = nativeTabInfo.browser.browsingContext.currentURI;
+        if (uri.scheme == "moz-extension" && uri.host == this.extension.uuid) {
+          tabmail.closeTab(nativeTabInfo);
+        }
+      }
+    }
+  }
+
   getAPI(context) {
     let { extension } = context;
     let { tabManager } = extension;
@@ -449,7 +464,6 @@ this.tabs = class extends ExtensionAPI {
             // requested URL is loaded.
             tabListener.initializingTabs.add(nativeTabInfo);
           }
-
           return tabManager.convert(nativeTabInfo, currentTab);
         },
 

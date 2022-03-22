@@ -151,11 +151,12 @@ var accountsTracker = new (class extends EventEmitter {
 })();
 
 this.accounts = class extends ExtensionAPI {
-  onShutdown() {
+  close() {
     accountsTracker.decrementListeners();
   }
 
   getAPI(context) {
+    context.callOnClose(this);
     accountsTracker.incrementListeners();
 
     return {

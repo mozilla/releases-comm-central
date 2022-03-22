@@ -40,6 +40,18 @@ function WindowEventManager(context, name, event, listener) {
 }
 
 this.windows = class extends ExtensionAPI {
+  onShutdown(isAppShutdown) {
+    if (isAppShutdown) {
+      return;
+    }
+    for (let window of Services.wm.getEnumerator("mail:extensionPopup")) {
+      let uri = window.browser.browsingContext.currentURI;
+      if (uri.scheme == "moz-extension" && uri.host == this.extension.uuid) {
+        window.close();
+      }
+    }
+  }
+
   getAPI(context) {
     const { extension } = context;
     const { windowManager } = extension;
