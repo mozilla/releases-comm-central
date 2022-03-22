@@ -965,6 +965,22 @@ add_task(async function testSpacesToolbarExtension() {
     () => overflowButton.hidden,
     "The overflow button is hidden"
   );
+
+  // Remove all previously added toolbar buttons and make sure all previously
+  // generate elements are properly cleared.
+  for (let i = 0; i < 6; i++) {
+    await window.gSpacesToolbar.removeToolbarButton(`testButton${i}`);
+    let space = window.gSpacesToolbar.spaces.find(
+      space => space.name == `testButton${i}`
+    );
+    Assert.ok(!space);
+
+    let button = document.getElementById(`testButton${i}`);
+    Assert.ok(!button);
+
+    let menuitem = document.getElementById(`testButton${i}-menuitem`);
+    Assert.ok(!menuitem);
+  }
 });
 
 add_task(function testPinnedSpacesBadge() {
