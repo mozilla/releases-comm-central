@@ -169,3 +169,43 @@ add_task(async function test_mergeLocalFolders() {
   importedFolder.append("folder-xpcshell");
   ok(importedFolder.exists(), "Source Local Folders should be merged in.");
 });
+
+/**
+ * Test that calendars can be correctly imported.
+ */
+add_task(async function test_importCalendars() {
+  // Set sortOrder to contain a fake calendar id.
+  Services.prefs.setCharPref("calendar.list.sortOrder", "uuid-x");
+
+  let prefs = [
+    ["calendar.registry.uuid-1.name", "Home"],
+    ["calendar.registry.uuid-1.type", "Storage"],
+    ["calendar.registry.uuid-3.name", "cal1"],
+    ["calendar.registry.uuid-3.type", "caldav"],
+    ["calendar.list.sortOrder", "uuid-1 uuid-3"],
+  ];
+
+  await createTmpProfileWithPrefs(prefs);
+
+  let importer = new ThunderbirdProfileImporter();
+
+  await importer.startImport(tmpProfileDir, { calendars: true });
+
+  // Test calendar.registry.* are imported correctly.
+  for (let [name, value] of prefs.slice(0, -1)) {
+    equal(
+      Services.prefs.getCharPref(name, ""),
+      value,
+      `${name} should be correct`
+    );
+  }
+
+  // Test calendar.list.sortOrder has merged ids.
+  equal(
+    Services.prefs.getCharPref("calendar.list.sortOrder"),
+    "uuid-x uuid-1 uuid-3",
+    "calendar.list.sortOrder should be correct"
+  );
+
+  Services.prefs.resetPrefs();
+});

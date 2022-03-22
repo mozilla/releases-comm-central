@@ -43,12 +43,12 @@ const SMTP_SERVER = "mail.smtpserver.";
 const ADDRESS_BOOK = "ldap_2.servers.";
 const LDAP_AUTO_COMPLETE = "ldap_2.autoComplete.";
 const CALENDAR = "calendar.registry.";
+const CALENDAR_LIST = "calendar.list.";
 
 // Prefs (branches) that we do not want to copy directly.
 const IGNORE_PREFS = [
   "app.update.",
   "browser.",
-  "calendar.list.sortOrder",
   "calendar.timezone",
   "devtools.",
   "extensions.",
@@ -136,7 +136,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     if (this._items.calendars) {
-      this._importCalendars(this._branchPrefsMap.get(CALENDAR));
+      this._importCalendars(
+        this._branchPrefsMap.get(CALENDAR),
+        this._collectPrefsToObject(this._branchPrefsMap.get(CALENDAR_LIST))
+      );
       await this._updateProgress();
     }
 
@@ -166,6 +169,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       [ADDRESS_BOOK, []],
       [LDAP_AUTO_COMPLETE, []],
       [CALENDAR, []],
+      [CALENDAR_LIST, []],
     ]);
     this._otherPrefs = [];
 
@@ -946,11 +950,19 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * local.sqlite to the target local.sqlite, which is not implemented yet, see
    * bug 1719582.
    * @param {PrefItem[]} prefs - All source prefs in the CALENDAR branch.
+   * @param {Object} calendarList - Pref values of CALENDAR_LIST branch.
    */
-  _importCalendars(prefs) {
+  _importCalendars(prefs, calendarList) {
     let branch = Services.prefs.getBranch(CALENDAR);
     for (let [type, name, value] of prefs) {
       branch[`set${type}Pref`](name, value);
+    }
+
+    if (calendarList.sortOrder) {
+      let prefName = `${CALENDAR_LIST}sortOrder`;
+      let prefValue =
+        Services.prefs.getCharPref(prefName, "") + " " + calendarList.sortOrder;
+      Services.prefs.setCharPref(prefName, prefValue.trim());
     }
   }
 }
