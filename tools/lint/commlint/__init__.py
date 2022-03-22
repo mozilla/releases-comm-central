@@ -7,14 +7,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 import os
 
 from mozpack import path as mozpath
-from mozlint.pathutils import findobject
+from mozlint.types import supported_types
 
 COMM_EXCLUSION_FILES = [os.path.join("comm", "tools", "lint", "ThirdPartyPaths.txt")]
 
-TASKCLUSTER_EXCLUDE_PATHS = (
-    os.path.join("comm", "editor"),
-    os.path.join("comm", "suite"),
-)
+TASKCLUSTER_EXCLUDE_PATHS = (os.path.join("comm", "suite"),)
 
 
 def _apply_global_excludes(root, config):
@@ -22,7 +19,7 @@ def _apply_global_excludes(root, config):
 
     for path in COMM_EXCLUSION_FILES:
         with open(os.path.join(root, path), "r") as fh:
-            exclude.extend([f.strip() for f in fh.readlines()])
+            exclude.extend([mozpath.join(root, f.strip()) for f in fh.readlines()])
 
     if os.environ.get("MOZLINT_NO_SUITE", None):
         # Ignore Seamonkey-only paths when run from Taskcluster
@@ -34,12 +31,24 @@ def _apply_global_excludes(root, config):
     config["exclude"] = exclude
 
 
+# This makes support file paths absolute, allowing lintpref to find StaticPrefList.yaml
+def _expand_support_files(root, config):
+    support_files = config.get("support-files", [])
+    absolute_support_files = [mozpath.join(root, f) for f in support_files]
+    config["support-files"] = absolute_support_files
+
+
 def lint_wrapper(paths, config, **lintargs):
     _apply_global_excludes(lintargs["root"], config)
+    _expand_support_files(lintargs["root"], config)
 
-    payload = findobject(config["wraps"])
+    payload = supported_types[config.get("wrappedType", config["type"])]
     config["payload"] = config["wraps"]
     del config["wraps"]
+
+    if config.get("wrappedType", ""):
+        config["type"] = config["wrappedType"]
+        del config["wrappedType"]
 
     if config.get("commroot", False):
         lintargs["root"] = os.path.join(lintargs["root"], "comm")
