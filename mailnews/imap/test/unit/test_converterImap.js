@@ -60,7 +60,7 @@ function checkConversion(aSource, aTarget) {
 var EventTarget = function() {
   this.dispatchEvent = function(aEvent) {
     if (aEvent.type == "progress") {
-      console.trace("Progress: " + aEvent.detail);
+      dump("Progress: " + aEvent.detail + "\n");
     }
   };
 };

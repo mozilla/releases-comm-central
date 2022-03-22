@@ -89,9 +89,10 @@ add_task(async function addOfflineMessages() {
 
   // Save initial file size.
   gOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  console.trace(
+  dump(
     "Offline store size (before 1st downloadAllForOffline()) = " +
-      gOfflineStoreSize
+      gOfflineStoreSize +
+      "\n"
   );
 
   // Download for offline use, to append created messages to local IMAP inbox.
@@ -108,10 +109,10 @@ add_task(async function check_result() {
 
   // Make sure offline store grew (i.e., we were not writing over data).
   let offlineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  console.trace(
-    "Offline store size (after 2nd downloadAllForOffline()) = " +
+  dump(
+    "Offline store size (after 2nd downloadAllForOffline()): " +
       offlineStoreSize +
-      ". (Msg hdr offsets should be close to it.)"
+      " Msg hdr offsets should be close to it.\n"
   );
   Assert.ok(offlineStoreSize > gOfflineStoreSize);
 

@@ -142,21 +142,19 @@ autoSyncListenerPromise.prototype = {
   },
 
   onFolderAddedIntoQ(queue, folder) {
-    console.trace(
-      "folder added into Q " + this.qName(queue) + " " + folder.URI + "\n"
-    );
+    dump("Folder added into Q " + this.qName(queue) + " " + folder.URI + "\n");
   },
   onFolderRemovedFromQ(queue, folder) {
-    console.trace(
-      "folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n"
+    dump(
+      "Folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n"
     );
   },
   onDownloadStarted(folder, numOfMessages, totalPending) {
-    console.trace("folder download started" + folder.URI + "\n");
+    dump("Folder download started" + folder.URI + "\n");
   },
 
   onDownloadCompleted(folder) {
-    console.trace("folder download completed" + folder.URI + "\n");
+    dump("Folder download completed" + folder.URI + "\n");
     if (folder instanceof Ci.nsIMsgFolder) {
       let index = mailTestUtils.non_strict_index_of(
         this._waitingForUpdateList,
@@ -166,7 +164,7 @@ autoSyncListenerPromise.prototype = {
         this._waitingForUpdateList.splice(index, 1);
       }
       if (this._waitingForUpdate && this._waitingForUpdateList.length == 0) {
-        dump("got last folder update looking for\n");
+        dump("Got last folder update looking for.\n");
         this._waitingForUpdate = false;
         this._resolveOnDownloadCompleted();
       }
@@ -175,12 +173,12 @@ autoSyncListenerPromise.prototype = {
 
   onDownloadError(folder) {
     if (folder instanceof Ci.nsIMsgFolder) {
-      console.trace("OnDownloadError: " + folder.prettyName + "\n");
+      dump("OnDownloadError: " + folder.prettyName + "\n");
     }
   },
 
   onDiscoveryQProcessed(folder, numOfHdrsProcessed, leftToProcess) {
-    console.trace("onDiscoveryQProcessed: " + folder.prettyName + "\n");
+    dump("onDiscoveryQProcessed: " + folder.prettyName + "\n");
     let index = mailTestUtils.non_strict_index_of(
       this._waitingForDiscoveryList,
       folder
@@ -192,7 +190,7 @@ autoSyncListenerPromise.prototype = {
       this._waitingForDiscovery &&
       this._waitingForDiscoveryList.length == 0
     ) {
-      console.trace("got last folder discovery looking for\n");
+      dump("Got last folder discovery looking for\n");
       this._waitingForDiscovery = false;
       this._resolveOnDiscoveryQProcessed();
     }
