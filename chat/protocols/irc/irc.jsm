@@ -339,7 +339,10 @@ var GenericIRCConversation = {
           this._account.imAccount.statusInfo.displayName ||
           this._account._nickname,
         message,
-        { outgoing: true }
+        {
+          outgoing: true,
+          notification: isNotice,
+        }
       );
     }
 
