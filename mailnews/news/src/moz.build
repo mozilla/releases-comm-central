@@ -29,6 +29,7 @@ EXTRA_JS_MODULES += [
     "NntpProtocolHandler.jsm",
     "NntpProtocolInfo.jsm",
     "NntpService.jsm",
+    "NntpUtils.jsm",
 ]
 
 XPCOM_MANIFESTS += [

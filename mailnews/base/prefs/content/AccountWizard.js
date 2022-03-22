@@ -28,6 +28,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { NntpUtils } = ChromeUtils.import("resource:///modules/NntpUtils.jsm");
 
 var contentWindow;
 
@@ -253,16 +254,16 @@ function PageDataToAccountData(pageData, accountData) {
 // given an accountData structure, create an account
 // (but don't fill in any fields, that's for finishAccount()
 function createAccount(accountData) {
-  // Retrieve the server (data) from the account data.
-  var server = accountData.incomingServer;
+  let hostName = accountData.incomingServer.hostName;
+  // If we're here, the server must not be associated with any account, so reuse
+  // it.
+  let server = NntpUtils.findServer(hostName);
 
-  dump(`MailServices.accounts.createIncomingServer(${server.hostName})\n`);
-  // Create a (actual) server.
-  server = MailServices.accounts.createIncomingServer(
-    null,
-    server.hostName,
-    "nntp"
-  );
+  if (!server) {
+    dump(`MailServices.accounts.createIncomingServer(${hostName})\n`);
+    // Create a (actual) server.
+    server = MailServices.accounts.createIncomingServer(null, hostName, "nntp");
+  }
 
   dump("MailServices.accounts.createAccount()\n");
   // Create an account.

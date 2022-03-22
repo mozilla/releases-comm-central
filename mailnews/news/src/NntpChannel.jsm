@@ -11,6 +11,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
+  NntpUtils: "resource:///modules/NntpUtils.jsm",
 });
 
 /**
@@ -30,11 +31,8 @@ class NntpChannel {
    * @param {nsILoadInfo} loadInfo - The loadInfo associated with the channel.
    */
   constructor(uri, loadInfo) {
-    try {
-      this._server = MailServices.accounts
-        .findServerByURI(uri, false)
-        .QueryInterface(Ci.nsINntpIncomingServer);
-    } catch (e) {
+    this._server = NntpUtils.findServer(uri.asciiHost);
+    if (!this._server) {
       this._server = MailServices.accounts
         .createIncomingServer("", uri.asciiHost, "nntp")
         .QueryInterface(Ci.nsINntpIncomingServer);

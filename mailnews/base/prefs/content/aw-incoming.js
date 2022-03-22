@@ -8,14 +8,21 @@
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
+var { NntpUtils } = ChromeUtils.import("resource:///modules/NntpUtils.jsm");
 
 function incomingPageValidate() {
-  var hostName = cleanUpHostName(document.getElementById("newsServer").value);
-  // Can advance if a legal host name and we do not already having an server
-  // with the same host name.
+  let hostName = cleanUpHostName(document.getElementById("newsServer").value);
+
+  let hasAccount = false;
+  let server = NntpUtils.findServer(hostName);
+  if (server) {
+    // It's OK if a server exists, as long as it's not used by any account.
+    hasAccount = MailServices.accounts.FindAccountForServer(server);
+  }
+  // Can advance if it's a legal host name and we do not already have a server
+  // in use with the same host name.
   document.querySelector("wizard").canAdvance =
-    !!isLegalHostNameOrIP(hostName) &&
-    !MailServices.accounts.findRealServer("", hostName, "nntp", 0);
+    !!isLegalHostNameOrIP(hostName) && !hasAccount;
 }
 
 function incomingPageUnload() {

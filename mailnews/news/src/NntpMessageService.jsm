@@ -64,7 +64,7 @@ class BaseMessageService {
 
   messageURIToMsgHdr(uri) {
     let [folder, key] = this._decomposeNewsMessageURI(uri);
-    return folder.GetMessageHeader(key);
+    return folder?.GetMessageHeader(key);
   }
 
   openAttachment(
@@ -139,13 +139,16 @@ class BaseMessageService {
       groupName = url.searchParams.get("group");
       key = url.searchParams.get("key");
     }
-    groupName = decodeURIComponent(groupName);
+    groupName = groupName ? decodeURIComponent(groupName) : null;
     let server = MailServices.accounts
       .FindServer("", host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
-    let folder = server.rootFolder
-      .getChildNamed(groupName)
-      .QueryInterface(Ci.nsIMsgNewsFolder);
+    let folder;
+    if (groupName) {
+      folder = server.rootFolder
+        .getChildNamed(groupName)
+        .QueryInterface(Ci.nsIMsgNewsFolder);
+    }
     return [folder, key];
   }
 
