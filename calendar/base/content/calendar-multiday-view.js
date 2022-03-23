@@ -573,30 +573,24 @@
       // times.
       let eventList = Array.from(this.eventDataMap.values(), eventData => {
         let element = eventData.element;
-        let {
-          startDate,
-          endDate,
-          startsSameDay,
-          endsSameDay,
-        } = element.updateRelativeStartEndDates(this.date);
+        let { startDate, endDate, startMinute, endMinute } = element.updateRelativeStartEndDates(
+          this.date
+        );
         // If there is no startDate, we use the element's endDate for both the
         // start and the end times. Similarly if there is no endDate. Such items
         // will automatically have the minimum duration.
         if (!startDate) {
           startDate = endDate;
-          startsSameDay = endsSameDay;
+          startMinute = endMinute;
         } else if (!endDate) {
           endDate = startDate;
-          endsSameDay = startsSameDay;
+          endMinute = startMinute;
         }
         // Any events that start or end on a different day are clipped to the
         // start/end minutes of this day instead.
-        let start = startsSameDay ? startDate.hour * 60 + startDate.minute : 0;
+        let start = Math.max(startMinute, 0);
         // NOTE: The end can overflow the end of the day due to the minDuration.
-        let end = Math.max(
-          start + minDuration, // Minimum display end time.
-          endsSameDay ? endDate.hour * 60 + endDate.minute : MINUTES_IN_DAY
-        );
+        let end = Math.max(start + minDuration, Math.min(endMinute, MINUTES_IN_DAY));
         return { element, startDate, endDate, start, end };
       });
       eventList.sort(sortByStart);
@@ -1826,21 +1820,31 @@
      * @property {calIDateTime|undefined} endDate - The end date-time of the
      *   event in the timezone of the given day. Or the due date-time for
      *   tasks, if they have one.
-     * @property {boolean} startsSameDay - Whether the event starts on the same
-     *   day as the given day.
-     * @property {boolean} endsSameDay - Whether the event ends on the same day
-     *   as the given day.
+     * @property {number} startMinute - The number of minutes since the start of
+     *   the given day that the event starts.
+     * @property {number} endMinute - The number of minutes since the end of the
+     *   given day that the event ends.
      */
     updateRelativeStartEndDates(day) {
       let item = this.occurrence;
+
+      // Get closed bounds for the day. I.e. inclusive of midnight the next day.
+      let closedDayStart = day.clone();
+      closedDayStart.isDate = false;
+      let closedDayEnd = day.clone();
+      closedDayEnd.day++;
+      closedDayEnd.isDate = false;
 
       function relativeTime(date) {
         if (!date) {
           return null;
         }
         date = date.getInTimezone(day.timezone);
-        let isSameDay = date.year == day.year && date.month == day.month && date.day == day.day;
-        return { date, isSameDay };
+        return {
+          date,
+          minute: date.subtractDate(closedDayStart).inSeconds / 60,
+          withinClosedDay: date.compare(closedDayStart) >= 0 && date.compare(closedDayEnd) <= 0,
+        };
       }
 
       let start;
@@ -1853,14 +1857,14 @@
         end = relativeTime(item.dueDate);
       }
 
-      this.startGripbar.hidden = !(end && start?.isSameDay);
-      this.endGripbar.hidden = !(start && end?.isSameDay);
+      this.startGripbar.hidden = !(end && start?.withinClosedDay);
+      this.endGripbar.hidden = !(start && end?.withinClosedDay);
 
       return {
         startDate: start?.date,
         endDate: end?.date,
-        startsSameDay: start?.isSameDay,
-        endsSameDay: end?.isSameDay,
+        startMinute: start?.minute,
+        endMinute: end?.minute,
       };
     }
 
