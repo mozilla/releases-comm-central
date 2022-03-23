@@ -142,20 +142,9 @@ class NntpClient {
     let stringPayload = CommonUtils.arrayBufferToByteString(
       new Uint8Array(event.data)
     );
+    this._logger.debug(`S: ${stringPayload}`);
 
     let res = this._parse(stringPayload);
-    if (res.status) {
-      this._logger.debug(`S: ${res.status} ${res.statusText}`);
-    }
-    if (res.data) {
-      if (AppConstants.MOZ_UPDATE_CHANNEL == "default") {
-        // Log the full data block only in dev build.
-        this._logger.debug(`S: ${res.data}`);
-      } else {
-        this._logger.debug(`Receiving ${res.data.length} bytes of data`);
-      }
-    }
-
     switch (res.status) {
       case AUTH_REQUIRED:
         this._currentGroupName = null;
