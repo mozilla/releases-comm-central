@@ -4226,8 +4226,7 @@ void nsImapProtocol::AbortMessageDownLoad() {
   m_curHdrInfo = nullptr;
 }
 
-void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
-    NO_THREAD_SAFETY_ANALYSIS {
+void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
   if (DeathSignalReceived()) return;
 
   // Update quota information
@@ -4464,19 +4463,16 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
       return;
   }
 
-  bool entered_waitForBodyIdsMonitor = false;
-
   nsTArray<nsMsgKey> msgIdList;
 
-  RefPtr<nsImapMailboxSpec> new_spec =
-      GetServerStateParser().CreateCurrentMailboxSpec();
-  if (new_spec && GetServerStateParser().LastCommandSuccessful()) {
+  if (GetServerStateParser().LastCommandSuccessful()) {
+    ReentrantMonitorAutoEnter mon(m_waitForBodyIdsMonitor);
+    RefPtr<nsImapMailboxSpec> new_spec =
+        GetServerStateParser().CreateCurrentMailboxSpec();
     nsImapAction imapAction;
     nsresult res = m_runningUrl->GetImapAction(&imapAction);
     if (NS_SUCCEEDED(res) && imapAction == nsIImapUrl::nsImapExpungeFolder)
       new_spec->mBoxFlags |= kJustExpunged;
-    m_waitForBodyIdsMonitor.Enter();
-    entered_waitForBodyIdsMonitor = true;
 
     if (m_imapMailFolderSink) {
       bool more;
@@ -4494,18 +4490,13 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
   }
 
   if (GetServerStateParser().LastCommandSuccessful()) {
-    if (entered_waitForBodyIdsMonitor) m_waitForBodyIdsMonitor.Exit();
-
-    if (msgIdList.Length() > 0 && !DeathSignalReceived() &&
-        GetServerStateParser().LastCommandSuccessful()) {
+    if (msgIdList.Length() > 0) {
       FolderHeaderDump(msgIdList.Elements(), msgIdList.Length());
     }
     HeaderFetchCompleted();
     // this might be bogus, how are we going to do pane notification and stuff
     // when we fetch bodies without headers!
-  } else if (entered_waitForBodyIdsMonitor)  // need to exit this monitor if
-                                             // death signal received
-    m_waitForBodyIdsMonitor.Exit();
+  }
 
   // wait for a list of bodies to fetch.
   if (GetServerStateParser().LastCommandSuccessful()) {
