@@ -438,13 +438,13 @@ splitter:not([orient="vertical"]) {
   padding-inline: 3px;
 }
 
-#appcontent {
+#messageArea {
   border-top: 1px solid var(--splitter-color);
   position: relative;
 }
 
 @media (prefers-color-scheme: dark) {
-  #appcontent {
+  #messageArea {
     background-color: #2a2a2e;
   }
 }

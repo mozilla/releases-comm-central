@@ -463,7 +463,7 @@ add_task(function test_send_via_email_public() {
 
   let cwc = open_send_via_email(tab);
 
-  let contentBody = cwc.e("content-frame").contentDocument.body;
+  let contentBody = cwc.e("messageEditor").contentDocument.body;
 
   for (let str of ABOUT_SUPPORT_STRINGS) {
     if (!check_text_in_body(contentBody, str)) {
@@ -514,7 +514,7 @@ add_task(function test_send_via_email_private() {
 
   let cwc = open_send_via_email(tab);
 
-  let contentBody = cwc.e("content-frame").contentDocument.body;
+  let contentBody = cwc.e("messageEditor").contentDocument.body;
 
   for (let str of ABOUT_SUPPORT_STRINGS) {
     if (!check_text_in_body(contentBody, str)) {

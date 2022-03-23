@@ -77,7 +77,7 @@ registerCleanupFunction(async function teardownModule(module) {
 });
 
 function getDragOverTarget(win) {
-  return win.document.getElementById("appcontent");
+  return win.document.getElementById("messageArea");
 }
 
 function getDropTarget(win) {

@@ -265,7 +265,7 @@ function checkComposeWindow(test, replyType, loadAllowed) {
   if (
     test.checkForAllowed(
       replyWindow.window.document
-        .getElementById("content-frame")
+        .getElementById("messageEditor")
         .contentDocument.getElementById("testelement")
     ) != loadAllowed
   ) {
@@ -677,7 +677,7 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
   // (copied from test-compose-mailto.js:test_checkInsertImage()).
 
   // First focus on the editor element
-  replyWindow.e("content-frame").focus();
+  replyWindow.e("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
@@ -712,14 +712,14 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
   // Now wait for the paste.
   replyWindow.waitFor(function() {
     let img = replyWindow
-      .e("content-frame")
+      .e("messageEditor")
       .contentDocument.getElementById("tmp-img");
     return img != null && img.complete;
   }, "Timeout waiting for pasted tmp image to be loaded ok");
 
   // Test that the image load has not been denied
   let childImages = replyWindow
-    .e("content-frame")
+    .e("messageEditor")
     .contentDocument.getElementsByTagName("img");
 
   Assert.equal(childImages.length, 2, "Should have two images in the doc.");

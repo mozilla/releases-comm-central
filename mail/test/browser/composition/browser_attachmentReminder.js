@@ -156,7 +156,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
-  cwc.type(cwc.e("content-frame"), "Seen this cool attachment?");
+  cwc.type(cwc.e("messageEditor"), "Seen this cool attachment?");
 
   // Give the notification time to appear. It should now.
   wait_for_reminder_state(cwc, true);

@@ -91,7 +91,7 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   );
   cwc = open_compose_new_mail();
 
-  let contentFrame = cwc.e("content-frame");
+  let contentFrame = cwc.e("messageEditor");
   let mailBody = contentFrame.contentDocument.body;
 
   // The first node in the body should be a BR node, which allows the user
@@ -205,7 +205,7 @@ async function HTMLComposeWindowSwitchSignatures(
 
   setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
 
-  let contentFrame = cwc.e("content-frame");
+  let contentFrame = cwc.e("messageEditor");
   let node = contentFrame.contentDocument.body.lastChild;
 
   // In html compose, the signature is inside the last node, which has a

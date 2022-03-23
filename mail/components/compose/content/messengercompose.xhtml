@@ -2483,12 +2483,7 @@
                 onmouseup="awSizerMouseUp()"
                 orient="vertical"/>
 
-  <!--
-    The mail message body frame. The src does not exactly match "about:blank"
-    so that WebExtension content scripts are not loaded here in the moments
-    before navigation to about:blank?compose occurs.
-  -->
-      <vbox id="appcontent" flex="1">
+      <vbox id="messageArea" flex="1">
         <html:div id="dropAttachmentOverlay" class="drop-attachment-overlay">
           <html:aside id="addInline" class="drop-attachment-box">
             <html:span id="addInlineLabel"
@@ -2504,7 +2499,12 @@
                        class="drop-as-attachment"></html:span>
           </html:aside>
         </html:div>
-        <editor id="content-frame"
+        <!--
+          - The mail message body frame. The src does not exactly match
+          - "about:blank" so that WebExtension content scripts are not loaded
+          - here in the moments before navigation to about:blank?compose occurs.
+          -->
+        <editor id="messageEditor"
                 type="content"
                 primary="true"
                 src="about:blank?"
@@ -2516,7 +2516,7 @@
                 oncontextmenu="this._contextX = event.pageX; this._contextY = event.pageY;"
                 ondblclick="EditorDblClick(event);"
                 context="msgComposeContext"/>
-        <findbar id="FindToolbar" browserid="content-frame"/>
+        <findbar id="FindToolbar" browserid="messageEditor"/>
       </vbox>
 
       <splitter id="attachmentbucket-sizer" hidden="true" orient="vertical"/>

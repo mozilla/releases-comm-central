@@ -38,7 +38,7 @@ var gCloudAttachmentLinkManager = {
   SaveInFolderDone() {},
 
   async handleEvent(event) {
-    let mailDoc = document.getElementById("content-frame").contentDocument;
+    let mailDoc = document.getElementById("messageEditor").contentDocument;
 
     if (
       event.type == "attachment-renamed" ||
@@ -734,7 +734,7 @@ var gCloudAttachmentLinkManager = {
         "cloudAttachmentList",
         "cloudAttachmentListFooter",
       ];
-      let mailDoc = document.getElementById("content-frame").contentDocument;
+      let mailDoc = document.getElementById("messageEditor").contentDocument;
 
       for (let id of kIDs) {
         let element = mailDoc.getElementById(id);

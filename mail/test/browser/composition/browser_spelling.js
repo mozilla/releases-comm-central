@@ -44,9 +44,9 @@ add_task(async function() {
   let composeDocument = composeWindow.document;
 
   cwc.type(cwc.e("msgSubject"), "I went to the harbor in an aluminium boat");
-  cwc.type(cwc.e("content-frame"), "I maneuvered to the center.\n");
+  cwc.type(cwc.e("messageEditor"), "I maneuvered to the center.\n");
   cwc.type(
-    cwc.e("content-frame"),
+    cwc.e("messageEditor"),
     "The sky was the colour of ochre and the stars shone like jewelry.\n"
   );
 

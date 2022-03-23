@@ -22,7 +22,7 @@ add_task(function test_image_insertion_dialog_persist() {
   let cwc = open_compose_new_mail();
 
   // First focus on the editor element
-  cwc.e("content-frame").focus();
+  cwc.e("messageEditor").focus();
 
   // Now open the image window
   wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
@@ -73,7 +73,7 @@ add_task(function test_image_insertion_dialog_persist() {
 
   // Get the inserted image, double-click it, make sure we switch to "no alt
   // text", despite the persisted value being "use alt text"
-  let img = cwc.e("content-frame").contentDocument.querySelector("img");
+  let img = cwc.e("messageEditor").contentDocument.querySelector("img");
   wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     Assert.ok(
       mwc.window.document.getElementById("noAltTextRadio").selected,
@@ -111,7 +111,7 @@ add_task(function test_image_insertion_dialog_persist() {
   cwc.sleep(1000);
 
   // Make sure next time we edit it, we still have "use alt text" selected.
-  img = cwc.e("content-frame").contentDocument.querySelector("img");
+  img = cwc.e("messageEditor").contentDocument.querySelector("img");
   wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     Assert.ok(
       mwc.window.document.getElementById("altTextRadio").selected,

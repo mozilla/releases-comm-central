@@ -266,12 +266,12 @@ add_task(async function testJsInMailReply() {
   let replyWin = open_compose_with_reply();
   // If JavaScript is on, loading the window will actually show an alert(1)
   // so execution doesn't go further from here.
-  let editor = replyWin.window.document.getElementById("content-frame");
+  let editor = replyWin.window.document.getElementById("messageEditor");
   await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
   close_compose_window(replyWin);
 
   let fwdWin = open_compose_with_forward();
-  editor = fwdWin.window.document.getElementById("content-frame");
+  editor = fwdWin.window.document.getElementById("messageEditor");
   await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
   close_compose_window(fwdWin);
 

@@ -50,7 +50,7 @@ add_task(async function test_openComposeFromMailToLink() {
 
 add_task(function test_checkInsertImage() {
   // First focus on the editor element
-  gComposeWin.e("content-frame").focus();
+  gComposeWin.e("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
@@ -74,7 +74,7 @@ add_task(function test_checkInsertImage() {
 
   // Test that the image load has not been denied
   let childImages = gComposeWin
-    .e("content-frame")
+    .e("messageEditor")
     .contentDocument.getElementsByTagName("img");
 
   Assert.equal(childImages.length, 1, "Should be one image in the document");

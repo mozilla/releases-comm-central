@@ -244,7 +244,7 @@ async function reply_forward_message(aMsgRow, aReply) {
   // Send it later.
   plan_for_window_close(cwc);
   // Ctrl+Shift+Return = Send Later
-  cwc.window.document.getElementById("content-frame").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
   EventUtils.synthesizeKey(
     "VK_RETURN",
     {

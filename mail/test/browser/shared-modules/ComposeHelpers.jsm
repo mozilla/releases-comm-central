@@ -359,7 +359,7 @@ function setup_msg_contents(
   input.focus();
   EventUtils.synthesizeKey("VK_RETURN", {}, aCwc.window);
   aCwc.type(aCwc.e("msgSubject"), aSubj);
-  aCwc.type(aCwc.e("content-frame"), aBody);
+  aCwc.type(aCwc.e("messageEditor"), aBody);
 
   // Wait 1 second for the pill to be created.
   aCwc.sleep(1000);
@@ -724,7 +724,7 @@ function delete_attachment(aComposeWindow, aIndex) {
  */
 function get_compose_body(aController) {
   let mailBody = aController
-    .e("content-frame")
+    .e("messageEditor")
     .contentDocument.querySelector("body");
   if (!mailBody) {
     throw new Error("Compose body not found!");
@@ -741,7 +741,7 @@ function get_compose_body(aController) {
  */
 function type_in_composer(aController, aText) {
   // If we have any typing to do, let's do it.
-  let frame = aController.e("content-frame");
+  let frame = aController.e("messageEditor");
   for (let [i, aLine] of aText.entries()) {
     aController.type(frame, aLine);
     if (i < aText.length - 1) {
@@ -916,7 +916,7 @@ class FormatHelper {
     /** The remove text styling menu item. */
     this.removeStylingMenuItem = this._getById("removeStylesMenuitem");
 
-    this.messageEditor = this._getById("content-frame");
+    this.messageEditor = this._getById("messageEditor");
     /** The Window of the message content. */
     this.messageWindow = this.messageEditor.contentWindow;
     /** The Document of the message content. */

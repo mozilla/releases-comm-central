@@ -42,7 +42,7 @@ async function checkFocusCycling(controller, options) {
   let toInput = doc.getElementById("toAddrInput");
   let bccInput = doc.getElementById("bccAddrInput");
   let subjectInput = doc.getElementById("msgSubject");
-  let editorElement = doc.getElementById("content-frame");
+  let editorElement = doc.getElementById("messageEditor");
   let attachmentElement = doc.getElementById("attachmentBucket");
   let extraMenuButton = doc.getElementById("extraAddressRowsMenuButton");
   let languageButton = doc.getElementById("languageStatusButton");

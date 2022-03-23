@@ -3104,7 +3104,7 @@ function handleMailtoArgs(mailtoUrl) {
 function handleEsc() {
   let activeElement = document.activeElement;
 
-  if (activeElement.id == "content-frame") {
+  if (activeElement.id == "messageEditor") {
     // Focus within the message body.
     let findbar = document.getElementById("FindToolbar");
     if (!findbar.hidden) {
@@ -4485,14 +4485,14 @@ async function ComposeLoad() {
   );
 
   // Set up the drag & drop event listeners.
-  let appcontent = document.getElementById("appcontent");
-  appcontent.addEventListener("dragover", event =>
+  let messageArea = document.getElementById("messageArea");
+  messageArea.addEventListener("dragover", event =>
     envelopeDragObserver.onDragOver(event)
   );
-  appcontent.addEventListener("dragleave", event =>
+  messageArea.addEventListener("dragleave", event =>
     envelopeDragObserver.onDragLeave(event)
   );
-  appcontent.addEventListener("drop", event =>
+  messageArea.addEventListener("drop", event =>
     envelopeDragObserver.onDrop(event)
   );
 
@@ -4630,8 +4630,8 @@ async function ComposeLoad() {
     },
     // "#FormatToolbox" cannot receive focus.
     {
-      // #content-frame and #FindToolbar
-      root: document.getElementById("appcontent"),
+      // #messageEditor and #FindToolbar
+      root: document.getElementById("messageArea"),
       focus: focusMsgBody,
     },
     {
@@ -5770,7 +5770,7 @@ function checkPublicRecipientsLimit() {
       }
 
       // Otherwise default to focusing message body.
-      document.getElementById("content-frame").focus();
+      document.getElementById("messageEditor").focus();
       return false;
     },
   };
@@ -9216,7 +9216,7 @@ function focusSubjectInput() {
 function focusMsgBody() {
   // window.content.focus() fails to blur the currently focused element
   document.commandDispatcher.advanceFocusIntoSubtree(
-    document.getElementById("appcontent")
+    document.getElementById("messageArea")
   );
   return true;
 }
@@ -9998,7 +9998,7 @@ function UpdateFullZoomMenu() {
  * other functions still rely on it.
  */
 function getBrowser() {
-  return document.getElementById("content-frame");
+  return document.getElementById("messageEditor");
 }
 
 function goUpdateMailMenuItems(commandset) {

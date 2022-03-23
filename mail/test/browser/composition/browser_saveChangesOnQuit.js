@@ -91,7 +91,7 @@ add_task(function test_can_cancel_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.type(cwc.e("content-frame"), "Hey check out this megalol link");
+  cwc.type(cwc.e("messageEditor"), "Hey check out this megalol link");
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -134,7 +134,7 @@ add_task(function test_can_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.type(cwc.e("content-frame"), "Hey check out this megalol link");
+  cwc.type(cwc.e("messageEditor"), "Hey check out this megalol link");
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -177,8 +177,8 @@ add_task(function test_window_quit_state_reset_on_aborted_quit() {
   let cwc2 = open_compose_new_mail(mc);
 
   // Type something in each window.
-  cwc1.type(cwc1.e("content-frame"), "Marco!");
-  cwc2.type(cwc2.e("content-frame"), "Polo!");
+  cwc1.type(cwc1.e("messageEditor"), "Marco!");
+  cwc2.type(cwc2.e("messageEditor"), "Polo!");
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -249,15 +249,15 @@ add_task(function test_prompt_on_close_for_modified() {
   assert_selected_and_displayed(mc, msg);
 
   let nwc = open_compose_new_mail();
-  nwc.type(nwc.e("content-frame"), "Hey hey hey!");
+  nwc.type(nwc.e("messageEditor"), "Hey hey hey!");
   close_compose_window(nwc, true);
 
   let rwc = open_compose_with_reply();
-  rwc.type(rwc.e("content-frame"), "Howdy!");
+  rwc.type(rwc.e("messageEditor"), "Howdy!");
   close_compose_window(rwc, true);
 
   let fwc = open_compose_with_forward();
-  fwc.type(fwc.e("content-frame"), "Greetings!");
+  fwc.type(fwc.e("messageEditor"), "Greetings!");
   close_compose_window(fwc, true);
 });
 

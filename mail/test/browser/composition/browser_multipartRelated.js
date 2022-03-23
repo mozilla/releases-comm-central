@@ -84,7 +84,7 @@ add_task(function test_basic_multipart_related() {
   let compWin = open_compose_new_mail();
   compWin.type(compWin.window, "someone@example.com");
   compWin.type(compWin.e("msgSubject"), "multipart/related");
-  compWin.type(compWin.e("content-frame"), "Here is a prologue.\n");
+  compWin.type(compWin.e("messageEditor"), "Here is a prologue.\n");
 
   const fname = "data/tb-logo.png";
   let file = new FileUtils.File(getTestFilePath(fname));
