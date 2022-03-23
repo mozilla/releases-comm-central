@@ -75,7 +75,7 @@ function spellCheckStarted() {
   var curLang;
 
   try {
-    curLang = gSpellChecker.GetCurrentDictionary();
+    curLang = gSpellChecker.getCurrentDictionaries()?.[0];
   } catch (ex) {
     curLang = "";
   }
@@ -350,7 +350,7 @@ function EditDictionary() {
 function SelectLanguage() {
   var item = gDialog.LanguageMenulist.selectedItem;
   if (item.value != "more-cmd") {
-    gSpellChecker.SetCurrentDictionary(item.value);
+    gSpellChecker.setCurrentDictionaries([item.value]);
     // For compose windows we need to set the "lang" attribute so the
     // core editor uses the correct dictionary for the inline spell check.
     if (window.arguments[1]) {
@@ -372,17 +372,17 @@ function SelectLanguage() {
 }
 
 function Recheck() {
-  var recheckLanguage;
+  var recheckLanguages;
 
   function finishRecheck() {
-    gSpellChecker.SetCurrentDictionary(recheckLanguage);
+    gSpellChecker.setCurrentDictionaries(recheckLanguages);
     gMisspelledWord = gSpellChecker.GetNextMisspelledWord();
     SetWidgetsForMisspelledWord();
   }
 
   // TODO: Should we bother to add a "Recheck" method to interface?
   try {
-    recheckLanguage = gSpellChecker.GetCurrentDictionary();
+    recheckLanguages = gSpellChecker.getCurrentDictionaries();
     gSpellChecker.UninitSpellChecker();
     // Clear the ignore all list.
     Cc["@mozilla.org/spellchecker/personaldictionary;1"]

@@ -163,14 +163,14 @@ Extractor.prototype = {
         // dictionary locale and patterns locale match
         if (this.checkBundle(dicts[dict])) {
           let time1 = new Date().getTime();
-          spellchecker.dictionary = dicts[dict];
+          spellchecker.dictionaries = [dicts[dict]];
           let dur = new Date().getTime() - time1;
           cal.LOG("[calExtract] Loading " + dicts[dict] + " dictionary took " + dur + "ms");
           patterns = dicts[dict];
           // beginning of dictionary locale matches patterns locale
         } else if (this.checkBundle(dicts[dict].substring(0, 2))) {
           let time1 = new Date().getTime();
-          spellchecker.dictionary = dicts[dict];
+          spellchecker.dictionaries = [dicts[dict]];
           let dur = new Date().getTime() - time1;
           cal.LOG("[calExtract] Loading " + dicts[dict] + " dictionary took " + dur + "ms");
           patterns = dicts[dict].substring(0, 2);

@@ -990,7 +990,7 @@ var chatHandler = {
         // Attach listener so we hear about language changes.
         document.addEventListener("spellcheck-changed", e => {
           let conv = chatHandler._getActiveConvView();
-          conv.editor.setAttribute("lang", e.detail.dictionary);
+          conv.editor.setAttribute("lang", e.detail.dictionaries?.[0]);
         });
       } else {
         item.convView.onConvResize();

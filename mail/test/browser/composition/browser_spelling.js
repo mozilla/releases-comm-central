@@ -5,12 +5,12 @@
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
-var { onSpellCheck } = ChromeUtils.import(
+var { maybeOnSpellCheck } = ChromeUtils.import(
   "resource://testing-common/AsyncSpellCheckTestHelper.jsm"
 );
 
 async function checkMisspelledWords(editor, ...words) {
-  await new Promise(resolve => onSpellCheck({ editor }, resolve));
+  await new Promise(resolve => maybeOnSpellCheck({ editor }, resolve));
 
   let selection = editor.selectionController.getSelection(
     Ci.nsISelectionController.SELECTION_SPELLCHECK

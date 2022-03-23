@@ -6382,7 +6382,7 @@ function ComposeChangeLanguage(aLang) {
     let checker = GetCurrentEditorSpellChecker();
     let spellChecker = checker?.spellChecker;
     if (spellChecker) {
-      spellChecker.SetCurrentDictionary(aLang);
+      spellChecker.setCurrentDictionaries([aLang]);
 
       // now check the document over again with the new dictionary
       if (gSpellCheckingEnabled) {
@@ -9940,7 +9940,7 @@ function setParagraphState(event) {
 // This is used as event listener to spellcheck-changed event to update
 // document language.
 function updateDocumentLanguage(e) {
-  document.documentElement.setAttribute("lang", e.detail.dictionary);
+  document.documentElement.setAttribute("lang", e.detail.dictionaries?.[0]);
 }
 
 function toggleSpellCheckingEnabled() {
