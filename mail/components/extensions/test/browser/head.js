@@ -45,7 +45,7 @@ registerCleanupFunction(() => {
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
-  window.gFolderDisplay.tree.focus();
+  document.getElementById("searchInput").focus();
 
   MailServices.accounts.accounts.forEach(cleanUpAccount);
 
