@@ -701,42 +701,6 @@ var MsgUtils = {
   },
 
   /**
-   * Pick a charset according to content type and content.
-   * @param {string} contentType - The content type.
-   * @param {string} content - The content.
-   * @returns {string}
-   */
-  pickCharset(contentType, content) {
-    if (!contentType.startsWith("text")) {
-      return "";
-    }
-
-    // Check the BOM.
-    let charset = "";
-    if (content.length >= 2) {
-      let byte0 = content.charCodeAt(0);
-      let byte1 = content.charCodeAt(1);
-      let byte2 = content.charCodeAt(2);
-      if (byte0 == 0xfe && byte1 == 0xff) {
-        charset = "UTF-16BE";
-      } else if (byte0 == 0xff && byte1 == 0xfe) {
-        charset = "UTF-16LE";
-      } else if (byte0 == 0xef && byte1 == 0xbb && byte2 == 0xbf) {
-        charset = "UTF-8";
-      }
-    }
-    if (charset) {
-      return charset;
-    }
-
-    // Use mozilla::EncodingDetector.
-    let compUtils = Cc[
-      "@mozilla.org/messengercompose/computils;1"
-    ].createInstance(Ci.nsIMsgCompUtils);
-    return compUtils.detectCharset(content);
-  },
-
-  /**
    * Given a string, convert it to 'qtext' (quoted text) for RFC822 header
    * purposes.
    */

@@ -10,6 +10,9 @@ let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
 let { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 /**
@@ -303,7 +306,9 @@ class MimePart {
         this._bodyAttachment.name
       );
     }
-    this._charset = MsgUtils.pickCharset(this._contentType, content);
+    this._charset = this._contentType
+      ? MailStringUtils.detectCharset(content)
+      : "";
 
     let contentTypeParams = "";
     if (this._charset) {

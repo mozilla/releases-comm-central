@@ -74,6 +74,18 @@ add_task(async function test_importCsvFile() {
 
   // A comma separated file with some fields containing quotes.
   await test_importAbFile("csv", "resources/quote.csv", "quote_csv");
+
+  // Non-UTF8 csv file.
+  await test_importAbFile(
+    "csv",
+    "resources/shiftjis_addressbook.csv",
+    "shiftjis_csv"
+  );
+  await test_importAbFile(
+    "csv",
+    "resources/utf16_addressbook.csv",
+    "utf16_csv"
+  );
 });
 
 /** Test importing .vcf file works. */

@@ -12,6 +12,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   exportAttributes: "resource:///modules/AddrBookUtils.jsm",
 });
 
@@ -94,7 +95,7 @@ class AddrBookFileImporter {
    * @returns {string[][]}
    */
   async parseCsvFile(sourceFile) {
-    let content = await IOUtils.readUTF8(sourceFile.path);
+    let content = await MailStringUtils.readEncoded(sourceFile.path);
 
     let csvRows = d3.csv.parseRows(content);
     let tsvRows = d3.tsv.parseRows(content);
@@ -125,6 +126,15 @@ class AddrBookFileImporter {
     this._csvProperties = [];
     // Get the nsIAbCard properties corresponding to the user supplied file.
     for (let field of this._csvRows[0]) {
+      if (
+        !field &&
+        this._csvRows[0].length > 1 &&
+        field == this._csvRows[0].at(-1)
+      ) {
+        // This is the last field and empty, caused by a trailing comma, which
+        // is OK.
+        return [];
+      }
       let index = supportedFieldNames.indexOf(field.toLowerCase());
       if (index == -1) {
         return this._csvRows;

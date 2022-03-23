@@ -125,6 +125,7 @@ EXTRA_JS_MODULES += [
     "MailNotificationService.jsm",
     "MailServices.jsm",
     "mailstoreConverter.jsm",
+    "MailStringUtils.jsm",
     "MsgAsyncPrompter.jsm",
     "MsgDBCacheManager.jsm",
     "MsgIncomingServer.jsm",
