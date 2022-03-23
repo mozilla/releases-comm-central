@@ -307,10 +307,6 @@ mail-tagfield[collapsed="true"] {
 
 /* ::::: msg header captions ::::: */
 
-#header-view-toolbar .message-header-view-button[disabled="true"] {
-  display: none;
-}
-
 .message-header-label {
   padding: 0;
   margin-block: 0;

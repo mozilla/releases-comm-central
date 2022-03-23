@@ -590,6 +590,7 @@ function contentTabOpenPromise(tabmail, url) {
  * @property {string} [default_area] - area to be used for the test
  * @property {boolean} [use_default_popup] - select if the default_popup should be
  *  used for the test
+ * @property {boolean} [disable_button] - select if the button should be disabled
  * @property {function} [backend_script] - custom backend script to be used for the
  *  test, will override the default backend_script of the selected test
  * @property {function} [background_script] - custom background script to be used for the
@@ -696,6 +697,10 @@ async function run_popup_test(configData) {
             break;
           case "browser_action":
             toolbarId = "mail-bar3";
+            if (configData.default_area == "tabstoolbar") {
+              toolbarId = "tabbar-toolbar";
+              checkCurrentSetAttribute = false;
+            }
             break;
           case "message_display_action":
             toolbarId = "header-view-toolbar";
@@ -745,15 +750,23 @@ async function run_popup_test(configData) {
           let label = button.querySelector(".toolbarbutton-text");
           is(label.value, "This is a test", "Correct label");
 
-          let clickedPromise = extension.awaitMessage("actionButtonClicked");
+          let clickedPromise;
+          if (!configData.disable_button) {
+            clickedPromise = extension.awaitMessage("actionButtonClicked");
+          }
           EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);
-          await clickedPromise;
-          await promiseAnimationFrame(win);
-          await new Promise(resolve => win.setTimeout(resolve));
-
-          is(win.document.getElementById(buttonId), button);
-          label = button.querySelector(".toolbarbutton-text");
-          is(label.value, "New title", "Correct label");
+          if (configData.disable_button) {
+            // We're testing that nothing happens. Give it time to potentially happen.
+            // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+            await new Promise(resolve => win.setTimeout(resolve, 500));
+          } else {
+            await clickedPromise;
+            await promiseAnimationFrame(win);
+            await new Promise(resolve => win.setTimeout(resolve));
+            is(win.document.getElementById(buttonId), button);
+            label = button.querySelector(".toolbarbutton-text");
+            is(label.value, "New title", "Correct label");
+          }
         } finally {
           // Check the open state of the action button.
           let button = win.document.getElementById(buttonId);
@@ -787,6 +800,18 @@ async function run_popup_test(configData) {
           await popupPromise;
           await browser[window.apiName].setTitle({ title: "New title" });
           browser.test.sendMessage("actionButtonClicked");
+        };
+      } else if (configData.disable_button) {
+        // Without popup and disabled button.
+        extensionDetails.files["background.js"] = async function() {
+          browser.test.log("nopopup & button disabled background script ran");
+          browser[window.apiName].onClicked.addListener(async (tab, info) => {
+            browser.test.fail(
+              "Should not have seen the onClicked event for a disabled button"
+            );
+          });
+          browser[window.apiName].disable();
+          browser.test.sendMessage("ready");
         };
       } else {
         // Without popup.
@@ -849,6 +874,7 @@ async function run_popup_test(configData) {
           // this doesn't happen.
           // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
           await new Promise(r => win.setTimeout(r, 250));
+          extension.sendMessage();
         });
 
         await extension.startup();
@@ -884,9 +910,39 @@ async function run_popup_test(configData) {
           });
 
           let popupPromise = window.getPopupOpenedPromise();
-          window.sendMessage("triggerClick");
+          await window.sendMessage("triggerClick");
           await popupPromise;
 
+          browser.test.notifyPass();
+        };
+      } else if (configData.disable_button) {
+        // Without popup and disabled button.
+        extensionDetails.files["background.js"] = async function() {
+          browser.test.log("nopopup & button disabled background script ran");
+          await new Promise(resolve => {
+            browser.menus.create(
+              {
+                id: "testmenu",
+                title: `Open ${window.actionType}`,
+                contexts: [window.actionType],
+                command: `_execute_${window.actionType}`,
+              },
+              resolve
+            );
+          });
+
+          await browser.menus.onShown.addListener((...args) => {
+            browser.test.sendMessage("onShown", args);
+          });
+
+          browser[window.apiName].onClicked.addListener(async (tab, info) => {
+            browser.test.fail(
+              "Should not have seen the onClicked event for a disabled button"
+            );
+          });
+
+          await browser[window.apiName].disable();
+          await window.sendMessage("triggerClick");
           browser.test.notifyPass();
         };
       } else {
@@ -922,7 +978,7 @@ async function run_popup_test(configData) {
             };
             browser[window.apiName].onClicked.addListener(listener);
           });
-          window.sendMessage("triggerClick");
+          await window.sendMessage("triggerClick");
           await clickPromise;
 
           browser.test.notifyPass();

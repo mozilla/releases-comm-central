@@ -17,7 +17,37 @@ add_task(async function test_popup_open_with_click() {
   await run_popup_test({
     actionType: "browser_action",
     testType: "open-with-mouse-click",
+    disable_button: true,
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-mouse-click",
     use_default_popup: true,
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-mouse-click",
+    default_area: "tabstoolbar",
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-mouse-click",
+    disable_button: true,
+    default_area: "tabstoolbar",
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-mouse-click",
+    use_default_popup: true,
+    default_area: "tabstoolbar",
     window,
   });
 
@@ -38,6 +68,36 @@ add_task(async function test_popup_open_with_menu_command() {
   await run_popup_test({
     actionType: "browser_action",
     testType: "open-with-menu-command",
+    disable_button: true,
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    default_area: "tabstoolbar",
+    use_default_popup: true,
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    default_area: "tabstoolbar",
+    disable_button: true,
+    window,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    default_area: "tabstoolbar",
     window,
   });
 });

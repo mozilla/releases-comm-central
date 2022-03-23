@@ -43,6 +43,12 @@ add_task(async function test_popup_open_with_click() {
   await run_popup_test({
     actionType: "message_display_action",
     testType: "open-with-mouse-click",
+    disable_button: true,
+    window,
+  });
+  await run_popup_test({
+    actionType: "message_display_action",
+    testType: "open-with-mouse-click",
     use_default_popup: true,
     window,
   });
@@ -52,6 +58,12 @@ add_task(async function test_popup_open_with_click() {
   await run_popup_test({
     actionType: "message_display_action",
     testType: "open-with-mouse-click",
+    window,
+  });
+  await run_popup_test({
+    actionType: "message_display_action",
+    testType: "open-with-mouse-click",
+    disable_button: true,
     window,
   });
   await run_popup_test({
@@ -67,6 +79,12 @@ add_task(async function test_popup_open_with_click() {
   await run_popup_test({
     actionType: "message_display_action",
     testType: "open-with-mouse-click",
+    window: messageWindow,
+  });
+  await run_popup_test({
+    actionType: "message_display_action",
+    testType: "open-with-mouse-click",
+    disable_button: true,
     window: messageWindow,
   });
   await run_popup_test({
@@ -92,6 +110,12 @@ add_task(async function test_popup_open_with_menu_command() {
     use_default_popup: true,
     window,
   });
+  await run_popup_test({
+    actionType: "message_display_action",
+    testType: "open-with-menu-command",
+    disable_button: true,
+    window,
+  });
 
   info("Message tab");
   await openMessageInTab(messages.getNext());
@@ -104,6 +128,12 @@ add_task(async function test_popup_open_with_menu_command() {
     actionType: "message_display_action",
     testType: "open-with-menu-command",
     use_default_popup: true,
+    window,
+  });
+  await run_popup_test({
+    actionType: "message_display_action",
+    testType: "open-with-menu-command",
+    disable_button: true,
     window,
   });
   document.getElementById("tabmail").closeTab();
@@ -119,6 +149,12 @@ add_task(async function test_popup_open_with_menu_command() {
     actionType: "message_display_action",
     testType: "open-with-menu-command",
     use_default_popup: true,
+    window: messageWindow,
+  });
+  await run_popup_test({
+    actionType: "message_display_action",
+    testType: "open-with-menu-command",
+    disable_button: true,
     window: messageWindow,
   });
   messageWindow.close();

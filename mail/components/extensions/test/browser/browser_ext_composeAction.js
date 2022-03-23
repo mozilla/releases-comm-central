@@ -30,6 +30,13 @@ add_task(async function test_popup_open_with_click() {
   await run_popup_test({
     actionType: "compose_action",
     testType: "open-with-mouse-click",
+    disable_button: true,
+    window: composeWindow,
+  });
+
+  await run_popup_test({
+    actionType: "compose_action",
+    testType: "open-with-mouse-click",
     use_default_popup: true,
     window: composeWindow,
   });
@@ -38,6 +45,14 @@ add_task(async function test_popup_open_with_click() {
     actionType: "compose_action",
     testType: "open-with-mouse-click",
     default_area: "formattoolbar",
+    window: composeWindow,
+  });
+
+  await run_popup_test({
+    actionType: "compose_action",
+    testType: "open-with-mouse-click",
+    default_area: "formattoolbar",
+    disable_button: true,
     window: composeWindow,
   });
 
@@ -72,6 +87,22 @@ add_task(async function test_popup_open_with_menu_command() {
     actionType: "compose_action",
     testType: "open-with-menu-command",
     use_default_popup: true,
+    default_area: "formattoolbar",
+    window: composeWindow,
+  });
+
+  await run_popup_test({
+    actionType: "compose_action",
+    testType: "open-with-menu-command",
+    disable_button: true,
+    default_area: "maintoolbar",
+    window: composeWindow,
+  });
+
+  await run_popup_test({
+    actionType: "compose_action",
+    testType: "open-with-menu-command",
+    disable_button: true,
     default_area: "formattoolbar",
     window: composeWindow,
   });

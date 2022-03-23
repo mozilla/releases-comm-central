@@ -341,18 +341,20 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       this.getTargetFromWindow(window)
     );
 
-    if (button && popupURL && enabled) {
-      let popup =
-        ViewPopup.for(this.extension, window) ||
-        this.getPopup(window, popupURL);
-      popup.viewNode.openPopup(button, "bottomcenter topleft", 0, 0);
-    } else {
-      if (!this.lastClickInfo) {
-        this.lastClickInfo = { button: 0, modifiers: [] };
+    if (button && enabled) {
+      if (popupURL) {
+        let popup =
+          ViewPopup.for(this.extension, window) ||
+          this.getPopup(window, popupURL);
+        popup.viewNode.openPopup(button, "bottomcenter topleft", 0, 0);
+      } else {
+        if (!this.lastClickInfo) {
+          this.lastClickInfo = { button: 0, modifiers: [] };
+        }
+        this.emit("click", window);
       }
-      this.emit("click", window);
-      delete this.lastClickInfo;
     }
+    delete this.lastClickInfo;
   }
 
   /**
