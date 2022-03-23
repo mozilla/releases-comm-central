@@ -3037,7 +3037,6 @@
       // Don't trigger some methods if the pills were removed automatically
       // during the move to another addressing widget.
       if (!moved) {
-        calculateHeaderHeight();
         onRecipientsChanged();
       }
     }

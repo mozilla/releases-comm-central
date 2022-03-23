@@ -62,7 +62,7 @@ add_task(async function() {
   // Make sure the contacts sidebar is open.
 
   let sidebar = composeDocument.getElementById("contactsSidebar");
-  if (sidebar.hidden) {
+  if (BrowserTestUtils.is_hidden(sidebar)) {
     EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
   }
   let sidebarBrowser = composeDocument.getElementById("contactsBrowser");
@@ -390,7 +390,7 @@ add_task(async function() {
   // Close the compose window and clean up.
 
   EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
-  await TestUtils.waitForCondition(() => sidebar.hidden);
+  await TestUtils.waitForCondition(() => BrowserTestUtils.is_hidden(sidebar));
 
   promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   let closePromise = BrowserTestUtils.windowClosed(composeWindow);

@@ -15,10 +15,6 @@ var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
-// Keep track of the height of the addressing header if the user manually
-// resizes it.
-var kAddressingHeaderHeight;
-
 // Temporarily prevent repeated deletion key events in address rows or subject.
 // Prevent the keyboard shortcut for removing an empty address row (long
 // Backspace or Delete keypress) from affecting another row. Also, when a long
@@ -361,7 +357,6 @@ function addressRowAddRecipientsArray(row, addressArray, select = false) {
 
   // Add the recipients to our spell check ignore list.
   addRecipientsToIgnoreList(addressArray.join(", "));
-  calculateHeaderHeight();
   updateAriaLabelsOfAddressRow(row);
 
   if (row.id != "addressRowReply") {
@@ -389,28 +384,6 @@ function DropRecipient(target, recipient) {
   }
 
   addressRowAddRecipientsArray(row, [recipient]);
-}
-
-/**
- * Add the overflow class to the addressing header area when the user interacts
- * with the splitter.
- */
-function awSizerMouseDown() {
-  document.getElementById("recipientsContainer").classList.add("overflow");
-}
-
-/**
- * Locally store the height of the header area decided by the user to avoid UI
- * jumps when interacting with the pills. Unless the user resized the area below
- * 30% of the height of the entire composition window, which is the limit we use
- * to trigger the overflow of the recipient area.
- */
-function awSizerMouseUp() {
-  kAddressingHeaderHeight =
-    document.getElementById("headers-box").clientHeight >
-    window.outerHeight * 0.3
-      ? Number(document.getElementById("recipientsContainer").clientHeight)
-      : null;
 }
 
 // Returns the load context for the current window
@@ -894,7 +867,6 @@ function recipientAddPills(input, automatic = false) {
     onRecipientsChanged();
   }
 
-  calculateHeaderHeight();
   updateAriaLabelsOfAddressRow(input.closest(".address-row"));
 }
 
@@ -1320,65 +1292,6 @@ function hideAddressRowFromWithin(element, focusType = "next") {
  */
 function closeLabelOnClick(event) {
   hideAddressRowFromWithin(event.target);
-}
-
-/**
- * Calculate the height of the composer header area when pills are created or
- * removed in order to automatically add or remove the scrollable overflow.
- */
-function calculateHeaderHeight() {
-  let header = document.getElementById("headers-box");
-  let container = document.getElementById("recipientsContainer");
-
-  // Interrupt if the container scrolling area is taller than its visible
-  // height.
-  if (
-    container.classList.contains("overflow") &&
-    container.scrollHeight > container.clientHeight
-  ) {
-    return;
-  }
-
-  // Remove the overflow if the container scrolling area shrinks below its
-  // visible height but the user didn't manually resize the header.
-  if (
-    container.classList.contains("overflow") &&
-    container.scrollHeight <= container.clientHeight &&
-    !kAddressingHeaderHeight
-  ) {
-    container.classList.remove("overflow");
-    header.removeAttribute("height");
-    return;
-  }
-
-  // Interrupt if the user manually resized the header area and the current
-  // custom height is higher than the entire container height. We run this
-  // condition alone in order to allow resetting the header height when pills
-  // are deleted and a custom height is not necessary.
-  if (
-    kAddressingHeaderHeight &&
-    kAddressingHeaderHeight >= container.clientHeight
-  ) {
-    return;
-  }
-
-  // Add overflow if the header height grows above 30% of the window height.
-  let maxHeaderHeight = window.outerHeight * 0.3;
-  if (header.clientHeight > maxHeaderHeight) {
-    if (!header.hasAttribute("height")) {
-      header.setAttribute("height", maxHeaderHeight);
-    }
-    container.classList.add("overflow");
-  }
-}
-
-/**
- * Set the min-height of the message header area to prevent overlappings in case
- * the user resizes the area upwards.
- */
-function setDefaultHeaderMinHeight() {
-  let header = document.getElementById("headers-box");
-  header.style.minHeight = `${header.clientHeight}px`;
 }
 
 function extraAddressRowsMenuOpened() {

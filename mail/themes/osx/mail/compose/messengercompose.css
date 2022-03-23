@@ -231,10 +231,6 @@ toolbarbutton.formatting-button {
 
 /* Styles for the default system dark theme */
 
-:root[lwt-tree] #headers-box {
-  appearance: none;
-}
-
 :root[lwt-tree] #FormatToolbar {
   background-image: none;
   background-color: transparent !important;

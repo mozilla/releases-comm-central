@@ -41,10 +41,6 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
 }
 
-#headers-box {
-  appearance: none;
-}
-
 #MsgHeadersToolbar {
   color: -moz-DialogText;
   text-shadow: none;
@@ -235,12 +231,6 @@ toolbar:not(:-moz-lwtheme) {
 
 #compose-toolbox > toolbar:not([type="menubar"]):-moz-lwtheme {
   text-shadow: none;
-}
-
-/* ::::: primary toolbar buttons ::::: */
-
-#compose-toolbar-sizer {
-  border-block-width: 0;
 }
 
 /* ::::: autocomplete icons ::::: */

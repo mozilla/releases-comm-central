@@ -26,27 +26,6 @@
   --autocomplete-item-padding: 8px 3px;
 }
 
-splitter {
-  appearance: none;
-  position: relative;
-  z-index: 10;
-  background-color: transparent;
-}
-
-splitter[orient="vertical"] {
-  height: 5px;
-  min-height: 0;
-  margin-block-start: -5px;
-}
-
-splitter:not([orient="vertical"]) {
-  width: 5px;
-  min-width: 0;
-  margin-inline-end: -5px;
-  border-width: 0;
-  border-inline-start: 1px solid var(--splitter-color);
-}
-
 #contactsSidebar .sidebar-header {
   appearance: none;
   height: 30px;
@@ -73,9 +52,8 @@ splitter:not([orient="vertical"]) {
 
 /* Styles for the default system dark theme */
 
-:root[lwt-tree] #headers-box {
+:root[lwt-tree] :is(#MsgHeadersToolbar, #MsgHeadersToolbar) {
   background-color: var(--toolbar-bgcolor) !important;
-  background-image: none !important;
   color: var(--lwt-text-color);
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
@@ -142,31 +120,15 @@ splitter:not([orient="vertical"]) {
   border-radius: var(--autocomplete-item-radius);
 }
 
-#attachmentbucket-sizer {
-  border-width: 0;
-}
-
 #attachmentBucket {
   appearance: none;
   border-block: 1px solid var(--splitter-color); /* The same color as the splitters */
   padding: 1px;
   background-color: Field;
   color: FieldText;
-  min-height: 24px;
 }
 
-#attachmentArea {
-  border-block-start: 1px solid var(--splitter-color);
-  /* Allow the area to shrink. */
-  min-width: 0;
-  text-shadow: none;
-}
-
-#attachmentArea:-moz-lwtheme {
-  text-shadow: none;
-}
-
-:root[lwt-tree] #attachmentArea {
+:root[lwt-tree] #attachmentArea > summary {
   background-color: var(--toolbar-bgcolor);
   color: var(--toolbar-color);
 }
@@ -429,24 +391,147 @@ splitter:not([orient="vertical"]) {
 }
 
 #composeContentBox {
-  /*
-  * In order to remove the shadow border on left/right edges elegantly,
-  * use left/right margins of -3px. We make up for this by adding 3px
-  * of padding instead.
-  */
+  /* In order to remove the shadow border on left/right edges elegantly, use
+   * left/right margins of -3px. We make up for this by adding 3px of padding
+   * instead. */
   margin-inline: -3px;
   padding-inline: 3px;
+  display: grid;
+  grid-template: "contacts contacts-splitter headers" minmax(auto, var(--headersSplitter-height))
+                 "contacts contacts-splitter format-toolbar" min-content
+                 "contacts contacts-splitter headers-splitter" min-content
+                 "contacts contacts-splitter message" minmax(33%, 1fr)
+                 "contacts contacts-splitter attachment-splitter" min-content
+                 "contacts contacts-splitter attachment-header" min-content
+                 "contacts contacts-splitter attachment-list" var(--attachment-list-track-size)
+                 / minmax(auto, var(--contactsSplitter-width)) min-content minmax(auto, 1fr);
+  /* If the splitter is not used, the header and attachment areas will try and
+   * grow to their content size. */
+  --headersSplitter-height: min-content;
+  --attachmentSplitter-height: min-content;
+  --contactsSplitter-width: 200px;
+  /* NOTE: We specify the sizing of the attachment list using a variable because
+   * when the attachment area is hidden or the attachment list is closed, we
+   * want to adjust the sizing so that we can ignore the splitter height. */
+  --attachment-list-track-size:  minmax(auto, var(--attachmentSplitter-height));
+  /* The parent body uses the -moz-box display, which does not take into account
+   * the natural minimum height this element can take due to its grid display.
+   * So we need to explicitly set the minimum height so that the body's layout
+   * will properly resize this element to the available space.
+   * TODO: Remove these rules when the body uses a standard CSS display. */
+  min-height: 0;
+  -moz-box-flex: 1;
+  overflow: clip;
+}
+
+#contactsSidebar {
+  grid-area: contacts;
+  box-sizing: border-box;
+  min-width: 150px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+#contactsSidebar .sidebar-header {
+  flex: 0 0 auto;
+}
+
+#contactsBrowser {
+  flex: 1 1 auto;
+}
+
+#contactsSidebar.collapsed-by-splitter {
+  display: none;
+}
+
+#contactsSplitter {
+  grid-area: contacts-splitter;
+}
+
+#contactsSplitter.splitter-collapsed {
+  /* The splitter cannot be un-collapsed using a mouse drag. */
+  display: none;
+}
+
+#MsgHeadersToolbar {
+  grid-area: headers;
+}
+
+#FormatToolbox {
+  grid-area: format-toolbar;
+}
+
+#headersSplitter {
+  grid-area: headers-splitter;
 }
 
 #messageArea {
-  border-top: 1px solid var(--splitter-color);
-  position: relative;
+  grid-area: message;
+  display: flex;
+  flex-direction: column;
+}
+
+#messageEditor {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+#FindToolbar {
+  flex: 0 0 auto;
 }
 
 @media (prefers-color-scheme: dark) {
   #messageArea {
     background-color: #2a2a2e;
   }
+}
+
+#attachmentSplitter {
+  grid-area: attachment-splitter;
+}
+
+#attachmentArea {
+  /* Children are grid items. */
+  display: contents;
+}
+
+#attachmentArea > summary {
+  grid-area: attachment-header;
+}
+
+#attachmentBucket {
+  grid-area: attachment-list;
+}
+
+/* When the attachment area is hidden, or the visibility of the attachmentBucket
+ * is toggled by the summary element. */
+#composeContentBox:is(.attachment-area-hidden, .attachment-bucket-closed) {
+  /* We adjust the track sizing so it no longer takes up any grid space. */
+  --attachment-list-track-size: 0;
+}
+
+#composeContentBox.attachment-bucket-closed #attachmentSplitter {
+  /* NOTE: When the bucket is closed, we do not consider it "collapsed" by the
+   * splitter. It was closed by the attachmentArea's summary, not the splitter.
+   * Moreover, it cannot be un-collapsed by the splitter either.
+   * Instead, we want to simply stop the splitter from resizing by making it
+   * non-interactive. We keep the splitter visible though as it still acts as a
+   * barrier between the message body and the attachment area. */
+  pointer-events: none;
+}
+
+#composeContentBox.attachment-area-hidden #attachmentSplitter {
+  /* We completely hide the splitter when the attachment area is hidden. */
+  display: none;
+}
+
+#composeContentBox.attachment-area-hidden #attachmentArea {
+  display: none;
+}
+
+#composeContentBox.attachment-bucket-closed #attachmentBucket {
+  display: none;
 }
 
 /* :::: primary toolbar buttons :::: */
@@ -787,9 +872,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 .recipients-container {
   display: block;
-}
-
-.recipients-container.overflow {
   overflow-y: auto;
 }
 

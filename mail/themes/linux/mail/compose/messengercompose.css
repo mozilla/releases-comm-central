@@ -42,10 +42,6 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
 }
 
-#headers-box {
-  background-color: transparent;
-}
-
 #MsgHeadersToolbar {
   appearance: none !important;
   color: WindowText;
@@ -183,10 +179,6 @@ menu[command="cmd_convertCloud"] .menu-iconic-left {
 
 :root[lwt-tree] #MsgHeadersToolbar {
   background-image: none;
-}
-
-:root[lwt-tree] #headers-box {
-  appearance: none;
 }
 
 :root[lwt-tree] #FormatToolbar {

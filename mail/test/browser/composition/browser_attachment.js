@@ -936,6 +936,14 @@ add_task(async function test_attachment_reordering() {
 add_task(async function test_restore_attachment_bucket_height() {
   let cwc = open_compose_new_mail();
 
+  let attachmentArea = cwc.window.document.getElementById("attachmentArea");
+  let attachmentBucket = cwc.window.document.getElementById("attachmentBucket");
+
+  Assert.ok(
+    BrowserTestUtils.is_hidden(attachmentArea),
+    "Attachment area should be hidden initially with no attachments"
+  );
+
   // Add 9 attachments to open a pane least 2 rows height.
   let files = [
     { name: "foo.txt", size: 1234 },
@@ -952,9 +960,6 @@ add_task(async function test_restore_attachment_bucket_height() {
     add_attachments(cwc, filePrefix + files[i].name, files[i].size);
   }
 
-  let attachmentArea = cwc.window.document.getElementById("attachmentArea");
-  let attachmentBucket = cwc.window.document.getElementById("attachmentBucket");
-
   // Store the height of the attachment bucket.
   let heightBefore = attachmentBucket.getBoundingClientRect().height;
 
@@ -964,7 +969,7 @@ add_task(async function test_restore_attachment_bucket_height() {
       : { ctrlKey: true, shiftKey: true };
 
   let collapsedPromise = BrowserTestUtils.waitForCondition(
-    () => !attachmentArea.hidden && !attachmentArea.open,
+    () => BrowserTestUtils.is_visible(attachmentArea) && !attachmentArea.open,
     "The attachment area should be visible but closed."
   );
 
@@ -973,7 +978,7 @@ add_task(async function test_restore_attachment_bucket_height() {
   await collapsedPromise;
 
   let visiblePromise = BrowserTestUtils.waitForCondition(
-    () => !attachmentArea.hidden && attachmentArea.open,
+    () => BrowserTestUtils.is_visible(attachmentArea) && attachmentArea.open,
     "The attachment area should be visible and open."
   );
   // Press Ctrl/Cmd+Shift+M again.

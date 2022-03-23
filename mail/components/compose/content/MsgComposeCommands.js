@@ -4156,17 +4156,37 @@ async function ComposeStartup() {
 
   gEditingDraft = gMsgCompose.compFields.draftId;
 
-  // Check if we need to re-open contacts sidebar.
-  let contactsSidebar = document.getElementById("contactsSidebar");
-  if (contactsSidebar.getAttribute("sidebarVisible") == "true") {
-    // Sidebar is supposed to be visible, so let's ensure it is loaded.
-    if (document.getElementById("contactsBrowser").getAttribute("src") == "") {
-      // Load contacts sidebar document asynchronously so that we don't hurt
-      // performance on bringing up a new compose window. Pass false into
-      // toggleContactsSidebar() so that sidebar doesn't get focus.
-      setTimeout(toggleContactsSidebar, 0, false);
-    }
-  }
+  // Set up contacts sidebar.
+  let pageURL = document.URL;
+  let contactsSplitter = document.getElementById("contactsSplitter");
+  let contactsShown = Services.xulStore.getValue(
+    pageURL,
+    "contactsSplitter",
+    "shown"
+  );
+  let contactsWidth = Services.xulStore.getValue(
+    pageURL,
+    "contactsSplitter",
+    "width"
+  );
+  contactsSplitter.width =
+    contactsWidth == "" ? null : parseFloat(contactsWidth);
+  setContactsSidebarVisibility(contactsShown == "true", false);
+  contactsSplitter.addEventListener("splitter-resized", () => {
+    let width = contactsSplitter.width;
+    Services.xulStore.setValue(
+      pageURL,
+      "contactsSplitter",
+      "width",
+      width == null ? "" : String(width)
+    );
+  });
+  contactsSplitter.addEventListener("splitter-collapsed", () => {
+    Services.xulStore.setValue(pageURL, "contactsSplitter", "shown", "false");
+  });
+  contactsSplitter.addEventListener("splitter-expanded", () => {
+    Services.xulStore.setValue(pageURL, "contactsSplitter", "shown", "true");
+  });
 
   // Update the priority button.
   if (gMsgCompose.compFields.priority) {
@@ -4423,58 +4443,27 @@ async function ComposeLoad() {
 
   BondOpenPGP.init();
 
+  // Give the message header a minimum height based on its current height,
+  // before more recipient rows are revealed in #extraAddressRowsArea. This
+  // ensures that the area cannot be shrunk below its current height by the
+  // #headersSplitter.
+  // NOTE: At this stage, we only expect the "To" row to be visible within the
+  // recipients container.
+  let messageHeader = document.getElementById("MsgHeadersToolbar");
+  let recipientsContainer = document.getElementById("recipientsContainer");
+  // In the unlikely situation where the recipients container is already
+  // overflowing, we make sure to increase the minHeight by the overflow.
+  let headerHeight =
+    messageHeader.clientHeight +
+    recipientsContainer.scrollHeight -
+    recipientsContainer.clientHeight;
+  messageHeader.style.minHeight = `${headerHeight}px`;
+
   // Setup the attachment bucket.
   gAttachmentBucket = document.getElementById("attachmentBucket");
 
   let attachmentArea = document.getElementById("attachmentArea");
   attachmentArea.addEventListener("toggle", attachmentAreaOnToggle);
-  // Set up an observer to listen to the height change from the
-  // #attachmentbucket-sizer xul:splitter.
-  // Cached height difference. Note, we do not set its value now because the
-  // attachment pane is hidden.
-  let attachmentAreaHeightDiff;
-  let heightObserver = new MutationObserver(() => {
-    // Here we read the given height attribute from the #attachmentbucket-sizer
-    // xul:splitter, and translate it into a style height.
-    // Rather than set the style.height of the attachmentArea, we instead pass
-    // the height on to the attachment bucket because we want any overflow
-    // scrolling to be handled by the attachment bucket rather than on the whole
-    // attachmentArea. Normally, we could do this using the flex display on the
-    // attachmentArea. However, the attachmentArea is a details element, which
-    // does not (yet) support "display: flex" (see Bug 1245430).
-    // NOTE: The #attachmentbucket-sizer xul:splitter is hidden when the
-    // attachmentArea is closed or hidden, so this should only be called when
-    // the attachmentArea is both visible and open.
-    if (!attachmentAreaHeightDiff) {
-      // NOTE: We are assuming that the attachmentArea has no padding, such that
-      // its height is just the sum of the summary element, the attachment
-      // bucket and its border.
-      // We also assume that the attachment bucket has box-sizing: border-box.
-      // Similarly, we assume that neither the summary nor the attachment bucket
-      // have any set margin, such that their client rectangle is also their
-      // entire occupied size.
-      // And we assume the attachment style and summary do not change in
-      // dimension, so we can can calculate and cache the value once.
-      let attachmentStyle = getComputedStyle(attachmentArea);
-      attachmentAreaHeightDiff =
-        parseFloat(attachmentStyle.borderBlockStartWidth) +
-        parseFloat(attachmentStyle.borderBlockEndWidth) +
-        attachmentArea.querySelector("summary").getBoundingClientRect().height;
-    }
-    // NOTE: The bucket already has a min-height, so we can just set the
-    // height to 0 when the calculation would be negative.
-    let height = Math.max(
-      0,
-      parseFloat(attachmentArea.getAttribute("height")) -
-        attachmentAreaHeightDiff
-    );
-    gAttachmentBucket.style.height = `${height}px`;
-  });
-  // We set the min-height of the attachmentArea to zero. Otherwise the
-  // xul:splitter will not allow us to shrink arbitrarily when the
-  // attachmentBucket has a set height.
-  attachmentArea.style.minHeight = "0";
-  heightObserver.observe(attachmentArea, { attributeFilter: ["height"] });
 
   // Setup the attachment animation counter.
   gAttachmentCounter = document.getElementById("newAttachmentIndicator");
@@ -4518,7 +4507,6 @@ async function ComposeLoad() {
 
   if (otherHeaders) {
     let extraAddressRowsMenu = document.getElementById("extraAddressRowsMenu");
-    let recipientsContainer = document.getElementById("recipientsContainer");
 
     let existingTypes = Array.from(
       document.querySelectorAll(".address-row"),
@@ -4602,7 +4590,6 @@ async function ComposeLoad() {
     GetCurrentEditorElement()
   );
 
-  setDefaultHeaderMinHeight();
   setComposeLabelsAndMenuItems();
   setKeyboardShortcuts();
 
@@ -6980,20 +6967,6 @@ function AddAttachments(aAttachments, aContentChanged = true) {
         parseFloat(bucketStyle.borderBlockEndWidth);
       gAttachmentBucket.style.minHeight = `${minHeight}px`;
     }
-
-    // Set the height for the attachment bucket.
-    // NOTE: This height is also set by heightObserver.
-    // NOTE: The pane is already shown by AttachmentsChanged("show", ...) above,
-    // which means that the scrollHeight is no longer zero.
-    let newHeight = gAttachmentBucket.scrollHeight;
-    // Initially, the attachment bucket has no set height. Treat it as 0.
-    let currentHeight = parseFloat(gAttachmentBucket.style.height || "0");
-
-    // Increase the height of the attachment bucket to show the uploaded files
-    // only if the new height is taller than the current height.
-    if (newHeight > currentHeight) {
-      gAttachmentBucket.style.height = `${newHeight}px`;
-    }
   }
 
   // Always show the attachment pane if we have any attachment, to prevent
@@ -7219,12 +7192,9 @@ function updateAttachmentPane(aShowPane) {
   document.getElementById("attachmentBucketSize").textContent =
     count > 0 ? gMessenger.formatFileSize(attachmentsSize) : "";
 
-  let attachmentArea = document.getElementById("attachmentArea");
-  attachmentArea.hidden = !count;
-  // Hide the splitter if the attachment area is hidden or closed since we do
-  // not want to resize when the bucket isn't shown.
-  document.getElementById("attachmentbucket-sizer").hidden =
-    attachmentArea.hidden || !attachmentArea.open;
+  document
+    .getElementById("composeContentBox")
+    .classList.toggle("attachment-area-hidden", !count);
 
   attachmentBucketUpdateTooltips();
 
@@ -7646,9 +7616,10 @@ function attachmentAreaOnToggle() {
     focusMsgBody();
   }
 
-  // Show/hide the splitter as well.
-  document.getElementById("attachmentbucket-sizer").hidden =
-    attachmentArea.hidden || !attachmentArea.open;
+  // Make the splitter non-interactive whilst the bucket is hidden.
+  document
+    .getElementById("composeContentBox")
+    .classList.toggle("attachment-bucket-closed", !attachmentArea.open);
 
   // Update the checkmark on menuitems hooked up with cmd_toggleAttachmentPane.
   // Menuitem does not have .checked property nor .toggleAttribute(), sigh.
@@ -9146,12 +9117,10 @@ function DisplaySaveFolderDlg(folderURI) {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @param {Element} contactsSidebar - The contacts side panel container.
- *
  * @return {boolean} - Whether the peopleSearchInput was focused.
  */
-function focusContactsSidebarSearchInput(contactsSidebar) {
-  if (contactsSidebar.hidden) {
+function focusContactsSidebarSearchInput() {
+  if (document.getElementById("contactsSplitter").isCollapsed) {
     return false;
   }
   let input = document
@@ -9230,7 +9199,11 @@ function focusMsgBody() {
  * @return {boolean} - Whether the attachment bucket was focused.
  */
 function focusAttachmentBucket(attachmentArea) {
-  if (attachmentArea.hidden) {
+  if (
+    document
+      .getElementById("composeContentBox")
+      .classList.contains("attachment-area-hidden")
+  ) {
     return false;
   }
   if (!attachmentArea.open) {
@@ -9330,64 +9303,58 @@ function moveFocusToNeighbouringArea(event) {
 }
 
 /**
- * Show or hide contacts side bar,
- * and optionally focus peopleSearchInput when shown.
- *
- * @param {Boolean} aFocus  Whether to focus peopleSearchInput after the sidebar
- *                          is shown. If omitted, defaults to true.
+ * If the contacts sidebar is shown, hide it. Otherwise, show the contacts
+ * sidebar and focus it.
  */
-function toggleContactsSidebar(aFocus = true) {
-  // Caveat: This function erroneously assumes that only abContactsPanel can
-  // be shown in the sidebar browser, so it will fail if any other src is shown
-  // as we do not reliably enforce abContactsPanel.xhtml as src of the sidebar
-  // <browser>. Currently we don't show anything else in the sidebar, but
-  // add-ons might.
-  let contactsSidebar = document.getElementById("contactsSidebar");
+function toggleContactsSidebar() {
+  setContactsSidebarVisibility(
+    document.getElementById("contactsSplitter").isCollapsed,
+    true
+  );
+}
+
+/**
+ * Show or hide contacts sidebar.
+ *
+ * @param {boolean} show - Whether to show the sidebar or hide the sidebar.
+ * @param {boolean} focus - Whether to focus peopleSearchInput if the sidebar is
+ *   shown.
+ */
+function setContactsSidebarVisibility(show, focus) {
   let contactsSplitter = document.getElementById("contactsSplitter");
-  let contactsBrowser = document.getElementById("contactsBrowser");
   let sidebarAddrMenu = document.getElementById("menu_AddressSidebar");
   let contactsButton = document.getElementById("button-contacts");
 
-  if (contactsSidebar.hidden) {
-    // Show contacts sidebar.
-    contactsSidebar.hidden = false;
-    contactsSplitter.hidden = false;
+  if (show) {
+    contactsSplitter.expand();
     sidebarAddrMenu.setAttribute("checked", "true");
     if (contactsButton) {
       contactsButton.setAttribute("checked", "true");
     }
 
-    let sidebarUrl = contactsBrowser.getAttribute("src");
-    // If we have yet to initialize the src URL on the sidebar, then go ahead
-    // and do so now... We do this lazily here, so we don't spend time when
-    // bringing up the compose window loading the address book data sources.
-    // Only when we open composition with the sidebar shown, or when the user
-    // opens it, do we set and load the src URL for contacts sidebar.
-    if (sidebarUrl == "") {
-      // sidebarUrl not yet set, load contacts side bar and focus the search
+    let contactsBrowser = document.getElementById("contactsBrowser");
+    if (contactsBrowser.getAttribute("src") == "") {
+      // Url not yet set, load contacts side bar and focus the search
       // input if applicable: We pass "?focus" as a URL querystring, then via
       // onload event of <window id="abContactsPanel">, in AbPanelLoad() of
       // abContactsPanel.js, we do the focusing first thing to avoid timing
       // issues when trying to focus from here while contacts side bar is still
       // loading.
       let url = "chrome://messenger/content/addressbook/abContactsPanel.xhtml";
-      if (aFocus) {
+      if (focus) {
         url += "?focus";
       }
       contactsBrowser.setAttribute("src", url);
-    } else if (aFocus) {
-      // sidebarUrl already set, so we can focus immediately if applicable.
-      focusContactsSidebarSearchInput(contactsSidebar);
+    } else if (focus) {
+      // Url already set, so we can focus immediately if applicable.
+      focusContactsSidebarSearchInput();
     }
-    contactsSidebar.setAttribute("sidebarVisible", "true");
   } else {
+    let contactsSidebar = document.getElementById("contactsSidebar");
     // Before closing, check if the focus was within the contacts sidebar.
     let sidebarFocussed = contactsSidebar.contains(document.activeElement);
 
-    // Hide contacts sidebar.
-    contactsSidebar.hidden = true;
-    contactsSplitter.hidden = true;
-    contactsSidebar.setAttribute("sidebarVisible", "false");
+    contactsSplitter.collapse();
     sidebarAddrMenu.removeAttribute("checked");
     if (contactsButton) {
       contactsButton.removeAttribute("checked");

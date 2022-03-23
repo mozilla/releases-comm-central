@@ -57,6 +57,7 @@
   <link rel="localization" href="toolkit/printing/printUI.ftl" />
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/pane-splitter.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
@@ -2107,27 +2108,23 @@
            context="toolbar-context-menu">
   </toolbar>
 </toolbox>
-
-  <hbox id="composeContentBox" class="printPreviewStack" flex="1">
-    <vbox id="contactsSidebar" persist="sidebarVisible width" hidden="true">
+  <html:div id="composeContentBox" class="printPreviewStack attachment-area-hidden">
+    <html:div id="contactsSidebar">
       <box class="sidebar-header" align="center">
         <label id="contactsTitle" value="&addressesSidebarTitle.label;"/>
         <spacer flex="1"/>
         <toolbarbutton class="close-icon"
                        oncommand="toggleContactsSidebar();"/>
       </box>
-      <browser id="contactsBrowser" flex="1" src="" disablehistory="true"
-               style="min-width: 150px; width: 200px; max-width: 400px;"/>
-    </vbox>
+      <browser id="contactsBrowser" src="" disablehistory="true"/>
+    </html:div>
 
-    <splitter id="contactsSplitter" hidden="true"/>
+    <html:hr is="pane-splitter" id="contactsSplitter"
+             resize-direction="horizontal"
+             resize-id="contactsSidebar" />
 
-    <vbox id="headers-parent" flex="1">
-      <toolbox id="headers-box" class="toolbox-top themeable-full" mode="icons">
         <toolbar is="customizable-toolbar" id="MsgHeadersToolbar"
                  class="themeable-full"
-                 persist="collapsed"
-                 flex="1"
                  customizable="true" nowindowdrag="true"
                  ondragover="envelopeDragObserver.onDragOver(event);"
                  ondrop="envelopeDragObserver.onDrop(event);"
@@ -2473,13 +2470,12 @@
             <spacer flex="1"/>
           </toolbar>
         </toolbox>
-      </toolbox>
 
-      <splitter id="compose-toolbar-sizer" onmousedown="awSizerMouseDown()"
-                onmouseup="awSizerMouseUp()"
-                orient="vertical"/>
+      <html:hr is="pane-splitter" id="headersSplitter"
+               resize-direction="vertical"
+               resize-id="MsgHeadersToolbar" />
 
-      <vbox id="messageArea" flex="1">
+      <html:div id="messageArea">
         <html:div id="dropAttachmentOverlay" class="drop-attachment-overlay">
           <html:aside id="addInline" class="drop-attachment-box">
             <html:span id="addInlineLabel"
@@ -2506,17 +2502,18 @@
                 src="about:blank?"
                 name="browser.message.body"
                 aria-label="&aria.message.bodyName;"
-                style="min-height:100px;"
-                flex="1"
                 messagemanagergroup="browsers"
                 oncontextmenu="this._contextX = event.pageX; this._contextY = event.pageY;"
                 ondblclick="EditorDblClick(event);"
                 context="msgComposeContext"/>
         <findbar id="FindToolbar" browserid="messageEditor"/>
-      </vbox>
+      </html:div>
 
-      <splitter id="attachmentbucket-sizer" hidden="true" orient="vertical"/>
-      <html:details id="attachmentArea" hidden="hidden">
+      <!-- NOTE: The splitter controls #attachmentBucket's size directly. -->
+      <html:hr is="pane-splitter" id="attachmentSplitter"
+               resize-direction="vertical"
+               resize-id="attachmentBucket" />
+      <html:details id="attachmentArea">
         <html:summary>
           <!-- Hide from accessibility tree since this is only used for a brief
              - animation effect. -->
@@ -2546,8 +2543,7 @@
                      ondragleave="envelopeDragObserver.onDragLeave(event);"
                      onblur="attachmentBucketOnBlur();"/>
       </html:details>
-    </vbox>
-  </hbox>
+  </html:div>
 
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"
