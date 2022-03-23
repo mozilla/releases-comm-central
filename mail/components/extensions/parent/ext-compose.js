@@ -504,6 +504,7 @@ async function createAttachment(data) {
     attachment.name = data.name || data.file.name;
     attachment.size = data.file.size;
     attachment.url = await fileURLForFile(data.file);
+    attachment.contentType = data.file.type;
     return { attachment };
   }
 

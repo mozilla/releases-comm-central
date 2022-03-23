@@ -129,7 +129,9 @@ add_task(async function test_file_attachments() {
 
       let [createdAccount] = await createCloudfileAccount();
 
-      let file1 = new File(["File number one!"], "file1.txt");
+      let file1 = new File(["File number one!"], "file1.txt", {
+        type: "application/vnd.regify",
+      });
       let file2 = new File(
         ["File number two? Yes, this is number two."],
         "file2.txt"
@@ -161,6 +163,7 @@ add_task(async function test_file_attachments() {
         id: attachment1.id,
         name: "file1.txt",
         size: file1.size,
+        contentType: "application/vnd.regify",
       });
 
       // Add another attachment.
@@ -182,7 +185,12 @@ add_task(async function test_file_attachments() {
 
       await checkUI(
         composeTab,
-        { id: attachment1.id, name: "file1.txt", size: file1.size },
+        {
+          id: attachment1.id,
+          name: "file1.txt",
+          size: file1.size,
+          contentType: "application/vnd.regify",
+        },
         { id: attachment2.id, name: "this is file2.txt", size: file2.size }
       );
 
@@ -199,7 +207,12 @@ add_task(async function test_file_attachments() {
 
       await checkUI(
         composeTab,
-        { id: attachment1.id, name: "file1.txt", size: file1.size },
+        {
+          id: attachment1.id,
+          name: "file1.txt",
+          size: file1.size,
+          contentType: "application/vnd.regify",
+        },
         {
           id: attachment2.id,
           name: "file2 with a new name.txt",
@@ -218,7 +231,12 @@ add_task(async function test_file_attachments() {
 
       await checkUI(
         composeTab,
-        { id: attachment1.id, name: "file1.txt", size: file1.size },
+        {
+          id: attachment1.id,
+          name: "file1.txt",
+          size: file1.size,
+          contentType: "application/vnd.regify",
+        },
         {
           id: attachment2.id,
           name: "file2 with a new name.txt",
@@ -414,7 +432,7 @@ add_task(async function test_file_attachments() {
     let totalSize = 0;
     for (let i = 0; i < expected.length; i++) {
       let item = bucket.itemChildren[i];
-      let { name, size, htmlSize } = expected[i];
+      let { name, size, htmlSize, contentType } = expected[i];
       totalSize += htmlSize ? htmlSize : size;
 
       let displaySize = messenger.formatFileSize(size);
@@ -424,6 +442,14 @@ add_task(async function test_file_attachments() {
           item.cloudHtmlFileSize,
           htmlSize,
           "htmlSize should be correct."
+        );
+      }
+
+      if (contentType) {
+        Assert.equal(
+          item.attachment.contentType,
+          contentType,
+          "contentType should be correct."
         );
       }
 
