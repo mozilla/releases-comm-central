@@ -746,6 +746,7 @@ var gMailInit = {
       reportAccountTypes();
       reportAddressBookTypes();
       reportAccountSizes();
+      reportBooleanPreferences();
     });
   },
 
@@ -1130,6 +1131,165 @@ function reportAddressBookTypes() {
       "tb.addressbook.contact_count",
       type,
       contactCount
+    );
+  }
+}
+
+function reportBooleanPreferences() {
+  let booleanPrefs = [
+    // General
+    "browser.cache.disk.smart_size.enabled",
+    "general.autoScroll",
+    "general.smoothScroll",
+    "intl.regional_prefs.use_os_locales",
+    "layers.acceleration.disabled",
+    "mail.biff.play_sound",
+    "mail.close_message_window.on_delete",
+    "mail.display_glyph",
+    "mail.prompt_purge_threshhold",
+    "mail.purge.ask",
+    "mail.showCondensedAddresses",
+    "mailnews.database.global.indexer.enabled",
+    "mailnews.mark_message_read.auto",
+    "mailnews.mark_message_read.delay",
+    "mailnews.reuse_message_window",
+    "mailnews.start_page.enabled",
+    "searchintegration.enable",
+
+    // Fonts
+    "mail.fixed_width_messages",
+
+    // Colors
+    "browser.display.use_system_colors",
+    "browser.underline_anchors",
+
+    // Read receipts
+    "mail.mdn.report.enabled",
+    "mail.receipt.request_return_receipt_on",
+
+    // Connection
+    "network.proxy.share_proxy_settings",
+    "network.proxy.socks_remote_dns",
+    "pref.advanced.proxies.disable_button.reload",
+    "signon.autologin.proxy",
+
+    // Offline
+    "offline.autoDetect",
+
+    // Compose
+    "ldap_2.autoComplete.useDirectory",
+    "mail.collect_email_address_outgoing",
+    "mail.compose.attachment_reminder",
+    "mail.compose.autosave",
+    "mail.compose.big_attachments.notify",
+    "mail.compose.default_to_paragraph",
+    "mail.enable_autocomplete",
+    "mail.forward_add_extension",
+    "mail.SpellCheckBeforeSend",
+    "mail.spellcheck.inline",
+    "mail.warn_on_send_accel_key",
+    "msgcompose.default_colors",
+    "pref.ldap.disable_button.edit_directories",
+
+    // Send options
+    "mailnews.sendformat.auto_downgrade",
+
+    // Privacy
+    "browser.safebrowsing.enabled",
+    "mail.phishing.detection.enabled",
+    "mail.spam.logging.enabled",
+    "mail.spam.manualMark",
+    "mail.spam.markAsReadOnSpam",
+    "mailnews.downloadToTempFile",
+    "mailnews.message_display.disable_remote_image",
+    "network.cookie.blockFutureCookies",
+    "places.history.enabled",
+    "pref.privacy.disable_button.cookie_exceptions",
+    "pref.privacy.disable_button.view_cookies",
+    "pref.privacy.disable_button.view_passwords",
+    "privacy.donottrackheader.enabled",
+    "security.disable_button.openCertManager",
+    "security.disable_button.openDeviceManager",
+
+    // Chat
+    "messenger.options.getAttentionOnNewMessages",
+    "messenger.status.reportIdle",
+    "messenger.status.awayWhenIdle",
+    "mail.chat.play_sound",
+    "mail.chat.show_desktop_notifications",
+    "purple.conversations.im.send_typing",
+    "purple.logging.log_chats",
+    "purple.logging.log_ims",
+    "purple.logging.log_system",
+
+    // Calendar views
+    "calendar.view.showLocation",
+    "calendar.view-minimonth.showWeekNumber",
+    "calendar.week.d0sundaysoff",
+    "calendar.week.d1mondaysoff",
+    "calendar.week.d2tuesdaysoff",
+    "calendar.week.d3wednesdaysoff",
+    "calendar.week.d4thursdaysoff",
+    "calendar.week.d5fridaysoff",
+    "calendar.week.d6saturdaysoff",
+
+    // Calendar general
+    "calendar.item.editInTab",
+    "calendar.item.promptDelete",
+    "calendar.view.useSystemColors",
+
+    // Alarms
+    "calendar.alarms.playsound",
+    "calendar.alarms.show",
+    "calendar.alarms.showmissed",
+  ];
+
+  // Platform-specific preferences
+  if (AppConstants.platform === "win") {
+    booleanPrefs.push("mail.biff.show_tray_icon", "mail.minimizeToTray");
+  }
+
+  if (AppConstants.platform !== "macosx") {
+    booleanPrefs.push(
+      "mail.biff.show_alert",
+      "mail.biff.use_system_alert",
+
+      // Notifications
+      "mail.biff.alert.show_preview",
+      "mail.biff.alert.show_sender",
+      "mail.biff.alert.show_subject"
+    );
+  }
+
+  // Compile-time flag-dependent preferences
+  if (AppConstants.HAVE_SHELL_SERVICE) {
+    booleanPrefs.push("mail.shell.checkDefaultClient");
+  }
+
+  if (AppConstants.MOZ_WIDGET_GTK) {
+    booleanPrefs.push("widget.gtk.overlay-scrollbars.enabled");
+  }
+
+  if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+    booleanPrefs.push("app.update.service.enabled");
+  }
+
+  if (AppConstants.MOZ_DATA_REPORTING) {
+    booleanPrefs.push("datareporting.healthreport.uploadEnabled");
+  }
+
+  if (AppConstants.MOZ_CRASHREPORTER) {
+    booleanPrefs.push("browser.crashReports.unsubmittedCheck.autoSubmit2");
+  }
+
+  // Fetch and report preference values
+  for (let prefName of booleanPrefs) {
+    let prefValue = Services.prefs.getBoolPref(prefName, false);
+
+    Services.telemetry.keyedScalarSet(
+      "tb.preferences.boolean",
+      prefName,
+      prefValue
     );
   }
 }
