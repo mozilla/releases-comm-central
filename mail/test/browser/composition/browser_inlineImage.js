@@ -107,8 +107,10 @@ add_task(async function test_send_inline_image() {
     "inline-img should be cid after send"
   );
   ok(
-    /Content-Type: image\/png;\s* name="\w{16}.png"/.test(outMsgContent),
-    "file name should have 16 characters"
+    /Content-Type: image\/png; charset=windows-1252; name="\w{16}.png"/.test(
+      outMsgContent
+    ),
+    `file name should have 16 characters: ${outMsgContent}`
   );
 
   press_delete(); // Delete the msg from Outbox.
