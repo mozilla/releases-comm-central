@@ -824,8 +824,6 @@ class SmtpClient {
    * @param {Object} command Parsed command from the server {statusCode, data}
    */
   _actionEHLO(command) {
-    var match;
-
     if ([500, 502].includes(command.statusCode)) {
       // EHLO is not implemented by the server.
       if (this.options.alwaysSTARTTLS) {
@@ -847,9 +845,21 @@ class SmtpClient {
       return;
     }
 
+    this._supportedAuthMethods = [];
+
+    let lines = command.data.toUpperCase().split("\n");
+    // Skip the first greeting line.
+    for (let line of lines.slice(1)) {
+      if (line.startsWith("AUTH ")) {
+        this._supportedAuthMethods = line.slice(5).split(" ");
+      } else {
+        this._capabilities.push(line.split(" ")[0]);
+      }
+    }
+
     if (!this._secureTransport && this.options.alwaysSTARTTLS) {
       // STARTTLS is required by the user. Detect if the server supports it.
-      if (command.data.match(/STARTTLS\s?$/im)) {
+      if (this._capabilities.includes("STARTTLS")) {
         this._currentAction = this._actionSTARTTLS;
         this._sendCommand("STARTTLS");
         return;
@@ -859,38 +869,6 @@ class SmtpClient {
       return;
     }
 
-    this._supportedAuthMethods = [];
-
-    // Detect if the server supports PLAIN auth
-    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)PLAIN/i)) {
-      this._supportedAuthMethods.push("PLAIN");
-    }
-
-    // Detect if the server supports LOGIN auth
-    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)LOGIN/i)) {
-      this._supportedAuthMethods.push("LOGIN");
-    }
-
-    // Detect if the server supports XOAUTH2 auth
-    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)XOAUTH2/i)) {
-      this._supportedAuthMethods.push("XOAUTH2");
-    }
-
-    // Detect if the server supports CRAM-MD5 auth
-    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)CRAM-MD5/i)) {
-      this._supportedAuthMethods.push("CRAM-MD5");
-    }
-
-    // Detect if the server supports GSSAPI auth
-    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)GSSAPI/i)) {
-      this._supportedAuthMethods.push("GSSAPI");
-    }
-
-    // Detect if the server supports NTLM auth
-    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)NTLM/i)) {
-      this._supportedAuthMethods.push("NTLM");
-    }
-
     // If a preferred method is not supported by the server, no need to try it.
     this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
       this._supportedAuthMethods.includes(x)
@@ -898,20 +876,8 @@ class SmtpClient {
     this.logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
     this._nextAuthMethod = this._possibleAuthMethods[0];
 
-    // Detect maximum allowed message size
-    if ((match = command.data.match(/SIZE (\d+)/i)) && Number(match[1])) {
-      const maxAllowedSize = Number(match[1]);
-      this.logger.debug("Maximum allowed message size: " + maxAllowedSize);
-    }
-
-    for (let cap of ["8BITMIME", "SIZE", "SMTPUTF8", "DSN"]) {
-      if (new RegExp(cap, "i").test(command.data)) {
-        this._capabilities.push(cap);
-      }
-    }
-
     if (
-      command.data.match(/\bCLIENTID\b/) &&
+      this._capabilities.includes("CLIENTID") &&
       (this._secureTransport ||
         // For test purpose.
         ["localhost", "127.0.0.1", "::1"].includes(this._server.hostname)) &&
