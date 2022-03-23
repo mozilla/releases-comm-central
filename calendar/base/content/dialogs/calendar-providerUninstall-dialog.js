@@ -12,7 +12,7 @@ function onLoad() {
 
   let calendarList = document.getElementById("calendar-list");
 
-  for (let calendar of cal.getCalendarManager().getCalendars()) {
+  for (let calendar of cal.manager.getCalendars()) {
     if (calendar.providerID != extension.id) {
       continue;
     }
@@ -46,10 +46,9 @@ document.addEventListener("dialogaccept", () => {
   let calendarList = document.getElementById("calendar-list");
 
   // Unsubscribe from all selected calendars
-  let calMgr = cal.getCalendarManager();
   for (let item of calendarList.children) {
     if (item.querySelector(".calendar-selected").checked) {
-      calMgr.unregisterCalendar(calMgr.getCalendarById(item.getAttribute("calendar-id")));
+      cal.manager.unregisterCalendar(cal.manager.getCalendarById(item.getAttribute("calendar-id")));
     }
   }
 });

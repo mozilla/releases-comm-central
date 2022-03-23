@@ -92,13 +92,12 @@ add_task(async () => {
 
   let calendarList = document.getElementById("calendar-list");
   let contextMenu = document.getElementById("list-calendars-context-menu");
-  let manager = cal.getCalendarManager();
   let composite = cal.view.getCompositeCalendar(window);
 
   await CalendarTestUtils.openCalendarTab(window);
 
   // Check the default calendar.
-  let calendars = manager.getCalendars();
+  let calendars = cal.manager.getCalendars();
   Assert.equal(calendars.length, 1);
   Assert.equal(calendarList.rowCount, 1);
   checkProperties(0, {
@@ -123,7 +122,7 @@ add_task(async () => {
     calendars[i] = CalendarTestUtils.createCalendar(`Mochitest ${i}`, "memory");
   }
 
-  Assert.equal(manager.getCalendars().length, 4);
+  Assert.equal(cal.manager.getCalendars().length, 4);
   Assert.equal(calendarList.rowCount, 4);
 
   for (let i = 1; i <= 3; i++) {
@@ -310,7 +309,7 @@ add_task(async () => {
 
   // Delete a calendar by unregistering it.
   CalendarTestUtils.removeCalendar(calendars[3]);
-  Assert.equal(manager.getCalendars().length, 3);
+  Assert.equal(cal.manager.getCalendars().length, 3);
   Assert.equal(calendarList.rowCount, 3);
   checkSortOrder(0, 1, 2);
 
@@ -319,7 +318,7 @@ add_task(async () => {
   await withMockPromptService(1, () => {
     EventUtils.synthesizeKey("VK_DELETE");
   });
-  Assert.equal(manager.getCalendars().length, 3, "three calendars left in the manager");
+  Assert.equal(cal.manager.getCalendars().length, 3, "three calendars left in the manager");
   Assert.equal(calendarList.rowCount, 3, "three calendars left in the list");
   checkSortOrder(0, 1, 2);
 
@@ -327,7 +326,7 @@ add_task(async () => {
   await withMockPromptService(0, () => {
     EventUtils.synthesizeKey("VK_DELETE");
   });
-  Assert.equal(manager.getCalendars().length, 2, "two calendars left in the manager");
+  Assert.equal(cal.manager.getCalendars().length, 2, "two calendars left in the manager");
   Assert.equal(calendarList.rowCount, 2, "two calendars left in the list");
   checkSortOrder(0, 2);
 
@@ -337,7 +336,7 @@ add_task(async () => {
     await calendarListContextMenu(calendarList.rows[1], "list-calendars-context-delete");
   });
 
-  Assert.equal(manager.getCalendars().length, 1, "one calendar left in the manager");
+  Assert.equal(cal.manager.getCalendars().length, 1, "one calendar left in the manager");
   Assert.equal(calendarList.rowCount, 1, "one calendar left in the list");
   checkSortOrder(0);
 

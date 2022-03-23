@@ -789,7 +789,7 @@ add_task(async function testChangeWhileRefreshing() {
       });
     },
   };
-  cal.getCalendarManager().registerCalendar(pumpCalendar);
+  cal.manager.registerCalendar(pumpCalendar);
 
   // Create a new widget and a Promise waiting for it to be ready.
 

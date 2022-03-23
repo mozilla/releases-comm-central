@@ -577,14 +577,14 @@ var calendarNavigationBar = {
     let docTitle = "";
     if (startDate) {
       let intervalLabel = document.getElementById("intervalDescription");
-      let firstWeekNo = cal.getWeekInfoService().getWeekTitle(startDate);
+      let firstWeekNo = cal.weekInfoService.getWeekTitle(startDate);
       let secondWeekNo = firstWeekNo;
       let weekLabel = document.getElementById("calendarWeek");
       if (startDate.nativeTime == endDate.nativeTime) {
         intervalLabel.value = cal.dtz.formatter.formatDate(startDate);
       } else {
         intervalLabel.value = currentView().getRangeDescription();
-        secondWeekNo = cal.getWeekInfoService().getWeekTitle(endDate);
+        secondWeekNo = cal.weekInfoService.getWeekTitle(endDate);
       }
       if (secondWeekNo == firstWeekNo) {
         weekLabel.value = cal.l10n.getCalString("singleShortCalendarWeek", [firstWeekNo]);

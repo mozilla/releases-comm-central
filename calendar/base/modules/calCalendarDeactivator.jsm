@@ -30,10 +30,9 @@ var calendarDeactivator = {
   QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver", "calIObserver"]),
 
   initializeDeactivator() {
-    let manager = cal.getCalendarManager();
-    this.calendars = new Set(manager.getCalendars());
-    manager.addObserver(this);
-    manager.addCalendarObserver(this);
+    this.calendars = new Set(cal.manager.getCalendars());
+    cal.manager.addObserver(this);
+    cal.manager.addCalendarObserver(this);
     this.isCalendarActivated = this.checkCalendarsEnabled();
   },
 

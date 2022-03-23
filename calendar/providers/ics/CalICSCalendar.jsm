@@ -313,11 +313,11 @@ CalICSCalendar.prototype = {
           break;
       }
     }
-    let prop = cal.getIcsService().createIcalProperty("X-WR-CALNAME");
+    let prop = cal.icsService.createIcalProperty("X-WR-CALNAME");
     prop.value = this.name;
     serializer.addProperty(prop);
-    prop = cal.getIcsService().createIcalProperty("X-WR-TIMEZONE");
-    prop.value = cal.getTimezoneService().defaultTimezone.tzid;
+    prop = cal.icsService.createIcalProperty("X-WR-TIMEZONE");
+    prop.value = cal.timezoneService.defaultTimezone.tzid;
     serializer.addProperty(prop);
 
     // don't call this.getItems, because we are locked:

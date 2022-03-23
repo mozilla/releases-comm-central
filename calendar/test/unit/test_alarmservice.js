@@ -457,15 +457,14 @@ function doAcknowledgeTest(aCalendar) {
 function doRunTest(aOnCalendarCreated, aOnAlarmsLoaded) {
   alarmObserver.clear();
 
-  let calmgr = cal.getCalendarManager();
-  let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   memory.id = cal.getUUID();
 
   if (aOnCalendarCreated) {
     aOnCalendarCreated.call(aOnCalendarCreated, memory);
   }
 
-  calmgr.registerCalendar(memory);
+  cal.manager.registerCalendar(memory);
 
   alarmObserver.doOnAlarmsLoaded(memory, async () => {
     if (aOnAlarmsLoaded) {

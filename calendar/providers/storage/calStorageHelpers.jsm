@@ -145,9 +145,10 @@ function getTimezone(aTimezone) {
     if (!timezone) {
       try {
         // cannot cope without parent VCALENDAR:
-        let comp = cal
-          .getIcsService()
-          .parseICS("BEGIN:VCALENDAR\n" + aTimezone + "\nEND:VCALENDAR", null);
+        let comp = cal.icsService.parseICS(
+          "BEGIN:VCALENDAR\n" + aTimezone + "\nEND:VCALENDAR",
+          null
+        );
         timezone = new calStorageTimezone(comp.getFirstSubcomponent("VTIMEZONE"));
         gForeignTimezonesCache[aTimezone] = timezone;
       } catch (e) {
@@ -155,7 +156,7 @@ function getTimezone(aTimezone) {
       }
     }
   } else {
-    timezone = cal.getTimezoneService().getTimezone(aTimezone);
+    timezone = cal.timezoneService.getTimezone(aTimezone);
   }
   return timezone;
 }

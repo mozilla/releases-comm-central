@@ -55,7 +55,7 @@ CalIcsSerializer.prototype = {
   },
 
   getIcalComponent() {
-    let calComp = cal.getIcsService().createIcalComponent("VCALENDAR");
+    let calComp = cal.icsService.createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(calComp);
 
     // xxx todo: think about that the below code doesn't clone the properties/components,

@@ -1021,7 +1021,6 @@ calItemBase.prototype = {
    */
   fillIcalComponentFromBase(icalcomp) {
     this.ensureNotDirty();
-    let icssvc = cal.getIcsService();
 
     this.mapPropsToICS(icalcomp, this.icsBasePropMap);
 
@@ -1049,7 +1048,7 @@ calItemBase.prototype = {
     }
 
     for (let cat of this.getCategories()) {
-      let catprop = icssvc.createIcalProperty("CATEGORIES");
+      let catprop = cal.icsService.createIcalProperty("CATEGORIES");
       catprop.value = cat;
       icalcomp.addProperty(catprop);
     }
@@ -1062,7 +1061,7 @@ calItemBase.prototype = {
 
     let alarmLastAck = this.alarmLastAck;
     if (alarmLastAck) {
-      let lastAck = cal.getIcsService().createIcalProperty("X-MOZ-LASTACK");
+      let lastAck = cal.icsService.createIcalProperty("X-MOZ-LASTACK");
       // - should we further ensure that those are UTC or rely on calAlarmService doing so?
       lastAck.value = alarmLastAck.icalString;
       icalcomp.addProperty(lastAck);

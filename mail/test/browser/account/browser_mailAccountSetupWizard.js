@@ -809,17 +809,16 @@ add_task(async function test_full_account_setup() {
   );
 
   // Connect the linked calendar.
-  let calendarManager = cal.getCalendarManager();
   let calendarPromise = new Promise(resolve => {
     let observer = {
       onCalendarRegistered(calendar) {
-        calendarManager.removeObserver(this);
+        cal.manager.removeObserver(this);
         resolve(calendar);
       },
       onCalendarUnregistering() {},
       onCalendarDeleting() {},
     };
-    calendarManager.addObserver(observer);
+    cal.manager.addObserver(observer);
   });
 
   let calendarDialogShowed = BrowserTestUtils.waitForCondition(
@@ -887,7 +886,7 @@ add_task(async function test_full_account_setup() {
 
   // Remove the address book and calendar.
   MailServices.ab.deleteAddressBook(abDirectory.URI);
-  calendarManager.removeCalendar(calendar);
+  cal.manager.removeCalendar(calendar);
 
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);

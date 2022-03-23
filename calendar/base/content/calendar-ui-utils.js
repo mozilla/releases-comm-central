@@ -105,10 +105,7 @@ function sortCalendarArray(calendars) {
   // check and repair pref when an array of all calendars has been passed:
   let sortOrderString = Services.prefs.getStringPref("calendar.list.sortOrder", "");
   let wantedOrderString = ret.map(calendar => calendar.id).join(" ");
-  if (
-    wantedOrderString != sortOrderString &&
-    cal.getCalendarManager().getCalendars().length == ret.length
-  ) {
+  if (wantedOrderString != sortOrderString && cal.manager.getCalendars().length == ret.length) {
     Services.prefs.setStringPref("calendar.list.sortOrder", wantedOrderString);
   }
 
@@ -130,7 +127,7 @@ function sortCalendarArray(calendars) {
  */
 function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnCommand) {
   let calendarToUse = aCalendarToUse || aItem.calendar;
-  let calendars = sortCalendarArray(cal.getCalendarManager().getCalendars());
+  let calendars = sortCalendarArray(cal.manager.getCalendars());
   let indexToSelect = 0;
   let index = -1;
   for (let i = 0; i < calendars.length; ++i) {

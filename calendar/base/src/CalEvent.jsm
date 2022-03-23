@@ -95,19 +95,18 @@ CalEvent.prototype = {
   ],
 
   set icalString(value) {
-    this.icalComponent = cal.getIcsService().parseICS(value, null);
+    this.icalComponent = cal.icsService.parseICS(value, null);
   },
 
   get icalString() {
-    let calcomp = cal.getIcsService().createIcalComponent("VCALENDAR");
+    let calcomp = cal.icsService.createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(calcomp);
     calcomp.addSubcomponent(this.icalComponent);
     return calcomp.serializeToICS();
   },
 
   get icalComponent() {
-    let icssvc = cal.getIcsService();
-    let icalcomp = icssvc.createIcalComponent("VEVENT");
+    let icalcomp = cal.icsService.createIcalComponent("VEVENT");
     this.fillIcalComponentFromBase(icalcomp);
     this.mapPropsToICS(icalcomp, this.icsEventPropMap);
 
@@ -117,7 +116,7 @@ CalEvent.prototype = {
         // but instead set to null, so we need to prevent adding those properties.
         let wasReset = this.mIsProxy && value === null;
         if (!this.eventPromotedProps[name] && !wasReset) {
-          let icalprop = icssvc.createIcalProperty(name);
+          let icalprop = cal.icsService.createIcalProperty(name);
           icalprop.value = value;
           let propBucket = this.mPropertyParams[name];
           if (propBucket) {

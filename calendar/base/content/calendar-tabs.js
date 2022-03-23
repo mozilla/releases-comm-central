@@ -358,7 +358,7 @@ var calendarItemTabType = {
 
       aState.args.onOk = doTransaction.bind(null, "modify");
 
-      aState.args.calendar = cal.getCalendarManager().getCalendarById(aState.calendarId);
+      aState.args.calendar = cal.manager.getCalendarById(aState.calendarId);
       if (aState.args.calendar) {
         aState.args.calendar.getItem(aState.itemId).then(item => {
           if (item) {

@@ -941,7 +941,7 @@ class CalStorageItemModel extends CalStorageModelBase {
 
   getRecurrenceItemFromRow(row, item) {
     let ritem;
-    let prop = cal.getIcsService().createIcalPropertyFromString(row.getResultByName("icalString"));
+    let prop = cal.icsService.createIcalPropertyFromString(row.getResultByName("icalString"));
     switch (prop.propertyName) {
       case "RDATE":
       case "EXDATE":
@@ -996,7 +996,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     if (cdt) {
       params.bindByName(entryname, cdt.nativeTime);
       let timezone = cdt.timezone;
-      let ownTz = cal.getTimezoneService().getTimezone(timezone.tzid);
+      let ownTz = cal.timezoneService.getTimezone(timezone.tzid);
       if (ownTz) {
         // if we know that TZID, we use it
         params.bindByName(entryname + "_tz", ownTz.tzid);

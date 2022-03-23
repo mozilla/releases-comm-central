@@ -67,11 +67,11 @@ function openInvitationsDialog() {
 
 function setUpInvitationsManager() {
   scheduleInvitationsUpdate(FIRST_DELAY_STARTUP);
-  cal.getCalendarManager().addObserver(gInvitationsCalendarManagerObserver);
+  cal.manager.addObserver(gInvitationsCalendarManagerObserver);
 }
 
 function tearDownInvitationsManager() {
-  cal.getCalendarManager().removeObserver(gInvitationsCalendarManagerObserver);
+  cal.manager.removeObserver(gInvitationsCalendarManagerObserver);
 }
 
 /**
@@ -174,7 +174,7 @@ InvitationsManager.prototype = {
     this.deleteAllItems();
 
     let streams = [];
-    for (let calendar of cal.getCalendarManager().getCalendars()) {
+    for (let calendar of cal.manager.getCalendars()) {
       if (!cal.acl.isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
         continue;
       }

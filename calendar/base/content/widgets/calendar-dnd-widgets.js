@@ -92,7 +92,7 @@
      */
     setAttribute(aAttr, aVal) {
       if (aAttr == "dropbox") {
-        let session = cal.getDragService().getCurrentSession();
+        let session = cal.dragService.getCurrentSession();
         if (session) {
           session.canDrop = true;
           // no shadows when dragging in the initial position
@@ -131,7 +131,7 @@
     }
 
     onDragOver(event) {
-      let session = cal.getDragService().getCurrentSession();
+      let session = cal.dragService.getCurrentSession();
       if (!session?.sourceNode?.sourceObject) {
         // No source item? Then this is not for us.
         return;
@@ -142,7 +142,7 @@
     }
 
     onDragEnter(event) {
-      let session = cal.getDragService().getCurrentSession();
+      let session = cal.dragService.getCurrentSession();
       if (!session?.sourceNode?.sourceObject) {
         // No source item? Then this is not for us.
         return;
@@ -164,7 +164,7 @@
     }
 
     onDrop(event) {
-      let session = cal.getDragService().getCurrentSession();
+      let session = cal.dragService.getCurrentSession();
       let item = session?.sourceNode?.sourceObject;
       if (!item) {
         // No source node? Not our drag.

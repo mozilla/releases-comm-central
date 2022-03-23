@@ -46,8 +46,7 @@ CalRelation.prototype = {
   },
 
   get icalProperty() {
-    let icssvc = cal.getIcsService();
-    let icalatt = icssvc.createIcalProperty("RELATED-TO");
+    let icalatt = cal.icsService.createIcalProperty("RELATED-TO");
     if (this.mId) {
       icalatt.value = this.mId;
     }
@@ -95,7 +94,7 @@ CalRelation.prototype = {
     return comp ? comp.icalString : "";
   },
   set icalString(val) {
-    let prop = cal.getIcsService().createIcalPropertyFromString(val);
+    let prop = cal.icsService.createIcalPropertyFromString(val);
     if (prop.propertyName != "RELATED-TO") {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }

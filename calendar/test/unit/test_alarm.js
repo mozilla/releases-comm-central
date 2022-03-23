@@ -13,7 +13,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 function run_test() {
   // Initialize the floating timezone without actually starting the service.
-  cal.getTimezoneService().floating; // eslint-disable-line no-unused-expressions
+  cal.timezoneService.floating; // eslint-disable-line no-unused-expressions
 
   test_initial_creation();
 
@@ -530,18 +530,17 @@ function test_clone() {
 function test_serialize() {
   // most checks done by other tests, these don't fit into categories
   let alarm = new CalAlarm();
-  let srv = cal.getIcsService();
 
   throws(
     () => {
-      alarm.icalComponent = srv.createIcalComponent("BARF");
+      alarm.icalComponent = cal.icsService.createIcalComponent("BARF");
     },
     /0x80070057/,
     "Invalid Argument"
   );
 
   function addProp(name, value) {
-    let prop = srv.createIcalProperty(name);
+    let prop = cal.icsService.createIcalProperty(name);
     prop.value = value;
     comp.addProperty(prop);
   }
@@ -571,7 +570,7 @@ function test_serialize() {
   }
 
   // All is there, should not throw
-  let comp = srv.createIcalComponent("VALARM");
+  let comp = cal.icsService.createIcalComponent("VALARM");
   addActionDisplay();
   addTrigger();
   addDescr();
@@ -581,7 +580,7 @@ function test_serialize() {
   alarm.toString();
 
   // Attachments and attendees
-  comp = srv.createIcalComponent("VALARM");
+  comp = cal.icsService.createIcalComponent("VALARM");
   addActionEmail();
   addTrigger();
   addDescr();
@@ -593,7 +592,7 @@ function test_serialize() {
   // Missing action
   throws(
     () => {
-      comp = srv.createIcalComponent("VALARM");
+      comp = cal.icsService.createIcalComponent("VALARM");
       addTrigger();
       addDescr();
       alarm.icalComponent = comp;
@@ -605,7 +604,7 @@ function test_serialize() {
   // Missing trigger
   throws(
     () => {
-      comp = srv.createIcalComponent("VALARM");
+      comp = cal.icsService.createIcalComponent("VALARM");
       addActionDisplay();
       addDescr();
       alarm.icalComponent = comp;
@@ -617,7 +616,7 @@ function test_serialize() {
   // Missing duration with repeat
   throws(
     () => {
-      comp = srv.createIcalComponent("VALARM");
+      comp = cal.icsService.createIcalComponent("VALARM");
       addActionDisplay();
       addTrigger();
       addDescr();
@@ -631,7 +630,7 @@ function test_serialize() {
   // Missing repeat with duration
   throws(
     () => {
-      comp = srv.createIcalComponent("VALARM");
+      comp = cal.icsService.createIcalComponent("VALARM");
       addActionDisplay();
       addTrigger();
       addDescr();

@@ -17,13 +17,13 @@ calICALJSTimezone.prototype = {
   innerObject: null,
 
   get provider() {
-    return cal.getTimezoneService();
+    return cal.timezoneService;
   },
   get icalComponent() {
     let innerComp = this.innerObject.component;
     let comp = null;
     if (innerComp) {
-      comp = cal.getIcsService().createIcalComponent("VTIMEZONE");
+      comp = cal.icsService.createIcalComponent("VTIMEZONE");
       comp.icalComponent = innerComp;
     }
     return comp;
@@ -87,8 +87,7 @@ calLibicalTimezone.prototype = {
   get icalComponent() {
     let comp = this.mComponent;
     if (comp && typeof comp == "string") {
-      this.mComponent = cal
-        .getIcsService()
+      this.mComponent = cal.icsService
         .parseICS("BEGIN:VCALENDAR\r\n" + comp + "\r\nEND:VCALENDAR\r\n", null)
         .getFirstSubcomponent("VTIMEZONE");
     }
@@ -98,7 +97,7 @@ calLibicalTimezone.prototype = {
   get displayName() {
     if (this.mDisplayName === undefined) {
       try {
-        let bundle = cal.getTimezoneService().wrappedJSObject.stringBundle;
+        let bundle = cal.timezoneService.wrappedJSObject.stringBundle;
         this.mDisplayName = bundle.GetStringFromName(
           "pref.timezone." + this.tzid.replace(/\//g, ".")
         );
@@ -112,6 +111,6 @@ calLibicalTimezone.prototype = {
   },
 
   get provider() {
-    return cal.getTimezoneService();
+    return cal.timezoneService;
   },
 };

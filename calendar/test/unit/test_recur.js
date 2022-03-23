@@ -1009,7 +1009,7 @@ function test_rrule_interface() {
   // untilDate (without UTC)
   rrule.count = 3;
   let untilDate = cal.createDateTime();
-  untilDate.timezone = cal.getTimezoneService().getTimezone("Europe/Berlin");
+  untilDate.timezone = cal.timezoneService.getTimezone("Europe/Berlin");
   rrule.untilDate = untilDate;
   ok(!rrule.isByCount);
   throws(() => rrule.count, /0x80004005/);

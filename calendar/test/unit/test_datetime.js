@@ -14,7 +14,7 @@ function run_test() {
 
 function really_run_test() {
   function getMozTimezone(tzid) {
-    return cal.getTimezoneService().getTimezone(tzid);
+    return cal.timezoneService.getTimezone(tzid);
   }
 
   let date = cal.createDateTime();

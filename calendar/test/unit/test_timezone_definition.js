@@ -17,14 +17,13 @@ function valid_tz_version(aVersionString) {
 
 // check tz database version
 add_task(async function version_test() {
-  let tzs = cal.getTimezoneService();
-  ok(valid_tz_version(tzs.version), "timezone version");
+  ok(valid_tz_version(cal.timezoneService.version), "timezone version");
 });
 
 // check whether all tz definitions have all properties
 add_task(async function zone_test() {
   function resolveZone(aZoneId) {
-    let timezone = tzs.getTimezone(aZoneId);
+    let timezone = cal.timezoneService.getTimezone(aZoneId);
     equal(aZoneId, timezone.tzid, "Zone test " + aZoneId);
     ok(
       timezone.icalComponent.serializeToICS().startsWith("BEGIN:VTIMEZONE"),
@@ -37,9 +36,8 @@ add_task(async function zone_test() {
     );
   }
 
-  let tzs = cal.getTimezoneService();
   let foundZone = false;
-  for (let zone of tzs.timezoneIds) {
+  for (let zone of cal.timezoneService.timezoneIds) {
     foundZone = true;
     resolveZone(zone);
   }
@@ -50,14 +48,13 @@ add_task(async function zone_test() {
 // check whether all tz aliases resolve to a tz definition
 add_task(async function alias_test() {
   function resolveAlias(aAliasId) {
-    let timezone = tzs.getTimezone(aAliasId);
+    let timezone = cal.timezoneService.getTimezone(aAliasId);
     let tzid = timezone && timezone.tzid ? timezone.tzid : "";
     notEqual(tzid, "", "Alias resolution " + aAliasId + " -> " + tzid);
   }
 
-  let tzs = cal.getTimezoneService();
   let foundAlias = false;
-  for (let aliasId of tzs.aliasIds) {
+  for (let aliasId of cal.timezoneService.aliasIds) {
     foundAlias = true;
     resolveAlias(aliasId);
   }
@@ -81,8 +78,7 @@ add_task(async function completeness_test() {
     // convenience, that must not be used without being modified manually to comply with a
     // previous tz version.
     notEqual(test.version, "2.1969z", "Check for dummy test data.");
-    let tzs = cal.getTimezoneService();
-    let comp = Services.vc.compare(test.version, tzs.version);
+    let comp = Services.vc.compare(test.version, cal.timezoneService.version);
 
     // some checks on the test data
     if (comp != -1) {
@@ -95,7 +91,7 @@ add_task(async function completeness_test() {
           break;
       }
       info("test data: " + test.version);
-      info("tz service: " + tzs.version);
+      info("tz service: " + cal.timezoneService.version);
       info(
         "This indicates a problem in update-zones.py or manually additions to" +
           "zones.json or previous.json"
@@ -109,10 +105,18 @@ add_task(async function completeness_test() {
     // definition got transformed into alias linked to a valid zone - so, there's no need for
     // separate test step to cover that)
     for (let alias of test.aliases) {
-      notEqual(tzs.getTimezone(alias), null, "Test Alias " + alias + " from " + test.version);
+      notEqual(
+        cal.timezoneService.getTimezone(alias),
+        null,
+        "Test Alias " + alias + " from " + test.version
+      );
     }
     for (let zone of test.zones) {
-      notEqual(tzs.getTimezone(zone), null, "Test Zone " + zone + " from " + test.version);
+      notEqual(
+        cal.timezoneService.getTimezone(zone),
+        null,
+        "Test Zone " + zone + " from " + test.version
+      );
     }
   }
 });

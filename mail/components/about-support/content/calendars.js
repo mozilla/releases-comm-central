@@ -54,7 +54,7 @@ function populateCalendarsSection() {
   let tableTmpl = document.getElementById("calendars-table-template");
   let rowTmpl = document.getElementById("calendars-table-row-template");
 
-  for (let calendar of cal.getCalendarManager().getCalendars()) {
+  for (let calendar of cal.manager.getCalendars()) {
     let table = tableTmpl.content.cloneNode(true).querySelector("table");
     table.firstElementChild.textContent = calendar.name;
 

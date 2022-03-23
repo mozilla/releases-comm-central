@@ -9,6 +9,7 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 const HOUR = 8;
 
@@ -55,11 +56,9 @@ add_task(async function testLocalICS() {
 });
 
 registerCleanupFunction(() => {
-  let manager = window.cal.getCalendarManager();
-
-  for (let calendar of manager.getCalendars()) {
+  for (let calendar of cal.manager.getCalendars()) {
     if (calendar.name == calendarName) {
-      manager.removeCalendar(calendar);
+      cal.manager.removeCalendar(calendar);
     }
   }
 });

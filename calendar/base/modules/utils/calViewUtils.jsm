@@ -172,9 +172,8 @@ var calview = {
         },
         onCalendarDeleting(calendar) {},
       };
-      const calManager = cal.getCalendarManager();
-      calManager.addObserver(calManagerObserver);
-      aWindow.addEventListener("unload", () => calManager.removeObserver(calManagerObserver));
+      cal.manager.addObserver(calManagerObserver);
+      aWindow.addEventListener("unload", () => cal.manager.removeObserver(calManagerObserver));
 
       comp.prefPrefix = prefix; // populate calendar from existing calendars
 
@@ -442,10 +441,9 @@ calview.colorTracker = {
   // Deregistration is not required.
   registerWindow(aWindow) {
     if (this.calendars === null) {
-      let manager = cal.getCalendarManager();
-      this.calendars = new Set(manager.getCalendars());
-      manager.addObserver(this);
-      manager.addCalendarObserver(this);
+      this.calendars = new Set(cal.manager.getCalendars());
+      cal.manager.addObserver(this);
+      cal.manager.addCalendarObserver(this);
 
       this.categoryBranch = Services.prefs.getBranch("calendar.category.color.");
       this.categoryBranch.addObserver("", this);

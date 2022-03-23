@@ -15,7 +15,7 @@ let { TelemetryTestUtils } = ChromeUtils.import("resource://testing-common/Telem
 add_task(async function test_calendar_count() {
   Services.telemetry.clearScalars();
 
-  let calendars = cal.getCalendarManager().getCalendars();
+  let calendars = cal.manager.getCalendars();
   for (let i = 1; i <= 3; i++) {
     calendars[i] = CalendarTestUtils.createCalendar(`Mochitest ${i}`, "memory");
     if (i === 1 || i === 3) {

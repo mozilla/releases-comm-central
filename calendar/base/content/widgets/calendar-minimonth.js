@@ -645,9 +645,9 @@
         let firstElement = this._getCalBoxNode(k, 0);
         firstElement.hidden = !this.showWeekNumber;
         if (this.showWeekNumber) {
-          let weekNumber = cal
-            .getWeekInfoService()
-            .getWeekTitle(cal.dtz.jsDateToDateTime(date, defaultTz));
+          let weekNumber = cal.weekInfoService.getWeekTitle(
+            cal.dtz.jsDateToDateTime(date, defaultTz)
+          );
           let weekTitle = cal.l10n.getCalString("WeekTitle", [weekNumber]);
           firstElement.textContent = weekNumber;
           firstElement.setAttribute("aria-label", weekTitle);

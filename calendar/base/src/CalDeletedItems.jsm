@@ -123,7 +123,7 @@ CalDeletedItems.prototype = {
     if (aTopic == "profile-after-change") {
       // Make sure to observe calendar changes so we know when things are
       // deleted. We don't initialize the statements until first use.
-      cal.getCalendarManager().addCalendarObserver(this);
+      cal.manager.addCalendarObserver(this);
     }
   },
 
@@ -176,7 +176,7 @@ CalDeletedItems.prototype = {
       cal.ERROR("Error closing deleted items database: " + e);
     }
 
-    cal.getCalendarManager().removeCalendarObserver(this);
+    cal.manager.removeCalendarObserver(this);
   },
 
   // calIObserver

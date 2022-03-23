@@ -150,7 +150,7 @@
       }
 
       // Set up DOM attributes for custom CSS coloring.
-      let weekTitle = cal.getWeekInfoService().getWeekTitle(aDate);
+      let weekTitle = cal.weekInfoService.getWeekTitle(aDate);
       this.setAttribute("year", aDate.year);
       this.setAttribute("month", aDate.month + 1);
       this.setAttribute("week", weekTitle);
@@ -666,11 +666,9 @@
       this.rangeStartDate = startDate;
       this.rangeEndDate = endDate;
 
-      const viewStart = cal
-        .getWeekInfoService()
-        .getStartOfWeek(startDate.getInTimezone(this.mTimezone));
+      const viewStart = cal.weekInfoService.getStartOfWeek(startDate.getInTimezone(this.mTimezone));
 
-      const viewEnd = cal.getWeekInfoService().getEndOfWeek(endDate.getInTimezone(this.mTimezone));
+      const viewEnd = cal.weekInfoService.getEndOfWeek(endDate.getInTimezone(this.mTimezone));
 
       viewStart.isDate = true;
       viewStart.makeImmutable();
@@ -950,7 +948,7 @@
             // Build and set the label.
             if (j == weekLabelColumnPos) {
               weekLabel.removeAttribute("hidden");
-              const weekNumber = cal.getWeekInfoService().getWeekTitle(date);
+              const weekNumber = cal.weekInfoService.getWeekTitle(date);
               const weekString = cal.l10n.getCalString("multiweekViewWeek", [weekNumber]);
               weekLabel.value = weekString;
             } else {

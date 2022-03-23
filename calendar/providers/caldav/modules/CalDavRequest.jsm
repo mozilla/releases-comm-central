@@ -973,7 +973,7 @@ class CalDavOutboxRequest extends CalDavRequestBase {
     );
     serializer.addItems([aItem], 1);
 
-    let method = cal.getIcsService().createIcalProperty("METHOD");
+    let method = cal.icsService.createIcalProperty("METHOD");
     method.value = aResponseMethod;
     serializer.addProperty(method);
 
@@ -1044,26 +1044,25 @@ class CalDavFreeBusyRequest extends CalDavRequestBase {
    * @param {calIDateTime} aRangeEnd                  The end of the range
    */
   constructor(aSession, aCalendar, aUri, aOrganizer, aRecipient, aRangeStart, aRangeEnd) {
-    let ics = cal.getIcsService();
-    let vcalendar = ics.createIcalComponent("VCALENDAR");
+    let vcalendar = cal.icsService.createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(vcalendar);
 
-    let method = ics.createIcalProperty("METHOD");
+    let method = cal.icsService.createIcalProperty("METHOD");
     method.value = "REQUEST";
     vcalendar.addProperty(method);
 
-    let freebusy = ics.createIcalComponent("VFREEBUSY");
+    let freebusy = cal.icsService.createIcalComponent("VFREEBUSY");
     freebusy.uid = cal.getUUID();
     freebusy.stampTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
     freebusy.startTime = aRangeStart.getInTimezone(cal.dtz.UTC);
     freebusy.endTime = aRangeEnd.getInTimezone(cal.dtz.UTC);
     vcalendar.addSubcomponent(freebusy);
 
-    let organizer = ics.createIcalProperty("ORGANIZER");
+    let organizer = cal.icsService.createIcalProperty("ORGANIZER");
     organizer.value = aOrganizer;
     freebusy.addProperty(organizer);
 
-    let attendee = ics.createIcalProperty("ATTENDEE");
+    let attendee = cal.icsService.createIcalProperty("ATTENDEE");
     attendee.setParameter("PARTSTAT", "NEEDS-ACTION");
     attendee.setParameter("ROLE", "REQ-PARTICIPANT");
     attendee.setParameter("CUTYPE", "INDIVIDUAL");
@@ -1120,7 +1119,6 @@ class FreeBusyResponse extends CalDavSimpleResponse {
     }
 
     if (!this._data) {
-      let icssvc = cal.getIcsService();
       this._data = {};
       for (let response of this.xml.querySelectorAll(":scope > response")) {
         let recipient = querySelectorText(response, ":scope > recipient > href");
@@ -1130,7 +1128,7 @@ class FreeBusyResponse extends CalDavSimpleResponse {
         if (caldata) {
           let component;
           try {
-            component = icssvc.parseICS(caldata, null);
+            component = cal.icsService.parseICS(caldata, null);
           } catch (e) {
             cal.LOG("CalDAV: Could not parse freebusy data: " + e);
             continue;

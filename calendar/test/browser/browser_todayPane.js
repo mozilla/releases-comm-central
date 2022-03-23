@@ -428,9 +428,9 @@ add_task(async function testActive() {
  */
 add_task(async function testOtherTimeZones() {
   // Johannesburg is UTC+2.
-  let johannesburg = cal.getTimezoneService().getTimezone("Africa/Johannesburg");
+  let johannesburg = cal.timezoneService.getTimezone("Africa/Johannesburg");
   // Panama is UTC-5.
-  let panama = cal.getTimezoneService().getTimezone("America/Panama");
+  let panama = cal.timezoneService.getTimezone("America/Panama");
 
   // All-day events are displayed on the day of the event, the time zone is ignored.
 

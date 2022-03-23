@@ -666,11 +666,10 @@ const CalendarTestUtils = {
    * @returns {calICalendar}
    */
   createCalendar(name = "Test", type = "storage") {
-    let manager = cal.getCalendarManager();
-    let calendar = manager.createCalendar(type, Services.io.newURI(`moz-${type}-calendar://`));
+    let calendar = cal.manager.createCalendar(type, Services.io.newURI(`moz-${type}-calendar://`));
     calendar.name = name;
     calendar.setProperty("calendar-main-default", true);
-    manager.registerCalendar(calendar);
+    cal.manager.registerCalendar(calendar);
     return calendar;
   },
 
@@ -680,8 +679,7 @@ const CalendarTestUtils = {
    * @param {calICalendar} calendar - A calendar to remove.
    */
   removeCalendar(calendar) {
-    let manager = cal.getCalendarManager();
-    manager.unregisterCalendar(calendar);
+    cal.manager.unregisterCalendar(calendar);
   },
 
   /**

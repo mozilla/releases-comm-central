@@ -435,8 +435,7 @@ class ICSDetector {
       displayName = fileName || lastPath || uri.spec;
     }
 
-    let calMgr = cal.getCalendarManager();
-    let calendar = calMgr.createCalendar("ics", uri);
+    let calendar = cal.manager.createCalendar("ics", uri);
     calendar.setProperty("color", color || cal.view.hashColor(uri.spec));
     calendar.name = displayName;
     calendar.id = cal.getUUID();

@@ -211,7 +211,7 @@ function test_immutable() {
   let event = new CalEvent();
 
   let date = cal.createDateTime();
-  date.timezone = cal.getTimezoneService().getTimezone("Europe/Berlin");
+  date.timezone = cal.timezoneService.getTimezone("Europe/Berlin");
   event.alarmLastAck = date;
 
   let org = new CalAttendee();

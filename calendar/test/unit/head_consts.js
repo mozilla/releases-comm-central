@@ -248,7 +248,7 @@ function readJSONFile(aFile) {
 
 function do_load_timezoneservice(callback) {
   do_test_pending();
-  cal.getTimezoneService().startup({
+  cal.timezoneService.startup({
     onResult() {
       do_test_finished();
       callback();
@@ -258,7 +258,7 @@ function do_load_timezoneservice(callback) {
 
 function do_load_calmgr(callback) {
   do_test_pending();
-  cal.getCalendarManager().startup({
+  cal.manager.startup({
     onResult() {
       do_test_finished();
       callback();

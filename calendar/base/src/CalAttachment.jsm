@@ -97,7 +97,7 @@ CalAttachment.prototype = {
   },
 
   get icalProperty() {
-    let icalatt = cal.getIcsService().createIcalProperty("ATTACH");
+    let icalatt = cal.icsService.createIcalProperty("ATTACH");
 
     for (let [key, value] of this.mProperties.entries()) {
       try {
@@ -135,7 +135,7 @@ CalAttachment.prototype = {
     return comp ? comp.icalString : "";
   },
   set icalString(val) {
-    let prop = cal.getIcsService().createIcalPropertyFromString(val);
+    let prop = cal.icsService.createIcalPropertyFromString(val);
     if (prop.propertyName != "ATTACH") {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }

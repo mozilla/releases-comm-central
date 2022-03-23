@@ -226,10 +226,7 @@ var calitip = {
       );
     };
 
-    let writableCalendars = cal
-      .getCalendarManager()
-      .getCalendars()
-      .filter(isWritableCalendar);
+    let writableCalendars = cal.manager.getCalendars().filter(isWritableCalendar);
     if (writableCalendars.length > 0) {
       let compCal = Cc["@mozilla.org/calendar/calendar;1?type=composite"].createInstance(
         Ci.calICompositeCalendar
@@ -630,10 +627,7 @@ var calitip = {
     }
 
     if (needsCalendar) {
-      let calendars = cal
-        .getCalendarManager()
-        .getCalendars()
-        .filter(calitip.isSchedulingCalendar);
+      let calendars = cal.manager.getCalendars().filter(calitip.isSchedulingCalendar);
 
       if (aItipItem.receivedMethod == "REQUEST") {
         // try to further limit down the list to those calendars that

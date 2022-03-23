@@ -138,7 +138,7 @@ CalIcsParser.prototype = {
       //   parser containing the processed items.
       // The listener passed to parseICSAsync is a calICsComponentParsingListener
       //   required by the ics service, that receives the parsed root component.
-      cal.getIcsService().parseICSAsync(aICSString, aTzProvider, {
+      cal.icsService.parseICSAsync(aICSString, aTzProvider, {
         onParsingComplete(rc, rootComp) {
           if (Components.isSuccessCode(rc)) {
             self.processIcalComponent(rootComp, aAsyncParsing);
@@ -150,7 +150,7 @@ CalIcsParser.prototype = {
       });
     } else {
       try {
-        let icalComp = cal.getIcsService().parseICS(aICSString, aTzProvider);
+        let icalComp = cal.icsService.parseICS(aICSString, aTzProvider);
         // There is no such indicator like X-LIC in icaljs, so there would need to
         // detect and log such errors already within the parser. However, until
         // X-LIC or libical will be removed we make use of X-LIC-ERRORS here but

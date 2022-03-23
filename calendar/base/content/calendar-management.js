@@ -36,8 +36,7 @@ function getSelectedCalendar() {
  * @param aCalendar     The calendar to delete.
  */
 function promptDeleteCalendar(aCalendar) {
-  let calMgr = cal.getCalendarManager();
-  let calendars = calMgr.getCalendars();
+  let calendars = cal.manager.getCalendars();
   if (calendars.length <= 1) {
     // If this is the last calendar, don't delete it.
     return;
@@ -90,7 +89,7 @@ function promptDeleteCalendar(aCalendar) {
       removeFlags |= Ci.calICalendarManager.REMOVE_NO_DELETE;
     }
 
-    calMgr.removeCalendar(aCalendar, removeFlags);
+    cal.manager.removeCalendar(aCalendar, removeFlags);
   }
 }
 
@@ -130,7 +129,7 @@ function loadCalendarManager() {
   compositeCalendar.addObserver(compositeObserver);
 
   // Create the home calendar if no calendar exists.
-  let calendars = cal.getCalendarManager().getCalendars();
+  let calendars = cal.manager.getCalendars();
   if (calendars.length) {
     // migration code to make sure calendars, which do not support caching have cache enabled
     // required to further clean up on top of bug 1182264
@@ -146,9 +145,7 @@ function loadCalendarManager() {
     initHomeCalendar();
   }
 
-  let calendarManager = cal.getCalendarManager();
-
-  for (let calendar of sortCalendarArray(calendarManager.getCalendars())) {
+  for (let calendar of sortCalendarArray(cal.manager.getCalendars())) {
     addCalendarItem(calendar);
   }
 
@@ -224,7 +221,7 @@ function loadCalendarManager() {
 
   calendarList.addEventListener("click", event => {
     if (event.target.matches(".calendar-enable-button")) {
-      let calendar = calendarManager.getCalendarById(
+      let calendar = cal.manager.getCalendarById(
         event.target.closest("li").getAttribute("calendar-id")
       );
       calendar.setProperty("disabled", false);
@@ -238,7 +235,7 @@ function loadCalendarManager() {
 
     let item = event.target.closest("li");
     let calendarId = item.getAttribute("calendar-id");
-    let calendar = calendarManager.getCalendarById(calendarId);
+    let calendar = cal.manager.getCalendarById(calendarId);
 
     if (event.target.checked) {
       compositeCalendar.addCalendar(calendar);
@@ -267,7 +264,7 @@ function loadCalendarManager() {
     }
 
     let calendarId = item.getAttribute("calendar-id");
-    let calendar = calendarManager.getCalendarById(calendarId);
+    let calendar = cal.manager.getCalendarById(calendarId);
     cal.window.openCalendarProperties(window, calendar);
   });
   calendarList.addEventListener("ordered", event => {
@@ -277,7 +274,7 @@ function loadCalendarManager() {
   calendarList.addEventListener("keypress", event => {
     let item = calendarList.rows[calendarList.selectedIndex];
     let calendarId = item.getAttribute("calendar-id");
-    let calendar = calendarManager.getCalendarById(calendarId);
+    let calendar = cal.manager.getCalendarById(calendarId);
 
     switch (event.key) {
       case "Delete":
@@ -302,7 +299,7 @@ function loadCalendarManager() {
   calendarList.addEventListener("select", event => {
     let item = calendarList.rows[calendarList.selectedIndex];
     let calendarId = item.getAttribute("calendar-id");
-    let calendar = calendarManager.getCalendarById(calendarId);
+    let calendar = cal.manager.getCalendarById(calendarId);
 
     compositeCalendar.defaultCalendar = calendar;
   });
@@ -377,7 +374,7 @@ function loadCalendarManager() {
       this.onPropertyChanged(calendar, name, null, null);
     },
   };
-  calendarManager.addCalendarObserver(calendarList._calendarObserver);
+  cal.manager.addCalendarObserver(calendarList._calendarObserver);
 
   calendarList._calendarManagerObserver = {
     QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
@@ -393,7 +390,7 @@ function loadCalendarManager() {
     },
     onCalendarDeleting(calendar) {},
   };
-  calendarManager.addObserver(calendarList._calendarManagerObserver);
+  cal.manager.addObserver(calendarList._calendarManagerObserver);
 }
 
 /**
@@ -402,7 +399,7 @@ function loadCalendarManager() {
 function reportCalendars() {
   let telemetryReport = {};
 
-  for (let calendar of cal.getCalendarManager().getCalendars()) {
+  for (let calendar of cal.manager.getCalendars()) {
     if (!telemetryReport[calendar.type]) {
       telemetryReport[calendar.type] = { count: 0, readOnlyCount: 0 };
     }
@@ -426,14 +423,13 @@ function reportCalendars() {
  * Creates the initial "Home" calendar if no calendar exists.
  */
 function initHomeCalendar() {
-  let calMgr = cal.getCalendarManager();
   let composite = cal.view.getCompositeCalendar(window);
   let url = Services.io.newURI("moz-storage-calendar://");
-  let homeCalendar = calMgr.createCalendar("storage", url);
+  let homeCalendar = cal.manager.createCalendar("storage", url);
   homeCalendar.name = cal.l10n.getCalString("homeCalendarName");
   homeCalendar.setProperty("disabled", true);
 
-  calMgr.registerCalendar(homeCalendar);
+  cal.manager.registerCalendar(homeCalendar);
   Services.prefs.setStringPref("calendar.list.sortOrder", homeCalendar.id);
   composite.addCalendar(homeCalendar);
 
@@ -459,9 +455,8 @@ function unloadCalendarManager() {
   compositeCalendar.removeObserver(compositeObserver);
 
   let calendarList = document.getElementById("calendar-list");
-  let calendarManager = cal.getCalendarManager();
-  calendarManager.removeCalendarObserver(calendarList._calendarObserver);
-  calendarManager.removeObserver(calendarList._calendarManagerObserver);
+  cal.manager.removeCalendarObserver(calendarList._calendarObserver);
+  cal.manager.removeObserver(calendarList._calendarManagerObserver);
 }
 
 /**
@@ -483,7 +478,7 @@ function calendarListSetupContextMenu(event) {
     let calendarList = document.getElementById("calendar-list");
     calendarList.selectedIndex = calendarList.rows.indexOf(item);
     let calendarId = item.getAttribute("calendar-id");
-    calendar = cal.getCalendarManager().getCalendarById(calendarId);
+    calendar = cal.manager.getCalendarById(calendarId);
   }
 
   document.getElementById("list-calendars-context-menu").contextCalendar = calendar;
@@ -574,7 +569,7 @@ function toggleCalendarVisible(aCalendar) {
  */
 function showAllCalendars() {
   let composite = cal.view.getCompositeCalendar(window);
-  let cals = cal.getCalendarManager().getCalendars();
+  let cals = cal.manager.getCalendars();
 
   composite.startBatch();
   for (let calendar of cals) {
@@ -667,11 +662,10 @@ function openLocalCalendar() {
       return;
     }
 
-    let calMgr = cal.getCalendarManager();
-    let calendars = calMgr.getCalendars();
+    let calendars = cal.manager.getCalendars();
     let calendar = calendars.find(x => x.uri.equals(picker.fileURL));
     if (!calendar) {
-      calendar = calMgr.createCalendar("ics", picker.fileURL);
+      calendar = cal.manager.createCalendar("ics", picker.fileURL);
 
       // Strip ".ics" from filename for use as calendar name.
       let prettyName = picker.fileURL.spec.match(/([^/:]+)\.ics$/);
@@ -681,7 +675,7 @@ function openLocalCalendar() {
         calendar.name = cal.l10n.getCalString("untitledCalendarName");
       }
 
-      calMgr.registerCalendar(calendar);
+      cal.manager.registerCalendar(calendar);
     }
 
     let calendarList = document.getElementById("calendar-list");

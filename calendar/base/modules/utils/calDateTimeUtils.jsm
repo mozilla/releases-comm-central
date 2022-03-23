@@ -20,21 +20,21 @@ var caldtz = {
    * Shortcut to the timezone service's defaultTimezone
    */
   get defaultTimezone() {
-    return cal.getTimezoneService().defaultTimezone;
+    return cal.timezoneService.defaultTimezone;
   },
 
   /**
    * Shorcut to the UTC timezone
    */
   get UTC() {
-    return cal.getTimezoneService().UTC;
+    return cal.timezoneService.UTC;
   },
 
   /**
    * Shortcut to the floating (local) timezone
    */
   get floating() {
-    return cal.getTimezoneService().floating;
+    return cal.timezoneService.floating;
   },
 
   /**
@@ -279,10 +279,9 @@ var caldtz = {
       if (dateTime.timezoneOffset != offset_in_s) {
         // TODO A patch to Bug 363191 should make this more efficient.
 
-        let tzService = cal.getTimezoneService();
         // Enumerate timezones, set them, check their offset
-        for (let id of tzService.timezoneIds) {
-          dateTime.timezone = tzService.getTimezone(id);
+        for (let id of cal.timezoneService.timezoneIds) {
+          dateTime.timezone = cal.timezoneService.getTimezone(id);
           if (dateTime.timezoneOffset == offset_in_s) {
             // This is our last step, so go ahead and return
             return dateTime;
@@ -364,11 +363,10 @@ var caldtz = {
       recentTimezones = [];
     }
 
-    let tzService = cal.getTimezoneService();
     if (aConvertZones) {
       let oldZonesLength = recentTimezones.length;
       for (let i = 0; i < recentTimezones.length; i++) {
-        let timezone = tzService.getTimezone(recentTimezones[i]);
+        let timezone = cal.timezoneService.getTimezone(recentTimezones[i]);
         if (timezone) {
           // Replace id with found timezone
           recentTimezones[i] = timezone;

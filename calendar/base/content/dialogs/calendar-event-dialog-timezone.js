@@ -17,7 +17,7 @@ function onLoad() {
   window.time = args.time;
   window.onAcceptCallback = args.onOk;
 
-  let tzProvider = args.calendar.getProperty("timezones.provider") || cal.getTimezoneService();
+  let tzProvider = args.calendar.getProperty("timezones.provider") || cal.timezoneService;
   window.tzProvider = tzProvider;
 
   let menulist = document.getElementById("timezone-menulist");

@@ -13,13 +13,11 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // The tests in this directory each do the same thing, with slight variations as needed for each
 // calendar provider. The core of the test lives in this file and the tests call it when ready.
 
-let manager = cal.getCalendarManager();
-
 do_get_profile();
 add_task(async () => {
-  await new Promise(resolve => manager.startup({ onResult: resolve }));
-  await new Promise(resolve => cal.getTimezoneService().startup({ onResult: resolve }));
-  manager.addCalendarObserver(calendarObserver);
+  await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
+  await new Promise(resolve => cal.timezoneService.startup({ onResult: resolve }));
+  cal.manager.addCalendarObserver(calendarObserver);
 });
 
 let calendarObserver = {
@@ -85,13 +83,13 @@ let calendarObserver = {
  * @returns {calICalendar}
  */
 function createCalendar(type, url, useCache) {
-  let calendar = manager.createCalendar(type, Services.io.newURI(url));
+  let calendar = cal.manager.createCalendar(type, Services.io.newURI(url));
   calendar.name = type + (useCache ? " with cache" : " without cache");
   calendar.id = cal.getUUID();
   calendar.setProperty("cache.enabled", useCache);
 
-  manager.registerCalendar(calendar);
-  calendar = manager.getCalendarById(calendar.id);
+  cal.manager.registerCalendar(calendar);
+  calendar = cal.manager.getCalendarById(calendar.id);
   calendarObserver._expectedCalendar = calendar;
 
   info(`Created calendar ${calendar.id}`);

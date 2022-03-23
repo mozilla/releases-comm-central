@@ -438,7 +438,7 @@ function reportErrorAndRollback(db, e) {
 function ensureUpdatedTimezones(db) {
   // check if timezone version has changed:
   let selectTzVersion = createStatement(db, "SELECT version FROM cal_tz_version LIMIT 1");
-  let tzServiceVersion = cal.getTimezoneService().version;
+  let tzServiceVersion = cal.timezoneService.version;
   let version;
   try {
     version = selectTzVersion.executeStep() ? selectTzVersion.row.version : null;
@@ -483,7 +483,7 @@ function ensureUpdatedTimezones(db) {
         // Send the timezones off to the timezone service to attempt conversion:
         let timezone = getTimezone(zone);
         if (timezone) {
-          let refTz = cal.getTimezoneService().getTimezone(timezone.tzid);
+          let refTz = cal.timezoneService.getTimezone(timezone.tzid);
           if (refTz && refTz.tzid != zone) {
             zonesToUpdate.push({ oldTzId: zone, newTzId: refTz.tzid });
           }
@@ -518,7 +518,7 @@ function ensureUpdatedTimezones(db) {
         db,
         // prettier-ignore
         "DELETE FROM cal_tz_version; " +
-        `INSERT INTO cal_tz_version VALUES ('${cal.getTimezoneService().version}');`
+        `INSERT INTO cal_tz_version VALUES ('${cal.timezoneService.version}');`
       );
       commitTransaction(db);
     } catch (e) {
@@ -1293,10 +1293,10 @@ upgrade.v16 = function(db, version) {
               // filed bug 520463. Since we want to release 1.0b1
               // soon, I will just fix this on the "client side"
               // and do the conversion here.
-              alarmDate.timezone = cal.getTimezoneService().defaultTimezone;
+              alarmDate.timezone = cal.timezoneService.defaultTimezone;
               alarmDate = alarmDate.getInTimezone(cal.dtz.UTC);
             } else {
-              alarmDate.timezone = cal.getTimezoneService().getTimezone(aTzId);
+              alarmDate.timezone = cal.timezoneService.getTimezone(aTzId);
             }
             alarm.alarmDate = alarmDate;
           }

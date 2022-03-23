@@ -9,12 +9,11 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 add_task(async function testBasicFunctionality() {
   const calendarName = "Mochitest";
-  let manager = cal.getCalendarManager();
 
   registerCleanupFunction(() => {
-    for (let calendar of manager.getCalendars()) {
+    for (let calendar of cal.manager.getCalendars()) {
       if (calendar.name == calendarName) {
-        manager.removeCalendar(calendar);
+        cal.manager.removeCalendar(calendar);
       }
     }
     Services.focus.focusedWindow = window;

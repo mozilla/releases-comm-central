@@ -544,10 +544,7 @@ var calendarController = {
    * calendar.
    */
   get writable() {
-    return cal
-      .getCalendarManager()
-      .getCalendars()
-      .some(cal.acl.isCalendarWritable);
+    return cal.manager.getCalendars().some(cal.acl.isCalendarWritable);
   },
 
   /**
@@ -562,8 +559,7 @@ var calendarController = {
    * Returns a boolean indicating if all calendars are readonly.
    */
   get all_readonly() {
-    let calMgr = cal.getCalendarManager();
-    return calMgr.readOnlyCalendarCount == calMgr.calendarCount;
+    return cal.manager.readOnlyCalendarCount == cal.manager.calendarCount;
   },
 
   /**
@@ -572,8 +568,7 @@ var calendarController = {
    * or a file URL, but both are reloadable.
    */
   get has_enabled_reloadable_calendars() {
-    return cal
-      .getCalendarManager()
+    return cal.manager
       .getCalendars()
       .some(
         calendar =>
@@ -587,8 +582,7 @@ var calendarController = {
    * network access.
    */
   get has_local_calendars() {
-    let calMgr = cal.getCalendarManager();
-    return calMgr.networkCalendarCount < calMgr.calendarCount;
+    return cal.manager.networkCalendarCount < cal.manager.calendarCount;
   },
 
   /**
@@ -596,8 +590,7 @@ var calendarController = {
    * network access.
    */
   get has_cached_calendars() {
-    let calMgr = cal.getCalendarManager();
-    let calendars = calMgr.getCalendars();
+    let calendars = cal.manager.getCalendars();
     for (let calendar of calendars) {
       if (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always")) {
         return true;
@@ -610,7 +603,7 @@ var calendarController = {
    * Returns a boolean indicating that there is only one calendar left.
    */
   get last_calendar() {
-    return cal.getCalendarManager().calendarCount < 2;
+    return cal.manager.calendarCount < 2;
   },
 
   /**
@@ -619,7 +612,7 @@ var calendarController = {
   get all_local_calendars_readonly() {
     // We might want to speed this part up by keeping track of this in the
     // calendar manager.
-    let calendars = cal.getCalendarManager().getCalendars();
+    let calendars = cal.manager.getCalendars();
     let count = calendars.length;
     for (let calendar of calendars) {
       if (!cal.acl.isCalendarWritable(calendar)) {
@@ -896,8 +889,7 @@ function deleteSelectedItems() {
 
 function calendarUpdateNewItemsCommand() {
   // Re-calculate command status.
-  let calendars = cal
-    .getCalendarManager()
+  let calendars = cal.manager
     .getCalendars()
     .filter(cal.acl.isCalendarWritable)
     .filter(cal.acl.userCanAddItemsToCalendar);

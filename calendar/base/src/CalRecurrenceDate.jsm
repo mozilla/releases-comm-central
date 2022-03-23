@@ -87,7 +87,7 @@ CalRecurrenceDate.prototype = {
     return comp ? comp.icalString : "";
   },
   set icalString(val) {
-    let prop = cal.getIcsService().createIcalPropertyFromString(val);
+    let prop = cal.icsService.createIcalPropertyFromString(val);
     let propName = prop.propertyName;
     if (propName != "RDATE" && propName != "EXDATE") {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
@@ -97,7 +97,7 @@ CalRecurrenceDate.prototype = {
   },
 
   get icalProperty() {
-    let prop = cal.getIcsService().createIcalProperty(this.mIsNegative ? "EXDATE" : "RDATE");
+    let prop = cal.icsService.createIcalProperty(this.mIsNegative ? "EXDATE" : "RDATE");
     prop.valueAsDatetime = this.mDate;
     return prop;
   },

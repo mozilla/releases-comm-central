@@ -2612,10 +2612,7 @@ var gAccountSetup = {
     // Collect existing calendars to compare with the list of recently fetched
     // ones.
     let existing = new Set(
-      cal
-        .getCalendarManager()
-        .getCalendars({})
-        .map(calendar => calendar.uri.spec)
+      cal.manager.getCalendars({}).map(calendar => calendar.uri.spec)
     );
 
     let calendarsCount = 0;
@@ -2764,7 +2761,7 @@ var gAccountSetup = {
    * @param {calICalendar} calendar - The calendar to configure.
    */
   _setupCalendar(button, calendar) {
-    cal.getCalendarManager().registerCalendar(calendar);
+    cal.manager.registerCalendar(calendar);
 
     // Update the button to reflect the creation of the new calendar.
     button.classList.add("existing");

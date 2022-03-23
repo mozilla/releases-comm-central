@@ -27,7 +27,6 @@ function check_delmgr_call(aFunc) {
 }
 
 add_task(async function test_deleted_items() {
-  let calmgr = cal.getCalendarManager();
   let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
   // No items have been deleted, retrieving one should return null.
   equal(delmgr.getDeletedDate("random"), null);
@@ -37,8 +36,8 @@ add_task(async function test_deleted_items() {
   // error.
   await check_delmgr_call(() => delmgr.flush());
 
-  let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-storage-calendar://"));
-  calmgr.registerCalendar(memory);
+  let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-storage-calendar://"));
+  cal.manager.registerCalendar(memory);
 
   let item = new CalEvent();
   item.id = "test-item-1";

@@ -95,11 +95,11 @@ CalCompositeCalendar.prototype = {
         this.removeCalendar(calendar);
       }
     }
+
     this.mPrefPrefix = aPrefPrefix;
     this.mActivePref = aPrefPrefix + "-in-composite";
     this.mDefaultPref = aPrefPrefix + "-default";
-    let mgr = cal.getCalendarManager();
-    let cals = mgr.getCalendars();
+    let cals = cal.manager.getCalendars();
 
     cals.forEach(function(calendar) {
       if (calendar.getProperty(this.mActivePref)) {

@@ -402,7 +402,7 @@ var TodayPane = {
     currentweeklabel.value =
       cal.l10n.getCalString("shortcalendarweek") +
       " " +
-      cal.getWeekInfoService().getWeekTitle(this.start);
+      cal.weekInfoService.getWeekTitle(this.start);
 
     if (!aDontUpdateMinimonth) {
       try {

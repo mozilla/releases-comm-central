@@ -100,7 +100,6 @@ var gDataMigrator = {
   checkIcal() {
     function icalMigrate(aDataDir, aCallback) {
       aDataDir.append("Sources");
-      let calManager = cal.getCalendarManager();
 
       let i = 1;
       for (let dataDir of aDataDir.directoryEntries) {
@@ -155,7 +154,7 @@ var gDataMigrator = {
         let calendar = gDataMigrator.importICSToStorage(tempFile);
         calendar.name = "iCalendar" + i;
         i++;
-        calManager.registerCalendar(calendar);
+        cal.manager.registerCalendar(calendar);
         cal.view.getCompositeCalendar(window).addCalendar(calendar);
       }
       console.debug("icalMig making callback");
@@ -194,13 +193,12 @@ var gDataMigrator = {
         if (dataStore.exists()) {
           let calendar = gDataMigrator.importICSToStorage(dataStore);
           calendar.name = "Evolution " + i++;
-          calManager.registerCalendar(calendar);
+          cal.manager.registerCalendar(calendar);
           cal.view.getCompositeCalendar(window).addCalendar(calendar);
         }
         return dataStore.exists();
       };
 
-      let calManager = cal.getCalendarManager();
       for (let dataDir of aDataDir.directoryEntries) {
         let dataStore = dataDir.clone();
         dataStore.append("calendar.ics");
@@ -219,8 +217,6 @@ var gDataMigrator = {
 
   checkWindowsMail() {
     function doMigrate(aCalendarNodes, aMailDir, aCallback) {
-      let calManager = cal.getCalendarManager();
-
       for (let node of aCalendarNodes) {
         let name = node.getElementsByTagName("Name")[0].textContent;
         let color = node.getElementsByTagName("Color")[0].textContent;
@@ -242,7 +238,7 @@ var gDataMigrator = {
           if (color) {
             storage.setProperty("color", color);
           }
-          calManager.registerCalendar(storage);
+          cal.manager.registerCalendar(storage);
 
           if (enabled) {
             cal.view.getCompositeCalendar(window).addCalendar(storage);
@@ -296,7 +292,7 @@ var gDataMigrator = {
    */
   importICSToStorage(icsFile) {
     const uri = "moz-storage-calendar://";
-    let calendar = cal.getCalendarManager().createCalendar("storage", Services.io.newURI(uri));
+    let calendar = cal.manager.createCalendar("storage", Services.io.newURI(uri));
     let icsImporter = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);
 
     let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(

@@ -90,9 +90,10 @@ var gCalendarTypes = new Map([
         // Create a local calendar to use, so we can share code with the calendar
         // preferences dialog.
         if (!gLocalCalendar) {
-          gLocalCalendar = cal
-            .getCalendarManager()
-            .createCalendar("storage", Services.io.newURI("moz-storage-calendar://"));
+          gLocalCalendar = cal.manager.createCalendar(
+            "storage",
+            Services.io.newURI("moz-storage-calendar://")
+          );
 
           initMailIdentitiesRow(gLocalCalendar);
           notifyOnIdentitySelection(gLocalCalendar);
@@ -641,7 +642,7 @@ function prepareLocalCalendar(calendar) {
  * Registers the local storage calendar and closes the dialog.
  */
 function registerLocalCalendar() {
-  cal.getCalendarManager().registerCalendar(prepareLocalCalendar(gLocalCalendar));
+  cal.manager.registerCalendar(prepareLocalCalendar(gLocalCalendar));
 }
 
 /**
@@ -683,12 +684,7 @@ function findCalendars(password, savePassword = false) {
 function onDetectionSuccess(providerMap) {
   // Disable the calendars the user has already subscribed to. In the future
   // we should show a string when all calendars are already subscribed.
-  let existing = new Set(
-    cal
-      .getCalendarManager()
-      .getCalendars({})
-      .map(calendar => calendar.uri.spec)
-  );
+  let existing = new Set(cal.manager.getCalendars({}).map(calendar => calendar.uri.spec));
 
   let calendarsMap = new Map();
   for (let [provider, calendars] of providerMap.entries()) {
@@ -800,7 +796,7 @@ function prepareNetworkCalendar(calendar) {
 function createNetworkCalendars() {
   for (let listItem of document.getElementById("network-calendar-list").children) {
     if (listItem.querySelector(".calendar-selected").checked) {
-      cal.getCalendarManager().registerCalendar(listItem.calendar);
+      cal.manager.registerCalendar(listItem.calendar);
     }
   }
 }

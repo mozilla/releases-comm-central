@@ -8,8 +8,7 @@ add_task(async () => {
   calendar.name = "Mochitest";
   calendar.setProperty("organizerId", "mailto:mochitest@invalid");
 
-  let freeBusyService = cal.getFreeBusyService();
-  freeBusyService.addProvider(freeBusyProvider);
+  cal.freeBusyService.addProvider(freeBusyProvider);
 
   let book = MailServices.ab.getDirectoryFromId(
     MailServices.ab.newAddressBook("Mochitest", null, 101)
@@ -50,7 +49,7 @@ add_task(async () => {
 
   registerCleanupFunction(async () => {
     CalendarTestUtils.removeCalendar(calendar);
-    freeBusyService.removeProvider(freeBusyProvider);
+    cal.freeBusyService.removeProvider(freeBusyProvider);
     MailServices.ab.deleteAddressBook(book.URI);
   });
 

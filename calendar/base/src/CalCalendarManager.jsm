@@ -973,8 +973,7 @@ var gCalendarManagerAddonListener = {
   queryUninstallProvider(aAddon) {
     const uri = "chrome://calendar/content/calendar-providerUninstall-dialog.xhtml";
     const features = "chrome,titlebar,resizable,modal";
-    let calMgr = cal.getCalendarManager();
-    let affectedCalendars = calMgr
+    let affectedCalendars = cal.manager
       .getCalendars()
       .filter(calendar => calendar.providerID == aAddon.id);
     if (!affectedCalendars.length) {

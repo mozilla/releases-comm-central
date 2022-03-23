@@ -352,7 +352,7 @@ CalAlarm.prototype = {
   },
   set icalString(val) {
     this.ensureMutable();
-    this.icalComponent = cal.getIcsService().parseICS(val, null);
+    this.icalComponent = cal.icsService.parseICS(val, null);
   },
 
   promotedProps: {
@@ -370,16 +370,15 @@ CalAlarm.prototype = {
   },
 
   get icalComponent() {
-    let icssvc = cal.getIcsService();
-    let comp = icssvc.createIcalComponent("VALARM");
+    let comp = cal.icsService.createIcalComponent("VALARM");
 
     // Set up action (REQUIRED)
-    let actionProp = icssvc.createIcalProperty("ACTION");
+    let actionProp = cal.icsService.createIcalProperty("ACTION");
     actionProp.value = this.action;
     comp.addProperty(actionProp);
 
     // Set up trigger (REQUIRED)
-    let triggerProp = icssvc.createIcalProperty("TRIGGER");
+    let triggerProp = cal.icsService.createIcalProperty("TRIGGER");
     if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
       // Set the trigger to a specific datetime
       triggerProp.setParameter("VALUE", "DATE-TIME");
@@ -399,8 +398,8 @@ CalAlarm.prototype = {
     // Set up repeat and duration (OPTIONAL, but if one exists, the other
     // MUST also exist)
     if (this.repeat && this.repeatOffset) {
-      let repeatProp = icssvc.createIcalProperty("REPEAT");
-      let durationProp = icssvc.createIcalProperty("DURATION");
+      let repeatProp = cal.icsService.createIcalProperty("REPEAT");
+      let durationProp = cal.icsService.createIcalProperty("DURATION");
 
       repeatProp.value = this.repeat;
       durationProp.valueAsIcalString = this.repeatOffset.icalString;
@@ -429,7 +428,7 @@ CalAlarm.prototype = {
 
     // Set up summary (REQUIRED for EMAIL)
     if (this.summary || this.action == "EMAIL") {
-      let summaryProp = icssvc.createIcalProperty("SUMMARY");
+      let summaryProp = cal.icsService.createIcalProperty("SUMMARY");
       // Summary needs to have a non-empty value
       summaryProp.value = this.summary || cal.l10n.getCalString("alarmDefaultSummary");
       comp.addProperty(summaryProp);
@@ -437,7 +436,7 @@ CalAlarm.prototype = {
 
     // Set up the description (REQUIRED for DISPLAY and EMAIL)
     if (this.description || this.action == "DISPLAY" || this.action == "EMAIL") {
-      let descriptionProp = icssvc.createIcalProperty("DESCRIPTION");
+      let descriptionProp = cal.icsService.createIcalProperty("DESCRIPTION");
       // description needs to have a non-empty value
       descriptionProp.value = this.description || cal.l10n.getCalString("alarmDefaultDescription");
       comp.addProperty(descriptionProp);
@@ -445,7 +444,7 @@ CalAlarm.prototype = {
 
     // Set up lastAck
     if (this.lastAck) {
-      let lastAckProp = icssvc.createIcalProperty("X-MOZ-LASTACK");
+      let lastAckProp = cal.icsService.createIcalProperty("X-MOZ-LASTACK");
       lastAckProp.value = this.lastAck;
       comp.addProperty(lastAckProp);
     }
@@ -453,7 +452,7 @@ CalAlarm.prototype = {
     // Set up X-Props. mProperties contains only non-promoted props
     // eslint-disable-next-line array-bracket-spacing
     for (let [propName, propValue] of this.mProperties.entries()) {
-      let icalprop = icssvc.createIcalProperty(propName);
+      let icalprop = cal.icsService.createIcalProperty(propName);
       icalprop.value = propValue;
 
       // Add parameters

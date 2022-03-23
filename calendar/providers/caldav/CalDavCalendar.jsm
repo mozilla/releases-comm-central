@@ -294,7 +294,7 @@ CalDavCalendar.prototype = {
         this.restoreCalendarProperties(itemData);
         this.setProperty("currentStatus", Cr.NS_OK);
         if (this.mHaveScheduling || this.hasAutoScheduling || this.hasFreeBusy) {
-          cal.getFreeBusyService().addProvider(this);
+          cal.freeBusyService.addProvider(this);
         }
       } else {
         let itemDataArray = itemData.split("\u001A");
@@ -1329,7 +1329,7 @@ CalDavCalendar.prototype = {
   },
 
   firstInRealm() {
-    let calendars = cal.getCalendarManager().getCalendars();
+    let calendars = cal.manager.getCalendars();
     for (let i = 0; i < calendars.length; i++) {
       if (calendars[i].type != "caldav" || calendars[i].getProperty("disabled")) {
         continue;
@@ -1722,7 +1722,7 @@ CalDavCalendar.prototype = {
             // This may have already been set by fetchCachedMetaData, we only want to add
             // the freebusy provider once.
             this.hasFreeBusy = true;
-            cal.getFreeBusyService().addProvider(this);
+            cal.freeBusyService.addProvider(this);
           }
           this.findPrincipalNS(aChangeLogListener);
         } else {

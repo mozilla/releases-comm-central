@@ -34,7 +34,7 @@ async function onWindowLoad() {
   gModel.file = window.arguments[0];
   document.getElementById("calendar-ics-file-dialog-file-path").value = gModel.file.path;
 
-  let calendars = cal.getCalendarManager().getCalendars();
+  let calendars = cal.manager.getCalendars();
   gModel.calendars = getCalendarsThatCanImport(calendars);
   if (!gModel.calendars.length) {
     // No calendars to import into. Show error dialog and close the window.

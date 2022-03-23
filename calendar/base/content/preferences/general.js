@@ -58,12 +58,11 @@ var gCalendarGeneralPane = {
     let tzMenuList = document.getElementById("calendar-timezone-menulist");
     let tzMenuPopup = document.getElementById("calendar-timezone-menupopup");
 
-    let tzService = cal.getTimezoneService();
     let tzids = {};
     let displayNames = [];
     // don't rely on what order the timezone-service gives you
-    for (let timezoneId of tzService.timezoneIds) {
-      let timezone = tzService.getTimezone(timezoneId);
+    for (let timezoneId of cal.timezoneService.timezoneIds) {
+      let timezone = cal.timezoneService.getTimezone(timezoneId);
       if (timezone && !timezone.isFloating && !timezone.isUTC) {
         let displayName = timezone.displayName;
         displayNames.push(displayName);

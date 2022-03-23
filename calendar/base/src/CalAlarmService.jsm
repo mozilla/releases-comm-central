@@ -83,7 +83,7 @@ function CalAlarmService() {
     "gNotificationsTimes",
     "calendar.notifications.times",
     "",
-    () => this.initAlarms(cal.getCalendarManager().getCalendars())
+    () => this.initAlarms(cal.manager.getCalendars())
   );
 
   this.calendarObserver = {
@@ -320,9 +320,9 @@ CalAlarmService.prototype = {
     // Tell people that we're alive so they can start monitoring alarms.
     Services.obs.notifyObservers(null, "alarm-service-startup");
 
-    cal.getCalendarManager().addObserver(this.calendarManagerObserver);
+    cal.manager.addObserver(this.calendarManagerObserver);
 
-    for (let calendar of cal.getCalendarManager().getCalendars()) {
+    for (let calendar of cal.manager.getCalendars()) {
       this.observeCalendar(calendar);
     }
 
@@ -352,7 +352,7 @@ CalAlarmService.prototype = {
         end.hour += kHoursBetweenUpdates;
         this.alarmService.mRangeEnd = end.getInTimezone(cal.dtz.UTC);
 
-        this.alarmService.findAlarms(cal.getCalendarManager().getCalendars(), start, until);
+        this.alarmService.findAlarms(cal.manager.getCalendars(), start, until);
       },
     };
     timerCallback.notify();
@@ -375,11 +375,10 @@ CalAlarmService.prototype = {
       this.mUpdateTimer = null;
     }
 
-    let calmgr = cal.getCalendarManager();
-    calmgr.removeObserver(this.calendarManagerObserver);
+    cal.manager.removeObserver(this.calendarManagerObserver);
 
     // Stop observing all calendars. This will also clear the timers.
-    for (let calendar of calmgr.getCalendars()) {
+    for (let calendar of cal.manager.getCalendars()) {
       this.unobserveCalendar(calendar);
     }
 
@@ -806,10 +805,7 @@ CalAlarmService.prototype = {
       // we need to exclude calendars which failed to load explicitly to
       // prevent the alaram dialog to stay opened after dismissing all
       // alarms if there is a network calendar that failed to load
-      let currentStatus = cal
-        .getCalendarManager()
-        .getCalendarById(calId)
-        .getProperty("currentStatus");
+      let currentStatus = cal.manager.getCalendarById(calId).getProperty("currentStatus");
       if (!this.mLoadedCalendars[calId] && Components.isSuccessCode(currentStatus)) {
         return true;
       }

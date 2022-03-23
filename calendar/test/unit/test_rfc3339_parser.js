@@ -67,7 +67,7 @@ function really_run_test() {
    */
 
   // An arbitrary timezone (that has daylight savings time).
-  let getTz = aTz => cal.getTimezoneService().getTimezone(aTz);
+  let getTz = aTz => cal.timezoneService.getTimezone(aTz);
   let timezone = getTz("America/New_York");
   let utc = cal.dtz.UTC;
   // Timezones used in tests.

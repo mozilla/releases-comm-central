@@ -10,15 +10,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 function run_test() {
   do_test_pending();
-  cal
-    .getTimezoneService()
-    .QueryInterface(Ci.calIStartupService)
-    .startup({
-      onResult() {
-        really_run_test();
-        do_test_finished();
-      },
-    });
+  cal.timezoneService.QueryInterface(Ci.calIStartupService).startup({
+    onResult() {
+      really_run_test();
+      do_test_finished();
+    },
+  });
 }
 
 function really_run_test() {
@@ -81,14 +78,12 @@ function really_run_test() {
     "",
   ].join("\r\n");
 
-  let tzs = cal.getTimezoneService();
-
   event.icalString = str;
 
   let startDate = event.startDate;
   let endDate = event.endDate;
 
-  startDate.timezone = tzs.getTimezone(startDate.timezone.tzid);
-  endDate.timezone = tzs.getTimezone(endDate.timezone.tzid);
+  startDate.timezone = cal.timezoneService.getTimezone(startDate.timezone.tzid);
+  endDate.timezone = cal.timezoneService.getTimezone(endDate.timezone.tzid);
   notEqual(strTz, startDate.timezone.toString());
 }

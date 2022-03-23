@@ -14,9 +14,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
 
-var freeBusyService = cal.getFreeBusyService();
-var timezoneService = cal.getTimezoneService();
-
 var readOnly = false;
 
 // The UI elements in this dialog. Initialised in the DOMContentLoaded handler.
@@ -646,37 +643,43 @@ function setLeftAndWidth(element, startTime, endTime) {
       pendingDiv.classList.add("pending");
       setLeftAndWidth(pendingDiv, from, to);
 
-      freeBusyService.getFreeBusyIntervals(calendar, from, to, Ci.calIFreeBusyInterval.BUSY_ALL, {
-        onResult: (operation, results) => {
-          for (let result of results) {
-            let freeBusyType = Number(result.freeBusyType); // For some reason this is a string.
-            if (freeBusyType == Ci.calIFreeBusyInterval.FREE) {
-              continue;
-            }
+      cal.freeBusyService.getFreeBusyIntervals(
+        calendar,
+        from,
+        to,
+        Ci.calIFreeBusyInterval.BUSY_ALL,
+        {
+          onResult: (operation, results) => {
+            for (let result of results) {
+              let freeBusyType = Number(result.freeBusyType); // For some reason this is a string.
+              if (freeBusyType == Ci.calIFreeBusyInterval.FREE) {
+                continue;
+              }
 
-            let block = this.freeBusyDiv.appendChild(document.createElement("div"));
-            switch (freeBusyType) {
-              case Ci.calIFreeBusyInterval.BUSY_TENTATIVE:
-                block.classList.add("tentative");
-                break;
-              case Ci.calIFreeBusyInterval.BUSY_UNAVAILABLE:
-                block.classList.add("unavailable");
-                break;
-              case Ci.calIFreeBusyInterval.UNKNOWN:
-                block.classList.add("unknown");
-                break;
-              default:
-                block.classList.add("busy");
-                break;
+              let block = this.freeBusyDiv.appendChild(document.createElement("div"));
+              switch (freeBusyType) {
+                case Ci.calIFreeBusyInterval.BUSY_TENTATIVE:
+                  block.classList.add("tentative");
+                  break;
+                case Ci.calIFreeBusyInterval.BUSY_UNAVAILABLE:
+                  block.classList.add("unavailable");
+                  break;
+                case Ci.calIFreeBusyInterval.UNKNOWN:
+                  block.classList.add("unknown");
+                  break;
+                default:
+                  block.classList.add("busy");
+                  break;
+              }
+              setLeftAndWidth(block, result.interval.start, result.interval.end);
             }
-            setLeftAndWidth(block, result.interval.start, result.interval.end);
-          }
-          if (!operation.isPending) {
-            this.dispatchEvent(new CustomEvent("freebusy-update-finished"));
-            pendingDiv.remove();
-          }
-        },
-      });
+            if (!operation.isPending) {
+              this.dispatchEvent(new CustomEvent("freebusy-update-finished"));
+              pendingDiv.remove();
+            }
+          },
+        }
+      );
       this.dispatchEvent(new CustomEvent("freebusy-update-started"));
     }
 

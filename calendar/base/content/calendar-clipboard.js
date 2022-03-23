@@ -30,8 +30,7 @@ function canPaste() {
       return false;
     }
   } else {
-    let calendars = cal
-      .getCalendarManager()
+    let calendars = cal.manager
       .getCalendars()
       .filter(cal.acl.isCalendarWritable)
       .filter(cal.acl.userCanAddItemsToCalendar);
@@ -232,8 +231,7 @@ function pasteFromClipboard() {
         let validPasteText = pasteText != "paste" && !pasteText.endsWith("Item");
         pasteText += items.length == withAttendees.length ? "Only" : "Also";
 
-        let calendars = cal
-          .getCalendarManager()
+        let calendars = cal.manager
           .getCalendars()
           .filter(cal.acl.isCalendarWritable)
           .filter(cal.acl.userCanAddItemsToCalendar)

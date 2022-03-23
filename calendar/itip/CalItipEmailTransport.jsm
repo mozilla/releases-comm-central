@@ -295,7 +295,7 @@ class CalItipEmailTransport {
         Ci.calIIcsSerializer
       );
       serializer.addItems(itemList);
-      let methodProp = cal.getIcsService().createIcalProperty("METHOD");
+      let methodProp = cal.icsService.createIcalProperty("METHOD");
       methodProp.value = aItipItem.responseMethod;
       serializer.addProperty(methodProp);
       let calText = serializer.serializeToString();

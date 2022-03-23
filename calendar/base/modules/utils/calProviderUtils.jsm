@@ -459,14 +459,12 @@ var calprovider = {
       }
       this.mID = aValue;
 
-      let calMgr = cal.getCalendarManager();
-
       // make all properties persistent that have been set so far:
       for (let aName in this.mProperties) {
         if (!this.constructor.mTransientProperties[aName]) {
           let value = this.mProperties[aName];
           if (value !== null) {
-            calMgr.setCalendarPref_(this, aName, value);
+            cal.manager.setCalendarPref_(this, aName, value);
           }
         }
       }
@@ -679,7 +677,7 @@ var calprovider = {
           !this.transientProperties
         ) {
           if (this.id) {
-            ret = cal.getCalendarManager().getCalendarPref_(this, aName);
+            ret = cal.manager.getCalendarPref_(this, aName);
           }
           switch (aName) {
             case "suppressAlarms":
@@ -710,7 +708,7 @@ var calprovider = {
             break;
         }
         if (!this.transientProperties && !this.constructor.mTransientProperties[aName] && this.id) {
-          cal.getCalendarManager().setCalendarPref_(this, aName, aValue);
+          cal.manager.setCalendarPref_(this, aName, aValue);
         }
         this.mObservers.notify("onPropertyChanged", [this.superCalendar, aName, aValue, oldValue]);
       }
@@ -721,7 +719,7 @@ var calprovider = {
     deleteProperty(aName) {
       this.mObservers.notify("onPropertyDeleting", [this.superCalendar, aName]);
       delete this.mProperties[aName];
-      cal.getCalendarManager().deleteCalendarPref_(this, aName);
+      cal.manager.deleteCalendarPref_(this, aName);
     }
 
     // calIOperation refresh

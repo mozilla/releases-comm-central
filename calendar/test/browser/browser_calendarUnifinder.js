@@ -19,12 +19,11 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  */
 add_task(async function testOpenEvent() {
   let uri = Services.io.newURI("moz-memory-calendar://");
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", uri);
+  let calendar = cal.manager.createCalendar("memory", uri);
 
   calendar.name = "Unifinder Test";
-  manager.registerCalendar(calendar);
-  registerCleanupFunction(() => manager.removeCalendar(calendar));
+  cal.manager.registerCalendar(calendar);
+  registerCleanupFunction(() => cal.manager.removeCalendar(calendar));
 
   let now = cal.dtz.now();
 

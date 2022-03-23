@@ -194,9 +194,7 @@ function setupEnabledCheckbox() {
  * shown unless the provider for the calendar is missing (i.e force-disabled)
  */
 document.addEventListener("dialogextra1", () => {
-  let calmgr = cal.getCalendarManager();
-
-  calmgr.unregisterCalendar(gCalendar);
+  cal.manager.unregisterCalendar(gCalendar);
   window.close();
 });
 

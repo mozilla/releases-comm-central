@@ -18,8 +18,6 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-let manager = cal.getCalendarManager();
-
 let calendarObserver = {
   QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
@@ -71,14 +69,14 @@ let calendarObserver = {
  * @returns {calICalendar}
  */
 function createCalendar(type, url, useCache) {
-  let calendar = manager.createCalendar(type, Services.io.newURI(url));
+  let calendar = cal.manager.createCalendar(type, Services.io.newURI(url));
   calendar.name = type + (useCache ? " with cache" : " without cache");
   calendar.id = cal.getUUID();
   calendar.setProperty("cache.enabled", useCache);
   calendar.setProperty("calendar-main-default", true);
 
-  manager.registerCalendar(calendar);
-  calendar = manager.getCalendarById(calendar.id);
+  cal.manager.registerCalendar(calendar);
+  calendar = cal.manager.getCalendarById(calendar.id);
   calendarObserver._expectedCalendar = calendar;
   calendar.addObserver(calendarObserver);
 
@@ -93,7 +91,7 @@ function createCalendar(type, url, useCache) {
  */
 function removeCalendar(calendar) {
   calendar.removeObserver(calendarObserver);
-  manager.removeCalendar(calendar);
+  cal.manager.removeCalendar(calendar);
 }
 
 let alarmService = Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService);

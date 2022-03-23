@@ -78,7 +78,7 @@
         return;
       }
       date = date.getInTimezone(this.timezone);
-      const weekStart = cal.getWeekInfoService().getStartOfWeek(date);
+      const weekStart = cal.weekInfoService.getStartOfWeek(date);
       const weekEnd = weekStart.clone();
       weekEnd.day += 6;
       this.setDateRange(weekStart, weekEnd);
@@ -164,7 +164,7 @@
         // start of the week of the day that we're centering around
         // adjusted for the day the week starts on and the number
         // of previous weeks we're supposed to display.
-        const dayStart = cal.getWeekInfoService().getStartOfWeek(date);
+        const dayStart = cal.weekInfoService.getStartOfWeek(date);
         dayStart.day -= 7 * Services.prefs.getIntPref("calendar.previousweeks.inview", 0);
 
         // The last day we're supposed to show.

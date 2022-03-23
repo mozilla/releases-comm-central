@@ -50,7 +50,7 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
  */
 function publishEntireCalendar(aCalendar) {
   if (!aCalendar) {
-    let calendars = cal.getCalendarManager().getCalendars();
+    let calendars = cal.manager.getCalendars();
 
     if (calendars.length == 1) {
       // Do not ask user for calendar if only one calendar exists
@@ -157,7 +157,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
   );
   serializer.addItems(aItemArray);
   // Outlook requires METHOD:PUBLISH property:
-  let methodProp = cal.getIcsService().createIcalProperty("METHOD");
+  let methodProp = cal.icsService.createIcalProperty("METHOD");
   methodProp.value = "PUBLISH";
   serializer.addProperty(methodProp);
   serializer.serializeToStream(outputStream);

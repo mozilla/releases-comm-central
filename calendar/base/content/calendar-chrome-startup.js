@@ -42,7 +42,7 @@ async function loadCalendarComponent() {
   }
   loadCalendarComponent.hasBeenCalled = true;
 
-  if (cal.getCalendarManager().wrappedJSObject.mCache) {
+  if (cal.manager.wrappedJSObject.mCache) {
     cal.ASSERT(
       [...Services.wm.getEnumerator("mail:3pane")].length > 1,
       "Calendar manager initialised calendars before loadCalendarComponent ran on the first " +

@@ -25,7 +25,7 @@ function run_test() {
     Services.prefs.setIntPref("calendar.week.start", weekStart);
     let date = cal.createDateTime(dateString);
     date.isDate = true;
-    let week = cal.getWeekInfoService().getWeekTitle(date);
+    let week = cal.weekInfoService.getWeekTitle(date);
 
     equal(week, weekNumber, "Week number matches for " + dateString);
   }

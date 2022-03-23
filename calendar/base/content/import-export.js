@@ -307,7 +307,7 @@ function exportEntireCalendar(aCalendar) {
   if (aCalendar) {
     getItemsFromCal(aCalendar);
   } else {
-    let calendars = cal.getCalendarManager().getCalendars();
+    let calendars = cal.manager.getCalendars();
 
     if (calendars.length == 1) {
       // There's only one calendar, so it's silly to ask what calendar

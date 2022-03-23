@@ -162,7 +162,7 @@ class CalDavServer {
 
   resetClient(client) {
     MockConflictPrompt.unregister();
-    cal.getCalendarManager().unregisterCalendar(client);
+    cal.manager.unregisterCalendar(client);
   }
 
   waitForLoad(aCalendar) {
@@ -185,8 +185,7 @@ class CalDavServer {
 
   getClient() {
     let uri = this.uri("/calendars/xpcshell/events");
-    let calmgr = cal.getCalendarManager();
-    let client = calmgr.createCalendar("caldav", uri);
+    let client = cal.manager.createCalendar("caldav", uri);
     let uclient = client.wrappedJSObject;
     client.name = "xpcshell";
     client.setProperty("cache.enabled", true);
@@ -202,9 +201,9 @@ class CalDavServer {
       });
     });
 
-    calmgr.registerCalendar(client);
+    cal.manager.registerCalendar(client);
 
-    let cachedCalendar = calmgr.getCalendarById(client.id);
+    let cachedCalendar = cal.manager.getCalendarById(client.id);
     return this.waitForLoad(cachedCalendar);
   }
 
@@ -491,11 +490,11 @@ function run_test() {
   do_get_profile();
   do_test_pending();
 
-  cal.getCalendarManager().startup({
+  cal.manager.startup({
     onResult() {
       gServer = new CalDavServer("xpcshell@example.com");
       gServer.start();
-      cal.getTimezoneService().startup({
+      cal.timezoneService.startup({
         onResult() {
           run_next_test();
           do_test_finished();

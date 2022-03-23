@@ -1109,9 +1109,9 @@ let CalendarFilteredViewMixin = Base =>
       this.#filter.itemType = value;
       this.#calendarObserver.self = this;
       if (value) {
-        cal.getCalendarManager().addCalendarObserver(this.#calendarObserver);
+        cal.manager.addCalendarObserver(this.#calendarObserver);
       } else {
-        cal.getCalendarManager().removeCalendarObserver(this.#calendarObserver);
+        cal.manager.removeCalendarObserver(this.#calendarObserver);
       }
 
       this.#invalidate();
@@ -1140,7 +1140,7 @@ let CalendarFilteredViewMixin = Base =>
       // Collect items from all of the calendars.
       this.clearItems();
       let promises = [];
-      for (let calendar of cal.getCalendarManager().getCalendars()) {
+      for (let calendar of cal.manager.getCalendars()) {
         promises.push(this.#refreshCalendar(calendar));
       }
 

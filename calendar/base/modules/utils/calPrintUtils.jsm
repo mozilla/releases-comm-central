@@ -21,8 +21,6 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 
 const EXPORTED_SYMBOLS = ["calprint"]; /* exported calprint */
 
-const weekInfoService = cal.getWeekInfoService();
-
 var calprint = {
   ensureInitialized() {
     // Deliberate no-op. By calling this function from outside, you've ensured
@@ -340,11 +338,11 @@ let monthGridView = {
     } while (current.compare(endDate) < 0);
 
     // Extend the date range to include adjacent days that will be printed.
-    startDate = weekInfoService.getStartOfWeek(startDate);
+    startDate = cal.weekInfoService.getStartOfWeek(startDate);
     // Get the end of the week containing the last day of the month, not the
     // week containing the first day of the next month.
     endDate.day--;
-    endDate = weekInfoService.getEndOfWeek(endDate);
+    endDate = cal.weekInfoService.getEndOfWeek(endDate);
     endDate.day++; // Add a day to include items from the last day.
 
     // Get and display the items.
@@ -410,8 +408,8 @@ let monthGridView = {
     }
 
     // Set up each week
-    let endOfMonthView = weekInfoService.getEndOfWeek(startOfMonth.endOfMonth);
-    let startOfMonthView = weekInfoService.getStartOfWeek(startOfMonth);
+    let endOfMonthView = cal.weekInfoService.getEndOfWeek(startOfMonth.endOfMonth);
+    let startOfMonthView = cal.weekInfoService.getStartOfWeek(startOfMonth);
     let mainMonth = startOfMonth.month;
 
     for (
@@ -557,7 +555,7 @@ let weekPlannerView = {
     let week = weekTemplate.content.firstElementChild.cloneNode(true);
 
     // Set up the week number title
-    week.number = weekInfoService.getWeekTitle(monday);
+    week.number = cal.weekInfoService.getWeekTitle(monday);
     week.querySelector(".week-title").textContent = cal.l10n.getCalString("WeekTitle", [
       week.number,
     ]);

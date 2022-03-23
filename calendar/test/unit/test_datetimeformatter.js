@@ -40,14 +40,14 @@ add_task(async function formatDate_test() {
   let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
 
-  let tzs = cal.getTimezoneService();
-
   let i = 0;
   for (let test of data) {
     i++;
     Services.prefs.setIntPref("calendar.date.format", test.input.dateformat);
     let zone =
-      test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
+      test.input.timezone == "floating"
+        ? cal.dtz.floating
+        : cal.timezoneService.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     let formatted = formatter.formatDate(date);
@@ -127,14 +127,14 @@ add_task(async function formatDateShort_test() {
   // we make sure to have set long format
   Services.prefs.setIntPref("calendar.date.format", 0);
 
-  let tzs = cal.getTimezoneService();
-
   let i = 0;
   for (let test of data) {
     i++;
 
     let zone =
-      test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
+      test.input.timezone == "floating"
+        ? cal.dtz.floating
+        : cal.timezoneService.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     let formatted = formatter.formatDateShort(date);
@@ -214,14 +214,14 @@ add_task(async function formatDateLong_test() {
   // we make sure to have set short format
   Services.prefs.setIntPref("calendar.date.format", 1);
 
-  let tzs = cal.getTimezoneService();
-
   let i = 0;
   for (let test of data) {
     i++;
 
     let zone =
-      test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
+      test.input.timezone == "floating"
+        ? cal.dtz.floating
+        : cal.timezoneService.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     let formatted = formatter.formatDateLong(date);
@@ -301,14 +301,14 @@ add_task(async function formatDateWithoutYear_test() {
   // we make sure to have set short format
   Services.prefs.setIntPref("calendar.date.format", 1);
 
-  let tzs = cal.getTimezoneService();
-
   let i = 0;
   for (let test of data) {
     i++;
 
     let zone =
-      test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
+      test.input.timezone == "floating"
+        ? cal.dtz.floating
+        : cal.timezoneService.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     equal(formatter.formatDateWithoutYear(date), test.expected, "(test #" + i + ")");
@@ -384,14 +384,14 @@ add_task(async function formatDateLongWithoutYear_test() {
   // we make sure to have set short format
   Services.prefs.setIntPref("calendar.date.format", 1);
 
-  let tzs = cal.getTimezoneService();
-
   let i = 0;
   for (let test of data) {
     i++;
 
     let zone =
-      test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
+      test.input.timezone == "floating"
+        ? cal.dtz.floating
+        : cal.timezoneService.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     equal(formatter.formatDateLongWithoutYear(date), test.expected, "(test #" + i + ")");
@@ -443,14 +443,14 @@ add_task(async function formatTime_test() {
   let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
 
-  let tzs = cal.getTimezoneService();
-
   let i = 0;
   for (let test of data) {
     i++;
 
     let zone =
-      test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
+      test.input.timezone == "floating"
+        ? cal.dtz.floating
+        : cal.timezoneService.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     let formatted = formatter.formatTime(date);

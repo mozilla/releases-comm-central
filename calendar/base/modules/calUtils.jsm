@@ -18,11 +18,6 @@ var gCalendarConsole = new ConsoleAPI({
   maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "all" : "warn",
 });
 
-// Cache services to avoid calling getService over and over again. The cache is
-// a separate object to avoid polluting `cal`, and is defined here since a call
-// to `_service` will require it to already exist.
-var gServiceCache = {};
-
 const EXPORTED_SYMBOLS = ["cal"];
 var cal = {
   // These functions exist to reduce boilerplate code for creating instances
@@ -39,13 +34,6 @@ var cal = {
     Ci.calIRecurrenceRule,
     "icalString"
   ),
-
-  getCalendarManager: _service("@mozilla.org/calendar/manager;1", "calICalendarManager"),
-  getIcsService: _service("@mozilla.org/calendar/ics-service;1", "calIICSService"),
-  getTimezoneService: _service("@mozilla.org/calendar/timezone-service;1", "calITimezoneService"),
-  getFreeBusyService: _service("@mozilla.org/calendar/freebusy-service;1", "calIFreeBusyService"),
-  getWeekInfoService: _service("@mozilla.org/calendar/weekinfo-service;1", "calIWeekInfoService"),
-  getDragService: _service("@mozilla.org/widget/dragservice;1", "nsIDragService"),
 
   /**
    * The calendar console instance
@@ -391,6 +379,44 @@ XPCOMUtils.defineLazyPreferenceGetter(
   false
 );
 
+// Services
+XPCOMUtils.defineLazyServiceGetter(
+  cal,
+  "manager",
+  "@mozilla.org/calendar/manager;1",
+  "calICalendarManager"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  cal,
+  "icsService",
+  "@mozilla.org/calendar/ics-service;1",
+  "calIICSService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  cal,
+  "timezoneService",
+  "@mozilla.org/calendar/timezone-service;1",
+  "calITimezoneService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  cal,
+  "freeBusyService",
+  "@mozilla.org/calendar/freebusy-service;1",
+  "calIFreeBusyService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  cal,
+  "weekInfoService",
+  "@mozilla.org/calendar/weekinfo-service;1",
+  "calIWeekInfoService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  cal,
+  "dragService",
+  "@mozilla.org/widget/dragservice;1",
+  "nsIDragService"
+);
+
 // Sub-modules for calUtils
 XPCOMUtils.defineLazyModuleGetter(
   cal,
@@ -506,21 +532,6 @@ XPCOMUtils.defineLazyModuleGetter(
   "resource:///modules/calendar/utils/calXMLUtils.jsm",
   "calxml"
 );
-
-/**
- * Returns a function that provides access to the given service.
- *
- * @param cid           The contract id to create
- * @param iid           The interface id to create with
- * @return {function}   A function that returns the given service
- */
-function _service(cid, iid) {
-  let name = `_${iid}`;
-  XPCOMUtils.defineLazyServiceGetter(gServiceCache, name, cid, iid);
-  return function() {
-    return gServiceCache[name];
-  };
-}
 
 /**
  * Returns a function that creates an instance of the given component and
