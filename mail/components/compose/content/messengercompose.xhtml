@@ -2132,339 +2132,335 @@
                  ondragover="envelopeDragObserver.onDragOver(event);"
                  ondrop="envelopeDragObserver.onDrop(event);"
                  ondragleave="envelopeDragObserver.onDragLeave(event);">
-          <hbox id="msgheaderstoolbar-box" flex="1">
-            <vbox id="addresses-box" flex="1" >
-              <hbox id="top-gradient-box" class="address-identity-recipient">
-                <hbox class="aw-firstColBox"/>
-                <hbox id="identityLabel-box" align="center"
-                      pack="end" style="&headersSpace2.style;">
-                  <label id="identityLabel" value="&fromAddr2.label;"
-                         accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
-                </hbox>
-                <menulist is="menulist-editable" id="msgIdentity"
-                          type="description"
-                          disableautoselect="true" onkeypress="fromKeyPress(event);"
-                          oncommand="LoadIdentity(false);" disableonsend="true">
-                  <menupopup id="msgIdentityPopup"/>
-                </menulist>
+          <hbox id="top-gradient-box" class="address-identity-recipient">
+            <hbox class="aw-firstColBox"/>
+            <hbox id="identityLabel-box" align="center"
+                  pack="end" style="&headersSpace2.style;">
+              <label id="identityLabel" value="&fromAddr2.label;"
+                     accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
+            </hbox>
+            <menulist is="menulist-editable" id="msgIdentity"
+                      type="description"
+                      disableautoselect="true" onkeypress="fromKeyPress(event);"
+                      oncommand="LoadIdentity(false);" disableonsend="true">
+              <menupopup id="msgIdentityPopup"/>
+            </menulist>
 
-                <html:div id="extraAddressRowsArea">
-                  <!-- Default set up is for a mail account, where we prefer
-                    - showing the buttons, rather than the menu items, for
-                    - the mail rows.
-                    - The To field is already shown, so the button is hidden.
-                    - For the news rows, we prefer the menu items over the
-                    - buttons, so we hide them. -->
-                  <html:button id="addr_toShowAddressRowButton"
-                               disableonsend="true"
-                               class="recipient-button plain-button"
-                               data-address-row="addressRowTo"
-                               onclick="showAndFocusAddressRow('addressRowTo');"
-                               ondrop="showAddressRowButtonOnDrop(event);"
-                               ondragover="showAddressRowButtonOnDragover(event);"
-                               hidden="hidden">
-                  </html:button>
-                  <html:button id="addr_ccShowAddressRowButton"
-                               disableonsend="true"
-                               class="recipient-button plain-button"
-                               data-address-row="addressRowCc"
-                               onclick="showAndFocusAddressRow('addressRowCc');"
-                               ondrop="showAddressRowButtonOnDrop(event);"
-                               ondragover="showAddressRowButtonOnDragover(event);">
-                  </html:button>
-                  <html:button id="addr_bccShowAddressRowButton"
-                               disableonsend="true"
-                               class="recipient-button plain-button"
-                               data-address-row="addressRowBcc"
-                               onclick="showAndFocusAddressRow('addressRowBcc');"
-                               ondrop="showAddressRowButtonOnDrop(event);"
-                               ondragover="showAddressRowButtonOnDragover(event);">
-                  </html:button>
-                  <html:button id="addr_newsgroupsShowAddressRowButton"
-                               class="recipient-button plain-button"
-                               hidden="hidden"
-                               onclick="showAndFocusAddressRow('addressRowNewsgroups')">
-                    &newsgroupsAddr2.label;
-                  </html:button>
-                  <html:button id="addr_followupShowAddressRowButton"
-                               class="recipient-button plain-button"
-                               hidden="hidden"
-                               onclick="showAndFocusAddressRow('addressRowFollowup')">
-                    &followupAddr2.label;
-                  </html:button>
-                  <html:button id="extraAddressRowsMenuButton"
-                               data-l10n-id="extra-address-rows-menu-button"
-                               aria-expanded="false"
-                               aria-haspopup="menu"
-                               aria-controls="extraAddressRowsMenu"
-                               disableonsend="true"
-                               class="plain-button"
-                               onclick="openExtraAddressRowsMenu();">
-                    <!-- NOTE: button title should provide the accessibility
-                       - context. -->
-                    <html:img class="overflow-icon"
-                              src="chrome://messenger/skin/icons/overflow.svg"
-                              alt="" />
-                  </html:button>
-                </html:div>
+            <html:div id="extraAddressRowsArea">
+              <!-- Default set up is for a mail account, where we prefer
+                - showing the buttons, rather than the menu items, for
+                - the mail rows.
+                - The To field is already shown, so the button is hidden.
+                - For the news rows, we prefer the menu items over the
+                - buttons, so we hide them. -->
+              <html:button id="addr_toShowAddressRowButton"
+                           disableonsend="true"
+                           class="recipient-button plain-button"
+                           data-address-row="addressRowTo"
+                           onclick="showAndFocusAddressRow('addressRowTo');"
+                           ondrop="showAddressRowButtonOnDrop(event);"
+                           ondragover="showAddressRowButtonOnDragover(event);"
+                           hidden="hidden">
+              </html:button>
+              <html:button id="addr_ccShowAddressRowButton"
+                           disableonsend="true"
+                           class="recipient-button plain-button"
+                           data-address-row="addressRowCc"
+                           onclick="showAndFocusAddressRow('addressRowCc');"
+                           ondrop="showAddressRowButtonOnDrop(event);"
+                           ondragover="showAddressRowButtonOnDragover(event);">
+              </html:button>
+              <html:button id="addr_bccShowAddressRowButton"
+                           disableonsend="true"
+                           class="recipient-button plain-button"
+                           data-address-row="addressRowBcc"
+                           onclick="showAndFocusAddressRow('addressRowBcc');"
+                           ondrop="showAddressRowButtonOnDrop(event);"
+                           ondragover="showAddressRowButtonOnDragover(event);">
+              </html:button>
+              <html:button id="addr_newsgroupsShowAddressRowButton"
+                           class="recipient-button plain-button"
+                           hidden="hidden"
+                           onclick="showAndFocusAddressRow('addressRowNewsgroups')">
+                &newsgroupsAddr2.label;
+              </html:button>
+              <html:button id="addr_followupShowAddressRowButton"
+                           class="recipient-button plain-button"
+                           hidden="hidden"
+                           onclick="showAndFocusAddressRow('addressRowFollowup')">
+                &followupAddr2.label;
+              </html:button>
+              <html:button id="extraAddressRowsMenuButton"
+                           data-l10n-id="extra-address-rows-menu-button"
+                           aria-expanded="false"
+                           aria-haspopup="menu"
+                           aria-controls="extraAddressRowsMenu"
+                           disableonsend="true"
+                           class="plain-button"
+                           onclick="openExtraAddressRowsMenu();">
+                <!-- NOTE: button title should provide the accessibility
+                   - context. -->
+                <html:img class="overflow-icon"
+                          src="chrome://messenger/skin/icons/overflow.svg"
+                          alt="" />
+              </html:button>
+            </html:div>
+          </hbox>
+
+          <mail-recipients-area id="recipientsContainer" orient="vertical"
+                                class="recipients-container">
+            <hbox id="addressRowReply"
+                  class="address-row hidden"
+                  data-recipienttype="addr_reply"
+                  data-show-self-menuitem="addr_replyShowAddressRowMenuItem">
+              <hbox class="aw-firstColBox">
+                <html:button class="remove-field-button plain-button"
+                             onclick="closeLabelOnClick(event);">
+                  <html:img src="chrome://global/skin/icons/close.svg"
+                            alt="" />
+                </html:button>
               </hbox>
-
-              <mail-recipients-area id="recipientsContainer" orient="vertical"
-                                    class="recipients-container" flex="1">
-                <hbox id="addressRowReply"
-                      class="address-row hidden"
-                      data-recipienttype="addr_reply"
-                      data-show-self-menuitem="addr_replyShowAddressRowMenuItem">
-                  <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button plain-button"
-                                 onclick="closeLabelOnClick(event);">
-                      <html:img src="chrome://global/skin/icons/close.svg"
-                                alt="" />
-                    </html:button>
-                  </hbox>
-                  <hbox class="address-label-container" align="top" pack="end"
-                        style="&headersSpace2.style;">
-                    <label id="replyAddrLabel" value="&replyAddr2.label;"
-                           control="replyAddrInput"/>
-                  </hbox>
-                  <hbox id="replyAddrContainer" flex="1" align="center"
-                        class="input-container wrap-container address-container"
-                        onclick="focusAddressInputOnClick(event);">
-                    <html:input is="autocomplete-input" id="replyAddrInput"
-                                type="text"
-                                class="plain address-input address-row-input mail-input"
-                                disableonsend="true"
-                                autocompletesearch="mydomain addrbook ldap news"
-                                autocompletesearchparam="{}"
-                                timeout="200"
-                                maxrows="6"
-                                completedefaultindex="true"
-                                forcecomplete="true"
-                                completeselectedindex="true"
-                                minresultsforpopup="2"
-                                ignoreblurwhilesearching="true"
-                                onfocus="addressInputOnFocus(this);"
-                                onblur="addressInputOnBlur(this);"
-                                size="1"/>
-                  </hbox>
-                </hbox>
-
-                <hbox id="addressRowTo"
-                      class="address-row"
-                      data-recipienttype="addr_to"
-                      data-show-self-menuitem="addr_toShowAddressRowMenuItem">
-                  <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button plain-button"
-                                 onclick="closeLabelOnClick(event);"
-                                 hidden="hidden">
-                      <html:img src="chrome://global/skin/icons/close.svg"
-                                alt="" />
-                    </html:button>
-                  </hbox>
-                  <hbox class="address-label-container" align="top" pack="end"
-                        style="&headersSpace2.style;">
-                    <label id="toAddrLabel"
-                           data-l10n-id="to-address-row-label"
-                           control="toAddrInput"/>
-                  </hbox>
-                  <hbox id="toAddrContainer" flex="1" align="center"
-                        class="input-container wrap-container address-container"
-                        onclick="focusAddressInputOnClick(event);">
-                    <html:input is="autocomplete-input" id="toAddrInput"
-                                type="text"
-                                class="plain address-input address-row-input mail-input mail-primary-input"
-                                disableonsend="true"
-                                autocompletesearch="mydomain addrbook ldap news"
-                                autocompletesearchparam="{}"
-                                timeout="200"
-                                maxrows="6"
-                                completedefaultindex="true"
-                                forcecomplete="true"
-                                completeselectedindex="true"
-                                minresultsforpopup="2"
-                                ignoreblurwhilesearching="true"
-                                onfocus="addressInputOnFocus(this);"
-                                onblur="addressInputOnBlur(this);"
-                                size="1"/>
-                  </hbox>
-                </hbox>
-
-                <hbox id="addressRowCc"
-                      class="address-row hidden"
-                      data-recipienttype="addr_cc"
-                      data-show-self-menuitem="addr_ccShowAddressRowMenuItem">
-                  <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button plain-button"
-                                 onclick="closeLabelOnClick(event);">
-                      <html:img src="chrome://global/skin/icons/close.svg"
-                                alt="" />
-                    </html:button>
-                  </hbox>
-                  <hbox class="address-label-container" align="top" pack="end"
-                        style="&headersSpace2.style;">
-                    <label id="ccAddrLabel"
-                           data-l10n-id="cc-address-row-label"
-                           control="ccAddrInput"/>
-                  </hbox>
-                  <hbox id="ccAddrContainer" flex="1" align="center"
-                        class="input-container wrap-container address-container"
-                        onclick="focusAddressInputOnClick(event);">
-                    <html:input is="autocomplete-input" id="ccAddrInput"
-                                type="text"
-                                class="plain address-input address-row-input mail-input"
-                                disableonsend="true"
-                                autocompletesearch="mydomain addrbook ldap news"
-                                autocompletesearchparam="{}"
-                                timeout="200"
-                                maxrows="6"
-                                completedefaultindex="true"
-                                forcecomplete="true"
-                                completeselectedindex="true"
-                                minresultsforpopup="2"
-                                ignoreblurwhilesearching="true"
-                                onfocus="addressInputOnFocus(this);"
-                                onblur="addressInputOnBlur(this);"
-                                size="1"/>
-                  </hbox>
-                </hbox>
-
-                <hbox id="addressRowBcc"
-                      class="address-row hidden"
-                      data-recipienttype="addr_bcc"
-                      data-show-self-menuitem="addr_bccShowAddressRowMenuItem">
-                  <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button plain-button"
-                                 onclick="closeLabelOnClick(event);">
-                      <html:img src="chrome://global/skin/icons/close.svg"
-                                alt="" />
-                    </html:button>
-                  </hbox>
-                  <hbox class="address-label-container" align="top" pack="end"
-                        style="&headersSpace2.style;">
-                    <label id="bccAddrLabel"
-                           data-l10n-id="bcc-address-row-label"
-                           control="bccAddrInput"/>
-                  </hbox>
-                  <hbox id="bccAddrContainer" flex="1" align="center"
-                        class="input-container wrap-container address-container"
-                        onclick="focusAddressInputOnClick(event);">
-                    <html:input is="autocomplete-input" id="bccAddrInput"
-                                type="text"
-                                class="plain address-input address-row-input mail-input"
-                                disableonsend="true"
-                                autocompletesearch="mydomain addrbook ldap news"
-                                autocompletesearchparam="{}"
-                                timeout="200"
-                                maxrows="6"
-                                completedefaultindex="true"
-                                forcecomplete="true"
-                                completeselectedindex="true"
-                                minresultsforpopup="2"
-                                ignoreblurwhilesearching="true"
-                                onfocus="addressInputOnFocus(this);"
-                                onblur="addressInputOnBlur(this);"
-                                size="1"/>
-                  </hbox>
-                </hbox>
-
-                <hbox id="addressRowNewsgroups"
-                      class="address-row hidden"
-                      data-recipienttype="addr_newsgroups"
-                      data-show-self-menuitem="addr_newsgroupsShowAddressRowMenuItem">
-                  <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button plain-button"
-                                 onclick="closeLabelOnClick(event);">
-                      <html:img src="chrome://global/skin/icons/close.svg"
-                                alt="" />
-                    </html:button>
-                  </hbox>
-                  <hbox class="address-label-container" align="top" pack="end"
-                        style="&headersSpace2.style;">
-                    <label id="newsgroupsAddrLabel" value="&newsgroupsAddr2.label;"
-                           control="newsgroupsAddrInput"/>
-                  </hbox>
-                  <hbox id="newsgroupsAddrContainer" flex="1" align="center"
-                        class="input-container wrap-container address-container"
-                        onclick="focusAddressInputOnClick(event);">
-                    <html:input is="autocomplete-input" id="newsgroupsAddrInput"
-                                type="text"
-                                class="plain address-input address-row-input news-input news-primary-input"
-                                disableonsend="true"
-                                autocompletesearch="mydomain addrbook ldap news"
-                                autocompletesearchparam="{}"
-                                timeout="200"
-                                maxrows="6"
-                                completedefaultindex="true"
-                                forcecomplete="true"
-                                completeselectedindex="true"
-                                minresultsforpopup="2"
-                                ignoreblurwhilesearching="true"
-                                onfocus="addressInputOnFocus(this);"
-                                onblur="addressInputOnBlur(this);"
-                                size="1"/>
-                  </hbox>
-                </hbox>
-
-                <hbox id="addressRowFollowup"
-                      class="address-row hidden"
-                      data-recipienttype="addr_followup"
-                      data-show-self-menuitem="addr_followupShowAddressRowMenuItem">
-                  <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button plain-button"
-                                 onclick="closeLabelOnClick(event);">
-                      <html:img src="chrome://global/skin/icons/close.svg"
-                                alt="" />
-                    </html:button>
-                  </hbox>
-                  <hbox class="address-label-container" align="top" pack="end"
-                        style="&headersSpace2.style;">
-                    <label id="followupAddrLabel" value="&followupAddr2.label;"
-                           control="followupAddrInput"/>
-                  </hbox>
-                  <hbox id="followupAddrContainer" flex="1" align="center"
-                        class="input-container wrap-container address-container"
-                        onclick="focusAddressInputOnClick(event);">
-                    <html:input is="autocomplete-input" id="followupAddrInput"
-                                type="text"
-                                class="plain address-input address-row-input news-input"
-                                disableonsend="true"
-                                autocompletesearch="mydomain addrbook ldap news"
-                                autocompletesearchparam="{}"
-                                timeout="200"
-                                maxrows="6"
-                                completedefaultindex="true"
-                                forcecomplete="true"
-                                completeselectedindex="true"
-                                minresultsforpopup="2"
-                                ignoreblurwhilesearching="true"
-                                onfocus="addressInputOnFocus(this);"
-                                onblur="addressInputOnBlur(this);"
-                                size="1"/>
-                  </hbox>
-                </hbox>
-              </mail-recipients-area>
-
-              <hbox id="subject-box">
-                <hbox class="aw-firstColBox"/>
-                <hbox id="subjectLabel-box" align="center"
-                      pack="end" style="&headersSpace2.style;">
-                  <label id="subjectLabel" value="&subject2.label;"
-                         accesskey="&subject.accesskey;" control="msgSubject"/>
-                </hbox>
-                <hbox flex="1" align="center" class="input-container">
-                  <moz-input-box spellcheck="true" style="flex: 1;">
-                    <html:input id="msgSubject"
-                                type="text"
-                                class="input-inline textbox-input"
-                                disableonsend="true"
-                                oninput="msgSubjectOnInput(event);"
-                                onkeypress="subjectKeyPress(event);"
-                                aria-labelledby="subjectLabel"
-                                style="-moz-box-flex: 1;"/>
-                  </moz-input-box>
-                </hbox>
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
+                <label id="replyAddrLabel" value="&replyAddr2.label;"
+                       control="replyAddrInput"/>
               </hbox>
-            </vbox>
+              <hbox id="replyAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInputOnClick(event);">
+                <html:input is="autocomplete-input" id="replyAddrInput"
+                            type="text"
+                            class="plain address-input address-row-input mail-input"
+                            disableonsend="true"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="200"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="addressInputOnFocus(this);"
+                            onblur="addressInputOnBlur(this);"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowTo"
+                  class="address-row"
+                  data-recipienttype="addr_to"
+                  data-show-self-menuitem="addr_toShowAddressRowMenuItem">
+              <hbox class="aw-firstColBox">
+                <html:button class="remove-field-button plain-button"
+                             onclick="closeLabelOnClick(event);"
+                             hidden="hidden">
+                  <html:img src="chrome://global/skin/icons/close.svg"
+                            alt="" />
+                </html:button>
+              </hbox>
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
+                <label id="toAddrLabel"
+                       data-l10n-id="to-address-row-label"
+                       control="toAddrInput"/>
+              </hbox>
+              <hbox id="toAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInputOnClick(event);">
+                <html:input is="autocomplete-input" id="toAddrInput"
+                            type="text"
+                            class="plain address-input address-row-input mail-input mail-primary-input"
+                            disableonsend="true"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="200"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="addressInputOnFocus(this);"
+                            onblur="addressInputOnBlur(this);"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowCc"
+                  class="address-row hidden"
+                  data-recipienttype="addr_cc"
+                  data-show-self-menuitem="addr_ccShowAddressRowMenuItem">
+              <hbox class="aw-firstColBox">
+                <html:button class="remove-field-button plain-button"
+                             onclick="closeLabelOnClick(event);">
+                  <html:img src="chrome://global/skin/icons/close.svg"
+                            alt="" />
+                </html:button>
+              </hbox>
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
+                <label id="ccAddrLabel"
+                       data-l10n-id="cc-address-row-label"
+                       control="ccAddrInput"/>
+              </hbox>
+              <hbox id="ccAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInputOnClick(event);">
+                <html:input is="autocomplete-input" id="ccAddrInput"
+                            type="text"
+                            class="plain address-input address-row-input mail-input"
+                            disableonsend="true"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="200"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="addressInputOnFocus(this);"
+                            onblur="addressInputOnBlur(this);"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowBcc"
+                  class="address-row hidden"
+                  data-recipienttype="addr_bcc"
+                  data-show-self-menuitem="addr_bccShowAddressRowMenuItem">
+              <hbox class="aw-firstColBox">
+                <html:button class="remove-field-button plain-button"
+                             onclick="closeLabelOnClick(event);">
+                  <html:img src="chrome://global/skin/icons/close.svg"
+                            alt="" />
+                </html:button>
+              </hbox>
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
+                <label id="bccAddrLabel"
+                       data-l10n-id="bcc-address-row-label"
+                       control="bccAddrInput"/>
+              </hbox>
+              <hbox id="bccAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInputOnClick(event);">
+                <html:input is="autocomplete-input" id="bccAddrInput"
+                            type="text"
+                            class="plain address-input address-row-input mail-input"
+                            disableonsend="true"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="200"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="addressInputOnFocus(this);"
+                            onblur="addressInputOnBlur(this);"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowNewsgroups"
+                  class="address-row hidden"
+                  data-recipienttype="addr_newsgroups"
+                  data-show-self-menuitem="addr_newsgroupsShowAddressRowMenuItem">
+              <hbox class="aw-firstColBox">
+                <html:button class="remove-field-button plain-button"
+                             onclick="closeLabelOnClick(event);">
+                  <html:img src="chrome://global/skin/icons/close.svg"
+                            alt="" />
+                </html:button>
+              </hbox>
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
+                <label id="newsgroupsAddrLabel" value="&newsgroupsAddr2.label;"
+                       control="newsgroupsAddrInput"/>
+              </hbox>
+              <hbox id="newsgroupsAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInputOnClick(event);">
+                <html:input is="autocomplete-input" id="newsgroupsAddrInput"
+                            type="text"
+                            class="plain address-input address-row-input news-input news-primary-input"
+                            disableonsend="true"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="200"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="addressInputOnFocus(this);"
+                            onblur="addressInputOnBlur(this);"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowFollowup"
+                  class="address-row hidden"
+                  data-recipienttype="addr_followup"
+                  data-show-self-menuitem="addr_followupShowAddressRowMenuItem">
+              <hbox class="aw-firstColBox">
+                <html:button class="remove-field-button plain-button"
+                             onclick="closeLabelOnClick(event);">
+                  <html:img src="chrome://global/skin/icons/close.svg"
+                            alt="" />
+                </html:button>
+              </hbox>
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
+                <label id="followupAddrLabel" value="&followupAddr2.label;"
+                       control="followupAddrInput"/>
+              </hbox>
+              <hbox id="followupAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInputOnClick(event);">
+                <html:input is="autocomplete-input" id="followupAddrInput"
+                            type="text"
+                            class="plain address-input address-row-input news-input"
+                            disableonsend="true"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="200"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="addressInputOnFocus(this);"
+                            onblur="addressInputOnBlur(this);"
+                            size="1"/>
+              </hbox>
+            </hbox>
+          </mail-recipients-area>
+
+          <hbox id="subject-box">
+            <hbox class="aw-firstColBox"/>
+            <hbox id="subjectLabel-box" align="center"
+                  pack="end" style="&headersSpace2.style;">
+              <label id="subjectLabel" value="&subject2.label;"
+                     accesskey="&subject.accesskey;" control="msgSubject"/>
+            </hbox>
+            <hbox flex="1" align="center" class="input-container">
+              <moz-input-box spellcheck="true" style="flex: 1;">
+                <html:input id="msgSubject"
+                            type="text"
+                            class="input-inline textbox-input"
+                            disableonsend="true"
+                            oninput="msgSubjectOnInput(event);"
+                            onkeypress="subjectKeyPress(event);"
+                            aria-labelledby="subjectLabel"
+                            style="-moz-box-flex: 1;"/>
+              </moz-input-box>
+            </hbox>
           </hbox>
         </toolbar>
 

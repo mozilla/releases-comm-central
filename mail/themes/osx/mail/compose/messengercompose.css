@@ -62,12 +62,8 @@ toolbar[nowindowdrag="true"] {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
 }
 
-#headers-box {
-  padding-bottom: 3px;
-}
-
-#addresses-box {
-  padding-top: 5px;
+#MsgHeadersToolbar {
+  padding-block-start: 5px;
 }
 
 #identityLabel-box {
@@ -167,6 +163,7 @@ toolbar[nowindowdrag="true"] {
 #FormatToolbar {
   padding-block: 4px;
   margin-inline: 3px;
+  margin-block-end: 3px;
 }
 
 #FormatToolbar toolbarseparator {

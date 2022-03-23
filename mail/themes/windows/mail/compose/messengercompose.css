@@ -43,20 +43,12 @@
 
 #headers-box {
   appearance: none;
-  padding-bottom: 2px;
 }
 
 #MsgHeadersToolbar {
   color: -moz-DialogText;
   text-shadow: none;
-}
-
-#msgheaderstoolbar-box {
-  padding-bottom: 2px;
-}
-
-#addresses-box {
-  padding-top: 4px;
+  padding-block: 4px 2px;
 }
 
 #subjectLabel {
@@ -169,6 +161,10 @@
 
 #FormatToolbox {
   appearance: none;
+}
+
+#FormatToolbar {
+  margin-block-end: 2px;
 }
 
 #FontFaceSelect {

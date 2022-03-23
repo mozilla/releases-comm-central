@@ -507,11 +507,6 @@ menulist::part(description) {
   margin-inline-start: 1ex !important;
 }
 
-.address-row > .aw-firstColBox {
-  flex-shrink: 0;
-  align-self: center;
-}
-
 .aw-firstColBox {
   /* aw-firstColBox inline padding (4px + 4px) + remove-field-button inline
    * padding (2px + 2px) + img width (16px) */
@@ -792,8 +787,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 .recipients-container {
   display: block;
-  /* Necessary for unwanted overflow while resizing the message header */
-  height: 0;
 }
 
 .recipients-container.overflow {
@@ -817,6 +810,8 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 .address-row > .aw-firstColBox {
   transition: opacity .2s ease;
   opacity: 0;
+  flex: 0 0 auto;
+  align-self: center;
 }
 
 .address-row:hover > .aw-firstColBox,
@@ -825,12 +820,19 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   opacity: 1;
 }
 
+.address-row > .address-label-container {
+  flex: 0 0 auto;
+}
+
+.address-row > .address-container {
+  flex: 1 1 auto;
+}
+
 .address-row.hidden {
   display: none;
 }
 
 .address-container {
-  flex: 1;
   margin-inline-start: 4px;
   margin-inline-end: 0;
   border: solid 1px var(--toolbarbutton-hover-bordercolor);
@@ -881,6 +883,10 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 .address-pill label,
 .address-pill hbox {
   pointer-events: none;
+}
+
+.address-pill hbox:not([hidden="true"]) {
+  display: flex;
 }
 
 .address-pill:hover:not(.editing),
@@ -971,6 +977,12 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 .address-pill[selected]:not(.editing) .pill-indicator {
   fill: SelectedItem;
+}
+
+#MsgHeadersToolbar {
+  display: grid;
+  grid-template-rows: min-content minmax(0, min-content) min-content;
+  grid-template-columns: auto;
 }
 
 .address-identity-recipient {

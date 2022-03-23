@@ -50,11 +50,7 @@
   appearance: none !important;
   color: WindowText;
   text-shadow: none;
-  padding-top: 3px;
-}
-
-#addresses-box {
-  padding-top: 4px;
+  padding-block-start: 7px;
 }
 
 .address-container {

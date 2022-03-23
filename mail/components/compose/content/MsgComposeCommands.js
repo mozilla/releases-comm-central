@@ -127,7 +127,6 @@ var gLastFocusElement = null;
 
 var gAttachmentBucket;
 var gAttachmentCounter;
-var gMsgHeadersToolbarElement;
 /**
  * typedef {Object} FocusArea
  * @property {Element} root - The root of a given area of the UI.
@@ -9281,14 +9280,6 @@ function focusStatusBar(statusBar) {
   }
   button.focus();
   return true;
-}
-
-function GetMsgHeadersToolbarElement() {
-  if (!gMsgHeadersToolbarElement) {
-    gMsgHeadersToolbarElement = document.getElementById("MsgHeadersToolbar");
-  }
-
-  return gMsgHeadersToolbarElement;
 }
 
 /**
