@@ -583,11 +583,7 @@ class EnigmailKeyObj {
     return cApi.sync(cApi.extractSecretKey(this.fpr, minimalKey));
   }
 
-  iSimpleOneSubkeySameExpiry(result = null) {
-    if (result) {
-      result.fingerprints = [];
-    }
-
+  iSimpleOneSubkeySameExpiry() {
     if (this.subKeys.length == 0) {
       return true;
     }
@@ -609,14 +605,7 @@ class EnigmailKeyObj {
 
     // If expiry dates differ by less than a half day, then we
     // treat it as having roughly the same expiry date.
-    let rv = deltaSeconds < 12 * 60 * 60;
-
-    if (rv && result) {
-      result.fingerprints.push(this.fpr);
-      result.fingerprints.push(subKey.fpr);
-    }
-
-    return rv;
+    return deltaSeconds < 12 * 60 * 60;
   }
 
   /**

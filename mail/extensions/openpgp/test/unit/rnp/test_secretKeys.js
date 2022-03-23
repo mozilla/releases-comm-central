@@ -59,19 +59,13 @@ add_task(async function testSecretKeys() {
 
   let fpr = keyObj.fpr;
 
-  let fprInfo = {};
   Assert.ok(
-    keyObj.iSimpleOneSubkeySameExpiry(fprInfo),
+    keyObj.iSimpleOneSubkeySameExpiry(),
     "check iSimpleOneSubkeySameExpiry should succeed"
   );
 
-  Assert.ok(
-    fprInfo.fingerprints.length == 2,
-    "fprInfo.fingerprints should contain 2 elements"
-  );
-
   let expiryChanged = await RNP.changeExpirationDate(
-    fprInfo.fingerprints,
+    [fpr, keyObj.subKeys[0].fpr],
     100 * 24 * 60 * 60
   );
   Assert.ok(expiryChanged, "changeExpirationDate should return success");

@@ -36,14 +36,12 @@ function onLoad() {
     return;
   }
 
-  let fprInfo = {};
-
-  if (!keyObj.iSimpleOneSubkeySameExpiry(fprInfo)) {
+  if (!keyObj.iSimpleOneSubkeySameExpiry()) {
     window.close();
     return;
   }
 
-  gFingerprints = fprInfo.fingerprints;
+  gFingerprints = [keyObj.fpr, keyObj.subKeys[0].fpr];
   gKeyCreated = keyObj.keyCreated;
 
   gRadio = document.getElementById("radio-expire-or-not");
