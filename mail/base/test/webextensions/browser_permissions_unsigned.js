@@ -8,6 +8,8 @@ add_task(async function test_unsigned() {
     set: [
       ["extensions.webapi.testing", true],
       ["extensions.install.requireBuiltInCerts", false],
+      // Relax the user input requirements while running this test.
+      ["xpinstall.userActivation.required", false],
     ],
   });
 

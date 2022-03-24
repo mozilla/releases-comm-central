@@ -57,6 +57,15 @@ function dismissNotification(win = window) {
   });
 }
 
+add_setup(async function setupTestEnvironment() {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      // Relax the user input requirements while running this test.
+      ["xpinstall.userActivation.required", false],
+    ],
+  });
+});
+
 add_task(async function test_install_source_blocked_link() {
   await setupPolicyEngineWithJson({
     policies: {
