@@ -327,7 +327,11 @@ MessageSend.prototype = {
   fail(exitCode, errorMsg) {
     this._failed = true;
     let prompt = this.getDefaultPrompt();
-    if (!Components.isSuccessCode(exitCode) && prompt) {
+    if (
+      !Components.isSuccessCode(exitCode) &&
+      exitCode != Cr.NS_ERROR_ABORT &&
+      prompt
+    ) {
       MsgUtils.sendLogger.error(
         `Sending failed; ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
       );
@@ -668,7 +672,6 @@ MessageSend.prototype = {
           exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED;
           break;
         case Cr.NS_ERROR_NET_INTERRUPT:
-        case Cr.NS_ERROR_ABORT:
           exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
           break;
         case Cr.NS_ERROR_NET_TIMEOUT:

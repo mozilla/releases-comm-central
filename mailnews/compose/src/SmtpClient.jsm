@@ -139,6 +139,7 @@ class SmtpClient {
    * Sends QUIT
    */
   quit() {
+    this._authenticating = false;
     this._sendCommand("QUIT");
     this._currentAction = this.close;
   }
@@ -633,7 +634,7 @@ class SmtpClient {
         // According to rfc4616#section-2, password should be UTF-8 BinaryString
         // before base64 encoded.
         let password = String.fromCharCode(
-          ...new TextEncoder().encode(this._authenticator.getPassword())
+          ...new TextEncoder().encode(this._getPassword())
         );
 
         this._sendCommand(
@@ -941,6 +942,25 @@ class SmtpClient {
   }
 
   /**
+   * Returns the saved/cached server password, or show a password dialog. If the
+   * user cancels the dialog, abort sending.
+   * @returns {string} The server password.
+   */
+  _getPassword() {
+    try {
+      return this._authenticator.getPassword();
+    } catch (e) {
+      if (e.result == Cr.NS_ERROR_ABORT) {
+        this.quit();
+        this.onerror(e.result);
+      } else {
+        throw e;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Response to AUTH LOGIN, if successful expects base64 encoded username
    *
    * @param {Object} command Parsed command from the server {statusCode, data}
@@ -967,7 +987,7 @@ class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN PASS");
     this._currentAction = this._actionAUTHComplete;
-    let password = this._authenticator.getPassword();
+    let password = this._getPassword();
     if (
       !Services.prefs.getBoolPref(
         "mail.smtp_login_pop3_user_pass_auth_is_latin1",
@@ -996,7 +1016,7 @@ class SmtpClient {
     }
     // Server sent us a base64 encoded challenge.
     let challenge = atob(command.data);
-    let password = this._authenticator.getPassword();
+    let password = this._getPassword();
     // Use password as key, challenge as payload, generate a HMAC-MD5 signature.
     let signature = MailCryptoUtils.hmacMd5(
       new TextEncoder().encode(password),
