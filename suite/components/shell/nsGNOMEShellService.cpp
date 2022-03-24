@@ -24,6 +24,7 @@
 #include "nsIImageLoadingContent.h"
 #include "imgIRequest.h"
 #include "imgIContainer.h"
+#include "mozilla/GRefPtr.h"
 #include "mozilla/Sprintf.h"
 #include "mozilla/dom/Element.h"
 #if defined(MOZ_WIDGET_GTK)
@@ -287,14 +288,12 @@ static nsresult WriteImage(const nsCString &aPath, imgIContainer *aImage) {
 #if !defined(MOZ_WIDGET_GTK)
   return NS_ERROR_NOT_AVAILABLE;
 #else
-  GdkPixbuf* pixbuf = nsImageToPixbuf::ImageToPixbuf(aImage);
+  RefPtr<GdkPixbuf> pixbuf = nsImageToPixbuf::ImageToPixbuf(aImage);
   if (!pixbuf) {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
   gboolean res = gdk_pixbuf_save(pixbuf, aPath.get(), "png", nullptr, nullptr);
-
-  g_object_unref(pixbuf);
   return res ? NS_OK : NS_ERROR_FAILURE;
 #endif
 }
