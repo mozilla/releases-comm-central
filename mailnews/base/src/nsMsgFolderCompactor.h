@@ -22,9 +22,11 @@ class nsFolderCompactState;
  * nsMsgFolderCompactor implements nsIMsgFolderCompactor, which allows the
  * caller to kick off a batch of folder compactions (via compactFolders()).
  */
-class nsMsgFolderCompactor : public nsIMsgFolderCompactor {
+class nsMsgFolderCompactor : public nsIMsgFolderCompactor,
+                             public nsIUrlListener {
  public:
   NS_DECL_ISUPPORTS
+  NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGFOLDERCOMPACTOR
 
   nsMsgFolderCompactor();
@@ -70,9 +72,8 @@ class nsFolderCompactState : public nsIStreamListener,
 
   nsFolderCompactState(void);
 
-  nsresult Compact(nsIMsgFolder* folder,
-                   std::function<void(nsresult)> completionFn,
-                   nsIMsgWindow* msgWindow);
+  nsresult Compact(nsIMsgFolder* folder, nsIUrlListener* aListener,
+                   nsIMsgWindow* aMsgWindow);
   // Upon completion, access the number of bytes expunged.
   uint64_t ExpungedBytes() const { return m_totalExpungedBytes; }
 
@@ -122,8 +123,7 @@ class nsFolderCompactState : public nsIStreamListener,
   bool m_startOfMsg;
   int32_t m_statusOffset;
   uint32_t m_addedHeaderSize;
-  // Function which will be run when the folder compaction completes.
-  std::function<void(nsresult)> m_completionFn;
+  nsCOMPtr<nsIUrlListener> m_listener;
   bool m_alreadyWarnedDiskSpace;
 };
 
