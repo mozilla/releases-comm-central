@@ -280,7 +280,7 @@ add_task(async function testSortOrder() {
 });
 
 /**
- * Check events that begin and/or end inside the date range.
+ * Check events that begin and end on different days inside the date range.
  * All-day events are still sorted ahead of non-all-day events.
  */
 add_task(async function testOverlapInside() {
@@ -290,25 +290,82 @@ add_task(async function testOverlapInside() {
     { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" }
   );
 
-  let timedEvent = await addEvent("Timed Event", "P0D", "P2D");
-  // Starts at the same time as `timedEvent` ends to prove the ordering is correct.
-  let nextEvent = await addEvent("Next Event", "P2D", "P3D", true);
+  let timedEvent = await addEvent("Timed Event", "P1H", "P1D23H");
   checkEvents(
     { dateHeader: "Today", title: "All Day Event", overlap: "start" },
     { time: timedEvent.startDate, title: "Timed Event", overlap: "start" },
     { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" },
-    // Should show "24:00" as the time.
-    {
-      time: cal.dtz.formatter.formatTime(timedEvent.endDate, true),
-      title: "Timed Event",
-      overlap: "end",
-    },
-    { dateHeader: nextEvent.startDate, title: "Next Event" }
+    { time: timedEvent.endDate, title: "Timed Event", overlap: "end" }
   );
 
   await calendar.deleteItem(allDayEvent);
   await calendar.deleteItem(timedEvent);
-  await calendar.deleteItem(nextEvent);
+});
+
+/**
+ * Check events that begin and end on different days and that end at midnight.
+ * The list item for the end of the event should be the last one on the day
+ * before the end midnight, and its time label should display "24:00".
+ */
+add_task(async function testOverlapEndAtMidnight() {
+  // Start with an event that begins outside the displayed dates.
+
+  let timedEvent = await addEvent("Timed Event", "-P1D", "P1D");
+  // Ends an hour before `timedEvent` to prove the ordering is correct.
+  let duringEvent = await addEvent("During Event", "P22H", "P23H");
+  // Starts at the same time as `timedEvent` ends to prove the ordering is correct.
+  let nextEvent = await addEvent("Next Event", "P1D", "P2D", true);
+
+  checkEvents(
+    { dateHeader: "Today", time: duringEvent.startDate, title: "During Event" },
+    {
+      // Should show "24:00" as the time and end today.
+      time: cal.dtz.formatter.formatTime(timedEvent.endDate, true),
+      title: "Timed Event",
+      overlap: "end",
+    },
+    { dateHeader: "Tomorrow", title: "Next Event" }
+  );
+
+  // Move the event fully into the displayed range.
+
+  let timedClone = timedEvent.clone();
+  timedClone.startDate.day += 2;
+  timedClone.endDate.day += 2;
+  await calendar.modifyItem(timedClone, timedEvent);
+
+  let duringClone = duringEvent.clone();
+  duringClone.startDate.day += 2;
+  duringClone.endDate.day += 2;
+  await calendar.modifyItem(duringClone, duringEvent);
+
+  let nextClone = nextEvent.clone();
+  nextClone.startDate.day += 2;
+  nextClone.endDate.day += 2;
+  await calendar.modifyItem(nextClone, nextEvent);
+
+  let realEndDate = today.clone();
+  realEndDate.day += 2;
+  checkEvents(
+    {
+      dateHeader: "Tomorrow",
+      time: timedClone.startDate,
+      title: "Timed Event",
+      overlap: "start",
+    },
+    { dateHeader: realEndDate, time: duringClone.startDate, title: "During Event" },
+    {
+      // Should show "24:00" as the time and end on the day after tomorrow.
+      time: cal.dtz.formatter.formatTime(timedClone.endDate, true),
+      title: "Timed Event",
+      overlap: "end",
+    },
+    { dateHeader: nextClone.startDate, title: "Next Event" }
+  );
+
+  await calendar.deleteItem(timedClone);
+  await calendar.deleteItem(duringClone);
+  await calendar.deleteItem(nextClone);
 });
 
 /**

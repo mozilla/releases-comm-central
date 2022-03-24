@@ -297,25 +297,32 @@
 
   class AgendaListItem extends HTMLLIElement {
     /**
-     * If this element represents the end of an event that starts on a different day.
+     * If this element represents an event that starts before the displayed day(s).
      *
      * @type {boolean}
      */
-    overlapsStart = false;
+    overlapsDisplayStart = false;
 
     /**
-     * If this element represents the start of an event that ends on a different day.
+     * If this element represents an event on a day that is not the event's first day.
      *
      * @type {boolean}
      */
-    overlapsMidnight = false;
+    overlapsDayStart = false;
 
     /**
-     * If this element represents the start of an event that ends after the displayed date(s).
+     * If this element represents an event on a day that is not the event's last day.
      *
      * @type {boolean}
      */
-    overlapsEnd = false;
+    overlapsDayEnd = false;
+
+    /**
+     * If this element represents an event that ends after the displayed day(s).
+     *
+     * @type {boolean}
+     */
+    overlapsDisplayEnd = false;
 
     constructor() {
       super();
@@ -344,7 +351,7 @@
       }
       this.hasConnected = true;
 
-      if (!this.overlapsMidnight || this.overlapsEnd) {
+      if (!this.overlapsDayEnd || this.overlapsDisplayEnd) {
         return;
       }
 
@@ -438,14 +445,13 @@
       if (this._localEndDate.timezone.tzid != defaultTimezone.tzid) {
         this._localEndDate = this._localEndDate.getInTimezone(defaultTimezone);
       }
-      this.overlapsStart = this._localStartDate.compare(TodayPane.agenda.startDate) < 0;
+      this.overlapsDisplayStart = this._localStartDate.compare(TodayPane.agenda.startDate) < 0;
 
       // Work out the date and time to use when sorting events, and the date header.
 
-      let isEndItem = this.classList.contains("agenda-listitem-end");
-      if (isEndItem) {
+      if (this.classList.contains("agenda-listitem-end")) {
         this.id = `agenda-listitem-end-${item.hashId}`;
-        this.overlapsStart = true;
+        this.overlapsDayStart = true;
 
         let sortDate = this._localEndDate.clone();
         if (isAllDay) {
@@ -466,9 +472,10 @@
         this.dateString = sortDate.icalString;
       } else {
         this.id = `agenda-listitem-${item.hashId}`;
+        this.overlapsDayStart = this.overlapsDisplayStart;
 
         let sortDate;
-        if (this.overlapsStart) {
+        if (this.overlapsDayStart) {
           // Use midnight for sorting.
           sortDate = cal.createDateTime();
           sortDate.resetTo(
@@ -488,16 +495,26 @@
 
         let nextDay = cal.createDateTime();
         nextDay.resetTo(sortDate.year, sortDate.month, sortDate.day + 1, 0, 0, 0, defaultTimezone);
-        this.overlapsMidnight = this._localEndDate.compare(nextDay) > 0;
-        this.overlapsEnd =
-          this.overlapsMidnight && this._localEndDate.compare(TodayPane.agenda.endDate) >= 0;
+        this.overlapsDayEnd = this._localEndDate.compare(nextDay) > 0;
+        this.overlapsDisplayEnd =
+          this.overlapsDayEnd && this._localEndDate.compare(TodayPane.agenda.endDate) >= 0;
 
-        if (isAllDay || !this.overlapsStart || this.overlapsMidnight) {
+        if (isAllDay || !this.overlapsDayStart || this.overlapsDayEnd) {
           // Sort using the start of the event.
           this.sortValue = sortDate.nativeTime;
         } else {
           // Sort using the end of the event.
           this.sortValue = this._localEndDate.nativeTime;
+
+          // If the event ends at midnight, remove a microsecond so that
+          // it is placed at the end of the previous day's events.
+          if (
+            this._localEndDate.hour == 0 &&
+            this._localEndDate.minute == 0 &&
+            this._localEndDate.second == 0
+          ) {
+            this.sortValue--;
+          }
         }
       }
 
@@ -512,17 +529,17 @@
       this.timeElement.removeAttribute("datetime");
       this.timeElement.textContent = "";
       if (!isAllDay) {
-        if (!this.overlapsStart) {
+        if (!this.overlapsDayStart) {
           this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.startDate));
           this.timeElement.textContent = cal.dtz.formatter.formatTime(this._localStartDate);
-        } else if (!this.overlapsMidnight) {
+        } else if (!this.overlapsDayEnd) {
           this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.endDate));
           this.timeElement.textContent = cal.dtz.formatter.formatTime(
             this._localEndDate,
             // We prefer to show midnight as 24:00 if possible to indicate
             // that the event ends at the end of this day, rather than the
             // start of the next day.
-            isEndItem
+            true
           );
         }
         this.setRelativeTime();
@@ -534,8 +551,8 @@
 
       // Display icons indicating if this event starts or ends on another day.
 
-      if (this.overlapsStart) {
-        if (this.overlapsMidnight) {
+      if (this.overlapsDayStart) {
+        if (this.overlapsDayEnd) {
           this.overlapElement.src = "chrome://calendar/skin/shared/event-continue.svg";
           document.l10n.setAttributes(
             this.overlapElement,
@@ -548,7 +565,7 @@
             "calendar-editable-item-multiday-event-icon-end"
           );
         }
-      } else if (this.overlapsMidnight) {
+      } else if (this.overlapsDayEnd) {
         this.overlapElement.src = "chrome://calendar/skin/shared/event-start.svg";
         document.l10n.setAttributes(
           this.overlapElement,
