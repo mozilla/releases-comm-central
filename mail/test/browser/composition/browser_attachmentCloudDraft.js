@@ -557,8 +557,7 @@ function collectFiles(files) {
 }
 
 async function createAttachmentFile(filename, content) {
-  let tempDir = await PathUtils.getTempDir();
-  let tempPath = PathUtils.join(tempDir, filename);
+  let tempPath = PathUtils.join(PathUtils.tempDir, filename);
   await IOUtils.writeUTF8(tempPath, content);
   return {
     path: tempPath,
