@@ -496,7 +496,6 @@
       this.mShowFullMonth = true;
       this.mShowWeekNumber = true;
 
-      this.mShowDaysOutsideMonth = true;
       this.mClickedTime = null;
 
       let dayHeaderRow = this.querySelector("thead > tr");
@@ -608,18 +607,6 @@
 
     get weeksInView() {
       return 0;
-    }
-
-    // Whether to show days outside of the current month.
-    set showDaysOutsideMonth(showDays) {
-      if (this.mShowDaysOutsideMonth != showDays) {
-        this.mShowDaysOutsideMonth = showDays;
-        this.refresh();
-      }
-    }
-
-    get showDaysOutsideMonth() {
-      return this.mShowDaysOutsideMonth;
     }
 
     // calICalendarView Methods
