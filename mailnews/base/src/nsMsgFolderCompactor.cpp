@@ -50,7 +50,7 @@ static nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
 // nsMsgFolderCompactor
 //////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS(nsMsgFolderCompactor, nsIMsgFolderCompactor, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsMsgFolderCompactor, nsIMsgFolderCompactor)
 
 nsMsgFolderCompactor::nsMsgFolderCompactor() {}
 
@@ -102,10 +102,26 @@ void nsMsgFolderCompactor::NextFolder() {
     }
     nsCString uri;
     folder->GetURI(uri);
-    nsresult rv = mCompactor->Compact(folder, this, mWindow);
+
+    // Callback for when a folder compaction completes.
+    RefPtr<nsMsgFolderCompactor> self(this);
+    auto completionFn = [self](nsresult status) {
+      if (NS_FAILED(status)) {
+        // Make sure we return a failing code upon overall completion, for
+        // now try to keep going.
+        self->mOverallStatus = status;
+        NS_WARNING("folder compact failed.");
+      }
+      // Release our lock on the compactor - it's done.
+      self->mTotalBytesGained += self->mCompactor->ExpungedBytes();
+      self->mCompactor = nullptr;
+      self->NextFolder();
+    };
+
+    nsresult rv = mCompactor->Compact(folder, completionFn, mWindow);
     if (NS_SUCCEEDED(rv)) {
       // Now wait for the compactor to let us know it's finished,
-      // via OnStopRunningUrl().
+      // via the completion callback fn.
       return;
     }
     mOverallStatus = rv;
@@ -126,27 +142,6 @@ void nsMsgFolderCompactor::NextFolder() {
   // We're not needed any more.
   mKungFuDeathGrip = nullptr;
   return;
-}
-
-NS_IMETHODIMP nsMsgFolderCompactor::OnStartRunningUrl(nsIURI* url) {
-  return NS_OK;
-}
-
-// Called by compactor when folder has finished compacting.
-NS_IMETHODIMP nsMsgFolderCompactor::OnStopRunningUrl(nsIURI* url,
-                                                     nsresult status) {
-  if (NS_FAILED(status)) {
-    // Make sure we return a failing code upon overall completion, for
-    // now try to keep going.
-    mOverallStatus = status;
-    NS_WARNING("folder compact failed.");
-  }
-  // Release our lock on the compactor - it's done.
-  mTotalBytesGained += mCompactor->ExpungedBytes();
-  mCompactor = nullptr;
-
-  NextFolder();
-  return NS_OK;
 }
 
 void nsMsgFolderCompactor::ShowDoneStatus() {
@@ -244,12 +239,12 @@ nsresult nsFolderCompactState::InitDB(nsIMsgDatabase* db) {
   return rv;
 }
 
-nsresult nsFolderCompactState::Compact(nsIMsgFolder* folder,
-                                       nsIUrlListener* aListener,
-                                       nsIMsgWindow* aMsgWindow) {
+nsresult nsFolderCompactState::Compact(
+    nsIMsgFolder* folder, std::function<void(nsresult)> completionFn,
+    nsIMsgWindow* msgWindow) {
   NS_ENSURE_ARG_POINTER(folder);
-  m_listener = aListener;
-  m_window = aMsgWindow;
+  m_completionFn = completionFn;
+  m_window = msgWindow;
   nsresult rv;
   nsCOMPtr<nsIMsgDatabase> db;
   nsCOMPtr<nsIFile> path;
@@ -272,8 +267,8 @@ nsresult nsFolderCompactState::Compact(nsIMsgFolder* folder,
       if (!valid)  // we are probably parsing the folder because we selected it.
       {
         folder->NotifyCompactCompleted();
-        if (m_listener) {
-          m_listener->OnStopRunningUrl(nullptr, NS_OK);
+        if (m_completionFn) {
+          m_completionFn(NS_OK);
         }
         return NS_OK;
       }
@@ -367,8 +362,8 @@ nsresult nsFolderCompactState::Compact(nsIMsgFolder* folder,
 
   // Skipped folder, for whatever reason.
   folder->NotifyCompactCompleted();
-  if (m_listener) {
-    m_listener->OnStopRunningUrl(nullptr, NS_OK);
+  if (m_completionFn) {
+    m_completionFn(NS_OK);
   }
   return NS_OK;
 }
@@ -459,7 +454,7 @@ NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI* url,
     m_parsingFolder = false;
     if (NS_SUCCEEDED(status)) {
       // Folder reparse succeeded. Start compacting it.
-      status = Compact(m_folder, m_listener, m_window);
+      status = Compact(m_folder, m_completionFn, m_window);
       if (NS_SUCCEEDED(status)) {
         return NS_OK;
       }
@@ -473,8 +468,8 @@ NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI* url,
   // tell)...
   m_folder->SetMsgDatabase(nullptr);
 
-  if (m_listener) {
-    m_listener->OnStopRunningUrl(nullptr, status);
+  if (m_completionFn) {
+    m_completionFn(status);
   }
   return NS_OK;
 }
@@ -665,8 +660,8 @@ nsresult nsFolderCompactState::FinishCompact() {
   }
 
   m_folder->NotifyCompactCompleted();
-  if (m_listener) {
-    m_listener->OnStopRunningUrl(nullptr, rv);
+  if (m_completionFn) {
+    m_completionFn(rv);
   }
 
   return NS_OK;
@@ -1126,8 +1121,8 @@ nsresult nsOfflineStoreCompactState::FinishCompact() {
 
   ShowStatusMsg(EmptyString());
   m_folder->NotifyCompactCompleted();
-  if (m_listener) {
-    m_listener->OnStopRunningUrl(nullptr, NS_OK);
+  if (m_completionFn) {
+    m_completionFn(NS_OK);
   }
   return rv;
 }
