@@ -26,6 +26,12 @@ var { AppConstants } = ChromeUtils.import(
 
 ChromeUtils.defineModuleGetter(
   this,
+  "DownloadUtils",
+  "resource://gre/modules/DownloadUtils.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
   "PluralForm",
   "resource://gre/modules/PluralForm.jsm"
 );
@@ -255,6 +261,17 @@ var snapshotFormatters = {
     document.l10n.setAttributes($("key-mozilla-box"), keyMozillaFound);
 
     $("safemode-box").textContent = data.safeMode;
+
+    const formatHumanReadableBytes = (elem, bytes) => {
+      let size = DownloadUtils.convertByteUnits(bytes);
+      document.l10n.setAttributes(elem, "app-basics-data-size", {
+        value: size[0],
+        unit: size[1],
+      });
+    };
+
+    formatHumanReadableBytes($("memory-size-box"), data.memorySizeBytes);
+    formatHumanReadableBytes($("disk-available-box"), data.diskAvailableBytes);
 
     // added for TB
     // Add profile path as private info into the page.
