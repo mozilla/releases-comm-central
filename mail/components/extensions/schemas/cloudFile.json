@@ -104,7 +104,7 @@
           "properties": {
             "aborted": {
               "type": "boolean",
-              "description": "Set this to true if the file upload was aborted.",
+              "description": "Set this to true if the file upload was aborted by the user and an :ref:`cloudFile.onFileUploadAbort` event has been received. No error message will be shown to the user.",
               "optional": true
             },
             "error": {
