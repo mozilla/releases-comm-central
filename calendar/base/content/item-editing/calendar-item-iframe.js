@@ -1850,8 +1850,13 @@ function updateAllDay() {
   }
 
   let allDay = document.getElementById("event-all-day").checked;
-  document.getElementById("event-starttime").toggleAttribute("timepickerdisabled", allDay);
-  document.getElementById("event-endtime").toggleAttribute("timepickerdisabled", allDay);
+  if (allDay) {
+    document.getElementById("event-starttime").setAttribute("timepickerdisabled", true);
+    document.getElementById("event-endtime").setAttribute("timepickerdisabled", true);
+  } else {
+    document.getElementById("event-starttime").removeAttribute("timepickerdisabled");
+    document.getElementById("event-endtime").removeAttribute("timepickerdisabled");
+  }
 
   gStartTime.isDate = allDay;
   gEndTime.isDate = allDay;

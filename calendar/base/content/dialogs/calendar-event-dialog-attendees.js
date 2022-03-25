@@ -244,8 +244,13 @@ var dateTimePickerUI = {
 
   changeAllDay() {
     let allDay = this.allDay.checked;
-    document.getElementById("event-starttime").toggleAttribute("timepickerdisabled", allDay);
-    document.getElementById("event-endtime").toggleAttribute("timepickerdisabled", allDay);
+    if (allDay) {
+      document.getElementById("event-starttime").setAttribute("timepickerdisabled", true);
+      document.getElementById("event-endtime").setAttribute("timepickerdisabled", true);
+    } else {
+      document.getElementById("event-starttime").removeAttribute("timepickerdisabled");
+      document.getElementById("event-endtime").removeAttribute("timepickerdisabled");
+    }
 
     if (allDay) {
       // Store date-times and related timezones so we can restore
