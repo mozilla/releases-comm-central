@@ -997,3 +997,16 @@ button.existing:dir(rtl) {
 .result-item > button:hover > img {
   color: var(--in-content-primary-button-background);
 }
+
+@media (-moz-platform: linux),
+       (-moz-platform: windows) {
+  #manualConfigArea select {
+    line-height: 1.7;
+  }
+}
+
+@media (-moz-platform: macos) {
+  #manualConfigArea select {
+    line-height: 2;
+  }
+}
