@@ -76,14 +76,14 @@
   color: inherit;
 }
 
-.today-pane-cycler:-moz-lwtheme-brighttext:hover,
-:root[lwt-tree-brighttext] .today-pane-cycler:hover {
-  background-color: hsla(0, 0%, 100%, 0.1);
-}
+@media (prefers-color-scheme: dark) {
+  .today-pane-cycler:hover {
+    background-color: hsla(0, 0%, 100%, 0.1);
+  }
 
-.today-pane-cycler:-moz-lwtheme-brighttext:hover:active,
-:root[lwt-tree-brighttext] .today-pane-cycler:hover:active {
-  background-color: hsla(0, 0%, 100%, 0.2);
+  .today-pane-cycler:hover:active {
+    background-color: hsla(0, 0%, 100%, 0.2);
+  }
 }
 
 .today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
@@ -114,9 +114,10 @@
   background-color: var(--sidebar-background-color);
 }
 
-:root[lwt-tree] .today-subpane,
-:root:not([lwt-tree]):-moz-lwtheme-brighttext .today-subpane {
-  border-bottom-color: var(--splitter-color);
+@media (prefers-color-scheme: dark) {
+  .today-subpane {
+    border-bottom-color: var(--splitter-color);
+  }
 }
 
 #today-minimonth-box {

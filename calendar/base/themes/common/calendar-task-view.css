@@ -70,8 +70,7 @@
   color: var(--toolbar-color);
 }
 
-:root[lwt-tree] #task-addition-box,
-:root:not([lwt-tree]):-moz-lwtheme-brighttext #task-addition-box {
+#task-addition-box:-moz-lwtheme {
   border-color: var(--splitter-color);
 }
 
@@ -147,8 +146,7 @@
   margin: 3px 0;
 }
 
-:root[lwt-tree] #calendar-task-tree-detail,
-:root:not([lwt-tree]):-moz-lwtheme-brighttext #calendar-task-tree-detail {
+#calendar-task-tree-detail:-moz-lwtheme {
   border-top-color: var(--splitter-color);
 }
 

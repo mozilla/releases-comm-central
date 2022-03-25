@@ -45,9 +45,10 @@
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
 }
 
-.searchBox:-moz-lwtheme-brighttext:hover,
-:root[lwt-tree-brighttext] .themeableSearchBox:not([disabled]):hover {
-  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.25);
+@media (prefers-color-scheme: dark) {
+  .searchBox:hover {
+    box-shadow: 0 1px 3px rgba(255, 255, 255, 0.25);
+  }
 }
 
 /* special treatment because these boxes are on themable toolbars */

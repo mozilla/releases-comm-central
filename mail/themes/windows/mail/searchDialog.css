@@ -33,7 +33,9 @@
   margin-inline-end: 4px;
 }
 
-:root:not([lwt-tree]) #searchTermBox:-moz-lwtheme-brighttext,
-:root:not([lwt-tree]) #searchResults:-moz-lwtheme-brighttext {
-  --highlight-color: var(--dark-lwt-highlight-color);
+@media (prefers-color-scheme: dark) {
+  :root:not([lwt-tree]) #searchTermBox,
+  :root:not([lwt-tree]) #searchResults {
+    --highlight-color: var(--dark-lwt-highlight-color);
+  }
 }

@@ -44,6 +44,12 @@
                                               rgba(249, 249, 250, .3));
 }
 
+/* Special rule for dark system theme and default TB theme */
+:root[lwt-tree-brighttext]:not([lwt-tree]) treechildren::-moz-tree-row(current, focus) {
+  --sidebar-highlight-background-color: SelectedItem;
+  --sidebar-highlight-text-color: SelectedItemText;
+}
+
 #tabs-toolbar {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                         hsla(240, 5%, 5%, .1));
@@ -429,16 +435,6 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 5px;
-}
-
-/* Status bar */
-
-.statusbar:-moz-lwtheme {
-  appearance: none;
-}
-
-.statusbar:-moz-lwtheme-brighttext {
-  --lwt-tabs-border-color: hsla(0,0%,60%,.4);
 }
 
 .statusbarpanel {

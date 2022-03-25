@@ -140,7 +140,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 }
 
 @media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
-  :root:not([lwt-tree],:-moz-lwtheme-brighttext) #listPaneBox {
+  :root:not([lwt-tree],:-moz-lwtheme) #listPaneBox {
     background-color: #fafafa;
   }
 }

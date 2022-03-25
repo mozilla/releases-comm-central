@@ -35,7 +35,6 @@
   color: var(--toolbar-color);
 }
 
-:root[lwt-tree] #unifinder-searchBox,
-:root:not([lwt-tree]):-moz-lwtheme-brighttext #unifinder-searchBox {
+#unifinder-searchBox:-moz-lwtheme {
   border-bottom-color: var(--splitter-color);
 }

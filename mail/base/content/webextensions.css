@@ -24,12 +24,14 @@
   toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
     list-style-image: var(--webextension-toolbar-image-dark, inherit);
   }
-  :root .spaces-addon-menuitem:-moz-lwtheme-brighttext,
-  :root .spaces-popup-menuitem:-moz-lwtheme-brighttext,
-  toolbar[brighttext] .webextension-action,
-  .webextension-action:-moz-lwtheme-brighttext,
-  :root[lwt-tree-brighttext] .webextension-action {
-    list-style-image: var(--webextension-toolbar-image-light, inherit);
+  @media (prefers-color-scheme: dark) {
+    :root .spaces-addon-menuitem:-moz-lwtheme,
+    :root .spaces-popup-menuitem:-moz-lwtheme,
+    toolbar[brighttext] .webextension-action,
+    .webextension-action:-moz-lwtheme,
+    :root[lwt-tree-brighttext] .webextension-action {
+      list-style-image: var(--webextension-toolbar-image-light, inherit);
+    }
   }
 
   :root .spaces-addon-button img {
@@ -38,8 +40,10 @@
   :root .spaces-addon-button:-moz-lwtheme img {
     content: var(--webextension-toolbar-image-dark, inherit);
   }
-  :root .spaces-addon-button:-moz-lwtheme-brighttext img {
-    content: var(--webextension-toolbar-image-light, inherit);
+  @media (prefers-color-scheme: dark) {
+    :root .spaces-addon-button:-moz-lwtheme img {
+      content: var(--webextension-toolbar-image-light, inherit);
+    }
   }
 
   .webextension-action[cui-areatype="menu-panel"] {
@@ -69,12 +73,14 @@
   toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
     list-style-image: var(--webextension-toolbar-image-2x-dark, inherit);
   }
-  :root .spaces-addon-menuitem:-moz-lwtheme-brighttext,
-  :root .spaces-popup-menuitem:-moz-lwtheme-brighttext,
-  toolbar[brighttext] .webextension-action,
-  .webextension-action:-moz-lwtheme-brighttext,
-  :root[lwt-tree-brighttext] .webextension-action {
-    list-style-image: var(--webextension-toolbar-image-2x-light, inherit);
+  @media (prefers-color-scheme: dark) {
+    :root .spaces-addon-menuitem:-moz-lwtheme,
+    :root .spaces-popup-menuitem:-moz-lwtheme,
+    toolbar[brighttext] .webextension-action,
+    .webextension-action:-moz-lwtheme,
+    :root[lwt-tree-brighttext] .webextension-action {
+      list-style-image: var(--webextension-toolbar-image-2x-light, inherit);
+    }
   }
 
   :root .spaces-addon-button img {
@@ -83,8 +89,10 @@
   :root .spaces-addon-button:-moz-lwtheme img {
     content: var(--webextension-toolbar-image-2x-dark, inherit);
   }
-  :root .spaces-addon-button:-moz-lwtheme-brighttext img {
-    content: var(--webextension-toolbar-image-2x-light, inherit);
+  @media (prefers-color-scheme: dark) {
+    :root .spaces-addon-button:-moz-lwtheme img {
+      content: var(--webextension-toolbar-image-2x-light, inherit);
+    }
   }
 
   .webextension-action[cui-areatype="menu-panel"] {

@@ -166,7 +166,7 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([lwt-tree]):-moz-lwtheme-brighttext,
+  :root:not([lwt-tree]):-moz-lwtheme,
   :root[lwt-default-theme-in-dark-mode] {
     --button-primary-bgcolor: rgb(0, 97, 224) !important; /* override the default variable */
     --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
@@ -186,7 +186,7 @@ body {
     --unread-folder-color: var(--sidebar-text-color);
   }
 
-  :root:not([lwt-tree]):-moz-lwtheme-brighttext {
+  :root:not([lwt-tree]):-moz-lwtheme {
     --arrowpanel-border-color: #52525e;
     --chrome-content-separator-color: #52525e;
     --item-focus-selected-border-color: #bebebf;
@@ -335,7 +335,7 @@ toolbar[brighttext] {
 }
 
 .themeable-full[brighttext],
-:root:-moz-lwtheme-brighttext .themeable-full,
+:root[lwtheme-brighttext] .themeable-full,
 :root[lwt-tree-brighttext] .themeable-brighttext {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                         rgba(255, 255, 255, .25));
@@ -352,7 +352,7 @@ toolbar[brighttext] {
 }
 
 @media (prefers-color-scheme: dark) {
-:root:-moz-lwtheme-brighttext .themeable-brighttext {
+:root:-moz-lwtheme .themeable-brighttext {
     --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background,
                                             rgba(255, 255, 255, .25));
   }
@@ -421,13 +421,15 @@ treechildren::-moz-tree-twisty(selected, focus) {
 }
 
 /* Make the new mail indicator better visible on dark theme */
-:root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
-:root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-:root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-  color: #0aa5ff !important;
+@media (prefers-color-scheme: dark) {
+  :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+  :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+  :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+    color: #0aa5ff !important;
+  }
 }
 
 :root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
@@ -441,7 +443,7 @@ treechildren::-moz-tree-twisty(selected, focus) {
   color: var(--lwt-text-color);
 }
 
-:root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme-brighttext {
+:root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
   --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background);
@@ -1178,12 +1180,14 @@ html|ul.addon-installed-list {
   background-color: hsla(0, 0%, 0%, .2);
 }
 
-.button-flat:-moz-lwtheme-brighttext:hover {
-  background-color: hsla(0, 0%, 100%, .2);
-}
+@media (prefers-color-scheme: dark) {
+  .button-flat:hover {
+    background-color: hsla(0, 0%, 100%, .2);
+  }
 
-.button-flat:-moz-lwtheme-brighttext:hover:active {
-  background-color: hsla(0, 0%, 100%, .3);
+  .button-flat:hover:active {
+    background-color: hsla(0, 0%, 100%, .3);
+  }
 }
 
 .button-flat:focus-visible:not(:hover) {
@@ -1267,13 +1271,15 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
                                          hsla(0, 0%, 60%, 0.4)) 50%, transparent);
 }
 
-:root:-moz-lwtheme-brighttext treecol,
-:root:-moz-lwtheme-brighttext treecolpicker {
-  border-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
-}
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme treecol,
+  :root:-moz-lwtheme treecolpicker {
+    border-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
+  }
 
-:root:-moz-lwtheme-brighttext treecol {
-  border-inline-end-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
+  :root:-moz-lwtheme treecol {
+    border-inline-end-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
+  }
 }
 
 :root:-moz-lwtheme treecol:hover,
@@ -1281,9 +1287,11 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
   background-color: hsla(0, 0%, 60%, 0.4);
 }
 
-:root:-moz-lwtheme-brighttext treecol:hover,
-:root:-moz-lwtheme-brighttext treecolpicker:hover {
-  background-color: rgba(249, 249, 250, 0.2);
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme treecol:hover,
+  :root:-moz-lwtheme treecolpicker:hover {
+    background-color: rgba(249, 249, 250, 0.2);
+  }
 }
 
 .toolbarbutton-1:not(.qfb-tag-button),
@@ -1399,6 +1407,7 @@ statuspanel:not([label]) {
 }
 
 #status-bar:-moz-lwtheme {
+  appearance: none;
   background-repeat: no-repeat, var(--lwt-background-tiling);
   background-position: bottom right, var(--lwt-background-alignment);
   background-color: var(--lwt-accent-color);
@@ -1407,8 +1416,11 @@ statuspanel:not([label]) {
   border-top: 1px solid var(--lwt-tabs-border-color);
 }
 
-#status-bar:-moz-lwtheme-brighttext {
-  border-top-color: var(--lwt-accent-color);
+@media (prefers-color-scheme: dark) {
+  .statusbar:-moz-lwtheme {
+    --lwt-tabs-border-color: hsla(0, 0%, 60%, 0.4);
+    border-top-color: var(--lwt-accent-color);
+  }
 }
 
 #status-bar:-moz-lwtheme toolbarbutton {

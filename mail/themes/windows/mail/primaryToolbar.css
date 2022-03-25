@@ -38,9 +38,11 @@
     background-color: hsla(0, 0%, 0%, .12);
   }
 
-  #menubar-items > #mail-menubar >
-    menu:not([disabled="true"])[_moz-menuactive="true"]:-moz-lwtheme-brighttext {
-    background-color: hsla(0, 0%, 100%, .2);
+  @media (prefers-color-scheme: dark) {
+    #menubar-items > #mail-menubar >
+      menu:not([disabled="true"])[_moz-menuactive="true"] {
+      background-color: hsla(0, 0%, 100%, .2);
+    }
   }
 }
 

@@ -59,7 +59,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme-brighttext {
+  :root:-moz-lwtheme {
     --autocomplete-popup-highlight-color: var(--lwt-text-color);
     --dark-lwt-highlight-color: #0a84ff;
   }
@@ -111,13 +111,15 @@
 }
 
 @media (-moz-windows-non-native-menus) {
-  :root:not([lwt-tree]):-moz-lwtheme-brighttext menupopup {
-    --panel-background: var(--arrowpanel-background) !important;
-    --panel-color: var(--arrowpanel-color) !important;
-    --panel-border-color: var(--arrowpanel-border-color) !important;
-    --menu-color: var(--arrowpanel-color) !important;
-    --menu-disabled-color: color-mix(in srgb, var(--arrowpanel-color) 35%, transparent) !important;
-    --menuitem-hover-background-color: color-mix(in srgb, var(--arrowpanel-color) 13%, transparent) !important;
+  @media (prefers-color-scheme: dark) {
+    :root:not([lwt-tree]):-moz-lwtheme menupopup {
+      --panel-background: var(--arrowpanel-background) !important;
+      --panel-color: var(--arrowpanel-color) !important;
+      --panel-border-color: var(--arrowpanel-border-color) !important;
+      --menu-color: var(--arrowpanel-color) !important;
+      --menu-disabled-color: color-mix(in srgb, var(--arrowpanel-color) 35%, transparent) !important;
+      --menuitem-hover-background-color: color-mix(in srgb, var(--arrowpanel-color) 13%, transparent) !important;
+    }
   }
 }
 
@@ -297,33 +299,33 @@ treechildren::-moz-tree-cell-text {
 
 @media (prefers-color-scheme: dark) {
   /* Override the toolkit color. */
-  :root:-moz-lwtheme-brighttext tree > treechildren::-moz-tree-row(selected) {
+  :root:-moz-lwtheme tree > treechildren::-moz-tree-row(selected) {
     background-color:  rgba(249, 249, 250, .1);
   }
 
-  :root:-moz-lwtheme-brighttext tree > treechildren::-moz-tree-row(selected, focus) {
+  :root:-moz-lwtheme tree > treechildren::-moz-tree-row(selected, focus) {
     background-color: var(--dark-lwt-highlight-color);
   }
 
-  :root:-moz-lwtheme-brighttext treechildren::-moz-tree-twisty(selected),
-  :root:-moz-lwtheme-brighttext tree:not(:focus) treechildren::-moz-tree-image(selected),
-  :root:-moz-lwtheme-brighttext #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
-  :root:-moz-lwtheme-brighttext tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
+  :root:-moz-lwtheme treechildren::-moz-tree-twisty(selected),
+  :root:-moz-lwtheme tree:not(:focus) treechildren::-moz-tree-image(selected),
+  :root:-moz-lwtheme #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
+  :root:-moz-lwtheme tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
     color: FieldText;
   }
 
-  :root:-moz-lwtheme-brighttext tree:not(#threadTree) treechildren::-moz-tree-image(selected, focus),
-  :root:-moz-lwtheme-brighttext #threadTree treechildren::-moz-tree-image(untagged, selected, focus),
-  :root:-moz-lwtheme-brighttext #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
-  :root:-moz-lwtheme-brighttext tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
+  :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-image(selected, focus),
+  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-image(untagged, selected, focus),
+  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
+  :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
     color: FieldText;
     fill: currentColor;
     stroke: currentColor;
   }
 
-  :root:-moz-lwtheme-brighttext tree:not(#threadTree) treechildren::-moz-tree-twisty(selected),
-  :root:-moz-lwtheme-brighttext #threadTree treechildren::-moz-tree-twisty(untagged, selected),
-  :root:-moz-lwtheme-brighttext treechildren::-moz-tree-image(folderNameCol, selected, focus) {
+  :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-twisty(selected),
+  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-twisty(untagged, selected),
+  :root:-moz-lwtheme treechildren::-moz-tree-image(folderNameCol, selected, focus) {
     fill: FieldText !important;
   }
 }
@@ -517,16 +519,6 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
     border-top: none;
     background-color: -moz-dialog;
   }
-}
-
-/* Status bar */
-
-.statusbar:-moz-lwtheme {
-  appearance: none;
-}
-
-.statusbar:-moz-lwtheme-brighttext {
-  --lwt-tabs-border-color: hsla(0,0%,60%,.4);
 }
 
 .statusbarpanel {

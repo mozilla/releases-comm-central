@@ -13,63 +13,61 @@
   --toolbar-non-lwt-textcolor: var(--lwt-text-color);
   --toolbar-non-lwt-bgimage: none;
   --new-focused-folder-color: var(--sidebar-highlight-text-color);
-}
-
-:root:-moz-lwtheme-brighttext {
-  /* Toolbar buttons */
-  --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
-  --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-  --unread-folder-color: #fff;
-  --autocomplete-popup-highlight-background: #0060DF;
-
-  /* composer header fields bottom border */
-  --composer-header-border-color: rgb(127, 127, 128);
-}
-
-:root:-moz-lwtheme-darktext {
   /* composer header fields bottom border */
   --composer-header-border-color: #aaa;
 }
 
-/* Make the unread mail indicator better visible on dark theme */
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-  color: #fff !important;
-}
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme {
+    /* Toolbar buttons */
+    --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
+    --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+    --unread-folder-color: #fff;
+    --autocomplete-popup-highlight-background: #0060DF;
+    /* composer header fields bottom border */
+    --composer-header-border-color: rgb(127, 127, 128);
+  }
 
-/* Make the new mail indicator better visible on dark theme */
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-  color: #45b1ff !important;
-}
+  /* Make the unread mail indicator better visible on dark theme */
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+    color: #fff !important;
+  }
 
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
-  fill: #45b1ff !important;
-}
+  /* Make the new mail indicator better visible on dark theme */
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+    color: #45b1ff !important;
+  }
 
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(hasUnreadMessages-true, selected, focus),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true, selected, focus) {
-  color: var(--sidebar-highlight-text-color) !important;
-}
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-image(folderNameCol, newMessages-true),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
+    fill: #45b1ff !important;
+  }
 
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(closed, subfoldersHaveUnreadMessages-true, selected, focus),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
-  fill: var(--sidebar-highlight-text-color) !important;
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(hasUnreadMessages-true, selected, focus),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true, selected, focus) {
+    color: var(--sidebar-highlight-text-color) !important;
+  }
+
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-image(closed, subfoldersHaveUnreadMessages-true, selected, focus),
+  #folderTree:-moz-lwtheme
+    treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
+    fill: var(--sidebar-highlight-text-color) !important;
+  }
 }

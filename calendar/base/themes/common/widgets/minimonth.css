@@ -45,7 +45,7 @@ calendar-minimonth {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme-brighttext  calendar-minimonth {
+  calendar-minimonth {
     --mmMainColor: var(--sidebar-text-color, FieldText);
     --mmMainBackground: var(--sidebar-background-color, Field);
     --mmHighlightColor: var(--sidebar-highlight-text-color, SelectedItemText);

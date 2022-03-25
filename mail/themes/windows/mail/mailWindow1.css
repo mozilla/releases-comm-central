@@ -354,12 +354,14 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         background-color: hsl(355, 82%, 69%);
       }
 
-      .titlebar-button:-moz-lwtheme-brighttext:hover {
-        background-color: hsla(0, 0%, 100%, .12);
-      }
+      @media (prefers-color-scheme: dark) {
+        .titlebar-button:hover {
+          background-color: hsla(0, 0%, 100%, .12);
+        }
 
-      .titlebar-button:-moz-lwtheme-brighttext:hover:active {
-        background-color: hsla(0, 0%, 100%, .22);
+        .titlebar-button:hover:active {
+          background-color: hsla(0, 0%, 100%, .22);
+        }
       }
     }
     @media (prefers-contrast) {
@@ -426,7 +428,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 
-  :root:not([lwt-tree],:-moz-lwtheme-brighttext) #folderTree {
+  :root:not([lwt-tree],:-moz-lwtheme) #folderTree {
     background-color: #fafafa;
   }
 
