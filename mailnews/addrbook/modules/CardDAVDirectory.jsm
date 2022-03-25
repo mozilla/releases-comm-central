@@ -575,7 +575,7 @@ class CardDAVDirectory extends SQLiteDirectory {
         }
       }
 
-      await this._bulkAddCards(abCards);
+      await this.bulkAddCards(abCards);
     }
 
     await this._getSyncToken();

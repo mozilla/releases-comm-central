@@ -363,7 +363,7 @@ class SQLiteDirectory extends AddrBookDirectory {
       "DELETE FROM list_cards WHERE list NOT IN (SELECT DISTINCT uid FROM lists)"
     );
   }
-  async _bulkAddCards(cards) {
+  async bulkAddCards(cards) {
     if (cards.length == 0) {
       return;
     }

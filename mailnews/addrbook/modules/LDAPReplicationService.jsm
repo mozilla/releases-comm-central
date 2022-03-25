@@ -8,6 +8,9 @@ const EXPORTED_SYMBOLS = ["LDAPReplicationService"];
 const { LDAPListenerBase } = ChromeUtils.import(
   "resource:///modules/LDAPListenerBase.jsm"
 );
+var { SQLiteDirectory } = ChromeUtils.import(
+  "resource:///modules/SQLiteDirectory.jsm"
+);
 
 /**
  * A service to replicate a LDAP directory to a local SQLite db.
@@ -28,6 +31,7 @@ class LDAPReplicationService extends LDAPListenerBase {
     this._listener = progressListener;
     this._attrMap = directory.attributeMap;
     this._count = 0;
+    this._cards = [];
     this._connection = Cc[
       "@mozilla.org/network/ldap-connection;1"
     ].createInstance(Ci.nsILDAPConnection);
@@ -124,7 +128,7 @@ class LDAPReplicationService extends LDAPListenerBase {
       Ci.nsIAbCard
     );
     this._attrMap.setCardPropertiesFromLDAPMessage(msg, newCard);
-    this._replicationDB.addCard(newCard);
+    this._cards.push(newCard);
     this._count++;
     if (this._count % 10 == 0) {
       // inform the listener every 10 entries
@@ -143,11 +147,12 @@ class LDAPReplicationService extends LDAPListenerBase {
    * Handler of nsILDAPMessage.RES_SEARCH_RESULT message.
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
-  _onLDAPSearchResult(msg) {
+  async _onLDAPSearchResult(msg) {
     if (
       msg.errorCode == Ci.nsILDAPErrors.SUCCESS ||
       msg.errorCode == Ci.nsILDAPErrors.SIZELIMIT_EXCEEDED
     ) {
+      await this._replicationDB.bulkAddCards(this._cards);
       this.done(true);
       return;
     }
@@ -172,9 +177,7 @@ class LDAPReplicationService extends LDAPListenerBase {
       this._directory.replicationFileName = this._replicationFile.leafName;
     }
 
-    this._replicationDB = Cc[
-      "@mozilla.org/addressbook/directory;1?type=jsaddrbook"
-    ].createInstance(Ci.nsIAbDirectory);
+    this._replicationDB = new SQLiteDirectory();
     this._replicationDB.init(`jsaddrbook://${this._replicationFile.leafName}`);
   }
 
@@ -184,6 +187,7 @@ class LDAPReplicationService extends LDAPListenerBase {
    * @param {bool} success - Replication succeeded or failed.
    */
   async _done(success) {
+    this._cards = [];
     if (this._replicationDB) {
       // Close the db.
       await this._replicationDB.cleanUp();

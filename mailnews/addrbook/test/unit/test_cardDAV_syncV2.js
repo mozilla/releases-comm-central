@@ -20,7 +20,7 @@ async function subtest() {
   let directory = initDirectory();
 
   // We'll only use this for the initial sync, so I think it's okay to use
-  // _bulkAddCards and not get a notification for every contact.
+  // bulkAddCards and not get a notification for every contact.
   info("Initial sync with server.");
   await directory.fetchAllFromServer();
 
