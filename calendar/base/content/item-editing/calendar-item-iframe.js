@@ -39,6 +39,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
+window.addEventListener("load", onLoad);
+window.addEventListener("unload", onEventDialogUnload);
+
 var cloudFileAccounts;
 try {
   ({ cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm"));

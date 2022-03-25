@@ -3,8 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- XXX some of these css files may not be needed here.
-    widget-bindings.css definitely is needed here -->
+<!-- XXX some of these css files may not be needed here. -->
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-alarms.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/widgets/minimonth.css"?>
@@ -16,7 +15,7 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
     <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
     <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
     <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
@@ -30,35 +29,29 @@
     %messengercomposeDTD;
     %editorOverlayDTD;
 ]>
-
-<!-- Vbox id is changed during execution to allow different treatment.
-     document.loadOverlay() will not work on this one. -->
-<window id="calendar-event-dialog-inner"
-      onload="onLoad();"
-      onunload="onEventDialogUnload();"
+<html id="calendar-event-dialog-inner" xmlns="http://www.w3.org/1999/xhtml"
       lightweightthemes="true"
-      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml">
-
-  <linkset>
-    <html:link rel="localization" href="calendar/calendar-editable-item.ftl"/>
-    <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-  </linkset>
-
-  <!-- JavaScript includes -->
-  <script src="chrome://calendar/content/calendar-item-iframe.js"/>
-  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://calendar/content/calApplicationUtils.js"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://calendar/content/calendar-statusbar.js"/>
-  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
-  <script src="chrome://calendar/content/widgets/datetimepickers.js"/>
-  <script src="chrome://messenger/content/messengercompose/editor.js"/>
-  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
-  <script src="chrome://messenger/content/messengercompose/ComposerCommands.js"/>
-
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title></title>
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="calendar/calendar-editable-item.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calApplicationUtils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-statusbar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/editor.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/editorUtilities.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/ComposerCommands.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-item-iframe.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <commandset id="">
     <command id="cmd_recurrence"
              oncommand="editRepeat();"/>
@@ -746,13 +739,13 @@
                   <menupopup id="AlignPopup">
                     <menuitem id="AlignLeftItem" class="menuitem-iconic" label="&alignLeft.label;"
                               oncommand="doStatefulCommand('cmd_align', 'left')"
-                              tooltiptext="&alignLeftButton.tooltip;"    />
+                              tooltiptext="&alignLeftButton.tooltip;" />
                     <menuitem id="AlignCenterItem" class="menuitem-iconic" label="&alignCenter.label;"
                               oncommand="doStatefulCommand('cmd_align', 'center')"
-                              tooltiptext="&alignCenterButton.tooltip;"  />
+                              tooltiptext="&alignCenterButton.tooltip;" />
                     <menuitem id="AlignRightItem" class="menuitem-iconic" label="&alignRight.label;"
                               oncommand="doStatefulCommand('cmd_align', 'right')"
-                              tooltiptext="&alignRightButton.tooltip;"   />
+                              tooltiptext="&alignRightButton.tooltip;" />
                     <menuitem id="AlignJustifyItem" class="menuitem-iconic" label="&alignJustify.label;"
                               oncommand="doStatefulCommand('cmd_align', 'justify')"
                               tooltiptext="&alignJustifyButton.tooltip;" />
@@ -932,4 +925,5 @@
                 oncommand="this.parentNode.editTimezone()"/>
     </menupopup>
   </popupset>
-</window>
+</html:body>
+</html>

@@ -225,10 +225,28 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
     iframe.setAttribute("id", "calendar-item-panel-iframe");
     iframe.setAttribute("flex", "1");
 
-    let statusbar = document.getElementById("status-bar");
-
     // Note: iframe.contentWindow is undefined before the iframe is inserted here.
-    dialog.insertBefore(iframe, statusbar);
+    dialog.insertBefore(iframe, document.getElementById("status-bar"));
+
+    iframe.contentWindow.addEventListener(
+      "load",
+      () => {
+        // Push setting dimensions to the end of the event queue.
+        setTimeout(() => {
+          let body = iframe.contentDocument.body;
+          // Make sure the body does not exceed its content's size.
+          body.style.width = "fit-content";
+          body.style.height = "fit-content";
+          let { scrollHeight, scrollWidth } = body;
+          iframe.style.height = iframe.style.minHeight = `${scrollHeight}px`;
+          iframe.style.width = iframe.style.minWidth = `${scrollWidth}px`;
+          // Reset the body.
+          body.style.width = null;
+          body.style.height = null;
+        });
+      },
+      { once: true }
+    );
 
     // Move the args so they are positioned relative to the iframe,
     // for the window dialog just as they are for the tab.
@@ -263,44 +281,6 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
     if (typeof window.ToolbarIconColor !== "undefined") {
       window.ToolbarIconColor.init();
     }
-
-    // Enlarge the dialog window so the iframe content fits, and prevent it
-    // getting smaller. We don't know the minimum size of the content unless
-    // it's overflowing, so don't attempt to enforce what we don't know.
-    let overflowListener = () => {
-      let docEl = document.documentElement;
-      let { scrollWidth, scrollHeight } = iframe.contentDocument.documentElement;
-      let { clientWidth, clientHeight } = iframe;
-
-      let diffX = scrollWidth - clientWidth;
-      let diffY = scrollHeight - clientHeight;
-      // If using a scaled screen resolution, rounding might cause
-      // scrollWidth/scrollHeight to be 1px larger than
-      // clientWidth/clientHeight, so we check for a difference
-      // greater than 1 here, not 0.
-      if (diffX > 1) {
-        window.resizeBy(diffX, 0);
-        docEl.setAttribute("minwidth", docEl.getAttribute("width"));
-      }
-      if (diffY > 1) {
-        window.resizeBy(0, diffY);
-        docEl.setAttribute("minheight", docEl.getAttribute("height"));
-      }
-      if (docEl.hasAttribute("minwidth") && docEl.hasAttribute("minheight")) {
-        iframe.contentWindow.removeEventListener("resize", overflowListener);
-      }
-    };
-    iframe.contentWindow.addEventListener(
-      "load",
-      () => {
-        // This is the first listener added, but it should run after all the others,
-        // so that they can properly set up the layout they might need.
-        // Push to the end of the event queue.
-        setTimeout(overflowListener, 0);
-        iframe.contentWindow.addEventListener("resize", overflowListener);
-      },
-      { once: true }
-    );
   }
 
   // event or task
