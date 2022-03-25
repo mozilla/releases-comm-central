@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onUnload, updatePartStat, browseDocument, reply */
+/* exported reply */
 
 /* global MozElements */
 
-/* import-globals-from ../../src/calApplicationUtils.js */
 /* import-globals-from calendar-dialog-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -17,6 +16,9 @@ XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
     document.getElementById("status-notifications").append(element);
   });
 });
+
+window.addEventListener("load", onLoad);
+window.addEventListener("unload", onUnload);
 
 /**
  * Sets up the summary dialog, setting all needed fields on the dialog from the
@@ -176,18 +178,6 @@ function updateToolbar() {
   } else {
     gStatusNotification.removeAllNotifications();
   }
-}
-
-/**
- * Browse the item's attached URL.
- *
- * XXX This function is broken, should be fixed in bug 471967
- */
-function browseDocument() {
-  let args = window.arguments[0];
-  let item = args.calendarEvent;
-  let url = item.getProperty("URL");
-  launchBrowser(url);
 }
 
 /**

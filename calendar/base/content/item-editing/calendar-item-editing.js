@@ -510,6 +510,7 @@ function openEventDialog(
   let isEditable = mode == "modify" && !isInvitation && cal.acl.userCanModifyItem(calendarItem);
 
   if (cal.acl.isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
+    // Currently the read-only summary dialog is never opened in a tab.
     if (args.inTab) {
       url = "chrome://calendar/content/calendar-item-iframe.xhtml";
     } else {
@@ -522,27 +523,13 @@ function openEventDialog(
   }
 
   if (args.inTab) {
-    // open in a tab, currently the read-only summary dialog is
-    // never opened in a tab
     args.url = url;
     let tabmail = document.getElementById("tabmail");
     let tabtype = args.calendarEvent.isEvent() ? "calendarEvent" : "calendarTask";
     tabmail.openTab(tabtype, args);
   } else {
     // open in a window
-
-    // reminder: event dialog should not be modal (cf bug 122671)
-    let features;
-    // keyword "dependent" should not be used (cf bug 752206)
-    if (Services.appinfo.OS == "WINNT") {
-      features = "chrome,titlebar,toolbar,resizable,status";
-    } else if (Services.appinfo.OS == "Darwin") {
-      features = "chrome,titlebar,toolbar,resizable,status,minimizable=no";
-    } else {
-      // All other targets, mostly Linux flavors using gnome.
-      features = "chrome,titlebar,toolbar,resizable,status,minimizable=no,dialog=no";
-    }
-    openDialog(url, "_blank", features, args);
+    openDialog(url, "_blank", "chrome,titlebar,toolbar,resizable", args);
   }
 }
 

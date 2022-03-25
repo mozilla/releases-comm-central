@@ -544,11 +544,6 @@ label.label {
 /*--------------------------------------------------------------------
  *   Event summary dialog
  *-------------------------------------------------------------------*/
-
-#calendar-summary-dialog {
-  min-width: 35em;
-}
-
 #summary-toolbox {
   margin-block: -8px 5px;
   margin-inline: -8px -10px;
@@ -563,10 +558,13 @@ label.label {
 }
 
 #calendar-summary-dialog,
-#calendar-event-summary-dialog,
-#calendar-task-summary-dialog,
 #calendar-ics-file-dialog {
   min-width: 35em;
+}
+
+#calendar-event-summary-dialog,
+#calendar-task-summary-dialog {
+  width: 35em;
 }
 
 #calendar-summary-dialog .item-location,
