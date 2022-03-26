@@ -52,18 +52,9 @@
 
 /* Styles for the default system dark theme */
 
-:root[lwt-tree] :is(#MsgHeadersToolbar, #MsgHeadersToolbar) {
+:root[lwt-tree] :is(#MsgHeadersToolbar, #FormatToolbox) {
   background-color: var(--toolbar-bgcolor) !important;
   color: var(--lwt-text-color);
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
-  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
-}
-
-:root[lwt-tree] #MsgHeadersToolbar {
-  color: inherit;
 }
 
 :root[lwt-tree] panel[type="autocomplete-richlistbox"] {
