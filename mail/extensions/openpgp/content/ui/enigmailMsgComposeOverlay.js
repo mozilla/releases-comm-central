@@ -842,7 +842,7 @@ Enigmail.msg = {
         item => item.attachment.name == keyAttachment.name
       )
     ) {
-      this.addAttachment(keyAttachment);
+      await this.addAttachment(keyAttachment);
     }
 
     gContentChanged = true;
@@ -850,7 +850,7 @@ Enigmail.msg = {
   },
 
   addAttachment(attachment) {
-    AddAttachments([attachment]);
+    return AddAttachments([attachment]);
   },
 
   removeAttachedKey() {

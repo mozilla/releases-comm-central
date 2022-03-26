@@ -14,14 +14,21 @@ interface nsIMsgAttachment : nsISupports {
    * @Attachment real name, will be sent with the attachment's header.
    * @If no name has been provided, a name will be generated using the url.
    */
-  attribute AString   name;
+  attribute AString name;
 
   /**
    * url attribute
    *
-   * @specify where the attachment live (localy or remotely)
+   * @specify where the attachment live (locally or remotely)
    */
-  attribute AUTF8String  url;
+  attribute AUTF8String url;
+
+  /**
+   * msgUri attribute
+   *
+   * @specify the uri of the message this attachment belongs to
+   */
+  attribute AUTF8String msgUri;
 
   /**
    * urlCharset attribute
@@ -29,7 +36,7 @@ interface nsIMsgAttachment : nsISupports {
    * @specify the Charset of url  (used to convert url to Unicode after
    *  unescaping)
    */
-  attribute ACString    urlCharset;
+  attribute ACString urlCharset;
 
 
   /**
@@ -66,7 +73,9 @@ interface nsIMsgAttachment : nsISupports {
    * contentLocation attribute
    *
    * @Specify the origin url of the attachment, used normally when attaching
-   * a locally saved html document, but also used for cloud files.
+   * a locally saved html document, but also used for cloud files and to store
+   * the original mailbox:// url of attachments, after they have been saves as
+   * temporary files.
    */
   attribute ACString contentLocation;
 
@@ -77,7 +86,7 @@ interface nsIMsgAttachment : nsISupports {
    * @you need to specify extra information, use contentTypeParam, charset, macType or macCreator.
    * @If omitted, it will be determined base on either the name, the url or the content of the file.
    */
-  attribute string    contentType;
+  attribute string contentType;
 
   /**
    * contentTypeParam attribute
@@ -85,7 +94,7 @@ interface nsIMsgAttachment : nsISupports {
    * @Specify the any content-type parameter (other than the content-type itself, charset, macType or macCreator).
    * @It will be added to the content-type during the send/save operation.
    */
-  attribute string    contentTypeParam;
+  attribute string contentTypeParam;
 
   /**
    * Content-ID for embedded attachments inside a multipart/related container.
@@ -99,14 +108,14 @@ interface nsIMsgAttachment : nsISupports {
    * @send/save operation
    * @If omitted, will be determined automatically (if possible).
    */
-  attribute string    charset;
+  attribute string charset;
 
   /**
    * size attribute
    *
    * @Specify the size of the attachment.
    */
-  attribute int64_t   size;
+  attribute int64_t size;
 
   /**
    * macType attribute
@@ -115,7 +124,7 @@ interface nsIMsgAttachment : nsISupports {
    * @send/save operation
    * @If omitted, will be determined automatically on Macintosh OS.
    */
-  attribute string    macType;
+  attribute string macType;
 
   /**
    * macCreator attribute
@@ -124,7 +133,7 @@ interface nsIMsgAttachment : nsISupports {
    * @send/save operation
    * @If omitted, will be determined automatically on Macintosh OS.
    */
-  attribute string    macCreator;
+  attribute string macCreator;
 
   /**
     * equalsUrl

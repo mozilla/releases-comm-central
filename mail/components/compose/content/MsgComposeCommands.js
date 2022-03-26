@@ -2729,7 +2729,7 @@ async function attachToCloudRepeat(upload, account) {
   let attachment = FileToAttachment(file);
   attachment.name = upload.name;
 
-  let addedAttachmentItems = AddAttachments([attachment]);
+  let addedAttachmentItems = await AddAttachments([attachment]);
   if (addedAttachmentItems.length > 0) {
     try {
       await UpdateAttachment(addedAttachmentItems[0], {
@@ -2773,7 +2773,7 @@ async function attachToCloudNew(aAccount) {
 
   let files = [...fp.files];
   let attachments = files.map(f => FileToAttachment(f));
-  let addedAttachmentItems = AddAttachments(attachments);
+  let addedAttachmentItems = await AddAttachments(attachments);
   SetLastAttachDirectory(files[files.length - 1]);
 
   let promises = [];
@@ -4025,7 +4025,11 @@ async function ComposeStartup() {
 
   document.getElementById("msgSubject").value = gMsgCompose.compFields.subject;
 
-  let addedAttachmentItems = AddAttachments(
+  // Do not await async calls before registering the stateListener, otherwise it
+  // will miss states.
+  gMsgCompose.RegisterStateListener(stateListener);
+
+  let addedAttachmentItems = await AddAttachments(
     gMsgCompose.compFields.attachments,
     false
   );
@@ -4128,7 +4132,6 @@ async function ComposeStartup() {
       new Event("compose-window-init", { bubbles: false, cancelable: true })
     );
 
-  gMsgCompose.RegisterStateListener(stateListener);
   dispatchAttachmentBucketEvent(
     "attachments-added",
     gMsgCompose.compFields.attachments
@@ -6881,6 +6884,66 @@ function FileToAttachment(file) {
   return attachment;
 }
 
+async function messageAttachmentToFile(attachment) {
+  let pathTempDir = PathUtils.join(
+    PathUtils.tempDir,
+    "pid-" + Services.appinfo.processID
+  );
+  await IOUtils.makeDirectory(pathTempDir, { permissions: 0o700 });
+  let pathTempFile = await IOUtils.createUniqueFile(
+    pathTempDir,
+    attachment.name,
+    0o600
+  );
+  let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  tempFile.initWithPath(pathTempFile);
+  let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
+    Ci.nsPIExternalAppLauncher
+  );
+  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+  let service = gMessenger.messageServiceFromURI(attachment.url);
+  let bytes = await new Promise((resolve, reject) => {
+    let streamlistener = {
+      _data: [],
+      _stream: null,
+      onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
+        if (!this._stream) {
+          this._stream = Cc[
+            "@mozilla.org/scriptableinputstream;1"
+          ].createInstance(Ci.nsIScriptableInputStream);
+          this._stream.init(aInputStream);
+        }
+        this._data.push(this._stream.read(aCount));
+      },
+      onStartRequest() {},
+      onStopRequest(aRequest, aStatus) {
+        if (aStatus == Cr.NS_OK) {
+          resolve(this._data.join(""));
+        } else {
+          Cu.reportError(aStatus);
+          reject();
+        }
+      },
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIStreamListener",
+        "nsIRequestObserver",
+      ]),
+    };
+
+    service.streamMessage(
+      attachment.url,
+      streamlistener,
+      null, // aMsgWindow
+      null, // aUrlListener
+      false, // aConvertData
+      "" //aAdditionalHeader
+    );
+  });
+  await IOUtils.writeUTF8(pathTempFile, bytes);
+  return tempFile;
+}
+
 /**
  * Add a list of attachment objects as attachments. The attachment URLs must
  * be set.
@@ -6889,14 +6952,14 @@ function FileToAttachment(file) {
  * @param {Boolean} [aContentChanged=true] - Optional value to assign gContentChanged
  *   after adding attachments.
  */
-function AddAttachments(aAttachments, aContentChanged = true) {
+async function AddAttachments(aAttachments, aContentChanged = true) {
   let addedAttachments = [];
   let items = [];
 
   for (let attachment of aAttachments) {
     if (
       !(attachment && attachment.url) ||
-      DuplicateFileAlreadyAttached(attachment.url)
+      DuplicateFileAlreadyAttached(attachment)
     ) {
       continue;
     }
@@ -6917,6 +6980,56 @@ function AddAttachments(aAttachments, aContentChanged = true) {
       );
     } else if (/^file:|^mailbox:|^imap:|^s?news:/i.test(attachment.name)) {
       attachment.name = getComposeBundle().getString("partAttachmentSafeName");
+    }
+
+    // Create temporary files for message attachments.
+    if (
+      /^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)
+    ) {
+      try {
+        let messageFile = await messageAttachmentToFile(attachment);
+        // Store the original mailbox:// url in contentLocation.
+        attachment.contentLocation = attachment.url;
+        attachment.url = Services.io.newFileURI(messageFile).spec;
+      } catch (ex) {
+        Cu.reportError(
+          `Could not save message attachment ${attachment.url} as file: ${ex}`
+        );
+      }
+    }
+
+    if (
+      attachment.msgUri &&
+      /^mailbox-message:|^imap-message:|^news-message:/i.test(
+        attachment.msgUri
+      ) &&
+      attachment.url &&
+      /^mailbox:|^imap:|^s?news:/i.test(attachment.url)
+    ) {
+      // This is an attachment of another message, create a temporary file and
+      // update the url.
+      let pathTempDir = PathUtils.join(
+        PathUtils.tempDir,
+        "pid-" + Services.appinfo.processID
+      );
+      await IOUtils.makeDirectory(pathTempDir, { permissions: 0o700 });
+      let tempDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      tempDir.initWithPath(pathTempDir);
+
+      let tempFile = gMessenger.saveAttachmentToFolder(
+        attachment.contentType,
+        attachment.url,
+        encodeURIComponent(attachment.name),
+        attachment.msgUri,
+        tempDir
+      );
+      let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
+        Ci.nsPIExternalAppLauncher
+      );
+      extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+      // Store the original mailbox:// url in contentLocation.
+      attachment.contentLocation = attachment.url;
+      attachment.url = Services.io.newFileURI(tempFile).spec;
     }
 
     let item = gAttachmentBucket.appendItem(attachment);
@@ -7117,14 +7230,25 @@ function AttachPage() {
 }
 
 /**
- * Check if the given fileURL already exists in the attachment bucket.
- * @param fileURL the URL (as a String) of the file to check
- * @return true if the fileURL is already attached
+ * Check if the given attachment already exists in the attachment bucket.
+ *
+ * @param nsIMsgAttachment - the attachment to check
+ * @return true if the attachment is already attached
  */
-function DuplicateFileAlreadyAttached(fileURL) {
+function DuplicateFileAlreadyAttached(attachment) {
   for (let item of gAttachmentBucket.itemChildren) {
-    if (item.attachment && item.attachment.url == fileURL) {
-      return true;
+    if (item.attachment && item.attachment.url) {
+      if (item.attachment.url == attachment.url) {
+        return true;
+      }
+      // Also check, if an attachment has been saved as a temporary file and its
+      // original url is a match.
+      if (
+        item.attachment.contentLocation &&
+        item.attachment.contentLocation == attachment.url
+      ) {
+        return true;
+      }
     }
   }
 
@@ -8607,6 +8731,8 @@ var envelopeDragObserver = {
       let isValidAttachment = false;
       let prettyName;
       let size;
+      let contentType;
+      let msgUri;
       let cloudFileInfo;
 
       // We could be dropping an attachment of various flavors OR an address;
@@ -8649,10 +8775,16 @@ var envelopeDragObserver = {
           if (pieces.length > 2) {
             size = parseInt(pieces[2]);
           }
+          if (pieces.length > 3) {
+            contentType = pieces[3];
+          }
           if (pieces.length > 4) {
+            msgUri = pieces[4];
+          }
+          if (pieces.length > 6) {
             cloudFileInfo = {
-              cloudFileAccountKey: pieces[3],
-              cloudPartHeaderData: pieces[4],
+              cloudFileAccountKey: pieces[5],
+              cloudPartHeaderData: pieces[6],
             };
           }
 
@@ -8677,7 +8809,6 @@ var envelopeDragObserver = {
             // the widget.
             event.preventDefault();
           }
-
           break;
       }
 
@@ -8688,6 +8819,8 @@ var envelopeDragObserver = {
         ].createInstance(Ci.nsIMsgAttachment);
         attachment.url = data;
         attachment.name = prettyName;
+        attachment.contentType = contentType;
+        attachment.msgUri = msgUri;
 
         if (size !== undefined) {
           attachment.size = size;
@@ -8825,7 +8958,7 @@ var envelopeDragObserver = {
       return;
     }
 
-    let addedAttachmentItems = AddAttachments(attachments);
+    let addedAttachmentItems = await AddAttachments(attachments);
     // Convert attachments back to cloudFiles, if any.
     for (let attachmentItem of addedAttachmentItems) {
       if (

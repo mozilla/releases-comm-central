@@ -892,7 +892,7 @@ function setupDataTransfer(event, attachments) {
           encodeURIComponent(name)
       );
     }
-    info.push(name, attachment.size);
+    info.push(name, attachment.size, attachment.contentType, attachment.uri);
     if (attachment.sendViaCloud) {
       info.push(attachment.cloudFileAccountKey, attachment.cloudPartHeaderData);
     }

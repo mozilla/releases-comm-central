@@ -512,7 +512,7 @@ async function createAttachment(data) {
 }
 
 async function AddAttachmentsToWindow(window, attachmentData) {
-  window.AddAttachments(attachmentData.map(a => a.attachment));
+  await window.AddAttachments(attachmentData.map(a => a.attachment));
   // Check if an attachment has been cloned and the cloudFileUpload needs to be
   // re-applied.
   for (let entry of attachmentData) {

@@ -151,3 +151,88 @@ add_task(async function testComposerIsReady() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+/* Test the compose API accessing the forwarded message added by beginForward. */
+add_task(async function testBeginForward() {
+  let files = {
+    "background.js": async () => {
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(2, accounts.length, "number of accounts");
+      let popAccount = accounts.find(a => a.type == "pop3");
+      let folder = popAccount.folders.find(f => f.name == "test");
+      let { messages } = await browser.messages.list(folder);
+      browser.test.assertEq(4, messages.length, "number of messages");
+
+      let details = {
+        plainTextBody: "This is Text",
+        to: ["Mr. Holmes <holmes@bakerstreet.invalid>"],
+        subject: "Test Email",
+      };
+
+      let tests = [
+        {
+          description: "Forward as attachment.",
+          funcName: "beginForward",
+          arguments: [messages[0].id, "forwardAsAttachment", details],
+          expectedAttachments: [
+            {
+              name: "Big Meeting Today.eml",
+              type: "message/rfc822",
+              size: 281,
+              content: "Hello Bob Bell!",
+            },
+          ],
+        },
+      ];
+
+      for (let test of tests) {
+        browser.test.log(JSON.stringify(test));
+
+        let tab = await browser.compose[test.funcName](...test.arguments);
+        let attachments = await browser.compose.listAttachments(tab.id);
+        browser.test.assertEq(
+          test.expectedAttachments.length,
+          attachments.length,
+          `Should have the expected number of attachments`
+        );
+        for (let i = 0; i < attachments.length; i++) {
+          let file = await browser.compose.getAttachmentFile(attachments[i].id);
+          for (let [property, value] of Object.entries(
+            test.expectedAttachments[i]
+          )) {
+            if (property == "content") {
+              let content = await file.text();
+              browser.test.assertTrue(
+                content.includes(value),
+                `Attachment body should include ${value}`
+              );
+            } else {
+              browser.test.assertEq(
+                value,
+                file[property],
+                `Attachment should have the correct value for ${property}`
+              );
+            }
+          }
+        }
+
+        let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+        browser.windows.remove(tab.windowId);
+        await removedWindowPromise;
+      }
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "accountsRead", "messagesRead"],
+    },
+  });
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

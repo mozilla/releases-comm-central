@@ -22,6 +22,7 @@ class nsMsgAttachment : public nsIMsgAttachment {
 
   nsString mName;
   nsCString mUrl;
+  nsCString mMsgUri;
   nsCString mUrlCharset;
   bool mTemporary;
   bool mSendViaCloud;

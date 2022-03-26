@@ -349,10 +349,12 @@ async function moveAttachments(dragSrc, destBucket, expectUrls) {
     () => destBucket.itemCount == expectUrls.length,
     `Destination bucket has ${expectUrls.length} attachments`
   );
-  for (let url of expectUrls) {
+  let items = Array.from(destBucket.childNodes);
+  for (let i = 0; i < items.length; i++) {
     Assert.ok(
-      getAttachmentItem(destBucket, url),
-      `Should have attachment ${url}`
+      items[i].attachment.url.startsWith("file://") &&
+        items[i].attachment.url.includes(expectUrls[i].split(".")[0]),
+      `Attachment url ${items[i].attachment.url} should be the correct file:// url`
     );
   }
 }
@@ -360,6 +362,12 @@ async function moveAttachments(dragSrc, destBucket, expectUrls) {
 /**
  * Perform a series of drag and drop of attachments from the given source bucket
  * to the given destination bucket.
+ *
+ * The dragged attachment will be saved as a local temporary file. This test
+ * extracts the filename from the url and checks if the url of the attachment
+ * in the destBucket is a file:// url and has the correct file name.
+ * The original url is a mailbox:// url:
+ *   mailbox:///something?number=1&part=1.4&filename=file2.txt
  *
  * @param {Element} srcBucket - The bucket to drag from. It must contain 6
  *   attachment items and be open.
@@ -389,14 +397,14 @@ async function drag_between_buckets(srcBucket, destBucket) {
 
   // Select attachment #2, and drag it.
   selectAttachments(srcBucket, [attachmentSet[2].srcItem]);
-  destUrls.push(attachmentSet[2].url);
+  destUrls.push(attachmentSet[2].url.split("=").pop());
   await moveAttachments(attachmentSet[2].srcItem, destBucket, destUrls);
 
   // Start with attachment #3 selected, but drag attachment #1.
   // The drag operation should at first change the selection to attachment #1,
   // such that it becomes the transferred file.
   selectAttachments(srcBucket, [attachmentSet[3].srcItem]);
-  destUrls.push(attachmentSet[1].url);
+  destUrls.push(attachmentSet[1].url.split("=").pop());
   await moveAttachments(attachmentSet[1].srcItem, destBucket, destUrls);
   // Confirm that attachment #1 was selected.
   assertSelection(srcBucket, [attachmentSet[1].srcItem]);
@@ -407,7 +415,10 @@ async function drag_between_buckets(srcBucket, destBucket) {
     attachmentSet[0].srcItem,
     attachmentSet[3].srcItem,
   ]);
-  destUrls.push(attachmentSet[0].url, attachmentSet[3].url);
+  destUrls.push(
+    attachmentSet[0].url.split("=").pop(),
+    attachmentSet[3].url.split("=").pop()
+  );
   await moveAttachments(attachmentSet[3].srcItem, destBucket, destUrls);
 
   // Select three attachments, two of which are already added.
@@ -417,9 +428,8 @@ async function drag_between_buckets(srcBucket, destBucket) {
     attachmentSet[5].srcItem,
     attachmentSet[2].srcItem,
   ]);
-  destUrls.push(attachmentSet[5].url);
+  destUrls.push(attachmentSet[5].url.split("=").pop());
   await moveAttachments(attachmentSet[1].srcItem, destBucket, destUrls);
-
   dragService.endDragSession(true);
 }
 
@@ -515,7 +525,7 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
 });
 
 /**
- * Test dragging attachments from one composition window to another.
+ * Test dragging attachments from a message into a composition window.
  */
 add_task(async function test_drag_and_drop_between_composition_windows() {
   let ctrlDest = open_compose_new_mail();
@@ -526,9 +536,9 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     create_message({
       attachments: [0, 1, 2, 3, 4, 5].map(num => {
         return {
-          body: "",
+          body: "Some Text",
           filename: `file${num}.txt`,
-          format: "",
+          format: "text/plain",
         };
       }),
     })
@@ -536,7 +546,6 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
   be_in_folder(folder);
   select_click_row(0);
   let srcAttachmentArea = mc.window.document.getElementById("attachmentView");
-
   Assert.ok(!srcAttachmentArea.collapsed, "Attachment area is visible");
 
   let srcBucket = mc.window.document.getElementById("attachmentList");

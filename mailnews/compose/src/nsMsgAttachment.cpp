@@ -42,6 +42,17 @@ NS_IMETHODIMP nsMsgAttachment::SetUrl(const nsACString& aUrl) {
   return NS_OK;
 }
 
+/* attribute string msgUri; */
+NS_IMETHODIMP nsMsgAttachment::GetMsgUri(nsACString& aMsgUri) {
+  aMsgUri = mMsgUri;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachment::SetMsgUri(const nsACString& aMsgUri) {
+  mMsgUri = aMsgUri;
+  return NS_OK;
+}
+
 /* attribute string urlCharset; */
 NS_IMETHODIMP nsMsgAttachment::GetUrlCharset(nsACString& aUrlCharset) {
   aUrlCharset = mUrlCharset;
