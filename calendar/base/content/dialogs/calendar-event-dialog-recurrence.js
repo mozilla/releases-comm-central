@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad */
-
-/* import-globals-from ../calendar-ui-utils.js */
-
 var { splitRecurrenceRules } = ChromeUtils.import(
   "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
@@ -22,6 +18,8 @@ var gStartTime = null;
 var gEndTime = null;
 var gUntilDate = null;
 
+window.addEventListener("load", onLoad);
+
 /**
  * Object wrapping the methods and properties of recurrence-preview binding.
  */
@@ -31,6 +29,9 @@ const RecurrencePreview = {
    */
   init() {
     this.node = document.getElementById("recurrence-preview");
+    this.minimonthRect = this.node.querySelector("calendar-minimonth").getBoundingClientRect();
+    this.numVertical = 3;
+    this.numHorizontal = 3;
     this.mRecurrenceInfo = null;
     this.mResizeHandler = null;
     this.mDateTime = null;
@@ -63,45 +64,47 @@ const RecurrencePreview = {
    * Updates #recurrence-preview node layout on window resize.
    */
   onResize() {
-    let minimonth = this.node.querySelector("calendar-minimonth");
+    if (window.innerHeight < 2) {
+      // Initial size not yet set up. Bail.
+      return;
+    }
 
     let hbox = this.node.querySelector("hbox");
     let vbox = hbox.parentNode;
 
-    let minimonthRect = minimonth.getBoundingClientRect();
-    let nodeRect = this.node.getBoundingClientRect();
-    let contentWidth = minimonthRect.width;
-    let containerWidth = nodeRect.width;
+    let contentWidth = this.minimonthRect.width;
+    let contentHeight = this.minimonthRect.height;
+    let { width: containerWidth, height: containerHeight } = this.node.getBoundingClientRect();
 
     // Now find out how much elements can be displayed.
     // this is a simple division which always yields a positive integer value.
     let cWidth = containerWidth % contentWidth;
-    let numHorizontal = (containerWidth - cWidth) / contentWidth;
-
-    let contentHeight = minimonthRect.height;
-    let containerHeight = nodeRect.height;
+    let numHorizontal = (containerWidth - cWidth) / contentWidth || 1;
 
     let cHeight = containerHeight % contentHeight;
     // Now find out how much elements can be displayed.
     // this is a simple division which always yields a positive integer value.
-    let numVertical = (containerHeight - cHeight) / contentHeight;
+    let numVertical = (containerHeight - cHeight) / contentHeight || 1;
 
-    // To cut down on reflows, use a new vbox instead of the live one.
+    // Don't rebuild if the numbers remain the same.
+    if (numVertical == this.numVertical && numHorizontal == this.numHorizontal) {
+      return;
+    }
+
+    this.numVertical = numVertical;
+    this.numHorizontal = numHorizontal;
+
+    // To cut down on reflows, use a new vbox instead of adjusting the live one.
     let newVbox = document.createXULElement("vbox");
 
     // Add the existing rows to the fragment.
-    for (let hbox of vbox.children) {
-      newVbox.appendChild(hbox);
-    }
-
-    // Add the extra rows we can accomodate.
-    for (let i = newVbox.childElementCount; i < numVertical; i++) {
+    for (let i = 0; i < numVertical; i++) {
       newVbox.appendChild(document.createXULElement("hbox"));
     }
 
     // Walk all rows and adjust column elements.
     for (let hbox of newVbox.children) {
-      for (let i = hbox.childElementCount; i < numHorizontal; i++) {
+      for (let i = 0; i < numHorizontal; i++) {
         let newNode = document.createXULElement("calendar-minimonth");
         newNode.setAttribute("readonly", "true");
         hbox.appendChild(newNode);
@@ -135,7 +138,6 @@ const RecurrencePreview = {
    */
   updatePreview(recurrenceInfo) {
     let minimonth = this.node.querySelector("calendar-minimonth");
-    this.node.style.minHeight = minimonth.getBoundingClientRect().height + "px";
 
     this.mRecurrenceInfo = recurrenceInfo;
     let start = this.dateTime.clone();
@@ -409,6 +411,7 @@ function onLoad() {
 
   // Update controls
   updateRecurrenceBox();
+  RecurrencePreview.onResize();
 
   opener.setCursor("auto");
   self.focus();
@@ -855,7 +858,6 @@ function updateRecurrenceBox() {
     periodBox.children[i].hidden = i != periodNumber;
   }
   updateRecurrenceControls();
-  window.sizeToContent();
 }
 
 /**
