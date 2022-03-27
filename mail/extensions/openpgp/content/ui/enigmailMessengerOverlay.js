@@ -2777,9 +2777,9 @@ Enigmail.msg = {
         var outFileUri = ioServ.newFileURI(outFile);
         var fileExt = outFile.leafName.replace(/(.*\.)(\w+)$/, "$2");
         if (fileExt && !callbackArg.forceBrowser) {
-          var extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
-            Ci.nsPIExternalAppLauncher
-          );
+          var extAppLauncher = Cc[
+            "@mozilla.org/uriloader/external-helper-app-service;1"
+          ].getService(Ci.nsPIExternalAppLauncher);
           extAppLauncher.deleteTemporaryFileOnExit(outFile);
 
           try {

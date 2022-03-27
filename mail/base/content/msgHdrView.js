@@ -2204,7 +2204,7 @@ AttachmentInfo.prototype = {
         tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
         tempFile.remove(false);
 
-        Cc["@mozilla.org/mime;1"]
+        Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
           .getService(Ci.nsPIExternalAppLauncher)
           .deleteTemporaryFileOnExit(tempFile);
 

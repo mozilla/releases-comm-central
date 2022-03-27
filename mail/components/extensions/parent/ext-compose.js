@@ -446,9 +446,9 @@ async function realFileForFile(file) {
 
   let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   tempFile.initWithPath(pathTempFile);
-  let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
-    Ci.nsPIExternalAppLauncher
-  );
+  let extAppLauncher = Cc[
+    "@mozilla.org/uriloader/external-helper-app-service;1"
+  ].getService(Ci.nsPIExternalAppLauncher);
   extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
   let bytes = await new Promise(function(resolve) {
