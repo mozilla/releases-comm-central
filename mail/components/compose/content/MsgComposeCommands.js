@@ -6897,9 +6897,9 @@ async function messageAttachmentToFile(attachment) {
   );
   let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   tempFile.initWithPath(pathTempFile);
-  let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
-    Ci.nsPIExternalAppLauncher
-  );
+  let extAppLauncher = Cc[
+    "@mozilla.org/uriloader/external-helper-app-service;1"
+  ].getService(Ci.nsPIExternalAppLauncher);
   extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
   let service = gMessenger.messageServiceFromURI(attachment.url);
@@ -7023,9 +7023,9 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
         attachment.msgUri,
         tempDir
       );
-      let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
-        Ci.nsPIExternalAppLauncher
-      );
+      let extAppLauncher = Cc[
+        "@mozilla.org/uriloader/external-helper-app-service;1"
+      ].getService(Ci.nsPIExternalAppLauncher);
       extAppLauncher.deleteTemporaryFileOnExit(tempFile);
       // Store the original mailbox:// url in contentLocation.
       attachment.contentLocation = attachment.url;
