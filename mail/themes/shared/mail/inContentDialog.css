@@ -2,6 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root {
+  --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
+  --button-hover-bgcolor: color-mix(in srgb, currentColor 17%, transparent);
+  --button-active-bgcolor: color-mix(in srgb, currentColor 30%, transparent);
+  --highlight-color: SelectedItem;
+  --primary-text-color: SelectedItemText;
+  --primary-background-hover: color-mix(in srgb, var(--highlight-color) 85%, black);
+  --primary-background-active: color-mix(in srgb, var(--highlight-color) 78%, black);
+}
+
+/* Global overrides */
+
+dialog *[hidden] {
+  display: none !important;
+}
+
+.reset-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* General UI */
+
 dialog {
   border-radius: 6px;
   border: none;
@@ -48,19 +72,6 @@ dialog::backdrop {
   line-height: 1.4em;
 }
 
-.dialog-menu-container {
-  display: flex;
-  align-items: center;
-  margin-block-end: 0;
-  margin-inline: 0;
-  padding-inline: 0;
-  justify-content: end;
-}
-
-.dialog-menu-container.two-columns {
-  justify-content: space-between;
-}
-
 /* Warning dialog */
 
 dialog.dialog-critical {
@@ -94,4 +105,224 @@ dialog.dialog-critical {
   margin-inline: 6px;
   font-size: 1.05rem;
   line-height: 1.4em;
+}
+
+.modal-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 580px;
+  color: inherit;
+  max-height: 90vh;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: Field;
+}
+
+.modal-dialog-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+  padding: 1em 1em 0;
+}
+
+.container-with-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+}
+
+.radio-container-with-text {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 12px;
+}
+
+.display-block {
+  display: block;
+  margin-block: 1px;
+}
+
+/* Typography */
+
+h1 {
+  margin-block-start: 0;
+}
+
+p {
+  margin-block-end: 6px;
+  font-size: 1.1em;
+  line-height: 1.4em;
+}
+
+.tip-caption {
+  opacity: 0.8;
+  font-size: 1em;
+}
+
+/* Lists */
+
+.radio-list {
+  margin-block: 12px;
+}
+
+.radio-list li {
+  margin-block-end: 12px;
+}
+
+.key-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid var(--checkbox-border-color);
+  border-radius: 3px;
+  margin-block: 12px 6px;
+}
+
+.key-list > li:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.key-row {
+  display: flex;
+  align-items: center;
+  gap: 3px 6px;
+  padding: 3px 6px;
+}
+
+.key-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Buttons area */
+
+.vertical-buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  margin-block-end: 9px;
+}
+
+.dialog-menu-container {
+  display: flex;
+  align-items: center;
+  margin-block-end: 0;
+  margin-inline: 0;
+  padding-inline: 6px;
+  padding-block-end: 6px;
+  justify-content: end;
+  background-color: field;
+  position: sticky;
+  bottom: 0;
+}
+
+.dialog-menu-container.two-columns {
+  justify-content: space-between;
+}
+
+.dialog-menu-container.menu-in-body {
+  margin-inline: -1em;
+}
+
+/* Buttons */
+
+.button-link {
+  appearance: none;
+  background-color: transparent !important;
+  color: LinkText;
+  border-style: none;
+  padding: 0 3px;
+  margin: 0;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: auto;
+}
+
+.button-link:hover {
+  text-decoration: underline;
+}
+
+#toggleRecipientsButton {
+  margin-top: 3px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--highlight-color);
+  outline-offset: -1px;
+}
+
+button:not([disabled]):hover {
+  background-color: var(--button-hover-bgcolor);
+}
+
+button:not([disabled]):hover:active {
+  background-color: var(--button-active-bgcolor);
+}
+
+button.primary {
+  background-color: var(--highlight-color);
+  color: var(--primary-text-color) !important;
+}
+
+button.primary:-moz-focusring {
+  border-color: var(--primary-focus-border);
+  outline-offset: 0;
+}
+
+button.primary:not([disabled]):hover {
+  background-color: var(--primary-background-hover);
+}
+
+button.primary:not([disabled]):hover:active {
+  background-color: var(--primary-background-active);
+}
+
+button[disabled] {
+  opacity: 0.4;
+}
+
+/* Loading states */
+
+@keyframes loading-animation {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes loading-animation-rtl {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+
+.loading-inline > span {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  height: 16px;
+  width: 16px;
+  color: SelectedItem;
+  vertical-align: sub;
+}
+
+.loading-inline > span::after {
+  position: absolute;
+  content: '';
+  background-image: url("chrome://messenger/skin/icons/loading.svg");
+  background-position: right center;
+  background-repeat: no-repeat;
+  width: 480px;
+  height: 100%;
+  animation: loading-animation 1.05s steps(30) infinite;
+}
+
+.loading-inline > span:-moz-locale-dir(rtl)::after {
+  background-position-x: left;
+  animation: loading-animation-rtl 1.05s steps(30) infinite;
 }

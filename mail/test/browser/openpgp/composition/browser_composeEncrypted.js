@@ -41,29 +41,6 @@ let gDrafts;
 let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
 
 /**
- * Used to intercept the alert prompt that comes before the key status dialog.
- */
-async function handleUnableToSendEncryptedDialog() {
-  return BrowserTestUtils.promiseAlertDialogOpen(
-    "",
-    "chrome://openpgp/content/ui/enigmailMsgBox.xhtml",
-    {
-      async callback(win) {
-        // Ensure this contains text related to the tests here.
-        Assert.ok(
-          win.document.documentElement.textContent.includes(
-            "Unable to send this message with end-to-end encryption"
-          ),
-          "unable to send encrypted dialog should be displayed"
-        );
-
-        await closeDialog(win);
-      },
-    }
-  );
-}
-
-/**
  * Used to intercept the dialog that displays the key statuses when an error
  * is encountered.
  * @param {Function} callback - A function that is called with the dialog window
@@ -264,7 +241,6 @@ add_task(
 
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-    let alertDialog = handleUnableToSendEncryptedDialog();
     let txt = await l10n.formatValue(
       "openpgp-compose-key-status-intro-need-keys"
     );
@@ -282,7 +258,6 @@ add_task(
 
     composeWin.goDoCommand("cmd_sendLater");
 
-    await alertDialog;
     await keyStatusDialog;
     await BrowserTestUtils.closeWindow(composeWin);
   }
@@ -328,8 +303,6 @@ add_task(
 
       await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-      let alertDialog = handleUnableToSendEncryptedDialog();
-
       let keyStatusDialog = handleKeyStatusDialog(async win => {
         let infoList = win.document.documentElement.querySelector("#infolist");
 
@@ -357,7 +330,6 @@ add_task(
 
       composeWin.goDoCommand("cmd_sendLater");
 
-      await alertDialog;
       await keyStatusDialog;
       await BrowserTestUtils.closeWindow(composeWin);
     }
@@ -430,8 +402,6 @@ add_task(
 
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-    let alertDialog = handleUnableToSendEncryptedDialog();
-
     let keyStatusDialog = handleKeyStatusDialog(async win => {
       let infoList = win.document.documentElement.querySelector("#infolist");
 
@@ -467,7 +437,6 @@ add_task(
 
     composeWin.goDoCommand("cmd_sendLater");
 
-    await alertDialog;
     await keyStatusDialog;
     await BrowserTestUtils.closeWindow(composeWin);
   }
@@ -513,8 +482,6 @@ add_task(
 
       await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-      let alertDialog = handleUnableToSendEncryptedDialog();
-
       let keyStatusDialog = handleKeyStatusDialog(async win => {
         let infoList = win.document.documentElement.querySelector("#infolist");
 
@@ -549,7 +516,6 @@ add_task(
 
       composeWin.goDoCommand("cmd_sendLater");
 
-      await alertDialog;
       await keyStatusDialog;
       await BrowserTestUtils.closeWindow(composeWin);
     }

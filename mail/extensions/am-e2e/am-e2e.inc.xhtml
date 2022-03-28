@@ -179,30 +179,26 @@
         <description flex="1">&e2eEnc.description;</description>
 
         <radiogroup id="encryptionChoices" class="indent">
-          <radio id="encrypt_no" wsm_persist="true" value="0"
-                 label="&doNotEncrypt.label;"
-                 accesskey="&doNotEncrypt.accesskey;"/>
+          <radio id="disable_encryption" wsm_persist="true" value="0"
+                 data-l10n-id="e2e-disable-enc"/>
           <!--
           <radio id="encrypt_allow" wsm_persist="true" value="1"
                  label=""/>
           -->
-          <radio id="encrypt_require" wsm_persist="true" value="2"
-                 label="&requireEncryptMessage.label;"
-                 accesskey="&requireEncryptMessage.accesskey;"/>
+          <radio id="enable_encryption" wsm_persist="true" value="2"
+                 data-l10n-id="e2e-enable-enc"/>
+          <hbox>
+            <description flex="1" data-l10n-id="e2e-enable-description"
+                         class="option-description tip-caption"/>
+          </hbox>
         </radiogroup>
-
-        <hbox class="indent">
-          <description flex="1" class="option-description tip-caption">
-            &e2eeReqWarning.description;
-          </description>
-        </hbox>
 
         <separator/>
 
-        <description flex="1">&e2eSigning.description;</description>
-        <checkbox id="identity_sign_mail" wsm_persist="true"
+        <description flex="1" data-l10n-id="e2e-signing-description"></description>
+        <checkbox id="identity_sign_mail" class="indent" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.sign_mail"
-                  label="&signMessage2.label;" accesskey="&signMessage.accesskey;"/>
+                  data-l10n-id="e2e-sign-message"/>
 
       </html:fieldset>
       </html:div>

@@ -12,6 +12,7 @@
 /* import-globals-from ../../../base/content/toolbarIconColor.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from ../../../base/content/viewZoomOverlay.js */
+/* import-globals-from ../../../extensions/openpgp/content/ui/keyAssistant.js */
 /* import-globals-from addressingWidgetOverlay.js */
 /* import-globals-from cloudAttachmentLinkManager.js */
 /* import-globals-from ComposerCommands.js */
@@ -45,9 +46,14 @@ var { AppConstants } = ChromeUtils.import(
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
+  SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(
@@ -69,12 +75,6 @@ XPCOMUtils.defineLazyGetter(
       true
     )
 );
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
-});
 
 XPCOMUtils.defineLazyServiceGetter(
   this,
@@ -153,6 +153,7 @@ var gComposeType;
 var gLanguageObserver;
 var gRecipientObserver;
 var gBccObserver;
+var gRecipientKeysObserver;
 var gCheckPublicRecipientsTimer;
 var gBodyFromArgs;
 
@@ -1639,45 +1640,19 @@ function toggleGlobalSignMessage() {
       gAttachMyPublicPGPKey = gAttachMyPublicPGPKeyInitial;
     }
   }
-
-  setEncSigStatusUI();
 }
 
-function setGlobalEncryptMessage(mode) {
+function toggleEncryptMessage() {
   let oldSendEnc = gSendEncrypted;
   let oldOptEnc = gOptionalEncryption;
 
-  let enableSig = false;
+  gSendEncrypted = !gSendEncrypted;
 
-  switch (mode) {
-    case 0:
-      setSendEncrypted(false);
-      gOptionalEncryption = false;
-      break;
-    case 1:
-      setSendEncrypted(true);
-      enableSig = true;
-      gOptionalEncryption = true;
-      break;
-    case 2:
-      setSendEncrypted(true);
-      enableSig = true;
-      gOptionalEncryption = false;
-      break;
-    default:
-      return;
-  }
+  setSendEncryptedAndSigned(gSendEncrypted);
+  gOptionalEncryption = gSendEncrypted;
 
   if (oldSendEnc != gSendEncrypted || oldOptEnc != gOptionalEncryption) {
     gUserTouchedSendEncrypted = true;
-  }
-
-  if (!gUserTouchedSendSigned) {
-    if (enableSig) {
-      gSendSigned = true;
-    } else {
-      gSendSigned = gSendSignedInitial;
-    }
   }
 
   if (!gUserTouchedAttachMyPubKey) {
@@ -1689,39 +1664,53 @@ function setGlobalEncryptMessage(mode) {
   }
 
   if (!gUserTouchedEncryptSubject) {
-    gEncryptSubject = gCurrentIdentity.protectSubject;
+    setEncryptSubject(gCurrentIdentity.protectSubject);
   }
 
-  setEncSigStatusUI();
+  // Should button remain enabled? Identity might be unable to
+  // encrypt, but we might have kept button enabled after identity change.
+  let configuredSMIME =
+    isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
+  let configuredOpenPGP = isPgpConfigured();
+  let noEncryption = !configuredOpenPGP && !configuredSMIME;
+  document.getElementById("button-encryption-toggle").disabled =
+    noEncryption && !gSendEncrypted;
 }
 
-function toggleAttachMyPublicKey() {
+function toggleAttachMyPublicKey(target) {
   gAttachMyPublicPGPKey = !gAttachMyPublicPGPKey;
+  target.setAttribute("checked", gAttachMyPublicPGPKey);
   gUserTouchedAttachMyPubKey = true;
 }
 
-function toggleEncryptSubject() {
+function setEncryptSubject(state) {
+  gEncryptSubject = state;
+  updateEncryptedSubject();
+}
+
+function updateEncryptedSubject() {
+  let warnSubjectUnencrypted =
+    isPgpConfigured() &&
+    gSelectedTechnologyIsPGP &&
+    gSendEncrypted &&
+    !gEncryptSubject;
+
+  document
+    .getElementById("msgSubject")
+    .classList.toggle("with-icon", warnSubjectUnencrypted);
+  document.getElementById(
+    "msgEncryptedSubjectIcon"
+  ).hidden = !warnSubjectUnencrypted;
+}
+
+function toggleEncryptedSubject() {
   gEncryptSubject = !gEncryptSubject;
-  gUserTouchedEncryptSubject = true;
+  updateEncryptedSubject();
 }
 
 function setSecuritySettings(menu_id) {
-  let enc0Item = document.getElementById(
-    "menu_securityEncryptDisable" + menu_id
-  );
-  enc0Item.setAttribute("checked", !gSendEncrypted && !gOptionalEncryption);
-  /*
-  let enc1Item = document
-    .getElementById("menu_securityEncryptOptional" + menu_id);
-  enc1Item.setAttribute("checked", (gSendEncrypted && gOptionalEncryption));
-  */
-  let enc2Item = document.getElementById(
-    "menu_securityEncryptRequire" + menu_id
-  );
-  enc2Item.setAttribute("checked", gSendEncrypted && !gOptionalEncryption);
-
-  let sigItem = document.getElementById("menu_securitySign" + menu_id);
-  sigItem.setAttribute("checked", gSendSigned);
+  let encItem = document.getElementById("menu_securityEncrypt" + menu_id);
+  encItem.setAttribute("checked", gSendEncrypted);
 
   let disableSig = false;
   let disableEnc = false;
@@ -1740,15 +1729,15 @@ function setSecuritySettings(menu_id) {
     }
   }
 
+  let sigItem = document.getElementById("menu_securitySign" + menu_id);
+  sigItem.setAttribute("checked", gSendSigned && !disableSig);
+
   // The radio button to disable encryption is always active.
   // This is necessary, even if the current identity doesn't have
   // e2ee configured. If the user switches the sender identity of an
   // email, we might keep encryption enabled, to not surprise the user.
   // This means, we must always allow the user to disable encryption.
-  enc0Item.disabled = false;
-
-  //enc1Item.disabled = disableEnc;
-  enc2Item.disabled = disableEnc;
+  encItem.disabled = disableEnc && !gSendEncrypted;
 
   sigItem.disabled = disableSig;
 
@@ -1758,43 +1747,59 @@ function setSecuritySettings(menu_id) {
   smimeItem.disabled =
     !isSmimeSigningConfigured() && !isSmimeEncryptionConfigured();
 
-  let sep = document.getElementById("sepOpenPGP" + menu_id);
-  let men = document.getElementById("menu_OpenPGPOptions" + menu_id);
-  let box = document.getElementById("menu_securityMyPublicKey" + menu_id);
-  let box2 = document.getElementById("menu_securityEncryptSubject" + menu_id);
+  let encryptSubjectItem = document.getElementById(
+    `menu_securityEncryptSubject${menu_id}`
+  );
 
   pgpItem.setAttribute("checked", gSelectedTechnologyIsPGP);
   smimeItem.setAttribute("checked", !gSelectedTechnologyIsPGP);
+  encryptSubjectItem.setAttribute(
+    "checked",
+    !disableEnc && gSelectedTechnologyIsPGP && gSendEncrypted && gEncryptSubject
+  );
+  encryptSubjectItem.setAttribute(
+    "disabled",
+    disableEnc || !gSelectedTechnologyIsPGP || !gSendEncrypted
+  );
 
-  pgpItem.disabled = !isPgpConfigured();
-
-  sep.hidden = !gSelectedTechnologyIsPGP;
-  men.hidden = !gSelectedTechnologyIsPGP;
-  box.hidden = !gSelectedTechnologyIsPGP;
-  box.setAttribute("checked", gAttachMyPublicPGPKey);
-  box2.hidden = !gSelectedTechnologyIsPGP;
-  box2.setAttribute("checked", gEncryptSubject);
-
-  if (gSelectedTechnologyIsPGP) {
-    box.disabled = disableEnc;
-    box2.disabled = disableEnc;
-  }
+  document.getElementById(
+    "menu_recipientStatus" + menu_id
+  ).disabled = disableEnc;
+  let manager = document.getElementById("menu_openManager" + menu_id);
+  manager.disabled = disableEnc;
+  manager.hidden = !gSelectedTechnologyIsPGP;
 }
 
-function showMessageComposeSecurityStatus() {
-  Recipients2CompFields(gMsgCompose.compFields);
-
+/**
+ * Show the message security status based on the selected encryption technology.
+ *
+ * @param {boolean} [isSending=false] - If the key assistant was triggered
+ *   during a sending attempt.
+ */
+function showMessageComposeSecurityStatus(isSending = false) {
   if (gSelectedTechnologyIsPGP) {
-    window.openDialog(
-      "chrome://openpgp/content/ui/composeKeyStatus.xhtml",
-      "",
-      "chrome,modal,resizable,centerscreen",
-      {
-        compFields: gMsgCompose.compFields,
-        currentIdentity: gCurrentIdentity,
-      }
-    );
+    if (
+      Services.prefs.getBoolPref(
+        "mail.openpgp.key_assistant.enable",
+        false
+      )
+    ) {
+      gKeyAssistant.show(getEncryptionCompatibleRecipients(), isSending);
+    } else {
+      Recipients2CompFields(gMsgCompose.compFields);
+      window.openDialog(
+        "chrome://openpgp/content/ui/composeKeyStatus.xhtml",
+        "",
+        "chrome,modal,resizable,centerscreen",
+        {
+          compFields: gMsgCompose.compFields,
+          currentIdentity: gCurrentIdentity,
+        }
+      );
+      checkRecipientKeys();
+    }
   } else {
+    Recipients2CompFields(gMsgCompose.compFields);
     // Copy current flags to S/MIME composeSecure object.
     gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
     gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
@@ -2220,7 +2225,7 @@ async function updateAttachmentItemProperties(attachmentItem) {
   <meta charset="utf-8" />
  </head>
  <body>
-  <div style="padding: 15px; font-family: Calibri, sans-serif;"> 
+  <div style="padding: 15px; font-family: Calibri, sans-serif;">
    <div style="margin-bottom: 15px;" id="cloudAttachmentListHeader">${introText}</div>
    <ul>${
      (
@@ -3244,6 +3249,121 @@ function manageAttachmentNotification(aForce = false) {
   );
 }
 
+function clearRecipientsWithKeyIssues() {
+  for (let pill of document.querySelectorAll("mail-address-pill.key-issue")) {
+    pill.classList.remove("key-issue");
+  }
+}
+
+function getEncryptionCompatibleRecipients() {
+  let recipientPills = [
+    ...document.querySelectorAll(
+      "#toAddrContainer > mail-address-pill, #ccAddrContainer > mail-address-pill, #bccAddrContainer > mail-address-pill"
+    ),
+  ];
+  let recipients = [
+    ...new Set(recipientPills.map(pill => pill.emailAddress.toLowerCase())),
+  ];
+  return recipients;
+}
+
+async function checkRecipientKeys() {
+  let recipients = getEncryptionCompatibleRecipients();
+
+  // Calculate key notifications.
+  // 1 notification at most per email address that has no valid key.
+  // If an email address has several invalid keys, we notify only about the 1st
+  // undecided key, or the 1st expired key, or the 1st rejected key, in this
+  // order.
+  let keyNotifications = [];
+  if (gSendEncrypted) {
+    for (let addr of recipients) {
+      let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
+
+      if (keyMetas.length == 1 && keyMetas[0].readiness == "alias") {
+        // Skip if this is an alias email.
+        continue;
+      }
+
+      if (!keyMetas.some(k => k.readiness == "accepted")) {
+        keyNotifications.push(addr);
+        continue;
+      }
+    }
+  }
+
+  /**
+   * Remove all previous key notifications
+   */
+  let notification = gComposeNotification.getNotificationWithValue(
+    "keyNotification"
+  );
+  if (notification) {
+    gComposeNotification.removeNotification(notification);
+  }
+
+  // Always refresh the pills UI.
+  clearRecipientsWithKeyIssues();
+
+  // Interrupt if we don't have any issue.
+  if (!keyNotifications.length) {
+    return;
+  }
+
+  // Update recipient pills.
+  for (let pill of document.querySelectorAll("mail-address-pill")) {
+    if (
+      keyNotifications.includes(pill.emailAddress.toLowerCase()) &&
+      !pill.classList.contains("invalid-address")
+    ) {
+      pill.classList.add("key-issue");
+    }
+  }
+
+  /**
+   * Display the new key notification.
+   */
+  let buttons = [
+    {
+      "l10n-id": "key-notification-disable-encryption",
+      callback() {
+        setSendEncryptedAndSigned(false);
+        return true;
+      },
+    },
+    {
+      "l10n-id": "key-notification-resolve",
+      callback() {
+        showMessageComposeSecurityStatus();
+        return true;
+      },
+    },
+  ];
+
+  let label;
+
+  if (keyNotifications.length == 1) {
+    label = {
+      "l10n-id": "openpgp-key-issue-notification-one",
+      "l10n-args": { addr: keyNotifications[0] },
+    };
+  } else {
+    label = {
+      "l10n-id": "openpgp-key-issue-notification-many",
+      "l10n-args": { count: keyNotifications.length },
+    };
+  }
+
+  notification = gComposeNotification.appendNotification(
+    "keyNotification",
+    {
+      label,
+      priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    },
+    buttons
+  );
+}
+
 /**
  * Returns whether the attachment notification should be suppressed regardless
  * of the state of keywords.
@@ -4191,6 +4311,18 @@ async function ComposeStartup() {
     childList: true,
   });
   window.addEventListener("sendencryptedchange", checkEncryptedBccRecipients);
+
+  gRecipientKeysObserver = new MutationObserver(checkRecipientKeys);
+  gRecipientKeysObserver.observe(document.getElementById("toAddrContainer"), {
+    childList: true,
+  });
+  gRecipientKeysObserver.observe(document.getElementById("ccAddrContainer"), {
+    childList: true,
+  });
+  gRecipientKeysObserver.observe(document.getElementById("bccAddrContainer"), {
+    childList: true,
+  });
+  window.addEventListener("sendencryptedchange", checkRecipientKeys);
 }
 /* eslint-enable complexity */
 
@@ -4238,8 +4370,67 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   let configuredSMIME =
     isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
 
-  let configuredOpenPGP = false;
-  configuredOpenPGP = isPgpConfigured();
+  let configuredOpenPGP = isPgpConfigured();
+
+  // Show widgets based on the technologies available across all identities.
+  let allEmailIdentities = MailServices.accounts.allIdentities.filter(
+    i => i.email
+  );
+  let isOpenPGPAvailable = allEmailIdentities.some(i =>
+    i.getUnicharAttribute("openpgp_key_id")
+  );
+  let isSMIMEAvailable = allEmailIdentities.some(i =>
+    i.getUnicharAttribute("encryption_cert_name")
+  );
+
+  // If we don't have either OpePGP or SMIME for any identity, hide the entire
+  // menu.
+  document.getElementById("button-encryption-options").hidden =
+    !isOpenPGPAvailable && !isSMIMEAvailable;
+  document.getElementById("encryptionMenu").hidden =
+    !isOpenPGPAvailable && !isSMIMEAvailable;
+
+  // Show menu items only if both technologies are available.
+  document.getElementById("encTech_OpenPGP_Toolbar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+  document.getElementById("encTech_OpenPGP_Menubar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+  document.getElementById("encTech_SMIME_Toolbar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+  document.getElementById("encTech_SMIME_Menubar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+  document.getElementById("encryptionOptionsSeparator_Toolbar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+  document.getElementById("encryptionOptionsSeparator_Menubar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+
+  // Disable encryption widgets if this identity has no encryption configured.
+  // However, if encryption is currently enabled, we must keep it enabled,
+  // to allow the user to manually disable encryption (we don't disable
+  // encryption automatically, as the user might have seen that it is
+  // enabled and might rely on it).
+  let noEncryption = !configuredOpenPGP && !configuredSMIME;
+  document.getElementById("button-encryption-toggle").disabled =
+    noEncryption && !gSendEncrypted;
+  document.getElementById("button-encryption-options").disabled =
+    noEncryption && !gSendEncrypted;
+  document.getElementById("encryptionMenu").disabled =
+    noEncryption && !gSendEncrypted;
+
+  // Enable the encryption widgets of the technologies that are configured for
+  // this identity.
+  document.getElementById(
+    "encTech_OpenPGP_Toolbar"
+  ).disabled = !configuredOpenPGP;
+  document.getElementById(
+    "encTech_OpenPGP_Menubar"
+  ).disabled = !configuredOpenPGP;
+  document.getElementById("encTech_SMIME_Toolbar").disabled = !configuredSMIME;
+  document.getElementById("encTech_SMIME_Menubar").disabled = !configuredSMIME;
+
+  // Not yet implemented
+  gOptionalEncryption = false;
+  gOptionalEncryptionInitial = gOptionalEncryption;
 
   if (!prevIdentity) {
     gSelectedTechnologyIsPGP = false;
@@ -4279,24 +4470,15 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     gSelectedTechnologyIsPGP = true;
   }
 
-  if (gSelectedTechnologyIsPGP) {
-    if (!gUserTouchedEncryptSubject) {
-      gEncryptSubject = gCurrentIdentity.protectSubject;
-    }
-  }
-
-  // Not yet implemented
-  gOptionalEncryption = false;
-  gOptionalEncryptionInitial = gOptionalEncryption;
-
   if (!prevIdentity) {
     if (configuredOpenPGP || configuredSMIME) {
-      setSendEncrypted(gCurrentIdentity.encryptionPolicy > 0);
-      gSendSigned = gCurrentIdentity.signMail;
+      // Set default state for encryption and signature based on
+      // "encryptionPolicy" and "sign_mail".
+      setSendEncryptedAndSigned(gCurrentIdentity.encryptionPolicy > 0);
     }
 
     gSendEncryptedInitial = gSendEncrypted;
-    gSendSignedInitial = gSendSigned;
+    gSendSignedInitial = gCurrentIdentity.signMail;
     gAttachMyPublicPGPKeyInitial = gAttachMyPublicPGPKey;
 
     // automatic changes after this line
@@ -4308,11 +4490,8 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
       gEncryptSubject = gCurrentIdentity.protectSubject;
     }
   } else {
-    // When switching the Sender identity, use the more secure setting
-    // for encryption and signing, respectively.
-
-    // For encryption, the more secure setting is "enabled".
-
+    // Encrypt if the new identity asks for it.
+    //
     // If the user has had encryption enabled for a message initially,
     // then the user might have seen status in the user interface,
     // and might "know and assume" that encryption is enabled.
@@ -4321,35 +4500,21 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     // if the new identity isn't configured for encryption. The user
     // should be required to acknowledge that encryption will no longer
     // be used, by deliberately disabling it.
-
-    // If encryption isn't enabled yet, but the new identity asks for
-    // encryption by default, then enable it.
-
     if (!gSendEncrypted) {
       let newDefaultEncrypted = gCurrentIdentity.encryptionPolicy > 0;
 
       if (newDefaultEncrypted) {
-        setSendEncrypted(true);
+        setSendEncryptedAndSigned(true);
         gSendEncryptedInitial = gSendEncrypted;
       }
     }
 
-    // For signing, the more secure setting is "disabled" (this is from
-    // the sender's perspective - don't add a proof of identity unless
-    // the user requests it).
-
-    // Automatically disabling signing is also important from the user
-    // interface perspective. If no encryption technology is configured,
-    // then the user interface checkbox is disabled in the user
-    // interface, so keeping it enabled would have the consequence that
-    // the user is unable to disable the setting and consequently unable
-    // to send the message.
-
-    if (gSendSigned) {
-      let newDefaultSigned = gCurrentIdentity.signMail;
-
-      if (!newDefaultSigned) {
-        gSendSigned = false;
+    // Sign if the new identity is configured to sign unencrypted emails,
+    // unless the user manually modified signing.
+    let newDefaultSigned = gCurrentIdentity.signMail;
+    if (!gSendSigned && !gUserTouchedSendSigned) {
+      if (newDefaultSigned) {
+        gSendSigned = true;
         gSendSignedInitial = gSendSigned;
 
         if (!gUserTouchedAttachMyPubKey) {
@@ -4357,14 +4522,27 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
         }
       }
     }
+
+    // Don't sign anymore if previous identity was configured to sign
+    // unencrypted emails, but not the new one.
+    if (!gSendEncrypted && gSendSignedInitial && !newDefaultSigned) {
+      gSendSigned = false;
+      gSendSignedInitial = gSendSigned;
+    }
+  }
+
+  if (configuredOpenPGP && gSelectedTechnologyIsPGP) {
+    if (!gUserTouchedEncryptSubject) {
+      setEncryptSubject(gCurrentIdentity.protectSubject);
+    } else {
+      setEncryptSubject(gEncryptSubject);
+    }
+  } else {
+    setEncryptSubject(false);
   }
 
   if (gAttachMyPublicPGPKey && !configuredOpenPGP) {
     gAttachMyPublicPGPKey = false;
-  }
-
-  if (gEncryptSubject && !configuredOpenPGP) {
-    gEncryptSubject = false;
   }
 
   // A draft/template message may be stored encrypted, even if the user hasn't
@@ -4385,7 +4563,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     }
 
     if (gIsRelatedToEncryptedOriginal) {
-      setSendEncrypted(true);
+      setSendEncryptedAndSigned(true);
       gSendSigned = true;
     }
   }
@@ -4395,7 +4573,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     gSMFields.signMessage = gSendSigned;
   }
 
-  setEncSigStatusUI();
+  updateEncryptionOptions();
 }
 
 async function ComposeLoad() {
@@ -4770,54 +4948,43 @@ function ComposeUnload() {
   MsgComposeCloseWindow();
 }
 
-function setEncSigStatusUI() {
-  document.getElementById("signing-status").hidden = !gSendSigned;
-  document.getElementById("encryption-status").hidden = !gSendEncrypted;
-
-  let tech = document.getElementById("encryption-tech");
-  tech.textContent = gSelectedTechnologyIsPGP ? "OpenPGP" : "S/MIME";
-  tech.hidden = !gSendSigned && !gSendEncrypted;
-}
-
-function onSecurityChoice(value) {
+function onEncryptionChoice(value) {
   switch (value) {
-    case "enc0":
-      setGlobalEncryptMessage(0);
+    case "OpenPGP":
+      if (isPgpConfigured()) {
+        gSelectedTechnologyIsPGP = true;
+        updateEncryptionOptions();
+        updateEncryptedSubject();
+      }
       break;
 
-    case "enc1":
-      setGlobalEncryptMessage(1);
+    case "SMIME":
+      if (isSmimeEncryptionConfigured()) {
+        gSelectedTechnologyIsPGP = false;
+        updateEncryptionOptions();
+        updateEncryptedSubject();
+      }
       break;
 
-    case "enc2":
-      setGlobalEncryptMessage(2);
+    case "enc":
+      toggleEncryptMessage();
+      break;
+
+    case "encsub":
+      setEncryptSubject(!gEncryptSubject);
+      gUserTouchedEncryptSubject = true;
       break;
 
     case "sig":
       toggleGlobalSignMessage();
       break;
 
-    case "mykey":
-      toggleAttachMyPublicKey();
-      break;
-
-    case "encsub":
-      toggleEncryptSubject();
-      break;
-
-    case "OpenPGP":
-      gSelectedTechnologyIsPGP = true;
-      setEncSigStatusUI();
-      break;
-
-    case "SMIME":
-      gSelectedTechnologyIsPGP = false;
-      setEncSigStatusUI();
-      break;
-
     case "status":
-    case undefined: // toolbar button was clicked
       showMessageComposeSecurityStatus();
+      break;
+
+    case "manager":
+      openKeyManager();
       break;
   }
 }
@@ -4844,6 +5011,29 @@ var SecurityController = {
   },
 };
 
+function updateEncryptionOptions() {
+  document.l10n.setAttributes(
+    document.getElementById("button-encryption-options"),
+    gSelectedTechnologyIsPGP
+      ? "encryption-options-openpgp"
+      : "encryption-options-smime"
+  );
+  document.l10n.setAttributes(
+    document.getElementById("menu_recipientStatus_Menubar"),
+    gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
+  );
+  document.l10n.setAttributes(
+    document.getElementById("menu_recipientStatus_Toolbar"),
+    gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
+  );
+  document.getElementById(
+    "menu_securityEncryptSubject_Menubar"
+  ).hidden = !gSelectedTechnologyIsPGP;
+  document.getElementById(
+    "menu_securityEncryptSubject_Toolbar"
+  ).hidden = !gSelectedTechnologyIsPGP;
+}
+
 /**
  * Update the aria labels of all non-custom address inputs and all pills in the
  * addressing area. Also update the tooltips of the close labels of all address
@@ -4854,7 +5044,7 @@ async function updateAriaLabelsAndTooltipsOfAllAddressRows() {
     .getElementById("recipientsContainer")
     .querySelectorAll(".address-row")) {
     updateAriaLabelsOfAddressRow(row);
-    await updateTooltipsOfAddressRow(row);
+    updateTooltipsOfAddressRow(row);
   }
 }
 
@@ -10352,8 +10542,28 @@ function mailContextOnPopupHiding() {}
  *
  * @param {boolean} encrypted - True when encryption is enabled, false otherwise.
  */
-function setSendEncrypted(encrypted) {
+function setSendEncryptedAndSigned(encrypted) {
   gSendEncrypted = encrypted;
+  if (encrypted) {
+    // Sign encrypted emails even if the user manually modified signing
+    gSendSigned = true;
+  } else if (!gUserTouchedSendSigned) {
+    // Sign unencrypted emails if the identify asks for it unless the user
+    // manually disabled signing.
+    gSendSigned = gCurrentIdentity.signMail;
+  }
+
+  if (gSendEncrypted) {
+    document
+      .getElementById("button-encryption-toggle")
+      .setAttribute("checked", "true");
+  } else {
+    document
+      .getElementById("button-encryption-toggle")
+      .removeAttribute("checked");
+    clearRecipientsWithKeyIssues();
+  }
+  updateEncryptedSubject();
   window.dispatchEvent(
     new CustomEvent("sendencryptedchange", { detail: { encrypted } })
   );

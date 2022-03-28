@@ -55,14 +55,17 @@ function onInit() {
   initE2EEncryption(gIdentity);
 }
 
+let gDisableEncryption;
+let gEnableEncryption;
+
 async function initE2EEncryption(identity) {
   // Initialize all of our elements based on the current identity values...
   gEncryptionCertName = document.getElementById(kEncryptionCertPref);
   gEncryptionChoices = document.getElementById("encryptionChoices");
   gSignCertName = document.getElementById(kSigningCertPref);
   gSignMessages = document.getElementById("identity_sign_mail");
-  gRequireEncrypt = document.getElementById("encrypt_require");
-  gDoNotEncrypt = document.getElementById("encrypt_no");
+  gDisableEncryption = document.getElementById("disable_encryption");
+  gEnableEncryption = document.getElementById("enable_encryption");
   gAttachKey = document.getElementById("identity_attach_key");
   gEncryptSubject = document.getElementById("identity_encrypt_subject");
   gEncryptDrafts = document.getElementById("identity_encrypt_drafts");
@@ -88,8 +91,8 @@ async function initE2EEncryption(identity) {
     gSignCertName.displayName = "";
     gSignCertName.dbKey = "";
 
-    gRequireEncrypt.disabled = true;
-    gDoNotEncrypt.disabled = true;
+    gDisableEncryption.disabled = true;
+    gEnableEncryption.disabled = true;
     gEncryptSubject.disabled = true;
     gEncryptDrafts.disabled = true;
     gSignMessages.disabled = true;
@@ -418,8 +421,8 @@ function smimeSelectCert(smime_cert) {
 }
 
 function enableEncryptionControls(do_enable) {
-  gRequireEncrypt.disabled = !do_enable;
-  gDoNotEncrypt.disabled = !do_enable;
+  gDisableEncryption.disabled = !do_enable;
+  gEnableEncryption.disabled = !do_enable;
   if (!do_enable) {
     gEncryptionChoices.value = 0;
   }

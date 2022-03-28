@@ -8,7 +8,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/inContentDialog.css" type="text/css"?>
 
 <!DOCTYPE html [
   <!ENTITY % messengercomposeDTD SYSTEM "chrome://messenger/locale/messengercompose/messengercompose.dtd" >
@@ -48,10 +49,12 @@
       fullscreenbutton="true">
 <head>
   <title>&msgComposeWindow.title;</title>
+  <link rel="localization" href="branding/brand.ftl"/>
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="messenger/messengercompose/messengercompose.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+  <link rel="localization" href="messenger/openpgp/keyAssistant.ftl" />
   <link rel="localization" href="toolkit/main-window/findbar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="toolkit/printing/printUI.ftl" />
@@ -83,6 +86,8 @@
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeOverlay.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeHelper.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/commonWorkflows.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/keyAssistant.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -257,6 +262,8 @@
   <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
   <command id="cmd_attachVCard" checked="false"
            oncommand="ToggleAttachVCard(event.target)"/>
+  <command id="cmd_attachPublicKey" checked="false"
+           oncommand="toggleAttachMyPublicKey(event.target)"/>
   <command id="cmd_remindLater" checked="false"
            oncommand="toggleAttachmentReminder()"/>
   <command id="cmd_close" oncommand="goDoCommand('cmd_close')"/>
@@ -901,8 +908,11 @@
                         accesskey="&attachPageCmd.accesskey;" command="cmd_attachPage"/>
               <menuseparator/>
               <menuitem type="checkbox"
-                        label="&attachVCardCmd.label;" accesskey="&attachVCardCmd.accesskey;"
+                        data-l10n-id="context-menuitem-attach-vcard"
                         command="cmd_attachVCard"/>
+              <menuitem type="checkbox"
+                        data-l10n-id="context-menuitem-attach-openpgp-key"
+                        command="cmd_attachPublicKey"/>
               <menuseparator id="menu_Attach_RemindLaterSeparator"/>
               <menuitem id="menu_Attach_RemindLaterItem" type="checkbox" label="&remindLater.label;"
                         accesskey="&remindLater.accesskey;" command="cmd_remindLater"/>
@@ -1107,11 +1117,6 @@
                     data-l10n-attrs="acceltext"
                     type="checkbox"
                     command="cmd_toggleAttachmentPane"/>
-          <menuseparator id="viewMenuBeforeSecurityStatusSeparator"/>
-          <menuitem id="menu_viewSecurityStatus"
-                    label="&menu_viewSecurityStatus.label;"
-                    accesskey="&menu_viewSecurityStatus.accesskey;"
-                    command="cmd_viewSecurityStatus"/>
         </menupopup>
       </menu>
 
@@ -1756,73 +1761,51 @@
           <menuseparator/>
           <menuitem type="checkbox" command="cmd_customizeFromAddress"
                     accesskey="&customizeFromAddress.accesskey;"/>
+        </menupopup>
+      </menu>
 
-          <menuseparator id="encryptTechOptionsSeparator_Menubar"
-                         class="openpgp-item"/>
+      <menu id="encryptionMenu" data-l10n-id="encryption-menu">
+        <menupopup onpopupshowing="setSecuritySettings('_Menubar');">
 
-          <menu id="menu_encTech_Menubar" class="openpgp-item"
-                label="&menu_securityTech.label;" accesskey="&menu_securityTech.accesskey;">
-            <menupopup id="button-encTech_Menubar" oncommand="onSecurityChoice(event.target.value);">
-              <menuitem id="encTech_OpenPGP_Menubar"
-                        label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
-                        value="OpenPGP" type="radio" name="radiogroup_encTech"/>
-              <menuitem id="encTech_SMIME_Menubar"
-                        label="&menu_techSMIME.label;" accesskey="&menu_techSMIME.accesskey;"
-                        value="SMIME" type="radio" name="radiogroup_encTech"/>
-            </menupopup>
-          </menu>
+          <menuitem id="encTech_OpenPGP_Menubar"
+                    label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
+                    value="OpenPGP" type="radio" name="radiogroup_encTech"
+                    oncommand="onEncryptionChoice(event.target.value);"/>
+          <menuitem id="encTech_SMIME_Menubar"
+                    label="&menu_techSMIME.label;" accesskey="&menu_techSMIME.accesskey;"
+                    value="SMIME" type="radio" name="radiogroup_encTech"
+                    oncommand="onEncryptionChoice(event.target.value);"/>
 
-          <menuseparator id="encryptOptionsSeparator_Menubar"/>
+          <menuseparator id="encryptionOptionsSeparator_Menubar"/>
 
-          <menuitem id="menu_securityEncryptDisable_Menubar"
-                    type="radio" name="radiogroup_encEnable"
-                    label="&menu_securityDoNotEncrypt.label;"
-                    accesskey="&menu_securityDoNotEncrypt.accesskey;"
-                    value="enc0"
-                    oncommand="onSecurityChoice(event.target.value);"/>
-          <!--
-          <menuitem id="menu_securityEncryptOptional_Menubar"
-                    type="radio" name="radiogroup_encEnable"
-                    label="&menu_securityEncryptOptional.label;"
-                    accesskey="&menu_securityEncryptOptional.accesskey;"
-                    value="enc1"
-                    oncommand="onSecurityChoice(event.target.value);"/>
-          -->
-          <menuitem id="menu_securityEncryptRequire_Menubar"
-                    type="radio" name="radiogroup_encEnable"
-                    label="&menu_securityEncryptRequire2.label;"
-                    accesskey="&menu_securityEncryptRequire.accesskey;"
-                    value="enc2"
-                    oncommand="onSecurityChoice(event.target.value);"/>
-
-          <menuseparator id="signOptionsSeparator_Menubar"/>
-
+          <menuitem id="menu_securityEncrypt_Menubar"
+                    type="checkbox"
+                    data-l10n-id="menu-encrypt"
+                    value="enc"
+                    oncommand="onEncryptionChoice(event.target.value);"/>
+          <menuitem id="menu_securityEncryptSubject_Menubar" class="openpgp-item"
+                    type="checkbox"
+                    data-l10n-id="menu-encrypt-subject"
+                    value="encsub"
+                    oncommand="onEncryptionChoice(event.target.value);"/>
           <menuitem id="menu_securitySign_Menubar"
                     type="checkbox"
-                    label="&menu_securitySign.label;"
-                    accesskey="&menu_securitySign.accesskey;"
+                    data-l10n-id="menu-sign"
                     value="sig"
-                    oncommand="onSecurityChoice(event.target.value);"/>
+                    oncommand="onEncryptionChoice(event.target.value);"/>
 
-        <menuseparator id="sepOpenPGP_Menubar"
-                       class="openpgp-item"/>
+          <menuseparator id="statusInfoSeparator"/>
 
-        <menu id="menu_OpenPGPOptions_Menubar" class="openpgp-item"
-              label="OpenPGP">
-          <menupopup id="button_OpenPGPOptions_Menubar">
-            <menuitem id="menu_securityMyPublicKey_Menubar" class="openpgp-item"
-                      type="checkbox"
-                      data-l10n-id="compose-menu-attach-key"
-                      value="mykey"
-                      oncommand="onSecurityChoice(event.target.value);"/>
-            <menuitem id="menu_securityEncryptSubject_Menubar" class="openpgp-item"
-                      type="checkbox"
-                      data-l10n-id="compose-menu-encrypt-subject"
-                      value="encsub"
-                      oncommand="onSecurityChoice(event.target.value);"/>
+          <menuitem id="menu_recipientStatus_Menubar"
+                    data-l10n-id="menu-manage-keys"
+                    value="status"
+                    oncommand="onEncryptionChoice(event.target.value);"/>
+          <menuitem id="menu_openManager_Menubar"
+                    data-l10n-id="menu-open-key-manager"
+                    value="manager"
+                    oncommand="onEncryptionChoice(event.target.value);"/>
+
           </menupopup>
-        </menu>
-        </menupopup>
       </menu>
 
       <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
@@ -1912,9 +1895,12 @@
         <menuseparator/>
         <menuitem id="button-attachPopup_attachVCardItem"
                   type="checkbox"
-                  label="&attachVCardCmd.label;"
-                  accesskey="&attachVCardCmd.accesskey;"
+                  data-l10n-id="context-menuitem-attach-vcard"
                   command="cmd_attachVCard"/>
+        <menuitem id="button-attachPopup_attachPublicKey"
+                  type="checkbox"
+                  data-l10n-id="context-menuitem-attach-openpgp-key"
+                  command="cmd_attachPublicKey"/>
         <menuseparator id="button-attachPopup_remindLaterSeparator"/>
         <menuitem id="button-attachPopup_remindLaterItem"
                   type="checkbox"
@@ -1924,76 +1910,50 @@
       </menupopup>
     </toolbarbutton>
 
-    <toolbarbutton is="toolbarbutton-menu-button" id="button-security"
+    <toolbarbutton id="button-encryption-toggle"
+                   type="checkbox" autoCheck="false"
+                   class="toolbarbutton-1"
+                   data-l10n-id="encryption-toggle"
+                   oncommand="toggleEncryptMessage();"/>
+
+    <toolbarbutton is="toolbarbutton-menu-button" id="button-encryption-options"
                    type="menu-button"
                    class="toolbarbutton-1"
-                   label="&securityButton.label;"
-                   tooltiptext="&securityButton.tooltip;"
-                   oncommand="onSecurityChoice(event.target.value);">
+                   data-l10n-id="encryption-options-openpgp"
+                   oncommand="onEncryptionChoice(event.target.value);">
       <menupopup onpopupshowing="setSecuritySettings('_Toolbar');">
-        <menu id="menu_encTech_Toolbar" class="openpgp-item"
-              label="&menu_securityTech.label;" accesskey="&menu_securityTech.accesskey;">
-          <menupopup id="button-encTech_Toolbar">
-            <menuitem id="encTech_OpenPGP_Toolbar"
-                      label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
-                      value="OpenPGP" type="radio" name="radiogroup_encTech"/>
-            <menuitem id="encTech_SMIME_Toolbar"
-                      label="&menu_techSMIME.label;" accesskey="&menu_techSMIME.accesskey;"
-                      value="SMIME" type="radio" name="radiogroup_encTech"/>
-          </menupopup>
-        </menu>
 
-        <menuseparator id="encryptOptionsSeparator_Toolbar"/>
+        <menuitem id="encTech_OpenPGP_Toolbar"
+                  label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
+                  value="OpenPGP" type="radio" name="radiogroup_encTech"/>
+        <menuitem id="encTech_SMIME_Toolbar"
+                  label="&menu_techSMIME.label;" accesskey="&menu_techSMIME.accesskey;"
+                  value="SMIME" type="radio" name="radiogroup_encTech"/>
 
-        <menuitem id="menu_securityEncryptDisable_Toolbar"
-                  type="radio" name="radiogroup_encEnable"
-                  label="&menu_securityDoNotEncrypt.label;"
-                  accesskey="&menu_securityDoNotEncrypt.accesskey;"
-                  value="enc0"/>
-        <!--
-        <menuitem id="menu_securityEncryptOptional_Toolbar"
-                  type="radio" name="radiogroup_encEnable"
-                  label="&menu_securityEncryptOptional.label;"
-                  accesskey="&menu_securityEncryptOptional.accesskey;"
-                  value="enc1"/>
-        -->
-        <menuitem id="menu_securityEncryptRequire_Toolbar"
-                  type="radio" name="radiogroup_encEnable"
-                  label="&menu_securityEncryptRequire2.label;"
-                  accesskey="&menu_securityEncryptRequire.accesskey;"
-                  value="enc2"/>
+        <menuseparator id="encryptionOptionsSeparator_Toolbar"/>
 
-        <menuseparator id="signOptionsSeparator_Toolbar"/>
-
+        <menuitem id="menu_securityEncrypt_Toolbar"
+                  type="checkbox"
+                  data-l10n-id="menu-encrypt"
+                  value="enc"/>
+        <menuitem id="menu_securityEncryptSubject_Toolbar" class="openpgp-item"
+                  type="checkbox"
+                  data-l10n-id="menu-encrypt-subject"
+                  value="encsub"/>
         <menuitem id="menu_securitySign_Toolbar"
                   type="checkbox"
-                  label="&menu_securitySign.label;"
-                  accesskey="&menu_securitySign.accesskey;"
+                  data-l10n-id="menu-sign"
                   value="sig"/>
 
-        <menuseparator id="sepOpenPGP_Toolbar"
-                       class="openpgp-item"/>
-        <menu id="menu_OpenPGPOptions_Toolbar" class="openpgp-item"
-              label="OpenPGP">
-          <menupopup id="button_OpenPGPOptions_Toolbar">
-            <menuitem id="menu_securityMyPublicKey_Toolbar"
-                      class="openpgp-item"
-                      type="checkbox"
-                      data-l10n-id="compose-menu-attach-key"
-                      value="mykey"/>
-            <menuitem id="menu_securityEncryptSubject_Toolbar"
-                      class="openpgp-item"
-                      type="checkbox"
-                      data-l10n-id="compose-menu-encrypt-subject"
-                      value="encsub"/>
-          </menupopup>
-        </menu>
-
         <menuseparator id="statusInfoSeparator"/>
-        <menuitem id="menu_securityStatus_Toolbar"
-                  label="&menu_securityStatus.label;"
-                  accesskey="&menu_securityStatus.accesskey;"
+
+        <menuitem id="menu_recipientStatus_Toolbar"
+                  data-l10n-id="menu-manage-keys"
                   value="status"/>
+        <menuitem id="menu_openManager_Toolbar"
+                  data-l10n-id="menu-open-key-manager"
+                  value="manager"/>
+
       </menupopup>
     </toolbarbutton>
 
@@ -2099,7 +2059,7 @@
 #ifdef XP_MACOSX
            iconsize="small"
 #endif
-           defaultset="button-send,separator,button-address,spellingButton,button-security,button-save,spring,button-attach"
+           defaultset="button-send,separator,button-encryption-toggle,button-encryption-options,button-address,spellingButton,button-save,spring,button-attach"
            customizable="true"
            context="toolbar-context-menu">
   </toolbar>
@@ -2442,8 +2402,13 @@
           <label id="subjectLabel" value="&subject2.label;"
                  accesskey="&subject.accesskey;" control="msgSubject"/>
         </hbox>
-        <hbox flex="1" align="center" class="input-container">
+          <hbox id="msgSubjectContainer" flex="1" align="center"
+                class="input-container">
           <moz-input-box spellcheck="true" style="flex: 1;">
+                <html:img id="msgEncryptedSubjectIcon"
+                          src="chrome://messenger/skin/icons/message-encrypted-notok.svg"
+                          onclick="toggleEncryptedSubject(event);"
+                          alt="" />
             <html:input id="msgSubject"
                         type="text"
                         class="input-inline textbox-input"
@@ -2558,15 +2523,6 @@
                    value="0" max="100"
                    hidden="hidden">
     </html:progress>
-    <html:span id="encryption-tech" hidden="hidden"></html:span>
-    <html:img id="signing-status"
-              data-l10n-id="message-to-be-signed-icon"
-              src="chrome://messenger/skin/icons/message-signed-ok.svg"
-              hidden="hidden" />
-    <html:img id="encryption-status"
-              data-l10n-id="message-to-be-encrypted-icon"
-              src="chrome://messenger/skin/icons/connection-secure.svg"
-              hidden="hidden" />
     <html:button id="languageStatusButton"
                  class="plain-button"
                  aria-expanded="false"
@@ -2579,5 +2535,6 @@
   </html:div>
 
 #include ../../../base/content/tabDialogs.inc.xhtml
+#include ../../../extensions/openpgp/content/ui/keyAssistant.inc.xhtml
 </html:body>
 </html>

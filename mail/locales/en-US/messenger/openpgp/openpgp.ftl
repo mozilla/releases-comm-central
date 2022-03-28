@@ -5,6 +5,21 @@
 
 e2e-intro-description = To send encrypted or digitally signed messages, you need to configure an encryption technology, either OpenPGP or S/MIME.
 e2e-intro-description-more = Select your personal key to enable the use of OpenPGP, or your personal certificate to enable the use of S/MIME. For a personal key or certificate you own the corresponding secret key.
+
+e2e-signing-description = A digital signature allows recipients to verify that the message was sent by you and its content was not changed. Encrypted messages are always signed by default.
+
+e2e-sign-message =
+    .label = Sign unencrypted messages
+    .accesskey = u
+
+e2e-disable-enc =
+    .label = Disable encryption for new messages
+    .accesskey = D
+e2e-enable-enc =
+    .label = Enable encryption for new messages
+    .accesskey = n
+e2e-enable-description = You will be able to disable encryption for individual messages.
+
 e2e-advanced-section = Advanced settings
 e2e-attach-key =
     .label = Attach my public key when adding an OpenPGP digital signature
@@ -283,7 +298,6 @@ openpgp-acceptance-verified-label =
 key-accept-personal =
     For this key, you have both the public and the secret part. You may use it as a personal key.
     If this key was given to you by someone else, then don’t use it as a personal key.
-key-personal-warning = Did you create this key yourself, and the displayed key ownership refers to yourself?
 openpgp-personal-no-label =
     .label = No, don’t use it as my personal key.
 openpgp-personal-yes-label =
@@ -379,7 +393,7 @@ key-expired-date = The key expired on { $keyExpiry }
 key-expired-simple = The key has expired
 key-revoked-simple = The key was revoked
 key-do-you-accept = Do you accept this key for verifying digital signatures and for encrypting messages?
-key-accept-warning = Avoid accepting a rogue key. Use a communication channel other than email to verify the fingerprint of your correspondent’s key.
+key-verification = Verify the fingerprint of the key using a secure communication channel other than email to make sure that it’s really the key of { $addr }.
 
 # Strings enigmailMsgComposeOverlay.js
 cannot-use-own-key-because = Unable to send the message, because there is a problem with your personal key. { $problem }
@@ -648,13 +662,6 @@ save-attachment-header = Save decrypted attachment
 possibly-pgp-mime = Possibly PGP/MIME encrypted or signed message; use ‘Decrypt/Verify’ function to verify
 cannot-send-sig-because-no-own-key = Cannot digitally sign this message, because you haven’t yet configured end-to-end encryption for <{ $key }>
 cannot-send-enc-because-no-own-key = Cannot send this message encrypted, because you haven’t yet configured end-to-end encryption for <{ $key }>
-
-compose-menu-attach-key =
-    .label = Attach My Public Key
-    .accesskey = A
-compose-menu-encrypt-subject =
-    .label = Subject Encryption
-    .accesskey = b
 
 # Strings used in decryption.jsm
 do-import-multiple =

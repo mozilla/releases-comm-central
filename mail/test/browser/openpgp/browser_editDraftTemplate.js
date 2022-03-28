@@ -151,14 +151,6 @@ async function doTestSecState(isDraft, secure) {
     // Tick "Require encryption".
     // Encryption and signing should get turned on.
     await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
-    Assert.ok(
-      cwc.window.document.querySelector("#signing-status:not([hidden])"),
-      "should be signed"
-    );
-    Assert.ok(
-      cwc.window.document.querySelector("#encryption-status:not([hidden])"),
-      "should be encrypted"
-    );
   }
 
   if (isDraft) {
@@ -197,25 +189,6 @@ async function doTestSecState(isDraft, secure) {
     // Wait some to make sure it won't (soon) be showing.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 100));
-    Assert.ok(
-      !draftWindow.document.querySelector("#signing-status:not([hidden])"),
-      "should not use signing"
-    );
-    Assert.ok(
-      !draftWindow.document.querySelector("#encryption-status:not([hidden])"),
-      "should not use encryption"
-    );
-  } else {
-    await TestUtils.waitForCondition(
-      () => draftWindow.document.querySelector("#signing-status:not([hidden])"),
-      "waited for signing to get turned on"
-    );
-
-    await TestUtils.waitForCondition(
-      () =>
-        draftWindow.document.querySelector("#encryption-status:not([hidden])"),
-      "waited for encryption to get turned on"
-    );
   }
   draftWindow.close();
   clearFolder(theFolder);

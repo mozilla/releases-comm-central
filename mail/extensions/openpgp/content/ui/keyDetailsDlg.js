@@ -147,8 +147,8 @@ async function reloadData(firstLoad) {
     return;
   }
 
-  let acceptanceIntro1Text = "";
-  let acceptanceIntro2Text = "";
+  let acceptanceIntroText = "";
+  let acceptanceVerificationText = "";
 
   if (keyObj.fpr) {
     gFingerprint = keyObj.fpr;
@@ -207,8 +207,8 @@ async function reloadData(firstLoad) {
   if (gModePersonal) {
     gPersonalRadio.removeAttribute("hidden");
     gAcceptanceRadio.setAttribute("hidden", "true");
-    acceptanceIntro1Text = "key-accept-personal";
-    acceptanceIntro2Text = "key-personal-warning";
+    acceptanceIntroText = "key-accept-personal";
+    acceptanceVerificationText = "key-personal-warning";
     let value = l10n.formatValueSync("key-type-pair");
     setLabel("keyType", value);
 
@@ -236,14 +236,14 @@ async function reloadData(firstLoad) {
     if (!isStillValid) {
       gAcceptanceRadio.setAttribute("hidden", "true");
       if (keyObj.keyTrust == "r") {
-        acceptanceIntro1Text = "key-revoked-simple";
+        acceptanceIntroText = "key-revoked-simple";
       } else if (keyObj.keyTrust == "e" || keyIsExpired) {
-        acceptanceIntro1Text = "key-expired-simple";
+        acceptanceIntroText = "key-expired-simple";
       }
     } else {
       gAcceptanceRadio.removeAttribute("hidden");
-      acceptanceIntro1Text = "key-do-you-accept";
-      acceptanceIntro2Text = "key-accept-warning";
+      acceptanceIntroText = "key-do-you-accept";
+      acceptanceVerificationText = "key-verification";
       gUpdateAllowed = true;
 
       //await RNP.calculateAcceptance(keyObj.keyId, null);
@@ -269,14 +269,20 @@ async function reloadData(firstLoad) {
       }
     }
   }
-  if (acceptanceIntro1Text) {
-    let acceptanceIntro1 = document.getElementById("acceptanceIntro1");
-    document.l10n.setAttributes(acceptanceIntro1, acceptanceIntro1Text);
+  if (acceptanceIntroText) {
+    let acceptanceIntro = document.getElementById("acceptanceIntro");
+    document.l10n.setAttributes(acceptanceIntro, acceptanceIntroText);
   }
 
-  if (acceptanceIntro2Text) {
-    let acceptanceIntro2 = document.getElementById("acceptanceIntro2");
-    document.l10n.setAttributes(acceptanceIntro2, acceptanceIntro2Text);
+  if (acceptanceVerificationText) {
+    let acceptanceVerification = document.getElementById(
+      "acceptanceVerification"
+    );
+    document.l10n.setAttributes(
+      acceptanceVerification,
+      acceptanceVerificationText,
+      { addr: EnigmailFuncs.getEmailFromUserID(gUserId).toLowerCase() }
+    );
   }
 
   // Resize the dialog only if the data was changed since the first load.

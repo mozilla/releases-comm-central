@@ -544,8 +544,16 @@
   list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
-#button-security {
+#button-encryption-toggle {
+  list-style-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+}
+
+#button-encryption-toggle[checked="true"] {
   list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
+}
+
+#button-encryption-options image {
+  display: none;
 }
 
 #button-save {
@@ -849,6 +857,16 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   margin-inline: 1px 20px;
 }
 
+#msgSubjectContainer {
+  position: relative;
+}
+
+#msgEncryptedSubjectIcon {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 10px;
+}
+
 #msgSubject {
   appearance: none;
   margin-top: 0;
@@ -859,6 +877,10 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   padding-block: 0;
   padding-inline: 4px 2px;
   transition: border .2s, box-shadow .2s;
+}
+
+#msgSubject.with-icon {
+  padding-inline-start: 25px;
 }
 
 .recipients-container {
@@ -1027,9 +1049,24 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   -moz-context-properties: fill;
 }
 
+.address-pill.key-issue:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.key-issue:not(.editing) {
+  color: #000;
+  background-color: #ffe900;
+  background-image: url("chrome://global/skin/icons/warning.svg");
+  background-size: 12px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 5px);
+  padding-inline-end: 21px;
+  fill: currentcolor;
+  -moz-context-properties: fill;
+}
+
 /* RTL variation for background position */
 .address-pill.invalid-address:not(.editing):-moz-locale-dir(rtl),
-#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:not(.editing):-moz-locale-dir(rtl) {
+.address-pill.key-issue:not(.editing):-moz-locale-dir(rtl),
+#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:not(.editing):-moz-locale-dir(rtl),
+#MsgHeadersToolbar[brighttext] .address-pill.key-issue:not(.editing):-moz-locale-dir(rtl) {
   background-position: 5px;
 }
 
@@ -1040,10 +1077,19 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   background-color: #a4000f;
 }
 
+.address-pill.key-issue:hover:not(.editing),
+.address-pill.key-issue:focus:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.key-issue:hover:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.key-issue:focus:not(.editing) {
+  background-color: #d7b600;
+}
+
 .address-pill[selected]:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill[selected]:not(.editing),
 .address-pill.invalid-address[selected]:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.invalid-address[selected]:not(.editing) {
+.address-pill.key-issue[selected]:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill[selected]:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.invalid-address[selected]:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.key-issue[selected]:not(.editing) {
   color: SelectedItemText;
   background-color: SelectedItem;
 }
@@ -1309,26 +1355,6 @@ button:is(
 
 #compose-progressmeter {
   margin-inline: 4px;
-}
-
-/* OpenPGP and S/MIME encryption and signature status icons */
-#encryption-tech {
-  margin-inline: 6px 2px;
-}
-
-#signing-status,
-#encryption-status {
-  /* NOTE: either the signing-status or encryption-status may be the last icon
-   * in this part of the status bar. Here, we treat both as if they are the last
-   * icon and give them a wider margin. But below, we shrink the starting margin
-   * for the second icon if the first icon is shown. */
-  margin-inline-end: 4px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-#signing-status:not([hidden]) + #encryption-status {
-  margin-inline-start: -2px;
 }
 
 /* Language selector */

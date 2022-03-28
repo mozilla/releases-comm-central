@@ -43,7 +43,7 @@ const OpenPGPTestUtils = {
    * menu item.
    */
   async toggleMessageSigning(win) {
-    return clickToolbarButtonMenuItem(win, "#button-security", [
+    return clickToolbarButtonMenuItem(win, "#button-encryption-options", [
       "#menu_securitySign_Toolbar",
     ]);
   },
@@ -53,9 +53,8 @@ const OpenPGPTestUtils = {
    * menu item.
    */
   async toggleMessageKeyAttachment(win) {
-    return clickToolbarButtonMenuItem(win, "#button-security", [
-      "#menu_OpenPGPOptions_Toolbar",
-      "#menu_securityMyPublicKey_Toolbar",
+    return clickToolbarButtonMenuItem(win, "#button-attach", [
+      "#button-attachPopup_attachPublicKey",
     ]);
   },
 
@@ -67,8 +66,8 @@ const OpenPGPTestUtils = {
     // Note: doing it through #menu_securityEncryptRequire_Menubar won't work on
     // mac since the native menu bar can't be clicked.
     // Use the toolbar button to click Require encryption.
-    await clickToolbarButtonMenuItem(win, "#button-security", [
-      "#menu_securityEncryptRequire_Toolbar",
+    await clickToolbarButtonMenuItem(win, "#button-encryption-options", [
+      "#menu_securityEncrypt_Toolbar",
     ]);
   },
 
