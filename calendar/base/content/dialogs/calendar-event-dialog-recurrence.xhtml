@@ -7,32 +7,37 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-daypicker.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/datetimepickers.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"?>
 
-<!DOCTYPE html [
+<!DOCTYPE window [
   <!ENTITY % dialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
   %dialogDTD;
 ]>
-<html id="calendar-event-dialog-recurrence" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      persist="screenX screenY width height"
-      lightweightthemes="true"
-      scrolling="false">
-<head>
-  <title>&recurrence.title.label;</title>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-statusbar.js"></script>
-  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
-  <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<window id="calendar-event-dialog-recurrence"
+        title="&recurrence.title.label;"
+        windowtype="Calendar:EventDialog:Recurrence"
+        onload="onLoad()"
+        persist="screenX screenY width height"
+        lightweightthemes="true"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
+
 <dialog>
+
+  <!-- Javascript includes -->
+  <script src="chrome://calendar/content/calendar-event-dialog-recurrence.js"/>
+  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://calendar/content/calendar-statusbar.js"/>
+
+  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
+  <script src="chrome://calendar/content/widgets/datetimepickers.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+
   <!-- recurrence pattern -->
   <html:fieldset id="recurrence-pattern-groupbox">
     <html:legend id="recurrence-pattern-caption">&event.recurrence.pattern.label;</html:legend>
@@ -44,9 +49,9 @@
                disable-on-occurrence="true"
                control="period-list"/>
       </vbox>
-      <vbox>
+      <vbox flex="1">
         <menulist id="period-list"
-                  oncommand="updateRecurrenceBox();window.sizeToContent();"
+                  oncommand="updateRecurrenceBox();"
                   disable-on-readonly="true"
                   disable-on-occurrence="true">
           <menupopup id="period-list-menupopup">
@@ -763,9 +768,9 @@
   </html:fieldset>
 
   <!-- preview -->
-  <html:fieldset id="preview-border" style="min-height:220px;">
+  <html:fieldset id="preview-border">
     <html:legend id="recurrence-preview-label">&event.recurrence.preview.label;</html:legend>
-    <hbox id="recurrence-preview" style="min-width:0; min-height:0; overflow:clip;">
+    <hbox id="recurrence-preview">
       <vbox>
         <hbox>
             <calendar-minimonth readonly="true"/>
@@ -776,6 +781,4 @@
     </hbox>
   </html:fieldset>
 </dialog>
-<html:script src="chrome://calendar/content/calendar-event-dialog-recurrence.js">//see bug 1752288</html:script>
-</html:body>
-</html>
+</window>
