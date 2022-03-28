@@ -161,6 +161,14 @@
             "description": "Whether the message is an HTML message or a plain text message.",
             "optional": true
           },
+          "customHeaders": {
+            "type": "array",
+            "items": {
+              "$ref": "CustomHeader"
+            },
+            "description": "Array of custom headers. Headers will be returned in ``Http-Header-Case`` (a.k.a. ``Train-Case``)",
+            "optional": true
+          },
           "attachments": {
             "type": "array",
             "items": {
@@ -215,6 +223,21 @@
             "type": "integer",
             "optional": true,
             "description": "The size in bytes of this attachment. Read-only."
+          }
+        }
+      },
+      {
+        "id": "CustomHeader",
+        "type": "object",
+        "description": "A custom header definition.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of a custom header, must have a ``X-`` prefix.",
+            "pattern": "^X-.*$"
+          },
+          "value": {
+            "type": "string"
           }
         }
       }

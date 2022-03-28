@@ -444,6 +444,107 @@ add_task(async function testHeaders() {
   await extension.unload();
 });
 
+add_task(async function testCustomHeaders() {
+  let files = {
+    "background.js": async () => {
+      async function testCustomHeaders(tab, expectedCustomHeaders) {
+        let details = await browser.compose.getComposeDetails(tab.id);
+
+        browser.test.assertEq(
+          expectedCustomHeaders.length,
+          details.customHeaders.length,
+          "Should have the correct number of custom headers"
+        );
+        for (let i = 0; i < expectedCustomHeaders.length; i++) {
+          browser.test.assertEq(
+            expectedCustomHeaders[i].name,
+            details.customHeaders[i].name,
+            "Should have the correct header name"
+          );
+          browser.test.assertEq(
+            expectedCustomHeaders[i].value,
+            details.customHeaders[i].value,
+            "Should have the correct header value"
+          );
+        }
+      }
+
+      // Start a new message with custom headers.
+      let customHeaders = [{ name: "X-TEST1", value: "some header" }];
+      let tab = await browser.compose.beginNew(null, { customHeaders });
+      let expectedHeaders = [{ name: "X-Test1", value: "some header" }];
+      testCustomHeaders(tab, expectedHeaders);
+
+      // Update details without changing headers.
+      await browser.compose.setComposeDetails(tab.id, {});
+      testCustomHeaders(tab, expectedHeaders);
+
+      // Update existing header and add a new one.
+      customHeaders = [
+        { name: "X-TEST1", value: "this is header #1" },
+        { name: "X-TEST2", value: "this is header #2" },
+        { name: "X-TEST3", value: "this is header #3" },
+        { name: "X-TEST4", value: "this is header #4" },
+      ];
+      await browser.compose.setComposeDetails(tab.id, { customHeaders });
+      expectedHeaders = [
+        { name: "X-Test1", value: "this is header #1" },
+        { name: "X-Test2", value: "this is header #2" },
+        { name: "X-Test3", value: "this is header #3" },
+        { name: "X-Test4", value: "this is header #4" },
+      ];
+      testCustomHeaders(tab, expectedHeaders);
+
+      // Update existing header and remove some of the others. Test support for
+      // empty headers.
+      customHeaders = [
+        { name: "X-TEST2", value: "this is a header" },
+        { name: "X-TEST3", value: "" },
+      ];
+      await browser.compose.setComposeDetails(tab.id, { customHeaders });
+      expectedHeaders = [
+        { name: "X-Test2", value: "this is a header" },
+        { name: "X-Test3", value: "" },
+      ];
+      testCustomHeaders(tab, expectedHeaders);
+
+      // Clear headers.
+      customHeaders = [];
+      await browser.compose.setComposeDetails(tab.id, { customHeaders });
+      testCustomHeaders(tab, []);
+
+      // Should throw for invalid custom headers.
+      customHeaders = [
+        { name: "TEST2", value: "this is an invalid custom header" },
+      ];
+      await browser.test.assertThrows(
+        () => browser.compose.setComposeDetails(tab.id, { customHeaders }),
+        'Type error for parameter details (Error processing customHeaders.0.name: String "TEST2" must match /^X-.*$/) for compose.setComposeDetails.',
+        "Should throw for invalid custom headers"
+      );
+
+      // Clean up.
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(tab.windowId);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "addressBooks", "compose", "messagesRead"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
 add_task(async function testPlainTextBody() {
   let files = {
     "background.js": async () => {

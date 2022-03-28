@@ -310,6 +310,19 @@ async function getComposeDetails(composeWindow, extension) {
     }
   }
 
+  let customHeaders = [...composeWindow.gMsgCompose.compFields.headerNames]
+    .map(h => h.toLowerCase())
+    .filter(h => h.startsWith("x-"))
+    .map(h => {
+      return {
+        // All-lower-case-names are ugly, so capitalize first letters.
+        name: h.replace(/(^|-)[a-z]/g, function(match) {
+          return match.toUpperCase();
+        }),
+        value: composeWindow.gMsgCompose.compFields.getHeader(h),
+      };
+    });
+
   let details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
     to: composeFields.splitRecipients(composeFields.to, false),
@@ -329,6 +342,7 @@ async function getComposeDetails(composeWindow, extension) {
       "text/plain",
       Ci.nsIDocumentEncoder.OutputRaw
     ),
+    customHeaders,
   };
   if (extension.hasPermission("accountsRead")) {
     details.identityId = composeWindow.getCurrentIdentityKey();
@@ -426,6 +440,20 @@ async function setComposeDetails(composeWindow, details, extension) {
   }
   composeWindow.SetComposeDetails(details);
   await setFromField(composeWindow, details, extension);
+
+  // Update custom headers, if specified.
+  if (details.customHeaders) {
+    let newHeaderNames = details.customHeaders.map(h => h.name.toUpperCase());
+    let obsoleteHeaderNames = [
+      ...composeWindow.gMsgCompose.compFields.headerNames,
+    ].filter(h => !newHeaderNames.hasOwnProperty(h.toUpperCase()));
+    for (let headerName of obsoleteHeaderNames) {
+      composeWindow.gMsgCompose.compFields.deleteHeader(headerName);
+    }
+    for (let { name, value } of details.customHeaders) {
+      composeWindow.gMsgCompose.compFields.setHeader(name, value);
+    }
+  }
 
   activeElement.focus();
 }
