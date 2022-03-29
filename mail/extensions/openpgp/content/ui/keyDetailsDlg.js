@@ -42,6 +42,7 @@ var gSigTree = null;
 
 var gAllEmails = [];
 var gFingerprint = "";
+var gHasMissingSecret = false;
 
 var gAcceptanceRadio = null;
 var gPersonalRadio = null;
@@ -567,6 +568,7 @@ function createSubkeyItem(mainKeyIsSecret, subkey) {
 
   if (mainKeyIsSecret && (!subkey.secretAvailable || !subkey.secretMaterial)) {
     subkeyType = "(!) ";
+    gHasMissingSecret = true;
   }
   if (subkey.type === "pub") {
     subkeyType += l10n.formatValueSync("key-type-primary");
@@ -628,6 +630,8 @@ function createSubkeyItem(mainKeyIsSecret, subkey) {
 }
 
 function SubkeyListView(keyObj) {
+  gHasMissingSecret = false;
+
   this.subkeys = [];
   this.rowCount = keyObj.subKeys.length + 1;
   this.subkeys.push(createSubkeyItem(keyObj.secretAvailable, keyObj));
@@ -637,6 +641,8 @@ function SubkeyListView(keyObj) {
       createSubkeyItem(keyObj.secretAvailable, keyObj.subKeys[i])
     );
   }
+
+  document.getElementById("legendMissingSecret").hidden = !gHasMissingSecret;
 }
 
 // implements nsITreeView
