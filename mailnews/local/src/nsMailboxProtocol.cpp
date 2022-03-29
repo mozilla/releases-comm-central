@@ -267,7 +267,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
             nsCOMPtr<nsICopyMessageStreamListener> listener =
                 do_QueryInterface(m_channelListener, &rv);
             if (listener) {
-              listener->EndCopy(m_runningUrl, aStatus);
+              listener->EndCopy(mailnewsUrl, aStatus);
               listener->StartMessage();  // start next message.
             }
           }

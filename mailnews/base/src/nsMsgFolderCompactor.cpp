@@ -1173,7 +1173,7 @@ nsFolderCompactState::EndMessage(nsMsgKey key) { return NS_OK; }
 // XXX TODO: This function is sadly lacking all status checking, it always
 // returns NS_OK and moves onto the next message.
 NS_IMETHODIMP
-nsFolderCompactState::EndCopy(nsISupports* url, nsresult aStatus) {
+nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
 

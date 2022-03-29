@@ -60,13 +60,10 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest* request) {
   return rv;
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports* url,
-                                                   nsresult aStatus) {
+NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsIURI* uri,
+                                                   nsresult status) {
   nsresult rv;
-  nsCOMPtr<nsIURI> uri = do_QueryInterface(url, &rv);
-
-  NS_ENSURE_SUCCESS(rv, rv);
-  bool copySucceeded = (aStatus == NS_BINDING_SUCCEEDED);
+  bool copySucceeded = (status == NS_BINDING_SUCCEEDED);
   rv = mDestination->EndCopy(copySucceeded);
   // If this is a move and we finished the copy, delete the old message.
   bool moveMessage = false;
