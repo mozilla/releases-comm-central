@@ -2,12 +2,15 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <head>
   <title data-l10n-id="import-page-title"></title>
 
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css"/>
   <link rel="stylesheet" href="chrome://global/skin/global.css"/>
+  <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-attendees.css"/>
+  <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-item-summary.css"/>
   <link rel="stylesheet" href="chrome://messenger/skin/accountSetup.css"/>
   <link rel="stylesheet" href="chrome://messenger/skin/aboutImport.css"/>
 
@@ -16,6 +19,7 @@
 
   <script defer="" src="chrome://messenger/content/aboutImport.js"></script>
   <script defer="" src="chrome://messenger/content/csv-field-map.js"></script>
+  <script defer="" src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
 </head>
 <body>
   <nav id="leftNav">
@@ -26,6 +30,9 @@
       <li id="tab-addressBook"
           class="tab"
           data-l10n-id="import-address-book"/>
+      <li id="tab-calendar"
+          class="tab"
+          data-l10n-id="import-calendar"/>
     </ul>
     <ul>
       <li id="tab-export"
@@ -202,6 +209,52 @@
                 data-l10n-id="button-continue"/>
       </footer>
     </div>
+
+    <div id="tabPane-calendar" class="tabPane">
+      <section id="calendar-sources">
+        <h1 data-l10n-id="import-calendar"/>
+        <p data-l10n-id="import-from-calendar-file-desc"/>
+      </section>
+      <section id="calendar-items">
+        <h1 data-l10n-id="import-calendar"/>
+        <p>
+          <span data-l10n-id="addr-book-directories-pane-source"/>
+          <span id="calendarSourcePath"/>
+        </p>
+        <div id="calendarItemsTools">
+          <input type="search"
+                 data-l10n-id="calendar-items-filter-input"
+                 oninput="calendarController.onFilterChange(this)"/>
+          <button data-l10n-id="calendar-deselect-all-items"
+                  onclick="calendarController.selectAllItems(false)"/>
+          <button data-l10n-id="calendar-select-all-items"
+                  onclick="calendarController.selectAllItems(true)"/>
+        </div>
+        <div id="calendar-item-list"/>
+      </section>
+      <section id="calendar-calendars">
+        <h1 data-l10n-id="import-calendar"/>
+        <div class="profile-list" id="calendarList"/>
+        <div class="content-blocking-category">
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value=".new"
+                   name="targetCalendar"/>
+            <p data-l10n-id="calendar-import-into-new-calendar"/>
+          </label>
+        </div>
+      </section>
+      <footer class="buttons-container">
+        <button id="calendarBackButton"
+                onclick="calendarController.back()"
+                data-l10n-id="button-cancel"/>
+        <button class="primary"
+                id="calendarNextButton"
+                onclick="calendarController.next()"
+                data-l10n-id="button-continue"/>
+      </footer>
+    </div>
+
     <div id="tabPane-export" class="tabPane">
       <h1 data-l10n-id="export-profile"/>
       <p data-l10n-id="export-profile-desc"/>

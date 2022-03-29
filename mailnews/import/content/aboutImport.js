@@ -11,7 +11,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.jsm",
+  CalendarFileImporter: "resource:///modules/CalendarFileImporter.jsm",
   ProfileExporter: "resource:///modules/ProfileExporter.jsm",
+  cal: "resource:///modules/calendar/calUtils.jsm",
 });
 
 /**
@@ -613,6 +615,267 @@ class AddrBookImporterController extends ImporterController {
 }
 
 /**
+ * Control the #tabPane-calendar element, to support importing from a calendar
+ * file.
+ */
+class CalendarImporterController extends ImporterController {
+  constructor() {
+    super("tabPane-calendar", "calendar");
+    this._showSources();
+  }
+
+  back() {
+    switch (this._currentPane) {
+      case "sources":
+        window.close();
+        break;
+      case "items":
+        this._showSources();
+        break;
+      case "calendars":
+        this.showPane("items");
+        break;
+    }
+  }
+
+  next() {
+    switch (this._currentPane) {
+      case "sources":
+        this._onSelectSource();
+        break;
+      case "items":
+        this._onSelectItems();
+        break;
+      case "calendars":
+        this._onSelectCalendar();
+        break;
+    }
+  }
+
+  reset() {
+    this._showSources();
+  }
+
+  /**
+   * When filter changes, re-render the item list.
+   * @param {HTMLInputElement} filterInput - The filter input.
+   */
+  onFilterChange(filterInput) {
+    let term = filterInput.value.toLowerCase();
+    this._filteredItems = [];
+    for (let item of this._items) {
+      let element = this._itemElements[item.id];
+      if (item.title.toLowerCase().includes(term)) {
+        element.hidden = false;
+        this._filteredItems.push(item);
+      } else {
+        element.hidden = true;
+      }
+    }
+  }
+
+  /**
+   * Select or deselect all visible items.
+   * @param {boolean} selected - Select all if true, otherwise deselect all.
+   */
+  selectAllItems(selected) {
+    for (let item of this._filteredItems) {
+      let element = this._itemElements[item.id];
+      element.querySelector("input").checked = selected;
+      if (selected) {
+        this._selectedItems.add(item);
+      } else {
+        this._selectedItems.delete(item);
+      }
+    }
+    document.getElementById("calendarNextButton").disabled =
+      this._selectedItems.size == 0;
+  }
+
+  /**
+   * Show the sources pane.
+   */
+  async _showSources() {
+    this.showPane("sources");
+    document.getElementById(
+      "calendarBackButton"
+    ).textContent = await document.l10n.formatValue("button-cancel");
+  }
+
+  /**
+   * Handler for the Continue button on the sources pane.
+   */
+  async _onSelectSource() {
+    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+      Ci.nsIFilePicker
+    );
+    filePicker.appendFilter("", "*.ics");
+    filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
+    filePicker.init(window, "import", filePicker.modeOpen);
+    let rv = await new Promise(resolve => filePicker.open(resolve));
+    if (rv != Ci.nsIFilePicker.returnOK) {
+      return;
+    }
+
+    this._sourceFile = filePicker.file;
+    this._importer = new CalendarFileImporter();
+
+    document.getElementById("calendarSourcePath").textContent =
+      filePicker.file.path;
+    document.getElementById(
+      "calendarBackButton"
+    ).textContent = await document.l10n.formatValue("button-back");
+
+    this._showItems();
+  }
+
+  /**
+   * Show the sources pane.
+   */
+  async _showItems() {
+    let elItemList = document.getElementById("calendar-item-list");
+    document.getElementById("calendarItemsTools").hidden = true;
+    elItemList.textContent = await document.l10n.formatValue(
+      "calendar-items-loading"
+    );
+    this.showPane("items");
+
+    // Give the UI a chance to render.
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    try {
+      this._items = await this._importer.parseIcsFile(this._sourceFile);
+    } catch (e) {
+      progressDialog.importerController = this;
+      progressDialog.showError(
+        await document.l10n.formatValue("error-failed-to-parse-ics-file")
+      );
+      throw e;
+    }
+
+    document.getElementById("calendarItemsTools").hidden =
+      this._items.length < 2;
+    elItemList.innerHTML = "";
+    this._filteredItems = this._items;
+    this._selectedItems = new Set(this._items);
+    this._itemElements = {};
+
+    for (let item of this._items) {
+      let wrapper = document.createElement("div");
+      wrapper.className = "calendar-item-wrapper";
+      elItemList.appendChild(wrapper);
+      this._itemElements[item.id] = wrapper;
+
+      let summary = document.createXULElement("calendar-item-summary");
+      wrapper.appendChild(summary);
+      summary.item = item;
+      summary.updateItemDetails();
+
+      let input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = true;
+      wrapper.appendChild(input);
+
+      wrapper.addEventListener("click", e => {
+        if (e.target != input) {
+          input.checked = !input.checked;
+        }
+        if (input.checked) {
+          this._selectedItems.add(item);
+        } else {
+          this._selectedItems.delete(item);
+        }
+        document.getElementById("calendarNextButton").disabled =
+          this._selectedItems.size == 0;
+      });
+    }
+  }
+
+  /**
+   * Handler for the Continue button on the items pane.
+   */
+  _onSelectItems() {
+    this._showCalendars();
+  }
+
+  /**
+   * Show the calendars pane, with a list of existing writable calendars and an
+   * option to create a new calendar.
+   */
+  _showCalendars() {
+    let elList = document.getElementById("calendarList");
+    elList.innerHTML = "";
+
+    this._calendars = this._importer.getTargetCalendars();
+    for (let calendar of this._calendars) {
+      let item = document.createElement("div");
+      item.className = "content-blocking-category";
+
+      let label = document.createElement("label");
+      label.className = "toggle-container-with-text";
+
+      let input = document.createElement("input");
+      input.type = "radio";
+      input.name = "targetCalendar";
+      input.value = calendar.id;
+      label.append(input);
+
+      let name = document.createElement("div");
+      name.className = "strong";
+      name.textContent = calendar.name;
+      label.append(name);
+
+      item.append(label);
+      elList.append(item);
+    }
+    document.querySelector("input[name=targetCalendar]").checked = true;
+
+    this.showPane("calendars");
+  }
+
+  /**
+   * Handler for the Continue button on the calendars pane.
+   */
+  async _onSelectCalendar() {
+    let index = [
+      ...document.querySelectorAll("input[name=targetCalendar]"),
+    ].findIndex(el => el.checked);
+    let targetCalendar = this._calendars[index];
+    if (!targetCalendar) {
+      // Create a new calendar.
+      targetCalendar = cal.manager.createCalendar(
+        "storage",
+        Services.io.newURI("moz-storage-calendar://")
+      );
+      let sourceFileName = this._sourceFile.leafName;
+      targetCalendar.name = sourceFileName.slice(
+        0,
+        sourceFileName.lastIndexOf(".") == -1
+          ? Infinity
+          : sourceFileName.lastIndexOf(".")
+      );
+      cal.manager.registerCalendar(targetCalendar);
+    }
+    progressDialog.showProgress(this);
+    this._importer.onProgress = (current, total) => {
+      progressDialog.updateProgress(current / total);
+    };
+    try {
+      await this._importer.startImport(
+        [...this._selectedItems],
+        targetCalendar
+      );
+      progressDialog.finish();
+    } catch (e) {
+      progressDialog.showError(
+        await document.l10n.formatValue("error-message-failed")
+      );
+      throw e;
+    }
+  }
+}
+
+/**
  * Control the #tabPane-export element, to support exporting the current profile
  * to a zip file.
  */
@@ -722,7 +985,7 @@ let progressDialog = {
       ? title
       : await document.l10n.formatValue("progress-pane-importing");
     this._showPane("progress");
-    this._importerController = importerController;
+    this.importerController = importerController;
     this._disableCancel(true);
     this._disableAccept(true);
   },
@@ -781,14 +1044,15 @@ let progressDialog = {
       MailUtils.restartApplication();
     } else {
       this._el.close();
-      this._importerController?.reset();
+      this.importerController?.reset();
     }
   },
 };
 
 /**
  * Show a specific importing tab.
- * @param {string} tabId - One of ["tab-app", "tab-addressBook", "tab-export"].
+ * @param {string} tabId - One of ["tab-app", "tab-addressBook", "tab-calendar",
+ *   "tab-export"].
  */
 function showTab(tabId) {
   let selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
@@ -806,11 +1070,13 @@ function showTab(tabId) {
 
 let profileController;
 let addrBookController;
+let calendarController;
 let exportController;
 
 document.addEventListener("DOMContentLoaded", () => {
   profileController = new ProfileImporterController();
   addrBookController = new AddrBookImporterController();
+  calendarController = new CalendarImporterController();
   exportController = new ExportController();
   progressDialog.init();
 

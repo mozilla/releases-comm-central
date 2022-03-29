@@ -384,7 +384,11 @@ var calendarController = {
         break;
 
       case "calendar_import_command":
-        loadEventsFromFile();
+        if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
+          toImport("calendar");
+        } else {
+          loadEventsFromFile();
+        }
         break;
       case "calendar_export_command":
         exportEntireCalendar();

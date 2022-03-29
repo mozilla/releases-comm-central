@@ -6,6 +6,7 @@
 EXTRA_JS_MODULES += [
     "AddrBookFileImporter.jsm",
     "BaseProfileImporter.jsm",
+    "CalendarFileImporter.jsm",
     "SeamonkeyProfileImporter.jsm",
     "ThunderbirdProfileImporter.jsm",
 ]

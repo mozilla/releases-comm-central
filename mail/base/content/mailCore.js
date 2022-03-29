@@ -522,7 +522,7 @@ function showChatTab() {
 /**
  * Open about:import or importDialog.xhtml.
  * @param {string} [tabId] - The tab to open in about:import, can be one of
- *   ["app", "addressBook", "export"].
+ *   ["app", "addressBook", "calendar", "export"].
  */
 function toImport(tabId = "app") {
   if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
