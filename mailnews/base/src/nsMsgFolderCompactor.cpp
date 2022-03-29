@@ -50,6 +50,34 @@ static nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
 /**
  * nsFolderCompactState is a helper class for nsFolderCompactor, which
  * handles compacting the mbox for a single local folder.
+ *
+ * This class also patches X-Mozilla-* headers where required. Usually
+ * these headers are edited in-place without changing the overall size,
+ * but sometimes there's not enough room. So as compaction involves
+ * rewriting the whole file anyway, we take the opportunity to make some
+ * more space and correct those headers.
+ *
+ * NOTE (for future cleanups):
+ *
+ * This base class calls nsIMsgMessageService.copyMessages() to iterate
+ * through messages, passing itself in as a listener. Callbacks from
+ * both nsICopyMessageStreamListener and nsIStreamListener are invoked.
+ *
+ * nsOfflineStoreCompactState uses a different mechanism - see separate
+ * notes below.
+ *
+ * The way the service invokes the listener callbacks is pretty quirky
+ * and probably needs a good sorting out, but for now I'll just document what
+ * I've observed here:
+ *
+ * - The service calls OnStartRequest() at the start of the first message.
+ * - StartMessage() is called at the start of subsequent messages.
+ * - EndCopy() is called at the end of every message except the last one,
+ *   where OnStopRequest() is invoked instead.
+ * - OnDataAvailable() is called to pass the message body of each message
+ *   (in multiple calls if the message is big enough).
+ * - EndCopy() doesn't ever seem to be passed a failing error code from
+ *   what I can see, and its own return code is ignored by upstream code.
  */
 class nsFolderCompactState : public nsIStreamListener,
                              public nsICopyMessageStreamListener,
@@ -894,6 +922,20 @@ nsFolderCompactState::OnDataAvailable(nsIRequest* request,
 /**
  * nsOfflineStoreCompactState is a helper class for nsFolderCompactor which
  * handles compacting the mbox for a single offline IMAP folder.
+ *
+ * nsOfflineStoreCompactState does *not* do any special X-Mozilla-* header
+ * handling, unlike the base class.
+ *
+ * NOTE (for future cleanups):
+ * This class uses a different mechanism to iterate through messages. It uses
+ * nsIMsgMessageService.streamMessage() to stream each message in turn,
+ * passing itself in as an nsIStreamListener. The nsICopyMessageStreamListener
+ * callbacks implemented in the base class are _not_ used here.
+ * For each message, the standard OnStartRequest(), OnDataAvailable()...,
+ * OnStopRequest() sequence is seen.
+ * Nothing too fancy, but it's not always clear where code from the base class
+ * is being used and when it is not, so it can be complicated to pick through.
+ *
  */
 class nsOfflineStoreCompactState : public nsFolderCompactState {
  public:
