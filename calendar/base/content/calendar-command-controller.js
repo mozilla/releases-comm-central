@@ -4,6 +4,7 @@
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../mail/base/content/utilityOverlay.js */
+/* import-globals-from ../../../mail/base/content/mailCore.js */
 /* import-globals-from ../../../mail/base/content/mailWindow.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
 /* import-globals-from calendar-clipboard.js */
