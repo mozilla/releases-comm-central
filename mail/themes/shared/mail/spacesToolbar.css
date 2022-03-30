@@ -261,7 +261,8 @@
 /* Add-ons section */
 
 #spacesToolbarAddonsContainer {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .spaces-badge-container {
