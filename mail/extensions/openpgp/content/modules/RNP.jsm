@@ -679,14 +679,53 @@ var RNP = {
     return true;
   },
 
+  /*
+  // We don't need these functions currently, but it's helpful
+  // information that I'd like to keep around as documentation.
+
+  isUInt64WithinBounds(val) {
+    // JS integers are limited to 53 bits precision.
+    // Numbers smaller than 2^53 -1 are safe to use.
+    // (For comparison, that's 8192 TB or 8388608 GB).
+    const num53BitsMinus1 = ctypes.UInt64("0x1fffffffffffff");
+    return ctypes.UInt64.compare(val, num53BitsMinus1) < 0;
+  },
+
+  isUInt64Max(val) {
+    // 2^64-1, 18446744073709551615
+    const max = ctypes.UInt64("0xffffffffffffffff");
+    return ctypes.UInt64.compare(val, max) == 0;
+  },
+  */
+
   isBadKey(handle) {
-    let validTill = new ctypes.uint32_t();
-    if (RNPLib.rnp_key_valid_till(handle, validTill.address())) {
-      throw new Error("rnp_key_valid_till failed");
+    let validTill64 = new ctypes.uint64_t();
+    if (RNPLib.rnp_key_valid_till64(handle, validTill64.address())) {
+      throw new Error("rnp_key_valid_till64 failed");
     }
 
-    // A bad key is invalid for any time
-    return !validTill.value;
+    // For the purpose of this function, we define bad as: there isn't
+    // any valid self-signature on the key, and thus the key should
+    // be completely avoided.
+    // In this scenario, zero is returned. In other words,
+    // if a non-zero value is returned, we know the key isn't completely
+    // bad according to our definition.
+
+    // ctypes.uint64_t().value is of type ctypes.UInt64
+
+    if (ctypes.UInt64.compare(validTill64.value, ctypes.UInt64("0")) > 0) {
+      return false;
+    }
+
+    // If zero was returned, it could potentially have been revoked.
+    // If it was revoked, we don't treat is as generally bad,
+    // to allow importing it and to consume the revocation information.
+    // If the key was not revoked, then treat it as a bad key.
+    let key_revoked = new ctypes.bool();
+    if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
+      throw new Error("rnp_key_is_revoked failed");
+    }
+    return !key_revoked.value;
   },
 
   isPrimaryUid(uid_handle) {
@@ -761,6 +800,10 @@ var RNP = {
       RNPLib.ffi,
       "0x" + keyId
     );
+    if (handle.isNull()) {
+      return null;
+    }
+
     let mainKeyObj = {};
     this.getKeyInfoFromHandle(
       RNPLib.ffi,

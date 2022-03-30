@@ -1624,6 +1624,14 @@ function enableRNPLibJS() {
       ctypes.uint32_t.ptr
     ),
 
+    rnp_key_valid_till64: librnp.declare(
+      "rnp_key_valid_till64",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.uint64_t.ptr
+    ),
+
     rnp_uid_is_valid: librnp.declare(
       "rnp_uid_is_valid",
       abi,
