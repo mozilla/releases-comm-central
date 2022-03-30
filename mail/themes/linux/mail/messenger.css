@@ -8,42 +8,6 @@
 
 @import url("chrome://messenger/skin/shared/messenger.css");
 
-:root {
-  --tabline-color: -moz-accent-color;
-  --toolbar-non-lwt-bgcolor: -moz-dialog;
-  --toolbar-non-lwt-textcolor: -moz-dialogtext;
-  --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
-  --chrome-content-separator-color: ThreeDShadow;
-  --noselect-folder-color: GrayText;
-  --new-folder-color: -moz-hyperlinktext;
-  --row-grouped-header-bg-color: -moz-dialog;
-  --row-grouped-header-bg-color-selected: SelectedItem;
-  --panel-separator-color: ThreeDShadow;
-  --splitter-color: ThreeDShadow;
-  --autocomplete-popup-url-color: -moz-nativehyperlinktext;
-  --select-focus-text-color: SelectedItemText;
-}
-
-:root:-moz-lwtheme {
-  --panel-separator-color: hsla(210, 4%, 10%, .14);
-}
-
-:root[lwt-popup-brighttext] {
-  --panel-separator-color: rgba(249, 249, 250, .1);
-}
-
-:root[lwt-tree] {
-  --splitter-color: var(--sidebar-border-color);
-  --row-grouped-header-bg-color: hsla(0, 0%, 50%, .15);
-  --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
-                                              hsla(0, 0%, 80%, .6));
-}
-
-:root[lwt-tree-brighttext] {
-  --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
-                                              rgba(249, 249, 250, .3));
-}
-
 /* Special rule for dark system theme and default TB theme */
 :root[lwt-tree-brighttext]:not([lwt-tree]) treechildren::-moz-tree-row(current, focus) {
   --sidebar-highlight-background-color: SelectedItem;

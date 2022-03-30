@@ -37,6 +37,7 @@ classic.jar:
   skin/classic/messenger/themeableDialog.css                     (mail/themeableDialog.css)
   skin/classic/messenger/editContactPanel.css                    (mail/editContactPanel.css)
   skin/classic/messenger/quickFilterBar.css                      (mail/quickFilterBar.css)
+  skin/classic/messenger/variables.css                           (mail/variables.css)
   skin/classic/messenger/activity/activity.css                   (mail/activity/activity.css)
   skin/classic/messenger/activity/defaultProcessIcon.png         (mail/activity/defaultProcessIcon.png)
   skin/classic/messenger/activity/defaultEventIcon.png           (mail/activity/defaultEventIcon.png)
