@@ -219,3 +219,57 @@ add_task(async function test_theme_icons() {
 
   await extension.unload();
 });
+
+add_task(async function test_button_order() {
+  info("3-pane tab");
+  await run_action_button_order_test(
+    [
+      {
+        name: "addon1",
+        toolbar: "header-view-toolbar",
+      },
+      {
+        name: "addon2",
+        toolbar: "header-view-toolbar",
+      },
+    ],
+    window,
+    "message_display_action"
+  );
+
+  info("Message tab");
+  await openMessageInTab(messages.getNext());
+  await run_action_button_order_test(
+    [
+      {
+        name: "addon1",
+        toolbar: "header-view-toolbar",
+      },
+      {
+        name: "addon2",
+        toolbar: "header-view-toolbar",
+      },
+    ],
+    window,
+    "message_display_action"
+  );
+  document.getElementById("tabmail").closeTab();
+
+  info("Message window");
+  let messageWindow = await openMessageInWindow(messages.getNext());
+  await run_action_button_order_test(
+    [
+      {
+        name: "addon1",
+        toolbar: "header-view-toolbar",
+      },
+      {
+        name: "addon2",
+        toolbar: "header-view-toolbar",
+      },
+    ],
+    messageWindow,
+    "message_display_action"
+  );
+  messageWindow.close();
+});

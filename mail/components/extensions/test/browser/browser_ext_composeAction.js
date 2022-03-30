@@ -187,3 +187,37 @@ add_task(async function test_theme_icons() {
   composeWindow.close();
   await extension.unload();
 });
+
+add_task(async function test_button_order() {
+  let composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  await run_action_button_order_test(
+    [
+      {
+        name: "addon1",
+        area: "maintoolbar",
+        toolbar: "composeToolbar2",
+      },
+      {
+        name: "addon2",
+        area: "formattoolbar",
+        toolbar: "FormatToolbar",
+      },
+      {
+        name: "addon3",
+        area: "maintoolbar",
+        toolbar: "composeToolbar2",
+      },
+      {
+        name: "addon4",
+        area: "formattoolbar",
+        toolbar: "FormatToolbar",
+      },
+    ],
+    composeWindow,
+    "compose_action"
+  );
+
+  composeWindow.close();
+});

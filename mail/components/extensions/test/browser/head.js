@@ -688,27 +688,21 @@ async function run_popup_test(configData) {
 
         let buttonId = `${configData.actionType}_mochi_test-${configData.apiName}-toolbarbutton`;
         let toolbarId;
-        let checkXulStore = true;
-        let checkCurrentSetAttribute = true;
         switch (configData.actionType) {
           case "compose_action":
             toolbarId = "composeToolbar2";
             if (configData.default_area == "formattoolbar") {
               toolbarId = "FormatToolbar";
-              checkXulStore = false;
-              checkCurrentSetAttribute = false;
             }
             break;
           case "browser_action":
             toolbarId = "mail-bar3";
             if (configData.default_area == "tabstoolbar") {
               toolbarId = "tabbar-toolbar";
-              checkCurrentSetAttribute = false;
             }
             break;
           case "message_display_action":
             toolbarId = "header-view-toolbar";
-            checkXulStore = false;
             break;
           default:
             throw new Error(
@@ -716,84 +710,76 @@ async function run_popup_test(configData) {
             );
         }
 
-        try {
-          let toolbar = win.document.getElementById(toolbarId);
-          let button = win.document.getElementById(buttonId);
-          ok(button, "Button created");
-          is(toolbar.id, button.parentNode.id, "Button added to toolbar");
+        let toolbar = win.document.getElementById(toolbarId);
+        let button = win.document.getElementById(buttonId);
+        ok(button, "Button created");
+        is(toolbar.id, button.parentNode.id, "Button added to toolbar");
+        if (toolbar.hasAttribute("customizable")) {
           ok(
             toolbar.currentSet.split(",").includes(buttonId),
-            "Button added to toolbar current set"
+            `Button should have been added to currentSet property of toolbar ${toolbarId}`
           );
-
-          if (checkXulStore) {
-            ok(
-              toolbar
-                .getAttribute("currentset")
-                .split(",")
-                .includes(buttonId),
-              "Button added to toolbar current set attribute"
-            );
-          }
-          if (checkCurrentSetAttribute) {
-            ok(
-              Services.xulStore
-                .getValue(win.location.href, toolbarId, "currentset")
-                .split(",")
-                .includes(buttonId),
-              "Button added to toolbar current set persistence"
-            );
-          }
-
-          let icon = button.querySelector(".toolbarbutton-icon");
-          is(
-            getComputedStyle(icon).listStyleImage,
-            `url("chrome://messenger/content/extension.svg")`,
-            "Default icon"
+          ok(
+            toolbar
+              .getAttribute("currentset")
+              .split(",")
+              .includes(buttonId),
+            `Button should have been added to currentset attribute of toolbar ${toolbarId}`
           );
-          let label = button.querySelector(".toolbarbutton-text");
-          is(label.value, "This is a test", "Correct label");
+        }
+        ok(
+          Services.xulStore
+            .getValue(win.location.href, toolbarId, "currentset")
+            .split(",")
+            .includes(buttonId),
+          `Button should have been added to currentset xulStore of toolbar ${toolbarId}`
+        );
 
-          let clickedPromise;
-          if (!configData.disable_button) {
-            clickedPromise = extension.awaitMessage("actionButtonClicked");
-          }
-          EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);
-          if (configData.disable_button) {
-            // We're testing that nothing happens. Give it time to potentially happen.
-            // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-            await new Promise(resolve => win.setTimeout(resolve, 500));
-          } else {
-            await clickedPromise;
-            await promiseAnimationFrame(win);
-            await new Promise(resolve => win.setTimeout(resolve));
-            is(win.document.getElementById(buttonId), button);
-            label = button.querySelector(".toolbarbutton-text");
-            is(label.value, "New title", "Correct label");
-          }
-        } finally {
-          // Check the open state of the action button.
-          let button = win.document.getElementById(buttonId);
-          await TestUtils.waitForCondition(
-            () => button.getAttribute("open") != "true",
-            "Button should not have open state after the popup closed."
-          );
+        let icon = button.querySelector(".toolbarbutton-icon");
+        is(
+          getComputedStyle(icon).listStyleImage,
+          `url("chrome://messenger/content/extension.svg")`,
+          "Default icon"
+        );
+        let label = button.querySelector(".toolbarbutton-text");
+        is(label.value, "This is a test", "Correct label");
 
-          await extension.unload();
+        let clickedPromise;
+        if (!configData.disable_button) {
+          clickedPromise = extension.awaitMessage("actionButtonClicked");
+        }
+        EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);
+        if (configData.disable_button) {
+          // We're testing that nothing happens. Give it time to potentially happen.
+          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+          await new Promise(resolve => win.setTimeout(resolve, 500));
+        } else {
+          await clickedPromise;
           await promiseAnimationFrame(win);
           await new Promise(resolve => win.setTimeout(resolve));
-
-          ok(!win.document.getElementById(buttonId), "Button destroyed");
-          if (checkXulStore) {
-            ok(
-              !Services.xulStore
-                .getValue(win.location.href, toolbarId, "currentset")
-                .split(",")
-                .includes(buttonId),
-              "Button removed from toolbar current set persistence"
-            );
-          }
+          is(win.document.getElementById(buttonId), button);
+          label = button.querySelector(".toolbarbutton-text");
+          is(label.value, "New title", "Correct label");
         }
+
+        // Check the open state of the action button.
+        await TestUtils.waitForCondition(
+          () => button.getAttribute("open") != "true",
+          "Button should not have open state after the popup closed."
+        );
+
+        await extension.unload();
+        await promiseAnimationFrame(win);
+        await new Promise(resolve => win.setTimeout(resolve));
+
+        ok(!win.document.getElementById(buttonId), "Button destroyed");
+        ok(
+          !Services.xulStore
+            .getValue(win.location.href, toolbarId, "currentset")
+            .split(",")
+            .includes(buttonId),
+          `Button should have been removed from currentset xulStore of toolbar ${toolbarId}`
+        );
       };
       if (configData.use_default_popup) {
         // With popup.
@@ -1011,4 +997,95 @@ async function run_popup_test(configData) {
 
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await backend_script(extension, configData);
+}
+
+async function run_action_button_order_test(configs, window, actionType) {
+  // Get camelCase API names from action type.
+  let apiName = actionType.replace(/_([a-z])/g, function(g) {
+    return g[1].toUpperCase();
+  });
+
+  function get_id(name) {
+    return `${name}_mochi_test-${apiName}-toolbarbutton`;
+  }
+
+  function test_buttons(configs, window, toolbars) {
+    for (let toolbarId of toolbars) {
+      let expected = configs
+        .filter(e => e.toolbar == toolbarId)
+        .map(e => get_id(e.name));
+      let buttons = window.document.querySelectorAll(
+        `#${toolbarId} toolbarbutton[id$="${get_id("")}"]`
+      );
+      Assert.equal(
+        expected.length,
+        buttons.length,
+        `Should find the correct number of buttons in ${toolbarId} toolbar`
+      );
+      for (let i = 0; i < buttons.length; i++) {
+        Assert.equal(
+          expected[i],
+          buttons[i].id,
+          `Should find the correct button at location #${i}`
+        );
+      }
+    }
+  }
+
+  // Create extension data.
+  let toolbars = new Set();
+  for (let config of configs) {
+    toolbars.add(config.toolbar);
+    config.extensionData = {
+      useAddonManager: "permanent",
+      manifest: {
+        applications: {
+          gecko: {
+            id: `${config.name}@mochi.test`,
+          },
+        },
+        [actionType]: {
+          default_title: config.name,
+        },
+      },
+    };
+    if (config.area) {
+      config.extensionData.manifest[actionType].default_area = config.area;
+    }
+  }
+
+  // Test order of buttons after first install.
+  for (let config of configs) {
+    config.extension = ExtensionTestUtils.loadExtension(config.extensionData);
+    await config.extension.startup();
+  }
+  test_buttons(configs, window, toolbars);
+
+  // Disable all buttons.
+  for (let config of configs) {
+    let addon = await AddonManager.getAddonByID(config.extension.id);
+    await addon.disable();
+  }
+  test_buttons([], window, toolbars);
+
+  // Re-enable all buttons in reversed order, displayed order should not change.
+  for (let config of [...configs].reverse()) {
+    let addon = await AddonManager.getAddonByID(config.extension.id);
+    await addon.enable();
+  }
+  test_buttons(configs, window, toolbars);
+
+  // Re-install all extensions in reversed order, displayed order should not change.
+  for (let config of [...configs].reverse()) {
+    config.extension2 = ExtensionTestUtils.loadExtension(config.extensionData);
+    await config.extension2.startup();
+  }
+  test_buttons(configs, window, toolbars);
+
+  // Remove all extensions.
+  for (let config of [...configs].reverse()) {
+    await config.extension.unload();
+    await config.extension2.unload();
+  }
+  test_buttons([], window, toolbars);
 }

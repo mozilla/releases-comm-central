@@ -161,3 +161,32 @@ add_task(async function test_theme_icons() {
 
   await extension.unload();
 });
+
+add_task(async function test_button_order() {
+  await run_action_button_order_test(
+    [
+      {
+        name: "addon1",
+        area: "maintoolbar",
+        toolbar: "mail-bar3",
+      },
+      {
+        name: "addon2",
+        area: "tabstoolbar",
+        toolbar: "tabbar-toolbar",
+      },
+      {
+        name: "addon3",
+        area: "maintoolbar",
+        toolbar: "mail-bar3",
+      },
+      {
+        name: "addon4",
+        area: "tabstoolbar",
+        toolbar: "tabbar-toolbar",
+      },
+    ],
+    window,
+    "browser_action"
+  );
+});

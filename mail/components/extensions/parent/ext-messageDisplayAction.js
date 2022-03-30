@@ -10,6 +10,11 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/ExtensionToolbarButtons.jsm"
 );
 
+var { ExtensionCommon } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionCommon.jsm"
+);
+var { makeWidgetId } = ExtensionCommon;
+
 const messageDisplayActionMap = new WeakMap();
 
 this.messageDisplayAction = class extends ToolbarButtonAPI {
@@ -42,6 +47,34 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     windowTracker.addListener("TabSelect", this);
   }
 
+  static onUninstall(extensionId) {
+    let widgetId = makeWidgetId(extensionId);
+    let id = `${widgetId}-messageDisplayAction-toolbarbutton`;
+    let toolbar = "header-view-toolbar";
+
+    // Check all possible windows and remove the toolbarbutton if found.
+    // Sadly we have to hardcode these values here, as the add-on is already
+    // shutdown when onUninstall is called.
+    let windowURLs = [
+      "chrome://messenger/content/messenger.xhtml",
+      "chrome://messenger/content/messageWindow.xhtml",
+    ];
+    for (let windowURL of windowURLs) {
+      let currentSet = Services.xulStore
+        .getValue(windowURL, toolbar, "currentset")
+        .split(",");
+      let newSet = currentSet.filter(e => e != id);
+      if (newSet.length < currentSet.length) {
+        Services.xulStore.setValue(
+          windowURL,
+          toolbar,
+          "currentset",
+          newSet.join(",")
+        );
+      }
+    }
+  }
+
   handleEvent(event) {
     super.handleEvent(event);
     let { windowManager } = this.extension;
@@ -69,6 +102,19 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
         }
         break;
     }
+  }
+
+  /**
+   * Returns an element in the toolbar, which is to be used as default insertion
+   * point for new toolbar buttons in non-customizable toolbars.
+   *
+   * May return null to append new buttons to the end of the toolbar.
+   *
+   * @param {DOMElement} toolbar - a toolbar node
+   * @return {DOMElement} a node which is to be used as insertion point, or null
+   */
+  getNonCustomizableToolbarInsertionPoint(toolbar) {
+    return toolbar.querySelector("#starMessageButton");
   }
 
   makeButton(window) {

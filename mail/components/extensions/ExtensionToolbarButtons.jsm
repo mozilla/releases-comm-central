@@ -148,30 +148,34 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
 
     // In tests, startupReason is undefined, because the test suite is naughty.
     // Assume ADDON_INSTALL.
+    // The initial post-install addition of the toolbar button must be handled
+    // here (and not in paint) to let the user directly remove the button from
+    // the toolbar without it being re-added, when a new window is opened.
     if (
       !this.extension.startupReason ||
       this.extension.startupReason == "ADDON_INSTALL"
     ) {
       for (let windowURL of this.windowURLs) {
-        let currentSet = Services.xulStore.getValue(
-          windowURL,
-          this.toolbarId,
-          "currentset"
-        );
-        if (!currentSet) {
-          continue;
+        // Postpone adding the toolbar button here if currentSet has not yet been
+        // defined. It has to be added during paint, when the defaultset of the
+        // toolbar is accessible.
+        if (
+          Services.xulStore.hasValue(windowURL, this.toolbarId, "currentset")
+        ) {
+          let currentSet = Services.xulStore
+            .getValue(windowURL, this.toolbarId, "currentset")
+            .split(",")
+            .filter(e => e != "");
+          if (!currentSet.includes(this.id)) {
+            currentSet.push(this.id);
+            Services.xulStore.setValue(
+              windowURL,
+              this.toolbarId,
+              "currentset",
+              currentSet.join(",")
+            );
+          }
         }
-        currentSet = currentSet.split(",");
-        if (currentSet.includes(this.id)) {
-          continue;
-        }
-        currentSet.push(this.id);
-        Services.xulStore.setValue(
-          windowURL,
-          this.toolbarId,
-          "currentset",
-          currentSet.join(",")
-        );
       }
     }
 
@@ -242,11 +246,24 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
   }
 
   /**
-   * Adds a toolbar button to this window.
+   * Returns an element in the toolbar, which is to be used as default insertion
+   * point for new toolbar buttons in non-customizable toolbars.
+   *
+   * May return null to append new buttons to the end of the toolbar.
+   *
+   * @param {DOMElement} toolbar - a toolbar node
+   * @return {DOMElement} a node which is to be used as insertion point, or null
+   */
+  getNonCustomizableToolbarInsertionPoint(toolbar) {
+    return null;
+  }
+
+  /**
+   * Adds a toolbar button to a customizable toolbar in this window.
    *
    * @param {Window} window
    */
-  paint(window) {
+  customizableToolbarPaint(window) {
     let windowURL = window.location.href;
     let { document } = window;
     if (document.getElementById(this.id)) {
@@ -258,14 +275,16 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       return;
     }
 
-    // Get all toolbars which link to or are children of this.toolboxId
+    // Get all toolbars which link to or are children of this.toolboxId and check
+    // if the button has been moved to a non-default toolbar.
     let toolbars = window.document.querySelectorAll(
       `#${this.toolboxId} toolbar, toolbar[toolboxid="${this.toolboxId}"]`
     );
     for (let toolbar of toolbars) {
       let currentSet = Services.xulStore
         .getValue(windowURL, toolbar.id, "currentset")
-        .split(",");
+        .split(",")
+        .filter(e => e != "");
       if (currentSet.includes(this.id)) {
         this.toolbarId = toolbar.id;
         break;
@@ -279,32 +298,101 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     } else {
       toolbar.appendChild(button);
     }
+
+    // Handle the special case where this toolbar did not have a currentSet
+    // defined during extension startup and add the button now.
     if (
-      Services.xulStore.hasValue(
+      !Services.xulStore.hasValue(
         window.location.href,
         this.toolbarId,
         "currentset"
       )
     ) {
-      toolbar.currentSet = Services.xulStore.getValue(
-        window.location.href,
-        this.toolbarId,
-        "currentset"
-      );
-      toolbar.setAttribute("currentset", toolbar.currentSet);
-    } else {
-      let currentSet = toolbar.getAttribute("defaultset").split(",");
+      let currentSet = toolbar
+        .getAttribute("defaultset")
+        .split(",")
+        .filter(e => e != "");
       if (!currentSet.includes(this.id)) {
         currentSet.push(this.id);
-        toolbar.currentSet = currentSet.join(",");
-        toolbar.setAttribute("currentset", toolbar.currentSet);
-        Services.xulStore.persist(toolbar, "currentset");
+        Services.xulStore.setValue(
+          windowURL,
+          this.toolbarId,
+          "currentset",
+          currentSet.join(",")
+        );
       }
     }
+
+    toolbar.currentSet = Services.xulStore.getValue(
+      windowURL,
+      this.toolbarId,
+      "currentset"
+    );
+    toolbar.setAttribute("currentset", toolbar.currentSet);
 
     if (this.extension.hasPermission("menus")) {
       document.addEventListener("popupshowing", this);
     }
+  }
+
+  /**
+   * Adds a toolbar button to a non-customizable toolbar in this window.
+   *
+   * @param {Window} window
+   */
+  nonCustomizableToolbarPaint(window) {
+    let { document } = window;
+    let windowURL = window.location.href;
+    if (document.getElementById(this.id)) {
+      return;
+    }
+    let toolbar = document.getElementById(this.toolbarId);
+    let before = this.getNonCustomizableToolbarInsertionPoint(toolbar);
+    let button = this.makeButton(window);
+    let currentSet = Services.xulStore
+      .getValue(windowURL, toolbar.id, "currentset")
+      .split(",")
+      .filter(e => e != "");
+    if (!currentSet.includes(this.id)) {
+      currentSet.push(this.id);
+      Services.xulStore.setValue(
+        windowURL,
+        toolbar.id,
+        "currentset",
+        currentSet.join(",")
+      );
+    } else {
+      for (let id of [...currentSet].reverse()) {
+        if (!id.endsWith(`-${this.manifestName}-toolbarbutton`)) {
+          continue;
+        }
+        if (id == this.id) {
+          break;
+        }
+        let element = document.getElementById(id);
+        if (element) {
+          before = element;
+        }
+      }
+    }
+    toolbar.insertBefore(button, before);
+
+    if (this.extension.hasPermission("menus")) {
+      document.addEventListener("popupshowing", this);
+    }
+  }
+
+  /**
+   * Adds a toolbar button to a toolbar in this window.
+   *
+   * @param {Window} window
+   */
+  paint(window) {
+    let toolbar = window.document.getElementById(this.toolbarId);
+    if (toolbar.hasAttribute("customizable")) {
+      return this.customizableToolbarPaint(window);
+    }
+    return this.nonCustomizableToolbarPaint(window);
   }
 
   /**

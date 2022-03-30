@@ -41,15 +41,10 @@ this.composeAction = class extends ToolbarButtonAPI {
     this.windowURLs = [
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     ];
-
     let isFormatToolbar =
       extension.manifest.compose_action.default_area == "formattoolbar";
     this.toolboxId = isFormatToolbar ? "FormatToolbox" : "compose-toolbox";
     this.toolbarId = isFormatToolbar ? "FormatToolbar" : "composeToolbar2";
-
-    if (isFormatToolbar) {
-      this.paint = this.paintFormatToolbar;
-    }
   }
 
   static onUninstall(extensionId) {
@@ -118,23 +113,21 @@ this.composeAction = class extends ToolbarButtonAPI {
     return button;
   }
 
-  paintFormatToolbar(window) {
-    let { document } = window;
-    if (document.getElementById(this.id)) {
-      return;
-    }
-
-    let toolbar = document.getElementById(this.toolbarId);
-    let button = this.makeButton(window);
+  /**
+   * Returns an element in the toolbar, which is to be used as default insertion
+   * point for new toolbar buttons in non-customizable toolbars.
+   *
+   * May return null to append new buttons to the end of the toolbar.
+   *
+   * @param {DOMElement} toolbar - a toolbar node
+   * @return {DOMElement} a node which is to be used as insertion point, or null
+   */
+  getNonCustomizableToolbarInsertionPoint(toolbar) {
     let before = toolbar.lastElementChild;
     while (before.localName == "spacer") {
       before = before.previousElementSibling;
     }
-    toolbar.insertBefore(button, before.nextElementSibling);
-
-    if (this.extension.hasPermission("menus")) {
-      document.addEventListener("popupshowing", this);
-    }
+    return before.nextElementSibling;
   }
 };
 
