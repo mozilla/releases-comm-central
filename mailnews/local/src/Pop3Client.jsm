@@ -118,13 +118,8 @@ class Pop3Client {
    * Initiate a connection to the server
    */
   connect() {
-    if (this._server.serverBusy) {
-      this._actionError("pop3ServerBusy", [this._server.prettyName]);
-      return;
-    }
-
     this._logger.debug(
-      `Connecting to pop://${this._server.realHostName}:${this._server.port}`
+      `Connecting to pop://${this._server.realHostName}:${this._server.port} serverBusy=${this._server.serverBusy}`
     );
     this._server.serverBusy = true;
     this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
