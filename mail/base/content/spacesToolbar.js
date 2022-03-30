@@ -23,6 +23,12 @@ var gSpacesToolbar = {
     "--webextension-toolbar-image-2x-light",
   ],
   docURL: "chrome://messenger/content/messenger.xhtml",
+  /**
+   * The spaces toolbar DOM element.
+   *
+   * @type {HTMLElement}
+   */
+  element: null,
   isLoaded: false,
   isHidden: false,
   /**
@@ -98,6 +104,13 @@ var gSpacesToolbar = {
    * @type {integer}
    */
   densitySpacing: 0,
+  /**
+   * The button that can receive focus. Used for managing focus with a roving
+   * tabindex.
+   *
+   * @type {?HTMLElement}
+   */
+  focusButton: null,
 
   tabMonitor: {
     monitorName: "spacesToolbarMonitor",
@@ -158,6 +171,8 @@ var gSpacesToolbar = {
       return;
     }
 
+    this.element = document.getElementById("spacesToolbar");
+    this.focusButton = document.getElementById("mailButton");
     let tabmail = document.getElementById("tabmail");
 
     this.spaces = [
@@ -320,9 +335,12 @@ var gSpacesToolbar = {
   },
 
   setupEventListeners() {
-    document
-      .getElementById("spacesToolbar")
-      .addEventListener("contextmenu", event => this._showContextMenu(event));
+    this.element.addEventListener("contextmenu", event =>
+      this._showContextMenu(event)
+    );
+    this.element.addEventListener("keydown", event => {
+      this._onSpacesToolbarKeyDown(event);
+    });
 
     // Prevent buttons from stealing the focus on click since the focus is
     // handled when a specific tab is opened or switched to.
@@ -432,7 +450,7 @@ var gSpacesToolbar = {
 
     document
       .getElementById("spacesPopupButtonReveal")
-      .addEventListener("click", () => {
+      .addEventListener("command", () => {
         this.toggleToolbar(false);
       });
     document
@@ -440,6 +458,114 @@ var gSpacesToolbar = {
       .addEventListener("click", event => {
         this.openSpacesToolbarAddonsPopup(event);
       });
+
+    // Allow opening the pinned menu with Space or Enter keypress.
+    document
+      .getElementById("spacesPinnedButton")
+      .addEventListener("keypress", event => {
+        // Don't show the panel if the window is in customization mode.
+        if (
+          document.getElementById("toolbar-menubar").hasAttribute("customizing")
+        ) {
+          return;
+        }
+
+        if (event.key == " " || event.key == "Enter") {
+          let panel = document.getElementById("spacesButtonMenuPopup");
+          if (panel.state == "open") {
+            panel.hidePopup();
+          } else if (panel.state == "closed") {
+            panel.openPopup(event.target, "after_start");
+          }
+        }
+      });
+  },
+
+  /**
+   * Handle the keypress event on the spaces toolbar.
+   *
+   * @param {Event} event - The keypress DOMEvent.
+   */
+  _onSpacesToolbarKeyDown(event) {
+    if (
+      !["ArrowUp", "ArrowDown", "Home", "End", " ", "Enter"].includes(event.key)
+    ) {
+      return;
+    }
+
+    // NOTE: Normally a button click handler would cover Enter and Space key
+    // events, however we need to prevent the default behavior and explicitly
+    // trigger the button click because in some tabs XUL keys or Window event
+    // listeners are attached to this keys triggering specific actions.
+    // TODO: Remove once we have a properly mapped global shortcut object not
+    // relying on XUL keys.
+    if (event.key == " " || event.key == "Enter") {
+      event.preventDefault();
+      event.target.click();
+      return;
+    }
+
+    // Collect all currently visible buttons of the spaces toolbar.
+    let buttons = [
+      ...document.querySelectorAll(".spaces-toolbar-button:not([hidden])"),
+    ];
+    let elementIndex = buttons.indexOf(this.focusButton);
+
+    // Find the adjacent focusable element based on the pressed key.
+    switch (event.key) {
+      case "ArrowUp":
+        elementIndex--;
+        if (elementIndex == -1) {
+          elementIndex = buttons.length - 1;
+        }
+        // Jump to the top if the CMD modifier was pressed (macOS only).
+        if (event.metaKey) {
+          elementIndex = 0;
+        }
+        break;
+
+      case "ArrowDown":
+        elementIndex++;
+        if (elementIndex > buttons.length - 1) {
+          elementIndex = 0;
+        }
+        // Jump to the bottom if the CMD modifier was pressed (macOS only).
+        if (event.metaKey) {
+          elementIndex = buttons.length - 1;
+        }
+        break;
+
+      case "Home":
+        elementIndex = 0;
+        break;
+
+      case "End":
+        elementIndex = buttons.length - 1;
+        break;
+    }
+
+    this.setFocusButton(buttons[elementIndex]);
+  },
+
+  /**
+   * Move the focus to a new toolbar button and update the tabindex attribute.
+   *
+   * @param {HTMLElement} buttonToFocus - The new button to receive focus.
+   */
+  setFocusButton(buttonToFocus) {
+    if (buttonToFocus == this.focusButton) {
+      return;
+    }
+
+    let prevHadFocus = document.activeElement == this.focusButton;
+    this.focusButton.tabIndex = -1;
+    this.focusButton = buttonToFocus;
+    buttonToFocus.tabIndex = 0;
+    // Only move the focus if the currently focused button was the active
+    // element.
+    if (prevHadFocus) {
+      buttonToFocus.focus();
+    }
   },
 
   /**
@@ -500,10 +626,7 @@ var gSpacesToolbar = {
     bgButton.onchange = null;
     bgButton.value =
       this.customizeData.background ||
-      this._rgbToHex(
-        getComputedStyle(document.getElementById("spacesToolbar"))
-          .backgroundColor
-      );
+      this._rgbToHex(getComputedStyle(this.element).backgroundColor);
     bgButton.onchange = event => {
       this.customizeData.background = event.target.value;
       this.updateCustomization();
@@ -637,7 +760,7 @@ var gSpacesToolbar = {
       // We set an event listener for the transition of any element inside the
       // toolbar so we can reset the color for the buttons only after the
       // toolbar and its elements reverted to their original colors.
-      document.getElementById("spacesToolbar").addEventListener(
+      this.element.addEventListener(
         "transitionend",
         () => {
           this._resetColorInputs();
@@ -665,9 +788,31 @@ var gSpacesToolbar = {
    */
   toggleToolbar(state) {
     this.isHidden = state;
-    document.getElementById("spacesToolbar").hidden = state;
-    document.getElementById("spacesToolbarReveal").hidden = !state;
-    document.getElementById("spacesPinnedButton").collapsed = !state;
+
+    // Show the pinned button first so we can focus it if needed.
+    let pinnedButton = document.getElementById("spacesPinnedButton");
+    pinnedButton.collapsed = !state;
+    let revealButton = document.getElementById("spacesToolbarReveal");
+    revealButton.hidden = !state;
+
+    if (state && this.element.contains(document.activeElement)) {
+      // If the toolbar is being hidden and one of its child element was
+      // focused, move the focus to the pinned button without changing the
+      // focusButton attribute of this object.
+      pinnedButton.focus();
+    } else if (
+      !state &&
+      (document.activeElement == pinnedButton ||
+        document.activeElement == revealButton)
+    ) {
+      // If the the toolbar is being shown and the focus is on the pinned or
+      // reveal button, move the focus to the previously focused button.
+      this.focusButton?.focus();
+    }
+
+    // Change the spaces toolbar visibility only after we handled the focus.
+    this.element.hidden = state;
+
     // Update the window UI after the visibility state of the spaces toolbar
     // has changed.
     this.updateUI(
@@ -725,8 +870,7 @@ var gSpacesToolbar = {
 
     // Add inline margin to the titlebar or the navigation-toolbox to
     // account for the spaces toolbar.
-    let size = document.getElementById("spacesToolbar").getBoundingClientRect()
-      .width;
+    let size = this.element.getBoundingClientRect().width;
     let style = `margin-inline-start: ${size}px;`;
     let menubar = document.getElementById("toolbar-menubar");
 
@@ -790,6 +934,11 @@ var gSpacesToolbar = {
     let popup = document.getElementById("spacesToolbarAddonsPopup");
     // Bail out if we don't have any add-ons button.
     if (!this.addonButtonCount) {
+      if (this.focusButton == overflowButton) {
+        this.setFocusButton(
+          this.element.querySelector(".spaces-toolbar-button:not([hidden])")
+        );
+      }
       overflowButton.hidden = true;
       separator.collapsed = true;
       popup.hidePopup();
@@ -828,6 +977,13 @@ var gSpacesToolbar = {
     // If we get a negative threshold, it means we have plenty of empty space
     // so we don't need to do anything.
     if (threshold <= 0) {
+      // If the overflow button was the currently focused button, move the focus
+      // to an arbitrary first available button.
+      if (this.focusButton == overflowButton) {
+        this.setFocusButton(
+          this.element.querySelector(".spaces-toolbar-button:not([hidden])")
+        );
+      }
       overflowButton.hidden = true;
       popup.hidePopup();
       return;
@@ -840,6 +996,11 @@ var gSpacesToolbar = {
         `.spaces-addon-button:nth-last-child(${i})`
       );
       if (btn) {
+        // If one of the hidden add-on buttons was the focused one, move the
+        // focus to the overflow button.
+        if (btn == this.focusButton) {
+          this.setFocusButton(overflowButton);
+        }
         btn.hidden = true;
       }
     }
@@ -858,9 +1019,7 @@ var gSpacesToolbar = {
     // Add inline styling to the tabmail tabs only if we're on macOS and the
     // app is in full screen mode.
     if (window.fullScreen) {
-      let size = document
-        .getElementById("spacesToolbar")
-        .getBoundingClientRect().width;
+      let size = this.element.getBoundingClientRect().width;
       let style = `margin-inline-start: ${size}px;`;
       document.getElementById("tabmail-tabs").setAttribute("style", style);
       return;
@@ -909,6 +1068,7 @@ var gSpacesToolbar = {
       button.classList.add("spaces-toolbar-button", "spaces-addon-button");
       button.id = id;
       button.title = properties.title;
+      button.tabIndex = -1;
 
       let badge = document.createElement("span");
       badge.classList.add("spaces-badge-container");
@@ -1088,7 +1248,16 @@ var gSpacesToolbar = {
         return reject("Unable to remove spaces toolbar button! Missing ID");
       }
 
-      document.getElementById(`${id}`)?.remove();
+      let button = document.getElementById(`${id}`);
+      // If the button being removed is the currently focused one, move the
+      // focus on an arbitrary first available spaces button.
+      if (this.focusButton == button) {
+        this.setFocusButton(
+          this.element.querySelector(".spaces-toolbar-button:not([hidden])")
+        );
+      }
+
+      button?.remove();
       document.getElementById(`${id}-menuitem`)?.remove();
 
       let space = gSpacesToolbar.spaces.find(space => space.name == id);

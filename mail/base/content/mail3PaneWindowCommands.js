@@ -1419,16 +1419,18 @@ function SetFocusThreadPaneIfNotOnMessagePane() {
 // 3pane related commands.  Need to go in own file.  Putting here for the moment.
 
 /**
- * Cycle through the various panes in the 3pane window (in reverse if the shift
- * key is being held down).
+ * Cycle through the various panes in the 3pane window.
  *
- * @param event the event that triggered us
+ * @param {Event} event - The keypress DOMEvent.
  */
 function SwitchPaneFocus(event) {
   // First, build an array of panes to cycle through based on our current state.
   // This will usually be something like [threadPane, messagePane, folderPane].
   let panes = [];
   let focusedElement;
+  let spacesElement = !gSpacesToolbar.isHidden
+    ? gSpacesToolbar.focusButton
+    : document.getElementById("spacesPinnedButton");
 
   let { currentTabInfo } = document.getElementById("tabmail");
   if (currentTabInfo.mode.name == "mail3PaneTab") {
@@ -1442,6 +1444,12 @@ function SwitchPaneFocus(event) {
       multiMessageBrowser,
       accountCentralBrowser,
     } = browser.contentWindow;
+
+    panes.push(spacesElement);
+
+    if (folderPaneVisible) {
+      panes.push(folderTree);
+    }
 
     if (accountCentralBrowser.hidden) {
       panes.push(threadTree);
@@ -1457,20 +1465,18 @@ function SwitchPaneFocus(event) {
       }
     }
 
-    if (folderPaneVisible) {
-      panes.push(folderTree);
-    }
-
     focusedElement = contentDocument.activeElement;
   } else if (currentTabInfo.mode.tabType.name == "mail") {
+    panes.push(spacesElement);
+
+    if (gFolderDisplay.folderPaneVisible) {
+      panes.push(document.getElementById("folderTree"));
+    }
+
     panes.push(GetThreadTree());
 
     if (!IsMessagePaneCollapsed()) {
       panes.push(GetMessagePane());
-    }
-
-    if (gFolderDisplay.folderPaneVisible) {
-      panes.push(document.getElementById("folderTree"));
     }
 
     focusedElement = gFolderDisplay.focusedPane;
@@ -1486,7 +1492,7 @@ function SwitchPaneFocus(event) {
     focusedElementIndex = 0;
   }
 
-  if (event && event.shiftKey) {
+  if (event.shiftKey) {
     focusedElementIndex--;
     if (focusedElementIndex == -1) {
       focusedElementIndex = panes.length - 1;
@@ -1511,8 +1517,7 @@ function SwitchPaneFocus(event) {
 }
 
 function SetFocusThreadPane() {
-  var threadTree = GetThreadTree();
-  threadTree.focus();
+  GetThreadTree()?.focus();
 }
 
 /**

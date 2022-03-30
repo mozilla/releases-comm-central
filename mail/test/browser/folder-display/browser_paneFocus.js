@@ -50,6 +50,7 @@ add_task(async function setupModule(module) {
  */
 function get_focused_pane() {
   let panes = [
+    "mailButton",
     "threadTree",
     "folderTree",
     "messagepane",
@@ -77,6 +78,7 @@ function get_focused_pane() {
 function check_pane_cycling(multimessage) {
   let folderPane = mc.e("folderTree");
   let threadPane = mc.e("threadTree");
+  let mailButton = mc.e("mailButton");
   let messagePane = mc.e(multimessage ? "multimessage" : "messagepane");
 
   folderPane.focus();
@@ -86,14 +88,20 @@ function check_pane_cycling(multimessage) {
   EventUtils.synthesizeKey("VK_F6", {}, mc.window);
   Assert.equal(get_focused_pane().id, messagePane.id);
   EventUtils.synthesizeKey("VK_F6", {}, mc.window);
+  Assert.equal(get_focused_pane().id, mailButton.id);
+  EventUtils.synthesizeKey("VK_F6", {}, mc.window);
   Assert.equal(get_focused_pane().id, folderPane.id);
 
+  EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
+  Assert.equal(get_focused_pane().id, mailButton.id);
   EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
   Assert.equal(get_focused_pane().id, messagePane.id);
   EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
   Assert.equal(get_focused_pane().id, threadPane.id);
   EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
   Assert.equal(get_focused_pane().id, folderPane.id);
+  EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
+  Assert.equal(get_focused_pane().id, mailButton.id);
 }
 
 add_task(function test_no_messages_selected() {

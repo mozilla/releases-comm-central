@@ -46,7 +46,7 @@
 
 <html:div role="toolbar" id="spacesToolbar" xmlns="http://www.w3.org/1999/xhtml"
           class="spaces-toolbar"
-          data-l10n-id="spaces-toolbar"
+          data-l10n-id="spaces-toolbar-element"
           data-l10n-attrs="toolbarname"
           aria-orientation="vertical"
           hidden="hidden">
@@ -57,28 +57,33 @@
   <div class="spaces-toolbar-container spaces-toolbar-top-container">
     <button id="mailButton"
             data-l10n-id="spaces-toolbar-button-mail2"
-            class="spaces-toolbar-button">
+            class="spaces-toolbar-button"
+            tabindex="0">
       <img src="chrome://messenger/skin/icons/message.svg" alt="" />
     </button>
     <button id="addressBookButton"
             data-l10n-id="spaces-toolbar-button-address-book2"
-            class="spaces-toolbar-button">
+            class="spaces-toolbar-button"
+            tabindex="-1">
       <img src="chrome://messenger/skin/icons/address.svg" alt="" />
     </button>
     <button id="calendarButton"
             data-l10n-id="spaces-toolbar-button-calendar2"
-            class="spaces-toolbar-button">
+            class="spaces-toolbar-button"
+            tabindex="-1">
       <img src="chrome://messenger/skin/shared/preferences/calendar.svg"
            alt="" />
     </button>
     <button id="tasksButton"
             data-l10n-id="spaces-toolbar-button-tasks2"
-            class="spaces-toolbar-button">
+            class="spaces-toolbar-button"
+            tabindex="-1">
       <img src="chrome://calendar/skin/shared/icons/task-tab.svg" alt="" />
     </button>
     <button id="chatButton"
             data-l10n-id="spaces-toolbar-button-chat2"
-            class="spaces-toolbar-button">
+            class="spaces-toolbar-button"
+            tabindex="-1">
       <span class="spaces-badge-container"></span>
       <img src="chrome://messenger/skin/icons/chat.svg" alt="" />
     </button>
@@ -93,7 +98,8 @@
           aria-expanded="false"
           aria-haspopup="menu"
           aria-controls="spacesToolbarAddonsPopup"
-          hidden="hidden">
+          hidden="hidden"
+          tabindex="-1">
     <img src="chrome://messenger/skin/icons/overflow.svg" alt="" />
   </button>
 
@@ -101,14 +107,16 @@
     <!-- Settings button. -->
     <button id="settingsButton"
             data-l10n-id="spaces-toolbar-button-settings2"
-            class="spaces-toolbar-button">
+            class="spaces-toolbar-button"
+            tabindex="-1">
       <img src="chrome://global/skin/icons/settings.svg" alt="" />
     </button>
 
     <!-- Collapse button. -->
     <button id="collapseButton"
             data-l10n-id="spaces-toolbar-button-hide"
-            class="spaces-toolbar-button">
+            class="spaces-toolbar-button"
+            tabindex="-1">
       <img src="chrome://messenger/skin/icons/collapse.svg" alt="" />
     </button>
   </div>

@@ -193,8 +193,10 @@ decrypt-and-copy-failures = { $failures } of { $total } messages could not be de
 
 ## Spaces toolbar
 
-spaces-toolbar =
+spaces-toolbar-element =
     .toolbarname = Spaces Toolbar
+    .aria-label = Spaces Toolbar
+    .aria-description = Vertical toolbar for switching between different spaces. Use the arrow keys to navigate the available buttons.
 
 spaces-toolbar-button-mail2 =
     .title = Mail

@@ -109,6 +109,10 @@
   outline: 2px solid SelectedItem;
 }
 
+.spaces-toolbar-button.current:focus-visible:not(:hover) {
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .spaces-toolbar {
     transition: background-color 280ms ease;
@@ -199,6 +203,10 @@
   margin: var(--spaces-pinned-button-margin) !important;
   list-style-image: url("chrome://messenger/skin/icons/spaces.svg");
   min-width: auto;
+}
+
+#spacesPinnedButton:focus-visible {
+  outline: 2px solid SelectedItem;
 }
 
 #spacesPinnedButton .toolbarbutton-text,

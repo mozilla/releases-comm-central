@@ -953,3 +953,86 @@ add_task(function testPinnedSpacesBadge() {
     "Badge state is reset from pinned button"
   );
 });
+
+add_task(async function testSpacesToolbarFocusRing() {
+  // Make sure the spaces toolbar is visible.
+  window.gSpacesToolbar.toggleToolbar(false);
+  // Move the focus ring on the mail toolbar button.
+  document.getElementById("mailButton").focus();
+
+  // Collect an array of all currently visible buttons.
+  let buttons = [
+    ...document.querySelectorAll(".spaces-toolbar-button:not([hidden])"),
+  ];
+
+  // Simulate the Arrow Down keypress to make sure the correct button gets the
+  // focus.
+  for (let i = 1; i < buttons.length; i++) {
+    let previousElement = document.activeElement;
+    EventUtils.synthesizeKey("KEY_ArrowDown", {}, window);
+    Assert.equal(
+      document.activeElement.id,
+      buttons[i].id,
+      "The next button is focused"
+    );
+    Assert.ok(
+      document.activeElement.tabIndex == 0 && previousElement.tabIndex == -1,
+      "The roving tab index was updated"
+    );
+  }
+
+  // Do the same with the Arrow Up key press but reversing the array.
+  buttons.reverse();
+  for (let i = 1; i < buttons.length; i++) {
+    let previousElement = document.activeElement;
+    EventUtils.synthesizeKey("KEY_ArrowUp", {}, window);
+    Assert.equal(
+      document.activeElement.id,
+      buttons[i].id,
+      "The previous button is focused"
+    );
+    Assert.ok(
+      document.activeElement.tabIndex == 0 && previousElement.tabIndex == -1,
+      "The roving tab index was updated"
+    );
+  }
+
+  // Pressing the END key should move the focus down to the last available
+  // button.
+  EventUtils.synthesizeKey("KEY_End", {}, window);
+  Assert.equal(
+    document.activeElement.id,
+    "collapseButton",
+    "The last button is focused"
+  );
+
+  // Pressing the HOME key should move the focus up to the first available
+  // button.
+  EventUtils.synthesizeKey("KEY_Home", {}, window);
+  Assert.equal(
+    document.activeElement.id,
+    "mailButton",
+    "The first button is focused"
+  );
+
+  // macOS only tests for keyboard shortcut.
+  if (AppConstants.platform == "macosx") {
+    // Pressing the CMD modifier should move the focus down to the last
+    // available button.
+    EventUtils.synthesizeKey("KEY_ArrowDown", { metaKey: true }, window);
+    Assert.equal(
+      document.activeElement.id,
+      "collapseButton",
+      "The last button is focused"
+    );
+
+    // Pressing the CMD modifier should move the focus up to the first
+    // available button.
+    EventUtils.synthesizeKey("KEY_ArrowUp", { metaKey: true }, window);
+    Assert.equal(
+      document.activeElement.id,
+      "mailButton",
+      "The first button is focused"
+    );
+  }
+});
