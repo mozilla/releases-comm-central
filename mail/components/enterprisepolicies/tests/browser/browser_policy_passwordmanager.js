@@ -11,16 +11,17 @@ add_task(async function test_pwmanagerbutton() {
   });
 
   window.openPreferencesTab("panePrivacy");
-  await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
+  await BrowserTestUtils.browserLoaded(window.preferencesTabType.tab.browser);
   await new Promise(resolve => setTimeout(resolve));
 
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("showPasswords")
-      .disabled,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "showPasswords"
+    ).disabled,
     true,
     "showPasswords should be disabled."
   );
 
   let tabmail = document.getElementById("tabmail");
-  tabmail.closeTab(window.gPrefTab);
+  tabmail.closeTab(window.preferencesTabType.tab);
 });

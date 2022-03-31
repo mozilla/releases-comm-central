@@ -123,6 +123,7 @@
   <script defer="defer" src="chrome://messenger/content/chat/imStatusSelector.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/imContextMenu.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/chat-conversation.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/addressBookTab.js"></script>
   <script defer="defer" src="chrome://messenger/content/preferences/preferencesTab.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
@@ -890,6 +891,9 @@
                    type="content"
                    flex="1"
                    disablehistory="true"
+                   autocompletepopup="PopupAutoComplete"
+                   datetimepicker="DateTimePickerPanel"
+                   selectmenulist="ContentSelectDropdown"
                    messagemanagergroup="single-site"/>
         </hbox>
         <findbar browserid="preferencesbrowser"/>

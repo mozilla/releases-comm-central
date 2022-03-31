@@ -295,7 +295,6 @@ function openContentTab(url, where, linkHandler) {
  */
 function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
   openTab("preferencesTab", {
-    url: "about:preferences",
     paneID,
     scrollPaneTo,
     otherArgs,

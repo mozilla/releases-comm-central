@@ -6,6 +6,7 @@
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/newmailaccount/content/provisionerCheckout.js */
+/* import-globals-from ../../components/addrbook/content/addressBookTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
@@ -577,7 +578,8 @@ var gMailInit = {
 
     // This also registers the contentTabType ("contentTab")
     specialTabs.openSpecialTabsOnStartup();
-    preferencesTabType.initialize();
+    tabmail.registerTabType(addressBookTabType);
+    tabmail.registerTabType(preferencesTabType);
     // provisionerCheckoutTabType is defined in provisionerCheckout.js
     tabmail.registerTabType(provisionerCheckoutTabType);
 

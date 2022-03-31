@@ -4,7 +4,8 @@
 
 /* globals openAddonsTab, openChatTab, openNewCalendarEventTab,
  * openNewCalendarTaskTab, openPreferencesTab, openTasksTab,
- * selectCalendarEventTab, selectCalendarTaskTab, selectFolderTab */
+ * selectCalendarEventTab, selectCalendarTaskTab, selectFolderTab,
+ * toAddressBook */
 
 // Test that today pane is visible/collapsed correctly for various tab types.
 // In all cases today pane should not be visible in preferences or addons tab.
@@ -57,6 +58,8 @@ add_task(async () => {
     check("calendarEvent");
     await selectCalendarTaskTab(taskTabPanelId);
     check("calendarTask");
+    await toAddressBook();
+    check("addressBookTab");
     await openPreferencesTab();
     check("preferencesTab");
     await openAddonsTab();
@@ -155,6 +158,8 @@ add_task(async () => {
   ok(BrowserTestUtils.is_visible(button), "today pane button is visible in event tab");
   await selectCalendarTaskTab(taskTabPanelId);
   ok(BrowserTestUtils.is_visible(button), "today pane button is visible in task tab");
+  await toAddressBook();
+  is(BrowserTestUtils.is_visible(button), false, "today pane button is hidden in address book tab");
   await openPreferencesTab();
   is(BrowserTestUtils.is_visible(button), false, "today pane button is hidden in preferences tab");
   await openAddonsTab();

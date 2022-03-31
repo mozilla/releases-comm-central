@@ -169,7 +169,6 @@ MailDefaultHandler.prototype = {
 
   /* nsICommandLineHandler */
 
-  /* eslint-disable complexity */
   handle(cmdLine) {
     if (
       cmdLine.state == Ci.nsICommandLine.STATE_INITIAL_LAUNCH &&
@@ -184,6 +183,43 @@ MailDefaultHandler.prototype = {
         Services.obs.removeObserver(windowOpenObserver, "domwindowopened");
       }, "domwindowopened");
       return;
+    }
+
+    async function getOrOpen3PaneWindow() {
+      let win = Services.wm.getMostRecentWindow("mail:3pane");
+      if (win) {
+        return win;
+      }
+
+      let startupPromise = new Promise(resolve => {
+        Services.obs.addObserver(
+          {
+            observe(subject) {
+              if (subject == win) {
+                Services.obs.removeObserver(this, "mail-tabs-session-restored");
+                resolve();
+              }
+            },
+          },
+          "mail-tabs-session-restored"
+        );
+      });
+
+      // Bug 277798 - we have to pass an argument to openWindow(), or
+      // else it won't honor the dialog=no instruction.
+      let argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
+        Ci.nsISupportsString
+      );
+      win = Services.ww.openWindow(
+        null,
+        "chrome://messenger/content/messenger.xhtml",
+        "_blank",
+        "chrome,dialog=no,all",
+        argstring
+      );
+
+      await startupPromise;
+      return win;
     }
 
     try {
@@ -213,23 +249,7 @@ MailDefaultHandler.prototype = {
             // xfeDoCommand(openBrowser)
             switch (remoteParams[0].toLowerCase()) {
               case "openinbox": {
-                var win = Services.wm.getMostRecentWindow("mail:3pane");
-                if (win) {
-                  win.focus();
-                } else {
-                  // Bug 277798 - we have to pass an argument to openWindow(), or
-                  // else it won't honor the dialog=no instruction.
-                  let argstring = Cc[
-                    "@mozilla.org/supports-string;1"
-                  ].createInstance(Ci.nsISupportsString);
-                  Services.ww.openWindow(
-                    null,
-                    "chrome://messenger/content/messenger.xhtml",
-                    "_blank",
-                    "chrome,dialog=no,all",
-                    argstring
-                  );
-                }
+                getOrOpen3PaneWindow().then(win => win.focus());
                 break;
               }
               case "composemessage": {
@@ -297,21 +317,14 @@ MailDefaultHandler.prototype = {
       cmdLine.preventDefault = true;
     }
 
-    if (cmdLine.handleFlag("options", false)) {
-      // Open the options window
-      let instantApply = Services.prefs.getBoolPref(
-        "browser.preferences.instantApply"
-      );
-      let features =
-        "chrome,titlebar,toolbar" + (instantApply ? ",dialog=no" : ",modal");
+    if (cmdLine.handleFlag("addressbook", false)) {
+      getOrOpen3PaneWindow().then(win => win.toAddressBook());
+      cmdLine.preventDefault = true;
+    }
 
-      Services.ww.openWindow(
-        null,
-        "chrome://messenger/content/preferences/preferences.xhtml",
-        "_blank",
-        features,
-        null
-      );
+    if (cmdLine.handleFlag("options", false)) {
+      getOrOpen3PaneWindow().then(win => win.openPreferencesTab());
+      cmdLine.preventDefault = true;
     }
 
     if (cmdLine.handleFlag("setDefaultMail", false)) {
@@ -425,19 +438,7 @@ MailDefaultHandler.prototype = {
             .finalize();
 
           if (headers.get("X-Unsent") == "1") {
-            let win = Services.wm.getMostRecentWindow("mail:3pane");
-            if (!win) {
-              let argstring = Cc[
-                "@mozilla.org/supports-string;1"
-              ].createInstance(Ci.nsISupportsString);
-              Services.ww.openWindow(
-                null,
-                "chrome://messenger/content/messenger.xhtml",
-                "_blank",
-                "chrome,dialog=no,all",
-                argstring
-              );
-            }
+            getOrOpen3PaneWindow();
             let msgWindow = Cc[
               "@mozilla.org/messenger/msgwindow;1"
             ].createInstance(Ci.nsIMsgWindow);
@@ -508,6 +509,7 @@ MailDefaultHandler.prototype = {
         // A VCard! Be smart and open the "add contact" dialog.
         let file = cmdLine.resolveFile(uri);
         if (file.exists() && file.fileSize > 0) {
+          let winPromise = getOrOpen3PaneWindow();
           let uriSpec = Services.io.newFileURI(file).spec;
           NetUtil.asyncFetch(
             { uri: uriSpec, loadUsingSystemPrincipal: true },
@@ -520,7 +522,6 @@ MailDefaultHandler.prototype = {
                 inputStream,
                 inputStream.available()
               );
-
               // Try to detect the character set and decode. Only UTF-8 is
               // valid from vCard 4.0, but we support older versions, so other
               // charsets are possible.
@@ -532,15 +533,11 @@ MailDefaultHandler.prototype = {
               );
               data = new TextDecoder(charset).decode(buffer);
 
-              let card = Cc["@mozilla.org/addressbook/msgvcardservice;1"]
-                .getService(Ci.nsIMsgVCardService)
-                .vCardToAbCard(data);
-              Services.ww.openWindow(
-                null,
-                "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
-                "_blank",
-                "chrome,resizable=no,titlebar,modal,centerscreen",
-                card
+              winPromise.then(win =>
+                win.toAddressBook({
+                  action: "create",
+                  vCard: decodeURIComponent(data),
+                })
               );
             }
           );
@@ -579,20 +576,9 @@ MailDefaultHandler.prototype = {
         }
       }
     } else {
-      var argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
-        Ci.nsISupportsString
-      );
-
-      Services.ww.openWindow(
-        null,
-        "chrome://messenger/content/messenger.xhtml",
-        "_blank",
-        "chrome,dialog=no,all",
-        argstring
-      );
+      getOrOpen3PaneWindow();
     }
   },
-  /* eslint-enable complexity */
 
   /* nsICommandLineValidator */
   validate(cmdLine) {
@@ -665,6 +651,7 @@ MailDefaultHandler.prototype = {
 
   helpInfo:
     "  -options           Open the options dialog.\n" +
+    "  -addressbook       Open the address book at startup.\n" +
     "  -file              Open the specified email file or ICS calendar file.\n" +
     "  -setDefaultMail    Set this app as the default mail client.\n",
 

@@ -482,32 +482,41 @@ function focusOnMail(tabNo, event) {
   }
 }
 
-async function toAddressBook() {
-  if (Services.prefs.getBoolPref("mail.addr_book.useNewAddressBook")) {
-    let messengerWindow = toMessengerWindow();
-    if (messengerWindow.document.readyState != "complete") {
-      await new Promise(resolve =>
-        messengerWindow.addEventListener("load", resolve, { once: true })
+/**
+ * Open the address book and optionally display/edit a card.
+ *
+ * @param {?object} openArgs - Arguments to pass to the address book.
+ *   See `externalAction` in aboutAddressBook.js for details.
+ */
+async function toAddressBook(openArgs) {
+  let messengerWindow = toMessengerWindow();
+  if (messengerWindow.document.readyState != "complete") {
+    await new Promise(resolve => {
+      Services.obs.addObserver(
+        {
+          observe(subject) {
+            if (subject == messengerWindow) {
+              Services.obs.removeObserver(this, "mail-tabs-session-restored");
+              resolve();
+            }
+          },
+        },
+        "mail-tabs-session-restored"
       );
-    }
-
-    let tab = messengerWindow.openContentTab("about:addressbook");
-    if (!tab.browser.docShell.hasLoadedNonBlankURI) {
-      await new Promise(resolve =>
-        tab.browser.addEventListener("load", resolve, {
-          capture: true,
-          once: true,
-        })
-      );
-    }
-
-    return tab.browser.contentWindow;
+    });
   }
 
-  return toOpenWindowByType(
-    "mail:addressbook",
-    "chrome://messenger/content/addressbook/addressbook.xhtml"
-  );
+  return new Promise(resolve => {
+    messengerWindow.tabmail.openTab("addressBookTab", {
+      onLoad(event, browser) {
+        if (openArgs) {
+          browser.contentWindow.externalAction(openArgs);
+        }
+        resolve(browser.contentWindow);
+      },
+    });
+    messengerWindow.focus();
+  });
 }
 
 function showChatTab() {

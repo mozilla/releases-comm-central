@@ -42,6 +42,20 @@ async function assertMailShown(win = window) {
   );
 }
 
+async function assertAddressBookShown(win = window) {
+  await TestUtils.waitForCondition(() => {
+    let panel = win.document.querySelector(
+      // addressBookTabWrapper0, addressBookTabWrapper1, etc
+      "#tabpanelcontainer > [id^=addressBookTabWrapper][selected]"
+    );
+    if (!panel) {
+      return false;
+    }
+    let browser = panel.querySelector("[id^=addressBookTabBrowser]");
+    return browser.contentDocument.readyState == "complete";
+  }, "The address book tab should be visible and loaded");
+}
+
 async function assertChatShown(win = window) {
   await TestUtils.waitForCondition(
     () => win.document.getElementById("chatTabPanel").hasAttribute("selected"),
@@ -111,7 +125,7 @@ async function sub_test_cycle_through_primary_tabs() {
     {},
     window
   );
-  await assertContentShown("about:addressbook");
+  await assertAddressBookShown();
 
   // Switch to calendar.
   EventUtils.synthesizeMouseAtCenter(
@@ -537,7 +551,7 @@ add_task(async function testSpacesToolbarContextMenu() {
     {
       name: "address book",
       button: document.getElementById("addressBookButton"),
-      assertShown: assertContentShown.bind(undefined, "about:addressbook"),
+      assertShown: assertAddressBookShown,
     },
     {
       name: "calendar",

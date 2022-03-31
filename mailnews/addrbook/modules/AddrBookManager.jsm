@@ -572,25 +572,4 @@ AddrBookManager.prototype = {
     addressCache.set(emailAddress, null);
     return null;
   },
-
-  /* nsICommandLineHandler */
-
-  get helpInfo() {
-    return "  -addressbook       Open the address book at startup.\n";
-  },
-  handle(commandLine) {
-    let found = commandLine.handleFlag("addressbook", false);
-    if (!found) {
-      return;
-    }
-
-    Services.ww.openWindow(
-      null,
-      "chrome://messenger/content/addressbook/addressbook.xhtml",
-      "_blank",
-      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-      null
-    );
-    commandLine.preventDefault = true;
-  },
 };

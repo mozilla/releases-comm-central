@@ -52,14 +52,13 @@ registerCleanupFunction(function() {
 });
 
 async function openAddressBookWindow() {
-  let tab = window.openContentTab("about:addressbook");
-  await BrowserTestUtils.browserLoaded(
-    tab.browser,
-    undefined,
-    "about:addressbook"
-  );
-  await new Promise(r => tab.browser.contentWindow.setTimeout(r));
-  return tab.browser.contentWindow;
+  return new Promise(resolve => {
+    window.openTab("addressBookTab", {
+      onLoad(event, browser) {
+        resolve(browser.contentWindow);
+      },
+    });
+  });
 }
 
 function closeAddressBookWindow() {

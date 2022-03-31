@@ -116,11 +116,11 @@ async function test_cookie_settings({
 
   window.openPreferencesTab("panePrivacy");
   await BrowserTestUtils.browserLoaded(
-    window.gPrefTab.browser,
+    window.preferencesTabType.tab.browser,
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.gPrefTab.browser;
+  let { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("acceptCookies")
   );
@@ -148,7 +148,7 @@ async function test_cookie_settings({
   );
 
   let tabmail = document.getElementById("tabmail");
-  tabmail.closeTab(window.gPrefTab);
+  tabmail.closeTab(window.preferencesTabType.tab);
 }
 
 add_task(async function prepare_tracker_tables() {

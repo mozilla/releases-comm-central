@@ -57,6 +57,7 @@ var calendarTabMonitor = {
       case "calendarTask":
         calSwitchToMode(aNewTab.mode.name);
         break;
+      case "addressBookTab":
       case "preferencesTab":
       case "contentTab":
         calSwitchToMode("special");

@@ -183,6 +183,19 @@ async function openPreferencesTab() {
   await new Promise(resolve => setTimeout(resolve));
 }
 
+async function closeAddressBookTab() {
+  let tabmail = document.getElementById("tabmail");
+  let abMode = tabmail.tabModes.addressBookTab;
+
+  if (abMode.tabs.length == 1) {
+    tabmail.closeTab(abMode.tabs[0]);
+  }
+
+  is(abMode.tabs.length, 0, "address book tab is not open");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
 async function closePreferencesTab() {
   let tabmail = document.getElementById("tabmail");
   let prefsMode = tabmail.tabModes.preferencesTab;
@@ -335,6 +348,7 @@ registerCleanupFunction(async () => {
   await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
   await closeTasksTab();
   await closeChatTab();
+  await closeAddressBookTab();
   await closePreferencesTab();
   await closeAddonsTab();
 
@@ -349,4 +363,6 @@ registerCleanupFunction(async () => {
     await closeCalendarTaskTab(id);
   }
   Services.prefs.setBoolPref("calendar.item.editInTab", false);
+
+  Assert.equal(tabmail.tabInfo.length, 1, "all tabs closed");
 });

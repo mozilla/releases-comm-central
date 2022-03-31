@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <title data-l10n-id="about-addressbook-title"></title>
   <meta http-equiv="Content-Security-Policy"
-        content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src blob: chrome: data: http: https:; style-src chrome:; object-src 'none'" />
+        content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src blob: chrome: data: http: https:; style-src chrome: 'unsafe-inline'; object-src 'none'" />
   <meta name="color-scheme" content="light dark" />
 
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/address-book.svg" />
@@ -164,6 +164,10 @@
                 data-l10n-id="about-addressbook-delete-edit-contact-button"></button>
       </div>
       <div>
+        <xul:label control="addContactBookList"
+                   data-l10n-id="about-addressbook-add-contact-to"/>
+        <xul:menulist is="menulist-addrbooks" id="addContactBookList"
+                      writable="true"/>
         <button type="reset" id="cancelEditButton"
                 data-l10n-id="about-addressbook-cancel-edit-contact-button"></button>
         <button type="submit" id="saveEditButton"

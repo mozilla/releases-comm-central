@@ -7,25 +7,11 @@
 
 const EXPORTED_SYMBOLS = ["VCardParent"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 class VCardParent extends JSWindowActorParent {
   receiveMessage({ data, target }) {
-    const VCardService = Cc[
-      "@mozilla.org/addressbook/msgvcardservice;1"
-    ].getService(Ci.nsIMsgVCardService);
-
-    let abCard = VCardService.escapedVCardToAbCard(data);
-    if (!abCard) {
-      return;
-    }
-
-    Services.ww.openWindow(
-      target.browsingContext.topChromeWindow,
-      "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
-      "",
-      "chrome,resizable=no,titlebar,modal,centerscreen",
-      abCard
-    );
+    target.browsingContext.topChromeWindow.toAddressBook({
+      action: "create",
+      vCard: decodeURIComponent(data),
+    });
   }
 }

@@ -234,25 +234,13 @@ var gSpacesToolbar = {
         // addressbook will never belong to a tab, so we only need to test for
         // the new addressbook.
         tabInSpace(tabInfo) {
-          if (
-            tabInfo.mode.name == "contentTab" &&
-            tabInfo.urlbar?.value == "about:addressbook"
-          ) {
+          if (tabInfo.mode.name == "addressBookTab") {
             return 1;
           }
           return 0;
         },
         open(where) {
-          if (Services.prefs.getBoolPref("mail.addr_book.useNewAddressBook")) {
-            return openContentTab("about:addressbook", where);
-          }
-          // Else, ignore the "where" argument since we can only open a dialog.
-          toOpenWindowByType(
-            "mail:addressbook",
-            "chrome://messenger/content/addressbook/addressbook.xhtml"
-          );
-          // Didn't open either a tab or a messenger window.
-          return null;
+          return openTab("addressBookTab", {}, where);
         },
       },
       {
@@ -307,7 +295,7 @@ var gSpacesToolbar = {
           return 0;
         },
         open(where) {
-          return openTab("preferencesTab", { url: "about:preferences" }, where);
+          return openTab("preferencesTab", {}, where);
         },
       },
     ];
@@ -365,9 +353,7 @@ var gSpacesToolbar = {
     let settingsContextMenu = document.getElementById("settingsContextMenu");
     document
       .getElementById("settingsContextOpenSettingsItem")
-      .addEventListener("command", () =>
-        openTab("preferencesTab", { url: "about:preferences" })
-      );
+      .addEventListener("command", () => openTab("preferencesTab", {}));
     document
       .getElementById("settingsContextOpenAccountSettingsItem")
       .addEventListener("command", () =>

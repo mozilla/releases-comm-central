@@ -19,30 +19,35 @@ add_task(async function test_defaultdownload() {
 
   window.openPreferencesTab("paneGeneral");
   await BrowserTestUtils.browserLoaded(
-    window.gPrefTab.browser,
+    window.preferencesTabType.tab.browser,
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.gPrefTab.browser;
+  let { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("alwaysAsk")
   );
   await new Promise(resolve =>
-    window.gPrefTab.browser.contentWindow.setTimeout(resolve)
+    window.preferencesTabType.tab.browser.contentWindow.setTimeout(resolve)
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("alwaysAsk")
-      .disabled,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "alwaysAsk"
+    ).disabled,
     true,
     "alwaysAsk should be disabled."
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("saveTo").selected,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "saveTo"
+    ).selected,
     true,
     "saveTo should be selected."
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("saveTo").disabled,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "saveTo"
+    ).disabled,
     true,
     "saveTo should be disabled."
   );
@@ -64,7 +69,7 @@ add_task(async function test_defaultdownload() {
   );
 
   let tabmail = document.getElementById("tabmail");
-  tabmail.closeTab(window.gPrefTab);
+  tabmail.closeTab(window.preferencesTabType.tab);
 });
 
 add_task(async function test_download() {
@@ -76,42 +81,49 @@ add_task(async function test_download() {
 
   window.openPreferencesTab("paneGeneral");
   await BrowserTestUtils.browserLoaded(
-    window.gPrefTab.browser,
+    window.preferencesTabType.tab.browser,
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.gPrefTab.browser;
+  let { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("alwaysAsk")
   );
   await new Promise(resolve =>
-    window.gPrefTab.browser.contentWindow.setTimeout(resolve)
+    window.preferencesTabType.tab.browser.contentWindow.setTimeout(resolve)
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("alwaysAsk")
-      .disabled,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "alwaysAsk"
+    ).disabled,
     true,
     "alwaysAsk should be disabled."
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("saveTo").selected,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "saveTo"
+    ).selected,
     true,
     "saveTo should be selected."
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("saveTo").disabled,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "saveTo"
+    ).disabled,
     true,
     "saveTo should be disabled."
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("downloadFolder")
-      .disabled,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "downloadFolder"
+    ).disabled,
     true,
     "downloadFolder should be disabled."
   );
   is(
-    window.gPrefTab.browser.contentDocument.getElementById("chooseFolder")
-      .disabled,
+    window.preferencesTabType.tab.browser.contentDocument.getElementById(
+      "chooseFolder"
+    ).disabled,
     true,
     "chooseFolder should be disabled."
   );
@@ -133,5 +145,5 @@ add_task(async function test_download() {
   );
 
   let tabmail = document.getElementById("tabmail");
-  tabmail.closeTab(window.gPrefTab);
+  tabmail.closeTab(window.preferencesTabType.tab);
 });

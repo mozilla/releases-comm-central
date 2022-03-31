@@ -556,6 +556,16 @@ section#notes div {
   background-image: url("chrome://messenger/skin/icons/delete.svg");
 }
 
+#detailsFooter label {
+  margin: 0 4px;
+  white-space: nowrap;
+}
+
+#detailsFooter menulist:not([hidden]) {
+  display: inline;
+  margin-inline: 4px;
+}
+
 input[type="number"] {
   min-height: 28px;
   padding: 1px;

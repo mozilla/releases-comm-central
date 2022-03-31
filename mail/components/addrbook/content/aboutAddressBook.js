@@ -133,6 +133,8 @@ window.addEventListener("load", () => {
   }
 
   document.getElementById("searchInput").focus();
+
+  window.dispatchEvent(new CustomEvent("about-addressbook-ready"));
 });
 
 window.addEventListener("unload", () => {
@@ -153,6 +155,44 @@ window.addEventListener("unload", () => {
   // itself up and stops listening for observer service notifications.
   cardsPane.cardsList.view = null;
 });
+
+/**
+ * Called on load from `toAddressBook` to create, display or edit a card.
+ *
+ * @param {"create"|"display"|"edit"} action - What to do with the args given.
+ * @param {?string} address - Create a new card with this email address.
+ * @param {?string} vCard - Create a new card from this vCard.
+ * @param {?nsIAbCard} card - Display or edit this card.
+ */
+function externalAction({ action, address, card, vCard } = {}) {
+  if (action == "create") {
+    if (address) {
+      detailsPane.editNewContact(
+        `BEGIN:VCARD\r\nEMAIL:${address}\r\nEND:VCARD\r\n`
+      );
+    } else {
+      detailsPane.editNewContact(vCard);
+    }
+  } else if (action == "display" || action == "edit") {
+    if (!card || !card.directoryUID) {
+      return;
+    }
+
+    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+    if (!book) {
+      return;
+    }
+
+    booksList.selectedIndex = booksList.getIndexForUID(card.directoryUID);
+    cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
+      card.UID
+    );
+
+    if (action == "edit" && book && !book.readOnly) {
+      detailsPane.editCurrentContact();
+    }
+  }
+}
 
 /**
  * Show UI to create a new address book of the type specified.
@@ -200,13 +240,6 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
  * Show UI to create a new contact in the current address book.
  */
 function createContact() {
-  if (booksList.selectedIndex === 0) {
-    throw new Components.Exception(
-      "Cannot modify the All Address Books item",
-      Cr.NS_ERROR_UNEXPECTED
-    );
-  }
-
   let row = booksList.getRowAtIndex(booksList.selectedIndex);
   let bookUID = row.dataset.book ?? row.dataset.uid;
 
@@ -640,10 +673,9 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       cardsPane.displayBook(row.dataset.uid);
     }
 
-    // Row 0 is the "All Address Books" item. Contacts and lists can't be
-    // added here.
+    // Row 0 is the "All Address Books" item. Lists can't be added here.
     if (this.selectedIndex === 0) {
-      document.getElementById("toolbarCreateContact").disabled = true;
+      document.getElementById("toolbarCreateContact").disabled = false;
       document.getElementById("toolbarCreateList").disabled = true;
     } else {
       let bookUID = row.dataset.book ?? row.dataset.uid;
@@ -1675,12 +1707,6 @@ var cardsPane = {
 // Details
 
 var detailsPane = {
-  form: null,
-
-  editButton: null,
-
-  photo: null,
-
   currentCard: null,
 
   dirtyFields: new Set(),
@@ -1690,6 +1716,7 @@ var detailsPane = {
     this.writeButton = document.getElementById("detailsWriteButton");
     this.editButton = document.getElementById("editButton");
     this.deleteButton = document.getElementById("detailsDeleteButton");
+    this.addContactBookList = document.getElementById("addContactBookList");
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
 
@@ -1826,7 +1853,19 @@ var detailsPane = {
       document.getElementById(id).tabIndex = editing ? -1 : 0;
     }
 
-    if (!editing) {
+    if (editing) {
+      this.addContactBookList.hidden = !!this.currentCard;
+      this.addContactBookList.previousElementSibling.hidden = !!this
+        .currentCard;
+
+      let book = booksList
+        .getRowAtIndex(booksList.selectedIndex)
+        .closest(".bookRow")._book;
+      if (book) {
+        // TODO: convert this to UID.
+        this.addContactBookList.value = book.URI;
+      }
+    } else {
       this.isDirty = false;
       this.dirtyFields.clear();
     }
@@ -2103,16 +2142,20 @@ var detailsPane = {
 
   /**
    * Show controls for editing a new card.
+   *
+   * @param {?string} vCard - A vCard containing properties for the new card.
    */
-  async editNewContact() {
-    detailsPane.currentCard = null;
-    this.editCurrentContact();
+  async editNewContact(vCard) {
+    this.currentCard = null;
+    this.editCurrentContact(vCard);
   },
 
   /**
    * Show controls for editing the currently displayed card.
+   *
+   * @param {?string} vCard - A vCard containing properties for a new card.
    */
-  editCurrentContact() {
+  editCurrentContact(vCard) {
     let card = this.currentCard;
 
     if (!card) {
@@ -2142,12 +2185,8 @@ var detailsPane = {
     } else {
       card = new AddrBookCard();
 
-      let row = booksList.getRowAtIndex(booksList.selectedIndex);
-      let bookUID = row.dataset.book ?? row.dataset.uid;
-
-      if (bookUID) {
-        book = MailServices.ab.getDirectoryFromUID(bookUID);
-      }
+      // TODO: convert this to UID.
+      book = MailServices.ab.getDirectory(this.addContactBookList.value);
     }
     if (!book || book.readOnly) {
       throw new Components.Exception(

@@ -545,13 +545,6 @@ this.addressBook = class extends ExtensionAPI {
         async openUI() {
           let messengerWindow = windowTracker.topNormalWindow;
           let abWindow = await messengerWindow.toAddressBook();
-
-          if (abWindow.document.readyState != "complete") {
-            await new Promise(resolve =>
-              abWindow.addEventListener("load", resolve, { once: true })
-            );
-          }
-
           return new Promise(resolve => abWindow.setTimeout(resolve));
         },
         async closeUI() {

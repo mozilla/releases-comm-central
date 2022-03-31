@@ -141,6 +141,8 @@ about-addressbook-delete-edit-contact-button = Delete
 about-addressbook-cancel-edit-contact-button = Cancel
 about-addressbook-save-edit-contact-button = Save
 
+about-addressbook-add-contact-to = Add to:
+
 about-addressbook-details-email-addresses-header = Email Addresses
 about-addressbook-details-phone-numbers-header = Phone Numbers
 about-addressbook-details-addresses-header = Addresses

@@ -6,19 +6,16 @@
 /* globals contentTabBaseType, DOMLinkHandler */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
 /**
- * A tab to show Preferences.
+ * A tab to show the Address Book.
  */
-var preferencesTabType = {
+var addressBookTabType = {
   __proto__: contentTabBaseType,
-  name: "preferencesTab",
+  name: "addressBookTab",
   perTabPanel: "vbox",
   lastBrowserId: 0,
   bundle: Services.strings.createBundle(
@@ -36,8 +33,8 @@ var preferencesTabType = {
   },
 
   modes: {
-    preferencesTab: {
-      type: "preferencesTab",
+    addressBookTab: {
+      type: "addressBookTab",
     },
   },
 
@@ -45,11 +42,18 @@ var preferencesTabType = {
     if (!this.tab) {
       return -1;
     }
-    this.tab.browser.contentWindow.selectPrefPane(
-      aArgs.paneID,
-      aArgs.scrollPaneTo,
-      aArgs.otherArgs
-    );
+
+    if ("onLoad" in aArgs) {
+      if (this.tab.browser.contentDocument.readyState != "complete") {
+        this.tab.browser.addEventListener(
+          "about-addressbook-ready",
+          event => aArgs.onLoad(event, this.tab.browser),
+          { capture: true, once: true }
+        );
+      } else {
+        aArgs.onLoad(null, this.tab.browser);
+      }
+    }
     return document.getElementById("tabmail").tabInfo.indexOf(this.tab);
   },
 
@@ -59,7 +63,7 @@ var preferencesTabType = {
 
   openTab(aTab, aArgs) {
     aTab.tabNode.setIcon(
-      "chrome://messenger/skin/icons/new/compact/settings.svg"
+      "chrome://messenger/skin/icons/new/compact/address-book.svg"
     );
 
     // First clone the page and set up the basics.
@@ -67,17 +71,17 @@ var preferencesTabType = {
       .getElementById("preferencesTab")
       .firstElementChild.cloneNode(true);
 
-    clone.setAttribute("id", "preferencesTab" + this.lastBrowserId);
+    clone.setAttribute("id", "addressBookTab" + this.lastBrowserId);
     clone.setAttribute("collapsed", false);
 
-    aTab.panel.setAttribute("id", "preferencesTabWrapper" + this.lastBrowserId);
+    aTab.panel.setAttribute("id", "addressBookTabWrapper" + this.lastBrowserId);
     aTab.panel.appendChild(clone);
 
     // Start setting up the browser.
     aTab.browser = aTab.panel.querySelector("browser");
     aTab.browser.setAttribute(
       "id",
-      "preferencesTabBrowser" + this.lastBrowserId
+      "addressBookTabBrowser" + this.lastBrowserId
     );
     aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
     aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
@@ -85,13 +89,13 @@ var preferencesTabType = {
     aTab.findbar = aTab.panel.querySelector("findbar");
     aTab.findbar.setAttribute(
       "browserid",
-      "preferencesTabBrowser" + this.lastBrowserId
+      "addressBookTabBrowser" + this.lastBrowserId
     );
 
     // Default to reload being disabled.
     aTab.reloadEnabled = false;
 
-    aTab.url = "about:preferences";
+    aTab.url = "about:addressbook";
     aTab.paneID = aArgs.paneID;
     aTab.scrollPaneTo = aArgs.scrollPaneTo;
     aTab.otherArgs = aArgs.otherArgs;
@@ -103,7 +107,7 @@ var preferencesTabType = {
     // Wait for full loading of the tab and the automatic selecting of last tab.
     // Then run the given onload code.
     aTab.browser.addEventListener(
-      "paneSelected",
+      "about-addressbook-ready",
       function(event) {
         aTab.pageLoading = false;
         aTab.pageLoaded = true;
@@ -116,10 +120,13 @@ var preferencesTabType = {
             if (aTab.panel) {
               aArgs.onLoad(event, aTab.browser);
             }
-          }, 0);
+          });
         }
       },
-      { once: true }
+      {
+        capture: true,
+        once: true,
+      }
     );
 
     // Initialize our unit testing variables.
@@ -134,7 +141,7 @@ var preferencesTabType = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       postData: aArgs.postData || null,
     };
-    aTab.browser.loadURI("about:preferences", params);
+    aTab.browser.loadURI("about:addressbook", params);
 
     this.tab = aTab;
     this.lastBrowserId++;
@@ -145,18 +152,10 @@ var preferencesTabType = {
       return null;
     }
 
-    return {
-      paneID: aTab.paneID,
-      scrollPaneTo: aTab.scrollPaneTo,
-      otherArgs: aTab.otherArgs,
-    };
+    return {};
   },
 
   restoreTab(aTabmail, aPersistedState) {
-    aTabmail.openTab("preferencesTab", {
-      paneID: aPersistedState.paneID,
-      scrollPaneTo: aPersistedState.scrollPaneTo,
-      otherArgs: aPersistedState.otherArgs,
-    });
+    aTabmail.openTab("addressBookTab", {});
   },
 };

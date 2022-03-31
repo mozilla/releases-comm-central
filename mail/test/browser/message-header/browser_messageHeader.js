@@ -18,7 +18,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
-
+var { wait_for_content_tab_load } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
 var {
   add_message_to_folder,
   assert_selected_and_displayed,
@@ -495,7 +497,12 @@ add_task(async function test_clicking_star_opens_inline_contact_editor() {
     () =>
       "Timeout waiting for contactPanel to open; state=" + contactPanel.state
   );
-  contactPanel.hidePopup();
+
+  let detailsButton = mc.e("editContactPanelEditDetailsButton");
+  mc.click(detailsButton);
+  wait_for_content_tab_load(undefined, "about:addressbook");
+  // TODO check the card
+  mc.tabmail.closeTab();
 });
 
 /**

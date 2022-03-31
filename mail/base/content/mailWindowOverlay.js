@@ -4258,9 +4258,5 @@ async function initAddonPrefsMenu(
 }
 
 function openNewCardDialog() {
-  window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
-    "",
-    "chrome,modal,resizable=no,centerscreen"
-  );
+  toAddressBook({ action: "create" });
 }

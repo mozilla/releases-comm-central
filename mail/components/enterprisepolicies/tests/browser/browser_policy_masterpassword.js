@@ -19,11 +19,11 @@ add_task(async function test_policy_masterpassword_set() {
 
   window.openPreferencesTab("panePrivacy");
   await BrowserTestUtils.browserLoaded(
-    window.gPrefTab.browser,
+    window.preferencesTabType.tab.browser,
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.gPrefTab.browser;
+  let { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("useMasterPassword")
   );
@@ -35,7 +35,7 @@ add_task(async function test_policy_masterpassword_set() {
   );
 
   let tabmail = document.getElementById("tabmail");
-  tabmail.closeTab(window.gPrefTab);
+  tabmail.closeTab(window.preferencesTabType.tab);
 
   LoginTestUtils.primaryPassword.disable();
 });

@@ -8,7 +8,7 @@
  *          postponeTask, toggleTimezoneLinks, attachURL,
  *          onCommandViewToolbar, onCommandCustomize, attachFileByAccountKey,
  *          onUnloadCalendarItemPanel, openNewEvent, openNewTask,
- *          openNewMessage, openNewCardDialog
+ *          openNewMessage
  */
 
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
@@ -465,17 +465,6 @@ function openNewMessage() {
     null,
     null,
     null
-  );
-}
-
-/**
- * Open a new addressbook window
- */
-function openNewCardDialog() {
-  window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
-    "",
-    "chrome,modal,resizable=no,centerscreen"
   );
 }
 

@@ -5,7 +5,7 @@
 /* exported onEventDialogUnload, changeUndiscloseCheckboxStatus,
  *          categoryPopupHiding, categoryTextboxKeypress,
  *          toggleKeepDuration, dateTimeControls2State, onUpdateAllDay,
- *          openNewEvent, openNewTask, openNewMessage, openNewCardDialog,
+ *          openNewEvent, openNewTask, openNewMessage,
  *          deleteAllAttachments, copyAttachment, attachmentLinkKeyPress,
  *          attachmentDblClick, attachmentClick, notifyUser,
  *          removeNotification, chooseRecentTimezone, showTimezonePopup,

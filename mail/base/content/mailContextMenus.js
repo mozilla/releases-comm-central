@@ -15,8 +15,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var mailtolength = 7;
-
 /**
  * Function to change the highlighted row back to the row that is currently
  * outline/dotted without loading the contents of either rows. This is
@@ -626,13 +624,11 @@ function IsMenuItemShowing(menuID) {
 
 // message pane context menu helper methods
 function addEmail(url = gContextMenu.linkURL) {
-  var addresses = getEmail(url);
-  window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
-    "",
-    "chrome,resizable=no,titlebar,modal,centerscreen",
-    { primaryEmail: addresses }
-  );
+  let addresses = getEmail(url);
+  toAddressBook({
+    action: "create",
+    address: addresses,
+  });
 }
 
 function composeEmailTo(linkURL, identity) {
@@ -658,6 +654,7 @@ function composeEmailTo(linkURL, identity) {
 
 // Extracts email address from url string
 function getEmail(url) {
+  var mailtolength = 7;
   var qmark = url.indexOf("?");
   var addresses;
 
