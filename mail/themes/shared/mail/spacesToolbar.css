@@ -13,6 +13,7 @@
   --spaces-button-badge-text-color: #FFF;
   --spaces-button-badge-bg-color: #E60202;
   --spaces-button-opacity: 1;
+  --spaces-border-color: color-mix(in srgb, var(--spaces-bg-color) 85%, black);
 }
 
 :root:-moz-window-inactive {
@@ -30,6 +31,7 @@
   :root {
     --spaces-bg-color: -moz-Dialog;
     --spaces-bg-image: none;
+    --spaces-border-color: var(--splitter-color);
   }
 }
 
@@ -78,7 +80,7 @@
   gap: var(--spaces-gap);
   background-color: var(--spaces-bg-color);
   background-image: var(--spaces-bg-image);
-  border-inline-end: 1px solid color-mix(in srgb, var(--spaces-bg-color) 85%, black);
+  border-inline-end: 1px solid var(--spaces-border-color);
   margin-top: calc(-1 * var(--tab-min-height));
   padding: var(--spaces-padding);
   z-index: 2;
