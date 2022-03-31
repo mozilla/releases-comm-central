@@ -9,7 +9,11 @@ const EXPORTED_SYMBOLS = ["MailtoChild"];
 
 class MailtoChild extends JSWindowActorChild {
   handleEvent(event) {
-    if (event.button == 0 && event.target.href?.startsWith("mailto:")) {
+    if (
+      event.button == 0 &&
+      event.target.href?.startsWith("mailto:") &&
+      this.document.location.href != "about:blank?compose"
+    ) {
       this.sendAsyncMessage("mailtoLink", event.target.href);
       event.preventDefault();
     }
