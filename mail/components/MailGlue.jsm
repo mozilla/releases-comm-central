@@ -142,12 +142,12 @@ let JSWINDOWACTORS = {
     ],
   },
 
-  Mailto: {
+  MailLink: {
     parent: {
-      moduleURI: "resource:///actors/MailtoParent.jsm",
+      moduleURI: "resource:///actors/MailLinkParent.jsm",
     },
     child: {
-      moduleURI: "resource:///actors/MailtoChild.jsm",
+      moduleURI: "resource:///actors/MailLinkChild.jsm",
       events: {
         click: {},
       },

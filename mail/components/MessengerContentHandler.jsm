@@ -5,7 +5,6 @@
 
 var EXPORTED_SYMBOLS = [
   "MessengerContentHandler",
-  "MidContentHandler",
   "MessageDisplayContentHandler",
 ];
 
@@ -672,26 +671,6 @@ MessengerContentHandler.prototype = {
 };
 
 var gMessengerContentHandler = new MailDefaultHandler();
-
-/**
- * Combined with MidProtocolHandler, this handler opens a message from a mid
- * url.
- * @implements {nsIContentHandler}
- */
-class MidContentHandler {
-  QueryInterface = ChromeUtils.generateQI(["nsIContentHandler"]);
-
-  handleContent(contentType, windowContext, request) {
-    if (!request.URI.schemeIs("mid")) {
-      throw Components.Exception(
-        `Expecting a mid uri but got ${request.URI.spec}`,
-        Cr.NS_ERROR_ILLEGAL_VALUE
-      );
-    }
-    let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-    MailUtils.openMessageByMessageId(request.URI.spec.slice(4));
-  }
-}
 
 /**
  * Open a message/rfc822 or eml file in a new msg window.

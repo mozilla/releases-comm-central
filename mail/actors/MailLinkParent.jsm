@@ -5,7 +5,7 @@
 
 "use strict";
 
-const EXPORTED_SYMBOLS = ["MailtoParent"];
+const EXPORTED_SYMBOLS = ["MailLinkParent"];
 
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -13,8 +13,24 @@ const { MailServices } = ChromeUtils.import(
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-class MailtoParent extends JSWindowActorParent {
-  receiveMessage({ data, target }) {
+class MailLinkParent extends JSWindowActorParent {
+  receiveMessage(value) {
+    switch (value.name) {
+      case "mailto:":
+        this._handleMailToLink(value);
+        break;
+      case "mid:":
+        this._handleMidLink(value);
+        break;
+      default:
+        throw Components.Exception(
+          `Unsupported name=${value.name} url=${value.data}`,
+          Cr.NS_ERROR_ILLEGAL_VALUE
+        );
+    }
+  }
+
+  _handleMailToLink({ data, target }) {
     let identity = null;
 
     // If the document with the link is a message, try to get the identity
@@ -30,5 +46,10 @@ class MailtoParent extends JSWindowActorParent {
       Services.io.newURI(data),
       identity
     );
+  }
+
+  _handleMidLink({ data }) {
+    // data is the mid: url.
+    MailUtils.openMessageByMessageId(data.slice(4));
   }
 }
