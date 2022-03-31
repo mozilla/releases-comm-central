@@ -108,7 +108,6 @@ class nsFolderCompactState : public nsIStreamListener,
 
   nsresult Init(nsIMsgFolder* aFolder, const char* aBaseMsgUri,
                 nsIMsgDatabase* aDb, nsIFile* aPath, nsIMsgWindow* aMsgWindow);
-  nsresult GetMessage(nsIMsgDBHdr** message);
   nsresult BuildMessageURI(const char* baseURI, nsMsgKey key, nsCString& uri);
   nsresult ShowStatusMsg(const nsString& aMsg);
   nsresult ReleaseFolderLock();
@@ -658,10 +657,6 @@ nsresult nsFolderCompactState::ReleaseFolderLock() {
   return result;
 }
 
-nsresult nsFolderCompactState::GetMessage(nsIMsgDBHdr** message) {
-  return GetMsgDBHdrFromURI(m_messageUri, message);
-}
-
 NS_IMETHODIMP
 nsFolderCompactState::OnStartRequest(nsIRequest* request) {
   return StartMessage();
@@ -717,7 +712,8 @@ nsFolderCompactState::OnDataAvailable(nsIRequest* request,
     m_messageUri.Truncate();  // clear the previous message uri
     if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                                      m_messageUri))) {
-      rv = GetMessage(getter_AddRefs(m_curSrcHdr));
+      rv = m_messageService->MessageURIToMsgHdr(m_messageUri,
+                                                getter_AddRefs(m_curSrcHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       if (m_curSrcHdr) {
         (void)m_curSrcHdr->GetFlags(&msgFlags);
@@ -1006,7 +1002,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
     // if copy fails, we clear the offline flag on the source message.
     if (NS_FAILED(rv)) {
       nsCOMPtr<nsIMsgDBHdr> hdr;
-      GetMessage(getter_AddRefs(hdr));
+      m_messageService->MessageURIToMsgHdr(m_messageUri, getter_AddRefs(hdr));
       if (hdr) {
         uint32_t resultFlags;
         hdr->AndFlags(~nsMsgMessageFlags::Offline, &resultFlags);
@@ -1044,7 +1040,8 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
   if (NS_FAILED(rv)) goto done;
   rv = channel->GetURI(getter_AddRefs(uri));
   if (NS_FAILED(rv)) goto done;
-  rv = GetMessage(getter_AddRefs(msgHdr));
+  rv = m_messageService->MessageURIToMsgHdr(m_messageUri,
+                                            getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) goto done;
 
   // This is however an unexpected condition, so let's print a warning.
@@ -1257,7 +1254,8 @@ nsOfflineStoreCompactState::OnDataAvailable(nsIRequest* request,
     m_messageUri.Truncate();  // clear the previous message uri
     if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                                      m_messageUri))) {
-      rv = GetMessage(getter_AddRefs(m_curSrcHdr));
+      rv = m_messageService->MessageURIToMsgHdr(m_messageUri,
+                                                getter_AddRefs(m_curSrcHdr));
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }
