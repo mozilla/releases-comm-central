@@ -51,7 +51,7 @@ var { MailServices } = ChromeUtils.import(
 var folder, folderMore;
 var gInterestingMessage;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("MessageWindowA");
   folderMore = await create_folder("MesageHeaderMoreButton");
 
@@ -103,11 +103,11 @@ add_task(async function setupModule(module) {
   contactPanel.setAttribute("animate", false);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   let contactPanel = mc.e("editContactPanel");
   contactPanel.removeAttribute("animate");
 
-  // Now restore the panes we hid in setupModule
+  // Now restore the panes we hid in setup.
   collapse_panes(mc.e("folderpane_splitter"), false);
   collapse_panes(mc.e("tabmail-container"), false);
 });

@@ -44,7 +44,7 @@ var folder,
   multipleDeletionFolder3,
   multipleDeletionFolder4;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   requestLongerTimeout(3);
 
   folder = await create_folder("DeletionA");

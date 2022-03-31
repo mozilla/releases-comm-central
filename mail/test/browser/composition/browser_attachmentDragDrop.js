@@ -53,7 +53,7 @@ const kFiles = [
   "./data/body-utf16.eml",
 ];
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gFolderTreeView._tree.focus();
 
   // Prepare the mock file picker.
@@ -66,7 +66,7 @@ add_task(async function setupModule(module) {
   gCloudFileAccount = await gCloudFileProvider.createAccount("testAccount");
 });
 
-registerCleanupFunction(async function teardownModule(module) {
+registerCleanupFunction(async function() {
   gMockFilePickReg.unregister();
   // Remove the cloudFile account and unregister the provider.
   await gCloudFileProvider.removeAccount(gCloudFileAccount);

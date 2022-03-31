@@ -152,7 +152,7 @@ function setInputValues(changes) {
   EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
 }
 
-add_task(async function setUp() {
+add_setup(async function() {
   await openAddressBookWindow();
   openDirectory(personalBook);
 });

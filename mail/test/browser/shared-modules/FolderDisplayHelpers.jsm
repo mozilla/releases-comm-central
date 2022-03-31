@@ -201,9 +201,7 @@ function set_mc(value) {
 /** the index of the current 'other' tab */
 var otherTab;
 
-// These are pseudo-modules setup by setupModule:
 var testHelperModule;
-// (end pseudo-modules)
 
 var msgGen;
 

@@ -45,7 +45,7 @@ var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gMockExtProtSvcReg.register();
 
   folder = await create_folder("PhishingBarA");
@@ -110,10 +110,6 @@ add_task(async function setupModule(module) {
 registerCleanupFunction(() => {
   gMockExtProtSvcReg.unregister();
 });
-
-function teardownModule() {
-  gMockExtProtSvcReg.unregister();
-}
 
 /**
  * Make sure the notification shows, and goes away once the Ignore menuitem

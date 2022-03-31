@@ -17,12 +17,12 @@ var {
 
 var abController;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   // Open the address book main window
   abController = open_address_book_window();
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   // Make sure the panes are all visible now that we're
   // done these tests.
   toggle_directory_pane();

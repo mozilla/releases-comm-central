@@ -33,7 +33,7 @@ let bobAcct;
 /**
  * Setup an account with OpenPGP for testing.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "bob",

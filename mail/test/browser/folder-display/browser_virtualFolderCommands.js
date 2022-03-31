@@ -25,7 +25,7 @@ var msgsPerThread = 5;
 var singleVirtFolder;
 var multiVirtFolder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   let folderOne = await create_folder();
   let folderTwo = await create_folder();
   await make_message_sets_in_folders([folderOne], [{ msgsPerThread }]);

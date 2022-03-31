@@ -34,7 +34,7 @@ var gFolder;
 
 var MSGS_PER_THREAD = 3;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gFolder = await create_folder("test-tabmail-closing folder");
   await make_message_sets_in_folders(
     [gFolder],

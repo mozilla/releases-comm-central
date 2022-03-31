@@ -28,7 +28,7 @@ var user = {
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
-add_task(function setupModule(module) {
+add_setup(function() {
   Services.prefs.setCharPref("mail.setup.loglevel", "All");
 
   let url =
@@ -36,7 +36,7 @@ add_task(function setupModule(module) {
   Services.prefs.setCharPref(PREF_NAME, url);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
   Services.prefs.clearUserPref("mail.setup.loglevel");
 });

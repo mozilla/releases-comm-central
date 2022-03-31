@@ -68,7 +68,7 @@ function clearFolder(folder) {
   });
 }
 
-add_task(async function setUp() {
+add_setup(async function() {
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",

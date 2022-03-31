@@ -44,7 +44,7 @@ var gInbox;
 var gOutbox;
 var gAutoRead;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
@@ -308,7 +308,7 @@ add_task(async function test_mark_messages_forwarded() {
   );
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
   // Clear all the created messages.
   be_in_folder(gInbox.parent);

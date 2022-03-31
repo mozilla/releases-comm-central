@@ -43,7 +43,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folderA;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   setupNNTPDaemon();
 
   folderA = await create_folder("FolderToolbarA");

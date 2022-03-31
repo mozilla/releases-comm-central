@@ -27,7 +27,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gOutboxFolder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gOutboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 });
 

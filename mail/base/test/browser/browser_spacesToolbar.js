@@ -10,7 +10,7 @@ var folderA;
 var folderB;
 var testAccount;
 
-add_task(function setupModule() {
+add_setup(function() {
   // Set up two folders.
   window.MailServices.accounts.createLocalMailAccount();
   testAccount = window.MailServices.accounts.accounts[0];

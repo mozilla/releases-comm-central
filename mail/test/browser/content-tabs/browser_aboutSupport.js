@@ -32,7 +32,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var warningText = new Map();
 
-add_task(function setupModule(module) {
+add_setup(function() {
   // The wording of the warning message when private data is being exported
   // from the about:support page.
   let bundle = Services.strings.createBundle(

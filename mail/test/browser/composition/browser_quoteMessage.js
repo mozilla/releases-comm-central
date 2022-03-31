@@ -26,7 +26,7 @@ var { close_window } = ChromeUtils.import(
 
 var folderToStoreMessages;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folderToStoreMessages = await create_folder("QuoteTestFolder");
 });
 

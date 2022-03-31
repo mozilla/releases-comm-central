@@ -30,7 +30,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var sig = "roses are red";
 var folder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("SigStripTest");
 
   let msg = create_message({

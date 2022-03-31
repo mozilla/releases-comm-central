@@ -42,7 +42,7 @@ var { MailServices } = ChromeUtils.import(
 var kBoxId = "mail-notification-top";
 var draftsFolder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   requestLongerTimeout(2);
   draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });

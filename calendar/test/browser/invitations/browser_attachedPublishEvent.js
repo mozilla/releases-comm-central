@@ -24,7 +24,7 @@ var gCalendar;
 /**
  * Initialize account, identity and calendar.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   let receiverAcct = MailServices.accounts.createAccount();
   receiverAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",

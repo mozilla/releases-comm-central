@@ -30,7 +30,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var imapAccount, nntpAccount, originalAccountCount;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   // There may be pre-existing accounts from other tests.
   originalAccountCount = MailServices.accounts.allServers.length;
   // There already should be a Local Folders account created.
@@ -67,7 +67,7 @@ add_task(function setupModule(module) {
   );
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   // Remove our test accounts to leave the profile clean.
   MailServices.accounts.removeAccount(nntpAccount);
   MailServices.accounts.removeAccount(imapAccount);

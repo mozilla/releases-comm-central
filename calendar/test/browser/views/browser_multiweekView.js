@@ -12,7 +12,7 @@ const TITLE1 = "Multiweek View Event";
 const TITLE2 = "Multiweek View Event Changed";
 const DESC = "Multiweek View Event Description";
 
-add_task(async function setupModule(module) {
+add_task(async function() {
   let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);

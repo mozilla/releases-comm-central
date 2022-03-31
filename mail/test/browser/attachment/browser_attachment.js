@@ -58,7 +58,7 @@ var textAttachment =
 
 var binaryAttachment = textAttachment;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("AttachmentA");
 
   var attachedMessage = msgGen.makeMessage({

@@ -144,7 +144,7 @@ var msgBodyStart =
 
 var msgBodyEnd = "</body>\n</html>\n";
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   requestLongerTimeout(2);
   folder = await create_folder("generalContentPolicy");
 });

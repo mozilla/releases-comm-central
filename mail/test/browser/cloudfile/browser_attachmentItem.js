@@ -48,13 +48,13 @@ var mockPromptService = {
   QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
 };
 
-add_task(function setupModule(module) {
+add_setup(function() {
   Services.prompt = mockPromptService;
   gMockFilePickReg.register();
   gMockCloudfileManager.register();
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   gMockCloudfileManager.unregister();
   gMockFilePickReg.unregister();
   Services.prompt = originalPromptService;

@@ -41,7 +41,7 @@ var cwc = null; // compose window controller
 var folder;
 var gDrafts;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("Test");
   let thread1 = create_thread(10);
   await add_message_sets_to_folders([folder], [thread1]);
@@ -54,7 +54,7 @@ add_task(async function setupModule(module) {
   Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 });
 

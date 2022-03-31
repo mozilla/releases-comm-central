@@ -13,7 +13,7 @@ const TITLE = "Task";
 const DESCRIPTION = "1. Do A\n2. Do B";
 const PERCENTCOMPLETE = "50";
 
-add_task(async function setupModule(module) {
+add_task(async function() {
   let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);

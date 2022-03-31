@@ -194,7 +194,7 @@ var contacts = [
   { email: "rjorden@hadleys-hope.invalid", name: "Newt", pdn: false },
 ];
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("DisplayNameA");
 
   for (let message of messages) {

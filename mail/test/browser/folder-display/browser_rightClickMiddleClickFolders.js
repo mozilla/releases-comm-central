@@ -36,7 +36,7 @@ var {
 
 var folderA, folderB, folderC;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folderA = await create_folder("RightClickMiddleClickFoldersA");
   folderB = await create_folder("RightClickMiddleClickFoldersB");
   folderC = await create_folder("RightClickMiddleClickFoldersC");

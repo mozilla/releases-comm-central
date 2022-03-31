@@ -48,7 +48,7 @@ var identity3Name = "User Z";
 var identity3Label = "Label Z";
 var identityKey4;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
   account = acctMgr.createAccount();
@@ -260,7 +260,7 @@ add_task(async function test_display_of_identities() {
   press_delete(mc);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   account.removeIdentity(MailServices.accounts.getIdentity(identityKey1));
   account.removeIdentity(MailServices.accounts.getIdentity(identityKey2));
   account.removeIdentity(MailServices.accounts.getIdentity(identityKey3));

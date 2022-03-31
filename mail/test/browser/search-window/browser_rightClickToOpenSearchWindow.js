@@ -25,7 +25,7 @@ var {
 );
 
 var folderA, folderB;
-add_task(async function setupModule(module) {
+add_setup(async function() {
   show_folder_pane();
   folderA = await create_folder("RightClickToOpenSearchWindowA");
   folderB = await create_folder("RightClickToOpenSearchWindowB");

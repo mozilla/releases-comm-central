@@ -119,7 +119,7 @@ function openActivityManager() {
 
 /* :::::::: The Tests ::::::::::::::: */
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folderA = await create_folder("SessionStoreA");
   await make_message_sets_in_folders([folderA], [{ count: 3 }]);
 
@@ -133,7 +133,7 @@ add_task(async function setupModule(module) {
   Services.prefs.setBoolPref("calendar.integration.notify", false);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   folderA.server.rootFolder.propagateDelete(folderA, true, null);
   folderB.server.rootFolder.propagateDelete(folderB, true, null);
 

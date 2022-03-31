@@ -36,7 +36,7 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var gDrafts;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 

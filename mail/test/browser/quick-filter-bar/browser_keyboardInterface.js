@@ -34,7 +34,7 @@ var {
 
 var folder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("QuickFilterBarKeyboardInterface");
   // we need a message so we can select it so we can find in message
   await make_message_sets_in_folders([folder], [{ count: 1 }]);

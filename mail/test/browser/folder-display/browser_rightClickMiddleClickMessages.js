@@ -52,7 +52,7 @@ var folder, threadedFolder;
  */
 var NUM_MESSAGES_IN_THREAD = 6;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("RightClickMiddleClickA");
   threadedFolder = await create_folder("RightClickMiddleClickB");
   // we want exactly as many messages as we plan to delete, so that we can test

@@ -31,7 +31,7 @@ var testFolder = null;
 var identity1Email = "carl@example.com";
 var identity2Email = "lenny@springfield.invalid";
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   addIdentitiesAndFolder();
   // Msg #0
   await add_message_to_folder(

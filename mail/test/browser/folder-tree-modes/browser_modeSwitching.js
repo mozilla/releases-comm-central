@@ -33,7 +33,7 @@ var appmenu_mainView;
 var appmenu_popup;
 var menu_state;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create one folder with unread messages and one favorite folder.
@@ -284,7 +284,7 @@ add_task(async function test_toggling_modes() {
   await assert_mode_selected("all");
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   inboxFolder.propagateDelete(unreadFolder, true, null);
   inboxFolder.propagateDelete(favoriteFolder, true, null);
   toggle_main_menu(menu_state);

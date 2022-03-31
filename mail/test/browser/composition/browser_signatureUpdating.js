@@ -34,7 +34,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   requestLongerTimeout(2);
 
   // These prefs can't be set in the manifest as they contain white-space.
@@ -62,7 +62,7 @@ add_task(async function setupModule(module) {
   be_in_folder(inbox);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
   Services.prefs.clearUserPref("mail.identity.id1.htmlSigText");

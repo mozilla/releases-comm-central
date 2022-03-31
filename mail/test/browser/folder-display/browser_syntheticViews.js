@@ -288,7 +288,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
   closeTabs();
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", prefAutoRead);
   Services.prefs.setBoolPref(
     "mailnews.start_page.enabled",

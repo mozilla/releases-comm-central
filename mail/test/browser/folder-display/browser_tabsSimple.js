@@ -39,7 +39,7 @@ var {
 
 var folderA, folderB, setA, setB;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folderA = await create_folder("TabsSimpleA");
   folderB = await create_folder("TabsSimpleB");
 

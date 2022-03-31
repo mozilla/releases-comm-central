@@ -28,7 +28,7 @@ var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "mdnRequested";
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("ReturnReceiptTest");
 
   // Create a message that requests a return receipt.

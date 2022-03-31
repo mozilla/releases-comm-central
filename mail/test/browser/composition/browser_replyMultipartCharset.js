@@ -46,7 +46,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
 
-add_task(async function setup() {
+add_setup(async function() {
   requestLongerTimeout(5);
   folder = await create_folder("FolderWithMessages");
 });

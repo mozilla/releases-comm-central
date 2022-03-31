@@ -50,7 +50,7 @@ var kInsertNotificationPref =
 
 var kBoxId = "compose-notification-bottom";
 
-add_task(function setupModule(module) {
+add_setup(function() {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register();
@@ -63,7 +63,7 @@ add_task(function setupModule(module) {
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   gMockCloudfileManager.unregister();
   gMockFilePickReg.unregister();
   Services.prefs.setBoolPref(

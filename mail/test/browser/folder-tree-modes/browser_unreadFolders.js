@@ -27,7 +27,7 @@ var trashFolder;
 var trashSubfolder;
 var inboxSet;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create a folder as a subfolder of the inbox
@@ -86,7 +86,7 @@ add_task(async function test_newly_added_folder() {
   await delete_messages(newSet);
 });
 
-registerCleanupFunction(async function teardownModule() {
+registerCleanupFunction(async function() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
   await delete_messages(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);

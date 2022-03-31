@@ -89,7 +89,7 @@ async function dialogClosed(win) {
   return dialogClosing;
 }
 
-add_task(async function setup() {
+add_setup(async function() {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 

@@ -23,14 +23,14 @@ var url =
 var gDocument;
 var gNewTab;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   gDocument = mc.window.document;
   gNewTab = open_content_tab_with_url(url + "installxpi.html");
 });
 
-var teardownModule = function(module) {
+registerCleanupFunction(function() {
   mc.tabmail.closeTab(gNewTab);
-};
+});
 
 function waitForNotification(id, buttonToClickSelector, callback) {
   let notificationSelector = `#notification-popup > #${id}-notification`;

@@ -38,7 +38,7 @@ let gOutbox;
  * Setup a mail account with a private key and import the public key for the
  * receiver.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "bob",

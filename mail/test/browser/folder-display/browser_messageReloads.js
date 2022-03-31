@@ -27,7 +27,7 @@ var {
 
 var folder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("MessageReloads");
   await make_message_sets_in_folders([folder], [{ count: 1 }]);
 });

@@ -30,7 +30,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("PaneFocus");
   let msg1 = create_thread(1);
   let thread = create_thread(3);

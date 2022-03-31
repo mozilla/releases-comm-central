@@ -43,7 +43,7 @@ var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
  * create two smart folder types and two real folders, one for each
  * smart folder type
  */
-add_task(async function setupModule(module) {
+add_setup(async function() {
   rootFolder = inboxFolder.server.rootFolder;
 
   // register a new smart folder type
@@ -205,7 +205,7 @@ add_task(function test_return_to_all_folders() {
   assert_folder_mode("all");
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   inboxFolder.propagateDelete(subfolderA, true, null);
   inboxFolder.propagateDelete(subfolderB, true, null);
 });

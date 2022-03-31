@@ -40,7 +40,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_task(function setupModule(module) {
+add_setup(function() {
   requestLongerTimeout(4);
 
   // Now set up an account with some identities.

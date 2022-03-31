@@ -87,7 +87,7 @@ add_task(async function test_use_thunderbird_without_email() {
   Assert.ok(Services.prefs.getBoolPref("app.use_without_mail_account", false));
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   // Reset the changed pref.
   Services.prefs.setBoolPref("app.use_without_mail_account", false);
 

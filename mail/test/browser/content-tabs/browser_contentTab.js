@@ -184,7 +184,7 @@ add_task(async function test_content_tab_onbeforeunload() {
 // - window.close within tab
 // - zoom?
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   while (mc.tabmail.tabInfo.length > 1) {
     mc.tabmail.closeTab(1);
   }

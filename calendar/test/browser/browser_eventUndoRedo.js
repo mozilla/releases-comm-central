@@ -234,7 +234,7 @@ async function testDeleteUndoRedo(undoId, redoId) {
 /**
  * Ensure the menu bar is visible and navigate the calendar view to today.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });

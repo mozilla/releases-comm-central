@@ -45,7 +45,7 @@ var gRealFontLists = {};
 // A list of font types to consider
 const kFontTypes = ["serif", "sans-serif", "monospace"];
 
-add_task(function setupModule(module) {
+add_setup(function() {
   if (AppConstants.platform == "win") {
     Services.prefs.setStringPref(
       "font.name-list.serif.x-western",
@@ -335,7 +335,7 @@ function teardownTest() {
   Preferences.resetBranch("font.name.");
 }
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   Services.prefs.clearUserPref("font.language.group");
   if (gTodayPane && gTodayPane.collapsed) {
     EventUtils.synthesizeKey("VK_F11", {});

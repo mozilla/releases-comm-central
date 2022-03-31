@@ -44,7 +44,7 @@ async function withNewTab(options, taskFn) {
   return Promise.resolve(result);
 }
 
-add_task(async function policies_headjs_startWithCleanSlate() {
+add_setup(async function policies_headjs_startWithCleanSlate() {
   if (Services.policies.status != Ci.nsIEnterprisePolicies.INACTIVE) {
     await setupPolicyEngineWithJson("");
   }

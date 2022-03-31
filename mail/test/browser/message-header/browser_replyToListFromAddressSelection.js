@@ -31,7 +31,7 @@ var replyToListWindow = null;
 
 var identityString1 = "tinderbox_correct_identity@foo.invalid";
 
-add_task(function setupModule(module) {
+add_setup(function() {
   addIdentitiesAndFolder();
   addMessageToFolder(testFolder);
 });

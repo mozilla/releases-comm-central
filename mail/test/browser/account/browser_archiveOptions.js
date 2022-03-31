@@ -32,7 +32,7 @@ var { MailServices } = ChromeUtils.import(
 
 var defaultIdentity;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   defaultIdentity = MailServices.accounts.defaultAccount.defaultIdentity;
 });
 

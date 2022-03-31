@@ -25,14 +25,14 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var prefName = "mail.advance_on_spacebar";
 var prefValue = Services.prefs.getBoolPref(prefName);
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   // Create four unread messages in a sample folder
   let folder = await create_folder("Sample");
   await make_message_sets_in_folders([folder], [{ count: 4 }]);
   be_in_folder(folder);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   // Restore original preference value
   Services.prefs.setBoolPref(prefName, prefValue);
 });

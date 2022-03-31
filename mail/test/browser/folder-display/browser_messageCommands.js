@@ -48,7 +48,7 @@ var archiveSrcFolder = null;
 var tagArray;
 var gAutoRead;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
@@ -702,7 +702,7 @@ add_task(function test_tag_keys_disabled_in_content_tab() {
   mc.tabmail.closeTab(tab);
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   // Make sure archiving is enabled at the end
   enable_archiving(true);
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);

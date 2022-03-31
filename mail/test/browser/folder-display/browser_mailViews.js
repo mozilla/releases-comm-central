@@ -25,7 +25,7 @@ var { MailViewConstants } = ChromeUtils.import(
 var baseFolder, savedFolder;
 var setUntagged, setTagged;
 
-add_task(async function setup() {
+add_setup(async function() {
   // Create a folder with some messages that have no tags and some that are
   //  tagged Important ($label1).
   baseFolder = await create_folder("MailViewA");

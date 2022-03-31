@@ -53,7 +53,7 @@ var b64Attachment =
   "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
 var b64Size = 188;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("ComposeAttachmentA");
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);

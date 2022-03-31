@@ -49,7 +49,7 @@ var abController = null;
 var addrBook1, addrBook2, addrBook3, addrBook4, ldapBook;
 var mListA, mListB, mListC, mListD, mListE;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   // Open the address book main window
   abController = open_address_book_window();
 
@@ -96,7 +96,7 @@ add_task(function setupModule(module) {
   set_address_books_collapsed([addrBook1, addrBook2, addrBook3]);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   close_address_book_window(abController);
 });
 

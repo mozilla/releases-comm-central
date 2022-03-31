@@ -17,7 +17,7 @@ thisCalendar.setProperty("color", "#ffee22");
 let notThisCalendar = CalendarTestUtils.createCalendar("Not This Calendar", "memory");
 notThisCalendar.setProperty("color", "#dd3333");
 
-add_task(async function setUp() {
+add_setup(async function() {
   let { dedent } = CalendarTestUtils;
   await thisCalendar.addItem(
     new CalEvent(dedent`

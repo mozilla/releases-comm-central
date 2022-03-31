@@ -32,7 +32,7 @@ var {
 var folder;
 var setUnstarred, setStarred;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("QuickFilterBarToggleBar");
   [setUnstarred, setStarred] = await make_message_sets_in_folders(
     [folder],

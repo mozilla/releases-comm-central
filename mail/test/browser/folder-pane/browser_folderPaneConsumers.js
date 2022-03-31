@@ -26,7 +26,7 @@ var { MailServices } = ChromeUtils.import(
 
 var nntpAccount;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   gFolderTreeView.selectFolder(gFolderTreeView._enumerateFolders[1]);
 
   let server = setupLocalServer(NNTP_PORT);
@@ -108,7 +108,7 @@ function subtest_check_offline_folder_list(listc) {
   listc.window.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   MailServices.accounts.removeAccount(nntpAccount);
 
   document.getElementById("folderTree").focus();

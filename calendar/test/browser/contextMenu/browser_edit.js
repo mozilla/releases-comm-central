@@ -30,7 +30,7 @@ async function getDayBoxItem(attrSelector) {
 /**
  * Switches to the view to the calendar.
  */
-add_task(function setUp() {
+add_setup(function() {
   return CalendarTestUtils.setCalendarView(window, "month");
 });
 

@@ -39,7 +39,7 @@ var { MailServices } = ChromeUtils.import(
 
 var gDrafts;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);
@@ -91,6 +91,6 @@ add_task(async function test_multipart_alternative() {
   press_delete();
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
 });

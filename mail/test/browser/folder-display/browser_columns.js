@@ -46,7 +46,7 @@ var SENT_DEFAULTS;
 var VIRTUAL_DEFAULTS;
 var GLODA_DEFAULTS;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   useCorrespondent = Services.prefs.getBoolPref(
     "mail.threadpane.use_correspondents"
   );

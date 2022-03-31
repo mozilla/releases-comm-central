@@ -43,7 +43,7 @@ var smartInboxFolder;
 
 var inboxSet;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   rootFolder = inboxFolder.server.rootFolder;
   // Create a folder as a subfolder of the inbox
   inboxFolder.createSubfolder("SmartFoldersA", null);
@@ -90,8 +90,7 @@ add_task(function test_switch_to_smart_folders() {
   //Hide the all folders view.
   mc.folderTreeView.activeModes = "all";
 
-  // The smart inbox may not have been created at setupModule time, so get it
-  // now
+  // The smart inbox may not have been created at setup time, so get it now.
   smartInboxFolder = get_smart_folder_named("Inbox");
 });
 
@@ -278,7 +277,7 @@ add_task(function test_switch_to_all_folders() {
   mc.folderTreeView.activeModes = "smart";
 });
 
-registerCleanupFunction(async function teardownModule() {
+registerCleanupFunction(async function() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
   await delete_messages(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);

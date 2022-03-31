@@ -38,7 +38,7 @@ var friendName = "Carl Sagan";
 var headertoFieldMe;
 var collectedAddresses;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   localAccount = MailServices.accounts.FindAccountForServer(
     MailServices.accounts.localFoldersServer
   );

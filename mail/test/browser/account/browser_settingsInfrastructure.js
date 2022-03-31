@@ -34,7 +34,7 @@ var { mc } = ChromeUtils.import(
 
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
@@ -69,7 +69,7 @@ add_task(function setupModule(module) {
   );
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   // Remove our test accounts to leave the profile clean.
   MailServices.accounts.removeAccount(gPopAccount);
   MailServices.accounts.removeAccount(gImapAccount);

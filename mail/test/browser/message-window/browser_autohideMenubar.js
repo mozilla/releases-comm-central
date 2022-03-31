@@ -25,7 +25,7 @@ var {
 var menuFolder;
 var menuState;
 
-add_task(async function setup() {
+add_setup(async function() {
   menuFolder = await create_folder("menuFolder");
   await make_message_sets_in_folders([menuFolder], [{ count: 1 }]);
 
@@ -122,7 +122,7 @@ add_task(async function test_autohidden_menubar_compose_window() {
 });
 */
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   toggle_main_menu(menuState);
   be_in_folder(inboxFolder);
   menuFolder.deleteSelf(null);

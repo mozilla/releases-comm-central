@@ -64,7 +64,7 @@ var { MailServices } = ChromeUtils.import(
 var folder;
 var thread1, thread2, msg1, msg2;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("SummarizationA");
   thread1 = create_thread(10);
   msg1 = create_thread(1);

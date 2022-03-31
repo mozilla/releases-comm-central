@@ -22,7 +22,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gCDHelper;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   gCDHelper = new CustomizeDialogHelper(
     "toolbar-menubar",
     "CustomizeMailToolbar",
@@ -30,7 +30,7 @@ add_task(function setupModule(module) {
   );
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   // Let's reset any and all of our changes to the toolbar
   gCDHelper.restoreDefaultButtons(mc);
 });

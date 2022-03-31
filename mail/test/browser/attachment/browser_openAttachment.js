@@ -41,7 +41,7 @@ function pathToNsFile(path) {
   return file;
 }
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("OpenAttachment");
   be_in_folder(folder);
 

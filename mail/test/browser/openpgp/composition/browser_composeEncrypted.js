@@ -108,7 +108,7 @@ async function closeDialog(win) {
  * Setup a mail account with a private key and import the public key for the
  * receiver.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   // Encryption makes the compose process a little longer.
   requestLongerTimeout(5);
 

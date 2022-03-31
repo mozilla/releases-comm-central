@@ -30,7 +30,7 @@ var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
 var folderA, folderB;
 var curMessage;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folderA = await create_folder("MessageWindowA");
   folderB = await create_folder("MessageWindowB");
   // create three messages in the folder to display

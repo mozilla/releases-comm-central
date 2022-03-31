@@ -29,7 +29,7 @@ var { close_window } = ChromeUtils.import(
 
 var gImageFolder;
 
-add_task(async function setup() {
+add_setup(async function() {
   gImageFolder = await create_folder("ImageFolder");
   registerCleanupFunction(() => {
     gImageFolder.deleteSelf(null);

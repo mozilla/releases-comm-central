@@ -49,7 +49,7 @@ var setNormal;
  */
 var msgc;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   baseFolder = await create_folder("DeletionFromVirtualFoldersA");
   // For setTagged, we want exactly as many messages as we plan to delete, so
   // that we can test that the message window and tabs close when they run out

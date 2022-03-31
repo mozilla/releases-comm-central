@@ -46,7 +46,7 @@ var gIdentities = [
   { email: "a+b@example.invalid", fullname: "User A" },
 ];
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
   gAccount = acctMgr.createAccount();
@@ -283,7 +283,7 @@ add_task(function test_draft_identity_selection() {
 */
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   for (let id = 1; id < gIdentities.length; id++) {
     gAccount.removeIdentity(
       MailServices.accounts.getIdentity(gIdentities[id].key)

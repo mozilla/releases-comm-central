@@ -40,7 +40,7 @@ var DONT_SAVE = 2;
 var cwc = null; // compose window controller
 var folder = null;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   requestLongerTimeout(3);
 
   folder = await create_folder("PromptToSaveTest");

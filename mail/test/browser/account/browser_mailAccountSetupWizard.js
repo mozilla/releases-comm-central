@@ -900,7 +900,7 @@ add_task(async function test_full_account_setup() {
   Services.logins.removeAllLogins();
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   MockRegistrar.unregister(originalAlertsServiceCID);
   DNS.srv = _srv;
   DNS.txt = _txt;

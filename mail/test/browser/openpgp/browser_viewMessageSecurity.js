@@ -60,7 +60,7 @@ var gInbox;
 /**
  * Set up the base account, identity and keys needed for the tests.
  */
-add_task(async function setup() {
+add_setup(async function() {
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",

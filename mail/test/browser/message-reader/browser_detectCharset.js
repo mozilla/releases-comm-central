@@ -20,7 +20,7 @@ var { close_window } = ChromeUtils.import(
 
 var gReferenceTextContent;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   let { textContent } = await extract_eml_body_textcontent(
     "./correctEncodingUTF8.eml",
     false

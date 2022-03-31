@@ -21,7 +21,7 @@ var {
 );
 
 var folderA, folderB;
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folderA = await create_folder("MultipleSearchWindowsA");
   folderB = await create_folder("MultipleSearchWindowsB");
 });

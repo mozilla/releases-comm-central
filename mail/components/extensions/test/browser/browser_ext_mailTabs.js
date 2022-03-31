@@ -4,7 +4,7 @@
 
 let account, rootFolder, subFolders;
 
-add_task(async function setup() {
+add_setup(async function() {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("test1", null);

@@ -51,7 +51,7 @@ var gShrunkenWindowWidth = 600;
 
 var gTodayPane;
 
-add_task(async function setupModule() {
+add_setup(async function() {
   folder = await create_folder("QuickFilterBarDisplayIssues");
   registerCleanupFunction(() => {
     mc.window.gFolderTreeView.selectFolder(folder.rootFolder);
@@ -195,7 +195,7 @@ function teardownTest() {
   }
 }
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   // Restore the window to original layout.
   restore_default_window_size();
   collapse_panes(mc.e("folderpane_splitter"), false);

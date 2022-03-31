@@ -28,10 +28,9 @@ var {
 
 var folder;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("MessagePaneVisibility");
   await make_message_sets_in_folders([folder], [{ count: 3 }]);
-  Assert.ok(true, "setupModule ran to completion");
 });
 
 /**

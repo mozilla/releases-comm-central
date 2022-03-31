@@ -48,7 +48,7 @@ var gImportedKeyId;
 /**
  * Set up the base account and identity.
  */
-add_task(function setup() {
+add_setup(function() {
   gAccount = MailServices.accounts.createAccount();
   gAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",

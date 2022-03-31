@@ -35,7 +35,7 @@ var { MailServices } = ChromeUtils.import(
 
 var folderToSendFrom;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   requestLongerTimeout(2);
   folderToSendFrom = await create_folder("FolderWithUTF8");
 });
@@ -135,6 +135,6 @@ add_task(async function test_utf8_forwarding_from_via_folder() {
   await forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   Services.prefs.clearUserPref("mailnews.display.html_as");
 });

@@ -73,7 +73,7 @@ async function testListExpansion(win, target, addresses) {
 /**
  * Creates the mailing list used during the tests.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   let book = MailServices.ab.directories[0];
   let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
     Ci.nsIAbDirectory

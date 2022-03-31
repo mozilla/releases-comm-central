@@ -28,7 +28,7 @@ var accountPOP3 = null;
 var accountNNTP = null;
 var originalAccountCount;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   gFolderTreeView._tree.focus();
 
   // Ensure we're in the tinderbox account as that has the right identities set

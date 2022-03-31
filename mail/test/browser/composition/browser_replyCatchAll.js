@@ -51,7 +51,7 @@ var identity2;
 var gAccount;
 var gFolder;
 
-add_task(function setupModule(module) {
+add_setup(function() {
   requestLongerTimeout(4);
 
   // Now set up an account with some identities.
@@ -261,7 +261,7 @@ function checkCompIdentity(cwc, identityKey, from) {
   );
 }
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   be_in_folder(gFolder);
   let count;
   while ((count = gFolder.getTotalMessages(false)) > 0) {

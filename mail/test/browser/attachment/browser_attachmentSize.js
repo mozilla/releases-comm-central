@@ -179,7 +179,7 @@ var messages = [
   },
 ];
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow

@@ -135,7 +135,7 @@ add_task(async function test_view() {
   await checkSingleMessage("./test-alt-rogue2.eml", "Plain Text", "HTML Body");
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(function() {
   Services.prefs.clearUserPref("mailnews.display.prefer_plaintext");
   Services.prefs.clearUserPref("mailnews.display.html_as");
 });

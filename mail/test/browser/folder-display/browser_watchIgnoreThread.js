@@ -28,7 +28,7 @@ var {
 var folder;
 var thread1, thread2, thread3;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   folder = await create_folder("WatchIgnoreThreadTest");
   thread1 = create_thread(3);
   thread2 = create_thread(4);

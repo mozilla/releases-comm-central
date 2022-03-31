@@ -60,7 +60,7 @@ var gProvisionerEnabled = Services.prefs.getBoolPref(kProvisionerEnabledPref);
 var gOldAcceptLangs = Services.locale.requestedLocales;
 var gNumAccounts;
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   requestLongerTimeout(2);
 
   // Make sure we enable the Account Provisioner.
@@ -69,7 +69,7 @@ add_task(async function setupModule(module) {
   Services.locale.requestedLocales = ["en-US"];
 });
 
-registerCleanupFunction(async function teardownModule(module) {
+registerCleanupFunction(async function() {
   // Put the mail.provider.enabled pref back the way it was.
   Services.prefs.setBoolPref(kProvisionerEnabledPref, gProvisionerEnabled);
   // And same with the user languages

@@ -121,7 +121,7 @@ function prepare_downloads_view() {
   mc.waitFor(() => success, "Timeout waiting for attaching our download view.");
 }
 
-add_task(async function setupModule(module) {
+add_setup(async function() {
   gMockFilePickReg.register();
 
   await prepare_messages();
@@ -354,7 +354,7 @@ function teardownTest() {
   );
 }
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   close_tab(downloadsTab);
   gMockFilePickReg.unregister();
 });

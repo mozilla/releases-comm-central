@@ -172,7 +172,7 @@ async function handleReminderDialog(remindersWindow) {
     .click();
 }
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function() {
   Services.prefs.clearUserPref("calendar.alarms.onforevents");
   Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
   Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
