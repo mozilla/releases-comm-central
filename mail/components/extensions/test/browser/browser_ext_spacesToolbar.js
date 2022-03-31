@@ -79,6 +79,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
 
     for (let {
       id,
+      url,
       title,
       icons,
       badgeText,
@@ -173,6 +174,17 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       revealButton.click();
       Assert.ok(revealButton.hidden, "The status bar toggle button is hidden");
       Assert.ok(pinnedButton.collapsed, "The pinned titlebar button is hidden");
+
+      //Check space and url.
+      let space = window.gSpacesToolbar.spaces.find(
+        space => space.name == `spaces_toolbar_mochi_test-spacesButton-${id}`
+      );
+      Assert.ok(space, "The space of this button should exists");
+      Assert.equal(
+        url,
+        space.url,
+        "The stored url of the space should be correct"
+      );
     }
     extension.sendMessage();
   });
@@ -214,7 +226,7 @@ add_task(async function test_add_update_remove() {
     browser.test.log("addButton(): With invalid url.");
     await browser.test.assertRejects(
       browser.spacesToolbar.addButton("button_1", {
-        url: "Invalid",
+        url: "invalid://url",
       }),
       /Failed to add button to the spaces toolbar: Invalid url./,
       "addButton() with an invalid url should throw."
@@ -246,7 +258,7 @@ add_task(async function test_add_update_remove() {
     browser.test.log("addButton(): With most properties.");
     await browser.spacesToolbar.addButton("button_2", {
       title: "Google",
-      url: "https://test.invalid",
+      url: "/local/file.html",
       defaultIcons: "default.png",
       badgeText: "12",
       badgeBackgroundColor: [50, 100, 150, 255],
@@ -254,7 +266,7 @@ add_task(async function test_add_update_remove() {
     let expected_button_2 = {
       id: "button_2",
       title: "Google",
-      url: "https://test.invalid",
+      url: browser.runtime.getURL("/local/file.html"),
       icons: {
         default: `url("${browser.runtime.getURL("default.png")}")`,
       },

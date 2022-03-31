@@ -168,6 +168,9 @@ this.spacesToolbar = class extends ExtensionAPI {
     return {
       spacesToolbar: {
         async addButton(id, properties) {
+          if (properties.url) {
+            properties.url = context.uri.resolve(properties.url);
+          }
           let [protocol] = (properties.url || "").split("://");
           if (
             !protocol ||
