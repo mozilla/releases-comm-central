@@ -190,16 +190,16 @@ class MailNotificationManager {
       return;
     }
 
-    let numNewMessages = folder.getNumNewMessages(false);
-    let msgDb = folder.msgDatabase;
-    let newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
-    if (newMsgKeys.length == 0) {
+    let newMsgKeys = this._getNewMsgKeysNotNotified(folder);
+    let numNewMessages = newMsgKeys.length;
+    if (!numNewMessages) {
       return;
     }
+
     this._logger.debug(
       `Filling alert info; folder.URI=${folder.URI}, numNewMessages=${numNewMessages}`
     );
-    let firstNewMsgHdr = msgDb.GetMsgHdrForKey(newMsgKeys[0]);
+    let firstNewMsgHdr = folder.msgDatabase.GetMsgHdrForKey(newMsgKeys[0]);
 
     let title = this._getAlertTitle(folder, numNewMessages);
     let body;
@@ -358,6 +358,8 @@ class MailNotificationManager {
     // The use_system_alert pref is false or showAlert somehow failed, use the
     // customized alert window.
     this._showCustomizedAlert(folder);
+
+    this._folderBiffTime.set(folder, Date.now());
   }
 
   /**
@@ -367,42 +369,26 @@ class MailNotificationManager {
    * @param {nsIMsgFolder} [folder] - The folder containing new messages.
    */
   _showCustomizedAlert(folder) {
-    let newMsgKeys;
-    if (folder) {
-      // Show this folder or queue it.
-      newMsgKeys = folder.msgDatabase
-        .getNewList()
-        .slice(-folder.getNumNewMessages(false));
-      if (this._customizedAlertShown) {
-        this._pendingFolders.add(folder);
-        return;
-      }
-    } else {
+    if (this._customizedAlertShown) {
+      // Queue the folder.
+      this._pendingFolders.add(folder);
+      return;
+    }
+    if (!folder) {
       // Get the next folder from the queue.
       folder = this._pendingFolders.keys().next().value;
       if (!folder) {
         return;
       }
-      let msgDb = folder.msgDatabase;
-      let lastBiffTime = this._folderBiffTime.get(folder) || 0;
-      newMsgKeys = msgDb.getNewList().filter(key => {
-        // It's possible that after we queued the folder, user has opened the
-        // folder and read some new messages. We compare the timestamp of each
-        // NEW message with the last biff time to make sure only real NEW
-        // messages are alerted.
-        let msgHdr = msgDb.GetMsgHdrForKey(key);
-        return msgHdr.dateInSeconds * 1000 > lastBiffTime;
-      });
-
       this._pendingFolders.delete(folder);
     }
-    if (newMsgKeys.length == 0) {
+
+    let newMsgKeys = this._getNewMsgKeysNotNotified(folder);
+    if (!newMsgKeys.length) {
       // No NEW message in the current folder, try the next queued folder.
       this._showCustomizedAlert();
       return;
     }
-
-    this._folderBiffTime.set(folder, Date.now());
 
     let args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     args.appendElement(folder);
@@ -418,6 +404,23 @@ class MailNotificationManager {
       args
     );
     this._customizedAlertShown = true;
+  }
+
+  /**
+   * Get all NEW messages from a folder that we received after last biff time.
+   * @param {nsIMsgFolder} folder - The message folder to check.
+   * @returns {number[]} An array of message keys.
+   */
+  _getNewMsgKeysNotNotified(folder) {
+    let msgDb = folder.msgDatabase;
+    let lastBiffTime = this._folderBiffTime.get(folder) || 0;
+    return msgDb
+      .getNewList()
+      .slice(-folder.getNumNewMessages(false))
+      .filter(key => {
+        let msgHdr = msgDb.GetMsgHdrForKey(key);
+        return msgHdr.dateInSeconds * 1000 > lastBiffTime;
+      });
   }
 
   async _updateUnreadCount() {
