@@ -49,6 +49,21 @@ this.browserAction = class extends ToolbarButtonAPI {
     windowTracker.addListener("TabSelect", this);
   }
 
+  /**
+   * Rectify the main toolbar: Make sure that the appmenu is shown and that it is
+   * located at the end of the toolbar.
+   *
+   * @param {String} currentSet - comma separated list of button ids
+   * @returns {String} the updated currentSet
+   */
+  rectifyCustomizableToolbarSet(currentSet) {
+    let set = currentSet
+      .split(",")
+      .filter(e => e != "" && e != "button-appmenu");
+    set.push("button-appmenu");
+    return set.join(",");
+  }
+
   static onUninstall(extensionId) {
     let widgetId = makeWidgetId(extensionId);
     let id = `${widgetId}-browserAction-toolbarbutton`;

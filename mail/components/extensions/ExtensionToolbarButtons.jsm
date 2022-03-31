@@ -259,6 +259,17 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
   }
 
   /**
+   * Rectify the currentSet of a customizable toolbar (if needed). Called on each
+   * paint request of extension buttons in customizable toolbars.
+   *
+   * @param {String} currentSet - comma separated list of button ids
+   * @returns {String} the updated currentSet
+   */
+  rectifyCustomizableToolbarSet(currentSet) {
+    return currentSet;
+  }
+
+  /**
    * Adds a toolbar button to a customizable toolbar in this window.
    *
    * @param {Window} window
@@ -323,11 +334,24 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       }
     }
 
-    toolbar.currentSet = Services.xulStore.getValue(
+    let currentSet = Services.xulStore.getValue(
       windowURL,
       this.toolbarId,
       "currentset"
     );
+
+    let rectifiedCurrentSet = this.rectifyCustomizableToolbarSet(currentSet);
+    if (currentSet != rectifiedCurrentSet) {
+      currentSet = rectifiedCurrentSet;
+      Services.xulStore.setValue(
+        windowURL,
+        this.toolbarId,
+        "currentset",
+        currentSet
+      );
+    }
+
+    toolbar.currentSet = currentSet;
     toolbar.setAttribute("currentset", toolbar.currentSet);
 
     if (this.extension.hasPermission("menus")) {
