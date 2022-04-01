@@ -864,22 +864,24 @@ pref("security.webauth.u2f", true);
 // Use OS date and time settings by default.
 pref("intl.regional_prefs.use_os_locales", true);
 
-// Multi-lingual preferences.
-// Let the user select a different language for the UI.
+// Multi-lingual preferences:
+//  *.enabled - Are langpacks available for the build of Firefox?
+//  *.downloadEnabled - Langpacks are allowed to be downloaded from ATN. ATN only serves
+//      langpacks for release and beta. There is no release-only define, so we also enable
+//      it for beta.
+//  *.liveReload - Switching a langpack will change the language without a restart.
+//  *.liveReloadBidirectional - Allows switching when moving between LTR and RTL
+//      languages without a full restart.
 pref("intl.multilingual.enabled", true);
-
-// ATN only serves language packs for release.
-// There is no release-only define, so we also enable it for beta.
 #if defined(RELEASE_OR_BETA)
 pref("intl.multilingual.downloadEnabled", true);
-#else
-pref("intl.multilingual.downloadEnabled", false);
-#endif
-// With the preference enabled below, switching the browser language will do a live
-// reload rather than requiring a restart. Enable bidirectional below as well to allow
-// live reloading when switching between LTR and RTL languages.
 pref("intl.multilingual.liveReload", false);
 pref("intl.multilingual.liveReloadBidirectional", false);
+#else
+pref("intl.multilingual.downloadEnabled", false);
+pref("intl.multilingual.liveReload", false);
+pref("intl.multilingual.liveReloadBidirectional", false);
+#endif
 
 // if true, use full page zoom instead of text zoom
 pref("browser.zoom.full", true);
