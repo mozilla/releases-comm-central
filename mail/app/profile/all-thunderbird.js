@@ -219,6 +219,9 @@ pref("extensions.alternativeAddonSearch.url", "https://extension-finder.thunderb
 
 pref("lightweightThemes.update.enabled", true);
 
+// Use for in-content pages the theme's toolbar color scheme when none is set in the theme.
+pref("browser.theme.unified-color-scheme", true);
+
 // Built-in default permissions.
 pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
 
