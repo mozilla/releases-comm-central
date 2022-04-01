@@ -140,11 +140,16 @@ async function onAccept() {
   return RNP.changeExpirationDate(gFingerprints, newExpireSeconds);
 }
 
-document.addEventListener("dialogaccept", function(event) {
-  let result = onAccept();
+document.addEventListener("dialogaccept", async function(event) {
+  // Prevent the closing of the dialog to wait until the call
+  // to onAccept() has properly returned.
+  event.preventDefault();
+  let result = await onAccept();
+  // If the change was unsuccessful, leave this dialog open.
   if (!result) {
-    event.preventDefault();
-  } // Prevent the dialog closing.
-
+    return;
+  }
+  // Otherwise, update the parent window and close the dialog.
   window.arguments[0].modified();
+  window.close();
 });
