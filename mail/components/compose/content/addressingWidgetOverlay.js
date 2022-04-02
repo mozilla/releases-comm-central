@@ -1026,19 +1026,30 @@ function onPillPopupShowing(event) {
   }
 
   let allSelectedPills = recipientsContainer.getAllSelectedPills();
-  // If more than one pill is selected, disable the editing item.
+  // If more than one pill is selected, hide the editing item.
   if (recipientsContainer.getAllSelectedPills().length > 1) {
     menu.querySelector("#editAddressPill").hidden = true;
   }
 
-  // Hide the `expand list` item and the separator before it, if not all
-  // selected pills are mailing lists
-  let isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
-  let expandListMenuitem = document.getElementById("expandList");
-  expandListMenuitem.hidden = isNotMailingList;
-  expandListMenuitem.previousElementSibling.hidden = isNotMailingList;
+  // Update the recipient type in the menu label of #menu_selectAllSiblingPills.
+  let type = pill
+    .closest(".address-row")
+    .querySelector(".address-label-container > label").value;
+  document.l10n.setAttributes(
+    menu.querySelector("#menu_selectAllSiblingPills"),
+    "pill-action-select-all-sibling-pills",
+    { type }
+  );
 
-  // If any Newsgroup or Followup pill is selected, disable all move actions.
+  // Hide the `Expand List` menuitem and the preceding menuseparator if not all
+  // selected pills are mailing lists.
+  let isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
+  menu.querySelector("#expandList").hidden = isNotMailingList;
+  menu.querySelector(
+    "#pillContextBeforeExpandListSeparator"
+  ).hidden = isNotMailingList;
+
+  // If any Newsgroup or Followup pill is selected, hide all move actions.
   if (
     recipientsContainer.querySelector(
       ":is(#addressRowNewsgroups, #addressRowFollowup) " +
@@ -1048,8 +1059,13 @@ function onPillPopupShowing(event) {
     for (let menuitem of menu.querySelectorAll(".pill-action-move")) {
       menuitem.hidden = true;
     }
+    // Hide the menuseparator before the move items, as there's nothing below.
+    menu.querySelector("#pillContextBeforeMoveItemsSeparator").hidden = true;
     return;
   }
+  // Show the menuseparator before the move items as no Newsgroup or Followup
+  // pill is selected.
+  menu.querySelector("#pillContextBeforeMoveItemsSeparator").hidden = false;
 
   let selectedType = "";
   // Check if all selected pills are in the same address row.
@@ -1068,7 +1084,7 @@ function onPillPopupShowing(event) {
     selectedType = row.dataset.recipienttype;
   }
 
-  // All selected pills are of the same type, disable the type's move action.
+  // All selected pills are of the same type, hide the type's move action.
   switch (selectedType) {
     case "addr_to":
       menu.querySelector("#moveAddressPillTo").hidden = true;

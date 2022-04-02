@@ -5669,6 +5669,29 @@ function copySelectedPillsOnCommand() {
 }
 
 /**
+ * Command handler: Select the focused pill and all siblings in the same
+ * address row.
+ *
+ * @param {Element} focusPill - The focused <mail-address-pill> element.
+ */
+function selectAllSiblingPillsOnCommand(focusPill) {
+  let recipientsContainer = document.getElementById("recipientsContainer");
+  // First deselect all pills to ensure that no pills outside the current
+  // address row are selected, e.g. when this action was triggered from
+  // context menu on already selected pill(s).
+  recipientsContainer.deselectAllPills();
+  // Select all pills of the current address row.
+  recipientsContainer.selectSiblingPills(focusPill);
+}
+
+/**
+ * Command handler: Select all recipient pills in the addressing area.
+ */
+function selectAllPillsOnCommand() {
+  document.getElementById("recipientsContainer").selectAllPills();
+}
+
+/**
  * Command handler: Delete the selected pills.
  */
 function deleteSelectedPillsOnCommand() {

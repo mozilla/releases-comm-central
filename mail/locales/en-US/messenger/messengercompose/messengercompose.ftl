@@ -33,6 +33,15 @@ pill-action-edit =
     .label = Edit Address
     .accesskey = E
 
+#   $type (String) - the type of the addressing row, e.g. Cc, Bcc, etc.
+pill-action-select-all-sibling-pills =
+    .label = Select All Addresses in { $type }
+    .accesskey = A
+
+pill-action-select-all-pills =
+    .label = Select All Addresses
+    .accesskey = S
+
 pill-action-move-to =
     .label = Move to To
     .accesskey = T

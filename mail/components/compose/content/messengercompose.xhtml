@@ -811,7 +811,13 @@
   <menuitem id="menu_copy"
             data-l10n-id="text-action-copy"
             oncommand="copySelectedPillsOnCommand()"/>
-  <menuseparator/>
+  <menuseparator id="pillContextBeforeSelectAllSeparator"/>
+  <menuitem id="menu_selectAllSiblingPills"
+            oncommand="selectAllSiblingPillsOnCommand(this.parentNode.triggerNode)"/>
+  <menuitem id="menu_selectAllPills"
+            data-l10n-id="pill-action-select-all-pills"
+            oncommand="selectAllPillsOnCommand()"/>
+  <menuseparator id="pillContextBeforeMoveItemsSeparator"/>
   <menuitem id="moveAddressPillTo"
             class="pill-action-move"
             data-l10n-id="pill-action-move-to"
@@ -824,7 +830,7 @@
             class="pill-action-move"
             data-l10n-id="pill-action-move-bcc"
             oncommand="moveSelectedPillsOnCommand('addressRowBcc')"/>
-  <menuseparator id="expandListSeparator"/>
+  <menuseparator id="pillContextBeforeExpandListSeparator"/>
   <menuitem id="expandList"
             class="pill-action-edit"
             data-l10n-id="pill-action-expand-list"
