@@ -414,8 +414,11 @@ var contentTabBaseType = {
         tabInfo[selectedIndex].browser.currentURI?.spec.replace(regEx, "") ==
           contentUrl
       ) {
-        // Ensure we go to the correct location on the page.
-        tabInfo[selectedIndex].browser.setAttribute("src", url);
+        // Go to the correct location on the page, but only if it's not the
+        // current location. This should NOT cause the page to reload.
+        if (url != contentUrl) {
+          MailE10SUtils.loadURI(tabInfo[selectedIndex].browser, url);
+        }
         return selectedIndex;
       }
     }
