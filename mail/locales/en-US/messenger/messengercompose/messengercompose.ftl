@@ -194,6 +194,11 @@ openpgp-key-issue-notification-one =
 openpgp-key-issue-notification-many =
     End-to-end encryption requires resolving key issues for { $count } recipients.
 
+smime-cert-issue-notification-one =
+    End-to-end encryption requires resolving certificate issues for { $addr }.
+smime-cert-issue-notification-many =
+    End-to-end encryption requires resolving certificate issues for { $count } recipients.
+
 key-notification-disable-encryption =
     .label = Do Not Encrypt
     .accesskey = D
