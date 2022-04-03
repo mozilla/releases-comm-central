@@ -6,6 +6,7 @@
 #ifndef netscapeprofilemigratorbase___h___
 #define netscapeprofilemigratorbase___h___
 
+#include "nsAttrValue.h"
 #include "nsIFile.h"
 #include "nsIStringBundle.h"
 #include "nsString.h"
