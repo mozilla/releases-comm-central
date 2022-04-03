@@ -6,6 +6,7 @@
 #ifndef nsSuiteProfileMigratorBase___h___
 #define nsSuiteProfileMigratorBase___h___
 
+#include "nsAttrValue.h"
 #include "nsIFile.h"
 #include "nsIMutableArray.h"
 #include "nsTArray.h"
