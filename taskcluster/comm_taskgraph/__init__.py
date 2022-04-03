@@ -4,13 +4,14 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import sys
 import os
 import logging
 from importlib import import_module
 
 from gecko_taskgraph import GECKO
-from gecko_taskgraph.optimize.schema import set_optimization_schema
 from comm_taskgraph.optimize import thunderbird_optimizations
+from gecko_taskgraph.optimize.schema import set_optimization_schema
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,9 @@ def register(graph_config):
     logger.info("{} path registered".format(__name__))
     register_parameters()
 
-    set_optimization_schema(thunderbird_optimizations)
+    # set_optimization_schema(thunderbird_optimizations)   -- bug 1762712
+    task_m = sys.modules["gecko_taskgraph.transforms.task"]
+    task_m.OptimizationSchema.validators = thunderbird_optimizations
     _import_modules(
         [
             "documentation",
