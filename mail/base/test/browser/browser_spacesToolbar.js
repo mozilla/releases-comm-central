@@ -164,71 +164,182 @@ async function sub_test_cycle_through_primary_tabs() {
   window.tabmail.closeOtherTabs(window.tabmail.tabInfo[0]);
 }
 
-add_task(async function testSpacesToolbarExists() {
+add_task(async function testSpacesToolbarVisibility() {
   let spacesToolbar = document.getElementById("spacesToolbar");
   let toggleButton = document.getElementById("spacesToolbarReveal");
   let pinnedButton = document.getElementById("spacesPinnedButton");
   Assert.ok(spacesToolbar, "The spaces toolbar exists");
-  Assert.ok(!spacesToolbar.hidden, "The spaces toolbar is visible");
-  Assert.ok(toggleButton.hidden, "The status bar toggle button is hidden");
-  Assert.ok(pinnedButton.collapsed, "The pinned titlebar button is hidden");
 
-  EventUtils.synthesizeMouseAtCenter(
-    document.getElementById("collapseButton"),
-    {},
-    window
+  function assertVisibility(isVisible, msg) {
+    Assert.equal(
+      BrowserTestUtils.is_visible(spacesToolbar),
+      isVisible,
+      `The spaces toolbar should be ${isVisible ? "visible" : "hidden"}: ${msg}`
+    );
+    Assert.equal(
+      BrowserTestUtils.is_visible(toggleButton),
+      !isVisible,
+      `The toggle button should be ${isVisible ? "hidden" : "visible"}: ${msg}`
+    );
+    Assert.equal(
+      BrowserTestUtils.is_visible(toggleButton),
+      !isVisible,
+      `The pinned button should be ${isVisible ? "hidden" : "visible"}: ${msg}`
+    );
+  }
+
+  async function toggleVisibilityWithAppMenu(expectChecked) {
+    let appMenu = document.getElementById("appMenu-popup");
+    let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
+    EventUtils.synthesizeMouseAtCenter(
+      document.getElementById("button-appmenu"),
+      {},
+      window
+    );
+    await menuShownPromise;
+
+    let viewShownPromise = BrowserTestUtils.waitForEvent(
+      appMenu.querySelector("#appMenu-viewView"),
+      "ViewShown"
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      appMenu.querySelector("#appmenu_View"),
+      {},
+      window
+    );
+    await viewShownPromise;
+
+    let toolbarShownPromise = BrowserTestUtils.waitForEvent(
+      appMenu.querySelector("#appMenu-toolbarsView"),
+      "ViewShown"
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      appMenu.querySelector("#appmenu_Toolbars"),
+      {},
+      window
+    );
+    await toolbarShownPromise;
+
+    let appMenuButton = document.getElementById("appmenu_spacesToolbar");
+    Assert.equal(
+      appMenuButton.checked,
+      expectChecked,
+      `The app menu item should ${expectChecked ? "not " : ""}be checked`
+    );
+
+    EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
+
+    // Close the appmenu.
+    EventUtils.synthesizeMouseAtCenter(
+      document.getElementById("button-appmenu"),
+      {},
+      window
+    );
+  }
+
+  assertVisibility(true, "on initial load");
+
+  // Collapse with a mouse click.
+  let activeElement = document.activeElement;
+  let collapseButton = document.getElementById("collapseButton");
+  EventUtils.synthesizeMouseAtCenter(collapseButton, {}, window);
+  assertVisibility(false, "after clicking collapse button");
+  Assert.equal(
+    document.activeElement,
+    activeElement,
+    "Focus does not move when collapsing with a mouse click"
   );
-  Assert.ok(spacesToolbar.hidden, "The spaces toolbar is hidden");
-  Assert.ok(!toggleButton.hidden, "The status bar toggle button is visible");
-  Assert.ok(!pinnedButton.collapsed, "The pinned titlebar button is visible");
 
-  // Test the app menu button.
-  let appMenu = document.getElementById("appMenu-popup");
-  let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(
-    document.getElementById("button-appmenu"),
-    {},
-    window
+  await toggleVisibilityWithAppMenu(false);
+  assertVisibility(true, "after revealing with the app menu");
+  Assert.equal(
+    document.activeElement,
+    activeElement,
+    "Focus does not move after revealing through the app menu"
   );
-  await menuShownPromise;
 
-  let viewShownPromise = BrowserTestUtils.waitForEvent(
-    appMenu.querySelector("#appMenu-viewView"),
-    "ViewShown"
+  // We already clicked the collapse button, so it should already be the
+  // focusButton for the gSpacesToolbar, and thus focusable.
+  collapseButton.focus();
+  Assert.ok(
+    collapseButton.matches(":focus"),
+    "Collapse button should be focusable"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    appMenu.querySelector("#appmenu_View"),
-    {},
-    window
+
+  // Hide the spaces toolbar using the collapse button, which already has focus.
+  EventUtils.synthesizeKey(" ", {}, window);
+  assertVisibility(false, "after closing with space key press");
+  Assert.ok(
+    pinnedButton.matches(":focus"),
+    "Pinned button should be focused after closing with a key press"
   );
-  await viewShownPromise;
 
-  let toolbarShownPromise = BrowserTestUtils.waitForEvent(
-    appMenu.querySelector("#appMenu-toolbarsView"),
-    "ViewShown"
+  // Show using the pinned button menu.
+  let pinnedMenu = document.getElementById("spacesButtonMenuPopup");
+  let pinnedMenuShown = BrowserTestUtils.waitForEvent(pinnedMenu, "popupshown");
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
+  await pinnedMenuShown;
+  let pinnedMenuHidden = BrowserTestUtils.waitForEvent(
+    pinnedMenu,
+    "popuphidden"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    appMenu.querySelector("#appmenu_Toolbars"),
-    {},
-    window
+  pinnedMenu.activateItem(document.getElementById("spacesPopupButtonReveal"));
+  await pinnedMenuHidden;
+
+  assertVisibility(true, "after opening with pinned menu");
+  Assert.ok(
+    collapseButton.matches(":focus"),
+    "Collapse button should be focused again after showing with the pinned menu"
   );
-  await toolbarShownPromise;
 
-  let appMenuButton = document.getElementById("appmenu_spacesToolbar");
-  Assert.ok(!appMenuButton.checked, "The app menu item is not checked");
+  // Move focus to the mail button.
+  let mailButton = document.getElementById("mailButton");
+  // Loop around from the collapse button to the mailButton.
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, window);
 
-  EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
+  Assert.ok(
+    mailButton.matches(":focus"),
+    "Mail button should become focused after pressing key down"
+  );
+  Assert.ok(
+    spacesToolbar.matches(":focus-within"),
+    "Spaces toolbar should contain the focus"
+  );
 
-  Assert.ok(!spacesToolbar.hidden, "The spaces toolbar is visible");
-  Assert.ok(toggleButton.hidden, "The status bar toggle button is hidden");
-  Assert.ok(pinnedButton.collapsed, "The pinned titlebar button is hidden");
-  Assert.ok(appMenuButton.checked, "The app menu item is checked");
+  // Now move focus elsewhere.
+  EventUtils.synthesizeKey("KEY_Tab", {}, window);
+  activeElement = document.activeElement;
+  Assert.ok(
+    !mailButton.matches(":focus"),
+    "Mail button should no longer be focused"
+  );
+  Assert.ok(
+    !spacesToolbar.matches(":focus-within"),
+    "Spaces toolbar should no longer contain the focus"
+  );
 
-  // Close the appmenu.
-  EventUtils.synthesizeMouseAtCenter(
-    document.getElementById("button-appmenu"),
-    {},
-    window
+  // Hide the spaces toolbar using the app menu.
+  await toggleVisibilityWithAppMenu(true);
+  assertVisibility(false, "after hiding with the app menu");
+  // Focus should have remained the same
+  Assert.equal(
+    document.activeElement,
+    activeElement,
+    "Active element should not have changed"
+  );
+
+  // Now click the status bar toggle button to reveal the toolbar again.
+  toggleButton.focus();
+  Assert.ok(
+    toggleButton.matches(":focus"),
+    "Toggle button should be focusable"
+  );
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
+  assertVisibility(true, "after showing with the toggle button");
+  // Focus is restored to the mailButton.
+  Assert.ok(
+    mailButton.matches(":focus"),
+    "Mail button should become focused again"
   );
 
   // Clicked buttons open or move to the correct tab, starting with just one tab
@@ -1035,4 +1146,24 @@ add_task(async function testSpacesToolbarFocusRing() {
       "The first button is focused"
     );
   }
+
+  // Focus follows the mouse click.
+  EventUtils.synthesizeMouseAtCenter(
+    document.getElementById("calendarButton"),
+    {},
+    window
+  );
+  Assert.equal(
+    document.activeElement.id,
+    "calendarButton",
+    "Focus should move to the clicked calendar button"
+  );
+
+  // Now press a key to make sure roving index was updated with the click.
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, window);
+  Assert.equal(
+    document.activeElement.id,
+    "tasksButton",
+    "Focus should move to the tasks button"
+  );
 });
