@@ -11,7 +11,7 @@ from importlib import import_module
 
 from gecko_taskgraph import GECKO
 from comm_taskgraph.optimize import thunderbird_optimizations
-from gecko_taskgraph.optimize.schema import set_optimization_schema
+from gecko_taskgraph.optimize.schema import set_optimization_schema  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,15 @@ def register(graph_config):
     register_parameters()
 
     # set_optimization_schema(thunderbird_optimizations)   -- bug 1762712
-    task_m = sys.modules["gecko_taskgraph.transforms.task"]
+    try:
+        task_m = sys.modules["gecko_taskgraph.transforms.task"]
+    except KeyError:
+        from gecko_taskgraph.transforms import task  # noqa: F401
+
+        task_m = sys.modules["gecko_taskgraph.transforms.task"]
+
     task_m.OptimizationSchema.validators = thunderbird_optimizations
+
     _import_modules(
         [
             "documentation",
