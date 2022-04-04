@@ -17,9 +17,6 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { MailConstants } = ChromeUtils.import(
-  "resource:///modules/MailConstants.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { DisplayNameUtils } = ChromeUtils.import(
   "resource:///modules/DisplayNameUtils.jsm"
@@ -795,11 +792,7 @@ var messageHeaderSink = {
     );
     currentAttachments.push(newAttachment);
 
-    if (
-      (contentType == "application/pgp-keys" || displayName.endsWith(".asc")) &&
-      MailConstants.MOZ_OPENPGP &&
-      BondOpenPGP.isEnabled()
-    ) {
+    if (contentType == "application/pgp-keys" || displayName.endsWith(".asc")) {
       Enigmail.msg.autoProcessPgpKeyAttachment(newAttachment);
     }
 
@@ -857,9 +850,7 @@ var messageHeaderSink = {
   },
 
   onEndAllAttachments() {
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      Enigmail.msg.notifyEndAllAttachments();
-    }
+    Enigmail.msg.notifyEndAllAttachments();
 
     displayAttachmentsForExpandedView();
 
@@ -2599,9 +2590,7 @@ function onShowAttachmentItemContextMenu() {
   openFolderMenu.hidden = !allSelectedFile;
   openFolderMenu.disabled = allSelectedDeleted;
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    Enigmail.hdrView.onShowAttachmentContextMenu();
-  }
+  Enigmail.hdrView.onShowAttachmentContextMenu();
 }
 
 /**

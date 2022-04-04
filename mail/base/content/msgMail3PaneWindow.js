@@ -32,9 +32,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { MailConstants } = ChromeUtils.import(
-  "resource:///modules/MailConstants.jsm"
-);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
@@ -422,10 +419,7 @@ var MailPrefObserver = {
         // refresh the thread pane
         document.getElementById("threadTree").invalidate();
       } else if (prefName == "mail.openpgp.enable") {
-        if (
-          MailConstants.MOZ_OPENPGP &&
-          Services.prefs.getBoolPref("mail.openpgp.enable")
-        ) {
+        if (Services.prefs.getBoolPref("mail.openpgp.enable")) {
           initOpenPGPIfEnabled(); // mail window related init
         }
       }
@@ -463,13 +457,11 @@ function initOpenPGPIfEnabled() {
   BondOpenPGP.init();
 
   try {
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      Enigmail.msg.messengerStartup.bind(Enigmail.msg);
-      Enigmail.msg.messengerStartup();
-      Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
-      Enigmail.hdrView.hdrViewLoad();
-      hideItems = false;
-    }
+    Enigmail.msg.messengerStartup.bind(Enigmail.msg);
+    Enigmail.msg.messengerStartup();
+    Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
+    Enigmail.hdrView.hdrViewLoad();
+    hideItems = false;
   } catch (ex) {
     console.log(ex);
   }

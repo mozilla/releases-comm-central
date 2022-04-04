@@ -8,31 +8,22 @@
 /* global GetEnigmailSvc, EnigRevokeKey */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailConstants } = ChromeUtils.import(
-  "resource:///modules/MailConstants.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { BondOpenPGP } = ChromeUtils.import(
-  "chrome://openpgp/content/BondOpenPGP.jsm"
+var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
 );
-
-if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-  var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
-  var { EnigmailKey } = ChromeUtils.import(
-    "chrome://openpgp/content/modules/key.jsm"
-  );
-  var { EnigmailKeyRing } = ChromeUtils.import(
-    "chrome://openpgp/content/modules/keyRing.jsm"
-  );
-  var { EnigmailCryptoAPI } = ChromeUtils.import(
-    "chrome://openpgp/content/modules/cryptoAPI.jsm"
-  );
-  var { PgpSqliteDb2 } = ChromeUtils.import(
-    "chrome://openpgp/content/modules/sqliteDb.jsm"
-  );
-}
+var { EnigmailKeyRing } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+);
+var { EnigmailCryptoAPI } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+);
+var { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
 
 var email_signing_cert_usage = 4; // SECCertUsage.certUsageEmailSigner
 var email_recipient_cert_usage = 5; // SECCertUsage.certUsageEmailRecipient
@@ -61,11 +52,6 @@ var gTechPrefOpenPGP = null;
 var gTechPrefSMIME = null;
 
 function onInit() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
-    for (let item of document.querySelectorAll(".openpgp-item")) {
-      item.hidden = true;
-    }
-  }
   initE2EEncryption(gIdentity);
 }
 
@@ -84,12 +70,10 @@ async function initE2EEncryption(identity) {
   gBundle = document.getElementById("bundle_e2e");
   gBrandBundle = document.getElementById("bundle_brand");
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    gTechChoices = document.getElementById("technologyChoices");
-    gTechAuto = document.getElementById("technology_automatic");
-    gTechPrefOpenPGP = document.getElementById("technology_prefer_openpgp");
-    gTechPrefSMIME = document.getElementById("technology_prefer_smime");
-  }
+  gTechChoices = document.getElementById("technologyChoices");
+  gTechAuto = document.getElementById("technology_automatic");
+  gTechPrefOpenPGP = document.getElementById("technology_prefer_openpgp");
+  gTechPrefSMIME = document.getElementById("technology_prefer_smime");
 
   if (!identity) {
     // We're setting up a new identity. Set most prefs to default values.
@@ -116,9 +100,7 @@ async function initE2EEncryption(identity) {
     gSignMessages.checked = gAccount.defaultIdentity.signMail;
     gEncryptionChoices.value = gAccount.defaultIdentity.encryptionPolicy;
 
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      gTechChoices.value = 0;
-    }
+    gTechChoices.value = 0;
   } else {
     // We're editing an existing identity.
 
@@ -126,9 +108,7 @@ async function initE2EEncryption(identity) {
     await initOpenPgpSettings();
 
     let enableEnc = !!gEncryptionCertName.value;
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      enableEnc = enableEnc || !!gKeyId;
-    }
+    enableEnc = enableEnc || !!gKeyId;
     enableEncryptionControls(enableEnc);
 
     gSignMessages.checked = identity.signMail;
@@ -137,9 +117,7 @@ async function initE2EEncryption(identity) {
     gEncryptDrafts.checked = identity.autoEncryptDrafts;
 
     let enableSig = gSignCertName.value;
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      enableSig = enableSig || !!gKeyId;
-    }
+    enableSig = enableSig || !!gKeyId;
     enableSigningControls(enableSig);
   }
 
@@ -180,9 +158,7 @@ function initSMIMESettings() {
   } catch (e) {}
 
   gEncryptionChoices.value = gIdentity.encryptionPolicy;
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
-  }
+  gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
 
   gSignCertName.value = gIdentity.getUnicharAttribute("signing_cert_name");
   gSignCertName.dbKey = gIdentity.getCharAttribute("signing_cert_dbkey");
@@ -205,10 +181,6 @@ function initSMIMESettings() {
  * Initialize the OpenPGP settings, apply strings, and load the key radio UI.
  */
 async function initOpenPgpSettings() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
-    return;
-  }
-
   let result = {};
   await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
 
@@ -254,10 +226,8 @@ function saveE2EEncryptionSettings(identity) {
   let newValue = gEncryptionChoices.value;
   identity.encryptionPolicy = newValue;
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    newValue = gTechChoices.value;
-    identity.setIntAttribute("e2etechpref", newValue);
-  }
+  newValue = gTechChoices.value;
+  identity.setIntAttribute("e2etechpref", newValue);
 
   identity.setUnicharAttribute(
     "encryption_cert_name",
@@ -489,9 +459,7 @@ function smimeClearCert(smime_cert) {
   certInfo.dbKey = "";
 
   let stillHaveOther = false;
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    stillHaveOther = gKeyId != "";
-  }
+  stillHaveOther = gKeyId != "";
 
   if (!stillHaveOther) {
     if (smime_cert == kEncryptionCertPref) {
@@ -507,10 +475,6 @@ function smimeClearCert(smime_cert) {
 }
 
 function updateTechPref() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
-    return;
-  }
-
   let haveSigCert = gSignCertName && gSignCertName.value;
   let haveEncCert = gEncryptionCertName && gEncryptionCertName.value;
   let havePgpkey = !!gKeyId;
@@ -553,10 +517,6 @@ function openKeyManager() {
  * Open the subdialog to create or import an OpenPGP key.
  */
 function openKeyWizard() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
-    return;
-  }
-
   let args = {
     identity: gIdentity,
     gSubDialog: parent.gSubDialog,

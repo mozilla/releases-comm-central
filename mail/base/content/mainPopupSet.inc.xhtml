@@ -28,12 +28,10 @@
     <menuitem id="copyNameAndEmailAddressItem" label="&CopyNameAndEmailAddress.label;"
               accesskey="&CopyNameAndEmailAddress.accesskey;"
               oncommand="CopyEmailNewsAddress(this.parentNode.triggerNode, true)"/>
-#ifdef MOZ_OPENPGP
     <menuseparator class="openpgp-item"/>
     <menuitem id="searchKeysOpenPGP" data-l10n-id="openpgp-search-keys-openpgp"
               class="openpgp-item"
               oncommand="Enigmail.msg.searchKeysOnInternet(this.parentNode.triggerNode)"/>
-#endif
     <menuseparator/>
     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
@@ -335,7 +333,6 @@
               label="&moveToFolderAgain.label;"
               accesskey="&moveToFolderAgain.accesskey;"/>
 
-#ifdef MOZ_OPENPGP
     <menu id="mailContext-decryptToFolder"
           class="openpgp-item"
           data-l10n-id="context-menu-decrypt-to-folder"
@@ -353,7 +350,6 @@
                  favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
                  hasbeenopened="false" />
     </menu>
-#endif
 
     <menu id="mailContext-calendar-convert-menu"
           class="hide-when-calendar-deactivated"

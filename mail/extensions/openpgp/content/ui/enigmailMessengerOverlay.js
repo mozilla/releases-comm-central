@@ -29,7 +29,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
@@ -110,10 +109,6 @@ Enigmail.msg = {
   },
 
   messengerStartup() {
-    if (!BondOpenPGP.isEnabled()) {
-      return;
-    }
-
     Enigmail.msg.messagePane = document.getElementById("messagepane");
 
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: Startup\n");
@@ -2356,10 +2351,6 @@ Enigmail.msg = {
 
   // handle a selected attachment (decrypt & open or save)
   handleAttachmentSel(actionType, selectedItem = null) {
-    if (!BondOpenPGP.isEnabled()) {
-      return;
-    }
-
     EnigmailLog.DEBUG(
       "enigmailMessengerOverlay.js: handleAttachmentSel: actionType=" +
         actionType +

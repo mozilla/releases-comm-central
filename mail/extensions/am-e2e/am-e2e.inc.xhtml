@@ -22,7 +22,6 @@
                value="&e2eLearnMore.label;"/>
       </vbox>
 
-#ifdef MOZ_OPENPGP
       <html:div>
         <html:fieldset id="openpgpOptions" class="openpgp-item"
                        aria-describedby="openPgpDescription">
@@ -106,7 +105,6 @@
       </html:div>
 
       <separator/>
-#endif
 
       <html:div>
       <html:fieldset id="smimeOptions">
@@ -216,7 +214,6 @@
       <html:div>
       <html:fieldset id="encryption_titlebox">
 
-#ifdef MOZ_OPENPGP
         <checkbox id="identity_attach_key" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.attachPgpKey"
                   data-l10n-id="e2e-attach-key" class="openpgp-item"/>
@@ -224,13 +221,11 @@
         <checkbox id="identity_encrypt_subject" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.protectSubject"
                   data-l10n-id="e2e-encrypt-subject" class="openpgp-item"/>
-#endif
 
         <checkbox id="identity_encrypt_drafts" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.autoEncryptDrafts"
                   data-l10n-id="e2e-encrypt-drafts"/>
 
-#ifdef MOZ_OPENPGP
         <separator/>
 
         <html:div class="openpgp-item">
@@ -246,7 +241,6 @@
                  label="&technologySMIME.label;"/>
         </radiogroup>
         </html:div>
-#endif
       </html:fieldset>
       </html:div>
     </vbox>

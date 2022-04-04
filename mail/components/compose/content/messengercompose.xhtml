@@ -81,10 +81,8 @@
 #endif
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
-#ifdef MOZ_OPENPGP
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeOverlay.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeHelper.js"></script>
-#endif
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -1759,7 +1757,6 @@
           <menuitem type="checkbox" command="cmd_customizeFromAddress"
                     accesskey="&customizeFromAddress.accesskey;"/>
 
-#ifdef MOZ_OPENPGP
           <menuseparator id="encryptTechOptionsSeparator_Menubar"
                          class="openpgp-item"/>
 
@@ -1774,7 +1771,6 @@
                         value="SMIME" type="radio" name="radiogroup_encTech"/>
             </menupopup>
           </menu>
-#endif
 
           <menuseparator id="encryptOptionsSeparator_Menubar"/>
 
@@ -1808,7 +1804,6 @@
                     value="sig"
                     oncommand="onSecurityChoice(event.target.value);"/>
 
-#ifdef MOZ_OPENPGP
         <menuseparator id="sepOpenPGP_Menubar"
                        class="openpgp-item"/>
 
@@ -1827,7 +1822,6 @@
                       oncommand="onSecurityChoice(event.target.value);"/>
           </menupopup>
         </menu>
-#endif
         </menupopup>
       </menu>
 
@@ -1937,7 +1931,6 @@
                    tooltiptext="&securityButton.tooltip;"
                    oncommand="onSecurityChoice(event.target.value);">
       <menupopup onpopupshowing="setSecuritySettings('_Toolbar');">
-#ifdef MOZ_OPENPGP
         <menu id="menu_encTech_Toolbar" class="openpgp-item"
               label="&menu_securityTech.label;" accesskey="&menu_securityTech.accesskey;">
           <menupopup id="button-encTech_Toolbar">
@@ -1949,7 +1942,6 @@
                       value="SMIME" type="radio" name="radiogroup_encTech"/>
           </menupopup>
         </menu>
-#endif
 
         <menuseparator id="encryptOptionsSeparator_Toolbar"/>
 
@@ -1979,7 +1971,6 @@
                   accesskey="&menu_securitySign.accesskey;"
                   value="sig"/>
 
-#ifdef MOZ_OPENPGP
         <menuseparator id="sepOpenPGP_Toolbar"
                        class="openpgp-item"/>
         <menu id="menu_OpenPGPOptions_Toolbar" class="openpgp-item"
@@ -1997,7 +1988,6 @@
                       value="encsub"/>
           </menupopup>
         </menu>
-#endif
 
         <menuseparator id="statusInfoSeparator"/>
         <menuitem id="menu_securityStatus_Toolbar"
@@ -2568,7 +2558,6 @@
                    value="0" max="100"
                    hidden="hidden">
     </html:progress>
-#ifdef MOZ_OPENPGP
     <html:span id="encryption-tech" hidden="hidden"></html:span>
     <html:img id="signing-status"
               data-l10n-id="message-to-be-signed-icon"
@@ -2578,7 +2567,6 @@
               data-l10n-id="message-to-be-encrypted-icon"
               src="chrome://messenger/skin/icons/connection-secure.svg"
               hidden="hidden" />
-#endif
     <html:button id="languageStatusButton"
                  class="plain-button"
                  aria-expanded="false"

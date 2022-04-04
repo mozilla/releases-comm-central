@@ -13,11 +13,10 @@
 /* global gExpandedHeaderView: false, CanDetachAttachments: true, gEncryptedURIService: false, FillAttachmentListPopup: false */
 /* global attachmentList: false, MailOfflineMgr: false, currentHeaderData: false, ContentTypeIsSMIME: false */
 
-/* import-globals-from ../BondOpenPGP.jsm */
-
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
@@ -723,7 +722,7 @@ Enigmail.hdrView = {
     var importMenu = document.getElementById("enigmail_ctxImportKey");
     var verifyMenu = document.getElementById("enigmail_ctxVerifyAtt");
 
-    if (BondOpenPGP.isEnabled() && selectedAttachments.length > 0) {
+    if (selectedAttachments.length > 0) {
       this.enableContextMenuEntries(
         selectedAttachments[0],
         decryptOpenMenu,

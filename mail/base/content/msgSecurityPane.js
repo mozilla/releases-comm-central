@@ -13,12 +13,8 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { MailConstants } = ChromeUtils.import(
-  "resource:///modules/MailConstants.jsm"
-);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
@@ -40,11 +36,7 @@ function showMessageReadSecurityInfo() {
   }
 
   // OpenPGP.
-  if (
-    MailConstants.MOZ_OPENPGP &&
-    BondOpenPGP.isEnabled() &&
-    document.getElementById("cryptoBox").getAttribute("tech") === "OpenPGP"
-  ) {
+  if (document.getElementById("cryptoBox").getAttribute("tech") === "OpenPGP") {
     Enigmail.msg.loadOpenPgpMessageSecurityInfo();
     showMessageSecurityPanel();
     return;

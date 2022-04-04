@@ -18,7 +18,6 @@
 /*global gEncryptSubject: true, setEncSigStatusUI: false, gEncryptedURIService: false */
 /* global setSendEncrypted: true */
 /* global gAttachmentBucket: true */
-/* import-globals-from ../BondOpenPGP.jsm */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -133,10 +132,6 @@ Enigmail.msg = {
   /* timeout when entering something into the address field */
 
   async composeStartup() {
-    if (!BondOpenPGP.isEnabled()) {
-      return;
-    }
-
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.composeStartup\n"
     );

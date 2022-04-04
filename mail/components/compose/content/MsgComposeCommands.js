@@ -42,9 +42,6 @@ var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { MailConstants } = ChromeUtils.import(
-  "resource:///modules/MailConstants.jsm"
-);
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
@@ -554,14 +551,6 @@ var stateListener = {
       loadHTMLMsgPrefs();
     }
     AdjustFocus();
-
-    // Normally, enigmailMsgComposeOverlay does this, which is the last registered
-    // NotifyComposeBodyReady() stateListener. But if OpenPGP is not enabled, it
-    // needs to be done here.
-    if (!BondOpenPGP.isEnabled()) {
-      window.composeEditorReady = true;
-      window.dispatchEvent(new CustomEvent("compose-editor-ready"));
-    }
   },
 
   NotifyComposeBodyReadyNew() {
@@ -1737,11 +1726,7 @@ function setSecuritySettings(menu_id) {
   let disableSig = false;
   let disableEnc = false;
 
-  if (
-    MailConstants.MOZ_OPENPGP &&
-    BondOpenPGP.isEnabled() &&
-    gSelectedTechnologyIsPGP
-  ) {
+  if (gSelectedTechnologyIsPGP) {
     if (!isPgpConfigured()) {
       disableSig = true;
       disableEnc = true;
@@ -1767,59 +1752,39 @@ function setSecuritySettings(menu_id) {
 
   sigItem.disabled = disableSig;
 
-  if (MailConstants.MOZ_OPENPGP) {
-    let pgpItem = document.getElementById("encTech_OpenPGP" + menu_id);
-    let smimeItem = document.getElementById("encTech_SMIME" + menu_id);
+  let pgpItem = document.getElementById("encTech_OpenPGP" + menu_id);
+  let smimeItem = document.getElementById("encTech_SMIME" + menu_id);
 
-    smimeItem.disabled =
-      !isSmimeSigningConfigured() && !isSmimeEncryptionConfigured();
+  smimeItem.disabled =
+    !isSmimeSigningConfigured() && !isSmimeEncryptionConfigured();
 
-    let sep = document.getElementById("sepOpenPGP" + menu_id);
-    let men = document.getElementById("menu_OpenPGPOptions" + menu_id);
-    let box = document.getElementById("menu_securityMyPublicKey" + menu_id);
-    let box2 = document.getElementById("menu_securityEncryptSubject" + menu_id);
+  let sep = document.getElementById("sepOpenPGP" + menu_id);
+  let men = document.getElementById("menu_OpenPGPOptions" + menu_id);
+  let box = document.getElementById("menu_securityMyPublicKey" + menu_id);
+  let box2 = document.getElementById("menu_securityEncryptSubject" + menu_id);
 
-    if (!BondOpenPGP.isEnabled()) {
-      pgpItem.setAttribute("checked", false);
-      smimeItem.setAttribute("checked", true);
-      pgpItem.disabled = true;
-      sep.setAttribute("hidden", true);
-      men.setAttribute("hidden", true);
-      box.setAttribute("hidden", true);
-      box.setAttribute("checked", false);
-      box.disabled = true;
-      box2.setAttribute("hidden", true);
-      box2.setAttribute("checked", false);
-      box2.disabled = true;
-    } else {
-      pgpItem.setAttribute("checked", gSelectedTechnologyIsPGP);
-      smimeItem.setAttribute("checked", !gSelectedTechnologyIsPGP);
+  pgpItem.setAttribute("checked", gSelectedTechnologyIsPGP);
+  smimeItem.setAttribute("checked", !gSelectedTechnologyIsPGP);
 
-      pgpItem.disabled = !isPgpConfigured();
+  pgpItem.disabled = !isPgpConfigured();
 
-      sep.hidden = !gSelectedTechnologyIsPGP;
-      men.hidden = !gSelectedTechnologyIsPGP;
-      box.hidden = !gSelectedTechnologyIsPGP;
-      box.setAttribute("checked", gAttachMyPublicPGPKey);
-      box2.hidden = !gSelectedTechnologyIsPGP;
-      box2.setAttribute("checked", gEncryptSubject);
+  sep.hidden = !gSelectedTechnologyIsPGP;
+  men.hidden = !gSelectedTechnologyIsPGP;
+  box.hidden = !gSelectedTechnologyIsPGP;
+  box.setAttribute("checked", gAttachMyPublicPGPKey);
+  box2.hidden = !gSelectedTechnologyIsPGP;
+  box2.setAttribute("checked", gEncryptSubject);
 
-      if (gSelectedTechnologyIsPGP) {
-        box.disabled = disableEnc;
-        box2.disabled = disableEnc;
-      }
-    }
+  if (gSelectedTechnologyIsPGP) {
+    box.disabled = disableEnc;
+    box2.disabled = disableEnc;
   }
 }
 
 function showMessageComposeSecurityStatus() {
   Recipients2CompFields(gMsgCompose.compFields);
 
-  if (
-    MailConstants.MOZ_OPENPGP &&
-    BondOpenPGP.isEnabled() &&
-    gSelectedTechnologyIsPGP
-  ) {
+  if (gSelectedTechnologyIsPGP) {
     window.openDialog(
       "chrome://openpgp/content/ui/composeKeyStatus.xhtml",
       "",
@@ -4274,9 +4239,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
 
   let configuredOpenPGP = false;
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    configuredOpenPGP = isPgpConfigured();
-  }
+  configuredOpenPGP = isPgpConfigured();
 
   if (!prevIdentity) {
     gSelectedTechnologyIsPGP = false;
@@ -4571,12 +4534,6 @@ async function ComposeLoad() {
       addressInputOnBeforeHandleKeyDown(event);
   }
 
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
-    for (let item of document.querySelectorAll(".openpgp-item")) {
-      item.hidden = true;
-    }
-  }
-
   top.controllers.appendController(SecurityController);
   gMsgCompose.compFields.composeSecure = null;
   gSMFields = Cc[
@@ -4814,14 +4771,12 @@ function ComposeUnload() {
 }
 
 function setEncSigStatusUI() {
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    document.getElementById("signing-status").hidden = !gSendSigned;
-    document.getElementById("encryption-status").hidden = !gSendEncrypted;
+  document.getElementById("signing-status").hidden = !gSendSigned;
+  document.getElementById("encryption-status").hidden = !gSendEncrypted;
 
-    let tech = document.getElementById("encryption-tech");
-    tech.textContent = gSelectedTechnologyIsPGP ? "OpenPGP" : "S/MIME";
-    tech.hidden = !gSendSigned && !gSendEncrypted;
-  }
+  let tech = document.getElementById("encryption-tech");
+  tech.textContent = gSelectedTechnologyIsPGP ? "OpenPGP" : "S/MIME";
+  tech.hidden = !gSendSigned && !gSendEncrypted;
 }
 
 function onSecurityChoice(value) {

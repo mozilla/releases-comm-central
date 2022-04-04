@@ -27,9 +27,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   CustomizableUI: "resource:///modules/CustomizableUI.jsm",
-  MailConstants: "resource:///modules/MailConstants.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
@@ -393,16 +391,10 @@ function OnLoadMessageWindow() {
   ToolbarIconColor.init();
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    Enigmail.msg.messengerStartup.bind(Enigmail.msg);
-    Enigmail.msg.messengerStartup();
-    Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
-    Enigmail.hdrView.hdrViewLoad();
-  } else {
-    for (let item of document.querySelectorAll(".openpgp-item")) {
-      item.hidden = true;
-    }
-  }
+  Enigmail.msg.messengerStartup.bind(Enigmail.msg);
+  Enigmail.msg.messengerStartup();
+  Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
+  Enigmail.hdrView.hdrViewLoad();
 
   let messagePaneBrowser = document.getElementById("messagepane");
   messagePaneBrowser.addEventListener(
