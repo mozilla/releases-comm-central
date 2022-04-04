@@ -12,8 +12,13 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
-  return new MozElements.NotificationBox(element => {
-    document.getElementById("status-notifications").append(element);
+  return new MozElements.NotificationBox(async element => {
+    let box = document.getElementById("status-notifications");
+    // Fix window size after the notification animation is done.
+    box.addEventListener("transitionend", () => {
+      window.sizeToContent();
+    });
+    box.append(element);
   });
 });
 

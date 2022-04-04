@@ -16,6 +16,10 @@ notification {
   background-color: var(--toolbar-bgcolor);
 }
 
+#calendar-summary-dialog {
+  height: auto;
+}
+
 #calendar-summary-dialog-custom-button-footer {
   margin-top: 1em;
 }
