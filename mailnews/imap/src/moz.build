@@ -37,3 +37,13 @@ LOCAL_INCLUDES += [
     "/ipc/chromium/src",
     "/netwerk/base",
 ]
+
+EXTRA_JS_MODULES += [
+    "ImapIncomingServer.jsm",
+    "ImapModuleLoader.jsm",
+    "ImapService.jsm",
+]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]
