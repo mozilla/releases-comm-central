@@ -140,8 +140,8 @@ var kIssuers = new Map([
     [
       "test_client_id",
       "test_secret",
-      "http://mochi.test:8888/browser/comm/mailnews/addrbook/test/browser/data/redirect_auto.sjs",
-      "http://mochi.test:8888/browser/comm/mailnews/addrbook/test/browser/data/token.sjs",
+      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/redirect_auto.sjs",
+      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/token.sjs",
     ],
   ],
 ]);

@@ -8,10 +8,6 @@ TESTING_JS_MODULES += [
     "LDAPServer.jsm",
 ]
 
-BROWSER_CHROME_MANIFESTS += [
-    "browser/browser.ini",
-]
-
 XPCSHELL_TESTS_MANIFESTS += [
     "unit/xpcshell.ini",
     "unit/xpcshell_cardDAV.ini",

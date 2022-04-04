@@ -23,7 +23,7 @@ const SCOPE = "test_scope";
 const USERNAME = "bob@test.invalid";
 const VALID_TOKEN = "bobs_refresh_token";
 
-const PATH = "comm/mailnews/addrbook/test/browser/data/";
+const PATH = "comm/mail/components/addrbook/test/browser/new/data/";
 const URL = `http://mochi.test:8888/browser/${PATH}`;
 
 /**

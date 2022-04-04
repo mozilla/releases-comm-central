@@ -62,7 +62,7 @@ async function subtest(calendarId, newTokenUsername) {
     calendar,
     "GET",
     Services.io.newURI(
-      "http://mochi.test:8888/browser/comm/mailnews/addrbook/test/browser/data/auth_headers.sjs"
+      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/new/data/auth_headers.sjs"
     )
   );
   let response = await request.commit();
