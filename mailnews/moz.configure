@@ -20,22 +20,7 @@ set_config("MOZ_MAPI_SUPPORT", mapi_support)
 set_define("MOZ_MAPI_SUPPORT", mapi_support)
 
 # =========================================================
-# = Experimental OpenPGP integration
+# = OpenPGP integration
 # =========================================================
 
-option(
-    "--enable-openpgp",
-    default=True,
-    help="Enable building of the Experimental OpenPGP integration",
-)
-
-
-@depends_if("--enable-openpgp")
-def openpgp(arg):
-    return True
-
-
-set_config("MOZ_OPENPGP", openpgp)
-set_define("MOZ_OPENPGP", openpgp)
-
-include("../third_party/openpgp.configure", when="--enable-openpgp")
+include("../third_party/openpgp.configure")

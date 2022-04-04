@@ -240,12 +240,10 @@
 #endif
 
 ; OpenPGP (librnp)
-#ifdef MOZ_OPENPGP
 #ifdef MZLA_LIBRNP
 @BINPATH@/@DLL_PREFIX@rnp@DLL_SUFFIX@
 @BINPATH@/rnp-cli@BIN_SUFFIX@
 @BINPATH@/rnpkeys@BIN_SUFFIX@
-#endif
 #endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -289,10 +287,8 @@
 ; App extensions to Mail
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#ifdef MOZ_OPENPGP
 @RESPATH@/chrome/openpgp@JAREXT@
 @RESPATH@/chrome/openpgp.manifest
-#endif
 
 ; misson control, autoconfig
 #ifdef MOZ_PREF_EXTENSIONS

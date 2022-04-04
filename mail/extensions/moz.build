@@ -12,9 +12,5 @@ DIRS += [
 
 DIRS += [
     "am-e2e",
+    "openpgp",
 ]
-
-if CONFIG["MOZ_OPENPGP"]:
-    DIRS += [
-        "openpgp",
-    ]
