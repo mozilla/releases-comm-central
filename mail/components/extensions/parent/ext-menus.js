@@ -1178,7 +1178,7 @@ const menuTracker = {
       default:
         // Fall back to the triggerNode. Make sure we are not re-triggered by a
         // sub-menu.
-        if (menu.isAnchored) {
+        if (menu.parentNode.localName == "menu") {
           return;
         }
         if (Object.keys(chromeElementsMap).includes(trigger?.id)) {

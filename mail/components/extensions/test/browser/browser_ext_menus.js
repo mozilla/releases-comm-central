@@ -266,7 +266,7 @@ function getExtensionDetails(...permissions) {
   };
 }
 
-add_task(async function set_up() {
+add_setup(async function() {
   await Services.search.init();
 
   gAccount = createAccount();
