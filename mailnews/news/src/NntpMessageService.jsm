@@ -158,6 +158,9 @@ class BaseMessageService {
    * @returns {string} The news:// url.
    */
   _createMessageIdUrl(messageURI) {
+    if (messageURI.startsWith("news://")) {
+      return messageURI;
+    }
     let [folder, key] = this._decomposeNewsMessageURI(messageURI);
     let host = folder.rootFolder.URI;
     let messageId = folder.getMessageIdForKey(key);

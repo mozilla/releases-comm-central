@@ -22,6 +22,10 @@ class MailLinkParent extends JSWindowActorParent {
       case "mid:":
         this._handleMidLink(value);
         break;
+      case "news:":
+      case "snews:":
+        this._handleNewsLink(value);
+        break;
       default:
         throw Components.Exception(
           `Unsupported name=${value.name} url=${value.data}`,
@@ -51,5 +55,13 @@ class MailLinkParent extends JSWindowActorParent {
   _handleMidLink({ data }) {
     // data is the mid: url.
     MailUtils.openMessageByMessageId(data.slice(4));
+  }
+
+  _handleNewsLink({ data }) {
+    let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+    let tabmail = mail3PaneWindow.document.getElementById("tabmail");
+    tabmail.openTab("mailMessageTab", {
+      messageURI: data,
+    });
   }
 }

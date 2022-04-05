@@ -11,7 +11,7 @@
 /* globals ClearPendingReadTimer, gMessageNotificationBar */
 
 // msgHdrView.js
-/* globals HideMessageHeaderPane, messageHeaderSink,
+/* globals HideMessageHeaderPane, messageHeaderSink, gMessageListeners,
    OnLoadMsgHeaderPane, OnTagsChange, OnUnloadMsgHeaderPane */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -157,21 +157,26 @@ function displayMessage(uri, viewWrapper) {
     `@mozilla.org/messenger/messageservice;1?type=${protocol}`
   ].getService(Ci.nsIMsgMessageService);
   gMessage = messageService.messageURIToMsgHdr(uri);
-  if (gFolder != gMessage.folder) {
-    gFolder = gMessage.folder;
-  }
-  if (viewWrapper) {
-    gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
+
+  if (gMessage) {
+    if (gFolder != gMessage.folder) {
+      gFolder = gMessage.folder;
+    }
+    if (viewWrapper) {
+      gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
+    } else {
+      gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+      gViewWrapper._viewFlags = 1;
+      gViewWrapper.open(gFolder);
+    }
+    gViewWrapper.dbView.selection = new JSTreeSelection();
+    gViewWrapper.dbView.selection.select(
+      gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
+    );
+    gDBView = gViewWrapper.dbView;
   } else {
-    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-    gViewWrapper._viewFlags = 1;
-    gViewWrapper.open(gFolder);
+    gMessage = messageHeaderSink.dummyMsgHeader;
   }
-  gViewWrapper.dbView.selection = new JSTreeSelection();
-  gViewWrapper.dbView.selection.select(
-    gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
-  );
-  gDBView = gViewWrapper.dbView;
 
   MailE10SUtils.changeRemoteness(content, null);
   content.docShell
@@ -202,6 +207,16 @@ function displayMessage(uri, viewWrapper) {
     new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
   );
 }
+
+gMessageListeners.push({
+  onStartHeaders() {},
+  onEndHeaders() {
+    if (gMessageDisplay.isDummy) {
+      document.title = messageHeaderSink.dummyMsgHeader.mime2DecodedSubject;
+    }
+  },
+  onEndAttachments() {},
+});
 
 function GetSelectedMsgFolders() {
   if (gFolderDisplay.displayedFolder) {

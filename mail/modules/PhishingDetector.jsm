@@ -74,7 +74,11 @@ const PhishingDetector = new (class PhishingDetector {
       var folder = aUrl.folder;
 
       // Ignore nntp and RSS messages.
-      if (folder.server.type == "nntp" || folder.server.type == "rss") {
+      if (
+        !folder ||
+        folder.server.type == "nntp" ||
+        folder.server.type == "rss"
+      ) {
         return false;
       }
 

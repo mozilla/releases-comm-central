@@ -7,7 +7,7 @@
 
 const EXPORTED_SYMBOLS = ["MailLinkChild"];
 
-const PREFIXES = ["mailto:", "mid:"];
+const PROTOCOLS = ["mailto:", "mid:", "news:", "snews:"];
 
 class MailLinkChild extends JSWindowActorChild {
   handleEvent(event) {
@@ -22,12 +22,10 @@ class MailLinkChild extends JSWindowActorChild {
       return;
     }
 
-    for (let prefix of PREFIXES) {
-      if (href.startsWith(prefix)) {
-        this.sendAsyncMessage(prefix, href);
-        event.preventDefault();
-        return;
-      }
+    let protocol = new URL(href).protocol;
+    if (PROTOCOLS.includes(protocol)) {
+      this.sendAsyncMessage(protocol, href);
+      event.preventDefault();
     }
   }
 }
