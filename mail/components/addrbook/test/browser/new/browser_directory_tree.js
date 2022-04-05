@@ -267,6 +267,8 @@ add_task(async function test_additions_and_removals() {
     { level: 1, directory: personalBook },
     { level: 1, directory: historyBook }
   );
+
+  await closeAddressBookWindow();
 });
 
 /**

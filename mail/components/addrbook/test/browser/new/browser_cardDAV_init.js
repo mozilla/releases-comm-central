@@ -331,6 +331,7 @@ add_task(async function testDNS() {
 
   DNS.srv = _srv;
   DNS.txt = _txt;
+  await closeAddressBookWindow();
 });
 
 /**
