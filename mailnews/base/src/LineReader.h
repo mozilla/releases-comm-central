@@ -10,6 +10,22 @@
 #include "mozilla/Vector.h"
 
 /**
+ * FirstLine() returns the first line of a span.
+ * The EOL sequence (CRLF or LF) is included in the returned line.
+ * If no lines are found an empty span is returned.
+ */
+inline mozilla::Span<const char> FirstLine(
+    mozilla::Span<const char> const& data) {
+  auto eol = std::find(data.cbegin(), data.cend(), '\n');
+  if (eol == data.cend()) {
+    // no line ending found - return empty span.
+    return data.First(0);
+  }
+  ++eol;
+  return mozilla::Span<const char>(data.cbegin(), eol);
+}
+
+/**
  * LineReader breaks up continuous character streams into lines.
  * Data is fed in by calling Feed() as often as required, and a
  * callback function is invoked to handle each resulting line.

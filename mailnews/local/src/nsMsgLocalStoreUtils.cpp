@@ -138,7 +138,15 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
   // headers. We know that those headers always appear at the beginning, so
   // don't need to look too far in.
   mozilla::Buffer<char> buf(512);
-  mozilla::Span<char> data = readBuf(readable, buf);
+  mozilla::Span<const char> data = readBuf(readable, buf);
+
+  // If there's a "From " line, consume it.
+  mozilla::Span<const char> fromLine;
+  if (data.Length() >= 5 &&
+      nsDependentCSubstring(data.First(5)).EqualsLiteral("From ")) {
+    fromLine = FirstLine(data);
+    data = data.From(fromLine.Length());
+  }
 
   HeaderReader::Hdr statusHdr;
   HeaderReader::Hdr status2Hdr;
@@ -167,9 +175,9 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
       if ((msgFlags & 0xFFFF) != oldFlags) {
         auto out = nsPrintfCString("%4.4x", msgFlags & 0xFFFF);
         if (out.Length() <= statusHdr.rawValLen) {
-          rv =
-              seekable->Seek(nsISeekableStream::NS_SEEK_SET,
-                             msgStart + statusHdr.pos + statusHdr.rawValOffset);
+          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
+                              msgStart + fromLine.Length() + statusHdr.pos +
+                                  statusHdr.rawValOffset);
           NS_ENSURE_SUCCESS(rv, rv);
           // Should be an exact fit already, but just in case...
           while (out.Length() < statusHdr.rawValLen) {
@@ -189,9 +197,9 @@ nsresult nsMsgLocalStoreUtils::RewriteMsgFlags(nsISeekableStream* seekable,
       if ((msgFlags & 0xFFFF0000) != oldFlags) {
         auto out = nsPrintfCString("%8.8x", msgFlags & 0xFFFF0000);
         if (out.Length() <= status2Hdr.rawValLen) {
-          rv = seekable->Seek(
-              nsISeekableStream::NS_SEEK_SET,
-              msgStart + status2Hdr.pos + status2Hdr.rawValOffset);
+          rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
+                              msgStart + fromLine.Length() + status2Hdr.pos +
+                                  status2Hdr.rawValOffset);
           NS_ENSURE_SUCCESS(rv, rv);
           while (out.Length() < status2Hdr.rawValLen) {
             out.Append(' ');
@@ -293,7 +301,15 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
   // We know that it always appears near the beginning, so don't need to look
   // too far in.
   mozilla::Buffer<char> buf(512);
-  mozilla::Span<char> data = readBuf(readable, buf);
+  mozilla::Span<const char> data = readBuf(readable, buf);
+
+  // If there's a "From " line, consume it.
+  mozilla::Span<const char> fromLine;
+  if (data.Length() >= 5 &&
+      nsDependentCSubstring(data.First(5)).EqualsLiteral("From ")) {
+    fromLine = FirstLine(data);
+    data = data.From(fromLine.Length());
+  }
 
   HeaderReader::Hdr kwHdr;
   auto findHeaderFn = [&](auto const& hdr) {
@@ -353,8 +369,9 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
     out.Append(' ');
   }
 
-  rv = seekable->Seek(nsISeekableStream::NS_SEEK_SET,
-                      msgStart + kwHdr.pos + kwHdr.rawValOffset);
+  rv = seekable->Seek(
+      nsISeekableStream::NS_SEEK_SET,
+      msgStart + fromLine.Length() + kwHdr.pos + kwHdr.rawValOffset);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = writeBuf(writable, out.BeginReading(), out.Length());
   NS_ENSURE_SUCCESS(rv, rv);
