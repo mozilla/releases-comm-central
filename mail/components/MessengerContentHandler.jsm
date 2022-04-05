@@ -79,6 +79,17 @@ function openURI(uri) {
     throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   }
 
+  if (["news", "snews"].includes(uri.scheme)) {
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/messageWindow.xhtml",
+      "_blank",
+      "all,chrome,dialog=no,status,toolbar",
+      uri
+    );
+    return;
+  }
+
   var channel = Services.io.newChannelFromURI(
     uri,
     null,
