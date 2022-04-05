@@ -694,7 +694,7 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
       return NS_OK;
 
     NS_ERROR("FinishNewMessage - oops! file does not exist!");
-    return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
+    return NS_ERROR_FILE_NOT_FOUND;
   }
 
   nsCString msgID;

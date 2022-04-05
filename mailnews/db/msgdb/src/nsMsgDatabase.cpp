@@ -380,7 +380,7 @@ NS_IMETHODIMP nsMsgDBService::OpenMailDBFromFile(nsIFile* aFolderName,
   RefPtr<nsMailDatabase> msgDB = new nsMailDatabase;
   NS_ENSURE_TRUE(msgDB, NS_ERROR_OUT_OF_MEMORY);
   rv = msgDB->Open(this, dbPath, aCreate, aLeaveInvalidDB);
-  if (rv == NS_ERROR_FILE_TARGET_DOES_NOT_EXIST) return rv;
+  if (rv == NS_ERROR_FILE_NOT_FOUND) return rv;
   NS_IF_ADDREF(*pMessageDB = msgDB);
   if (aCreate && msgDB && rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) rv = NS_OK;
   if (NS_SUCCEEDED(rv)) msgDB->m_folder = aFolder;
@@ -1148,7 +1148,7 @@ nsresult nsMsgDatabase::OpenInternal(nsMsgDBService* aDBService,
 
   if (MOZ_LOG_TEST(DBLog, LogLevel::Debug)) aDBService->DumpCache();
 
-  if (rv == NS_ERROR_FILE_TARGET_DOES_NOT_EXIST) return rv;
+  if (rv == NS_ERROR_FILE_NOT_FOUND) return rv;
 
   m_create = aCreate;
   m_leaveInvalidDB = aLeaveInvalidDB;
@@ -1314,7 +1314,7 @@ nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create, bool sync) {
     {
       nsIMdbFile* newFile = 0;
       ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, dbName.get(), &newFile);
-      if (NS_FAILED(ret)) ret = NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
+      if (NS_FAILED(ret)) ret = NS_ERROR_FILE_NOT_FOUND;
       if (newFile) {
         if (NS_SUCCEEDED(ret)) {
           mdbOpenPolicy inOpenPolicy;

@@ -89,7 +89,7 @@ class nsMsgDatabase : public nsIMsgDatabase {
    * @param aCreate         Whether or not the file should be created.
    * @param aLeaveInvalidDB Set to true if you do not want the database to be
    *                        deleted if it is invalid.
-   * @exception NS_ERROR_FILE_TARGET_DOES_NOT_EXIST
+   * @exception NS_ERROR_FILE_NOT_FOUND
    *                        The file could not be created.
    * @exception NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE
    *                        The database is present (and was opened), but the

@@ -114,7 +114,7 @@ interface nsIMsgDBService : nsISupports
    *                        is invalid.
    * @return                A new nsIMsgDatabase object representing the folder
    *                        database that was opened.
-   * @exception NS_ERROR_FILE_TARGET_DOES_NOT_EXIST
+   * @exception NS_ERROR_FILE_NOT_FOUND
    *                        The file could not be created.
    * @exception NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE
    *                        The database is present (and was opened), but the
@@ -186,7 +186,7 @@ interface nsIMsgDBService : nsISupports
    *                        is invalid.
    * @return                A new nsIMsgDatabase object encapsulating the file
    *                        passed in.
-   * @exception NS_ERROR_FILE_TARGET_DOES_NOT_EXIST
+   * @exception NS_ERROR_FILE_NOT_FOUND
    *                        The file could not be created.
    * @see nsIMsgDBService::openFolderDB
    * @see nsIMsgDatabase::Open

@@ -382,8 +382,7 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
           ("nsMapiHook::HandleAttachments: filename: %s path: %s exists = %s\n",
            (const char*)aFiles[i].lpszFileName,
            (const char*)aFiles[i].lpszPathName, bExist ? "true" : "false"));
-      if (NS_FAILED(rv) || (!bExist))
-        return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
+      if (NS_FAILED(rv) || (!bExist)) return NS_ERROR_FILE_NOT_FOUND;
 
       // Temp Directory
       nsCOMPtr<nsIFile> pTempDir;
@@ -497,8 +496,7 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
                NS_ConvertUTF16toUTF8(aFiles[i].lpszFileName).get(),
                NS_ConvertUTF16toUTF8(aFiles[i].lpszPathName).get(),
                bExist ? "true" : "false"));
-      if (NS_FAILED(rv) || (!bExist))
-        return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
+      if (NS_FAILED(rv) || (!bExist)) return NS_ERROR_FILE_NOT_FOUND;
 
       // Temp Directory.
       nsCOMPtr<nsIFile> pTempDir;
@@ -847,8 +845,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
       pFile->InitWithNativePath(RemainingPaths);
 
       rv = pFile->Exists(&bExist);
-      if (NS_FAILED(rv) || (!bExist))
-        return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
+      if (NS_FAILED(rv) || (!bExist)) return NS_ERROR_FILE_NOT_FOUND;
 
       // filename of the file attachment
       nsAutoString leafName;

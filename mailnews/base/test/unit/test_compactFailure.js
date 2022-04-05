@@ -32,7 +32,7 @@ var gCid;
 
 // Allow certain xpcom errors.
 logHelperAllowedErrors.push("NS_ERROR_FILE_IS_LOCKED");
-logHelperAllowedErrors.push("NS_ERROR_FILE_TARGET_DOES_NOT_EXIST");
+logHelperAllowedErrors.push("NS_ERROR_FILE_NOT_FOUND");
 
 function LockedFileOutputStream() {}
 
@@ -49,7 +49,7 @@ var MsgDBServiceFailure = {
 
   openMailDBFromFile(file, folder, create, leaveInvalidDB) {
     if (folder.name == "ShouldFail") {
-      throw Components.Exception("", Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST);
+      throw Components.Exception("", Cr.NS_ERROR_FILE_NOT_FOUND);
     }
     return this._genuine.openMailDBFromFile(
       file,
@@ -172,7 +172,7 @@ add_task(async function test_compact_without_failure() {
     MsgDBServiceFailure
   );
   // Test compact without failure.
-  await compact_with_exception(Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST);
+  await compact_with_exception(Cr.NS_ERROR_FILE_NOT_FOUND);
   // Teardown db service mock.
   MockRegistrar.unregister(gCid);
 });

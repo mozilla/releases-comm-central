@@ -207,7 +207,7 @@ HRESULT nsMAPIConfiguration::GetMAPIErrorFromNSError(nsresult res) {
     case NS_ERROR_FILE_INVALID_PATH:
       hr = MAPI_E_ATTACHMENT_OPEN_FAILURE;
       break;
-    case NS_ERROR_FILE_TARGET_DOES_NOT_EXIST:
+    case NS_ERROR_FILE_NOT_FOUND:
       hr = MAPI_E_ATTACHMENT_NOT_FOUND;
       break;
     case NS_MSG_ERROR_WRITING_FILE:
