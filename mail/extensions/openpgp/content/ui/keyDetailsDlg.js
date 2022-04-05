@@ -286,8 +286,11 @@ async function reloadData(firstLoad) {
 }
 
 function createUidData(listNode, keyDetails) {
-  for (let i = 1; i < keyDetails.userIds.length; i++) {
+  for (let i = 0; i < keyDetails.userIds.length; i++) {
     if (keyDetails.userIds[i].type === "uid") {
+      if (keyDetails.userIds[i].userId == keyDetails.userId) {
+        continue;
+      }
       let item = listNode.appendItem(keyDetails.userIds[i].userId);
       item.setAttribute("label", keyDetails.userIds[i].userId);
       if ("dre".search(keyDetails.userIds[i].keyTrust) >= 0) {

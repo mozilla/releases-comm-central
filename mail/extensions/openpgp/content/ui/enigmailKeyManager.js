@@ -1484,8 +1484,11 @@ var gKeyListView = {
     let keyObj = gKeyList[keyNum];
     let uidAdded = 0;
 
-    for (let i = 1; i < keyObj.userIds.length; i++) {
+    for (let i = 0; i < keyObj.userIds.length; i++) {
       if (keyObj.userIds[i].type === uidType) {
+        if (keyObj.userIds[i].userId == keyObj.userId) {
+          continue;
+        }
         ++uidAdded;
         this.keyViewList.splice(realRow + uidAdded, 0, {
           rowType: uidType,
