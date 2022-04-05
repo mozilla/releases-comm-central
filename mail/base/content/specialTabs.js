@@ -397,27 +397,30 @@ var contentTabBaseType = {
 
     let tabmail = document.getElementById("tabmail");
     let tabInfo = tabmail.tabInfo;
+    let uri;
 
-    // Remove any anchors - especially for the about: pages, we just want
-    // to re-use the same tab.
-    let regEx = new RegExp("#.*");
-
-    let contentUrl = url.replace(regEx, "");
+    try {
+      uri = Services.io.newURI(url);
+    } catch (ex) {
+      return -1;
+    }
 
     for (
       let selectedIndex = 0;
       selectedIndex < tabInfo.length;
       ++selectedIndex
     ) {
+      // Reuse the same tab, if only the anchors differ - especially for the
+      // about: pages, we just want to re-use the same tab.
       if (
         tabInfo[selectedIndex].mode.name == this.name &&
-        tabInfo[selectedIndex].browser.currentURI?.spec.replace(regEx, "") ==
-          contentUrl
+        tabInfo[selectedIndex].browser.currentURI?.specIgnoringRef ==
+          uri.specIgnoringRef
       ) {
         // Go to the correct location on the page, but only if it's not the
         // current location. This should NOT cause the page to reload.
-        if (url != contentUrl) {
-          MailE10SUtils.loadURI(tabInfo[selectedIndex].browser, url);
+        if (tabInfo[selectedIndex].browser.currentURI.spec != uri.spec) {
+          MailE10SUtils.loadURI(tabInfo[selectedIndex].browser, uri.spec);
         }
         return selectedIndex;
       }
