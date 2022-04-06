@@ -548,11 +548,26 @@ var test_logFileSplitting = async function() {
 
   // Clean up.
   await IOUtils.remove(logDirPath, { recursive: true });
+  gLogger.closeLogWriter(dummyConv);
 };
 
-add_task(function test_logWithEdits() {
-  const conv = new gLogger.LogConversation(
+add_task(async function test_logWithEdits() {
+  // Start clean, remove the log directory.
+  await IOUtils.remove(logDirPath, { recursive: true });
+  let logger = new gLogger.Logger();
+  let logFilePath = gLogger.getLogFilePathForConversation(dummyConv);
+  await IOUtils.writeUTF8(
+    logFilePath,
     [
+      {
+        date: "2022-03-04T12:00:03.508Z",
+        name: "test",
+        title: "test",
+        account: "@test:example.com",
+        protocol: "matrix",
+        isChat: false,
+        normalizedName: "!foobar:example.com",
+      },
       {
         date: "2022-03-04T11:59:48.000Z",
         who: "@other:example.com",
@@ -618,30 +633,48 @@ add_task(function test_logWithEdits() {
         remoteId: "$AjmS57jkBbYnSnC01r3fXya8BfuHIMAw9mOYQRlnkFk",
         alias: "other",
       },
-    ],
+    ]
+      .map(message => JSON.stringify(message))
+      .join("\n"),
     {
-      startDate: new Date("2022-03-04T12:00:03.508Z"),
-      name: "test",
-      title: "test",
-      _accountName: "@test:example.com",
-      _protocolName: "matrix",
-      _isChat: false,
-      normalizedName: "!foobar:example.com",
+      mode: "create",
     }
   );
+  let logs = await logger.getLogsForConversation(dummyConv);
+  equal(logs.length, 1);
+  const conv = await logs[0].getConversation();
   const messages = conv.getMessages();
-  equal(messages.length, 4);
+  equal(messages.length, 5);
   for (const msg of messages) {
-    notEqual(msg.displayMessage, "Decrypting...");
+    if (msg.who !== "sessionstart") {
+      notEqual(msg.displayMessage, "Decrypting...");
+    }
   }
+
+  // Clean up.
+  await IOUtils.remove(logDirPath, { recursive: true });
 });
 
 // Ensure that any message with a remoteId that has a deleted flag in the
 // latest version is not visible in logs.
-add_task(function test_logWithDeletedMessages() {
+add_task(async function test_logWithDeletedMessages() {
+  // Start clean, remove the log directory.
+  await IOUtils.remove(logDirPath, { recursive: true });
+  let logger = new gLogger.Logger();
+  let logFilePath = gLogger.getLogFilePathForConversation(dummyConv);
   const remoteId = "$GFlcel-9tWrTvSb7HM_113-WpkzEdB4neglPVpZn3dM";
-  const conv = new gLogger.LogConversation(
+  await IOUtils.writeUTF8(
+    logFilePath,
     [
+      {
+        date: "2022-03-04T12:00:03.508Z",
+        name: "test",
+        title: "test",
+        account: "@test:example.com",
+        protocol: "matrix",
+        isChat: false,
+        normalizedName: "!foobar:example.com",
+      },
       {
         date: "2022-03-04T11:59:56.000Z",
         who: "@other:example.com",
@@ -658,19 +691,148 @@ add_task(function test_logWithDeletedMessages() {
         remoteId,
         alias: "other",
       },
-    ],
+    ]
+      .map(message => JSON.stringify(message))
+      .join("\n"),
     {
-      startDate: new Date("2022-03-04T12:00:03.508Z"),
-      name: "test",
-      title: "test",
-      _accountName: "@test:example.com",
-      _protocolName: "matrix",
-      _isChat: false,
-      normalizedName: "!foobar:example.com",
+      mode: "create",
     }
   );
+  let logs = await logger.getLogsForConversation(dummyConv);
+  equal(logs.length, 1);
+  const conv = await logs[0].getConversation();
   const messages = conv.getMessages();
-  equal(messages.length, 0);
+  equal(messages.length, 1);
+  equal(messages[0].who, "sessionstart");
+
+  // Clean up.
+  await IOUtils.remove(logDirPath, { recursive: true });
+});
+
+add_task(async function test_logDeletedMessageCleanup() {
+  // Start clean, remove the log directory.
+  await IOUtils.remove(logDirPath, { recursive: true });
+  let logger = new gLogger.Logger();
+  let logWriter = gLogger.getLogWriter(dummyConv);
+  let remoteId = "testId";
+
+  let logMessage = async function(aMessage) {
+    logWriter.logMessage(aMessage);
+    await logWriter._initialized;
+    await gLogger.gFilePromises.get(logWriter.currentPath);
+  };
+
+  await logMessage({
+    time: Math.floor(dummyConv.startDate / 1000000) + 10,
+    who: "test",
+    displayMessage: "delete me",
+    remoteId,
+    incoming: true,
+  });
+
+  await logMessage({
+    time: Math.floor(dummyConv.startDate / 1000000) + 20,
+    who: "test",
+    displayMessage: "Message is deleted",
+    remoteId,
+    deleted: true,
+    incoming: true,
+  });
+  ok(gLogger.gPendingCleanup.has(logWriter.currentPath));
+  equal(
+    Services.prefs.getStringPref("chat.logging.cleanup.pending"),
+    JSON.stringify([logWriter.currentPath])
+  );
+
+  await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
+  await (gLogger.gFilePromises.get(logWriter.currentPath) || Promise.resolve());
+
+  ok(!gLogger.gPendingCleanup.has(logWriter.currentPath));
+  equal(Services.prefs.getStringPref("chat.logging.cleanup.pending"), "[]");
+
+  let logs = await logger.getLogsForConversation(dummyConv);
+  equal(logs.length, 1, "Only a single log file for this conversation");
+  let conv = await logs[0].getConversation();
+  let messages = conv.getMessages();
+  equal(messages.length, 1, "Only the log header is left");
+  equal(messages[0].who, "sessionstart");
+
+  // Check that the message contents were removed from the file on disk. The
+  // log parser above removes it either way.
+  let logOnDisk = await IOUtils.readUTF8(logWriter.currentPath);
+  let rawMessages = logOnDisk
+    .split("\n")
+    .filter(Boolean)
+    .map(line => JSON.parse(line));
+  equal(rawMessages.length, 3);
+  equal(rawMessages[1].text, "", "Deleted message content was removed");
+  equal(
+    rawMessages[2].text,
+    "Message is deleted",
+    "Deletion content is unaffected"
+  );
+
+  // Clean up.
+  await IOUtils.remove(logDirPath, { recursive: true });
+
+  gLogger.closeLogWriter(dummyConv);
+});
+
+add_task(async function test_displayOldActionLog() {
+  // Start clean, remove the log directory.
+  await IOUtils.remove(logDirPath, { recursive: true });
+  let logger = new gLogger.Logger();
+  let logFilePath = gLogger.getLogFilePathForConversation(dummyConv);
+  await IOUtils.writeUTF8(
+    logFilePath,
+    [
+      {
+        date: "2022-03-04T12:00:03.508Z",
+        name: "test",
+        title: "test",
+        account: "@test:example.com",
+        protocol: "matrix",
+        isChat: false,
+        normalizedName: "!foobar:example.com",
+      },
+      {
+        date: "2022-03-04T11:59:56.000Z",
+        who: "@other:example.com",
+        text: "/me an old action",
+        flags: ["incoming"],
+      },
+      {
+        date: "2022-03-04T11:59:56.000Z",
+        who: "@other:example.com",
+        text: "a new action",
+        flags: ["incoming", "action"],
+      },
+    ]
+      .map(message => JSON.stringify(message))
+      .join("\n"),
+    {
+      mode: "create",
+    }
+  );
+  let logs = await logger.getLogsForConversation(dummyConv);
+  equal(logs.length, 1);
+  for (let log of logs) {
+    const conv = await log.getConversation();
+    const messages = conv.getMessages();
+    equal(messages.length, 3);
+    for (let message of messages) {
+      if (message.who !== "sessionstart") {
+        ok(message.action, "Message is marked as action");
+        ok(
+          !message.displayMessage.startsWith("/me"),
+          "Message has no leading /me"
+        );
+      }
+    }
+  }
+
+  // Clean up.
+  await IOUtils.remove(logDirPath, { recursive: true });
 });
 
 function run_test() {

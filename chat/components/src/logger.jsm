@@ -26,6 +26,22 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
  * and vice versa (opening a file multiple times concurrently may fail on Windows).
  */
 var gFilePromises = new Map();
+/**
+ * Set containing log file paths that are scheduled to have deleted messages
+ * removed.
+ *
+ * @type {Set<string>}
+ */
+var gPendingCleanup = new Set();
+
+const kPendingLogCleanupPref = "chat.logging.cleanup.pending";
+
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "SHOULD_CLEANUP_LOGS",
+  "chat.logging.cleanup",
+  true
+);
 
 // Uses above map to queue operations on a file.
 function queueFileOperation(aPath, aOperation) {
@@ -137,13 +153,134 @@ function getNewLogFileName(aStartTime) {
   }
   let minutes = offset % 60;
   offset = (offset - minutes) / 60;
-  function twoDigits(aNumber) {
-    if (aNumber == 0) {
+  function twoDigits(number) {
+    if (number == 0) {
       return "00";
     }
-    return aNumber < 10 ? "0" + aNumber : aNumber;
+    return number < 10 ? "0" + number : number;
   }
   return dateTime + twoDigits(offset) + twoDigits(minutes) + ".json";
+}
+
+/**
+ * Schedules a cleanup of the logfiles contents, removing the message texts
+ * from messages that were marked as deleted. This can be disabled by a pref.
+ *
+ * @param {string} path - Path to the logfile to clean.
+ */
+function queueLogFileCleanup(path) {
+  if (gPendingCleanup.has(path) || !SHOULD_CLEANUP_LOGS) {
+    return;
+  }
+  let idleCallback = () => {
+    if (gFilePromises.has(path)) {
+      gFilePromises.get(path).finally(() => {
+        ChromeUtils.idleDispatch(idleCallback);
+      });
+      return;
+    }
+    // Queue a new file operation to ensure nothing gets appended between
+    // reading the log and writing it back. This means we might run this when
+    // the application isn't idle, but due to the async operations that is
+    // very hard to guarantee either way.
+    queueFileOperation(path, async () => {
+      try {
+        let logContents = await IOUtils.readUTF8(path);
+        let logLines = logContents.split("\n").map(line => {
+          try {
+            return JSON.parse(line);
+          } catch {
+            return line;
+          }
+        });
+        let lastDeletionIndex = 0;
+        let deletedMessages = new Set(
+          logLines
+            .filter((message, index) => {
+              if (message.flags?.includes("deleted") && message.remoteId) {
+                lastDeletionIndex = index;
+                return true;
+              }
+              return false;
+            })
+            .map(message => message.remoteId)
+        );
+        for (let [index, message] of logLines.entries()) {
+          // If we are past the last deletion in the logs, there is no more
+          // work to be done.
+          if (index >= lastDeletionIndex) {
+            break;
+          }
+          if (
+            deletedMessages.has(message.remoteId) &&
+            !message.flags?.includes("deleted")
+          ) {
+            // Void the text of deleted messages but keep the message
+            // metadata for journaling.
+            message.text = "";
+          }
+        }
+        let cleanedLog = logLines
+          .map(line => {
+            if (typeof line === "string") {
+              return line;
+            }
+            return JSON.stringify(line);
+          })
+          .join("\n");
+        await IOUtils.writeUTF8(path, cleanedLog);
+      } catch (error) {
+        Cu.reportError(
+          "Error cleaning up log file contents for " + path + ": " + error
+        );
+      } finally {
+        gPendingCleanup.delete(path);
+        Services.prefs.setStringPref(
+          kPendingLogCleanupPref,
+          JSON.stringify(Array.from(gPendingCleanup.values()))
+        );
+      }
+    });
+  };
+  ChromeUtils.idleDispatch(idleCallback);
+  gPendingCleanup.add(path);
+  Services.prefs.setStringPref(
+    kPendingLogCleanupPref,
+    JSON.stringify(Array.from(gPendingCleanup.values()))
+  );
+}
+
+/**
+ * Schedule pending log cleanups that weren't completed last time the
+ * application was running.
+ */
+function initLogCleanup() {
+  if (!SHOULD_CLEANUP_LOGS) {
+    return;
+  }
+  // Capture the value of the pending cleanups before it gets overridden by
+  // newly scheduled cleanups.
+  let pendingCleanupPathValue = Services.prefs.getStringPref(
+    kPendingLogCleanupPref,
+    "[]"
+  );
+  // We are in no hurry to queue these cleanups, worst case we try to schedule
+  // a cleanup for a file that is already scheduled.
+  ChromeUtils.idleDispatch(() => {
+    let pendingCleanupPaths = JSON.parse(pendingCleanupPathValue) ?? [];
+    if (!Array.isArray(pendingCleanupPaths)) {
+      Cu.reportError(
+        "Pending chat log cleanup pref is not a valid array. " +
+          "Assuming all chat logs are clean."
+      );
+      return;
+    }
+    for (const path of pendingCleanupPaths) {
+      if (typeof path === "string") {
+        queueLogFileCleanup(path);
+      }
+    }
+  });
 }
 
 // One of these is maintained for every conversation being logged. It initializes
@@ -206,7 +343,7 @@ LogWriter.prototype = {
   kDayOverlapLimit: 3 * 60 * 60 * 1000,
   // - After every 1000 messages.
   kMessageCountLimit: 1000,
-  logMessage(aMessage) {
+  async logMessage(aMessage) {
     // aMessage.time is in seconds, we need it in milliseconds.
     let messageTime = aMessage.time * 1000;
     let messageMidnight = new Date(messageTime).setHours(0, 0, 0, 0);
@@ -260,11 +397,15 @@ LogWriter.prototype = {
     }
     let lineToWrite = JSON.stringify(msg) + "\n";
 
-    this._initialized.then(() => {
-      appendToFile(this.currentPath, lineToWrite).catch(aError =>
-        Cu.reportError("Failed to log message:\n" + aError)
-      );
-    });
+    await this._initialized;
+    try {
+      await appendToFile(this.currentPath, lineToWrite);
+    } catch (error) {
+      Cu.reportError("Failed to log message:\n" + error);
+    }
+    if (aMessage.deleted) {
+      queueLogFileCleanup(this.currentPath);
+    }
   },
 };
 
@@ -369,20 +510,9 @@ LogConversation.prototype = {
     };
   },
   getMessages() {
-    let seenMessages = new Set();
     // Start with the newest message to filter out older versions of the same
     // message. Also filter out deleted messages.
-    return this._messages
-      .reverse()
-      .filter(message => {
-        if (message.remoteId && seenMessages.has(message.remoteId)) {
-          return false;
-        }
-        seenMessages.add(message.remoteId);
-        return !message.flags.includes("deleted");
-      })
-      .reverse()
-      .map(m => new LogMessage(m, this));
+    return this._messages.map(m => new LogMessage(m, this));
   },
 };
 
@@ -451,6 +581,7 @@ Log.prototype = {
     let properties = {};
     let firstFile = true;
     let decoder = new TextDecoder();
+    let lastRemoteIdIndex = {};
     for (let path of this._entryPaths) {
       let lines;
       try {
@@ -508,12 +639,16 @@ Log.prototype = {
           // Backwards compatibility for old action messages.
           if (
             !message.flags.includes("action") &&
-            message.text.startsWith("/me ")
+            message.text?.startsWith("/me ")
           ) {
             message.flags.push("action");
+            message.text = message.text.slice(4);
           }
 
-          messages.push(JSON.parse(nextLine));
+          if (message.remoteId) {
+            lastRemoteIdIndex[message.remoteId] = messages.length;
+          }
+          messages.push(message);
         } catch (e) {
           // If a message line contains junk, just ignore the error and
           // continue reading the conversation.
@@ -525,6 +660,18 @@ Log.prototype = {
       // All selected log files are invalid.
       return null;
     }
+
+    // Ignore older versions of edited messages and deleted messages.
+    messages = messages.filter((message, index) => {
+      if (
+        message.remoteId &&
+        lastRemoteIdIndex.hasOwnProperty(message.remoteId) &&
+        index < lastRemoteIdIndex[message.remoteId]
+      ) {
+        return false;
+      }
+      return !message.flags.includes("deleted");
+    });
 
     return new LogConversation(messages, properties);
   },
@@ -671,13 +818,13 @@ Logger.prototype = {
       logsGroupedByDay(entries)
     );
   },
-  async getSimilarLogs(aLog) {
+  async getSimilarLogs(log) {
     let entries;
     try {
-      entries = await IOUtils.getChildren(PathUtils.parent(aLog.path));
+      entries = await IOUtils.getChildren(PathUtils.parent(log.path));
     } catch (aError) {
       Cu.reportError(
-        'Error getting similar logs for "' + aLog.path + '":\n' + aError
+        'Error getting similar logs for "' + log.path + '":\n' + aError
       );
     }
     // If there was an error, this will return an empty array.
@@ -800,6 +947,7 @@ Logger.prototype = {
           },
           this
         );
+        initLogCleanup();
         break;
       case "new-text":
         let excludeBecauseEncrypted = false;
