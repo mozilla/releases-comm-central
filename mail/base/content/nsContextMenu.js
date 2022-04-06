@@ -243,7 +243,6 @@ class nsContextMenu {
     this.onAudio = context.onAudio;
     this.onCanvas = context.onCanvas;
     this.onCompletedImage = context.onCompletedImage;
-    this.onCTPPlugin = context.onCTPPlugin;
     this.onDRMMedia = context.onDRMMedia;
     this.onPiPVideo = context.onPiPVideo;
     this.onEditable = context.onEditable;

@@ -113,43 +113,6 @@ Sanitizer.prototype = {
           // Remove everything
           Services.cookies.removeAll();
         }
-
-        // Clear plugin data.
-        const phInterface = Ci.nsIPluginHost;
-        const FLAG_CLEAR_ALL = phInterface.FLAG_CLEAR_ALL;
-        let ph = Cc["@mozilla.org/plugin/host;1"].getService(phInterface);
-
-        // Determine age range in seconds. (-1 means clear all.) We don't know
-        // that this.range[1] is actually now, so we compute age range based
-        // on the lower bound. If this.range results in a negative age, do
-        // nothing.
-        let age = this.range ? Date.now() / 1000 - this.range[0] / 1000000 : -1;
-        if (!this.range || age >= 0) {
-          let tags = ph.getPluginTags();
-          for (let i = 0; i < tags.length; i++) {
-            try {
-              ph.clearSiteData(tags[i], null, FLAG_CLEAR_ALL, age);
-            } catch (e) {
-              // If the plugin doesn't support clearing by age, clear everything.
-              if (e.result == Cr.NS_ERROR_PLUGIN_TIME_RANGE_NOT_SUPPORTED) {
-                try {
-                  ph.clearSiteData(tags[i], null, FLAG_CLEAR_ALL, -1);
-                } catch (e) {
-                  // Ignore errors from the plugin
-                }
-              }
-            }
-          }
-        }
-
-        // clear any network geolocation provider sessions
-        try {
-          for (let prefName of Services.prefs.getChildList(
-            "geo.wifi.access_token."
-          )) {
-            Services.prefs.clearUserPref(prefName);
-          }
-        } catch (e) {}
       },
 
       get canClear() {

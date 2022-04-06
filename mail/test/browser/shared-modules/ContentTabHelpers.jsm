@@ -20,7 +20,6 @@ const EXPORTED_SYMBOLS = [
   "assert_content_tab_text_absent",
   "NotificationWatcher",
   "get_notification_bar_for_tab",
-  "get_test_plugin",
   "updateBlocklist",
   "setAndUpdateBlocklist",
   "resetBlocklist",
@@ -401,23 +400,6 @@ function get_notification_bar_for_tab(aTab) {
   }
 
   return notificationBoxEls;
-}
-
-/**
- * Returns the nsIPluginTag for the test plug-in, if it is available.
- * Returns null otherwise.
- */
-function get_test_plugin() {
-  let ph = Cc["@mozilla.org/plugin/host;1"].getService(Ci.nsIPluginHost);
-  var tags = ph.getPluginTags();
-
-  // Find the test plugin
-  for (var i = 0; i < tags.length; i++) {
-    if (tags[i].name == "Test Plug-in") {
-      return tags[i];
-    }
-  }
-  return null;
 }
 
 function updateBlocklist(aController, aCallback) {
