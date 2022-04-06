@@ -634,7 +634,9 @@ var gKeyAssistant = {
     if (!fingerprint) {
       throw new Error(`Key not found for id=${selectedKey}`);
     }
-    await PgpSqliteDb2.updateAcceptance(fingerprint, [recipient], "unverified");
+
+    await PgpSqliteDb2.addAcceptedEmail(fingerprint, recipient);
+
     // Trigger the UI refresh of the compose window.
     await checkRecipientKeys();
 

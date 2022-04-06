@@ -62,6 +62,7 @@ var PgpSqliteDb2 = {
       if (conn) {
         await conn.close();
       }
+      throw ex;
     }
   },
 
@@ -69,7 +70,7 @@ var PgpSqliteDb2 = {
   accCacheValue: "",
   accCacheEmails: null,
 
-  async getFingerprintAcceptance(conn, fingerprint, rv) {
+  async getFingerprintAcceptance(conn, fingerprint) {
     // 40 is for modern fingerprints, 32 for older fingerprints.
     if (fingerprint.length != 40 && fingerprint.length != 32) {
       throw new Error(
@@ -79,11 +80,11 @@ var PgpSqliteDb2 = {
 
     fingerprint = fingerprint.toLowerCase();
     if (fingerprint == this.accCacheFingerprint) {
-      rv.fingerprintAcceptance = this.accCacheValue;
-      return;
+      return this.accCacheValue;
     }
 
     let myConn = false;
+    let rv = "";
 
     try {
       if (!conn) {
@@ -91,15 +92,13 @@ var PgpSqliteDb2 = {
         conn = await this.openDatabase();
       }
 
-      let qObj = { fpr: fingerprint };
       await conn
-        .execute(
-          "select decision from acceptance_decision where fpr = :fpr",
-          qObj
-        )
+        .execute("select decision from acceptance_decision where fpr = :fpr", {
+          fpr: fingerprint,
+        })
         .then(result => {
           if (result.length) {
-            rv.fingerprintAcceptance = result[0].getResultByName("decision");
+            rv = result[0].getResultByName("decision");
           }
         });
     } catch (ex) {
@@ -109,6 +108,7 @@ var PgpSqliteDb2 = {
     if (myConn && conn) {
       await conn.close();
     }
+    return rv;
   },
 
   async hasAnyPositivelyAcceptedKeyForEmail(email) {
@@ -132,10 +132,10 @@ var PgpSqliteDb2 = {
       }
       await conn.close();
     } catch (ex) {
-      console.debug(ex);
       if (conn) {
         await conn.close();
       }
+      throw ex;
     }
 
     if (!count) {
@@ -168,17 +168,19 @@ var PgpSqliteDb2 = {
     try {
       conn = await this.openDatabase();
 
-      await this.getFingerprintAcceptance(conn, fingerprint, rv);
+      rv.fingerprintAcceptance = await this.getFingerprintAcceptance(
+        conn,
+        fingerprint
+      );
 
       if (rv.fingerprintAcceptance) {
-        let qObj = {
-          fpr: fingerprint,
-          email,
-        };
         await conn
           .execute(
             "select count(*) from acceptance_email where fpr = :fpr and email = :email",
-            qObj
+            {
+              fpr: fingerprint,
+              email,
+            }
           )
           .then(result => {
             if (result.length) {
@@ -189,10 +191,10 @@ var PgpSqliteDb2 = {
       }
       await conn.close();
     } catch (ex) {
-      console.debug(ex);
       if (conn) {
         await conn.close();
       }
+      throw ex;
     }
   },
 
@@ -219,10 +221,103 @@ var PgpSqliteDb2 = {
       await conn.execute("commit transaction");
       await conn.close();
     } catch (ex) {
-      console.debug(ex);
       if (conn) {
         await conn.close();
       }
+      throw ex;
+    }
+  },
+
+  /**
+   * Convenience function that will add one accepted email address,
+   * either to an already accepted key, or as unverified to an undecided
+   * key. It is an error to call this API for a rejected key, or for
+   * an already accepted email address.
+   */
+  async addAcceptedEmail(fingerprint, email) {
+    fingerprint = fingerprint.toLowerCase();
+    email = email.toLowerCase();
+    let conn;
+    try {
+      conn = await this.openDatabase();
+
+      let fingerprintAcceptance = await this.getFingerprintAcceptance(
+        conn,
+        fingerprint
+      );
+
+      let fprAlreadyAccepted = false;
+
+      switch (fingerprintAcceptance) {
+        case "undecided":
+        case "":
+        case undefined:
+          break;
+
+        case "unverified":
+        case "verified":
+          fprAlreadyAccepted = true;
+          break;
+
+        default:
+          throw new Error(
+            "invalid use of addAcceptedEmail() with existing acceptance " +
+              fingerprintAcceptance
+          );
+      }
+
+      this.accCacheFingerprint = "";
+      this.accCacheValue = "";
+      this.accCacheEmails = null;
+
+      if (!fprAlreadyAccepted) {
+        await conn.execute("begin transaction");
+        // start fresh, clean up old potential email decisions
+        this.internalDeleteAcceptanceNoTransaction(conn, fingerprint);
+
+        await conn.execute(
+          "insert into acceptance_decision values (:fpr, :decision)",
+          {
+            fpr: fingerprint,
+            decision: "unverified",
+          }
+        );
+      } else {
+        await conn
+          .execute(
+            "select count(*) from acceptance_email where fpr = :fpr and email = :email",
+            {
+              fpr: fingerprint,
+              email,
+            }
+          )
+          .then(result => {
+            if (result.length) {
+              let count = result[0].getResultByName("count(*)");
+              if (count > 0) {
+                console.debug(
+                  "unnecessary call to addAcceptedEmail, this shouldn't happen"
+                );
+                return;
+              }
+            }
+          });
+
+        await conn.execute("begin transaction");
+      }
+
+      await conn.execute("insert into acceptance_email values (:fpr, :email)", {
+        fpr: fingerprint,
+        email,
+      });
+
+      await conn.execute("commit transaction");
+      await conn.close();
+    } catch (ex) {
+      if (conn) {
+        await conn.close();
+      }
+      throw ex;
     }
   },
 
@@ -266,24 +361,23 @@ var PgpSqliteDb2 = {
 
         /* A key might contain multiple user IDs with the same email
          * address. We add each email only once. */
-        let insertObj = {
-          fpr: fingerprint,
-        };
         for (let email of uniqueEmails) {
-          insertObj.email = email;
           await conn.execute(
             "insert into acceptance_email values (:fpr, :email)",
-            insertObj
+            {
+              fpr: fingerprint,
+              email,
+            }
           );
         }
       }
       await conn.execute("commit transaction");
       await conn.close();
     } catch (ex) {
-      console.debug(ex);
       if (conn) {
         await conn.close();
       }
+      throw ex;
     }
   },
 
@@ -296,9 +390,8 @@ var PgpSqliteDb2 = {
   },
 
   async isAcceptedAsPersonalKey(fingerprint) {
-    let result = { fingerprintAcceptance: "" };
-    await this.getFingerprintAcceptance(null, fingerprint, result);
-    return result.fingerprintAcceptance === "personal";
+    let result = await this.getFingerprintAcceptance(null, fingerprint);
+    return result === "personal";
   },
 };
 
@@ -336,6 +429,7 @@ var EnigmailSqliteDb = {
       if (conn) {
         await conn.close();
       }
+      throw ex;
     }
   },
 };

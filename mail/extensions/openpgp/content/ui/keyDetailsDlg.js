@@ -248,22 +248,16 @@ async function reloadData(firstLoad) {
 
       //await RNP.calculateAcceptance(keyObj.keyId, null);
 
-      let acceptanceResult = {};
-      await PgpSqliteDb2.getFingerprintAcceptance(
+      let acceptanceResult = await PgpSqliteDb2.getFingerprintAcceptance(
         null,
-        keyObj.fpr,
-        acceptanceResult
+        keyObj.fpr
       );
 
       if (firstLoad) {
-        if (
-          "fingerprintAcceptance" in acceptanceResult &&
-          acceptanceResult.fingerprintAcceptance.length &&
-          acceptanceResult.fingerprintAcceptance != "undecided"
-        ) {
-          gOriginalAcceptance = acceptanceResult.fingerprintAcceptance;
-        } else {
+        if (!acceptanceResult) {
           gOriginalAcceptance = "undecided";
+        } else {
+          gOriginalAcceptance = acceptanceResult;
         }
         gAcceptanceRadio.value = gOriginalAcceptance;
       }

@@ -2160,18 +2160,12 @@ var RNP = {
           // currently undecided. In other words, we keep the acceptance
           // if it's rejected or verified.
 
-          let currentAcceptance = {};
-          await PgpSqliteDb2.getFingerprintAcceptance(
+          let currentAcceptance = await PgpSqliteDb2.getFingerprintAcceptance(
             null,
-            k.fpr,
-            currentAcceptance
+            k.fpr
           );
 
-          if (
-            !("fingerprintAcceptance" in currentAcceptance) ||
-            !currentAcceptance.fingerprintAcceptance ||
-            currentAcceptance.fingerprintAcceptance == "undecided"
-          ) {
+          if (!currentAcceptance || currentAcceptance == "undecided") {
             // Currently undecided, allowed to change.
             let allEmails = [];
 
