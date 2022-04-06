@@ -1196,7 +1196,7 @@ var cardsPane = {
     document.l10n.setAttributes(this.searchInput, "about-addressbook-search", {
       name: list.dirName,
     });
-    this.cardsList.view = this.cardsList.view = new ABView(
+    this.cardsList.view = new ABView(
       list,
       this.getQuery(),
       this.searchInput.value,
