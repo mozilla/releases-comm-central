@@ -34,9 +34,9 @@ class ChatActionChild extends JSWindowActorChild {
     if (node.containingShadowRoot?.isUAWidget()) {
       const host = node.containingShadowRoot.host;
       if (
-        host instanceof this.contentWindow.HTMLMediaElement ||
-        host instanceof this.contentWindow.HTMLEmbedElement ||
-        host instanceof this.contentWindow.HTMLObjectElement
+        this.contentWindow.HTMLMediaElement.isInstance(host) ||
+        this.contentWindow.HTMLEmbedElement.isInstance(host) ||
+        this.contentWindow.HTMLObjectElement.isInstance(host)
       ) {
         node = host;
       }

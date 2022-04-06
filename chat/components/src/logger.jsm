@@ -913,7 +913,7 @@ Logger.prototype = {
         }
       } catch (aError) {
         // If the callback threw, reject the promise and let the caller handle it.
-        if (!(aError instanceof DOMException)) {
+        if (!DOMException.isInstance(aError)) {
           throw aError;
         }
         Cu.reportError("Error sweeping log folder:\n" + aError);

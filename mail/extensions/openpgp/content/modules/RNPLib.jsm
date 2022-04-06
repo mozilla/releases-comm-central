@@ -218,7 +218,7 @@ function enableRNPLibJS() {
       try {
         await this.loadFile(filename, keyringFlag);
       } catch (ex) {
-        if (ex instanceof DOMException) {
+        if (DOMException.isInstance(ex)) {
           loadBackup = true;
         }
       }

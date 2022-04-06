@@ -47,7 +47,7 @@ FeedParser.prototype = {
    *                    nothing to do condition.
    */
   parseFeed(aFeed, aDOM) {
-    if (!(aDOM instanceof XMLDocument)) {
+    if (!XMLDocument.isInstance(aDOM)) {
       // No xml doc.
       aFeed.onParseError(aFeed);
       return [];

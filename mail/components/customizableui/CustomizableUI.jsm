@@ -1673,7 +1673,7 @@ var CustomizableUIInternal = {
       if (aWidget.onBuild) {
         node = aWidget.onBuild(aDocument);
       }
-      if (!node || !(node instanceof aDocument.defaultView.XULElement)) {
+      if (!node || !aDocument.defaultView.XULElement.isInstance(node)) {
         log.error(
           "Custom widget with id " +
             aWidget.id +

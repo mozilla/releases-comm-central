@@ -37,7 +37,7 @@ function hRefForClickEvent(aEvent) {
   let target = aEvent.target;
 
   if (
-    target instanceof HTMLImageElement &&
+    HTMLImageElement.isInstance(target) &&
     target.hasAttribute("overflowing")
   ) {
     // Click on zoomed image.
@@ -46,9 +46,9 @@ function hRefForClickEvent(aEvent) {
 
   let href = null;
   if (
-    target instanceof HTMLAnchorElement ||
-    target instanceof HTMLAreaElement ||
-    target instanceof HTMLLinkElement
+    HTMLAnchorElement.isInstance(target) ||
+    HTMLAreaElement.isInstance(target) ||
+    HTMLLinkElement.isInstance(target)
   ) {
     if (target.hasAttribute("href") && !target.download) {
       href = target.href;
@@ -56,7 +56,7 @@ function hRefForClickEvent(aEvent) {
   } else {
     // We may be nested inside of a link node.
     let linkNode = aEvent.target;
-    while (linkNode && !(linkNode instanceof HTMLAnchorElement)) {
+    while (linkNode && !HTMLAnchorElement.isInstance(linkNode)) {
       linkNode = linkNode.parentNode;
     }
 

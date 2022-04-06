@@ -1204,7 +1204,7 @@ class FormatHelper {
         break;
       }
     }
-    if (node instanceof Text) {
+    if (Text.isInstance(node)) {
       return { type: "text", node };
     } else if (this.isBreak(node)) {
       return { type: "break", node };
