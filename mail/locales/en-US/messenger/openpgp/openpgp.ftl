@@ -47,6 +47,9 @@ openpgp-advanced-prefs-button-label =
     .label = Advanced…
 openpgp-keygen-desc = <a data-l10n-name="openpgp-keygen-desc-link">NOTE: Key generation may take up to several minutes to complete.</a> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the ‘randomness pool’ and speed-up the process. You will be alerted when key generation is completed.
 
+openpgp-key-created-label =
+    .label = Created
+
 openpgp-key-expiry-label =
     .label = Expiry
 

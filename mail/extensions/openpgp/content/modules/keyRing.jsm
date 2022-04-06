@@ -72,7 +72,7 @@ var EnigmailKeyRing = {
    *
    * @param  win           - optional |object| holding the parent window for displaying error messages
    * @param  sortColumn    - optional |string| containing the column name for sorting. One of:
-   *                            userid, keyid, keyidshort, fpr, keytype, validity, trust, expiry
+   *                            userid, keyid, keyidshort, fpr, keytype, validity, trust, created, expiry
    * @param  sortDirection - |number| 1 = ascending / -1 = descending
    *
    * @return keyListObj    - |object| { keyList, keySortList } (see above)
@@ -1951,6 +1951,15 @@ const sortFunctions = {
     };
   },
 
+  created(keyListObj, sortDirection) {
+    return function(a, b) {
+      return keyListObj.keyList[a.keyNum].keyCreated <
+        keyListObj.keyList[b.keyNum].keyCreated
+        ? -sortDirection
+        : sortDirection;
+    };
+  },
+
   expiry(keyListObj, sortDirection) {
     return function(a, b) {
       return keyListObj.keyList[a.keyNum].expiryTime <
@@ -1970,7 +1979,7 @@ function getSortFunction(type, keyListObj, sortDirection) {
  *
  * @param win        - |object|  holding the parent window for displaying error messages
  * @param sortColumn - |string|  containing the column name for sorting. One of:
- *                               userid, keyid, keyidshort, fpr, keytype, validity, trust, expiry.
+ *                               userid, keyid, keyidshort, fpr, keytype, validity, trust, created, expiry.
  *                              Null will sort by userid.
  * @param sortDirection - |number| 1 = ascending / -1 = descending
  * @param onlyKeys   - |array| of Strings: if defined, only (re-)load selected key IDs

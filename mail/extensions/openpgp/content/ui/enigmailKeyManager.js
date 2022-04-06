@@ -1189,6 +1189,8 @@ function getSortColumn() {
       return "userid";
     case "keyCol":
       return "keyid";
+    case "createdCol":
+      return "created";
     case "expCol":
       return "expiry";
     case "fprCol":
@@ -1330,6 +1332,8 @@ var gKeyListView = {
             return keyObj.userId;
           case "keyCol":
             return `0x${keyObj.keyId}`;
+          case "createdCol":
+            return keyObj.created;
           case "expCol":
             return keyObj.effectiveExpiry;
           case "fprCol":
