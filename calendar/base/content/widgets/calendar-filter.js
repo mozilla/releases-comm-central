@@ -493,7 +493,16 @@ calFilter.prototype = {
    */
   itemTypeFilter(aItem) {
     if (aItem.isTodo() && this.mItemType & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) {
-      return true;
+      // If `mItemType` doesn't specify a completion status, the item passes.
+      if ((this.mItemType & Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL) == 0) {
+        return true;
+      }
+
+      // Otherwise, check it matches the completion status(es).
+      if (aItem.isCompleted) {
+        return (this.mItemType & Ci.calICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
+      }
+      return (this.mItemType & Ci.calICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
     }
     if (aItem.isEvent() && this.mItemType & Ci.calICalendar.ITEM_FILTER_TYPE_EVENT) {
       return true;

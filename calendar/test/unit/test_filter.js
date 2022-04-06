@@ -184,6 +184,90 @@ add_task(async function testItemTypeFilter() {
   Assert.equal(items.length, 0, "getItems returns expected number of items");
 });
 
+add_task(async function testItemTypeFilterTaskCompletion() {
+  let calendar = CalendarTestUtils.createCalendar("test");
+
+  let completeTask = new CalTodo();
+  completeTask.id = cal.getUUID();
+  completeTask.title = "Complete Task";
+  completeTask.entryDate = cal.createDateTime("20210806T090000Z");
+  completeTask.dueDate = cal.createDateTime("20210810T140000Z");
+  completeTask.percentComplete = 100;
+  await calendar.addItem(completeTask);
+
+  let incompleteTask = new CalTodo();
+  incompleteTask.id = cal.getUUID();
+  incompleteTask.title = "Incomplete Task";
+  incompleteTask.entryDate = cal.createDateTime("20210806T090000Z");
+  incompleteTask.dueDate = cal.createDateTime("20210810T140000Z");
+  completeTask.completedDate = null;
+  await calendar.addItem(incompleteTask);
+
+  let filter = new calFilter();
+  filter.startDate = cal.createDateTime("20210801");
+  filter.endDate = cal.createDateTime("20210831");
+
+  let checks = [
+    { flags: Ci.calICalendar.ITEM_FILTER_TYPE_TODO, expectComplete: true, expectIncomplete: true },
+    {
+      flags: Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_YES,
+      expectComplete: true,
+      expectIncomplete: false,
+    },
+    {
+      flags: Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_NO,
+      expectComplete: false,
+      expectIncomplete: true,
+    },
+    {
+      flags: Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL,
+      expectComplete: true,
+      expectIncomplete: true,
+    },
+  ];
+
+  for (let { flags, expectComplete, expectIncomplete } of checks) {
+    info(`testing with flags = ${flags}`);
+    filter.itemType = flags;
+
+    Assert.equal(
+      filter.itemTypeFilter(completeTask),
+      expectComplete,
+      "complete task matches item type filter"
+    );
+    Assert.equal(
+      filter.itemTypeFilter(incompleteTask),
+      expectIncomplete,
+      "incomplete task matches item type filter"
+    );
+
+    Assert.equal(
+      filter.isItemInFilters(completeTask),
+      expectComplete,
+      "complete task matches all filters"
+    );
+    Assert.equal(
+      filter.isItemInFilters(incompleteTask),
+      expectIncomplete,
+      "incomplete task matches all filters"
+    );
+
+    let expectedTitles = [];
+    if (expectComplete) {
+      expectedTitles.push(completeTask.title);
+    }
+    if (expectIncomplete) {
+      expectedTitles.push(incompleteTask.title);
+    }
+    let items = await promiseItems(filter, calendar);
+    Assert.deepEqual(
+      items.map(i => i.title),
+      expectedTitles,
+      "getItems returns correct items"
+    );
+  }
+});
+
 /**
  * Tests that calFilter.getItems uses the correct flags when calling
  * calICalendar.getItems. This is important because calFilter is used both by

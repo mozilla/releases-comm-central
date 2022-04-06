@@ -663,6 +663,56 @@ add_task(async function testMoveOccurrenceWithinRange() {
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
 });
 
+add_task(async function testChangeTaskCompletion() {
+  let incompleteTask = new CalTodo();
+  incompleteTask.id = cal.getUUID();
+  incompleteTask.title = "incomplete task";
+  incompleteTask.startDate = cal.createDateTime("20210805T170000");
+  incompleteTask.endDate = cal.createDateTime("20210805T180000");
+
+  // Set the widget to only show incomplete tasks.
+
+  testWidget.itemType =
+    Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_NO;
+
+  // Add an incomplete task to the calendar.
+
+  testWidget.clearItems();
+  incompleteTask = await calendar.addItem(incompleteTask);
+
+  Assert.equal(testWidget.addedItems.length, 1, "incomplete item was added");
+  Assert.equal(testWidget.addedItems[0].title, "incomplete task");
+
+  // Complete the task. It should be removed from the widget.
+
+  let completeTask = incompleteTask.clone();
+  completeTask.title = "complete task";
+  completeTask.percentComplete = 100;
+
+  testWidget.clearItems();
+  completeTask = await calendar.modifyItem(completeTask, incompleteTask);
+
+  Assert.equal(testWidget.removedItems.length, 1, "complete item was removed");
+  Assert.equal(testWidget.removedItems[0].title, "incomplete task");
+
+  // Mark the task as incomplete again. It should be added back to the widget.
+
+  let incompleteAgainItem = completeTask.clone();
+  incompleteAgainItem.title = "incomplete again task";
+  incompleteAgainItem.percentComplete = 50;
+
+  testWidget.clearItems();
+  await calendar.modifyItem(incompleteAgainItem, completeTask);
+
+  Assert.equal(testWidget.addedItems.length, 1, "incomplete item was added");
+  Assert.equal(testWidget.addedItems[0].title, "incomplete again task");
+
+  // Clean up.
+
+  await calendar.deleteItem(incompleteAgainItem);
+  testWidget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+});
+
 add_task(async function testDisableEnableCalendar() {
   addedTestItems.during = await calendar.addItem(testItems.during);
 
@@ -734,7 +784,7 @@ add_task(async function testDisableEnableCalendar() {
   await calendar.deleteItem(addedTestItems.during);
 });
 
-add_task(async function testChangesWhileHidden() {
+add_task(async function testChangeWhileHidden() {
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "change me";
