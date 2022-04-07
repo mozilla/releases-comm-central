@@ -377,7 +377,9 @@ class SearchRequest extends LDAPMessage {
             }
 
             if (parts[0]) {
-              this._contextStringBlock(this.MATCHING_TYPE, parts[0]);
+              value.push(
+                this._contextStringBlock(this.MATCHING_TYPE, parts[0])
+              );
             }
             value.push(
               this._contextStringBlock(this.MATCHING_VALUE, fieldValue)

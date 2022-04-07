@@ -38,6 +38,49 @@ add_task(function test_SearchRequest_filter() {
 });
 
 /**
+ * Test extensibleMatch filter is encoded correctly.
+ */
+add_task(function test_extensibleMatchFilter() {
+  // Test data is from https://ldap.com/ldapv3-wire-protocol-reference-search/.
+  // filter string, BER payload, description
+  let filterBER = [
+    [
+      "(uid:dn:caseIgnoreMatch:=jdoe)",
+      "a91f810f6361736549676e6f72654d61746368820375696483046a646f658401ff",
+      "<type>:dn:<rule>:=<value>",
+    ],
+    ["(uid:=jdoe)", "a90b820375696483046a646f65", "<type>:=<value>"],
+    [
+      "(:caseIgnoreMatch:=foo)",
+      "a916810f6361736549676e6f72654d617463688303666f6f",
+      ":<rule>:=<value>",
+    ],
+    // This one is not directly from ldap.com, but assembled from the above cases.
+    [
+      "(uid:caseIgnoreMatch:=jdoe)",
+      "a91c810f6361736549676e6f72654d61746368820375696483046a646f65",
+      "<type>:<rule>:=<value>",
+    ],
+  ];
+  for (let [filter, ber, description] of filterBER) {
+    let req = new SearchRequest(
+      "ou=people,dc=planetexpress,dc=com",
+      Ci.nsILDAPURL.SCOPE_SUBTREE,
+      filter,
+      "",
+      0,
+      0
+    );
+    let filterBlock = req.protocolOp.valueBlock.value[6];
+    Assert.equal(
+      CommonUtils.bufferToHex(new Uint8Array(filterBlock.toBER())),
+      ber,
+      description
+    );
+  }
+});
+
+/**
  * Test parsing to SearchResultReference works.
  */
 add_task(function test_SearchResultReference() {
