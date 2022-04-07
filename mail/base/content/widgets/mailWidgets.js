@@ -1909,7 +1909,7 @@
           return;
         }
 
-        this.removeAttribute("selected");
+        this.closest("mail-recipients-area").deselectAllPills();
       });
 
       this.emailInput.addEventListener("keypress", event => {
