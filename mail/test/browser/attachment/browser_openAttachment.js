@@ -35,7 +35,7 @@ let folder;
 let mockedHandlerApp;
 let mockedHandlers = new Set();
 
-function pathToNsFile(path) {
+function getNsIFileFromPath(path) {
   let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   file.initWithPath(path);
   return file;
@@ -113,7 +113,7 @@ function createMockedHandler(type, preferredAction, alwaysAskBeforeHandling) {
 }
 
 let messageIndex = -1;
-async function createAndLoadMessage(type, filename) {
+async function createAndLoadMessage(type, { filename } = {}) {
   messageIndex++;
 
   if (!filename) {
@@ -139,7 +139,7 @@ async function createAndLoadMessage(type, filename) {
   select_click_row(messageIndex);
 }
 
-async function clickWithDialog(
+async function singleClickAttachmentAndWaitForDialog(
   { mode = "save", rememberExpected = true, remember } = {},
   button = "cancel"
 ) {
@@ -179,6 +179,7 @@ async function clickWithDialog(
       },
     }
   );
+
   info(document.getElementById("attachmentName").value);
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("attachmentName"),
@@ -188,7 +189,7 @@ async function clickWithDialog(
   await dialogPromise;
 }
 
-async function clickWithoutDialog() {
+async function singleClickAttachment() {
   info(document.getElementById("attachmentName").value);
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("attachmentName"),
@@ -197,8 +198,10 @@ async function clickWithoutDialog() {
   );
 }
 
-async function checkFileSaved(parentPath = savePath, leafName) {
-  let expectedFile = pathToNsFile(parentPath);
+// Other test boilerplate should initialize a message with attachment; here we
+// verify that it was created and return an nsIFile handle to it.
+async function verifyAndFetchSavedAttachment(parentPath = savePath, leafName) {
+  let expectedFile = getNsIFileFromPath(parentPath);
   if (leafName) {
     expectedFile.append(leafName);
   } else {
@@ -232,14 +235,11 @@ function checkHandler(type, preferredAction, alwaysAskBeforeHandling) {
 }
 
 function promiseFileOpened() {
-  let __openTemporaryFile = window.AttachmentInfo.prototype._openTemporaryFile;
+  let __openFile = window.AttachmentInfo.prototype._openFile;
   return new Promise(resolve => {
-    window.AttachmentInfo.prototype._openTemporaryFile = function(
-      mimeInfo,
-      tempFile
-    ) {
-      window.AttachmentInfo.prototype._openTemporaryFile = __openTemporaryFile;
-      resolve({ mimeInfo, tempFile });
+    window.AttachmentInfo.prototype._openFile = function(mimeInfo, file) {
+      window.AttachmentInfo.prototype._openFile = __openFile;
+      resolve({ mimeInfo, file });
     };
   });
 }
@@ -263,8 +263,11 @@ add_task(async function sanityCheck() {
  */
 add_task(async function noHandler() {
   await createAndLoadMessage("test/foo");
-  await clickWithDialog({ rememberExpected: false, remember: true }, "accept");
-  let file = await checkFileSaved();
+  await singleClickAttachmentAndWaitForDialog(
+    { rememberExpected: false, remember: true },
+    "accept"
+  );
+  let file = await verifyAndFetchSavedAttachment();
   file.remove(false);
   checkHandler("test/foo", Ci.nsIHandlerInfo.saveToDisk, false);
 });
@@ -275,8 +278,11 @@ add_task(async function noHandler() {
  */
 add_task(async function noHandlerNoSave() {
   await createAndLoadMessage("test/bar");
-  await clickWithDialog({ rememberExpected: false, remember: false }, "accept");
-  let file = await checkFileSaved();
+  await singleClickAttachmentAndWaitForDialog(
+    { rememberExpected: false, remember: false },
+    "accept"
+  );
+  let file = await verifyAndFetchSavedAttachment();
   file.remove(false);
   checkHandler("test/bar", Ci.nsIHandlerInfo.saveToDisk, true);
 });
@@ -287,8 +293,11 @@ add_task(async function noHandlerNoSave() {
  */
 add_task(async function applicationOctetStream() {
   await createAndLoadMessage("application/octet-stream");
-  await clickWithDialog({ rememberExpected: false }, "accept");
-  let file = await checkFileSaved();
+  await singleClickAttachmentAndWaitForDialog(
+    { rememberExpected: false },
+    "accept"
+  );
+  let file = await verifyAndFetchSavedAttachment();
   file.remove(false);
 });
 
@@ -306,8 +315,11 @@ add_task(async function saveToDiskAlwaysAsk() {
     true
   );
   await createAndLoadMessage("test/saveToDisk-true");
-  await clickWithDialog({ rememberExpected: false }, "accept");
-  let file = await checkFileSaved();
+  await singleClickAttachmentAndWaitForDialog(
+    { rememberExpected: false },
+    "accept"
+  );
+  let file = await verifyAndFetchSavedAttachment();
   file.remove(false);
   checkHandler("test/saveToDisk-true", Ci.nsIHandlerInfo.saveToDisk, true);
 });
@@ -326,7 +338,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
   );
   await createAndLoadMessage("test/saveToDisk-true");
 
-  let expectedFile = pathToNsFile(tmpD);
+  let expectedFile = getNsIFileFromPath(tmpD);
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
   MockFilePicker.showCallback = function(instance) {
     Assert.equal(instance.defaultString, expectedFile.leafName);
@@ -335,8 +347,11 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
   MockFilePicker.setFiles([expectedFile]);
   MockFilePicker.returnValue = Ci.nsIFilePicker.returnOK;
 
-  await clickWithDialog({ rememberExpected: false }, "accept");
-  let file = await checkFileSaved(tmpD);
+  await singleClickAttachmentAndWaitForDialog(
+    { rememberExpected: false },
+    "accept"
+  );
+  let file = await verifyAndFetchSavedAttachment(tmpD);
   file.remove(false);
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
@@ -350,7 +365,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
 add_task(async function alwaysAskAlwaysAsk() {
   createMockedHandler("test/alwaysAsk-true", Ci.nsIHandlerInfo.alwaysAsk, true);
   await createAndLoadMessage("test/alwaysAsk-true");
-  await clickWithDialog({
+  await singleClickAttachmentAndWaitForDialog({
     mode: IMPROVEMENTS_PREF_SET ? "save" : "open",
     rememberExpected: false,
   });
@@ -366,7 +381,10 @@ add_task(async function useHelperAppAlwaysAsk() {
     true
   );
   await createAndLoadMessage("test/useHelperApp-true");
-  await clickWithDialog({ mode: "open", rememberExpected: false });
+  await singleClickAttachmentAndWaitForDialog({
+    mode: "open",
+    rememberExpected: false,
+  });
 });
 
 /**
@@ -380,7 +398,7 @@ add_task(async function useSystemDefaultAlwaysAsk() {
   );
   await createAndLoadMessage("test/useSystemDefault-true");
   // Would be mode: "open" on all platforms except our handler isn't real.
-  await clickWithDialog({
+  await singleClickAttachmentAndWaitForDialog({
     mode: AppConstants.platform == "win" ? "open" : "save",
     rememberExpected: false,
   });
@@ -395,8 +413,8 @@ add_task(async function useSystemDefaultAlwaysAsk() {
 add_task(async function saveToDisk() {
   createMockedHandler("test/saveToDisk-false", saveToDisk, false);
   await createAndLoadMessage("test/saveToDisk-false");
-  await clickWithoutDialog();
-  let file = await checkFileSaved();
+  await singleClickAttachment();
+  let file = await verifyAndFetchSavedAttachment();
   file.remove(false);
 });
 
@@ -414,7 +432,7 @@ add_task(async function saveToDiskPromptLocation() {
   );
   await createAndLoadMessage("test/saveToDisk-false");
 
-  let expectedFile = pathToNsFile(tmpD);
+  let expectedFile = getNsIFileFromPath(tmpD);
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
   MockFilePicker.showCallback = function(instance) {
     Assert.equal(instance.defaultString, expectedFile.leafName);
@@ -423,8 +441,8 @@ add_task(async function saveToDiskPromptLocation() {
   MockFilePicker.setFiles([expectedFile]);
   MockFilePicker.returnValue = Ci.nsIFilePicker.returnOK;
 
-  await clickWithoutDialog();
-  let file = await checkFileSaved(tmpD);
+  await singleClickAttachment();
+  let file = await verifyAndFetchSavedAttachment(tmpD);
   file.remove(false);
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
@@ -443,8 +461,8 @@ add_task(async function alwaysAskRemember() {
     false
   );
   await createAndLoadMessage("test/alwaysAsk-false");
-  await clickWithDialog(undefined, "accept");
-  let file = await checkFileSaved();
+  await singleClickAttachmentAndWaitForDialog(undefined, "accept");
+  let file = await verifyAndFetchSavedAttachment();
   file.remove(false);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, false);
 }).__skipMe = !IMPROVEMENTS_PREF_SET;
@@ -461,8 +479,8 @@ add_task(async function alwaysAskForget() {
     false
   );
   await createAndLoadMessage("test/alwaysAsk-false");
-  await clickWithDialog({ remember: false }, "accept");
-  let file = await checkFileSaved();
+  await singleClickAttachmentAndWaitForDialog({ remember: false }, "accept");
+  let file = await verifyAndFetchSavedAttachment();
   file.remove(false);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, true);
 }).__skipMe = !IMPROVEMENTS_PREF_SET;
@@ -479,8 +497,8 @@ add_task(async function useHelperApp() {
     false
   );
   await createAndLoadMessage("test/useHelperApp-false");
-  await clickWithoutDialog();
-  let file = await checkFileSaved(tmpD);
+  await singleClickAttachment();
+  let attachmentFile = await verifyAndFetchSavedAttachment(tmpD);
 
   let { tempFile } = await openedPromise;
   Assert.ok(tempFile.path);
@@ -490,8 +508,8 @@ add_task(async function useHelperApp() {
     let fileInfo = await IOUtils.stat(tempFile.path);
     Assert.equal(fileInfo.permissions, 0o400);
   }
-  file.permissions = 0o755;
-  file.remove(false);
+  attachmentFile.permissions = 0o755;
+  attachmentFile.remove(false);
 });
 
 /**
@@ -506,8 +524,8 @@ add_task(async function useSystemDefault() {
     false
   );
   await createAndLoadMessage("test/useSystemDefault-false");
-  await clickWithoutDialog();
-  let file = await checkFileSaved(tmpD);
+  await singleClickAttachment();
+  let attachmentFile = await verifyAndFetchSavedAttachment(tmpD);
   let { tempFile } = await openedPromise;
   Assert.ok(tempFile.path);
 
@@ -516,8 +534,8 @@ add_task(async function useSystemDefault() {
     let fileInfo = await IOUtils.stat(tempFile.path);
     Assert.equal(fileInfo.permissions, 0o400);
   }
-  file.permissions = 0o755;
-  file.remove(false);
+  attachmentFile.permissions = 0o755;
+  attachmentFile.remove(false);
 });
 
 /**
@@ -529,19 +547,19 @@ add_task(async function filenameSanitisedSave() {
 
   // Colon, slash and backslash are escaped on all platforms.
   // Backslash is double-escaped here because of the message generator.
-  await createAndLoadMessage("test/bar", "f:i\\\\le/123.bar");
-  await clickWithoutDialog();
-  let file = await checkFileSaved(undefined, "f i_le_123.bar");
+  await createAndLoadMessage("test/bar", { filename: "f:i\\\\le/123.bar" });
+  await singleClickAttachment();
+  let file = await verifyAndFetchSavedAttachment(undefined, "f i_le_123.bar");
   file.remove(false);
 
   // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
-  await createAndLoadMessage("test/bar", "f*i?|le<123>.bar");
-  await clickWithoutDialog();
+  await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
+  await singleClickAttachment();
   if (AppConstants.platform == "win") {
-    file = await checkFileSaved(undefined, "f i le(123).bar");
+    file = await verifyAndFetchSavedAttachment(undefined, "f i le(123).bar");
     file.remove(false);
   } else {
-    file = await checkFileSaved(undefined, "f*i?|le<123>.bar");
+    file = await verifyAndFetchSavedAttachment(undefined, "f*i?|le<123>.bar");
     file.remove(false);
   }
 });
@@ -557,34 +575,43 @@ add_task(async function filenameSanitisedOpen() {
 
   // Colon, slash and backslash are escaped on all platforms.
   // Backslash is double-escaped here because of the message generator.
-  await createAndLoadMessage("test/bar", "f:i\\\\le/123.bar");
-  await clickWithoutDialog();
+  await createAndLoadMessage("test/bar", { filename: "f:i\\\\le/123.bar" });
+  await singleClickAttachment();
   let { tempFile } = await openedPromise;
-  let file = await checkFileSaved(tmpD, "f i_le_123.bar");
+  let attachmentFile = await verifyAndFetchSavedAttachment(
+    tmpD,
+    "f i_le_123.bar"
+  );
   Assert.equal(tempFile.leafName, "f i_le_123.bar");
   // In the temp dir, files should be read only.
   if (AppConstants.platform != "win") {
     let fileInfo = await IOUtils.stat(tempFile.path);
     Assert.equal(fileInfo.permissions, 0o400);
   }
-  file.permissions = 0o755;
-  file.remove(false);
+  attachmentFile.permissions = 0o755;
+  attachmentFile.remove(false);
 
   openedPromise = promiseFileOpened();
 
   // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
-  await createAndLoadMessage("test/bar", "f*i?|le<123>.bar");
-  await clickWithoutDialog();
+  await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
+  await singleClickAttachment();
   ({ tempFile } = await openedPromise);
   if (AppConstants.platform == "win") {
-    file = await checkFileSaved(tmpD, "f i le(123).bar");
+    attachmentFile = await verifyAndFetchSavedAttachment(
+      tmpD,
+      "f i le(123).bar"
+    );
     Assert.equal(tempFile.leafName, "f i le(123).bar");
-    file.permissions = 0o755;
-    file.remove(false);
+    attachmentFile.permissions = 0o755;
+    attachmentFile.remove(false);
   } else {
-    let file = await checkFileSaved(tmpD, "f*i?|le<123>.bar");
+    attachmentFile = await verifyAndFetchSavedAttachment(
+      tmpD,
+      "f*i?|le<123>.bar"
+    );
     Assert.equal(tempFile.leafName, "f*i?|le<123>.bar");
-    file.permissions = 0o755;
-    file.remove(false);
+    attachmentFile.permissions = 0o755;
+    attachmentFile.remove(false);
   }
 });
