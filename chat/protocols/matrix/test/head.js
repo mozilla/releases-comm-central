@@ -100,6 +100,9 @@ function getClientRoom(roomId, clientHandler, client) {
       loadMembersIfNeeded() {
         return Promise.resolve();
       },
+      getEncryptionTargetMembers() {
+        return Promise.resolve([]);
+      },
     },
     makeProxyHandler(clientHandler)
   );
@@ -174,6 +177,12 @@ function getAccount(clientHandler) {
           displayName: userId,
           userId,
         };
+      },
+      getStoredDevicesForUser() {
+        return [];
+      },
+      isRoomEncrypted(roomId) {
+        return false;
       },
     },
     makeProxyHandler(clientHandler)

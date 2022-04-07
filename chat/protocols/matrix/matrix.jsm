@@ -1358,10 +1358,11 @@ MatrixRoom.prototype = {
   get encryptionState() {
     if (
       !this._account._client.isCryptoEnabled() ||
-      !this.room?.currentState.mayClientSendStateEvent(
-        EventType.RoomEncryption,
-        this._account._client
-      )
+      (!this._account._client.isRoomEncrypted(this._roomId) &&
+        !this.room?.currentState.mayClientSendStateEvent(
+          EventType.RoomEncryption,
+          this._account._client
+        ))
     ) {
       return Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED;
     }

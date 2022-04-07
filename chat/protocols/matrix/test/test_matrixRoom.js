@@ -690,6 +690,91 @@ add_task(async function test_addEventRedaction() {
   equal(roomStub._mostRecentEventId, undefined);
 });
 
+add_task(function test_encryptionStateUnavailable() {
+  const room = getRoom(true, "#test:example.com");
+  equal(
+    room.encryptionState,
+    Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED,
+    "Encryption state is encryption not supported with crypto disabled"
+  );
+  room.forget();
+});
+
+add_task(function test_encryptionStateCanEncrypt() {
+  const room = getRoom(true, "#test:example.com", {
+    isCryptoEnabled() {
+      return true;
+    },
+  });
+  let maySendStateEvent = false;
+  room.room.currentState = {
+    mayClientSendStateEvent(eventType, client) {
+      equal(
+        eventType,
+        EventType.RoomEncryption,
+        "mayClientSendStateEvent called for room encryption"
+      );
+      equal(
+        client,
+        room._account._client,
+        "mayClientSendStateEvent got the expected client"
+      );
+      return maySendStateEvent;
+    },
+  };
+  equal(
+    room.encryptionState,
+    Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED,
+    "Encryption state is encryption not supported when state event can't be sent"
+  );
+  maySendStateEvent = true;
+  equal(
+    room.encryptionState,
+    Ci.prplIConversation.ENCRYPTION_AVAILABLE,
+    "Encryption state is available"
+  );
+  room.forget();
+});
+
+add_task(async function test_encryptionStateOn() {
+  const room = getRoom(true, "#test:example.com", {
+    isCryptoEnabled() {
+      return true;
+    },
+    isRoomEncrypted(roomId) {
+      return true;
+    },
+  });
+  room.room.currentState = {
+    mayClientSendStateEvent(eventType, client) {
+      equal(
+        eventType,
+        EventType.RoomEncryption,
+        "mayClientSendStateEvent called for room encryption"
+      );
+      equal(
+        client,
+        room._account._client,
+        "mayClientSendStateEvent got the expected client"
+      );
+      return false;
+    },
+  };
+  equal(
+    room.encryptionState,
+    Ci.prplIConversation.ENCRYPTION_ENABLED,
+    "Encryption state is enabled"
+  );
+  room._hasUnverifiedDevices = false;
+  equal(
+    room.encryptionState,
+    Ci.prplIConversation.ENCRYPTION_TRUSTED,
+    "Encryption state is trusted"
+  );
+  await Promise.resolve();
+  room.forget();
+});
+
 function waitForNotification(target, expectedTopic) {
   let promise = new Promise(resolve => {
     let observer = {
