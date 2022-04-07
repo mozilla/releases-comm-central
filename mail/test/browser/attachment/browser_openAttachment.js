@@ -29,6 +29,7 @@ const IMPROVEMENTS_PREF_SET = Services.prefs.getBoolPref(
 
 let tmpD;
 let savePath;
+let homeDirectory;
 
 let folder;
 
@@ -53,6 +54,8 @@ add_setup(async function() {
 
   savePath = await IOUtils.createUniqueDirectory(tmpD, "saveDestination");
   Services.prefs.setStringPref("browser.download.dir", savePath);
+
+  homeDirectory = await IOUtils.createUniqueDirectory(tmpD, "homeDirectory");
 
   Services.prefs.setIntPref("browser.download.folderList", 2);
   Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
@@ -79,6 +82,7 @@ registerCleanupFunction(async function() {
   MockFilePicker.cleanup();
 
   await IOUtils.remove(savePath, { recursive: true });
+  await IOUtils.remove(homeDirectory, { recursive: true });
 
   Services.prefs.clearUserPref("browser.download.dir");
   Services.prefs.clearUserPref("browser.download.folderList");
@@ -113,11 +117,47 @@ function createMockedHandler(type, preferredAction, alwaysAskBeforeHandling) {
 }
 
 let messageIndex = -1;
-async function createAndLoadMessage(type, { filename } = {}) {
+async function createAndLoadMessage(
+  type,
+  { filename, isDetached = false } = {}
+) {
   messageIndex++;
 
   if (!filename) {
     filename = `attachment${messageIndex}.test${messageIndex}`;
+  }
+
+  let attachment = {
+    contentType: type,
+    body: `${type}Attachment`,
+    filename,
+  };
+
+  // Allow for generation of messages with detached attachments.
+  if (isDetached) {
+    // Generate a file with content to represent the attachment.
+    let attachmentFile = Cc["@mozilla.org/file/local;1"].createInstance(
+      Ci.nsIFile
+    );
+    attachmentFile.initWithPath(homeDirectory);
+    attachmentFile.append(filename);
+    if (!attachmentFile.exists()) {
+      attachmentFile.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
+      await IOUtils.writeUTF8(attachmentFile.path, "some file content");
+    }
+
+    let fileHandler = Services.io
+      .getProtocolHandler("file")
+      .QueryInterface(Ci.nsIFileProtocolHandler);
+
+    // Append relevant Thunderbird headers to indicate a detached file.
+    attachment.extraHeaders = {
+      "X-Mozilla-External-Attachment-URL": fileHandler.getURLSpecFromActualFile(
+        attachmentFile
+      ),
+      "X-Mozilla-Altered":
+        'AttachmentDetached; date="Mon Apr 04 13:59:42 2022"',
+    };
   }
 
   await add_message_to_folder(
@@ -127,13 +167,7 @@ async function createAndLoadMessage(type, { filename } = {}) {
       body: {
         body: "I'm an attached email!",
       },
-      attachments: [
-        {
-          contentType: type,
-          body: `${type}Attachment`,
-          filename,
-        },
-      ],
+      attachments: [attachment],
     })
   );
   select_click_row(messageIndex);
@@ -387,6 +421,38 @@ add_task(async function useHelperAppAlwaysAsk() {
   });
 });
 
+/*
+ * Open a detached attachment with content type set to use helper app, but
+ * always ask.
+ */
+add_task(async function detachedUseHelperAppAlwaysAsk() {
+  const mimeType = "test/useHelperApp-true";
+  let openedPromise = promiseFileOpened();
+
+  createMockedHandler(mimeType, Ci.nsIHandlerInfo.useHelperApp, true);
+
+  // Generate an email with detached attachment.
+  await createAndLoadMessage(mimeType, { isDetached: true });
+  await singleClickAttachmentAndWaitForDialog(
+    { mode: "open", rememberExpected: false },
+    "accept"
+  );
+
+  let expectedPath = PathUtils.join(
+    homeDirectory,
+    `attachment${messageIndex}.test${messageIndex}`
+  );
+
+  let { file } = await openedPromise;
+  Assert.equal(
+    file.path,
+    expectedPath,
+    "opened file should match attachment path"
+  );
+
+  file.remove(false);
+});
+
 /**
  * Open a content type set to use the system default app, but always ask.
  */
@@ -500,16 +566,44 @@ add_task(async function useHelperApp() {
   await singleClickAttachment();
   let attachmentFile = await verifyAndFetchSavedAttachment(tmpD);
 
-  let { tempFile } = await openedPromise;
-  Assert.ok(tempFile.path);
+  let { file } = await openedPromise;
+  Assert.ok(file.path);
 
   // In the temp dir, files should be read only.
   if (AppConstants.platform != "win") {
-    let fileInfo = await IOUtils.stat(tempFile.path);
+    let fileInfo = await IOUtils.stat(file.path);
     Assert.equal(fileInfo.permissions, 0o400);
   }
   attachmentFile.permissions = 0o755;
   attachmentFile.remove(false);
+});
+
+/*
+ * Open a detached attachment with content type set to use helper app.
+ */
+add_task(async function detachedUseHelperApp() {
+  const mimeType = "test/useHelperApp-false";
+  let openedPromise = promiseFileOpened();
+
+  createMockedHandler(mimeType, Ci.nsIHandlerInfo.useHelperApp, false);
+
+  // Generate an email with detached attachment.
+  await createAndLoadMessage(mimeType, { isDetached: true });
+  await singleClickAttachment();
+
+  let expectedPath = PathUtils.join(
+    homeDirectory,
+    `attachment${messageIndex}.test${messageIndex}`
+  );
+
+  let { file } = await openedPromise;
+  Assert.equal(
+    file.path,
+    expectedPath,
+    "opened file should match attachment path"
+  );
+
+  file.remove(false);
 });
 
 /**
@@ -526,16 +620,45 @@ add_task(async function useSystemDefault() {
   await createAndLoadMessage("test/useSystemDefault-false");
   await singleClickAttachment();
   let attachmentFile = await verifyAndFetchSavedAttachment(tmpD);
-  let { tempFile } = await openedPromise;
-  Assert.ok(tempFile.path);
+  let { file } = await openedPromise;
+  Assert.ok(file.path);
 
   // In the temp dir, files should be read only.
   if (AppConstants.platform != "win") {
-    let fileInfo = await IOUtils.stat(tempFile.path);
+    let fileInfo = await IOUtils.stat(file.path);
     Assert.equal(fileInfo.permissions, 0o400);
   }
   attachmentFile.permissions = 0o755;
   attachmentFile.remove(false);
+});
+
+/*
+ * Open a detached attachment with content type set to use the system default
+ * app.
+ */
+add_task(async function detachedUseSystemDefault() {
+  const mimeType = "test/useSystemDefault-false";
+  let openedPromise = promiseFileOpened();
+
+  createMockedHandler(mimeType, Ci.nsIHandlerInfo.useSystemDefault, false);
+
+  // Generate an email with detached attachment.
+  await createAndLoadMessage(mimeType, { isDetached: true });
+  await singleClickAttachment();
+
+  let expectedPath = PathUtils.join(
+    homeDirectory,
+    `attachment${messageIndex}.test${messageIndex}`
+  );
+
+  let { file } = await openedPromise;
+  Assert.equal(
+    file.path,
+    expectedPath,
+    "opened file should match attachment path"
+  );
+
+  file.remove(false);
 });
 
 /**
@@ -577,15 +700,15 @@ add_task(async function filenameSanitisedOpen() {
   // Backslash is double-escaped here because of the message generator.
   await createAndLoadMessage("test/bar", { filename: "f:i\\\\le/123.bar" });
   await singleClickAttachment();
-  let { tempFile } = await openedPromise;
+  let { file } = await openedPromise;
   let attachmentFile = await verifyAndFetchSavedAttachment(
     tmpD,
     "f i_le_123.bar"
   );
-  Assert.equal(tempFile.leafName, "f i_le_123.bar");
+  Assert.equal(file.leafName, "f i_le_123.bar");
   // In the temp dir, files should be read only.
   if (AppConstants.platform != "win") {
-    let fileInfo = await IOUtils.stat(tempFile.path);
+    let fileInfo = await IOUtils.stat(file.path);
     Assert.equal(fileInfo.permissions, 0o400);
   }
   attachmentFile.permissions = 0o755;
@@ -596,13 +719,13 @@ add_task(async function filenameSanitisedOpen() {
   // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
   await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
   await singleClickAttachment();
-  ({ tempFile } = await openedPromise);
+  ({ file } = await openedPromise);
   if (AppConstants.platform == "win") {
     attachmentFile = await verifyAndFetchSavedAttachment(
       tmpD,
       "f i le(123).bar"
     );
-    Assert.equal(tempFile.leafName, "f i le(123).bar");
+    Assert.equal(file.leafName, "f i le(123).bar");
     attachmentFile.permissions = 0o755;
     attachmentFile.remove(false);
   } else {
@@ -610,7 +733,7 @@ add_task(async function filenameSanitisedOpen() {
       tmpD,
       "f*i?|le<123>.bar"
     );
-    Assert.equal(tempFile.leafName, "f*i?|le<123>.bar");
+    Assert.equal(file.leafName, "f*i?|le<123>.bar");
     attachmentFile.permissions = 0o755;
     attachmentFile.remove(false);
   }

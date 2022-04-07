@@ -2080,7 +2080,7 @@ AttachmentInfo.prototype = {
       // @see MsgComposeCommands.js which has simililar opening functionality
       let dotPos = this.name.lastIndexOf(".");
       let extension =
-        dotPos >= 0 ? this.name.substr(dotPos + 1).toLowerCase() : "";
+        dotPos >= 0 ? this.name.substring(dotPos + 1).toLowerCase() : "";
       if (this.contentType == "application/pdf" || extension == "pdf") {
         let handlerInfo = gMIMEService.getFromTypeAndExtension(
           this.contentType,
@@ -2180,7 +2180,7 @@ AttachmentInfo.prototype = {
         await IOUtils.write(path, new Uint8Array(buffer));
       }
 
-      let saveAndOpen = async mimeInfo => {
+      let createTemporaryFileAndOpen = async mimeInfo => {
         let tmpPath = PathUtils.join(
           Services.dirsvc.get("TmpD", Ci.nsIFile).path,
           "pid-" + Services.appinfo.processID
@@ -2203,7 +2203,22 @@ AttachmentInfo.prototype = {
         // Before opening from the temp dir, make the file read only so that
         // users don't edit and lose their edits...
         tempFile.permissions = 0o400;
-        this._openTemporaryFile(mimeInfo, tempFile);
+        this._openFile(mimeInfo, tempFile);
+      };
+
+      let openLocalFile = mimeInfo => {
+        let fileHandler = Services.io
+          .getProtocolHandler("file")
+          .QueryInterface(Ci.nsIFileProtocolHandler);
+
+        try {
+          let externalFile = fileHandler.getFileFromURLSpec(this.displayUrl);
+          this._openFile(mimeInfo, externalFile);
+        } catch (ex) {
+          Cu.reportError(
+            "AttachmentInfo.open: file - " + this.displayUrl + ", " + ex
+          );
+        }
       };
 
       if (!mimeInfo.alwaysAskBeforeHandling) {
@@ -2236,13 +2251,20 @@ AttachmentInfo.prototype = {
             return;
           case Ci.nsIHandlerInfo.useHelperApp:
           case Ci.nsIHandlerInfo.useSystemDefault:
-            await saveAndOpen(mimeInfo);
+            // Attachments can be detached and, if this is the case, opened from
+            // their location on disk instead of copied to a temporary file.
+            if (this.isExternalAttachment) {
+              openLocalFile(mimeInfo);
+
+              return;
+            }
+
+            await createTemporaryFileAndOpen(mimeInfo);
             return;
         }
       }
 
       // Ask what to do, then do it.
-
       let appLauncherDialog = Cc[
         "@mozilla.org/helperapplauncherdialog;1"
       ].createInstance(Ci.nsIHelperAppLauncherDialog);
@@ -2262,8 +2284,11 @@ AttachmentInfo.prototype = {
               false
             );
           },
+          launchLocalFile() {
+            openLocalFile(mimeInfo);
+          },
           async setDownloadToLaunch(handleInternally, file) {
-            await saveAndOpen(mimeInfo);
+            await createTemporaryFileAndOpen(mimeInfo);
           },
           async saveDestinationAvailable(file) {
             if (file) {
@@ -2287,10 +2312,10 @@ AttachmentInfo.prototype = {
    * Unless overridden by a test, opens a saved attachment when called by `open`.
    *
    * @param {nsIMIMEInfo} mimeInfo
-   * @param {nsIFile} tempFile
+   * @param {nsIFile} file
    */
-  _openTemporaryFile(mimeInfo, tempFile) {
-    mimeInfo.launchWithFile(tempFile);
+  _openFile(mimeInfo, file) {
+    mimeInfo.launchWithFile(file);
   },
 
   /**
@@ -2485,7 +2510,7 @@ AttachmentInfo.prototype = {
     try {
       fileHandler.getFileFromURLSpec(this.displayUrl).reveal();
     } catch (ex) {
-      console.error(
+      Cu.reportError(
         "AttachmentInfo.openFolder: file - " + this.displayUrl + ", " + ex
       );
     }
