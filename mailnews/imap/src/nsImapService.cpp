@@ -1667,8 +1667,7 @@ nsresult nsImapService::SetImapUrlSink(nsIMsgFolder* aMsgFolder,
 
 NS_IMETHODIMP nsImapService::DiscoverAllFolders(nsIMsgFolder* aImapMailFolder,
                                                 nsIUrlListener* aUrlListener,
-                                                nsIMsgWindow* aMsgWindow,
-                                                nsIURI** aURL) {
+                                                nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   nsCOMPtr<nsIImapUrl> imapUrl;
@@ -1687,7 +1686,7 @@ NS_IMETHODIMP nsImapService::DiscoverAllFolders(nsIMsgFolder* aImapMailFolder,
       urlSpec.AppendLiteral("/discoverallboxes");
       rv = mailnewsurl->SetSpecInternal(urlSpec);
       if (NS_SUCCEEDED(rv))
-        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, aURL);
+        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, nullptr);
     }
   }
   return rv;
@@ -1695,7 +1694,7 @@ NS_IMETHODIMP nsImapService::DiscoverAllFolders(nsIMsgFolder* aImapMailFolder,
 
 NS_IMETHODIMP nsImapService::DiscoverAllAndSubscribedFolders(
     nsIMsgFolder* aImapMailFolder, nsIUrlListener* aUrlListener,
-    nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
+    nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   nsCOMPtr<nsIImapUrl> aImapUrl;
@@ -1715,7 +1714,7 @@ NS_IMETHODIMP nsImapService::DiscoverAllAndSubscribedFolders(
       if (aMsgWindow) mailnewsurl->SetMsgWindow(aMsgWindow);
 
       if (NS_SUCCEEDED(rv))
-        rv = GetImapConnectionAndLoadUrl(aImapUrl, nullptr, aURL);
+        rv = GetImapConnectionAndLoadUrl(aImapUrl, nullptr, nullptr);
     }
   }
   return rv;
@@ -1723,8 +1722,7 @@ NS_IMETHODIMP nsImapService::DiscoverAllAndSubscribedFolders(
 
 NS_IMETHODIMP nsImapService::DiscoverChildren(nsIMsgFolder* aImapMailFolder,
                                               nsIUrlListener* aUrlListener,
-                                              const nsACString& folderPath,
-                                              nsIURI** aURL) {
+                                              const nsACString& folderPath) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   nsCOMPtr<nsIImapUrl> aImapUrl;
@@ -1754,7 +1752,7 @@ NS_IMETHODIMP nsImapService::DiscoverChildren(nsIMsgFolder* aImapMailFolder,
           aImapUrl->SetOnlineSubDirSeparator(hierarchyDelimiter);
 
         if (NS_SUCCEEDED(rv))
-          rv = GetImapConnectionAndLoadUrl(aImapUrl, nullptr, aURL);
+          rv = GetImapConnectionAndLoadUrl(aImapUrl, nullptr, nullptr);
       } else
         rv = NS_ERROR_FAILURE;
     }
@@ -2815,7 +2813,7 @@ NS_IMETHODIMP nsImapService::GetListOfFoldersWithPath(
 
     rv = rootMsgFolder->FindSubFolder(changedStr, getter_AddRefs(msgFolder));
   }
-  return DiscoverChildren(msgFolder, listener, folderPath, nullptr);
+  return DiscoverChildren(msgFolder, listener, folderPath);
 }
 
 NS_IMETHODIMP nsImapService::GetListOfFoldersOnServer(
@@ -2834,8 +2832,7 @@ NS_IMETHODIMP nsImapService::GetListOfFoldersOnServer(
   nsCOMPtr<nsIUrlListener> listener = do_QueryInterface(aServer, &rv);
   NS_ENSURE_TRUE(NS_SUCCEEDED(rv) && listener, NS_ERROR_FAILURE);
 
-  return DiscoverAllAndSubscribedFolders(rootMsgFolder, listener, aMsgWindow,
-                                         nullptr);
+  return DiscoverAllAndSubscribedFolders(rootMsgFolder, listener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsImapService::SubscribeFolder(nsIMsgFolder* aFolder,

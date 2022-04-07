@@ -39,6 +39,7 @@ LOCAL_INCLUDES += [
 ]
 
 EXTRA_JS_MODULES += [
+    "ImapClient.jsm",
     "ImapIncomingServer.jsm",
     "ImapModuleLoader.jsm",
     "ImapService.jsm",

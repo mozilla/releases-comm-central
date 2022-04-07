@@ -4,6 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["ImapService"];
 
+var { ImapClient } = ChromeUtils.import("resource:///modules/ImapClient.jsm");
+
 /**
  * Set mailnews.imap.jsmodule to true to use this module.
  *
@@ -11,6 +13,18 @@ const EXPORTED_SYMBOLS = ["ImapService"];
  */
 class ImapService {
   QueryInterface = ChromeUtils.generateQI(["nsIImapService"]);
+
+  selectFolder(folder, urlListener, msgWindow) {
+    this._client.selectFolder(folder, urlListener, msgWindow);
+  }
+
+  discoverAllFolders(folder, urlListener, msgWindow) {
+    this._client = new ImapClient(
+      folder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
+    );
+    this._client.onOpen = () => {};
+    this._client.connect();
+  }
 }
 
 ImapService.prototype.classID = Components.ID(

@@ -803,8 +803,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
           nsCOMPtr<nsIMsgFolder> rootFolder;
           rv = GetRootFolder(getter_AddRefs(rootFolder));
           if (NS_SUCCEEDED(rv) && rootFolder) {
-            rv = imapService->DiscoverAllFolders(rootFolder, this, aMsgWindow,
-                                                 nullptr);
+            rv = imapService->DiscoverAllFolders(rootFolder, this, aMsgWindow);
             if (NS_SUCCEEDED(rv))
               hostSession->SetDiscoveryForHostInProgress(serverKey.get(), true);
           }
@@ -7880,7 +7879,7 @@ NS_IMETHODIMP nsImapMailFolder::PerformExpand(nsIMsgWindow* aMsgWindow) {
     nsCOMPtr<nsIImapService> imapService =
         do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = imapService->DiscoverChildren(this, this, m_onlineFolderName, nullptr);
+    rv = imapService->DiscoverChildren(this, this, m_onlineFolderName);
   }
   return rv;
 }

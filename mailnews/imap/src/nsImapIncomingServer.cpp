@@ -882,8 +882,7 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
-  rv =
-      imapService->DiscoverAllFolders(rootMsgFolder, this, aMsgWindow, nullptr);
+  rv = imapService->DiscoverAllFolders(rootMsgFolder, this, aMsgWindow);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
       do_GetService(kCImapHostSessionListCID, &rv);

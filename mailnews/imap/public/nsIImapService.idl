@@ -159,18 +159,15 @@ interface nsIImapService : nsISupports
 
   void discoverAllFolders(in nsIMsgFolder aImapMailFolder,
                           in nsIUrlListener aUrlListener,
-                          in nsIMsgWindow aMsgWindow,
-                          out nsIURI aURL);
+                          in nsIMsgWindow aMsgWindow);
 
   void discoverAllAndSubscribedFolders(in nsIMsgFolder aImapMailFolder,
                                        in nsIUrlListener aUrlListener,
-                                       in nsIMsgWindow aMsgWindow,
-                                       out nsIURI aURL);
+                                       in nsIMsgWindow aMsgWindow);
 
   void discoverChildren(in nsIMsgFolder aImapMailFolder,
                         in nsIUrlListener aUrlListener,
-                        in ACString folderPath,
-                        out nsIURI aURL);
+                        in ACString folderPath);
 
   void onlineMessageCopy(in nsIMsgFolder aSrcFolder,
                          in ACString aMessageIds,
