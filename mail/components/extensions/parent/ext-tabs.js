@@ -244,9 +244,14 @@ this.tabs = class extends ExtensionAPI {
     }
     for (let window of Services.wm.getEnumerator("mail:3pane")) {
       let tabmail = window.document.getElementById("tabmail");
-      for (let nativeTabInfo of tabmail.tabInfo) {
-        let uri = nativeTabInfo.browser.browsingContext.currentURI;
-        if (uri.scheme == "moz-extension" && uri.host == this.extension.uuid) {
+      for (let i = tabmail.tabInfo.length; i > 0; i--) {
+        let nativeTabInfo = tabmail.tabInfo[i - 1];
+        let uri = nativeTabInfo.browser?.browsingContext.currentURI;
+        if (
+          uri &&
+          uri.scheme == "moz-extension" &&
+          uri.host == this.extension.uuid
+        ) {
           tabmail.closeTab(nativeTabInfo);
         }
       }
@@ -452,6 +457,7 @@ this.tabs = class extends ExtensionAPI {
             initialBrowsingContextGroupId:
               context.extension.policy.browsingContextGroupId,
             principal: context.extension.principal,
+            duplicate: true,
           });
 
           if (createProperties.index) {

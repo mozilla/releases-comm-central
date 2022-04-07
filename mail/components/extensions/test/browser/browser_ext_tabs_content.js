@@ -215,3 +215,133 @@ add_task(async function testPopupWindow() {
   );
   return rv;
 });
+
+add_task(async function testMultipleContentTabs() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        let tabs = [];
+        let tests = [
+          {
+            url: "test.html",
+            expectedUrl: browser.runtime.getURL("test.html"),
+          },
+          {
+            url: "test.html",
+            expectedUrl: browser.runtime.getURL("test.html"),
+          },
+          {
+            url: "http://www.example.com",
+            expectedUrl: "http://www.example.com/",
+          },
+          {
+            url: "http://www.example.com",
+            expectedUrl: "http://www.example.com/",
+          },
+          {
+            url: "http://www.example.com/",
+            expectedUrl: "http://www.example.com/",
+          },
+          {
+            url: "http://www.example.com/",
+            expectedUrl: "http://www.example.com/",
+          },
+          {
+            url: "https://www.example.com/",
+            expectedUrl: "https://www.example.com/",
+          },
+        ];
+
+        async function create(url, expectedUrl) {
+          let tabDonePromise = new Promise(resolve => {
+            let changeInfoStatus = false;
+            let changeInfoUrl = false;
+
+            let listener = (tabId, changeInfo) => {
+              if (!tab || tab.id != tabId) {
+                return;
+              }
+              // Looks like "complete" is reached sometimes before the url is done,
+              // so check for both.
+              if (changeInfo.status == "complete") {
+                changeInfoStatus = true;
+              }
+              if (changeInfo.url) {
+                changeInfoUrl = changeInfo.url;
+              }
+
+              if (changeInfoStatus && changeInfoUrl) {
+                browser.tabs.onUpdated.removeListener(listener);
+                resolve(changeInfoUrl);
+              }
+            };
+            browser.tabs.onUpdated.addListener(listener);
+          });
+
+          let tab = await browser.tabs.create({ url });
+          for (let otherTab of tabs) {
+            browser.test.assertTrue(
+              tab.id != otherTab.id,
+              "Id of created tab should be unique."
+            );
+          }
+          tabs.push(tab);
+
+          let changeInfoUrl = await tabDonePromise;
+          browser.test.assertEq(
+            expectedUrl,
+            changeInfoUrl,
+            "Should have seen the correct url."
+          );
+        }
+
+        for (let { url, expectedUrl } of tests) {
+          await create(url, expectedUrl);
+        }
+
+        browser.test.notifyPass();
+      },
+      "test.html": "<html><body>I'm a real page!</body></html>",
+    },
+    manifest: {
+      background: { scripts: ["background.js"] },
+      permissions: ["tabs"],
+    },
+  });
+
+  let tabmail = document.getElementById("tabmail");
+  Assert.equal(
+    tabmail.tabInfo.length,
+    1,
+    "Should find the correct number of tabs before the test."
+  );
+
+  await extension.startup();
+  await extension.awaitFinish();
+  Assert.equal(
+    tabmail.tabInfo.length,
+    8,
+    "Should find the correct number of tabs after the test."
+  );
+
+  await extension.unload();
+  // After unload, the two extension tabs should be closed.
+  Assert.equal(
+    tabmail.tabInfo.length,
+    6,
+    "Should find the correct number of tabs after extension unload."
+  );
+
+  for (let i = tabmail.tabInfo.length; i > 0; i--) {
+    let nativeTabInfo = tabmail.tabInfo[i - 1];
+    let uri = nativeTabInfo.browser?.browsingContext.currentURI;
+    if (uri && ["https", "http"].includes(uri.scheme)) {
+      tabmail.closeTab(nativeTabInfo);
+    }
+  }
+  Assert.equal(
+    tabmail.tabInfo.length,
+    1,
+    "Should find the correct number of tabs after test has finished."
+  );
+});
