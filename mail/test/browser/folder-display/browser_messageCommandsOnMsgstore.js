@@ -11,12 +11,12 @@
 
 "use strict";
 
-var {
+const {
   open_compose_with_forward,
   open_compose_with_reply,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var {
+const {
   be_in_folder,
   create_folder,
   empty_folder,
@@ -29,20 +29,17 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
+const { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import(
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var statusHeader = "X-Mozilla-Status: ";
-
-var gInbox;
-var gOutbox;
-var gAutoRead;
+let gInbox;
+let gOutbox;
+let gAutoRead;
 
 add_setup(async function() {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
@@ -85,43 +82,39 @@ add_setup(async function() {
 });
 
 /**
- * Checks that a message has particular status stored in the data file.
- * Either the aMsgHdr or the aOffset+aStatusOffset must be non-null.
+ * Checks that a message has particular status stored in the mbox file,
+ * in the X-Mozilla-Status header.
  *
- * @param aMsgHdr        The nsIMsgDBHdr header of the message to check. Optional.
- * @param aOffset        Offset in the file where the message data starts. Optional.
- * @param aStatusOffset  Offset from the start of the message where the status line is. Optional.
- * @param aStatus        The required status of the message.
+ * @param folder         The folder containing the message to check.
+ * @param offset         Offset to the start of the message within mbox file.
+ * @param expectedStatus The required status of the message.
  */
-async function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
-  if (aOffset == null) {
-    aOffset = aMsgHdr.messageOffset;
-  }
-  if (aStatusOffset == null) {
-    aStatusOffset = aMsgHdr.statusOffset;
-  }
-
-  let folder = aMsgHdr == null ? gInbox : aMsgHdr.folder;
+async function check_status(folder, offset, expectedStatus) {
   let mboxstring = await IOUtils.readUTF8(folder.filePath.path);
 
-  let expectedStatusString = aStatus.toString(16);
-  while (expectedStatusString.length < 4) {
-    expectedStatusString = "0" + expectedStatusString;
+  // Ah-hoc header parsing. Only check the first 1KB because the X-Mozilla-*
+  // headers should be near the start.
+  let msg = mboxstring.slice(offset, offset + 1024);
+  msg = msg.replace(/\r/g, ""); // Simplify by using LFs only.
+  for (let line of msg.split("\n")) {
+    if (line == "") {
+      break; // end of header block.
+    }
+    if (line.startsWith("X-Mozilla-Status:")) {
+      let hexValue = /:\s*([0-9a-f]+)/i.exec(line)[1];
+      let gotStatus = parseInt(hexValue, 16);
+      Assert.equal(
+        gotStatus,
+        expectedStatus,
+        `Check X-Mozilla-Status (for msg at offset ${offset})`
+      );
+      return;
+    }
   }
-
-  Assert.equal(
-    mboxstring.substr(aOffset + aStatusOffset, statusHeader.length),
-    statusHeader,
-    "The header '" +
-      statusHeader +
-      "' not found at offset: " +
-      aOffset +
-      ", statusOffset: " +
-      aStatusOffset
-  );
-  Assert.equal(
-    mboxstring.substr(aOffset + aStatusOffset + statusHeader.length, 4),
-    expectedStatusString
+  // If we got this far, we didn't find the header.
+  Assert.ok(
+    false,
+    `Find X-Mozilla-Status header (for msg at offset ${offset})`
   );
 }
 
@@ -129,23 +122,21 @@ add_task(async function test_mark_messages_read() {
   // 5 messages in the folder
   be_in_folder(gInbox);
   let curMessage = select_click_row(0);
-  // Store the values because they will be unavailable via the hdr
+  // Store the offset because it will be unavailable via the hdr
   // after the message is deleted.
   let offset = curMessage.messageOffset;
-  let statusOffset = curMessage.statusOffset;
-  await check_status(curMessage, null, null, 0); // status = unread
+  await check_status(gInbox, offset, 0); // status = unread
   press_delete(mc);
   Assert.notEqual(curMessage, select_click_row(0));
   await check_status(
-    null,
+    gInbox,
     offset,
-    statusOffset,
     Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Expunged
   );
 
   // 4 messages in the folder.
   curMessage = select_click_row(0);
-  await check_status(curMessage, null, null, 0); // status = unread
+  await check_status(gInbox, curMessage.messageOffset, 0); // status = unread
 
   // Make sure we can mark all read with >0 messages unread.
   await right_click_on_row(0);
@@ -162,16 +153,32 @@ add_task(async function test_mark_messages_read() {
 
   // All the 4 messages should now be read.
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(
+    gInbox,
+    curMessage.messageOffset,
+    Ci.nsMsgMessageFlags.Read
+  );
   curMessage = select_click_row(1);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(
+    gInbox,
+    curMessage.messageOffset,
+    Ci.nsMsgMessageFlags.Read
+  );
   curMessage = select_click_row(2);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(
+    gInbox,
+    curMessage.messageOffset,
+    Ci.nsMsgMessageFlags.Read
+  );
   curMessage = select_click_row(3);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(
+    gInbox,
+    curMessage.messageOffset,
+    Ci.nsMsgMessageFlags.Read
+  );
 
   // Let's have the last message unread.
   await right_click_on_row(3);
@@ -187,7 +194,7 @@ add_task(async function test_mark_messages_read() {
   await new Promise(resolve => requestAnimationFrame(resolve));
 
   Assert.ok(!curMessage.isRead, "Message should have not been marked Read!");
-  await check_status(curMessage, null, null, 0);
+  await check_status(gInbox, curMessage.messageOffset, 0);
 });
 
 add_task(async function test_mark_messages_flagged() {
@@ -207,9 +214,8 @@ add_task(async function test_mark_messages_flagged() {
 
   Assert.ok(curMessage.isFlagged, "Message should have been marked Flagged!");
   await check_status(
-    curMessage,
-    null,
-    null,
+    gInbox,
+    curMessage.messageOffset,
     Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Marked
   );
 });
@@ -218,7 +224,11 @@ async function subtest_check_queued_message() {
   // Always check the last message in the Outbox for the correct flag.
   be_in_folder(gOutbox);
   let lastMsg = [...gOutbox.messages].pop();
-  await check_status(lastMsg, null, null, Ci.nsMsgMessageFlags.Queued);
+  await check_status(
+    gOutbox,
+    lastMsg.messageOffset,
+    Ci.nsMsgMessageFlags.Queued
+  );
 }
 
 /**
@@ -275,9 +285,8 @@ add_task(async function test_mark_messages_replied() {
   await reply_forward_message(2, true);
   let curMessage = select_click_row(2);
   await check_status(
-    curMessage,
-    null,
-    null,
+    gInbox,
+    curMessage.messageOffset,
     Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read
   );
 });
@@ -287,21 +296,23 @@ add_task(async function test_mark_messages_forwarded() {
   // Forward a clean message.
   await reply_forward_message(3, false);
   let curMessage = select_click_row(3);
-  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Forwarded);
+  await check_status(
+    gInbox,
+    curMessage.messageOffset,
+    Ci.nsMsgMessageFlags.Forwarded
+  );
 
   // Forward a message that is read and already replied to.
   curMessage = select_click_row(2);
   await check_status(
-    curMessage,
-    null,
-    null,
+    gInbox,
+    curMessage.messageOffset,
     Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read
   );
   await reply_forward_message(2, false);
   await check_status(
-    curMessage,
-    null,
-    null,
+    gInbox,
+    curMessage.messageOffset,
     Ci.nsMsgMessageFlags.Forwarded +
       Ci.nsMsgMessageFlags.Replied +
       Ci.nsMsgMessageFlags.Read
