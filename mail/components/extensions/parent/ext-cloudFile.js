@@ -38,7 +38,6 @@ class CloudFileAccount {
     this._configured = false;
     this.lastError = "";
     this.managementURL = this.extension.manifest.cloud_file.management_url;
-    this.dataFormat = this.extension.manifest.cloud_file.data_format;
     this.reuseUploads = this.extension.manifest.cloud_file.reuse_uploads;
     this.browserStyle = this.extension.manifest.cloud_file.browser_style;
     this.quota = {
@@ -182,15 +181,7 @@ class CloudFileAccount {
    * @returns {CloudFileUpload} Information about the uploaded file.
    */
   async uploadFile(window, file, name = file.leafName, relatedCloudFileUpload) {
-    let data;
-    if (this.dataFormat == "File") {
-      data = await File.createFromNsIFile(file);
-    } else {
-      data = await promiseFileRead(file);
-      console.warn(
-        "Using ArrayBuffer as cloud_file.data_format is deprecated and will be removed in Thunderbird 102."
-      );
-    }
+    let data = await File.createFromNsIFile(file);
 
     if (
       this.remainingFileSpace != -1 &&

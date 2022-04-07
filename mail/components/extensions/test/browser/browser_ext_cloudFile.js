@@ -126,7 +126,7 @@ add_task(async function test_without_UI() {
       let [createdAccount] = await createCloudfileAccount();
 
       let fileId = await new Promise(resolve => {
-        function fileListener(
+        async function fileListener(
           account,
           { id, name, data },
           tab,
@@ -135,11 +135,9 @@ add_task(async function test_without_UI() {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
-          browser.test.assertTrue(data instanceof ArrayBuffer);
-          browser.test.assertEq(
-            new TextDecoder("utf-8").decode(data),
-            "you got the moves!\n"
-          );
+          browser.test.assertTrue(data instanceof File);
+          let content = await data.text();
+          browser.test.assertEq(content, "you got the moves!\n");
           browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
           return { url: "https://example.com/" + name };
@@ -374,7 +372,6 @@ add_task(async function test_without_UI() {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
-        data_format: "ArrayBuffer",
       },
       applications: { gecko: { id: "cloudfile@mochi.test" } },
       background: { scripts: ["utils.js", "background.js"] },
@@ -544,7 +541,7 @@ add_task(async function test_compose_window() {
       );
 
       let fileId = await new Promise(resolve => {
-        function fileListener(
+        async function fileListener(
           uploadAccount,
           { id, name, data },
           tab,
@@ -555,11 +552,9 @@ add_task(async function test_compose_window() {
           browser.test.assertEq(tab.id, composeTab.id);
           browser.test.assertEq(uploadAccount.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
-          browser.test.assertTrue(data instanceof ArrayBuffer);
-          browser.test.assertEq(
-            new TextDecoder("utf-8").decode(data),
-            "you got the moves!\n"
-          );
+          browser.test.assertTrue(data instanceof File);
+          let content = await data.text();
+          browser.test.assertEq(content, "you got the moves!\n");
 
           browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
@@ -663,7 +658,6 @@ add_task(async function test_compose_window() {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
-        data_format: "ArrayBuffer",
       },
       applications: { gecko: { id: "cloudfile@mochi.test" } },
       background: { scripts: ["utils.js", "background.js"] },

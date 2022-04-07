@@ -414,7 +414,6 @@ add_task(async function test_file_attachments() {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
-        data_format: "ArrayBuffer",
       },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["compose"],
@@ -1080,7 +1079,6 @@ add_task(async function test_compose_attachments() {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
-        data_format: "ArrayBuffer",
       },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["compose"],
@@ -1505,7 +1503,6 @@ add_task(async function test_compose_attachments_immutable() {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
-        data_format: "ArrayBuffer",
       },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["compose", "compose.send"],
@@ -1926,7 +1923,6 @@ add_task(async function test_compose_attachments_no_reuse() {
         name: "mochitest",
         management_url: "/content/management.html",
         reuse_uploads: false,
-        data_format: "ArrayBuffer",
       },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["compose"],
