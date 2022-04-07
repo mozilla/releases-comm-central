@@ -33,10 +33,14 @@
 /* Provide a common means of detecting empty lines in a message. i.e. to detect the end of headers among other things...*/
 #define EMPTY_MESSAGE_LINE(buf) (buf[0] == '\r' || buf[0] == '\n' || buf[0] == '\0')
 
+
+// The default data for the X-Mozilla-Keys header. 80 spaces, room to set
+// a bunch of keywords before we have to rewrite the rest of the message.
+#define X_MOZILLA_KEYWORDS_BLANK "                                                                                "
+#define X_MOZILLA_KEYWORDS_BLANK_LEN 80
+
 /* blank filled header to store keyword/tags in the mailbox */
-#define X_MOZILLA_KEYWORDS     "X-Mozilla-Keys"                                          \
-    ":                                                                                 " \
-    MSG_LINEBREAK
+#define X_MOZILLA_KEYWORDS "X-Mozilla-Keys: " X_MOZILLA_KEYWORDS_BLANK MSG_LINEBREAK
 #define X_MOZILLA_KEYWORDS_LEN (sizeof(X_MOZILLA_KEYWORDS) - 1)
 
 // clang-format on

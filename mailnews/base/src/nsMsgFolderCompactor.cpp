@@ -34,6 +34,9 @@
 #include "nsIStringBundle.h"
 #include "nsICopyMessageStreamListener.h"
 #include "nsIMsgWindow.h"
+#include "mozilla/Buffer.h"
+#include "HeaderReader.h"
+#include "LineReader.h"
 
 static nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
@@ -105,6 +108,7 @@ class nsFolderCompactState : public nsIStreamListener,
   virtual nsresult FinishCompact();
   void CloseOutputStream();
   void CleanupTempFilesAfterError();
+  nsresult FlushBuffer();
 
   nsresult Init(nsIMsgFolder* aFolder, const char* aBaseMsgUri,
                 nsIMsgDatabase* aDb, nsIFile* aPath, nsIMsgWindow* aMsgWindow);
@@ -119,50 +123,48 @@ class nsFolderCompactState : public nsIStreamListener,
   nsCOMPtr<nsIMsgDatabase> m_db;    // new database for the compact folder
   nsCOMPtr<nsIFile> m_file;         // new mailbox for the compact folder
   nsCOMPtr<nsIOutputStream> m_fileStream;  // output file stream for writing
-  // all message keys that need to be copied over
+  // All message keys that need to be copied over.
   nsTArray<nsMsgKey> m_keys;
 
-  // sum of the sizes of the messages, accumulated as we visit each msg.
-  uint64_t m_totalMsgSize;
-  // number of bytes that can be expunged while compacting.
-  uint64_t m_totalExpungedBytes;
+  // Sum of the sizes of the messages, accumulated as we visit each msg.
+  uint64_t m_totalMsgSize{0};
+  // Number of bytes that can be expunged while compacting.
+  uint64_t m_totalExpungedBytes{0};
+  // Index of the current copied message key in key array.
+  uint32_t m_curIndex{0};
+  // Offset in mailbox of new message.
+  uint64_t m_startOfNewMsg{0};
+  mozilla::Buffer<char> m_buffer{COMPACTOR_READ_BUFF_SIZE};
+  uint32_t m_bufferCount{0};
 
-  uint32_t m_curIndex;  // index of the current copied message key in key array
-  uint64_t m_startOfNewMsg;  // offset in mailbox of new message
-  char m_dataBuffer[COMPACTOR_READ_BUFF_SIZE + 1];  // temp data buffer for
-                                                    // copying message
-  nsresult m_status;  // the status of the copying operation
+  // We'll use this if we need to output any EOLs - we try to preserve the
+  // convention found in the input data.
+  nsCString m_eolSeq{MSG_LINEBREAK};
+
+  // The status of the copying operation.
+  nsresult m_status{NS_OK};
   nsCOMPtr<nsIMsgMessageService> m_messageService;  // message service for
                                                     // copying
   nsCOMPtr<nsIMsgWindow> m_window;
   nsCOMPtr<nsIMsgDBHdr> m_curSrcHdr;
-  bool m_parsingFolder;  // flag for parsing local folders;
-  // these members are used to add missing status lines to compacted messages.
-  bool m_needStatusLine;
+  // Flag set when we're waiting for local folder to complete parsing.
+  bool m_parsingFolder;
+  // Flag to indicate we're starting a new message, and that no data has
+  // been written for it yet.
   bool m_startOfMsg;
-  int32_t m_statusOffset;
-  uint32_t m_addedHeaderSize;
-  // Function which will be run when the folder compaction completes.
+  uint32_t m_statusOffset;
+  //  Function which will be run when the folder compaction completes.
   std::function<void(nsresult)> m_completionFn;
-  bool m_alreadyWarnedDiskSpace;
+  bool m_alreadyWarnedDiskSpace{false};
 };
 
 NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIRequestObserver, nsIStreamListener,
                   nsICopyMessageStreamListener, nsIUrlListener)
 
 nsFolderCompactState::nsFolderCompactState() {
-  m_fileStream = nullptr;
-  m_curIndex = 0;
-  m_status = NS_OK;
   m_parsingFolder = false;
   m_startOfMsg = true;
-  m_needStatusLine = false;
-  m_totalExpungedBytes = 0;
-  m_alreadyWarnedDiskSpace = false;
-  m_totalMsgSize = 0;
-  m_startOfNewMsg = 0;
   m_statusOffset = 0;
-  m_addedHeaderSize = 0;
 }
 
 nsFolderCompactState::~nsFolderCompactState() {
@@ -692,227 +694,187 @@ nsFolderCompactState::OnStopRequest(nsIRequest* request, nsresult status) {
   return status;
 }
 
+// Handle the message data.
+// (NOTE: nsOfflineStoreCompactState overrides this)
 NS_IMETHODIMP
 nsFolderCompactState::OnDataAvailable(nsIRequest* request,
                                       nsIInputStream* inStr,
                                       uint64_t sourceOffset, uint32_t count) {
-  if (!m_fileStream || !inStr) return NS_ERROR_FAILURE;
+  MOZ_ASSERT(m_fileStream);
+  MOZ_ASSERT(inStr);
 
   nsresult rv = NS_OK;
-  uint32_t msgFlags;
-  bool checkForKeyword = m_startOfMsg;
-  bool addKeywordHdr = false;
-  uint32_t needToGrowKeywords = 0;
-  uint32_t statusOffset;
-  nsCString msgHdrKeywords;
 
+  // TODO: This block should be moved in to the callback that indicates the
+  // start of a new message, but it's complicated because of the derived
+  // nsOfflineStoreCompactState and also the odd message copy listener
+  // orderings. Leaving it here for now, but it's ripe for tidying up in
+  // future.
   if (m_startOfMsg) {
     m_statusOffset = 0;
-    m_addedHeaderSize = 0;
     m_messageUri.Truncate();  // clear the previous message uri
     if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                                      m_messageUri))) {
       rv = m_messageService->MessageURIToMsgHdr(m_messageUri,
                                                 getter_AddRefs(m_curSrcHdr));
       NS_ENSURE_SUCCESS(rv, rv);
-      if (m_curSrcHdr) {
-        (void)m_curSrcHdr->GetFlags(&msgFlags);
-        (void)m_curSrcHdr->GetStatusOffset(&statusOffset);
-
-        if (statusOffset == 0) m_needStatusLine = true;
-        // x-mozilla-status lines should be at the start of the headers, and the
-        // code below assumes everything will fit in m_dataBuffer - if there's
-        // not room, skip the keyword stuff.
-        if (statusOffset > sizeof(m_dataBuffer) - 1024) {
-          checkForKeyword = false;
-          NS_ASSERTION(false, "status offset past end of read buffer size");
-        }
-      }
-    }
-    m_startOfMsg = false;
-  }
-  uint32_t maxReadCount, readCount, writeCount;
-  uint32_t bytesWritten;
-
-  while (NS_SUCCEEDED(rv) && (int32_t)count > 0) {
-    maxReadCount =
-        count > sizeof(m_dataBuffer) - 1 ? sizeof(m_dataBuffer) - 1 : count;
-    writeCount = 0;
-    rv = inStr->Read(m_dataBuffer, maxReadCount, &readCount);
-
-    // if status offset is past the number of bytes we read, it's probably
-    // bogus, and we shouldn't do any of the keyword stuff.
-    if (statusOffset + X_MOZILLA_STATUS_LEN > readCount)
-      checkForKeyword = false;
-
-    if (NS_SUCCEEDED(rv)) {
-      if (checkForKeyword) {
-        // make sure that status offset really points to x-mozilla-status line
-        if (!strncmp(m_dataBuffer + statusOffset, X_MOZILLA_STATUS,
-                     X_MOZILLA_STATUS_LEN)) {
-          const char* keywordHdr =
-              PL_strnrstr(m_dataBuffer, HEADER_X_MOZILLA_KEYWORDS, readCount);
-          if (keywordHdr)
-            m_curSrcHdr->GetUint32Property("growKeywords", &needToGrowKeywords);
-          else
-            addKeywordHdr = true;
-          m_curSrcHdr->GetStringProperty("keywords",
-                                         getter_Copies(msgHdrKeywords));
-        }
-        checkForKeyword = false;
-      }
-      uint32_t blockOffset = 0;
-      if (m_needStatusLine) {
-        m_needStatusLine = false;
-        // we need to parse out the "From " header, write it out, then
-        // write out the x-mozilla-status headers, and set the
-        // status offset of the dest hdr for later use
-        // in OnEndCopy).
-        if (!strncmp(m_dataBuffer, "From ", 5)) {
-          blockOffset = 5;
-          // skip from line
-          MsgAdvanceToNextLine(m_dataBuffer, blockOffset, readCount);
-          char statusLine[50];
-          m_fileStream->Write(m_dataBuffer, blockOffset, &writeCount);
-          m_statusOffset = blockOffset;
-          PR_snprintf(statusLine, sizeof(statusLine),
-                      X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK, msgFlags & 0xFFFF);
-          m_fileStream->Write(statusLine, strlen(statusLine),
-                              &m_addedHeaderSize);
-          PR_snprintf(statusLine, sizeof(statusLine),
-                      X_MOZILLA_STATUS2_FORMAT MSG_LINEBREAK,
-                      msgFlags & 0xFFFF0000);
-          m_fileStream->Write(statusLine, strlen(statusLine), &bytesWritten);
-          m_addedHeaderSize += bytesWritten;
-        } else {
-          NS_ASSERTION(false, "not an envelope");
-          // try to mark the db as invalid so it will be reparsed.
-          nsCOMPtr<nsIMsgDatabase> srcDB;
-          m_folder->GetMsgDatabase(getter_AddRefs(srcDB));
-          if (srcDB) {
-            srcDB->SetSummaryValid(false);
-            srcDB->ForceClosed();
-          }
-        }
-      }
-// clang-format off
-#define EXTRA_KEYWORD_HDR                                                             \
-  "                                                                                 " \
-  MSG_LINEBREAK
-      // clang-format on
-
-      // if status offset isn't in the first block, this code won't work.
-      // There's no good reason
-      // for the status offset not to be at the beginning of the message anyway.
-      if (addKeywordHdr) {
-        // if blockOffset is set, we added x-mozilla-status headers so
-        // file pointer is already past them.
-        if (!blockOffset) {
-          blockOffset = statusOffset;
-          // skip x-mozilla-status and status2 lines.
-          MsgAdvanceToNextLine(m_dataBuffer, blockOffset, readCount);
-          MsgAdvanceToNextLine(m_dataBuffer, blockOffset, readCount);
-          // need to rewrite the headers up to and including the
-          // x-mozilla-status2 header
-          m_fileStream->Write(m_dataBuffer, blockOffset, &writeCount);
-        }
-        // we should write out the existing keywords from the msg hdr, if any.
-        if (msgHdrKeywords.IsEmpty()) {  // no keywords, so write blank header
-          m_fileStream->Write(X_MOZILLA_KEYWORDS,
-                              sizeof(X_MOZILLA_KEYWORDS) - 1, &bytesWritten);
-          m_addedHeaderSize += bytesWritten;
-        } else {
-          if (msgHdrKeywords.Length() < sizeof(X_MOZILLA_KEYWORDS) -
-                                            sizeof(HEADER_X_MOZILLA_KEYWORDS) +
-                                            10 /* allow some slop */) {
-            // Keywords fit in normal blank header, so replace blanks in
-            // keyword hdr with keywords.
-            nsAutoCString keywordsHdr(X_MOZILLA_KEYWORDS);
-            keywordsHdr.Replace(sizeof(HEADER_X_MOZILLA_KEYWORDS) + 1,
-                                msgHdrKeywords.Length(), msgHdrKeywords);
-            m_fileStream->Write(keywordsHdr.get(), keywordsHdr.Length(),
-                                &bytesWritten);
-            m_addedHeaderSize += bytesWritten;
-          } else {
-            // Keywords don't fit, so write out keywords on one line and
-            // an extra blank line.
-            nsCString newKeywordHeader(HEADER_X_MOZILLA_KEYWORDS ": ");
-            newKeywordHeader.Append(msgHdrKeywords);
-            newKeywordHeader.Append(MSG_LINEBREAK EXTRA_KEYWORD_HDR);
-            m_fileStream->Write(newKeywordHeader.get(),
-                                newKeywordHeader.Length(), &bytesWritten);
-            m_addedHeaderSize += bytesWritten;
-          }
-        }
-        addKeywordHdr = false;
-      } else if (needToGrowKeywords) {
-        blockOffset = statusOffset;
-        if (!strncmp(m_dataBuffer + blockOffset, X_MOZILLA_STATUS,
-                     X_MOZILLA_STATUS_LEN))
-          MsgAdvanceToNextLine(m_dataBuffer, blockOffset,
-                               readCount);  // skip x-mozilla-status hdr
-        if (!strncmp(m_dataBuffer + blockOffset, X_MOZILLA_STATUS2,
-                     X_MOZILLA_STATUS2_LEN))
-          MsgAdvanceToNextLine(m_dataBuffer, blockOffset,
-                               readCount);  // skip x-mozilla-status2 hdr
-        uint32_t preKeywordBlockOffset = blockOffset;
-        if (!strncmp(m_dataBuffer + blockOffset, HEADER_X_MOZILLA_KEYWORDS,
-                     sizeof(HEADER_X_MOZILLA_KEYWORDS) - 1)) {
-          do {
-            // skip x-mozilla-keywords hdr and any existing continuation headers
-            MsgAdvanceToNextLine(m_dataBuffer, blockOffset, readCount);
-          } while (m_dataBuffer[blockOffset] == ' ');
-        }
-        int32_t oldKeywordSize = blockOffset - preKeywordBlockOffset;
-
-        // rewrite the headers up to and including the x-mozilla-status2 header
-        m_fileStream->Write(m_dataBuffer, preKeywordBlockOffset, &writeCount);
-        // let's just rewrite all the keywords on several lines and add a blank
-        // line, instead of worrying about which are missing.
-        bool done = false;
-        nsAutoCString keywordHdr(HEADER_X_MOZILLA_KEYWORDS ": ");
-        int32_t nextBlankOffset = 0;
-        int32_t curHdrLineStart = 0;
-        int32_t newKeywordSize = 0;
-        while (!done) {
-          nextBlankOffset = msgHdrKeywords.FindChar(' ', nextBlankOffset);
-          if (nextBlankOffset == kNotFound) {
-            nextBlankOffset = msgHdrKeywords.Length();
-            done = true;
-          }
-          if (nextBlankOffset - curHdrLineStart > 90 || done) {
-            keywordHdr.Append(nsDependentCSubstring(
-                msgHdrKeywords, curHdrLineStart,
-                msgHdrKeywords.Length() - curHdrLineStart));
-            keywordHdr.Append(MSG_LINEBREAK);
-            m_fileStream->Write(keywordHdr.get(), keywordHdr.Length(),
-                                &bytesWritten);
-            newKeywordSize += bytesWritten;
-            curHdrLineStart = nextBlankOffset;
-            keywordHdr.Assign(' ');
-          }
-          nextBlankOffset++;
-        }
-        m_fileStream->Write(EXTRA_KEYWORD_HDR, sizeof(EXTRA_KEYWORD_HDR) - 1,
-                            &bytesWritten);
-        newKeywordSize += bytesWritten;
-        m_addedHeaderSize += newKeywordSize - oldKeywordSize;
-        m_curSrcHdr->SetUint32Property("growKeywords", 0);
-        needToGrowKeywords = false;
-        writeCount += blockOffset - preKeywordBlockOffset;  // fudge writeCount
-      }
-      if (readCount <= blockOffset) {
-        NS_ASSERTION(false, "bad block offset");
-        // not sure what to do to handle this.
-      }
-      m_fileStream->Write(m_dataBuffer + blockOffset, readCount - blockOffset,
-                          &bytesWritten);
-      writeCount += bytesWritten;
-      count -= readCount;
-      if (writeCount != readCount) return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
     }
   }
-  return rv;
+
+  while (count > 0) {
+    uint32_t maxReadCount =
+        std::min((uint32_t)m_buffer.Length() - m_bufferCount, count);
+    uint32_t readCount;
+    rv = inStr->Read(m_buffer.Elements() + m_bufferCount, maxReadCount,
+                     &readCount);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    count -= readCount;
+    m_bufferCount += readCount;
+    if (m_bufferCount == m_buffer.Length()) {
+      rv = FlushBuffer();
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  }
+  if (m_bufferCount > 0) {
+    rv = FlushBuffer();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return NS_OK;
+}
+
+// Helper to write data to an outputstream, until complete or error.
+static nsresult WriteSpan(nsIOutputStream* writeable,
+                          mozilla::Span<const char> data) {
+  while (!data.IsEmpty()) {
+    uint32_t n;
+    nsresult rv = writeable->Write(data.Elements(), data.Length(), &n);
+    NS_ENSURE_SUCCESS(rv, rv);
+    data = data.Last(data.Length() - n);
+  }
+  return NS_OK;
+}
+
+// Flush contents of m_buffer to the output file.
+// (NOTE: not used by nsOfflineStoreCompactState)
+// More complicated than it should be because we need to fiddle with
+// some of the X-Mozilla-* headers on the fly.
+nsresult nsFolderCompactState::FlushBuffer() {
+  MOZ_ASSERT(m_fileStream);
+  nsresult rv;
+  auto buf = m_buffer.AsSpan().First(m_bufferCount);
+  if (!m_startOfMsg) {
+    // We only do header twiddling for the first chunk. So from now on we
+    // just copy data verbatim.
+    rv = WriteSpan(m_fileStream, buf);
+    NS_ENSURE_SUCCESS(rv, rv);
+    m_bufferCount = 0;
+    return NS_OK;
+  }
+
+  // This is the first chunk of a new message. We'll update the
+  // X-Mozilla-(Status|Status2|Keys) headers as we go.
+  m_startOfMsg = false;
+
+  // Sniff the data to see if we can spot any CRs.
+  // If so, we'll use CRLFs instead of platform-native EOLs.
+  auto sniffChunk = buf.First(std::min<size_t>(buf.Length(), 512));
+  auto cr = std::find(sniffChunk.cbegin(), sniffChunk.cend(), '\r');
+  if (cr != sniffChunk.cend()) {
+    m_eolSeq.Assign("\r\n"_ns);
+  }
+
+  // Add a "From " line if missing.
+  // NOTE: Ultimately we should never see "From " lines in this data - it's an
+  // mbox detail the message streaming should filter out. But for now we'll
+  // handle it optionally.
+  nsAutoCString fromLine;
+  auto l = FirstLine(buf);
+  if (l.Length() > 5 &&
+      nsDependentCSubstring(l.Elements(), 5).EqualsLiteral("From ")) {
+    fromLine = nsDependentCSubstring(l);
+    buf = buf.From(l.Length());
+  } else {
+    fromLine = "From "_ns + m_eolSeq;
+  }
+  rv = WriteSpan(m_fileStream, fromLine);
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_statusOffset = fromLine.Length();
+
+  // Read as many headers as we can. We might not have the complete header
+  // block our in buffer, but that's OK - the X-Mozilla-* ones should be
+  // right at the start).
+  nsTArray<HeaderReader::Hdr> headers;
+  HeaderReader rdr;
+  auto leftover = rdr.Parse(buf, [&](auto const& hdr) -> bool {
+    auto const& name = hdr.Name(buf);
+    if (!name.EqualsLiteral(HEADER_X_MOZILLA_STATUS) &&
+        !name.EqualsLiteral(HEADER_X_MOZILLA_STATUS2) &&
+        !name.EqualsLiteral(HEADER_X_MOZILLA_KEYWORDS)) {
+      headers.AppendElement(hdr);
+    }
+    return true;
+  });
+
+  // Write out X-Mozilla-* headers first - we'll create these from scratch.
+  uint32_t msgFlags = 0;
+  nsAutoCString keywords;
+  if (m_curSrcHdr) {
+    m_curSrcHdr->GetFlags(&msgFlags);
+    m_curSrcHdr->GetStringProperty("keywords", getter_Copies(keywords));
+    // growKeywords is set if msgStore didn't have enough room to edit
+    // X-Mozilla-* headers in situ. We'll rewrite all those headers
+    // regardless but we still want to clear it.
+    uint32_t grow;
+    m_curSrcHdr->GetUint32Property("growKeywords", &grow);
+    if (grow) {
+      m_curSrcHdr->SetUint32Property("growKeywords", 0);
+    }
+  }
+
+  auto out =
+      nsPrintfCString(HEADER_X_MOZILLA_STATUS ": %4.4x", msgFlags & 0xFFFF);
+  out.Append(m_eolSeq);
+  rv = WriteSpan(m_fileStream, out);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  out = nsPrintfCString(HEADER_X_MOZILLA_STATUS2 ": %8.8x",
+                        msgFlags & 0xFFFF0000);
+  out.Append(m_eolSeq);
+  rv = WriteSpan(m_fileStream, out);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Try to leave room for future in-place keyword edits.
+  while (keywords.Length() < X_MOZILLA_KEYWORDS_BLANK_LEN) {
+    keywords.Append(' ');
+  }
+  out = nsPrintfCString(HEADER_X_MOZILLA_KEYWORDS ": %s", keywords.get());
+  out.Append(m_eolSeq);
+  rv = WriteSpan(m_fileStream, out);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Write out the rest of the headers.
+  for (auto const& hdr : headers) {
+    rv = WriteSpan(m_fileStream, buf.Subspan(hdr.pos, hdr.len));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // The header parser consumes the blank line, If we've completed parsing
+  // we need to output it now.
+  // If we haven't parsed all the headers yet then the blank line will be
+  // safely copied verbatim as part of the remaining data.
+  if (rdr.IsComplete()) {
+    rv = WriteSpan(m_fileStream, m_eolSeq);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Write out everything else in the buffer verbatim.
+  if (leftover.Length() > 0) {
+    rv = WriteSpan(m_fileStream, leftover);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  m_bufferCount = 0;
+  return NS_OK;
 }
 
 /**
@@ -947,6 +909,8 @@ class nsOfflineStoreCompactState : public nsFolderCompactState {
   virtual nsresult StartCompacting() override;
   virtual nsresult FinishCompact() override;
 
+  char m_dataBuffer[COMPACTOR_READ_BUFF_SIZE + 1];  // temp data buffer for
+                                                    // copying message
   uint32_t m_offlineMsgSize;
 };
 
@@ -1179,11 +1143,19 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
     return NS_OK;
   }
 
-  /* Messages need to have trailing blank lines */
-  uint32_t bytesWritten;
-  (void)m_fileStream->Write(MSG_LINEBREAK, MSG_LINEBREAK_LEN, &bytesWritten);
+  // Take note of the end offset of the message (without the trailing blank
+  // line).
+  nsCOMPtr<nsITellableStream> tellable(do_QueryInterface(m_fileStream));
+  MOZ_ASSERT(tellable);
+  int64_t endOfMsg;
+  nsresult rv = tellable->Tell(&endOfMsg);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  /**
+  /* Messages need to have trailing blank lines */
+  rv = WriteSpan(m_fileStream, m_eolSeq);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  /*
    * Done with the current message; copying the existing message header
    * to the new database.
    */
@@ -1195,20 +1167,17 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
   }
   m_curSrcHdr = nullptr;
   if (newMsgHdr) {
-    if (m_statusOffset != 0) newMsgHdr->SetStatusOffset(m_statusOffset);
-
+    if (m_statusOffset != 0) {
+      newMsgHdr->SetStatusOffset(m_statusOffset);
+    }
     char storeToken[100];
     PR_snprintf(storeToken, sizeof(storeToken), "%lld", m_startOfNewMsg);
     newMsgHdr->SetStringProperty("storeToken", storeToken);
     newMsgHdr->SetMessageOffset(m_startOfNewMsg);
+    uint64_t msgSize = endOfMsg - m_startOfNewMsg;
+    newMsgHdr->SetMessageSize(msgSize);
 
-    uint32_t msgSize;
-    (void)newMsgHdr->GetMessageSize(&msgSize);
-    if (m_addedHeaderSize) {
-      msgSize += m_addedHeaderSize;
-      newMsgHdr->SetMessageSize(msgSize);
-    }
-    m_totalMsgSize += msgSize + MSG_LINEBREAK_LEN;
+    m_totalMsgSize += msgSize + m_eolSeq.Length();
   }
 
   //  m_db->Commit(nsMsgDBCommitType::kLargeCommit);  // no sense committing

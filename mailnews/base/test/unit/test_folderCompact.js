@@ -40,7 +40,10 @@ var gMsgHdrs = [];
 var gExpectedInboxSize;
 var gExpectedFolder2Size;
 var gExpectedFolder3Size;
-var gMsgLinebreak = "";
+// Use this to account for the size of the separating line after the message
+// body. The compactor tries to preserve the convention already in the mbox,
+// and we know that our test messages have CRLFs, so that's what we'll use.
+var gSeparatorLine = "\r\n";
 
 // Transfer message keys between function calls.
 var gMsgKeys = [];
@@ -113,19 +116,9 @@ function deleteMessages(srcFolder, items) {
 
 function calculateFolderSize(folder) {
   let msgDB = folder.msgDatabase;
-  let enumerator = msgDB.EnumerateMessages();
   let totalSize = 0;
-  if (enumerator) {
-    if (gMsgLinebreak == "") {
-      // Figure out what the linebreak sequence is on the platform running the tests.
-      gMsgLinebreak =
-        "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
-    }
-    for (let header of enumerator) {
-      if (header instanceof Ci.nsIMsgDBHdr) {
-        totalSize += header.messageSize + gMsgLinebreak.length;
-      }
-    }
+  for (let header of msgDB.EnumerateMessages()) {
+    totalSize += header.messageSize + gSeparatorLine.length;
   }
   return totalSize;
 }
@@ -331,16 +324,10 @@ function run_test() {
 
 // debug utility to show the key/offset/ID relationship of messages in a folder
 function showMessages(folder, text) {
-  dump("Show messages for folder <" + folder.name + "> " + text + "\n");
-  for (let header of folder.messages) {
+  dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
+  for (let hdr of folder.messages) {
     dump(
-      "key: " +
-        header.messageKey +
-        " offset: " +
-        header.messageOffset +
-        " ID: " +
-        header.messageId +
-        "\n"
+      `  key: ${hdr.messageKey} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId} statusOffset: ${hdr.statusOffset}\n`
     );
   }
 }

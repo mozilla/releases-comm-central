@@ -104,7 +104,7 @@ class HeaderReader {
     uint32_t nameLen{0};       // Length of name.
     uint32_t rawValOffset{0};  // Where the value starts, relative to pos.
     uint32_t rawValLen{0};     // Excludes final EOL.
-    bool IsEmpty() { return len == 0; }
+    bool IsEmpty() const { return len == 0; }
 
     /**
      * Access the header name as a string.
@@ -140,6 +140,25 @@ class HeaderReader {
       val.ReplaceSubstring("\r\n"_ns, ""_ns);
       val.ReplaceSubstring("\n"_ns, ""_ns);
       return val;
+    }
+
+    /**
+     * EOL() returns a string containing the eol characters at the end of the
+     * header. It will be "\n" or "\r\n".
+     * Calling this on an empty hdr struct is unsupported.
+     */
+    nsDependentCSubstring EOL(mozilla::Span<const char> data) const {
+      MOZ_ASSERT(len >= 2);  // Empty or malformed?
+
+      uint32_t i = pos + len;
+      int n = 0;
+      if (data[i - 1] == '\n') {
+        ++n;
+        if (data[i - 2] == '\r') {
+          ++n;
+        }
+      }
+      return nsDependentCSubstring(data.Elements() + pos + len - n, n);
     }
   };
 
