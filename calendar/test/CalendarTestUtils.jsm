@@ -811,7 +811,8 @@ const CalendarTestUtils = {
 
     let dialogWindow = await dialogPromise;
     let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
-    Assert.report(false, undefined, undefined, "New event dialog opened");
+    await new Promise(resolve => iframe.contentWindow.setTimeout(resolve));
+    Assert.report(false, undefined, undefined, `New ${type} dialog opened`);
     return {
       dialogWindow,
       dialogDocument: dialogWindow.document,
