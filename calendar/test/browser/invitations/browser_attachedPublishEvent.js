@@ -6,7 +6,7 @@
  * Test that attached events - NOT invites - works properly.
  * These are attached VCALENDARs that have METHOD:PUBLISH.
  */
-"use-strict";
+"use strict";
 
 var { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -33,7 +33,6 @@ add_setup(async function() {
   );
   let receiverIdentity = MailServices.accounts.createIdentity();
   receiverIdentity.email = "john.doe@example.com";
-  receiverIdentity.fullAddress = `Jane <${receiverIdentity.email}>`;
   receiverAcct.addIdentity(receiverIdentity);
   gCalendar = CalendarTestUtils.createCalendar("EventTestCal");
 

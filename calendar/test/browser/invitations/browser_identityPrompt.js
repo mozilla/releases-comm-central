@@ -6,7 +6,7 @@
  * Tests for the calender-itip-identity dialog.
  */
 
-"use-strict";
+"use strict";
 
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -45,7 +45,6 @@ add_setup(async function() {
   );
   receiverIdentity = MailServices.accounts.createIdentity();
   receiverIdentity.email = "receiver@example.com";
-  receiverIdentity.fullAddress = `Receiver <${receiverIdentity.email}>`;
   receiverAcct.addIdentity(receiverIdentity);
 
   gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
