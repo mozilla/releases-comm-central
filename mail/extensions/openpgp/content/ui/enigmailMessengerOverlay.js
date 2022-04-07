@@ -56,6 +56,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
@@ -2499,7 +2500,8 @@ Enigmail.msg = {
       // Try to decrypt message if we suspect the message is encrypted.
       // If it fails we will just verify the encrypted data.
       let readBinaryFile = async () => {
-        return String.fromCharCode(...(await IOUtils.read(outFile1.path)));
+        let data = await IOUtils.read(outFile1.path);
+        return MailStringUtils.uint8ArrayToByteString(data);
       };
       await EnigmailDecryption.decryptAttachment(
         window,

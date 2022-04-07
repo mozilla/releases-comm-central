@@ -23,6 +23,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
@@ -169,7 +170,8 @@ const OpenPGPTestUtils = {
    * @returns {Promise<string[]>} - A list of ids for the key(s) imported.
    */
   async importKey(parent, file, isBinary, isSecret = false) {
-    let txt = String.fromCharCode(...(await IOUtils.read(file.path)));
+    let data = await IOUtils.read(file.path);
+    let txt = MailStringUtils.uint8ArrayToByteString(data);
     let errorObj = {};
     let fingerPrintObj = {};
 

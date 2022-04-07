@@ -23,11 +23,13 @@ const { EnigmailLog } = ChromeUtils.import(
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
+const { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 
 /**
  * RNP implementation of CryptoAPI
  */
-
 class RNPCryptoAPI extends CryptoAPI {
   constructor() {
     super();
@@ -133,7 +135,8 @@ class RNPCryptoAPI extends CryptoAPI {
   ) {
     let contents = null;
     try {
-      contents = String.fromCharCode(...(await IOUtils.read(inputFile.path)));
+      let data = await IOUtils.read(inputFile.path);
+      contents = MailStringUtils.uint8ArrayToByteString(data);
     } catch (ex) {
       console.debug(ex);
     }

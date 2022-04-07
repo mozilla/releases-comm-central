@@ -19,6 +19,9 @@ var { EnigmailKeyRing } = ChromeUtils.import(
 var { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 );
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
@@ -132,7 +135,8 @@ async function EnigmailCommon_importObjectFromFile(what) {
     // if we don't find an ASCII block, try to import as binary.
     if (!keyBlock) {
       importBinary = true;
-      keyBlock = String.fromCharCode(...(await IOUtils.read(file.path)));
+      let data = await IOUtils.read(file.path);
+      keyBlock = MailStringUtils.uint8ArrayToByteString(data);
     }
 
     // Generate a preview of the imported key.
