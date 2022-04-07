@@ -3294,10 +3294,12 @@ function HandleJunkStatusChanged(folder) {
 
   // This might be the stand alone window, open to a message that was
   // and attachment (or on disk), in which case, we want to ignore it.
+  let messageFolder =
+    gFolderDisplay.displayedFolder || gFolderDisplay.selectedMessage.folder;
   if (
     !gMessageDisplay.displayedMessage ||
     gMessageDisplay.isDummy ||
-    gFolderDisplay.displayedFolder != folder
+    messageFolder != folder
   ) {
     return;
   }
@@ -3306,14 +3308,11 @@ function HandleJunkStatusChanged(folder) {
   // we don't want to show the junk bar (since the message pane is blank).
   let msgHdr =
     gFolderDisplay.selectedCount == 1 ? gMessageDisplay.displayedMessage : null;
-  let junkBarWasDisplayed = gMessageNotificationBar.isShowingJunkNotification();
-  gMessageNotificationBar.setJunkMsg(msgHdr);
+  let junkBarStatus = gMessageNotificationBar.checkJunkMsgStatus(msgHdr);
 
-  // Only reload message if junk bar display state has changed.
-  if (
-    msgHdr &&
-    junkBarWasDisplayed != gMessageNotificationBar.isShowingJunkNotification()
-  ) {
+  // Only reload message if junk bar display state is changing and only if the
+  // reload is really needed.
+  if (msgHdr && junkBarStatus != 0) {
     // We may be forcing junk mail to be rendered with sanitized html.
     // In that scenario, we want to reload the message if the status has just
     // changed to not junk.
@@ -3341,9 +3340,12 @@ function HandleJunkStatusChanged(folder) {
         (isJunk && folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk))
       ) {
         ReloadMessage();
+        return;
       }
     }
   }
+
+  gMessageNotificationBar.setJunkMsg(msgHdr);
 }
 
 /**
@@ -3371,54 +3373,70 @@ var gMessageNotificationBar = {
     return this._notificationBox;
   },
 
+  /**
+   * Check if the current status of the junk notification is correct or not.
+   *
+   * @param {nsIMsgDBHdr} aMsgHdr - Information about the message
+   * @returns {integer} Tri-state status information.
+   *    1: notification is missing
+   *    0: notification is correct
+   *   -1: notification must be removed
+   */
+  checkJunkMsgStatus(aMsgHdr) {
+    let junkScore = aMsgHdr ? aMsgHdr.getStringProperty("junkscore") : "";
+    let junkStatus = this.isShowingJunkNotification();
+
+    if (junkScore == "" || junkScore == Ci.nsIJunkMailPlugin.IS_HAM_SCORE) {
+      // This is not junk. The notification should not be shown.
+      return junkStatus ? -1 : 0;
+    }
+
+    // This is junk. The notification should be shown.
+    return junkStatus ? 0 : 1;
+  },
+
   setJunkMsg(aMsgHdr) {
     goUpdateCommand("button_junk");
 
-    let brandName = this.brandBundle.getString("brandShortName");
-    let junkBarMsg = this.stringBundle.getFormattedString("junkBarMessage", [
-      brandName,
-    ]);
-
-    let junkScore = aMsgHdr ? aMsgHdr.getStringProperty("junkscore") : "";
-    if (junkScore == "" || junkScore == Ci.nsIJunkMailPlugin.IS_HAM_SCORE) {
-      // not junk -> just close the notificaion then, if one was showing
-      let item = this.msgNotificationBar.getNotificationWithValue(
-        "junkContent"
+    let junkBarStatus = this.checkJunkMsgStatus(aMsgHdr);
+    if (junkBarStatus == -1) {
+      this.msgNotificationBar.removeNotification(
+        this.msgNotificationBar.getNotificationWithValue("junkContent"),
+        true
       );
-      if (item) {
-        this.msgNotificationBar.removeNotification(item, true);
-      }
-      return;
-    }
+    } else if (junkBarStatus == 1) {
+      let brandName = this.brandBundle.getString("brandShortName");
+      let junkBarMsg = this.stringBundle.getFormattedString("junkBarMessage", [
+        brandName,
+      ]);
 
-    let buttons = [
-      {
-        label: this.stringBundle.getString("junkBarInfoButton"),
-        accessKey: this.stringBundle.getString("junkBarInfoButtonKey"),
-        popup: null,
-        callback(aNotification, aButton) {
-          openContentTab(
-            "https://support.mozilla.org/kb/thunderbird-and-junk-spam-messages"
-          );
-          return true; // keep notification open
+      let buttons = [
+        {
+          label: this.stringBundle.getString("junkBarInfoButton"),
+          accessKey: this.stringBundle.getString("junkBarInfoButtonKey"),
+          popup: null,
+          callback(aNotification, aButton) {
+            openContentTab(
+              "https://support.mozilla.org/kb/thunderbird-and-junk-spam-messages"
+            );
+            return true; // keep notification open
+          },
         },
-      },
-      {
-        label: this.stringBundle.getString("junkBarButton"),
-        accessKey: this.stringBundle.getString("junkBarButtonKey"),
-        popup: null,
-        callback(aNotification, aButton) {
-          JunkSelectedMessages(false);
-          // Return true (=don't close) since changing junk status will fire a
-          // JunkStatusChanged notification which will make the junk bar go away
-          // for this message -> no notification to close anymore -> trying to
-          // close would just fail.
-          return true;
+        {
+          label: this.stringBundle.getString("junkBarButton"),
+          accessKey: this.stringBundle.getString("junkBarButtonKey"),
+          popup: null,
+          callback(aNotification, aButton) {
+            JunkSelectedMessages(false);
+            // Return true (=don't close) since changing junk status will fire a
+            // JunkStatusChanged notification which will make the junk bar go away
+            // for this message -> no notification to close anymore -> trying to
+            // close would just fail.
+            return true;
+          },
         },
-      },
-    ];
+      ];
 
-    if (!this.isShowingJunkNotification()) {
       this.msgNotificationBar.appendNotification(
         "junkContent",
         {

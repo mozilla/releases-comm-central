@@ -214,7 +214,7 @@ class FolderDBListener {
         OnTagsChange();
         break;
       case "junkscore":
-        gMessageNotificationBar.setJunkMsg(gFolderDisplay.selectedMessage);
+        HandleJunkStatusChanged(gFolderDisplay.selectedMessage.folder);
         break;
     }
   }
@@ -226,11 +226,13 @@ class FolderDBListener {
  * listen for any flags change happening in the currently displayed messages.
  */
 function initFolderDBListener() {
+  let messageFolder =
+    gFolderDisplay.displayedFolder || gFolderDisplay.selectedMessage.folder;
   // Bail out if we already have a DBListener initialized and the folder didn't
   // change.
   if (
     gFolderDBListener?.isRegistered &&
-    gFolderDBListener.selectedFolder == gFolderDisplay.displayedFolder
+    gFolderDBListener.selectedFolder == messageFolder
   ) {
     return;
   }
@@ -239,7 +241,7 @@ function initFolderDBListener() {
   // any remaining of the old DBListener.
   clearFolderDBListener();
 
-  gFolderDBListener = new FolderDBListener(gFolderDisplay.displayedFolder);
+  gFolderDBListener = new FolderDBListener(messageFolder);
   gFolderDBListener.register();
 }
 
