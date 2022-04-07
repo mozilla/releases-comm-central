@@ -4,9 +4,24 @@
 
 const EXPORTED_SYMBOLS = ["ImapClient"];
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
+var { ImapAuthenticator } = ChromeUtils.import(
+  "resource:///modules/MailAuthenticator.jsm"
+);
+
+/**
+ * A structure to represent a response received from the server.
+ * @typedef {Object} ImapResponse
+ * @property {string} tag - Can be "*", "+" or client tag.
+ * @property {string} status - Can be "OK", "NO" or "BAD".
+ * @property {string} statusData - The third part of the status line.
+ * @property {string} statusText - The fourth part of the status line.
+ */
 
 /**
  * A class to interact with IMAP server.
@@ -23,6 +38,9 @@ class ImapClient {
    */
   constructor(server) {
     this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
+    this._authenticator = new ImapAuthenticator(server);
+
+    this._tag = Math.floor(100 * Math.random());
   }
 
   /**
@@ -59,9 +77,19 @@ class ImapClient {
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
     this._nextAction = () => {
-      this.onOpen();
+      this._actionCapabilityResponse();
     };
   };
+
+  /**
+   * Parse the server response.
+   * @param {string} str - Response received from the server.
+   * @returns {ImapResponse}
+   */
+  _parse(str) {
+    let [tag, status, data, text] = str.split(" ");
+    return { tag, status, data, text };
+  }
 
   /**
    * The data event handler.
@@ -72,6 +100,8 @@ class ImapClient {
       new Uint8Array(event.data)
     );
     this._logger.debug(`S: ${stringPayload}`);
+    let res = this._parse(stringPayload);
+    this._nextAction?.(res);
   };
 
   /**
@@ -93,6 +123,75 @@ class ImapClient {
    */
   _onClose = () => {
     this._logger.debug("Connection closed.");
+  };
+
+  /**
+   * Send a command to the server.
+   * @param {string} str - The command string to send.
+   * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
+   */
+  _send(str, suppressLogging) {
+    if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
+      this._logger.debug(
+        "C: Logging suppressed (it probably contained auth information)"
+      );
+    } else {
+      // Do not suppress for non-release builds, so that debugging auth problems
+      // is easier.
+      this._logger.debug(`C: ${str}`);
+    }
+
+    if (this._socket?.readyState != "open") {
+      this._logger.warn(
+        `Failed to send because socket state is ${this._socket?.readyState}`
+      );
+      return;
+    }
+
+    this._socket.send(
+      MailStringUtils.byteStringToUint8Array(str + "\r\n").buffer
+    );
+  }
+
+  /**
+   * Get the next command tag.
+   * @returns {number}
+   */
+  _getNextTag() {
+    this._tag = (this._tag + 1) % 100;
+    return this._tag;
+  }
+
+  /**
+   * Handle the capability response.
+   * @param {ImapResponse} res - Response received from the server.
+   * @returns {number}
+   */
+  _actionCapabilityResponse = res => {
+    this._actionAuth();
+  };
+
+  /**
+   * Init authentication depending on server capabilities and user prefs.
+   */
+  _actionAuth = () => {
+    this._nextAction = this._actionAuthPlain;
+    let tag = this._getNextTag();
+    this._send(`${tag} AUTHENTICATE PLAIN`);
+  };
+
+  /**
+   * The second step of PLAIN auth. Send the auth token to the server.
+   * @param {ImapResponse} res - Response received from the server.
+   */
+  _actionAuthPlain = res => {
+    this._nextAction = null;
+    // According to rfc4616#section-2, password should be BinaryString before
+    // base64 encoded.
+    let password = MailStringUtils.uint8ArrayToByteString(
+      new TextEncoder().encode(this._authenticator.getPassword())
+    );
+    this._send(btoa("\0" + this._authenticator.username + "\0" + password));
   };
 
   /**

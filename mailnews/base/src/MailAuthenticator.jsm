@@ -6,6 +6,7 @@ const EXPORTED_SYMBOLS = [
   "SmtpAuthenticator",
   "NntpAuthenticator",
   "Pop3Authenticator",
+  "ImapAuthenticator",
 ];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -190,7 +191,7 @@ class MailAuthenticator {
 
 /**
  * Collection of helper functions for authenticating an SMTP connection.
- * @extends MailAuthenticator
+ * @extends {MailAuthenticator}
  */
 class SmtpAuthenticator extends MailAuthenticator {
   /**
@@ -281,7 +282,7 @@ class SmtpAuthenticator extends MailAuthenticator {
 
 /**
  * Collection of helper functions for authenticating an incoming server.
- * @extends MailAuthenticator
+ * @extends {MailAuthenticator}
  */
 class IncomingServerAuthenticator extends MailAuthenticator {
   /**
@@ -326,7 +327,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
 
 /**
  * Collection of helper functions for authenticating a NNTP connection.
- * @extends IncomingServerAuthenticator
+ * @extends {IncomingServerAuthenticator}
  */
 class NntpAuthenticator extends IncomingServerAuthenticator {
   promptAuthFailed() {
@@ -334,6 +335,10 @@ class NntpAuthenticator extends IncomingServerAuthenticator {
   }
 }
 
+/**
+ * Collection of helper functions for authenticating a POP connection.
+ * @extends {IncomingServerAuthenticator}
+ */
 class Pop3Authenticator extends IncomingServerAuthenticator {
   getPassword() {
     if (this._server.password) {
@@ -349,6 +354,39 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
     );
     let promptTitle = composeBundle.formatStringFromName(
       "pop3EnterPasswordPromptTitleWithUsername",
+      [this._server.hostname]
+    );
+    let msgWindow;
+    try {
+      msgWindow = MailServices.mailSession.topmostMsgWindow;
+    } catch (e) {}
+    return this._server.getPasswordWithUI(promptString, promptTitle, msgWindow);
+  }
+
+  promptAuthFailed() {
+    return this._promptAuthFailed(null, this._server.prettyName);
+  }
+}
+
+/**
+ * Collection of helper functions for authenticating an IMAP connection.
+ * @extends {IncomingServerAuthenticator}
+ */
+class ImapAuthenticator extends IncomingServerAuthenticator {
+  getPassword() {
+    if (this._server.password) {
+      return this._server.password;
+    }
+    let composeBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/imapMsgs.properties"
+    );
+    let params = [this._server.username, this._server.hostname];
+    let promptString = composeBundle.formatStringFromName(
+      "imapEnterServerPasswordPrompt",
+      params
+    );
+    let promptTitle = composeBundle.formatStringFromName(
+      "imapEnterPasswordPromptTitleWithUsername",
       [this._server.hostname]
     );
     let msgWindow;
