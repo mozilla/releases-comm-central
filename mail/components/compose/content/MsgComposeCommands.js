@@ -1673,8 +1673,11 @@ function toggleEncryptMessage() {
     isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
   let configuredOpenPGP = isPgpConfigured();
   let noEncryption = !configuredOpenPGP && !configuredSMIME;
-  document.getElementById("button-encryption-toggle").disabled =
-    noEncryption && !gSendEncrypted;
+
+  let encToggle = document.getElementById("button-encryption-toggle");
+  if (encToggle) {
+    encToggle.disabled = noEncryption && !gSendEncrypted;
+  }
 }
 
 function toggleAttachMyPublicKey(target) {
@@ -4476,8 +4479,10 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
 
   // If we don't have either OpePGP or SMIME for any identity, hide the entire
   // menu.
-  document.getElementById("button-encryption-options").hidden =
-    !isOpenPGPAvailable && !isSMIMEAvailable;
+  let encOpt = document.getElementById("button-encryption-options");
+  if (encOpt) {
+    encOpt.hidden = !isOpenPGPAvailable && !isSMIMEAvailable;
+  }
   document.getElementById("encryptionMenu").hidden =
     !isOpenPGPAvailable && !isSMIMEAvailable;
 
@@ -4501,10 +4506,14 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   // encryption automatically, as the user might have seen that it is
   // enabled and might rely on it).
   let noEncryption = !configuredOpenPGP && !configuredSMIME;
-  document.getElementById("button-encryption-toggle").disabled =
-    noEncryption && !gSendEncrypted;
-  document.getElementById("button-encryption-options").disabled =
-    noEncryption && !gSendEncrypted;
+
+  let encToggle = document.getElementById("button-encryption-toggle");
+  if (encToggle) {
+    encToggle.disabled = noEncryption && !gSendEncrypted;
+  }
+  if (encOpt) {
+    encOpt.disabled = noEncryption && !gSendEncrypted;
+  }
   document.getElementById("encryptionMenu").disabled =
     noEncryption && !gSendEncrypted;
 
@@ -5105,12 +5114,15 @@ var SecurityController = {
 };
 
 function updateEncryptionOptions() {
-  document.l10n.setAttributes(
-    document.getElementById("button-encryption-options"),
-    gSelectedTechnologyIsPGP
-      ? "encryption-options-openpgp"
-      : "encryption-options-smime"
-  );
+  let encOpt = document.getElementById("button-encryption-options");
+  if (encOpt) {
+    document.l10n.setAttributes(
+      encOpt,
+      gSelectedTechnologyIsPGP
+        ? "encryption-options-openpgp"
+        : "encryption-options-smime"
+    );
+  }
   document.l10n.setAttributes(
     document.getElementById("menu_recipientStatus_Menubar"),
     gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
@@ -10646,15 +10658,14 @@ function setSendEncryptedAndSigned(encrypted) {
     gSendSigned = gCurrentIdentity.signMail;
   }
 
-  if (gSendEncrypted) {
-    document
-      .getElementById("button-encryption-toggle")
-      .setAttribute("checked", "true");
-  } else {
-    document
-      .getElementById("button-encryption-toggle")
-      .removeAttribute("checked");
-    clearRecipientsWithKeyIssues();
+  let encToggle = document.getElementById("button-encryption-toggle");
+  if (encToggle) {
+    if (gSendEncrypted) {
+      encToggle.setAttribute("checked", "true");
+    } else {
+      encToggle.removeAttribute("checked");
+      clearRecipientsWithKeyIssues();
+    }
   }
   updateEncryptedSubject();
   window.dispatchEvent(
