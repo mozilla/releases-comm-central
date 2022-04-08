@@ -134,11 +134,13 @@ var account = {
         };
         Services.obs.addObserver(
           this.encryptionObserver,
-          "account-sessions-changed"
+          "account-sessions-changed",
+          true
         );
         Services.obs.addObserver(
           this.encryptionObserver,
-          "account-encryption-status-changed"
+          "account-encryption-status-changed",
+          true
         );
       }
     }
