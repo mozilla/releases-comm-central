@@ -31,7 +31,6 @@ class nsLocalMoveCopyMsgTxn : public nsIFolderListener, public nsMsgTxn {
 
   // helper
   nsresult AddSrcKey(nsMsgKey aKey);
-  nsresult AddSrcStatusOffset(uint32_t statusOffset);
   nsresult AddDstKey(nsMsgKey aKey);
   nsresult AddDstMsgSize(uint32_t msgSize);
   nsresult SetSrcFolder(nsIMsgFolder* srcFolder);
@@ -51,8 +50,7 @@ class nsLocalMoveCopyMsgTxn : public nsIFolderListener, public nsMsgTxn {
  private:
   virtual ~nsLocalMoveCopyMsgTxn();
   nsWeakPtr m_srcFolder;
-  nsTArray<nsMsgKey> m_srcKeyArray;           // used when src is local or imap
-  nsTArray<uint32_t> m_srcStatusOffsetArray;  // used when src is local
+  nsTArray<nsMsgKey> m_srcKeyArray;  // used when src is local or imap
   nsWeakPtr m_dstFolder;
   nsTArray<nsMsgKey> m_dstKeyArray;
   bool m_isMove;

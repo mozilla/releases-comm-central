@@ -259,16 +259,10 @@ FeedItem.prototype = {
     this.content = this.content.replace(/([\r\n]+)(>*From )/g, "$1>$2");
     this.content += "\n";
 
-    // The opening line of the message, mandated by standards to start
-    // with "From ".  It's useful to construct this separately because
-    // we not only need to write it into the message, we also need to
-    // use it to calculate the offset of the X-Mozilla-Status lines from
-    // the front of the message for the statusOffset property of the
-    // DB header object.
-    let openingLine = "From - " + this.mDate + "\n";
-
     let source =
-      openingLine +
+      "From - " +
+      this.mDate +
+      "\n" +
       "X-Mozilla-Status: 0000\n" +
       "X-Mozilla-Status2: 00000000\n" +
       "X-Mozilla-Keys: " +

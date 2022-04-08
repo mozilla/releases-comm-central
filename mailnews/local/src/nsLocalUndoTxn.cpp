@@ -66,11 +66,6 @@ nsresult nsLocalMoveCopyMsgTxn::AddSrcKey(nsMsgKey aKey) {
   return NS_OK;
 }
 
-nsresult nsLocalMoveCopyMsgTxn::AddSrcStatusOffset(uint32_t aStatusOffset) {
-  m_srcStatusOffsetArray.AppendElement(aStatusOffset);
-  return NS_OK;
-}
-
 nsresult nsLocalMoveCopyMsgTxn::AddDstKey(nsMsgKey aKey) {
   m_dstKeyArray.AppendElement(aKey);
   return NS_OK;
@@ -207,7 +202,6 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
                                              getter_AddRefs(newHdr));
           NS_ASSERTION(newHdr, "fatal ... cannot create new msg header");
           if (NS_SUCCEEDED(rv) && newHdr) {
-            newHdr->SetStatusOffset(m_srcStatusOffsetArray[i]);
             srcDB->UndoDelete(newHdr);
             srcMessages.AppendElement(newHdr);
             // (we want to keep these two lists in sync)

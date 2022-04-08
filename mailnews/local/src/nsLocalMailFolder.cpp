@@ -2136,11 +2136,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       localUndoTxn->GetSrcIsImap(&isImap);
       if (!isImap || !mCopyState->m_copyingMultipleMessages) {
         nsMsgKey aKey;
-        uint32_t statusOffset;
         mCopyState->m_message->GetMessageKey(&aKey);
-        mCopyState->m_message->GetStatusOffset(&statusOffset);
         localUndoTxn->AddSrcKey(aKey);
-        localUndoTxn->AddSrcStatusOffset(statusOffset);
         localUndoTxn->AddDstKey(mCopyState->m_curDstKey);
       }
     }

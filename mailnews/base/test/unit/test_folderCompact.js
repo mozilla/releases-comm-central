@@ -327,7 +327,7 @@ function showMessages(folder, text) {
   dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
   for (let hdr of folder.messages) {
     dump(
-      `  key: ${hdr.messageKey} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId} statusOffset: ${hdr.statusOffset}\n`
+      `  key: ${hdr.messageKey} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
     );
   }
 }

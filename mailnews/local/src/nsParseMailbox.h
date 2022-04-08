@@ -119,8 +119,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   uint16_t m_body_lines;
   uint16_t m_lastLineBlank;
 
-  bool m_IgnoreXMozillaStatus;
-
   // this enables extensions to add the values of particular headers to
   // the .msf file as properties of nsIMsgHdr. It is initialized from a
   // pref, mailnews.customDBHeaders

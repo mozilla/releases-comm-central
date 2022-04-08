@@ -152,7 +152,6 @@ class nsFolderCompactState : public nsIStreamListener,
   // Flag to indicate we're starting a new message, and that no data has
   // been written for it yet.
   bool m_startOfMsg;
-  uint32_t m_statusOffset;
   //  Function which will be run when the folder compaction completes.
   std::function<void(nsresult)> m_completionFn;
   bool m_alreadyWarnedDiskSpace{false};
@@ -164,7 +163,6 @@ NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIRequestObserver, nsIStreamListener,
 nsFolderCompactState::nsFolderCompactState() {
   m_parsingFolder = false;
   m_startOfMsg = true;
-  m_statusOffset = 0;
 }
 
 nsFolderCompactState::~nsFolderCompactState() {
@@ -711,7 +709,6 @@ nsFolderCompactState::OnDataAvailable(nsIRequest* request,
   // orderings. Leaving it here for now, but it's ripe for tidying up in
   // future.
   if (m_startOfMsg) {
-    m_statusOffset = 0;
     m_messageUri.Truncate();  // clear the previous message uri
     if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                                      m_messageUri))) {
@@ -799,7 +796,6 @@ nsresult nsFolderCompactState::FlushBuffer() {
   }
   rv = WriteSpan(m_fileStream, fromLine);
   NS_ENSURE_SUCCESS(rv, rv);
-  m_statusOffset = fromLine.Length();
 
   // Read as many headers as we can. We might not have the complete header
   // block our in buffer, but that's OK - the X-Mozilla-* ones should be
@@ -1167,9 +1163,6 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
   }
   m_curSrcHdr = nullptr;
   if (newMsgHdr) {
-    if (m_statusOffset != 0) {
-      newMsgHdr->SetStatusOffset(m_statusOffset);
-    }
     char storeToken[100];
     PR_snprintf(storeToken, sizeof(storeToken), "%lld", m_startOfNewMsg);
     newMsgHdr->SetStringProperty("storeToken", storeToken);
@@ -1218,7 +1211,6 @@ nsOfflineStoreCompactState::OnDataAvailable(nsIRequest* request,
   nsresult rv = NS_OK;
 
   if (m_startOfMsg) {
-    m_statusOffset = 0;
     m_offlineMsgSize = 0;
     m_messageUri.Truncate();  // clear the previous message uri
     if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
