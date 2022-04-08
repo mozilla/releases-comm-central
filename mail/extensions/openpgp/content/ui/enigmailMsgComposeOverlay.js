@@ -153,6 +153,8 @@ Enigmail.msg = {
       true
     );
 
+    await OpenPGPAlias.load().catch(Cu.reportError);
+
     Enigmail.msg.composeOpen();
     //Enigmail.msg.processFinalState();
   },
@@ -1069,12 +1071,6 @@ Enigmail.msg = {
     // gMsgCompose.expandMailingLists();
 
     if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
-      try {
-        await OpenPGPAlias.load();
-      } catch (ex) {
-        console.log("failed to load OpenPGP alias file: " + ex);
-      }
-
       var toAddrList = [];
       var arrLen = {};
       var recList;
