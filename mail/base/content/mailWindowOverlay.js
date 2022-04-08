@@ -3276,43 +3276,28 @@ function SetupUndoRedoCommand(command) {
 }
 
 /**
- * Triggered by the global JunkStatusChanged notification, we handle updating
- *  the message display if our displayed message might have had its junk status
- *  change.  This primarily entails updating the notification bar (that thing
- *  that appears above the message and says "this message might be junk") and
- *  (potentially) reloading the message because junk status affects the form of
- *  HTML display used (sanitized vs not).
+ * Triggered by the onHdrPropertyChanged notification for a single message being
+ *  displayed. We handle updating the message display if our displayed message
+ *  might have had its junk status change. This primarily entails updating the
+ *  notification bar (that thing that appears above the message and says "this
+ *  message might be junk") and (potentially) reloading the message because junk
+ *  status affects the form of HTML display used (sanitized vs not).
  * When our tab implementation is no longer multiplexed (reusing the same
  *  display widget), this must be moved into the MessageDisplayWidget or
  *  otherwise be scoped to the tab.
+ *
+ * @param {nsIMsgHdr} msgHdr - The nsIMsgHdr of the message with a junk status change.
  */
-function HandleJunkStatusChanged(folder) {
-  // We have nothing to do (and should bail) if:
-  // - There is no currently displayed message.
-  // - The displayed message is an .eml file from disk or an attachment.
-  // - The folder that has had a junk change is not backing the display folder.
-
-  // This might be the stand alone window, open to a message that was
-  // and attachment (or on disk), in which case, we want to ignore it.
-  let messageFolder =
-    gFolderDisplay.displayedFolder || gFolderDisplay.selectedMessage.folder;
-  if (
-    !gMessageDisplay.displayedMessage ||
-    gMessageDisplay.isDummy ||
-    messageFolder != folder
-  ) {
+function HandleJunkStatusChanged(msgHdr) {
+  if (!msgHdr || !msgHdr.folder) {
     return;
   }
 
-  // If multiple message are selected and we change the junk status
-  // we don't want to show the junk bar (since the message pane is blank).
-  let msgHdr =
-    gFolderDisplay.selectedCount == 1 ? gMessageDisplay.displayedMessage : null;
   let junkBarStatus = gMessageNotificationBar.checkJunkMsgStatus(msgHdr);
 
   // Only reload message if junk bar display state is changing and only if the
   // reload is really needed.
-  if (msgHdr && junkBarStatus != 0) {
+  if (junkBarStatus != 0) {
     // We may be forcing junk mail to be rendered with sanitized html.
     // In that scenario, we want to reload the message if the status has just
     // changed to not junk.
@@ -3335,9 +3320,9 @@ function HandleJunkStatusChanged(folder) {
       // 2) When marking as junk, the msg will move or delete, if manualMark is set.
       // 3) Marking as junk in the junk folder just changes the junk status.
       if (
-        (!isJunk && !folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk)) ||
-        (isJunk && !folder.server.spamSettings.manualMark) ||
-        (isJunk && folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk))
+        (!isJunk && !msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk)) ||
+        (isJunk && !msgHdr.folder.server.spamSettings.manualMark) ||
+        (isJunk && msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk))
       ) {
         ReloadMessage();
         return;

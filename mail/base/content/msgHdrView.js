@@ -205,8 +205,22 @@ class FolderDBListener {
   onReadChanged(instigator) {}
   onJunkScoreChanged(instigator) {}
   onHdrPropertyChanged(hdrToChange, property, preChange, status, instigator) {
-    // Not interested before a change or if the message isn't the one displayed.
-    if (preChange || hdrToChange != gFolderDisplay.selectedMessage) {
+    // Since gMessageDisplay.displayedMessage is updated when switching to a
+    // different message and not when switching to a contentTab, manually check
+    // if the message is the one in the active tab.
+    let messageDisplay =
+      window.document.documentElement.getAttribute("windowtype") == "mail:3pane"
+        ? window.document.getElementById("tabmail").selectedTab.messageDisplay
+        : window.gMessageDisplay;
+
+    // Not interested before a change, or if the message isn't the one displayed,
+    // or an .eml file from disk or an attachment.
+    if (
+      preChange ||
+      !messageDisplay ||
+      messageDisplay.isDummy ||
+      messageDisplay.displayedMessage != hdrToChange
+    ) {
       return;
     }
     switch (property) {
@@ -214,7 +228,7 @@ class FolderDBListener {
         OnTagsChange();
         break;
       case "junkscore":
-        HandleJunkStatusChanged(gFolderDisplay.selectedMessage.folder);
+        HandleJunkStatusChanged(hdrToChange);
         break;
     }
   }
