@@ -29,6 +29,10 @@ add_task(async function testAnnualRecurrence() {
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: "yearly" });
   await saveAndCloseItemDialog(dialogWindow);
+  await TestUtils.waitForCondition(
+    () => CalendarTestUtils.dayView.getAllDayItemAt(window, 1),
+    "recurring all-day event created"
+  );
 
   let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];
   for (let year of checkYears) {
