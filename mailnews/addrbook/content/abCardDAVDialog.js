@@ -203,9 +203,9 @@ window.addEventListener("dialogaccept", event => {
   for (let checkbox of uiElements.availableBooks.children) {
     if (checkbox.checked) {
       let book = checkbox._book.create();
-      window.arguments[0].newDirectoryUID = book.UID;
-      if ("onNewDirectory" in window.arguments[0]) {
-        window.arguments[0].onNewDirectory(book);
+      if (window.arguments[0]) {
+        // Pass the UID of the book back to the opening window.
+        window.arguments[0].newDirectoryUID = book.UID;
       }
     }
   }

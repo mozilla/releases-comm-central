@@ -121,7 +121,8 @@ function addCardDAVAddressBook() {
   window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
     "",
-    "chrome,resizable=no,centerscreen"
+    "chrome,resizable=no,centerscreen",
+    {}
   );
 }
 
