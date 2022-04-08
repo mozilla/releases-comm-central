@@ -52,12 +52,6 @@ interface nsIMsgDBHdr : nsISupports
     attribute unsigned long messageSize;
     attribute unsigned long lineCount;
     /**
-     * Number of bytes from the start of the message to the X-Mozilla-Status
-     * header. Slated for removal - see Bug 1744461.
-     * This is measured from the beginning of the "From " line, if any.
-     */
-    attribute unsigned long statusOffset;
-    /**
      * The offset into the local folder/offline store of the message. This
      * will be pluggable store-dependent, e.g., for mail dir it should
      * always be 0.

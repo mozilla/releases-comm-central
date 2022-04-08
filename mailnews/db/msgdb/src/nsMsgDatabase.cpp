@@ -1042,7 +1042,6 @@ nsMsgDatabase::nsMsgDatabase()
       m_flagsColumnToken(0),
       m_priorityColumnToken(0),
       m_labelColumnToken(0),
-      m_statusOffsetColumnToken(0),
       m_numLinesColumnToken(0),
       m_ccListColumnToken(0),
       m_bccListColumnToken(0),
@@ -1500,7 +1499,6 @@ const char* kMessageSizeColumnName = "size";
 const char* kFlagsColumnName = "flags";
 const char* kPriorityColumnName = "priority";
 const char* kLabelColumnName = "label";
-const char* kStatusOffsetColumnName = "statusOfset";
 const char* kNumLinesColumnName = "numLines";
 const char* kCCListColumnName = "ccList";
 const char* kBCCListColumnName = "bccList";
@@ -1692,8 +1690,6 @@ nsresult nsMsgDatabase::InitMDBInfo() {
                                 &m_priorityColumnToken);
       GetStore()->StringToToken(GetEnv(), kLabelColumnName,
                                 &m_labelColumnToken);
-      GetStore()->StringToToken(GetEnv(), kStatusOffsetColumnName,
-                                &m_statusOffsetColumnToken);
       GetStore()->StringToToken(GetEnv(), kNumLinesColumnName,
                                 &m_numLinesColumnToken);
       GetStore()->StringToToken(GetEnv(), kCCListColumnName,

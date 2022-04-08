@@ -41,7 +41,6 @@ nsMsgHdr::nsMsgHdr(nsMsgDatabase* db, nsIMdbRow* dbRow) {
 
 void nsMsgHdr::Init() {
   m_initedValues = 0;
-  m_statusOffset = 0xffffffff;
   m_messageKey = nsMsgKey_None;
   m_messageSize = 0;
   m_date = 0;
@@ -370,23 +369,11 @@ NS_IMETHODIMP nsMsgHdr::SetLineCount(uint32_t lineCount) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgHdr::SetStatusOffset(uint32_t statusOffset) {
-  return SetUInt32Column(statusOffset, m_mdb->m_statusOffsetColumnToken);
-}
-
 NS_IMETHODIMP nsMsgHdr::SetDate(PRTime date) {
   m_date = date;
   uint32_t seconds;
   PRTime2Seconds(date, &seconds);
   return SetUInt32Column((uint32_t)seconds, m_mdb->m_dateColumnToken);
-}
-
-NS_IMETHODIMP nsMsgHdr::GetStatusOffset(uint32_t* result) {
-  uint32_t offset = 0;
-  nsresult res = GetUInt32Column(m_mdb->m_statusOffsetColumnToken, &offset);
-
-  *result = offset;
-  return res;
 }
 
 NS_IMETHODIMP nsMsgHdr::SetPriority(nsMsgPriorityValue priority) {
