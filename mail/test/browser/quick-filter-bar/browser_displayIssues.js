@@ -89,7 +89,7 @@ add_setup(async function() {
  * Because the mozmill window sizing is weird and confusing, we force our size
  *  in both cases but do save/restore around our test.
  */
-add_task(function test_buttons_collapse_and_expand() {
+add_task(async function test_buttons_collapse_and_expand() {
   assert_quick_filter_bar_visible(true); // precondition
 
   let qfbCollapsy = mc.e("quick-filter-bar-collapsible-buttons");
@@ -112,7 +112,8 @@ add_task(function test_buttons_collapse_and_expand() {
     ]);
   }
 
-  function assertCollapsed() {
+  async function assertCollapsed() {
+    await new Promise(resolve => requestAnimationFrame(resolve));
     // The bar should be shrunken and the button should be the same size as its
     // image!
     if (qfbCollapsy.getAttribute("shrink") != "true") {
@@ -122,7 +123,8 @@ add_task(function test_buttons_collapse_and_expand() {
       throw new Error("The exemplar label should be collapsed!");
     }
   }
-  function assertExpanded() {
+  async function assertExpanded() {
+    await new Promise(resolve => requestAnimationFrame(resolve));
     // The bar should not be shrunken and the button should be smaller than its
     // label!
     if (qfbCollapsy.hasAttribute("shrink")) {
@@ -141,7 +143,7 @@ add_task(function test_buttons_collapse_and_expand() {
   // smaller than we want.  So let's turn off the folder pane too.
   collapse_panes(mc.e("folderpane_splitter"), true);
   logState("giant");
-  assertExpanded();
+  await assertExpanded();
   // NOTE! 1260 is actually not much above what's needed to get the
   // expanded qfb.
 
@@ -149,13 +151,13 @@ add_task(function test_buttons_collapse_and_expand() {
   collapse_panes(mc.e("folderpane_splitter"), false);
   resize_to(mc, gShrunkenWindowWidth, gDefaultWindowHeight);
   logState("tiny");
-  assertCollapsed();
+  await assertCollapsed();
 
   // -- GIANT again!
   resize_to(mc, gEnlargedWindowWidth, gDefaultWindowHeight);
   collapse_panes(mc.e("folderpane_splitter"), true);
   logState("giant again!");
-  assertExpanded();
+  await assertExpanded();
   teardownTest();
 });
 
