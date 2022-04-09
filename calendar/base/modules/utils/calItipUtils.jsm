@@ -730,8 +730,14 @@ var calitip = {
       }
 
       if (att) {
+        let { stampTime, lastModifiedTime } = item;
+
         // Set this so we know who accepted the event.
         item.setProperty("X-MOZ-INVITED-ATTENDEE", att.id);
+
+        // Remove the dirty flag from the item.
+        item.setProperty("DTSTAMP", stampTime);
+        item.setProperty("LAST-MODIFIED", lastModifiedTime);
       }
     }
 
