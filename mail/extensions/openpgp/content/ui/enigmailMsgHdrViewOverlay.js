@@ -6,12 +6,11 @@
 
 "use strict";
 
-/* Globals from Thunderbird: */
 /* global setMessageEncryptionStateButton */
 /* global gFolderDisplay: false, currentAttachments: false */
-/* global gDBView: false, msgWindow: false, messageHeaderSink: false, gMessageListeners: false, findEmailNodeFromPopupNode: true */
+/* global gDBView: false, msgWindow: false, messageHeaderSink: false, gMessageListeners: false */
 /* global gExpandedHeaderView: false, CanDetachAttachments: true, gEncryptedURIService: false, FillAttachmentListPopup: false */
-/* global attachmentList: false, MailOfflineMgr: false, currentHeaderData: false, ContentTypeIsSMIME: false */
+/* global attachmentList: false, currentHeaderData: false */
 
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -25,7 +24,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
-  EnigmailGpg: "chrome://openpgp/content/modules/gpg.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",

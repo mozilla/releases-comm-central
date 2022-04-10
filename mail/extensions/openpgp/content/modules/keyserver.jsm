@@ -17,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
-  EnigmailGpg: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   FeedUtils: "resource:///modules/FeedUtils.jsm",
@@ -305,9 +304,7 @@ const accessHkpInternal = {
             } else {
               let errorMsgObj = {},
                 importedKeysObj = {};
-              let importMinimal =
-                xmlReq.responseText.length > 1024000 &&
-                !EnigmailGpg.getGpgFeature("handles-huge-keys");
+              let importMinimal = false;
               let r = EnigmailKeyRing.importKey(
                 null,
                 false,

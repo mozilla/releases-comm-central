@@ -413,10 +413,6 @@ converter-decrypt-body-failed =
     { $subject }.
     Do you want to retry with a different passphrase or do you want to skip the message?
 
-# Strings in gpg.jsm
-unknown-signing-alg = Unknown signing algorithm (ID: { $id })
-unknown-hash-alg = Unknown cryptographic hash (ID: { $id })
-
 # Strings filters.jsm
 filter-folder-required = You must select a target folder.
 filter-decrypt-move-warn-experimental =
