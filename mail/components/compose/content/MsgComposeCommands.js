@@ -1674,7 +1674,7 @@ function toggleEncryptMessage() {
   let configuredOpenPGP = isPgpConfigured();
   let noEncryption = !configuredOpenPGP && !configuredSMIME;
 
-  let encToggle = document.getElementById("button-encryption-toggle");
+  let encToggle = document.getElementById("button-encryption");
   if (encToggle) {
     encToggle.disabled = noEncryption && !gSendEncrypted;
   }
@@ -4507,7 +4507,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   // enabled and might rely on it).
   let noEncryption = !configuredOpenPGP && !configuredSMIME;
 
-  let encToggle = document.getElementById("button-encryption-toggle");
+  let encToggle = document.getElementById("button-encryption");
   if (encToggle) {
     encToggle.disabled = noEncryption && !gSendEncrypted;
   }
@@ -10658,7 +10658,7 @@ function setSendEncryptedAndSigned(encrypted) {
     gSendSigned = gCurrentIdentity.signMail;
   }
 
-  let encToggle = document.getElementById("button-encryption-toggle");
+  let encToggle = document.getElementById("button-encryption");
   if (encToggle) {
     if (gSendEncrypted) {
       encToggle.setAttribute("checked", "true");

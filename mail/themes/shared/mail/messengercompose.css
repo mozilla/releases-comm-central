@@ -544,11 +544,11 @@
   list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
-#button-encryption-toggle {
+#button-encryption {
   list-style-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
 }
 
-#button-encryption-toggle[checked="true"] {
+#button-encryption[checked="true"] {
   list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
 }
 
