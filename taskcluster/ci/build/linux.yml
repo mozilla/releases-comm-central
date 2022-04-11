@@ -185,6 +185,64 @@ linux64-asan/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
+linux64-asan-reporter-shippable/opt:
+    description: "Linux64 Opt ASAN Reporter (Shippable)"
+    attributes:
+        shippable: true
+        enable-full-crashsymbols: true
+    shipping-product:
+        by-release-type:
+            nightly: thunderbird
+            default: null
+    index:
+        product: thunderbird
+        job-name: linux64-asan-reporter-opt
+        type: shippable
+    treeherder:
+        platform: linux64-asan-reporter/opt
+        symbol: BoR
+    run-on-projects: ['comm-central']
+    worker-type: b-linux
+    worker:
+        env:
+            PERFHERDER_EXTRA_OPTIONS: asan-reporter
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+        max-run-time: 3600
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build]
+        config-paths:
+            - comm/testing/mozharness/configs
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - taskcluster_nightly.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        custom-build-variant-cfg: asan-reporter-tc
+        mozconfig-variant: nightly-asan-reporter
+        need-xvfb: true
+        mar-channel-id:
+            thunderbird-comm-central-asan
+        accepted-mar-channel-ids:
+            thunderbird-comm-central-asan
+    optimization:
+        skip-unless-backstop-no-suite: null
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-llvm-symbolizer
+            - linux64-libotr
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
+            - linux64-rust-size
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+
 linux64-tsan/opt:
     description: "Linux64 Opt TSAN"
     index:
