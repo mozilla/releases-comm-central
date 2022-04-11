@@ -535,6 +535,13 @@ MailGlue.prototype = {
       }
     }
 
+    if (AppConstants.ASAN_REPORTER) {
+      var { AsanReporter } = ChromeUtils.import(
+        "resource://gre/modules/AsanReporter.jsm"
+      );
+      AsanReporter.init();
+    }
+
     this._scheduleStartupIdleTasks();
     this._lateTasksIdleObserver = (idleService, topic, data) => {
       if (topic == "idle") {
