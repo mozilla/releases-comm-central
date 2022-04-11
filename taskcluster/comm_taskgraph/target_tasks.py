@@ -4,8 +4,6 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-import six
-
 from gecko_taskgraph.target_tasks import (
     _target_task,
     filter_out_shipping_phase,
@@ -29,6 +27,6 @@ def target_tasks_default(full_task_graph, parameters, graph_config):
     via the `run_on_projects` attributes."""
     return [
         l
-        for l, t in six.iteritems(full_task_graph.tasks)
+        for l, t in full_task_graph.tasks.items()
         if standard_filter(t, parameters) and filter_out_shipping_phase(t, parameters)
     ]
