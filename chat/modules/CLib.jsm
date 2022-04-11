@@ -29,11 +29,14 @@ switch (OS) {
     break;
   case "darwin":
   case "dragonfly":
-  case "freebsd":
   case "netbsd":
   case "openbsd":
     libcAbi = ctypes.default_abi;
     libcPath = ctypes.libraryName("c");
+    break;
+  case "freebsd":
+    libcAbi = ctypes.default_abi;
+    libcPath = "libc.so.7";
     break;
   case "linux":
     libcAbi = ctypes.default_abi;
