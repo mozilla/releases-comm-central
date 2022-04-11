@@ -380,11 +380,11 @@ var gSpacesToolbar = {
       );
 
     for (let space of this.spaces) {
-      space.button.addEventListener("click", () => {
-        this._setSpaceOpenAction(tabmail, space);
+      this._addButtonClickListener(space.button, () => {
+        this._openSpace(tabmail, space);
       });
       space.menuitem?.addEventListener("command", () => {
-        this._setSpaceOpenAction(tabmail, space);
+        this._openSpace(tabmail, space);
       });
       if (space.name == "settings") {
         space.button.addEventListener("contextmenu", event => {
@@ -444,20 +444,20 @@ var gSpacesToolbar = {
       });
     }
 
-    document.getElementById("collapseButton").addEventListener("click", () => {
-      this.toggleToolbar(true);
-    });
+    this._addButtonClickListener(
+      document.getElementById("collapseButton"),
+      () => this.toggleToolbar(true)
+    );
 
     document
       .getElementById("spacesPopupButtonReveal")
       .addEventListener("command", () => {
         this.toggleToolbar(false);
       });
-    document
-      .getElementById("spacesToolbarAddonsOverflowButton")
-      .addEventListener("click", event => {
-        this.openSpacesToolbarAddonsPopup(event);
-      });
+    this._addButtonClickListener(
+      document.getElementById("spacesToolbarAddonsOverflowButton"),
+      event => this.openSpacesToolbarAddonsPopup(event)
+    );
 
     // Allow opening the pinned menu with Space or Enter keypress.
     document
@@ -544,37 +544,60 @@ var gSpacesToolbar = {
         break;
     }
 
-    this.setFocusButton(buttons[elementIndex]);
+    this.setFocusButton(buttons[elementIndex], true);
   },
 
   /**
    * Move the focus to a new toolbar button and update the tabindex attribute.
    *
    * @param {HTMLElement} buttonToFocus - The new button to receive focus.
+   * @param {boolean} [forceFocus=false] - Whether to force the focus to move
+   *   onto the new button, otherwise focus will only move if the previous
+   *   focusButton had focus.
    */
-  setFocusButton(buttonToFocus) {
-    if (buttonToFocus == this.focusButton) {
-      return;
+  setFocusButton(buttonToFocus, forceFocus = false) {
+    let prevHadFocus = false;
+    if (buttonToFocus != this.focusButton) {
+      prevHadFocus = document.activeElement == this.focusButton;
+      this.focusButton.tabIndex = -1;
+      this.focusButton = buttonToFocus;
+      buttonToFocus.tabIndex = 0;
     }
-
-    let prevHadFocus = document.activeElement == this.focusButton;
-    this.focusButton.tabIndex = -1;
-    this.focusButton = buttonToFocus;
-    buttonToFocus.tabIndex = 0;
     // Only move the focus if the currently focused button was the active
     // element.
-    if (prevHadFocus) {
+    if (forceFocus || prevHadFocus) {
       buttonToFocus.focus();
     }
   },
 
   /**
-   * Define the action to open a new tab or switch to an existing tab.
+   * Add a click event listener to a spaces toolbar button.
+   *
+   * This method will insert focus controls for when the button is clicked.
+   *
+   * @param {HTMLButtonElement} button - A button that belongs to the spaces
+   *   toolbar.
+   * @param {Function} listener - An event listener to call when the button's
+   *   click event is fired.
+   */
+  _addButtonClickListener(button, listener) {
+    button.addEventListener("click", event => {
+      // Since the button may have tabIndex = -1, we must manually move the
+      // focus into the button and set it as the focusButton.
+      // NOTE: We do this before activating the button, which may move the focus
+      // elsewhere, such as into a space.
+      this.setFocusButton(button, true);
+      listener(event);
+    });
+  },
+
+  /**
+   * Open a space by creating a new tab or switching to an existing tab.
    *
    * @param {XULElement} tabmail - The tabmail element.
-   * @param {SpaceInfo[]} space - The main spaces in this toolbar.
+   * @param {SpaceInfo} space - The space to open.
    */
-  _setSpaceOpenAction(tabmail, space) {
+  _openSpace(tabmail, space) {
     // Find the earliest primary tab that belongs to this space.
     let existing = tabmail.tabInfo.find(
       tabInfo => space.tabInSpace(tabInfo) == 1
@@ -789,29 +812,28 @@ var gSpacesToolbar = {
   toggleToolbar(state) {
     this.isHidden = state;
 
-    // Show the pinned button first so we can focus it if needed.
+    // The focused element, prior to toggling.
+    let activeElement = document.activeElement;
+
     let pinnedButton = document.getElementById("spacesPinnedButton");
     pinnedButton.collapsed = !state;
     let revealButton = document.getElementById("spacesToolbarReveal");
     revealButton.hidden = !state;
+    this.element.hidden = state;
 
-    if (state && this.element.contains(document.activeElement)) {
+    if (state && this.element.contains(activeElement)) {
       // If the toolbar is being hidden and one of its child element was
       // focused, move the focus to the pinned button without changing the
       // focusButton attribute of this object.
       pinnedButton.focus();
     } else if (
       !state &&
-      (document.activeElement == pinnedButton ||
-        document.activeElement == revealButton)
+      (activeElement == pinnedButton || activeElement == revealButton)
     ) {
       // If the the toolbar is being shown and the focus is on the pinned or
       // reveal button, move the focus to the previously focused button.
       this.focusButton?.focus();
     }
-
-    // Change the spaces toolbar visibility only after we handled the focus.
-    this.element.hidden = state;
 
     // Update the window UI after the visibility state of the spaces toolbar
     // has changed.
@@ -1131,13 +1153,13 @@ var gSpacesToolbar = {
 
       // Set click actions.
       let tabmail = document.getElementById("tabmail");
-      button.addEventListener("click", () => {
+      this._addButtonClickListener(button, () => {
         let space = gSpacesToolbar.spaces.find(space => space.name == id);
-        this._setSpaceOpenAction(tabmail, space);
+        this._openSpace(tabmail, space);
       });
       menuitem.addEventListener("command", () => {
         let space = gSpacesToolbar.spaces.find(space => space.name == id);
-        this._setSpaceOpenAction(tabmail, space);
+        this._openSpace(tabmail, space);
       });
 
       // Set badge.
