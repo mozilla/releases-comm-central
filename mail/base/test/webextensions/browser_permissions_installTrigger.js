@@ -5,19 +5,23 @@ const INSTALL_PAGE = `${BASE}/file_install_extensions.html`;
 async function installTrigger(filename) {
   await SpecialPowers.pushPrefEnv({
     set: [
+      ["extensions.InstallTrigger.enabled", true],
+      ["extensions.InstallTriggerImpl.enabled", true],
       // Relax the user input requirements while running this test.
       ["xpinstall.userActivation.required", false],
     ],
   });
-  let browser = document.getElementById("tabmail").selectedBrowser;
-  BrowserTestUtils.loadURI(browser, INSTALL_PAGE);
-  await BrowserTestUtils.browserLoaded(browser);
+  let gBrowser = document.getElementById("tabmail");
+  BrowserTestUtils.loadURI(gBrowser.selectedBrowser, INSTALL_PAGE);
+  await BrowserTestUtils.browserLoaded(gBrowser.selectedBrowser);
 
-  await SpecialPowers.spawn(browser, [`${BASE}/${filename}`], async function(
-    url
-  ) {
-    await content.wrappedJSObject.installTrigger(url);
-  });
+  SpecialPowers.spawn(
+    gBrowser.selectedBrowser,
+    [`${BASE}/${filename}`],
+    async function(url) {
+      content.wrappedJSObject.installTrigger(url);
+    }
+  );
 }
 
 add_task(() => testInstallMethod(installTrigger, "installAmo"));
