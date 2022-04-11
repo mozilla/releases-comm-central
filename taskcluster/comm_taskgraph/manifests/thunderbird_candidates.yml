@@ -50,23 +50,29 @@ platform_names:
         by-platform:
             linux-shippable: 'linux-i686'
             linux64-shippable: 'linux-x86_64'
+            linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'mac'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
+            win64-asan-reporter-shippable: 'win64-asan-reporter'
     tools_platform:
         by-platform:
             linux-shippable: 'linux'
             linux64-shippable: 'linux64'
+            linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
+            win64-asan-reporter-shippable: 'win64-asan-reporter'
     filename_platform:
         by-platform:
             linux-shippable: 'linux'
             linux64-shippable: 'linux64'
+            linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
+            win64-asan-reporter-shippable: 'win64-asan-reporter'
 
 default: &default
     from:
