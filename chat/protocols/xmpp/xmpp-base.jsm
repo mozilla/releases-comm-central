@@ -3105,11 +3105,14 @@ var XMPPAccountPrototype = {
 
   /* Private methods */
 
-  /* Disconnect from the server */
-  /* The aError and aErrorMessage parameters are passed to reportDisconnecting
-   * and used by the account manager.
-   * The aQuiet parameter is to avoid sending status change notifications
-   * during the uninitialization of the account. */
+  /**
+   * Disconnect from the server
+   *
+   * @param {number} aError - The error reason, passed to reportDisconnecting.
+   * @param {string} aErrorMessage - The error message, passed to reportDisconnecting.
+   * @param {boolean} aQuiet - True to avoid sending status change notifications
+   *   during the uninitialization of the account.
+   */
   _disconnect(
     aError = Ci.prplIAccount.NO_ERROR,
     aErrorMessage = "",

@@ -500,6 +500,7 @@ XMPPSession.prototype = {
         return;
       }
       let authMec = authMechanisms[selectedMech](
+        this._account,
         this._jid.node,
         this._password,
         this._domain
@@ -530,7 +531,7 @@ XMPPSession.prototype = {
       try {
         result = aAuthMec.next(aStanza);
       } catch (e) {
-        this.ERROR(e);
+        this.ERROR("Error in auth mechanism: " + e);
         this.onError(
           Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
           _("connection.error.authenticationFailure")
@@ -539,13 +540,30 @@ XMPPSession.prototype = {
       }
 
       // The authentication mechanism can yield a promise which must resolve
-      // before sending data.
+      // before sending data. If it rejects, abort.
       if (result.value) {
-        Promise.resolve(result.value).then(value => {
-          if (value.send) {
-            this.send(value.send.getXML(), value.log);
+        Promise.resolve(result.value).then(
+          value => {
+            if (value.error) {
+              // If the auth mechanism results in an error, disconnect the
+              // account with an authentication error.
+              this.onError(
+                Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
+                _("connection.error.authenticationFailure")
+              );
+            } else if (value.send) {
+              // Otherwise, send the XML stanza that is returned.
+              this.send(value.send.getXML(), value.log);
+            }
+          },
+          e => {
+            this.ERROR("Error resolving auth mechanism result: " + e);
+            this.onError(
+              Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
+              _("connection.error.authenticationFailure")
+            );
           }
-        });
+        );
       }
       if (result.done) {
         this.startStream();

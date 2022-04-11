@@ -2,13 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This module exports XMPPAuthMechanisms, an object containing all
-// the supported SASL authentication mechanisms.
-// By default we currently support the PLAIN and the SCRAM-SHA-1 mechanisms.
-// As this is only used by XMPPSession, it may seem like an internal
-// detail of the XMPP implementation, but exporting it is valuable so that
-// add-ons can add support for more auth mechanisms easily by adding them
-// in XMPPAuthMechanisms without having to modify XMPPSession.
+// This module exports XMPPAuthMechanisms, an object containing the supported
+// SASL authentication mechanisms. Each authentication mechanism is a generator
+// function which takes the following parameters:
+//
+// * The account object
+// * The provided username (JID node),
+// * The password
+// * The user's domain (again from the JID).
+//
+// The generator should yield objects (or Promises which resolve to objects)
+// with two properties:
+//
+// * send: The next XML stanza to send.
+// * log: The plaintext content to log (instead of the stanza, which likely
+//   contains sensitive information).
+//
+// Alternately the object can have an error property which causes the account
+// to disconnect with an ERROR_AUTHENTICATION_FAILED error.
+//
+// The response stanza from the server is sent to the generator each time it
+// yields. Once the authentication negotiation is complete the generator should
+// return.
+//
+// By default the PLAIN, SCRAM-SHA-1, and SCRAM-SHA-256 mechanisms are supported.
+// GTalk also supports custom PLAIN and X-OAUTH2 mechanisms (see gtalk.jsm).
+//
+// As this is only used by XMPPSession, it may seem like an internal detail of
+// the XMPP implementation, but exporting it is valuable for testing purposes.
 
 const EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 
@@ -25,7 +46,7 @@ var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 XPCOMUtils.defineLazyGlobalGetters(this, ["crypto"]);
 
 // Handle PLAIN authorization mechanism.
-function* PlainAuth(aUsername, aPassword, aDomain) {
+function* PlainAuth(aAccount, aUsername, aPassword, aDomain) {
   let data = "\0" + aUsername + "\0" + aPassword;
 
   // btoa for Unicode, see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
@@ -399,7 +420,7 @@ async function pbkdf2Generate(passphrase, salt, iterations, len, hash) {
  * @param {string} aDigestLength The length of a hash digest, e.g. 20 for SHA-1 or 32 for SHA-256.
  */
 function generateScramAuth(aHashFunctionName, aDigestLength) {
-  function* scramAuth(aUsername, aPassword, aDomain, aNonce) {
+  function* scramAuth(aAccount, aUsername, aPassword, aDomain, aNonce) {
     // The hash function name, without the '-' in it (e.g. convert SHA-1 to SHA1).
     const hashFunctionProp = aHashFunctionName.replace("-", "");
 
