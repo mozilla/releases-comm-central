@@ -2881,15 +2881,14 @@
       // breathing room for delimiters or other unbreakable characters. The maximum
       // length is 998 octets, per RFC 5322; soft margins are slightly lower to
       // allow for breathing room as well. The default of 78 for the soft margin is
-      // recommended by RFC 5322; the default of 332 for the hard margin ensures
-      // that UTF-8 encoding the output never violates the 998 octet limit.
+      // recommended by RFC 5322.
       this._softMargin = clamp(options, "softMargin", 30, 900, 78);
       this._hardMargin = clamp(
         options,
         "hardMargin",
         this._softMargin,
         998,
-        332
+        998
       );
 
       /**

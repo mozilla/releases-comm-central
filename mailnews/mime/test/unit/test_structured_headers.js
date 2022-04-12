@@ -238,3 +238,14 @@ add_task(async function checkBuildMimeText() {
   mimeText = "Date: Thu, 5 Mar 2020 23:12:00 +0000\r\n";
   Assert.equal(headers.buildMimeText(true), mimeText);
 });
+
+/**
+ * Test that very long message id can be encoded without error.
+ */
+add_task(async function test_longMessageId() {
+  let msgId =
+    "<loqrvrxAUJXbUjUpqbrOJ8nHnJ49hmTREaUhehHZQv0AELQUM7ym6MUklPkt13aw4UD81bYIwO91pQL2OaeKMYVYD5hvZiRT2lSUmGtJkthgb3p5-y03p9bkxbnixgary7va1z0rv6hmd0yy69dm9exwga43h5k6266uwwchtjuxail7ipjhu6307yuft5bm186nu9vejf2joegwtq309cz9m-o3gwPZsvyB4qDpaAkxaj8iyh4OHc0kJsbQPQG8c5z6l3mmtwJuFHC4PxJnzAx9TyQzfnxhiXetQqFaNfvjNYetmNGMd4oq-sihw-d26z-bmdkvy47cloy2vwrnEYPKxtmjXtsmyFJGNxL7d1CeFIAOloSFAwccA6Onq6zPC9lfwWcAOFFje5XqkGVK2XNsUsFao5PR51WsOZStvoCzkqPuWB5PpJ791D9gzPXvGVa45ahuwgpmr1v8g1h5dalaytuxtpettthl506s7l4odqnkhufkvqkja56ulbd4ukgpbd88o3msjz3qk906pbfq6cahdecxoidplpbtsm-673718934717750999799265953521388769563044829819888815300763892678635939321303281062602679958225188.n050jeqcu1blxrm38i58q9dsws108c2m3xcc1tfmlgx8ya2wjyvzxyikgaaed3q6r@ZGCDPKIGJZGEPNVFFMXMTCMUFOPRMBFLIIPXSXECXKGNXBSDNPPHRBCXQRPCTUOCDDZVBEXYODLMFEQTUGBMHDJYUYus-575687677-2.673718934717750999799265953521388769563044829819888815300763892678635939321303281062602679958225188.invalid>";
+  let headers = new StructuredHeaders();
+  headers.setHeader("Message-ID", msgId);
+  Assert.equal(headers.getRawHeader("message-id"), msgId);
+});
