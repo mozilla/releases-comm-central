@@ -44,6 +44,8 @@ pref("mail.identity.default.last_entered_external_gnupg_key_id", "");
 // If you need to specify a path, use a file:// URL
 pref("mail.openpgp.alias_rules_file", "");
 
+pref("mail.openpgp.key_assistant.enable", true);
+
 // When sending, encrypt to this additional key. Not available in release channel builds.
 pref("mail.openpgp.debug.extra_encryption_key", "");
 

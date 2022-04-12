@@ -41,37 +41,6 @@ let gDrafts;
 let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
 
 /**
- * Used to intercept the dialog that displays the key statuses when an error
- * is encountered.
- * @param {Function} callback - A function that is called with the dialog window
- *  when it's intercepted. Opening the dialog will block until it's closed so
- *  this function must close the dialog or tests will timeout.
- */
-async function handleKeyStatusDialog(callback) {
-  return BrowserTestUtils.promiseAlertDialogOpen(
-    "",
-    "chrome://openpgp/content/ui/composeKeyStatus.xhtml",
-    {
-      async callback(win) {
-        if (Services.focus.activeWindow != win) {
-          await BrowserTestUtils.waitForEvent(win, "focus");
-        }
-        // Wait for the onLoad() handler to finish loading. It does some async
-        // work to build the displayed columns.
-        await BrowserTestUtils.waitForCondition(
-          () =>
-            win.gRowToEmail &&
-            win.gEmailAddresses &&
-            (win.gRowToEmail.length = win.gEmailAddresses.length),
-          "status list columns did not load in time"
-        );
-        return callback(win);
-      },
-    }
-  );
-}
-
-/**
  * Closes a window with a <dialog> element by calling the acceptDialog().
  * @param {Window} win
  */
@@ -241,24 +210,14 @@ add_task(
 
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-    let txt = await l10n.formatValue(
-      "openpgp-compose-key-status-intro-need-keys"
+    let kaShown = BrowserTestUtils.waitForCondition(
+      () => composeWin.document.getElementById("keyAssistant").open,
+      "Timeout waiting for the #keyAssistant to be visible"
     );
 
-    let keyStatusDialog = handleKeyStatusDialog(async win => {
-      Assert.ok(
-        win.document.documentElement
-          .querySelector("description")
-          .textContent.includes(txt),
-        "key status dialog should be displayed"
-      );
-
-      await closeDialog(win);
-    });
-
     composeWin.goDoCommand("cmd_sendLater");
+    await kaShown;
 
-    await keyStatusDialog;
     await BrowserTestUtils.closeWindow(composeWin);
   }
 );
@@ -303,34 +262,14 @@ add_task(
 
       await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-      let keyStatusDialog = handleKeyStatusDialog(async win => {
-        let infoList = win.document.documentElement.querySelector("#infolist");
-
-        await TestUtils.waitForCondition(
-          () => infoList.itemChildren.length == 1,
-          "1 recipient key status was not displayed"
-        );
-
-        // Wait for the l10n update to finish.
-        let richItem = infoList.getItemAtIndex(0);
-        await TestUtils.waitForCondition(
-          () => richItem.textContent != "",
-          "richlistitem was not translated in time"
-        );
-
-        let txt = await l10n.formatValue("openpgp-recip-none-accepted");
-
-        Assert.ok(
-          richItem.textContent.includes(txt),
-          `recipient key acceptance status should be "${txt}"`
-        );
-
-        await closeDialog(win);
-      });
+      let kaShown = BrowserTestUtils.waitForCondition(
+        () => composeWin.document.getElementById("keyAssistant").open,
+        "Timeout waiting for the #keyAssistant to be visible"
+      );
 
       composeWin.goDoCommand("cmd_sendLater");
+      await kaShown;
 
-      await keyStatusDialog;
       await BrowserTestUtils.closeWindow(composeWin);
     }
     await OpenPGPTestUtils.removeKeyById(OpenPGPTestUtils.CAROL_KEY_ID);
@@ -402,42 +341,14 @@ add_task(
 
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-    let keyStatusDialog = handleKeyStatusDialog(async win => {
-      let infoList = win.document.documentElement.querySelector("#infolist");
-
-      await TestUtils.waitForCondition(
-        () => infoList.itemChildren.length == 2,
-        "2 recipient key statuses was not be displayed"
-      );
-
-      let richItem0 = infoList.getItemAtIndex(0);
-      let richItem1 = infoList.getItemAtIndex(1);
-
-      // Wait for the l10n updates to finish.
-      await TestUtils.waitForCondition(
-        () => richItem0.textContent != "" && richItem1.textContent != "",
-        "richlistitem(s) were not translated in time"
-      );
-
-      let okStr = await l10n.formatValue("openpgp-recip-good");
-      let notOkStr = await l10n.formatValue("openpgp-recip-missing");
-
-      Assert.ok(
-        richItem0.textContent.includes(okStr),
-        `first recipient key status should be "${okStr}"`
-      );
-
-      Assert.ok(
-        richItem1.textContent.includes(notOkStr),
-        `second recipient key status should be "${notOkStr}"`
-      );
-
-      await closeDialog(win);
-    });
+    let kaShown = BrowserTestUtils.waitForCondition(
+      () => composeWin.document.getElementById("keyAssistant").open,
+      "Timeout waiting for the #keyAssistant to be visible"
+    );
 
     composeWin.goDoCommand("cmd_sendLater");
+    await kaShown;
 
-    await keyStatusDialog;
     await BrowserTestUtils.closeWindow(composeWin);
   }
 );
@@ -482,41 +393,14 @@ add_task(
 
       await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
 
-      let keyStatusDialog = handleKeyStatusDialog(async win => {
-        let infoList = win.document.documentElement.querySelector("#infolist");
-
-        await TestUtils.waitForCondition(
-          () => infoList.itemChildren.length == 2,
-          "2 recipient key statuses were not displayed"
-        );
-
-        let richItem0 = infoList.getItemAtIndex(0);
-        let richItem1 = infoList.getItemAtIndex(1);
-
-        // Wait for the l10n updates to finish.
-        await TestUtils.waitForCondition(
-          () => richItem0.textContent != "" && richItem1.textContent != "",
-          "richlistitem(s) were not translated in time"
-        );
-
-        let okStr = await l10n.formatValue("openpgp-recip-good");
-        let notOkStr = await l10n.formatValue("openpgp-recip-none-accepted");
-
-        Assert.ok(
-          richItem0.textContent.includes(okStr),
-          `first recipient key status should be "${okStr}"`
-        );
-        Assert.ok(
-          richItem1.textContent.includes(notOkStr),
-          `second recipient key status should be "${notOkStr}"`
-        );
-
-        await closeDialog(win);
-      });
+      let kaShown = BrowserTestUtils.waitForCondition(
+        () => composeWin.document.getElementById("keyAssistant").open,
+        "Timeout waiting for the #keyAssistant to be visible"
+      );
 
       composeWin.goDoCommand("cmd_sendLater");
+      await kaShown;
 
-      await keyStatusDialog;
       await BrowserTestUtils.closeWindow(composeWin);
     }
 
