@@ -421,7 +421,7 @@
       if (overrideAvatar) {
         this.setUserIcon(overrideAvatar, true);
         this.hasBestAvatar = true;
-      } else if (aConv) {
+      } else if (aConv && !aConv.isChat) {
         this.setUserIcon(aConv.convIconFilename, true);
         this.hasBestAvatar = true;
       } else {
