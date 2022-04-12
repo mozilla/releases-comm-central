@@ -1215,7 +1215,10 @@ var RNP = {
       GPGME.allDependenciesLoaded()
     ) {
       // failure processing with RNP, attempt decryption with GPGME
-      let r2 = await GPGME.decrypt(encrypted, RNP.enArmorCDataMessage);
+      let r2 = await GPGME.decrypt(
+        encrypted,
+        this.enArmorCDataMessage.bind(this)
+      );
       if (!r2.exitCode && r2.decryptedData) {
         // TODO: obtain info which key ID was used for decryption
         //       and set result.decryptKey*
