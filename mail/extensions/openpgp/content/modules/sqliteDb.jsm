@@ -298,7 +298,6 @@ var PgpSqliteDb2 = {
                 console.debug(
                   "unnecessary call to addAcceptedEmail, this shouldn't happen"
                 );
-                return;
               }
             }
           });

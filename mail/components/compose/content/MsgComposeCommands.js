@@ -1782,10 +1782,7 @@ function setSecuritySettings(menu_id) {
 function showMessageComposeSecurityStatus(isSending = false) {
   if (gSelectedTechnologyIsPGP) {
     if (
-      Services.prefs.getBoolPref(
-        "mail.openpgp.key_assistant.enable",
-        false
-      )
+      Services.prefs.getBoolPref("mail.openpgp.key_assistant.enable", false)
     ) {
       gKeyAssistant.show(getEncryptionCompatibleRecipients(), isSending);
     } else {
