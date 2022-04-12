@@ -21,7 +21,8 @@ notification {
 }
 
 #calendar-summary-dialog-custom-button-footer {
-  margin-top: 1em;
+  margin-block: 10px;
+  margin-inline: 8px 10px;
 }
 
 @media not (-moz-platform: linux) {
