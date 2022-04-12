@@ -1108,12 +1108,7 @@ MatrixRoom.prototype = {
     if (!this._participants.has(userId)) {
       return;
     }
-    let participant = this._participants.get(userId);
-    this._participants.delete(userId);
-    this.notifyObservers(
-      new nsSimpleEnumerator([participant]),
-      "chat-buddy-remove"
-    );
+    GenericConvChatPrototype.removeParticipant.call(this, userId);
     this.updateUnverifiedDevices();
   },
 

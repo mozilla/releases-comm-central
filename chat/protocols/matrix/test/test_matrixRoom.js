@@ -842,6 +842,41 @@ add_task(async function test_addEventReaction() {
   ok(wroteMessage, "Wrote reaction to conversation");
 });
 
+add_task(async function test_removeParticipant() {
+  let roomMembers = [
+    {
+      userId: "@foo:example.com",
+    },
+    {
+      userId: "@bar:example.com",
+    },
+  ];
+  const room = getRoom(true, "#test:example.com", {
+    getJoinedMembers() {
+      return roomMembers;
+    },
+  });
+  for (const member of roomMembers) {
+    room.addParticipant(member);
+  }
+  equal(room._participants.size, 2, "Room has two participants");
+
+  const participantRemoved = waitForNotification(room, "chat-buddy-remove");
+  room.removeParticipant(roomMembers.splice(1, 1)[0].userId);
+  const { subject } = await participantRemoved;
+  const participantsArray = Array.from(
+    subject.QueryInterface(Ci.nsISimpleEnumerator)
+  );
+  equal(participantsArray.length, 1, "One participant is being removed");
+  equal(
+    participantsArray[0].QueryInterface(Ci.nsISupportsString).data,
+    "@bar:example.com",
+    "The participant is being removed by its user ID"
+  );
+  equal(room._participants.size, 1, "One participant is left");
+  room.forget();
+});
+
 function waitForNotification(target, expectedTopic) {
   let promise = new Promise(resolve => {
     let observer = {
