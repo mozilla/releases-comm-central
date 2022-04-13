@@ -114,6 +114,57 @@ function getReplyContent(replyEvent, homeserverUrl, getEvent, rich) {
 }
 
 /**
+ * Adapts the plain text body of an event for display.
+ *
+ * @param {MatrixEvent} event - The event to format the body of.
+ * @param {string} homeserverUrl - The base URL of the homeserver.
+ * @param {(string) => MatrixEvent} getEvent - Get the event with the given ID.
+ * @param {boolean} [includeReply=true] - If the message should contain the message it's replying to.
+ * @returns {string} Plain text message for the event.
+ */
+function formatPlainBody(event, homeserverUrl, getEvent, includeReply = true) {
+  const content = event.getContent();
+  let body = TXTToHTML(content.body);
+  const eventId = event.replyEventId;
+  if (body.startsWith("&gt;") && eventId) {
+    let nonQuote = Number.MAX_SAFE_INTEGER;
+    const replyEvent = getEvent(eventId);
+    if (!includeReply || replyEvent) {
+      // Strip the fallback quote
+      body = body
+        .split("\n")
+        .filter((line, index) => {
+          const isQuoteLine = line.startsWith("&gt;");
+          if (!isQuoteLine && nonQuote > index) {
+            nonQuote = index;
+          }
+          return nonQuote < index || !isQuoteLine;
+        })
+        .join("\n");
+    }
+    if (includeReply && replyEvent && content.msgtype != MsgType.Emote) {
+      let replyContent = getReplyContent(
+        replyEvent,
+        homeserverUrl,
+        getEvent,
+        false
+      );
+      const isEmoteReply = replyEvent.getContent()?.msgtype == MsgType.Emote;
+      replyContent = replyContent
+        .split("\n")
+        .map(line => `&gt; ${line}`)
+        .join("\n");
+      if (!isEmoteReply) {
+        replyContent = `${replyEvent.getSender()}:
+${replyContent}`;
+      }
+      body = replyContent + "\n" + body;
+    }
+  }
+  return body;
+}
+
+/**
  * Adapts the formatted body of an event for display.
  *
  * @param {MatrixEvent} event - The event to format the body of.
@@ -226,60 +277,23 @@ var MatrixMessageContent = {
     }
     const type = event.getType();
     const content = event.getContent();
-    if (
+    if (event.isRedacted()) {
+      return _("message.redacted");
+    }
+    const textForEvent = getMatrixTextForEvent(event);
+    if (textForEvent) {
+      return textForEvent;
+    } else if (
       type == EventType.RoomMessage ||
       type == EventType.RoomMessageEncrypted
     ) {
       if (kRichBodiedTypes.includes(content?.msgtype)) {
-        let body = TXTToHTML(content.body);
-        const eventId = event.replyEventId;
-        if (body.startsWith("&gt;") && eventId) {
-          let nonQuote = Number.MAX_SAFE_INTEGER;
-          const replyEvent = getEvent(eventId);
-          if (!includeReply || replyEvent) {
-            // Strip the fallback quote
-            body = body
-              .split("\n")
-              .filter((line, index) => {
-                const isQuoteLine = line.startsWith("&gt;");
-                if (!isQuoteLine && nonQuote > index) {
-                  nonQuote = index;
-                }
-                return nonQuote < index || !isQuoteLine;
-              })
-              .join("\n");
-          }
-          if (includeReply && replyEvent && content.msgtype != MsgType.Emote) {
-            let replyContent = getReplyContent(
-              replyEvent,
-              homeserverUrl,
-              getEvent,
-              false
-            );
-            const isEmoteReply =
-              replyEvent.getContent()?.msgtype == MsgType.Emote;
-            replyContent = replyContent
-              .split("\n")
-              .map(line => `&gt; ${line}`)
-              .join("\n");
-            if (!isEmoteReply) {
-              replyContent = `${replyEvent.getSender()}:
-${replyContent}`;
-            }
-            body = replyContent + "\n" + body;
-          }
-        }
-        return body;
+        return formatPlainBody(event, homeserverUrl, getEvent, includeReply);
       } else if (kAttachmentTypes.includes(content?.msgtype)) {
         const attachmentUrl = getAttachmentUrl(content, homeserverUrl);
         if (attachmentUrl) {
           return attachmentUrl;
         }
-      } else if (
-        content?.msgtype == MsgType.KeyVerificationRequest ||
-        event.isDecryptionFailure()
-      ) {
-        return getMatrixTextForEvent(event);
       } else if (event.isBeingDecrypted()) {
         return _("message.decrypting");
       }
@@ -312,6 +326,9 @@ ${replyContent}`;
     }
     const type = event.getType();
     const content = event.getContent();
+    if (event.isRedacted()) {
+      return _("message.redacted");
+    }
     if (type == EventType.RoomMessage) {
       if (
         kRichBodiedTypes.includes(content.msgtype) &&

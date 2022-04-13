@@ -222,6 +222,36 @@ dolor sit amet`,
     },
     result: "",
   },
+  {
+    description: "Redacted event",
+    event: {
+      type: EventType.RoomMessage,
+      content: {},
+      sender: "@bar:example.com",
+      redacted: true,
+    },
+    result: _("message.redacted"),
+  },
+  {
+    description: "Tombstone",
+    event: {
+      type: EventType.RoomTombstone,
+      content: {
+        body: "tombstone",
+      },
+      sender: "@bar:example.com",
+    },
+    result: "tombstone",
+  },
+  {
+    description: "Encryption start",
+    event: {
+      type: EventType.RoomEncryption,
+      content: {},
+      sender: "@bar:example.com",
+    },
+    isGetTextForEvent: true,
+  },
 ];
 
 const HTML_FIXTURES = [
@@ -471,6 +501,36 @@ dolor sit amet`,
     },
     result: "",
   },
+  {
+    description: "Redacted event",
+    event: {
+      type: EventType.RoomMessage,
+      content: {},
+      sender: "@bar:example.com",
+      redacted: true,
+    },
+    result: _("message.redacted"),
+  },
+  {
+    description: "Tombstone",
+    event: {
+      type: EventType.RoomTombstone,
+      content: {
+        body: "tombstone",
+      },
+      sender: "@bar:example.com",
+    },
+    result: "tombstone",
+  },
+  {
+    description: "Encryption start",
+    event: {
+      type: EventType.RoomEncryption,
+      content: {},
+      sender: "@bar:example.com",
+    },
+    isGetTextForEvent: true,
+  },
 ];
 
 add_task(function test_plainBody() {
@@ -517,6 +577,10 @@ add_task(function test_htmlBody() {
         return undefined;
       }
     );
-    equal(result, fixture.result, fixture.description);
+    if (fixture.isGetTextForEvent) {
+      equal(result, getMatrixTextForEvent(event));
+    } else {
+      equal(result, fixture.result, fixture.description);
+    }
   }
 });

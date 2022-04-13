@@ -285,13 +285,17 @@ const MATRIX_EVENT_HANDLERS = {
       return _("message.verification.done");
     },
   },
+  [EventType.RoomEncryption]: {
+    handler(matrixEvent, { sender, content }) {
+      return _("message.encryptionStart");
+    },
+  },
 
   // TODO : Events to be handled:
   // 'm.call.invite'
   // 'm.call.answer'
   // 'm.call.hangup'
   // 'm.room.third_party_invite'
-  // 'm.room.encryption' - currently handled directly in matrix.jsm
 
   // NOTE : No need to add string messages for 'm.room.topic' events,
   // as setTopic is used which handles the messages too.

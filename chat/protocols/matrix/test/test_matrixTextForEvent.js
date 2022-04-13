@@ -815,6 +815,13 @@ const FIXTURES = [
     result: _("message.decryptionError"),
     name: "Decryption error",
   },
+  {
+    event: makeEvent({
+      type: EventType.RoomEncryption,
+    }),
+    result: _("message.encryptionStart"),
+    name: "Encryption start",
+  },
 ];
 
 function testGetTextForMatrixEvent() {

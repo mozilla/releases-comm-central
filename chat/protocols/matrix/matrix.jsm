@@ -47,7 +47,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
-  getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
   MatrixMessageContent: "resource:///modules/matrixMessageContent.jsm",
 });
 
@@ -730,7 +729,11 @@ MatrixRoom.prototype = {
     // change this to the appropriate value.
     let newestEventId = event.getId();
     // Contents of the message to write/update
-    let message;
+    let message = MatrixMessageContent.getIncomingPlain(
+      event,
+      this._account._client.getHomeserverUrl(),
+      eventId => this.room.findEventById(eventId)
+    );
     // Options for the message. Many options derived from event are set in
     // createMessage.
     let opts = {
@@ -756,7 +759,6 @@ MatrixRoom.prototype = {
       opts.system =
         eventType != EventType.RoomMessage && eventType != EventType.Sticker;
       opts.deleted = true;
-      message = _("message.redacted");
     } else if (
       eventType === EventType.RoomMessage ||
       eventType === EventType.RoomMessageEncrypted ||
@@ -770,11 +772,6 @@ MatrixRoom.prototype = {
       ) {
         return;
       }
-      message = MatrixMessageContent.getIncomingPlain(
-        event,
-        this._account._client.getHomeserverUrl(),
-        eventId => this.room.findEventById(eventId)
-      );
       opts.system = [
         "m.server_notice",
         MsgType.KeyVerificationRequest,
@@ -784,7 +781,6 @@ MatrixRoom.prototype = {
       opts.action = eventContent.msgtype === MsgType.Emote;
     } else if (eventType === EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
-      message = _("message.encryptionStart");
       opts.system = true;
       this.updateUnverifiedDevices();
     } else if (eventType == EventType.RoomTopic) {
@@ -795,6 +791,9 @@ MatrixRoom.prototype = {
         system: true,
         event,
       });
+      // Don't write the body using the normal message handling because that
+      // will be too late.
+      message = "";
       let newConversation = this._account.getGroupConversation(
         event.getContent().replacement_room,
         this.name
@@ -808,7 +807,6 @@ MatrixRoom.prototype = {
       // Update the icon of this room.
       this.updateConvIcon();
     } else {
-      message = getMatrixTextForEvent(event);
       opts.system = true;
       // We don't think we should show a notice for this event.
       if (!message) {

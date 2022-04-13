@@ -81,6 +81,14 @@ add_task(function test_addEventRedacted() {
   });
   let updatedMessage;
   const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com/";
+        },
+      },
+    },
     updateMessage(sender, message, opts) {
       updatedMessage = {
         sender,
@@ -241,6 +249,14 @@ add_task(function test_addEventTopic() {
     sender: "@user:example.com",
   });
   const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com/";
+        },
+      },
+    },
     _eventsWaitingForDecryption: new Set(),
     setTopic(topic, who) {
       this.who = who;
@@ -609,6 +625,14 @@ add_task(function test_addEventWaitingForDecryption() {
   });
   let createMessageCalled = false;
   const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com/";
+        },
+      },
+    },
     createMessage() {
       createMessageCalled = true;
     },
