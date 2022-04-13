@@ -66,6 +66,157 @@ add_task(async function testCollapse() {
   Services.accounts.deleteAccount(account.id);
 });
 
+add_task(async function testGrouping() {
+  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  account.password = "this is a test";
+  account.connect();
+
+  await openChatTab();
+  ok(
+    BrowserTestUtils.is_visible(document.getElementById("chatPanel")),
+    "Chat tab is visible"
+  );
+
+  const conversation = account.prplAccount.wrappedJSObject.makeDM("grouping");
+  const convNode = getConversationItem(conversation);
+  ok(convNode, "Conversation is in contacts list");
+
+  await EventUtils.synthesizeMouseAtCenter(convNode, {});
+
+  const chatConv = getChatConversationElement(conversation);
+  ok(chatConv, "Found conversation element");
+  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  const messageParent = await getChatMessageParent(chatConv);
+
+  conversation.addMessages([
+    {
+      who: "grouping",
+      content: "system message",
+      options: {
+        system: true,
+        incoming: true,
+      },
+    },
+    {
+      who: "grouping",
+      content: "normal message",
+      options: {
+        incoming: true,
+      },
+    },
+    {
+      who: "grouping",
+      content: "another system message",
+      options: {
+        system: true,
+        incoming: true,
+      },
+    },
+  ]);
+  // Wait for at least one event.
+  do {
+    await BrowserTestUtils.waitForEvent(
+      chatConv.convBrowser,
+      "MessagesDisplayed"
+    );
+  } while (chatConv.convBrowser.getPendingMessagesCount() > 0);
+
+  for (let child of messageParent.children) {
+    isnot(child.id, "insert", "Message element is not the insert point");
+  }
+  is(
+    messageParent.childElementCount,
+    3,
+    "All three messages are their own top level element"
+  );
+
+  conversation.close();
+  account.disconnect();
+  Services.accounts.deleteAccount(account.id);
+});
+
+add_task(async function testSystemMessageReplacement() {
+  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  account.password = "this is a test";
+  account.connect();
+
+  await openChatTab();
+  ok(
+    BrowserTestUtils.is_visible(document.getElementById("chatPanel")),
+    "Chat tab is visible"
+  );
+
+  const conversation = account.prplAccount.wrappedJSObject.makeDM("replacing");
+  const convNode = getConversationItem(conversation);
+  ok(convNode, "Conversation is in contacts list");
+
+  await EventUtils.synthesizeMouseAtCenter(convNode, {});
+
+  const chatConv = getChatConversationElement(conversation);
+  ok(chatConv, "Found conversation element");
+  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  const messageParent = await getChatMessageParent(chatConv);
+
+  conversation.addMessages([
+    {
+      who: "replacing",
+      content: "system message",
+      options: {
+        system: true,
+        incoming: true,
+        remoteId: "foo",
+      },
+    },
+    {
+      who: "replacing",
+      content: "another system message",
+      options: {
+        system: true,
+        incoming: true,
+        remoteId: "bar",
+      },
+    },
+  ]);
+  // Wait for at least one event.
+  do {
+    await BrowserTestUtils.waitForEvent(
+      chatConv.convBrowser,
+      "MessagesDisplayed"
+    );
+  } while (chatConv.convBrowser.getPendingMessagesCount() > 0);
+
+  const updateTextPromise = waitForNotification(conversation, "update-text");
+  conversation.updateMessage("replacing", "better system message", {
+    system: true,
+    incoming: true,
+    remoteId: "foo",
+  });
+  await updateTextPromise;
+  await TestUtils.waitForTick();
+
+  is(messageParent.childElementCount, 1, "Only one message group in browser");
+  is(
+    messageParent.firstElementChild.childElementCount,
+    3,
+    "Has two messages plus insert inside group"
+  );
+  const firstMessage = messageParent.firstElementChild.firstElementChild;
+  ok(
+    firstMessage.classList.contains("event-row"),
+    "Replacement message is an event-row"
+  );
+  is(firstMessage.dataset.remoteId, "foo");
+  is(
+    firstMessage.querySelector(".body").textContent,
+    "better system message",
+    "Message content was updated"
+  );
+
+  conversation.close();
+  account.disconnect();
+  Services.accounts.deleteAccount(account.id);
+});
+
 function addNotice(conversation, uiConversation) {
   conversation.addNotice();
   return BrowserTestUtils.waitForEvent(

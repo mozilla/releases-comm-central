@@ -443,6 +443,9 @@
           isNext
         );
       }
+      if (this._lastMessage?.remoteId === msg.remoteId) {
+        this._lastMessage = msg;
+      }
     }
 
     /**
@@ -453,6 +456,10 @@
     removeMessage(remoteId) {
       if (this.browsingContext.isActive) {
         LazyModules.removeMessage(remoteId, this.contentDocument);
+      }
+      if (this._lastMessage?.remoteId === remoteId) {
+        // Reset last message info if we removed the last message.
+        this._lastMessage = null;
       }
     }
 

@@ -296,7 +296,7 @@ function checkNewText(target) {
     let parent = target.parentNode;
     // We need to start a group with this element if there are at least 4
     // system messages and they aren't already grouped.
-    if (!parent.grouped && parent.querySelector("p.event:nth-of-type(4)")) {
+    if (!parent?.grouped && parent?.querySelector("p.event:nth-of-type(4)")) {
       let p = document.createElement("p");
       p.className = "eventToggle";
       p.addEventListener("click", event =>

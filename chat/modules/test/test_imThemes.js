@@ -9,6 +9,7 @@ const {
   replaceHTMLForMessage,
   wasNextMessage,
   removeMessage,
+  isNextMessage,
 } = ChromeUtils.import("resource:///modules/imThemes.jsm");
 const { MockDocument } = ChromeUtils.import(
   "resource://testing-common/MockDocument.jsm"
@@ -121,7 +122,8 @@ add_task(function test_replaceHTMLForMessage() {
   equal(messageElement.textContent, "foo bar");
   equal(messageElement.dataset.remoteId, "foo");
   ok(!messageElement.dataset.isNext);
-  const updatedHtml = '<div style="background: green;">lorem ipsum</div>';
+  const updatedHtml =
+    '<div style="background: green;">lorem ipsum</div><div id="insert"></div>';
   const updatedMessage = {
     remoteId: "foo",
   };
@@ -132,6 +134,10 @@ add_task(function test_replaceHTMLForMessage() {
   equal(updatedMessageElement.textContent, "lorem ipsum");
   equal(updatedMessageElement.dataset.remoteId, "foo");
   ok(updatedMessageElement.dataset.isNext);
+  ok(
+    !document.querySelector("#insert"),
+    "Insert anchor in template is ignored when replacing"
+  );
 });
 
 add_task(function test_replaceHTMLForMessageWithoutExistingMessage() {
@@ -252,4 +258,85 @@ add_task(function test_removeMessage_noMatchingMessage() {
   removeMessage("bar", document);
   const messageElements = document.querySelectorAll("#Chat > div");
   notEqual(messageElements.length, 0);
+});
+
+add_task(function test_isNextMessage() {
+  const theme = {
+    combineConsecutive: true,
+    metadata: {},
+    combineConsecutiveInterval: 300,
+  };
+  const messagePairs = [
+    {
+      message: {},
+      previousMessage: null,
+      isNext: false,
+    },
+    {
+      message: {
+        system: true,
+      },
+      previousMessage: {
+        system: true,
+      },
+      isNext: true,
+    },
+    {
+      message: {
+        who: "foo",
+      },
+      previousMessage: {
+        who: "bar",
+      },
+      isNext: false,
+    },
+    {
+      message: {
+        outgoing: true,
+      },
+      isNext: false,
+    },
+    {
+      message: {
+        incoming: true,
+      },
+      isNext: false,
+    },
+    {
+      message: {
+        system: true,
+      },
+      isNext: false,
+    },
+    {
+      message: {
+        time: 100,
+      },
+      previousMessage: {
+        time: 100,
+      },
+      isNext: true,
+    },
+    {
+      message: {
+        time: 300,
+      },
+      previousMessage: {
+        time: 100,
+      },
+      isNext: true,
+    },
+    {
+      message: {
+        time: 500,
+      },
+      previousMessage: {
+        time: 100,
+      },
+      isNext: false,
+    },
+  ];
+  for (const { message, previousMessage = {}, isNext } of messagePairs) {
+    equal(isNextMessage(theme, message, previousMessage), isNext);
+  }
 });

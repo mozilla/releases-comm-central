@@ -7,7 +7,10 @@ function checkNewText(target) {
     let parent = target.closest(".event");
     // We need to start a group with this element if there are at least 4
     // system messages and they aren't already grouped.
-    if (!parent.grouped && parent.querySelector(".event-row:nth-of-type(4)")) {
+    if (
+      !parent?.grouped &&
+      parent?.querySelector(".event-row:nth-of-type(4)")
+    ) {
       let toggle = document.createElement("div");
       toggle.className = "eventToggle";
       toggle.addEventListener("click", event => {

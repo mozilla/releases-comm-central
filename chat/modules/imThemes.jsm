@@ -564,6 +564,14 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg) {
   return result + aHTML.slice(previousIndex);
 }
 
+/**
+ * Determine if a message should be grouped with a previous message.
+ *
+ * @param {object} aTheme - The theme the messages will be displayed in.
+ * @param {imIMessage} aMsg - The message that is about to be appended.
+ * @param {imIMessage} aPreviousMsg - The last message that was displayed.
+ * @returns {boolean} If the message should be grouped with the previous one.
+ */
 function isNextMessage(aTheme, aMsg, aPreviousMsg) {
   if (
     !aTheme.combineConsecutive ||
@@ -584,7 +592,8 @@ function isNextMessage(aTheme, aMsg, aPreviousMsg) {
   if (
     aMsg.who != aPreviousMsg.who ||
     aMsg.outgoing != aPreviousMsg.outgoing ||
-    aMsg.incoming != aPreviousMsg.incoming
+    aMsg.incoming != aPreviousMsg.incoming ||
+    aMsg.system != aPreviousMsg.system
   ) {
     return false;
   }
@@ -665,12 +674,26 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
   let parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
   let documentFragment = getDocumentFragmentFromHTML(aDoc, aHTML);
 
+  // If the parent already has a remote ID, we remove it, since it now contains
+  // multiple different messages.
+  if (parent.dataset.remoteId) {
+    for (let child of parent.children) {
+      child.dataset.remoteId = parent.dataset.remoteId;
+      child.dataset.isNext = true;
+    }
+    delete parent.dataset.remoteId;
+  }
+
   let result = documentFragment.firstElementChild;
   // store the prplIMessage object in each of the "root" node that
   // will be inserted into the document, so that selection code can
   // retrieve the message by just looking at the parent node until it
   // finds something.
   for (let root = result; root; root = root.nextElementSibling) {
+    // Skip the insert placeholder.
+    if (root.id === "insert") {
+      continue;
+    }
     root._originalMsg = aMsg;
     // Store remote ID of the message in the DOM for fast retrieval
     root.dataset.remoteId = aMsg.remoteId;
@@ -721,6 +744,8 @@ function replaceHTMLForMessage(msg, html, doc, isNext) {
   }
 
   let documentFragment = getDocumentFragmentFromHTML(doc, html);
+  // We don't want to add an insert point when replacing a message.
+  documentFragment.querySelector("#insert")?.remove();
   // store the prplIMessage object in each of the "root" nodes that
   // will be inserted into the document, so that the selection code can
   // retrieve the message by just looking at the parent node until it
