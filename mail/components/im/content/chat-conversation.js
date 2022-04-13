@@ -552,78 +552,10 @@
         .getService(Ci.mozITXTToHTMLConv)
         .scanTXT(aMsg, 0);
 
-      if (account.HTMLEnabled) {
-        msg = msg.replace(/\n/g, "<br/>");
-        if (Services.prefs.getBoolPref("messenger.conversations.sendFormat")) {
-          let style = MessageFormat.getMessageStyle();
-          let proto = this._conv.account.protocol.id;
-          if (proto == "prpl-msn") {
-            if ("color" in style) {
-              msg = '<font color="' + style.color + '">' + msg + "</font>";
-            }
-            if ("fontFamily" in style) {
-              msg = '<font face="' + style.fontFamily + '">' + msg + "</font>";
-            }
-            // MSN doesn't support font size info in messages...
-          } else if (proto == "prpl-aim" || proto == "prpl-icq") {
-            let styleAttributes = "";
-            if ("color" in style) {
-              styleAttributes += ' color="' + style.color + '"';
-            }
-            if ("fontFamily" in style) {
-              styleAttributes += ' face="' + style.fontFamily + '"';
-            }
-            if ("fontSize" in style) {
-              let size = style.fontSize - style.defaultFontSize;
-              if (size < -4) {
-                size = 1;
-              } else if (size < 0) {
-                size = 2;
-              } else if (size < 3) {
-                size = 3;
-              } else if (size < 7) {
-                size = 4;
-              } else if (size < 15) {
-                size = 5;
-              } else if (size < 25) {
-                size = 6;
-              } else {
-                size = 7;
-              }
-              styleAttributes +=
-                ' size="' +
-                size +
-                '"' +
-                ' style="font-size: ' +
-                style.fontSize +
-                'px;"';
-            }
-            if (styleAttributes) {
-              msg = "<font" + styleAttributes + ">" + msg + "</font>";
-            }
-          } else {
-            let styleProperties = [];
-            if ("color" in style) {
-              styleProperties.push("color: " + style.color);
-            }
-            if ("fontFamily" in style) {
-              styleProperties.push("font-family: " + style.fontFamily);
-            }
-            if ("fontSize" in style) {
-              styleProperties.push("font-size: " + style.fontSize + "px");
-            }
-            style = styleProperties.join("; ");
-            if (style) {
-              msg = '<span style="' + style + '">' + msg + "</span>";
-            }
-          }
-        }
-        this._conv.sendMsg(msg, false, false);
-      } else {
-        msg = account.HTMLEscapePlainText ? msg : aMsg;
+      msg = account.HTMLEscapePlainText ? msg : aMsg;
 
-        this._conv.sendMsg(msg, false, false);
-      }
+      this._conv.sendMsg(msg, false, false);
+
       // reset the textbox to its original size
       this.resetInput();
     }

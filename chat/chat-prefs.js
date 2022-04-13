@@ -45,8 +45,6 @@ pref("messenger.conversations.selections.actionMessagesTemplate", "chrome://chat
 pref("messenger.conversations.textbox.autoResize", true);
 pref("messenger.conversations.textbox.defaultMaxLines", 5);
 
-pref("messenger.conversations.sendFormat", true);
-
 // this preference changes how we filter incoming messages
 // 0 = no formattings
 // 1 = basic formattings (bold, italic, underlined)

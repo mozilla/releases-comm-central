@@ -962,9 +962,6 @@ imAccount.prototype = {
     SavePrefTimer.saveNow();
   },
 
-  get HTMLEnabled() {
-    return this._ensurePrplAccount.HTMLEnabled;
-  },
   get HTMLEscapePlainText() {
     return this._ensurePrplAccount.HTMLEscapePlainText;
   },

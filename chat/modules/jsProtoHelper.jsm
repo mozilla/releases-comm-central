@@ -460,9 +460,6 @@ var GenericAccountPrototype = {
     return aName.toLowerCase();
   },
 
-  get HTMLEnabled() {
-    return false;
-  },
   get HTMLEscapePlainText() {
     return false;
   },

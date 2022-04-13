@@ -199,10 +199,6 @@ interface prplIAccount: nsISupports {
 
   /* From PurpleConnectionFlags */
 
-  //   PURPLE_CONNECTION_HTML
-  //    Connection sends/receives in 'HTML'.
-  readonly attribute boolean HTMLEnabled;
-
   // libpurple expects messages to be HTML escaped even when HTML
   // isn't enabled. Our js-prpls most likely don't want that behavior.
   readonly attribute boolean HTMLEscapePlainText;
