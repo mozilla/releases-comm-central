@@ -40,7 +40,7 @@ async function init() {
 
     let id = document.createXULElement("label");
     id.classList.add("openpgp-key-id");
-    id.value = key.fpr;
+    id.value = "0x" + key.keyId;
     titleContainer.appendChild(id);
 
     for (let uid of key.userIds) {
