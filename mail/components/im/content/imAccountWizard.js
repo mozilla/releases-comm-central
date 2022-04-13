@@ -230,6 +230,7 @@ var accountWizard = {
     while (grid.hasChildNodes()) {
       grid.lastChild.remove();
     }
+    this.userNameBoxes = undefined;
 
     var splits = this.proto.getUsernameSplit();
 
