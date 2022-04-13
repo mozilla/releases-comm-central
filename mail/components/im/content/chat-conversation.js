@@ -548,13 +548,7 @@
         }
       }
 
-      let msg = Cc["@mozilla.org/txttohtmlconv;1"]
-        .getService(Ci.mozITXTToHTMLConv)
-        .scanTXT(aMsg, 0);
-
-      msg = account.HTMLEscapePlainText ? msg : aMsg;
-
-      this._conv.sendMsg(msg, false, false);
+      this._conv.sendMsg(aMsg, false, false);
 
       // reset the textbox to its original size
       this.resetInput();

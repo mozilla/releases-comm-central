@@ -962,9 +962,6 @@ imAccount.prototype = {
     SavePrefTimer.saveNow();
   },
 
-  get HTMLEscapePlainText() {
-    return this._ensurePrplAccount.HTMLEscapePlainText;
-  },
   get noBackgroundColors() {
     return this._ensurePrplAccount.noBackgroundColors;
   },
