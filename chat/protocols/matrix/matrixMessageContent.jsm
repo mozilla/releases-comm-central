@@ -302,6 +302,16 @@ var MatrixMessageContent = {
       if (attachmentUrl) {
         return attachmentUrl;
       }
+    } else if (type == EventType.Reaction) {
+      let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
+      if (annotatedEvent && content["m.relates_to"]?.key) {
+        return _(
+          "message.reaction",
+          event.getSender(),
+          annotatedEvent.getSender(),
+          TXTToHTML(content["m.relates_to"].key)
+        );
+      }
     }
     return TXTToHTML(content.body ?? "");
   },
@@ -341,6 +351,16 @@ var MatrixMessageContent = {
       }
     } else if (type == EventType.Sticker) {
       return formatMediaAttachment(content, homeserverUrl);
+    } else if (type == EventType.Reaction) {
+      let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
+      if (annotatedEvent && content["m.relates_to"]?.key) {
+        return _(
+          "message.reaction",
+          `<span class="ib-person">${event.getSender()}</span>`,
+          `<span class="ib-person">${annotatedEvent.getSender()}</span>`,
+          TXTToHTML(content["m.relates_to"].key)
+        );
+      }
     }
     return MatrixMessageContent.getIncomingPlain(
       event,

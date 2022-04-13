@@ -756,13 +756,18 @@ MatrixRoom.prototype = {
     if (event.isRedacted()) {
       newestEventId = event.getRedactionEvent()?.event_id;
       replace = true;
-      opts.system =
-        eventType != EventType.RoomMessage && eventType != EventType.Sticker;
+      opts.system = ![
+        EventType.RoomMessage,
+        EventType.RoomMessageEncrypted,
+        EventType.Sticker,
+      ].includes(eventType);
       opts.deleted = true;
     } else if (
-      eventType === EventType.RoomMessage ||
-      eventType === EventType.RoomMessageEncrypted ||
-      eventType === EventType.Sticker
+      [
+        EventType.RoomMessage,
+        EventType.RoomMessageEncrypted,
+        EventType.Sticker,
+      ].includes(eventType)
     ) {
       const eventContent = event.getContent();
       // Only print server notices when we're in a server notice room.

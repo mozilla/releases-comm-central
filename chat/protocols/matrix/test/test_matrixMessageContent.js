@@ -252,6 +252,30 @@ dolor sit amet`,
     },
     isGetTextForEvent: true,
   },
+  {
+    description: "Reaction",
+    event: {
+      type: EventType.Reaction,
+      content: {
+        ["m.relates_to"]: {
+          rel_type: "m.annotation",
+          event_id: "!event:example.com",
+          key: "🐦",
+        },
+      },
+      sender: "@bar:example.com",
+    },
+    getEventResult: {
+      id: "!event:example.com",
+      type: EventType.RoomMessage,
+      content: {
+        msgtype: MsgType.Text,
+        body: "lorem ipsum!",
+      },
+      sender: "@foo:example.com",
+    },
+    result: _("message.reaction", "@bar:example.com", "@foo:example.com", "🐦"),
+  },
 ];
 
 const HTML_FIXTURES = [
@@ -530,6 +554,35 @@ dolor sit amet`,
       sender: "@bar:example.com",
     },
     isGetTextForEvent: true,
+  },
+  {
+    description: "Reaction",
+    event: {
+      type: EventType.Reaction,
+      content: {
+        ["m.relates_to"]: {
+          rel_type: "m.annotation",
+          event_id: "!event:example.com",
+          key: "🐦",
+        },
+      },
+      sender: "@bar:example.com",
+    },
+    getEventResult: {
+      id: "!event:example.com",
+      type: EventType.RoomMessage,
+      content: {
+        msgtype: MsgType.Text,
+        body: "lorem ipsum!",
+      },
+      sender: "@foo:example.com",
+    },
+    result: _(
+      "message.reaction",
+      '<span class="ib-person">@bar:example.com</span>',
+      '<span class="ib-person">@foo:example.com</span>',
+      "🐦"
+    ),
   },
 ];
 

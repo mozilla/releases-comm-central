@@ -799,6 +799,49 @@ add_task(async function test_encryptionStateOn() {
   room.forget();
 });
 
+add_task(async function test_addEventReaction() {
+  const event = makeEvent({
+    sender: "@user:example.com",
+    type: EventType.Reaction,
+    content: {
+      ["m.relates_to"]: {
+        rel_type: "m.annotation",
+        event_id: "!event:example.com",
+        key: "🐦",
+      },
+    },
+  });
+  let wroteMessage = false;
+  const roomStub = {
+    _account: {
+      userId: "@user:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com/";
+        },
+      },
+    },
+    room: {
+      findEventById(id) {
+        equal(id, "!event:example.com", "Reading expected annotated event");
+        return {
+          getSender() {
+            return "@foo:example.com";
+          },
+        };
+      },
+    },
+    writeMessage(who, message, options) {
+      equal(who, "@user:example.com", "Correct sender for reaction");
+      ok(message.includes("🐦"), "Message contains reaction content");
+      ok(options.system, "reaction is a system message");
+      wroteMessage = true;
+    },
+  };
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  ok(wroteMessage, "Wrote reaction to conversation");
+});
+
 function waitForNotification(target, expectedTopic) {
   let promise = new Promise(resolve => {
     let observer = {
