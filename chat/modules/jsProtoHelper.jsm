@@ -460,25 +460,6 @@ var GenericAccountPrototype = {
     return aName.toLowerCase();
   },
 
-  get noBackgroundColors() {
-    return true;
-  },
-  get autoResponses() {
-    return false;
-  },
-  get singleFormatting() {
-    return false;
-  },
-  get noFontSizes() {
-    return false;
-  },
-  get noUrlDesc() {
-    return false;
-  },
-  get noImages() {
-    return true;
-  },
-
   getSessions() {
     return [];
   },

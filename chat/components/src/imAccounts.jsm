@@ -962,25 +962,6 @@ imAccount.prototype = {
     SavePrefTimer.saveNow();
   },
 
-  get noBackgroundColors() {
-    return this._ensurePrplAccount.noBackgroundColors;
-  },
-  get autoResponses() {
-    return this._ensurePrplAccount.autoResponses;
-  },
-  get singleFormatting() {
-    return this._ensurePrplAccount.singleFormatting;
-  },
-  get noFontSizes() {
-    return this._ensurePrplAccount.noFontSizes;
-  },
-  get noUrlDesc() {
-    return this._ensurePrplAccount.noUrlDesc;
-  },
-  get noImages() {
-    return this._ensurePrplAccount.noImages;
-  },
-
   getSessions() {
     return this._ensurePrplAccount.getSessions();
   },

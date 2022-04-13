@@ -155,7 +155,7 @@ interface prplIAccount: nsISupports {
   AUTF8String normalize(in AUTF8String aName);
 
   // protocol specific options: those functions set the protocol
-  // specific options for the PurpleAccount
+  // specific options for the prplIAccount
   void setBool(in string aName, in boolean aVal);
   void setInt(in string aName, in long aVal);
   void setString(in string aName, in AUTF8String aVal);
@@ -196,32 +196,6 @@ interface prplIAccount: nsISupports {
   const short ERROR_CERT_SELF_SIGNED = 14;
   const short ERROR_CERT_OTHER_ERROR = 15;
   const short ERROR_OTHER_ERROR = 16;
-
-  /* From PurpleConnectionFlags */
-
-  //   PURPLE_CONNECTION_NO_BGCOLOR
-  //    Connection does not send/receive background colors.
-  readonly attribute boolean noBackgroundColors;
-
-  //   PURPLE_CONNECTION_AUTO_RESP
-  //    Send auto responses when away.
-  readonly attribute boolean autoResponses;
-
-  //   PURPLE_CONNECTION_FORMATTING_WBFO
-  //    The text buffer must be formatted as a whole.
-  readonly attribute boolean singleFormatting;
-
-  //   PURPLE_CONNECTION_NO_FONTSIZE
-  //    Connection does not send/receive font sizes.
-  readonly attribute boolean noFontSizes;
-
-  //   PURPLE_CONNECTION_NO_URLDESC
-  //    Connection does not support descriptions with links.
-  readonly attribute boolean noUrlDesc;
-
-  //   PURPLE_CONNECTION_NO_IMAGES
-  //    Connection does not support sending of images.
-  readonly attribute boolean noImages;
 
   /**
    * Get a list of active encryption sessions for the account.
