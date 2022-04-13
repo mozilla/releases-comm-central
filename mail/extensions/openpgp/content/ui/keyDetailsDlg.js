@@ -176,6 +176,7 @@ async function reloadData(firstLoad) {
     gAllEmails.push(userEmail);
   }
 
+  setLabel("keyId", "0x" + gKeyId);
   setLabel("userId", gUserId);
   setLabel("keyCreated", keyObj.created);
 

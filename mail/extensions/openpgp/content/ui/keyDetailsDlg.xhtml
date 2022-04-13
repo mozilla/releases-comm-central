@@ -35,6 +35,13 @@
     <html:div class="key-details-container">
       <html:aside class="key-details-grid">
         <label class="key-detail-label"
+               data-l10n-id="openpgp-key-details-key-id-label"/>
+        <hbox class="input-container">
+          <html:input id="keyId" type="text" class="plain"
+                      readonly="readonly" value="?"/>
+        </hbox>
+
+        <label class="key-detail-label"
                data-l10n-id="openpgp-key-details-user-id2-label"/>
         <hbox class="input-container">
           <html:input id="userId" type="text" class="plain"

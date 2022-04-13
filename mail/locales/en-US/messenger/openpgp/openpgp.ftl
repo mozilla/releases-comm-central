@@ -258,6 +258,7 @@ openpgp-key-details-structure-tab =
     .label = Structure
 openpgp-key-details-uid-certified-col =
     .label = User ID / Certified by
+openpgp-key-details-key-id-label = Key ID
 openpgp-key-details-user-id2-label = Alleged Key Owner
 openpgp-key-details-id-label =
     .label = ID
