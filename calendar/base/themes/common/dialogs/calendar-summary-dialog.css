@@ -20,6 +20,10 @@ notification {
   height: auto;
 }
 
+#calendar-event-summary-dialog {
+  height: 100vh;
+}
+
 #calendar-summary-dialog-custom-button-footer {
   margin-block: 10px;
   margin-inline: 8px 10px;

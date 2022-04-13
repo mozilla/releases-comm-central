@@ -15,9 +15,13 @@ XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
   return new MozElements.NotificationBox(async element => {
     let box = document.getElementById("status-notifications");
     // Fix window size after the notification animation is done.
-    box.addEventListener("transitionend", () => {
-      window.sizeToContent();
-    });
+    box.addEventListener(
+      "transitionend",
+      () => {
+        window.sizeToContent();
+      },
+      { once: true }
+    );
     box.append(element);
   });
 });
