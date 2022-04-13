@@ -476,7 +476,7 @@ SigListView.prototype = {
         case "sig_uid_col":
           return s.uid;
         case "sig_keyid_col":
-          return s.keyId;
+          return "0x" + s.keyId;
         case "sig_created_col":
           return s.created;
       }
@@ -516,10 +516,6 @@ SigListView.prototype = {
   getRowProperties(row, props) {},
 
   getCellProperties(row, col) {
-    if (col.id === "sig_keyid_col") {
-      return "fixedWidthFont";
-    }
-
     return "";
   },
 
