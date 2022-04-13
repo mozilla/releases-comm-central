@@ -12,9 +12,6 @@
   const { Status } = ChromeUtils.import(
     "resource:///modules/imStatusUtils.jsm"
   );
-  const { MessageFormat } = ChromeUtils.import(
-    "resource:///modules/imTextboxUtils.jsm"
-  );
   const { TextboxSize } = ChromeUtils.import(
     "resource:///modules/imTextboxUtils.jsm"
   );
@@ -329,9 +326,6 @@
         this._forgetConv();
       }
 
-      if ("MessageFormat" in window) {
-        MessageFormat.unregisterTextbox(this.inputBox);
-      }
       Services.prefs.removeObserver(
         "mail.spellcheck.inline",
         this.prefObserver
@@ -602,8 +596,6 @@
     }
 
     initTextboxFormat() {
-      MessageFormat.registerTextbox(this.inputBox);
-
       // Init the textbox size
       this.calculateTextboxDefaultHeight();
       this.inputBox.parentNode.height =
