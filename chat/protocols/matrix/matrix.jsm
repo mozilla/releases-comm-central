@@ -2510,7 +2510,7 @@ MatrixAccount.prototype = {
         this.userId,
         request.targetDevice.deviceId
       );
-      if (deviceInfo.getDisplayName()) {
+      if (deviceInfo?.getDisplayName()) {
         displayName = _(
           "options.encryption.session",
           request.targetDevice.deviceId,
