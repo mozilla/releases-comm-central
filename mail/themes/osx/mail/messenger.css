@@ -454,6 +454,15 @@ fieldset > radiogroup {
   width: -moz-available;
 }
 
+.menu-accel-container {
+  opacity: 0.5;
+}
+
+menuitem:not([disabled]):hover .menu-accel-container,
+menuitem:not([disabled]):focus .menu-accel-container {
+  opacity: 1;
+}
+
 /* UI Density customization */
 
 treechildren::-moz-tree-row {

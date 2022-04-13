@@ -17,6 +17,15 @@ panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   width: 46px;
 }
 
+.subviewbutton[shortcut]::after {
+  opacity: 0.5;
+}
+
+.subviewbutton[shortcut]:not([disabled="true"]):hover::after,
+.subviewbutton[shortcut]:not([disabled="true"]):focus::after {
+  opacity: 1;
+}
+
 menupopup[type="arrow"] {
   appearance: none;
   background-color: transparent;
