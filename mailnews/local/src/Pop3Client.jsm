@@ -171,6 +171,8 @@ class Pop3Client {
    * @param {string} uidl - The uidl of the message to fetch.
    */
   async fetchBodyForUidl(sink, uidl) {
+    this._logger.debug(`Fetching body for uidl=${uidl}`);
+
     this._downloadMail = true;
     this._sink = sink;
     this._sink.buildMessageUri = true;
@@ -1219,6 +1221,7 @@ class Pop3Client {
   }
 
   _actionDone = (status = Cr.NS_OK) => {
+    this._logger.debug(`Done with status=${status}`);
     this._authenticating = false;
     if (status == Cr.NS_OK) {
       if (this._newMessageTotal) {

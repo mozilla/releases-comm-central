@@ -21,6 +21,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 class Pop3Channel {
   QueryInterface = ChromeUtils.generateQI(["nsIChannel", "nsIRequest"]);
 
+  _logger = console.createInstance({
+    prefix: "mailnews.pop3",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mailnews.pop3.loglevel",
+  });
+
   /**
    * @param {nsIURI} uri - The uri to construct the channel from.
    * @param {nsILoadInfo} loadInfo - The loadInfo associated with the channel.
@@ -67,10 +73,14 @@ class Pop3Channel {
   }
 
   asyncOpen(listener) {
-    let match = this.URI.spec.match(/pop3?:\/\/.+\/\?uidl=(\w+)/);
-    let uidl = match?.[1];
+    this._logger.debug(`asyncOpen ${this.URI.spec}`);
+    let match = this.URI.spec.match(/pop3?:\/\/.+\/(?:\?|&)uidl=([^&]+)/);
+    let uidl = decodeURIComponent(match?.[1] || "");
     if (!uidl) {
-      return;
+      throw Components.Exception(
+        `Unrecognized url=${this.URI.spec}`,
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
     }
 
     let client = new Pop3Client(this._server);
