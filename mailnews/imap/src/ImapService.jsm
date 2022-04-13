@@ -15,15 +15,21 @@ class ImapService {
   QueryInterface = ChromeUtils.generateQI(["nsIImapService"]);
 
   selectFolder(folder, urlListener, msgWindow) {
-    this._client.selectFolder(folder, urlListener, msgWindow);
+    let client = new ImapClient(
+      folder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
+    );
+    client.onReady = () => {
+      client.selectFolder(folder, urlListener, msgWindow);
+    };
+    client.connect();
   }
 
   discoverAllFolders(folder, urlListener, msgWindow) {
-    this._client = new ImapClient(
+    let client = new ImapClient(
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
     );
-    this._client.onOpen = () => {};
-    this._client.connect();
+    client.onReady = () => {};
+    client.connect();
   }
 }
 

@@ -13,22 +13,20 @@ var { MailStringUtils } = ChromeUtils.import(
 var { ImapAuthenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
+var { ImapResponse } = ChromeUtils.import(
+  "resource:///modules/ImapResponse.jsm"
+);
 
-/**
- * A structure to represent a response received from the server.
- * @typedef {Object} ImapResponse
- * @property {string} tag - Can be "*", "+" or client tag.
- * @property {string} status - Can be "OK", "NO" or "BAD".
- * @property {string} statusData - The third part of the status line.
- * @property {string} statusText - The fourth part of the status line.
- */
+// There can be multiple ImapClient running concurrently, assign each logger a
+// unique prefix.
+let loggerInstanceId = 0;
 
 /**
  * A class to interact with IMAP server.
  */
 class ImapClient {
   _logger = console.createInstance({
-    prefix: "mailnews.imap",
+    prefix: `mailnews.imap.${loggerInstanceId++}`,
     maxLogLevel: "Warn",
     maxLogLevelPref: "mailnews.imap.loglevel",
   });
@@ -66,7 +64,9 @@ class ImapClient {
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
   selectFolder(folder, urlListener, msgWindow) {
-    this._logger.debug(`Select ${folder.name}`);
+    this._folder = folder;
+    this._nextAction = this._actionSelectResponse;
+    this._sendTagged(`SELECT "${folder.name}"`);
   }
 
   /**
@@ -100,7 +100,8 @@ class ImapClient {
       new Uint8Array(event.data)
     );
     this._logger.debug(`S: ${stringPayload}`);
-    let res = this._parse(stringPayload);
+    let res = ImapResponse.parse(stringPayload);
+    this._logger.debug("Parsed:", res);
     this._nextAction?.(res);
   };
 
@@ -154,6 +155,13 @@ class ImapClient {
   }
 
   /**
+   * Same as _send, but prepend a tag to the command.
+   */
+  _sendTagged(str, suppressLogging) {
+    this._send(`${this._getNextTag()} ${str}`, suppressLogging);
+  }
+
+  /**
    * Get the next command tag.
    * @returns {number}
    */
@@ -176,8 +184,15 @@ class ImapClient {
    */
   _actionAuth = () => {
     this._nextAction = this._actionAuthPlain;
-    let tag = this._getNextTag();
-    this._send(`${tag} AUTHENTICATE PLAIN`);
+    this._sendTagged("AUTHENTICATE PLAIN");
+  };
+
+  /**
+   * @param {ImapResponse} res - Response received from the server.
+   */
+  _actionAuthResponse = res => {
+    this.onReady();
+    // this._actionNamespace();
   };
 
   /**
@@ -185,14 +200,56 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthPlain = res => {
-    this._nextAction = null;
+    this._nextAction = this._actionAuthResponse;
     // According to rfc4616#section-2, password should be BinaryString before
     // base64 encoded.
     let password = MailStringUtils.uint8ArrayToByteString(
       new TextEncoder().encode(this._authenticator.getPassword())
     );
-    this._send(btoa("\0" + this._authenticator.username + "\0" + password));
+    this._send(
+      btoa("\0" + this._authenticator.username + "\0" + password),
+      true
+    );
   };
+
+  /**
+   * Handle SELECT response.
+   */
+  _actionSelectResponse() {
+    this._actionUidFetch();
+  }
+
+  /**
+   * Send UID FETCH request to the server.
+   */
+  _actionUidFetch() {
+    this._nextAction = this._actionUidFetchResponse;
+    this._sendTagged("UID FETCH 1:* (FLAGS)");
+  }
+
+  /**
+   * Handle UID FETCH response.
+   * @param {ImapResponse} res - Response received from the server.
+   */
+  _actionUidFetchResponse(res) {
+    let outFolderInfo = {};
+    this._folder.getDBFolderInfoAndDB(outFolderInfo);
+    let highestUid = outFolderInfo.value.getUint32Property(
+      "highestRecordedUID",
+      0
+    );
+    let latestUid = res.data.reduce(
+      (maxUid, msg) => Math.max(maxUid, msg.attributes.UID),
+      0
+    );
+    this._nextAction = null;
+    if (latestUid > highestUid) {
+      this._sendTagged(
+        `UID FETCH ${highestUid +
+          1}:${latestUid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`
+      );
+    }
+  }
 
   /**
    * Close the connection and do necessary cleanup.

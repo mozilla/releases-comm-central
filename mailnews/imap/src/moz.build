@@ -42,6 +42,7 @@ EXTRA_JS_MODULES += [
     "ImapClient.jsm",
     "ImapIncomingServer.jsm",
     "ImapModuleLoader.jsm",
+    "ImapResponse.jsm",
     "ImapService.jsm",
 ]
 
