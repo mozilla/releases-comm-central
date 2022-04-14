@@ -6,6 +6,8 @@ messenger.jar:
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 % override chrome://messagebody/skin/abPrint.css chrome://messenger/skin/shared/abPrint.css
 % override chrome://global/content/commonDialog.xhtml chrome://messenger/content/commonDialog.xhtml
+# Override utilityOverlay.js from browser because it is used directly in devtools
+% override chrome://browser/content/utilityOverlay.js chrome://communicator/content/utilityOverlay.js
     content/messenger/about3Pane.js                 (content/about3Pane.js)
 *   content/messenger/about3Pane.xhtml              (content/about3Pane.xhtml)
     content/messenger/aboutAddonsExtra.js           (content/aboutAddonsExtra.js)
