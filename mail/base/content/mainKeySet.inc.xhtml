@@ -225,13 +225,33 @@
 
 #ifdef XP_MACOSX
   <!-- Mac Window menu keys -->
-  <key id="key_minimizeWindow" command="minimizeWindow" key="&minimizeWindow.key;" modifiers="accel"/>
-  <key id="key_addressbook" key="&addressBookCmd.key;" oncommand="toAddressBook();" modifiers="accel, shift"/>
-    <!-- the following 3 keys are used in the application menu on Mac OS X Cocoa widgets -->
-  <key id="key_preferencesCmdMac" key="&preferencesCmdMac.commandkey;" modifiers="&preferencesCmdMac.modifiers;"/>
-  <key id="key_hideThisAppCmdMac" key="&hideThisAppCmdMac.commandkey;" modifiers="&hideThisAppCmdMac.modifiers;"/>
-  <key id="key_hideOtherAppsCmdMac" key="&hideOtherAppsCmdMac.commandkey;" modifiers="&hideOtherAppsCmdMac.modifiers;"/>
-  <key id="key_openHelp" oncommand="openSupportURL();" key="&productHelpMac.commandkey;" modifiers="&productHelpMac.modifiers;"/>
+  <key id="key_minimizeWindow"
+       command="minimizeWindow"
+       key="&minimizeWindow.key;"
+       modifiers="accel"/>
+  <key id="key_addressbook"
+       oncommand="toAddressBook();"
+       key="&addressBookCmd.key;"
+       modifiers="accel, shift"/>
+  <!-- the following 3 keys are used in the application menu on Mac OS X Cocoa widgets -->
+  <key id="key_preferencesCmdMac"
+       key="&preferencesCmdMac.commandkey;"
+       modifiers="&preferencesCmdMac.modifiers;"
+       internal="true"/>
+  <key id="key_hideThisAppCmdMac"
+       key="&hideThisAppCmdMac.commandkey;"
+       modifiers="&hideThisAppCmdMac.modifiers;"
+       internal="true"/>
+  <key id="key_hideOtherAppsCmdMac"
+       key="&hideOtherAppsCmdMac.commandkey;"
+       modifiers="&hideOtherAppsCmdMac.modifiers;"
+       internal="true"/>
+  <key id="key_openHelp"
+       oncommand="openSupportURL();"
+       key="&productHelpMac.commandkey;"
+       modifiers="&productHelpMac.modifiers;"/>
 #else
-  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&productHelp.commandkey;"/>
+  <key id="key_openHelp"
+       oncommand="openSupportURL();"
+       keycode="&productHelp.commandkey;"/>
 #endif
