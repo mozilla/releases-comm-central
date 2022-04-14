@@ -13,4 +13,4 @@ export MOZ_PKG_SPECIAL=asan-reporter
 # Sandboxing is currently not compatible with the way the ASan reporter works
 ac_add_options --disable-sandbox
 
-. "$topsrcdir/build/mozconfig.common.override"
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
