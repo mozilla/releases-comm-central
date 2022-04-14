@@ -293,7 +293,7 @@ add_task(async function test_file_attachments() {
         id: attachment2.id,
         name: "file2 with a new name.txt",
         size: file3.size,
-        htmlSize: 4537,
+        htmlSize: 4536,
       });
 
       // Rename the second/cloud attachment.
@@ -325,7 +325,7 @@ add_task(async function test_file_attachments() {
         id: attachment2.id,
         name: "cloud file2 with a new name.txt",
         size: file3.size,
-        htmlSize: 4555,
+        htmlSize: 4554,
       });
 
       // File retrieved by WebExt API should still be the real file.
@@ -725,7 +725,7 @@ add_task(async function test_compose_attachments() {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4301,
+          htmlSize: 4300,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -788,7 +788,7 @@ add_task(async function test_compose_attachments() {
           id: tab2_attachment2.id,
           name: "this is renamed file2.txt",
           size: 41,
-          htmlSize: 4325,
+          htmlSize: 4324,
           contentLocation: "https://cloud.provider.net/2",
         }
       );
@@ -832,7 +832,7 @@ add_task(async function test_compose_attachments() {
           id: tab3_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4301,
+          htmlSize: 4300,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -884,7 +884,7 @@ add_task(async function test_compose_attachments() {
           id: tab3_attachment2.id,
           name: "That is going to be interesting.txt",
           size: 41,
-          htmlSize: 4355,
+          htmlSize: 4354,
           contentLocation: "https://cloud.provider.net/3",
         }
       );
@@ -960,7 +960,7 @@ add_task(async function test_compose_attachments() {
           id: tab4_attachment2.id,
           name: "I got renamed too, how crazy is that!.txt",
           size: 41,
-          htmlSize: 4373,
+          htmlSize: 4372,
           contentLocation: "https://cloud.provider.net/4",
         }
       );
@@ -1411,7 +1411,7 @@ add_task(async function test_compose_attachments_immutable() {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4301,
+          htmlSize: 4300,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1452,7 +1452,7 @@ add_task(async function test_compose_attachments_immutable() {
           id: tab2_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4301,
+          htmlSize: 4300,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1834,7 +1834,7 @@ add_task(async function test_compose_attachments_no_reuse() {
           id: tab1_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4301,
+          htmlSize: 4300,
           contentLocation: "https://cloud.provider.net/1",
         }
       );
@@ -1895,7 +1895,7 @@ add_task(async function test_compose_attachments_no_reuse() {
           id: tab2_attachment2.id,
           name: "this is file2.txt",
           size: 41,
-          htmlSize: 4301,
+          htmlSize: 4300,
           contentLocation: "https://cloud.provider.net/2",
         }
       );
