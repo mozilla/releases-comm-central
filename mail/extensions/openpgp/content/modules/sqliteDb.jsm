@@ -292,13 +292,10 @@ var PgpSqliteDb2 = {
             }
           )
           .then(result => {
-            if (result.length) {
-              let count = result[0].getResultByName("count(*)");
-              if (count > 0) {
-                console.debug(
-                  "unnecessary call to addAcceptedEmail, this shouldn't happen"
-                );
-              }
+            if (result.length && result[0].getResultByName("count(*)") > 0) {
+              throw new Error(
+                `${email} already has acceptance for ${fingerprint}`
+              );
             }
           });
 
