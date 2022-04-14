@@ -6,10 +6,7 @@ function getDisplayedMessages(tab, extension) {
   let displayedMessages;
 
   if (tab instanceof TabmailTab) {
-    if (
-      tab.active &&
-      ["folder", "glodaList", "message"].includes(tab.nativeTab.mode.name)
-    ) {
+    if (["folder", "glodaList", "message"].includes(tab.nativeTab.mode.name)) {
       displayedMessages = tab.nativeTab.folderDisplay.selectedMessages;
     }
   } else if (tab.nativeTab.gMessageDisplay) {
@@ -81,7 +78,6 @@ this.messageDisplay = class extends ExtensionAPI {
 
           if (tab instanceof TabmailTab) {
             if (
-              tab.active &&
               ["folder", "glodaList", "message"].includes(
                 tab.nativeTab.mode.name
               )

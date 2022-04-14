@@ -81,6 +81,23 @@ add_task(async () => {
         return tab;
       }
 
+      async function testGetDisplayedMessageFunctions(tabId, expected) {
+        let messages = await browser.messageDisplay.getDisplayedMessages(tabId);
+        if (expected) {
+          browser.test.assertEq(1, messages.length);
+          browser.test.assertEq(expected.subject, messages[0].subject);
+        } else {
+          browser.test.assertEq(0, messages.length);
+        }
+
+        let message = await browser.messageDisplay.getDisplayedMessage(tabId);
+        if (expected) {
+          browser.test.assertEq(expected.subject, message.subject);
+        } else {
+          browser.test.assertEq(null, message);
+        }
+      }
+
       // Test that selecting a different message fires the event.
       await checkResults("show message 1", [1], true);
 
@@ -88,28 +105,20 @@ add_task(async () => {
       await checkResults("show message 2", [2], true);
 
       // Test that opening a message in a new tab fires the event.
-      let tab = await checkResults("open message tab", [2], false);
+      let tab = await checkResults("open message 0 in tab", [0], false);
 
-      // Test that the first tab is not displaying a message.
-      let message = await browser.messageDisplay.getDisplayedMessage(
-        firstTabId
-      );
-      browser.test.assertEq(null, message);
+      // The opened tab should return message #0.
+      await testGetDisplayedMessageFunctions(tab.id, messages[0]);
 
-      // The first tab still saves the selected messages, even if it isn't
-      // showing the tab.
-      let displayMsgs = await browser.messageDisplay.getDisplayedMessages(
-        tab.id
-      );
-      browser.test.assertEq(1, displayMsgs.length);
-      browser.test.assertEq(messages[2].subject, displayMsgs[0].subject);
+      // The first tab should return message #2, even if it is currently not displayed.
+      await testGetDisplayedMessageFunctions(firstTabId, messages[2]);
 
       // Closing the tab should return us to the first tab, and fires the
       // event. It doesn't have to be this way, it just is.
       await checkResults(() => browser.tabs.remove(tab.id), [2], true);
 
       // Test that opening a message in a new window fires the event.
-      tab = await checkResults("open message window", [2], false);
+      tab = await checkResults("open message 1 in window", [1], false);
 
       // Close the window.
       browser.tabs.remove(tab.id);
@@ -150,11 +159,11 @@ add_task(async () => {
   await extension.awaitMessage("show message 2");
   window.gFolderDisplay.selectViewIndex(2);
 
-  await extension.awaitMessage("open message tab");
-  await openMessageInTab(messages[2]);
+  await extension.awaitMessage("open message 0 in tab");
+  await openMessageInTab(messages[0]);
 
-  await extension.awaitMessage("open message window");
-  await openMessageInWindow(messages[2]);
+  await extension.awaitMessage("open message 1 in window");
+  await openMessageInWindow(messages[1]);
 
   await extension.awaitMessage("show messages 1 and 2");
   window.gFolderDisplay.selectMessages(messages.slice(1, 3));
