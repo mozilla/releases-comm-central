@@ -13,8 +13,9 @@
   border-bottom-color: #bebebe
 }
 
-/* Hide the search glass */
-.task-edit-field {
+/* Hide the magnifying glass icon */
+#view-task-edit-field,
+#unifinder-task-edit-field {
   margin-block: 0;
   background-image: none;
   padding-inline-start: 4px !important;
