@@ -4,19 +4,13 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#dialog-box > hbox {
-  display: flex;
-  align-items: center;
-  margin: 0.3em 0;
-}
-
 html|label {
   white-space: nowrap;
   margin-right: 0.5em;
 }
 
 #publish-progressmeter {
-  width: 100%;
+  width: -moz-available;
   appearance: none;
   height: 4px;
   margin: 10px 4px;

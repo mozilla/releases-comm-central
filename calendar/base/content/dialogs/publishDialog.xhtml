@@ -4,50 +4,37 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<!-- CSS File with all styles specific to the dialog -->
-<?xml-stylesheet href="chrome://calendar/skin/shared/dialogOverlay.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
+<?xml-stylesheet href="chrome://calendar/skin/shared/publishDialog.css" type="text/css"?>
 
-<!-- DTD File with all strings specific to the calendar -->
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
 ]>
-
-<window id="calendar-publishwindow"
-        title="&calendar.publish.dialog.title;"
-        windowtype="Calendar:PublishDialog"
-        onload="loadCalendarPublishDialog()"
-        persist="screenX screenY"
-        lightweightthemes="true"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml">
-
-<dialog buttons="accept,cancel">
-
-  <!-- JavaScript includes -->
-  <script src="chrome://calendar/content/publishDialog.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <!-- Data used in JavaScript from dtd -->
-  <script>
-    var publishButtonLabel = "&calendar.publish.publish.button;";
-    var closeButtonLabel = "&calendar.publish.close.button;";
-  </script>
-
-  <keyset id="dialogKeys"/>
-
-  <!-- The dialog -->
-  <vbox id="dialog-box">
+<html id="calendar-publishwindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:PublishDialog"
+      persist="screenX screenY"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&calendar.publish.dialog.title;</title>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog buttons="accept,cancel"
+        buttonlabelaccept="&calendar.publish.publish.button;"
+        buttonlabelaccept2="&calendar.publish.close.button;">
     <hbox>
       <html:label for="publish-remotePath-textbox">&calendar.publish.url.label;</html:label>
       <html:input id="publish-remotePath-textbox" type="url" size="64"
-                  placeholder="&calendar.publish.example.url.description;"
+                  required="required"
+                  placeholder="https://www.example.com/webdav/calendar.ics"
                   oninput="checkURLField()"/>
     </hbox>
-    <hbox>
-      <html:progress id="publish-progressmeter" value="0" max="100"/>
-    </hbox>
-  </vbox>
+    <html:progress id="publish-progressmeter" value="0" max="100"></html:progress>
 </dialog>
-</window>
+<html:script src="chrome://calendar/content/publishDialog.js">//see bug 1752288</html:script>
+</html:body>
+</html>
