@@ -4474,29 +4474,6 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     i.getUnicharAttribute("encryption_cert_name")
   );
 
-  // If we don't have either OpePGP or SMIME for any identity, hide the entire
-  // menu.
-  let encOpt = document.getElementById("button-encryption-options");
-  if (encOpt) {
-    encOpt.hidden = !isOpenPGPAvailable && !isSMIMEAvailable;
-  }
-  document.getElementById("encryptionMenu").hidden =
-    !isOpenPGPAvailable && !isSMIMEAvailable;
-
-  // Show menu items only if both technologies are available.
-  document.getElementById("encTech_OpenPGP_Toolbar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
-  document.getElementById("encTech_OpenPGP_Menubar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
-  document.getElementById("encTech_SMIME_Toolbar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
-  document.getElementById("encTech_SMIME_Menubar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
-  document.getElementById("encryptionOptionsSeparator_Toolbar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
-  document.getElementById("encryptionOptionsSeparator_Menubar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
-
   // Disable encryption widgets if this identity has no encryption configured.
   // However, if encryption is currently enabled, we must keep it enabled,
   // to allow the user to manually disable encryption (we don't disable
@@ -4504,25 +4481,43 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   // enabled and might rely on it).
   let noEncryption = !configuredOpenPGP && !configuredSMIME;
 
+  // If we don't have either OpePGP or SMIME for any identity, hide the entire
+  // menu.
+  let encOpt = document.getElementById("button-encryption-options");
+  if (encOpt) {
+    encOpt.hidden = !isOpenPGPAvailable && !isSMIMEAvailable;
+    encOpt.disabled = noEncryption && !gSendEncrypted;
+    document.getElementById(
+      "encTech_OpenPGP_Toolbar"
+    ).disabled = !configuredOpenPGP;
+    document.getElementById(
+      "encTech_SMIME_Toolbar"
+    ).disabled = !configuredSMIME;
+  }
+  document.getElementById("encryptionMenu").hidden =
+    !isOpenPGPAvailable && !isSMIMEAvailable;
+
+  // Show menu items only if both technologies are available.
+  document.getElementById("encTech_OpenPGP_Menubar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+  document.getElementById("encTech_SMIME_Menubar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+  document.getElementById("encryptionOptionsSeparator_Menubar").hidden =
+    !isOpenPGPAvailable || !isSMIMEAvailable;
+
   let encToggle = document.getElementById("button-encryption");
   if (encToggle) {
     encToggle.disabled = noEncryption && !gSendEncrypted;
   }
-  if (encOpt) {
-    encOpt.disabled = noEncryption && !gSendEncrypted;
-  }
   document.getElementById("encryptionMenu").disabled =
     noEncryption && !gSendEncrypted;
 
-  // Enable the encryption widgets of the technologies that are configured for
+  // Enable the encryption menus of the technologies that are configured for
   // this identity.
-  document.getElementById(
-    "encTech_OpenPGP_Toolbar"
-  ).disabled = !configuredOpenPGP;
   document.getElementById(
     "encTech_OpenPGP_Menubar"
   ).disabled = !configuredOpenPGP;
-  document.getElementById("encTech_SMIME_Toolbar").disabled = !configuredSMIME;
+
   document.getElementById("encTech_SMIME_Menubar").disabled = !configuredSMIME;
 
   // Not yet implemented
@@ -5119,20 +5114,20 @@ function updateEncryptionOptions() {
         ? "encryption-options-openpgp"
         : "encryption-options-smime"
     );
+    document.l10n.setAttributes(
+      document.getElementById("menu_recipientStatus_Toolbar"),
+      gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
+    );
+    document.getElementById(
+      "menu_securityEncryptSubject_Toolbar"
+    ).hidden = !gSelectedTechnologyIsPGP;
   }
   document.l10n.setAttributes(
     document.getElementById("menu_recipientStatus_Menubar"),
     gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
   );
-  document.l10n.setAttributes(
-    document.getElementById("menu_recipientStatus_Toolbar"),
-    gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
-  );
   document.getElementById(
     "menu_securityEncryptSubject_Menubar"
-  ).hidden = !gSelectedTechnologyIsPGP;
-  document.getElementById(
-    "menu_securityEncryptSubject_Toolbar"
   ).hidden = !gSelectedTechnologyIsPGP;
 }
 

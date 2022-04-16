@@ -54,7 +54,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 32;
+    const UI_VERSION = 33;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -579,6 +579,34 @@ var MailMigrator = {
         this._migrateIncomingToOAuth2("imap.gmail.com");
         this._migrateIncomingToOAuth2("pop.gmail.com");
         this._migrateSMTPToOAuth2("smtp.gmail.com");
+      }
+
+      if (currentUIVersion < 33) {
+        // Put button-encryption and button-encryption-options on the
+        // Composition Toolbar.
+        // First, get value of currentset (string of comma-separated button ids).
+        let cs = xulStore.getValue(
+          MESSENGERCOMPOSE_DOCURL,
+          "composeToolbar2",
+          "currentset"
+        );
+        if (cs) {
+          // Button ids from currentset string.
+          let buttonIds = cs.split(",");
+
+          // We want to insert the two buttons at index 2 and 3.
+          buttonIds.splice(2, 0, "button-encryption");
+          buttonIds.splice(3, 0, "button-encryption-options");
+
+          cs = buttonIds.join(",");
+          // Apply changes to currentset.
+          xulStore.setValue(
+            MESSENGERCOMPOSE_DOCURL,
+            "composeToolbar2",
+            "currentset",
+            cs
+          );
+        }
       }
 
       MigrationTasks.runTasks();
