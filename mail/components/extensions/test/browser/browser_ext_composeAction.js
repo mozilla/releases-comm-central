@@ -160,6 +160,7 @@ add_task(async function test_theme_icons() {
     "thunderbird-compact-dark@mozilla.org"
   );
   await dark_theme.enable();
+  await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     composeWindow.getComputedStyle(button).listStyleImage,
     `url("moz-extension://${uuid}/light.png")`,
