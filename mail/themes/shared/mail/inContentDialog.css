@@ -147,32 +147,32 @@ dialog.dialog-critical {
 
 /* Typography */
 
-h1 {
+dialog h1 {
   margin-block-start: 0;
 }
 
-p {
+dialog p {
   margin-block-end: 6px;
   font-size: 1.1em;
   line-height: 1.4em;
 }
 
-.tip-caption {
+dialog .tip-caption {
   opacity: 0.8;
   font-size: 1em;
 }
 
 /* Lists */
 
-.radio-list {
+dialog .radio-list {
   margin-block: 12px;
 }
 
-.radio-list li {
+dialog .radio-list li {
   margin-block-end: 12px;
 }
 
-.key-list {
+dialog .key-list {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -181,18 +181,18 @@ p {
   margin-block: 12px 6px;
 }
 
-.key-list > li:nth-child(even) {
+dialog .key-list > li:nth-child(even) {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-.key-row {
+dialog .key-row {
   display: flex;
   align-items: center;
   gap: 3px 6px;
   padding: 3px 6px;
 }
 
-.key-info {
+dialog .key-info {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -232,7 +232,7 @@ p {
 
 /* Buttons */
 
-.button-link {
+dialog .button-link {
   appearance: none;
   background-color: transparent !important;
   color: LinkText;
@@ -244,46 +244,46 @@ p {
   min-height: auto;
 }
 
-.button-link:hover {
+dialog .button-link:hover {
   text-decoration: underline;
 }
 
-#toggleRecipientsButton {
+dialog #toggleRecipientsButton {
   margin-top: 3px;
 }
 
-button:focus-visible {
+dialog button:focus-visible {
   outline: 2px solid var(--highlight-color);
   outline-offset: -1px;
 }
 
-button:not([disabled]):hover {
+dialog button:not([disabled]):hover {
   background-color: var(--button-hover-bgcolor);
 }
 
-button:not([disabled]):hover:active {
+dialog button:not([disabled]):hover:active {
   background-color: var(--button-active-bgcolor);
 }
 
-button.primary {
+dialog button.primary {
   background-color: var(--highlight-color);
-  color: var(--primary-text-color) !important;
+  color: var(--primary-text-color);
 }
 
-button.primary:-moz-focusring {
+dialog button.primary:-moz-focusring {
   border-color: var(--primary-focus-border);
   outline-offset: 0;
 }
 
-button.primary:not([disabled]):hover {
+dialog button.primary:not([disabled]):hover {
   background-color: var(--primary-background-hover);
 }
 
-button.primary:not([disabled]):hover:active {
+dialog button.primary:not([disabled]):hover:active {
   background-color: var(--primary-background-active);
 }
 
-button[disabled] {
+dialog button[disabled] {
   opacity: 0.4;
 }
 
