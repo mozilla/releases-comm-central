@@ -16,6 +16,8 @@ var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm")
  */
 var gCalendar;
 
+window.addEventListener("DOMContentLoaded", onLoad);
+
 /**
  * Called when the calendar properties dialog gets opened. When opening the
  * window, use an object as argument with a 'calendar' property for the
@@ -110,8 +112,6 @@ function onLoad() {
 
   let notificationsSetting = document.getElementById("calendar-notifications-setting");
   notificationsSetting.value = gCalendar.getProperty("notifications.times");
-
-  sizeToContent();
 }
 
 /**
@@ -175,7 +175,6 @@ document.addEventListener("dialogaccept", () => onAcceptDialog());
 function onChangeIdentity(aEvent) {
   notifyOnIdentitySelection(gCalendar);
   updateForceEmailSchedulingControl();
-  sizeToContent();
 }
 
 /**

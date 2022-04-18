@@ -28,8 +28,8 @@
       return [...this._elList.children]
         .map(row => {
           let count = row.querySelector("input").value;
-          let unit = row.querySelector("#unit-menu").value;
-          let [relation, tag] = row.querySelector("#relation-menu").value.split("-");
+          let unit = row.querySelector(".unit-menu").value;
+          let [relation, tag] = row.querySelector(".relation-menu").value.split("-");
 
           tag = tag == "END" ? "END:" : "";
           relation = relation == "before" ? "-" : "";
@@ -141,10 +141,10 @@
                     data-l10n-id="calendar-add-notification-button"/>
           </hbox>
           <separator class="thin"/>
-          <vbox id="calendar-notifications-list" class="indent"></vbox>
+          <vbox class="calendar-notifications-list indent"></vbox>
           `)
       );
-      this._elList = this.querySelector("vbox#calendar-notifications-list");
+      this._elList = this.querySelector(".calendar-notifications-list");
       this._elButtonAdd = this.querySelector("button");
       this._bindEvents();
     }
@@ -172,17 +172,17 @@
      */
     _addNewRow(value, unit, relation) {
       let fragment = MozXULElement.parseXULToFragment(`
-        <hbox class="calendar-notifications-row" flex="1" align="center">
+        <hbox class="calendar-notifications-row">
           <html:input class="size3" value="${value}" type="number" min="0"/>
-          <menulist id="unit-menu" crop="none" value="${unit}">
+          <menulist class="unit-menu" crop="none" value="${unit}">
             <menupopup>
               <menuitem value="M"/>
               <menuitem value="H"/>
               <menuitem value="D"/>
             </menupopup>
           </menulist>
-          <menulist id="relation-menu" crop="none" value="${relation}">
-            <menupopup id="reminder-relation-origin-menupopup">
+          <menulist class="relation-menu" crop="none" value="${relation}">
+            <menupopup class="reminder-relation-origin-menupopup">
               <menuitem data-id="reminderCustomOriginBeginBeforeEvent"
                         value="before-START"/>
               <menuitem data-id="reminderCustomOriginBeginAfterEvent"
@@ -219,9 +219,9 @@
     _updateMenuLists() {
       for (let row of this._elList.children) {
         let input = row.querySelector("input");
-        let menulist = row.querySelector("#unit-menu");
+        let menulist = row.querySelector(".unit-menu");
         this._updateMenuList(input.value, menulist);
-        for (let menuItem of row.querySelector("#relation-menu").getElementsByTagName("menuitem")) {
+        for (let menuItem of row.querySelectorAll(".relation-menu menuitem")) {
           menuItem.label = cal.l10n.getString("calendar-alarms", menuItem.dataset.id);
         }
       }

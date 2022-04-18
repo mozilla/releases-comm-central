@@ -13,6 +13,10 @@
   margin-inline-start: 20px;
 }
 
+body {
+  overflow: auto;
+}
+
 #calendar-properties-table th,
 #calendar-properties-table td {
   min-height: 26px;
@@ -51,8 +55,7 @@
 }
 
 calendar-notifications-setting {
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 calendar-notifications-setting .add-button {

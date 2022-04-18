@@ -4,43 +4,41 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/skin/shared/calendar-properties-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/skin/shared/calendar-properties-dialog.css" type="text/css"?>
 
-<!DOCTYPE window
+<!DOCTYPE html
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
     <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" > %dtd3;
     <!ENTITY % dtd4 SYSTEM "chrome://lightning/locale/lightning.dtd" > %dtd4;
 ]>
-
-<window id="calendar-properties-dialog-2"
-        windowtype="Calendar:PropertiesDialog"
-        title="&calendar.server.dialog.title.edit;"
-        onload="onLoad()"
-        persist="screenX screenY"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        lightweightthemes="true"
-        width="500">
-
+<html id="calendar-properties-dialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:PropertiesDialog"
+      persist="screenX screenY"
+      lightweightthemes="true"
+      width="600" height="630">
+<head>
+  <title>&calendar.server.dialog.title.edit;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-identity-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-notifications-setting.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-properties-dialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <!-- A streamlined version of this dialog is used in the accountSetup.xhtml file
   as a native HTML dialog. Keep these dialogs in sync if a property changes. -->
 <dialog buttons="accept,cancel,extra1"
         buttonlabelextra1="&calendarproperties.unsubscribe.label;"
         buttonaccesskeyextra1="&calendarproperties.unsubscribe.accesskey;">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://communicator/content/utilityOverlay.js"/>
-  <script src="chrome://calendar/content/calendar-properties-dialog.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://calendar/content/calendar-identity-utils.js"/>
-  <script src="chrome://calendar/content/widgets/calendar-notifications-setting.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
   <description id="force-disabled-description" hidden="true">&calendarproperties.forceDisabled.label;</description>
 
   <vbox id="no-identity-notification" class="notification-inline">
@@ -198,6 +196,6 @@
               oncommand="showGlobalNotificationsPref();"></button>
     </hbox>
   </vbox>
-  <separator/>
 </dialog>
-</window>
+</html:body>
+</html>
