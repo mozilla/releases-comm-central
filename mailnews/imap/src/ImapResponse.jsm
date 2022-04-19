@@ -192,6 +192,9 @@ class FetchResponse extends ImapResponse {
         let name = attrArray[i].toUpperCase();
         switch (name) {
           case "UID":
+            attributes[name] = +attrArray[i + 1];
+            i++;
+            break;
           case "FLAGS":
             attributes[name] = attrArray[i + 1];
             i++;

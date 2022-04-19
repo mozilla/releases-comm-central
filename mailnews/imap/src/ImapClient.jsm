@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = ["ImapClient"];
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
@@ -65,6 +66,13 @@ class ImapClient {
    */
   selectFolder(folder, urlListener, msgWindow) {
     this._folder = folder;
+    this._urlListener = urlListener || folder.QueryInterface(Ci.nsIUrlListener);
+    this.runningUrl = Services.io
+      .newURI(`imap://${this._server.realHostName}`)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    this.runningUrl.updatingFolder = true;
+    this._urlListener.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
+
     this._nextAction = this._actionSelectResponse;
     this._sendTagged(`SELECT "${folder.name}"`);
   }
@@ -242,19 +250,61 @@ class ImapClient {
       (maxUid, msg) => Math.max(maxUid, msg.attributes.UID),
       0
     );
-    this._nextAction = null;
+    this._nextAction = this._actionUidFetchBodyResponse;
     if (latestUid > highestUid) {
       this._sendTagged(
         `UID FETCH ${highestUid +
           1}:${latestUid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`
       );
+    } else {
+      this._actionDone();
     }
   }
 
   /**
-   * Close the connection and do necessary cleanup.
+   * Handle UID FETCH BODY response.
+   * @param {ImapResponse} res - Response received from the server.
+   */
+  _actionUidFetchBodyResponse(res) {
+    this._msgSink = this._folder.QueryInterface(Ci.nsIImapMessageSink);
+    this._folderSink = this._folder.QueryInterface(Ci.nsIImapMailFolderSink);
+    for (let msg of res.data) {
+      this._folderSink.StartMessage(this.runningUrl);
+      let hdrXferInfo = {
+        numHeaders: 1,
+        getHeader() {
+          return {
+            msgUid: msg.attributes.UID,
+            msgSize: msg.attributes.body.length,
+            get msgHdrs() {
+              let sepIndex = msg.attributes.body.indexOf("\r\n\r\n");
+              return msg.attributes.body.slice(0, sepIndex + 2);
+            },
+          };
+        },
+      };
+      this._folderSink.parseMsgHdrs(this, hdrXferInfo);
+      this._msgSink.parseAdoptedMsgLine(
+        msg.attributes.body,
+        msg.attributes.UID,
+        this.runningUrl
+      );
+      this._msgSink.normalEndMsgWriteStream(
+        msg.attributes.UID,
+        true,
+        this.runningUrl,
+        msg.attributes.body.length
+      );
+      this._folderSink.EndMessage(this.runningUrl, msg.attributes.UID);
+    }
+    this._actionDone();
+  }
+
+  /**
+   * Finish a request and do necessary cleanup.
    */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
+    this._urlListener.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
   };
 }
