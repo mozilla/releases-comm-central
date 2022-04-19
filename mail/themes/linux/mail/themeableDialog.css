@@ -39,7 +39,6 @@ html|input {
 
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
-  width: 16px;
   min-height: 0.7em;
 }
 

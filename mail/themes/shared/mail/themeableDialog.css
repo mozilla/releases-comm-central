@@ -172,6 +172,7 @@ html|input[type="number"] {
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   appearance: none;
+  width: 16px;
   background-position: center;
   background-color: var(--button-bgcolor);
   border: 1px solid var(--field-border-color);
