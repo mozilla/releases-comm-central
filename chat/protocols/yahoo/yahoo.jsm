@@ -36,6 +36,7 @@ YahooAccount.prototype = {
 
   // Nothing to do.
   unInit() {},
+  remove() {},
 };
 
 function YahooProtocol() {}

@@ -105,6 +105,7 @@ Account.prototype = {
 
   // Nothing to do.
   unInit() {},
+  remove() {},
 };
 
 function JSTestProtocol() {}

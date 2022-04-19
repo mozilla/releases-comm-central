@@ -35,6 +35,7 @@ FacebookAccount.prototype = {
 
   // Nothing to do.
   unInit() {},
+  remove() {},
 };
 
 function FacebookProtocol() {}
