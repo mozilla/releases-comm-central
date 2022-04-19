@@ -10,7 +10,7 @@
 interface nsIImapHeaderInfo : nsISupports {
     attribute nsMsgKey  msgUid;
     attribute long      msgSize;
-    [noscript] void getMsgHdrs ([shared] out string aMsgHdrs); // this doesn't copy the msgHdrs
+    readonly attribute ACString msgHdrs;
     void cacheLine(in string line, in unsigned long uid);
     void resetCache();
 };
@@ -20,4 +20,3 @@ interface nsIImapHeaderXferInfo : nsISupports {
   readonly attribute long numHeaders;
   nsIImapHeaderInfo  getHeader(in long hdrIndex);
 };
-

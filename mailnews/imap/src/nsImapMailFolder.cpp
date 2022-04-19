@@ -2640,19 +2640,19 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
     int32_t msgSize;
     nsMsgKey msgKey;
     bool containsKey;
-    const char* msgHdrs;
+    nsCString msgHdrs;
     headerInfo->GetMsgSize(&msgSize);
     headerInfo->GetMsgUid(&msgKey);
     if (msgKey == nsMsgKey_None)  // not a valid uid.
       continue;
     if (imapAction == nsIImapUrl::nsImapMsgPreview) {
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      headerInfo->GetMsgHdrs(&msgHdrs);
+      headerInfo->GetMsgHdrs(msgHdrs);
       // create an input stream based on the hdr string.
       nsCOMPtr<nsIStringInputStream> inputStream =
           do_CreateInstance("@mozilla.org/io/string-input-stream;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
-      inputStream->ShareData(msgHdrs, strlen(msgHdrs));
+      inputStream->ShareData(msgHdrs.get(), msgHdrs.Length());
       GetMessageHeader(msgKey, getter_AddRefs(msgHdr));
       if (msgHdr) {
         GetMsgPreviewTextFromStream(msgHdr, inputStream);
@@ -2667,8 +2667,8 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
     }
     nsresult rv = SetupHeaderParseStream(msgSize, EmptyCString(), nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
-    headerInfo->GetMsgHdrs(&msgHdrs);
-    rv = ParseAdoptedHeaderLine(msgHdrs, msgKey);
+    headerInfo->GetMsgHdrs(msgHdrs);
+    rv = ParseAdoptedHeaderLine(msgHdrs.get(), msgKey);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = NormalEndHeaderParseStream(aProtocol, aImapUrl);
   }

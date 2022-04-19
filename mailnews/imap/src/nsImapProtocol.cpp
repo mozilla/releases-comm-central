@@ -253,11 +253,10 @@ NS_IMETHODIMP nsMsgImapLineDownloadCache::SetMsgSize(int32_t aMsgSize) {
   return NS_OK;
 }
 
-/* attribute string msgHdrs; */
-NS_IMETHODIMP nsMsgImapLineDownloadCache::GetMsgHdrs(const char** aMsgHdrs) {
-  // this doesn't copy the string
+/* readonly attribute ACString msgHdrs; */
+NS_IMETHODIMP nsMsgImapLineDownloadCache::GetMsgHdrs(nsACString& aMsgHdrs) {
   AppendBuffer("", 1);  // null terminate the buffer
-  *aMsgHdrs = GetBuffer();
+  aMsgHdrs.Assign(GetBuffer());
   return NS_OK;
 }
 
