@@ -584,6 +584,20 @@ dolor sit amet`,
       "🐦"
     ),
   },
+  {
+    description: "URL encoded mention",
+    event: {
+      type: EventType.RoomMessage,
+      content: {
+        msgtype: MsgType.Text,
+        body: `@foo:example.com dolor sit amet`,
+        format: "org.matrix.custom.html",
+        formatted_body: `<a href="https://matrix.to/#/%40foo%3Aexample.com">Foo</a> dolor sit amet`,
+      },
+      sender: "@bar:example.com",
+    },
+    result: '<span class="ib-person">@foo:example.com</span> dolor sit amet',
+  },
 ];
 
 add_task(function test_plainBody() {

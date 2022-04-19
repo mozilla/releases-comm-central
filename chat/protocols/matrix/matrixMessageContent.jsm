@@ -190,14 +190,14 @@ function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
   }
   //TODO background color
   const userMentions = parsedBody.querySelectorAll(
-    'a[href^="https://matrix.to/#/@"]'
+    'a[href^="https://matrix.to/#/@"],a[href^="https://matrix.to/#/%40"]'
   );
   for (const mention of userMentions) {
     let endIndex = mention.hash.indexOf("?");
     if (endIndex == -1) {
       endIndex = undefined;
     }
-    const userId = mention.hash.slice(2, endIndex);
+    const userId = decodeURIComponent(mention.hash.slice(2, endIndex));
     const ibPerson = formatMention(userId, parsedBody);
     mention.replaceWith(ibPerson);
   }
