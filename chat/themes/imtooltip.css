@@ -2,13 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#imTooltip {
-  appearance: auto;
-  -moz-default-appearance: tooltip;
-}
-
 .tooltipBuddies {
-  margin-left: -3px;
+  margin-inline-start: -3px;
 }
 
 .tooltipTable {
@@ -26,7 +21,7 @@
 }
 
 .chatTooltipSeparator {
-  border-bottom: 1px solid #A3A3A3;
+  border-bottom: 1px solid hsla(0, 0%, 50%, 0.5);
 }
 
 .displayUserAccount.tooltipDisplayUserAccount {
