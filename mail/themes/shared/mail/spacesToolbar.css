@@ -38,7 +38,7 @@
 /* Density variations */
 
 :root {
-  --spaces-icon-size: 18px;
+  --spaces-icon-size: 20px;
   --spaces-padding: 7px;
   --spaces-gap: 15px;
   --spaces-container-gap: 15px;
@@ -47,6 +47,14 @@
   --spaces-button-badge-padding: 1px 6px;
   --spaces-button-badge-font: 0.9rem;
   --spaces-menuitem-current-indicator-size: 3px;
+  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/normal/mail.svg");
+  --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/normal/address-book.svg");
+  --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/normal/calendar.svg");
+  --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/normal/tasks.svg");
+  --spaces-icon-chat: url("chrome://messenger/skin/icons/new/normal/chat.svg");
+  --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/normal/overflow.svg");
+  --spaces-icon-settings: url("chrome://messenger/skin/icons/new/normal/settings.svg");
+  --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/normal/collapse.svg");
 }
 
 :root[uidensity="compact"] {
@@ -59,10 +67,18 @@
   --spaces-button-badge-padding: 1px 4px;
   --spaces-button-badge-font: 0.85rem;
   --spaces-menuitem-current-indicator-size: 3px;
+  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
+  --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
+  --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
+  --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/compact/tasks.svg");
+  --spaces-icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
+  --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/compact/overflow.svg");
+  --spaces-icon-settings: url("chrome://messenger/skin/icons/new/compact/settings.svg");
+  --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
 }
 
 :root[uidensity="touch"] {
-  --spaces-icon-size: 20px;
+  --spaces-icon-size: 24px;
   --spaces-padding: 9px;
   --spaces-gap: 18px;
   --spaces-container-gap: 18px;
@@ -71,6 +87,14 @@
   --spaces-button-badge-padding: 3px 8px;
   --spaces-button-badge-font: 1rem;
   --spaces-menuitem-current-indicator-size: 4px;
+  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/touch/mail.svg");
+  --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/touch/address-book.svg");
+  --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/touch/calendar.svg");
+  --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/touch/tasks.svg");
+  --spaces-icon-chat: url("chrome://messenger/skin/icons/new/touch/chat.svg");
+  --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/touch/overflow.svg");
+  --spaces-icon-settings: url("chrome://messenger/skin/icons/new/touch/settings.svg");
+  --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/touch/collapse.svg");
 }
 
 .spaces-toolbar:not([hidden]) {
@@ -105,6 +129,10 @@
   opacity: var(--spaces-button-opacity);
   color: var(--spaces-button-text-color);
   outline: none;
+}
+
+.spaces-toolbar-button > img {
+  opacity: 0.85;
 }
 
 .spaces-toolbar-button:focus-visible:not(:hover) {
@@ -175,7 +203,8 @@
 .spaces-toolbar-pinned-button > img,
 .spaces-popup-menuitem image {
   -moz-context-properties: fill, stroke, stroke-opacity;
-  fill: currentColor;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .spaces-toolbar-button > img {
@@ -192,7 +221,7 @@
   line-height: 0;
   background: none;
   color: inherit;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .spaces-toolbar-statusbar-button:is(:not([disabled])):hover {
@@ -216,32 +245,62 @@
   display: none;
 }
 
+#mailButton img {
+  content: var(--spaces-icon-mail);
+}
 #spacesPopupButtonMail {
-  list-style-image: url("chrome://messenger/skin/icons/message.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/compact/mail.svg");
 }
 
+#addressBookButton img {
+  content: var(--spaces-icon-address-book);
+}
 #spacesPopupButtonAddressBook {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
 }
 
+#calendarButton img {
+  content: var(--spaces-icon-calendar);
+}
 #spacesPopupButtonCalendar {
-  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
 }
 
+#tasksButton img {
+  content: var(--spaces-icon-tasks);
+}
 #spacesPopupButtonTasks {
-  list-style-image: url("chrome://calendar/skin/shared/icons/task-tab.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/compact/tasks.svg");
 }
 
+#chatButton img {
+  content: var(--spaces-icon-chat);
+}
 #spacesPopupButtonChat {
-  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/compact/chat.svg");
 }
 
+#settingsButton img {
+  content: var(--spaces-icon-settings);
+}
 #spacesPopupButtonSettings {
-  list-style-image: url("chrome://global/skin/icons/settings.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/compact/settings.svg");
 }
 
+#collapseButton img {
+  content: var(--spaces-icon-collapse);
+}
 #spacesPopupButtonReveal {
-  list-style-image: url("chrome://messenger/skin/icons/collapse.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
+}
+
+#spacesToolbarAddonsOverflowButton img {
+  content: var(--spaces-icon-overflow);
+}
+
+#spacesToolbarReveal img {
+  height: 16px;
+  width: 16px;
 }
 
 #chatButton > img,
