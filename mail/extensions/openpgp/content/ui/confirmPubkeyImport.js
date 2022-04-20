@@ -13,8 +13,18 @@ var gUnverified = null;
 
 async function init() {
   let num = window.arguments[0].keys.length;
-  let label = document.getElementById("importLabel");
-  document.l10n.setAttributes(label, "do-import-multiple", { key: `(${num})` });
+  let label1 = document.getElementById("importInfo");
+  document.l10n.setAttributes(label1, "openpgp-pubkey-import-intro", {
+    num,
+  });
+  let label2 = document.getElementById("acceptInfo");
+  document.l10n.setAttributes(label2, "openpgp-pubkey-import-accept", {
+    num,
+  });
+
+  let l10nElements = [];
+  l10nElements.push(label1);
+  l10nElements.push(label2);
 
   // TODO: This should be changed to use data-l10n-id in the .xhtml
   // at a later time. We reuse strings on the 78 branch that don't have
@@ -37,11 +47,29 @@ async function init() {
     container.classList.add("key-import-row");
 
     let titleContainer = document.createXULElement("vbox");
+    let headerHBox = document.createXULElement("hbox");
 
-    let id = document.createXULElement("label");
-    id.classList.add("openpgp-key-id");
-    id.value = "0x" + key.keyId;
-    titleContainer.appendChild(id);
+    let idSpan = document.createElement("span");
+    let idLabel = document.createXULElement("label");
+    idSpan.appendChild(idLabel);
+    idSpan.classList.add("openpgp-key-id");
+    headerHBox.appendChild(idSpan);
+
+    document.l10n.setAttributes(idLabel, "openpgp-pubkey-import-id", {
+      kid: "0x" + key.keyId,
+    });
+
+    let fprSpan = document.createElement("span");
+    let fprLabel = document.createXULElement("label");
+    fprSpan.appendChild(fprLabel);
+    fprSpan.classList.add("openpgp-key-fpr");
+    headerHBox.appendChild(fprSpan);
+
+    document.l10n.setAttributes(fprLabel, "openpgp-pubkey-import-fpr", {
+      fpr: key.fpr,
+    });
+
+    titleContainer.appendChild(headerHBox);
 
     for (let uid of key.userIds) {
       let name = document.createXULElement("label");
@@ -54,7 +82,12 @@ async function init() {
     keyList.appendChild(container);
   }
 
+  await document.l10n.translateElements(l10nElements);
   sizeToContent();
+  window.moveTo(
+    (screen.width - window.outerWidth) / 2,
+    (screen.height - window.outerHeight) / 2
+  );
 }
 
 function onAccept(event) {

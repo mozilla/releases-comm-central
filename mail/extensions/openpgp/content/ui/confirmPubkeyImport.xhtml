@@ -11,8 +11,10 @@
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width:45em;">
+        style="width:55em;">
 <dialog id="confirmPubkeyImportDialog"
+        data-l10n-id="pubkey-import-button"
+        data-l10n-attrs="buttonlabelaccept"
         buttons="accept,cancel">
     <script src="chrome://openpgp/content/ui/confirmPubkeyImport.js"/>
 
@@ -23,7 +25,7 @@
     </linkset>
 
     <vbox>
-      <description id="importLabel"/>
+      <description id="importInfo"/>
 
       <vbox id="importKeyListContainer">
         <vbox id="importKeyList"/>
@@ -32,6 +34,7 @@
       <separator/>
 
       <vbox id="acceptancePanel">
+      <description id="acceptInfo"/>
       <html:div>
         <html:fieldset>
           <radiogroup id="acceptanceRadio" class="indent">
