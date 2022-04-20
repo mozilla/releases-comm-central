@@ -382,8 +382,11 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
   rv = server->GetMsgStore(getter_AddRefs(m_msgStore));
   bool reusable;
   NS_ENSURE_SUCCESS(rv, rv);
-  m_msgStore->GetNewMsgOutputStream(m_folder, getter_AddRefs(newHdr), &reusable,
-                                    getter_AddRefs(m_outFileStream));
+  rv = m_msgStore->GetNewMsgOutputStream(m_folder, getter_AddRefs(newHdr),
+                                         &reusable,
+                                         getter_AddRefs(m_outFileStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // create a new mail parser
   if (!m_newMailParser) m_newMailParser = new nsParseNewMailState;
   NS_ENSURE_TRUE(m_newMailParser, NS_ERROR_OUT_OF_MEMORY);

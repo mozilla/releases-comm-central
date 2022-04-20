@@ -25,23 +25,23 @@ NS_IMETHODIMP nsCopyMessageStreamListener::Init(
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::StartMessage() {
-  if (mDestination) mDestination->StartMessage();
-
+  if (mDestination) {
+    return mDestination->StartMessage();
+  }
   return NS_OK;
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::EndMessage(nsMsgKey key) {
-  if (mDestination) mDestination->EndMessage(key);
-
+  if (mDestination) {
+    return mDestination->EndMessage(key);
+  }
   return NS_OK;
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnDataAvailable(
     nsIRequest* /* request */, nsIInputStream* aIStream, uint64_t sourceOffset,
     uint32_t aLength) {
-  nsresult rv;
-  rv = mDestination->CopyData(aIStream, aLength);
-  return rv;
+  return mDestination->CopyData(aIStream, aLength);
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest* request) {
