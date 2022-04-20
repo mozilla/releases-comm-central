@@ -255,7 +255,7 @@
               <toolbarbutton is="toolbarbutton-menu-button" id="imipDeclineRecurrencesButton"
                              tooltiptext="&lightning.imipbar.btnDeclineRecurrences2.tooltiptext;"
                              label="&lightning.imipbar.btnDeclineRecurrences.label;"
-                             oncommand="calImipBar.executeAction('DECLINED');"
+                             oncommand="calImipBar.executeAction('DECLINED', 'AUTO');"
                              type="menu-button"
                              class="toolbarbutton-1 message-header-view-button imipDeclineRecurrencesButton"
                              hidden="true">
@@ -264,7 +264,7 @@
                             tooltiptext="&lightning.imipbar.btnSendSeries.tooltiptext;"
                             label="&lightning.imipbar.btnSend.label;"
                             oncommand="calImipBar.executeAction('DECLINED'); event.stopPropagation();"/>
-                  <menuitem id="imipDeclineRecurrencesButton_DeclineAllDontSend"
+                  <menuitem id="imipDeclineRecurrencesButton_DeclineDontSend"
                             tooltiptext="&lightning.imipbar.btnDontSendSeries.tooltiptext;"
                             label="&lightning.imipbar.btnDontSend.label;"
                             oncommand="calImipBar.executeAction('DECLINED', 'NONE'); event.stopPropagation();"/>

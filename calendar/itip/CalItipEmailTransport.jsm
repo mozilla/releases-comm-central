@@ -256,8 +256,7 @@ class CalItipEmailTransport {
           //           "@mozilla.org/messengercompose/composesendlistener;1"
           //           and/or "chrome://messenger/content/messengercompose/sendProgress.xhtml"
           // i.e. bug 432662
-          let msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(Ci.nsIMsgSend);
-          msgSend.sendMessageFile(
+          this.getMsgSend().sendMessageFile(
             identity,
             account.key,
             composeFields,
@@ -364,6 +363,14 @@ class CalItipEmailTransport {
       cal.ASSERT(false, exc);
       return null;
     }
+  }
+
+  /**
+   * Provides a new nsIMsgSend instance to use when sending the message. This
+   * method can be overridden in child classes for testing or other purposes.
+   */
+  getMsgSend() {
+    return Cc["@mozilla.org/messengercompose/send;1"].createInstance(Ci.nsIMsgSend);
   }
 
   /**

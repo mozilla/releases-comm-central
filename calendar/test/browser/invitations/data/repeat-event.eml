@@ -1,0 +1,49 @@
+MIME-Version: 1.0
+Date: Mon, 28 Mar 2022 17:49:35 +0000
+Subject: Invitation: Repeat Event @ Daily from 2pm to 3pm 3 times (AST) (receiver@example.com)
+From: sender@example.com
+To: receiver@example.com
+Content-Type: multipart/mixed; boundary="00000000000080f3db05db4aef5b"
+
+--00000000000080f3db05db4aef5b
+Content-Type: multipart/alternative; boundary="00000000000080f3da05db4aef59"
+
+--00000000000080f3da05db4aef59
+Content-Type: text/calendar; charset="UTF-8"; method=REQUEST
+Content-Transfer-Encoding: 7bit
+
+BEGIN:VCALENDAR
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:20220316T110000Z
+DTEND:20220316T113000Z
+RRULE:FREQ=DAILY;WKST=SU;COUNT=3;INTERVAL=1
+DTSTAMP:20220316T191602Z
+UID:02e79b96
+ORGANIZER;CN=Sender;
+ EMAIL=sender@example.com:mailto:sender@example.com
+ATTENDEE;CN=Sender;
+ EMAIL=sender@example.com;CUTYPE=INDIVIDUAL;
+ PARTSTAT=ACCEPTED;RSVP=FALSE:mailto:sender@example.com
+ATTENDEE;CN=Receiver;EMAIL=receiver@example.com;CUTYPE=INDIVIDUAL;
+ PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:receiver@example.com
+ATTENDEE;CN=Other;EMAIL=other@example.com;CUTYPE=INDIVIDUAL;
+ PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:other@example.com
+CREATED:20220328T174934Z
+LAST-MODIFIED:20220328T174934Z
+LOCATION:Somewhere
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Repeat Event
+DESCRIPTION:An event invitation.
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+--00000000000080f3da05db4aef59--
+--00000000000080f3db05db4aef5b--
