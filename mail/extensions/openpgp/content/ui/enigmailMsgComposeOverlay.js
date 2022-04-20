@@ -1087,11 +1087,13 @@ Enigmail.msg = {
         this.addRecipients(toAddrList, recList);
       }
 
-      // We don't need the returned array of valid keys
-      await Enigmail.hlp.validKeysForAllRecipients(
-        toAddrList.join(", "),
-        detailsObj
-      );
+      let addresses = [];
+      try {
+        addresses = EnigmailFuncs.stripEmail(toAddrList.join(", ")).split(",");
+      } catch (ex) {}
+
+      // Resolve all the email addresses if possible.
+      await EnigmailKeyRing.getValidKeysForAllRecipients(addresses, detailsObj);
       //this.autoPgpEncryption = (validKeyList !== null);
     }
 

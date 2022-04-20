@@ -23,7 +23,6 @@ var l10n;
 //  g = group (???)
 //  ---------------------------------------------------------
 //  ? = INTERNAL VALUE to separate invalid from unknown keys
-//      see validKeysForAllRecipients() in enigmailMsgComposeHelper.js
 //  ---------------------------------------------------------
 //  o = Unknown (this key is new to the system)
 //  - = Unknown validity (i.e. no value assigned)
