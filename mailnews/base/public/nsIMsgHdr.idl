@@ -49,6 +49,14 @@ interface nsIMsgDBHdr : nsISupports
     attribute nsMsgKey threadParent;
 
     /* meta information about the message, learned from reading the message */
+
+    /**
+     * For "Offline" supporting folders (IMAP, NNTP), .messageSize is
+     * the size of the original message on the server.
+     * For Local folders, this is the exact size of the message as written to
+     * the msgStore.
+     * See also Bug 1764857.
+     */
     attribute unsigned long messageSize;
     attribute unsigned long lineCount;
     /**
@@ -57,6 +65,13 @@ interface nsIMsgDBHdr : nsISupports
      * always be 0.
      */
     attribute unsigned long long messageOffset;
+    /**
+     * For "Offline" supporting folders (IMAP, NNTP): .offlineMessageSize is
+     * the exact size of the local copy of the message in the msgStore.
+     * If the message is not flagged Offline, this will be zero or unset.
+     * For Local folders, this is unset or zero.
+     * See also Bug 1764857.
+     */
     attribute unsigned long offlineMessageSize;
     /* common headers */
     attribute PRTime date;
