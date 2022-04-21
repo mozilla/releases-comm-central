@@ -18,6 +18,7 @@ var { CalItipDefaultEmailTransport } = ChromeUtils.import(
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+var { FileTestUtils } = ChromeUtils.import("resource://testing-common/FileTestUtils.jsm");
 var { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -151,12 +152,52 @@ function compareProperties(actual, expected, prefix = "") {
 }
 
 /**
+ * Tests that an attempt to reply to the organizer of the event with the correct
+ * details occurred.
+ *
+ * @param {EmailTransport} transport
+ * @param {nsIdentity} identity
+ * @param {string} partStat
+ */
+async function doReplyTest(transport, identity, partStat) {
+  info("Verifying the attempt to send a response uses the correct data");
+  Assert.equal(transport.sentItems.length, 1, "itip subsystem attempted to send a response");
+  compareProperties(transport.sentItems[0], {
+    "recipients.0.id": "mailto:sender@example.com",
+    "itipItem.responseMethod": "REPLY",
+    "fromAttendee.id": "mailto:receiver@example.com",
+    "fromAttendee.participationStatus": partStat,
+  });
+
+  // The itipItem is used to generate the iTIP data in the message body.
+  info("Verifying the reply calItipItem attendee list");
+  let replyItem = transport.sentItems[0].itipItem.getItemList()[0];
+  let replyAttendees = replyItem.getAttendees();
+  Assert.equal(replyAttendees.length, 1, "reply has one attendee");
+  compareProperties(replyAttendees[0], {
+    id: "mailto:receiver@example.com",
+    participationStatus: partStat,
+  });
+
+  info("Verifying the call to the message subsystem");
+  Assert.equal(transport.sentMsgs.length, 1, "transport sent 1 message");
+  compareProperties(transport.sentMsgs[0], {
+    userIdentity: identity,
+    "composeFields.from": "receiver@example.com",
+    "composeFields.to": "Sender <sender@example.com>",
+  });
+  Assert.ok(transport.sentMsgs[0].messageFile.exists(), "message file was created");
+}
+
+/**
  * @typedef {Object} ImipBarActionTestConf
  *
- * @property {calICalendar} calendar  The calendar used for the test.
+ * @property {calICalendar} calendar The calendar used for the test.
  * @property {calIItipTranport} transport The transport used for the test.
- * @property {nsIIdentity} identity  The identity expected to be used to
+ * @property {nsIIdentity} identity The identity expected to be used to
  *   send the reply.
+ * @property {boolean} isRecurring Indicates whether to treat the event as a
+ *   recurring event or not.
  * @property {string} partStat The participationStatus of the receiving user to
  *   expect.
  * @property {boolean} noReply If true, do not expect an attempt to send a reply.
@@ -229,32 +270,164 @@ async function doImipBarActionTest(conf, event) {
     );
     Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
   } else {
-    info("Verifying the attempt to send a response uses the correct data");
-    Assert.equal(transport.sentItems.length, 1, "itip subsystem attempted to send a response");
-    compareProperties(transport.sentItems[0], {
-      "recipients.0.id": "mailto:sender@example.com",
-      "itipItem.responseMethod": "REPLY",
-      "fromAttendee.id": "mailto:receiver@example.com",
-      "fromAttendee.participationStatus": partStat,
-    });
-
-    // The itipItem is used to generate the iTIP data in the message body.
-    info("Verifying the reply calItipItem attendee list");
-    let replyItem = transport.sentItems[0].itipItem.getItemList()[0];
-    let replyAttendees = replyItem.getAttendees();
-    Assert.equal(replyAttendees.length, 1, "reply has one attendee");
-    compareProperties(replyAttendees[0], {
-      id: "mailto:receiver@example.com",
-      participationStatus: partStat,
-    });
-
-    info("Verifying the call to the message subsystem");
-    Assert.equal(transport.sentMsgs.length, 1, "transport sent 1 message");
-    compareProperties(transport.sentMsgs[0], {
-      userIdentity: identity,
-      "composeFields.from": "receiver@example.com",
-      "composeFields.to": "Sender <sender@example.com>",
-    });
-    Assert.ok(transport.sentMsgs[0].messageFile.exists(), "message file was created");
+    await doReplyTest(transport, identity, partStat);
   }
+}
+
+/**
+ * @typedef {ImipBarActionTestConf} UpdateActionTestConf
+ *
+ * @property {nsIFile} invite The invite file to base the update on.
+ */
+
+/**
+ * Tests the recognition and application of a minor update to an existing event.
+ * An update is considered minor if the SEQUENCE property has not changed but
+ * the DTSTAMP has.
+ *
+ * @param {UpdateActionTestConf} conf
+ */
+async function doMinorUpdateTest(conf) {
+  let { transport, calendar, partStat, invite } = conf;
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  let prevEventIcs = event.icalString;
+
+  let title = "Updated Event";
+  let description = "Updated description.";
+  let location = "Updated location";
+  let dtstamp = "20220318T191602Z";
+  let srcText = await IOUtils.readUTF8(invite.path);
+  srcText = srcText.replaceAll(/SUMMARY:(\w| )+/g, `SUMMARY:${title}`);
+  srcText = srcText.replaceAll(/DESCRIPTION:(\w| |.)+/g, `DESCRIPTION:${description}`);
+  srcText = srcText.replaceAll(/LOCATION:\w+/g, `LOCATION:${location}`);
+  srcText = srcText.replaceAll(/DTSTAMP:20220316T191602Z/g, `DTSTAMP:${dtstamp}`);
+
+  let tmpFile = FileTestUtils.getTempFile("update-minor.eml");
+  await IOUtils.writeUTF8(tmpFile.path, srcText);
+  transport.reset();
+
+  let win = await openImipMessage(tmpFile);
+  let updateButton = win.document.getElementById("imipUpdateButton");
+  Assert.ok(!updateButton.hidden, "'Update' button shown");
+  EventUtils.synthesizeMouseAtCenter(updateButton, {}, win);
+  await BrowserTestUtils.closeWindow(win);
+
+  await TestUtils.waitForCondition(async () => {
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+    return event.icalString != prevEventIcs;
+  }, "event updated");
+
+  compareProperties(event, {
+    title,
+    "calendar.name": calendar.name,
+    "startDate.icalString": "20220316T110000Z",
+    "endDate.icalString": "20220316T113000Z",
+    description,
+    location,
+    sequence: "0",
+    "x-moz-received-dtstamp": dtstamp,
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  });
+
+  // Note: It seems we do not keep the order of the attendees list for updates.
+  let attendees = event.getAttendees();
+  compareProperties(attendees, {
+    "0.id": "mailto:sender@example.com",
+    "0.participationStatus": "ACCEPTED",
+    "1.id": "mailto:other@example.com",
+    "1.participationStatus": "NEEDS-ACTION",
+    "2.participationStatus": partStat,
+    "2.id": "mailto:receiver@example.com",
+  });
+
+  Assert.equal(transport.sentItems.length, 0, "itip subsystem did not attempt to send a response");
+  Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+
+  await calendar.deleteItem(event);
+}
+
+/**
+ * Tests the recognition and application of a major update to an existing event.
+ * An update is considered major if the SEQUENCE property has changed. For major
+ * updates, the imip-bar prompts the user to re-confirm their attendance.
+ *
+ * @param {UpdateActionTestConf} conf
+ */
+async function doMajorUpdateTest(conf) {
+  let { transport, identity, calendar, partStat, invite, noReply } = conf;
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  let prevEventIcs = event.icalString;
+
+  let dtstart = "20220316T050000Z";
+  let dtend = "20220316T053000Z";
+  let srcText = await IOUtils.readUTF8(invite.path);
+  srcText = srcText.replaceAll(/SEQUENCE:\w+/g, "SEQUENCE:2");
+  srcText = srcText.replaceAll(/DTSTART:\w+/g, `DTSTART:${dtstart}`);
+  srcText = srcText.replaceAll(/DTEND:\w+/g, `DTEND:${dtend}`);
+
+  let tmpFile = FileTestUtils.getTempFile("update-major.eml");
+  await IOUtils.writeUTF8(tmpFile.path, srcText);
+
+  transport.reset();
+  let win = await openImipMessage(tmpFile);
+
+  let buttons = {
+    ACCEPTED: "imipAcceptButton",
+    TENTATIVE: "imipTentativeButton",
+    DECLINED: "imipDeclineButton",
+  };
+  let noReplyItems = {
+    ACCEPTED: "imipAcceptButton_AcceptDontSend",
+    TENTATIVE: "imipTentativeButton_TentativeDontSend",
+    DECLINED: "imipDeclineButton_DeclineDontSend",
+  };
+
+  if (noReply) {
+    await clickMenuAction(win, buttons[partStat], noReplyItems[partStat]);
+  } else {
+    clickAction(win, buttons[partStat]);
+  }
+
+  await BrowserTestUtils.closeWindow(win);
+  await TestUtils.waitForCondition(async () => {
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+    return event.icalString != prevEventIcs;
+  }, "event updated");
+
+  if (noReply) {
+    Assert.equal(
+      transport.sentItems.length,
+      0,
+      "itip subsystem did not attempt to send a response"
+    );
+    Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+  } else {
+    await doReplyTest(transport, identity, partStat);
+  }
+
+  compareProperties(event, {
+    title: "Single Event",
+    "calendar.name": calendar.name,
+    "startDate.icalString": dtstart,
+    "endDate.icalString": dtend,
+    description: "An event invitation.",
+    location: "Somewhere",
+    sequence: "2",
+    "x-moz-received-dtstamp": "20220316T191602Z",
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  });
+
+  let attendees = event.getAttendees();
+  compareProperties(attendees, {
+    "0.id": "mailto:sender@example.com",
+    "0.participationStatus": "ACCEPTED",
+    "1.id": "mailto:other@example.com",
+    "1.participationStatus": "NEEDS-ACTION",
+    "2.participationStatus": partStat,
+    "2.id": "mailto:receiver@example.com",
+  });
+
+  await calendar.deleteItem(event);
 }
