@@ -43,10 +43,9 @@
   background-color: transparent;
   border-radius: 0;
   border-width: 0;
-  /* override margin and padding from tabbox.css */
-  margin: 0 !important;
-  margin-inline-end: 1px !important;
-  padding: 0 !important;
+  margin: 0;
+  margin-inline-end: 1px;
+  padding: 0;
 }
 
 /* The selected tab should appear above adjacent tabs and the highlight
