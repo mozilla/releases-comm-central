@@ -46,7 +46,7 @@ add_task(async function test_update() {
     let expected = {
       sortType: "date",
       sortOrder: "ascending",
-      viewType: "ungrouped",
+      viewType: "groupedByThread",
       layout: "standard",
       folderPaneVisible: false,
       messagePaneVisible: true,

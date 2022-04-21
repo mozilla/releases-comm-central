@@ -99,7 +99,7 @@ pref("mailnews.sort_threads_by_root", false);
 // as defined in nsIMsgDBView.idl (kNone = 0, kThreadedDisplay = 1 etc.)
 
 // for Mail/RSS/... (nsMsgDatabase)
-pref("mailnews.default_view_flags", 0);
+pref("mailnews.default_view_flags", 1);
 // for News (nsNewsDatabase)
 pref("mailnews.default_news_view_flags", 1);
 

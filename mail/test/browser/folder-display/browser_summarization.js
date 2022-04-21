@@ -65,6 +65,12 @@ var folder;
 var thread1, thread2, msg1, msg2;
 
 add_setup(async function() {
+  // Make sure the whole test starts with an unthreaded view in all folders.
+  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mailnews.default_view_flags");
+  });
+
   folder = await create_folder("SummarizationA");
   thread1 = create_thread(10);
   msg1 = create_thread(1);

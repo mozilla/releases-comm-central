@@ -21,6 +21,7 @@ var {
   create_folder,
   create_thread,
   get_special_folder,
+  make_display_unthreaded,
   mc,
   press_delete,
   select_click_row,
@@ -43,6 +44,7 @@ var gDrafts;
 
 add_setup(async function() {
   folder = await create_folder("Test");
+  make_display_unthreaded();
   let thread1 = create_thread(10);
   await add_message_sets_to_folders([folder], [thread1]);
 
@@ -78,6 +80,7 @@ async function forward_selected_messages_and_go_to_drafts_folder(f) {
 
   // Visit the existing Drafts folder.
   be_in_folder(gDrafts);
+  make_display_unthreaded();
 }
 
 add_task(async function test_forward_inline() {
@@ -120,6 +123,8 @@ add_task(async function test_forward_inline() {
 
 add_task(async function test_forward_as_attachments() {
   be_in_folder(folder);
+  make_display_unthreaded();
+
   // original message header
   let oMsgHdr0 = select_click_row(0);
   let oMsgHdr1 = select_click_row(1);

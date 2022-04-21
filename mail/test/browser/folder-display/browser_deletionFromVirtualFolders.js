@@ -50,6 +50,12 @@ var setNormal;
 var msgc;
 
 add_setup(async function() {
+  // Make sure the whole test runs with an unthreaded view in all folders.
+  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mailnews.default_view_flags");
+  });
+
   baseFolder = await create_folder("DeletionFromVirtualFoldersA");
   // For setTagged, we want exactly as many messages as we plan to delete, so
   // that we can test that the message window and tabs close when they run out

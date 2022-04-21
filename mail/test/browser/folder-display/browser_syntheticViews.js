@@ -26,14 +26,17 @@ const { GlodaMsgIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/IndexMsg.jsm"
 );
 
-let prefAutoRead = Services.prefs.getBoolPref(
-  "mailnews.mark_message_read.auto"
-);
-let prefStartPageEnabled = Services.prefs.getBoolPref(
-  "mailnews.start_page.enabled"
-);
-Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
-Services.prefs.setBoolPref("mailnews.start_page.enabled", false);
+add_setup(async function() {
+  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+  Services.prefs.setBoolPref("mailnews.start_page.enabled", false);
+  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
+
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mailnews.mark_message_read.auto");
+    Services.prefs.clearUserPref("mailnews.start_page.enabled");
+    Services.prefs.clearUserPref("mailnews.default_view_flags");
+  });
+});
 
 function createThreadWithTerm(msgCount, term) {
   let thread = create_thread(msgCount);
@@ -286,12 +289,4 @@ add_task(async function testConversationViewMarkThreadAsRead() {
   });
 
   closeTabs();
-});
-
-registerCleanupFunction(function() {
-  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", prefAutoRead);
-  Services.prefs.setBoolPref(
-    "mailnews.start_page.enabled",
-    prefStartPageEnabled
-  );
 });

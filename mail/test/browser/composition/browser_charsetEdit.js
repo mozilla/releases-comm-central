@@ -22,6 +22,7 @@ var {
   be_in_folder,
   create_message,
   get_special_folder,
+  make_display_unthreaded,
   mc,
   press_delete,
   select_click_row,
@@ -102,6 +103,9 @@ add_task(async function test_wrong_reply_charset() {
   });
   await add_message_to_folder([folder], msg0);
   await be_in_folder(folder);
+  // Make the folder unthreaded for easier message selection.
+  make_display_unthreaded();
+
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
   Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");

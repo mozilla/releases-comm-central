@@ -14,6 +14,7 @@ let tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   Services.prefs.clearUserPref("ui.prefersReducedMotion");
+  Services.prefs.clearUserPref("mailnews.default_view_flags");
 });
 
 async function withMotion(subtest) {
@@ -431,6 +432,9 @@ async function subtestDragUndroppable() {
 }
 
 add_setup(async function() {
+  // Make sure the whole test runs with an unthreaded view in all folders.
+  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
+
   let tab = tabmail.openTab("contentTab", {
     url:
       "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/orderableTreeListbox.xhtml",

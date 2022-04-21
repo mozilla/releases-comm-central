@@ -44,7 +44,6 @@ add_setup(async function() {
  */
 add_task(function test_batch_archiver() {
   be_in_folder(folder);
-  make_display_threaded();
 
   select_none();
   assert_nothing_selected();
@@ -79,7 +78,6 @@ add_task(function test_batch_archiver() {
 
   /* Both threads are collapsed */
   toggle_thread_row(0);
-  toggle_thread_row(1);
 
   /* Get a grip on the second thread */
   let root2 = select_click_row(1);

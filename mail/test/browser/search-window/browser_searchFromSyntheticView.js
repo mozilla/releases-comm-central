@@ -26,6 +26,9 @@ const { GlodaMsgIndexer } = ChromeUtils.import(
  * See bug 1664761 and bug 1248522.
  */
 add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
+  // Make sure the whole test runs with an unthreaded view in all folders.
+  Services.prefs.setIntPref("mailnews.default_view_flags", 0);
+
   let folderName = "Test Folder Name";
   let folder = await create_folder(folderName);
   let thread = create_thread(3);
@@ -43,6 +46,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
     while (tabmail.tabInfo.length > 1) {
       tabmail.closeTab(1);
     }
+    Services.prefs.clearUserPref("mailnews.default_view_flags");
   });
 
   for (let msg of thread.synMessages) {

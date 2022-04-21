@@ -413,26 +413,25 @@ function MsgSortDescending() {
 //  FolderDisplayWidget ends up using if it refactors column management out.
 function UpdateSortIndicators(sortType, sortOrder) {
   // Remove the sort indicator from all the columns
-  var treeColumns = document.getElementById("threadCols").children;
-  for (var i = 0; i < treeColumns.length; i++) {
+  let treeColumns = document.getElementById("threadCols").children;
+  for (let i = 0; i < treeColumns.length; i++) {
     treeColumns[i].removeAttribute("sortDirection");
   }
 
   // show the twisties if the view is threaded
-  var threadCol = document.getElementById("threadCol");
-  var subjectCol = document.getElementById("subjectCol");
-  var sortedColumn;
+  let threadCol = document.getElementById("threadCol");
+  let subjectCol = document.getElementById("subjectCol");
+  let sortedColumn;
   // set the sort indicator on the column we are sorted by
-  var colID = ConvertSortTypeToColumnID(sortType);
+  let colID = ConvertSortTypeToColumnID(sortType);
   if (colID) {
     sortedColumn = document.getElementById(colID);
   }
 
-  var viewWrapper = gFolderDisplay.view;
+  let viewWrapper = gFolderDisplay.view;
 
   // the thread column is not visible when we are grouped by sort
-  document.getElementById("threadCol").collapsed =
-    viewWrapper.showGroupedBySort;
+  threadCol.collapsed = viewWrapper.showGroupedBySort;
 
   // show twisties only when grouping or threading
   if (viewWrapper.showGroupedBySort || viewWrapper.showThreaded) {
