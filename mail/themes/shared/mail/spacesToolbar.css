@@ -131,10 +131,6 @@
   outline: none;
 }
 
-.spaces-toolbar-button > img {
-  opacity: 0.85;
-}
-
 .spaces-toolbar-button:focus-visible:not(:hover) {
   outline: 2px solid SelectedItem;
 }
@@ -172,12 +168,6 @@
   background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
 
-.spaces-toolbar-button.current > img,
-.spaces-toolbar-button.current:hover > img,
-.spaces-toolbar-button:hover:not(.current) > img {
-  opacity: 1;
-}
-
 .spaces-popup-menuitem > .menu-iconic-left {
   position: relative;
 }
@@ -210,7 +200,6 @@
 .spaces-toolbar-button > img {
   width: var(--spaces-icon-size);
   height: var(--spaces-icon-size);
-  opacity: 0.75;
 }
 
 .spaces-toolbar-statusbar-button {
@@ -221,13 +210,11 @@
   line-height: 0;
   background: none;
   color: inherit;
-  opacity: 0.8;
 }
 
 .spaces-toolbar-statusbar-button:is(:not([disabled])):hover {
   background: none;
   border: none;
-  opacity: 1;
 }
 
 #spacesPinnedButton {
