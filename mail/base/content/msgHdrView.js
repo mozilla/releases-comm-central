@@ -448,6 +448,8 @@ async function OnLoadMsgHeaderPane() {
   );
 
   top.controllers.appendController(AttachmentMenuController);
+
+  gHeaderCustomize.init();
 }
 
 function OnUnloadMsgHeaderPane() {
@@ -3788,3 +3790,140 @@ function onShowOtherActionsPopup() {
       .setAttribute("hidden", true);
   }
 }
+
+/**
+ * Object literal to handle a few simple customization options for the message
+ * header.
+ */
+var gHeaderCustomize = {
+  docURL: "chrome://messenger/content/messenger.xhtml",
+  /**
+   * The DOM element panel collecting all customization options.
+   */
+  customizePanel: null,
+  /**
+   * The object storing all saved customization options:
+   * - buttonStyle: If buttons should show icons+text, only icons, or only text.
+   * - subjectLarge: Option to increase the font size of the subject line.
+   */
+  customizeData: {},
+
+  /**
+   * Initialize the customizer.
+   */
+  init() {
+    this.customizePanel = document.getElementById(
+      "messageHeaderCustomizationPanel"
+    );
+
+    let xulStore = Services.xulStore;
+    if (xulStore.hasValue(this.docURL, "messageHeader", "layout")) {
+      this.customizeData = JSON.parse(
+        xulStore.getValue(this.docURL, "messageHeader", "layout")
+      );
+      this.updateLayout();
+    }
+  },
+
+  /**
+   * Reset and update the customized style of the message header.
+   */
+  updateLayout() {
+    let header = document.getElementById("messageHeader");
+    // Always clear existing styles to avoid visual issues.
+    header.classList.remove(
+      "message-header-large-subject",
+      "message-header-buttons-only-icons",
+      "message-header-buttons-only-text"
+    );
+
+    // Bail out if we don't have anything to customize.
+    if (!Object.keys(this.customizeData).length) {
+      return;
+    }
+
+    header.classList.toggle(
+      "message-header-large-subject",
+      this.customizeData.subjectLarge
+    );
+    switch (this.customizeData.buttonStyle) {
+      case "only-icons":
+      case "only-text":
+        header.classList.add(
+          `message-header-buttons-${this.customizeData.buttonStyle}`
+        );
+        break;
+
+      case "default":
+      default:
+        header.classList.remove(
+          "message-header-buttons-only-icons",
+          "message-header-buttons-only-text"
+        );
+        break;
+    }
+  },
+
+  /**
+   * Show the customization panel for the message header.
+   */
+  showPanel() {
+    this.customizePanel.openPopup(
+      document.getElementById("otherActionsButton"),
+      "after_end",
+      6,
+      6,
+      false
+    );
+  },
+
+  /**
+   * Update the panel's elements to reflect the users' customization.
+   */
+  onPanelShowing() {
+    document.getElementById("headerButtonStyle").value =
+      this.customizeData.buttonStyle || "default";
+
+    document.getElementById("headerSubjectLarge").checked =
+      this.customizeData.subjectLarge || false;
+  },
+
+  /**
+   * Update the buttons style when the menuitem value is changed.
+   *
+   * @param {Event} event - The menuitem command event.
+   */
+  updateButtonStyle(event) {
+    this.customizeData.buttonStyle = event.target.value;
+    this.updateLayout();
+  },
+
+  /**
+   * Update the subject style when the checkbox is clicked.
+   *
+   * @param {Event} event - The checkbox command event.
+   */
+  updateSubjectStyle(event) {
+    this.customizeData.subjectLarge = event.target.checked;
+    this.updateLayout();
+  },
+
+  /**
+   * Close the customize panel.
+   */
+  closePanel() {
+    this.customizePanel.hidePopup();
+  },
+
+  /**
+   * Update the xulStore only when the panel is closed.
+   */
+  onPanelHidden() {
+    Services.xulStore.setValue(
+      this.docURL,
+      "messageHeader",
+      "layout",
+      JSON.stringify(this.customizeData)
+    );
+  },
+};

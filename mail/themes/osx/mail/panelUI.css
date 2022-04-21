@@ -39,6 +39,7 @@ menuitem.subviewbutton-iconic > .menu-iconic-left > .menu-iconic-icon {
   width: 16px;
 }
 
+menu.subviewbutton > .menu-text,
 menuitem.subviewbutton > .menu-text {
   margin-inline-start: 16px !important;
 }

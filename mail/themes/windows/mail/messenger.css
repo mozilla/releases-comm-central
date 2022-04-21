@@ -97,7 +97,7 @@
 }
 
 .inline-toolbar toolbarpaletteitem toolbarseparator,
-.inline-toolbar toolbarseparator {
+.inline-toolbar > toolbarseparator {
   height: 24px;
 }
 

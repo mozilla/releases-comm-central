@@ -871,18 +871,24 @@
         <menuseparator id="messageAfterAttachmentMenuSeparator"/>
         <menu id="tagMenu" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;" command="cmd_tag">
           <menupopup id="tagMenu-tagpopup"
-                      onpopupshowing="InitMessageTags(this);">
+                     class="cui-widget-panel panel-no-padding panel-block-padding"
+                     type="arrow"
+                     orient="vertical"
+                     onpopupshowing="InitMessageTags(this);">
             <menuitem id="tagMenu-addNewTag"
                       label="&addNewTag.label;"
                       accesskey="&addNewTag.accesskey;"
-                      command="cmd_addTag"/>
+                      command="cmd_addTag"
+                      class="subviewbutton subviewbutton-iconic"/>
             <menuitem id="tagMenu-manageTags"
                       label="&manageTags.label;"
                       accesskey="&manageTags.accesskey;"
-                      command="cmd_manageTags"/>
+                      command="cmd_manageTags"
+                      class="subviewbutton subviewbutton-iconic"/>
             <menuseparator id="tagMenu-sep-afterTagAddNew"/>
             <menuitem id="tagMenu-tagRemoveAll"
-                      command="cmd_removeTags"/>
+                      command="cmd_removeTags"
+                      class="subviewbutton subviewbutton-iconic"/>
             <menuseparator id="tagMenuAfterRemoveSeparator"/>
           </menupopup>
         </menu>

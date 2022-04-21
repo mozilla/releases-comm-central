@@ -792,3 +792,30 @@ button.email-action-flagged.flagged {
     text-align: start;
   }
 }
+
+
+/* Customization options */
+
+.message-header-large-subject #expandedsubjectBox {
+  font-weight: 500;
+  font-size: 1.35em;
+  line-height: 1.35em;
+}
+
+.message-header-large-subject #expandedsubjectLabel {
+  margin-top: 3px;
+}
+
+.message-header-buttons-only-icons .toolbarbutton-text,
+.message-header-buttons-only-text .toolbarbutton-icon {
+  display: none !important;
+}
+
+.message-header-buttons-only-text .toolbarbutton-text {
+  margin: 0 !important;
+  padding-inline: 2px !important;
+}
+
+.message-header-buttons-only-icons .toolbarbutton-menu-dropmarker {
+  margin-inline: 3px;
+}

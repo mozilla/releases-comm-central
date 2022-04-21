@@ -225,19 +225,25 @@
                    tooltiptext="&tagButton.tooltip;"
                    command="cmd_tag">
       <menupopup id="button-tagpopup"
+                 class="cui-widget-panel panel-no-padding panel-block-padding"
+                 type="arrow"
+                 orient="vertical"
                  onpopupshowing="InitMessageTags(this);">
         <menuitem id="button-addNewTag"
                   label="&addNewTag.label;"
                   accesskey="&addNewTag.accesskey;"
-                  command="cmd_addTag"/>
+                  command="cmd_addTag"
+                  class="subviewbutton subviewbutton-iconic"/>
         <menuitem id="button-manageTags"
                   label="&manageTags.label;"
                   accesskey="&manageTags.accesskey;"
-                  command="cmd_manageTags"/>
-        <menuseparator id="button-tagpopup-sep-afterTagAddNew"/>
+                  command="cmd_manageTags"
+                  class="subviewbutton subviewbutton-iconic"/>
+        <toolbarseparator id="button-tagpopup-sep-afterTagAddNew"/>
         <menuitem id="button-tagRemoveAll"
-                  command="cmd_removeTags"/>
-        <menuseparator id="button-afterTagRemoveAllSeparator"/>
+                  command="cmd_removeTags"
+                  class="subviewbutton subviewbutton-iconic"/>
+        <toolbarseparator id="button-afterTagRemoveAllSeparator"/>
       </menupopup>
     </toolbarbutton>
 #ifdef MAIN_WINDOW

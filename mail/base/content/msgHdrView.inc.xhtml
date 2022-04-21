@@ -55,7 +55,7 @@
                       label="&hdrReplyAllButton1.label;"
                       tooltiptext="&hdrReplyAllButton1.tooltip;"
                       observes="button_replyall"/>
-            <menuseparator id="hdrReplyAllSubSeparator"/>
+            <toolbarseparator id="hdrReplyAllSubSeparator"/>
             <menuitem id="hdrReplySubButton"
                       label="&hdrReplyButton1.label;"
                       tooltiptext="&hdrReplyButton2.tooltip;"
@@ -77,7 +77,7 @@
                       label="&hdrReplyListButton1.label;"
                       tooltiptext="&hdrReplyListButton1.tooltip;"
                       observes="button_replylist"/>
-            <menuseparator id="hdrReplyListSubSeparator"/>
+            <toolbarseparator id="hdrReplyListSubSeparator"/>
             <menuitem id="hdrRelplyList_ReplyAllSubButton"
                       label="&hdrReplyAllButton1.label;"
                       tooltiptext="&hdrReplyAllButton1.tooltip;"
@@ -105,7 +105,7 @@
                       label="&hdrFollowupButton1.label;"
                       tooltiptext="&hdrFollowupButton1.tooltip;"
                       observes="button_followup"/>
-            <menuseparator id="hdrFollowupSubSeparator"/>
+            <toolbarseparator id="hdrFollowupSubSeparator"/>
             <menuitem id="hdrFollowup_ReplyAllSubButton"
                       label="&hdrReplyAllButton1.label;"
                       tooltiptext="&hdrReplyAllButton1.tooltip;"
@@ -150,78 +150,108 @@
                      tooltiptext="&otherActionsButton.tooltip;"
                      class="toolbarbutton-1 message-header-view-button">
         <menupopup id="otherActionsPopup"
+                   class="cui-widget-panel panel-no-padding panel-block-padding"
+                   type="arrow"
+                   orient="vertical"
                    onpopupshowing="onShowOtherActionsPopup();">
           <menuitem id="otherActionsRedirect"
                     data-l10n-id="other-action-redirect-msg"
-                    oncommand="MsgRedirectMessage();"/>
-          <menuseparator id="otherActionsComposeSeparator"/>
+                    oncommand="MsgRedirectMessage();"
+                    class="subviewbutton subviewbutton-iconic"/>
+          <toolbarseparator id="otherActionsComposeSeparator"/>
 #ifdef MAIN_WINDOW
           <menuitem id="otherActionsOpenConversation"
                     label="&otherActionsOpenConversation1.label;"
                     accesskey="&otherActionsOpenConversation1.accesskey;"
-                    oncommand="new ConversationOpener(window).openConversationForMessages(gFolderDisplay.selectedMessages);"/>
+                    oncommand="new ConversationOpener(window).openConversationForMessages(gFolderDisplay.selectedMessages);"
+                    class="subviewbutton subviewbutton-iconic"/>
 #endif
           <menuitem id="otherActionsOpenInNewWindow"
                     label="&otherActionsOpenInNewWindow1.label;"
                     accesskey="&otherActionsOpenInNewWindow1.accesskey;"
-                    oncommand="MsgOpenNewWindowForMessage();"/>
+                    oncommand="MsgOpenNewWindowForMessage();"
+                    class="subviewbutton subviewbutton-iconic"/>
           <menuitem id="otherActionsOpenInNewTab"
                     label="&otherActionsOpenInNewTab1.label;"
                     accesskey="&otherActionsOpenInNewTab1.accesskey;"
-                    oncommand="OpenMessageInNewTab(gFolderDisplay.selectedMessage, { event });"/>
+                    oncommand="OpenMessageInNewTab(gFolderDisplay.selectedMessage, { event });"
+                    class="subviewbutton subviewbutton-iconic"/>
           <menuitem id="viewSourceMenuItem"
                     label="&viewSourceMenuItem1.label;"
                     accesskey="&viewSourceMenuItem1.accesskey;"
-                    oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);" />
-          <menuseparator id="otherActionsSeparator"/>
+                    oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);"
+                    class="subviewbutton subviewbutton-iconic"/>
+          <toolbarseparator id="otherActionsSeparator"/>
           <menu id="otherActionsTag"
                 label="&tagMenu.label;"
-                accesskey="&tagMenu.accesskey;">
+                accesskey="&tagMenu.accesskey;"
+                class="subviewbutton subviewbutton-iconic">
             <menupopup id="hdrTagDropdown"
+                       class="cui-widget-panel panel-no-padding panel-block-padding"
+                       type="arrow"
+                       orient="vertical"
                        onpopupshowing="InitMessageTags(this);">
               <menuitem id="hdrTagDropdown-addNewTag"
                         label="&addNewTag.label;"
                         accesskey="&addNewTag.accesskey;"
-                        command="cmd_addTag"/>
+                        command="cmd_addTag"
+                        class="subviewbutton subviewbutton-iconic"/>
               <menuitem id="manageTags"
                         label="&manageTags.label;"
                         accesskey="&manageTags.accesskey;"
-                        command="cmd_manageTags"/>
-              <menuseparator id="hdrTagDropdown-sep-afterAddNewTag"/>
+                        command="cmd_manageTags"
+                        class="subviewbutton subviewbutton-iconic"/>
+              <toolbarseparator id="hdrTagDropdown-sep-afterAddNewTag"/>
               <menuitem id="hdrTagDropdown-tagRemoveAll"
-                        command="cmd_removeTags"/>
-              <menuseparator id="hdrTagDropdown-sep-afterTagRemoveAll"/>
+                        command="cmd_removeTags"
+                        class="subviewbutton subviewbutton-iconic"/>
+              <toolbarseparator id="hdrTagDropdown-sep-afterTagRemoveAll"/>
             </menupopup>
           </menu>
           <menuitem id="markAsReadMenuItem"
                     label="&markAsReadMenuItem1.label;"
                     accesskey="&markAsReadMenuItem1.accesskey;"
-                    oncommand="MsgMarkMsgAsRead();"/>
+                    oncommand="MsgMarkMsgAsRead();"
+                    class="subviewbutton subviewbutton-iconic"/>
           <menuitem id="markAsUnreadMenuItem"
                     label="&markAsUnreadMenuItem1.label;"
                     accesskey="&markAsUnreadMenuItem1.accesskey;"
-                    oncommand="MsgMarkMsgAsRead();"/>
+                    oncommand="MsgMarkMsgAsRead();"
+                    class="subviewbutton subviewbutton-iconic"/>
           <menuitem id="saveAsMenuItem" label="&saveAsMenuItem1.label;"
                     accesskey="&saveAsMenuItem1.accesskey;"
-                    oncommand="MsgSaveAsFile();"/>
+                    oncommand="MsgSaveAsFile();"
+                    class="subviewbutton subviewbutton-iconic"/>
           <menuitem id="otherActionsPrint"
                     label="&otherActionsPrint1.label;"
                     accesskey="&otherActionsPrint1.accesskey;"
-                    oncommand="goDoCommand('cmd_print');"/>
+                    oncommand="goDoCommand('cmd_print');"
+                    class="subviewbutton subviewbutton-iconic"/>
           <menu id="otherActions-calendar-convert-menu"
                 label="&calendar.context.convertmenu.label;"
-                accesskey="&calendar.context.convertmenu.accesskey.mail;">
-            <menupopup id="otherActions-calendar-convert-menupopup">
+                accesskey="&calendar.context.convertmenu.accesskey.mail;"
+                class="subviewbutton subviewbutton-iconic">
+            <menupopup id="otherActions-calendar-convert-menupopup"
+                       class="cui-widget-panel panel-no-padding panel-block-padding"
+                       type="arrow"
+                       orient="vertical">
               <menuitem id="otherActions-calendar-convert-event-menuitem"
                         label="&calendar.context.convertmenu.event.label;"
                         accesskey="&calendar.context.convertmenu.event.accesskey;"
-                        oncommand="calendarExtract.extractFromEmail(true)" />
+                        oncommand="calendarExtract.extractFromEmail(true)"
+                        class="subviewbutton subviewbutton-iconic"/>
               <menuitem id="otherActions-calendar-convert-task-menuitem"
                         label="&calendar.context.convertmenu.task.label;"
                         accesskey="&calendar.context.convertmenu.task.accesskey;"
-                        oncommand="calendarExtract.extractFromEmail(false)" />
+                        oncommand="calendarExtract.extractFromEmail(false)"
+                        class="subviewbutton subviewbutton-iconic"/>
             </menupopup>
           </menu>
+          <toolbarseparator id="otherActionsComposeSeparator"/>
+          <menuitem id="messageHeaderMoreMenuCustomize"
+                    class="subviewbutton subviewbutton-iconic"
+                    data-l10n-id="menuitem-customize-label"
+                    oncommand="gHeaderCustomize.showPanel()"/>
         </menupopup>
       </toolbarbutton>
       <html:button id="starMessageButton" role="checkbox" aria-checked="false"
@@ -377,3 +407,40 @@
 
 </html:header>
 <!-- END Header container -->
+
+<panel id="messageHeaderCustomizationPanel"
+       type="arrow"
+       orient="vertical"
+       class="cui-widget-panel customize-panel"
+       onpopupshowing="gHeaderCustomize.onPanelShowing();"
+       onpopuphidden="gHeaderCustomize.onPanelHidden();">
+  <html:div class="customize-panel-body">
+    <html:h3 data-l10n-id="message-header-customize-panel-title"></html:h3>
+
+    <html:div class="customize-panel-options-grid">
+      <label data-l10n-id="message-header-customize-button-style"
+             control="headerButtonStyle"/>
+      <menulist id="headerButtonStyle"
+                oncommand="gHeaderCustomize.updateButtonStyle(event);"
+                crop="none">
+        <menupopup>
+          <menuitem value="default" data-l10n-id="message-header-button-style-default"/>
+          <menuitem value="only-text" data-l10n-id="message-header-button-style-text"/>
+          <menuitem value="only-icons" data-l10n-id="message-header-button-style-icons"/>
+        </menupopup>
+      </menulist>
+
+      <checkbox id="headerSubjectLarge"
+                data-l10n-id="message-header-large-subject"
+                oncommand="gHeaderCustomize.updateSubjectStyle(event);"/>
+    </html:div>
+
+    <html:div class="customize-panel-buttons-container">
+      <html:button type="button"
+                   data-l10n-id="customize-panel-button-save"
+                   onclick="gHeaderCustomize.closePanel()"
+                   class="primary">
+      </html:button>
+    </html:div>
+  </html:div>
+</panel>

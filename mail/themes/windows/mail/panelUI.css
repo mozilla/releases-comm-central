@@ -37,6 +37,12 @@ menupopup.cui-widget-panel[type="arrow"] {
   }
 }
 
+@media (-moz-windows-non-native-menus) {
+  menu.subviewbutton > .menu-right {
+    margin-inline-end: 0;
+  }
+}
+
 @media (-moz-windows-non-native-menus: 0) {
   menupopup[type="arrow"] {
     appearance: none;

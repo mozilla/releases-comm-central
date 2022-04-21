@@ -42,3 +42,9 @@
     border-bottom-color: #a9b7c9;
   }
 }
+
+/* Customization options */
+
+.message-header-buttons-only-icons .toolbarbutton-menu-dropmarker {
+  padding-inline-start: 0 !important;
+}

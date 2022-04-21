@@ -37,3 +37,10 @@ button.button-focusable:focus-visible:not(:hover) {
 #attachment-splitter {
   border-bottom-color: #bdbdbd;
 }
+
+
+/* Customization options */
+
+.message-header-buttons-only-icons .toolbarbutton-menu-dropmarker {
+  padding-inline-start: 0;
+}

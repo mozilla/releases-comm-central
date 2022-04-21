@@ -285,7 +285,7 @@ toolbar:not(.inline-toolbar,.contentTabToolbar,:-moz-lwtheme) {
   padding: 0;
 }
 
-.inline-toolbar toolbarseparator {
+.inline-toolbar > toolbarseparator {
   height: 28px;
 }
 

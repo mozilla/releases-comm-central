@@ -1529,6 +1529,7 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
     item.setAttribute("value", tagInfo.key);
     item.setAttribute("type", "checkbox");
     item.setAttribute("oncommand", "ToggleMessageTagMenu(event.target);");
+    item.classList.add("subviewbutton", "subviewbutton-iconic");
 
     if (tagInfo.color) {
       item.setAttribute("style", `color: ${tagInfo.color};`);
