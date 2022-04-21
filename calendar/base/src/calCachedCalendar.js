@@ -297,7 +297,8 @@ calCachedCalendar.prototype = {
 
     if (this.supportsChangeLog) {
       await new Promise((resolve, reject) => {
-        cal.LOG("[calCachedCalendar] Doing changelog based sync for calendar " + this.uri.spec);
+        let spec = this.uri.spec;
+        cal.LOG("[calCachedCalendar] Doing changelog based sync for calendar " + spec);
         let opListener = {
           onResult(operation, result) {
             if (!operation || !operation.isPending) {
@@ -308,7 +309,7 @@ calCachedCalendar.prototype = {
                   "[calCachedCalendar] replay action failed: " +
                     (operation && operation.id ? operation.id : "<unknown>") +
                     ", uri=" +
-                    this.uri.spec +
+                    spec +
                     ", result=" +
                     result +
                     ", operation=" +
