@@ -16,7 +16,7 @@
         data-l10n-id="openpgp-key-details-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width:60em; max-width:90em; min-height:40em"
+        style="width:60em; max-width:90em; min-height:45em"
         persist="width"
         onload="onLoad();">
 <dialog buttons="accept"
@@ -43,10 +43,9 @@
 
         <label class="key-detail-label"
                data-l10n-id="openpgp-key-details-user-id2-label"/>
-        <hbox class="input-container">
-          <html:input id="userId" type="text" class="plain"
-                      readonly="readonly" value="?"/>
-        </hbox>
+
+        <richlistbox id="userIds" class="additional-key-identity plain"
+                     flex="1"/>
 
         <label class="key-detail-label"
                data-l10n-id="openpgp-key-details-key-type-label"/>
@@ -78,17 +77,13 @@
       </html:aside>
 
       <html:aside>
-        <button id="changeExpiryButton"
-                data-l10n-id="openpgp-key-man-change-expiry"
-                oncommand="changeExpiry()" hidden="true"/>
+        <vbox>
+          <button id="changeExpiryButton"
+                  data-l10n-id="openpgp-key-man-change-expiry"
+                  oncommand="changeExpiry()" hidden="true"/>
+        </vbox>
       </html:aside>
     </html:div>
-
-    <vbox id="alsoknown" flex="1">
-      <label class="key-detail-label"
-             data-l10n-id="openpgp-key-details-also-known-label"/>
-      <richlistbox id="additionalUid" class="additional-key-identity" flex="1"/>
-    </vbox>
   </vbox>
 
   <separator/>
@@ -96,6 +91,7 @@
   <tabbox flex="1" style="margin:5px" id="mainTabs">
     <tabs id="mainTabBox">
       <tab id="acceptanceTab" data-l10n-id="openpgp-acceptance-label"/>
+      <tab id="emailAddressesTab" data-l10n-id="openpgp-key-man-ignored-ids"/>
       <tab id="signaturesTab" data-l10n-id="openpgp-key-details-signatures-tab"/>
       <tab id="structureTab" data-l10n-id="openpgp-key-details-structure-tab"/>
     </tabs>
@@ -108,7 +104,8 @@
 
         <html:div>
           <html:fieldset>
-            <radiogroup id="acceptanceRadio" hidden="true" class="indent">
+            <radiogroup id="acceptanceRadio" hidden="true" class="indent"
+                        oncommand="onAcceptanceChanged();">
               <radio id="acceptRejected" value="rejected"
                      data-l10n-id="openpgp-acceptance-rejected-label"/>
               <radio id="acceptUndecided" value="undecided"
@@ -129,6 +126,16 @@
 
         <separator class="thin"/>
         <description id="acceptanceVerification"/>
+      </vbox>
+
+       <!-- email addresses tab -->
+      <vbox id="emailAddressesPanel" flex="1">
+        <description data-l10n-id="openpgp-ign-addr-intro"/>
+        <separator class="thin"/>
+
+        <vbox id="addressesListContainer">
+          <vbox id="addressesList" class="indent"/>
+        </vbox>
       </vbox>
 
       <!-- certifications tab -->

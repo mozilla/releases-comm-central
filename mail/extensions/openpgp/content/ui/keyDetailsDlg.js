@@ -11,6 +11,7 @@
 "use strict";
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
 );
@@ -41,6 +42,10 @@ var gKeyList = null;
 var gSigTree = null;
 
 var gAllEmails = [];
+var gOriginalAcceptedEmails = null;
+var gAcceptedEmails = null;
+
+var gHaveUnacceptedEmails = false;
 var gFingerprint = "";
 var gHasMissingSecret = false;
 
@@ -65,6 +70,7 @@ async function onLoad() {
   accept.focus();
 
   await reloadData(true);
+  onAcceptanceChanged();
 
   resizeDialog();
 }
@@ -117,10 +123,37 @@ async function changeExpiry() {
   );
 }
 
+function onAcceptanceChanged() {
+  // The check for gAcceptedEmails.size is to handle an edge case.
+  // If a key was previous accepted, for an email address that is
+  // now revoked, and another email address has been added,
+  // then the key can be marked as accepted without any accepted
+  // email address.
+  // In this scenario, we must allow the user to edit the accepted
+  // email addresses, even if there's just one email address available.
+
+  let originalAccepted = isAccepted(gOriginalAcceptance);
+  let wantAccepted = isAccepted(gAcceptanceRadio.value);
+
+  let disableEmailsTab =
+    (wantAccepted &&
+      gAllEmails.length < 2 &&
+      (!originalAccepted ||
+        (gAcceptedEmails.size > 0 && !gHaveUnacceptedEmails))) ||
+    !wantAccepted;
+
+  document.getElementById("emailAddressesTab").disabled = disableEmailsTab;
+  document.getElementById("emailAddressesPanel").disabled = disableEmailsTab;
+}
+
 function onDataModified() {
   EnigmailKeyRing.clearCache();
   enableRefresh();
   reloadData(false);
+}
+
+function isAccepted(value) {
+  return value == "unverified" || value == "verified";
 }
 
 async function reloadData(firstLoad) {
@@ -132,14 +165,10 @@ async function reloadData(firstLoad) {
   gUserId = null;
 
   var treeChildren = document.getElementById("keyListChildren");
-  var uidList = document.getElementById("additionalUid");
 
   // clean lists
   while (treeChildren.firstChild) {
     treeChildren.firstChild.remove();
-  }
-  while (uidList.firstChild) {
-    uidList.firstChild.remove();
   }
 
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
@@ -155,13 +184,6 @@ async function reloadData(firstLoad) {
     setLabel("fingerprint", EnigmailKey.formatFpr(keyObj.fpr));
   }
 
-  if (keyObj.hasSubUserIds()) {
-    document.getElementById("alsoknown").removeAttribute("collapsed");
-    createUidData(uidList, keyObj);
-  } else {
-    document.getElementById("alsoknown").setAttribute("collapsed", "true");
-  }
-
   gSigTree = document.getElementById("signatures_tree");
   let cApi = EnigmailCryptoAPI();
   let signatures = await cApi.getKeySignatures(keyObj.keyId);
@@ -171,13 +193,7 @@ async function reloadData(firstLoad) {
 
   gUserId = keyObj.userId;
 
-  let userEmail = EnigmailFuncs.getEmailFromUserID(keyObj.userId);
-  if (userEmail) {
-    gAllEmails.push(userEmail);
-  }
-
   setLabel("keyId", "0x" + gKeyId);
-  setLabel("userId", gUserId);
   setLabel("keyCreated", keyObj.created);
 
   let keyIsExpired =
@@ -209,7 +225,6 @@ async function reloadData(firstLoad) {
     gPersonalRadio.removeAttribute("hidden");
     gAcceptanceRadio.setAttribute("hidden", "true");
     acceptanceIntroText = "key-accept-personal";
-    acceptanceVerificationText = "key-personal-warning";
     let value = l10n.formatValueSync("key-type-pair");
     setLabel("keyType", value);
 
@@ -263,7 +278,42 @@ async function reloadData(firstLoad) {
         gAcceptanceRadio.value = gOriginalAcceptance;
       }
     }
+
+    if (firstLoad) {
+      gAcceptedEmails = new Set();
+
+      for (let i = 0; i < keyObj.userIds.length; i++) {
+        if (keyObj.userIds[i].type === "uid") {
+          let uidEmail = EnigmailFuncs.getEmailFromUserID(
+            keyObj.userIds[i].userId
+          );
+          if (uidEmail) {
+            gAllEmails.push(uidEmail);
+
+            if (isAccepted(gOriginalAcceptance)) {
+              let rv = {};
+              await PgpSqliteDb2.getAcceptance(keyObj.fpr, uidEmail, rv);
+              if (rv.emailDecided) {
+                gAcceptedEmails.add(uidEmail);
+              } else {
+                gHaveUnacceptedEmails = true;
+              }
+            } else {
+              // For not-yet-accepted keys, our default is to accept
+              // all shown email addresses.
+              gAcceptedEmails.add(uidEmail);
+            }
+          }
+        }
+      }
+
+      // clone
+      gOriginalAcceptedEmails = new Set(gAcceptedEmails);
+    }
   }
+
+  await createUidData(keyObj);
+
   if (acceptanceIntroText) {
     let acceptanceIntro = document.getElementById("acceptanceIntro");
     document.l10n.setAttributes(acceptanceIntro, acceptanceIntroText);
@@ -286,25 +336,82 @@ async function reloadData(firstLoad) {
   }
 }
 
-function createUidData(listNode, keyDetails) {
+async function createUidData(keyDetails) {
+  var uidList = document.getElementById("userIds");
+  while (uidList.firstChild) {
+    uidList.firstChild.remove();
+  }
+
+  let primaryIdIndex = 0;
+
   for (let i = 0; i < keyDetails.userIds.length; i++) {
     if (keyDetails.userIds[i].type === "uid") {
       if (keyDetails.userIds[i].userId == keyDetails.userId) {
-        continue;
-      }
-      let item = listNode.appendItem(keyDetails.userIds[i].userId);
-      item.setAttribute("label", keyDetails.userIds[i].userId);
-      if ("dre".search(keyDetails.userIds[i].keyTrust) >= 0) {
-        item.setAttribute("class", "enigmailDisabled");
-      }
-
-      let uidEmail = EnigmailFuncs.getEmailFromUserID(
-        keyDetails.userIds[i].userId
-      );
-      if (uidEmail) {
-        gAllEmails.push(uidEmail);
+        primaryIdIndex = i;
+        break;
       }
     }
+  }
+
+  for (let i = -1; i < keyDetails.userIds.length; i++) {
+    // Handle entry primaryIdIndex first.
+
+    let indexToUse;
+    if (i == -1) {
+      indexToUse = primaryIdIndex;
+    } else if (i == primaryIdIndex) {
+      // already handled when i was -1
+      continue;
+    } else {
+      indexToUse = i;
+    }
+
+    if (keyDetails.userIds[indexToUse].type === "uid") {
+      let uidStr = keyDetails.userIds[indexToUse].userId;
+
+      /* - attempted code with <ul id="userIds">, doesn't work yet
+      let item = document.createElement("li");
+
+      let text = document.createElement("div");
+      text.textContent = uidStr;
+      item.append(text);
+
+      let lf = document.createElement("br");
+      item.append(lf);
+      uidList.appendChild(item);
+      */
+
+      uidList.appendItem(uidStr);
+    }
+  }
+
+  if (gModePersonal) {
+    document.getElementById("emailAddressesTab").hidden = true;
+  } else {
+    let emailList = document.getElementById("addressesList");
+
+    let gUniqueEmails = new Set();
+
+    for (let i = 0; i < gAllEmails.length; i++) {
+      let email = gAllEmails[i];
+      if (gUniqueEmails.has(email)) {
+        continue;
+      }
+      gUniqueEmails.add(email);
+
+      let checkbox = document.createXULElement("checkbox");
+
+      let id = `email-${i}`;
+      checkbox.setAttribute("id", id);
+      checkbox.setAttribute("label", email);
+      checkbox.checked = gAcceptedEmails.has(email);
+      checkbox.disabled = !gUpdateAllowed;
+
+      emailList.appendChild(checkbox);
+    }
+
+    document.getElementById("emailAddressesTab").hidden =
+      gUniqueEmails.size < 2;
   }
 }
 
@@ -755,14 +862,30 @@ document.addEventListener("dialogaccept", async function(event) {
 
   // If the recipient's key hasn't been revoked or invalidated, and the
   // signature acceptance was edited.
-  if (gUpdateAllowed && gAcceptanceRadio.value != gOriginalAcceptance) {
-    await PgpSqliteDb2.updateAcceptance(
-      gFingerprint,
-      gAllEmails,
-      gAcceptanceRadio.value
-    );
+  if (gUpdateAllowed) {
+    let selectedEmails = new Set();
+    for (let i = 0; i < gAllEmails.length; i++) {
+      let email = gAllEmails[i];
 
-    enableRefresh();
+      let id = `email-${i}`;
+      let checkbox = document.getElementById(id);
+      if (checkbox.checked) {
+        selectedEmails.add(email);
+      }
+    }
+
+    if (
+      gAcceptanceRadio.value != gOriginalAcceptance ||
+      !CommonUtils.setEqual(gAcceptedEmails, selectedEmails)
+    ) {
+      await PgpSqliteDb2.updateAcceptance(
+        gFingerprint,
+        [...selectedEmails],
+        gAcceptanceRadio.value
+      );
+
+      enableRefresh();
+    }
   }
 
   window.close();

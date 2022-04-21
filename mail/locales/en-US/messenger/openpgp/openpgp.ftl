@@ -202,6 +202,8 @@ openpgp-key-man-reload =
 openpgp-key-man-change-expiry =
     .label = Change Expiration Date
     .accesskey = E
+openpgp-key-man-ignored-ids =
+    .label = Email addresses
 openpgp-key-man-del-key =
     .label = Delete Key(s)
     .accesskey = D
@@ -250,6 +252,9 @@ openpgp-key-man-select-all-key =
 openpgp-key-man-key-details-key =
     .key = I
 
+openpgp-ign-addr-intro =
+    You accept using this key for the following selected email addresses:
+
 openpgp-key-details-title =
     .title = Key Properties
 openpgp-key-details-signatures-tab =
@@ -283,7 +288,6 @@ openpgp-key-details-legend-secret-missing =
 openpgp-key-details-sel-action =
   .label = Select action…
   .accesskey = S
-openpgp-key-details-also-known-label = Alleged Alternative Identities of the Key Owner:
 openpgp-card-details-close-window-label =
     .buttonlabelaccept = Close
 openpgp-acceptance-label =

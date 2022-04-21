@@ -36,8 +36,14 @@
 
 .additional-key-identity {
   max-height: 5em;
+  border-radius: 0;
+  padding-inline: 4px;
 }
 
 .additional-key-identity > richlistitem {
   padding: 2px 4px;
+}
+
+#addressesListContainer {
+  overflow-y: auto;
 }
