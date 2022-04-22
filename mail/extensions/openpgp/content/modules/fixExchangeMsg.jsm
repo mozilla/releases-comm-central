@@ -168,8 +168,10 @@ var EnigmailFixExchangeMsg = {
     try {
       let isIPGMail =
         msgTree.subParts.length === 3 &&
-        msgTree.subParts[0].headers.get("content-type").type.toLowerCase() ===
-          "text/plain" &&
+        (msgTree.subParts[0].headers.get("content-type").type.toLowerCase() ===
+          "text/plain" ||
+          msgTree.subParts[0].headers.get("content-type").type.toLowerCase() ===
+            "multipart/alternative") &&
         msgTree.subParts[1].headers.get("content-type").type.toLowerCase() ===
           "application/pgp-encrypted" &&
         msgTree.subParts[2].headers.get("content-type").type.toLowerCase() ===
@@ -280,7 +282,9 @@ var EnigmailFixExchangeMsg = {
     if (
       bodyData
         .substring(skipStart, versionIdent)
-        .search(/^content-type:[ \t]*text\/(plain|html)/im) < 0
+        .search(
+          /^content-type:[ \t]*(text\/(plain|html)|multipart\/alternative)/im
+        ) < 0
     ) {
       EnigmailLog.DEBUG(
         "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: first MIME part is not content-type text/plain or text/html\n"

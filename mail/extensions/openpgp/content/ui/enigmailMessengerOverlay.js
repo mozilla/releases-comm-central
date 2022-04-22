@@ -793,8 +793,9 @@ Enigmail.msg = {
           mimeMsg.fullContentType.search(/multipart\/mixed/i) >= 0 &&
           mimeMsg.subParts[0].fullContentType.search(/multipart\/encrypted/i) <
             0 &&
-          mimeMsg.subParts[0].fullContentType.search(/text\/(plain|html)/i) >=
-            0 &&
+          mimeMsg.subParts[0].fullContentType.search(
+            /(text\/(plain|html)|multipart\/alternative)/i
+          ) >= 0 &&
           mimeMsg.subParts[1].fullContentType.search(
             /application\/pgp-encrypted/i
           ) >= 0
