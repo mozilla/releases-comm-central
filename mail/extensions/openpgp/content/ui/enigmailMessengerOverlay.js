@@ -89,7 +89,6 @@ Enigmail.msg = {
     "x-pgp-encoding-format",
     //"autocrypt-setup-message",
   ],
-  buggyExchangeEmailContent: null, // for HACK for MS-EXCHANGE-Server Problem
   buggyMailType: null,
   changedAttributes: [],
   lastSMimeReloadURI: "",
@@ -624,8 +623,6 @@ Enigmail.msg = {
   async messageDecryptCb(event, isAuto, mimeMsg) {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageDecryptCb:\n");
 
-    this.buggyExchangeEmailContent = null; // reinit HACK for MS-EXCHANGE-Server Problem
-
     let enigmailSvc;
     let contentType = "";
     try {
@@ -821,7 +818,6 @@ Enigmail.msg = {
           EnigmailLog.DEBUG(
             "enigmailMessengerOverlay: messageDecryptCb: enabling MS-Exchange hack\n"
           );
-          this.buggyExchangeEmailContent = "???";
 
           await this.buggyMailHeader();
           return;
@@ -1102,68 +1098,7 @@ Enigmail.msg = {
 
     if (!msgText) {
       // No PGP content
-
-      // but this might be caused by the HACK for MS-EXCHANGE-Server Problem
-      // - so return only if:
-      if (
-        !this.buggyExchangeEmailContent ||
-        this.buggyExchangeEmailContent == "???"
-      ) {
-        return;
-      }
-
-      EnigmailLog.DEBUG(
-        "enigmailMessengerOverlay.js: messageParse: got buggyExchangeEmailContent = " +
-          this.buggyExchangeEmailContent.substr(0, 50) +
-          "\n"
-      );
-
-      // fix the whole invalid email by replacing the contents by the decoded text
-      // as plain inline format
-      if (this.displayBuggyExchangeMail()) {
-        return;
-      }
-
-      msgText = this.buggyExchangeEmailContent;
-
-      msgText = msgText.replace(/\r\n/g, "\n");
-      msgText = msgText.replace(/\r/g, "\n");
-
-      // content is in encrypted.asc part:
-      let idx = msgText.search(
-        /Content-Type: application\/octet-stream; name="encrypted.asc"/i
-      );
-      if (idx >= 0) {
-        msgText = msgText.slice(idx);
-      }
-      // check whether we have base64 encoding
-      var isBase64 = false;
-      idx = msgText.search(/Content-Transfer-Encoding: base64/i);
-      if (idx >= 0) {
-        isBase64 = true;
-      }
-      // find content behind part header
-      idx = msgText.search(/\n\n/);
-      if (idx >= 0) {
-        msgText = msgText.slice(idx);
-      }
-      // remove stuff behind content block (usually a final boundary row)
-      idx = msgText.search(/\n\n--/);
-      if (idx >= 0) {
-        msgText = msgText.slice(0, idx + 1);
-      }
-      // decode base64 if it is encoded that way
-      if (isBase64) {
-        try {
-          msgText = EnigmailData.decodeBase64(msgText);
-        } catch (ex) {
-          EnigmailLog.writeException(
-            "enigmailMessengerOverlay.js: decodeBase64() ",
-            ex
-          );
-        }
-        //EnigmailLog.DEBUG("nach base64 decode: \n" + msgText + "\n");
-      }
+      return;
     }
 
     var charset = msgWindow ? msgWindow.mailCharacterSet : "";
@@ -1697,47 +1632,6 @@ Enigmail.msg = {
       if (preFound) {
         return;
       }
-
-      // HACK for MS-EXCHANGE-Server Problem:
-      // - remove empty text/plain part
-      //   and set message content as inner text
-      // - missing:
-      //   - signal in statusFlags so that we warn in Enigmail.hdrView.updateHdrIcons()
-      if (this.buggyExchangeEmailContent) {
-        if (this.displayBuggyExchangeMail()) {
-          return;
-        }
-
-        EnigmailLog.DEBUG(
-          "enigmailMessengerOverlay: messageParseCallback: got broken MS-Exchange mime message\n"
-        );
-        messageContent = messageContent.replace(
-          /^\s{0,2}Content-Transfer-Encoding: quoted-printable\s*Content-Type: text\/plain;\s*charset=windows-1252/i,
-          ""
-        );
-        node = bodyElement.firstChild;
-        while (node) {
-          if (node.nodeName == "DIV") {
-            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
-              EnigmailData.convertToUnicode(messageContent, charset)
-            );
-            Enigmail.hdrView.updateHdrIcons(
-              exitCode,
-              statusFlags,
-              extStatusFlags,
-              keyIdObj.value,
-              userIdObj.value,
-              sigDetailsObj.value,
-              errorMsg,
-              null, // blockSeparation
-              encToDetailsObj.value,
-              "buggyMailFormat"
-            );
-            return;
-          }
-          node = node.nextSibling;
-        }
-      }
     }
 
     EnigmailLog.ERROR(
@@ -1962,80 +1856,6 @@ Enigmail.msg = {
         gBuildAttachmentsForCurrentMsg = orig;
       }
     }
-  },
-
-  /**
-   * Attempt to work around bug with headers of MS-Exchange message.
-   * Reload message content
-   *
-   * @return: true:  message displayed
-   *          false: could not handle message
-   */
-  displayBuggyExchangeMail() {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: displayBuggyExchangeMail\n"
-    );
-    let hdrs = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
-      Ci.nsIMimeHeaders
-    );
-    hdrs.initialize(this.buggyExchangeEmailContent);
-    let ct = hdrs.extractHeader("content-type", true);
-
-    if (ct && ct.search(/^text\/plain/i) === 0) {
-      /*
-      // xxx msgText not really used. It used to be put into
-      //  EnigmailURIs.createMessageURI as contentData... but that was also never accessed?
-      //
-      let bi = this.buggyExchangeEmailContent.search(/\r?\n/);
-      let boundary = this.buggyExchangeEmailContent.substr(2, bi - 2);
-      let startMsg = this.buggyExchangeEmailContent.search(/\r?\n\r?\n/);
-      let msgText;
-
-      if (this.buggyMailType == "exchange") {
-        msgText =
-          'Content-Type: multipart/encrypted; protocol="application/pgp-encrypted"; boundary="' +
-          boundary +
-          '"\r\n' +
-          this.buggyExchangeEmailContent.substr(startMsg);
-      } else {
-        msgText =
-          'Content-Type: multipart/encrypted; protocol="application/pgp-encrypted"; boundary="' +
-          boundary +
-          '"\r\n' +
-          "\r\n" +
-          boundary +
-          "\r\n" +
-          "Content-Type: application/pgp-encrypted\r\n" +
-          "Content-Description: PGP/MIME version identification\r\n\r\n" +
-          "Version: 1\r\n\r\n" +
-          this.buggyExchangeEmailContent
-            .substr(startMsg)
-            .replace(
-              /^Content-Type: +application\/pgp-encrypted/im,
-              "Content-Type: application/octet-stream"
-            );
-      }
-      */
-
-      let enigmailSvc = Enigmail.getEnigmailSvc();
-      if (!enigmailSvc) {
-        return false;
-      }
-
-      let uri = Services.io.newURI(this.getCurrentMsgUrl());
-
-      EnigmailVerify.setMsgWindow(msgWindow, null);
-      messenger.loadURL(window, uri);
-
-      let atv = document.getElementById("attachmentView");
-      if (atv) {
-        atv.setAttribute("collapsed", "true");
-      }
-
-      return true;
-    }
-
-    return false;
   },
 
   // check if the attachment could be encrypted
