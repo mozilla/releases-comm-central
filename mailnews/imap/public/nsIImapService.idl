@@ -138,14 +138,12 @@ interface nsIImapService : nsISupports
 
   void addMessageFlags(in nsIMsgFolder aImapMailFolder,
                        in nsIUrlListener aUrlListener,
-                       out nsIURI aURL,
                        in ACString aMessageIdentifierList,
                        in imapMessageFlagsType aFlags,
                        in boolean aMessageIdsAreUID);
 
   void subtractMessageFlags(in nsIMsgFolder aImapMailFolder,
                             in nsIUrlListener aUrlListener,
-                            out nsIURI aURL,
                             in ACString aMessageIdentifierList,
                             in imapMessageFlagsType aFlags,
                             in boolean aMessageIdsAreUID);

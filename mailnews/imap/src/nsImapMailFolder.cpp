@@ -3580,11 +3580,10 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
     AllocateUidStringFromKeys(keys, msgIds);
     if (addFlags)
       imapService->AddMessageFlags(this, aUrlListener ? aUrlListener : this,
-                                   nullptr, msgIds, flags, true);
+                                   msgIds, flags, true);
     else
-      imapService->SubtractMessageFlags(this,
-                                        aUrlListener ? aUrlListener : this,
-                                        nullptr, msgIds, flags, true);
+      imapService->SubtractMessageFlags(
+          this, aUrlListener ? aUrlListener : this, msgIds, flags, true);
   } else {
     rv = GetDatabase();
     if (NS_SUCCEEDED(rv) && mDatabase) {
@@ -4309,7 +4308,7 @@ nsImapMailFolder::OnlineCopyCompleted(nsIImapProtocol* aProtocol,
     nsCOMPtr<nsIImapService> imapService =
         do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    return imapService->AddMessageFlags(this, nullptr, nullptr, messageIds,
+    return imapService->AddMessageFlags(this, nullptr, messageIds,
                                         kImapMsgDeletedFlag, true);
   }
   /* unhandled copystate */

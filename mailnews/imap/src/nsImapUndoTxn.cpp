@@ -116,10 +116,10 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void) {
 
         if (deletedMsgs)
           rv = imapService->SubtractMessageFlags(
-              srcFolder, this, nullptr, m_srcMsgIdString, kImapMsgDeletedFlag,
+              srcFolder, this, m_srcMsgIdString, kImapMsgDeletedFlag,
               m_idsAreUids);
         else
-          rv = imapService->AddMessageFlags(srcFolder, srcListener, nullptr,
+          rv = imapService->AddMessageFlags(srcFolder, srcListener,
                                             m_srcMsgIdString,
                                             kImapMsgDeletedFlag, m_idsAreUids);
         if (NS_FAILED(rv)) return rv;
@@ -144,9 +144,8 @@ nsImapMoveCopyMsgTxn::UndoTransaction(void) {
     rv =
         imapService->LiteSelectFolder(dstFolder, dstListener, nullptr, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = imapService->AddMessageFlags(dstFolder, dstListener, nullptr,
-                                      m_dstMsgIdString, kImapMsgDeletedFlag,
-                                      m_idsAreUids);
+    rv = imapService->AddMessageFlags(dstFolder, dstListener, m_dstMsgIdString,
+                                      kImapMsgDeletedFlag, m_idsAreUids);
   }
   return rv;
 }
@@ -188,10 +187,10 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void) {
       NS_ENSURE_SUCCESS(rv, rv);
       if (deletedMsgs) {
         rv = imapService->SubtractMessageFlags(
-            srcFolder, srcListener, nullptr, m_srcMsgIdString,
-            kImapMsgDeletedFlag, m_idsAreUids);
+            srcFolder, srcListener, m_srcMsgIdString, kImapMsgDeletedFlag,
+            m_idsAreUids);
       } else {
-        rv = imapService->AddMessageFlags(srcFolder, srcListener, nullptr,
+        rv = imapService->AddMessageFlags(srcFolder, srcListener,
                                           m_srcMsgIdString, kImapMsgDeletedFlag,
                                           m_idsAreUids);
       }
@@ -210,7 +209,7 @@ nsImapMoveCopyMsgTxn::RedoTransaction(void) {
     rv =
         imapService->LiteSelectFolder(dstFolder, dstListener, nullptr, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = imapService->SubtractMessageFlags(dstFolder, dstListener, nullptr,
+    rv = imapService->SubtractMessageFlags(dstFolder, dstListener,
                                            m_dstMsgIdString,
                                            kImapMsgDeletedFlag, m_idsAreUids);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -363,7 +362,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
         rv = imapService->LiteSelectFolder(dstFolder, dstListener, nullptr,
                                            nullptr);
         NS_ENSURE_SUCCESS(rv, rv);
-        rv = imapService->AddMessageFlags(dstFolder, dstListener, nullptr,
+        rv = imapService->AddMessageFlags(dstFolder, dstListener,
                                           m_dstMsgIdString, kImapMsgDeletedFlag,
                                           m_idsAreUids);
       }

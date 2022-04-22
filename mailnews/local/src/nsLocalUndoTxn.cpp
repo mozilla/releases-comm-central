@@ -97,11 +97,11 @@ nsresult nsLocalMoveCopyMsgTxn::UndoImapDeleteFlag(nsIMsgFolder* folder,
     // folder so use lite select to do the trick
     rv = imapService->LiteSelectFolder(folder, urlListener, nullptr, nullptr);
     if (!deleteFlag)
-      rv = imapService->AddMessageFlags(folder, urlListener, nullptr, msgIds,
+      rv = imapService->AddMessageFlags(folder, urlListener, msgIds,
                                         kImapMsgDeletedFlag, true);
     else
-      rv = imapService->SubtractMessageFlags(folder, urlListener, nullptr,
-                                             msgIds, kImapMsgDeletedFlag, true);
+      rv = imapService->SubtractMessageFlags(folder, urlListener, msgIds,
+                                             kImapMsgDeletedFlag, true);
     if (NS_SUCCEEDED(rv) && m_msgWindow) folder->UpdateFolder(m_msgWindow);
     rv = NS_OK;  // always return NS_OK to indicate that the src is imap
   } else

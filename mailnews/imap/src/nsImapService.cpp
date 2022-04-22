@@ -1559,23 +1559,25 @@ NS_IMETHODIMP nsImapService::DeleteAllMessages(nsIMsgFolder* aImapMailFolder,
 }
 
 NS_IMETHODIMP nsImapService::AddMessageFlags(
-    nsIMsgFolder* aImapMailFolder, nsIUrlListener* aUrlListener, nsIURI** aURL,
+    nsIMsgFolder* aImapMailFolder, nsIUrlListener* aUrlListener,
     const nsACString& messageIdentifierList, imapMessageFlagsType flags,
     bool messageIdsAreUID) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
-  return DiddleFlags(aImapMailFolder, aUrlListener, aURL, messageIdentifierList,
-                     "addmsgflags", flags, messageIdsAreUID);
+  return DiddleFlags(aImapMailFolder, aUrlListener, nullptr,
+                     messageIdentifierList, "addmsgflags", flags,
+                     messageIdsAreUID);
 }
 
 NS_IMETHODIMP nsImapService::SubtractMessageFlags(
-    nsIMsgFolder* aImapMailFolder, nsIUrlListener* aUrlListener, nsIURI** aURL,
+    nsIMsgFolder* aImapMailFolder, nsIUrlListener* aUrlListener,
     const nsACString& messageIdentifierList, imapMessageFlagsType flags,
     bool messageIdsAreUID) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
-  return DiddleFlags(aImapMailFolder, aUrlListener, aURL, messageIdentifierList,
-                     "subtractmsgflags", flags, messageIdsAreUID);
+  return DiddleFlags(aImapMailFolder, aUrlListener, nullptr,
+                     messageIdentifierList, "subtractmsgflags", flags,
+                     messageIdsAreUID);
 }
 
 NS_IMETHODIMP nsImapService::SetMessageFlags(
