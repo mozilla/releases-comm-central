@@ -114,7 +114,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
    * @return {DOMElement} a node which is to be used as insertion point, or null
    */
   getNonCustomizableToolbarInsertionPoint(toolbar) {
-    return toolbar.querySelector("#starMessageButton");
+    return toolbar.querySelector("#otherActionsButton");
   }
 
   makeButton(window) {
