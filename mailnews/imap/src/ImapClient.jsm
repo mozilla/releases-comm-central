@@ -17,6 +17,7 @@ var { ImapAuthenticator } = ChromeUtils.import(
 var { ImapResponse } = ChromeUtils.import(
   "resource:///modules/ImapResponse.jsm"
 );
+var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 // There can be multiple ImapClient running concurrently, assign each logger a
 // unique prefix.
@@ -73,8 +74,36 @@ class ImapClient {
     this.runningUrl.updatingFolder = true;
     this._urlListener.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
 
+    this._actionAfterSelectFolder = this._actionUidFetch;
     this._nextAction = this._actionSelectResponse;
     this._sendTagged(`SELECT "${folder.name}"`);
+  }
+
+  /**
+   * Add, remove or replace flags of specificed messages.
+   * @param {string} action - "+" means add, "-" means remove, "" means replace.
+   * @param {nsIMsgFolder} folder - The target folder.
+   * @param {nsIUrlListener} urlListener - Callback for the request.
+   * @param {string} messageIds - Message UIDs, e.g. "23,30:33".
+   * @param {number} flags - The internal flags number to update.
+   */
+  updateMesageFlags(action, folder, urlListener, messageIds, flags) {
+    let getCommand = () => {
+      // _supportedFlags is available after _actionSelectResponse.
+      let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
+      return `UID STORE ${messageIds} ${action}FLAGS ${flagsStr}`;
+    };
+    if (this._folder == folder) {
+      this._sendTagged(getCommand());
+    } else {
+      this._folder = folder;
+      this._actionAfterSelectFolder = () => {
+        this._nextAction = null;
+        this._sendTagged(getCommand());
+      };
+      this._nextAction = this._actionSelectResponse;
+      this._sendTagged(`SELECT "${folder.name}"`);
+    }
   }
 
   /**
@@ -223,8 +252,9 @@ class ImapClient {
   /**
    * Handle SELECT response.
    */
-  _actionSelectResponse() {
-    this._actionUidFetch();
+  _actionSelectResponse(res) {
+    this._supportedFlags = res.flags;
+    this._actionAfterSelectFolder();
   }
 
   /**
@@ -246,7 +276,7 @@ class ImapClient {
       "highestRecordedUID",
       0
     );
-    let latestUid = res.data.reduce(
+    let latestUid = res.messages.reduce(
       (maxUid, msg) => Math.max(maxUid, msg.attributes.UID),
       0
     );
@@ -268,7 +298,7 @@ class ImapClient {
   _actionUidFetchBodyResponse(res) {
     this._msgSink = this._folder.QueryInterface(Ci.nsIImapMessageSink);
     this._folderSink = this._folder.QueryInterface(Ci.nsIImapMailFolderSink);
-    for (let msg of res.data) {
+    for (let msg of res.messages) {
       this._folderSink.StartMessage(this.runningUrl);
       let hdrXferInfo = {
         numHeaders: 1,

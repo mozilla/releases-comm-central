@@ -9,6 +9,8 @@ const EXPORTED_SYMBOLS = [
   "ImapResponse",
 ];
 
+var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
+
 /**
  * A structure to represent a server response status.
  * @typedef {Object} ImapStatus
@@ -180,7 +182,7 @@ class CapabilityResponse extends ImapResponse {
  */
 class FetchResponse extends ImapResponse {
   parse() {
-    this.data = [];
+    this.messages = [];
     while (this._lines.length) {
       let attributes = {};
       // A line may look like this
@@ -222,7 +224,7 @@ class FetchResponse extends ImapResponse {
           }
         }
       }
-      this.data.push({ type, attributes });
+      this.messages.push({ type, attributes });
       this._lines = this._lines.slice(1);
     }
   }
@@ -232,5 +234,22 @@ class FetchResponse extends ImapResponse {
  * A structure to represent FLAGS response.
  */
 class FlagsResponse extends ImapResponse {
-  parse() {}
+  parse() {
+    let flags = [];
+
+    for (let line of this._lines) {
+      let [, tagOrType, data] = this.parseLine(line);
+      tagOrType = tagOrType.toUpperCase();
+      if (tagOrType == "FLAGS" && !flags.length) {
+        flags = data;
+      } else if (data[0] == "PERMANENTFLAGS") {
+        flags = data[1];
+      }
+    }
+
+    this.flags = 0;
+    for (let flag of flags) {
+      this.flags |= ImapUtils.stringToFlag(flag);
+    }
+  }
 }

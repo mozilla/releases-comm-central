@@ -31,6 +31,41 @@ class ImapService {
     client.onReady = () => {};
     client.connect();
   }
+
+  addMessageFlags(folder, urlListener, messageIds, flags, messageIdsAreUID) {
+    this._updateMessageFlags("+", folder, urlListener, messageIds, flags);
+  }
+
+  subtractMessageFlags(
+    folder,
+    urlListener,
+    messageIds,
+    flags,
+    messageIdsAreUID
+  ) {
+    this._updateMessageFlags("-", folder, urlListener, messageIds, flags);
+  }
+
+  setMessageFlags(
+    folder,
+    urlListener,
+    outURL,
+    messageIds,
+    flags,
+    messageIdsAreUID
+  ) {
+    this._updateMessageFlags("", folder, urlListener, messageIds, flags);
+  }
+
+  _updateMessageFlags(action, folder, urlListener, messageIds, flags) {
+    let client = new ImapClient(
+      folder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
+    );
+    client.onReady = () => {
+      client.updateMesageFlags(action, folder, urlListener, messageIds, flags);
+    };
+    client.connect();
+  }
 }
 
 ImapService.prototype.classID = Components.ID(

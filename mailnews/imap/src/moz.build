@@ -44,6 +44,7 @@ EXTRA_JS_MODULES += [
     "ImapModuleLoader.jsm",
     "ImapResponse.jsm",
     "ImapService.jsm",
+    "ImapUtils.jsm",
 ]
 
 XPCOM_MANIFESTS += [

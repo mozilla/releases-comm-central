@@ -5,6 +5,7 @@
 var { ImapResponse } = ChromeUtils.import(
   "resource:///modules/ImapResponse.jsm"
 );
+var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 /**
  * Test flags from a FETCH response can be correctly parsed.
@@ -22,15 +23,15 @@ add_task(function test_FetchResponse_flags() {
   equal(response.tag, "40");
   equal(response.status, "OK");
   equal(response.statusText, "Fetch completed");
-  deepEqual(response.data[0].attributes, {
+  deepEqual(response.messages[0].attributes, {
     UID: "500",
     FLAGS: ["\\Answered", "\\Seen", "$Forwarded"],
   });
-  deepEqual(response.data[1].attributes, {
+  deepEqual(response.messages[1].attributes, {
     UID: "600",
     FLAGS: ["\\Seen"],
   });
-  deepEqual(response.data[2].attributes, {
+  deepEqual(response.messages[2].attributes, {
     UID: "601",
     FLAGS: [],
   });
@@ -54,6 +55,31 @@ add_task(function test_FetchResponse_body() {
   ].join("\r\n");
   let response = ImapResponse.parse(str);
 
-  equal(response.data[0].attributes.body, "abcd\r\nefgh\r\n");
-  equal(response.data[1].attributes.body, "Hello \r\nworld\r\n");
+  equal(response.messages[0].attributes.body, "abcd\r\nefgh\r\n");
+  equal(response.messages[1].attributes.body, "Hello \r\nworld\r\n");
+});
+
+/**
+ * Test FLAGS response can be correctly parsed.
+ */
+add_task(function test_FlagsResponse() {
+  let str = [
+    "* FLAGS (\\Seen \\Draft $Forwarded)",
+    "* OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)] Flags permitted.",
+    "42 OK [READ-WRITE] Select completed",
+    "",
+  ].join("\r\n");
+
+  let response = ImapResponse.parse(str);
+
+  equal(
+    response.flags,
+    ImapUtils.FLAG_SEEN |
+      ImapUtils.FLAG_DRAFT |
+      ImapUtils.FLAG_FORWARDED |
+      ImapUtils.FLAG_LABEL |
+      ImapUtils.FLAG_MDN_SENT |
+      ImapUtils.FLAG_FORWARDED |
+      ImapUtils.FLAG_SUPPORT_USER_FLAG
+  );
 });
