@@ -288,8 +288,8 @@ async function doImipBarActionTest(conf, event) {
  * @param {UpdateActionTestConf} conf
  */
 async function doMinorUpdateTest(conf) {
-  let { transport, calendar, partStat, isRecurring, invite } = conf;
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+  let { transport, calendar, partStat, invite } = conf;
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   let prevEventIcs = event.icalString;
 
   let title = "Updated Event";
@@ -308,87 +308,44 @@ async function doMinorUpdateTest(conf) {
 
   let win = await openImipMessage(tmpFile);
   let updateButton = win.document.getElementById("imipUpdateButton");
-  Assert.ok(!updateButton.hidden, `#${updateButton.id} button shown`);
+  Assert.ok(!updateButton.hidden, "'Update' button shown");
   EventUtils.synthesizeMouseAtCenter(updateButton, {}, win);
   await BrowserTestUtils.closeWindow(win);
 
   await TestUtils.waitForCondition(async () => {
-    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
     return event.icalString != prevEventIcs;
   }, "event updated");
 
-  let events = [event];
-  let startDates = ["20220316T110000Z"];
-  let endDates = ["20220316T113000Z"];
-  if (isRecurring) {
-    startDates = [...startDates, "20220317T110000Z", "20220318T110000Z"];
-    endDates = [...endDates, "20220317T113000Z", "20220318T113000Z"];
-    events = event.recurrenceInfo.getOccurrences(
-      cal.createDateTime("19700101"),
-      cal.createDateTime("30000101"),
-      Infinity
-    );
-    Assert.equal(events.length, 3, "reccurring event has 3 occurrences");
-  }
+  compareProperties(event, {
+    title,
+    "calendar.name": calendar.name,
+    "startDate.icalString": "20220316T110000Z",
+    "endDate.icalString": "20220316T113000Z",
+    description,
+    location,
+    sequence: "0",
+    "x-moz-received-dtstamp": dtstamp,
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  });
 
-  info("Verifying relevant properties of each event occurrence");
-  for (let [index, occurrence] of events.entries()) {
-    compareProperties(occurrence, {
-      title,
-      "calendar.name": calendar.name,
-      "startDate.icalString": startDates[index],
-      "endDate.icalString": endDates[index],
-      description,
-      location,
-      sequence: "0",
-      "x-moz-received-dtstamp": dtstamp,
-      "organizer.id": "mailto:sender@example.com",
-      status: "CONFIRMED",
-    });
-
-    // Note: It seems we do not keep the order of the attendees list for updates.
-    let attendees = occurrence.getAttendees();
-    compareProperties(attendees, {
-      "0.id": "mailto:sender@example.com",
-      "0.participationStatus": "ACCEPTED",
-      "1.id": "mailto:other@example.com",
-      "1.participationStatus": "NEEDS-ACTION",
-      "2.participationStatus": partStat,
-      "2.id": "mailto:receiver@example.com",
-    });
-  }
+  // Note: It seems we do not keep the order of the attendees list for updates.
+  let attendees = event.getAttendees();
+  compareProperties(attendees, {
+    "0.id": "mailto:sender@example.com",
+    "0.participationStatus": "ACCEPTED",
+    "1.id": "mailto:other@example.com",
+    "1.participationStatus": "NEEDS-ACTION",
+    "2.participationStatus": partStat,
+    "2.id": "mailto:receiver@example.com",
+  });
 
   Assert.equal(transport.sentItems.length, 0, "itip subsystem did not attempt to send a response");
   Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+
   await calendar.deleteItem(event);
 }
-
-const actionIds = {
-  single: {
-    button: {
-      ACCEPTED: "imipAcceptButton",
-      TENTATIVE: "imipTentativeButton",
-      DECLINED: "imipDeclineButton",
-    },
-    noReply: {
-      ACCEPTED: "imipAcceptButton_AcceptDontSend",
-      TENTATIVE: "imipTentativeButton_TentativeDontSend",
-      DECLINED: "imipDeclineButton_DeclineDontSend",
-    },
-  },
-  recurring: {
-    button: {
-      ACCEPTED: "imipAcceptRecurrencesButton",
-      TENTATIVE: "imipTentativeRecurrencesButton",
-      DECLINED: "imipDeclineRecurrencesButton",
-    },
-    noReply: {
-      ACCEPTED: "imipAcceptRecurrencesButton_AcceptDontSend",
-      TENTATIVE: "imipTentativeRecurrencesButton_TentativeDontSend",
-      DECLINED: "imipDeclineRecurrencesButton_DeclineDontSend",
-    },
-  },
-};
 
 /**
  * Tests the recognition and application of a major update to an existing event.
@@ -398,8 +355,8 @@ const actionIds = {
  * @param {UpdateActionTestConf} conf
  */
 async function doMajorUpdateTest(conf) {
-  let { transport, identity, calendar, partStat, invite, isRecurring, noReply } = conf;
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+  let { transport, identity, calendar, partStat, invite, noReply } = conf;
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   let prevEventIcs = event.icalString;
 
   let dtstart = "20220316T050000Z";
@@ -414,17 +371,27 @@ async function doMajorUpdateTest(conf) {
 
   transport.reset();
   let win = await openImipMessage(tmpFile);
-  let actions = isRecurring ? actionIds.recurring : actionIds.single;
+
+  let buttons = {
+    ACCEPTED: "imipAcceptButton",
+    TENTATIVE: "imipTentativeButton",
+    DECLINED: "imipDeclineButton",
+  };
+  let noReplyItems = {
+    ACCEPTED: "imipAcceptButton_AcceptDontSend",
+    TENTATIVE: "imipTentativeButton_TentativeDontSend",
+    DECLINED: "imipDeclineButton_DeclineDontSend",
+  };
+
   if (noReply) {
-    let { button, noReply } = actions;
-    await clickMenuAction(win, button[partStat], noReply[partStat]);
+    await clickMenuAction(win, buttons[partStat], noReplyItems[partStat]);
   } else {
-    clickAction(win, actions.button[partStat]);
+    clickAction(win, buttons[partStat]);
   }
 
   await BrowserTestUtils.closeWindow(win);
   await TestUtils.waitForCondition(async () => {
-    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
     return event.icalString != prevEventIcs;
   }, "event updated");
 
@@ -439,43 +406,28 @@ async function doMajorUpdateTest(conf) {
     await doReplyTest(transport, identity, partStat);
   }
 
-  let events = [event];
-  let startDates = [dtstart];
-  let endDates = [dtend];
-  if (isRecurring) {
-    startDates = [...startDates, "20220317T050000Z", "20220318T050000Z"];
-    endDates = [...endDates, "20220317T053000Z", "20220318T053000Z"];
-    events = event.recurrenceInfo.getOccurrences(
-      cal.createDateTime("19700101"),
-      cal.createDateTime("30000101"),
-      Infinity
-    );
-    Assert.equal(events.length, 3, "reccurring event has 3 occurrences");
-  }
+  compareProperties(event, {
+    title: "Single Event",
+    "calendar.name": calendar.name,
+    "startDate.icalString": dtstart,
+    "endDate.icalString": dtend,
+    description: "An event invitation.",
+    location: "Somewhere",
+    sequence: "2",
+    "x-moz-received-dtstamp": "20220316T191602Z",
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  });
 
-  for (let [index, occurrence] of events.entries()) {
-    compareProperties(occurrence, {
-      title: isRecurring ? "Repeat Event" : "Single Event",
-      "calendar.name": calendar.name,
-      "startDate.icalString": startDates[index],
-      "endDate.icalString": endDates[index],
-      description: "An event invitation.",
-      location: "Somewhere",
-      sequence: "2",
-      "x-moz-received-dtstamp": "20220316T191602Z",
-      "organizer.id": "mailto:sender@example.com",
-      status: "CONFIRMED",
-    });
+  let attendees = event.getAttendees();
+  compareProperties(attendees, {
+    "0.id": "mailto:sender@example.com",
+    "0.participationStatus": "ACCEPTED",
+    "1.id": "mailto:other@example.com",
+    "1.participationStatus": "NEEDS-ACTION",
+    "2.participationStatus": partStat,
+    "2.id": "mailto:receiver@example.com",
+  });
 
-    let attendees = occurrence.getAttendees();
-    compareProperties(attendees, {
-      "0.id": "mailto:sender@example.com",
-      "0.participationStatus": "ACCEPTED",
-      "1.id": "mailto:other@example.com",
-      "1.participationStatus": "NEEDS-ACTION",
-      "2.participationStatus": partStat,
-      "2.id": "mailto:receiver@example.com",
-    });
-  }
   await calendar.deleteItem(event);
 }

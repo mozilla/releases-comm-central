@@ -112,7 +112,7 @@ add_task(async function testMinorUpdateToDeclined() {
 /**
  * Tests a major update to an already accepted event.
  */
-add_task(async function testMajorUpdateToAcceptedWithResponse() {
+add_task(async function testMajorUpdateToAccepted() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
     let invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
@@ -133,7 +133,7 @@ add_task(async function testMajorUpdateToAcceptedWithResponse() {
 /**
  * Tests a major update to an already tentatively accepted event.
  */
-add_task(async function testMajorUpdateToTentativeWithResponse() {
+add_task(async function testMajorUpdateToTentative() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
     let invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
@@ -154,7 +154,7 @@ add_task(async function testMajorUpdateToTentativeWithResponse() {
 /**
  * Tests a major update to an already declined event.
  */
-add_task(async function testMajorUpdateToDeclinedWithResponse() {
+add_task(async function testMajorUpdateToDeclined() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
     let invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
