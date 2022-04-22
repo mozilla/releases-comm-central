@@ -1908,7 +1908,8 @@ Enigmail.msg = {
         );
         gFolderDisplay.view.dbView.selectMsgByKey(msgKey);
       })
-      .catch(async () => {
+      .catch(async function(ex) {
+        console.debug(ex);
         EnigmailDialog.alert(
           window,
           await l10n.formatValue("fix-broken-exchange-msg-failed")

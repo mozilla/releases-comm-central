@@ -207,11 +207,18 @@ var EnigmailFixExchangeMsg = {
         let contentTypeLine = hdrLines[i];
         i++;
         while (i < hdrLines.length) {
+          let endOfCTL = false;
           // Does the line start with a space or a tab, followed by something else?
           if (hdrLines[i].search(/^[ \t]+?/) === 0) {
             contentTypeLine += hdrLines[i];
             i++;
+            if (i == hdrLines.length) {
+              endOfCTL = true;
+            }
           } else {
+            endOfCTL = true;
+          }
+          if (endOfCTL) {
             // we got the complete content-type header
             contentTypeLine = contentTypeLine.replace(/[\r\n]/g, "");
             let h = EnigmailFuncs.getHeaderData(contentTypeLine);
