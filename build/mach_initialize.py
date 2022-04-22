@@ -16,6 +16,7 @@ from build import mach_initialize as mach_init
 
 # Individual files that provide mach commands
 MACH_MODULES = [
+    "comm/python/l10n/mach_commands.py",
     "comm/tools/lint/mach_commands.py",
 ]
 
