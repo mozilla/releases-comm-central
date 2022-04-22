@@ -297,6 +297,7 @@ Enigmail.msg = {
     Enigmail.msg.autoProcessPgpKeyAttachmentProcessed = 0;
     Enigmail.msg.unhideMissingSigKeyBoxIsTODO = false;
     Enigmail.msg.missingSigKey = null;
+    Enigmail.msg.buggyMailType = null;
   },
 
   messageFrameUnload() {
@@ -783,7 +784,11 @@ Enigmail.msg = {
         // iPGMail produces a similar broken structure, see here:
         //   - https://sourceforge.net/p/enigmail/forum/support/thread/afc9c246/#5de7
 
+        // Don't attempt to detect again, if we have already decided
+        // it's a buggy exchange message (buggyMailType is already set).
+
         if (
+          !Enigmail.msg.buggyMailType &&
           mimeMsg.subParts.length == 3 &&
           mimeMsg.fullContentType.search(/multipart\/mixed/i) >= 0 &&
           mimeMsg.subParts[0].fullContentType.search(/multipart\/encrypted/i) <
