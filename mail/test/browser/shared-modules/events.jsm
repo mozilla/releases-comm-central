@@ -39,7 +39,6 @@
 
 var EXPORTED_SYMBOLS = [
   "createEventObject",
-  "triggerEvent",
   "getKeyCodeFromKeySequence",
   "triggerKeyEvent",
   "triggerMouseEvent",
@@ -96,28 +95,6 @@ function fakeOpenPopup(aWindow, aPopup) {
   );
   aPopup.dispatchEvent(popupEvent);
 }
-
-/* Fire an event in a browser-compatible manner */
-var triggerEvent = function(
-  element,
-  eventType,
-  canBubble,
-  controlKeyDown,
-  altKeyDown,
-  shiftKeyDown,
-  metaKeyDown
-) {
-  canBubble = typeof canBubble == undefined ? true : canBubble;
-  var evt = element.ownerDocument.createEvent("HTMLEvents");
-
-  evt.shiftKey = shiftKeyDown;
-  evt.metaKey = metaKeyDown;
-  evt.altKey = altKeyDown;
-  evt.ctrlKey = controlKeyDown;
-
-  evt.initEvent(eventType, canBubble, true);
-  element.dispatchEvent(evt);
-};
 
 var getKeyCodeFromKeySequence = function(keySequence) {
   var match = /^\\(\d{1,3})$/.exec(keySequence);
