@@ -65,26 +65,27 @@ def _positive_int(value):
     """,
 )
 def tb_cross_channel(
-        command_context,
-        strings_path,
-        outgoing_path,
-        actions,
-        attempts,
-        ssh_secret,
-        **kwargs,
+    command_context,
+    strings_path,
+    outgoing_path,
+    actions,
+    attempts,
+    ssh_secret,
+    **kwargs,
 ):
     """Run Thunderbird's l10n cross-channel content generation."""
     from tbxchannel import get_thunderbird_xc_config
 
-    kwargs.update({"strings_path": strings_path,
-                   "outgoing_path": outgoing_path,
-                   "actions": actions,
-                   "attempts": attempts,
-                   "ssh_secret": ssh_secret,
-                   "get_config": get_thunderbird_xc_config
-                   })
+    kwargs.update(
+        {
+            "strings_path": strings_path,
+            "outgoing_path": outgoing_path,
+            "actions": actions,
+            "attempts": attempts,
+            "ssh_secret": ssh_secret,
+            "get_config": get_thunderbird_xc_config,
+        }
+    )
     command_context._mach_context.commands.dispatch(
-        "l10n-cross-channel",
-        command_context._mach_context,
-        **kwargs
+        "l10n-cross-channel", command_context._mach_context, **kwargs
     )
