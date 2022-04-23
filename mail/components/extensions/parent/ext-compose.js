@@ -371,6 +371,9 @@ async function getComposeDetails(composeWindow, extension) {
       Ci.nsIDocumentEncoder.OutputRaw
     ),
     customHeaders,
+    priority: composeFields.priority.toLowerCase() || "normal",
+    returnReceipt: composeFields.returnReceipt,
+    deliveryStatusNotification: composeFields.DSN,
   };
   if (extension.hasPermission("accountsRead")) {
     details.identityId = composeWindow.getCurrentIdentityKey();
@@ -531,6 +534,31 @@ async function setComposeDetails(composeWindow, details, extension) {
     for (let { name, value } of details.customHeaders) {
       composeWindow.gMsgCompose.compFields.setHeader(name, value);
     }
+  }
+
+  // Update priorities. The enum in the schema defines all allowed values, no
+  // need to validate here.
+  if (details.priority) {
+    if (details.priority == "normal") {
+      composeWindow.gMsgCompose.compFields.priority = "";
+    } else {
+      composeWindow.gMsgCompose.compFields.priority =
+        details.priority[0].toUpperCase() + details.priority.slice(1);
+    }
+    composeWindow.updatePriorityToolbarButton(
+      composeWindow.gMsgCompose.compFields.priority
+    );
+  }
+
+  // Update receipt notifications.
+  if (details.returnReceipt != null) {
+    composeWindow.gMsgCompose.compFields.returnReceipt = details.returnReceipt;
+    composeWindow.gReceiptOptionChanged = true;
+  }
+  if (details.deliveryStatusNotification != null) {
+    composeWindow.gMsgCompose.compFields.DSN =
+      details.deliveryStatusNotification;
+    composeWindow.gDSNOptionChanged = true;
   }
 
   activeElement.focus();

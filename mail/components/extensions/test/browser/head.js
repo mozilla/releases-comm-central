@@ -484,6 +484,28 @@ async function checkComposeHeaders(expected) {
       "fcc2 should not contain a folder uri"
     );
   }
+
+  is(
+    !expected.priority || expected.priority == "normal"
+      ? ""
+      : expected.priority,
+    composeFields.priority.toLowerCase(),
+    "priority in window should be correct"
+  );
+
+  // If expected.returnReceipt is not specified, default to false.
+  is(
+    !!expected.returnReceipt,
+    composeFields.returnReceipt,
+    "returnReceipt in window should be correct"
+  );
+
+  // If expected.deliveryStatusNotification is not specified, default to false.
+  is(
+    !!expected.deliveryStatusNotification,
+    composeFields.DSN,
+    "deliveryStatusNotification in window should be correct"
+  );
 }
 
 async function openContextMenu(selector = "#img1", win = window) {

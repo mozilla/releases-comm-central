@@ -201,8 +201,30 @@
             "items": {
               "$ref": "CustomHeader"
             },
-            "description": "Array of custom headers. Headers will be returned in ``Http-Header-Case`` (a.k.a. ``Train-Case``)",
+            "description": "Array of custom headers. Headers will be returned in ``Http-Header-Case`` (a.k.a. ``Train-Case``). Set an empty array to clear all custom headers.",
             "optional": true
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "lowest",
+              "low",
+              "normal",
+              "high",
+              "highest"
+            ],
+            "description": "The priority of the message.",
+            "optional": true
+          },
+          "returnReceipt": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Add the ``Disposition-Notification-To`` header to the message to requests the recipients email client to send a reply once the message has been received. Recipient server may strip the header and the recipient might ignore the request."
+          },
+          "deliveryStatusNotification": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Let the sender know when the recipient's server received the message. Not supported by all servers."
           },
           "attachments": {
             "type": "array",

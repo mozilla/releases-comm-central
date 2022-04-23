@@ -1746,7 +1746,7 @@
             <menupopup id="priorityMenuPopup">
               <menuitem type="radio" name="priority" label="&highestPriorityCmd.label;" accesskey="&highestPriorityCmd.accesskey;" value="Highest" id="priority_highest"/>
               <menuitem type="radio" name="priority" label="&highPriorityCmd.label;" accesskey="&highPriorityCmd.accesskey;" value="High" id="priority_high"/>
-              <menuitem type="radio" name="priority" label="&normalPriorityCmd.label;" accesskey="&normalPriorityCmd.accesskey;" value="Normal" id="priority_normal" checked="true"/>
+              <menuitem type="radio" name="priority" label="&normalPriorityCmd.label;" accesskey="&normalPriorityCmd.accesskey;" value="" id="priority_normal" checked="true"/>
               <menuitem type="radio" name="priority" label="&lowPriorityCmd.label;" accesskey="&lowPriorityCmd.accesskey;" value="Low" id="priority_low"/>
               <menuitem type="radio" name="priority" label="&lowestPriorityCmd.label;" accesskey="&lowestPriorityCmd.accesskey;" value="Lowest"  id="priority_lowest"/>
             </menupopup>
@@ -2017,7 +2017,7 @@
                  title="&priorityButton.title;"
                  tooltiptext="&priorityButton.tooltiptext;">
       <label value="&priorityButton.label;" control="priorityMenu-button"/>
-      <menulist id="priorityMenu-button" value="Normal" oncommand="PriorityMenuSelect(event.target);">
+      <menulist id="priorityMenu-button" value="" oncommand="PriorityMenuSelect(event.target);">
         <menupopup id="priorityMenu-buttonPopup">
           <menuitem id="list_priority_highest"
                     name="priority"
@@ -2029,8 +2029,9 @@
                     value="High"/>
           <menuitem id="list_priority_normal"
                     name="priority"
+                    selected="true"
                     label="&normalPriorityCmd.label;"
-                    value="Normal"/>
+                    value=""/>
           <menuitem id="list_priority_low"
                     name="priority"
                     label="&lowPriorityCmd.label;"

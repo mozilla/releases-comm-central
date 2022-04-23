@@ -444,3 +444,97 @@ add_task(async function testFcc() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+add_task(async function testSimpleDetails() {
+  let files = {
+    "background.js": async () => {
+      async function checkWindow(createdTab, expected) {
+        let state = await browser.compose.getComposeDetails(createdTab.id);
+
+        if (expected.priority) {
+          browser.test.assertEq(
+            expected.priority,
+            state.priority,
+            "priority should be correct"
+          );
+        }
+
+        if (expected.hasOwnProperty("returnReceipt")) {
+          browser.test.assertEq(
+            expected.returnReceipt,
+            state.returnReceipt,
+            "returnReceipt should be correct"
+          );
+        }
+
+        if (expected.hasOwnProperty("deliveryStatusNotification")) {
+          browser.test.assertEq(
+            expected.deliveryStatusNotification,
+            state.deliveryStatusNotification,
+            "deliveryStatusNotification should be correct"
+          );
+        }
+
+        await window.sendMessage("checkWindow", expected);
+      }
+
+      // Start a new message.
+
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew();
+      let [createdWindow] = await createdWindowPromise;
+      let [createdTab] = await browser.tabs.query({
+        windowId: createdWindow.id,
+      });
+
+      let expected = {
+        priority: "normal",
+        returnReceipt: false,
+        deliveryStatusNotification: false,
+      };
+      async function changeDetail(key, value) {
+        await browser.compose.setComposeDetails(createdTab.id, {
+          [key]: value,
+        });
+        expected[key] = value;
+        await checkWindow(createdTab, expected);
+      }
+
+      await checkWindow(createdTab, expected);
+      await changeDetail("priority", "highest");
+      await changeDetail("returnReceipt", true);
+      await changeDetail("priority", "lowest");
+      await changeDetail("deliveryStatusNotification", true);
+      await changeDetail("priority", "high");
+      await changeDetail("returnReceipt", false);
+      await changeDetail("priority", "low");
+      await changeDetail("deliveryStatusNotification", false);
+      await changeDetail("priority", "normal");
+
+      // Clean up.
+
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdWindow.id);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("checkWindow", async expected => {
+    await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
