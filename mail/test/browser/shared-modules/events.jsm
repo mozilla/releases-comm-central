@@ -41,7 +41,6 @@ var EXPORTED_SYMBOLS = [
   "createEventObject",
   "getKeyCodeFromKeySequence",
   "triggerKeyEvent",
-  "triggerMouseEvent",
   "fakeOpenPopup",
 ];
 
@@ -165,59 +164,4 @@ var triggerKeyEvent = function(
   } else {
     EventUtils.synthesizeKey(aKey, modifiers, win);
   }
-};
-
-/* Fire a mouse event in a browser-compatible manner */
-var triggerMouseEvent = function(
-  element,
-  eventType,
-  canBubble,
-  clientX,
-  clientY,
-  controlKeyDown,
-  altKeyDown,
-  shiftKeyDown,
-  metaKeyDown
-) {
-  clientX = clientX ? clientX : 0;
-  clientY = clientY ? clientY : 0;
-
-  // Fixing this - make the mouse understand where it is on the screen, needed
-  // for double click.
-  var screenX = element.screenX ? element.screenX : 0;
-  var screenY = element.screenY ? element.screenY : 0;
-
-  canBubble = typeof canBubble == undefined ? true : canBubble;
-
-  var evt = element.ownerGlobal.document.createEvent("MouseEvents");
-  if (evt.initMouseEvent) {
-    // LOG.info("element has initMouseEvent");
-    // Safari
-    evt.initMouseEvent(
-      eventType,
-      canBubble,
-      true,
-      element.ownerGlobal,
-      1,
-      screenX,
-      screenY,
-      clientX,
-      clientY,
-      controlKeyDown,
-      altKeyDown,
-      shiftKeyDown,
-      metaKeyDown,
-      0,
-      null
-    );
-  } else {
-    // LOG.warn("element doesn't have initMouseEvent; firing an event which should -- but doesn't -- have other mouse-event related attributes here, as well as controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown");
-    evt.initEvent(eventType, canBubble, true);
-    evt.shiftKey = shiftKeyDown;
-    evt.metaKey = metaKeyDown;
-    evt.altKey = altKeyDown;
-    evt.ctrlKey = controlKeyDown;
-  }
-  // Used by safari
-  element.dispatchEvent(evt);
 };
