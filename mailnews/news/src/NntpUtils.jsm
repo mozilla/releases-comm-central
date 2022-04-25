@@ -41,11 +41,12 @@ var NntpUtils = {
     // Find the NNTP server that matches the hostname.
     for (let key of keySet) {
       let type = branch.getCharPref(`${key}.type`, "");
-      let realHostname = branch.getCharPref(
-        `${key}.realhostname`,
-        branch.getCharPref(`${key}.hostname`, "")
-      );
-      if (type == "nntp" && realHostname == hostname) {
+      let hostnameValue = branch.getCharPref(`${key}.hostname`, "");
+      let realHostnameValue = branch.getCharPref(`${key}.realhostname`, "");
+      if (
+        type == "nntp" &&
+        [hostnameValue, realHostnameValue].includes(hostname)
+      ) {
         return MailServices.accounts
           .getIncomingServer(key)
           .QueryInterface(Ci.nsINntpIncomingServer);
