@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from import-export.js */
+/* globals MODE_RDONLY, putItemsIntoCal*/
 
 var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 

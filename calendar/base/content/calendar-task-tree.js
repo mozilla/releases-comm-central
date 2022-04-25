@@ -2,16 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from widgets/calendar-filter.js */
-/* import-globals-from calendar-command-controller.js */
-/* import-globals-from calendar-dnd-listener.js */
-/* import-globals-from calendar-task-tree-view.js */
-/* import-globals-from calendar-views-utils.js */
-
-/* globals MozXULElement */
+/* globals MozXULElement, calendarController, invokeEventDragSession, CalendarTaskTreeView,
+    calFilter, TodayPane, currentView */
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
   /**

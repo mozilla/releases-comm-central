@@ -2,17 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from item-editing/calendar-item-editing.js */
-/* import-globals-from widgets/calendar-filter.js */
-/* import-globals-from widgets/mouseoverPreviews.js */
-/* import-globals-from calendar-dnd-listener.js */
-/* import-globals-from calendar-ui-utils.js */
-/* import-globals-from calendar-views-utils.js */
-/* import-globals-from today-pane.js */
+/* globals CalendarFilteredViewMixin, calendarCalendarButtonDNDObserver, setupAttendanceMenu,
+   openEventDialogForViewing, calendarViewController, showToolTip, openEventDialogForViewing,
+   TodayPane */
 
 {
   const { CalMetronome } = ChromeUtils.import("resource:///modules/CalMetronome.jsm");
   const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
   class Agenda extends CalendarFilteredViewMixin(customElements.get("tree-listbox")) {
     _showsToday = false;

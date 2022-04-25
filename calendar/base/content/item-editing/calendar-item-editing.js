@@ -5,6 +5,8 @@
 /* import-globals-from ../calendar-management.js */
 /* import-globals-from ../calendar-views-utils.js */
 
+/* globals goUpdateCommand */
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");

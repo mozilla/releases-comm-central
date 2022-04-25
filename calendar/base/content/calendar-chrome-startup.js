@@ -6,20 +6,14 @@
  *          initViewCalendarPaneMenu, loadCalendarComponent,
  */
 
-/* import-globals-from ../../../mail/base/content/mailCore.js */
-/* import-globals-from ../../../mail/base/content/mailWindowOverlay.js */
-/* import-globals-from calendar-command-controller.js */
-/* import-globals-from calendar-invitations-manager.js */
-/* import-globals-from calendar-management.js */
-/* import-globals-from calendar-modes.js */
-/* import-globals-from calendar-task-tree-utils.js */
-/* import-globals-from calendar-task-view.js */
-/* import-globals-from calendar-ui-utils.js */
-/* import-globals-from calendar-unifinder.js */
-/* import-globals-from calendar-views-utils.js */
-/* import-globals-from today-pane.js */
-
-/* globals PanelUI, taskEdit */
+/* globals loadCalendarManager, injectCalendarCommandController, getViewBox,
+   observeViewDaySelect, getViewBox, calendarController, calendarUpdateNewItemsCommand,
+   TodayPane, setUpInvitationsManager, changeMode, MailToolboxCustomizeDone,
+   prepareCalendarUnifinder, taskViewOnLoad, taskEdit, tearDownInvitationsManager,
+   unloadCalendarManager, removeCalendarCommandController, finishCalendarUnifinder,
+   PanelUI, changeMenuForTask, setupDeleteMenuitem, getMinimonth, currentView,
+   refreshEventTree, gCurrentMode, InitMessageMenu, onViewToolbarsPopupShowing,
+   onCommandCustomize, CustomizeMailToolbar */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
@@ -438,6 +432,7 @@ function calInitMessageMenu() {
   document.getElementById("markMenu").disabled = gCurrentMode != "mail";
 }
 calInitMessageMenu.origFunc = InitMessageMenu;
+// eslint-disable-next-line no-global-assign
 InitMessageMenu = calInitMessageMenu;
 
 /**

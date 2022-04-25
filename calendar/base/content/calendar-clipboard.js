@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from item-editing/calendar-item-editing.js */
-/* import-globals-from calendar-command-controller.js */
-/* import-globals-from calendar-management.js */
-/* import-globals-from calendar-views-utils.js */
+/* globals getSelectedCalendar, getSelectedItems, promptOccurrenceModification,
+   calendarViewController, currentView, startBatchTransaction, doTransaction,
+   endBatchTransaction */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

@@ -2,16 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals calFilter, calFilter, getViewBox, openEventDialogForViewing,
+   createEventWithDialog, currentView, calendarController, editSelectedEvents,
+   deleteSelectedEvents, calendarUpdateDeleteCommand, getEventStatusString,
+   goToggleToolbar */
+
 /* exported gCalendarEventTreeClicked, unifinderDoubleClick, unifinderKeyPress,
  *          focusSearch, ensureUnifinderLoaded, toggleUnifinder
  */
-
-/* import-globals-from ../../../mail/base/content/utilityOverlay.js */
-/* import-globals-from item-editing/calendar-item-editing.js */
-/* import-globals-from widgets/calendar-filter.js */
-/* import-globals-from widgets/mouseoverPreviews.js */
-/* import-globals-from calendar-command-controller.js */
-/* import-globals-from calendar-views-utils.js */
 
 /**
  * U N I F I N D E R

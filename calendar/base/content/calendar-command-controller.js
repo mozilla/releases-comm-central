@@ -2,29 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../../mail/base/content/utilityOverlay.js */
-/* import-globals-from ../../../mail/base/content/mailCore.js */
-/* import-globals-from ../../../mail/base/content/mailWindow.js */
-/* import-globals-from item-editing/calendar-item-editing.js */
-/* import-globals-from calendar-clipboard.js */
-/* import-globals-from calendar-management.js */
-/* import-globals-from calendar-modes.js */
-/* import-globals-from calendar-tabs.js */
-/* import-globals-from calendar-task-tree-utils.js */
-/* import-globals-from calendar-ui-utils.js */
-/* import-globals-from calendar-unifinder.js */
-/* import-globals-from calendar-views-utils.js */
-/* import-globals-from import-export.js */
-/* import-globals-from publish.js */
+/* globals goUpdateCommand, currentView, TodayPane, createEventWithDialog,
+   getSelectedCalendar, editSelectedEvents, viewSelectedEvents,
+   modifyTaskFromContext, deleteSelectedEvents, deleteToDoCommand,
+   createTodoWithDialog, deleteToDoCommand, promptDeleteCalendar,
+   toImport, loadEventsFromFile, exportEntireCalendar, saveEventsToFile,
+   publishEntireCalendar, publishCalendarData, toggleUnifinder, toggleOrientation
+   toggleWorkdaysOnly, switchCalendarView, getTaskTree, selectAllEvents,
+   gCurrentMode, getSelectedTasks, canPaste, goSetMenuValue, canUndo, canRedo,
+   cutToClipboard, copyToClipboard, pasteFromClipboard, undo, redo,
+   setupAttendanceMenu, goUpdateCommand, PrintUtils */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-
-/* exported injectCalendarCommandController, removeCalendarCommandController,
- *          setupContextItemType, getSelectedItems,
- *          deleteSelectedItems, calendarUpdateNewItemsCommand
- */
 
 var CalendarDeleteCommandEnabled = false;
 var CalendarNewEventsCommandEnabled = false;
