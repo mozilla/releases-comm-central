@@ -2,11 +2,14 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const { MatrixProtocol } = ChromeUtils.import("resource:///modules/matrix.jsm");
+const {
+  MatrixProtocol,
+  MatrixRoom,
+  MatrixAccount,
+  MatrixMessage,
+} = ChromeUtils.import("resource:///modules/matrix.jsm");
 var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
-var matrix = {};
 function loadMatrix() {
-  Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
   Services.conversations.initConversations();
 }
 
@@ -27,7 +30,7 @@ function getRoom(
     account = getAccount(clientHandler);
   }
   const room = getClientRoom(name, clientHandler, account._client);
-  const conversation = new matrix.MatrixRoom(account, isMUC, name);
+  const conversation = new MatrixRoom(account, isMUC, name);
   conversation.initRoom(room);
   return conversation;
 }
@@ -116,14 +119,11 @@ function getClientRoom(roomId, clientHandler, client) {
  * @returns {MatrixAccount}
  */
 function getAccount(clientHandler) {
-  const account = new matrix.MatrixAccount(
-    Object.create(MatrixProtocol.prototype),
-    {
-      logDebugMessage(message) {
-        account._errors.push(message.message);
-      },
-    }
-  );
+  const account = new MatrixAccount(Object.create(MatrixProtocol.prototype), {
+    logDebugMessage(message) {
+      account._errors.push(message.message);
+    },
+  });
   account._errors = [];
   account._client = new Proxy(
     {

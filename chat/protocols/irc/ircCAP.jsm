@@ -16,7 +16,7 @@
  * include example parameters.
  */
 
-const EXPORTED_SYMBOLS = ["ircCAP", "capNotify"];
+const EXPORTED_SYMBOLS = ["ircCAP", "capNotify", "capMessage"];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

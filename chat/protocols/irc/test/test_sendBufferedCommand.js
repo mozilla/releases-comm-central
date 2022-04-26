@@ -3,15 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var irc = {};
-Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
+var { ircAccount } = ChromeUtils.import("resource:///modules/irc.jsm");
+var { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 
 function FakeAccount() {
   this._commandBuffers = new Map();
   this.callbacks = [];
 }
 FakeAccount.prototype = {
-  __proto__: irc.ircAccount.prototype,
+  __proto__: ircAccount.prototype,
   maxMessageLength: 60,
   callbacks: [],
   sendMessage(aCommand, aParams) {
@@ -65,7 +67,7 @@ function test_parameterCollect() {
     account.callbacks.push((aCommand, aParams) => {
       let msg = account.buildMessage(aCommand, aParams);
       equal(msg, result, "Test buffering of parameters");
-      irc.clearTimeout(timeout);
+      clearTimeout(timeout);
       account._lastCommandSendTime = 0;
       run_next_test();
     });
@@ -73,7 +75,8 @@ function test_parameterCollect() {
       // This timeout lets the test fail more quickly if
       // some of the callbacks we added don't get called.
       // Not strictly speaking necessary.
-      timeout = irc.setTimeout(() => {
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      timeout = setTimeout(() => {
         ok(false, "test_parameterCollect failed after timeout.");
         run_next_test();
       }, 2000);
@@ -92,14 +95,15 @@ function test_parameterCollect() {
     account.callbacks.push((aCommand, aParams) => {
       let msg = account.buildMessage(aCommand, aParams);
       equal(msg, result, "Test buffering with setTimeout");
-      irc.clearTimeout(timeout);
+      clearTimeout(timeout);
       run_next_test();
     });
     add_test(() => {
       // This timeout lets the test fail more quickly if
       // some of the callbacks we added don't get called.
       // Not strictly speaking necessary.
-      timeout = irc.setTimeout(() => {
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      timeout = setTimeout(() => {
         ok(false, "test_parameterCollect failed after timeout.");
         run_next_test();
       }, 2000);
@@ -107,7 +111,8 @@ function test_parameterCollect() {
       for (let params of data) {
         let [channel, key] = params;
         delay += 200;
-        irc.setTimeout(() => {
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        setTimeout(() => {
           account.sendBufferedCommand("JOIN", channel, key);
         }, delay);
       }
@@ -168,7 +173,7 @@ function test_maxLength() {
         equal(msg, result, "Test maximum message length constraint");
         // After all results are checked, run the next test.
         if (result == results[results.length - 1]) {
-          irc.clearTimeout(timeout);
+          clearTimeout(timeout);
           run_next_test();
         }
       });
@@ -177,7 +182,8 @@ function test_maxLength() {
       // This timeout lets the test fail more quickly if
       // some of the callbacks we added don't get called.
       // Not strictly speaking necessary.
-      timeout = irc.setTimeout(() => {
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      timeout = setTimeout(() => {
         ok(false, "test_maxLength failed after timeout.");
         run_next_test();
       }, 2000);

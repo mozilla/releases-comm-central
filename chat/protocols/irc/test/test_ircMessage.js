@@ -2,8 +2,9 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var irc = {};
-Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
+var { ircAccount, ircMessage } = ChromeUtils.import(
+  "resource:///modules/irc.jsm"
+);
 
 var testData = [
   // First off, let's test the messages from RFC 2812.
@@ -131,9 +132,9 @@ function run_test() {
 function testRFC2812Messages() {
   for (let expectedStringMessage of testData) {
     // Pass in an empty default origin in order to check this below.
-    let message = irc.ircMessage(expectedStringMessage, "");
+    let message = ircMessage(expectedStringMessage, "");
 
-    let stringMessage = irc.ircAccount.prototype.buildMessage(
+    let stringMessage = ircAccount.prototype.buildMessage(
       message.command,
       message.params
     );
@@ -194,7 +195,7 @@ function testBrokenUnrealMessages() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
+    deepEqual(messages[messageStr], ircMessage(messageStr, ""));
   }
 
   run_next_test();
@@ -229,7 +230,7 @@ function testNewLinesInMessages() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr));
+    deepEqual(messages[messageStr], ircMessage(messageStr));
   }
 
   run_next_test();
@@ -254,7 +255,7 @@ function testLocalhost() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr));
+    deepEqual(messages[messageStr], ircMessage(messageStr));
   }
 
   run_next_test();
@@ -329,7 +330,7 @@ function testTags() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
+    deepEqual(messages[messageStr], ircMessage(messageStr, ""));
   }
 
   run_next_test();

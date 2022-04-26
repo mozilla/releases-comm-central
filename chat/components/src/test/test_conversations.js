@@ -5,10 +5,8 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { GenericConvIMPrototype, Message } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
-var imConversations = {};
-Services.scriptloader.loadSubScript(
-  "resource:///modules/imConversations.jsm",
-  imConversations
+var { imMessage, UIConversation } = ChromeUtils.import(
+  "resource:///modules/imConversations.jsm"
 );
 
 // Fake prplConversation
@@ -55,7 +53,7 @@ var test_null_message = function() {
     },
     null
   );
-  let iMsg = new imConversations.imMessage(pMsg);
+  let iMsg = new imMessage(pMsg);
   equal(iMsg.message, originalMessage, "Expected the original message.");
   // Setting the message should prevent a fallback to the original.
   iMsg.message = "";
@@ -112,7 +110,7 @@ add_task(function test_message_transformation() {
   let receivedMsg = false,
     newTxt = false;
 
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
@@ -172,7 +170,7 @@ add_task(function test_cancel_display_message() {
   };
 
   let received = false;
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
@@ -195,7 +193,7 @@ add_task(function test_cancel_display_message() {
 var test_update_message = function() {
   let conv = new Conversation();
 
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   let message = "Hello!";
   let receivedMsg = false;
   let updateText = false;

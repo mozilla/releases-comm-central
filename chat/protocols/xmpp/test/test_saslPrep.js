@@ -3,11 +3,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var xmppAuth = {};
-Services.scriptloader.loadSubScript(
-  "resource:///modules/xmpp-authmechs.jsm",
-  xmppAuth
-);
+var { saslPrep } = ChromeUtils.import("resource:///modules/xmpp-authmechs.jsm");
 
 // RFC 4013 3.Examples
 var TEST_DATA = [
@@ -58,7 +54,7 @@ var TEST_DATA = [
 function run_test() {
   for (let current of TEST_DATA) {
     try {
-      let result = xmppAuth.saslPrep(current.input);
+      let result = saslPrep(current.input);
       equal(current.isError, false);
       equal(result, current.output);
     } catch (e) {

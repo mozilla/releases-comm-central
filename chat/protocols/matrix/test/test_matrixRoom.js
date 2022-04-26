@@ -31,14 +31,14 @@ add_task(async function test_initRoom_withSpace() {
 
 add_task(function test_replaceRoom() {
   const roomStub = {
-    __proto__: matrix.MatrixRoom.prototype,
+    __proto__: MatrixRoom.prototype,
     _resolveInitializer() {
       this.initialized = true;
     },
     _mostRecentEventId: "foo",
   };
   const newRoom = {};
-  matrix.MatrixRoom.prototype.replaceRoom.call(roomStub, newRoom);
+  MatrixRoom.prototype.replaceRoom.call(roomStub, newRoom);
   strictEqual(roomStub._replacedBy, newRoom);
   ok(roomStub.initialized);
   equal(newRoom._mostRecentEventId, roomStub._mostRecentEventId);
@@ -48,9 +48,7 @@ add_task(async function test_waitForRoom() {
   const roomStub = {
     _initialized: Promise.resolve(),
   };
-  const awaitedRoom = await matrix.MatrixRoom.prototype.waitForRoom.call(
-    roomStub
-  );
+  const awaitedRoom = await MatrixRoom.prototype.waitForRoom.call(roomStub);
   strictEqual(awaitedRoom, roomStub);
 });
 
@@ -61,10 +59,8 @@ add_task(async function test_waitForRoomReplaced() {
       return Promise.resolve("success");
     },
   };
-  matrix.MatrixRoom.prototype.replaceRoom.call(roomStub, newRoom);
-  const awaitedRoom = await matrix.MatrixRoom.prototype.waitForRoom.call(
-    roomStub
-  );
+  MatrixRoom.prototype.replaceRoom.call(roomStub, newRoom);
+  const awaitedRoom = await MatrixRoom.prototype.waitForRoom.call(roomStub);
   equal(awaitedRoom, "success");
   roomStub.forget();
 });
@@ -97,7 +93,7 @@ add_task(function test_addEventRedacted() {
       };
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub._mostRecentEventId, 2);
   equal(typeof updatedMessage, "object");
   ok(!updatedMessage.opts.system);
@@ -131,7 +127,7 @@ add_task(function test_addEventMessageIncoming() {
       this.options = options;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "foo");
   ok(!roomStub.options.system);
@@ -164,7 +160,7 @@ add_task(function test_addEventMessageOutgoing() {
       this.options = options;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@test:example.com");
   equal(roomStub.message, "foo");
   ok(!roomStub.options.system);
@@ -197,7 +193,7 @@ add_task(function test_addEventMessageEmote() {
       this.options = options;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "foo");
   ok(roomStub.options.action);
@@ -231,7 +227,7 @@ add_task(function test_addEventMessageDelayed() {
       this.options = options;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event, true);
+  MatrixRoom.prototype.addEvent.call(roomStub, event, true);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "foo");
   ok(!roomStub.options.system);
@@ -263,7 +259,7 @@ add_task(function test_addEventTopic() {
       this.topic = topic;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.topic, "foo bar");
   equal(roomStub._mostRecentEventId, 1);
@@ -310,7 +306,7 @@ add_task(function test_forgetWith_close() {
   roomList.set(roomStub._roomId, roomStub);
   Services.conversations.addConversation(roomStub);
 
-  matrix.MatrixRoom.prototype.forget.call(roomStub);
+  MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));
   ok(roomStub.closeCalled);
 });
@@ -330,7 +326,7 @@ add_task(function test_forgetWithout_close() {
   roomList.set(roomStub._roomId, roomStub);
   Services.conversations.addConversation(roomStub);
 
-  matrix.MatrixRoom.prototype.forget.call(roomStub);
+  MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));
 });
 
@@ -352,7 +348,7 @@ add_task(function test_close() {
     },
   };
 
-  matrix.MatrixRoom.prototype.close.call(roomStub);
+  MatrixRoom.prototype.close.call(roomStub);
   equal(roomStub.leftRoom, roomStub._roomId);
   ok(roomStub.forgetCalled);
   ok(roomStub.cleanUpCalled);
@@ -419,7 +415,7 @@ add_task(function test_cancelTypingTimer() {
   const roomStub = {
     _typingTimer: setTimeout(() => {}, 10000), // eslint-disable-line mozilla/no-arbitrary-setTimeout
   };
-  matrix.MatrixRoom.prototype._cancelTypingTimer.call(roomStub);
+  MatrixRoom.prototype._cancelTypingTimer.call(roomStub);
   ok(!roomStub._typingTimer);
 });
 
@@ -436,7 +432,7 @@ add_task(function test_cleanUpTimers() {
 add_task(function test_finishedComposing() {
   let typingState = true;
   const roomStub = {
-    __proto__: matrix.MatrixRoom.prototype,
+    __proto__: MatrixRoom.prototype,
     shouldSendTypingNotifications: false,
     _roomId: "foo",
     _account: {
@@ -449,11 +445,11 @@ add_task(function test_finishedComposing() {
     },
   };
 
-  matrix.MatrixRoom.prototype.finishedComposing.call(roomStub);
+  MatrixRoom.prototype.finishedComposing.call(roomStub);
   ok(typingState);
 
   roomStub.shouldSendTypingNotifications = true;
-  matrix.MatrixRoom.prototype.finishedComposing.call(roomStub);
+  MatrixRoom.prototype.finishedComposing.call(roomStub);
   ok(!typingState);
 });
 
@@ -494,7 +490,7 @@ add_task(function test_setInitialized() {
     },
     joining: true,
   };
-  matrix.MatrixRoom.prototype._setInitialized.call(roomStub);
+  MatrixRoom.prototype._setInitialized.call(roomStub);
   ok(roomStub.calledResolve);
   ok(!roomStub.joining);
 });
@@ -526,7 +522,7 @@ add_task(function test_addEventSticker() {
       this.options = options;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(
     roomStub.message,
@@ -637,7 +633,7 @@ add_task(function test_addEventWaitingForDecryption() {
       createMessageCalled = true;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub._mostRecentEventId, undefined);
   ok(!createMessageCalled);
 });
@@ -710,7 +706,7 @@ add_task(async function test_addEventRedaction() {
       ok(false, "called updateMessage");
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub._mostRecentEventId, undefined);
 });
 
@@ -838,7 +834,7 @@ add_task(async function test_addEventReaction() {
       wroteMessage = true;
     },
   };
-  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  MatrixRoom.prototype.addEvent.call(roomStub, event);
   ok(wroteMessage, "Wrote reaction to conversation");
 });
 

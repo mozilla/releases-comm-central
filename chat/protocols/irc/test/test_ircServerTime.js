@@ -5,12 +5,10 @@ var { tagServerTime } = ChromeUtils.import(
   "resource:///modules/ircServerTime.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-var irc = {};
-Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
+var { ircMessage } = ChromeUtils.import("resource:///modules/irc.jsm");
 
 function getTags(aRawMsg) {
-  const { tags } = irc.ircMessage(aRawMsg, "does.not@matter");
+  const { tags } = ircMessage(aRawMsg, "does.not@matter");
 
   return tags;
 }

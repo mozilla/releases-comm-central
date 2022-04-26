@@ -2,8 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var irc = {};
-Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
+var { ircChannel } = ChromeUtils.import("resource:///modules/irc.jsm");
 
 function waitForTopic(target, targetTopic) {
   return new Promise(resolve => {
@@ -33,7 +32,7 @@ function getChannel(account) {
       ...account,
     },
   };
-  Object.setPrototypeOf(channelStub, irc.ircChannel.prototype);
+  Object.setPrototypeOf(channelStub, ircChannel.prototype);
   return channelStub;
 }
 
@@ -70,7 +69,7 @@ add_task(async function test_dispatchMessage_empty() {
     ok(false, "Should not display empty unsent message");
     didSend = true;
   };
-  irc.ircChannel.prototype.dispatchMessage.call(channelStub, "");
+  ircChannel.prototype.dispatchMessage.call(channelStub, "");
   ok(!didSend);
 });
 
@@ -90,7 +89,7 @@ add_task(async function test_dispatchMessage_echoed() {
     ok(false, "Should not write message when echo is on");
     didWrite = true;
   };
-  irc.ircChannel.prototype.dispatchMessage.call(channelStub, "foo");
+  ircChannel.prototype.dispatchMessage.call(channelStub, "foo");
   ok(didSend);
   ok(!didWrite);
 });
@@ -106,7 +105,7 @@ add_task(async function test_dispatchMessage_error() {
     },
   });
   const newText = waitForTopic(channelStub, "new-text");
-  irc.ircChannel.prototype.dispatchMessage.call(channelStub, "foo");
+  ircChannel.prototype.dispatchMessage.call(channelStub, "foo");
   ok(didSend);
   const { subject: writtenMessage } = await newText;
   ok(writtenMessage.error);
@@ -131,7 +130,7 @@ add_task(async function test_dispatchMessage_action() {
     },
   });
   const newText = waitForTopic(channelStub, "new-text");
-  irc.ircChannel.prototype.dispatchMessage.call(channelStub, "foo", true);
+  ircChannel.prototype.dispatchMessage.call(channelStub, "foo", true);
   ok(didSend);
   const { subject: sentMessage } = await newText;
   equal(sentMessage.message, "foo");
@@ -158,7 +157,7 @@ add_task(async function test_dispatchMessage_actionError() {
     },
   });
   const newText = waitForTopic(channelStub, "new-text");
-  irc.ircChannel.prototype.dispatchMessage.call(channelStub, "foo", true);
+  ircChannel.prototype.dispatchMessage.call(channelStub, "foo", true);
   ok(didSend, "Message was sent");
   const { subject: sentMessage } = await newText;
   ok(sentMessage.error, "Shown message is error");
@@ -177,12 +176,7 @@ add_task(async function test_dispatchMessage_notice() {
     },
   });
   const newText = waitForTopic(channelStub, "new-text");
-  irc.ircChannel.prototype.dispatchMessage.call(
-    channelStub,
-    "foo",
-    false,
-    true
-  );
+  ircChannel.prototype.dispatchMessage.call(channelStub, "foo", false, true);
   ok(didSend);
   const { subject: sentMessage } = await newText;
   equal(sentMessage.message, "foo");

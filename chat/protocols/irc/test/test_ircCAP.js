@@ -2,8 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var cap = {};
-Services.scriptloader.loadSubScript("resource:///modules/ircCAP.jsm", cap);
+var { capMessage } = ChromeUtils.import("resource:///modules/ircCAP.jsm");
 
 var testData = [
   // A normal LS from the server.
@@ -197,7 +196,7 @@ function testCapMessages() {
       };
 
       // Create the CAP message.
-      outputs = cap.capMessage(message, account);
+      outputs = capMessage(message, account);
       ++i;
     }
 

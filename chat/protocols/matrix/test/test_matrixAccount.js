@@ -16,19 +16,13 @@ add_task(function test_getConversationById() {
   mockAccount.roomList.set("foo", "bar");
   mockAccount._pendingRoomAliases.set("lorem", "ipsum");
 
+  equal(MatrixAccount.prototype.getConversationById.call(mockAccount), null);
   equal(
-    matrix.MatrixAccount.prototype.getConversationById.call(mockAccount),
-    null
-  );
-  equal(
-    matrix.MatrixAccount.prototype.getConversationById.call(mockAccount, "foo"),
+    MatrixAccount.prototype.getConversationById.call(mockAccount, "foo"),
     "bar"
   );
   equal(
-    matrix.MatrixAccount.prototype.getConversationById.call(
-      mockAccount,
-      "lorem"
-    ),
+    MatrixAccount.prototype.getConversationById.call(mockAccount, "lorem"),
     "ipsum"
   );
 });
@@ -57,28 +51,22 @@ add_task(function test_getConversationByIdOrAlias() {
   };
 
   equal(
-    matrix.MatrixAccount.prototype.getConversationByIdOrAlias.call(mockAccount),
+    MatrixAccount.prototype.getConversationByIdOrAlias.call(mockAccount),
     null
   );
   equal(
-    matrix.MatrixAccount.prototype.getConversationByIdOrAlias.call(
-      mockAccount,
-      "foo"
-    ),
+    MatrixAccount.prototype.getConversationByIdOrAlias.call(mockAccount, "foo"),
     "bar"
   );
   equal(
-    matrix.MatrixAccount.prototype.getConversationByIdOrAlias.call(
+    MatrixAccount.prototype.getConversationByIdOrAlias.call(
       mockAccount,
       "lorem"
     ),
     "ipsum"
   );
   equal(
-    matrix.MatrixAccount.prototype.getConversationByIdOrAlias.call(
-      mockAccount,
-      "baz"
-    ),
+    MatrixAccount.prototype.getConversationByIdOrAlias.call(mockAccount, "baz"),
     null
   );
 });
@@ -208,10 +196,7 @@ add_task(async function test_joinChat() {
     },
   };
 
-  const conv = matrix.MatrixAccount.prototype.joinChat.call(
-    mockAccount,
-    components
-  );
+  const conv = MatrixAccount.prototype.joinChat.call(mockAccount, components);
   equal(mockAccount.groupConv, roomId);
   strictEqual(conv, conversation);
   await Promise.resolve();

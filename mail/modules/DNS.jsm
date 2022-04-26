@@ -7,7 +7,7 @@
  * loading system DNS libraries on Linux, Mac and Windows.
  */
 
-const EXPORTED_SYMBOLS = ["DNS"];
+const EXPORTED_SYMBOLS = ["DNS", "SRVRecord"];
 
 var DNS = null;
 

@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["MatrixProtocol"];
+var EXPORTED_SYMBOLS = [
+  "MatrixProtocol",
+  "MatrixRoom",
+  "MatrixAccount",
+  "MatrixMessage",
+];
 
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
@@ -1330,9 +1335,10 @@ MatrixRoom.prototype = {
    * the room is not encrypted.
    */
   async updateUnverifiedDevices() {
+    let account = this._account;
     if (
-      !this._account._client.isCryptoEnabled() ||
-      !this._account._client.isRoomEncrypted(this._roomId)
+      !account._client.isCryptoEnabled() ||
+      !account._client.isRoomEncrypted(this._roomId)
     ) {
       return;
     }
@@ -1342,12 +1348,8 @@ MatrixRoom.prototype = {
     // own device verification state.
     let newValue =
       members.some(({ userId }) => {
-        return !userIdentityVerified(userId, this._account._client);
-      }) ||
-      checkUserHasUnverifiedDevices(
-        this._account.userId,
-        this._account._client
-      );
+        return !userIdentityVerified(userId, account._client);
+      }) || checkUserHasUnverifiedDevices(account.userId, account._client);
     if (this._hasUnverifiedDevices !== newValue) {
       this._hasUnverifiedDevices = newValue;
       this.notifyObservers(this, "update-conv-encryption");

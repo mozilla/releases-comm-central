@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["ConversationsService"];
+var EXPORTED_SYMBOLS = ["ConversationsService", "imMessage", "UIConversation"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");

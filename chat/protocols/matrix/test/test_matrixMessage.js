@@ -20,7 +20,7 @@ add_task(function test_whenDisplayed() {
       },
     },
   };
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     {
@@ -58,7 +58,7 @@ add_task(async function test_whenDisplayedError() {
       },
     },
   };
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     {
@@ -86,7 +86,7 @@ add_task(function test_whenRead() {
       },
     },
   };
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     {
@@ -129,7 +129,7 @@ add_task(async function test_whenReadError() {
       },
     },
   };
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     {
@@ -148,7 +148,7 @@ add_task(async function test_whenReadError() {
 });
 
 add_task(async function test_whenDisplayedNoEvent() {
-  const message = new matrix.MatrixMessage("foo", "bar", {
+  const message = new MatrixMessage("foo", "bar", {
     system: true,
   });
 
@@ -158,7 +158,7 @@ add_task(async function test_whenDisplayedNoEvent() {
 });
 
 add_task(async function test_whenReadNoEvent() {
-  const message = new matrix.MatrixMessage("foo", "bar", {
+  const message = new MatrixMessage("foo", "bar", {
     system: true,
   });
 
@@ -168,11 +168,11 @@ add_task(async function test_whenReadNoEvent() {
 });
 
 add_task(async function test_hideReadReceipts() {
-  const message = new matrix.MatrixMessage("foo", "bar", {});
+  const message = new MatrixMessage("foo", "bar", {});
   const initialSendRead = Services.prefs.getBoolPref(kSendReadPref);
   strictEqual(message.hideReadReceipts, !initialSendRead);
   Services.prefs.setBoolPref(kSendReadPref, !initialSendRead);
-  const message2 = new matrix.MatrixMessage("lorem", "ipsum", {});
+  const message2 = new MatrixMessage("lorem", "ipsum", {});
   strictEqual(message2.hideReadReceipts, initialSendRead);
   strictEqual(message.hideReadReceipts, !initialSendRead);
   Services.prefs.setBoolPref(kSendReadPref, initialSendRead);
@@ -182,7 +182,7 @@ add_task(async function test_getActions() {
   const event = makeEvent({
     type: EventType.RoomMessage,
   });
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     { event },
@@ -207,7 +207,7 @@ add_task(async function test_getActions_decryptionFailure() {
     },
   });
   let eventKeysWereRequestedFor;
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     { event },
@@ -248,7 +248,7 @@ add_task(async function test_getActions_redact() {
     id: "$ev:example.com",
   });
   let eventRedacted = false;
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     { event },
@@ -284,7 +284,7 @@ add_task(async function test_getActions_redact() {
 });
 
 add_task(async function test_getActions_noEvent() {
-  const message = new matrix.MatrixMessage("system", "test", {
+  const message = new MatrixMessage("system", "test", {
     system: true,
   });
   const actions = message.getActions();
@@ -303,7 +303,7 @@ add_task(async function test_getActions_report() {
     id: "$ev:example.com",
   });
   let eventReported = false;
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "user",
     "lorem ipsum",
     { event, incoming: true },
@@ -346,7 +346,7 @@ add_task(async function test_getActions_notSent() {
       body: "foo bar",
     },
   });
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "!test:example.com",
     "Error sending message",
     {
@@ -398,7 +398,7 @@ add_task(function test_whenDisplayedUnsent() {
       },
     },
   };
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     {
@@ -423,7 +423,7 @@ add_task(function test_whenReadUnsent() {
       },
     },
   };
-  const message = new matrix.MatrixMessage(
+  const message = new MatrixMessage(
     "foo",
     "bar",
     {

@@ -3,16 +3,17 @@
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { commands } = ChromeUtils.import("resource:///modules/ircCommands.jsm");
-var irc = {};
-Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
+var { ircProtocol, ircAccount, ircConversation } = ChromeUtils.import(
+  "resource:///modules/irc.jsm"
+);
 
 // Ensure the commands have been initialized.
 Services.conversations.initConversations();
 
 var fakeProto = {
   id: "fake-proto",
-  usernameSplits: irc.ircProtocol.prototype.usernameSplits,
-  splitUsername: irc.ircProtocol.prototype.splitUsername,
+  usernameSplits: ircProtocol.prototype.usernameSplits,
+  splitUsername: ircProtocol.prototype.splitUsername,
 };
 
 function run_test() {
@@ -120,7 +121,7 @@ function testModeCommand() {
     },
   ];
 
-  let account = new irc.ircAccount(fakeProto, {
+  let account = new ircAccount(fakeProto, {
     name: "defaultnick@instantbird.org",
   });
 
@@ -133,13 +134,13 @@ function testModeCommand() {
 
   // First test Channel Commands.
   for (let test of testChannelCommands) {
-    let conv = new irc.ircConversation(account, test.channel);
+    let conv = new ircConversation(account, test.channel);
     account._expectedMessage = test.expectedMessage;
     command(test.msg, conv);
   }
 
   // Now test the User Commands.
-  let conv = new irc.ircConversation(account, "dummyConversation");
+  let conv = new ircConversation(account, "dummyConversation");
   account._nickname = "test_nick";
   for (let test of testUserCommands) {
     account._expectedMessage = test.expectedMessage;
@@ -174,11 +175,11 @@ function testUserModeCommand() {
     },
   ];
 
-  let account = new irc.ircAccount(fakeProto, {
+  let account = new ircAccount(fakeProto, {
     name: "test_nick@instantbird.org",
   });
   account._nickname = "test_nick";
-  let conv = new irc.ircConversation(account, "newconv");
+  let conv = new ircConversation(account, "newconv");
 
   // check if the message being sent is same as expected message.
   account.sendRawMessage = aMessage => {

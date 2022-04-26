@@ -31,7 +31,7 @@
 // As this is only used by XMPPSession, it may seem like an internal detail of
 // the XMPP implementation, but exporting it is valuable for testing purposes.
 
-const EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
+const EXPORTED_SYMBOLS = ["XMPPAuthMechanisms", "saslPrep"];
 
 const { CommonUtils } = ChromeUtils.import(
   "resource://services-common/utils.js"

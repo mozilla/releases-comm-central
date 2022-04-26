@@ -7,7 +7,7 @@ add_task(async function test_toDMConversation() {
   const acc = getAccount({});
   const roomId = "#test:example.com";
   acc.isDirectRoom = rId => roomId === rId;
-  const conversation = new matrix.MatrixRoom(acc, true, roomId);
+  const conversation = new MatrixRoom(acc, true, roomId);
   conversation.initRoom(
     getClientRoom(
       roomId,
@@ -32,7 +32,7 @@ add_task(async function test_toGroupConversation() {
   const acc = getAccount({});
   const roomId = "#test:example.com";
   acc.isDirectRoom = rId => roomId !== rId;
-  const conversation = new matrix.MatrixRoom(acc, false, roomId);
+  const conversation = new MatrixRoom(acc, false, roomId);
   conversation.initRoom(
     getClientRoom(
       roomId,

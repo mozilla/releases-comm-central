@@ -8,9 +8,7 @@ var { XMPPAccountPrototype } = ChromeUtils.import(
 var { XMPPSession } = ChromeUtils.import(
   "resource:///modules/xmpp-session.jsm"
 );
-
-var dns = {};
-Services.scriptloader.loadSubScript("resource:///modules/DNS.jsm", dns);
+var { SRVRecord } = ChromeUtils.import("resource:///modules/DNS.jsm");
 
 function FakeXMPPSession() {}
 FakeXMPPSession.prototype = {
@@ -41,37 +39,37 @@ var TEST_DATA = [
   {
     // Test sorting based on priority and weight.
     input: [
-      new dns.SRVRecord(20, 0, "xmpp.instantbird.com", 5222),
-      new dns.SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
-      new dns.SRVRecord(10, 0, "xmpp2.instantbird.com", 5222),
-      new dns.SRVRecord(0, 0, "xmpp3.instantbird.com", 5222),
-      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
+      new SRVRecord(20, 0, "xmpp.instantbird.com", 5222),
+      new SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
+      new SRVRecord(10, 0, "xmpp2.instantbird.com", 5222),
+      new SRVRecord(0, 0, "xmpp3.instantbird.com", 5222),
+      new SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
     ],
     output: [
-      new dns.SRVRecord(0, 0, "xmpp3.instantbird.com", 5222),
-      new dns.SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
-      new dns.SRVRecord(10, 0, "xmpp2.instantbird.com", 5222),
-      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
-      new dns.SRVRecord(20, 0, "xmpp.instantbird.com", 5222),
+      new SRVRecord(0, 0, "xmpp3.instantbird.com", 5222),
+      new SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
+      new SRVRecord(10, 0, "xmpp2.instantbird.com", 5222),
+      new SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
+      new SRVRecord(20, 0, "xmpp.instantbird.com", 5222),
     ],
     isConnectNextRecord: true,
   },
   {
     input: [
-      new dns.SRVRecord(5, 30, "xmpp5.instantbird.com", 5222),
-      new dns.SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
-      new dns.SRVRecord(10, 60, "xmpp2.instantbird.com", 5222),
-      new dns.SRVRecord(5, 10, "xmpp3.instantbird.com", 5222),
-      new dns.SRVRecord(20, 10, "xmpp.instantbird.com", 5222),
-      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
+      new SRVRecord(5, 30, "xmpp5.instantbird.com", 5222),
+      new SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
+      new SRVRecord(10, 60, "xmpp2.instantbird.com", 5222),
+      new SRVRecord(5, 10, "xmpp3.instantbird.com", 5222),
+      new SRVRecord(20, 10, "xmpp.instantbird.com", 5222),
+      new SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
     ],
     output: [
-      new dns.SRVRecord(5, 30, "xmpp5.instantbird.com", 5222),
-      new dns.SRVRecord(5, 10, "xmpp3.instantbird.com", 5222),
-      new dns.SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
-      new dns.SRVRecord(10, 60, "xmpp2.instantbird.com", 5222),
-      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
-      new dns.SRVRecord(20, 10, "xmpp.instantbird.com", 5222),
+      new SRVRecord(5, 30, "xmpp5.instantbird.com", 5222),
+      new SRVRecord(5, 10, "xmpp3.instantbird.com", 5222),
+      new SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
+      new SRVRecord(10, 60, "xmpp2.instantbird.com", 5222),
+      new SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
+      new SRVRecord(20, 10, "xmpp.instantbird.com", 5222),
     ],
     isConnectNextRecord: true,
   },
@@ -85,13 +83,13 @@ var TEST_DATA = [
 
   // Tests XMPP is not supported if the result is one record with target ".".
   {
-    input: [new dns.SRVRecord(5, 30, ".", 5222)],
+    input: [new SRVRecord(5, 30, ".", 5222)],
     output: XMPPSession.prototype.SRV_ERROR_XMPP_NOT_SUPPORTED,
     isConnectNextRecord: false,
   },
   {
-    input: [new dns.SRVRecord(5, 30, "xmpp.instantbird.com", 5222)],
-    output: [new dns.SRVRecord(5, 30, "xmpp.instantbird.com", 5222)],
+    input: [new SRVRecord(5, 30, "xmpp.instantbird.com", 5222)],
+    output: [new SRVRecord(5, 30, "xmpp.instantbird.com", 5222)],
     isConnectNextRecord: true,
   },
 ];

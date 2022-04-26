@@ -2,15 +2,17 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var irc = {};
-Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
+var { ircAccount, ircChannel } = ChromeUtils.import(
+  "resource:///modules/irc.jsm"
+);
+
 Services.conversations.initConversations();
 
 function FakeAccount() {
-  this.normalizeNick = irc.ircAccount.prototype.normalizeNick.bind(this);
+  this.normalizeNick = ircAccount.prototype.normalizeNick.bind(this);
 }
 FakeAccount.prototype = {
-  __proto__: irc.ircAccount.prototype,
+  __proto__: ircAccount.prototype,
   setWhois: (n, f) => true,
   ERROR: do_throw,
 };
@@ -24,7 +26,7 @@ function run_test() {
 
 // Test joining a channel, then being set as op.
 function test_topicSettable() {
-  let channel = new irc.ircChannel(new FakeAccount(), "#test", "nick");
+  let channel = new ircChannel(new FakeAccount(), "#test", "nick");
   // We're not in the room yet, so the topic is NOT editable.
   equal(channel.topicSettable, false);
 
@@ -48,7 +50,7 @@ function test_topicSettable() {
 
 // Test when you join as an op (as opposed to being set to op after joining).
 function test_topicSettableJoinAsOp() {
-  let channel = new irc.ircChannel(new FakeAccount(), "#test", "nick");
+  let channel = new ircChannel(new FakeAccount(), "#test", "nick");
   // We're not in the room yet, so the topic is NOT editable.
   equal(channel.topicSettable, false);
 
