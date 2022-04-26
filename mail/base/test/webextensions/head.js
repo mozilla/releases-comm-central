@@ -343,7 +343,10 @@ async function testInstallMethod(installFn, telemetryBase) {
   registerCleanupFunction(() => PermissionTestUtils.remove(testURI, "install"));
 
   async function runOnce(filename, cancel) {
-    openContentTab("about:blank");
+    let tab = openContentTab("about:blank");
+    if (tab.browser.webProgress.isLoadingDocument) {
+      await BrowserTestUtils.browserLoaded(tab.browser);
+    }
 
     let installPromise = new Promise(resolve => {
       let listener = {
