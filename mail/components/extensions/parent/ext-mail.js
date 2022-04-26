@@ -1567,8 +1567,8 @@ function folderURIToPath(accountId, uri) {
 }
 
 /**
- * Convert a human-friendly path to a folder URI. This function does not assume that the
- * folder referenced exists.
+ * Convert a human-friendly path to a folder URI. This function does not assume 
+ * that the folder referenced exists.
  * @return {String}
  */
 function folderPathToURI(accountId, path) {
@@ -1587,10 +1587,11 @@ function folderPathToURI(accountId, path) {
     path
       .split("/")
       .map(p =>
-        encodeURIComponent(p).replace(
-          /[!'()*]/g,
-          c => "%" + c.charCodeAt(0).toString(16)
-        )
+        encodeURIComponent(p)
+          .replace(/[!'()*]/g, c => "%" + c.charCodeAt(0).toString(16))
+          // We do not encode "+" chars in folder URIs. Manually convert them
+          // back to literal + chars, otherwise folder lookup will fail.
+          .replaceAll("%2B", "+")
       )
       .join("/")
   );

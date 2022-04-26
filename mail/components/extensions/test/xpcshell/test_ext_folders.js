@@ -35,23 +35,23 @@ add_task(
         browser.test.assertEq(4, account.folders.length);
         browser.test.assertEq("/folder1", account.folders[3].path);
 
-        let folder2 = await browser.folders.create(folder1, "folder2");
+        let folder2 = await browser.folders.create(folder1, "folder+2");
         browser.test.assertEq(accountId, folder2.accountId);
-        browser.test.assertEq("folder2", folder2.name);
-        browser.test.assertEq("/folder1/folder2", folder2.path);
+        browser.test.assertEq("folder+2", folder2.name);
+        browser.test.assertEq("/folder1/folder+2", folder2.path);
 
         account = await browser.accounts.get(accountId);
         browser.test.assertEq(4, account.folders.length);
         browser.test.assertEq(1, account.folders[3].subFolders.length);
         browser.test.assertEq(
-          "/folder1/folder2",
+          "/folder1/folder+2",
           account.folders[3].subFolders[0].path
         );
 
         // Test reject on creating already existing folder.
         await browser.test.assertRejects(
-          browser.folders.create(folder1, "folder2"),
-          `folders.create() failed, because folder2 already exists in /folder1`,
+          browser.folders.create(folder1, "folder+2"),
+          `folders.create() failed, because folder+2 already exists in /folder1`,
           "browser.folders.create threw exception"
         );
 
@@ -60,14 +60,14 @@ add_task(
         {
           let onRenamedPromise = window.waitForEvent("folders.onRenamed");
           let folder3 = await browser.folders.rename(
-            { accountId, path: "/folder1/folder2" },
+            { accountId, path: "/folder1/folder+2" },
             "folder3"
           );
           let [originalFolder, renamedFolder] = await onRenamedPromise;
           // Test the original folder.
           browser.test.assertEq(accountId, originalFolder.accountId);
-          browser.test.assertEq("folder2", originalFolder.name);
-          browser.test.assertEq("/folder1/folder2", originalFolder.path);
+          browser.test.assertEq("folder+2", originalFolder.name);
+          browser.test.assertEq("/folder1/folder+2", originalFolder.path);
           // Test the renamed folder.
           for (let folder of [folder3, renamedFolder]) {
             browser.test.assertEq(accountId, folder.accountId);
