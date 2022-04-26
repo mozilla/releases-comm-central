@@ -396,6 +396,73 @@ var RNP = {
     return this.getPrimaryKeyHandleFromSub(ffi, handle);
   },
 
+  hasKeyWeakSelfSignature(selfId, handle) {
+    let sig_count = new ctypes.size_t();
+    if (RNPLib.rnp_key_get_signature_count(handle, sig_count.address())) {
+      throw new Error("rnp_key_get_signature_count failed");
+    }
+
+    let hasWeak = false;
+    for (let i = 0; !hasWeak && i < sig_count.value; i++) {
+      let sig_handle = new RNPLib.rnp_signature_handle_t();
+
+      if (RNPLib.rnp_key_get_signature_at(handle, i, sig_handle.address())) {
+        throw new Error("rnp_key_get_signature_at failed");
+      }
+
+      hasWeak = RNP.isWeakSelfSignature(selfId, sig_handle);
+      RNPLib.rnp_signature_handle_destroy(sig_handle);
+    }
+    return hasWeak;
+  },
+
+  isWeakSelfSignature(selfId, sig_handle) {
+    let sig_id_str = new ctypes.char.ptr();
+    if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
+      throw new Error("rnp_signature_get_keyid failed");
+    }
+
+    let sigId = sig_id_str.readString();
+    RNPLib.rnp_buffer_destroy(sig_id_str);
+
+    // Is it a self-signature?
+    if (sigId != selfId) {
+      return false;
+    }
+
+    let creation = new ctypes.uint32_t();
+    if (RNPLib.rnp_signature_get_creation(sig_handle, creation.address())) {
+      throw new Error("rnp_signature_get_creation failed");
+    }
+
+    let hash_str = new ctypes.char.ptr();
+    if (RNPLib.rnp_signature_get_hash_alg(sig_handle, hash_str.address())) {
+      throw new Error("rnp_signature_get_hash_alg failed");
+    }
+
+    let creation64 = new ctypes.uint64_t();
+    creation64.value = creation.value;
+
+    let level = new ctypes.uint32_t();
+
+    if (
+      RNPLib.rnp_get_security_rule(
+        RNPLib.ffi,
+        RNPLib.RNP_FEATURE_HASH_ALG,
+        hash_str,
+        creation64,
+        null,
+        null,
+        level.address()
+      )
+    ) {
+      throw new Error("rnp_get_security_rule failed");
+    }
+
+    RNPLib.rnp_buffer_destroy(hash_str);
+    return level.value < RNPLib.RNP_SECURITY_DEFAULT;
+  },
+
   // return false if handle refers to subkey and should be ignored
   getKeyInfoFromHandle(
     ffi,
@@ -410,6 +477,7 @@ var RNP = {
     keyObj.userIds = [];
     keyObj.subKeys = [];
     keyObj.photoAvailable = false;
+    keyObj.hasIgnoredAttributes = false;
 
     let is_subkey = new ctypes.bool();
     let sub_count = new ctypes.size_t();
@@ -477,13 +545,23 @@ var RNP = {
         if (uidOkToUse) {
           // Usually, we don't allow user IDs reported as not valid
           uidOkToUse = !this.isBadUid(uid_handle);
+
+          let {
+            hasGoodSignature,
+            hasWeakSignature,
+          } = this.getUidSignatureQuality(keyObj.keyId, uid_handle);
+
+          if (hasWeakSignature) {
+            keyObj.hasIgnoredAttributes = true;
+          }
+
           if (!uidOkToUse && keyObj.keyTrust == "e") {
             // However, a user might be not valid, because it has
             // expired. If the primary key has expired, we should show
             // some user ID, even if all user IDs have expired,
             // otherwise the user cannot see any text description.
             // We allow showing user IDs with a good self-signature.
-            uidOkToUse = this.uidHasGoodSignature(keyObj.keyId, uid_handle);
+            uidOkToUse = hasGoodSignature;
           }
         }
 
@@ -537,6 +615,10 @@ var RNP = {
         let sub_handle = new RNPLib.rnp_key_handle_t();
         if (RNPLib.rnp_key_get_subkey_at(handle, i, sub_handle.address())) {
           throw new Error("rnp_key_get_subkey_at failed");
+        }
+
+        if (RNP.hasKeyWeakSelfSignature(keyObj.keyId, sub_handle)) {
+          keyObj.hasIgnoredAttributes = true;
         }
 
         if (!RNP.isBadKey(sub_handle)) {
@@ -674,6 +756,10 @@ var RNP = {
       if (meta.e) {
         keyObj.keyUseFor += "E";
       }
+
+      if (RNP.hasKeyWeakSelfSignature(keyObj.keyId, handle)) {
+        keyObj.hasIgnoredAttributes = true;
+      }
     }
 
     return true;
@@ -738,15 +824,18 @@ var RNP = {
     return is_primary.value;
   },
 
-  uidHasGoodSignature(self_key_id, uid_handle) {
+  getUidSignatureQuality(self_key_id, uid_handle) {
+    let result = {
+      hasGoodSignature: false,
+      hasWeakSignature: false,
+    };
+
     let sig_count = new ctypes.size_t();
     if (RNPLib.rnp_uid_get_signature_count(uid_handle, sig_count.address())) {
       throw new Error("rnp_uid_get_signature_count failed");
     }
 
-    let found_result = false;
-    let is_good = false;
-    for (let i = 0; !found_result && i < sig_count.value; i++) {
+    for (let i = 0; i < sig_count.value; i++) {
       let sig_handle = new RNPLib.rnp_signature_handle_t();
 
       if (
@@ -761,18 +850,26 @@ var RNP = {
       }
 
       if (sig_id_str.readString() == self_key_id) {
-        found_result = true;
+        if (!result.hasGoodSignature) {
+          let sig_validity = RNPLib.rnp_signature_is_valid(sig_handle, 0);
+          result.hasGoodSignature =
+            sig_validity == RNPLib.RNP_SUCCESS ||
+            sig_validity == RNPLib.RNP_ERROR_SIGNATURE_EXPIRED;
+        }
 
-        let sig_validity = RNPLib.rnp_signature_is_valid(sig_handle, 0);
-        is_good =
-          sig_validity == RNPLib.RNP_SUCCESS ||
-          sig_validity == RNPLib.RNP_ERROR_SIGNATURE_EXPIRED;
+        if (!result.hasWeakSignature) {
+          result.hasWeakSignature = RNP.isWeakSelfSignature(
+            self_key_id,
+            sig_handle
+          );
+        }
       }
 
+      RNPLib.rnp_buffer_destroy(sig_id_str);
       RNPLib.rnp_signature_handle_destroy(sig_handle);
     }
 
-    return is_good;
+    return result;
   },
 
   isBadUid(uid_handle) {
@@ -814,6 +911,26 @@ var RNP = {
       false
     );
 
+    let result = RNP._getSignatures(mainKeyObj, handle, ignoreUnknownUid);
+    RNPLib.rnp_key_handle_destroy(handle);
+    return result;
+  },
+
+  getKeyObjSignatures(keyObj, ignoreUnknownUid) {
+    let handle = this.getKeyHandleByKeyIdOrFingerprint(
+      RNPLib.ffi,
+      "0x" + keyObj.keyId
+    );
+    if (handle.isNull()) {
+      return null;
+    }
+
+    let result = RNP._getSignatures(keyObj, handle, ignoreUnknownUid);
+    RNPLib.rnp_key_handle_destroy(handle);
+    return result;
+  },
+
+  _getSignatures(keyObj, handle, ignoreUnknownUid) {
     let rList = [];
 
     try {
@@ -844,9 +961,9 @@ var RNP = {
             let subList = {};
 
             subList = {};
-            subList.created = mainKeyObj.created;
-            subList.fpr = mainKeyObj.fpr;
-            subList.keyId = mainKeyObj.keyId;
+            subList.created = keyObj.created;
+            subList.fpr = keyObj.fpr;
+            subList.keyId = keyObj.keyId;
 
             subList.userId = userIdStr;
             subList.sigList = [];
@@ -942,8 +1059,6 @@ var RNP = {
       }
     } catch (ex) {
       console.log(ex);
-    } finally {
-      RNPLib.rnp_key_handle_destroy(handle);
     }
     return rList;
   },

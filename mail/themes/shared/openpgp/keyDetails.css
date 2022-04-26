@@ -47,3 +47,13 @@
 #addressesListContainer {
   overflow-y: auto;
 }
+
+.tail-with-learn-more {
+  margin-inline-end: 10px;
+  font-weight: bold;
+}
+
+#key-detail-has-insecure {
+  max-width: 50em;
+  margin-inline: 2em;
+}

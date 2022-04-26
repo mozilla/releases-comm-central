@@ -1430,6 +1430,31 @@ function enableRNPLibJS() {
       rnp_signature_handle_t.ptr
     ),
 
+    rnp_key_get_signature_count: librnp.declare(
+      "rnp_key_get_signature_count",
+      abi,
+      rnp_result_t,
+      rnp_uid_handle_t,
+      ctypes.size_t.ptr
+    ),
+
+    rnp_key_get_signature_at: librnp.declare(
+      "rnp_key_get_signature_at",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.size_t,
+      rnp_signature_handle_t.ptr
+    ),
+
+    rnp_signature_get_hash_alg: librnp.declare(
+      "rnp_signature_get_hash_alg",
+      abi,
+      rnp_result_t,
+      rnp_signature_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
     rnp_signature_get_creation: librnp.declare(
       "rnp_signature_get_creation",
       abi,
@@ -1695,6 +1720,19 @@ function enableRNPLibJS() {
       ctypes.char.ptr.ptr
     ),
 
+    rnp_get_security_rule: librnp.declare(
+      "rnp_get_security_rule",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      ctypes.char.ptr,
+      ctypes.char.ptr,
+      ctypes.uint64_t,
+      ctypes.uint32_t.ptr,
+      ctypes.uint64_t.ptr,
+      ctypes.uint32_t.ptr
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -1729,6 +1767,9 @@ function enableRNPLibJS() {
     RNP_KEY_SIGNATURE_NON_SELF_SIG: 4,
 
     RNP_SUCCESS: 0x00000000,
+
+    RNP_FEATURE_HASH_ALG: "hash algorithm",
+    RNP_SECURITY_DEFAULT: 2,
 
     /* Common error codes */
     RNP_ERROR_GENERIC: 0x10000000, // 268435456

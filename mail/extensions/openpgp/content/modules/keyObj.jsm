@@ -132,6 +132,7 @@ class EnigmailKeyObj {
       "secretMaterial",
       "photoAvailable",
       "userId",
+      "hasIgnoredAttributes",
     ];
     for (let i of ATTRS) {
       if (i in keyData) {

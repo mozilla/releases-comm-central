@@ -186,7 +186,7 @@ async function reloadData(firstLoad) {
 
   gSigTree = document.getElementById("signatures_tree");
   let cApi = EnigmailCryptoAPI();
-  let signatures = await cApi.getKeySignatures(keyObj.keyId);
+  let signatures = await cApi.getKeyObjSignatures(keyObj);
   gSigTree.view = new SigListView(signatures);
 
   document.getElementById("subkeyList").view = new SubkeyListView(keyObj);
@@ -329,6 +329,10 @@ async function reloadData(firstLoad) {
       { addr: EnigmailFuncs.getEmailFromUserID(gUserId).toLowerCase() }
     );
   }
+
+  document.getElementById(
+    "key-detail-has-insecure"
+  ).hidden = !keyObj.hasIgnoredAttributes;
 
   // Resize the dialog only if the data was changed since the first load.
   if (!firstLoad) {

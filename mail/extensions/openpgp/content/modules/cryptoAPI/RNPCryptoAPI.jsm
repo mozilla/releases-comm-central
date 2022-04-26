@@ -59,6 +59,18 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   /**
+   * Obtain signatures for a given key.
+   *
+   * @param {KeyObj}  keyObj:           the signatures of this key will be returned
+   * @param {Boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
+   *
+   * @return {Promise<Array of Object>} - see extractSignatures()
+   */
+  async getKeyObjSignatures(keyId, ignoreUnknownUid = false) {
+    return RNP.getKeyObjSignatures(keyId, ignoreUnknownUid);
+  }
+
+  /**
    * Export the minimum key for the public key object:
    * public key, primary user ID, newest encryption subkey
    *
