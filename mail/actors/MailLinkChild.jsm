@@ -22,8 +22,13 @@ class MailLinkChild extends JSWindowActorChild {
       return;
     }
 
-    let protocol = new URL(href).protocol;
-    if (PROTOCOLS.includes(protocol)) {
+    let url = new URL(href);
+    let protocol = url.protocol;
+    if (
+      PROTOCOLS.includes(protocol) ||
+      // A link to an attachment, e.g. cid: link.
+      (["imap:", "mailbox:"].includes(protocol) && url.searchParams.get("part"))
+    ) {
       this.sendAsyncMessage(protocol, href);
       event.preventDefault();
     }

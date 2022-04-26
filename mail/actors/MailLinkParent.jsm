@@ -16,6 +16,10 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 class MailLinkParent extends JSWindowActorParent {
   receiveMessage(value) {
     switch (value.name) {
+      case "imap:":
+      case "mailbox:":
+        this._handleMailboxLink(value);
+        break;
       case "mailto:":
         this._handleMailToLink(value);
         break;
@@ -32,6 +36,19 @@ class MailLinkParent extends JSWindowActorParent {
           Cr.NS_ERROR_ILLEGAL_VALUE
         );
     }
+  }
+
+  _handleMailboxLink({ data, target }) {
+    // AttachmentInfo is defined in msgHdrView.js.
+    let { AttachmentInfo } = target.browsingContext.topChromeWindow;
+    let url = new URL(data);
+    new AttachmentInfo(
+      "",
+      data,
+      url.searchParams.get("filename"),
+      "",
+      false
+    ).open();
   }
 
   _handleMailToLink({ data, target }) {
