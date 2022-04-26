@@ -354,7 +354,8 @@ Keyword GetKeyword(std::istream& stream) {
     // End of control word; the space is just a delimiter - skip it
     if (!stream.eof() && !(ch == ' ')) stream.unget();
   } else {  // Control symbol
-    keyword.name[0] = ch, keyword.name[1] = 0;
+    keyword.name[0] = ch;
+    keyword.name[1] = 0;
   }
   return keyword;
 }

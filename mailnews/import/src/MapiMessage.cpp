@@ -1145,7 +1145,7 @@ nsresult CMapiMessage::GetAttachments(
 bool CMapiMessage::GetEmbeddedAttachmentInfo(unsigned int i, nsIURI** uri,
                                              const char** cid,
                                              const char** name) const {
-  if ((i < 0) || (i >= m_embattachments.size())) return false;
+  if (i >= m_embattachments.size()) return false;
   attach_data* data = m_embattachments[i];
   if (!data) return false;
   *uri = data->orig_url;
