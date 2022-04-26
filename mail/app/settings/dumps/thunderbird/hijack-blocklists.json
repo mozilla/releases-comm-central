@@ -1,3 +1,59 @@
 {
-  "data": []
+  "data": [
+    {
+      "schema": 1605793537508,
+      "matches": [
+        "[https]opensearch.startpageweb.com/bing-search.xml",
+        "[https]opensearch.startwebsearch.com/bing-search.xml",
+        "[https]opensearch.webstartsearch.com/bing-search.xml",
+        "[https]opensearch.webofsearch.com/bing-search.xml",
+        "[profile]/searchplugins/Yahoo! Powered.xml",
+        "[profile]/searchplugins/yahoo! powered.xml",
+        "[profile]/searchplugins/bing-lavasoft-ff59.xml"
+      ],
+      "id": "load-paths",
+      "last_modified": 1626756455894
+    },
+    {
+      "schema": 1605793528951,
+      "matches": [
+        "hspart=lvs",
+        "pc=COS",
+        "clid=2308146",
+        "fr=mca",
+        "PC=MC0",
+        "lavasoft.gosearchresults",
+        "securedsearch.lavasoft",
+        "fr=mcsaoffblock",
+        "fr=jnazafzv",
+        "clid=2285101",
+        "pc=mc",
+        "//defaultsearch.co/",
+        "//searchdefault.co/"
+      ],
+      "id": "submission-urls",
+      "last_modified": 1626756429780
+    },
+    {
+      "schema": 1605728369453,
+      "matches": [
+        "hspart=lvs",
+        "pc=COS",
+        "clid=2308146",
+        "fr=mca",
+        "PC=MC0",
+        "lavasoft.gosearchresults",
+        "securedsearch.lavasoft",
+        "fr=mcsaoffblock",
+        "fr=jnazafzv",
+        "clid=2285101",
+        "pc=mc",
+        "//defaultsearch.co/",
+        "//searchdefault.co/"
+      ],
+      "id": "homepage-urls",
+      "last_modified": 1626756283026
+    }
+  ],
+  "timestamp": 1626756455894
 }

@@ -2,9 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Data obtained from https://thunderbird-settings.thunderbird.net/v1/buckets/thunderbird/collections/search-config/records
+# Data obtained by
+# SERVER="https://thunderbird-settings.thunderbird.net/v1"
+# wget -qO- "$SERVER/buckets/thunderbird/collections/search-config/changeset?_expected=0" | \
+# jq '{"data": .changes, "timestamp": .timestamp}'
 
 FINAL_TARGET_FILES.defaults.settings.thunderbird += [
     "hijack-blocklists.json",
     "search-config.json",
+    "url-classifier-skip-urls.json"
 ]
