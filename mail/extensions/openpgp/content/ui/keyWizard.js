@@ -822,7 +822,7 @@ async function importSecretKey() {
   // Update the list count recap and show the container.
   document.l10n.setAttributes(
     document.getElementById("keyListCount"),
-    "openpgp-import-key-list-amount",
+    "openpgp-import-key-list-amount-2",
     { count: keyCount }
   );
 

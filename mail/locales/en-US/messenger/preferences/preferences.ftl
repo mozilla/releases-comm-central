@@ -853,8 +853,8 @@ theme-label =
     .value = Theme:
     .accesskey = T
 
-style-thunderbird =
-    .label = Thunderbird
+style-mail =
+    .label = { -brand-short-name }
 style-bubbles =
     .label = Bubbles
 style-dark =

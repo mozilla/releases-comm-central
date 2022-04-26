@@ -191,15 +191,25 @@ async function initOpenPgpSettings() {
     "last_entered_external_gnupg_key_id"
   );
 
-  let allKeys = result.all.length + (externalKey ? 1 : 0);
-  document.l10n.setAttributes(
-    document.getElementById("openPgpDescription"),
-    "openpgp-description",
-    {
-      count: allKeys,
-      identity: gIdentity.email,
-    }
-  );
+  let keyCount = result.all.length + (externalKey ? 1 : 0);
+  if (keyCount) {
+    document.l10n.setAttributes(
+      document.getElementById("openPgpDescription"),
+      "openpgp-description-has-keys",
+      {
+        count: keyCount,
+        identity: gIdentity.email,
+      }
+    );
+  } else {
+    document.l10n.setAttributes(
+      document.getElementById("openPgpDescription"),
+      "openpgp-description-no-key",
+      {
+        identity: gIdentity.email,
+      }
+    );
+  }
 
   closeNotification();
 
@@ -641,14 +651,24 @@ async function reloadOpenPgpUI() {
   document.getElementById("openPgpKeyList").hidden = keyCount == 0 && !gKeyId;
 
   // Update the OpenPGP intro description with the current key count.
-  document.l10n.setAttributes(
-    document.getElementById("openPgpDescription"),
-    "openpgp-description",
-    {
-      count: keyCount,
-      identity: gIdentity.email,
-    }
-  );
+  if (keyCount) {
+    document.l10n.setAttributes(
+      document.getElementById("openPgpDescription"),
+      "openpgp-description-has-keys",
+      {
+        count: keyCount,
+        identity: gIdentity.email,
+      }
+    );
+  } else {
+    document.l10n.setAttributes(
+      document.getElementById("openPgpDescription"),
+      "openpgp-description-no-key",
+      {
+        identity: gIdentity.email,
+      }
+    );
+  }
 
   let radiogroup = document.getElementById("openPgpKeyListRadio");
 
