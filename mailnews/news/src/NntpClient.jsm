@@ -407,7 +407,14 @@ class NntpClient {
     } else {
       this._sendCommand("MODE READER");
       this._inReadingMode = true;
-      this._nextAction = nextAction;
+      this._nextAction = () => {
+        if (this._server.pushAuth) {
+          this._currentAction = nextAction;
+          this._actionAuthUser();
+        } else {
+          nextAction();
+        }
+      };
     }
   }
 
