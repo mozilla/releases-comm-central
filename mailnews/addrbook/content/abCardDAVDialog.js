@@ -101,51 +101,59 @@ async function check() {
     uiElements.availableBooks.lastChild.remove();
   }
 
+  let foundBooks;
   try {
-    let foundBooks = await CardDAVUtils.detectAddressBooks(
+    foundBooks = await CardDAVUtils.detectAddressBooks(
       username,
       undefined,
       url,
       true
     );
-
-    let existing = MailServices.ab.directories.map(d =>
-      d.getStringValue("carddav.url", "")
-    );
-    let alreadyAdded = 0;
-    for (let book of foundBooks) {
-      if (existing.includes(book.url.href)) {
-        alreadyAdded++;
-        continue;
-      }
-      let checkbox = uiElements.availableBooks.appendChild(
-        document.createXULElement("checkbox")
-      );
-      checkbox.setAttribute("label", book.name);
-      checkbox.checked = true;
-      checkbox.value = book.url.href;
-      checkbox._book = book;
-    }
-
-    if (uiElements.availableBooks.childElementCount == 0) {
-      if (alreadyAdded > 0) {
-        setStatus("error", "carddav-already-added");
-      } else {
-        setStatus("error", "carddav-none-found");
-      }
-    } else {
-      uiElements.resultsArea.hidden = false;
-      setStatus();
-    }
   } catch (ex) {
-    log.error(ex);
     if (ex.result == Cr.NS_ERROR_NOT_AVAILABLE) {
       setStatus("error", "carddav-known-incompatible", {
         url: new URL(url).hostname,
       });
     } else {
+      log.error(ex);
       setStatus("error", "carddav-connection-error");
     }
+    return;
+  }
+
+  // Create a list of CardDAV directories that already exist.
+  let existing = [];
+  for (let d of MailServices.ab.directories) {
+    if (d.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
+      existing.push(d.getStringValue("carddav.url", ""));
+    }
+  }
+
+  // Display a checkbox for each directory that doesn't already exist.
+  let alreadyAdded = 0;
+  for (let book of foundBooks) {
+    if (existing.includes(book.url.href)) {
+      alreadyAdded++;
+      continue;
+    }
+    let checkbox = uiElements.availableBooks.appendChild(
+      document.createXULElement("checkbox")
+    );
+    checkbox.setAttribute("label", book.name);
+    checkbox.checked = true;
+    checkbox.value = book.url.href;
+    checkbox._book = book;
+  }
+
+  if (uiElements.availableBooks.childElementCount == 0) {
+    if (alreadyAdded > 0) {
+      setStatus("error", "carddav-already-added");
+    } else {
+      setStatus("error", "carddav-none-found");
+    }
+  } else {
+    uiElements.resultsArea.hidden = false;
+    setStatus();
   }
 }
 
