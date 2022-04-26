@@ -55,8 +55,9 @@ var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
 
-var chatHandler = {};
-ChromeUtils.import("resource:///modules/chatHandler.jsm", chatHandler);
+var { ChatCore, allContacts } = ChromeUtils.import(
+  "resource:///modules/chatHandler.jsm"
+);
 
 // Constants that correspond to choices
 // in Address Book->View -->Show Name as
@@ -157,8 +158,8 @@ function OnLoadAddressBook() {
     AutoHideMenubar.init();
   }
 
-  if (!chatHandler.ChatCore.initialized) {
-    chatHandler.ChatCore.init();
+  if (!ChatCore.initialized) {
+    ChatCore.init();
   }
 
   updateTroubleshootMenuItem();
@@ -845,8 +846,8 @@ function AbIMSelected() {
   for (let chatProperty of kChatProperties) {
     let chatID = card.getProperty(chatProperty, "");
 
-    if (chatID && chatID in chatHandler.allContacts) {
-      let chatContact = chatHandler.allContacts[chatID];
+    if (chatID && chatID in allContacts) {
+      let chatContact = allContacts[chatID];
       if (chatContact.online) {
         online.push(chatContact);
       } else if (chatContact.canSendMessage) {
@@ -954,8 +955,8 @@ var abResultsController = {
           }
 
           return (
-            contactName in chatHandler.allContacts &&
-            chatHandler.allContacts[contactName].canSendMessage
+            contactName in allContacts &&
+            allContacts[contactName].canSendMessage
           );
         });
 

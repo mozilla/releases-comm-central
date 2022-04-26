@@ -44,9 +44,20 @@ var {
   fsDebugRecv,
   fsDebugRecvSend,
 } = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
-var imapd = {};
-ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm", imapd);
-var { imapDaemon, imapMessage } = imapd;
+
+var {
+  imapDaemon,
+  imapMessage,
+  configurations,
+  IMAP_RFC3501_handler,
+  mixinExtension,
+  IMAP_RFC2197_extension,
+  IMAP_RFC2342_extension,
+  IMAP_RFC3348_extension,
+  IMAP_RFC4315_extension,
+  IMAP_RFC5258_extension,
+  IMAP_RFC2195_extension,
+} = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
@@ -55,16 +66,12 @@ var { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
 );
 
 function makeServer(daemon, infoString, otherProps) {
-  if (infoString in imapd.configurations) {
-    return makeServer(
-      daemon,
-      imapd.configurations[infoString].join(","),
-      otherProps
-    );
+  if (infoString in configurations) {
+    return makeServer(daemon, configurations[infoString].join(","), otherProps);
   }
 
   function createHandler(d) {
-    var handler = new imapd.IMAP_RFC3501_handler(d);
+    var handler = new IMAP_RFC3501_handler(d);
     if (!infoString) {
       infoString = "RFC2195";
     }
@@ -72,7 +79,30 @@ function makeServer(daemon, infoString, otherProps) {
     var parts = infoString.split(/ *, */);
     for (var part of parts) {
       if (part.startsWith("RFC")) {
-        imapd.mixinExtension(handler, imapd["IMAP_" + part + "_extension"]);
+        let ext;
+        switch (part) {
+          case "RFC2197":
+            ext = IMAP_RFC2197_extension;
+            break;
+          case "RFC2342":
+            ext = IMAP_RFC2342_extension;
+            break;
+          case "RFC3348":
+            ext = IMAP_RFC3348_extension;
+            break;
+          case "RFC4315":
+            ext = IMAP_RFC4315_extension;
+            break;
+          case "RFC5258":
+            ext = IMAP_RFC5258_extension;
+            break;
+          case "RFC2195":
+            ext = IMAP_RFC2195_extension;
+            break;
+          default:
+            throw new Error("Unknown extension: " + part);
+        }
+        mixinExtension(handler, ext);
       }
     }
     if (otherProps) {

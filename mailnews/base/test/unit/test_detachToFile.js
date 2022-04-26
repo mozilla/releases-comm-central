@@ -10,12 +10,12 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-// javascript mime emitter functions
-var mimeMsg = {};
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/MimeMessage.jsm"
+);
 
 function SaveAttachmentCallback() {
   this.attachments = null;
@@ -63,7 +63,7 @@ add_task(async function startCopy() {
 add_task(async function startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
-  mimeMsg.MsgHdrToMimeMessage(
+  MsgHdrToMimeMessage(
     msgHdr,
     gCallbackObject,
     gCallbackObject.callback,

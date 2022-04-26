@@ -4,8 +4,9 @@
 
 /* import-globals-from preferences.js */
 
-var jsProtoHelper = {};
-ChromeUtils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
+var { GenericConvIMPrototype, GenericMessagePrototype } = ChromeUtils.import(
+  "resource:///modules/jsProtoHelper.jsm"
+);
 var { getThemeByName, getThemeVariants } = ChromeUtils.import(
   "resource:///modules/imThemes.jsm"
 );
@@ -19,7 +20,7 @@ function Conversation(aName) {
     1000;
 }
 Conversation.prototype = {
-  __proto__: jsProtoHelper.GenericConvIMPrototype,
+  __proto__: GenericConvIMPrototype,
   account: {
     protocol: { name: "Fake Protocol" },
     alias: "",
@@ -32,7 +33,7 @@ function Message(aWho, aMessage, aObject, aConversation) {
   this._init(aWho, aMessage, aObject, aConversation);
 }
 Message.prototype = {
-  __proto__: jsProtoHelper.GenericMessagePrototype,
+  __proto__: GenericMessagePrototype,
   get displayMessage() {
     return this.originalMessage;
   },

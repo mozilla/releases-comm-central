@@ -27,14 +27,13 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 const kPrefCustomizationDebug = "browser.uiCustomization.debug";
 
 XPCOMUtils.defineLazyGetter(this, "log", () => {
-  let scope = {};
-  ChromeUtils.import("resource://gre/modules/Console.jsm", scope);
+  var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
   let debug = Services.prefs.getBoolPref(kPrefCustomizationDebug, false);
   let consoleOptions = {
     maxLogLevel: debug ? "all" : "log",
     prefix: "CustomizableWidgets",
   };
-  return new scope.ConsoleAPI(consoleOptions);
+  return new ConsoleAPI(consoleOptions);
 });
 
 function setAttributes(aNode, aAttrs) {

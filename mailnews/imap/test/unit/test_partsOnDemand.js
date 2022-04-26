@@ -16,10 +16,9 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-
-// javascript mime emitter functions
-var mimeMsg = {};
-ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/MimeMessage.jsm"
+);
 
 // make sure we are in the optimal conditions!
 add_task(function setupTest() {
@@ -63,7 +62,7 @@ add_task(async function loadImapMessage() {
 add_task(async function startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   await new Promise(resolve => {
-    mimeMsg.MsgHdrToMimeMessage(
+    MsgHdrToMimeMessage(
       msgHdr,
       this,
       function(aMsgHdr, aMimeMessage) {
@@ -83,7 +82,7 @@ add_task(async function startMime() {
 add_task(async function testAllInlineMessage() {
   for (let msg of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
     await new Promise(resolve => {
-      mimeMsg.MsgHdrToMimeMessage(
+      MsgHdrToMimeMessage(
         msg,
         this,
         function(aMsgHdr, aMimeMessage) {

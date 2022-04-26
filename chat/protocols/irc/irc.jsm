@@ -2309,52 +2309,77 @@ function ircProtocol() {
   ).commands;
   this.registerCommands();
 
-  // Register the standard handlers.
-  let tempScope = {};
-  ChromeUtils.import("resource:///modules/ircBase.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircISUPPORT.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircCAP.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircCTCP.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircDCC.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircServices.jsm", tempScope);
-
-  // Extra features.
-  ChromeUtils.import("resource:///modules/ircEchoMessage.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircMultiPrefix.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircNonStandard.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircSASL.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircServerTime.jsm", tempScope);
-  ChromeUtils.import("resource:///modules/ircWatchMonitor.jsm", tempScope);
-
   // Register default IRC handlers (IRC base, CTCP).
-  ircHandlers.registerHandler(tempScope.ircBase);
-  ircHandlers.registerHandler(tempScope.ircISUPPORT);
-  ircHandlers.registerHandler(tempScope.ircCAP);
-  ircHandlers.registerHandler(tempScope.ircCTCP);
-  ircHandlers.registerHandler(tempScope.ircServices);
+  let { ircBase } = ChromeUtils.import("resource:///modules/ircBase.jsm");
+  let { ircISUPPORT } = ChromeUtils.import(
+    "resource:///modules/ircISUPPORT.jsm"
+  );
+  let { ircCAP } = ChromeUtils.import("resource:///modules/ircCAP.jsm");
+  let { ircCTCP } = ChromeUtils.import("resource:///modules/ircCTCP.jsm");
+  let { ircServices } = ChromeUtils.import(
+    "resource:///modules/ircServices.jsm"
+  );
+  ircHandlers.registerHandler(ircBase);
+  ircHandlers.registerHandler(ircISUPPORT);
+  ircHandlers.registerHandler(ircCAP);
+  ircHandlers.registerHandler(ircCTCP);
+  ircHandlers.registerHandler(ircServices);
+
   // Register default ISUPPORT handler (ISUPPORT base).
-  ircHandlers.registerISUPPORTHandler(tempScope.isupportBase);
+  let { isupportBase } = ChromeUtils.import(
+    "resource:///modules/ircISUPPORT.jsm"
+  );
+  ircHandlers.registerISUPPORTHandler(isupportBase);
   // Register default CTCP handlers (CTCP base, DCC).
-  ircHandlers.registerCTCPHandler(tempScope.ctcpBase);
-  ircHandlers.registerCTCPHandler(tempScope.ctcpDCC);
+  let { ctcpBase } = ChromeUtils.import("resource:///modules/ircCTCP.jsm");
+  let { ctcpDCC } = ChromeUtils.import("resource:///modules/ircDCC.jsm");
+  ircHandlers.registerCTCPHandler(ctcpBase);
+  ircHandlers.registerCTCPHandler(ctcpDCC);
+
   // Register default IRC Services handlers (IRC Services base).
-  ircHandlers.registerServicesHandler(tempScope.servicesBase);
+  let { servicesBase } = ChromeUtils.import(
+    "resource:///modules/ircServices.jsm"
+  );
+  ircHandlers.registerServicesHandler(servicesBase);
+
   // Register default CAP handlers for base features (CAP basics).
-  ircHandlers.registerCAPHandler(tempScope.capNotify);
+  let { capNotify } = ChromeUtils.import("resource:///modules/ircCAP.jsm");
+  ircHandlers.registerCAPHandler(capNotify);
 
   // Register extra features.
-  ircHandlers.registerCAPHandler(tempScope.capEchoMessage);
-  ircHandlers.registerISUPPORTHandler(tempScope.isupportNAMESX);
-  ircHandlers.registerCAPHandler(tempScope.capMultiPrefix);
-  ircHandlers.registerHandler(tempScope.ircNonStandard);
-  ircHandlers.registerHandler(tempScope.ircWATCH);
-  ircHandlers.registerISUPPORTHandler(tempScope.isupportWATCH);
-  ircHandlers.registerHandler(tempScope.ircMONITOR);
-  ircHandlers.registerISUPPORTHandler(tempScope.isupportMONITOR);
-  ircHandlers.registerHandler(tempScope.ircSASL);
-  ircHandlers.registerCAPHandler(tempScope.capSASL);
-  ircHandlers.registerCAPHandler(tempScope.capServerTime);
-  ircHandlers.registerTagHandler(tempScope.tagServerTime);
+  let { capEchoMessage } = ChromeUtils.import(
+    "resource:///modules/ircEchoMessage.jsm"
+  );
+  let { isupportNAMESX, capMultiPrefix } = ChromeUtils.import(
+    "resource:///modules/ircMultiPrefix.jsm"
+  );
+  let { ircNonStandard } = ChromeUtils.import(
+    "resource:///modules/ircNonStandard.jsm"
+  );
+  let {
+    ircWATCH,
+    isupportWATCH,
+    ircMONITOR,
+    isupportMONITOR,
+  } = ChromeUtils.import("resource:///modules/ircWatchMonitor.jsm");
+  let { ircSASL, capSASL } = ChromeUtils.import(
+    "resource:///modules/ircSASL.jsm"
+  );
+  let { capServerTime, tagServerTime } = ChromeUtils.import(
+    "resource:///modules/ircServerTime.jsm"
+  );
+  ircHandlers.registerCAPHandler(capEchoMessage);
+  ircHandlers.registerISUPPORTHandler(isupportNAMESX);
+  ircHandlers.registerCAPHandler(capMultiPrefix);
+  ircHandlers.registerHandler(ircNonStandard);
+  ircHandlers.registerHandler(ircWATCH);
+  ircHandlers.registerISUPPORTHandler(isupportWATCH);
+  ircHandlers.registerHandler(ircMONITOR);
+  ircHandlers.registerISUPPORTHandler(isupportMONITOR);
+  ircHandlers.registerHandler(ircSASL);
+  ircHandlers.registerCAPHandler(capSASL);
+  ircHandlers.registerCAPHandler(capServerTime);
+  ircHandlers.registerTagHandler(tagServerTime);
 }
 ircProtocol.prototype = {
   __proto__: GenericProtocolPrototype,

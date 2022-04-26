@@ -14,10 +14,8 @@ var { PromiseTestUtils } = ChromeUtils.import(
 );
 
 // javascript mime emitter functions
-var mimeMsg = {};
-ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 
 var kAttachFileName = "bob.txt";
@@ -102,7 +100,7 @@ add_task(async function loadImapMessage() {
 add_task(async function startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
-  mimeMsg.MsgHdrToMimeMessage(
+  MsgHdrToMimeMessage(
     msgHdr,
     gCallbackObject,
     gCallbackObject.callback,

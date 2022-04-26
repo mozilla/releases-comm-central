@@ -7,9 +7,9 @@
  * alternative messages.
  */
 
-// javascript mime emitter functions
-var mimeMsg = {};
-ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/MimeMessage.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -63,7 +63,7 @@ add_task(async function startCopy() {
 add_task(async function startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
-  mimeMsg.MsgHdrToMimeMessage(
+  MsgHdrToMimeMessage(
     msgHdr,
     gCallbackObject,
     gCallbackObject.callback,
