@@ -5,7 +5,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import hashlib
-import six
 import taskgraph.util.path as util_path
 from gecko_taskgraph.util.hash import hash_path, get_file_finder
 
@@ -69,11 +68,9 @@ def hash_paths_extended(base_path, patterns):
         if path.endswith((".pyc", ".pyd", ".pyo")):
             continue
         h.update(
-            six.ensure_binary(
-                "{} {}\n".format(
-                    hash_path(util_path.abspath(util_path.join(base_path, path))),
-                    util_path.normsep(path),
-                )
-            )
+            "{} {}\n".format(
+                hash_path(util_path.abspath(util_path.join(base_path, path))),
+                util_path.normsep(path),
+            ).encode("utf-8")
         )
     return h.hexdigest()
