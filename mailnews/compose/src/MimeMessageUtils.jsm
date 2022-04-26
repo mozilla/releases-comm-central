@@ -198,7 +198,7 @@ var MsgUtils = {
         let folder = MailUtils.getExistingFolder(compFields.fcc);
         if (folder) {
           useDefaultFcc = false;
-          fcc = compFields.fcc.trim();
+          fcc = compFields.fcc;
         }
       }
     }
