@@ -1567,7 +1567,7 @@ function folderURIToPath(accountId, uri) {
 }
 
 /**
- * Convert a human-friendly path to a folder URI. This function does not assume 
+ * Convert a human-friendly path to a folder URI. This function does not assume
  * that the folder referenced exists.
  * @return {String}
  */
