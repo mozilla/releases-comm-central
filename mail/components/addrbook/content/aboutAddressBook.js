@@ -1077,8 +1077,14 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
     this.setAttribute("draggable", "true");
     this.name = this.appendChild(document.createElement("div"));
     this.name.classList.add("name");
-    this.address = this.appendChild(document.createElement("div"));
+    let secondLine = this.appendChild(document.createElement("div"));
+    secondLine.classList.add("line2");
+    this.address = secondLine.appendChild(document.createElement("div"));
     this.address.classList.add("address");
+    if (!this.view.directory) {
+      this.book = secondLine.appendChild(document.createElement("div"));
+      this.book.classList.add("book");
+    }
   }
 
   get index() {
@@ -1094,13 +1100,84 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
     this.name.textContent = this.view.getCellText(index, {
       id: "GeneratedName",
     });
-    this.address.textContent = this.view.getCellText(index, {
-      id: "PrimaryEmail",
-    });
+    this.address.textContent = this.view
+      .getCardFromRow(index)
+      .emailAddresses.join(", ");
+    if (!this.view.directory) {
+      this.book.textContent = this.view.getCellText(index, {
+        id: "addrbook",
+      });
+    }
     this.setAttribute("aria-label", this.name.textContent);
   }
 }
 customElements.define("ab-card-listrow", AbCardListrow);
+
+class AbTableCardListrow extends customElements.get("tree-view-listrow") {
+  static ROW_HEIGHT = 22;
+
+  static COLUMNS = [
+    ["GeneratedName", true],
+    ["EmailAddresses", true],
+    ["PhoneNumbers", true],
+    ["Addresses", true],
+    ["Title", false],
+    ["Department", false],
+    ["Organization", false],
+    ["addrbook", false],
+  ];
+
+  static densityChange() {
+    switch (UIDensity.prefValue) {
+      case UIDensity.MODE_COMPACT:
+        AbTableCardListrow.ROW_HEIGHT = 18;
+        break;
+      case UIDensity.MODE_TOUCH:
+        AbTableCardListrow.ROW_HEIGHT = 32;
+        break;
+      default:
+        AbTableCardListrow.ROW_HEIGHT = 22;
+        break;
+    }
+  }
+
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+
+    super.connectedCallback();
+
+    for (let [column] of AbTableCardListrow.COLUMNS) {
+      this.appendChild(document.createElement("div")).classList.add(
+        `${column.toLowerCase()}-column`
+      );
+    }
+  }
+
+  get index() {
+    return super.index;
+  }
+
+  set index(index) {
+    super.index = index;
+    let props = this.view.getRowProperties(index);
+    if (props) {
+      this.classList.add(props);
+    }
+
+    for (let [column, shown] of AbTableCardListrow.COLUMNS) {
+      let cell = this.querySelector(`.${column.toLowerCase()}-column`);
+      if (shown) {
+        cell.textContent = this.view.getCellText(index, { id: column });
+      } else {
+        cell.hidden = true;
+      }
+    }
+    this.setAttribute("aria-label", this.firstElementChild.textContent);
+  }
+}
+customElements.define("ab-table-card-listrow", AbTableCardListrow);
 
 var cardsPane = {
   searchInput: null,
@@ -1111,6 +1188,7 @@ var cardsPane = {
     this.searchInput = document.getElementById("searchInput");
     this.sortButton = document.getElementById("sortButton");
     this.sortContext = document.getElementById("sortContext");
+    this.cardsHeader = document.getElementById("cardsHeader");
     this.cardsList = document.getElementById("cards");
     this.cardContext = document.getElementById("cardContext");
 
@@ -1129,30 +1207,83 @@ var cardsPane = {
       .querySelector(`[name="format"][value="${nameFormat}"]`)
       ?.setAttribute("checked", "true");
 
-    let sortColumn = Services.xulStore.getValue(
+    let columns = Services.xulStore.getValue(
       "about:addressbook",
       "cards",
-      "sortColumn"
+      "columns"
     );
-    let sortDirection = Services.xulStore.getValue(
-      "about:addressbook",
-      "cards",
-      "sortDirection"
+    if (columns) {
+      columns = columns.split(",");
+      for (let columnDef of AbTableCardListrow.COLUMNS) {
+        columnDef[1] = columns.includes(columnDef[0]);
+      }
+    }
+
+    let separator = this.sortContext.querySelector(
+      "menuseparator:last-of-type"
     );
-    if (sortColumn && sortDirection) {
-      this.sortContext
-        .querySelector(`[name="sort"][value="${sortColumn} ${sortDirection}"]`)
-        ?.setAttribute("checked", "true");
+    for (let [column, shown] of AbTableCardListrow.COLUMNS) {
+      let header = this.cardsHeader.appendChild(
+        document.createElement("button")
+      );
+      header.classList.add("table-header");
+      header.classList.add(`${column.toLowerCase()}-column`);
+      header.value = column;
+      header.hidden = !shown;
+      document.l10n.setAttributes(
+        header,
+        `about-addressbook-column-header-${column.toLowerCase()}`
+      );
+
+      if (column == "GeneratedName") {
+        continue;
+      }
+
+      let menuitem = this.sortContext.insertBefore(
+        document.createXULElement("menuitem"),
+        separator
+      );
+      menuitem.setAttribute("type", "checkbox");
+      menuitem.setAttribute("name", "toggle");
+      menuitem.setAttribute("value", column);
+      menuitem.setAttribute("closemenu", "none");
+      document.l10n.setAttributes(
+        menuitem,
+        `about-addressbook-column-label-${column.toLowerCase()}`
+      );
+
+      if (shown) {
+        menuitem.setAttribute("checked", "true");
+      }
     }
 
     this.searchInput.addEventListener("command", this);
     this.sortButton.addEventListener("click", this);
     this.sortContext.addEventListener("command", this);
+    this.cardsHeader.addEventListener("click", this);
     this.cardsList.addEventListener("select", this);
     this.cardsList.addEventListener("keypress", this);
     this.cardsList.addEventListener("dragstart", this);
     this.cardsList.addEventListener("contextmenu", this);
     this.cardContext.addEventListener("command", this);
+
+    this.cardsList.addEventListener("overflow", event => {
+      if (event.target == this.cardsList) {
+        this.cardsHeader.style.overflowY = "scroll";
+      }
+    });
+    this.cardsList.addEventListener("underflow", event => {
+      if (event.target == this.cardsList) {
+        this.cardsHeader.style.overflowY = null;
+      }
+    });
+    window.addEventListener("uidensitychange", () => {
+      AbTableCardListrow.densityChange();
+      if (cardsPane.cardsList.getAttribute("rows") == "ab-table-card-listrow") {
+        cardsPane.cardsList.invalidate();
+      }
+    });
+    AbTableCardListrow.densityChange();
   },
 
   handleEvent(event) {
@@ -1191,7 +1322,17 @@ var cardsPane = {
     );
     document.body.classList.toggle("layout-list", !isTableLayout);
 
+    this.cardsList.setAttribute(
+      "rows",
+      isTableLayout ? "ab-table-card-listrow" : "ab-card-listrow"
+    );
     this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
+    Services.xulStore.setValue(
+      "about:addressbook",
+      "cardsPane",
+      "layout",
+      isTableLayout ? "table" : "list"
+    );
   },
 
   /**
@@ -1248,6 +1389,7 @@ var cardsPane = {
       sortColumn,
       sortDirection
     );
+    this.sortCards(sortColumn, sortDirection);
 
     detailsPane.displayContact(null);
   },
@@ -1290,12 +1432,40 @@ var cardsPane = {
   },
 
   /**
-   * Change the sort order of the cards being displayed.
+   * Change the sort order of the cards being displayed. If `column` and
+   * `direction` match the existing values no sorting occurs but the UI items
+   * are always updated.
    *
-   * @param {Event} event - The oncommand event that triggered this sort.
+   * @param {string} column
+   * @param {"ascending"|"descending"} direction
    */
-  sortCards(event) {
-    let [column, direction] = event.target.value.split(" ");
+  sortCards(column, direction) {
+    // Uncheck the sort button menu item for the previously sorted column, if
+    // there is one, then check the sort button menu item for the column to be
+    // sorted.
+    this.sortContext
+      .querySelector(`[name="sort"][checked]`)
+      ?.removeAttribute("checked");
+    this.sortContext
+      .querySelector(`[name="sort"][value="${column} ${direction}"]`)
+      ?.setAttribute("checked", "true");
+
+    // Unmark the header of previously sorted column, then mark the header of
+    // the column to be sorted.
+    this.cardsHeader
+      .querySelector(".ascending, .descending")
+      ?.classList.remove("ascending", "descending");
+    this.cardsHeader
+      .querySelector(`[value="${column}"]`)
+      ?.classList.add(direction);
+
+    if (
+      this.cardsList.view.sortColumn == column &&
+      this.cardsList.view.sortDirection == direction
+    ) {
+      return;
+    }
+
     this.cardsList.view.sortBy(column, direction);
 
     Services.xulStore.setValue(
@@ -1480,7 +1650,7 @@ var cardsPane = {
       }
       row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
     } else {
-      row = event.target.closest("ab-card-listrow");
+      row = event.target.closest("ab-card-listrow, ab-table-card-listrow");
     }
     if (!row) {
       return;
@@ -1596,19 +1766,58 @@ var cardsPane = {
       this.setNameFormat(event);
     }
     if (event.target.getAttribute("name") == "sort") {
-      this.sortCards(event);
+      let [column, direction] = event.target.value.split(" ");
+      this.sortCards(column, direction);
+    }
+    if (event.target.getAttribute("name") == "toggle") {
+      let column = event.target.value;
+      let checked = event.target.hasAttribute("checked");
+
+      for (let columnDef of AbTableCardListrow.COLUMNS) {
+        if (columnDef[0] == column) {
+          columnDef[1] = checked;
+          break;
+        }
+      }
+
+      this.cardsHeader.querySelector(
+        `.${column.toLowerCase()}-column`
+      ).hidden = !checked;
+      this.cardsList.invalidate();
+
+      Services.xulStore.setValue(
+        "about:addressbook",
+        "cards",
+        "columns",
+        AbTableCardListrow.COLUMNS.filter(c => c[1])
+          .map(c => c[0])
+          .join(",")
+      );
     }
   },
 
   _onClick(event) {
-    this.sortContext.openPopup(this.sortButton, { triggerEvent: event });
-    event.preventDefault();
+    if (event.target.closest("button") == this.sortButton) {
+      this.sortContext.openPopup(this.sortButton, { triggerEvent: event });
+      event.preventDefault();
+      return;
+    }
+
+    let { sortColumn, sortDirection } = this.cardsList.view;
+
+    let column = event.target.value;
+    if (sortColumn == column && sortDirection == "ascending") {
+      this.sortCards(column, "descending");
+    } else {
+      this.sortCards(column, "ascending");
+    }
   },
 
   _onSelect(event) {
     detailsPane.displayContact(
       this.cardsList.view.getCardFromRow(this.cardsList.selectedIndex)
     );
+    this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
   },
 
   _onKeyPress(event) {
@@ -1646,7 +1855,7 @@ var cardsPane = {
       return MailServices.headerParser.makeMimeAddress(card.displayName, email);
     }
 
-    let row = event.target.closest("ab-card-listrow");
+    let row = event.target.closest("ab-card-listrow, ab-table-card-listrow");
     if (!row) {
       event.preventDefault();
       return;

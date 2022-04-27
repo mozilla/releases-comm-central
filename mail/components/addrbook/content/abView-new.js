@@ -511,21 +511,23 @@ abViewCard.prototype = {
           }
           return abViewCard.listFormatter.format(addresses.filter(Boolean));
         }
-        case "Company":
+        case "JobTitle":
+        case "Title":
           if (supportsVCard) {
-            return vCardProperties.getFirstValue("org")?.[0];
+            return vCardProperties.getFirstValue("title");
           }
-          return getProperty(columnID, "");
+          return getProperty("JobTitle", "");
         case "Department":
           if (supportsVCard) {
             return vCardProperties.getFirstValue("org")?.[1];
           }
           return getProperty(columnID, "");
-        case "JobTitle":
+        case "Company":
+        case "Organization":
           if (supportsVCard) {
-            return vCardProperties.getFirstValue("title");
+            return vCardProperties.getFirstValue("org")?.[0];
           }
-          return getProperty(columnID, "");
+          return getProperty("Company", "");
         default:
           return getProperty(columnID, "");
       }

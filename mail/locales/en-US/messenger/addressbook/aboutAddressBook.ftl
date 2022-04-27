@@ -82,6 +82,34 @@ about-addressbook-horizontal-layout =
 about-addressbook-vertical-layout =
   .label = Switch to vertical layout
 
+## Card column headers
+## Each string is listed here twice, and the values should match.
+
+about-addressbook-column-header-generatedname = Name
+about-addressbook-column-label-generatedname =
+  .label = { about-addressbook-column-header-generatedname }
+about-addressbook-column-header-emailaddresses = Email Addresses
+about-addressbook-column-label-emailaddresses =
+  .label = { about-addressbook-column-header-emailaddresses }
+about-addressbook-column-header-phonenumbers = Phone Numbers
+about-addressbook-column-label-phonenumbers =
+  .label = { about-addressbook-column-header-phonenumbers }
+about-addressbook-column-header-addresses = Addresses
+about-addressbook-column-label-addresses =
+  .label = { about-addressbook-column-header-addresses }
+about-addressbook-column-header-title = Title
+about-addressbook-column-label-title =
+  .label = { about-addressbook-column-header-title }
+about-addressbook-column-header-department = Department
+about-addressbook-column-label-department =
+  .label = { about-addressbook-column-header-department }
+about-addressbook-column-header-organization = Organization
+about-addressbook-column-label-organization =
+  .label = { about-addressbook-column-header-organization }
+about-addressbook-column-header-addrbook = Address Book
+about-addressbook-column-label-addrbook =
+  .label = { about-addressbook-column-header-addrbook }
+
 about-addressbook-cards-context-write =
   .label = Write
 

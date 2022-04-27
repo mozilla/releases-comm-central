@@ -290,8 +290,9 @@ body.layout-list #cardsPane {
   display: none;
 }
 
-body.layout-list ~ menupopup#sortContext #sortContextListLayout,
-body.layout-table ~ menupopup#sortContext #sortContextTableLayout {
+body.layout-list ~ menupopup#sortContext > :is(menuitem[name="toggle"], #sortContextListLayout),
+body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortContextTableLayout) {
+  /* Hide table items in list view, and list items in table view. */
   display: none;
 }
 
@@ -307,13 +308,14 @@ ab-card-listrow {
   border-radius: var(--in-content-button-border-radius);
   padding-block: 5px;
   padding-inline: 38px 8px;
-
+  white-space: nowrap;
   background-image: url("chrome://messenger/skin/icons/contact.svg");
   background-repeat: no-repeat;
   background-position: 15px center;
 }
 
-ab-card-listrow.MailList {
+ab-card-listrow.MailList,
+ab-table-card-listrow.MailList {
   background-image: url("chrome://messenger/skin/icons/ablist.svg");
 }
 
@@ -321,7 +323,8 @@ ab-card-listrow:dir(rtl) {
   background-position-x: right 15px;
 }
 
-ab-card-listrow:hover {
+ab-card-listrow:hover,
+ab-table-card-listrow:hover {
   background-color: var(--in-content-item-hover);
 }
 
@@ -332,11 +335,24 @@ ab-card-listrow > div {
   white-space: nowrap;
 }
 
-ab-card-listrow > div.address {
+ab-card-listrow > div.line2 {
+  display: flex;
+  justify-content: space-between;
+}
+
+ab-card-listrow > div.line2 > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 1rem;
 }
 
-ab-card-listrow:not(.selected) > div.address {
+ab-card-listrow > div.line2 > div.address {
+  font-size: 1rem;
+  flex: 1;
+  margin-inline-end: 1em;
+}
+
+ab-card-listrow:not(.selected) > div.line2 > div {
   color: var(--in-content-deemphasized-text);
 }
 
@@ -350,6 +366,95 @@ ab-card-listrow:not(.selected) > div.address {
 
 body.layout-list #cardsHeader {
   display: none;
+}
+
+.table-header {
+  background-position: right 6px center;
+  background-repeat: no-repeat;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.table-header:dir(rtl) {
+  background-position: 6px center;
+}
+
+.table-header.descending {
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+}
+
+.table-header.ascending {
+  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+}
+
+@media (-moz-platform: linux) {
+  .table-header.ascending {
+    background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  }
+
+  .table-header.descending {
+    background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  }
+}
+
+.table-header:not([hidden]),
+ab-table-card-listrow > div:not([hidden]) {
+  display: inline-block;
+}
+
+.table-header,
+ab-table-card-listrow > div {
+  width: 0;
+  min-width: unset;
+  min-height: unset;
+  overflow: hidden;
+  flex: 1;
+  margin: 0;
+  border: none;
+  padding-inline: 4px;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-header,
+ab-table-card-listrow {
+  font-size: 1rem;
+  height: 22px;
+  line-height: 22px;
+}
+
+:root[uidensity="compact"] :is(.table-header, ab-table-card-listrow) {
+  height: 18px;
+  line-height: 18px;
+}
+
+:root[uidensity="touch"] :is(.table-header, ab-table-card-listrow) {
+  height: 32px;
+  line-height: 32px;
+}
+
+ab-table-card-listrow {
+  display: flex;
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
+  padding-inline-start: 24px;
+  background-image: url("chrome://messenger/skin/icons/contact.svg");
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  align-items: baseline;
+}
+
+ab-table-card-listrow:dir(rtl) {
+  background-position-x: right 15px;
+}
+
+ab-table-card-listrow > div.generatedname-column {
+  font-size: 1.1rem;
+}
+
+.addresses-column {
+  flex: 1.5 !important;
 }
 
 /* Details pane */
@@ -574,9 +679,9 @@ body.is-editing #detailsPane #photoOverlay {
   gap: 6px;
   align-items: baseline;
   margin-block: 0;
-  list-style: none inside;
   margin-inline-start: 9px;
   padding: 0;
+  list-style: none inside;
 }
 
 #detailsPane section li {

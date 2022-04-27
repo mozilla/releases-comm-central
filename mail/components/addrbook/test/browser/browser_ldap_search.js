@@ -24,7 +24,6 @@ add_task(async () => {
 
   // Set up some local people.
 
-  let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
   let cardsToRemove = [];
   for (let name of ["daniel", "jonathan", "nathan"]) {
     let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(

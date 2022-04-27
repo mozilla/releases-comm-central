@@ -8,7 +8,6 @@ window.maximize();
 const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
-const personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
 const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
 
 let photo1Name, photo1Path;

@@ -477,21 +477,23 @@ abViewCard.prototype = {
           }
           return abViewCard.listFormatter.format(phoneNumbers.filter(Boolean));
         }
-        case "Company":
+        case "JobTitle":
+        case "Title":
           if (supportsVCard) {
-            return vCardProperties.getFirstValue("org")?.[0];
+            return vCardProperties.getFirstValue("title");
           }
-          return getProperty(columnID, "");
+          return getProperty("JobTitle", "");
         case "Department":
           if (supportsVCard) {
             return vCardProperties.getFirstValue("org")?.[1];
           }
           return getProperty(columnID, "");
-        case "JobTitle":
+        case "Company":
+        case "Organization":
           if (supportsVCard) {
-            return vCardProperties.getFirstValue("title");
+            return vCardProperties.getFirstValue("org")?.[0];
           }
-          return getProperty(columnID, "");
+          return getProperty("Company", "");
         case "NickName":
           if (supportsVCard) {
             return vCardProperties.getFirstValue("nickname");

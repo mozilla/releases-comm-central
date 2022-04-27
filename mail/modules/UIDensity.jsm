@@ -27,6 +27,10 @@ function updateWindow(win) {
   if (win.TabsInTitlebar !== undefined) {
     win.TabsInTitlebar.update();
   }
+
+  win.dispatchEvent(
+    new win.CustomEvent("uidensitychange", { detail: UIDensity.prefValue })
+  );
 }
 
 function updateAllWindows() {

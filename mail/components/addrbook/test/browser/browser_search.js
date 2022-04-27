@@ -21,11 +21,6 @@ add_task(async () => {
     checkCardsListed(...expectedCards);
   }
 
-  let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
-  let historyBook = MailServices.ab.getDirectoryFromId(
-    "ldap_2.servers.history"
-  );
-
   let cards = {};
   let cardsToRemove = {
     personal: [],

@@ -309,7 +309,7 @@ add_task(async function test_name_column() {
   Assert.equal(cardsList.selectedIndex, 2);
 
   // Sort by email address, ascending.
-  await showSortMenu("sort", "PrimaryEmail ascending");
+  await showSortMenu("sort", "EmailAddresses ascending");
 
   checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
   Assert.equal(cardsList.selectedIndex, 3);
@@ -378,8 +378,8 @@ add_task(async function test_persistence() {
   await openAddressBookWindow();
   checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
 
-  info("sorting by PrimaryEmail, ascending");
-  await showSortMenu("sort", "PrimaryEmail ascending");
+  info("sorting by EmailAddresses, ascending");
+  await showSortMenu("sort", "EmailAddresses ascending");
   checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
 
   await closeAddressBookWindow();
@@ -709,4 +709,231 @@ add_task(async function test_context_menu_delete() {
 
   await promiseDirectoryRemoved(normalBook.URI);
   await promiseDirectoryRemoved(readOnlyBook.URI);
+});
+
+add_task(async function test_layout() {
+  function checkColumns(visibleColumns, sortColumn, sortDirection) {
+    let visibleHeaders = cardsHeader.querySelectorAll("button:not([hidden])");
+    Assert.deepEqual(
+      Array.from(visibleHeaders, b => b.value),
+      visibleColumns,
+      "visible columns are correct"
+    );
+
+    for (let header of visibleHeaders) {
+      Assert.equal(
+        header.classList.contains("ascending"),
+        header.value == sortColumn && sortDirection == "ascending",
+        `${header.value} header is ascending`
+      );
+      Assert.equal(
+        header.classList.contains("descending"),
+        header.value == sortColumn && sortDirection == "descending",
+        `${header.value} header is descending`
+      );
+    }
+  }
+
+  function checkRowHeight(height) {
+    Assert.equal(cardsList.getRowAtIndex(0).clientHeight, height);
+    Assert.equal(cardsList.getRowAtIndex(0).style.top, "0px");
+    Assert.equal(cardsList.getRowAtIndex(1).clientHeight, height);
+    Assert.equal(cardsList.getRowAtIndex(1).style.top, `${height}px`);
+  }
+
+  Services.prefs.setIntPref("mail.uidensity", 0);
+  personalBook.addCard(
+    createContact("contact", "one", undefined, "first@invalid")
+  );
+  personalBook.addCard(
+    createContact("contact", "two", undefined, "second@invalid")
+  );
+  personalBook.addCard(
+    createContact("contact", "three", undefined, "third@invalid")
+  );
+  personalBook.addCard(
+    createContact("contact", "four", undefined, "fourth@invalid")
+  );
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsHeader = abDocument.getElementById("cardsHeader");
+  let cardsList = abDocument.getElementById("cards");
+
+  // Sanity check.
+
+  Assert.ok(
+    abDocument.body.classList.contains("layout-list"),
+    "list layout on opening"
+  );
+  Assert.ok(
+    !abDocument.body.classList.contains("layout-table"),
+    "not table layout on opening"
+  );
+  Assert.equal(
+    cardsList.getAttribute("rows"),
+    "ab-card-listrow",
+    "list row implementation used"
+  );
+
+  // Switch layout to table.
+
+  await toggleLayout(true);
+
+  Assert.ok(
+    !abDocument.body.classList.contains("layout-list"),
+    "layout changed"
+  );
+  Assert.ok(
+    abDocument.body.classList.contains("layout-table"),
+    "layout changed"
+  );
+  Assert.equal(
+    cardsList.getAttribute("rows"),
+    "ab-table-card-listrow",
+    "table row implementation used"
+  );
+
+  checkColumns(
+    ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Addresses"],
+    "GeneratedName",
+    "ascending"
+  );
+  checkNamesListed(
+    "contact four",
+    "contact one",
+    "contact three",
+    "contact two"
+  );
+  checkRowHeight(18);
+
+  // Click the email addresses header to sort.
+
+  EventUtils.synthesizeMouseAtCenter(
+    cardsHeader.querySelector(`[value="EmailAddresses"]`),
+    {},
+    abWindow
+  );
+  checkColumns(
+    ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Addresses"],
+    "EmailAddresses",
+    "ascending"
+  );
+  checkNamesListed(
+    "contact one",
+    "contact four",
+    "contact two",
+    "contact three"
+  );
+
+  // Click the email addresses header again to flip the sort.
+
+  EventUtils.synthesizeMouseAtCenter(
+    cardsHeader.querySelector(`[value="EmailAddresses"]`),
+    {},
+    abWindow
+  );
+  checkColumns(
+    ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Addresses"],
+    "EmailAddresses",
+    "descending"
+  );
+  checkNamesListed(
+    "contact three",
+    "contact two",
+    "contact four",
+    "contact one"
+  );
+
+  // Add a column.
+
+  await showSortMenu("toggle", "Title");
+  await TestUtils.waitForCondition(
+    () => !cardsHeader.querySelector(`[value="Title"]`).hidden
+  );
+  checkColumns(
+    ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Addresses", "Title"],
+    "EmailAddresses",
+    "descending"
+  );
+
+  // Remove a column.
+
+  await showSortMenu("toggle", "Addresses");
+  await TestUtils.waitForCondition(
+    () => cardsHeader.querySelector(`[value="Addresses"]`).hidden
+  );
+  checkColumns(
+    ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Title"],
+    "EmailAddresses",
+    "descending"
+  );
+
+  // Change the density.
+
+  Services.prefs.setIntPref("mail.uidensity", 1);
+  checkRowHeight(22);
+
+  Services.prefs.setIntPref("mail.uidensity", 2);
+  checkRowHeight(32);
+
+  // Close and reopen the Address Book and check that settings were remembered.
+
+  await closeAddressBookWindow();
+
+  abWindow = await openAddressBookWindow();
+  abDocument = abWindow.document;
+  cardsHeader = abDocument.getElementById("cardsHeader");
+  cardsList = abDocument.getElementById("cards");
+
+  Assert.ok(
+    !abDocument.body.classList.contains("layout-list"),
+    "table layout preserved on reopening"
+  );
+  Assert.ok(
+    abDocument.body.classList.contains("layout-table"),
+    "table layout preserved on reopening"
+  );
+  Assert.equal(
+    cardsList.getAttribute("rows"),
+    "ab-table-card-listrow",
+    "table row implementation used"
+  );
+
+  checkColumns(
+    ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Title"],
+    "EmailAddresses",
+    "descending"
+  );
+  checkNamesListed(
+    "contact three",
+    "contact two",
+    "contact four",
+    "contact one"
+  );
+  checkRowHeight(32);
+
+  // Reset layout to list.
+
+  await toggleLayout(false);
+
+  Assert.ok(
+    abDocument.body.classList.contains("layout-list"),
+    "layout changed"
+  );
+  Assert.ok(
+    !abDocument.body.classList.contains("layout-table"),
+    "layout changed"
+  );
+  Assert.equal(
+    cardsList.getAttribute("rows"),
+    "ab-card-listrow",
+    "list row implementation used"
+  );
+
+  await closeAddressBookWindow();
+
+  Services.xulStore.removeDocument("about:addressbook");
+  Services.prefs.clearUserPref("mail.uidensity");
+  personalBook.deleteCards(personalBook.childCards);
 });

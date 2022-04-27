@@ -103,6 +103,7 @@
         <img src="chrome://calendar/skin/shared/icons/sort.svg" alt="" />
       </button>
     </div>
+    <div id="cardsHeader"></div>
     <tree-view-listbox id="cards" rows="ab-card-listrow"></tree-view-listbox>
   </div>
   <hr is="pane-splitter" id="detailsSplitter" resize-id="detailsPane" />
@@ -281,11 +282,11 @@
                 data-l10n-id="about-addressbook-sort-name-descending"/>
   <xul:menuitem type="radio"
                 name="sort"
-                value="PrimaryEmail ascending"
+                value="EmailAddresses ascending"
                 data-l10n-id="about-addressbook-sort-email-ascending"/>
   <xul:menuitem type="radio"
                 name="sort"
-                value="PrimaryEmail descending"
+                value="EmailAddresses descending"
                 data-l10n-id="about-addressbook-sort-email-descending"/>
   <xul:menuseparator/>
   <xul:menuitem id="sortContextTableLayout"

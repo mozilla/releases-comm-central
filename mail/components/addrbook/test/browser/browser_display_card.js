@@ -10,8 +10,6 @@ var { CalendarTestUtils } = ChromeUtils.import(
 );
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
-const personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
-
 add_setup(async function() {
   personalBook.addCard(
     VCardUtils.vCardToAbCard("BEGIN:VCARD\r\nEND:VCARD\r\n")

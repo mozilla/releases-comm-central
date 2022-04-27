@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
-let historyBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.history");
-
 function rightClickOnIndex(index) {
   let abWindow = getAddressBookWindow();
   let booksList = abWindow.booksList;

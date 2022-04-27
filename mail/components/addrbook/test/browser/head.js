@@ -6,6 +6,11 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+const personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
+const historyBook = MailServices.ab.getDirectoryFromId(
+  "ldap_2.servers.history"
+);
+
 // We want to check that everything has been removed/reset, but if we register
 // a cleanup function here, it will run before any other cleanup function has
 // had a chance to run. Instead, when it runs register another cleanup
@@ -133,14 +138,15 @@ async function createAddressBookWithUI(abName) {
   return addressBook;
 }
 
-function createContact(firstName, lastName, displayName) {
+function createContact(firstName, lastName, displayName, primaryEmail) {
   let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   contact.displayName = displayName || `${firstName} ${lastName}`;
   contact.firstName = firstName;
   contact.lastName = lastName;
-  contact.primaryEmail = `${firstName}.${lastName}@invalid`.toLowerCase();
+  contact.primaryEmail =
+    primaryEmail || `${firstName}.${lastName}@invalid`.toLowerCase();
   return contact;
 }
 
@@ -244,6 +250,27 @@ async function showSortMenu(name, value) {
   let hiddenPromise = BrowserTestUtils.waitForEvent(sortContext, "popuphidden");
   sortContext.activateItem(
     sortContext.querySelector(`[name="${name}"][value="${value}"]`)
+  );
+  if (name == "toggle") {
+    sortContext.hidePopup();
+  }
+  await hiddenPromise;
+}
+
+async function toggleLayout(tableLayout) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let sortButton = abDocument.getElementById("sortButton");
+  let sortContext = abDocument.getElementById("sortContext");
+  let shownPromise = BrowserTestUtils.waitForEvent(sortContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(sortButton, {}, abWindow);
+  await shownPromise;
+  let hiddenPromise = BrowserTestUtils.waitForEvent(sortContext, "popuphidden");
+  sortContext.activateItem(
+    abDocument.getElementById(
+      tableLayout ? "sortContextTableLayout" : "sortContextListLayout"
+    )
   );
   await hiddenPromise;
 }
