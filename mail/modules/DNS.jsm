@@ -418,6 +418,7 @@ if (typeof Components === "undefined") {
   /* eslint-env worker */
 
   // We are in a worker, wait for our message then execute the wanted method.
+  /* import-globals-from /toolkit/components/workerloader/require.js */
   importScripts("resource://gre/modules/workers/require.js");
   let PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
 
