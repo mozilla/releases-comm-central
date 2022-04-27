@@ -69,23 +69,30 @@ class ImapClient {
   }
 
   /**
-   * Select a folder.
-   * @param {nsIMsgFolder} folder - The folder to select.
+   * Construct an nsIMsgMailNewsUrl instance, setup urlListener to notify when
+   * the current request is finished.
+   * @param {nsIMsgFolder} folder - The associated folder.
    * @param {nsIUrlListener} urlListener - Callback for the request.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @returns {nsIMsgMailNewsUrl}
    */
-  selectFolder(folder, urlListener, msgWindow) {
+  startRunningUrl(folder, urlListener) {
     this._folder = folder;
     this._urlListener = urlListener || folder.QueryInterface(Ci.nsIUrlListener);
     this.runningUrl = Services.io
       .newURI(`imap://${this._server.realHostName}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
-    this.runningUrl.updatingFolder = true;
     this._urlListener.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
+    return this.runningUrl;
+  }
 
+  /**
+   * Select a folder.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   */
+  selectFolder(msgWindow) {
     this._actionAfterSelectFolder = this._actionUidFetch;
     this._nextAction = this._actionSelectResponse;
-    this._sendTagged(`SELECT "${folder.name}"`);
+    this._sendTagged(`SELECT "${this._folder.name}"`);
   }
 
   /**
@@ -243,15 +250,33 @@ class ImapClient {
   };
 
   /**
+   * Returns the saved/cached server password, or show a password dialog. If the
+   * user cancels the dialog, stop the process.
+   * @returns {string} The server password.
+   */
+  async _getPassword() {
+    try {
+      let password = await this._authenticator.getPassword();
+      return password;
+    } catch (e) {
+      if (e.result == Cr.NS_ERROR_ABORT) {
+        this._socket.close();
+        this._actionDone(e.result);
+      }
+      throw e;
+    }
+  }
+
+  /**
    * The second step of PLAIN auth. Send the auth token to the server.
    * @param {ImapResponse} res - Response received from the server.
    */
-  _actionAuthPlain = res => {
+  _actionAuthPlain = async res => {
     this._nextAction = this._actionAuthResponse;
     // According to rfc4616#section-2, password should be BinaryString before
     // base64 encoded.
     let password = MailStringUtils.uint8ArrayToByteString(
-      new TextEncoder().encode(this._authenticator.getPassword())
+      new TextEncoder().encode(await this._getPassword())
     );
     this._send(
       btoa("\0" + this._authenticator.username + "\0" + password),

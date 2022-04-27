@@ -373,7 +373,7 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
  * @extends {IncomingServerAuthenticator}
  */
 class ImapAuthenticator extends IncomingServerAuthenticator {
-  getPassword() {
+  async getPassword() {
     if (this._server.password) {
       return this._server.password;
     }
@@ -393,7 +393,11 @@ class ImapAuthenticator extends IncomingServerAuthenticator {
     try {
       msgWindow = MailServices.mailSession.topmostMsgWindow;
     } catch (e) {}
-    return this._server.getPasswordWithUI(promptString, promptTitle, msgWindow);
+    return this._server.wrappedJSObject.getPasswordFromAuthPrompt(
+      promptString,
+      promptTitle,
+      msgWindow
+    );
   }
 
   promptAuthFailed() {

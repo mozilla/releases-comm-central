@@ -16,6 +16,8 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     server.wrappedJSObject.withClient(client => {
+      let runningUrl = client.startRunningUrl(folder, urlListener);
+      runningUrl.updatingFolder = true;
       client.onReady = () => {
         client.selectFolder(folder, urlListener, msgWindow);
       };
@@ -26,6 +28,7 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     server.wrappedJSObject.withClient(client => {
+      client.startRunningUrl(folder, urlListener);
       client.onReady = () => {};
     });
   }

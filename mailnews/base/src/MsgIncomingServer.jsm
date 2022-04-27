@@ -647,6 +647,8 @@ class MsgIncomingServer {
         this.username = outUsername.value;
       }
       this.password = outPassword.value;
+    } else {
+      throw Components.Exception("Password dialog canceled", Cr.NS_ERROR_ABORT);
     }
     return this.password;
   }
