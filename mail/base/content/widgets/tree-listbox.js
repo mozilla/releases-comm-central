@@ -864,6 +864,8 @@
    * Include tree-listbox.css for appropriate styling.
    */
   class TreeViewListbox extends HTMLElement {
+    static observedAttributes = ["rows"];
+
     /**
      * How many rows outside the visible area to keep in memory. We keep some
      * rows above and below those that are visible to avoid blank space
@@ -1105,6 +1107,15 @@
       }
     }
 
+    attributeChangedCallback(name, oldValue, newValue) {
+      this._rowElementName = newValue || "tree-view-listrow";
+      this._rowElementClass = customElements.get(this._rowElementName);
+
+      if (this._view) {
+        this.invalidate();
+      }
+    }
+
     /**
      * The current view for this list.
      *
@@ -1140,9 +1151,11 @@
             throw ex;
           }
         }
+
+        if (view.rowCount && this.currentIndex == -1) {
+          this.currentIndex = 0;
+        }
       }
-      this._rowElementName = this.getAttribute("rows") || "tree-view-listrow";
-      this._rowElementClass = customElements.get(this._rowElementName);
       this.invalidate();
 
       this.dispatchEvent(new CustomEvent("viewchange"));
@@ -1163,10 +1176,6 @@
       this.filler.style.minHeight =
         rowCount * this._rowElementClass.ROW_HEIGHT + "px";
       this._ensureVisibleRowsAreDisplayed();
-
-      if (rowCount && this.currentIndex == -1) {
-        this.currentIndex = 0;
-      }
     }
 
     /**

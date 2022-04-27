@@ -35,6 +35,28 @@ class TestCardRow extends customElements.get("tree-view-listrow") {
 }
 customElements.define("test-listrow", TestCardRow);
 
+class AlternativeCardRow extends customElements.get("tree-view-listrow") {
+  static ROW_HEIGHT = 80;
+
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+
+    super.connectedCallback();
+  }
+
+  get index() {
+    return super.index;
+  }
+
+  set index(index) {
+    super.index = index;
+    this.textContent = this.view.getCellText(index, { id: "GeneratedName" });
+  }
+}
+customElements.define("alternative-listrow", AlternativeCardRow);
+
 class TestView {
   values = [];
 

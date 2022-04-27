@@ -7,7 +7,10 @@ registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
-add_task(async function() {
+/**
+ * Checks that interactions with the widget do as expected.
+ */
+add_task(async function testKeyboardAndMouse() {
   let tab = tabmail.openTab("contentTab", {
     url:
       "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
@@ -16,12 +19,12 @@ add_task(async function() {
   await BrowserTestUtils.browserLoaded(tab.browser);
   tab.browser.focus();
 
-  await SpecialPowers.spawn(tab.browser, [], testKeyboardAndMouse);
+  await SpecialPowers.spawn(tab.browser, [], subtestKeyboardAndMouse);
 
   tabmail.closeTab(tab);
 });
 
-async function testKeyboardAndMouse() {
+async function subtestKeyboardAndMouse() {
   let doc = content.document;
 
   let list = doc.querySelector("tree-view-listbox");
@@ -402,7 +405,10 @@ async function testKeyboardAndMouse() {
   Assert.greater(bcr.bottom, listRect.top, "bottom of row 0 is visible");
 }
 
-add_task(async function() {
+/**
+ * Checks that changes in the view are propagated to the list.
+ */
+add_task(async function testRowCountChange() {
   let tab = tabmail.openTab("contentTab", {
     url:
       "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
@@ -411,12 +417,12 @@ add_task(async function() {
   await BrowserTestUtils.browserLoaded(tab.browser);
   tab.browser.focus();
 
-  await SpecialPowers.spawn(tab.browser, [], testRowCountChange);
+  await SpecialPowers.spawn(tab.browser, [], subtestRowCountChange);
 
   tabmail.closeTab(tab);
 });
 
-async function testRowCountChange() {
+async function subtestRowCountChange() {
   let doc = content.document;
 
   let ROW_HEIGHT = 50;
@@ -825,20 +831,6 @@ async function testRowCountChange() {
   list.selectedIndex = -1;
 }
 
-add_task(async function() {
-  let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox2.xhtml",
-  });
-
-  await BrowserTestUtils.browserLoaded(tab.browser);
-  tab.browser.focus();
-
-  await SpecialPowers.spawn(tab.browser, [], testExpandCollapse);
-
-  tabmail.closeTab(tab);
-});
-
 /**
  * Checks that expanding and collapsing works. Twisties in the test file are
  * styled as coloured squares: red for collapsed, green for expanded.
@@ -847,7 +839,21 @@ add_task(async function() {
  * for TreeViewListbox instead of TreeListbox. If you make changes here you
  * may want to make changes there too.
  */
-async function testExpandCollapse() {
+add_task(async function testExpandCollapse() {
+  let tab = tabmail.openTab("contentTab", {
+    url:
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox2.xhtml",
+  });
+
+  await BrowserTestUtils.browserLoaded(tab.browser);
+  tab.browser.focus();
+
+  await SpecialPowers.spawn(tab.browser, [], subtestExpandCollapse);
+
+  tabmail.closeTab(tab);
+});
+
+async function subtestExpandCollapse() {
   let doc = content.document;
   let list = doc.querySelector("tree-view-listbox");
   let allIds = [
@@ -1353,4 +1359,70 @@ async function testExpandCollapse() {
   list.removeEventListener("expanded", listener);
   list.removeEventListener("select", selectHandler);
   doc.documentElement.dir = null;
+}
+
+/**
+ * Checks that the row widget can be changed, redrawing the rows and
+ * maintaining the selection.
+ */
+add_task(async function testRowClassChange() {
+  let tab = tabmail.openTab("contentTab", {
+    url:
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
+  });
+
+  await BrowserTestUtils.browserLoaded(tab.browser);
+  tab.browser.focus();
+
+  await SpecialPowers.spawn(tab.browser, [], subtestRowClassChange);
+
+  tabmail.closeTab(tab);
+});
+
+async function subtestRowClassChange() {
+  let doc = content.document;
+  let list = doc.querySelector("tree-view-listbox");
+  let indices = (list.selectedIndices = [1, 2, 3, 5, 8, 13, 21, 34]);
+  list.currentIndex = 5;
+
+  for (let row of list.children) {
+    Assert.equal(row.localName, "test-listrow");
+    Assert.equal(row.clientHeight, 50);
+    Assert.equal(
+      row.classList.contains("selected"),
+      indices.includes(row.index)
+    );
+    Assert.equal(row.classList.contains("current"), row.index == 5);
+  }
+
+  info("switching row class to AlternativeCardRow");
+  list.setAttribute("rows", "alternative-listrow");
+  Assert.deepEqual(list.selectedIndices, indices);
+  Assert.equal(list.currentIndex, 5);
+
+  for (let row of list.children) {
+    Assert.equal(row.localName, "alternative-listrow");
+    Assert.equal(row.clientHeight, 80);
+    Assert.equal(
+      row.classList.contains("selected"),
+      indices.includes(row.index)
+    );
+    Assert.equal(row.classList.contains("current"), row.index == 5);
+  }
+
+  list.selectedIndex = -1;
+  Assert.deepEqual(list.selectedIndices, []);
+  Assert.equal(list.currentIndex, -1);
+
+  info("switching row class to TestCardRow");
+  list.setAttribute("rows", "test-listrow");
+  Assert.deepEqual(list.selectedIndices, []);
+  Assert.equal(list.currentIndex, -1);
+
+  for (let row of list.children) {
+    Assert.equal(row.localName, "test-listrow");
+    Assert.equal(row.clientHeight, 50);
+    Assert.ok(!row.classList.contains("selected"));
+    Assert.ok(!row.classList.contains("current"));
+  }
 }
