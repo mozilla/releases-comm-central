@@ -146,10 +146,10 @@ char* MimeExternalBody_make_url(const char* ct, const char* at,
     if (s[strlen(s) - 1] != '/') PL_strcatn(s, slen, "/");
     PL_strcatn(s, slen, name);
     return s;
+#ifdef XP_UNIX
   } else if (!PL_strcasecmp(at, "local-file") || !PL_strcasecmp(at, "afs")) {
     if (!name) return 0;
 
-#ifdef XP_UNIX
     if (!PL_strcasecmp(at, "afs")) /* only if there is a /afs/ directory */
     {
       nsCOMPtr<nsIFile> fs = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
@@ -160,9 +160,6 @@ char* MimeExternalBody_make_url(const char* ct, const char* at,
       }
       if (!exists) return 0;
     }
-#else  /* !XP_UNIX */
-    return 0; /* never, if not Unix. */
-#endif /* !XP_UNIX */
 
     slen = (strlen(name) * 3 + 20);
     s = (char*)PR_MALLOC(slen);
@@ -173,6 +170,7 @@ char* MimeExternalBody_make_url(const char* ct, const char* at,
     MsgEscapeString(nsDependentCString(name), nsINetUtil::ESCAPE_URL_PATH, s2);
     PL_strcatn(s, slen, s2.get());
     return s;
+#endif
   } else if (!PL_strcasecmp(at, "mail-server")) {
     if (!svr) return 0;
 
