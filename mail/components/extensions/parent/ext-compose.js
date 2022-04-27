@@ -19,6 +19,13 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
 
+const deliveryFormats = [
+  { id: Ci.nsIMsgCompSendFormat.Auto, value: "auto" },
+  { id: Ci.nsIMsgCompSendFormat.PlainText, value: "plaintext" },
+  { id: Ci.nsIMsgCompSendFormat.HTML, value: "html" },
+  { id: Ci.nsIMsgCompSendFormat.Both, value: "both" },
+];
+
 async function parseComposeRecipientList(
   list,
   requireSingleValidEmail = false
@@ -346,6 +353,10 @@ async function getComposeDetails(composeWindow, extension) {
     }
   }
 
+  let deliveryFormat = composeWindow.IsHTMLEditor()
+    ? deliveryFormats.find(f => f.id == composeFields.deliveryFormat).value
+    : null;
+
   let details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
     to: composeFields.splitRecipients(composeFields.to, false),
@@ -365,6 +376,7 @@ async function getComposeDetails(composeWindow, extension) {
       : [],
     subject: composeFields.subject,
     isPlainText: !composeWindow.IsHTMLEditor(),
+    deliveryFormat,
     body: editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw),
     plainTextBody: editor.outputToString(
       "text/plain",
@@ -561,6 +573,15 @@ async function setComposeDetails(composeWindow, details, extension) {
     composeWindow.gDSNOptionChanged = true;
   }
 
+  if (details.deliveryFormat && composeWindow.IsHTMLEditor()) {
+    // Do not throw when a deliveryFormat is set on a plaint text composer, because
+    // it is allowed to set ComposeDetails of an html composer onto a plain text
+    // composer (and automatically pick the plainText body). The deliveryFormat
+    // will be ignored.
+    composeWindow.gMsgCompose.compFields.deliveryFormat = deliveryFormats.find(
+      f => f.value == details.deliveryFormat
+    ).id;
+  }
   activeElement.focus();
 }
 

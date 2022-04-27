@@ -475,6 +475,14 @@ add_task(async function testSimpleDetails() {
           );
         }
 
+        if (expected.deliveryFormat) {
+          browser.test.assertEq(
+            expected.deliveryFormat,
+            state.deliveryFormat,
+            "deliveryFormat should be correct"
+          );
+        }
+
         await window.sendMessage("checkWindow", expected);
       }
 
@@ -491,6 +499,7 @@ add_task(async function testSimpleDetails() {
         priority: "normal",
         returnReceipt: false,
         deliveryStatusNotification: false,
+        deliveryFormat: "auto",
       };
       async function changeDetail(key, value) {
         await browser.compose.setComposeDetails(createdTab.id, {
@@ -502,9 +511,13 @@ add_task(async function testSimpleDetails() {
 
       await checkWindow(createdTab, expected);
       await changeDetail("priority", "highest");
+      await changeDetail("deliveryFormat", "html");
       await changeDetail("returnReceipt", true);
+      await changeDetail("deliveryFormat", "plaintext");
       await changeDetail("priority", "lowest");
+      await changeDetail("deliveryFormat", "both");
       await changeDetail("deliveryStatusNotification", true);
+      await changeDetail("deliveryFormat", "auto");
       await changeDetail("priority", "high");
       await changeDetail("returnReceipt", false);
       await changeDetail("priority", "low");

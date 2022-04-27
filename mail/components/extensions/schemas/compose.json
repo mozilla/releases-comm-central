@@ -196,6 +196,17 @@
             "description": "Whether the message is an HTML message or a plain text message.",
             "optional": true
           },
+          "deliveryFormat": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "plaintext",
+              "html",
+              "both"
+            ],
+            "description": "Defines the mime format of the send message (ignored on plain text messages). Defaults to ``auto``, which will send html messages as plain text, if they do not include any formatting, and as ``both`` otherwise (a multipart/mixed message).",
+            "optional": true
+          },
           "customHeaders": {
             "type": "array",
             "items": {

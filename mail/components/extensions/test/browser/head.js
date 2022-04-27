@@ -506,6 +506,19 @@ async function checkComposeHeaders(expected) {
     composeFields.DSN,
     "deliveryStatusNotification in window should be correct"
   );
+
+  // If expected.deliveryStatusNotification is not specified, default to auto.
+  const deliveryFormats = {
+    auto: Ci.nsIMsgCompSendFormat.Auto,
+    plaintext: Ci.nsIMsgCompSendFormat.PlainText,
+    html: Ci.nsIMsgCompSendFormat.HTML,
+    both: Ci.nsIMsgCompSendFormat.Both,
+  };
+  is(
+    deliveryFormats[expected.deliveryFormat || "auto"],
+    composeFields.deliveryFormat,
+    "deliveryFormat in window should be correct"
+  );
 }
 
 async function openContextMenu(selector = "#img1", win = window) {
