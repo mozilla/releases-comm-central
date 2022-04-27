@@ -193,6 +193,7 @@ add_task(async function test_theme_icons() {
     "thunderbird-compact-dark@mozilla.org"
   );
   await dark_theme.enable();
+  await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     window.getComputedStyle(button).listStyleImage,
     `url("moz-extension://${uuid}/light.png")`,
@@ -203,6 +204,7 @@ add_task(async function test_theme_icons() {
     "thunderbird-compact-light@mozilla.org"
   );
   await light_theme.enable();
+  await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     window.getComputedStyle(button).listStyleImage,
     `url("moz-extension://${uuid}/dark.png")`,
