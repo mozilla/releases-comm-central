@@ -237,6 +237,11 @@
             "optional": true,
             "description": "Let the sender know when the recipient's server received the message. Not supported by all servers."
           },
+          "attachVCard": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Wether or not the vCard of the used identity will be attached to the message during send. Note: If the value has not been modified, selecting a different identity will load the default value of the new identity."
+          },
           "attachments": {
             "type": "array",
             "items": {

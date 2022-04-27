@@ -414,6 +414,14 @@ async function checkComposeHeaders(expected) {
     is(composeWindows[0].getCurrentIdentityKey(), expected.identityId);
   }
 
+  if (expected.attachVCard) {
+    is(
+      expected.attachVCard,
+      composeFields.attachVCard,
+      "attachVCard in window should be correct"
+    );
+  }
+
   let checkField = (fieldName, elementId) => {
     let pills = composeDocument
       .getElementById(elementId)

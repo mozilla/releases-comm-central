@@ -5,6 +5,9 @@
 let account = createAccount();
 let defaultIdentity = addIdentity(account);
 let nonDefaultIdentity = addIdentity(account);
+defaultIdentity.attachVCard = false;
+nonDefaultIdentity.attachVCard = true;
+
 let gRootFolder = account.incomingServer.rootFolder;
 
 gRootFolder.createSubfolder("test", null);
@@ -475,6 +478,14 @@ add_task(async function testSimpleDetails() {
           );
         }
 
+        if (expected.hasOwnProperty("attachVCard")) {
+          browser.test.assertEq(
+            expected.attachVCard,
+            state.attachVCard,
+            "attachVCard should be correct"
+          );
+        }
+
         if (expected.deliveryFormat) {
           browser.test.assertEq(
             expected.deliveryFormat,
@@ -495,34 +506,70 @@ add_task(async function testSimpleDetails() {
         windowId: createdWindow.id,
       });
 
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(1, accounts.length, "number of accounts");
+      let localAccount = accounts.find(a => a.type == "none");
+      browser.test.assertEq(
+        2,
+        localAccount.identities.length,
+        "number of identities"
+      );
+      let [defaultIdentity, nonDefaultIdentity] = localAccount.identities;
+
       let expected = {
         priority: "normal",
         returnReceipt: false,
         deliveryStatusNotification: false,
         deliveryFormat: "auto",
+        attachVCard: false,
+        identityId: defaultIdentity.id,
       };
-      async function changeDetail(key, value) {
+
+      async function changeDetail(key, value, _expected = {}) {
         await browser.compose.setComposeDetails(createdTab.id, {
           [key]: value,
         });
         expected[key] = value;
+        for (let [k, v] of Object.entries(_expected)) {
+          expected[k] = v;
+        }
         await checkWindow(createdTab, expected);
       }
 
+      // Confirm initial condition.
       await checkWindow(createdTab, expected);
+
+      // Changing the identity without having made any changes, should load the
+      // defaults of the second identity.
+      await changeDetail("identityId", nonDefaultIdentity.id, {
+        attachVCard: true,
+      });
+
+      // Switching back should restore the defaults of the first identity.
+      await changeDetail("identityId", defaultIdentity.id, {
+        attachVCard: false,
+      });
+
       await changeDetail("priority", "highest");
       await changeDetail("deliveryFormat", "html");
       await changeDetail("returnReceipt", true);
       await changeDetail("deliveryFormat", "plaintext");
       await changeDetail("priority", "lowest");
+      await changeDetail("attachVCard", true);
+      await changeDetail("priority", "high");
       await changeDetail("deliveryFormat", "both");
       await changeDetail("deliveryStatusNotification", true);
-      await changeDetail("deliveryFormat", "auto");
-      await changeDetail("priority", "high");
-      await changeDetail("returnReceipt", false);
       await changeDetail("priority", "low");
-      await changeDetail("deliveryStatusNotification", false);
+
       await changeDetail("priority", "normal");
+      await changeDetail("deliveryFormat", "auto");
+      await changeDetail("attachVCard", false);
+      await changeDetail("returnReceipt", false);
+      await changeDetail("deliveryStatusNotification", false);
+
+      // Changing the identity should not load the defaults of the second identity,
+      // after the values had been changed.
+      await changeDetail("identityId", nonDefaultIdentity.id);
 
       // Clean up.
 

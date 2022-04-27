@@ -386,6 +386,7 @@ async function getComposeDetails(composeWindow, extension) {
     priority: composeFields.priority.toLowerCase() || "normal",
     returnReceipt: composeFields.returnReceipt,
     deliveryStatusNotification: composeFields.DSN,
+    attachVCard: composeFields.attachVCard,
   };
   if (extension.hasPermission("accountsRead")) {
     details.identityId = composeWindow.getCurrentIdentityKey();
@@ -471,7 +472,11 @@ async function setComposeDetails(composeWindow, details, extension) {
     if (!identity) {
       throw new ExtensionError(`Identity not found: ${details.identityId}`);
     }
-    details.identityKey = details.identityId;
+    let identityElement = composeWindow.document.getElementById("msgIdentity");
+    identityElement.selectedItem = [
+      ...identityElement.childNodes[0].childNodes,
+    ].find(e => e.getAttribute("identitykey") == details.identityId);
+    composeWindow.LoadIdentity(false);
   }
   for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
     if (field in details) {
@@ -582,6 +587,12 @@ async function setComposeDetails(composeWindow, details, extension) {
       f => f.value == details.deliveryFormat
     ).id;
   }
+
+  if (details.attachVCard != null) {
+    composeWindow.gMsgCompose.compFields.attachVCard = details.attachVCard;
+    composeWindow.gAttachVCardOptionChanged = true;
+  }
+
   activeElement.focus();
 }
 
