@@ -64,6 +64,9 @@
        (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
     appearance: none;
+  }
+
+  #menubar-items > #mail-menubar > menu:not([disabled="true"]) {
     color: inherit;
   }
 }
