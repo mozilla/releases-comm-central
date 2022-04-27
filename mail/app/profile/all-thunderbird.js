@@ -1294,6 +1294,8 @@ pref("devtools.popup.disable_autohide", false);
 
 // Enable overflow debugging in the inspector.
 pref("devtools.overflow.debugging.enabled", true);
+// Enable drag to edit properties in the inspector rule view.
+pref("devtools.inspector.draggable_properties", true);
 
 // Telemetry settings.
 
