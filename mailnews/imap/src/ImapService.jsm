@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["ImapService"];
 
-var { ImapClient } = ChromeUtils.import("resource:///modules/ImapClient.jsm");
-
 /**
  * Set mailnews.imap.jsmodule to true to use this module.
  *
@@ -15,21 +13,21 @@ class ImapService {
   QueryInterface = ChromeUtils.generateQI(["nsIImapService"]);
 
   selectFolder(folder, urlListener, msgWindow) {
-    let client = new ImapClient(
-      folder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
-    );
-    client.onReady = () => {
-      client.selectFolder(folder, urlListener, msgWindow);
-    };
-    client.connect();
+    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
+      .imapIncomingServer;
+    server.wrappedJSObject.withClient(client => {
+      client.onReady = () => {
+        client.selectFolder(folder, urlListener, msgWindow);
+      };
+    });
   }
 
   discoverAllFolders(folder, urlListener, msgWindow) {
-    let client = new ImapClient(
-      folder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
-    );
-    client.onReady = () => {};
-    client.connect();
+    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
+      .imapIncomingServer;
+    server.wrappedJSObject.withClient(client => {
+      client.onReady = () => {};
+    });
   }
 
   addMessageFlags(folder, urlListener, messageIds, flags, messageIdsAreUID) {
@@ -58,13 +56,19 @@ class ImapService {
   }
 
   _updateMessageFlags(action, folder, urlListener, messageIds, flags) {
-    let client = new ImapClient(
-      folder.QueryInterface(Ci.nsIMsgImapMailFolder).imapIncomingServer
-    );
-    client.onReady = () => {
-      client.updateMesageFlags(action, folder, urlListener, messageIds, flags);
-    };
-    client.connect();
+    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
+      .imapIncomingServer;
+    server.wrappedJSObject.withClient(client => {
+      client.onReady = () => {
+        client.updateMesageFlags(
+          action,
+          folder,
+          urlListener,
+          messageIds,
+          flags
+        );
+      };
+    });
   }
 }
 

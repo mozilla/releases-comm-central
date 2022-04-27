@@ -47,16 +47,25 @@ class ImapClient {
    * Initiate a connection to the server
    */
   connect() {
-    this._logger.debug(
-      `Connecting to ${this._server.realHostName}:${this._server.port}`
-    );
-    this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
-    this._socket = new TCPSocket(this._server.realHostName, this._server.port, {
-      binaryType: "arraybuffer",
-      useSecureTransport: this._secureTransport,
-    });
-    this._socket.onopen = this._onOpen;
-    this._socket.onerror = this._onError;
+    if (this._socket?.readyState == "open") {
+      // Reuse the connection.
+      this.onReady();
+    } else {
+      this._logger.debug(
+        `Connecting to ${this._server.realHostName}:${this._server.port}`
+      );
+      this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
+      this._socket = new TCPSocket(
+        this._server.realHostName,
+        this._server.port,
+        {
+          binaryType: "arraybuffer",
+          useSecureTransport: this._secureTransport,
+        }
+      );
+      this._socket.onopen = this._onOpen;
+      this._socket.onerror = this._onError;
+    }
   }
 
   /**
@@ -94,11 +103,12 @@ class ImapClient {
       return `UID STORE ${messageIds} ${action}FLAGS ${flagsStr}`;
     };
     if (this._folder == folder) {
+      this._nextAction = () => this._actionDone();
       this._sendTagged(getCommand());
     } else {
       this._folder = folder;
       this._actionAfterSelectFolder = () => {
-        this._nextAction = null;
+        this._nextAction = () => this._actionDone();
         this._sendTagged(getCommand());
       };
       this._nextAction = this._actionSelectResponse;
@@ -335,6 +345,7 @@ class ImapClient {
    */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
-    this._urlListener.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
+    this._urlListener?.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
+    this.onIdle?.();
   };
 }
