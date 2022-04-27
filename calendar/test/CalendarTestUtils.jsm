@@ -25,10 +25,10 @@ async function clickAndWait(win, button) {
 /**
  * @typedef EditItemAtResult
  * @property {Window} dialogWindow - The window of the dialog.
- * @property {HTMLDocument} dialogDocument - The document of the dialog window.
+ * @property {Document} dialogDocument - The document of the dialog window.
  * @property {Window} iframeWindow - The contentWindow property of the embedded
  *  iframe.
- * @property {HTMLDocument} iframeDocument - The contentDocument of the embedded
+ * @property {Document} iframeDocument - The contentDocument of the embedded
  *  iframe.
  */
 
@@ -36,7 +36,7 @@ async function clickAndWait(win, button) {
  * Helper class for testing the day view of the calendar.
  */
 class CalendarDayViewTestUtils {
-  _helper = new CalendarWeekViewTestUtils("#day-view");
+  #helper = new CalendarWeekViewTestUtils("#day-view");
 
   /**
    * Provides the calendar-event-column for the day displayed.
@@ -46,7 +46,7 @@ class CalendarDayViewTestUtils {
    * @return {MozCalendarEventColumn} - The column.
    */
   getEventColumn(win) {
-    return this._helper.getEventColumn(win, 1);
+    return this.#helper.getEventColumn(win, 1);
   }
 
   /**
@@ -57,7 +57,7 @@ class CalendarDayViewTestUtils {
    * @return {MozCalendarEventBox[]} - The event boxes.
    */
   getEventBoxes(win) {
-    return this._helper.getEventBoxes(win, 1);
+    return this.#helper.getEventBoxes(win, 1);
   }
 
   /**
@@ -70,7 +70,7 @@ class CalendarDayViewTestUtils {
    * @return {MozCalendarEventBox|undefined} - The event box, if it exists.
    */
   getEventBoxAt(win, index) {
-    return this._helper.getEventBoxAt(win, 1, index);
+    return this.#helper.getEventBoxAt(win, 1, index);
   }
 
   /**
@@ -83,7 +83,7 @@ class CalendarDayViewTestUtils {
    * @returns {XULElement} - The hour box.
    */
   getHourBoxAt(win, hour) {
-    return this._helper.getHourBoxAt(win, 1, hour);
+    return this.#helper.getHourBoxAt(win, 1, hour);
   }
 
   /**
@@ -95,7 +95,7 @@ class CalendarDayViewTestUtils {
    * @returns {CalendarHeaderContainer} - The all-day header.
    */
   getAllDayHeader(win) {
-    return this._helper.getAllDayHeader(win, 1);
+    return this.#helper.getAllDayHeader(win, 1);
   }
 
   /**
@@ -109,7 +109,7 @@ class CalendarDayViewTestUtils {
    *   exists.
    */
   getAllDayItemAt(win, index) {
-    return this._helper.getAllDayItemAt(win, 1, index);
+    return this.#helper.getAllDayItemAt(win, 1, index);
   }
 
   /**
@@ -122,7 +122,7 @@ class CalendarDayViewTestUtils {
    * @return {MozCalendarEventBox} - The event box.
    */
   async waitForEventBoxAt(win, index) {
-    return this._helper.waitForEventBoxAt(win, 1, index);
+    return this.#helper.waitForEventBoxAt(win, 1, index);
   }
 
   /**
@@ -133,7 +133,7 @@ class CalendarDayViewTestUtils {
    * @param {number} index - Indicates the event box (1-based).
    */
   async waitForNoEventBoxAt(win, index) {
-    return this._helper.waitForNoEventBoxAt(win, 1, index);
+    return this.#helper.waitForNoEventBoxAt(win, 1, index);
   }
 
   /**
@@ -145,7 +145,7 @@ class CalendarDayViewTestUtils {
    * @returns {MozCalendarEditableItem} - The all-day item.
    */
   async waitForAllDayItemAt(win, index) {
-    return this._helper.waitForAllDayItemAt(win, 1, index);
+    return this.#helper.waitForAllDayItemAt(win, 1, index);
   }
 
   /**
@@ -158,7 +158,7 @@ class CalendarDayViewTestUtils {
    * @returns {Window} - The summary event dialog window.
    */
   async viewEventAt(win, index) {
-    return this._helper.viewEventAt(win, 1, index);
+    return this.#helper.viewEventAt(win, 1, index);
   }
 
   /**
@@ -171,7 +171,7 @@ class CalendarDayViewTestUtils {
    * @returns {EditItemAtResult}
    */
   async editEventAt(win, index) {
-    return this._helper.editEventAt(win, 1, index);
+    return this.#helper.editEventAt(win, 1, index);
   }
 
   /**
@@ -184,7 +184,7 @@ class CalendarDayViewTestUtils {
    * @returns {EditItemAtResult}
    */
   async editEventOccurrenceAt(win, index) {
-    return this._helper.editEventOccurrenceAt(win, 1, index);
+    return this.#helper.editEventOccurrenceAt(win, 1, index);
   }
 
   /**
@@ -197,7 +197,7 @@ class CalendarDayViewTestUtils {
    * @returns {EditItemAtResult}
    */
   async editEventOccurrencesAt(win, index) {
-    return this._helper.editEventOccurrencesAt(win, 1, index);
+    return this.#helper.editEventOccurrencesAt(win, 1, index);
   }
 }
 
@@ -210,6 +210,28 @@ class CalendarWeekViewTestUtils {
   }
 
   /**
+   * Provides the column container element for the day specified.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   *
+   * @throws If the day parameter is out of range.
+   * @return {HTMLElement} - The column container element.
+   */
+  getColumnContainer(win, day) {
+    if (day < 1 || day > 7) {
+      throw new Error(
+        `Invalid parameter to #getColumnContainer(): expected day=1-7, got day=${day}.`
+      );
+    }
+
+    let containers = win.document.documentElement.querySelectorAll(
+      `${this.rootSelector} .day-column-container`
+    );
+    return containers[day - 1];
+  }
+
+  /**
    * Provides the calendar-event-column for the day specified.
    *
    * @param {Window} win - The window the calendar is displayed in.
@@ -219,14 +241,8 @@ class CalendarWeekViewTestUtils {
    * @return {MozCalendarEventColumn} - The column.
    */
   getEventColumn(win, day) {
-    if (day < 1 || day > 7) {
-      throw new Error(`Invalid parameter to getEventColumn(): expected day=1-7, got day=${day}.`);
-    }
-
-    let columns = win.document.documentElement.querySelectorAll(
-      `${this.rootSelector} calendar-event-column`
-    );
-    return columns[day - 1];
+    let container = this.getColumnContainer(win, day);
+    return container.querySelector("calendar-event-column");
   }
 
   /**
@@ -238,8 +254,8 @@ class CalendarWeekViewTestUtils {
    * @return {MozCalendarEventBox[]} - The event boxes.
    */
   getEventBoxes(win, day) {
-    let column = this.getEventColumn(win, day);
-    return column.querySelectorAll(".multiday-events-list calendar-event-box");
+    let container = this.getColumnContainer(win, day);
+    return container.querySelectorAll(".multiday-events-list calendar-event-box");
   }
 
   /**
@@ -268,8 +284,8 @@ class CalendarWeekViewTestUtils {
    * @returns {XULElement} - The hour box.
    */
   getHourBoxAt(win, day, hour) {
-    let column = this.getEventColumn(win, day);
-    return column.querySelectorAll(".multiday-hour-box")[hour];
+    let container = this.getColumnContainer(win, day);
+    return container.querySelectorAll(".multiday-hour-box")[hour];
   }
 
   /**
@@ -283,14 +299,8 @@ class CalendarWeekViewTestUtils {
    * @returns {CalendarHeaderContainer} - The all-day header.
    */
   getAllDayHeader(win, day) {
-    if (!(day >= 1 && day <= 7)) {
-      throw new Error(`Invalid parameter to getAllDayHeader(): expected day=1-7, got day=${day}`);
-    }
-
-    let headers = win.document.documentElement.querySelectorAll(
-      `${this.rootSelector} calendar-header-container`
-    );
-    return headers[day - 1];
+    let container = this.getColumnContainer(win, day);
+    return container.querySelector("calendar-header-container");
   }
 
   /**
@@ -307,7 +317,7 @@ class CalendarWeekViewTestUtils {
    */
   getAllDayItemAt(win, day, index) {
     let allDayHeader = this.getAllDayHeader(win, day);
-    return allDayHeader.querySelectorAll(`calendar-editable-item`)[index - 1];
+    return allDayHeader.querySelectorAll("calendar-editable-item")[index - 1];
   }
 
   /**
@@ -998,10 +1008,10 @@ const CalendarTestUtils = {
   /**
    * Go to today.
    *
-   * @param {Window} window - Main window
+   * @param {Window} win - Main window
    */
   async goToToday(win) {
-    EventUtils.synthesizeMouseAtCenter(win.document.getElementById("today-view-button"), {}, win);
+    EventUtils.synthesizeMouseAtCenter(this.getNavBarTodayButton(win), {}, win);
     await CalendarTestUtils.ensureViewLoaded(win);
   },
 
@@ -1117,5 +1127,16 @@ const CalendarTestUtils = {
       );
     }
     await CalendarTestUtils.closeCalendarTab(win);
+  },
+
+  /**
+   * Get the Today button from the navigation bar.
+   *
+   * @param {Window} win - The window which contains the calendar.
+   *
+   * @returns {HTMLElement} - The today button.
+   */
+  getNavBarTodayButton(win) {
+    return win.document.getElementById("today-view-button");
   },
 };
