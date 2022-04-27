@@ -69,7 +69,7 @@ add_setup(async function() {
 add_task(async function testAcceptWithResponse() {
   transport.reset();
   let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  clickAction(win, "imipAcceptButton");
+  await clickAction(win, "imipAcceptButton");
 
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
@@ -92,7 +92,7 @@ add_task(async function testAcceptWithResponse() {
 add_task(async function testTentativeWithResponse() {
   transport.reset();
   let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  clickAction(win, "imipTentativeButton");
+  await clickAction(win, "imipTentativeButton");
 
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
@@ -115,7 +115,7 @@ add_task(async function testTentativeWithResponse() {
 add_task(async function testDeclineWithResponse() {
   transport.reset();
   let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  clickAction(win, "imipDeclineButton");
+  await clickAction(win, "imipDeclineButton");
 
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(

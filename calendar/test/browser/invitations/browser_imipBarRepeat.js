@@ -72,7 +72,7 @@ add_setup(async function() {
 add_task(async function testAcceptRecurringWithResponse() {
   transport.reset();
   let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
-  clickAction(win, "imipAcceptRecurrencesButton");
+  await clickAction(win, "imipAcceptRecurrencesButton");
 
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
@@ -97,7 +97,7 @@ add_task(async function testAcceptRecurringWithResponse() {
 add_task(async function testTentativeRecurringWithResponse() {
   transport.reset();
   let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
-  clickAction(win, "imipTentativeRecurrencesButton");
+  await clickAction(win, "imipTentativeRecurrencesButton");
 
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
@@ -121,7 +121,7 @@ add_task(async function testTentativeRecurringWithResponse() {
 add_task(async function testDeclineRecurringWithResponse() {
   transport.reset();
   let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
-  clickAction(win, "imipDeclineRecurrencesButton");
+  await clickAction(win, "imipDeclineRecurrencesButton");
 
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
 
