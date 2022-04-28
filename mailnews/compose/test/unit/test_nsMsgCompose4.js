@@ -122,27 +122,6 @@ function run_test() {
 
   checkPopulate("TestList3 <TestList3>", "");
 
-  // Test determineHTMLAction w/ mailnews.html_domains set.
-  Services.prefs.setCharPref(
-    "mailnews.html_domains",
-    "foo.invalid,bar.invalid"
-  );
-  checkPopulate("htmlformat@foo.invalid,unknownformat@nonfoo.invalid", "");
-  Services.prefs.clearUserPref("mailnews.html_domains");
-
-  // Test determineHTMLAction w/ mailnews.plaintext_domains set.
-  Services.prefs.setCharPref(
-    "mailnews.plaintext_domains",
-    "foo.invalid,bar.invalid"
-  );
-  checkPopulate("plainformat@foo.invalid,unknownformat@nonfoo.invalid", "");
-  checkPopulate(
-    "plainformat@foo.invalid,plainformat@cc.bar.invalid",
-    "",
-    Ci.nsIMsgCompSendFormat.PlainText
-  );
-  Services.prefs.clearUserPref("mailnews.plaintext_domains");
-
   // Test - determineHTMLAction with items from multiple address books.
 
   checkPopulate("TestList1 <TestList1>, test3@com.invalid", "");

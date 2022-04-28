@@ -113,32 +113,6 @@ function run_test() {
 
   checkPopulate("TestList3 <TestList3>", "test5@foo.invalid");
 
-  // Test expandMailingLists w/ mailnews.html_domains set.
-  Services.prefs.setCharPref(
-    "mailnews.html_domains",
-    "foo.invalid,bar.invalid"
-  );
-  checkPopulate(
-    "htmlformat@foo.invalid,unknownformat@nonfoo.invalid",
-    "htmlformat@foo.invalid,unknownformat@nonfoo.invalid"
-  );
-  Services.prefs.clearUserPref("mailnews.html_domains");
-
-  // Test expandMailingLists w/ mailnews.plaintext_domains set.
-  Services.prefs.setCharPref(
-    "mailnews.plaintext_domains",
-    "foo.invalid,bar.invalid"
-  );
-  checkPopulate(
-    "plainformat@foo.invalid,unknownformat@nonfoo.invalid",
-    "plainformat@foo.invalid,unknownformat@nonfoo.invalid"
-  );
-  checkPopulate(
-    "plainformat@foo.invalid,plainformat@cc.bar.invalid",
-    "plainformat@foo.invalid,plainformat@cc.bar.invalid"
-  );
-  Services.prefs.clearUserPref("mailnews.plaintext_domains");
-
   // Test - expandMailingLists with items from multiple address books.
 
   checkPopulate(

@@ -269,8 +269,6 @@ static nsSeamonkeyProfileMigrator::PrefTransform gTransforms[] = {
     MAKESAMETYPEPREFTRANSFORM("mail.forward_message_mode", Int),
     MAKESAMETYPEPREFTRANSFORM("mail.SpellCheckBeforeSend", Bool),
     MAKESAMETYPEPREFTRANSFORM("mail.warn_on_send_accel_key", Bool),
-    MAKESAMETYPEPREFTRANSFORM("mailnews.html_domains", String),
-    MAKESAMETYPEPREFTRANSFORM("mailnews.plaintext_domains", String),
     MAKESAMETYPEPREFTRANSFORM("mailnews.headers.showUserAgent", Bool),
     MAKESAMETYPEPREFTRANSFORM("mailnews.headers.showOrganization", Bool),
     MAKESAMETYPEPREFTRANSFORM("mail.biff.play_sound", Bool),
