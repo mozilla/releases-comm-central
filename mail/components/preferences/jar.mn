@@ -20,8 +20,6 @@ messenger.jar:
     content/messenger/preferences/compose.js
     content/messenger/preferences/extensionControlled.js
     content/messenger/preferences/privacy.js
-    content/messenger/preferences/sendoptions.xhtml
-    content/messenger/preferences/sendoptions.js
     content/messenger/preferences/receipts.js
     content/messenger/preferences/receipts.xhtml
     content/messenger/preferences/connection.js

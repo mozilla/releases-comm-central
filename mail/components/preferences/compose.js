@@ -82,10 +82,6 @@ var gComposePane = {
     gCloudFile.init();
   },
 
-  sendOptionsDialog() {
-    gSubDialog.open("chrome://messenger/content/preferences/sendoptions.xhtml");
-  },
-
   attachmentReminderOptionsDialog() {
     gSubDialog.open(
       "chrome://messenger/content/preferences/attachmentReminder.xhtml",

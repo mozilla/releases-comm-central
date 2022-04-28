@@ -569,12 +569,6 @@ default-format-label =
     .label = Use Paragraph format instead of Body Text by default
     .accesskey = P
 
-format-description = Configure text format behavior
-
-send-options-label =
-    .label = Send Options…
-    .accesskey = S
-
 autocomplete-description = When addressing messages, look for matching entries in:
 
 ab-label =
