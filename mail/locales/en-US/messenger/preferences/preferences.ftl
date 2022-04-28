@@ -569,6 +569,28 @@ default-format-label =
     .label = Use Paragraph format instead of Body Text by default
     .accesskey = P
 
+compose-send-format-title = Sending Format
+
+compose-send-automatic-option =
+    .label = Automatic
+
+compose-send-automatic-description = If no styling is used in the message, send Plain Text. Otherwise, send HTML with a Plain Text fallback.
+
+compose-send-both-option =
+    .label = Both HTML and Plain Text
+
+compose-send-both-description = The recipient’s email application will determine which version to show.
+
+compose-send-html-option =
+    .label = Only HTML
+
+compose-send-html-description = Some recipients may not be able to read the message without a Plain Text fallback.
+
+compose-send-plain-option =
+    .label = Only Plain Text
+
+compose-send-plain-description = Some styling will be converted into a plain alternative, whilst other composition features will be disabled.
+
 autocomplete-description = When addressing messages, look for matching entries in:
 
 ab-label =

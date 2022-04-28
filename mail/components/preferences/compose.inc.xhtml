@@ -161,6 +161,39 @@
     </html:fieldset>
     </html:div>
 
+    <html:div data-category="paneCompose">
+    <html:fieldset data-category="paneCompose">
+      <html:legend data-l10n-id="compose-send-format-title"></html:legend>
+      <radiogroup class="indent"
+                  preference="mail.default_send_format">
+        <radio value="0"
+               aria-describedby="composeSendAutomaticDescription"
+               data-l10n-id="compose-send-automatic-option" />
+        <description id="composeSendAutomaticDescription"
+                     class="indent tip-caption"
+                     data-l10n-id="compose-send-automatic-description" />
+        <radio value="3"
+               aria-describedby="composeSendBothDescription"
+               data-l10n-id="compose-send-both-option" />
+        <description id="composeSendBothDescription"
+                     class="indent tip-caption"
+                     data-l10n-id="compose-send-both-description" />
+        <radio value="2"
+               aria-describedby="composeSendHTMLDescription"
+               data-l10n-id="compose-send-html-option" />
+        <description id="composeSendHTMLDescription"
+                     class="indent tip-caption"
+                     data-l10n-id="compose-send-html-description" />
+        <radio value="1"
+               aria-describedby="composeSendPlainDescription"
+               data-l10n-id="compose-send-plain-option" />
+        <description id="composeSendPlainDescription"
+                     class="indent tip-caption"
+                     data-l10n-id="compose-send-plain-description" />
+      </radiogroup>
+    </html:fieldset>
+    </html:div>
+
     <hbox id="compositionAddressingCategory"
           class="subcategory"
           data-category="paneCompose">

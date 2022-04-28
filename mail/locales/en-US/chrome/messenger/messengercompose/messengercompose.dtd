@@ -146,16 +146,6 @@
 <!ENTITY returnReceiptMenu.accesskey "t">
 <!ENTITY dsnMenu.label "Delivery Status Notification">
 <!ENTITY dsnMenu.accesskey "N">
-<!ENTITY deliveryFormatMenu.label "Delivery Format">
-<!ENTITY deliveryFormatMenu.accesskey "F">
-<!ENTITY autoFormatCmd.label "Auto-Detect">
-<!ENTITY autoFormatCmd.accesskey "a">
-<!ENTITY plainTextFormatCmd.label "Plain Text Only">
-<!ENTITY plainTextFormatCmd.accesskey "p">
-<!ENTITY htmlFormatCmd.label "Rich Text (HTML) Only">
-<!ENTITY htmlFormatCmd.accesskey "r">
-<!ENTITY bothFormatCmd.label "Plain and Rich (HTML) Text">
-<!ENTITY bothFormatCmd.accesskey "l">
 <!ENTITY priorityMenu.label "Priority">
 <!ENTITY priorityMenu.accesskey "p">
 <!ENTITY priorityButton.title "Priority">

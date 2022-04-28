@@ -1734,12 +1734,12 @@
                     command="cmd_toggleReturnReceipt"/>
           <menuitem id="dsnMenu" type="checkbox" label="&dsnMenu.label;" accesskey="&dsnMenu.accesskey;" oncommand="ToggleDSN(event.target)"/>
           <menuseparator/>
-          <menu id="outputFormatMenu" label="&deliveryFormatMenu.label;" accesskey="&deliveryFormatMenu.accesskey;">
+          <menu id="outputFormatMenu" data-l10n-id="compose-send-format-menu">
             <menupopup id="outputFormatMenuPopup">
-              <menuitem type="radio" name="output_format" label="&autoFormatCmd.label;" accesskey="&autoFormatCmd.accesskey;" id="format_auto"/>
-              <menuitem type="radio" name="output_format" label="&plainTextFormatCmd.label;" accesskey="&plainTextFormatCmd.accesskey;" id="format_plain"/>
-              <menuitem type="radio" name="output_format" label="&htmlFormatCmd.label;" accesskey="&htmlFormatCmd.accesskey;" id="format_html"/>
-              <menuitem type="radio" name="output_format" label="&bothFormatCmd.label;" accesskey="&bothFormatCmd.accesskey;" id="format_both"/>
+              <menuitem type="radio" name="output_format" id="format_auto" data-l10n-id="compose-send-auto-menu-item"/>
+              <menuitem type="radio" name="output_format" id="format_both" data-l10n-id="compose-send-both-menu-item"/>
+              <menuitem type="radio" name="output_format" id="format_html" data-l10n-id="compose-send-html-menu-item"/>
+              <menuitem type="radio" name="output_format" id="format_plain" data-l10n-id="compose-send-plain-menu-item"/>
             </menupopup>
           </menu>
           <menu id="priorityMenu" label="&priorityMenu.label;" accesskey="&priorityMenu.accesskey;" onpopupshowing="updatePriorityMenu();" oncommand="PriorityMenuSelect(event.target);">

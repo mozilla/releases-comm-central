@@ -45,6 +45,7 @@ Preferences.addAll([
   { id: "mail.compose.default_to_paragraph", type: "bool" },
   { id: "mail.compose.big_attachments.notify", type: "bool" },
   { id: "mail.compose.big_attachments.threshold_kb", type: "int" },
+  { id: "mail.default_send_format", type: "int" },
 ]);
 
 var gComposePane = {

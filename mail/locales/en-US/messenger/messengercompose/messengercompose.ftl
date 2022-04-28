@@ -2,6 +2,28 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+## Send Format
+
+compose-send-format-menu =
+    .label = Sending Format
+    .accesskey = F
+
+compose-send-auto-menu-item =
+    .label = Automatic
+    .accesskey = A
+
+compose-send-both-menu-item =
+    .label = Both HTML and Plain Text
+    .accesskey = B
+
+compose-send-html-menu-item =
+    .label = Only HTML
+    .accesskey = H
+
+compose-send-plain-menu-item =
+    .label = Only Plain Text
+    .accesskey = P
+
 ## Addressing widget
 
 #   $type (String) - the type of the addressing row
