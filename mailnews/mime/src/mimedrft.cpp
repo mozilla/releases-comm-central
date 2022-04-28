@@ -1325,7 +1325,7 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
       PR_FREEIF(parm);
       parm = MimeHeaders_get_parameter(draftInfo, "deliveryformat", NULL, NULL);
       if (parm) {
-        int32_t deliveryFormat = nsIMsgCompSendFormat::AskUser;
+        int32_t deliveryFormat = nsIMsgCompSendFormat::Unset;
         sscanf(parm, "%d", &deliveryFormat);
         fields->SetDeliveryFormat(deliveryFormat);
       }

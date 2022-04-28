@@ -46,12 +46,20 @@ interface nsIMsgCompDeliverMode : nsISupports {
 
 [scriptable, uuid(f38ea280-e090-11d3-a449-e3153319347c)]
 interface nsIMsgCompSendFormat : nsISupports {
-    const long AskUser = 4;     /* Hack: Bug 44512. If this is 0 and passed
-                                   as results.action to the askSendFormat
-                                   dialog, the args object gets destroyed.*/
+    /* Send only plain text if the message is free of any rich formatting or
+     * inserted elements. Otherwise send both a HTML part and plain text
+     * alternative part. */
+    const long Auto = 0;
+    /* Only send a plain text part, losing any rich formatting or inserted
+     * elements. */
     const long PlainText = 1;
+    /* Only send a HTML part. */
     const long HTML = 2;
+    /* Send both the HTML part and the plain text alternative part. */
     const long Both = 3;
+    /* An unset value, to be set with mail.default_send_format on loading the
+     * message in the compose window. */
+    const long Unset = 4;
 };
 
 [scriptable, uuid(9638af92-1dd1-11b2-bef1-ca5fee0abc62)]
@@ -152,17 +160,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
    * popularity field of cards in the addressing header.
    */
   void expandMailingLists();
-
-  /**
-   * Returns how we should send this message in terms of HTML, plaintext, or
-   * both. Note that this method should not be called until after mailing lists
-   * have been expanded if correct results are desired.
-   *
-   * @param aConvertible The convertability of the body (from
-   *                     nsIMsgCompConvertible).
-   * @return             The HTML action to use (from nsIMsgCompSendFormat).
-   */
-  long determineHTMLAction(in long aConvertible);
 
   /**
    * The level of "convertibility" of the message body (whole HTML document)

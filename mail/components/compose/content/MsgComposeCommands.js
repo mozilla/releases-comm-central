@@ -118,7 +118,6 @@ var gSendOperationInProgress;
 var gSaveOperationInProgress;
 var gCloseWindowAfterSave;
 var gSavedSendNowKey;
-var gSendFormat;
 var gContextMenu;
 var gLastFocusElement = null;
 
@@ -311,7 +310,6 @@ function InitializeGlobalVariables() {
   gAutoSaving = false;
   gCloseWindowAfterSave = false;
   gSavedSendNowKey = null;
-  gSendFormat = Ci.nsIMsgCompSendFormat.AskUser;
   gManualAttachmentReminder = false;
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
@@ -4146,9 +4144,7 @@ async function ComposeStartup() {
     .getElementById("cmd_attachVCard")
     .setAttribute("checked", gMsgCompose.compFields.attachVCard);
   toggleAttachmentReminder(gMsgCompose.compFields.attachmentReminder);
-  gSendFormat = gMsgCompose.compFields.deliveryFormat;
-  SetCompositionAsPerDeliveryFormat(gSendFormat);
-  SelectDeliveryFormatMenuOption(gSendFormat);
+  initSendFormatMenu();
 
   // Set document language to the draft language or the preference
   // if this is a draft or template we prepared.
@@ -4170,11 +4166,13 @@ async function ComposeStartup() {
   if (gMsgCompose.composeHTML) {
     initLocalFontFaceMenu(document.getElementById("FontFacePopup"));
   } else {
-    // We are editing in plain text mode.
-    // The SetCompositionAsPerDeliveryFormat call above already hid
-    // the HTML toolbar, format and insert menus.
-    // Also remove the delivery format from the options menu.
-    document.getElementById("outputFormatMenu").setAttribute("hidden", true);
+    // We are editing in plain text mode, so hide the formatting menus and the
+    // output format selector.
+    document.getElementById("FormatToolbar").hidden = true;
+    document.getElementById("formatMenu").hidden = true;
+    document.getElementById("insertMenu").hidden = true;
+    document.getElementById("menu_showFormatToolbar").hidden = true;
+    document.getElementById("outputFormatMenu").hidden = true;
   }
 
   // Do setup common to Message Composer and Web Composer.
@@ -5524,39 +5522,8 @@ function GenericSendMessage(msgType) {
       msgCompFields.newsgroups = "";
     }
 
-    // Before sending the message, check what to do with HTML message,
-    // eventually abort.
-    var convert = DetermineConvertibility();
-    var action = DetermineHTMLAction(convert);
-
-    if (action == Ci.nsIMsgCompSendFormat.AskUser) {
-      var recommAction =
-        convert == Ci.nsIMsgCompConvertible.No
-          ? Ci.nsIMsgCompSendFormat.AskUser
-          : Ci.nsIMsgCompSendFormat.PlainText;
-      var result2 = {
-        action: recommAction,
-        convertible: convert,
-        abort: false,
-      };
-      window.openDialog(
-        "chrome://messenger/content/messengercompose/askSendFormat.xhtml",
-        "askSendFormatDialog",
-        "chrome,modal,titlebar,centerscreen",
-        result2
-      );
-      if (result2.abort) {
-        return;
-      }
-      action = result2.action;
-    }
-
-    // We will remember the users "send format" decision in the address
-    // collector code (see nsAbAddressCollector::CollectAddress())
-    // by using msgCompFields.forcePlainText and msgCompFields.useMultipartAlternative
-    // to determine the nsIAbPreferMailFormat (unknown, plaintext, or html).
-    // If the user sends both, we remember html.
-    switch (action) {
+    let sendFormat = determineSendFormat();
+    switch (sendFormat) {
       case Ci.nsIMsgCompSendFormat.PlainText:
         msgCompFields.forcePlainText = true;
         msgCompFields.useMultipartAlternative = false;
@@ -5570,9 +5537,7 @@ function GenericSendMessage(msgType) {
         msgCompFields.useMultipartAlternative = true;
         break;
       default:
-        throw new Error(
-          "Invalid nsIMsgCompSendFormat action; action=" + action
-        );
+        throw new Error(`Invalid send format ${sendFormat}`);
     }
 
     let beforeSendEvent = new CustomEvent("beforesend", {
@@ -6326,74 +6291,50 @@ function PriorityMenuSelect(target) {
 }
 
 /**
- * Shows HTML formatting menus/toolbars if they are useful for the selected
- * message delivery format. E.g. they are not needed for plain text format.
- *
- * @param aDeliveryFormat  The chosen output format from the nsIMsgCompSendFormat enum.
+ * Initialise the send format menu using the current gMsgCompose.compFields.
  */
-function SetCompositionAsPerDeliveryFormat(aDeliveryFormat) {
-  let format_toolbar = document.getElementById("FormatToolbar");
-  let format_menu = document.getElementById("formatMenu");
-  let insert_menu = document.getElementById("insertMenu");
-  let view_menuitem = document.getElementById("menu_showFormatToolbar");
+function initSendFormatMenu() {
+  let formatToId = new Map([
+    [Ci.nsIMsgCompSendFormat.PlainText, "format_plain"],
+    [Ci.nsIMsgCompSendFormat.HTML, "format_html"],
+    [Ci.nsIMsgCompSendFormat.Both, "format_both"],
+    [Ci.nsIMsgCompSendFormat.Auto, "format_auto"],
+  ]);
 
-  let hideMenus = !gMsgCompose.composeHTML;
-  format_menu.hidden = hideMenus;
-  insert_menu.hidden = hideMenus;
-  view_menuitem.hidden = hideMenus;
-  // Hide the HTML toolbar for a plain text composition
-  // or the user manually hid the toolbar on the view menu.
-  format_toolbar.hidden =
-    hideMenus || view_menuitem.getAttribute("checked") == "false";
-}
+  let sendFormat = gMsgCompose.compFields.deliveryFormat;
 
-function SelectDeliveryFormatMenuOption(aDeliveryFormat) {
-  let deliveryFormat;
+  if (sendFormat == Ci.nsIMsgCompSendFormat.Unset) {
+    sendFormat = Services.prefs.getIntPref(
+      "mail.default_send_format",
+      Ci.nsIMsgCompSendFormat.Auto
+    );
 
-  switch (aDeliveryFormat) {
-    case Ci.nsIMsgCompSendFormat.PlainText:
-      deliveryFormat = "format_plain";
-      break;
-    case Ci.nsIMsgCompSendFormat.HTML:
-      deliveryFormat = "format_html";
-      break;
-    case Ci.nsIMsgCompSendFormat.Both:
-      deliveryFormat = "format_both";
-      break;
-    case Ci.nsIMsgCompSendFormat.AskUser:
-    default:
-      deliveryFormat = "format_auto";
-  }
-
-  document.getElementById(deliveryFormat).setAttribute("checked", "true");
-}
-
-function OutputFormatMenuSelect(target) {
-  let currentSendFormat = gSendFormat;
-
-  if (gMsgCompose) {
-    let msgCompFields = gMsgCompose.compFields;
-    if (msgCompFields) {
-      switch (target.getAttribute("id")) {
-        case "format_plain":
-          gSendFormat = Ci.nsIMsgCompSendFormat.PlainText;
-          break;
-        case "format_html":
-          gSendFormat = Ci.nsIMsgCompSendFormat.HTML;
-          break;
-        case "format_both":
-          gSendFormat = Ci.nsIMsgCompSendFormat.Both;
-          break;
-        case "format_auto":
-        default:
-          gSendFormat = Ci.nsIMsgCompSendFormat.AskUser;
-      }
+    if (!formatToId.has(sendFormat)) {
+      // Unknown preference value.
+      sendFormat = Ci.nsIMsgCompSendFormat.Auto;
     }
-
-    SetCompositionAsPerDeliveryFormat(gSendFormat);
-    gMsgCompose.compFields.deliveryFormat = gSendFormat;
-    gContentChanged = currentSendFormat != gSendFormat;
   }
+
+  // Make the composition field uses the same as determined above. Specifically,
+  // if the deliveryFormat was Unset, we now set it to a specific value.
+  gMsgCompose.compFields.deliveryFormat = sendFormat;
+
+  for (let [format, id] of formatToId.entries()) {
+    let menuitem = document.getElementById(id);
+    menuitem.value = String(format);
+    if (format == sendFormat) {
+      menuitem.setAttribute("checked", "true");
+    }
+  }
+
+  document
+    .getElementById("outputFormatMenu")
+    .addEventListener("command", event => {
+      let prevSendFormat = gMsgCompose.compFields.deliveryFormat;
+      let newSendFormat = parseInt(event.target.value, 10);
+      gMsgCompose.compFields.deliveryFormat = newSendFormat;
+      gContentChanged = prevSendFormat != newSendFormat;
+    });
 }
 
 /**
@@ -8427,22 +8368,32 @@ nsAttachmentOpener.prototype = {
 };
 
 /**
- * Check what to do with HTML message according to what preference we have
- * stored for the recipients.
+ * Determine the sending format depending on the selected format, or the content
+ * of the message body.
  *
- * @param convertible  An nsIMsgCompConvertible constant describing
- *                     message convertibility to plain text.
+ * @return {nsIMsgCompSendFormat} The determined send format: either PlainText,
+ *   HTML or Both (never Auto or Unset).
  */
-function DetermineHTMLAction(convertible) {
+function determineSendFormat() {
   if (!gMsgCompose.composeHTML) {
     return Ci.nsIMsgCompSendFormat.PlainText;
   }
 
-  if (gSendFormat == Ci.nsIMsgCompSendFormat.AskUser) {
-    return gMsgCompose.determineHTMLAction(convertible);
+  let sendFormat = gMsgCompose.compFields.deliveryFormat;
+  if (sendFormat != Ci.nsIMsgCompSendFormat.Auto) {
+    return sendFormat;
   }
 
-  return gSendFormat;
+  // Auto downgrade if safe to do so.
+  let convertible;
+  try {
+    convertible = gMsgCompose.bodyConvertible();
+  } catch (ex) {
+    return Ci.nsIMsgCompSendFormat.Both;
+  }
+  return convertible == Ci.nsIMsgCompConvertible.Plain
+    ? Ci.nsIMsgCompSendFormat.PlainText
+    : Ci.nsIMsgCompSendFormat.Both;
 }
 
 /**
@@ -8450,17 +8401,6 @@ function DetermineHTMLAction(convertible) {
  */
 function expandRecipients() {
   gMsgCompose.expandMailingLists();
-}
-
-function DetermineConvertibility() {
-  if (!gMsgCompose.composeHTML) {
-    return Ci.nsIMsgCompConvertible.Plain;
-  }
-
-  try {
-    return gMsgCompose.bodyConvertible();
-  } catch (ex) {}
-  return Ci.nsIMsgCompConvertible.No;
 }
 
 /**

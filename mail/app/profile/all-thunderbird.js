@@ -327,9 +327,6 @@ pref("network.auth.non-web-content-triggered-resources-http-auth-allow", true);
 // 0=as attachment 2=default forward as inline with attachments
 pref("mail.forward_message_mode", 2);
 
-// 0=ask, 1=plain, 2=html, 3=both
-pref("mail.default_html_action", 3);
-
 pref("mailnews.send.loglevel", "Warn");
 
 pref("mailnews.nntp.jsmodule", true);

@@ -54,7 +54,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 33;
+    const UI_VERSION = 34;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -607,6 +607,56 @@ var MailMigrator = {
             cs
           );
         }
+      }
+
+      if (currentUIVersion < 34) {
+        // Migrate from
+        // + mailnews.sendformat.auto_downgrade - Whether we should
+        //   auto-downgrade to plain text when the message is plain.
+        // + mail.default_html_action - The default sending format if we didn't
+        //   auto-downgrade.
+        // to mail.default_send_format
+        let defaultHTMLAction = Services.prefs.getIntPref(
+          "mail.default_html_action",
+          3
+        );
+        Services.prefs.clearUserPref("mail.default_html_action");
+        let autoDowngrade = Services.prefs.getBoolPref(
+          "mailnews.sendformat.auto_downgrade",
+          true
+        );
+        Services.prefs.clearUserPref("mailnews.sendformat.auto_downgrade");
+
+        let sendFormat;
+        switch (defaultHTMLAction) {
+          case 0:
+            // Was AskUser. Move to the new Auto default.
+            sendFormat = Ci.nsIMsgCompSendFormat.Auto;
+            break;
+          case 1:
+            // Was PlainText only. Keep as plain text. Note, autoDowngrade has
+            // no effect on this option.
+            sendFormat = Ci.nsIMsgCompSendFormat.PlainText;
+            break;
+          case 2:
+            // Was HTML. Keep as HTML if autoDowngrade was false, otherwise use
+            // the Auto default.
+            sendFormat = autoDowngrade
+              ? Ci.nsIMsgCompSendFormat.Auto
+              : Ci.nsIMsgCompSendFormat.HTML;
+            break;
+          case 3:
+            // Was Both. If autoDowngrade was true, this is the same as the
+            // new Auto default. Otherwise, keep as Both.
+            sendFormat = autoDowngrade
+              ? Ci.nsIMsgCompSendFormat.Auto
+              : Ci.nsIMsgCompSendFormat.Both;
+            break;
+          default:
+            sendFormat = Ci.nsIMsgCompSendFormat.Auto;
+            break;
+        }
+        Services.prefs.setIntPref("mail.default_send_format", sendFormat);
       }
 
       MigrationTasks.runTasks();

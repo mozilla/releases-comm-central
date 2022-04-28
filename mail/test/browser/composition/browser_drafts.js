@@ -111,22 +111,11 @@ async function internal_check_delivery_format(editDraft) {
   );
 
   // Select our wanted format.
-  if (["linux", "win"].includes(AppConstants.platform)) {
-    cwc.click(cwc.e("optionsMenu"));
-    await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
-      { id: "outputFormatMenu" },
-      { id: "format_both" },
-    ]);
-  } else {
-    // On OS X the main menu seems not accessible for clicking from tests.
-    Assert.ok(
-      cwc
-        .e("outputFormatMenu")
-        .getAttribute("oncommand")
-        .startsWith("OutputFormatMenuSelect(")
-    );
-    cwc.window.OutputFormatMenuSelect(cwc.e("format_both"));
-  }
+  cwc.click(cwc.e("optionsMenu"));
+  await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
+    { id: "outputFormatMenu" },
+    { id: "format_both" },
+  ]);
 
   /**
    * Check if the right format is selected in the menu.
@@ -135,21 +124,17 @@ async function internal_check_delivery_format(editDraft) {
    * @param aValue       A value of nsIMsgCompSendFormat constants of the expected selected format.
    */
   async function assert_format_value(aMenuItemId, aValue) {
-    if (["linux", "win"].includes(AppConstants.platform)) {
-      cwc.click(cwc.e("optionsMenu"));
-      let formatMenu = await cwc.click_menus_in_sequence(
-        cwc.e("optionsMenuPopup"),
-        [{ id: "outputFormatMenu" }],
-        true
-      );
-      let formatItem = cwc
-        .e("outputFormatMenuPopup")
-        .querySelector("[name=output_format][checked=true]");
-      Assert.equal(formatItem.id, aMenuItemId);
-      cwc.close_popup_sequence(formatMenu);
-    } else {
-      Assert.equal(cwc.window.gSendFormat, aValue);
-    }
+    cwc.click(cwc.e("optionsMenu"));
+    let formatMenu = await cwc.click_menus_in_sequence(
+      cwc.e("optionsMenuPopup"),
+      [{ id: "outputFormatMenu" }],
+      true
+    );
+    let formatItem = cwc
+      .e("outputFormatMenuPopup")
+      .querySelector("[name=output_format][checked=true]");
+    Assert.equal(formatItem.id, aMenuItemId);
+    cwc.close_popup_sequence(formatMenu);
   }
 
   cwc.window.SaveAsDraft();
@@ -162,7 +147,7 @@ async function internal_check_delivery_format(editDraft) {
   // chosen above.
   cwc = open_compose_new_mail();
 
-  await assert_format_value("format_auto", Ci.nsIMsgCompSendFormat.AskUser);
+  await assert_format_value("format_auto", Ci.nsIMsgCompSendFormat.Auto);
 
   close_compose_window(cwc);
 
@@ -200,11 +185,11 @@ async function internal_check_delivery_format(editDraft) {
 
 add_task(async function test_save_delivery_format_with_edit_draft() {
   await internal_check_delivery_format(true);
-});
+}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
 
 add_task(async function test_save_delivery_format_with_edit_template() {
   await internal_check_delivery_format(false);
-});
+}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
 
 /**
  * Tests that 'Edit as New' leaves the original message in drafts folder.

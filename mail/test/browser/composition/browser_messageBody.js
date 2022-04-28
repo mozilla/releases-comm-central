@@ -69,10 +69,13 @@ add_task(async function test_invalid_data_uri() {
  * with $2, $1 should be discarded to prevent duplicated links.
  */
 add_task(async function test_freeTextLink() {
+  let prevSendFormat = Services.prefs.getIntPref("mail.default_send_format");
+  Services.prefs.setIntPref(
+    "mail.default_send_format",
+    Ci.nsIMsgCompSendFormat.PlainText
+  );
   let cwc = open_compose_new_mail();
   setup_msg_contents(cwc, "someone@example.com", "Test free text link", "");
-
-  cwc.window.OutputFormatMenuSelect(cwc.e("format_plain"));
 
   let link1 = "https://example.com";
   let link2 = "name@example.com";
@@ -99,4 +102,6 @@ add_task(async function test_freeTextLink() {
   );
 
   press_delete(); // Delete the msg from Outbox.
+
+  Services.prefs.setIntPref("mail.default_send_format", prevSendFormat);
 });

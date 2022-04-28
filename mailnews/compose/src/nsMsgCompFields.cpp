@@ -75,7 +75,7 @@ nsMsgCompFields::nsMsgCompFields()
   m_forceMsgEncoding = false;
   m_needToCheckCharset = true;
   m_attachmentReminder = false;
-  m_deliveryFormat = nsIMsgCompSendFormat::AskUser;
+  m_deliveryFormat = nsIMsgCompSendFormat::Unset;
 }
 
 nsMsgCompFields::~nsMsgCompFields() {
@@ -359,14 +359,15 @@ NS_IMETHODIMP nsMsgCompFields::SetAttachmentReminder(bool value) {
 
 NS_IMETHODIMP nsMsgCompFields::SetDeliveryFormat(int32_t value) {
   switch (value) {
-    case nsIMsgCompSendFormat::AskUser:
+    case nsIMsgCompSendFormat::Auto:
     case nsIMsgCompSendFormat::PlainText:
     case nsIMsgCompSendFormat::HTML:
     case nsIMsgCompSendFormat::Both:
       m_deliveryFormat = value;
       break;
+    case nsIMsgCompSendFormat::Unset:
     default:
-      m_deliveryFormat = nsIMsgCompSendFormat::AskUser;
+      m_deliveryFormat = nsIMsgCompSendFormat::Unset;
   }
 
   return NS_OK;
