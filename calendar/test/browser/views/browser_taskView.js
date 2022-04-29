@@ -92,10 +92,10 @@ add_task(async function() {
   );
   Assert.ok(priorityMenu);
   EventUtils.synthesizeMouseAtCenter(priorityMenu, {}, window);
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
-
-  Assert.ok(!document.getElementById("calendar-task-details-priority-high").hasAttribute("hidden"));
+  await TestUtils.waitForCondition(
+    () => !document.getElementById("calendar-task-details-priority-high").hidden,
+    "#calendar-task-details-priority-high did not show"
+  );
 
   // Verify that tooltip shows status, priority and percent complete.
   let toolTipNode = document.getElementById("taskTreeTooltip");
