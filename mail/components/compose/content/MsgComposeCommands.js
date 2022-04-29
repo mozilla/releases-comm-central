@@ -290,6 +290,20 @@ const inputObserver = {
   },
 };
 
+const keyObserver = {
+  observe: (subject, topic, data) => {
+    switch (topic) {
+      case "openpgp-acceptance-change":
+      case "openpgp-key-change":
+        checkRecipientKeys();
+        gKeyAssistant.onExternalKeyChange();
+        break;
+      default:
+        break;
+    }
+  },
+};
+
 // Non translatable international shortcuts.
 var SHOW_TO_KEY = "T";
 var SHOW_CC_KEY = "C";
@@ -330,6 +344,8 @@ function InitializeGlobalVariables() {
 
   // Add the observer.
   Services.obs.addObserver(inputObserver, "autocomplete-did-enter-text");
+  Services.obs.addObserver(keyObserver, "openpgp-key-change");
+  Services.obs.addObserver(keyObserver, "openpgp-acceptance-change");
 }
 InitializeGlobalVariables();
 
@@ -348,8 +364,10 @@ function ReleaseGlobalVariables() {
 
   gLastKnownComposeStates = null;
 
-  // Remove the observer.
+  // Remove the observers.
   Services.obs.removeObserver(inputObserver, "autocomplete-did-enter-text");
+  Services.obs.removeObserver(keyObserver, "openpgp-key-change");
+  Services.obs.removeObserver(keyObserver, "openpgp-acceptance-change");
 }
 
 // Notification box shown at the bottom of the window.

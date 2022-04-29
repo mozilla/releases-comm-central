@@ -10,26 +10,17 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailSqliteDb", "PgpSqliteDb2"];
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "Sqlite",
-  "resource://gre/modules/Sqlite.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "EnigmailLog",
-  "chrome://openpgp/content/modules/log.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "EnigmailKeyRing",
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "setTimeout",
-  "resource://gre/modules/Timer.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  Sqlite: "resource://gre/modules/Sqlite.jsm",
+});
 
 var PgpSqliteDb2 = {
   openDatabase() {
@@ -220,6 +211,7 @@ var PgpSqliteDb2 = {
       await this.internalDeleteAcceptanceNoTransaction(conn, fingerprint);
       await conn.execute("commit transaction");
       await conn.close();
+      Services.obs.notifyObservers(null, "openpgp-acceptance-change");
     } catch (ex) {
       if (conn) {
         await conn.close();
@@ -309,6 +301,7 @@ var PgpSqliteDb2 = {
 
       await conn.execute("commit transaction");
       await conn.close();
+      Services.obs.notifyObservers(null, "openpgp-acceptance-change");
     } catch (ex) {
       if (conn) {
         await conn.close();
@@ -369,6 +362,7 @@ var PgpSqliteDb2 = {
       }
       await conn.execute("commit transaction");
       await conn.close();
+      Services.obs.notifyObservers(null, "openpgp-acceptance-change");
     } catch (ex) {
       if (conn) {
         await conn.close();

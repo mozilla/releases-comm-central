@@ -1765,6 +1765,7 @@ var RNP = {
 
   async saveKeyRings() {
     RNPLib.saveKeys();
+    Services.obs.notifyObservers(null, "openpgp-key-change");
   },
 
   importToFFI(ffi, keyBlockStr, usePublic, useSecret, permissive) {

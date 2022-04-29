@@ -39,6 +39,21 @@ var gKeyAssistant = {
   recipients: [],
   currentRecip: null,
 
+  /*
+   * Variable ignoreExternal should be set to true whenever a
+   * keyAsssistant window is open that cannot tolerate changes to
+   * the keyAsssistant's own variables, that track the current user
+   * interaction.
+   *
+   * While the key assistant is showing, it takes care to update the
+   * elements on screen, based on the expected changes. Usually,
+   * it will perform a refresh after a current action is completed.
+   *
+   * Without this protection, you'd get data races and side effects like
+   * email addresses being shown twice, and worse.
+   */
+  ignoreExternal: false,
+
   /**
    * Initialize the main notification box for the account setup process.
    */
@@ -76,6 +91,10 @@ var gKeyAssistant = {
       .addEventListener("click", () => {
         this.toggleRecipientsList();
       });
+
+    this.dialog.addEventListener("close", () => {
+      this.close();
+    });
   },
 
   async close() {
@@ -228,7 +247,9 @@ var gKeyAssistant = {
       oldAccept
     );
 
+    this.ignoreExternal = true;
     await this._viewKey(keyMeta);
+    this.ignoreExternal = false;
 
     // If the key is not yet accepted, then we want to automatically
     // close the email-resolve view, if the user accepts the key
@@ -248,22 +269,16 @@ var gKeyAssistant = {
     }
   },
 
-  async viewKeyFromOverview(keyMeta) {
+  async viewKeyFromOverview(recip, keyMeta) {
     let oldAccept = {};
-    await PgpSqliteDb2.getAcceptance(
-      keyMeta.keyObj.fpr,
-      this.currentRecip,
-      oldAccept
-    );
+    await PgpSqliteDb2.getAcceptance(keyMeta.keyObj.fpr, recip, oldAccept);
 
+    this.ignoreExternal = true;
     await this._viewKey(keyMeta);
+    this.ignoreExternal = false;
 
     let newAccept = {};
-    await PgpSqliteDb2.getAcceptance(
-      keyMeta.keyObj.fpr,
-      this.currentRecip,
-      newAccept
-    );
+    await PgpSqliteDb2.getAcceptance(keyMeta.keyObj.fpr, recip, newAccept);
 
     if (this.isAccepted(oldAccept) != this.isAccepted(newAccept)) {
       // refresh display because acceptance was changed
@@ -306,7 +321,7 @@ var gKeyAssistant = {
       "openpgp-key-assistant-view-key-button"
     );
     button.addEventListener("click", () => {
-      gKeyAssistant.viewKeyFromOverview(keyMeta);
+      gKeyAssistant.viewKeyFromOverview(recipient, keyMeta);
     });
 
     row.append(info, button);
@@ -669,6 +684,8 @@ var gKeyAssistant = {
       .value;
     let fingerprint;
 
+    this.ignoreExternal = true;
+
     let existingKey = EnigmailKeyRing.getKeyById(selectedKey);
     if (existingKey) {
       fingerprint = existingKey.fpr;
@@ -701,8 +718,9 @@ var gKeyAssistant = {
     // Trigger the UI refresh of the compose window.
     await checkRecipientKeys();
 
-    this.buildMainView();
+    this.ignoreExternal = false;
     this.resetViews();
+    this.buildMainView();
   },
 
   async initOnlineDiscovery(context) {
@@ -724,6 +742,7 @@ var gKeyAssistant = {
     // again. Let's always rebuild for now.
 
     if (context == "overview") {
+      this.ignoreExternal = true;
       for (let email of this.recipients) {
         if (OpenPGPAlias.hasAliasDefinition(email)) {
           continue;
@@ -737,6 +756,7 @@ var gKeyAssistant = {
         );
         gotNewData = gotNewData || rv;
       }
+      this.ignoreExternal = false;
       this.resetViews();
       this.buildMainView();
       return;
@@ -751,12 +771,14 @@ var gKeyAssistant = {
     }
 
     write(this.currentRecip);
+    this.ignoreExternal = true;
     gotNewData = await KeyLookupHelper.fullOnlineDiscovery(
       "silent-collection",
       window,
       this.currentRecip,
       null
     );
+    this.ignoreExternal = false;
 
     // If the recipient now has a usable previously accepted key, go back to
     // the main view and show a successful notification.
@@ -828,5 +850,20 @@ var gKeyAssistant = {
         await EnigmailKeyRing.getEncryptionKeyMeta(this.currentRecip)
       );
     }
+  },
+
+  onExternalKeyChange() {
+    if (!this.dialog.open) {
+      return;
+    }
+
+    if (this.ignoreExternal) {
+      return;
+    }
+
+    // Refresh the "overview", which will potentially close a currently
+    // shown "resolve" view.
+    this.resetViews();
+    this.buildMainView();
   },
 };
