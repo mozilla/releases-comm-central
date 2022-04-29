@@ -36,7 +36,10 @@ var { EnigmailCryptoAPI } = ChromeUtils.import(
 
 var gModePersonal = false;
 
+// This is the ID that was given to us as a parameter.
+// Note that it might be the ID of a subkey.
 var gKeyId = null;
+
 var gUserId = null;
 var gKeyList = null;
 var gSigTree = null;
@@ -99,7 +102,7 @@ async function changeExpiry() {
   }
 
   let args = {
-    keyId: gKeyId,
+    keyId: keyObj.keyId,
     modified: onDataModified,
   };
 
@@ -193,7 +196,7 @@ async function reloadData(firstLoad) {
 
   gUserId = keyObj.userId;
 
-  setLabel("keyId", "0x" + gKeyId);
+  setLabel("keyId", "0x" + keyObj.keyId);
   setLabel("keyCreated", keyObj.created);
 
   let keyIsExpired =
