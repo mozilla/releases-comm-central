@@ -41,12 +41,6 @@
   padding-left: 4.5em;
 }
 
-:root[lwt-tree-brighttext] .im-placeholder-box {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  opacity: 0.7;
-}
-
 .im-placeholder-innerbox {
   opacity: .8;
 }
