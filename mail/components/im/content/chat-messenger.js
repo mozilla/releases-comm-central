@@ -981,16 +981,25 @@ var chatHandler = {
         // individual languages.
         conv.editor.editor.flags |= Ci.nsIEditor.eEditorMailMask;
 
+        let preferredLanguages =
+          Services.prefs.getStringPref("spellchecker.dictionary")?.split(",") ??
+          [];
+        let initialLanguage = "";
+        if (preferredLanguages.length === 1) {
+          initialLanguage = preferredLanguages[0];
+        }
         // Initialise language to the default.
-        conv.editor.setAttribute(
-          "lang",
-          Services.prefs.getStringPref("spellchecker.dictionary")
-        );
+        conv.editor.setAttribute("lang", initialLanguage);
 
         // Attach listener so we hear about language changes.
         document.addEventListener("spellcheck-changed", e => {
           let conv = chatHandler._getActiveConvView();
-          conv.editor.setAttribute("lang", e.detail.dictionaries?.[0]);
+          let activeLanguages = e.detail.dictionaries ?? [];
+          let languageToSet = "";
+          if (activeLanguages.length === 1) {
+            languageToSet = activeLanguages[0];
+          }
+          conv.editor.setAttribute("lang", languageToSet);
         });
       } else {
         item.convView.onConvResize();

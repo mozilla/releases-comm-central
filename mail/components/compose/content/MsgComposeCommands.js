@@ -479,7 +479,7 @@ function updateEditableFields(aDisable) {
     }
   }
 
-  // Disable all the input fields nad labels.
+  // Disable all the input fields and labels.
   for (let element of document.querySelectorAll('[disableonsend="true"]')) {
     element.disabled = aDisable;
   }
@@ -3556,10 +3556,10 @@ function AttachmentsChanged(aShowPane, aContentChanged = true) {
 }
 
 /**
- * This functions returns a valid spellcheck language. It checks that a
- * dictionary exists for the language passed in, if any. It also retrieves the
- * corresponding preference and ensures that a dictionary exists. If not, it
- * adjusts the preference accordingly.
+ * This functions returns an array of valid spellcheck languages. It checks
+ * that a dictionary exists for the language passed in, if any. It also
+ * retrieves the corresponding preference and ensures that a dictionary exists.
+ * If not, it adjusts the preference accordingly.
  * When the nominated dictionary does not exist, the effects are very confusing
  * to the user: Inline spell checking does not work, although the option is
  * selected and a spell check dictionary seems to be selected in the options
@@ -3570,34 +3570,42 @@ function AttachmentsChanged(aShowPane, aContentChanged = true) {
  * 2) The selected dictionary changes the way it announces itself to the system,
  *    so for example "it_IT" changes to "it-IT" and the previously stored
  *    preference value doesn't apply any more.
+ *
+ * @param {string[]|null} [draftLanguages] - Languages that the message was
+ *  composed in.
+ * @returns {string[]}
  */
-function getValidSpellcheckerDictionary(draftLanguage) {
+function getValidSpellcheckerDictionaries(draftLanguages) {
   let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
   let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
     Ci.mozISpellCheckingEngine
   );
+  let dictionaries = Array.from(new Set(prefValue?.split(",")));
 
   let dictList = spellChecker.getDictionaryList();
   let count = dictList.length;
 
   if (count == 0) {
     // If there are no dictionaries, we can't check the value, so return it.
-    return prefValue;
+    return dictionaries;
   }
 
   // Make sure that the draft language contains a valid value.
-  if (draftLanguage && dictList.includes(draftLanguage)) {
-    return draftLanguage;
+  if (
+    draftLanguages &&
+    draftLanguages.every(language => dictList.includes(language))
+  ) {
+    return draftLanguages;
   }
 
   // Make sure preference contains a valid value.
-  if (dictList.includes(prefValue)) {
-    return prefValue;
+  if (dictionaries.every(language => dictList.includes(language))) {
+    return dictionaries;
   }
 
   // Set a valid value, any value will do.
   Services.prefs.setCharPref("spellchecker.dictionary", dictList[0]);
-  return dictList[0];
+  return [dictList[0]];
 }
 
 var dictionaryRemovalObserver = {
@@ -3605,29 +3613,30 @@ var dictionaryRemovalObserver = {
     if (aTopic != "spellcheck-dictionary-remove") {
       return;
     }
-    let language = document.documentElement.getAttribute("lang");
     let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
       Ci.mozISpellCheckingEngine
     );
 
     let dictList = spellChecker.getDictionaryList();
-    let count = dictList.length;
-
-    if (count > 0 && dictList.includes(language)) {
-      // There still is a dictionary for the language of the document.
-      return;
+    let languages = Array.from(gActiveDictionaries);
+    languages = languages.filter(lang => dictList.includes(lang));
+    if (languages.length === 0) {
+      // Set a valid language from the preference.
+      let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
+      let prefLanguages = prefValue?.split(",") ?? [];
+      languages = prefLanguages.filter(lang => dictList.includes(lang));
+      if (prefLanguages.length != languages.length && languages.length > 0) {
+        // Fix the preference while we're here. We know it's invalid.
+        Services.prefs.setCharPref(
+          "spellchecker.dictionary",
+          languages.join(",")
+        );
+      }
     }
-
-    // Set a valid language from the preference.
-    let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
-    if (count == 0 || dictList.includes(prefValue)) {
-      language = prefValue;
-    } else {
-      language = dictList[0];
-      // Fix the preference while we're here. We know it's invalid.
-      Services.prefs.setCharPref("spellchecker.dictionary", language);
+    // Only update the language if we will still be left with any active choice.
+    if (languages.length > 0) {
+      ComposeChangeLanguage(languages);
     }
-    document.documentElement.setAttribute("lang", language);
   },
 
   isAdded: false,
@@ -3990,29 +3999,6 @@ async function ComposeStartup() {
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
 
-  // Observe the language attribute so we can update the language button label.
-  gLanguageObserver = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.type == "attributes" && mutation.attributeName == "lang") {
-        updateLanguageInStatusBar();
-
-        // Update the language in the composition fields, so we can save it
-        // to the draft next time.
-        if (gMsgCompose && gMsgCompose.compFields) {
-          let lang = Services.prefs.getBoolPref(
-            "mail.suppress_content_language"
-          )
-            ? ""
-            : document.documentElement.getAttribute("lang");
-          gMsgCompose.compFields.contentLanguage = lang;
-        }
-      }
-    });
-  });
-  gLanguageObserver.observe(document.documentElement, {
-    attributeFilter: ["lang"],
-  });
-
   // Observe dictionary removals.
   dictionaryRemovalObserver.addObserver();
 
@@ -4342,19 +4328,6 @@ async function ComposeStartup() {
     .setAttribute("checked", gMsgCompose.compFields.attachVCard);
   toggleAttachmentReminder(gMsgCompose.compFields.attachmentReminder);
   initSendFormatMenu();
-
-  // Set document language to the draft language or the preference
-  // if this is a draft or template we prepared.
-  let draftLanguage = null;
-  if (
-    gMsgCompose.compFields.creatorIdentityKey &&
-    gMsgCompose.compFields.contentLanguage
-  ) {
-    draftLanguage = gMsgCompose.compFields.contentLanguage;
-  }
-
-  let languageToSet = getValidSpellcheckerDictionary(draftLanguage);
-  document.documentElement.setAttribute("lang", languageToSet);
 
   let editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
   editorElement.makeEditable(editortype, true);
@@ -5216,7 +5189,6 @@ function ComposeUnload() {
 
   // Stop observing dictionary removals.
   dictionaryRemovalObserver.removeObserver();
-  gLanguageObserver.disconnect();
 
   if (gMsgCompose) {
     // Notify the SendListener that Send has been aborted and Stopped
@@ -6735,29 +6707,26 @@ function InitLanguageMenu() {
   var sortedList = gSpellChecker.sortDictionaryList(dictList);
 
   // Remove any languages from the list.
-  while (languageMenuList.hasChildNodes()) {
-    languageMenuList.lastChild.remove();
-  }
-
-  for (let dict of sortedList) {
-    let item = document.createXULElement("menuitem");
-    item.setAttribute("label", dict.displayName);
-    item.setAttribute("value", dict.localeCode);
-    item.setAttribute("type", "radio");
-    languageMenuList.appendChild(item);
-  }
+  languageMenuList.replaceChildren(
+    ...sortedList.map(dict => {
+      let item = document.createXULElement("menuitem");
+      item.setAttribute("label", dict.displayName);
+      item.setAttribute("value", dict.localeCode);
+      item.setAttribute("type", "checkbox");
+      item.setAttribute("selection-type", "multiple");
+      return item;
+    })
+  );
 }
 
 function OnShowDictionaryMenu(aTarget) {
   InitLanguageMenu();
-  let curLang = document.documentElement.getAttribute("lang");
-  if (!curLang) {
-    return;
-  }
 
-  let language = aTarget.querySelector('[value="' + curLang + '"]');
-  if (language) {
-    language.setAttribute("checked", true);
+  for (let item of aTarget.children) {
+    item.setAttribute(
+      "checked",
+      gActiveDictionaries.has(item.getAttribute("value"))
+    );
   }
 }
 
@@ -6774,52 +6743,101 @@ function languageMenuListClosed() {
 }
 
 /**
+ * Set of the active dictionaries. We maintain this cached state so we don't
+ * need a spell checker instance to know the active dictionaries. This is
+ * especially relevant when inline spell checking is disabled.
+ *
+ * @type {Set<string>}
+ */
+var gActiveDictionaries = new Set();
+/**
  * Change the language of the composition and if we are using inline
  * spell check, recheck the message with the new dictionary.
  *
  * Note: called from the "Check Spelling" panel in SelectLanguage().
- * @param aLang  New language to set.
+ *
+ * @param {string[]} languages - New languages to set.
  */
-function ComposeChangeLanguage(aLang) {
-  if (document.documentElement.getAttribute("lang") != aLang) {
-    // Update the document language as well (needed to synchronise
-    // the subject).
-    document.documentElement.setAttribute("lang", aLang);
+async function ComposeChangeLanguage(languages) {
+  let currentLanguage = document.documentElement.getAttribute("lang");
+  if (
+    (languages.length === 1 && currentLanguage != languages[0]) ||
+    languages.length !== 1
+  ) {
+    let languageToSet = "";
+    if (languages.length === 1) {
+      languageToSet = languages[0];
+    }
+    // Update the document language as well.
+    document.documentElement.setAttribute("lang", languageToSet);
+  }
 
-    let checker = GetCurrentEditorSpellChecker();
-    let spellChecker = checker?.spellChecker;
-    if (spellChecker) {
-      spellChecker.setCurrentDictionaries([aLang]);
+  await gSpellChecker?.selectDictionaries(languages);
 
-      // now check the document over again with the new dictionary
-      if (gSpellCheckingEnabled) {
-        checker.spellCheckRange(null);
+  let checker = GetCurrentEditorSpellChecker();
+  if (checker?.spellChecker) {
+    await checker.spellChecker.setCurrentDictionaries(languages);
+  }
+  // Update subject spell checker languages. If for some reason the spell
+  // checker isn't ready yet, don't auto-create it, hence pass 'false'.
+  let subjectSpellChecker = document
+    .getElementById("msgSubject")
+    .editor.getInlineSpellChecker(false);
+  if (subjectSpellChecker?.spellChecker) {
+    await subjectSpellChecker.spellChecker.setCurrentDictionaries(languages);
+  }
 
-        // Also force a recheck of the subject. If for some reason the spell
-        // checker isn't ready yet, don't auto-create it, hence pass 'false'.
-        let inlineSpellChecker = document
-          .getElementById("msgSubject")
-          .editor.getInlineSpellChecker(false);
-        if (inlineSpellChecker) {
-          inlineSpellChecker.spellCheckRange(null);
-        }
-      }
+  // now check the document over again with the new dictionary
+  if (gSpellCheckingEnabled) {
+    if (checker?.spellChecker) {
+      checker.spellCheckRange(null);
+    }
+
+    if (subjectSpellChecker?.spellChecker) {
+      // Also force a recheck of the subject.
+      subjectSpellChecker.spellCheckRange(null);
     }
   }
+
+  await updateLanguageInStatusBar(languages);
+
+  // Update the language in the composition fields, so we can save it
+  // to the draft next time.
+  if (gMsgCompose?.compFields) {
+    let langs = "";
+    if (!Services.prefs.getBoolPref("mail.suppress_content_language")) {
+      langs = languages.join(", ");
+    }
+    gMsgCompose.compFields.contentLanguage = langs;
+  }
+
+  gActiveDictionaries = new Set(languages);
 }
 
 /**
  * Change the language of the composition and if we are using inline
  * spell check, recheck the message with the new dictionary.
  *
- * @param event  Event of selecting an item in the spelling button menulist popup.
+ * @param {Event} event - Event of selecting an item in the spelling button
+ *  menulist popup.
  */
 function ChangeLanguage(event) {
-  ComposeChangeLanguage(event.target.value);
+  let curLangs = new Set(gActiveDictionaries);
+  if (curLangs.has(event.target.value)) {
+    curLangs.delete(event.target.value);
+  } else {
+    curLangs.add(event.target.value);
+  }
+  ComposeChangeLanguage(Array.from(curLangs));
   event.stopPropagation();
 }
 
-async function updateLanguageInStatusBar() {
+/**
+ * Update the active dictionaries in the status bar.
+ *
+ * @param {string[]} dictionaries
+ */
+async function updateLanguageInStatusBar(dictionaries) {
   // HACK: calling sortDictionaryList (in InitLanguageMenu) may fail the first
   // time due to synchronous loading of the .ftl files. If we load the files
   // and wait for a known value asynchronously, no such failure will happen.
@@ -6835,7 +6853,14 @@ async function updateLanguageInStatusBar() {
     return;
   }
 
-  let language = document.documentElement.getAttribute("lang");
+  if (!dictionaries) {
+    dictionaries = Array.from(gActiveDictionaries);
+  }
+  let listFormat = new Intl.ListFormat(Services.locale.appLocaleAsBCP47, {
+    type: "conjunction",
+    style: "short",
+  });
+  let languages = [];
   let item = languageMenuList.firstElementChild;
 
   // No status display, if there is only one or no spelling dictionary available.
@@ -6847,11 +6872,15 @@ async function updateLanguageInStatusBar() {
 
   languageStatusButton.hidden = false;
   while (item) {
-    if (item.getAttribute("value") == language) {
-      languageStatusButton.textContent = item.getAttribute("label");
-      break;
+    if (dictionaries.includes(item.getAttribute("value"))) {
+      languages.push(item.getAttribute("label"));
     }
     item = item.nextElementSibling;
+  }
+  if (languages.length > 0) {
+    languageStatusButton.textContent = listFormat.format(languages);
+  } else {
+    languageStatusButton.textContent = listFormat.format(dictionaries);
   }
 }
 
@@ -10468,6 +10497,21 @@ function InitEditor() {
     );
     gMsgCompose.bodyModified = false;
   }
+
+  // Set document language to the draft language or the preference
+  // if this is a draft or template we prepared.
+  let draftLanguages = null;
+  if (
+    gMsgCompose.compFields.creatorIdentityKey &&
+    gMsgCompose.compFields.contentLanguage
+  ) {
+    draftLanguages = gMsgCompose.compFields.contentLanguage
+      .split(",")
+      .map(lang => lang.trim());
+  }
+
+  let dictionaries = getValidSpellcheckerDictionaries(draftLanguages);
+  ComposeChangeLanguage(dictionaries).catch(console.error);
 }
 
 function setFontSize(event) {
@@ -10487,7 +10531,7 @@ function setParagraphState(event) {
 // This is used as event listener to spellcheck-changed event to update
 // document language.
 function updateDocumentLanguage(e) {
-  document.documentElement.setAttribute("lang", e.detail.dictionaries?.[0]);
+  ComposeChangeLanguage(e.detail.dictionaries).catch(console.error);
 }
 
 function toggleSpellCheckingEnabled() {

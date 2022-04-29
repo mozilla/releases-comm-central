@@ -311,3 +311,13 @@ html|table html|th {
 #SuggestedList {
   flex-direction: column;
 }
+
+#dictionary-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+html|input[type="checkbox"] {
+  -moz-appearance: checkbox;
+}

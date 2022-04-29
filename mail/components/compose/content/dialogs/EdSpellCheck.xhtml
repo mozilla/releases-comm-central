@@ -106,14 +106,13 @@
              control="LanguageMenulist"
              accesskey="&languagePopup.accessKey;"/>
     </html:div>
-    <html:div class="display-flex">
-      <menulist id="LanguageMenulist" oncommand="SelectLanguage()" class="flex-1">
-        <menupopup onpopupshowing="InitLanguageMenu(gDialog.LanguageMenulist.selectedItem.value);">
-          <!-- dynamic content populated by JS -->
-          <menuseparator/>
-          <menuitem value="more-cmd" label="&moreDictionaries.label;"/>
-        </menupopup>
-      </menulist>
+    <html:div>
+      <html:ul id="dictionary-list">
+      </html:ul>
+      <html:template id="language-item"><html:li>
+        <html:label><html:input type="checkbox"></html:input> <html:span class="checkbox-label"></html:span></html:label>
+      </html:li></html:template>
+      <html:a onclick="openDictionaryList()" href="">&moreDictionaries.label;</html:a>
     </html:div>
     <html:div>
       <hbox class="display-flex">

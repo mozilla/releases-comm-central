@@ -172,7 +172,7 @@ add_task(async function() {
   await checkMisspelledWords(subjectEditor, "aluminium");
   await checkMisspelledWords(bodyEditor, "colour", "ochre");
 
-  // Switch language.
+  // Add language.
 
   let statusButton = composeDocument.getElementById("languageStatusButton");
   let languageList = composeDocument.getElementById("languageMenuList");
@@ -187,6 +187,23 @@ add_task(async function() {
 
   hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
   languageList.activateItem(languageList.children[0]);
+  await hiddenPromise;
+
+  await checkMisspelledWords(subjectEditor);
+  await checkMisspelledWords(bodyEditor);
+
+  // Remove language.
+
+  shownPromise = BrowserTestUtils.waitForEvent(languageList, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(statusButton, {}, composeWindow);
+  await shownPromise;
+
+  Assert.equal(languageList.childElementCount, 2);
+  Assert.equal(languageList.children[0].value, "en-NZ");
+  Assert.equal(languageList.children[1].value, "en-US");
+
+  hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
+  languageList.activateItem(languageList.children[1]);
   await hiddenPromise;
 
   await checkMisspelledWords(subjectEditor, "harbor");
