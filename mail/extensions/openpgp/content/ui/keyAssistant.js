@@ -176,7 +176,7 @@ var gKeyAssistant = {
 
       let acceptedKeys = keyMetas.filter(k => k.readiness == "accepted");
       if (acceptedKeys.length) {
-        this.addToUsableList(addr, acceptedKeys[0]);
+        this.addToReadyList(addr, acceptedKeys[0]);
         usableKeys++;
         continue;
       }
@@ -212,7 +212,66 @@ var gKeyAssistant = {
       problematicKeys || !usableKeys;
   },
 
-  async viewKey(window, keyMeta) {
+  isAccepted(acc) {
+    return (
+      acc.emailDecided &&
+      (acc.fingerprintAcceptance == "verified" ||
+        acc.fingerprintAcceptance == "unverified")
+    );
+  },
+
+  async viewKeyFromResolve(keyMeta) {
+    let oldAccept = {};
+    await PgpSqliteDb2.getAcceptance(
+      keyMeta.keyObj.fpr,
+      this.currentRecip,
+      oldAccept
+    );
+
+    await this._viewKey(keyMeta);
+
+    // If the key is not yet accepted, then we want to automatically
+    // close the email-resolve view, if the user accepts the key
+    // while viewing the key details.
+    let autoCloseOnAccept = !this.isAccepted(oldAccept);
+
+    let newAccept = {};
+    await PgpSqliteDb2.getAcceptance(
+      keyMeta.keyObj.fpr,
+      this.currentRecip,
+      newAccept
+    );
+
+    if (autoCloseOnAccept && this.isAccepted(newAccept)) {
+      this.resetViews();
+      this.buildMainView();
+    }
+  },
+
+  async viewKeyFromOverview(keyMeta) {
+    let oldAccept = {};
+    await PgpSqliteDb2.getAcceptance(
+      keyMeta.keyObj.fpr,
+      this.currentRecip,
+      oldAccept
+    );
+
+    await this._viewKey(keyMeta);
+
+    let newAccept = {};
+    await PgpSqliteDb2.getAcceptance(
+      keyMeta.keyObj.fpr,
+      this.currentRecip,
+      newAccept
+    );
+
+    if (this.isAccepted(oldAccept) != this.isAccepted(newAccept)) {
+      // refresh display because acceptance was changed
+      this.buildMainView();
+    }
+  },
+
+  async _viewKey(keyMeta) {
     let exists = EnigmailKeyRing.getKeyById(keyMeta.keyObj.keyId);
 
     if (!exists) {
@@ -229,7 +288,7 @@ var gKeyAssistant = {
     EnigmailWindows.openKeyDetails(window, keyMeta.keyObj.keyId, false);
   },
 
-  addToUsableList(recipient, keyMeta) {
+  addToReadyList(recipient, keyMeta) {
     let list = document.getElementById("keysListValid");
     let row = document.createElement("li");
     row.classList.add("key-row");
@@ -247,7 +306,7 @@ var gKeyAssistant = {
       "openpgp-key-assistant-view-key-button"
     );
     button.addEventListener("click", () => {
-      gKeyAssistant.viewKey(window, keyMeta);
+      gKeyAssistant.viewKeyFromOverview(keyMeta);
     });
 
     row.append(info, button);
@@ -540,7 +599,7 @@ var gKeyAssistant = {
         "openpgp-key-assistant-view-key-button"
       );
       button.addEventListener("click", () => {
-        gKeyAssistant.viewKey(window, keyMeta);
+        gKeyAssistant.viewKeyFromResolve(keyMeta);
       });
 
       let creationTime = document.createElement("time");
