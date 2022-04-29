@@ -86,6 +86,7 @@
 #include "mozilla/Attributes.h"
 #include "nsStringStream.h"
 #include "nsIStreamListener.h"
+#include "nsITimer.h"
 
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
@@ -6884,24 +6885,22 @@ nsImapMailFolder::CopyMessages(
     // lazily create playback timer if it is not already
     // created
     if (!srcImapFolder->m_playbackTimer) {
-      rv = srcImapFolder->CreatePlaybackTimer();
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    if (srcImapFolder->m_playbackTimer) {
       // if there is no pending request, create a new one, and set the timer.
       // Otherwise use the existing one to reset the timer. it is callback
       // function's responsibility to delete the new request object
       if (!srcImapFolder->m_pendingPlaybackReq) {
         srcImapFolder->m_pendingPlaybackReq =
             new nsPlaybackRequest(srcImapFolder, msgWindow);
-        if (!srcImapFolder->m_pendingPlaybackReq) return NS_ERROR_OUT_OF_MEMORY;
       }
 
-      srcImapFolder->m_playbackTimer->InitWithNamedFuncCallback(
-          PlaybackTimerCallback, (void*)srcImapFolder->m_pendingPlaybackReq,
+      rv = NS_NewTimerWithFuncCallback(
+          getter_AddRefs(srcImapFolder->m_playbackTimer), PlaybackTimerCallback,
+          (void*)srcImapFolder->m_pendingPlaybackReq,
           PLAYBACK_TIMER_INTERVAL_IN_MS, nsITimer::TYPE_ONE_SHOT,
-          "nsImapMailFolder::PlaybackTimerCallback");
+          "nsImapMailFolder::PlaybackTimerCallback", nullptr);
+      if (NS_FAILED(rv)) {
+        NS_WARNING("Could not start m_playbackTimer timer");
+      }
     }
     return rv;
   } else {
@@ -8680,17 +8679,6 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
   m_autoSyncStateObj->SetLastUpdateTime(PR_Now());
 
   return NS_OK;
-}
-
-nsresult nsImapMailFolder::CreatePlaybackTimer() {
-  nsresult rv = NS_OK;
-  if (!m_playbackTimer) {
-    m_playbackTimer = do_CreateInstance(NS_TIMER_CONTRACTID, &rv);
-    NS_ASSERTION(
-        NS_SUCCEEDED(rv),
-        "failed to create pseudo-offline operation timer in nsImapMailFolder");
-  }
-  return rv;
 }
 
 void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {

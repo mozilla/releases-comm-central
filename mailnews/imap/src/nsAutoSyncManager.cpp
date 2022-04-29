@@ -16,6 +16,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
 #include "nsIIOService.h"
+#include "nsITimer.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
@@ -223,14 +224,13 @@ nsAutoSyncManager::~nsAutoSyncManager() {}
 
 void nsAutoSyncManager::InitTimer() {
   if (!mTimer) {
-    nsresult rv;
-    mTimer = do_CreateInstance(NS_TIMER_CONTRACTID, &rv);
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "failed to create timer in nsAutoSyncManager");
-
-    mTimer->InitWithNamedFuncCallback(
-        TimerCallback, (void*)this, kTimerIntervalInMs,
-        nsITimer::TYPE_REPEATING_SLACK, "nsAutoSyncManager::TimerCallback");
+    nsresult rv = NS_NewTimerWithFuncCallback(
+        getter_AddRefs(mTimer), TimerCallback, (void*)this, kTimerIntervalInMs,
+        nsITimer::TYPE_REPEATING_SLACK, "nsAutoSyncManager::TimerCallback",
+        nullptr);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Could not start nsAutoSyncManager timer");
+    }
   }
 }
 

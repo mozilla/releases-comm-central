@@ -16,6 +16,7 @@
 #include "nsNetUtil.h"
 #include "prtime.h"
 #include "prprf.h"
+#include "nsITimer.h"
 #include "nsINIParser.h"
 #include "nsMailProfileMigratorUtils.h"
 #include "nsIDirectoryEnumerator.h"
@@ -327,12 +328,12 @@ void nsNetscapeProfileMigratorBase::CopyNextFolder() {
     NOTIFY_OBSERVERS(MIGRATION_PROGRESS, index.get());
 
     // fire a timer to handle the next one.
-    mFileIOTimer = do_CreateInstance("@mozilla.org/timer;1");
-
-    if (mFileIOTimer)
-      mFileIOTimer->InitWithCallback(static_cast<nsITimerCallback*>(this),
-                                     percentage == 100 ? 500 : 0,
-                                     nsITimer::TYPE_ONE_SHOT);
+    nsresult rv = NS_NewTimerWithCallback(
+        getter_AddRefs(mFileIOTimer), static_cast<nsITimerCallback*>(this),
+        percentage == 100 ? 500 : 0, nsITimer::TYPE_ONE_SHOT, nullptr);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Could not start mFileIOTimer timer");
+    }
   } else
     EndCopyFolders();
 

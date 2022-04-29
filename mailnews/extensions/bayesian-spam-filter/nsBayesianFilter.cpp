@@ -1219,14 +1219,6 @@ nsBayesianFilter::nsBayesianFilter() : mTrainingDataDirty(false) {
   MOZ_LOG(BayesianFilterLogModule, LogLevel::Warning,
           ("maximum junk tokens: %d", mMaximumTokenCount));
 
-  mTimer = do_CreateInstance(NS_TIMER_CONTRACTID, &rv);
-  NS_ASSERTION(
-      NS_SUCCEEDED(rv),
-      "unable to create a timer; training data will only be written on exit");
-
-  // the timer is not used on object construction, since for
-  // the time being there are no dirying messages
-
   // give a default capacity to the memory structure used to store
   // per-message/per-trait token data
   mAnalysisStore.SetCapacity(kAnalysisStoreCapacity);
@@ -1985,14 +1977,19 @@ void nsBayesianFilter::observeMessage(
     aTraitListener->OnMessageTraitsClassified(messageURL, traits, percents);
   }
 
-  if (mTrainingDataDirty && !trainingDataWasDirty && (mTimer != nullptr)) {
+  if (mTrainingDataDirty && !trainingDataWasDirty) {
     // if training data became dirty just now, schedule flush
     // mMinFlushInterval msec from now
     MOZ_LOG(BayesianFilterLogModule, LogLevel::Debug,
             ("starting training data flush timer %i msec", mMinFlushInterval));
-    mTimer->InitWithNamedFuncCallback(
-        nsBayesianFilter::TimerCallback, this, mMinFlushInterval,
-        nsITimer::TYPE_ONE_SHOT, "nsBayesianFilter::TimerCallback");
+
+    nsresult rv = NS_NewTimerWithFuncCallback(
+        getter_AddRefs(mTimer), nsBayesianFilter::TimerCallback, (void*)this,
+        mMinFlushInterval, nsITimer::TYPE_ONE_SHOT,
+        "nsBayesianFilter::TimerCallback", nullptr);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Could not start nsBayesianFilter timer");
+    }
   }
 }
 

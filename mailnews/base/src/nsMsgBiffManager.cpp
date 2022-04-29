@@ -16,6 +16,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
+#include "nsITimer.h"
 #include "mozilla/Services.h"
 
 #define PREF_BIFF_JITTER "mail.biff.add_interval_jitter"
@@ -104,10 +105,12 @@ NS_IMETHODIMP nsMsgBiffManager::Observe(nsISupports* aSubject,
     mBiffTimer = nullptr;
   } else if (!strcmp(aTopic, "wake_notification")) {
     // wait 10 seconds after waking up to start biffing again.
-    mBiffTimer = do_CreateInstance("@mozilla.org/timer;1");
-    mBiffTimer->InitWithNamedFuncCallback(OnBiffTimer, (void*)this, 10000,
-                                          nsITimer::TYPE_ONE_SHOT,
-                                          "nsMsgBiffManager::OnBiffTimer");
+    nsresult rv = NS_NewTimerWithFuncCallback(
+        getter_AddRefs(mBiffTimer), OnBiffTimer, (void*)this, 10000,
+        nsITimer::TYPE_ONE_SHOT, "nsMsgBiffManager::OnBiffTimer", nullptr);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Could not start mBiffTimer timer");
+    }
   }
   return NS_OK;
 }
@@ -253,10 +256,13 @@ nsresult nsMsgBiffManager::SetupNextBiff() {
 
     MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info,
             ("setting %d timer", timeInMSUint32));
-    mBiffTimer = do_CreateInstance("@mozilla.org/timer;1");
-    mBiffTimer->InitWithNamedFuncCallback(
-        OnBiffTimer, (void*)this, timeInMSUint32, nsITimer::TYPE_ONE_SHOT,
-        "nsMsgBiffManager::OnBiffTimer");
+
+    nsresult rv = NS_NewTimerWithFuncCallback(
+        getter_AddRefs(mBiffTimer), OnBiffTimer, (void*)this, timeInMSUint32,
+        nsITimer::TYPE_ONE_SHOT, "nsMsgBiffManager::OnBiffTimer", nullptr);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Could not start mBiffTimer timer");
+    }
   }
   return NS_OK;
 }

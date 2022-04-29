@@ -9,6 +9,7 @@
 #include "nsIProfileMigrator.h"
 #include "nsIImportSettings.h"
 #include "nsIFile.h"
+#include "nsITimer.h"
 #include "nsComponentManagerUtils.h"
 
 NS_IMPL_ISUPPORTS(nsOutlookProfileMigrator, nsIMailProfileMigrator,
@@ -44,10 +45,12 @@ nsOutlookProfileMigrator::Notify(nsITimer* timer) {
       return FinishCopyingAddressBookData();
   } else {
     // fire a timer to handle the next one.
-    mFileIOTimer = do_CreateInstance("@mozilla.org/timer;1");
-    if (mFileIOTimer)
-      mFileIOTimer->InitWithCallback(static_cast<nsITimerCallback*>(this), 100,
-                                     nsITimer::TYPE_ONE_SHOT);
+    nsresult rv = NS_NewTimerWithCallback(
+        getter_AddRefs(mFileIOTimer), static_cast<nsITimerCallback*>(this), 100,
+        nsITimer::TYPE_ONE_SHOT, nullptr);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Could not start mFileIOTimer timer");
+    }
   }
   return NS_OK;
 }

@@ -28,6 +28,7 @@
 #include "nsNetUtil.h"
 #include "nsISimpleEnumerator.h"
 #include "nsMsgUtils.h"
+#include "nsITimer.h"
 #include "mozilla/Services.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/ErrorResult.h"
@@ -239,17 +240,18 @@ nsNntpIncomingServer::GetNewsrcRootPath(nsIFile** aNewsrcRootPath) {
 }
 
 nsresult nsNntpIncomingServer::SetupNewsrcSaveTimer() {
-  int64_t ms(300000);  // hard code, 5 minutes.
-  // Convert biffDelay into milliseconds
-  uint32_t timeInMSUint32 = (uint32_t)ms;
   // Can't currently reset a timer when it's in the process of
   // calling Notify. So, just release the timer here and create a new one.
   if (mNewsrcSaveTimer) mNewsrcSaveTimer->Cancel();
-  mNewsrcSaveTimer = do_CreateInstance("@mozilla.org/timer;1");
-  mNewsrcSaveTimer->InitWithNamedFuncCallback(
-      OnNewsrcSaveTimer, (void*)this, timeInMSUint32,
-      nsITimer::TYPE_REPEATING_SLACK,
-      "nsNntpIncomingServer::OnNewsrcSaveTimer");
+
+  nsresult rv = NS_NewTimerWithFuncCallback(
+      getter_AddRefs(mNewsrcSaveTimer), OnNewsrcSaveTimer, (void*)this,
+      1000 * 5 * 60 /* 5 minutes */, nsITimer::TYPE_REPEATING_SLACK,
+      "nsNntpIncomingServer::OnNewsrcSaveTimer", nullptr);
+  if (NS_FAILED(rv)) {
+    NS_WARNING("Could not start mNewsrcSaveTimer timer");
+  }
+
   return NS_OK;
 }
 

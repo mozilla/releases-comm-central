@@ -18,6 +18,7 @@
 #include "nsIPrefService.h"
 #include "mozilla/Logging.h"
 #include "nsMsgFolderFlags.h"
+#include "nsITimer.h"
 #include <stdlib.h>
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -99,10 +100,12 @@ nsresult nsMsgPurgeService::SetupNextPurge() {
   // calling Notify. So, just release the timer here and create a new one.
   if (mPurgeTimer) mPurgeTimer->Cancel();
 
-  mPurgeTimer = do_CreateInstance("@mozilla.org/timer;1");
-  mPurgeTimer->InitWithNamedFuncCallback(
-      OnPurgeTimer, (void*)this, timeInMSUint32, nsITimer::TYPE_ONE_SHOT,
-      "nsMsgPurgeService::OnPurgeTimer");
+  nsresult rv = NS_NewTimerWithFuncCallback(
+      getter_AddRefs(mPurgeTimer), OnPurgeTimer, (void*)this, timeInMSUint32,
+      nsITimer::TYPE_ONE_SHOT, "nsMsgPurgeService::OnPurgeTimer", nullptr);
+  if (NS_FAILED(rv)) {
+    NS_WARNING("Could not start mPurgeTimer timer");
+  }
 
   return NS_OK;
 }
