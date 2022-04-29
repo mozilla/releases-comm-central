@@ -743,8 +743,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   border: none;
 }
 
-.alltabs-item[style*="chat.svg"],
-.tabmail-tab[type="chat"] .tab-icon-image {
+.alltabs-item[style*="chat.svg"] {
   -moz-context-properties: fill, stroke-opacity;
   stroke-opacity: 0;
   fill: currentColor;

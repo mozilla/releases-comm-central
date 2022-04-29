@@ -1,0 +1,38 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Density variations */
+
+:root {
+  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/normal/mail.svg");
+  --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/normal/address-book.svg");
+  --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/normal/calendar.svg");
+  --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/normal/tasks.svg");
+  --spaces-icon-chat: url("chrome://messenger/skin/icons/new/normal/chat.svg");
+  --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/normal/overflow.svg");
+  --spaces-icon-settings: url("chrome://messenger/skin/icons/new/normal/settings.svg");
+  --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/normal/collapse.svg");
+}
+
+:root[uidensity="compact"] {
+  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
+  --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
+  --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
+  --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/compact/tasks.svg");
+  --spaces-icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
+  --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/compact/overflow.svg");
+  --spaces-icon-settings: url("chrome://messenger/skin/icons/new/compact/settings.svg");
+  --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
+}
+
+:root[uidensity="touch"] {
+  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/touch/mail.svg");
+  --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/touch/address-book.svg");
+  --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/touch/calendar.svg");
+  --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/touch/tasks.svg");
+  --spaces-icon-chat: url("chrome://messenger/skin/icons/new/touch/chat.svg");
+  --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/touch/overflow.svg");
+  --spaces-icon-settings: url("chrome://messenger/skin/icons/new/touch/settings.svg");
+  --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/touch/collapse.svg");
+}

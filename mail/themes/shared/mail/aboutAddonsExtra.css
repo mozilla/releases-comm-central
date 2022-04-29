@@ -38,6 +38,20 @@ button[name="plugin"] {
   border-start-end-radius: 0;
 }
 
+/* Temporary styles for the supernova icons */
+#preferencesButton .sidebar-footer-icon,
+.page-options-menu > .more-options-button {
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+.page-options-menu > .more-options-button {
+  background-image: url("chrome://messenger/skin/icons/new/touch/settings.svg") !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
 /* Hide in extension details the private browsing section */
 section > .addon-detail-row-private-browsing,
 .addon-detail-row-private-browsing + .addon-detail-row.addon-detail-help-row {

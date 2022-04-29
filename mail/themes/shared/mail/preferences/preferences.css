@@ -69,6 +69,14 @@ search-textbox {
   width: 240px;
 }
 
+/* Temporary styles for the supernova icons */
+#prefsButton .sidebar-footer-icon,
+#category-general .category-icon {
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
 /*
   The stack has some very tall content but it shouldn't be taller than the
   viewport (and we know the tall content will still be accessible via scrollbars

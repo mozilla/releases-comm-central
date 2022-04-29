@@ -100,6 +100,14 @@ button.tab-close-button {
   visibility: hidden;
 }
 
+/* TEMPORARY: A custom class for the new icons as to
+   not break compatibility with the old ones */
+.supernova .tab-icon-image {
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
 .tab-throbber:not([busy]):not([thinking]),
 .tab-throbber[busy] + .tab-icon-image,
 .tab-throbber[thinking] + .tab-icon-image,

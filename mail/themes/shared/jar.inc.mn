@@ -52,7 +52,6 @@
 % override chrome://global/skin/icons/security.svg chrome://messenger/skin/overrides/security.svg
 % override chrome://global/skin/icons/security-broken.svg chrome://messenger/skin/overrides/security-broken.svg
 % override chrome://global/skin/icons/security-warning.svg chrome://messenger/skin/overrides/security-warning.svg
-% override chrome://global/skin/icons/settings.svg chrome://messenger/skin/overrides/settings.svg
 % override chrome://global/skin/icons/update-icon.svg chrome://messenger/skin/overrides/update-icon.svg
 % override chrome://global/skin/icons/warning.svg chrome://messenger/skin/overrides/warning.svg
 % override chrome://mozapps/skin/extensions/category-available.svg chrome://messenger/skin/overrides/category-available.svg
@@ -104,6 +103,10 @@
   skin/classic/messenger/overrides/update-icon.svg            (../shared/mail/overrides/update-icon.svg)
   skin/classic/messenger/overrides/warning.svg                (../shared/mail/overrides/warning.svg)
 # End Proton icon overrides
+
+# Supernova icon overrides
+% override chrome://global/skin/icons/settings.svg chrome://messenger/skin/icons/new/compact/settings.svg
+# End Supernova icon overrides
 
   skin/classic/messenger/abFormFields.css                     (../shared/mail/abFormFields.css)
   skin/classic/messenger/about3Pane.css                       (../shared/mail/about3Pane.css)
@@ -458,6 +461,8 @@
   skin/classic/messenger/illustrations/sloth.svg              (../shared/mail/illustrations/sloth.svg)
 
 # New design system
+  skin/classic/messenger/icons.css                            (../shared/mail/icons.css)
+
   skin/classic/messenger/icons/new/compact/address-book.svg   (../shared/mail/icons/new/compact/address-book.svg)
   skin/classic/messenger/icons/new/compact/calendar.svg       (../shared/mail/icons/new/compact/calendar.svg)
   skin/classic/messenger/icons/new/compact/chat.svg           (../shared/mail/icons/new/compact/chat.svg)

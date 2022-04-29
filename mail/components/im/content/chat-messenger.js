@@ -340,7 +340,7 @@ var chatTabType = {
     }
   },
   openTab(aTab, aArgs) {
-    aTab.tabNode.setIcon("chrome://messenger/skin/icons/chat.svg");
+    aTab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/chat.svg");
     if (!this.hasBeenOpened) {
       if (chatHandler.ChatCore && chatHandler.ChatCore.initialized) {
         let convs = imServices.conversations.getUIConversations();

@@ -76,7 +76,7 @@ var calendarTabType = {
       type: "calendar",
       maxTabs: 1,
       openTab(tab) {
-        tab.tabNode.setIcon("chrome://messenger/skin/shared/preferences/calendar.svg");
+        tab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/calendar.svg");
         gLastShownCalendarView.get();
         tab.title = cal.l10n.getLtnString("tabTitleCalendar");
       },
@@ -110,7 +110,7 @@ var calendarTabType = {
       type: "tasks",
       maxTabs: 1,
       openTab(tab) {
-        tab.tabNode.setIcon("chrome://calendar/skin/shared/icons/task-tab.svg");
+        tab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/tasks.svg");
         tab.title = cal.l10n.getLtnString("tabTitleTasks");
       },
       showTab(tab) {},

@@ -451,8 +451,12 @@ aside.settings-btn-container {
   background-image: url("chrome://messenger/skin/icons/developer.svg");
 }
 
+/* Temporary styles for the Supernova icon */
 #settingsButton::before {
-  background-image: url("chrome://global/skin/icons/settings.svg");
+  background-image: url("chrome://messenger/skin/icons/new/compact/settings.svg");
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 #readButton::before {
