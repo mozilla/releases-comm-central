@@ -420,10 +420,7 @@ var gSpacesToolbar = {
             "spaces-context-switch-tab-item",
             { tabName: tabInfo.title }
           );
-          menuitem.classList.add(
-            "switch-to-tab",
-            "menuitem-iconic"
-          );
+          menuitem.classList.add("switch-to-tab", "menuitem-iconic");
           menuitem.addEventListener("command", () =>
             tabmail.switchToTab(tabInfo)
           );
@@ -1313,10 +1310,7 @@ var gSpacesToolbar = {
       ".spaces-addon-button[hidden]"
     )) {
       let menuitem = document.createXULElement("menuitem");
-      menuitem.classList.add(
-        "menuitem-iconic",
-        "spaces-popup-menuitem"
-      );
+      menuitem.classList.add("menuitem-iconic", "spaces-popup-menuitem");
       menuitem.label = button.title;
 
       let img = button.querySelector("img");
