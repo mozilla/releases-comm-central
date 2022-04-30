@@ -50,7 +50,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     if (NS_IsMainThread()) {
       return nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
     }
-    // Creating IMAP URIs off the main tread can lead to crashes.
+    // Creating IMAP URIs off the main thread can lead to crashes.
     // Seems to happen when viewing PDFs.
     auto NewURI = [&aSpec, &aCharset, &aBaseURI, aURI, &rv ]() -> auto {
       rv = nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);

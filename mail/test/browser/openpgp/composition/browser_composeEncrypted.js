@@ -169,7 +169,7 @@ add_task(async function testEncryptedMessageComposition() {
 });
 
 /**
- * Tests composition of an encrypted only message, with public key attachement
+ * Tests composition of an encrypted only message, with public key attachment
  * enabled, shows as encrypted in the Outbox.
  */
 add_task(async function testEncryptedMessageWithKeyComposition() {

@@ -299,7 +299,7 @@ DEFINE_OLEGUID(IID_IMAPIMessageSite, 0x00020370, 0, 0);
 
 
 /* Well known guids routing property sets.
-   Usefull when writing applications that route documents
+   Useful when writing applications that route documents
    (i.e. Workflow) across gateways.  Gateways that speak MAPI
    should convert the properties found in the follow property
    sets appropriately. */

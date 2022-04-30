@@ -948,7 +948,7 @@ pref("devtools.inspector.imagePreviewTooltipSize", 300);
 pref("devtools.inspector.showUserAgentStyles", false);
 // Show native anonymous content and user agent shadow roots
 pref("devtools.inspector.showAllAnonymousContent", false);
-// Enable the inline CSS compatiblity warning in inspector rule view
+// Enable the inline CSS compatibility warning in inspector rule view
 pref("devtools.inspector.ruleview.inline-compatibility-warning.enabled", false);
 // Enable the compatibility tool in the inspector.
 pref("devtools.inspector.compatibility.enabled", true);

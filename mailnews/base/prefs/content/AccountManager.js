@@ -291,7 +291,7 @@ function onAccept(aDoChecks) {
 
   if (gRestartNeeded) {
     MailUtils.restartApplication();
-    // Prevent closing Account manager incase restart failed. If restart did not fail,
+    // Prevent closing Account manager in case restart failed. If restart did not fail,
     // return value does not matter, as we are restarting.
     return false;
   }

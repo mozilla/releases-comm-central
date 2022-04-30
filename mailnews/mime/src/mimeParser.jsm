@@ -419,7 +419,7 @@ var MimeParser = {
       includeAttachments: true,
       getMimePart: "",
     };
-    // Overide default options.
+    // Override default options.
     for (let option of Object.keys(options)) {
       emitter.options[option] = options[option];
     }

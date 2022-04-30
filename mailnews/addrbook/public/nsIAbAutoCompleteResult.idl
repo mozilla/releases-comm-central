@@ -45,7 +45,7 @@ interface nsIAbAutoCompleteResult : nsIAutoCompleteResult {
 
   /**
    * Asynchronous address books that were unable to return full results.
-   * This means that they need to be requeried rather than simply filtered.
+   * This means that they need to be required rather than simply filtered.
    */
   attribute Array<nsIAbDirectory> asyncDirectories;
 };

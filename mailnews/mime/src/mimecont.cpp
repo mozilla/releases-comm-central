@@ -59,8 +59,8 @@ static void MimeContainer_finalize(MimeObject* object) {
    */
 
   /* If we're being destroyed, prior to deleting any data, mark
-   * flush data in all childs and mark them as closed, to avoid
-   * flushing during subsequent mime_free of childs.
+   * flush data in all children and mark them as closed, to avoid
+   * flushing during subsequent mime_free of the children.
    * This also helps if this (parent) object is already marked as
    * closed, but a child is not yet marked as closed.
    */

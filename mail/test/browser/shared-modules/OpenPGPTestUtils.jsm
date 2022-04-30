@@ -72,7 +72,7 @@ const OpenPGPTestUtils = {
   },
 
   /**
-   * For xpcshell-tests OpenPGP is not intialized automatically. This method
+   * For xpcshell-tests OpenPGP is not initialized automatically. This method
    * should be called at the start of testing.
    */
   async initOpenPGP() {

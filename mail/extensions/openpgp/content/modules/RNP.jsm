@@ -24,7 +24,7 @@ const str_encrypt = "encrypt";
 const str_sign = "sign";
 const str_certify = "certify";
 const str_authenticate = "authenticate";
-const RNP_PHOTO_USERID_ID = "(photo)"; // string is harcoded inside RNP
+const RNP_PHOTO_USERID_ID = "(photo)"; // string is hardcoded inside RNP
 
 var RNPLib;
 
@@ -1878,7 +1878,7 @@ var RNP = {
    * (Other keys included in the key blocks are ignored.)
    * The intention is to use it to combine keys obtained from different places,
    * possibly with updated/different expiration date and userIds etc. to
-   * a canonical represenation of them.
+   * a canonical representation of them.
    *
    * @param {string} fingerprint - Key fingerprint.
    * @param {...string} - Key blocks.
@@ -2061,7 +2061,7 @@ var RNP = {
       if (k.secretAvailable) {
         while (!userFlags.canceled) {
           // After we unprotect a key, immediately re-protect it with
-          // the new passphrase. If a failure occurrs at some point,
+          // the new passphrase. If a failure occurs at some point,
           // all keys remain protected in memory.
 
           let rv = 0;
@@ -3039,7 +3039,7 @@ var RNP = {
    * added by others, but keeping self-signatures.
    * The given key handle will not be modified. The input key will be
    * copied to a temporary area, only the temporary copy will be
-   * modified. The result key will be streamed to tghe given output.
+   * modified. The result key will be streamed to the given output.
    *
    * @param {rnp_key_handle_t} expKey - RNP key handle
    * @param {string} id - key ID or fingerprint

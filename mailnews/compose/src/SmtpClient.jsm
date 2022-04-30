@@ -896,7 +896,7 @@ class SmtpClient {
   /**
    * Handles server response for STARTTLS command. If there's an error
    * try HELO instead, otherwise initiate TLS upgrade. If the upgrade
-   * succeedes restart the EHLO
+   * succeeds restart the EHLO
    *
    * @param {String} str Message from the server
    */

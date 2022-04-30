@@ -448,7 +448,7 @@ class MsgsClassifiedListener {
     let idx = indexMessageState.interestingEvents.indexOf("msgsClassified");
     if (idx != -1) {
       log.debug("Remove intrestingEvent through msgsClassified.");
-      // Remove the intresting Event as we received it here.
+      // Remove the interesting Event as we received it here.
       indexMessageState.interestingEvents.splice(idx, 1);
     }
   }

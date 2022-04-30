@@ -684,10 +684,10 @@ async function openPgpKeygenConfirm() {
   let revFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   revFile.append(`0x${gGeneratedKey}_rev.asc`);
 
-  // Create a revokation cert in the Thunderbird profile directoy.
+  // Create a revokation cert in the Thunderbird profile directory.
   await IOUtils.writeUTF8(revFile.path, revFull);
 
-  // Key succesfully created. Close the dialog and show a confirmation message.
+  // Key successfully created. Close the dialog and show a confirmation message.
   // Assigning the key to an identity is the responsibility of the caller,
   // so we pass back what we created.
   window.arguments[0].okCallback(gGeneratedKey);

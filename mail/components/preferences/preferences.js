@@ -104,7 +104,7 @@ function register_module(categoryName, categoryObject) {
         document.l10n.resumeObserving();
 
         // Asks Preferences to update the attribute value of the entire
-        // document again (this can be simplified if we could seperate the
+        // document again (this can be simplified if we could separate the
         // preferences of each pane.)
         Preferences.queueUpdateOfAllElements();
       }

@@ -124,7 +124,7 @@ var MsgUtils = {
    * depends on preference.
    * @param {string} input - The HTML text to convert.
    * @param {boolean} formatFlowed - A flag to enable OutputFormatFlowed.
-   * @retuns {string}
+   * @returns {string}
    */
   convertToPlainText(input, formatFlowed) {
     let wrapWidth = Services.prefs.getIntPref("mailnews.wraplength", 72);
@@ -955,7 +955,7 @@ var MsgUtils = {
    * @param {nsIMsgIdentity} userIdentity - User identity.
    * @param {nsIStringBundle} composeBundle - Localized string bundle.
    * @param {string} errorName - The error name derived from an exit code.
-   * @retuns {string}
+   * @returns {string}
    */
   formatStringWithSMTPHostName(userIdentity, composeBundle, errorName) {
     let smtpServer = MailServices.smtp.getServerByIdentity(userIdentity);

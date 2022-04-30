@@ -233,7 +233,7 @@ class MsgIncomingServer {
    * Construct a pretty name from username and hostname.
    * @param {string} username - The user name.
    * @param {string} hostname - The host name.
-   * @retursn {string}
+   * @returns {string}
    */
   _constructPrettyName(username, hostname) {
     let prefix = username ? `${username} on ` : "";

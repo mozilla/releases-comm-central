@@ -169,7 +169,7 @@ Enigmail.msg = {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.handleClick\n");
     switch (event.button) {
       case 2:
-        // do not process the event any futher
+        // do not process the event any further
         // needed on Windows to prevent displaying the context menu
         event.preventDefault();
         this.doPgpButton();

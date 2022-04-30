@@ -17,7 +17,7 @@
  * destroyed or ForceClosed().
  * Due to this lifecycle coupling, we try to avoid using refcounted pointers
  * here, as we don't want outstanding enumerators to lock an otherwise unused
- * database in existance.
+ * database in existence.
  */
 
 #include "nsMsgEnumerator.h"
@@ -60,7 +60,7 @@ class nsMsgDBEnumerator : public nsBaseMsgEnumerator {
   virtual nsresult InternalGetNext(nsIMsgDBHdr** nextHdr);
 
   // Our source DB. Not refcounted, because we don't want to lock the DB
-  // in existance. The enumerator is registered with the DB, and the DB will
+  // in existence. The enumerator is registered with the DB, and the DB will
   // call Invalidate() if it is destroyed or ForceClosed().
   nsMsgDatabase* mDB;
   nsCOMPtr<nsIMdbTableRowCursor> mRowCursor;
@@ -120,7 +120,7 @@ class nsMsgDBThreadEnumerator : public nsBaseMsgThreadEnumerator {
   nsresult PrefetchNext();
 
   // Our source DB. Not refcounted, because we don't want to lock the DB
-  // in existance. The enumerator is registered with the DB, and the DB will
+  // in existence. The enumerator is registered with the DB, and the DB will
   // call Invalidate() if it is destroyed or ForceClosed().
   nsMsgDatabase* mDB;
   nsCOMPtr<nsIMdbPortTableCursor> mTableCursor;

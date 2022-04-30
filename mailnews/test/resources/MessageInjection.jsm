@@ -94,7 +94,7 @@ class MessageInjection {
     server: null,
   };
   /**
-   * Creates an enviroment for tests.
+   * Creates an environment for tests.
    * Usage either with "local" or "imap".
    * An Inbox folder is created. Retrieve it via `getInboxFolder`
    *

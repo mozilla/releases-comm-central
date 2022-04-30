@@ -11,10 +11,10 @@ var EXPORTED_SYMBOLS = ["newEnigmailKeyObj"];
 /**
  This module implements the EnigmailKeyObj class with the following members:
 
-  - keyId           - 16 digits (8-byte) public key ID (/not/ preceeded with 0x)
+  - keyId           - 16 digits (8-byte) public key ID (/not/ preceded with 0x)
   - userId          - main user ID
   - fpr             - fingerprint
-  - fprFormatted    - a formatted version of the fingerprint followin the scheme .... .... ....
+  - fprFormatted    - a formatted version of the fingerprint following the scheme .... .... ....
   - expiry          - Expiry date as printable string
   - expiryTime      - Expiry time as seconds after 01/01/1970
   - created         - Key creation date as printable string

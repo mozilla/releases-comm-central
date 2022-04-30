@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Test the ability to swtich between multiple folder modes.
+ * Test the ability to switch between multiple folder modes.
  */
 
 "use strict";

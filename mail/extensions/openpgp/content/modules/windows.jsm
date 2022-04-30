@@ -97,7 +97,7 @@ var EnigmailWindows = {
    * matching name.
    *
    * @win:       nsIWindow - XUL window to search
-   * @frameName: String    - name of the frame to seach
+   * @frameName: String    - name of the frame to search
    *
    * @return:    the frame object or null if not found
    */

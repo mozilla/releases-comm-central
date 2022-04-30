@@ -96,7 +96,7 @@ class ImapClient {
   }
 
   /**
-   * Add, remove or replace flags of specificed messages.
+   * Add, remove or replace flags of specified messages.
    * @param {string} action - "+" means add, "-" means remove, "" means replace.
    * @param {nsIMsgFolder} folder - The target folder.
    * @param {nsIUrlListener} urlListener - Callback for the request.

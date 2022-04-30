@@ -45,7 +45,7 @@ interface nsIMsgEnumerator : nsISupports {
 
   /**
    * Called to determine whether or not there are any messages remaining
-   * to be retrived from the enumerator.
+   * to be retrieved from the enumerator.
    *
    * @returns true if getNext() may be called to fetch a message, or
    *          false if there are no more messages.
@@ -78,7 +78,7 @@ interface nsIMsgThreadEnumerator : nsISupports {
 
   /**
    * Called to determine whether or not there are any messages remaining
-   * to be retrived from the enumerator.
+   * to be retrieved from the enumerator.
    *
    * @returns true if getNext() may be called to fetch a message, or
    *          false if there are no more messages.

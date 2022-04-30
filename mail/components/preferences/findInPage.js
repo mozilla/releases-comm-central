@@ -107,7 +107,7 @@ var gSearchResultsPane = {
   /**
    * Finds and returns text nodes within node and all descendants.
    * Iterates through all the sibilings of the node object and adds the sibilings
-   * to an array if sibiling is a TEXT_NODE else checks the text nodes with in current node.
+   * to an array if sibling is a TEXT_NODE else checks the text nodes with in current node.
    * Source - http://stackoverflow.com/questions/10730309/find-all-text-nodes-in-html-page
    *
    * @param {Node} node DOM element.
@@ -143,7 +143,7 @@ var gSearchResultsPane = {
    *   textNodes = [[This is ], [a], [n example]]
    *   nodeSizes = [[8], [9], [18]]
    *   This is used to determine the offset when highlighting.
-   * @param {String} textSearch Concatination of textNodes's text content.
+   * @param {String} textSearch Concatenation of textNodes's text content.
    *    Example:
    *    textNodes = [[This is ], [a], [n example]]
    *    nodeSizes = "This is an example"

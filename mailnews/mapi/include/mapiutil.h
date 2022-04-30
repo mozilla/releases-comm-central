@@ -273,7 +273,7 @@ DECLARE_MAPI_INTERFACE_PTR(IPropData, LPPROPDATA);
 
 /*	CreateIProp()
  *		Creates the internal memory structures and object handle
- *		to bring a new property interface into existance.
+ *		to bring a new property interface into existence.
  *
  *	lpInterface
  *		Interface ID of the TableData object (IID_IMAPIPropData)
@@ -410,7 +410,7 @@ typedef FTG  FAR *PFTG;
  -
  *	Purpose:
  *		Initialises the idle engine
- *		If the initialisation succeded, returns 0, else returns -1
+ *		If the initialisation succeeded, returns 0, else returns -1
  *
  *	Arguments:
  *		lpvReserved		Reserved, must be NULL.

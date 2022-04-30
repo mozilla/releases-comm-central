@@ -94,7 +94,7 @@ add_task(async function() {
       onSearchFinished(status, isCompleteResult) {
         ok(Components.isSuccessCode(status), "Search finished successfully.");
         equal(foundCards, 1, "One card was found.");
-        ok(isCompleteResult, "A full result set was receieved.");
+        ok(isCompleteResult, "A full result set was received.");
         resolve();
       },
     });

@@ -48,7 +48,7 @@ var EnigmailPersistentCrypto = {
    * @param {nsIMsgDBHdr} hdr - message to process
    * @param {string} destFolder - target folder URI
    * @param {boolean} move - true for move, false for copy
-   * @param {KeyObject} targetKey - target key if encyption is requested
+   * @param {KeyObject} targetKey - target key if encryption is requested
    *
    * @returns {nsMsgKey} Message key of the new message
    **/
@@ -746,7 +746,7 @@ CryptMessageIntoFolder.prototype = {
       EnigmailLog.DEBUG(
         "persistentCrypto.jsm: pgpDecryptAttachment: decryption failed\n"
       );
-      // Enigmail promts the user here, but we just keep going.
+      // Enigmail prompts the user here, but we just keep going.
     } else if (statusFlagsObj.value & EnigmailConstants.DECRYPTION_INCOMPLETE) {
       // failure; message not complete
       EnigmailLog.DEBUG(

@@ -76,7 +76,7 @@ async function addImapMessage(fooMessage) {
 
 /**
  * Saves the file and waits until its able to load.
- * nsMessenger doesnt have an event for the loaded File.
+ * nsMessenger doesn't have an event for the loaded File.
  *
  * @param {string} fileEnding
  * @returns {string}

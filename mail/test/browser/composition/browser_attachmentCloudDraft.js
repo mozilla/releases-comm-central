@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests that cloudFile attachments are propperly restored in re-opened drafts.
+ * Tests that cloudFile attachments are properly restored in re-opened drafts.
  */
 
 "use strict";

@@ -39,7 +39,7 @@ let draftsFolder;
 let templatesFolder;
 
 /**
- * Helper funtion to wait for a compose window to get opened.
+ * Helper function to wait for a compose window to get opened.
  *
  * @return The opened window.
  */
@@ -161,7 +161,7 @@ async function doTestSecState(isDraft, secure) {
 
   await TestUtils.waitForCondition(
     () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-    "timeout wating for saving to finish."
+    "timeout waiting for saving to finish."
   );
 
   info(`Saved as ${type} with secure=${secure}`);

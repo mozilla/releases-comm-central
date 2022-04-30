@@ -56,7 +56,7 @@ interface nsIMsgSendListener : nsISupports {
     void onSendNotPerformed(in string aMsgID, in nsresult aStatus);
 
     /**
-     * Notify that an NSS security error has occured during the send
+     * Notify that an NSS security error has occurred during the send
      * (e.g. Bad Certificate or SSL version failure).
      * This callback is invoked before onStopSending(), in case a listener
      * needs the securityInfo - most likely to get at a failed certificate,

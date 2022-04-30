@@ -130,7 +130,7 @@ var EnigmailLog = {
   /**
    *  Log an exception including the stack trace
    *
-   *  referenceInfo: String - arbitraty text to write before the exception is logged
+   *  referenceInfo: String - arbitrary text to write before the exception is logged
    *  ex:            exception object
    */
   writeException(referenceInfo, ex) {

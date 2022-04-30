@@ -226,7 +226,7 @@
               "icons_attention": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The color of the toolbar icons in attention state such as the chat icon whith new messages."
+                "description": "The color of the toolbar icons in attention state such as the chat icon with new messages."
               },
               "button_background_hover": {
                 "$ref": "ThemeColor",

@@ -102,7 +102,7 @@ let longMultibyteLineJapanese = "語".repeat(450);
 
 async function testBodyWithLongLine() {
   // Lines in the message body are split by CRLF according to RFC 5322, should
-  // be independant of the system.
+  // be independent of the system.
   let newline = "\r\n";
 
   let fields = new CompFields();

@@ -16,7 +16,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;
 
-// Default libary paths to look for on macOS
+// Default library paths to look for on macOS
 const ADDITIONAL_LIB_PATHS = [
   "/usr/local/lib",
   "/opt/local/lib",

@@ -154,7 +154,7 @@ function do_check_transaction(real, expected) {
   }
 
   if (expected[0] == "AUTH") {
-    // We don't send inital AUTH command now.
+    // We don't send initial AUTH command now.
     expected = expected.slice(1);
   }
 

@@ -443,7 +443,7 @@ add_task(async function testEveryThingOKAgain() {
  * Test setting up a directory but not saving the password. The username
  * should be saved and no further password prompt should appear. We can't test
  * restarting Thunderbird but if we could the password prompt would appear
- * next time the directory makes a reqeust.
+ * next time the directory makes a request.
  */
 add_task(async function testNoSavePassword() {
   CardDAVServer.open("alice", "alice");

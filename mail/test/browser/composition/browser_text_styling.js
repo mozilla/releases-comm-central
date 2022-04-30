@@ -429,17 +429,17 @@ add_task(async function test_induced_text_styling() {
       await formatHelper.selectTextRange(0, text.length);
       await formatHelper.assertShownStyles(
         style,
-        `Before trying to unselect ${desc}`
+        `Before trying to deselect ${desc}`
       );
 
       await formatHelper.selectStyle(style.implies);
       formatHelper.assertMessageParagraph(
         [{ tags, text }],
-        `After trying to unselect ${desc}`
+        `After trying to deselect ${desc}`
       );
       await formatHelper.assertShownStyles(
         style,
-        `After trying to unselect ${desc}`
+        `After trying to deselect ${desc}`
       );
     }
     if (style.linked) {

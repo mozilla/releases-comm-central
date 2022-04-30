@@ -129,7 +129,7 @@ add_task(async function testMessageFetched() {
   //  listeners/events.
   // Instead we are checking if there's no rest of the division with
   //  CHUNKING_SIZE while the chunking process is ongoing.
-  // It's important that the chunking is intact and aswell not failing
+  // It's important that the chunking is intact and as well not failing
   //  randomly in the test infrastructure.
   // See at the CHUNKING_SIZE and OVERALL_MESSAGES declarations.
   //

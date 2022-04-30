@@ -120,7 +120,7 @@ var abDirTreeObserver = {
    *   anything          -> same place             = Not allowed
    *   anything          -> read only directory    = Not allowed
    *   mailing list      -> mailing list           = Not allowed
-   *     (nested mailing lists are suppported, we could start to allow
+   *     (nested mailing lists are supported, we could start to allow
    *     this, but not between address books)
    *   address book card -> different address book = MOVE or COPY
    *   address book card -> mailing list           = COPY only

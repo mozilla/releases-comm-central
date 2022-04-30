@@ -1812,7 +1812,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
        nsImapServerResponseParser::kNonAuthenticated)) {
     /* if we got here, the server's greeting should not have been PREAUTH */
     // If greeting did not contain a capability response and if user has not
-    // configured STARTTLS, request capabilites. If STARTTLS configured,
+    // configured STARTTLS, request capabilities. If STARTTLS configured,
     // capabilities will be requested after TLS handshakes are complete.
     if ((GetServerStateParser().GetCapabilityFlag() == kCapabilityUndefined) &&
         (m_socketType != nsMsgSocketType::alwaysSTARTTLS)) {
@@ -1889,7 +1889,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
                 Capability();
 
                 // If user has set pref mail.server.serverX.socketType to 1
-                // (trySTARTTLS, now depricated in UI) and Capability()
+                // (trySTARTTLS, now deprecated in UI) and Capability()
                 // succeeds, indicating TLS handshakes succeeded, set and
                 // latch the socketType to 2 (alwaysSTARTTLS) for this server.
                 if ((m_socketType == nsMsgSocketType::trySTARTTLS) &&
@@ -2339,7 +2339,7 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI* aURL,
 #ifdef DEBUG_bienvenu
     printf("loading url %s\n", aURL->GetSpecOrDefault().get());
 #endif
-    // We might be able to fulfil the request locally (e.g. fetching a message
+    // We might be able to fulfill the request locally (e.g. fetching a message
     // which is already stored offline).
     if (TryToRunUrlLocally(aURL, aConsumer)) return NS_OK;
     m_urlInProgress = true;

@@ -304,7 +304,7 @@ int main(int argc, char* argv[], char* envp[]) {
     // Lockdown
     //
     // MSDN says that it's allowed-but-not-recommended to initialize DPI
-    // programatically, as long as it's done before any HWNDs are created.
+    // programmatically, as long as it's done before any HWNDs are created.
     // Thus, we do it almost as soon as we possibly can
     {
       auto result = mozilla::WindowsDpiInitialization();
@@ -345,7 +345,7 @@ int main(int argc, char* argv[], char* envp[]) {
   // user32.dll gets loaded, which would be incompatible with Win32k Lockdown
   //
   // MSDN says that it's allowed-but-not-recommended to initialize DPI
-  // programatically, as long as it's done before any HWNDs are created.
+  // programmatically, as long as it's done before any HWNDs are created.
   // Thus, we do it almost as soon as we possibly can
   {
     auto result = mozilla::WindowsDpiInitialization();

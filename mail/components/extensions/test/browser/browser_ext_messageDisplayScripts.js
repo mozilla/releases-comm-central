@@ -460,7 +460,7 @@ add_task(async function testRegister() {
   );
 
   // Close the new tab. The message reloads in the first tab, so the CSS
-  // should't be applied and the script shouldn't have run.
+  // shouldn't be applied and the script shouldn't have run.
   // Sabotage the message pane so we can be sure it changed.
   messagePane.contentDocument.body.style.backgroundColor = "red";
   messagePane.contentDocument.body.textContent = "Nope.";

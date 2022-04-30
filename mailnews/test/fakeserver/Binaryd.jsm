@@ -108,7 +108,7 @@ class BinaryServer {
           // If we get here, handler completed, without error.
         } catch (e) {
           if (conn.isClosed()) {
-            // if we get here, assume the error occured because we're
+            // if we get here, assume the error occurred because we're
             // shutting down, and ignore it.
           } else {
             // if we get here, something went wrong.

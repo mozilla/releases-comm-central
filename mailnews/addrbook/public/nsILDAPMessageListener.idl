@@ -35,7 +35,7 @@ interface nsILDAPMessageListener : nsISupports
 
 
     /**
-     * Indicates that an error has occured - either during init, or due to
+     * Indicates that an error has occurred - either during init, or due to
      * an LDAP operation.
      *
      * @param status   The error code.

@@ -25,7 +25,7 @@ var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
  */
 class ImapResponse {
   /**
-   * @param {ImapStatus} status - The status part of the reponse.
+   * @param {ImapStatus} status - The status part of the response.
    * @param {string} lines - The data part of the response.
    */
   constructor({ tag, status, statusData, statusText }, lines) {

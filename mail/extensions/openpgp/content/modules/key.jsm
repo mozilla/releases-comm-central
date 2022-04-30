@@ -26,7 +26,7 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
 var EnigmailKey = {
   /**
    * Format a key fingerprint
-   * @fingerprint |string|  -  unformated OpenPGP fingerprint
+   * @fingerprint |string|  -  unformatted OpenPGP fingerprint
    *
    * @return |string| - formatted string
    */

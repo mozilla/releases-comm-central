@@ -166,7 +166,7 @@ class ThunderbirdProfileMigrator {
           continue;
         }
         // Folders can not be unzipped recursively, have to iterate and
-        // extract all file entires one by one.
+        // extract all file entries one by one.
         let target = targetDir.clone();
         for (let part of parts.slice(1)) {
           // Drop the root folder name in the zip file.

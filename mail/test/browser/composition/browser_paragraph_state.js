@@ -525,7 +525,7 @@ add_task(async function test_heading_implies_bold() {
       "strong",
       `Selecting strong in ${state} state and typing`
     );
-    // Unselect.
+    // Deselect.
     await formatHelper.selectFromFormatSubMenu(
       strongItem,
       formatHelper.styleMenu
@@ -663,7 +663,7 @@ add_task(async function test_address_implies_italic() {
       style,
       `Selecting ${name} in address state and typing`
     );
-    // Unselect.
+    // Deselect.
     await formatHelper.selectFromFormatSubMenu(item, formatHelper.styleMenu);
     // See Bug 1716840
     // await formatHelper.assertShownStyles(
@@ -784,7 +784,7 @@ add_task(async function test_preformat_implies_fixed_width() {
     null,
     `Selecting font "${font}" in preformat state and typing`
   );
-  // Unselect.
+  // Deselect.
   // See Bug 1718563 for why we need to select Variable Width instead of Fixed
   // Width.
   // await formatHelper.selectFont("monospace");
@@ -847,7 +847,7 @@ add_task(async function test_preformat_implies_fixed_width() {
       name,
       `Selecting ${name} in preformat state and typing`
     );
-    // Unselect.
+    // Deselect.
     await formatHelper.selectFromFormatSubMenu(item, formatHelper.styleMenu);
     // See Bug 1716840
     // await assertFontAndStyle(

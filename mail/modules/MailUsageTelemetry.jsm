@@ -283,7 +283,7 @@ let MailUsageTelemetry = {
       return;
     }
 
-    // This is what events targetted at content will actually look like.
+    // This is what events targeted at content will actually look like.
     if (sourceEvent.target.localName == "browser") {
       return;
     }
