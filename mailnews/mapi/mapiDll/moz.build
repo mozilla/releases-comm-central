@@ -10,11 +10,11 @@ USE_STATIC_LIBS = True
 
 LOCAL_INCLUDES += ["../include"]
 
-COMPILE_FLAGS["WARNINGS_AS_ERRORS"] += ["-Wno-sign-compare"]
-
 SOURCES += [
     "MapiDll.cpp",
 ]
+SOURCES["MapiDll.cpp"].flags += ["-Wno-sign-compare"]
+
 
 OS_LIBS += [
     "ole32",
