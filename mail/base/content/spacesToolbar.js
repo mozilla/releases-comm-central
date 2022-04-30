@@ -422,7 +422,6 @@ var gSpacesToolbar = {
           );
           menuitem.classList.add(
             "switch-to-tab",
-            "subviewbutton",
             "menuitem-iconic"
           );
           menuitem.addEventListener("command", () =>
@@ -1111,7 +1110,6 @@ var gSpacesToolbar = {
       let menuitem = document.createXULElement("menuitem");
       menuitem.classList.add(
         "spaces-addon-menuitem",
-        "subviewbutton",
         "menuitem-iconic",
         "spaces-popup-menuitem"
       );
@@ -1316,7 +1314,6 @@ var gSpacesToolbar = {
     )) {
       let menuitem = document.createXULElement("menuitem");
       menuitem.classList.add(
-        "subviewbutton",
         "menuitem-iconic",
         "spaces-popup-menuitem"
       );

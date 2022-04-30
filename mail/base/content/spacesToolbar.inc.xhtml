@@ -4,42 +4,39 @@
 
 <popupset id="spacesToolbarPopupSet">
   <menupopup id="spacesContextMenu"
-             class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
-             type="arrow">
+             class="no-icon-menupopup no-accel-menupopup">
     <menuitem id="spacesContextNewTabItem"
-              class="subviewbutton menuitem-iconic"
+              class="menuitem-iconic"
               data-l10n-id="spaces-context-new-tab-item"/>
     <menuitem id="spacesContextNewWindowItem"
-              class="subviewbutton menuitem-iconic"
+              class="menuitem-iconic"
               data-l10n-id="spaces-context-new-window-item"/>
-    <toolbarseparator id="spacesContextMenuSeparator" hidden="true"/>
+    <menuseparator id="spacesContextMenuSeparator" hidden="true"/>
   </menupopup>
 
   <menupopup id="settingsContextMenu"
-             class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
-             type="arrow">
+             class="no-icon-menupopup no-accel-menupopup">
     <menuitem id="settingsContextOpenSettingsItem"
-              class="subviewbutton menuitem-iconic"
+              class="menuitem-iconic"
               data-l10n-id="settings-context-open-settings-item"/>
     <menuitem id="settingsContextOpenAccountSettingsItem"
-              class="subviewbutton menuitem-iconic"
+              class="menuitem-iconic"
               data-l10n-id="settings-context-open-account-settings-item"/>
     <menuitem id="settingsContextOpenAddonsItem"
-              class="subviewbutton menuitem-iconic"
+              class="menuitem-iconic"
               data-l10n-id="settings-context-open-addons-item"/>
   </menupopup>
 
   <menupopup id="spacesToolbarContextMenu"
-             class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
-             type="arrow">
+             class="no-icon-menupopup no-accel-menupopup">
     <menuitem id="spacesToolbarContextCustomize"
-              class="subviewbutton menuitem-iconic"
+              class="menuitem-iconic"
               data-l10n-id="menuitem-customize-label"
               oncommand="gSpacesToolbar.showCustomize();"/>
   </menupopup>
 
   <menupopup id="spacesToolbarAddonsPopup" type="arrow"
-             class="no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
+             class="no-accel-menupopup"
              onpopuphidden="gSpacesToolbar.spacesToolbarAddonsPopupClosed();">
   </menupopup>
 </popupset>

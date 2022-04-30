@@ -519,7 +519,6 @@ var gFolderTreeView = {
       modeMenuitem.setAttribute("type", "checkbox");
       modeMenuitem.setAttribute("value", mode);
       modeMenuitem.setAttribute("closemenu", "none");
-      modeMenuitem.classList.add("subviewbutton", "subviewbutton-iconic");
       document.l10n.setAttributes(modeMenuitem, `show-${mode}-folders-label`);
 
       if (this.activeModes.includes(mode)) {
@@ -547,7 +546,6 @@ var gFolderTreeView = {
     compactMenuitem.setAttribute("type", "checkbox");
     compactMenuitem.setAttribute("value", "compact");
     compactMenuitem.setAttribute("closemenu", "none");
-    compactMenuitem.classList.add("subviewbutton", "subviewbutton-iconic");
     document.l10n.setAttributes(
       compactMenuitem,
       "folder-toolbar-toggle-folder-compact-view"
@@ -576,7 +574,6 @@ var gFolderTreeView = {
 
     // Create the "Hide Toolbar" toggle.
     let hideToolbarMenuitem = document.createXULElement("menuitem");
-    hideToolbarMenuitem.classList.add("subviewbutton", "subviewbutton-iconic");
     document.l10n.setAttributes(
       hideToolbarMenuitem,
       "folder-toolbar-hide-toolbar-toolbarbutton"

@@ -443,6 +443,11 @@ fieldset > radiogroup {
   width: -moz-available;
 }
 
+.menu-right,
+.menu-accel-container {
+  margin-inline-end: 0;
+}
+
 menupopup[type="arrow"] .menu-accel-container {
   margin-inline-end: 0;
 }
