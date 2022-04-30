@@ -26,6 +26,7 @@ if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["MOZ_MAPI_SUPPORT"]:
         "nsAbWinHelper.cpp",
         "nsMapiAddressBook.cpp",
     ]
+    SOURCES["nsAbWinHelper.cpp"].flags += ["-Wno-sign-compare"]
     LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
 
 if CONFIG["OS_ARCH"] == "Darwin":
