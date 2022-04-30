@@ -16,15 +16,14 @@ menupopup {
 }
 
 @media (prefers-contrast) {
-  menu:not([disabled])[_moz-menuactive],
-  menuitem:not([disabled])[_moz-menuactive] {
+  menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
     color: SelectedItemText;
   }
 }
 
 @media (-moz-windows-non-native-menus) {
-  menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
-  menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
+  menupopup > :is(menu, menuitem):not([needsgutter]) >
+    menuitem:not([icon], .menuitem-iconic) {
     padding-inline-start: 1em;
   }
 }
@@ -35,11 +34,12 @@ menupopup {
     -moz-window-shadow: cliprounded;
     background-color: transparent;
     border: none;
-    border-radius: 4px;
+    /* Somehow the double border radius is needed to look correct. */
+    border-radius: calc(2 * var(--arrowpanel-border-radius));
   }
 
-  menuitem[type="checkbox"] > .menu-iconic-left,
-  menuitem > .menu-text {
+  menupopup > menuitem:is([type="checkbox"],[type="radio"]) > .menu-iconic-left,
+  menupopup > menuitem > .menu-text {
     appearance: none;
   }
 

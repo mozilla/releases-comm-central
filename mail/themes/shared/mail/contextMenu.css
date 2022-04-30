@@ -7,11 +7,6 @@
   --appmenu-button-padding: 4px;
 }
 
-menupopup {
-  /* Complement the :is(menu, menuitem) margin. */
-  --arrowpanel-padding: 4px 0;
-}
-
 /* UI Density customization */
 
 :root[uidensity="compact"] {
@@ -28,6 +23,8 @@ menupopup {
 }
 
 menupopup {
+  /* Complement the :is(menu, menuitem) margin. */
+  --arrowpanel-padding: 4px 0;
   --panel-background: var(--arrowpanel-background);
   --panel-color: var(--arrowpanel-color);
   --panel-border-color: var(--arrowpanel-border-color);
@@ -37,17 +34,16 @@ menupopup {
   font-size: inherit;
 }
 
-menuitem {
+menupopup > menuitem {
   appearance: none !important;
 }
 
-:is(menu, menuitem) > .menu-text {
+menupopup > :is(menu, menuitem) > .menu-text {
   appearance: none;
   margin-inline-start: 0 !important;
 }
 
-menu,
-menuitem {
+menupopup > :is(menu, menuitem) {
   appearance: none;
   margin: var(--appmenu-button-margin);
   min-height: 24px;
@@ -57,15 +53,14 @@ menuitem {
   background-color: transparent;
 }
 
-menu:focus,
-menuitem:focus {
+menupopup > :is(menu, menuitem):focus {
   outline: 0;
 }
 
-:is(menu, menuitem)[disabled="true"],
-:is(menu, menuitem)[disabled="true"]:hover,
-:is(menu, menuitem)[checked="true"][disabled="true"],
-:is(menu, menuitem)[checked="true"][disabled="true"]:hover {
+menupopup > :is(menu, menuitem)[disabled="true"],
+menupopup > :is(menu, menuitem)[disabled="true"]:hover,
+menupopup > :is(menu, menuitem)[checked="true"][disabled="true"],
+menupopup > :is(menu, menuitem)[checked="true"][disabled="true"]:hover {
   color: var(--panel-description-color);
   background-color: transparent;
 }
@@ -74,7 +69,7 @@ menu > .menu-right {
   display: none;
 }
 
-menupopup menu::after {
+menupopup > menu::after {
   -moz-context-properties: fill, fill-opacity;
   content: url("chrome://global/skin/icons/arrow-right-12.svg");
   fill: currentColor;
@@ -83,37 +78,34 @@ menupopup menu::after {
   transform: translateY(1px);
 }
 
-menupopup menu:-moz-locale-dir(rtl)::after {
+menupopup > menu:-moz-locale-dir(rtl)::after {
   transform: scaleX(-1) translateY(1px);
 }
 
-menupopup menu::after {
+menupopup > menu::after {
   margin-inline-start: 10px;
 }
 
-menu[checked="true"],
-menuitem[checked="true"] {
+menupopup > :is(menu, menuitem)[checked="true"] {
   list-style-image: url(chrome://global/skin/icons/check.svg);
   -moz-context-properties: fill;
   fill: currentColor;
   color: inherit;
 }
 
-menu:not([disabled],:active)[_moz-menuactive],
-menuitem:not([disabled],:active)[_moz-menuactive] {
+menupopup > :is(menu, menuitem):not([disabled],:active)[_moz-menuactive] {
   color: inherit;
   background-color: var(--arrowpanel-dimmed);
 }
 
-menu:not([disabled])[_moz-menuactive]:active,
-menuitem:not([disabled])[_moz-menuactive]:active {
+menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive]:active {
   color: inherit;
   background-color: var(--arrowpanel-dimmed-further);
-  box-shadow: 0 1px 0 hsla(210,4%,10%,.03) inset;
+  box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
 }
 
-menupopup menuseparator {
-  appearance: none;
+menupopup > menuseparator {
+  appearance: none !important;
   min-height: 0;
   border-top: 1px solid var(--panel-separator-color);
   border-bottom: none;

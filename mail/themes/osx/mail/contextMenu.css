@@ -13,15 +13,20 @@ menupopup::part(content) {
   margin: 1px;
 }
 
-.menu-iconic-icon {
+menupopup .menu-iconic-icon {
   width: 16px;
 }
 
-menuitem > .menu-text {
+menupopup > menu > .menu-text,
+menupopup > menuitem > .menu-text {
   margin-inline-start: 16px !important;
 }
 
-menuitem > .menu-right {
+menupopup > menuitem > .menu-right {
   margin-inline-end: -4px;
   appearance: none;
+}
+
+menulist > menupopup > menuitem:is([checked="true"], [selected="true"])::before {
+  margin-inline: 0 -15px;
 }
