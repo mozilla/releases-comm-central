@@ -270,10 +270,6 @@ StandaloneMessageDisplayWidget.prototype = {
       this.displayedUri = null;
     }
 
-    // Initialize the appmenu.
-    PanelUI.init();
-    gExtensionsNotifications.init();
-
     // We've loaded a message, so this should be set to false
     this.aboutToLoadMessage = false;
   },
@@ -389,6 +385,9 @@ function OnLoadMessageWindow() {
 
   updateTroubleshootMenuItem();
   ToolbarIconColor.init();
+  PanelUI.init();
+  gExtensionsNotifications.init();
+
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 
   Enigmail.msg.messengerStartup.bind(Enigmail.msg);
@@ -925,6 +924,7 @@ function OnUnloadMessageWindow() {
   // FIX ME - later we will be able to use onunload from the overlay
   OnUnloadMsgHeaderPane();
   ToolbarIconColor.uninit();
+  PanelUI.uninit();
   OnMailWindowUnload();
 }
 

@@ -912,6 +912,12 @@ Enigmail.hdrView = {
     EnigmailSingletons.messageReader = this.headerPane;
   },
 
+  clearWindowCallback() {
+    if (EnigmailSingletons.messageReader == this.headerPane) {
+      EnigmailSingletons.messageReader = null;
+    }
+  },
+
   headerPane: {
     isCurrentMessage(uri) {
       let uriSpec = uri ? uri.spec : null;
@@ -1320,3 +1326,4 @@ window.addEventListener(
   "load-enigmail",
   Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView)
 );
+window.addEventListener("unload", () => Enigmail.hdrView.clearWindowCallback());
