@@ -19,12 +19,20 @@ var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var { FileTestUtils } = ChromeUtils.import("resource://testing-common/FileTestUtils.jsm");
-var { open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
+
+registerCleanupFunction(() => {
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out.
+  Services.focus.focusedWindow = window;
+  // Focus an element in the main window, then blur it again to avoid it
+  // hijacking keypresses.
+  let searchInput = document.getElementById("searchInput");
+  searchInput.focus();
+  searchInput.blur();
+});
 
 class EmailTransport extends CalItipDefaultEmailTransport {
   sentItems = [];
@@ -75,6 +83,30 @@ class EmailTransport extends CalItipDefaultEmailTransport {
   }
 }
 
+async function openMessageFromFile(file) {
+  let fileURL = Services.io
+    .newFileURI(file)
+    .mutate()
+    .setQuery("type=application/x-message-display")
+    .finalize();
+
+  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  window.openDialog(
+    "chrome://messenger/content/messageWindow.xhtml",
+    "_blank",
+    "all,chrome,dialog=no,status,toolbar",
+    fileURL
+  );
+  let win = await winPromise;
+
+  let browser = win.document.getElementById("messagepane");
+  if (browser.webProgress?.isLoadingDocument || browser.currentURI?.spec == "about:blank") {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
+
+  return win;
+}
+
 /**
  * Opens an iMIP message file and waits for the imip-bar to appear.
  *
@@ -82,7 +114,7 @@ class EmailTransport extends CalItipDefaultEmailTransport {
  * @return {Window}
  */
 async function openImipMessage(file) {
-  let { window: win } = await open_message_from_file(file);
+  let win = await openMessageFromFile(file);
   let imipBar = win.document.getElementById("imip-bar");
   await TestUtils.waitForCondition(() => !imipBar.collapsed, "imip-bar shown");
   return win;
@@ -97,6 +129,7 @@ async function openImipMessage(file) {
 async function clickAction(win, id) {
   let action = win.document.getElementById(id);
   Assert.ok(!action.hidden, `button "#${id}" shown"`);
+
   EventUtils.synthesizeMouseAtCenter(action, {}, win);
   await TestUtils.waitForCondition(() => action.hidden, `button "#${id}" hidden`);
 }
@@ -112,6 +145,8 @@ async function clickMenuAction(win, buttonId, actionId) {
   let actionButton = win.document.getElementById(buttonId);
   Assert.ok(!actionButton.hidden, `"${buttonId}" shown`);
 
+  // The popup isn't always ready to open immediately, unclear why.
+  await new Promise(resolve => win.setTimeout(resolve, 200));
   let actionMenu = actionButton.querySelector("menupopup");
   let menuShown = BrowserTestUtils.waitForEvent(actionMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(actionButton.querySelector("dropmarker"), {}, win);

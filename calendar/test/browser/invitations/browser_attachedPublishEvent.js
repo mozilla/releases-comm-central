@@ -8,10 +8,6 @@
  */
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
@@ -50,7 +46,7 @@ add_setup(async function() {
 add_task(async function test_event_from_eml() {
   let file = new FileUtils.File(getTestFilePath("data/message-non-invite.eml"));
 
-  let { window: win } = await open_message_from_file(file);
+  let win = await openMessageFromFile(file);
   let imipBar = win.document.getElementById("imip-bar");
 
   await TestUtils.waitForCondition(() => !imipBar.collapsed);

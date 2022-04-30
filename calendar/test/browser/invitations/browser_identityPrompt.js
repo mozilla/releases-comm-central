@@ -12,9 +12,6 @@ var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-const { be_in_folder, get_special_folder, select_click_row } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
@@ -37,6 +34,16 @@ registerCleanupFunction(() => {
  * Initialize account, identity and calendar.
  */
 add_setup(async function() {
+  if (MailServices.accounts.accounts.length == 0) {
+    MailServices.accounts.createLocalMailAccount();
+  }
+
+  let rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
+  if (!rootFolder.containsChildNamed("Inbox")) {
+    rootFolder.createSubfolder("Inbox", null);
+  }
+  gInbox = rootFolder.getChildNamed("Inbox");
+
   receiverAcct = MailServices.accounts.createAccount();
   receiverAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
@@ -47,7 +54,6 @@ add_setup(async function() {
   receiverIdentity.email = "receiver@example.com";
   receiverAcct.addIdentity(receiverIdentity);
 
-  gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
   calendar = CalendarTestUtils.createCalendar("Test");
 });
 
@@ -56,7 +62,7 @@ add_setup(async function() {
  * event with an identity no calendar is configured to use.
  */
 add_task(async function testInvitationIdentityPrompt() {
-  be_in_folder(gInbox);
+  window.gFolderTreeView.selectFolder(gInbox);
 
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
@@ -71,7 +77,7 @@ add_task(async function testInvitationIdentityPrompt() {
   );
   await copyListener.promise;
 
-  select_click_row(0);
+  window.gFolderDisplay.selectViewIndex(0);
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,

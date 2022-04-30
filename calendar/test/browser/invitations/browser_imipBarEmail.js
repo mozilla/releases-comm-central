@@ -6,10 +6,6 @@
  * Test that the IMIP bar behaves properly for eml files with invites.
  */
 
-var { open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 function getFileFromChromeURL(leafName) {
   let ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
 
@@ -26,7 +22,7 @@ function getFileFromChromeURL(leafName) {
 add_task(async function test_event_from_eml() {
   let file = getFileFromChromeURL("data/teams-meeting-invite.eml");
 
-  let { window: msgWindow } = await open_message_from_file(file);
+  let msgWindow = await openMessageFromFile(file);
 
   await TestUtils.waitForCondition(() => !msgWindow.document.getElementById("imip-bar").collapsed);
   info("Ok, iMIP bar is showing");
@@ -80,7 +76,7 @@ add_task(async function test_event_from_eml() {
 add_task(async function test_event_from_eml() {
   let file = getFileFromChromeURL("data/meet-meeting-invite.eml");
 
-  let { window: msgWindow } = await open_message_from_file(file);
+  let msgWindow = await openMessageFromFile(file);
 
   await TestUtils.waitForCondition(() => !msgWindow.document.getElementById("imip-bar").collapsed);
   info("Ok, iMIP bar is showing");
@@ -129,7 +125,7 @@ add_task(async function test_event_from_eml() {
 add_task(async function test_outlook_event_from_eml() {
   let file = getFileFromChromeURL("data/outlook-test-invite.eml");
 
-  let { window: msgWindow } = await open_message_from_file(file);
+  let msgWindow = await openMessageFromFile(file);
 
   await TestUtils.waitForCondition(() => !msgWindow.document.getElementById("imip-bar").collapsed);
   info("Ok, iMIP bar is showing");
@@ -155,7 +151,7 @@ add_task(async function test_outlook_event_from_eml() {
 add_task(async function test_event_from_eml() {
   let file = getFileFromChromeURL("data/message-containing-event.eml");
 
-  let { window: msgWindow } = await open_message_from_file(file);
+  let msgWindow = await openMessageFromFile(file);
 
   await TestUtils.waitForCondition(() => !msgWindow.document.getElementById("imip-bar").collapsed);
   info("Ok, iMIP bar is showing");
