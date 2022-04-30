@@ -12,6 +12,7 @@
 /* ::::: Mail Toolbars and Menubars ::::: */
 
 #titlebar {
+  -moz-window-dragging: drag;
   height: 22px;
 }
 
