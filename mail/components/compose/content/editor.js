@@ -7,10 +7,6 @@
 /* import-globals-from ComposerCommands.js */
 /* import-globals-from editorUtilities.js */
 
-var { GetNextUntitledValue } = ChromeUtils.import(
-  "resource:///modules/editorUtilities.jsm"
-);
-var { Async } = ChromeUtils.import("resource://services-common/async.js");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );

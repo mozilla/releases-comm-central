@@ -5,8 +5,4 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
-EXTRA_JS_MODULES += [
-    "editorUtilities.jsm",
-]
-
 JS_PREFERENCE_PP_FILES += ["composer.js"]
