@@ -83,6 +83,15 @@ pref("app.update.BITS.enabled", false);
 // Release notes URL
 pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%");
 
+#ifdef XP_MACOSX
+  // If set to true, Thunderbird will automatically restart if it is left
+  // running with no windows open.
+  pref("app.update.noWindowAutoRestart.enabled", true);
+  // How long to wait after all windows are closed before restarting,
+  // in milliseconds. 5 min = 300000 ms.
+  pref("app.update.noWindowAutoRestart.delayMs", 300000);
+#endif
+
 // URL for "Learn More" for DataCollection
 pref("toolkit.datacollection.infoURL",
      "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");

@@ -171,7 +171,20 @@ MailDefaultHandler.prototype = {
 
   /* eslint-disable complexity */
   handle(cmdLine) {
-    var uri;
+    if (
+      cmdLine.state == Ci.nsICommandLine.STATE_INITIAL_LAUNCH &&
+      Services.startup.wasSilentlyStarted
+    ) {
+      // If we are starting up in silent mode, don't open a window. We also need
+      // to make sure that the application doesn't immediately exit, so stay in
+      // a LastWindowClosingSurvivalArea until a window opens.
+      Services.startup.enterLastWindowClosingSurvivalArea();
+      Services.obs.addObserver(function windowOpenObserver() {
+        Services.startup.exitLastWindowClosingSurvivalArea();
+        Services.obs.removeObserver(windowOpenObserver, "domwindowopened");
+      }, "domwindowopened");
+      return;
+    }
 
     try {
       var remoteCommand = cmdLine.handleFlagWithParam("remote", true);
@@ -309,7 +322,7 @@ MailDefaultHandler.prototype = {
     }
 
     // The URI might be passed as the argument to the file parameter
-    uri = cmdLine.handleFlagWithParam("file", false);
+    let uri = cmdLine.handleFlagWithParam("file", false);
     // macOS passes `-url mid:<msgid>` into the command line, drop the -url flag.
     cmdLine.handleFlag("url", false);
 
