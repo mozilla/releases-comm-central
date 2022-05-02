@@ -9,7 +9,6 @@ import logging
 
 from taskgraph.util.yaml import load_yaml
 from gecko_taskgraph.util.python_path import find_object
-from six import text_type
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ def _get_aliases(kind, job):
     if kind == "toolchain":
         if job["run"].get("toolchain-alias"):
             aliaslist = job["run"].get("toolchain-alias")
-            if isinstance(aliaslist, text_type):
+            if isinstance(aliaslist, str):
                 aliaslist = [aliaslist]
             for alias in aliaslist:
                 aliases.add(alias)

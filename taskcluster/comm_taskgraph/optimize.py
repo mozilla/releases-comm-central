@@ -9,8 +9,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 
-from six import text_type
-
 from gecko_taskgraph.optimize import (
     register_strategy,
     Any,
@@ -81,7 +79,7 @@ register_strategy(
 optimizations = (
     {"skip-suite-only": None},
     {"skip-unless-backstop-no-suite": None},
-    {"skip-unless-changed-no-suite": [text_type]},
+    {"skip-unless-changed-no-suite": [str]},
 )
 
 thunderbird_optimizations = default_optimizations + optimizations

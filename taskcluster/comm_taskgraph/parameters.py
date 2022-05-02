@@ -10,7 +10,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 
-from six import text_type
 from voluptuous import (
     Required,
 )
@@ -59,10 +58,10 @@ INTEGRATION_PROJECTS = {"comm-central"}
 # Called at import time when comm_taskgraph:register is called
 comm_parameters_schema.update(
     {
-        Required("comm_base_repository"): text_type,
-        Required("comm_head_ref"): text_type,
-        Required("comm_head_repository"): text_type,
-        Required("comm_head_rev"): text_type,
+        Required("comm_base_repository"): str,
+        Required("comm_head_ref"): str,
+        Required("comm_head_repository"): str,
+        Required("comm_head_rev"): str,
     }
 )
 

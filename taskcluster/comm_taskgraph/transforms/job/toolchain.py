@@ -9,7 +9,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import os.path
 import json
-from six import text_type, ensure_text
+
 from voluptuous import Any, Optional, Required
 
 import taskgraph.util.path as util_path
@@ -40,7 +40,7 @@ TOOLCHAIN_SCRIPT_PATH = "comm/taskcluster/scripts"
 comm_toolchain_run_schema = toolchain_run_schema.extend(
     {
         Required("using"): Any("comm-toolchain-script", "macos-sdk-fetch"),
-        Optional("script"): text_type,
+        Optional("script"): str,
     }
 )
 
@@ -210,16 +210,14 @@ def docker_macos_sdk_fetch(config, job, taskdesc):
     # path of the gecko artifact. This bypasses the usual setup done in
     # gecko_taskgraph/transforms/job/__init__.py.
     moz_fetches = {
-        "task-reference": ensure_text(
-            json.dumps(
-                [
-                    {
-                        "artifact": attributes["gecko_artifact_path"],
-                        "extract": False,
-                        "task": sdk_task_id,
-                    }
-                ]
-            )
+        "task-reference": json.dumps(
+            [
+                {
+                    "artifact": attributes["gecko_artifact_path"],
+                    "extract": False,
+                    "task": sdk_task_id,
+                }
+            ]
         )
     }
 
