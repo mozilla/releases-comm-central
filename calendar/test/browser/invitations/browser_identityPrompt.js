@@ -140,7 +140,7 @@ add_task(async function testInvitationIdentityPrompt() {
   );
 
   let [recipientArray, , sender] = sendItemsArgs;
-  Assert.equal(recipientArray.length, 1, "one receipient for the reply");
+  Assert.equal(recipientArray.length, 1, "one recipient for the reply");
   Assert.equal(recipientArray[0].id, "mailto:example@gmail.com", "recipient is event organizer");
   Assert.equal(sender.id, id, "sender is the identity selected");
 });

@@ -376,7 +376,7 @@ class CalItipEmailTransport {
   /**
    * Provides the identity and account to use when sending iTIP emails. By
    * default prefers whatever the item's calendar is configured to use or the
-   * default configuration when not set. This method can be overriden to change
+   * default configuration when not set. This method can be overridden to change
    * that behaviour.
    *
    * @param {calIItipItem} aItipItem

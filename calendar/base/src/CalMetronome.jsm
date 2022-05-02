@@ -20,7 +20,7 @@ const DAY_IN_MS = 86400000;
  * been asleep.
  *
  * It automatically corrects clock skew: if a minute event is more than one
- * second late, the time to the next event is recalcuated and should fire a
+ * second late, the time to the next event is recalculated and should fire a
  * few milliseconds late at worst.
  *
  * @implements nsIObserver

@@ -94,7 +94,7 @@ const RecurrencePreview = {
       newVbox.appendChild(hbox);
     }
 
-    // Add the extra rows we can accomodate.
+    // Add the extra rows we can accommodate.
     for (let i = newVbox.childElementCount; i < numVertical; i++) {
       newVbox.appendChild(document.createXULElement("hbox"));
     }

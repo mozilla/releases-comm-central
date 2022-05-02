@@ -1355,7 +1355,7 @@ ICAL.design = (function() {
      * @memberOf ICAL.design
      * @property {Object} value       Definitions for value types, keys are type names
      * @property {Object} param       Definitions for params, keys are param names
-     * @property {Object} property    Defintions for properties, keys are property names
+     * @property {Object} property    Definitions for properties, keys are property names
      */
 
     /**
@@ -4723,7 +4723,7 @@ ICAL.Binary = (function() {
   };
 
   ICAL.Timezone._minimumExpansionYear = -1;
-  ICAL.Timezone.MAX_YEAR = 2035; // TODO this is because of time_t, which we don't need. Still usefull?
+  ICAL.Timezone.MAX_YEAR = 2035; // TODO this is because of time_t, which we don't need. Still useful?
   ICAL.Timezone.EXTRA_COVERAGE = 5;
 })();
 /* This Source Code Form is subject to the terms of the Mozilla Public
@@ -5423,7 +5423,7 @@ ICAL.TimezoneService = (function() {
      * the relative difference between two time objects excluding their
      * timezone differences.
      *
-     * @param {ICAL.Time} aDate     The date to substract
+     * @param {ICAL.Time} aDate     The date to subtract
      * @return {ICAL.Duration}      The difference as a duration
      */
     subtractDate: function icaltime_subtract(aDate) {
@@ -6913,7 +6913,7 @@ ICAL.RecurIterator = (function() {
   /**
    * @classdesc
    * An iterator for a single recurrence rule. This class usually doesn't have
-   * to be instanciated directly, the convenience method
+   * to be instantiated directly, the convenience method
    * {@link ICAL.Recur#iterator} can be used.
    *
    * @description
@@ -7065,7 +7065,7 @@ ICAL.RecurIterator = (function() {
     },
 
     /**
-     * Intialize the iterator
+     * Initialize the iterator
      * @private
      */
     init: function icalrecur_iterator_init() {
@@ -7506,7 +7506,7 @@ ICAL.RecurIterator = (function() {
         // find next date
         var next = byMonthDay[dateIdx++];
 
-        // this logic is dependant on the BYMONTHDAYS
+        // this logic is dependent on the BYMONTHDAYS
         // being in order (which is done by #normalizeByMonthDayRules)
         if (next >= date) {
           // if the next month day is in the future jump to it.
@@ -8558,7 +8558,7 @@ ICAL.RecurExpansion = (function() {
       while (true) {
         if (currentTry++ > maxTries) {
           throw new Error(
-            'max tries have occured, rule may be impossible to forfill.'
+            'max tries have occurred, rule may be impossible to fulfill.'
           );
         }
 

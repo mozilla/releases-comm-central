@@ -22,7 +22,7 @@ interface calIAlarmServiceObserver : nsISupports
 
   /**
    * Gets called when an notification has fired. The notification is only
-   * controlled by prefs, and is independant from the alarm/reminder.
+   * controlled by prefs, and is independent from the alarm/reminder.
    */
   void onNotification(in calIItemBase item);
 

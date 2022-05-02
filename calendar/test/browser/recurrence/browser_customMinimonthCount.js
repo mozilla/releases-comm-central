@@ -33,7 +33,7 @@ add_task(async function testMinimonthsFillAvailableSpaceOnResize() {
   let iframe = eventWin.document.querySelector("iframe");
 
   // For each x,y dimension, open and resize the window. Re-resizing an open
-  // window does not always seems to have the precise dimensions we specifiy so
+  // window does not always seems to have the precise dimensions we specify so
   // we test with a fresh one each time. The x and y values here are actually
   // the number of minimonth boxes we want to resize by horizontal/vertically
   // or both.

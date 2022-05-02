@@ -135,8 +135,8 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   });
   toDate.addEventListener("change", updatePreview);
 
-  // Ensure the layout selector is focussed and has a focus ring to make it
-  // more obvious. The ring won't be added if already focussed, so blur first.
+  // Ensure the layout selector is focused and has a focus ring to make it
+  // more obvious. The ring won't be added if already focused, so blur first.
   requestAnimationFrame(() => {
     layout.blur();
     Services.focus.setFocus(layout, Services.focus.FLAG_SHOWRING);

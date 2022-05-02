@@ -76,7 +76,7 @@ add_task(async () => {
     // calendar-task-tree. After some investigation, the cause of this seems to
     // be related to multiple calls of executeAsync() in CalStorageItemModel.
     // getAdditionalDataForItemMap() not finishing before notifyOperationComplete()
-    // is called desipite being awaited on.
+    // is called despite being awaited on.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(r => setTimeout(r, 500));
 

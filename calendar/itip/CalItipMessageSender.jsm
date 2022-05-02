@@ -24,7 +24,7 @@ class CalItipMessageSender {
    * @param {?calIItemBase} originalItem - The original invitation item before
    *  it is modified.
    *
-   * @param {?calIAttendee} invitedAttendee - For incomming invitations, this is
+   * @param {?calIAttendee} invitedAttendee - For incoming invitations, this is
    *  the attendee that was invited (corresponding to an installed identity).
    */
   constructor(originalItem, invitedAttendee) {
