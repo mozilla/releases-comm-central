@@ -96,6 +96,9 @@ add_task(async () => {
   // Compose window loaded.
   // Check the attach dropdown has our account as a <menuitem>.
 
+  // The popup isn't always ready to open immediately, unclear why.
+  await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
+
   let toolbarButton = composeDocument.getElementById("button-attach");
   let rect = toolbarButton.getBoundingClientRect();
   EventUtils.synthesizeMouse(
