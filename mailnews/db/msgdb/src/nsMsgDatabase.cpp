@@ -1372,9 +1372,10 @@ NS_IMETHODIMP nsMsgDatabase::ForceClosed() {
     m_mdbStore = nullptr;
   }
 
-  // better not be any listeners, because we're going away.
+  // There'd better not be any listeners, because we're going away.
   NS_ASSERTION(m_ChangeListeners.IsEmpty(),
                "shouldn't have any listeners left");
+  m_ChangeListeners.Clear();
 
   NS_RELEASE_THIS();
   return err;
