@@ -13,8 +13,6 @@ LOCAL_INCLUDES += ["../include"]
 SOURCES += [
     "MapiDll.cpp",
 ]
-SOURCES["MapiDll.cpp"].flags += ["-Wno-sign-compare"]
-
 
 OS_LIBS += [
     "ole32",

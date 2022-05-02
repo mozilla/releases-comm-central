@@ -331,7 +331,7 @@ ULONG FAR PASCAL MAPISendMail(LHANDLE lhSession, ULONG ulUIParam,
   // we are seeing a problem when using Word, although we return success from
   // the MAPI support MS COM interface in mozilla, we are getting this error
   // here. This is a temporary hack !!
-  if (hr == 0x800703e6) hr = SUCCESS_SUCCESS;
+  if (hr == (HRESULT)0x800703e6) hr = SUCCESS_SUCCESS;
 
   if (bTempSession) MAPILogoff(lhSession, ulUIParam, 0, 0);
 
@@ -366,7 +366,7 @@ ULONG FAR PASCAL MAPISendMailW(LHANDLE lhSession, ULONG ulUIParam,
   // we are seeing a problem when using Word, although we return success from
   // the MAPI support MS COM interface in mozilla, we are getting this error
   // here. This is a temporary hack !!
-  if (hr == 0x800703e6) hr = SUCCESS_SUCCESS;
+  if (hr == (HRESULT)0x800703e6) hr = SUCCESS_SUCCESS;
 
   if (bTempSession) MAPILogoff(lhSession, ulUIParam, 0, 0);
 

@@ -66,7 +66,6 @@ if CONFIG["OS_ARCH"] == "WINNT":
             "rtfDecoder.cpp",
             "rtfMailDecoder.cpp",
         ]
-        SOURCES["nsOutlookMail.cpp"].flags += ["-Wno-sign-compare"]
 
         SOURCES["rtfDecoder.cpp"].flags += ["-Wno-switch"]
         LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
@@ -78,7 +77,6 @@ if CONFIG["OS_ARCH"] == "WINNT":
             "nsWMStringBundle.cpp",
             "nsWMUtils.cpp",
         ]
-        SOURCES["nsWMSettings.cpp"].flags += ["-Wno-sign-compare"]
 
 EXPORTS += [
     "ImportDebug.h",

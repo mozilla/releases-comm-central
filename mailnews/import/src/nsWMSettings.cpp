@@ -128,11 +128,11 @@ bool WMSettings::DoImport(nsIMsgAccount** ppAccount) {
   if (NS_SUCCEEDED(key->OpenChild(u"mail"_ns,
                                   nsIWindowsRegKey::ACCESS_QUERY_VALUE,
                                   getter_AddRefs(subKey)))) {
-    uint32_t dwordResult = -1;
+    uint32_t dwordResult = 0xffffffff;
     rv = subKey->ReadIntValue(u"Poll For Mail"_ns,
                               &dwordResult);  // reg_dword
     subKey->Close();
-    if (NS_SUCCEEDED(rv) && dwordResult != -1) {
+    if (NS_SUCCEEDED(rv) && dwordResult != 0xffffffff) {
       checkNewMail = true;
       checkNewMailTime = dwordResult / 60000;
     }

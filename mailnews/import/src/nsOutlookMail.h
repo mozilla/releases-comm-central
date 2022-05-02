@@ -32,7 +32,8 @@ class nsOutlookMail {
                            const char16_t* pName, uint32_t id,
                            nsIAbDirectory* pDirectory, nsString& errors);
   void OpenMessageStore(CMapiFolder* pNextFolder);
-  static BOOL WriteData(nsIOutputStream* pDest, const char* pData, int32_t len);
+  static BOOL WriteData(nsIOutputStream* pDest, const char* pData,
+                        uint32_t len);
 
  private:
   bool IsAddressBookNameUnique(nsString& name, nsString& list);

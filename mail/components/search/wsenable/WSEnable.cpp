@@ -69,7 +69,7 @@ HRESULT GetCrawlScopeManager(ISearchCrawlScopeManager** aCrawlScopeManager) {
 
 LSTATUS SetRegistryKeys() {
   LSTATUS rv = ERROR_SUCCESS;
-  for (int i = 0; rv == ERROR_SUCCESS && i < _countof(sRegKeys); i++) {
+  for (uint32_t i = 0; rv == ERROR_SUCCESS && i < _countof(sRegKeys); i++) {
     const RegKey* key = sRegKeys[i];
     HKEY subKey;
     // Since we're administrator, we should be able to do this just fine
@@ -105,7 +105,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           if (rv != ERROR_SUCCESS) hr = E_FAIL;
 
           // Next, we add rules for each of the three folders
-          for (int i = 0; SUCCEEDED(hr) && i < _countof(sFoldersToIndex); i++) {
+          for (uint32_t i = 0; SUCCEEDED(hr) && i < _countof(sFoldersToIndex); i++) {
             std::wstring path = L"file:///";
             path.append(argv[1]);
             path.append(sFoldersToIndex[i]);

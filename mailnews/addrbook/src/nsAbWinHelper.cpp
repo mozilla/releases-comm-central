@@ -1282,7 +1282,7 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
         // Sometimes Outlooks spits the dummy here :-(
         // That is meant to be a byte count and NOT an error code of 0x8004010F.
         // We gloss over it.
-        if (currentValue.Value.bin.cb == MAPI_E_NOT_FOUND ||
+        if (currentValue.Value.bin.cb == (ULONG)MAPI_E_NOT_FOUND ||
             currentValue.Value.bin.lpb == NULL) {
           PRINTF(("Error fetching rows.\n"));
           return TRUE;

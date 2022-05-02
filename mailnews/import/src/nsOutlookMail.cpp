@@ -471,7 +471,7 @@ nsresult ImportMailboxRunnable::ImportMessage(LPMESSAGE lpMsg,
 }
 
 BOOL nsOutlookMail::WriteData(nsIOutputStream* pDest, const char* pData,
-                              int32_t len) {
+                              uint32_t len) {
   uint32_t written;
   nsresult rv = pDest->Write(pData, len, &written);
   return NS_SUCCEEDED(rv) && written == len;
