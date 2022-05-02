@@ -173,20 +173,6 @@ toolbarbutton.formatting-button {
   margin: 1px;
 }
 
-/* ..... smiley menu ..... */
-
-@media not (-moz-windows-non-native-menus) {
-  #smileyPopup > menuitem > .menu-text {
-    margin-inline-start: -1.45em !important;
-  }
-}
-
-@media (-moz-windows-non-native-menus) {
-  #smileyPopup > menuitem {
-    padding-inline-start: 14px;
-  }
-}
-
 /* ..... fg/bg color picker ..... */
 
 .color-button {

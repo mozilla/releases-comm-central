@@ -552,7 +552,7 @@
   list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
 }
 
-#button-encryption-options image {
+#button-encryption-options > .box-inherit > .toolbarbutton-icon {
   display: none;
 }
 

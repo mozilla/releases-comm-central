@@ -184,16 +184,6 @@ toolbarbutton > menupopup menu .menu-right:-moz-locale-dir(rtl) {
   list-style-image: url(chrome://global/skin/icons/arrow-left-12.svg);
 }
 
-toolbarbutton > menupopup:not([type="arrow"]) menuitem[checked="true"]::before,
-toolbarbutton > menupopup:not([type="arrow"]) menuitem[selected="true"]::before {
-  content: '\2713'; /* a checkmark */
-  display: inline-block;
-  vertical-align: middle;
-  line-height: 0;
-  width: 15px;
-  margin-inline-start: -15px;
-}
-
 /* :::::: throbber :::::::::: */
 
 #throbber-box {

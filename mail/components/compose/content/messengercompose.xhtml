@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messengercompose/messengercompose.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/panelUI.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
@@ -575,43 +574,43 @@
                  command="cmd_sortAttachmentsToggle"/>
 </panel>
 
-<menupopup id="extraAddressRowsMenu" type="arrow"
-           class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
+<menupopup id="extraAddressRowsMenu"
+           class="no-icon-menupopup no-accel-menupopup"
            onpopupshown="extraAddressRowsMenuOpened();"
            onpopuphidden="extraAddressRowsMenuClosed();">
   <!-- Default set up is for a mail account, where we prefer showing the
      - buttons, rather than the menu items, for the mail rows.
      - For the news rows, we prefer the menu items over the buttons. -->
   <menuitem id="addr_replyShowAddressRowMenuItem"
-            class="subviewbutton menuitem-iconic"
+            class="menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowReply')"
             label="&replyAddr2.label;"/>
   <menuitem id="addr_toShowAddressRowMenuItem" disableonsend="true"
-            class="mail-show-row-menuitem subviewbutton menuitem-iconic"
+            class="mail-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowTo')"
             hidden="true"
             data-button-id="addr_toShowAddressRowButton"
             data-prefer-button="true"/>
   <menuitem id="addr_ccShowAddressRowMenuItem" disableonsend="true"
-            class="mail-show-row-menuitem subviewbutton menuitem-iconic"
+            class="mail-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowCc')"
             hidden="true"
             data-button-id="addr_ccShowAddressRowButton"
             data-prefer-button="true"/>
   <menuitem id="addr_bccShowAddressRowMenuItem" disableonsend="true"
-            class="mail-show-row-menuitem subviewbutton menuitem-iconic"
+            class="mail-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowBcc')"
             hidden="true"
             data-button-id="addr_bccShowAddressRowButton"
             data-prefer-button="true"/>
   <menuitem id="addr_newsgroupsShowAddressRowMenuItem"
-            class="news-show-row-menuitem subviewbutton menuitem-iconic"
+            class="news-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowNewsgroups')"
             data-button-id="addr_newsgroupsShowAddressRowButton"
             label="&newsgroupsAddr2.label;"
             data-prefer-button="false"/>
   <menuitem id="addr_followupShowAddressRowMenuItem"
-            class="news-show-row-menuitem subviewbutton menuitem-iconic"
+            class="news-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowFollowup')"
             data-button-id="addr_followupShowAddressRowButton"
             label="&followupAddr2.label;"

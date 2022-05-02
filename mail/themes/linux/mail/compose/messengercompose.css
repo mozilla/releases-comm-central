@@ -136,12 +136,6 @@ toolbarbutton.formatting-button {
   margin-inline-start: 3px;
 }
 
-/* ..... smiley menu ..... */
-
-#smileyPopup > menuitem > .menu-text {
-  margin-inline-start: 1px !important;
-}
-
 /* ..... fg/bg color picker ..... */
 
 .color-button {
