@@ -105,7 +105,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           if (rv != ERROR_SUCCESS) hr = E_FAIL;
 
           // Next, we add rules for each of the three folders
-          for (uint32_t i = 0; SUCCEEDED(hr) && i < _countof(sFoldersToIndex); i++) {
+          for (uint32_t i = 0; SUCCEEDED(hr) && i < _countof(sFoldersToIndex);
+               i++) {
             std::wstring path = L"file:///";
             path.append(argv[1]);
             path.append(sFoldersToIndex[i]);
