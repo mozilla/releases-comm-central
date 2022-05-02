@@ -98,13 +98,12 @@ with only_when(target_is_linux & compile_environment):
 
 @depends("MOZ_AUTOMATION")
 @imports(_from="os", _import="environ")
-@imports(_from="six", _import="ensure_text")
 def pkg_libotr(automation):
     if automation:
         fetch_dir = environ.get("MOZ_FETCHES_DIR", None)
         if fetch_dir:
             log.info("Including libotr from {}".format(fetch_dir))
-            return ensure_text(fetch_dir)
+            return fetch_dir
 
         log.info("TB_LIBOTR_PREBUILT is set, but MOZ_FETCHES_DIR is invalid.")
 
