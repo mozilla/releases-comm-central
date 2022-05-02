@@ -27,6 +27,11 @@ menupopup > menuitem > .menu-right {
   appearance: none;
 }
 
+/* Only show the system checkmark on main window menu */
+#windowPopup > menuitem[checked="true"] {
+  list-style-image: none;
+}
+
 menulist > menupopup > menuitem:is([checked="true"], [selected="true"])::before {
   margin-inline: 0 -15px;
 }
