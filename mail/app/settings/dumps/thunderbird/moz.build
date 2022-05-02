@@ -10,5 +10,5 @@
 FINAL_TARGET_FILES.defaults.settings.thunderbird += [
     "hijack-blocklists.json",
     "search-config.json",
-    "url-classifier-skip-urls.json"
+    "url-classifier-skip-urls.json",
 ]
