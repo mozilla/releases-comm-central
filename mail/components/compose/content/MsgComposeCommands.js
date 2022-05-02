@@ -203,9 +203,21 @@ try {
   );
 } catch (e) {}
 
-// Boolean variable to keep track of the dragging action of files above the
-// compose window.
+/**
+ * Boolean variable to keep track of the dragging action of files above the
+ * compose window.
+ *
+ * @type {boolean}
+ */
 var gIsDraggingAttachments;
+
+/**
+ * Boolean variable to allow showing the attach inline overlay when dragging
+ * links that otherwise would only trigger the add as attachment overlay.
+ *
+ * @type {boolean}
+ */
+var gIsValidInline;
 
 // i18n globals
 var _gComposeBundle;
@@ -7181,10 +7193,7 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
   let items = [];
 
   for (let attachment of aAttachments) {
-    if (
-      !(attachment && attachment.url) ||
-      DuplicateFileAlreadyAttached(attachment)
-    ) {
+    if (!attachment?.url || DuplicateFileAlreadyAttached(attachment)) {
       continue;
     }
 
@@ -8805,12 +8814,12 @@ function msgSubjectOnInput(event) {
 }
 
 // Content types supported in the envelopeDragObserver.
-let flavors = [
+const DROP_FLAVORS = [
   "application/x-moz-file",
+  "text/x-moz-url",
   "text/uri-list",
   "text/x-moz-address",
   "text/x-moz-message",
-  "text/x-moz-url",
 ];
 
 // We can drag and drop addresses, files, messages and urls into the compose
@@ -8938,7 +8947,7 @@ var envelopeDragObserver = {
     // Extract all the flavors matching the data type of the dragged elements.
     for (let i = 0; i < dt.mozItemCount; i++) {
       let types = Array.from(dt.mozTypesAt(i));
-      for (let flavor of flavors) {
+      for (let flavor of DROP_FLAVORS) {
         if (types.includes(flavor)) {
           let data = dt.mozGetDataAt(flavor, i);
           if (data) {
@@ -8951,6 +8960,7 @@ var envelopeDragObserver = {
 
     // Check if we have any valid attachment in the dragged data.
     for (let { data, flavor } of dataList) {
+      gIsValidInline = false;
       let isValidAttachment = false;
       let prettyName;
       let size;
@@ -8988,6 +8998,11 @@ var envelopeDragObserver = {
           size = msgHdr.messageSize;
           break;
 
+        // Data type representing:
+        //  - URL strings dragged from a URL bar (Allow both attach and append).
+        //    NOTE: This only works for macOS and Windows.
+        //  - Attachments dragged from another message (Only attach).
+        //  - Images dragged from the body of another message (Only append).
         case "text/uri-list":
         case "text/x-moz-url":
           let pieces = data.split("\n");
@@ -9011,15 +9026,18 @@ var envelopeDragObserver = {
             };
           }
 
-          // If this is a URL (or selected text), check if it's a valid URL
-          // by checking if we can extract a scheme using Services.io.
-          // Don't attach invalid or mailto: URLs.
-          try {
-            let scheme = Services.io.extractScheme(data);
-            if (scheme != "mailto") {
-              isValidAttachment = true;
-            }
-          } catch (ex) {}
+          // Show the attachment overlay only if the user is not dragging an
+          // image form another message, since we can't get the correct file
+          // name, nor we can properly handle the append inline outside the
+          // editor drop event.
+          isValidAttachment = !event.dataTransfer.types.includes(
+            "application/x-moz-nativeimage"
+          );
+          // Show the append inline overlay only if this is not a file that was
+          // dragged from the attachment bucket of another message.
+          gIsValidInline = !event.dataTransfer.types.includes(
+            "application/x-moz-file-promise"
+          );
           break;
 
         // Process address: Drop it into recipient field.
@@ -9138,6 +9156,30 @@ var envelopeDragObserver = {
     gAttachmentBucket.currentItem = focus;
   },
 
+  handleInlineDrop(event) {
+    // It would be nice here to be able to append images, but we can't really
+    // assume if users want to add the image URL as clickable link or embedded
+    // image, so we always default to clickable link.
+    // We can later explore adding some UI choice to allow controlling the
+    // outcome of this drop action, but users can still copy and paste the image
+    // in the editor to cirumvent this potential issue.
+    let editor = GetCurrentEditor();
+    let attachments = this.getValidAttachments(event, true);
+
+    for (let attachment of attachments) {
+      if (!attachment?.url) {
+        continue;
+      }
+
+      let link = editor.createElementWithDefaults("a");
+      link.setAttribute("href", attachment.url);
+      link.textContent =
+        attachment.name ||
+        gMsgCompose.AttachmentPrettyName(attachment.url, null);
+      editor.insertElementAtSelection(link, true);
+    }
+  },
+
   async onDrop(event) {
     this._hideDropOverlay();
 
@@ -9156,11 +9198,18 @@ var envelopeDragObserver = {
     }
 
     // Interrupt if we're not dropping a file from outside the compose window
-    // and we're not draggin a supported data type.
+    // and we're not dragging a supported data type.
     if (
       !event.dataTransfer.files.length &&
-      !flavors.some(f => event.dataTransfer.types.includes(f))
+      !DROP_FLAVORS.some(f => event.dataTransfer.types.includes(f))
     ) {
+      return;
+    }
+
+    // If the drop happened on the inline container, and the dragged data is
+    // valid for inline, bail out and handle it as inline text link.
+    if (event.target.id == "addInline" && gIsValidInline) {
+      this.handleInlineDrop(event);
       return;
     }
 
@@ -9253,7 +9302,7 @@ var envelopeDragObserver = {
       return;
     }
 
-    if (flavors.some(f => event.dataTransfer.types.includes(f))) {
+    if (DROP_FLAVORS.some(f => event.dataTransfer.types.includes(f))) {
       // Show the drop overlay only if we dragged files or supported types.
       let attachments = this.getValidAttachments(event);
       if (attachments.length) {
@@ -9279,8 +9328,9 @@ var envelopeDragObserver = {
           { count: attachments.length || 1 }
         );
 
-        // Show the #addInline box only if the user is dragging only images and
-        // this is not a plain text message.
+        // Show the #addInline box only if the user is dragging text that we
+        // want to allow adding as text, as well as dragging only images, and
+        // if this is not a plain text message.
         // NOTE: We're using event.dataTransfer.files.length instead of
         // attachments.length because we only need to consider images coming
         // from outside the application. The attachments array might contain
@@ -9290,9 +9340,10 @@ var envelopeDragObserver = {
           .getElementById("addInline")
           .classList.toggle(
             "hidden",
-            !event.dataTransfer.files.length ||
-              this.isNotDraggingOnlyImages(event.dataTransfer) ||
-              !gMsgCompose.composeHTML
+            !gIsValidInline &&
+              (!event.dataTransfer.files.length ||
+                this.isNotDraggingOnlyImages(event.dataTransfer) ||
+                !gMsgCompose.composeHTML)
           );
       } else {
         DragAddressOverTargetControl(event);
@@ -9342,7 +9393,7 @@ var envelopeDragObserver = {
    *
    * @param {DataTransfer} dataTransfer - The dataTransfer object from the drag
    *   or drop event.
-   * @return {boolean} True if at least 1 file not an image.
+   * @return {boolean} True if at least one file is not an image.
    */
   isNotDraggingOnlyImages(dataTransfer) {
     for (let file of dataTransfer.files) {
@@ -9355,7 +9406,7 @@ var envelopeDragObserver = {
 
   /**
    * Add or remove the hover effect to the droppable containers. We can't do it
-   * simply via CSS since the hover events don't work when draggin an item.
+   * simply via CSS since the hover events don't work when dragging an item.
    *
    * @param {string} targetId - The ID of the hovered overlay element.
    */
