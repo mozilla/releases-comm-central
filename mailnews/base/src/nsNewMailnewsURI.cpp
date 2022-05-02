@@ -52,7 +52,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     }
     // Creating IMAP URIs off the main thread can lead to crashes.
     // Seems to happen when viewing PDFs.
-    auto NewURI = [&aSpec, &aCharset, &aBaseURI, aURI, &rv ]() -> auto {
+    auto NewURI = [&aSpec, &aCharset, &aBaseURI, aURI, &rv ]() -> auto{
       rv = nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
     };
     nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
@@ -69,7 +69,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     }
     // If we're for some reason not on the main thread, dispatch to main
     // or else we'll crash.
-    auto NewURI = [&aSpec, &aBaseURI, aURI, &rv ]() -> auto {
+    auto NewURI = [&aSpec, &aBaseURI, aURI, &rv ]() -> auto{
       rv = nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
     };
     nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
@@ -124,7 +124,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     compMgr->IsContractIDRegistered(contractID.get(), &isRegistered);
     if (isRegistered) {
       auto NewURI =
-          [&aSpec, &aCharset, &aBaseURI, aURI, &contractID, &rv ]() -> auto {
+          [&aSpec, &aCharset, &aBaseURI, aURI, &contractID, &rv ]() -> auto{
         nsCOMPtr<nsIMsgProtocolHandler> handler(
             do_GetService(contractID.get()));
         if (handler) {
