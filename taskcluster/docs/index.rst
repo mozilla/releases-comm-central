@@ -15,6 +15,8 @@ The documentation here describes Thunderbird specifics.
 .. toctree::
 
     kinds
+    attributes
+    parameters
     loading
     transforms
     cron
