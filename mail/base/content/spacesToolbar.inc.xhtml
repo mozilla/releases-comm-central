@@ -121,15 +121,15 @@
 <panel id="spacesToolbarCustomizationPanel"
        type="arrow"
        orient="vertical"
-       class="cui-widget-panel"
+       class="cui-widget-panel popup-panel"
        noautohide="true"
        onpopuphidden="gSpacesToolbar.onCustomizePopupHidden();">
   <!-- Keep the noautohide attribute to true to prevent the panel from closing
     when the color picker appears. -->
-  <html:div class="spaces-customize-panel" xmlns="http://www.w3.org/1999/xhtml">
+  <html:div class="popup-panel-body" xmlns="http://www.w3.org/1999/xhtml">
     <h3 data-l10n-id="spaces-customize-panel-title"></h3>
 
-    <div class="spaces-options-grid">
+    <div class="popup-panel-options-grid">
       <label for="spacesBackgroundColor"
              data-l10n-id="spaces-customize-background-color"></label>
       <input type="color" id="spacesBackgroundColor" />
@@ -147,7 +147,7 @@
       <input type="color" id="spacesAccentTextColor" />
     </div>
 
-    <div class="spaces-buttons-container">
+    <div class="popup-panel-buttons-container">
       <button type="button"
               data-l10n-id="spaces-customize-button-restore"
               onclick="gSpacesToolbar.resetColorCustomization();">

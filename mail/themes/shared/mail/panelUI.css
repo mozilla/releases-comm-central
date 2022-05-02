@@ -742,39 +742,3 @@ menulist[open="true"]:not([disabled="true"]) {
   background-color: var(--button-hover-bgcolor);
   border-color: var(--button-border-color);
 }
-
-/* Customization panel */
-
-.customize-panel {
-  margin-block: 0;
-}
-
-.customize-panel-body {
-  padding: var(--appmenu-button-margin);
-  min-width: 300px;
-}
-
-.customize-panel-body h3 {
-  margin-block: 0 12px;
-}
-
-.customize-panel-buttons-container {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  justify-content: end;
-}
-
-.customize-panel-options-grid {
-  display: grid;
-  margin-block: 6px 12px;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 6px;
-}
-
-.customize-panel button:focus-visible,
-.customize-panel input[type="color"]:focus-visible {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: -1px;
-}

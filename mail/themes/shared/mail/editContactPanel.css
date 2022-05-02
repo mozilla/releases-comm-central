@@ -98,3 +98,92 @@ html|input.editContactTextbox[readonly] {
 #editContactPanelDoneButton {
   flex: 0%;
 }
+
+.popup-panel {
+  margin-block: 0;
+}
+
+.popup-panel-body {
+  padding: 9px 15px;
+  min-width: 300px;
+}
+
+.popup-panel-body h3 {
+  margin-block: 0 12px;
+  font-size: 1.4em;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.popup-panel-options-grid {
+  display: grid;
+  margin-block: 6px 15px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.popup-panel-options-grid input {
+  margin-inline-end: 0;
+}
+
+.popup-panel button:focus-visible,
+.popup-panel input[type="color"]:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: -1px;
+}
+
+.popup-panel label,
+.popup-panel checkbox {
+  margin-inline-start: 0;
+}
+
+.popup-panel-buttons-container {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  justify-content: end;
+}
+
+.popup-panel-buttons-container > button {
+  appearance: none;
+  border: 0;
+  border-radius: 4px;
+  color: var(--button-color, inherit);
+  background-color: var(--button-bgcolor, color-mix(in srgb, currentColor 13%, transparent));
+  padding: 8px 16px;
+  font-weight: 600;
+  min-width: 0;
+  margin-inline: 8px 0;
+  margin-bottom: 0;
+}
+
+.popup-panel-buttons-container > button[disabled] {
+  opacity: 0.4;
+}
+
+.popup-panel-buttons-container > button:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.popup-panel-buttons-container > button:not([disabled]):hover {
+  background-color: var(--button-hover-bgcolor, color-mix(in srgb, currentColor 17%, transparent));
+}
+
+.popup-panel-buttons-container > button:not([disabled]):hover:active {
+  background-color: var(--button-active-bgcolor, color-mix(in srgb, currentColor 30%, transparent));
+}
+
+.popup-panel-buttons-container > button.primary:not([disabled]) {
+  color: var(--button-primary-color);
+  background-color: var(--button-primary-bgcolor);
+}
+
+.popup-panel-buttons-container > button.primary:not([disabled]):hover {
+  background-color: var(--button-primary-hover-bgcolor);
+}
+
+.popup-panel-buttons-container > button.primary:not([disabled]):hover:active {
+  background-color: var(--button-primary-active-bgcolor);
+}

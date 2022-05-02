@@ -336,42 +336,6 @@
   display: block;
 }
 
-/* Customize panel */
-
-panel#spacesToolbarCustomizationPanel {
-  margin-block: 0;
-}
-
-.spaces-customize-panel {
-  padding: var(--appmenu-button-margin);
-  min-width: 300px;
-}
-
-.spaces-customize-panel h3 {
-  margin-block: 0 12px;
-}
-
-.spaces-buttons-container {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  justify-content: end;
-}
-
-.spaces-options-grid {
-  display: grid;
-  margin-block: 6px 12px;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 6px;
-}
-
-button:focus-visible,
-input[type="color"]:focus-visible {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: -1px;
-}
-
 .has-badge:not([open="true"]) > .toolbarbutton-badge-stack > .toolbarbutton-badge {
   display: block;
   box-shadow: none;

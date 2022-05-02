@@ -9,3 +9,9 @@
 html|input.editContactTextbox {
   padding: 3px 6px;
 }
+
+/* Swap the primary and secondary action, because Windows
+* platform conventions put the primary action on the left. */
+.popup-panel-buttons-container > button.primary {
+  order: -1;
+}

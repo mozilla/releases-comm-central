@@ -413,13 +413,13 @@
 <panel id="messageHeaderCustomizationPanel"
        type="arrow"
        orient="vertical"
-       class="cui-widget-panel customize-panel"
+       class="cui-widget-panel popup-panel"
        onpopupshowing="gHeaderCustomize.onPanelShowing();"
        onpopuphidden="gHeaderCustomize.onPanelHidden();">
-  <html:div class="customize-panel-body">
+  <html:div class="popup-panel-body">
     <html:h3 data-l10n-id="message-header-customize-panel-title"></html:h3>
 
-    <html:div class="customize-panel-options-grid">
+    <html:div class="popup-panel-options-grid">
       <label data-l10n-id="message-header-customize-button-style"
              control="headerButtonStyle"/>
       <menulist id="headerButtonStyle"
@@ -437,7 +437,7 @@
                 oncommand="gHeaderCustomize.updateSubjectStyle(event);"/>
     </html:div>
 
-    <html:div class="customize-panel-buttons-container">
+    <html:div class="popup-panel-buttons-container">
       <html:button type="button"
                    data-l10n-id="customize-panel-button-save"
                    onclick="gHeaderCustomize.closePanel()"
