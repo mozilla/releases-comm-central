@@ -263,10 +263,40 @@ signature_validate(const pgp_signature_t &     sig,
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    /* Check signature security */
-    if (ctx.profile.hash_level(sig.halg, sig.creation()) < rnp::SecurityLevel::Default) {
-        RNP_LOG("Insecure hash algorithm %d, marking signature as invalid.", sig.halg);
-        return RNP_ERROR_SIGNATURE_INVALID;
+    bool check_security_level = true;
+    if (hash.alg() == PGP_HASH_SHA1) {
+      /* Check signature security */
+      switch (sig.type()) {
+          /* key certifications */
+          case PGP_CERT_GENERIC:
+          case PGP_CERT_PERSONA:
+          case PGP_CERT_CASUAL:
+          case PGP_CERT_POSITIVE:
+          /* subkey binding signature */
+          case PGP_SIG_SUBKEY:
+          case PGP_SIG_PRIMARY:
+          /* direct-key signature */
+          case PGP_SIG_DIRECT:
+          /* revocation signatures */
+          case PGP_SIG_REV_KEY:
+          case PGP_SIG_REV_SUBKEY:
+          case PGP_SIG_REV_CERT:
+              /* Allow */
+              check_security_level = false;
+              break;
+
+          default:
+              break;
+      }
+    }
+
+    if (check_security_level) {
+      /* Only allow if the additional check passes. */
+      if (ctx.profile.hash_level(sig.halg, sig.creation()) < rnp::SecurityLevel::Default) {
+          RNP_LOG("Insecure hash algorithm %d, marking signature as invalid.", sig.halg);
+          return RNP_ERROR_SIGNATURE_INVALID;
+
+      }
     }
 
     /* Finalize hash */
