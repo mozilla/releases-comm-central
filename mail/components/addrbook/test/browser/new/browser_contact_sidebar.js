@@ -47,6 +47,9 @@ add_task(async function() {
   MailServices.compose.OpenComposeWindowWithParams(null, params);
   let composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
+  await TestUtils.waitForCondition(
+    () => Services.focus.activeWindow == composeWindow
+  );
   let composeDocument = composeWindow.document;
   let toAddrInput = composeDocument.getElementById("toAddrInput");
   let toAddrRow = composeDocument.getElementById("addressRowTo");
@@ -81,8 +84,6 @@ add_task(async function() {
   let toButton = sidebarDocument.getElementById("toButton");
   let ccButton = sidebarDocument.getElementById("ccButton");
   let bccButton = sidebarDocument.getElementById("bccButton");
-
-  await new Promise(resolve => composeWindow.setTimeout(resolve, 100));
 
   await TestUtils.waitForCondition(() => cardsList.view.rowCount != 0);
   checkListNames(
