@@ -73,31 +73,17 @@ add_task(async () => {
     "Should have only the one account we created."
   );
 
-  let composeWindow = await new Promise(resolve => {
-    function onWindowOpen(win) {
-      win.addEventListener(
-        "load",
-        async () => {
-          Services.ww.unregisterNotification(onWindowOpen);
-          await win.setTimeout(resolve, 500, win);
-        },
-        { once: true }
-      );
-    }
-    Services.ww.registerNotification(onWindowOpen);
-    composeMsgByType(Ci.nsIMsgCompType.New);
-  });
-  is(
-    composeWindow.location.href,
-    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  composeMsgByType(Ci.nsIMsgCompType.New);
+  let composeWindow = await composeWindowPromise;
+  await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
+  await TestUtils.waitForCondition(
+    () => Services.focus.activeWindow == composeWindow
   );
   let composeDocument = composeWindow.document;
 
   // Compose window loaded.
   // Check the attach dropdown has our account as a <menuitem>.
-
-  // The popup isn't always ready to open immediately, unclear why.
-  await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
 
   let toolbarButton = composeDocument.getElementById("button-attach");
   let rect = toolbarButton.getBoundingClientRect();
