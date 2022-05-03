@@ -56,24 +56,45 @@ add_task(async function test_accounts() {
       let [account2Id, account2Name] = await window.sendMessage(
         "create account 2"
       );
+      // The new account is defined as default and should be returned first.
       let result2 = await browser.accounts.list();
       browser.test.assertEq(2, result2.length);
-      window.assertDeepEqual(result1[0], result2[1]);
       window.assertDeepEqual(
-        {
-          id: account2Id,
-          name: account2Name,
-          type: "imap",
-          folders: [
-            {
-              accountId: account2Id,
-              name: "Inbox",
-              path: "/INBOX",
-              type: "inbox",
-            },
-          ],
-        },
-        result2[0]
+        [
+          {
+            id: account2Id,
+            name: account2Name,
+            type: "imap",
+            folders: [
+              {
+                accountId: account2Id,
+                name: "Inbox",
+                path: "/INBOX",
+                type: "inbox",
+              },
+            ],
+          },
+          {
+            id: account1Id,
+            name: account1Name,
+            type: "none",
+            folders: [
+              {
+                accountId: account1Id,
+                name: "Trash",
+                path: "/Trash",
+                type: "trash",
+              },
+              {
+                accountId: account1Id,
+                name: "Outbox",
+                path: "/Unsent Messages",
+                type: "outbox",
+              },
+            ],
+          },
+        ],
+        result2
       );
 
       let result3 = await browser.accounts.get(account1Id);

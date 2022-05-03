@@ -41,7 +41,7 @@
           },
           "subFolders": {
             "type": "array",
-            "description": "Subfolders are only included if requested.",
+            "description": "Subfolders are only included if requested. They will be returned in the same order as used in Thunderbird's folder pane.",
             "items": {
               "$ref": "MailFolder"
             },

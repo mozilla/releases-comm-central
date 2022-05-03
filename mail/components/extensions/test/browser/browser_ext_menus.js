@@ -68,7 +68,7 @@ async function rightClickOnContent(menu, selector, browser) {
 /**
  * Check the parameters of a browser.onShown event was fired.
  *
- * @see https://thunderbird-webextensions.readthedocs.io/en/latest/menus.html#menus-onshown
+ * @see mail/components/extensions/schemas/menus.json
  *
  * @param extension
  * @param {Object} expectedInfo
@@ -161,7 +161,7 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
 /**
  * Check the parameters of a browser.onClicked event was fired.
  *
- * @see https://thunderbird-webextensions.readthedocs.io/en/latest/menus.html#menus-onclicked
+ * @see mail/components/extensions/schemas/menus.json
  *
  * @param extension
  * @param {Object} expectedInfo

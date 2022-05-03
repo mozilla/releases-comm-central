@@ -60,7 +60,7 @@
       {
         "name": "list",
         "type": "function",
-        "description": "Returns all mail accounts.",
+        "description": "Returns all mail accounts. They will be returned in the same order as used in Thunderbird's folder pane.",
         "async": "callback",
         "parameters": [
           {

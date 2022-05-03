@@ -32,8 +32,17 @@ add_task(
         }
 
         account = await browser.accounts.get(accountId);
+        // Check order of the returned folders being correct (new folder not last).
         browser.test.assertEq(4, account.folders.length);
-        browser.test.assertEq("/folder1", account.folders[3].path);
+        if (IS_IMAP) {
+          browser.test.assertEq("Inbox", account.folders[0].name);
+          browser.test.assertEq("Trash", account.folders[1].name);
+        } else {
+          browser.test.assertEq("Trash", account.folders[0].name);
+          browser.test.assertEq("Outbox", account.folders[1].name);
+        }
+        browser.test.assertEq("folder1", account.folders[2].name);
+        browser.test.assertEq("unused", account.folders[3].name);
 
         let folder2 = await browser.folders.create(folder1, "folder+2");
         browser.test.assertEq(accountId, folder2.accountId);
@@ -42,10 +51,10 @@ add_task(
 
         account = await browser.accounts.get(accountId);
         browser.test.assertEq(4, account.folders.length);
-        browser.test.assertEq(1, account.folders[3].subFolders.length);
+        browser.test.assertEq(1, account.folders[2].subFolders.length);
         browser.test.assertEq(
           "/folder1/folder+2",
-          account.folders[3].subFolders[0].path
+          account.folders[2].subFolders[0].path
         );
 
         // Test reject on creating already existing folder.
@@ -77,10 +86,10 @@ add_task(
 
           account = await browser.accounts.get(accountId);
           browser.test.assertEq(4, account.folders.length);
-          browser.test.assertEq(1, account.folders[3].subFolders.length);
+          browser.test.assertEq(1, account.folders[2].subFolders.length);
           browser.test.assertEq(
             "/folder1/folder3",
-            account.folders[3].subFolders[0].path
+            account.folders[2].subFolders[0].path
           );
 
           // Test reject on renaming absolute root.
@@ -130,7 +139,7 @@ add_task(
             "/Trash/folder3",
             trashFolder.subFolders[0].path
           );
-          browser.test.assertEq("/folder1", account.folders[3].path);
+          browser.test.assertEq("/folder1", account.folders[2].path);
 
           if (!IS_IMAP) {
             // For non IMAP folders, the delete request has triggered an onMoved
@@ -181,7 +190,7 @@ add_task(
 
           account = await browser.accounts.get(accountId);
           browser.test.assertEq(4, account.folders.length);
-          browser.test.assertEq("/folder1", account.folders[3].path);
+          browser.test.assertEq("/folder1", account.folders[2].path);
         }
 
         // Test move.
@@ -207,7 +216,7 @@ add_task(
 
           account = await browser.accounts.get(accountId);
           browser.test.assertEq(5, account.folders.length);
-          browser.test.assertEq("/folder4", account.folders[4].path);
+          browser.test.assertEq("/folder4", account.folders[3].path);
 
           // Test reject on moving to already existing folder.
           await browser.test.assertRejects(
@@ -239,11 +248,11 @@ add_task(
 
           account = await browser.accounts.get(accountId);
           browser.test.assertEq(5, account.folders.length);
-          browser.test.assertEq(1, account.folders[3].subFolders.length);
-          browser.test.assertEq("/folder4", account.folders[4].path);
+          browser.test.assertEq(1, account.folders[2].subFolders.length);
+          browser.test.assertEq("/folder4", account.folders[3].path);
           browser.test.assertEq(
             "/folder1/folder4",
-            account.folders[3].subFolders[0].path
+            account.folders[2].subFolders[0].path
           );
 
           // Test reject on copy to already existing folder.

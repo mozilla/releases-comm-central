@@ -1614,7 +1614,8 @@ const folderTypeMap = new Map([
  * @param {nsIMsgFolder} folder - The folder to convert.
  * @param {string} [accountId] - An optimization to avoid looking up the
  *     account. The value from nsIMsgHdr.accountKey must not be used here.
- * @return {Object}
+ * @return {MailFolder}
+ * @see mail/components/extensions/schemas/folders.json
  */
 function convertFolder(folder, accountId) {
   if (!folder) {
@@ -1642,19 +1643,26 @@ function convertFolder(folder, accountId) {
 }
 
 /**
- * Converts an nsIMsgFolder and all subfolders to a simple object for use in
+ * Converts an nsIMsgFolder and all its subfolders to a simple object for use in
  * API messages.
  *
  * @param {nsIMsgFolder} folder - The folder to convert.
  * @param {string} [accountId] - An optimization to avoid looking up the
  *     account. The value from nsIMsgHdr.accountKey must not be used here.
- * @return {Array}
+ * @return {MailFolder}
+ * @see mail/components/extensions/schemas/folders.json
  */
 function traverseSubfolders(folder, accountId) {
   let f = convertFolder(folder, accountId);
   f.subFolders = [];
   if (folder.hasSubFolders) {
-    for (let subFolder of folder.subFolders) {
+    // Use the same order as used by Thunderbird.
+    let subFolders = [...folder.subFolders].sort((a, b) =>
+      a.sortOrder == b.sortOrder
+        ? a.name.localeCompare(b.name)
+        : a.sortOrder - b.sortOrder
+    );
+    for (let subFolder of subFolders) {
       f.subFolders.push(
         traverseSubfolders(subFolder, accountId || f.accountId)
       );
