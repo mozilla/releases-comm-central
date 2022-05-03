@@ -15,7 +15,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
 });
 
-const MIN_RNP_VERSION = [0, 15, 2];
+const MIN_RNP_VERSION = [0, 16, 0];
 
 var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;
