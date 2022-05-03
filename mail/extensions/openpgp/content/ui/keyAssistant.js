@@ -75,7 +75,7 @@ var gKeyAssistant = {
 
   _setupEventListeners() {
     document
-      .getElementById("disabledEncryptionButton")
+      .getElementById("disableEncryptionButton")
       .addEventListener("click", () => {
         setSendEncryptedAndSigned(false);
         this.close();
@@ -106,6 +106,11 @@ var gKeyAssistant = {
     this.recipients = [];
   },
 
+  setMainDisableButton() {
+    document.getElementById("disableEncryptionButton").hidden =
+      !gSendEncrypted || (this.usableKeys && !this.problematicKeys);
+  },
+
   /**
    * Open the key assistant modal dialog.
    *
@@ -120,10 +125,7 @@ var gKeyAssistant = {
     this.resetViews();
 
     document.getElementById("sendEncryptedButton").hidden = !isSending;
-    document.getElementById(
-      "disabledEncryptionButton"
-    ).hidden = !gSendEncrypted;
-
+    this.setMainDisableButton();
     this.dialog.showModal();
   },
 
@@ -169,6 +171,9 @@ var gKeyAssistant = {
     document.getElementById("mainButtons").hidden = true;
   },
 
+  usableKeys: 0,
+  problematicKeys: 0,
+
   /**
    * Populate the main view of the key assistant with the list of recipients and
    * its keys, separating the recipients that have issues from those without
@@ -181,13 +186,12 @@ var gKeyAssistant = {
     document.getElementById("keyAssistantValid").hidden = true;
     document.getElementById("keysListValid").replaceChildren();
 
-    let usableKeys = 0;
-    let problematicKeys = 0;
+    this.usableKeys = 0;
+    this.problematicKeys = 0;
 
     for (let addr of this.recipients) {
       // Fetch all keys for the current recipient.
       let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
-
       if (keyMetas.some(k => k.readiness == "alias")) {
         // Skip if this is an alias email.
         continue;
@@ -196,24 +200,25 @@ var gKeyAssistant = {
       let acceptedKeys = keyMetas.filter(k => k.readiness == "accepted");
       if (acceptedKeys.length) {
         this.addToReadyList(addr, acceptedKeys[0]);
-        usableKeys++;
+        this.usableKeys++;
         continue;
       }
 
       this.addToProblematicList(addr, keyMetas);
-      problematicKeys++;
+      this.problematicKeys++;
     }
 
-    document.getElementById("keyAssistantIssues").hidden = !problematicKeys;
+    document.getElementById("keyAssistantIssues").hidden = !this
+      .problematicKeys;
     document.l10n.setAttributes(
       document.getElementById("keyAssistantIssuesDescription"),
       "openpgp-key-assistant-recipients-issue-description",
-      { count: problematicKeys }
+      { count: this.problematicKeys }
     );
 
-    document.getElementById("keyAssistantValid").hidden = !usableKeys;
+    document.getElementById("keyAssistantValid").hidden = !this.usableKeys;
 
-    if (!problematicKeys && usableKeys) {
+    if (!this.problematicKeys && this.usableKeys) {
       document.l10n.setAttributes(
         document.getElementById("keyAssistantValidDescription"),
         "openpgp-key-assistant-recipients-description-no-issues"
@@ -223,12 +228,13 @@ var gKeyAssistant = {
       document.l10n.setAttributes(
         document.getElementById("keyAssistantValidDescription"),
         "openpgp-key-assistant-recipients-description",
-        { count: usableKeys }
+        { count: this.usableKeys }
       );
     }
 
     document.getElementById("sendEncryptedButton").disabled =
-      problematicKeys || !usableKeys;
+      this.problematicKeys || !this.usableKeys;
+    this.setMainDisableButton();
   },
 
   isAccepted(acc) {
@@ -266,24 +272,27 @@ var gKeyAssistant = {
     if (autoCloseOnAccept && this.isAccepted(newAccept)) {
       this.resetViews();
       this.buildMainView();
+    } else {
+      // While viewing the key, the user could have triggered a refresh,
+      // which could have changed the validity of the key.
+      let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(
+        this.currentRecip
+      );
+      this.buildResolveView(this.currentRecip, keyMetas);
     }
   },
 
   async viewKeyFromOverview(recip, keyMeta) {
-    let oldAccept = {};
-    await PgpSqliteDb2.getAcceptance(keyMeta.keyObj.fpr, recip, oldAccept);
-
     this.ignoreExternal = true;
     await this._viewKey(keyMeta);
     this.ignoreExternal = false;
 
-    let newAccept = {};
-    await PgpSqliteDb2.getAcceptance(keyMeta.keyObj.fpr, recip, newAccept);
-
-    if (this.isAccepted(oldAccept) != this.isAccepted(newAccept)) {
-      // refresh display because acceptance was changed
-      this.buildMainView();
-    }
+    // While viewing the key, the user could have triggered a refresh,
+    // which could have changed the validity of the key.
+    // In theory it would be sufficient to refresh the main view
+    // for the single email address.
+    await checkRecipientKeys();
+    this.buildMainView();
   },
 
   async _viewKey(keyMeta) {
@@ -332,7 +341,10 @@ var gKeyAssistant = {
     // Multiple keys available.
 
     let unaccepted = keyMetas.filter(
-      k => k.readiness == "undecided" || k.readiness == "rejected"
+      k =>
+        k.readiness == "undecided" ||
+        k.readiness == "rejected" ||
+        k.readiness == "otherAccepted"
     );
     let collected = keyMetas.filter(k => k.readiness == "collected");
 
@@ -380,7 +392,10 @@ var gKeyAssistant = {
     }
 
     let expiredUnaccepted = keyMetas.filter(
-      k => k.readiness == "expiredUndecided" || k.readiness == "expiredRejected"
+      k =>
+        k.readiness == "expiredUndecided" ||
+        k.readiness == "expiredRejected" ||
+        k.readiness == "expiredOtherAccepted"
     );
 
     // Key not accepted and expired.
@@ -424,12 +439,15 @@ var gKeyAssistant = {
         )
           ? "email"
           : unacceptedNotYetImported[0].collectedKey.sources[0].type;
+        if (source == "WKD") {
+          source = "wkd";
+        }
         // openpgp-key-assistant-key-collected-email
         // openpgp-key-assistant-key-collected-keyserver
         // openpgp-key-assistant-key-collected-wkd
         document.l10n.setAttributes(
           element,
-          `openpgp-key-assistant-key-collected-${source}`
+          "openpgp-key-assistant-key-collected-" + source
         );
         return;
       }
@@ -466,7 +484,9 @@ var gKeyAssistant = {
         k.readiness == "collected" ||
         k.readiness == "expiredAccepted" ||
         k.readiness == "expiredUndecided" ||
+        k.readiness == "expiredOtherAccepted" ||
         k.readiness == "undecided" ||
+        k.readiness == "otherAccepted" ||
         k.readiness == "expiredRejected" ||
         k.readiness == "rejected"
     );
@@ -502,9 +522,12 @@ var gKeyAssistant = {
       // openpgp-key-assistant-key-collected-email
       // openpgp-key-assistant-key-collected-keyserver
       // openpgp-key-assistant-key-collected-wkd
+      if (source == "WKD") {
+        source = "wkd";
+      }
       document.l10n.setAttributes(
         element,
-        `openpgp-key-assistant-key-collected-${source}`
+        "openpgp-key-assistant-key-collected-" + source
       );
       return;
     } else if (keyMeta.collectedKey?.sources?.length > 1) {
@@ -516,11 +539,14 @@ var gKeyAssistant = {
         let type = ["attachment", "autocrypt"].includes(source.type)
           ? "email"
           : source.type;
+        if (type == "WKD") {
+          type = "wkd";
+        }
         if (!reportedSources.includes(type)) {
           reportedSources.push(type);
           document.l10n.setAttributes(
             span,
-            `openpgp-key-assistant-key-collected-${type}`
+            "openpgp-key-assistant-key-collected-" + type
           );
           element.appendChild(span);
         }
@@ -541,11 +567,12 @@ var gKeyAssistant = {
     if (
       keyMeta.readiness == "expiredAccepted" ||
       keyMeta.readiness == "expiredUndecided" ||
+      keyMeta.readiness == "expiredOtherAccepted" ||
       keyMeta.readiness == "expiredRejected"
     ) {
       document.l10n.setAttributes(
         element,
-        "openpgp-key-assistant-key-unaccepted-expired-one",
+        "openpgp-key-assistant-this-key-accepted-expired",
         {
           date: keyMeta.keyObj.effectiveExpiry,
         }
@@ -553,35 +580,56 @@ var gKeyAssistant = {
       return;
     }
 
-    // We found nothing, so let's return a default message.
-    document.l10n.setAttributes(
-      element,
-      "openpgp-key-assistant-key-source-default"
-    );
+    if (keyMeta.readiness == "otherAccepted") {
+      // Was the key already accepted for another email address?
+      document.l10n.setAttributes(
+        element,
+        "openpgp-key-assistant-key-accepted-other",
+        {
+          date: keyMeta.keyObj.effectiveExpiry,
+        }
+      );
+    }
   },
 
   async buildResolveView(recipient, keyMetas) {
     this.currentRecip = recipient;
+    document.getElementById("resolveViewAcceptKey").disabled = true;
+
+    let unaccepted = keyMetas.filter(
+      k =>
+        k.readiness == "undecided" ||
+        k.readiness == "rejected" ||
+        k.readiness == "otherAccepted"
+    );
+    let collected = keyMetas.filter(k => k.readiness == "collected");
+    let expiredAccepted = keyMetas.filter(
+      k => k.readiness == "expiredAccepted"
+    );
+    let expiredUnaccepted = keyMetas.filter(
+      k =>
+        k.readiness == "expiredUndecided" ||
+        k.readiness == "expiredRejected" ||
+        k.readiness == "expiredOtherAccepted"
+    );
+
+    this.usableKeys = unaccepted.length + collected.length;
+    let problematicKeys = expiredAccepted.length + expiredUnaccepted.length;
+    let numKeys = this.usableKeys + problematicKeys;
 
     document.l10n.setAttributes(
       document.getElementById("resolveViewTitle"),
       "openpgp-key-assistant-resolve-title",
-      { recipient }
+      { recipient, numKeys }
     );
+
     document.l10n.setAttributes(
-      document.getElementById("resolveViewInfo"),
-      "openpgp-key-assistant-resolve-discover-info",
-      { recipient }
+      document.getElementById("resolveViewExpiredDescription"),
+      "openpgp-key-assistant-invalid-title",
+      { numKeys }
     );
 
-    let unaccepted = keyMetas.filter(
-      k => k.readiness == "undecided" || k.readiness == "rejected"
-    );
-    let collected = keyMetas.filter(k => k.readiness == "collected");
-
-    let haveUsableKeys = unaccepted.length || collected.length;
-
-    document.getElementById("resolveViewValid").hidden = !haveUsableKeys;
+    document.getElementById("resolveViewValid").hidden = !this.usableKeys;
     let usableList = document.getElementById("resolveValidKeysList");
     usableList.replaceChildren();
 
@@ -603,12 +651,16 @@ var gKeyAssistant = {
       }
 
       let description = document.createElement("span");
-      let keyId = document.createElement("b");
-      keyId.textContent = keyMeta.keyObj.keyId;
+      let keyId = document.createElement("a");
+      keyId.textContent = "0x" + keyMeta.keyObj.keyId;
       description.appendChild(keyId);
 
+      let space = document.createElement("span");
+      space.textContent = " ";
+      description.appendChild(space);
+
       let button = document.createElement("button");
-      button.classList.add("button-link");
+      //button.classList.add("button-link");
       document.l10n.setAttributes(
         button,
         "openpgp-key-assistant-view-key-button"
@@ -618,8 +670,16 @@ var gKeyAssistant = {
       });
 
       let creationTime = document.createElement("time");
-      creationTime.textContent = ` (${keyMeta.keyObj.created})`;
+      document.l10n.setAttributes(
+        creationTime,
+        "openpgp-key-assistant-key-created",
+        { date: keyMeta.keyObj.created }
+      );
       description.appendChild(creationTime);
+
+      let space2 = document.createElement("span");
+      space2.textContent = " ";
+      description.appendChild(space2);
 
       let info = document.createElement("p");
       gKeyAssistant.findKeyOriginAndStatus(info, keyMeta);
@@ -631,38 +691,15 @@ var gKeyAssistant = {
       return row;
     }
 
-    let usableKeys = 0;
     for (let meta of unaccepted) {
       usableList.appendChild(createKeyRow(meta, true));
-      usableKeys++;
     }
 
     for (let meta of collected) {
       usableList.appendChild(createKeyRow(meta, true));
-      usableKeys++;
     }
-    document.l10n.setAttributes(
-      document.getElementById("resolveViewValidTitle"),
-      "openpgp-key-assistant-valid-title",
-      { count: usableKeys }
-    );
-    document.l10n.setAttributes(
-      document.getElementById("resolveViewValidDescription"),
-      "openpgp-key-assistant-valid-description",
-      { count: usableKeys }
-    );
 
-    let expiredAccepted = keyMetas.filter(
-      k => k.readiness == "expiredAccepted"
-    );
-    let expiredUnaccepted = keyMetas.filter(
-      k => k.readiness == "expiredUndecided" || k.readiness == "expiredRejected"
-    );
-
-    let haveProblematicKeys =
-      expiredAccepted.length || expiredUnaccepted.length;
-
-    document.getElementById("resolveViewInvalid").hidden = !haveProblematicKeys;
+    document.getElementById("resolveViewInvalid").hidden = !problematicKeys;
     let problematicList = document.getElementById("resolveInvalidKeysList");
     problematicList.replaceChildren();
 
@@ -681,7 +718,11 @@ var gKeyAssistant = {
 
   async acceptSelectedKey(recipient, keyMetas) {
     let selectedKey = document.querySelector('input[name="valid-key"]:checked')
-      .value;
+      ?.value;
+    if (!selectedKey) {
+      // The accept button was enabled but nothing was selected.
+      return;
+    }
     let fingerprint;
 
     this.ignoreExternal = true;
@@ -756,9 +797,16 @@ var gKeyAssistant = {
         );
         gotNewData = gotNewData || rv;
       }
-      this.ignoreExternal = false;
       this.resetViews();
       this.buildMainView();
+
+      // Online discovery and key collection triggered key change
+      // notifications. We must allow those notifications arrive while
+      // ignoreExternal is still true.
+      // Use settimeout to reset ignoreExternal to false afterwards.
+      setTimeout(function() {
+        this.ignoreExternal = false;
+      });
       return;
     }
 
@@ -778,7 +826,13 @@ var gKeyAssistant = {
       this.currentRecip,
       null
     );
-    this.ignoreExternal = false;
+    // Online discovery and key collection triggered key change
+    // notifications. We must allow those notifications arrive while
+    // ignoreExternal is still true.
+    // Use settimeout to reset ignoreExternal to false afterwards.
+    setTimeout(function() {
+      this.ignoreExternal = false;
+    });
 
     // If the recipient now has a usable previously accepted key, go back to
     // the main view and show a successful notification.

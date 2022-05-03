@@ -3088,6 +3088,7 @@ Enigmail.msg = {
         );
 
         await db.storeKey(key);
+        Services.obs.notifyObservers(null, "openpgp-key-change");
       }
     }
 

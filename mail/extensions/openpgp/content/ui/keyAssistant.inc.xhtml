@@ -19,33 +19,33 @@
 
   <div id="resolveView" class="modal-dialog-body dialog-body-view">
     <div>
-      <h2 id="resolveViewTitle"></h2>
+      <p id="resolveViewTitle"/>
 
-      <!-- Valid section. -->
+      <!-- Usable section. -->
       <section id="resolveViewValid" hidden="hidden">
-        <h3 id="resolveViewValidTitle"></h3>
-        <p id="resolveViewValidDescription"></p>
-
+        <p id="resolveViewValidDescription" class="font-bold"
+           data-l10n-id="openpgp-key-assistant-valid-description"></p>
         <ul id="resolveValidKeysList" class="reset-list radio-list"></ul>
+        <p id="openpgp-key-assistant-help-accept"
+           class="tip-caption margin-top-1em"
+           data-l10n-id="openpgp-key-assistant-rogue-warning">
+          <a href="https://support.mozilla.org/products/thunderbird"
+             data-l10n-name="openpgp-link"></a>
+        </p>
       </section>
 
-      <!-- Invalid section. -->
+      <!-- Unusable section. -->
       <section id="resolveViewInvalid" hidden="hidden">
-        <h3 data-l10n-id="openpgp-key-assistant-invalid-title"></h3>
-
+        <p id="resolveViewExpiredDescription" class="font-bold margin-top-1em"/>
         <ul id="resolveInvalidKeysList" class="reset-list radio-list"></ul>
       </section>
 
-      <p id="resolveViewInfo"></p>
-
-      <div class="vertical-buttons-container">
-        <button class="button-link"
-                data-l10n-id="openpgp-key-assistant-discover-online-button"
+      <hbox>
+        <button data-l10n-id="openpgp-key-assistant-discover-online-button"
                 onclick="gKeyAssistant.changeView('discover', 'resolving');"></button>
-        <button class="button-link"
-                data-l10n-id="openpgp-key-assistant-import-keys-button"
+        <button data-l10n-id="openpgp-key-assistant-import-keys-button"
                 onclick="gKeyAssistant.importFromFile('resolving');"></button>
-      </div>
+      </hbox>
     </div>
 
     <menu class="dialog-menu-container two-columns menu-in-body">
@@ -64,34 +64,35 @@
         <!-- Notifications will be lazily loaded here. -->
       </div>
 
-      <h1 data-l10n-id="openpgp-key-assistant-title"></h1>
-      <p data-l10n-id="openpgp-key-assistant-description-issue">
-        <a href="https://support.mozilla.org/products/thunderbird"
-           data-l10n-name="openpgp-link"></a>
-      </p>
+      <p data-l10n-id="openpgp-key-assistant-title"/>
 
       <!-- Issues section. -->
       <section id="keyAssistantIssues" hidden="hidden">
-        <h2 data-l10n-id="openpgp-key-assistant-recipients-issue-title"></h2>
-        <p id="keyAssistantIssuesDescription"></p>
-        <div class="vertical-buttons-container">
+        <p id="keyAssistantIssuesHeader" class="font-bold"
+           data-l10n-id="openpgp-key-assistant-recipients-issue-header"/>
+        <p id="keyAssistantIssuesDescription">
+          <a href="https://support.mozilla.org/products/thunderbird"
+             data-l10n-name="openpgp-link"></a>
+        </p>
+
+        <ul id="keysListIssues" class="reset-list key-list"></ul>
+        <hbox>
           <button data-l10n-id="openpgp-key-assistant-discover-online-button"
                   onclick="gKeyAssistant.changeView('discover', 'overview');"></button>
           <button data-l10n-id="openpgp-key-assistant-import-keys-button"
                   onclick="gKeyAssistant.importFromFile('overview');"></button>
-        </div>
+        </hbox>
 
-        <ul id="keysListIssues" class="reset-list key-list"></ul>
-
-        <p class="tip-caption" data-l10n-id="openpgp-key-assistant-issue-info">
+        <p id="openpgp-key-assistant-help-alias"
+           class="tip-caption margin-top-1em"
+           data-l10n-id="openpgp-key-assistant-info-alias">
           <a href="https://support.mozilla.org/products/thunderbird"
              data-l10n-name="openpgp-link"></a>
         </p>
       </section>
 
       <!-- No issues section. -->
-      <section id="keyAssistantValid" hidden="hidden">
-        <h2 data-l10n-id="openpgp-key-assistant-recipients-title"></h2>
+      <section id="keyAssistantValid" class="margin-top-1em" hidden="hidden">
         <div class="container-with-link">
           <p id="keyAssistantValidDescription"></p>
           <button id="toggleRecipientsButton"
@@ -110,7 +111,7 @@
               onclick="gKeyAssistant.close();"></button>
     </div>
     <div>
-      <button id="disabledEncryptionButton"
+      <button id="disableEncryptionButton"
               data-l10n-id="openpgp-key-assistant-disable-button"></button>
       <button id="sendEncryptedButton"
               data-l10n-id="openpgp-key-assistant-confirm-button"

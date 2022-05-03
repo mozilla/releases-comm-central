@@ -1921,8 +1921,10 @@
                    type="menu-button"
                    class="toolbarbutton-1"
                    data-l10n-id="encryption-options-openpgp"
-                   oncommand="onEncryptionChoice(event.target.value);">
-      <menupopup onpopupshowing="setSecuritySettings('_Toolbar');">
+                   oncommand="showPopupById('encryptionToolbarMenu', 'button-encryption-options');">
+      <menupopup id="encryptionToolbarMenu"
+                 onpopupshowing="setSecuritySettings('_Toolbar');"
+                 oncommand="onEncryptionChoice(event.target.value);">
 
         <menuitem id="encTech_OpenPGP_Toolbar"
                   label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"

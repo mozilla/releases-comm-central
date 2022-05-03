@@ -227,7 +227,7 @@ var KeyLookupHelper = {
             // If key is known in the db: merge + update.
             let key = await db.mergeExisting(newKey, newKey.pubKey, {
               uri: wkdUrl,
-              type: "WKD",
+              type: "wkd",
             });
             await db.storeKey(key);
           }

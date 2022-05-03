@@ -4,57 +4,52 @@
 
 openpgp-key-assistant-title = OpenPGP Key Assistant
 
-openpgp-key-assistant-description-issue = To send an end-to-end encrypted message, you must obtain and accept a public key for each recipient. Avoid accepting a rogue key. <a data-l10n-name="openpgp-link">Learn more…</a>
+openpgp-key-assistant-rogue-warning = Avoid accepting a counterfeit key. To ensure you have obtained the right key you should verify it. <a data-l10n-name="openpgp-link">Learn more…</a>
 
 ## Encryption status
 
-openpgp-key-assistant-recipients-issue-title = Recipients with issues
+openpgp-key-assistant-recipients-issue-header = Cannot Encrypt
 
 # Variables:
 # $count (Number) - The number of recipients that need attention.
 openpgp-key-assistant-recipients-issue-description =
     { $count ->
-        [one] Impossible to encrypt because there are missing, invalid, or not accepted public keys for one recipient.
-        *[other] Impossible to encrypt because there are missing, invalid, or not accepted public keys for { $count } recipients.
+        [one] To encrypt, you must obtain and accept a usable key for one recipient. <a data-l10n-name="openpgp-link">Learn more…</a>
+        *[other] To encrypt, you must obtain and accept usable keys for { $count } recipients. <a data-l10n-name="openpgp-link">Learn more…</a>
     }
 
-openpgp-key-assistant-issue-info = { -brand-short-name } normally requires that the recipient’s public key contains a user ID with a matching email address. This can be overridden by using OpenPGP recipient alias rule. <a data-l10n-name="openpgp-link">Learn more…</a>
-
-openpgp-key-assistant-recipients-title = Recipients without issues
+openpgp-key-assistant-info-alias = { -brand-short-name } normally requires that the recipient’s public key contains a user ID with a matching email address. This can be overridden by using OpenPGP recipient alias rules. <a data-l10n-name="openpgp-link">Learn more…</a>
 
 # Variables:
 # $count (Number) - The number of recipients that need attention.
 openpgp-key-assistant-recipients-description =
     { $count ->
-        [one] For one recipient you have valid and accepted keys and no action is required.
-        *[other] For { $count } recipients you have valid and accepted keys and no action is required.
+        [one] You already have a usable and accepted key for one recipient.
+        *[other] You already have usable and accepted keys for { $count } recipients.
     }
 
-openpgp-key-assistant-recipients-description-no-issues = This message can be encrypted because you have public keys for all the recipients.
+openpgp-key-assistant-recipients-description-no-issues = This message can be encrypted. You have usable and accepted keys for all recipients.
 
 ## Resolve section
 
 # Variables:
 # $recipient (String) - The email address of the recipient needing resolution.
-openpgp-key-assistant-resolve-title = Public keys for { $recipient }
-
-# Variables:
-# $count (Number) - The number of available keys.
-openpgp-key-assistant-valid-title =
-    { $count ->
-        [one] Usable key
-        *[other] Usable keys
+# $numKeys (Number) - The number of keys.
+openpgp-key-assistant-resolve-title =
+    { $numKeys ->
+        [one] { -brand-short-name } found the following key for { $recipient }
+        *[other] { -brand-short-name } found the following keys for { $recipient }
     }
 
-# Variables:
-# $count (Number) - The number of available keys.
-openpgp-key-assistant-valid-description =
-    { $count ->
-        [one] Only one key available
-        *[other] Choose one of the multiple keys available
-    }
+openpgp-key-assistant-valid-description = Select the key that you want to accept
 
-openpgp-key-assistant-invalid-title = Problematic keys
+# Variables:
+# $numKeys (Number) - The number of available keys.
+openpgp-key-assistant-invalid-title =
+    { $numKeys ->
+        [one] The following key cannot be used, unless you obtain an update
+        *[other] The following keys cannot be used, unless you obtain an update
+    }
 
 openpgp-key-assistant-no-key-available = No key available
 
@@ -70,9 +65,13 @@ openpgp-key-assistant-key-unaccepted =
 
 # Variables:
 # $date (String) - The expiration date of the key.
-openpgp-key-assistant-key-accepted-expired = This key was previously accepted but expired on { $date }.
+openpgp-key-assistant-key-accepted-expired = An accepted key has expired on { $date }.
 
-openpgp-key-assistant-keys-accepted-expired = Multiple keys previously accepted but expired.
+openpgp-key-assistant-keys-accepted-expired = Multiple accepted keys have expired.
+
+# Variables:
+# $date (String) - The expiration date of the key.
+openpgp-key-assistant-this-key-accepted-expired = This key was previously accepted but expired on { $date }.
 
 # Variables:
 # $count (Number) - The number of expired keys.
@@ -82,17 +81,18 @@ openpgp-key-assistant-key-unaccepted-expired-one =
 openpgp-key-assistant-key-unaccepted-expired-many =
     Multiple expired keys
 
-openpgp-key-assistant-keys-collected = Multiple alleged collected keys
+openpgp-key-assistant-keys-collected = Multiple usable keys
 
-openpgp-key-assistant-key-collected-multiple = Alleged key collected from multiple sources
+openpgp-key-assistant-key-collected-multiple = A usable key was found in multiple locations
 
-openpgp-key-assistant-key-collected-email = Alleged key collected from an email
+openpgp-key-assistant-key-collected-email = Found in an email
 
-openpgp-key-assistant-key-collected-keyserver = Alleged key downloaded from a keyserver
+openpgp-key-assistant-key-collected-keyserver = Downloaded from a keyserver
 
-openpgp-key-assistant-key-collected-wkd = Alleged key downloaded from Web Key Directory (WKD)
+openpgp-key-assistant-key-collected-wkd = Downloaded from Web Key Directory (WKD)
 
-openpgp-key-assistant-key-source-default = Alleged key previously collected
+openpgp-key-assistant-key-rejected = You rejected this key
+openpgp-key-assistant-key-accepted-other = You accepted this key for a different email address
 
 # Variables:
 # $recipient (String) - The email address of the recipient needing resolution.
@@ -120,9 +120,9 @@ openpgp-key-assistant-issue-resolve-button = Resolve…
 
 openpgp-key-assistant-view-key-button = View Key…
 
-openpgp-key-assistant-recipients-show-button = Show All
+openpgp-key-assistant-recipients-show-button = Show
 
-openpgp-key-assistant-recipients-hide-button = Hide All
+openpgp-key-assistant-recipients-hide-button = Hide
 
 openpgp-key-assistant-cancel-button = Cancel
 
@@ -135,3 +135,5 @@ openpgp-key-assistant-close-button = Close
 openpgp-key-assistant-disable-button = Disable Encryption
 
 openpgp-key-assistant-confirm-button = Send Encrypted
+
+openpgp-key-assistant-key-created = (Created: { $date })

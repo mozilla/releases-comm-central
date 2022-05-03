@@ -1671,9 +1671,14 @@ var EnigmailKeyRing = {
    * @typedef {Object} EncryptionKeyMeta
    * @property {string} readiness - one of
    *   "accepted", "expiredAccepted",
+   *   "otherAccepted", "expiredOtherAccepted",
    *   "undecided", "expiredUndecided",
    *   "rejected", "expiredRejected",
    *   "collected", "rejectedPersonal", "revoked", "alias"
+   *
+   *   The meaning of "otherAccepted" is: the key is undecided for this
+   *   email address, but accepted for at least on other address.
+   *
    * @property {KeyObj} keyObj -
    *   undefined if an alias
    * @property {CollectedKey} collectedKey -
@@ -1814,7 +1819,20 @@ var EnigmailKeyRing = {
             break;
           case 0:
           default:
-            keyMeta.readiness = isExpired ? "expiredUndecided" : "undecided";
+            let other = await PgpSqliteDb2.getFingerprintAcceptance(
+              null,
+              keyObj.fpr
+            );
+            if (other == "verified" || other == "unverified") {
+              // If the check for the email returned undecided, but
+              // overall the key is marked as accepted, it means that
+              // the key is only accepted for another email address.
+              keyMeta.readiness = isExpired
+                ? "expiredOtherAccepted"
+                : "otherAccepted";
+            } else {
+              keyMeta.readiness = isExpired ? "expiredUndecided" : "undecided";
+            }
             break;
         }
       }

@@ -1400,3 +1400,15 @@ button:is(
   /* Provide some inset for the outline. */
   outline-offset: -1px;
 }
+
+#toggleRecipientsButton {
+  margin-top: 3px;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.margin-top-1em {
+  margin-top: 1em;
+}
