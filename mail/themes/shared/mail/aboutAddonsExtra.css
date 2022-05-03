@@ -46,6 +46,11 @@ button[name="plugin"] {
   stroke: currentColor;
 }
 
+/* Settings icon override */
+#preferencesButton .sidebar-footer-icon {
+  content: url("chrome://messenger/skin/icons/new/normal/settings.svg");
+}
+
 .page-options-menu > .more-options-button {
   background-image: url("chrome://messenger/skin/icons/new/touch/settings.svg") !important;
   width: 24px !important;
