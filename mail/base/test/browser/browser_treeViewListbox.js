@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 let tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -132,10 +136,15 @@ async function testKeyboardAndMouse() {
 
   // Click on some individual rows.
 
-  function clickOnRow(index, modifiers = {}) {
+  const { TestUtils } = ChromeUtils.import(
+    "resource://testing-common/TestUtils.jsm"
+  );
+
+  async function clickOnRow(index, modifiers = {}) {
     if (modifiers.shiftKey) {
       info(`clicking on row ${index} with shift key`);
     } else if (modifiers.ctrlKey) {
+      // XXX: On macOS instead this should use the metaKey?
       info(`clicking on row ${index} with ctrl key`);
     } else {
       info(`clicking on row ${index}`);
@@ -145,67 +154,69 @@ async function testKeyboardAndMouse() {
     let y = index * 50 + 25;
 
     selectHandler.reset();
-    list.addEventListener("select", selectHandler);
+    list.addEventListener("select", selectHandler, { once: true });
     EventUtils.synthesizeMouse(list, x, y, modifiers, content);
-    list.removeEventListener("select", selectHandler);
-    Assert.ok(selectHandler.seenEvent, "'select' event fired as expected");
+    await TestUtils.waitForCondition(
+      () => selectHandler.seenEvent,
+      "'select' event did not get fired"
+    );
   }
 
-  clickOnRow(0);
+  await clickOnRow(0);
   checkCurrent(0);
   checkSelected(0);
 
-  clickOnRow(1);
+  await clickOnRow(1);
   checkCurrent(1);
   checkSelected(1);
 
-  clickOnRow(2);
+  await clickOnRow(2);
   checkCurrent(2);
   checkSelected(2);
 
   // Select multiple rows by shift-clicking.
 
-  clickOnRow(4, { shiftKey: true });
+  await clickOnRow(4, { shiftKey: true });
   checkCurrent(4);
   checkSelected(2, 3, 4);
 
-  clickOnRow(6, { shiftKey: true });
+  await clickOnRow(6, { shiftKey: true });
   checkCurrent(6);
   checkSelected(2, 3, 4, 5, 6);
 
-  clickOnRow(0, { shiftKey: true });
+  await clickOnRow(0, { shiftKey: true });
   checkCurrent(0);
   checkSelected(0, 1, 2);
 
-  clickOnRow(2, { shiftKey: true });
+  await clickOnRow(2, { shiftKey: true });
   checkCurrent(2);
   checkSelected(2);
 
   // Select multiple rows by ctrl-clicking.
 
-  clickOnRow(5, { ctrlKey: true });
+  await clickOnRow(5, { ctrlKey: true });
   checkCurrent(5);
   checkSelected(2, 5);
 
-  clickOnRow(1, { ctrlKey: true });
+  await clickOnRow(1, { ctrlKey: true });
   checkCurrent(1);
   checkSelected(1, 2, 5);
 
-  clickOnRow(5, { ctrlKey: true });
+  await clickOnRow(5, { ctrlKey: true });
   checkCurrent(5); // Is this right?
   checkSelected(1, 2);
 
-  clickOnRow(1, { ctrlKey: true });
+  await clickOnRow(1, { ctrlKey: true });
   checkCurrent(1); // Is this right?
   checkSelected(2);
 
-  clickOnRow(2, { ctrlKey: true });
+  await clickOnRow(2, { ctrlKey: true });
   checkCurrent(2); // Is this right?
   checkSelected();
 
   // Move around by pressing keys.
 
-  function pressKey(key, modifiers = {}, expectEvent = true) {
+  async function pressKey(key, modifiers = {}, expectEvent = true) {
     if (modifiers.shiftKey) {
       info(`pressing ${key} with shift key`);
     } else {
@@ -213,12 +224,10 @@ async function testKeyboardAndMouse() {
     }
 
     selectHandler.reset();
-    list.addEventListener("select", selectHandler);
+    list.addEventListener("select", selectHandler, { once: true });
     EventUtils.synthesizeKey(key, modifiers, content);
-    list.removeEventListener("select", selectHandler);
-    Assert.equal(
-      !!selectHandler.seenEvent,
-      expectEvent,
+    await TestUtils.waitForCondition(
+      () => !!selectHandler.seenEvent == expectEvent,
       `'select' event ${expectEvent ? "fired" : "did not fire"} as expected`
     );
   }
@@ -227,7 +236,7 @@ async function testKeyboardAndMouse() {
     return new Promise(r => content.setTimeout(r, 100));
   }
 
-  pressKey("VK_UP");
+  await pressKey("VK_UP");
   checkCurrent(1);
   checkSelected(1);
 
@@ -375,7 +384,7 @@ async function testKeyboardAndMouse() {
     listRect.bottom,
     "bottom of row 12 is not visible"
   );
-  clickOnRow(12);
+  await clickOnRow(12);
   await scrollingDelay();
   rows = list.querySelectorAll("test-listrow");
   bcr = rows[12].getBoundingClientRect();
@@ -385,7 +394,7 @@ async function testKeyboardAndMouse() {
   bcr = rows[0].getBoundingClientRect();
   Assert.less(bcr.top, listRect.top, "top of row 0 is not visible");
   Assert.greater(bcr.bottom, listRect.top, "bottom of row 0 is visible");
-  clickOnRow(0);
+  await clickOnRow(0);
   await scrollingDelay();
   rows = list.querySelectorAll("test-listrow");
   bcr = rows[0].getBoundingClientRect();
