@@ -112,16 +112,6 @@ progress {
   margin-top: 4px;
 }
 
-#leftNav {
-  color: var(--in-content-page-color);
-  background-color: var(--in-content-categories-background);
-  padding-top: 60px;
-  padding-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
 #main {
   padding: 40px 28px;
   overflow-y: auto;

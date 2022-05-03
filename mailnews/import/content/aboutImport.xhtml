@@ -22,55 +22,37 @@
   <script defer="" src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
 </head>
 <body>
-  <nav id="leftNav">
-    <ul>
-      <li id="tab-app"
-          class="tab"
-          data-l10n-id="import-from-app"/>
-      <li id="tab-addressBook"
-          class="tab"
-          data-l10n-id="import-address-book"/>
-      <li id="tab-calendar"
-          class="tab"
-          data-l10n-id="import-calendar"/>
-    </ul>
-    <ul>
-      <li id="tab-export"
-          class="tab"
-          data-l10n-id="export-profile"/>
-    </ul>
-  </nav>
   <main id="main">
-    <div id="tabPane-app" class="tabPane">
-      <section id="app-sources">
-        <h1 id="importFromApp" data-l10n-id="import-from-app"/>
-        <p data-l10n-id="import-from-app-desc"/>
+    <div id="tabPane-start" class="tabPane">
+      <section id="start-sources">
+        <h1 id="startSource" data-l10n-id="import-start"></h1>
+        <p data-l10n-id="import-start-desc"></p>
         <div class="source-list">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Thunderbird"
                    name="appSource"
-                   checked=""/>
-            <p data-l10n-id="app-name-thunderbird"/>
+                   checked="checked"/>
+            <p data-l10n-id="app-name-thunderbird"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Seamonkey"
                    name="appSource"/>
-            <p data-l10n-id="app-name-seamonkey"/>
+            <p data-l10n-id="app-name-seamonkey"></p>
           </label>
 #ifdef XP_WIN
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Outlook"
                    name="appSource"/>
-            <p data-l10n-id="app-name-outlook"/>
+            <p data-l10n-id="app-name-outlook"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Becky"
                    name="appSource"/>
-            <p data-l10n-id="app-name-becky"/>
+            <p data-l10n-id="app-name-becky"></p>
           </label>
 #endif
 #ifdef XP_MACOSX
@@ -78,66 +60,107 @@
             <input type="radio"
                    value="AppleMail"
                    name="appSource"/>
-            <p data-l10n-id="app-name-apple-mail"/>
+            <p data-l10n-id="app-name-apple-mail"></p>
           </label>
 #endif
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="file"
+                   name="appSource"/>
+            <p data-l10n-id="source-file"></p>
+          </label>
         </div>
       </section>
+      <section id="start-file">
+        <h1 id="startFile" data-l10n-id="import-from-file"></h1>
+        <div class="option-list">
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="profile"
+                   name="startFile"
+                   checked="checked"/>
+            <p data-l10n-id="file-profile"></p>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="calendar"
+                   name="startFile"/>
+            <p data-l10n-id="file-calendar"></p>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="addressbook"
+                   name="startFile"/>
+            <p data-l10n-id="file-addressbook"></p>
+          </label>
+        </div>
+      </section>
+      <footer class="buttons-container">
+        <button id="startBackButton"
+                onclick="startController.back()"
+                data-l10n-id="button-cancel"></button>
+        <button class="primary"
+                onclick="startController.next()"
+                data-l10n-id="button-continue"></button>
+      </footer>
+    </div>
+    <div id="tabPane-app" class="tabPane">
       <section id="app-profiles">
         <h1 id="profilesPaneTitle"/>
-        <p data-l10n-id="profiles-pane-desc"/>
-        <div class="profile-list" id="profileList"/>
+        <p data-l10n-id="profiles-pane-desc"></p>
+        <div class="profile-list" id="profileList"></div>
         <div class="profile-list" id="filePickerList">
           <div class="content-blocking-category">
             <label class="toggle-container-with-text">
               <input type="radio"
                     value="file-picker-dir"
                     name="appProfile"/>
-              <p data-l10n-id="profile-file-picker-dir"/>
+              <p data-l10n-id="profile-file-picker-dir"></p>
             </label>
           </div>
           <div class="content-blocking-category">
             <label class="toggle-container-with-text">
               <input type="radio"
                     value="file-picker-zip"
-                    name="appProfile"/>
-              <p data-l10n-id="profile-file-picker-zip"/>
+                    name="appProfile"
+                    id="appFilePickerZip"/>
+              <p data-l10n-id="profile-file-picker-zip"></p>
             </label>
           </div>
         </div>
       </section>
       <section id="app-items">
-        <h1 data-l10n-id="items-pane-title"/>
+        <h1 data-l10n-id="items-pane-title"></h1>
         <p>
-          <span data-l10n-id="items-pane-source"/>
-          <span id="appSourceProfilePath"/>
+          <span data-l10n-id="items-pane-source"></span>
+          <span id="appSourceProfilePath"></span>
         </p>
         <div class="option-list">
           <label class="toggle-container-with-text">
             <input type="checkbox" id="checkAccounts"/>
-            <span data-l10n-id="items-pane-checkbox-accounts"/>
+            <span data-l10n-id="items-pane-checkbox-accounts"></span>
           </label>
           <label class="toggle-container-with-text">
             <input type="checkbox" id="checkAddressBooks"/>
-            <span data-l10n-id="items-pane-checkbox-address-books"/>
+            <span data-l10n-id="items-pane-checkbox-address-books"></span>
           </label>
           <label class="toggle-container-with-text">
             <input type="checkbox" id="checkCalendars"/>
-            <span data-l10n-id="items-pane-checkbox-calendars"/>
+            <span data-l10n-id="items-pane-checkbox-calendars"></span>
           </label>
           <label class="toggle-container-with-text">
             <input type="checkbox" id="checkMailMessages"/>
-            <span data-l10n-id="items-pane-checkbox-mail-messages"/>
+            <span data-l10n-id="items-pane-checkbox-mail-messages"></span>
           </label>
         </div>
       </section>
       <footer class="buttons-container">
         <button id="profileBackButton"
                 onclick="profileController.back()"
-                data-l10n-id="button-cancel"/>
+                data-l10n-id="button-back"></button>
         <button class="primary"
                 onclick="profileController.next()"
-                data-l10n-id="button-continue"/>
+                data-l10n-id="button-continue"></button>
       </footer>
     </div>
 
@@ -151,124 +174,124 @@
                    value="csv"
                    name="addrBookSource"
                    checked=""/>
-            <p data-l10n-id="addr-book-csv-file"/>
+            <p data-l10n-id="addr-book-csv-file"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="ldif"
                    name="addrBookSource"/>
-            <p data-l10n-id="addr-book-ldif-file"/>
+            <p data-l10n-id="addr-book-ldif-file"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="vcard"
                    name="addrBookSource"/>
-            <p data-l10n-id="addr-book-vcard-file"/>
+            <p data-l10n-id="addr-book-vcard-file"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="sqlite"
                    name="addrBookSource"/>
-            <p data-l10n-id="addr-book-sqlite-file"/>
+            <p data-l10n-id="addr-book-sqlite-file"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="mab"
                    name="addrBookSource"/>
-            <p data-l10n-id="addr-book-mab-file"/>
+            <p data-l10n-id="addr-book-mab-file"></p>
           </label>
         </div>
       </section>
       <section id="addr-book-csvFieldMap">
-        <h1 data-l10n-id="addr-book-csv-field-map-title"/>
-        <p data-l10n-id="addr-book-csv-field-map-desc"/>
+        <h1 data-l10n-id="addr-book-csv-field-map-title"></h1>
+        <p data-l10n-id="addr-book-csv-field-map-desc"></p>
         <csv-field-map id="csvFieldMap"/>
       </section>
       <section id="addr-book-directories">
-        <h1 data-l10n-id="addr-book-directories-pane-title"/>
+        <h1 data-l10n-id="addr-book-directories-pane-title"></h1>
         <p>
-          <span data-l10n-id="addr-book-directories-pane-source"/>
-          <span id="addrBookSourcePath"/>
+          <span data-l10n-id="addr-book-directories-pane-source"></span>
+          <span id="addrBookSourcePath"></span>
         </p>
-        <div class="profile-list" id="directoryList"/>
+        <div class="profile-list" id="directoryList"></div>
         <div class="content-blocking-category">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value=".new"
                    name="addrBookDirectory"/>
-            <p data-l10n-id="addr-book-import-into-new-directory"/>
+            <p data-l10n-id="addr-book-import-into-new-directory"></p>
           </label>
         </div>
       </section>
       <footer class="buttons-container">
         <button id="addrBookBackButton"
                 onclick="addrBookController.back()"
-                data-l10n-id="button-cancel"/>
+                data-l10n-id="button-back"></button>
         <button class="primary"
                 onclick="addrBookController.next()"
-                data-l10n-id="button-continue"/>
+                data-l10n-id="button-continue"></button>
       </footer>
     </div>
 
     <div id="tabPane-calendar" class="tabPane">
       <section id="calendar-sources">
-        <h1 data-l10n-id="import-calendar"/>
-        <p data-l10n-id="import-from-calendar-file-desc"/>
+        <h1 data-l10n-id="import-calendar"></h1>
+        <p data-l10n-id="import-from-calendar-file-desc"></p>
       </section>
       <section id="calendar-items">
-        <h1 data-l10n-id="import-calendar"/>
+        <h1 data-l10n-id="import-calendar"></h1>
         <p>
-          <span data-l10n-id="addr-book-directories-pane-source"/>
-          <span id="calendarSourcePath"/>
+          <span data-l10n-id="addr-book-directories-pane-source"></span>
+          <span id="calendarSourcePath"></span>
         </p>
         <div id="calendarItemsTools">
           <input type="search"
                  data-l10n-id="calendar-items-filter-input"
                  oninput="calendarController.onFilterChange(this)"/>
           <button data-l10n-id="calendar-deselect-all-items"
-                  onclick="calendarController.selectAllItems(false)"/>
+                  onclick="calendarController.selectAllItems(false)"></button>
           <button data-l10n-id="calendar-select-all-items"
-                  onclick="calendarController.selectAllItems(true)"/>
+                  onclick="calendarController.selectAllItems(true)"></button>
         </div>
-        <div id="calendar-item-list"/>
+        <div id="calendar-item-list"></div>
       </section>
       <section id="calendar-calendars">
-        <h1 data-l10n-id="import-calendar"/>
-        <div class="profile-list" id="calendarList"/>
+        <h1 data-l10n-id="import-calendar"></h1>
+        <div class="profile-list" id="calendarList"></div>
         <div class="content-blocking-category">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value=".new"
                    name="targetCalendar"/>
-            <p data-l10n-id="calendar-import-into-new-calendar"/>
+            <p data-l10n-id="calendar-import-into-new-calendar"></p>
           </label>
         </div>
       </section>
       <footer class="buttons-container">
         <button id="calendarBackButton"
                 onclick="calendarController.back()"
-                data-l10n-id="button-cancel"/>
+                data-l10n-id="button-back"></button>
         <button class="primary"
                 id="calendarNextButton"
                 onclick="calendarController.next()"
-                data-l10n-id="button-continue"/>
+                data-l10n-id="button-continue"></button>
       </footer>
     </div>
 
     <div id="tabPane-export" class="tabPane">
-      <h1 data-l10n-id="export-profile"/>
-      <p data-l10n-id="export-profile-desc"/>
+      <h1 data-l10n-id="export-profile"></h1>
+      <p data-l10n-id="export-profile-desc"></p>
       <p>
-        <span data-l10n-id="export-profile-desc2"/>
+        <span data-l10n-id="export-profile-desc2"></span>
         <a data-l10n-id="export-open-profile-folder"
-           onclick="exportController.openProfileFolder()"/>
+           onclick="exportController.openProfileFolder()"></a>
       </p>
       <footer class="buttons-container">
         <button onclick="exportController.back()"
-                data-l10n-id="button-cancel"/>
+                data-l10n-id="button-cancel"></button>
         <button class="primary"
                 onclick="exportController.next()"
-                data-l10n-id="button-export"/>
+                data-l10n-id="button-export"></button>
       </footer>
     </div>
   </main>
@@ -276,11 +299,11 @@
     <section id="dialogPane-progress">
       <h3 id="progressPaneTitle"></h3>
       <progress id="progressDialogProgressBar"></progress>
-      <p id="progressPaneDesc"/>
+      <p id="progressPaneDesc"></p>
     </section>
     <section id="dialogPane-error">
       <h3 data-l10n-id="error-pane-title"></h3>
-      <p id="dialogError"/>
+      <p id="dialogError"></p>
     </section>
     <footer>
       <button id="progressDialogCancel"

@@ -6,9 +6,15 @@ import-page-title = Import
 
 ## Header
 
+import-start = Import Tool
+
+import-start-desc = Import settings or data from an application or file.
+
 import-from-app = Import from Application
 
 import-from-app-desc = Choose to import Accounts, Address Books, Calendars, and other data from:
+
+import-from-file = Import from File
 
 import-address-book = Import Address Book File
 
@@ -37,6 +43,16 @@ app-name-outlook = Outlook
 app-name-becky = Becky! Internet Mail
 
 app-name-apple-mail = Apple Mail
+
+source-file = Import from a File
+
+## Import from file selections
+
+file-profile = Import Backed-up Profile (.zip)
+
+file-calendar = Import Calendars
+
+file-addressbook = Import Address Books
 
 # Variables:
 #   $app (String) - The name of the app to import from

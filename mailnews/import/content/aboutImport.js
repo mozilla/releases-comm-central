@@ -76,7 +76,7 @@ class ImporterController {
 class ProfileImporterController extends ImporterController {
   constructor() {
     super("tabPane-app", "app");
-    this._showSources();
+    this._showProfiles([], false);
   }
 
   /**
@@ -90,13 +90,12 @@ class ProfileImporterController extends ImporterController {
     AppleMail: "AppleMailProfileImporter",
   };
 
+  _sourceAppName = "Thunderbird"; //TODO app brand name!
+
   back() {
     switch (this._currentPane) {
-      case "sources":
-        window.close();
-        break;
       case "profiles":
-        this._showSources();
+        showTab("tab-start");
         break;
       case "items":
         this._skipProfilesPane
@@ -108,9 +107,6 @@ class ProfileImporterController extends ImporterController {
 
   next() {
     switch (this._currentPane) {
-      case "sources":
-        this._onSelectSource();
-        break;
       case "profiles":
         this._onSelectProfile();
         break;
@@ -121,28 +117,18 @@ class ProfileImporterController extends ImporterController {
   }
 
   reset() {
-    this._showSources();
-  }
-
-  /**
-   * Show the sources pane.
-   */
-  async _showSources() {
-    this.showPane("sources");
-    document.getElementById(
-      "profileBackButton"
-    ).textContent = await document.l10n.formatValue("button-cancel");
+    this._showProfiles([], false);
   }
 
   /**
    * Handler for the Continue button on the sources pane.
+   *
+   * @param {string} source - Profile source to import.
+   * @param {string} sourceName - Name of the app to import from.
    */
-  async _onSelectSource() {
-    let checkedInput = [
-      ...document.querySelectorAll("input[name=appSource]"),
-    ].find(el => el.checked);
-    this._sourceAppName = checkedInput.parentElement.innerText;
-    let sourceModule = this._sourceModules[checkedInput.value];
+  async _onSelectSource(source, sourceName) {
+    this._sourceAppName = sourceName;
+    let sourceModule = this._sourceModules[source];
 
     let module = ChromeUtils.import(`resource:///modules/${sourceModule}.jsm`);
     this._importer = new module[sourceModule]();
@@ -159,10 +145,6 @@ class ProfileImporterController extends ImporterController {
     } else {
       progressDialog.showError("No profile found.");
     }
-
-    document.getElementById(
-      "profileBackButton"
-    ).textContent = await document.l10n.formatValue("button-back");
   }
 
   /**
@@ -170,13 +152,15 @@ class ProfileImporterController extends ImporterController {
    * @param {SourceProfile[]} profiles - An array of profiles.
    * @param {boolean} useFilePicker - Whether to render file pickers.
    */
-  async _showProfiles(profiles, useFilePicker) {
+  _showProfiles(profiles, useFilePicker) {
     this._sourceProfiles = profiles;
-    document.getElementById(
-      "profilesPaneTitle"
-    ).textContent = await document.l10n.formatValue("profiles-pane-title", {
-      app: this._sourceAppName,
-    });
+    document.l10n.setAttributes(
+      document.getElementById("profilesPaneTitle"),
+      "profiles-pane-title",
+      {
+        app: this._sourceAppName,
+      }
+    );
     let elProfileList = document.getElementById("profileList");
     elProfileList.hidden = !profiles.length;
     elProfileList.innerHTML = "";
@@ -423,7 +407,7 @@ class AddrBookImporterController extends ImporterController {
   back() {
     switch (this._currentPane) {
       case "sources":
-        window.close();
+        showTab("tab-start");
         break;
       case "csvFieldMap":
         this._showSources();
@@ -462,28 +446,24 @@ class AddrBookImporterController extends ImporterController {
   /**
    * Show the sources pane.
    */
-  async _showSources() {
+  _showSources() {
     this.showPane("sources");
-    document.getElementById(
-      "addrBookBackButton"
-    ).textContent = await document.l10n.formatValue("button-cancel");
   }
 
   /**
    * Handler for the Continue button on the sources pane.
    */
   async _onSelectSource() {
-    this._fileType = [
-      ...document.querySelectorAll("input[name=addrBookSource]"),
-    ].find(el => el.checked).value;
+    this._fileType = document.querySelector(
+      "input[name=addrBookSource]:checked"
+    );
     this._importer = new AddrBookFileImporter(this._fileType);
 
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    let [filePickerTitle, backButtonText] = await document.l10n.formatValues([
+    let [filePickerTitle] = await document.l10n.formatValues([
       "addr-book-file-picker",
-      "button-back",
     ]);
     filePicker.init(window, filePickerTitle, filePicker.modeOpen);
     let filter = {
@@ -505,7 +485,6 @@ class AddrBookImporterController extends ImporterController {
     this._sourceFile = filePicker.file;
     document.getElementById("addrBookSourcePath").textContent =
       filePicker.file.path;
-    document.getElementById("addrBookBackButton").textContent = backButtonText;
 
     if (this._fileType == "csv") {
       let unmatchedRows = await this._importer.parseCsvFile(filePicker.file);
@@ -627,7 +606,7 @@ class CalendarImporterController extends ImporterController {
   back() {
     switch (this._currentPane) {
       case "sources":
-        window.close();
+        showTab("tab-start");
         break;
       case "items":
         this._showSources();
@@ -695,11 +674,8 @@ class CalendarImporterController extends ImporterController {
   /**
    * Show the sources pane.
    */
-  async _showSources() {
+  _showSources() {
     this.showPane("sources");
-    document.getElementById(
-      "calendarBackButton"
-    ).textContent = await document.l10n.formatValue("button-cancel");
   }
 
   /**
@@ -722,9 +698,6 @@ class CalendarImporterController extends ImporterController {
 
     document.getElementById("calendarSourcePath").textContent =
       filePicker.file.path;
-    document.getElementById(
-      "calendarBackButton"
-    ).textContent = await document.l10n.formatValue("button-back");
 
     this._showItems();
   }
@@ -735,9 +708,7 @@ class CalendarImporterController extends ImporterController {
   async _showItems() {
     let elItemList = document.getElementById("calendar-item-list");
     document.getElementById("calendarItemsTools").hidden = true;
-    elItemList.textContent = await document.l10n.formatValue(
-      "calendar-items-loading"
-    );
+    document.l10n.setAttributes(elItemList, "calendar-items-loading");
     this.showPane("items");
 
     // Give the UI a chance to render.
@@ -929,6 +900,103 @@ class ExportController {
   }
 }
 
+class StartController extends ImporterController {
+  constructor() {
+    super("tabPane-start", "start");
+    this._showSources();
+  }
+
+  back() {
+    switch (this._currentPane) {
+      case "sources":
+        window.close();
+        break;
+      case "file":
+        this._showSources();
+        break;
+    }
+  }
+
+  next() {
+    switch (this._currentPane) {
+      case "sources":
+        this._onSelectSource();
+        break;
+      case "file":
+        this._onSelectFile();
+        break;
+    }
+  }
+
+  reset() {
+    this._showSources();
+  }
+
+  /**
+   * Show the sources pane.
+   */
+  _showSources() {
+    this.showPane("sources");
+    document.l10n.setAttributes(
+      document.getElementById("startBackButton"),
+      "button-cancel"
+    );
+  }
+
+  /**
+   * Handler for the Continue button on the sources pane.
+   */
+  _onSelectSource() {
+    let checkedInput = document.querySelector("input[name=appSource]:checked");
+
+    switch (checkedInput.value) {
+      case "file":
+        this._showFile();
+        break;
+      default:
+        profileController._onSelectSource(
+          checkedInput.value,
+          checkedInput.parentElement.textContent
+        );
+        showTab("tab-app");
+        // Don't change back button text, since we switch to app flow.
+        return;
+    }
+
+    document.l10n.setAttributes(
+      document.getElementById("startBackButton"),
+      "button-back"
+    );
+  }
+
+  _showFile() {
+    this.showPane("file");
+  }
+
+  async _onSelectFile() {
+    let checkedInput = document.querySelector("input[name=startFile]:checked");
+    switch (checkedInput.value) {
+      case "profile":
+        // Go to the import profile from zip file step in profile flow for TB.
+        await profileController._onSelectSource(
+          "Thunderbird",
+          document.querySelector("[data-l10n-id=app-name-thunderbird]")
+            .textContent
+        );
+        document.getElementById("appFilePickerZip").checked = true;
+        await profileController._onSelectProfile();
+        showTab("tab-app");
+        break;
+      case "calendar":
+        showTab("tab-calendar");
+        break;
+      case "addressbook":
+        showTab("tab-addressBook");
+        break;
+    }
+  }
+}
+
 /**
  * Control the #progressDialog element, to show importing progress and result.
  */
@@ -980,10 +1048,15 @@ let progressDialog = {
    *   controller.
    * @param {string} [title] - Pane title.
    */
-  async showProgress(importerController, title) {
-    document.getElementById("progressPaneTitle").textContent = title
-      ? title
-      : await document.l10n.formatValue("progress-pane-importing");
+  showProgress(importerController, title) {
+    if (title) {
+      document.getElementById("progressPaneTitle").textContent = title;
+    } else {
+      document.l10n.setAttributes(
+        document.getElementById("progressPaneTitle"),
+        "progress-pane-importing"
+      );
+    }
     this._showPane("progress");
     this.importerController = importerController;
     this._disableCancel(true);
@@ -1051,8 +1124,7 @@ let progressDialog = {
 
 /**
  * Show a specific importing tab.
- * @param {string} tabId - One of ["tab-app", "tab-addressBook", "tab-calendar",
- *   "tab-export"].
+ * @param {"tab-app"|"tab-addressBook"|"tab-calendar"|"tab-export"|"tab-start"} tabId - Tab to show.
  */
 function showTab(tabId) {
   let selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
@@ -1060,11 +1132,7 @@ function showTab(tabId) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }
   for (let el of document.querySelectorAll("[id^=tab-]")) {
-    if (el.id == tabId) {
-      el.classList.add("is-selected");
-    } else {
-      el.classList.remove("is-selected");
-    }
+    el.classList.toggle("is-selected", el.id == tabId);
   }
 }
 
@@ -1072,16 +1140,14 @@ let profileController;
 let addrBookController;
 let calendarController;
 let exportController;
+let startController;
 
 document.addEventListener("DOMContentLoaded", () => {
   profileController = new ProfileImporterController();
   addrBookController = new AddrBookImporterController();
   calendarController = new CalendarImporterController();
   exportController = new ExportController();
+  startController = new StartController();
   progressDialog.init();
-
-  for (let tab of document.querySelectorAll("[id^=tab-]")) {
-    tab.onclick = () => showTab(tab.id);
-  }
-  showTab("tab-app");
+  showTab("tab-start");
 });
