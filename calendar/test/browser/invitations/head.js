@@ -104,6 +104,7 @@ async function openMessageFromFile(file) {
     await BrowserTestUtils.browserLoaded(browser);
   }
 
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
   return win;
 }
 
@@ -145,8 +146,6 @@ async function clickMenuAction(win, buttonId, actionId) {
   let actionButton = win.document.getElementById(buttonId);
   Assert.ok(!actionButton.hidden, `"${buttonId}" shown`);
 
-  // The popup isn't always ready to open immediately, unclear why.
-  await new Promise(resolve => win.setTimeout(resolve, 200));
   let actionMenu = actionButton.querySelector("menupopup");
   let menuShown = BrowserTestUtils.waitForEvent(actionMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(actionButton.querySelector("dropmarker"), {}, win);
