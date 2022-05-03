@@ -27,18 +27,36 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
 });
 
 var KeyLookupHelper = {
-  async lookupAndImportOnKeyserver(
-    mode,
-    window,
-    identifier,
-    giveFeedbackToUser
-  ) {
+  /**
+   * Internal helper function, search for keys by either keyID
+   * or email address on a keyserver.
+   * Returns additional flags regarding lookup and import.
+   * Will never show feedback prompts.
+   *
+   * @param {string} mode - "interactive-import" or "silent-collection"
+   *    In interactive-import mode, the user will be asked to confirm
+   *    import of keys into the permanent keyring.
+   *    In silent-collection mode, only updates to existing keys will
+   *    be imported. New keys will only be added to CollectedKeysDB.
+   * @param {nsIWindow} window - parent window
+   * @param {string} identifier - search value, either key ID or fingerprint or email address.
+   * @returns {Object} flags
+   * @returns {boolean} flags.keyImported - At least one key was imported.
+   * @returns {boolean} flags.foundUpdated - At least one update for a local existing key was found and imported.
+   * @returns {boolean} flags.foundUnchanged - All found keys are identical to already existing local keys.
+   * @returns {boolean} flags.collectedForLater - At least one key was added to CollectedKeysDB.
+   */
+  async _lookupAndImportOnKeyserver(mode, window, identifier) {
+    let keyImported = false;
+    let foundUpdated = false;
+    let foundUnchanged = false;
+    let collectedForLater = false;
+
     let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
     if (!defKs) {
       return false;
     }
 
-    let somethingWasImported = false;
     let vks = await EnigmailKeyServer.downloadNoImport(identifier, defKs);
     if (vks && "keyData" in vks) {
       let errorInfo = {};
@@ -49,13 +67,9 @@ var KeyLookupHelper = {
         true,
         false
       );
-      if (keyList) {
-        if (keyList.length != 1) {
-          throw new Error(
-            "Unexpected multiple results from verifying keyserver."
-          );
-        }
-
+      // We might get a zero length keyList, if we refuse to use the key
+      // that we received because of its properties.
+      if (keyList && keyList.length == 1) {
         let oldKey = EnigmailKeyRing.getKeyById(keyList[0].fpr);
         if (oldKey) {
           await EnigmailKeyRing.importKeyDataSilent(
@@ -69,24 +83,28 @@ var KeyLookupHelper = {
           // If new imported/merged key is equal to old key,
           // don't notify about new keys details.
           if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
-            somethingWasImported = true;
+            foundUpdated = true;
+            keyImported = true;
             if (mode == "interactive-import") {
               EnigmailDialog.keyImportDlg(
                 window,
                 keyList.map(a => a.id)
               );
             }
+          } else {
+            foundUnchanged = true;
           }
         } else {
           if (mode == "interactive-import") {
-            somethingWasImported = await EnigmailKeyRing.importKeyDataWithConfirmation(
+            keyImported = await EnigmailKeyRing.importKeyDataWithConfirmation(
               window,
               keyList,
               vks.keyData,
               true
             );
           }
-          if (!somethingWasImported) {
+          if (!keyImported) {
+            collectedForLater = true;
             let db = await CollectedKeysDB.getInstance();
             for (let newKey of keyList) {
               // If key is known in the db: merge + update.
@@ -96,11 +114,15 @@ var KeyLookupHelper = {
               });
               await db.storeKey(key);
             }
-            somethingWasImported = true;
           }
         }
       } else {
-        console.log(
+        if (keyList.length > 1) {
+          throw new Error(
+            "Unexpected multiple results from verifying keyserver."
+          );
+        }
+        console.debug(
           "failed to process data retrieved from keyserver: " + errorInfo.value
         );
       }
@@ -108,52 +130,69 @@ var KeyLookupHelper = {
       console.debug("searchKeysOnInternet no data found on keyserver");
     }
 
-    return somethingWasImported;
+    return { keyImported, foundUpdated, foundUnchanged, collectedForLater };
   },
 
   /**
-   * @param {string} searchTerm - The 0x prefxed keyId or email address to search for.
-   * @param {boolean} giveFeedbackToUser - Whether to show feedback to user or handle it silently.
-   * @return {boolean} true if a key was imported
+   * Search online for keys by key ID on keyserver.
+   *
+   * @param {string} mode - "interactive-import" or "silent-collection"
+   *    In interactive-import mode, the user will be asked to confirm
+   *    import of keys into the permanent keyring.
+   *    In silent-collection mode, only updates to existing keys will
+   *    be imported. New keys will only be added to CollectedKeysDB.
+   * @param {nsIWindow} window - parent window
+   * @param {string} keyId - the key ID to search for.
+   * @param {boolean} giveFeedbackToUser - false to be silent,
+   *    true to show feedback to user after search and import is complete.
+   * @return {boolean} - true if at least one key was imported.
    */
-  async lookupAndImportBySearchTerm(
-    mode,
-    window,
-    searchTerm,
-    giveFeedbackToUser
-  ) {
-    let somethingWasImported = await this.lookupAndImportOnKeyserver(
-      mode,
-      window,
-      searchTerm,
-      giveFeedbackToUser
-    );
-    return somethingWasImported;
-  },
-
   async lookupAndImportByKeyID(mode, window, keyId, giveFeedbackToUser) {
     if (!/^0x/i.test(keyId)) {
       keyId = "0x" + keyId;
     }
-    let somethingWasImported = await this.lookupAndImportBySearchTerm(
+    let importResult = await this._lookupAndImportOnKeyserver(
       mode,
       window,
-      keyId,
-      giveFeedbackToUser
+      keyId
     );
     if (
       mode == "interactive-import" &&
       giveFeedbackToUser &&
-      !somethingWasImported
+      !importResult.keyImported
     ) {
-      let value = await l10n.formatValue("no-key-found");
+      let msgId;
+      if (importResult.foundUnchanged) {
+        msgId = "no-update-found";
+      } else {
+        msgId = "no-key-found2";
+      }
+      let value = await l10n.formatValue(msgId);
       EnigmailDialog.alert(window, value);
     }
-    return somethingWasImported;
+    return importResult.keyImported;
   },
 
+  /**
+   * Search online for keys by email address.
+   * Will search both WKD and keyserver.
+   *
+   * @param {string} mode - "interactive-import" or "silent-collection"
+   *    In interactive-import mode, the user will be asked to confirm
+   *    import of keys into the permanent keyring.
+   *    In silent-collection mode, only updates to existing keys will
+   *    be imported. New keys will only be added to CollectedKeysDB.
+   * @param {nsIWindow} window - parent window
+   * @param {string} email - the email address to search for.
+   * @param {boolean} giveFeedbackToUser - false to be silent,
+   *    true to show feedback to user after search and import is complete.
+   * @return {boolean} - true if at least one key was imported.
+   */
   async lookupAndImportByEmail(mode, window, email, giveFeedbackToUser) {
-    let somethingWasImported = false;
+    let resultKeyImported = false;
+
+    let wkdKeyImported = false;
+    let wkdFoundUnchanged = false;
 
     let wkdResult;
     let wkdUrl;
@@ -179,7 +218,7 @@ var KeyLookupHelper = {
         true
       );
       if (!keyList) {
-        console.log(
+        console.debug(
           "failed to process data retrieved from WKD server: " + errorInfo.value
         );
       } else {
@@ -200,7 +239,11 @@ var KeyLookupHelper = {
             // If new imported/merged key is equal to old key,
             // don't notify about new keys details.
             if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
+              // If a caller ever needs information what we found,
+              // this is the place to set: wkdFoundUpdated = true
               existingKeys.push(wkdKey.id);
+            } else {
+              wkdFoundUnchanged = true;
             }
           } else {
             newKeys.push(wkdKey);
@@ -211,17 +254,21 @@ var KeyLookupHelper = {
           if (mode == "interactive-import") {
             EnigmailDialog.keyImportDlg(window, existingKeys);
           }
-          somethingWasImported = true;
+          wkdKeyImported = true;
         }
 
         if (newKeys.length && mode == "interactive-import") {
-          somethingWasImported = await EnigmailKeyRing.importKeyArrayWithConfirmation(
-            window,
-            newKeys,
-            true
-          );
+          wkdKeyImported =
+            wkdKeyImported ||
+            (await EnigmailKeyRing.importKeyArrayWithConfirmation(
+              window,
+              newKeys,
+              true
+            ));
         }
-        if (!somethingWasImported) {
+        if (!wkdKeyImported) {
+          // If a caller ever needs information what we found,
+          // this is the place to set: wkdCollectedForLater = true
           let db = await CollectedKeysDB.getInstance();
           for (let newKey of newKeys) {
             // If key is known in the db: merge + update.
@@ -231,29 +278,33 @@ var KeyLookupHelper = {
             });
             await db.storeKey(key);
           }
-          somethingWasImported = true;
         }
       }
     }
 
-    let somethingWasImported2 = await this.lookupAndImportBySearchTerm(
-      mode,
-      window,
-      email,
-      giveFeedbackToUser
-    );
+    let {
+      keyImported,
+      foundUnchanged,
+    } = await this._lookupAndImportOnKeyserver(mode, window, email);
+    resultKeyImported = wkdKeyImported || keyImported;
 
     if (
       mode == "interactive-import" &&
       giveFeedbackToUser &&
-      !somethingWasImported &&
-      !somethingWasImported2
+      !resultKeyImported &&
+      !keyImported
     ) {
-      let value = await l10n.formatValue("no-key-found");
+      let msgId;
+      if (wkdFoundUnchanged || foundUnchanged) {
+        msgId = "no-update-found";
+      } else {
+        msgId = "no-key-found2";
+      }
+      let value = await l10n.formatValue(msgId);
       EnigmailDialog.alert(window, value);
     }
 
-    return somethingWasImported || somethingWasImported2;
+    return resultKeyImported;
   },
 
   /**

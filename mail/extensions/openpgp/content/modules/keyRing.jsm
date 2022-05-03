@@ -963,7 +963,7 @@ var EnigmailKeyRing = {
         }
       }
     } else {
-      l10n.formatValue("no-key-found").then(value => {
+      l10n.formatValue("no-key-found2").then(value => {
         EnigmailDialog.alert(window, value);
       });
     }
@@ -1022,7 +1022,7 @@ var EnigmailKeyRing = {
         }
       }
     } else {
-      l10n.formatValue("no-key-found").then(value => {
+      l10n.formatValue("no-key-found2").then(value => {
         EnigmailDialog.alert(window, value);
       });
     }

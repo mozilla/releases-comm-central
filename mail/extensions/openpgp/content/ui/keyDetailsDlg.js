@@ -33,6 +33,9 @@ var { EnigmailDialog } = ChromeUtils.import(
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+var { KeyLookupHelper } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyLookupHelper.jsm"
+);
 
 var gModePersonal = false;
 
@@ -127,6 +130,23 @@ async function changeExpiry() {
     "dialog,modal,centerscreen,resizable",
     args
   );
+}
+
+async function refreshOnline() {
+  let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
+  if (!keyObj) {
+    return;
+  }
+
+  let imported = await KeyLookupHelper.lookupAndImportByKeyID(
+    "interactive-import",
+    window,
+    keyObj.fpr,
+    true
+  );
+  if (imported) {
+    onDataModified();
+  }
 }
 
 function onAcceptanceChanged() {

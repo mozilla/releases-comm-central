@@ -172,7 +172,7 @@ async function discoverKey() {
   if (foundNewData) {
     reloadAndSelect();
   } else {
-    let value = await document.l10n.formatValue("no-key-found");
+    let value = await document.l10n.formatValue("no-key-found2");
     EnigmailDialog.alert(window, value);
   }
 }

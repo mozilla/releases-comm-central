@@ -202,6 +202,9 @@ openpgp-key-man-reload =
 openpgp-key-man-change-expiry =
     .label = Change Expiration Date
     .accesskey = E
+openpgp-key-man-refresh-online =
+    .label = Refresh Online
+    .accesskey = R
 openpgp-key-man-ignored-ids =
     .label = Email addresses
 openpgp-key-man-del-key =
@@ -584,7 +587,8 @@ key-error-not-accepted-as-personal = You have not confirmed that the key with ID
 need-online = The function you have selected is not available in offline mode. Please go online and try again.
 
 # Strings used in keyRing.jsm & keyLookupHelper.jsm
-no-key-found = We could not find any key matching the specified search criteria.
+no-key-found2 = We couldn’t find any usable key matching the specified search criteria.
+no-update-found = You already have the keys that were discovered online.
 
 # Strings used in keyRing.jsm & GnuPGCryptoAPI.jsm
 fail-key-extract = Error - key extraction command failed

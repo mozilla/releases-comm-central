@@ -351,7 +351,6 @@ async function getSiteSpecificUrl(emailAddr) {
   if (!url) {
     let records = await DNS.mx(domain);
     const mxHosts = records.filter(record => record.host);
-    console.debug(mxHosts);
 
     if (
       mxHosts &&
