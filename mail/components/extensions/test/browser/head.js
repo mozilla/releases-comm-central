@@ -406,6 +406,8 @@ async function checkComposeHeaders(expected) {
   let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
   is(composeWindows.length, 1);
   let composeDocument = composeWindows[0].document;
+  let composeFields = composeWindows[0].gMsgCompose.compFields;
+
   await new Promise(resolve => composeWindows[0].setTimeout(resolve));
 
   if ("identityId" in expected) {
@@ -443,6 +445,44 @@ async function checkComposeHeaders(expected) {
     is(subject, expected.subject, "subject is correct");
   } else {
     is(subject, "", "subject is empty");
+  }
+
+  if (expected.overrideDefaultFcc) {
+    if (expected.overrideDefaultFccFolder) {
+      let server = MailServices.accounts.getAccount(
+        expected.overrideDefaultFccFolder.accountId
+      ).incomingServer;
+      let rootURI = server.rootFolder.URI;
+      is(
+        rootURI + expected.overrideDefaultFccFolder.path,
+        composeFields.fcc,
+        "fcc should be correct"
+      );
+    } else {
+      ok(
+        composeFields.fcc.startsWith("nocopy://"),
+        "fcc should start with nocopy://"
+      );
+    }
+  } else {
+    is("", composeFields.fcc, "fcc should be empty");
+  }
+
+  if (expected.additionalFccFolder) {
+    let server = MailServices.accounts.getAccount(
+      expected.additionalFccFolder.accountId
+    ).incomingServer;
+    let rootURI = server.rootFolder.URI;
+    is(
+      rootURI + expected.additionalFccFolder.path,
+      composeFields.fcc2,
+      "fcc2 should be correct"
+    );
+  } else {
+    ok(
+      composeFields.fcc2 == "" || composeFields.fcc2.startsWith("nocopy://"),
+      "fcc2 should not contain a folder uri"
+    );
   }
 }
 

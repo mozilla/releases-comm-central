@@ -183,11 +183,7 @@ var MsgUtils = {
    * @returns {string}
    */
   getFcc(userIdentity, compFields, originalMsgURI, compType) {
-    // If the identity pref "fcc" is set to false, then we will not do
-    // any FCC operation!
-    if (!userIdentity.doFcc) {
-      return "";
-    }
+    // Check if the default fcc has been overridden.
     let fcc = "";
     let useDefaultFcc = true;
     if (compFields.fcc) {
@@ -201,6 +197,12 @@ var MsgUtils = {
           fcc = compFields.fcc;
         }
       }
+    }
+
+    // If the identity pref "fcc" is set to false, then we will not do the default
+    // FCC operation but still allow the override.
+    if (!userIdentity.doFcc) {
+      return fcc;
     }
 
     // We use default FCC setting if it's not set or was set to an invalid

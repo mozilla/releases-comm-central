@@ -268,3 +268,179 @@ add_task(async function testType() {
   await extension.awaitFinish("Finish");
   await extension.unload();
 });
+
+add_task(async function testFcc() {
+  let files = {
+    "background.js": async () => {
+      async function checkWindow(createdTab, expected) {
+        let state = await browser.compose.getComposeDetails(createdTab.id);
+
+        browser.test.assertEq(
+          expected.overrideDefaultFcc,
+          state.overrideDefaultFcc,
+          "overrideDefaultFcc should be correct"
+        );
+
+        if (expected.overrideDefaultFccFolder) {
+          window.assertDeepEqual(
+            state.overrideDefaultFccFolder,
+            expected.overrideDefaultFccFolder,
+            "overrideDefaultFccFolder should be correct"
+          );
+        } else {
+          browser.test.assertEq(
+            expected.overrideDefaultFccFolder,
+            state.overrideDefaultFccFolder,
+            "overrideDefaultFccFolder should be correct"
+          );
+        }
+
+        if (expected.additionalFccFolder) {
+          window.assertDeepEqual(
+            state.additionalFccFolder,
+            expected.additionalFccFolder,
+            "additionalFccFolder should be correct"
+          );
+        } else {
+          browser.test.assertEq(
+            expected.additionalFccFolder,
+            state.additionalFccFolder,
+            "additionalFccFolder should be correct"
+          );
+        }
+
+        await window.sendMessage("checkWindow", expected);
+      }
+
+      let [account] = await browser.accounts.list();
+      let folder1 = account.folders.find(f => f.name == "Trash");
+      let folder2 = account.folders.find(f => f.name == "drafts");
+
+      // Start a new message.
+
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew();
+      let [createdWindow] = await createdWindowPromise;
+      let [createdTab] = await browser.tabs.query({
+        windowId: createdWindow.id,
+      });
+
+      await checkWindow(createdTab, {
+        overrideDefaultFcc: false,
+        overrideDefaultFccFolder: null,
+        additionalFccFolder: "",
+      });
+
+      await browser.test.assertRejects(
+        browser.compose.setComposeDetails(createdTab.id, {
+          overrideDefaultFcc: true,
+        }),
+        "Setting overrideDefaultFcc to true requires setting overrideDefaultFccFolder as well",
+        "browser.compose.setComposeDetails() should reject setting overrideDefaultFcc to true."
+      );
+
+      // Set folders.
+      await browser.compose.setComposeDetails(createdTab.id, {
+        overrideDefaultFccFolder: folder1,
+        additionalFccFolder: folder2,
+      });
+      await checkWindow(createdTab, {
+        overrideDefaultFcc: true,
+        overrideDefaultFccFolder: folder1,
+        additionalFccFolder: folder2,
+      });
+
+      // Setting overrideDefaultFcc true while it is already true should not change any values.
+      await browser.compose.setComposeDetails(createdTab.id, {
+        overrideDefaultFcc: true,
+      });
+      await checkWindow(createdTab, {
+        overrideDefaultFcc: true,
+        overrideDefaultFccFolder: folder1,
+        additionalFccFolder: folder2,
+      });
+
+      // A no-op should not change any values.
+      await browser.compose.setComposeDetails(createdTab.id, {});
+      await checkWindow(createdTab, {
+        overrideDefaultFcc: true,
+        overrideDefaultFccFolder: folder1,
+        additionalFccFolder: folder2,
+      });
+
+      // Disable fcc.
+      await browser.compose.setComposeDetails(createdTab.id, {
+        overrideDefaultFccFolder: "",
+      });
+      await checkWindow(createdTab, {
+        overrideDefaultFcc: true,
+        overrideDefaultFccFolder: "",
+        additionalFccFolder: folder2,
+      });
+
+      // Disable additional fcc.
+      await browser.compose.setComposeDetails(createdTab.id, {
+        additionalFccFolder: "",
+      });
+      await checkWindow(createdTab, {
+        overrideDefaultFcc: true,
+        overrideDefaultFccFolder: "",
+        additionalFccFolder: "",
+      });
+
+      // Clear override.
+      await browser.compose.setComposeDetails(createdTab.id, {
+        overrideDefaultFcc: false,
+      });
+      await checkWindow(createdTab, {
+        overrideDefaultFcc: false,
+        overrideDefaultFccFolder: null,
+        additionalFccFolder: "",
+      });
+
+      await browser.test.assertRejects(
+        browser.compose.setComposeDetails(createdTab.id, {
+          overrideDefaultFccFolder: {
+            path: "/bad",
+            accountId: folder1.accountId,
+          },
+        }),
+        `Invalid MailFolder: {accountId:${folder1.accountId}, path:/bad}`,
+        "browser.compose.setComposeDetails() should reject, if an invalid folder is set as overrideDefaultFccFolder."
+      );
+
+      await browser.test.assertRejects(
+        browser.compose.setComposeDetails(createdTab.id, {
+          additionalFccFolder: { path: "/bad", accountId: folder1.accountId },
+        }),
+        `Invalid MailFolder: {accountId:${folder1.accountId}, path:/bad}`,
+        "browser.compose.setComposeDetails() should reject, if an invalid folder is set as additionalFccFolder."
+      );
+
+      // Clean up.
+
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdWindow.id);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("checkWindow", async expected => {
+    await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

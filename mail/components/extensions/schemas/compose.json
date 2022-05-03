@@ -101,6 +101,41 @@
             "$ref": "ComposeRecipientList",
             "optional": true
           },
+          "overrideDefaultFcc": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting ``false`` will clear the override. Setting ``true`` will throw an exception, if ``overrideDefaultFccFolder`` is not set as well."
+          },
+          "overrideDefaultFccFolder": {
+            "choices": [
+              {
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  ""
+                ]
+              }
+            ],
+            "optional": true,
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolder` specifying the folder for the copy of the sent message, or ``\"\"`` to not save a copy at all."
+          },
+          "additionalFccFolder": {
+            "choices": [
+              {
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  ""
+                ]
+              }
+            ],
+            "description": "An additional fcc folder which can be selected while composing the message, ``\"\"`` if not used.",
+            "optional": true
+          },
           "replyTo": {
             "$ref": "ComposeRecipientList",
             "optional": true

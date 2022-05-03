@@ -14,6 +14,8 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
 
@@ -310,7 +312,7 @@ async function getComposeDetails(composeWindow, extension) {
     }
   }
 
-  let customHeaders = [...composeWindow.gMsgCompose.compFields.headerNames]
+  let customHeaders = [...composeFields.headerNames]
     .map(h => h.toLowerCase())
     .filter(h => h.startsWith("x-"))
     .map(h => {
@@ -319,15 +321,41 @@ async function getComposeDetails(composeWindow, extension) {
         name: h.replace(/(^|-)[a-z]/g, function(match) {
           return match.toUpperCase();
         }),
-        value: composeWindow.gMsgCompose.compFields.getHeader(h),
+        value: composeFields.getHeader(h),
       };
     });
+
+  // We have two file carbon copy settings: fcc and fcc2. fcc allows to override
+  // the default identity fcc and fcc2 is coupled to the UI selection.
+  let overrideDefaultFcc = false;
+  if (composeFields.fcc && composeFields.fcc != "") {
+    overrideDefaultFcc = true;
+  }
+  let overrideDefaultFccFolder = "";
+  if (overrideDefaultFcc && !composeFields.fcc.startsWith("nocopy://")) {
+    let folder = MailUtils.getExistingFolder(composeFields.fcc);
+    if (folder) {
+      overrideDefaultFccFolder = convertFolder(folder);
+    }
+  }
+  let additionalFccFolder = "";
+  if (composeFields.fcc2 && !composeFields.fcc2.startsWith("nocopy://")) {
+    let folder = MailUtils.getExistingFolder(composeFields.fcc2);
+    if (folder) {
+      additionalFccFolder = convertFolder(folder);
+    }
+  }
 
   let details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
     to: composeFields.splitRecipients(composeFields.to, false),
     cc: composeFields.splitRecipients(composeFields.cc, false),
     bcc: composeFields.splitRecipients(composeFields.bcc, false),
+    overrideDefaultFcc,
+    overrideDefaultFccFolder: overrideDefaultFcc
+      ? overrideDefaultFccFolder
+      : null,
+    additionalFccFolder,
     type,
     relatedMessageId,
     replyTo: composeFields.splitRecipients(composeFields.replyTo, false),
@@ -438,8 +466,58 @@ async function setComposeDetails(composeWindow, details, extension) {
   if (Array.isArray(details.newsgroups)) {
     details.newsgroups = details.newsgroups.join(",");
   }
+
   composeWindow.SetComposeDetails(details);
   await setFromField(composeWindow, details, extension);
+
+  // Set file carbon copy values.
+  if (details.overrideDefaultFcc === false) {
+    composeWindow.gMsgCompose.compFields.fcc = "";
+  } else if (details.overrideDefaultFccFolder != null) {
+    // Override identity fcc with enforced value.
+    if (details.overrideDefaultFccFolder) {
+      let uri = folderPathToURI(
+        details.overrideDefaultFccFolder.accountId,
+        details.overrideDefaultFccFolder.path
+      );
+      let folder = MailUtils.getExistingFolder(uri);
+      if (folder) {
+        composeWindow.gMsgCompose.compFields.fcc = uri;
+      } else {
+        throw new ExtensionError(
+          `Invalid MailFolder: {accountId:${details.overrideDefaultFccFolder.accountId}, path:${details.overrideDefaultFccFolder.path}}`
+        );
+      }
+    } else {
+      composeWindow.gMsgCompose.compFields.fcc = "nocopy://";
+    }
+  } else if (
+    details.overrideDefaultFcc === true &&
+    composeWindow.gMsgCompose.compFields.fcc == ""
+  ) {
+    throw new ExtensionError(
+      `Setting overrideDefaultFcc to true requires setting overrideDefaultFccFolder as well`
+    );
+  }
+
+  if (details.additionalFccFolder != null) {
+    if (details.additionalFccFolder) {
+      let uri = folderPathToURI(
+        details.additionalFccFolder.accountId,
+        details.additionalFccFolder.path
+      );
+      let folder = MailUtils.getExistingFolder(uri);
+      if (folder) {
+        composeWindow.gMsgCompose.compFields.fcc2 = uri;
+      } else {
+        throw new ExtensionError(
+          `Invalid MailFolder: {accountId:${details.additionalFccFolder.accountId}, path:${details.additionalFccFolder.path}}`
+        );
+      }
+    } else {
+      composeWindow.gMsgCompose.compFields.fcc2 = "";
+    }
+  }
 
   // Update custom headers, if specified.
   if (details.customHeaders) {
