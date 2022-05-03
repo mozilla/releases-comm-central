@@ -39,7 +39,6 @@ reference-jobs:
     - linux64-nasm
     - linux64-node
     - linux64-rust
-    - linux64-rust-1.47
     - linux64-rust-cross
     - linux64-rust-dev
     - linux64-rust-macos
