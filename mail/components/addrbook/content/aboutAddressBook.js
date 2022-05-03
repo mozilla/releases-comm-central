@@ -1721,10 +1721,14 @@ var detailsPane = {
   init() {
     this.form = document.getElementById("detailsPane");
     this.editButton = document.getElementById("editButton");
+    this.deleteEditButton = document.getElementById("deleteEditButton");
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
 
     this.editButton.addEventListener("click", () => this.editCurrentContact());
+    this.deleteEditButton.addEventListener("click", () =>
+      this.deleteCurrentContact()
+    );
     this.form.addEventListener("input", event => {
       let { type, checked, value, _originalValue } = event.target;
       let changed;
@@ -2073,6 +2077,8 @@ var detailsPane = {
 
     this.calculateAge();
 
+    this.deleteEditButton.hidden = !card;
+
     this.isEditing = true;
     this.form.hidden = false;
     this.form.scrollTo(0, 0);
@@ -2153,6 +2159,59 @@ var detailsPane = {
       this.displayContact(card);
     }
     cardsPane.cardsList.focus();
+  },
+
+  /**
+   * Delete the currently displayed card.
+   */
+  async deleteCurrentContact() {
+    let card = this.currentCard;
+    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+
+    if (!book) {
+      throw new Components.Exception(
+        "Card doesn't have a book to delete from",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    if (book.readOnly) {
+      throw new Components.Exception(
+        "Address book is read-only",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    let name = card.displayName;
+    let [title, message] = await document.l10n.formatValues([
+      {
+        id: "about-addressbook-confirm-delete-contacts-title",
+        args: { count: 1 },
+      },
+      {
+        id: "about-addressbook-confirm-delete-contacts",
+        args: { name, count: 1 },
+      },
+    ]);
+
+    if (
+      Services.prompt.confirmEx(
+        window,
+        title,
+        message,
+        Ci.nsIPromptService.STD_YES_NO_BUTTONS,
+        null,
+        null,
+        null,
+        null,
+        {}
+      ) === 0
+    ) {
+      book.deleteCards([card]);
+      this.isEditing = false;
+      cardsPane.cardsList.dispatchEvent(new CustomEvent("select"));
+      cardsPane.cardsList.focus();
+    }
   },
 
   /**
