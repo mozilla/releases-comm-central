@@ -1470,7 +1470,7 @@
      * @type {integer}
      */
     get selectedIndex() {
-      if (!this._selection.count) {
+      if (!this._selection?.count) {
         return -1;
       }
 

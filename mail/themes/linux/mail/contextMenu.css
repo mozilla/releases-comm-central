@@ -4,10 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/contextMenu.css");
 
-menupopup[needsgutter] .menu-text {
-  margin-inline-start: 21px !important;
-}
-
 menupopup > menuitem:is([type="checkbox"],[type="radio"],[checked="true"]) {
   appearance: none !important;
 }

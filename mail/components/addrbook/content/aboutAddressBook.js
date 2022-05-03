@@ -1114,6 +1114,13 @@ var cardsPane = {
     this.cardsList = document.getElementById("cards");
     this.cardContext = document.getElementById("cardContext");
 
+    if (
+      Services.xulStore.getValue("about:addressbook", "cardsPane", "layout") ==
+      "table"
+    ) {
+      this.toggleLayout(true);
+    }
+
     let nameFormat = Services.prefs.getIntPref(
       "mail.addr_book.lastnamefirst",
       0
@@ -1169,6 +1176,22 @@ var cardsPane = {
         this._onContextMenu(event);
         break;
     }
+  },
+
+  /**
+   * Switch between list and table layouts.
+   *
+   * @param {?boolean} isTableLayout - Use table layout if `true` or list
+   *   layout if `false`. If unspecified, switch layouts.
+   */
+  toggleLayout(isTableLayout) {
+    isTableLayout = document.body.classList.toggle(
+      "layout-table",
+      isTableLayout
+    );
+    document.body.classList.toggle("layout-list", !isTableLayout);
+
+    this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
   },
 
   /**
@@ -1549,6 +1572,12 @@ var cardsPane = {
     }
 
     switch (event.target.id) {
+      case "sortContextTableLayout":
+        this.toggleLayout(true);
+        break;
+      case "sortContextListLayout":
+        this.toggleLayout(false);
+        break;
       case "cardContextWrite":
         this.writeToSelected();
         return;
@@ -1714,6 +1743,24 @@ var detailsPane = {
   dirtyFields: new Set(),
 
   init() {
+    this.splitter = document.getElementById("detailsSplitter");
+    let splitterHeight = Services.xulStore.getValue(
+      "about:addressbook",
+      "detailsSplitter",
+      "height"
+    );
+    if (splitterHeight) {
+      this.splitter.height = splitterHeight;
+    }
+    this.splitter.addEventListener("splitter-resized", () =>
+      Services.xulStore.setValue(
+        "about:addressbook",
+        "detailsSplitter",
+        "height",
+        this.splitter.height
+      )
+    );
+
     this.form = document.getElementById("detailsPane");
     this.writeButton = document.getElementById("detailsWriteButton");
     this.eventButton = document.getElementById("detailsEventButton");
@@ -1900,7 +1947,7 @@ var detailsPane = {
 
     this.currentCard = card;
     if (!card || card.isMailList) {
-      this.form.hidden = true;
+      this.form.hidden = this.splitter.isCollapsed = true;
       return;
     }
 
@@ -2156,7 +2203,7 @@ var detailsPane = {
 
     this.isEditing = false;
     this.form.scrollTo(0, 0);
-    this.form.hidden = false;
+    this.form.hidden = this.splitter.isCollapsed = false;
   },
 
   /**
@@ -2200,7 +2247,7 @@ var detailsPane = {
     this.deleteButton.hidden = !card;
 
     this.isEditing = true;
-    this.form.hidden = false;
+    this.form.hidden = this.splitter.isCollapsed = false;
     this.form.scrollTo(0, 0);
     vCardEdit.setFocus();
   },
