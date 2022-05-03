@@ -24,11 +24,15 @@ const STARTUP_CID =
     Components.ID("{ae6ad015-433b-42ab-9afc-1636af5a7fc4}");
 
 
-Cu.import("chrome://chatzilla/content/lib/js/protocol-handlers.jsm");
-/* global ChatZillaProtocols */
-/* global IRCProtocolHandlerFactory, IRCSProtocolHandlerFactory */
-/* global IRCPROT_HANDLER_CID, IRCSPROT_HANDLER_CID */
-
+var {
+  ChatZillaProtocols,
+  IRCProtocolHandlerFactory,
+  IRCSProtocolHandlerFactory,
+  IRCPROT_HANDLER_CID,
+  IRCSPROT_HANDLER_CID,
+} = ChromeUtils.import(
+  "chrome://chatzilla/content/lib/js/protocol-handlers.jsm"
+);
 
 function spawnChatZilla(uri, count)
 {

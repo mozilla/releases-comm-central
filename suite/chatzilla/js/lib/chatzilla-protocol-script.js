@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { utils: Cu } = Components;
-
-let { ChatZillaProtocols } = Cu.import("chrome://chatzilla/content/lib/js/protocol-handlers.jsm", {});
+let { ChatZillaProtocols } = ChromeUtils.import(
+  "chrome://chatzilla/content/lib/js/protocol-handlers.jsm"
+);
 
 ChatZillaProtocols.init();
