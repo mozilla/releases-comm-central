@@ -126,7 +126,9 @@ user_pref("datareporting.healthreport.uploadEnabled",true);
 From the DevTools console, you can send an immediate test ping:
 
 ```
-Cu.import("resource://gre/modules/TelemetrySession.jsm");
+const { TelemetrySession } = ChromeUtils.import(
+  "resource://gre/modules/TelemetrySession.jsm"
+);
 TelemetrySession.testPing();
 ```
 
