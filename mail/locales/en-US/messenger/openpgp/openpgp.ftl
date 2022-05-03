@@ -270,7 +270,17 @@ openpgp-key-details-id-label =
 openpgp-key-details-key-type-label = Type
 openpgp-key-details-key-part-label =
     .label = Key Part
+
 openpgp-key-details-attr-ignored = Warning: This key might not work as expected, because some of its properties are unsafe and might be ignored.
+openpgp-key-details-attr-upgrade-sec = You should upgrade the unsafe properties.
+openpgp-key-details-attr-upgrade-pub = You should ask the owner of this key to upgrade the unsafe properties.
+
+openpgp-key-details-upgrade-unsafe =
+    .label = Upgrade Unsafe Properties
+    .accesskey = P
+
+openpgp-key-details-upgrade-ok = The key was successfully upgraded. You should share the upgraded public key with your correspondents.
+
 openpgp-key-details-algorithm-label =
     .label = Algorithm
 openpgp-key-details-size-label =
