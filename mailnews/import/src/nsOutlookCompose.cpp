@@ -318,7 +318,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
   OutlookSendListener* pListen =
       static_cast<OutlookSendListener*>(m_pListener.get());
   if (NS_FAILED(rv)) {
-    IMPORT_LOG1("*** Error, CreateAndSendMessage FAILED: 0x%lx\n", rv);
+    IMPORT_LOG1("*** Error, CreateAndSendMessage FAILED: 0x%x\n", rv);
   } else {
     // Wait for the listener to get done.
     nsCOMPtr<nsIThread> thread(do_GetCurrentThread());

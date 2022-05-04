@@ -462,7 +462,7 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
       if (NS_FAILED(rv))
         MOZ_LOG(
             MAPI, mozilla::LogLevel::Debug,
-            ("nsMapiHook::HandleAttachments: AddAttachment rv =  %lx\n", rv));
+            ("nsMapiHook::HandleAttachments: AddAttachment rv =  %x\n", rv));
     }
   }
   return rv;
@@ -570,7 +570,7 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
       if (NS_FAILED(rv))
         MOZ_LOG(
             MAPI, mozilla::LogLevel::Debug,
-            ("nsMapiHook::HandleAttachmentsW: AddAttachment rv =  %lx\n", rv));
+            ("nsMapiHook::HandleAttachmentsW: AddAttachment rv =  %x\n", rv));
     }
   }
   return rv;

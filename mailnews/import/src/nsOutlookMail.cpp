@@ -337,7 +337,7 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
   mCaller->OpenMessageStore(pFolder);
   if (!mCaller->m_lpMdb) {
     IMPORT_LOG1("*** Unable to obtain mapi message store for mailbox: %S\n",
-                mName);
+                (const wchar_t*)mName);
     mResult = NS_ERROR_FAILURE;
     return NS_OK;  // Sync runnable must return OK.
   }
@@ -363,7 +363,7 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
 
   while (!done) {
     if (!contents.GetNext(&cbEid, &lpEid, &oType, &done)) {
-      IMPORT_LOG1("*** Error iterating mailbox: %S\n", mName);
+      IMPORT_LOG1("*** Error iterating mailbox: %S\n", (const wchar_t*)mName);
       mResult = NS_ERROR_FAILURE;
       return NS_OK;  // Sync runnable must return OK.
     }
@@ -375,7 +375,8 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
                                          &reusable,
                                          getter_AddRefs(outputStream));
     if (NS_FAILED(rv)) {
-      IMPORT_LOG1("*** Error getting nsIOutputStream of mailbox: %S\n", mName);
+      IMPORT_LOG1("*** Error getting nsIOutputStream of mailbox: %S\n",
+                  (const wchar_t*)mName);
       mResult = rv;
       return NS_OK;  // Sync runnable must return OK.
     }
@@ -391,7 +392,8 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
     if (!done && (oType == MAPI_MESSAGE)) {
       if (!mCaller->m_mapi.OpenMdbEntry(mCaller->m_lpMdb, cbEid, lpEid,
                                         (LPUNKNOWN*)&lpMsg)) {
-        IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", mName);
+        IMPORT_LOG1("*** Error opening messages in mailbox: %S\n",
+                    (const wchar_t*)mName);
         mResult = NS_ERROR_FAILURE;
         return NS_OK;  // Sync runnable must return OK.
       }
@@ -409,7 +411,8 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
         (*mMsgCount)++;
         msgStore->FinishNewMessage(outputStream, msgHdr);
       } else {
-        IMPORT_LOG1("*** Error reading message from mailbox: %S\n", mName);
+        IMPORT_LOG1("*** Error reading message from mailbox: %S\n",
+                    (const wchar_t*)mName);
         msgStore->DiscardNewMessage(outputStream, msgHdr);
       }
       if (!reusable) outputStream->Close();
@@ -511,7 +514,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
   if (!m_lpMdb) {
     IMPORT_LOG1(
         "*** Unable to obtain mapi message store for address book: %S\n",
-        pName);
+        (const wchar_t*)pName);
     return NS_ERROR_FAILURE;
   }
 
@@ -543,7 +546,8 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
     (*pCount)++;
 
     if (!contents.GetNext(&cbEid, &lpEid, &oType, &done)) {
-      IMPORT_LOG1("*** Error iterating address book: %S\n", pName);
+      IMPORT_LOG1("*** Error iterating address book: %S\n",
+                  (const wchar_t*)pName);
       return NS_ERROR_FAILURE;
     }
 
@@ -551,7 +555,8 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
 
     if (!done && (oType == MAPI_MESSAGE)) {
       if (!m_mapi.OpenMdbEntry(m_lpMdb, cbEid, lpEid, (LPUNKNOWN*)&lpMsg)) {
-        IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", pName);
+        IMPORT_LOG1("*** Error opening messages in mailbox: %S\n",
+                    (const wchar_t*)pName);
         return NS_ERROR_FAILURE;
       }
 
@@ -643,7 +648,8 @@ nsresult nsOutlookMail::CreateList(const nsString& pName,
     cbEid = sa->lpbin[idx].cb;
 
     if (!m_mapi.OpenEntry(cbEid, lpEid, (LPUNKNOWN*)&lpMsg)) {
-      IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", pName.get());
+      IMPORT_LOG1("*** Error opening messages in mailbox: %S\n",
+                  static_cast<const wchar_t*>(pName.get()));
       m_mapi.MAPIFreeBuffer(value);
       return NS_ERROR_FAILURE;
     }

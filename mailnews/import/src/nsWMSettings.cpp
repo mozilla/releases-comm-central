@@ -222,7 +222,7 @@ bool WMSettings::DoIMAPServer(nsIMsgAccountManager* pMgr,
       nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(in);
       if (!imapServer) {
         IMPORT_LOG1("*** Failed to create nsIImapIncomingServer for %S!\n",
-                    serverName.get());
+                    static_cast<const wchar_t*>(serverName.get()));
         return false;
       }
       if (NS_SUCCEEDED(
@@ -253,7 +253,8 @@ bool WMSettings::DoIMAPServer(nsIMsgAccountManager* pMgr,
       in->SetBiffMinutes(checkNewMailTime);
 
       IMPORT_LOG2("Created IMAP server named: %S, userName: %S\n",
-                  serverName.get(), userName.get());
+                  static_cast<const wchar_t*>(serverName.get()),
+                  static_cast<const wchar_t*>(userName.get()));
 
       // We have a server, create an account.
       nsCOMPtr<nsIMsgAccount> account;
@@ -317,7 +318,7 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager* pMgr,
       nsCOMPtr<nsIPop3IncomingServer> pop3Server = do_QueryInterface(in);
       if (!pop3Server) {
         IMPORT_LOG1("*** Failed to create nsIPop3IncomingServer for %S!\n",
-                    serverName.get());
+                    static_cast<const wchar_t*>(serverName.get()));
         return false;
       }
 
@@ -400,7 +401,8 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager* pMgr,
       }
 
       IMPORT_LOG2("Created POP3 server named: %S, userName: %S\n",
-                  serverName.get(), userName.get());
+                  static_cast<const wchar_t*>(serverName.get()),
+                  static_cast<const wchar_t*>(userName.get()));
 
       // We have a server, create an account.
       nsCOMPtr<nsIMsgAccount> account;
@@ -419,7 +421,8 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager* pMgr,
     }
   } else if (NS_SUCCEEDED(rv) && in) {
     IMPORT_LOG2("Existing POP3 server named: %S, userName: %S\n",
-                serverName.get(), userName.get());
+                static_cast<const wchar_t*>(serverName.get()),
+                static_cast<const wchar_t*>(userName.get()));
     // for an existing server we create another identity,
     // TB listed under 'manage identities'
     nsCOMPtr<nsIMsgAccount> account;
@@ -466,7 +469,7 @@ bool WMSettings::DoNNTPServer(nsIMsgAccountManager* pMgr,
       nsCOMPtr<nsINntpIncomingServer> nntpServer = do_QueryInterface(in);
       if (!nntpServer) {
         IMPORT_LOG1("*** Failed to create nsINnntpIncomingServer for %S!\n",
-                    serverName.get());
+                    static_cast<const wchar_t*>(serverName.get()));
         return false;
       }
       if (!userName.IsEmpty()) {  // if username req'd then auth req'd
@@ -493,7 +496,8 @@ bool WMSettings::DoNNTPServer(nsIMsgAccountManager* pMgr,
       }
 
       IMPORT_LOG2("Created NNTP server named: %S, userName: %S\n",
-                  serverName.get(), userName.get());
+                  static_cast<const wchar_t*>(serverName.get()),
+                  static_cast<const wchar_t*>(userName.get()));
 
       // We have a server, create an account.
       nsCOMPtr<nsIMsgAccount> account;
@@ -545,7 +549,7 @@ void WMSettings::SetIdentities(nsIMsgAccountManager* pMgr, nsIMsgAccount* pAcc,
             xmlDoc, isNNTP ? "NNTP_Display_Name" : "SMTP_Display_Name",
             value))) {
       id->SetFullName(value);
-      IMPORT_LOG1("\tname: %S\n", value.get());
+      IMPORT_LOG1("\tname: %S\n", static_cast<const wchar_t*>(value.get()));
     }
 
     if (NS_SUCCEEDED(nsWMUtils::GetValueForTag(
@@ -559,7 +563,7 @@ void WMSettings::SetIdentities(nsIMsgAccountManager* pMgr, nsIMsgAccount* pAcc,
             xmlDoc, isNNTP ? "NNTP_Email_Address" : "SMTP_Email_Address",
             value))) {
       id->SetEmail(NS_ConvertUTF16toUTF8(value));
-      IMPORT_LOG1("\temail: %S\n", value.get());
+      IMPORT_LOG1("\temail: %S\n", static_cast<const wchar_t*>(value.get()));
     }
 
     if (NS_SUCCEEDED(
