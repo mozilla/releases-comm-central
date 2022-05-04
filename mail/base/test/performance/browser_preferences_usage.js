@@ -144,7 +144,6 @@ add_task(async function startup() {
     "bidi.texttype",
     "browser.display.auto_quality_min_font_size",
     "dom.send_after_paint_to_content",
-    "gfx.missing_fonts.notify",
     "image.animation_mode",
     "layout.reflow.dumpframebyframecounts",
     "layout.reflow.dumpframecounts",
