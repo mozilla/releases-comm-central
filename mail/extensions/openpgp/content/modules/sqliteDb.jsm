@@ -348,16 +348,21 @@ var PgpSqliteDb2 = {
           decisionObj
         );
 
-        /* A key might contain multiple user IDs with the same email
-         * address. We add each email only once. */
-        for (let email of uniqueEmails) {
-          await conn.execute(
-            "insert into acceptance_email values (:fpr, :email)",
-            {
-              fpr: fingerprint,
-              email,
-            }
-          );
+        // Rejection is global for a fingerprint, don't need to
+        // store email address records.
+
+        if (decision !== "rejected") {
+          // A key might contain multiple user IDs with the same email
+          // address. We add each email only once.
+          for (let email of uniqueEmails) {
+            await conn.execute(
+              "insert into acceptance_email values (:fpr, :email)",
+              {
+                fpr: fingerprint,
+                email,
+              }
+            );
+          }
         }
       }
       await conn.execute("commit transaction");

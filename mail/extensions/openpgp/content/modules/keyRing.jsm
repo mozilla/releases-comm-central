@@ -1299,6 +1299,11 @@ var EnigmailKeyRing = {
       return null;
     }
 
+    if (acceptanceResult.fingerprintAcceptance == "rejected") {
+      // rejecting is always global for all email addresses
+      return -1;
+    }
+
     if (acceptanceResult.emailDecided) {
       switch (acceptanceResult.fingerprintAcceptance) {
         case "verified":
@@ -1306,9 +1311,6 @@ var EnigmailKeyRing = {
           break;
         case "unverified":
           acceptanceLevel = 1;
-          break;
-        case "rejected":
-          acceptanceLevel = -1;
           break;
         default:
         case "undecided":
@@ -1329,11 +1331,15 @@ var EnigmailKeyRing = {
       return null;
     }
 
+    if (acceptanceResult.fingerprintAcceptance == "rejected") {
+      // rejecting is always global for all email addresses
+      return acceptanceResult.fingerprintAcceptance;
+    }
+
     if (acceptanceResult.emailDecided) {
       switch (acceptanceResult.fingerprintAcceptance) {
         case "verified":
         case "unverified":
-        case "rejected":
         case "undecided":
           return acceptanceResult.fingerprintAcceptance;
       }
