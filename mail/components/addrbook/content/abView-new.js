@@ -454,22 +454,80 @@ function abViewCard(card, directoryHint) {
     );
   }
 }
+abViewCard.listFormatter = new Services.intl.ListFormat(
+  Services.appinfo.name == "xpcshell"
+    ? "en-US"
+    : Services.locale.appLocalesAsBCP47,
+  { type: "unit" }
+);
 abViewCard.prototype = {
   _getText(columnID) {
     try {
+      let { getProperty, supportsVCard, vCardProperties } = this.card;
+
+      if (this.card.isMailList) {
+        if (columnID == "GeneratedName") {
+          return this.card.displayName;
+        }
+        if (["NickName", "Notes"].includes(columnID)) {
+          return getProperty(columnID, "");
+        }
+        return "";
+      }
+
       switch (columnID) {
         case "addrbook":
           return this._directory.dirName;
         case "GeneratedName":
           return this.card.generateName(ABView.nameFormat);
-        case "_PhoneticName":
-          return this.card.generatePhoneticName(true);
-        case "ChatName":
-          return this.card.isMailList ? "" : this.card.generateChatName();
+        case "EmailAddresses":
+          return abViewCard.listFormatter.format(this.card.emailAddresses);
+        case "PhoneNumbers": {
+          let phoneNumbers;
+          if (supportsVCard) {
+            phoneNumbers = vCardProperties.getAllValues("tel");
+          } else {
+            phoneNumbers = [
+              getProperty("WorkPhone", ""),
+              getProperty("HomePhone", ""),
+              getProperty("CellularNumber", ""),
+              getProperty("FaxNumber", ""),
+              getProperty("PagerNumber", ""),
+            ];
+          }
+          return abViewCard.listFormatter.format(phoneNumbers.filter(Boolean));
+        }
+        case "Addresses": {
+          let addresses;
+          if (supportsVCard) {
+            addresses = vCardProperties
+              .getAllValues("adr")
+              .map(v => v.join(" ").trim());
+          } else {
+            addresses = [
+              this.formatAddress("Work"),
+              this.formatAddress("Home"),
+            ];
+          }
+          return abViewCard.listFormatter.format(addresses.filter(Boolean));
+        }
+        case "Company":
+          if (supportsVCard) {
+            return vCardProperties.getFirstValue("org")?.[0];
+          }
+          return getProperty(columnID, "");
+        case "Department":
+          if (supportsVCard) {
+            return vCardProperties.getFirstValue("org")?.[1];
+          }
+          return getProperty(columnID, "");
+        case "JobTitle":
+          if (supportsVCard) {
+            return vCardProperties.getFirstValue("title");
+          }
+          return getProperty(columnID, "");
         default:
-          return this.card.isMailList
-            ? ""
-            : this.card.getPropertyAsAString(columnID);
+          return getProperty(columnID, "");
       }
     } catch (ex) {
       return "";
@@ -477,7 +535,7 @@ abViewCard.prototype = {
   },
   getText(columnID) {
     if (!(columnID in this._getTextCache)) {
-      this._getTextCache[columnID] = this._getText(columnID);
+      this._getTextCache[columnID] = this._getText(columnID)?.trim() ?? "";
     }
     return this._getTextCache[columnID];
   },
@@ -498,5 +556,20 @@ abViewCard.prototype = {
   },
   get directory() {
     return this._directory;
+  },
+
+  /**
+   * Creates a string representation of an address from card properties.
+   *
+   * @param {"Work"|"Home"} prefix
+   * @returns {string}
+   */
+  formatAddress(prefix) {
+    return Array.from(
+      ["Address", "Address2", "City", "State", "ZipCode", "Country"],
+      field => this.card.getProperty(`${prefix}${field}`, "")
+    )
+      .join(" ")
+      .trim();
   },
 };
