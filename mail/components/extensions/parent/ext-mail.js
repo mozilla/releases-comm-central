@@ -1714,6 +1714,7 @@ function convertMessage(msgHdr, extension) {
     bccList: composeFields.splitRecipients(msgHdr.bccList, false),
     subject: msgHdr.mime2DecodedSubject,
     read: msgHdr.isRead,
+    headersOnly: !!(msgHdr.flags & Ci.nsMsgMessageFlags.Partial),
     flagged: msgHdr.isFlagged,
     junk: junkScore >= gJunkThreshold,
     junkScore,

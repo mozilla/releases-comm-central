@@ -198,17 +198,21 @@ this.messages = class extends ExtensionAPI {
         }
       }
 
-      return new Promise(resolve => {
-        MsgHdrToMimeMessage(
-          msgHdr,
-          null,
-          (_msgHdr, mimeMsg) => {
-            resolve(mimeMsg);
-          },
-          true,
-          { examineEncryptedParts: true }
-        );
-      });
+      try {
+        return await new Promise(resolve => {
+          MsgHdrToMimeMessage(
+            msgHdr,
+            null,
+            (_msgHdr, mimeMsg) => {
+              resolve(mimeMsg);
+            },
+            true,
+            { examineEncryptedParts: true }
+          );
+        });
+      } catch (e) {
+        return null;
+      }
     }
 
     return {
@@ -337,6 +341,10 @@ this.messages = class extends ExtensionAPI {
           let mimeMsg = await getMimeMessage(msgHdr);
           if (!mimeMsg) {
             throw new ExtensionError(`Error reading message ${messageId}`);
+          }
+          if (msgHdr.flags & Ci.nsMsgMessageFlags.Partial) {
+            // Do not include fake body.
+            mimeMsg.parts = [];
           }
           return convertMessagePart(mimeMsg);
         },
