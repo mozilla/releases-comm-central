@@ -15,6 +15,9 @@ ChromeUtils.defineModuleGetter(
 );
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+let { MsgUtils } = ChromeUtils.import(
+  "resource:///modules/MimeMessageUtils.jsm"
+);
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
@@ -267,6 +270,20 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   return composeWindow;
 }
 
+/**
+ * Converts "\r\n" line breaks to "\n" and removes trailing line breaks.
+ *
+ * @param {string} content - original content
+ * @returns {string} - trimmed content
+ */
+function trimContent(content) {
+  let data = content.replaceAll("\r\n", "\n").split("\n");
+  while (data[data.length - 1] == "") {
+    data.pop();
+  }
+  return data.join("\n");
+}
+
 async function getComposeDetails(composeWindow, extension) {
   await composeWindowIsReady(composeWindow);
 
@@ -357,6 +374,15 @@ async function getComposeDetails(composeWindow, extension) {
     ? deliveryFormats.find(f => f.id == composeFields.deliveryFormat).value
     : null;
 
+  let body = trimContent(
+    editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw)
+  );
+  let plainTextBody = composeWindow.IsHTMLEditor()
+    ? trimContent(MsgUtils.convertToPlainText(body, true))
+    : trimContent(
+        editor.outputToString("text/plain", Ci.nsIDocumentEncoder.OutputRaw)
+      );
+
   let details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
     to: composeFields.splitRecipients(composeFields.to, false),
@@ -377,11 +403,8 @@ async function getComposeDetails(composeWindow, extension) {
     subject: composeFields.subject,
     isPlainText: !composeWindow.IsHTMLEditor(),
     deliveryFormat,
-    body: editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw),
-    plainTextBody: editor.outputToString(
-      "text/plain",
-      Ci.nsIDocumentEncoder.OutputRaw
-    ),
+    body,
+    plainTextBody,
     customHeaders,
     priority: composeFields.priority.toLowerCase() || "normal",
     returnReceipt: composeFields.returnReceipt,

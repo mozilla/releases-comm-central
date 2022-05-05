@@ -71,7 +71,7 @@ add_task(async function testIsReflexive() {
         htmlDetails.body.includes("<p>This is some <i>HTML</i> text.</p>")
       );
       browser.test.assertEq(
-        "This is some HTML text.",
+        "This is some /HTML/ text.",
         htmlDetails.plainTextBody
       );
 
@@ -102,10 +102,10 @@ add_task(async function testIsReflexive() {
       );
       browser.test.assertTrue(textDetails2.isPlainText);
       browser.test.assertTrue(
-        textDetails2.body.includes("This is some HTML text.")
+        textDetails2.body.includes("This is some /HTML/ text.")
       );
       browser.test.assertEq(
-        "This is some HTML text.",
+        "This is some /HTML/ text.",
         textDetails2.plainTextBody
       );
 

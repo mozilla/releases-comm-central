@@ -152,7 +152,7 @@ add_task(async function testBody() {
         htmlDetails.body.includes("<p>This is some <i>HTML</i> text.</p>")
       );
       browser.test.assertEq(
-        "This is some HTML text.",
+        "This is some /HTML/ text.",
         htmlDetails.plainTextBody
       );
 
