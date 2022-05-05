@@ -193,6 +193,8 @@ var gUserTouchedEncryptSubject = false;
 var gIsRelatedToEncryptedOriginal = false;
 var gIsRelatedToSignedOriginal = false;
 
+var gOpened = Date.now();
+
 var gEncryptedURIService = Cc[
   "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
 ].getService(Ci.nsIEncryptedSMIMEURIsService);
@@ -3641,23 +3643,186 @@ var dictionaryRemovalObserver = {
   },
 };
 
+function EditorClick(event) {
+  if (event.target.matches(".remove-card")) {
+    event.target.closest(".moz-card").remove();
+  } else if (event.target.matches(`.add-card[data-opened='${gOpened}']`)) {
+    let url = event.target.getAttribute("data-url");
+    let meRect = document.getElementById("messageEditor").getClientRects()[0];
+    let settings = document.getElementById("linkPreviewSettings");
+    let settingsW = 500;
+    settings.style.position = "fixed";
+    settings.style.left =
+      Math.max(settingsW + 20, event.clientX) - settingsW + "px";
+    settings.style.top = meRect.top + event.clientY + 20 + "px";
+    settings.hidden = false;
+    event.target.remove();
+    settings.querySelector(".close").onclick = event => {
+      settings.hidden = true;
+    };
+    settings.querySelector(".preview-replace").onclick = event => {
+      addLinkPreview(url, true);
+      settings.hidden = true;
+    };
+    settings.querySelector(".preview-autoadd").onclick = event => {
+      Services.prefs.setBoolPref(
+        "mail.compose.add_link_preview",
+        event.target.checked
+      );
+    };
+    settings.querySelector(".preview-replace").focus();
+    settings.onkeydown = event => {
+      if (event.key == "Escape") {
+        settings.hidden = true;
+      }
+    };
+  }
+}
+
+/**
+ * Grab Open Graph or Twitter card data from the URL and insert a link preview
+ * into the editor
+ * @param {string} url - The URL to add preview for.
+ * @param {boolean} skipBad - Skip adding anything on bad data. When false,
+ *    insert the url.
+ */
+async function addLinkPreview(url, skipBad) {
+  return fetch(url)
+    .then(response => response.text())
+    .then(text => {
+      let doc = new DOMParser().parseFromString(text, "text/html");
+
+      // If the url has an Open Graph or Twitter card, create a nicer
+      // representation and use that instead.
+      // @see https://ogp.me/
+      // @see https://developer.twitter.com/en/docs/twitter-for-websites/cards/
+
+      let title = doc
+        .querySelector("meta[property='og:title'],meta[name='twitter:title']")
+        ?.getAttribute("content");
+      let description = doc
+        .querySelector(
+          "meta[property='og:description'],meta[name='twitter:description']"
+        )
+        ?.getAttribute("content");
+
+      // Handle the case where we didn't get proper data.
+      if (!title && !description) {
+        console.debug(`No link preview data for url=${url}`);
+        if (skipBad) {
+          return;
+        }
+        getBrowser().contentDocument.execCommand("insertHTML", false, url);
+        return;
+      }
+
+      let image = doc
+        .querySelector("meta[property='og:image'],meta[name='twitter:image']")
+        ?.getAttribute("content");
+      let alt = doc
+        .querySelector(
+          "meta[property='og:image:alt'],meta[name='twitter:image:alt']"
+        )
+        ?.getAttribute("content");
+      let creator = doc.querySelector("meta[name='twitter:creator']");
+
+      // Grab our template and fill in the variables.
+      let card = document
+        .getElementById("dataCardTemplate")
+        .content.cloneNode(true);
+      card.querySelector("img").src = image;
+      card.querySelector("img").alt = alt;
+      card.querySelector(".title").textContent = title;
+      card.querySelector(".creator").textContent = creator;
+      if (!creator) {
+        card.querySelector(".creator").remove();
+      }
+      card.querySelector(".description").textContent = description;
+      card.querySelector(".url").textContent = "🔗 " + url;
+      card.querySelector(".url").href = url;
+      card.querySelector(".url").title = new URL(url).hostname;
+      card.querySelector(".site").textContent = new URL(url).hostname;
+
+      // twitter:card "summary" = Summary Card
+      // twitter:card "summary_large_image" = Summary Card with Large Image
+      if (
+        doc.querySelector(
+          "meta[name='twitter:card'][content='summary_large_image']"
+        )
+      ) {
+        card.querySelector("img").style.width = "600px";
+        card.querySelector(".url").style.maxWidth = "550px";
+        card.querySelector(".site").parentNode.remove();
+      }
+
+      // If subject is empty, set that as well.
+      let subject = document.getElementById("msgSubject");
+      if (!subject.value && title) {
+        subject.value = title;
+      }
+
+      // Add a line after the card. Otherwise it's hard to continue writing.
+      let line = GetCurrentEditor().returnInParagraphCreatesNewParagraph
+        ? "<p>&#160;</p>"
+        : "<br />";
+      getBrowser().contentDocument.execCommand(
+        "insertHTML",
+        false,
+        card.firstElementChild.outerHTML + line
+      );
+
+      for (let card of getBrowser().contentDocument.querySelectorAll(
+        ".moz-card"
+      )) {
+        card.classList.add("loaded");
+      }
+    });
+}
+
 /**
  * On paste or drop, we may want to modify the content before inserting it into
  * the editor, replacing file URLs with data URLs when appropriate.
  */
 function onPasteOrDrop(e) {
-  // For paste use e.clipboardData, for drop use e.dataTransfer.
-  let dataTransfer = "clipboardData" in e ? e.clipboardData : e.dataTransfer;
-
-  if (!dataTransfer.types.includes("text/html")) {
-    return;
-  }
-
   if (!gMsgCompose.composeHTML) {
     // We're in the plain text editor. Nothing to do here.
     return;
   }
 
+  // For paste use e.clipboardData, for drop use e.dataTransfer.
+  let dataTransfer = "clipboardData" in e ? e.clipboardData : e.dataTransfer;
+  if (!Services.io.offline && !dataTransfer.types.includes("text/html")) {
+    let type = dataTransfer.types.find(t =>
+      ["text/uri-list", "text/x-moz-url", "text/plain"].includes(t)
+    );
+    if (type) {
+      let url = dataTransfer
+        .getData(type)
+        .split("\n")[0]
+        .trim();
+      if (/^https?:\/\//.test(url)) {
+        e.preventDefault(); // We'll handle the pasting manually.
+        if (Services.prefs.getBoolPref("mail.compose.add_link_preview", true)) {
+          getBrowser().contentDocument.execCommand("insertHTML", false, url);
+          addLinkPreview(url);
+        } else {
+          getBrowser().contentDocument.execCommand("insertHTML", false, url);
+          /*
+          // FIXME - see bug 1572648
+          // Make the below UI nicer, and remove the inserHTML above.
+          getBrowser().contentDocument.execCommand(
+            "insertHTML",
+            false,
+            `${url} <span class='add-card' data-url='${url}' data-opened='${gOpened}'>📰</span>`
+          );
+          */
+        }
+        return;
+      }
+    }
+  }
+
+  // Ok, we have html content to paste.
   let html = dataTransfer.getData("text/html");
   let doc = new DOMParser().parseFromString(html, "text/html");
   let tmpD = Services.dirsvc.get("TmpD", Ci.nsIFile);
@@ -5550,6 +5715,15 @@ function GenericSendMessage(msgType) {
       // remove newsgroups to prevent news_p to be set
       // in nsMsgComposeAndSend::DeliverMessage()
       msgCompFields.newsgroups = "";
+    }
+
+    if (Services.prefs.getBoolPref("mail.compose.add_link_preview", true)) {
+      // Remove any card "close" button from content before sending.
+      for (let close of getBrowser().contentDocument.querySelectorAll(
+        ".moz-card .remove-card"
+      )) {
+        close.remove();
+      }
     }
 
     let sendFormat = determineSendFormat();

@@ -307,6 +307,10 @@ pref("editor.singleLine.pasteNewlines", 4);  // substitute commas for new lines 
 pref("editor.CR_creates_new_p", true);
 pref("mail.compose.default_to_paragraph", true);
 
+// If true, when pasting a URL, paste the Open Graph / Twitter Card details
+// we can extract from the URL instead.
+pref("mail.compose.add_link_preview", false);
+
 // hidden pref to ensure a certain number of headers in the message pane
 // to avoid the height of the header area from changing when headers are present / not present
 pref("mailnews.headers.minNumHeaders", 0); // 0 means we ignore this pref

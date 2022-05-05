@@ -1332,6 +1332,37 @@ button:is(
   display: none;
 }
 
+#linkPreviewSettings {
+  border: 1px solid silver;
+  border-radius: 5px;
+  padding: 10px 20px;
+  width: 500px;
+}
+#linkPreviewSettings h2 {
+  color: blue;
+  font-size: 1em;
+}
+#linkPreviewSettings p {
+  margin: 0.5em 0.2em;
+}
+#linkPreviewSettings .bottom {
+  padding: 1em 0;
+}
+#linkPreviewSettings button {
+  background-color: navy;
+  color: white;
+  padding: 0.2em 2em;
+}
+#linkPreviewSettings .close {
+  font-size: 1.4em;
+  float: inline-end;
+  font-weight: 600;
+  display: inline-block;
+  transform: rotate(45deg);
+  margin-block: -0.2em 0.2em;
+  margin-inline: 0.2em -0.2em;
+}
+
 .statusbar {
   display: flex;
   align-items: center;

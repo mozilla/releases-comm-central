@@ -527,6 +527,10 @@ warn-on-send-accel-key =
     .label = Confirm when using keyboard shortcut to send message
     .accesskey = C
 
+add-link-previews =
+    .label = Add link previews when pasting URLs
+    .accesskey = i
+
 spellcheck-label =
     .label = Check spelling before sending
     .accesskey = C

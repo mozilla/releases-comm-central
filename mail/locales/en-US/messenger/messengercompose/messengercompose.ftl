@@ -423,3 +423,11 @@ cloud-file-attachment-error = Failed to update the Filelink attachment { $filena
 # $filename (string) - name of the file that was renamed and caused the error
 cloud-file-account-error-title = Filelink Account Error
 cloud-file-account-error = Failed to update the Filelink attachment { $filename }, because its Filelink account has been deleted.
+
+## Link Preview
+
+link-preview-title = Link Preview
+link-preview-description = { -brand-short-name } can add an embedded preview when pasting links.
+link-preview-autoadd = Automatically add link previews when possible
+link-preview-replace-now = Add a Link Preview for this link?
+link-preview-yes-replace = Yes

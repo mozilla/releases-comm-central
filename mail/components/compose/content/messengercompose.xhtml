@@ -2435,7 +2435,6 @@
     <html:hr is="pane-splitter" id="headersSplitter"
              resize-direction="vertical"
              resize-id="MsgHeadersToolbar" />
-
     <html:div id="messageArea">
       <html:div id="dropAttachmentOverlay" class="drop-attachment-overlay">
         <html:aside id="addInline" class="drop-attachment-box">
@@ -2465,8 +2464,24 @@
               aria-label="&aria.message.bodyName;"
               messagemanagergroup="browsers"
               oncontextmenu="this._contextX = event.pageX; this._contextY = event.pageY;"
+              onclick="EditorClick(event);"
               ondblclick="EditorDblClick(event);"
               context="msgComposeContext"/>
+
+      <html:div id="linkPreviewSettings" xmlns="http://www.w3.org/1999/xhtml" hidden="hidden">
+        <span class="close">+</span>
+        <h2 data-l10n-id="link-preview-title"></h2>
+        <p data-l10n-id="link-preview-description"></p>
+        <p>
+          <input class="preview-autoadd" id="link-preview-autoadd" type="checkbox" />
+          <label data-l10n-id="link-preview-autoadd" for="link-preview-autoadd"></label>
+        </p>
+        <p class="bottom">
+          <span data-l10n-id="link-preview-replace-now"></span>
+          <button class="preview-replace" data-l10n-id="link-preview-yes-replace"></button>
+        </p>
+      </html:div>
+
       <findbar id="FindToolbar" browserid="messageEditor"/>
     </html:div>
 
@@ -2536,5 +2551,29 @@
 
 #include ../../../base/content/tabDialogs.inc.xhtml
 #include ../../../extensions/openpgp/content/ui/keyAssistant.inc.xhtml
+
+<html:template id="dataCardTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <aside class="moz-card" style="width:600px; display:flex; align-items:center; justify-content:center; flex-direction:row; flex-wrap:wrap; border-radius:10px; border:1px solid silver;">
+    <a class="remove-card">+</a>
+    <div class="card-pic" style="display:flex; flex-direction:column; flex-basis:100%; flex:1;">
+      <div style="margin:0 5px;">
+        <img src="IMAGE" style="width:120px;" alt="ALT" />
+      </div>
+    </div>
+    <div class="card-content" style="display:flex; flex-direction:column; flex-basis:100%; flex:3; background-color:#F5F5F5;">
+      <div style="margin:5px; ">
+        <p><small class="site">SITE</small></p>
+        <p>
+         <big class="title">TITLE</big>
+        </p>
+         <p class="creator">CREATOR</p>
+        <p class="description">DESCRIPTION</p>
+        <p>
+          <a href="#" class="url" style="display:inline-block; max-width:440px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-decoration:none;">URL</a>
+        </p>
+        </div>
+      </div>
+  </aside>
+</html:template>
 </html:body>
 </html>
