@@ -74,14 +74,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
   let getMozillaAddonMessageInfo = window.getAddonMessageInfo;
   window.getAddonMessageInfo = async function(addon) {
     const { name } = addon;
-    const appName = brandBundle.GetStringFromName("brandShortName");
     const { STATE_SOFTBLOCKED } = Ci.nsIBlocklistService;
-    const formatString = (name, args) =>
-      extBundle.formatStringFromName(
-        `details.notification.${name}`,
-        args,
-        args.length
-      );
+
     let data = new ExtensionData(addon.getResourceURI());
     await data.loadManifest();
     if (
@@ -98,11 +92,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
         linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
           addon.id
         )}&q=${encodeURIComponent(name)}`,
-        message: formatString("incompatible", [
-          name,
-          appName,
-          Services.appinfo.version,
-        ]),
+        messageId: "details-notification-incompatible",
+        messageArgs: { name, version: Services.appinfo.version },
         type: "warning",
       };
     }
