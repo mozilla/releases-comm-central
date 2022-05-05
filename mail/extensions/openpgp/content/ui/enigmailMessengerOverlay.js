@@ -2858,9 +2858,26 @@ Enigmail.msg = {
 
       let oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
       if (!oldKey) {
-        // If the key is unknown, an expired/revoked key cannot help us
+        // If the key is unknown, an expired key cannot help us
         // for anything new, so don't use it.
-        if (newKey.keyTrust == "r" || newKey.keyTrust == "e") {
+        if (newKey.keyTrust == "e") {
+          continue;
+        }
+
+        // Potentially merge the revocation into CollectedKeysDB, it if
+        // already has that key.
+        if (newKey.keyTrust == "r") {
+          let db = await CollectedKeysDB.getInstance();
+          let existing = await db.findKeyForFingerprint(newKey.fpr);
+          if (existing) {
+            let key = await db.mergeExisting(newKey, keyDataOneKey, {
+              uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
+              type: isBinaryAutocrypt ? "autocrypt" : "attachment",
+              description,
+            });
+            await db.storeKey(key);
+            Services.obs.notifyObservers(null, "openpgp-key-change");
+          }
           continue;
         }
 
