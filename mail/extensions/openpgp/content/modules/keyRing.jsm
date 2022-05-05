@@ -1823,7 +1823,10 @@ var EnigmailKeyRing = {
         continue;
       }
       if (k.length != 1) {
-        throw new Error("expected exactly one key");
+        // Past code could have store key blocks that contained
+        // multiple entries. Ignore and delete.
+        collDB.deleteKey(k[0].fpr);
+        continue;
       }
 
       let deleteFromCollected = false;
@@ -1863,7 +1866,6 @@ var EnigmailKeyRing = {
       }
 
       if (deleteFromCollected) {
-        let collDB = await CollectedKeysDB.getInstance();
         collDB.deleteKey(k[0].fpr);
         continue;
       }

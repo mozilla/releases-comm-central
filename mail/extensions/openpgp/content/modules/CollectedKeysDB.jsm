@@ -9,7 +9,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
@@ -200,15 +199,18 @@ class CollectedKeysDB {
     let pubKey;
     if (existing) {
       pubKey = await RNP.mergePublicKeyBlocks(fpr, existing.pubKey, keyBlock);
-      let errorMsgObj = {};
-      let keys = await EnigmailKey.getKeyListFromKeyBlock(
+      // Don't use EnigmailKey.getKeyListFromKeyBlock interactive.
+      // Use low level API for obtaining key list, we don't want to
+      // poison the app key cache.
+      // We also don't want to obtain any additional revocation certs.
+      let keys = await RNP.getKeyListFromKeyBlockImpl(
         pubKey,
-        errorMsgObj,
         true,
-        true,
+        false,
+        false,
         false
       );
-      if (!keys || !keys.length || errorMsgObj.value) {
+      if (!keys || !keys.length) {
         throw new Error("Error getting keys from block");
       }
       if (keys.length != 1) {
