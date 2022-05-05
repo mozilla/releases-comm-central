@@ -220,11 +220,13 @@ async function setData(dialogWindow, iframeWindow, data) {
         {
           async callback(recurrenceWindow) {
             Assert.report(false, undefined, undefined, "Recurrence dialog opened");
-            if (Services.focus.activeWindow != recurrenceWindow) {
-              await BrowserTestUtils.waitForEvent(recurrenceWindow, "focus");
-            }
+            await TestUtils.waitForCondition(
+              () => Services.focus.activeWindow == recurrenceWindow,
+              "recurrence dialog active"
+            );
 
-            recurrenceWindow.setTimeout(() => data.repeat(recurrenceWindow), 500);
+            await new Promise(resolve => recurrenceWindow.setTimeout(resolve));
+            await data.repeat(recurrenceWindow);
           },
         }
       );
@@ -459,10 +461,14 @@ async function handleAddingAttachment(dialogWindow, url) {
   await menuShowing;
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
-    callback(attachmentWindow) {
+    async callback(attachmentWindow) {
       Assert.report(false, undefined, undefined, "Attachment dialog opened");
-      let attachmentDocument = attachmentWindow.document;
+      await TestUtils.waitForCondition(
+        () => Services.focus.activeWindow == attachmentWindow,
+        "attachment dialog active"
+      );
 
+      let attachmentDocument = attachmentWindow.document;
       attachmentDocument.getElementById("loginTextbox").value = url;
       attachmentDocument
         .querySelector("dialog")
@@ -497,10 +503,12 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
         {
           async callback(attendeesWindow) {
             Assert.report(false, undefined, undefined, "Attendees dialog opened");
-            await sleep(attendeesWindow);
-            let attendeesDocument = attendeesWindow.document;
+            await TestUtils.waitForCondition(
+              () => Services.focus.activeWindow == attendeesWindow,
+              "attendees dialog active"
+            );
 
-            await sleep(attendeesWindow);
+            let attendeesDocument = attendeesWindow.document;
             Assert.equal(attendeesDocument.activeElement.localName, "input");
             Assert.equal(attendeesDocument.activeElement.value, "");
             sendString(attendee, attendeesWindow);
@@ -582,11 +590,10 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
     {
       async callback(timezoneWindow) {
         Assert.report(false, undefined, undefined, "Timezone dialog opened");
-        if (Services.focus.activeWindow != timezoneWindow) {
-          let focus = BrowserTestUtils.waitForEvent(timezoneWindow, "focus", true);
-          timezoneWindow.focus();
-          await focus;
-        }
+        await TestUtils.waitForCondition(
+          () => Services.focus.activeWindow == timezoneWindow,
+          "timezone dialog active"
+        );
 
         let timezoneDocument = timezoneWindow.document;
         let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");

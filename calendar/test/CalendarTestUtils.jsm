@@ -924,6 +924,12 @@ const CalendarTestUtils = {
         return false;
       }
 
+      Assert.report(false, undefined, undefined, "Event dialog opened");
+      await TestUtils.waitForCondition(
+        () => Services.focus.activeWindow == win,
+        "event dialog active"
+      );
+
       if (mode === "edit") {
         let iframe = win.document.getElementById("calendar-item-panel-iframe");
         await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");

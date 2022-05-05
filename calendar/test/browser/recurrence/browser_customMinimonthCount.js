@@ -44,11 +44,6 @@ add_task(async function testMinimonthsFillAvailableSpaceOnResize() {
         continue;
       }
 
-      // Forget the previous window width and height.
-      Services.xulStore.removeDocument(
-        "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml"
-      );
-
       let getRepeatWin = BrowserTestUtils.promiseAlertDialogOpen(
         "",
         "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
@@ -132,6 +127,11 @@ add_task(async function testMinimonthsFillAvailableSpaceOnResize() {
       repeatMenu.value = "custom";
       repeatMenu.doCommand();
       await getRepeatWin;
+
+      // Forget the previous window width and height.
+      Services.xulStore.removeDocument(
+        "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml"
+      );
     }
   }
   await BrowserTestUtils.closeWindow(eventWin);
