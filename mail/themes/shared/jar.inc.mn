@@ -349,7 +349,7 @@
   skin/classic/messenger/shared/contextMenu.css               (../shared/mail/contextMenu.css)
   skin/classic/messenger/shared/converterDialog.css           (../shared/mail/converterDialog.css)
   skin/classic/messenger/shared/customizeToolbar.css          (../shared/mail/customizeToolbar.css)
-  skin/classic/messenger/shared/editContactPanel.css          (../shared/mail/editContactPanel.css)
+  skin/classic/messenger/shared/popupPanel.css                (../shared/mail/popupPanel.css)
   skin/classic/messenger/shared/EditorDialog.css              (../shared/mail/EditorDialog.css)
   skin/classic/messenger/shared/editorContent.css             (../shared/mail/editorContent.css)
   skin/classic/messenger/shared/EdInsertChars.css             (../shared/mail/EdInsertChars.css)

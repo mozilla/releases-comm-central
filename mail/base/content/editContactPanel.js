@@ -110,7 +110,7 @@ var editContactInlineUI = {
     // Update the labels accordingly.
     document.getElementById(
       "editContactPanelTitle"
-    ).value = bundle.GetStringFromName(type + "Title");
+    ).textContent = bundle.GetStringFromName(type + "Title");
     document.getElementById(
       "editContactPanelEditDetailsButton"
     ).label = bundle.GetStringFromName(type + "DetailsLabel");

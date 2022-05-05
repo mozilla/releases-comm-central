@@ -8,14 +8,8 @@
   text-align: end;
 }
 
-#editContactPanel {
-  margin-inline-start: 0;
-  --arrowpanel-padding: 0;
-}
-
 #editContactHeader {
-  padding: 10px;
-  border-bottom: 1px solid var(--panel-separator-color)
+  display: flex;
 }
 
 #editContactPanelIcon {
@@ -23,18 +17,12 @@
   fill: var(--toolbarbutton-icon-fill-attention);
   width: 20px;
   height: 20px;
-  margin: 4px;
-}
-
-#editContactPanelTitle {
-  font-size: 130%;
-  font-weight: bold;
-  margin-inline-start: 9px;
-  margin-inline-end: 12px;
+  margin-block: 0 15px;
+  margin-inline: 4px 10px;
 }
 
 #editContactContent {
-  padding: 20px 10px;
+  margin-block: 6px 15px;
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -94,11 +82,6 @@ html|input.editContactTextbox[readonly] {
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, .05) inset;
 }
 
-/* Make all buttons the same width. */
-#editContactPanelDoneButton {
-  flex: 0%;
-}
-
 .popup-panel {
   margin-block: 0;
 }
@@ -109,10 +92,9 @@ html|input.editContactTextbox[readonly] {
 }
 
 .popup-panel-body h3 {
-  margin-block: 0 12px;
+  margin-block: 0 15px;
   font-size: 1.4em;
   font-weight: 500;
-  margin-bottom: 15px;
 }
 
 .popup-panel-options-grid {

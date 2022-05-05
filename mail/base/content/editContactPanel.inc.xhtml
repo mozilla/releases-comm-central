@@ -5,90 +5,70 @@
 <panel id="editContactPanel"
         type="arrow"
         orient="vertical"
+        class="cui-widget-panel popup-panel"
         ignorekeys="true"
         hidden="true"
-#if 0
-        # consumeoutsideclicks=true is here so clicking onto the star icon next
-        # to an address (onClickEmailStar()) for a second time will close the
-        # panel due to the outside click and not trigger opening the panel
-        # again since the panel itself consumes the click.
-        # That's the theory. In practice we haven't seen any platform where
-        # this would be necessary, so we leave it as a reference to the
-        # quirky old past where setConsumeRollupEvent(PopupBoxObject.ROLLUP_CONSUME)
-        # was used.
-        consumeoutsideclicks="true"
-#endif
         aria-labelledby="editContactPanelTitle"
         onpopuphidden="editContactInlineUI.onPopupHidden(event);"
         onpopupshown="editContactInlineUI.onPopupShown(event);"
         onkeypress="editContactInlineUI.onKeyPress(event, true);">
-  <hbox id="editContactHeader"
-        flex="1" align="center">
-    <html:img id="editContactPanelIcon"
-              src="chrome://messenger/skin/icons/starred.svg"
-              alt="" />
-    <label id="editContactPanelTitle" flex="1"/>
-  </hbox>
+  <html:div class="popup-panel-body">
+    <html:div id="editContactHeader">
+      <html:img id="editContactPanelIcon"
+                src="chrome://messenger/skin/icons/starred.svg"
+                alt="" />
+      <html:h3 id="editContactPanelTitle" flex="1"></html:h3>
+    </html:div>
 
-  <box id="editContactContent">
-    <hbox pack="end">
-      <label value="&editContactName.label;"
-             class="editContactPanel_rowLabel"
-             accesskey="&editContactName.accesskey;"
-             control="editContactName"/>
-    </hbox>
-    <html:input id="editContactName" class="editContactTextbox" type="text"
-                onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
-    <hbox pack="end">
-      <label value="&editContactEmail.label;"
-             class="editContactPanel_rowLabel"
-             accesskey="&editContactEmail.accesskey;"
-             control="editContactEmail"/>
-    </hbox>
-    <html:input id="editContactEmail" readonly="readonly"
-                class="editContactTextbox" type="email"
-                onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
-    <hbox pack="end">
-      <label id="editContactAddressBook"
-             class="editContactPanel_rowLabel"
-             value="&editContactAddressBook.label;"
-             accesskey="&editContactAddressBook.accesskey;"
-             control="editContactAddressBookList"/>
-    </hbox>
-    <hbox>
+    <box id="editContactContent">
+      <hbox pack="end">
+        <label value="&editContactName.label;"
+               class="editContactPanel_rowLabel"
+               accesskey="&editContactName.accesskey;"
+               control="editContactName"/>
+      </hbox>
+      <html:input id="editContactName" class="editContactTextbox" type="text"
+                  onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
+      <hbox pack="end">
+        <label value="&editContactEmail.label;"
+               class="editContactPanel_rowLabel"
+               accesskey="&editContactEmail.accesskey;"
+               control="editContactEmail"/>
+      </hbox>
+      <html:input id="editContactEmail" readonly="readonly"
+                  class="editContactTextbox" type="email"
+                  onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
+      <hbox pack="end">
+        <label id="editContactAddressBook"
+               class="editContactPanel_rowLabel"
+               value="&editContactAddressBook.label;"
+               accesskey="&editContactAddressBook.accesskey;"
+               control="editContactAddressBookList"/>
+      </hbox>
       <menulist is="menulist-addrbooks"
                 id="editContactAddressBookList"
                 flex="1"/>
-    </hbox>
-    <hbox pack="end" collapsed="true">
-      <label value=""/>
-    </hbox>
-    <description id="contactMoveDisabledText" hidden="true">
-      &contactMoveDisabledWarning.description;
-    </description>
-  </box>
+      <label value="" collapsed="true"/>
+      <description id="contactMoveDisabledText" hidden="true">
+        &contactMoveDisabledWarning.description;
+      </description>
+    </box>
 
-  <hbox flex="1"
-        class="popup-notification-button-container panel-footer">
-    <button id="editContactPanelEditDetailsButton"
-            class="popup-notification-button"
-            flex="1"
-            oncommand="editContactInlineUI.editDetails();"
-            onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
-    <button id="editContactPanelDeleteContactButton"
-            class="popup-notification-button"
-            flex="1"
-            label="&editContactPanelDeleteContact.label;"
-            accesskey="&editContactPanelDeleteContact.accesskey;"
-            oncommand="editContactInlineUI.deleteContact();"
-            onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
-    <button id="editContactPanelDoneButton"
-            class="popup-notification-button popup-notification-primary-button"
-            default="true"
-            flex="1"
-            label="&editContactPanelDone.label;"
-            accesskey="&editContactPanelDone.accesskey;"
-            oncommand="editContactInlineUI.saveChanges();"
-            onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
-  </hbox>
+    <html:div class="popup-panel-buttons-container">
+      <button id="editContactPanelEditDetailsButton"
+              oncommand="editContactInlineUI.editDetails();"
+              onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
+      <button id="editContactPanelDeleteContactButton"
+              label="&editContactPanelDeleteContact.label;"
+              accesskey="&editContactPanelDeleteContact.accesskey;"
+              oncommand="editContactInlineUI.deleteContact();"
+              onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
+      <button id="editContactPanelDoneButton"
+              class="primary"
+              label="&editContactPanelDone.label;"
+              accesskey="&editContactPanelDone.accesskey;"
+              oncommand="editContactInlineUI.saveChanges();"
+              onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
+    </html:div>
+  </html:div>
 </panel>
