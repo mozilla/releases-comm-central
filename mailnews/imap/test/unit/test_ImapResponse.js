@@ -37,16 +37,20 @@ add_task(function test_FetchResponse_flags() {
   equal(response.status, "OK");
   equal(response.statusText, "Fetch completed");
   deepEqual(response.messages[0].attributes, {
-    UID: "500",
-    FLAGS: ["\\Answered", "\\Seen", "$Forwarded"],
+    sequence: 1,
+    uid: 500,
+    flags:
+      ImapUtils.FLAG_ANSWERED | ImapUtils.FLAG_SEEN | ImapUtils.FLAG_FORWARDED,
   });
   deepEqual(response.messages[1].attributes, {
-    UID: "600",
-    FLAGS: ["\\Seen"],
+    sequence: 2,
+    uid: 600,
+    flags: ImapUtils.FLAG_SEEN,
   });
   deepEqual(response.messages[2].attributes, {
-    UID: "601",
-    FLAGS: [],
+    sequence: 3,
+    uid: 601,
+    flags: 0,
   });
 });
 
@@ -79,6 +83,11 @@ add_task(function test_FlagsResponse() {
   let str = [
     "* FLAGS (\\Seen \\Draft $Forwarded)",
     "* OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)] Flags permitted.",
+    "* 6 EXISTS",
+    "* OK [UNSEEN 2] First unseen.",
+    "* OK [UIDVALIDITY 1594877893] UIDs valid",
+    "* OK [UIDNEXT 625] Predicted next UID",
+    "* OK [HIGHESTMODSEQ 1148] Highest",
     "42 OK [READ-WRITE] Select completed",
     "",
   ].join("\r\n");
@@ -95,4 +104,5 @@ add_task(function test_FlagsResponse() {
       ImapUtils.FLAG_FORWARDED |
       ImapUtils.FLAG_SUPPORT_USER_FLAG
   );
+  equal(response.attributes.highestmodseq, 1148);
 });

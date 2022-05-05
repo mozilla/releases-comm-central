@@ -333,6 +333,7 @@ class ImapClient {
    */
   _actionSelectResponse(res) {
     this._supportedFlags = res.flags;
+    this._folderState = res.attributes;
     this._actionAfterSelectFolder();
   }
 
@@ -355,12 +356,25 @@ class ImapClient {
       "highestRecordedUID",
       0
     );
-    let latestUid = res.messages.reduce(
-      (maxUid, msg) => Math.max(maxUid, msg.attributes.UID),
-      0
-    );
-    this._nextAction = this._actionUidFetchBodyResponse;
+    this._messageUids = [];
+    for (let msg of res.messages) {
+      this._messageUids[msg.attributes.sequence] = msg.attributes.uid;
+      this._folder
+        .QueryInterface(Ci.nsIImapMessageSink)
+        .notifyMessageFlags(
+          msg.attributes.flags,
+          "",
+          msg.attributes.uid,
+          this._folderState.highestmodseq
+        );
+    }
+    // let latestUid = res.messages.reduce(
+    //   (maxUid, msg) => Math.max(maxUid, msg.attributes.uid),
+    //   0
+    // );
+    let latestUid = this._messageUids.at(-1);
     if (latestUid > highestUid) {
+      this._nextAction = this._actionUidFetchBodyResponse;
       this._sendTagged(
         `UID FETCH ${highestUid +
           1}:${latestUid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`
@@ -383,7 +397,7 @@ class ImapClient {
         numHeaders: 1,
         getHeader() {
           return {
-            msgUid: msg.attributes.UID,
+            msgUid: msg.attributes.uid,
             msgSize: msg.attributes.body.length,
             get msgHdrs() {
               let sepIndex = msg.attributes.body.indexOf("\r\n\r\n");
@@ -395,16 +409,16 @@ class ImapClient {
       this._folderSink.parseMsgHdrs(this, hdrXferInfo);
       this._msgSink.parseAdoptedMsgLine(
         msg.attributes.body,
-        msg.attributes.UID,
+        msg.attributes.uid,
         this.runningUrl
       );
       this._msgSink.normalEndMsgWriteStream(
-        msg.attributes.UID,
+        msg.attributes.uid,
         true,
         this.runningUrl,
         msg.attributes.body.length
       );
-      this._folderSink.EndMessage(this.runningUrl, msg.attributes.UID);
+      this._folderSink.EndMessage(this.runningUrl, msg.attributes.uid);
     }
     this._actionDone();
   }
@@ -414,6 +428,17 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionNoopResponse(res) {
+    for (let msg of res.messages || []) {
+      let uid = this._messageUids[msg.attributes.sequence];
+      this._folder
+        .QueryInterface(Ci.nsIImapMessageSink)
+        .notifyMessageFlags(
+          msg.attributes.flags,
+          "",
+          uid,
+          this._folderState.highestmodseq
+        );
+    }
     this._actionDone();
   }
 

@@ -48,7 +48,7 @@ var ImapUtils = {
   },
 
   /**
-   * Convert flag string internal flag number, for example,
+   * Convert a flag string to an internal flag number, for example,
    *   "\\Seen" will become 0x1.
    * @param {string} str - A single flag string.
    * @returns {number} An internal flag number.
@@ -70,5 +70,19 @@ var ImapUtils = {
         $FORWARDED: this.FLAG_FORWARDED,
       }[str.toUpperCase()] || this.FLAG_NONE
     );
+  },
+
+  /**
+   * Convert an array of flag string to an internal flag number, for example,
+   *   ["\\Seen", "\\Answered"] will become 0x3.
+   * @param {string[]} arr - An array of flag string.
+   * @returns {number} An internal flag number.
+   */
+  stringsToFlags(arr) {
+    let flags = 0;
+    for (let str of arr) {
+      flags |= this.stringToFlag(str);
+    }
+    return flags;
   },
 };

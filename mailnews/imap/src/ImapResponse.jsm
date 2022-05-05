@@ -209,19 +209,20 @@ class FetchResponse extends ImapResponse {
       //   * 7 FETCH (UID 24 FLAGS (NonJunk))
       // Or this
       //   * 7 FETCH (UID 24 FLAGS (NonJunk) BODY[] {123}
-      let [, , type, attrArray] = this.parseLine(this._lines[0]);
+      let [, sequence, type, attrArray] = this.parseLine(this._lines[0]);
+      attributes.sequence = sequence;
       for (let i = 0; i < attrArray.length; i++) {
-        let name = attrArray[i].toUpperCase();
+        let name = attrArray[i].toLowerCase();
         switch (name) {
-          case "UID":
+          case "uid":
             attributes[name] = +attrArray[i + 1];
             i++;
             break;
-          case "FLAGS":
-            attributes[name] = attrArray[i + 1];
+          case "flags":
+            attributes[name] = ImapUtils.stringsToFlags(attrArray[i + 1]);
             i++;
             break;
-          case "BODY": {
+          case "body": {
             // bodySection is the part between [ and ].
             attributes.bodySection = attrArray[i + 1];
             i++;
@@ -255,21 +256,21 @@ class FetchResponse extends ImapResponse {
  */
 class FlagsResponse extends ImapResponse {
   parse() {
-    let flags = [];
+    this.attributes = {};
 
     for (let line of this._lines) {
       let [, tagOrType, data] = this.parseLine(line);
       tagOrType = tagOrType.toUpperCase();
-      if (tagOrType == "FLAGS" && !flags.length) {
-        flags = data;
-      } else if (data[0] == "PERMANENTFLAGS") {
-        flags = data[1];
+      if (tagOrType == "FLAGS") {
+        this.attributes.flags = data;
+      } else if (tagOrType == "OK") {
+        let key = data[0].toLowerCase();
+        this.attributes[key] = data[1];
       }
     }
 
-    this.flags = 0;
-    for (let flag of flags) {
-      this.flags |= ImapUtils.stringToFlag(flag);
-    }
+    this.flags = ImapUtils.stringsToFlags(
+      this.attributes.permanentflags || this.attributes.flags
+    );
   }
 }
