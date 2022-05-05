@@ -8,6 +8,19 @@ var { ImapResponse } = ChromeUtils.import(
 var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 /**
+ * Test CAPABILITY response can be correctly parsed.
+ */
+add_task(function test_FlagsResponse() {
+  let str =
+    "32 OK [CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN] server ready";
+
+  let response = ImapResponse.parse(str);
+
+  deepEqual(response.authMethods, ["LOGIN", "PLAIN"]);
+  deepEqual(response.capabilities, ["IMAP4REV1", "IDLE", "STARTTLS"]);
+});
+
+/**
  * Test flags from a FETCH response can be correctly parsed.
  */
 add_task(function test_FetchResponse_flags() {

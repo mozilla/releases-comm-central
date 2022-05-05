@@ -16,10 +16,12 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     server.wrappedJSObject.withClient(client => {
-      let runningUrl = client.startRunningUrl(folder, urlListener);
+      let runningUrl = client.startRunningUrl(
+        urlListener || folder.QueryInterface(Ci.nsIUrlListener)
+      );
       runningUrl.updatingFolder = true;
       client.onReady = () => {
-        client.selectFolder(folder, urlListener, msgWindow);
+        client.selectFolder(folder, msgWindow);
       };
     });
   }
@@ -28,8 +30,10 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(folder, urlListener);
-      client.onReady = () => {};
+      client.startRunningUrl(urlListener);
+      client.onReady = () => {
+        client.discoverAllFolders(folder, msgWindow);
+      };
     });
   }
 

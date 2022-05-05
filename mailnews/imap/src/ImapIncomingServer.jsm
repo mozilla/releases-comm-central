@@ -27,6 +27,24 @@ class ImapIncomingServer extends MsgIncomingServer {
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "imap";
     this.localDatabaseType = "imap";
+
+    // nsIImapIncomingServer attributes that map directly to pref values.
+    this._mapAttrsToPrefs([
+      ["Char", "forceSelect", "force_select"],
+      ["Char", "adminUrl", "admin_url"],
+      ["Bool", "dualUseFolders", "dual_use_folders"],
+      ["Bool", "cleanupInboxOnExit", "cleanup_inbox_on_exit"],
+      ["Bool", "offlineDownload", "offline_download"],
+      ["Bool", "downloadBodiesOnGetNewMail", "download_bodies_on_get_new_mail"],
+      ["Bool", "autoSyncOfflineStores", "autosync_offline_stores"],
+      ["Bool", "useIdle", "use_idle"],
+      ["Bool", "checkAllFoldersForNew", "check_all_folders_for_new"],
+      ["Bool", "useCondStore", "use_condstore"],
+      ["Bool", "isGMailServer", "is_gmail"],
+      ["Bool", "useCompressDeflate", "use_compress_deflate"],
+      ["Bool", "allowUTF8Accept", "allow_utf8_accept"],
+      ["Int", "autoSyncMaxAgeDays", "autosync_max_age_days"],
+    ]);
   }
 
   /** @see nsIImapIncomingServer */
@@ -48,6 +66,12 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   get wrappedJSObject() {
     return this;
+  }
+
+  _capabilitites = [];
+
+  set capabilities(value) {
+    this._capabilitites = value;
   }
 
   _passwordPromise = null;
@@ -81,25 +105,31 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   // @type {ImapClient[]} - An array of connections can be used.
-  _idleConnections = [];
+  _freeConnections = [];
   // @type {ImapClient[]} - An array of connections in use.
   _busyConnections = [];
   // @type {Function[]} - An array of Promise.resolve functions.
   _connectionWaitingQueue = [];
 
   /**
-   * Get an idle connection that can be used.
+   * Get an free connection that can be used.
    * @returns {ImapClient}
    */
   async _getNextClient() {
+    if (this._idling) {
+      // End IDLE because we are sending a new request.
+      this._idling = false;
+      this._busyConnections[0].endIdle();
+    }
+
     // The newest connection is the least likely to have timed out.
-    let client = this._idleConnections.pop();
+    let client = this._freeConnections.pop();
     if (client) {
       this._busyConnections.push(client);
       return client;
     }
     if (
-      this._idleConnections.length + this._busyConnections.length <
+      this._freeConnections.length + this._busyConnections.length <
       this.maximumConnectionsNumber
     ) {
       // Create a new client if the pool is not full.
@@ -119,11 +149,25 @@ class ImapIncomingServer extends MsgIncomingServer {
    */
   async withClient(handler) {
     let client = await this._getNextClient();
-    client.onIdle = () => {
+    client.onDone = async () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
-      this._idleConnections.push(client);
-      // Resovle the first waiting in queue.
-      this._connectionWaitingQueue.shift()?.();
+      this._freeConnections.push(client);
+      let resolve = this._connectionWaitingQueue.shift();
+      if (resolve) {
+        // Resovle the first waiting in queue.
+        resolve();
+      } else if (
+        !this._busyConnections.length &&
+        this.useIdle &&
+        this._capabilitites.includes("IDLE")
+      ) {
+        // Nothing in queue and IDLE is configed and supported, use IDLE to
+        // receive server pushes.
+        this._idling = true;
+        this._freeConnections = this._freeConnections.filter(c => c != client);
+        this._busyConnections.push(client);
+        client.idle();
+      }
     };
     handler(client);
     client.connect();

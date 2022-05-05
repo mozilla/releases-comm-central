@@ -71,28 +71,42 @@ class ImapClient {
   /**
    * Construct an nsIMsgMailNewsUrl instance, setup urlListener to notify when
    * the current request is finished.
-   * @param {nsIMsgFolder} folder - The associated folder.
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @returns {nsIMsgMailNewsUrl}
    */
-  startRunningUrl(folder, urlListener) {
-    this._folder = folder;
-    this._urlListener = urlListener || folder.QueryInterface(Ci.nsIUrlListener);
+  startRunningUrl(urlListener) {
+    this._urlListener = urlListener;
     this.runningUrl = Services.io
       .newURI(`imap://${this._server.realHostName}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
-    this._urlListener.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
+    this._urlListener?.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
     return this.runningUrl;
   }
 
   /**
    * Select a folder.
+   * @param {nsIMsgFolder} folder - The associated folder.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  selectFolder(msgWindow) {
+  selectFolder(folder, msgWindow) {
+    if (this._folder == folder) {
+      this._nextAction = this._actionNoopResponse;
+      this._sendTagged("NOOP");
+      return;
+    }
+    this._folder = folder;
     this._actionAfterSelectFolder = this._actionUidFetch;
     this._nextAction = this._actionSelectResponse;
     this._sendTagged(`SELECT "${this._folder.name}"`);
+  }
+
+  /**
+   * Discover all folders.
+   * @param {nsIMsgFolder} folder - The associated folder.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   */
+  discoverAllFolders(folder, msgWindow) {
+    this._actionDone();
   }
 
   /**
@@ -121,6 +135,35 @@ class ImapClient {
       this._nextAction = this._actionSelectResponse;
       this._sendTagged(`SELECT "${folder.name}"`);
     }
+  }
+
+  /**
+   * Send IDLE command to the server.
+   */
+  idle() {
+    this._nextAction = res => {
+      if (res.tag == "*") {
+        if (!this._folder) {
+          this._actionDone();
+          return;
+        }
+        if (!this._folderSink) {
+          this._folderSink = this._folder.QueryInterface(
+            Ci.nsIImapMailFolderSink
+          );
+        }
+        this._folderSink.OnNewIdleMessages();
+      }
+    };
+    this._sendTagged("IDLE");
+  }
+
+  /**
+   * Send DONE to end the IDLE command.
+   */
+  endIdle() {
+    this._nextAction = this._actionDone;
+    this._send("DONE");
   }
 
   /**
@@ -245,6 +288,7 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthResponse = res => {
+    this._server.wrappedJSObject.capabilities = res.capabilities;
     this.onReady();
     // this._actionNamespace();
   };
@@ -366,11 +410,19 @@ class ImapClient {
   }
 
   /**
+   * Handle NOOP response.
+   * @param {ImapResponse} res - Response received from the server.
+   */
+  _actionNoopResponse(res) {
+    this._actionDone();
+  }
+
+  /**
    * Finish a request and do necessary cleanup.
    */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
     this._urlListener?.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
-    this.onIdle?.();
+    this.onDone?.();
   };
 }

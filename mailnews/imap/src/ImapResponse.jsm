@@ -62,8 +62,13 @@ class ImapResponse {
   static parse(str) {
     let lines = str.trimRight().split("\r\n");
     if (lines.length == 1) {
-      // TODO: create subclasses.
-      return this._parseStatusLine(lines[0]);
+      let result = this._parseStatusLine(lines[0]);
+      if (result.statusData?.toUpperCase().startsWith("CAPABILITY")) {
+        let response = new CapabilityResponse(result);
+        response.parse();
+        return response;
+      }
+      return result;
     }
     let { tag, status, statusData, statusText } = this._parseStatusLine(
       lines.at(-1)
@@ -174,7 +179,22 @@ class ImapResponse {
  * A structure to represent CAPABILITY response.
  */
 class CapabilityResponse extends ImapResponse {
-  parse() {}
+  parse() {
+    this.capabilities = [];
+    this.authMethods = [];
+    // statusData looks like:
+    // CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN
+    for (let cap of this.statusData
+      .toUpperCase()
+      .split(" ")
+      .slice(1)) {
+      if (cap.startsWith("AUTH=")) {
+        this.authMethods.push(cap.slice(5));
+      } else {
+        this.capabilities.push(cap);
+      }
+    }
+  }
 }
 
 /**
