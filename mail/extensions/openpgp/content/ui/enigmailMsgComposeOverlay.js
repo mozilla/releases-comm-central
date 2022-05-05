@@ -63,9 +63,6 @@ var EnigmailEncryption = ChromeUtils.import(
 var EnigmailWkdLookup = ChromeUtils.import(
   "chrome://openpgp/content/modules/wkdLookup.jsm"
 ).EnigmailWkdLookup;
-var EnigmailAutocrypt = ChromeUtils.import(
-  "chrome://openpgp/content/modules/autocrypt.jsm"
-).EnigmailAutocrypt;
 var EnigmailMime = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
 ).EnigmailMime;

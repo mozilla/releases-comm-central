@@ -19,7 +19,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   DNS: "resource:///modules/DNS.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailSqliteDb: "chrome://openpgp/content/modules/sqliteDb.jsm",
   EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.jsm",
 });
 
@@ -207,140 +206,6 @@ var EXCLUDE_DOMAINS = [
 
 var EnigmailWkdLookup = {
   /**
-   * Try to import keys using WKD. Found keys are automatically imported
-   *
-   * @param {Array of String} emailList: email addresses (in lowercase)
-   *
-   * @return {Promise<Boolean>}: true - new keys found
-   */
-  /*
-  findKeys(emails) {
-    return new Promise((resolve, reject) => {
-      EnigmailLog.DEBUG("wkdLookup.jsm: findKeys(" + emails.join(",") + ")\n");
-
-      if (emails.length === 0) {
-        resolve(false);
-        return;
-      }
-
-      let self = this;
-
-      // do a little sanity test such that we don't do the lookup for nothing too often
-      for (let e of emails) {
-        if (e.search(/.@.+\...+$/) < 0) {
-          resolve(false);
-          return;
-        }
-      }
-
-      Promise.all(
-        emails.map(function(mailAddr) {
-          return self.determineLastAttempt(mailAddr.trim().toLowerCase());
-        })
-      )
-        .then(function(checks) {
-          let toCheck = [];
-
-          EnigmailLog.DEBUG(
-            "wkdLookup.jsm: findKeys: checks " + checks.length + "\n"
-          );
-
-          for (let i = 0; i < checks.length; i++) {
-            if (checks[i]) {
-              EnigmailLog.DEBUG(
-                "wkdLookup.jsm: findKeys: recheck " + emails[i] + "\n"
-              );
-              toCheck.push(emails[i]);
-            } else {
-              EnigmailLog.DEBUG(
-                "wkdLookup.jsm: findKeys: skip check " + emails[i] + "\n"
-              );
-            }
-          }
-
-          if (toCheck.length > 0) {
-            Promise.all(
-              toCheck.map(email => {
-                return self.downloadKey(email);
-              })
-            ).then(dataArr => {
-              if (dataArr) {
-                let gotKeys = [];
-                for (let i = 0; i < dataArr.length; i++) {
-                  if (dataArr[i] !== null) {
-                    gotKeys.push(dataArr[i]);
-                  }
-                }
-
-                if (gotKeys.length > 0) {
-                  for (let k in gotKeys) {
-                    if (gotKeys[k]) {
-                      let isBinary =
-                        gotKeys[k].keyData.search(
-                          /^-----BEGIN PGP PUBLIC KEY BLOCK-----/
-                        ) < 0;
-                      EnigmailKeyRing.importKey(
-                        null,
-                        true,
-                        gotKeys[k].keyData,
-                        isBinary,
-                        "",
-                        {},
-                        {},
-                        false
-                      );
-                    }
-                  }
-                  resolve(true);
-                } else {
-                  resolve(false);
-                }
-              }
-            });
-          } else {
-            resolve(false);
-          }
-        })
-        .catch(() => {
-          resolve(false);
-        });
-    });
-  },
-  */
-
-  /**
-   * Determine for an email address when we last attempted to
-   * obtain a key via wkd
-   *
-   * @param {String} email: email address
-   *
-   * @return {Promise<Boolean>}: true if new WKD lookup required
-   */
-  async determineLastAttempt(email) {
-    EnigmailLog.DEBUG("wkdLookup.jsm: determineLastAttempt(" + email + ")\n");
-
-    let conn;
-    try {
-      conn = await EnigmailSqliteDb.openDatabase();
-      let val = await timeForRecheck(conn, email);
-      conn.close();
-      return val;
-    } catch (x) {
-      EnigmailLog.DEBUG(
-        "wkdLookup.jsm: determineLastAttempt: could not open database\n"
-      );
-      if (conn) {
-        EnigmailLog.DEBUG(
-          "wkdLookup.jsm: error - closing connection: " + x + "\n"
-        );
-        conn.close();
-      }
-    }
-    // in case something goes wrong we recheck anyway
-    return true;
-  },
-
-  /**
    * get the download URL for an email address for WKD or domain-specific locations
    *
    * @param {String} email: email address
@@ -461,54 +326,6 @@ var EnigmailWkdLookup = {
     return !EXCLUDE_DOMAINS.includes(domain);
   },
 };
-
-/**
- * Check if enough time has passed since we looked-up the key for "email".
- *
- * @param connection: Object - SQLite connection
- * @param email:      String - Email address to search (in lowercase)
- *
- * @return Promise (true if new lookup required)
- */
-function timeForRecheck(connection, email) {
-  EnigmailLog.DEBUG("wkdLookup.jsm: timeForRecheck\n");
-
-  let obj = {
-    email,
-    now: Date.now(),
-  };
-
-  return connection
-    .execute(
-      "select count(*) from wkd_lookup_timestamp where email = :email and :now - last_seen < 60*60*24",
-      obj
-    )
-    .then(function(val) {
-      return connection
-        .execute(
-          "insert or replace into wkd_lookup_timestamp values (:email, :now)",
-          obj
-        )
-        .then(function() {
-          return Promise.resolve(val);
-        });
-    })
-    .then(
-      function(rows) {
-        EnigmailLog.DEBUG(
-          "wkdLookup.jsm: timeForRecheck: " + rows.length + "\n"
-        );
-
-        return rows.length === 1 && rows[0].getResultByIndex(0) === 0;
-      },
-      function(error) {
-        EnigmailLog.DEBUG(
-          "wkdLookup.jsm: timeForRecheck - error" + error + "\n"
-        );
-        Promise.reject(error);
-      }
-    );
-}
 
 /**
  * Get special URLs for specific sites that don't use WKD, but still provide

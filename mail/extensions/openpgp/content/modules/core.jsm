@@ -17,11 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   EnigmailPgpmimeHander: "chrome://openpgp/content/modules/pgpmimeHandler.jsm",
-  EnigmailSqliteDb: "chrome://openpgp/content/modules/sqliteDb.jsm",
-  // EnigmailFiltersWrapper: "chrome://openpgp/content/modules/filtersWrapper.jsm",
-  // EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
-  // EnigmailWksMimeHandler: "chrome://openpgp/content/modules/wksMimeHandler.jsm",
-  // EnigmailOverlays: "chrome://openpgp/content/modules/enigmailOverlays.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
 
@@ -45,7 +40,6 @@ var EnigmailCore = {
 
     EnigmailLog.DEBUG("core.jsm: startup()\n");
 
-    await EnigmailSqliteDb.checkDatabaseStructure();
     await PgpSqliteDb2.checkDatabaseStructure();
 
     this.factories = [];

@@ -882,51 +882,6 @@ MimeDecryptHandler.prototype = {
         this.decryptedData.substr(r.endPos);
     }
   },
-
-  /*
-  async extractAutocryptGossip() {
-    let m1 = this.decryptedData.search(/^--/m);
-    let m2 = this.decryptedData.search(/\r?\n\r?\n/);
-    let m = Math.max(m1, m2);
-
-    let hdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
-      Ci.nsIMimeHeaders
-    );
-    hdr.initialize(this.decryptedData.substr(0, m));
-
-    let gossip = hdr.getHeader("autocrypt-gossip") || [];
-    EnigmailLog.DEBUG(
-      `mimeDecrypt.jsm: extractAutocryptGossip: found ${gossip.length} headers\n`
-    );
-
-    let msgDate = null;
-    try {
-      msgDate = this.uri.QueryInterface(Ci.nsIMsgMessageUrl).messageHeader
-        .dateInSeconds;
-    } catch (x) {
-      console.debug(x);
-    }
-
-    for (let i in gossip) {
-      let addr = EnigmailMime.getParameter(gossip[i], "addr");
-      try {
-        let r = await EnigmailAutocrypt.processAutocryptHeader(
-          addr,
-          [gossip[i].replace(/ /g, "")],
-          msgDate,
-          true,
-          true
-        );
-        EnigmailLog.DEBUG(`mimeDecrypt.jsm: extractAutocryptGossip: r=${r}\n`);
-      } catch (x) {
-        console.debug(x);
-        EnigmailLog.DEBUG(
-          `mimeDecrypt.jsm: extractAutocryptGossip: Error: ${x}\n`
-        );
-      }
-    }
-  },
-  */
 };
 
 ////////////////////////////////////////////////////////////////////

@@ -18,7 +18,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  // EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
@@ -366,56 +365,6 @@ Enigmail.hdrView = {
       enigMsgPane.textContent = "This message has been sent by your email provider to confirm deployment of your OpenPGP public key\nin their Web Key Directory.\nProviding your public key helps others to discover your key and thus being able to encrypt messages to you.\n\nIf you want to deploy your key in the Web Key Directory now, please click on the button "Confirm Request" in the status bar.\nOtherwise, simply ignore this message."
       );
     }
-  },
-  */
-
-  /**
-   * Try to import an autocrypt header from an uncertain signature
-   * (i.e. the sender's key is not available)
-   */
-  /*
-  tryImportAutocryptHeader() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgHdrViewOverlay.js: tryImportAutocryptHeader()\n"
-    );
-
-    if (!("autocrypt" in currentHeaderData)) {
-      return;
-    }
-    if (!Enigmail.msg.isAutocryptEnabled()) {
-      return;
-    }
-    if (!("from" in currentHeaderData)) {
-      return;
-    }
-
-    let fromEmail = "";
-    try {
-      fromEmail = EnigmailFuncs.stripEmail(
-        currentHeaderData.from.headerValue
-      ).toLowerCase();
-    } catch (ex) {
-      console.debug(ex);
-    }
-
-    let keys = EnigmailKeyRing.getKeysByEmail(fromEmail, true);
-    if (keys.length > 0) {
-      return;
-    }
-
-    EnigmailAutocrypt.importAutocryptKeys([fromEmail]).then(foundKeys => {
-      EnigmailLog.DEBUG(
-        "enigmailMsgComposeOverlay.js: tryImportAutocryptHeader: got " +
-          foundKeys.length +
-          " autocrypt keys\n"
-      );
-      if (foundKeys.length > 0) {
-        let k = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
-        if (k) {
-          gDBView.reloadMessageWithAllParts();
-        }
-      }
-    });
   },
   */
 
