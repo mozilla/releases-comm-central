@@ -18,6 +18,7 @@ class TryCCOptionSyntax(TryOptionSyntax):
     Override parse_platforms in the superclass. Removed the attempt to replace
     macosx64 jobs with macosx64-shippable.
     """
+
     def parse_platforms(self, options, full_task_graph):
         platform_arg = options["platforms"]
         if platform_arg == "all":
