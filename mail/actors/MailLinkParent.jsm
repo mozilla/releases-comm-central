@@ -75,10 +75,12 @@ class MailLinkParent extends JSWindowActorParent {
   }
 
   _handleNewsLink({ data }) {
-    let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-    let tabmail = mail3PaneWindow.document.getElementById("tabmail");
-    tabmail.openTab("mailMessageTab", {
-      messageURI: data,
-    });
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/messageWindow.xhtml",
+      "_blank",
+      "all,chrome,dialog=no,status,toolbar",
+      Services.io.newURI(data)
+    );
   }
 }
