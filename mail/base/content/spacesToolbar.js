@@ -514,20 +514,12 @@ var gSpacesToolbar = {
         if (elementIndex == -1) {
           elementIndex = buttons.length - 1;
         }
-        // Jump to the top if the CMD modifier was pressed (macOS only).
-        if (event.metaKey) {
-          elementIndex = 0;
-        }
         break;
 
       case "ArrowDown":
         elementIndex++;
         if (elementIndex > buttons.length - 1) {
           elementIndex = 0;
-        }
-        // Jump to the bottom if the CMD modifier was pressed (macOS only).
-        if (event.metaKey) {
-          elementIndex = buttons.length - 1;
         }
         break;
 

@@ -1126,27 +1126,6 @@ add_task(async function testSpacesToolbarFocusRing() {
     "The first button is focused"
   );
 
-  // macOS only tests for keyboard shortcut.
-  if (AppConstants.platform == "macosx") {
-    // Pressing the CMD modifier should move the focus down to the last
-    // available button.
-    EventUtils.synthesizeKey("KEY_ArrowDown", { metaKey: true }, window);
-    Assert.equal(
-      document.activeElement.id,
-      "collapseButton",
-      "The last button is focused"
-    );
-
-    // Pressing the CMD modifier should move the focus up to the first
-    // available button.
-    EventUtils.synthesizeKey("KEY_ArrowUp", { metaKey: true }, window);
-    Assert.equal(
-      document.activeElement.id,
-      "mailButton",
-      "The first button is focused"
-    );
-  }
-
   // Focus follows the mouse click.
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("calendarButton"),
