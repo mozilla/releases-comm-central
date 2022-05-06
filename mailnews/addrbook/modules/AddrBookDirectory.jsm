@@ -488,6 +488,15 @@ class AddrBookDirectory {
       }
     }
 
+    // Increment this preference if one or both of these properties change.
+    // This will cause the UI to throw away cached values.
+    if ("DisplayName" in changeData || "PreferDisplayName" in changeData) {
+      Services.prefs.setIntPref(
+        "mail.displayname.version",
+        Services.prefs.getIntPref("mail.displayname.version", 0) + 1
+      );
+    }
+
     Services.obs.notifyObservers(
       newCard,
       "addrbook-contact-properties-updated",

@@ -188,6 +188,12 @@ Services.obs.addObserver(async () => {
 let addressCache = new Map();
 let addressCacheTimer = null;
 
+// Throw away cached cards if the display name properties change, so we can
+// get the updated version of the card that changed.
+Services.prefs.addObserver("mail.displayname.version", () => {
+  addressCache.clear();
+});
+
 /**
  * @implements nsIAbManager
  * @implements nsICommandLineHandler
