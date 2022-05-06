@@ -34,7 +34,7 @@ PER_PROJECT_PARAMETERS = {
         "release_type": "nightly",
     },
     "try-comm-central": {
-        "target_tasks_method": "try_tasks",
+        "target_tasks_method": "try_cc_tasks",
     },
     "comm-central": {
         "target_tasks_method": "comm_central_tasks",
