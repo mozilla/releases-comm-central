@@ -12,6 +12,7 @@
 .key-details-grid {
   display: grid;
   grid-template-columns: max-content 1fr;
+  grid-template-rows: minmax(0, 7em);
   grid-row-gap: 3px;
   align-items: center;
 }
@@ -35,7 +36,7 @@
 }
 
 .additional-key-identity {
-  max-height: 5em;
+  max-height: 7em;
   border-radius: 0;
   padding-inline: 4px;
 }
