@@ -4,6 +4,7 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:host,
 :root {
   --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
   --button-hover-bgcolor: color-mix(in srgb, currentColor 17%, transparent);
@@ -32,6 +33,7 @@
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
 }
 
+:host:-moz-lwtheme,
 :root:-moz-lwtheme {
   --box-text-color: #0c0c0d;
   --box-background-color: #fff;
@@ -88,6 +90,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  :host:-moz-lwtheme,
   :root:-moz-lwtheme,
   :root:not([lwt-tree]):-moz-lwtheme dialog {
     --box-text-color: rgb(249, 249, 250);
@@ -106,6 +109,7 @@
 }
 
 @media (prefers-contrast) {
+  :host:not(:-moz-lwtheme),
   :root:not(:-moz-lwtheme) {
     --button-bgcolor: ButtonFace;
     --button-hover-bgcolor: SelectedItem;
