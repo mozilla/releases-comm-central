@@ -1552,10 +1552,22 @@ ItipItemFinder.prototype = {
                   }
                   if (att) {
                     let firstFoundItem = this.mFoundItems[0];
+
+                    // Where the server automatically adds events to the calendar
+                    // we may end up with a recurring invitation in the "NEEDS-ACTION"
+                    // state. Upon receiving an exception for these, processFoundItems()
+                    // will query the calendar and determine the actionMethod to
+                    // be "REQUEST:NEEDS-ACTION" but process the entire series. To avoid
+                    // that, we detect here if the itip item's item was indeed for
+                    // the whole series or an exception.
+                    if (firstFoundItem.recurrenceInfo && rid) {
+                      firstFoundItem = firstFoundItem.recurrenceInfo.getOccurrenceFor(rid);
+                    }
+
                     // again, fall back to using configured organizer if not found
                     let foundAttendee = firstFoundItem.getAttendeeById(att.id) || att;
 
-                    // If the the user hasn't responded to the invitation yet and we
+                    // If the user hasn't responded to the invitation yet and we
                     // are viewing the current representation of the item, show the
                     // accept/decline buttons. This means newer events will show the
                     // "Update" button and older events will show the "already
