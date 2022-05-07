@@ -377,11 +377,7 @@ async function getComposeDetails(composeWindow, extension) {
   let body = trimContent(
     editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw)
   );
-  let plainTextBody = composeWindow.IsHTMLEditor()
-    ? trimContent(MsgUtils.convertToPlainText(body, true))
-    : trimContent(
-        editor.outputToString("text/plain", Ci.nsIDocumentEncoder.OutputRaw)
-      );
+  let plainTextBody = trimContent(MsgUtils.convertToPlainText(body, true));
 
   let details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
