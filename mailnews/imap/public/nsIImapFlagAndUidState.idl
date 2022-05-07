@@ -41,8 +41,8 @@ interface nsIImapFlagAndUidState : nsISupports
    */
   void orSupportedUserFlags(in unsigned short aFlags);
 
-  void getUidOfMessage(in long zeroBasedIndex, out unsigned long result);
-  void getMessageFlags(in long zeroBasedIndex, out unsigned short result);
+  unsigned long getUidOfMessage(in long zeroBasedIndex);
+  unsigned short getMessageFlags(in long zeroBasedIndex);
   void setMessageFlags(in long zeroBasedIndex, in unsigned short flags);
   void expungeByIndex(in unsigned long zeroBasedIndex);
   void addUidFlagPair(in unsigned long uid, in unsigned short flags, in unsigned long zeroBasedIndex);
@@ -71,4 +71,3 @@ interface nsIImapFlagAndUidState : nsISupports
   ACString getCustomAttribute(in unsigned long aUid,
                               in ACString aCustomAttributeName);
 };
-

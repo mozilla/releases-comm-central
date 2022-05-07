@@ -20,6 +20,8 @@ class ImapResponse {
     this.messages = [];
     // A holder for attributes.
     this.attributes = {};
+    // Expunged message sequences.
+    this.expunged = [];
 
     // The remaining string to parse.
     this._response = "";
@@ -108,6 +110,10 @@ class ImapResponse {
         case "EXISTS":
           // * 6 EXISTS
           this.exists = intValue;
+          break;
+        case "EXPUNGE":
+          // * 2 EXPUNGE
+          this.expunged.push(intValue);
           break;
         case "RECENT":
           // Deprecated in rfc9051.

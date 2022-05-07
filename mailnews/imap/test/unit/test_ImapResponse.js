@@ -153,5 +153,7 @@ add_task(function test_FlagsResponse() {
 add_task(function test_MailboxResponse() {
   let response = new ImapResponse();
   response.parse("* 7 EXISTS\r\n");
+  response.parse("* 1 EXPUNGE\r\n* 3 EXPUNGE\r\n");
   equal(response.exists, 7);
+  deepEqual(response.expunged, [1, 3]);
 });

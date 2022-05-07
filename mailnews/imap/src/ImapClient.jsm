@@ -367,6 +367,11 @@ class ImapClient {
           this._folderState.highestmodseq
         );
     }
+    this._folderSink = this._folder.QueryInterface(Ci.nsIImapMailFolderSink);
+    this._folderSink.UpdateImapMailboxInfo(
+      this,
+      this._getMailboxSpec(res.messages)
+    );
     let latestUid = this._messageUids.at(-1);
     if (latestUid > highestUid) {
       this._nextAction = this._actionUidFetchBodyResponse;
@@ -380,12 +385,31 @@ class ImapClient {
   }
 
   /**
+   * Make an nsIMailboxSpec instance to interact with nsIImapMailFolderSink.
+   * @param {MessageData[]} messages - An array of messages.
+   * @returns {nsIMailboxSpec}
+   */
+  _getMailboxSpec(messages) {
+    let flagState = {
+      QueryInterface: ChromeUtils.generateQI(["nsIImapFlagAndUidState"]),
+      numberOfMessages: messages.length,
+      getUidOfMessage: index => messages[index]?.uid,
+      getMessageFlags: index => messages[index]?.flags,
+    };
+    return {
+      QueryInterface: ChromeUtils.generateQI(["nsIMailboxSpec"]),
+      folder_UIDVALIDITY: this._folderState.uidvalidity,
+      box_flags: this._folderState.flags,
+      flagState,
+    };
+  }
+
+  /**
    * Handle UID FETCH BODY response.
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchBodyResponse(res) {
     this._msgSink = this._folder.QueryInterface(Ci.nsIImapMessageSink);
-    this._folderSink = this._folder.QueryInterface(Ci.nsIImapMailFolderSink);
     for (let msg of res.messages) {
       this._folderSink.StartMessage(this.runningUrl);
       let hdrXferInfo = {
@@ -420,6 +444,7 @@ class ImapClient {
    */
   _actionNoopResponse(res) {
     for (let msg of res.messages) {
+      // Handle message flag changes.
       let uid = this._messageUids[msg.sequence];
       this._folder
         .QueryInterface(Ci.nsIImapMessageSink)
@@ -430,7 +455,18 @@ class ImapClient {
           this._folderState.highestmodseq
         );
     }
-    this._actionDone();
+    if (
+      (res.exists && res.exists != this._folderState.exists) ||
+      res.expunged.length
+    ) {
+      // Handle messages number changes, re-sync the folder.
+      this._folderState.exists = res.exists;
+      this._actionAfterSelectFolder = this._actionUidFetch;
+      this._nextAction = this._actionSelectResponse;
+      this._sendTagged(`SELECT "${this._folder.name}"`);
+    } else {
+      this._actionDone();
+    }
   }
 
   /**
