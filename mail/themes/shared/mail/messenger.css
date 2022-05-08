@@ -792,6 +792,8 @@ hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
   width: 32px;
   height: 32px;
   margin-inline-end: 12px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .popup-notification-icon[popupid="xpinstall-disabled"],
