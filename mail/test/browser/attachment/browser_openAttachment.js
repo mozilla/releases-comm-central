@@ -678,13 +678,8 @@ add_task(async function filenameSanitisedSave() {
   // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
   await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
   await singleClickAttachment();
-  if (AppConstants.platform == "win") {
-    file = await verifyAndFetchSavedAttachment(undefined, "f i le(123).bar");
-    file.remove(false);
-  } else {
-    file = await verifyAndFetchSavedAttachment(undefined, "f*i?|le<123>.bar");
-    file.remove(false);
-  }
+  file = await verifyAndFetchSavedAttachment(undefined, "f i le 123 .bar");
+  file.remove(false);
 });
 
 /**
@@ -720,21 +715,8 @@ add_task(async function filenameSanitisedOpen() {
   await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
   await singleClickAttachment();
   ({ file } = await openedPromise);
-  if (AppConstants.platform == "win") {
-    attachmentFile = await verifyAndFetchSavedAttachment(
-      tmpD,
-      "f i le(123).bar"
-    );
-    Assert.equal(file.leafName, "f i le(123).bar");
-    attachmentFile.permissions = 0o755;
-    attachmentFile.remove(false);
-  } else {
-    attachmentFile = await verifyAndFetchSavedAttachment(
-      tmpD,
-      "f*i?|le<123>.bar"
-    );
-    Assert.equal(file.leafName, "f*i?|le<123>.bar");
-    attachmentFile.permissions = 0o755;
-    attachmentFile.remove(false);
-  }
+  attachmentFile = await verifyAndFetchSavedAttachment(tmpD, "f i le 123 .bar");
+  Assert.equal(file.leafName, "f i le 123 .bar");
+  attachmentFile.permissions = 0o755;
+  attachmentFile.remove(false);
 });
