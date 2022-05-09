@@ -59,6 +59,9 @@ var gOriginalAcceptance;
 var gOriginalPersonal;
 var gUpdateAllowed = false;
 
+let gAllEmailCheckboxes = [];
+let gOkButton;
+
 async function onLoad() {
   if (window.arguments[1]) {
     window.arguments[1].refresh = false;
@@ -69,8 +72,8 @@ async function onLoad() {
 
   gKeyId = window.arguments[0].keyId;
 
-  let accept = document.querySelector("dialog").getButton("accept");
-  accept.focus();
+  gOkButton = document.querySelector("dialog").getButton("accept");
+  gOkButton.focus();
 
   await reloadData(true);
   onAcceptanceChanged();
@@ -128,12 +131,14 @@ async function changeExpiry() {
 
 function onAcceptanceChanged() {
   // The check for gAcceptedEmails.size is to handle an edge case.
-  // If a key was previous accepted, for an email address that is
+  // If a key was previously accepted, for an email address that is
   // now revoked, and another email address has been added,
   // then the key can be marked as accepted without any accepted
   // email address.
   // In this scenario, we must allow the user to edit the accepted
   // email addresses, even if there's just one email address available.
+  // Another scenario is a data inconsistency, with accepted key,
+  // but no accepted email.
 
   let originalAccepted = isAccepted(gOriginalAcceptance);
   let wantAccepted = isAccepted(gAcceptanceRadio.value);
@@ -141,12 +146,14 @@ function onAcceptanceChanged() {
   let disableEmailsTab =
     (wantAccepted &&
       gAllEmails.length < 2 &&
-      (!originalAccepted ||
-        (gAcceptedEmails.size > 0 && !gHaveUnacceptedEmails))) ||
+      gAcceptedEmails.size != 0 &&
+      (!originalAccepted || !gHaveUnacceptedEmails)) ||
     !wantAccepted;
 
   document.getElementById("emailAddressesTab").disabled = disableEmailsTab;
   document.getElementById("emailAddressesPanel").disabled = disableEmailsTab;
+
+  setOkButtonState();
 }
 
 function onDataModified() {
@@ -343,6 +350,11 @@ async function reloadData(firstLoad) {
   }
 }
 
+function setOkButtonState() {
+  let atLeastOneChecked = gAllEmailCheckboxes.some(c => c.checked);
+  gOkButton.disabled = !atLeastOneChecked && isAccepted(gAcceptanceRadio.value);
+}
+
 async function createUidData(keyDetails) {
   var uidList = document.getElementById("userIds");
   while (uidList.firstChild) {
@@ -397,6 +409,7 @@ async function createUidData(keyDetails) {
   } else {
     let emailList = document.getElementById("addressesList");
 
+    let atLeastOneChecked = false;
     let gUniqueEmails = new Set();
 
     for (let i = 0; i < gAllEmails.length; i++) {
@@ -408,17 +421,31 @@ async function createUidData(keyDetails) {
 
       let checkbox = document.createXULElement("checkbox");
 
-      let id = `email-${i}`;
-      checkbox.setAttribute("id", id);
+      checkbox.value = email;
       checkbox.setAttribute("label", email);
+
       checkbox.checked = gAcceptedEmails.has(email);
+      if (checkbox.checked) {
+        atLeastOneChecked = true;
+      }
+
       checkbox.disabled = !gUpdateAllowed;
+      checkbox.addEventListener("command", () => {
+        setOkButtonState();
+      });
 
       emailList.appendChild(checkbox);
+      gAllEmailCheckboxes.push(checkbox);
     }
 
+    // Usually, if we have only one email address available,
+    // we want to hide the tab.
+    // There are edge cases - if we have a data inconsistency
+    // (key accepted, but no email accepted), then we must show,
+    // to allow the user to repair.
+
     document.getElementById("emailAddressesTab").hidden =
-      gUniqueEmails.size < 2;
+      gUniqueEmails.size < 2 && atLeastOneChecked;
   }
 }
 
@@ -871,13 +898,9 @@ document.addEventListener("dialogaccept", async function(event) {
   // signature acceptance was edited.
   if (gUpdateAllowed) {
     let selectedEmails = new Set();
-    for (let i = 0; i < gAllEmails.length; i++) {
-      let email = gAllEmails[i];
-
-      let id = `email-${i}`;
-      let checkbox = document.getElementById(id);
+    for (let checkbox of gAllEmailCheckboxes) {
       if (checkbox.checked) {
-        selectedEmails.add(email);
+        selectedEmails.add(checkbox.value);
       }
     }
 
