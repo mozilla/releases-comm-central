@@ -2849,10 +2849,13 @@ Enigmail.msg = {
 
     this.fetchParticipants();
 
-    let addedToIndex = false;
-    let nextIndex = Enigmail.msg.attachedKeys.length;
-
     for (let newKey of preview) {
+      let keyDataOneKey = await RNP.getOnePubKeyFromKeyBlock(
+        keyData,
+        newKey.fpr,
+        false
+      );
+
       let oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
       if (!oldKey) {
         // If the key is unknown, an expired/revoked key cannot help us
@@ -2899,6 +2902,7 @@ Enigmail.msg = {
           // If it's a non expired, non revoked new key, in the email
           // author's name (email address match), then offer it for
           // manual (immediate) import.
+          let nextIndex = Enigmail.msg.attachedKeys.length;
           let info = {
             fpr: "0x" + newKey.fpr,
             idx: nextIndex,
@@ -2906,7 +2910,7 @@ Enigmail.msg = {
             binary: isBinaryAutocrypt,
           };
           Enigmail.msg.attachedSenderEmailKeysIndex.push(info);
-          addedToIndex = true;
+          Enigmail.msg.attachedKeys.push(keyDataOneKey);
         }
 
         // We want to collect keys for potential later use, however,
@@ -2947,8 +2951,8 @@ Enigmail.msg = {
             candidate.skip = false;
             candidate.newKeyObj = newKey;
             candidate.pubKey = isBinaryAutocrypt
-              ? RNP.enArmorString(keyData, "public key")
-              : keyData;
+              ? RNP.enArmorString(keyDataOneKey, "public key")
+              : keyDataOneKey;
             candidate.source = {
               uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
@@ -2986,7 +2990,7 @@ Enigmail.msg = {
       if (
         !(await EnigmailKeyRing.importKeyDataSilent(
           window,
-          keyData,
+          keyDataOneKey,
           isBinaryAutocrypt,
           "0x" + newKey.fpr
         ))
@@ -2995,10 +2999,6 @@ Enigmail.msg = {
           "EnigmailKeyRing.importKeyDataSilent failed 0x" + newKey.fpr
         );
       }
-    }
-
-    if (addedToIndex) {
-      Enigmail.msg.attachedKeys.push(keyData);
     }
   },
 

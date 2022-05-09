@@ -1837,6 +1837,29 @@ var RNP = {
 
   maxImportKeyBlockSize: 5000000,
 
+  async getOnePubKeyFromKeyBlock(keyBlockStr, fpr, permissive = true) {
+    if (!keyBlockStr) {
+      throw new Error(`Invalid parameter; keyblock: ${keyBlockStr}`);
+    }
+
+    if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
+      throw new Error("rejecting big keyblock");
+    }
+
+    let tempFFI = new RNPLib.rnp_ffi_t();
+    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+      throw new Error("Couldn't initialize librnp.");
+    }
+
+    let pubKey;
+    if (!this.importToFFI(tempFFI, keyBlockStr, true, false, permissive)) {
+      pubKey = await this.getPublicKey("0x" + fpr, tempFFI);
+    }
+
+    RNPLib.rnp_ffi_destroy(tempFFI);
+    return pubKey;
+  },
+
   async getKeyListFromKeyBlockImpl(
     keyBlockStr,
     pubkey = true,
