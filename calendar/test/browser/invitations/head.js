@@ -237,6 +237,8 @@ async function doReplyTest(transport, identity, partStat) {
  * @property {string} partStat The participationStatus of the receiving user to
  *   expect.
  * @property {boolean} noReply If true, do not expect an attempt to send a reply.
+ * @property {boolean} isMajor For update tests indicates if the changes expected
+ *  are major or minor.
  */
 
 /**
@@ -722,4 +724,70 @@ async function doMajorExceptionTest(conf) {
   }
 
   await calendar.deleteItem(event);
+}
+
+/**
+ * Test the properties of an event created from a minor or major exception where
+ * we have not added the original event and optionally, the attempt to send a
+ * reply.
+ *
+ * @param {ImipBarActionTestConf} conf
+ */
+async function doExceptionOnlyTest(conf) {
+  let { calendar, transport, identity, partStat, noReply, isMajor } = conf;
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
+
+  // Exceptions are still created as recurring events.
+  Assert.ok(event != event.parentItem, "event created is a recurring event");
+  let occurrences = event.parentItem.recurrenceInfo.getOccurrences(
+    cal.createDateTime("10000101"),
+    cal.createDateTime("30000101"),
+    Infinity
+  );
+  Assert.equal(occurrences.length, 1, "parent item only has one occurrence");
+  Assert.ok(occurrences[0] == event, "occurrence is the event exception");
+
+  info("Verifying relevant properties of the event");
+  compareProperties(event, {
+    id: "02e79b96",
+    title: isMajor ? event.title : "Exception title",
+    "calendar.name": calendar.name,
+    "recurrenceId.icalString": "20220317T110000Z",
+    "startDate.icalString": isMajor ? "20220317T050000Z" : "20220317T110000Z",
+    "endDate.icalString": isMajor ? "20220317T053000Z" : "20220317T113000Z",
+    description: isMajor ? event.getProperty("DESCRIPTION") : "Exception description",
+    location: isMajor ? event.getProperty("LOCATION") : "Exception location",
+    sequence: isMajor ? "2" : "0",
+    "x-moz-received-dtstamp": isMajor
+      ? event.getProperty("x-moz-received-dtstamp")
+      : "20220318T191602Z",
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  });
+
+  // Alarms should be ignored.
+  Assert.equal(event.getAlarms().length, 0, "event has no reminders");
+
+  info("Verifying attendee list and participation status");
+  let attendees = event.getAttendees();
+  compareProperties(attendees, {
+    "0.id": "mailto:sender@example.com",
+    "0.participationStatus": "ACCEPTED",
+    "1.participationStatus": partStat,
+    "1.id": "mailto:receiver@example.com",
+    "2.id": "mailto:other@example.com",
+    "2.participationStatus": "NEEDS-ACTION",
+  });
+
+  if (noReply) {
+    Assert.equal(
+      transport.sentItems.length,
+      0,
+      "itip subsystem did not attempt to send a response"
+    );
+    Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+  } else {
+    await doReplyTest(transport, identity, partStat);
+  }
+  await calendar.deleteItem(event.parentItem);
 }
