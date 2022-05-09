@@ -69,9 +69,13 @@ class CalItipMessageSender {
       if (originalItem.recurrenceId && !item.recurrenceId) {
         // sanity check: assure item doesn't refer to the master
         item = item.recurrenceInfo.getOccurrenceFor(originalItem.recurrenceId);
-        cal.ASSERT(item, "unexpected!");
         if (!item) {
           return this.pendingMessageCount;
+        }
+        // Use the calIAttendee instance from the occurrence in case there is a
+        // difference in participationStatus between it and the parent.
+        if (invitedAttendee) {
+          invitedAttendee = item.getAttendeeById(invitedAttendee.id);
         }
       }
 
