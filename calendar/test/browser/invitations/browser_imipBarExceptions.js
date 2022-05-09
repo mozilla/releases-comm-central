@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests for receiving minor and major updates to recurring event invitations
- * via the imip-bar.
+ * Tests for handling exceptions to recurring event invitations via the imip-bar.
  */
 
 "use strict";
@@ -47,6 +46,7 @@ add_setup(async function() {
   let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
+
   let markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
@@ -59,58 +59,62 @@ add_setup(async function() {
 });
 
 /**
- * Tests a minor update to an already accepted event.
+ * Tests a minor update exception to an already accepted recurring event.
  */
-add_task(async function testMinorUpdateToAccepted() {
+add_task(async function testMinorUpdateExceptionToAccepted() {
   transport.reset();
   let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
   let win = await openImipMessage(invite);
   await clickAction(win, "imipAcceptRecurrencesButton");
 
   await BrowserTestUtils.closeWindow(win);
-  await doMinorUpdateTest({
+  await doMinorExceptionTest({
     transport,
     calendar,
-    isRecurring: true,
     partStat: "ACCEPTED",
   });
 });
 
 /**
- * Tests a minor update to an already tentatively accepted event.
+ * Tests a minor update exception to an already tentatively accepted recurring
+ * event.
  */
-add_task(async function testMinorUpdateToTentative() {
+add_task(async function testMinorUpdateExceptionToTentative() {
   transport.reset();
   let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
   let win = await openImipMessage(invite);
   await clickAction(win, "imipTentativeRecurrencesButton");
 
   await BrowserTestUtils.closeWindow(win);
-  await doMinorUpdateTest({
+  await doMinorExceptionTest({
     transport,
     calendar,
-    isRecurring: true,
     partStat: "TENTATIVE",
   });
 });
 
 /**
- * Tests a minor update to an already declined event.
+ * Tests a minor update exception to an already decliend recurring decliend
+ * event.
  */
-add_task(async function testMinorUpdateToDeclined() {
+add_task(async function testMinorUpdateExceptionToDeclined() {
   transport.reset();
   let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
   let win = await openImipMessage(invite);
   await clickAction(win, "imipDeclineRecurrencesButton");
 
   await BrowserTestUtils.closeWindow(win);
-  await doMinorUpdateTest({ transport, calendar, isRecurring: true, invite, partStat: "DECLINED" });
+  await doMinorExceptionTest({
+    transport,
+    calendar,
+    partStat: "DECLINED",
+  });
 });
 
 /**
- * Tests a major update to an already accepted event.
+ * Tests a major update exception to an already accepted event.
  */
-add_task(async function testMajorUpdateToAcceptedWithResponse() {
+add_task(async function testMajorExceptionToAcceptedWithResponse() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
     let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
@@ -118,20 +122,19 @@ add_task(async function testMajorUpdateToAcceptedWithResponse() {
     await clickAction(win, "imipAcceptRecurrencesButton");
 
     await BrowserTestUtils.closeWindow(win);
-    await doMajorUpdateTest({
+    await doMajorExceptionTest({
       transport,
       identity,
       calendar,
-      isRecurring: true,
       partStat,
     });
   }
 });
 
 /**
- * Tests a major update to an already tentatively accepted event.
+ * Tests a major update exception to an already tentatively accepted event.
  */
-add_task(async function testMajorUpdateToTentativeWithResponse() {
+add_task(async function testMajorExceptionToTentativeWithResponse() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
     let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
@@ -139,20 +142,19 @@ add_task(async function testMajorUpdateToTentativeWithResponse() {
     await clickAction(win, "imipTentativeRecurrencesButton");
 
     await BrowserTestUtils.closeWindow(win);
-    await doMajorUpdateTest({
+    await doMajorExceptionTest({
       transport,
       identity,
       calendar,
-      isRecurring: true,
       partStat,
     });
   }
 });
 
 /**
- * Tests a major update to an already declined event.
+ * Tests a major update exception to an already declined event.
  */
-add_task(async function testMajorUpdateToDeclinedWithResponse() {
+add_task(async function testMajorExceptionToDeclinedWithResponse() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
     let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
@@ -160,7 +162,7 @@ add_task(async function testMajorUpdateToDeclinedWithResponse() {
     await clickAction(win, "imipDeclineRecurrencesButton");
 
     await BrowserTestUtils.closeWindow(win);
-    await doMajorUpdateTest({
+    await doMajorExceptionTest({
       transport,
       identity,
       calendar,
@@ -171,10 +173,10 @@ add_task(async function testMajorUpdateToDeclinedWithResponse() {
 });
 
 /**
- * Tests a major update to an already accepted event without replying to the
- * update.
+ * Tests a major update exception to an already accepted event without sending
+ * a reply.
  */
-add_task(async function testMajorUpdateToAcceptedWithoutResponse() {
+add_task(async function testMajorExecptionToAcceptedWithoutResponse() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
     let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
@@ -186,7 +188,7 @@ add_task(async function testMajorUpdateToAcceptedWithoutResponse() {
     );
 
     await BrowserTestUtils.closeWindow(win);
-    await doMajorUpdateTest({
+    await doMajorExceptionTest({
       transport,
       calendar,
       isRecurring: true,
@@ -197,8 +199,8 @@ add_task(async function testMajorUpdateToAcceptedWithoutResponse() {
 });
 
 /**
- * Tests a major update to an already tentatively accepted event without replying
- * to the update.
+ * Tests a major update exception to an already tentatively accepted event
+ * without sending a reply.
  */
 add_task(async function testMajorUpdateToTentativeWithoutResponse() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
@@ -212,7 +214,7 @@ add_task(async function testMajorUpdateToTentativeWithoutResponse() {
     );
 
     await BrowserTestUtils.closeWindow(win);
-    await doMajorUpdateTest({
+    await doMajorExceptionTest({
       transport,
       calendar,
       isRecurring: true,
@@ -223,7 +225,7 @@ add_task(async function testMajorUpdateToTentativeWithoutResponse() {
 });
 
 /**
- * Tests a major update to an already declined event.
+ * Tests a major update exception to a declined event without sending a reply.
  */
 add_task(async function testMajorUpdateToDeclinedWithoutResponse() {
   for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
@@ -237,7 +239,7 @@ add_task(async function testMajorUpdateToDeclinedWithoutResponse() {
     );
 
     await BrowserTestUtils.closeWindow(win);
-    await doMajorUpdateTest({
+    await doMajorExceptionTest({
       transport,
       calendar,
       isRecurring: true,

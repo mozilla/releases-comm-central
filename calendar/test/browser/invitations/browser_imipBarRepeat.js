@@ -8,9 +8,6 @@
 "use strict";
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { CalItipDefaultEmailTransport } = ChromeUtils.import(
-  "resource:///modules/CalItipEmailTransport.jsm"
-);
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -18,24 +15,15 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
-let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems)
-  .wrappedJSObject;
-
-let account;
 let identity;
 let calendar;
 let transport;
-let getImipTransport = cal.itip.getImipTransport;
-let markDeleted = deleteMgr.markDeleted;
-
-let startRange = cal.createDateTime("19990101");
-let endRange = cal.createDateTime("20400101");
 
 /**
  * Initialize account, identity and calendar.
  */
 add_setup(async function() {
-  account = MailServices.accounts.createAccount();
+  let account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -50,9 +38,14 @@ add_setup(async function() {
 
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
-  getImipTransport = cal.itip.getImipTransport;
+
+  let getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
-  markDeleted = deleteMgr.markDeleted;
+
+  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+    Ci.calIDeletedItems
+  ).wrappedJSObject;
+  let markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
