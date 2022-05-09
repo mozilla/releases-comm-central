@@ -106,7 +106,7 @@ function initSmtpSettings(server) {
   setLabelFromStringBundle("authMethod-anysecure", "authAnySecure");
   setLabelFromStringBundle("authMethod-any", "authAny");
 
-  sizeToContent();
+  window.sizeToContent();
 
   sslChanged(false);
   authMethodChanged(false);

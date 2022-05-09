@@ -932,7 +932,7 @@ function resizeDialog() {
     if (parent.gSubDialog) {
       parent.gSubDialog._topDialog.resizeVertically();
     } else {
-      sizeToContent();
+      window.sizeToContent();
     }
   }, 230);
 }

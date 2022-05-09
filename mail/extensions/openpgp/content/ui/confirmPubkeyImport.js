@@ -83,7 +83,7 @@ async function init() {
   }
 
   await document.l10n.translateElements(l10nElements);
-  sizeToContent();
+  window.sizeToContent();
   window.moveTo(
     (screen.width - window.outerWidth) / 2,
     (screen.height - window.outerHeight) / 2
