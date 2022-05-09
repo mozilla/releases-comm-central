@@ -134,6 +134,8 @@ about-addressbook-confirm-delete-contacts =
 
 ## Details
 
+about-addressbook-write-action-button = Write
+
 about-addressbook-begin-edit-contact-button = Edit
 about-addressbook-delete-edit-contact-button = Delete
 about-addressbook-cancel-edit-contact-button = Cancel
@@ -141,9 +143,23 @@ about-addressbook-save-edit-contact-button = Save
 
 about-addressbook-details-email-addresses-header = Email Addresses
 about-addressbook-details-phone-numbers-header = Phone Numbers
-about-addressbook-details-home-address-header = Home Address
-about-addressbook-details-work-address-header = Work Address
+about-addressbook-details-addresses-header = Addresses
+about-addressbook-details-notes-header = Notes
 about-addressbook-details-other-info-header = Other Information
+
+about-addressbook-entry-type-work = Work
+about-addressbook-entry-type-home = Home
+about-addressbook-entry-type-fax = Fax
+about-addressbook-entry-type-cell = Cell
+about-addressbook-entry-type-pager = Pager
+
+about-addressbook-entry-name-birthday = Birthday
+about-addressbook-entry-name-anniversary = Anniversary
+about-addressbook-entry-name-title = Title
+about-addressbook-entry-name-department = Department
+about-addressbook-entry-name-organization = Organization
+about-addressbook-entry-name-website = Website
+about-addressbook-entry-name-time-zone = Time Zone
 
 about-addressbook-unsaved-changes-prompt-title = Unsaved Changes
 about-addressbook-unsaved-changes-prompt = Do you want to save your changes before leaving the edit view?

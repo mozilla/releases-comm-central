@@ -337,10 +337,6 @@ ab-card-listrow:not(.selected) > div.address {
   flex-direction: column;
 }
 
-#detailsPane > * {
-  padding-inline: 20px;
-}
-
 body.is-editing #detailsPane {
   z-index: 2;
   background-color: var(--in-content-page-background);
@@ -365,20 +361,6 @@ body:not(.is-editing) #detailsPaneBackdrop {
   padding-top: 30px;
 }
 
-#detailsHeader {
-  min-width: 27.5em;
-  max-width: 54.5em;
-  display: flex;
-  align-items: center;
-}
-
-#detailsHeader h1 {
-  margin-block: 0 0.25em;
-  flex: 1;
-  font-size: 1.75em;
-  font-weight: 400;
-}
-
 body.is-editing #detailsPane .view {
   display: none;
 }
@@ -387,19 +369,31 @@ body:not(.is-editing) #detailsPane :is(.edit, .noValue) {
   display: none !important;
 }
 
+#detailsHeader,
+#detailsBody,
+#detailsFooter {
+  padding-inline: 20px;
+  max-width: 54em;
+}
+
+#detailsHeader {
+  display: flex;
+  align-items: center;
+}
+
 #photoOuter {
-  margin-inline-start: 1em;
-  width: 150px;
-  height: 150px;
+  margin-inline-end: 1em;
+  width: 100px;
+  height: 100px;
   display: grid;
 }
 
 #photo,
 #photoOverlay {
+  width: 100px;
+  height: 100px;
   grid-column: 1;
   grid-row: 1;
-  width: 150px;
-  height: 150px;
   border-radius: 100%;
 }
 
@@ -437,45 +431,129 @@ body.is-editing #detailsPane #photoOverlay {
   cursor: pointer;
 }
 
-#detailsPane h2 {
-  margin-block: 0.75em 0.25em;
-  font-size: 1.25em;
+#nameOuter {
+  flex: 1;
+}
+
+#nameOuter h1 {
+  margin-block: 0 0.25em;
+  font-size: 1.6em;
   font-weight: 400;
 }
 
-#detailsFooter {
+#nameOuter h2 {
+  margin-block: 0;
+  font-size: 1.2em;
+  font-weight: 400;
+  color: var(--in-content-deemphasized-text);
+}
+
+#detailsBody {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(26.5em, 1fr));
+  grid-template-rows: masonry;
+  gap: 1em;
+}
+
+#detailsActions {
+  grid-column: 1 / -1;
+}
+
+#detailsBody section {
+  padding: 1em;
+  border-radius: 3px;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
+  font-size: 15px;
+  line-height: 18px;
+  box-shadow: 0 0 3px var(--in-content-button-background);
+}
+
+.button-block {
   display: flex;
   justify-content: space-between;
-  min-width: 27.5em;
-  max-width: 54.5em;
+}
+
+.button-block div {
+  display: flex;
+  align-items: center;
+}
+
+.icon-button:not([hidden]) {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background-color: transparent;
+}
+
+.icon-button:hover {
+  background-color: var(--in-content-button-background);
+}
+
+.icon-button:hover:active {
+  background-color: var(--in-content-button-background-active);
+}
+
+.icon-button::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: fill, stroke-opacity;
+  fill: currentColor;
+  stroke-opacity: 0;
+}
+
+#detailsWriteButton::before {
+  background-image: url("chrome://messenger/skin/icons/newmsg.svg");
+}
+
+#detailsPane section h3 {
+  margin-top: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+#detailsPane section ul {
+  margin-bottom: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: min-content auto;
+  gap: 0.5em;
+  align-items: baseline;
+  list-style: none inside;
+}
+
+#detailsPane section li {
+  display: contents;
+}
+
+section#notes div {
+  white-space: pre-wrap;
+}
+
+.entry-type {
+  font-size: 0.75em;
+  font-weight: bold;
+  line-height: normal;
+  text-transform: uppercase;
+}
+
+#detailsFooter {
   padding-block: 15px;
   background-color: var(--in-content-page-background);
 }
 
-#deleteEditButton:not([hidden]) {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background-color: transparent;
+#detailsDeleteButton {
   color: var(--red-60);
   outline-color: var(--red-60);
 }
 
-#deleteEditButton:hover {
-  background-color: var(--in-content-button-background);
-}
-
-#deleteEditButton:hover:active {
-  background-color: var(--in-content-button-background-active);
-}
-
-#deleteEditButton::before {
-  content: "";
-  width: 16px;
-  height: 16px;
+#detailsDeleteButton::before {
   background-image: url("chrome://messenger/skin/icons/delete.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 input[type="number"] {
@@ -535,7 +613,7 @@ input[type="number"]::-moz-number-spin-down {
 }
 
 #photoDropTarget {
-  height: 150px;
+  height: 100px;
   background-color: var(--in-content-button-background);
   background-image: url("chrome://messenger/skin/icons/contact.svg");
   background-size: 80px;

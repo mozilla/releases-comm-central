@@ -24,10 +24,14 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
   AppConstants: "resource://gre/modules/AppConstants.jsm",
+  cal: "resource:///modules/calendar/calUtils.jsm",
+  CalMetronome: "resource:///modules/CalMetronome.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
+  ICAL: "resource:///modules/calendar/Ical.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
+  VCardProperties: "resource:///modules/VCardUtils.jsm",
   VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
 XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
@@ -1683,15 +1687,15 @@ var detailsPane = {
 
   init() {
     this.form = document.getElementById("detailsPane");
+    this.writeButton = document.getElementById("detailsWriteButton");
     this.editButton = document.getElementById("editButton");
-    this.deleteEditButton = document.getElementById("deleteEditButton");
+    this.deleteButton = document.getElementById("detailsDeleteButton");
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
 
-    this.editButton.addEventListener("click", () => this.editCurrentContact());
-    this.deleteEditButton.addEventListener("click", () =>
-      this.deleteCurrentContact()
-    );
+    document.getElementById("detailsActions").addEventListener("click", this);
+    document.getElementById("detailsFooter").addEventListener("click", this);
+
     this.form.addEventListener("input", event => {
       let { type, checked, value, _originalValue } = event.target;
       let changed;
@@ -1780,6 +1784,14 @@ var detailsPane = {
     );
   },
 
+  handleEvent(event) {
+    switch (event.type) {
+      case "click":
+        this._onClick(event);
+        break;
+    }
+  },
+
   /**
    * Is a card being edited?
    * @type {boolean}
@@ -1849,6 +1861,11 @@ var detailsPane = {
       return;
     }
 
+    document.querySelector("h1").textContent = card.generateName(
+      ABView.nameFormat
+    );
+    document.querySelector("h2").textContent = card.primaryEmail;
+
     let photoURL = null;
 
     if (card.supportsVCard) {
@@ -1883,6 +1900,202 @@ var detailsPane = {
     delete this.photo._blob;
     delete this.photo._cropRect;
 
+    this.writeButton.hidden = !card.primaryEmail;
+
+    let vCardProperties = card.supportsVCard
+      ? card.vCardProperties
+      : VCardProperties.fromPropertyMap(
+          new Map(card.properties.map(p => [p.name, p.value]))
+        );
+
+    let template = document.getElementById("entryItem");
+    let createEntryItem = function(name) {
+      let li = template.content.firstElementChild.cloneNode(true);
+      if (name) {
+        document.l10n.setAttributes(
+          li.querySelector(".entry-type"),
+          `about-addressbook-entry-name-${name}`
+        );
+      }
+      return li;
+    };
+    let setEntryType = function(li, entry, allowed = ["work", "home"]) {
+      if (!entry.params.type) {
+        return;
+      }
+      let lowerTypes = Array.isArray(entry.params.type)
+        ? entry.params.type.map(t => t.toLowerCase())
+        : [entry.params.type.toLowerCase()];
+      let lowerType = lowerTypes.find(t => allowed.includes(t));
+      if (!lowerType) {
+        return;
+      }
+
+      document.l10n.setAttributes(
+        li.querySelector(".entry-type"),
+        `about-addressbook-entry-type-${lowerType}`
+      );
+    };
+
+    let section = document.getElementById("emailAddresses");
+    let list = section.querySelector("ul");
+    list.replaceChildren();
+    for (let entry of vCardProperties.getAllEntries("email")) {
+      let li = list.appendChild(createEntryItem());
+      setEntryType(li, entry);
+      let addr = MailServices.headerParser.makeMimeAddress(
+        card.displayName,
+        entry.value
+      );
+      let a = document.createElement("a");
+      a.href = "mailto:" + encodeURIComponent(addr);
+      a.textContent = entry.value;
+      li.querySelector(".entry-value").appendChild(a);
+    }
+    section.hidden = list.childElementCount == 0;
+
+    section = document.getElementById("phoneNumbers");
+    list = section.querySelector("ul");
+    list.replaceChildren();
+    for (let entry of vCardProperties.getAllEntries("tel")) {
+      let li = list.appendChild(createEntryItem());
+      setEntryType(li, entry, ["work", "home", "fax", "cell", "pager"]);
+      li.querySelector(".entry-value").textContent = entry.value.replace(
+        /^tel:/,
+        ""
+      );
+    }
+    section.hidden = list.childElementCount == 0;
+
+    section = document.getElementById("addresses");
+    list = section.querySelector("ul");
+    list.replaceChildren();
+    for (let entry of vCardProperties.getAllEntries("adr")) {
+      let parts = [];
+      for (let part of entry.value) {
+        if (Array.isArray(part)) {
+          parts.push(...part);
+        } else {
+          parts.push(part);
+        }
+      }
+
+      let li = list.appendChild(createEntryItem());
+      setEntryType(li, entry);
+      let span = li.querySelector(".entry-value");
+      for (let part of parts.filter(Boolean)) {
+        if (span.firstChild) {
+          span.appendChild(document.createElement("br"));
+        }
+        span.appendChild(document.createTextNode(part));
+      }
+    }
+    section.hidden = list.childElementCount == 0;
+
+    section = document.getElementById("notes");
+    let note = vCardProperties.getFirstValue("note");
+    if (note) {
+      section.querySelector("div").textContent = note;
+      section.hidden = false;
+    } else {
+      section.hidden = true;
+    }
+
+    section = document.getElementById("otherInfo");
+    list = section.querySelector("ul");
+    list.replaceChildren();
+
+    let formatDate = function(date) {
+      date = ICAL.VCardTime.fromDateAndOrTimeString(date);
+      if (date.year) {
+        if (date.month && date.day) {
+          return new Services.intl.DateTimeFormat(
+            Services.locale.appLocalesAsBCP47,
+            { month: "long", day: "numeric", year: "numeric" }
+          ).format(new Date(date.year, date.month - 1, date.day));
+        }
+        return date.year;
+      } else if (date.month && date.day) {
+        return new Services.intl.DateTimeFormat(
+          Services.locale.appLocalesAsBCP47,
+          { month: "long", day: "numeric" }
+        ).format(new Date(2022, date.month - 1, date.day));
+      }
+      return "";
+    };
+
+    let bday = vCardProperties.getFirstValue("bday");
+    if (bday) {
+      let value = formatDate(bday);
+      if (value) {
+        let li = list.appendChild(createEntryItem("birthday"));
+        li.querySelector(".entry-value").textContent = value;
+      }
+    }
+
+    let anniversary = vCardProperties.getFirstValue("anniversary");
+    if (anniversary) {
+      let value = formatDate(anniversary);
+      if (value) {
+        let li = list.appendChild(createEntryItem("anniversary"));
+        li.querySelector(".entry-value").textContent = value;
+      }
+    }
+
+    let title = vCardProperties.getFirstValue("title");
+    if (title) {
+      let li = list.appendChild(createEntryItem("title"));
+      li.querySelector(".entry-value").textContent = title;
+    }
+
+    let org = vCardProperties.getFirstValue("org");
+    if (org) {
+      if (org[1]) {
+        let li = list.appendChild(createEntryItem("department"));
+        li.querySelector(".entry-value").textContent = org[1];
+      }
+      if (org[0]) {
+        let li = list.appendChild(createEntryItem("organization"));
+        li.querySelector(".entry-value").textContent = org[0];
+      }
+    }
+
+    for (let entry of vCardProperties.getAllEntries("url")) {
+      if (!/https?:\/\//.test(entry.value)) {
+        continue;
+      }
+
+      let li = list.appendChild(createEntryItem("website"));
+      let a = document.createElement("a");
+      a.href = entry.value;
+      let url = new URL(entry.value);
+      a.textContent =
+        url.pathname == "/" && !url.search
+          ? url.host
+          : `${url.host}${url.pathname}${url.search}`;
+      li.querySelector(".entry-value").appendChild(a);
+    }
+
+    let tz = vCardProperties.getFirstValue("tz");
+    if (tz) {
+      let li = list.appendChild(createEntryItem("time-zone"));
+      try {
+        li.querySelector(
+          ".entry-value"
+        ).textContent = cal.timezoneService.getTimezone(tz).displayName;
+      } catch {
+        li.querySelector(".entry-value").textContent = tz;
+      }
+      li.querySelector(".entry-value").appendChild(
+        document.createElement("br")
+      );
+
+      let time = document.createElement("span", { is: "active-time" });
+      time.setAttribute("tz", tz);
+      li.querySelector(".entry-value").appendChild(time);
+    }
+    section.hidden = list.childElementCount == 0;
+
     this.isEditing = false;
     this.form.scrollTo(0, 0);
     this.form.hidden = false;
@@ -1904,13 +2117,14 @@ var detailsPane = {
 
     if (!card) {
       document.querySelector("h1").textContent = "";
+      document.querySelector("h2").textContent = "";
       this.photo.style.backgroundImage = null;
       delete this.photo._blob;
       delete this.photo._cropRect;
       delete this.photo._url;
     }
 
-    this.deleteEditButton.hidden = !card;
+    this.deleteButton.hidden = !card;
 
     this.isEditing = true;
     this.form.hidden = false;
@@ -2104,6 +2318,27 @@ var detailsPane = {
         this.firstName.value,
         this.lastName.value,
       ]);
+    }
+  },
+
+  _onClick(event) {
+    switch (event.target.id) {
+      case "detailsWriteButton":
+        if (this.currentCard.primaryEmail) {
+          cardsPane.writeTo([
+            MailServices.headerParser.makeMimeAddress(
+              this.currentCard.displayName,
+              this.currentCard.primaryEmail
+            ),
+          ]);
+        }
+        break;
+      case "editButton":
+        this.editCurrentContact();
+        break;
+      case "detailsDeleteButton":
+        this.deleteCurrentContact();
+        break;
     }
   },
 
@@ -2669,3 +2904,52 @@ var printHandler = {
     );
   },
 };
+
+/**
+ * A span that displays the current time in a given time zone.
+ * The time is updated every minute.
+ */
+class ActiveTime extends HTMLSpanElement {
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+
+    this.hasConnected = true;
+    this.setAttribute("is", "active-time");
+
+    try {
+      this.formatter = new Services.intl.DateTimeFormat(
+        Services.locale.appLocalesAsBCP47,
+        {
+          timeZone: this.getAttribute("tz"),
+          weekday: "long",
+          hour: "numeric",
+          minute: "2-digit",
+        }
+      );
+    } catch {
+      // DateTimeFormat will throw if the time zone is unknown.
+      // If it does this will just be an empty span.
+      return;
+    }
+    this.update = this.update.bind(this);
+    this.update();
+
+    CalMetronome.on("minute", this.update);
+    window.addEventListener("unload", this, { once: true });
+  }
+
+  disconnectedCallback() {
+    CalMetronome.off("minute", this.update);
+  }
+
+  handleEvent() {
+    CalMetronome.off("minute", this.update);
+  }
+
+  update() {
+    this.textContent = this.formatter.format(new Date());
+  }
+}
+customElements.define("active-time", ActiveTime, { extends: "span" });

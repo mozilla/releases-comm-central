@@ -655,7 +655,7 @@ add_task(async function test_delete_button() {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let editButton = abDocument.getElementById("editButton");
-  let deleteEditButton = abDocument.getElementById("deleteEditButton");
+  let deleteButton = abDocument.getElementById("detailsDeleteButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
 
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane), "details pane is hidden");
@@ -666,7 +666,7 @@ add_task(async function test_delete_button() {
   await inEditingMode();
 
   Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(deleteEditButton));
+  Assert.ok(BrowserTestUtils.is_hidden(deleteButton));
   Assert.ok(BrowserTestUtils.is_visible(saveEditButton));
 
   setInputValues({
@@ -678,7 +678,7 @@ add_task(async function test_delete_button() {
   await notInEditingMode();
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(deleteEditButton));
+  Assert.ok(BrowserTestUtils.is_hidden(deleteButton));
 
   Assert.equal(personalBook.childCardCount, 1, "contact was not deleted");
   let contact = personalBook.childCards[0];
@@ -689,12 +689,12 @@ add_task(async function test_delete_button() {
   await inEditingMode();
 
   Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_visible(deleteEditButton));
+  Assert.ok(BrowserTestUtils.is_visible(deleteButton));
 
   // Click to delete, cancel the deletion.
 
   let promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  EventUtils.synthesizeMouseAtCenter(deleteEditButton, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
   await promptPromise;
   await new Promise(resolve => abWindow.setTimeout(resolve));
 
@@ -705,7 +705,7 @@ add_task(async function test_delete_button() {
 
   let deletionPromise = TestUtils.topicObserved("addrbook-contact-deleted");
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeMouseAtCenter(deleteEditButton, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
   await promptPromise;
   await notInEditingMode();
 
@@ -737,7 +737,7 @@ add_task(async function test_delete_button() {
   );
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(deleteEditButton));
+  Assert.ok(BrowserTestUtils.is_hidden(deleteButton));
 
   // Click to edit.
 
@@ -745,13 +745,13 @@ add_task(async function test_delete_button() {
   await inEditingMode();
 
   Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_visible(deleteEditButton));
+  Assert.ok(BrowserTestUtils.is_visible(deleteButton));
 
   // Click to delete, accept the deletion.
 
   deletionPromise = TestUtils.topicObserved("addrbook-contact-deleted");
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeMouseAtCenter(deleteEditButton, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
   await promptPromise;
   await notInEditingMode();
 

@@ -106,21 +106,61 @@
   </div>
   <form id="detailsPane" autocomplete="off" hidden="hidden">
     <div id="detailsInner">
-      <div id="detailsHeader">
-        <h1></h1>
-        <button type="button" id="editButton"
-                class="view"
-                data-l10n-id="about-addressbook-begin-edit-contact-button"></button>
+      <section id="detailsHeader">
         <div id="photoOuter">
           <div id="photo"></div>
           <div id="photoOverlay" tabindex="0"></div>
         </div>
-      </div>
+        <div id="nameOuter">
+          <h1></h1>
+          <h2></h2>
+        </div>
+      </section>
+      <section id="detailsBody" class="view">
+        <section id="detailsActions" class="button-block">
+          <div>
+            <button type="button" id="detailsWriteButton"
+                    class="icon-button"
+                    data-l10n-id="about-addressbook-write-action-button"></button>
+          </div>
+          <div>
+            <button type="button" id="editButton"
+                    data-l10n-id="about-addressbook-begin-edit-contact-button"></button>
+          </div>
+        </section>
+        <section id="emailAddresses">
+          <h3 data-l10n-id="about-addressbook-details-email-addresses-header"></h3>
+          <ul></ul>
+        </section>
+        <section id="phoneNumbers">
+          <h3 data-l10n-id="about-addressbook-details-phone-numbers-header"></h3>
+          <ul></ul>
+        </section>
+        <section id="addresses">
+          <h3 data-l10n-id="about-addressbook-details-addresses-header"></h3>
+          <ul></ul>
+        </section>
+        <section id="notes">
+          <h3 data-l10n-id="about-addressbook-details-notes-header"></h3>
+          <div></div>
+        </section>
+        <section id="otherInfo">
+          <h3 data-l10n-id="about-addressbook-details-other-info-header"></h3>
+          <ul></ul>
+        </section>
+        <template id="entryItem">
+          <li>
+            <span class="entry-type"></span>
+            <span class="entry-value"></span>
+          </li>
+        </template>
+      </section>
     </div>
 
-    <div id="detailsFooter" class="edit">
+    <div id="detailsFooter" class="edit button-block">
       <div>
-        <button type="button" id="deleteEditButton"
+        <button type="button" id="detailsDeleteButton"
+                class="icon-button"
                 data-l10n-id="about-addressbook-delete-edit-contact-button"></button>
       </div>
       <div>

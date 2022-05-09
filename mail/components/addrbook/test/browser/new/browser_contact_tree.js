@@ -455,23 +455,6 @@ add_task(async function test_context_menu_compose() {
     "cardContextWriteSeparator"
   );
 
-  async function checkComposeWindow(composeWindow, ...expectedAddresses) {
-    await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
-    let composeDocument = composeWindow.document;
-    let toAddrRow = composeDocument.getElementById("addressRowTo");
-
-    let pills = toAddrRow.querySelectorAll("mail-address-pill");
-    Assert.equal(pills.length, expectedAddresses.length);
-    for (let i = 0; i < expectedAddresses.length; i++) {
-      Assert.equal(pills[i].label, expectedAddresses[i]);
-    }
-
-    await Promise.all([
-      BrowserTestUtils.closeWindow(composeWindow),
-      BrowserTestUtils.waitForEvent(window, "activate"),
-    ]);
-  }
-
   openDirectory(book);
 
   // Contact A, first and only email address.

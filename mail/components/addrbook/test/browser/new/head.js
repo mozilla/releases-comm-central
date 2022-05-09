@@ -19,9 +19,18 @@ registerCleanupFunction(function() {
     );
     for (let directory of MailServices.ab.directories) {
       if (
-        directory.dirPrefId != "ldap_2.servers.history" &&
-        directory.dirPrefId != "ldap_2.servers.pab"
+        directory.dirPrefId == "ldap_2.servers.history" ||
+        directory.dirPrefId == "ldap_2.servers.pab"
       ) {
+        Assert.equal(
+          directory.childCardCount,
+          0,
+          `all contacts have been removed from ${directory.dirName}`
+        );
+        if (directory.childCardCount) {
+          directory.deleteCards(directory.childCards);
+        }
+      } else {
         await promiseDirectoryRemoved(directory.URI);
       }
     }
@@ -240,6 +249,23 @@ async function showSortMenu(name, value) {
   await hiddenPromise;
 }
 
+async function checkComposeWindow(composeWindow, ...expectedAddresses) {
+  await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
+  let composeDocument = composeWindow.document;
+  let toAddrRow = composeDocument.getElementById("addressRowTo");
+
+  let pills = toAddrRow.querySelectorAll("mail-address-pill");
+  Assert.equal(pills.length, expectedAddresses.length);
+  for (let i = 0; i < expectedAddresses.length; i++) {
+    Assert.equal(pills[i].label, expectedAddresses[i]);
+  }
+
+  await Promise.all([
+    BrowserTestUtils.closeWindow(composeWindow),
+    BrowserTestUtils.waitForEvent(window, "activate"),
+  ]);
+}
+
 function promiseDirectoryRemoved(uri) {
   let removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
   MailServices.ab.deleteAddressBook(uri);
@@ -301,4 +327,21 @@ function promiseLoadSubDialog(url) {
       }
     );
   });
+}
+
+function formatVCard(strings, ...values) {
+  let arr = [];
+  for (let str of strings) {
+    arr.push(str);
+    arr.push(values.shift());
+  }
+  let lines = arr.join("").split("\n");
+  let indent = lines[1].length - lines[1].trimLeft().length;
+  let outLines = [];
+  for (let line of lines) {
+    if (line.length > 0) {
+      outLines.push(line.substring(indent) + "\r\n");
+    }
+  }
+  return outLines.join("");
 }
