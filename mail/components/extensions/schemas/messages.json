@@ -10,7 +10,8 @@
             "enum": [
               "messagesMove",
               "messagesRead",
-              "messagesDelete"
+              "messagesDelete",
+              "messagesTags"
             ]
           }
         ]
@@ -756,6 +757,78 @@
                 }
               }
             ]
+          }
+        ]
+      },
+      {
+        "name": "createTag",
+        "type": "function",
+        "description": "Creates a new message tag. Tagging a message will store the tag's key in the user's message.",
+        "async": true,
+        "permissions": [
+          "messagesTags"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "pattern": "^[$a-zA-Z0-9]+$"
+          },
+          {
+            "type": "string",
+            "name": "tag"
+          },
+          {
+            "type": "string",
+            "name": "color",
+            "pattern": "^#[0-9a-f]{6}"
+          }
+        ]
+      },
+      {
+        "name": "updateTag",
+        "type": "function",
+        "description": "Updates a message tag.",
+        "async": true,
+        "permissions": [
+          "messagesTags"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "pattern": "^[$a-zA-Z0-9]+$"
+          },
+          {
+            "type": "object",
+            "name": "updateProperties",
+            "properties": {
+              "tag": {
+                "type": "string",
+                "optional": "true"
+              },
+              "color": {
+                "type": "string",
+                "pattern": "^#[0-9a-f]{6}",
+                "optional": "true"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "deleteTag",
+        "type": "function",
+        "description": "Deletes a message tag, removing it from the list of known tags. Its key will not be removed from tagged messages, but they will appear untagged. Recreating a deleted tag, will make all former tagged messages appear tagged again.",
+        "async": true,
+        "permissions": [
+          "messagesTags"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "pattern": "^[$a-zA-Z0-9]+$"
           }
         ]
       }

@@ -819,6 +819,351 @@ add_task(
   }
 );
 
+add_task(
+  {
+    skip_if: () => IS_NNTP,
+  },
+  async function test_tags() {
+    let files = {
+      "background.js": async () => {
+        let [accountId] = await window.waitForMessage();
+        let { folders } = await browser.accounts.get(accountId);
+        let testFolder4 = folders.find(f => f.name == "test4");
+        let { messages: folder4Messages } = await browser.messages.list(
+          testFolder4
+        );
+
+        let tags1 = await browser.messages.listTags();
+        window.assertDeepEqual(
+          [
+            {
+              key: "$label1",
+              tag: "Important",
+              color: "#FF0000",
+              ordinal: "",
+            },
+            {
+              key: "$label2",
+              tag: "Work",
+              color: "#FF9900",
+              ordinal: "",
+            },
+            {
+              key: "$label3",
+              tag: "Personal",
+              color: "#009900",
+              ordinal: "",
+            },
+            {
+              key: "$label4",
+              tag: "To Do",
+              color: "#3333FF",
+              ordinal: "",
+            },
+            {
+              key: "$label5",
+              tag: "Later",
+              color: "#993399",
+              ordinal: "",
+            },
+          ],
+          tags1
+        );
+
+        await browser.messages.createTag("custom", "Custom Tag", "#123456");
+        let tags2 = await browser.messages.listTags();
+        window.assertDeepEqual(
+          [
+            {
+              key: "$label1",
+              tag: "Important",
+              color: "#FF0000",
+              ordinal: "",
+            },
+            {
+              key: "$label2",
+              tag: "Work",
+              color: "#FF9900",
+              ordinal: "",
+            },
+            {
+              key: "$label3",
+              tag: "Personal",
+              color: "#009900",
+              ordinal: "",
+            },
+            {
+              key: "$label4",
+              tag: "To Do",
+              color: "#3333FF",
+              ordinal: "",
+            },
+            {
+              key: "$label5",
+              tag: "Later",
+              color: "#993399",
+              ordinal: "",
+            },
+            {
+              key: "custom",
+              tag: "Custom Tag",
+              color: "#123456",
+              ordinal: "",
+            },
+          ],
+          tags2
+        );
+
+        await browser.messages.updateTag("$label5", {
+          tag: "Much Later",
+          color: "#225599",
+        });
+        let tags3 = await browser.messages.listTags();
+        window.assertDeepEqual(
+          [
+            {
+              key: "$label1",
+              tag: "Important",
+              color: "#FF0000",
+              ordinal: "",
+            },
+            {
+              key: "$label2",
+              tag: "Work",
+              color: "#FF9900",
+              ordinal: "",
+            },
+            {
+              key: "$label3",
+              tag: "Personal",
+              color: "#009900",
+              ordinal: "",
+            },
+            {
+              key: "$label4",
+              tag: "To Do",
+              color: "#3333FF",
+              ordinal: "",
+            },
+            {
+              key: "$label5",
+              tag: "Much Later",
+              color: "#225599",
+              ordinal: "",
+            },
+            {
+              key: "custom",
+              tag: "Custom Tag",
+              color: "#123456",
+              ordinal: "",
+            },
+          ],
+          tags3
+        );
+
+        // Test rejects for createTag().
+        await browser.test.assertThrows(
+          () =>
+            browser.messages.createTag("Bad Key", "Important Stuff", "#223344"),
+          /Type error for parameter key/,
+          "Should reject creating an invalid key"
+        );
+
+        await browser.test.assertThrows(
+          () =>
+            browser.messages.createTag(
+              "GoodKeyBadColor",
+              "Important Stuff",
+              "#223"
+            ),
+          /Type error for parameter color /,
+          "Should reject creating a key using an invalid short color"
+        );
+
+        await browser.test.assertThrows(
+          () =>
+            browser.messages.createTag(
+              "GoodKeyBadColor",
+              "Important Stuff",
+              "123223"
+            ),
+          /Type error for parameter color /,
+          "Should reject creating a key using an invalid color without leading #"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.createTag("$label5", "Important Stuff", "#223344"),
+          `Specified key already exists: $label5`,
+          "Should reject creating a key which exists already"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.createTag("GoodKey", "Important", "#223344"),
+          `Specified tag already exists: Important`,
+          "Should reject creating a key using a tag which exists already"
+        );
+
+        // Test rejects for updateTag();
+        await browser.test.assertThrows(
+          () => browser.messages.updateTag("Bad Key", { tag: "Much Later" }),
+          /Type error for parameter key/,
+          "Should reject updating an invalid key"
+        );
+
+        await browser.test.assertThrows(
+          () =>
+            browser.messages.updateTag("GoodKeyBadColor", { color: "123223" }),
+          /Error processing color/,
+          "Should reject updating a key using an invalid color"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.updateTag("$label50", { tag: "Much Later" }),
+          `Specified key does not exist: $label50`,
+          "Should reject updating an unknown key"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.updateTag("$label5", { tag: "Important" }),
+          `Specified tag already exists: Important`,
+          "Should reject updating a key using a tag which exists already"
+        );
+
+        // Test rejects for deleteTag();
+        await browser.test.assertThrows(
+          () => browser.messages.deleteTag("Bad Key"),
+          /Type error for parameter key/,
+          "Should reject deleting an invalid key"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.deleteTag("$label50"),
+          `Specified key does not exist: $label50`,
+          "Should reject deleting an unknown key"
+        );
+
+        // Test tagging messages, deleting tag and re-creating tag.
+        await browser.messages.update(folder4Messages[0].id, {
+          tags: ["custom"],
+        });
+        let message1 = await browser.messages.get(folder4Messages[0].id);
+        window.assertDeepEqual(["custom"], message1.tags);
+
+        await browser.messages.deleteTag("custom");
+        let message2 = await browser.messages.get(folder4Messages[0].id);
+        window.assertDeepEqual([], message2.tags);
+
+        await browser.messages.createTag("custom", "Custom Tag", "#123456");
+        let message3 = await browser.messages.get(folder4Messages[0].id);
+        window.assertDeepEqual(["custom"], message3.tags);
+
+        // Test deleting built-in tag.
+        await browser.messages.deleteTag("$label5");
+        let tags4 = await browser.messages.listTags();
+        window.assertDeepEqual(
+          [
+            {
+              key: "$label1",
+              tag: "Important",
+              color: "#FF0000",
+              ordinal: "",
+            },
+            {
+              key: "$label2",
+              tag: "Work",
+              color: "#FF9900",
+              ordinal: "",
+            },
+            {
+              key: "$label3",
+              tag: "Personal",
+              color: "#009900",
+              ordinal: "",
+            },
+            {
+              key: "$label4",
+              tag: "To Do",
+              color: "#3333FF",
+              ordinal: "",
+            },
+            {
+              key: "custom",
+              tag: "Custom Tag",
+              color: "#123456",
+              ordinal: "",
+            },
+          ],
+          tags4
+        );
+
+        // Clean up.
+        await browser.messages.update(folder4Messages[0].id, { tags: [] });
+        await browser.messages.deleteTag("custom");
+        await browser.messages.createTag("$label5", "Later", "#993399");
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["messagesRead", "accountsRead", "messagesTags"],
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage(account.key);
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    skip_if: () => IS_NNTP,
+  },
+  async function test_tags_no_permission() {
+    let files = {
+      "background.js": async () => {
+        await browser.test.assertThrows(
+          () =>
+            browser.messages.createTag("custom", "Important Stuff", "#223344"),
+          /browser.messages.createTag is not a function/,
+          "Should reject creating tags without messagesTags permission"
+        );
+
+        await browser.test.assertThrows(
+          () => browser.messages.updateTag("$label5", { tag: "Much Later" }),
+          /browser.messages.updateTag is not a function/,
+          "Should reject updating tags without messagesTags permission"
+        );
+
+        await browser.test.assertThrows(
+          () => browser.messages.deleteTag("$label5"),
+          /browser.messages.deleteTag is not a function/,
+          "Should reject deleting tags without messagesTags permission"
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["messagesRead", "accountsRead"],
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage(account.key);
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
 // The IMAP fakeserver just can't handle this.
 add_task({ skip_if: () => IS_IMAP || IS_NNTP }, async function test_archive() {
   let account2 = createAccount();

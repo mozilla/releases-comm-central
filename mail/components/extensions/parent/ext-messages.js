@@ -964,6 +964,42 @@ this.messages = class extends ExtensionAPI {
               };
             });
         },
+        async createTag(key, tag, color) {
+          let tags = MailServices.tags.getAllTags();
+          if (tags.find(t => t.key == key)) {
+            throw new ExtensionError(`Specified key already exists: ${key}`);
+          }
+          if (tags.find(t => t.tag == tag)) {
+            throw new ExtensionError(`Specified tag already exists: ${tag}`);
+          }
+          MailServices.tags.addTagForKey(key, tag, color, "");
+        },
+        async updateTag(key, updateProperties) {
+          let tags = MailServices.tags.getAllTags();
+          let tag = tags.find(t => t.key == key);
+          if (!tag) {
+            throw new ExtensionError(`Specified key does not exist: ${key}`);
+          }
+          if (updateProperties.color && tag.color != updateProperties.color) {
+            MailServices.tags.setColorForKey(key, updateProperties.color);
+          }
+          if (updateProperties.tag && tag.tag != updateProperties.tag) {
+            // Don't let the user edit a tag to the name of another existing tag.
+            if (tags.find(t => t.tag == updateProperties.tag)) {
+              throw new ExtensionError(
+                `Specified tag already exists: ${updateProperties.tag}`
+              );
+            }
+            MailServices.tags.setTagForKey(key, updateProperties.tag);
+          }
+        },
+        async deleteTag(key) {
+          let tags = MailServices.tags.getAllTags();
+          if (!tags.find(t => t.key == key)) {
+            throw new ExtensionError(`Specified key does not exist: ${key}`);
+          }
+          MailServices.tags.deleteKey(key);
+        },
       },
     };
   }
