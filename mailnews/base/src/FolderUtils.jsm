@@ -254,29 +254,27 @@ function getFolderIcon(folder) {
         break;
       case "imap":
       case "pop":
-        iconName = folder.server.isSecure
-          ? "message-secure.svg"
-          : "message.svg";
+        iconName = folder.server.isSecure ? "mail-secure.svg" : "mail.svg";
         break;
       case "none":
-        iconName = "folder-local.svg";
+        iconName = "folder.svg";
         break;
       case "rss":
-        iconName = "feeds.svg";
+        iconName = "rss.svg";
         break;
       default:
-        iconName = "message.svg";
+        iconName = "mail.svg";
         break;
     }
   } else if (folder.server.type == "nntp") {
-    iconName = "newsgroup.svg";
+    iconName = "newsletter.svg";
   } else {
     switch (getSpecialFolderString(folder)) {
       case "Virtual":
-        iconName = "search-folder.svg";
+        iconName = "folder-search.svg";
         break;
       case "Junk":
-        iconName = "junk.svg";
+        iconName = "spam.svg";
         break;
       case "Templates":
         iconName = "template.svg";
@@ -285,10 +283,10 @@ function getFolderIcon(folder) {
         iconName = "archive.svg";
         break;
       case "Trash":
-        iconName = "delete.svg";
+        iconName = "trash.svg";
         break;
       case "Drafts":
-        iconName = "file-item.svg";
+        iconName = "draft.svg";
         break;
       case "Outbox":
         iconName = "outbox.svg";
@@ -305,7 +303,7 @@ function getFolderIcon(folder) {
     }
   }
 
-  return `chrome://messenger/skin/icons/${iconName}`;
+  return `chrome://messenger/skin/icons/new/compact/${iconName}`;
 }
 
 /**

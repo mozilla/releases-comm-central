@@ -2936,7 +2936,7 @@ var gFolderTreeView = {
     this.folderColorStyle.textContent += `treechildren::-moz-tree-image(folderNameCol, customColor-${iconColor.replace(
       "#",
       ""
-    )}) {fill: ${iconColor};}`;
+    )}) {fill: color-mix(in srgb, ${iconColor} 20%, transparent); stroke: ${iconColor};}`;
   },
 
   /**
@@ -3839,7 +3839,7 @@ var gFolderTreeController = {
 
     let selector = `customColor-${newColor.replace("#", "")}`;
     // Add the inline CSS styling.
-    gFolderTreeView.folderColorPreview.textContent = `treechildren::-moz-tree-image(folderNameCol, ${selector}) {fill: ${newColor};}`;
+    gFolderTreeView.folderColorPreview.textContent = `treechildren::-moz-tree-image(folderNameCol, ${selector}) {fill: color-mix(in srgb, ${newColor} 20%, transparent); stroke: ${newColor}}`;
 
     // Remove the cached folder properties.
     gFolderTreeView.clearFolderCacheProperty(folder, "properties");

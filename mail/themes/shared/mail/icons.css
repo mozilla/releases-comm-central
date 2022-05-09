@@ -5,7 +5,32 @@
 /* Density variations */
 
 :root {
-  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/normal/mail.svg");
+  --icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
+  --icon-archive: url("chrome://messenger/skin/icons/new/compact/archive.svg");
+  --icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
+  --icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
+  --icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
+  --icon-draft: url("chrome://messenger/skin/icons/new/compact/draft.svg");
+  --icon-folder: url("chrome://messenger/skin/icons/new/compact/folder.svg");
+  --icon-folder-filter: url("chrome://messenger/skin/icons/new/compact/folder-filter.svg");
+  --icon-folder-rss: url("chrome://messenger/skin/icons/new/compact/folder-rss.svg");
+  --icon-globe: url("chrome://messenger/skin/icons/new/compact/globe.svg");
+  --icon-globe-secure: url("chrome://messenger/skin/icons/new/compact/globe-secure.svg");
+  --icon-inbox: url("chrome://messenger/skin/icons/new/compact/inbox.svg");
+  --icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
+  --icon-mail-secure: url("chrome://messenger/skin/icons/new/compact/mail-secure.svg");
+  --icon-newsletter: url("chrome://messenger/skin/icons/new/compact/newsletter.svg");
+  --icon-outbox: url("chrome://messenger/skin/icons/new/compact/outbox.svg");
+  --icon-overflow: url("chrome://messenger/skin/icons/new/compact/overflow.svg");
+  --icon-rss: url("chrome://messenger/skin/icons/new/compact/rss.svg");
+  --icon-sent: url("chrome://messenger/skin/icons/new/compact/sent.svg");
+  --icon-settings: url("chrome://messenger/skin/icons/new/compact/settings.svg");
+  --icon-spam: url("chrome://messenger/skin/icons/new/compact/spam.svg");
+  --icon-tasks: url("chrome://messenger/skin/icons/new/compact/tasks.svg");
+  --icon-template: url("chrome://messenger/skin/icons/new/compact/template.svg");
+  --icon-trash: url("chrome://messenger/skin/icons/new/compact/trash.svg");
+
+  --spaces-icon-mail:  url("chrome://messenger/skin/icons/new/normal/mail.svg");;
   --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/normal/address-book.svg");
   --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/normal/calendar.svg");
   --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/normal/tasks.svg");
@@ -13,17 +38,35 @@
   --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/normal/overflow.svg");
   --spaces-icon-settings: url("chrome://messenger/skin/icons/new/normal/settings.svg");
   --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/normal/collapse.svg");
+
+  --folder-pane-mail: var(--icon-mail);
+  --folder-pane-mail-secure: var(--icon-mail-secure);
+  --folder-pane-inbox: var(--icon-inbox);
+  --folder-pane-draft: var(--icon-draft);
+  --folder-pane-sent: var(--icon-sent);
+  --folder-pane-archive: var(--icon-archive);
+  --folder-pane-spam: var(--icon-spam);
+  --folder-pane-trash: var(--icon-trash);
+  --folder-pane-template: var(--icon-template);
+  --folder-pane-rss: var(--icon-rss);
+  --folder-pane-globe: var(--icon-globe);
+  --folder-pane-globe-secure: var(--icon-globe-secure);
+  --folder-pane-newsletter: var(--icon-newsletter);
+  --folder-pane-outbox: var(--icon-outbox);
+  --folder-pane-folder: var(--icon-folder);
+  --folder-pane-folder-filter: var(--icon-folder-filter);
+  --folder-pane-folder-rss: var(--icon-folder-rss);
 }
 
 :root[uidensity="compact"] {
-  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
-  --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
-  --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
-  --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/compact/tasks.svg");
-  --spaces-icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
-  --spaces-icon-overflow: url("chrome://messenger/skin/icons/new/compact/overflow.svg");
-  --spaces-icon-settings: url("chrome://messenger/skin/icons/new/compact/settings.svg");
-  --spaces-icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
+  --spaces-icon-mail: var(--icon-mail);
+  --spaces-icon-address-book: var(--icon-address-book);
+  --spaces-icon-calendar: var(--icon-calendar);
+  --spaces-icon-tasks: var(--icon-tasks);
+  --spaces-icon-chat: var(--icon-chat);
+  --spaces-icon-overflow: var(--icon-overflow);
+  --spaces-icon-settings: var(--icon-settings);
+  --spaces-icon-collapse: var(--icon-collapse);
 }
 
 :root[uidensity="touch"] {
