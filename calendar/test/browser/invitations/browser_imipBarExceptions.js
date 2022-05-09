@@ -16,6 +16,10 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 let identity;
 let calendar;
 let transport;
@@ -94,7 +98,7 @@ add_task(async function testMinorUpdateExceptionToTentative() {
 });
 
 /**
- * Tests a minor update exception to an already decliend recurring decliend
+ * Tests a minor update exception to an already declined recurring declined
  * event.
  */
 add_task(async function testMinorUpdateExceptionToDeclined() {
@@ -245,6 +249,41 @@ add_task(async function testMajorUpdateToDeclinedWithoutResponse() {
       isRecurring: true,
       partStat,
       noReply: true,
+    });
+  }
+});
+
+/**
+ * Tests a major update exception to an event where the participation status
+ * is still "NEEDS-ACTION". Here we want to ensure action is only taken on the
+ * target exception date and not the other dates.
+ */
+add_task(async function testMajorUpdateToNeedsAction() {
+  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+    transport.reset();
+
+    // Extract the event from the .eml file and manually add it to the calendar.
+    let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+    let srcText = await IOUtils.readUTF8(invite.path);
+    let ics = srcText.match(
+      /--00000000000080f3da05db4aef59[\S\s]+--00000000000080f3da05db4aef59/g
+    )[0];
+    ics = ics.split("--00000000000080f3da05db4aef59").join("");
+    ics = ics.replaceAll(/Content-(Type|Transfer-Encoding)?: .*/g, "");
+
+    let event = new CalEvent(ics);
+
+    // This will not be set because we manually added the event.
+    event.setProperty("x-moz-received-dtstamp", "20220316T191602Z");
+
+    await calendar.addItem(event);
+    await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1).item;
+    await doMajorExceptionTest({
+      transport,
+      identity,
+      calendar,
+      isRecurring: true,
+      partStat,
     });
   }
 });
