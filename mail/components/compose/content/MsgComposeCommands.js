@@ -1723,10 +1723,11 @@ function setEncryptSubject(state) {
 
 function updateEncryptedSubject() {
   let warnSubjectUnencrypted =
-    isPgpConfigured() &&
-    gSelectedTechnologyIsPGP &&
-    gSendEncrypted &&
-    !gEncryptSubject;
+    (!gSelectedTechnologyIsPGP && gSendEncrypted) ||
+    (isPgpConfigured() &&
+      gSelectedTechnologyIsPGP &&
+      gSendEncrypted &&
+      !gEncryptSubject);
 
   document
     .getElementById("msgSubject")
