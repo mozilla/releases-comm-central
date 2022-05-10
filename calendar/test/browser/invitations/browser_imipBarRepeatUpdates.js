@@ -10,23 +10,33 @@
 "use strict";
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { CalItipDefaultEmailTransport } = ChromeUtils.import(
+  "resource:///modules/CalItipEmailTransport.jsm"
+);
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+var { FileTestUtils } = ChromeUtils.import("resource://testing-common/FileTestUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
+let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems)
+  .wrappedJSObject;
+
+let account;
 let identity;
 let calendar;
 let transport;
+let getImipTransport;
+let markDeleted;
 
 /**
  * Initialize account, identity and calendar.
  */
 add_setup(async function() {
   requestLongerTimeout(5);
-  let account = MailServices.accounts.createAccount();
+  account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -41,13 +51,9 @@ add_setup(async function() {
 
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
-  let getImipTransport = cal.itip.getImipTransport;
+  getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
-
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
-    Ci.calIDeletedItems
-  ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
@@ -72,6 +78,7 @@ add_task(async function testMinorUpdateToAccepted() {
     transport,
     calendar,
     isRecurring: true,
+    invite,
     partStat: "ACCEPTED",
   });
 });
@@ -90,6 +97,7 @@ add_task(async function testMinorUpdateToTentative() {
     transport,
     calendar,
     isRecurring: true,
+    invite,
     partStat: "TENTATIVE",
   });
 });
@@ -123,6 +131,7 @@ add_task(async function testMajorUpdateToAcceptedWithResponse() {
       identity,
       calendar,
       isRecurring: true,
+      invite,
       partStat,
     });
   }
@@ -144,6 +153,7 @@ add_task(async function testMajorUpdateToTentativeWithResponse() {
       identity,
       calendar,
       isRecurring: true,
+      invite,
       partStat,
     });
   }
@@ -165,6 +175,7 @@ add_task(async function testMajorUpdateToDeclinedWithResponse() {
       identity,
       calendar,
       isRecurring: true,
+      invite,
       partStat,
     });
   }
@@ -190,6 +201,7 @@ add_task(async function testMajorUpdateToAcceptedWithoutResponse() {
       transport,
       calendar,
       isRecurring: true,
+      invite,
       partStat,
       noReply: true,
     });
@@ -216,6 +228,7 @@ add_task(async function testMajorUpdateToTentativeWithoutResponse() {
       transport,
       calendar,
       isRecurring: true,
+      invite,
       partStat,
       noReply: true,
     });
@@ -240,6 +253,7 @@ add_task(async function testMajorUpdateToDeclinedWithoutResponse() {
     await doMajorUpdateTest({
       transport,
       calendar,
+      invite,
       isRecurring: true,
       partStat,
       noReply: true,

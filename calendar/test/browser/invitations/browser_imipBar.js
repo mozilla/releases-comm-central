@@ -18,15 +18,21 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
+let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems)
+  .wrappedJSObject;
+
+let account;
 let identity;
 let calendar;
 let transport;
+let getImipTransport;
+let markDeleted;
 
 /**
  * Initialize account, identity and calendar.
  */
 add_setup(async function() {
-  let account = MailServices.accounts.createAccount();
+  account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -41,14 +47,9 @@ add_setup(async function() {
 
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
-
-  let getImipTransport = cal.itip.getImipTransport;
+  getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
-
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
-    Ci.calIDeletedItems
-  ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
