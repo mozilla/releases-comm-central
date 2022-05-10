@@ -10,11 +10,11 @@ var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 /**
  * Test CAPABILITY response can be correctly parsed.
  */
-add_task(function test_FlagsResponse() {
-  let str =
-    "32 OK [CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN] server ready";
-
-  let response = ImapResponse.parse(str);
+add_task(function test_CapabilityResponse() {
+  let response = new ImapResponse();
+  response.parse(
+    "32 OK [CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN] server ready\r\n"
+  );
 
   deepEqual(response.authMethods, ["LOGIN", "PLAIN"]);
   deepEqual(response.capabilities, ["IMAP4REV1", "IDLE", "STARTTLS"]);
@@ -24,30 +24,33 @@ add_task(function test_FlagsResponse() {
  * Test flags from a FETCH response can be correctly parsed.
  */
 add_task(function test_FetchResponse_flags() {
-  let str = [
-    "* 1 FETCH (UID 500 FLAGS (\\Answered \\Seen $Forwarded))",
-    "* 2 FETCH (UID 600 FLAGS (\\Seen))",
-    "* 3 FETCH (UID 601 FLAGS ())",
-    "40 OK Fetch completed",
-    "",
-  ].join("\r\n");
-  let response = ImapResponse.parse(str);
+  let response = new ImapResponse();
+  response.parse(
+    [
+      "* 1 FETCH (UID 500 FLAGS (\\Answered \\Seen $Forwarded))",
+      "* 2 FETCH (UID 600 FLAGS (\\Seen))",
+      "",
+    ].join("\r\n")
+  );
+  ok(!response.done);
 
-  equal(response.tag, "40");
-  equal(response.status, "OK");
-  equal(response.statusText, "Fetch completed");
-  deepEqual(response.messages[0].attributes, {
+  response.parse(
+    ["* 3 FETCH (UID 601 FLAGS ())", "40 OK Fetch completed", ""].join("\r\n")
+  );
+
+  ok(response.done);
+  deepEqual(response.messages[0], {
     sequence: 1,
     uid: 500,
     flags:
       ImapUtils.FLAG_ANSWERED | ImapUtils.FLAG_SEEN | ImapUtils.FLAG_FORWARDED,
   });
-  deepEqual(response.messages[1].attributes, {
+  deepEqual(response.messages[1], {
     sequence: 2,
     uid: 600,
     flags: ImapUtils.FLAG_SEEN,
   });
-  deepEqual(response.messages[2].attributes, {
+  deepEqual(response.messages[2], {
     sequence: 3,
     uid: 601,
     flags: 0,
@@ -57,45 +60,81 @@ add_task(function test_FetchResponse_flags() {
 /**
  * Test body from a FETCH response can be correctly parsed.
  */
-add_task(function test_FetchResponse_body() {
-  let str = [
-    "* 1 FETCH (UID 500 FLAGS (\\Answered \\Seen $Forwarded) BODY[HEADER.FIELDS (FROM TO)] {12}",
-    "abcd",
-    "efgh",
-    ")",
-    "* 2 FETCH (UID 600 FLAGS (\\Seen) BODY[] {15}",
-    "Hello ",
-    "world",
-    ")",
-    "40 OK Fetch completed",
-    "",
-  ].join("\r\n");
-  let response = ImapResponse.parse(str);
+add_task(function test_messageBody() {
+  let response = new ImapResponse();
+  response.parse(
+    [
+      "* 1 FETCH (UID 500 FLAGS (\\Answered \\Seen $Forwarded) BODY[HEADER.FIELDS (FROM TO)] {12}",
+      "abcd",
+      "efgh",
+      ")",
+      "* 2 FETCH (UID 600 FLAGS (\\Seen) BODY[] {15}",
+      "Hello ",
+      "world",
+      ")",
+      "40 OK Fetch completed",
+      "",
+    ].join("\r\n")
+  );
 
-  equal(response.messages[0].attributes.body, "abcd\r\nefgh\r\n");
-  equal(response.messages[1].attributes.body, "Hello \r\nworld\r\n");
+  equal(response.messages[0].body, "abcd\r\nefgh\r\n");
+  equal(response.messages[1].body, "Hello \r\nworld\r\n");
+});
+
+/**
+ * Test msg body spanning multiple chuncks can be correctly parsed.
+ */
+add_task(function test_messageBodyIncremental() {
+  let response = new ImapResponse();
+  // Chunk 1.
+  response.parse(
+    [
+      "* 1 FETCH (UID 500 FLAGS (\\Answered \\Seen $Forwarded) BODY[HEADER.FIELDS (FROM TO)] {12}",
+      "abcd",
+      "efgh",
+      ")",
+      "* 2 FETCH (UID 600 FLAGS (\\Seen) BODY[] {15}",
+      "Hel",
+    ].join("\r\n")
+  );
+  equal(response.messages[0].body, "abcd\r\nefgh\r\n");
+  ok(!response.done);
+
+  // Chunk 2.
+  response.parse("lo \r\nworld\r\n");
+  ok(!response.done);
+
+  // Chunk 3.
+  response.parse(")\r\n40 OK Fetch completed\r\n");
+  ok(response.done);
+  equal(response.messages[1].body, "Hello \r\nworld\r\n");
 });
 
 /**
  * Test FLAGS response can be correctly parsed.
  */
 add_task(function test_FlagsResponse() {
-  let str = [
-    "* FLAGS (\\Seen \\Draft $Forwarded)",
-    "* OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)] Flags permitted.",
-    "* 6 EXISTS",
-    "* OK [UNSEEN 2] First unseen.",
-    "* OK [UIDVALIDITY 1594877893] UIDs valid",
-    "* OK [UIDNEXT 625] Predicted next UID",
-    "* OK [HIGHESTMODSEQ 1148] Highest",
-    "42 OK [READ-WRITE] Select completed",
-    "",
-  ].join("\r\n");
-
-  let response = ImapResponse.parse(str);
+  let response = new ImapResponse();
+  response.parse(
+    [
+      "* FLAGS (\\Seen \\Draft $Forwarded)",
+      "* OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)] Flags permitted.",
+      "* 6 EXISTS",
+      "* OK [UNSEEN 2] First unseen.",
+      "* OK [UIDVALIDITY 1594877893] UIDs valid",
+      "* OK [UIDNEXT 625] Predicted next UID",
+      "* OK [HIGHESTMODSEQ 1148] Highest",
+      "42 OK [READ-WRITE] Select completed",
+      "",
+    ].join("\r\n")
+  );
 
   equal(
     response.flags,
+    ImapUtils.FLAG_SEEN | ImapUtils.FLAG_DRAFT | ImapUtils.FLAG_FORWARDED
+  );
+  equal(
+    response.permanentflags,
     ImapUtils.FLAG_SEEN |
       ImapUtils.FLAG_DRAFT |
       ImapUtils.FLAG_FORWARDED |
@@ -104,5 +143,15 @@ add_task(function test_FlagsResponse() {
       ImapUtils.FLAG_FORWARDED |
       ImapUtils.FLAG_SUPPORT_USER_FLAG
   );
-  equal(response.attributes.highestmodseq, 1148);
+  equal(response.highestmodseq, 1148);
+  equal(response.exists, 6);
+});
+
+/**
+ * Test mailbox updates can be correctly parsed.
+ */
+add_task(function test_MailboxResponse() {
+  let response = new ImapResponse();
+  response.parse("* 7 EXISTS\r\n");
+  equal(response.exists, 7);
 });

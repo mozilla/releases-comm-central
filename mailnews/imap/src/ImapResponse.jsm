@@ -12,101 +12,140 @@ const EXPORTED_SYMBOLS = [
 var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 /**
- * A structure to represent a server response status.
- * @typedef {Object} ImapStatus
- * @property {string} tag - Can be "*", "+" or client tag.
- * @property {string} status - Can be "OK", "NO" or "BAD".
- * @property {string} statusData - The third part of the status line.
- * @property {string} statusText - The fourth part of the status line.
- */
-
-/**
  * A structure to represent a server response.
  */
 class ImapResponse {
-  /**
-   * @param {ImapStatus} status - The status part of the response.
-   * @param {string} lines - The data part of the response.
-   */
-  constructor({ tag, status, statusData, statusText }, lines) {
-    this.tag = tag;
-    this.status = status;
-    this.statusData = statusData;
-    this.statusText = statusText;
+  constructor() {
+    // @type {MessageData[]} The message-data in this response.
+    this.messages = [];
+    // A holder for attributes.
+    this.attributes = {};
 
-    this._lines = lines;
+    // The remaining string to parse.
+    this._response = "";
   }
 
   /**
-   * Parse the status line.
-   * @param {string} line - The status line.
-   * @returns {ImapStatus}
+   * A server response can span multiple chunks, this function parses one chunk.
+   * @param {string} str - A chunk of server response.
    */
-  static _parseStatusLine(line) {
-    let [tag, status, ...rest] = line.split(" ");
-    line = rest.join(" ");
-    let statusData;
-    if (line[0] == "[") {
-      let cursor = line.indexOf("]");
-      statusData = line.slice(1, cursor);
-      line = line.slice(cursor + 1);
-    }
-    return { tag, status, statusData, statusText: line };
-  }
-
-  /**
-   * Parse the full response.
-   * @param {string} str - The server response.
-   * @returns {ImapResponse} Returns null if str doesn't form a complete response.
-   */
-  static parse(str) {
-    let lines = str.trimRight().split("\r\n");
-    if (lines.length == 1) {
-      let result = this._parseStatusLine(lines[0]);
-      if (result.statusData?.toUpperCase().startsWith("CAPABILITY")) {
-        let response = new CapabilityResponse(result);
-        response.parse();
-        return response;
+  parse(str) {
+    this._response += str;
+    if (this._pendingMessage) {
+      // We have an unfinished message in the last chunk.
+      let bodySize = this._pendingMessage.bodySize;
+      if (bodySize + 3 <= this._response.length) {
+        // Consume the message together with the ending ")\r\n".
+        this._pendingMessage.body = this._response.slice(0, bodySize);
+        this._pendingMessage = null;
+        this._advance(bodySize + 3);
+      } else {
+        this.done = false;
+        return;
       }
-      return result;
     }
-    let { tag, status, statusData, statusText } = this._parseStatusLine(
-      lines.at(-1)
-    );
-    if (tag == "*" || !str.endsWith("\r\n")) {
-      // Server response is broken to multiple chunks, expect more chunks
-      // to complete this response.
-      return null;
+    this._parse();
+  }
+
+  /**
+   * Drop n characters from _response.
+   * @param {number} n - The number of characters to drop.
+   */
+  _advance(n) {
+    this._response = this._response.slice(n);
+  }
+
+  /**
+   * Parse the response line by line. Because a single response can contain
+   * multiple types of data, update the corresponding properties after parsing
+   * a line, e.g. this.capabilities, this.flags, this.messages.
+   */
+  _parse() {
+    if (!this._response && this.tag != "*") {
+      // Nothing more to parse.
+      this.done = true;
+      return;
+    }
+    let index = this._response.indexOf("\r\n");
+    if (index == -1) {
+      // Expect more string in the next chunk.
+      this.done = false;
+      return;
     }
 
-    let [firstLineTag, sequenceOrType, type] = lines[0].split(" ");
-    if (firstLineTag != "*") {
-      throw Components.Exception(
-        `Unrecognized response: ${lines[0]}`,
-        Cr.NS_ERROR_ILLEGAL_VALUE
-      );
-    }
-    if (!Number.isInteger(+sequenceOrType)) {
-      type = sequenceOrType;
+    let line = this._response.slice(0, index);
+    this._advance(index + 2); // Consume the line and "\r\n".
+    let tokens = this._parseLine(line);
+    this.tag = tokens[0];
+    if (this.tag == "+") {
+      this.done = true;
+      return;
     }
 
-    let ResponseClass = {
-      FETCH: FetchResponse,
-      FLAGS: FlagsResponse,
-    }[type.toUpperCase()];
-    if (!ResponseClass) {
-      throw Components.Exception(
-        `Parser not implemented yet for type=${type} line=${lines[0]}`,
-        Cr.NS_ERROR_ILLEGAL_VALUE
-      );
+    if (this.tag == "*" && tokens[1].toUpperCase() == "FLAGS") {
+      // * FLAGS (\Seen \Draft $Forwarded)
+      this.flags = ImapUtils.stringsToFlags(tokens[2]);
+    } else if (this.tag == "*" && Number.isInteger(+tokens[1])) {
+      let intValue = +tokens[1];
+      let type = tokens[2].toUpperCase();
+      switch (type) {
+        case "FETCH":
+          // * 1 FETCH (UID 5 FLAGS (\SEEN) BODY[HEADER.FIELDS (FROM TO)] {12}
+          let message = new MessageData(intValue, tokens[3]);
+          this.messages.push(message);
+          if (message.bodySize) {
+            if (message.bodySize + 3 <= this._response.length) {
+              // Consume the message together with the ending ")\r\n".
+              message.body = this._response.slice(0, message.bodySize);
+              this._advance(message.bodySize + 3);
+            } else {
+              this._pendingMessage = message;
+              this.done = false;
+              return;
+            }
+          }
+          break;
+        case "EXISTS":
+          // * 6 EXISTS
+          this.exists = intValue;
+          break;
+        case "RECENT":
+          // Deprecated in rfc9051.
+          break;
+        default:
+          throw Components.Exception(
+            `Unrecognized response: ${line}`,
+            Cr.NS_ERROR_ILLEGAL_VALUE
+          );
+      }
+    } else if (tokens[1].toUpperCase() == "OK" && Array.isArray(tokens[2])) {
+      let type = tokens[2][0].toLowerCase();
+      let data = tokens[2].slice(1);
+      switch (type) {
+        case "capability":
+          // 32 OK [CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN]
+          let { capabilities, authMethods } = new CapabilityData(data);
+          this.capabilities = capabilities;
+          this.authMethods = authMethods;
+          break;
+        case "permanentflags":
+          // * OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)]
+          this.permanentflags = ImapUtils.stringsToFlags(tokens[2][1]);
+          break;
+        default:
+          if (tokens[2].length == 1) {
+            // A boolean attribute, e.g. 12 OK [READ-WRITE]
+            this[type] = true;
+          } else if (tokens[2].length == 2) {
+            // An attribute/value pair, e.g. 12 OK [UIDNEXT 600]
+            this[type] = tokens[2][1];
+          } else {
+            // Hold other attributes.
+            this.attributes[type] = data;
+          }
+      }
     }
-
-    let response = new ResponseClass(
-      { tag, status, statusData, statusText },
-      lines.slice(0, -1)
-    );
-    response.parse();
-    return response;
+    this._parse();
   }
 
   /**
@@ -146,7 +185,7 @@ class ImapResponse {
    * @param {string} line - A single line of string.
    * @returns {Array<string|string[]>}
    */
-  parseLine(line) {
+  _parseLine(line) {
     let tokens = [];
     let arrayDepth = 0;
 
@@ -176,18 +215,18 @@ class ImapResponse {
 }
 
 /**
- * A structure to represent CAPABILITY response.
+ * A structure to represent capability-data.
  */
-class CapabilityResponse extends ImapResponse {
-  parse() {
+class CapabilityData {
+  /**
+   * @param {string[]} tokens - An array like: ["IMAP4rev1", "IDLE", "STARTTLS",
+   *   "AUTH=LOGIN", "AUTH=PLAIN"].
+   */
+  constructor(tokens) {
     this.capabilities = [];
     this.authMethods = [];
-    // statusData looks like:
-    // CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN
-    for (let cap of this.statusData
-      .toUpperCase()
-      .split(" ")
-      .slice(1)) {
+    for (let cap of tokens) {
+      cap = cap.toUpperCase();
       if (cap.startsWith("AUTH=")) {
         this.authMethods.push(cap.slice(5));
       } else {
@@ -198,79 +237,41 @@ class CapabilityResponse extends ImapResponse {
 }
 
 /**
- * A structure to represent FETCH response.
+ * A structure to represent message-data.
  */
-class FetchResponse extends ImapResponse {
-  parse() {
-    this.messages = [];
-    while (this._lines.length) {
-      let attributes = {};
-      // A line may look like this
-      //   * 7 FETCH (UID 24 FLAGS (NonJunk))
-      // Or this
-      //   * 7 FETCH (UID 24 FLAGS (NonJunk) BODY[] {123}
-      let [, sequence, type, attrArray] = this.parseLine(this._lines[0]);
-      attributes.sequence = sequence;
-      for (let i = 0; i < attrArray.length; i++) {
-        let name = attrArray[i].toLowerCase();
-        switch (name) {
-          case "uid":
-            attributes[name] = +attrArray[i + 1];
-            i++;
-            break;
-          case "flags":
-            attributes[name] = ImapUtils.stringsToFlags(attrArray[i + 1]);
-            i++;
-            break;
-          case "body": {
-            // bodySection is the part between [ and ].
-            attributes.bodySection = attrArray[i + 1];
-            i++;
-            // {123} means the following 123 bytes are the body.
-            let matches = attrArray[i + 1].match(/{(\d+)}/);
-            if (matches) {
-              let body = "";
-              let bytes = +matches[1];
-              this._lines = this._lines.slice(1);
-              while (bytes > 0) {
-                // Keep consuming the next line until remaining bytes become 0.
-                let line = this._lines[0] + "\r\n";
-                body += line;
-                bytes -= line.length;
-                this._lines = this._lines.slice(1);
-              }
-              attributes.body = body;
-            }
-            break;
+class MessageData {
+  // tokens looks like:
+  // ["IMAP4rev1", "IDLE", "STARTTLS", "AUTH=LOGIN", "AUTH=PLAIN"]
+  /**
+   * @param {number} sequence - The sequence number of this message.
+   * @param {string[]} tokens - An array like: ["UID", "24", "FLAGS", ["\Seen"]].
+   */
+  constructor(sequence, tokens) {
+    this.sequence = sequence;
+    for (let i = 0; i < tokens.length; i++) {
+      let name = tokens[i].toLowerCase();
+      switch (name) {
+        case "uid":
+          this.uid = +tokens[i + 1];
+          i++;
+          break;
+        case "flags":
+          this.flags = ImapUtils.stringsToFlags(tokens[i + 1]);
+          i++;
+          break;
+        case "body": {
+          // bodySection is the part between [ and ].
+          this.bodySection = tokens[i + 1];
+          i++;
+          // {123} means the following 123 bytes are the body.
+          let matches = tokens[i + 1].match(/{(\d+)}/);
+          if (matches) {
+            this.bodySize = +matches[1];
+            this.body = "";
           }
+          break;
         }
       }
-      this.messages.push({ type, attributes });
-      this._lines = this._lines.slice(1);
     }
-  }
-}
-
-/**
- * A structure to represent FLAGS response.
- */
-class FlagsResponse extends ImapResponse {
-  parse() {
-    this.attributes = {};
-
-    for (let line of this._lines) {
-      let [, tagOrType, data] = this.parseLine(line);
-      tagOrType = tagOrType.toUpperCase();
-      if (tagOrType == "FLAGS") {
-        this.attributes.flags = data;
-      } else if (tagOrType == "OK") {
-        let key = data[0].toLowerCase();
-        this.attributes[key] = data[1];
-      }
-    }
-
-    this.flags = ImapUtils.stringsToFlags(
-      this.attributes.permanentflags || this.attributes.flags
-    );
   }
 }

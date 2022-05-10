@@ -47,6 +47,7 @@ class ImapClient {
    * Initiate a connection to the server
    */
   connect() {
+    this._idling = false;
     if (this._socket?.readyState == "open") {
       // Reuse the connection.
       this.onReady();
@@ -54,6 +55,7 @@ class ImapClient {
       this._logger.debug(
         `Connecting to ${this._server.realHostName}:${this._server.port}`
       );
+      this._capabilities = null;
       this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
       this._socket = new TCPSocket(
         this._server.realHostName,
@@ -141,6 +143,7 @@ class ImapClient {
    * Send IDLE command to the server.
    */
   idle() {
+    this._idling = true;
     this._nextAction = res => {
       if (res.tag == "*") {
         if (!this._folder) {
@@ -162,6 +165,7 @@ class ImapClient {
    * Send DONE to end the IDLE command.
    */
   endIdle() {
+    this._idling = false;
     this._nextAction = this._actionDone;
     this._send("DONE");
   }
@@ -173,20 +177,8 @@ class ImapClient {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
-    this._nextAction = () => {
-      this._actionCapabilityResponse();
-    };
+    this._nextAction = this._actionCapabilityResponse;
   };
-
-  /**
-   * Parse the server response.
-   * @param {string} str - Response received from the server.
-   * @returns {ImapResponse}
-   */
-  _parse(str) {
-    let [tag, status, data, text] = str.split(" ");
-    return { tag, status, data, text };
-  }
 
   /**
    * The data event handler.
@@ -197,9 +189,14 @@ class ImapClient {
       new Uint8Array(event.data)
     );
     this._logger.debug(`S: ${stringPayload}`);
-    let res = ImapResponse.parse(stringPayload);
-    this._logger.debug("Parsed:", res);
-    this._nextAction?.(res);
+    if (!this._response || this._idling || this._response.done) {
+      this._response = new ImapResponse();
+    }
+    this._response.parse(stringPayload);
+    this._logger.debug("Parsed:", this._response);
+    if (!this._capabilities || this._idling || this._response.done) {
+      this._nextAction?.(this._response);
+    }
   };
 
   /**
@@ -273,6 +270,8 @@ class ImapClient {
    * @returns {number}
    */
   _actionCapabilityResponse = res => {
+    this._capabilities = res.capabilities;
+    this._authMethods = res.authMethods;
     this._actionAuth();
   };
 
@@ -332,8 +331,8 @@ class ImapClient {
    * Handle SELECT response.
    */
   _actionSelectResponse(res) {
-    this._supportedFlags = res.flags;
-    this._folderState = res.attributes;
+    this._supportedFlags = res.permanentflags || res.flags;
+    this._folderState = res;
     this._actionAfterSelectFolder();
   }
 
@@ -358,20 +357,16 @@ class ImapClient {
     );
     this._messageUids = [];
     for (let msg of res.messages) {
-      this._messageUids[msg.attributes.sequence] = msg.attributes.uid;
+      this._messageUids[msg.sequence] = msg.uid;
       this._folder
         .QueryInterface(Ci.nsIImapMessageSink)
         .notifyMessageFlags(
-          msg.attributes.flags,
+          msg.flags,
           "",
-          msg.attributes.uid,
+          msg.uid,
           this._folderState.highestmodseq
         );
     }
-    // let latestUid = res.messages.reduce(
-    //   (maxUid, msg) => Math.max(maxUid, msg.attributes.uid),
-    //   0
-    // );
     let latestUid = this._messageUids.at(-1);
     if (latestUid > highestUid) {
       this._nextAction = this._actionUidFetchBodyResponse;
@@ -397,28 +392,24 @@ class ImapClient {
         numHeaders: 1,
         getHeader() {
           return {
-            msgUid: msg.attributes.uid,
-            msgSize: msg.attributes.body.length,
+            msgUid: msg.uid,
+            msgSize: msg.body.length,
             get msgHdrs() {
-              let sepIndex = msg.attributes.body.indexOf("\r\n\r\n");
-              return msg.attributes.body.slice(0, sepIndex + 2);
+              let sepIndex = msg.body.indexOf("\r\n\r\n");
+              return msg.body.slice(0, sepIndex + 2);
             },
           };
         },
       };
       this._folderSink.parseMsgHdrs(this, hdrXferInfo);
-      this._msgSink.parseAdoptedMsgLine(
-        msg.attributes.body,
-        msg.attributes.uid,
-        this.runningUrl
-      );
+      this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
       this._msgSink.normalEndMsgWriteStream(
-        msg.attributes.uid,
+        msg.uid,
         true,
         this.runningUrl,
-        msg.attributes.body.length
+        msg.body.length
       );
-      this._folderSink.EndMessage(this.runningUrl, msg.attributes.uid);
+      this._folderSink.EndMessage(this.runningUrl, msg.uid);
     }
     this._actionDone();
   }
@@ -428,12 +419,12 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionNoopResponse(res) {
-    for (let msg of res.messages || []) {
-      let uid = this._messageUids[msg.attributes.sequence];
+    for (let msg of res.messages) {
+      let uid = this._messageUids[msg.sequence];
       this._folder
         .QueryInterface(Ci.nsIImapMessageSink)
         .notifyMessageFlags(
-          msg.attributes.flags,
+          msg.flags,
           "",
           uid,
           this._folderState.highestmodseq
