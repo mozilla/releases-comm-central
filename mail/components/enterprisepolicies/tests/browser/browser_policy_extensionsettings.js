@@ -79,7 +79,7 @@ add_task(async function test_install_source_blocked_link() {
     },
   });
   let popupPromise = promisePopupNotificationShown(
-    "addon-install-origin-blocked"
+    "addon-install-policy-blocked"
   );
   let tab = await openTab(`${BASE_URL}extensionsettings.html`);
 
@@ -103,7 +103,7 @@ add_task(async function test_install_source_blocked_installtrigger() {
     },
   });
   let popupPromise = promisePopupNotificationShown(
-    "addon-install-origin-blocked"
+    "addon-install-policy-blocked"
   );
   let tab = await openTab(`${BASE_URL}extensionsettings.html`);
 
@@ -131,7 +131,7 @@ add_task(async function test_install_source_blocked_otherdomain() {
     },
   });
   let popupPromise = promisePopupNotificationShown(
-    "addon-install-origin-blocked"
+    "addon-install-policy-blocked"
   );
   let tab = await openTab(`${BASE_URL}extensionsettings.html`);
 
@@ -154,7 +154,7 @@ add_task(async function test_install_source_blocked_direct() {
     },
   });
   let popupPromise = promisePopupNotificationShown(
-    "addon-install-origin-blocked"
+    "addon-install-policy-blocked"
   );
   let tab = await openTab(`${BASE_URL}extensionsettings.html`);
 

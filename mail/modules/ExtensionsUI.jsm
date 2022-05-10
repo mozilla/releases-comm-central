@@ -332,11 +332,19 @@ var gXPInstallObserver = {
         );
         break;
       }
+      case "addon-install-webapi-blocked":
+      case "addon-install-policy-blocked":
       case "addon-install-origin-blocked": {
-        messageString = addonsBundle.formatStringFromName(
-          "xpinstallPromptMessage",
-          [brandShortName]
-        );
+        if (topic == "addon-install-policy-blocked") {
+          messageString = addonsBundle.GetStringFromName(
+            "addonDomainBlockedByPolicy"
+          );
+        } else {
+          messageString = addonsBundle.getFormattedString(
+            "xpinstallPromptMessage",
+            [brandShortName]
+          );
+        }
 
         if (Services.policies) {
           let extensionSettings = Services.policies.getExtensionSettings("*");
@@ -684,6 +692,8 @@ var gXPInstallObserver = {
 
 Services.obs.addObserver(gXPInstallObserver, "addon-install-disabled");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-origin-blocked");
+Services.obs.addObserver(gXPInstallObserver, "addon-install-policy-blocked");
+Services.obs.addObserver(gXPInstallObserver, "addon-install-webapi-blocked");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-blocked");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-started");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-failed");
