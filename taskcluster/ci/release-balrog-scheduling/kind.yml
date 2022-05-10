@@ -38,7 +38,7 @@ jobs:
                     staging:
                         by-release-type:
                             beta: [43]
-                            release: [878]
+                            release: [903]
                             default: []
         treeherder:
             platform: thunderbird-release/opt

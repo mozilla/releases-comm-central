@@ -129,17 +129,6 @@ merge-automation:
             end-tag: 'NIGHTLY_{major_version}_END'
             to-repo: 'https://hg.mozilla.org/comm-central'
             to-branch: 'comm'
-        comm-bump-esr:
-            fetch-version-from: "mail/config/version.txt"
-            version-files:
-                - filename: "mail/config/version.txt"
-                  version-bump: "minor"
-                - filename: "mail/config/version_display.txt"
-                  version-bump: "minor"
-            replacements: []
-            merge-old-head: false
-            to-repo: 'https://hg.mozilla.org/releases/comm-esr91'
-            to-branch: 'comm-esr91'
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
