@@ -179,6 +179,10 @@ encryption-options-smime =
   .label = S/MIME
   .tooltiptext = View or change S/MIME encryption settings
 
+signing-toggle =
+  .label = Sign
+  .tooltiptext = Use digital signing for this message
+
 menu-openpgp =
     .label = OpenPGP
     .accesskey = O

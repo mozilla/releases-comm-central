@@ -548,12 +548,16 @@
   list-style-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
 }
 
-#button-encryption[checked="true"] {
+#button-encryption[checked] {
   list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
 }
 
 #button-encryption-options > .box-inherit > .toolbarbutton-icon {
   display: none;
+}
+
+#button-signing {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
 }
 
 #button-save {

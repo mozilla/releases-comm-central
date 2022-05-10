@@ -1671,6 +1671,8 @@ function toggleGlobalSignMessage() {
       gAttachMyPublicPGPKey = gAttachMyPublicPGPKeyInitial;
     }
   }
+
+  showSendEncryptedAndSigned();
 }
 
 function toggleEncryptMessage() {
@@ -1696,18 +1698,6 @@ function toggleEncryptMessage() {
 
   if (!gUserTouchedEncryptSubject) {
     setEncryptSubject(gCurrentIdentity.protectSubject);
-  }
-
-  // Should button remain enabled? Identity might be unable to
-  // encrypt, but we might have kept button enabled after identity change.
-  let configuredSMIME =
-    isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
-  let configuredOpenPGP = isPgpConfigured();
-  let noEncryption = !configuredOpenPGP && !configuredSMIME;
-
-  let encToggle = document.getElementById("button-encryption");
-  if (encToggle) {
-    encToggle.disabled = noEncryption && !gSendEncrypted;
   }
 }
 
@@ -4677,6 +4667,11 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   if (encToggle) {
     encToggle.disabled = noEncryption && !gSendEncrypted;
   }
+  let sigToggle = document.getElementById("button-signing");
+  if (sigToggle) {
+    sigToggle.disabled = noEncryption;
+  }
+
   document.getElementById("encryptionMenu").disabled =
     noEncryption && !gSendEncrypted;
 
@@ -4832,6 +4827,8 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     gSMFields.requireEncryptMessage = gSendEncrypted;
     gSMFields.signMessage = gSendSigned;
   }
+
+  showSendEncryptedAndSigned();
 
   updateEncryptionOptions();
 }
@@ -10868,6 +10865,40 @@ function fillMailContextMenu(event) {
 }
 function mailContextOnPopupHiding() {}
 
+function showSendEncryptedAndSigned() {
+  let encToggle = document.getElementById("button-encryption");
+  if (encToggle) {
+    if (gSendEncrypted) {
+      encToggle.setAttribute("checked", "true");
+    } else {
+      encToggle.removeAttribute("checked");
+    }
+  }
+
+  let sigToggle = document.getElementById("button-signing");
+  if (sigToggle) {
+    if (gSendSigned) {
+      sigToggle.setAttribute("checked", "true");
+    } else {
+      sigToggle.removeAttribute("checked");
+    }
+  }
+
+  // Should button remain enabled? Identity might be unable to
+  // encrypt, but we might have kept button enabled after identity change.
+  let configuredSMIME =
+    isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
+  let configuredOpenPGP = isPgpConfigured();
+  let noEncryption = !configuredOpenPGP && !configuredSMIME;
+
+  if (encToggle) {
+    encToggle.disabled = noEncryption && !gSendEncrypted;
+  }
+  if (sigToggle) {
+    sigToggle.disabled = noEncryption;
+  }
+}
+
 /**
  * Sets the gSendEncrypted global and dispatches an event that can be hooked
  * into.
@@ -10885,15 +10916,12 @@ function setSendEncryptedAndSigned(encrypted) {
     gSendSigned = gCurrentIdentity.signMail;
   }
 
-  let encToggle = document.getElementById("button-encryption");
-  if (encToggle) {
-    if (gSendEncrypted) {
-      encToggle.setAttribute("checked", "true");
-    } else {
-      encToggle.removeAttribute("checked");
-      clearRecipientsWithKeyIssues();
-    }
+  if (!gSendEncrypted) {
+    clearRecipientsWithKeyIssues();
   }
+
+  showSendEncryptedAndSigned();
+
   updateEncryptedSubject();
   window.dispatchEvent(
     new CustomEvent("sendencryptedchange", { detail: { encrypted } })
