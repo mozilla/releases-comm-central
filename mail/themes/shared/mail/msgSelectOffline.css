@@ -9,6 +9,17 @@
 @import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/folderPane.css");
 
+treechildren::-moz-tree-image(folderNameCol) {
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: color-mix(in srgb, var(--default) 20%, transparent);
+  stroke: var(--default);
+}
+
+treechildren::-moz-tree-image(folderNameCol, isServer-true) {
+  fill: color-mix(in srgb, var(--primary-fill) 20%, transparent);
+  stroke: var(--primary);
+}
+
 treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
   opacity: 0.6;
   font-style: italic;

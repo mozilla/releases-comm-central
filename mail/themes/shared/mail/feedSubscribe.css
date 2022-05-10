@@ -10,6 +10,9 @@
 #rssSubscriptionsList > treechildren::-moz-tree-image {
   width: 16px;
   height: 16px;
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: color-mix(in srgb, var(--default) 20%, transparent);
+  stroke: var(--default);
 }
 
 #rssFeedInfoBox {

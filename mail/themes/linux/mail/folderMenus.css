@@ -9,7 +9,7 @@
 @import url("chrome://messenger/skin/shared/folderMenus.css");
 
 .folderMenuItem .menu-iconic-left {
-  visibility: visible;
+  display: -moz-box;
 }
 
 menulist.folderMenuItem::part(icon) {

@@ -271,7 +271,7 @@ function getFolderIcon(folder) {
   } else {
     switch (getSpecialFolderString(folder)) {
       case "Virtual":
-        iconName = "folder-search.svg";
+        iconName = "folder-filter.svg";
         break;
       case "Junk":
         iconName = "spam.svg";

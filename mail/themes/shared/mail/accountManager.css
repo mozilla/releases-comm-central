@@ -117,43 +117,46 @@ body {
 #accounttree li div.icon {
   width: 16px;
   height: 16px;
-  background-image: url("chrome://messenger/skin/icons/message.svg");
+  background-image: var(--icon-mail);
   background-position: center center;
   background-repeat: no-repeat;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 #accounttree li.serverType-imap.isSecure div.icon,
 #accounttree li.serverType-pop3.isSecure div.icon {
-  background-image: url("chrome://messenger/skin/icons/message-secure.svg");
+  background-image: var(--icon-mail-secure);
 }
 
 #accounttree li.serverType-feeds div.icon,
 #accounttree li.serverType-rss div.icon {
-  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
+  list-style-image: var(--icon-rss);
 }
 
 #accounttree li.serverType-im div.icon {
-  background-image: url("chrome://chat/skin/chat.svg");
+  background-image: var(--spaces-icon-chat);
 }
 
 #accounttree li.serverType-news div.icon {
-  background-image: url("chrome://messenger/skin/icons/newsgroup.svg");
+  background-image: var(--icon-newsletter);
 }
 
 #accounttree li.serverType-nntp div.icon {
-  background-image: url("chrome://messenger/skin/icons/globe.svg");
+  background-image: var(--icon-globe);
 }
 
 #accounttree li.serverType-nntp.isSecure div.icon {
-  background-image: url("chrome://messenger/skin/icons/globe-secure.svg");
+  background-image: var(--icon-globe-secure);
 }
 
 #accounttree li.serverType-none div.icon {
-  background-image: url("chrome://messenger/skin/icons/folder-local.svg");
+  background-image: var(--icon-folder);
 }
 
 #accounttree li.serverType-smtp div.icon {
-  background-image: url("chrome://messenger/skin/icons/outbox.svg");
+  background-image: var(--icon-outbox);
 }
 
 #accounttree li .name {
