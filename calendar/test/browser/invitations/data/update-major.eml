@@ -3,7 +3,7 @@ Content-Transfer-Encoding: binary
 Content-Type: multipart/mixed; boundary="_----------=_1647458162153312762582"
 Date: Wed, 16 Mar 2022 15:16:02 -0400
 To: receiver@example.com
-Subject: Invitation: Single Event @ Wed, Mar 16 2022 11:00 AST
+Subject: Update Major
 From: Sender <sender@example.com>
 
 This is a multi-part message in MIME format.
@@ -45,11 +45,11 @@ METHOD:REQUEST
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:02e79b96
-SEQUENCE:0
+SEQUENCE:2
 DTSTAMP:20220316T191602Z
 CREATED:20220316T191532Z
-DTSTART:20220316T110000Z
-DTEND:20220316T113000Z
+DTSTART:20220316T050000Z
+DTEND:20220316T053000Z
 DURATION:PT1H
 PRIORITY:0
 SUMMARY:Single Event

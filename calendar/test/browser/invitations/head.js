@@ -5,8 +5,8 @@
 /**
  * Common functions for the imip-bar tests.
  *
- * Note that these tests are heavily tied to the properties of single-event.eml
- * and repeat-event.eml.
+ * Note that these tests are heavily tied to the .eml files found in the data
+ * folder.
  */
 
 "use strict";
@@ -248,7 +248,6 @@ async function doReplyTest(transport, identity, partStat) {
  */
 async function doImipBarActionTest(conf, event) {
   let { calendar, transport, identity, partStat, isRecurring, noReply } = conf;
-  let title = isRecurring ? "Repeat Event" : "Single Event";
   let events = [event];
   let startDates = ["20220316T110000Z"];
   let endDates = ["20220316T113000Z"];
@@ -267,8 +266,10 @@ async function doImipBarActionTest(conf, event) {
   info("Verifying relevant properties of each event occurrence");
   for (let [index, occurrence] of events.entries()) {
     compareProperties(occurrence, {
-      title,
+      id: "02e79b96",
+      title: isRecurring ? "Repeat Event" : "Single Event",
       "calendar.name": calendar.name,
+      ...(isRecurring ? { "recurrenceId.icalString": startDates[index] } : {}),
       "startDate.icalString": startDates[index],
       "endDate.icalString": endDates[index],
       description: "An event invitation.",
@@ -311,38 +312,21 @@ async function doImipBarActionTest(conf, event) {
 }
 
 /**
- * @typedef {ImipBarActionTestConf} UpdateActionTestConf
- *
- * @property {nsIFile} invite The invite file to base the update on.
- */
-
-/**
  * Tests the recognition and application of a minor update to an existing event.
  * An update is considered minor if the SEQUENCE property has not changed but
  * the DTSTAMP has.
  *
- * @param {UpdateActionTestConf} conf
+ * @param {ImipBarActionTestConf} conf
  */
 async function doMinorUpdateTest(conf) {
-  let { transport, calendar, partStat, isRecurring, invite } = conf;
+  let { transport, calendar, partStat, isRecurring } = conf;
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
   let prevEventIcs = event.icalString;
 
-  let title = "Updated Event";
-  let description = "Updated description.";
-  let location = "Updated location";
-  let dtstamp = "20220318T191602Z";
-  let srcText = await IOUtils.readUTF8(invite.path);
-  srcText = srcText.replaceAll(/SUMMARY:(\w| )+/g, `SUMMARY:${title}`);
-  srcText = srcText.replaceAll(/DESCRIPTION:(\w| |.)+/g, `DESCRIPTION:${description}`);
-  srcText = srcText.replaceAll(/LOCATION:\w+/g, `LOCATION:${location}`);
-  srcText = srcText.replaceAll(/DTSTAMP:20220316T191602Z/g, `DTSTAMP:${dtstamp}`);
-
-  let tmpFile = FileTestUtils.getTempFile("update-minor.eml");
-  await IOUtils.writeUTF8(tmpFile.path, srcText);
   transport.reset();
 
-  let win = await openImipMessage(tmpFile);
+  let updatePath = isRecurring ? "data/repeat-update-minor.eml" : "data/update-minor.eml";
+  let win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
   let updateButton = win.document.getElementById("imipUpdateButton");
   Assert.ok(!updateButton.hidden, `#${updateButton.id} button shown`);
   EventUtils.synthesizeMouseAtCenter(updateButton, {}, win);
@@ -371,14 +355,16 @@ async function doMinorUpdateTest(conf) {
   info("Verifying relevant properties of each event occurrence");
   for (let [index, occurrence] of events.entries()) {
     compareProperties(occurrence, {
-      title,
+      id: "02e79b96",
+      title: "Updated Event",
       "calendar.name": calendar.name,
+      ...(isRecurring ? { "recurrenceId.icalString": startDates[index] } : {}),
       "startDate.icalString": startDates[index],
       "endDate.icalString": endDates[index],
-      description,
-      location,
+      description: "Updated description.",
+      location: "Updated location",
       sequence: "0",
-      "x-moz-received-dtstamp": dtstamp,
+      "x-moz-received-dtstamp": "20220318T191602Z",
       "organizer.id": "mailto:sender@example.com",
       status: "CONFIRMED",
     });
@@ -432,25 +418,17 @@ const actionIds = {
  * An update is considered major if the SEQUENCE property has changed. For major
  * updates, the imip-bar prompts the user to re-confirm their attendance.
  *
- * @param {UpdateActionTestConf} conf
+ * @param {ImipBarActionTestConf} conf
  */
 async function doMajorUpdateTest(conf) {
-  let { transport, identity, calendar, partStat, invite, isRecurring, noReply } = conf;
+  let { transport, identity, calendar, partStat, isRecurring, noReply } = conf;
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
   let prevEventIcs = event.icalString;
 
-  let dtstart = "20220316T050000Z";
-  let dtend = "20220316T053000Z";
-  let srcText = await IOUtils.readUTF8(invite.path);
-  srcText = srcText.replaceAll(/SEQUENCE:\w+/g, "SEQUENCE:2");
-  srcText = srcText.replaceAll(/DTSTART:\w+/g, `DTSTART:${dtstart}`);
-  srcText = srcText.replaceAll(/DTEND:\w+/g, `DTEND:${dtend}`);
-
-  let tmpFile = FileTestUtils.getTempFile("update-major.eml");
-  await IOUtils.writeUTF8(tmpFile.path, srcText);
-
   transport.reset();
-  let win = await openImipMessage(tmpFile);
+
+  let updatePath = isRecurring ? "data/repeat-update-major.eml" : "data/update-major.eml";
+  let win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
   let actions = isRecurring ? actionIds.recurring : actionIds.single;
   if (noReply) {
     let { button, noReply } = actions;
@@ -478,8 +456,8 @@ async function doMajorUpdateTest(conf) {
   }
 
   let events = [event];
-  let startDates = [dtstart];
-  let endDates = [dtend];
+  let startDates = ["20220316T050000Z"];
+  let endDates = ["20220316T053000Z"];
   if (isRecurring) {
     startDates = [...startDates, "20220317T050000Z", "20220318T050000Z"];
     endDates = [...endDates, "20220317T053000Z", "20220318T053000Z"];
@@ -493,8 +471,10 @@ async function doMajorUpdateTest(conf) {
 
   for (let [index, occurrence] of events.entries()) {
     compareProperties(occurrence, {
+      id: "02e79b96",
       title: isRecurring ? "Repeat Event" : "Single Event",
       "calendar.name": calendar.name,
+      ...(isRecurring ? { "recurrenceId.icalString": startDates[index] } : {}),
       "startDate.icalString": startDates[index],
       "endDate.icalString": endDates[index],
       description: "An event invitation.",
@@ -515,5 +495,231 @@ async function doMajorUpdateTest(conf) {
       "2.id": "mailto:receiver@example.com",
     });
   }
+  await calendar.deleteItem(event);
+}
+
+/**
+ * Tests the recognition and application of a minor update exception to an
+ * existing recurring event.
+ *
+ * @param {ImipBarActionTestConf} conf
+ */
+async function doMinorExceptionTest(conf) {
+  let { transport, calendar, partStat } = conf;
+  let recurrenceId = cal.createDateTime("20220317T110000Z");
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+  let originalProps = {
+    id: "02e79b96",
+    "recurrenceId.icalString": "20220317T110000Z",
+    title: event.title,
+    "calendar.name": calendar.name,
+    "startDate.icalString": event.startDate.icalString,
+    "endDate.icalString": event.endDate.icalString,
+    description: event.getProperty("DESCRIPTION"),
+    location: event.getProperty("LOCATION"),
+    sequence: "0",
+    "x-moz-received-dtstamp": event.getProperty("x-moz-received-dtstamp"),
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  };
+
+  Assert.ok(
+    !event.recurrenceInfo.getExceptionFor(recurrenceId),
+    `no exception exists for ${recurrenceId}`
+  );
+
+  transport.reset();
+
+  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
+  let updateButton = win.document.getElementById("imipUpdateButton");
+  Assert.ok(!updateButton.hidden, `#${updateButton.id} button shown`);
+  EventUtils.synthesizeMouseAtCenter(updateButton, {}, win);
+
+  let exception;
+  await TestUtils.waitForCondition(async () => {
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+    exception = event.recurrenceInfo.getExceptionFor(recurrenceId);
+    return exception;
+  }, "event exception applied");
+
+  await BrowserTestUtils.closeWindow(win);
+
+  Assert.equal(transport.sentItems.length, 0, "itip subsystem did not attempt to send a response");
+  Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+
+  info("Verifying relevant properties of the exception");
+  compareProperties(exception, {
+    id: "02e79b96",
+    "recurrenceId.icalString": "20220317T110000Z",
+    title: "Exception title",
+    "calendar.name": calendar.name,
+    "startDate.icalString": "20220317T110000Z",
+    "endDate.icalString": "20220317T113000Z",
+    description: "Exception description",
+    location: "Exception location",
+    sequence: "0",
+    "x-moz-received-dtstamp": "20220318T191602Z",
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  });
+
+  compareProperties(exception.getAttendees(), {
+    "0.id": "mailto:sender@example.com",
+    "0.participationStatus": "ACCEPTED",
+    "1.id": "mailto:other@example.com",
+    "1.participationStatus": "NEEDS-ACTION",
+    "2.id": "mailto:receiver@example.com",
+    "2.participationStatus": partStat,
+  });
+
+  let occurrences = event.recurrenceInfo.getOccurrences(
+    cal.createDateTime("19700101"),
+    cal.createDateTime("30000101"),
+    Infinity
+  );
+  Assert.equal(occurrences.length, 3, "reccurring event still has 3 occurrences");
+
+  info("Verifying relevant properties of the other occurrences");
+
+  let startDates = ["20220316T110000Z", "20220317T110000Z", "20220318T110000Z"];
+  let endDates = ["20220316T113000Z", "20220317T113000Z", "20220318T113000Z"];
+  for (let [index, occurrence] of occurrences.entries()) {
+    if (occurrence.startDate.compare(recurrenceId) == 0) {
+      continue;
+    }
+    compareProperties(occurrence, {
+      ...originalProps,
+      "recurrenceId.icalString": startDates[index],
+      "startDate.icalString": startDates[index],
+      "endDate.icalString": endDates[index],
+    });
+
+    let attendees = occurrence.getAttendees();
+    compareProperties(attendees, {
+      "0.id": "mailto:sender@example.com",
+      "0.participationStatus": "ACCEPTED",
+      "1.id": "mailto:receiver@example.com",
+      "1.participationStatus": partStat,
+      "2.id": "mailto:other@example.com",
+      "2.participationStatus": "NEEDS-ACTION",
+    });
+  }
+
+  await calendar.deleteItem(event);
+}
+
+/**
+ * Tests the recognition and application of a major update exception to an
+ * existing recurring event.
+ *
+ * @param {ImipBarActionTestConf} conf
+ */
+async function doMajorExceptionTest(conf) {
+  let { transport, identity, calendar, partStat, noReply } = conf;
+  let recurrenceId = cal.createDateTime("20220317T110000Z");
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+  let originalProps = {
+    id: "02e79b96",
+    "recurrenceId.icalString": "20220317T110000Z",
+    title: event.title,
+    "calendar.name": calendar.name,
+    "startDate.icalString": event.startDate.icalString,
+    "endDate.icalString": event.endDate.icalString,
+    description: event.getProperty("DESCRIPTION"),
+    location: event.getProperty("LOCATION"),
+    sequence: "0",
+    "x-moz-received-dtstamp": event.getProperty("x-moz-received-dtstamp"),
+    "organizer.id": "mailto:sender@example.com",
+    status: "CONFIRMED",
+  };
+  let originalPartStat = event.getAttendees().find(att => att.id == "mailto:receiver@example.com")
+    .participationStatus;
+
+  Assert.ok(
+    !event.recurrenceInfo.getExceptionFor(recurrenceId),
+    `no exception exists for ${recurrenceId}`
+  );
+
+  transport.reset();
+
+  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  if (noReply) {
+    let { button, noReply } = actionIds.single;
+    await clickMenuAction(win, button[partStat], noReply[partStat]);
+  } else {
+    await clickAction(win, actionIds.single.button[partStat]);
+  }
+
+  let exception;
+  await TestUtils.waitForCondition(async () => {
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+    exception = event.recurrenceInfo.getExceptionFor(recurrenceId);
+    return exception;
+  }, "event exception applied");
+
+  await BrowserTestUtils.closeWindow(win);
+
+  if (noReply) {
+    Assert.equal(
+      transport.sentItems.length,
+      0,
+      "itip subsystem did not attempt to send a response"
+    );
+    Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+  } else {
+    await doReplyTest(transport, identity, partStat);
+  }
+
+  info("Verifying relevant properties of the exception");
+
+  compareProperties(exception, {
+    ...originalProps,
+    "startDate.icalString": "20220317T050000Z",
+    "endDate.icalString": "20220317T053000Z",
+    sequence: "2",
+  });
+
+  compareProperties(exception.getAttendees(), {
+    "0.id": "mailto:sender@example.com",
+    "0.participationStatus": "ACCEPTED",
+    "1.id": "mailto:other@example.com",
+    "1.participationStatus": "NEEDS-ACTION",
+    "2.id": "mailto:receiver@example.com",
+    "2.participationStatus": partStat,
+  });
+
+  let occurrences = event.recurrenceInfo.getOccurrences(
+    cal.createDateTime("19700101"),
+    cal.createDateTime("30000101"),
+    Infinity
+  );
+  Assert.equal(occurrences.length, 3, "reccurring event still has 3 occurrences");
+
+  info("Verifying relevant properties of the other occurrences");
+
+  let startDates = ["20220316T110000Z", "20220317T110000Z", "20220318T110000Z"];
+  let endDates = ["20220316T113000Z", "20220317T113000Z", "20220318T113000Z"];
+  for (let [index, occurrence] of occurrences.entries()) {
+    if (occurrence.startDate.icalString == "20220317T050000Z") {
+      continue;
+    }
+    compareProperties(occurrence, {
+      ...originalProps,
+      "recurrenceId.icalString": startDates[index],
+      "startDate.icalString": startDates[index],
+      "endDate.icalString": endDates[index],
+    });
+
+    let attendees = occurrence.getAttendees();
+    compareProperties(attendees, {
+      "0.id": "mailto:sender@example.com",
+      "0.participationStatus": "ACCEPTED",
+      "1.id": "mailto:receiver@example.com",
+      "1.participationStatus": originalPartStat,
+      "2.id": "mailto:other@example.com",
+      "2.participationStatus": "NEEDS-ACTION",
+    });
+  }
+
   await calendar.deleteItem(event);
 }
