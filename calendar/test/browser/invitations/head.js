@@ -28,7 +28,7 @@ registerCleanupFunction(() => {
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
   // Focus an element in the main window, then blur it again to avoid it
-  // hijacking keypresses.
+  // hijacking key presses.
   let searchInput = document.getElementById("searchInput");
   searchInput.focus();
   searchInput.blur();
