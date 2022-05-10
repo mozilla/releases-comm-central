@@ -6,7 +6,7 @@ loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.release:run_on_releases
-    - gecko_taskgraph.transforms.update_verify_config:transforms
+    - comm_taskgraph.transforms.update_verify_config:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -52,8 +52,8 @@ job-defaults:
         updater-platform: linux-x86_64
         product: thunderbird
         channel: "release-localtest-next"
-        include-version: thunderbird91-next
-        last-watershed: "78.15.0"
+        include-version: release-next
+        last-watershed: "91.9.0"
 
 jobs:
     thunderbird-next-linux:
