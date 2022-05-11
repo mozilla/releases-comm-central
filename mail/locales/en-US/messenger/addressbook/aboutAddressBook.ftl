@@ -135,6 +135,7 @@ about-addressbook-confirm-delete-contacts =
 ## Details
 
 about-addressbook-write-action-button = Write
+about-addressbook-search-action-button = Search
 
 about-addressbook-begin-edit-contact-button = Edit
 about-addressbook-delete-edit-contact-button = Delete

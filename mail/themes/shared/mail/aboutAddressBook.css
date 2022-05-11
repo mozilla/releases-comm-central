@@ -512,6 +512,10 @@ body.is-editing #detailsPane #photoOverlay {
   background-image: url("chrome://messenger/skin/icons/newmsg.svg");
 }
 
+#detailsSearchButton::before {
+  background-image: url("chrome://global/skin/icons/search-glass.svg");
+}
+
 #detailsPane section h3 {
   margin-block: 0 15px;
   font-size: 1.1rem;

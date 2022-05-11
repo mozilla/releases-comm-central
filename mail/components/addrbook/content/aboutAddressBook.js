@@ -28,6 +28,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalMetronome: "resource:///modules/CalMetronome.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
+  GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
   ICAL: "resource:///modules/calendar/Ical.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
@@ -1714,6 +1715,7 @@ var detailsPane = {
   init() {
     this.form = document.getElementById("detailsPane");
     this.writeButton = document.getElementById("detailsWriteButton");
+    this.searchButton = document.getElementById("detailsSearchButton");
     this.editButton = document.getElementById("editButton");
     this.deleteButton = document.getElementById("detailsDeleteButton");
     this.addContactBookList = document.getElementById("addContactBookList");
@@ -1939,7 +1941,7 @@ var detailsPane = {
     delete this.photo._blob;
     delete this.photo._cropRect;
 
-    this.writeButton.hidden = !card.primaryEmail;
+    this.writeButton.hidden = this.searchButton.hidden = !card.primaryEmail;
 
     let vCardProperties = card.supportsVCard
       ? card.vCardProperties
@@ -2392,6 +2394,14 @@ var detailsPane = {
               this.currentCard.primaryEmail
             ),
           ]);
+        }
+        break;
+      case "detailsSearchButton":
+        if (this.currentCard.primaryEmail) {
+          let searchString = this.currentCard.emailAddresses.join(" ");
+          window.browsingContext.topChromeWindow.tabmail.openTab("glodaFacet", {
+            searcher: new GlodaMsgSearcher(null, searchString, false),
+          });
         }
         break;
       case "editButton":

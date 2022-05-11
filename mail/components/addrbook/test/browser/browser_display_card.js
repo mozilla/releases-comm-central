@@ -65,7 +65,6 @@ add_task(async function test_display() {
 
   let h1 = abDocument.querySelector("#detailsHeader h1");
   let h2 = abDocument.querySelector("#detailsHeader h2");
-  let writeButton = abDocument.getElementById("detailsWriteButton");
   let editButton = abDocument.getElementById("editButton");
 
   let emailAddressesSection = abDocument.getElementById("emailAddresses");
@@ -89,7 +88,7 @@ add_task(async function test_display() {
   Assert.equal(h2.textContent, "");
 
   // Action buttons.
-  Assert.ok(BrowserTestUtils.is_hidden(writeButton));
+  await checkActionButtons();
   Assert.ok(BrowserTestUtils.is_visible(editButton));
 
   Assert.ok(BrowserTestUtils.is_hidden(emailAddressesSection));
@@ -110,15 +109,8 @@ add_task(async function test_display() {
   Assert.equal(h2.textContent, "basic@invalid");
 
   // Action buttons.
-  Assert.ok(BrowserTestUtils.is_visible(writeButton));
+  await checkActionButtons("basic@invalid", "basic person");
   Assert.ok(BrowserTestUtils.is_visible(editButton));
-
-  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
-  EventUtils.synthesizeMouseAtCenter(writeButton, {}, abWindow);
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "basic person <basic@invalid>"
-  );
 
   // Email section.
   Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
@@ -131,7 +123,7 @@ add_task(async function test_display() {
   );
   Assert.equal(items[0].querySelector("a").textContent, "basic@invalid");
 
-  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
   EventUtils.synthesizeMouseAtCenter(items[0].querySelector("a"), {}, abWindow);
   await checkComposeWindow(
     await composeWindowPromise,
@@ -156,15 +148,12 @@ add_task(async function test_display() {
   Assert.equal(h2.textContent, "primary@invalid");
 
   // Action buttons.
-  Assert.ok(BrowserTestUtils.is_visible(writeButton));
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
-
-  composeWindowPromise = BrowserTestUtils.domWindowOpened();
-  EventUtils.synthesizeMouseAtCenter(writeButton, {}, abWindow);
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "complex person <primary@invalid>"
+  await checkActionButtons(
+    "primary@invalid",
+    "complex person",
+    "primary@invalid secondary@invalid tertiary@invalid"
   );
+  Assert.ok(BrowserTestUtils.is_visible(editButton));
 
   // Email section.
   Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
@@ -317,7 +306,7 @@ add_task(async function test_display() {
   Assert.equal(h2.textContent, "");
 
   // Action buttons.
-  Assert.ok(BrowserTestUtils.is_hidden(writeButton));
+  await checkActionButtons();
   Assert.ok(BrowserTestUtils.is_visible(editButton));
 
   Assert.ok(BrowserTestUtils.is_hidden(emailAddressesSection));
@@ -326,3 +315,59 @@ add_task(async function test_display() {
   Assert.ok(BrowserTestUtils.is_hidden(notesSection));
   Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
 });
+
+async function checkActionButtons(
+  primaryEmail,
+  displayName,
+  searchString = primaryEmail
+) {
+  let tabmail = document.getElementById("tabmail");
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let writeButton = abDocument.getElementById("detailsWriteButton");
+  let searchButton = abDocument.getElementById("detailsSearchButton");
+
+  if (primaryEmail) {
+    // Write.
+    Assert.ok(
+      BrowserTestUtils.is_visible(writeButton),
+      "write button is visible"
+    );
+
+    let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+    EventUtils.synthesizeMouseAtCenter(writeButton, {}, abWindow);
+    await checkComposeWindow(
+      await composeWindowPromise,
+      `${displayName} <${primaryEmail}>`
+    );
+
+    // Search.
+    Assert.ok(
+      BrowserTestUtils.is_visible(searchButton),
+      "search button is visible"
+    );
+
+    let searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
+    EventUtils.synthesizeMouseAtCenter(searchButton, {}, abWindow);
+    let {
+      detail: { tabInfo: searchTab },
+    } = await searchTabPromise;
+
+    let searchBox = tabmail.selectedTab.panel.querySelector(".searchBox");
+    Assert.equal(searchBox.value, searchString);
+
+    searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabClose");
+    tabmail.closeTab(searchTab);
+    await searchTabPromise;
+  } else {
+    Assert.ok(
+      BrowserTestUtils.is_hidden(writeButton),
+      "write button is hidden"
+    );
+    Assert.ok(
+      BrowserTestUtils.is_hidden(searchButton),
+      "search button is hidden"
+    );
+  }
+}
