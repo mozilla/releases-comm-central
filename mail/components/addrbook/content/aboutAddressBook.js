@@ -2157,6 +2157,7 @@ var detailsPane = {
    */
   editCurrentContact(vCard) {
     let card = this.currentCard;
+    let vCardEdit = detailsPane.form.querySelector("vcard-edit");
 
     if (!card) {
       document.querySelector("h1").textContent = "";
@@ -2165,6 +2166,16 @@ var detailsPane = {
       delete this.photo._blob;
       delete this.photo._cropRect;
       delete this.photo._url;
+      vCardEdit.vCardString = vCard ?? "";
+    }
+    // Set VCard data to the Edit view.
+    if (card && card.supportsVCard) {
+      vCardEdit.vCardProperties = card.vCardProperties;
+    } else {
+      /**
+       * @TODO This case is not covered yet. Or better, is this case covered?
+       */
+      vCardEdit.vCardString = "";
     }
 
     this.deleteButton.hidden = !card;
@@ -2172,6 +2183,7 @@ var detailsPane = {
     this.isEditing = true;
     this.form.hidden = false;
     this.form.scrollTo(0, 0);
+    vCardEdit.setFocus();
   },
 
   /**
@@ -2180,6 +2192,13 @@ var detailsPane = {
   async saveCurrentContact() {
     let card = this.currentCard;
     let book;
+
+    // Retrieve the vCardEdit Element.
+    let vCardEdit = detailsPane.form.querySelector("vcard-edit");
+    if (!vCardEdit) {
+      throw new Error("vCard Edit not found. Not saving the Card.");
+    }
+
     if (card) {
       book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     } else {
@@ -2239,6 +2258,9 @@ var detailsPane = {
       delete this.photo._blob;
     }
 
+    // Tell vcard-edit to read the input fields.
+    vCardEdit.saveVCard();
+    card.setProperty("_vCard", vCardEdit.vCardString);
     this.isEditing = false;
 
     if (!card.directoryUID) {

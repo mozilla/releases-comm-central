@@ -13,7 +13,9 @@ messenger.jar:
     content/messenger/addressbook/menulist-addrbooks.js         (content/menulist-addrbooks.js)
 
     content/messenger/addressbook/aboutAddressBook.js           (content/aboutAddressBook.js)
-    content/messenger/addressbook/aboutAddressBook.xhtml        (content/aboutAddressBook.xhtml)
+*   content/messenger/addressbook/aboutAddressBook.xhtml        (content/aboutAddressBook.xhtml)
     content/messenger/addressbook/addressBookTab.js             (content/addressBookTab.js)
 # TODO: Rename this after removal of mailnews/addrbook/content/abView.js.
     content/messenger/addressbook/abView-new.js                 (content/abView-new.js)
+# Edit view
+    content/messenger/addressbook/edit/edit.js                  (content/vcard-edit/edit.js)
