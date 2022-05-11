@@ -593,10 +593,8 @@ MailGlue.prototype = {
           ChromeUtils.import("resource://gre/actors/AutoCompleteParent.jsm");
         },
       },
-      // WebDriver components (Remote Agent and Marionette) need to be
-      // initialized as very last step.
+
       {
-        condition: AppConstants.ENABLE_WEBDRIVER,
         task: () => {
           // Use idleDispatch a second time to run this after the per-window
           // idle tasks.
@@ -605,15 +603,10 @@ MailGlue.prototype = {
               null,
               "mail-startup-idle-tasks-finished"
             );
-
-            // Request startup of the Remote Agent (support for WebDriver BiDi
-            // and the partial Chrome DevTools protocol) before Marionette.
-            Services.obs.notifyObservers(null, "remote-startup-requested");
-            Services.obs.notifyObservers(null, "marionette-startup-requested");
           });
         },
       },
-      // Do NOT add anything after WebDriver initialization.
+      // Do NOT add anything after idle tasks finished.
     ];
 
     for (let task of idleTasks) {
