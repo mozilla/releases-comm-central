@@ -552,8 +552,8 @@
   list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
 }
 
-#button-encryption-options > .box-inherit > .toolbarbutton-icon {
-  display: none;
+#button-encryption-options {
+  list-style-image: url("chrome://messenger/skin/icons/shield.svg");
 }
 
 #button-signing {

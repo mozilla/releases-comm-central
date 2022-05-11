@@ -193,6 +193,7 @@
   skin/classic/messenger/icons/delete.svg                     (../shared/mail/icons/delete.svg)
   skin/classic/messenger/icons/delete-col.svg                 (../shared/mail/icons/delete-col.svg)
   skin/classic/messenger/icons/developer.svg                  (../shared/mail/icons/developer.svg)
+  skin/classic/messenger/icons/shield.svg                     (../shared/mail/icons/shield.svg)
   skin/classic/messenger/icons/message-signed-ok.svg       (../shared/mail/icons/message-signed-ok.svg)
   skin/classic/messenger/icons/message-signed-mismatch.svg (../shared/mail/icons/message-signed-mismatch.svg)
   skin/classic/messenger/icons/message-signed-unknown.svg  (../shared/mail/icons/message-signed-unknown.svg)
