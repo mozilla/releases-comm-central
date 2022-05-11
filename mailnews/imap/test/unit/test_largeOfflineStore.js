@@ -126,7 +126,7 @@ add_task(async function check_result() {
     );
 
     // Make sure we don't fall over if we ask to read the message.
-    IMAPPump.inbox.getSlicedOfflineFileStream(header.messageKey).close();
+    IMAPPump.inbox.getLocalMsgStream(header).close();
   }
 });
 

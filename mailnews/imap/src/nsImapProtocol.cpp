@@ -9742,8 +9742,11 @@ bool nsImapMockChannel::ReadFromLocalCache() {
   }
   // we want to create a file channel and read the msg from there.
   nsMsgKey msgKey = strtoul(messageIdString.get(), nullptr, 10);
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  rv = folder->GetMessageHeader(msgKey, getter_AddRefs(hdr));
+  NS_ENSURE_SUCCESS(rv, false);
   nsCOMPtr<nsIInputStream> msgStream;
-  rv = folder->GetSlicedOfflineFileStream(msgKey, getter_AddRefs(msgStream));
+  rv = folder->GetLocalMsgStream(hdr, getter_AddRefs(msgStream));
   NS_ENSURE_SUCCESS(rv, false);
   // dougt - This may break the ablity to "cancel" a read from offline
   // mail reading. fileChannel->SetLoadGroup(m_loadGroup);

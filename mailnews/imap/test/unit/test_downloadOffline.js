@@ -62,7 +62,7 @@ function verifyDownloaded() {
       header instanceof Ci.nsIMsgDBHdr &&
       header.flags & Ci.nsMsgMessageFlags.Offline
     ) {
-      IMAPPump.inbox.getSlicedOfflineFileStream(header.messageKey).close();
+      IMAPPump.inbox.getLocalMsgStream(header).close();
     } else {
       do_throw("Message not downloaded for offline use");
     }

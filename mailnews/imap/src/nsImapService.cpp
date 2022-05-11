@@ -1142,7 +1142,10 @@ NS_IMETHODIMP nsImapService::StreamHeaders(const nsACString& aMessageURI,
   bool hasMsgOffline = false;
   folder->HasMsgOffline(key, &hasMsgOffline);
   if (hasMsgOffline) {
-    rv = folder->GetSlicedOfflineFileStream(key, getter_AddRefs(inputStream));
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    rv = folder->GetMessageHeader(key, getter_AddRefs(hdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = folder->GetLocalMsgStream(hdr, getter_AddRefs(inputStream));
     NS_ENSURE_SUCCESS(rv, rv);
     return MsgStreamMsgHeaders(inputStream, aConsumer);
   }

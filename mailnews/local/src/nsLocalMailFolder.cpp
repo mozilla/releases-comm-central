@@ -55,6 +55,7 @@
 #include "nsIURIMutator.h"
 #include "mozilla/Services.h"
 #include "mozilla/UniquePtr.h"
+#include "mozilla/SlicedInputStream.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // nsLocal
@@ -2734,6 +2735,25 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
       do_QueryInterface(server, &rv);
   NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
   return localMailServer->GetNewMail(aWindow, this, this, nullptr);
+}
+
+NS_IMETHODIMP nsMsgLocalMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
+                                                      nsIInputStream** stream) {
+  uint64_t offset = 0;
+  hdr->GetMessageOffset(&offset);
+  // It's a local folder - .messageSize holds the size.
+  uint32_t size = 0;
+  hdr->GetMessageSize(&size);
+  bool reusable;
+  nsCOMPtr<nsIInputStream> fileStream;
+  nsresult rv = GetMsgInputStream(hdr, &reusable, getter_AddRefs(fileStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<mozilla::SlicedInputStream> slicedStream =
+      new mozilla::SlicedInputStream(fileStream.forget(), offset,
+                                     uint64_t(size));
+  slicedStream.forget(stream);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::NotifyDelete() {

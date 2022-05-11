@@ -331,10 +331,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   // overrides nsMsgDBFolder::HasMsgOffline()
   NS_IMETHOD HasMsgOffline(nsMsgKey msgKey, bool* _retval) override;
-  // overrides nsMsgDBFolder::GetOfflineFileStream()
-  NS_IMETHOD GetOfflineFileStream(nsMsgKey msgKey, int64_t* offset,
-                                  uint32_t* size,
-                                  nsIInputStream** aFileStream) override;
+  NS_IMETHOD GetLocalMsgStream(nsIMsgDBHdr* hdr,
+                               nsIInputStream** stream) override;
 
   NS_DECL_NSIMSGIMAPMAILFOLDER
   NS_DECL_NSIIMAPMAILFOLDERSINK
@@ -494,6 +492,10 @@ class nsImapMailFolder : public nsMsgDBFolder,
   // Allocate and initialize associated auto-sync state object.
   void InitAutoSyncState();
 
+  virtual nsresult GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
+                                        uint32_t* size,
+                                        nsIInputStream** aFileStream) override;
+
   bool m_initialized;
   bool m_haveDiscoveredAllFolders;
   nsCOMPtr<nsIMsgParseMailMsgState> m_msgParser;
@@ -595,7 +597,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
    * This method is used to locate a folder where a msg could be present, not
    * just the folder where the message first arrives, this method searches for
    * the existence of msg in all the folders/labels that we retrieve from
-   * X-GM-LABELS also. overrides nsMsgDBFolder::GetOfflineMsgFolder()
+   * X-GM-LABELS also.
    *  @param msgKey key  of the msg for which we are trying to get the folder;
    *  @param aMsgFolder  required folder;
    */

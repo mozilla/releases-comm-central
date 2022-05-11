@@ -84,6 +84,7 @@
 #include "nsMsgLineBuffer.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/SlicedInputStream.h"
 #include "nsStringStream.h"
 #include "nsIStreamListener.h"
 #include "nsITimer.h"
@@ -8446,14 +8447,14 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     // Lets look in the offline store.
     uint32_t msgFlags;
     msgHdr->GetFlags(&msgFlags);
-    nsMsgKey msgKey;
-    msgHdr->GetMessageKey(&msgKey);
     if (msgFlags & nsMsgMessageFlags::Offline) {
-      rv = GetSlicedOfflineFileStream(msgKey, getter_AddRefs(inputStream));
+      rv = GetLocalMsgStream(msgHdr, getter_AddRefs(inputStream));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
       NS_ENSURE_SUCCESS(rv, rv);
     } else {
+      nsMsgKey msgKey;
+      msgHdr->GetMessageKey(&msgKey);
       keysToFetchFromServer.AppendElement(msgKey);
     }
   }
@@ -8814,9 +8815,10 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetOfflineFileStream(
-    nsMsgKey msgKey, int64_t* offset, uint32_t* size,
-    nsIInputStream** aFileStream) {
+nsresult nsImapMailFolder::GetOfflineFileStream(nsMsgKey msgKey,
+                                                uint64_t* offset,
+                                                uint32_t* size,
+                                                nsIInputStream** aFileStream) {
   NS_ENSURE_ARG(aFileStream);
   nsCOMPtr<nsIMsgFolder> offlineFolder;
   nsresult rv = GetOfflineMsgFolder(msgKey, getter_AddRefs(offlineFolder));
@@ -8848,8 +8850,28 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineFileStream(
 
   nsMsgKey newMsgKey;
   hdr->GetMessageKey(&newMsgKey);
-  return offlineFolder->GetOfflineFileStream(newMsgKey, offset, size,
-                                             aFileStream);
+
+  // We _know_ it's a nsImapMailFolder.
+  nsImapMailFolder* other = static_cast<nsImapMailFolder*>(offlineFolder.get());
+  return other->GetOfflineFileStream(newMsgKey, offset, size, aFileStream);
+}
+
+NS_IMETHODIMP nsImapMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
+                                                  nsIInputStream** stream) {
+  nsMsgKey key;
+  hdr->GetMessageKey(&key);
+
+  uint64_t offset = 0;
+  uint32_t size = 0;
+  nsCOMPtr<nsIInputStream> rawStream;
+  nsresult rv =
+      GetOfflineFileStream(key, &offset, &size, getter_AddRefs(rawStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<SlicedInputStream> slicedStream =
+      new SlicedInputStream(rawStream.forget(), offset, uint64_t(size));
+  slicedStream.forget(stream);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString& serverType) {

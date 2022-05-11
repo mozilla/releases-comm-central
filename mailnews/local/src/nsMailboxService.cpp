@@ -289,8 +289,14 @@ NS_IMETHODIMP nsMailboxService::StreamHeaders(const nsACString& aMessageURI,
       DecomposeMailboxURI(aMessageURI, getter_AddRefs(folder), &msgKey);
   if (msgKey == nsMsgKey_None) return NS_MSG_MESSAGE_NOT_FOUND;
 
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = folder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  rv = db->GetMsgHdrForKey(msgKey, getter_AddRefs(msgHdr));
+  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIInputStream> inputStream;
-  rv = folder->GetSlicedOfflineFileStream(msgKey, getter_AddRefs(inputStream));
+  rv = folder->GetLocalMsgStream(msgHdr, getter_AddRefs(inputStream));
   NS_ENSURE_SUCCESS(rv, rv);
   return MsgStreamMsgHeaders(inputStream, aConsumer);
 }

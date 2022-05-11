@@ -146,6 +146,12 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   virtual nsresult GetDatabase() = 0;
   virtual nsresult SendFlagNotifications(nsIMsgDBHdr* item, uint32_t oldFlags,
                                          uint32_t newFlags);
+
+  // Overriden by IMAP to handle gmail hack.
+  virtual nsresult GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
+                                        uint32_t* size,
+                                        nsIInputStream** aFileStream);
+
   nsresult CheckWithNewMessagesStatus(bool messageAdded);
   void UpdateNewMessages();
   nsresult OnHdrAddedOrDeleted(nsIMsgDBHdr* hdrChanged, bool added);

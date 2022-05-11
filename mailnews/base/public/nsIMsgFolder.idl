@@ -580,29 +580,6 @@ interface nsIMsgFolder : nsISupports {
   boolean hasMsgOffline(in nsMsgKey msgKey);
 
   /**
-   * Get an input stream to read the offline contents of an imap or news
-   * message.
-   *
-   * @param aMsgKey key of message to get input stream for.
-   * @param[out] aOffset filled in with the offset into the stream of the message.
-   * @param[out] aSize filled in with the size of the message in the offline store.
-   *
-   * @returns input stream to read the message from.
-   */
-  nsIInputStream getOfflineFileStream(in nsMsgKey aMsgKey,
-                                      out long long aOffset,
-                                      out unsigned long aSize);
-
-  /**
-   * Similar to getOfflineFileStream, but returns a sliced stream directly.
-   *
-   * @param aMsgKey key of message to get input stream for.
-   *
-   * @returns sliced input stream to read the message from.
-   */
-  nsIInputStream getSlicedOfflineFileStream(in nsMsgKey aMsgKey);
-
-  /**
    * Get an offline store output stream for the passed message header.
    *
    * @param aHdr hdr of message to get outputstream for
@@ -611,6 +588,9 @@ interface nsIMsgFolder : nsISupports {
   nsIOutputStream getOfflineStoreOutputStream(in nsIMsgDBHdr aHdr);
 
   /**
+   * !!! DEPRECATED (Bug 1733849) !!!
+   * Use getLocalMsgStream() instead.
+   *
    * Get an input stream for the passed message header. The stream will
    * be positioned at the start of the message.
    *
@@ -620,6 +600,18 @@ interface nsIMsgFolder : nsISupports {
    * @returns an input stream to read the message from
    */
   nsIInputStream getMsgInputStream(in nsIMsgDBHdr aHdr, out boolean aReusable);
+
+  /**
+   * Returns an input stream for reading a locally-stored message.
+   * (That means any message in a local folder, or a message marked as
+   * Offline on a non-local folder).
+   * The stream contains the single message.
+   * The returned stream should _not_ be considered seekable.
+   *
+   * @param hdr   The message to get the input stream for.
+   * @returns     Input stream to read the message from.
+   */
+  nsIInputStream getLocalMsgStream(in nsIMsgDBHdr aHdr);
 
   void downloadMessagesForOffline(in Array<nsIMsgDBHdr> messages,
                                   in nsIMsgWindow window);

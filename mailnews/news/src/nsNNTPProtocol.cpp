@@ -661,8 +661,11 @@ bool nsNNTPProtocol::ReadFromLocalCache() {
 
   // Attempt to get locally-stored message.
   nsCOMPtr<nsIInputStream> msgStream;
-  nsresult rv =
-      folder->GetSlicedOfflineFileStream(m_key, getter_AddRefs(msgStream));
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  nsresult rv = folder->GetMessageHeader(m_key, getter_AddRefs(hdr));
+  if (NS_SUCCEEDED(rv)) {
+    rv = folder->GetLocalMsgStream(hdr, getter_AddRefs(msgStream));
+  }
 
   if (NS_FAILED(rv)) {
     mailnewsUrl->SetMsgIsInLocalCache(false);

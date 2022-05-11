@@ -730,12 +730,13 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgStore(nsIMsgPluggableStore** aStore) {
   return server->GetMsgStore(aStore);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
-    nsMsgKey msgKey, int64_t* offset, uint32_t* size,
-    nsIInputStream** aFileStream) {
+nsresult nsMsgDBFolder::GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
+                                             uint32_t* size,
+                                             nsIInputStream** aFileStream) {
   NS_ENSURE_ARG(aFileStream);
 
-  *offset = *size = 0;
+  *offset = 0;
+  *size = 0;
 
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -757,7 +758,9 @@ NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
   // future pluggable store that may be supported.
   nsCOMPtr<nsISeekableStream> seekableStream = do_QueryInterface(*aFileStream);
   if (seekableStream) {
-    seekableStream->Tell(offset);
+    int64_t o;
+    seekableStream->Tell(&o);
+    *offset = uint64_t(o);
     char startOfMsg[301];
     uint32_t bytesRead = 0;
     uint32_t bytesToRead = sizeof(startOfMsg) - 1;
@@ -872,19 +875,18 @@ NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
   return rv;
 }
 
-NS_IMETHODIMP
-nsMsgDBFolder::GetSlicedOfflineFileStream(nsMsgKey msgKey,
-                                          nsIInputStream** aFileStream) {
-  nsCOMPtr<nsIInputStream> fileStream;
-  int64_t offset = 0;
-  uint32_t size = 0;
-  nsresult rv =
-      GetOfflineFileStream(msgKey, &offset, &size, getter_AddRefs(fileStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-  RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
-      fileStream.forget(), uint64_t(offset), uint64_t(size));
-  slicedStream.forget(aFileStream);
-  return NS_OK;
+NS_IMETHODIMP nsMsgDBFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
+                                               nsIInputStream** stream) {
+  // Eventually this will be purely a matter of fetching the storeToken
+  // from the header and asking the msgStore for an inputstream.
+  // But for now, the InputStream returned by the mbox msgStore doesn't
+  // EOF at the end of the message, so we need to jump through hoops here.
+  // For now, we implement it in the derived classes, as the message size
+  // is stored in different msgHdr attributes depending on folder type.
+  // See Bug 1764857.
+  // Also, IMAP has a gmail hack to work with (multiple msgHdrs referrring
+  // to the same locally-stored message).
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
@@ -1228,6 +1230,8 @@ NS_IMETHODIMP nsMsgDBFolder::GetSupportsOffline(bool* aSupportsOffline) {
   return NS_OK;
 }
 
+// Note: this probably always returns false for local folders!
+// Looks like it's only ever used for IMAP folders.
 NS_IMETHODIMP nsMsgDBFolder::ShouldStoreMsgOffline(nsMsgKey msgKey,
                                                    bool* result) {
   NS_ENSURE_ARG(result);
@@ -1239,6 +1243,8 @@ NS_IMETHODIMP nsMsgDBFolder::ShouldStoreMsgOffline(nsMsgKey msgKey,
              : NS_OK;
 }
 
+// Note: this probably always returns false for local folders!
+// Looks like it's only ever used for IMAP folders.
 NS_IMETHODIMP nsMsgDBFolder::HasMsgOffline(nsMsgKey msgKey, bool* result) {
   NS_ENSURE_ARG(result);
   *result = false;

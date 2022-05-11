@@ -24,7 +24,6 @@
 #include "nsMsgUtils.h"
 #include "nsNewsUtils.h"
 
-#include "nsCOMPtr.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsINntpIncomingServer.h"
 #include "nsINewsDatabase.h"
@@ -50,6 +49,7 @@
 #include "nsILoginManager.h"
 #include "nsEmbedCID.h"
 #include "mozilla/Services.h"
+#include "mozilla/SlicedInputStream.h"
 #include "nsIInputStream.h"
 #include "nsMemory.h"
 #include "nsIURIMutator.h"
@@ -1464,6 +1464,25 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
   rv = downloadState->DownloadArticles(window, this, &srcKeyArray);
   (void)RefreshSizeOnDisk();
   return rv;
+}
+
+NS_IMETHODIMP nsMsgNewsFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
+                                                 nsIInputStream** stream) {
+  nsMsgKey key;
+  hdr->GetMessageKey(&key);
+
+  uint64_t offset = 0;
+  uint32_t size = 0;
+  nsCOMPtr<nsIInputStream> rawStream;
+  nsresult rv =
+      GetOfflineFileStream(key, &offset, &size, getter_AddRefs(rawStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<mozilla::SlicedInputStream> slicedStream =
+      new mozilla::SlicedInputStream(rawStream.forget(), offset,
+                                     uint64_t(size));
+  slicedStream.forget(stream);
+  return NS_OK;
 }
 
 // line does not have a line terminator (e.g., CR or CRLF)
