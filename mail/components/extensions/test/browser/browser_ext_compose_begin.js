@@ -93,10 +93,22 @@ add_task(async function testComposerIsReady() {
           // Explicitly do not await this call.
           browser.compose[test.funcName](...test.arguments);
           let [createdWindow] = await createdWindowPromise;
-          let tabs = await browser.tabs.query({ windowId: createdWindow.id });
-          let actualDetails = await browser.compose.getComposeDetails(
-            tabs[0].id
-          );
+          let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+
+          // Test the windows API being able to return the messageDisplay window as
+          // the current one.
+          let composeWindow = await browser.windows.get(tab.windowId);
+          browser.test.assertEq(composeWindow.type, "messageCompose");
+          let curWindow = await browser.windows.getCurrent();
+          browser.test.assertEq(tab.windowId, curWindow.id);
+          // Test the tabs API being able to return the correct current tab.
+          let [currentTab] = await browser.tabs.query({
+            currentWindow: true,
+            active: true,
+          });
+          browser.test.assertEq(tab.id, currentTab.id);
+
+          let actualDetails = await browser.compose.getComposeDetails(tab.id);
 
           for (let detail of Object.keys(expectedDetails)) {
             browser.test.assertEq(

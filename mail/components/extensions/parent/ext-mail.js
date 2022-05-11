@@ -356,23 +356,38 @@ class WindowTracker extends WindowTrackerBase {
   }
 
   /**
-   * The currently active, or topmost, mail window, or null if no mail window is currently open.
+   * The currently active, or topmost window supported by the API, or null if no
+   * supported window is currently open.
    *
    * @property {?DOMWindow} topWindow
    * @readonly
    */
   get topWindow() {
-    return Services.wm.getMostRecentWindow("mail:3pane");
+    let win = Services.wm.getMostRecentWindow(null);
+    // If we're lucky, this is a window supported by the API and we can return it
+    // directly.
+    if (win && !this.isBrowserWindow(win)) {
+      win = null;
+      // This is oldest to newest, so this gets a bit ugly.
+      for (let nextWin of Services.wm.getEnumerator(null)) {
+        if (this.isBrowserWindow(nextWin)) {
+          win = nextWin;
+        }
+      }
+    }
+    return win;
   }
 
   /**
-   * The currently active, or topmost, mail window, or null if no mail window is currently open.
+   * The currently active, or topmost window, or null if no window is currently open, that
+   * is not private browsing.
    *
    * @property {DOMWindow|null} topWindow
    * @readonly
    */
   get topNonPBWindow() {
-    return Services.wm.getMostRecentWindow("mail:3pane");
+    // Thunderbird does not support private browsing, return topWindow.
+    return this.topWindow;
   }
 
   /**
@@ -383,22 +398,7 @@ class WindowTracker extends WindowTrackerBase {
    * @readonly
    */
   get topNormalWindow() {
-    let win = null;
-
-    win = Services.wm.getMostRecentWindow("mail:3pane", true);
-
-    // If we're lucky, this isn't a popup, and we can just return this.
-    if (win && win.document.documentElement.getAttribute("chromehidden")) {
-      win = null;
-      // This is oldest to newest, so this gets a bit ugly.
-      for (let nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
-        if (!nextWin.document.documentElement.getAttribute("chromehidden")) {
-          win = nextWin;
-        }
-      }
-    }
-
-    return win;
+    return Services.wm.getMostRecentWindow("mail:3pane");
   }
 }
 

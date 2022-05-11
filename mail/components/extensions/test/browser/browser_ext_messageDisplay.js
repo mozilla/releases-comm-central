@@ -120,6 +120,19 @@ add_task(async () => {
       // Test that opening a message in a new window fires the event.
       tab = await checkResults("open message 1 in window", [1], false);
 
+      // Test the windows API being able to return the messageDisplay window as
+      // the current one.
+      let msgWindow = await browser.windows.get(tab.windowId);
+      browser.test.assertEq(msgWindow.type, "messageDisplay");
+      let curWindow = await browser.windows.getCurrent();
+      browser.test.assertEq(tab.windowId, curWindow.id);
+      // Test the tabs API being able to return the correct current tab.
+      let [currentTab] = await browser.tabs.query({
+        currentWindow: true,
+        active: true,
+      });
+      browser.test.assertEq(tab.id, currentTab.id);
+
       // Close the window.
       browser.tabs.remove(tab.id);
 
