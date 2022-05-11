@@ -112,6 +112,27 @@ class ImapClient {
   }
 
   /**
+   * Fetch the full content of a message by UID.
+   * @param {nsIMsgFolder} folder - The associated folder.
+   * @param {number} uid - The message uid.
+   */
+  fetchMessage(folder, uid) {
+    this._logger.debug(`fetchMessage folder=${folder.name} uid=${uid}`);
+    let fetchUid = () => {
+      this._nextAction = this._actionUidFetchBodyResponse;
+      this._sendTagged(`UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
+    };
+    if (this._folder != folder) {
+      this._folder = folder;
+      this._actionAfterSelectFolder = fetchUid;
+      this._nextAction = this._actionSelectResponse;
+      this._sendTagged(`SELECT "${this._folder.name}"`);
+    } else {
+      fetchUid();
+    }
+  }
+
+  /**
    * Add, remove or replace flags of specified messages.
    * @param {string} action - "+" means add, "-" means remove, "" means replace.
    * @param {nsIMsgFolder} folder - The target folder.
@@ -411,6 +432,7 @@ class ImapClient {
   _actionUidFetchBodyResponse(res) {
     this._msgSink = this._folder.QueryInterface(Ci.nsIImapMessageSink);
     for (let msg of res.messages) {
+      this._folderSink = this._folder.QueryInterface(Ci.nsIImapMailFolderSink);
       this._folderSink.StartMessage(this.runningUrl);
       let hdrXferInfo = {
         numHeaders: 1,
@@ -434,7 +456,9 @@ class ImapClient {
         msg.body.length
       );
       this._folderSink.EndMessage(this.runningUrl, msg.uid);
+      this.onData?.(msg.body);
     }
+    this.onData?.();
     this._actionDone();
   }
 
