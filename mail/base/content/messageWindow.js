@@ -45,6 +45,8 @@ var gFolderTreeView = null;
 var gFolderDisplay;
 var gMessageDisplay;
 
+this.__defineGetter__("browser", getBrowser);
+
 /**
  * We subclass FolderDisplayWidget:
  * - Because it assumes some thread-pane things that do not apply to us and we

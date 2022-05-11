@@ -313,6 +313,13 @@ add_task(async function testRegister() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
+        // Keep track of registered scrips being executed and ready.
+        browser.runtime.onMessage.addListener((message, sender) => {
+          if (message == "LOADED") {
+            window.sendMessage("ScriptLoaded", sender.tab.id);
+          }
+        });
+
         let registeredScript = await browser.messageDisplayScripts.register({
           css: [{ code: "body { color: white }" }, { file: "test.css" }],
           js: [
@@ -321,16 +328,39 @@ add_task(async function testRegister() {
           ],
         });
 
-        await window.sendMessage();
+        browser.test.onMessage.addListener(async (message, data) => {
+          switch (message) {
+            case "Unregister":
+              await registeredScript.unregister();
+              browser.test.notifyPass("finished");
+              break;
 
-        await registeredScript.unregister();
+            case "RuntimeMessageTest":
+              try {
+                browser.test.assertEq(
+                  `Received: ${data.tabId}`,
+                  await browser.tabs.sendMessage(data.tabId, data.tabId)
+                );
+              } catch (ex) {
+                browser.test.fail(
+                  `Failed to send message to composeScript: ${ex}`
+                );
+              }
+              browser.test.sendMessage("RuntimeMessageTestDone");
+              break;
+          }
+        });
 
-        browser.test.notifyPass("finished");
+        window.sendMessage("Ready");
       },
       "test.css": "body { background-color: green; }",
       "test.js": () => {
         document.body.querySelector(".moz-text-flowed").textContent +=
           "Hey look, the script ran!";
+        browser.runtime.onMessage.addListener(async message => {
+          return `Received: ${message}`;
+        });
+        browser.runtime.sendMessage("LOADED");
       },
       "utils.js": await getUtilsJS(),
     },
@@ -345,9 +375,10 @@ add_task(async function testRegister() {
   await BrowserTestUtils.browserLoaded(messagePane);
 
   extension.startup();
-  await extension.awaitMessage();
+  await extension.awaitMessage("Ready");
 
-  // Check a message that was already loaded.
+  // Check a message that was already loaded. This tab has not loaded the
+  // registered scripts.
   await checkMessageBody(
     {
       backgroundColor: "rgba(0, 0, 0, 0)",
@@ -357,12 +388,9 @@ add_task(async function testRegister() {
   );
 
   // Load a new message and check it is modified.
-  let scriptsAddedPromise = BrowserTestUtils.waitForEvent(
-    window,
-    "extension-scripts-added"
-  );
+  let loadPromise = extension.awaitMessage("ScriptLoaded");
   window.gFolderDisplay.selectViewIndex(6);
-  await scriptsAddedPromise;
+  let tabId = await loadPromise;
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -372,19 +400,21 @@ add_task(async function testRegister() {
     },
     messages[6]
   );
+  // Check runtime messaging.
+  let testDonePromise = extension.awaitMessage("RuntimeMessageTestDone");
+  extension.sendMessage("RuntimeMessageTest", { tabId });
+  await testDonePromise;
 
   // Open the message in a new tab.
   // First, sabotage the message pane so we can be sure it changed.
   messagePane.contentDocument.body.style.backgroundColor = "red";
   messagePane.contentDocument.body.textContent = "Nope.";
 
-  scriptsAddedPromise = BrowserTestUtils.waitForEvent(
-    window,
-    "extension-scripts-added"
-  );
+  loadPromise = extension.awaitMessage("ScriptLoaded");
   openMessageInTab(messages[6]);
-  await scriptsAddedPromise;
+  tabId = await loadPromise;
   Assert.equal(tabmail.tabInfo.length, 2);
+
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -394,6 +424,10 @@ add_task(async function testRegister() {
     },
     messages[6]
   );
+  // Check runtime messaging.
+  testDonePromise = extension.awaitMessage("RuntimeMessageTestDone");
+  extension.sendMessage("RuntimeMessageTest", { tabId });
+  await testDonePromise;
 
   // Open a content tab. The CSS and script shouldn't apply.
   let newTab = window.openContentTab("http://mochi.test:8888/");
@@ -409,14 +443,15 @@ add_task(async function testRegister() {
     undefined,
     newTab.browser
   );
-  scriptsAddedPromise = BrowserTestUtils.waitForEvent(
-    window,
-    "extension-scripts-added"
-  );
-  tabmail.closeTab(newTab);
+  // Check runtime messaging.
+  testDonePromise = extension.awaitMessage("RuntimeMessageTestDone");
+  extension.sendMessage("RuntimeMessageTest", { tabId });
+  await testDonePromise;
 
-  // We should be back at the message opened in a tab.
-  await scriptsAddedPromise;
+  // Closing this tab, should bring us back to the message tab.
+  loadPromise = extension.awaitMessage("ScriptLoaded");
+  tabmail.closeTab(newTab);
+  tabId = await loadPromise;
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -426,12 +461,17 @@ add_task(async function testRegister() {
     },
     messages[6]
   );
+  // Check runtime messaging.
+  testDonePromise = extension.awaitMessage("RuntimeMessageTestDone");
+  extension.sendMessage("RuntimeMessageTest", { tabId });
+  await testDonePromise;
 
   // Open the message in a new window.
+  loadPromise = extension.awaitMessage("ScriptLoaded");
   let newWindow = await openMessageInWindow(messages[7]);
   let newWindowMessagePane = newWindow.document.getElementById("messagepane");
+  tabId = await loadPromise;
 
-  await BrowserTestUtils.waitForEvent(newWindow, "extension-scripts-added");
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -442,9 +482,13 @@ add_task(async function testRegister() {
     messages[7],
     newWindowMessagePane
   );
+  // Check runtime messaging.
+  testDonePromise = extension.awaitMessage("RuntimeMessageTestDone");
+  extension.sendMessage("RuntimeMessageTest", { tabId });
+  await testDonePromise;
 
   // Unregister.
-  extension.sendMessage();
+  extension.sendMessage("Unregister");
   await extension.awaitFinish("finished");
   await extension.unload();
 
