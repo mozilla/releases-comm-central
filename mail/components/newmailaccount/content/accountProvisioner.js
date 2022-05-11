@@ -18,6 +18,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AccountCreationUtils:
     "resource:///modules/accountcreation/AccountCreationUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
+  UIDensity: "resource:///modules/UIDensity.jsm",
+  UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
 var { gAccountSetupLogger } = AccountCreationUtils;
@@ -184,6 +186,9 @@ var gAccountProvisioner = {
     this._isInited = true;
 
     Services.telemetry.scalarAdd("tb.account.opened_account_provisioner", 1);
+
+    UIDensity.registerWindow(window);
+    UIFontSize.registerWindow(window);
   },
 
   /**

@@ -9,6 +9,7 @@ var { MailServices } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -40,11 +41,15 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
         "chrome://messenger/skin/shared/preferences/subdialog.css",
         "chrome://messenger/skin/abFormFields.css",
       ],
+      resizeCallback: ({ title, frame }) => {
+        UIFontSize.registerWindow(frame.contentWindow);
+      },
     },
   });
 });
 
 UIDensity.registerWindow(window);
+UIFontSize.registerWindow(window);
 
 var booksList;
 

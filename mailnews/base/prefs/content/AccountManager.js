@@ -38,6 +38,9 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
+
 ChromeUtils.defineModuleGetter(
   this,
   "FolderUtils",
@@ -60,6 +63,9 @@ XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
         "chrome://messenger/skin/preferences/dialog.css",
         "chrome://messenger/skin/preferences/preferences.css",
       ],
+      resizeCallback: ({ title, frame }) => {
+        UIFontSize.registerWindow(frame.contentWindow);
+      },
     },
   });
 });
@@ -177,7 +183,11 @@ function onLoad() {
         });
       }
     }
+    UIFontSize.registerWindow(contentFrame.contentWindow);
   });
+
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
 }
 
 function onUnload() {

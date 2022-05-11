@@ -24,6 +24,8 @@ var { ExtensionSupport } = ChromeUtils.import(
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
 var paneDeck = document.getElementById("paneDeck");
 var defaultPane = "paneGeneral";
@@ -47,6 +49,8 @@ XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
         "chrome://messenger/skin/preferences/preferences.css",
       ],
       resizeCallback: ({ title, frame }) => {
+        UIFontSize.registerWindow(frame.contentWindow);
+
         // Search within main document and highlight matched keyword.
         gSearchResultsPane.searchWithinNode(title, gSearchResultsPane.query);
 
@@ -161,6 +165,9 @@ function init() {
     "lastSelected"
   );
   gotoPref(lastSelected);
+
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
 }
 
 function onHashChange() {

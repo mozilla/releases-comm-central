@@ -53,6 +53,22 @@ menu-view-repair-text-encoding =
 
 ## View / Layout
 
+menu-font-size-label =
+    .label = Font Size
+    .accesskey = o
+
+menuitem-font-size-enlarge =
+    .label = Increase Font Size
+    .accesskey = I
+
+menuitem-font-size-reduce =
+    .label = Reduce Font Size
+    .accesskey = D
+
+menuitem-font-size-reset =
+    .label = Reset Font Size
+    .accesskey = R
+
 mail-uidensity-label =
     .label = Density
     .accesskey = D

@@ -33,6 +33,7 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -440,6 +441,9 @@ const PanelUI = {
         break;
       case "appMenu-findView":
         initSearchMessagesMenu();
+        break;
+      case "appMenu-viewView":
+        UIFontSize.updateAppMenuButton(window);
         break;
     }
   },
@@ -876,32 +880,6 @@ const PanelUI = {
     InitViewFolderViewsMenu(event);
   },
 
-  _updateQuitTooltip() {
-    if (AppConstants.platform == "win") {
-      return;
-    }
-
-    let tooltipId =
-      AppConstants.platform == "macosx"
-        ? "quit-button.tooltiptext.mac"
-        : "quit-button.tooltiptext.linux2";
-
-    let brands = Services.strings.createBundle(
-      "chrome://branding/locale/brand.properties"
-    );
-    let stringArgs = [brands.GetStringFromName("brandShortName")];
-
-    let key = document.getElementById("key_quitApplication");
-    stringArgs.push(ShortcutUtils.prettifyShortcut(key));
-    let tooltipString = CustomizableUI.getLocalizedProperty(
-      { x: tooltipId },
-      "x",
-      stringArgs
-    );
-    let quitButton = document.getElementById("PanelUI-quit");
-    quitButton.setAttribute("tooltiptext", tooltipString);
-  },
-
   _updateNotifications(notificationsChanged) {
     let notifications = this._notifications;
     if (!notifications || !notifications.length) {
@@ -1051,9 +1029,6 @@ const PanelUI = {
     let iconAnchor = candidate.badgeStack || candidate.icon;
     return iconAnchor || candidate;
   },
-
-  // This is unused:
-  // _addedShortcuts: false,
 
   _ensureShortcutsShown(view = this.mainView) {
     if (view.hasAttribute("added-shortcuts")) {

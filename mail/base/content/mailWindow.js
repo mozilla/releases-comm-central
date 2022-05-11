@@ -18,8 +18,6 @@
 /* globals retryThis */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
-var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -28,6 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
+  UIDensity: "resource:///modules/UIDensity.jsm",
 });
 
 XPCOMUtils.defineLazyScriptGetter(
@@ -46,7 +45,6 @@ var accountManager;
 var gContextMenu;
 
 UIDensity.registerWindow(window);
-UIFontSize.registerWindow(window);
 
 /**
  * Called by messageWindow.xhtml:onunload,  the 'single message display window'.

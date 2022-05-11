@@ -175,7 +175,7 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
   // Insert <div class="moz-text-html" lang="..."> for the following two
   // purposes:
   // 1) Users can configure their HTML display via CSS for .moz-text-html.
-  // 2) The language group in the 'lang' attribure is used by Gecko to determine
+  // 2) The language group in the 'lang' attribute is used by Gecko to determine
   //    which font to use.
   int32_t fontSize;            // default font size
   int32_t fontSizePercentage;  // size percentage

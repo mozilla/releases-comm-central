@@ -270,6 +270,7 @@ var DefaultController = {
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
       case "cmd_fullZoomToggle":
+      case "cmd_fontSizeReset":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
@@ -278,6 +279,10 @@ var DefaultController = {
       case "cmd_killThread":
       case "cmd_killSubthread":
         return true;
+      case "cmd_fontSizeReduce":
+        return UIFontSize.size > UIFontSize.MIN_VALUE;
+      case "cmd_fontSizeEnlarge":
+        return UIFontSize.size < UIFontSize.MAX_VALUE;
       case "cmd_downloadFlagged":
       case "cmd_downloadSelected":
       case "cmd_synchronizeOffline":
@@ -675,6 +680,11 @@ var DefaultController = {
           return true;
         }
         return IsFolderSelected() && !IsMessagePaneCollapsed();
+      case "cmd_fontSizeReduce":
+        return UIFontSize.size > UIFontSize.MIN_VALUE;
+      case "cmd_fontSizeEnlarge":
+        return UIFontSize.size < UIFontSize.MAX_VALUE;
+      case "cmd_fontSizeReset":
       case "cmd_chat":
         return true;
       case "cmd_newFolder":
@@ -1106,6 +1116,15 @@ var DefaultController = {
         break;
       case "cmd_fullZoomToggle":
         ZoomManager.toggleZoom();
+        break;
+      case "cmd_fontSizeReduce":
+        UIFontSize.reduceSize();
+        break;
+      case "cmd_fontSizeReset":
+        UIFontSize.resetSize();
+        break;
+      case "cmd_fontSizeEnlarge":
+        UIFontSize.increaseSize();
         break;
       case "cmd_chat":
         showChatTab();

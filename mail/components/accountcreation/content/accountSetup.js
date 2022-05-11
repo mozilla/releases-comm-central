@@ -26,6 +26,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
   verifyConfig: "resource:///modules/accountcreation/verifyConfig.jsm",
+  UIDensity: "resource:///modules/UIDensity.jsm",
+  UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
 var {
@@ -300,6 +302,9 @@ var gAccountSetup = {
     // We did everything, now we can update the variable.
     this.isInited = true;
     gAccountSetupLogger.debug("Account setup tab loaded.");
+
+    UIDensity.registerWindow(window);
+    UIFontSize.registerWindow(window);
   },
 
   /**

@@ -65,12 +65,11 @@ MessageDisplayWidget.prototype = {
       .singleMessageDisplay;
     document.getElementById("multimessage").hidden = this.singleMessageDisplay;
 
-    let messagePaneName = this.singleMessageDisplay
-      ? "messagepane"
-      : "multimessage";
-
+    let browser = document.getElementById(
+      this.singleMessageDisplay ? "messagepane" : "multimessage"
+    );
     let findToolbar = document.getElementById("FindToolbar");
-    findToolbar.browser = document.getElementById(messagePaneName);
+    findToolbar.browser = browser;
 
     // If the message pane is currently focused, make sure we have the
     // currently-visible content window (single- or multi-message) focused.
@@ -78,7 +77,7 @@ MessageDisplayWidget.prototype = {
       this.folderDisplay.focusedPane ==
       document.getElementById("messagepanebox")
     ) {
-      document.getElementById(messagePaneName).focus();
+      browser.focus();
     }
   },
 
@@ -168,6 +167,12 @@ MessageDisplayWidget.prototype = {
         findBar.onFindAgainCommand(false);
       }
     }
+
+    // Update the font size of the message browser if necessary.
+    let browser = document.getElementById(
+      this.singleMessageDisplay ? "messagepane" : "multimessage"
+    );
+    UIFontSize.updateMessageBrowser(browser);
   },
 
   clearDisplay() {

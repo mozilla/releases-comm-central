@@ -353,6 +353,7 @@ menu.subviewbutton,
   border: 0;
   border-radius: 0;
   margin-inline-end: 6px;
+  padding-block: 0;
 }
 
 panelmultiview .toolbaritem-combined-buttons > label {
@@ -748,4 +749,76 @@ menulist:not([disabled="true"],[open="true"]):hover,
 menulist[open="true"]:not([disabled="true"]) {
   background-color: var(--button-hover-bgcolor);
   border-color: var(--button-border-color);
+}
+
+/* Font scaling */
+
+#appMenu-fontSizeReduce-button {
+  list-style-image: url("chrome://messenger/skin/icons/subtract-circle-fill.svg");
+}
+#appMenu-fontSizeEnlarge-button {
+  list-style-image: url("chrome://messenger/skin/icons/add-circle-fill.svg");
+}
+
+#appMenu-fontSizeReduce-button:hover,
+#appMenu-fontSizeReduce-button:focus,
+#appMenu-fontSizeReduce-button:active,
+#appMenu-fontSizeReset-button:hover,
+#appMenu-fontSizeReset-button:focus,
+#appMenu-fontSizeReset-button:active,
+#appMenu-fontSizeEnlarge-button:hover,
+#appMenu-fontSizeEnlarge-button:focus,
+#appMenu-fontSizeEnlarge-button:active,
+#appMenu-fullscreen-button:hover,
+#appMenu-fullscreen-button:focus,
+#appMenu-fullscreen-button:active {
+  color: unset;
+  background-color: unset;
+  box-shadow: unset;
+}
+
+#appMenu-fontSizeReduce-button > .toolbarbutton-icon,
+#appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
+  -moz-context-properties: fill, stroke;
+  fill: var(--button-color);
+  /* the stroke color is used to fill the circle in the icon */
+  stroke:var(--button-bgcolor, ButtonFace);
+  border-radius: 50%;
+  padding: 0;
+}
+
+#appMenu-fontSizeReset-button > .toolbarbutton-text {
+  border-radius: 2px;
+  min-width: calc(4ch + 8px);
+  text-align: center;
+}
+
+#appMenu-fontSizeReset-button:hover > .toolbarbutton-text {
+  background-color: var(--button-hover-bgcolor);
+}
+#appMenu-fontSizeReduce-button:hover > .toolbarbutton-icon,
+#appMenu-fontSizeEnlarge-button:hover > .toolbarbutton-icon {
+  stroke: var(--button-hover-bgcolor);
+}
+
+#appMenu-fontSizeReset-button:active > .toolbarbutton-text {
+  background-color: var(--button-active-bgcolor);
+}
+#appMenu-fontSizeReduce-button:active > .toolbarbutton-icon,
+#appMenu-fontSizeEnlarge-button:active > .toolbarbutton-icon {
+  stroke: var(--button-active-bgcolor);
+}
+
+#appMenu-fontSizeReset-button:focus > .toolbarbutton-text {
+  box-shadow: inset 0 0 0 2px var(--focus-outline-color);;
+}
+#appMenu-fontSizeReduce-button:focus > .toolbarbutton-icon,
+#appMenu-fontSizeEnlarge-button:focus > .toolbarbutton-icon {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: var(--focus-outline-offset);
+}
+
+#appMenu-fontSize-controls > .subviewbutton {
+  margin-inline-start: 2px;
+  padding: 4px 4px;
 }

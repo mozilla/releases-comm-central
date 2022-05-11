@@ -10,6 +10,8 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
 var gSelectedServer = null;
 var gSelectedFolder = null;
@@ -50,6 +52,9 @@ function OnInit() {
 
     document.getElementById("accountFeaturesSection").hidden = true;
   }
+
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
 }
 
 /**

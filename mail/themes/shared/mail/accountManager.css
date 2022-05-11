@@ -24,6 +24,7 @@ body {
   height: 100%;
   display: grid;
   grid-template-columns: min-content auto;
+  font-size: 1.2rem;
 }
 
 #accountTreeBox {
@@ -61,6 +62,7 @@ body {
 
 #accounttree li {
   transition: opacity 250ms;
+  line-height: 1.8em;
 }
 
 #accounttree li > div {

@@ -10,6 +10,8 @@
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
+
 // Wrap in a block to prevent leaking to window scope.
 {
   const { Services } = ChromeUtils.import(
@@ -2084,6 +2086,9 @@ window.addEventListener(
     recentlyClosedPopup.addEventListener("popupshowing", () =>
       InitRecentlyClosedTabsPopup(recentlyClosedPopup)
     );
+
+    // Register the tabmail window font size only after everything else loaded.
+    UIFontSize.registerWindow(window);
   },
   { once: true }
 );

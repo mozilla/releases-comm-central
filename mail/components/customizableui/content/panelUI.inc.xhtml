@@ -631,6 +631,28 @@
                        data-l10n-id="mail-uidensity-label"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu_uiDensityView', this)"/>
+        <toolbarbutton id="appmenu_viewFullZoomMenu"
+                       class="subviewbutton subviewbutton-nav"
+                       label="&fullZoom.label;"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-viewZoomView', this)"/>
+        <toolbaritem id="appMenu-fontSize-controls"
+                     class="subviewbutton toolbaritem-combined-buttons"
+                     closemenu="none">
+          <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
+          <toolbarbutton id="appMenu-fontSizeReduce-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeReduce"
+                         data-l10n-id="appmenuitem-font-size-reduce"/>
+          <toolbarbutton id="appMenu-fontSizeReset-button"
+                         class="subviewbutton"
+                         command="cmd_fontSizeReset"
+                         tooltip="fontSizeReset"/>
+          <toolbarbutton id="appMenu-fontSizeEnlarge-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeEnlarge"
+                         data-l10n-id="appmenuitem-font-size-enlarge"/>
+        </toolbaritem>
 #ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_calendar-view-menu-separator"
                           class="hide-when-calendar-deactivated"/>
@@ -690,11 +712,6 @@
                        type="checkbox"
                        checked="true"/>
         <toolbarseparator id="appmenu_viewAfterAttachmentsSeparator"/>
-        <toolbarbutton id="appmenu_viewFullZoomMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&fullZoom.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewZoomView', this)"/>
         <toolbarbutton id="appmenu_charsetRepairMenuitem"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="repair-text-encoding-button"

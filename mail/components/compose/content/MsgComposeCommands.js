@@ -39,7 +39,6 @@ var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -54,6 +53,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
+  UIFontSize: "resource:///modules/UIFontSize.jsm",
+  UIDensity: "resource:///modules/UIDensity.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(
@@ -88,8 +89,6 @@ XPCOMUtils.defineLazyScriptGetter(
   "PrintUtils",
   "chrome://messenger/content/printUtils.js"
 );
-
-UIDensity.registerWindow(window);
 
 /**
  * Global message window object. This is used by mail-offline.js and therefore
@@ -5057,6 +5056,9 @@ async function ComposeLoad() {
       focus: focusStatusBar,
     },
   ];
+
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
 }
 
 /**
