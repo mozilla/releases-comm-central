@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals VCardNComponent */
+
 ChromeUtils.defineModuleGetter(
   this,
   "VCardProperties",
@@ -47,6 +49,10 @@ class VCardEdit extends HTMLElement {
 
   set vCardProperties(value) {
     this._vCardProperties = value;
+    // If no n property is present set one.
+    if (!this._vCardProperties.getFirstEntry("n")) {
+      this._vCardProperties.addEntry(VCardNComponent.newVCardPropertyEntry());
+    }
     this.updateView();
   }
 
@@ -56,6 +62,8 @@ class VCardEdit extends HTMLElement {
       vCardPropertyEls = this.vCardProperties.entries.map(entry => {
         return VCardEdit.createVCardElement(entry);
       });
+      // Get rid of non truthy values.
+      vCardPropertyEls = vCardPropertyEls.filter(el => !!el);
     }
     this.replaceChildren(...vCardPropertyEls);
   }
@@ -69,12 +77,17 @@ class VCardEdit extends HTMLElement {
    *    accordingly.
    *
    * @param {VCardPropertyEntry} entry
-   * @returns {VCardPropertyEntryView}
+   * @returns {VCardPropertyEntryView | undefined}
    */
   static createVCardElement(entry) {
     switch (entry.name) {
+      case "n":
+        let n = new VCardNComponent();
+        n.vCardPropertyEntry = entry;
+        n.slot = "v-n";
+        return n;
       default:
-        break;
+        return undefined;
     }
   }
 
@@ -83,12 +96,14 @@ class VCardEdit extends HTMLElement {
    * name to the vCard spec.
    *
    * @param {string} name A name which should be a vCard spec property.
-   * @returns {VCardPropertyEntry}
+   * @returns {VCardPropertyEntry | undefined}
    */
   static createVCardProperty(name) {
     switch (name) {
+      case "n":
+        return VCardNComponent.newVCardPropertyEntry();
       default:
-        break;
+        return undefined;
     }
   }
 
@@ -99,10 +114,12 @@ class VCardEdit extends HTMLElement {
    */
   saveVCard() {
     this.childNodes.forEach(node => {
-      node.fromUIToVCardPropertyEntry && node.fromUIToVCardPropertyEntry();
+      if (typeof node.fromUIToVCardPropertyEntry === "function") {
+        node.fromUIToVCardPropertyEntry();
+      }
 
       // Filter out empty fields.
-      if (node.valueIsEmpty && node.valueIsEmpty()) {
+      if (typeof node.valueIsEmpty === "function" && node.valueIsEmpty()) {
         this.vCardProperties.removeEntry(node.vCardPropertyEntry);
       }
     });
@@ -114,7 +131,7 @@ class VCardEdit extends HTMLElement {
    * contact identifiers.
    */
   setFocus() {
-    document.getElementById("saveEditButton").focus();
+    document.getElementById("vcard-n-firstname").focus();
   }
 }
 

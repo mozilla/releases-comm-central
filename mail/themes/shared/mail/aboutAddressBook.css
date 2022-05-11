@@ -371,7 +371,8 @@ body:not(.is-editing) #detailsPane :is(.edit, .noValue) {
 
 #detailsHeader,
 #detailsBody,
-#detailsFooter {
+#detailsFooter,
+vcard-edit {
   padding-inline: 20px;
   max-width: 54em;
 }
@@ -671,13 +672,21 @@ input[type="number"]::-moz-number-spin-down {
   }
 
   @keyframes tab-throbber-animation {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
   }
 
   @keyframes tab-throbber-animation-rtl {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(100%); }
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 }
 

@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="chrome://messenger/skin/vcard.css" />
 
 <!-- Scripts -->
+<script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/edit.js"></script>
 
 <!-- Localization -->
@@ -14,4 +15,57 @@
 <!-- Edit View -->
 <template id="template-addr-book-edit">
   <link rel="stylesheet" href="chrome://messenger/skin/vcard-edit.css" />
+  <!-- Name -->
+  <fieldset id="addr-book-edit-n" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-fieldset-name" />
+    <slot name="v-n" />
+  </fieldset>
+</template>
+
+<!-- Individual fields -->
+
+<!-- N field -->
+<template id="template-vcard-edit-n">
+  <div id="n-list-component-prefix" class="n-list-component">
+    <label for="vcard-n-prefix" data-l10n-id="vcard-n-prefix" />
+    <input id="vcard-n-prefix"
+           type="text"
+           autocomplete="off" />
+    <button class="primary" data-l10n-id="vcard-n-add-prefix"
+            type="button">
+      <img src="chrome://global/skin/icons/add.svg" alt="" />
+    </button>
+  </div>
+  <div id="n-list-component-firstname" class="n-list-component">
+    <label for="vcard-n-firstname" data-l10n-id="vcard-n-firstname" />
+    <input id="vcard-n-firstname"
+           type="text"
+           autocomplete="off" />
+  </div>
+  <div id="n-list-component-middlename" class="n-list-component">
+    <label for="vcard-n-middlename" data-l10n-id="vcard-n-middlename" />
+    <input id="vcard-n-middlename"
+           type="text"
+           autocomplete="off" />
+    <button class="primary" data-l10n-id="vcard-n-add-middlename"
+            type="button">
+      <img src="chrome://global/skin/icons/add.svg" alt="" />
+    </button>
+  </div>
+  <div id="n-list-component-lastname" class="n-list-component">
+    <label for="vcard-n-lastname" data-l10n-id="vcard-n-lastname" />
+    <input id="vcard-n-lastname"
+           type="text"
+           autocomplete="off" />
+  </div>
+  <div id="n-list-component-suffix" class="n-list-component">
+    <label for="vcard-n-suffix" data-l10n-id="vcard-n-suffix" />
+    <button class="primary" data-l10n-id="vcard-n-add-suffix"
+            type="button">
+      <img src="chrome://global/skin/icons/add.svg" alt="" />
+    </button>
+    <input id="vcard-n-suffix"
+           type="text"
+           autocomplete="off" />
+  </div>
 </template>

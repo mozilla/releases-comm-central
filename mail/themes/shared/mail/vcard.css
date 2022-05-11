@@ -1,3 +1,95 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+vcard-n {
+  display: flex;
+  align-items: end;
+  justify-content: flex-start;
+  --input-text-height: 28px;
+  --button-dimension: 24px;
+  --input-border-density: 0.5px;
+}
+
+.n-list-component {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.n-list-component button {
+  border-radius: 50%;
+  height: var(--button-dimension);
+  width: var(--button-dimension);
+  min-width: initial;
+  min-height: initial;
+  margin: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  position: relative;
+  z-index: 2;
+  inset-block-end: calc(
+    var(--input-text-height) / 2 + var(--input-border-density) -
+      var(--button-dimension) / 2
+  );
+}
+
+.n-list-component label {
+  font-size: 0.866rem;
+  line-height: 1.2;
+  margin-block-end: 3px;
+}
+
+.n-list-component input {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding-inline-start: 9px;
+  padding-inline-end: 9px;
+  margin: 0;
+  border: var(--input-border-density) solid #b3b3b3;
+  min-height: initial;
+  height: var(--input-text-height);
+}
+
+.n-list-component button[hidden] {
+  display: none;
+}
+
+#n-list-component-prefix input,
+#n-list-component-suffix input {
+  min-width: 50px;
+}
+
+#n-list-component-prefix,
+#n-list-component-suffix {
+  flex-grow: 1;
+  flex-shrink: 2;
+  max-width: 100px;
+}
+
+#n-list-component-firstname,
+#n-list-component-middlename,
+#n-list-component-lastname {
+  flex-grow: 3;
+  flex-shrink: 1;
+}
+
+#n-list-component-firstname input,
+#n-list-component-middlename input,
+#n-list-component-lastname input {
+  min-width: 152px;
+}
+
+#n-list-component-prefix.hasButton,
+#n-list-component-suffix.hasButton,
+#n-list-component-middlename.hasButton {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.n-list-component:not(:last-child) {
+  margin-inline-end: 3px;
+}
