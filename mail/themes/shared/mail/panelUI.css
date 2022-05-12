@@ -779,6 +779,8 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
+  width: 20px;
+  height: 20px;
   -moz-context-properties: fill, stroke;
   fill: var(--button-color);
   /* the stroke color is used to fill the circle in the icon */
@@ -821,4 +823,16 @@ menulist[open="true"]:not([disabled="true"]) {
 #appMenu-fontSize-controls > .subviewbutton {
   margin-inline-start: 2px;
   padding: 4px 4px;
+}
+
+:root[uidensity="compact"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
+:root[uidensity="compact"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
+  width: 16px;
+  height: 16px;
+}
+
+:root[uidensity="touch"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
+:root[uidensity="touch"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
+  width: 24px;
+  height: 24px;
 }
