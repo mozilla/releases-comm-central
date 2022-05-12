@@ -1460,15 +1460,18 @@ nsMsgAccountManager::CleanupOnExit() {
       server->GetType(type);
       if (root) {
         nsString passwd;
+        int32_t authMethod = 0;
         bool serverRequiresPasswordForAuthentication = true;
         bool isImap = type.EqualsLiteral("imap");
         if (isImap) {
           server->GetServerRequiresPasswordForBiff(
               &serverRequiresPasswordForAuthentication);
           server->GetPassword(passwd);
+          server->GetAuthMethod(&authMethod);
         }
         if (!isImap || (isImap && (!serverRequiresPasswordForAuthentication ||
-                                   !passwd.IsEmpty()))) {
+                                   !passwd.IsEmpty() ||
+                                   authMethod == nsMsgAuthMethod::OAuth2))) {
           nsCOMPtr<nsIUrlListener> urlListener;
           nsCOMPtr<nsIMsgAccountManager> accountManager =
               do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
