@@ -12,7 +12,9 @@ function rightClickOnIndex(index) {
 
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
-    booksList.getRowAtIndex(index),
+    booksList
+      .getRowAtIndex(index)
+      .querySelector(".bookRow-name, .listRow-name"),
     { type: "contextmenu" },
     abWindow
   );
@@ -364,7 +366,7 @@ add_task(async function test_rename_and_delete() {
 
   // Rename the list.
 
-  await rightClickOnIndex(2);
+  await rightClickOnIndex(3);
 
   Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
 
