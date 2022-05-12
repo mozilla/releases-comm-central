@@ -68,12 +68,15 @@ async function doScroll(view, scrollDown) {
 }
 
 add_task(async function() {
+  let expectedVisibleHours = 3;
+  let expectedStartHour = 3;
+
   let tabmail = document.getElementById("tabmail");
   Assert.equal(tabmail.tabInfo.length, 1);
 
-  Assert.equal(Services.prefs.getIntPref("calendar.view.daystarthour"), 8);
-  Assert.equal(Services.prefs.getIntPref("calendar.view.dayendhour"), 17);
-  Assert.equal(Services.prefs.getIntPref("calendar.view.visiblehours"), 9);
+  Assert.equal(Services.prefs.getIntPref("calendar.view.daystarthour"), expectedStartHour);
+  Assert.equal(Services.prefs.getIntPref("calendar.view.dayendhour"), 12);
+  Assert.equal(Services.prefs.getIntPref("calendar.view.visiblehours"), expectedVisibleHours);
   Assert.equal(Services.prefs.getIntPref("calendar.view.timeIndicatorInterval"), 15);
 
   Assert.equal(window.timeIndicator.timer, null, "time indicator is not active");
@@ -85,17 +88,17 @@ add_task(async function() {
   let dayView = document.getElementById("day-view");
 
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  await waitForFirstVisibleHour(dayView, 8);
-  await waitForVisibleHours(dayView, 9);
+  await waitForFirstVisibleHour(dayView, expectedStartHour);
+  await waitForVisibleHours(dayView, expectedVisibleHours);
 
   // Scroll down 3 hours. We'll check this scroll position later.
   await doScroll(dayView, true);
-  await waitForFirstVisibleHour(dayView, 9);
+  await waitForFirstVisibleHour(dayView, expectedStartHour + 1);
 
   await doScroll(dayView, true);
   await doScroll(dayView, true);
-  await waitForFirstVisibleHour(dayView, 11);
-  await waitForVisibleHours(dayView, 9);
+  await waitForFirstVisibleHour(dayView, expectedStartHour + 3);
+  await waitForVisibleHours(dayView, expectedVisibleHours);
 
   // Open the week view, check the display matches the prefs.
 
@@ -104,20 +107,20 @@ add_task(async function() {
   let weekView = document.getElementById("week-view");
 
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  await waitForFirstVisibleHour(weekView, 8);
-  await waitForVisibleHours(weekView, 9);
+  await waitForFirstVisibleHour(weekView, expectedStartHour);
+  await waitForVisibleHours(weekView, expectedVisibleHours);
 
   // Scroll up 1 hour.
   await doScroll(weekView, false);
-  await waitForFirstVisibleHour(weekView, 7);
-  await waitForVisibleHours(weekView, 9);
+  await waitForFirstVisibleHour(weekView, expectedStartHour - 1);
+  await waitForVisibleHours(weekView, expectedVisibleHours);
 
   // Go back to the day view, check the timer and scroll position.
 
   await CalendarTestUtils.setCalendarView(window, "day");
 
-  await waitForFirstVisibleHour(dayView, 11);
-  await waitForVisibleHours(dayView, 9);
+  await waitForFirstVisibleHour(dayView, expectedStartHour + 3);
+  await waitForVisibleHours(dayView, expectedVisibleHours);
 
   // Switch away from the calendar tab.
 
@@ -130,14 +133,14 @@ add_task(async function() {
   Assert.equal(window.currentView().id, "day-view");
 
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  await waitForFirstVisibleHour(dayView, 11);
-  await waitForVisibleHours(dayView, 9);
+  await waitForFirstVisibleHour(dayView, expectedStartHour + 3);
+  await waitForVisibleHours(dayView, expectedVisibleHours);
 
   // Go back to the week view, check the timer and scroll position.
 
   await CalendarTestUtils.setCalendarView(window, "week");
 
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  await waitForFirstVisibleHour(weekView, 7);
-  await waitForVisibleHours(weekView, 9);
+  await waitForFirstVisibleHour(weekView, expectedStartHour - 1);
+  await waitForVisibleHours(weekView, expectedVisibleHours);
 });

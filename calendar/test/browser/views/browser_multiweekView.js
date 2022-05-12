@@ -30,7 +30,7 @@ add_task(async function() {
   }, "Inspecting the date");
 
   // Create event.
-  // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
+  // Thursday of 2009-01-05 should be the selected box in the first row with default settings.
   let hour = new Date().getUTCHours(); // Remember time at click.
   let eventBox = CalendarTestUtils.multiweekView.getDayBox(window, 1, 5);
   let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
@@ -42,7 +42,7 @@ add_task(async function() {
   // Next full hour except last hour hour of the day.
   let nextHour = hour == 23 ? hour : (hour + 1) % 24;
   let someDate = cal.dtz.now();
-  someDate.resetTo(2009, 0, 1, nextHour, 0, 0, cal.dtz.UTC);
+  someDate.resetTo(2009, 0, 5, nextHour, 0, 0, cal.dtz.UTC);
 
   let startPicker = iframeDocument.getElementById("event-starttime");
   Assert.equal(startPicker._datepicker._inputField.value, formatDate(someDate));

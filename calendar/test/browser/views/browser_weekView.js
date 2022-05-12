@@ -28,7 +28,7 @@ add_task(async function testWeekView() {
   }, "Date is selected");
 
   // Create event at 8 AM.
-  // Thursday of 2009-01-01 is 4th with default settings.
+  // Thursday of 2009-01-05 is 4th with default settings.
   let eventBox = CalendarTestUtils.weekView.getHourBoxAt(window, 5, 8);
   let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
     window,
@@ -37,7 +37,7 @@ add_task(async function testWeekView() {
 
   // Check that the start time is correct.
   let someDate = cal.createDateTime();
-  someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.UTC);
+  someDate.resetTo(2009, 0, 5, 8, 0, 0, cal.dtz.UTC);
 
   let startPicker = iframeDocument.getElementById("event-starttime");
   Assert.equal(startPicker._datepicker._inputField.value, formatDate(someDate));

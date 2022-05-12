@@ -23,8 +23,8 @@ add_setup(async function() {
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:This Event 1
-    DTSTART;VALUE=DATE:20160201
-    DTEND;VALUE=DATE:20160202
+    DTSTART;VALUE=DATE:20160205
+    DTEND;VALUE=DATE:20160206
     END:VEVENT
   `)
   );
@@ -32,8 +32,8 @@ add_setup(async function() {
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:This Event 2
-    DTSTART:20160201T130000Z
-    DTEND:20160201T150000Z
+    DTSTART:20160205T130000Z
+    DTEND:20160205T150000Z
     END:VEVENT
   `)
   );
@@ -41,8 +41,8 @@ add_setup(async function() {
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:This Event 3
-    DTSTART;VALUE=DATE:20160204
-    DTEND;VALUE=DATE:20160205
+    DTSTART;VALUE=DATE:20160208
+    DTEND;VALUE=DATE:20160209
     RRULE:FREQ=DAILY;INTERVAL=2;COUNT=3
     END:VEVENT
   `)
@@ -52,8 +52,8 @@ add_setup(async function() {
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:Not This Event 1
-    DTSTART;VALUE=DATE:20160201
-    DTEND;VALUE=DATE:20160203
+    DTSTART;VALUE=DATE:20160205
+    DTEND;VALUE=DATE:20160207
     END:VEVENT
   `)
   );
@@ -61,8 +61,8 @@ add_setup(async function() {
     new CalEvent(dedent`
     BEGIN:VEVENT
     SUMMARY:Not This Event 2
-    DTSTART:20160201T140000Z
-    DTEND:20160201T170000Z
+    DTSTART:20160205T140000Z
+    DTEND:20160205T170000Z
     END:VEVENT
   `)
   );
@@ -136,7 +136,7 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
   let view = document.getElementById(`${viewName}-view`);
 
   await CalendarTestUtils.setCalendarView(window, viewName);
-  await CalendarTestUtils.goToDate(window, 2016, 2, 1);
+  await CalendarTestUtils.goToDate(window, 2016, 2, 5);
 
   info("Check initial state.");
 
@@ -235,13 +235,11 @@ add_task(async function testMultiWeekView() {
 });
 
 add_task(async function testWeekView() {
-  // TODO: why are there hidden items?
-  await subTest("week", "calendar-editable-item, calendar-event-box:not([hidden])", 4, 3);
+  await subTest("week", "calendar-editable-item, .multiday-events-list calendar-event-box", 4, 3);
 });
 
 add_task(async function testDayView() {
-  // TODO: why are there hidden items?
-  await subTest("day", "calendar-editable-item, calendar-event-box:not([hidden])", 2, 2);
+  await subTest("day", "calendar-editable-item, .multiday-events-list calendar-event-box", 2, 2);
 });
 
 registerCleanupFunction(async () => {
