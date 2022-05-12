@@ -45,3 +45,4 @@ src/version.h
 The following patches were applied:
 Bug 1641720 - patches/rnp/disable_obsolete_ciphers.patch
 Bug 1763641 - patches/rnp/bug_1763641.patch
+Bug 1768424 - patches/rnp/bug_1768424.patch

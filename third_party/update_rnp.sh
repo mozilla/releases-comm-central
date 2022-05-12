@@ -66,7 +66,9 @@ hg revert rnp/moz.build rnp/module.ver rnp/rnp.symbols rnp/src/lib/rnp/rnp_expor
   rnp/src/rnp/moz.build  rnp/src/rnpkeys/moz.build
 
 # Reapply Thunderbird patch to disable obsolete ciphers
-PATCH_FILES=("patches/rnp/disable_obsolete_ciphers.patch" "patches/rnp/bug_1763641.patch")
+PATCH_FILES=("patches/rnp/disable_obsolete_ciphers.patch" \
+             "patches/rnp/bug_1763641.patch" \
+             "patches/rnp/bug_1768424.patch")
 for PATCH_FILE in "${PATCH_FILES[@]}"; do
   patch -p2 -i "${PATCH_FILE}" -N -r "${MY_TEMP_DIR}/${PATCH_FILE}.rej"
 done
