@@ -868,7 +868,12 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
   rv = GetPassword(password);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (password.IsEmpty()) return NS_OK;
+  if (password.IsEmpty()) {
+    // Check if this is due to oauth2 showing empty password. If so, keep going.
+    int32_t authMethod = 0;
+    GetAuthMethod(&authMethod);
+    if (authMethod != nsMsgAuthMethod::OAuth2) return NS_OK;
+  }
 
   rv = ResetFoldersToUnverified(nullptr);
 
