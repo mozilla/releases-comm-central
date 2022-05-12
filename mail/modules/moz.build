@@ -23,6 +23,7 @@ EXTRA_JS_MODULES += [
     "PhishingDetector.jsm",
     "QuickFilterManager.jsm",
     "SearchSpec.jsm",
+    "SelectionWidgetController.jsm",
     "SessionStoreManager.jsm",
     "ShortcutsManager.jsm",
     "SummaryFrameManager.jsm",
