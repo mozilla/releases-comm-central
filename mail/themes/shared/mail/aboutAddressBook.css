@@ -92,7 +92,7 @@ body {
 #books {
   flex: 1;
   font-size: 1.1rem;
-  line-height: 2em;
+  line-height: 2.2em;
   scroll-behavior: smooth;
   -moz-user-select: none;
 }
