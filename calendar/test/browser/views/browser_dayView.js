@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { formatDate, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -12,13 +13,16 @@ const TITLE1 = "Day View Event";
 const TITLE2 = "Day View Event Changed";
 const DESC = "Day View Event Description";
 
-add_task(async function testDayView() {
+add_setup(async function() {
   let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
   await CalendarTestUtils.setCalendarView(window, "day");
+});
+
+add_task(async function testDayView() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   let dayView = document.getElementById("day-view");
@@ -75,4 +79,108 @@ add_task(async function testDayView() {
   await CalendarTestUtils.dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");
+});
+
+add_task(async function testDayViewDateLabel() {
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  let heading = CalendarTestUtils.dayView.getColumnHeading(window);
+  let labelSpan = heading.querySelector("span:not([hidden])");
+
+  Assert.equal(
+    labelSpan.textContent,
+    "Wednesday Apr 13",
+    "the date label should contain the displayed date in a human-readable string"
+  );
+});
+
+add_task(async function testDayViewCurrentDayHighlight() {
+  // Sanity check that this date (which should be in the past) is not today's
+  // date.
+  let today = new Date();
+  Assert.ok(today.getUTCFullYear() != 2022 || today.getUTCMonth() != 3 || today.getUTCDate() != 13);
+
+  // When displaying days which are not the current day, there should be no
+  // highlight.
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  let container = CalendarTestUtils.dayView.getColumnContainer(window);
+  Assert.ok(
+    !container.classList.contains("day-column-today"),
+    "the displayed date should not be highlighted if it is not the current day"
+  );
+
+  // When displaying the current day, it should be highlighted.
+  await CalendarTestUtils.goToToday(window);
+
+  container = CalendarTestUtils.dayView.getColumnContainer(window);
+  Assert.ok(
+    container.classList.contains("day-column-today"),
+    "the displayed date should be highlighted if it is the current day"
+  );
+});
+
+add_task(async function testDayViewWorkDayHighlight() {
+  // The test configuration sets Sunday to be a work day, so it should not have
+  // the weekend background.
+  await CalendarTestUtils.goToDate(window, 2022, 4, 10);
+
+  let container = CalendarTestUtils.dayView.getColumnContainer(window);
+  Assert.ok(
+    !container.classList.contains("day-column-weekend"),
+    "the displayed date should not be highlighted if it is a work day"
+  );
+
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  container = CalendarTestUtils.dayView.getColumnContainer(window);
+  Assert.ok(
+    container.classList.contains("day-column-weekend"),
+    "the displayed date should be highlighted if it is not a work day"
+  );
+});
+
+add_task(async function testDayViewNavbar() {
+  await CalendarTestUtils.goToDate(window, 2022, 4, 13);
+
+  let intervalDescription = CalendarTestUtils.getNavBarIntervalDescription(window);
+  Assert.equal(
+    intervalDescription.value,
+    "Wednesday, April 13, 2022",
+    "interval description should contain a description of the displayed date"
+  );
+
+  // Note that the value 14 here tests calculation of the calendar week based on
+  // the starting day of the week; if the calculation built in an assumption of
+  // Sunday or Monday as the starting day of the week, we would get 15 here.
+  let calendarWeek = CalendarTestUtils.getNavBarCalendarWeekBox(window);
+  Assert.equal(
+    calendarWeek.value,
+    "CW: 14",
+    "calendar week label should contain an indicator of which week contains displayed date"
+  );
+});
+
+add_task(async function testDayViewTodayButton() {
+  // Though this code is cribbed from the CalendarTestUtils, it should be
+  // duplicated in case the utility implementation changes.
+  let todayButton = CalendarTestUtils.getNavBarTodayButton(window);
+
+  EventUtils.synthesizeMouseAtCenter(todayButton, {}, window);
+  await CalendarTestUtils.ensureViewLoaded(window);
+
+  let displayedDate = CalendarTestUtils.dayView.getEventColumn(window).date;
+
+  let today = new Date();
+  Assert.equal(
+    displayedDate.year,
+    today.getUTCFullYear(),
+    "year of displayed date should be this year"
+  );
+  Assert.equal(
+    displayedDate.month,
+    today.getUTCMonth(),
+    "month of displayed date should be this month"
+  );
+  Assert.equal(displayedDate.day, today.getUTCDate(), "day of displayed date should be today");
 });

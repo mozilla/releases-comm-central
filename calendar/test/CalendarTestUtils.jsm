@@ -39,6 +39,28 @@ class CalendarDayViewTestUtils {
   #helper = new CalendarWeekViewTestUtils("#day-view");
 
   /**
+   * Provides the column container element for the displayed day.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   *
+   * @returns {HTMLElement} - The column container element.
+   */
+  getColumnContainer(win) {
+    return this.#helper.getColumnContainer(win, 1);
+  }
+
+  /**
+   * Provides the element containing the formatted date for the displayed day.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   *
+   * @returns {HTMLElement} - The column heading container.
+   */
+  getColumnHeading(win) {
+    return this.#helper.getColumnHeading(win, 1);
+  }
+
+  /**
    * Provides the calendar-event-column for the day displayed.
    *
    * @param {Window} win - The window the calendar is displayed in.
@@ -229,6 +251,20 @@ class CalendarWeekViewTestUtils {
       `${this.rootSelector} .day-column-container`
     );
     return containers[day - 1];
+  }
+
+  /**
+   * Provides the element containing the formatted date for the day specified.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   *
+   * @throws If the day parameter is out of range.
+   * @return {HTMLElement} - The column heading container element.
+   */
+  getColumnHeading(win, day) {
+    let container = this.getColumnContainer(win, day);
+    return container.querySelector(".day-column-heading");
   }
 
   /**
@@ -1138,5 +1174,29 @@ const CalendarTestUtils = {
    */
   getNavBarTodayButton(win) {
     return win.document.getElementById("today-view-button");
+  },
+
+  /**
+   * Get the label element containing a human-readable description of the
+   * displayed interval.
+   *
+   * @param {Window} win - The window which contains the calendar.
+   *
+   * @returns {HTMLLabelElement} - The interval description label.
+   */
+  getNavBarIntervalDescription(win) {
+    return win.document.getElementById("intervalDescription");
+  },
+
+  /**
+   * Get the label element containing an indication of which week or weeks are
+   * displayed.
+   *
+   * @param {Window} win - The window which contains the calendar.
+   *
+   * @returns {HTMLLabelElement} - The calendar week label.
+   */
+  getNavBarCalendarWeekBox(win) {
+    return win.document.getElementById("calendarWeek");
   },
 };
