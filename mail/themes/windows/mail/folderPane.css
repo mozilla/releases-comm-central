@@ -24,7 +24,8 @@ treechildren::-moz-tree-image(folderNameCol) {
   }
 
   treechildren::-moz-tree-image(folderNameCol, newMessages-true) {
-    fill: SelectedItem !important;
+    fill: color-mix(in srgb, SelectedItemText 20%, transparent) !important;
+    stroke: SelectedItemText !important;
   }
 
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol) {
@@ -35,7 +36,8 @@ treechildren::-moz-tree-image(folderNameCol) {
 
 @media (prefers-contrast) {
   treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus) {
-    fill: SelectedItemText !important;
+    fill: color-mix(in srgb, SelectedItemText 20%, transparent) !important;
+    stroke: SelectedItemText !important;
   }
 }
 

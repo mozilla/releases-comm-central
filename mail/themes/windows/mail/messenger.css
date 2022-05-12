@@ -203,7 +203,12 @@ treechildren::-moz-tree-cell-text {
   }
 
   :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-image(selected, focus),
-  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-image(untagged, selected, focus),
+  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-image(untagged, selected, focus) {
+    color: FieldText;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
+
   :root:-moz-lwtheme #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
   :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
     color: FieldText;
@@ -212,9 +217,13 @@ treechildren::-moz-tree-cell-text {
   }
 
   :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-twisty(selected),
-  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-twisty(untagged, selected),
-  :root:-moz-lwtheme treechildren::-moz-tree-image(folderNameCol, selected, focus) {
+  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-twisty(untagged, selected) {
     fill: FieldText !important;
+  }
+
+  :root:-moz-lwtheme treechildren::-moz-tree-image(folderNameCol, selected, focus) {
+    fill: color-mix(in srgb, currentColor 20%, transparent) !important;
+    stroke: currentColor;
   }
 }
 

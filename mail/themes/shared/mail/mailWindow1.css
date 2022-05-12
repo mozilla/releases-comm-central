@@ -179,7 +179,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 #folderPickerTree > treechildren::-moz-tree-image(folderNameCol, isServer-true) {
-  fill: color-mix(in srgb, var(--primary-fill) 20%, transparent);
+  fill: color-mix(in srgb, var(--primary) 20%, transparent);
   stroke: var(--primary);
 }
 

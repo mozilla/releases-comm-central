@@ -50,7 +50,8 @@
     treechildren::-moz-tree-image(folderNameCol, newMessages-true),
   #folderTree:-moz-lwtheme
     treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
-    fill: #45b1ff !important;
+    fill: color-mix(in srgb, #45b1ff 20%, transparent) !important;
+    stroke: #45b1ff !important;
   }
 
   #folderTree:-moz-lwtheme
@@ -64,6 +65,7 @@
     treechildren::-moz-tree-image(closed, subfoldersHaveUnreadMessages-true, selected, focus),
   #folderTree:-moz-lwtheme
     treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
-    fill: var(--sidebar-highlight-text-color) !important;
+    fill: color-mix(in srgb, var(--sidebar-highlight-text-color) 20%, transparent) !important;
+    stroke: var(--sidebar-highlight-text-color) !important;
   }
 }
