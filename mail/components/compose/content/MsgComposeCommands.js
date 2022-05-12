@@ -5509,7 +5509,9 @@ function SetComposeDetails(newValues) {
     editor.selectAll();
     // Remove \r from line endings, which cause extra newlines (bug 1672407).
     let mailEditor = editor.QueryInterface(Ci.nsIEditorMailSupport);
-    mailEditor.insertTextWithQuotations(newValues.plainTextBody.replaceAll("\r\n", "\n"));
+    mailEditor.insertTextWithQuotations(
+      newValues.plainTextBody.replaceAll("\r\n", "\n")
+    );
     gMsgCompose.bodyModified = true;
   }
   gContentChanged = true;
