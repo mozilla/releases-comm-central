@@ -1016,6 +1016,33 @@ this.compose = class extends ExtensionAPI {
             };
           },
         }).api(),
+        onActiveDictionariesChanged: new ExtensionCommon.EventManager({
+          context,
+          name: "compose.onActiveDictionariesChanged",
+          register(fire) {
+            function callback(event) {
+              let activeDictionaries = event.detail.split(",");
+              fire.async(
+                tabManager.convert(event.target.ownerGlobal),
+                Cc["@mozilla.org/spellchecker/engine;1"]
+                  .getService(Ci.mozISpellCheckingEngine)
+                  .getDictionaryList()
+                  .reduce((list, dict) => {
+                    list[dict] = activeDictionaries.includes(dict);
+                    return list;
+                  }, {})
+              );
+            }
+
+            windowTracker.addListener("active-dictionaries-changed", callback);
+            return function() {
+              windowTracker.removeListener(
+                "active-dictionaries-changed",
+                callback
+              );
+            };
+          },
+        }).api(),
         async beginNew(messageId, details) {
           let type = Ci.nsIMsgCompType.New;
           if (messageId) {
@@ -1066,7 +1093,6 @@ this.compose = class extends ExtensionAPI {
           );
           return tabManager.convert(composeWindow);
         },
-
         async sendMessage(tabId, options) {
           let command = composeCommands.getCommand(options?.mode);
           let tab = getComposeTab(tabId);
@@ -1076,7 +1102,6 @@ this.compose = class extends ExtensionAPI {
           let tab = getComposeTab(tabId);
           return composeStates.getStates(tab);
         },
-
         getComposeDetails(tabId) {
           let tab = getComposeTab(tabId);
           return getComposeDetails(tab.nativeTab, extension);
@@ -1084,6 +1109,42 @@ this.compose = class extends ExtensionAPI {
         setComposeDetails(tabId, details) {
           let tab = getComposeTab(tabId);
           return setComposeDetails(tab.nativeTab, details, extension);
+        },
+        getActiveDictionaries(tabId) {
+          let tab = tabManager.get(tabId);
+          if (tab.type != "messageCompose") {
+            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
+          }
+
+          let dictionaries = tab.nativeTab.gActiveDictionaries;
+
+          // Return the list of installed dictionaries, setting those who are
+          // enabled to true.
+          return Cc["@mozilla.org/spellchecker/engine;1"]
+            .getService(Ci.mozISpellCheckingEngine)
+            .getDictionaryList()
+            .reduce((list, dict) => {
+              list[dict] = dictionaries.has(dict);
+              return list;
+            }, {});
+        },
+        async setActiveDictionaries(tabId, activeDictionaries) {
+          let tab = tabManager.get(tabId);
+          if (tab.type != "messageCompose") {
+            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
+          }
+
+          let installedDictionaries = Cc["@mozilla.org/spellchecker/engine;1"]
+            .getService(Ci.mozISpellCheckingEngine)
+            .getDictionaryList();
+
+          for (let dict of activeDictionaries) {
+            if (!installedDictionaries.includes(dict)) {
+              throw new ExtensionError(`Dictionary not found: ${dict}`);
+            }
+          }
+
+          await tab.nativeTab.ComposeChangeLanguage(activeDictionaries);
         },
         async listAttachments(tabId) {
           let tab = tabManager.get(tabId);

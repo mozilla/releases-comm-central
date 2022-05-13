@@ -313,6 +313,14 @@
             "type": "string"
           }
         }
+      },
+      {
+        "id": "ComposeDictionaries",
+        "type": "object",
+        "additionalProperties": {
+          "type": "boolean"
+        },
+        "description": "Object with language identifiers of all installed dictionaries as keys (for example ``en-US``) and a boolean value, indicating whether that dictionary is enabled for spellchecking or not."
       }
     ],
     "events": [
@@ -416,6 +424,21 @@
           {
             "name": "state",
             "$ref": "ComposeState"
+          }
+        ]
+      },
+      {
+        "name": "onActiveDictionariesChanged",
+        "type": "function",
+        "description": "Fired when one or more dictionaries have been activated or deactivated.",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "dictionaries",
+            "$ref": "ComposeDictionaries"
           }
         ]
       }
@@ -574,6 +597,55 @@
           {
             "name": "details",
             "$ref": "ComposeDetails"
+          }
+        ]
+      },
+      {
+        "name": "getActiveDictionaries",
+        "type": "function",
+        "async": "callback",
+        "description": "Returns a :ref:`ComposeDictionaries` object, listing all installed dictionaries, including the information whether they are currently enabled or not.",
+        "permissions": [
+          "compose"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "ComposeDictionaries"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "setActiveDictionaries",
+        "type": "function",
+        "async": true,
+        "description": "Updates the active dictionaries. Throws if the ``activeDictionaries`` array contains unknown or invalid language identifiers.",
+        "permissions": [
+          "compose"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "activeDictionaries"
           }
         ]
       },

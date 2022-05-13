@@ -6809,6 +6809,13 @@ async function ComposeChangeLanguage(languages) {
   }
 
   gActiveDictionaries = new Set(languages);
+
+  // Notify compose WebExtension API about changed dictionaries.
+  window.dispatchEvent(
+    new CustomEvent("active-dictionaries-changed", {
+      detail: languages.join(","),
+    })
+  );
 }
 
 /**
