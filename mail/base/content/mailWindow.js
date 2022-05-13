@@ -916,9 +916,9 @@ nsBrowserAccess.prototype = {
     aSkipLoad
   ) {
     if (aWhere == Ci.nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
-      let browser = PrintUtils.startPrintWindow(aOpenWindowInfo.parent, {
-        openWindowInfo: aOpenWindowInfo,
-      });
+      let browser = PrintUtils.handleStaticCloneCreatedForPrint(
+        aOpenWindowInfo
+      );
       return browser ? browser.browsingContext : null;
     }
 
@@ -991,9 +991,9 @@ nsBrowserAccess.prototype = {
     aSkipLoad
   ) {
     if (aWhere == Ci.nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
-      return PrintUtils.startPrintWindow(aParams.openWindowInfo.parent, {
-        openWindowInfo: aParams.openWindowInfo,
-      });
+      return PrintUtils.handleStaticCloneCreatedForPrint(
+        aParams.openWindowInfo
+      );
     }
 
     if (aWhere != Ci.nsIBrowserDOMWindow.OPEN_NEWTAB) {
