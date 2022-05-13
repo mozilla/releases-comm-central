@@ -1041,7 +1041,7 @@ nsresult nsNNTPProtocol::LoadUrlInternal(nsIProxyInfo* aProxyInfo) {
   int32_t port = 0;
   int32_t socketType;
 
-  rv = server->GetRealHostName(hostName);
+  rv = server->GetHostName(hostName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = m_url->GetPort(&port);
@@ -2742,9 +2742,9 @@ void nsNNTPProtocol::TimerCallback() {
 void nsNNTPProtocol::HandleAuthenticationFailure() {
   nsCOMPtr<nsIMsgIncomingServer> server(do_QueryInterface(m_nntpServer));
   nsCString hostname;
-  server->GetRealHostName(hostname);
+  server->GetHostName(hostname);
   nsCString username;
-  server->GetRealUsername(username);
+  server->GetUsername(username);
   nsString accountname;
   server->GetPrettyName(accountname);
 

@@ -210,10 +210,10 @@ nsresult nsMsgPurgeService::PerformPurge() {
         nsresult rv = server->GetType(type);
         NS_ENSURE_SUCCESS(rv, rv);
 
-        nsCString realHostName;
-        server->GetRealHostName(realHostName);
+        nsCString hostName;
+        server->GetHostName(hostName);
         MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
-                ("[%d] %s (%s)", serverIndex, realHostName.get(), type.get()));
+                ("[%d] %s (%s)", serverIndex, hostName.get(), type.get()));
 
         nsCOMPtr<nsISpamSettings> spamSettings;
         rv = server->GetSpamSettings(getter_AddRefs(spamSettings));

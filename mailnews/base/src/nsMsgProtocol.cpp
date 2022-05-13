@@ -727,7 +727,7 @@ nsMsgProtocol::OnTransportStatus(nsITransport* transport, nsresult status,
   if (mailnewsUrl) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     mailnewsUrl->GetServer(getter_AddRefs(server));
-    if (server) server->GetRealHostName(host);
+    if (server) server->GetHostName(host);
   }
   mProgressEventSink->OnStatus(this, status, NS_ConvertUTF8toUTF16(host).get());
 
@@ -1488,7 +1488,7 @@ char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   nsCString hostName;
-  rv = server->GetRealHostName(hostName);
+  rv = server->GetHostName(hostName);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   AutoTArray<nsString, 1> params;

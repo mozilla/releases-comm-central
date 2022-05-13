@@ -24,7 +24,6 @@ class MsgIncomingServer {
   constructor() {
     // nsIMsgIncomingServer attributes that map directly to pref values.
     this._mapAttrsToPrefs([
-      ["Unichar", "username", "userName"],
       ["Char", "type"],
       ["Char", "clientid"],
       ["Int", "authMethod"],
@@ -106,7 +105,12 @@ class MsgIncomingServer {
   }
 
   set hostName(value) {
+    let oldName = this.hostName;
     this._setHostName("hostname", value);
+
+    if (oldName && oldName != value) {
+      this.onUserOrHostNameChanged(oldName, value, true);
+    }
   }
 
   _setHostName(prefName, value) {
@@ -117,20 +121,24 @@ class MsgIncomingServer {
     this.setUnicharValue(prefName, host);
   }
 
-  get realHostName() {
-    return this.getUnicharValue("realhostname") || this.hostName;
+  get username() {
+    return this.getUnicharValue("userName");
   }
 
-  set realHostName(value) {
-    this._setHostName("hostname", value);
-  }
-
-  get realUsername() {
-    return this.getUnicharValue("realuserName") || this.username;
-  }
-
-  set realUsername(value) {
-    this.setUnicharValue("userName", value);
+  set username(value) {
+    let oldName = this.username;
+    if (oldName && oldName != value) {
+      // If only username changed and the new name just added a domain, we can
+      // keep the password.
+      let atIndex = value.indexOf("@");
+      if (atIndex == -1 || value.slice(0, atIndex) != oldName) {
+        this.forgetPassword();
+      }
+      this.setUnicharValue("userName", value);
+      this.onUserOrHostNameChanged(oldName, value, false);
+    } else {
+      this.setUnicharValue("userName", value);
+    }
   }
 
   get port() {
@@ -549,24 +557,15 @@ class MsgIncomingServer {
     // Reset password so that users are prompted for new password for the new
     // user/host.
     let atIndex = newValue.indexOf("@");
-    if (
-      hostnameChanged ||
-      atIndex == -1 ||
-      // If only username changed and the new name just added a domain, we can
-      // keep the password.
-      newValue.slice(0, atIndex) != oldValue
-    ) {
+    if (hostnameChanged) {
       this.forgetPassword();
     }
 
-    // Let the derived class close all cached connection to the old host.
-    this.closeCachedConnections();
-
-    // Notify any listeners for account server changes.
-    MailServices.accounts.notifyServerChanged(this);
-
     // Clear the clientid because the user or host have changed.
     this.clientid = "";
+
+    // Will be generated again when used.
+    this._prefs.clearUserPref("spamActionTargetAccount");
 
     if (!this.prettyName || (!hostnameChanged && atIndex != -1)) {
       // If new username contains @ then better not update the pretty name.
@@ -651,7 +650,10 @@ class MsgIncomingServer {
     let serverURI = this._getServerURI();
     let logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (let login of logins) {
-      if (login.username == this.username) {
+      if (
+        login.username == this.username ||
+        login.username == this.username.slice(0, this.username.indexOf("@"))
+      ) {
         Services.logins.removeLogin(login);
       }
     }

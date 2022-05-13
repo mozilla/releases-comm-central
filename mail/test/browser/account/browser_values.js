@@ -203,7 +203,7 @@ add_task(async function test_account_name() {
   );
 
   MailServices.accounts.removeAccount(nntpAccount);
-});
+}).skip(); // Restart is required to apply change to server name or username.
 
 /**
  * Changes the user name and hostname to the supplied values.
@@ -222,16 +222,16 @@ function subtest_check_account_name(account, newHostname, newUsername, tab) {
   );
 
   if (newHostname) {
-    let hostname = iframe.contentDocument.getElementById("server.realHostName");
-    Assert.equal(hostname.value, account.incomingServer.realHostName);
+    let hostname = iframe.contentDocument.getElementById("server.hostName");
+    Assert.equal(hostname.value, account.incomingServer.hostName);
 
     // Now change the server host name.
     hostname.value = newHostname;
   }
 
   if (newUsername) {
-    let username = iframe.contentDocument.getElementById("server.realUsername");
-    Assert.equal(username.value, account.incomingServer.realUsername);
+    let username = iframe.contentDocument.getElementById("server.username");
+    Assert.equal(username.value, account.incomingServer.username);
 
     // Now change the server user name.
     username.value = newUsername;
@@ -294,7 +294,7 @@ add_task(async function test_invalid_hostname() {
   let branch = Services.prefs.getBranch(
     "mail.server." + gPopAccount.incomingServer.key + "."
   );
-  let origHostname = branch.getCharPref("realhostname");
+  let origHostname = branch.getCharPref("hostname");
 
   await open_advanced_settings(function(tab) {
     subtest_check_invalid_hostname(tab, false, origHostname);
@@ -304,7 +304,7 @@ add_task(async function test_invalid_hostname() {
   });
 
   // The new bad hostname should not have been saved.
-  let newHostname = branch.getCharPref("realhostname");
+  let newHostname = branch.getCharPref("hostname");
   Assert.equal(origHostname, newHostname);
 });
 
@@ -326,7 +326,7 @@ function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
   let iframe = tab.browser.contentWindow.document.getElementById(
     "contentFrame"
   );
-  let hostname = iframe.contentDocument.getElementById("server.realHostName");
+  let hostname = iframe.contentDocument.getElementById("server.hostName");
   Assert.equal(hostname.value, originalHostname);
 
   hostname.value = "some_invalid+host&domain*in>invalid";
@@ -341,7 +341,7 @@ function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
 
     // ...let's check that:
     iframe = tab.browser.contentWindow.document.getElementById("contentFrame");
-    hostname = iframe.contentDocument.getElementById("server.realHostName");
+    hostname = iframe.contentDocument.getElementById("server.hostName");
     Assert.equal(hostname.value, originalHostname);
   } else {
     // If the hostname is bad, we should get a warning dialog.

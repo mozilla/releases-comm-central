@@ -221,7 +221,8 @@ nsresult nsPop3Service::RunPopUrl(nsIMsgIncomingServer* aServer,
   // load up required server information
   // we store the username unescaped in the server
   // so there is no need to unescape it
-  nsresult rv = aServer->GetRealUsername(userName);
+  nsresult rv = aServer->GetUsername(userName);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // find out if the server is busy or not...if the server is busy, we are
   // *NOT* going to run the url
@@ -431,7 +432,7 @@ NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   nsresult rv;
 
   nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(aURI, &rv);
-  nsCString realUserName;
+  nsCString userName;
   if (NS_SUCCEEDED(rv) && url) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     url->GetServer(getter_AddRefs(server));
@@ -445,7 +446,7 @@ NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
         AlertServerBusy(url);
         return NS_MSG_FOLDER_BUSY;
       }
-      server->GetRealUsername(realUserName);
+      server->GetUsername(userName);
     }
   }
 
@@ -458,7 +459,7 @@ NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   rv = protocol->SetLoadInfo(aLoadInfo);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  protocol->SetUsername(realUserName.get());
+  protocol->SetUsername(userName.get());
 
   protocol.forget(_retval);
   return NS_OK;

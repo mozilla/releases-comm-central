@@ -78,7 +78,7 @@ class NntpClient {
     this.onData = () => {};
     this.onDone = () => {};
 
-    let uri = `news://${this._server.realHostName}:${this._server.port}`;
+    let uri = `news://${this._server.hostName}:${this._server.port}`;
     this.runningUri = Services.io
       .newURI(uri)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -101,17 +101,13 @@ class NntpClient {
       let useSecureTransport = this._server.isSecure;
       this._logger.debug(
         `Connecting to ${useSecureTransport ? "snews" : "news"}://${
-          this._server.realHostName
+          this._server.hostName
         }:${this._server.port}`
       );
-      this._socket = new TCPSocket(
-        this._server.realHostName,
-        this._server.port,
-        {
-          binaryType: "arraybuffer",
-          useSecureTransport,
-        }
-      );
+      this._socket = new TCPSocket(this._server.hostName, this._server.port, {
+        binaryType: "arraybuffer",
+        useSecureTransport,
+      });
       this._socket.onopen = this._onOpen;
       this._socket.onerror = this._onError;
     }

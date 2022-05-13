@@ -523,7 +523,7 @@ nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo* aProxyInfo) {
 
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
   nsAutoCString hostName;
-  if (server) server->GetRealHostName(hostName);
+  if (server) server->GetHostName(hostName);
 
   const char* connectionType = nullptr;
   if (m_socketType == nsMsgSocketType::SSL)
@@ -711,10 +711,10 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool* aResult) {
   if (mailnewsUrl) mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
 
   nsCString userName;
-  server->GetRealUsername(userName);
+  server->GetUsername(userName);
 
   nsCString hostName;
-  server->GetRealHostName(hostName);
+  server->GetHostName(hostName);
 
   nsString accountName;
   server->GetPrettyName(accountName);
@@ -1237,7 +1237,7 @@ int32_t nsPop3Protocol::Error(const char* err_code, const char16_t* param) {
     nsCString hostName;
     // Format string with hostname.
     if (server) {
-      rv = server->GetRealHostName(hostName);
+      rv = server->GetHostName(hostName);
     }
     if (NS_SUCCEEDED(rv)) {
       AutoTArray<nsString, 1> params;
@@ -1887,7 +1887,7 @@ int32_t nsPop3Protocol::NextAuthStep() {
     // parameter list -> user
     nsCString userName;
     nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
-    nsresult rv = server->GetRealUsername(userName);
+    nsresult rv = server->GetUsername(userName);
     NS_ENSURE_SUCCESS(rv, -1);
     NS_ConvertUTF8toUTF16 userNameUTF16(userName);
     if (TestFlag(POP3_STOPLOGIN)) {
@@ -2026,7 +2026,7 @@ int32_t nsPop3Protocol::AuthGSSAPI() {
     nsAutoCString service("pop@");
     nsCString hostName;
     nsresult rv;
-    server->GetRealHostName(hostName);
+    server->GetHostName(hostName);
     service.Append(hostName);
     rv = DoGSSAPIStep1(service, m_username.get(), cmd);
     if (NS_SUCCEEDED(rv)) {
@@ -2510,7 +2510,7 @@ int32_t nsPop3Protocol::HandleNoUidListAvailable() {
   m_pop3ConData->next_state = POP3_SEND_QUIT;
   nsCString hostName;
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
-  nsresult rv = server->GetRealHostName(hostName);
+  nsresult rv = server->GetHostName(hostName);
   NS_ENSURE_SUCCESS(rv, -1);
   NS_ConvertASCIItoUTF16 hostNameUnicode(hostName);
   return Error("pop3ServerDoesNotSupportUidlEtc", hostNameUnicode.get());
@@ -2665,7 +2665,7 @@ int32_t nsPop3Protocol::GetUidlList(nsIInputStream* inputStream,
   if (m_pop3ConData->command_temp_fail) {
     nsCString hostName;
     nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
-    nsresult rv = server->GetRealHostName(hostName);
+    nsresult rv = server->GetHostName(hostName);
     NS_ENSURE_SUCCESS(rv, -1);
     NS_ConvertASCIItoUTF16 hostNameUnicode(hostName);
     return Error("pop3TempServerError", hostNameUnicode.get());

@@ -42,11 +42,7 @@ var NntpUtils = {
     for (let key of keySet) {
       let type = branch.getCharPref(`${key}.type`, "");
       let hostnameValue = branch.getCharPref(`${key}.hostname`, "");
-      let realHostnameValue = branch.getCharPref(`${key}.realhostname`, "");
-      if (
-        type == "nntp" &&
-        [hostnameValue, realHostnameValue].includes(hostname)
-      ) {
+      if (type == "nntp" && hostnameValue == hostname) {
         return MailServices.accounts
           .getIncomingServer(key)
           .QueryInterface(Ci.nsINntpIncomingServer);

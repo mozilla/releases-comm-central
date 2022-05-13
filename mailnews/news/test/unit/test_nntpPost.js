@@ -17,10 +17,6 @@ function run_test() {
     },
   };
 
-  // Tests bug 484656.
-  localserver.realHostName = localserver.hostName;
-  localserver.hostName = "news.example.com";
-
   try {
     MailServices.nntp.postMessage(
       do_get_file("postings/post1.eml"),

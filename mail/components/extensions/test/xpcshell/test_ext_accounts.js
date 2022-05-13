@@ -976,6 +976,10 @@ add_task(async function test_accounts_events() {
         [
           {
             id: "account7",
+            changed: { id: "account7", name: "Mail for user@localhost" },
+          },
+          {
+            id: "account7",
             changed: {
               id: "account7",
               defaultIdentity: { id: "id11" },

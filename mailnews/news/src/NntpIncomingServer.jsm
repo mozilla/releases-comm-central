@@ -475,7 +475,7 @@ class NntpIncomingServer extends MsgIncomingServer {
       null,
       bundle.formatStringFromName("autoUnsubscribeText", [
         groupName,
-        this.realHostName,
+        this.hostName,
       ])
     );
     if (result) {

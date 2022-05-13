@@ -56,15 +56,15 @@
       </div>
       <div style="grid-row: 2;">
         <xul:label value="&serverName.label;" accesskey="&serverName.accesskey;"
-                   control="server.realHostName"/>
+                   control="server.hostName"/>
       </div>
       <div class="input-container" style="grid-row: 2;">
-        <xul:label id="fixedServerName" collapsed="true" use="server.realHostName"/>
-        <html:input id="server.realHostName"
+        <xul:label id="fixedServerName" collapsed="true" use="server.hostName"/>
+        <html:input id="server.hostName"
                     type="text"
                     wsm_persist="true"
                     size="20"
-                    prefstring="mail.server.%serverkey%.realhostname"
+                    prefstring="mail.server.%serverkey%.hostname"
                     class="uri-element input-flex input-inline"
                     aria-labelledby="fixedServerName"/>
       </div>
@@ -85,16 +85,16 @@
       <div hidefor="nntp" style="grid-row: 3;">
         <xul:label value="&userName.label;"
                    accesskey="&userName.accesskey;"
-                   control="server.realUsername"/>
+                   control="server.username"/>
       </div>
       <div class="input-container" hidefor="nntp" style="grid-row: 3;">
-        <xul:label id="fixedUserName" collapsed="true" use="server.realUsername"/>
-        <html:input id="server.realUsername"
+        <xul:label id="fixedUserName" collapsed="true" use="server.username"/>
+        <html:input id="server.username"
                     type="text"
                     wsm_persist="true"
                     size="20"
                     class="input-flex input-inline"
-                    prefstring="mail.server.%serverkey%.realusername"
+                    prefstring="mail.server.%serverkey%.username"
                     aria-labelledby="fixedUserName"/>
       </div>
     </div>

@@ -1799,17 +1799,11 @@ nsresult nsMsgAccountManager::findServerInternal(
 
     nsresult rv;
     nsCString thisHostname;
-    if (aRealFlag)
-      rv = server->GetRealHostName(thisHostname);
-    else
-      rv = server->GetHostName(thisHostname);
+    rv = server->GetHostName(thisHostname);
     if (NS_FAILED(rv)) continue;
 
     nsCString thisUsername;
-    if (aRealFlag)
-      rv = server->GetRealUsername(thisUsername);
-    else
-      rv = server->GetUsername(thisUsername);
+    rv = server->GetUsername(thisUsername);
     if (NS_FAILED(rv)) continue;
 
     nsCString thisType;

@@ -1417,7 +1417,7 @@ nsNntpIncomingServer::GroupNotFound(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString hostname;
-  rv = GetRealHostName(hostname);
+  rv = GetHostName(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString groupName(aName);

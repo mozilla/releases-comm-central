@@ -95,10 +95,6 @@ IMIncomingServer.prototype = {
   get constructedPrettyName() {
     return "constructedPrettyName FIXME";
   },
-  get realHostName() {
-    return this.hostName;
-  },
-  set realHostName(aValue) {},
 
   port: -1,
   accountManagerChrome: "am-im.xhtml",

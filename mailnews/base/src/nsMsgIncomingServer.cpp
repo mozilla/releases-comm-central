@@ -784,8 +784,11 @@ nsMsgIncomingServer::ForgetPassword() {
   // there isn't.
   nsString username;
   for (uint32_t i = 0; i < logins.Length(); ++i) {
-    if (NS_SUCCEEDED(logins[i]->GetUsername(username)) &&
-        username.Equals(serverUsername)) {
+    rv = logins[i]->GetUsername(username);
+    int32_t atPos = serverUsername.FindChar('@');
+    if (NS_SUCCEEDED(rv) &&
+        (username.Equals(serverUsername) ||
+         StringHead(serverUsername, atPos).Equals(username))) {
       // If this fails, just continue, we'll still want to remove the password
       // from our local cache.
       loginMgr->RemoveLogin(logins[i]);
@@ -1117,31 +1120,20 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   // 1. Reset password so that users are prompted for new password for the new
   // user/host.
   int32_t atPos = newName.FindChar('@');
-  // If only username changed and the new name just added a domain
-  // we can keep the password.
-  if (hostnameChanged || (atPos == kNotFound) ||
-      !StringHead(NS_ConvertASCIItoUTF16(newName), atPos)
-           .Equals(NS_ConvertASCIItoUTF16(oldName))) {
+  if (hostnameChanged) {
     ForgetPassword();
   }
 
-  // 2. Let the derived class close all cached connection to the old host.
-  CloseCachedConnections();
-
-  // 3. Notify any listeners for account server changes.
-  nsCOMPtr<nsIMsgAccountManager> accountManager(
-      mozilla::services::GetAccountManager());
-
-  rv = accountManager->NotifyServerChanged(this);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // 4. Replace all occurrences of old name in the acct name with the new one.
+  // 2. Replace all occurrences of old name in the acct name with the new one.
   nsString acctName;
   rv = GetPrettyName(acctName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // 5. Clear the clientid because the user or host have changed.
+  // 3. Clear the clientid because the user or host have changed.
   SetClientid(EmptyCString());
+
+  // Will be generated again when used.
+  mPrefBranch->ClearUserPref("spamActionTargetAccount");
 
   // If new username contains @ then better do not update the account name.
   if (acctName.IsEmpty() || (!hostnameChanged && (atPos != kNotFound)))
@@ -1152,12 +1144,12 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   // get previous username and hostname
   nsCString userName, hostName;
   if (hostnameChanged) {
-    rv = GetRealUsername(userName);
+    rv = GetUsername(userName);
     NS_ENSURE_SUCCESS(rv, rv);
     hostName.Assign(oldName);
   } else {
     userName.Assign(oldName);
-    rv = GetRealHostName(hostName);
+    rv = GetHostName(hostName);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -1186,20 +1178,20 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
 
 NS_IMETHODIMP
 nsMsgIncomingServer::SetHostName(const nsACString& aHostname) {
-  return (InternalSetHostName(aHostname, "hostname"));
-}
+  nsCString oldName;
+  nsresult rv = GetHostName(oldName);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = InternalSetHostName(aHostname, "hostname");
 
-// SetRealHostName() is called only when the server name is changed from the
-// UI (Account Settings page).  No one should call it in any circumstances.
-NS_IMETHODIMP
-nsMsgIncomingServer::SetRealHostName(const nsACString& aHostname) {
-  return InternalSetHostName(aHostname, "hostname");
+  if (!oldName.IsEmpty() &&
+      !aHostname.Equals(oldName, nsCaseInsensitiveCStringComparator))
+    rv = OnUserOrHostNameChanged(oldName, aHostname, true);
+  return rv;
 }
 
 NS_IMETHODIMP
 nsMsgIncomingServer::GetHostName(nsACString& aResult) {
-  nsresult rv;
-  rv = GetCharValue("hostname", aResult);
+  nsresult rv = GetCharValue("hostname", aResult);
   if (aResult.CountChar(':') == 1) {
     // gack, we need to reformat the hostname - SetHostName will do that
     SetHostName(aResult);
@@ -1209,36 +1201,32 @@ nsMsgIncomingServer::GetHostName(nsACString& aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetRealHostName(nsACString& aResult) {
-  // If 'realhostname' is set (was changed) then use it, otherwise use
-  // 'hostname'
-  nsresult rv;
-  rv = GetCharValue("realhostname", aResult);
+nsMsgIncomingServer::SetUsername(const nsACString& aUsername) {
+  nsCString oldName;
+  nsresult rv = GetUsername(oldName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (aResult.IsEmpty()) return GetHostName(aResult);
-
-  if (aResult.CountChar(':') == 1) {
-    SetRealHostName(aResult);
-    rv = GetCharValue("realhostname", aResult);
+  if (!oldName.IsEmpty() && !oldName.Equals(aUsername)) {
+    // If only username changed and the new name just added a domain we can keep
+    // the password.
+    int32_t atPos = aUsername.FindChar('@');
+    if ((atPos == kNotFound) ||
+        !StringHead(NS_ConvertASCIItoUTF16(aUsername), atPos)
+             .Equals(NS_ConvertASCIItoUTF16(oldName))) {
+      ForgetPassword();
+    }
+    rv = SetCharValue("userName", aUsername);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = OnUserOrHostNameChanged(oldName, aUsername, false);
+  } else {
+    rv = SetCharValue("userName", aUsername);
   }
-
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetRealUsername(nsACString& aResult) {
-  // If 'realuserName' is set (was changed) then use it, otherwise use
-  // 'userName'
-  nsresult rv;
-  rv = GetCharValue("realuserName", aResult);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return aResult.IsEmpty() ? GetUsername(aResult) : rv;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::SetRealUsername(const nsACString& aUsername) {
-  return SetCharValue("userName", aUsername);
+nsMsgIncomingServer::GetUsername(nsACString& aResult) {
+  return GetCharValue("userName", aResult);
 }
 
 #define BIFF_PREF_NAME "check_new_mail"
@@ -1557,7 +1545,6 @@ nsMsgIncomingServer::GetIsSecure(bool* aIsSecure) {
 }
 
 // use the convenience macros to implement the accessors
-NS_IMPL_SERVERPREF_STR(nsMsgIncomingServer, Username, "userName")
 NS_IMPL_SERVERPREF_INT(nsMsgIncomingServer, AuthMethod, "authMethod")
 NS_IMPL_SERVERPREF_INT(nsMsgIncomingServer, BiffMinutes, "check_time")
 NS_IMPL_SERVERPREF_STR(nsMsgIncomingServer, Type, "type")

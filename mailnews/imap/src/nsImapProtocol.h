@@ -397,7 +397,6 @@ class nsImapProtocol : public nsIImapProtocol,
   nsCString m_hostName;
   nsCString m_userName;
   nsCString m_serverKey;
-  nsCString m_realHostName;
   char* m_dataOutputBuf;
   RefPtr<nsMsgLineStreamBuffer> m_inputStreamBuffer;
   nsCString m_trashFolderPath;

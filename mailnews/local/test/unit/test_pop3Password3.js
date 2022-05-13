@@ -57,7 +57,7 @@ add_task(async function() {
   Assert.equal(logins[0].username, kUser2);
 
   // Bug 561056 - Expand username to also contain domain (i.e. full email).
-  incomingServer2.realUsername = kUser2 + "@local.host";
+  incomingServer2.username = kUser2 + "@local.host";
 
   logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
 
@@ -66,7 +66,7 @@ add_task(async function() {
   Assert.equal(logins[0].username, kUser2);
 
   // Change username to another one.
-  incomingServer2.realUsername = "testpop";
+  incomingServer2.username = "testpop";
 
   logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
 

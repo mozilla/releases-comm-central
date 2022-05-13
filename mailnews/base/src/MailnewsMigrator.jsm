@@ -264,11 +264,13 @@ function migrateServerAndUserName() {
     if (realHostname) {
       branch.setCharPref(`${key}.hostname`, realHostname);
       branch.clearUserPref(`${key}.realhostname`);
+      branch.clearUserPref("spamActionTargetAccount");
     }
     let realUsername = branch.getCharPref(`${key}.realuserName`, "");
     if (realUsername) {
       branch.setCharPref(`${key}.userName`, realUsername);
       branch.clearUserPref(`${key}.realuserName`);
+      branch.clearUserPref("spamActionTargetAccount");
     }
   }
 }

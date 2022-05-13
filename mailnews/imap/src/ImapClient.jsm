@@ -53,18 +53,14 @@ class ImapClient {
       this.onReady();
     } else {
       this._logger.debug(
-        `Connecting to ${this._server.realHostName}:${this._server.port}`
+        `Connecting to ${this._server.hostName}:${this._server.port}`
       );
       this._capabilities = null;
       this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
-      this._socket = new TCPSocket(
-        this._server.realHostName,
-        this._server.port,
-        {
-          binaryType: "arraybuffer",
-          useSecureTransport: this._secureTransport,
-        }
-      );
+      this._socket = new TCPSocket(this._server.hostName, this._server.port, {
+        binaryType: "arraybuffer",
+        useSecureTransport: this._secureTransport,
+      });
       this._socket.onopen = this._onOpen;
       this._socket.onerror = this._onError;
     }
@@ -79,7 +75,7 @@ class ImapClient {
   startRunningUrl(urlListener) {
     this._urlListener = urlListener;
     this.runningUrl = Services.io
-      .newURI(`imap://${this._server.realHostName}`)
+      .newURI(`imap://${this._server.hostName}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     this._urlListener?.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
     return this.runningUrl;

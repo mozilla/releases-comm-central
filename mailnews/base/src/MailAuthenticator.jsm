@@ -294,11 +294,11 @@ class IncomingServerAuthenticator extends MailAuthenticator {
   }
 
   get hostname() {
-    return this._server.realHostName;
+    return this._server.hostName;
   }
 
   get username() {
-    return this._server.realUsername;
+    return this._server.username;
   }
 
   forgetPassword() {

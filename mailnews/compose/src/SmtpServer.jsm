@@ -177,8 +177,8 @@ SmtpServer.prototype = {
         ) {
           let newHostname = this.hostname.slice(0, this.hostname.indexOf("."));
           for (let server of MailServices.accounts.allServers) {
-            if (server.realUsername == this.username) {
-              let serverHostName = server.realHostName;
+            if (server.username == this.username) {
+              let serverHostName = server.hostName;
               if (
                 serverHostName.includes(".") &&
                 serverHostName.slice(0, serverHostName.indexOf(".")) ==

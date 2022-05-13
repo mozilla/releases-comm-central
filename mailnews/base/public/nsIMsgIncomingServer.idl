@@ -52,11 +52,6 @@ interface nsIMsgIncomingServer : nsISupports {
    */
   attribute AUTF8String hostName;
 
-  /**
-   * real hostname of the server (if server name is changed it's stored here)
-   */
-  attribute AUTF8String realHostName;
-
   /* port of the server */
   attribute long port;
 
@@ -64,11 +59,6 @@ interface nsIMsgIncomingServer : nsISupports {
    * userid to log into the server
    */
   attribute AUTF8String username;
-
-  /**
-   * real username of the server (if username is changed it's stored here)
-   */
-  attribute AUTF8String realUsername;
 
   /**
    * protocol type, i.e. "pop3", "imap", "nntp", "none", etc

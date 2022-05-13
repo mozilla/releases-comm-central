@@ -930,7 +930,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
       m_channelListener = new StreamListenerProxy(aRealStreamListener);
     }
 
-    server->GetRealHostName(m_realHostName);
+    server->GetHostName(m_hostName);
     int32_t authMethod;
     (void)server->GetAuthMethod(&authMethod);
     InitPrefAuthMethods(authMethod, server);
@@ -1048,14 +1048,14 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
   if (connectionType) connectionTypeArray.AppendElement(connectionType);
   // NOTE: Some errors won't show up until the first read attempt (SSL bad
   // certificate errors, for example).
-  rv = socketService->CreateTransport(connectionTypeArray, m_realHostName, port,
+  rv = socketService->CreateTransport(connectionTypeArray, m_hostName, port,
                                       aProxyInfo, nullptr,
                                       getter_AddRefs(m_transport));
   if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS) {
     connectionType = nullptr;
     m_socketType = nsMsgSocketType::plain;
-    rv = socketService->CreateTransport(connectionTypeArray, m_realHostName,
-                                        port, aProxyInfo, nullptr,
+    rv = socketService->CreateTransport(connectionTypeArray, m_hostName, port,
+                                        aProxyInfo, nullptr,
                                         getter_AddRefs(m_transport));
   }
 
@@ -5980,7 +5980,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
     nsAutoCString response;
 
     nsAutoCString service("imap@");
-    service.Append(m_realHostName);
+    service.Append(m_hostName);
     rv = DoGSSAPIStep1(service, userName, response);
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -10105,7 +10105,7 @@ nsImapMockChannel::OnTransportStatus(nsITransport* transport, nsresult status,
   if (mailnewsUrl) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     mailnewsUrl->GetServer(getter_AddRefs(server));
-    if (server) server->GetRealHostName(host);
+    if (server) server->GetHostName(host);
   }
   mProgressEventSink->OnStatus(this, status, NS_ConvertUTF8toUTF16(host).get());
 

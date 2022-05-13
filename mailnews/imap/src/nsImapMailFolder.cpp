@@ -5768,9 +5768,7 @@ bool nsMsgIMAPFolderACL::SetFolderRightsForUser(const nsACString& userName,
   nsresult rv = m_folder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, false);
 
-  // we need the real user name to match with what the imap server returns
-  // in the acl response.
-  server->GetRealUsername(myUserName);
+  server->GetUsername(myUserName);
 
   nsAutoCString ourUserName;
   if (userName.IsEmpty())
@@ -5808,7 +5806,7 @@ nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator** aResult) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = m_folder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  server->GetRealUsername(myUserName);
+  server->GetUsername(myUserName);
 
   // We need to filter out myUserName from m_rightsHash.
   nsTArray<nsCString>* resultArray = new nsTArray<nsCString>;
@@ -5840,7 +5838,7 @@ nsresult nsMsgIMAPFolderACL::GetRightsStringForUser(
     NS_ENSURE_SUCCESS(rv, rv);
     // we need the real user name to match with what the imap server returns
     // in the acl response.
-    server->GetRealUsername(userName);
+    server->GetUsername(userName);
   }
   ToLowerCase(userName);
   rights = m_rightsHash.Get(userName);

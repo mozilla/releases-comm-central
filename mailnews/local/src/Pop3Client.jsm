@@ -58,7 +58,7 @@ class Pop3Client {
     // need is just a valid nsIMsgMailNewsUrl to propagate OnStopRunningUrl and
     // secInfo.
     this.runningUri = Services.io
-      .newURI(`smtp://${this._server.realHostName}:${this._server.port}`)
+      .newURI(`smtp://${this._server.hostName}:${this._server.port}`)
       .mutate()
       .setScheme("pop3")
       .finalize()
@@ -119,11 +119,11 @@ class Pop3Client {
    */
   connect() {
     this._logger.debug(
-      `Connecting to pop://${this._server.realHostName}:${this._server.port} serverBusy=${this._server.serverBusy}`
+      `Connecting to pop://${this._server.hostName}:${this._server.port} serverBusy=${this._server.serverBusy}`
     );
     this._server.serverBusy = true;
     this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
-    this._socket = new TCPSocket(this._server.realHostName, this._server.port, {
+    this._socket = new TCPSocket(this._server.hostName, this._server.port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._secureTransport,
     });
@@ -368,7 +368,7 @@ class Pop3Client {
       "# POP3 State File",
       "# This is a generated file!  Do not edit.",
       "",
-      `*${this._server.realHostName} ${this._server.realUsername}`,
+      `*${this._server.hostName} ${this._server.username}`,
     ];
     for (let msg of this._messagesToHandle) {
       // _messagesToHandle is not empty means an error happened, put them back
@@ -634,7 +634,7 @@ class Pop3Client {
     ) {
       this._actionError(
         "pop3PasswordFailed",
-        [this._server.realUsername],
+        [this._server.username],
         res.statusText
       );
 
@@ -1209,7 +1209,7 @@ class Pop3Client {
     }
     if (serverErrorMsg) {
       let serverSaidPrefix = bundle.formatStringFromName("pop3ServerSaid", [
-        this._server.realHostName,
+        this._server.hostName,
       ]);
       errorMsg += ` ${serverSaidPrefix} ${serverErrorMsg}`;
     }

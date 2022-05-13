@@ -164,9 +164,9 @@ nsImapIncomingServer::GetConstructedPrettyName(nsAString& retval) {
     identity->GetEmail(identityEmailAddress);
     CopyASCIItoUTF16(identityEmailAddress, emailAddress);
   } else {
-    rv = GetRealUsername(username);
+    rv = GetUsername(username);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetRealHostName(hostName);
+    rv = GetHostName(hostName);
     NS_ENSURE_SUCCESS(rv, rv);
     if (!username.IsEmpty() && !hostName.IsEmpty()) {
       CopyASCIItoUTF16(username, emailAddress);
@@ -1600,10 +1600,10 @@ NS_IMETHODIMP
 nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow* aMsgWindow,
                                         int32_t* aResult) {
   nsAutoCString hostName;
-  GetRealHostName(hostName);
+  GetHostName(hostName);
 
   nsAutoCString userName;
-  GetRealUsername(userName);
+  GetUsername(userName);
 
   nsAutoString accountName;
   GetPrettyName(accountName);
@@ -1897,10 +1897,10 @@ NS_IMETHODIMP
 nsImapIncomingServer::PromptPassword(nsIMsgWindow* aMsgWindow,
                                      nsAString& aPassword) {
   nsAutoCString userName;
-  GetRealUsername(userName);
+  GetUsername(userName);
 
   nsAutoCString hostName;
-  GetRealHostName(hostName);
+  GetHostName(hostName);
 
   nsresult rv = GetStringBundle();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2780,32 +2780,6 @@ NS_IMETHODIMP nsImapIncomingServer::SetSocketType(int32_t aSocketType) {
   return nsMsgIncomingServer::SetSocketType(aSocketType);
 }
 
-NS_IMETHODIMP
-nsImapIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
-                                              const nsACString& newName,
-                                              bool hostnameChanged) {
-  nsresult rv;
-  // 1. Do common things in the base class.
-  rv = nsMsgIncomingServer::OnUserOrHostNameChanged(oldName, newName,
-                                                    hostnameChanged);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // 2. Reset 'HaveWeEverDiscoveredFolders' flag so the new folder list can be
-  //    reloaded (ie, DiscoverMailboxList() will be invoked in nsImapProtocol).
-  nsCOMPtr<nsIImapHostSessionList> hostSessionList =
-      do_GetService(kCImapHostSessionListCID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsAutoCString serverKey;
-  rv = GetKey(serverKey);
-  NS_ENSURE_SUCCESS(rv, rv);
-  hostSessionList->SetHaveWeEverDiscoveredFoldersForHost(serverKey.get(),
-                                                         false);
-  // 3. Make all the existing folders 'unverified' so that they can be
-  //    removed from the folder pane after users log into the new server.
-  ResetFoldersToUnverified(nullptr);
-  return NS_OK;
-}
-
 // use canonical format in originalUri & convertedUri
 NS_IMETHODIMP
 nsImapIncomingServer::GetUriWithNamespacePrefixIfNecessary(
@@ -2985,7 +2959,7 @@ nsImapIncomingServer::CramMD5Hash(const char* decodedChallenge, const char* key,
 
 NS_IMETHODIMP
 nsImapIncomingServer::GetLoginUsername(nsACString& aLoginUsername) {
-  return GetRealUsername(aLoginUsername);
+  return GetUsername(aLoginUsername);
 }
 
 NS_IMETHODIMP
