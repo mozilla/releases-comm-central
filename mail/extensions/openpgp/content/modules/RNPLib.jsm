@@ -176,17 +176,15 @@ function enableRNPLibJS() {
     },
 
     getFilenames() {
-      let names = {};
-
       let secFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       secFile.append("secring.gpg");
       let pubFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       pubFile.append("pubring.gpg");
 
-      names.secring = secFile.clone();
-      names.pubring = pubFile.clone();
+      let secRingPath = secFile.path;
+      let pubRingPath = pubFile.path;
 
-      return names;
+      return { pubRingPath, secRingPath };
     },
 
     /**
@@ -288,16 +286,10 @@ function enableRNPLibJS() {
         null
       );
 
-      let filenames = this.getFilenames();
+      let { pubRingPath, secRingPath } = this.getFilenames();
 
-      await this.loadWithFallback(
-        filenames.pubring.path,
-        this.RNP_LOAD_SAVE_PUBLIC_KEYS
-      );
-      await this.loadWithFallback(
-        filenames.secring.path,
-        this.RNP_LOAD_SAVE_SECRET_KEYS
-      );
+      await this.loadWithFallback(pubRingPath, this.RNP_LOAD_SAVE_PUBLIC_KEYS);
+      await this.loadWithFallback(secRingPath, this.RNP_LOAD_SAVE_SECRET_KEYS);
 
       let pubnum = new ctypes.size_t();
       this.rnp_get_public_key_count(this.ffi, pubnum.address());
@@ -484,13 +476,17 @@ function enableRNPLibJS() {
       }
     },
 
-    async saveKeyRing(fileObj, keyRingFlag) {
-      let oldSuffix = ".old";
-      let oldFile = fileObj.clone();
-      oldFile.leafName += oldSuffix;
+    /**
+     * Save keyring file to the given path.
+     * @param {string} path - The file path to save to.
+     * @param {number} keyRingFlag - RNP_LOAD_SAVE_PUBLIC_KEYS or
+     *   RNP_LOAD_SAVE_SECRET_KEYS.
+     */
+    async saveKeyRing(path, keyRingFlag) {
+      let oldPath = path + ".old";
 
       // Ignore failure, fileObj.path might not exist yet.
-      await IOUtils.copy(fileObj.path, oldFile.path).catch(() => {});
+      await IOUtils.copy(path, oldPath).catch(() => {});
 
       let u8 = null;
       let keyCount = new ctypes.size_t();
@@ -538,41 +534,24 @@ function enableRNPLibJS() {
         this.rnp_output_destroy(rnp_out);
       }
 
-      let status = false;
-      let outPathString = fileObj.path;
+      u8 = u8 || new Uint8Array();
 
-      try {
-        if (!u8) {
-          u8 = new Uint8Array();
-        }
-        await IOUtils.write(outPathString, u8, {
-          tmpPath: outPathString + ".tmp-new",
-        });
-        status = true;
-      } catch (err) {
-        console.debug(
-          "RNPLib.writeOutputToPath failed for " + outPathString + " - " + err
-        );
-      }
-
-      return status;
+      let writeKeyRing = IOUtils.write(path, u8, {
+        tmpPath: path + ".tmp-new",
+      });
+      IOUtils.profileBeforeChange.addBlocker(
+        "OpenPGP: writing out keyring",
+        writeKeyRing
+      );
+      await writeKeyRing;
+      IOUtils.profileBeforeChange.removeBlocker(writeKeyRing);
     },
 
     async saveKeys() {
-      let filenames = this.getFilenames();
-      if (
-        !(await this.saveKeyRing(
-          filenames.pubring,
-          this.RNP_LOAD_SAVE_PUBLIC_KEYS
-        ))
-      ) {
-        // if saving public keys failed, don't attempt to save/replace secret keys
-        return false;
-      }
-      return this.saveKeyRing(
-        filenames.secring,
-        this.RNP_LOAD_SAVE_SECRET_KEYS
-      );
+      let { pubRingPath, secRingPath } = this.getFilenames();
+
+      await this.saveKeyRing(pubRingPath, this.RNP_LOAD_SAVE_PUBLIC_KEYS);
+      await this.saveKeyRing(secRingPath, this.RNP_LOAD_SAVE_SECRET_KEYS);
     },
 
     keep_password_cb_alive: null,
