@@ -140,6 +140,7 @@ class SmtpClient {
    */
   quit() {
     this._authenticating = false;
+    this._destroyed = true;
     this._sendCommand("QUIT");
     this._currentAction = this.close;
   }
@@ -432,6 +433,10 @@ class SmtpClient {
    */
   _onError = e => {
     this.logger.error(e);
+    if (this._destroyed) {
+      // Ignore socket errors if already destroyed.
+      return;
+    }
     this.quit();
     let nsError = Cr.NS_ERROR_FAILURE;
     let secInfo = null;
