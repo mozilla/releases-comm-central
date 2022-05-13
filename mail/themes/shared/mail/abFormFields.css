@@ -21,8 +21,13 @@
 }
 
 button {
+  margin: 0;
   padding: 0 12px;
   border-radius: var(--in-content-button-border-radius);
+}
+
+button + button {
+  margin-inline-start: 6px;
 }
 
 input[type="number"] {

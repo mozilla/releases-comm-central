@@ -6,9 +6,6 @@ vcard-n {
   display: flex;
   align-items: end;
   justify-content: flex-start;
-  --input-text-height: 28px;
-  --button-dimension: 24px;
-  --input-border-density: 0.5px;
 }
 
 .n-list-component {
@@ -17,41 +14,32 @@ vcard-n {
 }
 
 .n-list-component button {
-  border-radius: 50%;
-  height: var(--button-dimension);
-  width: var(--button-dimension);
-  min-width: initial;
-  min-height: initial;
-  margin: 0;
+  min-width: auto;
+  min-height: auto;
   display: inline-flex;
-  justify-content: center;
-  align-items: center;
+  margin: 0;
+  padding: 3px;
   border: none;
+  z-index: 2;
+  margin-block-end: 0.6em;
+  border-radius: 9px;
+}
+
+.n-list-component button img {
   -moz-context-properties: fill;
   fill: currentColor;
-  position: relative;
-  z-index: 2;
-  inset-block-end: calc(
-    var(--input-text-height) / 2 + var(--input-border-density) -
-      var(--button-dimension) / 2
-  );
+  width: 12px;
+  height: 12px;
 }
 
 .n-list-component label {
-  font-size: 0.866rem;
-  line-height: 1.2;
   margin-block-end: 3px;
 }
 
 .n-list-component input {
-  font-size: 0.8rem;
-  line-height: 1.2;
-  padding-inline-start: 9px;
-  padding-inline-end: 9px;
+  padding-inline: 9px;
   margin: 0;
-  border: var(--input-border-density) solid #b3b3b3;
-  min-height: initial;
-  height: var(--input-text-height);
+  border: 1px solid var(--in-content-box-border-color);
 }
 
 .n-list-component button[hidden] {

@@ -30,6 +30,7 @@
   font: message-box;
   background-color: var(--in-content-page-background);
   color: var(--in-content-page-color);
+  --address-book-blocks-box-shadow: 0 6px 6px -5px var(--in-content-button-background);
 }
 
 /* Page layout */
@@ -403,7 +404,7 @@ vcard-edit {
   background-position: center;
   background-color: var(--in-content-button-background);
   background-image: url("chrome://messenger/skin/icons/contact.svg");
-  box-shadow: 0 0 3px var(--in-content-button-background);
+  box-shadow: var(--address-book-blocks-box-shadow);
   -moz-context-properties: fill;
   fill: var(--in-content-box-background);
 }
@@ -462,13 +463,13 @@ body.is-editing #detailsPane #photoOverlay {
 }
 
 #detailsBody section {
-  padding: 1em;
+  padding: 15px;
   border-radius: 3px;
   background-color: var(--in-content-page-background);
   color: var(--in-content-page-color);
-  font-size: 15px;
-  line-height: 18px;
-  box-shadow: 0 0 3px var(--in-content-button-background);
+  font-size: 1.1rem;
+  line-height: 1.2;
+  box-shadow: var(--address-book-blocks-box-shadow);
 }
 
 .button-block {
@@ -512,20 +513,21 @@ body.is-editing #detailsPane #photoOverlay {
 }
 
 #detailsPane section h3 {
-  margin-top: 0;
-  font-size: 15px;
+  margin-block: 0 15px;
+  font-size: 1.1rem;
+  line-height: 1.2;
   font-weight: 500;
-  line-height: 18px;
 }
 
 #detailsPane section ul {
-  margin-bottom: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: min-content auto;
-  gap: 0.5em;
+  gap: 6px;
   align-items: baseline;
+  margin-block: 0;
   list-style: none inside;
+  margin-inline-start: 9px;
+  padding: 0;
 }
 
 #detailsPane section li {
@@ -537,10 +539,10 @@ section#notes div {
 }
 
 .entry-type {
-  font-size: 0.75em;
-  font-weight: bold;
-  line-height: normal;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-transform: uppercase;
+  opacity: .85;
 }
 
 #detailsFooter {
