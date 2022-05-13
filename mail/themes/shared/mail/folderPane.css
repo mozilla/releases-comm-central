@@ -2,17 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/icons.css");
-
 :root {
   --new-focused-folder-color: SelectedItemText;
   --unread-folder-color: inherit;
 
-  --default-fill: color-mix(in srgb, var(--default) 20%, transparent);
-  --default-stroke: var(--default);
-
   --primary-fill: color-mix(in srgb, var(--primary) 20%, transparent);
   --primary-stroke: var(--primary);
+
+  --folder-color-inbox: var(--color-blue-50);
+  --folder-color-draft: var(--color-purple-50);
+  --folder-color-sent: var(--color-green-70);
+  --folder-color-archive: var(--color-brown-70);
+  --folder-color-spam: var(--color-red-60);
+  --folder-color-trash: var(--color-ink-60);
+  --folder-color-template: var(--color-gray-60);
+  --folder-color-newsletter: var(--color-gray-60);
+  --folder-color-rss: var(--color-orange-60);
+  --folder-color-outbox: var(--color-teal-70);
+  --folder-color-folder: var(--color-orange-60);
+  --folder-color-folder-filter: var(--color-magenta-60);
+  --folder-color-folder-rss: var(--color-orange-60);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --folder-color-inbox: var(--color-blue-20);
+    --folder-color-draft: var(--color-purple-20);
+    --folder-color-sent: var(--color-green-30);
+    --folder-color-archive: var(--color-brown-50);
+    --folder-color-spam: var(--color-red-30);
+    --folder-color-trash: var(--color-ink-30);
+    --folder-color-template: var(--color-gray-10);
+    --folder-color-newsletter: var(--color-gray-10);
+    --folder-color-rss: var(--color-orange-30);
+    --folder-color-outbox: var(--color-teal-30);
+    --folder-color-folder: var(--color-orange-30);
+    --folder-color-folder-filter: var(--color-magenta-30);
+    --folder-color-folder-rss: var(--color-orange-30);
+  }
 }
 
 /* ::::: Tabmail ::::: */
@@ -36,8 +63,8 @@
 treechildren::-moz-tree-image(folderNameCol) {
   list-style-image: var(--folder-pane-folder);
   margin-inline-end: 2px;
-  fill: var(--default-fill);
-  stroke: var(--default-stroke);
+  fill: color-mix(in srgb, var(--folder-color-folder) 20%, transparent);
+  stroke: var(--folder-color-folder);
 }
 
 /* ..... Mode Header ..... */
@@ -82,51 +109,71 @@ treechildren::-moz-tree-cell-text(modeHeader) {
 /* ..... Inbox ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox) {
   list-style-image: var(--folder-pane-inbox);
+  fill: color-mix(in srgb, var(--folder-color-inbox) 20%, transparent);
+  stroke: var(--folder-color-inbox);
 }
 
 /* ..... Sent ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Sent) {
   list-style-image: var(--folder-pane-sent);
+  fill: color-mix(in srgb, var(--folder-color-sent) 20%, transparent);
+  stroke: var(--folder-color-sent);
 }
 
 /* ..... Outbox ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Outbox) {
   list-style-image: var(--folder-pane-outbox);
+  fill: color-mix(in srgb, var(--folder-color-outbox) 20%, transparent);
+  stroke: var(--folder-color-outbox);
 }
 
 /* ..... Drafts ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Drafts) {
   list-style-image: var(--folder-pane-draft);
+  fill: color-mix(in srgb, var(--folder-color-draft) 20%, transparent);
+  stroke: var(--folder-color-draft);
 }
 
 /* ..... Trash ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Trash) {
   list-style-image: var(--folder-pane-trash);
+  fill: color-mix(in srgb, var(--folder-color-trash) 20%, transparent);
+  stroke: var(--folder-color-trash);
 }
 
 /* ..... Archives ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
   list-style-image: var(--folder-pane-archive);
+  fill: color-mix(in srgb, var(--folder-color-archive) 20%, transparent);
+  stroke: var(--folder-color-archive);
 }
 
 /* ..... Templates ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Templates) {
   list-style-image: var(--folder-pane-template);
+  fill: color-mix(in srgb, var(--folder-color-template) 20%, transparent);
+  stroke: var(--folder-color-template);
 }
 
 /* ..... Junk ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Junk) {
   list-style-image: var(--folder-pane-spam);
+  fill: color-mix(in srgb, var(--folder-color-spam) 20%, transparent);
+  stroke: var(--folder-color-spam);
 }
 
 /* ..... Saved Search Folder ..... */
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Virtual) {
   list-style-image: var(--folder-pane-folder-filter);
+  fill: color-mix(in srgb, var(--folder-color-folder-filter) 20%, transparent);
+  stroke: var(--folder-color-folder-filter);
 }
 
 /* ..... Newsgroup ..... */
 treechildren::-moz-tree-image(folderNameCol, serverType-nntp) {
   list-style-image: var(--folder-pane-newsletter);
+  fill: color-mix(in srgb, var(--folder-color-newsletter) 20%, transparent);
+  stroke: var(--folder-color-newsletter);
 }
 
 /* ..... Mail server  ..... */
@@ -145,11 +192,14 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
 /* ..... Feed folder ..... */
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
   list-style-image: var(--folder-pane-folder-rss);
+  fill: color-mix(in srgb, var(--folder-color-folder-rss) 20%, transparent);
+  stroke: var(--folder-color-folder-rss);
 }
 /* ..... Feed message or subscription item ..... */
 treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
   list-style-image: var(--folder-pane-rss);
-  fill: orange;
+  fill: color-mix(in srgb, var(--folder-color-rss) 20%, transparent);
+  stroke: var(--folder-color-rss);
 }
 
 treechildren::-moz-tree-image(folderNameCol, serverIsPaused),

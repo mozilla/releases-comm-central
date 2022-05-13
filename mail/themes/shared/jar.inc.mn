@@ -467,6 +467,7 @@
 
 # New design system
   skin/classic/messenger/icons.css                            (../shared/mail/icons.css)
+  skin/classic/messenger/colors.css                           (../shared/mail/colors.css)
 
   skin/classic/messenger/icons/new/compact/address-book.svg   (../shared/mail/icons/new/compact/address-book.svg)
   skin/classic/messenger/icons/new/compact/archive.svg        (../shared/mail/icons/new/compact/archive.svg)
