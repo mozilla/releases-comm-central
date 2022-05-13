@@ -50,6 +50,29 @@ function waitForEvent(eventName) {
   });
 }
 
+async function waitForCondition(condition, msg, interval = 100, maxTries = 50) {
+  let conditionPassed = false;
+  let tries = 0;
+  for (; tries < maxTries && !conditionPassed; tries++) {
+    await new Promise(resolve =>
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      window.setTimeout(resolve, interval)
+    );
+    try {
+      conditionPassed = await condition();
+    } catch (e) {
+      throw Error(`${msg} - threw exception: ${e}`);
+    }
+  }
+  if (conditionPassed) {
+    browser.test.succeed(
+      `waitForCondition succeeded after ${tries} retries - ${msg}`
+    );
+  } else {
+    browser.test.fail(`${msg} - timed out after ${maxTries} retries`);
+  }
+}
+
 function sendMessage(...args) {
   let replyPromise = waitForMessage();
   browser.test.sendMessage(...args);
