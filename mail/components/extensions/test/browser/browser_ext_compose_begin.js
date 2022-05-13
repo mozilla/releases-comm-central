@@ -248,3 +248,116 @@ add_task(async function testBeginForward() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+/* The forward inline code path uses a hacky way to identify the correct window
+ * after it has been opened via MailServices.compose.OpenComposeWindow. Test it.*/
+add_task(async function testBeginForwardInlineMixUp() {
+  let files = {
+    "background.js": async () => {
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(2, accounts.length, "number of accounts");
+      let popAccount = accounts.find(a => a.type == "pop3");
+      let folder = popAccount.folders.find(f => f.name == "test");
+      let { messages } = await browser.messages.list(folder);
+      browser.test.assertEq(4, messages.length, "number of messages");
+
+      // Test opening different messages.
+      {
+        let promisedTabs = [];
+        promisedTabs.push(
+          browser.compose.beginForward(messages[0].id, "forwardInline")
+        );
+        promisedTabs.push(
+          browser.compose.beginForward(messages[1].id, "forwardInline")
+        );
+        promisedTabs.push(
+          browser.compose.beginForward(messages[2].id, "forwardInline")
+        );
+        promisedTabs.push(
+          browser.compose.beginForward(messages[3].id, "forwardInline")
+        );
+
+        let foundIds = new Set();
+        let openedTabs = await Promise.allSettled(promisedTabs);
+        for (let i = 0; i < 4; i++) {
+          browser.test.assertEq(
+            "fulfilled",
+            openedTabs[i].status,
+            `Promise for the opened compose window should have been fulfilled for message ${i}`
+          );
+
+          browser.test.assertTrue(
+            !foundIds.has(openedTabs[i].value.id),
+            `Tab ${i} should have a unique id ${openedTabs[i].value.id}`
+          );
+          foundIds.add(openedTabs[i].value.id);
+
+          let details = await browser.compose.getComposeDetails(
+            openedTabs[i].value.id
+          );
+          browser.test.assertEq(
+            messages[i].id,
+            details.relatedMessageId,
+            `Should see the correct message in compose window ${i}`
+          );
+          await browser.tabs.remove(openedTabs[i].value.id);
+        }
+      }
+
+      // Test opening identical messages.
+      {
+        let promisedTabs = [];
+        promisedTabs.push(
+          browser.compose.beginForward(messages[0].id, "forwardInline")
+        );
+        promisedTabs.push(
+          browser.compose.beginForward(messages[0].id, "forwardInline")
+        );
+        promisedTabs.push(
+          browser.compose.beginForward(messages[0].id, "forwardInline")
+        );
+        promisedTabs.push(
+          browser.compose.beginForward(messages[0].id, "forwardInline")
+        );
+
+        let foundIds = new Set();
+        let openedTabs = await Promise.allSettled(promisedTabs);
+        for (let i = 0; i < 4; i++) {
+          browser.test.assertEq(
+            "fulfilled",
+            openedTabs[i].status,
+            `Promise for the opened compose window should have been fulfilled for message ${i}`
+          );
+
+          browser.test.assertTrue(
+            !foundIds.has(openedTabs[i].value.id),
+            `Tab ${i} should have a unique id ${openedTabs[i].value.id}`
+          );
+          foundIds.add(openedTabs[i].value.id);
+
+          let details = await browser.compose.getComposeDetails(
+            openedTabs[i].value.id
+          );
+          browser.test.assertEq(
+            messages[0].id,
+            details.relatedMessageId,
+            `Should see the correct message in compose window ${i}`
+          );
+          await browser.tabs.remove(openedTabs[i].value.id);
+        }
+      }
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "accountsRead", "messagesRead"],
+    },
+  });
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

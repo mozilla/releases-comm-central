@@ -120,18 +120,6 @@ function composeWindowIsReady(composeWindow) {
 }
 
 async function openComposeWindow(relatedMessageId, type, details, extension) {
-  function waitForWindow() {
-    return new Promise(resolve => {
-      function observer(subject, topic, data) {
-        if (subject.location.href == COMPOSE_WINDOW_URI) {
-          Services.obs.removeObserver(observer, "chrome-document-loaded");
-          resolve(subject.ownerGlobal);
-        }
-      }
-      Services.obs.addObserver(observer, "chrome-document-loaded");
-    });
-  }
-
   let format = Ci.nsIMsgCompFormat.Default;
   let identity = null;
 
@@ -201,7 +189,28 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
           : Ci.nsIMsgCompFormat.OppositeOfDefault;
     }
 
-    let newWindowPromise = waitForWindow();
+    let composeWindowPromise = new Promise(resolve => {
+      function listener(event) {
+        let composeWindow = event.target.ownerGlobal;
+        // Skip if this window has been processed already. This already helps
+        // a lot to assign the opened windows in the correct order to the
+        // OpenCompomposeWindow calls.
+        if (composeWindowTracker.has(composeWindow)) {
+          return;
+        }
+        // Do a few more checks to make sure we are looking at the expected
+        // window. This is still a hack. We need to make OpenCompomposeWindow
+        // actually return the opened window.
+        let _msgURI = composeWindow.gMsgCompose.originalMsgURI;
+        let _type = composeWindow.gComposeType;
+        if (_msgURI == msgURI && _type == type) {
+          composeWindowTracker.add(composeWindow);
+          windowTracker.removeListener("compose-editor-ready", listener);
+          resolve(composeWindow);
+        }
+      }
+      windowTracker.addListener("compose-editor-ready", listener);
+    });
     MailServices.compose.OpenComposeWindow(
       null,
       msgHdr,
@@ -212,8 +221,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       null,
       null
     );
-    let composeWindow = await newWindowPromise;
-    await composeWindowIsReady(composeWindow);
+    let composeWindow = await composeWindowPromise;
 
     if (details) {
       await setComposeDetails(composeWindow, details, extension);
@@ -248,9 +256,13 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   }
 
   params.composeFields = composeFields;
-  let newWindowPromise = waitForWindow();
-  MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let composeWindow = await newWindowPromise;
+  let composeWindow = Services.ww.openWindow(
+    null,
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+    "_blank",
+    "all,chrome,dialog=no,status,toolbar",
+    params
+  );
   await composeWindowIsReady(composeWindow);
 
   // Not all details can be set with params for all types, so some need an extra
@@ -893,6 +905,9 @@ var composeAttachmentTracker = {
 windowTracker.addCloseListener(
   composeAttachmentTracker.forgetAttachments.bind(composeAttachmentTracker)
 );
+
+var composeWindowTracker = new Set();
+windowTracker.addCloseListener(window => composeWindowTracker.delete(window));
 
 this.compose = class extends ExtensionAPI {
   getAPI(context) {
