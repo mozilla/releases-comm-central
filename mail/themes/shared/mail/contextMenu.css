@@ -34,6 +34,11 @@ menupopup {
   font-size: inherit;
 }
 
+menubar:not(:-moz-lwtheme) > menu menupopup {
+  --panel-background: Menu;
+  --panel-color: MenuText;
+}
+
 menupopup > menuitem {
   appearance: none !important;
 }
@@ -102,6 +107,11 @@ menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive]:active {
   color: inherit;
   background-color: var(--arrowpanel-dimmed-further);
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
+}
+
+menubar:not(:-moz-lwtheme) > menu menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
+  color: -moz-MenuHoverText;
+  background-color: -moz-MenuHover;
 }
 
 menupopup > menuseparator {
