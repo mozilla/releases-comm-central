@@ -122,12 +122,7 @@ class MsgIncomingServer {
   }
 
   set realHostName(value) {
-    let oldName = this.realHostName;
-    this._setHostName("realhostname", value);
-
-    if (oldName != value) {
-      this.onUserOrHostNameChanged(oldName, value, true);
-    }
+    this._setHostName("hostname", value);
   }
 
   get realUsername() {
@@ -135,12 +130,7 @@ class MsgIncomingServer {
   }
 
   set realUsername(value) {
-    let oldName = this.realUsername;
-    this.setUnicharValue("realuserName", value);
-
-    if (oldName != value) {
-      this.onUserOrHostNameChanged(oldName, value, false);
-    }
+    this.setUnicharValue("userName", value);
   }
 
   get port() {
@@ -356,7 +346,11 @@ class MsgIncomingServer {
       this._spamSettings = Cc[
         "@mozilla.org/messenger/spamsettings;1"
       ].createInstance(Ci.nsISpamSettings);
-      this._spamSettings.initialize(this);
+      try {
+        this._spamSettings.initialize(this);
+      } catch (e) {
+        Cu.reportError(e);
+      }
     }
     return this._spamSettings;
   }

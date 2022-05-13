@@ -22,22 +22,19 @@ var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;
 
 function migrateMailnews() {
-  try {
-    MigrateProfileClientid();
-  } catch (e) {
-    console.error(e);
-  }
+  let migrations = [
+    migrateProfileClientid,
+    migrateServerAuthPref,
+    migrateServerAndUserName,
+    migrateABRemoteContentSettings,
+  ];
 
-  try {
-    MigrateServerAuthPref();
-  } catch (e) {
-    console.error(e);
-  }
-
-  try {
-    MigrateABRemoteContentSettings();
-  } catch (e) {
-    console.error(e);
+  for (let fn of migrations) {
+    try {
+      fn();
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
 
@@ -45,7 +42,7 @@ function migrateMailnews() {
  * Creates the server specific 'CLIENTID' prefs and tries to pair up any imap
  * services with smtp services which are using the same username and hostname.
  */
-function MigrateProfileClientid() {
+function migrateProfileClientid() {
   // Comma-separated list of all account ids.
   let accounts = Services.prefs.getCharPref("mail.accountmanager.accounts", "");
   // Comma-separated list of all smtp servers.
@@ -153,7 +150,7 @@ function MigrateProfileClientid() {
 /**
  * Migrates from pref useSecAuth to pref authMethod
  */
-function MigrateServerAuthPref() {
+function migrateServerAuthPref() {
   // comma-separated list of all accounts.
   var accounts = Services.prefs
     .getCharPref("mail.accountmanager.accounts")
@@ -249,11 +246,39 @@ function MigrateServerAuthPref() {
 }
 
 /**
+ * For each mail.server.key. branch,
+ *   - migrate realhostname to hostname
+ *   - migrate realuserName to userName
+ */
+function migrateServerAndUserName() {
+  let branch = Services.prefs.getBranch("mail.server.");
+
+  // Collect all the server keys.
+  let keySet = new Set();
+  for (let name of branch.getChildList("")) {
+    keySet.add(name.split(".")[0]);
+  }
+
+  for (let key of keySet) {
+    let realHostname = branch.getCharPref(`${key}.realhostname`, "");
+    if (realHostname) {
+      branch.setCharPref(`${key}.hostname`, realHostname);
+      branch.clearUserPref(`${key}.realhostname`);
+    }
+    let realUsername = branch.getCharPref(`${key}.realuserName`, "");
+    if (realUsername) {
+      branch.setCharPref(`${key}.userName`, realUsername);
+      branch.clearUserPref(`${key}.realuserName`);
+    }
+  }
+}
+
+/**
  * The address book used to contain information about whether to allow remote
  * content for a given contact. Now we use the permission manager for that.
  * Do a one-time migration for it.
  */
-function MigrateABRemoteContentSettings() {
+function migrateABRemoteContentSettings() {
   if (Services.prefs.prefHasUserValue("mail.ab_remote_content.migrated")) {
     return;
   }

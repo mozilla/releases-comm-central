@@ -1193,15 +1193,7 @@ nsMsgIncomingServer::SetHostName(const nsACString& aHostname) {
 // UI (Account Settings page).  No one should call it in any circumstances.
 NS_IMETHODIMP
 nsMsgIncomingServer::SetRealHostName(const nsACString& aHostname) {
-  nsCString oldName;
-  nsresult rv = GetRealHostName(oldName);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = InternalSetHostName(aHostname, "realhostname");
-
-  // A few things to take care of if we're changing the hostname.
-  if (!aHostname.Equals(oldName, nsCaseInsensitiveCStringComparator))
-    rv = OnUserOrHostNameChanged(oldName, aHostname, true);
-  return rv;
+  return InternalSetHostName(aHostname, "hostname");
 }
 
 NS_IMETHODIMP
@@ -1246,14 +1238,7 @@ nsMsgIncomingServer::GetRealUsername(nsACString& aResult) {
 
 NS_IMETHODIMP
 nsMsgIncomingServer::SetRealUsername(const nsACString& aUsername) {
-  // Need to take care of few things if we're changing the username.
-  nsCString oldName;
-  nsresult rv = GetRealUsername(oldName);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetCharValue("realuserName", aUsername);
-  if (!oldName.Equals(aUsername))
-    rv = OnUserOrHostNameChanged(oldName, aUsername, false);
-  return rv;
+  return SetCharValue("userName", aUsername);
 }
 
 #define BIFF_PREF_NAME "check_new_mail"

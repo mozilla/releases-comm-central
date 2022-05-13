@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+/* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -690,6 +690,26 @@ function checkUserServerChanges(showAlert) {
           Services.prompt.alert(window, alertTitle, changeText.trim());
         }
       }
+
+      let l10n = new Localization(["messenger/accountManager.ftl"], true);
+      let cancel = Services.prompt.confirmEx(
+        window,
+        alertTitle,
+        l10n.formatValueSync("server-change-restart-required"),
+        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL,
+        prefBundle.getString("localDirectoryRestart"),
+        null,
+        null,
+        null,
+        {}
+      );
+      if (cancel) {
+        setFormElementValue(hostElem, oldHost);
+        setFormElementValue(userElem, oldUser);
+        return false;
+      }
+      gRestartNeeded = true;
     }
   }
 
