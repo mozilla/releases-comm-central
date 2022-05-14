@@ -456,7 +456,7 @@ class AddrBookImporterController extends ImporterController {
   async _onSelectSource() {
     this._fileType = document.querySelector(
       "input[name=addrBookSource]:checked"
-    );
+    ).value;
     this._importer = new AddrBookFileImporter(this._fileType);
 
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
