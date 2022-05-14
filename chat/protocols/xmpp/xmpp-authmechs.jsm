@@ -388,6 +388,7 @@ function bytesAndHash(aMessage, aHash) {
  * @param {string} iterations Number of iterations, a positive integer.
  * @param {string} len Desired output length in bytes.
  * @param {string} hash The desired hash algorithm (e.g. SHA-1 or SHA-256).
+ * @returns {Uint8Array}
  */
 async function pbkdf2Generate(passphrase, salt, iterations, len, hash) {
   passphrase = CommonUtils.byteStringToArrayBuffer(passphrase);
@@ -409,7 +410,7 @@ async function pbkdf2Generate(passphrase, salt, iterations, len, hash) {
     key,
     len * 8
   );
-  return CommonUtils.arrayBufferToByteString(new Uint8Array(output));
+  return new Uint8Array(output);
 }
 
 /*
@@ -468,71 +469,73 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
     let clientFinalMessageWithoutProof =
       "c=" + btoa(gs2Header) + ",r=" + attributes.r;
 
-    // Calculate ClientProof.
-
-    // SaltedPassword := Hi(Normalize(password), salt, i)
-    // Normalize using saslPrep.
-    // dkLen MUST be equal to the SHA digest size.
-    let passwordPromise = pbkdf2Generate(
-      saslPrep(aPassword),
-      atob(attributes.s),
-      parseInt(attributes.i),
-      aDigestLength,
-      aHashFunctionName
-    );
-
     // The server signature is calculated below, but needs to escape back to the main scope.
     let serverSignature;
 
     // Once the promise resolves, continue with the handshake.
-    receivedStanza = yield passwordPromise.then(saltedPassword => {
+    receivedStanza = yield (async () => {
+      // SaltedPassword := Hi(Normalize(password), salt, i)
+      // Normalize using saslPrep.
+      // dkLen MUST be equal to the SHA digest size.
+      let saltedPassword = await pbkdf2Generate(
+        saslPrep(aPassword),
+        atob(attributes.s),
+        parseInt(attributes.i),
+        aDigestLength,
+        aHashFunctionName
+      );
+
+      // Calculate ClientProof.
+
       // ClientKey := HMAC(SaltedPassword, "Client Key")
-      let saltedPasswordHasher = CryptoUtils.makeHMACHasher(
-        Ci.nsICryptoHMAC[hashFunctionProp],
-        CryptoUtils.makeHMACKey(saltedPassword)
+      let clientKeyBuffer = await CryptoUtils.hmac(
+        aHashFunctionName,
+        saltedPassword,
+        CommonUtils.byteStringToArrayBuffer("Client Key")
       );
-      let clientKey = CryptoUtils.digestBytes(
-        "Client Key",
-        saltedPasswordHasher
-      );
+      let clientKey = CommonUtils.arrayBufferToByteString(clientKeyBuffer);
 
       // StoredKey := H(ClientKey)
       let storedKey = bytesAndHash(clientKey, hashFunctionProp);
 
-      let authMessage =
+      let authMessage = CommonUtils.byteStringToArrayBuffer(
         clientFirstMessageBare +
-        "," +
-        decodedChallenge +
-        "," +
-        clientFinalMessageWithoutProof;
+          "," +
+          decodedChallenge +
+          "," +
+          clientFinalMessageWithoutProof
+      );
 
       // ClientSignature := HMAC(StoredKey, AuthMessage)
-      let storedKeyHasher = CryptoUtils.makeHMACHasher(
-        Ci.nsICryptoHMAC[hashFunctionProp],
-        CryptoUtils.makeHMACKey(storedKey)
+      let clientSignatureBuffer = await CryptoUtils.hmac(
+        aHashFunctionName,
+        CommonUtils.byteStringToArrayBuffer(storedKey),
+        authMessage
       );
-      let clientSignature = CryptoUtils.digestBytes(
-        authMessage,
-        storedKeyHasher
+      let clientSignature = CommonUtils.arrayBufferToByteString(
+        clientSignatureBuffer
       );
-
       // ClientProof := ClientKey XOR ClientSignature
       let clientProof = CryptoUtils.xor(clientKey, clientSignature);
 
       // Calculate ServerSignature.
 
       // ServerKey := HMAC(SaltedPassword, "Server Key")
-      let serverKey = CryptoUtils.digestBytes(
-        "Server Key",
-        saltedPasswordHasher
+      let serverKeyBuffer = await CryptoUtils.hmac(
+        aHashFunctionName,
+        saltedPassword,
+        CommonUtils.byteStringToArrayBuffer("Server Key")
       );
 
       // ServerSignature := HMAC(ServerKey, AuthMessage)
-      let serverKeyHasher = CryptoUtils.makeHMACHasher(
-        Ci.nsICryptoHMAC[hashFunctionProp],
-        CryptoUtils.makeHMACKey(serverKey)
+      let serverSignatureBuffer = await CryptoUtils.hmac(
+        aHashFunctionName,
+        serverKeyBuffer,
+        authMessage
       );
-      serverSignature = CryptoUtils.digestBytes(authMessage, serverKeyHasher);
+      serverSignature = CommonUtils.arrayBufferToByteString(
+        serverSignatureBuffer
+      );
 
       let clientFinalMessage =
         clientFinalMessageWithoutProof + ",p=" + btoa(clientProof);
@@ -547,7 +550,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
         log:
           "<response/> (base64 encoded SCRAM response containing password not logged)",
       };
-    });
+    })();
 
     // Only check server signature if we succeed to authenticate.
     if (receivedStanza.localName != "success") {
