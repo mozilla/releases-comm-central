@@ -1526,22 +1526,6 @@ var gAccountSetup = {
       "outgoingUsername"
     ).value;
 
-    let smtpHostname = document.getElementById("outgoingHostname").value;
-    let smtpPort = document.getElementById("outgoingPort").value;
-    let foundServer = MailServices.smtp.servers.find(
-      // XXX: should really match on socketType as well
-      s => s.hostname == smtpHostname && s.port == smtpPort
-    );
-    // If the user is using a preconfigured SMTP server.
-    if (foundServer) {
-      config.outgoing.existingServerKey = foundServer.key;
-      config.outgoing.existingServerLabel = foundServer.hostname;
-      config.outgoing.addThisServer = false;
-      config.outgoing.useGlobalPreferredServer = false;
-
-      return config;
-    }
-
     // The user specified a custom SMTP server.
     config.outgoing.existingServerKey = null;
     config.outgoing.addThisServer = true;
