@@ -128,12 +128,6 @@ class MsgIncomingServer {
   set username(value) {
     let oldName = this.username;
     if (oldName && oldName != value) {
-      // If only username changed and the new name just added a domain, we can
-      // keep the password.
-      let atIndex = value.indexOf("@");
-      if (atIndex == -1 || value.slice(0, atIndex) != oldName) {
-        this.forgetPassword();
-      }
       this.setUnicharValue("userName", value);
       this.onUserOrHostNameChanged(oldName, value, false);
     } else {
@@ -553,13 +547,58 @@ class MsgIncomingServer {
     this._prefs.setComplexValue(absPrefName, Ci.nsIFile, file);
   }
 
-  onUserOrHostNameChanged(oldValue, newValue, hostnameChanged) {
-    // Reset password so that users are prompted for new password for the new
-    // user/host.
-    let atIndex = newValue.indexOf("@");
-    if (hostnameChanged) {
-      this.forgetPassword();
+  /**
+   * When hostname/username changes, update the corresponding entry in
+   * nsILoginManager.
+   * @param {string} localStoreType - The store type of the current server.
+   * @param {string} oldHostname - The hostname before the change.
+   * @param {string} oldUsername - The username before the change.
+   * @param {string} newHostname - The hostname after the change.
+   * @param {string} newUsername - The username after the change.
+   */
+  _migratePassword(
+    localStoreType,
+    oldHostname,
+    oldUsername,
+    newHostname,
+    newUsername
+  ) {
+    // When constructing nsIURI, need to wrap IPv6 address in [].
+    oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
+    let oldServerUri = `${localStoreType}://${encodeURIComponent(oldHostname)}`;
+    newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
+    let newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
+
+    let logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
+    for (let login of logins) {
+      if (login.username == oldUsername) {
+        // If a nsILoginInfo exists for the old hostname/username, update it to
+        // use the new hostname/username.
+        let newLogin = Cc[
+          "@mozilla.org/login-manager/loginInfo;1"
+        ].createInstance(Ci.nsILoginInfo);
+        newLogin.init(
+          newServerUri,
+          null,
+          newServerUri,
+          newUsername,
+          login.password,
+          "",
+          ""
+        );
+        Services.logins.modifyLogin(login, newLogin);
+      }
     }
+  }
+
+  onUserOrHostNameChanged(oldValue, newValue, hostnameChanged) {
+    this._migratePassword(
+      this.localStoreType,
+      hostnameChanged ? oldValue : this.hostName,
+      hostnameChanged ? this.username : oldValue,
+      this.hostName,
+      this.username
+    );
 
     // Clear the clientid because the user or host have changed.
     this.clientid = "";
@@ -567,6 +606,7 @@ class MsgIncomingServer {
     // Will be generated again when used.
     this._prefs.clearUserPref("spamActionTargetAccount");
 
+    let atIndex = newValue.indexOf("@");
     if (!this.prettyName || (!hostnameChanged && atIndex != -1)) {
       // If new username contains @ then better not update the pretty name.
       return;
@@ -650,10 +690,7 @@ class MsgIncomingServer {
     let serverURI = this._getServerURI();
     let logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (let login of logins) {
-      if (
-        login.username == this.username ||
-        login.username == this.username.slice(0, this.username.indexOf("@"))
-      ) {
+      if (login.username == this.username) {
         Services.logins.removeLogin(login);
       }
     }

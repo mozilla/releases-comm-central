@@ -245,6 +245,42 @@ function migrateServerAuthPref() {
   }
 }
 
+/** See the exact same function in MsgIncomingServer.jsm. */
+function _migratePassword(
+  localStoreType,
+  oldHostname,
+  oldUsername,
+  newHostname,
+  newUsername
+) {
+  // When constructing nsIURI, need to wrap IPv6 address in [].
+  oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
+  let oldServerUri = `${localStoreType}://${encodeURIComponent(oldHostname)}`;
+  newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
+  let newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
+
+  let logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
+  for (let login of logins) {
+    if (login.username == oldUsername) {
+      // If a nsILoginInfo exists for the old hostname/username, update it to
+      // use the new hostname/username.
+      let newLogin = Cc[
+        "@mozilla.org/login-manager/loginInfo;1"
+      ].createInstance(Ci.nsILoginInfo);
+      newLogin.init(
+        newServerUri,
+        null,
+        newServerUri,
+        newUsername,
+        login.password,
+        "",
+        ""
+      );
+      Services.logins.modifyLogin(login, newLogin);
+    }
+  }
+}
+
 /**
  * For each mail.server.key. branch,
  *   - migrate realhostname to hostname
@@ -260,6 +296,9 @@ function migrateServerAndUserName() {
   }
 
   for (let key of keySet) {
+    let type = branch.getCharPref(`${key}.type`, "");
+    let hostname = branch.getCharPref(`${key}.hostname`, "");
+    let username = branch.getCharPref(`${key}.userName`, "");
     let realHostname = branch.getCharPref(`${key}.realhostname`, "");
     if (realHostname) {
       branch.setCharPref(`${key}.hostname`, realHostname);
@@ -271,6 +310,28 @@ function migrateServerAndUserName() {
       branch.setCharPref(`${key}.userName`, realUsername);
       branch.clearUserPref(`${key}.realuserName`);
       branch.clearUserPref("spamActionTargetAccount");
+    }
+    // Previously, when hostname/username changed, LoginManager still contains
+    // the old hostname/username, try to migrate login info to use the new
+    // hostname/username.
+    if (
+      ["imap", "pop3", "nntp"].includes(type) &&
+      (realHostname || realUsername)
+    ) {
+      let localStoreType = { imap: "imap", pop3: "mailbox", nntp: "news" }[
+        type
+      ];
+      try {
+        _migratePassword(
+          localStoreType,
+          hostname,
+          username,
+          realHostname || hostname,
+          realUsername || username
+        );
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 }
