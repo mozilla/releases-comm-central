@@ -1603,9 +1603,9 @@ async function PrintSelectedMessages() {
   // Multiple messages. Get the printer settings, then load the messages into
   // a hidden browser and print them one at a time.
   let ps = PrintUtils.getPrintSettings();
-  Cc["@mozilla.org/embedcomp/printingprompt-service;1"]
-    .getService(Ci.nsIPrintingPromptService)
-    .showPrintDialog(window, ps);
+  Cc["@mozilla.org/widget/printdialog-service;1"]
+    .getService(Ci.nsIPrintDialogService)
+    .showPrintDialog(window, false, ps);
   if (ps.isCancelled) {
     return;
   }
