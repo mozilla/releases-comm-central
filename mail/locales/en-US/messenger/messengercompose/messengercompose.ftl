@@ -435,9 +435,3 @@ link-preview-description = { -brand-short-name } can add an embedded preview whe
 link-preview-autoadd = Automatically add link previews when possible
 link-preview-replace-now = Add a Link Preview for this link?
 link-preview-yes-replace = Yes
-
-## Dictionary selection popup
-
-spell-add-dictionaries =
-    .label = Add Dictionaries…
-    .accesskey = A
