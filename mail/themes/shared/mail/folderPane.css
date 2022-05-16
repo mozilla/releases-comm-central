@@ -19,7 +19,7 @@
   --folder-color-newsletter: var(--color-gray-60);
   --folder-color-rss: var(--color-orange-60);
   --folder-color-outbox: var(--color-teal-70);
-  --folder-color-folder: var(--color-orange-60);
+  --folder-color-folder: var(--color-yellow-60);
   --folder-color-folder-filter: var(--color-magenta-60);
   --folder-color-folder-rss: var(--color-orange-60);
 }
@@ -36,7 +36,7 @@
     --folder-color-newsletter: var(--color-gray-10);
     --folder-color-rss: var(--color-orange-30);
     --folder-color-outbox: var(--color-teal-30);
-    --folder-color-folder: var(--color-orange-30);
+    --folder-color-folder: var(--color-yellow-30);
     --folder-color-folder-filter: var(--color-magenta-30);
     --folder-color-folder-rss: var(--color-orange-30);
   }
