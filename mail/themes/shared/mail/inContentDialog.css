@@ -107,7 +107,7 @@ dialog.dialog-critical {
   line-height: 1.4em;
 }
 
-.modal-dialog {
+.modal-dialog[open] {
   display: flex;
   flex-direction: column;
   width: 580px;
