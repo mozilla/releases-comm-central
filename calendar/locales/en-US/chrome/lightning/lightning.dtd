@@ -94,8 +94,6 @@
 <!ENTITY lightning.imipbar.btnDontSendSeries.tooltiptext                    "Change your participation status for the series without sending a response to the organizer">
 
 <!-- Lightning specific keybindings -->
-<!ENTITY lightning.keys.event.showCalendar.key "C">
-<!ENTITY lightning.keys.event.showTasks.key "D">
 <!ENTITY lightning.keys.event.new "I">
 <!ENTITY lightning.keys.todo.new "D">
 

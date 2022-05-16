@@ -1799,7 +1799,6 @@ var chatHandler = {
           elt.hidden = true;
         }
       });
-      document.getElementById("key_goChat").disabled = true;
       return;
     }
 

@@ -24,6 +24,7 @@ EXTRA_JS_MODULES += [
     "QuickFilterManager.jsm",
     "SearchSpec.jsm",
     "SessionStoreManager.jsm",
+    "ShortcutsManager.jsm",
     "SummaryFrameManager.jsm",
     "TagUtils.jsm",
     "TBDistCustomizer.jsm",

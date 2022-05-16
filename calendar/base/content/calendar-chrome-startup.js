@@ -90,15 +90,6 @@ async function loadCalendarComponent() {
   // Set calendar color CSS on this window
   cal.view.colorTracker.registerWindow(window);
 
-  // Set up the available modifiers for each platform.
-  let keys = document.querySelectorAll("#calendar-keys > key");
-  let platform = AppConstants.platform;
-  for (let key of keys) {
-    if (key.hasAttribute("modifiers-" + platform)) {
-      key.setAttribute("modifiers", key.getAttribute("modifiers-" + platform));
-    }
-  }
-
   /* Ensure the new items commands state can be setup properly even when no
    * calendar support refreshes (i.e. the "onLoad" notification) or when none
    * are active. In specific cases such as for file-based ICS calendars can

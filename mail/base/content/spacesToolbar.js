@@ -26,11 +26,27 @@ var gSpacesToolbar = {
   /**
    * The spaces toolbar DOM element.
    *
-   * @type {HTMLElement}
+   * @type {?HTMLElement}
    */
   element: null,
+  /**
+   * If the spaces toolbar has already been loaded.
+   *
+   * @type {boolean}
+   */
   isLoaded: false,
+  /**
+   * If the spaces toolbar is hidden or visible.
+   *
+   * @type {boolean}
+   */
   isHidden: false,
+  /**
+   * If the spaces toolbar is currently being customized.
+   *
+   * @type {boolean}
+   */
+  isCustomizing: false,
   /**
    * The DOM element panel collecting all customization options.
    */
@@ -361,13 +377,16 @@ var gSpacesToolbar = {
       .addEventListener("command", () =>
         openTab("contentTab", { url: "about:addons" })
       );
+    document
+      .getElementById("settingsContextOpenCustomizeItem")
+      .addEventListener("command", () => this.showCustomize());
 
     for (let space of this.spaces) {
       this._addButtonClickListener(space.button, () => {
-        this._openSpace(tabmail, space);
+        this.openSpace(tabmail, space);
       });
       space.menuitem?.addEventListener("command", () => {
-        this._openSpace(tabmail, space);
+        this.openSpace(tabmail, space);
       });
       if (space.name == "settings") {
         space.button.addEventListener("contextmenu", event => {
@@ -572,7 +591,7 @@ var gSpacesToolbar = {
    * @param {XULElement} tabmail - The tabmail element.
    * @param {SpaceInfo} space - The space to open.
    */
-  _openSpace(tabmail, space) {
+  openSpace(tabmail, space) {
     // Find the earliest primary tab that belongs to this space.
     let existing = tabmail.tabInfo.find(
       tabInfo => space.tabInSpace(tabInfo) == 1
@@ -672,6 +691,7 @@ var gSpacesToolbar = {
    * then open the customization panel.
    */
   showCustomize() {
+    this.isCustomizing = true;
     // Reset the color inputs to be sure we're showing the correct colors.
     this._resetColorInputs();
 
@@ -710,6 +730,7 @@ var gSpacesToolbar = {
    * Reset all event listeners and store the custom colors.
    */
   onCustomizePopupHidden() {
+    this.isCustomizing = false;
     // Always remove the keypress event listener set on opening.
     window.removeEventListener("keypress", this.onWindowKeypress);
 
@@ -785,6 +806,13 @@ var gSpacesToolbar = {
    * @param {boolean} state - The visibility state to update the elements.
    */
   toggleToolbar(state) {
+    // Prevent the visibility change state of the spaces toolbar if we're
+    // currently customizing it, in order to avoid weird positioning outcomes
+    // with the customize popup panel.
+    if (this.isCustomizing) {
+      return;
+    }
+
     this.isHidden = state;
 
     // The focused element, prior to toggling.
@@ -1129,11 +1157,11 @@ var gSpacesToolbar = {
       let tabmail = document.getElementById("tabmail");
       this._addButtonClickListener(button, () => {
         let space = gSpacesToolbar.spaces.find(space => space.name == id);
-        this._openSpace(tabmail, space);
+        this.openSpace(tabmail, space);
       });
       menuitem.addEventListener("command", () => {
         let space = gSpacesToolbar.spaces.find(space => space.name == id);
-        this._openSpace(tabmail, space);
+        this.openSpace(tabmail, space);
       });
 
       // Set badge.

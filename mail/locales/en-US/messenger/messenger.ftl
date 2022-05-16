@@ -257,14 +257,14 @@ spaces-context-new-window-item =
 spaces-context-switch-tab-item =
     .label = Switch to { $tabName }
 
-settings-context-open-settings-item =
-    .label = Open Settings
+settings-context-open-settings-item2 =
+    .label = Settings
 
-settings-context-open-account-settings-item =
-    .label = Open Account Settings
+settings-context-open-account-settings-item2 =
+    .label = Account Settings
 
-settings-context-open-addons-item =
-    .label = Open Add-ons and Themes
+settings-context-open-addons-item2 =
+    .label = Add-ons and Themes
 
 ## Spaces toolbar pinned tab menupopup
 
