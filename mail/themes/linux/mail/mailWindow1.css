@@ -18,11 +18,6 @@
   background-color: -moz-Dialog;
 }
 
-menu > #folderLocationPopup > menu > .menu-iconic-left,
-menu > #folderLocationPopup > menuitem > .menu-iconic-left {
-  padding-inline-start: 2px;
-}
-
 :root:not([lwt-tree]) #folderTree {
   background-color: -moz-OddTreeRow;
 }

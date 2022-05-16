@@ -36,7 +36,7 @@
 
   menulist > menupopup > menu,
   menulist > menupopup > menuitem {
-    padding-inline-end: 0;
+    padding-inline-end: 5px;
   }
 
   menulist > menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
@@ -46,7 +46,7 @@
 
   menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
   menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
-    padding-inline-start: 36px;
+    padding-inline-start: 32px;
   }
 
   menupopup[needsgutter] > .menu-iconic > .menu-iconic-left,
@@ -401,13 +401,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   appearance: none;
-}
-
-menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
-  appearance: none;
-  margin-block: 3px;
-  padding-block: 0;
-  border-top-color: #d7d7d7;
 }
 
 @media (-moz-windows-compositor) {

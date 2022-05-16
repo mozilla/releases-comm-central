@@ -114,10 +114,6 @@
   color: var(--lwt-toolbar-field-color);
 }
 
-:root[lwt-tree] #msgIdentityPopup > menuitem {
-  padding-block: 5px;
-}
-
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {

@@ -75,33 +75,6 @@
   color: var(--autocomplete-popup-highlight-color);
 }
 
-:root[lwt-tree] #msgIdentityPopup {
-  appearance: none;
-  border: 1px solid var(--arrowpanel-border-color);
-  border-radius: var(--toolbarbutton-border-radius);
-  background-color: var(--arrowpanel-background);
-}
-
-:root[lwt-tree] #msgIdentityPopup > menuitem {
-  appearance: none;
-  color: var(--arrowpanel-color);
-}
-
-:root[lwt-tree] #msgIdentityPopup >  menuitem[_moz-menuactive="true"] {
-  background-color: var(--arrowpanel-dimmed);
-}
-
-:root[lwt-tree] #msgIdentityPopup >  menuitem[selected="true"] {
-  background-color: var(--autocomplete-popup-highlight-background);
-  color: var(--autocomplete-popup-highlight-color);
-}
-
-:root[lwt-tree] #msgIdentityPopup > menuseparator {
-  appearance: none;
-  border-top: 1px solid var(--arrowpanel-color);
-  opacity: 0.5;
-}
-
 .autocomplete-richlistbox {
   padding: var(--autocomplete-box-padding);
 }
@@ -859,6 +832,11 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   border-style: none;
   outline-style: none;
   margin-inline: 1px 20px;
+}
+
+#msgIdentityPopup >  menuitem[selected="true"] {
+  background-color: var(--autocomplete-popup-highlight-background);
+  color: var(--autocomplete-popup-highlight-color);
 }
 
 #msgSubjectContainer {

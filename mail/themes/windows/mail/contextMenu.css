@@ -22,9 +22,18 @@ menupopup {
 }
 
 @media (-moz-windows-non-native-menus) {
+  menupopup[needsgutter] menu:not([icon], .menu-iconic),
+  menupopup[needsgutter] menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+    padding-inline-start: 32px;
+  }
+
   menupopup > :is(menu, menuitem):not([needsgutter]) >
     menuitem:not([icon], .menuitem-iconic) {
     padding-inline-start: 1em;
+  }
+
+  menuitem[checked="true"] {
+    padding-inline-start: 8px;
   }
 }
 

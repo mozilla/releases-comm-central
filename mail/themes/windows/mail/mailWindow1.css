@@ -406,14 +406,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-@media not (-moz-windows-non-native-menus) {
-  #viewPickerPopup menu,
-  #viewPickerPopup menuitem {
-    appearance: none;
-    padding-inline-end: 1px;
-  }
-}
-
 @media (-moz-windows-non-native-menus) {
   #viewPickerPopup > menu,
   #viewPickerPopup > menuitem {
@@ -422,26 +414,9 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (-moz-windows-default-theme) {
-  @media not (-moz-windows-non-native-menus) {
-    #viewPickerPopup > menu,
-    #viewPickerPopup > menuitem {
-      margin: 1px;
-    }
-  }
-
   :root:not([lwt-tree],:-moz-lwtheme) #folderTree {
     background-color: #fafafa;
   }
-
-  #viewPicker::part(label),
-  #locationFolders::part(label) {
-    margin-block: 0 !important;
-  }
-}
-
-#viewPicker::part(icon),
-#locationFolders::part(icon) {
-  min-height: 16px;
 }
 
 @media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
@@ -449,16 +424,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
       background-color: #d1d1d1;
     }
-  }
-
-  #viewPickerPopup > menu > .menu-text {
-    padding-inline-start: 0 !important;
-  }
-}
-
-@media (-moz-windows-default-theme: 0) {
-  #viewPickerPopup > menu > .menu-text {
-    padding-inline-start: 0 !important;
   }
 }
 
@@ -529,22 +494,10 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-#viewPicker::part(icon),
-#locationFolders::part(icon) {
-  min-height: 16px;
-}
-
 @media not (-moz-windows-non-native-menus) {
   #viewPickerPopup > menu > .menu-text {
-    appearance: none;
-    margin-inline-start: 0 !important;
     padding-inline-start: 0 !important;
   }
-}
-
-#viewPickerTagsPopup > menuitem > .menu-iconic-text,
-#viewPickerCustomViewsPopup > menuitem > .menu-iconic-text {
-  padding: 1px 3px;
 }
 
 @media (-moz-windows-compositor: 0) {
