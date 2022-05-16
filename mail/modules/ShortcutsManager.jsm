@@ -40,7 +40,6 @@ const ShortcutsManager = {
       id: "space-mail",
       name: "Open the Mail space",
       key: "1",
-      code: "Digit1",
       modifiers: {
         win: {
           metaKey: false,
@@ -67,7 +66,6 @@ const ShortcutsManager = {
       id: "space-addressbook",
       name: "Open the Address Book space",
       key: "2",
-      code: "Digit2",
       modifiers: {
         win: {
           metaKey: false,
@@ -94,7 +92,6 @@ const ShortcutsManager = {
       id: "space-calendar",
       name: "Open the Calendar space",
       key: "3",
-      code: "Digit3",
       modifiers: {
         win: {
           metaKey: false,
@@ -121,7 +118,6 @@ const ShortcutsManager = {
       id: "space-tasks",
       name: "Open the Tasks space",
       key: "4",
-      code: "Digit4",
       modifiers: {
         win: {
           metaKey: false,
@@ -148,7 +144,6 @@ const ShortcutsManager = {
       id: "space-chat",
       name: "Open the Chat space",
       key: "5",
-      code: "Digit5",
       modifiers: {
         win: {
           metaKey: false,
