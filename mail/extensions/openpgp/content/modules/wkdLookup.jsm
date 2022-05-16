@@ -310,7 +310,7 @@ var EnigmailWkdLookup = {
         return null;
       }
       return EnigmailData.arrayBufferToString(
-        Cu.cloneInto(await response.arrayBuffer(), this)
+        Cu.cloneInto(await response.arrayBuffer(), {})
       );
     } catch (ex) {
       EnigmailLog.DEBUG(
