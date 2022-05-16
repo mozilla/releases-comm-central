@@ -181,9 +181,14 @@ add_task(async function() {
   EventUtils.synthesizeMouseAtCenter(statusButton, {}, composeWindow);
   await shownPromise;
 
-  Assert.equal(languageList.childElementCount, 2);
+  Assert.equal(languageList.childElementCount, 4);
   Assert.equal(languageList.children[0].value, "en-NZ");
   Assert.equal(languageList.children[1].value, "en-US");
+  Assert.equal(languageList.children[2].localName, "menuseparator");
+  Assert.equal(
+    languageList.children[3].dataset.l10nId,
+    "spell-add-dictionaries"
+  );
 
   hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
   languageList.activateItem(languageList.children[0]);
@@ -198,9 +203,14 @@ add_task(async function() {
   EventUtils.synthesizeMouseAtCenter(statusButton, {}, composeWindow);
   await shownPromise;
 
-  Assert.equal(languageList.childElementCount, 2);
+  Assert.equal(languageList.childElementCount, 4);
   Assert.equal(languageList.children[0].value, "en-NZ");
   Assert.equal(languageList.children[1].value, "en-US");
+  Assert.equal(languageList.children[2].localName, "menuseparator");
+  Assert.equal(
+    languageList.children[3].dataset.l10nId,
+    "spell-add-dictionaries"
+  );
 
   hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
   languageList.activateItem(languageList.children[1]);
