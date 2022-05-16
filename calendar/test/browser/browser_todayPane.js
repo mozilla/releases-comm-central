@@ -657,7 +657,7 @@ add_task(async function testRelativeTime() {
     },
     {
       name: "two hours ahead",
-      start: "PT1H55M",
+      start: "PT1H49M",
       expected: {
         relative: [formatter.format(2, "hour")],
       },
