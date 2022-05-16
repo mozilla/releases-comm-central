@@ -90,6 +90,10 @@ calendar-minimonth {
   --mmDaySelectedTodayBorderColor: ButtonFace;
 }
 
+.datepicker-menulist > menupopup::part(content) {
+  --panel-padding: 3px;
+}
+
 calendar-minimonth {
   background-color: var(--mmMainBackground);
   border-width: 0;

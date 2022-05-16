@@ -59,6 +59,10 @@ timepicker > menulist {
  *   popup (from timepicker/timepicker.css)
  *-------------------------------------------------------------------*/
 
+.timepicker-menulist > menupopup::part(content) {
+  --panel-padding: 3px;
+}
+
 /* Box that occupies whole window */
 
 .time-picker-grids {

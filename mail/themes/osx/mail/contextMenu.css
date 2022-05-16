@@ -35,3 +35,7 @@ menupopup > menuitem > .menu-right {
 menulist > menupopup > menuitem:is([checked="true"], [selected="true"])::before {
   margin-inline: 0 -15px;
 }
+
+menulist > menupopup > menuitem.menuitem-iconic::before {
+  display: none;
+}

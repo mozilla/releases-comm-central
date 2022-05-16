@@ -30,6 +30,9 @@ menupopup {
   --panel-border-color: var(--arrowpanel-border-color);
   --panel-border-radius: var(--arrowpanel-border-radius);
   --panel-padding: var(--arrowpanel-padding);
+  --menu-color: var(--arrowpanel-color);
+  --menu-border-color: var(--arrowpanel-border-color);
+  --menu-background-color: var(--arrowpanel-background);
   font: menu;
   font-size: inherit;
 }
