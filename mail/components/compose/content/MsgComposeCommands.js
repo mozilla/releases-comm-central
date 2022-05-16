@@ -6696,12 +6696,26 @@ function InitLanguageMenu() {
 
   var dictList = spellChecker.getDictionaryList();
 
+  let extraItemCount = dictList.length === 0 ? 1 : 2;
+
   // If dictionary count hasn't changed then no need to update the menu.
-  if (dictList.length == languageMenuList.childElementCount) {
+  if (dictList.length + extraItemCount == languageMenuList.childElementCount) {
     return;
   }
 
   var sortedList = gSpellChecker.sortDictionaryList(dictList);
+
+  let getMoreItem = document.createXULElement("menuitem");
+  document.l10n.setAttributes(getMoreItem, "spell-add-dictionaries");
+  getMoreItem.addEventListener("command", event => {
+    event.stopPropagation();
+    openDictionaryList();
+  });
+  let getMoreArray = [getMoreItem];
+
+  if (extraItemCount > 1) {
+    getMoreArray.unshift(document.createXULElement("menuseparator"));
+  }
 
   // Remove any languages from the list.
   languageMenuList.replaceChildren(
@@ -6712,7 +6726,8 @@ function InitLanguageMenu() {
       item.setAttribute("type", "checkbox");
       item.setAttribute("selection-type", "multiple");
       return item;
-    })
+    }),
+    ...getMoreArray
   );
 }
 
@@ -6868,7 +6883,7 @@ async function updateLanguageInStatusBar(dictionaries) {
   let item = languageMenuList.firstElementChild;
 
   // No status display, if there is only one or no spelling dictionary available.
-  if (item == languageMenuList.lastElementChild) {
+  if (languageMenuList.childElementCount <= 3) {
     languageStatusButton.hidden = true;
     languageStatusButton.textContent = "";
     return;
@@ -6876,6 +6891,9 @@ async function updateLanguageInStatusBar(dictionaries) {
 
   languageStatusButton.hidden = false;
   while (item) {
+    if (item.tagName.toLowerCase() === "menuseparator") {
+      break;
+    }
     if (dictionaries.includes(item.getAttribute("value"))) {
       languages.push(item.getAttribute("label"));
     }
