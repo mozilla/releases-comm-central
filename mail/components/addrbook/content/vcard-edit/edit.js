@@ -5,9 +5,15 @@
 /* globals VCardEmailComponent, VCardNComponent, VCardTelComponent,
            VCardTZComponent, VCardURLComponent */
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
   this,
   "VCardProperties",
+  "resource:///modules/VCardUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
 
@@ -19,6 +25,11 @@ class VCardEdit extends HTMLElement {
     let template = document.getElementById("template-addr-book-edit");
     let clonedTemplate = template.content.cloneNode(true);
     this.shadowRoot.appendChild(clonedTemplate);
+
+    this.displayName = document.getElementById("displayName");
+    this.displayName.addEventListener("input", () => {
+      this.displayName._dirty = !!this.displayName.value;
+    });
   }
 
   connectedCallback() {
@@ -72,28 +83,83 @@ class VCardEdit extends HTMLElement {
   }
 
   updateView() {
-    let vCardPropertyEls = [];
-    if (this.vCardProperties) {
-      vCardPropertyEls = this.vCardProperties.entries.map(entry => {
-        return VCardEdit.createVCardElement(entry);
-      });
-      // Get rid of non truthy values.
-      vCardPropertyEls = vCardPropertyEls.filter(el => !!el);
-
-      // Reorder the elements according to the pref value.
-      vCardPropertyEls.sort((a, b) => {
-        // If no pref param is set the value is falsy for the comparing.
-        // We go over the max value for the pref of a vcard (101) for this case.
-        let aPref = a.vCardPropertyEntry.params.pref || 101;
-        let bPref = b.vCardPropertyEntry.params.pref || 101;
-        return aPref - bPref;
-      });
+    if (!this.vCardProperties) {
+      this.replaceChildren();
+      return;
     }
+
+    let vCardPropertyEls = this.vCardProperties.entries
+      .map(entry => {
+        return VCardEdit.createVCardElement(entry);
+      })
+      .filter(el => !!el);
+
     this.replaceChildren(...vCardPropertyEls);
 
     this.shadowRoot.getElementById("vcard-add-tz").hidden = this.querySelector(
       "vcard-tz"
     );
+
+    this.displayName.value = this.vCardProperties.getFirstValue("fn");
+    this.displayName._dirty = !!this.displayName.value;
+
+    let nameEl = this.querySelector("vcard-n");
+    this.firstName = nameEl.firstNameEl.querySelector("input");
+    this.firstName.addEventListener("input", () => this.generateDisplayName());
+    this.lastName = nameEl.lastNameEl.querySelector("input");
+    this.lastName.addEventListener("input", () => this.generateDisplayName());
+  }
+
+  /**
+   * If the display name field is empty, generate a name from the first and
+   * last name fields.
+   */
+  async generateDisplayName() {
+    if (
+      !Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration")
+    ) {
+      // Do nothing if generation is disabled.
+      return;
+    }
+
+    if (this.displayName._dirty) {
+      // Don't modify the field if it already has a value, unless the value
+      // was set by this function.
+      return;
+    }
+
+    if (!this.firstName.value || !this.lastName.value) {
+      // If there's 0 or 1 values, use them.
+      this.displayName.value = this.firstName.value || this.lastName.value;
+      return;
+    }
+
+    let lastNameFirst = false;
+
+    // This used to be a L10n-controlled (string) preference, but the default
+    // has been removed. If there is a value (string or boolean), respect it.
+    let prefName = "mail.addr_book.displayName.lastnamefirst";
+    let prefType = Services.prefs.getPrefType(prefName);
+    if (prefType == Services.prefs.PREF_STRING) {
+      lastNameFirst = Services.prefs.getStringPref(prefName) === "true";
+    } else if (prefType == Services.prefs.PREF_BOOL) {
+      lastNameFirst = Services.prefs.getBoolPref(prefName);
+    }
+
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addressbook/addressBook.properties"
+    );
+    if (lastNameFirst) {
+      this.displayName.value = bundle.formatStringFromName("lastFirstFormat", [
+        this.lastName.value,
+        this.firstName.value,
+      ]);
+    } else {
+      this.displayName.value = bundle.formatStringFromName("firstLastFormat", [
+        this.firstName.value,
+        this.lastName.value,
+      ]);
+    }
   }
 
   /**
@@ -169,6 +235,19 @@ class VCardEdit extends HTMLElement {
    * removed from the vCardProperty.
    */
   saveVCard() {
+    let displayNameEntry = this.vCardProperties.getFirstEntry("fn");
+    if (displayNameEntry) {
+      displayNameEntry.value = this.displayName.value;
+    } else {
+      displayNameEntry = new VCardPropertyEntry(
+        "fn",
+        {},
+        "text",
+        this.displayName.value
+      );
+      this.vCardProperties.addEntry(displayNameEntry);
+    }
+
     this.childNodes.forEach(node => {
       if (typeof node.fromUIToVCardPropertyEntry === "function") {
         node.fromUIToVCardPropertyEntry();

@@ -595,6 +595,20 @@ body.is-editing #detailsPane #photoOverlay {
   font-weight: 400;
 }
 
+#displayName {
+  appearance: none;
+  width: 100%;
+  margin: -2px -2px calc(0.25em - 2px);
+  border: none;
+  border-radius: var(--in-content-button-border-radius);
+  padding: 2px;
+  outline-offset: 2px;
+  background-color: transparent;
+  font-size: 1.6em;
+  line-height: 1.2;
+  color: currentcolor;
+}
+
 #nameOuter h2 {
   margin-block: 0;
   font-size: 1.2em;

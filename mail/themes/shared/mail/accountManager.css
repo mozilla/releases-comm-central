@@ -276,3 +276,16 @@ body {
   /* Two <vcard-edit> columns. */
   width: 54em;
 }
+
+#editVCardDialog form {
+  display: flex;
+  flex-direction: column;
+}
+
+#editVCardDialog label[for="displayName"] {
+  margin-block-end: 3px;
+}
+
+#editVCardDialog input#displayName {
+  margin: 0;
+}

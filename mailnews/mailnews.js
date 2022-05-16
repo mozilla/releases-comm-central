@@ -259,7 +259,6 @@ pref("mail.addr_book.autocompletequery.format.phonetic", "(or(DisplayName,c,@V)(
 //0=displayname, 1=lastname first, 2=firstname first
 pref("mail.addr_book.lastnamefirst", 0);
 pref("mail.addr_book.displayName.autoGeneration", true);
-pref("mail.addr_book.displayName.lastnamefirst", "chrome://messenger/locale/messenger.properties");
 pref("mail.addr_book.show_phonetic_fields", "chrome://messenger/locale/messenger.properties");
 pref("mail.html_compose",                   true);
 // you can specify multiple, option headers
