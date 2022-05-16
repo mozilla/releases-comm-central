@@ -21,14 +21,15 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 /**
  * Sets the default values for new items, taking values from either the passed
- * parameters or the preferences
+ * parameters or the preferences.
  *
- * @param aItem         The item to set up
- * @param aCalendar     (optional) The calendar to apply.
- * @param aStartDate    (optional) The start date to set.
- * @param aEndDate      (optional) The end date/due date to set.
- * @param aInitialDate  (optional) The reference date for the date pickers
- * @param aForceAllday  (optional) Force the event/task to be an allday item.
+ * @param {calIItemBase} aItem - The item to set up.
+ * @param {?calICalendar} aCalendar - The calendar to apply.
+ * @param {?calIDateTime} aStartDate - The start date to set.
+ * @param {?calIDateTime} aEndDate - The end date/due date to set.
+ * @param {?calIDateTime} aInitialDate - The reference date for the date pickers.
+ * @param {boolean} [aForceAllday=false] - Force the event/task to be an all-day item.
+ * @param {calIAttendee[]} aAttendees - Attendees to add, if `aItem` is an event.
  */
 function setDefaultItemValues(
   aItem,
@@ -36,7 +37,8 @@ function setDefaultItemValues(
   aStartDate = null,
   aEndDate = null,
   aInitialDate = null,
-  aForceAllday = false
+  aForceAllday = false,
+  aAttendees = []
 ) {
   function endOfDay(aDate) {
     let eod = aDate ? aDate.clone() : cal.dtz.now();
@@ -99,6 +101,10 @@ function setDefaultItemValues(
 
     // Free/busy status is only valid for events, must not be set for tasks.
     aItem.setProperty("TRANSP", cal.item.getEventDefaultTransparency(aForceAllday));
+
+    for (let attendee of aAttendees) {
+      aItem.addAttendee(attendee);
+    }
   } else if (aItem.isTodo()) {
     let now = cal.dtz.now();
     let initDate = initialDate ? initialDate.clone() : now;
@@ -226,15 +232,23 @@ function setDefaultItemValues(
 /**
  * Creates an event with the calendar event dialog.
  *
- * @param calendar      (optional) The calendar to create the event in
- * @param startDate     (optional) The event's start date.
- * @param endDate       (optional) The event's end date.
- * @param summary       (optional) The event's title.
- * @param event         (optional) A template event to show in the dialog
- * @param aForceAllDay  (optional) Make sure the event shown in the dialog is an
- *                                   allday event.
+ * @param {?calICalendar} calendar - The calendar to create the event in
+ * @param {?calIDateTime} startDate - The event's start date.
+ * @param {?calIDateTime} endDate - The event's end date.
+ * @param {?string} summary - The event's title.
+ * @param {?calIEvent} event - A template event to show in the dialog
+ * @param {?boolean} forceAllDay - Make sure the event shown in the dialog is an all-day event.
+ * @param {?calIAttendee} attendees - Attendees to add to the event.
  */
-function createEventWithDialog(calendar, startDate, endDate, summary, event, aForceAllday) {
+function createEventWithDialog(
+  calendar,
+  startDate,
+  endDate,
+  summary,
+  event,
+  forceAllDay,
+  attendees
+) {
   let onNewEvent = function(item, opcalendar, originalItem, listener, extresponse = null) {
     if (item.id) {
       // If the item already has an id, then this is the result of
@@ -255,7 +269,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
     // transaction
     event.id = null;
 
-    if (aForceAllday) {
+    if (forceAllDay) {
       event.startDate.isDate = true;
       event.endDate.isDate = true;
       if (event.startDate.compare(event.endDate) == 0) {
@@ -272,7 +286,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
     event = new CalEvent();
 
     let refDate = currentView().selectedDay?.clone();
-    setDefaultItemValues(event, calendar, startDate, endDate, refDate, aForceAllday);
+    setDefaultItemValues(event, calendar, startDate, endDate, refDate, forceAllDay, attendees);
     if (summary) {
       event.title = summary;
     }

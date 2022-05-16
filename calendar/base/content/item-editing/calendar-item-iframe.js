@@ -770,6 +770,12 @@ function loadDialog(aItem) {
 
   // update in outer parent context
   updateConfigState(gConfig);
+
+  if (aItem.getAttendees().length && !aItem.descriptionText) {
+    let tabs = document.getElementById("event-grid-tabs");
+    let attendeeTab = document.getElementById("event-grid-tab-attendees");
+    tabs.selectedItem = attendeeTab;
+  }
 }
 
 /**
@@ -2585,6 +2591,7 @@ function updateCalendar() {
     window.organizer.id = calendarOrgId;
     window.organizer.commonName = calendar.getProperty("organizerCN");
     gPreviousCalendarId = calendar.id;
+    updateAttendees();
   }
 
   if (!canNotifyAttendees(calendar, item) && calendar.getProperty("imip.identity")) {

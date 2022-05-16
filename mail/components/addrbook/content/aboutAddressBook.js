@@ -25,6 +25,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalMetronome: "resource:///modules/CalMetronome.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
@@ -1715,6 +1716,7 @@ var detailsPane = {
   init() {
     this.form = document.getElementById("detailsPane");
     this.writeButton = document.getElementById("detailsWriteButton");
+    this.eventButton = document.getElementById("detailsEventButton");
     this.searchButton = document.getElementById("detailsSearchButton");
     this.editButton = document.getElementById("editButton");
     this.deleteButton = document.getElementById("detailsDeleteButton");
@@ -1942,6 +1944,12 @@ var detailsPane = {
     delete this.photo._cropRect;
 
     this.writeButton.hidden = this.searchButton.hidden = !card.primaryEmail;
+    this.eventButton.hidden =
+      !card.primaryEmail ||
+      !cal.manager
+        .getCalendars()
+        .filter(cal.acl.isCalendarWritable)
+        .filter(cal.acl.userCanAddItemsToCalendar).length;
 
     let vCardProperties = card.supportsVCard
       ? card.vCardProperties
@@ -2394,6 +2402,23 @@ var detailsPane = {
               this.currentCard.primaryEmail
             ),
           ]);
+        }
+        break;
+      case "detailsEventButton":
+        if (this.currentCard.primaryEmail) {
+          let attendee = new CalAttendee();
+          attendee.id = `mailto:${this.currentCard.primaryEmail}`;
+          attendee.commonName = this.currentCard.displayName;
+
+          window.browsingContext.topChromeWindow.createEventWithDialog(
+            null,
+            null,
+            null,
+            null,
+            null,
+            false,
+            [attendee]
+          );
         }
         break;
       case "detailsSearchButton":

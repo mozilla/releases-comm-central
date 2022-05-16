@@ -512,6 +512,10 @@ body.is-editing #detailsPane #photoOverlay {
   background-image: url("chrome://messenger/skin/icons/newmsg.svg");
 }
 
+#detailsEventButton::before {
+  background-image: url("chrome://calendar/skin/shared/icons/newevent.svg");
+}
+
 #detailsSearchButton::before {
   background-image: url("chrome://global/skin/icons/search-glass.svg");
 }

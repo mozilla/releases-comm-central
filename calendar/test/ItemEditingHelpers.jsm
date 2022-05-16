@@ -382,6 +382,7 @@ async function saveAndCloseItemDialog(dialogWindow) {
     dialogWindow
   );
   await dialogClosing;
+  Assert.report(false, undefined, undefined, "Item dialog closed");
   await new Promise(resolve => setTimeout(resolve));
 }
 

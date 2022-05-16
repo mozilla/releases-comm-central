@@ -5,6 +5,9 @@
 // TODO: Fix the UI so that we don't have to do this.
 window.maximize();
 
+var { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+);
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
 const personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
@@ -49,9 +52,12 @@ add_setup(async function() {
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
+  let calendar = CalendarTestUtils.createCalendar();
+
   registerCleanupFunction(async () => {
     personalBook.deleteCards(personalBook.childCards);
     MailServices.accounts.removeAccount(account, true);
+    CalendarTestUtils.removeCalendar(calendar);
   });
 });
 
@@ -326,6 +332,7 @@ async function checkActionButtons(
   let abDocument = abWindow.document;
 
   let writeButton = abDocument.getElementById("detailsWriteButton");
+  let eventButton = abDocument.getElementById("detailsEventButton");
   let searchButton = abDocument.getElementById("detailsSearchButton");
 
   if (primaryEmail) {
@@ -341,6 +348,45 @@ async function checkActionButtons(
       await composeWindowPromise,
       `${displayName} <${primaryEmail}>`
     );
+
+    // Event.
+    Assert.ok(
+      BrowserTestUtils.is_visible(eventButton),
+      "event button is visible"
+    );
+
+    let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
+    EventUtils.synthesizeMouseAtCenter(eventButton, {}, abWindow);
+    let eventWindow = await eventWindowPromise;
+
+    let iframe = eventWindow.document.getElementById(
+      "calendar-item-panel-iframe"
+    );
+    let tabPanels = iframe.contentDocument.getElementById(
+      "event-grid-tabpanels"
+    );
+    let attendeesTabPanel = iframe.contentDocument.getElementById(
+      "event-grid-tabpanel-attendees"
+    );
+    Assert.equal(
+      tabPanels.selectedPanel,
+      attendeesTabPanel,
+      "attendees are displayed"
+    );
+    let attendeeName = attendeesTabPanel.querySelector(
+      ".attendee-list .attendee-name"
+    );
+    Assert.equal(
+      attendeeName.textContent,
+      `${displayName} <${primaryEmail}>`,
+      "contact is an attendee"
+    );
+
+    eventWindowPromise = BrowserTestUtils.domWindowClosed(eventWindow);
+    BrowserTestUtils.promiseAlertDialog("extra1");
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
+    await eventWindowPromise;
+    Assert.report(false, undefined, undefined, "Item dialog closed");
 
     // Search.
     Assert.ok(
@@ -364,6 +410,10 @@ async function checkActionButtons(
     Assert.ok(
       BrowserTestUtils.is_hidden(writeButton),
       "write button is hidden"
+    );
+    Assert.ok(
+      BrowserTestUtils.is_hidden(eventButton),
+      "event button is hidden"
     );
     Assert.ok(
       BrowserTestUtils.is_hidden(searchButton),
