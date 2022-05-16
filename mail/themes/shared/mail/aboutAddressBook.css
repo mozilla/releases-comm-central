@@ -521,6 +521,7 @@ body:not(.is-editing) #detailsPane :is(.edit, .noValue) {
 #detailsFooter,
 vcard-edit {
   padding-inline: 20px;
+  /* Two <vcard-edit> columns. */
   max-width: 54em;
 }
 

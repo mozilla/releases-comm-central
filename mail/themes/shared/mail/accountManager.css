@@ -271,3 +271,8 @@ body {
   position: absolute;
   inset: 0;
 }
+
+#editVCardDialog {
+  /* Two <vcard-edit> columns. */
+  width: 54em;
+}

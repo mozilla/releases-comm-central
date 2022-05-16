@@ -150,15 +150,18 @@
   </vbox>
 
   <dialog xmlns="http://www.w3.org/1999/xhtml" id="editVCardDialog">
-    <!-- TODO add vCard editing UI -->
-    <menu class="dialog-menu-container">
-      <button class="cancel"
-              data-l10n-id="edit-vcard-dialog-cancel-button"
-              data-l10n-attrs="accesskey"></button>
-      <button class="accept primary"
-              data-l10n-id="edit-vcard-dialog-accept-button"
-              data-l10n-attrs="accesskey"></button>
-    </menu>
+    <form autocomplete="off">
+#include ../../../../mail/components/addrbook/content/vcard-edit/vCardTemplates.inc.xhtml
+      <vcard-edit class="edit"/>
+      <menu class="dialog-menu-container">
+        <button type="reset" class="cancel"
+                data-l10n-id="edit-vcard-dialog-cancel-button"
+                data-l10n-attrs="accesskey"></button>
+        <button type="submit" class="accept primary"
+                data-l10n-id="edit-vcard-dialog-accept-button"
+                data-l10n-attrs="accesskey"></button>
+      </menu>
+    </form>
   </dialog>
 </html:body>
 </html>

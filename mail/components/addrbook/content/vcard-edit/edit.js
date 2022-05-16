@@ -42,10 +42,14 @@ class VCardEdit extends HTMLElement {
 
   set vCardString(value) {
     if (value) {
-      this.vCardProperties = VCardProperties.fromVCard(value);
-    } else {
-      this.vCardProperties = new VCardProperties();
+      try {
+        this.vCardProperties = VCardProperties.fromVCard(value);
+        return;
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
     }
+    this.vCardProperties = new VCardProperties();
   }
 
   get vCardProperties() {

@@ -73,7 +73,7 @@ function initIdentityValues(identity) {
     document.getElementById("identity.attachVCard").checked =
       identity.attachVCard;
     document.getElementById("identity.escapedVCard").value =
-      identity.escapedVCard;
+      identity.escapedVCard || "";
 
     document.getElementById("identity.catchAll").checked = identity.catchAll;
     document.getElementById("identity.catchAllHint").value =
@@ -464,32 +464,59 @@ function setupSignatureItems() {
 function editVCard() {
   // Read vCard hidden value from UI.
   let escapedVCard = document.getElementById("identity.escapedVCard");
-
   let dialog = top.document.getElementById("editVCardDialog");
-  // TODO connect vCard editing UI
-  // dialog.querySelector("vcard-edit").vCardString = decodeURIComponent(
-  //   escapedVCard.value
-  // );
+  let form = dialog.querySelector("form");
+  let vCardEdit = dialog.querySelector("vcard-edit");
 
-  dialog.querySelector(".accept").addEventListener("click", () => {
-    // escapedVCard.value = encodeURIComponent(
-    //   dialog.querySelector("vcard-edit").vCardString
-    // );
-    // Trigger a change event so for the am-main view the event listener
-    // set up in AccountManager.js onLoad() can make sure to save the change.
-    escapedVCard.dispatchEvent(new CustomEvent("change"));
+  vCardEdit.vCardString = decodeURIComponent(escapedVCard.value);
 
-    top.gSubDialog._topDialog?._overlay.setAttribute("topmost", "true");
-    dialog.close();
-  });
-
-  dialog.querySelector(".cancel").addEventListener("click", () => {
-    top.gSubDialog._topDialog?._overlay.setAttribute("topmost", "true");
-    dialog.close();
-  });
+  top.addEventListener("keydown", editVCardKeyDown, { capture: true });
+  form.addEventListener("submit", editVCardSubmit);
+  form.addEventListener("reset", editVCardReset);
 
   top.gSubDialog._topDialog?._overlay.removeAttribute("topmost");
   dialog.showModal();
+}
+
+function editVCardKeyDown(event) {
+  let dialog = top.document.getElementById("editVCardDialog");
+  if (event.keyCode == KeyboardEvent.DOM_VK_ESCAPE && dialog.open) {
+    // This is a bit of a hack to prevent other dialogs (particularly
+    // SubDialogs) from closing when the vCard dialog is open.
+    event.preventDefault();
+    editVCardReset();
+  }
+}
+
+function editVCardSubmit(event) {
+  let escapedVCard = document.getElementById("identity.escapedVCard");
+  let dialog = top.document.getElementById("editVCardDialog");
+  let form = dialog.querySelector("form");
+  let vCardEdit = dialog.querySelector("vcard-edit");
+
+  vCardEdit.saveVCard();
+  escapedVCard.value = encodeURIComponent(vCardEdit.vCardString);
+  // Trigger a change event so for the am-main view the event listener
+  // set up in AccountManager.js onLoad() can make sure to save the change.
+  escapedVCard.dispatchEvent(new CustomEvent("change"));
+
+  top.gSubDialog._topDialog?._overlay.setAttribute("topmost", "true");
+  dialog.close();
+
+  event.preventDefault();
+  form.removeEventListener("submit", editVCardSubmit);
+  form.removeEventListener("reset", editVCardReset);
+}
+
+function editVCardReset() {
+  let dialog = top.document.getElementById("editVCardDialog");
+  let form = dialog.querySelector("form");
+
+  top.gSubDialog._topDialog?._overlay.setAttribute("topmost", "true");
+  dialog.close();
+
+  form.removeEventListener("submit", editVCardSubmit);
+  form.removeEventListener("reset", editVCardReset);
 }
 
 function getAccountForFolderPickerState() {
