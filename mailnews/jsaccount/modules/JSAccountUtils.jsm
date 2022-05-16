@@ -73,7 +73,6 @@ var log = console.createInstance({
 JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
   let factory = {};
   factory.QueryInterface = ChromeUtils.generateQI([Ci.nsIFactory]);
-  factory.lockFactory = function() {};
 
   factory.createInstance = function(outer, iid) {
     if (outer != null) {

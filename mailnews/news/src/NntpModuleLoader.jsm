@@ -113,9 +113,5 @@ function lazyFactoryFor(NSGetFactory, classID) {
       let realFactory = NSGetFactory(classID);
       return realFactory.createInstance(aOuter, aIID);
     },
-    lockFactory(lock) {
-      let realFactory = NSGetFactory(classID);
-      return realFactory.lockFactory(lock);
-    },
   };
 }

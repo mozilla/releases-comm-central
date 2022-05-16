@@ -664,10 +664,6 @@ MailDefaultHandler.prototype = {
 
     return this.QueryInterface(iid);
   },
-
-  lockFactory(lock) {
-    /* no-op */
-  },
 };
 
 function MessengerContentHandler() {
