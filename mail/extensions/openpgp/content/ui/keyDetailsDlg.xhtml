@@ -10,27 +10,23 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/keyDetails.css" type="text/css"?>
 
-<!DOCTYPE window>
-
-<window id="enigmailKeyDetailsDlg"
-        data-l10n-id="openpgp-key-details-title"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width:60em; max-width:90em; min-height:45em"
-        persist="width"
-        onload="onLoad();">
+<!DOCTYPE html>
+<html id="enigmailKeyDetailsDlg" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="840" height="650">
+<head>
+  <title data-l10n-id="openpgp-key-details-doc-title"></title>
+  <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailCommon.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailKeyManager.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/keyDetailsDlg.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel"
         data-l10n-id="openpgp-card-details-close-window-label">
-
-  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
-  <script type="application/x-javascript" src="chrome://openpgp/content/ui/keyDetailsDlg.js"/>
-  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyManager.js"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <linkset>
-    <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
-  </linkset>
-
   <vbox>
     <html:div class="key-details-container">
       <html:aside class="key-details-grid">
@@ -88,15 +84,14 @@
       </html:aside>
     </html:div>
 
-    <vbox id="key-detail-has-insecure" hidden="true">
-      <separator/>
+    <html:div id="key-detail-has-insecure" hidden="hidden">
       <html:span class="tail-with-learn-more"
                  data-l10n-id="openpgp-key-details-attr-ignored"></html:span>
       <label is="text-link"
              href="https://support.mozilla.org/kb/openpgp-unsafe-key-properties-ignored"
              data-l10n-id="e2e-learn-more"/>
 
-    </vbox>
+    </html:div>
   </vbox>
 
   <separator/>
@@ -227,6 +222,6 @@
       </vbox>
     </tabpanels>
   </tabbox>
-
 </dialog>
-</window>
+</html:body>
+</html>

@@ -65,6 +65,8 @@ var gUpdateAllowed = false;
 let gAllEmailCheckboxes = [];
 let gOkButton;
 
+window.addEventListener("DOMContentLoaded", onLoad);
+
 async function onLoad() {
   if (window.arguments[1]) {
     window.arguments[1].refresh = false;
@@ -80,8 +82,6 @@ async function onLoad() {
 
   await reloadData(true);
   onAcceptanceChanged();
-
-  resizeDialog();
 }
 
 /***
@@ -363,11 +363,6 @@ async function reloadData(firstLoad) {
   document.getElementById(
     "key-detail-has-insecure"
   ).hidden = !keyObj.hasIgnoredAttributes;
-
-  // Resize the dialog only if the data was changed since the first load.
-  if (!firstLoad) {
-    resizeDialog();
-  }
 }
 
 function setOkButtonState() {
@@ -940,19 +935,3 @@ document.addEventListener("dialogaccept", async function(event) {
 
   window.close();
 });
-
-/**
- * Resize the dialog to account for the newly visible sections.
- */
-function resizeDialog() {
-  // Timeout to trigger the dialog resize after all the data have been loaded on
-  // first run.
-  setTimeout(() => {
-    // Check if the dialog was opened as a SubDialog.
-    if (parent.gSubDialog) {
-      parent.gSubDialog._topDialog.resizeVertically();
-    } else {
-      window.sizeToContent();
-    }
-  }, 230);
-}

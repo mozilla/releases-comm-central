@@ -258,8 +258,7 @@ openpgp-key-man-key-details-key =
 openpgp-ign-addr-intro =
     You accept using this key for the following selected email addresses:
 
-openpgp-key-details-title =
-    .title = Key Properties
+openpgp-key-details-doc-title = Key Properties
 openpgp-key-details-signatures-tab =
     .label = Certifications
 openpgp-key-details-structure-tab =

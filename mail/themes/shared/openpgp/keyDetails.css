@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+body {
+  font-size: inherit; /* accountManage.css pulls in preferences.css that sets font-size ... */
+  overflow: auto;
+}
+
 .key-details-container {
   display: grid;
   grid-template-columns: auto max-content;
@@ -12,14 +17,14 @@
 .key-details-grid {
   display: grid;
   grid-template-columns: max-content 1fr;
-  grid-template-rows: minmax(0, 7em);
   grid-row-gap: 3px;
-  align-items: center;
+  align-items: baseline;
 }
 
 .key-detail-label {
   font-weight: 600;
   margin-inline-end: 6px;
+  line-height: unset; /* accountManage.css pulls in preferences.css that sets line-height ... */
 }
 
 .backup-container {
@@ -36,13 +41,8 @@
 }
 
 .additional-key-identity {
-  max-height: 7em;
   border-radius: 0;
-  padding-inline: 4px;
-}
-
-.additional-key-identity > richlistitem {
-  padding: 2px 4px;
+  padding-inline: 8px;
 }
 
 #addressesListContainer {
@@ -57,4 +57,5 @@
 #key-detail-has-insecure {
   max-width: 50em;
   margin-inline: 2em;
+  margin-top: 1em;
 }
