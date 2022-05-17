@@ -16,6 +16,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 /* ===== Real Folder, no features ===== */
 
@@ -441,35 +444,40 @@ add_task(async function test_real_folder_mail_views_custom_people_i_know() {
 });
 
 // recent mail = less than 1 day
-add_task(async function test_real_folder_mail_views_custom_recent_mail() {
-  let viewWrapper = make_view_wrapper();
+add_task(
+  {
+    skip_if: () => AppConstants.platform == "macosx", // Bug 1706381
+  },
+  async function test_real_folder_mail_views_custom_recent_mail() {
+    let viewWrapper = make_view_wrapper();
 
-  // create a set that meets the threshold and a set that does not
-  let [[folder], setRecent] = await messageInjection.makeFoldersWithSets(1, [
-    { age: { mins: 0 } },
-    { age: { days: 2 }, age_incr: { mins: 1 } },
-  ]);
-
-  // open the folder, ensure only the recent guys show. #1
-  viewWrapper.open(folder);
-  viewWrapper.setMailView("Recent Mail", null);
-  verify_messages_in_view(setRecent, viewWrapper);
-
-  // add two more sets, one that meets, and one that doesn't. #2
-  let [setMoreRecent] = await messageInjection.makeNewSetsInFolders(
-    [folder],
-    [
+    // create a set that meets the threshold and a set that does not
+    let [[folder], setRecent] = await messageInjection.makeFoldersWithSets(1, [
       { age: { mins: 0 } },
-      { age: { days: 2, hours: 1 }, age_incr: { mins: 1 } },
-    ]
-  );
-  // make sure that all we see is our previous recent set and our new recent set
-  verify_messages_in_view([setRecent, setMoreRecent], viewWrapper);
+      { age: { days: 2 }, age_incr: { mins: 1 } },
+    ]);
 
-  // we aren't going to mess with the system clock, so no #3.
-  // (we are assuming that the underlying code handles message deletion.  also,
-  //  we are taking the position that message timestamps should not change.)
-});
+    // open the folder, ensure only the recent guys show. #1
+    viewWrapper.open(folder);
+    viewWrapper.setMailView("Recent Mail", null);
+    verify_messages_in_view(setRecent, viewWrapper);
+
+    // add two more sets, one that meets, and one that doesn't. #2
+    let [setMoreRecent] = await messageInjection.makeNewSetsInFolders(
+      [folder],
+      [
+        { age: { mins: 0 } },
+        { age: { days: 2, hours: 1 }, age_incr: { mins: 1 } },
+      ]
+    );
+    // make sure that all we see is our previous recent set and our new recent set
+    verify_messages_in_view([setRecent, setMoreRecent], viewWrapper);
+
+    // we aren't going to mess with the system clock, so no #3.
+    // (we are assuming that the underlying code handles message deletion.  also,
+    //  we are taking the position that message timestamps should not change.)
+  }
+);
 
 add_task(async function test_real_folder_mail_views_custom_last_5_days() {
   let viewWrapper = make_view_wrapper();
