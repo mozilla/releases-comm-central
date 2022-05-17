@@ -209,7 +209,6 @@ function OpenMessageForMessageId(messageId) {
 
 function OpenMessageByHeader(messageHeader, openInNewWindow) {
   var folder = messageHeader.folder;
-  var folderURI = folder.URI;
 
   if (openInNewWindow) {
     window.openDialog(
@@ -219,7 +218,7 @@ function OpenMessageByHeader(messageHeader, openInNewWindow) {
       messageHeader
     );
   } else {
-    if (msgWindow.openFolder != folderURI) {
+    if (msgWindow.openFolder.URI != folder.URI) {
       gFolderTreeView.selectFolder(folder);
     }
 
