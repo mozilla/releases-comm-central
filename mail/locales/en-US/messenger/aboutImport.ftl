@@ -24,13 +24,13 @@ export-profile = Export
 
 ## Buttons
 
-button-cancel = Cancel
-
 button-back = Back
 
 button-continue = Continue
 
 button-export = Export
+
+button-finish = Finish
 
 ## Import from app steps
 
@@ -68,6 +68,8 @@ items-pane-title = Select what to import
 
 items-pane-source = Source location:
 
+items-pane-profile-name = Profile name:
+
 items-pane-checkbox-accounts = Accounts and Settings
 
 items-pane-checkbox-address-books = Address Books
@@ -102,7 +104,13 @@ addr-book-directories-pane-source = Source file:
 
 addr-book-import-into-new-directory = Create a new directory
 
-## Import from address book file steps
+# $addressBookName (string) - name of the address book to import into
+addr-book-summary-title = Import the chosen data into the "{ $addressBookName }" directory
+
+# $addressBookName (string) - name of the address book that will be created.
+addr-book-summary-description = A new address book called "{ $addressBookName }" will be created.
+
+## Import from calendar file steps
 
 import-from-calendar-file-desc = Select the iCalendar (.ics) file you would like to import.
 
@@ -117,15 +125,26 @@ calendar-deselect-all-items = Deselect all
 
 calendar-import-into-new-calendar = Create a new calendar
 
+# $itemCount (number) - count of selected items (tasks, events) that will be imported
+# $targetCalendar (string) - name of the calendar the items will be imported into
+calendar-summary-title =
+  { $itemCount ->
+    [one] Import one item into the "{ $targetCalendar }" calendar
+    *[other] Import { $itemCount } items into the "{ $targetCalendar }" calendar
+  }
+
+# $targetCalendar (string) - name of the calendar that will be created
+calendar-summary-description = A new calendar called "{ $targetCalendar }" will be created.
+
 ## Import dialog
 
-progress-pane-importing = Importing
+# $progressPercent (string) - percent formatted progress (for example "10%")
+progress-pane-importing2 = Importing… { $progressPercent }
 
-progress-pane-exporting = Exporting
+# $progressPercent (string) - percent formatted progress (for example "10%")
+progress-pane-exporting2 = Exporting… { $progressPercent }
 
-progress-pane-finished-desc = Finished.
-
-progress-pane-restart-desc = Restart to finish importing.
+progress-pane-finished-desc2 = Complete.
 
 error-pane-title = Error
 
@@ -138,6 +157,8 @@ error-message-failed = Import failed unexpectedly, more information may be avail
 error-failed-to-parse-ics-file = No importable items found in the file.
 
 error-export-failed = Export failed unexpectedly, more information may be available in the Error Console.
+
+error-message-no-profile = No profile found.
 
 ## <csv-field-map> element
 
@@ -162,3 +183,11 @@ export-open-profile-folder = Open profile folder
 export-file-picker = Export to a zip file
 
 export-brand-name = { -brand-product-name }
+
+## Summary pane
+
+summary-pane-title = Data to be imported
+
+summary-pane-start = Start Import
+
+summary-pane-warning = { -brand-product-name } will need to be restarted when importing is complete.

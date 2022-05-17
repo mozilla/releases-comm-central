@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/colors.css");
+
 *[hidden] {
   display: none !important;
 }
@@ -36,30 +38,6 @@ ul {
 p {
   line-height: 1.8em;
   margin: 0;
-}
-
-dialog {
-  background-color: var(--in-content-page-background);
-  color: var(--in-content-page-color);
-  border: 1px solid transparent;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
-  padding: 1.25em;
-  min-width: 20em;
-  box-sizing: border-box;
-}
-
-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-dialog > * {
-  user-select: none;
-}
-
-dialog footer {
-  margin-top: 1em;
-  text-align: end;
 }
 
 progress {
@@ -182,6 +160,10 @@ progress {
   background: var(--in-content-page-background);
 }
 
+.notificationbox-stack notification-message:last-child {
+  margin-block-end: 12px;
+}
+
 /* Override common.css */
 .toggle-container-with-text {
   grid-template-columns: min-content;
@@ -209,4 +191,36 @@ calendar-item-summary {
   border: 1px solid var(--in-content-page-color);
   margin: 2px 4px 0;
   min-height: 10em;
+}
+
+.summary-items {
+  list-style-image: url("chrome://global/skin/icons/check.svg");
+  list-style-position: inside;
+  -moz-context-properties: fill;
+  fill: var(--color-green-60);
+  line-height: 1.8;
+}
+
+/* Conditionally visible elements */
+.restart-only,
+.progressFinish,
+.progressPane {
+  display: none;
+}
+
+.restart-required .restart-only {
+  display: inherit;
+}
+
+.progress .before-progress {
+  display: none;
+}
+
+.progress .progressPane,
+.complete .progressFinish {
+  display: inherit;
+}
+
+.final-step .next-button {
+  display: none;
 }

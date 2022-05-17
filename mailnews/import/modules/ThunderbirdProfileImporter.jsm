@@ -844,7 +844,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       sourceFile.append(filename);
       if (!sourceFile.exists()) {
         this._logger.debug(
-          `Ignoring non-existing address boook file ${sourceFile.path}`
+          `Ignoring non-existing address book file ${sourceFile.path}`
         );
         continue;
       }

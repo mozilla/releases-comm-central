@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global MozElements */
+
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -35,7 +37,7 @@ class ImporterController {
 
   /**
    * @param {string} elementId - The root element id.
-   * @param {string} paneIdPrefix - The prefix of subpane id.
+   * @param {string} paneIdPrefix - The prefix of sub pane id.
    */
   constructor(elementId, paneIdPrefix) {
     this._el = document.getElementById(elementId);
@@ -57,18 +59,136 @@ class ImporterController {
   /**
    * Show the previous pane.
    */
-  back() {}
+  back() {
+    ImporterController.notificationBox.removeAllNotifications();
+  }
 
   /**
    * Show the next pane.
    */
-  next() {}
+  next() {
+    if (this._restartOnOk) {
+      window.close();
+      MailUtils.restartApplication();
+      return;
+    }
+    ImporterController.notificationBox.removeAllNotifications();
+  }
 
   /**
    * Show the first pane.
    */
-  reset() {}
+  reset() {
+    this._el.classList.remove(
+      "restart-only",
+      "progress",
+      "complete",
+      "final-step"
+    );
+    this._toggleBackButton(true);
+  }
+
+  /**
+   * Show the progress bar.
+   *
+   * @param {string} progressL10nId - Fluent ID to use for the progress
+   *  description. Should have a |progressPercent| variable expecting the
+   *  current progress like "50%".
+   */
+  showProgress(progressL10nId) {
+    this._progressL10nId = progressL10nId;
+    this.updateProgress(0);
+    this._el.classList.add("progress");
+    this._toggleBackButton(false);
+    this._inProgress = true;
+  }
+
+  /**
+   * Update the progress bar.
+   * @param {number} value - A number between 0 and 1 to represent the progress.
+   */
+  updateProgress(value) {
+    this._el.querySelector(".progressPaneProgressBar").value = value;
+    document.l10n.setAttributes(
+      this._el.querySelector(".progressPaneDesc"),
+      this._progressL10nId,
+      {
+        progressPercent: ImporterController.percentFormatter.format(value),
+      }
+    );
+  }
+
+  /**
+   * Show the finish text.
+   * @param {boolean} [restartNeeded=false] - Whether restart is needed to
+   *  finish the importing.
+   */
+  finish(restartNeeded = false) {
+    this._restartOnOk = restartNeeded;
+    this._el.classList.toggle("restart-required", restartNeeded);
+    this._el.classList.add("complete");
+    document.l10n.setAttributes(
+      this._el.querySelector(".progressPaneDesc"),
+      "progress-pane-finished-desc2"
+    );
+    this._el.querySelector(".progressFinish").hidden = false;
+    this._inProgress = false;
+  }
+
+  /**
+   * Show the error pane, with an error message.
+   * @param {string} msgId - The error message fluent id.
+   */
+  showError(msgId) {
+    if (this._inProgress) {
+      this._toggleBackButton(true);
+      this._el.classList.remove("progress");
+      this._restartOnOk = false;
+      this._inProgress = false;
+    }
+    ImporterController.notificationBox.removeAllNotifications();
+    let notification = ImporterController.notificationBox.appendNotification(
+      "error",
+      {
+        label: {
+          "l10n-id": msgId,
+        },
+        priority: ImporterController.notificationBox.PRIORITY_CRITICAL_HIGH,
+      },
+      null
+    );
+    notification.removeAttribute("dismissable");
+  }
+
+  /**
+   * Disable/enable the back button.
+   *
+   * @param {boolean} enable - If the back button should be enabled
+   */
+  _toggleBackButton(enable) {
+    if (this._el.querySelector(".buttons-container")) {
+      this._el.querySelector(".back").disabled = !enable;
+    }
+  }
 }
+
+XPCOMUtils.defineLazyGetter(
+  ImporterController,
+  "percentFormatter",
+  () =>
+    new Intl.NumberFormat(undefined, {
+      style: "percent",
+    })
+);
+XPCOMUtils.defineLazyGetter(
+  ImporterController,
+  "notificationBox",
+  () =>
+    new MozElements.NotificationBox(element => {
+      element.setAttribute("notificationside", "bottom");
+      document.getElementById("errorNotifications").append(element);
+    })
+);
 
 /**
  * Control the #tabPane-app element, to support importing from an application.
@@ -77,6 +197,20 @@ class ProfileImporterController extends ImporterController {
   constructor() {
     super("tabPane-app", "app");
     this._showProfiles([], false);
+
+    document.getElementById("appItemsList").addEventListener(
+      "input",
+      () => {
+        let state = this._getItemsChecked(true);
+        document.getElementById("profileNextButton").disabled = Object.values(
+          state
+        ).every(isChecked => !isChecked);
+      },
+      {
+        capture: true,
+        passive: true,
+      }
+    );
   }
 
   /**
@@ -93,19 +227,23 @@ class ProfileImporterController extends ImporterController {
   _sourceAppName = "Thunderbird"; //TODO app brand name!
 
   back() {
+    super.back();
     switch (this._currentPane) {
       case "profiles":
         showTab("tab-start");
         break;
       case "items":
-        this._skipProfilesPane
-          ? this._showSources()
-          : this.showPane("profiles");
+        document.getElementById("profileNextButton").disabled = false;
+        this._skipProfilesPane ? showTab("start") : this.showPane("profiles");
+        break;
+      case "summary":
+        this._showItems(this._sourceProfile);
         break;
     }
   }
 
   next() {
+    super.next();
     switch (this._currentPane) {
       case "profiles":
         this._onSelectProfile();
@@ -113,10 +251,14 @@ class ProfileImporterController extends ImporterController {
       case "items":
         this._onSelectItems();
         break;
+      case "summary":
+        window.close();
+        break;
     }
   }
 
   reset() {
+    super.reset();
     this._showProfiles([], false);
   }
 
@@ -143,7 +285,8 @@ class ProfileImporterController extends ImporterController {
       // Let the user pick what to import.
       this._showItems(sourceProfiles[0]);
     } else {
-      progressDialog.showError("No profile found.");
+      this.showError("error-message-no-profile");
+      throw new Error("No profile found, do not advance to app flow.");
     }
   }
 
@@ -197,6 +340,7 @@ class ProfileImporterController extends ImporterController {
       elProfileList.append(item);
     }
     document.querySelector("input[name=appProfile]").checked = true;
+    document.getElementById("profileNextButton").disabled = false;
 
     this.showPane("profiles");
   }
@@ -218,7 +362,7 @@ class ProfileImporterController extends ImporterController {
   }
 
   /**
-   * Open a filepicker to select a folder or a zip file.
+   * Open a file picker to select a folder or a zip file.
    * @param {'dir' | 'zip'} type - Whether to pick a folder or a zip file.
    */
   async _openFilePicker(type) {
@@ -246,9 +390,7 @@ class ProfileImporterController extends ImporterController {
     if (!selectedFile.isDirectory()) {
       if (selectedFile.fileSize > 2147483647) {
         // nsIZipReader only supports zip file less than 2GB.
-        progressDialog.showError(
-          await document.l10n.formatValue("error-message-zip-file-too-big")
-        );
+        this.showError("error-message-zip-file-too-big");
         return;
       }
       this._importingFromZip = true;
@@ -261,10 +403,25 @@ class ProfileImporterController extends ImporterController {
    * @param {SourceProfile} profile - The profile to import from.
    */
   _showItems(profile) {
+    this._el.classList.remove("final-step", "progress");
     this._sourceProfile = profile;
     document.getElementById("appSourceProfilePath").textContent =
       profile.dir.path;
+    document.getElementById(
+      "appSourceProfilePath"
+    ).textContent = this._sourceProfile.dir.path;
+    document.getElementById("appSourceProfileNameWrapper").hidden = !this
+      ._sourceProfile.name;
+    if (this._sourceProfile.name) {
+      document.getElementById(
+        "appSourceProfileName"
+      ).textContent = this._sourceProfile.name;
+    }
     this._setItemsChecked(this._importer.SUPPORTED_ITEMS);
+    document.getElementById("profileNextButton").disabled = Object.values(
+      this._importer.SUPPORTED_ITEMS
+    ).every(isChecked => !isChecked);
+
     this.showPane("items");
   }
 
@@ -274,6 +431,16 @@ class ProfileImporterController extends ImporterController {
     checkAddressBooks: "addressBooks",
     checkCalendars: "calendars",
     checkMailMessages: "mailMessages",
+  };
+
+  /**
+   * Map of fluent IDs from ImportItems if they differ.
+   *
+   * @type {Object<string>}
+   */
+  _importItemFluentId = {
+    addressBooks: "address-books",
+    mailMessages: "mail-messages",
   };
 
   /**
@@ -291,14 +458,61 @@ class ProfileImporterController extends ImporterController {
 
   /**
    * Construct an ImportItems object from the checkbox states.
+   *
+   * @param {boolean} [onlySupported=false] - Only return supported ImportItems.
    * @returns {ImportItems}
    */
-  _getItemsChecked() {
+  _getItemsChecked(onlySupported = false) {
     let items = {};
     for (let id in this._itemCheckboxes) {
-      items[this._itemCheckboxes[id]] = document.getElementById(id).checked;
+      let checkbox = document.getElementById(id);
+      if (!onlySupported || !checkbox.disabled) {
+        items[this._itemCheckboxes[id]] = checkbox.checked;
+      }
     }
     return items;
+  }
+
+  /**
+   * Handler for the Continue button on the items pane.
+   */
+  _onSelectItems() {
+    let checkedItems = this._getItemsChecked(true);
+    if (Object.values(checkedItems).some(isChecked => isChecked)) {
+      this._showSummary();
+    }
+  }
+
+  _showSummary() {
+    this._el.classList.add("final-step");
+    document.l10n.setAttributes(
+      this._el.querySelector("#app-summary h1"),
+      "profiles-pane-title",
+      {
+        app: this._sourceAppName,
+      }
+    );
+    document.getElementById(
+      "appSummaryProfilePath"
+    ).textContent = this._sourceProfile.dir.path;
+    document.getElementById("appSummaryProfileNameWrapper").hidden = !this
+      ._sourceProfile.name;
+    if (this._sourceProfile.name) {
+      document.getElementById(
+        "appSummaryProfileName"
+      ).textContent = this._sourceProfile.name;
+    }
+    document.getElementById("appSummaryItems").replaceChildren(
+      ...Object.entries(this._getItemsChecked(true))
+        .filter(([item, checked]) => checked)
+        .map(([item]) => {
+          let li = document.createElement("li");
+          let fluentId = this._importItemFluentId[item] ?? item;
+          document.l10n.setAttributes(li, `items-pane-checkbox-${fluentId}`);
+          return li;
+        })
+    );
+    this.showPane("summary");
   }
 
   /**
@@ -339,7 +553,7 @@ class ProfileImporterController extends ImporterController {
         this._extractedFileCount++;
         if (this._extractedFileCount % 10 == 0) {
           let progress = Math.min((this._extractedFileCount / 200) * 0.2, 0.2);
-          progressDialog.updateProgress(progress);
+          this.updateProgress(progress);
           await new Promise(resolve => setTimeout(resolve));
         }
       } catch (e) {
@@ -348,43 +562,34 @@ class ProfileImporterController extends ImporterController {
     }
     // Use the tmp dir as source profile dir.
     this._sourceProfile = { dir: targetDir };
-    progressDialog.updateProgress(0.2);
+    this.updateProgress(0.2);
   }
 
-  /**
-   * Handler for the Continue button on the items pane.
-   */
-  async _onSelectItems() {
-    progressDialog.showProgress(this);
+  async startImport() {
+    this.showProgress("progress-pane-importing2");
     if (this._importingFromZip) {
       this._extractedFileCount = 0;
       try {
         await this._extractZipFile();
       } catch (e) {
-        progressDialog.showError(
-          await document.l10n.formatValue(
-            "error-message-extract-zip-file-failed"
-          )
-        );
+        this.showError("error-message-extract-zip-file-failed");
         throw e;
       }
     }
     this._importer.onProgress = (current, total) => {
-      progressDialog.updateProgress(
+      this.updateProgress(
         this._importingFromZip ? 0.2 + (0.8 * current) / total : current / total
       );
     };
     try {
-      progressDialog.finish(
+      this.finish(
         await this._importer.startImport(
           this._sourceProfile.dir,
           this._getItemsChecked()
         )
       );
     } catch (e) {
-      progressDialog.showError(
-        await document.l10n.formatValue("error-message-failed")
-      );
+      this.showError("error-message-failed");
       throw e;
     } finally {
       if (this._importingFromZip) {
@@ -405,6 +610,7 @@ class AddrBookImporterController extends ImporterController {
   }
 
   back() {
+    super.back();
     switch (this._currentPane) {
       case "sources":
         showTab("tab-start");
@@ -419,6 +625,9 @@ class AddrBookImporterController extends ImporterController {
           this._showSources();
         }
         break;
+      case "summary":
+        this._showDirectories();
+        break;
     }
   }
 
@@ -426,6 +635,7 @@ class AddrBookImporterController extends ImporterController {
    * Show the next pane.
    */
   next() {
+    super.next();
     switch (this._currentPane) {
       case "sources":
         this._onSelectSource();
@@ -436,10 +646,14 @@ class AddrBookImporterController extends ImporterController {
       case "directories":
         this._onSelectDirectory();
         break;
+      case "summary":
+        window.close();
+        break;
     }
   }
 
   reset() {
+    super.reset();
     this._showSources();
   }
 
@@ -520,6 +734,14 @@ class AddrBookImporterController extends ImporterController {
    * option to create a new directory.
    */
   async _showDirectories() {
+    this._el.classList.remove("final-step", "progress");
+    let sourceFileName = this._sourceFile.leafName;
+    this._fallbackABName = sourceFileName.slice(
+      0,
+      sourceFileName.lastIndexOf(".") == -1
+        ? Infinity
+        : sourceFileName.lastIndexOf(".")
+    );
     let elList = document.getElementById("directoryList");
     elList.innerHTML = "";
     this._directories = MailServices.ab.directories.filter(
@@ -554,40 +776,69 @@ class AddrBookImporterController extends ImporterController {
   /**
    * Handler for the Continue button on the directories pane.
    */
-  async _onSelectDirectory() {
+  _onSelectDirectory() {
     let index = [
       ...document.querySelectorAll("input[name=addrBookDirectory]"),
     ].findIndex(el => el.checked);
-    let targetDirectory = this._directories[index];
+    this._selectedAddressBook = this._directories[index];
+    this._showSummary();
+  }
+
+  _showSummary() {
+    this._el.classList.add("final-step");
+    document.getElementById(
+      "addrBookSummaryPath"
+    ).textContent = this._sourceFile.path;
+    let targetAddressBook = this._selectedAddressBook?.dirName;
+    let newAddressBook = false;
+    if (!targetAddressBook) {
+      targetAddressBook = this._fallbackABName;
+      newAddressBook = true;
+    }
+    let description = this._el.querySelector("#addr-book-summary .description");
+    description.hidden = !newAddressBook;
+    if (newAddressBook) {
+      document.l10n.setAttributes(
+        description,
+        "addr-book-summary-description",
+        {
+          addressBookName: targetAddressBook,
+        }
+      );
+    }
+    document.l10n.setAttributes(
+      document.getElementById("addrBookSummarySubtitle"),
+      "addr-book-summary-title",
+      {
+        addressBookName: targetAddressBook,
+      }
+    );
+    this.showPane("summary");
+  }
+
+  async startImport() {
+    let targetDirectory = this._selectedAddressBook;
     if (!targetDirectory) {
       // User selected to create a new address book and import into it. Create
       // one based on the file name.
-      let sourceFileName = this._sourceFile.leafName;
       let dirId = MailServices.ab.newAddressBook(
-        sourceFileName.slice(
-          0,
-          sourceFileName.lastIndexOf(".") == -1
-            ? Infinity
-            : sourceFileName.lastIndexOf(".")
-        ),
+        this._fallbackABName,
         "",
         Ci.nsIAbManager.JS_DIRECTORY_TYPE
       );
       targetDirectory = MailServices.ab.getDirectoryFromId(dirId);
     }
 
-    progressDialog.showProgress(this);
+    this.showProgress("progress-pane-importing2");
     this._importer.onProgress = (current, total) => {
-      progressDialog.updateProgress(current / total);
+      this.updateProgress(current / total);
     };
     try {
-      progressDialog.finish(
+      this.finish(
         await this._importer.startImport(this._sourceFile, targetDirectory)
       );
     } catch (e) {
-      progressDialog.showError(
-        await document.l10n.formatValue("error-message-failed")
-      );
+      this.showError("error-message-failed");
       throw e;
     }
   }
@@ -604,6 +855,7 @@ class CalendarImporterController extends ImporterController {
   }
 
   back() {
+    super.back();
     switch (this._currentPane) {
       case "sources":
         showTab("tab-start");
@@ -614,10 +866,14 @@ class CalendarImporterController extends ImporterController {
       case "calendars":
         this.showPane("items");
         break;
+      case "summary":
+        this._showCalendars();
+        break;
     }
   }
 
   next() {
+    super.next();
     switch (this._currentPane) {
       case "sources":
         this._onSelectSource();
@@ -628,10 +884,14 @@ class CalendarImporterController extends ImporterController {
       case "calendars":
         this._onSelectCalendar();
         break;
+      case "summary":
+        window.close();
+        break;
     }
   }
 
   reset() {
+    super.reset();
     this._showSources();
   }
 
@@ -717,10 +977,7 @@ class CalendarImporterController extends ImporterController {
     try {
       this._items = await this._importer.parseIcsFile(this._sourceFile);
     } catch (e) {
-      progressDialog.importerController = this;
-      progressDialog.showError(
-        await document.l10n.formatValue("error-failed-to-parse-ics-file")
-      );
+      this.showError("error-failed-to-parse-ics-file");
       throw e;
     }
 
@@ -774,8 +1031,20 @@ class CalendarImporterController extends ImporterController {
    * option to create a new calendar.
    */
   _showCalendars() {
+    this._el.classList.remove("final-step", "progress");
+    document.getElementById(
+      "calendarCalPath"
+    ).textContent = this._sourceFile.path;
     let elList = document.getElementById("calendarList");
     elList.innerHTML = "";
+
+    let sourceFileName = this._sourceFile.leafName;
+    this._fallbackCalendarName = sourceFileName.slice(
+      0,
+      sourceFileName.lastIndexOf(".") == -1
+        ? Infinity
+        : sourceFileName.lastIndexOf(".")
+    );
 
     this._calendars = this._importer.getTargetCalendars();
     for (let calendar of this._calendars) {
@@ -804,43 +1073,69 @@ class CalendarImporterController extends ImporterController {
     this.showPane("calendars");
   }
 
-  /**
-   * Handler for the Continue button on the calendars pane.
-   */
-  async _onSelectCalendar() {
+  _onSelectCalendar() {
     let index = [
       ...document.querySelectorAll("input[name=targetCalendar]"),
     ].findIndex(el => el.checked);
-    let targetCalendar = this._calendars[index];
+    this._selectedCalendar = this._calendars[index];
+    this._showSummary();
+  }
+
+  _showSummary() {
+    this._el.classList.add("final-step");
+    document.getElementById(
+      "calendarSummaryPath"
+    ).textContent = this._sourceFile.path;
+    let targetCalendar = this._selectedCalendar?.name;
+    let newCalendar = false;
+    if (!targetCalendar) {
+      targetCalendar = this._fallbackCalendarName;
+      newCalendar = true;
+    }
+    let description = this._el.querySelector("#calendar-summary .description");
+    description.hidden = !newCalendar;
+    if (newCalendar) {
+      document.l10n.setAttributes(description, "calendar-summary-description", {
+        targetCalendar,
+      });
+    }
+    document.l10n.setAttributes(
+      document.getElementById("calendarSummarySubtitle"),
+      "calendar-summary-title",
+      {
+        itemCount: this._selectedItems.size,
+        targetCalendar,
+      }
+    );
+    this.showPane("summary");
+  }
+
+  /**
+   * Handler for the Continue button on the calendars pane.
+   */
+  async startImport() {
+    let targetCalendar = this._selectedCalendar;
     if (!targetCalendar) {
       // Create a new calendar.
       targetCalendar = cal.manager.createCalendar(
         "storage",
         Services.io.newURI("moz-storage-calendar://")
       );
-      let sourceFileName = this._sourceFile.leafName;
-      targetCalendar.name = sourceFileName.slice(
-        0,
-        sourceFileName.lastIndexOf(".") == -1
-          ? Infinity
-          : sourceFileName.lastIndexOf(".")
-      );
+      targetCalendar.name = this._fallbackCalendarName;
       cal.manager.registerCalendar(targetCalendar);
     }
-    progressDialog.showProgress(this);
+    this.showProgress("progress-pane-importing2");
     this._importer.onProgress = (current, total) => {
-      progressDialog.updateProgress(current / total);
+      this.updateProgress(current / total);
     };
     try {
       await this._importer.startImport(
         [...this._selectedItems],
         targetCalendar
       );
-      progressDialog.finish();
+      this.finish();
     } catch (e) {
-      progressDialog.showError(
-        await document.l10n.formatValue("error-message-failed")
-      );
+      this.showError("error-message-failed");
       throw e;
     }
   }
@@ -850,22 +1145,20 @@ class CalendarImporterController extends ImporterController {
  * Control the #tabPane-export element, to support exporting the current profile
  * to a zip file.
  */
-class ExportController {
+class ExportController extends ImporterController {
+  constructor() {
+    super("tabPane-export", "");
+  }
+
   back() {
     window.close();
   }
 
   async next() {
-    let [
-      filePickerTitle,
-      brandName,
-      progressPaneTitle,
-      errorMsg,
-    ] = await document.l10n.formatValues([
+    super.next();
+    let [filePickerTitle, brandName] = await document.l10n.formatValues([
       "export-file-picker",
       "export-brand-name",
-      "progress-pane-exporting",
-      "error-export-failed",
     ]);
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
@@ -882,15 +1175,15 @@ class ExportController {
     }
 
     let exporter = new ProfileExporter();
-    progressDialog.showProgress(null, progressPaneTitle);
+    this.showProgress("progress-pane-exporting2");
     exporter.onProgress = (current, total) => {
-      progressDialog.updateProgress(current / total);
+      this.updateProgress(current / total);
     };
     try {
       await exporter.startExport(filePicker.file);
-      progressDialog.finish();
+      this.finish();
     } catch (e) {
-      progressDialog.showError(errorMsg);
+      this.showError("error-export-failed");
       throw e;
     }
   }
@@ -907,6 +1200,7 @@ class StartController extends ImporterController {
   }
 
   back() {
+    super.back();
     switch (this._currentPane) {
       case "sources":
         window.close();
@@ -918,6 +1212,7 @@ class StartController extends ImporterController {
   }
 
   next() {
+    super.next();
     switch (this._currentPane) {
       case "sources":
         this._onSelectSource();
@@ -929,6 +1224,7 @@ class StartController extends ImporterController {
   }
 
   reset() {
+    super.reset();
     this._showSources();
   }
 
@@ -936,11 +1232,8 @@ class StartController extends ImporterController {
    * Show the sources pane.
    */
   _showSources() {
+    document.getElementById("startBackButton").hidden = true;
     this.showPane("sources");
-    document.l10n.setAttributes(
-      document.getElementById("startBackButton"),
-      "button-cancel"
-    );
   }
 
   /**
@@ -959,14 +1252,11 @@ class StartController extends ImporterController {
           checkedInput.parentElement.textContent
         );
         showTab("tab-app");
-        // Don't change back button text, since we switch to app flow.
+        // Don't change back button state, since we switch to app flow.
         return;
     }
 
-    document.l10n.setAttributes(
-      document.getElementById("startBackButton"),
-      "button-back"
-    );
+    document.getElementById("startBackButton").hidden = false;
   }
 
   _showFile() {
@@ -998,131 +1288,6 @@ class StartController extends ImporterController {
 }
 
 /**
- * Control the #progressDialog element, to show importing progress and result.
- */
-let progressDialog = {
-  /**
-   * Init internal variables and event bindings.
-   */
-  init() {
-    this._el = document.getElementById("progressDialog");
-    this._elFooter = this._el.querySelector("footer");
-    this._btnCancel = this._el.querySelector("#progressDialogCancel");
-    this._btnAccept = this._el.querySelector("#progressDialogAccept");
-  },
-
-  /**
-   * Toggle the disabled status of the cancel button.
-   * @param {boolean} disabled - Whether to disable the cancel button.
-   */
-  _disableCancel(disabled) {
-    this._btnCancel.disabled = disabled;
-  },
-
-  /**
-   * Toggle the disabled status of the accept button.
-   * @param {boolean} disabled - Whether to disable the accept button.
-   */
-  _disableAccept(disabled) {
-    this._btnAccept.disabled = disabled;
-  },
-
-  /**
-   * Show a specific pane, hide all the others.
-   * @param {string} id - The pane id to show.
-   */
-  _showPane(id) {
-    this._currentPane = id;
-    id = `dialogPane-${id}`;
-    for (let pane of this._el.querySelectorAll(":scope > section")) {
-      pane.hidden = pane.id != id;
-    }
-    if (!this._el.open) {
-      this._el.showModal();
-    }
-  },
-
-  /**
-   * Show the progress pane.
-   * @param {ImporterController} importerController - An instance of the
-   *   controller.
-   * @param {string} [title] - Pane title.
-   */
-  showProgress(importerController, title) {
-    if (title) {
-      document.getElementById("progressPaneTitle").textContent = title;
-    } else {
-      document.l10n.setAttributes(
-        document.getElementById("progressPaneTitle"),
-        "progress-pane-importing"
-      );
-    }
-    this._showPane("progress");
-    this.importerController = importerController;
-    this._disableCancel(true);
-    this._disableAccept(true);
-  },
-
-  /**
-   * Update the progress bar.
-   * @param {number} value - A number between 0 and 1 to represent the progress.
-   */
-  updateProgress(value) {
-    document.getElementById("progressDialogProgressBar").value = value;
-    if (value >= 1) {
-      this._disableAccept(false);
-    }
-  },
-
-  /**
-   * Show the finish text.
-   * @param {boolean} restartNeeded - Whether restart is needed to finish the
-   *   importing.
-   */
-  async finish(restartNeeded) {
-    this._restartOnOk = restartNeeded;
-    let [restartDesc, finishedDesc] = await document.l10n.formatValues([
-      "progress-pane-restart-desc",
-      "progress-pane-finished-desc",
-    ]);
-    document.getElementById("progressPaneDesc").textContent = restartNeeded
-      ? restartDesc
-      : finishedDesc;
-  },
-
-  /**
-   * Show the error pane, with an error message.
-   * @param {string} msg - The error message.
-   */
-  showError(msg) {
-    this._showPane("error");
-    document.getElementById("dialogError").textContent = msg;
-    this._disableCancel(false);
-    this._disableAccept(false);
-    this._restartOnOk = false;
-  },
-
-  /**
-   * The click handler of the cancel button.
-   */
-  onCancel() {
-    this._el.close();
-  },
-
-  /**
-   * The click handler of the accept button.
-   */
-  onAccept() {
-    if (this._restartOnOk) {
-      MailUtils.restartApplication();
-    } else {
-      this._el.close();
-      this.importerController?.reset();
-    }
-  },
-};
-
-/**
  * Show a specific importing tab.
  * @param {"tab-app"|"tab-addressBook"|"tab-calendar"|"tab-export"|"tab-start"} tabId - Tab to show.
  */
@@ -1148,6 +1313,5 @@ document.addEventListener("DOMContentLoaded", () => {
   calendarController = new CalendarImporterController();
   exportController = new ExportController();
   startController = new StartController();
-  progressDialog.init();
   showTab("tab-start");
 });

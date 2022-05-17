@@ -23,6 +23,7 @@
 </head>
 <body>
   <main id="main">
+    <section id="errorNotifications"></section>
     <div id="tabPane-start" class="tabPane">
       <section id="start-sources">
         <h1 id="startSource" data-l10n-id="import-start"></h1>
@@ -97,14 +98,15 @@
       </section>
       <footer class="buttons-container">
         <button id="startBackButton"
+                class="back"
                 onclick="startController.back()"
-                data-l10n-id="button-cancel"></button>
+                data-l10n-id="button-back"></button>
         <button class="primary"
                 onclick="startController.next()"
                 data-l10n-id="button-continue"></button>
       </footer>
     </div>
-    <div id="tabPane-app" class="tabPane">
+    <div id="tabPane-app" class="tabPane restart-required">
       <section id="app-profiles">
         <h1 id="profilesPaneTitle"/>
         <p data-l10n-id="profiles-pane-desc"></p>
@@ -131,11 +133,15 @@
       </section>
       <section id="app-items">
         <h1 data-l10n-id="items-pane-title"></h1>
-        <p>
-          <span data-l10n-id="items-pane-source"></span>
-          <span id="appSourceProfilePath"></span>
-        </p>
-        <div class="option-list">
+        <dl>
+          <div id="appSourceProfileNameWrapper">
+            <dt data-l10n-id="items-pane-profile-name"></dt>
+            <dd id="appSourceProfileName"></dd>
+          </div>
+          <dt data-l10n-id="items-pane-directory"></dt>
+          <dd id="appSourceProfilePath"></dd>
+        </dl>
+        <div class="option-list" id="appItemsList">
           <label class="toggle-container-with-text">
             <input type="checkbox" id="checkAccounts"/>
             <span data-l10n-id="items-pane-checkbox-accounts"></span>
@@ -154,11 +160,41 @@
           </label>
         </div>
       </section>
+      <section id="app-summary">
+        <h1 data-l10n-id="import-from-app"></h1>
+        <dl>
+          <div id="appSummaryProfileNameWrapper">
+            <dt data-l10n-id="items-pane-profile-name"></dt>
+            <dd id="appSummaryProfileName"></dd>
+          </div>
+          <dt data-l10n-id="items-pane-directory"></dt>
+          <dd id="appSummaryProfilePath"></dd>
+        </dl>
+        <h2 data-l10n-id="summary-pane-title"></h2>
+        <ul id="appSummaryItems" class="summary-items">
+        </ul>
+        <button id="appStartImport"
+                onclick="profileController.startImport()"
+                class="primary before-progress"
+                data-l10n-id="summary-pane-start"></button>
+        <div class="progressPane">
+          <section class="progressPane-progress">
+            <progress class="progressPaneProgressBar"></progress>
+            <p class="progressPaneDesc"></p>
+          </section>
+        </div>
+        <button class="progressFinish primary"
+                onclick="profileController.next()"
+                data-l10n-id="button-finish"></button>
+        <p data-l10n-id="summary-pane-warning" class="restart-only"></p>
+      </section>
       <footer class="buttons-container">
         <button id="profileBackButton"
+                class="back"
                 onclick="profileController.back()"
                 data-l10n-id="button-back"></button>
-        <button class="primary"
+        <button id="profileNextButton"
+                class="primary next-button"
                 onclick="profileController.next()"
                 data-l10n-id="button-continue"></button>
       </footer>
@@ -223,11 +259,39 @@
           </label>
         </div>
       </section>
+      <section id="addr-book-summary">
+        <h1 data-l10n-id="import-address-book"></h1>
+        <h2 id="addrBookSummarySubtitle"></h2>
+        <p class="description"></p>
+        <dl>
+          <dt data-l10n-id="addr-book-directories-pane-source"></dt>
+          <dd id="addrBookSummaryPath"></dd>
+        </dl>
+        <h2 data-l10n-id="summary-pane-title"></h2>
+        <ul class="summary-items">
+          <li data-l10n-id="items-pane-checkbox-address-books"></li>
+        </ul>
+        <button id="addrBookStartImport"
+                onclick="addrBookController.startImport()"
+                class="primary before-progress"
+                data-l10n-id="summary-pane-start"></button>
+        <div class="progressPane">
+          <section class="progressPane-progress">
+            <progress class="progressPaneProgressBar"></progress>
+            <p class="progressPaneDesc"></p>
+          </section>
+        </div>
+        <button class="progressFinish primary"
+                onclick="addrBookController.next()"
+                data-l10n-id="button-finish"></button>
+      </section>
       <footer class="buttons-container">
         <button id="addrBookBackButton"
+                class="back"
                 onclick="addrBookController.back()"
                 data-l10n-id="button-back"></button>
-        <button class="primary"
+        <button class="primary next-button"
+                id="addrBookNextButton"
                 onclick="addrBookController.next()"
                 data-l10n-id="button-continue"></button>
       </footer>
@@ -257,6 +321,10 @@
       </section>
       <section id="calendar-calendars">
         <h1 data-l10n-id="import-calendar"></h1>
+        <dl>
+          <dt data-l10n-id="addr-book-directories-pane-source"></dt>
+          <dd id="calendarCalPath"></dd>
+        </dl>
         <div class="profile-list" id="calendarList"></div>
         <div class="content-blocking-category">
           <label class="toggle-container-with-text">
@@ -267,11 +335,38 @@
           </label>
         </div>
       </section>
+      <section id="calendar-summary">
+        <h1 data-l10n-id="import-calendar"></h1>
+        <h2 id="calendarSummarySubtitle"></h2>
+        <p class="description"></p>
+        <dl>
+          <dt data-l10n-id="addr-book-directories-pane-source"></dt>
+          <dd id="calendarSummaryPath"></dd>
+        </dl>
+        <h2 data-l10n-id="summary-pane-title"></h2>
+        <ul class="summary-items">
+          <li data-l10n-id="items-pane-checkbox-calendars"></li>
+        </ul>
+        <button id="calendarStartImport"
+                onclick="calendarController.startImport()"
+                class="primary before-progress"
+                data-l10n-id="summary-pane-start"></button>
+        <div class="progressPane">
+          <section class="progressPane-progress">
+            <progress class="progressPaneProgressBar"></progress>
+            <p class="progressPaneDesc"></p>
+          </section>
+        </div>
+        <button class="progressFinish primary"
+                onclick="calendarController.next()"
+                data-l10n-id="button-finish"></button>
+      </section>
       <footer class="buttons-container">
         <button id="calendarBackButton"
+                class="back"
                 onclick="calendarController.back()"
                 data-l10n-id="button-back"></button>
-        <button class="primary"
+        <button class="primary next-button"
                 id="calendarNextButton"
                 onclick="calendarController.next()"
                 data-l10n-id="button-continue"></button>
@@ -286,31 +381,20 @@
         <a data-l10n-id="export-open-profile-folder"
            onclick="exportController.openProfileFolder()"></a>
       </p>
-      <footer class="buttons-container">
-        <button onclick="exportController.back()"
-                data-l10n-id="button-cancel"></button>
-        <button class="primary"
-                onclick="exportController.next()"
-                data-l10n-id="button-export"></button>
-      </footer>
+      <button id="exportButton"
+              onclick="exportController.next()"
+              class="primary before-progress"
+              data-l10n-id="button-export"></button>
+      <div class="progressPane">
+        <section class="progressPane-progress">
+          <progress class="progressPaneProgressBar"></progress>
+          <p class="progressPaneDesc"></p>
+        </section>
+      </div>
+      <button class="progressFinish primary"
+              onclick="exportController.back()"
+              data-l10n-id="button-finish"></button>
     </div>
   </main>
-  <dialog id="progressDialog">
-    <section id="dialogPane-progress">
-      <h3 id="progressPaneTitle"></h3>
-      <progress id="progressDialogProgressBar"></progress>
-      <p id="progressPaneDesc"></p>
-    </section>
-    <section id="dialogPane-error">
-      <h3 data-l10n-id="error-pane-title"></h3>
-      <p id="dialogError"></p>
-    </section>
-    <footer>
-      <button id="progressDialogCancel"
-              onclick="progressDialog.onCancel()">Cancel</button>
-      <button id="progressDialogAccept"
-              onclick="progressDialog.onAccept()">OK</button>
-    </footer>
-  </dialog>
 </body>
 </html>
