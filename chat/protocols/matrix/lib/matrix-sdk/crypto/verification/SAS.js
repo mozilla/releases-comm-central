@@ -3,11 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SAS = void 0;
-
-var _Base = require("./Base");
+exports.SasEvent = exports.SAS = void 0;
 
 var _anotherJson = _interopRequireDefault(require("another-json"));
+
+var _Base = require("./Base");
 
 var _Error = require("./Error");
 
@@ -141,6 +141,7 @@ function calculateMAC(olmSAS, method) {
 }
 
 const calculateKeyAgreement = {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   "curve25519-hkdf-sha256": function (sas, olmSAS, bytes) {
     const ourInfo = `${sas.baseApis.getUserId()}|${sas.baseApis.deviceId}|` + `${sas.ourSASPubKey}|`;
     const theirInfo = `${sas.userId}|${sas.deviceId}|${sas.theirSASPubKey}|`;
@@ -171,12 +172,18 @@ const SAS_SET = new Set(SAS_LIST);
 function intersection(anArray, aSet) {
   return anArray instanceof Array ? anArray.filter(x => aSet.has(x)) : [];
 }
+
+let SasEvent;
+exports.SasEvent = SasEvent;
+
+(function (SasEvent) {
+  SasEvent["ShowSas"] = "show_sas";
+})(SasEvent || (exports.SasEvent = SasEvent = {}));
+
 /**
  * @alias module:crypto/verification/SAS
  * @extends {module:crypto/verification/Base}
  */
-
-
 class SAS extends _Base.VerificationBase {
   constructor(...args) {
     super(...args);
@@ -323,7 +330,7 @@ class SAS extends _Base.VerificationBase {
           cancel: () => reject((0, _Error.newUserCancelledError)()),
           mismatch: () => reject(newMismatchedSASError())
         };
-        this.emit("show_sas", this.sasEvent);
+        this.emit(SasEvent.ShowSas, this.sasEvent);
       });
       [e] = await Promise.all([this.waitForEvent("m.key.verification.mac").then(e => {
         // we don't expect any more messages from the other
@@ -394,7 +401,7 @@ class SAS extends _Base.VerificationBase {
           cancel: () => reject((0, _Error.newUserCancelledError)()),
           mismatch: () => reject(newMismatchedSASError())
         };
-        this.emit("show_sas", this.sasEvent);
+        this.emit(SasEvent.ShowSas, this.sasEvent);
       });
       [e] = await Promise.all([this.waitForEvent("m.key.verification.mac").then(e => {
         // we don't expect any more messages from the other

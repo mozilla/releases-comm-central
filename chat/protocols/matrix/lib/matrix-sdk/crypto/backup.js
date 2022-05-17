@@ -23,6 +23,8 @@ var _aes = require("./aes");
 
 var _NamespacedValue = require("../NamespacedValue");
 
+var _index = require("./index");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 const KEY_BACKUP_KEYS_PER_REQUEST = 200;
@@ -94,7 +96,7 @@ class BackupManager {
     }
 
     this.algorithm = await BackupManager.makeAlgorithm(info, this.getKey);
-    this.baseApis.emit('crypto.keyBackupStatus', true); // There may be keys left over from a partially completed backup, so
+    this.baseApis.emit(_index.CryptoEvent.KeyBackupStatus, true); // There may be keys left over from a partially completed backup, so
     // schedule a send to check.
 
     this.scheduleKeyBackupSend();
@@ -111,7 +113,7 @@ class BackupManager {
 
     this.algorithm = undefined;
     this.backupInfo = undefined;
-    this.baseApis.emit('crypto.keyBackupStatus', false);
+    this.baseApis.emit(_index.CryptoEvent.KeyBackupStatus, false);
   }
 
   getKeyBackupEnabled() {
@@ -122,8 +124,7 @@ class BackupManager {
     return Boolean(this.algorithm);
   }
 
-  async prepareKeyBackupVersion(key, algorithm // eslint-disable-next-line camelcase
-  ) {
+  async prepareKeyBackupVersion(key, algorithm) {
     const Algorithm = algorithm ? algorithmsByName[algorithm] : DefaultAlgorithm;
 
     if (!Algorithm) {
@@ -256,15 +257,29 @@ class BackupManager {
       return ret;
     }
 
-    const trustedPubkey = this.baseApis.crypto.sessionStore.getLocalTrustedBackupPubKey();
+    const privKey = await this.baseApis.crypto.getSessionBackupPrivateKey();
 
-    if ("public_key" in backupInfo.auth_data && backupInfo.auth_data.public_key === trustedPubkey) {
-      _logger.logger.info("Backup public key " + trustedPubkey + " is trusted locally");
+    if (privKey) {
+      let algorithm;
 
-      ret.trusted_locally = true;
+      try {
+        algorithm = await BackupManager.makeAlgorithm(backupInfo, async () => privKey);
+
+        if (await algorithm.keyMatches(privKey)) {
+          _logger.logger.info("Backup is trusted locally");
+
+          ret.trusted_locally = true;
+        }
+      } catch {// do nothing -- if we have an error, then we don't mark it as
+        // locally trusted
+      } finally {
+        if (algorithm) {
+          algorithm.free();
+        }
+      }
     }
 
-    const mySigs = backupInfo.auth_data.signatures[this.baseApis.getUserId()] || [];
+    const mySigs = backupInfo.auth_data.signatures[this.baseApis.getUserId()] || {};
 
     for (const keyId of Object.keys(mySigs)) {
       const keyIdParts = keyId.split(':');
@@ -306,7 +321,7 @@ class BackupManager {
 
       if (device) {
         sigInfo.device = device;
-        sigInfo.deviceTrust = await this.baseApis.checkDeviceTrust(this.baseApis.getUserId(), sigInfo.deviceId);
+        sigInfo.deviceTrust = this.baseApis.checkDeviceTrust(this.baseApis.getUserId(), sigInfo.deviceId);
 
         try {
           await (0, _olmlib.verifySignature)(this.baseApis.crypto.olmDevice, backupInfo.auth_data, this.baseApis.getUserId(), device.deviceId, device.getFingerprint());
@@ -377,7 +392,7 @@ class BackupManager {
               await this.checkKeyBackup(); // Backup version has changed or this backup version
               // has been deleted
 
-              this.baseApis.crypto.emit("crypto.keyBackupFailed", err.data.errcode);
+              this.baseApis.crypto.emit(_index.CryptoEvent.KeyBackupFailed, err.data.errcode);
               throw err;
             }
           }
@@ -409,7 +424,7 @@ class BackupManager {
     }
 
     let remaining = await this.baseApis.crypto.cryptoStore.countSessionsNeedingBackup();
-    this.baseApis.crypto.emit("crypto.keyBackupSessionsRemaining", remaining);
+    this.baseApis.crypto.emit(_index.CryptoEvent.KeyBackupSessionsRemaining, remaining);
     const rooms = {};
 
     for (const session of sessions) {
@@ -421,7 +436,7 @@ class BackupManager {
         };
       }
 
-      const sessionData = await this.baseApis.crypto.olmDevice.exportInboundGroupSession(session.senderKey, session.sessionId, session.sessionData);
+      const sessionData = this.baseApis.crypto.olmDevice.exportInboundGroupSession(session.senderKey, session.sessionId, session.sessionData);
       sessionData.algorithm = _olmlib.MEGOLM_ALGORITHM;
       const forwardedCount = (sessionData.forwarding_curve25519_key_chain || []).length;
       const userId = this.baseApis.crypto.deviceList.getUserByIdentityKey(_olmlib.MEGOLM_ALGORITHM, session.senderKey);
@@ -440,7 +455,7 @@ class BackupManager {
     });
     await this.baseApis.crypto.cryptoStore.unmarkSessionsNeedingBackup(sessions);
     remaining = await this.baseApis.crypto.cryptoStore.countSessionsNeedingBackup();
-    this.baseApis.crypto.emit("crypto.keyBackupSessionsRemaining", remaining);
+    this.baseApis.crypto.emit(_index.CryptoEvent.KeyBackupSessionsRemaining, remaining);
     return sessions.length;
   }
 
@@ -488,7 +503,7 @@ class BackupManager {
       });
     });
     const remaining = await this.baseApis.crypto.cryptoStore.countSessionsNeedingBackup();
-    this.baseApis.emit("crypto.keyBackupSessionsRemaining", remaining);
+    this.baseApis.emit(_index.CryptoEvent.KeyBackupSessionsRemaining, remaining);
     return remaining;
   }
   /**

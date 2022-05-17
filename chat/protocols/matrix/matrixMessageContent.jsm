@@ -9,19 +9,21 @@ var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
 );
 XPCOMUtils.defineLazyModuleGetters(this, {
   getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
-  EventType: "resource:///modules/matrix-sdk.jsm",
-  MsgType: "resource:///modules/matrix-sdk.jsm",
-  EventStatus: "resource:///modules/matrix-sdk.jsm",
+  MatrixSDK: "resource:///modules/matrix-sdk.jsm",
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
 });
 
-const kRichBodiedTypes = [MsgType.Text, MsgType.Notice, MsgType.Emote];
+const kRichBodiedTypes = [
+  MatrixSDK.MsgType.Text,
+  MatrixSDK.MsgType.Notice,
+  MatrixSDK.MsgType.Emote,
+];
 const kHtmlFormat = "org.matrix.custom.html";
 const kAttachmentTypes = [
-  MsgType.Image,
-  MsgType.File,
-  MsgType.Audio,
-  MsgType.Video,
+  MatrixSDK.MsgType.Image,
+  MatrixSDK.MsgType.File,
+  MatrixSDK.MsgType.Audio,
+  MatrixSDK.MsgType.Video,
 ];
 XPCOMUtils.defineLazyGetter(this, "domParser", () => new DOMParser());
 XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
@@ -107,7 +109,7 @@ function getReplyContent(replyEvent, homeserverUrl, getEvent, rich) {
       getEvent,
       false
     );
-  if (replyEvent.getContent()?.msgtype === MsgType.Emote) {
+  if (replyEvent.getContent()?.msgtype === MatrixSDK.MsgType.Emote) {
     replyContent = `* ${replyEvent.getSender()} ${replyContent} *`;
   }
   return replyContent;
@@ -142,14 +144,19 @@ function formatPlainBody(event, homeserverUrl, getEvent, includeReply = true) {
         })
         .join("\n");
     }
-    if (includeReply && replyEvent && content.msgtype != MsgType.Emote) {
+    if (
+      includeReply &&
+      replyEvent &&
+      content.msgtype != MatrixSDK.MsgType.Emote
+    ) {
       let replyContent = getReplyContent(
         replyEvent,
         homeserverUrl,
         getEvent,
         false
       );
-      const isEmoteReply = replyEvent.getContent()?.msgtype == MsgType.Emote;
+      const isEmoteReply =
+        replyEvent.getContent()?.msgtype == MatrixSDK.MsgType.Emote;
       replyContent = replyContent
         .split("\n")
         .map(line => `&gt; ${line}`)
@@ -220,7 +227,7 @@ function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
   }
   const reply = parsedBody.querySelector("mx-reply");
   if (reply) {
-    if (includeReply && content.msgtype != MsgType.Emote) {
+    if (includeReply && content.msgtype != MatrixSDK.MsgType.Emote) {
       const eventId = event.replyEventId;
       const replyEvent = getEvent(eventId);
       if (replyEvent) {
@@ -230,7 +237,8 @@ function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
           getEvent,
           true
         );
-        const isEmoteReply = replyEvent.getContent()?.msgtype == MsgType.Emote;
+        const isEmoteReply =
+          replyEvent.getContent()?.msgtype == MatrixSDK.MsgType.Emote;
         const newReply = parsedBody.createDocumentFragment();
         if (!isEmoteReply) {
           const replyTo = formatMention(replyEvent.getSender(), parsedBody);
@@ -271,7 +279,7 @@ var MatrixMessageContent = {
   getIncomingPlain(event, homeserverUrl, getEvent, includeReply = true) {
     if (
       !event ||
-      (event.status !== null && event.status !== EventStatus.SENT)
+      (event.status !== null && event.status !== MatrixSDK.EventStatus.SENT)
     ) {
       return "";
     }
@@ -284,8 +292,8 @@ var MatrixMessageContent = {
     if (textForEvent) {
       return textForEvent;
     } else if (
-      type == EventType.RoomMessage ||
-      type == EventType.RoomMessageEncrypted
+      type == MatrixSDK.EventType.RoomMessage ||
+      type == MatrixSDK.EventType.RoomMessageEncrypted
     ) {
       if (kRichBodiedTypes.includes(content?.msgtype)) {
         return formatPlainBody(event, homeserverUrl, getEvent, includeReply);
@@ -297,12 +305,12 @@ var MatrixMessageContent = {
       } else if (event.isBeingDecrypted()) {
         return _("message.decrypting");
       }
-    } else if (type == EventType.Sticker) {
+    } else if (type == MatrixSDK.EventType.Sticker) {
       const attachmentUrl = getAttachmentUrl(content, homeserverUrl);
       if (attachmentUrl) {
         return attachmentUrl;
       }
-    } else if (type == EventType.Reaction) {
+    } else if (type == MatrixSDK.EventType.Reaction) {
       let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
         return _(
@@ -330,7 +338,7 @@ var MatrixMessageContent = {
   getIncomingHTML(event, homeserverUrl, getEvent, includeReply = true) {
     if (
       !event ||
-      (event.status !== null && event.status !== EventStatus.SENT)
+      (event.status !== null && event.status !== MatrixSDK.EventStatus.SENT)
     ) {
       return "";
     }
@@ -339,7 +347,7 @@ var MatrixMessageContent = {
     if (event.isRedacted()) {
       return _("message.redacted");
     }
-    if (type == EventType.RoomMessage) {
+    if (type == MatrixSDK.EventType.RoomMessage) {
       if (
         kRichBodiedTypes.includes(content.msgtype) &&
         content.format == kHtmlFormat &&
@@ -349,9 +357,9 @@ var MatrixMessageContent = {
       } else if (kAttachmentTypes.includes(content.msgtype)) {
         return formatMediaAttachment(content, homeserverUrl);
       }
-    } else if (type == EventType.Sticker) {
+    } else if (type == MatrixSDK.EventType.Sticker) {
       return formatMediaAttachment(content, homeserverUrl);
-    } else if (type == EventType.Reaction) {
+    } else if (type == MatrixSDK.EventType.Reaction) {
       let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
         return _(

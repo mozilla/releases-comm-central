@@ -7,8 +7,6 @@ exports.UserTrustLevel = exports.DeviceTrustLevel = exports.CrossSigningLevel = 
 exports.createCryptoStoreCacheCallbacks = createCryptoStoreCacheCallbacks;
 exports.requestKeysDuringVerification = requestKeysDuringVerification;
 
-var _events = require("events");
-
 var _olmlib = require("./olmlib");
 
 var _logger = require("../logger");
@@ -28,7 +26,7 @@ function publicKeyFromKeyInfo(keyInfo) {
   return Object.values(keyInfo.keys)[0];
 }
 
-class CrossSigningInfo extends _events.EventEmitter {
+class CrossSigningInfo {
   // This tracks whether we've ever verified this user with any identity.
   // When you verify a user, any devices online at the time that receive
   // the verifying signature via the homeserver will latch this to true
@@ -46,7 +44,6 @@ class CrossSigningInfo extends _events.EventEmitter {
    * @param {object} cacheCallbacks Callbacks used to interact with the cache
    */
   constructor(userId, callbacks = {}, cacheCallbacks = {}) {
-    super();
     this.userId = userId;
     this.callbacks = callbacks;
     this.cacheCallbacks = cacheCallbacks;

@@ -63,35 +63,6 @@ class StubStore {
   }
   /**
    * No-op.
-   * @param {Group} group
-   * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
-   */
-
-
-  storeGroup(group) {}
-  /**
-   * No-op.
-   * @param {string} groupId
-   * @return {null}
-   * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
-   */
-
-
-  getGroup(groupId) {
-    return null;
-  }
-  /**
-   * No-op.
-   * @return {Array} An empty array.
-   * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
-   */
-
-
-  getGroups() {
-    return [];
-  }
-  /**
-   * No-op.
    * @param {Room} room
    */
 

@@ -3,13 +3,17 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.RoomMember = void 0;
-
-var _events = require("events");
+exports.RoomMemberEvent = exports.RoomMember = void 0;
 
 var _contentRepo = require("../content-repo");
 
 var utils = _interopRequireWildcard(require("../utils"));
+
+var _logger = require("../logger");
+
+var _typedEventEmitter = require("./typed-event-emitter");
+
+var _event = require("../@types/event");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -17,7 +21,17 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class RoomMember extends _events.EventEmitter {
+let RoomMemberEvent;
+exports.RoomMemberEvent = RoomMemberEvent;
+
+(function (RoomMemberEvent) {
+  RoomMemberEvent["Membership"] = "RoomMember.membership";
+  RoomMemberEvent["Name"] = "RoomMember.name";
+  RoomMemberEvent["PowerLevel"] = "RoomMember.powerLevel";
+  RoomMemberEvent["Typing"] = "RoomMember.typing";
+})(RoomMemberEvent || (exports.RoomMemberEvent = RoomMemberEvent = {}));
+
+class RoomMember extends _typedEventEmitter.TypedEventEmitter {
   // used by sync.ts
   // XXX these should be read-only
 
@@ -112,7 +126,7 @@ class RoomMember extends _events.EventEmitter {
   setMembershipEvent(event, roomState) {
     const displayName = event.getDirectionalContent().displayname;
 
-    if (event.getType() !== "m.room.member") {
+    if (event.getType() !== _event.EventType.RoomMember) {
       return;
     }
 
@@ -120,6 +134,13 @@ class RoomMember extends _events.EventEmitter {
     this.events.member = event;
     const oldMembership = this.membership;
     this.membership = event.getDirectionalContent().membership;
+
+    if (this.membership === undefined) {
+      // logging to diagnose https://github.com/vector-im/element-web/issues/20962
+      // (logs event content, although only of membership events)
+      _logger.logger.trace(`membership event with membership undefined (forwardLooking: ${event.forwardLooking})!`, event.getContent(), `prevcontent is `, event.getPrevContent());
+    }
+
     this.disambiguate = shouldDisambiguate(this.userId, displayName, roomState);
     const oldName = this.name;
     this.name = calculateDisplayName(this.userId, displayName, roomState, this.disambiguate); // not quite raw: we strip direction override chars so it can safely be inserted into
@@ -133,12 +154,12 @@ class RoomMember extends _events.EventEmitter {
 
     if (oldMembership !== this.membership) {
       this.updateModifiedTime();
-      this.emit("RoomMember.membership", event, this, oldMembership);
+      this.emit(RoomMemberEvent.Membership, event, this, oldMembership);
     }
 
     if (oldName !== this.name) {
       this.updateModifiedTime();
-      this.emit("RoomMember.name", event, this, oldName);
+      this.emit(RoomMemberEvent.Name, event, this, oldName);
     }
   }
   /**
@@ -182,7 +203,7 @@ class RoomMember extends _events.EventEmitter {
 
     if (oldPowerLevel !== this.powerLevel || oldPowerLevelNorm !== this.powerLevelNorm) {
       this.updateModifiedTime();
-      this.emit("RoomMember.powerLevel", powerLevelEvent, this);
+      this.emit(RoomMemberEvent.PowerLevel, powerLevelEvent, this);
     }
   }
   /**
@@ -213,7 +234,7 @@ class RoomMember extends _events.EventEmitter {
 
     if (oldTyping !== this.typing) {
       this.updateModifiedTime();
-      this.emit("RoomMember.typing", event, this);
+      this.emit(RoomMemberEvent.Typing, event, this);
     }
   }
   /**

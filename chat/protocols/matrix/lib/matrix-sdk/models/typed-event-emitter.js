@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TypedEventEmitter = void 0;
+exports.TypedEventEmitter = exports.EventEmitterEvents = void 0;
 
 var _events = require("events");
 
@@ -22,7 +22,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-var EventEmitterEvents;
+// eslint-disable-next-line no-restricted-imports
+let EventEmitterEvents;
+exports.EventEmitterEvents = EventEmitterEvents;
+
+(function (EventEmitterEvents) {
+  EventEmitterEvents["NewListener"] = "newListener";
+  EventEmitterEvents["RemoveListener"] = "removeListener";
+  EventEmitterEvents["Error"] = "error";
+})(EventEmitterEvents || (exports.EventEmitterEvents = EventEmitterEvents = {}));
+
 /**
  * Typed Event Emitter class which can act as a Base Model for all our model
  * and communication events.
@@ -30,12 +39,6 @@ var EventEmitterEvents;
  * to properly type this, so that our events are not stringly-based and prone
  * to silly typos.
  */
-
-(function (EventEmitterEvents) {
-  EventEmitterEvents["NewListener"] = "newListener";
-  EventEmitterEvents["RemoveListener"] = "removeListener";
-})(EventEmitterEvents || (EventEmitterEvents = {}));
-
 class TypedEventEmitter extends _events.EventEmitter {
   addListener(event, listener) {
     return super.addListener(event, listener);

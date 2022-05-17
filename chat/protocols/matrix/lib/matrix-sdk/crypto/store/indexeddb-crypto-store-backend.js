@@ -182,8 +182,8 @@ class Backend {
     let stateIndex = 0;
     let result;
 
-    function onsuccess(ev) {
-      const cursor = ev.target.result;
+    function onsuccess() {
+      const cursor = this.result;
 
       if (cursor) {
         // got a match
@@ -200,7 +200,7 @@ class Backend {
       }
 
       const wantedState = wantedStates[stateIndex];
-      const cursorReq = ev.target.source.openCursor(wantedState);
+      const cursorReq = this.source.openCursor(wantedState);
       cursorReq.onsuccess = onsuccess;
     }
 
@@ -235,8 +235,8 @@ class Backend {
     let stateIndex = 0;
     const results = [];
 
-    function onsuccess(ev) {
-      const cursor = ev.target.result;
+    function onsuccess() {
+      const cursor = this.result;
 
       if (cursor) {
         const keyReq = cursor.value;
@@ -259,7 +259,7 @@ class Backend {
         }
 
         const wantedState = wantedStates[stateIndex];
-        const cursorReq = ev.target.source.openCursor(wantedState);
+        const cursorReq = this.source.openCursor(wantedState);
         cursorReq.onsuccess = onsuccess;
       }
     }
@@ -288,8 +288,8 @@ class Backend {
   updateOutgoingRoomKeyRequest(requestId, expectedState, updates) {
     let result = null;
 
-    function onsuccess(ev) {
-      const cursor = ev.target.result;
+    function onsuccess() {
+      const cursor = this.result;
 
       if (!cursor) {
         return;

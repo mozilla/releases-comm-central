@@ -7,9 +7,7 @@ this.EXPORTED_SYMBOLS = ["getMatrixTextForEvent"];
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { EventType, MsgType } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
+var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
@@ -39,7 +37,7 @@ const keyVerificationRequest = (matrixEvent, { sender, content }) => {
 const roomMessage = {
   pivot: "msgtype",
   handlers: {
-    [MsgType.KeyVerificationRequest]: keyVerificationRequest,
+    [MatrixSDK.MsgType.KeyVerificationRequest]: keyVerificationRequest,
     "m.bad.encrypted": () => _("message.decryptionError"),
   },
 };
@@ -65,7 +63,7 @@ const roomMessage = {
  * optionally adds values to the context argument for the handler.
  */
 const MATRIX_EVENT_HANDLERS = {
-  [EventType.RoomMember]: {
+  [MatrixSDK.EventType.RoomMember]: {
     pivot: "membership",
     formatContext(matrixEvent, { sender, content }) {
       return {
@@ -159,7 +157,7 @@ const MATRIX_EVENT_HANDLERS = {
       },
     },
   },
-  [EventType.RoomPowerLevels]: {
+  [MatrixSDK.EventType.RoomPowerLevels]: {
     handler(matrixEvent, { sender, content }) {
       const prevContent = matrixEvent.getPrevContent();
       if (!prevContent?.users) {
@@ -197,7 +195,7 @@ const MATRIX_EVENT_HANDLERS = {
       return _("message.powerLevel.changed", sender, changes.join(", "));
     },
   },
-  [EventType.RoomName]: {
+  [MatrixSDK.EventType.RoomName]: {
     handler(matrixEvent, { sender, content }) {
       let roomName = content.name;
       if (!roomName) {
@@ -206,35 +204,35 @@ const MATRIX_EVENT_HANDLERS = {
       return _("message.roomName.changed", sender, roomName);
     },
   },
-  [EventType.RoomGuestAccess]: {
+  [MatrixSDK.EventType.RoomGuestAccess]: {
     pivot: "guest_access",
     handlers: {
-      forbidden(matrixEvent, { sender }) {
+      [MatrixSDK.GuestAccess.Forbidden](matrixEvent, { sender }) {
         return _("message.guest.prevented", sender);
       },
-      can_join(matrixEvent, { sender }) {
+      [MatrixSDK.GuestAccess.CanJoin](matrixEvent, { sender }) {
         return _("message.guest.allowed", sender);
       },
     },
   },
-  [EventType.RoomHistoryVisibility]: {
+  [MatrixSDK.EventType.RoomHistoryVisibility]: {
     pivot: "history_visibility",
     handlers: {
-      world_readable(matrixEvent, { sender }) {
+      [MatrixSDK.HistoryVisibility.WorldReadable](matrixEvent, { sender }) {
         return _("message.history.anyone", sender);
       },
-      shared(matrixEvent, { sender }) {
+      [MatrixSDK.HistoryVisibility.Shared](matrixEvent, { sender }) {
         return _("message.history.shared", sender);
       },
-      invited(matrixEvent, { sender }) {
+      [MatrixSDK.HistoryVisibility.Invited](matrixEvent, { sender }) {
         return _("message.history.invited", sender);
       },
-      joined(matrixEvent, { sender }) {
+      [MatrixSDK.HistoryVisibility.Joined](matrixEvent, { sender }) {
         return _("message.history.joined", sender);
       },
     },
   },
-  [EventType.RoomCanonicalAlias]: {
+  [MatrixSDK.EventType.RoomCanonicalAlias]: {
     handler(matrixEvent, { sender, content }) {
       const prevContent = matrixEvent.getPrevContent();
       if (content.alias != prevContent.alias) {
@@ -270,22 +268,22 @@ const MATRIX_EVENT_HANDLERS = {
     },
   },
 
-  [EventType.RoomMessage]: roomMessage,
-  [EventType.RoomMessageEncrypted]: roomMessage,
-  [EventType.KeyVerificationRequest]: {
+  [MatrixSDK.EventType.RoomMessage]: roomMessage,
+  [MatrixSDK.EventType.RoomMessageEncrypted]: roomMessage,
+  [MatrixSDK.EventType.KeyVerificationRequest]: {
     handler: keyVerificationRequest,
   },
-  [EventType.KeyVerificationCancel]: {
+  [MatrixSDK.EventType.KeyVerificationCancel]: {
     handler(matrixEvent, { sender, content }) {
       return _("message.verification.cancel2", sender, content.reason);
     },
   },
-  [EventType.KeyVerificationDone]: {
+  [MatrixSDK.EventType.KeyVerificationDone]: {
     handler(matrixEvent, { sender, content }) {
       return _("message.verification.done");
     },
   },
-  [EventType.RoomEncryption]: {
+  [MatrixSDK.EventType.RoomEncryption]: {
     handler(matrixEvent, { sender, content }) {
       return _("message.encryptionStart");
     },

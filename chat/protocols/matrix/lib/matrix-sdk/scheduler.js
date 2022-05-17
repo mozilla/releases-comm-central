@@ -53,7 +53,7 @@ class MatrixScheduler {
     // with no connection, so if we match that, give up since they have no conn.
 
 
-    if (err.cors === "rejected") {
+    if (err["cors"] === "rejected") {
       return -1;
     } // if event that we are trying to send is too large in any way then retrying won't help
 

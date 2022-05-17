@@ -137,8 +137,8 @@ class Filter {
       }
     }
 
-    this.roomFilter = new _filterComponent.FilterComponent(roomFilterFields);
-    this.roomTimelineFilter = new _filterComponent.FilterComponent(roomFilterJson?.timeline || {}); // don't bother porting this from synapse yet:
+    this.roomFilter = new _filterComponent.FilterComponent(roomFilterFields, this.userId);
+    this.roomTimelineFilter = new _filterComponent.FilterComponent(roomFilterJson?.timeline || {}, this.userId); // don't bother porting this from synapse yet:
     // this._room_state_filter =
     //     new FilterComponent(roomFilterJson.state || {});
     // this._room_ephemeral_filter =

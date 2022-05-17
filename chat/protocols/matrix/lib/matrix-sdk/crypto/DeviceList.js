@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TrackingStatus = exports.DeviceList = void 0;
 
-var _events = require("events");
-
 var _logger = require("../logger");
 
 var _deviceinfo = require("./deviceinfo");
@@ -18,6 +16,10 @@ var olmlib = _interopRequireWildcard(require("./olmlib"));
 var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
 
 var _utils = require("../utils");
+
+var _typedEventEmitter = require("../models/typed-event-emitter");
+
+var _index = require("./index");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -58,7 +60,7 @@ exports.TrackingStatus = TrackingStatus;
 /**
  * @alias module:crypto/DeviceList
  */
-class DeviceList extends _events.EventEmitter {
+class DeviceList extends _typedEventEmitter.TypedEventEmitter {
   // map of identity keys to the user who owns it
   // which users we are tracking device status for.
   // loaded from storage in load()
@@ -303,10 +305,10 @@ class DeviceList extends _events.EventEmitter {
 
   getDevicesFromStore(userIds) {
     const stored = {};
-    userIds.map(u => {
+    userIds.forEach(u => {
       stored[u] = {};
       const devices = this.getStoredDevicesForUser(u) || [];
-      devices.map(function (dev) {
+      devices.forEach(function (dev) {
         stored[u][dev.deviceId] = dev;
       });
     });
@@ -652,7 +654,7 @@ class DeviceList extends _events.EventEmitter {
     });
 
     const finished = success => {
-      this.emit("crypto.willUpdateDevices", users, !this.hasFetched);
+      this.emit(_index.CryptoEvent.WillUpdateDevices, users, !this.hasFetched);
       users.forEach(u => {
         this.dirty = true; // we may have queued up another download request for this user
         // since we started this request. If that happens, we should
@@ -680,7 +682,7 @@ class DeviceList extends _events.EventEmitter {
         }
       });
       this.saveIfDirty();
-      this.emit("crypto.devicesUpdated", users, !this.hasFetched);
+      this.emit(_index.CryptoEvent.DevicesUpdated, users, !this.hasFetched);
       this.hasFetched = true;
     };
 
@@ -835,8 +837,7 @@ class DeviceListUpdateSerialiser {
     return deferred.promise;
   }
 
-  async processQueryResponseForUser(userId, dkResponse, crossSigningResponse // TODO types
-  ) {
+  async processQueryResponseForUser(userId, dkResponse, crossSigningResponse) {
     _logger.logger.log('got device keys for ' + userId + ':', dkResponse);
 
     _logger.logger.log('got cross-signing keys for ' + userId + ':', crossSigningResponse);
@@ -872,7 +873,7 @@ class DeviceListUpdateSerialiser {
         this.deviceList.setRawStoredCrossSigningForUser(userId, crossSigning.toStorage()); // NB. Unlike most events in the js-sdk, this one is internal to the
         // js-sdk and is not re-emitted
 
-        this.deviceList.emit('userCrossSigningUpdated', userId);
+        this.deviceList.emit(_index.CryptoEvent.UserCrossSigningUpdated, userId);
       }
     }
   }

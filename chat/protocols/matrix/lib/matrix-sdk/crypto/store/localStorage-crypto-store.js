@@ -224,8 +224,8 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
         // senderKey being a (32-byte) curve25519 key, base64-encoded
         // (hence 43 characters long).
         func({
-          senderKey: key.substr(KEY_INBOUND_SESSION_PREFIX.length, 43),
-          sessionId: key.substr(KEY_INBOUND_SESSION_PREFIX.length + 44),
+          senderKey: key.slice(KEY_INBOUND_SESSION_PREFIX.length, KEY_INBOUND_SESSION_PREFIX.length + 43),
+          sessionId: key.slice(KEY_INBOUND_SESSION_PREFIX.length + 44),
           sessionData: getJsonItem(this.store, key)
         });
       }
@@ -270,7 +270,7 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
       const key = this.store.key(i);
 
       if (key.startsWith(prefix)) {
-        const roomId = key.substr(prefix.length);
+        const roomId = key.slice(prefix.length);
         result[roomId] = getJsonItem(this.store, key);
       }
     }
@@ -285,8 +285,8 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
     for (const session in sessionsNeedingBackup) {
       if (Object.prototype.hasOwnProperty.call(sessionsNeedingBackup, session)) {
         // see getAllEndToEndInboundGroupSessions for the magic number explanations
-        const senderKey = session.substr(0, 43);
-        const sessionId = session.substr(44);
+        const senderKey = session.slice(0, 43);
+        const sessionId = session.slice(44);
         this.getEndToEndInboundGroupSession(senderKey, sessionId, null, sessionData => {
           sessions.push({
             senderKey: senderKey,
@@ -295,7 +295,7 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
           });
         });
 
-        if (limit && session.length >= limit) {
+        if (limit && sessions.length >= limit) {
           break;
         }
       }

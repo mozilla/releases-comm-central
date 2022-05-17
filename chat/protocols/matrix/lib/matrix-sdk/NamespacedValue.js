@@ -3,7 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UnstableValue = exports.NamespacedValue = void 0;
+exports.UnstableValue = exports.ServerControlledNamespacedValue = exports.NamespacedValue = void 0;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
@@ -88,13 +90,36 @@ class NamespacedValue {
   }
 
 }
+
+exports.NamespacedValue = NamespacedValue;
+
+class ServerControlledNamespacedValue extends NamespacedValue {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "preferUnstable", false);
+  }
+
+  setPreferUnstable(preferUnstable) {
+    this.preferUnstable = preferUnstable;
+  }
+
+  get name() {
+    if (this.stable && !this.preferUnstable) {
+      return this.stable;
+    }
+
+    return this.unstable;
+  }
+
+}
 /**
  * Represents a namespaced value which prioritizes the unstable value over the stable
  * value.
  */
 
 
-exports.NamespacedValue = NamespacedValue;
+exports.ServerControlledNamespacedValue = ServerControlledNamespacedValue;
 
 class UnstableValue extends NamespacedValue {
   // Note: Constructor difference is that `unstable` is *required*.

@@ -3,9 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Relations = void 0;
-
-var _events = require("events");
+exports.RelationsEvent = exports.Relations = void 0;
 
 var _event = require("./event");
 
@@ -13,7 +11,18 @@ var _logger = require("../logger");
 
 var _event2 = require("../@types/event");
 
+var _typedEventEmitter = require("./typed-event-emitter");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+let RelationsEvent;
+exports.RelationsEvent = RelationsEvent;
+
+(function (RelationsEvent) {
+  RelationsEvent["Add"] = "Relations.add";
+  RelationsEvent["Remove"] = "Relations.remove";
+  RelationsEvent["Redaction"] = "Relations.redaction";
+})(RelationsEvent || (exports.RelationsEvent = RelationsEvent = {}));
 
 /**
  * A container for relation events that supports easy access to common ways of
@@ -23,7 +32,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * The typical way to get one of these containers is via
  * EventTimelineSet#getRelationsForEvent.
  */
-class Relations extends _events.EventEmitter {
+class Relations extends _typedEventEmitter.TypedEventEmitter {
   /**
    * @param {RelationType} relationType
    * The type of relation involved, such as "m.annotation", "m.reference",
@@ -57,7 +66,7 @@ class Relations extends _events.EventEmitter {
     _defineProperty(this, "onEventStatus", (event, status) => {
       if (!event.isSending()) {
         // Sending is done, so we don't need to listen anymore
-        event.removeListener("Event.status", this.onEventStatus);
+        event.removeListener(_event.MatrixEventEvent.Status, this.onEventStatus);
         return;
       }
 
@@ -66,7 +75,7 @@ class Relations extends _events.EventEmitter {
       } // Event was cancelled, remove from the collection
 
 
-      event.removeListener("Event.status", this.onEventStatus);
+      event.removeListener(_event.MatrixEventEvent.Status, this.onEventStatus);
       this.removeEvent(event);
     });
 
@@ -85,8 +94,8 @@ class Relations extends _events.EventEmitter {
         this.targetEvent.makeReplaced(lastReplacement);
       }
 
-      redactedEvent.removeListener("Event.beforeRedaction", this.onBeforeRedaction);
-      this.emit("Relations.redaction", redactedEvent);
+      redactedEvent.removeListener(_event.MatrixEventEvent.BeforeRedaction, this.onBeforeRedaction);
+      this.emit(RelationsEvent.Redaction, redactedEvent);
     });
   }
   /**
@@ -122,7 +131,7 @@ class Relations extends _events.EventEmitter {
 
 
     if (event.isSending()) {
-      event.on("Event.status", this.onEventStatus);
+      event.on(_event.MatrixEventEvent.Status, this.onEventStatus);
     }
 
     this.relations.add(event);
@@ -135,8 +144,8 @@ class Relations extends _events.EventEmitter {
       this.targetEvent.makeReplaced(lastReplacement);
     }
 
-    event.on("Event.beforeRedaction", this.onBeforeRedaction);
-    this.emit("Relations.add", event);
+    event.on(_event.MatrixEventEvent.BeforeRedaction, this.onBeforeRedaction);
+    this.emit(RelationsEvent.Add, event);
     this.maybeEmitCreated();
   }
   /**
@@ -178,7 +187,7 @@ class Relations extends _events.EventEmitter {
       this.targetEvent.makeReplaced(lastReplacement);
     }
 
-    this.emit("Relations.remove", event);
+    this.emit(RelationsEvent.Remove, event);
   }
   /**
    * Listens for event status changes to remove cancelled events.
@@ -341,7 +350,7 @@ class Relations extends _events.EventEmitter {
 
 
     const replaceRelation = this.targetEvent.getServerAggregatedRelation(_event2.RelationType.Replace);
-    const minTs = replaceRelation && replaceRelation.origin_server_ts;
+    const minTs = replaceRelation?.origin_server_ts;
     const lastReplacement = this.getRelations().reduce((last, event) => {
       if (event.getSender() !== this.targetEvent.getSender()) {
         return last;
@@ -402,7 +411,7 @@ class Relations extends _events.EventEmitter {
     }
 
     this.creationEmitted = true;
-    this.targetEvent.emit("Event.relationsCreated", this.relationType, this.eventType);
+    this.targetEvent.emit(_event.MatrixEventEvent.RelationsCreated, this.relationType, this.eventType);
   }
 
 }

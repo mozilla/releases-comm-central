@@ -3,9 +3,15 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MatrixEvent = exports.EventStatus = void 0;
+Object.defineProperty(exports, "EventStatus", {
+  enumerable: true,
+  get: function () {
+    return _eventStatus.EventStatus;
+  }
+});
+exports.MatrixEventEvent = exports.MatrixEvent = void 0;
 
-var _events = require("events");
+var _matrixEventsSdk = require("matrix-events-sdk");
 
 var _logger = require("../logger");
 
@@ -17,24 +23,11 @@ var _thread = require("./thread");
 
 var _ReEmitter = require("../ReEmitter");
 
+var _typedEventEmitter = require("./typed-event-emitter");
+
+var _eventStatus = require("./event-status");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-/**
- * Enum for event statuses.
- * @readonly
- * @enum {string}
- */
-let EventStatus;
-exports.EventStatus = EventStatus;
-
-(function (EventStatus) {
-  EventStatus["NOT_SENT"] = "not_sent";
-  EventStatus["ENCRYPTING"] = "encrypting";
-  EventStatus["SENDING"] = "sending";
-  EventStatus["QUEUED"] = "queued";
-  EventStatus["SENT"] = "sent";
-  EventStatus["CANCELLED"] = "cancelled";
-})(EventStatus || (exports.EventStatus = EventStatus = {}));
 
 const interns = {};
 
@@ -48,7 +41,31 @@ function intern(str) {
 /* eslint-disable camelcase */
 
 
-class MatrixEvent extends _events.EventEmitter {
+// A singleton implementing `IMessageVisibilityVisible`.
+const MESSAGE_VISIBLE = Object.freeze({
+  visible: true
+});
+let MatrixEventEvent;
+exports.MatrixEventEvent = MatrixEventEvent;
+
+(function (MatrixEventEvent) {
+  MatrixEventEvent["Decrypted"] = "Event.decrypted";
+  MatrixEventEvent["BeforeRedaction"] = "Event.beforeRedaction";
+  MatrixEventEvent["VisibilityChange"] = "Event.visibilityChange";
+  MatrixEventEvent["LocalEventIdReplaced"] = "Event.localEventIdReplaced";
+  MatrixEventEvent["Status"] = "Event.status";
+  MatrixEventEvent["Replaced"] = "Event.replaced";
+  MatrixEventEvent["RelationsCreated"] = "Event.relationsCreated";
+})(MatrixEventEvent || (exports.MatrixEventEvent = MatrixEventEvent = {}));
+
+class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
+  /* Message hiding, as specified by https://github.com/matrix-org/matrix-doc/pull/3531.
+   Note: We're returning this object, so any value stored here MUST be frozen.
+  */
+  // Not all events will be extensible-event compatible, so cache a flag in
+  // addition to a falsy cached event value. We check the flag later on in
+  // a public getter to decide if the cache is valid.
+
   /* curve25519 key which we believe belongs to the sender of the event. See
    * getSenderKey()
    */
@@ -90,6 +107,7 @@ class MatrixEvent extends _events.EventEmitter {
    * than assuming the local clock is in sync with the origin HS's clock.
    */
   // XXX: these should be read-only
+  // only state events may be backwards looking
 
   /* If the event is a `m.key.verification.request` (or to_device `m.key.verification.start`) event,
    * `Crypto` will set this the `VerificationRequest` for the event
@@ -139,6 +157,12 @@ class MatrixEvent extends _events.EventEmitter {
 
     _defineProperty(this, "clearEvent", void 0);
 
+    _defineProperty(this, "visibility", MESSAGE_VISIBLE);
+
+    _defineProperty(this, "_hasCachedExtEv", false);
+
+    _defineProperty(this, "_cachedExtEv", undefined);
+
     _defineProperty(this, "senderCurve25519Key", null);
 
     _defineProperty(this, "claimedEd25519Key", null);
@@ -154,6 +178,8 @@ class MatrixEvent extends _events.EventEmitter {
     _defineProperty(this, "txnId", null);
 
     _defineProperty(this, "thread", null);
+
+    _defineProperty(this, "threadId", void 0);
 
     _defineProperty(this, "localTimestamp", void 0);
 
@@ -184,8 +210,29 @@ class MatrixEvent extends _events.EventEmitter {
       event.content["m.relates_to"][prop] = intern(event.content["m.relates_to"][prop]);
     });
     this.txnId = event.txn_id || null;
-    this.localTimestamp = Date.now() - this.getAge();
-    this.reEmitter = new _ReEmitter.ReEmitter(this);
+    this.localTimestamp = Date.now() - (this.getAge() ?? 0);
+    this.reEmitter = new _ReEmitter.TypedReEmitter(this);
+  }
+  /**
+   * Unstable getter to try and get an extensible event. Note that this might
+   * return a falsy value if the event could not be parsed as an extensible
+   * event.
+   *
+   * @deprecated Use stable functions where possible.
+   */
+
+
+  get unstableExtensibleEvent() {
+    if (!this._hasCachedExtEv) {
+      this._cachedExtEv = _matrixEventsSdk.ExtensibleEvents.parse(this.getEffectiveEvent());
+    }
+
+    return this._cachedExtEv;
+  }
+
+  invalidateExtensibleEvent() {
+    // just reset the flag - that'll trick the getter into parsing a new event
+    this._hasCachedExtEv = false;
   }
   /**
    * Gets the event as though it would appear unencrypted. If the event is already not
@@ -267,7 +314,7 @@ class MatrixEvent extends _events.EventEmitter {
   /**
    * Get the room_id for this event. This will return <code>undefined</code>
    * for <code>m.presence</code> events.
-   * @return {string} The room ID, e.g. <code>!cURbafjkfsMDVwdRDQ:matrix.org
+   * @return {string?} The room ID, e.g. <code>!cURbafjkfsMDVwdRDQ:matrix.org
    * </code>
    */
 
@@ -350,8 +397,10 @@ class MatrixEvent extends _events.EventEmitter {
   get threadRootId() {
     const relatesTo = this.getWireContent()?.["m.relates_to"];
 
-    if (relatesTo?.rel_type === _event.RelationType.Thread) {
+    if (relatesTo?.rel_type === _thread.THREAD_RELATION_TYPE.name) {
       return relatesTo.event_id;
+    } else {
+      return this.getThread()?.id || this.threadId;
     }
   }
   /**
@@ -360,7 +409,7 @@ class MatrixEvent extends _events.EventEmitter {
 
 
   get isThreadRelation() {
-    return !!this.threadRootId;
+    return !!this.threadRootId && this.threadId !== this.getId();
   }
   /**
    * @experimental
@@ -368,19 +417,21 @@ class MatrixEvent extends _events.EventEmitter {
 
 
   get isThreadRoot() {
-    // TODO, change the inner working of this getter for it to use the
-    // bundled relationship return on the event, view MSC3440
-    const thread = this.getThread();
-    return thread?.id === this.getId();
-  }
+    const threadDetails = this.getServerAggregatedRelation(_thread.THREAD_RELATION_TYPE.name); // Bundled relationships only returned when the sync response is limited
+    // hence us having to check both bundled relation and inspect the thread
+    // model
 
-  get parentEventId() {
-    return this.replyEventId || this.relationEventId;
+    return !!threadDetails || this.getThread()?.id === this.getId();
   }
 
   get replyEventId() {
-    const relations = this.getWireContent()["m.relates_to"];
-    return relations?.["m.in_reply_to"]?.["event_id"];
+    // We're prefer ev.getContent() over ev.getWireContent() to make sure
+    // we grab the latest edit with potentially new relations. But we also
+    // can't just rely on ev.getContent() by itself because historically we
+    // still show the reply from the original message even though the edit
+    // event does not include the relation reply.
+    const mRelatesTo = this.getContent()['m.relates_to'] || this.getWireContent()['m.relates_to'];
+    return mRelatesTo?.['m.in_reply_to']?.event_id;
   }
 
   get relationEventId() {
@@ -415,7 +466,8 @@ class MatrixEvent extends _events.EventEmitter {
    * Get the age of this event. This represents the age of the event when the
    * event arrived at the device, and not the age of the event when this
    * function was called.
-   * @return {Number} The age of this event in milliseconds.
+   * Can only be returned once the server has echo'ed back
+   * @return {Number|undefined} The age of this event in milliseconds.
    */
 
 
@@ -513,7 +565,11 @@ class MatrixEvent extends _events.EventEmitter {
   }
 
   shouldAttemptDecryption() {
-    return this.isEncrypted() && !this.isBeingDecrypted() && !this.clearEvent;
+    if (this.isRedacted()) return false;
+    if (this.isBeingDecrypted()) return false;
+    if (this.clearEvent) return false;
+    if (!this.isEncrypted()) return false;
+    return true;
   }
   /**
    * Start the process of trying to decrypt this event.
@@ -701,7 +757,7 @@ class MatrixEvent extends _events.EventEmitter {
       this.setPushActions(null);
 
       if (options.emit !== false) {
-        this.emit("Event.decrypted", this, err);
+        this.emit(MatrixEventEvent.Decrypted, this, err);
       }
 
       return;
@@ -711,7 +767,7 @@ class MatrixEvent extends _events.EventEmitter {
   badEncryptedMessage(reason) {
     return {
       clearEvent: {
-        type: "m.room.message",
+        type: _event.EventType.RoomMessage,
         content: {
           msgtype: "m.bad.encrypted",
           body: "** Unable to decrypt: " + reason + " **"
@@ -739,6 +795,7 @@ class MatrixEvent extends _events.EventEmitter {
     this.claimedEd25519Key = decryptionResult.claimedEd25519Key || null;
     this.forwardingCurve25519KeyChain = decryptionResult.forwardingCurve25519KeyChain || [];
     this.untrusted = decryptionResult.untrusted || false;
+    this.invalidateExtensibleEvent();
   }
   /**
    * Gets the cleartext content for this event. If the event is not encrypted,
@@ -758,7 +815,7 @@ class MatrixEvent extends _events.EventEmitter {
 
 
   isEncrypted() {
-    return !this.isState() && this.event.type === "m.room.encrypted";
+    return !this.isState() && this.event.type === _event.EventType.RoomMessageEncrypted;
   }
   /**
    * The curve25519 key for the device that we think sent this event
@@ -849,6 +906,10 @@ class MatrixEvent extends _events.EventEmitter {
     return this.event.unsigned || {};
   }
 
+  setUnsigned(unsigned) {
+    this.event.unsigned = unsigned;
+  }
+
   unmarkLocallyRedacted() {
     const value = this._localRedactionEvent;
     this._localRedactionEvent = null;
@@ -862,7 +923,7 @@ class MatrixEvent extends _events.EventEmitter {
 
   markLocallyRedacted(redactionEvent) {
     if (this._localRedactionEvent) return;
-    this.emit("Event.beforeRedaction", this, redactionEvent);
+    this.emit(MatrixEventEvent.BeforeRedaction, this, redactionEvent);
     this._localRedactionEvent = redactionEvent;
 
     if (!this.event.unsigned) {
@@ -870,6 +931,58 @@ class MatrixEvent extends _events.EventEmitter {
     }
 
     this.event.unsigned.redacted_because = redactionEvent.event;
+  }
+  /**
+   * Change the visibility of an event, as per https://github.com/matrix-org/matrix-doc/pull/3531 .
+   *
+   * @fires module:models/event.MatrixEvent#"Event.visibilityChange" if `visibilityEvent`
+   *   caused a change in the actual visibility of this event, either by making it
+   *   visible (if it was hidden), by making it hidden (if it was visible) or by
+   *   changing the reason (if it was hidden).
+   * @param visibilityEvent event holding a hide/unhide payload, or nothing
+   *   if the event is being reset to its original visibility (presumably
+   *   by a visibility event being redacted).
+   */
+
+
+  applyVisibilityEvent(visibilityChange) {
+    const visible = visibilityChange ? visibilityChange.visible : true;
+    const reason = visibilityChange ? visibilityChange.reason : null;
+    let change = false;
+
+    if (this.visibility.visible !== visibilityChange.visible) {
+      change = true;
+    } else if (!this.visibility.visible && this.visibility["reason"] !== reason) {
+      change = true;
+    }
+
+    if (change) {
+      if (visible) {
+        this.visibility = MESSAGE_VISIBLE;
+      } else {
+        this.visibility = Object.freeze({
+          visible: false,
+          reason: reason
+        });
+      }
+
+      if (change) {
+        this.emit(MatrixEventEvent.VisibilityChange, this, visible);
+      }
+    }
+  }
+  /**
+   * Return instructions to display or hide the message.
+   *
+   * @returns Instructions determining whether the message
+   * should be displayed.
+   */
+
+
+  messageVisibility() {
+    // Note: We may return `this.visibility` without fear, as
+    // this is a shallow frozen object.
+    return this.visibility;
   }
   /**
    * Update the content of an event in the same way it would be by the server
@@ -887,7 +1000,7 @@ class MatrixEvent extends _events.EventEmitter {
     }
 
     this._localRedactionEvent = null;
-    this.emit("Event.beforeRedaction", this, redactionEvent);
+    this.emit(MatrixEventEvent.BeforeRedaction, this, redactionEvent);
     this._replacingEvent = null; // we attempt to replicate what we would see from the server if
     // the event had been redacted before we saw it.
     //
@@ -924,6 +1037,8 @@ class MatrixEvent extends _events.EventEmitter {
         delete content[key];
       }
     }
+
+    this.invalidateExtensibleEvent();
   }
   /**
    * Check if this event has been redacted
@@ -943,7 +1058,64 @@ class MatrixEvent extends _events.EventEmitter {
 
 
   isRedaction() {
-    return this.getType() === "m.room.redaction";
+    return this.getType() === _event.EventType.RoomRedaction;
+  }
+  /**
+   * Return the visibility change caused by this event,
+   * as per https://github.com/matrix-org/matrix-doc/pull/3531.
+   *
+   * @returns If the event is a well-formed visibility change event,
+   * an instance of `IVisibilityChange`, otherwise `null`.
+   */
+
+
+  asVisibilityChange() {
+    if (!_event.EVENT_VISIBILITY_CHANGE_TYPE.matches(this.getType())) {
+      // Not a visibility change event.
+      return null;
+    }
+
+    const relation = this.getRelation();
+
+    if (!relation || relation.rel_type != "m.reference") {
+      // Ill-formed, ignore this event.
+      return null;
+    }
+
+    const eventId = relation.event_id;
+
+    if (!eventId) {
+      // Ill-formed, ignore this event.
+      return null;
+    }
+
+    const content = this.getWireContent();
+    const visible = !!content.visible;
+    const reason = content.reason;
+
+    if (reason && typeof reason != "string") {
+      // Ill-formed, ignore this event.
+      return null;
+    } // Well-formed visibility change event.
+
+
+    return {
+      visible,
+      reason,
+      eventId
+    };
+  }
+  /**
+   * Check if this event alters the visibility of another event,
+   * as per https://github.com/matrix-org/matrix-doc/pull/3531.
+   *
+   * @returns {boolean} True if this event alters the visibility
+   * of another event.
+   */
+
+
+  isVisibilityEvent() {
+    return _event.EVENT_VISIBILITY_CHANGE_TYPE.matches(this.getType());
   }
   /**
    * Get the (decrypted, if necessary) redaction event JSON
@@ -1012,8 +1184,10 @@ class MatrixEvent extends _events.EventEmitter {
 
     if (this.getId() !== oldId) {
       // emit the event if it changed
-      this.emit("Event.localEventIdReplaced", this);
+      this.emit(MatrixEventEvent.LocalEventIdReplaced, this);
     }
+
+    this.localTimestamp = Date.now() - this.getAge();
   }
   /**
    * Whether the event is in any phase of sending, send failure, waiting for
@@ -1035,12 +1209,12 @@ class MatrixEvent extends _events.EventEmitter {
 
   setStatus(status) {
     this.status = status;
-    this.emit("Event.status", this, status);
+    this.emit(MatrixEventEvent.Status, this, status);
   }
 
   replaceLocalEventId(eventId) {
     this.event.event_id = eventId;
-    this.emit("Event.localEventIdReplaced", this);
+    this.emit(MatrixEventEvent.LocalEventIdReplaced, this);
   }
   /**
    * Get whether the event is a relation event, and of a given type if
@@ -1055,8 +1229,7 @@ class MatrixEvent extends _events.EventEmitter {
   isRelation(relType = undefined) {
     // Relation info is lifted out of the encrypted content when sent to
     // encrypted rooms, so we have to check `getWireContent` for this.
-    const content = this.getWireContent();
-    const relation = content && content["m.relates_to"];
+    const relation = this.getWireContent()?.["m.relates_to"];
     return relation && relation.rel_type && relation.event_id && (relType && relation.rel_type === relType || !relType);
   }
   /**
@@ -1089,11 +1262,17 @@ class MatrixEvent extends _events.EventEmitter {
     // cancelled, which should be reflected on the target event.
     if (this.isRedacted() && newEvent) {
       return;
+    } // don't allow state events to be replaced using this mechanism as per MSC2676
+
+
+    if (this.isState()) {
+      return;
     }
 
     if (this._replacingEvent !== newEvent) {
       this._replacingEvent = newEvent;
-      this.emit("Event.replaced", this);
+      this.emit(MatrixEventEvent.Replaced, this);
+      this.invalidateExtensibleEvent();
     }
   }
   /**
@@ -1116,11 +1295,7 @@ class MatrixEvent extends _events.EventEmitter {
   }
 
   getServerAggregatedRelation(relType) {
-    const relations = this.getUnsigned()["m.relations"];
-
-    if (relations) {
-      return relations[relType];
-    }
+    return this.getUnsigned()["m.relations"]?.[relType];
   }
   /**
    * Returns the event ID of the event replacing the content of this event, if any.
@@ -1189,7 +1364,9 @@ class MatrixEvent extends _events.EventEmitter {
   getAssociatedId() {
     const relation = this.getRelation();
 
-    if (relation) {
+    if (this.replyEventId) {
+      return this.replyEventId;
+    } else if (relation) {
       return relation.event_id;
     } else if (this.isRedaction()) {
       return this.event.redacts;
@@ -1335,7 +1512,8 @@ class MatrixEvent extends _events.EventEmitter {
 
   setThread(thread) {
     this.thread = thread;
-    this.reEmitter.reEmit(thread, [_thread.ThreadEvent.Ready, _thread.ThreadEvent.Update]);
+    this.setThreadId(thread.id);
+    this.reEmitter.reEmit(thread, [_thread.ThreadEvent.Update]);
   }
   /**
    * @experimental
@@ -1344,6 +1522,10 @@ class MatrixEvent extends _events.EventEmitter {
 
   getThread() {
     return this.thread;
+  }
+
+  setThreadId(threadId) {
+    this.threadId = threadId;
   }
 
 }
@@ -1362,16 +1544,16 @@ exports.MatrixEvent = MatrixEvent;
 const REDACT_KEEP_KEYS = new Set(['event_id', 'type', 'room_id', 'user_id', 'sender', 'state_key', 'prev_state', 'content', 'unsigned', 'origin_server_ts']); // a map from event type to the .content keys we keep when an event is redacted
 
 const REDACT_KEEP_CONTENT_MAP = {
-  'm.room.member': {
+  [_event.EventType.RoomMember]: {
     'membership': 1
   },
-  'm.room.create': {
+  [_event.EventType.RoomCreate]: {
     'creator': 1
   },
-  'm.room.join_rules': {
+  [_event.EventType.RoomJoinRules]: {
     'join_rule': 1
   },
-  'm.room.power_levels': {
+  [_event.EventType.RoomPowerLevels]: {
     'ban': 1,
     'events': 1,
     'events_default': 1,
@@ -1381,7 +1563,7 @@ const REDACT_KEEP_CONTENT_MAP = {
     'users': 1,
     'users_default': 1
   },
-  'm.room.aliases': {
+  [_event.EventType.RoomAliases]: {
     'aliases': 1
   }
 };

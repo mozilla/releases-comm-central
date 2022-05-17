@@ -64,11 +64,11 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
   const params = {};
 
   if (width) {
-    params["width"] = Math.round(width);
+    params["width"] = Math.round(width).toString();
   }
 
   if (height) {
-    params["height"] = Math.round(height);
+    params["height"] = Math.round(height).toString();
   }
 
   if (resizeMethod) {
@@ -85,8 +85,8 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
   let fragment = "";
 
   if (fragmentOffset >= 0) {
-    fragment = serverAndMediaId.substr(fragmentOffset);
-    serverAndMediaId = serverAndMediaId.substr(0, fragmentOffset);
+    fragment = serverAndMediaId.slice(fragmentOffset);
+    serverAndMediaId = serverAndMediaId.slice(0, fragmentOffset);
   }
 
   const urlParams = Object.keys(params).length === 0 ? "" : "?" + utils.encodeParams(params);

@@ -9,13 +9,15 @@ var _logger = require("../logger");
 
 var _event = require("../models/event");
 
-var _events = require("events");
-
 var _CrossSigning = require("./CrossSigning");
 
 var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
 
 var _httpApi = require("../http-api");
+
+var _matrix = require("../matrix");
+
+var _typedEventEmitter = require("../models/typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -239,7 +241,7 @@ class EncryptionSetupOperation {
         // The backup is trusted because the user provided the private key.
         // Sign the backup with the cross signing key so the key backup can
         // be trusted via cross-signing.
-        await baseApis.http.authedRequest(undefined, "PUT", "/room_keys/version/" + this.keyBackupInfo.version, undefined, {
+        await baseApis.http.authedRequest(undefined, _httpApi.Method.Put, "/room_keys/version/" + this.keyBackupInfo.version, undefined, {
           algorithm: this.keyBackupInfo.algorithm,
           auth_data: this.keyBackupInfo.auth_data
         }, {
@@ -247,7 +249,7 @@ class EncryptionSetupOperation {
         });
       } else {
         // add new key backup
-        await baseApis.http.authedRequest(undefined, "POST", "/room_keys/version", undefined, this.keyBackupInfo, {
+        await baseApis.http.authedRequest(undefined, _httpApi.Method.Post, "/room_keys/version", undefined, this.keyBackupInfo, {
           prefix: _httpApi.PREFIX_UNSTABLE
         });
       }
@@ -263,7 +265,9 @@ class EncryptionSetupOperation {
 
 exports.EncryptionSetupOperation = EncryptionSetupOperation;
 
-class AccountDataClientAdapter extends _events.EventEmitter {
+class AccountDataClientAdapter extends _typedEventEmitter.TypedEventEmitter {
+  //
+
   /**
    * @param  {Object.<String, MatrixEvent>} existingValues existing account data
    */
@@ -321,7 +325,7 @@ class AccountDataClientAdapter extends _events.EventEmitter {
         type,
         content
       });
-      this.emit("accountData", event, lastEvent);
+      this.emit(_matrix.ClientEvent.AccountData, event, lastEvent);
       return {};
     });
   }

@@ -602,7 +602,8 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       contentMap[userId][deviceId] = message;
     }
 
-    await this.baseApis.sendToDevice("org.matrix.room_key.withheld", contentMap); // record the fact that we notified these blocked devices
+    await this.baseApis.sendToDevice("org.matrix.room_key.withheld", contentMap);
+    await this.baseApis.sendToDevice("m.room_key.withheld", contentMap); // record the fact that we notified these blocked devices
 
     for (const userId of Object.keys(contentMap)) {
       for (const deviceId of Object.keys(contentMap[userId])) {
@@ -1238,7 +1239,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
     const senderKey = content.sender_key;
     const sessionId = content.session_id;
     const senderPendingEvents = this.pendingEvents[senderKey];
-    const pendingEvents = senderPendingEvents && senderPendingEvents.get(sessionId);
+    const pendingEvents = senderPendingEvents?.get(sessionId);
 
     if (!pendingEvents) {
       return;
@@ -1247,7 +1248,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
     pendingEvents.delete(event);
 
     if (pendingEvents.size === 0) {
-      senderPendingEvents.delete(senderKey);
+      senderPendingEvents.delete(sessionId);
     }
 
     if (senderPendingEvents.size === 0) {
@@ -1559,7 +1560,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       }
     })); // If decrypted successfully, they'll have been removed from pendingEvents
 
-    return !(this.pendingEvents[senderKey] || {})[sessionId];
+    return !this.pendingEvents[senderKey]?.has(sessionId);
   }
 
   async retryDecryptionFromSender(senderKey) {

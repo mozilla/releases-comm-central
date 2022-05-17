@@ -3,11 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.VerificationBase = exports.SwitchStartEventError = void 0;
+exports.VerificationEvent = exports.VerificationBase = exports.SwitchStartEventError = void 0;
 
 var _event = require("../../models/event");
-
-var _events = require("events");
 
 var _logger = require("../../logger");
 
@@ -16,6 +14,8 @@ var _deviceinfo = require("../deviceinfo");
 var _Error = require("./Error");
 
 var _CrossSigning = require("../CrossSigning");
+
+var _typedEventEmitter = require("../../models/typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -30,8 +30,14 @@ class SwitchStartEventError extends Error {
 }
 
 exports.SwitchStartEventError = SwitchStartEventError;
+let VerificationEvent;
+exports.VerificationEvent = VerificationEvent;
 
-class VerificationBase extends _events.EventEmitter {
+(function (VerificationEvent) {
+  VerificationEvent["Cancel"] = "cancel";
+})(VerificationEvent || (exports.VerificationEvent = VerificationEvent = {}));
+
+class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Base class for verification methods.
    *
@@ -275,7 +281,7 @@ class VerificationBase extends _events.EventEmitter {
       // before calling verify()
 
 
-      this.emit('cancel', e);
+      this.emit(VerificationEvent.Cancel, e);
     }
   }
   /**

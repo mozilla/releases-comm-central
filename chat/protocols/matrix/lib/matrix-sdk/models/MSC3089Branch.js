@@ -7,9 +7,11 @@ exports.MSC3089Branch = void 0;
 
 var _event = require("../@types/event");
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+var _eventTimeline = require("./event-timeline");
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -31,7 +33,13 @@ class MSC3089Branch {
 
 
   get id() {
-    return this.indexEvent.getStateKey();
+    const stateKey = this.indexEvent.getStateKey();
+
+    if (!stateKey) {
+      throw new Error("State key not found for branch");
+    }
+
+    return stateKey;
   }
   /**
    * Whether this branch is active/valid.
@@ -118,6 +126,11 @@ class MSC3089Branch {
     const event = await this.getFileEvent();
     const file = event.getOriginalContent()['file'];
     const httpUrl = this.client.mxcUrlToHttp(file['url']);
+
+    if (!httpUrl) {
+      throw new Error(`No HTTP URL available for ${file['url']}`);
+    }
+
     return {
       info: file,
       httpUrl: httpUrl
@@ -132,7 +145,13 @@ class MSC3089Branch {
   async getFileEvent() {
     const room = this.client.getRoom(this.roomId);
     if (!room) throw new Error("Unknown room");
-    const event = room.getUnfilteredTimelineSet().findEventById(this.id);
+    let event = room.getUnfilteredTimelineSet().findEventById(this.id); // keep scrolling back if needed until we find the event or reach the start of the room:
+
+    while (!event && room.getLiveTimeline().getState(_eventTimeline.EventTimeline.BACKWARDS).paginationToken) {
+      await this.client.scrollback(room, 100);
+      event = room.getUnfilteredTimelineSet().findEventById(this.id);
+    }
+
     if (!event) throw new Error("Failed to find event"); // Sometimes the event isn't decrypted for us, so do that. We specifically set `emit: true`
     // to ensure that the relations system in the sdk will function.
 
@@ -148,7 +167,7 @@ class MSC3089Branch {
    * @param {File | String | Buffer | ReadStream | Blob} encryptedContents The encrypted contents.
    * @param {Partial<IEncryptedFile>} info The encrypted file information.
    * @param {IContent} additionalContent Optional event content fields to include in the message.
-   * @returns {Promise<void>} Resolves when uploaded.
+   * @returns {Promise<ISendEventResponse>} Resolves to the file event's sent response.
    */
 
 
@@ -170,6 +189,7 @@ class MSC3089Branch {
     await this.client.sendStateEvent(this.roomId, _event.UNSTABLE_MSC3089_BRANCH.name, _objectSpread(_objectSpread({}, this.indexEvent.getContent()), {}, {
       active: false
     }), this.id);
+    return fileEventResponse;
   }
   /**
    * Gets the file's version history, starting at this file.

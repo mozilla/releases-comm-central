@@ -99,7 +99,7 @@ const GET_EVENT_LEVEL_FIXTURES = [
     powerLevels: {
       events_default: 0,
       events: {
-        [EventType.RoomMessage]: 0,
+        [MatrixSDK.EventType.RoomMessage]: 0,
       },
     },
     expected: 0,
@@ -108,7 +108,7 @@ const GET_EVENT_LEVEL_FIXTURES = [
     powerLevels: {
       events_default: 0,
       events: {
-        [EventType.RoomMessage]: Infinity,
+        [MatrixSDK.EventType.RoomMessage]: Infinity,
       },
     },
     expected: 0,
@@ -117,7 +117,7 @@ const GET_EVENT_LEVEL_FIXTURES = [
     powerLevels: {
       events_default: 0,
       events: {
-        [EventType.RoomMessage]: "foo",
+        [MatrixSDK.EventType.RoomMessage]: "foo",
       },
     },
     expected: 0,
@@ -126,7 +126,7 @@ const GET_EVENT_LEVEL_FIXTURES = [
     powerLevels: {
       events_default: 0,
       events: {
-        [EventType.RoomMessage]: 10,
+        [MatrixSDK.EventType.RoomMessage]: 10,
       },
     },
     expected: 10,
@@ -194,7 +194,7 @@ add_task(async function testGetEventLevel() {
     equal(
       MatrixPowerLevels.getEventLevel(
         eventLevelTest.powerLevels,
-        EventType.RoomMessage
+        MatrixSDK.EventType.RoomMessage
       ),
       eventLevelTest.expected
     );

@@ -100,7 +100,7 @@ class RoomHierarchy {
           this.backRefs.set(childRoomId, []);
         }
 
-        this.backRefs.get(childRoomId).push(ev.room_id); // fill viaMap
+        this.backRefs.get(childRoomId).push(room.room_id); // fill viaMap
 
         if (Array.isArray(ev.content.via)) {
           if (!this.viaMap.has(childRoomId)) {

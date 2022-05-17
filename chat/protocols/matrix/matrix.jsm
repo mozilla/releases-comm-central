@@ -43,12 +43,10 @@ XPCOMUtils.defineLazyGetter(this, "brandShortName", () =>
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   MatrixSDK: "resource:///modules/matrix-sdk.jsm",
-  getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
-  EventTimeline: "resource:///modules/matrix-sdk.jsm",
-  EventType: "resource:///modules/matrix-sdk.jsm",
-  EventStatus: "resource:///modules/matrix-sdk.jsm",
-  MsgType: "resource:///modules/matrix-sdk.jsm",
   MatrixCrypto: "resource:///modules/matrix-sdk.jsm",
+  SyncState: "resource:///modules/matrix-sdk.jsm",
+  OlmLib: "resource:///modules/matrix-sdk.jsm",
+  SasEvent: "resource:///modules/matrix-sdk.jsm",
   MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
@@ -66,7 +64,6 @@ const HOMESERVER_WELL_KNOWN = "m.homeserver";
 const USER_ICON_SIZE = 48;
 const SERVER_NOTICE_TAG = "m.server_notice";
 
-const MEGOLM_AES_SHA2 = "m.megolm.v1.aes-sha2";
 const MAX_CATCHUP_EVENTS = 300;
 // Should always be smaller or equal to MAX_CATCHUP_EVENTS
 const CATCHUP_PAGE_SIZE = 100;
@@ -111,7 +108,7 @@ MatrixMessage.prototype = {
     if (
       this._displayed ||
       !this.event ||
-      (this.event.status && this.event.status !== EventStatus.SENT)
+      (this.event.status && this.event.status !== MatrixSDK.EventStatus.SENT)
     ) {
       return;
     }
@@ -130,7 +127,7 @@ MatrixMessage.prototype = {
       !this.event ||
       !this.conversation._account ||
       this.conversation._account.noFullyRead ||
-      (this.event.status && this.event.status !== EventStatus.SENT)
+      (this.event.status && this.event.status !== MatrixSDK.EventStatus.SENT)
     ) {
       return;
     }
@@ -198,7 +195,7 @@ MatrixMessage.prototype = {
         },
       });
     }
-    if (this.event?.status === EventStatus.NOT_SENT) {
+    if (this.event?.status === MatrixSDK.EventStatus.NOT_SENT) {
       actions.push({
         label: _("message.action.retry"),
         run: () => {
@@ -211,9 +208,9 @@ MatrixMessage.prototype = {
     }
     if (
       [
-        EventStatus.NOT_SENT,
-        EventStatus.QUEUED,
-        EventStatus.ENCRYPTING,
+        MatrixSDK.EventStatus.NOT_SENT,
+        MatrixSDK.EventStatus.QUEUED,
+        MatrixSDK.EventStatus.ENCRYPTING,
       ].includes(this.event?.status)
     ) {
       actions.push({
@@ -300,12 +297,14 @@ MatrixParticipant.prototype = {
     const room = this._account?._client?.getRoom(this._roomMember.roomId);
     if (room) {
       const powerLevels = room.currentState
-        .getStateEvents(EventType.RoomPowerLevels, "")
+        .getStateEvents(MatrixSDK.EventType.RoomPowerLevels, "")
         ?.getContent();
       const defaultLevel = MatrixPowerLevels.getUserDefaultLevel(powerLevels);
       const messageLevel = MatrixPowerLevels.getEventLevel(
         powerLevels,
-        EventType.RoomMessage
+        this._account._client.isRoomEncrypted(room.roomId)
+          ? MatrixSDK.EventType.RoomMessageEncrypted
+          : MatrixSDK.EventType.RoomMessage
       );
       if (defaultLevel < messageLevel) {
         return room.currentState.maySendMessage(this._id);
@@ -383,7 +382,7 @@ MatrixBuddy.prototype = {
   get buddyIconFilename() {
     return (
       (this._user &&
-        getHttpUriForMxc(this._account._baseURL, this._user.avatarUrl)) ||
+        this._account._client.mxcUrlToHttp(this._user.avatarUrl)) ||
       ""
     );
   },
@@ -657,7 +656,7 @@ MatrixRoom.prototype = {
       latestOldEvent = this._mostRecentEventId;
     } else {
       // Last message the user has read with high certainty.
-      const fullyRead = this.room.getAccountData(EventType.FullyRead);
+      const fullyRead = this.room.getAccountData(MatrixSDK.EventType.FullyRead);
       if (fullyRead) {
         latestOldEvent = fullyRead.getContent().event_id;
       }
@@ -687,7 +686,7 @@ MatrixRoom.prototype = {
     while (
       endIndex === -1 &&
       timelineWindow.getEvents().length < MAX_CATCHUP_EVENTS &&
-      timelineWindow.canPaginate(EventTimeline.BACKWARDS)
+      timelineWindow.canPaginate(MatrixSDK.EventTimeline.BACKWARDS)
     ) {
       const baseSize = timelineWindow.getEvents().length;
       const windowSize = Math.min(
@@ -695,7 +694,7 @@ MatrixRoom.prototype = {
         CATCHUP_PAGE_SIZE
       );
       const didLoadEvents = await timelineWindow.paginate(
-        EventTimeline.BACKWARDS,
+        MatrixSDK.EventTimeline.BACKWARDS,
         windowSize
       );
       // Only search in the newly added events
@@ -762,16 +761,16 @@ MatrixRoom.prototype = {
       newestEventId = event.getRedactionEvent()?.event_id;
       replace = true;
       opts.system = ![
-        EventType.RoomMessage,
-        EventType.RoomMessageEncrypted,
-        EventType.Sticker,
+        MatrixSDK.EventType.RoomMessage,
+        MatrixSDK.EventType.RoomMessageEncrypted,
+        MatrixSDK.EventType.Sticker,
       ].includes(eventType);
       opts.deleted = true;
     } else if (
       [
-        EventType.RoomMessage,
-        EventType.RoomMessageEncrypted,
-        EventType.Sticker,
+        MatrixSDK.EventType.RoomMessage,
+        MatrixSDK.EventType.RoomMessageEncrypted,
+        MatrixSDK.EventType.Sticker,
       ].includes(eventType)
     ) {
       const eventContent = event.getContent();
@@ -784,18 +783,18 @@ MatrixRoom.prototype = {
       }
       opts.system = [
         "m.server_notice",
-        MsgType.KeyVerificationRequest,
+        MatrixSDK.MsgType.KeyVerificationRequest,
       ].includes(eventContent.msgtype);
       opts.error = event.isDecryptionFailure();
-      opts.notification = eventContent.msgtype === MsgType.Notice;
-      opts.action = eventContent.msgtype === MsgType.Emote;
-    } else if (eventType === EventType.RoomEncryption) {
+      opts.notification = eventContent.msgtype === MatrixSDK.MsgType.Notice;
+      opts.action = eventContent.msgtype === MatrixSDK.MsgType.Emote;
+    } else if (eventType === MatrixSDK.EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
       opts.system = true;
       this.updateUnverifiedDevices();
-    } else if (eventType == EventType.RoomTopic) {
+    } else if (eventType == MatrixSDK.EventType.RoomTopic) {
       this.setTopic(event.getContent().topic, event.getSender());
-    } else if (eventType == EventType.RoomTombstone) {
+    } else if (eventType == MatrixSDK.EventType.RoomTombstone) {
       // Room version update
       this.writeMessage(event.getSender(), event.getContent().body, {
         system: true,
@@ -813,7 +812,7 @@ MatrixRoom.prototype = {
       this.replaceRoom(newConversation);
       this.forget();
       //TODO link to the old logs based on the |predecessor| field of m.room.create
-    } else if (eventType == EventType.RoomAvatar) {
+    } else if (eventType == MatrixSDK.EventType.RoomAvatar) {
       // Update the icon of this room.
       this.updateConvIcon();
     } else {
@@ -975,7 +974,9 @@ MatrixRoom.prototype = {
     return this._account._client.getRoom(this._roomId);
   },
   get roomState() {
-    return this.room.getLiveTimeline().getState(EventTimeline.FORWARDS);
+    return this.room
+      .getLiveTimeline()
+      .getState(MatrixSDK.EventTimeline.FORWARDS);
   },
   /**
    * If we should send typing notifications to the remote server.
@@ -1142,8 +1143,8 @@ MatrixRoom.prototype = {
     });
 
     let roomState = this.roomState;
-    if (roomState.getStateEvents(EventType.RoomTopic).length) {
-      let event = roomState.getStateEvents(EventType.RoomTopic)[0];
+    if (roomState.getStateEvents(MatrixSDK.EventType.RoomTopic).length) {
+      let event = roomState.getStateEvents(MatrixSDK.EventType.RoomTopic)[0];
       this.setTopic(event.getContent().topic, event.getSender(), true);
     }
   },
@@ -1162,7 +1163,7 @@ MatrixRoom.prototype = {
   get topicSettable() {
     if (this.room) {
       return this.roomState.maySendEvent(
-        EventType.RoomTopic,
+        MatrixSDK.EventType.RoomTopic,
         this._account.userId
       );
     }
@@ -1259,12 +1260,12 @@ MatrixRoom.prototype = {
     const newerThanMs = Date.now() - threeDaysMs;
     await timelineWindow.load(undefined, windowChunkSize);
     while (
-      timelineWindow.canPaginate(EventTimeline.BACKWARDS) &&
+      timelineWindow.canPaginate(MatrixSDK.EventTimeline.BACKWARDS) &&
       timelineWindow.getEvents()[0].getTs() >= newerThanMs
     ) {
       if (
         !(await timelineWindow.paginate(
-          EventTimeline.BACKWARDS,
+          MatrixSDK.EventTimeline.BACKWARDS,
           windowChunkSize
         ))
       ) {
@@ -1277,8 +1278,9 @@ MatrixRoom.prototype = {
       // Find verification requests that are still in the requested state that
       // were sent by the other user.
       if (
-        event.getType() === EventType.RoomMessage &&
-        event.getContent().msgtype === EventType.KeyVerificationRequest &&
+        event.getType() === MatrixSDK.EventType.RoomMessage &&
+        event.getContent().msgtype ===
+          MatrixSDK.EventType.KeyVerificationRequest &&
         event.getSender() !== this._account.userId &&
         event.verificationRequest?.requested
       ) {
@@ -1360,7 +1362,7 @@ MatrixRoom.prototype = {
       !this._account._client.isCryptoEnabled() ||
       (!this._account._client.isRoomEncrypted(this._roomId) &&
         !this.room?.currentState.mayClientSendStateEvent(
-          EventType.RoomEncryption,
+          MatrixSDK.EventType.RoomEncryption,
           this._account._client
         ))
     ) {
@@ -1380,8 +1382,8 @@ MatrixRoom.prototype = {
     }
     this._account._client.sendStateEvent(
       this._roomId,
-      EventType.RoomEncryption,
-      { algorithm: MEGOLM_AES_SHA2 }
+      MatrixSDK.EventType.RoomEncryption,
+      { algorithm: OlmLib.MEGOLM_ALGORITHM }
     );
   },
 };
@@ -1413,7 +1415,7 @@ async function startVerification(request) {
     }
   }
   const sasEventPromise = new Promise(resolve =>
-    request.verifier.once("show_sas", resolve)
+    request.verifier.once(SasEvent.ShowSas, resolve)
   );
   request.verifier.verify();
   const sasEvent = await sasEventPromise;
@@ -1604,7 +1606,7 @@ MatrixAccount.prototype = {
     if (this._client) {
       pendingClientOperations.finally(() => {
         // Avoid sending connection status changes.
-        this._client.removeAllListeners("sync");
+        this._client.removeAllListeners(MatrixSDK.ClientEvent.Sync);
         this._client.stopClient();
       });
     }
@@ -1930,27 +1932,27 @@ MatrixAccount.prototype = {
    * https://matrix-org.github.io/matrix-js-sdk/2.4.1/module-client.html#~event:MatrixClient%22accountData%22
    */
   startClient() {
-    this._client.on("sync", (state, prevState, data) => {
+    this._client.on(MatrixSDK.ClientEvent.Sync, (state, prevState, data) => {
       switch (state) {
-        case "PREPARED":
+        case SyncState.Prepared:
           if (prevState !== state) {
             this.setPresence(this.imAccount.statusInfo);
           }
           this.reportConnected();
           break;
-        case "STOPPED":
+        case SyncState.Stopped:
           this.reportDisconnected();
           break;
-        case "SYNCING":
+        case SyncState.Syncing:
           if (prevState !== state) {
             this.reportConnected();
             this.handleCaughtUp();
           }
           break;
-        case "RECONNECTING":
+        case SyncState.Reconnecting:
           this.reportConnecting();
           break;
-        case "ERROR":
+        case SyncState.Error:
           if (
             data.error.reason ==
             MatrixSDK.InvalidStoreError.TOGGLED_LAZY_LOADING
@@ -1964,47 +1966,50 @@ MatrixAccount.prototype = {
           );
           this.reportDisconnected();
           break;
-        case "CATCHUP":
+        case SyncState.Catchup:
           this.reportConnecting();
           break;
       }
     });
-    this._client.on("RoomMember.membership", (event, member, oldMembership) => {
-      if (this._catchingUp) {
-        return;
-      }
-      if (this.roomList.has(member.roomId)) {
-        let conv = this.roomList.get(member.roomId);
-        if (conv.isChat) {
-          if (member.membership === "join") {
-            conv.addParticipant(member);
-          } else if (member.membership === "leave") {
-            conv.removeParticipant(member.userId);
+    this._client.on(
+      MatrixSDK.RoomMemberEvent.Membership,
+      (event, member, oldMembership) => {
+        if (this._catchingUp) {
+          return;
+        }
+        if (this.roomList.has(member.roomId)) {
+          let conv = this.roomList.get(member.roomId);
+          if (conv.isChat) {
+            if (member.membership === "join") {
+              conv.addParticipant(member);
+            } else if (member.membership === "leave") {
+              conv.removeParticipant(member.userId);
+            }
+          }
+          // If we are leaving the room, remove the conversation. If any user gets
+          // added or removed in the direct chat, update the conversation type. We
+          // are treating the direct chat with two people as a direct conversation
+          // only. Matrix supports multiple users in the direct chat. So we will
+          // treat all the rooms which have 2 users including us and classified as
+          // a DM room by SDK a direct conversation and all other rooms as a group
+          // conversations.
+          if (member.membership === "leave" && member.userId == this.userId) {
+            conv.forget();
+          } else if (
+            member.membership === "join" ||
+            member.membership === "leave"
+          ) {
+            conv.checkForUpdate();
           }
         }
-        // If we are leaving the room, remove the conversation. If any user gets
-        // added or removed in the direct chat, update the conversation type. We
-        // are treating the direct chat with two people as a direct conversation
-        // only. Matrix supports multiple users in the direct chat. So we will
-        // treat all the rooms which have 2 users including us and classified as
-        // a DM room by SDK a direct conversation and all other rooms as a group
-        // conversations.
-        if (member.membership === "leave" && member.userId == this.userId) {
-          conv.forget();
-        } else if (
-          member.membership === "join" ||
-          member.membership === "leave"
-        ) {
-          conv.checkForUpdate();
-        }
       }
-    });
+    );
 
     /*
      * Get the map of direct messaging rooms.
      */
-    this._client.on("accountData", event => {
-      if (event.getType() == EventType.Direct) {
+    this._client.on(MatrixSDK.ClientEvent.AccountData, event => {
+      if (event.getType() == MatrixSDK.EventType.Direct) {
         const oldRooms = Object.values(this._userToRoom ?? {}).flat();
         this._userToRoom = event.getContent();
         // Check type for all conversations that were added or removed from the
@@ -2024,7 +2029,7 @@ MatrixAccount.prototype = {
     });
 
     this._client.on(
-      "Room.timeline",
+      MatrixSDK.RoomEvent.Timeline,
       (event, room, toStartOfTimeline, removed, data) => {
         if (toStartOfTimeline || this._catchingUp || room.isSpaceRoom()) {
           return;
@@ -2034,7 +2039,7 @@ MatrixAccount.prototype = {
           // If our membership changed to join without us knowing about the
           // room, another client probably accepted an invite.
           if (
-            event.getType() == EventType.RoomMember &&
+            event.getType() == MatrixSDK.EventType.RoomMember &&
             event.target.userId == this.userId &&
             event.getContent().membership == "join" &&
             event.getPrevContent()?.membership == "invite"
@@ -2063,12 +2068,12 @@ MatrixAccount.prototype = {
     );
     // Queued, sending and failed events
     this._client.on(
-      "Room.localEchoUpdated",
+      MatrixSDK.RoomEvent.LocalEchoUpdated,
       (event, room, oldEventId, oldStatus) => {
         if (
           this._catchingUp ||
           room.isSpaceRoom() ||
-          event.getType() !== EventType.RoomMessage
+          event.getType() !== MatrixSDK.EventType.RoomMessage
         ) {
           return;
         }
@@ -2076,7 +2081,7 @@ MatrixAccount.prototype = {
         if (!conv) {
           return;
         }
-        if (event.status === EventStatus.NOT_SENT) {
+        if (event.status === MatrixSDK.EventStatus.NOT_SENT) {
           if (this._failedEvents.has(event.getId())) {
             return;
           }
@@ -2091,19 +2096,20 @@ MatrixAccount.prototype = {
             }
           );
         } else if (
-          (event.status === EventStatus.SENT || event.status === null) &&
+          (event.status === MatrixSDK.EventStatus.SENT ||
+            event.status === null) &&
           oldEventId
         ) {
           this._failedEvents.delete(oldEventId);
           conv.removeMessage(oldEventId);
-        } else if (event.status === EventStatus.CANCELLED) {
+        } else if (event.status === MatrixSDK.EventStatus.CANCELLED) {
           this._failedEvents.delete(event.getId());
           conv.removeMessage(event.getId());
         }
       }
     );
     // An event that was already in the room timeline was redacted
-    this._client.on("Room.redaction", (event, room) => {
+    this._client.on(MatrixSDK.RoomEvent.Redaction, (event, room) => {
       let conv = this.roomList.get(room.roomId);
       if (conv) {
         const redactedEvent = conv.room?.findEventById(event.getAssociatedId());
@@ -2112,7 +2118,7 @@ MatrixAccount.prototype = {
         }
       }
     });
-    this._client.on("Event.decrypted", (event, error) => {
+    this._client.on(MatrixSDK.MatrixEventEvent.Decrypted, (event, error) => {
       if (error) {
         this.ERROR(error);
         return;
@@ -2124,10 +2130,16 @@ MatrixAccount.prototype = {
       conv.addEvent(event);
     });
     // Update the chat participant information.
-    this._client.on("RoomMember.name", this.updateRoomMember.bind(this));
-    this._client.on("RoomMember.powerLevel", this.updateRoomMember.bind(this));
+    this._client.on(
+      MatrixSDK.RoomMemberEvent.Name,
+      this.updateRoomMember.bind(this)
+    );
+    this._client.on(
+      MatrixSDK.RoomMemberEvent.PowerLevel,
+      this.updateRoomMember.bind(this)
+    );
 
-    this._client.on("Room.name", room => {
+    this._client.on(MatrixSDK.RoomEvent.Name, room => {
       if (room.isSpaceRoom()) {
         return;
       }
@@ -2145,7 +2157,7 @@ MatrixAccount.prototype = {
      * earlier when SDK gets connected. We will use that part to to make
      * conversations, direct or group.
      */
-    this._client.on("Room", room => {
+    this._client.on(MatrixSDK.ClientEvent.Room, room => {
       if (this._catchingUp || room.isSpaceRoom()) {
         return;
       }
@@ -2182,7 +2194,7 @@ MatrixAccount.prototype = {
       }
     });
 
-    this._client.on("RoomMember.typing", (event, member) => {
+    this._client.on(MatrixSDK.RoomMemberEvent.Typing, (event, member) => {
       if (member.userId != this.userId) {
         let conv = this.roomList.get(member.roomId);
         if (!conv) {
@@ -2198,19 +2210,22 @@ MatrixAccount.prototype = {
       }
     });
 
-    this._client.on("RoomState.members", (event, state, member) => {
-      if (this.roomList.has(state.roomId)) {
-        const conversation = this.roomList.get(state.roomId);
-        if (conversation.isChat) {
-          const participant = conversation._participants.get(member.userId);
-          if (participant) {
-            conversation.notifyObservers(participant, "chat-buddy-update");
+    this._client.on(
+      MatrixSDK.RoomStateEvent.Members,
+      (event, state, member) => {
+        if (this.roomList.has(state.roomId)) {
+          const conversation = this.roomList.get(state.roomId);
+          if (conversation.isChat) {
+            const participant = conversation._participants.get(member.userId);
+            if (participant) {
+              conversation.notifyObservers(participant, "chat-buddy-update");
+            }
           }
         }
       }
-    });
+    );
 
-    this._client.on("Session.logged_out", error => {
+    this._client.on(MatrixSDK.HttpApiEvent.SessionLoggedOut, error => {
       this.prefs.clearUserPref("accessToken");
       // https://spec.matrix.org/unstable/client-server-api/#soft-logout
       if (!error.data.soft_logout) {
@@ -2225,20 +2240,29 @@ MatrixAccount.prototype = {
       this.reportDisconnected();
     });
 
-    this._client.on("User.avatarUrl", this.updateBuddy.bind(this));
-    this._client.on("User.displayName", this.updateBuddy.bind(this));
-    this._client.on("User.presence", this.updateBuddy.bind(this));
-    this._client.on("User.currentlyActive", this.updateBuddy.bind(this));
+    this._client.on(MatrixSDK.UserEvent.AvatarUrl, this.updateBuddy.bind(this));
+    this._client.on(
+      MatrixSDK.UserEvent.DisplayName,
+      this.updateBuddy.bind(this)
+    );
+    this._client.on(MatrixSDK.UserEvent.Presence, this.updateBuddy.bind(this));
+    this._client.on(
+      MatrixSDK.UserEvent.CurrentlyActive,
+      this.updateBuddy.bind(this)
+    );
 
-    this._client.on("userTrustStatusChanged", (userId, trustLevel) => {
-      this.updateConvDeviceTrust(
-        conv =>
-          (conv.isChat && conv.getParticipant(userId)) ||
-          (!conv.isChat && conv.buddy?.userName == userId)
-      );
-    });
+    this._client.on(
+      MatrixCrypto.CryptoEvent.UserTrustStatusChanged,
+      (userId, trustLevel) => {
+        this.updateConvDeviceTrust(
+          conv =>
+            (conv.isChat && conv.getParticipant(userId)) ||
+            (!conv.isChat && conv.buddy?.userName == userId)
+        );
+      }
+    );
 
-    this._client.on("crypto.devicesUpdated", users => {
+    this._client.on(MatrixCrypto.CryptoEvent.DevicesUpdated, users => {
       if (users.includes(this.userId)) {
         this.reportSessionsChanged();
         this.updateEncryptionStatus();
@@ -2256,17 +2280,17 @@ MatrixAccount.prototype = {
 
     // From the SDK documentation: Fires when the user's cross-signing keys
     // have changed or cross-signing has been enabled/disabled
-    this._client.on("crossSigning.keysChanged", () => {
+    this._client.on(MatrixCrypto.CryptoEvent.KeysChanged, () => {
       this.reportSessionsChanged();
       this.updateEncryptionStatus();
       this.updateConvDeviceTrust();
     });
-    this._client.on("crypto.keyBackupStatus", () => {
+    this._client.on(MatrixCrypto.CryptoEvent.KeyBackupStatus, () => {
       this.bootstrapSSSS();
       this.updateEncryptionStatus();
     });
 
-    this._client.on("crypto.verification.request", request => {
+    this._client.on(MatrixCrypto.CryptoEvent.VerificationRequest, request => {
       this.handleIncomingVerificationRequest(request);
     });
 
@@ -2281,7 +2305,7 @@ MatrixAccount.prototype = {
       .then(() =>
         Promise.all([
           this._client.startClient({
-            pendingEventOrdering: "detached",
+            pendingEventOrdering: MatrixSDK.PendingEventOrdering.Detached,
             lazyLoadMembers: true,
           }),
           this.updateEncryptionStatus(),
@@ -2592,14 +2616,17 @@ MatrixAccount.prototype = {
                 resolve();
               }
             };
-            this._client.on("RoomState.newMember", waitForMember);
+            this._client.on(MatrixSDK.RoomStateEvent.NewMember, waitForMember);
             timeout = setTimeout(resolve, 2000);
             this._verificationRequestTimeouts.add(timeout);
           });
         } finally {
           this._verificationRequestTimeouts.delete(timeout);
           clearTimeout(timeout);
-          this._client.removeListener("RoomState.newMember", waitForMember);
+          this._client.removeListener(
+            MatrixSDK.RoomStateEvent.NewMember,
+            waitForMember
+          );
         }
       }
       request = await this._client.requestVerificationDM(userId, conv._roomId);
@@ -2738,14 +2765,14 @@ MatrixAccount.prototype = {
     } else {
       buddy._user = user;
     }
-    if (event.getType() === "User.avatarUrl") {
+    if (event.getType() === MatrixSDK.UserEvent.AvatarUrl) {
       buddy._notifyObservers("icon-changed");
     } else if (
-      event.getType() === "User.presence" ||
-      event.getType() === "User.currentlyActive"
+      event.getType() === MatrixSDK.UserEvent.Presence ||
+      event.getType() === MatrixSDK.UserEvent.CurrentlyActive
     ) {
       buddy.setStatusFromPresence();
-    } else if (event.getType() === "User.displayName") {
+    } else if (event.getType() === MatrixSDK.UserEvent.DisplayName) {
       buddy.serverAlias = user.displayName;
     }
   },
@@ -2840,8 +2867,8 @@ MatrixAccount.prototype = {
             return this.createRoom(this._pendingRoomAliases, roomId, conv, {
               room_alias_name: alias,
               name: roomName || alias,
-              visibility: "private",
-              preset: "private_chat",
+              visibility: MatrixSDK.Visibility.Private,
+              preset: MatrixSDK.Preset.PrivateChat,
             });
           }
           conv.joining = false;
@@ -2972,7 +2999,7 @@ MatrixAccount.prototype = {
     if (!roomList.includes(roomId)) {
       roomList.push(roomId);
       dmRoomMap[userId] = roomList;
-      this._client.setAccountData(EventType.Direct, dmRoomMap);
+      this._client.setAccountData(MatrixSDK.EventType.Direct, dmRoomMap);
     }
   },
 
@@ -3142,8 +3169,8 @@ MatrixAccount.prototype = {
       {
         is_direct: true,
         invite: [userId],
-        visibility: "private",
-        preset: "trusted_private_chat",
+        visibility: MatrixSDK.Visibility.Private,
+        preset: MatrixSDK.Preset.TrustedPrivateChat,
       },
       roomId => {
         this.setDirectRoom(userId, roomId);
@@ -3179,10 +3206,10 @@ MatrixAccount.prototype = {
             roomInit.initial_state = [];
           }
           roomInit.initial_state.push({
-            type: EventType.RoomEncryption,
+            type: MatrixSDK.EventType.RoomEncryption,
             state_key: "",
             content: {
-              algorithm: MEGOLM_AES_SHA2,
+              algorithm: OlmLib.MEGOLM_ALGORITHM,
             },
           });
         }
@@ -3304,8 +3331,7 @@ MatrixAccount.prototype = {
 
     if (user.avatarUrl) {
       // Convert the MXC URL to an HTTP URL.
-      let realUrl = getHttpUriForMxc(
-        this._client.getHomeserverUrl(),
+      let realUrl = this._client.mxcUrlToHttp(
         user.avatarUrl,
         USER_ICON_SIZE,
         USER_ICON_SIZE,

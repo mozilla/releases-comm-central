@@ -4,9 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Shimmed dependencies of the matrix-js-sdk that we can provide through direct
-# implementation instead of through npm package.s
+# implementation instead of through npm packages.
 
 EXTRA_JS_MODULES.matrix += [
+    "empty.js",
     "loglevel.js",
     "safe-buffer.js",
     "url.js",

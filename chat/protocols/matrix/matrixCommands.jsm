@@ -7,7 +7,7 @@ this.EXPORTED_SYMBOLS = ["commands"];
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
@@ -42,21 +42,21 @@ function getAccount(conv) {
 
 var EVENT_TO_STRING = {
   ban: "powerLevel.ban",
-  [EventType.RoomAvatar]: "powerLevel.roomAvatar",
-  [EventType.RoomCanonicalAlias]: "powerLevel.mainAddress",
-  [EventType.RoomHistoryVisibility]: "powerLevel.history",
-  [EventType.RoomName]: "powerLevel.roomName",
-  [EventType.RoomPowerLevels]: "powerLevel.changePermissions",
-  [EventType.RoomServerAcl]: "powerLevel.server_acl",
-  [EventType.RoomTombstone]: "powerLevel.upgradeRoom",
+  [MatrixSDK.EventType.RoomAvatar]: "powerLevel.roomAvatar",
+  [MatrixSDK.EventType.RoomCanonicalAlias]: "powerLevel.mainAddress",
+  [MatrixSDK.EventType.RoomHistoryVisibility]: "powerLevel.history",
+  [MatrixSDK.EventType.RoomName]: "powerLevel.roomName",
+  [MatrixSDK.EventType.RoomPowerLevels]: "powerLevel.changePermissions",
+  [MatrixSDK.EventType.RoomServerAcl]: "powerLevel.server_acl",
+  [MatrixSDK.EventType.RoomTombstone]: "powerLevel.upgradeRoom",
   invite: "powerLevel.inviteUser",
   kick: "powerLevel.kickUsers",
   redact: "powerLevel.remove",
   state_default: "powerLevel.state_default",
   users_default: "powerLevel.defaultRole",
   events_default: "powerLevel.events_default",
-  [EventType.RoomEncryption]: "powerLevel.encryption",
-  [EventType.RoomTopic]: "powerLevel.topic",
+  [MatrixSDK.EventType.RoomEncryption]: "powerLevel.encryption",
+  [MatrixSDK.EventType.RoomTopic]: "powerLevel.topic",
 };
 
 /**
@@ -84,7 +84,10 @@ function getEventString(eventType, userPower) {
  */
 function publishRoomDetails(account, conv) {
   let roomState = conv.roomState;
-  let powerLevelEvent = roomState.getStateEvents(EventType.RoomPowerLevels, "");
+  let powerLevelEvent = roomState.getStateEvents(
+    MatrixSDK.EventType.RoomPowerLevels,
+    ""
+  );
   let room = conv.room;
 
   let name = room.name;
@@ -106,8 +109,10 @@ function publishRoomDetails(account, conv) {
   });
 
   let topic = null;
-  if (roomState.getStateEvents(EventType.RoomTopic).length) {
-    topic = roomState.getStateEvents(EventType.RoomTopic)[0].getContent().topic;
+  if (roomState.getStateEvents(MatrixSDK.EventType.RoomTopic).length) {
+    topic = roomState
+      .getStateEvents(MatrixSDK.EventType.RoomTopic)[0]
+      .getContent().topic;
   }
   let topicString = _("detail.topic", topic);
   conv.writeMessage(account.userId, topicString, {
@@ -115,7 +120,7 @@ function publishRoomDetails(account, conv) {
   });
 
   let guestAccess = roomState
-    .getStateEvents(EventType.RoomGuestAccess, "")
+    .getStateEvents(MatrixSDK.EventType.RoomGuestAccess, "")
     .getContent().guest_access;
   let guestAccessString = _("detail.guest", guestAccess);
   conv.writeMessage(account.userId, guestAccessString, {
@@ -148,8 +153,10 @@ function publishRoomDetails(account, conv) {
     });
   }
 
-  if (roomState.getStateEvents(EventType.RoomCanonicalAlias).length) {
-    let event = roomState.getStateEvents(EventType.RoomCanonicalAlias)[0];
+  if (roomState.getStateEvents(MatrixSDK.EventType.RoomCanonicalAlias).length) {
+    let event = roomState.getStateEvents(
+      MatrixSDK.EventType.RoomCanonicalAlias
+    )[0];
     let content = event.getContent();
     let aliases = content.alt_aliases;
     if (aliases) {
@@ -332,7 +339,7 @@ var commands = [
       formatParams(conv, [userId, powerLevelString]) {
         const powerLevel = Number.parseInt(powerLevelString);
         let powerLevelEvent = conv.roomState.getStateEvents(
-          EventType.RoomPowerLevels,
+          MatrixSDK.EventType.RoomPowerLevels,
           ""
         );
         return [conv._roomId, userId, powerLevel, powerLevelEvent];
@@ -348,7 +355,7 @@ var commands = [
     run: clientCommand("setPowerLevel", 1, {
       formatParams(conv, [userId]) {
         const powerLevelEvent = conv.roomState.getStateEvents(
-          EventType.RoomPowerLevels,
+          MatrixSDK.EventType.RoomPowerLevels,
           ""
         );
         return [conv._roomId, userId, MatrixPowerLevels.user, powerLevelEvent];
@@ -380,7 +387,9 @@ var commands = [
     run: clientCommand("setRoomDirectoryVisibility", 1, {
       formatParams(conv, [visibilityString]) {
         const visibility =
-          Number.parseInt(visibilityString) === 1 ? "public" : "private";
+          Number.parseInt(visibilityString) === 1
+            ? MatrixSDK.Visibility.Public
+            : MatrixSDK.Visibility.Private;
         return [conv._roomId, visibility];
       },
     }),

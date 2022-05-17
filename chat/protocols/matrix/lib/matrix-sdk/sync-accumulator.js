@@ -38,7 +38,6 @@ class SyncAccumulator {
   // accumulated. We remember this so that any caller can obtain a
   // coherent /sync response and know at what point they should be
   // streaming from without losing events.
-  // { ('invite'|'join'|'leave'): $groupId: { ... sync 'group' data } }
 
   /**
    * @param {Object} opts
@@ -60,18 +59,11 @@ class SyncAccumulator {
 
     _defineProperty(this, "nextBatch", null);
 
-    _defineProperty(this, "groups", {
-      invite: {},
-      join: {},
-      leave: {}
-    });
-
     this.opts.maxTimelineEntries = this.opts.maxTimelineEntries || 50;
   }
 
   accumulate(syncResponse, fromDatabase = false) {
     this.accumulateRooms(syncResponse, fromDatabase);
-    this.accumulateGroups(syncResponse);
     this.accumulateAccountData(syncResponse);
     this.nextBatch = syncResponse.next_batch;
   }
@@ -374,43 +366,6 @@ class SyncAccumulator {
     }
   }
   /**
-   * Accumulate incremental /sync group data.
-   * @param {Object} syncResponse the complete /sync JSON
-   */
-
-
-  accumulateGroups(syncResponse) {
-    if (!syncResponse.groups) {
-      return;
-    }
-
-    if (syncResponse.groups.invite) {
-      Object.keys(syncResponse.groups.invite).forEach(groupId => {
-        this.accumulateGroup(groupId, Category.Invite, syncResponse.groups.invite[groupId]);
-      });
-    }
-
-    if (syncResponse.groups.join) {
-      Object.keys(syncResponse.groups.join).forEach(groupId => {
-        this.accumulateGroup(groupId, Category.Join, syncResponse.groups.join[groupId]);
-      });
-    }
-
-    if (syncResponse.groups.leave) {
-      Object.keys(syncResponse.groups.leave).forEach(groupId => {
-        this.accumulateGroup(groupId, Category.Leave, syncResponse.groups.leave[groupId]);
-      });
-    }
-  }
-
-  accumulateGroup(groupId, category, data) {
-    for (const cat of [Category.Invite, Category.Leave, Category.Join]) {
-      delete this.groups[cat][groupId];
-    }
-
-    this.groups[category][groupId] = data;
-  }
-  /**
    * Return everything under the 'rooms' key from a /sync response which
    * represents all room data that should be stored. This should be paired
    * with the sync token which represents the most recent /sync response
@@ -584,7 +539,6 @@ class SyncAccumulator {
     return {
       nextBatch: this.nextBatch,
       roomsData: data,
-      groupsData: this.groups,
       accountData: accData
     };
   }

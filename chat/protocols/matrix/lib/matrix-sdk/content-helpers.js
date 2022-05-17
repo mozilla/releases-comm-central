@@ -3,33 +3,29 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.makeBeaconInfoContent = exports.makeBeaconContent = exports.getTextForLocationEvent = void 0;
 exports.makeEmoteMessage = makeEmoteMessage;
 exports.makeHtmlEmote = makeHtmlEmote;
 exports.makeHtmlMessage = makeHtmlMessage;
 exports.makeHtmlNotice = makeHtmlNotice;
+exports.makeLocationContent = void 0;
 exports.makeNotice = makeNotice;
 exports.makeTextMessage = makeTextMessage;
+exports.parseLocationEvent = exports.parseBeaconInfoContent = exports.parseBeaconContent = void 0;
+
+var _matrixEventsSdk = require("matrix-events-sdk");
 
 var _event = require("./@types/event");
 
-/*
-Copyright 2018 New Vector Ltd
-Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
+var _extensible_events = require("./@types/extensible_events");
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+var _location = require("./@types/location");
 
-    http://www.apache.org/licenses/LICENSE-2.0
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
-/** @module ContentHelpers */
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * Generates the content for a HTML Message event
@@ -116,3 +112,143 @@ function makeEmoteMessage(body) {
     body: body
   };
 }
+/** Location content helpers */
+
+
+const getTextForLocationEvent = (uri, assetType, timestamp, description) => {
+  const date = `at ${new Date(timestamp).toISOString()}`;
+  const assetName = assetType === _location.LocationAssetType.Self ? 'User' : undefined;
+  const quotedDescription = description ? `"${description}"` : undefined;
+  return [assetName, 'Location', quotedDescription, uri, date].filter(Boolean).join(' ');
+};
+/**
+ * Generates the content for a Location event
+ * @param uri a geo:// uri for the location
+ * @param ts the timestamp when the location was correct (milliseconds since
+ *           the UNIX epoch)
+ * @param description the (optional) label for this location on the map
+ * @param asset_type the (optional) asset type of this location e.g. "m.self"
+ * @param text optional. A text for the location
+ */
+
+
+exports.getTextForLocationEvent = getTextForLocationEvent;
+
+const makeLocationContent = (text, uri, timestamp, description, assetType) => {
+  const defaultedText = text ?? getTextForLocationEvent(uri, assetType || _location.LocationAssetType.Self, timestamp, description);
+  const timestampEvent = timestamp ? {
+    [_location.M_TIMESTAMP.name]: timestamp
+  } : {};
+  return _objectSpread({
+    msgtype: _event.MsgType.Location,
+    body: defaultedText,
+    geo_uri: uri,
+    [_location.M_LOCATION.name]: {
+      description,
+      uri
+    },
+    [_location.M_ASSET.name]: {
+      type: assetType || _location.LocationAssetType.Self
+    },
+    [_extensible_events.TEXT_NODE_TYPE.name]: defaultedText
+  }, timestampEvent);
+};
+/**
+ * Parse location event content and transform to
+ * a backwards compatible modern m.location event format
+ */
+
+
+exports.makeLocationContent = makeLocationContent;
+
+const parseLocationEvent = wireEventContent => {
+  const location = _location.M_LOCATION.findIn(wireEventContent);
+
+  const asset = _location.M_ASSET.findIn(wireEventContent);
+
+  const timestamp = _location.M_TIMESTAMP.findIn(wireEventContent);
+
+  const text = _extensible_events.TEXT_NODE_TYPE.findIn(wireEventContent);
+
+  const geoUri = location?.uri ?? wireEventContent?.geo_uri;
+  const description = location?.description;
+  const assetType = asset?.type ?? _location.LocationAssetType.Self;
+  const fallbackText = text ?? wireEventContent.body;
+  return makeLocationContent(fallbackText, geoUri, timestamp, description, assetType);
+};
+/**
+ * Beacon event helpers
+ */
+
+
+exports.parseLocationEvent = parseLocationEvent;
+
+const makeBeaconInfoContent = (timeout, isLive, description, assetType, timestamp) => ({
+  description,
+  timeout,
+  live: isLive,
+  [_location.M_TIMESTAMP.name]: timestamp || Date.now(),
+  [_location.M_ASSET.name]: {
+    type: assetType ?? _location.LocationAssetType.Self
+  }
+});
+
+exports.makeBeaconInfoContent = makeBeaconInfoContent;
+
+/**
+ * Flatten beacon info event content
+ */
+const parseBeaconInfoContent = content => {
+  const {
+    description,
+    timeout,
+    live
+  } = content;
+
+  const {
+    type: assetType
+  } = _location.M_ASSET.findIn(content);
+
+  const timestamp = _location.M_TIMESTAMP.findIn(content);
+
+  return {
+    description,
+    timeout,
+    live,
+    assetType,
+    timestamp
+  };
+};
+
+exports.parseBeaconInfoContent = parseBeaconInfoContent;
+
+const makeBeaconContent = (uri, timestamp, beaconInfoEventId, description) => ({
+  [_location.M_LOCATION.name]: {
+    description,
+    uri
+  },
+  [_location.M_TIMESTAMP.name]: timestamp,
+  "m.relates_to": {
+    rel_type: _matrixEventsSdk.REFERENCE_RELATION.name,
+    event_id: beaconInfoEventId
+  }
+});
+
+exports.makeBeaconContent = makeBeaconContent;
+
+const parseBeaconContent = content => {
+  const {
+    description,
+    uri
+  } = _location.M_LOCATION.findIn(content);
+
+  const timestamp = _location.M_TIMESTAMP.findIn(content);
+
+  return {
+    description,
+    uri,
+    timestamp
+  };
+};
+
+exports.parseBeaconContent = parseBeaconContent;

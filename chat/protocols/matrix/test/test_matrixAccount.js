@@ -384,6 +384,6 @@ add_task(async function test_deleteAccount() {
   ok(!Services.conversations.getConversations().includes(conv), "room closed");
   ok(verificationRequestCancelled, "verification request cancelled");
   ok(stopped);
-  equal(removedListeners, "sync");
+  equal(removedListeners, MatrixSDK.ClientEvent.Sync);
   equal(account._verificationRequestTimeouts.size, 0);
 });

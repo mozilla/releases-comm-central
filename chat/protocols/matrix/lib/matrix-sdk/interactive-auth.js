@@ -5,13 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.InteractiveAuth = exports.AuthType = void 0;
 
-var utils = _interopRequireWildcard(require("./utils"));
-
 var _logger = require("./logger");
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var _utils = require("./utils");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -29,7 +25,8 @@ exports.AuthType = AuthType;
   AuthType["Sso"] = "m.login.sso";
   AuthType["SsoUnstable"] = "org.matrix.login.sso";
   AuthType["Dummy"] = "m.login.dummy";
-  AuthType["RegistrationToken"] = "org.matrix.msc3231.login.registration_token";
+  AuthType["RegistrationToken"] = "m.login.registration_token";
+  AuthType["UnstableRegistrationToken"] = "org.matrix.msc3231.login.registration_token";
 })(AuthType || (exports.AuthType = AuthType = {}));
 
 class NoAuthFlowFoundError extends Error {
@@ -177,7 +174,7 @@ class InteractiveAuth {
   attemptAuth() {
     // This promise will be quite long-lived and will resolve when the
     // request is authenticated and completes successfully.
-    this.attemptAuthDeferred = (0, utils.defer)(); // pluck the promise out now, as doRequest may clear before we return
+    this.attemptAuthDeferred = (0, _utils.defer)(); // pluck the promise out now, as doRequest may clear before we return
 
     const promise = this.attemptAuthDeferred.promise; // if we have no flows, try a request to acquire the flows
 
@@ -321,7 +318,7 @@ class InteractiveAuth {
       auth = {
         session: this.data.session
       };
-      utils.extend(auth, authData);
+      Object.assign(auth, authData);
     } else {
       auth = authData;
     }

@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.IndexedDBStore = void 0;
 
-var _events = require("events");
-
 var _memory = require("./memory");
 
 var _indexeddbLocalBackend = require("./indexeddb-local-backend");
@@ -18,6 +16,8 @@ var _user = require("../models/user");
 var _event = require("../models/event");
 
 var _logger = require("../logger");
+
+var _typedEventEmitter = require("../models/typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -90,7 +90,7 @@ class IndexedDBStore extends _memory.MemoryStore {
 
     _defineProperty(this, "userModifiedMap", {});
 
-    _defineProperty(this, "emitter", new _events.EventEmitter());
+    _defineProperty(this, "emitter", new _typedEventEmitter.TypedEventEmitter());
 
     _defineProperty(this, "on", this.emitter.on.bind(this.emitter));
 

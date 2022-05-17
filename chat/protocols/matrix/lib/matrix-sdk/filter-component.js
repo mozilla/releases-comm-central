@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.FilterComponent = void 0;
 
+var _thread = require("./models/thread");
+
 /*
 Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -35,7 +37,7 @@ limitations under the License.
 function matchesWildcard(actualValue, filterValue) {
   if (filterValue.endsWith("*")) {
     const typePrefix = filterValue.slice(0, -1);
-    return actualValue.substr(0, typePrefix.length) === typePrefix;
+    return actualValue.slice(0, typePrefix.length) === typePrefix;
   } else {
     return actualValue === filterValue;
   }
@@ -57,8 +59,9 @@ function matchesWildcard(actualValue, filterValue) {
  * @param {Object} filterJson the definition of this filter JSON, e.g. { 'contains_url': true }
  */
 class FilterComponent {
-  constructor(filterJson) {
+  constructor(filterJson, userId) {
     this.filterJson = filterJson;
+    this.userId = userId;
   }
   /**
    * Checks with the filter component matches the given event
@@ -68,7 +71,20 @@ class FilterComponent {
 
 
   check(event) {
-    return this.checkFields(event.getRoomId(), event.getSender(), event.getType(), event.getContent() ? event.getContent().url !== undefined : false);
+    const bundledRelationships = event.getUnsigned()?.["m.relations"] || {};
+    const relations = Object.keys(bundledRelationships); // Relation senders allows in theory a look-up of any senders
+    // however clients can only know about the current user participation status
+    // as sending a whole list of participants could be proven problematic in terms
+    // of performance
+    // This should be improved when bundled relationships solve that problem
+
+    const relationSenders = [];
+
+    if (this.userId && bundledRelationships?.[_thread.THREAD_RELATION_TYPE.name]?.current_user_participated) {
+      relationSenders.push(this.userId);
+    }
+
+    return this.checkFields(event.getRoomId(), event.getSender(), event.getType(), event.getContent() ? event.getContent().url !== undefined : false, relations, relationSenders);
   }
   /**
    * Converts the filter component into the form expected over the wire
@@ -77,13 +93,15 @@ class FilterComponent {
 
   toJSON() {
     return {
-      types: this.filterJson.types || null,
-      not_types: this.filterJson.not_types || [],
-      rooms: this.filterJson.rooms || null,
-      not_rooms: this.filterJson.not_rooms || [],
-      senders: this.filterJson.senders || null,
-      not_senders: this.filterJson.not_senders || [],
-      contains_url: this.filterJson.contains_url || null
+      "types": this.filterJson.types || null,
+      "not_types": this.filterJson.not_types || [],
+      "rooms": this.filterJson.rooms || null,
+      "not_rooms": this.filterJson.not_rooms || [],
+      "senders": this.filterJson.senders || null,
+      "not_senders": this.filterJson.not_senders || [],
+      "contains_url": this.filterJson.contains_url || null,
+      [_thread.FILTER_RELATED_BY_SENDERS.name]: this.filterJson[_thread.FILTER_RELATED_BY_SENDERS.name] || [],
+      [_thread.FILTER_RELATED_BY_REL_TYPES.name]: this.filterJson[_thread.FILTER_RELATED_BY_REL_TYPES.name] || []
     };
   }
   /**
@@ -92,11 +110,13 @@ class FilterComponent {
    * @param {String} sender        the sender of the event being checked
    * @param {String} eventType     the type of the event being checked
    * @param {boolean} containsUrl  whether the event contains a content.url field
+   * @param {boolean} relationTypes  whether has aggregated relation of the given type
+   * @param {boolean} relationSenders whether one of the relation is sent by the user listed
    * @return {boolean} true if the event fields match the filter
    */
 
 
-  checkFields(roomId, sender, eventType, containsUrl) {
+  checkFields(roomId, sender, eventType, containsUrl, relationTypes, relationSenders) {
     const literalKeys = {
       "rooms": function (v) {
         return roomId === v;
@@ -132,7 +152,29 @@ class FilterComponent {
       return false;
     }
 
+    const relationTypesFilter = this.filterJson[_thread.FILTER_RELATED_BY_REL_TYPES.name];
+
+    if (relationTypesFilter !== undefined) {
+      if (!this.arrayMatchesFilter(relationTypesFilter, relationTypes)) {
+        return false;
+      }
+    }
+
+    const relationSendersFilter = this.filterJson[_thread.FILTER_RELATED_BY_SENDERS.name];
+
+    if (relationSendersFilter !== undefined) {
+      if (!this.arrayMatchesFilter(relationSendersFilter, relationSenders)) {
+        return false;
+      }
+    }
+
     return true;
+  }
+
+  arrayMatchesFilter(filter, values) {
+    return values.length > 0 && filter.every(value => {
+      return values.includes(value);
+    });
   }
   /**
    * Filters a list of events down to those which match this filter component

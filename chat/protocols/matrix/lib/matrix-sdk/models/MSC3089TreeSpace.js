@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TreePermissions = exports.MSC3089TreeSpace = exports.DEFAULT_TREE_POWER_LEVELS_TEMPLATE = void 0;
 
+var _pRetry = _interopRequireDefault(require("p-retry"));
+
 var _event = require("../@types/event");
 
 var _logger = require("../logger");
@@ -13,15 +15,13 @@ var _utils = require("../utils");
 
 var _MSC3089Branch = require("./MSC3089Branch");
 
-var _pRetry = _interopRequireDefault(require("p-retry"));
-
 var _megolm = require("../crypto/algorithms/megolm");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -252,8 +252,12 @@ class MSC3089TreeSpace {
 
     for (const child of children) {
       try {
-        const tree = this.client.unstableGetFileTreeSpace(child.getStateKey());
-        if (tree) trees.push(tree);
+        const stateKey = child.getStateKey();
+
+        if (stateKey) {
+          const tree = this.client.unstableGetFileTreeSpace(stateKey);
+          if (tree) trees.push(tree);
+        }
       } catch (e) {
         _logger.logger.warn("Unable to create tree space instance for listing. Are we joined?", e);
       }
@@ -265,7 +269,7 @@ class MSC3089TreeSpace {
    * Gets a subdirectory of a given ID under this tree space. Note that this will not recurse
    * into children and instead only look one level deep.
    * @param {string} roomId The room ID (directory ID) to find.
-   * @returns {MSC3089TreeSpace} The directory, or falsy if not found.
+   * @returns {MSC3089TreeSpace | undefined} The directory, or undefined if not found.
    */
 
 
@@ -291,8 +295,14 @@ class MSC3089TreeSpace {
     for (const member of members) {
       const isNotUs = member.getStateKey() !== this.client.getUserId();
 
-      if (isNotUs && kickMemberships.includes(member.getContent()['membership'])) {
-        await this.client.kick(this.roomId, member.getStateKey(), "Room deleted");
+      if (isNotUs && kickMemberships.includes(member.getContent().membership)) {
+        const stateKey = member.getStateKey();
+
+        if (!stateKey) {
+          throw new Error("State key not found for branch");
+        }
+
+        await this.client.kick(this.roomId, stateKey, "Room deleted");
       }
     }
 
@@ -303,7 +313,7 @@ class MSC3089TreeSpace {
     const ordered = children.map(c => ({
       roomId: c.getStateKey(),
       order: c.getContent()['order']
-    }));
+    })).filter(c => c.roomId);
     ordered.sort((a, b) => {
       if (a.order && !b.order) {
         return -1;
@@ -341,7 +351,9 @@ class MSC3089TreeSpace {
     if (!parent) throw new Error("Expected to have a parent in a non-top level space"); // XXX: We are assuming the parent is a valid tree space.
     // We probably don't need to validate the parent room state for this usecase though.
 
-    const parentRoom = this.client.getRoom(parent.getStateKey());
+    const stateKey = parent.getStateKey();
+    if (!stateKey) throw new Error("No state key found for parent");
+    const parentRoom = this.client.getRoom(stateKey);
     if (!parentRoom) throw new Error("Unable to locate room for parent");
     return parentRoom;
   }
@@ -456,7 +468,9 @@ class MSC3089TreeSpace {
         }
       }
 
-      newOrder = (0, _utils.nextString)(lastOrder);
+      if (lastOrder) {
+        newOrder = (0, _utils.nextString)(lastOrder);
+      }
     } // TODO: Deal with order conflicts by reordering
     // Now we can finally update our own order state
 
@@ -516,7 +530,7 @@ class MSC3089TreeSpace {
   /**
    * Retrieves a file from the tree.
    * @param {string} fileEventId The event ID of the file.
-   * @returns {MSC3089Branch} The file, or falsy if not found.
+   * @returns {MSC3089Branch | null} The file, or null if not found.
    */
 
 

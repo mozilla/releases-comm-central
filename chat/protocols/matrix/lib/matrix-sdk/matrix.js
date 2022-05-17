@@ -137,6 +137,20 @@ Object.keys(_errors).forEach(function (key) {
   });
 });
 
+var _beacon = require("./models/beacon");
+
+Object.keys(_beacon).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _beacon[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _beacon[key];
+    }
+  });
+});
+
 var _event = require("./models/event");
 
 Object.keys(_event).forEach(function (key) {
@@ -161,20 +175,6 @@ Object.keys(_room).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _room[key];
-    }
-  });
-});
-
-var _group = require("./models/group");
-
-Object.keys(_group).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  if (key in exports && exports[key] === _group[key]) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _group[key];
     }
   });
 });
@@ -357,6 +357,90 @@ Object.keys(_contentRepo).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _contentRepo[key];
+    }
+  });
+});
+
+var _event2 = require("./@types/event");
+
+Object.keys(_event2).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _event2[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _event2[key];
+    }
+  });
+});
+
+var _PushRules = require("./@types/PushRules");
+
+Object.keys(_PushRules).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _PushRules[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _PushRules[key];
+    }
+  });
+});
+
+var _partials = require("./@types/partials");
+
+Object.keys(_partials).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _partials[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _partials[key];
+    }
+  });
+});
+
+var _requests = require("./@types/requests");
+
+Object.keys(_requests).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _requests[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _requests[key];
+    }
+  });
+});
+
+var _search = require("./@types/search");
+
+Object.keys(_search).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _search[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _search[key];
+    }
+  });
+});
+
+var _roomSummary = require("./models/room-summary");
+
+Object.keys(_roomSummary).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _roomSummary[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _roomSummary[key];
     }
   });
 });

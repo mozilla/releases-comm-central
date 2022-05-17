@@ -1,19 +1,20 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v15.2.1.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v17.2.0.
 
 The following npm dependencies are included:
 
 * @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages/10 v3.2.8
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
-* base-x: https://www.npmjs.com/package/base-x v3.0.8
+* base-x: https://www.npmjs.com/package/base-x v3.0.9
 * browser-request: https://www.npmjs.com/package/browser-request v0.3.3
 * bs58: https://www.npmjs.com/package/bs58 v4.0.1
 * content-type: https://www.npmjs.com/package/content-type v1.0.4
-* events: https://www.npmjs.com/package/events v3.2.0
-* qs: https://www.npmjs.com/package/qs v6.9.6
-* unhomoglyph: https://www.npmjs.com/package/unhomoglyph v1.0.6
+* events: https://www.npmjs.com/package/events v3.3.0
+* matrix-events-sdk: https://www.npmjs.com/package/matrix-events-sdk v0.0.1-beta.7
 * p-retry: https://www.npmjs.com/package/p-retry v4.6.1
+* qs: https://www.npmjs.com/package/qs v6.10.3
 * retry: https://www.npmjs.com/package/retry v0.13.1
+* unhomoglyph: https://www.npmjs.com/package/unhomoglyph v1.0.6
 
 The following npm dependencies are shimmed:
 
@@ -103,6 +104,12 @@ index.js file so that the `is_crossDomain` always returns `false`.
 
 The events package is included as a shim for the native node `events` module.
 As such, it is not a direct dependency of the `matrix-js-sdk`.
+
+### Updating matrix-events-sdk
+
+The matrix-events-sdk includes raw JS modules and Typescript definition files.
+We only want the JS modules. So we want all the js files in `lib/**/*.js`
+from the package.
 
 ### Updating qs
 

@@ -5,9 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.SPEAKING_THRESHOLD = exports.CallFeedEvent = exports.CallFeed = void 0;
 
-var _events = _interopRequireDefault(require("events"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _typedEventEmitter = require("../models/typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -28,7 +26,7 @@ exports.CallFeedEvent = CallFeedEvent;
   CallFeedEvent["Speaking"] = "speaking";
 })(CallFeedEvent || (exports.CallFeedEvent = CallFeedEvent = {}));
 
-class CallFeed extends _events.default {
+class CallFeed extends _typedEventEmitter.TypedEventEmitter {
   constructor(opts) {
     super();
 

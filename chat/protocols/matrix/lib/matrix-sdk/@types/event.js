@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.MsgType = exports.EventType = void 0;
+exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.MsgType = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
 
 var _NamespacedValue = require("../NamespacedValue");
 
@@ -88,7 +88,8 @@ exports.RelationType = RelationType;
 (function (RelationType) {
   RelationType["Annotation"] = "m.annotation";
   RelationType["Replace"] = "m.replace";
-  RelationType["Thread"] = "io.element.thread";
+  RelationType["Reference"] = "m.reference";
+  RelationType["Thread"] = "m.thread";
 })(RelationType || (exports.RelationType = RelationType = {}));
 
 let MsgType;
@@ -119,6 +120,8 @@ exports.RoomType = RoomType;
 
 (function (RoomType) {
   RoomType["Space"] = "m.space";
+  RoomType["UnstableCall"] = "org.matrix.msc3417.call";
+  RoomType["ElementVideo"] = "io.element.video";
 })(RoomType || (exports.RoomType = RoomType = {}));
 
 const UNSTABLE_MSC3088_PURPOSE = new _NamespacedValue.UnstableValue("m.room.purpose", "org.matrix.msc3088.purpose");
@@ -175,4 +178,13 @@ const UNSTABLE_MSC3089_BRANCH = new _NamespacedValue.UnstableValue("m.branch", "
 
 exports.UNSTABLE_MSC3089_BRANCH = UNSTABLE_MSC3089_BRANCH;
 const UNSTABLE_ELEMENT_FUNCTIONAL_USERS = new _NamespacedValue.UnstableValue("io.element.functional_members", "io.element.functional_members");
+/**
+ * A type of message that affects visibility of a message,
+ * as per https://github.com/matrix-org/matrix-doc/pull/3531
+ *
+ * @experimental
+ */
+
 exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = UNSTABLE_ELEMENT_FUNCTIONAL_USERS;
+const EVENT_VISIBILITY_CHANGE_TYPE = new _NamespacedValue.UnstableValue("m.visibility", "org.matrix.msc3531.visibility");
+exports.EVENT_VISIBILITY_CHANGE_TYPE = EVENT_VISIBILITY_CHANGE_TYPE;

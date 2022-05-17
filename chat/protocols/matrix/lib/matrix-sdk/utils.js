@@ -20,7 +20,6 @@ exports.encodeParams = encodeParams;
 exports.encodeUri = encodeUri;
 exports.ensureNoTrailingSlash = ensureNoTrailingSlash;
 exports.escapeRegExp = escapeRegExp;
-exports.extend = extend;
 exports.getCrypto = getCrypto;
 exports.globToRegexp = globToRegexp;
 exports.inherits = inherits;
@@ -41,11 +40,14 @@ exports.removeHiddenChars = removeHiddenChars;
 exports.setCrypto = setCrypto;
 exports.simpleRetryOperation = simpleRetryOperation;
 exports.sleep = sleep;
+exports.sortEventsByLatestContentTimestamp = sortEventsByLatestContentTimestamp;
 exports.stringToBase = stringToBase;
 
 var _unhomoglyph = _interopRequireDefault(require("unhomoglyph"));
 
 var _pRetry = _interopRequireDefault(require("p-retry"));
+
+var _location = require("./@types/location");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -73,12 +75,21 @@ limitations under the License.
 
 /**
  * Encode a dictionary of query parameters.
+ * Omits any undefined/null values.
  * @param {Object} params A dict of key/values to encode e.g.
  * {"foo": "bar", "baz": "taz"}
  * @return {string} The encoded string e.g. foo=bar&baz=taz
  */
 function encodeParams(params) {
-  return new URLSearchParams(params).toString();
+  const searchParams = new URLSearchParams();
+
+  for (const [key, val] of Object.entries(params)) {
+    if (val !== undefined && val !== null) {
+      searchParams.set(key, String(val));
+    }
+  }
+
+  return searchParams.toString();
 }
 
 /**
@@ -136,22 +147,19 @@ function encodeUri(pathTemplate, variables) {
 
 function removeElement(array, fn, reverse) {
   let i;
-  let removed;
 
   if (reverse) {
     for (i = array.length - 1; i >= 0; i--) {
       if (fn(array[i], i, array)) {
-        removed = array[i];
         array.splice(i, 1);
-        return removed;
+        return true;
       }
     }
   } else {
     for (i = 0; i < array.length; i++) {
       if (fn(array[i], i, array)) {
-        removed = array[i];
         array.splice(i, 1);
-        return removed;
+        return true;
       }
     }
   }
@@ -331,36 +339,6 @@ function deepSortedObjectEntries(obj) {
   return pairs;
 }
 /**
- * Copy properties from one object to another.
- *
- * All enumerable properties, included inherited ones, are copied.
- *
- * This is approximately equivalent to ES6's Object.assign, except
- * that the latter doesn't copy inherited properties.
- *
- * @param {Object} target  The object that will receive new properties
- * @param {...Object} source  Objects from which to copy properties
- *
- * @return {Object} target
- */
-
-
-function extend(...restParams) {
-  const target = restParams[0] || {};
-
-  for (let i = 1; i < restParams.length; i++) {
-    const source = restParams[i];
-    if (!source) continue;
-
-    for (const propName in source) {
-      // eslint-disable-line guard-for-in
-      target[propName] = source[propName];
-    }
-  }
-
-  return target;
-}
-/**
  * Inherit the prototype methods from one constructor into another. This is a
  * port of the Node.js implementation with an Object.create polyfill.
  *
@@ -512,7 +490,7 @@ function globToRegexp(glob, extended) {
 
 function ensureNoTrailingSlash(url) {
   if (url && url.endsWith("/")) {
-    return url.substr(0, url.length - 1);
+    return url.slice(0, -1);
   } else {
     return url;
   }
@@ -804,4 +782,17 @@ function recursivelyAssign(target, source, ignoreNullish = false) {
   }
 
   return target;
+}
+
+function getContentTimestampWithFallback(event) {
+  return _location.M_TIMESTAMP.findIn(event.getContent()) ?? -1;
+}
+/**
+ * Sort events by their content m.ts property
+ * Latest timestamp first
+ */
+
+
+function sortEventsByLatestContentTimestamp(left, right) {
+  return getContentTimestampWithFallback(right) - getContentTimestampWithFallback(left);
 }

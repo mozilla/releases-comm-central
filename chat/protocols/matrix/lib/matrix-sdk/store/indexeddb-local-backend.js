@@ -234,7 +234,6 @@ class LocalIndexedDBStoreBackend {
       this.syncAccumulator.accumulate({
         next_batch: syncData.nextBatch,
         rooms: syncData.roomsData,
-        groups: syncData.groupsData,
         account_data: {
           events: accountData
         }
@@ -421,18 +420,17 @@ class LocalIndexedDBStoreBackend {
 
   async syncToDatabase(userTuples) {
     const syncData = this.syncAccumulator.getJSON(true);
-    await Promise.all([this.persistUserPresenceEvents(userTuples), this.persistAccountData(syncData.accountData), this.persistSyncData(syncData.nextBatch, syncData.roomsData, syncData.groupsData)]);
+    await Promise.all([this.persistUserPresenceEvents(userTuples), this.persistAccountData(syncData.accountData), this.persistSyncData(syncData.nextBatch, syncData.roomsData)]);
   }
   /**
    * Persist rooms /sync data along with the next batch token.
    * @param {string} nextBatch The next_batch /sync value.
    * @param {Object} roomsData The 'rooms' /sync data from a SyncAccumulator
-   * @param {Object} groupsData The 'groups' /sync data from a SyncAccumulator
    * @return {Promise} Resolves if the data was persisted.
    */
 
 
-  persistSyncData(nextBatch, roomsData, groupsData) {
+  persistSyncData(nextBatch, roomsData) {
     _logger.logger.log("Persisting sync data up to", nextBatch);
 
     return utils.promiseTry(() => {
@@ -442,8 +440,7 @@ class LocalIndexedDBStoreBackend {
         clobber: "-",
         // constant key so will always clobber
         nextBatch,
-        roomsData,
-        groupsData
+        roomsData
       }); // put == UPSERT
 
       return txnAsPromise(txn).then();
@@ -563,9 +560,7 @@ class LocalIndexedDBStoreBackend {
       const txn = this.db.transaction(["client_options"], "readonly");
       const store = txn.objectStore("client_options");
       return selectQuery(store, undefined, cursor => {
-        if (cursor.value && cursor.value && cursor.value.options) {
-          return cursor.value.options;
-        }
+        return cursor.value?.options;
       }).then(results => results[0]);
     });
   }

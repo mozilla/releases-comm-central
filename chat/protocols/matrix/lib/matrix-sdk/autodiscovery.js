@@ -5,9 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AutoDiscoveryAction = exports.AutoDiscovery = void 0;
 
-var _logger = require("./logger");
-
 var _url = require("url");
+
+var _logger = require("./logger");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -197,7 +197,7 @@ class AutoDiscovery {
     // things like custom configuration of services.
 
 
-    Object.keys(wellknown).map(k => {
+    Object.keys(wellknown).forEach(k => {
       if (k === "m.homeserver" || k === "m.identity_server") {
         // Only copy selected parts of the config to avoid overwriting
         // properties computed by the validation logic above.

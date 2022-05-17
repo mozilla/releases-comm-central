@@ -3,14 +3,25 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.User = void 0;
+exports.UserEvent = exports.User = void 0;
 
-var _events = require("events");
+var _typedEventEmitter = require("./typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class User extends _events.EventEmitter {
-  // eslint-disable-next-line camelcase
+let UserEvent;
+exports.UserEvent = UserEvent;
+
+(function (UserEvent) {
+  UserEvent["DisplayName"] = "User.displayName";
+  UserEvent["AvatarUrl"] = "User.avatarUrl";
+  UserEvent["Presence"] = "User.presence";
+  UserEvent["CurrentlyActive"] = "User.currentlyActive";
+  UserEvent["LastPresenceTs"] = "User.lastPresenceTs";
+  UserEvent["_UnstableStatusMessage"] = "User.unstable_statusMessage";
+})(UserEvent || (exports.UserEvent = UserEvent = {}));
+
+class User extends _typedEventEmitter.TypedEventEmitter {
   // XXX these should be read-only
   // eslint-disable-next-line camelcase
 
@@ -94,23 +105,23 @@ class User extends _events.EventEmitter {
     const eventsToFire = [];
 
     if (event.getContent().presence !== this.presence || firstFire) {
-      eventsToFire.push("User.presence");
+      eventsToFire.push(UserEvent.Presence);
     }
 
     if (event.getContent().avatar_url && event.getContent().avatar_url !== this.avatarUrl) {
-      eventsToFire.push("User.avatarUrl");
+      eventsToFire.push(UserEvent.AvatarUrl);
     }
 
     if (event.getContent().displayname && event.getContent().displayname !== this.displayName) {
-      eventsToFire.push("User.displayName");
+      eventsToFire.push(UserEvent.DisplayName);
     }
 
     if (event.getContent().currently_active !== undefined && event.getContent().currently_active !== this.currentlyActive) {
-      eventsToFire.push("User.currentlyActive");
+      eventsToFire.push(UserEvent.CurrentlyActive);
     }
 
     this.presence = event.getContent().presence;
-    eventsToFire.push("User.lastPresenceTs");
+    eventsToFire.push(UserEvent.LastPresenceTs);
 
     if (event.getContent().status_msg) {
       this.presenceStatusMsg = event.getContent().status_msg;
@@ -222,7 +233,7 @@ class User extends _events.EventEmitter {
   unstable_updateStatusMessage(event) {
     if (!event.getContent()) this.unstable_statusMessage = "";else this.unstable_statusMessage = event.getContent()["status"];
     this.updateModifiedTime();
-    this.emit("User.unstable_statusMessage", this);
+    this.emit(UserEvent._UnstableStatusMessage, this);
   }
 
 }

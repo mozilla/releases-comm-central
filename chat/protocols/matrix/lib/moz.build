@@ -83,13 +83,16 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
+    "matrix-sdk/models/beacon.js",
     "matrix-sdk/models/event-context.js",
+    "matrix-sdk/models/event-status.js",
     "matrix-sdk/models/event-timeline-set.js",
     "matrix-sdk/models/event-timeline.js",
     "matrix-sdk/models/event.js",
     "matrix-sdk/models/group.js",
     "matrix-sdk/models/MSC3089Branch.js",
     "matrix-sdk/models/MSC3089TreeSpace.js",
+    "matrix-sdk/models/related-relations.js",
     "matrix-sdk/models/relations.js",
     "matrix-sdk/models/room-member.js",
     "matrix-sdk/models/room-state.js",
@@ -116,7 +119,10 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.store.session += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
+    "matrix-sdk/@types/beacon.js",
     "matrix-sdk/@types/event.js",
+    "matrix-sdk/@types/extensible_events.js",
+    "matrix-sdk/@types/location.js",
     "matrix-sdk/@types/partials.js",
     "matrix-sdk/@types/PushRules.js",
     "matrix-sdk/@types/search.js",
@@ -178,4 +184,40 @@ EXTRA_JS_MODULES.matrix.retry += [
 EXTRA_JS_MODULES.matrix.retry.lib += [
     "retry/lib/retry.js",
     "retry/lib/retry_operation.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_events_sdk += [
+    "matrix-events-sdk/ExtensibleEvents.js",
+    "matrix-events-sdk/index.js",
+    "matrix-events-sdk/InvalidEventError.js",
+    "matrix-events-sdk/NamespacedMap.js",
+    "matrix-events-sdk/NamespacedValue.js",
+    "matrix-events-sdk/types.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_events_sdk.events += [
+    "matrix-events-sdk/events/EmoteEvent.js",
+    "matrix-events-sdk/events/ExtensibleEvent.js",
+    "matrix-events-sdk/events/message_types.js",
+    "matrix-events-sdk/events/MessageEvent.js",
+    "matrix-events-sdk/events/NoticeEvent.js",
+    "matrix-events-sdk/events/poll_types.js",
+    "matrix-events-sdk/events/PollEndEvent.js",
+    "matrix-events-sdk/events/PollResponseEvent.js",
+    "matrix-events-sdk/events/PollStartEvent.js",
+    "matrix-events-sdk/events/relationship_types.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_events_sdk.interpreters.legacy += [
+    "matrix-events-sdk/interpreters/legacy/MRoomMessage.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_events_sdk.interpreters.modern += [
+    "matrix-events-sdk/interpreters/modern/MMessage.js",
+    "matrix-events-sdk/interpreters/modern/MPoll.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_events_sdk.utility += [
+    "matrix-events-sdk/utility/events.js",
+    "matrix-events-sdk/utility/MessageMatchers.js",
 ]

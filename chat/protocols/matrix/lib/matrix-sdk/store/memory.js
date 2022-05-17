@@ -7,6 +7,8 @@ exports.MemoryStore = void 0;
 
 var _user = require("../models/user");
 
+var _roomState = require("../models/room-state");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function isValidFilterId(filterId) {
@@ -24,7 +26,6 @@ function isValidFilterId(filterId) {
  */
 class MemoryStore {
   // roomId: Room
-  // groupId: Group
   // userId: User
   // userId: {
   //    filterId: Filter
@@ -33,8 +34,6 @@ class MemoryStore {
   // roomId: [member events]
   constructor(opts = {}) {
     _defineProperty(this, "rooms", {});
-
-    _defineProperty(this, "groups", {});
 
     _defineProperty(this, "users", {});
 
@@ -102,37 +101,6 @@ class MemoryStore {
   }
   /**
    * Store the given room.
-   * @param {Group} group The group to be stored
-   * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
-   */
-
-
-  storeGroup(group) {
-    this.groups[group.groupId] = group;
-  }
-  /**
-   * Retrieve a group by its group ID.
-   * @param {string} groupId The group ID.
-   * @return {Group} The group or null.
-   * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
-   */
-
-
-  getGroup(groupId) {
-    return this.groups[groupId] || null;
-  }
-  /**
-   * Retrieve all known groups.
-   * @return {Group[]} A list of groups, which may be empty.
-   * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
-   */
-
-
-  getGroups() {
-    return Object.values(this.groups);
-  }
-  /**
-   * Store the given room.
    * @param {Room} room The room to be stored. All properties must be stored.
    */
 
@@ -141,7 +109,7 @@ class MemoryStore {
     this.rooms[room.roomId] = room; // add listeners for room member changes so we can keep the room member
     // map up-to-date.
 
-    room.currentState.on("RoomState.members", this.onRoomMember); // add existing members
+    room.currentState.on(_roomState.RoomStateEvent.Members, this.onRoomMember); // add existing members
 
     room.currentState.getMembers().forEach(m => {
       this.onRoomMember(null, room.currentState, m);
@@ -181,7 +149,7 @@ class MemoryStore {
 
   removeRoom(roomId) {
     if (this.rooms[roomId]) {
-      this.rooms[roomId].removeListener("RoomState.members", this.onRoomMember);
+      this.rooms[roomId].currentState.removeListener(_roomState.RoomStateEvent.Members, this.onRoomMember);
     }
 
     delete this.rooms[roomId];

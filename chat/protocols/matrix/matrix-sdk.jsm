@@ -23,11 +23,10 @@ Cu.importGlobalProperties(["crypto", "fetch"]);
 const EXPORTED_SYMBOLS = [
   "MatrixSDK",
   "getHttpUriForMxc",
-  "EventTimeline",
-  "EventType",
-  "MsgType",
   "MatrixCrypto",
-  "EventStatus",
+  "SyncState",
+  "OlmLib",
+  "SasEvent",
 ];
 
 // Set-up loading so require works properly in CommonJS modules.
@@ -85,6 +84,7 @@ let loader = Loader({
     // Matrix SDK files.
     "": matrixPath + "matrix_sdk/",
     matrix: matrixPath + "matrix_sdk/matrix.js",
+    "../matrix": matrixPath + "matrix_sdk/matrix.js",
     "../client": matrixPath + "matrix_sdk/client.js",
     "../content-repo": matrixPath + "matrix_sdk/content-repo.js",
     "../../errors": matrixPath + "matrix_sdk/errors.js",
@@ -103,13 +103,19 @@ let loader = Loader({
     "../../utils": matrixPath + "matrix_sdk/utils.js",
 
     // @types
+    "@types/beacon": matrixPath + "matrix_sdk/types/beacon.js",
     "@types/event": matrixPath + "matrix_sdk/types/event.js",
     "../@types/event": matrixPath + "matrix_sdk/types/event.js",
+    "@types/extensible_events":
+      matrixPath + "matrix_sdk/types/extensible_events.js",
+    "@types/location": matrixPath + "matrix_sdk/types/location.js",
     "@types/partials": matrixPath + "matrix_sdk/types/partials.js",
     "@types/PushRules": matrixPath + "matrix_sdk/types/PushRules.js",
+    "@types/requests": matrixPath + "empty.js",
     "@types/search": matrixPath + "matrix_sdk/types/search.js",
 
     // crypto
+    index: matrixPath + "matrix_sdk/crypto/index.js",
     "crypto/api": matrixPath + "matrix_sdk/crypto/api.js",
     backup: matrixPath + "matrix_sdk/crypto/backup.js",
     "crypto/backup": matrixPath + "matrix_sdk/crypto/backup.js",
@@ -169,6 +175,8 @@ let loader = Loader({
     "verification/QRCode":
       matrixPath + "matrix_sdk/crypto/verification/QRCode.js",
     "verification/SAS": matrixPath + "matrix_sdk/crypto/verification/SAS.js",
+    "crypto/verification/SAS":
+      matrixPath + "matrix_sdk/crypto/verification/SAS.js",
     "verification/IllegalMethod":
       matrixPath + "matrix_sdk/crypto/verification/IllegalMethod.js",
 
@@ -186,6 +194,10 @@ let loader = Loader({
     "../../models/event": matrixPath + "matrix_sdk/models/event.js",
     "../lib/models/event": matrixPath + "matrix_sdk/models/event.js",
     "../../lib/models/event": matrixPath + "matrix_sdk/models/event.js",
+    "../models/room": matrixPath + "matrix_sdk/models/room.js",
+    "../models/room-member": matrixPath + "matrix_sdk/models/room-member.js",
+    "../models/typed-event-emitter":
+      matrixPath + "matrix_sdk/models/typed-event-emitter.js",
     "../models/user": matrixPath + "matrix_sdk/models/user.js",
 
     // Simple (one-file) dependencies.
@@ -205,6 +217,41 @@ let loader = Loader({
     retry: matrixPath + "retry/index.js",
     "lib/retry": matrixPath + "retry/lib/retry.js",
     "lib/retry_operation": matrixPath + "retry/lib/retry_operation.js",
+
+    // matrix-events-sdk
+    "matrix-events-sdk": matrixPath + "matrix_events_sdk/index.js",
+    ExtensibleEvents: matrixPath + "matrix_events_sdk/ExtensibleEvents.js",
+    InvalidEventError: matrixPath + "matrix_events_sdk/InvalidEventError.js",
+    IPartialEvent: matrixPath + "empty.js",
+    types: matrixPath + "matrix_events_sdk/types.js",
+    NamespacedMap: matrixPath + "matrix_events_sdk/NamespacedMap.js",
+    "events/EmoteEvent": matrixPath + "matrix_events_sdk/events/EmoteEvent.js",
+    "events/ExtensibleEvent":
+      matrixPath + "matrix_events_sdk/events/ExtensibleEvent.js",
+    "events/MessageEvent":
+      matrixPath + "matrix_events_sdk/events/MessageEvent.js",
+    "events/message_types":
+      matrixPath + "matrix_events_sdk/events/message_types.js",
+    "events/NoticeEvent":
+      matrixPath + "matrix_events_sdk/events/NoticeEvent.js",
+    "events/poll_types": matrixPath + "matrix_events_sdk/events/poll_types.js",
+    "events/PollEndEvent":
+      matrixPath + "matrix_events_sdk/events/PollEndEvent.js",
+    "events/PollResponseEvent":
+      matrixPath + "matrix_events_sdk/events/PollResponseEvent.js",
+    "events/PollStartEvent":
+      matrixPath + "matrix_events_sdk/events/PollStartEvent.js",
+    "events/relationship_types":
+      matrixPath + "matrix_events_sdk/events/relationship_types.js",
+    "interpreters/legacy/MRoomMessage":
+      matrixPath + "matrix_events_sdk/interpreters/legacy/MRoomMessage.js",
+    "interpreters/modern/MMessage":
+      matrixPath + "matrix_events_sdk/interpreters/modern/MMessage.js",
+    "interpreters/modern/MPoll":
+      matrixPath + "matrix_events_sdk/interpreters/modern/MPoll.js",
+    "utility/events": matrixPath + "matrix_events_sdk/utility/events.js",
+    "utility/MessageMatchers":
+      matrixPath + "matrix_events_sdk/utility/MessageMatchers.js",
 
     // Packages that are not included, but an alternate implementation is given.
     events: matrixPath + "events.js",
@@ -258,9 +305,10 @@ let MatrixSDK = require("browser-index.js");
 // Helper functions.
 let getHttpUriForMxc = require("../content-repo").getHttpUriForMxc;
 
-let EventTimeline = require("./models/event-timeline.js").EventTimeline;
-
-let { EventType, MsgType } = require("@types/event");
-let { EventStatus } = require("./models/event.js");
-
 let MatrixCrypto = require("./crypto");
+
+let { SyncState } = require("./sync.api");
+
+let OlmLib = require("./crypto/olmlib");
+
+let { SasEvent } = require("./crypto/verification/SAS");

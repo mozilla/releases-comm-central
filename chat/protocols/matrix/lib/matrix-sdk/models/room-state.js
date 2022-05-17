@@ -3,9 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.RoomState = void 0;
-
-var _events = require("events");
+exports.RoomStateEvent = exports.RoomState = void 0;
 
 var _roomMember = require("./room-member");
 
@@ -15,11 +13,25 @@ var utils = _interopRequireWildcard(require("../utils"));
 
 var _event = require("../@types/event");
 
+var _event2 = require("./event");
+
 var _partials = require("../@types/partials");
+
+var _typedEventEmitter = require("./typed-event-emitter");
+
+var _beacon = require("./beacon");
+
+var _ReEmitter = require("../ReEmitter");
+
+var _beacon2 = require("../@types/beacon");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -32,7 +44,18 @@ var OobStatus;
   OobStatus[OobStatus["Finished"] = 2] = "Finished";
 })(OobStatus || (OobStatus = {}));
 
-class RoomState extends _events.EventEmitter {
+let RoomStateEvent;
+exports.RoomStateEvent = RoomStateEvent;
+
+(function (RoomStateEvent) {
+  RoomStateEvent["Events"] = "RoomState.events";
+  RoomStateEvent["Members"] = "RoomState.members";
+  RoomStateEvent["NewMember"] = "RoomState.newMember";
+  RoomStateEvent["Update"] = "RoomState.update";
+  RoomStateEvent["BeaconLiveness"] = "RoomState.BeaconLiveness";
+})(RoomStateEvent || (exports.RoomStateEvent = RoomStateEvent = {}));
+
+class RoomState extends _typedEventEmitter.TypedEventEmitter {
   // userId: RoomMember
   // stores fuzzy matches to a list of userIDs (applies utils.removeHiddenChars to keys)
   // 3pid invite state_key to m.room.member invite
@@ -88,6 +111,8 @@ class RoomState extends _events.EventEmitter {
     this.roomId = roomId;
     this.oobMemberFlags = oobMemberFlags;
 
+    _defineProperty(this, "reEmitter", new _ReEmitter.TypedReEmitter(this));
+
     _defineProperty(this, "sentinels", {});
 
     _defineProperty(this, "displayNameToUserIds", {});
@@ -111,6 +136,10 @@ class RoomState extends _events.EventEmitter {
     _defineProperty(this, "events", new Map());
 
     _defineProperty(this, "paginationToken", null);
+
+    _defineProperty(this, "beacons", new Map());
+
+    _defineProperty(this, "_liveBeaconIds", []);
 
     this.updateModifiedTime();
   }
@@ -253,6 +282,14 @@ class RoomState extends _events.EventEmitter {
     const event = this.events.get(eventType).get(stateKey);
     return event ? event : null;
   }
+
+  get hasLiveBeacons() {
+    return !!this.liveBeaconIds?.length;
+  }
+
+  get liveBeaconIds() {
+    return this._liveBeaconIds;
+  }
   /**
    * Creates a copy of this room state so that mutations to either won't affect the other.
    * @return {RoomState} the copy of the room state
@@ -335,6 +372,10 @@ class RoomState extends _events.EventEmitter {
         return;
       }
 
+      if (_beacon2.M_BEACON_INFO.matches(event.getType())) {
+        this.setBeacon(event);
+      }
+
       const lastStateEvent = this.getStateEventMatching(event);
       this.setStateEvent(event);
 
@@ -343,8 +384,9 @@ class RoomState extends _events.EventEmitter {
         this.updateThirdPartyTokenCache(event);
       }
 
-      this.emit("RoomState.events", event, this, lastStateEvent);
-    }); // update higher level data structures. This needs to be done AFTER the
+      this.emit(RoomStateEvent.Events, event, this, lastStateEvent);
+    });
+    this.onBeaconLivenessChange(); // update higher level data structures. This needs to be done AFTER the
     // core event dict as these structures may depend on other state events in
     // the given array (e.g. disambiguating display names in one go to do both
     // clashing names rather than progressively which only catches 1 of them).
@@ -371,7 +413,7 @@ class RoomState extends _events.EventEmitter {
         const member = this.getOrCreateMember(userId, event);
         member.setMembershipEvent(event, this);
         this.updateMember(member);
-        this.emit("RoomState.members", event, this, member);
+        this.emit(RoomStateEvent.Members, event, this, member);
       } else if (event.getType() === _event.EventType.RoomPowerLevels) {
         // events with unknown state keys should be ignored
         // and should not aggregate onto members power levels
@@ -388,11 +430,55 @@ class RoomState extends _events.EventEmitter {
           member.setPowerLevelEvent(event);
 
           if (oldLastModified !== member.getLastModifiedTime()) {
-            this.emit("RoomState.members", event, this, member);
+            this.emit(RoomStateEvent.Members, event, this, member);
           }
         }); // assume all our sentinels are now out-of-date
 
         this.sentinels = {};
+      }
+    });
+    this.emit(RoomStateEvent.Update, this);
+  }
+
+  processBeaconEvents(events, matrixClient) {
+    if (!events.length || // discard locations if we have no beacons
+    !this.beacons.size) {
+      return;
+    }
+
+    const beaconByEventIdDict = [...this.beacons.values()].reduce((dict, beacon) => _objectSpread(_objectSpread({}, dict), {}, {
+      [beacon.beaconInfoId]: beacon
+    }), {});
+
+    const processBeaconRelation = (beaconInfoEventId, event) => {
+      if (!_beacon2.M_BEACON.matches(event.getType())) {
+        return;
+      }
+
+      const beacon = beaconByEventIdDict[beaconInfoEventId];
+
+      if (beacon) {
+        beacon.addLocations([event]);
+      }
+    };
+
+    events.forEach(event => {
+      const relatedToEventId = event.getRelation()?.event_id; // not related to a beacon we know about
+      // discard
+
+      if (!beaconByEventIdDict[relatedToEventId]) {
+        return;
+      }
+
+      matrixClient.decryptEventIfNeeded(event);
+
+      if (event.isBeingDecrypted() || event.isDecryptionFailure()) {
+        // add an event listener for once the event is decrypted.
+        event.once(_event2.MatrixEventEvent.Decrypted, async () => {
+          processBeaconRelation(relatedToEventId, event);
+        });
+      } else {
+        processBeaconRelation(relatedToEventId, event);
       }
     });
   }
@@ -416,7 +502,7 @@ class RoomState extends _events.EventEmitter {
       // as event handlers often lookup the member
 
       this.members[userId] = member;
-      this.emit("RoomState.newMember", event, this, member);
+      this.emit(RoomStateEvent.NewMember, event, this, member);
     }
 
     return member;
@@ -429,10 +515,54 @@ class RoomState extends _events.EventEmitter {
 
     this.events.get(event.getType()).set(event.getStateKey(), event);
   }
+  /**
+   * @experimental
+   */
+
+
+  setBeacon(event) {
+    const beaconIdentifier = (0, _beacon.getBeaconInfoIdentifier)(event);
+
+    if (this.beacons.has(beaconIdentifier)) {
+      const beacon = this.beacons.get(beaconIdentifier);
+
+      if (event.isRedacted()) {
+        if (beacon.beaconInfoId === event.getRedactionEvent()?.['redacts']) {
+          beacon.destroy();
+          this.beacons.delete(beaconIdentifier);
+        }
+
+        return;
+      }
+
+      return beacon.update(event);
+    }
+
+    if (event.isRedacted()) {
+      return;
+    }
+
+    const beacon = new _beacon.Beacon(event);
+    this.reEmitter.reEmit(beacon, [_beacon.BeaconEvent.New, _beacon.BeaconEvent.Update, _beacon.BeaconEvent.Destroy, _beacon.BeaconEvent.LivenessChange]);
+    this.emit(_beacon.BeaconEvent.New, event, beacon);
+    beacon.on(_beacon.BeaconEvent.LivenessChange, this.onBeaconLivenessChange.bind(this));
+    beacon.on(_beacon.BeaconEvent.Destroy, this.onBeaconLivenessChange.bind(this));
+    this.beacons.set(beacon.identifier, beacon);
+  }
+  /**
+   * @experimental
+   * Check liveness of room beacons
+   * emit RoomStateEvent.BeaconLiveness event
+   */
+
+
+  onBeaconLivenessChange() {
+    this._liveBeaconIds = Array.from(this.beacons.values()).filter(beacon => beacon.isLive).map(beacon => beacon.identifier);
+    this.emit(RoomStateEvent.BeaconLiveness, this, this.hasLiveBeacons);
+  }
 
   getStateEventMatching(event) {
-    if (!this.events.has(event.getType())) return null;
-    return this.events.get(event.getType()).get(event.getStateKey());
+    return this.events.get(event.getType())?.get(event.getStateKey()) ?? null;
   }
 
   updateMember(member) {
@@ -522,6 +652,7 @@ class RoomState extends _events.EventEmitter {
 
     this.oobMemberFlags.status = OobStatus.Finished;
     stateEvents.forEach(e => this.setOutOfBandMember(e));
+    this.emit(RoomStateEvent.Update, this);
   }
   /**
    * Sets a single out of band member, used by both setOutOfBandMembers and clone
@@ -550,7 +681,7 @@ class RoomState extends _events.EventEmitter {
     this.updateDisplayNameCache(member.userId, member.name);
     this.setStateEvent(stateEvent);
     this.updateMember(member);
-    this.emit("RoomState.members", stateEvent, this, member);
+    this.emit(RoomStateEvent.Members, stateEvent, this, member);
   }
   /**
    * Set the current typing event for this room.
@@ -671,14 +802,14 @@ class RoomState extends _events.EventEmitter {
     return this.maySendEventOfType(eventType, userId, false);
   }
   /**
-   * Returns true if the given MatrixClient has permission to send a state
-   * event of type `stateEventType` into this room.
-   * @param {string} stateEventType The type of state events to test
-   * @param {MatrixClient} cli The client to test permission for
-   * @return {boolean} true if the given client should be permitted to send
-   *                        the given type of state event into this room,
-   *                        according to the room's state.
-   */
+    * Returns true if the given MatrixClient has permission to send a state
+    * event of type `stateEventType` into this room.
+    * @param {string} stateEventType The type of state events to test
+    * @param {MatrixClient} cli The client to test permission for
+    * @return {boolean} true if the given client should be permitted to send
+    *                        the given type of state event into this room,
+    *                        according to the room's state.
+    */
 
 
   mayClientSendStateEvent(stateEventType, cli) {

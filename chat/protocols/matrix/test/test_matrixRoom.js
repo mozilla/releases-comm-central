@@ -4,7 +4,6 @@
 const { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-var { MsgType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
 loadMatrix();
 
@@ -71,9 +70,9 @@ add_task(function test_addEventRedacted() {
     redacted: true,
     redaction: {
       event_id: 2,
-      type: EventType.RoomRedaction,
+      type: MatrixSDK.EventType.RoomRedaction,
     },
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
   });
   let updatedMessage;
   const roomStub = {
@@ -107,9 +106,9 @@ add_task(function test_addEventMessageIncoming() {
     sender: "@user:example.com",
     content: {
       body: "foo",
-      msgtype: MsgType.Text,
+      msgtype: MatrixSDK.MsgType.Text,
     },
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
@@ -140,9 +139,9 @@ add_task(function test_addEventMessageOutgoing() {
     sender: "@test:example.com",
     content: {
       body: "foo",
-      msgtype: MsgType.Text,
+      msgtype: MatrixSDK.MsgType.Text,
     },
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
@@ -173,9 +172,9 @@ add_task(function test_addEventMessageEmote() {
     sender: "@user:example.com",
     content: {
       body: "foo",
-      msgtype: MsgType.Emote,
+      msgtype: MatrixSDK.MsgType.Emote,
     },
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
@@ -207,9 +206,9 @@ add_task(function test_addEventMessageDelayed() {
     sender: "@user:example.com",
     content: {
       body: "foo",
-      msgtype: MsgType.Text,
+      msgtype: MatrixSDK.MsgType.Text,
     },
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
@@ -237,7 +236,7 @@ add_task(function test_addEventMessageDelayed() {
 
 add_task(function test_addEventTopic() {
   const event = makeEvent({
-    type: EventType.RoomTopic,
+    type: MatrixSDK.EventType.RoomTopic,
     id: 1,
     content: {
       topic: "foo bar",
@@ -267,7 +266,7 @@ add_task(function test_addEventTopic() {
 
 add_task(async function test_addEventTombstone() {
   const event = makeEvent({
-    type: EventType.RoomTombstone,
+    type: MatrixSDK.EventType.RoomTombstone,
     id: 1,
     content: {
       body: "updated room",
@@ -500,7 +499,7 @@ add_task(function test_addEventSticker() {
   const event = makeEvent({
     time: date,
     sender: "@user:example.com",
-    type: EventType.Sticker,
+    type: MatrixSDK.EventType.Sticker,
     content: {
       body: "foo",
       url: "mxc://example.com/sticker.png",
@@ -582,7 +581,7 @@ add_task(function test_sendMsg_emote() {
 add_task(function test_createMessage() {
   const time = Date.now();
   const event = makeEvent({
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
     time,
     sender: "@foo:example.com",
   });
@@ -616,7 +615,7 @@ add_task(function test_createMessage() {
 add_task(function test_addEventWaitingForDecryption() {
   const event = makeEvent({
     sender: "@user:example.com",
-    type: EventType.RoomMessageEncrypted,
+    type: MatrixSDK.EventType.RoomMessageEncrypted,
     shouldDecrypt: true,
   });
   let createMessageCalled = false;
@@ -641,10 +640,10 @@ add_task(function test_addEventWaitingForDecryption() {
 add_task(async function test_addEventReplaceDecryptedEvent() {
   const event = makeEvent({
     sender: "@user:example.com",
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
     isEncrypted: true,
     content: {
-      msgtype: MsgType.Text,
+      msgtype: MatrixSDK.MsgType.Text,
       body: "foo",
     },
   });
@@ -661,7 +660,7 @@ add_task(async function test_addEventReplaceDecryptedEvent() {
 add_task(async function test_addEventDecryptionError() {
   const event = makeEvent({
     sender: "@user:example.com",
-    type: EventType.RoomMessageEncrypted,
+    type: MatrixSDK.EventType.RoomMessageEncrypted,
     content: {
       msgtype: "m.bad.encrypted",
     },
@@ -679,7 +678,7 @@ add_task(async function test_addEventDecryptionError() {
 add_task(async function test_addEventPendingDecryption() {
   const event = makeEvent({
     sender: "@user:example.com",
-    type: EventType.RoomMessageEncrypted,
+    type: MatrixSDK.EventType.RoomMessageEncrypted,
     decrypting: true,
   });
   const roomStub = getRoom(true, "#test:example.com");
@@ -696,7 +695,7 @@ add_task(async function test_addEventRedaction() {
   const event = makeEvent({
     sender: "@user:example.com",
     id: 1443,
-    type: EventType.RoomRedaction,
+    type: MatrixSDK.EventType.RoomRedaction,
   });
   const roomStub = {
     writeMessage() {
@@ -731,7 +730,7 @@ add_task(function test_encryptionStateCanEncrypt() {
     mayClientSendStateEvent(eventType, client) {
       equal(
         eventType,
-        EventType.RoomEncryption,
+        MatrixSDK.EventType.RoomEncryption,
         "mayClientSendStateEvent called for room encryption"
       );
       equal(
@@ -769,7 +768,7 @@ add_task(async function test_encryptionStateOn() {
     mayClientSendStateEvent(eventType, client) {
       equal(
         eventType,
-        EventType.RoomEncryption,
+        MatrixSDK.EventType.RoomEncryption,
         "mayClientSendStateEvent called for room encryption"
       );
       equal(
@@ -798,10 +797,10 @@ add_task(async function test_encryptionStateOn() {
 add_task(async function test_addEventReaction() {
   const event = makeEvent({
     sender: "@user:example.com",
-    type: EventType.Reaction,
+    type: MatrixSDK.EventType.Reaction,
     content: {
       ["m.relates_to"]: {
-        rel_type: "m.annotation",
+        rel_type: MatrixSDK.RelationType.Annotation,
         event_id: "!event:example.com",
         key: "🐦",
       },

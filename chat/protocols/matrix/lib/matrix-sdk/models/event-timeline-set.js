@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.EventTimelineSet = exports.DuplicateStrategy = void 0;
 
-var _events = require("events");
-
 var _eventTimeline = require("./event-timeline");
 
 var _event = require("./event");
@@ -14,6 +12,10 @@ var _event = require("./event");
 var _logger = require("../logger");
 
 var _relations = require("./relations");
+
+var _room = require("./room");
+
+var _typedEventEmitter = require("./typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -36,7 +38,7 @@ exports.DuplicateStrategy = DuplicateStrategy;
   DuplicateStrategy["Replace"] = "replace";
 })(DuplicateStrategy || (exports.DuplicateStrategy = DuplicateStrategy = {}));
 
-class EventTimelineSet extends _events.EventEmitter {
+class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Construct a set of EventTimeline objects, typically on behalf of a given
    * room.  A room may have multiple EventTimelineSets for different levels
@@ -147,18 +149,12 @@ class EventTimelineSet extends _events.EventEmitter {
    */
 
 
-  getPendingEvents(thread) {
+  getPendingEvents() {
     if (!this.room || !this.displayPendingEvents) {
       return [];
     }
 
-    const pendingEvents = this.room.getPendingEvents(thread);
-
-    if (this.filter) {
-      return this.filter.filterRoomTimeline(pendingEvents);
-    } else {
-      return pendingEvents;
-    }
+    return this.room.getPendingEvents();
   }
   /**
    * Get the live timeline for this room.
@@ -241,7 +237,7 @@ class EventTimelineSet extends _events.EventEmitter {
     newTimeline.setPaginationToken(backPaginationToken, _eventTimeline.EventTimeline.BACKWARDS); // Now we can swap the live timeline to the new one.
 
     this.liveTimeline = newTimeline;
-    this.emit("Room.timelineReset", this.room, this, resetAllTimelines);
+    this.emit(_room.RoomEvent.TimelineReset, this.room, this, resetAllTimelines);
   }
   /**
    * Get the timeline which contains the given event, if any
@@ -566,7 +562,7 @@ class EventTimelineSet extends _events.EventEmitter {
       timeline: timeline,
       liveEvent: !toStartOfTimeline && timeline == this.liveTimeline && !fromCache
     };
-    this.emit("Room.timeline", event, this.room, Boolean(toStartOfTimeline), false, data);
+    this.emit(_room.RoomEvent.Timeline, event, this.room, Boolean(toStartOfTimeline), false, data);
   }
   /**
    * Replaces event with ID oldEventId with one with newEventId, if oldEventId is
@@ -621,7 +617,7 @@ class EventTimelineSet extends _events.EventEmitter {
       const data = {
         timeline: timeline
       };
-      this.emit("Room.timeline", removed, this.room, undefined, true, data);
+      this.emit(_room.RoomEvent.Timeline, removed, this.room, undefined, true, data);
     }
 
     return removed;
@@ -740,6 +736,19 @@ class EventTimelineSet extends _events.EventEmitter {
     const relationsWithRelType = relationsForEvent[relationType] || {};
     return relationsWithRelType[eventType];
   }
+
+  getAllRelationsEventForEvent(eventId) {
+    const relationsForEvent = this.relations?.[eventId] || {};
+    const events = [];
+
+    for (const relationsRecord of Object.values(relationsForEvent)) {
+      for (const relations of Object.values(relationsRecord)) {
+        events.push(...relations.getRelations());
+      }
+    }
+
+    return events;
+  }
   /**
    * Set an event as the target event if any Relations exist for it already
    *
@@ -784,7 +793,7 @@ class EventTimelineSet extends _events.EventEmitter {
 
 
     if (event.isBeingDecrypted() || event.shouldAttemptDecryption()) {
-      event.once("Event.decrypted", () => {
+      event.once(_event.MatrixEventEvent.Decrypted, () => {
         this.aggregateRelations(event);
       });
       return;
@@ -813,11 +822,10 @@ class EventTimelineSet extends _events.EventEmitter {
     }
 
     let relationsWithEventType = relationsWithRelType[eventType];
-    let relatesToEvent;
 
     if (!relationsWithEventType) {
       relationsWithEventType = relationsWithRelType[eventType] = new _relations.Relations(relationType, eventType, this.room);
-      relatesToEvent = this.findEventById(relatesToEventId) || this.room.getPendingEvent(relatesToEventId);
+      const relatesToEvent = this.findEventById(relatesToEventId) || this.room.getPendingEvent(relatesToEventId);
 
       if (relatesToEvent) {
         relationsWithEventType.setTargetEvent(relatesToEvent);

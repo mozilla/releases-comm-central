@@ -5,15 +5,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DehydrationManager = exports.DEHYDRATION_ALGORITHM = void 0;
 
+var _anotherJson = _interopRequireDefault(require("another-json"));
+
 var _olmlib = require("./olmlib");
 
 var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store");
 
 var _aes = require("./aes");
 
-var _anotherJson = _interopRequireDefault(require("another-json"));
-
 var _logger = require("../logger");
+
+var _httpApi = require("../http-api");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -167,9 +169,10 @@ class DehydrationManager {
         deviceData.passphrase = this.keyInfo.passphrase;
       }
 
-      _logger.logger.log("Uploading account to server");
+      _logger.logger.log("Uploading account to server"); // eslint-disable-next-line camelcase
 
-      const dehydrateResult = await this.crypto.baseApis.http.authedRequest(undefined, "PUT", "/dehydrated_device", undefined, {
+
+      const dehydrateResult = await this.crypto.baseApis.http.authedRequest(undefined, _httpApi.Method.Put, "/dehydrated_device", undefined, {
         device_data: deviceData,
         initial_device_display_name: this.deviceDisplayName
       }, {
@@ -237,7 +240,7 @@ class DehydrationManager {
 
       _logger.logger.log("Uploading keys to server");
 
-      await this.crypto.baseApis.http.authedRequest(undefined, "POST", "/keys/upload/" + encodeURI(deviceId), undefined, {
+      await this.crypto.baseApis.http.authedRequest(undefined, _httpApi.Method.Post, "/keys/upload/" + encodeURI(deviceId), undefined, {
         "device_keys": deviceKeys,
         "one_time_keys": oneTimeKeys,
         "org.matrix.msc2732.fallback_keys": fallbackKeys

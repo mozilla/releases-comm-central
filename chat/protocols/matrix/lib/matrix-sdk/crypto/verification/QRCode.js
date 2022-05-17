@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SHOW_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = exports.ReciprocateQRCode = exports.QRCodeData = void 0;
+exports.SHOW_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = exports.ReciprocateQRCode = exports.QrCodeEvent = exports.QRCodeData = void 0;
 
 var _Base = require("./Base");
 
@@ -18,13 +18,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 const SHOW_QR_CODE_METHOD = "m.qr_code.show.v1";
 exports.SHOW_QR_CODE_METHOD = SHOW_QR_CODE_METHOD;
 const SCAN_QR_CODE_METHOD = "m.qr_code.scan.v1";
+exports.SCAN_QR_CODE_METHOD = SCAN_QR_CODE_METHOD;
+let QrCodeEvent;
+exports.QrCodeEvent = QrCodeEvent;
+
+(function (QrCodeEvent) {
+  QrCodeEvent["ShowReciprocateQr"] = "show_reciprocate_qr";
+})(QrCodeEvent || (exports.QrCodeEvent = QrCodeEvent = {}));
+
 /**
  * @class crypto/verification/QRCode/ReciprocateQRCode
  * @extends {module:crypto/verification/Base}
  */
-
-exports.SCAN_QR_CODE_METHOD = SCAN_QR_CODE_METHOD;
-
 class ReciprocateQRCode extends _Base.VerificationBase {
   constructor(...args) {
     super(...args);
@@ -51,7 +56,7 @@ class ReciprocateQRCode extends _Base.VerificationBase {
           confirm: resolve,
           cancel: () => reject((0, _Error.newUserCancelledError)())
         };
-        this.emit("show_reciprocate_qr", this.reciprocateQREvent);
+        this.emit(QrCodeEvent.ShowReciprocateQr, this.reciprocateQREvent);
       }); // 3. determine key to sign / mark as trusted
 
       const keys = {};

@@ -1,9 +1,6 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { MsgType, EventStatus } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
 const kSendReadPref = "purple.conversations.im.send_read";
 
 loadMatrix();
@@ -180,7 +177,7 @@ add_task(async function test_hideReadReceipts() {
 
 add_task(async function test_getActions() {
   const event = makeEvent({
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
   });
   const message = new MatrixMessage(
     "foo",
@@ -201,7 +198,7 @@ add_task(async function test_getActions() {
 
 add_task(async function test_getActions_decryptionFailure() {
   const event = makeEvent({
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
     content: {
       msgtype: "m.bad.encrypted",
     },
@@ -238,9 +235,9 @@ add_task(async function test_getActions_decryptionFailure() {
 
 add_task(async function test_getActions_redact() {
   const event = makeEvent({
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
     content: {
-      msgtype: MsgType.Text,
+      msgtype: MatrixSDK.MsgType.Text,
       body: "foo bar",
     },
     roomId: "!actions:example.com",
@@ -294,9 +291,9 @@ add_task(async function test_getActions_noEvent() {
 
 add_task(async function test_getActions_report() {
   const event = makeEvent({
-    type: EventType.RoomMessage,
+    type: MatrixSDK.EventType.RoomMessage,
     content: {
-      msgtype: MsgType.Text,
+      msgtype: MatrixSDK.MsgType.Text,
       body: "lorem ipsum",
     },
     roomId: "!actions:example.com",
@@ -339,10 +336,10 @@ add_task(async function test_getActions_notSent() {
   let resendCalled = false;
   let cancelCalled = false;
   const event = makeEvent({
-    status: EventStatus.NOT_SENT,
-    type: EventType.RoomMessage,
+    status: MatrixSDK.EventStatus.NOT_SENT,
+    type: MatrixSDK.EventType.RoomMessage,
     content: {
-      msgtype: MsgType.Text,
+      msgtype: MatrixSDK.MsgType.Text,
       body: "foo bar",
     },
   });
@@ -403,7 +400,7 @@ add_task(function test_whenDisplayedUnsent() {
     "bar",
     {
       event: makeEvent({
-        status: EventStatus.NOT_SENT,
+        status: MatrixSDK.EventStatus.NOT_SENT,
       }),
     },
     mockConv
@@ -428,7 +425,7 @@ add_task(function test_whenReadUnsent() {
     "bar",
     {
       event: makeEvent({
-        status: EventStatus.NOT_SENT,
+        status: MatrixSDK.EventStatus.NOT_SENT,
       }),
     },
     mockConv

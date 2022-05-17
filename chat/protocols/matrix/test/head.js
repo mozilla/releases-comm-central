@@ -8,7 +8,7 @@ const {
   MatrixAccount,
   MatrixMessage,
 } = ChromeUtils.import("resource:///modules/matrix.jsm");
-var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 function loadMatrix() {
   Services.conversations.initConversations();
 }
@@ -212,7 +212,7 @@ function makeProxyHandler(clientHandler) {
 
 /**
  * Build a MatrixEvent like object from a plain object.
- * @param {{ type: EventType, content: object, sender: string, id: number, redacted: boolean, time: Date }} eventSpec - Data the event holds.
+ * @param {{ type: MatrixSDK.EventType, content: object, sender: string, id: number, redacted: boolean, time: Date }} eventSpec - Data the event holds.
  * @returns {MatrixEvent}
  */
 function makeEvent(eventSpec = {}) {
@@ -250,7 +250,7 @@ function makeEvent(eventSpec = {}) {
     },
     isEncrypted() {
       return (
-        eventSpec.type == EventType.RoomMessageEncrypted ||
+        eventSpec.type == MatrixSDK.EventType.RoomMessageEncrypted ||
         eventSpec.isEncrypted
       );
     },
@@ -264,7 +264,7 @@ function makeEvent(eventSpec = {}) {
       return eventSpec.content?.msgtype == "m.bad.encrypted";
     },
     isRedaction() {
-      return eventSpec.type == EventType.RoomRedaction;
+      return eventSpec.type == MatrixSDK.EventType.RoomRedaction;
     },
     getRedactionEvent() {
       return eventSpec.redaction;

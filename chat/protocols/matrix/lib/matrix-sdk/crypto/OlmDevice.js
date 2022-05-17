@@ -459,10 +459,19 @@ class OlmDevice {
     let result;
     await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
-        result = JSON.parse(account.fallback_key());
+        result = JSON.parse(account.unpublished_fallback_key());
       });
     });
     return result;
+  }
+
+  async forgetOldFallbackKey() {
+    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+      this.getAccount(txn, account => {
+        account.forget_old_fallback_key();
+        this.storeAccount(txn, account);
+      });
+    });
   }
   /**
    * Generate a new outbound session

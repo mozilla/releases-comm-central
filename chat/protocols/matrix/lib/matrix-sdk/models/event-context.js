@@ -28,6 +28,8 @@ class EventContext {
    * @constructor
    */
   constructor(ourEvent) {
+    this.ourEvent = ourEvent;
+
     _defineProperty(this, "timeline", void 0);
 
     _defineProperty(this, "ourEventIndex", 0);

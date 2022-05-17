@@ -4,9 +4,6 @@
 var { MatrixMessageContent } = ChromeUtils.import(
   "resource:///modules/matrixMessageContent.jsm"
 );
-var { MsgType, EventStatus } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
 const { XPCShellContentUtils } = ChromeUtils.import(
   "resource://testing-common/XPCShellContentUtils.jsm"
 );
@@ -23,9 +20,9 @@ const PLAIN_FIXTURES = [
   {
     description: "Normal text message plain quote",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: `> lorem ipsum
 > dolor sit amet
 
@@ -40,9 +37,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: "lorem ipsum!",
       },
       sender: "@foo:example.com",
@@ -55,9 +52,9 @@ dolor sit amet`,
   {
     description: "Normal text message plain quote with missing quote message",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: `> lorem ipsum
 
 dolor sit amet`,
@@ -76,9 +73,9 @@ dolor sit amet`,
   {
     description: "Emote message plain quote",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: `> lorem ipsum
 
 dolor sit amet`,
@@ -92,9 +89,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Emote,
+        msgtype: MatrixSDK.MsgType.Emote,
         body: "lorem ipsum",
       },
       sender: "@foo:example.com",
@@ -106,9 +103,9 @@ dolor sit amet`,
   {
     description: "Reply is emote",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Emote,
+        msgtype: MatrixSDK.MsgType.Emote,
         body: `> lorem ipsum
 
 dolor sit amet`,
@@ -122,9 +119,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: "lorem ipsum",
       },
       sender: "@foo:example.com",
@@ -134,9 +131,9 @@ dolor sit amet`,
   {
     description: "Attachment",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.File,
+        msgtype: MatrixSDK.MsgType.File,
         body: "example.png",
         url: "mxc://example.com/asdf",
       },
@@ -147,7 +144,7 @@ dolor sit amet`,
   {
     description: "Sticker",
     event: {
-      type: EventType.Sticker,
+      type: MatrixSDK.EventType.Sticker,
       content: {
         body: "example.png",
         url: "mxc://example.com/asdf",
@@ -159,7 +156,7 @@ dolor sit amet`,
   {
     description: "Normal body with HTML-y contents",
     event: {
-      type: EventType.Text,
+      type: MatrixSDK.EventType.Text,
       content: {
         body: "<foo>",
       },
@@ -170,10 +167,10 @@ dolor sit amet`,
   {
     description: "Non-mxc attachment",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: "hello.jpg",
-        msgtype: MsgType.Image,
+        msgtype: MatrixSDK.MsgType.Image,
         url: "https://example.com/hello.jpg",
       },
       sender: "@bar:example.com",
@@ -183,9 +180,9 @@ dolor sit amet`,
   {
     description: "Key verification request",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.KeyVerificationRequest,
+        msgtype: MatrixSDK.MsgType.KeyVerificationRequest,
       },
       sender: "@bar:example.com",
     },
@@ -194,7 +191,7 @@ dolor sit amet`,
   {
     description: "Decryption failure",
     event: {
-      type: EventType.RoomMessageEncrypted,
+      type: MatrixSDK.EventType.RoomMessageEncrypted,
       content: {
         msgtype: "m.bad.encrypted",
       },
@@ -204,7 +201,7 @@ dolor sit amet`,
   {
     description: "Being decrypted",
     event: {
-      type: EventType.RoomMessageEncrypted,
+      type: MatrixSDK.EventType.RoomMessageEncrypted,
       decrypting: true,
     },
     result: _("message.decrypting"),
@@ -212,20 +209,20 @@ dolor sit amet`,
   {
     description: "Unsent event",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: "foo",
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
       },
       sender: "@bar:example.com",
-      status: EventStatus.NOT_SENT,
+      status: MatrixSDK.EventStatus.NOT_SENT,
     },
     result: "",
   },
   {
     description: "Redacted event",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {},
       sender: "@bar:example.com",
       redacted: true,
@@ -235,7 +232,7 @@ dolor sit amet`,
   {
     description: "Tombstone",
     event: {
-      type: EventType.RoomTombstone,
+      type: MatrixSDK.EventType.RoomTombstone,
       content: {
         body: "tombstone",
       },
@@ -246,7 +243,7 @@ dolor sit amet`,
   {
     description: "Encryption start",
     event: {
-      type: EventType.RoomEncryption,
+      type: MatrixSDK.EventType.RoomEncryption,
       content: {},
       sender: "@bar:example.com",
     },
@@ -255,10 +252,10 @@ dolor sit amet`,
   {
     description: "Reaction",
     event: {
-      type: EventType.Reaction,
+      type: MatrixSDK.EventType.Reaction,
       content: {
         ["m.relates_to"]: {
-          rel_type: "m.annotation",
+          rel_type: MatrixSDK.RelationType.Annotation,
           event_id: "!event:example.com",
           key: "🐦",
         },
@@ -267,9 +264,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: "lorem ipsum!",
       },
       sender: "@foo:example.com",
@@ -282,9 +279,9 @@ const HTML_FIXTURES = [
   {
     description: "Normal text message plain quote",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: `> lorem ipsum
 > dolor sit amet
 
@@ -305,9 +302,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: "lorem ipsum!",
       },
       sender: "@foo:example.com",
@@ -317,9 +314,9 @@ dolor sit amet`,
   {
     description: "Normal text message with missing quote message",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: `> lorem ipsum
 > dolor sit amet
 
@@ -347,9 +344,9 @@ dolor sit amet`,
   {
     description: "Quoted emote message",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: `> lorem ipsum
 
 dolor sit amet`,
@@ -369,9 +366,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Emote,
+        msgtype: MatrixSDK.MsgType.Emote,
         body: "lorem ipsum",
         format: "org.matrix.custom.html",
         formatted_body: "<p>lorem ipsum</p>",
@@ -384,9 +381,9 @@ dolor sit amet`,
   {
     description: "Reply is emote",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Emote,
+        msgtype: MatrixSDK.MsgType.Emote,
         body: `> lorem ipsum
 
 dolor sit amet`,
@@ -406,9 +403,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: "lorem ipsum",
       },
       sender: "@foo:example.com",
@@ -418,9 +415,9 @@ dolor sit amet`,
   {
     description: "Attachment",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.File,
+        msgtype: MatrixSDK.MsgType.File,
         body: "example.png",
         url: "mxc://example.com/asdf",
       },
@@ -432,7 +429,7 @@ dolor sit amet`,
   {
     description: "Sticker",
     event: {
-      type: EventType.Sticker,
+      type: MatrixSDK.EventType.Sticker,
       content: {
         body: "example.png",
         url: "mxc://example.com/asdf",
@@ -445,10 +442,10 @@ dolor sit amet`,
   {
     description: "Normal formatted body",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: "foo bar",
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         format: "org.matrix.custom.html",
         formatted_body: "<p>foo bar</p>",
       },
@@ -459,10 +456,10 @@ dolor sit amet`,
   {
     description: "Inline image",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: ":emote:",
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         format: "org.matrix.custom.html",
         formatted_body: '<img alt=":emote:" src="mxc://example.com/emote.png">',
       },
@@ -474,10 +471,10 @@ dolor sit amet`,
   {
     description: "Non-mxc attachment",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: "foo.png",
-        msgtype: MsgType.Image,
+        msgtype: MatrixSDK.MsgType.Image,
         url: "https://example.com/image.png",
       },
       sender: "@bar:example.com",
@@ -487,10 +484,10 @@ dolor sit amet`,
   {
     description: "Fallback to normal body",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: "hello world <!>",
-        msgtype: MsgType.Notice,
+        msgtype: MatrixSDK.MsgType.Notice,
       },
       sender: "@bar:example.com",
     },
@@ -499,10 +496,10 @@ dolor sit amet`,
   {
     description: "Colored text",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: "rainbow",
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         format: "org.matrix.custom.html",
         formatted_body:
           '<font data-mx-color="ff0000">ra</font><span data-mx-color="00ff00">inb</span><i data-mx-color="0000ff">ow</i>',
@@ -515,20 +512,20 @@ dolor sit amet`,
   {
     description: "Unsent event",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
         body: "foo",
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
       },
       sender: "@bar:example.com",
-      status: EventStatus.NOT_SENT,
+      status: MatrixSDK.EventStatus.NOT_SENT,
     },
     result: "",
   },
   {
     description: "Redacted event",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {},
       sender: "@bar:example.com",
       redacted: true,
@@ -538,7 +535,7 @@ dolor sit amet`,
   {
     description: "Tombstone",
     event: {
-      type: EventType.RoomTombstone,
+      type: MatrixSDK.EventType.RoomTombstone,
       content: {
         body: "tombstone",
       },
@@ -549,7 +546,7 @@ dolor sit amet`,
   {
     description: "Encryption start",
     event: {
-      type: EventType.RoomEncryption,
+      type: MatrixSDK.EventType.RoomEncryption,
       content: {},
       sender: "@bar:example.com",
     },
@@ -558,10 +555,10 @@ dolor sit amet`,
   {
     description: "Reaction",
     event: {
-      type: EventType.Reaction,
+      type: MatrixSDK.EventType.Reaction,
       content: {
         ["m.relates_to"]: {
-          rel_type: "m.annotation",
+          rel_type: MatrixSDK.RelationType.Annotation,
           event_id: "!event:example.com",
           key: "🐦",
         },
@@ -570,9 +567,9 @@ dolor sit amet`,
     },
     getEventResult: {
       id: "!event:example.com",
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: "lorem ipsum!",
       },
       sender: "@foo:example.com",
@@ -587,9 +584,9 @@ dolor sit amet`,
   {
     description: "URL encoded mention",
     event: {
-      type: EventType.RoomMessage,
+      type: MatrixSDK.EventType.RoomMessage,
       content: {
-        msgtype: MsgType.Text,
+        msgtype: MatrixSDK.MsgType.Text,
         body: `@foo:example.com dolor sit amet`,
         format: "org.matrix.custom.html",
         formatted_body: `<a href="https://matrix.to/#/%40foo%3Aexample.com">Foo</a> dolor sit amet`,

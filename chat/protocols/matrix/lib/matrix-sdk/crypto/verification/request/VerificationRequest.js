@@ -3,15 +3,15 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.VerificationRequest = exports.START_TYPE = exports.REQUEST_TYPE = exports.READY_TYPE = exports.Phase = exports.PHASE_UNSENT = exports.PHASE_STARTED = exports.PHASE_REQUESTED = exports.PHASE_READY = exports.PHASE_DONE = exports.PHASE_CANCELLED = exports.EVENT_PREFIX = exports.DONE_TYPE = exports.CANCEL_TYPE = void 0;
+exports.VerificationRequestEvent = exports.VerificationRequest = exports.START_TYPE = exports.REQUEST_TYPE = exports.READY_TYPE = exports.Phase = exports.PHASE_UNSENT = exports.PHASE_STARTED = exports.PHASE_REQUESTED = exports.PHASE_READY = exports.PHASE_DONE = exports.PHASE_CANCELLED = exports.EVENT_PREFIX = exports.DONE_TYPE = exports.CANCEL_TYPE = void 0;
 
 var _logger = require("../../../logger");
-
-var _events = require("events");
 
 var _Error = require("../Error");
 
 var _QRCode = require("../QRCode");
+
+var _typedEventEmitter = require("../../../models/typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -64,6 +64,12 @@ const PHASE_CANCELLED = Phase.Cancelled;
 exports.PHASE_CANCELLED = PHASE_CANCELLED;
 const PHASE_DONE = Phase.Done;
 exports.PHASE_DONE = PHASE_DONE;
+let VerificationRequestEvent;
+exports.VerificationRequestEvent = VerificationRequestEvent;
+
+(function (VerificationRequestEvent) {
+  VerificationRequestEvent["Change"] = "change";
+})(VerificationRequestEvent || (exports.VerificationRequestEvent = VerificationRequestEvent = {}));
 
 /**
  * State machine for verification requests.
@@ -71,12 +77,13 @@ exports.PHASE_DONE = PHASE_DONE;
  * send and receive verification events are put in `InRoomChannel` or `ToDeviceChannel`.
  * @event "change" whenever the state of the request object has changed.
  */
-class VerificationRequest extends _events.EventEmitter {
+class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
   // we keep a copy of the QR Code data (including other user master key) around
   // for QR reciprocate verification, to protect against
   // cross-signing identity reset between the .ready and .start event
   // and signing the wrong key after .start
   // The timestamp when we received the request event from the other side
+  // Used in tests only
   constructor(channel, verificationMethods, client) {
     super();
     this.channel = channel;
@@ -113,15 +120,15 @@ class VerificationRequest extends _events.EventEmitter {
 
     _defineProperty(this, "_verifier", void 0);
 
-    _defineProperty(this, "cancelOnTimeout", () => {
+    _defineProperty(this, "cancelOnTimeout", async () => {
       try {
         if (this.initiatedByMe) {
-          this.cancel({
+          await this.cancel({
             reason: "Other party didn't accept in time",
             code: "m.timeout"
           });
         } else {
-          this.cancel({
+          await this.cancel({
             reason: "User didn't accept in time",
             code: "m.timeout"
           });
@@ -513,7 +520,7 @@ class VerificationRequest extends _events.EventEmitter {
   } = {}) {
     if (!this.observeOnly && this._phase !== PHASE_CANCELLED) {
       this._declining = true;
-      this.emit("change");
+      this.emit(VerificationRequestEvent.Change);
 
       if (this._verifier) {
         return this._verifier.cancel((0, _Error.errorFactory)(code, reason)());
@@ -536,7 +543,7 @@ class VerificationRequest extends _events.EventEmitter {
     if (!this.observeOnly && this.phase === PHASE_REQUESTED && !this.initiatedByMe) {
       const methods = [...this.verificationMethods.keys()];
       this._accepting = true;
-      this.emit("change");
+      this.emit(VerificationRequestEvent.Change);
       await this.channel.send(READY_TYPE, {
         methods
       });
@@ -565,14 +572,14 @@ class VerificationRequest extends _events.EventEmitter {
         }
 
         if (handled) {
-          this.off("change", check);
+          this.off(VerificationRequestEvent.Change, check);
         }
 
         return handled;
       };
 
       if (!check()) {
-        this.on("change", check);
+        this.on(VerificationRequestEvent.Change, check);
       }
     });
   }
@@ -581,7 +588,7 @@ class VerificationRequest extends _events.EventEmitter {
     this._phase = phase;
 
     if (notify) {
-      this.emit("change");
+      this.emit(VerificationRequestEvent.Change);
     }
   }
 
@@ -864,7 +871,7 @@ class VerificationRequest extends _events.EventEmitter {
 
         this.setPhase(phase);
       } else if (this._observeOnly !== wasObserveOnly) {
-        this.emit("change");
+        this.emit(VerificationRequestEvent.Change);
       }
     } finally {
       // log events we processed so we can see from rageshakes what events were added to a request

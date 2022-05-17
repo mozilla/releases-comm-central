@@ -99,14 +99,9 @@ class TimelineWindow {
         // we were looking for the live timeline: initialise to the end
         eventIndex = events.length;
       } else {
-        for (let i = 0; i < events.length; i++) {
-          if (events[i].getId() == initialEventId) {
-            eventIndex = i;
-            break;
-          }
-        }
+        eventIndex = events.findIndex(e => e.getId() === initialEventId);
 
-        if (eventIndex === undefined) {
+        if (eventIndex < 0) {
           throw new Error("getEventTimeline result didn't include requested event");
         }
       }
@@ -116,10 +111,8 @@ class TimelineWindow {
       this.start = new TimelineIndex(timeline, startIndex - timeline.getBaseIndex());
       this.end = new TimelineIndex(timeline, endIndex - timeline.getBaseIndex());
       this.eventCount = endIndex - startIndex;
-    }; // We avoid delaying the resolution of the promise by a reactor tick if
-    // we already have the data we need, which is important to keep room-switching
-    // feeling snappy.
-    //
+    }; // We avoid delaying the resolution of the promise by a reactor tick if we already have the data we need,
+    // which is important to keep room-switching feeling snappy.
 
 
     if (initialEventId) {
@@ -128,11 +121,10 @@ class TimelineWindow {
       if (timeline) {
         // hot-path optimization to save a reactor tick by replicating the sync check getTimelineForEvent does.
         initFields(timeline);
-        return Promise.resolve(timeline);
+        return Promise.resolve();
       }
 
-      const prom = this.client.getEventTimeline(this.timelineSet, initialEventId);
-      return prom.then(initFields);
+      return this.client.getEventTimeline(this.timelineSet, initialEventId).then(initFields);
     } else {
       const tl = this.timelineSet.getLiveTimeline();
       initFields(tl);
@@ -230,7 +222,7 @@ class TimelineWindow {
       }
     }
 
-    return Boolean(tl.timeline.getNeighbouringTimeline(direction) || tl.timeline.getPaginationToken(direction));
+    return Boolean(tl.timeline.getNeighbouringTimeline(direction) || tl.timeline.getPaginationToken(direction) !== null);
   }
   /**
    * Attempt to extend the window
@@ -284,7 +276,7 @@ class TimelineWindow {
 
     const token = tl.timeline.getPaginationToken(direction);
 
-    if (!token) {
+    if (token === null) {
       debuglog("TimelineWindow: no token");
       return Promise.resolve(false);
     }

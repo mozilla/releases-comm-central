@@ -85,7 +85,7 @@ WebStorageSessionStore.prototype = {
 
     for (let i = 0; i < this.store.length; ++i) {
       const key = this.store.key(i);
-      const userId = key.substr(prefix.length);
+      const userId = key.slice(prefix.length);
       if (key.startsWith(prefix)) devices[userId] = getJsonItem(this.store, key);
     }
 
@@ -133,7 +133,7 @@ WebStorageSessionStore.prototype = {
     const results = {};
 
     for (const k of deviceKeys) {
-      const unprefixedKey = k.substr(keyEndToEndSessions('').length);
+      const unprefixedKey = k.slice(keyEndToEndSessions('').length);
       results[unprefixedKey] = getJsonItem(this.store, k);
     }
 
@@ -169,8 +169,8 @@ WebStorageSessionStore.prototype = {
 
 
       result.push({
-        senderKey: key.substr(prefix.length, 43),
-        sessionId: key.substr(prefix.length + 44)
+        senderKey: key.slice(prefix.length, prefix.length + 43),
+        sessionId: key.slice(prefix.length + 44)
       });
     }
 
@@ -193,7 +193,7 @@ WebStorageSessionStore.prototype = {
     const results = {};
 
     for (const k of roomKeys) {
-      const unprefixedKey = k.substr(keyEndToEndRoom('').length);
+      const unprefixedKey = k.slice(keyEndToEndRoom('').length);
       results[unprefixedKey] = getJsonItem(this.store, k);
     }
 
@@ -269,8 +269,8 @@ function removeByPrefix(store, prefix) {
   }
 }
 
-function debuglog() {
+function debuglog(...args) {
   if (DEBUG) {
-    _logger.logger.log(...arguments);
+    _logger.logger.log(...args);
   }
 }
