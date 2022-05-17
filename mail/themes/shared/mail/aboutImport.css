@@ -4,6 +4,11 @@
 
 @import url("chrome://messenger/skin/colors.css");
 
+:root {
+  --main-title-size: 1.8rem;
+  --title-icon-margin: 8px;
+}
+
 *[hidden] {
   display: none !important;
 }
@@ -115,6 +120,26 @@ progress {
   max-width: 600px;
 }
 
+.tabPane h1 {
+  position: relative;
+}
+
+.tabPane h1::before {
+  content: "";
+  background-image: url("chrome://messenger/skin/icons/spaces.svg");
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  -moz-context-properties: fill;
+  color: var(--primary);
+  margin-inline-end: var(--title-icon-margin);
+  position: absolute;
+  inset-inline-start: calc(-1 * (var(--main-title-size) + var(--title-icon-margin)));
+}
+
 .source-list {
   padding: 1em;
 }
@@ -221,6 +246,37 @@ calendar-item-summary {
   display: inherit;
 }
 
-.final-step .next-button {
+.final-step .next-button,
+.restart-required .no-restart {
   display: none;
+}
+
+/* Icons */
+.icon {
+  object-fit: contain;
+  vertical-align: middle;
+  fill: currentColor;
+  -moz-context-properties: fill;
+}
+
+.icon.info {
+  color: var(--primary);
+}
+
+.icon.warn {
+  color: var(--color-orange-40);
+}
+
+.back {
+  background-image: url("chrome://messenger/skin/icons/move-left.svg");
+  background-repeat: no-repeat;
+  background-position: 0.5em center;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  padding-inline-start: 1em;
+}
+
+.back:dir(rtl) {
+  background-image: url("chrome://messenger/skin/icons/move-right.svg");
+  background-position-x: right 0.5em;
 }

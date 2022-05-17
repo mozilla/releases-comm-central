@@ -78,6 +78,8 @@ items-pane-checkbox-calendars = Calendars
 
 items-pane-checkbox-mail-messages = Mail Messages
 
+items-pane-override = Any existing or identical data will not be overwritten.
+
 ## Import from address book file steps
 
 import-from-addr-book-file-desc = Select the file type you would like to import:
@@ -191,3 +193,15 @@ summary-pane-title = Data to be imported
 summary-pane-start = Start Import
 
 summary-pane-warning = { -brand-product-name } will need to be restarted when importing is complete.
+
+summary-pane-start-over = Restart Import Tool
+
+## Footer area
+
+footer-help = Need help?
+
+footer-import-documentation = Import documentation
+
+footer-export-documentation = Export documentation
+
+footer-support-forum = Support forum

@@ -17,6 +17,8 @@
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/aboutImport.ftl"/>
 
+  <link rel="icon" href="chrome://messenger/skin/icons/import.svg" sizes="any"/>
+
   <script defer="" src="chrome://messenger/content/aboutImport.js"></script>
   <script defer="" src="chrome://messenger/content/csv-field-map.js"></script>
   <script defer="" src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
@@ -132,7 +134,7 @@
         </div>
       </section>
       <section id="app-items">
-        <h1 data-l10n-id="items-pane-title"></h1>
+        <h1 data-l10n-id="import-from-app"></h1>
         <dl>
           <div id="appSourceProfileNameWrapper">
             <dt data-l10n-id="items-pane-profile-name"></dt>
@@ -141,6 +143,13 @@
           <dt data-l10n-id="items-pane-directory"></dt>
           <dd id="appSourceProfilePath"></dd>
         </dl>
+        <h2 data-l10n-id="items-pane-title"></h2>
+        <p>
+          <img src="chrome://messenger/skin/icons/info.svg"
+               class="info icon"
+               alt=""/>
+          <span data-l10n-id="items-pane-override"></span>
+        </p>
         <div class="option-list" id="appItemsList">
           <label class="toggle-container-with-text">
             <input type="checkbox" id="checkAccounts"/>
@@ -159,6 +168,12 @@
             <span data-l10n-id="items-pane-checkbox-mail-messages"></span>
           </label>
         </div>
+        <p>
+          <img src="chrome://global/skin/icons/warning.svg"
+               class="icon warn"
+               alt=""/>
+          <span data-l10n-id="summary-pane-warning"></span>
+        </p>
       </section>
       <section id="app-summary">
         <h1 data-l10n-id="import-from-app"></h1>
@@ -186,7 +201,15 @@
         <button class="progressFinish primary"
                 onclick="profileController.next()"
                 data-l10n-id="button-finish"></button>
-        <p data-l10n-id="summary-pane-warning" class="restart-only"></p>
+        <button data-l10n-id="summary-pane-start-over"
+                class="progressFinish no-restart"
+                onclick="restart()"></button>
+        <p class="restart-only">
+          <img src="chrome://global/skin/icons/warning.svg"
+               class="icon warn"
+               alt=""/>
+          <span data-l10n-id="summary-pane-warning"></span>
+        </p>
       </section>
       <footer class="buttons-container">
         <button id="profileBackButton"
@@ -284,6 +307,15 @@
         <button class="progressFinish primary"
                 onclick="addrBookController.next()"
                 data-l10n-id="button-finish"></button>
+        <button data-l10n-id="summary-pane-start-over"
+                class="progressFinish no-restart btn-link"
+                onclick="restart()"></button>
+        <p class="restart-only">
+          <img src="chrome://global/skin/icons/warning.svg"
+               class="icon warn"
+               alt=""/>
+          <span data-l10n-id="summary-pane-warning"></span>
+        </p>
       </section>
       <footer class="buttons-container">
         <button id="addrBookBackButton"
@@ -360,6 +392,15 @@
         <button class="progressFinish primary"
                 onclick="calendarController.next()"
                 data-l10n-id="button-finish"></button>
+        <button data-l10n-id="summary-pane-start-over"
+                class="progressFinish no-restart btn-link"
+                onclick="restart()"></button>
+        <p class="restart-only">
+          <img src="chrome://global/skin/icons/warning.svg"
+               class="icon warn"
+               alt=""/>
+          <span data-l10n-id="summary-pane-warning"></span>
+        </p>
       </section>
       <footer class="buttons-container">
         <button id="calendarBackButton"
@@ -377,6 +418,9 @@
       <h1 data-l10n-id="export-profile"></h1>
       <p data-l10n-id="export-profile-desc"></p>
       <p>
+        <img src="chrome://messenger/skin/icons/info.svg"
+             class="info icon"
+             alt=""/>
         <span data-l10n-id="export-profile-desc2"></span>
         <a data-l10n-id="export-open-profile-folder"
            onclick="exportController.openProfileFolder()"></a>
@@ -395,6 +439,19 @@
               onclick="exportController.back()"
               data-l10n-id="button-finish"></button>
     </div>
+
+    <footer class="tip-caption">
+      <p data-l10n-id="footer-help"></p>
+      <a id="importDocs"
+         data-l10n-id="footer-import-documentation"
+         href="https://support.mozilla.org/products/thunderbird"></a>
+      <a id="exportDocs"
+         data-l10n-id="footer-export-documentation"
+         href="https://support.mozilla.org/products/thunderbird"></a>
+      -
+      <a data-l10n-id="footer-support-forum"
+         href="https://support.mozilla.org/products/thunderbird"></a>
+    </footer>
   </main>
 </body>
 </html>

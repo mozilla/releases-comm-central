@@ -131,7 +131,6 @@ class ImporterController {
       this._el.querySelector(".progressPaneDesc"),
       "progress-pane-finished-desc2"
     );
-    this._el.querySelector(".progressFinish").hidden = false;
     this._inProgress = false;
   }
 
@@ -405,6 +404,13 @@ class ProfileImporterController extends ImporterController {
   _showItems(profile) {
     this._el.classList.remove("final-step", "progress");
     this._sourceProfile = profile;
+    document.l10n.setAttributes(
+      this._el.querySelector("#app-items h1"),
+      "profiles-pane-title",
+      {
+        app: this._sourceAppName,
+      }
+    );
     document.getElementById("appSourceProfilePath").textContent =
       profile.dir.path;
     document.getElementById(
@@ -1279,6 +1285,7 @@ class StartController extends ImporterController {
         break;
       case "calendar":
         showTab("tab-calendar");
+        await calendarController._onSelectSource();
         break;
       case "addressbook":
         showTab("tab-addressBook");
@@ -1293,12 +1300,26 @@ class StartController extends ImporterController {
  */
 function showTab(tabId) {
   let selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
+  let isExport = tabId === "tab-export";
+  document.getElementById("importDocs").hidden = isExport;
+  document.getElementById("exportDocs").hidden = !isExport;
   for (let tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }
   for (let el of document.querySelectorAll("[id^=tab-]")) {
     el.classList.toggle("is-selected", el.id == tabId);
   }
+}
+
+/**
+ * Restart the import wizard. Resets all previous choices.
+ */
+function restart() {
+  startController.reset();
+  showTab("tab-start");
+  profileController.reset();
+  addrBookController.reset();
+  calendarController.reset();
 }
 
 let profileController;
