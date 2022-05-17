@@ -153,7 +153,6 @@ toolbar[brighttext] {
     --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
     --autocomplete-popup-highlight-background: #0060df;
     --toolbar-field-border-color: #5f5f6d !important;
-    --unread-folder-color: var(--sidebar-text-color);
   }
 
   :root:not([lwt-tree]):-moz-lwtheme {

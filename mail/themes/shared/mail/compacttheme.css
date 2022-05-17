@@ -20,7 +20,6 @@
     /* Toolbar buttons */
     --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-    --unread-folder-color: #fff;
     --autocomplete-popup-highlight-background: #0060DF;
   }
 
