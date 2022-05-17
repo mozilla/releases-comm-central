@@ -12,6 +12,7 @@ ChromeUtils.defineModuleGetter(
   "MailE10SUtils",
   "resource:///modules/MailE10SUtils.jsm"
 );
+
 var { ExtensionError } = ExtensionUtils;
 
 /**
@@ -62,8 +63,8 @@ let tabListener = {
   /**
    * Promise that the given tab completes loading.
    *
-   * @param {NativeTabInfo} nativeTabInfo       The tabInfo describing the tab
-   * @return {Promise<NativeTabInfo>}           Resolves when the tab completes loading
+   * @param {NativeTabInfo} nativeTabInfo - the tabInfo describing the tab
+   * @return {Promise<NativeTabInfo>} - resolves when the tab completes loading
    */
   awaitTabReady(nativeTabInfo) {
     let deferred = this.tabReadyPromises.get(nativeTabInfo);
@@ -408,30 +409,11 @@ this.tabs = class extends ExtensionAPI {
         onUpdated: new TabsUpdateFilterEventManager({ context }).api(),
 
         async create(createProperties) {
-          let window = await new Promise((resolve, reject) => {
-            let window =
-              createProperties.windowId === null
-                ? windowTracker.topNormalWindow
-                : windowTracker.getWindow(createProperties.windowId, context);
-            let { gMailInit } = window;
-            if (!gMailInit || !gMailInit.delayedStartupFinished) {
-              let obs = (finishedWindow, topic, data) => {
-                if (finishedWindow != window) {
-                  return;
-                }
-                Services.obs.removeObserver(
-                  obs,
-                  "mail-delayed-startup-finished"
-                );
-                resolve(window);
-              };
-              Services.obs.addObserver(obs, "mail-delayed-startup-finished");
-            } else {
-              resolve(window);
-            }
-          });
+          let window = await getNormalWindowReady(
+            context,
+            createProperties.windowId
+          );
           let tabmail = window.document.getElementById("tabmail");
-
           let url;
           if (createProperties.url) {
             url = context.uri.resolve(createProperties.url);
@@ -442,12 +424,7 @@ this.tabs = class extends ExtensionAPI {
           }
 
           let currentTab = tabmail.selectedTab;
-
-          let active = true;
-          if (createProperties.active) {
-            active = createProperties.active;
-          }
-
+          let active = createProperties.active ?? true;
           tabListener.initTabReady();
 
           let nativeTabInfo = tabmail.openTab("contentTab", {
@@ -499,6 +476,23 @@ this.tabs = class extends ExtensionAPI {
           let tabmail = getTabTabmail(nativeTabInfo);
 
           if (updateProperties.url) {
+            // Only supported for content tabs and active mail tabs.
+            let supportedTabs =
+              nativeTabInfo == tabmail.currentTabInfo
+                ? ["folder", "contentTab"]
+                : ["contentTab"];
+            if (supportedTabs.includes(nativeTabInfo.mode.name)) {
+              if (nativeTabInfo.messageDisplay) {
+                // Clear the selection before loading a content url into a mail
+                // tab, to reset the messageDisplay.
+                nativeTabInfo.folderDisplay.clearSelection();
+              }
+            } else {
+              throw new ExtensionError(
+                "Updating the displayed url is only supported for content tabs and active mail tabs."
+              );
+            }
+
             let browser = getTabBrowser(nativeTabInfo);
             if (!browser) {
               throw new ExtensionError("Cannot set a URL for this tab.");
@@ -518,12 +512,10 @@ this.tabs = class extends ExtensionAPI {
             MailE10SUtils.loadURI(browser, url, options);
           }
 
+          // The current tab can only be set to active. To set it inactive, another tab has to be set
+          // as active.
           if (updateProperties.active) {
-            if (updateProperties.active) {
-              tabmail.selectedTab = nativeTabInfo;
-            } else {
-              // Not sure what to do here? Which tab should we select?
-            }
+            tabmail.selectedTab = nativeTabInfo;
           }
 
           return tabManager.convert(nativeTabInfo);
@@ -705,7 +697,7 @@ this.tabs = class extends ExtensionAPI {
 
           if (mode.tabs.length && mode.tabs.length == mode.maxTabs) {
             throw new ExtensionError(
-              `Maximum number of ${state.mode} tabs reached`
+              `Maximum number of ${state.mode} tabs reached.`
             );
           } else {
             tabmail.restoreTab(state);

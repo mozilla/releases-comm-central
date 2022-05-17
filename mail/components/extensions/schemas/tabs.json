@@ -328,12 +328,13 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new tab.",
+        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages.",
         "async": "callback",
         "parameters": [
           {
             "type": "object",
             "name": "createProperties",
+            "description": "Properties for the new tab. Defaults to an empty tab, if no ``url`` is provided.",
             "properties": {
               "windowId": {
                 "type": "integer",
@@ -350,7 +351,7 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "The URL to navigate the tab to initially. Fully-qualified URLs must include a scheme (i.e. 'http://www.google.com', not 'www.google.com'). Relative URLs will be relative to the current page within the extension. Defaults to the New Tab Page."
+                "description": "The URL to navigate the tab to initially. Fully-qualified URLs must include a scheme (i.e. 'http://www.google.com', not 'www.google.com'). Relative URLs will be relative to the current page within the extension."
               },
               "active": {
                 "type": "boolean",
@@ -523,16 +524,17 @@
           {
             "type": "object",
             "name": "updateProperties",
+            "description": "Properties which should to be updated.",
             "properties": {
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "A URL to navigate the tab to."
+                "description": "A URL to navigate the tab to. Only applicable for ``content`` tabs and active ``mail`` tabs."
               },
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should be active. Does not affect whether the window is focused (see :ref:`windows.update`)."
+                "description": "Set this to true, if the tab should be active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to false has no effect."
               }
             }
           },

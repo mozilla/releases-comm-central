@@ -53,6 +53,7 @@ module.exports = {
     convertMessage: true,
     folderPathToURI: true,
     folderURIToPath: true,
+    getNormalWindowReady: true,
     getTabBrowser: true,
     getTabTabmail: true,
     getTabWindow: true,

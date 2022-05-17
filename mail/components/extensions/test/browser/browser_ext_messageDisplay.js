@@ -2,7 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_task(async () => {
+var gAccount;
+var gMessages;
+var gFolder;
+
+add_setup(() => {
+  gAccount = createAccount();
+  let rootFolder = gAccount.incomingServer.rootFolder;
+  rootFolder.createSubfolder("test0", null);
+  rootFolder.createSubfolder("test1", null);
+  rootFolder.createSubfolder("test2", null);
+
+  let subFolders = {};
+  for (let folder of rootFolder.subFolders) {
+    subFolders[folder.name] = folder;
+  }
+  createMessages(subFolders.test0, 5);
+  createMessages(subFolders.test1, 5);
+  createMessages(subFolders.test2, 6);
+
+  gFolder = subFolders.test0;
+  gMessages = [...subFolders.test0.messages];
+});
+
+add_task(async function testGetDisplayedMessage() {
   let files = {
     "background.js": async () => {
       let [{ id: firstTabId, displayedFolder }] = await browser.mailTabs.query({
@@ -151,17 +174,7 @@ add_task(async () => {
     },
   });
 
-  let account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  let subFolders = {};
-  for (let folder of rootFolder.subFolders) {
-    subFolders[folder.name] = folder;
-  }
-  createMessages(subFolders.test1, 5);
-  let messages = [...subFolders.test1.messages];
-
-  window.gFolderTreeView.selectFolder(subFolders.test1);
+  window.gFolderTreeView.selectFolder(gFolder);
   window.gFolderDisplay.selectViewIndex(0);
 
   await extension.startup();
@@ -173,14 +186,584 @@ add_task(async () => {
   window.gFolderDisplay.selectViewIndex(2);
 
   await extension.awaitMessage("open message 0 in tab");
-  await openMessageInTab(messages[0]);
+  await openMessageInTab(gMessages[0]);
 
   await extension.awaitMessage("open message 1 in window");
-  await openMessageInWindow(messages[1]);
+  await openMessageInWindow(gMessages[1]);
 
   await extension.awaitMessage("show messages 1 and 2");
-  window.gFolderDisplay.selectMessages(messages.slice(1, 3));
+  window.gFolderDisplay.selectMessages(gMessages.slice(1, 3));
 
   await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function testOpenMessagesInTabs() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        // Helper class to keep track of expected tab states and cycle though all
+        // tabs after each test to enure the returned values are as expected under
+        // different active/inactive scenarios.
+        class TabTest {
+          constructor() {
+            this.expectedTabs = new Map();
+          }
+
+          // Check the given tab to match the expected values, update the internal
+          // tracker Map, and cycle through all tabs to make sure they still match
+          // the expected values.
+          async check(description, tabId, expected) {
+            browser.test.log(`TabTest: ${description}`);
+            if (expected.active) {
+              // Mark all other tabs inactive.
+              this.expectedTabs.forEach((v, k) => {
+                v.active = k == tabId;
+                if (!v.active && v.urlAfterInactive) {
+                  v.url = v.urlAfterInactive;
+                }
+              });
+            }
+            // When we call this.check() to cycle thru all tabs, we do not specify
+            // an expected value. Do not update the tracker map in this case.
+            if (!expected.skip) {
+              this.expectedTabs.set(tabId, expected);
+            }
+
+            // Wait till the loaded url is as expected. Only checking the last part,
+            // since running this test with --verify causes multiple accounts to
+            // be created, changing the expected first part of message urls.
+            await window.waitForCondition(async () => {
+              let tab = await browser.tabs.get(tabId);
+              let expected = this.expectedTabs.get(tabId);
+              return tab.status == "complete" && tab.url.endsWith(expected.url);
+            }, `Should have loaded the correct URL in tab ${tabId}`);
+
+            // Check if all existing tabs match their expected values.
+            await this._verify();
+
+            // Cycle though all tabs, if there is more than one and run the check
+            // for each active tab.
+            if (!expected.skip && this.expectedTabs.size > 1) {
+              // Loop over all tabs, activate each and verify all of them. Test the currently active
+              // tab last, so we end up with the original condition.
+              let currentActiveTab = this._toArray().find(tab => tab.active);
+              let tabsToVerify = this._toArray()
+                .filter(tab => tab.id != currentActiveTab.id)
+                .concat(currentActiveTab);
+              for (let tab of tabsToVerify) {
+                await browser.tabs.update(tab.id, { active: true });
+                await this.check("Activating tab " + tab.id, tab.id, {
+                  active: true,
+                  skip: true,
+                });
+              }
+            }
+          }
+
+          // Return the expectedTabs Map as an array.
+          _toArray() {
+            return Array.from(this.expectedTabs.entries(), tab => {
+              return { id: tab[0], ...tab[1] };
+            });
+          }
+
+          // Verify that all tabs match their currently expected values.
+          async _verify() {
+            let tabs = await browser.tabs.query({});
+            browser.test.assertEq(
+              this.expectedTabs.size,
+              tabs.length,
+              `number of tabs should be correct`
+            );
+
+            for (let [tabId, expectedTab] of this.expectedTabs) {
+              let tab = await browser.tabs.get(tabId);
+              browser.test.assertEq(
+                expectedTab.active,
+                tab.active,
+                `${tab.type} tab (id:${tabId}) should have the correct active setting`
+              );
+
+              if (expectedTab.hasOwnProperty("message")) {
+                // Getthe currently displayed message.
+                let message = await browser.messageDisplay.getDisplayedMessage(
+                  tabId
+                );
+
+                // Test message either being correct or not displayed if not
+                // expected.
+                if (expectedTab.message) {
+                  browser.test.assertTrue(
+                    !!message,
+                    `${tab.type} tab (id:${tabId}) should have a message`
+                  );
+                  if (message) {
+                    browser.test.assertEq(
+                      expectedTab.message.id,
+                      message.id,
+                      `${tab.type} tab (id:${tabId}) should have the correct message`
+                    );
+                  }
+                } else {
+                  browser.test.assertEq(
+                    null,
+                    message,
+                    `${tab.type} tab (id:${tabId}) should not display a message`
+                  );
+                }
+              }
+
+              // Testing url parameter.
+              if (expectedTab.url) {
+                browser.test.assertTrue(
+                  tab.url.endsWith(expectedTab.url),
+                  `${tab.type} tab (id:${tabId}) should display the correct url`
+                );
+              }
+            }
+          }
+        }
+
+        // Verify startup conditions.
+        let accounts = await browser.accounts.list();
+        browser.test.assertEq(
+          1,
+          accounts.length,
+          `number of accounts should be correct`
+        );
+
+        let folder1 = accounts[0].folders.find(f => f.name == "test1");
+        browser.test.assertTrue(!!folder1, "folder should exist");
+        let { messages: messages1 } = await browser.messages.list(folder1);
+        browser.test.assertEq(
+          5,
+          messages1.length,
+          `number of messages should be correct`
+        );
+
+        let folder2 = accounts[0].folders.find(f => f.name == "test2");
+        browser.test.assertTrue(!!folder2, "folder should exist");
+        let { messages: messages2 } = await browser.messages.list(folder2);
+        browser.test.assertEq(
+          6,
+          messages2.length,
+          `number of messages should be correct`
+        );
+
+        // Test reject on invalid openProperties.
+        await browser.test.assertRejects(
+          browser.messageDisplay.open({ messageId: 578 }),
+          `Unknown or invalid messageId: 578.`,
+          "browser.messageDisplay.open() should reject, if invalid messageId is specified"
+        );
+
+        await browser.test.assertRejects(
+          browser.messageDisplay.open({ headerMessageId: "1" }),
+          `Unknown or invalid headerMessageId: 1.`,
+          "browser.messageDisplay.open() should reject, if invalid headerMessageId is specified"
+        );
+
+        await browser.test.assertRejects(
+          browser.messageDisplay.open({}),
+          "Exactly one of messageId or headerMessageId must be specified.",
+          "browser.messageDisplay.open() should reject, if no messageId and no headerMessageId is specified"
+        );
+
+        await browser.test.assertRejects(
+          browser.messageDisplay.open({ messageId: 578, headerMessageId: "1" }),
+          "Exactly one of messageId or headerMessageId must be specified.",
+          "browser.messageDisplay.open() should reject, if messageId and headerMessageId are specified"
+        );
+
+        // Create a TabTest to cycle through all existing tabs after each test to
+        // verify returned values under different active/inactive scenarios.
+        let tabTest = new TabTest();
+
+        // Load a content tab into the primary mail tab, to have a known startup
+        // condition.
+        let tabs = await browser.tabs.query({});
+        browser.test.assertEq(1, tabs.length);
+        let mailTab = tabs[0];
+        await browser.tabs.update(mailTab.id, {
+          url: "https://www.example.com/mailTab/1",
+        });
+        await tabTest.check(
+          "Load a url into the default mail tab.",
+          mailTab.id,
+          {
+            active: true,
+            url: "https://www.example.com/mailTab/1",
+            // All message tabs and all folder tabs in the same window share
+            // the same messagepane browser and restore messages when tabs are
+            // switched. However, once a folder tab with a loaded url is switched
+            // inactive, it will show about:blank next time it is activated.
+            urlAfterInactive: "about:blank",
+          }
+        );
+
+        // Create an active content tab.
+        let tab1 = await browser.tabs.create({
+          url: "https://www.example.com/contentTab1/1",
+        });
+        await tabTest.check("Create a content tab #1.", tab1.id, {
+          active: true,
+          url: "https://www.example.com/contentTab1/1",
+        });
+
+        // Since the created content tab is now active, the primary mail tab is
+        // inactive and should not allow to be updated (it does not work).
+        await browser.test.assertRejects(
+          browser.tabs.update(mailTab.id, {
+            url: "https://www.example.com/mailTab/2",
+          }),
+          `Updating the displayed url is only supported for content tabs and active mail tabs.`,
+          "browser.tabs.update() should reject updating an inactive mail tab"
+        );
+
+        // Open an inactive message tab.
+        let tab2 = await browser.messageDisplay.open({
+          messageId: messages1[0].id,
+          location: "tab",
+          active: false,
+        });
+        await tabTest.check("messageDisplay.open with active: false", tab2.id, {
+          active: false,
+          message: messages1[0],
+          // To be able to run this test with --verify, specify only the last part
+          // of the expected message url, which is independent of the associated
+          // account.
+          url: "@localhost/test1#1",
+        });
+
+        // Open an active message tab.
+        let tab3 = await browser.messageDisplay.open({
+          messageId: messages1[0].id,
+          location: "tab",
+          active: true,
+        });
+        await tabTest.check(
+          "Opening the same message again should create a new tab.",
+          tab3.id,
+          {
+            active: true,
+            message: messages1[0],
+            url: "@localhost/test1#1",
+          }
+        );
+
+        // Open another content tab.
+        let tab4 = await browser.tabs.create({
+          url: "https://www.example.com/contentTab1/2",
+        });
+        await tabTest.check("Create a content tab #2.", tab4.id, {
+          active: true,
+          url: "https://www.example.com/contentTab1/2",
+        });
+
+        await browser.tabs.remove(tab1.id);
+        await browser.tabs.remove(tab2.id);
+        await browser.tabs.remove(tab3.id);
+        await browser.tabs.remove(tab4.id);
+
+        // Test opening multiple tabs.
+        let promisedTabs = [];
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            messageId: messages1[0].id,
+            location: "tab",
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            messageId: messages1[1].id,
+            location: "tab",
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            messageId: messages1[2].id,
+            location: "tab",
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            messageId: messages1[3].id,
+            location: "tab",
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            messageId: messages1[4].id,
+            location: "tab",
+          })
+        );
+        let openedTabs = await Promise.allSettled(promisedTabs);
+        for (let i = 0; i < 5; i++) {
+          browser.test.assertEq(
+            "fulfilled",
+            openedTabs[i].status,
+            `Promise for the opened message should have been fulfilled for tab ${i}`
+          );
+          let msg = await browser.messageDisplay.getDisplayedMessage(
+            openedTabs[i].value.id
+          );
+          browser.test.assertEq(
+            messages1[i].id,
+            msg.id,
+            `Should see the correct message in window ${i}`
+          );
+          await browser.tabs.remove(openedTabs[i].value.id);
+        }
+
+        browser.test.notifyPass();
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "tabs"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish();
+  await extension.unload();
+});
+
+add_task(async function testOpenMessagesInWindows() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        // Verify startup conditions.
+        let accounts = await browser.accounts.list();
+        browser.test.assertEq(
+          1,
+          accounts.length,
+          `number of accounts should be correct`
+        );
+
+        let folder1 = accounts[0].folders.find(f => f.name == "test1");
+        browser.test.assertTrue(!!folder1, "folder should exist");
+        let { messages: messages1 } = await browser.messages.list(folder1);
+        browser.test.assertEq(
+          5,
+          messages1.length,
+          `number of messages should be correct`
+        );
+
+        // Open multiple different windows.
+        {
+          let promisedTabs = [];
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[0].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[1].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[2].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[3].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[4].id,
+              location: "window",
+            })
+          );
+          let openedTabs = await Promise.allSettled(promisedTabs);
+          let foundIds = new Set();
+          for (let i = 0; i < 5; i++) {
+            browser.test.assertEq(
+              "fulfilled",
+              openedTabs[i].status,
+              `Promise for the opened message should have been fulfilled for window ${i}`
+            );
+
+            browser.test.assertTrue(
+              !foundIds.has(openedTabs[i].value.id),
+              `Tab ${i} should have a unique id ${openedTabs[i].value.id}`
+            );
+            foundIds.add(openedTabs[i].value.id);
+
+            let msg = await browser.messageDisplay.getDisplayedMessage(
+              openedTabs[i].value.id
+            );
+            browser.test.assertEq(
+              messages1[i].id,
+              msg.id,
+              `Should see the correct message in window ${i}`
+            );
+            await browser.tabs.remove(openedTabs[i].value.id);
+          }
+        }
+
+        // Open multiple identical windows.
+        {
+          let promisedTabs = [];
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[0].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[0].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[0].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[0].id,
+              location: "window",
+            })
+          );
+          promisedTabs.push(
+            browser.messageDisplay.open({
+              messageId: messages1[0].id,
+              location: "window",
+            })
+          );
+          let openedTabs = await Promise.allSettled(promisedTabs);
+          let foundIds = new Set();
+          for (let i = 0; i < 5; i++) {
+            browser.test.assertEq(
+              "fulfilled",
+              openedTabs[i].status,
+              `Promise for the opened message should have been fulfilled for window ${i}`
+            );
+
+            browser.test.assertTrue(
+              !foundIds.has(openedTabs[i].value.id),
+              `Tab ${i} should have a unique id ${openedTabs[i].value.id}`
+            );
+            foundIds.add(openedTabs[i].value.id);
+
+            let msg = await browser.messageDisplay.getDisplayedMessage(
+              openedTabs[i].value.id
+            );
+            browser.test.assertEq(
+              messages1[0].id,
+              msg.id,
+              `Should see the correct message in window ${i}`
+            );
+            await browser.tabs.remove(openedTabs[i].value.id);
+          }
+        }
+
+        browser.test.notifyPass();
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "tabs"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish();
+  await extension.unload();
+});
+
+add_task(async function testOpenMessagesInDefault() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        // Verify startup conditions.
+        let accounts = await browser.accounts.list();
+        browser.test.assertEq(
+          1,
+          accounts.length,
+          `number of accounts should be correct`
+        );
+
+        let folder1 = accounts[0].folders.find(f => f.name == "test1");
+        browser.test.assertTrue(!!folder1, "folder should exist");
+        let { messages: messages1 } = await browser.messages.list(folder1);
+        browser.test.assertEq(
+          5,
+          messages1.length,
+          `number of messages should be correct`
+        );
+
+        // Open multiple messages using their headerMessageIds.
+        let promisedTabs = [];
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            headerMessageId: messages1[0].headerMessageId,
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            headerMessageId: messages1[1].headerMessageId,
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            headerMessageId: messages1[2].headerMessageId,
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            headerMessageId: messages1[3].headerMessageId,
+          })
+        );
+        promisedTabs.push(
+          browser.messageDisplay.open({
+            headerMessageId: messages1[4].headerMessageId,
+          })
+        );
+        let openedTabs = await Promise.allSettled(promisedTabs);
+        for (let i = 0; i < 5; i++) {
+          browser.test.assertEq(
+            "fulfilled",
+            openedTabs[i].status,
+            `Promise for the opened message should have been fulfilled for message ${i}`
+          );
+          let msg = await browser.messageDisplay.getDisplayedMessage(
+            openedTabs[i].value.id
+          );
+          browser.test.assertEq(
+            messages1[i].id,
+            msg.id,
+            `Should see the correct message in window ${i}`
+          );
+          await browser.tabs.remove(openedTabs[i].value.id);
+        }
+
+        browser.test.notifyPass();
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "tabs"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish();
   await extension.unload();
 });

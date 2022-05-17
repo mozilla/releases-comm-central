@@ -271,13 +271,14 @@ var MailUtils = {
    * @param aMsgHdr the message header to display
    * @param [aViewWrapperToClone] a DB view wrapper to clone for the message
    *                              window
+   * @returns {DOMWindow} the opened window
    */
   openMessageInNewWindow(aMsgHdr, aViewWrapperToClone) {
-    // It sucks that we have to go through XPCOM for this
+    // It sucks that we have to go through XPCOM for this.
     let args = { msgHdr: aMsgHdr, viewWrapperToClone: aViewWrapperToClone };
     args.wrappedJSObject = args;
 
-    Services.ww.openWindow(
+    return Services.ww.openWindow(
       null,
       "chrome://messenger/content/messageWindow.xhtml",
       "",

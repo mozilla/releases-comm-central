@@ -95,6 +95,62 @@
             ]
           }
         ]
+      },
+      {
+        "name": "open",
+        "type": "function",
+        "description": "Opens a message in a new tab or in a new window.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "openProperties",
+            "type": "object",
+            "description": "Settings for opening the message. Exactly one of messageId or headerMessageId must be specified.",
+            "properties": {
+              "messageId": {
+                "type": "integer",
+                "optional": true,
+                "minimum": 1,
+                "description": "The id of a message to be opened. Will throw, if the provided ``messageId`` is unknown or invalid."
+              },
+              "headerMessageId": {
+                "type": "string",
+                "optional": true,
+                "description": "The headerMessageId of a message to be opened. Will throw, if the provided ``headerMessageId`` is unknown or invalid."
+              },
+              "location": {
+                "type": "string",
+                "enum": [
+                  "tab",
+                  "window"
+                ],
+                "optional": true,
+                "description": "Where to open the message. If not specified, the users preference is honoured."
+              },
+              "active": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the new tab should become the active tab in the window. Only applicable to messages opened in tabs."
+              },
+              "windowId": {
+                "type": "integer",
+                "minimum": -2,
+                "optional": true,
+                "description": "The id of the window, where the new tab should be created. Defaults to the current window. Only applicable to messages opened in tabs."
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "parameters": [
+              {
+                "name": "tab",
+                "$ref": "tabs.Tab"
+              }
+            ]
+          }
+        ]
       }
     ]
   }

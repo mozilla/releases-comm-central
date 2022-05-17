@@ -872,7 +872,24 @@ class Tab extends TabBase {
     if (this.type == "messageCompose") {
       return undefined;
     }
-    return this.browser?.currentURI?.spec;
+
+    let url = this.browser?.currentURI?.spec;
+
+    // All message tabs and mail tabs in a window use the same messagepane browser,
+    // so inactive tabs always return the url of the currently active tab.
+    // Reconstruct the url from the messageDisplay.
+    if (["mail", "messageDisplay"].includes(this.type)) {
+      let messageDisplay =
+        this.nativeTab.gMessageDisplay || this.nativeTab.messageDisplay;
+      let msg = messageDisplay?.displayedMessage;
+      if (msg) {
+        url = msg.folder.getUriForMsg(msg);
+      } else if (!this.active) {
+        url = "about:blank";
+      }
+    }
+
+    return url;
   }
 
   /** Returns the current title of this tab, without permission checks. */
@@ -1473,6 +1490,35 @@ class WindowManager extends WindowManagerBase {
     }
     return new windowClass(this.extension, window, windowTracker.getId(window));
   }
+}
+
+/**
+ * Wait until the window identified by the given windowId has finished its delayed
+ * startup. Returns its DOMWindow when done.
+ *
+ * @param {*} context - a WebExtension context
+ * @param {*} windowId - a WebExtension window id
+ * @returns {DOMWindow}
+ */
+function getNormalWindowReady(context, windowId) {
+  return new Promise((resolve, reject) => {
+    let window = !windowId
+      ? windowTracker.topNormalWindow
+      : windowTracker.getWindow(windowId, context);
+    let { gMailInit } = window;
+    if (!gMailInit || !gMailInit.delayedStartupFinished) {
+      let obs = (finishedWindow, topic, data) => {
+        if (finishedWindow != window) {
+          return;
+        }
+        Services.obs.removeObserver(obs, "mail-delayed-startup-finished");
+        resolve(window);
+      };
+      Services.obs.addObserver(obs, "mail-delayed-startup-finished");
+    } else {
+      resolve(window);
+    }
+  });
 }
 
 /**
