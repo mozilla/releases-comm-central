@@ -29,33 +29,38 @@
     <div id="tabPane-start" class="tabPane">
       <section id="start-sources">
         <h1 id="startSource" data-l10n-id="import-start"></h1>
-        <p data-l10n-id="import-start-desc"></p>
+        <h2 data-l10n-id="import-start-title"></h2>
+        <p data-l10n-id="import-start-description" class="description"></p>
         <div class="source-list">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Thunderbird"
                    name="appSource"
                    checked="checked"/>
-            <p data-l10n-id="app-name-thunderbird"></p>
+            <p data-l10n-id="source-thunderbird"></p>
+            <p class="tip-caption" data-l10n-id="source-thunderbird-description"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Seamonkey"
                    name="appSource"/>
-            <p data-l10n-id="app-name-seamonkey"></p>
+            <p data-l10n-id="source-seamonkey"></p>
+            <p class="tip-caption" data-l10n-id="source-seamonkey-description"></p>
           </label>
 #ifdef XP_WIN
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Outlook"
                    name="appSource"/>
-            <p data-l10n-id="app-name-outlook"></p>
+            <p data-l10n-id="source-outlook"></p>
+            <p class="tip-caption" data-l10n-id="source-outlook-description"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Becky"
                    name="appSource"/>
-            <p data-l10n-id="app-name-becky"></p>
+            <p data-l10n-id="source-becky"></p>
+            <p class="tip-caption" data-l10n-id="source-becky-description"></p>
           </label>
 #endif
 #ifdef XP_MACOSX
@@ -63,38 +68,45 @@
             <input type="radio"
                    value="AppleMail"
                    name="appSource"/>
-            <p data-l10n-id="app-name-apple-mail"></p>
+            <p data-l10n-id="source-apple-mail"></p>
+            <p class="tip-caption" data-l10n-id="source-apple-mail-description"></p>
           </label>
 #endif
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="file"
                    name="appSource"/>
-            <p data-l10n-id="source-file"></p>
+            <p data-l10n-id="source-file2"></p>
+            <p class="tip-caption" data-l10n-id="source-file-description"></p>
           </label>
         </div>
       </section>
       <section id="start-file">
-        <h1 id="startFile" data-l10n-id="import-from-file"></h1>
+        <h1 id="startFile" data-l10n-id="import-file"></h1>
+        <h2 data-l10n-id="import-file-title"></h2>
+        <p data-l10n-id="import-file-description" class="description"></p>
         <div class="option-list">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="profile"
                    name="startFile"
                    checked="checked"/>
-            <p data-l10n-id="file-profile"></p>
+            <p data-l10n-id="file-profile2"></p>
+            <p data-l10n-id="file-profile-description" class="tip-caption"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="calendar"
                    name="startFile"/>
             <p data-l10n-id="file-calendar"></p>
+            <p data-l10n-id="file-calendar-description" class="tip-caption"></p>
           </label>
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="addressbook"
                    name="startFile"/>
             <p data-l10n-id="file-addressbook"></p>
+            <p data-l10n-id="file-addressbook-description" class="tip-caption"></p>
           </label>
         </div>
       </section>
@@ -110,8 +122,8 @@
     </div>
     <div id="tabPane-app" class="tabPane restart-required">
       <section id="app-profiles">
-        <h1 id="profilesPaneTitle"/>
-        <p data-l10n-id="profiles-pane-desc"></p>
+        <h1 id="profilesPaneTitle" data-l10n-id="import-from-app"></h1>
+        <h2 id="profilesPaneSubtitle"></h2>
         <div class="profile-list" id="profileList"></div>
         <div class="profile-list" id="filePickerList">
           <div class="content-blocking-category">
@@ -119,7 +131,7 @@
               <input type="radio"
                     value="file-picker-dir"
                     name="appProfile"/>
-              <p data-l10n-id="profile-file-picker-dir"></p>
+              <p data-l10n-id="profile-file-picker-directory"></p>
             </label>
           </div>
           <div class="content-blocking-category">
@@ -128,7 +140,8 @@
                     value="file-picker-zip"
                     name="appProfile"
                     id="appFilePickerZip"/>
-              <p data-l10n-id="profile-file-picker-zip"></p>
+              <p data-l10n-id="profile-file-picker-archive"></p>
+              <p data-l10n-id="profile-file-picker-archive-description" class="tip-caption"></p>
             </label>
           </div>
         </div>
@@ -143,7 +156,7 @@
           <dt data-l10n-id="items-pane-directory"></dt>
           <dd id="appSourceProfilePath"></dd>
         </dl>
-        <h2 data-l10n-id="items-pane-title"></h2>
+        <h2 data-l10n-id="items-pane-title2" class="light-heading"></h2>
         <p>
           <img src="chrome://messenger/skin/icons/info.svg"
                class="info icon"
@@ -185,7 +198,7 @@
           <dt data-l10n-id="items-pane-directory"></dt>
           <dd id="appSummaryProfilePath"></dd>
         </dl>
-        <h2 data-l10n-id="summary-pane-title"></h2>
+        <h2 data-l10n-id="summary-pane-title" class="light-heading"></h2>
         <ul id="appSummaryItems" class="summary-items">
         </ul>
         <button id="appStartImport"
@@ -202,7 +215,7 @@
                 onclick="profileController.next()"
                 data-l10n-id="button-finish"></button>
         <button data-l10n-id="summary-pane-start-over"
-                class="progressFinish no-restart"
+                class="progressFinish no-restart btn-link"
                 onclick="restart()"></button>
         <p class="restart-only">
           <img src="chrome://global/skin/icons/warning.svg"
@@ -225,8 +238,9 @@
 
     <div id="tabPane-addressBook" class="tabPane">
       <section id="addr-book-sources">
-        <h1 id="importAddressBook" data-l10n-id="import-address-book"></h1>
-        <p data-l10n-id="import-from-addr-book-file-desc"/>
+        <h1 id="importAddressBook" data-l10n-id="import-address-book-title"></h1>
+        <h2 data-l10n-id="import-file-title"></h2>
+        <p data-l10n-id="import-from-addr-book-file-description" class="description"></p>
         <div class="source-list">
           <label class="toggle-container-with-text">
             <input type="radio"
@@ -262,35 +276,37 @@
         </div>
       </section>
       <section id="addr-book-csvFieldMap">
-        <h1 data-l10n-id="addr-book-csv-field-map-title"></h1>
-        <p data-l10n-id="addr-book-csv-field-map-desc"></p>
+        <h1 data-l10n-id="import-address-book-title"></h1>
+        <h2 data-l10n-id="addr-book-csv-field-map-title"></h2>
+        <p data-l10n-id="addr-book-csv-field-map-desc" class="description"></p>
         <csv-field-map id="csvFieldMap"/>
       </section>
       <section id="addr-book-directories">
-        <h1 data-l10n-id="addr-book-directories-pane-title"></h1>
-        <p>
-          <span data-l10n-id="addr-book-directories-pane-source"></span>
-          <span id="addrBookSourcePath"></span>
-        </p>
+        <h1 data-l10n-id="import-address-book-title"></h1>
+        <h2 data-l10n-id="addr-book-directories-title"></h2>
+        <dl>
+          <dt data-l10n-id="addr-book-directories-pane-source"></dt>
+          <dd id="addrBookSourcePath"></dd>
+        </dl>
         <div class="profile-list" id="directoryList"></div>
         <div class="content-blocking-category">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value=".new"
                    name="addrBookDirectory"/>
-            <p data-l10n-id="addr-book-import-into-new-directory"></p>
+                   <p id="newDirectoryLabel"></p>
           </label>
         </div>
       </section>
       <section id="addr-book-summary">
-        <h1 data-l10n-id="import-address-book"></h1>
+        <h1 data-l10n-id="import-address-book-title"></h1>
         <h2 id="addrBookSummarySubtitle"></h2>
         <p class="description"></p>
         <dl>
           <dt data-l10n-id="addr-book-directories-pane-source"></dt>
           <dd id="addrBookSummaryPath"></dd>
         </dl>
-        <h2 data-l10n-id="summary-pane-title"></h2>
+        <h2 data-l10n-id="summary-pane-title" class="light-heading"></h2>
         <ul class="summary-items">
           <li data-l10n-id="items-pane-checkbox-address-books"></li>
         </ul>
@@ -331,15 +347,16 @@
 
     <div id="tabPane-calendar" class="tabPane">
       <section id="calendar-sources">
-        <h1 data-l10n-id="import-calendar"></h1>
-        <p data-l10n-id="import-from-calendar-file-desc"></p>
+        <h1 data-l10n-id="import-calendar-title"></h1>
+        <h2 data-l10n-id="import-from-calendar-file-desc"></h2>
       </section>
       <section id="calendar-items">
-        <h1 data-l10n-id="import-calendar"></h1>
-        <p>
-          <span data-l10n-id="addr-book-directories-pane-source"></span>
-          <span id="calendarSourcePath"></span>
-        </p>
+        <h1 data-l10n-id="import-calendar-title"></h1>
+        <dl>
+          <dt data-l10n-id="addr-book-directories-pane-source"></dt>
+          <dd id="calendarSourcePath"></dd>
+        </dl>
+        <h2 data-l10n-id="calendar-items-title"></h2>
         <div id="calendarItemsTools">
           <input type="search"
                  data-l10n-id="calendar-items-filter-input"
@@ -352,30 +369,31 @@
         <div id="calendar-item-list"></div>
       </section>
       <section id="calendar-calendars">
-        <h1 data-l10n-id="import-calendar"></h1>
+        <h1 data-l10n-id="import-calendar-title"></h1>
         <dl>
           <dt data-l10n-id="addr-book-directories-pane-source"></dt>
           <dd id="calendarCalPath"></dd>
         </dl>
+        <h2 data-l10n-id="calendar-target-title"></h2>
         <div class="profile-list" id="calendarList"></div>
         <div class="content-blocking-category">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value=".new"
                    name="targetCalendar"/>
-            <p data-l10n-id="calendar-import-into-new-calendar"></p>
+            <p id="newCalendarLabel"></p>
           </label>
         </div>
       </section>
       <section id="calendar-summary">
-        <h1 data-l10n-id="import-calendar"></h1>
+        <h1 data-l10n-id="import-calendar-title"></h1>
         <h2 id="calendarSummarySubtitle"></h2>
         <p class="description"></p>
         <dl>
           <dt data-l10n-id="addr-book-directories-pane-source"></dt>
           <dd id="calendarSummaryPath"></dd>
         </dl>
-        <h2 data-l10n-id="summary-pane-title"></h2>
+        <h2 data-l10n-id="summary-pane-title" class="light-heading"></h2>
         <ul class="summary-items">
           <li data-l10n-id="items-pane-checkbox-calendars"></li>
         </ul>
@@ -416,14 +434,15 @@
 
     <div id="tabPane-export" class="tabPane">
       <h1 data-l10n-id="export-profile"></h1>
-      <p data-l10n-id="export-profile-desc"></p>
-      <p>
+      <h2 data-l10n-id="export-profile-title"></h2>
+      <p class="description">
         <img src="chrome://messenger/skin/icons/info.svg"
              class="info icon"
              alt=""/>
-        <span data-l10n-id="export-profile-desc2"></span>
-        <a data-l10n-id="export-open-profile-folder"
-           onclick="exportController.openProfileFolder()"></a>
+        <span data-l10n-id="export-profile-description"></span>
+        <button data-l10n-id="export-open-profile-folder"
+                onclick="exportController.openProfileFolder()"
+                class="btn-link"></button>
       </p>
       <button id="exportButton"
               onclick="exportController.next()"

@@ -223,7 +223,18 @@ class ProfileImporterController extends ImporterController {
     AppleMail: "AppleMailProfileImporter",
   };
 
-  _sourceAppName = "Thunderbird"; //TODO app brand name!
+  /**
+   * Maps app radio input values to their respective representations in l10n
+   * ids.
+   */
+  _sourceL10nIds = {
+    Thunderbird: "thunderbird",
+    Seamonkey: "seamonkey",
+    Outlook: "outlook",
+    Becky: "becky",
+    AppleMail: "apple-mail",
+  };
+  _sourceAppName = "thunderbird";
 
   back() {
     super.back();
@@ -265,10 +276,9 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the sources pane.
    *
    * @param {string} source - Profile source to import.
-   * @param {string} sourceName - Name of the app to import from.
    */
-  async _onSelectSource(source, sourceName) {
-    this._sourceAppName = sourceName;
+  async _onSelectSource(source) {
+    this._sourceAppName = this._sourceL10nIds[source];
     let sourceModule = this._sourceModules[source];
 
     let module = ChromeUtils.import(`resource:///modules/${sourceModule}.jsm`);
@@ -298,10 +308,11 @@ class ProfileImporterController extends ImporterController {
     this._sourceProfiles = profiles;
     document.l10n.setAttributes(
       document.getElementById("profilesPaneTitle"),
-      "profiles-pane-title",
-      {
-        app: this._sourceAppName,
-      }
+      `from-app-${this._sourceAppName}`
+    );
+    document.l10n.setAttributes(
+      document.getElementById("profilesPaneSubtitle"),
+      `profiles-pane-title-${this._sourceAppName}`
     );
     let elProfileList = document.getElementById("profileList");
     elProfileList.hidden = !profiles.length;
@@ -321,19 +332,24 @@ class ProfileImporterController extends ImporterController {
       input.value = profile.dir.path;
       label.append(input);
 
-      let name = document.createElement("div");
-      name.className = "strong";
-      name.textContent = "Profile";
+      let name = document.createElement("p");
       if (profile.name) {
-        name.textContent += ": " + profile.name;
+        document.l10n.setAttributes(name, "profile-source-named", {
+          profileName: profile.name,
+        });
+      } else {
+        document.l10n.setAttributes(name, "profile-source");
       }
       label.append(name);
 
-      let path = document.createElement("p");
-      path.className = "result-indent";
-      path.textContent = profile.dir.path;
-      label.append(path);
-
+      let profileDetails = document.createElement("dl");
+      profileDetails.className = "result-indent";
+      let profilePathLabel = document.createElement("dt");
+      document.l10n.setAttributes(profilePathLabel, "items-pane-directory");
+      let profilePath = document.createElement("dd");
+      profilePath.textContent = profile.dir.path;
+      profileDetails.append(profilePathLabel, profilePath);
+      label.append(profileDetails);
       item.append(label);
 
       elProfileList.append(item);
@@ -372,8 +388,8 @@ class ProfileImporterController extends ImporterController {
       filePickerTitleDir,
       filePickerTitleZip,
     ] = await document.l10n.formatValues([
-      "profile-file-picker-dir",
-      "profile-file-picker-zip",
+      "profile-file-picker-directory",
+      "profile-file-picker-archive-title",
     ]);
     if (type == "zip") {
       filePicker.init(window, filePickerTitleZip, filePicker.modeOpen);
@@ -389,7 +405,7 @@ class ProfileImporterController extends ImporterController {
     if (!selectedFile.isDirectory()) {
       if (selectedFile.fileSize > 2147483647) {
         // nsIZipReader only supports zip file less than 2GB.
-        this.showError("error-message-zip-file-too-big");
+        this.showError("error-message-zip-file-too-big2");
         return;
       }
       this._importingFromZip = true;
@@ -406,10 +422,7 @@ class ProfileImporterController extends ImporterController {
     this._sourceProfile = profile;
     document.l10n.setAttributes(
       this._el.querySelector("#app-items h1"),
-      "profiles-pane-title",
-      {
-        app: this._sourceAppName,
-      }
+      `from-app-${this._sourceAppName}`
     );
     document.getElementById("appSourceProfilePath").textContent =
       profile.dir.path;
@@ -493,10 +506,7 @@ class ProfileImporterController extends ImporterController {
     this._el.classList.add("final-step");
     document.l10n.setAttributes(
       this._el.querySelector("#app-summary h1"),
-      "profiles-pane-title",
-      {
-        app: this._sourceAppName,
-      }
+      `from-app-${this._sourceAppName}`
     );
     document.getElementById(
       "appSummaryProfilePath"
@@ -578,7 +588,7 @@ class ProfileImporterController extends ImporterController {
       try {
         await this._extractZipFile();
       } catch (e) {
-        this.showError("error-message-extract-zip-file-failed");
+        this.showError("error-message-extract-zip-file-failed2");
         throw e;
       }
     }
@@ -747,6 +757,13 @@ class AddrBookImporterController extends ImporterController {
       sourceFileName.lastIndexOf(".") == -1
         ? Infinity
         : sourceFileName.lastIndexOf(".")
+    );
+    document.l10n.setAttributes(
+      document.getElementById("newDirectoryLabel"),
+      "addr-book-import-into-new-directory2",
+      {
+        addressBookName: this._fallbackABName,
+      }
     );
     let elList = document.getElementById("directoryList");
     elList.innerHTML = "";
@@ -1052,6 +1069,14 @@ class CalendarImporterController extends ImporterController {
         : sourceFileName.lastIndexOf(".")
     );
 
+    document.l10n.setAttributes(
+      document.getElementById("newCalendarLabel"),
+      "calendar-import-into-new-calendar2",
+      {
+        targetCalendar: this._fallbackCalendarName,
+      }
+    );
+
     this._calendars = this._importer.getTargetCalendars();
     for (let calendar of this._calendars) {
       let item = document.createElement("div");
@@ -1163,7 +1188,7 @@ class ExportController extends ImporterController {
   async next() {
     super.next();
     let [filePickerTitle, brandName] = await document.l10n.formatValues([
-      "export-file-picker",
+      "export-file-picker2",
       "export-brand-name",
     ]);
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
@@ -1253,10 +1278,7 @@ class StartController extends ImporterController {
         this._showFile();
         break;
       default:
-        profileController._onSelectSource(
-          checkedInput.value,
-          checkedInput.parentElement.textContent
-        );
+        profileController._onSelectSource(checkedInput.value);
         showTab("tab-app");
         // Don't change back button state, since we switch to app flow.
         return;
@@ -1274,11 +1296,7 @@ class StartController extends ImporterController {
     switch (checkedInput.value) {
       case "profile":
         // Go to the import profile from zip file step in profile flow for TB.
-        await profileController._onSelectSource(
-          "Thunderbird",
-          document.querySelector("[data-l10n-id=app-name-thunderbird]")
-            .textContent
-        );
+        await profileController._onSelectSource("Thunderbird");
         document.getElementById("appFilePickerZip").checked = true;
         await profileController._onSelectProfile();
         showTab("tab-app");
@@ -1303,6 +1321,10 @@ function showTab(tabId) {
   let isExport = tabId === "tab-export";
   document.getElementById("importDocs").hidden = isExport;
   document.getElementById("exportDocs").hidden = !isExport;
+  document.l10n.setAttributes(
+    document.querySelector("title"),
+    isExport ? "export-page-title" : "import-page-title"
+  );
   for (let tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }

@@ -195,7 +195,24 @@ progress {
   display: grid;
   grid-template-areas:
     "i text"
-    ". text";
+    ". desc";
+  margin-block: 1em;
+}
+
+.toggle-container-with-text:last-child {
+  margin-block-end: 0;
+}
+
+.toggle-container-with-text input {
+  grid-area: i;
+}
+
+.toggle-container-with-text p:last-of-type {
+  grid-area: desc;
+}
+
+.toggle-container-with-text p:first-of-type {
+  grid-area: text;
 }
 
 #tabPane-export p {
