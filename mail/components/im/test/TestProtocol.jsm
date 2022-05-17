@@ -299,11 +299,8 @@ TestProtocol.prototype = {
 
 const NSGetFactory = ComponentUtils.generateNSGetFactory([TestProtocol]);
 const factory = {
-  createInstance(outer, iid) {
-    return NSGetFactory(TestProtocol.prototype.classID).createInstance(
-      outer,
-      iid
-    );
+  createInstance(iid) {
+    return NSGetFactory(TestProtocol.prototype.classID).createInstance(iid);
   },
 };
 const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);

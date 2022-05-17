@@ -85,7 +85,7 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
 
   nsImportABDescriptor();
 
-  static nsresult Create(nsISupports* aOuter, REFNSIID aIID, void** aResult);
+  static nsresult Create(REFNSIID aIID, void** aResult);
 
  private:
   virtual ~nsImportABDescriptor() {}

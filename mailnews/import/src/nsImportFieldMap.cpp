@@ -14,10 +14,8 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-nsresult nsImportFieldMap::Create(nsIStringBundle* aBundle, nsISupports* aOuter,
-                                  REFNSIID aIID, void** aResult) {
-  if (aOuter) return NS_ERROR_NO_AGGREGATION;
-
+nsresult nsImportFieldMap::Create(nsIStringBundle* aBundle, REFNSIID aIID,
+                                  void** aResult) {
   RefPtr<nsImportFieldMap> it = new nsImportFieldMap(aBundle);
   return it->QueryInterface(aIID, aResult);
 }

@@ -262,11 +262,7 @@ var gMockPromptService = {
 };
 
 var gMockPromptServiceFactory = {
-  createInstance(aOuter, aIID) {
-    if (aOuter != null) {
-      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
-    }
-
+  createInstance(aIID) {
     if (!aIID.equals(Ci.nsIPromptService)) {
       throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
     }

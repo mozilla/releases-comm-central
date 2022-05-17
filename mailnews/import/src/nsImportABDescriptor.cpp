@@ -8,10 +8,7 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-nsresult nsImportABDescriptor::Create(nsISupports* aOuter, REFNSIID aIID,
-                                      void** aResult) {
-  if (aOuter) return NS_ERROR_NO_AGGREGATION;
-
+nsresult nsImportABDescriptor::Create(REFNSIID aIID, void** aResult) {
   RefPtr<nsImportABDescriptor> it = new nsImportABDescriptor();
   return it->QueryInterface(aIID, aResult);
 }

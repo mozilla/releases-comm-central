@@ -109,9 +109,9 @@ NntpModuleLoader.prototype = {
 
 function lazyFactoryFor(NSGetFactory, classID) {
   return {
-    createInstance(aOuter, aIID) {
+    createInstance(aIID) {
       let realFactory = NSGetFactory(classID);
-      return realFactory.createInstance(aOuter, aIID);
+      return realFactory.createInstance(aIID);
     },
   };
 }

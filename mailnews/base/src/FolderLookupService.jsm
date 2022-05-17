@@ -90,7 +90,7 @@ FolderLookupService.prototype = {
       return null;
     }
 
-    folder = factory.createInstance(null, Ci.nsIMsgFolder);
+    folder = factory.createInstance(Ci.nsIMsgFolder);
     if (folder) {
       folder.Init(uri);
       // Add the new folder to our map. Store a weak reference instead, so that

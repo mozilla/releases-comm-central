@@ -149,11 +149,7 @@ MailNewsCommandLineHandler.prototype = {
     "  -mail <URL>        Open the message specified by this URL.\n",
 
   /* nsIFactory */
-  createInstance(outer, iid) {
-    if (outer != null) {
-      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
-    }
-
+  createInstance(iid) {
     return this.QueryInterface(iid);
   },
 

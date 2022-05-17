@@ -20,10 +20,7 @@ MockObjectRegisterer.prototype = {
   register() {
     let providedConstructor = this._component;
     this._mockFactory = {
-      createInstance(aOuter, aIid) {
-        if (aOuter != null) {
-          throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
-        }
+      createInstance(aIid) {
         return new providedConstructor().QueryInterface(aIid);
       },
     };
@@ -84,10 +81,7 @@ MockObjectReplacer.prototype = {
     // Define a factory that creates a new object using the given constructor.
     var providedConstructor = this._replacementCtor;
     this._mockFactory = {
-      createInstance(aOuter, aIid) {
-        if (aOuter != null) {
-          throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
-        }
+      createInstance(aIid) {
         return new providedConstructor().QueryInterface(aIid);
       },
     };

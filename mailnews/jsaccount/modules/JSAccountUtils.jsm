@@ -74,11 +74,7 @@ JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
   let factory = {};
   factory.QueryInterface = ChromeUtils.generateQI([Ci.nsIFactory]);
 
-  factory.createInstance = function(outer, iid) {
-    if (outer != null) {
-      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
-    }
-
+  factory.createInstance = function(iid) {
     // C++ delegator class.
     let delegator = Cc[aProperties.baseContractID].createInstance(
       Ci.msgIOverride

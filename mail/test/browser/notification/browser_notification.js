@@ -91,11 +91,7 @@ var gMockAlertsService = {
 };
 
 var gMockAlertsServiceFactory = {
-  createInstance(aOuter, aIID) {
-    if (aOuter != null) {
-      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
-    }
-
+  createInstance(aIID) {
     if (!aIID.equals(Ci.nsIAlertsService)) {
       throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
     }

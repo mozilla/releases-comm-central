@@ -23,14 +23,9 @@ NS_DEFINE_NAMED_CID(NS_SYNCSTREAMLISTENER_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsUserInfo)
 NS_DEFINE_NAMED_CID(NS_USERINFO_CID);
 
-static nsresult CreateNewSyncStreamListener(nsISupports* aOuter, REFNSIID aIID,
-                                            void** aResult) {
+static nsresult CreateNewSyncStreamListener(REFNSIID aIID, void** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
-
-  if (aOuter) {
-    return NS_ERROR_NO_AGGREGATION;
-  }
 
   RefPtr<nsISyncStreamListener> inst = nsSyncStreamListener::Create();
   if (!inst) return NS_ERROR_NULL_POINTER;

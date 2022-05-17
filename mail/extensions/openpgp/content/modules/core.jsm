@@ -167,10 +167,7 @@ class Factory {
     Object.freeze(this);
   }
 
-  createInstance(outer, iid) {
-    if (outer) {
-      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
-    }
+  createInstance(iid) {
     return new this.component();
   }
 

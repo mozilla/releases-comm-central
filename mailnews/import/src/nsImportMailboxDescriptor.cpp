@@ -9,10 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-nsresult nsImportMailboxDescriptor::Create(nsISupports* aOuter, REFNSIID aIID,
-                                           void** aResult) {
-  if (aOuter) return NS_ERROR_NO_AGGREGATION;
-
+nsresult nsImportMailboxDescriptor::Create(REFNSIID aIID, void** aResult) {
   RefPtr<nsImportMailboxDescriptor> it = new nsImportMailboxDescriptor();
   return it->QueryInterface(aIID, aResult);
 }

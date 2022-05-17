@@ -84,9 +84,9 @@ Pop3ModuleLoader.prototype = {
 
 function lazyFactoryFor(backendScope, classID) {
   return {
-    createInstance(aOuter, aIID) {
+    createInstance(aIID) {
       let realFactory = backendScope.NSGetFactory(classID);
-      return realFactory.createInstance(aOuter, aIID);
+      return realFactory.createInstance(aIID);
     },
   };
 }

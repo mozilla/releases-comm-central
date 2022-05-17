@@ -53,20 +53,20 @@ NS_IMETHODIMP nsImportService::DiscoverModules(void) {
 }
 
 NS_IMETHODIMP nsImportService::CreateNewFieldMap(nsIImportFieldMap** _retval) {
-  return nsImportFieldMap::Create(
-      m_stringBundle, nullptr, NS_GET_IID(nsIImportFieldMap), (void**)_retval);
+  return nsImportFieldMap::Create(m_stringBundle, NS_GET_IID(nsIImportFieldMap),
+                                  (void**)_retval);
 }
 
 NS_IMETHODIMP nsImportService::CreateNewMailboxDescriptor(
     nsIImportMailboxDescriptor** _retval) {
   return nsImportMailboxDescriptor::Create(
-      nullptr, NS_GET_IID(nsIImportMailboxDescriptor), (void**)_retval);
+      NS_GET_IID(nsIImportMailboxDescriptor), (void**)_retval);
 }
 
 NS_IMETHODIMP nsImportService::CreateNewABDescriptor(
     nsIImportABDescriptor** _retval) {
-  return nsImportABDescriptor::Create(
-      nullptr, NS_GET_IID(nsIImportABDescriptor), (void**)_retval);
+  return nsImportABDescriptor::Create(NS_GET_IID(nsIImportABDescriptor),
+                                      (void**)_retval);
 }
 
 extern nsresult NS_NewGenericMail(nsIImportGeneric** aImportGeneric);
