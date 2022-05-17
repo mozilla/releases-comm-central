@@ -320,9 +320,6 @@ class ProfileImporterController extends ImporterController {
     document.getElementById("filePickerList").hidden = !useFilePicker;
 
     for (let profile of profiles) {
-      let item = document.createElement("div");
-      item.className = "content-blocking-category";
-
       let label = document.createElement("label");
       label.className = "toggle-container-with-text";
 
@@ -343,16 +340,15 @@ class ProfileImporterController extends ImporterController {
       label.append(name);
 
       let profileDetails = document.createElement("dl");
-      profileDetails.className = "result-indent";
+      profileDetails.className = "result-indent tip-caption";
       let profilePathLabel = document.createElement("dt");
       document.l10n.setAttributes(profilePathLabel, "items-pane-directory");
       let profilePath = document.createElement("dd");
       profilePath.textContent = profile.dir.path;
       profileDetails.append(profilePathLabel, profilePath);
       label.append(profileDetails);
-      item.append(label);
 
-      elProfileList.append(item);
+      elProfileList.append(label);
     }
     document.querySelector("input[name=appProfile]").checked = true;
     document.getElementById("profileNextButton").disabled = false;
@@ -771,9 +767,6 @@ class AddrBookImporterController extends ImporterController {
       dir => dir.dirType == Ci.nsIAbManager.JS_DIRECTORY_TYPE
     );
     for (let directory of this._directories) {
-      let item = document.createElement("div");
-      item.className = "content-blocking-category";
-
       let label = document.createElement("label");
       label.className = "toggle-container-with-text";
 
@@ -788,8 +781,7 @@ class AddrBookImporterController extends ImporterController {
       name.textContent = directory.dirName;
       label.append(name);
 
-      item.append(label);
-      elList.append(item);
+      elList.append(label);
     }
     document.querySelector("input[name=addrBookDirectory]").checked = true;
 
@@ -1079,9 +1071,6 @@ class CalendarImporterController extends ImporterController {
 
     this._calendars = this._importer.getTargetCalendars();
     for (let calendar of this._calendars) {
-      let item = document.createElement("div");
-      item.className = "content-blocking-category";
-
       let label = document.createElement("label");
       label.className = "toggle-container-with-text";
 
@@ -1096,8 +1085,7 @@ class CalendarImporterController extends ImporterController {
       name.textContent = calendar.name;
       label.append(name);
 
-      item.append(label);
-      elList.append(item);
+      elList.append(label);
     }
     document.querySelector("input[name=targetCalendar]").checked = true;
 

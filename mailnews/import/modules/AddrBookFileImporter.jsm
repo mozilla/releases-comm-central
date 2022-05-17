@@ -100,10 +100,14 @@ class AddrBookFileImporter {
     let csvRows = d3.csv.parseRows(content);
     let tsvRows = d3.tsv.parseRows(content);
     let dsvRows = d3.dsv(";").parseRows(content);
+    if (!csvRows.length && !tsvRows.length && !dsvRows.length) {
+      this._csvRows = [];
+      return [];
+    }
     // If we have more CSV columns, then it's a CSV file, otherwise a TSV file.
-    this._csvRows = csvRows[0].length > tsvRows[0].length ? csvRows : tsvRows;
+    this._csvRows = csvRows[0]?.length > tsvRows[0]?.length ? csvRows : tsvRows;
     // See if it's semicolon separated.
-    if (this._csvRows[0].length < dsvRows[0].length) {
+    if (this._csvRows[0]?.length < dsvRows[0]?.length) {
       this._csvRows = dsvRows;
     }
 

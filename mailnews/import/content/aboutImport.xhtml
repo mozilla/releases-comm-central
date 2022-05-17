@@ -31,7 +31,7 @@
         <h1 id="startSource" data-l10n-id="import-start"></h1>
         <h2 data-l10n-id="import-start-title"></h2>
         <p data-l10n-id="import-start-description" class="description"></p>
-        <div class="source-list">
+        <div class="source-list indent">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="Thunderbird"
@@ -85,7 +85,7 @@
         <h1 id="startFile" data-l10n-id="import-file"></h1>
         <h2 data-l10n-id="import-file-title"></h2>
         <p data-l10n-id="import-file-description" class="description"></p>
-        <div class="option-list">
+        <div class="option-list indent">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="profile"
@@ -115,7 +115,7 @@
                 class="back"
                 onclick="startController.back()"
                 data-l10n-id="button-back"></button>
-        <button class="primary"
+        <button class="primary continue"
                 onclick="startController.next()"
                 data-l10n-id="button-continue"></button>
       </footer>
@@ -124,26 +124,22 @@
       <section id="app-profiles">
         <h1 id="profilesPaneTitle" data-l10n-id="import-from-app"></h1>
         <h2 id="profilesPaneSubtitle"></h2>
-        <div class="profile-list" id="profileList"></div>
-        <div class="profile-list" id="filePickerList">
-          <div class="content-blocking-category">
-            <label class="toggle-container-with-text">
-              <input type="radio"
-                    value="file-picker-dir"
-                    name="appProfile"/>
-              <p data-l10n-id="profile-file-picker-directory"></p>
-            </label>
-          </div>
-          <div class="content-blocking-category">
-            <label class="toggle-container-with-text">
-              <input type="radio"
-                    value="file-picker-zip"
-                    name="appProfile"
-                    id="appFilePickerZip"/>
-              <p data-l10n-id="profile-file-picker-archive"></p>
-              <p data-l10n-id="profile-file-picker-archive-description" class="tip-caption"></p>
-            </label>
-          </div>
+        <div class="profile-list indent" id="profileList"></div>
+        <div class="profile-list indent" id="filePickerList">
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                  value="file-picker-dir"
+                  name="appProfile"/>
+            <p data-l10n-id="profile-file-picker-directory"></p>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                  value="file-picker-zip"
+                  name="appProfile"
+                  id="appFilePickerZip"/>
+            <p data-l10n-id="profile-file-picker-archive"></p>
+            <p data-l10n-id="profile-file-picker-archive-description" class="tip-caption"></p>
+          </label>
         </div>
       </section>
       <section id="app-items">
@@ -163,7 +159,7 @@
                alt=""/>
           <span data-l10n-id="items-pane-override"></span>
         </p>
-        <div class="option-list" id="appItemsList">
+        <div class="option-list indent" id="appItemsList">
           <label class="toggle-container-with-text">
             <input type="checkbox" id="checkAccounts"/>
             <span data-l10n-id="items-pane-checkbox-accounts"></span>
@@ -181,7 +177,7 @@
             <span data-l10n-id="items-pane-checkbox-mail-messages"></span>
           </label>
         </div>
-        <p>
+        <p class="center">
           <img src="chrome://global/skin/icons/warning.svg"
                class="icon warn"
                alt=""/>
@@ -199,25 +195,25 @@
           <dd id="appSummaryProfilePath"></dd>
         </dl>
         <h2 data-l10n-id="summary-pane-title" class="light-heading"></h2>
-        <ul id="appSummaryItems" class="summary-items">
+        <ul id="appSummaryItems" class="summary-items indent">
         </ul>
         <button id="appStartImport"
                 onclick="profileController.startImport()"
-                class="primary before-progress"
+                class="primary before-progress center-button"
                 data-l10n-id="summary-pane-start"></button>
         <div class="progressPane">
           <section class="progressPane-progress">
             <progress class="progressPaneProgressBar"></progress>
-            <p class="progressPaneDesc"></p>
+            <p class="progressPaneDesc tip-caption"></p>
           </section>
         </div>
-        <button class="progressFinish primary"
+        <button class="progressFinish primary center-button"
                 onclick="profileController.next()"
                 data-l10n-id="button-finish"></button>
         <button data-l10n-id="summary-pane-start-over"
-                class="progressFinish no-restart btn-link"
+                class="progressFinish no-restart center-button btn-link"
                 onclick="restart()"></button>
-        <p class="restart-only">
+        <p class="restart-only center">
           <img src="chrome://global/skin/icons/warning.svg"
                class="icon warn"
                alt=""/>
@@ -241,7 +237,7 @@
         <h1 id="importAddressBook" data-l10n-id="import-address-book-title"></h1>
         <h2 data-l10n-id="import-file-title"></h2>
         <p data-l10n-id="import-from-addr-book-file-description" class="description"></p>
-        <div class="source-list">
+        <div class="source-list indent">
           <label class="toggle-container-with-text">
             <input type="radio"
                    value="csv"
@@ -288,15 +284,13 @@
           <dt data-l10n-id="addr-book-directories-pane-source"></dt>
           <dd id="addrBookSourcePath"></dd>
         </dl>
-        <div class="profile-list" id="directoryList"></div>
-        <div class="content-blocking-category">
-          <label class="toggle-container-with-text">
-            <input type="radio"
-                   value=".new"
-                   name="addrBookDirectory"/>
-                   <p id="newDirectoryLabel"></p>
-          </label>
-        </div>
+        <div class="profile-list indent" id="directoryList"></div>
+        <label class="toggle-container-with-text indent">
+          <input type="radio"
+                  value=".new"
+                  name="addrBookDirectory"/>
+          <p id="newDirectoryLabel"></p>
+        </label>
       </section>
       <section id="addr-book-summary">
         <h1 data-l10n-id="import-address-book-title"></h1>
@@ -307,26 +301,26 @@
           <dd id="addrBookSummaryPath"></dd>
         </dl>
         <h2 data-l10n-id="summary-pane-title" class="light-heading"></h2>
-        <ul class="summary-items">
+        <ul class="summary-items indent">
           <li data-l10n-id="items-pane-checkbox-address-books"></li>
         </ul>
         <button id="addrBookStartImport"
                 onclick="addrBookController.startImport()"
-                class="primary before-progress"
+                class="primary before-progress center-button"
                 data-l10n-id="summary-pane-start"></button>
         <div class="progressPane">
           <section class="progressPane-progress">
             <progress class="progressPaneProgressBar"></progress>
-            <p class="progressPaneDesc"></p>
+            <p class="progressPaneDesc tip-caption"></p>
           </section>
         </div>
-        <button class="progressFinish primary"
+        <button class="progressFinish primary center-button"
                 onclick="addrBookController.next()"
                 data-l10n-id="button-finish"></button>
         <button data-l10n-id="summary-pane-start-over"
-                class="progressFinish no-restart btn-link"
+                class="progressFinish no-restart center-button btn-link"
                 onclick="restart()"></button>
-        <p class="restart-only">
+        <p class="restart-only center">
           <img src="chrome://global/skin/icons/warning.svg"
                class="icon warn"
                alt=""/>
@@ -375,15 +369,13 @@
           <dd id="calendarCalPath"></dd>
         </dl>
         <h2 data-l10n-id="calendar-target-title"></h2>
-        <div class="profile-list" id="calendarList"></div>
-        <div class="content-blocking-category">
-          <label class="toggle-container-with-text">
-            <input type="radio"
-                   value=".new"
-                   name="targetCalendar"/>
-            <p id="newCalendarLabel"></p>
-          </label>
-        </div>
+        <div class="profile-list indent" id="calendarList"></div>
+        <label class="toggle-container-with-text indent">
+          <input type="radio"
+                  value=".new"
+                  name="targetCalendar"/>
+          <p id="newCalendarLabel"></p>
+        </label>
       </section>
       <section id="calendar-summary">
         <h1 data-l10n-id="import-calendar-title"></h1>
@@ -394,26 +386,26 @@
           <dd id="calendarSummaryPath"></dd>
         </dl>
         <h2 data-l10n-id="summary-pane-title" class="light-heading"></h2>
-        <ul class="summary-items">
+        <ul class="summary-items indent">
           <li data-l10n-id="items-pane-checkbox-calendars"></li>
         </ul>
         <button id="calendarStartImport"
                 onclick="calendarController.startImport()"
-                class="primary before-progress"
+                class="primary before-progress center-button"
                 data-l10n-id="summary-pane-start"></button>
         <div class="progressPane">
           <section class="progressPane-progress">
             <progress class="progressPaneProgressBar"></progress>
-            <p class="progressPaneDesc"></p>
+            <p class="progressPaneDesc tip-caption"></p>
           </section>
         </div>
-        <button class="progressFinish primary"
+        <button class="progressFinish primary center-button"
                 onclick="calendarController.next()"
                 data-l10n-id="button-finish"></button>
         <button data-l10n-id="summary-pane-start-over"
-                class="progressFinish no-restart btn-link"
+                class="progressFinish no-restart center-button btn-link"
                 onclick="restart()"></button>
-        <p class="restart-only">
+        <p class="restart-only center">
           <img src="chrome://global/skin/icons/warning.svg"
                class="icon warn"
                alt=""/>
@@ -433,33 +425,35 @@
     </div>
 
     <div id="tabPane-export" class="tabPane">
-      <h1 data-l10n-id="export-profile"></h1>
-      <h2 data-l10n-id="export-profile-title"></h2>
-      <p class="description">
-        <img src="chrome://messenger/skin/icons/info.svg"
-             class="info icon"
-             alt=""/>
-        <span data-l10n-id="export-profile-description"></span>
-        <button data-l10n-id="export-open-profile-folder"
-                onclick="exportController.openProfileFolder()"
-                class="btn-link"></button>
-      </p>
-      <button id="exportButton"
-              onclick="exportController.next()"
-              class="primary before-progress"
-              data-l10n-id="button-export"></button>
-      <div class="progressPane">
-        <section class="progressPane-progress">
-          <progress class="progressPaneProgressBar"></progress>
-          <p class="progressPaneDesc"></p>
-        </section>
-      </div>
-      <button class="progressFinish primary"
-              onclick="exportController.back()"
-              data-l10n-id="button-finish"></button>
+      <section>
+        <h1 data-l10n-id="export-profile"></h1>
+        <h2 data-l10n-id="export-profile-title"></h2>
+        <p class="description">
+          <img src="chrome://messenger/skin/icons/info.svg"
+               class="info icon"
+               alt=""/>
+          <span data-l10n-id="export-profile-description"></span>
+          <button data-l10n-id="export-open-profile-folder"
+                  onclick="exportController.openProfileFolder()"
+                  class="btn-link"></button>
+        </p>
+        <button id="exportButton"
+                onclick="exportController.next()"
+                class="primary before-progress center-button"
+                data-l10n-id="button-export"></button>
+        <div class="progressPane">
+          <section class="progressPane-progress">
+            <progress class="progressPaneProgressBar"></progress>
+            <p class="progressPaneDesc tip-caption"></p>
+          </section>
+        </div>
+        <button class="progressFinish primary center-button"
+                onclick="exportController.back()"
+                data-l10n-id="button-finish"></button>
+      </section>
     </div>
 
-    <footer class="tip-caption">
+    <footer id="importFooter" class="tip-caption">
       <p data-l10n-id="footer-help"></p>
       <a id="importDocs"
          data-l10n-id="footer-import-documentation"

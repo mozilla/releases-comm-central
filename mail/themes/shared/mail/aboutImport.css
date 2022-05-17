@@ -14,24 +14,27 @@
 }
 
 body {
-  display: grid;
-  grid-template-columns: max-content auto;
   text-shadow: none;
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 h1 {
-  padding-top: 1em;
+  padding-top: 0;
   margin: 0 0 8px;
-  font-size: 1.6em;
+  font-size: var(--main-title-size);
   font-weight: 300;
-  line-height: 1.3em;
+  line-height: 1.3;
 }
 
-h3 {
+h2 {
   margin: 0 0 4px;
-  font-size: 1.2em;
+  font-size: 1.4rem;
   font-weight: 600;
-  line-height: 1.4em;
+  line-height: 1.4;
+}
+
+.light-heading {
+  font-weight: 300;
 }
 
 ul {
@@ -47,6 +50,30 @@ p {
 
 progress {
   width: 100%;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: [label] max-content [value] minmax(min-content, auto);
+  grid-template-rows: repeat(1fr);
+  column-gap: 1ch;
+}
+
+dl div {
+  display: grid;
+  grid-column: 1 / 3;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+}
+
+dt {
+  font-weight: 600;
+  grid-area: label;
+}
+
+dd {
+  grid-area: value;
+  margin: 0;
 }
 
 #csvFieldMap table {
@@ -96,8 +123,9 @@ progress {
 }
 
 #main {
-  padding: 40px 28px;
-  overflow-y: auto;
+  margin: 4em;
+  min-width: 400px;
+  max-width: 600px;
 }
 
 #main .buttons-container {
@@ -106,18 +134,18 @@ progress {
   justify-content: space-between;
 }
 
-.tab {
-  line-height: 48px;
-  padding: 0 1.25em;
+#main .buttons-container button {
+  margin: 0;
 }
 
-.tab.is-selected {
-  color: var(--in-content-accent-color);
+#main .buttons-container .continue {
+  margin-inline-start: auto;
 }
 
-.tabPane {
-  min-width: 400px;
-  max-width: 600px;
+.tabPane > section {
+  background-color: var(--in-content-box-background);
+  border-radius: var(--in-content-button-border-radius);
+  padding: 2em calc(var(--main-title-size) + var(--title-icon-margin) + 1em);
 }
 
 .tabPane h1 {
@@ -141,19 +169,14 @@ progress {
 }
 
 .source-list {
-  padding: 1em;
+  padding: 1em 0;
 }
 
 .profile-list {
-  display: flex;
-  flex-direction: column;
   padding-top: 0.5em;
 }
 
 .option-list {
-  display: grid;
-  grid-template-columns: max-content;
-  grid-row-gap: 0.5em;
   padding: 1em 0;
   list-style: none;
 }
@@ -197,6 +220,7 @@ progress {
     "i text"
     ". desc";
   margin-block: 1em;
+  line-height: 1.5;
 }
 
 .toggle-container-with-text:last-child {
@@ -213,6 +237,10 @@ progress {
 
 .toggle-container-with-text p:first-of-type {
   grid-area: text;
+}
+
+.toggle-container-with-text .tip-caption dt {
+  color: var(--in-content-page-color);
 }
 
 #tabPane-export p {
@@ -243,6 +271,25 @@ calendar-item-summary {
   line-height: 1.8;
 }
 
+.tabPane > section > .center-button,
+.center-button {
+  margin-inline: auto;
+}
+
+.center-button {
+  display: block;
+  margin-block: 1em;
+}
+
+a.center-button {
+  max-width: max-content;
+}
+
+.progressPane,
+.center {
+  text-align: center;
+}
+
 /* Conditionally visible elements */
 .restart-only,
 .progressFinish,
@@ -266,6 +313,10 @@ calendar-item-summary {
 .final-step .next-button,
 .restart-required .no-restart {
   display: none;
+}
+
+.complete .progressFinish.center-button {
+  display: block;
 }
 
 /* Icons */
@@ -296,4 +347,9 @@ calendar-item-summary {
 .back:dir(rtl) {
   background-image: url("chrome://messenger/skin/icons/move-right.svg");
   background-position-x: right 0.5em;
+}
+
+#importFooter {
+  margin-block-start: 4em;
+  text-align: center;
 }
