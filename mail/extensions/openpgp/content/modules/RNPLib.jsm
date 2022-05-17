@@ -9,10 +9,10 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailTimer: "chrome://openpgp/content/modules/timer.jsm",
   ctypes: "resource://gre/modules/ctypes.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 const MIN_RNP_VERSION = [0, 16, 0];
@@ -317,7 +317,7 @@ function enableRNPLibJS() {
         console.log(
           "Will attempt to automatically protect the unprotected keys in 30 seconds"
         );
-        EnigmailTimer.setTimeout(RNPLib._fixUnprotectedKeys, 30000);
+        setTimeout(RNPLib._fixUnprotectedKeys, 30000);
       }
       return true;
     },
