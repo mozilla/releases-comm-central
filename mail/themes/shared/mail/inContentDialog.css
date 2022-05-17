@@ -124,7 +124,7 @@ dialog.dialog-critical {
   flex-direction: column;
   justify-content: space-between;
   overflow-y: auto;
-  padding: 1em 1em 0;
+  padding: 0 1em;
 }
 
 .container-with-link {
@@ -149,6 +149,7 @@ dialog.dialog-critical {
 
 dialog h1 {
   margin-block-start: 0;
+  font-size: 1.17em;
 }
 
 dialog p {
