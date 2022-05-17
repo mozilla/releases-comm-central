@@ -751,33 +751,6 @@ nsresult nsImapProtocol::SetupSinkProxy() {
   }
   if (newFolderSink) Log("SetupSinkProxy", nullptr, "got m_imapMailFolderSink");
 
-  // Obtain a sink proxy for the folder to be imap SELECTed on this connection
-  // by the nsImapSelectFolder URL. It is needed to handle untagged IDLE
-  // responses and untagged responses such as during NOOP or STATUS to detect
-  // new mail for the SELECTed folder.
-  nsImapAction imapAction;
-  m_runningUrl->GetImapAction(&imapAction);
-  if (imapAction == nsIImapUrl::nsImapSelectFolder) {
-    m_imapMailFolderSinkSelected = nullptr;
-    if (newFolderSink) {
-      // Use imapMailFolderSink just obtained above.
-      m_imapMailFolderSinkSelected = m_imapMailFolderSink;
-    } else {
-      // Allocate a new one. Have never seen this happen.
-      Log("SetupSinkProxy", nullptr,
-          "getting new m_imapMailFolderSinkSelected");
-      nsCOMPtr<nsIImapMailFolderSink> aImapMailFolderSink;
-      (void)m_runningUrl->GetImapMailFolderSink(
-          getter_AddRefs(aImapMailFolderSink));
-      if (aImapMailFolderSink) {
-        m_imapMailFolderSinkSelected =
-            new ImapMailFolderSinkProxy(aImapMailFolderSink);
-      }
-    }
-    if (m_imapMailFolderSinkSelected)
-      Log("SetupSinkProxy", nullptr, "got m_imapMailFolderSinkSelected");
-  }
-
   if (!m_imapMessageSink) {
     nsCOMPtr<nsIImapMessageSink> aImapMessageSink;
     (void)m_runningUrl->GetImapMessageSink(getter_AddRefs(aImapMessageSink));
@@ -3481,6 +3454,13 @@ void nsImapProtocol::SelectMailbox(const char* mailboxName) {
   res = SendData(commandBuffer.get());
   if (NS_FAILED(res)) return;
   ParseIMAPandCheckForNewMail();
+
+  // Save the folder sink obtained in SetupSinkProxy() for whatever URL just
+  // caused this SELECT. Needed so idle and noop responses are using the correct
+  // folder when detecting changed flags or new messages.
+  m_imapMailFolderSinkSelected = m_imapMailFolderSink;
+  MOZ_ASSERT(m_imapMailFolderSinkSelected);
+  Log("SelectMailbox", nullptr, "got m_imapMailFolderSinkSelected");
 
   int32_t numOfMessagesInFlagState = 0;
   nsImapAction imapAction;
