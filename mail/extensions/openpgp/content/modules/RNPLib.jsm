@@ -485,7 +485,7 @@ function enableRNPLibJS() {
     async saveKeyRing(path, keyRingFlag) {
       let oldPath = path + ".old";
 
-      // Ignore failure, fileObj.path might not exist yet.
+      // Ignore failure, oldPath might not exist yet.
       await IOUtils.copy(path, oldPath).catch(() => {});
 
       let u8 = null;
@@ -536,22 +536,25 @@ function enableRNPLibJS() {
 
       u8 = u8 || new Uint8Array();
 
-      let writeKeyRing = IOUtils.write(path, u8, {
+      await IOUtils.write(path, u8, {
         tmpPath: path + ".tmp-new",
       });
-      IOUtils.profileBeforeChange.addBlocker(
-        "OpenPGP: writing out keyring",
-        writeKeyRing
-      );
-      await writeKeyRing;
-      IOUtils.profileBeforeChange.removeBlocker(writeKeyRing);
     },
 
     async saveKeys() {
       let { pubRingPath, secRingPath } = this.getFilenames();
 
-      await this.saveKeyRing(pubRingPath, this.RNP_LOAD_SAVE_PUBLIC_KEYS);
-      await this.saveKeyRing(secRingPath, this.RNP_LOAD_SAVE_SECRET_KEYS);
+      let saveThem = async () => {
+        await this.saveKeyRing(pubRingPath, this.RNP_LOAD_SAVE_PUBLIC_KEYS);
+        await this.saveKeyRing(secRingPath, this.RNP_LOAD_SAVE_SECRET_KEYS);
+      };
+      let saveBlocker = saveThem();
+      IOUtils.profileBeforeChange.addBlocker(
+        "OpenPGP: writing out keyring",
+        saveBlocker
+      );
+      await saveBlocker;
+      IOUtils.profileBeforeChange.removeBlocker(saveBlocker);
     },
 
     keep_password_cb_alive: null,
