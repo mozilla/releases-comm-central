@@ -41,12 +41,12 @@ calDuration::calDuration(const struct icaldurationtype* const aDurationPtr)
 }
 
 NS_IMETHODIMP
-calDuration::GetIcalDuration(JS::MutableHandleValue) {
+calDuration::GetIcalDuration(JS::MutableHandle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calDuration::SetIcalDuration(JS::HandleValue) {
+calDuration::SetIcalDuration(JS::Handle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

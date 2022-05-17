@@ -437,12 +437,12 @@ calIcalComponent::~calIcalComponent() {
   }
 }
 NS_IMETHODIMP
-calIcalComponent::GetIcalComponent(JS::MutableHandleValue) {
+calIcalComponent::GetIcalComponent(JS::MutableHandle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calIcalComponent::SetIcalComponent(JS::HandleValue) {
+calIcalComponent::SetIcalComponent(JS::Handle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -454,12 +454,12 @@ calIcalComponent::GetParent(calIIcalComponent** parent) {
 }
 
 NS_IMETHODIMP
-calIcalComponent::GetIcalTimezone(JS::MutableHandleValue) {
+calIcalComponent::GetIcalTimezone(JS::MutableHandle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calIcalComponent::SetIcalTimezone(JS::HandleValue) {
+calIcalComponent::SetIcalTimezone(JS::Handle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -675,12 +675,12 @@ calIcalProperty::GetParent(calIIcalComponent** parent) {
 }
 
 NS_IMETHODIMP
-calIcalProperty::GetIcalProperty(JS::MutableHandleValue) {
+calIcalProperty::GetIcalProperty(JS::MutableHandle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-calIcalProperty::SetIcalProperty(JS::HandleValue) {
+calIcalProperty::SetIcalProperty(JS::Handle<JS::Value>) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

@@ -32,7 +32,7 @@ class JSMsgIterator final : public nsIJSIterator {
 };
 
 NS_IMETHODIMP JSMsgIterator::Next(JSContext* aCx,
-                                  JS::MutableHandleValue aResult) {
+                                  JS::MutableHandle<JS::Value> aResult) {
   // result is object of the form: {value: ..., done: ...}
   RootedDictionary<IteratorResult> result(aCx);
 
@@ -44,7 +44,7 @@ NS_IMETHODIMP JSMsgIterator::Next(JSContext* aCx,
   } else {
     result.mDone = false;
 
-    JS::RootedValue value(aCx);
+    JS::Rooted<JS::Value> value(aCx);
     MOZ_TRY(
         nsContentUtils::WrapNative(aCx, msg, &NS_GET_IID(nsIMsgDBHdr), &value));
     result.mValue = value;
@@ -93,7 +93,7 @@ class JSThreadIterator final : public nsIJSIterator {
 };
 
 NS_IMETHODIMP JSThreadIterator::Next(JSContext* aCx,
-                                     JS::MutableHandleValue aResult) {
+                                     JS::MutableHandle<JS::Value> aResult) {
   // result is object of the form: {value: ..., done: ...}
   RootedDictionary<IteratorResult> result(aCx);
 
@@ -105,7 +105,7 @@ NS_IMETHODIMP JSThreadIterator::Next(JSContext* aCx,
   } else {
     result.mDone = false;
 
-    JS::RootedValue value(aCx);
+    JS::Rooted<JS::Value> value(aCx);
     MOZ_TRY(nsContentUtils::WrapNative(aCx, msg, &NS_GET_IID(nsIMsgThread),
                                        &value));
     result.mValue = value;
