@@ -7,13 +7,14 @@ var EXPORTED_SYMBOLS = ["OdnoklassnikiProtocol"];
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
 var { XMPPAccountPrototype } = ChromeUtils.import(
   "resource:///modules/xmpp-base.jsm"
 );
-var { XMPPSession, XMPPDefaultResource } = ChromeUtils.import(
+var { XMPPSession } = ChromeUtils.import(
   "resource:///modules/xmpp-session.jsm"
 );
 
@@ -33,7 +34,12 @@ OdnoklassnikiAccount.prototype = {
     if (!this.name.includes("@")) {
       // TODO: Do not use the default resource value if the user has not
       // specified it and let the service generate it.
-      let jid = this.name + "@odnoklassniki.ru/" + XMPPDefaultResource;
+      let jid =
+        this.name +
+        "@odnoklassniki.ru/" +
+        Services.strings
+          .createBundle("chrome://branding/locale/brand.properties")
+          .GetStringFromName("brandShortName");
       this._jid = this._parseJID(jid);
     } else {
       this._jid = this._parseJID(this.name);

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
+const EXPORTED_SYMBOLS = ["XMPPSession"];
 
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
@@ -20,18 +20,6 @@ var { XMPPAuthMechanisms } = ChromeUtils.import(
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
-
-// Workaround because a lazy getter can't be exported.
-XPCOMUtils.defineLazyGetter(this, "_defaultResource", () =>
-  l10nHelper("chrome://branding/locale/brand.properties")("brandShortName")
-);
-Object.defineProperty(this, "XMPPDefaultResource", {
-  configurable: true,
-  enumerable: true,
-  get() {
-    return _defaultResource;
-  },
-});
 
 function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._host = aHost;
@@ -679,10 +667,12 @@ XMPPSession.prototype = {
         return;
       }
 
-      // If the resource is empty, we will fallback to XMPPDefaultResource
-      // (set to brandShortName) as resource is REQUIRED.
+      // If the resource is empty, we will fallback to brandShortName as
+      // resource is REQUIRED.
       if (!this._resource) {
-        this._resource = XMPPDefaultResource;
+        this._resource = Services.strings
+          .createBundle("chrome://branding/locale/brand.properties")
+          .GetStringFromName("brandShortName");
         this._jid = this._setJID(
           this._jid.domain,
           this._jid.node,

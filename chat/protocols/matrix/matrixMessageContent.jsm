@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["MatrixMessageContent"];
+const EXPORTED_SYMBOLS = ["MatrixMessageContent"];
 
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
