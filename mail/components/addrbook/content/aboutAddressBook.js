@@ -2097,8 +2097,14 @@ var detailsPane = {
       li.querySelector(".entry-value").textContent = title;
     }
 
+    let role = vCardProperties.getFirstValue("role");
+    if (role) {
+      let li = list.appendChild(createEntryItem("role"));
+      li.querySelector(".entry-value").textContent = role;
+    }
+
     let org = vCardProperties.getFirstValue("org");
-    if (org) {
+    if (Array.isArray(org)) {
       if (org[1]) {
         let li = list.appendChild(createEntryItem("department"));
         li.querySelector(".entry-value").textContent = org[1];
@@ -2107,6 +2113,9 @@ var detailsPane = {
         let li = list.appendChild(createEntryItem("organization"));
         li.querySelector(".entry-value").textContent = org[0];
       }
+    } else if (org) {
+      let li = list.appendChild(createEntryItem("organization"));
+      li.querySelector(".entry-value").textContent = org;
     }
 
     for (let entry of vCardProperties.getAllEntries("url")) {

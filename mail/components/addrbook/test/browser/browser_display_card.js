@@ -41,6 +41,7 @@ add_setup(async function() {
     NOTE:mary had a little lamb\\nits fleece was white as snow\\nand everywhere t
      hat mary went\\nthe lamb was sure to go
     ORG:thunderbird;engineering
+    ROLE:sheriff
     TITLE:senior engineering lead
     TZ;VALUE=TEXT:Pacific/Auckland
     URL;TYPE=work:https://www.thunderbird.net/
@@ -248,7 +249,7 @@ add_task(async function test_display() {
   // Other sections.
   Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 7);
+  Assert.equal(items.length, 8);
   Assert.equal(
     items[0].children[0].dataset.l10nId,
     "about-addressbook-entry-name-birthday"
@@ -266,37 +267,42 @@ add_task(async function test_display() {
   Assert.equal(items[2].children[1].textContent, "senior engineering lead");
   Assert.equal(
     items[3].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-department"
+    "about-addressbook-entry-name-role"
   );
-  Assert.equal(items[3].children[1].textContent, "engineering");
+  Assert.equal(items[3].children[1].textContent, "sheriff");
   Assert.equal(
     items[4].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-organization"
+    "about-addressbook-entry-name-department"
   );
-  Assert.equal(items[4].children[1].textContent, "thunderbird");
+  Assert.equal(items[4].children[1].textContent, "engineering");
   Assert.equal(
     items[5].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-organization"
+  );
+  Assert.equal(items[5].children[1].textContent, "thunderbird");
+  Assert.equal(
+    items[6].children[0].dataset.l10nId,
     "about-addressbook-entry-name-website"
   );
   Assert.equal(
-    items[5].children[1].querySelector("a").href,
+    items[6].children[1].querySelector("a").href,
     "https://www.thunderbird.net/"
   );
   Assert.equal(
-    items[5].children[1].querySelector("a").textContent,
+    items[6].children[1].querySelector("a").textContent,
     "www.thunderbird.net"
   );
   Assert.equal(
-    items[6].children[0].dataset.l10nId,
+    items[7].children[0].dataset.l10nId,
     "about-addressbook-entry-name-time-zone"
   );
-  Assert.equal(items[6].children[1].firstChild.nodeValue, "Pacific/Auckland");
+  Assert.equal(items[7].children[1].firstChild.nodeValue, "Pacific/Auckland");
   Assert.equal(
-    items[6].children[1].lastChild.getAttribute("is"),
+    items[7].children[1].lastChild.getAttribute("is"),
     "active-time"
   );
   Assert.equal(
-    items[6].children[1].lastChild.getAttribute("tz"),
+    items[7].children[1].lastChild.getAttribute("tz"),
     "Pacific/Auckland"
   );
 
