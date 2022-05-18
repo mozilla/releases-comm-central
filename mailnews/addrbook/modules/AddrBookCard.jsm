@@ -134,7 +134,14 @@ AddrBookCard.prototype = {
       return this.getProperty("FirstName", "");
     }
     let name = this._vCardProperties.getFirstValue("n");
-    return name ? name[1] : "";
+    if (!Array.isArray(name)) {
+      return "";
+    }
+    name = name[1];
+    if (Array.isArray(name)) {
+      name = name.join(" ");
+    }
+    return name;
   },
   set firstName(value) {
     let n = this._vCardProperties.getFirstEntry("n");
@@ -151,7 +158,14 @@ AddrBookCard.prototype = {
       return this.getProperty("LastName", "");
     }
     let name = this._vCardProperties.getFirstValue("n");
-    return name ? name[0] : "";
+    if (!Array.isArray(name)) {
+      return "";
+    }
+    name = name[0];
+    if (Array.isArray(name)) {
+      name = name.join(" ");
+    }
+    return name;
   },
   set lastName(value) {
     let n = this._vCardProperties.getFirstEntry("n");

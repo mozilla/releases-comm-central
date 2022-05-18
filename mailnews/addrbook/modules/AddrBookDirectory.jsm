@@ -181,10 +181,17 @@ class AddrBookDirectory {
     let displayName = vCardProperties.getFirstValue("fn");
     newProperties.set("DisplayName", displayName || "");
 
+    let flatten = value => {
+      if (Array.isArray(value)) {
+        return value.join(" ");
+      }
+      return value;
+    };
+
     let name = vCardProperties.getFirstValue("n");
-    if (name) {
-      newProperties.set("FirstName", name[1]);
-      newProperties.set("LastName", name[0]);
+    if (Array.isArray(name)) {
+      newProperties.set("FirstName", flatten(name[1]));
+      newProperties.set("LastName", flatten(name[0]));
     }
 
     let email = vCardProperties.getAllValuesSorted("email");
@@ -195,9 +202,9 @@ class AddrBookDirectory {
       newProperties.set("SecondEmail", email[1]);
     }
 
-    let nickname = vCardProperties.getAllValues("nickname");
-    if (nickname[0]) {
-      newProperties.set("NickName", nickname[0]);
+    let nickname = vCardProperties.getFirstValue("nickname");
+    if (nickname) {
+      newProperties.set("NickName", flatten(nickname));
     }
 
     // Always set the last modified date.
