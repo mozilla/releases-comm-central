@@ -5493,7 +5493,7 @@ function SetComposeDetails(newValues) {
  *
  * @param {nsIMsgCompDeliverMode} mode - The delivery mode of the operation.
  */
-function GenericSendMessage(msgType) {
+async function GenericSendMessage(msgType) {
   let msgCompFields = GetComposeDetails();
   let subject = msgCompFields.subject;
 
@@ -5721,22 +5721,33 @@ function GenericSendMessage(msgType) {
         throw new Error(`Invalid send format ${sendFormat}`);
     }
 
-    let beforeSendEvent = new CustomEvent("beforesend", {
-      cancelable: true,
-      detail: msgType,
-    });
-    window.dispatchEvent(beforeSendEvent);
-    if (beforeSendEvent.defaultPrevented) {
+    try {
+      await new Promise((resolve, reject) => {
+        let beforeSendEvent = new CustomEvent("beforesend", {
+          cancelable: true,
+          detail: {
+            resolve,
+            reject,
+          },
+        });
+        window.dispatchEvent(beforeSendEvent);
+        if (!beforeSendEvent.defaultPrevented) {
+          resolve();
+        }
+      });
+    } catch (ex) {
       return;
     }
   }
 
-  CompleteGenericSendMessage(msgType);
+  await CompleteGenericSendMessage(msgType);
 }
 
 /**
  * Finishes message sending. This should ONLY be called directly from
- * GenericSendMessage, or if GenericSendMessage was interrupted by your code.
+ * GenericSendMessage. This is a separate function so that it can be easily mocked
+ * in tests.
+ *
  * @param msgType nsIMsgCompDeliverMode of the operation.
  */
 async function CompleteGenericSendMessage(msgType) {
@@ -6278,7 +6289,7 @@ async function checkEncryptedBccRecipients() {
   );
 }
 
-function SendMessage() {
+async function SendMessage() {
   pillifyRecipients();
   let sendInBackground = Services.prefs.getBoolPref(
     "mailnews.sendInBackground"
@@ -6290,7 +6301,7 @@ function SendMessage() {
     }
   }
 
-  GenericSendMessage(
+  await GenericSendMessage(
     sendInBackground
       ? Ci.nsIMsgCompDeliverMode.Background
       : Ci.nsIMsgCompDeliverMode.Now
@@ -6298,7 +6309,7 @@ function SendMessage() {
   ExitFullscreenMode();
 }
 
-function SendMessageWithCheck() {
+async function SendMessageWithCheck() {
   pillifyRecipients();
   var warn = Services.prefs.getBoolPref("mail.warn_on_send_accel_key");
 
@@ -6337,13 +6348,13 @@ function SendMessageWithCheck() {
       ? Ci.nsIMsgCompDeliverMode.Background
       : Ci.nsIMsgCompDeliverMode.Now;
   }
-  GenericSendMessage(mode);
+  await GenericSendMessage(mode);
   ExitFullscreenMode();
 }
 
-function SendMessageLater() {
+async function SendMessageLater() {
   pillifyRecipients();
-  GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+  await GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
   ExitFullscreenMode();
 }
 
@@ -6381,15 +6392,15 @@ function SaveAsFile(saveAs) {
   defaultSaveOperation = "file";
 }
 
-function SaveAsDraft() {
+async function SaveAsDraft() {
   gAutoSaveKickedIn = false;
   gEditingDraft = true;
 
-  GenericSendMessage(Ci.nsIMsgCompDeliverMode.SaveAsDraft);
+  await GenericSendMessage(Ci.nsIMsgCompDeliverMode.SaveAsDraft);
   defaultSaveOperation = "draft";
 }
 
-function SaveAsTemplate() {
+async function SaveAsTemplate() {
   gAutoSaveKickedIn = false;
   gEditingDraft = false;
 
@@ -6404,7 +6415,7 @@ function SaveAsTemplate() {
     gMsgCompose.compFields.references = null;
   }
 
-  GenericSendMessage(Ci.nsIMsgCompDeliverMode.SaveAsTemplate);
+  await GenericSendMessage(Ci.nsIMsgCompDeliverMode.SaveAsTemplate);
   defaultSaveOperation = "template";
 
   if (savedReferences) {
@@ -7197,11 +7208,9 @@ function ComposeCanClose() {
         // ourselves, the toolkit code that keeps track of the open windows
         // gets off by one and the app can close unexpectedly on os's that
         // shutdown the app when the last window is closed.
-        try {
-          GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
-        } catch (ex) {
-          Cu.reportError(ex);
-        }
+        GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft).catch(
+          Cu.reportError
+        );
         return false;
       case 1: // Cancel
         return false;
@@ -10050,14 +10059,14 @@ function loadHTMLMsgPrefs() {
   }
 }
 
-function AutoSave() {
+async function AutoSave() {
   if (
     gMsgCompose.editor &&
     (gContentChanged || gMsgCompose.bodyModified) &&
     !gSendOperationInProgress &&
     !gSaveOperationInProgress
   ) {
-    GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
+    await GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
     gAutoSaveKickedIn = true;
   }
 

@@ -809,10 +809,12 @@ var composeEventTracker = {
   async handleEvent(event) {
     event.preventDefault();
 
-    let msgType = event.detail;
     let composeWindow = event.target;
-
     composeWindow.ToggleWindowLock(true);
+
+    // Send process waits till sendPromise.resolve() or sendPromise.reject() is
+    // called.
+    let sendPromise = event.detail;
 
     for (let { handler, extension } of this.listeners) {
       let result = await handler(
@@ -824,6 +826,7 @@ var composeEventTracker = {
       }
       if (result.cancel) {
         composeWindow.ToggleWindowLock(false);
+        sendPromise.reject();
         return;
       }
       if (result.details) {
@@ -837,7 +840,7 @@ var composeEventTracker = {
     // Calling getComposeDetails collapses mailing lists. Expand them again.
     composeWindow.expandRecipients();
     composeWindow.ToggleWindowLock(false);
-    await composeWindow.CompleteGenericSendMessage(msgType);
+    sendPromise.resolve();
   },
 };
 
