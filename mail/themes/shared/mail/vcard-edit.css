@@ -38,7 +38,7 @@ th[hidden] {
   grid-row: 1 / 2;
 }
 
-.addr-book-edit-fieldset-button {
+.addr-book-edit-fieldset-button:not([hidden]) {
   background-color: transparent;
   -moz-context-properties: fill;
   color: var(--in-content-primary-button-background);

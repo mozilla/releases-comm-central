@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals VCardEmailComponent, VCardNComponent, VCardTelComponent,
-           VCardURLComponent */
+           VCardTZComponent, VCardURLComponent */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -26,6 +26,7 @@ class VCardEdit extends HTMLElement {
       this.registerEmailFieldsetHandling();
       this.registerURLFieldsetHandling();
       this.registerTelFieldsetHandling();
+      this.registerTZFieldsetHandling();
       this.updateView();
     }
   }
@@ -85,6 +86,10 @@ class VCardEdit extends HTMLElement {
       });
     }
     this.replaceChildren(...vCardPropertyEls);
+
+    this.shadowRoot.getElementById("vcard-add-tz").hidden = this.querySelector(
+      "vcard-tz"
+    );
   }
 
   /**
@@ -120,6 +125,11 @@ class VCardEdit extends HTMLElement {
         tel.vCardPropertyEntry = entry;
         tel.slot = "v-tel";
         return tel;
+      case "tz":
+        let tz = new VCardTZComponent();
+        tz.vCardPropertyEntry = entry;
+        tz.slot = "v-tz";
+        return tz;
       default:
         return undefined;
     }
@@ -142,6 +152,8 @@ class VCardEdit extends HTMLElement {
         return VCardURLComponent.newVCardPropertyEntry();
       case "tel":
         return VCardTelComponent.newVCardPropertyEntry();
+      case "tz":
+        return VCardTZComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -231,6 +243,20 @@ class VCardEdit extends HTMLElement {
       this.vCardProperties.addEntry(el.vCardPropertyEntry);
       this.append(el);
       el.querySelector("input").focus();
+    });
+  }
+
+  registerTZFieldsetHandling() {
+    // Add TZ button.
+    let addTZ = this.shadowRoot.getElementById("vcard-add-tz");
+    addTZ.addEventListener("click", e => {
+      let newVCardProperty = VCardEdit.createVCardProperty("tz");
+      let el = VCardEdit.createVCardElement(newVCardProperty);
+      // Add the new entry to our vCardProperties object.
+      this.vCardProperties.addEntry(el.vCardPropertyEntry);
+      this.append(el);
+      addTZ.hidden = true;
+      el.querySelector("select").focus();
     });
   }
 }

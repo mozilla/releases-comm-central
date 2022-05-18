@@ -69,3 +69,9 @@ vcard-tel-header = Phone Numbers
 vcard-tel-add = Add phone number
 
 vcard-tel-label = Phone number
+
+# TZ vCard field
+
+vcard-tz-header = Time Zone
+
+vcard-tz-add = Add time zone

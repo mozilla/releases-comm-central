@@ -9,6 +9,7 @@
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tel.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/tz.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/url.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/edit.js"></script>
 
@@ -83,6 +84,18 @@
            src="chrome://global/skin/icons/add.svg"
            alt=""/>
       <span data-l10n-id="vcard-tel-add"/>
+    </button>
+  </fieldset>
+  <!-- Time Zone -->
+  <fieldset id="addr-book-edit-tz" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-tz-header"/>
+    <slot name="v-tz"/>
+    <button id="vcard-add-tz" class="addr-book-edit-fieldset-button"
+            type="button">
+      <img class="addr-book-edit-fieldset-button-icon"
+           src="chrome://global/skin/icons/add.svg"
+           alt=""/>
+      <span data-l10n-id="vcard-tz-add"/>
     </button>
   </fieldset>
 </template>
@@ -167,4 +180,11 @@
   </select>
   <label class="screen-readers-only" for="text"/>
   <input type="text"/>
+</template>
+
+<!-- Time Zone -->
+<template id="template-vcard-edit-tz">
+  <select>
+    <option value=""></option>
+  </select>
 </template>

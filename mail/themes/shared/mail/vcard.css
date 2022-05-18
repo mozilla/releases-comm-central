@@ -13,7 +13,8 @@ vcard-edit input[type="text"],
 vcard-edit input[type="email"],
 vcard-edit input[type="url"],
 vcard-edit input[type="tel"],
-vcard-edit .vcard-type-selection {
+vcard-edit .vcard-type-selection,
+vcard-tz select:not([size], [multiple]) {
   line-height: 1;
   padding-inline: 9px;
   margin: 0;
@@ -27,6 +28,10 @@ vcard-edit .vcard-type-selection {
 
 vcard-edit select {
   width: 86px;
+}
+
+vcard-tz select {
+  width: unset;
 }
 
 /* N field styles */
