@@ -80,22 +80,22 @@ alt-shift-shortcut-key = {
    *[other] Alt+Shift+{ $key }
 }
 
-meta-shift-alt-shortcut-key = {
+meta-shift-alt-shortcut-key2 = {
   PLATFORM() ->
     [macos] ⌥ ⇧ ⌘ { $key }
-   *[other] Meta+Alt+Shift{ $key }
+   *[other] Meta+Alt+Shift+{ $key }
 }
 
-ctrl-shift-alt-shortcut-key = {
+ctrl-shift-alt-shortcut-key2 = {
   PLATFORM() ->
     [macos] ⌃ ⌥ ⇧ { $key }
-   *[other] Ctrl+Alt+Shift{ $key }
+   *[other] Ctrl+Alt+Shift+{ $key }
 }
 
-meta-ctrl-shift-alt-shortcut-key = {
+meta-ctrl-shift-alt-shortcut-key2 = {
   PLATFORM() ->
     [macos] ⌃ ⌥ ⇧ ⌘ { $key }
-   *[other] Meta+Ctrl+Alt+Shift{ $key }
+   *[other] Meta+Ctrl+Alt+Shift+{ $key }
 }
 
 # Variables:

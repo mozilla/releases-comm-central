@@ -17,6 +17,19 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 const ShortcutsManager = {
   /**
+   * Fluent strings mapping to allow updating strings without changing all the
+   * IDs in the shortcuts.ftl file. This is needed because the IDs are
+   * dynamically generated.
+   *
+   * @type {Object}
+   */
+  fluentMapping: {
+    "meta-shift-alt-shortcut-key": "meta-shift-alt-shortcut-key2",
+    "ctrl-shift-alt-shortcut-key": "ctrl-shift-alt-shortcut-key2",
+    "meta-ctrl-shift-alt-shortcut-key": "meta-ctrl-shift-alt-shortcut-key2",
+  },
+
+  /**
    * Data set for a shortcut.
    *
    * @typedef {Object} Shortcut
@@ -310,7 +323,11 @@ const ShortcutsManager = {
     string.push("shortcut-key");
     aria.push(shortcut.key.toUpperCase());
 
-    let value = await this.l10n.formatValue(string.join("-"), {
+    // Check if the ID was updated in the fluent file and replace it.
+    let stringId = string.join("-");
+    stringId = this.fluentMapping[stringId] || stringId;
+
+    let value = await this.l10n.formatValue(stringId, {
       key: shortcut.key.toUpperCase(),
     });
 
