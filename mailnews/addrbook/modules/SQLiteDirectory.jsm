@@ -275,29 +275,34 @@ class SQLiteDirectory extends AddrBookDirectory {
     return properties;
   }
   saveCardProperties(uid, properties) {
-    this._dbConnection.beginTransaction();
-    let deleteStatement = this._dbConnection.createStatement(
-      "DELETE FROM properties WHERE card = :card"
-    );
-    deleteStatement.params.card = uid;
-    deleteStatement.execute();
-    let insertStatement = this._dbConnection.createStatement(
-      "INSERT INTO properties VALUES (:card, :name, :value)"
-    );
+    try {
+      this._dbConnection.beginTransaction();
+      let deleteStatement = this._dbConnection.createStatement(
+        "DELETE FROM properties WHERE card = :card"
+      );
+      deleteStatement.params.card = uid;
+      deleteStatement.execute();
+      let insertStatement = this._dbConnection.createStatement(
+        "INSERT INTO properties VALUES (:card, :name, :value)"
+      );
 
-    for (let [name, value] of properties) {
-      if (value !== null && value !== undefined && value !== "") {
-        insertStatement.params.card = uid;
-        insertStatement.params.name = name;
-        insertStatement.params.value = value;
-        insertStatement.execute();
-        insertStatement.reset();
+      for (let [name, value] of properties) {
+        if (value !== null && value !== undefined && value !== "") {
+          insertStatement.params.card = uid;
+          insertStatement.params.name = name;
+          insertStatement.params.value = value;
+          insertStatement.execute();
+          insertStatement.reset();
+        }
       }
-    }
 
-    this._dbConnection.commitTransaction();
-    deleteStatement.finalize();
-    insertStatement.finalize();
+      this._dbConnection.commitTransaction();
+      deleteStatement.finalize();
+      insertStatement.finalize();
+    } catch (ex) {
+      this._dbConnection.rollbackTransaction();
+      throw ex;
+    }
   }
   deleteCard(uid) {
     let deleteStatement = this._dbConnection.createStatement(
