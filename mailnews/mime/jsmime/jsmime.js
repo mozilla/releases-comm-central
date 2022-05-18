@@ -340,6 +340,7 @@
       // B) "Mark, Nonspacing" (Mn)
       // C) "Other, Control" (Cc)
       // D) "Other, Format" (Cf)
+      // E) "Symbol, Other"
       // Unfortunately, no support for the needed regexp Unicode property escapes
       // in our engine. So we need to hand-roll it. Used the regexpu tool for
       // that: https://mothereff.in/regexpu.
@@ -387,6 +388,11 @@
         /(?:[\xAD\u061C\u06DD\u070F\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD80D[\uDC30-\uDC38]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F])/g,
         " "
       );
+
+      // -- case E: problematic symbols
+      // https://www.fileformat.info/info/unicode/category/So/list.htm
+      // Replace U+2800 BRAILLE PATTERN BLANK with space.
+      token = token.replace(/\u2800/g, " ");
 
       return token;
     }
