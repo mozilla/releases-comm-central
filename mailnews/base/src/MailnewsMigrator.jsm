@@ -281,6 +281,59 @@ function _migratePassword(
   }
 }
 
+/** See the exact same function in MsgIncomingServer.jsm. */
+function _migrateFilters(
+  localStoreType,
+  oldHostname,
+  oldUsername,
+  newHostname,
+  newUsername
+) {
+  let oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
+  let newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";
+  // When constructing nsIURI, need to wrap IPv6 address in [].
+  oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
+  let oldServerUri = `${localStoreType}://${oldAuth}${encodeURIComponent(
+    oldHostname
+  )}`;
+  newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
+  let newServerUri = `${localStoreType}://${newAuth}${encodeURIComponent(
+    newHostname
+  )}`;
+
+  for (let server of MailServices.accounts.allServers) {
+    let filterList;
+    try {
+      filterList = server.getFilterList(null);
+      if (!server.canHaveFilters || !filterList) {
+        continue;
+      }
+    } catch (e) {
+      continue;
+    }
+    let changed = false;
+    for (let i = 0; i < filterList.filterCount; i++) {
+      let filter = filterList.getFilterAt(i);
+      for (let action of filter.sortedActionList) {
+        let targetFolderUri;
+        try {
+          targetFolderUri = action.targetFolderUri;
+        } catch (e) {
+          continue;
+        }
+        if (targetFolderUri.startsWith(oldServerUri)) {
+          action.targetFolderUri =
+            newServerUri + targetFolderUri.slice(oldServerUri.length);
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      filterList.saveToDefaultFile();
+    }
+  }
+}
+
 /**
  * For each mail.server.key. branch,
  *   - migrate realhostname to hostname
@@ -323,6 +376,13 @@ function migrateServerAndUserName() {
       ];
       try {
         _migratePassword(
+          localStoreType,
+          hostname,
+          username,
+          realHostname || hostname,
+          realUsername || username
+        );
+        _migrateFilters(
           localStoreType,
           hostname,
           username,

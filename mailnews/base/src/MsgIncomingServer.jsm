@@ -591,8 +591,76 @@ class MsgIncomingServer {
     }
   }
 
+  /**
+   * When hostname/username changes, update targetFolderUri in related filters
+   * to the new folder uri.
+   * @param {string} localStoreType - The store type of the current server.
+   * @param {string} oldHostname - The hostname before the change.
+   * @param {string} oldUsername - The username before the change.
+   * @param {string} newHostname - The hostname after the change.
+   * @param {string} newUsername - The username after the change.
+   */
+  _migrateFilters(
+    localStoreType,
+    oldHostname,
+    oldUsername,
+    newHostname,
+    newUsername
+  ) {
+    let oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
+    let newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";
+    // When constructing nsIURI, need to wrap IPv6 address in [].
+    oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
+    let oldServerUri = `${localStoreType}://${oldAuth}${encodeURIComponent(
+      oldHostname
+    )}`;
+    newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
+    let newServerUri = `${localStoreType}://${newAuth}${encodeURIComponent(
+      newHostname
+    )}`;
+
+    for (let server of MailServices.accounts.allServers) {
+      let filterList;
+      try {
+        filterList = server.getFilterList(null);
+        if (!server.canHaveFilters || !filterList) {
+          continue;
+        }
+      } catch (e) {
+        continue;
+      }
+      let changed = false;
+      for (let i = 0; i < filterList.filterCount; i++) {
+        let filter = filterList.getFilterAt(i);
+        for (let action of filter.sortedActionList) {
+          let targetFolderUri;
+          try {
+            targetFolderUri = action.targetFolderUri;
+          } catch (e) {
+            continue;
+          }
+          if (targetFolderUri.startsWith(oldServerUri)) {
+            action.targetFolderUri =
+              newServerUri + targetFolderUri.slice(oldServerUri.length);
+            changed = true;
+          }
+        }
+      }
+      if (changed) {
+        filterList.saveToDefaultFile();
+      }
+    }
+  }
+
   onUserOrHostNameChanged(oldValue, newValue, hostnameChanged) {
     this._migratePassword(
+      this.localStoreType,
+      hostnameChanged ? oldValue : this.hostName,
+      hostnameChanged ? this.username : oldValue,
+      this.hostName,
+      this.username
+    );
+    this._migrateFilters(
       this.localStoreType,
       hostnameChanged ? oldValue : this.hostName,
       hostnameChanged ? this.username : oldValue,
@@ -718,6 +786,10 @@ class MsgIncomingServer {
 
   getFilterList(msgWindow) {
     if (!this._filterList) {
+      if (!this.rootFolder.filePath.path) {
+        // Happens in tests.
+        return null;
+      }
       let filterFile = this.rootFolder.filePath.clone();
       filterFile.append("msgFilterRules.dat");
       this._filterList = MailServices.filters.OpenFilterList(

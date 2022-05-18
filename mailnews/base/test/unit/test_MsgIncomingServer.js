@@ -16,7 +16,7 @@ registerCleanupFunction(() => {
 /**
  * Test password is migrated when changing hostname/username.
  */
-add_task(function testChangeUsernameHostname() {
+add_task(function testMigratePasswordOnChangeUsernameHostname() {
   // Add two logins.
   let loginItems = [
     ["news://news.localhost", "user-nntp", "password-nntp"],
@@ -68,4 +68,68 @@ add_task(function testChangeUsernameHostname() {
     }
   }
   equal(password, "password-pop");
+});
+
+/**
+ * Test filters are migrated when changing hostname/username.
+ */
+add_task(function testMigrateFiltersOnChangeUsernameHostname() {
+  // Create a nntp server.
+  let nntpIncomingServer = MailServices.accounts.createIncomingServer(
+    "user-nntp",
+    "news.localhost",
+    "nntp"
+  );
+  let filterList = nntpIncomingServer.getFilterList(null);
+
+  // Insert a CopyToFolder filter.
+  let filter = filterList.createFilter("filter1");
+  let action = filter.createAction();
+  action.type = Ci.nsMsgFilterAction.CopyToFolder;
+  action.targetFolderUri = "news://user-nntp@news.localhost/dest1";
+  filter.appendAction(action);
+  filterList.insertFilterAt(filterList.filterCount, filter);
+
+  // Insert a MarkRead filter.
+  filter = filterList.createFilter("filter2");
+  action = filter.createAction();
+  action.type = Ci.nsMsgFilterAction.MarkRead;
+  filter.appendAction(action);
+  filterList.insertFilterAt(filterList.filterCount, filter);
+
+  // Insert a MoveToFolder filter.
+  filter = filterList.createFilter("filter3");
+  action = filter.createAction();
+  action.type = Ci.nsMsgFilterAction.MoveToFolder;
+  action.targetFolderUri = "news://user-nntp@news.localhost/dest2";
+  filter.appendAction(action);
+  filterList.insertFilterAt(filterList.filterCount, filter);
+
+  // Change the hostname, test targetFolderUri of filters are changed accordingly.
+  nntpIncomingServer.hostName = "localhost";
+  filterList = nntpIncomingServer.getFilterList(null);
+  filter = filterList.getFilterAt(0);
+  equal(
+    filter.sortedActionList[0].targetFolderUri,
+    "news://user-nntp@localhost/dest1"
+  );
+  filter = filterList.getFilterAt(2);
+  equal(
+    filter.sortedActionList[0].targetFolderUri,
+    "news://user-nntp@localhost/dest2"
+  );
+
+  // Change the username, test targetFolderUri of filters are changed accordingly.
+  nntpIncomingServer.username = "nntp";
+  filterList = nntpIncomingServer.getFilterList(null);
+  filter = filterList.getFilterAt(0);
+  equal(
+    filter.sortedActionList[0].targetFolderUri,
+    "news://nntp@localhost/dest1"
+  );
+  filter = filterList.getFilterAt(2);
+  equal(
+    filter.sortedActionList[0].targetFolderUri,
+    "news://nntp@localhost/dest2"
+  );
 });
