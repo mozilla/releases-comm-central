@@ -55,7 +55,6 @@ progress {
 dl {
   display: grid;
   grid-template-columns: [label] max-content [value] minmax(min-content, auto);
-  grid-template-rows: repeat(1fr);
   column-gap: 1ch;
 }
 
