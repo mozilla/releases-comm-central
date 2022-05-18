@@ -120,13 +120,12 @@ function help_test_display_name(message, field, expectedValue) {
   be_in_folder(folder);
   select_click_row(message);
 
-  let value = mc
-    .e("expanded" + field + "Box", { tagName: "mail-emailaddress" })
-    .querySelector(".emaillabel").value;
-
-  if (value != expectedValue) {
-    throw new Error("got '" + value + "' but expected '" + expectedValue + "'");
-  }
+  Assert.equal(
+    document.querySelector(`#expanded${field}Box .header-recipient`)
+      .textContent,
+    expectedValue,
+    "The expected value matches the found value"
+  );
 }
 
 add_task(function test_single_identity() {

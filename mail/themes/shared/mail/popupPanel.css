@@ -13,12 +13,20 @@
 }
 
 #editContactPanelIcon {
-  -moz-context-properties: fill;
-  fill: var(--toolbarbutton-icon-fill-attention);
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
+  stroke: var(--toolbarbutton-icon-fill-attention);
   width: 20px;
   height: 20px;
   margin-block: 0 15px;
   margin-inline: 4px 10px;
+}
+
+#editContactPanelTitle {
+  font-size: 130%;
+  font-weight: bold;
+  margin-inline-start: 9px;
+  margin-inline-end: 12px;
 }
 
 #editContactContent {

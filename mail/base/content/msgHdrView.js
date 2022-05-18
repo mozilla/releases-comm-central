@@ -83,44 +83,37 @@ var gShowCondensedEmailAddresses;
 var gMessageListeners = [];
 
 /**
- * This expanded header view shows many of the more common (and useful) headers.
+ * List fo common headers that need to be populated.
  *
  * For every possible "view" in the message pane, you need to define the header
  * names you want to see in that view. In addition, include information
- * describing how you want that header field to be presented. i.e. if it's an
- * email address field, if you want a toggle inserted on the node in case
- * of multiple email addresses, etc. We'll then use this static table to
- * dynamically generate header view entries which manipulate the UI.
- * When you add a header to one of these view lists you can specify
- * the following properties:
- * name:           the name of the header. i.e. "to", "subject". This must be in
- *                 lower case and the name of the header is used to help
- *                 dynamically generate ids for objects in the document. (REQUIRED)
- * useToggle:      true if the values for this header are multiple email
- *                 addresses and you want a (more) toggle to show a short
- *                 vs. long list (DEFAULT: false)
- * outputFunction: this is a method which takes a headerEntry (see the definition
- *                 below) and a header value. This allows you to provide your own
- *                 methods for actually determining how the header value
- *                 is displayed. (DEFAULT: updateHeaderValue which just sets the
- *                 header value on the text node)
+ * describing how you want that header field to be presented. We'll then use
+ * this static table to dynamically generate header view entries which
+ * manipulate the UI.
+ * @param {string} name - The name of the header. i.e. "to", "subject". This
+ *   must be in lower case and the name of the header is used to help
+ *   dynamically generate ids for objects in the document.
+ * @param {Function} outputFunction - This is a method which takes a headerEntry
+ *   (see the definition below) and a header value. This allows to provide a
+ *   unique methods for determining how the header value is displayed. Defaults
+ *   to updateHeaderValue which just sets the header value on the text node.
  */
-var gExpandedHeaderList = [
+const gExpandedHeaderList = [
   { name: "subject" },
-  { name: "from", useToggle: true, outputFunction: OutputEmailAddresses },
-  { name: "reply-to", useToggle: true, outputFunction: OutputEmailAddresses },
-  { name: "to", useToggle: true, outputFunction: OutputEmailAddresses },
-  { name: "cc", useToggle: true, outputFunction: OutputEmailAddresses },
-  { name: "bcc", useToggle: true, outputFunction: OutputEmailAddresses },
-  { name: "newsgroups", outputFunction: OutputNewsgroups },
+  { name: "from", outputFunction: outputEmailAddresses },
+  { name: "reply-to", outputFunction: outputEmailAddresses },
+  { name: "to", outputFunction: outputEmailAddresses },
+  { name: "cc", outputFunction: outputEmailAddresses },
+  { name: "bcc", outputFunction: outputEmailAddresses },
+  { name: "newsgroups", outputFunction: outputNewsgroups },
   { name: "references", outputFunction: OutputMessageIds },
-  { name: "followup-to", outputFunction: OutputNewsgroups },
+  { name: "followup-to", outputFunction: outputNewsgroups },
   { name: "content-base" },
   { name: "tags" },
 ];
 
 /**
- * These are all the items that use a mail-multi-emailheaderfield widget and
+ * These are all the items that use a multi-recipient-row widget and
  * therefore may require updating if the address book changes.
  */
 var gEmailAddressHeaderNames = [
@@ -282,32 +275,13 @@ function clearFolderDBListener() {
  */
 class MsgHeaderEntry {
   constructor(prefix, headerListInfo) {
-    let partialIDName = prefix + headerListInfo.name;
-    this.enclosingBox = document.getElementById(partialIDName + "Box");
-    this.enclosingRow = document.getElementById(partialIDName + "Row");
+    this.enclosingBox = document.getElementById(
+      `${prefix}${headerListInfo.name}Box`
+    );
+    this.enclosingRow = this.enclosingBox.closest(".message-header-row");
     this.isNewHeader = false;
     this.valid = false;
-
-    if ("useToggle" in headerListInfo) {
-      this.useToggle = headerListInfo.useToggle;
-    } else {
-      this.useToggle = false;
-    }
-
-    if ("outputFunction" in headerListInfo) {
-      this.outputFunction = headerListInfo.outputFunction;
-    } else {
-      this.outputFunction = updateHeaderValue;
-    }
-
-    // Stash this so that the <mail-multi-emailheaderfield/> binding can
-    // later attach it to any <mail-emailaddress> tags it creates for later
-    // extraction and use by UpdateEmailNodeDetails.
-    this.enclosingBox.headerName = headerListInfo.name;
-    // Set the headerName attribute for the value nodes too.
-    this.enclosingBox.querySelectorAll(".headerValue").forEach(e => {
-      e.setAttribute("headerName", headerListInfo.name);
-    });
+    this.outputFunction = headerListInfo.outputFunction || updateHeaderValue;
   }
 }
 
@@ -366,7 +340,10 @@ function initializeHeaderViewTables() {
   }
 
   if (Services.prefs.getBoolPref("mailnews.headers.showSender")) {
-    var senderEntry = { name: "sender", outputFunction: OutputEmailAddresses };
+    let senderEntry = {
+      name: "sender",
+      outputFunction: outputEmailAddresses,
+    };
     gExpandedHeaderView[senderEntry.name] = new MsgHeaderEntry(
       "expanded",
       senderEntry
@@ -395,10 +372,6 @@ async function OnLoadMsgHeaderPane() {
   );
 
   initializeHeaderViewTables();
-
-  // Add an address book listener so we can update the header view when things
-  // change.
-  AddressBookListener.register();
 
   // Only offer openInTab and openInNewWindow if this window supports tabs.
   let opensAreHidden = !document.getElementById("tabmail");
@@ -468,8 +441,6 @@ function OnUnloadMsgHeaderPane() {
     MsgHdrViewObserver
   );
 
-  AddressBookListener.unregister();
-
   clearFolderDBListener();
 
   // Dispatch an event letting any listeners know that we have unloaded
@@ -497,75 +468,6 @@ var MsgHdrViewObserver = {
     }
   },
 };
-
-var AddressBookListener = {
-  _notifications: [
-    "addrbook-directory-created",
-    "addrbook-directory-deleted",
-    "addrbook-contact-created",
-    "addrbook-contact-updated",
-    "addrbook-contact-deleted",
-  ],
-  register() {
-    for (let topic of this._notifications) {
-      Services.obs.addObserver(this, topic);
-    }
-  },
-  unregister() {
-    for (let topic of this._notifications) {
-      Services.obs.removeObserver(this, topic);
-    }
-  },
-  observe(subject, topic, data) {
-    switch (topic) {
-      case "addrbook-directory-created":
-        subject.QueryInterface(Ci.nsIAbDirectory);
-        OnAddressBookDataChanged("itemAdded", null, subject);
-        break;
-      case "addrbook-directory-deleted":
-        subject.QueryInterface(Ci.nsIAbDirectory);
-        OnAddressBookDataChanged("directoryRemoved", null, subject);
-        break;
-      case "addrbook-contact-created":
-        subject.QueryInterface(Ci.nsIAbCard);
-        OnAddressBookDataChanged(
-          "itemAdded",
-          MailServices.ab.getDirectoryFromUID(data),
-          subject
-        );
-        break;
-      case "addrbook-contact-updated":
-        subject.QueryInterface(Ci.nsIAbCard);
-        OnAddressBookDataChanged("itemChanged", null, subject);
-        break;
-      case "addrbook-contact-deleted":
-        subject.QueryInterface(Ci.nsIAbCard);
-        OnAddressBookDataChanged(
-          "directoryItemRemoved",
-          MailServices.ab.getDirectoryFromUID(data),
-          subject
-        );
-        break;
-    }
-  },
-};
-
-function OnAddressBookDataChanged(aAction, aParentDir, aItem) {
-  gEmailAddressHeaderNames.forEach(function(headerName) {
-    let headerEntry = null;
-
-    if (headerName in gExpandedHeaderView) {
-      headerEntry = gExpandedHeaderView[headerName];
-      if (headerEntry) {
-        headerEntry.enclosingBox.updateExtraAddressProcessing(
-          aAction,
-          aParentDir,
-          aItem
-        );
-      }
-    }
-  });
-}
 
 /**
  * The messageHeaderSink is the class that gets notified of a message's headers
@@ -1117,9 +1019,8 @@ function OnTagsChange() {
 function ClearHeaderView(aHeaderTable) {
   for (let name in aHeaderTable) {
     let headerEntry = aHeaderTable[name];
-    if (headerEntry.enclosingBox.clearHeaderValues) {
-      headerEntry.enclosingBox.clearHeaderValues();
-    }
+    headerEntry.enclosingBox.clearHeaderValues?.();
+    headerEntry.enclosingBox.clear?.();
 
     headerEntry.valid = false;
   }
@@ -1302,10 +1203,11 @@ class HeaderView {
       newRowNode.appendChild(newLabelNode);
 
       // Create and append the new header value.
-      newHeaderNode = document.createXULElement("mail-headerfield");
+      newHeaderNode = document.createElement("div", {
+        is: "simple-header-row",
+      });
       newHeaderNode.setAttribute("id", idName);
-      newHeaderNode.setAttribute("flex", "1");
-
+      newHeaderNode.dataset.headerName = headerName;
       newRowNode.appendChild(newHeaderNode);
 
       // Add the new row to the extra headers container.
@@ -1320,7 +1222,6 @@ class HeaderView {
     this.enclosingBox = newHeaderNode;
     this.enclosingRow = newRowNode;
     this.valid = false;
-    this.useToggle = false;
     this.outputFunction = updateHeaderValue;
   }
 }
@@ -1471,19 +1372,18 @@ function HideMessageHeaderPane() {
 }
 
 /**
- * Take string of newsgroups separated by commas, split it
- * into newsgroups and send them to the corresponding
- * mail-newsgroups-headerfield element.
+ * Take a string of newsgroups separated by commas, split it into newsgroups and
+ * add them to the corresponding header-newsgroups-row element.
  *
- * @param headerEntry  the entry data structure for this header
- * @param headerValue  the string value for the header from the message
+ * @param {MsgHeaderEntry} headerEntry - The data structure for this header.
+ * @param {string} headerValue - The string of newsgroups from the message.
  */
-function OutputNewsgroups(headerEntry, headerValue) {
+function outputNewsgroups(headerEntry, headerValue) {
   headerValue
     .split(",")
-    .forEach(newsgroup => headerEntry.enclosingBox.addNewsgroupView(newsgroup));
+    .forEach(newsgroup => headerEntry.enclosingBox.addNewsgroup(newsgroup));
 
-  headerEntry.enclosingBox.buildViews();
+  headerEntry.enclosingBox.buildView();
 }
 
 /**
@@ -1503,41 +1403,31 @@ function OutputMessageIds(headerEntry, headerValue) {
 }
 
 /**
- * OutputEmailAddresses: knows how to take a comma separated list of email
- * addresses, extracts them one by one, linkifying each email address into
- * a mailto url. Then we add the link-ified email address to the parentDiv
- * passed in.
+ * Take a string of addresses separated by commas, split it into separated
+ * recipient objects and add them to the related parent container row.
  *
- * @param headerEntry     parent div
- * @param emailAddresses  comma separated list of the addresses for this
- *                        header field
+ * @param {MsgHeaderEntry} headerEntry - The data structure for this header.
+ * @param {string} emailAddresses - The string of addresses from the message.
  */
-function OutputEmailAddresses(headerEntry, emailAddresses) {
+function outputEmailAddresses(headerEntry, emailAddresses) {
   if (!emailAddresses) {
     return;
   }
 
-  // The email addresses are still RFC2047 encoded but libmime has already converted from
-  // "raw UTF-8" to "wide" (UTF-16) characters.
-  var addresses = MailServices.headerParser.parseEncodedHeaderW(emailAddresses);
+  // The email addresses are still RFC2047 encoded but libmime has already
+  // converted from "raw UTF-8" to "wide" (UTF-16) characters.
+  let addresses = MailServices.headerParser.parseEncodedHeaderW(emailAddresses);
 
-  if (headerEntry.useToggle) {
-    // Make sure we start clean.
-    headerEntry.enclosingBox.resetAddressView();
-  }
-  if (addresses.length == 0 && emailAddresses.includes(":")) {
-    // No addresses and a colon, so an empty group like "undisclosed-recipients: ;".
-    // Add group name so at least something displays.
+  // Make sure we start clean.
+  headerEntry.enclosingBox.clear();
+
+  // No addresses and a colon, so an empty group like "undisclosed-recipients: ;".
+  // Add group name so at least something displays.
+  if (!addresses.length && emailAddresses.includes(":")) {
     let address = { displayName: emailAddresses };
-    if (headerEntry.useToggle) {
-      headerEntry.enclosingBox.addAddressView(address);
-    } else {
-      updateEmailAddressNode(
-        headerEntry.enclosingBox.emailAddressNode,
-        address
-      );
-    }
+    headerEntry.enclosingBox.addRecipient(address);
   }
+
   for (let addr of addresses) {
     // If we want to include short/long toggle views and we have a long view,
     // always add it. If we aren't including a short/long view OR if we are and
@@ -1547,468 +1437,10 @@ function OutputEmailAddresses(headerEntry, emailAddresses) {
     address.emailAddress = addr.email;
     address.fullAddress = addr.toString();
     address.displayName = addr.name;
-    if (headerEntry.useToggle) {
-      headerEntry.enclosingBox.addAddressView(address);
-    } else {
-      updateEmailAddressNode(
-        headerEntry.enclosingBox.emailAddressNode,
-        address
-      );
-    }
+    headerEntry.enclosingBox.addRecipient(address);
   }
 
-  if (headerEntry.useToggle) {
-    headerEntry.enclosingBox.buildViews();
-  }
-}
-
-function updateEmailAddressNode(emailAddressNode, address) {
-  emailAddressNode.setAttribute("emailAddress", address.emailAddress || "");
-  emailAddressNode.setAttribute("fullAddress", address.fullAddress || "");
-  emailAddressNode.setAttribute("displayName", address.displayName || "");
-
-  if (address.emailAddress) {
-    UpdateEmailNodeDetails(address.emailAddress, emailAddressNode);
-  }
-}
-
-function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
-  // If we haven't been given specific details, search for a card.
-  var cardDetails =
-    aCardDetails || DisplayNameUtils.getCardForEmail(aEmailAddress);
-  // FIXME: It would be useful and cleaner to move the handling of the
-  // mail-emailaddress elements to the element's class itself. That way the
-  // logic wouldn't be spread between two separate scripts.
-  aDocumentNode.cardDetails = cardDetails;
-
-  aDocumentNode.setAddressBookState(!!cardDetails.card);
-
-  // When we are adding cards, we don't want to move the display around if the
-  // user has clicked on the star, therefore if it is locked, just exit and
-  // leave the display updates until later.
-  if (aDocumentNode.hasAttribute("updatingUI")) {
-    return;
-  }
-
-  var displayName = DisplayNameUtils.formatDisplayName(
-    aEmailAddress,
-    aDocumentNode.getAttribute("displayName"),
-    aDocumentNode.getAttribute("headerName"),
-    aDocumentNode.cardDetails.card
-  );
-
-  if (gShowCondensedEmailAddresses && displayName) {
-    aDocumentNode.setAttribute("tooltiptext", aEmailAddress);
-  } else {
-    aDocumentNode.removeAttribute("tooltiptext");
-    displayName =
-      aDocumentNode.getAttribute("fullAddress") ||
-      aDocumentNode.getAttribute("displayName");
-  }
-  aDocumentNode.setAttribute("label", displayName);
-}
-
-// FIXME: This method is only called in another file by
-// MozMailMultiEmailheaderfield.updateExtraAddressProcessing, which in turn
-// is only invoked by OnAddressBookDataChanged in this file. We should avoid
-// moving between files when this could all be handled by the element's class
-// itself.
-function UpdateExtraAddressProcessing(
-  aAddressData,
-  aDocumentNode,
-  aAction,
-  aParentDir,
-  aItem
-) {
-  switch (aAction) {
-    case "itemChanged":
-      if (
-        aAddressData &&
-        aDocumentNode.cardDetails.card &&
-        !aItem.isMailList &&
-        aItem.hasEmailAddress(aAddressData.emailAddress)
-      ) {
-        aDocumentNode.cardDetails.card = aItem;
-        var displayName = DisplayNameUtils.formatDisplayName(
-          aAddressData.emailAddress,
-          aDocumentNode.getAttribute("displayName"),
-          aDocumentNode.getAttribute("headerName"),
-          aDocumentNode.cardDetails.card
-        );
-
-        if (gShowCondensedEmailAddresses && displayName) {
-          aDocumentNode.setAttribute("label", displayName);
-        } else {
-          aDocumentNode.setAttribute(
-            "label",
-            aDocumentNode.getAttribute("fullAddress") ||
-              aDocumentNode.getAttribute("displayName")
-          );
-        }
-      }
-      break;
-    case "itemAdded":
-      // Is it a new address book?
-      if (aItem instanceof Ci.nsIAbDirectory) {
-        // If we don't have a match, search again for updates (e.g. a interface
-        // to an existing book may just have been added).
-        if (aDocumentNode && !aDocumentNode.cardDetails.card) {
-          UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
-        }
-      } else if (aItem instanceof Ci.nsIAbCard) {
-        // If we don't have a card, does this new one match?
-        if (
-          !aDocumentNode?.cardDetails?.card &&
-          !aItem.isMailList &&
-          aItem.hasEmailAddress(aAddressData.emailAddress)
-        ) {
-          // Just in case we have a bogus parent directory.
-          if (aParentDir instanceof Ci.nsIAbDirectory) {
-            var cardDetails = { book: aParentDir, card: aItem };
-            UpdateEmailNodeDetails(
-              aAddressData.emailAddress,
-              aDocumentNode,
-              cardDetails
-            );
-          } else {
-            UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
-          }
-        }
-      }
-      break;
-    case "directoryItemRemoved":
-      // Unfortunately we don't necessarily get the same card object back.
-      if (
-        aAddressData &&
-        aDocumentNode.cardDetails &&
-        aDocumentNode.cardDetails.card &&
-        aDocumentNode.cardDetails.book == aParentDir &&
-        !aItem.isMailList &&
-        aItem.hasEmailAddress(aAddressData.emailAddress)
-      ) {
-        UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
-      }
-      break;
-    case "directoryRemoved":
-      if (aDocumentNode?.cardDetails.book == aItem) {
-        UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
-      }
-      break;
-  }
-}
-
-function findEmailNodeFromPopupNode(elt, popup) {
-  // This annoying little function is needed because in the binding for
-  // mail-emailaddress, we set the context on the <description>, but that if
-  // the user clicks on the label, then popupNode is set to it, rather than
-  // the description.  So we have walk up the parent until we find the
-  // element with the popup set, and then return its parent.
-
-  while (elt.getAttribute("popup") != popup) {
-    elt = elt.parentNode;
-    if (elt == null) {
-      return null;
-    }
-  }
-  return elt.parentNode;
-}
-
-function hideEmailNewsPopup(addressNode) {
-  addressNode = addressNode.hasAttribute("newsgroup")
-    ? addressNode.closest("mail-newsgroup")
-    : addressNode.closest("mail-emailaddress");
-  // highlight the emailBox/newsgroupBox
-  addressNode.removeAttribute("selected");
-}
-
-async function setupEmailAddressPopup(emailAddressNode) {
-  emailAddressNode = emailAddressNode.closest("mail-emailaddress");
-  emailAddressNode.setAttribute("selected", "true");
-  var emailAddressPlaceHolder = document.getElementById(
-    "emailAddressPlaceHolder"
-  );
-  emailAddressPlaceHolder.setAttribute(
-    "label",
-    emailAddressNode.getAttribute("label")
-  );
-
-  if (emailAddressNode.cardDetails && emailAddressNode.cardDetails.card) {
-    document
-      .getElementById("addToAddressBookItem")
-      .setAttribute("hidden", true);
-    if (!emailAddressNode.cardDetails.book.readOnly) {
-      document.getElementById("editContactItem").removeAttribute("hidden");
-      document.getElementById("viewContactItem").setAttribute("hidden", true);
-    } else {
-      document.getElementById("editContactItem").setAttribute("hidden", true);
-      document.getElementById("viewContactItem").removeAttribute("hidden");
-    }
-  } else {
-    document.getElementById("addToAddressBookItem").removeAttribute("hidden");
-    document.getElementById("editContactItem").setAttribute("hidden", true);
-    document.getElementById("viewContactItem").setAttribute("hidden", true);
-  }
-  let discoverKeyMenuItem = document.getElementById("searchKeysOpenPGP");
-  if (discoverKeyMenuItem) {
-    let address = emailAddressNode
-      .closest("mail-emailaddress")
-      .getAttribute("emailAddress");
-    let hidden = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
-      address
-    );
-    discoverKeyMenuItem.hidden = hidden;
-    discoverKeyMenuItem.nextElementSibling.hidden = hidden; // Hide separator.
-  }
-}
-
-/**
- * Takes the email address node, adds a new contact from the node's
- * displayName and emailAddress attributes to the personal address book.
- *
- * @param emailAddressNode  a node with displayName and emailAddress attributes
- */
-function AddContact(emailAddressNode) {
-  emailAddressNode = emailAddressNode.closest("mail-emailaddress");
-  // When we collect an address, it updates the AB which sends out
-  // notifications to update the UI. In the add case we don't want to update
-  // the UI so that accidentally double-clicking on the star doesn't lead
-  // to something strange (i.e star would be moved out from underneath,
-  // leaving something else there).
-  emailAddressNode.setAttribute("updatingUI", true);
-
-  let kPersonalAddressbookURI = "jsaddrbook://abook.sqlite";
-  let addressBook = MailServices.ab.getDirectory(kPersonalAddressbookURI);
-
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
-  );
-  card.displayName = emailAddressNode.getAttribute("displayName");
-  card.primaryEmail = emailAddressNode.getAttribute("emailAddress");
-
-  // Just save the new node straight away.
-  addressBook.addCard(card);
-
-  emailAddressNode.removeAttribute("updatingUI");
-}
-
-function EditContact(emailAddressNode) {
-  emailAddressNode = emailAddressNode.closest("mail-emailaddress");
-  if (emailAddressNode.cardDetails.card) {
-    editContactInlineUI.showEditContactPanel(
-      emailAddressNode.cardDetails,
-      emailAddressNode
-    );
-  }
-}
-
-/**
- * Takes the email address title button, extracts the email address we stored
- * in there and opens a compose window with that address.
- *
- * @param addressNode  a node which has a "fullAddress" or "newsgroup" attribute
- * @param aEvent       the event object when user triggers the menuitem
- */
-function SendMailToNode(addressNode, aEvent) {
-  addressNode = addressNode.hasAttribute("newsgroup")
-    ? addressNode.closest("mail-newsgroup")
-    : addressNode.closest("mail-emailaddress");
-  let fields = Cc[
-    "@mozilla.org/messengercompose/composefields;1"
-  ].createInstance(Ci.nsIMsgCompFields);
-  let params = Cc[
-    "@mozilla.org/messengercompose/composeparams;1"
-  ].createInstance(Ci.nsIMsgComposeParams);
-
-  fields.newsgroups = addressNode.getAttribute("newsgroup");
-  if (addressNode.hasAttribute("fullAddress")) {
-    let addresses = MailServices.headerParser.makeFromDisplayAddress(
-      addressNode.getAttribute("fullAddress")
-    );
-    if (addresses.length > 0) {
-      fields.to = MailServices.headerParser.makeMimeHeader([addresses[0]]);
-    }
-  }
-
-  params.type = Ci.nsIMsgCompType.New;
-
-  // If aEvent is passed, check if Shift key was pressed for composition in
-  // non-default format (HTML vs. plaintext).
-  params.format =
-    aEvent && aEvent.shiftKey
-      ? Ci.nsIMsgCompFormat.OppositeOfDefault
-      : Ci.nsIMsgCompFormat.Default;
-
-  if (gFolderDisplay.displayedFolder) {
-    params.identity = accountManager.getFirstIdentityForServer(
-      gFolderDisplay.displayedFolder.server
-    );
-  }
-  params.composeFields = fields;
-  MailServices.compose.OpenComposeWindowWithParams(null, params);
-}
-
-/**
- * Takes the email address or newsgroup title button, extracts the address/name
- * we stored in there and copies it to the clipboard.
- *
- * @param addressNode  a node which has an "emailAddress" or "newsgroup"
- *                     attribute
- * @param aIncludeName when true, also copy the name onto the clipboard,
- *                     otherwise only the email address
- */
-function CopyEmailNewsAddress(addressNode, aIncludeName = false) {
-  addressNode = addressNode.hasAttribute("newsgroup")
-    ? addressNode.closest("mail-newsgroup")
-    : addressNode.closest("mail-emailaddress");
-  let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
-    Ci.nsIClipboardHelper
-  );
-  let address =
-    addressNode.getAttribute(aIncludeName ? "fullAddress" : "emailAddress") ||
-    addressNode.getAttribute("newsgroup");
-  clipboard.copyString(address);
-}
-
-/**
- * Causes the filter dialog to pop up, prefilled for the specified e-mail
- * address or header value.
- *
- * @param aHeaderNode  Node for which to create the filter. This can be a node
- *                     in an mail-emailaddress element, or a node with just
- *                     textual data, like Subject or Date.
- * @param aMessage     Optional nsIMsgHdr of the message from which the values
- *                     are taken. Will be used to preselect its folder in the
- *                     filter list.
- */
-function CreateFilter(aHeaderNode, aMessage) {
-  let addressNode = aHeaderNode.closest("mail-emailaddress");
-  let value;
-  let name;
-  if (addressNode) {
-    name = addressNode.getAttribute("headerName");
-    value = addressNode.getAttribute("emailAddress");
-  } else {
-    name = aHeaderNode.getAttribute("headerName");
-    value = aHeaderNode.textContent;
-  }
-  let folder = aMessage ? aMessage.folder : null;
-  top.MsgFilters(value, folder, name);
-}
-
-/**
- * Get the newsgroup server corresponding to the currently selected message.
- *
- * @return nsISubscribableServer for the newsgroup, or null
- */
-function GetNewsgroupServer() {
-  if (gFolderDisplay.selectedMessageIsNews) {
-    let server = gFolderDisplay.selectedMessage.folder.server;
-    if (server) {
-      return server.QueryInterface(Ci.nsISubscribableServer);
-    }
-  }
-  return null;
-}
-
-/**
- * Initialize the newsgroup popup, showing/hiding menu items as appropriate.
- *
- * @param newsgroupNode  a node which has a "newsgroup" attribute
- */
-function setupNewsgroupPopup(newsgroupNode) {
-  let newsgroupPlaceHolder = document.getElementById("newsgroupPlaceHolder");
-  let newsgroup = newsgroupNode.getAttribute("newsgroup");
-  newsgroupNode.setAttribute("selected", "true");
-  newsgroupPlaceHolder.setAttribute("label", newsgroup);
-
-  let server = GetNewsgroupServer();
-  if (server) {
-    // XXX Why is this necessary when nsISubscribableServer contains
-    // |isSubscribed|?
-    server = server.QueryInterface(Ci.nsINntpIncomingServer);
-    if (!server.containsNewsgroup(newsgroup)) {
-      document
-        .getElementById("subscribeToNewsgroupItem")
-        .removeAttribute("hidden");
-      document
-        .getElementById("subscribeToNewsgroupSeparator")
-        .removeAttribute("hidden");
-      return;
-    }
-  }
-  document
-    .getElementById("subscribeToNewsgroupItem")
-    .setAttribute("hidden", true);
-  document
-    .getElementById("subscribeToNewsgroupSeparator")
-    .setAttribute("hidden", true);
-}
-
-/**
- * Subscribe to a newsgroup based on the newsgroup title button
- *
- * @param newsgroupNode  a node which has a "newsgroup" attribute
- */
-function SubscribeToNewsgroup(newsgroupNode) {
-  let server = GetNewsgroupServer();
-  if (server) {
-    let newsgroup = newsgroupNode.getAttribute("newsgroup");
-    server.subscribe(newsgroup);
-    server.commitSubscribeChanges();
-  }
-}
-
-/**
- * Takes the newsgroup address title button, extracts the newsgroup name we
- * stored in there and copies it to the clipboard.
- *
- * @param newsgroupNode  a node which has a "newsgroup" attribute
- */
-function CopyNewsgroupName(newsgroupNode) {
-  let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
-    Ci.nsIClipboardHelper
-  );
-  clipboard.copyString(newsgroupNode.getAttribute("newsgroup"));
-}
-
-/**
- * Takes the newsgroup address title button, extracts the newsgroup name we
- * stored in there and copies it URL to it.
- *
- * @param newsgroupNode  a node which has a "newsgroup" attribute
- */
-function CopyNewsgroupURL(newsgroupNode) {
-  let server = GetNewsgroupServer();
-  if (!server) {
-    return;
-  }
-
-  let ng = newsgroupNode.getAttribute("newsgroup");
-
-  let url;
-  if (server.socketType != Ci.nsMsgSocketType.SSL) {
-    url = "news://" + server.hostName;
-    if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
-      url += ":" + server.port;
-    }
-    url += "/" + ng;
-  } else {
-    url = "snews://" + server.hostName;
-    if (server.port != Ci.nsINntpUrl.DEFAULT_NNTPS_PORT) {
-      url += ":" + server.port;
-    }
-    url += "/" + ng;
-  }
-
-  try {
-    let uri = Services.io.newURI(url);
-    let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
-      Ci.nsIClipboardHelper
-    );
-    clipboard.copyString(decodeURI(uri.spec));
-  } catch (e) {
-    Cu.reportError("Invalid URL: " + url);
-  }
+  headerEntry.enclosingBox.buildView();
 }
 
 /**
@@ -3604,10 +3036,7 @@ function HandleMultipleAttachments(attachments, action) {
     case "copyUrl":
       // Copy external http url(s) to clipboard. The menuitem is hidden unless
       // all selected attachment urls are http.
-      let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
-        Ci.nsIClipboardHelper
-      );
-      clipboard.copyString(attachmentDisplayUrlArray.join("\n"));
+      navigator.clipboard.writeText(attachmentDisplayUrlArray.join("\n"));
       return;
     case "openFolder":
       for (let attachment of attachments) {
@@ -3709,12 +3138,7 @@ let attachmentNameDNDObserver = {
  */
 function CopyWebsiteAddress(websiteAddressNode) {
   if (websiteAddressNode) {
-    var websiteAddress = websiteAddressNode.textContent;
-
-    var contractid = "@mozilla.org/widget/clipboardhelper;1";
-    var iid = Ci.nsIClipboardHelper;
-    var clipboard = Cc[contractid].getService(iid);
-    clipboard.copyString(websiteAddress);
+    navigator.clipboard.writeText(websiteAddressNode.textContent);
   }
 }
 
@@ -3925,5 +3349,279 @@ var gHeaderCustomize = {
       "layout",
       JSON.stringify(this.customizeData)
     );
+  },
+};
+
+/**
+ * Object to handle the creation, destruction, and update of all recipient
+ * fields that will be showed in the message header.
+ */
+const gMessageHeader = {
+  /**
+   * Get the newsgroup server corresponding to the currently selected message.
+   *
+   * @return {?nsISubscribableServer} The server for the newsgroup, or null.
+   */
+  get newsgroupServer() {
+    if (gFolderDisplay.selectedMessageIsNews) {
+      let server = gFolderDisplay.selectedMessage.folder.server;
+      if (server) {
+        return server.QueryInterface(Ci.nsISubscribableServer);
+      }
+    }
+
+    return null;
+  },
+
+  /**
+   * Toggle the scrollable style of the message header area.
+   *
+   * @param {boolean} showAllHeaders - True if we need to show all header fields
+   *   and ignore the space limit for multi recipients row.
+   */
+  toggleScrollableHeader(showAllHeaders) {
+    document
+      .getElementById("messageHeader")
+      .classList.toggle("scrollable", showAllHeaders);
+  },
+
+  openCopyPopup(event, element) {
+    let popup = document.getElementById("copyPopup");
+    popup.headerField = element;
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+  },
+
+  async openEmailAddressPopup(event, element) {
+    // Bail out if we don't have an email address.
+    if (!element.emailAddress) {
+      return;
+    }
+
+    document
+      .getElementById("emailAddressPlaceHolder")
+      .setAttribute("label", element.emailAddress);
+
+    document.getElementById("addToAddressBookItem").hidden =
+      element.cardDetails.card;
+    document.getElementById("editContactItem").hidden =
+      !element.cardDetails.card || element.cardDetails.book?.readOnly;
+    document.getElementById("viewContactItem").hidden =
+      !element.cardDetails.card || !element.cardDetails.book?.readOnly;
+
+    let discoverKeyMenuItem = document.getElementById("searchKeysOpenPGP");
+    if (discoverKeyMenuItem) {
+      let hidden = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
+        element.emailAddress
+      );
+      discoverKeyMenuItem.hidden = hidden;
+      discoverKeyMenuItem.nextElementSibling.hidden = hidden; // Hide separator.
+    }
+
+    let popup = document.getElementById("emailAddressPopup");
+    popup.headerField = element;
+
+    if (!event.screenX) {
+      popup.openPopup(event.target, "after_start", 0, 0, true);
+      return;
+    }
+
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+  },
+
+  openNewsgroupPopup(event, element) {
+    document
+      .getElementById("newsgroupPlaceHolder")
+      .setAttribute("label", element.textContent);
+
+    let server = this.newsgroupServer;
+    if (server) {
+      // XXX Why is this necessary when nsISubscribableServer contains
+      // |isSubscribed|?
+      server = server.QueryInterface(Ci.nsINntpIncomingServer);
+      if (!server.containsNewsgroup(element.textContent)) {
+        document.getElementById("subscribeToNewsgroupItem").hidden = false;
+        document.getElementById("subscribeToNewsgroupSeparator").hidden = false;
+        return;
+      }
+    }
+    document.getElementById("subscribeToNewsgroupItem").hidden = true;
+    document.getElementById("subscribeToNewsgroupSeparator").hidden = true;
+
+    let popup = document.getElementById("newsgroupPopup");
+    popup.headerField = element;
+
+    if (!event.screenX) {
+      popup.openPopup(event.target, "after_start", 0, 0, true);
+      return;
+    }
+
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+  },
+
+  /**
+   * Add a contact to the address book.
+   *
+   * @param {Event} event - The DOM Event.
+   */
+  addContact(event) {
+    event.currentTarget.parentNode.headerField.addToAddressBook();
+  },
+
+  /**
+   * Show the edit card popup panel.
+   *
+   * @param {Event} event - The DOM Event.
+   */
+  showContactEdit(event) {
+    this.editContact(event.currentTarget.parentNode.headerField);
+  },
+
+  /**
+   * Trigger a new message compose window.
+   *
+   * @param {Event} event - The click DOMEvent.
+   */
+  composeMessage(event) {
+    let recipient = event.currentTarget.parentNode.headerField;
+
+    let fields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+
+    if (recipient.classList.contains("header-newsgroup")) {
+      fields.newsgroups = recipient.textContent;
+    }
+
+    if (recipient.fullAddress) {
+      let addresses = MailServices.headerParser.makeFromDisplayAddress(
+        recipient.fullAddress
+      );
+      if (addresses.length) {
+        fields.to = MailServices.headerParser.makeMimeHeader([addresses[0]]);
+      }
+    }
+
+    let params = Cc[
+      "@mozilla.org/messengercompose/composeparams;1"
+    ].createInstance(Ci.nsIMsgComposeParams);
+    params.type = Ci.nsIMsgCompType.New;
+
+    // If the Shift key was pressed toggle the composition format
+    // (HTML vs. plaintext).
+    params.format = event.shiftKey
+      ? Ci.nsIMsgCompFormat.OppositeOfDefault
+      : Ci.nsIMsgCompFormat.Default;
+
+    if (gFolderDisplay.displayedFolder) {
+      params.identity = accountManager.getFirstIdentityForServer(
+        gFolderDisplay.displayedFolder.server
+      );
+    }
+    params.composeFields = fields;
+    MailServices.compose.OpenComposeWindowWithParams(null, params);
+  },
+
+  /**
+   * Copy the email address, as well as the name if wanted, in the clipboard.
+   *
+   * @param {Event} event - The DOM Event.
+   * @param {boolean} withName - True if we need to copy also the name.
+   */
+  copyAddress(event, withName = false) {
+    let recipient = event.currentTarget.parentNode.headerField;
+    let address;
+    if (recipient.classList.contains("header-newsgroup")) {
+      address = recipient.textContent;
+    } else {
+      address = withName ? recipient.fullAddress : recipient.emailAddress;
+    }
+    navigator.clipboard.writeText(address);
+  },
+
+  copyNewsgroupURL(event) {
+    let server = this.newsgroupServer;
+    if (!server) {
+      return;
+    }
+
+    let newsgroup = event.currentTarget.parentNode.headerField.textContent;
+
+    let url;
+    if (server.socketType != Ci.nsMsgSocketType.SSL) {
+      url = "news://" + server.hostName;
+      if (server.port != Ci.nsINntpUrl.DEFAULT_NNTP_PORT) {
+        url += ":" + server.port;
+      }
+      url += "/" + newsgroup;
+    } else {
+      url = "snews://" + server.hostName;
+      if (server.port != Ci.nsINntpUrl.DEFAULT_NNTPS_PORT) {
+        url += ":" + server.port;
+      }
+      url += "/" + newsgroup;
+    }
+
+    try {
+      let uri = Services.io.newURI(url);
+      navigator.clipboard.writeText(decodeURI(uri.spec));
+    } catch (e) {
+      Cu.reportError("Invalid URL: " + url);
+    }
+  },
+
+  /**
+   * Subscribe to a newsgroup.
+   *
+   * @param {Event} event - The DOM Event.
+   */
+  subscribeToNewsgroup(event) {
+    let server = this.newsgroupServer;
+    if (server) {
+      let newsgroup = event.currentTarget.parentNode.headerField.textContent;
+      server.subscribe(newsgroup);
+      server.commitSubscribeChanges();
+    }
+  },
+
+  /**
+   * Copy the text value of an header field.
+   *
+   * @param {Event} event - The DOM Event.
+   */
+  copyString(event) {
+    // This method is used inside the copyPopup menupopup, which is triggered by
+    // both HTML headers fields and XUL labels. We need to account for those
+    // different widgets in order to properly copy the text.
+    let target =
+      event.currentTarget.parentNode.triggerNode ||
+      event.currentTarget.parentNode.headerField;
+    navigator.clipboard.writeText(
+      window.getSelection().isCollapsed
+        ? target.textContent
+        : window.getSelection().toString()
+    );
+  },
+
+  /**
+   * Open the message filter dialog prefilled with available data.
+   *
+   * @param {Event} event - The DOM Event.
+   */
+  createFilter(event) {
+    let recipient = event.currentTarget.parentNode.headerField;
+    MsgFilters(
+      recipient.emailAddress || recipient.textContent,
+      gMessageDisplay?.displayedMessage?.folder,
+      recipient.dataset.headerName
+    );
+  },
+
+  /**
+   * Show the edit contact popup panel.
+   *
+   * @param {HTMLLIElement} element - The recipient element.
+   */
+  editContact(element) {
+    editContactInlineUI.showEditContactPanel(element.cardDetails, element);
   },
 };

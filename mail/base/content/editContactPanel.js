@@ -138,9 +138,9 @@ var editContactInlineUI = {
 
     // Fill in the card details
     nameElement.value = this._cardDetails.card.displayName;
-    document.getElementById(
-      "editContactEmail"
-    ).value = aAnchorElement.getAttribute("emailAddress");
+    document.getElementById("editContactEmail").value =
+      aAnchorElement.getAttribute("emailAddress") ||
+      aAnchorElement.emailAddress;
 
     document.getElementById(
       "editContactAddressBookList"

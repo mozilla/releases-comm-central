@@ -3,54 +3,93 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #ifndef BROWSER_POPUPS_ONLY
-  <menupopup id="emailAddressPopup" position="after_start" class="emailAddressPopup"
-             onpopupshowing="setupEmailAddressPopup(event.target.triggerNode); goUpdateCommand('cmd_createFilterFromPopup')"
-             onpopuphiding="hideEmailNewsPopup(event.target.triggerNode);">
+  <menupopup id="emailAddressPopup"
+             position="after_start"
+             class="no-icon-menupopup"
+             popupshowing="goUpdateCommand('cmd_createFilterFromPopup');">
     <menuitem id="emailAddressPlaceHolder"
+              class="menuitem-iconic"
               disabled="true"/>
     <menuseparator/>
     <menuitem id="addToAddressBookItem"
               label="&AddDirectlyToAddressBook.label;"
               accesskey="&AddDirectlyToAddressBook.accesskey;"
-              oncommand="AddContact(this.parentNode.triggerNode)"/>
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.addContact(event);"/>
     <menuitem id="editContactItem" label="&EditContact1.label;" hidden="true"
               accesskey="&EditContact1.accesskey;"
-              oncommand="EditContact(this.parentNode.triggerNode)"/>
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.showContactEdit(event);"/>
     <menuitem id="viewContactItem" label="&ViewContact.label;" hidden="true"
               accesskey="&ViewContact.accesskey;"
-              oncommand="EditContact(this.parentNode.triggerNode)"/>
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.showContactEdit(event);"/>
     <menuitem id="sendMailToItem" label="&SendMessageTo.label;"
               accesskey="&SendMessageTo.accesskey;"
-              oncommand="SendMailToNode(this.parentNode.triggerNode, event)"/>
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.composeMessage(event);"/>
     <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
               accesskey="&CopyEmailAddress.accesskey;"
-              oncommand="CopyEmailNewsAddress(this.parentNode.triggerNode)"/>
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyAddress(event)"/>
     <menuitem id="copyNameAndEmailAddressItem" label="&CopyNameAndEmailAddress.label;"
               accesskey="&CopyNameAndEmailAddress.accesskey;"
-              oncommand="CopyEmailNewsAddress(this.parentNode.triggerNode, true)"/>
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyAddress(event, true);"/>
     <menuseparator class="openpgp-item"/>
     <menuitem id="searchKeysOpenPGP" data-l10n-id="openpgp-search-keys-openpgp"
-              class="openpgp-item"
-              oncommand="Enigmail.msg.searchKeysOnInternet(this.parentNode.triggerNode)"/>
+              class="openpgp-item menuitem-iconic"
+              oncommand="Enigmail.msg.searchKeysOnInternet(event)"/>
     <menuseparator/>
     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(this.parentNode.triggerNode, gMessageDisplay.displayedMessage)"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.createFilter(event);"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 
-  <menupopup id="copyPopup">
+  <menupopup id="copyPopup" class="no-icon-menupopup">
     <menuitem id="copyMenuitem"
               data-l10n-id="text-action-copy"
-              oncommand="Cc['@mozilla.org/widget/clipboardhelper;1']
-                           .getService(Ci.nsIClipboardHelper)
-                           .copyString(window.getSelection().isCollapsed ?
-                             this.parentNode.triggerNode.textContent :
-                             window.getSelection().toString());"/>
-    <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyString(event);"/>
+    <menuitem id="createFilterFromMenuItem"
+              label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(this.parentNode.triggerNode, gMessageDisplay.displayedMessage)"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.createFilter(event);"
               observes="cmd_createFilterFromPopup"/>
+  </menupopup>
+
+  <menupopup id="newsgroupPopup"
+             position="after_start"
+             class="newsgroupPopup no-icon-menupopup"
+             onpopupshowing="goUpdateCommand('cmd_createFilterFromPopup');">
+      <menuitem id="newsgroupPlaceHolder"
+                class="menuitem-iconic"
+                disabled="true"/>
+      <menuseparator/>
+      <menuitem id="sendMessageToNewsgroupItem"
+                label="&SendMessageTo.label;"
+                accesskey="&SendMessageTo.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.composeMessage(event);"/>
+      <menuitem id="copyNewsgroupNameItem"
+                label="&CopyNewsgroupName.label;"
+                accesskey="&CopyNewsgroupName.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.copyAddress(event);"/>
+      <menuitem id="copyNewsgroupURLItem"
+                label="&CopyNewsgroupURL.label;"
+                accesskey="&CopyNewsgroupURL.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.copyNewsgroupURL(event);"/>
+      <menuseparator id="subscribeToNewsgroupSeparator"/>
+      <menuitem id="subscribeToNewsgroupItem"
+                label="&SubscribeToNewsgroup.label;"
+                accesskey="&SubscribeToNewsgroup.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.subscribeToNewsgroup(event)"/>
   </menupopup>
 #endif
 

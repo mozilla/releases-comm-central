@@ -89,6 +89,7 @@
   <link rel="localization" href="calendar/calendar-editable-item.ftl" />
   <link rel="localization" href="calendar/calendar-invitation-panel.ftl" />
   <link rel="localization" href="messenger/chat.ftl" />
+  <link rel="localization" href="messenger/messageheader/headerFields.ftl" />
 
   <title>&titledefault.label;@PRE_RELEASE_SUFFIX@</title>
 
@@ -115,6 +116,7 @@
   <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/header-fields.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
   <script defer="defer" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"></script>
   <script defer="defer" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"></script>
@@ -343,27 +345,6 @@
          noautofocus="true"/>
 
   <tooltip id="attachmentListTooltip"/>
-
-  <menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"
-             onpopupshowing="setupNewsgroupPopup(event.target.triggerNode); goUpdateCommand('cmd_createFilterFromPopup')"
-             onpopuphiding="hideEmailNewsPopup(event.target.triggerNode);">
-      <menuitem id="newsgroupPlaceHolder"
-                disabled="true"/>
-      <menuseparator/>
-      <menuitem id="sendMessageToNewsgroupItem" label="&SendMessageTo.label;"
-                accesskey="&SendMessageTo.accesskey;"
-                oncommand="SendMailToNode(this.parentNode.triggerNode, event)"/>
-      <menuitem id="copyNewsgroupNameItem" label="&CopyNewsgroupName.label;"
-                accesskey="&CopyNewsgroupName.accesskey;"
-                oncommand="CopyEmailNewsAddress(this.parentNode.triggerNode)"/>
-      <menuitem id="copyNewsgroupURLItem" label="&CopyNewsgroupURL.label;"
-                accesskey="&CopyNewsgroupURL.accesskey;"
-                oncommand="CopyNewsgroupURL(this.parentNode.triggerNode)"/>
-      <menuseparator id="subscribeToNewsgroupSeparator"/>
-      <menuitem id="subscribeToNewsgroupItem" label="&SubscribeToNewsgroup.label;"
-                accesskey="&SubscribeToNewsgroup.accesskey;"
-                oncommand="SubscribeToNewsgroup(this.parentNode.triggerNode)"/>
-  </menupopup>
 
   <menupopup id="pageContextMenu"
              onpopupshowing="InitPageMenu(this, event);">

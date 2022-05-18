@@ -14,7 +14,7 @@
 
 <!-- Header container -->
 <html:header id="messageHeader" class="message-header-container">
-  <!-- Sender + buttons -->
+  <!-- From + buttons -->
   <html:div id="headerSenderToolbarContainer"
             class="message-header-row header-row-reverse message-header-wrap items-center">
     <html:div id="header-view-toolbox" role="toolbar" class="header-buttons-container">
@@ -268,7 +268,8 @@
       <label id="expandedfromLabel" class="message-header-label header-pill-label"
              value="&fromField4.label;"
              valueFrom="&fromField4.label;" valueAuthor="&author.label;"/>
-      <mail-multi-emailheaderfield id="expandedfromBox"/>
+      <html:div id="expandedfromBox" is="multi-recipient-row"
+                data-header-name="from" data-show-all="true"></html:div>
     </html:div>
   </html:div>
 
@@ -277,7 +278,8 @@
     <html:div class="header-row-grow">
       <label id="expandedtoLabel" class="message-header-label header-pill-label"
              value="&toField4.label;"/>
-      <mail-multi-emailheaderfield id="expandedtoBox"/>
+      <html:div id="expandedtoBox" is="multi-recipient-row"
+                data-header-name="to"></html:div>
     </html:div>
     <html:time id="dateLabel"
                class="message-header-datetime"
@@ -288,49 +290,57 @@
   <html:div id="expandedccRow" class="message-header-row" hidden="hidden">
     <label id="expandedccLabel" class="message-header-label header-pill-label"
            value="&ccField4.label;"/>
-    <mail-multi-emailheaderfield id="expandedccBox"/>
+    <html:div id="expandedccBox" is="multi-recipient-row"
+              data-header-name="cc"></html:div>
   </html:div>
 
   <!-- Bcc recipients -->
   <html:div id="expandedbccRow" class="message-header-row" hidden="hidden">
     <label id="expandedbccLabel" class="message-header-label header-pill-label"
            value="&bccField4.label;"/>
-    <mail-multi-emailheaderfield id="expandedbccBox"/>
+    <html:div id="expandedbccBox" is="multi-recipient-row"
+              data-header-name="bcc"></html:div>
   </html:div>
 
   <!-- Reply-to -->
   <html:div id="expandedreply-toRow" class="message-header-row" hidden="hidden">
     <label id="expandedreply-toLabel" class="message-header-label header-pill-label"
            value="&replyToField4.label;"/>
-    <mail-multi-emailheaderfield id="expandedreply-toBox"/>
+    <html:div id="expandedreply-toBox" is="multi-recipient-row"
+              data-header-name="reply-to"></html:div>
   </html:div>
 
   <!-- Organization -->
   <html:div id="expandedorganizationRow" class="message-header-row" hidden="hidden">
     <label id="expandedorganizationLabel" class="message-header-label"
            value="&organizationField4.label;"/>
-    <mail-headerfield id="expandedorganizationBox"/>
+    <html:div id="expandedorganizationBox" is="simple-header-row"
+              data-header-name="organization"></html:div>
   </html:div>
 
   <!-- Sender -->
   <html:div id="expandedsenderRow" class="message-header-row" hidden="hidden">
     <label id="expandedsenderLabel" class="message-header-label header-pill-label"
            value="&senderField4.label;"/>
-    <mail-emailheaderfield id="expandedsenderBox"/>
+    <html:div id="expandedsenderBox" is="multi-recipient-row"
+              data-header-name="sender"></html:div>
   </html:div>
 
   <!-- Newsgroups -->
   <html:div id="expandednewsgroupsRow" class="message-header-row" hidden="hidden">
     <label id="expandednewsgroupsLabel" class="message-header-label header-pill-label"
            value="&newsgroupsField4.label;"/>
-    <mail-newsgroups-headerfield id="expandednewsgroupsBox"/>
+    <html:div id="expandednewsgroupsBox" is="header-newsgroups-row"
+              data-header-name="newsgroups"/>
   </html:div>
 
   <!-- Follow up -->
   <html:div id="expandedfollowup-toRow" class="message-header-row" hidden="hidden">
     <label id="expandedfollowup-toLabel" class="message-header-label header-pill-label"
            value="&followupToField4.label;"/>
-    <mail-newsgroups-headerfield id="expandedfollowup-toBox"/>
+    <html:div id="expandedfollowup-toBox"
+              is="header-newsgroups-row"
+              data-header-name="followup-to"/>
   </html:div>
 
   <!-- Subject + security info + extra date label for hidden To variation -->
@@ -338,7 +348,8 @@
      <html:div id="expandedsubjectRow" class="header-row-grow">
       <label id="expandedsubjectLabel" class="message-header-label"
              value="&subjectField4.label;"/>
-      <mail-headerfield id="expandedsubjectBox" headerName="subject"/>
+      <html:div id="expandedsubjectBox" is="simple-header-row"
+                data-header-name="subject"></html:div>
     </html:div>
     <html:div id="cryptoBox" hidden="hidden">
       <html:button id="encryptionTechBtn"
@@ -366,7 +377,8 @@
   <html:div id="expandeddateRow" class="message-header-row" hidden="hidden">
     <label id="expandeddateLabel" class="message-header-label"
            value="&dateField4.label;"/>
-    <mail-headerfield id="expandeddateBox"/>
+    <html:div id="expandeddateBox" is="simple-header-row"
+              data-header-name="date"></html:div>
   </html:div>
 
   <!-- Message ID -->
@@ -401,7 +413,8 @@
   <html:div id="expandeduser-agentRow" class="message-header-row" hidden="hidden">
     <label id="expandeduser-agentLabel" class="message-header-label"
            value="&userAgentField4.label;"/>
-    <mail-headerfield id="expandeduser-agentBox"/>
+    <html:div id="expandeduser-agentBox" is="simple-header-row"
+              data-header-name="user-agent"></html:div>
   </html:div>
 
   <!-- All extra headers will be dynamically added here. -->

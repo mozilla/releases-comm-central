@@ -527,3 +527,5 @@
   skin/classic/messenger/icons/new/touch/overflow.svg         (../shared/mail/icons/new/touch/overflow.svg)
   skin/classic/messenger/icons/new/touch/settings.svg         (../shared/mail/icons/new/touch/settings.svg)
   skin/classic/messenger/icons/new/touch/tasks.svg            (../shared/mail/icons/new/touch/tasks.svg)
+
+  skin/classic/messenger/icons/new/not-in-address-book.svg    (../shared/mail/icons/new/not-in-address-book.svg)

@@ -2728,15 +2728,11 @@ Enigmail.msg = {
     }
   },
 
-  async searchKeysOnInternet(aHeaderNode) {
-    let address = aHeaderNode
-      .closest("mail-emailaddress")
-      .getAttribute("emailAddress");
-
+  async searchKeysOnInternet(event) {
     return KeyLookupHelper.lookupAndImportByEmail(
       "interactive-import",
       window,
-      address,
+      event.currentTarget.parentNode.headerField?.emailAddress,
       true
     );
   },
