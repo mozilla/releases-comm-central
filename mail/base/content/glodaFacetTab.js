@@ -29,7 +29,9 @@ var glodaFacetTabType = {
     // we have no browser until our XUL document loads
     aTab.browser = null;
 
-    aTab.tabNode.setIcon("chrome://global/skin/icons/search-glass.svg");
+    aTab.tabNode.setIcon(
+      "chrome://messenger/skin/icons/new/compact/search.svg"
+    );
 
     // First clone the page and set up the basics.
     let clone = document

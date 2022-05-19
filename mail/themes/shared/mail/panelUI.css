@@ -292,7 +292,10 @@ menu.subviewbutton,
 }
 
 /* Temporary styles for the supernova icons */
-#appmenu_preferences.subviewbutton-iconic > .toolbarbutton-icon {
+#appmenu_preferences.subviewbutton-iconic > .toolbarbutton-icon,
+#appmenu_addons.subviewbutton-iconic > .toolbarbutton-icon,
+#appmenu_accountmgr.subviewbutton-iconic > .toolbarbutton-icon,
+#appmenu_activityManager.subviewbutton-iconic > .toolbarbutton-icon {
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;

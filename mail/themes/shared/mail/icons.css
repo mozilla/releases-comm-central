@@ -5,24 +5,30 @@
 /* Density variations */
 
 :root {
+  --icon-account-settings: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");
   --icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
   --icon-archive: url("chrome://messenger/skin/icons/new/compact/archive.svg");
   --icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
   --icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
   --icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
   --icon-draft: url("chrome://messenger/skin/icons/new/compact/draft.svg");
-  --icon-folder: url("chrome://messenger/skin/icons/new/compact/folder.svg");
+  --icon-export: url("chrome://messenger/skin/icons/new/compact/export.svg");
+  --icon-extension: url("chrome://messenger/skin/icons/new/compact/extension.svg");
   --icon-folder-filter: url("chrome://messenger/skin/icons/new/compact/folder-filter.svg");
   --icon-folder-rss: url("chrome://messenger/skin/icons/new/compact/folder-rss.svg");
-  --icon-globe: url("chrome://messenger/skin/icons/new/compact/globe.svg");
+  --icon-folder: url("chrome://messenger/skin/icons/new/compact/folder.svg");
   --icon-globe-secure: url("chrome://messenger/skin/icons/new/compact/globe-secure.svg");
+  --icon-globe: url("chrome://messenger/skin/icons/new/compact/globe.svg");
+  --icon-import: url("chrome://messenger/skin/icons/new/compact/import.svg");
   --icon-inbox: url("chrome://messenger/skin/icons/new/compact/inbox.svg");
-  --icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
   --icon-mail-secure: url("chrome://messenger/skin/icons/new/compact/mail-secure.svg");
+  --icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
+  --icon-new-mail: url("chrome://messenger/skin/icons/new/compact/new-mail.svg");
   --icon-newsletter: url("chrome://messenger/skin/icons/new/compact/newsletter.svg");
   --icon-outbox: url("chrome://messenger/skin/icons/new/compact/outbox.svg");
   --icon-overflow: url("chrome://messenger/skin/icons/new/compact/overflow.svg");
   --icon-rss: url("chrome://messenger/skin/icons/new/compact/rss.svg");
+  --icon-search: url("chrome://messenger/skin/icons/new/compact/search.svg");
   --icon-sent: url("chrome://messenger/skin/icons/new/compact/sent.svg");
   --icon-settings: url("chrome://messenger/skin/icons/new/compact/settings.svg");
   --icon-spam: url("chrome://messenger/skin/icons/new/compact/spam.svg");

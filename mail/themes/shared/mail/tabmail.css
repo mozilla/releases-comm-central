@@ -396,7 +396,7 @@ button.tab-close-button {
 /* All Tabs Menupopup */
 
 .alltabs-item {
-  list-style-image: url("chrome://messenger/skin/icons/file-item.svg");
+  list-style-image: var(--icon-draft);
 }
 
 .alltabs-item[selected] {

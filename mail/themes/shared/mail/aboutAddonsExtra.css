@@ -48,7 +48,7 @@ button[name="plugin"] {
 
 /* Settings icon override */
 #preferencesButton .sidebar-footer-icon {
-  content: url("chrome://messenger/skin/icons/new/normal/settings.svg");
+  content: var(--icon-settings);
 }
 
 .page-options-menu > .more-options-button {

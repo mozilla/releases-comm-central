@@ -351,7 +351,9 @@ var mailTabType = {
         message: true,
       },
       openTab(aTab, aArgs) {
-        aTab.tabNode.setIcon("chrome://messenger/skin/icons/file-item.svg");
+        aTab.tabNode.setIcon(
+          "chrome://messenger/skin/icons/new/compact/draft.svg"
+        );
         this.openTab(aTab, false, new MessageTabDisplayWidget(), false);
 
         let viewWrapperToClone =
@@ -500,7 +502,9 @@ var mailTabType = {
       openTab(aTab, aArgs) {
         aTab.glodaSynView = new GlodaSyntheticView(aArgs);
         aTab.title = aArgs.title;
-        aTab.tabNode.setIcon("chrome://global/skin/icons/search-glass.svg");
+        aTab.tabNode.setIcon(
+          "chrome://messenger/skin/icons/new/compact/search.svg"
+        );
 
         this.openTab(aTab, false, new MessagePaneDisplayWidget(), false);
         aTab.folderDisplay.show(aTab.glodaSynView);

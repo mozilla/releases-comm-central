@@ -56,7 +56,7 @@ class LinkHandlerParent extends JSWindowActorParent {
       tabmail.setTabFavIcon(
         tab,
         iconURL,
-        "chrome://messenger/skin/icons/file-item.svg"
+        "chrome://messenger/skin/icons/new/compact/draft.svg"
       );
     }
   }

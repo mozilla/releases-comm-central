@@ -1364,7 +1364,7 @@ var specialTabs = {
       .setTabFavIcon(
         aTab,
         aIcon,
-        "chrome://messenger/skin/icons/file-item.svg"
+        "chrome://messenger/skin/icons/new/compact/draft.svg"
       );
   },
 };

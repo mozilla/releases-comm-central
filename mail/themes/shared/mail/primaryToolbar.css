@@ -133,7 +133,7 @@
 }
 
 #button-addons {
-  list-style-image: url("chrome://mozapps/skin/extensions/extension.svg");
+  list-style-image: var(--icon-extension);
 }
 
 .button-appmenu {
@@ -240,11 +240,11 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_activityManager {
-  list-style-image: url("chrome://messenger/skin/icons/file-item.svg");
+  list-style-image: var(--icon-draft);
 }
 
 #appmenu_accountmgr {
-  list-style-image: url("chrome://messenger/skin/icons/sidebar-left.svg");
+  list-style-image: var(--icon-account-settings);
 }
 
 #appmenu_filters,
@@ -258,7 +258,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 /* Temporary styles for the supernova icons */
 #appmenu_preferences {
-  list-style-image: url("chrome://messenger/skin/icons/new/compact/settings.svg");
+  list-style-image: var(--icon-settings);
 }
 
 #appmenu-quit {
@@ -267,7 +267,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu_addons,
 #appmenu_Add-Ons {
-  list-style-image: url("chrome://mozapps/skin/extensions/extension.svg");
+  list-style-image: var(--icon-extension);
 }
 
 #appmenu_help,
