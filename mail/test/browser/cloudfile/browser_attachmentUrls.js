@@ -94,7 +94,7 @@ function test_expected_included(actual, expected, description) {
 }
 
 add_setup(async function() {
-  requestLongerTimeout(3);
+  requestLongerTimeout(4);
 
   // These prefs can't be set in the manifest as they contain white-space.
   Services.prefs.setStringPref(
