@@ -93,7 +93,7 @@
             Services.obs.addObserver(this, topic);
           }
           this._added = true;
-          window.addEventListener("unload", () => this);
+          window.addEventListener("unload", this);
         },
 
         removeObservers() {
@@ -104,7 +104,7 @@
             Services.obs.removeObserver(this, topic);
           }
           this._added = false;
-          window.removeEventListener("unload", () => this);
+          window.removeEventListener("unload", this);
         },
 
         handleEvent() {
