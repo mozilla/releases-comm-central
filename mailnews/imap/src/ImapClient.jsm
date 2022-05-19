@@ -38,6 +38,7 @@ class ImapClient {
    */
   constructor(server) {
     this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
+    this._serverSink = this._server.QueryInterface(Ci.nsIImapServerSink);
     this._authenticator = new ImapAuthenticator(server);
 
     this._tag = Math.floor(100 * Math.random());
@@ -104,7 +105,9 @@ class ImapClient {
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
   discoverAllFolders(folder, msgWindow) {
-    this._actionDone();
+    this._nextAction = this._actionListResponse;
+    this._sendTagged('LIST (SUBSCRIBED) "" "*" RETURN (SPECIAL-USE)');
+    this._listInboxSent = false;
   }
 
   /**
@@ -287,7 +290,6 @@ class ImapClient {
    * @returns {number}
    */
   _actionCapabilityResponse = res => {
-    this._capabilities = res.capabilities;
     this._authMethods = res.authMethods;
     this._actionAuth();
   };
@@ -304,6 +306,7 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthResponse = res => {
+    this._capabilities = res.capabilities;
     this._server.wrappedJSObject.capabilities = res.capabilities;
     this.onReady();
     // this._actionNamespace();
@@ -343,6 +346,27 @@ class ImapClient {
       true
     );
   };
+
+  /**
+   * Handle LIST response.
+   * @param {ImapResponse} res - Response received from the server.
+   */
+  _actionListResponse(res) {
+    for (let mailbox of res.mailboxes) {
+      this._serverSink.possibleImapMailbox(
+        mailbox.name,
+        mailbox.delimiter,
+        mailbox.flags
+      );
+    }
+    if (this._listInboxSent) {
+      this._serverSink.discoveryDone();
+      this._actionDone();
+      return;
+    }
+    this._sendTagged('LIST "" "INBOX"');
+    this._listInboxSent = true;
+  }
 
   /**
    * Handle SELECT response.

@@ -157,3 +157,34 @@ add_task(function test_MailboxResponse() {
   equal(response.exists, 7);
   deepEqual(response.expunged, [1, 3]);
 });
+
+/**
+ * Test LIST response can be correctly parsed.
+ */
+add_task(function test_ListResponse() {
+  let response = new ImapResponse();
+  response.parse(
+    [
+      '* LIST (\\Subscribed \\NoInferiors \\Marked \\Trash) "/" Trash',
+      '* LIST (\\Subscribed) "/" INBOX',
+      "84 OK List completed (0.002 + 0.000 + 0.001 secs).",
+      "",
+    ].join("\r\n")
+  );
+  equal(response.mailboxes.length, 2);
+  deepEqual(response.mailboxes[0], {
+    name: "Trash",
+    delimiter: "/",
+    flags:
+      ImapUtils.FLAG_SUBSCRIBED |
+      ImapUtils.FLAG_NO_INFERIORS |
+      ImapUtils.FLAG_HAS_NO_CHILDREN |
+      ImapUtils.FLAG_MARKED |
+      ImapUtils.FLAG_IMAP_XLIST_TRASH,
+  });
+  deepEqual(response.mailboxes[1], {
+    name: "INBOX",
+    delimiter: "/",
+    flags: ImapUtils.FLAG_SUBSCRIBED,
+  });
+});

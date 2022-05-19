@@ -10,6 +10,32 @@ const EXPORTED_SYMBOLS = ["ImapUtils"];
 var ImapUtils = {
   /** @see nsImapCore.h */
   FLAG_NONE: 0x0000,
+  /** mailbox flags */
+  FLAG_MARKED: 0x01,
+  FLAG_UNMARKED: 0x02,
+  FLAG_NO_INFERIORS: 0x04,
+  FLAG_NO_SELECT: 0x08,
+  FLAG_IMAP_TRASH: 0x10,
+  FLAG_JUST_EXPUNGED: 0x20,
+  FLAG_PERSONAL_MAILBOX: 0x40,
+  FLAG_PUBLIC_MAILBOX: 0x80,
+  FLAG_OTHER_USERS_MAILBOX: 0x100,
+  FLAG_NAMESPACE: 0x200,
+  FLAG_NEWLY_CREATED_FOLDER: 0x400,
+  FLAG_IMAP_DRAFTS: 0x800,
+  FLAG_IMAP_SPAM: 0x1000,
+  FLAG_IMAP_SENT: 0x2000,
+  FLAG_IMAP_INBOX: 0x4000,
+  FLAG_IMAP_ALL_MAIL: 0x8000,
+  FLAG_IMAP_XLIST_TRASH: 0x10000,
+  FLAG_NON_EXISTENT: 0x20000,
+  FLAG_SUBSCRIBED: 0x40000,
+  FLAG_REMOTE: 0x80000,
+  FLAG_HAS_CHILDREN: 0x100000,
+  FLAG_HAS_NO_CHILDREN: 0x200000,
+  FLAG_IMAP_ARCHIVE: 0x400000,
+
+  /** message flags */
   FLAG_SEEN: 0x0001,
   FLAG_ANSWERED: 0x0002,
   FLAG_FLAGGED: 0x0004,
@@ -20,6 +46,12 @@ var ImapUtils = {
   FLAG_CUSTOM_KEYWORD: 0x0100,
   FLAG_LABEL: 0x0e00,
   FLAG_SUPPORT_USER_FLAG: 0x8000,
+
+  logger: console.createInstance({
+    prefix: "mailnews.imap",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mailnews.imap.loglevel",
+  }),
 
   /**
    * Convert internal flag number to flag string, for example,

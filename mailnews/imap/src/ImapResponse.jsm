@@ -16,6 +16,8 @@ var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
  */
 class ImapResponse {
   constructor() {
+    // @type {MailboxData[]} The mailbox-data in this response.
+    this.mailboxes = [];
     // @type {MessageData[]} The message-data in this response.
     this.messages = [];
     // A holder for attributes.
@@ -87,6 +89,9 @@ class ImapResponse {
     if (this.tag == "*" && tokens[1].toUpperCase() == "FLAGS") {
       // * FLAGS (\Seen \Draft $Forwarded)
       this.flags = ImapUtils.stringsToFlags(tokens[2]);
+    } else if (this.tag == "*" && tokens[1].toUpperCase() == "LIST") {
+      // * LIST (\Subscribed \NoInferiors \UnMarked \Sent) "/" Sent
+      this.mailboxes.push(new MailboxData(tokens));
     } else if (this.tag == "*" && Number.isInteger(+tokens[1])) {
       let intValue = +tokens[1];
       let type = tokens[2].toUpperCase();
@@ -246,8 +251,6 @@ class CapabilityData {
  * A structure to represent message-data.
  */
 class MessageData {
-  // tokens looks like:
-  // ["IMAP4rev1", "IDLE", "STARTTLS", "AUTH=LOGIN", "AUTH=PLAIN"]
   /**
    * @param {number} sequence - The sequence number of this message.
    * @param {string[]} tokens - An array like: ["UID", "24", "FLAGS", ["\Seen"]].
@@ -279,5 +282,53 @@ class MessageData {
         }
       }
     }
+  }
+}
+
+/**
+ * A structure to represent mailbox-data.
+ */
+class MailboxData {
+  constructor(tokens) {
+    let [, , attributes, delimiter, name] = tokens;
+    this.flags = this._stringsToFlags(attributes);
+    this.delimiter = delimiter.replaceAll('"', "");
+    this.name = name;
+  }
+
+  /**
+   * Convert an array of flag string to an internal flag number.
+   * @param {string[]} arr - An array of flag string.
+   * @returns {number} An internal flag number.
+   */
+  _stringsToFlags(arr) {
+    let stringToFlag = {
+      "\\MARKED": ImapUtils.FLAG_MARKED,
+      "\\UNMARKED": ImapUtils.FLAG_UNMARKED,
+      "\\NOINFERIORS":
+        // RFC 5258 \NoInferiors implies \HasNoChildren
+        ImapUtils.FLAG_NO_INFERIORS | ImapUtils.FLAG_HAS_NO_CHILDREN,
+      "\\NOSELECT": ImapUtils.NO_SELECT,
+      "\\TRASH": ImapUtils.FLAG_IMAP_XLIST_TRASH,
+      "\\SENT": ImapUtils.FLAG_IMAP_SENT,
+      "\\SPAM": ImapUtils.FLAG_IMAP_SPAM,
+      "\\JUNK": ImapUtils.FLAG_IMAP_SPAM,
+      "\\ARCHIVE": ImapUtils.FLAG_IMAP_ARCHIVE,
+      "\\ALL": ImapUtils.FLAG_IMAP_ALL_MAIL,
+      "\\ALLMAIL": ImapUtils.FLAG_IMAP_ALL_MAIL,
+      "\\INBOX": ImapUtils.FLAG_IMAP_INBOX,
+      "\\NONEXISTENT":
+        // RFC 5258 \NonExistent implies \NoSelect
+        ImapUtils.FLAG_NON_EXISTENT | ImapUtils.FLAG_NO_SELECT,
+      "\\SUBSCRIBED": ImapUtils.FLAG_SUBSCRIBED,
+      "\\REMOTE": ImapUtils.FLAG_REMOTE,
+      "\\HASCHILDREN": ImapUtils.FLAG_HAS_CHILDREN,
+      "\\HASNOCHILDREN": ImapUtils.FLAG_HAS_NO_CHILDREN,
+    };
+    let flags = 0;
+    for (let str of arr) {
+      flags |= stringToFlag[str.toUpperCase()] || 0;
+    }
+    return flags;
   }
 }

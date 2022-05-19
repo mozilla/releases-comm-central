@@ -4,22 +4,33 @@
 
 const EXPORTED_SYMBOLS = ["ImapIncomingServer"];
 
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { MsgIncomingServer } = ChromeUtils.import(
   "resource:///modules/MsgIncomingServer.jsm"
 );
-var { ImapClient } = ChromeUtils.import("resource:///modules/ImapClient.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  ImapClient: "resource:///modules/ImapClient.jsm",
+  ImapUtils: "resource:///modules/ImapUtils.jsm",
+});
 
 /**
+ * @implements {nsIImapServerSink}
  * @implements {nsIImapIncomingServer}
  * @implements {nsIMsgIncomingServer}
  * @implements {nsISupportsWeakReference}
  */
 class ImapIncomingServer extends MsgIncomingServer {
   QueryInterface = ChromeUtils.generateQI([
+    "nsIImapServerSink",
     "nsIImapIncomingServer",
     "nsIMsgIncomingServer",
     "nsISupportsWeakReference",
   ]);
+
+  _logger = ImapUtils.logger;
 
   constructor() {
     super();
@@ -47,7 +58,211 @@ class ImapIncomingServer extends MsgIncomingServer {
     ]);
   }
 
+  /** @see nsIImapServerSink */
+  possibleImapMailbox(folderPath, delimiter, boxFlags) {
+    let explicitlyVerify = false;
+
+    if (folderPath.endsWith("/")) {
+      folderPath = folderPath.slice(0, -1);
+      if (!folderPath) {
+        throw Components.Exception(
+          "Empty folder path",
+          Cr.NS_ERROR_INVALID_ARG
+        );
+      }
+      explicitlyVerify = !(boxFlags & ImapUtils.FLAG_NAMESPACE);
+    }
+
+    let slashIndex = folderPath.indexOf("/");
+    let token = folderPath;
+    let rest = "";
+    if (slashIndex > 0) {
+      token = folderPath.slice(0, slashIndex);
+      rest = folderPath.slice(slashIndex);
+    }
+
+    folderPath = (/^inbox/i.test(token) ? "INBOX" : token) + rest;
+
+    let uri = this.serverURI;
+    let parentName = folderPath;
+    let folderName = folderPath;
+    let parentUri = uri;
+    let hasParent = false;
+    let lastSlashIndex = folderPath.lastIndexOf("/");
+    if (lastSlashIndex > 0) {
+      parentName = parentName.slice(0, lastSlashIndex);
+      folderName = folderName.slice(lastSlashIndex + 1);
+      hasParent = true;
+      parentUri += "/" + parentName;
+    }
+
+    if (/^inbox/i.test(folderPath) && delimiter == "|") {
+      delimiter = "/";
+      this.rootFolder.QueryInterface(
+        Ci.nsIMsgImapMailFolder
+      ).hierarchyDelimiter = delimiter;
+    }
+
+    uri += "/" + folderPath;
+    let child = this.rootFolder.getChildWithURI(
+      uri,
+      true,
+      /^inbox/i.test(folderPath)
+    );
+
+    let isNewFolder = !child;
+    if (isNewFolder) {
+      if (hasParent) {
+        let parent = this.rootFolder.getChildWithURI(
+          parentUri,
+          true,
+          /^inbox/i.test(parentName)
+        );
+
+        if (!parent) {
+          this.possibleImapMailbox(
+            parentName,
+            delimiter,
+            ImapUtils.FLAG_NO_SELECT |
+              (boxFlags &
+                (ImapUtils.FLAG_PUBLIC_MAILBOX |
+                  ImapUtils.FLAG_OTHER_USERS_MAILBOX |
+                  ImapUtils.FLAG_PERSONAL_MAILBOX))
+          );
+        }
+      }
+      this.rootFolder.createClientSubfolderInfo(
+        folderPath,
+        delimiter,
+        boxFlags,
+        false
+      );
+      child = this.rootFolder.getChildWithURI(
+        uri,
+        true,
+        /^inbox/i.test(folderPath)
+      );
+    }
+    if (child) {
+      let imapFolder = child.QueryInterface(Ci.nsIMsgImapMailFolder);
+      imapFolder.verifiedAsOnlineFolder = true;
+      imapFolder.hierarchyDelimiter = delimiter;
+      if (boxFlags & ImapUtils.FLAG_IMAP_TRASH) {
+        if (this.deleteModel == Ci.nsMsgImapDeleteModels.MoveToTrash) {
+          child.setFlag(Ci.nsMsgFolderFlags.Trash);
+        }
+        imapFolder.boxFlags = boxFlags;
+        imapFolder.explicitlyVerify = explicitlyVerify;
+        let onlineName = imapFolder.onlineName;
+        folderPath.replaceAll("/", delimiter);
+        if (delimiter != "/") {
+          folderPath = decodeURIComponent(folderPath);
+        }
+
+        if (boxFlags & ImapUtils.FLAG_IMAP_INBOX) {
+          // GMail gives us a localized name for the inbox but doesn't let
+          // us select that localized name.
+          imapFolder.onlineName = "INBOX";
+        } else if (!onlineName || onlineName != folderPath) {
+          imapFolder.onlineName = folderPath;
+        }
+
+        if (delimiter != "/") {
+          folderName = decodeURIComponent(folderName);
+        }
+        child.prettyName = folderName;
+      }
+      if (isNewFolder) {
+        // Close the db so we don't hold open all the .msf files for new folders.
+        child.msgDatabase = null;
+      }
+    }
+
+    return isNewFolder;
+  }
+
+  discoveryDone() {
+    // No need to verify the root.
+    this.rootFolder.QueryInterface(
+      Ci.nsIMsgImapMailFolder
+    ).verifiedAsOnlineFolder = true;
+    let unverified = this._getUnverifiedFolders(this.rootFolder);
+    this._logger.debug(
+      `discoveryDone, unverified folders count=${unverified.length}.`
+    );
+    for (let folder of unverified) {
+      if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+        // Do not remove virtual folders.
+        continue;
+      }
+      let imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+      if (
+        !this.usingSubscription ||
+        imapFolder.explicitlyVerify ||
+        (folder.hasSubFolders && this._noDescendentsAreVerified(folder))
+      ) {
+        if (!imapFolder.isNamespace) {
+          // If there are no subfolders and this is unverified, we don't want to
+          // run this url. That is, we want to undiscover the folder.
+          // If there are subfolders and no descendants are verified, we want to
+          // undiscover all of the folders.
+          // Only if there are subfolders and at least one of them is verified
+          // do we want to refresh that folder's flags, because it won't be going
+          // away.
+          imapFolder.explicitlyVerify = false;
+          imapFolder.list();
+        }
+      } else if (folder.parent) {
+        imapFolder.removeLocalSelf();
+        this._logger.debug(`Removed unverified folder name=${folder.name}`);
+      }
+    }
+  }
+
+  /**
+   * Find local folders that do not exist on the server.
+   * @param {nsIMsgFolder} parentFolder - The folder to check.
+   * @returns {nsIMsgFolder[]}
+   */
+  _getUnverifiedFolders(parentFolder) {
+    let folders = [];
+    let imapFolder = parentFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
+    if (!imapFolder.verifiedAsOnlineFolder || imapFolder.explicitlyVerify) {
+      folders.push(imapFolder);
+    }
+    for (let folder of parentFolder.subFolders) {
+      folders.push(...this._getUnverifiedFolders(folder));
+    }
+    return folders;
+  }
+
+  /**
+   * Returns true if all sub folders are unverified.
+   * @param {nsIMsgFolder} parentFolder - The folder to check.
+   * @returns {nsIMsgFolder[]}
+   */
+  _noDescendentsAreVerified(parentFolder) {
+    for (let folder of parentFolder.subFolders) {
+      let imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+      if (
+        imapFolder.verifiedAsOnlineFolder ||
+        !this._noDescendentsAreVerified(folder)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /** @see nsIImapIncomingServer */
+  get deleteModel() {
+    return this.getIntValue("delete_model");
+  }
+
+  get usingSubscription() {
+    return this.getBoolValue("using_subscription");
+  }
+
   get maximumConnectionsNumber() {
     let maxConnections = this.getIntValue("max_cached_connections", 0);
     if (maxConnections > 0) {
