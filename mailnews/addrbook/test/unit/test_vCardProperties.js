@@ -638,4 +638,51 @@ add_task(function testClone() {
     Assert.notEqual(clone.entries[i], properties.entries[i]);
     Assert.ok(clone.entries[i].equals(properties.entries[i]));
   }
+
+  Assert.equal(clone.toVCard(), properties.toVCard());
+});
+
+add_task(function testGroupEntries() {
+  let vCard = formatVCard`
+      BEGIN:VCARD
+      GROUP1.FN:test
+      GROUP1.X-FOO:bar
+      NOTE:this doesn't have a group
+      END:VCARD`;
+
+  let properties = VCardProperties.fromVCard(vCard);
+
+  let data = [
+    {
+      name: "fn",
+      params: {
+        group: "group1",
+      },
+      type: "text",
+      value: "test",
+    },
+    {
+      name: "x-foo",
+      params: {
+        group: "group1",
+      },
+      type: "unknown",
+      value: "bar",
+    },
+    {
+      name: "note",
+      params: {},
+      type: "text",
+      value: "this doesn't have a group",
+    },
+  ];
+
+  propertyArrayEqual(properties.entries, data);
+  Assert.equal(properties.toVCard(), vCard);
+  propertyArrayEqual(properties.getGroupedEntries("group1"), data.slice(0, 2));
+
+  let clone = properties.clone();
+  propertyArrayEqual(clone.entries, data);
+  Assert.equal(clone.toVCard(), vCard);
+  propertyArrayEqual(clone.getGroupedEntries("group1"), data.slice(0, 2));
 });

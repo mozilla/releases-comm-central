@@ -9,6 +9,7 @@
  * upstream first.
  *
  * Current ical.js git revision: 3ec17951aad61bd53818f934879cc0857ee7b42d (v1.5.0)
+ * plus https://github.com/mozilla-comm/ical.js/pull/512
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -1315,7 +1316,8 @@ ICAL.design = (function() {
   var icalSet = {
     value: icalValues,
     param: icalParams,
-    property: icalProperties
+    property: icalProperties,
+    propertyGroups: false
   };
 
   /**
@@ -1325,7 +1327,8 @@ ICAL.design = (function() {
   var vcardSet = {
     value: vcardValues,
     param: vcardParams,
-    property: vcardProperties
+    property: vcardProperties,
+    propertyGroups: true
   };
 
   /**
@@ -1335,7 +1338,8 @@ ICAL.design = (function() {
   var vcard3Set = {
     value: vcard3Values,
     param: vcard3Params,
-    property: vcard3Properties
+    property: vcard3Properties,
+    propertyGroups: true
   };
 
   /**
@@ -1356,6 +1360,7 @@ ICAL.design = (function() {
      * @property {Object} value       Definitions for value types, keys are type names
      * @property {Object} param       Definitions for params, keys are param names
      * @property {Object} property    Definitions for properties, keys are property names
+     * @property {boolean} propertyGroups  If content lines may include a group name
      */
 
     /**
@@ -1551,10 +1556,24 @@ ICAL.stringify = (function() {
     var jsName = property[0];
     var params = property[1];
 
-    var line = name;
+    if (!designSet) {
+      designSet = design.defaultSet;
+    }
+
+    var groupName = params.group;
+    var line;
+    if (groupName && designSet.propertyGroups) {
+      line = groupName.toUpperCase() + "." + name;
+    } else {
+      line = name;
+    }
 
     var paramName;
     for (paramName in params) {
+      if (paramName == 'group' && designSet.propertyGroups) {
+        continue;
+      }
+
       var value = params[paramName];
 
       /* istanbul ignore else */
@@ -1582,10 +1601,6 @@ ICAL.stringify = (function() {
     }
 
     var valueType = property[2];
-
-    if (!designSet) {
-      designSet = design.defaultSet;
-    }
 
     var propDetails;
     var multiValue = false;
@@ -1973,9 +1988,20 @@ ICAL.parse = (function() {
     var multiValue = false;
     var structuredValue = false;
     var propertyDetails;
+    var splitName;
+    var ungroupedName;
 
-    if (name in state.designSet.property) {
-      propertyDetails = state.designSet.property[name];
+    // fetch the ungrouped part of the name
+    if (name.indexOf('.') !== -1 && state.designSet.propertyGroups) {
+      splitName = name.split('.');
+      params.group = splitName[0];
+      ungroupedName = splitName[1];
+    } else {
+      ungroupedName = name;
+    }
+
+    if (ungroupedName in state.designSet.property) {
+      propertyDetails = state.designSet.property[ungroupedName];
 
       if ('multiValue' in propertyDetails) {
         multiValue = propertyDetails.multiValue;
@@ -2017,16 +2043,16 @@ ICAL.parse = (function() {
     var result;
     if (multiValue && structuredValue) {
       value = parser._parseMultiValue(value, structuredValue, valueType, [], multiValue, state.designSet, structuredValue);
-      result = [name, params, valueType, value];
+      result = [ungroupedName, params, valueType, value];
     } else if (multiValue) {
-      result = [name, params, valueType];
+      result = [ungroupedName, params, valueType];
       parser._parseMultiValue(value, multiValue, valueType, result, null, state.designSet, false);
     } else if (structuredValue) {
       value = parser._parseMultiValue(value, structuredValue, valueType, [], null, state.designSet, structuredValue);
-      result = [name, params, valueType, value];
+      result = [ungroupedName, params, valueType, value];
     } else {
       value = parser._parseValue(value, valueType, state.designSet, false);
-      result = [name, params, valueType, value];
+      result = [ungroupedName, params, valueType, value];
     }
     // rfc6350 requires that in vCard 4.0 the first component is the VERSION
     // component with as value 4.0, note that 3.0 does not have this requirement.

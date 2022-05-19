@@ -73,10 +73,6 @@ var VCardUtils = {
         }
       }
 
-      // Remove group prefixes since we have no way to handle them, and the
-      // unprefixed property might be useful.
-      name = name.replace(/^[a-z0-9-]+\./, "");
-
       // Special cases for address and telephone types.
       if (name == "adr") {
         name = type.includes("home") ? "adr.home" : "adr.work";
@@ -851,6 +847,16 @@ class VCardProperties {
     });
     entries.sort((a, b) => a.pref - b.pref);
     return entries.map(e => e.entry);
+  }
+
+  /**
+   * Get all entries matching the given group.
+   *
+   * @param {string} group
+   * @return {VCardPropertyEntry[]}
+   */
+  getGroupedEntries(group) {
+    return this.entries.filter(e => e.params.group == group);
   }
 
   /**
