@@ -20,13 +20,13 @@ legend {
   font-weight: 600;
 }
 
-table {
-  border-collapse: collapse;
-}
-
-th {
+.screen-readers-only {
   position: absolute;
   clip-path: inset(50%);
+}
+
+table {
+  border-collapse: collapse;
 }
 
 th[hidden] {
@@ -36,11 +36,6 @@ th[hidden] {
 #addr-book-edit-n {
   grid-column: 1 / 3;
   grid-row: 1 / 2;
-}
-
-#addr-book-edit-n legend {
-  position: absolute;
-  clip-path: inset(50%);
 }
 
 .addr-book-edit-fieldset-button {

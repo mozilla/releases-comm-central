@@ -8,6 +8,7 @@
 <!-- Scripts -->
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/url.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/edit.js"></script>
 
 <!-- Localization -->
@@ -23,7 +24,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/vcard-edit.css"/>
   <!-- Name -->
   <fieldset id="addr-book-edit-n" class="addr-book-edit-fieldset">
-    <legend data-l10n-id="vcard-name-header"/>
+    <legend class="screen-readers-only" data-l10n-id="vcard-name-header"/>
     <slot name="v-n"/>
   </fieldset>
   <!-- Email -->
@@ -32,9 +33,12 @@
     <table>
       <thead>
         <tr>
-          <th scope="col" data-l10n-id="vcard-entry-type-label"/>
-          <th scope="col" data-l10n-id="vcard-email-label"/>
-          <th scope="col" data-l10n-id="vcard-email-choose-primary"/>
+          <th class="screen-readers-only" scope="col"
+              data-l10n-id="vcard-entry-type-label"/>
+          <th class="screen-readers-only" scope="col"
+              data-l10n-id="vcard-email-label"/>
+          <th class="screen-readers-only" scope="col"
+              data-l10n-id="vcard-email-choose-primary"/>
         </tr>
       </thead>
       <tbody>
@@ -54,6 +58,18 @@
            src="chrome://global/skin/icons/add.svg"
            alt=""/>
       <span data-l10n-id="vcard-email-add"/>
+    </button>
+  </fieldset>
+  <!-- URL -->
+  <fieldset id="addr-book-edit-url" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-url-header"/>
+    <slot name="v-url"/>
+    <button id="vcard-add-url" class="addr-book-edit-fieldset-button"
+            type="button">
+      <img class="addr-book-edit-fieldset-button-icon"
+           src="chrome://global/skin/icons/add.svg"
+           alt=""/>
+      <span data-l10n-id="vcard-url-add"/>
     </button>
   </fieldset>
 </template>
@@ -124,4 +140,18 @@
     <input type="checkbox"
            aria-labelledby="vcard-email-table-header-primary" />
   </td>
+</template>
+
+<!-- Field with type and text -->
+<template id="template-vcard-edit-type-text">
+  <label class="screen-readers-only"
+         for="select"
+         data-l10n-id="vcard-entry-type-label"/>
+  <select class="vcard-type-selection">
+    <option value="work" data-l10n-id="vcard-entry-type-work"/>
+    <option value="home" data-l10n-id="vcard-entry-type-home"/>
+    <option value="" data-l10n-id="vcard-entry-type-none" selected="true"/>
+  </select>
+  <label class="screen-readers-only" for="text"/>
+  <input type="text"/>
 </template>

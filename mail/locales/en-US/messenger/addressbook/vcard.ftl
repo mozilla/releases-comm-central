@@ -53,3 +53,11 @@ vcard-email-label = Email address
 
 vcard-email-choose-primary = Default
     .aria-label = Choose your primary email address
+
+# URL vCard field
+
+vcard-url-header = Websites
+
+vcard-url-add = Add website
+
+vcard-url-label = Website

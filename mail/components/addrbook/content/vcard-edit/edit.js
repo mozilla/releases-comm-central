@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardNComponent, VCardEmailComponent */
+/* globals VCardEmailComponent, VCardNComponent, VCardURLComponent */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -23,6 +23,7 @@ class VCardEdit extends HTMLElement {
   connectedCallback() {
     if (this.isConnected) {
       this.registerEmailFieldsetHandling();
+      this.registerURLFieldsetHandling();
       this.updateView();
     }
   }
@@ -107,6 +108,11 @@ class VCardEdit extends HTMLElement {
         email.vCardPropertyEntry = entry;
         email.slot = "v-email";
         return email;
+      case "url":
+        let url = new VCardURLComponent();
+        url.vCardPropertyEntry = entry;
+        url.slot = "v-url";
+        return url;
       default:
         return undefined;
     }
@@ -125,6 +131,8 @@ class VCardEdit extends HTMLElement {
         return VCardNComponent.newVCardPropertyEntry();
       case "email":
         return VCardEmailComponent.newVCardPropertyEntry();
+      case "url":
+        return VCardURLComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -188,6 +196,19 @@ class VCardEdit extends HTMLElement {
           element.querySelector('input[type="checkbox"]').checked = false;
         }
       });
+    });
+  }
+
+  registerURLFieldsetHandling() {
+    // Add URL button.
+    let addURL = this.shadowRoot.getElementById("vcard-add-url");
+    addURL.addEventListener("click", e => {
+      let newVCardProperty = VCardEdit.createVCardProperty("url");
+      let el = VCardEdit.createVCardElement(newVCardProperty);
+      // Add the new entry to our vCardProperties object.
+      this.vCardProperties.addEntry(el.vCardPropertyEntry);
+      this.append(el);
+      el.querySelector('input[type="url"]').focus();
     });
   }
 }
