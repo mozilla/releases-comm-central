@@ -1313,6 +1313,7 @@ function showTab(tabId) {
     document.querySelector("title"),
     isExport ? "export-page-title" : "import-page-title"
   );
+  location.hash = isExport ? "export" : "";
   for (let tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }
@@ -1344,5 +1345,9 @@ document.addEventListener("DOMContentLoaded", () => {
   calendarController = new CalendarImporterController();
   exportController = new ExportController();
   startController = new StartController();
-  showTab("tab-start");
+  if (location.hash === "#export") {
+    showTab("tab-export");
+  } else {
+    showTab("tab-start");
+  }
 });
