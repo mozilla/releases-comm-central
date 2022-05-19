@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardNComponent */
+/* globals VCardNComponent, VCardEmailComponent */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -22,6 +22,7 @@ class VCardEdit extends HTMLElement {
 
   connectedCallback() {
     if (this.isConnected) {
+      this.registerEmailFieldsetHandling();
       this.updateView();
     }
   }
@@ -53,6 +54,12 @@ class VCardEdit extends HTMLElement {
     if (!this._vCardProperties.getFirstEntry("n")) {
       this._vCardProperties.addEntry(VCardNComponent.newVCardPropertyEntry());
     }
+    // If no email property is present set one.
+    if (!this._vCardProperties.getFirstEntry("email")) {
+      this._vCardProperties.addEntry(
+        VCardEmailComponent.newVCardPropertyEntry()
+      );
+    }
     this.updateView();
   }
 
@@ -64,6 +71,15 @@ class VCardEdit extends HTMLElement {
       });
       // Get rid of non truthy values.
       vCardPropertyEls = vCardPropertyEls.filter(el => !!el);
+
+      // Reorder the elements according to the pref value.
+      vCardPropertyEls.sort((a, b) => {
+        // If no pref param is set the value is falsy for the comparing.
+        // We go over the max value for the pref of a vcard (101) for this case.
+        let aPref = a.vCardPropertyEntry.params.pref || 101;
+        let bPref = b.vCardPropertyEntry.params.pref || 101;
+        return aPref - bPref;
+      });
     }
     this.replaceChildren(...vCardPropertyEls);
   }
@@ -86,6 +102,11 @@ class VCardEdit extends HTMLElement {
         n.vCardPropertyEntry = entry;
         n.slot = "v-n";
         return n;
+      case "email":
+        let email = document.createElement("tr", { is: "vcard-email" });
+        email.vCardPropertyEntry = entry;
+        email.slot = "v-email";
+        return email;
       default:
         return undefined;
     }
@@ -102,6 +123,8 @@ class VCardEdit extends HTMLElement {
     switch (name) {
       case "n":
         return VCardNComponent.newVCardPropertyEntry();
+      case "email":
+        return VCardEmailComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -133,9 +156,52 @@ class VCardEdit extends HTMLElement {
   setFocus() {
     document.getElementById("vcard-n-firstname").focus();
   }
+
+  registerEmailFieldsetHandling() {
+    // Add slot listener for enabling to choose the primary email.
+    let slot = this.shadowRoot.querySelector('slot[name="v-email"]');
+    let emailFieldset = this.shadowRoot.querySelector("#addr-book-edit-email");
+    slot.addEventListener("slotchange", event => {
+      let withPrimaryEmailChooser = slot.assignedElements().length > 1;
+      emailFieldset.querySelectorAll("th")[2].hidden = !withPrimaryEmailChooser;
+      // Set primary eMail chooser.
+      this.querySelectorAll("vcard-email").forEach(vCardEmailComponent => {
+        vCardEmailComponent.setPrimaryEmailChooser(!withPrimaryEmailChooser);
+      });
+    });
+
+    // Add email button.
+    let addEmail = this.shadowRoot.getElementById("vcard-add-email");
+    addEmail.addEventListener("click", e => {
+      let newVCardProperty = VCardEdit.createVCardProperty("email");
+      let el = VCardEdit.createVCardElement(newVCardProperty);
+      // Add the new entry to our vCardProperties object.
+      this.vCardProperties.addEntry(el.vCardPropertyEntry);
+      this.append(el);
+      el.querySelector('input[type="email"]').focus();
+    });
+
+    // Add listener to be sure that only one checkbox from the emails is ticked.
+    this.addEventListener("vcard-email-primary-checkbox", event => {
+      this.querySelectorAll('tr[slot="v-email"]').forEach(element => {
+        if (event.target !== element) {
+          element.querySelector('input[type="checkbox"]').checked = false;
+        }
+      });
+    });
+  }
 }
 
 customElements.define("vcard-edit", VCardEdit);
+
+function* vCardHtmlIdGen() {
+  let internalId = 0;
+  while (true) {
+    yield `vcard-id-${internalId++}`;
+  }
+}
+
+let vCardIdGen = vCardHtmlIdGen();
 
 /**
  * Interface for vCard Fields in the edit view.

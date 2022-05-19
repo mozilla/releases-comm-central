@@ -2,10 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+vcard-edit {
+  color: var(--sidebar-text-color);
+  --input-border-density: 1px;
+  --input-text-height: 28px;
+  margin-block: 15px;
+}
+
+vcard-edit input[type="text"],
+vcard-edit input[type="email"],
+vcard-edit .vcard-type-selection {
+  line-height: 1;
+  padding-inline: 9px;
+  margin: 0;
+  border: var(--input-border-density) solid var(--toolbar-field-border-color);
+  min-height: initial;
+  height: var(--input-text-height);
+  color: inherit;
+  margin-block-end: 3px;
+  margin-inline-end: 3px;
+}
+
+vcard-edit select {
+  width: 86px;
+}
+
+/* N field styles */
 vcard-n {
   display: flex;
   align-items: end;
   justify-content: flex-start;
+  --button-dimension: 24px;
 }
 
 .n-list-component {
@@ -30,16 +57,6 @@ vcard-n {
   fill: currentColor;
   width: 12px;
   height: 12px;
-}
-
-.n-list-component label {
-  margin-block-end: 3px;
-}
-
-.n-list-component input {
-  padding-inline: 9px;
-  margin: 0;
-  border: 1px solid var(--in-content-box-border-color);
 }
 
 .n-list-component button[hidden] {
@@ -80,4 +97,57 @@ vcard-n {
 
 .n-list-component:not(:last-child) {
   margin-inline-end: 3px;
+}
+
+/* Email field styles */
+tr[slot="v-email"] {
+  display: table-row;
+  vertical-align: middle;
+}
+
+tr[slot="v-email"] td {
+  padding: 0;
+}
+
+tr[slot="v-email"] input[type="checkbox"] {
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  margin-inline: 6px;
+  margin-block-start: 0;
+  margin-block-end: 3px;
+  display: grid;
+}
+
+tr[slot="v-email"] input[type="checkbox"]:checked {
+  background-image: none;
+  background-color: transparent;
+  border-color: var(--in-content-primary-button-background);
+  place-content: center;
+}
+
+tr[slot="v-email"] input[type="checkbox"]:enabled:checked:hover {
+  background-color: transparent;
+  border-color: var(--in-content-primary-button-background-hover);
+}
+
+tr[slot="v-email"] input[type="checkbox"]:checked:active {
+  border-color: var(--in-content-primary-button-background-active);
+}
+
+tr[slot="v-email"] input[type="checkbox"]:checked::before {
+  content: "";
+  display: block;
+  height: 8px;
+  width: 8px;
+  background-color: var(--in-content-primary-button-background);
+  border-radius: 50%;
+}
+
+tr[slot="v-email"] input[type="checkbox"]:enabled:checked:hover::before {
+  background-color: var(--in-content-primary-button-background-hover);
+}
+
+tr[slot="v-email"] input[type="checkbox"]:checked:active::before {
+  background-color: var(--in-content-primary-button-background-active);
 }

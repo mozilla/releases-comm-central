@@ -183,11 +183,13 @@ class VCardNComponent extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.prefixEl = null;
-    this.firstNameEl = null;
-    this.middleNameEl = null;
-    this.lastNameEl = null;
-    this.suffixEl = null;
+    if (!this.isConnected) {
+      this.prefixEl = null;
+      this.firstNameEl = null;
+      this.middleNameEl = null;
+      this.lastNameEl = null;
+      this.suffixEl = null;
+    }
   }
 }
 

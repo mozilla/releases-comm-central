@@ -12,10 +12,25 @@ fieldset {
   margin: 0;
   padding: 0;
   border: none;
+  margin-block-end: 21px;
 }
 
 legend {
   margin-block-end: 6px;
+  font-weight: 600;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  position: absolute;
+  clip-path: inset(50%);
+}
+
+th[hidden] {
+  display: none;
 }
 
 #addr-book-edit-n {
@@ -26,4 +41,30 @@ legend {
 #addr-book-edit-n legend {
   position: absolute;
   clip-path: inset(50%);
+}
+
+.addr-book-edit-fieldset-button {
+  background-color: transparent;
+  -moz-context-properties: fill;
+  color: var(--in-content-primary-button-background);
+  fill: var(--in-content-primary-button-text-color);
+  padding: 3px;
+  display: inline-flex;
+  border: none;
+  font-weight: 500;
+  align-items: center;
+  border-radius: 3px;
+}
+
+.addr-book-edit-fieldset-button:hover {
+  background-color: var(--in-content-button-background);
+}
+
+.addr-book-edit-fieldset-button-icon {
+  margin-inline-end: 3px;
+  border-radius: 50%;
+  background-color: var(--in-content-primary-button-background);
+  width: 9px;
+  height: 9px;
+  padding: 2px;
 }
