@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEmailComponent, VCardNComponent, VCardURLComponent */
+/* globals VCardEmailComponent, VCardNComponent, VCardTelComponent,
+           VCardURLComponent */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -24,6 +25,7 @@ class VCardEdit extends HTMLElement {
     if (this.isConnected) {
       this.registerEmailFieldsetHandling();
       this.registerURLFieldsetHandling();
+      this.registerTelFieldsetHandling();
       this.updateView();
     }
   }
@@ -113,6 +115,11 @@ class VCardEdit extends HTMLElement {
         url.vCardPropertyEntry = entry;
         url.slot = "v-url";
         return url;
+      case "tel":
+        let tel = new VCardTelComponent();
+        tel.vCardPropertyEntry = entry;
+        tel.slot = "v-tel";
+        return tel;
       default:
         return undefined;
     }
@@ -133,6 +140,8 @@ class VCardEdit extends HTMLElement {
         return VCardEmailComponent.newVCardPropertyEntry();
       case "url":
         return VCardURLComponent.newVCardPropertyEntry();
+      case "tel":
+        return VCardTelComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -209,6 +218,19 @@ class VCardEdit extends HTMLElement {
       this.vCardProperties.addEntry(el.vCardPropertyEntry);
       this.append(el);
       el.querySelector('input[type="url"]').focus();
+    });
+  }
+
+  registerTelFieldsetHandling() {
+    // Add Tel button.
+    let addTel = this.shadowRoot.getElementById("vcard-add-tel");
+    addTel.addEventListener("click", e => {
+      let newVCardProperty = VCardEdit.createVCardProperty("tel");
+      let el = VCardEdit.createVCardElement(newVCardProperty);
+      // Add the new entry to our vCardProperties object.
+      this.vCardProperties.addEntry(el.vCardPropertyEntry);
+      this.append(el);
+      el.querySelector("input").focus();
     });
   }
 }

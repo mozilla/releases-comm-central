@@ -61,3 +61,11 @@ vcard-url-header = Websites
 vcard-url-add = Add website
 
 vcard-url-label = Website
+
+# Tel vCard field
+
+vcard-tel-header = Phone Numbers
+
+vcard-tel-add = Add phone number
+
+vcard-tel-label = Phone number
