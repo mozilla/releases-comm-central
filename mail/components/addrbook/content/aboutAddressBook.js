@@ -1234,6 +1234,14 @@ var cardsPane = {
         header,
         `about-addressbook-column-header-${column.toLowerCase()}`
       );
+      // about-addressbook-column-header-generatedname
+      // about-addressbook-column-header-emailaddresses
+      // about-addressbook-column-header-phonenumbers
+      // about-addressbook-column-header-addresses
+      // about-addressbook-column-header-title
+      // about-addressbook-column-header-department
+      // about-addressbook-column-header-organization
+      // about-addressbook-column-header-addrbook
 
       if (column == "GeneratedName") {
         continue;
@@ -1251,6 +1259,14 @@ var cardsPane = {
         menuitem,
         `about-addressbook-column-label-${column.toLowerCase()}`
       );
+      // about-addressbook-column-label-generatedname
+      // about-addressbook-column-label-emailaddresses
+      // about-addressbook-column-label-phonenumbers
+      // about-addressbook-column-label-addresses
+      // about-addressbook-column-label-title
+      // about-addressbook-column-label-department
+      // about-addressbook-column-label-organization
+      // about-addressbook-column-label-addrbook
 
       if (shown) {
         menuitem.setAttribute("checked", "true");
