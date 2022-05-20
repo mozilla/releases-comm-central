@@ -181,7 +181,7 @@ function DownloadNow() {
   } else {
     gReplicationCancelled = true;
     try {
-      gReplicationService.cancelReplication(gCurrentDirectory.dirPrefId);
+      gReplicationService.cancelReplication(gCurrentDirectory);
     } catch (ex) {
       // XXX todo
       // perhaps replication hasn't started yet?  This can happen if you hit cancel after attempting to replication when offline

@@ -123,7 +123,7 @@ class LDAPReplicationService extends LDAPListenerBase {
    * Handler of nsILDAPMessage.RES_SEARCH_ENTRY message.
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
-  _onLDAPSearchEntry(msg) {
+  async _onLDAPSearchEntry(msg) {
     let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
@@ -141,6 +141,13 @@ class LDAPReplicationService extends LDAPListenerBase {
         -1
       );
     }
+    if (this._count % 100 == 0 && !this._writePromise) {
+      // Write to the db to release some memory.
+      this._writePromise = this._replicationDB.bulkAddCards(this._cards);
+      this._cards = [];
+      await this._writePromise;
+      this._writePromise = null;
+    }
   }
 
   /**
@@ -152,6 +159,9 @@ class LDAPReplicationService extends LDAPListenerBase {
       msg.errorCode == Ci.nsILDAPErrors.SUCCESS ||
       msg.errorCode == Ci.nsILDAPErrors.SIZELIMIT_EXCEEDED
     ) {
+      if (this._writePromise) {
+        await this._writePromise;
+      }
       await this._replicationDB.bulkAddCards(this._cards);
       this.done(true);
       return;
