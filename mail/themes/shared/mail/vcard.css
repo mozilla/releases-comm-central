@@ -166,7 +166,8 @@ tr[slot="v-email"] input[type="checkbox"]:checked:active::before {
 }
 
 vcard-url,
-vcard-tel {
+vcard-tel,
+vcard-impp {
   /* @TODO check the whitespace after the select element */
   display: flex;
 }

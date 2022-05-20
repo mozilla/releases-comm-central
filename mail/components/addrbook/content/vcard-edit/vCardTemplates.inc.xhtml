@@ -8,6 +8,7 @@
 <!-- Scripts -->
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/impp.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tel.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tz.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/url.js"></script>
@@ -53,6 +54,7 @@
         <slot name="v-email"/>
       </tbody>
     </table>
+    <!-- The add button is repeated boilerplate and will be reduced -->
     <button id="vcard-add-email"
             class="addr-book-edit-fieldset-button"
             type="button">
@@ -66,6 +68,7 @@
   <fieldset id="addr-book-edit-url" class="addr-book-edit-fieldset">
     <legend data-l10n-id="vcard-url-header"/>
     <slot name="v-url"/>
+    <!-- The add button is repeated boilerplate and will be reduced -->
     <button id="vcard-add-url" class="addr-book-edit-fieldset-button"
             type="button">
       <img class="addr-book-edit-fieldset-button-icon"
@@ -78,6 +81,7 @@
   <fieldset id="addr-book-edit-tel" class="addr-book-edit-fieldset">
     <legend data-l10n-id="vcard-tel-header"/>
     <slot name="v-tel"/>
+    <!-- The add button is repeated boilerplate and will be reduced -->
     <button id="vcard-add-tel" class="addr-book-edit-fieldset-button"
             type="button">
       <img class="addr-book-edit-fieldset-button-icon"
@@ -96,6 +100,19 @@
            src="chrome://global/skin/icons/add.svg"
            alt=""/>
       <span data-l10n-id="vcard-tz-add"/>
+    </button>
+  </fieldset>
+  <!-- IMPP (Chat) -->
+  <fieldset id="addr-book-edit-impp" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-impp-header"/>
+    <slot name="v-impp"/>
+    <!-- The add button is repeated boilerplate and will be reduced -->
+    <button id="vcard-add-impp" class="addr-book-edit-fieldset-button"
+            type="button">
+      <img class="addr-book-edit-fieldset-button-icon"
+           src="chrome://global/skin/icons/add.svg"
+           alt=""/>
+      <span data-l10n-id="vcard-impp-add"/>
     </button>
   </fieldset>
 </template>
@@ -151,6 +168,7 @@
 <!-- Email -->
 <template id="template-vcard-edit-email">
   <td>
+    <!-- The type selection is repeated boilerplate and will be reduced -->
     <select class="vcard-type-selection"
             aria-labelledby="vcard-email-table-header-type-label">
       <option value="work" data-l10n-id="vcard-entry-type-work" />
@@ -173,6 +191,7 @@
   <label class="screen-readers-only"
          for="select"
          data-l10n-id="vcard-entry-type-label"/>
+  <!-- The type selection is repeated boilerplate and will be reduced -->
   <select class="vcard-type-selection">
     <option value="work" data-l10n-id="vcard-entry-type-work"/>
     <option value="home" data-l10n-id="vcard-entry-type-home"/>
@@ -187,4 +206,10 @@
   <select>
     <option value=""></option>
   </select>
+</template>
+
+<!-- Field with text -->
+<template id="template-vcard-edit-text">
+  <label class="screen-readers-only" for="text"/>
+  <input type="text"/>
 </template>

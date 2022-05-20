@@ -20,6 +20,7 @@ messenger.jar:
 # Edit view
     content/messenger/addressbook/edit/edit.js                  (content/vcard-edit/edit.js)
     content/messenger/addressbook/edit/email.js                 (content/vcard-edit/email.js)
+    content/messenger/addressbook/edit/impp.js                  (content/vcard-edit/impp.js)
     content/messenger/addressbook/edit/n.js                     (content/vcard-edit/n.js)
     content/messenger/addressbook/edit/tel.js                   (content/vcard-edit/tel.js)
     content/messenger/addressbook/edit/tz.js                    (content/vcard-edit/tz.js)

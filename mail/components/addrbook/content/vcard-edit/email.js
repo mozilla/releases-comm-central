@@ -63,6 +63,10 @@ class VCardEmailComponent extends HTMLTableRowElement {
 
   fromVCardPropertyEntryToUI() {
     this.emailEl.value = this.vCardPropertyEntry.value;
+    /**
+     * @TODO
+     * Create an element for type selection of home, work, ...
+     */
     let paramsType = this.vCardPropertyEntry.params.type;
     if (paramsType && !Array.isArray(paramsType)) {
       this.selectEl.value = this.vCardPropertyEntry.params.type;
@@ -75,6 +79,10 @@ class VCardEmailComponent extends HTMLTableRowElement {
 
   fromUIToVCardPropertyEntry() {
     this.vCardPropertyEntry.value = this.emailEl.value;
+    /**
+     * @TODO
+     * Create an element for type selection of home, work, ...
+     */
     let paramsType = this.selectEl.value;
     if (paramsType && paramsType !== "") {
       this.vCardPropertyEntry.params.type = this.selectEl.value;

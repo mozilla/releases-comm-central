@@ -63,6 +63,10 @@ class VCardURLComponent extends HTMLElement {
 
   fromVCardPropertyEntryToUI() {
     this.urlEl.value = this.vCardPropertyEntry.value;
+    /**
+     * @TODO
+     * Create an element for type selection of home, work, ...
+     */
     let paramsType = this.vCardPropertyEntry.params.type;
     if (paramsType && !Array.isArray(paramsType)) {
       this.selectEl.value = this.vCardPropertyEntry.params.type;
@@ -71,6 +75,10 @@ class VCardURLComponent extends HTMLElement {
 
   fromUIToVCardPropertyEntry() {
     this.vCardPropertyEntry.value = this.urlEl.value;
+    /**
+     * @TODO
+     * Create an element for type selection of home, work, ...
+     */
     let paramsType = this.selectEl.value;
     if (paramsType && !Array.isArray(paramsType) && paramsType !== "") {
       this.vCardPropertyEntry.params.type = this.selectEl.value;

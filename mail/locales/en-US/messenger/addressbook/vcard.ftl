@@ -79,3 +79,11 @@ vcard-tel-label = Phone number
 vcard-tz-header = Time Zone
 
 vcard-tz-add = Add time zone
+
+# IMPP vCard field
+
+vcard-impp-header = Chat Accounts
+
+vcard-impp-add = Add chat account
+
+vcard-impp-label = Chat account

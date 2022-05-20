@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEmailComponent, VCardNComponent, VCardTelComponent,
-           VCardTZComponent, VCardURLComponent */
+/* globals VCardEmailComponent, VCardIMPPComponent, VCardNComponent,
+           VCardTelComponent, VCardTZComponent, VCardURLComponent */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
@@ -34,10 +34,15 @@ class VCardEdit extends HTMLElement {
 
   connectedCallback() {
     if (this.isConnected) {
+      /**
+       * @TODO
+       * Create a shared method for the add button mechanic.
+       */
       this.registerEmailFieldsetHandling();
       this.registerURLFieldsetHandling();
       this.registerTelFieldsetHandling();
       this.registerTZFieldsetHandling();
+      this.registerIMPPFieldsetHandling();
       this.updateView();
     }
   }
@@ -200,6 +205,11 @@ class VCardEdit extends HTMLElement {
         tz.vCardPropertyEntry = entry;
         tz.slot = "v-tz";
         return tz;
+      case "impp":
+        let impp = new VCardIMPPComponent();
+        impp.vCardPropertyEntry = entry;
+        impp.slot = "v-impp";
+        return impp;
       default:
         return undefined;
     }
@@ -224,6 +234,8 @@ class VCardEdit extends HTMLElement {
         return VCardTelComponent.newVCardPropertyEntry();
       case "tz":
         return VCardTZComponent.newVCardPropertyEntry();
+      case "impp":
+        return VCardIMPPComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -340,6 +352,19 @@ class VCardEdit extends HTMLElement {
       this.append(el);
       addTZ.hidden = true;
       el.querySelector("select").focus();
+    });
+  }
+
+  registerIMPPFieldsetHandling() {
+    // Add chat button.
+    let addTel = this.shadowRoot.getElementById("vcard-add-impp");
+    addTel.addEventListener("click", e => {
+      let newVCardProperty = VCardEdit.createVCardProperty("impp");
+      let el = VCardEdit.createVCardElement(newVCardProperty);
+      // Add the new entry to our vCardProperties object.
+      this.vCardProperties.addEntry(el.vCardPropertyEntry);
+      this.append(el);
+      el.querySelector("input").focus();
     });
   }
 }
