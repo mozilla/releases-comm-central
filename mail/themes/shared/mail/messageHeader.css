@@ -187,6 +187,11 @@ mail-tagfield[collapsed="true"] {
   flex: 1;
   margin-inline-start: calc(var(--message-header-field-offset) * -1);
   padding-inline: var(--message-header-field-offset);
+  /* IMPORTANT! Keep these to avoid issues with very long subjects. Bug 77806 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow-y: auto;
 }
 
 /* ::::: attachment view ::::: */
