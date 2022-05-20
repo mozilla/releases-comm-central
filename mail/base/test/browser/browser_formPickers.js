@@ -317,3 +317,24 @@ add_task(async function testExtensionMessageDisplayAction() {
   await extension.unload();
   await BrowserTestUtils.closeWindow(messageWindow);
 });
+
+add_task(async function testBrowserRequestWindow() {
+  let requestWindow = await new Promise(resolve => {
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/browserRequest.xhtml",
+      null,
+      "chrome,private,centerscreen,width=980,height=750",
+      {
+        url: TEST_DOCUMENT_URL,
+        cancelled() {},
+        loaded(window, webProgress) {
+          resolve(window);
+        },
+      }
+    );
+  });
+
+  await checkABrowser(requestWindow.document.getElementById("requestFrame"));
+  await BrowserTestUtils.closeWindow(requestWindow);
+});

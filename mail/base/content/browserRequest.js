@@ -6,6 +6,35 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
+/* Magic global things the <browser> and its entourage of logic expect. */
+var PopupNotifications = {
+  show(browser, id, message) {
+    console.warn(
+      "Not showing popup notification",
+      id,
+      "with the message",
+      message
+    );
+  },
+};
+
+var gBrowser = {
+  get selectedBrowser() {
+    return document.getElementById("requestFrame");
+  },
+  _getAndMaybeCreateDateTimePickerPanel() {
+    return this.selectedBrowser.dateTimePicker;
+  },
+  get webNavigation() {
+    return this.selectedBrowser.webNavigation;
+  },
+};
+
+function getBrowser() {
+  return gBrowser.selectedBrowser;
+}
+
+/* Logic to actually run the login process and window contents */
 var reporterListener = {
   _isBusy: false,
 

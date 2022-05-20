@@ -10,7 +10,12 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/browserRequest.css" type="text/css"?>
 
-<!DOCTYPE window>
+<!DOCTYPE window [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+%brandDTD;
+<!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
+%messengerDTD;
+]>
 <window id="browserRequest"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         buttons=","
@@ -20,9 +25,14 @@
         width="800"
         height="500"
         orient="vertical">
+  <popupset id="mainPopupSet">
+#define BROWSER_POPUPS_ONLY
+#include ../../base/content/mainPopupSet.inc.xhtml
+  </popupset>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/viewZoomOverlay.js"/>
   <script src="chrome://messenger/content/browserRequest.js"/>
 
   <html:link rel="localization" href="messenger/messenger.ftl"/>
@@ -39,5 +49,8 @@
                 readonly="readonly">
     </html:input>
   </html:div>
-  <browser type="content" src="about:blank" id="requestFrame" flex="1"/>
+  <browser type="content" src="about:blank" id="requestFrame" flex="1"
+           autocompletepopup="PopupAutoComplete"
+           selectmenulist="ContentSelectDropdown"
+           datetimepicker="DateTimePickerPanel"/>
 </window>
