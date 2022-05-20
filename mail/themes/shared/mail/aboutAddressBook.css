@@ -10,6 +10,7 @@
     --in-content-button-background-active: var(--grey-90-a30);
     --in-content-categories-background: #ebebef;
     --in-content-item-selected-unfocused: var(--grey-20);
+    --splitter-color: var(--in-content-border-color);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -359,8 +360,7 @@ ab-card-listrow:not(.selected) > div.line2 > div {
 #cardsHeader {
   display: flex;
   margin-inline: 6px;
-  border-bottom: 1px solid threedshadow;
-  padding-inline-start: 24px;
+  border-bottom: 1px solid var(--in-content-border-color);
   line-height: 24px;
 }
 
@@ -373,10 +373,15 @@ body.layout-list #cardsHeader {
   background-repeat: no-repeat;
   -moz-context-properties: fill;
   fill: currentColor;
+  margin-inline-end: 1px !important;
 }
 
 .table-header:dir(rtl) {
   background-position: 6px center;
+}
+
+.table-header:first-child {
+  padding-inline-start: 28px;
 }
 
 .table-header.descending {
