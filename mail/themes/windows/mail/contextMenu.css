@@ -11,8 +11,14 @@ menuitem[disabled]:not(.menuitem-iconic) {
   min-height: 22px;
 }
 
-menupopup {
-  -moz-window-shadow: none;
+menupopup:not([type="arrow"]) {
+  --windows-panel-box-shadow: 0 0 4px hsla(0, 0%, 0%, 0.2);
+  margin: -4px;
+}
+
+menupopup:not([type="arrow"])::part(content) {
+  margin: 4px;
+  box-shadow: var(--windows-panel-box-shadow);
 }
 
 @media (prefers-contrast) {
@@ -40,7 +46,6 @@ menupopup {
 @media (-moz-windows-non-native-menus: 0) {
   menupopup {
     appearance: none;
-    -moz-window-shadow: cliprounded;
     background-color: transparent;
     border: none;
     /* Somehow the double border radius is needed to look correct. */

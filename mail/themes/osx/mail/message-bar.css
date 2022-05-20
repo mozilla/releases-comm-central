@@ -7,24 +7,3 @@
 .notification-button.small-button {
   padding-block: 4px;
 }
-
-#reminderBarPopup {
-  padding: 5px;
-}
-
-#reminderBarPopup > menuitem[_moz-menuactive="true"] {
-  -moz-font-smoothing-background-color: -moz-mac-active-menuitem;
-  color: -moz-mac-menutextselect;
-  background-color: SelectedItem;
-}
-
-@media (-moz-mac-big-sur-theme) {
-  #reminderBarPopup > menuitem {
-    appearance: none;
-    border-radius: 4px;
-  }
-
-  #reminderBarPopup > menuitem[_moz-menuactive="true"] {
-    background-color: color-mix(in srgb, white 25%, -moz-accent-color);
-  }
-}

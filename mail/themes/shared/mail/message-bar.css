@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/shared/contextMenu.css");
+
 :host {
   --info-icon-url: url("chrome://global/skin/icons/info-filled.svg");
   --warn-icon-url: url("chrome://global/skin/icons/warning.svg");
@@ -412,25 +414,4 @@ strong {
   margin-inline-start: 3px;
   text-decoration: underline;
   cursor: pointer;
-}
-
-#reminderBarPopup {
-  appearance: auto;
-  -moz-default-appearance: menupopup;
-  min-width: 1px;
-  color: MenuText;
-}
-
-#reminderBarPopup menuitem {
-  appearance: auto;
-  -moz-default-appearance: menuitem;
-  -moz-box-align: center;
-  max-width: 42em;
-  padding: 5px;
-}
-
-#reminderBarPopup menu[_moz-menuactive="true"],
-#reminderBarPopup menuitem[_moz-menuactive="true"] {
-  color: -moz-MenuHoverText;
-  background-color: -moz-MenuHover;
 }
