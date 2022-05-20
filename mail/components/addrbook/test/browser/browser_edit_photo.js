@@ -137,11 +137,62 @@ function checkDialogElements({
   );
 }
 
+function getInput(entryName, addIfNeeded = false) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+  let vCardEdit = abDocument.querySelector("vcard-edit");
+
+  switch (entryName) {
+    case "DisplayName":
+      return abDocument.getElementById("displayName");
+    case "FirstName":
+      return abDocument.querySelector("vcard-n #vcard-n-firstname");
+    case "LastName":
+      return abDocument.querySelector("vcard-n #vcard-n-lastname");
+    case "PrimaryEmail":
+      if (
+        addIfNeeded &&
+        abDocument.querySelectorAll(`tr[slot="v-email"]`).length < 1
+      ) {
+        EventUtils.synthesizeMouseAtCenter(
+          vCardEdit.shadowRoot.getElementById("vcard-add-email"),
+          {},
+          abWindow
+        );
+      }
+      return abDocument.querySelector(
+        `tr[slot="v-email"]:nth-of-type(1) input[type="email"]`
+      );
+    case "SecondEmail":
+      if (
+        addIfNeeded &&
+        abDocument.querySelectorAll(`tr[slot="v-email"]`).length < 2
+      ) {
+        EventUtils.synthesizeMouseAtCenter(
+          vCardEdit.shadowRoot.getElementById("vcard-add-email"),
+          {},
+          abWindow
+        );
+      }
+      return abDocument.querySelector(
+        `tr[slot="v-email"]:nth-of-type(2) input[type="email"]`
+      );
+  }
+
+  return null;
+}
+
 function setInputValues(changes) {
   let abWindow = getAddressBookWindow();
 
   for (let [key, value] of Object.entries(changes)) {
-    abWindow.document.getElementById(key).select();
+    let input = getInput(key, !!value);
+    if (!input) {
+      Assert.ok(!value, `${key} input exists to put a value in`);
+      continue;
+    }
+
+    input.select();
     if (value) {
       EventUtils.sendString(value);
     } else {
@@ -429,7 +480,11 @@ add_task(async function test_paste_url() {
 
   Assert.equal(photo.style.backgroundImage, "", "no photo shown");
 
-  Assert.equal(abDocument.activeElement.id, "FirstName");
+  Assert.equal(abDocument.activeElement.id, "vcard-n-firstname");
+  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
+  // Focus is on name prefix button.
+  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
+  Assert.equal(abDocument.activeElement.id, "displayName");
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
   Assert.equal(abDocument.activeElement.id, "photoOverlay");
 

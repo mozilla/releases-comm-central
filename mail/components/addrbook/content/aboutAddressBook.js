@@ -2510,6 +2510,12 @@ var detailsPane = {
       );
     }
 
+    // Tell vcard-edit to read the input fields. Setting the _vCard property
+    // MUST happen before accessing `card.vCardProperties` or creating new
+    // cards will fail.
+    vCardEdit.saveVCard();
+    card.setProperty("_vCard", vCardEdit.vCardString);
+
     // No photo or a new photo. Delete the old one.
     if (!this.photo.style.backgroundImage || this.photo._blob) {
       let oldLeafName = card.getProperty("PhotoName", "");
@@ -2554,9 +2560,6 @@ var detailsPane = {
       delete this.photo._blob;
     }
 
-    // Tell vcard-edit to read the input fields.
-    vCardEdit.saveVCard();
-    card.setProperty("_vCard", vCardEdit.vCardString);
     this.isEditing = false;
 
     if (!card.directoryUID) {
