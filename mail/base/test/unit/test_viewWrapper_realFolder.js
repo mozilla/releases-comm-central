@@ -16,6 +16,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 /* ===== Real Folder, no features ===== */
 
@@ -380,6 +381,7 @@ add_task(async function test_real_folder_mail_views_unread() {
 
   // everything is unread to start with! #1
   viewWrapper.open(folder);
+  await new Promise(resolve => setTimeout(resolve));
   viewWrapper.setMailView(MailViewConstants.kViewItemUnread, null);
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
@@ -410,6 +412,7 @@ add_task(async function test_real_folder_mail_views_tags() {
 
   // open, apply mail view constraint, see those messages
   viewWrapper.open(folder);
+  await new Promise(resolve => setTimeout(resolve));
   viewWrapper.setMailView(MailViewConstants.kViewItemTags, "$label1");
   verify_messages_in_view(setOne, viewWrapper);
 
@@ -452,6 +455,7 @@ add_task(async function test_real_folder_mail_views_custom_recent_mail() {
 
   // open the folder, ensure only the recent guys show. #1
   viewWrapper.open(folder);
+  await new Promise(resolve => setTimeout(resolve));
   viewWrapper.setMailView("Recent Mail", null);
   verify_messages_in_view(setRecent, viewWrapper);
 
@@ -482,6 +486,7 @@ add_task(async function test_real_folder_mail_views_custom_last_5_days() {
 
   // open the folder, ensure only the recent guys show. #1
   viewWrapper.open(folder);
+  await new Promise(resolve => setTimeout(resolve));
   viewWrapper.setMailView("Last 5 Days", null);
   verify_messages_in_view(setRecent, viewWrapper);
 
@@ -514,6 +519,7 @@ add_task(async function test_real_folder_mail_views_custom_not_junk() {
 
   // open, see non-junk messages. #1
   viewWrapper.open(folder);
+  await new Promise(resolve => setTimeout(resolve));
   viewWrapper.setMailView("Not Junk", null);
   verify_messages_in_view(setNotJunk, viewWrapper);
 
@@ -551,6 +557,7 @@ add_task(async function test_real_folder_mail_views_custom_has_attachments() {
     attachSetDef,
   ]);
   viewWrapper.open(folder);
+  await new Promise(resolve => setTimeout(resolve));
   viewWrapper.setMailView("Has Attachments", null);
   verify_messages_in_view(setAttach, viewWrapper);
 
