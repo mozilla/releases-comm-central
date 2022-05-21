@@ -33,7 +33,8 @@
   --checkbox-checked-hover-bgcolor: color-mix(in srgb, black 10%, var(--highlight-color));
   --checkbox-checked-active-bgcolor: color-mix(in srgb, black 20%, var(--highlight-color));
   --focus-outline-color: var(--toolbar-field-focus-border-color);
-  --focus-outline-offset: 1px;
+  --focus-outline-offset: 2px;
+  --focus-outline: 2px solid var(--focus-outline-color);
   --input-border-color: color-mix(in srgb, currentColor 41%, transparent);
   --lwt-header-image: none;
 

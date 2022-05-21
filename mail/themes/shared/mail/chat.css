@@ -85,7 +85,7 @@
 }
 
 .im-placeholder-button-box > button:focus-visible {
-  outline: 2px solid var(--focus-outline-color);
+  outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
 }
 

@@ -39,7 +39,7 @@
   list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
   -moz-context-properties: fill;
   fill: currentColor;
-  --focus-outline-offset: -1px;
+  outline: var(--focus-outline);
 }
 
 #abContextMenuButton:not(:hover) {

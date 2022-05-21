@@ -364,7 +364,7 @@
       });
 
       let img = document.createElement("img");
-      img.src = "chrome://messenger/skin/icons/new/not-in-address-book.svg";
+      img.src = "chrome://messenger/skin/icons/new/address-book-indicator.svg";
       document.l10n.setAttributes(
         img,
         "message-header-address-not-in-address-book-icon2"

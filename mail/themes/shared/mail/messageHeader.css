@@ -4,6 +4,12 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:root {
+  /* This variable is used for both inline and block spacing in order to keep
+   a visual consistency for recipients and simple fields alignment. */
+  --message-header-field-offset: 2px;
+}
+
 .main-header-area {
   border-bottom-style: none;
   display: block;
@@ -179,6 +185,8 @@ mail-tagfield[collapsed="true"] {
 #expandedsubjectBox {
   font-weight: bold;
   flex: 1;
+  margin-inline-start: calc(var(--message-header-field-offset) * -1);
+  padding-inline: var(--message-header-field-offset);
 }
 
 /* ::::: attachment view ::::: */
@@ -225,7 +233,7 @@ mail-tagfield[collapsed="true"] {
 }
 
 #attachmentToggle:focus-visible {
-  outline: 2px solid var(--focus-outline-color);
+  outline: var(--focus-outline);
   outline-offset: -2px;
 }
 
@@ -262,8 +270,8 @@ mail-tagfield[collapsed="true"] {
   border-radius: 2px;
 }
 
-#attachmentName:focus-visible:not(:hover) {
-  outline: 2px solid var(--focus-outline-color);
+#attachmentName:focus-visible {
+  outline: var(--focus-outline);
   outline-offset: -1px;
 }
 
@@ -311,8 +319,7 @@ mail-tagfield[collapsed="true"] {
 }
 
 .message-header-label.header-pill-label {
-  /* 2px is to match the padding of the .header-recipient */
-  padding-block-start: 2px;
+  padding-block-start: var(--message-header-field-offset);
 }
 
 mail-newsgroups-headerfield {
@@ -337,11 +344,16 @@ mail-newsgroups-headerfield {
   margin: 0;
 }
 
-.header-row:focus-visible:not(:hover),
-.header-recipient:focus-visible:not(:hover),
-.header-newsgroup:focus-visible:not(:hover) {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: -1px;
+.header-row:focus-visible,
+.header-recipient:focus-visible,
+.header-newsgroup:focus-visible {
+  outline: var(--focus-outline);
+}
+
+.header-row[is="simple-header-row"] {
+  /* Match the visual alignment of the rows with clickable elements. */
+  margin-inline-start: calc(var(--message-header-field-offset) * -1);
+  padding-inline: var(--message-header-field-offset);
 }
 
 /* Separator for multifield emailaddress/newsgroup and messageid header rows. */
@@ -385,7 +397,7 @@ mail-newsgroups-headerfield {
 .tagvalue {
   padding: 1px 3px;
   margin-inline-start: 0;
-  border-radius: 3px;
+  border-radius: var(--toolbarbutton-border-radius);
   border: 1px solid transparent;
 }
 
@@ -428,8 +440,9 @@ mail-newsgroups-headerfield {
   background-color: SelectedItem;
 }
 
-.emailDisplayButton:focus-visible:not(:hover) {
-  border-color: var(--focus-outline-color);
+.emailDisplayButton:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }
 
 mail-emailaddress[selected="true"] > .emailDisplayButton {
@@ -455,8 +468,8 @@ button.email-action-button:hover:active {
   background-color: transparent;
 }
 
-button.email-action-button:focus-visible:not(:hover) {
-  outline: 1px solid var(--focus-outline-color);
+button.email-action-button:focus-visible {
+  outline: var(--focus-outline);
 }
 
 mail-emailaddress button.email-action-button {
@@ -733,9 +746,9 @@ html|header.message-security-header html|h3 {
   -moz-user-focus: normal;
 }
 
-.button-focusable:focus-visible:not(:hover) {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: -1px;
+.button-focusable:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }
 
 .button-focusable:focus:not(:focus-visible) {
@@ -751,6 +764,7 @@ button.email-action-flagged {
   fill-opacity: 0.2;
   stroke-opacity: 0;
   align-self: center;
+  border-radius: var(--toolbarbutton-border-radius);
 }
 
 button.email-action-flagged.flagged {
@@ -831,8 +845,8 @@ button.email-action-flagged.flagged {
 .header-recipient,
 .header-newsgroup {
   display: flow-root;
-  padding: 2px;
-  border-radius: 3px;
+  padding: var(--message-header-field-offset);
+  border-radius: var(--toolbarbutton-border-radius);
 }
 
 .header-recipient {
@@ -865,7 +879,7 @@ button.email-action-flagged.flagged {
   margin: 0;
   padding: 0;
   list-style: none;
-  margin-inline-start: -2px; /* Matches the 2px padding of the .header-recipient */
+  margin-inline-start: calc(var(--message-header-field-offset) * -1);
   min-width: 100px;
 }
 
@@ -874,25 +888,21 @@ button.email-action-flagged.flagged {
   margin-inline-start: 3px;
   margin-block-start: -2px;
   padding: 1px;
-  border-radius: 3px;
+  border-radius: var(--toolbarbutton-border-radius);
   cursor: pointer;
   vertical-align: middle;
+  background-color: transparent;
 }
 
 .recipient-address-book-button:not([disabled]):hover {
   background-color: transparent;
 }
 
-.recipient-address-book-button:not([disabled]):hover img {
-  fill: color-mix(in srgb, SelectedItemText 20%, transparent);
-  stroke: -moz-hyperlinktext;
-}
-
 .recipient-address-book-button img {
+  display: block;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-  display: block;
 }
 
 .recipient-address-book-button.in-address-book img {
@@ -901,8 +911,16 @@ button.email-action-flagged.flagged {
 }
 
 .header-recipient:hover .recipient-address-book-button.in-address-book img {
-  fill: color-mix(in srgb, SelectedItemText 20%, transparent);
+  fill: SelectedItemText;
   stroke: SelectedItemText;
+}
+
+.header-recipient:hover .recipient-address-book-button img {
+  opacity: 0.7;
+}
+
+.header-recipient:hover .recipient-address-book-button:not([disabled]):hover img {
+  opacity: 1;
 }
 
 .show-more-recipients {
