@@ -184,23 +184,22 @@ add_task(async function testSpacesToolbarVisibility() {
   let pinnedButton = document.getElementById("spacesPinnedButton");
   Assert.ok(spacesToolbar, "The spaces toolbar exists");
 
-  function assertVisibility(isVisible, msg) {
-    Assert.equal(
-      BrowserTestUtils.is_visible(spacesToolbar),
-      isVisible,
+  let assertVisibility = async function(isVisible, msg) {
+    await TestUtils.waitForCondition(
+      () => BrowserTestUtils.is_visible(spacesToolbar) == isVisible,
       `The spaces toolbar should be ${isVisible ? "visible" : "hidden"}: ${msg}`
     );
-    Assert.equal(
-      BrowserTestUtils.is_visible(toggleButton),
-      !isVisible,
+
+    await TestUtils.waitForCondition(
+      () => BrowserTestUtils.is_visible(toggleButton) == !isVisible,
       `The toggle button should be ${isVisible ? "hidden" : "visible"}: ${msg}`
     );
-    Assert.equal(
-      BrowserTestUtils.is_visible(toggleButton),
-      !isVisible,
+
+    await TestUtils.waitForCondition(
+      () => BrowserTestUtils.is_visible(pinnedButton) == !isVisible,
       `The pinned button should be ${isVisible ? "hidden" : "visible"}: ${msg}`
     );
-  }
+  };
 
   async function toggleVisibilityWithAppMenu(expectChecked) {
     let appMenu = document.getElementById("appMenu-popup");
@@ -251,26 +250,16 @@ add_task(async function testSpacesToolbarVisibility() {
     );
   }
 
-  assertVisibility(true, "on initial load");
+  await assertVisibility(true, "on initial load");
 
   // Collapse with a mouse click.
   let activeElement = document.activeElement;
   let collapseButton = document.getElementById("collapseButton");
   EventUtils.synthesizeMouseAtCenter(collapseButton, {}, window);
-  assertVisibility(false, "after clicking collapse button");
-  Assert.equal(
-    document.activeElement,
-    activeElement,
-    "Focus does not move when collapsing with a mouse click"
-  );
+  await assertVisibility(false, "after clicking collapse button");
 
   await toggleVisibilityWithAppMenu(false);
-  assertVisibility(true, "after revealing with the app menu");
-  Assert.equal(
-    document.activeElement,
-    activeElement,
-    "Focus does not move after revealing through the app menu"
-  );
+  await assertVisibility(true, "after revealing with the app menu");
 
   // We already clicked the collapse button, so it should already be the
   // focusButton for the gSpacesToolbar, and thus focusable.
@@ -282,7 +271,7 @@ add_task(async function testSpacesToolbarVisibility() {
 
   // Hide the spaces toolbar using the collapse button, which already has focus.
   EventUtils.synthesizeKey(" ", {}, window);
-  assertVisibility(false, "after closing with space key press");
+  await assertVisibility(false, "after closing with space key press");
   Assert.ok(
     pinnedButton.matches(":focus"),
     "Pinned button should be focused after closing with a key press"
@@ -300,7 +289,7 @@ add_task(async function testSpacesToolbarVisibility() {
   pinnedMenu.activateItem(document.getElementById("spacesPopupButtonReveal"));
   await pinnedMenuHidden;
 
-  assertVisibility(true, "after opening with pinned menu");
+  await assertVisibility(true, "after opening with pinned menu");
   Assert.ok(
     collapseButton.matches(":focus"),
     "Collapse button should be focused again after showing with the pinned menu"
@@ -334,7 +323,7 @@ add_task(async function testSpacesToolbarVisibility() {
 
   // Hide the spaces toolbar using the app menu.
   await toggleVisibilityWithAppMenu(true);
-  assertVisibility(false, "after hiding with the app menu");
+  await assertVisibility(false, "after hiding with the app menu");
   // Focus should have remained the same
   Assert.equal(
     document.activeElement,
@@ -349,7 +338,7 @@ add_task(async function testSpacesToolbarVisibility() {
     "Toggle button should be focusable"
   );
   EventUtils.synthesizeKey("KEY_Enter", {}, window);
-  assertVisibility(true, "after showing with the toggle button");
+  await assertVisibility(true, "after showing with the toggle button");
   // Focus is restored to the mailButton.
   Assert.ok(
     mailButton.matches(":focus"),
@@ -449,13 +438,15 @@ add_task(async function testSpacesToolbarContextMenu() {
       );
     }
     if (tabInView()) {
+      info(`Tab ${tab.label} already in view`);
       return;
     }
     tab.scrollIntoView();
     await TestUtils.waitForCondition(
       tabInView,
-      "Tab should be scrolled into view"
+      "Tab should be scrolled into view: " + tab.label
     );
+    info(`Tab ${tab.label} was scrolled into view`);
   }
 
   let numTabs = 0;
