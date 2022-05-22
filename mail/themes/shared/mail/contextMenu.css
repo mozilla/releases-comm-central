@@ -125,3 +125,15 @@ menupopup > menuseparator {
   margin: 4px 8px;
   padding: 0;
 }
+
+#ContentSelectDropdown > menupopup {
+  /* !important to override inline styles */
+  --content-select-background-image: none !important;
+  --panel-color: var(--arrowpanel-color) !important;
+}
+
+#ContentSelectDropdown > menupopup[customoptionstyling="true"]::part(arrowscrollbox) {
+  /* !important to override inline styles */
+  background-image: none !important;
+  background-color: var(--arrowpanel-background) !important;
+}

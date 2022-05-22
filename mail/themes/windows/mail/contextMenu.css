@@ -21,6 +21,10 @@ menupopup:not([type="arrow"])::part(content) {
   box-shadow: var(--windows-panel-box-shadow);
 }
 
+menulist > menupopup:not([type="arrow"]) {
+  margin-inline: 0;
+}
+
 @media (prefers-contrast) {
   menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
     color: SelectedItemText;
@@ -50,6 +54,12 @@ menupopup:not([type="arrow"])::part(content) {
     border: none;
     /* Somehow the double border radius is needed to look correct. */
     border-radius: calc(2 * var(--arrowpanel-border-radius));
+  }
+
+  /* Override popup.css */
+  menulist > menupopup {
+    --panel-background: var(--arrowpanel-background);
+    --panel-border-color: var(--arrowpanel-border-color);
   }
 
   menupopup > menuitem:is([type="checkbox"],[type="radio"]) > .menu-iconic-left,
