@@ -10,6 +10,7 @@
 
 #editContactHeader {
   display: flex;
+  margin-bottom: 15px;
 }
 
 #editContactPanelIcon {
@@ -18,15 +19,14 @@
   stroke: var(--toolbarbutton-icon-fill-attention);
   width: 20px;
   height: 20px;
-  margin-block: 0 15px;
-  margin-inline: 4px 10px;
+  margin-block: auto;
+  margin-inline: 3px 12px;
 }
 
 #editContactPanelTitle {
   font-size: 130%;
   font-weight: bold;
-  margin-inline-start: 9px;
-  margin-inline-end: 12px;
+  margin-block: auto;
 }
 
 #editContactContent {
