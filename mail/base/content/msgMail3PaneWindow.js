@@ -416,10 +416,6 @@ var MailPrefObserver = {
 
         // refresh the thread pane
         document.getElementById("threadTree").invalidate();
-      } else if (prefName == "mail.openpgp.enable") {
-        if (Services.prefs.getBoolPref("mail.openpgp.enable")) {
-          initOpenPGPIfEnabled(); // mail window related init
-        }
       }
     }
   },
@@ -450,8 +446,6 @@ function verifyOpenAccountHubTab() {
 }
 
 function initOpenPGPIfEnabled() {
-  let hideItems = true;
-
   BondOpenPGP.init();
 
   try {
@@ -459,13 +453,8 @@ function initOpenPGPIfEnabled() {
     Enigmail.msg.messengerStartup();
     Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
     Enigmail.hdrView.hdrViewLoad();
-    hideItems = false;
   } catch (ex) {
     console.log(ex);
-  }
-
-  for (let item of document.querySelectorAll(".openpgp-item")) {
-    item.hidden = hideItems;
   }
 }
 
@@ -539,7 +528,6 @@ var gMailInit = {
 
     Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
     Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
-    Services.prefs.addObserver("mail.openpgp.enable", MailPrefObserver);
 
     CreateMailWindowGlobals();
     GetMessagePaneWrapper().collapsed = true;
@@ -764,7 +752,6 @@ var gMailInit = {
       "mail.showCondensedAddresses",
       MailPrefObserver
     );
-    Services.prefs.removeObserver("mail.openpgp.enable", MailPrefObserver);
 
     if (gRightMouseButtonSavedSelection) {
       // Avoid possible cycle leaks.

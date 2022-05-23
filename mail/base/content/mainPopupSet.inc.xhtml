@@ -36,9 +36,9 @@
               accesskey="&CopyNameAndEmailAddress.accesskey;"
               class="menuitem-iconic"
               oncommand="gMessageHeader.copyAddress(event, true);"/>
-    <menuseparator class="openpgp-item"/>
+    <menuseparator/>
     <menuitem id="searchKeysOpenPGP" data-l10n-id="openpgp-search-keys-openpgp"
-              class="openpgp-item menuitem-iconic"
+              class="menuitem-iconic"
               oncommand="Enigmail.msg.searchKeysOnInternet(event)"/>
     <menuseparator/>
     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
@@ -374,7 +374,6 @@
               accesskey="&moveToFolderAgain.accesskey;"/>
 
     <menu id="mailContext-decryptToFolder"
-          class="openpgp-item"
           data-l10n-id="context-menu-decrypt-to-folder"
           data-l10n-attrs="accesskey"
           oncommand="Enigmail.msg.decryptToFolder(event.target._folder, false);">
