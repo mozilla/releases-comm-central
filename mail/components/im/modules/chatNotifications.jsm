@@ -108,11 +108,9 @@ var Notifications = {
       case 1:
         // Use the buddy icon if available for the icon of the notification.
         let conv = aMessage.conversation;
-        if (!conv.isChat) {
-          let buddy = conv.buddy;
-          if (buddy) {
-            icon = buddy.buddyIconFilename;
-          }
+        icon = conv.convIconFilename;
+        if (!icon && !conv.isChat) {
+          icon = conv.buddy?.buddyIconFilename;
         }
 
         // Handle third person messages
