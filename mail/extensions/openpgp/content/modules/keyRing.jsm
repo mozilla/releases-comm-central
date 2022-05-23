@@ -387,17 +387,15 @@ var EnigmailKeyRing = {
    *         to enter a passphrase to unlock a secret key.
    *         For the current API, see passphrasePromptCallback
    */
-  async importKeyFromFile(
+  async importSecKeyFromFile(
     win,
     passCB,
     inputFile,
     errorMsgObj,
-    importedKeysObj,
-    pubkey,
-    seckey
+    importedKeysObj
   ) {
     EnigmailLog.DEBUG(
-      "keyRing.jsm: EnigmailKeyRing.importKeyFromFile: fileName=" +
+      "keyRing.jsm: EnigmailKeyRing.importSecKeyFromFile: fileName=" +
         inputFile.path +
         "\n"
     );
@@ -411,12 +409,10 @@ var EnigmailKeyRing = {
 
       try {
         // strict on first attempt, permissive on optional second attempt
-        res = await cApi.importKeyFromFileAPI(
+        res = await cApi.importSecKeyFromFileAPI(
           win,
           passCB,
           inputFile,
-          pubkey,
-          seckey,
           permissive
         );
         failed =
@@ -866,12 +862,10 @@ var EnigmailKeyRing = {
           limitedUids
         );
       } else {
-        result = await cApi.importKeyBlockAPI(
+        result = await RNP.importSecKeyBlockImpl(
           parent,
           passCB,
           blockParam,
-          !importSecret,
-          importSecret,
           permissive,
           limitedUids
         );
@@ -933,7 +927,7 @@ var EnigmailKeyRing = {
         let exitStatus;
         let errorMsgObj = {};
         try {
-          exitStatus = await EnigmailKeyRing.importKeyAsync(
+          exitStatus = await EnigmailKeyRing.importPubKey(
             window,
             false,
             keyData,
@@ -943,7 +937,6 @@ var EnigmailKeyRing = {
             null,
             false,
             limitedUids,
-            false,
             true,
             null,
             outParam.acceptance
@@ -986,7 +979,7 @@ var EnigmailKeyRing = {
           let exitStatus;
           let errorMsgObj = {};
           try {
-            exitStatus = await EnigmailKeyRing.importKeyAsync(
+            exitStatus = await EnigmailKeyRing.importPubKey(
               window,
               false,
               key.pubKey,
@@ -996,7 +989,6 @@ var EnigmailKeyRing = {
               null,
               false,
               limitedUids,
-              false,
               true,
               null,
               outParam.acceptance
@@ -1033,7 +1025,7 @@ var EnigmailKeyRing = {
     let errorMsgObj = {};
     let exitStatus = -1;
     try {
-      exitStatus = await EnigmailKeyRing.importKeyAsync(
+      exitStatus = await EnigmailKeyRing.importPubKey(
         window,
         false,
         keyData,

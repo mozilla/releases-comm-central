@@ -905,14 +905,12 @@ async function openPgpImportStart() {
     let resultKeys = {};
     let errorMsgObj = {};
 
-    let exitCode = await EnigmailKeyRing.importKeyFromFile(
+    let exitCode = await EnigmailKeyRing.importSecKeyFromFile(
       window,
       passphrasePromptCallback,
       file,
       errorMsgObj,
-      resultKeys,
-      false,
-      true
+      resultKeys
     );
 
     // Skip this file if something went wrong.

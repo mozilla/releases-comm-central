@@ -89,26 +89,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-  async importKeyBlockAPI(keyBlock) {
-    return null;
-  }
-
-  /**
-   * Import key(s) from a file
-   *
-   * @param {nsIFile} inputFile:  the file holding the keys
-   *
-   * @return {Object} or null in case no data / error:
-   *   - {Number}          exitCode:        result code (0: OK)
-   *   - {Array of String) importedKeys:    imported fingerprints
-   *   - {String}          errorMsg:        human readable error message
-   *   - {Number}          importSum:       total number of processed keys
-   *   - {Number}          importUnchanged: number of unchanged keys
-   */
-  async importKeyFromFileAPI(inputFile) {
-    throw new Error("Not implemented");
-  }
-
   /**
    * Export secret key(s) to a file
    *

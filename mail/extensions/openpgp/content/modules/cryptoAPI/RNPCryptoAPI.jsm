@@ -88,28 +88,6 @@ class RNPCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-  async importKeyBlockAPI(
-    win,
-    passCB,
-    keyBlock,
-    pubkey,
-    seckey,
-    permissive,
-    limitedFPRs = []
-  ) {
-    // TODO: get status results
-    let res = await RNP.importKeyBlockImpl(
-      win,
-      passCB,
-      keyBlock,
-      pubkey,
-      seckey,
-      permissive,
-      limitedFPRs
-    );
-    return res;
-  }
-
   async importPubkeyBlockAutoAcceptAPI(
     win,
     keyBlock,
@@ -137,14 +115,7 @@ class RNPCryptoAPI extends CryptoAPI {
    *   - {Array of String) importedKeys:    imported fingerprints
    *   - {String}          errorMsg:        human readable error message
    */
-  async importKeyFromFileAPI(
-    win,
-    passCB,
-    inputFile,
-    pubkey,
-    seckey,
-    permissive
-  ) {
+  async importSecKeyFromFileAPI(win, passCB, inputFile, permissive) {
     let contents = null;
     try {
       let data = await IOUtils.read(inputFile.path);
@@ -155,14 +126,8 @@ class RNPCryptoAPI extends CryptoAPI {
     if (!contents) {
       return null;
     }
-    return RNP.importKeyBlockImpl(
-      win,
-      passCB,
-      contents,
-      pubkey,
-      seckey,
-      permissive
-    );
+
+    return RNP.importSecKeyBlockImpl(win, passCB, contents, permissive);
   }
 
   async importRevBlockAPI(data) {

@@ -1974,12 +1974,10 @@ var RNP = {
     return rv;
   },
 
-  async importKeyBlockImpl(
+  async importSecKeyBlockImpl(
     win,
     passCB,
     keyBlockStr,
-    pubkey,
-    seckey,
     permissive = false,
     limitedFPRs = []
   ) {
@@ -1987,8 +1985,8 @@ var RNP = {
       win,
       passCB,
       keyBlockStr,
-      pubkey,
-      seckey,
+      false,
+      true,
       null,
       permissive,
       limitedFPRs

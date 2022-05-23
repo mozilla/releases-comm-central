@@ -103,12 +103,10 @@ add_task(async function testSecretKeys() {
     return "wrong-password";
   };
 
-  let importResult = await RNP.importKeyBlockImpl(
+  let importResult = await RNP.importSecKeyBlockImpl(
     null,
     getWrongPassword,
-    backupKeyBlock,
-    false,
-    true
+    backupKeyBlock
   );
 
   Assert.ok(importResult.exitCode != 0, "import should have failed");
@@ -117,12 +115,10 @@ add_task(async function testSecretKeys() {
     return backupPassword;
   };
 
-  importResult = await RNP.importKeyBlockImpl(
+  importResult = await RNP.importSecKeyBlockImpl(
     null,
     getGoodPassword,
-    backupKeyBlock,
-    false,
-    true
+    backupKeyBlock
   );
 
   Assert.ok(importResult.exitCode == 0, "import result code should be 0");
@@ -146,12 +142,10 @@ add_task(async function testImportSecretKeyIsProtected() {
     return "x";
   };
 
-  let importResult = await RNP.importKeyBlockImpl(
+  let importResult = await RNP.importSecKeyBlockImpl(
     null,
     getCarolPassword,
-    carolSec,
-    false,
-    true
+    carolSec
   );
 
   Assert.equal(
@@ -166,13 +160,7 @@ add_task(async function testImportSecretKeyIsProtected() {
   let aliceSec = await IOUtils.readUTF8(aliceFile.path);
 
   // Alice's secret key is unprotected.
-  importResult = await RNP.importKeyBlockImpl(
-    null,
-    null,
-    aliceSec,
-    false,
-    true
-  );
+  importResult = await RNP.importSecKeyBlockImpl(null, null, aliceSec);
 
   Assert.equal(
     importResult.exitCode,
@@ -195,12 +183,10 @@ add_task(async function testImportOfflinePrimaryKey() {
     return "";
   };
 
-  let importResult = await RNP.importKeyBlockImpl(
+  let importResult = await RNP.importSecKeyBlockImpl(
     null,
     cancelPassword,
-    keyBlock,
-    false,
-    true
+    keyBlock
   );
 
   Assert.ok(importResult.exitCode == 0);
@@ -228,12 +214,10 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
     return "";
   };
 
-  let importResult = await RNP.importKeyBlockImpl(
+  let importResult = await RNP.importSecKeyBlockImpl(
     null,
     cancelPassword,
-    secBlock,
-    false,
-    true
+    secBlock
   );
 
   Assert.ok(importResult.exitCode == 0);
@@ -244,12 +228,10 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
     ).path
   );
 
-  importResult = await RNP.importKeyBlockImpl(
+  importResult = await RNP.importPubkeyBlockAutoAcceptImpl(
     null,
-    cancelPassword,
     pubBlock,
-    true,
-    false
+    null // acceptance
   );
 
   Assert.ok(importResult.exitCode == 0);

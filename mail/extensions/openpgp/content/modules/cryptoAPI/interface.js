@@ -112,26 +112,6 @@ class CryptoAPI {
     return [];
   }
 
-  /**
-   * Import key(s) from a file
-   *
-   * @param {nsIFile} inputFile:  the file holding the keys
-   *
-   * @return {Object} or null in case no data / error:
-   *   - {Number}          exitCode:        result code (0: OK)
-   *   - {Array of String) importedKeys:    imported fingerprints
-   *   - {Number}          importSum:       total number of processed keys
-   *   - {Number}          importUnchanged: number of unchanged keys
-   */
-
-  async importKeyFromFileAPI(inputFile) {
-    return null;
-  }
-
-  async importKeyBlockAPI(keyBlock) {
-    return null;
-  }
-
   async importPubkeyBlockAutoAccept(keyBlock) {
     return null;
   }
