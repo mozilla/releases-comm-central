@@ -157,6 +157,8 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
     message = tab.message;
   } else if (tab?.folderDisplay) {
     message = tab.folderDisplay.selectedMessage;
+  } else {
+    message = gFolderDisplay.selectedMessage;
   }
 
   let folder = message?.folder;
@@ -821,18 +823,20 @@ function InitAppmenuViewMessagesMenu() {
 }
 
 function InitMessageMenu() {
-  let selectedMsg;
+  let message;
 
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
-    selectedMsg = tab.message;
+    message = tab.message;
   } else if (tab?.mode.tabType.name == "mail") {
-    selectedMsg = tab.folderDisplay.selectedMessage;
+    message = tab.folderDisplay.selectedMessage;
+  } else {
+    message = gFolderDisplay.selectedMessage;
   }
 
-  let isNews = selectedMsg?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup;
-  let isFeed = selectedMsg && FeedUtils.isFeedMessage(selectedMsg);
-  let isDummy = selectedMsg?.folder == null;
+  let isNews = message?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup;
+  let isFeed = message && FeedUtils.isFeedMessage(message);
+  let isDummy = message?.folder == null;
 
   // We show reply to Newsgroups only for news messages.
   document.getElementById("replyNewsgroupMainMenu").hidden = !isNews;
@@ -845,22 +849,21 @@ function InitMessageMenu() {
 
   // Disable the move and copy menus if there are no messages selected or if
   // the message is a dummy - e.g. opening a message in the standalone window.
-  let messageStoredInternally = selectedMsg && !isDummy;
+  let messageStoredInternally = message && !isDummy;
   // Disable the move menu if we can't delete msgs from the folder.
   let canMove =
-    messageStoredInternally && !isNews && selectedMsg.folder.canDeleteMessages;
+    messageStoredInternally && !isNews && message.folder.canDeleteMessages;
 
   document.getElementById("moveMenu").disabled = !canMove;
 
   // Also disable copy when no folder is loaded (like for .eml files).
-  let canCopy =
-    selectedMsg && (!isDummy || window.arguments[0].scheme == "file");
+  let canCopy = message && (!isDummy || window.arguments[0].scheme == "file");
   document.getElementById("copyMenu").disabled = !canCopy;
 
   initMoveToFolderAgainMenu(document.getElementById("moveToFolderAgain"));
 
   // Disable the Forward As menu item if no message is selected.
-  document.getElementById("forwardAsMenu").disabled = !selectedMsg;
+  document.getElementById("forwardAsMenu").disabled = !message;
 
   // Disable the Tag menu item if no message is selected or when we're
   // not in a folder.
@@ -1072,6 +1075,8 @@ function InitViewBodyMenu() {
     message = tab.message;
   } else if (tab?.mode.tabType.name == "mail") {
     message = tab.folderDisplay.selectedMessage;
+  } else {
+    message = gFolderDisplay.selectedMessage;
   }
 
   // Separate render prefs not implemented for feeds, bug 458606.  Show the
@@ -1485,6 +1490,8 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
     message = tab.message;
   } else if (tab?.mode.tabType.name == "mail") {
     message = tab.folderDisplay.selectedMessage;
+  } else {
+    message = gFolderDisplay.selectedMessage;
   }
 
   const tagArray = MailServices.tags.getAllTags();
@@ -2011,6 +2018,8 @@ function SelectedMessagesAreFlagged() {
     message = tab.message;
   } else if (tab?.mode.tabType.name == "mail") {
     message = tab.folderDisplay.selectedMessage;
+  } else {
+    message = gFolderDisplay.selectedMessage;
   }
 
   return message?.isFlagged;
