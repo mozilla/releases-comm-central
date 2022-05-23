@@ -872,6 +872,34 @@ add_task(async function test_removeParticipant() {
   room.forget();
 });
 
+add_task(function test_highlightForNotifications() {
+  const time = Date.now();
+  const event = makeEvent({
+    type: MatrixSDK.EventType.RoomMessage,
+    time,
+    sender: "@foo:example.com",
+  });
+  const roomStub = getRoom(true, "#test:example.com", {
+    getPushActionsForEvent(eventToProcess) {
+      equal(eventToProcess, event);
+      return {
+        notify: true,
+      };
+    },
+  });
+  const message = roomStub.createMessage("@foo:example.com", "bar", {
+    event,
+  });
+  equal(message.message, "bar");
+  equal(message.who, "@foo:example.com");
+  equal(message.conversation, roomStub);
+  ok(!message.outgoing);
+  ok(message.incoming);
+  equal(message.alias, "foo bar");
+  ok(message.containsNick);
+  roomStub.forget();
+});
+
 function waitForNotification(target, expectedTopic) {
   let promise = new Promise(resolve => {
     let observer = {

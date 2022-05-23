@@ -932,7 +932,8 @@ MatrixRoom.prototype = {
       properties._alias = properties.event.sender?.name;
       properties.isEncrypted = properties.event.isEncrypted();
       properties.containsNick =
-        !isOutgoing && Boolean(actions?.tweaks?.highlight);
+        !isOutgoing &&
+        Boolean((this.isChat && actions?.notify) || actions?.tweaks?.highlight);
       properties.time = Math.floor(properties.event.getDate() / 1000);
       properties._iconURL =
         properties.event.sender?.getAvatarUrl(
