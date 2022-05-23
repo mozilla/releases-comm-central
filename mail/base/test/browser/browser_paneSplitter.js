@@ -94,6 +94,8 @@ let testRunner = {
       // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
       await new Promise(resolve => setTimeout(resolve, MOUSE_DELAY));
     }
+
+    await new Promise(resolve => requestAnimationFrame(resolve));
   },
 };
 
