@@ -14,6 +14,7 @@
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
+  const { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
   class MultiRecipientRow extends HTMLDivElement {
     /**
@@ -646,5 +647,75 @@
   }
   customElements.define("header-newsgroup", HeaderNewsgroup, {
     extends: "li",
+  });
+
+  class HeaderTagsRow extends HTMLDivElement {
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
+      this.classList.add("header-tags-row");
+
+      this.heading = document.createElement("span");
+      this.heading.id = `${this.dataset.headerName}Heading`;
+      let sep = document.createElement("span");
+      sep.classList.add("screen-reader-only");
+      sep.setAttribute("data-l10n-name", "field-separator");
+      this.heading.appendChild(sep);
+      this.heading.hidden = true;
+      document.l10n.setAttributes(this.heading, "message-header-tags-field");
+      this.appendChild(this.heading);
+
+      this.tagsList = document.createElement("ol");
+      this.tagsList.classList.add("tags-list");
+      this.tagsList.setAttribute("aria-labelledby", this.heading.id);
+      this.appendChild(this.tagsList);
+    }
+
+    buildTags(tags) {
+      // Clear old tags.
+      this.tagsList.replaceChildren();
+
+      for (let tag of tags) {
+        // For each tag, create a label, give it the font color that corresponds to the
+        // color of the tag and append it.
+        let tagName;
+        try {
+          // if we got a bad tag name, getTagForKey will throw an exception, skip it
+          // and go to the next one.
+          tagName = MailServices.tags.getTagForKey(tag);
+        } catch (ex) {
+          continue;
+        }
+
+        // Create a label for the tag name and set the color.
+        let li = document.createElement("li");
+        li.tabIndex = 0;
+        li.classList.add("tag");
+        li.textContent = tagName;
+
+        let color = MailServices.tags.getColorForKey(tag);
+        if (color) {
+          let textColor = !TagUtils.isColorContrastEnough(color)
+            ? "white"
+            : "black";
+          li.setAttribute(
+            "style",
+            `color: ${textColor}; background-color: ${color};`
+          );
+        }
+
+        this.tagsList.appendChild(li);
+      }
+    }
+
+    clear() {
+      this.tagsList.replaceChildren();
+    }
+  }
+  customElements.define("header-tags-row", HeaderTagsRow, {
+    extends: "div",
   });
 }

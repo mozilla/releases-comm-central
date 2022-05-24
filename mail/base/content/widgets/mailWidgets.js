@@ -108,58 +108,6 @@
   }
   customElements.define("mail-urlfield", MozMailUrlfield);
 
-  class MozMailHeaderfieldTags extends MozXULElement {
-    connectedCallback() {
-      this.classList.add("headerValue");
-    }
-
-    set headerValue(val) {
-      this.buildTags(val);
-    }
-
-    buildTags(tags) {
-      // tags contains a list of actual tag names (not the keys), delimited by spaces
-      // each tag name is encoded.
-
-      // remove any existing tag items we've appended to the list
-      this.replaceChildren();
-
-      // tokenize the keywords based on ' '
-      const tagsArray = tags.split(" ");
-      for (let i = 0; i < tagsArray.length; i++) {
-        // for each tag, create a label, give it the font color that corresponds to the
-        // color of the tag and append it.
-        let tagName;
-        try {
-          // if we got a bad tag name, getTagForKey will throw an exception, skip it
-          // and go to the next one.
-          tagName = MailServices.tags.getTagForKey(tagsArray[i]);
-        } catch (ex) {
-          continue;
-        }
-
-        // Create a label for the tag name and set the color.
-        const label = document.createXULElement("label");
-        label.setAttribute("value", tagName);
-        label.className = "tagvalue";
-        let color = MailServices.tags.getColorForKey(tagsArray[i]);
-        if (color) {
-          let textColor = !LazyModules.TagUtils.isColorContrastEnough(color)
-            ? "white"
-            : "black";
-          label.setAttribute(
-            "style",
-            "color: " + textColor + "; background-color: " + color + ";"
-          );
-        }
-
-        this.appendChild(label);
-        setHeaderAriaLabel(label, tagName);
-      }
-    }
-  }
-  customElements.define("mail-tagfield", MozMailHeaderfieldTags);
-
   class MozMailMessageid extends MozXULElement {
     static get observedAttributes() {
       return ["label"];

@@ -309,12 +309,10 @@ const headersToTest = [
   {
     name: "Tags",
     element() {
-      return document.querySelector("#expandedtagsBox > .tagvalue");
+      return document.querySelector("#expandedtagsBox .tag");
     },
     expectedName(element) {
-      return `${document.getElementById("expandedtagsLabel").value}: ${
-        element.value
-      }`;
+      return element.textContent;
     },
   },
 ];

@@ -109,7 +109,7 @@ const gExpandedHeaderList = [
   { name: "references", outputFunction: OutputMessageIds },
   { name: "followup-to", outputFunction: outputNewsgroups },
   { name: "content-base" },
-  { name: "tags" },
+  { name: "tags", outputFunction: outputTags },
 ];
 
 /**
@@ -634,7 +634,7 @@ var messageHeaderSink = {
     } // while we have more headers to parse
 
     // Process message tags as if they were headers in the message.
-    SetTagHeader();
+    gMessageHeader.setTags();
     updateStarButton();
 
     if ("from" in currentHeaderData && "sender" in currentHeaderData) {
@@ -906,54 +906,6 @@ var messageHeaderSink = {
   },
 };
 
-function SetTagHeader() {
-  // It would be nice if we passed in the msgHdr from the back end.
-  var msgHdr = gFolderDisplay.selectedMessage;
-  if (!msgHdr) {
-    // No msgHdr to add our tags to.
-    return;
-  }
-
-  // get the list of known tags
-  var tagArray = MailServices.tags.getAllTags();
-  var tagKeys = {};
-  for (var tagInfo of tagArray) {
-    if (tagInfo.tag) {
-      tagKeys[tagInfo.key] = true;
-    }
-  }
-
-  // extract the tag keys from the msgHdr
-  var msgKeyArray = msgHdr.getStringProperty("keywords").split(" ");
-
-  // attach legacy label to the front if not already there
-  var label = msgHdr.label;
-  if (label) {
-    let labelKey = "$label" + label;
-    if (!msgKeyArray.includes(labelKey)) {
-      msgKeyArray.unshift(labelKey);
-    }
-  }
-
-  // Rebuild the keywords string with just the keys that are actual tags or
-  // legacy labels and not other keywords like Junk and NonJunk.
-  // Retain their order, though, with the label as oldest element.
-  for (let i = msgKeyArray.length - 1; i >= 0; --i) {
-    if (!(msgKeyArray[i] in tagKeys)) {
-      // Remove non-tag key.
-      msgKeyArray.splice(i, 1);
-    }
-  }
-  var msgKeys = msgKeyArray.join(" ");
-
-  if (msgKeys) {
-    currentHeaderData.tags = { headerName: "tags", headerValue: msgKeys };
-  } else {
-    // No more tags, so clear out the header field.
-    delete currentHeaderData.tags;
-  }
-}
-
 /**
  * Update the flagged (starred) state of the currently selected message.
  */
@@ -988,7 +940,7 @@ function EnsureSubjectValue() {
 
 function OnTagsChange() {
   // rebuild the tag headers
-  SetTagHeader();
+  gMessageHeader.setTags();
 
   // Now update the expanded header view to rebuild the tags,
   // and then show or hide the tag header box.
@@ -1382,8 +1334,18 @@ function outputNewsgroups(headerEntry, headerValue) {
   headerValue
     .split(",")
     .forEach(newsgroup => headerEntry.enclosingBox.addNewsgroup(newsgroup));
-
   headerEntry.enclosingBox.buildView();
+}
+
+/**
+ * Take a string of tags separated by space, split them and add them to the
+ * corresponding header-tags-row element.
+ *
+ * @param {MsgHeaderEntry} headerEntry - The data structure for this header.
+ * @param {string} headerValue - The string of tags from the message.
+ */
+function outputTags(headerEntry, headerValue) {
+  headerEntry.enclosingBox.buildTags(headerValue.split(" "));
 }
 
 /**
@@ -3635,5 +3597,47 @@ const gMessageHeader = {
    */
   editContact(element) {
     editContactInlineUI.showEditContactPanel(element.cardDetails, element);
+  },
+
+  /**
+   * Set the tags to the message header tag element.
+   */
+  setTags() {
+    let msgHdr = gFolderDisplay.selectedMessage;
+    // Bail out if we don't have a message selected.
+    if (!msgHdr) {
+      return;
+    }
+
+    // Extract the tag keys from the message header.
+    let msgKeyArray = msgHdr.getStringProperty("keywords").split(" ");
+    // Attach legacy label to the front if not already there.
+    let label = msgHdr.label;
+    if (label) {
+      let labelKey = `$label${label}`;
+      if (!msgKeyArray.includes(labelKey)) {
+        msgKeyArray.unshift(labelKey);
+      }
+    }
+
+    // Get the list of known tags.
+    let tagsArray = MailServices.tags.getAllTags().filter(t => t.tag);
+    let tagKeys = {};
+    for (let tagInfo of tagsArray) {
+      tagKeys[tagInfo.key] = true;
+    }
+    // Only use tags that match our saved tags.
+    let msgKeys = msgKeyArray.filter(k => k in tagKeys);
+
+    if (msgKeys.length) {
+      currentHeaderData.tags = {
+        headerName: "tags",
+        headerValue: msgKeys.join(" "),
+      };
+      return;
+    }
+
+    // No more tags, so clear out the header field.
+    delete currentHeaderData.tags;
   },
 };

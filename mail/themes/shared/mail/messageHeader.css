@@ -399,14 +399,14 @@ mail-newsgroups-headerfield {
   color: darkred;
 }
 
-.tagvalue {
+.tag {
   padding: 1px 3px;
   margin-inline-start: 0;
   border-radius: var(--toolbarbutton-border-radius);
   border: 1px solid transparent;
 }
 
-.tagvalue:not([style]) {
+.tag:not([style]) {
   border-color: color-mix(in srgb, currentColor 50%, transparent);
 }
 
@@ -876,7 +876,8 @@ button.email-action-flagged.flagged {
 }
 
 .recipients-list,
-.newsgroups-list {
+.newsgroups-list,
+.tags-list {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -886,6 +887,11 @@ button.email-action-flagged.flagged {
   list-style: none;
   margin-inline-start: calc(var(--message-header-field-offset) * -1);
   min-width: 100px;
+}
+
+.tags-list {
+  column-gap: 3px;
+  min-width: fit-content;
 }
 
 .recipient-address-book-button {
