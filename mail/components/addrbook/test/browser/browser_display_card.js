@@ -9,7 +9,29 @@ window.maximize();
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
+);
+
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+
+/** @implements {nsIExternalProtocolService} */
+let mockExternalProtocolService = {
+  _loadedURLs: [],
+  externalProtocolHandlerExists(aProtocolScheme) {},
+  getApplicationDescription(aScheme) {},
+  getProtocolHandlerInfo(aProtocolScheme) {},
+  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
+  isExposedProtocol(aProtocolScheme) {},
+  loadURI(aURI, aWindowContext) {
+    this._loadedURLs.push(aURI.spec);
+  },
+  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
+  urlLoaded(aURL) {
+    return this._loadedURLs.includes(aURL);
+  },
+  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
+};
 
 add_setup(async function() {
   personalBook.addCard(
@@ -54,10 +76,16 @@ add_setup(async function() {
 
   let calendar = CalendarTestUtils.createCalendar();
 
+  let mockExternalProtocolServiceCID = MockRegistrar.register(
+    "@mozilla.org/uriloader/external-protocol-service;1",
+    mockExternalProtocolService
+  );
+
   registerCleanupFunction(async () => {
     personalBook.deleteCards(personalBook.childCards);
     MailServices.accounts.removeAccount(account, true);
     CalendarTestUtils.removeCalendar(calendar);
+    MockRegistrar.unregister(mockExternalProtocolServiceCID);
   });
 });
 
@@ -291,6 +319,16 @@ add_task(async function test_display() {
     items[6].children[1].querySelector("a").textContent,
     "www.thunderbird.net"
   );
+  items[6].children[1].querySelector("a").scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(
+    items[6].children[1].querySelector("a"),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(
+    () => mockExternalProtocolService.urlLoaded("https://www.thunderbird.net/"),
+    "attempted to load website in a browser"
+  );
   Assert.equal(
     items[7].children[0].dataset.l10nId,
     "about-addressbook-entry-name-time-zone"
@@ -325,6 +363,8 @@ add_task(async function test_display() {
   Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
   Assert.ok(BrowserTestUtils.is_hidden(notesSection));
   Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
+
+  await closeAddressBookWindow();
 });
 
 /**
@@ -424,6 +464,7 @@ add_task(async function testReadOnlyActions() {
   await checkActionButtons("basic@invalid", "basic person");
   Assert.ok(BrowserTestUtils.is_visible(editButton), "edit button is shown");
 
+  await closeAddressBookWindow();
   await promiseDirectoryRemoved(readOnlyBook.URI);
 });
 
