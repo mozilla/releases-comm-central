@@ -9,6 +9,7 @@
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/impp.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/special-date.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tel.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tz.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/url.js"></script>
@@ -115,6 +116,19 @@
       <span data-l10n-id="vcard-impp-add"/>
     </button>
   </fieldset>
+  <!-- Birthday and Anniversary (Special dates) -->
+  <fieldset id="addr-book-edit-bday-anniversary" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-bday-anniversary-header"/>
+    <slot name="v-bday"/>
+    <slot name="v-anniversary"/>
+    <button id="vcard-add-bday-anniversary" class="addr-book-edit-fieldset-button"
+            type="button">
+      <img class="addr-book-edit-fieldset-button-icon"
+           src="chrome://global/skin/icons/add.svg"
+           alt=""/>
+      <span data-l10n-id="vcard-bday-anniversary-add"/>
+    </button>
+  </fieldset>
 </template>
 
 <!-- Individual fields -->
@@ -212,4 +226,27 @@
 <template id="template-vcard-edit-text">
   <label class="screen-readers-only" for="text"/>
   <input type="text"/>
+</template>
+
+<!-- Birthday and Anniversary -->
+<template id="template-vcard-edit-bday-anniversary">
+  <fieldset>
+    <legend/>
+    <select class="vcard-type-selection">
+      <option value="bday" data-l10n-id="vcard-bday-label" selected="true"/>
+      <option value="anniversary" data-l10n-id="vcard-anniversary-label"/>
+    </select>
+    <div class="vcard-year-month-day-container">
+      <label class="screen-readers-only" for="month" data-l10n-id="vcard-date-month"/><!-- No white space here.
+   --><select id="month">
+        <option value="" data-l10n-id="vcard-date-month" />
+      </select><!-- No white space here.
+   --><label class="screen-readers-only" for="day" data-l10n-id="vcard-date-day"/><!-- No white space here.
+   --><select id="day">
+        <option value="" data-l10n-id="vcard-date-day"/>
+      </select><!-- No white space here.
+   --><label class="screen-readers-only" for="year" data-l10n-id="vcard-date-year"/>
+      <input id="year" type="number" min="0" max="9999"/>
+    </div>
+  </fieldset>
 </template>

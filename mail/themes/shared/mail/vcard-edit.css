@@ -8,6 +8,7 @@
   grid-template-rows: masonry;
   gap: 1em;
   margin-block: 15px;
+  grid-template-rows: masonry;
 }
 
 fieldset {

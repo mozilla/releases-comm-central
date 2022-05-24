@@ -13,8 +13,11 @@ vcard-edit input[type="text"],
 vcard-edit input[type="email"],
 vcard-edit input[type="url"],
 vcard-edit input[type="tel"],
+vcard-edit input[type="number"],
 vcard-edit .vcard-type-selection,
-vcard-tz select:not([size], [multiple]) {
+vcard-edit input[type="date"],
+vcard-tz select:not([size], [multiple]),
+vcard-special-date select:not([size], [multiple]) {
   line-height: 1;
   padding-inline: 9px;
   margin: 0;
@@ -24,6 +27,10 @@ vcard-tz select:not([size], [multiple]) {
   color: inherit;
   margin-block-end: 3px;
   margin-inline-end: 3px;
+}
+
+vcard-edit input[type="number"] {
+  padding-inline-end: 0;
 }
 
 vcard-edit select {
@@ -167,7 +174,36 @@ tr[slot="v-email"] input[type="checkbox"]:checked:active::before {
 
 vcard-url,
 vcard-tel,
-vcard-impp {
+vcard-impp,
+vcard-special-date {
   /* @TODO check the whitespace after the select element */
   display: flex;
+}
+
+vcard-special-date fieldset {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: min-content auto;
+}
+
+vcard-special-date .vcard-type-selection {
+  grid-column: 1 / 2;
+}
+
+vcard-special-date .vcard-year-month-day-container {
+  display: grid;
+  grid-template-columns: min-content min-content;
+}
+
+vcard-special-date input[type="number"] {
+  box-sizing: border-box;
+  width: calc(100% - 3px);
+  grid-column: 1 / 3;
+}
+
+vcard-special-date select:not([size], [multiple]) {
+  width: min-content;
+  padding-inline-end: 12px;
+  padding-block: 0;
 }

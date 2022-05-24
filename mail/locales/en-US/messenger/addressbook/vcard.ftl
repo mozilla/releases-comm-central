@@ -87,3 +87,19 @@ vcard-impp-header = Chat Accounts
 vcard-impp-add = Add chat account
 
 vcard-impp-label = Chat account
+
+# BDAY and ANNIVERSARY vCard field
+
+vcard-bday-anniversary-header = Special Dates
+
+vcard-bday-anniversary-add = Add special date
+
+vcard-bday-label = Birthday
+
+vcard-anniversary-label = Anniversary
+
+vcard-date-day = Day
+
+vcard-date-month = Month
+
+vcard-date-year = Year

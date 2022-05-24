@@ -3,7 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals VCardEmailComponent, VCardIMPPComponent, VCardNComponent,
-           VCardTelComponent, VCardTZComponent, VCardURLComponent */
+           VCardSpecialDateComponent, VCardTelComponent, VCardTZComponent,
+           VCardURLComponent */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
@@ -11,6 +12,12 @@ ChromeUtils.defineModuleGetter(
   "VCardProperties",
   "resource:///modules/VCardUtils.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "VCardPropertyEntry",
+  "resource:///modules/VCardUtils.jsm"
+);
+
 ChromeUtils.defineModuleGetter(
   this,
   "VCardPropertyEntry",
@@ -43,6 +50,7 @@ class VCardEdit extends HTMLElement {
       this.registerTelFieldsetHandling();
       this.registerTZFieldsetHandling();
       this.registerIMPPFieldsetHandling();
+      this.registerSpecialDateFieldsetHandling();
       this.updateView();
     }
   }
@@ -113,6 +121,10 @@ class VCardEdit extends HTMLElement {
     this.firstName.addEventListener("input", () => this.generateDisplayName());
     this.lastName = nameEl.lastNameEl.querySelector("input");
     this.lastName.addEventListener("input", () => this.generateDisplayName());
+
+    if (this.vCardProperties) {
+      this.checkForBdayOccurences();
+    }
   }
 
   /**
@@ -210,6 +222,16 @@ class VCardEdit extends HTMLElement {
         impp.vCardPropertyEntry = entry;
         impp.slot = "v-impp";
         return impp;
+      case "anniversary":
+        let anniversary = new VCardSpecialDateComponent();
+        anniversary.vCardPropertyEntry = entry;
+        anniversary.slot = "v-anniversary";
+        return anniversary;
+      case "bday":
+        let bday = new VCardSpecialDateComponent();
+        bday.vCardPropertyEntry = entry;
+        bday.slot = "v-bday";
+        return bday;
       default:
         return undefined;
     }
@@ -236,6 +258,10 @@ class VCardEdit extends HTMLElement {
         return VCardTZComponent.newVCardPropertyEntry();
       case "impp":
         return VCardIMPPComponent.newVCardPropertyEntry();
+      case "bday":
+        return VCardSpecialDateComponent.newBdayVCardPropertyEntry();
+      case "anniversary":
+        return VCardSpecialDateComponent.newAnniversaryVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -365,6 +391,60 @@ class VCardEdit extends HTMLElement {
       this.vCardProperties.addEntry(el.vCardPropertyEntry);
       this.append(el);
       el.querySelector("input").focus();
+    });
+  }
+
+  registerSpecialDateFieldsetHandling() {
+    // Handling the VCardPropertyEntry change with the select.
+    let specialDatesFieldset = this.shadowRoot.getElementById(
+      "addr-book-edit-bday-anniversary"
+    );
+    specialDatesFieldset.addEventListener(
+      "vcard-bday-anniversary-change",
+      event => {
+        let newVCardPropertyEntry = new VCardPropertyEntry(
+          event.detail.name,
+          event.target.vCardPropertyEntry.params,
+          event.target.vCardPropertyEntry.type,
+          event.target.vCardPropertyEntry.value
+        );
+        this.vCardProperties.removeEntry(event.target.vCardPropertyEntry);
+        event.target.vCardPropertyEntry = newVCardPropertyEntry;
+        this.vCardProperties.addEntry(newVCardPropertyEntry);
+        this.checkForBdayOccurences();
+      }
+    );
+
+    // Add special date button.
+    let addSpecialDate = this.shadowRoot.getElementById(
+      "vcard-add-bday-anniversary"
+    );
+    addSpecialDate.addEventListener("click", e => {
+      let newVCardProperty;
+      if (!this.vCardProperties.getFirstEntry("bday")) {
+        newVCardProperty = VCardEdit.createVCardProperty("bday");
+      } else {
+        newVCardProperty = VCardEdit.createVCardProperty("anniversary");
+      }
+      let el = VCardEdit.createVCardElement(newVCardProperty);
+
+      // Add the new entry to our vCardProperties object.
+      this.vCardProperties.addEntry(el.vCardPropertyEntry);
+      this.append(el);
+      this.checkForBdayOccurences();
+      el.querySelector("input").focus();
+    });
+  }
+
+  /**
+   * If one BDAY vCardPropertyEntry is present disable
+   * the option to change an Anniversary to a BDAY.
+   * @see VCardSpecialDateComponent
+   */
+  checkForBdayOccurences() {
+    let bdayOccurence = this.vCardProperties.getFirstEntry("bday");
+    this.querySelectorAll("vcard-special-date").forEach(specialDate => {
+      specialDate.birthdayAvailabilty({ hasBday: !!bdayOccurence });
     });
   }
 }
