@@ -221,7 +221,7 @@ class Pop3Client {
       });
       this._uidlMapChanged = true;
     }
-    await this._writeUidlState();
+    await this._writeUidlState(true);
   }
 
   /**
@@ -356,8 +356,9 @@ class Pop3Client {
 
   /**
    * Write this._uidlMap into popstate.dat.
+   * @param {boolean} [resetFlag] - If true, reset _uidlMapChanged to false.
    */
-  async _writeUidlState() {
+  async _writeUidlState(resetFlag) {
     if (!this._uidlMapChanged) {
       return;
     }
@@ -376,11 +377,20 @@ class Pop3Client {
       this._uidlMap.set(msg.uidl, msg);
     }
     for (let { status, uidl, receivedAt } of this._uidlMap.values()) {
-      content.push(`${status} ${uidl} ${receivedAt}`);
+      if (receivedAt) {
+        content.push(`${status} ${uidl} ${receivedAt}`);
+      }
     }
-    await IOUtils.writeUTF8(stateFile.path, content.join(this._lineSeparator));
+    this._writeUidlPromise = IOUtils.writeUTF8(
+      stateFile.path,
+      content.join(this._lineSeparator)
+    );
+    await this._writeUidlPromise;
+    this._writeUidlPromise = null;
 
-    this._uidlMapChanged = false;
+    if (resetFlag) {
+      this._uidlMapChanged = false;
+    }
   }
 
   /**
@@ -1015,6 +1025,11 @@ class Pop3Client {
    */
   _actionHandleMessage = () => {
     this._currentMessage = this._messagesToHandle.shift();
+    if (this._messagesToHandle.length % 20 == 0 && !this._writeUidlPromise) {
+      // Update popstate.dat every 20 messages, so that even if an error
+      // happens, no need to re-download all messages.
+      this._writeUidlState();
+    }
     if (this._currentMessage) {
       switch (this._currentMessage.status) {
         case UIDL_TOO_BIG:
@@ -1239,7 +1254,7 @@ class Pop3Client {
         this._messagesToHandle.unshift(this._currentMessage);
       }
     }
-    this._writeUidlState();
+    this._writeUidlState(true);
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     this.quit();
   };
