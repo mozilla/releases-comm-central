@@ -432,12 +432,6 @@ XPCOMUtils.defineLazyModuleGetter(
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
-  "async",
-  "resource:///modules/calendar/utils/calAsyncUtils.jsm",
-  "calasync"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
   "auth",
   "resource:///modules/calendar/utils/calAuthUtils.jsm",
   "calauth"
