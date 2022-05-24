@@ -3219,18 +3219,30 @@ function onShowOtherActionsPopup() {
  * Object literal to handle a few simple customization options for the message
  * header.
  */
-var gHeaderCustomize = {
+const gHeaderCustomize = {
   docURL: "chrome://messenger/content/messenger.xhtml",
   /**
    * The DOM element panel collecting all customization options.
+   *
+   * @type {XULElement}
    */
   customizePanel: null,
   /**
-   * The object storing all saved customization options:
-   * - buttonStyle: If buttons should show icons+text, only icons, or only text.
-   * - subjectLarge: Option to increase the font size of the subject line.
+   * The object storing all saved customization options.
+   *
+   * @type {Object}
+   * @property {boolean} subjectLarge - If the font size of the subject line
+   *   should be increased.
+   * @property {string} buttonStyle - The style in which the buttons should be
+   *   rendered:
+   *   - "default" = icons+text
+   *   - "only-icons" = only icons
+   *   - "only-text" = only text
    */
-  customizeData: {},
+  customizeData: {
+    subjectLarge: false,
+    buttonStyle: "default",
+  },
 
   /**
    * Initialize the customizer.
