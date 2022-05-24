@@ -45,9 +45,8 @@ jobs:
                     beta:
                         by-beta-number:
                             '1': 15
-                            '2': 30
-                            '3': 45
-                            '4': 60
+                            '(2|3)': 25
+                            '(4|5|6)': 35
                             default: null
                     default: null
             force-fallback-mapping-update:
