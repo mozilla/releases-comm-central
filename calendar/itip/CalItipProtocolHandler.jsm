@@ -105,6 +105,6 @@ ItipContentHandler.prototype = {
         ")\n"
     );
     let cals = cal.manager.getCalendars();
-    cals[0].addItem(event, null);
+    cals[0].addItem(event);
   },
 };

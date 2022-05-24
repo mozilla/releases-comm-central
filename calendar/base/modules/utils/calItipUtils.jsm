@@ -1776,7 +1776,7 @@ ItipItemFinder.prototype = {
                   operations.push((opListener, partStat, extResponse) =>
                     item.calendar.deleteItem(item).then(
                       () =>
-                        opListener.onComplete(
+                        opListener.onOperationComplete(
                           item.calendar,
                           Cr.NS_OK,
                           Ci.calIOperationListener.DELETE,
@@ -1798,7 +1798,7 @@ ItipItemFinder.prototype = {
                 operations.push((opListener, partStat, extResponse) =>
                   item.calendar.deleteItem(item).then(
                     () =>
-                      opListener.onComplete(
+                      opListener.onOperationComplete(
                         item.calendar,
                         Cr.NS_OK,
                         Ci.calIOperationListener.DELETE,

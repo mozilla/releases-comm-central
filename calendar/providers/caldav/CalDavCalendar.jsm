@@ -790,7 +790,7 @@ CalDavCalendar.prototype = {
    *
    * @returns {Promise<void>}
    */
-  async deleteItem(item, aListener) {
+  async deleteItem(item) {
     return this.doDeleteItem(item, false, null, null);
   },
 

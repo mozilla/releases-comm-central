@@ -260,13 +260,13 @@ add_test(function test_calobserver() {
   item.id = cal.getUUID();
   item.startDate = cal.dtz.now();
   item.endDate = cal.dtz.now();
-  memory.addItem(item, null);
+  memory.addItem(item);
   checkCounters(1, 0, 0);
 
   // Modify the item
   let newItem = item.clone();
   newItem.title = "title";
-  memory.modifyItem(newItem, item, null);
+  memory.modifyItem(newItem, item);
   checkCounters(0, 1, 0);
 
   // Delete the item
@@ -277,8 +277,8 @@ add_test(function test_calobserver() {
   // Now check the same for adding the item to a calendar only observed by the
   // calendar manager. The calcounters should still be 0, but the calendar
   // manager counter should have an item added, modified and deleted
-  memory2.addItem(item, null);
-  memory2.modifyItem(newItem, item, null);
+  memory2.addItem(item);
+  memory2.modifyItem(newItem, item);
   memory2.deleteItem(newItem);
   checkCounters(0, 0, 0, 1, 1, 1);
 
@@ -287,8 +287,8 @@ add_test(function test_calobserver() {
   cal.manager.removeCalendarObserver(allobs);
 
   // Make sure removing it actually worked
-  memory.addItem(item, null);
-  memory.modifyItem(newItem, item, null);
+  memory.addItem(item);
+  memory.modifyItem(newItem, item);
   memory.deleteItem(newItem);
   checkCounters(0, 0, 0);
 

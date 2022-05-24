@@ -187,9 +187,9 @@ CalStorageCalendar.prototype = {
   },
 
   // Promise<calIItemBase> addItem(in calIItemBase aItem);
-  async addItem(aItem, aListener) {
+  async addItem(aItem) {
     let newItem = aItem.clone();
-    return this.adoptItem(newItem, aListener);
+    return this.adoptItem(newItem);
   },
 
   // Promise<calIItemBase> adoptItem(in calIItemBase aItem);

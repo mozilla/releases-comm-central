@@ -181,7 +181,7 @@ CalMemoryCalendar.prototype = {
   },
 
   // Promise<calIItemBase> modifyItem(in calIItemBase aNewItem, in calIItemBase aOldItem)
-  async modifyItem(aNewItem, aOldItem, aListener) {
+  async modifyItem(aNewItem, aOldItem) {
     if (this.readOnly) {
       throw Ci.calIErrors.CAL_IS_READONLY;
     }

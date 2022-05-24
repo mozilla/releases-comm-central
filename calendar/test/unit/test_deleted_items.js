@@ -45,7 +45,7 @@ add_task(async function test_deleted_items() {
   item.endDate = cal.dtz.now();
 
   // Add the item, it still shouldn't be in the deleted database.
-  await check_delmgr_call(() => memory.addItem(item, null));
+  await check_delmgr_call(() => memory.addItem(item));
   equal(delmgr.getDeletedDate(item.id), null);
   equal(delmgr.getDeletedDate(item.id, memory.id), null);
 
@@ -86,11 +86,11 @@ add_task(async function test_deleted_items() {
   useFutureDate = false;
 
   // Add, delete, add. Item should no longer be deleted.
-  await check_delmgr_call(() => memory.addItem(item, null));
+  await check_delmgr_call(() => memory.addItem(item));
   equal(delmgr.getDeletedDate(item.id), null);
   await check_delmgr_call(() => memory.deleteItem(item));
   equal(delmgr.getDeletedDate(item.id).compare(referenceDate), 0);
-  await check_delmgr_call(() => memory.addItem(item, null));
+  await check_delmgr_call(() => memory.addItem(item));
   equal(delmgr.getDeletedDate(item.id), null);
 
   // Revert now function, in case more tests are written.
