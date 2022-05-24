@@ -66,6 +66,11 @@
       this.moreButton = document.createElement("button");
       this.moreButton.setAttribute("type", "button");
       this.moreButton.classList.add("show-more-recipients", "plain");
+      this.moreButton.addEventListener(
+        "mousedown",
+        // Prevent focus being transferred to the button before it is removed.
+        event => event.preventDefault()
+      );
       this.moreButton.addEventListener("click", () => this.showAllRecipients());
 
       document.l10n.setAttributes(
@@ -207,6 +212,10 @@
     }
 
     buildRecipients(showAllHeaders) {
+      // Determine focus before clearing the children.
+      let focusIndex = [...this.recipientsList.childNodes].findIndex(node =>
+        node.contains(document.activeElement)
+      );
       this.recipientsList.replaceChildren();
       gMessageHeader.toggleScrollableHeader(showAllHeaders);
 
@@ -292,6 +301,20 @@
         );
 
         break;
+      }
+
+      if (focusIndex >= 0) {
+        // If we had focus before, restore focus to the same index, or the last node.
+        let focusNode = this.recipientsList.childNodes[
+          Math.min(focusIndex, this.recipientsList.childNodes.length - 1)
+        ];
+        if (focusNode.contains(this.moreButton)) {
+          // The button is focusable.
+          this.moreButton.focus();
+        } else {
+          // The item is focusable.
+          focusNode.focus();
+        }
       }
     }
 

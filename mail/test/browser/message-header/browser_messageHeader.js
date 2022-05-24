@@ -742,24 +742,31 @@ function subtest_more_widget_display(node, showAll = false) {
 }
 
 /**
- * Test that clicking the "more" button displays all the addresses.
+ * Test that activating the "more" button displays all the addresses.
  *
  * @param {HTMLOListElement} node - The recipients container of a header row.
  */
-function subtest_more_widget_click(node) {
+function subtest_more_widget_activate(node) {
   let oldNumLines = help_get_num_lines(node);
-  let moreButton = document.getElementById("expandedtoBox").moreButton;
-  // Click on the "more" button.
-  EventUtils.synthesizeMouseAtCenter(moreButton, {});
+
+  let moreButton = node.querySelector(".show-more-recipients");
+  Assert.ok(moreButton, "The more button should exist");
+  moreButton.focus();
+  // Activate the "more" button.
+  EventUtils.synthesizeKey("KEY_Enter", {});
 
   // Make sure that the "more" button was removed when showing all addresses.
-  Assert.ok(!moreButton.hidden, "The `more` button doesn't exist anymore.");
-
-  // Rest that we actually have more lines than we did before!
-  let newNumLines = help_get_num_lines(node);
   Assert.ok(
-    newNumLines > oldNumLines,
-    `Number of address lines present after more clicked = ${newNumLines} > number of lines present beforehand = ${oldNumLines}`
+    !node.querySelector(".show-more-recipients"),
+    "The more button should not exist anymore."
+  );
+
+  // Test that we actually have more lines than we did before!
+  let newNumLines = help_get_num_lines(node);
+  Assert.greater(
+    newNumLines,
+    oldNumLines,
+    "Number of address lines present increases after more click"
   );
 }
 
@@ -797,7 +804,83 @@ add_task(async function test_view_more_button() {
   // Get the sender address.
   let node = document.getElementById("expandedtoBox").recipientsList;
   subtest_more_widget_display(node);
-  subtest_more_widget_click(node);
+  subtest_more_widget_activate(node);
+});
+
+/**
+ * Test the focus behavior when activating the more button.
+ */
+add_task(async function test_view_more_button_focus() {
+  // Generate message with 35 recipients to guarantee overflow.
+  be_in_folder(folder);
+  let msg = create_message({
+    toCount: 35,
+    subject: "Test more button focus",
+  });
+
+  // Add the message to the end of the folder.
+  await add_message_to_folder([folder], msg);
+
+  for (let { focusMore, useKeyboard } of [
+    { focusMore: true, useKeyboard: false },
+    { focusMore: true, useKeyboard: true },
+    { focusMore: false, useKeyboard: false },
+  ]) {
+    // Reload the message.
+    let prevMessage = select_click_row(-1);
+    wait_for_message_display_completion(mc);
+    assert_selected_and_displayed(mc, prevMessage);
+
+    let curMessage = select_click_row(-2);
+    wait_for_message_display_completion(mc);
+    assert_selected_and_displayed(mc, curMessage);
+
+    let items = [
+      ...document.querySelectorAll("#expandedtoBox .recipients-list li"),
+    ];
+    Assert.greater(items.length, 2, "Should have enough items for the test");
+    let moreButton = document.querySelector(
+      "#expandedtoBox .show-more-recipients"
+    );
+    Assert.ok(moreButton, "The more button should exist");
+    Assert.ok(
+      items[items.length - 1].contains(moreButton),
+      "More button should be the final button in the list"
+    );
+    let index;
+    if (focusMore) {
+      index = items.length - 1;
+      moreButton.focus();
+      Assert.ok(
+        moreButton.matches(":focus"),
+        "The more button can receive focus"
+      );
+    } else {
+      index = 1;
+      items[1].focus();
+      Assert.ok(
+        items[1].matches(":focus"),
+        "The second item can receive focus"
+      );
+    }
+    if (useKeyboard) {
+      EventUtils.synthesizeKey("KEY_Enter", {});
+    } else {
+      EventUtils.synthesizeMouseAtCenter(moreButton, {});
+    }
+
+    Assert.ok(
+      !document.querySelector("#expandedtoBox .show-more-recipients"),
+      "The more button should be removed"
+    );
+    items = [
+      ...document.querySelectorAll("#expandedtoBox .recipients-list li"),
+    ];
+    Assert.ok(
+      items[index].matches(":focus"),
+      `The focus should be on item ${index}`
+    );
+  }
 });
 
 /**
@@ -835,7 +918,7 @@ add_task(async function test_show_all_header_mode() {
 
   toggle_header_mode(false);
   subtest_more_widget_display(node);
-  subtest_more_widget_click(node);
+  subtest_more_widget_activate(node);
   subtest_more_widget_display(node, true);
 });
 

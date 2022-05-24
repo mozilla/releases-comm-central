@@ -941,3 +941,8 @@ button.email-action-flagged.flagged {
   background-color: SelectedItem;
   color: SelectedItemText;
 }
+
+.show-more-recipients:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
