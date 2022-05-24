@@ -119,8 +119,10 @@ interface nsIMsgAccountManager : nsISupports {
    * the type is the same as is specified in the preferences,
    * i.e. "imap", "pop3", "none", or "nntp"
    */
-  nsIMsgIncomingServer
-      FindServer(in ACString userName, in ACString hostname, in ACString type);
+  nsIMsgIncomingServer findServer(in ACString userName,
+                                  in ACString hostname,
+                                  in ACString type,
+                                  [optional] in long port);
 
   /*
    * search for the server with the given uri
@@ -130,13 +132,6 @@ interface nsIMsgAccountManager : nsISupports {
    */
   nsIMsgIncomingServer
       findServerByURI(in nsIURI aURI, in boolean aRealFlag);
-
-  /*
-   * Same as FindServer() except it compares the input values against
-   * 'realhostname' and 'realuserName' pref settings.
-   */
-  nsIMsgIncomingServer
-      findRealServer(in ACString userName, in ACString hostname, in ACString type, in long port );
 
   /**
    * find the index of this server in the (ordered) list of accounts

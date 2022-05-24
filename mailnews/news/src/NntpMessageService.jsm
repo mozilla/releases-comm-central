@@ -141,7 +141,7 @@ class BaseMessageService {
     }
     groupName = groupName ? decodeURIComponent(groupName) : null;
     let server = MailServices.accounts
-      .FindServer("", host, "nntp")
+      .findServer("", host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
     let folder;
     if (groupName) {

@@ -117,10 +117,10 @@ nsresult nsBeckySettings::CreateIncomingServer(const nsCString& aUserName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIncomingServer> incomingServer;
-  rv = accountManager->FindServer(aUserName, aServerName, aProtocol,
-                                  getter_AddRefs(incomingServer));
+  accountManager->FindServer(aUserName, aServerName, aProtocol, 0,
+                             getter_AddRefs(incomingServer));
 
-  if (NS_FAILED(rv) || !incomingServer) {
+  if (!incomingServer) {
     rv = accountManager->CreateIncomingServer(aUserName, aServerName, aProtocol,
                                               getter_AddRefs(incomingServer));
     NS_ENSURE_SUCCESS(rv, rv);

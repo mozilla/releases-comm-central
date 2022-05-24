@@ -36,7 +36,7 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var gInbox;
 
 add_setup(async function() {
-  let server = MailServices.accounts.FindServer(
+  let server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
@@ -53,7 +53,7 @@ add_setup(async function() {
             "resource:///modules/MailServices.jsm"
           );
           // Pick the tinderbox@foo.invalid inbox and use it as the only folder
-          let server = MailServices.accounts.FindServer(
+          let server = MailServices.accounts.findServer(
             "tinderbox",
             "tinderbox123",
             "pop3"

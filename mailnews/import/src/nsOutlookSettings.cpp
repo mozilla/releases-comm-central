@@ -266,9 +266,9 @@ bool OutlookSettings::DoIMAPServer(nsIMsgAccountManager* aMgr,
   nsAutoCString nativeServerName;
   NS_CopyUnicodeToNative(aServerName, nativeServerName);
   nsCOMPtr<nsIMsgIncomingServer> in;
-  rv = aMgr->FindServer(nativeUserName, nativeServerName, "imap"_ns,
-                        getter_AddRefs(in));
-  if (NS_FAILED(rv) || (in == nullptr)) {
+  aMgr->FindServer(nativeUserName, nativeServerName, "imap"_ns, 0,
+                   getter_AddRefs(in));
+  if (!in) {
     // Create the incoming server and an account for it?
     rv = aMgr->CreateIncomingServer(nativeUserName, nativeServerName, "imap"_ns,
                                     getter_AddRefs(in));
@@ -319,9 +319,9 @@ bool OutlookSettings::DoPOP3Server(nsIMsgAccountManager* aMgr,
   nsAutoCString nativeServerName;
   NS_CopyUnicodeToNative(aServerName, nativeServerName);
   nsCOMPtr<nsIMsgIncomingServer> in;
-  rv = aMgr->FindServer(nativeUserName, nativeServerName, "pop3"_ns,
-                        getter_AddRefs(in));
-  if (NS_SUCCEEDED(rv)) return true;
+  aMgr->FindServer(nativeUserName, nativeServerName, "pop3"_ns, 0,
+                   getter_AddRefs(in));
+  if (in) return true;
 
   // Create the incoming server and an account for it?
   rv = aMgr->CreateIncomingServer(nativeUserName, nativeServerName, "pop3"_ns,

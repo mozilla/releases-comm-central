@@ -352,7 +352,7 @@ function rememberPassword(server, password) {
 function checkIncomingServerAlreadyExists(config) {
   AccountCreationUtils.assert(config instanceof AccountConfig);
   let incoming = config.incoming;
-  let existing = MailServices.accounts.findRealServer(
+  let existing = MailServices.accounts.findServer(
     incoming.username,
     incoming.hostname,
     incoming.type,
@@ -362,7 +362,7 @@ function checkIncomingServerAlreadyExists(config) {
   // if username does not have an '@', also check the e-mail
   // address form of the name.
   if (!existing && !incoming.username.includes("@")) {
-    existing = MailServices.accounts.findRealServer(
+    existing = MailServices.accounts.findServer(
       config.identity.emailAddress,
       incoming.hostname,
       incoming.type,

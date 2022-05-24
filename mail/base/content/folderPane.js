@@ -2307,14 +2307,12 @@ var gFolderTreeView = {
        * The smart server. This will create the server if it doesn't exist.
        */
       get _smartServer() {
-        let smartServer;
-        try {
-          smartServer = MailServices.accounts.FindServer(
-            "nobody",
-            "smart mailboxes",
-            "none"
-          );
-        } catch (ex) {
+        let smartServer = MailServices.accounts.findServer(
+          "nobody",
+          "smart mailboxes",
+          "none"
+        );
+        if (!smartServer) {
           smartServer = MailServices.accounts.createIncomingServer(
             "nobody",
             "smart mailboxes",

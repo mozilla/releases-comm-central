@@ -144,9 +144,7 @@ var FeedUtils = {
     let serverType = "rss";
     let defaultName = FeedUtils.strings.GetStringFromName("feeds-accountname");
     let i = 2;
-    while (
-      MailServices.accounts.findRealServer(userName, hostName, serverType, 0)
-    ) {
+    while (MailServices.accounts.findServer(userName, hostName, serverType)) {
       // If "Feeds" exists, try "Feeds-2", then "Feeds-3", etc.
       hostName = hostNamePref + "-" + i++;
     }

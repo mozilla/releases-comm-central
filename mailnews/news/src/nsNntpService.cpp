@@ -763,7 +763,7 @@ nsresult nsNntpService::GetNntpServerByAccount(
   // if we don't have a news host, find the first news server and use it
   if (NS_FAILED(rv) || !*aNntpServer)
     rv = accountManager->FindServer(EmptyCString(), EmptyCString(), "nntp"_ns,
-                                    aNntpServer);
+                                    0, aNntpServer);
 
   return rv;
 }

@@ -57,7 +57,7 @@ class NntpService {
     let server = MailServices.accounts.getAccount(accountKey)?.incomingServer;
     if (!server) {
       // If no matching server, find the first news server and use it.
-      server = MailServices.accounts.FindServer("", "", "nntp");
+      server = MailServices.accounts.findServer("", "", "nntp");
     }
     server = server.QueryInterface(Ci.nsINntpIncomingServer);
 
@@ -172,7 +172,7 @@ class NntpService {
     let url = new URL(cancelUrl);
     let messageId = "<" + decodeURIComponent(url.pathname.slice(1)) + ">";
     let server = MailServices.accounts
-      .FindServer("", url.host, "nntp")
+      .findServer("", url.host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
     let groupName = new URL(messageUri).pathname.slice(1);
     let messageKey = messageUri.split("#")[1];

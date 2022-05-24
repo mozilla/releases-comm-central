@@ -163,7 +163,7 @@ SmtpServer.prototype = {
       if (useMatchingHostNameServer || useMatchingDomainServer) {
         if (useMatchingHostNameServer) {
           // Pass in empty type and port=0, to match imap and pop3.
-          incomingServer = MailServices.accounts.findRealServer(
+          incomingServer = MailServices.accounts.findServer(
             this.username,
             this.hostname,
             "",

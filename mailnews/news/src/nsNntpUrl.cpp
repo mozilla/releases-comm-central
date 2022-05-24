@@ -396,35 +396,12 @@ nsNntpUrl::GetServer(nsIMsgIncomingServer** aServer) {
     return NS_OK;
   }
 
-  // Looking up the server...
-  // news-message is used purely internally, so it can never refer to the real
-  // attribute. nntp is never used internally, so it probably refers to the real
-  // one. news is used both internally and externally, so it could refer to
-  // either one. We'll assume it's an internal one first, though.
-  bool isNews = scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews");
-  bool isNntp = scheme.EqualsLiteral("nntp") || scheme.EqualsLiteral("nntps");
-
-  bool tryReal = isNntp;
-
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Ignoring return results: it is perfectly acceptable for the server to not
-  // exist, but FindServer (and not FindRealServer) throws NS_ERROR_UNEXPECTED
-  // in this case.
   *aServer = nullptr;
-  if (tryReal)
-    accountManager->FindRealServer(user, host, "nntp"_ns, 0, aServer);
-  else
-    accountManager->FindServer(user, host, "nntp"_ns, aServer);
-  if (!*aServer && (isNews || isNntp)) {
-    // Didn't find it, try the other option
-    if (tryReal)
-      accountManager->FindServer(user, host, "nntp"_ns, aServer);
-    else
-      accountManager->FindRealServer(user, host, "nntp"_ns, 0, aServer);
-  }
+  accountManager->FindServer(user, host, "nntp"_ns, 0, aServer);
   return NS_OK;
 }
 

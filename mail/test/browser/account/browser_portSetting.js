@@ -34,7 +34,7 @@ var gTestNumber;
 function subtest_check_set_port_number(tab, dontSet) {
   // This test expects the following POP account to exist by default
   // with port number 110 and no security.
-  let server = MailServices.accounts.FindServer(
+  let server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"

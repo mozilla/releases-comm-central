@@ -212,7 +212,7 @@ bool WMSettings::DoIMAPServer(nsIMsgAccountManager* pMgr,
   nsCOMPtr<nsIMsgIncomingServer> in;
   nsresult rv = pMgr->FindServer(NS_ConvertUTF16toUTF8(userName),
                                  NS_ConvertUTF16toUTF8(serverName), "imap"_ns,
-                                 getter_AddRefs(in));
+                                 0, getter_AddRefs(in));
   if (NS_FAILED(rv) || (in == nullptr)) {
     // Create the incoming server and an account for it?
     rv = pMgr->CreateIncomingServer(NS_ConvertUTF16toUTF8(userName),
@@ -308,7 +308,7 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager* pMgr,
   nsCOMPtr<nsIMsgIncomingServer> in;
   nsresult rv = pMgr->FindServer(NS_ConvertUTF16toUTF8(userName),
                                  NS_ConvertUTF16toUTF8(serverName), "pop3"_ns,
-                                 getter_AddRefs(in));
+                                 0, getter_AddRefs(in));
   if (NS_FAILED(rv) || (in == nullptr)) {
     // Create the incoming server and an account for it?
     rv = pMgr->CreateIncomingServer(NS_ConvertUTF16toUTF8(userName),
@@ -459,7 +459,7 @@ bool WMSettings::DoNNTPServer(nsIMsgAccountManager* pMgr,
   nsCOMPtr<nsIMsgIncomingServer> in;
   nsresult rv =
       pMgr->FindServer(EmptyCString(), NS_ConvertUTF16toUTF8(serverName),
-                       "nntp"_ns, getter_AddRefs(in));
+                       "nntp"_ns, 0, getter_AddRefs(in));
   if (NS_FAILED(rv) || (in == nullptr)) {
     // Create the incoming server and an account for it?
     rv = pMgr->CreateIncomingServer(nsDependentCString(""),

@@ -22,7 +22,7 @@ var NntpUtils = {
    *
    * Sometimes we create a server instance to load a news url, this server is
    * written to the prefs but not associated with any account. Different from
-   * nsIMsgAccountManager.findRealServer which can only find servers associated
+   * nsIMsgAccountManager.findServer which can only find servers associated
    * with accounts, this function looks for NNTP server in the mail.server.
    * branch directly.
    *

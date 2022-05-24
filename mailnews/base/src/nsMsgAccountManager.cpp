@@ -553,8 +553,7 @@ nsresult nsMsgAccountManager::createKeyedServer(
   server->SetUsername(username);
   server->SetHostName(hostname);
   server->GetPort(&port);
-  FindRealServer(username, hostname, type, port,
-                 getter_AddRefs(existingServer));
+  FindServer(username, hostname, type, port, getter_AddRefs(existingServer));
   // don't allow duplicate servers.
   if (existingServer) return NS_ERROR_FAILURE;
 
@@ -1222,7 +1221,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
               continue;
             }
             nsCOMPtr<nsIMsgIncomingServer> server;
-            accountManager->FindServer(userName, hostName, type,
+            accountManager->FindServer(userName, hostName, type, 0,
                                        getter_AddRefs(server));
             if (server) {
               nsCOMPtr<nsIMsgAccount> replacement;
@@ -1773,17 +1772,13 @@ nsMsgAccountManager::FindServerByURI(nsIURI* aURI, bool aRealFlag,
     if (NS_SUCCEEDED(rv) && (port == -1)) port = 0;
   }
 
-  return findServerInternal(username, hostname, type, port, aRealFlag, aResult);
+  return findServerInternal(username, hostname, type, port, aResult);
 }
 
 nsresult nsMsgAccountManager::findServerInternal(
     const nsACString& username, const nsACString& hostname,
-    const nsACString& type, int32_t port, bool aRealFlag,
-    nsIMsgIncomingServer** aResult) {
-  // If 'aRealFlag' is set then we want to scan all existing accounts
-  // to make sure there's no duplicate including those whose host and/or
-  // user names have been changed.
-  if (!aRealFlag && (m_lastFindServerUserName.Equals(username)) &&
+    const nsACString& type, int32_t port, nsIMsgIncomingServer** aResult) {
+  if ((m_lastFindServerUserName.Equals(username)) &&
       (m_lastFindServerHostName.Equals(hostname)) &&
       (m_lastFindServerType.Equals(type)) && (m_lastFindServerPort == port) &&
       m_lastFindServerResult) {
@@ -1827,8 +1822,7 @@ nsresult nsMsgAccountManager::findServerInternal(
         (!(port != 0) || (port == thisPort)) &&
         (username.IsEmpty() || thisUsername.Equals(username))) {
       // stop on first find; cache for next time
-      if (!aRealFlag)
-        SetLastServerFound(server, hostname, username, port, type);
+      SetLastServerFound(server, hostname, username, port, type);
 
       NS_ADDREF(*aResult = server);  // Was populated from member variable.
       return NS_OK;
@@ -1838,22 +1832,14 @@ nsresult nsMsgAccountManager::findServerInternal(
   return NS_ERROR_UNEXPECTED;
 }
 
+// Always return NS_OK;
 NS_IMETHODIMP
 nsMsgAccountManager::FindServer(const nsACString& username,
                                 const nsACString& hostname,
-                                const nsACString& type,
+                                const nsACString& type, int32_t port,
                                 nsIMsgIncomingServer** aResult) {
-  return findServerInternal(username, hostname, type, 0, false, aResult);
-}
-
-// Interface called by UI js only (always return true).
-NS_IMETHODIMP
-nsMsgAccountManager::FindRealServer(const nsACString& username,
-                                    const nsACString& hostname,
-                                    const nsACString& type, int32_t port,
-                                    nsIMsgIncomingServer** aResult) {
   *aResult = nullptr;
-  findServerInternal(username, hostname, type, port, true, aResult);
+  findServerInternal(username, hostname, type, port, aResult);
   return NS_OK;
 }
 
@@ -2041,13 +2027,16 @@ NS_IMETHODIMP nsMsgAccountManager::GetLocalFoldersServer(
   }
 
   // try ("nobody","Local Folders","none"), and work down to any "none" server.
-  rv = FindServer("nobody"_ns, "Local Folders"_ns, "none"_ns, aServer);
+  rv = findServerInternal("nobody"_ns, "Local Folders"_ns, "none"_ns, 0,
+                          aServer);
   if (NS_FAILED(rv) || !*aServer) {
-    rv = FindServer("nobody"_ns, EmptyCString(), "none"_ns, aServer);
+    rv = findServerInternal("nobody"_ns, EmptyCString(), "none"_ns, 0, aServer);
     if (NS_FAILED(rv) || !*aServer) {
-      rv = FindServer(EmptyCString(), "Local Folders"_ns, "none"_ns, aServer);
+      rv = findServerInternal(EmptyCString(), "Local Folders"_ns, "none"_ns, 0,
+                              aServer);
       if (NS_FAILED(rv) || !*aServer)
-        rv = FindServer(EmptyCString(), EmptyCString(), "none"_ns, aServer);
+        rv = findServerInternal(EmptyCString(), EmptyCString(), "none"_ns, 0,
+                                aServer);
     }
   }
 

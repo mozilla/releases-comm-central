@@ -175,7 +175,7 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   nsresult findServerInternal(const nsACString& username,
                               const nsACString& hostname,
                               const nsACString& type, int32_t port,
-                              bool aRealFlag, nsIMsgIncomingServer** aResult);
+                              nsIMsgIncomingServer** aResult);
 
   // handle virtual folders
   static nsresult GetVirtualFoldersFile(nsCOMPtr<nsIFile>& file);

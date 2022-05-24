@@ -38,7 +38,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   // Test that we are in All Folders mode by default
   assert_folder_mode("all");
 
-  let pop3Server = MailServices.accounts.FindServer(
+  let pop3Server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"

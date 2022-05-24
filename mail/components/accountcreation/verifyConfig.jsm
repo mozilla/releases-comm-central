@@ -71,7 +71,7 @@ function verifyConfig(
   assert(typeof errorCallback == "function");
 
   if (
-    MailServices.accounts.findRealServer(
+    MailServices.accounts.findServer(
       config.incoming.username,
       config.incoming.hostname,
       config.incoming.type,

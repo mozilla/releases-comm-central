@@ -1616,7 +1616,7 @@ function middle_click_on_folder(aFolder) {
  * @returns An nsIMsgFolder representing the smart folder with the given name.
  */
 function get_smart_folder_named(aFolderName) {
-  let smartServer = MailServices.accounts.FindServer(
+  let smartServer = MailServices.accounts.findServer(
     "nobody",
     "smart mailboxes",
     "none"

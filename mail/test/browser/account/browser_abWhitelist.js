@@ -33,7 +33,7 @@ var gKeyString = null;
 var gAccount = null;
 
 add_setup(function() {
-  let server = MailServices.accounts.FindServer(
+  let server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"

@@ -634,11 +634,10 @@ function checkUserServerChanges(showAlert) {
       } else if (!isLegalHostNameOrIP(newHost)) {
         alertText = prefBundle.getString("enterValidServerName");
       } else {
-        let sameServer = MailServices.accounts.findRealServer(
+        let sameServer = MailServices.accounts.findServer(
           newUser,
           newHost,
-          newType,
-          0
+          newType
         );
         if (sameServer && sameServer != currentServer) {
           alertText = prefBundle.getString("modifiedAccountExists");

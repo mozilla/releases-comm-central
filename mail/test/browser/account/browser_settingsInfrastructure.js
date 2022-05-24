@@ -391,7 +391,7 @@ function subtest_check_replyTo_leak(tab) {
 
   // This test expects the following POP account to exist by default
   // in the test profile with port number 110 and no security.
-  let firstServer = MailServices.accounts.FindServer(
+  let firstServer = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"

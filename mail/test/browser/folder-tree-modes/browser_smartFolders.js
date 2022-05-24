@@ -183,7 +183,7 @@ add_task(async function test_folder_flag_changes() {
   // create a smart Archives folder.
   select_click_row(0);
   archive_selected_messages();
-  let pop3Server = MailServices.accounts.FindServer(
+  let pop3Server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
