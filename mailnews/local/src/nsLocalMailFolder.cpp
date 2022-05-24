@@ -2783,22 +2783,21 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType) {
     // try "none" first
     rv = NS_MutateURI(url).SetScheme("none"_ns).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
+    rv = accountManager->FindServerByURI(url, getter_AddRefs(server));
     if (NS_SUCCEEDED(rv) && server)
       mType.AssignLiteral("none");
     else {
       // next try "pop3"
       rv = NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
+      rv = accountManager->FindServerByURI(url, getter_AddRefs(server));
       if (NS_SUCCEEDED(rv) && server)
         mType.AssignLiteral("pop3");
       else {
         // next try "rss"
         rv = NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url);
         NS_ENSURE_SUCCESS(rv, rv);
-        rv =
-            accountManager->FindServerByURI(url, false, getter_AddRefs(server));
+        rv = accountManager->FindServerByURI(url, getter_AddRefs(server));
         if (NS_SUCCEEDED(rv) && server)
           mType.AssignLiteral("rss");
         else {

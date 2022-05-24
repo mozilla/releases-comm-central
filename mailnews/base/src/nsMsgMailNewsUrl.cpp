@@ -286,7 +286,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgIncomingServer> server;
-    rv = accountManager->FindServerByURI(url, false, aIncomingServer);
+    rv = accountManager->FindServerByURI(url, aIncomingServer);
     if (!*aIncomingServer && scheme.EqualsLiteral("imap")) {
       // look for any imap server with this host name so clicking on
       // other users folder urls will work. We could override this method
@@ -294,7 +294,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
       // just set the server in the imap code for this case.
       rv = NS_MutateURI(url).SetUserPass(EmptyCString()).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = accountManager->FindServerByURI(url, false, aIncomingServer);
+      rv = accountManager->FindServerByURI(url, aIncomingServer);
     }
   }
 

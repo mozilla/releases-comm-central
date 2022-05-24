@@ -127,11 +127,8 @@ interface nsIMsgAccountManager : nsISupports {
   /*
    * search for the server with the given uri
    * an analog to FindServer()
-   * The boolean flag selects whether we compare input against the
-   * 'realhostname' and 'realuserName' pref settings.
    */
-  nsIMsgIncomingServer
-      findServerByURI(in nsIURI aURI, in boolean aRealFlag);
+  nsIMsgIncomingServer findServerByURI(in nsIURI aURI);
 
   /**
    * find the index of this server in the (ordered) list of accounts

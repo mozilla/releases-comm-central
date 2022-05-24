@@ -43,7 +43,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
   NS_ENSURE_SUCCESS(rv, rv);
   // No unescaping of username or hostname done here.
   // The unescaping is done inside of FindServerByURI
-  rv = accountManager->FindServerByURI(url, false, getter_AddRefs(none_server));
+  rv = accountManager->FindServerByURI(url, getter_AddRefs(none_server));
   if (NS_SUCCEEDED(rv)) {
     none_server.forget(aResult);
     return rv;
@@ -53,7 +53,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
   nsCOMPtr<nsIMsgIncomingServer> rss_server;
   rv = NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = accountManager->FindServerByURI(url, false, getter_AddRefs(rss_server));
+  rv = accountManager->FindServerByURI(url, getter_AddRefs(rss_server));
   if (NS_SUCCEEDED(rv)) {
     rss_server.forget(aResult);
     return rv;
@@ -64,14 +64,14 @@ static nsresult nsGetMailboxServer(const char* uriStr,
   if (NS_FAILED(rv)) {
     rv = NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
+    rv = accountManager->FindServerByURI(url, getter_AddRefs(server));
 
     // if we can't find a pop server, maybe it's a local message
     // in an imap hierarchy. look for an imap server.
     if (NS_FAILED(rv)) {
       rv = NS_MutateURI(url).SetScheme("imap"_ns).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
+      rv = accountManager->FindServerByURI(url, getter_AddRefs(server));
     }
   }
   if (NS_SUCCEEDED(rv)) {

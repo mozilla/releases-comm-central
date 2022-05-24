@@ -2329,7 +2329,7 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = accountManager->FindServerByURI(mailnewsUrl, false, aServer);
+  rv = accountManager->FindServerByURI(mailnewsUrl, aServer);
 
   // look for server with any user name, in case we're trying to subscribe
   // to a folder with some one else's user name like the following
@@ -2346,7 +2346,7 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
              .Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = accountManager->FindServerByURI(url, false, aServer);
+    rv = accountManager->FindServerByURI(url, aServer);
     if (*aServer) aImapUrl->SetExternalLinkUrl(true);
   }
 

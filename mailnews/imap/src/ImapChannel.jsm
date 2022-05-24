@@ -32,7 +32,7 @@ class ImapChannel {
    */
   constructor(uri, loadInfo) {
     this._server = MailServices.accounts
-      .findServerByURI(uri, false)
+      .findServerByURI(uri)
       .QueryInterface(Ci.nsIImapIncomingServer);
 
     // nsIChannel attributes.

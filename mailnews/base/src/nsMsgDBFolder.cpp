@@ -2908,7 +2908,7 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
 
       rv = NS_MutateURI(url).SetScheme(serverType).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
+      rv = accountManager->FindServerByURI(url, getter_AddRefs(server));
       NS_ENSURE_SUCCESS(rv, rv);
     }
     mServer = do_GetWeakReference(server);

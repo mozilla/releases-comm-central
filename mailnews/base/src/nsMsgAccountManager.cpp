@@ -1727,7 +1727,7 @@ NS_IMETHODIMP nsMsgAccountManager::NotifyServerChanged(
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::FindServerByURI(nsIURI* aURI, bool aRealFlag,
+nsMsgAccountManager::FindServerByURI(nsIURI* aURI,
                                      nsIMsgIncomingServer** aResult) {
   NS_ENSURE_ARG_POINTER(aURI);
 

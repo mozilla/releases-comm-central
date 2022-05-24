@@ -529,7 +529,7 @@ nsresult nsNntpService::GetFolderFromUri(const nsACString& aUri,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = accountManager->FindServerByURI(uri, false, getter_AddRefs(server));
+  rv = accountManager->FindServerByURI(uri, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> rootFolder;

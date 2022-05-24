@@ -33,7 +33,7 @@ class Pop3Channel {
    */
   constructor(uri, loadInfo) {
     this._server = MailServices.accounts
-      .findServerByURI(uri, false)
+      .findServerByURI(uri)
       .QueryInterface(Ci.nsIPop3IncomingServer);
 
     // nsIChannel attributes.
