@@ -634,31 +634,32 @@ function help_get_num_lines(node) {
  *
  * @param {HTMLOListElement} node - The recipients container of a header row.
  */
-function subtest_more_widget_display(node, showAll = false) {
+async function subtest_more_widget_display(node, showAll = false) {
   // Test that the to element doesn't have more than max lines.
   let numLines = help_get_num_lines(node);
   // Get the max line pref.
   let maxLines = Services.prefs.getIntPref(LINES_PREF);
 
   if (showAll) {
-    Assert.ok(
-      numLines > maxLines,
+    await BrowserTestUtils.waitForCondition(
+      () => numLines > maxLines,
       `Currently visible lines are more than the number of max lines. ${numLines} > ${maxLines}`
     );
-    Assert.ok(
-      !document
-        .getElementById("expandedtoBox")
-        .querySelector(".show-more-recipients"),
+    await BrowserTestUtils.waitForCondition(
+      () =>
+        !document
+          .getElementById("expandedtoBox")
+          .querySelector(".show-more-recipients"),
       "The `more` button doesn't exist."
     );
   } else {
-    Assert.ok(
-      numLines <= maxLines,
+    await BrowserTestUtils.waitForCondition(
+      () => numLines <= maxLines,
       `Currently visible lines are fewer than the number of max lines. ${numLines} <= ${maxLines}`
     );
-    // Test that we've got a "more" button and that it's visible
-    Assert.ok(
-      !document.getElementById("expandedtoBox").moreButton.hidden,
+    // Test that we've got a "more" button and that it's visible.
+    await BrowserTestUtils.waitForCondition(
+      () => !document.getElementById("expandedtoBox").moreButton.hidden,
       "The `more` button is visible."
     );
   }
@@ -726,7 +727,7 @@ add_task(async function test_view_more_button() {
 
   // Get the sender address.
   let node = document.getElementById("expandedtoBox").recipientsList;
-  subtest_more_widget_display(node);
+  await subtest_more_widget_display(node);
   subtest_more_widget_activate(node);
 });
 
@@ -810,10 +811,15 @@ add_task(async function test_view_more_button_focus() {
  * Test that all addresses are shown in show all header mode.
  */
 add_task(async function test_show_all_header_mode() {
-  function toggle_header_mode(show) {
+  async function toggle_header_mode(show) {
     mc.click_through_appmenu(
       [{ id: "appmenu_View" }, { id: "appmenu_viewHeadersMenu" }],
       { id: show ? "appmenu_viewallheaders" : "appmenu_viewnormalheaders" }
+    );
+
+    await BrowserTestUtils.waitForCondition(
+      () => document.getElementById("expandedsubjectBox").value.textContent,
+      "The message was loaded"
     );
   }
 
@@ -835,14 +841,14 @@ add_task(async function test_show_all_header_mode() {
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, curMessage);
 
-  toggle_header_mode(true);
+  await toggle_header_mode(true);
   let node = document.getElementById("expandedtoBox").recipientsList;
-  subtest_more_widget_display(node, true);
+  await subtest_more_widget_display(node, true);
 
-  toggle_header_mode(false);
-  subtest_more_widget_display(node);
+  await toggle_header_mode(false);
+  await subtest_more_widget_display(node);
   subtest_more_widget_activate(node);
-  subtest_more_widget_display(node, true);
+  await subtest_more_widget_display(node, true);
 });
 
 /**
