@@ -1992,6 +1992,7 @@ var detailsPane = {
     );
 
     this.form = document.getElementById("detailsPane");
+    this.actions = document.getElementById("detailsActions");
     this.writeButton = document.getElementById("detailsWriteButton");
     this.eventButton = document.getElementById("detailsEventButton");
     this.searchButton = document.getElementById("detailsSearchButton");
@@ -2001,7 +2002,7 @@ var detailsPane = {
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
 
-    document.getElementById("detailsActions").addEventListener("click", this);
+    this.actions.addEventListener("click", this);
     document.getElementById("detailsFooter").addEventListener("click", this);
 
     this.form.addEventListener("input", event => {
@@ -2227,6 +2228,10 @@ var detailsPane = {
         .getCalendars()
         .filter(cal.acl.isCalendarWritable)
         .filter(cal.acl.userCanAddItemsToCalendar).length;
+
+    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+    this.editButton.hidden = book.readOnly;
+    this.actions.hidden = this.writeButton.hidden && this.editButton.hidden;
 
     let vCardProperties = card.supportsVCard
       ? card.vCardProperties

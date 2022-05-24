@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+requestLongerTimeout(2);
 // TODO: Fix the UI so that we don't have to do this.
 window.maximize();
 
@@ -16,35 +17,35 @@ add_setup(async function() {
   );
   personalBook.addCard(
     VCardUtils.vCardToAbCard(formatVCard`
-    BEGIN:VCARD
-    FN:basic person
-    EMAIL:basic@invalid
-    END:VCARD
-  `)
+      BEGIN:VCARD
+      FN:basic person
+      EMAIL:basic@invalid
+      END:VCARD
+    `)
   );
   personalBook.addCard(
     VCardUtils.vCardToAbCard(formatVCard`
-    BEGIN:VCARD
-    FN:complex person
-    EMAIL:secondary@invalid
-    EMAIL;PREF=1:primary@invalid
-    EMAIL;TYPE=WORK:tertiary@invalid
-    TEL;VALUE=URI:tel:000-0000
-    TEL;TYPE=WORK,VOICE:111-1111
-    TEL;TYPE=VOICE,WORK:222-2222
-    TEL;TYPE=HOME;TYPE=VIDEO:tel:333-3333
-    ADR:;;street,suburb;city;state;zip;country
-    ANNIVERSARY:2018-06-11
-    BDAY;VALUE=DATE:--0403
-    NOTE:mary had a little lamb\\nits fleece was white as snow\\nand everywhere t
-     hat mary went\\nthe lamb was sure to go
-    ORG:thunderbird;engineering
-    ROLE:sheriff
-    TITLE:senior engineering lead
-    TZ;VALUE=TEXT:Pacific/Auckland
-    URL;TYPE=work:https://www.thunderbird.net/
-    END:VCARD
-  `)
+      BEGIN:VCARD
+      FN:complex person
+      EMAIL:secondary@invalid
+      EMAIL;PREF=1:primary@invalid
+      EMAIL;TYPE=WORK:tertiary@invalid
+      TEL;VALUE=URI:tel:000-0000
+      TEL;TYPE=WORK,VOICE:111-1111
+      TEL;TYPE=VOICE,WORK:222-2222
+      TEL;TYPE=HOME;TYPE=VIDEO:tel:333-3333
+      ADR:;;street,suburb;city;state;zip;country
+      ANNIVERSARY:2018-06-11
+      BDAY;VALUE=DATE:--0403
+      NOTE:mary had a little lamb\\nits fleece was white as snow\\nand everywhere t
+       hat mary went\\nthe lamb was sure to go
+      ORG:thunderbird;engineering
+      ROLE:sheriff
+      TITLE:senior engineering lead
+      TZ;VALUE=TEXT:Pacific/Auckland
+      URL;TYPE=work:https://www.thunderbird.net/
+      END:VCARD
+    `)
   );
 
   MailServices.accounts.createLocalMailAccount();
@@ -326,6 +327,106 @@ add_task(async function test_display() {
   Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
 });
 
+/**
+ * Checks that the edit button is hidden for read-only contacts.
+ */
+add_task(async function testReadOnlyActions() {
+  let readOnlyBook = createAddressBook("Read-Only Book");
+  let readOnlyList = readOnlyBook.addMailList(
+    createMailingList("Read-Only List")
+  );
+  readOnlyBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      FN:read-only person
+      END:VCARD
+    `)
+  );
+  readOnlyList.addCard(
+    readOnlyBook.addCard(
+      VCardUtils.vCardToAbCard(formatVCard`
+        BEGIN:VCARD
+        FN:read-only person with email
+        EMAIL:read.only@invalid
+        END:VCARD
+      `)
+    )
+  );
+  readOnlyBook.setBoolValue("readOnly", true);
+
+  let abWindow = await openAddressBookWindow();
+
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+
+  let actions = abDocument.getElementById("detailsActions");
+  let editButton = abDocument.getElementById("editButton");
+
+  // Check contacts with the book displayed.
+
+  openDirectory(readOnlyBook);
+  Assert.equal(cardsList.view.rowCount, 3);
+  Assert.ok(detailsPane.hidden);
+
+  // Without email.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_hidden(actions), "actions section is hidden");
+
+  // With email.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
+  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  await checkActionButtons("read.only@invalid", "read-only person with email");
+  Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
+
+  // Check contacts with the list displayed.
+
+  openDirectory(readOnlyList);
+  Assert.equal(cardsList.view.rowCount, 1);
+  Assert.ok(detailsPane.hidden);
+
+  // With email.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  await checkActionButtons("read.only@invalid", "read-only person with email");
+  Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
+
+  // Check contacts with All Address Books displayed.
+
+  openAllAddressBooks();
+  Assert.equal(cardsList.view.rowCount, 6);
+  Assert.ok(detailsPane.hidden);
+
+  // Basic person from Personal Address Books.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  await checkActionButtons("basic@invalid", "basic person");
+  Assert.ok(BrowserTestUtils.is_visible(editButton), "edit button is shown");
+
+  // Without email.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(4), {}, abWindow);
+  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_hidden(actions), "actions section is hidden");
+
+  // With email.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(5), {}, abWindow);
+  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  await checkActionButtons("read.only@invalid", "read-only person with email");
+  Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
+
+  // Basic person again, to prove the buttons aren't hidden forever.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  await checkActionButtons("basic@invalid", "basic person");
+  Assert.ok(BrowserTestUtils.is_visible(editButton), "edit button is shown");
+
+  await promiseDirectoryRemoved(readOnlyBook.URI);
+});
+
 async function checkActionButtons(
   primaryEmail,
   displayName,
@@ -352,6 +453,25 @@ async function checkActionButtons(
       await composeWindowPromise,
       `${displayName} <${primaryEmail}>`
     );
+
+    // Search. Do this before the event test to stop a strange macOS failure.
+    Assert.ok(
+      BrowserTestUtils.is_visible(searchButton),
+      "search button is visible"
+    );
+
+    let searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
+    EventUtils.synthesizeMouseAtCenter(searchButton, {}, abWindow);
+    let {
+      detail: { tabInfo: searchTab },
+    } = await searchTabPromise;
+
+    let searchBox = tabmail.selectedTab.panel.querySelector(".searchBox");
+    Assert.equal(searchBox.value, searchString);
+
+    searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabClose");
+    tabmail.closeTab(searchTab);
+    await searchTabPromise;
 
     // Event.
     Assert.ok(
@@ -391,25 +511,6 @@ async function checkActionButtons(
     EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
     await eventWindowPromise;
     Assert.report(false, undefined, undefined, "Item dialog closed");
-
-    // Search.
-    Assert.ok(
-      BrowserTestUtils.is_visible(searchButton),
-      "search button is visible"
-    );
-
-    let searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
-    EventUtils.synthesizeMouseAtCenter(searchButton, {}, abWindow);
-    let {
-      detail: { tabInfo: searchTab },
-    } = await searchTabPromise;
-
-    let searchBox = tabmail.selectedTab.panel.querySelector(".searchBox");
-    Assert.equal(searchBox.value, searchString);
-
-    searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabClose");
-    tabmail.closeTab(searchTab);
-    await searchTabPromise;
   } else {
     Assert.ok(
       BrowserTestUtils.is_hidden(writeButton),

@@ -638,7 +638,7 @@ body.is-editing #detailsPane #photoOverlay {
   box-shadow: var(--address-book-blocks-box-shadow);
 }
 
-.button-block {
+.button-block:not([hidden]) {
   display: flex;
   justify-content: space-between;
 }
