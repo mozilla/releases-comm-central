@@ -40,6 +40,23 @@ jobs:
                             beta: [43]
                             release: [903]
                             default: []
+            background-rate:
+                by-release-type:
+                    beta:
+                        by-beta-number:
+                            '1': 15
+                            '2': 30
+                            '3': 45
+                            '4': 60
+                            default: null
+                    default: null
+            force-fallback-mapping-update:
+                by-release-type:
+                    beta:
+                        by-beta-number:
+                            '1': true
+                            default: false
+                    default: false
         treeherder:
             platform: thunderbird-release/opt
             symbol: Rel(BS)
