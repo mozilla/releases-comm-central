@@ -116,7 +116,7 @@ function updatedCalendarReadStatus(item) {
 /**
  * Called to initialize the calendar manager for a window.
  */
-function loadCalendarManager() {
+async function loadCalendarManager() {
   let calendarList = document.getElementById("calendar-list");
 
   // Set up the composite calendar in the calendar list widget.
@@ -145,8 +145,6 @@ function loadCalendarManager() {
   for (let calendar of sortCalendarArray(cal.manager.getCalendars())) {
     addCalendarItem(calendar);
   }
-
-  reportCalendars();
 
   function addCalendarItem(calendar) {
     let item = document
@@ -388,15 +386,36 @@ function loadCalendarManager() {
     onCalendarDeleting(calendar) {},
   };
   cal.manager.addObserver(calendarList._calendarManagerObserver);
+
+  // Called here to avoid an issue in tests where onPropertyChanged() is called
+  // before a default calendar is set.
+  await reportCalendars();
 }
 
 /**
  * A telemetry probe to report calendar count and read only calendar count.
  */
-function reportCalendars() {
+async function reportCalendars() {
   let telemetryReport = {};
+  let home = cal.l10n.getCalString("homeCalendarName");
 
   for (let calendar of cal.manager.getCalendars()) {
+    if (calendar.name == home && calendar.type == "storage") {
+      // Ignore the "Home" calendar if it is disabled or unused as it's
+      // automatically added.
+      if (calendar.getProperty("disabled")) {
+        continue;
+      }
+      let items = await calendar.getItemsAsArray(
+        Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
+        1,
+        null,
+        null
+      );
+      if (!items.length) {
+        continue;
+      }
+    }
     if (!telemetryReport[calendar.type]) {
       telemetryReport[calendar.type] = { count: 0, readOnlyCount: 0 };
     }
