@@ -1159,6 +1159,7 @@ class HeaderView {
         is: "simple-header-row",
       });
       newHeaderNode.setAttribute("id", idName);
+      newHeaderNode.dataset.prettyHeaderName = label;
       newHeaderNode.dataset.headerName = headerName;
       newRowNode.appendChild(newHeaderNode);
 

@@ -44,6 +44,12 @@ message-header-in-reply-to-field = In reply to<span data-l10n-name="field-separa
 
 message-header-website-field = Website<span data-l10n-name="field-separator">:</span>
 
+# An additional email header field that the user has chosen to display. Unlike
+# the other headers, the name of this header is not expected to be localised
+# because it is generated from the raw field name found in the email header.
+#   $fieldName (String) - The field name.
+message-header-custom-field = { $fieldName }<span data-l10n-name="field-separator">:</span>
+
 ##
 
 message-header-address-in-address-book-icon2 =
