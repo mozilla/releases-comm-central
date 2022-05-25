@@ -364,7 +364,7 @@ calCachedCalendar.prototype = {
           switch (this.offlineCachedItemFlags[item.hashId]) {
             case cICL.OFFLINE_FLAG_CREATED_RECORD:
               // Created items are not present on the server, so its safe to adopt them
-              this.adoptOfflineItem(item.clone(), null);
+              this.adoptOfflineItem(item.clone());
               break;
             case cICL.OFFLINE_FLAG_MODIFIED_RECORD:
               // Two Cases Here:
@@ -388,7 +388,7 @@ calCachedCalendar.prototype = {
                   "[calCachedCalendar] Item '" + item.title + "' has been deleted from the server"
                 );
                 if (cal.provider.promptOverwrite("modify", item, null)) {
-                  this.adoptOfflineItem(item.clone(), null);
+                  this.adoptOfflineItem(item.clone());
                 }
               }
               break;
@@ -635,17 +635,35 @@ calCachedCalendar.prototype = {
 
   async adoptItem(item) {
     return new Promise((resolve, reject) => {
-      this.doAdoptItem(item, {
-        onOperationComplete(calendar, status, opType, id, detail) {
-          if (!Components.isSuccessCode(status)) {
-            return reject(new Components.Exception(detail, status));
-          }
-          return resolve(detail);
-        },
+      this.doAdoptItem(item, (calendar, status, opType, id, detail) => {
+        if (!Components.isSuccessCode(status)) {
+          return reject(new Components.Exception(detail, status));
+        }
+        return resolve(detail);
       });
     });
   },
 
+  /**
+   * The function form of calIOperationListener.onOperationComplete used where
+   * the whole interface is not needed.
+   * @callback OnOperationCompleteHandler
+   *
+   * @param {calICalendar} calendar
+   * @param {number} status
+   * @param {number} operationType
+   * @param {string} id
+   * @param {calIItem|Error} detail
+   */
+
+  /**
+   * Executes the actual addition of the item using either the cached or uncached
+   * calendar depending on offline state. A separate method is used here to
+   * preserve the order of the "onAddItem" event.
+   *
+   * @param {calIItem} item
+   * @param {OnOperationCompleteHandler} handler
+   */
   doAdoptItem(item, listener) {
     // Forwarding add/modify/delete to the cached calendar using the calIObserver
     // callbacks would be advantageous, because the uncached provider could implement
@@ -657,13 +675,21 @@ calCachedCalendar.prototype = {
     // hasn't yet been performed on the cached calendar (which happens in onAddItem et al).
     // Result is that we currently stick to firing onOperationComplete if the cached calendar
     // has performed the modification, see below:
-    let self = this;
-    let cacheListener = {
-      onGetResult(calendar, status, itemType, detail, items) {
-        cal.ASSERT(false, "unexpected!");
-      },
-      // Returned Promise only available through wrappedJSObject.
-      onOperationComplete(calendar, status, opType, id, detail) {
+
+    let onSuccess = item => listener(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item);
+    let onError = e => listener(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
+
+    if (this.offline) {
+      // If we are offline, don't even try to add the item
+      this.adoptOfflineItem(item).then(onSuccess, onError);
+    } else {
+      // Otherwise ask the provider to add the item now.
+
+      // Expected to be called in the context of the uncached calendar's adoptItem()
+      // so this adoptItem() call returns first. This is a needed hack to keep the
+      // cached calendar's "onAddItem" event firing before the endBatch() call of
+      // the uncached calendar.
+      let adoptItemCallback = async (calendar, status, opType, id, detail) => {
         if (isUnavailableCode(status)) {
           // The item couldn't be added to the (remote) location,
           // this is like being offline. Add the item to the cached
@@ -671,137 +697,106 @@ calCachedCalendar.prototype = {
           cal.LOG(
             "[calCachedCalendar] Calendar " + calendar.name + " is unavailable, adding item offline"
           );
-          self.adoptOfflineItem(item, listener);
+          await this.adoptOfflineItem(item).then(onSuccess, onError);
         } else if (Components.isSuccessCode(status)) {
           // On success, add the item to the cache.
-          return self.mCachedCalendar.addItem(detail).then(
-            item => listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
-            e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
-          );
-        } else if (listener) {
+          await this.mCachedCalendar.addItem(detail).then(onSuccess, onError);
+        } else {
           // Either an error occurred or this is a successful add
           // to a cached calendar. Forward the call to the listener
-          listener.onOperationComplete(self, status, opType, id, detail);
+          listener(this, status, opType, id, detail);
         }
+      };
 
-        return Promise.resolve();
-      },
-    };
-
-    if (this.offline) {
-      // If we are offline, don't even try to add the item
-      this.adoptOfflineItem(item, listener);
-    } else {
-      // Otherwise ask the provider to add the item now.
-
-      // This is a needed hack to keep the cached calendar's "onAddItem" event
-      // firing before the endBatch() call of the uncached calendar. It is called
-      // in mUncachedCalendar's adoptItem() method.
-      this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = (...args) =>
-        cacheListener.onOperationComplete(...args);
-
+      this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = adoptItemCallback;
       this.mUncachedCalendar
         .adoptItem(item)
         .catch(e => {
-          cacheListener.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
+          adoptItemCallback(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
         })
         .finally(() => {
           this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = null;
         });
     }
   },
-  adoptOfflineItem(item, listener) {
-    let self = this;
-    let opListener = {
-      onGetResult(calendar, status, itemType, detail, items) {
-        cal.ASSERT(false, "unexpected!");
-      },
-      onOperationComplete(calendar, status, opType, id, detail) {
-        if (Components.isSuccessCode(status)) {
-          let storage = self.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
-          storage.addOfflineItem(detail).then(
-            item => listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
-            e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
-          );
-        } else if (listener) {
-          listener.onOperationComplete(self, status, opType, id, detail);
-        }
-      },
-    };
-    this.mCachedCalendar.adoptItem(item).then(
-      item => opListener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
-      e => opListener.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
-    );
+
+  /**
+   * Adds an item to the cached (storage) calendar.
+   *
+   * @param {calIItem} item
+   * @return {calIItem}
+   */
+  async adoptOfflineItem(item) {
+    let adoptedItem = await this.mCachedCalendar.adoptItem(item);
+    await this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage).addOfflineItem(adoptedItem);
+    return adoptedItem;
   },
 
-  async modifyItem(newItem, oldItem, listener) {
+  async modifyItem(newItem, oldItem) {
     return new Promise((resolve, reject) => {
-      this.doModifyItem(newItem, oldItem, {
-        onOperationComplete(calendar, status, opType, id, detail) {
-          if (!Components.isSuccessCode(status)) {
-            return reject(new Components.Exception(detail, status));
-          }
-          return resolve(detail);
-        },
+      this.doModifyItem(newItem, oldItem, (calendar, status, opType, id, detail) => {
+        if (!Components.isSuccessCode(status)) {
+          return reject(new Components.Exception(detail, status));
+        }
+        return resolve(detail);
       });
     });
   },
 
+  /**
+   * Executes the actual modification of the item using either the cached or
+   * uncached calendar depending on offline state. A separate method is used here
+   * to preserve the order of the "onModifyItem" event.
+   *
+   * @param {calIItem} newItem
+   * @param {calIItem} oldItem
+   * @param {OnOperationCompleteHandler} handler
+   */
   doModifyItem(newItem, oldItem, listener) {
-    let self = this;
+    let onSuccess = item => listener(item.calendar, Cr.NS_OK, cIOL.MODIFY, item.id, item);
+    let onError = e => listener(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
 
-    /* Forwarding add/modify/delete to the cached calendar using the calIObserver
-     * callbacks would be advantageous, because the uncached provider could implement
-     * a true push mechanism firing without being triggered from within the program.
-     * But this would mean the uncached provider fires on the passed
-     * calIOperationListener, e.g. *before* it fires on calIObservers
-     * (because that order is undefined). Firing onOperationComplete before onAddItem et al
-     * would result in this facade firing onOperationComplete even though the modification
-     * hasn't yet been performed on the cached calendar (which happens in onAddItem et al).
-     * Result is that we currently stick to firing onOperationComplete if the cached calendar
-     * has performed the modification, see below: */
-    let cacheListener = {
-      onGetResult(calendar, status, itemType, detail, items) {},
+    // Forwarding add/modify/delete to the cached calendar using the calIObserver
+    // callbacks would be advantageous, because the uncached provider could implement
+    // a true push mechanism firing without being triggered from within the program.
+    // But this would mean the uncached provider fires on the passed
+    // calIOperationListener, e.g. *before* it fires on calIObservers
+    // (because that order is undefined). Firing onOperationComplete before onAddItem et al
+    // would result in this facade firing onOperationComplete even though the modification
+    // hasn't yet been performed on the cached calendar (which happens in onAddItem et al).
+    // Result is that we currently stick to firing onOperationComplete if the cached calendar
+    // has performed the modification, see below: */
+
+    // Expected to be called in the context of the uncached calendar's modifyItem()
+    // so this modifyItem() call returns first. This is a needed hack to keep the
+    // cached calendar's "onModifyItem" event firing before the endBatch() call of
+    // the uncached calendar.
+    let modifyItemCallback = async (calendar, status, opType, id, detail) => {
       // Returned Promise only available through wrappedJSObject.
-      onOperationComplete(calendar, status, opType, id, detail) {
-        if (isUnavailableCode(status)) {
-          // The item couldn't be modified at the (remote) location,
-          // this is like being offline. Add the item to the cache
-          // instead.
-          cal.LOG(
-            "[calCachedCalendar] Calendar " +
-              calendar.name +
-              " is unavailable, modifying item offline"
-          );
-          self.modifyOfflineItem(newItem, oldItem).then(
-            item =>
-              listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.MODIFY, item.id, item),
-            e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
-          );
-        } else if (Components.isSuccessCode(status)) {
-          // On success, modify the item in the cache
-          return self.mCachedCalendar.modifyItem(detail, oldItem).then(
-            item =>
-              listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.MODIFY, item.id, item),
-            e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
-          );
-        } else if (listener) {
-          // This happens on error, forward the error through the listener
-          listener.onOperationComplete(self, status, opType, id, detail);
-        }
-
-        return Promise.resolve();
-      },
+      if (isUnavailableCode(status)) {
+        // The item couldn't be modified at the (remote) location,
+        // this is like being offline. Add the item to the cache
+        // instead.
+        cal.LOG(
+          "[calCachedCalendar] Calendar " +
+            calendar.name +
+            " is unavailable, modifying item offline"
+        );
+        await this.modifyOfflineItem(newItem, oldItem).then(onSuccess, onError);
+      } else if (Components.isSuccessCode(status)) {
+        // On success, modify the item in the cache
+        await this.mCachedCalendar.modifyItem(detail, oldItem).then(onSuccess, onError);
+      } else {
+        // This happens on error, forward the error through the listener
+        listener(this, status, opType, id, detail);
+      }
     };
 
     // First of all, we should find out if the item to modify is
     // already an offline item or not.
     if (this.offline) {
       // If we are offline, don't even try to modify the item
-      this.modifyOfflineItem(newItem, oldItem).then(
-        item => listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.MODIFY, item.id, item),
-        e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
-      );
+      this.modifyOfflineItem(newItem, oldItem).then(onSuccess, onError);
     } else {
       // Otherwise, get the item flags and further process the item.
       this.mCachedCalendar.getItemOfflineFlag(oldItem).then(offline_flag => {
@@ -810,30 +805,19 @@ calCachedCalendar.prototype = {
           offline_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD
         ) {
           // The item is already offline, just modify it in the cache
-          self.modifyOfflineItem(newItem, oldItem).then(
-            item =>
-              listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.MODIFY, item.id, item),
-            e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
-          );
+          this.modifyOfflineItem(newItem, oldItem).then(onSuccess, onError);
         } else {
           // Not an offline item, attempt to modify using provider
 
           // This is a needed hack to keep the cached calendar's "onModifyItem" event
           // firing before the endBatch() call of the uncached calendar. It is called
           // in mUncachedCalendar's modifyItem() method.
-          this.mUncachedCalendar.wrappedJSObject._cachedModifyItemCallback = (...args) =>
-            cacheListener.onOperationComplete(...args);
+          this.mUncachedCalendar.wrappedJSObject._cachedModifyItemCallback = modifyItemCallback;
 
-          self.mUncachedCalendar
+          this.mUncachedCalendar
             .modifyItem(newItem, oldItem)
             .catch(e => {
-              cacheListener.onOperationComplete(
-                null,
-                e.result || Cr.NS_ERROR_FAILURE,
-                null,
-                null,
-                e
-              );
+              modifyItemCallback(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
             })
             .finally(() => {
               this.mUncachedCalendar.wrappedJSObject._cachedModifyItemCallback = null;
@@ -843,15 +827,22 @@ calCachedCalendar.prototype = {
     }
   },
 
+  /**
+   * Modifies an item in the cached calendar.
+   *
+   * @param {calIItem} newItem
+   * @param {calIItem} oldItem
+   * @return {calIItem}
+   */
   async modifyOfflineItem(newItem, oldItem) {
-    let item = await this.mCachedCalendar.modifyItem(newItem, oldItem);
-    let storage = self.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
-    return storage.modifyOfflineItem(item);
+    let modifiedItem = await this.mCachedCalendar.modifyItem(newItem, oldItem);
+    await this.mCachedCalendar
+      .QueryInterface(Ci.calIOfflineStorage)
+      .modifyOfflineItem(modifiedItem);
+    return modifiedItem;
   },
 
   async deleteItem(item) {
-    let self = this;
-
     // First of all, we should find out if the item to delete is
     // already an offline item or not.
     if (this.offline) {
@@ -867,19 +858,18 @@ calCachedCalendar.prototype = {
       ) {
         // The item is already offline, just mark it deleted it in
         // the cache
-        await self.deleteOfflineItem(item);
+        await this.deleteOfflineItem(item);
       } else {
         try {
           // Not an offline item, attempt to delete using provider
-          await self.mUncachedCalendar.deleteItem(item);
+          await this.mUncachedCalendar.deleteItem(item);
 
           // On success, delete the item from the cache
-          await self.mCachedCalendar.deleteItem(item);
+          await this.mCachedCalendar.deleteItem(item);
 
           // Also, remove any meta data associated with the item
           try {
-            let storage = self.mCachedCalendar.QueryInterface(Ci.calISyncWriteCalendar);
-            storage.deleteMetaData(item.id);
+            this.mCachedCalendar.QueryInterface(Ci.calISyncWriteCalendar).deleteMetaData(item.id);
           } catch (e) {
             cal.LOG("[calCachedCalendar] Offline storage doesn't support metadata");
           }
@@ -893,7 +883,7 @@ calCachedCalendar.prototype = {
                 item.calendar.name +
                 " is unavailable, deleting item offline"
             );
-            await self.deleteOfflineItem(item);
+            await this.deleteOfflineItem(item);
           }
         }
       }
@@ -902,8 +892,7 @@ calCachedCalendar.prototype = {
 
   async deleteOfflineItem(item) {
     /* We do not delete the item from the cache, as we will need it when reconciling the cache content and the server content. */
-    let storage = this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
-    return storage.deleteOfflineItem(item);
+    return this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage).deleteOfflineItem(item);
   },
 };
 (function() {
