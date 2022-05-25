@@ -129,6 +129,10 @@ calDateTime.prototype = {
     return this.innerObject.toString();
   },
 
+  toJSON() {
+    return this.toString();
+  },
+
   getInTimezone: unwrap(ICAL.Timezone, function(val) {
     return new calDateTime(this.innerObject.convertToZone(val));
   }),

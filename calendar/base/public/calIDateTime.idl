@@ -158,6 +158,11 @@ interface calIDateTime : nsISupports
   AUTF8String toString();
 
   /**
+   * Returns a string representation of this instance suitable for JSON.
+   */
+  AUTF8String toJSON();
+
+  /**
    * Return a new calIDateTime instance that's the result of
    * converting this one into the given timezone.  Valid values
    * for aTimezone are the same as the timezone field.  If

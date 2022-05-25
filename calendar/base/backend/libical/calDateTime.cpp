@@ -203,6 +203,9 @@ calDateTime::ToString(nsACString& aResult) {
 }
 
 NS_IMETHODIMP
+calDateTime::ToJSON(nsACString& aResult) { return ToString(aResult); }
+
+NS_IMETHODIMP
 calDateTime::GetInTimezone(calITimezone* aTimezone, calIDateTime** aResult) {
   NS_ENSURE_ARG_POINTER(aTimezone);
   NS_ENSURE_ARG_POINTER(aResult);
