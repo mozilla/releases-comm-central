@@ -41,6 +41,13 @@ vcard-tz select {
   width: unset;
 }
 
+vcard-edit textarea {
+  border: var(--input-border-density) solid var(--toolbar-field-border-color);
+  margin-block: 0 3px;
+  margin-inline: 0 3px;
+  resize: vertical;
+}
+
 /* N field styles */
 vcard-n {
   display: flex;
@@ -206,4 +213,21 @@ vcard-special-date select:not([size], [multiple]) {
   width: min-content;
   padding-inline-end: 12px;
   padding-block: 0;
+}
+
+vcard-adr fieldset {
+  display: grid;
+  grid-template-columns: min-content auto;
+  margin: 0;
+  padding: 0;
+}
+
+vcard-adr select {
+  grid-column: 1 / 2;
+}
+
+.vcard-adr-inputs:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  grid-column: 2 / 3;
 }

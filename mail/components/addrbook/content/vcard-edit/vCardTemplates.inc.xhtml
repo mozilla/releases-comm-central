@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="chrome://messenger/skin/vcard.css" />
 
 <!-- Scripts -->
+<script src="chrome://messenger/content/addressbook/edit/adr.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/impp.js"></script>
@@ -76,6 +77,19 @@
            src="chrome://global/skin/icons/add.svg"
            alt=""/>
       <span data-l10n-id="vcard-url-add"/>
+    </button>
+  </fieldset>
+  <!-- Address -->
+  <fieldset id="addr-book-edit-address" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-adr-header"/>
+    <slot name="v-adr"/>
+    <!-- The add button is repeated boilerplate and will be reduced -->
+    <button id="vcard-add-adr" class="addr-book-edit-fieldset-button"
+            type="button">
+      <img class="addr-book-edit-fieldset-button-icon"
+            src="chrome://global/skin/icons/add.svg"
+            alt=""/>
+      <span data-l10n-id="vcard-adr-add"/>
     </button>
   </fieldset>
   <!-- Tel -->
@@ -247,6 +261,50 @@
       </select><!-- No white space here.
    --><label class="screen-readers-only" for="year" data-l10n-id="vcard-date-year"/>
       <input id="year" type="number" min="0" max="9999"/>
+    </div>
+  </fieldset>
+</template>
+
+<!-- Address -->
+<template id="template-vcard-edit-adr">
+  <fieldset>
+    <legend class="screen-readers-only" data-l10n-id="vcard-adr-label"/>
+    <label class="screen-readers-only"
+           for="select"
+           data-l10n-id="vcard-entry-type-label"/>
+    <!-- The type selection is repeated boilerplate and will be reduced -->
+    <select class="vcard-type-selection">
+      <option value="work" data-l10n-id="vcard-entry-type-work"/>
+      <option value="home" data-l10n-id="vcard-entry-type-home"/>
+      <option value="" data-l10n-id="vcard-entry-type-none" selected="true"/>
+    </select>
+    <div class="vcard-adr-inputs">
+      <label for="pobox" data-l10n-id="vcard-adr-pobox"/>
+      <input type="text" name="pobox"/>
+    </div>
+    <div class="vcard-adr-inputs">
+      <label for="ext" data-l10n-id="vcard-adr-ext"/>
+      <input type="text" name="ext"/>
+    </div>
+    <div class="vcard-adr-inputs">
+      <label for="street" data-l10n-id="vcard-adr-street"/>
+      <textarea name="street"></textarea>
+    </div>
+    <div class="vcard-adr-inputs">
+      <label for="locality" data-l10n-id="vcard-adr-locality"/>
+      <input type="text" name="locality"/>
+    </div>
+    <div class="vcard-adr-inputs">
+      <label for="region" data-l10n-id="vcard-adr-region"/>
+      <input type="text" name="region"/>
+    </div>
+    <div class="vcard-adr-inputs">
+      <label for="code" data-l10n-id="vcard-adr-code"/>
+      <input type="text" name="code"/>
+    </div>
+    <div class="vcard-adr-inputs">
+      <label for="country" data-l10n-id="vcard-adr-country"/>
+      <input type="text" name="country"/>
     </div>
   </fieldset>
 </template>

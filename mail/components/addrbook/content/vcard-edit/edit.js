@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEmailComponent, VCardIMPPComponent, VCardNComponent,
-           VCardSpecialDateComponent, VCardTelComponent, VCardTZComponent,
-           VCardURLComponent */
+/* globals VCardAdrComponent, VCardEmailComponent, VCardIMPPComponent,
+           VCardNComponent, VCardSpecialDateComponent, VCardTelComponent,
+           VCardTZComponent, VCardURLComponent */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
@@ -41,16 +41,27 @@ class VCardEdit extends HTMLElement {
 
   connectedCallback() {
     if (this.isConnected) {
-      /**
-       * @TODO
-       * Create a shared method for the add button mechanic.
-       */
       this.registerEmailFieldsetHandling();
-      this.registerURLFieldsetHandling();
-      this.registerTelFieldsetHandling();
-      this.registerTZFieldsetHandling();
-      this.registerIMPPFieldsetHandling();
+
+      let addURL = this.shadowRoot.getElementById("vcard-add-url");
+      this.registerAddButton(addURL, "url");
+
+      let addTel = this.shadowRoot.getElementById("vcard-add-tel");
+      this.registerAddButton(addTel, "tel");
+
+      let addTZ = this.shadowRoot.getElementById("vcard-add-tz");
+      this.registerAddButton(addTZ, "tz", () => {
+        addTZ.hidden = true;
+      });
+
+      let addIMPP = this.shadowRoot.getElementById("vcard-add-impp");
+      this.registerAddButton(addIMPP, "impp");
+
       this.registerSpecialDateFieldsetHandling();
+
+      let addAddress = this.shadowRoot.getElementById("vcard-add-adr");
+      this.registerAddButton(addAddress, "adr");
+
       this.updateView();
     }
   }
@@ -232,6 +243,11 @@ class VCardEdit extends HTMLElement {
         bday.vCardPropertyEntry = entry;
         bday.slot = "v-bday";
         return bday;
+      case "adr":
+        let address = new VCardAdrComponent();
+        address.vCardPropertyEntry = entry;
+        address.slot = "v-adr";
+        return address;
       default:
         return undefined;
     }
@@ -262,6 +278,8 @@ class VCardEdit extends HTMLElement {
         return VCardSpecialDateComponent.newBdayVCardPropertyEntry();
       case "anniversary":
         return VCardSpecialDateComponent.newAnniversaryVCardPropertyEntry();
+      case "adr":
+        return VCardAdrComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -322,14 +340,7 @@ class VCardEdit extends HTMLElement {
 
     // Add email button.
     let addEmail = this.shadowRoot.getElementById("vcard-add-email");
-    addEmail.addEventListener("click", e => {
-      let newVCardProperty = VCardEdit.createVCardProperty("email");
-      let el = VCardEdit.createVCardElement(newVCardProperty);
-      // Add the new entry to our vCardProperties object.
-      this.vCardProperties.addEntry(el.vCardPropertyEntry);
-      this.append(el);
-      el.querySelector('input[type="email"]').focus();
-    });
+    this.registerAddButton(addEmail, "email");
 
     // Add listener to be sure that only one checkbox from the emails is ticked.
     this.addEventListener("vcard-email-primary-checkbox", event => {
@@ -338,59 +349,6 @@ class VCardEdit extends HTMLElement {
           element.querySelector('input[type="checkbox"]').checked = false;
         }
       });
-    });
-  }
-
-  registerURLFieldsetHandling() {
-    // Add URL button.
-    let addURL = this.shadowRoot.getElementById("vcard-add-url");
-    addURL.addEventListener("click", e => {
-      let newVCardProperty = VCardEdit.createVCardProperty("url");
-      let el = VCardEdit.createVCardElement(newVCardProperty);
-      // Add the new entry to our vCardProperties object.
-      this.vCardProperties.addEntry(el.vCardPropertyEntry);
-      this.append(el);
-      el.querySelector('input[type="url"]').focus();
-    });
-  }
-
-  registerTelFieldsetHandling() {
-    // Add Tel button.
-    let addTel = this.shadowRoot.getElementById("vcard-add-tel");
-    addTel.addEventListener("click", e => {
-      let newVCardProperty = VCardEdit.createVCardProperty("tel");
-      let el = VCardEdit.createVCardElement(newVCardProperty);
-      // Add the new entry to our vCardProperties object.
-      this.vCardProperties.addEntry(el.vCardPropertyEntry);
-      this.append(el);
-      el.querySelector("input").focus();
-    });
-  }
-
-  registerTZFieldsetHandling() {
-    // Add TZ button.
-    let addTZ = this.shadowRoot.getElementById("vcard-add-tz");
-    addTZ.addEventListener("click", e => {
-      let newVCardProperty = VCardEdit.createVCardProperty("tz");
-      let el = VCardEdit.createVCardElement(newVCardProperty);
-      // Add the new entry to our vCardProperties object.
-      this.vCardProperties.addEntry(el.vCardPropertyEntry);
-      this.append(el);
-      addTZ.hidden = true;
-      el.querySelector("select").focus();
-    });
-  }
-
-  registerIMPPFieldsetHandling() {
-    // Add chat button.
-    let addTel = this.shadowRoot.getElementById("vcard-add-impp");
-    addTel.addEventListener("click", e => {
-      let newVCardProperty = VCardEdit.createVCardProperty("impp");
-      let el = VCardEdit.createVCardElement(newVCardProperty);
-      // Add the new entry to our vCardProperties object.
-      this.vCardProperties.addEntry(el.vCardPropertyEntry);
-      this.append(el);
-      el.querySelector("input").focus();
     });
   }
 
@@ -427,12 +385,33 @@ class VCardEdit extends HTMLElement {
         newVCardProperty = VCardEdit.createVCardProperty("anniversary");
       }
       let el = VCardEdit.createVCardElement(newVCardProperty);
-
       // Add the new entry to our vCardProperties object.
       this.vCardProperties.addEntry(el.vCardPropertyEntry);
       this.append(el);
       this.checkForBdayOccurences();
       el.querySelector("input").focus();
+    });
+  }
+
+  /**
+   * Registers a click event for addButton which creates a new vCardProperty.
+   *
+   * @param {HTMLButtonElement} addButton
+   * @param {string} VCardPropertyName RFC6350 vCard property name.
+   * @param {(vCardElement) => {}} payload For further refinement.
+   * Like different focus instead of an input field.
+   */
+  registerAddButton(addButton, VCardPropertyName, payload) {
+    addButton.addEventListener("click", event => {
+      let newVCardProperty = VCardEdit.createVCardProperty(VCardPropertyName);
+      let el = VCardEdit.createVCardElement(newVCardProperty);
+      // Add the new entry to our vCardProperties object.
+      this.vCardProperties.addEntry(el.vCardPropertyEntry);
+      this.append(el);
+      el.querySelector("input")?.focus();
+      if (payload) {
+        payload(el);
+      }
     });
   }
 

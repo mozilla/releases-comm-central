@@ -103,3 +103,30 @@ vcard-date-day = Day
 vcard-date-month = Month
 
 vcard-date-year = Year
+
+# ADR vCard field
+
+vcard-adr-header = Addresses
+
+vcard-adr-add = Add address
+
+vcard-adr-label = Address
+
+vcard-adr-delivery-label = Delivery label
+
+vcard-adr-pobox = Post office box
+
+vcard-adr-ext = Extended address
+
+vcard-adr-street = Street address
+
+# Or "Locality"
+vcard-adr-locality = City
+
+# Or "Region"
+vcard-adr-region = State/Province
+
+# The term "ZIP code" only applies in USA. Most locales should use "Postal code" only.
+vcard-adr-code = ZIP/Postal code
+
+vcard-adr-country = Country
