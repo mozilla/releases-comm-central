@@ -5,33 +5,49 @@
 /* :::: Filter Buttons :::: */
 
 #quick-filter-bar-main-bar toolbarbutton {
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+/* TEMPORARY: styles for supernova icons */
+#quick-filter-bar-main-bar .toolbarbutton-icon {
+  padding: 0px;
+  width: 16px;
+  height: 16px;
+  margin-block-start: -1px;
+}
+
+#quick-filter-bar-main-bar .toolbarbutton-text {
+  margin-inline-start: 3px;
+}
+
+#quick-filter-bar-main-bar .icon-only .toolbarbutton-text {
+  margin-inline-start: 0px;
 }
 
 #qfb-sticky {
-  list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
+  list-style-image: var(--icon-pin);
 }
 
 #qfb-unread {
-  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
+  list-style-image: var(--icon-unread);
 }
 
 #qfb-starred {
-  list-style-image: url("chrome://messenger/skin/icons/star.svg");
+  list-style-image: var(--icon-star);
 }
 
 #qfb-inaddrbook {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg")
+  list-style-image: var(--icon-address-book);
 }
 
 #qfb-tags {
-  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
+  list-style-image: var(--icon-tag);
 }
 
 #qfb-attachment {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
+  list-style-image: var(--icon-attachment);
 }
 
 #quick-filter-bar[disabled="true"] {
