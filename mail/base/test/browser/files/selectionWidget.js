@@ -38,33 +38,37 @@ class TestSelectionWidget extends HTMLElement {
 
     this.#itemId = 0;
 
-    this.#controller = new SelectionWidgetController(widget, {
-      getLayoutDirection() {
-        return widget.getAttribute("layout-direction");
-      },
-      indexFromTarget(target) {
-        for (let i = 0; i < widget.items.length; i++) {
-          if (widget.items[i].element.contains(target)) {
-            return i;
+    this.#controller = new SelectionWidgetController(
+      widget,
+      widget.getAttribute("selection-model"),
+      {
+        getLayoutDirection() {
+          return widget.getAttribute("layout-direction");
+        },
+        indexFromTarget(target) {
+          for (let i = 0; i < widget.items.length; i++) {
+            if (widget.items[i].element.contains(target)) {
+              return i;
+            }
           }
-        }
-        return null;
-      },
-      setFocusableItem(index, focus) {
-        widget.#focusItem.tabIndex = -1;
-        widget.#focusItem =
-          index == null ? widget : widget.items[index].element;
-        widget.#focusItem.tabIndex = 0;
-        if (focus) {
-          widget.#focusItem.focus();
-        }
-      },
-      setItemSelectionState(index, selected) {
-        widget.items[index].selected = selected;
-        widget.items[index].element.classList.toggle("selected", selected);
-        widget.items[index].element.setAttribute("aria-selected", selected);
-      },
-    });
+          return null;
+        },
+        setFocusableItem(index, focus) {
+          widget.#focusItem.tabIndex = -1;
+          widget.#focusItem =
+            index == null ? widget : widget.items[index].element;
+          widget.#focusItem.tabIndex = 0;
+          if (focus) {
+            widget.#focusItem.focus();
+          }
+        },
+        setItemSelectionState(index, selected) {
+          widget.items[index].selected = selected;
+          widget.items[index].element.classList.toggle("selected", selected);
+          widget.items[index].element.setAttribute("aria-selected", selected);
+        },
+      }
+    );
   }
 
   /**

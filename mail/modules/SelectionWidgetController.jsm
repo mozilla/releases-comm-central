@@ -63,18 +63,52 @@ const EXPORTED_SYMBOLS = ["SelectionWidgetController"];
  * instance will use the item's index to reference the item. This means that the
  * representation of the item itself is left up to the widget.
  *
- * The controller currently handles one selection model.
+ * # Selection models
  *
- * # Browse model
+ * The controller implements a number of selection models. Each of which has
+ * different selection features and controls suited to them. A model appropriate
+ * to the specific situation should be chosen.
  *
- * Selection follows the focus by default. As such, changing selection should be
- * a light operation. Using the Control modifier allows the user to move focus
- * without changing selection.
+ * Model behaviour table:
  *
- * Only up to one item can be selected. A user can not manually deselect an
- * item. As such, in most usage exactly one item will be selected. However, it
- * is still possible to get into a state where no item is selected when the
- * widget is empty or the selected item is deleted when it doesn't have focus.
+ *  Model Name | Selection follows focus | Zero selectable | Multi selectable
+ *  =========================================================================
+ *  focus        always                    no                no
+ *  browse       default                   no                no
+ *
+ *
+ * ## Behaviour: Selection follows focus
+ *
+ * This determines whether the focused item is selected.
+ *
+ * "always" means a focused item will always be selected, and no other item will
+ * be selected, which makes the selection redundant to the focus. This should be
+ * used if a change in the selection has no side effect beyond what a change in
+ * focus should trigger.
+ *
+ * "default" means the default action when navigating to a focused item is to
+ * change the selection to just that item, but the user may press a modifier
+ * (Control) to move the focus without selecting an item. The side effects to
+ * selecting an item should be light and non-disruptive since a user will likely
+ * change the selection regularly as they navigate the items without a modifier.
+ * Moreover, this behaviour will prefer selecting a single item, and so is not
+ * appropriate if the primary use case is to select multiple, or zero, items.
+ *
+ * ## Behaviour: Zero selectable
+ *
+ * This determines whether the user can manually deselect the last selected
+ * item.
+ *
+ * "no" will ensure that, in most usage, at least one item will be selected.
+ * However, it is still possible to get into a state where no item is selected
+ * when the widget is empty or the selected item is deleted when it doesn't have
+ * focus.
+ *
+ * ## Behaviour: Multi selectable
+ *
+ * This determines whether the user can select more than one item. If the
+ * selection follows the focus (by default) the user can use a modifier to
+ * select more than one item.
  */
 class SelectionWidgetController {
   #numItems = 0;
@@ -82,11 +116,13 @@ class SelectionWidgetController {
   #focusIndex = null;
   #widget = null;
   #methods = null;
+  #focusIsSelected = false;
 
   /**
    * Creates a new selection controller for the given widget.
    *
-   * @param {widget} - The widget to control.
+   * @param {widget} widget - The widget to control.
+   * @param {"focus"|"browse"} model - The selection model to follow.
    * @param {Object} methods - Methods for the controller to communicate with
    *   the widget.
    * @param {GetLayoutDirectionMethod} methods.getLayoutDirection - Used to
@@ -98,8 +134,18 @@ class SelectionWidgetController {
    * @param {SetItemSelectionStateMethod} methods.setItemSelectionState - Used
    *   to update the widget on whether an item should be selected.
    */
-  constructor(widget, methods) {
+  constructor(widget, model, methods) {
     this.#widget = widget;
+    switch (model) {
+      case "focus":
+        this.#focusIsSelected = true;
+        break;
+      case "browse":
+        this.#focusIsSelected = false;
+        break;
+      default:
+        throw new RangeError(`The model "${model}" is not a supported model`);
+    }
     this.#methods = methods;
 
     widget.addEventListener("mousedown", event =>
@@ -183,13 +229,13 @@ class SelectionWidgetController {
    *   number of items controlled by the widget.
    */
   selectSingle(index) {
-    if (index == this.#selectedIndex) {
-      return;
-    }
     if (!(index >= 0 && index < this.#numItems)) {
       throw new RangeError(
         `index ${index} is not in the range [0, ${this.#numItems - 1}]`
       );
+    }
+    if (index == this.#selectedIndex) {
+      return;
     }
     if (this.#selectedIndex != null) {
       this.#methods.setItemSelectionState(this.#selectedIndex, false);
@@ -293,8 +339,10 @@ class SelectionWidgetController {
 
       let selectIndex = null;
       // Move focus.
-      if (!shiftKey) {
+      if (!shiftKey && !(this.#focusIsSelected && ctrlKey)) {
         // Shift is for multi-selection only, which we don't support yet.
+        // Ctrl is for moving focus without changing the focus, if this is not
+        // allowed, we simply do nothing when the modifier is pressed.
         let focusIndex;
         // NOTE: focusIndex may be set to an out of range index, but it will be
         // clipped in #moveFocus.
