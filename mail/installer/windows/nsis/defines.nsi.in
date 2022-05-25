@@ -22,10 +22,22 @@
 
 !define BrandProductName      "Thunderbird"
 !define BrandShortName        "@MOZ_APP_DISPLAYNAME@"
-!define PreReleaseSuffix      "@PRE_RELEASE_SUFFIX@"
 !ifndef BrandFullName
-!define BrandFullName         "${BrandFullNameInternal}${PreReleaseSuffix}"
+!define BrandFullName         "${BrandFullNameInternal}"
 !endif
+
+# Due to official and beta using the same branding (and`thus the same install
+# directory), this is used to differentiate between them.
+!if "@MOZ_UPDATE_CHANNEL@" == "beta"
+!undef BrandFullName
+!define BrandFullName         "${BrandFullNameInternal} Beta"
+# NO_INSTDIR_FROM_REG is defined for Beta to prevent finding a non-default
+# installation directory in the registry and using that as the default. This
+# prevents Beta releases built with official branding from finding an existing
+# install of an official release and defaulting to its installation directory.
+!define NO_INSTDIR_FROM_REG
+!endif
+!define InstDirName           "${BrandFullName}"
 
 !define CERTIFICATE_NAME            "Mozilla Corporation"
 !define CERTIFICATE_ISSUER          "DigiCert SHA2 Assured ID Code Signing CA"
@@ -33,15 +45,6 @@
 ;  in the registry at the same time, temporarily.
 !define CERTIFICATE_NAME_PREVIOUS   "Mozilla Corporation"
 !define CERTIFICATE_ISSUER_PREVIOUS "DigiCert Assured ID Code Signing CA-1"
-
-# NO_INSTDIR_FROM_REG is defined for pre-releases which have a PreReleaseSuffix
-# (e.g. Alpha X, Beta X, etc.) to prevent finding a non-default installation
-# directory in the registry and using that as the default. This prevents
-# Beta releases built with official branding from finding an existing install
-# of an official release and defaulting to its installation directory.
-!if "@PRE_RELEASE_SUFFIX@" != ""
-!define NO_INSTDIR_FROM_REG
-!endif
 
 # AccessibleHandler.dll uses a different CLSID depending on release channel.
 # These defines must match HANDLER_CLSID defined in
