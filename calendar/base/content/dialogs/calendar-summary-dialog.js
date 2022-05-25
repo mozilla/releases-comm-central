@@ -221,6 +221,12 @@ function updateDialogButtons(item) {
     // Show the edit button menu for repeating events.
     let menuButton = document.getElementById("calendar-summary-dialog-edit-menu-button");
     menuButton.hidden = false;
+
+    // Pressing the "enter" key will display the occurrence menu.
+    document.getElementById("calendar-summary-dialog-edit-menu-button").focus();
+    document.addEventListener("dialogaccept", evt => {
+      evt.preventDefault();
+    });
   } else {
     // Show the single edit button for non-repeating events.
     document.addEventListener("dialogaccept", () => {
