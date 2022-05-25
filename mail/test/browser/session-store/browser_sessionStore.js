@@ -137,7 +137,14 @@ registerCleanupFunction(function() {
   folderA.server.rootFolder.propagateDelete(folderA, true, null);
   folderB.server.rootFolder.propagateDelete(folderB, true, null);
 
-  Services.startup.quit(Ci.nsIAppStartup.eAttemptQuit);
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out.
+  Services.focus.focusedWindow = window;
+  // Focus an element in the main window, then blur it again to avoid it
+  // hijacking keypresses.
+  let searchInput = document.getElementById("searchInput");
+  searchInput.focus();
+  searchInput.blur();
 });
 
 add_task(function test_periodic_session_persistence_simple() {
