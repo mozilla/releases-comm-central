@@ -107,9 +107,13 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
           // If there's an existing Promise and it's not complete, wait for it - something else is
           // already waiting and we don't want to break that by throwing away the caches. If it IS
           // complete, we'll continue immediately.
-          await self.mRecItemCachePromise;
+          let recItemCachePromise = self.mRecItemCachePromise;
+          await recItemCachePromise;
           await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
-          self.mRecItemCachePromise = null;
+          // Check in case someone else already threw away the caches.
+          if (self.mRecItemCachePromise == recItemCachePromise) {
+            self.mRecItemCachePromise = null;
+          }
         }
         await self.assureRecurringItemCaches();
 
