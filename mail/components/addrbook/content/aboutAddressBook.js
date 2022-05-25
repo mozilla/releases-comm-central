@@ -871,9 +871,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       startupDefaultItem.removeAttribute("checked");
     }
 
-    if (event.type == "contextmenu" && event.buttons) {
+    if (event.type == "contextmenu" && event.button == 2) {
+      // This is a right-click. Open where it happened.
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
+      // This is a click on the menu button, or the context menu key was
+      // pressed. Open near the menu button.
       popup.openPopup(
         row.querySelector(".bookRow-container, .listRow-container"),
         { triggerEvent: event, position: "end_before", x: -26, y: 30 }
@@ -1731,14 +1734,16 @@ var cardsPane = {
     removeItem.hidden = !inMailList;
     deleteItem.disabled = removeItem.disabled = !this._canDeleteSelected();
 
-    if (event.type == "contextmenu" && event.buttons) {
+    if (event.type == "contextmenu" && event.button == 2) {
+      // This is a right-click. Open where it happened.
       this.cardContext.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
+      // This is a context menu key press. Open near the middle of the row.
       this.cardContext.openPopup(row, {
         triggerEvent: event,
-        position: "end_before",
-        x: -26,
-        y: row.clientHeight,
+        position: "overlap",
+        x: row.clientWidth / 2,
+        y: row.clientHeight / 2,
       });
     }
     event.preventDefault();
