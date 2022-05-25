@@ -43,25 +43,22 @@
 
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
-      let sep = document.createElement("span");
-      sep.classList.add("screen-reader-only");
-      sep.setAttribute("data-l10n-name", "field-separator");
-      this.heading.appendChild(sep);
       this.heading.hidden = true;
-      // message-header-to-field
-      // message-header-from-field
-      // message-header-cc-field
-      // message-header-bcc-field
-      // message-header-sender-field
-      // message-header-reply-to-field
+      // message-header-to-list-name
+      // message-header-from-list-name
+      // message-header-cc-list-name
+      // message-header-bcc-list-name
+      // message-header-sender-list-name
+      // message-header-reply-to-list-name
       document.l10n.setAttributes(
         this.heading,
-        `message-header-${this.dataset.headerName}-field`
+        `message-header-${this.dataset.headerName}-list-name`
       );
       this.appendChild(this.heading);
 
       this.recipientsList = document.createElement("ol");
       this.recipientsList.classList.add("recipients-list");
+      this.recipientsList.setAttribute("aria-labelledby", this.heading.id);
       this.appendChild(this.recipientsList);
 
       this.moreButton = document.createElement("button");
@@ -237,16 +234,12 @@
       let rows = 1;
       for (let [count, recipient] of this.#recipients.entries()) {
         let li = document.createElement("li", { is: "header-recipient" });
+        // Set an id before connected callback is called on the element.
+        li.id = `${this.dataset.headerName}Recipient${count}`;
         // Append the element to the DOM to trigger the connectedCallback.
         this.recipientsList.appendChild(li);
         li.dataset.headerName = this.dataset.headerName;
         li.recipient = recipient;
-        // Set a proper accessible label by combining the row label and the
-        // full address of the recipient.
-        li.setAttribute(
-          "aria-label",
-          `${this.heading.textContent} ${li.fullAddress}`
-        );
 
         // Bail out if we need to show all elements.
         if (showAllHeaders) {
@@ -369,6 +362,7 @@
       this.tabIndex = 0;
 
       this.email = document.createElement("span");
+      this.email.id = `${this.id}Display`;
       this.appendChild(this.email);
 
       this.abIndicator = document.createElement("button");
@@ -376,6 +370,8 @@
         "recipient-address-book-button",
         "plain-button"
       );
+      // We make the button non-focusable since its functionality is equivalent
+      // to the first item in the popup menu, so we can save a tab-stop.
       this.abIndicator.tabIndex = -1;
       this.abIndicator.addEventListener("click", event => {
         event.stopPropagation();
@@ -388,6 +384,7 @@
       });
 
       let img = document.createElement("img");
+      img.id = `${this.id}AbIcon`;
       img.src = "chrome://messenger/skin/icons/new/address-book-indicator.svg";
       document.l10n.setAttributes(
         img,
@@ -396,6 +393,13 @@
 
       this.abIndicator.appendChild(img);
       this.appendChild(this.abIndicator);
+
+      // Use the email and icon as the accessible name. We do this to stop the
+      // button title from contributing to the accessible name.
+      // TODO: If the button or its title is removed, or the title replaces the
+      // image alt text, then remove this aria-labelledby attribute. The id's
+      // will no longer be necessary either.
+      this.setAttribute("aria-labelledby", `${this.email.id} ${img.id}`);
 
       this.addEventListener("contextmenu", event => {
         gMessageHeader.openEmailAddressPopup(event, this);
@@ -578,19 +582,16 @@
 
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
-      let sep = document.createElement("span");
-      sep.classList.add("screen-reader-only");
-      sep.setAttribute("data-l10n-name", "field-separator");
-      this.heading.appendChild(sep);
       this.heading.hidden = true;
       document.l10n.setAttributes(
         this.heading,
-        "message-header-newsgroups-field"
+        "message-header-newsgroups-list-name"
       );
       this.appendChild(this.heading);
 
       this.newsgroupsList = document.createElement("ol");
       this.newsgroupsList.classList.add("newsgroups-list");
+      this.newsgroupsList.setAttribute("aria-labelledby", this.heading.id);
       this.appendChild(this.newsgroupsList);
     }
 
@@ -604,12 +605,6 @@
         let li = document.createElement("li", { is: "header-newsgroup" });
         this.newsgroupsList.appendChild(li);
         li.textContent = newsgroup;
-        // Set a proper accessible label by combining the row label and the
-        // newsgroup name.
-        li.setAttribute(
-          "aria-label",
-          `${this.heading.textContent} ${li.textContent}`
-        );
       }
     }
 
@@ -660,12 +655,8 @@
 
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
-      let sep = document.createElement("span");
-      sep.classList.add("screen-reader-only");
-      sep.setAttribute("data-l10n-name", "field-separator");
-      this.heading.appendChild(sep);
       this.heading.hidden = true;
-      document.l10n.setAttributes(this.heading, "message-header-tags-field");
+      document.l10n.setAttributes(this.heading, "message-header-tags-list-name");
       this.appendChild(this.heading);
 
       this.tagsList = document.createElement("ol");
