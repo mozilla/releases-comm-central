@@ -191,25 +191,25 @@ interface nsIImapService : nsISupports
   void downloadMessagesForOffline(in ACString aMessageIds, in nsIMsgFolder aSrcFolder,
                       in nsIUrlListener aListener, in nsIMsgWindow   aMsgWindow);
 
-  nsIURI moveFolder(in nsIMsgFolder aSrcFolder,
-                    in nsIMsgFolder aDstFolder,
-                    in nsIUrlListener aUrlListener,
-                    in nsIMsgWindow msgWindow);
+  void moveFolder(in nsIMsgFolder aSrcFolder,
+                  in nsIMsgFolder aDstFolder,
+                  in nsIUrlListener aUrlListener,
+                  in nsIMsgWindow msgWindow);
 
-  nsIURI renameLeaf(in nsIMsgFolder aSrcFolder,
-                    in AString aLeafName,
-                    in nsIUrlListener aUrlListener,
-                    in nsIMsgWindow msgWindow);
+  void renameLeaf(in nsIMsgFolder aSrcFolder,
+                  in AString aLeafName,
+                  in nsIUrlListener aUrlListener,
+                  in nsIMsgWindow msgWindow);
 
-  nsIURI deleteFolder(in nsIMsgFolder aFolder,
-                      in nsIUrlListener aUrlListener,
-                      in nsIMsgWindow aMsgWindow);
+  void deleteFolder(in nsIMsgFolder aFolder,
+                    in nsIUrlListener aUrlListener,
+                    in nsIMsgWindow aMsgWindow);
 
   nsIURI createFolder(in nsIMsgFolder aParentFolder,
                       in AString aLeafName,
                       in nsIUrlListener aUrlListener);
 
-  nsIURI listFolder(in nsIMsgFolder aMailFolder,
+  void listFolder(in nsIMsgFolder aMailFolder,
                     in nsIUrlListener aUrlListener);
 
   nsIURI subscribeFolder(in nsIMsgFolder aMailFolder,

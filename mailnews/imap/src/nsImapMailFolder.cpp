@@ -867,7 +867,8 @@ NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsAString& folderName,
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return imapService->CreateFolder(this, folderName, this, nullptr);
+  nsCOMPtr<nsIURI> url;
+  return imapService->CreateFolder(this, folderName, this, getter_AddRefs(url));
 }
 
 NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
@@ -1007,7 +1008,7 @@ NS_IMETHODIMP nsImapMailFolder::List() {
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return imapService->ListFolder(this, this, nullptr);
+  return imapService->ListFolder(this, this);
 }
 
 NS_IMETHODIMP nsImapMailFolder::RemoveLocalSelf() {
@@ -1484,7 +1485,7 @@ NS_IMETHODIMP nsImapMailFolder::Rename(const nsAString& newName,
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return imapService->RenameLeaf(this, newName, this, msgWindow, nullptr);
+  return imapService->RenameLeaf(this, newName, this, msgWindow);
 }
 
 NS_IMETHODIMP nsImapMailFolder::RecursiveCloseActiveConnections(
@@ -2220,7 +2221,7 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
 
   if (confirmed) {
     if (deleteNoTrash) {
-      rv = imapService->DeleteFolder(this, this, msgWindow, nullptr);
+      rv = imapService->DeleteFolder(this, this, msgWindow);
       nsMsgDBFolder::DeleteSelf(msgWindow);
     } else {
       bool match = false;
@@ -2230,7 +2231,7 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
         ConfirmFolderDeletionForFilter(msgWindow, &confirm);
         if (!confirm) return NS_OK;
       }
-      rv = imapService->MoveFolder(this, trashFolder, this, msgWindow, nullptr);
+      rv = imapService->MoveFolder(this, trashFolder, this, msgWindow);
     }
   }
   return rv;
@@ -7299,7 +7300,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
                          listener, msgWindow, false);
       if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
 
-      rv = imapService->MoveFolder(srcFolder, this, this, msgWindow, nullptr);
+      rv = imapService->MoveFolder(srcFolder, this, this, msgWindow);
     }
   } else  // copying folder (should only be across server?)
   {

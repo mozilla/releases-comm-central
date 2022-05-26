@@ -1490,8 +1490,7 @@ NS_IMETHODIMP nsImapService::Biff(nsIMsgFolder* aImapMailFolder,
 
 NS_IMETHODIMP nsImapService::DeleteFolder(nsIMsgFolder* aImapMailFolder,
                                           nsIUrlListener* aUrlListener,
-                                          nsIMsgWindow* aMsgWindow,
-                                          nsIURI** aURL) {
+                                          nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   // If it's an aol server then use 'deletefolder' url to
@@ -1506,7 +1505,7 @@ NS_IMETHODIMP nsImapService::DeleteFolder(nsIMsgFolder* aImapMailFolder,
 
   return FolderCommand(aImapMailFolder, aUrlListener,
                        removeFolderAndMsgs ? "/deletefolder>" : "/delete>",
-                       nsIImapUrl::nsImapDeleteFolder, aMsgWindow, aURL);
+                       nsIImapUrl::nsImapDeleteFolder, aMsgWindow, nullptr);
 }
 
 NS_IMETHODIMP nsImapService::DeleteMessages(
@@ -2044,7 +2043,7 @@ nsresult nsImapService::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
 NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
                                         nsIMsgFolder* dstFolder,
                                         nsIUrlListener* urlListener,
-                                        nsIMsgWindow* msgWindow, nsIURI** url) {
+                                        nsIMsgWindow* msgWindow) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   NS_ENSURE_ARG_POINTER(dstFolder);
 
@@ -2077,7 +2076,7 @@ NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
       rv = mailnewsurl->SetSpecInternal(urlSpec);
       if (NS_SUCCEEDED(rv)) {
         GetFolderName(srcFolder, folderName);
-        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, url);
+        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, nullptr);
       }
     }
   }
@@ -2087,7 +2086,7 @@ NS_IMETHODIMP nsImapService::MoveFolder(nsIMsgFolder* srcFolder,
 NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
                                         const nsAString& newLeafName,
                                         nsIUrlListener* urlListener,
-                                        nsIMsgWindow* msgWindow, nsIURI** url) {
+                                        nsIMsgWindow* msgWindow) {
   NS_ENSURE_ARG_POINTER(srcFolder);
 
   nsCOMPtr<nsIImapUrl> imapUrl;
@@ -2138,7 +2137,7 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
 
       rv = mailNewsUrl->SetSpecInternal(urlSpec);
       if (NS_SUCCEEDED(rv))
-        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, url);
+        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, nullptr);
     }
   }
   return rv;
@@ -2251,12 +2250,11 @@ NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
 }
 
 NS_IMETHODIMP nsImapService::ListFolder(nsIMsgFolder* aImapMailFolder,
-                                        nsIUrlListener* aUrlListener,
-                                        nsIURI** aURL) {
+                                        nsIUrlListener* aUrlListener) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   return FolderCommand(aImapMailFolder, aUrlListener, "/listfolder>",
-                       nsIImapUrl::nsImapListFolder, nullptr, aURL);
+                       nsIImapUrl::nsImapListFolder, nullptr, nullptr);
 }
 
 NS_IMETHODIMP nsImapService::GetScheme(nsACString& aScheme) {
