@@ -65,19 +65,26 @@ def seamonkey_version(build_env, app_path):
     version_file_display = os.path.join(
         build_env.topsrcdir, app_path[0], "config", "version_display.txt"
     )
+    version_file_package = os.path.join(
+        build_env.topsrcdir, app_path[0], "config", "version_package.txt"
+    )
     rv = []
-    for f in [version_file, version_file_display]:
+    for f in [version_file, version_file_display, version_file_package]:
         if exists(f):
             f_value = open(f).read().strip()
         else:
             f_value = "unknown"
         rv.append(f_value)
 
-    return namespace(version=rv[0], version_display=rv[1])
+    return namespace(version=rv[0],
+                     version_display=rv[1],
+                     version_package=rv[2])
 
 
 set_defconf("SEAMONKEY_VERSION", seamonkey_version.version)
 set_defconf("SEAMONKEY_VERSION_DISPLAY", seamonkey_version.version_display)
+# Currently not set in suite comm-central
+# set_defconf("MOZ_PKG_VERSION", seamonkey_version.version_package)
 
 
 @depends(build_environment)
@@ -110,8 +117,6 @@ imply_option("MOZ_PLACES", True)
 imply_option("MOZ_SERVICES_SYNC", False)
 
 # Building extensions is disabled by default.
-# Bug 1231349 needs to be fixed first for l10n builds.
-# Set desired defaults to True from False when the l10n bug is fixed.
 
 # =========================================================
 # = ChatZilla extension
@@ -147,6 +152,8 @@ set_config("MOZ_DEBUGQA", debugqa)
 # ==============================================================
 
 check_prog("ZIP", ("zip",))
+
+include("../build/moz.configure/gecko_source.configure")
 
 include("../mailnews/moz.configure")
 include("../../toolkit/moz.configure")
