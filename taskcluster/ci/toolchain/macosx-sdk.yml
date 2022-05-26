@@ -21,16 +21,6 @@ job-defaults:
     # Expiry similar to that of fetches
     expires-after: 1000 years
 
-macosx64-sdk-10.12:
-    description: "MacOSX10.12 SDK"
-    attributes:
-        gecko_index: gecko.cache.level-{level}.toolchains.v3.macosx64-sdk-10.12.latest
-        gecko_artifact_path: project/gecko/mac-sdk/MacOSX10.12.sdk.tar.zst
-    treeherder:
-        symbol: TM(sdk10.12)
-    run:
-        toolchain-artifact: project/comm/mac-sdk/MacOSX10.12.sdk.tar.zst
-
 macosx64-sdk-11.0:
     description: "MacOSX11.0 SDK"
     attributes:

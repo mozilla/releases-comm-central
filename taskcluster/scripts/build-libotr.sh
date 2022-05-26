@@ -224,13 +224,13 @@ case "${_TARGET_OS}" in
         export PATH
 
         export _TARGET_TRIPLE="x86_64-apple-darwin"
-        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX10.12.sdk"
+        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.0.sdk"
         export CROSS_PRIVATE_FRAMEWORKS="${MACOS_SDK_DIR}/System/Library/PrivateFrameworks"
         export CROSS_SYSROOT="${MACOS_SDK_DIR}"
 
         export CC="${_TARGET_TRIPLE}-clang"
         export LD="${_TARGET_TRIPLE}-ld"
-        export CFLAGS="-isysroot ${CROSS_SYSROOT}"
+        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=10.12"
         export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
