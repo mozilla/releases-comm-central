@@ -15,13 +15,18 @@
   --icon-draft: url("chrome://messenger/skin/icons/new/compact/draft.svg");
   --icon-export: url("chrome://messenger/skin/icons/new/compact/export.svg");
   --icon-extension: url("chrome://messenger/skin/icons/new/compact/extension.svg");
+  --icon-features: url("chrome://messenger/skin/icons/new/compact/features.svg");
+  --icon-filter: url("chrome://messenger/skin/icons/new/compact/filter.svg");
   --icon-folder-filter: url("chrome://messenger/skin/icons/new/compact/folder-filter.svg");
   --icon-folder-rss: url("chrome://messenger/skin/icons/new/compact/folder-rss.svg");
   --icon-folder: url("chrome://messenger/skin/icons/new/compact/folder.svg");
   --icon-globe-secure: url("chrome://messenger/skin/icons/new/compact/globe-secure.svg");
   --icon-globe: url("chrome://messenger/skin/icons/new/compact/globe.svg");
+  --icon-handshake: url("chrome://messenger/skin/icons/new/compact/handshake.svg");
   --icon-import: url("chrome://messenger/skin/icons/new/compact/import.svg");
   --icon-inbox: url("chrome://messenger/skin/icons/new/compact/inbox.svg");
+  --icon-key: url("chrome://messenger/skin/icons/new/compact/key.svg");
+  --icon-link: url("chrome://messenger/skin/icons/new/compact/link.svg");
   --icon-mail-secure: url("chrome://messenger/skin/icons/new/compact/mail-secure.svg");
   --icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
   --icon-new-mail: url("chrome://messenger/skin/icons/new/compact/new-mail.svg");
@@ -29,6 +34,8 @@
   --icon-outbox: url("chrome://messenger/skin/icons/new/compact/outbox.svg");
   --icon-overflow: url("chrome://messenger/skin/icons/new/compact/overflow.svg");
   --icon-pin: url("chrome://messenger/skin/icons/new/compact/pin.svg");
+  --icon-pencil: url("chrome://messenger/skin/icons/new/compact/pencil.svg");
+  --icon-question: url("chrome://messenger/skin/icons/new/compact/question.svg");
   --icon-rss: url("chrome://messenger/skin/icons/new/compact/rss.svg");
   --icon-search: url("chrome://messenger/skin/icons/new/compact/search.svg");
   --icon-sent: url("chrome://messenger/skin/icons/new/compact/sent.svg");
@@ -38,10 +45,11 @@
   --icon-tag: url("chrome://messenger/skin/icons/new/compact/tag.svg");
   --icon-tasks: url("chrome://messenger/skin/icons/new/compact/tasks.svg");
   --icon-template: url("chrome://messenger/skin/icons/new/compact/template.svg");
+  --icon-tools: url("chrome://messenger/skin/icons/new/compact/tools.svg");
   --icon-trash: url("chrome://messenger/skin/icons/new/compact/trash.svg");
   --icon-unread: url("chrome://messenger/skin/icons/new/compact/unread.svg");
 
-  --spaces-icon-mail:  url("chrome://messenger/skin/icons/new/normal/mail.svg");;
+  --spaces-icon-mail: url("chrome://messenger/skin/icons/new/normal/mail.svg");
   --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/normal/address-book.svg");
   --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/normal/calendar.svg");
   --spaces-icon-tasks: url("chrome://messenger/skin/icons/new/normal/tasks.svg");
@@ -67,6 +75,16 @@
   --folder-pane-folder: var(--icon-folder);
   --folder-pane-folder-filter: var(--icon-folder-filter);
   --folder-pane-folder-rss: var(--icon-folder-rss);
+
+  --account-central-address-book: url("chrome://messenger/skin/icons/new/normal/address-book.svg");
+  --account-central-calendar: url("chrome://messenger/skin/icons/new/normal/calendar.svg");
+  --account-central-chat: url("chrome://messenger/skin/icons/new/normal/chat.svg");
+  --account-central-folder: url("chrome://messenger/skin/icons/new/normal/folder.svg");
+  --account-central-globe: url("chrome://messenger/skin/icons/new/normal/globe.svg");
+  --account-central-link: url("chrome://messenger/skin/icons/new/normal/link.svg");
+  --account-central-mail: url("chrome://messenger/skin/icons/new/normal/mail.svg");
+  --account-central-newsletter: url("chrome://messenger/skin/icons/new/normal/newsletter.svg");
+  --account-central-rss: url("chrome://messenger/skin/icons/new/normal/rss.svg");
 }
 
 :root[uidensity="compact"] {
@@ -104,7 +122,7 @@
   --folder-pane-globe-secure: url("chrome://messenger/skin/icons/new/normal/globe-secure.svg");
   --folder-pane-newsletter: url("chrome://messenger/skin/icons/new/normal/newsletter.svg");
   --folder-pane-outbox: url("chrome://messenger/skin/icons/new/normal/outbox.svg");
-  --folder-pane-folder:  url("chrome://messenger/skin/icons/new/normal/folder.svg");
-  --folder-pane-folder-filter:  url("chrome://messenger/skin/icons/new/normal/folder-filter.svg");
-  --folder-pane-folder-rss:  url("chrome://messenger/skin/icons/new/normal/folder-rss.svg");
+  --folder-pane-folder: url("chrome://messenger/skin/icons/new/normal/folder.svg");
+  --folder-pane-folder-filter: url("chrome://messenger/skin/icons/new/normal/folder-filter.svg");
+  --folder-pane-folder-rss: url("chrome://messenger/skin/icons/new/normal/folder-rss.svg");
 }

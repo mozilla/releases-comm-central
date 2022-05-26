@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://messenger/skin/icons.css");
 
 html {
   height: 100%;
@@ -90,31 +91,30 @@ body {
 }
 
 #accountLogo {
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   color: var(--primary-color);
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   margin-inline-end: 10px;
   flex-shrink: 0;
-  background: url("chrome://messenger/skin/icons/message.svg") center no-repeat;
+  background: var(--account-central-mail) center no-repeat;
   background-size: contain;
   display: block;
 }
 
 #accountLogo[type="none"] {
-  background-image: url("chrome://messenger/skin/icons/folder.svg");
+  background-image: var(--account-central-folder);
 }
 
-#accountLogo[type="rss"],
-#setupFeeds::before,
-#rssSubscriptionButton::before,
-#nntpSubscriptionButton::before {
-  background-image: url("chrome://messenger/skin/icons/feeds.svg");
+#accountLogo[type="rss"] {
+  background-image: var(--account-central-rss);
 }
 
 #accountLogo[type="nntp"] {
-  background-image: url("chrome://messenger/skin/icons/reader-mode.svg");
+  background-image: var(--account-central-globe);
+  margin-block-start: 3px;
 }
 
 .account-central-header {
@@ -181,12 +181,14 @@ aside.settings-btn-container {
 }
 
 #releasenotes img {
-  -moz-context-properties: fill, fill-opacity;
   color: var(--primary-color);
-  fill: currentColor;
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   fill-opacity: 1;
   width: 16px;
   height: 16px;
+  margin-inline-start: 3px;
 }
 
 #releasenotes img:hover,
@@ -256,9 +258,9 @@ aside.settings-btn-container {
   font-size: 1.1em;
   color: var(--btn-color);
   background-color: var(--btn-bg);
-  -moz-context-properties: fill, stroke-opacity;
-  fill: currentColor;
-  stroke-opacity: 0;
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   min-width: 110px;
   height: 90px;
   padding: 10px;
@@ -296,8 +298,8 @@ aside.settings-btn-container {
   content: '';
   margin-block-end: 10px;
   margin-inline-end: 0;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   color: var(--primary-color);
   background-position: center;
   background-repeat: no-repeat;
@@ -317,32 +319,75 @@ aside.settings-btn-container {
 }
 
 #setupEmail::before {
-  background-image: url("chrome://messenger/skin/icons/message.svg");
+  background-image: var(--account-central-mail);
 }
 
 #setupCalendar::before {
-  background-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
+  background-image: var(--account-central-calendar);
 }
 
 #setupAddressBook::before {
-  background-image: url("chrome://messenger/skin/icons/address.svg");
+  background-image: var(--account-central-address-book);
 }
 
 #setupChat::before {
-  background-image: url("chrome://messenger/skin/icons/chat.svg");
+  background-image: var(--account-central-chat);
 }
 
 #setupFilelink::before {
-  background-image: url("chrome://global/skin/icons/link.svg");
+  background-image: var(--account-central-link);
+}
+
+#setupFeeds::before,
+#rssSubscriptionButton::before {
+  background-image: var(--account-central-rss);
+}
+
+#nntpSubscriptionButton::before {
+  background-image: var(--account-central-globe);
 }
 
 #setupNewsgroups::before {
-  background-image: url("chrome://messenger/skin/icons/reader-mode.svg");
+  background-image:  var(--account-central-newsletter);
 }
 
 #importButton::before {
-  background-image: url("chrome://messenger/skin/icons/import.svg");
+  background-image:  var(--icon-import);
 }
+
+#setupEmail.btn-inline::before {
+  background-image: var(--icon-mail);
+}
+
+#setupCalendar.btn-inline::before {
+  background-image: var(--icon-calendar);
+}
+
+#setupAddressBook.btn-inline::before {
+  background-image: var(--icon-address-book);
+}
+
+#setupChat.btn-inline::before {
+  background-image: var(--icon-chat);
+}
+
+#setupFilelink.btn-inline::before {
+  background-image: var(--icon-link);
+}
+
+#setupFeeds.btn-inline::before,
+#rssSubscriptionButton.btn-inline::before {
+  background-image: var(--icon-rss);
+}
+
+#nntpSubscriptionButton.btn-inline::before {
+  background-image: var(--icon-newsletter);
+}
+
+#setupNewsgroups.btn-inline::before {
+  background-image:  var(--icon-newsletter);
+}
+
 
 .account-description {
   position: absolute;
@@ -389,8 +434,9 @@ aside.settings-btn-container {
   appearance: none;
   display: flex;
   background-color: transparent;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   border: none;
   cursor: pointer;
   padding: 0;
@@ -405,8 +451,9 @@ aside.settings-btn-container {
 
 .resource-link {
   color: var(--text-color);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke, stroke-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   margin-block-end: 10px;
   margin-inline: 10px 30px;
   transition: color .2s;
@@ -436,45 +483,45 @@ aside.settings-btn-container {
 }
 
 #featuresLink::before {
-  background-image: url("chrome://messenger/skin/icons/highlights.svg");
+  background-image: var(--icon-features);
 }
 
 #supportLink::before {
-  background-image: url("chrome://messenger/skin/icons/help.svg");
+  background-image: var(--icon-question);
 }
 
 #involvedLink::before {
-  background-image: url("chrome://messenger/skin/icons/globe.svg");
+  background-image: var(--icon-handshake);
 }
 
 #developerLink::before {
-  background-image: url("chrome://messenger/skin/icons/developer.svg");
+  background-image: var(--icon-tools);
 }
 
-/* Temporary styles for the Supernova icon */
+#settingsButton {
+  padding-inline: 3px;
+}
+
 #settingsButton::before {
-  background-image: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");
-  -moz-context-properties: fill, stroke, stroke-opacity;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+  background-image: var(--icon-account-settings);
 }
 
 #readButton::before {
-  background-image: url("chrome://messenger/skin/icons/inbox.svg");
+  background-image: var(--icon-inbox);
 }
 
 #composeButton::before {
-  background-image: url("chrome://messenger/skin/icons/newmsg.svg");
+  background-image: var(--icon-pencil);
 }
 
 #searchButton::before {
-  background-image: url("chrome://global/skin/icons/search-glass.svg");
+  background-image: var(--icon-search);
 }
 
 #filterButton::before {
-  background-image: url("chrome://messenger/skin/icons/filter.svg");
+  background-image: var(--icon-filter);
 }
 
 #e2eButton::before {
-  background-image: url("chrome://messenger/skin/icons/encryption-key.svg");
+  background-image: var(--icon-key);
 }
