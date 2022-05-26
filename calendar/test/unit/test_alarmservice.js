@@ -50,17 +50,18 @@ var alarmObserver = {
     }
   },
 
-  doOnAlarmsLoaded(aCalendar, aOperation) {
+  async doOnAlarmsLoaded(aCalendar) {
     this.checkLoadStatus();
     if (
       aCalendar.id in this.service.mLoadedCalendars &&
       this.service.mLoadedCalendars[aCalendar.id]
     ) {
-      // the calendar's alarms have already been loaded, do the callback now
-      aOperation.call();
+      // the calendar's alarms have already been loaded
     } else {
-      // the calendar hasn't been fully loaded yet, set as a pending operation
-      this.pendingOps[aCalendar.id] = aOperation;
+      await new Promise(resolve => {
+        // the calendar hasn't been fully loaded yet, set as a pending operation
+        this.pendingOps[aCalendar.id] = resolve;
+      });
     }
   },
 
@@ -138,40 +139,26 @@ var alarmObserver = {
   },
 };
 
-function run_test() {
+add_setup(async function() {
   do_get_profile();
-
-  add_test(() => {
-    // initialization needs to be done within the first test in order for
-    // the subsequent tests to run properly
+  await new Promise(resolve =>
     do_calendar_startup(() => {
-      initializeAlarmService();
-      run_next_test();
-    });
-  });
-  add_test(test_addItems);
-  add_test(test_loadCalendar);
-  add_test(test_modifyItems);
-  add_test(test_notificationTimers);
-  add_test(test_calendarLevelNotificationTimers);
+      alarmObserver.service = Cc["@mozilla.org/calendar/alarm-service;1"].getService(
+        Ci.calIAlarmService
+      ).wrappedJSObject;
+      ok(!alarmObserver.service.mStarted);
+      alarmObserver.service.startup(null);
+      ok(alarmObserver.service.mStarted);
 
-  run_next_test();
-}
-
-function initializeAlarmService() {
-  alarmObserver.service = Cc["@mozilla.org/calendar/alarm-service;1"].getService(
-    Ci.calIAlarmService
-  ).wrappedJSObject;
-  ok(!alarmObserver.service.mStarted);
-  alarmObserver.service.startup(null);
-  ok(alarmObserver.service.mStarted);
-
-  // we need to replace the existing observers with our observer
-  for (let obs of alarmObserver.service.mObservers.values()) {
-    alarmObserver.service.removeObserver(obs);
-  }
-  alarmObserver.service.addObserver(alarmObserver);
-}
+      // we need to replace the existing observers with our observer
+      for (let obs of alarmObserver.service.mObservers.values()) {
+        alarmObserver.service.removeObserver(obs);
+      }
+      alarmObserver.service.addObserver(alarmObserver);
+      resolve();
+    })
+  );
+});
 
 function createAlarmFromDuration(aOffset) {
   let alarm = new CalAlarm();
@@ -201,7 +188,7 @@ function createEventWithAlarm(aCalendar, aStart, aEnd, aOffset, aRRule) {
   return [item, alarm];
 }
 
-function addTestItems(aCalendar) {
+async function addTestItems(aCalendar) {
   let item, alarm;
 
   // alarm on an item starting more than a month in the past should not fire
@@ -210,26 +197,26 @@ function addTestItems(aCalendar) {
   [item, alarm] = createEventWithAlarm(aCalendar, date, date, "P7D");
   item.title = "addTestItems Test 1";
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 
   // alarm 15 minutes ago should fire
   date = cal.dtz.now();
   [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M");
   item.title = "addTestItems Test 2";
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 
   // alarm within 6 hours should have a timer set
   [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT1H");
   item.title = "addTestItems Test 3";
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 
   // alarm more than 6 hours in the future should not have a timer set
   [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT7H");
   item.title = "addTestItems Test 4";
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 
   // test multiple alarms on an item
   [item, alarm] = createEventWithAlarm(aCalendar, date, date);
@@ -247,7 +234,7 @@ function addTestItems(aCalendar) {
     item.addAlarm(alarm);
     alarmObserver.expectResult(aCalendar, item, alarm, expected);
   });
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 
   // Bug 1344068 - Alarm with lastAck on exception, should take parent lastAck.
   // Alarm 15 minutes ago should fire.
@@ -267,7 +254,7 @@ function addTestItems(aCalendar) {
   item.recurrenceInfo.modifyException(occ, true);
 
   alarmObserver.expectOccurrences(aCalendar, item, alarm, [EXPECT_FIRED]);
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 
   // daily repeating event starting almost 2 full days ago. The alarms on the first 2 occurrences
   // should fire, and a timer should be set for the next occurrence only
@@ -282,7 +269,7 @@ function addTestItems(aCalendar) {
     EXPECT_NONE,
     EXPECT_NONE,
   ]);
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 
   // monthly repeating event starting 2 months and a day ago. The alarms on the first 2 occurrences
   // should be ignored, the alarm on the next occurrence only should fire.
@@ -328,17 +315,17 @@ function addTestItems(aCalendar) {
   [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=MONTHLY");
   item.title = "addTestItems Test 8";
   alarmObserver.expectOccurrences(aCalendar, item, alarm, expected);
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
 }
 
-function doModifyItemTest(aCalendar) {
+async function doModifyItemTest(aCalendar) {
   let item, alarm;
 
   // begin with item starting before the alarm date range
   let date = cal.dtz.now();
   date.day -= 32;
   [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT0S");
-  aCalendar.addItem(item);
+  await aCalendar.addItem(item);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
   alarmObserver.checkExpected("doModifyItemTest Test 1");
 
@@ -347,7 +334,7 @@ function doModifyItemTest(aCalendar) {
   date.day += 31;
   item.startDate = date.clone();
   item.generation++;
-  aCalendar.modifyItem(item, oldItem);
+  await aCalendar.modifyItem(item, oldItem);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
   alarmObserver.checkExpected("doModifyItemTest Test 2");
 
@@ -356,7 +343,7 @@ function doModifyItemTest(aCalendar) {
   date.hour += 25;
   item.startDate = date.clone();
   item.generation++;
-  aCalendar.modifyItem(item, oldItem);
+  await aCalendar.modifyItem(item, oldItem);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
   alarmObserver.checkExpected("doModifyItemTest Test 3");
 
@@ -365,7 +352,7 @@ function doModifyItemTest(aCalendar) {
   date.hour += 6;
   item.startDate = date.clone();
   item.generation++;
-  aCalendar.modifyItem(item, oldItem);
+  await aCalendar.modifyItem(item, oldItem);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
   alarmObserver.checkExpected("doModifyItemTest Test 4");
 
@@ -375,7 +362,7 @@ function doModifyItemTest(aCalendar) {
   date.hour -= 6;
   item.startDate = date.clone();
   item.generation++;
-  aCalendar.modifyItem(item, oldItem);
+  await aCalendar.modifyItem(item, oldItem);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
   alarmObserver.checkExpected("doModifyItemTest Test 5");
   let oldTimer = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
@@ -383,7 +370,7 @@ function doModifyItemTest(aCalendar) {
   // change the timezone to floating
   item.startDate.timezone = cal.dtz.floating;
   item.generation++;
-  aCalendar.modifyItem(item, oldItem);
+  await aCalendar.modifyItem(item, oldItem);
   // the alarm must still be timer and with the same value (apart from milliseconds)
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
   alarmObserver.checkExpected("doModifyItemTest Test 5, floating timezone");
@@ -394,7 +381,7 @@ function doModifyItemTest(aCalendar) {
   );
 }
 
-function doDeleteItemTest(aCalendar) {
+async function doDeleteItemTest(aCalendar) {
   alarmObserver.clear();
   let item, alarm;
   let item2, alarm2;
@@ -405,21 +392,21 @@ function doDeleteItemTest(aCalendar) {
   [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "PT1H");
   item.title = "doDeleteItemTest item Test 1";
   item2.title = "doDeleteItemTest item2 Test 1";
-  aCalendar.addItem(item);
-  aCalendar.addItem(item2);
+  await aCalendar.addItem(item);
+  await aCalendar.addItem(item2);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
   alarmObserver.expectResult(aCalendar, item2, alarm2, EXPECT_TIMER);
   alarmObserver.checkExpected();
 
   // item deletion should clear the fired alarm and timer
-  aCalendar.deleteItem(item);
-  aCalendar.deleteItem(item2);
+  await aCalendar.deleteItem(item);
+  await aCalendar.deleteItem(item2);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
   alarmObserver.expectResult(aCalendar, item2, alarm2, EXPECT_NONE);
   alarmObserver.checkExpected("doDeleteItemTest, cleared fired alarm and timer");
 }
 
-function doAcknowledgeTest(aCalendar) {
+async function doAcknowledgeTest(aCalendar) {
   alarmObserver.clear();
   let item, alarm;
   let item2, alarm2;
@@ -430,8 +417,8 @@ function doAcknowledgeTest(aCalendar) {
   [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
   item.title = "doAcknowledgeTest item Test 1";
   item2.title = "doAcknowledgeTest item2 Test 1";
-  aCalendar.addItem(item);
-  aCalendar.addItem(item2);
+  await aCalendar.addItem(item);
+  await aCalendar.addItem(item2);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
   alarmObserver.expectResult(aCalendar, item2, alarm2, EXPECT_FIRED);
   alarmObserver.checkExpected();
@@ -454,48 +441,47 @@ function doAcknowledgeTest(aCalendar) {
   alarmObserver.checkExpected("doAcknowledgeTest, test dismiss alarm");
 }
 
-function doRunTest(aOnCalendarCreated, aOnAlarmsLoaded) {
+async function doRunTest(aOnCalendarCreated) {
   alarmObserver.clear();
 
   let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   memory.id = cal.getUUID();
 
   if (aOnCalendarCreated) {
-    aOnCalendarCreated.call(aOnCalendarCreated, memory);
+    await aOnCalendarCreated(memory);
   }
 
   cal.manager.registerCalendar(memory);
-
-  alarmObserver.doOnAlarmsLoaded(memory, async () => {
-    if (aOnAlarmsLoaded) {
-      await aOnAlarmsLoaded(memory);
-    }
-
-    run_next_test();
-  });
+  await alarmObserver.doOnAlarmsLoaded(memory);
+  return memory;
 }
 
-// Test the initial alarm loading of a calendar with existing data
-function test_loadCalendar() {
-  doRunTest(addTestItems, alarmObserver.checkExpected.bind(alarmObserver));
-}
+/**
+ * Test the initial alarm loading of a calendar with existing data.
+ */
+add_task(async function test_loadCalendar() {
+  await doRunTest(async memory => addTestItems(memory));
+  alarmObserver.checkExpected();
+});
 
-// Test adding alarm data to a calendar already registered
-function test_addItems() {
-  doRunTest(null, memory => {
-    addTestItems(memory);
-    alarmObserver.checkExpected();
-  });
-}
+/**
+ * Test adding alarm data to a calendar already registered.
+ */
+add_task(async function test_addItems() {
+  let memory = await doRunTest();
+  await addTestItems(memory);
+  alarmObserver.checkExpected();
+});
 
-// Test response to modification of alarm data
-function test_modifyItems() {
-  doRunTest(null, memory => {
-    doModifyItemTest(memory);
-    doDeleteItemTest(memory);
-    doAcknowledgeTest(memory);
-  });
-}
+/**
+ * Test response to modification of alarm data.
+ */
+add_task(async function test_modifyItems() {
+  let memory = await doRunTest();
+  await doModifyItemTest(memory);
+  await doDeleteItemTest(memory);
+  await doAcknowledgeTest(memory);
+});
 
 /**
  * Test an array of timers has expected delay values.
@@ -508,6 +494,7 @@ function matchTimers(timers, expected) {
   for (let i = 0; i < delays.length; i++) {
     if (Math.abs(delays[i] - expected[i]) > 2) {
       matched = false;
+
       break;
     }
   }
@@ -518,105 +505,102 @@ function matchTimers(timers, expected) {
  * Test notification timers are set up correctly when add/modify/remove a
  * calendar item.
  */
-function test_notificationTimers() {
-  doRunTest(null, memory => {
-    // Add an item.
-    let date = cal.dtz.now();
-    date.hour += 1;
-    let item, oldItem;
-    [item] = createEventWithAlarm(memory, date, date, null);
-    memory.addItem(item);
-    equal(
-      alarmObserver.service.mNotificationTimerMap[item.calendar.id],
-      undefined,
-      "should have no notification timer"
-    );
+add_task(async function test_notificationTimers() {
+  let memory = await doRunTest();
+  // Add an item.
+  let date = cal.dtz.now();
+  date.hour += 1;
+  let item, oldItem;
+  [item] = createEventWithAlarm(memory, date, date, null);
+  await memory.addItem(item);
+  equal(
+    alarmObserver.service.mNotificationTimerMap[item.calendar.id],
+    undefined,
+    "should have no notification timer"
+  );
 
-    // Set the pref to have one notifiaction.
-    Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
-    oldItem = item.clone();
-    date.hour += 1;
-    item.startDate = date.clone();
-    item.generation++;
-    memory.modifyItem(item, oldItem);
-    // Should have one notification timer
-    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [3600]);
+  // Set the pref to have one notifiaction.
+  Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
+  oldItem = item.clone();
+  date.hour += 1;
+  item.startDate = date.clone();
+  item.generation++;
+  await memory.modifyItem(item, oldItem);
+  // Should have one notification timer
+  matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [3600]);
 
-    // Set the pref to have three notifiactions.
-    Services.prefs.setCharPref("calendar.notifications.times", "END:PT2M,PT0M,END:-PT30M,-PT5M");
-    oldItem = item.clone();
-    date.hour -= 1;
-    item.startDate = date.clone();
-    date.hour += 1;
-    item.endDate = date.clone();
-    item.generation++;
-    memory.modifyItem(item, oldItem);
-    // Should have four notification timers.
-    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
-      3300, // 55 minutes
-      3600, // 60 minutes
-      5400, // 90 minutes, which is 30 minutes before the end (END:-PT30M)
-      7320, // 122 minutes, which is 2 minutes after the end (END:PT2M)
-    ]);
+  // Set the pref to have three notifiactions.
+  Services.prefs.setCharPref("calendar.notifications.times", "END:PT2M,PT0M,END:-PT30M,-PT5M");
+  oldItem = item.clone();
+  date.hour -= 1;
+  item.startDate = date.clone();
+  date.hour += 1;
+  item.endDate = date.clone();
+  item.generation++;
+  await memory.modifyItem(item, oldItem);
+  // Should have four notification timers.
+  matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
+    3300, // 55 minutes
+    3600, // 60 minutes
+    5400, // 90 minutes, which is 30 minutes before the end (END:-PT30M)
+    7320, // 122 minutes, which is 2 minutes after the end (END:PT2M)
+  ]);
 
-    alarmObserver.service.removeFiredNotificationTimer(item);
-    // Should have three notification timers.
-    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
-      3600,
-      5400,
-      7320,
-    ]);
+  alarmObserver.service.removeFiredNotificationTimer(item);
+  // Should have three notification timers.
+  matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
+    3600,
+    5400,
+    7320,
+  ]);
 
-    memory.deleteItem(item);
-    equal(
-      alarmObserver.service.mNotificationTimerMap[item.calendar.id],
-      undefined,
-      "notification timers should be removed"
-    );
+  await memory.deleteItem(item);
+  equal(
+    alarmObserver.service.mNotificationTimerMap[item.calendar.id],
+    undefined,
+    "notification timers should be removed"
+  );
 
-    Services.prefs.clearUserPref("calendar.notifications.times");
-  });
-}
+  Services.prefs.clearUserPref("calendar.notifications.times");
+});
 
 /**
  * Test notification timers are set up correctly according to the calendar level
  * notifications.times config.
  */
-function test_calendarLevelNotificationTimers() {
+add_task(async function test_calendarLevelNotificationTimers() {
   let loaded = false;
   let item;
-  doRunTest(null, async memory => {
-    if (!loaded) {
-      loaded = true;
-      // Set the global pref to have one notifiaction.
-      Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
+  let memory = await doRunTest();
 
-      // Add an item.
-      let date = cal.dtz.now();
-      date.hour += 2;
-      [item] = createEventWithAlarm(memory, date, date, null);
-      memory.addItem(item);
+  if (!loaded) {
+    loaded = true;
+    // Set the global pref to have one notifiaction.
+    Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
 
-      // Should have one notification timer.
-      matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
-        3600,
-      ]);
-      // Set the calendar level pref to have two notification timers.
-      memory.setProperty("notifications.times", "-PT5M,PT0M");
-    }
+    // Add an item.
+    let date = cal.dtz.now();
+    date.hour += 2;
+    [item] = createEventWithAlarm(memory, date, date, null);
+    await memory.addItem(item);
 
-    await TestUtils.waitForCondition(
-      () => alarmObserver.service.mNotificationTimerMap[item.calendar.id]?.[item.hashId].length == 2
-    );
-    // Should have two notification timers
-    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
-      6900, // 105 minutes
-      7200, // 120 minutes
-    ]);
+    // Should have one notification timer.
+    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [3600]);
+    // Set the calendar level pref to have two notification timers.
+    memory.setProperty("notifications.times", "-PT5M,PT0M");
+  }
 
-    Services.prefs.clearUserPref("calendar.notifications.times");
-  });
-}
+  await TestUtils.waitForCondition(
+    () => alarmObserver.service.mNotificationTimerMap[item.calendar.id]?.[item.hashId].length == 2
+  );
+  // Should have two notification timers
+  matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
+    6900, // 105 minutes
+    7200, // 120 minutes
+  ]);
+
+  Services.prefs.clearUserPref("calendar.notifications.times");
+});
 
 registerCleanupFunction(() => {
   Services.prefs.clearUserPref("calendar.notifications.times");
