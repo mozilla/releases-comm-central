@@ -51,7 +51,10 @@
                     flex="1">
                 <label class="tab-text tab-label" role="presentation"></label>
               </hbox>
+              <!-- We make the button non-focusable, otherwise each close
+                 - button creates a new tab stop. See bug 1754097 -->
               <html:button class="plain-button tab-close-button"
+                           tabindex="-1"
                            title="&closeTab.label;">
                 <!-- Button title should provide the accessible context. -->
                 <html:img class="tab-close-icon" alt=""
