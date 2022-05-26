@@ -30,6 +30,14 @@
   --color-orange-80: rgb(113, 043, 000);
   --color-orange-90: rgb(062, 019, 000);
 
+  --color-amber-30: rgb(255, 229, 163);
+  --color-amber-40: rgb(255, 218, 097);
+  --color-amber-50: rgb(255, 204, 000);
+  --color-amber-60: rgb(236, 171, 000);
+  --color-amber-70: rgb(177, 106, 000);
+  --color-amber-80: rgb(126, 076, 000);
+  --color-amber-90: rgb(062, 033, 000);
+
   --color-yellow-30: rgb(255, 250, 197);
   --color-yellow-40: rgb(255, 243, 118);
   --color-yellow-50: rgb(255, 233, 000);
