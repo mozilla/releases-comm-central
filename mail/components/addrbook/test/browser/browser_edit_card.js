@@ -650,6 +650,85 @@ add_task(async function test_generate_display_name() {
 });
 
 /**
+ * Test that the "prefer display name" checkbox is visible when it should be
+ * (in edit mode and only if there is a display name).
+ */
+add_task(async function test_prefer_display_name() {
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  let displayName = abDocument.getElementById("displayName");
+  let preferDisplayName = abDocument.getElementById("preferDisplayName");
+  let editButton = abDocument.getElementById("editButton");
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  // Make a new card. Check the default value is true.
+  // The checkbox should not appear until there is a display name.
+
+  openDirectory(personalBook);
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+
+  Assert.equal(displayName.value, "");
+  Assert.ok(BrowserTestUtils.is_hidden(preferDisplayName), "checkbox hidden");
+
+  setInputValues({ DisplayName: "test" });
+  Assert.ok(
+    BrowserTestUtils.is_visible(preferDisplayName),
+    "checkbox appeared"
+  );
+  Assert.ok(preferDisplayName.checked, "checkbox is checked for a new card");
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  Assert.equal(personalBook.childCardCount, 1);
+  checkCardValues(personalBook.childCards[0], {
+    DisplayName: "test",
+    PreferDisplayName: "1",
+  });
+
+  // Edit the card. Check the UI matches the card value.
+
+  preferDisplayName.checked = false; // Ensure it gets set.
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  Assert.ok(BrowserTestUtils.is_visible(preferDisplayName), "checkbox shown");
+  Assert.ok(preferDisplayName.checked, "checkbox state matches the card");
+
+  // Change the card value.
+
+  EventUtils.synthesizeMouseAtCenter(preferDisplayName, {}, abWindow);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  Assert.equal(personalBook.childCardCount, 1);
+  checkCardValues(personalBook.childCards[0], {
+    DisplayName: "test",
+    PreferDisplayName: "0",
+  });
+
+  // Edit the card. Check the UI matches the card value.
+
+  preferDisplayName.checked = true; // Ensure it gets set.
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  Assert.ok(BrowserTestUtils.is_visible(preferDisplayName), "checkbox shown");
+  Assert.ok(!preferDisplayName.checked, "checkbox state matches the card");
+
+  // Clear the display name. The checkbox should disappear.
+
+  setInputValues({ DisplayName: "" });
+  Assert.ok(BrowserTestUtils.is_hidden(preferDisplayName), "checkbox hidden");
+
+  await closeAddressBookWindow();
+  personalBook.deleteCards(personalBook.childCards);
+});
+
+/**
  * Checks the state of the toolbar buttons is restored after editing.
  */
 add_task(async function test_toolbar_state() {

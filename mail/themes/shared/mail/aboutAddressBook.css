@@ -609,11 +609,22 @@ body.is-editing #detailsPane #photoOverlay {
   color: currentcolor;
 }
 
-#nameOuter h2 {
+#nameRow2 {
+  /* Match the height of the h2. The h1 above it should not move when
+     switching to/from edit mode, at any font size. */
+  height: 1.68em;
+}
+
+#nameRow2 h2 {
   margin-block: 0;
   font-size: 1.2em;
   font-weight: 400;
   color: var(--in-content-deemphasized-text);
+}
+
+#nameRow2 label {
+  display: flex;
+  align-items: center;
 }
 
 #detailsBody {

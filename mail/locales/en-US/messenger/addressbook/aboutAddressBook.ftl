@@ -167,6 +167,8 @@ about-addressbook-confirm-delete-contacts =
 
 ## Details
 
+about-addressbook-prefer-display-name = Prefer display name over message header
+
 about-addressbook-write-action-button = Write
 about-addressbook-event-action-button = Event
 about-addressbook-search-action-button = Search
