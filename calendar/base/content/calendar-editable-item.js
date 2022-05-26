@@ -57,7 +57,8 @@
         if (
           this.selected &&
           !(event.ctrlKey || event.metaKey) &&
-          cal.acl.isCalendarWritable(this.mOccurrence.calendar)
+          cal.acl.isCalendarWritable(this.mOccurrence.calendar) &&
+          !cal.itip.isInvitation(this.mOccurrence)
         ) {
           if (this.editingTimer) {
             clearTimeout(this.editingTimer);
