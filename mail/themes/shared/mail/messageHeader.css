@@ -29,6 +29,14 @@
   display: flex;
 }
 
+#headerSubjectSecurityContainer {
+  align-items: center; /* Needed for when the encryption button is visible. */
+}
+
+#encryptionTechBtn {
+  flex: 0 0 auto;
+}
+
 .message-header-wrap {
   flex-wrap: wrap;
 }
@@ -661,6 +669,41 @@ button.email-action-flagged.flagged {
 
 /* Customization options */
 
+.message-header-hide-label-column {
+  padding-inline-start: 9px;
+}
+
+.message-header-hide-label-column .message-header-label {
+  display: none;
+}
+
+.message-header-hide-label-column .multi-recipient-row:not(#expandedfromBox),
+.message-header-hide-label-column .multi-message-ids-row,
+.message-header-hide-label-column .header-newsgroups-row {
+  display: flex;
+}
+
+.message-header-hide-label-column .multi-recipient-row:not(#expandedfromBox) ol,
+.message-header-hide-label-column .multi-message-ids-row ol,
+.message-header-hide-label-column .header-newsgroups-row ol {
+  flex: 1 1 auto;
+}
+
+.message-header-hide-label-column .row-heading:not(#subjectHeading, #fromHeading, #tagsHeading) {
+  display: flow-root;
+  margin-inline-end: 1ch;
+  font-weight: 700;
+  align-self: baseline;
+  word-break: keep-all;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+.message-header-hide-label-column .multi-recipient-row .row-heading:not(#fromHeading),
+.message-header-hide-label-column .row-heading:is(#message-idHeading, #referencesHeading, #in-reply-toHeading) {
+  padding-block: var(--message-header-field-offset);
+}
+
 .message-header-large-subject #expandedsubjectBox {
   font-weight: 500;
   font-size: 1.35em;
@@ -689,6 +732,10 @@ button.email-action-flagged.flagged {
 
 .multi-recipient-row {
   flex: 1 1 auto;
+}
+
+.row-heading {
+  display: none;
 }
 
 .header-recipient:not(:last-child, .last-before-button):after,

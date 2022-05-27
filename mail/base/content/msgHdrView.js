@@ -958,7 +958,7 @@ function OnTagsChange() {
       // we may need to collapse or show the tag header row...
       headerEntry.enclosingRow.hidden = !headerEntry.valid;
       // ... and ensure that all headers remain correctly aligned
-      syncGridColumnWidths();
+      gMessageHeader.syncLabelsColumnWidths();
     }
   }
 }
@@ -1078,7 +1078,7 @@ function updateExpandedView() {
 
   // Now that we have all the headers, ensure that the name columns of both
   // grids are the same size so that they don't look weird.
-  syncGridColumnWidths();
+  gMessageHeader.syncLabelsColumnWidths();
 
   UpdateJunkButton();
   UpdateReplyButtons();
@@ -1088,25 +1088,6 @@ function updateExpandedView() {
     AdjustHeaderView(Services.prefs.getIntPref("mail.show_headers"));
   } catch (e) {
     Cu.reportError(e);
-  }
-}
-
-/**
- * Ensure that the all visible labels have the same size.
- */
-function syncGridColumnWidths() {
-  let allHeaderLabels = document.querySelectorAll(
-    ".message-header-row:not([hidden]) .message-header-label"
-  );
-
-  // Clear existing style.
-  for (let label of allHeaderLabels) {
-    label.style.minWidth = null;
-  }
-
-  let minWidth = Math.max(...Array.from(allHeaderLabels, i => i.clientWidth));
-  for (let label of allHeaderLabels) {
-    label.style.minWidth = `${minWidth}px`;
   }
 }
 
@@ -3178,6 +3159,7 @@ const gHeaderCustomize = {
    * The object storing all saved customization options.
    *
    * @type {Object}
+   * @property {boolean} hideLabels - If the labels column should be hidden.
    * @property {boolean} subjectLarge - If the font size of the subject line
    *   should be increased.
    * @property {string} buttonStyle - The style in which the buttons should be
@@ -3187,6 +3169,7 @@ const gHeaderCustomize = {
    *   - "only-text" = only text
    */
   customizeData: {
+    hideLabels: false,
     subjectLarge: false,
     buttonStyle: "default",
   },
@@ -3217,7 +3200,8 @@ const gHeaderCustomize = {
     header.classList.remove(
       "message-header-large-subject",
       "message-header-buttons-only-icons",
-      "message-header-buttons-only-text"
+      "message-header-buttons-only-text",
+      "message-header-hide-label-column"
     );
 
     // Bail out if we don't have anything to customize.
@@ -3227,8 +3211,14 @@ const gHeaderCustomize = {
 
     header.classList.toggle(
       "message-header-large-subject",
-      this.customizeData.subjectLarge
+      this.customizeData.subjectLarge || false
     );
+
+    header.classList.toggle(
+      "message-header-hide-label-column",
+      this.customizeData.hideLabels || false
+    );
+
     switch (this.customizeData.buttonStyle) {
       case "only-icons":
       case "only-text":
@@ -3245,6 +3235,8 @@ const gHeaderCustomize = {
         );
         break;
     }
+
+    gMessageHeader.syncLabelsColumnWidths();
   },
 
   /**
@@ -3267,6 +3259,9 @@ const gHeaderCustomize = {
     document.getElementById("headerButtonStyle").value =
       this.customizeData.buttonStyle || "default";
 
+    document.getElementById("headerHideLabels").checked =
+      this.customizeData.hideLabels || false;
+
     document.getElementById("headerSubjectLarge").checked =
       this.customizeData.subjectLarge || false;
   },
@@ -3278,6 +3273,16 @@ const gHeaderCustomize = {
    */
   updateButtonStyle(event) {
     this.customizeData.buttonStyle = event.target.value;
+    this.updateLayout();
+  },
+
+  /**
+   * Update the subject style when the checkbox is clicked.
+   *
+   * @param {Event} event - The checkbox command event.
+   */
+  toggleLabelColumn(event) {
+    this.customizeData.hideLabels = event.target.checked;
     this.updateLayout();
   },
 
@@ -3342,6 +3347,25 @@ const gMessageHeader = {
     document
       .getElementById("messageHeader")
       .classList.toggle("scrollable", showAllHeaders);
+  },
+
+  /**
+   * Ensure that the all visible labels have the same size.
+   */
+  syncLabelsColumnWidths() {
+    let allHeaderLabels = document.querySelectorAll(
+      ".message-header-row:not([hidden]) .message-header-label"
+    );
+
+    // Clear existing style.
+    for (let label of allHeaderLabels) {
+      label.style.minWidth = null;
+    }
+
+    let minWidth = Math.max(...Array.from(allHeaderLabels, i => i.clientWidth));
+    for (let label of allHeaderLabels) {
+      label.style.minWidth = `${minWidth}px`;
+    }
   },
 
   openCopyPopup(event, element) {

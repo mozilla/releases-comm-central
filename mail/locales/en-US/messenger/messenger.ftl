@@ -165,6 +165,10 @@ message-header-button-style-text =
 message-header-button-style-icons =
     .label = Icons
 
+message-header-hide-label-column =
+    .label = Hide labels column
+    .accesskey = l
+
 message-header-large-subject =
     .label = Large subject
     .accesskey = s

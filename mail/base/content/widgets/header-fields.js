@@ -43,7 +43,7 @@
 
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
-      this.heading.hidden = true;
+      this.heading.classList.add("row-heading");
       // message-header-to-list-name
       // message-header-from-list-name
       // message-header-cc-list-name
@@ -511,11 +511,12 @@
       this.hasConnected = true;
 
       this.heading = document.createElement("span");
+      this.heading.id = `${this.dataset.headerName}Heading`;
+      this.heading.classList.add("row-heading");
       let sep = document.createElement("span");
       sep.classList.add("screen-reader-only");
       sep.setAttribute("data-l10n-name", "field-separator");
       this.heading.appendChild(sep);
-      this.heading.hidden = true;
 
       if (
         ["organization", "subject", "date", "user-agent"].includes(
@@ -616,7 +617,7 @@
 
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
-      this.heading.hidden = true;
+      this.heading.classList.add("row-heading");
       document.l10n.setAttributes(
         this.heading,
         "message-header-newsgroups-list-name"
@@ -689,7 +690,7 @@
 
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
-      this.heading.hidden = true;
+      this.heading.classList.add("row-heading");
       document.l10n.setAttributes(
         this.heading,
         "message-header-tags-list-name"
@@ -765,11 +766,11 @@
 
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
+      this.heading.classList.add("row-heading");
       let sep = document.createElement("span");
       sep.classList.add("screen-reader-only");
       sep.setAttribute("data-l10n-name", "field-separator");
       this.heading.appendChild(sep);
-      this.heading.hidden = true;
 
       // message-header-references-field
       // message-header-message-id-field

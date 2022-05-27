@@ -117,6 +117,12 @@ html|input.editContactTextbox[readonly] {
   margin-inline-end: 0;
 }
 
+.popup-panel-column-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .popup-panel button:focus-visible,
 .popup-panel input[type="color"]:focus-visible {
   outline: 2px solid var(--focus-outline-color);

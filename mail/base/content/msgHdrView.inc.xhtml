@@ -450,9 +450,15 @@
         </menupopup>
       </menulist>
 
-      <checkbox id="headerSubjectLarge"
-                data-l10n-id="message-header-large-subject"
-                oncommand="gHeaderCustomize.updateSubjectStyle(event);"/>
+      <html:div class="popup-panel-column-container">
+        <checkbox id="headerHideLabels"
+                  data-l10n-id="message-header-hide-label-column"
+                  oncommand="gHeaderCustomize.toggleLabelColumn(event);"/>
+
+        <checkbox id="headerSubjectLarge"
+                  data-l10n-id="message-header-large-subject"
+                  oncommand="gHeaderCustomize.updateSubjectStyle(event);"/>
+      </html:div>
     </html:div>
 
     <html:div class="popup-panel-buttons-container">
