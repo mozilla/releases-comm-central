@@ -689,6 +689,10 @@ var gMailInit = {
     this.delayedStartupFinished = true;
     Services.obs.notifyObservers(window, "mail-delayed-startup-finished");
 
+    // Notify observer to resolve the browserStartupPromise, which is used for the
+    // delayed background startup of WebExtensions.
+    Services.obs.notifyObservers(window, "extensions-late-startup");
+
     this._loadComponentsAtStartup();
   },
 
@@ -1352,9 +1356,6 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   Services.tm.dispatchToMainThread(loadExtraTabs);
   SessionStoreManager._restored = true;
   Services.obs.notifyObservers(window, "mail-tabs-session-restored");
-  // Notify observer to resolve the browserStartupPromise, which is used for the
-  // delayed background startup of WebExtensions.
-  Services.obs.notifyObservers(window, "extensions-late-startup");
 
   return !!state;
 }
