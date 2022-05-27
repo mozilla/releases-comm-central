@@ -14,6 +14,7 @@ var { MsgIncomingServer } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   ImapClient: "resource:///modules/ImapClient.jsm",
   ImapUtils: "resource:///modules/ImapUtils.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
 /**
@@ -254,6 +255,30 @@ class ImapIncomingServer extends MsgIncomingServer {
     return true;
   }
 
+  onlineFolderRename(msgWindow, oldName, newName) {
+    let folder = this._getFolder(oldName).QueryInterface(
+      Ci.nsIMsgImapMailFolder
+    );
+    let index = newName.lastIndexOf("/");
+    let parent =
+      index > 0 ? this._getFolder(newName.slice(0, index)) : this.rootFolder;
+    folder.renameLocal(newName, parent);
+    if (parent instanceof Ci.nsIMsgImapMailFolder) {
+      parent.renameClient(msgWindow, folder, oldName, newName);
+    }
+
+    this._getFolder(newName).NotifyFolderEvent("RenameCompleted");
+  }
+
+  /**
+   * Given a canonical folder name, returns the corresponding msg folder.
+   * @param {string} name - The canonical folder name, e.g. a/b/c.
+   * @returns {nsIMsgFolder} The corresponding msg folder.
+   */
+  _getFolder(name) {
+    return MailUtils.getOrCreateFolder(this.rootFolder.URI + "/" + name);
+  }
+
   /** @see nsIImapIncomingServer */
   get deleteModel() {
     return this.getIntValue("delete_model");
@@ -277,6 +302,14 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   set maximumConnectionsNumber(value) {
     this.setIntValue("max_cached_connections", value);
+  }
+
+  CloseConnectionForFolder(folder) {
+    for (let client of this._busyConnections) {
+      if (client.folder == folder) {
+        client.logout();
+      }
+    }
   }
 
   get wrappedJSObject() {

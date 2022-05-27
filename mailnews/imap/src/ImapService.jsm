@@ -77,6 +77,16 @@ class ImapService {
       };
     });
   }
+
+  renameLeaf(folder, newName, urlListener, msgWindow) {
+    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
+      .imapIncomingServer;
+    server.wrappedJSObject.withClient(client => {
+      client.onReady = () => {
+        client.renameFolder(folder, newName, msgWindow);
+      };
+    });
+  }
 }
 
 ImapService.prototype.classID = Components.ID(

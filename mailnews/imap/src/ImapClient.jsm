@@ -83,23 +83,6 @@ class ImapClient {
   }
 
   /**
-   * Select a folder.
-   * @param {nsIMsgFolder} folder - The associated folder.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
-   */
-  selectFolder(folder, msgWindow) {
-    if (this._folder == folder) {
-      this._nextAction = this._actionNoopResponse;
-      this._sendTagged("NOOP");
-      return;
-    }
-    this._folder = folder;
-    this._actionAfterSelectFolder = this._actionUidFetch;
-    this._nextAction = this._actionSelectResponse;
-    this._sendTagged(`SELECT "${this._folder.name}"`);
-  }
-
-  /**
    * Discover all folders.
    * @param {nsIMsgFolder} folder - The associated folder.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
@@ -108,6 +91,69 @@ class ImapClient {
     this._nextAction = this._actionListResponse;
     this._sendTagged('LIST (SUBSCRIBED) "" "*" RETURN (SPECIAL-USE)');
     this._listInboxSent = false;
+  }
+
+  /**
+   * Select a folder.
+   * @param {nsIMsgFolder} folder - The folder to select.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   */
+  selectFolder(folder, msgWindow) {
+    if (this.folder == folder) {
+      this._nextAction = this._actionNoopResponse;
+      this._sendTagged("NOOP");
+      return;
+    }
+    this.folder = folder;
+    this._actionAfterSelectFolder = this._actionUidFetch;
+    this._nextAction = this._actionSelectResponse;
+    this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
+  }
+
+  /**
+   * Rename a folder.
+   * @param {nsIMsgFolder} folder - The folder to rename.
+   * @param {string} newName - The new folder name.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   */
+  renameFolder(folder, newName, msgWindow) {
+    this._msgWindow = msgWindow;
+    let delimiter =
+      folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
+    let names = this._getAncestorFolderNames(folder);
+    let oldName = [...names, folder.name].join(delimiter);
+    newName = [...names, newName].join(delimiter);
+
+    this._nextAction = this._actionRenameResponse(oldName, newName);
+    this._sendTagged(`RENAME ${oldName} ${newName}`);
+  }
+
+  /**
+   * Get the names of all ancestor folders. For example,
+   *   folder a/b/c will return ['a', 'b'].
+   * @param {nsIMsgFolder} folder - The input folder.
+   * @returns {string[]}
+   */
+  _getAncestorFolderNames(folder) {
+    let ancestors = [];
+    let parent = folder.parent;
+    while (parent && parent != folder.rootFolder) {
+      ancestors.unshift(parent.name);
+      parent = parent.parent;
+    }
+    return ancestors;
+  }
+
+  /**
+   * Get the server name of a msg folder.
+   * @param {nsIMsgFolder} folder - The input folder.
+   * @returns {string}
+   */
+  _getServerFolderName(folder) {
+    let delimiter =
+      folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
+    let names = this._getAncestorFolderNames(folder);
+    return [...names, folder.name].join(delimiter);
   }
 
   /**
@@ -121,11 +167,11 @@ class ImapClient {
       this._nextAction = this._actionUidFetchBodyResponse;
       this._sendTagged(`UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
     };
-    if (this._folder != folder) {
-      this._folder = folder;
+    if (this.folder != folder) {
+      this.folder = folder;
       this._actionAfterSelectFolder = fetchUid;
       this._nextAction = this._actionSelectResponse;
-      this._sendTagged(`SELECT "${this._folder.name}"`);
+      this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
     } else {
       fetchUid();
     }
@@ -145,11 +191,11 @@ class ImapClient {
       let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
       return `UID STORE ${messageIds} ${action}FLAGS ${flagsStr}`;
     };
-    if (this._folder == folder) {
+    if (this.folder == folder) {
       this._nextAction = () => this._actionDone();
       this._sendTagged(getCommand());
     } else {
-      this._folder = folder;
+      this.folder = folder;
       this._actionAfterSelectFolder = () => {
         this._nextAction = () => this._actionDone();
         this._sendTagged(getCommand());
@@ -166,12 +212,12 @@ class ImapClient {
     this._idling = true;
     this._nextAction = res => {
       if (res.tag == "*") {
-        if (!this._folder) {
+        if (!this.folder) {
           this._actionDone();
           return;
         }
         if (!this._folderSink) {
-          this._folderSink = this._folder.QueryInterface(
+          this._folderSink = this.folder.QueryInterface(
             Ci.nsIImapMailFolderSink
           );
         }
@@ -188,6 +234,15 @@ class ImapClient {
     this._idling = false;
     this._nextAction = this._actionDone;
     this._send("DONE");
+  }
+
+  /**
+   * Send LOGOUT and close the socket.
+   */
+  logout() {
+    this._sendTagged("LOGOUT");
+    this._socket.close();
+    this._actionDone();
   }
 
   /**
@@ -225,7 +280,7 @@ class ImapClient {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
-    this.quit();
+    this.logout();
     let secInfo = event.target.transport?.securityInfo;
     if (secInfo) {
       this.runningUri.failedSecInfo = secInfo;
@@ -378,6 +433,29 @@ class ImapClient {
   }
 
   /**
+   * Handle RENAME response. Three steps are involved.
+   * @param {string} oldName - The old folder name.
+   * @param {string} newName - The new folder name.
+   * @param {ImapResponse} res - The server response.
+   */
+  _actionRenameResponse = (oldName, newName) => res => {
+    // Step 3: Rename the local folder and send LIST command to re-sync folders.
+    let actionAfterUnsubscribe = () => {
+      this._nextAction = this._actionListResponse;
+      this._serverSink.onlineFolderRename(this._msgWindow, oldName, newName);
+      this._sendTagged('LIST (SUBSCRIBED) "" "*" RETURN (SPECIAL-USE)');
+      this._listInboxSent = false;
+    };
+    // Step 2: unsubscribe to the oldName.
+    this._nextAction = () => {
+      this._nextAction = actionAfterUnsubscribe;
+      this._sendTagged(`UNSUBSCRIBE ${oldName}`);
+    };
+    // Step 1: subscribe to the newName.
+    this._sendTagged(`SUBSCRIBE ${newName}`);
+  };
+
+  /**
    * Send UID FETCH request to the server.
    */
   _actionUidFetch() {
@@ -391,7 +469,7 @@ class ImapClient {
    */
   _actionUidFetchResponse(res) {
     let outFolderInfo = {};
-    this._folder.getDBFolderInfoAndDB(outFolderInfo);
+    this.folder.getDBFolderInfoAndDB(outFolderInfo);
     let highestUid = outFolderInfo.value.getUint32Property(
       "highestRecordedUID",
       0
@@ -399,7 +477,7 @@ class ImapClient {
     this._messageUids = [];
     for (let msg of res.messages) {
       this._messageUids[msg.sequence] = msg.uid;
-      this._folder
+      this.folder
         .QueryInterface(Ci.nsIImapMessageSink)
         .notifyMessageFlags(
           msg.flags,
@@ -408,7 +486,7 @@ class ImapClient {
           this._folderState.highestmodseq
         );
     }
-    this._folderSink = this._folder.QueryInterface(Ci.nsIImapMailFolderSink);
+    this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
     this._folderSink.UpdateImapMailboxInfo(
       this,
       this._getMailboxSpec(res.messages)
@@ -450,9 +528,9 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchBodyResponse(res) {
-    this._msgSink = this._folder.QueryInterface(Ci.nsIImapMessageSink);
+    this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
     for (let msg of res.messages) {
-      this._folderSink = this._folder.QueryInterface(Ci.nsIImapMailFolderSink);
+      this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
       this._folderSink.StartMessage(this.runningUrl);
       let hdrXferInfo = {
         numHeaders: 1,
@@ -490,7 +568,7 @@ class ImapClient {
     for (let msg of res.messages) {
       // Handle message flag changes.
       let uid = this._messageUids[msg.sequence];
-      this._folder
+      this.folder
         .QueryInterface(Ci.nsIImapMessageSink)
         .notifyMessageFlags(
           msg.flags,
@@ -507,7 +585,7 @@ class ImapClient {
       this._folderState.exists = res.exists;
       this._actionAfterSelectFolder = this._actionUidFetch;
       this._nextAction = this._actionSelectResponse;
-      this._sendTagged(`SELECT "${this._folder.name}"`);
+      this._sendTagged(`SELECT "${this.folder.name}"`);
     } else {
       this._actionDone();
     }
@@ -518,6 +596,7 @@ class ImapClient {
    */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
+    this._nextAction = null;
     this._urlListener?.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
     this.onDone?.();
   };
