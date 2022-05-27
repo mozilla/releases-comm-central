@@ -143,9 +143,13 @@
           </vbox>
         </box>
 
+        <splitter class="item-summary-splitter"
+                  collapse="after"
+                  orient="vertical"
+                  state="open"/>
+
         <!-- Description -->
         <box class="item-description-box" hidden="true" orient="vertical" flex="1">
-          <spacer class="default-spacer"/>
           <hbox class="calendar-caption" align="center">
             <label value="&read.only.description.label;"
                    class="header"/>
