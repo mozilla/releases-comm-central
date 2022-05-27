@@ -37,8 +37,8 @@ openpgp-key-assistant-recipients-description-no-issues = This message can be enc
 # $numKeys (Number) - The number of keys.
 openpgp-key-assistant-resolve-title =
     { $numKeys ->
-        [one] { -brand-short-name } found the following key for { $recipient }
-        *[other] { -brand-short-name } found the following keys for { $recipient }
+        [one] { -brand-short-name } found the following key for { $recipient }.
+        *[other] { -brand-short-name } found the following keys for { $recipient }.
     }
 
 openpgp-key-assistant-valid-description = Select the key that you want to accept
@@ -47,20 +47,20 @@ openpgp-key-assistant-valid-description = Select the key that you want to accept
 # $numKeys (Number) - The number of available keys.
 openpgp-key-assistant-invalid-title =
     { $numKeys ->
-        [one] The following key cannot be used, unless you obtain an update
-        *[other] The following keys cannot be used, unless you obtain an update
+        [one] The following key cannot be used, unless you obtain an update.
+        *[other] The following keys cannot be used, unless you obtain an update.
     }
 
-openpgp-key-assistant-no-key-available = No key available
+openpgp-key-assistant-no-key-available = No key available.
 
-openpgp-key-assistant-multiple-keys = Multiple keys available
+openpgp-key-assistant-multiple-keys = Multiple keys are available.
 
 # Variables:
 # $count (Number) - The number of unaccepted keys.
 openpgp-key-assistant-key-unaccepted =
     { $count ->
-        [one] A key is available, but it hasn’t been accepted yet
-        *[other] Multiple keys are available, but you haven’t accepted one to use yet.
+        [one] A key is available, but it hasn’t been accepted yet.
+        *[other] Multiple keys are available, but none of them have been accepted yet.
     }
 
 # Variables:
@@ -74,41 +74,52 @@ openpgp-key-assistant-keys-accepted-expired = Multiple accepted keys have expire
 openpgp-key-assistant-this-key-accepted-expired = This key was previously accepted but expired on { $date }.
 
 # Variables:
-# $count (Number) - The number of expired keys.
 # $date (String) - The expiration date of the key.
 openpgp-key-assistant-key-unaccepted-expired-one =
-    Key expired on { $date }
+    The key expired on { $date }.
 openpgp-key-assistant-key-unaccepted-expired-many =
-    Multiple expired keys
+    Multiple keys have expired.
 
-openpgp-key-assistant-keys-collected = Multiple usable keys
+openpgp-key-assistant-key-fingerprint = Fingerprint
 
-openpgp-key-assistant-key-collected-multiple = A usable key was found in multiple locations
+openpgp-key-assistant-key-source =
+  { $count ->
+      [one] Source
+      *[other] Sources
+  }
 
-openpgp-key-assistant-key-collected-email = Found in an email
+openpgp-key-assistant-key-collected-email = email attachment
+openpgp-key-assistant-key-collected-autocrypt = Autocrypt header
+openpgp-key-assistant-key-collected-keyserver = keyserver
+openpgp-key-assistant-key-collected-wkd = Web Key Directory (WKD)
 
-openpgp-key-assistant-key-collected-keyserver = Downloaded from a keyserver
+openpgp-key-assistant-keys-has-collected =
+  { $count ->
+      [one] A key was found, but it hasn’t been accepted yet.
+      *[other] Multiple keys were found, but none of them have been accepted yet.
+  }
 
-openpgp-key-assistant-key-collected-wkd = Downloaded from Web Key Directory (WKD)
-
-openpgp-key-assistant-key-rejected = You rejected this key
-openpgp-key-assistant-key-accepted-other = You accepted this key for a different email address
+openpgp-key-assistant-key-rejected = This key has been previously rejected.
+openpgp-key-assistant-key-accepted-other = This key has been previously accepted for a different email address.
 
 # Variables:
 # $recipient (String) - The email address of the recipient needing resolution.
-openpgp-key-assistant-resolve-discover-info = You can also discover additional or updated keys for { $recipient } online, or import them from a file.
+openpgp-key-assistant-resolve-discover-info =
+  Discover additional or updated keys for { $recipient } online, or import them from a file.
 
 ## Discovery section
 
-openpgp-key-assistant-discover-title = Online discovery in progress…
+openpgp-key-assistant-discover-title = Online discovery in progress.
 
 # Variables:
 # $recipient (String) - The email address which we're discovering keys.
-openpgp-key-assistant-discover-keys = Discovering keys for { $recipient }… <span></span>
+openpgp-key-assistant-discover-keys = Discovering keys for { $recipient }…
 
 # Variables:
 # $recipient (String) - The email address which we're discovering keys.
-openpgp-key-assistant-expired-key-update = An update was found for one of the previously accepted keys for { $recipient }, and it can now be used as it is no longer expired.
+openpgp-key-assistant-expired-key-update =
+    An update was found for one of the previously accepted keys for { $recipient }.
+    It can now be used as it is no longer expired.
 
 ## Dialog buttons
 
@@ -136,4 +147,4 @@ openpgp-key-assistant-disable-button = Disable Encryption
 
 openpgp-key-assistant-confirm-button = Send Encrypted
 
-openpgp-key-assistant-key-created = (Created: { $date })
+openpgp-key-assistant-key-created = created on { $date }

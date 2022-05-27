@@ -961,6 +961,7 @@ var RNP = {
             let subList = {};
 
             subList = {};
+            subList.keyCreated = keyObj.keyCreated;
             subList.created = keyObj.created;
             subList.fpr = keyObj.fpr;
             subList.keyId = keyObj.keyId;
@@ -1000,8 +1001,9 @@ var RNP = {
               ) {
                 throw new Error("rnp_signature_get_creation failed");
               }
+              sigObj.keyCreated = creation.value;
               sigObj.created = new Services.intl.DateTimeFormat().format(
-                new Date(creation.value * 1000)
+                new Date(sigObj.keyCreated * 1000)
               );
               sigObj.sigType = "?";
 

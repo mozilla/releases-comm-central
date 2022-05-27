@@ -337,9 +337,7 @@ var gKeyAssistant = {
     list.appendChild(row);
   },
 
-  findKeysStatus(element, keyMetas) {
-    // Multiple keys available.
-
+  fillKeysStatus(element, keyMetas) {
     let unaccepted = keyMetas.filter(
       k =>
         k.readiness == "undecided" ||
@@ -348,11 +346,13 @@ var gKeyAssistant = {
     );
     let collected = keyMetas.filter(k => k.readiness == "collected");
 
+    // Multiple keys available.
     if (unaccepted.length + collected.length > 1) {
       document.l10n.setAttributes(
         element,
         "openpgp-key-assistant-multiple-keys"
       );
+      // TODO: add note to be careful?
       return;
     }
 
@@ -365,6 +365,9 @@ var gKeyAssistant = {
           count: unaccepted.length,
         }
       );
+      if (unaccepted.length == 1) {
+        element.before("0x" + unaccepted[0].keyObj.keyId);
+      }
       return;
     }
 
@@ -382,6 +385,7 @@ var gKeyAssistant = {
             date: expiredAccepted[0].keyObj.effectiveExpiry,
           }
         );
+        element.before("0x" + expiredAccepted[0].keyObj.keyId);
       } else {
         document.l10n.setAttributes(
           element,
@@ -408,6 +412,7 @@ var gKeyAssistant = {
             date: expiredUnaccepted[0].keyObj.effectiveExpiry,
           }
         );
+        element.before("0x" + expiredUnaccepted[0].keyObj.keyId);
       } else {
         document.l10n.setAttributes(
           element,
@@ -422,40 +427,14 @@ var gKeyAssistant = {
     );
 
     if (unacceptedNotYetImported.length) {
-      if (unacceptedNotYetImported.length == 1) {
-        // Show a generic message if the key was collected from multiple
-        // sources.
-        if (unacceptedNotYetImported[0].collectedKey.sources.length > 1) {
-          document.l10n.setAttributes(
-            element,
-            "openpgp-key-assistant-key-collected-multiple"
-          );
-          return;
-        }
-
-        // Otherwise try to find the source.
-        let source = ["attachment", "autocrypt"].includes(
-          unacceptedNotYetImported[0].collectedKey.sources[0].type
-        )
-          ? "email"
-          : unacceptedNotYetImported[0].collectedKey.sources[0].type;
-        if (source == "WKD") {
-          source = "wkd";
-        }
-        // openpgp-key-assistant-key-collected-email
-        // openpgp-key-assistant-key-collected-keyserver
-        // openpgp-key-assistant-key-collected-wkd
-        document.l10n.setAttributes(
-          element,
-          "openpgp-key-assistant-key-collected-" + source
-        );
-        return;
-      }
-
       document.l10n.setAttributes(
         element,
-        "openpgp-key-assistant-keys-collected"
+        "openpgp-key-assistant-keys-has-collected",
+        { count: unacceptedNotYetImported.length }
       );
+      if (unacceptedNotYetImported.length == 1) {
+        element.before("0x" + unacceptedNotYetImported[0].keyObj.keyId);
+      }
       return;
     }
 
@@ -475,8 +454,7 @@ var gKeyAssistant = {
     info.classList.add("key-info");
     let title = document.createElement("b");
     title.textContent = recipient;
-    let description = document.createElement("span");
-    description.classList.add("tip-caption");
+    let description = document.createElement("div");
     info.append(title, description);
 
     let canOfferResolving = keyMetas.some(
@@ -492,7 +470,7 @@ var gKeyAssistant = {
     );
 
     if (canOfferResolving) {
-      this.findKeysStatus(description, keyMetas);
+      this.fillKeysStatus(description, keyMetas);
       let button = document.createElement("button");
       document.l10n.setAttributes(
         button,
@@ -513,44 +491,43 @@ var gKeyAssistant = {
     list.appendChild(row);
   },
 
-  findKeyOriginAndStatus(element, keyMeta) {
+  fillKeyOriginAndStatus(element, keyMeta) {
     // The key was collected from somewhere.
-    if (keyMeta.collectedKey?.sources?.length == 1) {
-      // Only one available source for this key.
-      let type = keyMeta.collectedKey.sources[0].type;
-      let source = ["attachment", "autocrypt"].includes(type) ? "email" : type;
-      // openpgp-key-assistant-key-collected-email
-      // openpgp-key-assistant-key-collected-keyserver
-      // openpgp-key-assistant-key-collected-wkd
-      if (source == "WKD") {
-        source = "wkd";
-      }
+    if (keyMeta.collectedKey) {
+      let sourceSpan = document.createElement("span");
       document.l10n.setAttributes(
-        element,
-        "openpgp-key-assistant-key-collected-" + source
+        sourceSpan,
+        "openpgp-key-assistant-key-source",
+        {
+          count: keyMeta.collectedKey.sources.length,
+        }
       );
-      return;
-    } else if (keyMeta.collectedKey?.sources?.length > 1) {
-      // Multiple source for this key.
-      let reportedSources = [];
-      for (let source of keyMeta.collectedKey.sources) {
+      element.append(sourceSpan, ": ");
+      let linkSpan = document.createElement("span");
+      linkSpan.classList.add("comma-separated");
+
+      let sourceLinks = keyMeta.collectedKey.sources.map(source => {
+        source.type = source.type.toLowerCase(); // Earlier "WKD" was "wkd".
+        let a = document.createElement("a");
+        a.href = source.uri;
+        a.title = source.uri;
+        if (source.description) {
+          a.title += " - " + source.description;
+        }
         let span = document.createElement("span");
-        span.classList.add("display-block");
-        let type = ["attachment", "autocrypt"].includes(source.type)
-          ? "email"
-          : source.type;
-        if (type == "WKD") {
-          type = "wkd";
-        }
-        if (!reportedSources.includes(type)) {
-          reportedSources.push(type);
-          document.l10n.setAttributes(
-            span,
-            "openpgp-key-assistant-key-collected-" + type
-          );
-          element.appendChild(span);
-        }
-      }
+        // openpgp-key-assistant-key-collected-attachment
+        // openpgp-key-assistant-key-collected-autocrypt
+        // openpgp-key-assistant-key-collected-keyserver
+        // openpgp-key-assistant-key-collected-wkd
+        document.l10n.setAttributes(
+          span,
+          `openpgp-key-assistant-key-collected-${source.type}`
+        );
+        a.appendChild(span);
+        return a;
+      });
+      linkSpan.append(...sourceLinks);
+      element.appendChild(linkSpan);
       return;
     }
 
@@ -558,7 +535,7 @@ var gKeyAssistant = {
     if (keyMeta.readiness == "rejected") {
       document.l10n.setAttributes(
         element,
-        "openpgp-key-assistant-key-rejected" // TODO string missing!!!
+        "openpgp-key-assistant-key-rejected"
       );
       return;
     }
@@ -636,7 +613,6 @@ var gKeyAssistant = {
     function createKeyRow(keyMeta, isValid) {
       let row = document.createElement("li");
       let label = document.createElement("label");
-      label.classList.add("radio-container-with-text");
 
       let input = document.createElement("input");
       input.type = "radio";
@@ -649,45 +625,46 @@ var gKeyAssistant = {
           document.getElementById("resolveViewAcceptKey").disabled = false;
         });
       }
+      label.appendChild(input);
 
-      let description = document.createElement("span");
-      let keyId = document.createElement("a");
+      let keyId = document.createElement("b");
       keyId.textContent = "0x" + keyMeta.keyObj.keyId;
-      description.appendChild(keyId);
-
-      let space = document.createElement("span");
-      space.textContent = " ";
-      description.appendChild(space);
-
-      let button = document.createElement("button");
-      //button.classList.add("button-link");
-      document.l10n.setAttributes(
-        button,
-        "openpgp-key-assistant-view-key-button"
-      );
-      button.addEventListener("click", () => {
-        gKeyAssistant.viewKeyFromResolve(keyMeta);
-      });
 
       let creationTime = document.createElement("time");
+      creationTime.setAttribute(
+        "datetime",
+        new Date(keyMeta.keyObj.keyCreated * 1000).toISOString()
+      );
       document.l10n.setAttributes(
         creationTime,
         "openpgp-key-assistant-key-created",
         { date: keyMeta.keyObj.created }
       );
-      description.appendChild(creationTime);
-
-      let space2 = document.createElement("span");
-      space2.textContent = " ";
-      description.appendChild(space2);
-
-      let info = document.createElement("p");
-      gKeyAssistant.findKeyOriginAndStatus(info, keyMeta);
-
-      description.append(button, info);
-      label.append(input, description);
+      label.append(keyId, " - ", creationTime);
       row.appendChild(label);
 
+      let fingerprint = document.createElement("div");
+      fingerprint.classList.add("key-info-block");
+      let fpDesc = document.createElement("span");
+      let fpLink = document.createElement("a");
+      fpLink.href = "#";
+      fpLink.textContent = EnigmailKey.formatFpr(keyMeta.keyObj.fpr);
+      fpLink.addEventListener("click", event => {
+        event.preventDefault();
+        gKeyAssistant.viewKeyFromResolve(keyMeta);
+      });
+      document.l10n.setAttributes(
+        fpDesc,
+        "openpgp-key-assistant-key-fingerprint"
+      );
+      fingerprint.append(fpDesc, ": ", fpLink);
+      row.appendChild(fingerprint);
+
+      let info = document.createElement("div");
+      info.classList.add("key-info-block");
+      row.append(info);
+
+      gKeyAssistant.fillKeyOriginAndStatus(info, keyMeta);
       return row;
     }
 
@@ -770,15 +747,19 @@ var gKeyAssistant = {
 
     function write(recipient) {
       let p = document.createElement("p");
-      p.classList.add("loading-inline");
-      document.l10n.setAttributes(p, "openpgp-key-assistant-discover-keys", {
+      let span = document.createElement("span");
+      document.l10n.setAttributes(span, "openpgp-key-assistant-discover-keys", {
         recipient,
       });
+      let span2 = document.createElement("span");
+      span2.classList.add("loading-inline");
+      p.append(span, " ", span2);
       container.appendChild(p);
     }
 
-    let gotNewData = false;
-    // checking gotNewData isn't really sufficient, because the discovery could
+    let gotNewData = false; // XXX: not used for anything atm
+
+    // Checking gotNewData isn't really sufficient, because the discovery could
     // find an update for an existing key, which was expired, and is now valid
     // again. Let's always rebuild for now.
 
@@ -797,6 +778,11 @@ var gKeyAssistant = {
         );
         gotNewData = gotNewData || rv;
       }
+
+      // Wait a sec before closing the view, so the user has time to see what
+      // happened.
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       this.resetViews();
       this.buildMainView();
 
@@ -819,6 +805,7 @@ var gKeyAssistant = {
     }
 
     write(this.currentRecip);
+
     this.ignoreExternal = true;
     gotNewData = await KeyLookupHelper.fullOnlineDiscovery(
       "silent-collection",
@@ -844,6 +831,9 @@ var gKeyAssistant = {
       // Trigger the UI refresh of the compose window.
       await checkRecipientKeys();
 
+      // Wait a sec before closing the view, so the user has time to see what
+      // happened.
+      await new Promise(resolve => setTimeout(resolve, 1000));
       this.resetViews();
       this.buildMainView();
 

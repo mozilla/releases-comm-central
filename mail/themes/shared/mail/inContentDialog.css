@@ -107,44 +107,6 @@ dialog.dialog-critical {
   line-height: 1.4em;
 }
 
-.modal-dialog[open] {
-  display: flex;
-  flex-direction: column;
-  width: 580px;
-  color: inherit;
-  max-height: 90vh;
-  padding: 0;
-  overflow-x: hidden;
-  background-color: Field;
-}
-
-.modal-dialog-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow-y: auto;
-  padding: 0 1em;
-}
-
-.container-with-link {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-}
-
-.radio-container-with-text {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 12px;
-}
-
-.display-block {
-  display: block;
-  margin-block: 1px;
-}
-
 /* Typography */
 
 dialog h1 {
@@ -173,33 +135,6 @@ dialog .radio-list li {
   margin-block-end: 12px;
 }
 
-dialog .key-list {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  border: 1px solid var(--checkbox-border-color);
-  border-radius: 3px;
-  margin-block: 12px 6px;
-}
-
-dialog .key-list > li:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-dialog .key-row {
-  display: flex;
-  align-items: center;
-  gap: 3px 6px;
-  padding: 3px 6px;
-}
-
-dialog .key-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
 /* Buttons area */
 
 .vertical-buttons-container {
@@ -208,6 +143,7 @@ dialog .key-info {
   align-items: flex-start;
   gap: 3px;
   margin-block-end: 9px;
+  padding: 0;
 }
 
 .dialog-menu-container {
@@ -267,7 +203,7 @@ dialog button.primary {
   color: var(--primary-text-color);
 }
 
-dialog button.primary:-moz-focusring {
+dialog button.primary:focus-visible {
   border-color: var(--primary-focus-border);
   outline-offset: 0;
 }
@@ -296,7 +232,7 @@ dialog button[disabled] {
   100% { transform: translateX(100%); }
 }
 
-.loading-inline > span {
+span.loading-inline {
   -moz-context-properties: fill;
   fill: currentColor;
   display: inline-block;
@@ -308,7 +244,7 @@ dialog button[disabled] {
   vertical-align: sub;
 }
 
-.loading-inline > span::after {
+span.loading-inline::after {
   position: absolute;
   content: '';
   background-image: url("chrome://messenger/skin/icons/loading.svg");
@@ -319,7 +255,9 @@ dialog button[disabled] {
   animation: loading-animation 1.05s steps(30) infinite;
 }
 
-.loading-inline > span:-moz-locale-dir(rtl)::after {
+span.loading-inline:dir(rtl)::after {
   background-position-x: left;
   animation: loading-animation-rtl 1.05s steps(30) infinite;
 }
+
+
