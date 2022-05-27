@@ -3,8 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals VCardAdrComponent, VCardEmailComponent, VCardIMPPComponent,
-           VCardNComponent, VCardNoteComponent, VCardSpecialDateComponent,
-           VCardTelComponent, VCardTZComponent, VCardURLComponent */
+           VCardNComponent, VCardNoteComponent, VCardOrgComponent,
+           VCardRoleComponent, VCardSpecialDateComponent,
+           VCardTelComponent, VCardTitleComponent, VCardTZComponent,
+           VCardURLComponent */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
@@ -67,6 +69,8 @@ class VCardEdit extends HTMLElement {
         addNote.hidden = true;
       });
 
+      this.registerOrgFieldsetHandling();
+
       this.updateView();
     }
   }
@@ -108,6 +112,28 @@ class VCardEdit extends HTMLElement {
         VCardEmailComponent.newVCardPropertyEntry()
       );
     }
+    // If or more of the organizational properties is present,
+    // make sure they all are.
+    let title = this._vCardProperties.getFirstEntry("title");
+    let role = this._vCardProperties.getFirstEntry("role");
+    let org = this._vCardProperties.getFirstEntry("org");
+    if (title || role || org) {
+      if (!title) {
+        this._vCardProperties.addEntry(
+          VCardTitleComponent.newVCardPropertyEntry()
+        );
+      }
+      if (!role) {
+        this._vCardProperties.addEntry(
+          VCardRoleComponent.newVCardPropertyEntry()
+        );
+      }
+      if (!org) {
+        this._vCardProperties.addEntry(
+          VCardOrgComponent.newVCardPropertyEntry()
+        );
+      }
+    }
     this.updateView();
   }
 
@@ -117,6 +143,7 @@ class VCardEdit extends HTMLElement {
       return;
     }
 
+    this._orgComponent = null;
     let vCardPropertyEls = this.vCardProperties.entries
       .map(entry => {
         return VCardEdit.createVCardElement(entry);
@@ -131,6 +158,9 @@ class VCardEdit extends HTMLElement {
     this.shadowRoot.getElementById(
       "vcard-add-note"
     ).hidden = this.querySelector("vcard-note");
+    this.shadowRoot.getElementById("vcard-add-org").hidden = this.querySelector(
+      "vcard-org"
+    );
 
     this.displayName.value = this.vCardProperties.getFirstValue("fn");
     this.displayName._dirty = !!this.displayName.value;
@@ -261,6 +291,21 @@ class VCardEdit extends HTMLElement {
         note.vCardPropertyEntry = entry;
         note.slot = "v-note";
         return note;
+      case "title":
+        let title = new VCardTitleComponent();
+        title.vCardPropertyEntry = entry;
+        title.slot = "v-title";
+        return title;
+      case "role":
+        let role = new VCardRoleComponent();
+        role.vCardPropertyEntry = entry;
+        role.slot = "v-role";
+        return role;
+      case "org":
+        let org = new VCardOrgComponent();
+        org.vCardPropertyEntry = entry;
+        org.slot = "v-org";
+        return org;
       default:
         return undefined;
     }
@@ -295,6 +340,12 @@ class VCardEdit extends HTMLElement {
         return VCardAdrComponent.newVCardPropertyEntry();
       case "note":
         return VCardNoteComponent.newVCardPropertyEntry();
+      case "title":
+        return VCardTitleComponent.newVCardPropertyEntry();
+      case "role":
+        return VCardRoleComponent.newVCardPropertyEntry();
+      case "org":
+        return VCardOrgComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }
@@ -405,6 +456,30 @@ class VCardEdit extends HTMLElement {
       this.append(el);
       this.checkForBdayOccurences();
       el.querySelector("input").focus();
+    });
+  }
+
+  registerOrgFieldsetHandling() {
+    let addOrg = this.shadowRoot.getElementById("vcard-add-org");
+    addOrg.addEventListener("click", event => {
+      let title = VCardEdit.createVCardProperty("title");
+      let role = VCardEdit.createVCardProperty("role");
+      let org = VCardEdit.createVCardProperty("org");
+
+      let titleEl = VCardEdit.createVCardElement(title);
+      let roleEl = VCardEdit.createVCardElement(role);
+      let orgEl = VCardEdit.createVCardElement(org);
+
+      this.vCardProperties.addEntry(titleEl.vCardPropertyEntry);
+      this.vCardProperties.addEntry(roleEl.vCardPropertyEntry);
+      this.vCardProperties.addEntry(orgEl.vCardPropertyEntry);
+
+      this.append(titleEl);
+      this.append(roleEl);
+      this.append(orgEl);
+
+      titleEl.querySelector("input").focus();
+      addOrg.hidden = true;
     });
   }
 

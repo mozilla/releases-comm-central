@@ -7,6 +7,7 @@
 
 <!-- Scripts -->
 <script src="chrome://messenger/content/addressbook/edit/adr.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/org.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/impp.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
@@ -154,6 +155,22 @@
            src="chrome://global/skin/icons/add.svg"
            alt=""/>
       <span data-l10n-id="vcard-note-add"/>
+    </button>
+  </fieldset>
+  <!-- Organization Info -->
+  <fieldset id="addr-book-edit-org" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-org-header"/>
+    <slot name="v-title"/>
+    <slot name="v-role"/>
+    <slot name="v-org"/>
+    <!-- The add button is repeated boilerplate and will be reduced -->
+    <button id="vcard-add-org"
+            class="addr-book-edit-fieldset-button"
+            type="button">
+      <img class="addr-book-edit-fieldset-button-icon"
+           src="chrome://global/skin/icons/add.svg"
+           alt=""/>
+      <span data-l10n-id="vcard-org-add"/>
     </button>
   </fieldset>
 </template>
@@ -325,4 +342,24 @@
 <!-- Notes -->
 <template id="template-vcard-edit-note">
   <textarea></textarea>
+</template>
+
+<!-- Organization Info -->
+<template id="template-vcard-edit-title">
+  <div class="vcard-adr-inputs">
+    <label for="title" data-l10n-id="vcard-org-title"/>
+    <input type="text" name="title"/>
+  </div>
+</template>
+<template id="template-vcard-edit-role">
+  <div class="vcard-adr-inputs">
+    <label for="role" data-l10n-id="vcard-org-role"/>
+    <input type="text" name="role"/>
+  </div>
+</template>
+<template id="template-vcard-edit-org">
+  <div class="vcard-adr-inputs">
+    <label for="org" data-l10n-id="vcard-org-org"/>
+    <textarea name="org"></textarea>
+  </div>
 </template>

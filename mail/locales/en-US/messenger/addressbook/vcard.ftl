@@ -139,3 +139,15 @@ vcard-adr-country = Country
 vcard-note-header = Notes
 
 vcard-note-add = Add note
+
+# TITLE, ROLE and ORGANIZATION vCard fields
+
+vcard-org-header = Organizational Properties
+
+vcard-org-add = Add organizational properties
+
+vcard-org-title = Title
+
+vcard-org-role = Role
+
+vcard-org-org = Organization

@@ -2449,13 +2449,13 @@ var detailsPane = {
 
     let org = vCardProperties.getFirstValue("org");
     if (Array.isArray(org)) {
-      if (org[1]) {
-        let li = list.appendChild(createEntryItem("department"));
-        li.querySelector(".entry-value").textContent = org[1];
-      }
-      if (org[0]) {
-        let li = list.appendChild(createEntryItem("organization"));
-        li.querySelector(".entry-value").textContent = org[0];
+      let li = list.appendChild(createEntryItem("organization"));
+      let span = li.querySelector(".entry-value");
+      for (let part of org.filter(Boolean).reverse()) {
+        if (span.firstChild) {
+          span.appendChild(document.createElement("br"));
+        }
+        span.appendChild(document.createTextNode(part));
       }
     } else if (org) {
       let li = list.appendChild(createEntryItem("organization"));

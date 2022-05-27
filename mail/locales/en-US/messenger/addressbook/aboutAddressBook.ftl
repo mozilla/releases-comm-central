@@ -207,7 +207,6 @@ about-addressbook-entry-name-birthday = Birthday
 about-addressbook-entry-name-anniversary = Anniversary
 about-addressbook-entry-name-title = Title
 about-addressbook-entry-name-role = Role
-about-addressbook-entry-name-department = Department
 about-addressbook-entry-name-organization = Organization
 about-addressbook-entry-name-website = Website
 about-addressbook-entry-name-time-zone = Time Zone

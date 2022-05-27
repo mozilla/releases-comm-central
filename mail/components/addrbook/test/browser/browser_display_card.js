@@ -276,7 +276,7 @@ add_task(async function test_display() {
   // Other sections.
   Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 8);
+  Assert.equal(items.length, 7);
   Assert.equal(
     items[0].children[0].dataset.l10nId,
     "about-addressbook-entry-name-birthday"
@@ -299,29 +299,30 @@ add_task(async function test_display() {
   Assert.equal(items[3].children[1].textContent, "sheriff");
   Assert.equal(
     items[4].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-department"
-  );
-  Assert.equal(items[4].children[1].textContent, "engineering");
-  Assert.equal(
-    items[5].children[0].dataset.l10nId,
     "about-addressbook-entry-name-organization"
   );
-  Assert.equal(items[5].children[1].textContent, "thunderbird");
+  Assert.deepEqual(
+    Array.from(
+      items[4].querySelector(".entry-value").childNodes,
+      n => n.textContent
+    ),
+    ["engineering", "", "thunderbird"]
+  );
   Assert.equal(
-    items[6].children[0].dataset.l10nId,
+    items[5].children[0].dataset.l10nId,
     "about-addressbook-entry-name-website"
   );
   Assert.equal(
-    items[6].children[1].querySelector("a").href,
+    items[5].children[1].querySelector("a").href,
     "https://www.thunderbird.net/"
   );
   Assert.equal(
-    items[6].children[1].querySelector("a").textContent,
+    items[5].children[1].querySelector("a").textContent,
     "www.thunderbird.net"
   );
-  items[6].children[1].querySelector("a").scrollIntoView();
+  items[5].children[1].querySelector("a").scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(
-    items[6].children[1].querySelector("a"),
+    items[5].children[1].querySelector("a"),
     {},
     abWindow
   );
@@ -330,16 +331,16 @@ add_task(async function test_display() {
     "attempted to load website in a browser"
   );
   Assert.equal(
-    items[7].children[0].dataset.l10nId,
+    items[6].children[0].dataset.l10nId,
     "about-addressbook-entry-name-time-zone"
   );
-  Assert.equal(items[7].children[1].firstChild.nodeValue, "Pacific/Auckland");
+  Assert.equal(items[6].children[1].firstChild.nodeValue, "Pacific/Auckland");
   Assert.equal(
-    items[7].children[1].lastChild.getAttribute("is"),
+    items[6].children[1].lastChild.getAttribute("is"),
     "active-time"
   );
   Assert.equal(
-    items[7].children[1].lastChild.getAttribute("tz"),
+    items[6].children[1].lastChild.getAttribute("tz"),
     "Pacific/Auckland"
   );
 
