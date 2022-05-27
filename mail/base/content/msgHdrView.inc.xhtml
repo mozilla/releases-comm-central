@@ -384,30 +384,34 @@
 
   <!-- Message ID -->
   <html:div id="expandedmessage-idRow" class="message-header-row" hidden="hidden">
-    <label id="expandedmessage-idLabel" class="message-header-label"
+    <label id="expandedmessage-idLabel" class="message-header-label header-pill-label"
            value="&messageIdField4.label;"/>
-    <mail-messageids-headerfield id="expandedmessage-idBox"/>
+    <html:div id="expandedmessage-idBox" is="multi-message-ids-row"
+              data-header-name="message-id"></html:div>
   </html:div>
 
   <!-- In reply to -->
   <html:div id="expandedin-reply-toRow" class="message-header-row" hidden="hidden">
-    <label id="expandedin-reply-toLabel" class="message-header-label"
+    <label id="expandedin-reply-toLabel" class="message-header-label header-pill-label"
            value="&inReplyToField4.label;"/>
-    <mail-messageids-headerfield id="expandedin-reply-toBox"/>
+    <html:div id="expandedin-reply-toBox" is="multi-message-ids-row"
+              data-header-name="in-reply-to"></html:div>
   </html:div>
 
   <!-- Reference -->
   <html:div id="expandedreferencesRow" class="message-header-row" hidden="hidden">
-    <label id="expandedreferencesLabel" class="message-header-label"
+    <label id="expandedreferencesLabel" class="message-header-label header-pill-label"
            value="&referencesField4.label;"/>
-    <mail-messageids-headerfield id="expandedreferencesBox"/>
+    <html:div id="expandedreferencesBox" is="multi-message-ids-row"
+              data-header-name="references"></html:div>
   </html:div>
 
   <!-- Content base -->
   <html:div id="expandedcontent-baseRow" class="message-header-row" hidden="hidden">
     <label id="expandedcontent-baseLabel" class="message-header-label"
            value="&originalWebsite4.label;"/>
-    <mail-urlfield id="expandedcontent-baseBox"/>
+    <html:div id="expandedcontent-baseBox" is="url-header-row"
+              data-header-name="content-base"></html:div>
   </html:div>
 
   <!-- User agent -->

@@ -2,24 +2,21 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-  <menupopup id="messageIdContext" popupanchor="bottomleft"
-             onpopupshowing="FillMessageIdContextMenu(event.target.triggerNode);">
-    <menuitem id="messageIdContext-messageIdTarget"
-              disabled="true"/>
+  <menupopup id="messageIdContext">
+    <menuitem id="messageIdContext-messageIdTarget" disabled="true"/>
     <menuseparator id="messageIdContext-separator"/>
     <menuitem id="messageIdContext-openMessageForMsgId"
               label="&OpenMessageForMsgId.label;"
               accesskey="&OpenMessageForMsgId.accesskey;"
-              oncommand="var messageId = GetMessageIdFromNode(this.parentNode.triggerNode, true); OpenMessageForMessageId(messageId)"/>
+              oncommand="gMessageHeader.openMessage(event);"/>
     <menuitem id="messageIdContext-openBrowserWithMsgId"
               label="&OpenBrowserWithMsgId.label;"
               accesskey="&OpenBrowserWithMsgId.accesskey;"
-              oncommand="var messageId = GetMessageIdFromNode(this.parentNode.triggerNode, true); OpenBrowserWithMessageId(messageId)"/>
+              oncommand="gMessageHeader.openBrowser(event);"/>
     <menuitem id="messageIdContext-copyMessageId"
               label="&CopyMessageId.label;"
               accesskey="&CopyMessageId.accesskey;"
-              oncommand="var messageId = GetMessageIdFromNode(this.parentNode.triggerNode, false);
-                         CopyMessageId(messageId);"/>
+              oncommand="gMessageHeader.copyMessageId(event);"/>
   </menupopup>
 
   <menupopup id="attachmentItemContext"
@@ -110,5 +107,5 @@
              popupanchor="bottomleft">
     <menuitem label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
-              oncommand="CopyWebsiteAddress(this.parentNode.triggerNode)"/>
+              oncommand="gMessageHeader.copyWebsiteUrl(event);"/>
   </menupopup>

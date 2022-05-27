@@ -122,7 +122,7 @@ registerCleanupFunction(function() {
 });
 
 /**
- * Helper function that takes an array of mail-emailaddress elements and
+ * Helper function that takes an array of header recipients elements and
  * returns the last one in the list that is not hidden. Returns null if no
  * such element exists.
  *
@@ -230,13 +230,11 @@ const headersToTest = [
   {
     name: "Content-Base",
     element() {
-      return document.querySelector(
-        "#expandedcontent-baseBox.headerValue.text-link.headerValueUrl"
-      );
+      return document.getElementById("expandedcontent-baseBox");
     },
     expectedName(element) {
       return `${document.getElementById("expandedcontent-baseLabel").value}: ${
-        element.textContent
+        element.value.textContent
       }`;
     },
   },
@@ -411,7 +409,7 @@ add_task(async function test_msg_id_context_menu() {
 
   // Right click to show the context menu.
   EventUtils.synthesizeMouseAtCenter(
-    document.querySelector("#expandedreferencesBox mail-messageid"),
+    document.querySelector("#expandedreferencesBox .header-message-id"),
     { type: "contextmenu" },
     window
   );

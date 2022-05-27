@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global gMessageHeader, gShowCondensedEmailAddresses */
+/* global gMessageHeader, gShowCondensedEmailAddresses, openUILink */
 
 {
   const { Services } = ChromeUtils.import(
@@ -575,6 +575,29 @@
     extends: "div",
   });
 
+  class UrlHeaderField extends SimpleHeaderRow {
+    connectedCallback() {
+      super.connectedCallback();
+
+      document.l10n.setAttributes(this.heading, "message-header-website-field");
+
+      this.value.classList.add("text-link");
+      this.value.addEventListener("click", event => {
+        if (event.button != 2) {
+          openUILink(encodeURI(this.value.textContent), event);
+        }
+      });
+      this.value.addEventListener("keypress", event => {
+        if (event.key == "Enter") {
+          openUILink(encodeURI(this.value.textContent), event);
+        }
+      });
+    }
+  }
+  customElements.define("url-header-row", UrlHeaderField, {
+    extends: "div",
+  });
+
   class HeaderNewsgroupsRow extends HTMLDivElement {
     /**
      * The array of all the newsgroups that need to be shown in this row.
@@ -722,5 +745,124 @@
   }
   customElements.define("header-tags-row", HeaderTagsRow, {
     extends: "div",
+  });
+
+  class MultiMessageIdsRow extends HTMLDivElement {
+    /**
+     * The array of all the IDs that need to be shown in this row.
+     *
+     * @type {Array<Object>}
+     */
+    #ids = [];
+
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
+      this.classList.add("multi-message-ids-row");
+
+      this.heading = document.createElement("span");
+      this.heading.id = `${this.dataset.headerName}Heading`;
+      let sep = document.createElement("span");
+      sep.classList.add("screen-reader-only");
+      sep.setAttribute("data-l10n-name", "field-separator");
+      this.heading.appendChild(sep);
+      this.heading.hidden = true;
+
+      // message-header-references-field
+      // message-header-message-id-field
+      // message-header-in-reply-to-field
+      document.l10n.setAttributes(
+        this.heading,
+        `message-header-${this.dataset.headerName}-field`
+      );
+      this.appendChild(this.heading);
+
+      this.idsList = document.createElement("ol");
+      this.idsList.classList.add("ids-list");
+      this.appendChild(this.idsList);
+
+      this.toggleButton = document.createElement("button");
+      this.toggleButton.setAttribute("type", "button");
+      this.toggleButton.classList.add("show-more-ids", "plain");
+      this.toggleButton.addEventListener(
+        "mousedown",
+        // Prevent focus being transferred to the button before it is removed.
+        event => event.preventDefault()
+      );
+      this.toggleButton.addEventListener("click", () => this.buildView(true));
+
+      document.l10n.setAttributes(
+        this.toggleButton,
+        "message-ids-field-show-all"
+      );
+    }
+
+    addId(id) {
+      this.#ids.push(id);
+    }
+
+    buildView(showAll = false) {
+      this.idsList.replaceChildren();
+      for (let [count, id] of this.#ids.entries()) {
+        let li = document.createElement("li", { is: "header-message-id" });
+        li.id = id;
+        this.idsList.appendChild(li);
+        if (!showAll && count < this.#ids.length - 1 && this.#ids.length > 1) {
+          li.messageId.textContent = count + 1;
+          li.messageId.title = id;
+        } else {
+          li.messageId.textContent = id;
+        }
+      }
+
+      if (!showAll && this.#ids.length > 1) {
+        this.idsList.lastElementChild.classList.add("last-before-button");
+        let liButton = document.createElement("li");
+        liButton.appendChild(this.toggleButton);
+        this.idsList.appendChild(liButton);
+      }
+    }
+
+    clear() {
+      this.#ids = [];
+      this.idsList.replaceChildren();
+    }
+  }
+  customElements.define("multi-message-ids-row", MultiMessageIdsRow, {
+    extends: "div",
+  });
+
+  class HeaderMessageId extends HTMLLIElement {
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
+      this.classList.add("header-message-id");
+
+      this.messageId = document.createElement("span");
+      this.messageId.classList.add("text-link");
+      this.messageId.tabIndex = 0;
+      this.appendChild(this.messageId);
+
+      this.messageId.addEventListener("contextmenu", event => {
+        gMessageHeader.openMessageIdPopup(event, this);
+      });
+      this.messageId.addEventListener("click", event => {
+        gMessageHeader.onMessageIdClick(event);
+      });
+      this.messageId.addEventListener("keypress", event => {
+        if (event.key == "Enter") {
+          gMessageHeader.onMessageIdClick(event);
+        }
+      });
+    }
+  }
+  customElements.define("header-message-id", HeaderMessageId, {
+    extends: "li",
   });
 }

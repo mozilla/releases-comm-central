@@ -61,6 +61,13 @@
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 
+  <menupopup id="simpleCopyPopup" class="no-icon-menupopup">
+    <menuitem id="copyMenuitem"
+              data-l10n-id="text-action-copy"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyString(event);"/>
+  </menupopup>
+
   <menupopup id="newsgroupPopup"
              position="after_start"
              class="newsgroupPopup no-icon-menupopup"

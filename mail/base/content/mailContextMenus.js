@@ -111,47 +111,6 @@ function fillMailContextMenu(event) {
 }
 
 /**
- * Set the message id to show as label in the context menu item designated
- * for that purpose.
- */
-function FillMessageIdContextMenu(messageIdNode) {
-  var msgId = messageIdNode.getAttribute("messageid");
-  document
-    .getElementById("messageIdContext-messageIdTarget")
-    .setAttribute("label", msgId);
-
-  // We don't want to show "Open Message For ID" for the same message
-  // we're viewing.
-  var currentMsgId = "<" + gFolderDisplay.selectedMessage.messageId + ">";
-  document.getElementById("messageIdContext-openMessageForMsgId").hidden =
-    currentMsgId == msgId;
-
-  // We don't want to show "Open Browser With Message-ID" for non-nntp messages.
-  document.getElementById(
-    "messageIdContext-openBrowserWithMsgId"
-  ).hidden = !gFolderDisplay.selectedMessageIsNews;
-}
-
-function CopyMessageId(messageId) {
-  var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
-    Ci.nsIClipboardHelper
-  );
-
-  clipboard.copyString(messageId);
-}
-
-function GetMessageIdFromNode(messageIdNode, cleanMessageId) {
-  var messageId = messageIdNode.getAttribute("messageid");
-
-  // remove < and >
-  if (cleanMessageId) {
-    messageId = messageId.substring(1, messageId.length - 1);
-  }
-
-  return messageId;
-}
-
-/**
  * Take the message id from the messageIdNode and use the url defined in the
  * hidden pref "mailnews.messageid_browser.url" to open it in a browser window
  * (%mid is replaced by the message id).

@@ -106,7 +106,7 @@ const gExpandedHeaderList = [
   { name: "cc", outputFunction: outputEmailAddresses },
   { name: "bcc", outputFunction: outputEmailAddresses },
   { name: "newsgroups", outputFunction: outputNewsgroups },
-  { name: "references", outputFunction: OutputMessageIds },
+  { name: "references", outputFunction: outputMessageIds },
   { name: "followup-to", outputFunction: outputNewsgroups },
   { name: "content-base" },
   { name: "tags", outputFunction: outputTags },
@@ -331,7 +331,7 @@ function initializeHeaderViewTables() {
   if (Services.prefs.getBoolPref("mailnews.headers.showMessageId")) {
     var messageIdEntry = {
       name: "message-id",
-      outputFunction: OutputMessageIds,
+      outputFunction: outputMessageIds,
     };
     gExpandedHeaderView[messageIdEntry.name] = new MsgHeaderEntry(
       "expanded",
@@ -1222,12 +1222,12 @@ function UpdateExpandedMessageHeaders() {
     }
 
     if (!headerEntry && gViewAllHeaders) {
-      // for view all headers, if we don't have a header field for this
-      // value....cheat and create one....then fill in a headerEntry
+      // For view all headers, if we don't have a header field for this
+      // value, cheat and create one then fill in a headerEntry.
       if (headerName == "message-id" || headerName == "in-reply-to") {
         var messageIdEntry = {
           name: headerName,
-          outputFunction: OutputMessageIds,
+          outputFunction: outputMessageIds,
         };
         gExpandedHeaderView[headerName] = new MsgHeaderEntry(
           "expanded",
@@ -1350,19 +1350,20 @@ function outputTags(headerEntry, headerValue) {
 }
 
 /**
- * Take string of message-ids separated by whitespace, split it
- * into message-ids and send them together with the index number
- * to the corresponding mail-messageids-headerfield element.
+ * Take a string of message-ids separated by whitespace, split it and send them
+ * to the corresponding header-message-ids-row element.
+ *
+ * @param {MsgHeaderEntry} headerEntry - The data structure for this header.
+ * @param {string} headerValue - The string of message IDs from the message.
  */
-function OutputMessageIds(headerEntry, headerValue) {
-  let messageIdArray = headerValue.split(/\s+/);
+function outputMessageIds(headerEntry, headerValue) {
+  headerEntry.enclosingBox.clear();
 
-  headerEntry.enclosingBox.clearHeaderValues();
-  for (let i = 0; i < messageIdArray.length; i++) {
-    headerEntry.enclosingBox.addMessageIdView(messageIdArray[i]);
+  for (let id of headerValue.split(/\s+/)) {
+    headerEntry.enclosingBox.addId(id);
   }
 
-  headerEntry.enclosingBox.fillMessageIdNodes();
+  headerEntry.enclosingBox.buildView();
 }
 
 /**
@@ -2087,13 +2088,6 @@ function onShowSaveAttachmentMenuMultiple() {
   saveAllItem.disabled = allDeleted;
   detachAllItem.disabled = !canDetach;
   deleteAllItem.disabled = !canDetach;
-}
-
-function MessageIdClick(node, event) {
-  if (event.button == 0) {
-    var messageId = GetMessageIdFromNode(node, true);
-    OpenMessageForMessageId(messageId);
-  }
 }
 
 /**
@@ -3095,16 +3089,6 @@ let attachmentNameDNDObserver = {
   },
 };
 
-/**
- * CopyWebsiteAddress takes the website address title button, extracts
- * the website address we stored in there and copies it to the clipboard
- */
-function CopyWebsiteAddress(websiteAddressNode) {
-  if (websiteAddressNode) {
-    navigator.clipboard.writeText(websiteAddressNode.textContent);
-  }
-}
-
 function nsDummyMsgHeader() {}
 
 nsDummyMsgHeader.prototype = {
@@ -3361,7 +3345,11 @@ const gMessageHeader = {
   },
 
   openCopyPopup(event, element) {
-    let popup = document.getElementById("copyPopup");
+    let popup = document.getElementById(
+      element.matches(`:scope[is="url-header-row"]`)
+        ? "copyUrlPopup"
+        : "copyPopup"
+    );
     popup.headerField = element;
     popup.openPopupAtScreen(event.screenX, event.screenY, true);
   },
@@ -3423,6 +3411,33 @@ const gMessageHeader = {
     document.getElementById("subscribeToNewsgroupSeparator").hidden = true;
 
     let popup = document.getElementById("newsgroupPopup");
+    popup.headerField = element;
+
+    if (!event.screenX) {
+      popup.openPopup(event.target, "after_start", 0, 0, true);
+      return;
+    }
+
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+  },
+
+  openMessageIdPopup(event, element) {
+    document
+      .getElementById("messageIdContext-messageIdTarget")
+      .setAttribute("label", element.id);
+
+    // We don't want to show "Open Message For ID" for the same message
+    // we're viewing.
+    document.getElementById("messageIdContext-openMessageForMsgId").hidden =
+      `<${gFolderDisplay.selectedMessage.messageId}>` == element.id;
+
+    // We don't want to show "Open Browser With Message-ID" for non-nntp
+    // messages.
+    document.getElementById(
+      "messageIdContext-openBrowserWithMsgId"
+    ).hidden = !gFolderDisplay.selectedMessageIsNews;
+
+    let popup = document.getElementById("messageIdContext");
     popup.headerField = element;
 
     if (!event.screenX) {
@@ -3583,11 +3598,11 @@ const gMessageHeader = {
    * @param {Event} event - The DOM Event.
    */
   createFilter(event) {
-    let recipient = event.currentTarget.parentNode.headerField;
+    let element = event.currentTarget.parentNode.headerField;
     MsgFilters(
-      recipient.emailAddress || recipient.textContent,
+      element.emailAddress || element.value.textContent,
       gMessageDisplay?.displayedMessage?.folder,
-      recipient.dataset.headerName
+      element.dataset.headerName
     );
   },
 
@@ -3640,5 +3655,37 @@ const gMessageHeader = {
 
     // No more tags, so clear out the header field.
     delete currentHeaderData.tags;
+  },
+
+  onMessageIdClick(event) {
+    let id = event.currentTarget.closest(".header-message-id").id;
+    if (event.button == 0) {
+      // Remove the < and > symbols.
+      OpenMessageForMessageId(id.substring(1, id.length - 1));
+    }
+  },
+
+  openMessage(event) {
+    let id = event.currentTarget.parentNode.headerField.id;
+    // Remove the < and > symbols.
+    OpenMessageForMessageId(id.substring(1, id.length - 1));
+  },
+
+  openBrowser(event) {
+    let id = event.currentTarget.parentNode.headerField.id;
+    // Remove the < and > symbols.
+    OpenBrowserWithMessageId(id.substring(1, id.length - 1));
+  },
+
+  copyMessageId(event) {
+    navigator.clipboard.writeText(
+      event.currentTarget.parentNode.headerField.id
+    );
+  },
+
+  copyWebsiteUrl(event) {
+    navigator.clipboard.writeText(
+      event.currentTarget.parentNode.headerField.value.textContent
+    );
   },
 };

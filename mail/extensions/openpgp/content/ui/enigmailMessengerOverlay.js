@@ -3463,7 +3463,7 @@ Enigmail.msg = {
       // Use textContent for label XUl elements to enable text wrapping.
       let name = document.createXULElement("label");
       name.classList.add("openpgp-key-name");
-      name.setAttribute("context", "copyPopup");
+      name.setAttribute("context", "simpleCopyPopup");
       if (keyInfo) {
         name.textContent = keyInfo.userId;
       } else {
@@ -3471,7 +3471,7 @@ Enigmail.msg = {
       }
 
       let id = document.createXULElement("label");
-      id.setAttribute("context", "copyPopup");
+      id.setAttribute("context", "simpleCopyPopup");
       id.classList.add("openpgp-key-id");
       id.textContent = havePrimaryId2
         ? ` 0x${key.primaryKeyId} (0x${key.keyId})`
