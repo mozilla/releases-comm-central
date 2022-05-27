@@ -50,7 +50,10 @@ class VCardAdrComponent extends HTMLElement {
 
       this.streetEl = this.querySelector('textarea[name="street"]');
       this.assignIds(this.streetEl, this.querySelector('label[for="street"]'));
-      this.streetEl.addEventListener("input", () => this.resizeStreetEl());
+      this.streetEl.addEventListener("input", () => {
+        this.resizeStreetEl();
+        this.streetEl.scrollIntoView();
+      });
 
       this.localityEl = this.querySelector('input[name="locality"]');
       this.assignIds(

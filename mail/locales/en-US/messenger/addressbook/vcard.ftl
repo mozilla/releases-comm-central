@@ -133,3 +133,9 @@ vcard-adr-region = State/Province
 vcard-adr-code = ZIP/Postal code
 
 vcard-adr-country = Country
+
+# NOTE vCard field
+
+vcard-note-header = Notes
+
+vcard-note-add = Add note

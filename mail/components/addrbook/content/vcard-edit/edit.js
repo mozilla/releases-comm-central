@@ -3,8 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals VCardAdrComponent, VCardEmailComponent, VCardIMPPComponent,
-           VCardNComponent, VCardSpecialDateComponent, VCardTelComponent,
-           VCardTZComponent, VCardURLComponent */
+           VCardNComponent, VCardNoteComponent, VCardSpecialDateComponent,
+           VCardTelComponent, VCardTZComponent, VCardURLComponent */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
@@ -61,6 +61,11 @@ class VCardEdit extends HTMLElement {
 
       let addAddress = this.shadowRoot.getElementById("vcard-add-adr");
       this.registerAddButton(addAddress, "adr");
+
+      let addNote = this.shadowRoot.getElementById("vcard-add-note");
+      this.registerAddButton(addNote, "note", () => {
+        addNote.hidden = true;
+      });
 
       this.updateView();
     }
@@ -123,6 +128,9 @@ class VCardEdit extends HTMLElement {
     this.shadowRoot.getElementById("vcard-add-tz").hidden = this.querySelector(
       "vcard-tz"
     );
+    this.shadowRoot.getElementById(
+      "vcard-add-note"
+    ).hidden = this.querySelector("vcard-note");
 
     this.displayName.value = this.vCardProperties.getFirstValue("fn");
     this.displayName._dirty = !!this.displayName.value;
@@ -248,6 +256,11 @@ class VCardEdit extends HTMLElement {
         address.vCardPropertyEntry = entry;
         address.slot = "v-adr";
         return address;
+      case "note":
+        let note = new VCardNoteComponent();
+        note.vCardPropertyEntry = entry;
+        note.slot = "v-note";
+        return note;
       default:
         return undefined;
     }
@@ -280,6 +293,8 @@ class VCardEdit extends HTMLElement {
         return VCardSpecialDateComponent.newAnniversaryVCardPropertyEntry();
       case "adr":
         return VCardAdrComponent.newVCardPropertyEntry();
+      case "note":
+        return VCardNoteComponent.newVCardPropertyEntry();
       default:
         return undefined;
     }

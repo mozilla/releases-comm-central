@@ -7,9 +7,10 @@
 
 <!-- Scripts -->
 <script src="chrome://messenger/content/addressbook/edit/adr.js"></script>
-<script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/impp.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/n.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/note.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/special-date.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tel.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tz.js"></script>
@@ -141,6 +142,18 @@
            src="chrome://global/skin/icons/add.svg"
            alt=""/>
       <span data-l10n-id="vcard-bday-anniversary-add"/>
+    </button>
+  </fieldset>
+  <!-- Notes -->
+  <fieldset id="addr-book-edit-note" class="addr-book-edit-fieldset">
+    <legend data-l10n-id="vcard-note-header"/>
+    <slot name="v-note"/>
+    <button id="vcard-add-note" class="addr-book-edit-fieldset-button"
+            type="button">
+      <img class="addr-book-edit-fieldset-button-icon"
+           src="chrome://global/skin/icons/add.svg"
+           alt=""/>
+      <span data-l10n-id="vcard-note-add"/>
     </button>
   </fieldset>
 </template>
@@ -307,4 +320,9 @@
       <input type="text" name="country"/>
     </div>
   </fieldset>
+</template>
+
+<!-- Notes -->
+<template id="template-vcard-edit-note">
+  <textarea></textarea>
 </template>
