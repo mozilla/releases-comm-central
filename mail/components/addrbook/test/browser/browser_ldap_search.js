@@ -53,10 +53,12 @@ add_task(async () => {
 
   let searchBox = abDocument.getElementById("searchInput");
   let cardsList = abDocument.getElementById("cards");
+  let noSearchResults = abDocument.getElementById("placeholderNoSearchResults");
 
   // Search for some people in the LDAP directory.
 
   openDirectory(book);
+  checkPlaceholders(["placeholderSearchOnly"]);
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.sendString("holmes", abWindow);
@@ -64,6 +66,7 @@ add_task(async () => {
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   checkNamesListed();
+  checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.mycroft);
@@ -72,6 +75,7 @@ add_task(async () => {
 
   await waitForCountChange(2);
   checkNamesListed("Mycroft Holmes", "Sherlock Holmes");
+  checkPlaceholders();
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -80,6 +84,7 @@ add_task(async () => {
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   checkNamesListed();
+  checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
@@ -87,12 +92,27 @@ add_task(async () => {
 
   await waitForCountChange(1);
   checkNamesListed("John Watson");
+  checkPlaceholders();
 
   // Now move back to the "All Address Books" view and search again.
   // The search string is retained when switching books.
 
   openAllAddressBooks();
   checkNamesListed();
+  Assert.equal(searchBox.value, "john");
+
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  checkNamesListed();
+  checkPlaceholders(["placeholderSearching"]);
+
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultEntry(ldapContacts.john);
+  LDAPServer.writeSearchResultDone();
+
+  await waitForCountChange(1);
+  checkNamesListed("John Watson");
+  checkPlaceholders();
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -101,6 +121,7 @@ add_task(async () => {
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   checkNamesListed();
+  checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.irene);
@@ -108,6 +129,7 @@ add_task(async () => {
 
   await waitForCountChange(1);
   checkNamesListed("Irene Adler");
+  checkPlaceholders();
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -116,6 +138,7 @@ add_task(async () => {
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
   checkNamesListed("jonathan");
+  checkPlaceholders();
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
@@ -123,6 +146,24 @@ add_task(async () => {
 
   await waitForCountChange(2);
   checkNamesListed("John Watson", "jonathan");
+  checkPlaceholders();
+
+  EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
+  EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
+  EventUtils.sendString("mark", abWindow);
+
+  await LDAPServer.read(LDAPServer.BindRequest);
+  LDAPServer.writeBindResponse();
+  checkNamesListed();
+  checkPlaceholders(["placeholderSearching"]);
+
+  await LDAPServer.read(LDAPServer.SearchRequest);
+  LDAPServer.writeSearchResultDone();
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(noSearchResults)
+  );
+  checkNamesListed();
+  checkPlaceholders(["placeholderNoSearchResults"]);
 
   await closeAddressBookWindow();
   personalBook.deleteCards(cardsToRemove);

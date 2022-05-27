@@ -238,6 +238,28 @@ function checkNamesListed(...expectedNames) {
   }
 }
 
+function checkPlaceholders(expectedVisible = []) {
+  let abWindow = getAddressBookWindow();
+  let placeholder = abWindow.document.getElementById("cardsPlaceholder");
+
+  if (!expectedVisible.length) {
+    Assert.ok(
+      BrowserTestUtils.is_hidden(placeholder),
+      "placeholders are hidden"
+    );
+    return;
+  }
+
+  for (let element of placeholder.children) {
+    let id = element.id;
+    if (expectedVisible.includes(id)) {
+      Assert.ok(BrowserTestUtils.is_visible(element), `${id} is visible`);
+    } else {
+      Assert.ok(BrowserTestUtils.is_hidden(element), `${id} is hidden`);
+    }
+  }
+}
+
 async function showSortMenu(name, value) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;

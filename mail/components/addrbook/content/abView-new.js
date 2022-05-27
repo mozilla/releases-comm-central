@@ -13,16 +13,15 @@ function ABView(
   directory,
   searchQuery,
   searchString,
-  listener,
   sortColumn,
   sortDirection
 ) {
   this.__proto__.__proto__ = new PROTO_TREE_VIEW();
   this.directory = directory;
-  this.listener = listener;
 
   let directories = directory ? [directory] : MailServices.ab.directories;
   if (searchQuery) {
+    this._searchesInProgress = directories.length;
     searchQuery = searchQuery.replace(/^\?+/, "");
     for (let dir of directories) {
       dir.search(searchQuery, searchString, this);
@@ -33,9 +32,6 @@ function ABView(
         this._rowMap.push(new abViewCard(card, dir));
       }
     }
-    if (this.listener) {
-      this.listener.onCountChanged(this.rowCount);
-    }
   }
   this.sortBy(sortColumn, sortDirection);
 }
@@ -43,6 +39,9 @@ ABView.nameFormat = Services.prefs.getIntPref(
   "mail.addr_book.lastnamefirst",
   0
 );
+ABView.NOT_SEARCHING = 0;
+ABView.SEARCHING = 1;
+ABView.SEARCH_COMPLETE = 2;
 ABView.prototype = {
   QueryInterface: ChromeUtils.generateQI([
     "nsITreeView",
@@ -52,7 +51,6 @@ ABView.prototype = {
   ]),
 
   directory: null,
-  listener: null,
   _notifications: [
     "addrbook-directory-deleted",
     "addrbook-directory-invalidated",
@@ -72,7 +70,7 @@ ABView.prototype = {
 
   deleteSelectedCards() {
     let directoryMap = new Map();
-    for (let i of this.tree.selectedIndices) {
+    for (let i of this._tree.selectedIndices) {
       let card = this.getCardFromRow(i);
       let cardSet = directoryMap.get(card.directoryUID);
       if (!cardSet) {
@@ -109,8 +107,8 @@ ABView.prototype = {
   },
   sortBy(sortColumn, sortDirection, resort) {
     let selectionExists = false;
-    if (this.tree) {
-      let { selectedIndices, currentIndex } = this.tree;
+    if (this._tree) {
+      let { selectedIndices, currentIndex } = this._tree;
       selectionExists = selectedIndices.length;
       // Remember what was selected.
       for (let i = 0; i < this._rowMap.length; i++) {
@@ -137,11 +135,11 @@ ABView.prototype = {
     }
 
     // Restore what was selected.
-    if (this.tree) {
-      this.tree.invalidate();
+    if (this._tree) {
+      this._tree.invalidate();
       if (selectionExists) {
         for (let i = 0; i < this._rowMap.length; i++) {
-          this.tree.toggleSelectionAtIndex(
+          this._tree.toggleSelectionAtIndex(
             i,
             this._rowMap[i].wasSelected,
             true
@@ -150,7 +148,7 @@ ABView.prototype = {
         // Can't do this until updating the selection is finished.
         for (let i = 0; i < this._rowMap.length; i++) {
           if (this._rowMap[i].wasCurrent) {
-            this.tree.currentIndex = i;
+            this._tree.currentIndex = i;
             break;
           }
         }
@@ -160,16 +158,18 @@ ABView.prototype = {
     this.sortColumn = sortColumn;
     this.sortDirection = sortDirection;
   },
+  get searchState() {
+    if (this._searchesInProgress === undefined) {
+      return ABView.NOT_SEARCHING;
+    }
+    return this._searchesInProgress ? ABView.SEARCHING : ABView.SEARCH_COMPLETE;
+  },
 
   // nsITreeView
 
-  selectionChanged() {
-    if (this.listener) {
-      this.listener.onSelectionChanged();
-    }
-  },
+  selectionChanged() {},
   setTree(tree) {
-    this.tree = tree;
+    this._tree = tree;
     for (let topic of this._notifications) {
       if (tree) {
         Services.obs.addObserver(this, topic, true);
@@ -220,6 +220,11 @@ ABView.prototype = {
       );
       // params.exceptionAdded will be set if the user added an exception.
     }
+
+    this._searchesInProgress--;
+    if (!this._searchesInProgress && this._tree) {
+      this._tree.dispatchEvent(new CustomEvent("searchstatechange"));
+    }
   },
 
   // nsIObserver
@@ -233,20 +238,20 @@ ABView.prototype = {
       for (let card of this._rowMap) {
         delete card._getTextCache.GeneratedName;
       }
-      if (this.tree) {
+      if (this._tree) {
         if (this.sortColumn == "GeneratedName") {
           this.sortBy(this.sortColumn, this.sortDirection, true);
         } else {
           // Remember what was selected.
-          let { selectedIndices, currentIndex } = this.tree;
+          let { selectedIndices, currentIndex } = this._tree;
           for (let i = 0; i < this._rowMap.length; i++) {
             this._rowMap[i].wasSelected = selectedIndices.includes(i);
             this._rowMap[i].wasCurrent = currentIndex == i;
           }
 
-          this.tree.invalidate();
+          this._tree.invalidate();
           for (let i = 0; i < this._rowMap.length; i++) {
-            this.tree.toggleSelectionAtIndex(
+            this._tree.toggleSelectionAtIndex(
               i,
               this._rowMap[i].wasSelected,
               true
@@ -255,7 +260,7 @@ ABView.prototype = {
           // Can't do this until updating the selection is finished.
           for (let i = 0; i < this._rowMap.length; i++) {
             if (this._rowMap[i].wasCurrent) {
-              this.tree.currentIndex = i;
+              this._tree.currentIndex = i;
               break;
             }
           }
@@ -277,20 +282,17 @@ ABView.prototype = {
         }
 
         subject.QueryInterface(Ci.nsIAbDirectory);
-        let scrollPosition = this.tree?.getFirstVisibleIndex();
+        let scrollPosition = this._tree?.getFirstVisibleIndex();
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (this._rowMap[i].directory.UID == subject.UID) {
             this._rowMap.splice(i, 1);
-            if (this.tree) {
-              this.tree.rowCountChanged(i, -1);
+            if (this._tree) {
+              this._tree.rowCountChanged(i, -1);
             }
           }
         }
-        if (this.listener) {
-          this.listener.onCountChanged(this.rowCount);
-        }
-        if (this.tree && scrollPosition !== null) {
-          this.tree.scrollToIndex(scrollPosition);
+        if (this._tree && scrollPosition !== null) {
+          this._tree.scrollToIndex(scrollPosition);
         }
         break;
       }
@@ -302,9 +304,6 @@ ABView.prototype = {
             this._rowMap.push(new abViewCard(card, this.directory));
           }
           this.sortBy(this.sortColumn, this.sortDirection, true);
-          if (this.listener) {
-            this.listener.onCountChanged(this.rowCount);
-          }
         }
         break;
       case "addrbook-list-created": {
@@ -345,11 +344,8 @@ ABView.prototype = {
           addIndex = this._rowMap.length;
         }
         this._rowMap.splice(addIndex, 0, viewCard);
-        if (this.tree) {
-          this.tree.rowCountChanged(addIndex, 1);
-        }
-        if (this.listener) {
-          this.listener.onCountChanged(this.rowCount);
+        if (this._tree) {
+          this._tree.rowCountChanged(addIndex, 1);
         }
         break;
 
@@ -388,20 +384,17 @@ ABView.prototype = {
 
       case "addrbook-list-deleted": {
         subject.QueryInterface(Ci.nsIAbDirectory);
-        let scrollPosition = this.tree?.getFirstVisibleIndex();
+        let scrollPosition = this._tree?.getFirstVisibleIndex();
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (this._rowMap[i].card.UID == subject.UID) {
             this._rowMap.splice(i, 1);
-            if (this.tree) {
-              this.tree.rowCountChanged(i, -1);
+            if (this._tree) {
+              this._tree.rowCountChanged(i, -1);
             }
           }
         }
-        if (this.listener) {
-          this.listener.onCountChanged(this.rowCount);
-        }
-        if (this.tree && scrollPosition !== null) {
-          this.tree.scrollToIndex(scrollPosition);
+        if (this._tree && scrollPosition !== null) {
+          this._tree.scrollToIndex(scrollPosition);
         }
         break;
       }
@@ -412,23 +405,20 @@ ABView.prototype = {
       // Falls through.
       case "addrbook-contact-deleted": {
         subject.QueryInterface(Ci.nsIAbCard);
-        let scrollPosition = this.tree?.getFirstVisibleIndex();
+        let scrollPosition = this._tree?.getFirstVisibleIndex();
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (
             this._rowMap[i].card.equals(subject) &&
             this._rowMap[i].card.directoryUID == subject.directoryUID
           ) {
             this._rowMap.splice(i, 1);
-            if (this.tree) {
-              this.tree.rowCountChanged(i, -1);
+            if (this._tree) {
+              this._tree.rowCountChanged(i, -1);
             }
           }
         }
-        if (this.listener) {
-          this.listener.onCountChanged(this.rowCount);
-        }
-        if (this.tree && scrollPosition !== null) {
-          this.tree.scrollToIndex(scrollPosition);
+        if (this._tree && scrollPosition !== null) {
+          this._tree.scrollToIndex(scrollPosition);
         }
         break;
       }

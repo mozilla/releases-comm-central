@@ -1284,6 +1284,9 @@ var cardsPane = {
     this.cardsList.addEventListener("keypress", this);
     this.cardsList.addEventListener("dragstart", this);
     this.cardsList.addEventListener("contextmenu", this);
+    this.cardsList.addEventListener("searchstatechange", () =>
+      this._updatePlaceholder()
+    );
     this.cardContext.addEventListener("command", this);
 
     this.cardsList.addEventListener("overflow", event => {
@@ -1303,6 +1306,10 @@ var cardsPane = {
       }
     });
     AbTableCardListrow.densityChange();
+
+    document
+      .getElementById("placeholderCreateContact")
+      .addEventListener("click", () => createContact());
   },
 
   handleEvent(event) {
@@ -1404,11 +1411,11 @@ var cardsPane = {
       book,
       this.getQuery(),
       this.searchInput.value,
-      null,
       sortColumn,
       sortDirection
     );
     this.sortCards(sortColumn, sortDirection);
+    this._updatePlaceholder();
 
     detailsPane.displayContact(null);
   },
@@ -1425,16 +1432,60 @@ var cardsPane = {
     document.l10n.setAttributes(this.searchInput, "about-addressbook-search", {
       name: list.dirName,
     });
+    let sortColumn =
+      Services.xulStore.getValue("about:addressbook", "cards", "sortColumn") ||
+      "GeneratedName";
+    let sortDirection =
+      Services.xulStore.getValue(
+        "about:addressbook",
+        "cards",
+        "sortDirection"
+      ) || "ascending";
     this.cardsList.view = new ABView(
       list,
       this.getQuery(),
       this.searchInput.value,
-      null,
-      "GeneratedName",
-      "ascending"
+      sortColumn,
+      sortDirection
     );
+    this.sortCards(sortColumn, sortDirection);
+    this._updatePlaceholder();
 
     detailsPane.displayContact(null);
+  },
+
+  /**
+   * Display the right message in the cards list placeholder. The placeholder
+   * is only visible if there are no cards in the list, but it's kept
+   * up-to-date at all times, so we don't have to keep track of the size of
+   * the list.
+   */
+  _updatePlaceholder() {
+    let { directory, searchState } = this.cardsList.view;
+
+    let idsToShow;
+    switch (searchState) {
+      case ABView.NOT_SEARCHING:
+        if (directory?.isRemote && !Services.io.offline) {
+          idsToShow = ["placeholderSearchOnly"];
+        } else {
+          idsToShow = ["placeholderEmptyBook"];
+          if (!directory?.readOnly && !directory?.isMailList) {
+            idsToShow.push("placeholderCreateContact");
+          }
+        }
+        break;
+      case ABView.SEARCHING:
+        idsToShow = ["placeholderSearching"];
+        break;
+      case ABView.SEARCH_COMPLETE:
+        idsToShow = ["placeholderNoSearchResults"];
+        break;
+    }
+
+    for (let element of document.getElementById("cardsPlaceholder").children) {
+      element.hidden = !idsToShow.includes(element.id);
+    }
   },
 
   /**
@@ -1755,10 +1806,10 @@ var cardsPane = {
         this.cardsList.view.directory,
         this.getQuery(),
         this.searchInput.value,
-        undefined,
         this.cardsList.view.sortColumn,
         this.cardsList.view.sortDirection
       );
+      this._updatePlaceholder();
       return;
     }
 

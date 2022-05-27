@@ -165,6 +165,15 @@ about-addressbook-confirm-delete-contacts =
     *[other] Are you sure you want to delete these { $count } contacts?
   }
 
+## Card list placeholder
+## Shown when there are no cards in the list
+
+about-addressbook-placeholder-empty-book = No contacts available
+about-addressbook-placeholder-new-contact = New Contact
+about-addressbook-placeholder-search-only = This address book shows contacts only after a search
+about-addressbook-placeholder-searching = Searching…
+about-addressbook-placeholder-no-search-results = No contacts found
+
 ## Details
 
 about-addressbook-prefer-display-name = Prefer display name over message header

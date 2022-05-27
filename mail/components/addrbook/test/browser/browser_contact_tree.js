@@ -937,3 +937,73 @@ add_task(async function test_layout() {
   Services.prefs.clearUserPref("mail.uidensity");
   personalBook.deleteCards(personalBook.childCards);
 });
+
+add_task(async function test_placeholders() {
+  let writableBook = createAddressBook("Writable Book");
+  let readOnlyBook = createAddressBook("Read-Only Book");
+  readOnlyBook.setBoolValue("readOnly", true);
+
+  let abWindow = await openAddressBookWindow();
+  let placeholderCreateContact = abWindow.document.getElementById(
+    "placeholderCreateContact"
+  );
+
+  info("checking all address books");
+  await openAllAddressBooks();
+  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+
+  info("checking writable book");
+  await openDirectory(writableBook);
+  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+
+  let writableList = writableBook.addMailList(
+    createMailingList("Writable List")
+  );
+  checkPlaceholders();
+
+  info("checking writable list");
+  await openDirectory(writableList);
+  checkPlaceholders(["placeholderEmptyBook"]);
+
+  info("checking writable book");
+  await openDirectory(writableBook);
+  writableBook.deleteDirectory(writableList);
+  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+
+  info("checking read-only book");
+  await openDirectory(readOnlyBook);
+  checkPlaceholders(["placeholderEmptyBook"]);
+
+  // This wouldn't happen but we need to check the state in a read-only list.
+  readOnlyBook.setBoolValue("readOnly", false);
+  let readOnlyList = readOnlyBook.addMailList(
+    createMailingList("Read-Only List")
+  );
+  readOnlyBook.setBoolValue("readOnly", true);
+  checkPlaceholders();
+
+  info("checking read-only list");
+  await openDirectory(readOnlyList);
+  checkPlaceholders(["placeholderEmptyBook"]);
+
+  info("checking read-only book");
+  await openDirectory(readOnlyBook);
+  readOnlyBook.setBoolValue("readOnly", false);
+  readOnlyBook.deleteDirectory(readOnlyList);
+  readOnlyBook.setBoolValue("readOnly", true);
+  checkPlaceholders(["placeholderEmptyBook"]);
+
+  info("checking button opens a new contact to edit");
+  await openAllAddressBooks();
+  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+  EventUtils.synthesizeMouseAtCenter(placeholderCreateContact, {}, abWindow);
+
+  await TestUtils.waitForCondition(
+    () => abWindow.detailsPane.isEditing,
+    "entering editing mode"
+  );
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(writableBook.URI);
+  await promiseDirectoryRemoved(readOnlyBook.URI);
+});

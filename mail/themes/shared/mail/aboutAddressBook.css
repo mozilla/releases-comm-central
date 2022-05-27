@@ -236,6 +236,7 @@ body.layout-table {
 /* Cards pane */
 
 #cardsPane {
+  position: relative;
   grid-area: cards;
   padding-block-start: 30px;
   display: flex;
@@ -302,6 +303,60 @@ body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortCont
   font-size: 1.1rem;
   -moz-context-properties: fill;
   fill: currentColor;
+}
+
+#cardsPlaceholder {
+  position: absolute;
+  inset: 120px 0 auto;
+  display: none;
+  padding: 0 40px;
+  box-sizing: border-box;
+  color: var(--in-content-deemphasized-text);
+  text-align: center;
+}
+
+#cards:empty + #cardsPlaceholder {
+  display: block;
+}
+
+#cardsPlaceholder > div {
+  margin-block-end: 0.25em;
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+#cardsPlaceholder > div::before {
+  content: "";
+  display: block;
+  height: 32px;
+  margin-block-end: 9px;
+  background-position: center top;
+  background-size: contain;
+  background-repeat: no-repeat;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#placeholderEmptyBook::before,
+#placeholderSearchOnly::before {
+  background-image: url("chrome://messenger/skin/icons/ablist.svg");
+}
+
+#placeholderCreateContact {
+  color: var(--in-content-primary-button-background);
+}
+
+#placeholderCreateContact::before {
+  background-image: url("chrome://messenger/skin/icons/addcontact.svg");
+}
+
+#placeholderSearching::before {
+  background-image: url("chrome://messenger/skin/overrides/search-glass.svg");
+}
+
+#placeholderNoSearchResults::before {
+  /* TODO: Replace this with a "no results" search icon, like search-not-found.svg but nice. */
+  background-image: url("chrome://messenger/skin/overrides/search-glass.svg");
 }
 
 ab-card-listrow {
@@ -694,7 +749,7 @@ body.is-editing #detailsPane #photoOverlay {
 }
 
 #detailsSearchButton::before {
-  background-image: url("chrome://global/skin/icons/search-glass.svg");
+  background-image: url("chrome://messenger/skin/overrides/search-glass.svg");
 }
 
 #detailsPane section h3 {

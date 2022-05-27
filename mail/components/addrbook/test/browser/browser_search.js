@@ -19,6 +19,9 @@ add_task(async () => {
 
     await viewChangePromise;
     checkCardsListed(...expectedCards);
+    checkPlaceholders(
+      expectedCards.length ? [] : ["placeholderNoSearchResults"]
+    );
   }
 
   let cards = {};
@@ -76,11 +79,13 @@ add_task(async () => {
     cards.nathan,
     cards.susanah
   );
+  checkPlaceholders();
 
   // Personal address book.
 
   openDirectory(personalBook);
   checkCardsListed(cards.daniel, cards.jonathan, cards.nathan);
+  checkPlaceholders();
 
   await doSearch("daniel", cards.daniel);
   await doSearch("nathan", cards.jonathan, cards.nathan);
@@ -89,6 +94,7 @@ add_task(async () => {
 
   openDirectory(historyBook);
   checkCardsListed();
+  checkPlaceholders(["placeholderNoSearchResults"]);
 
   await doSearch(
     null,
@@ -105,6 +111,7 @@ add_task(async () => {
 
   openAllAddressBooks();
   checkCardsListed(cards.jonathan, cards.nathan);
+  checkPlaceholders();
 
   await doSearch(
     null,
