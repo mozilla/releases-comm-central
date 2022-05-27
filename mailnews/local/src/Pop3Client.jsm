@@ -42,6 +42,14 @@ const UIDL_DELETE = "d";
 const UIDL_TOO_BIG = "b";
 const UIDL_FETCH_BODY = "f";
 
+// There can be multiple Pop3Client running concurrently, assign each logger a
+// unique prefix.
+let loggerId = 0;
+
+function getLoggerId() {
+  return loggerId++ % 1000;
+}
+
 /**
  * A class to interact with POP3 server.
  */
@@ -87,7 +95,7 @@ class Pop3Client {
     this._sink.popServer = server;
 
     this._logger = console.createInstance({
-      prefix: "mailnews.pop3",
+      prefix: `mailnews.pop3.${getLoggerId()}`,
       maxLogLevel: "Warn",
       maxLogLevelPref: "mailnews.pop3.loglevel",
     });
@@ -119,7 +127,7 @@ class Pop3Client {
    */
   connect() {
     this._logger.debug(
-      `Connecting to pop://${this._server.hostName}:${this._server.port} serverBusy=${this._server.serverBusy}`
+      `Connecting to pop://${this._server.hostName}:${this._server.port}`
     );
     this._server.serverBusy = true;
     this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
@@ -185,9 +193,16 @@ class Pop3Client {
     if (!uidlState) {
       // This uidl is no longer on the server, use this._sink to delete the
       // msgHdr.
-      this._sink.beginMailDelivery(true, null);
-      this._sink.incorporateBegin(uidl, 0);
-      this._actionDone(Cr.NS_ERROR_FAILURE);
+      try {
+        this._sink.beginMailDelivery(true, null);
+        this._logger.debug(
+          `Folder lock acquired uri=${this._sink.folder.URI}.`
+        );
+        this._sink.incorporateBegin(uidl, 0);
+        this._actionDone(Cr.NS_ERROR_FAILURE);
+      } catch (e) {
+        this._actionError("pop3MessageWriteError");
+      }
       return;
     }
     if (uidlState.status != UIDL_TOO_BIG) {
@@ -848,6 +863,9 @@ class Pop3Client {
           this._singleUidlToDownload,
           this._msgWindow
         );
+        this._logger.debug(
+          `Folder lock acquired uri=${this._sink.folder.URI}.`
+        );
       } catch (e) {
         const NS_MSG_FOLDER_BUSY = 2153054218;
         if (e.result == NS_MSG_FOLDER_BUSY) {
@@ -1025,7 +1043,11 @@ class Pop3Client {
    */
   _actionHandleMessage = () => {
     this._currentMessage = this._messagesToHandle.shift();
-    if (this._messagesToHandle.length % 20 == 0 && !this._writeUidlPromise) {
+    if (
+      this._messagesToHandle.length > 0 &&
+      this._messagesToHandle.length % 20 == 0 &&
+      !this._writeUidlPromise
+    ) {
       // Update popstate.dat every 20 messages, so that even if an error
       // happens, no need to re-download all messages.
       this._writeUidlState();
@@ -1046,6 +1068,7 @@ class Pop3Client {
       }
     } else {
       this._sink.endMailDelivery(this);
+      this._logger.debug("Folder lock released.");
       this._actionDone();
     }
   };
@@ -1249,6 +1272,7 @@ class Pop3Client {
       }
     } else {
       this._sink.abortMailDelivery(this);
+      this._logger.debug("Folder lock released.");
       if (this._currentMessage) {
         // Put _currentMessage back to the queue to prevent loss of popstate.
         this._messagesToHandle.unshift(this._currentMessage);
