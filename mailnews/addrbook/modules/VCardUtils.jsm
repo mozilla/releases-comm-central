@@ -687,6 +687,7 @@ class VCardProperties {
    * Add an entry to this object.
    *
    * @param {VCardPropertyEntry}
+   * @return {boolean} - If the entry was added.
    */
   addEntry(entry) {
     if (entry.constructor.name != "VCardPropertyEntry") {
@@ -703,7 +704,12 @@ class VCardProperties {
       }
     }
 
+    if (this.entries.find(e => e.equals(entry))) {
+      return false;
+    }
+
     this.entries.push(entry);
+    return true;
   }
 
   /**

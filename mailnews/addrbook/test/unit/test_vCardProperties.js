@@ -303,7 +303,7 @@ add_task(function testEntryMethods() {
     },
   };
 
-  props.addEntry(charlie);
+  Assert.ok(props.addEntry(charlie));
   propertyArrayEqual(
     props.getAllEntries("email"),
     [data.charlie],
@@ -321,7 +321,7 @@ add_task(function testEntryMethods() {
   );
   propertyArrayEqual(props.entries, [data.charlie], "props has one entry");
 
-  props.addEntry(delta);
+  Assert.ok(props.addEntry(delta));
   propertyArrayEqual(
     props.getAllEntries("email"),
     [data.charlie, data.delta],
@@ -341,6 +341,13 @@ add_task(function testEntryMethods() {
     props.entries,
     [data.charlie, data.delta],
     "props has two entries"
+  );
+
+  Assert.ok(!props.addEntry(charlie));
+  propertyArrayEqual(
+    props.entries,
+    [data.charlie, data.delta],
+    "props still has two entries"
   );
 
   // Update a property entry.
