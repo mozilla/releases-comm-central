@@ -927,7 +927,7 @@ var EnigmailKeyRing = {
         let exitStatus;
         let errorMsgObj = {};
         try {
-          exitStatus = await EnigmailKeyRing.importPubKey(
+          exitStatus = await EnigmailKeyRing.importKeyAsync(
             window,
             false,
             keyData,
@@ -937,6 +937,7 @@ var EnigmailKeyRing = {
             null,
             false,
             limitedUids,
+            false,
             true,
             null,
             outParam.acceptance
@@ -979,7 +980,7 @@ var EnigmailKeyRing = {
           let exitStatus;
           let errorMsgObj = {};
           try {
-            exitStatus = await EnigmailKeyRing.importPubKey(
+            exitStatus = await EnigmailKeyRing.importKeyAsync(
               window,
               false,
               key.pubKey,
@@ -989,6 +990,7 @@ var EnigmailKeyRing = {
               null,
               false,
               limitedUids,
+              false,
               true,
               null,
               outParam.acceptance
@@ -1025,7 +1027,7 @@ var EnigmailKeyRing = {
     let errorMsgObj = {};
     let exitStatus = -1;
     try {
-      exitStatus = await EnigmailKeyRing.importPubKey(
+      exitStatus = await EnigmailKeyRing.importKeyAsync(
         window,
         false,
         keyData,
