@@ -88,10 +88,10 @@ openpgp-key-assistant-key-source =
       *[other] Sources
   }
 
-openpgp-key-assistant-key-collected-email = email attachment
+openpgp-key-assistant-key-collected-attachment = email attachment
 openpgp-key-assistant-key-collected-autocrypt = Autocrypt header
 openpgp-key-assistant-key-collected-keyserver = keyserver
-openpgp-key-assistant-key-collected-wkd = Web Key Directory (WKD)
+openpgp-key-assistant-key-collected-wkd = Web Key Directory
 
 openpgp-key-assistant-keys-has-collected =
   { $count ->
