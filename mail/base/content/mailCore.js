@@ -539,13 +539,16 @@ function toImport(tabId = "start") {
       url: "about:import",
       onLoad(event, browser) {
         if (tabId) {
-          browser.contentWindow.showTab(`tab-${tabId}`);
+          browser.contentWindow.showTab(`tab-${tabId}`, true);
         }
       },
     });
     // Somehow DOMContentLoaded is called even when about:import is already
     // open, which resets the active tab. Use setTimeout here as a workaround.
-    setTimeout(() => tab.browser.contentWindow.showTab(`tab-${tabId}`), 100);
+    setTimeout(
+      () => tab.browser.contentWindow.showTab(`tab-${tabId}`, true),
+      100
+    );
     return;
   }
   window.openDialog(

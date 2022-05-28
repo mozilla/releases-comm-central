@@ -25,6 +25,13 @@
 </head>
 <body>
   <main id="main">
+    <nav>
+      <ol id="stepNav" data-l10n-id="step-list">
+        <li id="navConfirm">
+          <button data-l10n-id="step-confirm" disabled="disabled"></button>
+        </li>
+      </ol>
+    </nav>
     <section id="errorNotifications"></section>
     <div id="tabPane-start" class="tabPane">
       <section id="start-sources">
@@ -332,7 +339,7 @@
                 class="back"
                 onclick="addrBookController.back()"
                 data-l10n-id="button-back"></button>
-        <button class="primary next-button"
+        <button class="primary next-button continue"
                 id="addrBookNextButton"
                 onclick="addrBookController.next()"
                 data-l10n-id="button-continue"></button>
@@ -417,7 +424,7 @@
                 class="back"
                 onclick="calendarController.back()"
                 data-l10n-id="button-back"></button>
-        <button class="primary next-button"
+        <button class="primary next-button continue"
                 id="calendarNextButton"
                 onclick="calendarController.next()"
                 data-l10n-id="button-continue"></button>

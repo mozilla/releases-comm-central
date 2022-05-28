@@ -270,3 +270,14 @@ footer-import-documentation = Import documentation
 footer-export-documentation = Export documentation
 
 footer-support-forum = Support forum
+
+## Step navigation on top of the wizard pages
+
+step-list =
+  .aria-label = Import steps
+
+step-confirm = Confirm
+
+# Variables:
+# $number (number) - step number
+step-count = { $number }

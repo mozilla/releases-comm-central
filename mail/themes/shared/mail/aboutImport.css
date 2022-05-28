@@ -352,3 +352,71 @@ a.center-button {
   margin-block-start: 4em;
   text-align: center;
 }
+
+/* Navigation steps */
+
+#stepNav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-block-end: 2em;
+  margin-inline: 1em;
+  --step-size: 2em;
+}
+
+#stepNav li {
+  flex-grow: 1;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+}
+
+#stepNav li:first-child {
+  flex-grow: 0;
+}
+
+#stepNav button {
+  border-radius: var(--step-size);
+  height: var(--step-size);
+  width: var(--step-size);
+  min-width: var(--step-size);
+  padding: 0;
+  margin: 0;
+  opacity: 1;
+  box-sizing: border-box;
+  font-weight: 600;
+}
+
+#stepNav li:not(:first-child)::before {
+  content: "";
+  border-block-start: 2px dashed var(--in-content-button-background);
+  display: block;
+  margin-block-start: 1px;
+  flex-grow: 1;
+}
+
+#stepNav li.current button {
+  border: 3px solid var(--primary);
+  background: var(--in-content-box-background);
+  color: var(--primary);
+}
+
+#stepNav li.completed button {
+  background: var(--primary);
+  color: var(--in-content-box-background);
+}
+
+#stepNav li.completed:not(:first-child)::before,
+#stepNav li.current:not(:first-child)::before {
+  border-block-start: 2px solid var(--primary);
+}
+
+#navConfirm button {
+  border-radius: var(--in-content-button-border-radius);
+  width: auto;
+  font-size: 1rem;
+  padding-inline: 0.5em;
+}

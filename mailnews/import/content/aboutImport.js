@@ -26,6 +26,114 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  */
 
 /**
+ * @typedef {Object} Step
+ * @property {function} returnTo - Function that resets to this step. Should end
+ *  up calling |updateSteps()| with this step again.
+ */
+
+const Steps = {
+  _pastSteps: [],
+  /**
+   * Toggle visibility of the navigation steps.
+   *
+   * @param {boolean} visible - If the navigation steps should be shown.
+   */
+  toggle(visible) {
+    document.getElementById("stepNav").hidden = !visible;
+  },
+  /**
+   * Update the currently displayed steps by adding a new step and updating the
+   * forecast of remaining steps.
+   *
+   * @param {Step} currentStep
+   * @param {number} plannedSteps - Amount of steps to follow this step,
+   *  including summary.
+   */
+  updateSteps(currentStep, plannedSteps) {
+    this._pastSteps.push(currentStep);
+    let confirm = document.getElementById("navConfirm");
+    const isConfirmStep = plannedSteps === 0;
+    confirm.classList.toggle("current", isConfirmStep);
+    confirm.toggleAttribute("disabled", isConfirmStep);
+    confirm.removeAttribute("aria-current");
+    document.getElementById("stepNav").replaceChildren(
+      ...this._pastSteps.map((step, index) => {
+        const li = document.createElement("li");
+        const button = document.createElement("button");
+        if (step === currentStep) {
+          if (isConfirmStep) {
+            confirm.setAttribute("aria-current", "step");
+            return confirm;
+          }
+          li.classList.add("current");
+          li.setAttribute("aria-current", "step");
+          button.setAttribute("disabled", "disabled");
+        } else {
+          li.classList.add("completed");
+          button.addEventListener("click", () => {
+            this.backTo(index);
+          });
+        }
+        document.l10n.setAttributes(button, "step-count", {
+          number: index + 1,
+        });
+        li.append(button);
+        //TODO tooltips
+        return li;
+      }),
+      ...new Array(Math.max(plannedSteps - 1, 0))
+        .fill(null)
+        .map((item, index) => {
+          const li = document.createElement("li");
+          const button = document.createElement("button");
+          document.l10n.setAttributes(button, "step-count", {
+            number: this._pastSteps.length + index + 1,
+          });
+          button.setAttribute("disabled", "disabled");
+          li.append(button);
+          //TODO tooltips
+          return li;
+        }),
+      isConfirmStep ? "" : confirm
+    );
+  },
+  /**
+   * Return to a previous step.
+   *
+   * @param {number} [stepIndex=-1] - The absolute index of the step to return
+   *  to. By default goes back one step.
+   * @returns {boolean} if a previous step was recalled.
+   */
+  backTo(stepIndex = -1) {
+    if (!this._pastSteps.length || stepIndex >= this._pastSteps.length) {
+      return false;
+    }
+    if (stepIndex < 0) {
+      // Make relative step index absolute
+      stepIndex = this._pastSteps.length + stepIndex - 1;
+    }
+    let targetStep = this._pastSteps[stepIndex];
+    this._pastSteps = this._pastSteps.slice(0, stepIndex);
+    targetStep.returnTo();
+    return true;
+  },
+  /**
+   * If any previous steps have been recorded.
+   *
+   * @returns {boolean} If there are steps preceding the current state.
+   */
+  hasStepHistory() {
+    return this._pastSteps.length > 0;
+  },
+  /**
+   * Reset step state.
+   */
+  reset() {
+    this._pastSteps = [];
+  },
+};
+
+/**
  * The base controller for an importing process.
  */
 class ImporterController {
@@ -61,6 +169,7 @@ class ImporterController {
    */
   back() {
     ImporterController.notificationBox.removeAllNotifications();
+    Steps.backTo();
   }
 
   /**
@@ -195,8 +304,6 @@ XPCOMUtils.defineLazyGetter(
 class ProfileImporterController extends ImporterController {
   constructor() {
     super("tabPane-app", "app");
-    this._showProfiles([], false);
-
     document.getElementById("appItemsList").addEventListener(
       "input",
       () => {
@@ -236,22 +343,6 @@ class ProfileImporterController extends ImporterController {
   };
   _sourceAppName = "thunderbird";
 
-  back() {
-    super.back();
-    switch (this._currentPane) {
-      case "profiles":
-        showTab("tab-start");
-        break;
-      case "items":
-        document.getElementById("profileNextButton").disabled = false;
-        this._skipProfilesPane ? showTab("start") : this.showPane("profiles");
-        break;
-      case "summary":
-        this._showItems(this._sourceProfile);
-        break;
-    }
-  }
-
   next() {
     super.next();
     switch (this._currentPane) {
@@ -265,11 +356,6 @@ class ProfileImporterController extends ImporterController {
         window.close();
         break;
     }
-  }
-
-  reset() {
-    super.reset();
-    this._showProfiles([], false);
   }
 
   /**
@@ -286,11 +372,9 @@ class ProfileImporterController extends ImporterController {
 
     let sourceProfiles = await this._importer.getSourceProfiles();
     if (sourceProfiles.length > 1 || this._importer.USE_FILE_PICKER) {
-      this._skipProfilesPane = false;
       // Let the user pick a profile if there are multiple options.
       this._showProfiles(sourceProfiles, this._importer.USE_FILE_PICKER);
     } else if (sourceProfiles.length == 1) {
-      this._skipProfilesPane = true;
       // Let the user pick what to import.
       this._showItems(sourceProfiles[0]);
     } else {
@@ -305,6 +389,15 @@ class ProfileImporterController extends ImporterController {
    * @param {boolean} useFilePicker - Whether to render file pickers.
    */
   _showProfiles(profiles, useFilePicker) {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showProfiles(profiles, useFilePicker);
+        },
+      },
+      2
+    );
     this._sourceProfiles = profiles;
     document.l10n.setAttributes(
       document.getElementById("profilesPaneTitle"),
@@ -414,6 +507,15 @@ class ProfileImporterController extends ImporterController {
    * @param {SourceProfile} profile - The profile to import from.
    */
   _showItems(profile) {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showItems(profile);
+        },
+      },
+      1
+    );
     this._el.classList.remove("final-step", "progress");
     this._sourceProfile = profile;
     document.l10n.setAttributes(
@@ -499,6 +601,7 @@ class ProfileImporterController extends ImporterController {
   }
 
   _showSummary() {
+    Steps.updateSteps({}, 0);
     this._el.classList.add("final-step");
     document.l10n.setAttributes(
       this._el.querySelector("#app-summary h1"),
@@ -618,29 +721,6 @@ class ProfileImporterController extends ImporterController {
 class AddrBookImporterController extends ImporterController {
   constructor() {
     super("tabPane-addressBook", "addr-book");
-    this._showSources();
-  }
-
-  back() {
-    super.back();
-    switch (this._currentPane) {
-      case "sources":
-        showTab("tab-start");
-        break;
-      case "csvFieldMap":
-        this._showSources();
-        break;
-      case "directories":
-        if (this._csvFieldMapShown) {
-          this._showCsvFieldMap();
-        } else {
-          this._showSources();
-        }
-        break;
-      case "summary":
-        this._showDirectories();
-        break;
-    }
   }
 
   /**
@@ -664,8 +744,7 @@ class AddrBookImporterController extends ImporterController {
     }
   }
 
-  reset() {
-    super.reset();
+  showInitialStep() {
     this._showSources();
   }
 
@@ -673,6 +752,18 @@ class AddrBookImporterController extends ImporterController {
    * Show the sources pane.
    */
   _showSources() {
+    document.getElementById(
+      "addrBookBackButton"
+    ).hidden = !Steps.hasStepHistory();
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showSources();
+        },
+      },
+      2
+    );
     this.showPane("sources");
   }
 
@@ -716,12 +807,10 @@ class AddrBookImporterController extends ImporterController {
       let unmatchedRows = await this._importer.parseCsvFile(filePicker.file);
       if (unmatchedRows.length) {
         document.getElementById("csvFieldMap").data = unmatchedRows;
-        this._csvFieldMapShown = true;
         this._showCsvFieldMap();
         return;
       }
     }
-    this._csvFieldMapShown = false;
     this._showDirectories();
   }
 
@@ -730,6 +819,16 @@ class AddrBookImporterController extends ImporterController {
    * fields.
    */
   _showCsvFieldMap() {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showCsvFieldMap();
+        },
+      },
+      2
+    );
+    document.getElementById("addrBookBackButton").hidden = false;
     this.showPane("csvFieldMap");
   }
 
@@ -746,6 +845,16 @@ class AddrBookImporterController extends ImporterController {
    * option to create a new directory.
    */
   async _showDirectories() {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showDirectories();
+        },
+      },
+      1
+    );
+    document.getElementById("addrBookBackButton").hidden = false;
     this._el.classList.remove("final-step", "progress");
     let sourceFileName = this._sourceFile.leafName;
     this._fallbackABName = sourceFileName.slice(
@@ -800,6 +909,7 @@ class AddrBookImporterController extends ImporterController {
   }
 
   _showSummary() {
+    Steps.updateSteps({}, 0);
     this._el.classList.add("final-step");
     document.getElementById(
       "addrBookSummaryPath"
@@ -866,25 +976,6 @@ class AddrBookImporterController extends ImporterController {
 class CalendarImporterController extends ImporterController {
   constructor() {
     super("tabPane-calendar", "calendar");
-    this._showSources();
-  }
-
-  back() {
-    super.back();
-    switch (this._currentPane) {
-      case "sources":
-        showTab("tab-start");
-        break;
-      case "items":
-        this._showSources();
-        break;
-      case "calendars":
-        this.showPane("items");
-        break;
-      case "summary":
-        this._showCalendars();
-        break;
-    }
   }
 
   next() {
@@ -905,8 +996,7 @@ class CalendarImporterController extends ImporterController {
     }
   }
 
-  reset() {
-    super.reset();
+  showInitialStep() {
     this._showSources();
   }
 
@@ -950,6 +1040,18 @@ class CalendarImporterController extends ImporterController {
    * Show the sources pane.
    */
   _showSources() {
+    document.getElementById(
+      "calendarBackButton"
+    ).hidden = !Steps.hasStepHistory();
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showSources();
+        },
+      },
+      3
+    );
     this.showPane("sources");
   }
 
@@ -981,6 +1083,16 @@ class CalendarImporterController extends ImporterController {
    * Show the sources pane.
    */
   async _showItems() {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showItems();
+        },
+      },
+      2
+    );
+    document.getElementById("calendarBackButton").hidden = false;
     let elItemList = document.getElementById("calendar-item-list");
     document.getElementById("calendarItemsTools").hidden = true;
     document.l10n.setAttributes(elItemList, "calendar-items-loading");
@@ -1046,6 +1158,15 @@ class CalendarImporterController extends ImporterController {
    * option to create a new calendar.
    */
   _showCalendars() {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          this._showCalendars();
+        },
+      },
+      1
+    );
     this._el.classList.remove("final-step", "progress");
     document.getElementById(
       "calendarCalPath"
@@ -1101,6 +1222,7 @@ class CalendarImporterController extends ImporterController {
   }
 
   _showSummary() {
+    Steps.updateSteps({}, 0);
     this._el.classList.add("final-step");
     document.getElementById(
       "calendarSummaryPath"
@@ -1215,19 +1337,6 @@ class ExportController extends ImporterController {
 class StartController extends ImporterController {
   constructor() {
     super("tabPane-start", "start");
-    this._showSources();
-  }
-
-  back() {
-    super.back();
-    switch (this._currentPane) {
-      case "sources":
-        window.close();
-        break;
-      case "file":
-        this._showSources();
-        break;
-    }
   }
 
   next() {
@@ -1242,8 +1351,7 @@ class StartController extends ImporterController {
     }
   }
 
-  reset() {
-    super.reset();
+  showInitialStep() {
     this._showSources();
   }
 
@@ -1251,6 +1359,16 @@ class StartController extends ImporterController {
    * Show the sources pane.
    */
   _showSources() {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          showTab("tab-start");
+          //showTab will always call showInitialStep
+        },
+      },
+      3
+    );
     document.getElementById("startBackButton").hidden = true;
     this.showPane("sources");
   }
@@ -1276,6 +1394,16 @@ class StartController extends ImporterController {
   }
 
   _showFile() {
+    Steps.updateSteps(
+      {
+        returnTo: () => {
+          this.reset();
+          showTab("tab-start");
+          this._showFile();
+        },
+      },
+      3
+    );
     this.showPane("file");
   }
 
@@ -1284,17 +1412,22 @@ class StartController extends ImporterController {
     switch (checkedInput.value) {
       case "profile":
         // Go to the import profile from zip file step in profile flow for TB.
+        profileController.reset();
         await profileController._onSelectSource("Thunderbird");
         document.getElementById("appFilePickerZip").checked = true;
         await profileController._onSelectProfile();
         showTab("tab-app");
         break;
       case "calendar":
+        calendarController.reset();
         showTab("tab-calendar");
+        calendarController.showInitialStep();
         await calendarController._onSelectSource();
         break;
       case "addressbook":
+        addrBookController.reset();
         showTab("tab-addressBook");
+        addrBookController.showInitialStep();
         break;
     }
   }
@@ -1302,13 +1435,21 @@ class StartController extends ImporterController {
 
 /**
  * Show a specific importing tab.
- * @param {"tab-app"|"tab-addressBook"|"tab-calendar"|"tab-export"|"tab-start"} tabId - Tab to show.
+ * @param {"tab-app"|"tab-addressBook"|"tab-calendar"|"tab-export"|"tab-start"} tabId -
+ *  Tab to show.
+ * @param {boolean} [reset=false] - If the state should be reset as if this was
+ *  the initial tab shown.
  */
-function showTab(tabId) {
+function showTab(tabId, reset = false) {
+  if (reset) {
+    Steps.reset();
+    restart();
+  }
   let selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
   let isExport = tabId === "tab-export";
   document.getElementById("importDocs").hidden = isExport;
   document.getElementById("exportDocs").hidden = !isExport;
+  Steps.toggle(!isExport);
   document.l10n.setAttributes(
     document.querySelector("title"),
     isExport ? "export-page-title" : "import-page-title"
@@ -1320,6 +1461,20 @@ function showTab(tabId) {
   for (let el of document.querySelectorAll("[id^=tab-]")) {
     el.classList.toggle("is-selected", el.id == tabId);
   }
+  if (!Steps.hasStepHistory()) {
+    switch (tabId) {
+      case "tab-start":
+        startController.showInitialStep();
+        break;
+      case "tab-addressBook":
+        addrBookController.showInitialStep();
+        break;
+      case "tab-calendar":
+        calendarController.showInitialStep();
+        break;
+      default:
+    }
+  }
 }
 
 /**
@@ -1327,10 +1482,10 @@ function showTab(tabId) {
  */
 function restart() {
   startController.reset();
-  showTab("tab-start");
   profileController.reset();
   addrBookController.reset();
   calendarController.reset();
+  Steps.backTo(0);
 }
 
 let profileController;
@@ -1345,9 +1500,5 @@ document.addEventListener("DOMContentLoaded", () => {
   calendarController = new CalendarImporterController();
   exportController = new ExportController();
   startController = new StartController();
-  if (location.hash === "#export") {
-    showTab("tab-export");
-  } else {
-    showTab("tab-start");
-  }
+  showTab(location.hash === "#export" ? "tab-export" : "tab-start", true);
 });
