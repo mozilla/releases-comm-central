@@ -31,31 +31,13 @@
   counter-reset: smallicons;
 }
 
-/* Give the tree a vibrant appearance. Only do this when no lwtheme tree rules
- * are in use. Vibrant appearance values only work if there is no
- * background-color rendered behind the element. If the active theme has tree
- * rules, we want to show the theme's background-color in the tree. */
 :root:not([lwt-tree]) #dirTree {
-  appearance: auto;
-  -moz-default-appearance: -moz-mac-source-list;
-  -moz-font-smoothing-background-color: -moz-mac-source-list;
-  border-inline-end: 1px solid #bdbdbd;
+  background-color: -moz-OddTreeRow;
 }
 
 #dirTree treechildren::-moz-tree-row {
   padding-bottom: 1px;
   background-color: transparent;
-}
-
-:root:not([lwt-tree]) #dirTree treechildren::-moz-tree-row(selected) {
-  appearance: auto;
-  -moz-default-appearance: -moz-mac-source-list-selection;
-  -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
-}
-
-:root:not([lwt-tree]) #dirTree treechildren::-moz-tree-row(selected, focus) {
-  appearance: none;
-  background-color: SelectedItem;
 }
 
 #dirTree treechildren::-moz-tree-cell-text {

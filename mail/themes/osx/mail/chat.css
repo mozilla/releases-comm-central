@@ -53,22 +53,14 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   text-shadow: none;
 }
 
-/* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
+/* Adaptation from #folderTree */
 :root:not([lwt-tree]) #chatPanel {
-  appearance: auto;
-  -moz-default-appearance: -moz-mac-source-list;
-  -moz-font-smoothing-background-color: -moz-mac-source-list;
+  background-color: -moz-OddTreeRow;
 }
 
 #contactlistbox {
   background: transparent;
   appearance: none;
-}
-
-:root:not([lwt-tree]) richlistitem[is="chat-group-richlistitem"][selected] {
-  appearance: auto;
-  -moz-default-appearance: -moz-mac-source-list-selection;
-  -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
 .convUnreadCount,
