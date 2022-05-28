@@ -32,7 +32,7 @@ class VCardTelComponent extends HTMLElement {
 
   constructor() {
     super();
-    let template = document.getElementById("template-vcard-edit-type-text");
+    let template = document.getElementById("template-vcard-edit-tel");
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
   }
@@ -66,39 +66,23 @@ class VCardTelComponent extends HTMLElement {
 
   fromVCardPropertyEntryToUI() {
     this.inputElement.value = this.vCardPropertyEntry.value;
+
+    // Just abandon any values we don't have UI for. We don't have any way to
+    // know whether to keep them or not, and they're very rarely used.
+    let types = ["work", "home", "cell", "fax", "pager"];
     let paramsType = this.vCardPropertyEntry.params.type;
     if (paramsType && Array.isArray(paramsType)) {
-      this.selectEl.value =
-        paramsType.find(element => element === "home" || element === "work") ||
-        "";
-    } else if (paramsType === "home" || paramsType === "work") {
+      this.selectEl.value = paramsType.find(t => types.includes(t)) || "";
+    } else if (types.includes(paramsType)) {
       this.selectEl.value = this.vCardPropertyEntry.params.type;
     }
   }
 
   fromUIToVCardPropertyEntry() {
     this.vCardPropertyEntry.value = this.inputElement.value;
-    let paramsType = this.vCardPropertyEntry.params.type;
 
-    let types;
-    if (Array.isArray(paramsType)) {
-      types = new Set(paramsType);
-    } else if (paramsType) {
-      types = new Set([paramsType]);
-    } else {
-      types = new Set();
-    }
-
-    types.delete("home");
-    types.delete("work");
     if (this.selectEl.value) {
-      types.add(this.selectEl.value);
-    }
-
-    if (types.size > 1) {
-      this.vCardPropertyEntry.params.type = [...types];
-    } else if (types.size == 1) {
-      this.vCardPropertyEntry.params.type = [...types][0];
+      this.vCardPropertyEntry.params.type = this.selectEl.value;
     } else {
       delete this.vCardPropertyEntry.params.type;
     }

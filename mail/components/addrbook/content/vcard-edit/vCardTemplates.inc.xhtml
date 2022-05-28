@@ -208,6 +208,26 @@
   </td>
 </template>
 
+<!-- Phone -->
+<template id="template-vcard-edit-tel">
+  <label class="screen-reader-only"
+         for="select"
+         data-l10n-id="vcard-entry-type-label"/>
+  <!-- The type selection is repeated boilerplate and will be reduced -->
+  <select class="vcard-type-selection">
+    <option value="work" data-l10n-id="vcard-entry-type-work"/>
+    <option value="home" data-l10n-id="vcard-entry-type-home"/>
+    <!-- FIXME: Replace these strings and remove aboutAddressBook.ftl from
+         AccountManager.xhtml. -->
+    <option value="cell" data-l10n-id="about-addressbook-entry-type-cell"/>
+    <option value="fax" data-l10n-id="about-addressbook-entry-type-fax"/>
+    <option value="pager" data-l10n-id="about-addressbook-entry-type-pager"/>
+    <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
+  </select>
+  <label class="screen-reader-only" for="text"/>
+  <input type="text"/>
+</template>
+
 <!-- Field with type and text -->
 <template id="template-vcard-edit-type-text">
   <label class="screen-reader-only"

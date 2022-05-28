@@ -200,6 +200,7 @@ about-addressbook-details-other-info-header = Other Information
 about-addressbook-entry-type-work = Work
 about-addressbook-entry-type-home = Home
 about-addressbook-entry-type-fax = Fax
+# Or "Mobile"
 about-addressbook-entry-type-cell = Cell
 about-addressbook-entry-type-pager = Pager
 
