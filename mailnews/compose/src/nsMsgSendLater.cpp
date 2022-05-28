@@ -366,7 +366,8 @@ SendOperationListener::SendOperationListener(nsMsgSendLater* aSendLater)
 SendOperationListener::~SendOperationListener(void) {}
 
 NS_IMETHODIMP
-SendOperationListener::OnGetDraftFolderURI(const nsACString& aFolderURI) {
+SendOperationListener::OnGetDraftFolderURI(const char* aMsgID,
+                                           const nsACString& aFolderURI) {
   return NS_OK;
 }
 

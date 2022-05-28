@@ -107,7 +107,7 @@ var copyListener = {
   onProgress(aMsgID, aProgress, aProgressMax) {},
   onStatus(aMsgID, aMsg) {},
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {},
-  onGetDraftFolderURI(aFolderURI) {},
+  onGetDraftFolderURI(aMsgID, aFolderURI) {},
   onSendNotPerformed(aMsgID, aStatus) {},
   onTransportSecurityError(msgID, status, secInfo, location) {},
 

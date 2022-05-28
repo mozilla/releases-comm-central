@@ -756,10 +756,10 @@ var gSendListener = {
   onStatus(aMsgID, aMsg) {},
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
     if (Components.isSuccessCode(aStatus)) {
-      Services.obs.notifyObservers(null, "mail:composeSendSucceeded");
+      Services.obs.notifyObservers(null, "mail:composeSendSucceeded", aMsgID);
     }
   },
-  onGetDraftFolderURI(aFolderURI) {},
+  onGetDraftFolderURI(aMsgID, aFolderURI) {},
   onSendNotPerformed(aMsgID, aStatus) {},
   onTransportSecurityError(msgID, status, secInfo, location) {
     // We're only interested in Bad Cert errors here.
@@ -803,6 +803,10 @@ var progressListener = {
       progressMeter.hidden = true;
       progressMeter.value = 0;
       document.getElementById("statusText").textContent = "";
+      Services.obs.notifyObservers(
+        { composeWindow: window },
+        "mail:composeSendProgressStop"
+      );
     }
   },
 
@@ -967,7 +971,7 @@ var defaultController = {
         return !gWindowLocked;
       },
       doCommand() {
-        SaveAsDraft();
+        SaveAsDraft().catch(Cu.reportError);
       },
     },
 
@@ -976,7 +980,7 @@ var defaultController = {
         return !gWindowLocked;
       },
       doCommand() {
-        SaveAsTemplate();
+        SaveAsTemplate().catch(Cu.reportError);
       },
     },
 
@@ -986,9 +990,9 @@ var defaultController = {
       },
       doCommand() {
         if (Services.io.offline) {
-          SendMessageLater();
+          SendMessageLater().catch(Cu.reportError);
         } else {
-          SendMessage();
+          SendMessage().catch(Cu.reportError);
         }
       },
     },
@@ -1003,7 +1007,7 @@ var defaultController = {
         );
       },
       doCommand() {
-        SendMessage();
+        SendMessage().catch(Cu.reportError);
       },
     },
 
@@ -1012,7 +1016,7 @@ var defaultController = {
         return !gWindowLocked && !gNumUploadingAttachments && !gSendLocked;
       },
       doCommand() {
-        SendMessageLater();
+        SendMessageLater().catch(Cu.reportError);
       },
     },
 
@@ -1021,7 +1025,7 @@ var defaultController = {
         return !gWindowLocked && !gNumUploadingAttachments && !gSendLocked;
       },
       doCommand() {
-        SendMessageWithCheck();
+        SendMessageWithCheck().catch(Cu.reportError);
       },
     },
 
@@ -5510,7 +5514,7 @@ async function GenericSendMessage(msgType) {
     // Check if e-mail addresses are complete, in case user turned off
     // autocomplete to local domain.
     if (!CheckValidEmailAddress(msgCompFields)) {
-      return;
+      throw new Error(`Send aborted: invalid recipient address found`);
     }
 
     // Do we need to check the spelling?
@@ -5530,7 +5534,7 @@ async function GenericSendMessage(msgType) {
       );
 
       if (window.cancelSendMessage) {
-        return;
+        throw new Error(`Send aborted by the user: spelling errors found`);
       }
     }
 
@@ -5562,7 +5566,7 @@ async function GenericSendMessage(msgType) {
         ) == 1
       ) {
         document.getElementById("msgSubject").focus();
-        return;
+        throw new Error(`Send aborted by the user: subject missing`);
       }
     }
 
@@ -5601,7 +5605,7 @@ async function GenericSendMessage(msgType) {
       }
 
       if (hadForgotten) {
-        return;
+        throw new Error(`Send aborted by the user: attachment missing`);
       }
     }
 
@@ -5651,7 +5655,9 @@ async function GenericSendMessage(msgType) {
           });
         }
         checkPublicRecipientsLimit();
-        return;
+        throw new Error(
+          `Send aborted by the user: too many public recipients found`
+        );
       }
     }
 
@@ -5681,7 +5687,7 @@ async function GenericSendMessage(msgType) {
           checkbox
         );
         if (!okToProceed) {
-          return;
+          throw new Error(`Send aborted by the user: wrong account used`);
         }
 
         if (checkbox.value) {
@@ -5736,7 +5742,7 @@ async function GenericSendMessage(msgType) {
         }
       });
     } catch (ex) {
-      return;
+      throw new Error(`Send aborted by an onBeforeSend event`);
     }
   }
 
@@ -5760,6 +5766,7 @@ async function CompleteGenericSendMessage(msgType) {
     onSendSMIME();
   }
 
+  let sendError = null;
   try {
     // Just before we try to send the message, fire off the
     // compose-send-message event for listeners, so they can do
@@ -5824,6 +5831,7 @@ async function CompleteGenericSendMessage(msgType) {
   } catch (ex) {
     Cu.reportError("GenericSendMessage FAILED: " + ex);
     ToggleWindowLock(false);
+    sendError = ex;
   }
 
   if (
@@ -5847,6 +5855,10 @@ async function CompleteGenericSendMessage(msgType) {
     ) {
       Services.telemetry.scalarAdd("tb.filelink.ignored", 1);
     }
+  }
+
+  if (sendError) {
+    throw sendError;
   }
 }
 
@@ -6371,10 +6383,10 @@ function Save() {
       SaveAsFile(false);
       break;
     case "template":
-      SaveAsTemplate(false);
+      SaveAsTemplate(false).catch(Cu.reportError);
       break;
     default:
-      SaveAsDraft(false);
+      SaveAsDraft(false).catch(Cu.reportError);
       break;
   }
 }
@@ -10066,7 +10078,11 @@ async function AutoSave() {
     !gSendOperationInProgress &&
     !gSaveOperationInProgress
   ) {
-    await GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
+    try {
+      await GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
+    } catch (ex) {
+      Cu.reportError(ex);
+    }
     gAutoSaveKickedIn = true;
   }
 

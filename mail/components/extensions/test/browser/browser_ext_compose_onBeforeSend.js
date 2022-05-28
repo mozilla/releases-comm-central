@@ -181,6 +181,12 @@ add_task(async function testCancel() {
     onLoadWindow(window) {
       window.CompleteGenericSendMessage = function(msgType) {
         didTryToSendMessage = true;
+        Services.obs.notifyObservers(
+          {
+            composeWindow: window,
+          },
+          "mail:composeSendProgressStop"
+        );
       };
     },
   });
@@ -194,7 +200,13 @@ add_task(async function testCancel() {
     let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
-    composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Now);
+    composeWindows[0]
+      .GenericSendMessage(Ci.nsIMsgCompDeliverMode.Now)
+      .catch(() => {
+        // This test is ignoring errors thrown by GenericSendMessage, but looks
+        // at didTryToSendMessage of the mocked CompleteGenericSendMessage to
+        // check if onBeforeSend aborted the send process.
+      });
     extension.sendMessage();
   });
 
@@ -375,7 +387,13 @@ add_task(async function testChangeDetails() {
     let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
-    composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+    composeWindows[0]
+      .GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later)
+      .catch(() => {
+        // This test is ignoring errors thrown by GenericSendMessage, but looks
+        // at didTryToSendMessage of the mocked CompleteGenericSendMessage to
+        // check if onBeforeSend aborted the send process.
+      });
     extension.sendMessage();
   });
 
@@ -509,7 +527,13 @@ add_task(async function testChangeAttachments() {
       composeWindows[0],
       "aftersend"
     );
-    composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+    composeWindows[0]
+      .GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later)
+      .catch(() => {
+        // This test is ignoring errors thrown by GenericSendMessage, but looks
+        // at didTryToSendMessage of the mocked CompleteGenericSendMessage to
+        // check if onBeforeSend aborted the send process.
+      });
     await sendPromise;
     extension.sendMessage();
   });
@@ -678,7 +702,13 @@ add_task(async function testListExpansion() {
     let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
-    composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+    composeWindows[0]
+      .GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later)
+      .catch(() => {
+        // This test is ignoring errors thrown by GenericSendMessage, but looks
+        // at didTryToSendMessage of the mocked CompleteGenericSendMessage to
+        // check if onBeforeSend aborted the send process.
+      });
     extension.sendMessage();
   });
 
@@ -797,7 +827,13 @@ add_task(async function testMultipleListeners() {
   let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
   Assert.equal(composeWindows.length, 1);
   Assert.equal(composeWindows[0].document.readyState, "complete");
-  composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+  composeWindows[0]
+    .GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later)
+    .catch(() => {
+      // This test is ignoring errors thrown by GenericSendMessage, but looks
+      // at didTryToSendMessage of the mocked CompleteGenericSendMessage to
+      // check if onBeforeSend aborted the send process.
+    });
 
   let listener9Details = await extensionA.awaitMessage("listener9");
   Assert.equal(listener9Details.to.length, 1);

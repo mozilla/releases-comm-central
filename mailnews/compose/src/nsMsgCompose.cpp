@@ -3039,7 +3039,8 @@ NS_IMETHODIMP nsMsgCompose::OnSendNotPerformed(const char* aMsgID,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const nsACString& aFolderURI) {
+NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const char* aMsgID,
+                                                const nsACString& aFolderURI) {
   m_folderName = aFolderURI;
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
@@ -3047,7 +3048,7 @@ NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const nsACString& aFolderURI) {
 
   while (iter.HasMore()) {
     externalSendListener = iter.GetNext();
-    externalSendListener->OnGetDraftFolderURI(aFolderURI);
+    externalSendListener->OnGetDraftFolderURI(aMsgID, aFolderURI);
   }
   return NS_OK;
 }
@@ -3232,12 +3233,12 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
 }
 
 nsresult nsMsgComposeSendListener::OnGetDraftFolderURI(
-    const nsACString& aFolderURI) {
+    const char* aMsgID, const nsACString& aFolderURI) {
   nsresult rv;
   nsCOMPtr<nsIMsgSendListener> composeSendListener =
       do_QueryReferent(mWeakComposeObj, &rv);
   if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnGetDraftFolderURI(aFolderURI);
+    composeSendListener->OnGetDraftFolderURI(aMsgID, aFolderURI);
 
   return NS_OK;
 }

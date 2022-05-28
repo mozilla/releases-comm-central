@@ -38,7 +38,7 @@ sendListener.prototype = {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onGetDraftFolderURI(aFolderURI) {
+  onGetDraftFolderURI(aMsgID, aFolderURI) {
     this.mReceived |= 0x10;
     if (this.mAutoRemoveItem == 0x10) {
       gMsgCompose.removeMsgSendListener(this);
@@ -63,7 +63,7 @@ function NotifySendListeners() {
   gMsgCompose.onProgress(null, null, null);
   gMsgCompose.onStatus(null, null);
   gMsgCompose.onStopSending(null, null, null, null);
-  gMsgCompose.onGetDraftFolderURI(null);
+  gMsgCompose.onGetDraftFolderURI(null, null);
   gMsgCompose.onSendNotPerformed(null, null);
   gMsgCompose.onTransportSecurityError(null, null, null, "");
 }

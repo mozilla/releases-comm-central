@@ -930,7 +930,10 @@ MessageSend.prototype = {
 
     // Notify nsMsgCompose about the saved folder.
     if (this._sendListener) {
-      this._sendListener.onGetDraftFolderURI(this._folderUri);
+      this._sendListener.onGetDraftFolderURI(
+        this._compFields.messageId,
+        this._folderUri
+      );
     }
     folder = MailUtils.getOrCreateFolder(this._folderUri);
     let statusMsg = this._composeBundle.formatStringFromName(

@@ -1,0 +1,295 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
+var { localAccountUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
+);
+// Import the smtp server scripts
+var {
+  nsMailServer,
+  gThreadManager,
+  fsDebugNone,
+  fsDebugAll,
+  fsDebugRecv,
+  fsDebugRecvSend,
+} = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
+var { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Smtpd.jsm"
+);
+var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Auth.jsm"
+);
+
+// Setup the daemon and server
+function setupServerDaemon(handler) {
+  if (!handler) {
+    handler = function(d) {
+      return new SMTP_RFC2821_handler(d);
+    };
+  }
+  var server = new nsMailServer(handler, new smtpDaemon());
+  return server;
+}
+
+function getBasicSmtpServer(port = 1, hostname = "localhost") {
+  let server = localAccountUtils.create_outgoing_server(
+    port,
+    "user",
+    "password",
+    hostname
+  );
+
+  // Override the default greeting so we get something predicitable
+  // in the ELHO message
+  Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
+
+  return server;
+}
+
+function getSmtpIdentity(senderName, smtpServer) {
+  // Set up the identity.
+  let identity = MailServices.accounts.createIdentity();
+  identity.email = senderName;
+  identity.smtpServerKey = smtpServer.key;
+
+  return identity;
+}
+
+var gServer;
+var gLocalRootFolder;
+
+add_setup(() => {
+  gServer = setupServerDaemon();
+  gServer.start();
+
+  // Test needs a non-local default account to be able to send messages.
+  let popAccount = createAccount("pop3");
+  let localAccount = createAccount("local");
+  MailServices.accounts.defaultAccount = popAccount;
+
+  let identity = getSmtpIdentity(
+    "identity@foo.invalid",
+    getBasicSmtpServer(gServer.port)
+  );
+  popAccount.addIdentity(identity);
+  popAccount.defaultIdentity = identity;
+
+  // Test is using the Sent folder and Outbox folder of the local account.
+  gLocalRootFolder = localAccount.incomingServer.rootFolder;
+  gLocalRootFolder.createSubfolder("Sent", null);
+  gLocalRootFolder.createSubfolder("Drafts", null);
+  gLocalRootFolder.createSubfolder("Fcc", null);
+  MailServices.accounts.setSpecialFolders();
+
+  requestLongerTimeout(4);
+
+  registerCleanupFunction(() => {
+    gServer.stop();
+  });
+});
+
+// Helper function to test saving messages.
+async function runTest(config) {
+  let files = {
+    "background.js": async () => {
+      let [config] = await window.sendMessage("getConfig");
+
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(2, accounts.length, "number of accounts");
+      let localAccount = accounts.find(a => a.type == "none");
+      let fccFolder = localAccount.folders.find(f => f.name == "Fcc");
+      browser.test.assertTrue(
+        !!fccFolder,
+        "should find the additional fcc folder"
+      );
+
+      // Prepare test data.
+      let allDetails = [];
+      for (let i = 0; i < 5; i++) {
+        allDetails.push({
+          to: [`test${i}@test.invalid`],
+          subject: `Test${i} save as ${config.expected.mode}`,
+          additionalFccFolder:
+            config.expected.fcc.length > 1 ? fccFolder : null,
+        });
+      }
+
+      // Open multiple compose windows.
+      for (let details of allDetails) {
+        details.tab = await browser.compose.beginNew(details);
+      }
+
+      // Initiate saving of all compose windows at the same time.
+      let allPromises = [];
+      for (let details of allDetails) {
+        allPromises.push(
+          browser.compose.saveMessage(details.tab.id, config.mode)
+        );
+      }
+
+      // Wait until all messages have been saved.
+      let allRv = await Promise.all(allPromises);
+
+      for (let i = 0; i < allDetails.length; i++) {
+        let rv = allRv[i];
+        let details = allDetails[i];
+        // Find the message with a matching headerMessageId.
+
+        browser.test.assertEq(
+          config.expected.mode,
+          rv.mode,
+          "The mode of the last message operation should be correct."
+        );
+        browser.test.assertEq(
+          config.expected.fcc.length,
+          rv.messages.length,
+          "Should find the correct number of saved messages for this save operation."
+        );
+
+        // Check expected FCC folders.
+        for (let i = 0; i < config.expected.fcc.length; i++) {
+          // Read the actual messages in the fcc folder.
+          let savedMessages = await window.sendMessage(
+            "getMessagesInFolder",
+            `${config.expected.fcc[i]}`
+          );
+          // Find the currently processed message.
+          let savedMessage = savedMessages.find(
+            m => m.messageId == rv.messages[i].headerMessageId
+          );
+          // Compare saved message to original message.
+          browser.test.assertEq(
+            details.subject,
+            savedMessage.subject,
+            "The subject of the message in the fcc folder should be correct."
+          );
+
+          // Check returned details.
+          browser.test.assertEq(
+            details.subject,
+            rv.messages[i].subject,
+            "The subject of the saved message should be correct."
+          );
+          browser.test.assertEq(
+            details.to[0],
+            rv.messages[i].recipients[0],
+            "The recipients of the saved message should be correct."
+          );
+          browser.test.assertEq(
+            `/${config.expected.fcc[i]}`,
+            rv.messages[i].folder.path,
+            "The saved message should be in the correct folder."
+          );
+        }
+
+        let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+        browser.tabs.remove(details.tab.id);
+        await removedWindowPromise;
+      }
+
+      // Remove all saved messages.
+      for (let fcc of config.expected.fcc) {
+        await window.sendMessage("clearMessagesInFolder", fcc);
+      }
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "compose.save", "messagesRead", "accountsRead"],
+    },
+  });
+
+  extension.onMessage("getConfig", async () => {
+    extension.sendMessage(config);
+  });
+
+  extension.onMessage("getMessagesInFolder", async folderName => {
+    let folder = gLocalRootFolder.getChildNamed(folderName);
+    let messages = [...folder.messages].map(m => {
+      let { subject, messageId, recipients } = m;
+      return { subject, messageId, recipients };
+    });
+    extension.sendMessage(...messages);
+  });
+
+  extension.onMessage("clearMessagesInFolder", async folderName => {
+    let folder = gLocalRootFolder.getChildNamed(folderName);
+    let messages = [...folder.messages];
+    await new Promise(resolve => {
+      folder.deleteMessages(
+        messages,
+        null,
+        true,
+        false,
+        { OnStopCopy: resolve },
+        false
+      );
+    });
+
+    Assert.equal(0, [...folder.messages].length, "folder should be empty");
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkWindow", async expected => {
+    await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+  gServer.resetTest();
+}
+
+// Test with default save mode.
+add_task(async function test_default() {
+  await runTest({
+    mode: null,
+    expected: {
+      mode: "draft",
+      fcc: ["Drafts"],
+    },
+  });
+});
+
+// Test with default save mode and additional fcc.
+add_task(async function test_default_with_additional_fcc() {
+  await runTest({
+    mode: null,
+    expected: {
+      mode: "draft",
+      fcc: ["Drafts", "Fcc"],
+    },
+  });
+});
+
+// Test with draft save mode.
+add_task(async function test_saveAsDraft() {
+  await runTest({
+    mode: { mode: "draft" },
+    expected: {
+      mode: "draft",
+      fcc: ["Drafts"],
+    },
+  });
+});
+
+// Test with draft save mode and additional fcc.
+add_task(async function test_saveAsDraft_with_additional_fcc() {
+  await runTest({
+    mode: { mode: "draft" },
+    expected: {
+      mode: "draft",
+      fcc: ["Drafts", "Fcc"],
+    },
+  });
+});

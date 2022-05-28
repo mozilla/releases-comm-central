@@ -343,6 +343,9 @@ class WindowTracker extends WindowTrackerBase {
    */
   isBrowserWindow(window) {
     let { documentElement } = window.document;
+    if (!documentElement) {
+      return false;
+    }
 
     return [
       "mail:3pane",

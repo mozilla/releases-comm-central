@@ -43,6 +43,12 @@ var MockCompleteGenericSendMessage = {
               item.cloudFileAccount.markAsImmutable(item.cloudFileUpload.id);
             }
           }
+          Services.obs.notifyObservers(
+            {
+              composeWindow: window,
+            },
+            "mail:composeSendProgressStop"
+          );
         };
       },
     });

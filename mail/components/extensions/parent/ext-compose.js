@@ -770,26 +770,166 @@ var composeStates = {
   },
 };
 
-var composeCommands = {
-  _commands: {
-    sendNow: "cmd_sendNow",
-    sendLater: "cmd_sendLater",
-    default: "cmd_sendButton",
-  },
+class ComposeCommand {
+  constructor(tab, context, mode) {
+    this.composeWindow = tab.nativeTab;
+    this.context = context;
+    this.mode = mode;
+    this.resolved = false;
+    this.savedMessages = [];
+    this.headerMessageId = null;
+    this.deliveryCallbacks = null;
+    this.classifiedMessages = new Map();
 
-  // Translate API modes to commands.
-  getCommand(mode = "default") {
-    return this._commands[mode];
-  },
-
-  goDoCommand(tab, command) {
-    if (!tab.nativeTab.defaultController.isCommandEnabled(command)) {
-      return false;
+    switch (this.mode) {
+      case "draft":
+        this.command = "cmd_saveAsDraft";
+        break;
+      case "template":
+        this.command = "cmd_saveAsTemplate";
+        break;
+      case "sendNow":
+        this.command = "cmd_sendNow";
+        break;
+      case "sendLater":
+        this.command = "cmd_sendLater";
+        break;
     }
-    tab.nativeTab.goDoCommand(command);
-    return true;
-  },
-};
+  }
+
+  // Observer for mail:composeSendProgressStop.
+  observe(subject, topic, data) {
+    let { composeWindow } = subject.wrappedJSObject;
+    if (!this.resolved && composeWindow == this.composeWindow) {
+      this.resolved = true;
+      this.deliveryCallbacks.resolve();
+    }
+  }
+
+  // nsIMsgSendListener
+  onStartSending(msgID, msgSize) {}
+  onProgress(msgID, progress, progressMax) {}
+  onStatus(msgID, msg) {}
+  onStopSending(msgID, status, msg, returnFile) {
+    // In case of success, this is only called for sendNow, stating the
+    // headerMessageId of the outgoing message.
+    if (!Components.isSuccessCode(status)) {
+      let errorMsg = this.mode.startsWith("send")
+        ? "Message could not be send"
+        : "Message could not be saved";
+      this.deliveryCallbacks.reject(new Error(errorMsg));
+      return;
+    }
+    // The msgID starts with < and ends with > which is not used by the API.
+    this.headerMessageId = msgID.replace(/^<|>$/g, "");
+  }
+  onGetDraftFolderURI(msgID, folderURI) {
+    // Only called for save operations and sendLater. Collect messageIds and
+    // folders of saved messages.
+    let headerMessageId = msgID.replace(/^<|>$/g, "");
+    this.savedMessages.push(JSON.stringify({ headerMessageId, folderURI }));
+  }
+  onSendNotPerformed(msgID, status) {}
+  onTransportSecurityError(msgID, status, secInfo, location) {}
+
+  // Implementation for nsIMsgFolderListener::msgsClassified
+  msgsClassified(msgs, junkProcessed, traitProcessed) {
+    // Collect all msgHdrs added to folders during the current message operation.
+    for (let msgHdr of msgs) {
+      let key = JSON.stringify({
+        headerMessageId: msgHdr.messageId,
+        folderURI: msgHdr.folder.URI,
+      });
+      if (!this.classifiedMessages.has(key)) {
+        this.classifiedMessages.set(key, msgHdr);
+      }
+    }
+  }
+
+  /**
+   * @typedef MessageOperationStatus
+   * @property {string} mode - the performed message operation mode, one of
+   *   "sendLater", "sendNow", "draft" or "template"
+   * @property {string} headerMessageId - the id used in the "Message-Id" header
+   *    of the outgoing message, only available for the "sendNow" mode
+   * @property {MessageHeader[]} messages - array of WebExtension MessageHeader
+   *   objects, with information about saved messages (depends on fcc config)
+   *   @see mail/components/extensions/schemas/compose.json
+   */
+
+  /**
+   * Executes the given save/send command. The returned Promise resolves once the
+   * message operation has finished.
+   *
+   * @returns {MessageOperationInfo} - Information about the performed message
+   *   operation, which will be used as the API's return value.
+   */
+  async goDoCommand() {
+    if (!this.composeWindow.defaultController.isCommandEnabled(this.command)) {
+      throw new Error(
+        `Message compose window not ready for the requested command`
+      );
+    }
+
+    Services.obs.addObserver(this, "mail:composeSendProgressStop");
+    this.composeWindow.gMsgCompose.addMsgSendListener(this);
+    MailServices.mfn.addListener(this, MailServices.mfn.msgsClassified);
+
+    // The deliveryPromise fulfills when the message has been saved/send.
+    let deliveryPromise = new Promise((resolve, reject) => {
+      this.deliveryCallbacks = { resolve, reject };
+    });
+
+    // The sendPromise rejects on errors while checking the message and fulfills
+    // once the message has been handed over to the delivery process.
+    let sendPromise;
+    switch (this.mode) {
+      case "draft":
+        sendPromise = this.composeWindow.SaveAsDraft();
+        break;
+      case "template":
+        sendPromise = this.composeWindow.SaveAsTemplate();
+        break;
+      case "sendNow":
+        sendPromise = this.composeWindow.SendMessage();
+        break;
+      case "sendLater":
+        sendPromise = this.composeWindow.SendMessageLater();
+        break;
+    }
+
+    try {
+      await Promise.all([deliveryPromise, sendPromise]);
+
+      let messages = [];
+      for (let savedMessage of this.savedMessages) {
+        let msgHdr = this.classifiedMessages.get(savedMessage);
+        if (msgHdr) {
+          messages.push(convertMessage(msgHdr, this.context.extension));
+        }
+      }
+
+      let rv = {
+        mode: this.mode,
+        messages,
+      };
+      if (this.mode == "sendNow") {
+        rv.headerMessageId = this.headerMessageId;
+      }
+      return rv;
+    } catch (ex) {
+      // In case of error, reject the pending delivery Promise.
+      this.deliveryCallbacks.reject();
+      throw ex;
+    } finally {
+      MailServices.mfn.removeListener(this);
+      Services.obs.removeObserver(this, "mail:composeSendProgressStop");
+      if (this.composeWindow && this.composeWindow.gMsgCompose) {
+        this.composeWindow.gMsgCompose.removeMsgSendListener(this);
+      }
+    }
+  }
+}
 
 var composeEventTracker = {
   listeners: new Set(),
@@ -809,12 +949,12 @@ var composeEventTracker = {
   async handleEvent(event) {
     event.preventDefault();
 
+    let sendPromise = event.detail;
     let composeWindow = event.target;
     composeWindow.ToggleWindowLock(true);
 
     // Send process waits till sendPromise.resolve() or sendPromise.reject() is
     // called.
-    let sendPromise = event.detail;
 
     for (let { handler, extension } of this.listeners) {
       let result = await handler(
@@ -1111,10 +1251,34 @@ this.compose = class extends ExtensionAPI {
           );
           return tabManager.convert(composeWindow);
         },
-        async sendMessage(tabId, options) {
-          let command = composeCommands.getCommand(options?.mode);
+        async saveMessage(tabId, options) {
           let tab = getComposeTab(tabId);
-          return composeCommands.goDoCommand(tab, command);
+          let saveMode = options?.mode || "draft";
+
+          try {
+            let composeCommand = new ComposeCommand(tab, context, saveMode);
+            return await composeCommand.goDoCommand();
+          } catch (ex) {
+            throw new ExtensionError(
+              `compose.saveMessage failed: ${ex.message}`
+            );
+          }
+        },
+        async sendMessage(tabId, options) {
+          let tab = getComposeTab(tabId);
+          let sendMode = options?.mode;
+          if (!["sendLater", "sendNow"].includes(sendMode)) {
+            sendMode = Services.io.offline ? "sendLater" : "sendNow";
+          }
+
+          try {
+            let composeCommand = new ComposeCommand(tab, context, sendMode);
+            return await composeCommand.goDoCommand();
+          } catch (ex) {
+            throw new ExtensionError(
+              `compose.sendMessage failed: ${ex.message}`
+            );
+          }
         },
         getComposeState(tabId) {
           let tab = getComposeTab(tabId);

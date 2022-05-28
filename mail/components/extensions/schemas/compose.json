@@ -9,6 +9,7 @@
             "type": "string",
             "enum": [
               "compose",
+              "compose.save",
               "compose.send"
             ]
           }
@@ -204,7 +205,7 @@
               "html",
               "both"
             ],
-            "description": "Defines the mime format of the send message (ignored on plain text messages). Defaults to ``auto``, which will send html messages as plain text, if they do not include any formatting, and as ``both`` otherwise (a multipart/mixed message).",
+            "description": "Defines the mime format of the sent message (ignored on plain text messages). Defaults to ``auto``, which will send html messages as plain text, if they do not include any formatting, and as ``both`` otherwise (a multipart/mixed message).",
             "optional": true
           },
           "customHeaders": {
@@ -796,7 +797,7 @@
           "compose.send"
         ],
         "type": "function",
-        "description": "Sends the message currently being composed.",
+        "description": "Sends the message currently being composed. If the send mode is not specified or set to ``default``, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an :ref:`onBeforeSend` event or if there has been an error while sending the message to the outgoing mail server.",
         "async": "callback",
         "parameters": [
           {
@@ -821,12 +822,90 @@
           {
             "type": "function",
             "name": "callback",
-            "description": "Returns false if the current state of the message composer prevented sending the message.",
             "optional": true,
             "parameters": [
               {
                 "name": "return",
-                "type": "boolean"
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "description": "The used send mode.",
+                    "enum": [
+                      "sendNow",
+                      "sendLater"
+                    ]
+                  },
+                  "headerMessageId": {
+                    "type": "string",
+                    "description": "The header messageId of the outgoing message. Only included for actually sent messages.",
+                    "optional": true
+                  },
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "messages.MessageHeader"
+                    },
+                    "description": "Copies of the sent message. The number of created copies depends on the applied file carbon copy configuration (fcc)."
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "saveMessage",
+        "permissions": [
+          "compose.save"
+        ],
+        "type": "function",
+        "description": "Saves the message currently being composed as a draft or as a template. If the save mode is not specified, the message will be saved as a draft. The returned Promise fulfills once the message has been successfully saved.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer"
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "template"
+                ]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "description": "The used save mode.",
+                    "enum": [
+                      "draft",
+                      "template"
+                    ]
+                  },
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "messages.MessageHeader"
+                    },
+                    "description": "The saved message(s). The number of saved messages depends on the applied file carbon copy configuration (fcc)."
+                  }
+                }
               }
             ]
           }

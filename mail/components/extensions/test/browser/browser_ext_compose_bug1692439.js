@@ -48,13 +48,43 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
 }
 
 function getSmtpIdentity(senderName, smtpServer) {
-  // Set up the identity
+  // Set up the identity.
   let identity = MailServices.accounts.createIdentity();
   identity.email = senderName;
   identity.smtpServerKey = smtpServer.key;
 
   return identity;
 }
+
+var gServer;
+var gOutbox;
+
+add_setup(() => {
+  gServer = setupServerDaemon();
+  gServer.start();
+
+  // Test needs a non-local default account to be able to send messages.
+  let popAccount = createAccount("pop3");
+  let localAccount = createAccount("local");
+  MailServices.accounts.defaultAccount = popAccount;
+
+  let identity = getSmtpIdentity(
+    "identity@foo.invalid",
+    getBasicSmtpServer(gServer.port)
+  );
+  popAccount.addIdentity(identity);
+  popAccount.defaultIdentity = identity;
+
+  // Test is using the Sent folder and Outbox folder of the local account.
+  let rootFolder = localAccount.incomingServer.rootFolder;
+  rootFolder.createSubfolder("Sent", null);
+  MailServices.accounts.setSpecialFolders();
+  gOutbox = rootFolder.getChildNamed("Outbox");
+
+  registerCleanupFunction(() => {
+    gServer.stop();
+  });
+});
 
 add_task(async function testIsReflexive() {
   let files = {
@@ -100,7 +130,7 @@ add_task(async function testIsReflexive() {
       browser.test.assertEq(
         "Test message",
         messages[0].subject,
-        "Should find the send message"
+        "Should find the sent message"
       );
       let message = await browser.messages.getFull(messages[0].id);
       let content = trimContent(message.parts[0].body);
@@ -124,35 +154,7 @@ add_task(async function testIsReflexive() {
     },
   });
 
-  let kIdentityMail = "identity@foo.invalid";
-
-  let server = setupServerDaemon();
-  server.start();
-
-  // Ensure we have a local mail account, an normal account and appropriate
-  // servers and identities.
-  localAccountUtils.loadLocalMailAccount();
-  MailServices.accounts.setSpecialFolders();
-
-  let account = MailServices.accounts.createAccount();
-  let incomingServer = MailServices.accounts.createIncomingServer(
-    "test",
-    "localhost",
-    "pop3"
-  );
-
-  let smtpServer = getBasicSmtpServer(server.port);
-  let identity = getSmtpIdentity(kIdentityMail, smtpServer);
-
-  account.addIdentity(identity);
-  account.defaultIdentity = identity;
-  account.incomingServer = incomingServer;
-  MailServices.accounts.defaultAccount = account;
-  localAccountUtils.rootFolder.createLocalSubfolder("Sent");
-
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
-
-  server.stop();
 });
