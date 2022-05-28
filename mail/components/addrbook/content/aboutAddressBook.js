@@ -1611,7 +1611,7 @@ var cardsPane = {
     printHandler.printCards(selectedCards);
   },
 
-  _canDeleteSelected() {
+  _canModifySelected() {
     if (this.cardsList.view.directory?.readOnly) {
       return false;
     }
@@ -1634,7 +1634,7 @@ var cardsPane = {
    * Prompt the user and delete the selected card(s).
    */
   async deleteSelected() {
-    if (!this._canDeleteSelected()) {
+    if (!this._canModifySelected()) {
       return;
     }
 
@@ -1736,6 +1736,7 @@ var cardsPane = {
     let writeMenuSeparator = document.getElementById(
       "cardContextWriteSeparator"
     );
+    let editItem = document.getElementById("cardContextEdit");
     if (this.cardsList.selectedIndices.length == 1) {
       let card = this.cardsList.view.getCardFromRow(
         this.cardsList.selectedIndex
@@ -1743,6 +1744,7 @@ var cardsPane = {
       if (card.isMailList) {
         writeMenuItem.hidden = writeMenuSeparator.hidden = false;
         writeMenu.hidden = true;
+        editItem.hidden = true;
       } else {
         let addresses = card.emailAddresses;
 
@@ -1771,10 +1773,13 @@ var cardsPane = {
           writeMenuItem.hidden = true;
           writeMenu.hidden = writeMenuSeparator.hidden = false;
         }
+
+        editItem.hidden = !this._canModifySelected();
       }
     } else {
       writeMenuItem.hidden = false;
       writeMenu.hidden = true;
+      editItem.hidden = true;
     }
 
     let deleteItem = document.getElementById("cardContextDelete");
@@ -1783,7 +1788,7 @@ var cardsPane = {
     let inMailList = this.cardsList.view.directory?.isMailList;
     deleteItem.hidden = inMailList;
     removeItem.hidden = !inMailList;
-    deleteItem.disabled = removeItem.disabled = !this._canDeleteSelected();
+    deleteItem.disabled = removeItem.disabled = !this._canModifySelected();
 
     if (event.type == "contextmenu" && event.button == 2) {
       // This is a right-click. Open where it happened.
@@ -1822,6 +1827,9 @@ var cardsPane = {
         break;
       case "cardContextWrite":
         this.writeToSelected();
+        return;
+      case "cardContextEdit":
+        detailsPane.editCurrentContact();
         return;
       case "cardContextPrint":
         this.printSelected();

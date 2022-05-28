@@ -609,6 +609,93 @@ add_task(async function test_context_menu_compose() {
 });
 
 /**
+ * Tests the context menu edit items.
+ */
+add_task(async function test_context_menu_edit() {
+  let normalBook = createAddressBook("Normal Book");
+  let normalList = normalBook.addMailList(createMailingList("Normal List"));
+  let normalContact = normalBook.addCard(createContact("Normal", "Contact"));
+  normalList.addCard(normalContact);
+
+  let readOnlyBook = createAddressBook("Read-Only Book");
+  let readOnlyList = readOnlyBook.addMailList(
+    createMailingList("Read-Only List")
+  );
+  let readOnlyContact = readOnlyBook.addCard(
+    createContact("Read-Only", "Contact")
+  );
+  readOnlyList.addCard(readOnlyContact);
+  readOnlyBook.setBoolValue("readOnly", true);
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abWindow.cardsPane.cardsList;
+
+  let menu = abDocument.getElementById("cardContext");
+  let editMenuItem = abDocument.getElementById("cardContextEdit");
+
+  async function checkEditItems(index, hidden) {
+    await rightClickOnIndex(index);
+
+    Assert.equal(
+      editMenuItem.hidden,
+      hidden,
+      `editMenuItem should be hidden=${hidden} on index ${index}`
+    );
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    menu.hidePopup();
+    await hiddenPromise;
+  }
+
+  info("Testing Normal Book");
+  openDirectory(normalBook);
+  await checkEditItems(0, false); // normal contact
+  await checkEditItems(1, true); // normal list
+
+  cardsList.selectedIndices = [0, 1];
+  await checkEditItems(0, true); // normal contact + normal list
+  await checkEditItems(1, true); // normal contact + normal list
+
+  info("Testing Normal List");
+  openDirectory(normalList);
+  await checkEditItems(0, false); // normal contact
+
+  info("Testing Read-Only Book");
+  openDirectory(readOnlyBook);
+  await checkEditItems(0, true); // read-only contact
+  await checkEditItems(1, true); // read-only list
+
+  info("Testing Read-Only List");
+  openDirectory(readOnlyList);
+  await checkEditItems(0, true); // read-only contact
+
+  info("Testing All Address Books");
+  openAllAddressBooks();
+  await checkEditItems(0, false); // normal contact
+  await checkEditItems(1, true); // normal list
+  await checkEditItems(2, true); // read-only contact
+  await checkEditItems(3, true); // read-only list
+
+  cardsList.selectedIndices = [0, 1];
+  await checkEditItems(1, true); // normal contact + normal list
+
+  cardsList.selectedIndices = [0, 2];
+  await checkEditItems(2, true); // normal contact + read-only contact
+
+  cardsList.selectedIndices = [1, 3];
+  await checkEditItems(3, true); // normal list + read-only list
+
+  cardsList.selectedIndices = [0, 1, 2, 3];
+  await checkEditItems(3, true); // everything
+
+  await closeAddressBookWindow();
+
+  await promiseDirectoryRemoved(normalBook.URI);
+  await promiseDirectoryRemoved(readOnlyBook.URI);
+});
+
+/**
  * Tests the context menu delete items.
  */
 add_task(async function test_context_menu_delete() {
