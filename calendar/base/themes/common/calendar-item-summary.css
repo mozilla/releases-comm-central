@@ -40,7 +40,7 @@
 
 .item-summary-splitter {
   appearance: none;
-  border-width: 0;
+  border-style: none;
   border-bottom: 1px solid var(--field-border-color);
   min-height: 0;
   height: 5px;
