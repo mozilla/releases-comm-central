@@ -249,7 +249,7 @@ button.tab-close-button {
   .tab-throbber[busy]::before {
     content: "";
     position: absolute;
-    background-image: url("chrome://messenger/skin/icons/loading.svg");
+    background-image: var(--icon-loading);
     background-position: left center;
     background-repeat: no-repeat;
     width: 480px;
