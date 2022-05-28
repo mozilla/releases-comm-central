@@ -266,7 +266,7 @@ nsImapIncomingServer::SetMaximumConnectionsNumber(int32_t aMaxConnections) {
   return SetIntValue("max_cached_connections", aMaxConnections);
 }
 
-NS_IMPL_SERVERPREF_STR(nsImapIncomingServer, ForceSelect, "force_select")
+NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, ForceSelect, "force_select_imap")
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, DualUseFolders,
                         "dual_use_folders")
@@ -2990,11 +2990,6 @@ nsImapIncomingServer::GetServerShuttingDown(bool* aShuttingDown) {
 NS_IMETHODIMP
 nsImapIncomingServer::ResetServerConnection(const nsACString& aFolderName) {
   return ResetConnection(aFolderName);
-}
-
-NS_IMETHODIMP
-nsImapIncomingServer::SetServerForceSelect(const nsACString& aForceSelect) {
-  return SetForceSelect(aForceSelect);
 }
 
 NS_IMETHODIMP
