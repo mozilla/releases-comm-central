@@ -121,8 +121,9 @@ function help_test_display_name(message, field, expectedValue) {
   select_click_row(message);
 
   Assert.equal(
-    document.querySelector(`#expanded${field}Box .header-recipient`)
-      .textContent,
+    document.querySelector(
+      `#expanded${field}Box .header-recipient .recipient-single-line`
+    ).textContent,
     expectedValue,
     "The expected value matches the found value"
   );

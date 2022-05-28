@@ -3159,6 +3159,10 @@ const gHeaderCustomize = {
    * The object storing all saved customization options.
    *
    * @type {Object}
+   * @property {boolean} showAvatar - If the profile picutre of the sender
+   *   should be showed.
+   * @property {boolean} showFullAddress - If the sender recipient should always
+   *   show the full name and email address.
    * @property {boolean} hideLabels - If the labels column should be hidden.
    * @property {boolean} subjectLarge - If the font size of the subject line
    *   should be increased.
@@ -3169,6 +3173,8 @@ const gHeaderCustomize = {
    *   - "only-text" = only text
    */
   customizeData: {
+    showAvatar: false,
+    showFullAddress: false,
     hideLabels: false,
     subjectLarge: false,
     buttonStyle: "default",
@@ -3219,6 +3225,16 @@ const gHeaderCustomize = {
       this.customizeData.hideLabels || false
     );
 
+    header.classList.toggle(
+      "message-header-show-recipient-avatar",
+      this.customizeData.showAvatar || false
+    );
+
+    header.classList.toggle(
+      "message-header-show-sender-full-address",
+      this.customizeData.showFullAddress || false
+    );
+
     switch (this.customizeData.buttonStyle) {
       case "only-icons":
       case "only-text":
@@ -3259,6 +3275,12 @@ const gHeaderCustomize = {
     document.getElementById("headerButtonStyle").value =
       this.customizeData.buttonStyle || "default";
 
+    document.getElementById("headerShowAvatar").checked =
+      this.customizeData.showAvatar || false;
+
+    document.getElementById("headerShowFullAddress").checked =
+      this.customizeData.showFullAddress || false;
+
     document.getElementById("headerHideLabels").checked =
       this.customizeData.hideLabels || false;
 
@@ -3277,7 +3299,28 @@ const gHeaderCustomize = {
   },
 
   /**
-   * Update the subject style when the checkbox is clicked.
+   * Show or hide the profile picture of the sender recipient.
+   *
+   * @param {Event} event - The checkbox command event.
+   */
+  toggleAvatar(event) {
+    this.customizeData.showAvatar = event.target.checked;
+    this.updateLayout();
+  },
+
+  /**
+   * Show or hide the sender's full address, which will show the display name
+   * and the email address on two different lines.
+   *
+   * @param {Event} event - The checkbox command event.
+   */
+  toggleSenderAddress(event) {
+    this.customizeData.showFullAddress = event.target.checked;
+    this.updateLayout();
+  },
+
+  /**
+   * Show or hide the labels column.
    *
    * @param {Event} event - The checkbox command event.
    */

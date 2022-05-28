@@ -451,6 +451,16 @@
       </menulist>
 
       <html:div class="popup-panel-column-container">
+        <checkbox id="headerShowAvatar"
+                  data-l10n-id="message-header-show-recipient-avatar"
+                  oncommand="gHeaderCustomize.toggleAvatar(event);"/>
+
+        <checkbox id="headerShowFullAddress"
+                  data-l10n-id="message-header-show-sender-full-address"
+                  oncommand="gHeaderCustomize.toggleSenderAddress(event);"/>
+        <html:span class="checkbox-description"
+                   data-l10n-id="message-header-show-sender-full-address-description"></html:span>
+
         <checkbox id="headerHideLabels"
                   data-l10n-id="message-header-hide-label-column"
                   oncommand="gHeaderCustomize.toggleLabelColumn(event);"/>

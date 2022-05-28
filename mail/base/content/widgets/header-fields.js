@@ -361,9 +361,27 @@
       this.classList.add("header-recipient");
       this.tabIndex = 0;
 
+      this.avatar = document.createElement("div");
+      this.avatar.classList.add("recipient-avatar");
+      this.appendChild(this.avatar);
+
       this.email = document.createElement("span");
+      this.email.classList.add("recipient-single-line");
       this.email.id = `${this.id}Display`;
       this.appendChild(this.email);
+
+      this.multiLine = document.createElement("span");
+      this.multiLine.classList.add("recipient-multi-line");
+
+      this.nameLine = document.createElement("span");
+      this.nameLine.classList.add("recipient-multi-line-name");
+      this.multiLine.appendChild(this.nameLine);
+
+      this.addressLine = document.createElement("span");
+      this.addressLine.classList.add("recipient-multi-line-address");
+      this.multiLine.appendChild(this.addressLine);
+
+      this.appendChild(this.multiLine);
 
       this.abIndicator = document.createElement("button");
       this.abIndicator.classList.add(
@@ -435,6 +453,11 @@
       if (!this.emailAddress) {
         this.abIndicator.hidden = true;
         this.email.textContent = this.displayName;
+        if (this.dataset.headerName == "from") {
+          this.nameLine.textContent = this.displayName;
+          this.addressLine.textContent = "";
+          this.avatar.replaceChildren();
+        }
         this.cardDetails = {};
         return;
       }
@@ -461,6 +484,12 @@
           this.#recipient.fullAddress || this.#recipient.displayName;
       }
 
+      if (this.dataset.headerName == "from") {
+        this.nameLine.textContent =
+          displayName || this.displayName || this.fullAddress;
+        this.addressLine.textContent = this.emailAddress;
+      }
+
       let hasCard = this.cardDetails.card;
       // Update the style of the indicator button.
       this.abIndicator.classList.toggle("in-address-book", hasCard);
@@ -476,6 +505,62 @@
           ? "message-header-address-in-address-book-icon2"
           : "message-header-address-not-in-address-book-icon2"
       );
+
+      if (this.dataset.headerName == "from") {
+        this._updateAvatar();
+      }
+    }
+
+    _updateAvatar() {
+      this.avatar.replaceChildren();
+
+      if (!this.cardDetails.card) {
+        this._createAvatarPlaceholder();
+        return;
+      }
+
+      // We have a card, so let's try to fetch the image.
+      let card = this.cardDetails.card;
+      let photoURL = null;
+
+      if (card.supportsVCard) {
+        let photoEntry = card.vCardProperties.getFirstEntry("photo");
+        if (photoEntry?.type == "binary") {
+          // TODO are these always JPEG?
+          photoURL = `data:image/jpeg;base64,${photoEntry.value}`;
+        } else if (photoEntry?.type == "uri") {
+          // TODO only allow data URLs?
+          photoURL = photoEntry.value;
+        }
+      }
+
+      if (!photoURL) {
+        let photoName = card.getProperty("PhotoName", "");
+        if (photoName) {
+          let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+          file.append("Photos");
+          file.append(photoName);
+          photoURL = Services.io.newFileURI(file).spec;
+        }
+      }
+
+      if (photoURL) {
+        let img = document.createElement("img");
+        document.l10n.setAttributes(img, "message-header-recipient-avatar", {
+          address: this.emailAddress,
+        });
+        img.src = photoURL;
+        this.avatar.appendChild(img);
+      } else {
+        this._createAvatarPlaceholder();
+      }
+    }
+
+    _createAvatarPlaceholder() {
+      let letter = document.createElement("span");
+      letter.textContent = (this.displayName || this.fullAddress).slice(0, 1);
+      letter.ariaHidden = true;
+      this.avatar.appendChild(letter);
     }
 
     addToAddressBook() {

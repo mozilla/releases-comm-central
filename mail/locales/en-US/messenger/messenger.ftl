@@ -148,6 +148,11 @@ message-header-msg-not-flagged =
     .title = Not starred
     .aria-label = Not starred
 
+# Variables:
+# $address (String) - The email address of the recipient this picture belongs to.
+message-header-recipient-avatar =
+    .alt = Profile picture of { $address }.
+
 ## Message header cutomize panel
 
 message-header-customize-panel-title = Message Header Settings
@@ -164,6 +169,16 @@ message-header-button-style-text =
 
 message-header-button-style-icons =
     .label = Icons
+
+message-header-show-sender-full-address =
+    .label = Always show sender’s full address
+    .accesskey = f
+
+message-header-show-sender-full-address-description = The email address will be shown underneath the display name.
+
+message-header-show-recipient-avatar =
+    .label = Show sender’s profile picture
+    .accesskey = p
 
 message-header-hide-label-column =
     .label = Hide labels column

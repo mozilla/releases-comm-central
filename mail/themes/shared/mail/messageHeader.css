@@ -8,6 +8,32 @@
   /* This variable is used for both inline and block spacing in order to keep
    a visual consistency for recipients and simple fields alignment. */
   --message-header-field-offset: 2px;
+  --recipient-avatar-size: 26px;
+  --recipient-avatar-placeholder-size: 16px;
+
+  --recipient-avatar-color: var(--color-gray-50);
+  --recipient-avatar-background-color: var(--color-gray-30);
+
+  --recipient-multi-line-gap: 2px;
+}
+
+:root[uidensity="compact"] {
+  --recipient-avatar-size: 16px;
+  --recipient-avatar-placeholder-size: contain;
+  --recipient-multi-line-gap: 0;
+}
+
+:root[uidensity="touch"] {
+  --recipient-avatar-size: 32px;
+  --recipient-avatar-placeholder-size: 16px;
+  --recipient-multi-line-gap: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --recipient-avatar-color: var(--color-gray-40);
+    --recipient-avatar-background-color: var(--color-gray-60);
+  }
 }
 
 .main-header-area {
@@ -865,4 +891,56 @@ button.email-action-flagged.flagged {
 .show-more-ids:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
+}
+
+/* Avatar */
+
+.recipient-avatar {
+  display: none;
+  height: var(--recipient-avatar-size);
+  width: var(--recipient-avatar-size);
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-inline-end: 6px;
+  text-align: center;
+  overflow: hidden;
+  color: var(--recipient-avatar-color);
+  background-color: var(--recipient-avatar-background-color);
+  align-items: center;
+  justify-content: center;
+}
+
+.recipient-avatar img {
+  width: 100%;
+  height: 100%;
+}
+
+.message-header-show-recipient-avatar #expandedfromBox .recipient-avatar {
+  display: inline-flex;
+}
+
+.recipient-multi-line {
+  display: none;
+  flex-direction: column;
+  gap: var(--recipient-multi-line-gap);
+  vertical-align: middle;
+  margin-inline-end: 3px;
+}
+
+.recipient-multi-line-name {
+  font-weight: 500;
+  font-size: 105%;
+}
+
+.recipient-multi-line-address {
+  opacity: 0.9;
+}
+
+
+.message-header-show-sender-full-address #expandedfromBox .recipient-multi-line {
+  display: inline-flex;
+}
+
+.message-header-show-sender-full-address #expandedfromBox .recipient-single-line {
+  display: none;
 }
