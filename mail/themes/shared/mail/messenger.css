@@ -1268,14 +1268,15 @@ label.statusbarpanel {
 
 #offline-status {
   padding: 0 2px;
-  list-style-image: url("chrome://messenger/skin/icons/online.svg");
+  list-style-image: var(--icon-online);
   appearance: none;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 #offline-status[offline="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/offline.svg");
+  list-style-image: var(--icon-offline);
 }
 
 /* status bar adjustments */

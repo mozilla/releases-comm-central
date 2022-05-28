@@ -379,7 +379,7 @@ function updateTodayPaneButton() {
 
   let iconBegin = document.createElement("img");
   iconBegin.setAttribute("alt", "");
-  iconBegin.setAttribute("src", "chrome://calendar/skin/shared/icons/pane.svg");
+  iconBegin.setAttribute("src", "chrome://messenger/skin/icons/new/calendar-empty.svg");
   iconBegin.classList.add("toolbarbutton-icon-begin");
 
   let iconLabel = document.createXULElement("label");

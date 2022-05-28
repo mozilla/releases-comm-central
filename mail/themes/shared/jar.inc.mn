@@ -496,10 +496,12 @@
   skin/classic/messenger/icons/new/compact/mail.svg           (../shared/mail/icons/new/compact/mail.svg)
   skin/classic/messenger/icons/new/compact/new-mail.svg       (../shared/mail/icons/new/compact/new-mail.svg)
   skin/classic/messenger/icons/new/compact/newsletter.svg     (../shared/mail/icons/new/compact/newsletter.svg)
+  skin/classic/messenger/icons/new/compact/offline.svg        (../shared/mail/icons/new/compact/offline.svg)
+  skin/classic/messenger/icons/new/compact/online.svg         (../shared/mail/icons/new/compact/online.svg)
   skin/classic/messenger/icons/new/compact/outbox.svg         (../shared/mail/icons/new/compact/outbox.svg)
   skin/classic/messenger/icons/new/compact/overflow.svg       (../shared/mail/icons/new/compact/overflow.svg)
-  skin/classic/messenger/icons/new/compact/pin.svg            (../shared/mail/icons/new/compact/pin.svg)
   skin/classic/messenger/icons/new/compact/pencil.svg         (../shared/mail/icons/new/compact/pencil.svg)
+  skin/classic/messenger/icons/new/compact/pin.svg            (../shared/mail/icons/new/compact/pin.svg)
   skin/classic/messenger/icons/new/compact/question.svg       (../shared/mail/icons/new/compact/question.svg)
   skin/classic/messenger/icons/new/compact/rss.svg            (../shared/mail/icons/new/compact/rss.svg)
   skin/classic/messenger/icons/new/compact/search.svg         (../shared/mail/icons/new/compact/search.svg)
@@ -550,3 +552,4 @@
   skin/classic/messenger/icons/new/touch/tasks.svg            (../shared/mail/icons/new/touch/tasks.svg)
 
   skin/classic/messenger/icons/new/address-book-indicator.svg (../shared/mail/icons/new/address-book-indicator.svg)
+  skin/classic/messenger/icons/new/calendar-empty.svg         (../shared/mail/icons/new/calendar-empty.svg)

@@ -9,6 +9,7 @@
   --icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
   --icon-archive: url("chrome://messenger/skin/icons/new/compact/archive.svg");
   --icon-attachment: url("chrome://messenger/skin/icons/new/compact/attachment.svg");
+  --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
   --icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
   --icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
   --icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
@@ -31,10 +32,12 @@
   --icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
   --icon-new-mail: url("chrome://messenger/skin/icons/new/compact/new-mail.svg");
   --icon-newsletter: url("chrome://messenger/skin/icons/new/compact/newsletter.svg");
+  --icon-offline: url("chrome://messenger/skin/icons/new/compact/offline.svg");
+  --icon-online: url("chrome://messenger/skin/icons/new/compact/online.svg");
   --icon-outbox: url("chrome://messenger/skin/icons/new/compact/outbox.svg");
   --icon-overflow: url("chrome://messenger/skin/icons/new/compact/overflow.svg");
-  --icon-pin: url("chrome://messenger/skin/icons/new/compact/pin.svg");
   --icon-pencil: url("chrome://messenger/skin/icons/new/compact/pencil.svg");
+  --icon-pin: url("chrome://messenger/skin/icons/new/compact/pin.svg");
   --icon-question: url("chrome://messenger/skin/icons/new/compact/question.svg");
   --icon-rss: url("chrome://messenger/skin/icons/new/compact/rss.svg");
   --icon-search: url("chrome://messenger/skin/icons/new/compact/search.svg");
