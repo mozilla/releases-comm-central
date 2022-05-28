@@ -2071,7 +2071,7 @@ var detailsPane = {
       } else {
         this.dirtyFields.delete(event.target);
       }
-      this._showHidePreferDisplayName();
+      this._togglePreferDisplayName();
 
       // If there are no dirty fields, clear the flag, otherwise set it.
       this.isDirty = this.dirtyFields.size > 0;
@@ -2531,7 +2531,7 @@ var detailsPane = {
       vCardEdit.vCardString = vCard ?? "";
     }
 
-    this._showHidePreferDisplayName();
+    this._togglePreferDisplayName();
     this.deleteButton.hidden = !card;
 
     this.isEditing = true;
@@ -2688,10 +2688,12 @@ var detailsPane = {
     }
   },
 
-  _showHidePreferDisplayName() {
-    this.preferDisplayName.parentNode.style.visibility = this.displayName.value
-      ? null
-      : "hidden";
+  _togglePreferDisplayName() {
+    this.preferDisplayName.parentNode.classList.toggle(
+      "disabled",
+      !this.displayName.value
+    );
+    this.preferDisplayName.disabled = !this.displayName.value;
   },
 
   _onClick(event) {

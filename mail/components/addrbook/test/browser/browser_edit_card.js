@@ -670,13 +670,18 @@ add_task(async function test_prefer_display_name() {
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
 
   Assert.equal(displayName.value, "");
-  Assert.ok(BrowserTestUtils.is_hidden(preferDisplayName), "checkbox hidden");
+  Assert.ok(
+    preferDisplayName.parentNode.classList.contains("disabled"),
+    "label disabled"
+  );
+  Assert.ok(preferDisplayName.disabled, "checkbox disabled");
 
   setInputValues({ DisplayName: "test" });
   Assert.ok(
-    BrowserTestUtils.is_visible(preferDisplayName),
-    "checkbox appeared"
+    !preferDisplayName.parentNode.classList.contains("disabled"),
+    "label enabled"
   );
+  Assert.ok(!preferDisplayName.disabled, "checkbox enabled");
   Assert.ok(preferDisplayName.checked, "checkbox is checked for a new card");
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
@@ -694,7 +699,7 @@ add_task(async function test_prefer_display_name() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(BrowserTestUtils.is_visible(preferDisplayName), "checkbox shown");
+  Assert.ok(!preferDisplayName.disabled, "checkbox enabled");
   Assert.ok(preferDisplayName.checked, "checkbox state matches the card");
 
   // Change the card value.
@@ -716,13 +721,13 @@ add_task(async function test_prefer_display_name() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(BrowserTestUtils.is_visible(preferDisplayName), "checkbox shown");
+  Assert.ok(!preferDisplayName.disabled, "checkbox enabled");
   Assert.ok(!preferDisplayName.checked, "checkbox state matches the card");
 
   // Clear the display name. The checkbox should disappear.
 
   setInputValues({ DisplayName: "" });
-  Assert.ok(BrowserTestUtils.is_hidden(preferDisplayName), "checkbox hidden");
+  Assert.ok(preferDisplayName.disabled, "checkbox disabled");
 
   await closeAddressBookWindow();
   personalBook.deleteCards(personalBook.childCards);

@@ -6,6 +6,9 @@
 
 vcard-displayname = Display name
 
+vcard-displayname-placeholder =
+    .placeholder = { vcard-displayname }
+
 # Type selection
 
 vcard-entry-type-label = Type
