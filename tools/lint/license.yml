@@ -42,7 +42,7 @@ license:
         - .xml
         - .xul
     support-files:
-      - 'tools/lint/license/**'
+        - 'tools/lint/license/**'
     type: external
     payload: commlint:lint_wrapper
     wraps: license:lint

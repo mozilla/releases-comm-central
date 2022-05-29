@@ -10,7 +10,6 @@ l10n:
         - comm/calendar/locales/en-US
         - comm/chat/locales/en-US
         - comm/mail/branding/thunderbird/locales/en-US
-        - comm/mail/extensions/openpgp
         - comm/mail/locales/en-US
         - comm/tools/lint/l10n.yml
         - devtools/client/locales/en-US
@@ -25,6 +24,7 @@ l10n:
     exclude:
         - comm/mail/locales/en-US/all-l10n.js
         - comm/mail/extensions/openpgp/test
+        - comm/calendar/locales/en-US/README.txt
     l10n_configs:
         - comm/mail/locales/l10n.toml
         - comm/calendar/locales/l10n.toml
