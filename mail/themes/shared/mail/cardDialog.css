@@ -14,6 +14,10 @@ window {
   --lwt-header-image: none !important;
 }
 
+.input-inline {
+  margin-inline-end: 0 !important;
+}
+
 /* ::::: Card Edit dialog ::::: */
 
 #contactGrid {
