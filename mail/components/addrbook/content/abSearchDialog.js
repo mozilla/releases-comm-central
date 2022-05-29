@@ -355,7 +355,7 @@ function GetAbViewListener() {
 
 function onProperties() {
   if (!gPropertiesCmd.hasAttribute("disabled")) {
-    // TODO fix in a later patch
+    window.opener.toAddressBook({ action: "display", card: GetSelectedCard() });
   }
 }
 
