@@ -1925,6 +1925,9 @@ var cardsPane = {
       } else {
         email = card.emailAddresses[0];
       }
+      if (!email) {
+        return "";
+      }
       return MailServices.headerParser.makeMimeAddress(card.displayName, email);
     }
 

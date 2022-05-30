@@ -38,10 +38,17 @@ function AddrBookCard() {
     this._hasVCard = true;
 
     let vCard = this.getProperty("_vCard", "");
-    if (vCard) {
-      return VCardProperties.fromVCard(vCard);
+    try {
+      if (vCard) {
+        return VCardProperties.fromVCard(vCard);
+      }
+      return VCardProperties.fromPropertyMap(this._properties);
+    } catch (error) {
+      console.error("Error creating vCard properties", error);
+      // Return  an empty VCardProperties object if parsing failed
+      // catastrophically.
+      return new VCardProperties();
     }
-    return VCardProperties.fromPropertyMap(this._properties);
   });
 }
 
