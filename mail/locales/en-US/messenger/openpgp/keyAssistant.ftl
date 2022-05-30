@@ -147,4 +147,6 @@ openpgp-key-assistant-disable-button = Disable Encryption
 
 openpgp-key-assistant-confirm-button = Send Encrypted
 
+# Variables:
+# $date (String) - The key creation date.
 openpgp-key-assistant-key-created = created on { $date }

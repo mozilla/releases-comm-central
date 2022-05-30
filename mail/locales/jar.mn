@@ -10,10 +10,6 @@
 
 [localization] @AB_CD@.jar:
   browser                                                               (%browser/**/*.ftl)
-  # When ready for l10n, move mail/extensions/openpgp/content/strings/*.ftl
-  #                        to mail/locales/en-US/messenger/openpgp/
-  # and remove the following openpgp/ lines.
-  messenger/openpgp/keyAssistant.ftl                                    (../extensions/openpgp/content/strings/keyAssistant.ftl)
   messenger                                                             (%messenger/**/*.ftl)
 
 @AB_CD@.jar:
