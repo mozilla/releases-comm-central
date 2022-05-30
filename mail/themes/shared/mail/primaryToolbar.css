@@ -181,6 +181,15 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   -moz-box-flex: 1;
 }
 
+#palette-box #button-chat {
+  background: url("chrome://messenger/skin/icons/chat.svg") no-repeat center;
+}
+
+/* Hide the toolbarbutton-icon when the button is removed from the toolbar */
+#palette-box #button-chat > stack > .toolbarbutton-icon {
+  display: none;
+}
+
 /* ::::: message notification bar style rules ::::: */
 
 .msgNotificationBarText {
