@@ -5,13 +5,6 @@
 // TODO: Fix the UI so that we don't have to do this.
 window.maximize();
 
-let toolbarButtonIDs = [
-  "toolbarCreateBook",
-  "toolbarCreateContact",
-  "toolbarCreateList",
-  "toolbarImport",
-];
-
 async function inEditingMode() {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
@@ -27,10 +20,10 @@ async function inEditingMode() {
     ),
     "backdrop should be visible"
   );
-  checkToolbarState([]);
+  checkToolbarState(false);
 }
 
-async function notInEditingMode(enabledToolbarIDs = toolbarButtonIDs) {
+async function notInEditingMode() {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
@@ -45,7 +38,7 @@ async function notInEditingMode(enabledToolbarIDs = toolbarButtonIDs) {
     ),
     "backdrop should be hidden"
   );
-  checkToolbarState(enabledToolbarIDs);
+  checkToolbarState(true);
 }
 
 function getInput(entryName, addIfNeeded = false) {
@@ -93,16 +86,20 @@ function getInput(entryName, addIfNeeded = false) {
   return null;
 }
 
-function checkToolbarState(enabledToolbarIDs) {
+function checkToolbarState(shouldBeEnabled) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
-  for (let id of toolbarButtonIDs) {
-    let shouldBeDisabled = !enabledToolbarIDs.includes(id);
+  for (let id of [
+    "toolbarCreateBook",
+    "toolbarCreateContact",
+    "toolbarCreateList",
+    "toolbarImport",
+  ]) {
     Assert.equal(
       abDocument.getElementById(id).disabled,
-      shouldBeDisabled,
-      id + (shouldBeDisabled ? " should" : " should not") + " be disabled"
+      !shouldBeEnabled,
+      id + (!shouldBeEnabled ? " should not" : " should") + " be disabled"
     );
   }
 }
@@ -750,34 +747,22 @@ add_task(async function test_toolbar_state() {
   // be disabled.
 
   await openAllAddressBooks();
-  checkToolbarState([
-    "toolbarCreateBook",
-    "toolbarCreateContact",
-    "toolbarImport",
-  ]);
+  checkToolbarState(true);
 
   // In other directories, all buttons should be enabled.
 
   await openDirectory(personalBook);
-  checkToolbarState(toolbarButtonIDs);
+  checkToolbarState(true);
 
   // Back to All Address Books.
 
   await openAllAddressBooks();
-  checkToolbarState([
-    "toolbarCreateBook",
-    "toolbarCreateContact",
-    "toolbarImport",
-  ]);
+  checkToolbarState(true);
 
   // Select a card, no change.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  checkToolbarState([
-    "toolbarCreateBook",
-    "toolbarCreateContact",
-    "toolbarImport",
-  ]);
+  checkToolbarState(true);
 
   // Edit a card, all buttons disabled.
 
@@ -787,11 +772,7 @@ add_task(async function test_toolbar_state() {
   // Cancel editing, button states restored.
 
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
-  await notInEditingMode([
-    "toolbarCreateBook",
-    "toolbarCreateContact",
-    "toolbarImport",
-  ]);
+  await notInEditingMode();
 
   // Edit a card again, all buttons disabled.
 
@@ -801,11 +782,7 @@ add_task(async function test_toolbar_state() {
   // Cancel editing, button states restored.
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode([
-    "toolbarCreateBook",
-    "toolbarCreateContact",
-    "toolbarImport",
-  ]);
+  await notInEditingMode();
 
   await closeAddressBookWindow();
   personalBook.deleteCards(personalBook.childCards);

@@ -263,13 +263,6 @@ function createContact() {
  * For now this loads the old list UI, the intention is to replace it.
  */
 function createList() {
-  if (booksList.selectedIndex === 0) {
-    throw new Components.Exception(
-      "Cannot modify the All Address Books item",
-      Cr.NS_ERROR_UNEXPECTED
-    );
-  }
-
   let row = booksList.getRowAtIndex(booksList.selectedIndex);
   let bookUID = row.dataset.book ?? row.dataset.uid;
 
@@ -675,10 +668,10 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       cardsPane.displayBook(row.dataset.uid);
     }
 
-    // Row 0 is the "All Address Books" item. Lists can't be added here.
+    // Row 0 is the "All Address Books" item.
     if (this.selectedIndex === 0) {
       document.getElementById("toolbarCreateContact").disabled = false;
-      document.getElementById("toolbarCreateList").disabled = true;
+      document.getElementById("toolbarCreateList").disabled = false;
     } else {
       let bookUID = row.dataset.book ?? row.dataset.uid;
       let book = MailServices.ab.getDirectoryFromUID(bookUID);
