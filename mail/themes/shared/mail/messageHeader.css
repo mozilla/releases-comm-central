@@ -10,6 +10,7 @@
   --message-header-field-offset: 2px;
   --recipient-avatar-size: 26px;
   --recipient-avatar-placeholder-size: 16px;
+  --recipient-avatar-margin-block-start: -1px;
 
   --recipient-avatar-color: var(--color-gray-50);
   --recipient-avatar-background-color: var(--color-gray-30);
@@ -20,6 +21,7 @@
 :root[uidensity="compact"] {
   --recipient-avatar-size: 16px;
   --recipient-avatar-placeholder-size: contain;
+  --recipient-avatar-margin-block-start: -2px;
   --recipient-multi-line-gap: 0;
 }
 
@@ -900,7 +902,7 @@ button.email-action-flagged.flagged {
   height: var(--recipient-avatar-size);
   width: var(--recipient-avatar-size);
   border-radius: 50%;
-  vertical-align: middle;
+  margin-block-start: var(--recipient-avatar-margin-block-start);
   margin-inline-end: 6px;
   text-align: center;
   overflow: hidden;
@@ -917,6 +919,11 @@ button.email-action-flagged.flagged {
 
 .message-header-show-recipient-avatar #expandedfromBox .recipient-avatar {
   display: inline-flex;
+}
+
+.message-header-show-recipient-avatar #expandedfromLabel {
+  padding-block-start: var(--recipient-avatar-margin-block-start);
+  align-self: center;
 }
 
 .recipient-multi-line {
@@ -943,4 +950,8 @@ button.email-action-flagged.flagged {
 
 .message-header-show-sender-full-address #expandedfromBox .recipient-single-line {
   display: none;
+}
+
+.message-header-show-sender-full-address .recipient-avatar {
+  vertical-align: middle;
 }

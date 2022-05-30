@@ -549,6 +549,9 @@
         document.l10n.setAttributes(img, "message-header-recipient-avatar", {
           address: this.emailAddress,
         });
+        // TODO: We should fetch a dynamically generated smaller version of the
+        // uploaded picture to avoid loading large images that will only be used
+        // in smaller format.
         img.src = photoURL;
         this.avatar.appendChild(img);
       } else {
@@ -558,7 +561,9 @@
 
     _createAvatarPlaceholder() {
       let letter = document.createElement("span");
-      letter.textContent = (this.displayName || this.fullAddress).slice(0, 1);
+      letter.textContent = (this.displayName || this.fullAddress)
+        .slice(0, 1)
+        .toUpperCase();
       letter.ariaHidden = true;
       this.avatar.appendChild(letter);
     }
