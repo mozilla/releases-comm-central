@@ -134,7 +134,7 @@ window.addEventListener("load", () => {
     booksList.dispatchEvent(new CustomEvent("select"));
   }
 
-  document.getElementById("searchInput").focus();
+  cardsPane.searchInput.focus();
 
   window.dispatchEvent(new CustomEvent("about-addressbook-ready"));
 });
@@ -156,6 +156,39 @@ window.addEventListener("unload", () => {
   // Disconnect the view (if there is one) and tree, so that the view cleans
   // itself up and stops listening for observer service notifications.
   cardsPane.cardsList.view = null;
+});
+
+window.addEventListener("keypress", event => {
+  if (event.key != "F6" || event.aktKey || event.ctrlKey || event.metaKey) {
+    return;
+  }
+  if (detailsPane.isEditing) {
+    return;
+  }
+
+  let targets = [booksList, cardsPane.searchInput, cardsPane.cardsList];
+  if (!detailsPane.form.hidden) {
+    targets.push(detailsPane.editButton);
+  }
+
+  let focusedElementIndex = targets.findIndex(t => t.matches(":focus-within"));
+  if (focusedElementIndex == -1) {
+    focusedElementIndex = 0;
+  }
+
+  if (event.shiftKey) {
+    focusedElementIndex--;
+    if (focusedElementIndex == -1) {
+      focusedElementIndex = targets.length - 1;
+    }
+  } else {
+    focusedElementIndex++;
+    if (focusedElementIndex == targets.length) {
+      focusedElementIndex = 0;
+    }
+  }
+
+  targets[focusedElementIndex].focus();
 });
 
 /**
@@ -2127,8 +2160,10 @@ var detailsPane = {
         );
         let card = book.childCards.find(c => c.UID == this.currentCard.UID);
         this.displayContact(card);
+        this.editButton.focus();
       } else {
         this.displayContact(null);
+        cardsPane.searchInput.focus();
       }
     });
     this.form.addEventListener("submit", event => {
@@ -2636,7 +2671,7 @@ var detailsPane = {
       card = book.childCards.find(c => c.UID == card.UID);
       this.displayContact(card);
     }
-    cardsPane.cardsList.focus();
+    this.editButton.focus();
   },
 
   /**
