@@ -876,6 +876,11 @@ button.email-action-flagged.flagged {
   color: SelectedItemText;
 }
 
+button.show-more-recipients:hover {
+  background-color: SelectedItemText;
+  color: SelectedItem;
+}
+
 .show-more-ids {
   padding: 2px 6px;
   min-height: auto;
