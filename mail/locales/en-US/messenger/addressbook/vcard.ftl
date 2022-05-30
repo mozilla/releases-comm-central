@@ -58,8 +58,7 @@ vcard-email-add = Add email address
 
 vcard-email-label = Email address
 
-vcard-email-choose-primary = Default
-    .aria-label = Choose your primary email address
+vcard-primary-email-label = Default
 
 # URL vCard field
 
