@@ -549,15 +549,15 @@ CalDavCalendar.prototype = {
    * @param aItem       item to check
    */
   async adoptItem(aItem) {
-    let self = this;
+    let adoptCallback = this._cachedAdoptItemCallback;
     return new Promise((resolve, reject) => {
       this.doAdoptItem(aItem.clone(), {
         get wrappedJSObject() {
           return this;
         },
         async onOperationComplete(calendar, status, opType, id, detail) {
-          if (self._cachedAdoptItemCallback) {
-            await self._cachedAdoptItemCallback(calendar, status, opType, id, detail);
+          if (adoptCallback) {
+            await adoptCallback(calendar, status, opType, id, detail);
           }
           return Components.isSuccessCode(status) ? resolve(detail) : reject(detail);
         },
@@ -671,7 +671,7 @@ CalDavCalendar.prototype = {
    * @param aItem       item to check
    */
   async modifyItem(aNewItem, aOldItem) {
-    let self = this;
+    let modifyCallback = this._cachedModifyItemCallback;
     return new Promise((resolve, reject) => {
       this.doModifyItem(
         aNewItem,
@@ -681,8 +681,8 @@ CalDavCalendar.prototype = {
             return this;
           },
           async onOperationComplete(calendar, status, opType, id, detail) {
-            if (self._cachedModifyItemCallback) {
-              await self._cachedModifyItemCallback(calendar, status, opType, id, detail);
+            if (modifyCallback) {
+              await modifyCallback(calendar, status, opType, id, detail);
             }
             return Components.isSuccessCode(status) ? resolve(detail) : reject(detail);
           },

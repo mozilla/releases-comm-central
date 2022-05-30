@@ -454,6 +454,7 @@ CalICSCalendar.prototype = {
   _cachedAdoptItemCallback: null,
 
   async adoptItem(aItem) {
+    let adoptCallback = this._cachedAdoptItemCallback;
     if (this.readOnly) {
       throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
     }
@@ -469,14 +470,8 @@ CalICSCalendar.prototype = {
       });
       this.processQueue();
     });
-    if (this._cachedAdoptItemCallback) {
-      await this._cachedAdoptItemCallback(
-        item.calendar,
-        Cr.NS_OK,
-        Ci.calIOperationListener.ADD,
-        item.id,
-        item
-      );
+    if (adoptCallback) {
+      await adoptCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.ADD, item.id, item);
     }
     return item;
   },
@@ -489,6 +484,7 @@ CalICSCalendar.prototype = {
     if (this.readOnly) {
       throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
     }
+    let modifyCallback = this._cachedModifyItemCallback;
     let item = await new Promise((resolve, reject) => {
       this.startBatch();
       this.queue.push({
@@ -503,14 +499,8 @@ CalICSCalendar.prototype = {
       this.processQueue();
     });
 
-    if (this._cachedModifyItemCallback) {
-      await this._cachedModifyItemCallback(
-        item.calendar,
-        Cr.NS_OK,
-        Ci.calIOperationListener.MODIFY,
-        item.id,
-        item
-      );
+    if (modifyCallback) {
+      await modifyCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.MODIFY, item.id, item);
     }
     return item;
   },

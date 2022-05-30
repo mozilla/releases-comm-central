@@ -657,6 +657,14 @@ calCachedCalendar.prototype = {
    */
 
   /**
+   * Keeps track of pending callbacks injected into the uncached calendar during
+   * adopt or modify operations. This is done to ensure we remove the correct
+   * callback when multiple operations occur at once.
+   * @type {OnOperationComplateHandler[]}
+   */
+  _injectedCallbacks: [],
+
+  /**
    * Executes the actual addition of the item using either the cached or uncached
    * calendar depending on offline state. A separate method is used here to
    * preserve the order of the "onAddItem" event.
@@ -706,17 +714,17 @@ calCachedCalendar.prototype = {
           // to a cached calendar. Forward the call to the listener
           listener(this, status, opType, id, detail);
         }
+        this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = null;
+        this._injectedCallbacks = this._injectedCallbacks.filter(cb => cb != adoptItemCallback);
       };
 
+      // Store the callback so we can remove the correct one later.
+      this._injectedCallbacks.push(adoptItemCallback);
+
       this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = adoptItemCallback;
-      this.mUncachedCalendar
-        .adoptItem(item)
-        .catch(e => {
-          adoptItemCallback(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
-        })
-        .finally(() => {
-          this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = null;
-        });
+      this.mUncachedCalendar.adoptItem(item).catch(e => {
+        adoptItemCallback(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
+      });
     }
   },
 
@@ -790,6 +798,7 @@ calCachedCalendar.prototype = {
         // This happens on error, forward the error through the listener
         listener(this, status, opType, id, detail);
       }
+      this._injectedCallbacks = this._injectedCallbacks.filter(cb => cb != modifyItemCallback);
     };
 
     // First of all, we should find out if the item to modify is
@@ -814,14 +823,12 @@ calCachedCalendar.prototype = {
           // in mUncachedCalendar's modifyItem() method.
           this.mUncachedCalendar.wrappedJSObject._cachedModifyItemCallback = modifyItemCallback;
 
-          this.mUncachedCalendar
-            .modifyItem(newItem, oldItem)
-            .catch(e => {
-              modifyItemCallback(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
-            })
-            .finally(() => {
-              this.mUncachedCalendar.wrappedJSObject._cachedModifyItemCallback = null;
-            });
+          // Store the callback so we can remove the correct one later.
+          this._injectedCallbacks.push(modifyItemCallback);
+
+          this.mUncachedCalendar.modifyItem(newItem, oldItem).catch(e => {
+            modifyItemCallback(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
+          });
         }
       });
     }
