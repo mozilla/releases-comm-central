@@ -798,6 +798,10 @@ section#notes div {
   opacity: .85;
 }
 
+.entry-value {
+  word-break: break-all;
+}
+
 #detailsFooter {
   padding: 21px;
   background-color: var(--in-content-page-background);
