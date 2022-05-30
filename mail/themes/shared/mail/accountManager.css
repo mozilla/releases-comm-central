@@ -274,7 +274,7 @@ body {
 
 #editVCardDialog {
   /* Two <vcard-edit> columns. */
-  width: 54em;
+  width: 64em;
 }
 
 #editVCardDialog form {

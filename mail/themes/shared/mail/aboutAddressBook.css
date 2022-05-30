@@ -572,7 +572,7 @@ body:not(.is-editing) #detailsPaneBackdrop {
 #detailsInner {
   flex: 1;
   overflow: auto;
-  padding-top: 30px;
+  padding: 21px;
 }
 
 body.is-editing #detailsPane .view {
@@ -587,9 +587,8 @@ body:not(.is-editing) #detailsPane :is(.edit, .noValue) {
 #detailsBody,
 #detailsFooter,
 vcard-edit {
-  padding-inline: 20px;
   /* Two <vcard-edit> columns. */
-  max-width: 54em;
+  max-width: 64em;
 }
 
 #detailsHeader {
@@ -692,7 +691,7 @@ body.is-editing #detailsPane #photoOverlay {
 #detailsBody {
   margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(26.5em, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(31.5em, 1fr));
   grid-template-rows: masonry;
   gap: 1em;
 }
@@ -714,11 +713,18 @@ body.is-editing #detailsPane #photoOverlay {
 .button-block:not([hidden]) {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 6px;
 }
 
 .button-block div {
   display: flex;
   align-items: center;
+}
+
+.edit-block {
+  flex: 1;
+  justify-content: end;
 }
 
 .icon-button:not([hidden]) {
@@ -793,7 +799,7 @@ section#notes div {
 }
 
 #detailsFooter {
-  padding-block: 15px;
+  padding: 21px;
   background-color: var(--in-content-page-background);
 }
 
@@ -981,4 +987,29 @@ input[type="number"]::-moz-number-spin-down {
 
 #photoDialog .extra1 {
   margin-inline-end: auto;
+}
+
+
+/* Responsive style */
+
+@media (max-width: 1024px) {
+  body.layout-list {
+    grid-template: "toolbox toolbox" min-content
+                  "books cards" minmax(auto, 1fr)
+                  "books detailsSplitter" min-content
+                  "books details" minmax(auto, var(--detailsSplitter-height))
+                  / min-content minmax(auto, 1fr);
+  }
+
+  body.layout-list #cardsPane {
+    width: 100%;
+  }
+
+  body.layout-list #detailsSplitter {
+    display: unset;
+  }
+
+  body.layout-list #detailsPane {
+    min-height: 18em;
+  }
 }
