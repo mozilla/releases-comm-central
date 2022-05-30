@@ -172,6 +172,7 @@ class VCardEdit extends HTMLElement {
     this.lastName.addEventListener("input", () => this.generateDisplayName());
 
     if (this.vCardProperties) {
+      this.toggleDefaultEmailView();
       this.checkForBdayOccurences();
     }
   }
@@ -398,15 +399,19 @@ class VCardEdit extends HTMLElement {
     slot.addEventListener("slotchange", event => {
       let withPrimaryEmailChooser = slot.assignedElements().length > 1;
       emailFieldset.querySelectorAll("th")[2].hidden = !withPrimaryEmailChooser;
-      // Set primary eMail chooser.
-      this.querySelectorAll("vcard-email").forEach(vCardEmailComponent => {
-        vCardEmailComponent.setPrimaryEmailChooser(!withPrimaryEmailChooser);
-      });
+      // Set primary email chooser.
+      this.querySelectorAll(`tr[slot="v-email"]`).forEach(
+        vCardEmailComponent => {
+          vCardEmailComponent.setPrimaryEmailChooser(!withPrimaryEmailChooser);
+        }
+      );
     });
 
     // Add email button.
     let addEmail = this.shadowRoot.getElementById("vcard-add-email");
-    this.registerAddButton(addEmail, "email");
+    this.registerAddButton(addEmail, "email", () => {
+      this.toggleDefaultEmailView();
+    });
 
     // Add listener to be sure that only one checkbox from the emails is ticked.
     this.addEventListener("vcard-email-primary-checkbox", event => {
@@ -515,6 +520,14 @@ class VCardEdit extends HTMLElement {
     this.querySelectorAll("vcard-special-date").forEach(specialDate => {
       specialDate.birthdayAvailabilty({ hasBday: !!bdayOccurence });
     });
+  }
+
+  /**
+   * Hide the default checkbox if we only have one email slot.
+   */
+  toggleDefaultEmailView() {
+    this.querySelector(`.default-column input[type="checkbox"]`).hidden =
+      this.querySelectorAll(`tr[slot="v-email"]`).length <= 1;
   }
 }
 

@@ -35,6 +35,10 @@ th[hidden] {
   display: none;
 }
 
+#addr-book-edit-email table {
+  width: 100%;
+}
+
 #addr-book-edit-n {
   grid-column: 1 / -1;
 }

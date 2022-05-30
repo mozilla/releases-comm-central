@@ -42,7 +42,8 @@ class VCardEmailComponent extends HTMLTableRowElement {
       this.emailEl = this.querySelector('input[type="email"]');
       this.selectEl = this.querySelector("select");
       this.checkboxEl = this.querySelector('input[type="checkbox"]');
-      // Untick the checkbox of other VCardEmailComponents if this one is checked.
+      // Uncheck the checkbox of other VCardEmailComponents if this one is
+      // checked.
       this.checkboxEl.addEventListener("change", event => {
         if (event.target.checked === true) {
           this.dispatchEvent(VCardEmailComponent.CheckboxEvent());
@@ -100,9 +101,9 @@ class VCardEmailComponent extends HTMLTableRowElement {
       this.vCardPropertyEntry.params.pref &&
       this.vCardPropertyEntry.params.pref === "1"
     ) {
-      // Only delete the pref if a pref of 1 is set
-      // and the checkbox is not ticket.
-      // The pref mechanic is not fully supported yet. => Leave all others pref untouched.
+      // Only delete the pref if a pref of 1 is set and the checkbox is not
+      // checked. The pref mechanic is not fully supported yet. Leave all other
+      // prefs untouched.
       delete this.vCardPropertyEntry.params.pref;
     }
   }
@@ -120,8 +121,10 @@ class VCardEmailComponent extends HTMLTableRowElement {
   }
 
   /**
-   * This event is fired when the checkbox is ticked and used to untick the other
-   * checkboxes from each VCardEmailComponent.
+   * This event is fired when the checkbox is checked and we need to uncheck the
+   * other checkboxes from each VCardEmailComponent.
+   * FIXME: This should be a radio button part of radiogroup.
+   *
    * @returns {CustomEvent}
    */
   static CheckboxEvent() {
