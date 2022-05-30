@@ -54,7 +54,8 @@
           },
           "folder": {
             "$ref": "folders.MailFolder",
-            "description": "The <permission>accountsRead</permission> permission is required for this property to be included."
+            "description": "The <permission>accountsRead</permission> permission is required for this property to be included.",
+            "optional": true
           },
           "headerMessageId": {
             "type": "string",
