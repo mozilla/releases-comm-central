@@ -2181,7 +2181,7 @@ var detailsPane = {
     // Disable the toolbar buttons when starting to edit. Remember their state
     // to restore it when editing stops.
     for (let toolbarButton of document.querySelectorAll(
-      "#toolbox toolbarbutton"
+      "#toolbox > toolbar > toolbarbutton"
     )) {
       if (editing) {
         toolbarButton._wasDisabled = toolbarButton.disabled;
