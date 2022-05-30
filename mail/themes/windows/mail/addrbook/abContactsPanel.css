@@ -29,3 +29,7 @@
   border-top: 1px solid #a9b1b8;
   border-bottom: 1px solid #a9b1b8;
 }
+
+#GeneratedName {
+  padding-inline-start: 28px;
+}

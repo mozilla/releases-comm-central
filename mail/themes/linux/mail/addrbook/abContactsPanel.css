@@ -25,3 +25,7 @@
   border-inline-start: 1px solid ThreeDShadow;
   border-bottom: 1px solid ThreeDShadow;
 }
+
+#GeneratedName {
+  padding-inline-start: 24px;
+}

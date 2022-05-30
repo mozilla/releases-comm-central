@@ -7,7 +7,6 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/messenger.css");
-@import url("chrome://messenger/skin/addressbook/addressbook.css");
 
 #abContactsPanel:not([lwt-tree]) {
   --button-background: rgba(128, 128, 128, .15);
@@ -75,4 +74,20 @@
 
 #abResultsTree {
   border-inline-end: none !important;
+}
+
+/* Hide the twisty gap. */
+treechildren::-moz-tree-twisty {
+  width: 0;
+  padding-inline: 2px;
+}
+
+treechildren::-moz-tree-image(GeneratedName) {
+  margin-inline-end: 2px;
+  list-style-image: url("chrome://messenger/skin/icons/contact.svg");
+  opacity: 0.85;
+}
+
+treechildren::-moz-tree-image(GeneratedName, MailList) {
+  list-style-image: url("chrome://messenger/skin/icons/ablist.svg");
 }

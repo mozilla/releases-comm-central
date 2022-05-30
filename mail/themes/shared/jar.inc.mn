@@ -345,7 +345,6 @@
   skin/classic/messenger/shared/accountManage.css             (../shared/mail/accountManage.css)
   skin/classic/messenger/shared/accountManager.css            (../shared/mail/accountManager.css)
   skin/classic/messenger/shared/attachmentList.css            (../shared/mail/attachmentList.css)
-  skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/cardDAV.css                   (../shared/mail/cardDAV.css)
   skin/classic/messenger/shared/cardDialog.css                (../shared/mail/cardDialog.css)
   skin/classic/messenger/shared/chat.css                      (../shared/mail/chat.css)
