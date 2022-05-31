@@ -710,6 +710,17 @@ var OTR = {
     if (!pb) {
       return new ctypes.unsigned_int(0);
     }
+    try {
+      let conv = OTR.getUIConvFromContext(wContext);
+      // Ensure we never try to layer OTR on top of protocol native encryption.
+      if (
+        conv.encryptionState !== Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED
+      ) {
+        return new ctypes.unsigned_int(0);
+      }
+    } catch (error) {
+      // No conversation found for the context, fall through to default logic.
+    }
     let prefRequire = pb.getBoolPref(
       "options.otrRequireEncryption",
       Services.prefs.getBoolPref("chat.otr.default.requireEncryption")
