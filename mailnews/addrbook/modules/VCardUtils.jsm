@@ -633,6 +633,19 @@ class VCardProperties {
   entries = [];
 
   /**
+   * @param {?string} version - The version of vCard to use. Valid values are
+   *   "3.0" and "4.0". If unspecified, vCard 3.0 will be used.
+   */
+  constructor(version) {
+    if (version) {
+      if (!["3.0", "4.0"].includes(version)) {
+        throw new Error(`Unsupported vCard version: ${version}`);
+      }
+      this.addEntry(new VCardPropertyEntry("version", {}, "text", version));
+    }
+  }
+
+  /**
    * Parse a vCard into a VCardProperties object.
    *
    * @param {string} vCard
@@ -657,12 +670,7 @@ class VCardProperties {
    * @return {VCardProperties}
    */
   static fromPropertyMap(propertyMap, version = "4.0") {
-    if (!["3.0", "4.0"].includes(version)) {
-      throw new Error(`Unsupported vCard version: ${version}`);
-    }
-
-    let rv = new VCardProperties();
-    rv.addEntry(new VCardPropertyEntry("version", {}, "text", version));
+    let rv = new VCardProperties(version);
 
     for (let vPropName of Object.keys(typeMap)) {
       for (let vProp of typeMap[vPropName].fromAbCard(propertyMap, vPropName)) {
@@ -681,7 +689,7 @@ class VCardProperties {
    *
    * @type {ICAL.design.designSet}
    */
-  designSet = ICAL.design.vcard;
+  designSet = ICAL.design.vcard3;
 
   /**
    * Add an entry to this object.
@@ -694,6 +702,10 @@ class VCardProperties {
       throw new Error("Not a VCardPropertyEntry");
     }
 
+    if (this.entries.find(e => e.equals(entry))) {
+      return false;
+    }
+
     if (entry.name == "version") {
       if (entry.value == "3.0") {
         this.designSet = ICAL.design.vcard3;
@@ -702,10 +714,11 @@ class VCardProperties {
       } else {
         throw new Error(`Unsupported vCard version: ${entry.value}`);
       }
-    }
-
-    if (this.entries.find(e => e.equals(entry))) {
-      return false;
+      // Version must be the first entry, so clear out any existing values
+      // and add it to the start of the collection.
+      this.clearValues("version");
+      this.entries.unshift(entry);
+      return true;
     }
 
     this.entries.push(entry);

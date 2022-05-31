@@ -416,9 +416,105 @@ add_task(function testEntryMethods() {
 
 /**
  * Tests adding to and removing from VCardProperties using names and values.
+ * Uses the vCard 3 default entry types.
  */
-add_task(function testValueMethods() {
+add_task(function testValueMethods3() {
   let props = new VCardProperties();
+
+  // Add a value.
+
+  let first = props.addValue("tel", "1234567");
+  propertyEqual(first, {
+    name: "tel",
+    params: {},
+    type: "phone-number",
+    value: "1234567",
+  });
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "1234567" },
+  ]);
+
+  // Add a second value.
+
+  let second = props.addValue("tel", "2345678");
+  propertyEqual(second, {
+    name: "tel",
+    params: {},
+    type: "phone-number",
+    value: "2345678",
+  });
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "1234567" },
+    { name: "tel", params: {}, type: "phone-number", value: "2345678" },
+  ]);
+
+  // Add a value that already exists. The existing property should be returned.
+
+  let secondCopy = props.addValue("tel", "2345678");
+  Assert.equal(secondCopy, second);
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "1234567" },
+    { name: "tel", params: {}, type: "phone-number", value: "2345678" },
+  ]);
+
+  // Add a third value.
+
+  let third = props.addValue("tel", "3456789");
+  propertyEqual(third, {
+    name: "tel",
+    params: {},
+    type: "phone-number",
+    value: "3456789",
+  });
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "1234567" },
+    { name: "tel", params: {}, type: "phone-number", value: "2345678" },
+    { name: "tel", params: {}, type: "phone-number", value: "3456789" },
+  ]);
+
+  // Remove the second value.
+
+  props.removeValue("tel", "2345678");
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "1234567" },
+    { name: "tel", params: {}, type: "phone-number", value: "3456789" },
+  ]);
+
+  // Remove a value that's already been removed.
+
+  props.removeValue("tel", "2345678");
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "1234567" },
+    { name: "tel", params: {}, type: "phone-number", value: "3456789" },
+  ]);
+
+  // Remove a value that never existed.
+
+  props.removeValue("tel", "4567890");
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "1234567" },
+    { name: "tel", params: {}, type: "phone-number", value: "3456789" },
+  ]);
+
+  // Remove the first value.
+
+  props.removeValue("tel", "1234567");
+  propertyArrayEqual(props.entries, [
+    { name: "tel", params: {}, type: "phone-number", value: "3456789" },
+  ]);
+
+  // Remove the last value.
+
+  props.removeValue("tel", "3456789");
+  propertyArrayEqual(props.entries, []);
+});
+
+/**
+ * Tests adding to and removing from VCardProperties using names and values.
+ * Uses the vCard 4 default entry types.
+ */
+add_task(function testValueMethods4() {
+  let props = new VCardProperties("4.0");
 
   // Add a value.
 
@@ -430,12 +526,8 @@ add_task(function testValueMethods() {
     value: "tel:1234567",
   });
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:1234567",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:1234567" },
   ]);
 
   // Add a second value.
@@ -448,18 +540,9 @@ add_task(function testValueMethods() {
     value: "tel:2345678",
   });
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:1234567",
-    },
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:2345678",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:1234567" },
+    { name: "tel", params: {}, type: "uri", value: "tel:2345678" },
   ]);
 
   // Add a value that already exists. The existing property should be returned.
@@ -467,18 +550,9 @@ add_task(function testValueMethods() {
   let secondCopy = props.addValue("tel", "tel:2345678");
   Assert.equal(secondCopy, second);
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:1234567",
-    },
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:2345678",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:1234567" },
+    { name: "tel", params: {}, type: "uri", value: "tel:2345678" },
   ]);
 
   // Add a third value.
@@ -491,96 +565,53 @@ add_task(function testValueMethods() {
     value: "tel:3456789",
   });
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:1234567",
-    },
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:2345678",
-    },
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:3456789",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:1234567" },
+    { name: "tel", params: {}, type: "uri", value: "tel:2345678" },
+    { name: "tel", params: {}, type: "uri", value: "tel:3456789" },
   ]);
 
   // Remove the second value.
 
   props.removeValue("tel", "tel:2345678");
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:1234567",
-    },
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:3456789",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:1234567" },
+    { name: "tel", params: {}, type: "uri", value: "tel:3456789" },
   ]);
 
   // Remove a value that's already been removed.
 
   props.removeValue("tel", "tel:2345678");
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:1234567",
-    },
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:3456789",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:1234567" },
+    { name: "tel", params: {}, type: "uri", value: "tel:3456789" },
   ]);
 
   // Remove a value that never existed.
 
   props.removeValue("tel", "tel:4567890");
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:1234567",
-    },
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:3456789",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:1234567" },
+    { name: "tel", params: {}, type: "uri", value: "tel:3456789" },
   ]);
 
   // Remove the first value.
 
   props.removeValue("tel", "tel:1234567");
   propertyArrayEqual(props.entries, [
-    {
-      name: "tel",
-      params: {},
-      type: "uri",
-      value: "tel:3456789",
-    },
+    { name: "version", params: {}, type: "text", value: "4.0" },
+    { name: "tel", params: {}, type: "uri", value: "tel:3456789" },
   ]);
 
   // Remove the last value.
 
   props.removeValue("tel", "tel:3456789");
-  propertyArrayEqual(props.entries, []);
+  propertyArrayEqual(props.entries, [
+    { name: "version", params: {}, type: "text", value: "4.0" },
+  ]);
 });
 
 /**
