@@ -457,6 +457,7 @@
           this.nameLine.textContent = this.displayName;
           this.addressLine.textContent = "";
           this.avatar.replaceChildren();
+          this.avatar.classList.remove("has-avatar");
         }
         this.cardDetails = {};
         return;
@@ -554,6 +555,7 @@
         // in smaller format.
         img.src = photoURL;
         this.avatar.appendChild(img);
+        this.avatar.classList.add("has-avatar");
       } else {
         this._createAvatarPlaceholder();
       }
@@ -566,6 +568,7 @@
         .toUpperCase();
       letter.ariaHidden = true;
       this.avatar.appendChild(letter);
+      this.avatar.classList.remove("has-avatar");
     }
 
     addToAddressBook() {

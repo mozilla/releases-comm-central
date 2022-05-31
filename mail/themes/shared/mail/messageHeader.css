@@ -926,9 +926,19 @@ button.show-more-recipients:hover {
   display: inline-flex;
 }
 
+.message-header-show-recipient-avatar .recipient-avatar.has-avatar,
+.message-header-show-sender-full-address .recipient-avatar {
+  vertical-align: middle;
+}
+
+.message-header-show-sender-full-address #expandedfromLabel,
 .message-header-show-recipient-avatar #expandedfromLabel {
   padding-block-start: var(--recipient-avatar-margin-block-start);
   align-self: center;
+}
+
+.message-header-show-recipient-avatar:not(.message-header-show-sender-full-address ) #expandedfromLabel {
+  padding-block-start: 0;
 }
 
 .recipient-multi-line {
@@ -955,8 +965,4 @@ button.show-more-recipients:hover {
 
 .message-header-show-sender-full-address #expandedfromBox .recipient-single-line {
   display: none;
-}
-
-.message-header-show-sender-full-address .recipient-avatar {
-  vertical-align: middle;
 }
