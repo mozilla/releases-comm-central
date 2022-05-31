@@ -1367,3 +1367,7 @@ pref("mail.useNewMailTabs", false);
 pref("print.print_headerleft", "");
 pref("print.print_headercenter", "&T");
 pref("print.print_headerright", "");
+
+// Enable Masonry Layout for AddressBook.
+pref("layout.css.grid-template-masonry-value.enabled", true);
+
