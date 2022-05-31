@@ -48,26 +48,6 @@ add_task(async function testComposerIsReady() {
           funcName: "beginNew",
           arguments: [messages[0].id, details],
         },
-        {
-          description: "Reply default.",
-          funcName: "beginReply",
-          arguments: [messages[0].id, details],
-        },
-        {
-          description: "Reply as replyToSender.",
-          funcName: "beginReply",
-          arguments: [messages[0].id, "replyToSender", details],
-        },
-        {
-          description: "Reply as replyToList.",
-          funcName: "beginReply",
-          arguments: [messages[0].id, "replyToList", details],
-        },
-        {
-          description: "Reply as replyToAll.",
-          funcName: "beginReply",
-          arguments: [messages[0].id, "replyToAll", details],
-        },
       ];
 
       for (let test of tests) {
