@@ -576,6 +576,17 @@ var CardDAVServer = {
         return "UID:" + newUID + "\r\nX-MODIFIED-BY-SERVER:1";
       });
     }
+    if (this.mimicGoogle && vCard.includes("\nPHOTO")) {
+      let [, version] = vCard.match(/VERSION:([34]\.0)/);
+      if (version && version != "3.0") {
+        let start = vCard.indexOf("\nPHOTO") + 1;
+        let end = vCard.indexOf("\n", start) + 1;
+        while (vCard[end] == " ") {
+          end = vCard.indexOf("\n", end) + 1;
+        }
+        vCard = vCard.substring(0, start) + vCard.substring(end);
+      }
+    }
     let etag = "" + vCard.length;
     this.cards.set(name, { etag, vCard, changed: ++this.changeCount });
     this.deletedCards.delete(name);

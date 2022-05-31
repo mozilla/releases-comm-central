@@ -2599,6 +2599,12 @@ var detailsPane = {
 
       // TODO: convert this to UID.
       book = MailServices.ab.getDirectory(this.addContactBookList.value);
+      if (book.getBoolValue("carddav.vcard3", false)) {
+        // This is a CardDAV book, and the server discards photos unless the
+        // vCard 3 format is used. Since we know this is a new card, setting
+        // the version here won't cause a problem.
+        vCardEdit.vCardProperties.addValue("version", "3.0");
+      }
     }
     if (!book || book.readOnly) {
       throw new Components.Exception(
@@ -2631,7 +2637,7 @@ var detailsPane = {
       }
       if (card.supportsVCard) {
         for (let entry of card.vCardProperties.getAllEntries("photo")) {
-          card.vCardProperties.remove(entry);
+          card.vCardProperties.removeEntry(entry);
         }
       }
     }
@@ -2644,9 +2650,20 @@ var detailsPane = {
           reader.onloadend = resolve;
           reader.readAsDataURL(this.photo._blob);
         });
-        card.vCardProperties.add(
-          new VCardPropertyEntry("photo", {}, "uri", reader.result)
-        );
+        if (card.vCardProperties.getFirstValue("version") == "4.0") {
+          card.vCardProperties.addEntry(
+            new VCardPropertyEntry("photo", {}, "uri", reader.result)
+          );
+        } else {
+          card.vCardProperties.addEntry(
+            new VCardPropertyEntry(
+              "photo",
+              { encoding: "B" },
+              "binary",
+              reader.result.substring(reader.result.indexOf(",") + 1)
+            )
+          );
+        }
       } else {
         let leafName = `${AddrBookUtils.newUID()}.jpg`;
         let path = PathUtils.join(PathUtils.profileDir, "Photos", leafName);

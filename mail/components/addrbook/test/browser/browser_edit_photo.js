@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { CardDAVDirectory } = ChromeUtils.import(
+  "resource:///modules/CardDAVDirectory.jsm"
+);
+const { CardDAVServer } = ChromeUtils.import(
+  "resource://testing-common/CardDAVServer.jsm"
+);
+const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+
 // TODO: Fix the UI so that we don't have to do this.
 window.maximize();
 
@@ -9,8 +17,6 @@ const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
-
-let photo1Name, photo1Path;
 
 async function inEditingMode() {
   let abWindow = getAddressBookWindow();
@@ -210,10 +216,11 @@ add_setup(async function() {
 registerCleanupFunction(async function cleanUp() {
   await closeAddressBookWindow();
   personalBook.deleteCards(personalBook.childCards);
+  await CardDAVServer.close();
 });
 
 /** Create a new contact. We'll add a photo to this contact. */
-add_task(async function test_add_photo() {
+async function subtest_add_photo(book) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
@@ -222,6 +229,8 @@ add_task(async function test_add_photo() {
   let photo = abDocument.getElementById("photo");
   let dialog = abWindow.document.getElementById("photoDialog");
   let { saveButton } = dialog;
+
+  openDirectory(book);
 
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
@@ -256,33 +265,22 @@ add_task(async function test_add_photo() {
   await photoChangePromise;
   Assert.notEqual(photo.style.backgroundImage, "", "a photo is shown");
 
-  // Save the contact and check the photo was saved.
+  // Save the contact.
 
+  let createdPromise = TestUtils.topicObserved("addrbook-contact-created");
   setInputValues({
     DisplayName: "Person with Photo 1",
   });
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
 
-  let [card] = personalBook.childCards;
-  photo1Name = card.getProperty("PhotoName", "");
-  Assert.ok(photo1Name, "PhotoName property saved on card");
-
-  photo1Path = PathUtils.join(profileDir, "Photos", photo1Name);
-  let photo1File = new FileUtils.File(photo1Path);
-  Assert.ok(photo1File.exists(), "photo saved to disk");
-
-  let image = new Image();
-  let loadedPromise = BrowserTestUtils.waitForEvent(image, "load");
-  image.src = Services.io.newFileURI(photo1File).spec;
-  await loadedPromise;
-
-  Assert.equal(image.naturalWidth, 300, "photo saved at correct width");
-  Assert.equal(image.naturalHeight, 300, "photo saved at correct height");
-});
+  let [card, uid] = await createdPromise;
+  Assert.equal(uid, book.UID);
+  return card;
+}
 
 /** Create another new contact. This time we'll add a photo, but discard it. */
-add_task(async function test_dont_add_photo() {
+async function subtest_dont_add_photo(book) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
@@ -386,22 +384,20 @@ add_task(async function test_dont_add_photo() {
 
   // Save the contact and check the photo was NOT saved.
 
+  let createdPromise = TestUtils.topicObserved("addrbook-contact-created");
   setInputValues({
     DisplayName: "Person with Photo 2",
   });
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
 
-  let [, card] = personalBook.childCards;
-  Assert.equal(
-    card.getProperty("PhotoName", "NO VALUE"),
-    "NO VALUE",
-    "PhotoName property not saved on card"
-  );
-});
+  let [card, uid] = await createdPromise;
+  Assert.equal(uid, book.UID);
+  return card;
+}
 
 /** Go back to the first contact and discard the photo. */
-add_task(async function test_discard_photo() {
+async function subtest_discard_photo(book, checkPhotoCallback) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
@@ -412,15 +408,16 @@ add_task(async function test_discard_photo() {
   let dialog = abWindow.document.getElementById("photoDialog");
   let { discardButton } = dialog;
 
+  openDirectory(book);
+
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
   // Open the photo dialog by clicking on the photo.
 
-  Assert.stringContains(
-    photo.style.backgroundImage,
-    photo1Name,
+  Assert.ok(
+    checkPhotoCallback(photo.style.backgroundImage),
     "saved photo shown"
   );
 
@@ -441,26 +438,22 @@ add_task(async function test_discard_photo() {
 
   // Save the contact and check the photo was removed.
 
+  let updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
 
-  let [card] = personalBook.childCards;
-  Assert.equal(
-    card.getProperty("PhotoName", "NO VALUE"),
-    "NO VALUE",
-    "PhotoName property removed from card"
-  );
-  Assert.ok(
-    !new FileUtils.File(photo1Path).exists(),
-    "photo removed from disk"
-  );
-});
+  let [card, uid] = await updatedPromise;
+  Assert.equal(uid, book.UID);
+  return card;
+}
 
-add_task(async function test_paste_url() {
+/** Check that pasting URLs on photo widgets works. */
+async function subtest_paste_url() {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  let cancelEditButton = abDocument.getElementById("cancelEditButton");
   let photo = abDocument.getElementById("photo");
   let dropTarget = abDocument.getElementById("photoDropTarget");
 
@@ -569,4 +562,237 @@ add_task(async function test_paste_url() {
 
   EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
   await waitForDialogOpenState(false);
+
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await notInEditingMode();
+}
+
+/** Test photo operations with a local address book. */
+add_task(async function test_local() {
+  // Create a new contact. We'll add a photo to this contact.
+
+  let card1 = await subtest_add_photo(personalBook);
+  let photo1Name = card1.getProperty("PhotoName", "");
+  Assert.ok(photo1Name, "PhotoName property saved on card");
+
+  let photo1Path = PathUtils.join(profileDir, "Photos", photo1Name);
+  let photo1File = new FileUtils.File(photo1Path);
+  Assert.ok(photo1File.exists(), "photo saved to disk");
+
+  let image = new Image();
+  let loadedPromise = BrowserTestUtils.waitForEvent(image, "load");
+  image.src = Services.io.newFileURI(photo1File).spec;
+  await loadedPromise;
+
+  Assert.equal(image.naturalWidth, 300, "photo saved at correct width");
+  Assert.equal(image.naturalHeight, 300, "photo saved at correct height");
+
+  // Create another new contact. This time we'll add a photo, but discard it.
+
+  let card2 = await subtest_dont_add_photo(personalBook);
+  Assert.equal(
+    card2.getProperty("PhotoName", "NO VALUE"),
+    "NO VALUE",
+    "PhotoName property not saved on card"
+  );
+
+  // Go back to the first contact and discard the photo.
+
+  let card3 = await subtest_discard_photo(personalBook, backgroundImage =>
+    backgroundImage.includes(photo1Name)
+  );
+  Assert.equal(
+    card3.getProperty("PhotoName", "NO VALUE"),
+    "NO VALUE",
+    "PhotoName property removed from card"
+  );
+  Assert.ok(
+    !new FileUtils.File(photo1Path).exists(),
+    "photo removed from disk"
+  );
+
+  // Check that pasting URLs on photo widgets works.
+
+  await subtest_paste_url(personalBook);
+});
+
+/**
+ * Test photo operations with a CardDAV address book and a server that only
+ * speaks vCard 3, i.e. Google.
+ */
+add_task(async function test_add_photo_carddav3() {
+  // Set up the server, address book and password.
+
+  CardDAVServer.open("alice", "alice");
+  CardDAVServer.mimicGoogle = true;
+
+  let book = createAddressBook(
+    "CardDAV Book",
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  );
+  book.setIntValue("carddav.syncinterval", 0);
+  book.setStringValue("carddav.url", CardDAVServer.url);
+  book.setStringValue("carddav.username", "alice");
+  book.setBoolValue("carddav.vcard3", true);
+
+  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(CardDAVServer.origin, null, "test", "alice", "alice", "", "");
+  Services.logins.addLogin(loginInfo);
+
+  // Create a new contact. We'll add a photo to this contact.
+
+  // This notification fires when we retrieve the saved card from the server,
+  // which happens before subtest_add_photo finishes.
+  let updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
+  let card1 = await subtest_add_photo(book);
+  Assert.equal(
+    card1.getProperty("PhotoName", "RIGHT"),
+    "RIGHT",
+    "PhotoName property not saved on card"
+  );
+
+  // Check the card we sent.
+  let photoProp = card1.vCardProperties.getFirstEntry("photo");
+  Assert.ok(card1.vCardProperties.designSet === ICAL.design.vcard3);
+  Assert.ok(photoProp);
+  Assert.equal(photoProp.params.encoding, "B");
+  Assert.equal(photoProp.type, "binary");
+  Assert.ok(photoProp.value.startsWith("/9j/"));
+
+  // Check the card we received from the server. If the server didn't like it,
+  // the photo will be removed and this will fail.
+  let [card2] = await updatedPromise;
+  photoProp = card2.vCardProperties.getFirstEntry("photo");
+  Assert.ok(card2.vCardProperties.designSet === ICAL.design.vcard3);
+  Assert.ok(photoProp);
+  Assert.equal(photoProp.params.encoding, "B");
+  Assert.equal(photoProp.type, "binary");
+  Assert.ok(photoProp.value.startsWith("/9j/"));
+
+  // Check the card on the server.
+  Assert.equal(CardDAVServer.cards.size, 1);
+  let [serverCard] = [...CardDAVServer.cards.values()];
+  Assert.ok(
+    serverCard.vCard.includes("\nPHOTO;ENCODING=B:/9j/"),
+    "photo included in card on server"
+  );
+
+  // Discard the photo.
+
+  let card3 = await subtest_discard_photo(book, backgroundImage =>
+    backgroundImage.startsWith(`url("data:image/jpeg;base64,/9j/`)
+  );
+
+  // Check the card we sent.
+  Assert.equal(card3.vCardProperties.getFirstEntry("photo"), null);
+
+  // This notification is the second of two, and fires when we retrieve the
+  // saved card from the server, which doesn't happen before
+  // subtest_discard_photo finishes.
+  let [card4] = await TestUtils.topicObserved("addrbook-contact-updated");
+  Assert.equal(card4.vCardProperties.getFirstEntry("photo"), null);
+
+  // Check the card on the server.
+  Assert.equal(CardDAVServer.cards.size, 1);
+  [serverCard] = [...CardDAVServer.cards.values()];
+  Assert.ok(
+    !serverCard.vCard.includes("PHOTO:"),
+    "photo removed from card on server"
+  );
+
+  await promiseDirectoryRemoved(book.URI);
+  CardDAVServer.mimicGoogle = false;
+  CardDAVServer.close();
+  CardDAVServer.reset();
+});
+
+/**
+ * Test photo operations with a CardDAV address book and a server that can
+ * handle vCard 4.
+ */
+add_task(async function test_add_photo_carddav4() {
+  // Set up the server, address book and password.
+
+  CardDAVServer.open("bob", "bob");
+
+  let book = createAddressBook(
+    "CardDAV Book",
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  );
+  book.setIntValue("carddav.syncinterval", 0);
+  book.setStringValue("carddav.url", CardDAVServer.url);
+  book.setStringValue("carddav.username", "bob");
+
+  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
+  Services.logins.addLogin(loginInfo);
+
+  // Create a new contact. We'll add a photo to this contact.
+
+  // This notification fires when we retrieve the saved card from the server,
+  // which happens before subtest_add_photo finishes.
+  let updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
+  let card1 = await subtest_add_photo(book);
+  Assert.equal(
+    card1.getProperty("PhotoName", "RIGHT"),
+    "RIGHT",
+    "PhotoName property not saved on card"
+  );
+
+  // Check the card we sent.
+  let photoProp = card1.vCardProperties.getFirstEntry("photo");
+  Assert.ok(card1.vCardProperties.designSet === ICAL.design.vcard);
+  Assert.ok(photoProp);
+  Assert.equal(photoProp.params.encoding, undefined);
+  Assert.equal(photoProp.type, "uri");
+  Assert.ok(photoProp.value.startsWith("data:image/jpeg;base64,/9j/"));
+
+  // Check the card we received from the server.
+  let [card2] = await updatedPromise;
+  photoProp = card2.vCardProperties.getFirstEntry("photo");
+  Assert.ok(card2.vCardProperties.designSet === ICAL.design.vcard);
+  Assert.ok(photoProp);
+  Assert.equal(photoProp.params.encoding, undefined);
+  Assert.equal(photoProp.type, "uri");
+  Assert.ok(photoProp.value.startsWith("data:image/jpeg;base64,/9j/"));
+
+  // Check the card on the server.
+  Assert.equal(CardDAVServer.cards.size, 1);
+  let [serverCard] = [...CardDAVServer.cards.values()];
+  Assert.ok(
+    serverCard.vCard.includes("\nPHOTO:data:image/jpeg;base64\\,/9j/"),
+    "photo included in card on server"
+  );
+
+  // Discard the photo.
+
+  let card3 = await subtest_discard_photo(book, backgroundImage =>
+    backgroundImage.startsWith(`url("data:image/jpeg;base64,/9j/`)
+  );
+
+  // Check the card we sent.
+  Assert.equal(card3.vCardProperties.getFirstEntry("photo"), null);
+
+  // This notification is the second of two, and fires when we retrieve the
+  // saved card from the server, which doesn't happen before
+  // subtest_discard_photo finishes.
+  let [card4] = await TestUtils.topicObserved("addrbook-contact-updated");
+  Assert.equal(card4.vCardProperties.getFirstEntry("photo"), null);
+
+  // Check the card on the server.
+  Assert.equal(CardDAVServer.cards.size, 1);
+  [serverCard] = [...CardDAVServer.cards.values()];
+  console.log(serverCard.vCard);
+  Assert.ok(
+    !serverCard.vCard.includes("PHOTO:"),
+    "photo removed from card on server"
+  );
+
+  await promiseDirectoryRemoved(book.URI);
+  CardDAVServer.close();
+  CardDAVServer.reset();
 });

@@ -45,11 +45,17 @@ class CardDAVDirectory extends SQLiteDirectory {
   init(uri) {
     super.init(uri);
 
-    // If this directory is configured, start sync'ing with the server in 30s.
-    // Don't do this immediately, as this code runs at start-up and could
-    // impact performance if there are lots of changes to process.
-    if (this._serverURL && this.getIntValue("carddav.syncinterval", 30) > 0) {
-      this._syncTimer = setTimeout(() => this.syncWithServer(), 30000);
+    let serverURL = this._serverURL;
+    if (serverURL) {
+      if (serverURL.startsWith("https://www.googleapis.com/")) {
+        this.setBoolValue("carddav.vcard3", true);
+      }
+      // If this directory is configured, start sync'ing with the server in 30s.
+      // Don't do this immediately, as this code runs at start-up and could
+      // impact performance if there are lots of changes to process.
+      if (this.getIntValue("carddav.syncinterval", 30) > 0) {
+        this._syncTimer = setTimeout(() => this.syncWithServer(), 30000);
+      }
     }
 
     let uidsToSync = this.getStringValue("carddav.uidsToSync", "");
