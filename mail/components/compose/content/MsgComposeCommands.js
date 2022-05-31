@@ -3650,7 +3650,13 @@ var dictionaryRemovalObserver = {
 
 function EditorClick(event) {
   if (event.target.matches(".remove-card")) {
-    event.target.closest(".moz-card").remove();
+    let card = event.target.closest(".moz-card");
+    let url = card.querySelector(".url").href;
+    if (card.matches(".url-replaced")) {
+      card.replaceWith(url);
+    } else {
+      card.remove();
+    }
   } else if (event.target.matches(`.add-card[data-opened='${gOpened}']`)) {
     let url = event.target.getAttribute("data-url");
     let meRect = document.getElementById("messageEditor").getClientRects()[0];
@@ -3686,12 +3692,11 @@ function EditorClick(event) {
 
 /**
  * Grab Open Graph or Twitter card data from the URL and insert a link preview
- * into the editor
+ * into the editor. If no proper data could be found, nothing is inserted.
+ *
  * @param {string} url - The URL to add preview for.
- * @param {boolean} skipBad - Skip adding anything on bad data. When false,
- *    insert the url.
  */
-async function addLinkPreview(url, skipBad) {
+async function addLinkPreview(url) {
   return fetch(url)
     .then(response => response.text())
     .then(text => {
@@ -3701,47 +3706,67 @@ async function addLinkPreview(url, skipBad) {
       // representation and use that instead.
       // @see https://ogp.me/
       // @see https://developer.twitter.com/en/docs/twitter-for-websites/cards/
+      // Also look for standard meta information as a fallback.
 
-      let title = doc
-        .querySelector("meta[property='og:title'],meta[name='twitter:title']")
-        ?.getAttribute("content");
+      let title =
+        doc
+          .querySelector("meta[property='og:title'],meta[name='twitter:title']")
+          ?.getAttribute("content") ||
+        doc.querySelector("title")?.textContent.trim();
       let description = doc
         .querySelector(
-          "meta[property='og:description'],meta[name='twitter:description']"
+          "meta[property='og:description'],meta[name='twitter:description'],meta[name='description']"
         )
         ?.getAttribute("content");
 
       // Handle the case where we didn't get proper data.
       if (!title && !description) {
         console.debug(`No link preview data for url=${url}`);
-        if (skipBad) {
-          return;
-        }
-        getBrowser().contentDocument.execCommand("insertHTML", false, url);
         return;
       }
 
       let image = doc
-        .querySelector("meta[property='og:image'],meta[name='twitter:image']")
+        .querySelector("meta[property='og:image']")
         ?.getAttribute("content");
-      let alt = doc
-        .querySelector(
-          "meta[property='og:image:alt'],meta[name='twitter:image:alt']"
-        )
-        ?.getAttribute("content");
-      let creator = doc.querySelector("meta[name='twitter:creator']");
+      let alt =
+        doc
+          .querySelector("meta[property='og:image:alt']")
+          ?.getAttribute("content") || "";
+      if (!image) {
+        image = doc
+          .querySelector("meta[name='twitter:image']")
+          ?.getAttribute("content");
+        alt =
+          doc
+            .querySelector("meta[name='twitter:image:alt']")
+            ?.getAttribute("content") || "";
+      }
+      let imgIsTouchIcon = false;
+      if (!image) {
+        image = doc
+          .querySelector(
+            `link[rel='icon']:is(
+               [sizes~='any'],
+               [sizes~='196x196' i],
+               [sizes~='192x192' i]
+               [sizes~='180x180' i],
+               [sizes~='128x128' i]
+             )`
+          )
+          ?.getAttribute("href");
+        alt = "";
+        imgIsTouchIcon = Boolean(image);
+      }
 
       // Grab our template and fill in the variables.
       let card = document
         .getElementById("dataCardTemplate")
-        .content.cloneNode(true);
+        .content.cloneNode(true).firstElementChild;
+      card.id = "card-" + Date.now();
       card.querySelector("img").src = image;
       card.querySelector("img").alt = alt;
       card.querySelector(".title").textContent = title;
-      card.querySelector(".creator").textContent = creator;
-      if (!creator) {
-        card.querySelector(".creator").remove();
-      }
+
       card.querySelector(".description").textContent = description;
       card.querySelector(".url").textContent = "🔗 " + url;
       card.querySelector(".url").href = url;
@@ -3751,13 +3776,19 @@ async function addLinkPreview(url, skipBad) {
       // twitter:card "summary" = Summary Card
       // twitter:card "summary_large_image" = Summary Card with Large Image
       if (
-        doc.querySelector(
+        !imgIsTouchIcon &&
+        (doc.querySelector(
           "meta[name='twitter:card'][content='summary_large_image']"
-        )
+        ) ||
+          doc
+            .querySelector("meta[property='og:image:width']")
+            ?.getAttribute("content") >= 600)
       ) {
         card.querySelector("img").style.width = "600px";
-        card.querySelector(".url").style.maxWidth = "550px";
-        card.querySelector(".site").parentNode.remove();
+      }
+
+      if (!image) {
+        card.querySelector(".card-pic").remove();
       }
 
       // If subject is empty, set that as well.
@@ -3766,21 +3797,28 @@ async function addLinkPreview(url, skipBad) {
         subject.value = title;
       }
 
+      // Select the inserted URL so that if the preview is found one can
+      // use undo to remove it and only use the URL instead.
+      // Only do it if there was no typing after the url.
+      let selection = getBrowser().contentDocument.getSelection();
+      let n = selection.focusNode;
+      if (n.textContent.endsWith(url)) {
+        selection.extend(n, n.textContent.lastIndexOf(url));
+        card.classList.add("url-replaced");
+      }
+
       // Add a line after the card. Otherwise it's hard to continue writing.
       let line = GetCurrentEditor().returnInParagraphCreatesNewParagraph
         ? "<p>&#160;</p>"
         : "<br />";
+      card.classList.add("loading"); // Used for fade-in effect.
       getBrowser().contentDocument.execCommand(
         "insertHTML",
         false,
-        card.firstElementChild.outerHTML + line
+        card.outerHTML + line
       );
-
-      for (let card of getBrowser().contentDocument.querySelectorAll(
-        ".moz-card"
-      )) {
-        card.classList.add("loaded");
-      }
+      let cardInDoc = getBrowser().contentDocument.getElementById(card.id);
+      cardInDoc.classList.remove("loading");
     });
 }
 
@@ -3796,7 +3834,7 @@ function onPasteOrDrop(e) {
 
   // For paste use e.clipboardData, for drop use e.dataTransfer.
   let dataTransfer = "clipboardData" in e ? e.clipboardData : e.dataTransfer;
-  if (!Services.io.offline && !dataTransfer.types.includes("text/html")) {
+  if (!Services.io.offline) {
     let type = dataTransfer.types.find(t =>
       ["text/uri-list", "text/x-moz-url", "text/plain"].includes(t)
     );
@@ -3807,14 +3845,17 @@ function onPasteOrDrop(e) {
         .trim();
       if (/^https?:\/\//.test(url)) {
         e.preventDefault(); // We'll handle the pasting manually.
-        if (Services.prefs.getBoolPref("mail.compose.add_link_preview", true)) {
+        if (
+          Services.prefs.getBoolPref("mail.compose.add_link_preview", false)
+        ) {
           getBrowser().contentDocument.execCommand("insertHTML", false, url);
+
           addLinkPreview(url);
         } else {
           getBrowser().contentDocument.execCommand("insertHTML", false, url);
           /*
           // FIXME - see bug 1572648
-          // Make the below UI nicer, and remove the inserHTML above.
+          // Make the below UI nicer, and remove the insertHTML above.
           getBrowser().contentDocument.execCommand(
             "insertHTML",
             false,
@@ -3825,6 +3866,10 @@ function onPasteOrDrop(e) {
         return;
       }
     }
+  }
+
+  if (!dataTransfer.types.includes("text/html")) {
+    return;
   }
 
   // Ok, we have html content to paste.
@@ -3996,8 +4041,9 @@ async function ComposeStartup() {
   // Observe dictionary removals.
   dictionaryRemovalObserver.addObserver();
 
-  document.addEventListener("paste", onPasteOrDrop);
-  document.addEventListener("drop", onPasteOrDrop);
+  let messageEditor = document.getElementById("messageEditor");
+  messageEditor.addEventListener("paste", onPasteOrDrop);
+  messageEditor.addEventListener("drop", onPasteOrDrop);
 
   let identityList = document.getElementById("msgIdentity");
   if (identityList) {

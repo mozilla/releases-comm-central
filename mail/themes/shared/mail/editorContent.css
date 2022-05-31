@@ -59,11 +59,11 @@ img {
   -moz-force-broken-image-icon: 1;
 }
 
-.moz-card {
-  position: relative;
+.moz-card.loading {
   opacity: 0;
 }
-.moz-card.loaded {
+.moz-card {
+  position: relative;
   opacity: 1;
   transition: opacity 1.5s;
 }
@@ -78,12 +78,18 @@ img {
   cursor: pointer;
 
   font-size: 1.4em;
+  line-height: 18px;
+  border: 1px solid #f9f9fa;
+  border-radius: 15px;
   float: inline-end;
   font-weight: 600;
   display: inline-block;
   transform: rotate(45deg);
   margin-block: -0.2em 0.2em;
   margin-inline: 0.2em -0.2em;
+
+  color: #2a2a2e;
+  background-color: white;
 }
 .moz-card .remove-card:hover {
   opacity: 1;
