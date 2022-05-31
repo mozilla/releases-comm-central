@@ -195,4 +195,43 @@ XPCOMUtils.defineLazyPreferenceGetter(
       );
     });
   };
+
+  await customElements.whenDefined("search-addons");
+  SearchAddons.prototype.searchAddons = function(query) {
+    if (query.length === 0) {
+      return;
+    }
+
+    let url = new URL(
+      formatUTMParams(
+        "addons-manager-search",
+        AddonRepository.getSearchURL(query)
+      )
+    );
+
+    // Limit search to themes, if the themes section is currently active.
+    if (
+      document.getElementById("page-header").getAttribute("type") == "theme"
+    ) {
+      url.searchParams.set("cat", "themes");
+    }
+
+    let browser = getBrowserElement();
+    let chromewin = browser.ownerGlobal;
+    chromewin.openLinkIn(url.href, "tab", {
+      fromChrome: true,
+      triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal(
+        {}
+      ),
+    });
+
+    AMTelemetry.recordLinkEvent({
+      object: "aboutAddons",
+      value: "search",
+      extra: {
+        type: this.closest("addon-page-header").getAttribute("type"),
+        view: getTelemetryViewName(this),
+      },
+    });
+  };
 })();
