@@ -521,6 +521,9 @@ MailGlue.prototype = {
       for (let addon of addons) {
         if (addon.permissions() & AddonManager.PERM_CAN_UPGRADE) {
           AddonManager.getAddonByID(addon.id).then(addon => {
+            if (!AddonManager.shouldAutoUpdate(addon)) {
+              return;
+            }
             addon.findUpdates(
               {
                 onUpdateFinished() {},
