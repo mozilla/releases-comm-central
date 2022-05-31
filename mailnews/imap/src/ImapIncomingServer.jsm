@@ -42,7 +42,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
     // nsIImapIncomingServer attributes that map directly to pref values.
     this._mapAttrsToPrefs([
-      ["Bool", "forceSelect", "force_select_imap"],
+      ["Char", "forceSelect", "force_select"],
       ["Char", "adminUrl", "admin_url"],
       ["Bool", "dualUseFolders", "dual_use_folders"],
       ["Bool", "cleanupInboxOnExit", "cleanup_inbox_on_exit"],

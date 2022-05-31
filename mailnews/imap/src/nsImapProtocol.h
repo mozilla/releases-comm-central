@@ -636,6 +636,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // LIST SUBSCRIBED command (from RFC 5258) crashes some servers. so we need to
   // identify those servers
   bool GetListSubscribedIsBrokenOnServer();
+  bool IsExtraSelectNeeded();
   void Lsub(const char* mailboxPattern, bool addDirectoryIfNecessary);
   void List(const char* mailboxPattern, bool addDirectoryIfNecessary,
             bool useXLIST = false);
@@ -739,6 +740,7 @@ class nsImapProtocol : public nsIImapProtocol,
   bool m_closeNeededBeforeSelect;
   bool m_retryUrlOnError;
   bool m_preferPlainText;
+  nsCString m_forceSelectValue;
   bool m_forceSelect;
 
   int32_t m_uidValidity;  // stored uid validity for the selected folder.
