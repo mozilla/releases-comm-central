@@ -399,34 +399,3 @@ add_task(async function test_message_panes_no_messages_permission() {
 add_task(async function test_message_panes_no_permissions() {
   return subtest_message_panes([], "message_attachments");
 });
-
-// Tests using a message with two attachment.
-add_task(async function test_message_panes() {
-  gMessage = [...gFolders[0].messages][1];
-  window.gFolderDisplay.tree.view.selection.select(1);
-  let messagePane = document.getElementById("messagepane");
-  //await BrowserTestUtils.browserLoaded(messagePane);
-  await promiseMessageLoaded(
-    messagePane,
-    window.gFolderDisplay.selectedMessage
-  );
-
-  await subtest_message_panes(
-    ["accountsRead", "messagesRead"],
-    "all_message_attachments",
-    gExpectedAttachments
-  );
-});
-add_task(async function test_message_panes_no_accounts_permission() {
-  return subtest_message_panes(
-    ["messagesRead"],
-    "all_message_attachments",
-    gExpectedAttachments
-  );
-});
-add_task(async function test_message_panes_no_messages_permission() {
-  return subtest_message_panes(["accountsRead"], "all_message_attachments");
-});
-add_task(async function test_message_panes_no_permissions() {
-  return subtest_message_panes([], "all_message_attachments");
-});
