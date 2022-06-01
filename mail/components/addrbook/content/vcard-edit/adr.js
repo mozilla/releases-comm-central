@@ -132,20 +132,22 @@ class VCardAdrComponent extends HTMLElement {
       this.vCardPropertyEntry.params.type = paramsType;
     }
 
+    let streetValue = this.streetEl.value || "";
+    streetValue = streetValue.trim();
+    if (streetValue.includes("\n")) {
+      streetValue = streetValue.replaceAll("\r", "");
+      streetValue = streetValue.split("\n");
+    }
+
     this.vCardPropertyEntry.value = [
       this.poboxEl.value || "",
       this.extEl.value || "",
-      this.streetEl.value || "",
+      streetValue,
       this.localityEl.value || "",
       this.regionEl.value || "",
       this.codeEl.value || "",
       this.countryEl.value || "",
     ];
-    let streetValue = this.streetEl.value.trim();
-    if (streetValue.includes("\n")) {
-      streetValue = streetValue.replaceAll("\r", "");
-      this.vCardPropertyEntry.value[2] = streetValue.split("\n");
-    }
   }
 
   valueIsEmpty() {
