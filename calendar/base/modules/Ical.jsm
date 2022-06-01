@@ -10,6 +10,7 @@
  *
  * Current ical.js git revision: 3ec17951aad61bd53818f934879cc0857ee7b42d (v1.5.0)
  * plus https://github.com/mozilla-comm/ical.js/pull/512
+ * and https://github.com/mozilla-comm/ical.js/pull/513
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -450,7 +451,7 @@ ICAL.design = (function() {
       toICAL: function(aValue, structuredEscape) {
         var regEx = toNewline;
         if (structuredEscape)
-          regEx = new RegExp(regEx.source + '|' + structuredEscape);
+          regEx = new RegExp(regEx.source + '|' + structuredEscape, regEx.flags);
         return aValue.replace(regEx, function(str) {
           switch (str) {
           case "\\":
@@ -506,7 +507,7 @@ ICAL.design = (function() {
       return value;
     }
     if (structuredEscape)
-      newline = new RegExp(newline.source + '|\\\\' + structuredEscape);
+      newline = new RegExp(newline.source + '|\\\\' + structuredEscape, newline.flags);
     return value.replace(newline, replaceNewlineReplace);
   }
 
@@ -1562,7 +1563,7 @@ ICAL.stringify = (function() {
 
     var groupName = params.group;
     var line;
-    if (groupName && designSet.propertyGroups) {
+    if (designSet.propertyGroups && groupName) {
       line = groupName.toUpperCase() + "." + name;
     } else {
       line = name;
@@ -1570,7 +1571,7 @@ ICAL.stringify = (function() {
 
     var paramName;
     for (paramName in params) {
-      if (paramName == 'group' && designSet.propertyGroups) {
+      if (designSet.propertyGroups && paramName == 'group') {
         continue;
       }
 
@@ -1992,7 +1993,7 @@ ICAL.parse = (function() {
     var ungroupedName;
 
     // fetch the ungrouped part of the name
-    if (name.indexOf('.') !== -1 && state.designSet.propertyGroups) {
+    if (state.designSet.propertyGroups && name.indexOf('.') !== -1) {
       splitName = name.split('.');
       params.group = splitName[0];
       ungroupedName = splitName[1];
