@@ -8,6 +8,7 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -29,6 +30,26 @@ var freebusyGridInner;
 // Initialised in the load event handler.
 var displayStartTime;
 var displayEndTime;
+var numberDaysDisplayed;
+var numberDaysDisplayedPref = Services.prefs.getIntPref("calendar.view.attendees.visibleDays", 16);
+var showOnlyWholeDays = Services.prefs.getBoolPref(
+  "calendar.view.attendees.showOnlyWholeDays",
+  false
+);
+var dayStartHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8);
+var dayEndHour = Services.prefs.getIntPref("calendar.view.dayendhour", 17);
+
+var updateByFunction = false; // To avoid triggering eventListener on timePicker which would lead to an error when triggering.
+
+var previousStartTime;
+var previousEndTime;
+var previousTimezone;
+
+var displayStartHour = 0; // Display start hour.
+var displayEndHour = 24; // Display end hour.
+var showCompleteDay = true; // Display of the whole day.
+
+var defaultEventLength = Services.prefs.getIntPref("calendar.event.defaultlength", 60);
 
 var zoom = {
   zoomInButton: null,
@@ -58,10 +79,18 @@ var zoom = {
     },
     {
       dayWidth: 1440,
-      columnCount: 12,
-      columnDuration: cal.createDuration("PT2H"),
-      columnWidth: 120,
+      columnCount: 24,
+      columnDuration: cal.createDuration("PT1H"),
+      columnWidth: 60,
       secondWidth: 1440 / 24 / 3600,
+      gridClass: "twoMinorColumns",
+    },
+    {
+      dayWidth: 2880,
+      columnCount: 48,
+      columnDuration: cal.createDuration("PT30M"),
+      columnWidth: 60,
+      secondWidth: 2880 / 24 / 3600,
       gridClass: "twoMinorColumns",
     },
   ],
@@ -85,6 +114,20 @@ var zoom = {
     }
     this.zoomInButton.disabled = newZoomLevel == this.levels.length - 1;
     this.zoomOutButton.disabled = newZoomLevel == 0;
+
+    if (!showCompleteDay) {
+      // To block to be in max dezoom in reduced display mode.
+      this.zoomOutButton.disabled = newZoomLevel == 1;
+
+      if (
+        (dayEndHour - dayStartHour) % this.levels[this.currentLevel - 1].columnDuration.hours !=
+        0
+      ) {
+        // To avoid being in zoom level where the interface is not adapted.
+        this.zoomOutButton.disabled = true;
+      }
+    }
+
     if (newZoomLevel == this.currentLevel) {
       return;
     }
@@ -154,24 +197,108 @@ var eventBar = {
         // Snap dragging movements to half of a minor column width.
         this.dragDistance =
           Math.round((event.clientX + freebusyGrid.scrollLeft - this.dragStartX) / 15) * 15;
-        this.eventBarTop.style.transform = this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
+
+        // Prevent the event from being dragged outside the grid.
+        if (
+          this.eventBarBottom.offsetLeft + this.dragDistance >= freebusyGrid.scrollLeft &&
+          // We take the size of the event not to exceed on the right side.
+          this.eventBarBottom.offsetLeft + this.eventBarBottom.offsetWidth + this.dragDistance <=
+            zoom.levels[zoom.currentLevel].dayWidth * numberDaysDisplayed
+        ) {
+          this.eventBarTop.style.transform = this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
+        }
         break;
       }
       case "dragend": {
+        updateByFunction = true;
+        let positionFromStart = this.eventBarBottom.offsetLeft + this.dragDistance;
         this.dragStartX = null;
         this.eventBarTop.style.transform = this.eventBarBottom.style.transform = null;
 
-        let duration = cal.createDuration();
-        duration.inSeconds = this.dragDistance / zoom.secondWidth;
-
         let { startValue, endValue } = dateTimePickerUI;
-        startValue.addDuration(duration);
-        dateTimePickerUI.startValue = startValue;
-        endValue.addDuration(duration);
-        dateTimePickerUI.endValue = endValue;
+        let durationEvent;
 
+        // If the user goes into the past, the user will be able to use part of the hour before the beginning of the day.
+        // Ex: Start time of the day: 8am, End time of the day: 5:00 pm
+        // If the user moves the slot in the past but does not go to the end of the day time, they will be able to use the 7am to 8am time (except for the first shift corresponding to the minimum travel time).
+        // There is the same principle for the end of the day, but it will be for the hour following the end of the day.
+
+        // If we go back in time, we will have to calculate with endValue.
+        if (this.dragDistance < 0) {
+          durationEvent = startValue.subtractDate(endValue);
+
+          endValue = this.getDateFromPosition(
+            positionFromStart + this.eventBarBottom.offsetWidth,
+            startValue.timezone
+          );
+
+          startValue = endValue.clone();
+          startValue.addDuration(durationEvent);
+          // If you move backwards, you have to check again. Otherwise a move to the last hour of the day will date the previous hour of the start of the day.
+          // We will do our tests with the calendar timezone and not the event timezone.
+          let startValueDefaultTimezone = startValue.getInTimezone(cal.dtz.defaultTimezone);
+          if (!showCompleteDay) {
+            if (
+              !(
+                (startValueDefaultTimezone.hour >= displayStartHour ||
+                  (startValueDefaultTimezone.hour == displayStartHour - 1 &&
+                    startValueDefaultTimezone.minute > 0)) &&
+                startValueDefaultTimezone.hour < displayEndHour
+              )
+            ) {
+              let hoursHidden = 24 - displayEndHour + displayStartHour;
+              let reducDayDuration = cal.createDuration("-PT" + hoursHidden + "H");
+              startValue.addDuration(reducDayDuration);
+              endValue.addDuration(reducDayDuration);
+            }
+          }
+
+          if (dateTimePickerUI.allDay.checked) {
+            // BUG in icaljs
+            startValue.hour = 0;
+            startValue.minute = 0;
+            dateTimePickerUI.startValue = startValue;
+            endValue.hour = 0;
+            endValue.minute = 0;
+            dateTimePickerUI.endValue = endValue;
+            dateTimePickerUI.saveOldValues();
+            endValue.day++; // For display only.
+          } else {
+            dateTimePickerUI.startValue = startValue;
+            dateTimePickerUI.endValue = endValue;
+          }
+        } else {
+          // If we go forward in time, we will have to calculate with startValue.
+          durationEvent = endValue.subtractDate(startValue);
+
+          startValue = this.getDateFromPosition(positionFromStart, startValue.timezone);
+          endValue = startValue.clone();
+
+          if (dateTimePickerUI.allDay.checked) {
+            // BUG in icaljs
+            startValue.hour = 0;
+            startValue.minute = 0;
+            dateTimePickerUI.startValue = startValue;
+            endValue.addDuration(durationEvent);
+            endValue.hour = 0;
+            endValue.minute = 0;
+            dateTimePickerUI.endValue = endValue;
+            dateTimePickerUI.saveOldValues();
+            endValue.day++; // For display only.
+          } else {
+            dateTimePickerUI.startValue = startValue;
+            endValue.addDuration(durationEvent);
+            dateTimePickerUI.endValue = endValue;
+          }
+        }
+
+        updateChange();
+        updateByFunction = false;
         setLeftAndWidth(this.eventBarTop, startValue, endValue);
         setLeftAndWidth(this.eventBarBottom, startValue, endValue);
+
+        updatePreviousValues();
+        updateRange();
         break;
       }
     }
@@ -195,6 +322,24 @@ var eventBar = {
       freebusyGrid.scrollTo(scrollPoint, freebusyGrid.scrollTop);
     }
   },
+  getDateFromPosition(posX, timezone) {
+    let numberOfDays = Math.floor(posX / zoom.dayWidth);
+    let remainingOffset = posX - numberOfDays * zoom.dayWidth;
+
+    let duration = cal.createDuration();
+    duration.inSeconds = numberOfDays * 60 * 60 * 24 + remainingOffset / zoom.secondWidth;
+
+    let date = displayStartTime.clone();
+    // In case of full display, do not keep the fact that displayStartTime is allDay.
+    if (showCompleteDay) {
+      date.isDate = false;
+      date.hour = 0;
+      date.minute = 0;
+    }
+    date = date.getInTimezone(timezone); // We reapply the time zone of the event.
+    date.addDuration(duration);
+    return date;
+  },
 };
 
 var dateTimePickerUI = {
@@ -213,7 +358,6 @@ var dateTimePickerUI = {
     this.allDay.addEventListener("command", () => this.changeAllDay());
     this.start.addEventListener("change", () => eventBar.update(false));
     this.startZone.addEventListener("click", () => this.editTimezone(this.startZone));
-    this.end.addEventListener("change", () => eventBar.update(false));
     this.endZone.addEventListener("click", () => this.editTimezone(this.endZone));
   },
 
@@ -243,6 +387,7 @@ var dateTimePickerUI = {
   },
 
   changeAllDay() {
+    updateByFunction = true;
     let allDay = this.allDay.checked;
     if (allDay) {
       document.getElementById("event-starttime").setAttribute("timepickerdisabled", true);
@@ -253,10 +398,10 @@ var dateTimePickerUI = {
     }
 
     if (allDay) {
+      previousTimezone = this.startValue.timezone;
       // Store date-times and related timezones so we can restore
       // if the user unchecks the "all day" checkbox.
-      this.start._oldValue = new Date(this.start.value);
-      this.end._oldValue = new Date(this.end.value);
+      this.saveOldValues();
 
       let { startValue, endValue } = this;
 
@@ -273,23 +418,60 @@ var dateTimePickerUI = {
         }
       }
 
+      // In order not to have an event on the day shifted because of the timezone applied to the event, we pass the event in the current timezone.
+      endValue = endValue.getInTimezone(cal.dtz.defaultTimezone);
+      startValue = startValue.getInTimezone(cal.dtz.defaultTimezone);
       startValue.isDate = true;
       endValue.isDate = true;
-      this.startValue = startValue;
       this.endValue = endValue;
+      this.startValue = startValue;
+      zoom.level = 0;
     } else if (this.start._oldValue && this.end._oldValue) {
       // Restore date-times previously stored.
-      this.start.value = this.start._oldValue;
-      this.end.value = this.end._oldValue;
+
+      // Case of all day events that lasts several days or that has been changed to another day
+      if (
+        this.start._oldValue.getHours() == 0 &&
+        this.start._oldValue.getMinutes() == 0 &&
+        this.end._oldValue.getHours() == 0 &&
+        this.end._oldValue.getMinutes() == 0
+      ) {
+        let saveMinutes = this.end._oldValue.getMinutes();
+        this.start._oldValue.setHours(
+          cal.dtz.getDefaultStartDate(window.arguments[0].startTime).hour
+        );
+        this.end._oldValue.setHours(
+          cal.dtz.getDefaultStartDate(window.arguments[0].startTime).hour
+        );
+        let minutes = saveMinutes + defaultEventLength;
+        this.end._oldValue.setMinutes(minutes);
+      }
+
+      // Restoration of the old time zone.
+      if (previousTimezone) {
+        this.startZone._zone = previousTimezone;
+        this.startZone.value = previousTimezone.displayName || previousTimezone.tzid;
+        this.endZone._zone = previousTimezone;
+        this.endZone.value = previousTimezone.displayName || previousTimezone.tzid;
+      }
+
+      this.restoreOldValues();
+      if (this.start.value.getTime() == this.end.value.getTime()) {
+        // If you uncheck all day event, to avoid having an event with a duration of 0 minutes.
+        this.end.value = new Date(this.end.value.getTime() + defaultEventLength * 60000);
+      }
     } else {
       // The checkbox has been unchecked for the first time, the event
       // was an "All day" type, so we have to set default values.
       let startValue = cal.dtz.getDefaultStartDate(window.initialStartDateValue);
       let endValue = startValue.clone();
-      endValue.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
+      endValue.minute += defaultEventLength;
       this.startValue = startValue;
       this.endValue = endValue;
     }
+    updateByFunction = false;
+    updatePreviousValues();
+    updateRange();
   },
   editTimezone(target) {
     let field = target == this.startZone ? "startValue" : "endValue";
@@ -311,6 +493,18 @@ var dateTimePickerUI = {
       args
     );
   },
+  /**
+   * Store date-times and related timezones so we can restore.
+   * if the user unchecks the "all day" checkbox.
+   */
+  saveOldValues() {
+    this.start._oldValue = new Date(this.start.value);
+    this.end._oldValue = new Date(this.end.value);
+  },
+  restoreOldValues() {
+    this.end.value = this.end._oldValue;
+    this.start.value = this.start._oldValue;
+  },
 };
 
 window.addEventListener(
@@ -322,6 +516,12 @@ window.addEventListener(
     freebusyGrid = document.getElementById("freebusy-grid");
     freebusyGridBackground = document.getElementById("freebusy-grid-background");
     freebusyGridInner = document.getElementById("freebusy-grid-inner");
+
+    if (numberDaysDisplayedPref < 5) {
+      Services.prefs.setIntPref("calendar.view.attendees.visibleDays", 16);
+      numberDaysDisplayedPref = 16;
+    }
+    numberDaysDisplayed = numberDaysDisplayedPref;
 
     eventBar.init();
     dateTimePickerUI.init();
@@ -370,7 +570,18 @@ window.addEventListener(
     let [
       { startTime, endTime, displayTimezone, calendar, organizer, attendees },
     ] = window.arguments;
+
+    if (startTime.isDate) {
+      // Shift in the display because of the timezone in case of an all day event when the interface is launched.
+      startTime = startTime.getInTimezone(cal.dtz.defaultTimezone);
+      endTime = endTime.getInTimezone(cal.dtz.defaultTimezone);
+    }
+
     dateTimePickerUI.allDay.checked = startTime.isDate;
+    if (dateTimePickerUI.allDay.checked) {
+      document.getElementById("event-starttime").setAttribute("timepickerdisabled", true);
+      document.getElementById("event-endtime").setAttribute("timepickerdisabled", true);
+    }
     dateTimePickerUI.startValue = startTime;
 
     // When events that end at 0:00 become all-day events, we need to
@@ -386,6 +597,13 @@ window.addEventListener(
       }
     }
     dateTimePickerUI.endValue = endTime;
+
+    previousStartTime = dateTimePickerUI.startValue;
+    previousEndTime = dateTimePickerUI.endValue;
+
+    if (dateTimePickerUI.allDay.checked) {
+      dateTimePickerUI.saveOldValues();
+    }
 
     if (displayTimezone) {
       dateTimePickerUI.startZone.parentNode.hidden = false;
@@ -412,6 +630,7 @@ window.addEventListener(
       displayStartTime.icalString; // BUG in icaljs
       displayStartTime.day -= 2;
     }
+    displayStartTime = displayStartTime.getInTimezone(cal.dtz.defaultTimezone);
     displayEndTime = displayStartTime.clone();
 
     if (organizer) {
@@ -433,7 +652,7 @@ window.addEventListener(
     }
 
     readOnly = calendar.isReadOnly;
-    zoom.level = 0;
+    zoom.level = 2;
     layout();
     eventBar.update(true);
     dateTimePickerUI.addListeners();
@@ -441,6 +660,24 @@ window.addEventListener(
 
     attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
     updateVerticalScrollbars();
+
+    dateTimePickerUI.start.addEventListener("change", function(event) {
+      if (!updateByFunction) {
+        updateEndDate();
+        if (dateTimePickerUI.allDay.checked) {
+          dateTimePickerUI.saveOldValues();
+        }
+        updateRange();
+      }
+    });
+    dateTimePickerUI.end.addEventListener("change", function(event) {
+      if (!updateByFunction) {
+        checkDate();
+        dateTimePickerUI.saveOldValues();
+        updateChange();
+        updateRange();
+      }
+    });
   },
   { once: true }
 );
@@ -464,6 +701,94 @@ window.addEventListener("dialogaccept", () => {
 });
 
 /**
+ * Passing the event change on dateTimePickerUI.end.addEventListener in function, to limit the creations of interface
+ * in case of change of day + hour (example at the time of a drag and drop), it was going to trigger the event 2 times: once for the hour and once the day
+ */
+function updateChange() {
+  if (
+    previousStartTime.getInTimezone(cal.dtz.defaultTimezone).day ==
+      dateTimePickerUI.startValue.getInTimezone(cal.dtz.defaultTimezone).day &&
+    previousStartTime.getInTimezone(cal.dtz.defaultTimezone).month ==
+      dateTimePickerUI.startValue.getInTimezone(cal.dtz.defaultTimezone).month &&
+    previousStartTime.getInTimezone(cal.dtz.defaultTimezone).year ==
+      dateTimePickerUI.endValue.getInTimezone(cal.dtz.defaultTimezone).year &&
+    previousEndTime.getInTimezone(cal.dtz.defaultTimezone).day ==
+      dateTimePickerUI.startValue.getInTimezone(cal.dtz.defaultTimezone).day &&
+    previousEndTime.getInTimezone(cal.dtz.defaultTimezone).month ==
+      dateTimePickerUI.startValue.getInTimezone(cal.dtz.defaultTimezone).month &&
+    previousEndTime.getInTimezone(cal.dtz.defaultTimezone).year ==
+      dateTimePickerUI.endValue.getInTimezone(cal.dtz.defaultTimezone).year
+  ) {
+    eventBar.update(false);
+  } else {
+    displayStartTime = dateTimePickerUI.startValue.getInTimezone(cal.dtz.defaultTimezone);
+
+    displayStartTime.day -= 1;
+    displayStartTime.isDate = true;
+
+    displayEndTime = displayStartTime.clone();
+
+    emptyGrid();
+    for (let attendee of attendeeList.getElementsByTagName("event-attendee")) {
+      attendee.clearFreeBusy();
+    }
+
+    layout();
+    eventBar.update(true);
+  }
+  previousStartTime = dateTimePickerUI.startValue;
+  previousEndTime = dateTimePickerUI.endValue;
+}
+
+/**
+ * Handler function to be used when the Start time or End time of the event have
+ * changed.
+ * If the end date is earlier than the start date, an error is displayed and the user's modification is cancelled
+ */
+function checkDate() {
+  if (dateTimePickerUI.startValue && dateTimePickerUI.endValue) {
+    if (dateTimePickerUI.endValue.compare(dateTimePickerUI.startValue) > -1) {
+      updatePreviousValues();
+    } else {
+      // Don't allow for negative durations.
+      let callback = function() {
+        Services.prompt.alert(null, document.title, cal.l10n.getCalString("warningEndBeforeStart"));
+      };
+      setTimeout(callback, 1);
+      dateTimePickerUI.endValue = previousEndTime;
+      dateTimePickerUI.startValue = previousStartTime;
+    }
+  }
+}
+
+/**
+ * Update the end date of the event if the user changes the start date via the timepicker.
+ */
+function updateEndDate() {
+  let duration = previousEndTime.subtractDate(previousStartTime);
+
+  let endDatePrev = dateTimePickerUI.startValue.clone();
+  endDatePrev.addDuration(duration);
+
+  updateByFunction = true;
+
+  dateTimePickerUI.endValue = endDatePrev;
+
+  updateChange();
+  updatePreviousValues();
+
+  updateByFunction = false;
+}
+
+/**
+ * Updated previous values that are used to return to the previous state if the end date is before the start date
+ */
+function updatePreviousValues() {
+  previousStartTime = dateTimePickerUI.startValue;
+  previousEndTime = dateTimePickerUI.endValue;
+}
+
+/**
  * Lays out the window on load or resize. Fills the grid and sets the size of some elements that
  * can't easily be done with a stylesheet.
  */
@@ -481,8 +806,10 @@ function layout() {
 function updateVerticalScrollbars() {
   if (freebusyGrid.scrollHeight > freebusyGrid.clientHeight) {
     dayHeaderOuter.style.overflowY = "scroll";
+    dayHeaderInner.style.overflowY = "scroll";
   } else {
     dayHeaderOuter.style.overflowY = null;
+    dayHeaderInner.style.overflowY = null;
   }
 }
 
@@ -500,10 +827,29 @@ function emptyGrid() {
  * are shown.
  */
 function fillGrid() {
+  setTimeRange();
+
+  if (!showCompleteDay) {
+    displayEndTime.isDate = false;
+    displayEndTime.hour = dayStartHour;
+    displayEndTime.minute = 0;
+    displayStartTime.isDate = false;
+    displayStartTime.hour = dayStartHour;
+    displayStartTime.minute = 0;
+  } else {
+    // BUG in icaljs
+    displayEndTime.isDate = true;
+    displayEndTime.hour = 0;
+    displayEndTime.minute = 0;
+    displayStartTime.isDate = true;
+    displayStartTime.hour = 0;
+    displayStartTime.minute = 0;
+  }
+
   let oldEndTime = displayEndTime.clone();
 
   while (
-    dayHeaderInner.childElementCount < 5 ||
+    dayHeaderInner.childElementCount < numberDaysDisplayed ||
     dayHeaderOuter.scrollWidth <= dayHeaderOuter.clientWidth
   ) {
     dayHeaderInner.appendChild(document.createXULElement("calendar-day")).date = displayEndTime;
@@ -526,8 +872,194 @@ function fillGrid() {
  * @param {calIDateTime} endTime - The end time to be represented.
  */
 function setLeftAndWidth(element, startTime, endTime) {
-  element.style.left = startTime.subtractDate(displayStartTime).inSeconds * zoom.secondWidth + "px";
-  element.style.width = endTime.subtractDate(startTime).inSeconds * zoom.secondWidth + "px";
+  element.style.left = getOffsetLeft(startTime) + "px";
+  element.style.width = getOffsetLeft(endTime) - getOffsetLeft(startTime) + "px";
+}
+
+/**
+ * Determines the offset in pixels from the first day displayed.
+ *
+ * @param {calIDateTime} startTime - The start time to be represented.
+ */
+function getOffsetLeft(startTime) {
+  let coordinates = 0;
+  startTime = startTime.getInTimezone(cal.dtz.defaultTimezone);
+
+  let difference = startTime.subtractDate(displayStartTime);
+
+  if (displayStartTime.timezoneOffset != startTime.timezoneOffset) {
+    // Time changes.
+    let diffTimezone = cal.createDuration();
+    diffTimezone.inSeconds = startTime.timezoneOffset - displayStartTime.timezoneOffset;
+    // We add the difference to the date difference otherwise the following calculations will be incorrect.
+    difference.addDuration(diffTimezone);
+  }
+
+  if (!showCompleteDay) {
+    // Start date of the day displayed for the date of the object being processed.
+    let currentDateStartHour = startTime.clone();
+    currentDateStartHour.hour = displayStartHour;
+    currentDateStartHour.minute = 0;
+
+    let dayToDayDuration = currentDateStartHour.subtractDate(displayStartTime);
+    if (currentDateStartHour.timezoneOffset != displayStartTime.timezoneOffset) {
+      // Time changes.
+      let diffTimezone = cal.createDuration();
+      diffTimezone.inSeconds =
+        currentDateStartHour.timezoneOffset - displayStartTime.timezoneOffset;
+      // We add the difference to the date difference otherwise the following calculations will be incorrect.
+      dayToDayDuration.addDuration(diffTimezone);
+    }
+
+    if (startTime.hour < displayStartHour) {
+      // The date starts before the start time of the day, we do not take into consideration the time before the start of the day.
+      coordinates = (dayToDayDuration.weeks * 7 + dayToDayDuration.days) * zoom.dayWidth;
+    } else if (startTime.hour >= displayEndHour) {
+      // The event starts after the end of the day, we do not take into consideration the time before the following day.
+      coordinates = (dayToDayDuration.weeks * 7 + dayToDayDuration.days + 1) * zoom.dayWidth;
+    } else {
+      coordinates =
+        (difference.weeks * 7 + difference.days) * zoom.dayWidth +
+        (difference.hours * 60 * 60 + difference.minutes * 60 + difference.seconds) *
+          zoom.secondWidth;
+    }
+  } else {
+    coordinates = difference.inSeconds * zoom.secondWidth;
+  }
+
+  return coordinates;
+}
+
+/**
+ * Set the time range, setting the start and end hours from the prefs, or
+ * to 24 hrs if the event is outside the range from the prefs.
+ */
+function setTimeRange() {
+  let dateStart = dateTimePickerUI.startValue;
+  let dateEnd = dateTimePickerUI.endValue;
+
+  let dateStartDefaultTimezone = dateStart.getInTimezone(cal.dtz.defaultTimezone);
+  let dateEndDefaultTimezone = dateEnd.getInTimezone(cal.dtz.defaultTimezone);
+
+  if (
+    showOnlyWholeDays ||
+    dateTimePickerUI.allDay.checked ||
+    dateStartDefaultTimezone.hour < dayStartHour ||
+    (dateStartDefaultTimezone.hour == dayEndHour && dateStartDefaultTimezone.minute > 0) ||
+    dateStartDefaultTimezone.hour > dayEndHour ||
+    (dateEndDefaultTimezone.hour == dayEndHour && dateEndDefaultTimezone.minute > 0) ||
+    dateEndDefaultTimezone.hour > dayEndHour ||
+    dateStartDefaultTimezone.day != dateEndDefaultTimezone.day
+  ) {
+    if (!showCompleteDay) {
+      // We modify the levels to readapt them.
+      for (let i = 0; i < zoom.levels.length; i++) {
+        zoom.levels[i].columnCount =
+          zoom.levels[i].columnCount * (24 / (dayEndHour - dayStartHour));
+        zoom.levels[i].dayWidth = zoom.levels[i].columnCount * zoom.levels[i].columnWidth;
+      }
+    }
+    displayStartHour = 0;
+    displayEndHour = 24;
+    showCompleteDay = true;
+
+    // To reactivate the dezoom button if you were in dezoom max for a reduced display.
+    zoom.zoomOutButton.disabled = zoom.currentLevel == 0;
+  } else {
+    if (zoom.currentLevel == 0) {
+      // To avoid being in max dezoom in the reduced display mode.
+      zoom.currentLevel++;
+    }
+    zoom.zoomOutButton.disabled = zoom.currentLevel == 1;
+
+    if (zoom.currentLevel == 1 && (dayEndHour - dayStartHour) % zoom.columnDuration.hours != 0) {
+      // To avoid being in zoom level where the interface is not adapted.
+      zoom.currentLevel++;
+      // Otherwise the class of the grid is not updated.
+      for (let gridClass of ["twoMinorColumns", "threeMinorColumns"]) {
+        if (zoom.levels[zoom.currentLevel].gridClass == gridClass) {
+          dayHeaderInner.classList.add(gridClass);
+          freebusyGridInner.classList.add(gridClass);
+        } else {
+          dayHeaderInner.classList.remove(gridClass);
+          freebusyGridInner.classList.remove(gridClass);
+        }
+      }
+    }
+
+    if (
+      (dayEndHour - dayStartHour) % zoom.levels[zoom.currentLevel - 1].columnDuration.hours !=
+      0
+    ) {
+      zoom.zoomOutButton.disabled = true;
+    }
+
+    if (showCompleteDay) {
+      // We modify the levels to readapt them.
+      for (let i = 0; i < zoom.levels.length; i++) {
+        zoom.levels[i].columnCount =
+          zoom.levels[i].columnCount / (24 / (dayEndHour - dayStartHour));
+        zoom.levels[i].dayWidth = zoom.levels[i].columnCount * zoom.levels[i].columnWidth;
+      }
+    }
+    displayStartHour = dayStartHour;
+    displayEndHour = dayEndHour;
+    showCompleteDay = false;
+  }
+}
+
+/**
+ * Function to trigger a change of display type (reduced or full).
+ */
+function updateRange() {
+  let dateStart = dateTimePickerUI.startValue;
+  let dateEnd = dateTimePickerUI.endValue;
+
+  let dateStartDefaultTimezone = dateStart.getInTimezone(cal.dtz.defaultTimezone);
+  let dateEndDefaultTimezone = dateEnd.getInTimezone(cal.dtz.defaultTimezone);
+
+  let durationEvent = dateEnd.subtractDate(dateStart);
+
+  if (
+    // Reduced -> Full.
+    (!showCompleteDay &&
+      (dateTimePickerUI.allDay.checked ||
+        (dateStartDefaultTimezone.hour == displayEndHour && dateStartDefaultTimezone.minute > 0) ||
+        dateStartDefaultTimezone.hour > displayEndHour ||
+        (dateEndDefaultTimezone.hour == displayEndHour && dateEndDefaultTimezone.minute > 0) ||
+        dateStartDefaultTimezone.hour < dayStartHour ||
+        dateEndDefaultTimezone.hour > displayEndHour ||
+        dateStartDefaultTimezone.day != dateEndDefaultTimezone.day)) ||
+    // Full -> Reduced.
+    (showCompleteDay &&
+      dateStartDefaultTimezone.hour >= dayStartHour &&
+      dateStartDefaultTimezone.hour < dayEndHour &&
+      (dateEndDefaultTimezone.hour < dayEndHour ||
+        (dateEndDefaultTimezone.hour == dayEndHour && dateEndDefaultTimezone.minute == 0)) &&
+      dateStartDefaultTimezone.day == dateEndDefaultTimezone.day) ||
+    durationEvent.days > numberDaysDisplayedPref ||
+    (numberDaysDisplayed > numberDaysDisplayedPref && durationEvent.days < numberDaysDisplayedPref)
+  ) {
+    // We redo the grid if we change state (reduced -> full, full -> reduced or if you need to change the number of days displayed).
+    displayStartTime = dateTimePickerUI.startValue.getInTimezone(cal.dtz.defaultTimezone);
+    displayStartTime.isDate = true;
+    displayStartTime.day--;
+
+    displayEndTime = displayStartTime.clone();
+
+    emptyGrid();
+    for (let attendee of attendeeList.getElementsByTagName("event-attendee")) {
+      attendee.clearFreeBusy();
+    }
+
+    if (durationEvent.days > numberDaysDisplayedPref) {
+      numberDaysDisplayed = durationEvent.days + 2;
+    } else {
+      numberDaysDisplayed = numberDaysDisplayedPref;
+    }
+    layout();
+    eventBar.update(true);
+  }
 }
 
 // Wrap in a block to prevent leaking to window scope.
@@ -696,9 +1228,9 @@ function setLeftAndWidth(element, startTime, endTime) {
       if (
         event.type == "change" ||
         (event.type == "keydown" && event.key == "Enter") ||
-        // A click on the line of the input field
+        // A click on the line of the input field.
         (event.type == "click" && event.target.nodeName == "input") ||
-        // A click on an autocomplete suggestion
+        // A click on an autocomplete suggestion.
         (event.type == "input" &&
           event.inputType == "insertReplacementText" &&
           event.explicitOriginalTarget != event.originalTarget)
@@ -889,7 +1421,14 @@ function setLeftAndWidth(element, startTime, endTime) {
       this.dayLabel.value = cal.dtz.formatter.formatDateShort(this.mDate);
 
       let datePlus1 = value.clone();
-      datePlus1.addDuration(cal.createDuration("P1D"));
+      if (!showCompleteDay) {
+        // To avoid making a 24 hour day in reduced display.
+        let hoursToShow = dayEndHour - dayStartHour;
+        datePlus1.addDuration(cal.createDuration("PT" + hoursToShow + "H"));
+      } else {
+        datePlus1.addDuration(cal.createDuration("P1D"));
+      }
+
       let dayOffPref = [
         "calendar.week.d0sundaysoff",
         "calendar.week.d1mondaysoff",
@@ -906,9 +1445,6 @@ function setLeftAndWidth(element, startTime, endTime) {
       if (Services.prefs.getBoolPref(dayOffPref)) {
         this.dayColumn.classList.add("day-off");
       }
-
-      let dayStartHour = Services.prefs.getIntPref("calendar.view.daystarthour");
-      let dayEndHour = Services.prefs.getIntPref("calendar.view.dayendhour");
 
       if (dayStartHour > 0) {
         let dayStart = value.clone();

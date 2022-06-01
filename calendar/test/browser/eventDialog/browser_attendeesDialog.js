@@ -277,48 +277,96 @@ add_task(async () => {
     let attendeesDocument = attendeesWindow.document;
 
     let days = attendeesDocument.querySelectorAll("calendar-day");
-    Assert.equal(days.length, 5);
+    Assert.equal(days.length, 16);
     Assert.equal(days[0].date.icalString, expectedFirst);
-    Assert.equal(days[4].date.icalString, expectedLast);
+    Assert.equal(days[15].date.icalString, expectedLast);
 
     await closeAttendeesWindow(attendeesWindow);
+  }
+
+  // With the management of the reduced days or not, the format of the dates is different according to the cases.
+  // In case of a reduced day, the day format will include the start hour of the day (defined by calendar.view.daystarthour).
+  // In the case of a full day, we keep the behavior similar to before.
+
+  //Full day tests
+  await testDays(
+    cal.createDateTime("20100403T020000"),
+    cal.createDateTime("20100403T030000"),
+    "20100403",
+    "20100418"
+  );
+  for (let i = -2; i < 0; i++) {
+    await testDays(
+      fromToday({ days: i, hours: 2 }),
+      fromToday({ days: i, hours: 3 }),
+      fromToday({ days: i }).icalString.substring(0, 8),
+      fromToday({ days: i + 15 }).icalString.substring(0, 8)
+    );
+  }
+  for (let i = 0; i < 3; i++) {
+    await testDays(
+      fromToday({ days: i, hours: 2 }),
+      fromToday({ days: i, hours: 3 }),
+      fromToday({ days: 0 }).icalString.substring(0, 8),
+      fromToday({ days: 15 }).icalString.substring(0, 8)
+    );
+  }
+  for (let i = 3; i < 5; i++) {
+    await testDays(
+      fromToday({ days: i, hours: 2 }),
+      fromToday({ days: i, hours: 3 }),
+      fromToday({ days: i - 2 }).icalString.substring(0, 8),
+      fromToday({ days: i + 13 }).icalString.substring(0, 8)
+    );
+  }
+  await testDays(
+    cal.createDateTime("20300403T020000"),
+    cal.createDateTime("20300403T030000"),
+    "20300401",
+    "20300416"
+  );
+
+  // Reduced day tests
+  let dayStartHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8).toString();
+  if (dayStartHour.length == 1) {
+    dayStartHour = "0" + dayStartHour;
   }
 
   await testDays(
     cal.createDateTime("20100403T120000"),
     cal.createDateTime("20100403T130000"),
-    "20100403",
-    "20100407"
+    "20100403T" + dayStartHour + "0000Z",
+    "20100418T" + dayStartHour + "0000Z"
   );
   for (let i = -2; i < 0; i++) {
     await testDays(
       fromToday({ days: i, hours: 12 }),
       fromToday({ days: i, hours: 13 }),
-      fromToday({ days: i }).icalString.substring(0, 8),
-      fromToday({ days: i + 4 }).icalString.substring(0, 8)
+      fromToday({ days: i }).icalString.substring(0, 8) + "T" + dayStartHour + "0000Z",
+      fromToday({ days: i + 15 }).icalString.substring(0, 8) + "T" + dayStartHour + "0000Z"
     );
   }
   for (let i = 0; i < 3; i++) {
     await testDays(
       fromToday({ days: i, hours: 12 }),
       fromToday({ days: i, hours: 13 }),
-      fromToday({ days: 0 }).icalString.substring(0, 8),
-      fromToday({ days: 4 }).icalString.substring(0, 8)
+      fromToday({ days: 0 }).icalString.substring(0, 8) + "T" + dayStartHour + "0000Z",
+      fromToday({ days: 15 }).icalString.substring(0, 8) + "T" + dayStartHour + "0000Z"
     );
   }
   for (let i = 3; i < 5; i++) {
     await testDays(
       fromToday({ days: i, hours: 12 }),
       fromToday({ days: i, hours: 13 }),
-      fromToday({ days: i - 2 }).icalString.substring(0, 8),
-      fromToday({ days: i + 2 }).icalString.substring(0, 8)
+      fromToday({ days: i - 2 }).icalString.substring(0, 8) + "T" + dayStartHour + "0000Z",
+      fromToday({ days: i + 13 }).icalString.substring(0, 8) + "T" + dayStartHour + "0000Z"
     );
   }
   await testDays(
     cal.createDateTime("20300403T120000"),
     cal.createDateTime("20300403T130000"),
-    "20300401",
-    "20300405"
+    "20300401T" + dayStartHour + "0000Z",
+    "20300416T" + dayStartHour + "0000Z"
   );
 });
 

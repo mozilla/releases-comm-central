@@ -174,3 +174,8 @@ pref("calendar.item.promptDelete", true);
 
 // Enables the new extract service.
 pref("calendar.extract.service.enabled", false);
+
+// Number of days to display in the invite attendees interface.
+pref("calendar.view.attendees.visibleDays", 16);
+// Only full days are displayed the invite attendees interface.
+pref("calendar.view.attendees.showOnlyWholeDays", false);
