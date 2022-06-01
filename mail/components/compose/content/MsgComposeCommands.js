@@ -5116,7 +5116,7 @@ function setComposeLabelsAndMenuItems() {
   document.l10n.setAttributes(
     document.getElementById("addr_ccShowAddressRowButton"),
     "show-cc-row-button",
-    { key: SHOW_TO_KEY }
+    { key: SHOW_CC_KEY }
   );
 
   // Bcc field.
