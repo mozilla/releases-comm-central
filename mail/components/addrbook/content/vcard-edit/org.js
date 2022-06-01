@@ -194,14 +194,15 @@ class VCardOrgComponent extends HTMLElement {
         .filter(Boolean)
         .reverse();
     } else {
-      this.vCardPropertyEntry.value = "";
+      this.vCardPropertyEntry.value = orgValue;
     }
   }
 
   valueIsEmpty() {
     return (
       !this.vCardPropertyEntry.value ||
-      this.vCardPropertyEntry.value.every(v => v === "")
+      (Array.isArray(this.vCardPropertyEntry.value) &&
+        this.vCardPropertyEntry.value.every(v => v === ""))
     );
   }
 
