@@ -1422,9 +1422,15 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
             // trash_folder_name preference since the full path is stored
             // there when selecting a trash folder in the Account Manager.
             nsAutoCString trashURL;
-            trashFolder->GetFolderURL(trashURL);
+            rv = trashFolder->GetFolderURL(trashURL);
+            if (NS_FAILED(rv)) {
+              continue;
+            }
             nsCOMPtr<nsIURI> uri;
-            NS_NewURI(getter_AddRefs(uri), trashURL);
+            rv = NS_NewURI(getter_AddRefs(uri), trashURL);
+            if (NS_FAILED(rv)) {
+              continue;
+            }
             nsAutoCString trashPath;
             uri->GetPathQueryRef(trashPath);
             nsAutoCString unescapedName;
