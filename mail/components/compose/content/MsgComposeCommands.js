@@ -9116,10 +9116,10 @@ function msgSubjectOnInput(event) {
 // Content types supported in the envelopeDragObserver.
 const DROP_FLAVORS = [
   "application/x-moz-file",
-  "text/x-moz-url",
-  "text/uri-list",
   "text/x-moz-address",
   "text/x-moz-message",
+  "text/x-moz-url",
+  "text/uri-list",
 ];
 
 // We can drag and drop addresses, files, messages and urls into the compose
@@ -9252,8 +9252,8 @@ var envelopeDragObserver = {
           let data = dt.mozGetDataAt(flavor, i);
           if (data) {
             dataList.push({ data, flavor });
+            break;
           }
-          break;
         }
       }
     }
