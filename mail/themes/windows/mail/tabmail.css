@@ -184,11 +184,3 @@ tabpanels {
     color: white;
   }
 }
-
-@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
-  .tab-label:-moz-window-inactive {
-    /* Calculated to match the opacity change of Windows Explorer
-       titlebar text change for inactive windows. */
-    opacity: .6;
-  }
-}

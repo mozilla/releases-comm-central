@@ -140,6 +140,11 @@ p {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }
 
+#titlebar > #toolbar-menubar:-moz-window-inactive,
+#titlebar > #tabs-toolbar:-moz-window-inactive {
+  color: color-mix(in srgb, currentColor 70%, transparent);
+}
+
 .thread-tree-col-picker image,
 .thread-tree-icon-header img {
   -moz-context-properties: fill;

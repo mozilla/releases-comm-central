@@ -4,19 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/compacttheme.css");
 
-:root[tabsintitlebar] #tabs-toolbar {
-  appearance: auto;
-  -moz-default-appearance: -moz-mac-vibrant-titlebar-light;
-  -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root[tabsintitlebar] #tabs-toolbar {
-    -moz-default-appearance: -moz-mac-vibrant-titlebar-dark;
-    -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-dark;
-  }
-}
-
 .tabmail-tab[selected="true"] {
   -moz-font-smoothing-background-color: var(--toolbar-bgcolor);
 }
