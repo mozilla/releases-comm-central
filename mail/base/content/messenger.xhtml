@@ -257,6 +257,13 @@
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
+<commandset id="browserCommands">
+  <!-- Browsing back and forth inside the add-on manager and on ATN -->
+  <command id="Browser:Back"
+           oncommand="specialTabs.browserBack();"/>
+  <command id="Browser:Forward"
+           oncommand="specialTabs.browserForward();"/>
+</commandset>
 <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml
   <commandset id="mailSearchMenuItems"/>
@@ -306,6 +313,15 @@
 
 #include ../../../calendar/base/content/calendar-commands.inc.xhtml
 
+<keyset id="browserKeys">
+#ifdef XP_MACOSX
+  <key id="key_goBackKb" keycode="VK_LEFT" command="Browser:Back" modifiers="accel"/>
+  <key id="key_goForwardKb" keycode="VK_RIGHT" command="Browser:Forward" modifiers="accel"/>
+#else
+  <key id="key_goBackKb" keycode="VK_LEFT" command="Browser:Back" modifiers="alt" />
+  <key id="key_goForwardKb" keycode="VK_RIGHT" command="Browser:Forward" modifiers="alt" />
+#endif
+</keyset>
 <keyset id="mailKeys">
   <!-- Tab/F6 Keys -->
   <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>

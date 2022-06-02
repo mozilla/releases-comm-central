@@ -1367,4 +1367,34 @@ var specialTabs = {
         "chrome://messenger/skin/icons/new/compact/draft.svg"
       );
   },
+
+  browserForward() {
+    let tabmail = document.getElementById("tabmail");
+    let type = tabmail?.currentTabInfo.mode.type;
+    if (type != "contentTab") {
+      return;
+    }
+    let browser = tabmail.getBrowserForSelectedTab();
+    if (!browser) {
+      return;
+    }
+    if (browser.webNavigation) {
+      browser.webNavigation.goForward();
+    }
+  },
+
+  browserBack() {
+    let tabmail = document.getElementById("tabmail");
+    let type = tabmail?.currentTabInfo.mode.type;
+    if (type != "contentTab") {
+      return;
+    }
+    let browser = tabmail.getBrowserForSelectedTab();
+    if (!browser) {
+      return;
+    }
+    if (browser.webNavigation) {
+      browser.webNavigation.goBack();
+    }
+  },
 };
