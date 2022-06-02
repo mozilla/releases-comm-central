@@ -50,6 +50,7 @@ th[hidden] {
   padding: 3px;
   display: inline-flex;
   border: none;
+  font-size: 1rem;
   font-weight: 500;
   align-items: center;
   border-radius: 3px;
