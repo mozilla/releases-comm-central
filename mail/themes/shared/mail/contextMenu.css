@@ -117,6 +117,13 @@ menubar:not(:-moz-lwtheme) > menu menupopup > :is(menu, menuitem):not([disabled]
   background-color: -moz-MenuHover;
 }
 
+@media (-moz-platform: windows-win10) and (-moz-windows-default-theme){
+  menubar:not(:-moz-lwtheme) > menu menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
+    color: inherit;
+    background-color: var(--arrowpanel-dimmed-further);
+  }
+}
+
 menupopup > menuseparator {
   appearance: none !important;
   min-height: 0;
