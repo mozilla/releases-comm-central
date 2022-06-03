@@ -33,6 +33,7 @@ var {
   add_message_to_folder,
   select_click_row,
   be_in_folder,
+  inboxFolder,
   FAKE_SERVER_HOSTNAME,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -150,7 +151,7 @@ async function simulateDragAndDrop(win, dragData, type) {
 
   // If the dragged file is an image, the attach inline container should be
   // visible.
-  if (type == "image" || type == "inline") {
+  if (type == "image" || type == "inline" || type == "link") {
     await BrowserTestUtils.waitForCondition(
       () =>
         !win.document.getElementById("addInline").classList.contains("hidden"),
@@ -251,6 +252,93 @@ add_task(async function test_text_file_drag() {
     cwc.window,
     [[{ type: "application/x-moz-file", data: file }]],
     "text"
+  );
+
+  close_compose_window(cwc);
+});
+
+add_task(async function test_message_drag() {
+  let folder = await create_folder("dragondrop");
+  let subject = "Dragons don't drop from the sky";
+  let body = "Dragons can fly after all.";
+  be_in_folder(folder);
+  await add_message_to_folder(
+    [folder],
+    create_message({ subject, body: { body } })
+  );
+  select_click_row(0);
+
+  let [msgStr] = window.gFolderDisplay.selectedMessageUris;
+  let msgUrl = window.messenger
+    .messageServiceFromURI(msgStr)
+    .getUrlForUri(msgStr);
+
+  let cwc = open_compose_new_mail();
+
+  await simulateDragAndDrop(
+    cwc.window,
+    [
+      [
+        { type: "text/x-moz-message", data: msgStr },
+        { type: "text/x-moz-url", data: msgUrl.spec },
+        {
+          type: "application/x-moz-file-promise-url",
+          data: msgUrl.spec + "?fileName=" + encodeURIComponent("message.eml"),
+        },
+        {
+          type: "application/x-moz-file-promise",
+          data: new window.messageFlavorDataProvider(),
+        },
+      ],
+    ],
+    "message"
+  );
+
+  let attachment = cwc.window.document.getElementById("attachmentBucket")
+    .childNodes[0].attachment;
+  Assert.equal(
+    attachment.name,
+    "Dragons don't drop from the sky.eml",
+    "Message has expected file name"
+  );
+  Assert.notEqual(attachment, 0, "Message is not 0 bytes");
+
+  close_compose_window(cwc);
+  be_in_folder(inboxFolder);
+  folder.deleteSelf(null);
+});
+
+add_task(async function test_link_drag() {
+  let cwc = open_compose_new_mail();
+  await simulateDragAndDrop(
+    cwc.window,
+    [
+      [
+        {
+          type: "text/uri-list",
+          data: "https://example.com",
+        },
+        {
+          type: "text/x-moz-url",
+          data: "https://example.com\nExample website",
+        },
+        { type: "application/x-moz-file", data: "" },
+      ],
+    ],
+    "link"
+  );
+
+  let attachment = cwc.window.document.getElementById("attachmentBucket")
+    .childNodes[0].attachment;
+  Assert.equal(
+    attachment.name,
+    "Example website",
+    "Attached link has expected name"
+  );
+  Assert.equal(
+    attachment.url,
+    "https://example.com",
+    "Attached link has correct URL"
   );
 
   close_compose_window(cwc);
