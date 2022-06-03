@@ -179,7 +179,6 @@ void nsPop3Sink::CheckPartialMessages(nsIPop3Protocol* protocol) {
 nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
                                        nsIMsgWindow* aMsgWindow, bool* aBool) {
   nsresult rv;
-
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_popServer);
   if (!server) return NS_ERROR_UNEXPECTED;
 
@@ -195,6 +194,8 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
   bool isLocked;
   nsCOMPtr<nsISupports> supports =
       do_QueryInterface(static_cast<nsIPop3Sink*>(this));
+
+  NS_ENSURE_STATE(m_folder);
   m_folder->GetLocked(&isLocked);
   if (!isLocked) {
     MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug,
