@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function testContextMenu() {
-  const account = Services.accounts.createAccount("context", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "context",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -46,11 +49,14 @@ add_task(async function testContextMenu() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testMessageContextMenuOnLink() {
-  const account = Services.accounts.createAccount("context", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "context",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -152,11 +158,14 @@ add_task(async function testMessageContextMenuOnLink() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testMessageAction() {
-  const account = Services.accounts.createAccount("context", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "context",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -230,5 +239,5 @@ add_task(async function testMessageAction() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });

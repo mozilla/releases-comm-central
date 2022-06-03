@@ -11,6 +11,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
   let { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
   const LazyModules = {};
 
@@ -560,7 +561,7 @@
       // contact, we require at least that the normalizedChatBuddyName of
       // the nick is normalized like a normalizedName for contacts.
       if (normalizedNick == account.normalize(normalizedNick)) {
-        let accountBuddy = Services.contacts.getAccountBuddyByNameAndAccount(
+        let accountBuddy = IMServices.contacts.getAccountBuddyByNameAndAccount(
           normalizedNick,
           account
         );

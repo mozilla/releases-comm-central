@@ -22,7 +22,8 @@ const {
   nsSimpleEnumerator,
   l10nHelper,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { ClassInfo } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -187,7 +188,7 @@ var GenericAccountPrototype = {
 
   // Called when the user adds a new buddy from the UI.
   addBuddy(aTag, aName) {
-    Services.contacts.accountBuddyAdded(
+    IMServices.contacts.accountBuddyAdded(
       new AccountBuddy(this, null, aTag, aName)
     );
   },
@@ -646,7 +647,7 @@ var GenericAccountBuddyPrototype = {
   set tag(aNewTag) {
     let oldTag = this._tag;
     this._tag = aNewTag;
-    Services.contacts.accountBuddyMoved(this, oldTag, aNewTag);
+    IMServices.contacts.accountBuddyMoved(this, oldTag, aNewTag);
   },
 
   _notifyObservers(aTopic, aData) {
@@ -722,7 +723,7 @@ var GenericAccountBuddyPrototype = {
   },
 
   remove() {
-    Services.contacts.accountBuddyRemoved(this);
+    IMServices.contacts.accountBuddyRemoved(this);
   },
 
   // imIStatusInfo implementation
@@ -921,7 +922,7 @@ var GenericConversationPrototype = {
     this._name = aName;
     this._observers = [];
     this._date = new Date() * 1000;
-    Services.conversations.addConversation(this);
+    IMServices.conversations.addConversation(this);
   },
 
   _id: 0,
@@ -1004,7 +1005,7 @@ var GenericConversationPrototype = {
 
   close() {
     Services.obs.notifyObservers(this, "closing-conversation");
-    Services.conversations.removeConversation(this);
+    IMServices.conversations.removeConversation(this);
   },
   unInit() {
     delete this._account;
@@ -1636,7 +1637,7 @@ var GenericProtocolPrototype = {
       if (!command.hasOwnProperty("priority")) {
         command.priority = Ci.imICommand.CMD_PRIORITY_PRPL;
       }
-      Services.cmd.registerCommand(command, this.id);
+      IMServices.cmd.registerCommand(command, this.id);
     }, this);
   },
 

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 var autoJoinPref = "autoJoin";
@@ -10,7 +11,7 @@ var autoJoinPref = "autoJoin";
 var joinChat = {
   onload() {
     var accountList = document.getElementById("accountlist");
-    for (let acc of Services.accounts.getAccounts()) {
+    for (let acc of IMServices.accounts.getAccounts()) {
       if (!acc.connected || !acc.canJoinChat) {
         continue;
       }
@@ -141,7 +142,7 @@ var joinChat = {
       name = values.getValue("room") + "@" + values.getValue("server");
     }
 
-    let conv = Services.conversations.getConversationByNameAndAccount(
+    let conv = IMServices.conversations.getConversationByNameAndAccount(
       name,
       account,
       true

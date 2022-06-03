@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { updateAppInfo } = ChromeUtils.import(
   "resource://testing-common/AppInfo.jsm"
 );
@@ -25,11 +26,11 @@ function run_test() {
   prefs.setCharPref("mail.server.server1.hostname", kPrplId);
   try {
     // Having an implementation of nsIXULAppInfo is required for
-    // Services.core.init to work.
+    // IMServices.core.init to work.
     updateAppInfo();
-    Services.core.init();
+    IMServices.core.init();
 
-    let account = Services.accounts.getAccountByNumericId(1);
+    let account = IMServices.accounts.getAccountByNumericId(1);
     Assert.ok(account instanceof Ci.imIAccount);
     Assert.equal(account.name, kAccountName);
     Assert.equal(account.normalizedName, kAccountName);
@@ -39,7 +40,7 @@ function run_test() {
       Ci.imIAccount.ERROR_UNKNOWN_PRPL
     );
   } finally {
-    Services.core.quit();
+    IMServices.core.quit();
 
     prefs.deleteBranch("messenger");
   }

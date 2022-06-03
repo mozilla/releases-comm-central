@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CommandsService"];
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -40,7 +40,7 @@ CommandsService.prototype = {
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run(aMsg, aConv) {
-        let conv = Services.conversations.getUIConversation(aConv);
+        let conv = IMServices.conversations.getUIConversation(aConv);
         if (!conv) {
           return false;
         }
@@ -62,7 +62,7 @@ CommandsService.prototype = {
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
       run(aMsg, aConv) {
         aMsg = aMsg.trim();
-        let conv = Services.conversations.getUIConversation(aConv);
+        let conv = IMServices.conversations.getUIConversation(aConv);
         if (!conv) {
           return false;
         }
@@ -129,7 +129,7 @@ CommandsService.prototype = {
         usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
         priority: Ci.imICommand.CMD_PRIORITY_HIGH,
         run(aMsg) {
-          Services.core.globalUserStatus.setStatus(statusValue, aMsg);
+          IMServices.core.globalUserStatus.setStatus(statusValue, aMsg);
           return true;
         },
       });

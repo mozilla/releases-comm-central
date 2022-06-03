@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function testUpdate() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -55,5 +58,5 @@ add_task(async function testUpdate() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });

@@ -1,14 +1,15 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { commands } = ChromeUtils.import("resource:///modules/ircCommands.jsm");
 var { ircProtocol, ircAccount, ircConversation } = ChromeUtils.import(
   "resource:///modules/irc.jsm"
 );
 
 // Ensure the commands have been initialized.
-Services.conversations.initConversations();
+IMServices.conversations.initConversations();
 
 var fakeProto = {
   id: "fake-proto",

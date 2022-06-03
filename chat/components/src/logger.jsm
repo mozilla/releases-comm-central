@@ -4,7 +4,8 @@
 
 var EXPORTED_SYMBOLS = ["Logger"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -506,7 +507,7 @@ LogConversation.prototype = {
       name: this._accountName,
       normalizedName: this._accountName,
       protocol: { name: this._protocolName },
-      statusInfo: Services.core.globalUserStatus,
+      statusInfo: IMServices.core.globalUserStatus,
     };
   },
   getMessages() {

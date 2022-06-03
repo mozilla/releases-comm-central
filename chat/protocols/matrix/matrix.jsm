@@ -15,7 +15,8 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 var { XPCOMUtils, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var {
   GenericAccountPrototype,
   GenericConvChatPrototype,
@@ -1209,11 +1210,11 @@ MatrixRoom.prototype = {
     this.buddy = new MatrixBuddy(
       this._account,
       null,
-      Services.tags.defaultTag,
+      IMServices.tags.defaultTag,
       user.userId
     );
     this.buddy.setUser(user);
-    Services.contacts.accountBuddyAdded(this.buddy);
+    IMServices.contacts.accountBuddyAdded(this.buddy);
     this._account.buddies.set(dmUserId, this.buddy);
   },
 
@@ -1320,7 +1321,7 @@ MatrixRoom.prototype = {
         conv => conv.buddy && conv.buddy === this.buddy && conv !== this
       );
       if (otherDMRooms.length == 0) {
-        Services.contacts.accountBuddyRemoved(this.buddy);
+        IMServices.contacts.accountBuddyRemoved(this.buddy);
         this._account.buddies.delete(dmUserId);
         delete this.buddy;
       }
@@ -3267,7 +3268,7 @@ MatrixAccount.prototype = {
     }
     // Prepare buddy for use with the conversation while preserving the tag.
     const buddy = new MatrixBuddy(this, null, aTag, aName);
-    Services.contacts.accountBuddyAdded(buddy);
+    IMServices.contacts.accountBuddyAdded(buddy);
     this.buddies.set(aName, buddy);
 
     this.getDirectConversation(aName);

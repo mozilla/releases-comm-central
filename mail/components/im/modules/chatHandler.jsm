@@ -4,7 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["allContacts", "onlineContacts", "ChatCore"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -39,14 +40,14 @@ var ChatCore = {
           callback.onAuthResult(this.onPromptStart());
         },
         onPromptStart() {
-          Services.core.init();
+          IMServices.core.init();
 
           // Find the accounts that exist in the im account service but
           // not in nsMsgAccountManager. They have probably been lost if
           // the user has used an older version of Thunderbird on a
           // profile with IM accounts. See bug 736035.
           let accountsById = {};
-          for (let account of Services.accounts.getAccounts()) {
+          for (let account of IMServices.accounts.getAccounts()) {
             accountsById[account.numericId] = account;
           }
           let mgr = MailServices.accounts;
@@ -76,7 +77,7 @@ var ChatCore = {
             mgr.notifyServerLoaded(inServer);
           }
 
-          Services.tags.getTags().forEach(function(aTag) {
+          IMServices.tags.getTags().forEach(function(aTag) {
             aTag.getContacts().forEach(function(aContact) {
               let name = aContact.preferredBuddy.normalizedName;
               allContacts[name] = aContact;

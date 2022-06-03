@@ -303,7 +303,7 @@ add_task(function test_forgetWith_close() {
     unInit() {},
   };
   roomList.set(roomStub._roomId, roomStub);
-  Services.conversations.addConversation(roomStub);
+  IMServices.conversations.addConversation(roomStub);
 
   MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));
@@ -323,7 +323,7 @@ add_task(function test_forgetWithout_close() {
     unInit() {},
   };
   roomList.set(roomStub._roomId, roomStub);
-  Services.conversations.addConversation(roomStub);
+  IMServices.conversations.addConversation(roomStub);
 
   MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));

@@ -4,7 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["Notifications"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -157,7 +158,7 @@ var Notifications = {
         this._lastMessageTime = 0;
         this._lastMessageSender = null;
         // Focus the conversation if the notification is clicked.
-        let uiConv = Services.conversations.getUIConversation(
+        let uiConv = IMServices.conversations.getUIConversation(
           aMessage.conversation
         );
         let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");

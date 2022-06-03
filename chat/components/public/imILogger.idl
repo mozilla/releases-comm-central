@@ -22,7 +22,7 @@ interface imILogConversation: nsISupports {
   // Simplified account implementation:
   //  - alias will always be empty
   //  - name (always the normalizedName)
-  //  - statusInfo will return Services.core.globalUserStatus
+  //  - statusInfo will return IMServices.core.globalUserStatus
   //  - protocol will only contain a "name" attribute, with the prpl's normalized name.
   // Other methods/attributes aren't implemented.
   readonly attribute imIAccount account;

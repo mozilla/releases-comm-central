@@ -73,7 +73,7 @@ add_task(function test_getConversationByIdOrAlias() {
 
 add_task(async function test_getGroupConversation() {
   registerCleanupFunction(() => {
-    const conversations = Services.conversations.getConversations();
+    const conversations = IMServices.conversations.getConversations();
     for (const conversation of conversations) {
       try {
         conversation.forget();
@@ -381,7 +381,10 @@ add_task(async function test_deleteAccount() {
   account.unInit();
   await storesPromise;
   ok(!clientLoggedIn, "logged out");
-  ok(!Services.conversations.getConversations().includes(conv), "room closed");
+  ok(
+    !IMServices.conversations.getConversations().includes(conv),
+    "room closed"
+  );
   ok(verificationRequestCancelled, "verification request cancelled");
   ok(stopped);
   equal(removedListeners, MatrixSDK.ClientEvent.Sync);

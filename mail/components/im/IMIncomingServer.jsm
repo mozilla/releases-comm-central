@@ -4,7 +4,8 @@
 
 var EXPORTED_SYMBOLS = ["IMIncomingServer"];
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 
 function IMIncomingServer() {}
 
@@ -22,8 +23,8 @@ IMIncomingServer.prototype = {
     if (!id) {
       return null;
     }
-    Services.core.init();
-    return (this._imAccount = Services.accounts.getAccountById(id));
+    IMServices.core.init();
+    return (this._imAccount = IMServices.accounts.getAccountById(id));
   },
   set imAccount(aImAccount) {
     this._imAccount = aImAccount;
@@ -51,7 +52,7 @@ IMIncomingServer.prototype = {
   },
 
   clearAllValues() {
-    Services.accounts.deleteAccount(this.imAccount.id);
+    IMServices.accounts.deleteAccount(this.imAccount.id);
     for (let prefName of this._prefBranch.getChildList("")) {
       this._prefBranch.clearUserPref(prefName);
     }
@@ -65,7 +66,7 @@ IMIncomingServer.prototype = {
   // This is used in account removal dialog and should return the same path
   // that the removeFiles() function deletes.
   get localPath() {
-    let logPath = Services.logs.getLogFolderPathForAccount(this.imAccount);
+    let logPath = IMServices.logs.getLogFolderPathForAccount(this.imAccount);
     let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     file.initWithPath(logPath);
     return file;
@@ -73,7 +74,7 @@ IMIncomingServer.prototype = {
 
   // Removes files created by this account.
   removeFiles() {
-    Services.logs.deleteLogFolderForAccount(this.imAccount);
+    IMServices.logs.deleteLogFolderForAccount(this.imAccount);
   },
 
   // called by nsMsgAccountManager while deleting an account:

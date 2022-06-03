@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const EXPORTED_SYMBOLS = ["CLib"];
+
 const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var OS = Services.appinfo.OS.toLowerCase();
 
@@ -63,7 +65,3 @@ var CLib = {
   fclose: libc.declare("fclose", libcAbi, ctypes.int, FILE.ptr),
   fopen: libc.declare(fopen, libcAbi, FILE.ptr, fname_t, fname_t),
 };
-
-// exports
-
-const EXPORTED_SYMBOLS = ["CLib"];

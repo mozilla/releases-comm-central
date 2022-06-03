@@ -10,7 +10,8 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 var { ClassInfo, XPCOMUtils, executeSoon, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
@@ -192,7 +193,7 @@ function imAccount(aKey, aName, aPrplId) {
   }
 
   // Get the protocol plugin, or fallback to an UnknownProtocol instance.
-  this.protocol = Services.core.getProtocolById(prplId);
+  this.protocol = IMServices.core.getProtocolById(prplId);
   if (!this.protocol) {
     this.protocol = new UnknownProtocol(prplId);
     this._connectionErrorReason = Ci.imIAccount.ERROR_UNKNOWN_PRPL;
@@ -200,7 +201,7 @@ function imAccount(aKey, aName, aPrplId) {
   }
 
   // Ensure the account is correctly stored in blist.sqlite.
-  Services.contacts.storeAccount(this.numericId, this.name, prplId);
+  IMServices.contacts.storeAccount(this.numericId, this.name, prplId);
 
   // Get the prplIAccount from the protocol plugin.
   this.prplAccount = this.protocol.getAccount(this);
@@ -436,7 +437,7 @@ imAccount.prototype = {
     }
   },
   get statusInfo() {
-    return this._observedStatusInfo || Services.core.globalUserStatus;
+    return this._observedStatusInfo || IMServices.core.globalUserStatus;
   },
 
   reconnectAttempt: 0,
@@ -749,7 +750,7 @@ imAccount.prototype = {
       this.prplAccount.remove();
     }
     this.unInit();
-    Services.contacts.forgetAccount(this.numericId);
+    IMServices.contacts.forgetAccount(this.numericId);
     for (let prefName of this.prefBranch.getChildList("")) {
       this.prefBranch.clearUserPref(prefName);
     }
@@ -1181,7 +1182,7 @@ AccountsService.prototype = {
 
   createAccount(aName, aPrpl) {
     // Ensure an account with the same name and protocol doesn't already exist.
-    let prpl = Services.core.getProtocolById(aPrpl);
+    let prpl = IMServices.core.getProtocolById(aPrpl);
     if (!prpl) {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
@@ -1200,7 +1201,7 @@ AccountsService.prototype = {
       /* id isn't used by a known account, double check it isn't
        already used in the sqlite database. This should never
        happen, except if we have a corrupted profile. */
-      if (!Services.contacts.accountIdExists(id)) {
+      if (!IMServices.contacts.accountIdExists(id)) {
         break;
       }
       Services.console.logStringMessage(

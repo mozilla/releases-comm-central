@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function testCollapse() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -63,11 +66,14 @@ add_task(async function testCollapse() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testGrouping() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -132,11 +138,14 @@ add_task(async function testGrouping() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testSystemMessageReplacement() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -214,7 +223,7 @@ add_task(async function testSystemMessageReplacement() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 function addNotice(conversation, uiConversation) {

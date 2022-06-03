@@ -13,9 +13,7 @@ var { Notifications } = ChromeUtils.import(
   "resource:///modules/chatNotifications.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Services: imServices } = ChromeUtils.import(
-  "resource:///modules/imServices.jsm"
-);
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -343,7 +341,7 @@ var chatTabType = {
     aTab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/chat.svg");
     if (!this.hasBeenOpened) {
       if (chatHandler.ChatCore && chatHandler.ChatCore.initialized) {
-        let convs = imServices.conversations.getUIConversations();
+        let convs = IMServices.conversations.getUIConversations();
         if (convs.length != 0) {
           convs.sort((a, b) =>
             a.title.toLowerCase().localeCompare(b.title.toLowerCase())
@@ -594,7 +592,7 @@ var chatHandler = {
   },
 
   countUnreadMessages() {
-    let convs = imServices.conversations.getUIConversations();
+    let convs = IMServices.conversations.getUIConversations();
     let unreadTargetedCount = 0;
     let unreadTotalCount = 0;
     let unreadOTRNotificationCount = 0;
@@ -653,7 +651,7 @@ var chatHandler = {
       return;
     }
 
-    let us = imServices.core.globalUserStatus;
+    let us = IMServices.core.globalUserStatus;
     us.setStatus(Status.toFlag(status), us.statusText);
   },
 
@@ -687,7 +685,7 @@ var chatHandler = {
     cti.setAttribute("displayName", aConversation.title);
 
     // Find and display the contact for this log.
-    for (let account of imServices.accounts.getAccounts()) {
+    for (let account of IMServices.accounts.getAccounts()) {
       if (
         account.normalizedName == aConversation.account.normalizedName &&
         account.protocol.normalizedName == aConversation.account.protocol.name
@@ -699,7 +697,7 @@ var chatHandler = {
           return;
         }
         // Display information for contacts.
-        let accountBuddy = imServices.contacts.getAccountBuddyByNameAndAccount(
+        let accountBuddy = IMServices.contacts.getAccountBuddyByNameAndAccount(
           aConversation.normalizedName,
           account
         );
@@ -943,8 +941,8 @@ var chatHandler = {
         Services.dirsvc.get("ProfD", Ci.nsIFile).path,
         ...path.split("/")
       );
-      imServices.logs.getLogFromFile(path, true).then(aLog => {
-        imServices.logs.getSimilarLogs(aLog).then(aSimilarLogs => {
+      IMServices.logs.getLogFromFile(path, true).then(aLog => {
+        IMServices.logs.getSimilarLogs(aLog).then(aSimilarLogs => {
           if (contactlistbox.selectedItem != item) {
             return;
           }
@@ -1013,7 +1011,7 @@ var chatHandler = {
 
       ChatEncryption.updateEncryptionButton(document, item.conv);
 
-      imServices.logs.getLogsForConversation(item.conv).then(aLogs => {
+      IMServices.logs.getLogsForConversation(item.conv).then(aLogs => {
         if (contactlistbox.selectedItem != item) {
           return;
         }
@@ -1060,7 +1058,7 @@ var chatHandler = {
           e.setAttribute("hidden", "true");
         });
 
-      imServices.logs.getLogsForContact(contact).then(aLogs => {
+      IMServices.logs.getLogsForContact(contact).then(aLogs => {
         if (contactlistbox.selectedItem != item) {
           return;
         }
@@ -1167,7 +1165,7 @@ var chatHandler = {
     let connected = false;
     let hasAccount = false;
     let canJoinChat = false;
-    for (let account of imServices.accounts.getAccounts()) {
+    for (let account of IMServices.accounts.getAccounts()) {
       hasAccount = true;
       if (account.connected) {
         connected = true;
@@ -1704,12 +1702,12 @@ var chatHandler = {
   },
   _observedTopics: [],
   _addObserver(aTopic) {
-    imServices.obs.addObserver(chatHandler, aTopic);
+    Services.obs.addObserver(chatHandler, aTopic);
     chatHandler._observedTopics.push(aTopic);
   },
   _removeObservers() {
     for (let topic of this._observedTopics) {
-      imServices.obs.removeObserver(this, topic);
+      Services.obs.removeObserver(this, topic);
     }
   },
   // TODO move this function away from here and test it.
@@ -1878,7 +1876,7 @@ var chatHandler = {
 
     if (ChatEncryption.otrEnabled) {
       new Promise(resolve => {
-        if (Services.core.initialized) {
+        if (IMServices.core.initialized) {
           resolve();
           return;
         }

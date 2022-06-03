@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["ConversationsService", "imMessage", "UIConversation"];
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 var { XPCOMUtils, ClassInfo } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"

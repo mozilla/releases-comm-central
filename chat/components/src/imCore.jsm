@@ -4,7 +4,8 @@
 
 var EXPORTED_SYMBOLS = ["CoreService"];
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ClassInfo, initLogModule } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -283,7 +284,7 @@ CoreService.prototype = {
     Services.obs.addObserver(this, kQuitApplicationGranted);
     this._initialized = true;
 
-    Services.cmd.initCommands();
+    IMServices.cmd.initCommands();
     this._protos = {};
 
     this.globalUserStatus = new UserStatus();
@@ -293,17 +294,17 @@ CoreService.prototype = {
       },
     });
 
-    let accounts = Services.accounts;
+    let accounts = IMServices.accounts;
     accounts.initAccounts();
-    Services.contacts.initContacts();
-    Services.conversations.initConversations();
+    IMServices.contacts.initContacts();
+    IMServices.conversations.initConversations();
     Services.obs.notifyObservers(this, "prpl-init");
 
     // Wait with automatic connections until the password service
     // is available.
     if (accounts.autoLoginStatus == Ci.imIAccountsService.AUTOLOGIN_ENABLED) {
       Services.logins.initializationPromise.then(() => {
-        Services.accounts.processAutoLogin();
+        IMServices.accounts.processAutoLogin();
       });
     }
   },
@@ -320,10 +321,10 @@ CoreService.prototype = {
     Services.obs.removeObserver(this, kQuitApplicationGranted);
     Services.obs.notifyObservers(this, "prpl-quit");
 
-    Services.conversations.unInitConversations();
-    Services.accounts.unInitAccounts();
-    Services.contacts.unInitContacts();
-    Services.cmd.unInitCommands();
+    IMServices.conversations.unInitConversations();
+    IMServices.accounts.unInitAccounts();
+    IMServices.contacts.unInitContacts();
+    IMServices.cmd.unInitCommands();
 
     this.globalUserStatus.unInit();
     delete this.globalUserStatus;

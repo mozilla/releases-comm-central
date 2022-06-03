@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 var addBuddy = {
   onload() {
     let accountList = document.getElementById("accountlist");
-    for (let acc of Services.accounts.getAccounts()) {
+    for (let acc of IMServices.accounts.getAccounts()) {
       if (!acc.connected) {
         continue;
       }
@@ -38,13 +39,13 @@ var addBuddy = {
   },
 
   create() {
-    let account = Services.accounts.getAccountById(
+    let account = IMServices.accounts.getAccountById(
       this.getValue("accountlist")
     );
     let group = Services.strings
       .createBundle("chrome://messenger/locale/chat.properties")
       .GetStringFromName("defaultGroup");
-    account.addBuddy(Services.tags.createTag(group), this.getValue("name"));
+    account.addBuddy(IMServices.tags.createTag(group), this.getValue("name"));
   },
 };
 

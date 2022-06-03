@@ -4,7 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["OTRUI"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -223,7 +224,7 @@ var OTRUI = {
   },
 
   genMissingKeys() {
-    for (let acc of Services.accounts.getAccounts()) {
+    for (let acc of IMServices.accounts.getAccounts()) {
       OTRUI.accountsToGenKey.push({
         name: acc.normalizedName,
         prot: acc.protocol.normalizedName,
@@ -273,7 +274,7 @@ var OTRUI = {
         Services.obs.addObserver(OTRUI, "conversation-closed");
         Services.obs.addObserver(OTRUI, "prpl-quit");
 
-        for (let conv of Services.conversations.getConversations()) {
+        for (let conv of IMServices.conversations.getConversations()) {
           OTRUI.initConv(conv);
         }
         OTRUI.addMenuObserver();
@@ -291,7 +292,7 @@ var OTRUI = {
       return OTR.disconnect(aConv, true);
     }
     let allGood = true;
-    for (let conv of Services.conversations.getConversations()) {
+    for (let conv of IMServices.conversations.getConversations()) {
       if (conv.isChat) {
         continue;
       }
@@ -990,7 +991,7 @@ var OTRUI = {
     Services.obs.removeObserver(OTRUI, "conversation-closed");
     Services.obs.removeObserver(OTRUI, "prpl-quit");
 
-    for (let conv of Services.conversations.getConversations()) {
+    for (let conv of IMServices.conversations.getConversations()) {
       OTRUI.resetConv(conv);
     }
     OTR.removeObserver(OTRUI);

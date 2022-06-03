@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function testGrantingBuddyRequest() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   const prplAccount = account.prplAccount.wrappedJSObject;
   account.password = "this is a test";
   account.connect();
@@ -46,11 +49,14 @@ add_task(async function testGrantingBuddyRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testCancellingBuddyRequest() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   const prplAccount = account.prplAccount.wrappedJSObject;
   account.password = "this is a test";
   account.connect();
@@ -96,11 +102,14 @@ add_task(async function testCancellingBuddyRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testDenyingBuddyRequest() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   const prplAccount = account.prplAccount.wrappedJSObject;
   account.password = "this is a test";
   account.connect();
@@ -138,11 +147,14 @@ add_task(async function testDenyingBuddyRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testGrantingChatRequest() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   const prplAccount = account.prplAccount.wrappedJSObject;
   account.password = "this is a test";
   account.connect();
@@ -185,11 +197,14 @@ add_task(async function testGrantingChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testCancellingChatRequest() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   const prplAccount = account.prplAccount.wrappedJSObject;
   account.password = "this is a test";
   account.connect();
@@ -236,11 +251,14 @@ add_task(async function testCancellingChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testDenyingChatRequest() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   const prplAccount = account.prplAccount.wrappedJSObject;
   account.password = "this is a test";
   account.connect();
@@ -280,11 +298,14 @@ add_task(async function testDenyingChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testUndenyableChatRequest() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   const prplAccount = account.prplAccount.wrappedJSObject;
   account.password = "this is a test";
   account.connect();
@@ -325,5 +346,5 @@ add_task(async function testUndenyableChatRequest() {
   ok(!notificationBox.getNotificationWithValue(value), "notification closed");
 
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });

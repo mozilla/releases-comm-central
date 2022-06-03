@@ -4,7 +4,8 @@
 
 var EXPORTED_SYMBOLS = ["TagsService", "ContactsService"];
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { XPCOMUtils, executeSoon, ClassInfo, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -978,7 +979,7 @@ Contact.prototype = {
     return this.preferredBuddy.getTooltipInfo();
   },
   createConversation() {
-    let uiConv = Services.conversations.getUIConversationByContactId(this.id);
+    let uiConv = IMServices.conversations.getUIConversationByContactId(this.id);
     if (uiConv) {
       return uiConv.target;
     }
@@ -1540,7 +1541,7 @@ ContactsService.prototype = {
           continue;
         }
 
-        let account = Services.accounts.getAccountByNumericId(accountId);
+        let account = IMServices.accounts.getAccountByNumericId(accountId);
         let tag = TagsById[tagId];
         try {
           buddy._addAccount(account.loadBuddy(buddy, tag), tag);

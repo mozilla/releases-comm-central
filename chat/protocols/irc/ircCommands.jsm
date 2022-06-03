@@ -6,7 +6,7 @@
 // implementing the commands field before we register them.
 const EXPORTED_SYMBOLS = ["commands"];
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { _ } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Shortcut to get the JavaScript conversation object.

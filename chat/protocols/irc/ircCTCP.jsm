@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * This implements the Client-to-Client Protocol (CTCP), a subprotocol of IRC.
  *   REVISED AND UPDATED CTCP SPECIFICATION
  *     http://www.alien.net.au/irc/ctcp.txt
@@ -10,7 +10,7 @@
 
 const EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase", "CTCPMessage"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"
 );

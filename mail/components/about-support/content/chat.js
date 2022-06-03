@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals Services */
-
-var { Services: imServices } = ChromeUtils.import(
-  "resource:///modules/imServices.jsm"
-);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 
 /**
  * Populates the "Chat" section of the troubleshooting information page with
@@ -52,7 +49,7 @@ function populateChatSection() {
     );
   };
 
-  let chatAccounts = imServices.accounts.getAccounts();
+  let chatAccounts = IMServices.accounts.getAccounts();
   if (!chatAccounts.length) {
     return;
   }

@@ -5,7 +5,7 @@
 const EXPORTED_SYMBOLS = ["XMPPSession"];
 
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );

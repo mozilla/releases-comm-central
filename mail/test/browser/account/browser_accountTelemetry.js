@@ -10,6 +10,7 @@
 let { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 let { TelemetryTestUtils } = ChromeUtils.import(
   "resource://testing-common/TelemetryTestUtils.jsm"
 );
@@ -45,7 +46,7 @@ add_task(async function test_account_types() {
   let imapServer = MailServices.accounts
     .createIncomingServer("nobody", "foo.invalid", "imap")
     .QueryInterface(Ci.nsIImapIncomingServer);
-  let imAccount = Services.accounts.createAccount(
+  let imAccount = IMServices.accounts.createAccount(
     "telemetry-irc-user",
     "prpl-irc"
   );

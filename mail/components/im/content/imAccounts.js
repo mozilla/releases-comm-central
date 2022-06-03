@@ -6,7 +6,8 @@
 /* globals statusSelector */
 /* globals MsgAccountManager */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -59,7 +60,7 @@ var gAccountManager = {
       () => {
         this.accountList = document.getElementById("accountlist");
         let defaultID;
-        Services.core.init(); // ensure the imCore is initialized.
+        IMServices.core.init(); // ensure the imCore is initialized.
         for (let acc of this.getAccounts()) {
           let elt = document.createXULElement("richlistitem", {
             is: "chat-account-richlistitem",
@@ -520,7 +521,7 @@ var gAccountManager = {
   },
 
   *getAccounts() {
-    for (let account of Services.accounts.getAccounts()) {
+    for (let account of IMServices.accounts.getAccounts()) {
       yield account;
     }
   },
@@ -532,7 +533,7 @@ var gAccountManager = {
   },
 
   setAutoLoginNotification() {
-    var as = Services.accounts;
+    var as = IMServices.accounts;
     var autoLoginStatus = as.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
@@ -546,7 +547,7 @@ var gAccountManager = {
     }
 
     if (autoLoginStatus == as.AUTOLOGIN_ENABLED && crashCount == 0) {
-      let status = Services.core.globalUserStatus.statusType;
+      let status = IMServices.core.globalUserStatus.statusType;
       this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
     }
@@ -605,7 +606,7 @@ var gAccountManager = {
       default:
         barLabel = bundle.getString("accountsManager.notification.other.label");
     }
-    let status = Services.core.globalUserStatus.statusType;
+    let status = IMServices.core.globalUserStatus.statusType;
     this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
 
     box.appendNotification(
@@ -624,7 +625,7 @@ var gAccountManager = {
       ioService.offline = false;
     }
 
-    Services.accounts.processAutoLogin();
+    IMServices.accounts.processAutoLogin();
 
     gAccountManager.accountList.selectedItem.setFocus();
   },

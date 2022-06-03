@@ -11,6 +11,8 @@ var { getThemeByName, getThemeVariants } = ChromeUtils.import(
   "resource:///modules/imThemes.jsm"
 );
 
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+
 function Conversation(aName) {
   this._name = aName;
   this._observers = [];
@@ -25,7 +27,7 @@ Conversation.prototype = {
     protocol: { name: "Fake Protocol" },
     alias: "",
     name: "Fake Account",
-    statusInfo: Services.core.globalUserStatus,
+    statusInfo: IMServices.core.globalUserStatus,
   },
 };
 

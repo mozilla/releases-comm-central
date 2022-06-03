@@ -4,7 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["TextboxSize"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var TextboxSize = {
   _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",

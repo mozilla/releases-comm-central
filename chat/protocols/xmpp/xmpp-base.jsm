@@ -12,7 +12,8 @@ const EXPORTED_SYMBOLS = [
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 const {
   XPCOMUtils,
@@ -1204,7 +1205,7 @@ var XMPPAccountBuddyPrototype = {
     }
 
     this._tag = aNewTag;
-    Services.contacts.accountBuddyMoved(this, oldTag, aNewTag);
+    IMServices.contacts.accountBuddyMoved(this, oldTag, aNewTag);
 
     if (!this._rosterItem) {
       this.ERROR(
@@ -2952,8 +2953,8 @@ var XMPPAccountPrototype = {
           if (tagName) {
             // Should always be true, but check just in case...
             let oldTag = buddy.tag;
-            buddy._tag = Services.tags.createTag(tagName);
-            Services.contacts.accountBuddyMoved(buddy, oldTag, buddy._tag);
+            buddy._tag = IMServices.tags.createTag(tagName);
+            IMServices.contacts.accountBuddyMoved(buddy, oldTag, buddy._tag);
           }
         }
       }
@@ -2962,7 +2963,7 @@ var XMPPAccountPrototype = {
       for (let group of aItem.getChildren("group")) {
         let name = group.innerText;
         if (name) {
-          tag = Services.tags.createTag(name);
+          tag = IMServices.tags.createTag(name);
           break; // TODO we should create an accountBuddy per group,
           // but this._buddies would probably not like that...
         }
@@ -2970,7 +2971,7 @@ var XMPPAccountPrototype = {
       buddy = new this._accountBuddyConstructor(
         this,
         null,
-        tag || Services.tags.defaultTag,
+        tag || IMServices.tags.defaultTag,
         jid
       );
     }
@@ -3000,7 +3001,7 @@ var XMPPAccountPrototype = {
     }
     if (!this._buddies.has(jid)) {
       this._buddies.set(jid, buddy);
-      Services.contacts.accountBuddyAdded(buddy);
+      IMServices.contacts.accountBuddyAdded(buddy);
     } else if (aNotifyOfUpdates) {
       buddy._notifyObservers("status-detail-changed");
     }
@@ -3012,7 +3013,7 @@ var XMPPAccountPrototype = {
     return jid;
   },
   _forgetRosterItem(aJID) {
-    Services.contacts.accountBuddyRemoved(this._buddies.get(aJID));
+    IMServices.contacts.accountBuddyRemoved(this._buddies.get(aJID));
     this._buddies.delete(aJID);
   },
 

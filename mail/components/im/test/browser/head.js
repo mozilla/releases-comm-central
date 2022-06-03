@@ -5,7 +5,8 @@
 var { registerTestProtocol, unregisterTestProtocol } = ChromeUtils.import(
   "resource://testing-common/TestProtocol.jsm"
 );
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 
 async function openChatTab() {
   let tabmail = document.getElementById("tabmail");
@@ -104,7 +105,7 @@ registerCleanupFunction(async () => {
   // Make sure the chat state is clean
   await closeChatTab();
 
-  const conversations = Services.conversations.getConversations();
+  const conversations = IMServices.conversations.getConversations();
   is(conversations.length, 0, "All conversations were closed by their test");
   for (const conversation of conversations) {
     try {
@@ -114,14 +115,14 @@ registerCleanupFunction(async () => {
     }
   }
 
-  const accounts = Services.accounts.getAccounts();
+  const accounts = IMServices.accounts.getAccounts();
   is(accounts.length, 0, "All accounts were removed by their test");
   for (const account of accounts) {
     try {
       if (account.connected || account.connecting) {
         account.disconnect();
       }
-      Services.accounts.deleteAccount(account.id);
+      IMServices.accounts.deleteAccount(account.id);
     } catch (error) {
       ok(false, "Error deleting account " + account.id + ": " + error.message);
     }

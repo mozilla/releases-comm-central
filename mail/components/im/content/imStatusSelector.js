@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 var statusSelector = {
@@ -18,7 +19,7 @@ var statusSelector = {
   },
 
   displayUserIcon() {
-    let icon = Services.core.globalUserStatus.getUserIcon();
+    let icon = IMServices.core.globalUserStatus.getUserIcon();
     ChatIcons.setUserIconSrc(
       document.getElementById("userIcon"),
       icon?.spec,
@@ -27,7 +28,7 @@ var statusSelector = {
   },
 
   displayUserDisplayName() {
-    let displayName = Services.core.globalUserStatus.displayName;
+    let displayName = IMServices.core.globalUserStatus.displayName;
     let elt = document.getElementById("displayName");
     if (displayName) {
       elt.removeAttribute("usingDefault");
@@ -53,7 +54,7 @@ var statusSelector = {
   },
 
   displayCurrentStatus() {
-    let us = Services.core.globalUserStatus;
+    let us = IMServices.core.globalUserStatus;
     let status = Status.toAttribute(us.statusType);
     let message = status == "offline" ? "" : us.statusText;
     let statusMessage = document.getElementById("statusMessageLabel");
@@ -75,7 +76,7 @@ var statusSelector = {
   editStatus(aEvent) {
     let status = aEvent.target.getAttribute("status");
     if (status == "offline") {
-      Services.core.globalUserStatus.setStatus(
+      IMServices.core.globalUserStatus.setStatus(
         Ci.imIStatusInfo.STATUS_OFFLINE,
         ""
       );
@@ -120,7 +121,7 @@ var statusSelector = {
         ) {
           statusMessageInput.setAttribute(
             "value",
-            Services.core.globalUserStatus.statusText
+            IMServices.core.globalUserStatus.statusText
           );
         } else {
           statusMessageInput.removeAttribute("value");
@@ -207,7 +208,7 @@ var statusSelector = {
         newStatus != Ci.imIStatusInfo.STATUS_UNKNOWN ||
         statusMessageInput.value != statusMessageInput.getAttribute("value")
       ) {
-        Services.core.globalUserStatus.setStatus(
+        IMServices.core.globalUserStatus.setStatus(
           newStatus,
           statusMessageInput.value
         );
@@ -254,7 +255,7 @@ var statusSelector = {
       if (rv != nsIFilePicker.returnOK || !fp.file) {
         return;
       }
-      Services.core.globalUserStatus.setUserIcon(fp.file);
+      IMServices.core.globalUserStatus.setUserIcon(fp.file);
     });
   },
 
@@ -322,7 +323,7 @@ var statusSelector = {
       aSave &&
       displayNameInput.value != displayNameInput.getAttribute("value")
     ) {
-      Services.core.globalUserStatus.displayName = displayNameInput.value;
+      IMServices.core.globalUserStatus.displayName = displayNameInput.value;
     } else if (displayName.hasAttribute("usingDefault")) {
       displayName.setAttribute(
         "value",

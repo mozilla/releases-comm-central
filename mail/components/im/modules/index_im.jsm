@@ -15,7 +15,8 @@ const { GlodaAccount } = ChromeUtils.import(
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -475,7 +476,7 @@ var GlodaIMIndexer = {
     (async () => {
       // We need to get the log files every time, because a new log file might
       // have been started since we last got them.
-      let logFiles = await Services.logs.getLogPathsForConversation(
+      let logFiles = await IMServices.logs.getLogPathsForConversation(
         aConversation
       );
       if (!logFiles || !logFiles.length) {
@@ -606,7 +607,7 @@ var GlodaIMIndexer = {
       // Ok, some new text is about to be put into a conversation. For this
       // notification, aSubject is a prplIMessage.
       let conv = aSubject.conversation;
-      let uiConv = Services.conversations.getUIConversation(conv);
+      let uiConv = IMServices.conversations.getUIConversation(conv);
 
       // We only want to schedule an indexing job if this message is
       // immediately visible to the user. We figure this out by finding
@@ -680,7 +681,7 @@ var GlodaIMIndexer = {
     aCache,
     aGlodaConv
   ) {
-    let log = await Services.logs.getLogFromFile(aLogPath);
+    let log = await IMServices.logs.getLogFromFile(aLogPath);
     let logConv = await log.getConversation();
 
     // Ignore corrupted log files.

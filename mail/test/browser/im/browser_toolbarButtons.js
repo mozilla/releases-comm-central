@@ -8,7 +8,8 @@ var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 
 /* This test checks that the toolbar buttons of the chat toolbar are
  * correctly disabled/enabled, and that the placeholder displayed in
@@ -67,7 +68,7 @@ add_task(function test_toolbar_and_placeholder() {
   );
 
   // The next tests require an account, get the unwrapped default IRC account.
-  let account = Services.accounts.getAccountByNumericId(1);
+  let account = IMServices.accounts.getAccountByNumericId(1);
   Assert.equal(
     account.protocol.id,
     "prpl-irc",

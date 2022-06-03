@@ -20,7 +20,8 @@ var {
   XPCOMUtils,
   nsSimpleEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { _, ctcpFormatToHTML, kListRefreshInterval } = ChromeUtils.import(
   "resource:///modules/ircUtils.jsm"
 );
@@ -1557,7 +1558,7 @@ ircAccount.prototype = {
     this.buddies.set(buddy.normalizedName, buddy);
     this.trackBuddy(buddy.userName);
 
-    Services.contacts.accountBuddyAdded(buddy);
+    IMServices.contacts.accountBuddyAdded(buddy);
   },
   removeBuddy(aBuddy) {
     this.buddies.delete(aBuddy.normalizedName);

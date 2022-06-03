@@ -11,6 +11,9 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
+  const { IMServices } = ChromeUtils.import(
+    "resource:///modules/IMServices.jsm"
+  );
   const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
   /**
@@ -227,7 +230,7 @@
 
     openConversation() {
       let prplConv = this.contact.createConversation();
-      let uiConv = Services.conversations.getUIConversation(prplConv);
+      let uiConv = IMServices.conversations.getUIConversation(prplConv);
       chatHandler.focusConversation(uiConv);
     }
 

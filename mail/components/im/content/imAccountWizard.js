@@ -5,7 +5,8 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -44,12 +45,12 @@ var accountWizard = {
     );
 
     // Ensure the im core is initialized before we get a list of protocols.
-    Services.core.init();
+    IMServices.core.init();
 
     accountWizard.setGetMoreProtocols();
 
     var protoList = document.getElementById("protolist");
-    var protos = Services.core.getProtocols();
+    var protos = IMServices.core.getProtocols();
     protos.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
@@ -154,7 +155,7 @@ var accountWizard = {
   selectProtocol() {
     var protoList = document.getElementById("protolist");
     var id = protoList.selectedItem.value;
-    this.proto = Services.core.getProtocolById(id);
+    this.proto = IMServices.core.getProtocolById(id);
   },
 
   /**
@@ -401,7 +402,7 @@ var accountWizard = {
   },
 
   createAccount() {
-    var acc = Services.accounts.createAccount(this.username, this.proto.id);
+    var acc = IMServices.accounts.createAccount(this.username, this.proto.id);
     if (!this.proto.noPassword && this.password) {
       acc.password = this.password;
     }

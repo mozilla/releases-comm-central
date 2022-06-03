@@ -8,7 +8,12 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
+  const { IMServices } = ChromeUtils.import(
+    "resource:///modules/IMServices.jsm"
+  );
   const { Status } = ChromeUtils.import(
     "resource:///modules/imStatusUtils.jsm"
   );
@@ -529,7 +534,7 @@
         if (aMsg.match(/^\/(?:say)? .*/)) {
           aMsg = aMsg.slice(aMsg.indexOf(" ") + 1);
         } else if (
-          Services.cmd.executeCommand(aMsg, this._conv.target, convToFocus)
+          IMServices.cmd.executeCommand(aMsg, this._conv.target, convToFocus)
         ) {
           this._conv.sendTyping("");
           this.resetInput();
@@ -789,7 +794,7 @@
         // Check if we are completing a command.
         let completingCommand = isFirstWord && word[0] == "/";
         if (completingCommand) {
-          for (let cmd of Services.cmd.listCommandsForConversation(
+          for (let cmd of IMServices.cmd.listCommandsForConversation(
             this._conv
           )) {
             // It's possible to have a global and a protocol specific command

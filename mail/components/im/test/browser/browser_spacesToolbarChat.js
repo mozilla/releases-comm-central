@@ -4,7 +4,10 @@
 
 add_task(async function test_spacesToolbarChatBadgeMUC() {
   window.gSpacesToolbar.toggleToolbar(false);
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -57,12 +60,15 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function test_spacesToolbarChatBadgeDM() {
   window.gSpacesToolbar.toggleToolbar(false);
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -126,12 +132,15 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function test_spacesToolbarPinnedChatBadgeMUC() {
   window.gSpacesToolbar.toggleToolbar(true);
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -185,12 +194,15 @@ add_task(async function test_spacesToolbarPinnedChatBadgeMUC() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function test_spacesToolbarPinnedChatBadgeDM() {
   window.gSpacesToolbar.toggleToolbar(true);
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -241,5 +253,5 @@ add_task(async function test_spacesToolbarPinnedChatBadgeDM() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });

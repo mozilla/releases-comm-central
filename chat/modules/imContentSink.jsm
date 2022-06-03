@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-
 const EXPORTED_SYMBOLS = [
   // cleanupImMarkup is used to clean up incoming IMs. It will use the global
   // ruleset of acceptable stuff except if another (custom one) is provided.
@@ -20,6 +18,8 @@ const EXPORTED_SYMBOLS = [
   "addGlobalAllowedStyleRule",
   "removeGlobalAllowedStyleRule",
 ];
+
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kAllowedURLs = aValue => /^(https?|ftp|mailto|magnet):/.test(aValue);
 var kAllowedMozClasses = aClassName =>

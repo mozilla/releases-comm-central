@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function testMUCMessageSenderTooltip() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -103,11 +106,14 @@ add_task(async function testMUCMessageSenderTooltip() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 add_task(async function testTimestampTooltip() {
-  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  const account = IMServices.accounts.createAccount(
+    "testuser",
+    "prpl-mochitest"
+  );
   account.password = "this is a test";
   account.connect();
 
@@ -164,7 +170,7 @@ add_task(async function testTimestampTooltip() {
 
   conversation.close();
   account.disconnect();
-  Services.accounts.deleteAccount(account.id);
+  IMServices.accounts.deleteAccount(account.id);
 });
 
 async function showTooltip(elementSelector, tooltip, browser) {
