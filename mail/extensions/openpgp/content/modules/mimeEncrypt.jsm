@@ -9,8 +9,9 @@
  *  implemented as XPCOM component
  */
 
-var EXPORTED_SYMBOLS = ["EnigmailMimeEncrypt"];
+const EXPORTED_SYMBOLS = ["EnigmailMimeEncrypt"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -23,7 +24,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
 });
 

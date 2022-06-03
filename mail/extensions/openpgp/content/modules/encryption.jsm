@@ -6,8 +6,9 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailEncryption"];
+const EXPORTED_SYMBOLS = ["EnigmailEncryption"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -22,7 +23,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {

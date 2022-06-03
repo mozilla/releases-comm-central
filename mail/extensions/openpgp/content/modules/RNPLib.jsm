@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["RNPLibLoader"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -11,7 +12,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   ctypes: "resource://gre/modules/ctypes.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 

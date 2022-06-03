@@ -7,13 +7,7 @@
 
 const EXPORTED_SYMBOLS = ["MailUsageTelemetry"];
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  Services: "resource://gre/modules/Services.jsm",
-});
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Observed topic names.
 const DOMWINDOW_OPENED_TOPIC = "domwindowopened";

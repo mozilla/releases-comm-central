@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["SQLiteDirectory"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { AddrBookDirectory } = ChromeUtils.import(
   "resource:///modules/AddrBookDirectory.jsm"
 );
@@ -15,7 +16,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AsyncShutdown: "resource://gre/modules/AsyncShutdown.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 var log = console.createInstance({

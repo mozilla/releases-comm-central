@@ -12,6 +12,7 @@ var EXPORTED_SYMBOLS = ["EnigmailMsgRead"];
  * Message-reading related functions
  */
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -19,7 +20,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 var EnigmailMsgRead = {

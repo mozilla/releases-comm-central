@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookManager"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -13,7 +14,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   clearTimeout: "resource://gre/modules/Timer.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   MailGlue: "resource:///modules/MailGlue.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 XPCOMUtils.defineLazyServiceGetter(

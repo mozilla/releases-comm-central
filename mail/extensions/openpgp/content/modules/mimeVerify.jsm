@@ -4,13 +4,13 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailVerify"];
+const EXPORTED_SYMBOLS = ["EnigmailVerify"];
 
 /**
- *  Module for handling PGP/MIME signed messages
- *  implemented as JS module
+ *  Module for handling PGP/MIME signed messages implemented as JS module.
  */
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -25,7 +25,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 const PGPMIME_PROTO = "application/pgp-signature";

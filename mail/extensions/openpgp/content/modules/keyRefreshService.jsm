@@ -8,6 +8,7 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailKeyRefreshService"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -19,7 +20,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
   EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 const ONE_HOUR_IN_MILLISEC = 60 * 60 * 1000;

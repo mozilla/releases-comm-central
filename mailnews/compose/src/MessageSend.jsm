@@ -7,12 +7,12 @@ const EXPORTED_SYMBOLS = ["MessageSend"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   setTimeout: "resource://gre/modules/Timer.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MimeMessage: "resource:///modules/MimeMessage.jsm",
   MsgUtils: "resource:///modules/MimeMessageUtils.jsm",

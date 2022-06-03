@@ -10,13 +10,11 @@ const EXPORTED_SYMBOLS = [
   "StrictLinkClickHandlerChild",
 ];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  Services: "resource://gre/modules/Services.jsm",
-});
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "protocolSvc",

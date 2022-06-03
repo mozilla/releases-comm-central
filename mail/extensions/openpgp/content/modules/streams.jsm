@@ -6,14 +6,14 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailStreams"];
+const EXPORTED_SYMBOLS = ["EnigmailStreams"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  Services: "resource://gre/modules/Services.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 

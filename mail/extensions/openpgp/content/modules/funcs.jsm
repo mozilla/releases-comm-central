@@ -6,13 +6,14 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailFuncs"];
+const EXPORTED_SYMBOLS = ["EnigmailFuncs"];
 
 /*
  * Common Enigmail crypto-related GUI functionality
  *
  */
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -20,7 +21,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 var gTxtConverter = null;

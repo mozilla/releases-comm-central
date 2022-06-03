@@ -9,8 +9,9 @@
  * out into a module makes unit testing much easier.
  */
 
-var EXPORTED_SYMBOLS = ["MailMigrator", "MigrationTasks"];
+const EXPORTED_SYMBOLS = ["MailMigrator", "MigrationTasks"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -20,7 +21,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EventEmitter: "resource://gre/modules/EventEmitter.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   migrateMailnews: "resource:///modules/MailnewsMigrator.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 

@@ -4,12 +4,12 @@
 
 /* global MozElements */
 
-const { XPCOMUtils } = ChromeUtils.import(
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.jsm",

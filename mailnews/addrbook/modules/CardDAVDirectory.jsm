@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = ["CardDAVDirectory"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
@@ -14,7 +15,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   NotificationCallbacks: "resource:///modules/CardDAVUtils.jsm",
   OAuth2Module: "resource:///modules/OAuth2Module.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   setInterval: "resource://gre/modules/Timer.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
   SQLiteDirectory: "resource:///modules/SQLiteDirectory.jsm",

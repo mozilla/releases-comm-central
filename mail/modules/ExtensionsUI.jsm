@@ -5,6 +5,7 @@
 
 const EXPORTED_SYMBOLS = ["ExtensionsUI"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -20,7 +21,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionData: "resource://gre/modules/Extension.jsm",
   ExtensionParent: "resource://gre/modules/ExtensionParent.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 

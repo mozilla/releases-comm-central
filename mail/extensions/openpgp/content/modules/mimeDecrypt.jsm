@@ -4,13 +4,14 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailMimeDecrypt"];
+const EXPORTED_SYMBOLS = ["EnigmailMimeDecrypt"];
 
 /**
  *  Module for handling PGP/MIME encrypted messages
  *  implemented as an XPCOM object
  */
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -27,7 +28,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {

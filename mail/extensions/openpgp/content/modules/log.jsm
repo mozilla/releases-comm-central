@@ -5,15 +5,15 @@
  */
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailLog"];
+const EXPORTED_SYMBOLS = ["EnigmailLog"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 var EnigmailLog = {

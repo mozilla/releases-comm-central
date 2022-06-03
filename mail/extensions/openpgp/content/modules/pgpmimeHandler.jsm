@@ -9,9 +9,12 @@
  *  implemented as an XPCOM object
  */
 
+const EXPORTED_SYMBOLS = ["EnigmailPgpmimeHander"];
+
 const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -24,10 +27,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailWksMimeHandler: "chrome://openpgp/content/modules/wksMimeHandler.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
-
-var EXPORTED_SYMBOLS = ["EnigmailPgpmimeHander"];
 
 const PGPMIME_JS_DECRYPTOR_CONTRACTID =
   "@mozilla.org/mime/pgp-mime-js-decrypt;1";

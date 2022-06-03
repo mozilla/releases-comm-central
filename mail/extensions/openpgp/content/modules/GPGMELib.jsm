@@ -4,13 +4,13 @@
 
 const EXPORTED_SYMBOLS = ["GPGMELibLoader"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   ctypes: "resource://gre/modules/ctypes.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 var systemOS = Services.appinfo.OS.toLowerCase();

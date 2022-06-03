@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["CardDAVUtils", "NotificationCallbacks"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -17,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 XPCOMUtils.defineLazyServiceGetter(
   this,

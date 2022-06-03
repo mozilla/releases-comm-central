@@ -16,6 +16,7 @@ var nsActEvent = Components.Constructor(
   "init"
 );
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -24,7 +25,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 /**

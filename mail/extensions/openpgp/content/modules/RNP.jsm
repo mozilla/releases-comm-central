@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["RNP"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -17,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   RNPLibLoader: "chrome://openpgp/content/modules/RNPLib.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 const str_encrypt = "encrypt";

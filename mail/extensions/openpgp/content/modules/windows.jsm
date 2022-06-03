@@ -8,6 +8,7 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailWindows"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -16,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {

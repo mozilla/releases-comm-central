@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = ["fetchConfigFromExchange", "getAddonsList"];
 var { AccountCreationUtils } = ChromeUtils.import(
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -16,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.jsm",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 

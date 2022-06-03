@@ -4,8 +4,9 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailWksMimeHandler"];
+const EXPORTED_SYMBOLS = ["EnigmailWksMimeHandler"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -16,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {

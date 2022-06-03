@@ -56,6 +56,7 @@ var EXPORTED_SYMBOLS = ["newEnigmailKeyObj"];
      * getVirtualKeySize
 */
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -65,7 +66,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {

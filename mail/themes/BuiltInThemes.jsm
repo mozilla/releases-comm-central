@@ -4,13 +4,13 @@
 
 var EXPORTED_SYMBOLS = ["BuiltInThemes"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 // List of themes built in to the browser. The themes are represented by objects

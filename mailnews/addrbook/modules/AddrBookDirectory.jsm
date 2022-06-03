@@ -7,14 +7,13 @@ const EXPORTED_SYMBOLS = ["AddrBookDirectory"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookMailingList: "resource:///modules/AddrBookMailingList.jsm",
   BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   VCardProperties: "resource:///modules/VCardUtils.jsm",
 });
 

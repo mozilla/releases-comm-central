@@ -8,6 +8,7 @@ const EXPORTED_SYMBOLS = ["FeedUtils"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   Feed: "resource:///modules/Feed.jsm",
@@ -15,7 +16,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   JSONFile: "resource://gre/modules/JSONFile.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 var FeedUtils = {

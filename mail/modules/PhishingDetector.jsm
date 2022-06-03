@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["PhishingDetector"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -11,7 +12,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   isLegalIPAddress: "resource:///modules/hostnameUtils.jsm",
   isLegalLocalIPAddress: "resource:///modules/hostnameUtils.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 const PhishingDetector = new (class PhishingDetector {

@@ -6,8 +6,9 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailDialog"];
+const EXPORTED_SYMBOLS = ["EnigmailDialog"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -15,7 +16,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {

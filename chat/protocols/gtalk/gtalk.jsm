@@ -4,6 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["GTalkProtocol"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -25,7 +26,6 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 XPCOMUtils.defineLazyModuleGetters(this, {
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 // PlainFullBindAuth is an authentication mechanism that works like

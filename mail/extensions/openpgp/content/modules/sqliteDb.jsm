@@ -8,9 +8,10 @@
  *  Module that provides generic functions for the Enigmail SQLite database
  */
 
-var EXPORTED_SYMBOLS = ["PgpSqliteDb2"];
+const EXPORTED_SYMBOLS = ["PgpSqliteDb2"];
 
-var { XPCOMUtils } = ChromeUtils.import(
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
@@ -18,7 +19,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   Sqlite: "resource://gre/modules/Sqlite.jsm",
 });
 

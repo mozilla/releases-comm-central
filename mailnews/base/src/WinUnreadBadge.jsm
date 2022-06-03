@@ -12,9 +12,9 @@ const EXPORTED_SYMBOLS = ["WinUnreadBadge"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  Services: "resource://gre/modules/Services.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
