@@ -33,6 +33,11 @@ vcard-edit input[type="email"] {
   width: -moz-available;
 }
 
+vcard-edit input[type="url"],
+vcard-edit input[type="tel"] {
+  flex: 1;
+}
+
 vcard-edit input[type="number"] {
   padding-inline-end: 0;
 }
