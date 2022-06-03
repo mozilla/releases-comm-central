@@ -257,13 +257,6 @@
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
-<commandset id="browserCommands">
-  <!-- Browsing back and forth inside the add-on manager and on ATN -->
-  <command id="Browser:Back"
-           oncommand="specialTabs.browserBack();"/>
-  <command id="Browser:Forward"
-           oncommand="specialTabs.browserForward();"/>
-</commandset>
 <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml
   <commandset id="mailSearchMenuItems"/>
@@ -284,6 +277,13 @@
               events="clipboard"
               oncommandupdate="goUpdatePasteMenuItems()"/>
   <commandset id="webSearchItems"/>
+  <commandset id="browserCommands">
+    <!-- Browsing back and forth inside the add-on manager and on ATN -->
+    <command id="Browser:Back"
+             oncommand="specialTabs.browserBack();"/>
+    <command id="Browser:Forward"
+             oncommand="specialTabs.browserForward();"/>
+  </commandset>
   <commandset id="attachmentCommands">
     <command id="cmd_openAllAttachments"
              oncommand="goDoCommand('cmd_openAllAttachments');"
