@@ -105,6 +105,7 @@ add_task(async function test_display() {
   let phoneNumbersSection = abDocument.getElementById("phoneNumbers");
   let addressesSection = abDocument.getElementById("addresses");
   let notesSection = abDocument.getElementById("notes");
+  let websitesSection = abDocument.getElementById("websites");
   let otherInfoSection = abDocument.getElementById("otherInfo");
 
   Assert.equal(cardsList.view.rowCount, 3);
@@ -273,10 +274,37 @@ add_task(async function test_display() {
     "mary had a little lamb\nits fleece was white as snow\nand everywhere that mary went\nthe lamb was sure to go"
   );
 
+  // Websites section
+  Assert.ok(BrowserTestUtils.is_visible(websitesSection));
+  items = websitesSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-type-work"
+  );
+  Assert.equal(
+    items[0].children[1].querySelector("a").href,
+    "https://www.thunderbird.net/"
+  );
+  Assert.equal(
+    items[0].children[1].querySelector("a").textContent,
+    "www.thunderbird.net"
+  );
+  items[0].children[1].querySelector("a").scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(
+    items[0].children[1].querySelector("a"),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(
+    () => mockExternalProtocolService.urlLoaded("https://www.thunderbird.net/"),
+    "attempted to load website in a browser"
+  );
+
   // Other sections.
   Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 7);
+  Assert.equal(items.length, 6);
   Assert.equal(
     items[0].children[0].dataset.l10nId,
     "about-addressbook-entry-name-birthday"
@@ -310,37 +338,15 @@ add_task(async function test_display() {
   );
   Assert.equal(
     items[5].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-website"
-  );
-  Assert.equal(
-    items[5].children[1].querySelector("a").href,
-    "https://www.thunderbird.net/"
-  );
-  Assert.equal(
-    items[5].children[1].querySelector("a").textContent,
-    "www.thunderbird.net"
-  );
-  items[5].children[1].querySelector("a").scrollIntoView();
-  EventUtils.synthesizeMouseAtCenter(
-    items[5].children[1].querySelector("a"),
-    {},
-    abWindow
-  );
-  await TestUtils.waitForCondition(
-    () => mockExternalProtocolService.urlLoaded("https://www.thunderbird.net/"),
-    "attempted to load website in a browser"
-  );
-  Assert.equal(
-    items[6].children[0].dataset.l10nId,
     "about-addressbook-entry-name-time-zone"
   );
-  Assert.equal(items[6].children[1].firstChild.nodeValue, "Pacific/Auckland");
+  Assert.equal(items[5].children[1].firstChild.nodeValue, "Pacific/Auckland");
   Assert.equal(
-    items[6].children[1].lastChild.getAttribute("is"),
+    items[5].children[1].lastChild.getAttribute("is"),
     "active-time"
   );
   Assert.equal(
-    items[6].children[1].lastChild.getAttribute("tz"),
+    items[5].children[1].lastChild.getAttribute("tz"),
     "Pacific/Auckland"
   );
 

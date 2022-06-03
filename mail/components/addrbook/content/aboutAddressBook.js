@@ -2427,6 +2427,28 @@ var detailsPane = {
       section.hidden = true;
     }
 
+    section = document.getElementById("websites");
+    list = section.querySelector("ul");
+    list.replaceChildren();
+
+    for (let entry of vCardProperties.getAllEntries("url")) {
+      if (!/https?:\/\//.test(entry.value)) {
+        continue;
+      }
+
+      let li = list.appendChild(createEntryItem());
+      setEntryType(li, entry);
+      let a = document.createElement("a");
+      a.href = entry.value;
+      let url = new URL(entry.value);
+      a.textContent =
+        url.pathname == "/" && !url.search
+          ? url.host
+          : `${url.host}${url.pathname}${url.search}`;
+      li.querySelector(".entry-value").appendChild(a);
+    }
+    section.hidden = list.childElementCount == 0;
+
     section = document.getElementById("otherInfo");
     list = section.querySelector("ul");
     list.replaceChildren();
@@ -2493,22 +2515,6 @@ var detailsPane = {
     } else if (org) {
       let li = list.appendChild(createEntryItem("organization"));
       li.querySelector(".entry-value").textContent = org;
-    }
-
-    for (let entry of vCardProperties.getAllEntries("url")) {
-      if (!/https?:\/\//.test(entry.value)) {
-        continue;
-      }
-
-      let li = list.appendChild(createEntryItem("website"));
-      let a = document.createElement("a");
-      a.href = entry.value;
-      let url = new URL(entry.value);
-      a.textContent =
-        url.pathname == "/" && !url.search
-          ? url.host
-          : `${url.host}${url.pathname}${url.search}`;
-      li.querySelector(".entry-value").appendChild(a);
     }
 
     let tz = vCardProperties.getFirstValue("tz");
