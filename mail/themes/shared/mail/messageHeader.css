@@ -791,7 +791,6 @@ button.email-action-flagged.flagged {
   cursor: pointer;
 }
 
-.header-recipient span,
 .header-recipient img {
   pointer-events: none;
 }

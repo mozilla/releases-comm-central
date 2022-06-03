@@ -480,9 +480,10 @@
       // contacts.
       if (gShowCondensedEmailAddresses && displayName) {
         this.email.textContent = displayName;
+        this.email.setAttribute("title", this.#recipient.fullAddress);
       } else {
-        this.email.textContent =
-          this.#recipient.fullAddress || this.#recipient.displayName;
+        this.email.textContent = this.#recipient.fullAddress;
+        this.email.removeAttribute("title");
       }
 
       if (this.dataset.headerName == "from") {
