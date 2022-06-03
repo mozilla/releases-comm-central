@@ -1454,6 +1454,9 @@ function showTab(tabId, reset = false) {
     document.querySelector("title"),
     isExport ? "export-page-title" : "import-page-title"
   );
+  document.querySelector("link[rel=icon]").href = isExport
+    ? "chrome://messenger/skin/icons/new/compact/export.svg"
+    : "chrome://messenger/skin/icons/new/compact/import.svg";
   location.hash = isExport ? "export" : "";
   for (let tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;

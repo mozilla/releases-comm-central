@@ -97,7 +97,8 @@ tabProgressListener.prototype = {
       // by a pushState or a replaceState. See bug 550565.
       if (
         aWebProgress.isLoadingDocument &&
-        !(aWebProgress.loadType & Ci.nsIDocShell.LOAD_CMD_PUSHSTATE)
+        !(aWebProgress.loadType & Ci.nsIDocShell.LOAD_CMD_PUSHSTATE) &&
+        !(aFlags & Ci.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT)
       ) {
         this.mTab.favIconUrl = null;
       }
