@@ -4,13 +4,15 @@
 
 const EXPORTED_SYMBOLS = ["RNP"];
 
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   ctypes: "resource://gre/modules/ctypes.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",

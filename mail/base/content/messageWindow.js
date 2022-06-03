@@ -21,12 +21,14 @@
 /* import-globals-from msgViewNavigation.js */
 /* import-globals-from toolbarIconColor.js */
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   CustomizableUI: "resource:///modules/CustomizableUI.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",

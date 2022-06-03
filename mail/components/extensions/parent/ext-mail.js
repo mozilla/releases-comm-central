@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -11,7 +14,6 @@ var { ExtensionError, getInnerWindowID } = ExtensionUtils;
 var { defineLazyGetter } = ExtensionCommon;
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
 });

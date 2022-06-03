@@ -4,13 +4,15 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookManager"];
 
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   clearTimeout: "resource://gre/modules/Timer.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   MailGlue: "resource:///modules/MailGlue.jsm",

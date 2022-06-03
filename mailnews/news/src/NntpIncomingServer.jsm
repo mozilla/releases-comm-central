@@ -4,16 +4,18 @@
 
 const EXPORTED_SYMBOLS = ["NntpIncomingServer"];
 
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MsgIncomingServer } = ChromeUtils.import(
   "resource:///modules/MsgIncomingServer.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   CommonUtils: "resource://services-common/utils.js",
   clearInterval: "resource://gre/modules/Timer.jsm",
   setInterval: "resource://gre/modules/Timer.jsm",

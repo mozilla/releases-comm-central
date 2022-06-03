@@ -11,6 +11,9 @@
 
 const EXPORTED_SYMBOLS = ["ShortcutsManager"];
 
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -259,7 +262,7 @@ const ShortcutsManager = {
     }
 
     let shortcut = found[0];
-    let mods = shortcut.modifiers[this.AppConstants.platform];
+    let mods = shortcut.modifiers[AppConstants.platform];
     // Return the shortcut if it doesn't require any modifier and no modifier
     // is present in the key press event.
     if (
@@ -298,7 +301,7 @@ const ShortcutsManager = {
       return null;
     }
 
-    let platform = this.AppConstants.platform;
+    let platform = AppConstants.platform;
     let string = [];
     let aria = [];
     if (shortcut.modifiers[platform].metaKey) {
@@ -340,7 +343,3 @@ XPCOMUtils.defineLazyGetter(
   "l10n",
   () => new Localization(["messenger/shortcuts.ftl"])
 );
-
-XPCOMUtils.defineLazyModuleGetters(ShortcutsManager, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
-});

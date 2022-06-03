@@ -4,13 +4,15 @@
 
 const EXPORTED_SYMBOLS = ["SmtpService"];
 
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   SmtpClient: "resource:///modules/SmtpClient.jsm",
   MsgUtils: "resource:///modules/MimeMessageUtils.jsm",

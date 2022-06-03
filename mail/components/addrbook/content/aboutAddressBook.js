@@ -7,6 +7,9 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
@@ -23,7 +26,6 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalMetronome: "resource:///modules/CalMetronome.jsm",
