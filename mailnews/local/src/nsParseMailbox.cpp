@@ -2294,10 +2294,9 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
     return rv;
   }
   nsCOMPtr<nsIInputStream> inputStream;
-  bool reusable;
-  rv = m_downloadFolder->GetMsgInputStream(mailHdr, &reusable,
-                                           getter_AddRefs(inputStream));
-  if (!inputStream) {
+  rv =
+      m_downloadFolder->GetLocalMsgStream(mailHdr, getter_AddRefs(inputStream));
+  if (NS_FAILED(rv)) {
     NS_ERROR("couldn't get source msg input stream in move filter");
     destIFolder->ReleaseSemaphore(myISupports);
     return NS_MSG_FOLDER_UNREADABLE;  // ### dmb
