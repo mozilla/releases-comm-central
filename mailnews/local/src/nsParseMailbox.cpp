@@ -1494,8 +1494,6 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
 }
 
 nsParseNewMailState::nsParseNewMailState() : m_disableFilters(false) {
-  m_ibuffer = nullptr;
-  m_ibuffer_size = 0;
   m_numNotNewMessages = 0;
 }
 
@@ -1572,11 +1570,6 @@ void nsParseNewMailState::DoneParsingFolder(nsresult status) {
   PublishMsgHeader(nullptr);
   if (m_mailDB)  // finished parsing, so flush db folder info
     UpdateDBFolderInfo();
-
-  /* We're done reading the folder - we don't need these things
- any more. */
-  PR_FREEIF(m_ibuffer);
-  m_ibuffer_size = 0;
 }
 
 void nsParseNewMailState::OnNewMessage(nsIMsgWindow* msgWindow) {}
@@ -2202,7 +2195,6 @@ nsresult nsParseNewMailState::EndMsgDownload() {
 
 nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
                                                   nsIMsgDBHdr* aHdr,
-                                                  uint32_t length,
                                                   nsIMsgFolder* destFolder) {
   nsCOMPtr<nsIMsgPluggableStore> store;
   nsCOMPtr<nsIOutputStream> destOutputStream;
@@ -2213,35 +2205,13 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
                                     getter_AddRefs(destOutputStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!m_ibuffer) {
-    m_ibuffer_size = FILE_IO_BUFFER_SIZE;
-    m_ibuffer = (char*)PR_Malloc(m_ibuffer_size);
-    NS_ASSERTION(m_ibuffer != nullptr, "couldn't get memory to move msg");
-  }
+  uint64_t bytesCopied;
+  rv = SyncCopyStream(fileStream, destOutputStream, bytesCopied);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  while (length > 0 && m_ibuffer) {
-    uint32_t nRead;
-    fileStream->Read(m_ibuffer,
-                     length > m_ibuffer_size ? m_ibuffer_size : length, &nRead);
-    if (nRead == 0) break;
-
-    uint32_t bytesWritten;
-    // Check the number of bytes actually written to the stream.
-    destOutputStream->Write(m_ibuffer, nRead, &bytesWritten);
-    if (bytesWritten != nRead) {
-      destOutputStream->Close();
-      return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
-    }
-
-    length -= nRead;
-  }
-
-  NS_ASSERTION(length == 0,
-               "didn't read all of original message in filter move");
-
-  // non-reusable streams will get closed by the store.
-  if (reusable) destOutputStream->Close();
-  return store->FinishNewMessage(destOutputStream, aHdr);
+  rv = store->FinishNewMessage(destOutputStream, aHdr);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return NS_OK;
 }
 
 /*
@@ -2322,7 +2292,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   if (NS_FAILED(rv)) {
     destIFolder->ThrowAlertMsg("filterFolderHdrAddFailed", msgWindow);
   } else {
-    rv = AppendMsgFromStream(inputStream, newHdr, messageLength, destIFolder);
+    rv = AppendMsgFromStream(inputStream, newHdr, destIFolder);
     if (NS_FAILED(rv))
       destIFolder->ThrowAlertMsg("filterFolderWriteFailed", msgWindow);
   }

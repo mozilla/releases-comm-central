@@ -207,7 +207,7 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   nsresult EndMsgDownload();
 
   nsresult AppendMsgFromStream(nsIInputStream* fileStream, nsIMsgDBHdr* aHdr,
-                               uint32_t length, nsIMsgFolder* destFolder);
+                               nsIMsgFolder* destFolder);
 
   void ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow);
   nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
@@ -241,8 +241,6 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   bool m_msgMovedByFilter;
   bool m_msgCopiedByFilter;
   bool m_disableFilters;
-  char* m_ibuffer;
-  uint32_t m_ibuffer_size;
 
   // we have to apply the reply/forward filters in a second pass, after
   // msg quarantining and moving to other local folders, so we remember the

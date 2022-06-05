@@ -443,4 +443,13 @@ void MsgLogToConsole4(const nsAString& aErrorText, const nsAString& aFilename,
  */
 nsCString CEscapeString(nsACString const& s);
 
+/**
+ * Synchronously copy the contents of src to dest, until EOF is encountered
+ * or an error occurs.
+ * The total number of bytes copied is returned in bytesCopied.
+ */
+nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
+                        uint64_t& bytesCopied,
+                        size_t bufSize = FILE_IO_BUFFER_SIZE);
+
 #endif

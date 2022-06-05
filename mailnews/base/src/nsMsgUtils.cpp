@@ -79,6 +79,7 @@
 #include "mozilla/EncodingDetector.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
+#include "mozilla/Buffer.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -1872,4 +1873,29 @@ nsCString CEscapeString(nsACString const& s) {
     }
   }
   return out;
+}
+
+nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
+                        uint64_t& bytesCopied, size_t bufSize) {
+  mozilla::Buffer<char> buf(bufSize);
+  nsresult rv;
+
+  bytesCopied = 0;
+  while (1) {
+    uint32_t numRead;
+    rv = src->Read(buf.Elements(), buf.Length(), &numRead);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (numRead == 0) {
+      break;  // EOF.
+    }
+    uint32_t pos = 0;
+    while (pos < numRead) {
+      uint32_t n;
+      rv = dest->Write(&buf[pos], numRead - pos, &n);
+      NS_ENSURE_SUCCESS(rv, rv);
+      pos += n;
+      bytesCopied += n;
+    }
+  }
+  return NS_OK;
 }
