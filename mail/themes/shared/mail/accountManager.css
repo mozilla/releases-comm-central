@@ -8,7 +8,7 @@
 
 @import url("chrome://global/skin/global.css");
 @import url("chrome://global/skin/in-content/common.css");
-@import url("chrome://messenger/skin/shared/preferences/preferences.css");
+@import url("chrome://messenger/skin/preferences/preferences.css");
 
 @media (prefers-contrast) {
   :root {
