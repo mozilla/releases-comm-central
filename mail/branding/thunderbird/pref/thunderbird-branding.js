@@ -5,6 +5,20 @@ pref("mailnews.start_page.url", "https://live.thunderbird.net/%APP%/start?locale
 // url for this, see whats_new_page.yml
 pref("mailnews.start_page.override_url", "");
 
+// app.update.url.manual: URL user can browse to manually if for some reason
+// all update installation attempts fail.
+// app.update.url.details: a default value for the "More information about this
+// update" link supplied in the "An update is available" page of the update
+// wizard.
+#if MOZ_UPDATE_CHANNEL == beta
+  pref("app.update.url.manual", "https://www.thunderbird.net/%LOCALE%/download/beta/");
+  pref("app.update.url.details", "https://www.thunderbird.net/notes/beta/");
+#else
+  // release channel
+  pref("app.update.url.manual", "https://www.thunderbird.net/");
+  pref("app.update.url.details", "https://www.thunderbird.net/notes/");
+#endif
+
 // Interval: Time between checks for a new version (in seconds)
 // nightly=8 hours, official=24 hours
 pref("app.update.interval", 86400);

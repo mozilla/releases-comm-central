@@ -8,6 +8,14 @@ pref("mailnews.start_page.url", "https://live.thunderbird.net/%APP%/start?locale
 // start page override to load after an update
 pref("mailnews.start_page.override_url", "https://live.thunderbird.net/%APP%/whatsnew?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&oldversion=%OLD_VERSION%");
 
+// There's no Thunderbird Daily specific page or release notes
+// URL user can browse to manually if for some reason all update installation
+// attempts fail.
+pref("app.update.url.manual", "https://www.thunderbird.net/");
+// A default value for the "More information about this update" link
+// supplied in the "An update is available" page of the update wizard.
+pref("app.update.url.details", "https://www.thunderbird.net/");
+
 // Interval: Time between checks for a new version (in seconds)
 // nightly=1 hour, official=24 hours
 pref("app.update.interval", 3600);

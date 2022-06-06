@@ -59,15 +59,9 @@ pref("app.update.log", false);
 pref("app.update.staging.enabled", true);
 
 // Update service URL:
-pref("app.update.url", "https://aus.thunderbird.net/update/6/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
-
-// URL user can browse to manually if for some reason all update installation
-// attempts fail.
-pref("app.update.url.manual", "https://www.thunderbird.net");
-// A default value for the "More information about this update" link
-// supplied in the "An update is available" page of the update wizard.
-pref("app.update.url.details", "https://www.thunderbird.net/%LOCALE%/%APP%/releases/");
-
+// app.update.url was removed in Bug 1630041
+// app.update.url.manual is in branding section
+// app.update.url.details is in branding section
 // app.update.promptWaitTime is in branding section
 
 // Whether or not to attempt using the service for updates.
