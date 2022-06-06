@@ -492,7 +492,6 @@ XMPPSession.prototype = {
         return;
       }
       let authMec = authMechanisms[selectedMech](
-        this._account,
         this._jid.node,
         this._password,
         this._domain
@@ -536,15 +535,8 @@ XMPPSession.prototype = {
       if (result.value) {
         Promise.resolve(result.value).then(
           value => {
-            if (value.error) {
-              // If the auth mechanism results in an error, disconnect the
-              // account with an authentication error.
-              this.onError(
-                Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-                lazy._("connection.error.authenticationFailure")
-              );
-            } else if (value.send) {
-              // Otherwise, send the XML stanza that is returned.
+            // Send the XML stanza that is returned.
+            if (value.send) {
               this.send(value.send.getXML(), value.log);
             }
           },

@@ -6,7 +6,6 @@
 // SASL authentication mechanisms. Each authentication mechanism is a generator
 // function which takes the following parameters:
 //
-// * The account object
 // * The provided username (JID node),
 // * The password
 // * The user's domain (again from the JID).
@@ -26,7 +25,6 @@
 // return.
 //
 // By default the PLAIN, SCRAM-SHA-1, and SCRAM-SHA-256 mechanisms are supported.
-// GTalk also supports custom PLAIN and X-OAUTH2 mechanisms (see gtalk.jsm).
 //
 // As this is only used by XMPPSession, it may seem like an internal detail of
 // the XMPP implementation, but exporting it is valuable for testing purposes.
@@ -42,7 +40,7 @@ const { CryptoUtils } = ChromeUtils.import(
 var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
 // Handle PLAIN authorization mechanism.
-function* PlainAuth(aAccount, aUsername, aPassword, aDomain) {
+function* PlainAuth(aUsername, aPassword, aDomain) {
   let data = "\0" + aUsername + "\0" + aPassword;
 
   // btoa for Unicode, see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
@@ -417,7 +415,7 @@ async function pbkdf2Generate(passphrase, salt, iterations, len, hash) {
  * @param {string} aDigestLength The length of a hash digest, e.g. 20 for SHA-1 or 32 for SHA-256.
  */
 function generateScramAuth(aHashFunctionName, aDigestLength) {
-  function* scramAuth(aAccount, aUsername, aPassword, aDomain, aNonce) {
+  function* scramAuth(aUsername, aPassword, aDomain, aNonce) {
     // The hash function name, without the '-' in it (e.g. convert SHA-1 to SHA1).
     const hashFunctionProp = aHashFunctionName.replace("-", "");
 

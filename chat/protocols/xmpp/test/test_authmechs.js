@@ -10,11 +10,10 @@ var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
  * Test PLAIN using the examples given in section 6 of RFC 6120.
  */
 add_task(async function testPlain() {
-  const account = {};
   const username = "juliet";
   const password = "r0m30myr0m30";
 
-  let mech = XMPPAuthMechanisms.PLAIN(account, username, password, undefined);
+  let mech = XMPPAuthMechanisms.PLAIN(username, password, undefined);
 
   // Send the initiation message.
   let result = mech.next();
@@ -41,7 +40,6 @@ add_task(async function testPlain() {
  * https://wiki.xmpp.org/web/SASL_and_SCRAM-SHA-1
  */
 add_task(async function testScramSha1() {
-  const account = {};
   const username = "user";
   const password = "pencil";
 
@@ -49,7 +47,6 @@ add_task(async function testScramSha1() {
   const nonce = "fyko+d2lbbFgONRv9qkxdawL";
 
   let mech = XMPPAuthMechanisms["SCRAM-SHA-1"](
-    account,
     username,
     password,
     undefined,
@@ -105,7 +102,6 @@ add_task(async function testScramSha1() {
  * Test SCRAM-SHA-256 using the examples given in section 3 of RFC 7677.
  */
 add_task(async function testScramSha256() {
-  const account = {};
   const username = "user";
   const password = "pencil";
 
@@ -113,7 +109,6 @@ add_task(async function testScramSha256() {
   const nonce = "rOprNGfwEbeRWgbNEkqO";
 
   let mech = XMPPAuthMechanisms["SCRAM-SHA-256"](
-    account,
     username,
     password,
     undefined,

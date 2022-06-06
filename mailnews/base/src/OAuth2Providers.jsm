@@ -7,15 +7,15 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2Providers"];
 
-// When we add a Google mail account, ask for address book, calendar, and googletalk
-// scopes as well. Then we can add an address book or calendar without asking again.
+// When we add a Google mail account, ask for address book and calendar scopes
+// as well. Then we can add an address book or calendar without asking again.
 //
-// Don't ask for all the scopes when adding an address book, calendar, or chat account
+// Don't ask for all the scopes when adding an address book or calendar
 // independently of the mail set-up process. If a mail account already exists,
 // we already have a token, and if it doesn't the user is likely to be setting
-// up an address book/calendar/chat account without wanting mail.
+// up an address book/calendar without wanting mail.
 const GOOGLE_SCOPES =
-  "https://mail.google.com/ https://www.googleapis.com/auth/carddav https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/googletalk";
+  "https://mail.google.com/ https://www.googleapis.com/auth/carddav https://www.googleapis.com/auth/calendar";
 
 /**
  * Map of hostnames to [issuer, scope].
@@ -30,10 +30,6 @@ var kHostnames = new Map([
   [
     "www.googleapis.com",
     ["accounts.google.com", "https://www.googleapis.com/auth/carddav"],
-  ],
-  [
-    "talk.google.com",
-    ["accounts.google.com", "https://www.googleapis.com/auth/googletalk"],
   ],
 
   ["imap.mail.ru", ["o2.mail.ru", "mail.imap"]],
