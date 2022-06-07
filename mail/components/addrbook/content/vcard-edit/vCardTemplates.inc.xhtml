@@ -9,6 +9,7 @@
 <script src="chrome://messenger/content/addressbook/edit/adr.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/org.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/fn.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/impp.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/note.js"></script>
@@ -33,6 +34,7 @@
   <fieldset id="addr-book-edit-n" class="addr-book-edit-fieldset">
     <legend class="screen-readers-only" data-l10n-id="vcard-name-header"/>
     <slot name="v-n"/>
+    <slot name="v-fn"/>
   </fieldset>
   <!-- Email -->
   <fieldset id="addr-book-edit-email" class="addr-book-edit-fieldset">
@@ -221,6 +223,21 @@
            type="text"
            autocomplete="off" />
   </div>
+</template>
+
+<!-- FN field. -->
+<template id="template-vcard-edit-fn">
+  <label for="vCardDisplayName" data-l10n-id="vcard-displayname"></label>
+  <input id="vCardDisplayName" type="text"/>
+  <label id="vCardDisplayNameCheckbox" class="vcard-checkbox">
+    <!-- There is no l10n ID on this element because the vCard edit form is
+     also used in other sections that don't use this checkbox and don't have
+     access to the fluent string. The string is added when needed by the
+     address book edit.js file. -->
+    <input type="checkbox" id="vCardPreferDisplayName" checked="checked" />
+    <!-- SPAN element needed for fluent string. -->
+    <span></span>
+  </label>
 </template>
 
 <!-- Email -->

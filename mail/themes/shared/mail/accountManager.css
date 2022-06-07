@@ -282,10 +282,6 @@ body {
   flex-direction: column;
 }
 
-#editVCardDialog label[for="displayName"] {
-  margin-block-end: 3px;
-}
-
-#editVCardDialog input#displayName {
-  margin: 0;
+#editVCardDialog #vCardDisplayNameCheckbox {
+  display: none;
 }

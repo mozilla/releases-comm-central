@@ -3,8 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals VCardAdrComponent, VCardEmailComponent, VCardIMPPComponent,
-           VCardNComponent, VCardNoteComponent, VCardOrgComponent,
-           VCardRoleComponent, VCardSpecialDateComponent,
+           VCardNComponent, VCardFNComponent, VCardNoteComponent,
+           VCardOrgComponent, VCardRoleComponent, VCardSpecialDateComponent,
            VCardTelComponent, VCardTitleComponent, VCardTZComponent,
            VCardURLComponent */
 
@@ -35,10 +35,7 @@ class VCardEdit extends HTMLElement {
     let clonedTemplate = template.content.cloneNode(true);
     this.shadowRoot.appendChild(clonedTemplate);
 
-    this.displayName = document.getElementById("displayName");
-    this.displayName.addEventListener("input", () => {
-      this.displayName._dirty = !!this.displayName.value;
-    });
+    this.contactName = document.getElementById("viewContactName");
   }
 
   connectedCallback() {
@@ -106,6 +103,10 @@ class VCardEdit extends HTMLElement {
     if (!this._vCardProperties.getFirstEntry("n")) {
       this._vCardProperties.addEntry(VCardNComponent.newVCardPropertyEntry());
     }
+    // If no fn property is present set one.
+    if (!this._vCardProperties.getFirstEntry("fn")) {
+      this._vCardProperties.addEntry(VCardFNComponent.newVCardPropertyEntry());
+    }
     // If no email property is present set one.
     if (!this._vCardProperties.getFirstEntry("email")) {
       this._vCardProperties.addEntry(
@@ -162,70 +163,161 @@ class VCardEdit extends HTMLElement {
       "vcard-org"
     );
 
-    this.displayName.value = this.vCardProperties.getFirstValue("fn");
-    this.displayName._dirty = !!this.displayName.value;
-
     let nameEl = this.querySelector("vcard-n");
     this.firstName = nameEl.firstNameEl.querySelector("input");
-    this.firstName.addEventListener("input", () => this.generateDisplayName());
     this.lastName = nameEl.lastNameEl.querySelector("input");
-    this.lastName.addEventListener("input", () => this.generateDisplayName());
+    this.prefixName = nameEl.prefixEl.querySelector("input");
+    this.middleName = nameEl.middleNameEl.querySelector("input");
+    this.suffixName = nameEl.suffixEl.querySelector("input");
+    this.displayName = this.querySelector("vcard-fn").displayEl;
+
+    [
+      this.firstName,
+      this.lastName,
+      this.prefixName,
+      this.middleName,
+      this.suffixName,
+      this.displayName,
+    ].forEach(element => {
+      element.addEventListener("input", event =>
+        this.generateContactName(event)
+      );
+    });
+
+    // Only set the strings and define this selector if we're inside the
+    // address book edit panel.
+    if (document.getElementById("detailsPane")) {
+      this.preferDisplayName = this.querySelector("vcard-fn").preferDisplayEl;
+      document.l10n.setAttributes(
+        this.preferDisplayName.closest(".vcard-checkbox").querySelector("span"),
+        "about-addressbook-prefer-display-name"
+      );
+    }
 
     if (this.vCardProperties) {
       this.toggleDefaultEmailView();
       this.checkForBdayOccurences();
     }
+
+    this.generateContactName();
   }
 
   /**
-   * If the display name field is empty, generate a name from the first and
-   * last name fields.
+   * Update the contact name to reflect the users' choice.
+   *
+   * @param {?Event} event - The DOM event if we have one.
    */
-  async generateDisplayName() {
-    if (
-      !Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration")
-    ) {
-      // Do nothing if generation is disabled.
+  async generateContactName(event = null) {
+    // Don't generate any preview if the contact name element is not available,
+    // which it might happen since this component is used in other areas outside
+    // the address book UI.
+    if (!this.contactName) {
       return;
-    }
-
-    if (this.displayName._dirty) {
-      // Don't modify the field if it already has a value, unless the value
-      // was set by this function.
-      return;
-    }
-
-    if (!this.firstName.value || !this.lastName.value) {
-      // If there's 0 or 1 values, use them.
-      this.displayName.value = this.firstName.value || this.lastName.value;
-      return;
-    }
-
-    let lastNameFirst = false;
-
-    // This used to be a L10n-controlled (string) preference, but the default
-    // has been removed. If there is a value (string or boolean), respect it.
-    let prefName = "mail.addr_book.displayName.lastnamefirst";
-    let prefType = Services.prefs.getPrefType(prefName);
-    if (prefType == Services.prefs.PREF_STRING) {
-      lastNameFirst = Services.prefs.getStringPref(prefName) === "true";
-    } else if (prefType == Services.prefs.PREF_BOOL) {
-      lastNameFirst = Services.prefs.getBoolPref(prefName);
     }
 
     let bundle = Services.strings.createBundle(
       "chrome://messenger/locale/addressbook/addressBook.properties"
     );
-    if (lastNameFirst) {
-      this.displayName.value = bundle.formatStringFromName("lastFirstFormat", [
-        this.lastName.value,
-        this.firstName.value,
-      ]);
-    } else {
-      this.displayName.value = bundle.formatStringFromName("firstLastFormat", [
-        this.firstName.value,
-        this.lastName.value,
-      ]);
+    let result = "";
+    let pref = Services.prefs.getIntPref("mail.addr_book.lastnamefirst");
+    switch (pref) {
+      case Ci.nsIAbCard.GENERATE_DISPLAY_NAME:
+        result = this.buildDefaultName();
+        break;
+
+      case Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER:
+        if (this.lastName.value) {
+          result = bundle.formatStringFromName("lastFirstFormat", [
+            this.lastName.value,
+            [
+              this.prefixName.value,
+              this.firstName.value,
+              this.middleName.value,
+              this.suffixName.value,
+            ]
+              .filter(Boolean)
+              .join(" "),
+          ]);
+        } else {
+          // Get the generic name if we don't have a last name.
+          result = this.buildDefaultName();
+        }
+        break;
+
+      default:
+        result = bundle.formatStringFromName("firstLastFormat", [
+          [this.prefixName.value, this.firstName.value, this.middleName.value]
+            .filter(Boolean)
+            .join(" "),
+          [this.lastName.value, this.suffixName.value]
+            .filter(Boolean)
+            .join(" "),
+        ]);
+        break;
+    }
+
+    if (result == "" || result == ", ") {
+      // We don't have anything to show as a contact name, so let's find the
+      // primary email and show that, if we have it, otherwise pass an empty
+      // string to remove any leftover data.
+      let email = this.getPrimaryEmail();
+      result = email ? email.split("@", 1)[0] : "";
+    }
+
+    this.contactName.textContent = result;
+    this.fillDisplayName(event);
+  }
+
+  /**
+   * Returns the name to show for this contact if the display name is available
+   * or it generates one from the available N data.
+   *
+   * @returns {string} - The name to show for this contact.
+   */
+  buildDefaultName() {
+    return this.displayName.isDirty
+      ? this.displayName.value
+      : [
+          this.prefixName.value,
+          this.firstName.value,
+          this.middleName.value,
+          this.lastName.value,
+          this.suffixName.value,
+        ]
+          .filter(Boolean)
+          .join(" ");
+  }
+
+  /**
+   * Find the primary email used for this contact.
+   *
+   * @returns {VCardEmailComponent}
+   */
+  getPrimaryEmail() {
+    let emails = this.querySelectorAll(`tr[slot="v-email"]`);
+    if (emails.length == 1) {
+      return emails[0].emailEl.value;
+    }
+
+    let slot = [...emails].find(
+      el => el.vCardPropertyEntry.params.pref === "1"
+    );
+    return slot.emailEl.value;
+  }
+
+  /**
+   * Auto fill the display name only if the pref is set, the user is not
+   * editing the display name field, and the field was never edited.
+   *
+   * @param {?Event} event - The DOM event if we have one.
+   */
+  fillDisplayName(event = null) {
+    if (
+      Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration") &&
+      event?.originalTarget.id != "vCardDisplayName" &&
+      !this.displayName.isDirty
+    ) {
+      this.displayName.value = this.contactName.textContent;
     }
   }
 
@@ -247,6 +339,11 @@ class VCardEdit extends HTMLElement {
         n.vCardPropertyEntry = entry;
         n.slot = "v-n";
         return n;
+      case "fn":
+        let fn = new VCardFNComponent();
+        fn.vCardPropertyEntry = entry;
+        fn.slot = "v-fn";
+        return fn;
       case "email":
         let email = document.createElement("tr", { is: "vcard-email" });
         email.vCardPropertyEntry = entry;
@@ -323,6 +420,8 @@ class VCardEdit extends HTMLElement {
     switch (name) {
       case "n":
         return VCardNComponent.newVCardPropertyEntry();
+      case "fn":
+        return VCardFNComponent.newVCardPropertyEntry();
       case "email":
         return VCardEmailComponent.newVCardPropertyEntry();
       case "url":
@@ -358,19 +457,6 @@ class VCardEdit extends HTMLElement {
    * removed from the vCardProperty.
    */
   saveVCard() {
-    let displayNameEntry = this.vCardProperties.getFirstEntry("fn");
-    if (displayNameEntry) {
-      displayNameEntry.value = this.displayName.value;
-    } else {
-      displayNameEntry = new VCardPropertyEntry(
-        "fn",
-        {},
-        "text",
-        this.displayName.value
-      );
-      this.vCardProperties.addEntry(displayNameEntry);
-    }
-
     this.childNodes.forEach(node => {
       if (typeof node.fromUIToVCardPropertyEntry === "function") {
         node.fromUIToVCardPropertyEntry();

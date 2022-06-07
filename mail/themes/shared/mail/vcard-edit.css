@@ -4,9 +4,10 @@
 
 :host {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(26.5em, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
   grid-template-rows: masonry;
-  gap: 1em;
+  row-gap: 30px;
+  column-gap: 2em;
   margin-block: 15px;
 }
 

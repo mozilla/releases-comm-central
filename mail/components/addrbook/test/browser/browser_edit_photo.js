@@ -150,7 +150,7 @@ function getInput(entryName, addIfNeeded = false) {
 
   switch (entryName) {
     case "DisplayName":
-      return abDocument.getElementById("displayName");
+      return abDocument.querySelector("vcard-fn #vCardDisplayName");
     case "FirstName":
       return abDocument.querySelector("vcard-n #vcard-n-firstname");
     case "LastName":
@@ -476,8 +476,6 @@ async function subtest_paste_url() {
   Assert.equal(abDocument.activeElement.id, "vcard-n-firstname");
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
   // Focus is on name prefix button.
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
-  Assert.equal(abDocument.activeElement.id, "displayName");
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
   Assert.equal(abDocument.activeElement.id, "photoOverlay");
 

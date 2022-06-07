@@ -646,11 +646,11 @@ body.is-editing #detailsPane #photoOverlay {
   cursor: pointer;
 }
 
-#nameOuter {
+#contactHeader {
   flex: 1;
 }
 
-#nameOuter h1 {
+#viewContactName {
   margin-block: 0 0.25em;
   font-size: 1.6em;
   font-weight: 400;
@@ -670,22 +670,12 @@ body.is-editing #detailsPane #photoOverlay {
   color: currentcolor;
 }
 
-#nameRow2 {
-  /* Match the height of the h2. The h1 above it should not move when
-     switching to/from edit mode, at any font size. */
-  height: 1.68em;
-}
-
-#nameRow2 h2 {
+#viewPrimaryEmail {
   margin-block: 0;
   font-size: 1.2em;
   font-weight: 400;
   color: var(--in-content-deemphasized-text);
-}
-
-#nameRow2 label {
-  display: flex;
-  align-items: center;
+  word-break: break-word;
 }
 
 #detailsBody {

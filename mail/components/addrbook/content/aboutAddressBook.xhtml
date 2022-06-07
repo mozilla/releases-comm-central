@@ -132,22 +132,9 @@
           <div id="photo"></div>
           <div id="photoOverlay" tabindex="0"></div>
         </div>
-        <div id="nameOuter">
-          <div id="nameRow1">
-            <h1 class="view"></h1>
-            <label for="displayName" data-l10n-id="vcard-displayname"
-                   class="screen-readers-only" />
-            <input id="displayName" class="edit"
-                   data-l10n-id="vcard-displayname-placeholder"
-                   data-l10n-attrs="placeholder" />
-          </div>
-          <div id="nameRow2">
-            <h2 class="view"></h2>
-            <label class="edit">
-              <input type="checkbox" id="preferDisplayName" /><!-- No white-space here.
-              --><span data-l10n-id="about-addressbook-prefer-display-name"></span>
-            </label>
-          </div>
+        <div id="contactHeader">
+          <h1 id="viewContactName"></h1>
+          <h2 id="viewPrimaryEmail"></h2>
         </div>
       </section>
       <section id="detailsBody" class="view">

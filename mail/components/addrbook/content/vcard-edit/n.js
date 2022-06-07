@@ -192,5 +192,4 @@ class VCardNComponent extends HTMLElement {
     }
   }
 }
-
 customElements.define("vcard-n", VCardNComponent);

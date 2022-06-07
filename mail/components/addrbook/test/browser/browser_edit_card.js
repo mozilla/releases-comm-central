@@ -48,7 +48,9 @@ function getInput(entryName, addIfNeeded = false) {
 
   switch (entryName) {
     case "DisplayName":
-      return abDocument.getElementById("displayName");
+      return abDocument.querySelector("vcard-fn #vCardDisplayName");
+    case "PreferDisplayName":
+      return abDocument.querySelector("vcard-fn #vCardPreferDisplayName");
     case "FirstName":
       return abDocument.querySelector("vcard-n #vcard-n-firstname");
     case "LastName":
@@ -118,13 +120,6 @@ function checkDisplayValues(expected) {
 }
 
 function checkInputValues(expected) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
-
-  if ("DisplayName" in expected) {
-    Assert.ok(BrowserTestUtils.is_hidden(abDocument.querySelector("h1")));
-  }
-
   for (let [key, value] of Object.entries(expected)) {
     let input = getInput(key, !!value);
     if (!input) {
@@ -133,7 +128,11 @@ function checkInputValues(expected) {
     }
 
     Assert.ok(BrowserTestUtils.is_visible(input));
-    Assert.equal(input.value, value, `${key} value`);
+    if (input.type == "checkbox") {
+      Assert.equal(input.checked, value, `${key} checked`);
+    } else {
+      Assert.equal(input.value, value, `${key} value`);
+    }
   }
 }
 
@@ -188,18 +187,11 @@ add_task(async function test_basic_edit() {
   let detailsPane = abDocument.getElementById("detailsPane");
 
   let h1 = abDocument.querySelector("h1");
-  let displayName = abDocument.getElementById("displayName");
   let editButton = abDocument.getElementById("editButton");
   let cancelEditButton = abDocument.getElementById("cancelEditButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
 
   Assert.ok(detailsPane.hidden);
-
-  // Set some values in the input fields, just to prove they are cleared.
-
-  setInputValues({
-    DisplayName: "BAD VALUE!",
-  });
   Assert.ok(!document.querySelector("vcard-n"));
   Assert.ok(!document.querySelector(`tr[slot="v-email"]`));
 
@@ -213,7 +205,6 @@ add_task(async function test_basic_edit() {
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
   Assert.equal(h1.textContent, "contact 1");
-  Assert.ok(BrowserTestUtils.is_hidden(displayName));
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -239,7 +230,9 @@ add_task(async function test_basic_edit() {
   );
   EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
   Assert.ok(
-    abDocument.activeElement.matches("#detailsInner *"),
+    abDocument
+      .getElementById("detailsInner")
+      .contains(abDocument.activeElement),
     "focus should be on the editing form"
   );
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
@@ -293,7 +286,6 @@ add_task(async function test_basic_edit() {
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
   Assert.equal(h1.textContent, "contact 1");
-  Assert.ok(BrowserTestUtils.is_hidden(displayName));
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -340,7 +332,6 @@ add_task(async function test_basic_edit() {
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
   Assert.equal(h1.textContent, "contact one");
-  Assert.ok(BrowserTestUtils.is_hidden(displayName));
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -548,7 +539,6 @@ add_task(async function test_generate_display_name() {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let cardsList = abDocument.getElementById("cards");
-  let displayName = abDocument.getElementById("displayName");
   let editButton = abDocument.getElementById("editButton");
   let cancelEditButton = abDocument.getElementById("cancelEditButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
@@ -561,6 +551,7 @@ add_task(async function test_generate_display_name() {
     FirstName: "",
     LastName: "",
     DisplayName: "",
+    PreferDisplayName: true,
   });
 
   // First name, no last name.
@@ -573,7 +564,6 @@ add_task(async function test_generate_display_name() {
 
   // Both names.
   setInputValues({ FirstName: "first" });
-  await TestUtils.waitForCondition(() => displayName.value != "last");
   checkInputValues({ DisplayName: "first last" });
 
   // Modify the display name, it should not be overwritten.
@@ -581,11 +571,10 @@ add_task(async function test_generate_display_name() {
   setInputValues({ FirstName: "second" });
   checkInputValues({ DisplayName: "don't touch me" });
 
-  // Clear the modified display name, it can be overwritten again.
+  // Clear the modified display name, it should still not be overwritten.
   setInputValues({ DisplayName: "" });
   setInputValues({ FirstName: "third" });
-  await TestUtils.waitForCondition(() => displayName.value != "");
-  checkInputValues({ DisplayName: "third last" });
+  checkInputValues({ DisplayName: "" });
 
   // Flip the order.
   Services.prefs.setStringPref(
@@ -593,7 +582,7 @@ add_task(async function test_generate_display_name() {
     "true"
   );
   setInputValues({ FirstName: "fourth" });
-  checkInputValues({ DisplayName: "last, fourth" });
+  checkInputValues({ DisplayName: "" });
 
   // Turn off generation.
   Services.prefs.setBoolPref(
@@ -601,7 +590,9 @@ add_task(async function test_generate_display_name() {
     false
   );
   setInputValues({ FirstName: "fifth" });
-  checkInputValues({ DisplayName: "last, fourth" });
+  checkInputValues({ DisplayName: "" });
+
+  setInputValues({ DisplayName: "last, fourth" });
 
   // Save the card and check the values.
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
@@ -655,31 +646,21 @@ add_task(async function test_prefer_display_name() {
   let abDocument = abWindow.document;
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let displayName = abDocument.getElementById("displayName");
-  let preferDisplayName = abDocument.getElementById("preferDisplayName");
   let editButton = abDocument.getElementById("editButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
 
   // Make a new card. Check the default value is true.
-  // The checkbox should not appear until there is a display name.
-
+  // The display name shouldn't be affected by first and last name if the field
+  // is not empty.
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
 
-  Assert.equal(displayName.value, "");
-  Assert.ok(
-    preferDisplayName.parentNode.classList.contains("disabled"),
-    "label disabled"
-  );
-  Assert.ok(preferDisplayName.disabled, "checkbox disabled");
+  checkInputValues({ DisplayName: "", PreferDisplayName: true });
 
   setInputValues({ DisplayName: "test" });
-  Assert.ok(
-    !preferDisplayName.parentNode.classList.contains("disabled"),
-    "label enabled"
-  );
-  Assert.ok(!preferDisplayName.disabled, "checkbox enabled");
-  Assert.ok(preferDisplayName.checked, "checkbox is checked for a new card");
+  setInputValues({ FirstName: "first" });
+
+  checkInputValues({ DisplayName: "test" });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
@@ -691,16 +672,17 @@ add_task(async function test_prefer_display_name() {
   });
 
   // Edit the card. Check the UI matches the card value.
-
-  preferDisplayName.checked = false; // Ensure it gets set.
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(!preferDisplayName.disabled, "checkbox enabled");
-  Assert.ok(preferDisplayName.checked, "checkbox state matches the card");
+  checkInputValues({ DisplayName: "test" });
+  checkInputValues({ FirstName: "first" });
 
   // Change the card value.
 
+  let preferDisplayName = abDocument.querySelector(
+    "vcard-fn #vCardPreferDisplayName"
+  );
   EventUtils.synthesizeMouseAtCenter(preferDisplayName, {}, abWindow);
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
@@ -718,13 +700,12 @@ add_task(async function test_prefer_display_name() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(!preferDisplayName.disabled, "checkbox enabled");
-  Assert.ok(!preferDisplayName.checked, "checkbox state matches the card");
-
-  // Clear the display name. The checkbox should disappear.
-
+  // Clear the display name. The first and last name shouldn't affect it.
   setInputValues({ DisplayName: "" });
-  Assert.ok(preferDisplayName.disabled, "checkbox disabled");
+  checkInputValues({ FirstName: "first" });
+
+  setInputValues({ LastName: "last" });
+  checkInputValues({ DisplayName: "" });
 
   await closeAddressBookWindow();
   personalBook.deleteCards(personalBook.childCards);
