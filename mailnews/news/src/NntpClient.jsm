@@ -91,6 +91,7 @@ class NntpClient {
    * Initiate a connection to the server
    */
   connect() {
+    this._done = false;
     this.runningUri.SetUrlState(true, Cr.NS_OK);
     this.urlListener?.OnStartRunningUrl(this.runningUri);
     if (this._socket?.readyState == "open") {
@@ -742,6 +743,10 @@ class NntpClient {
    * Close the connection and do necessary cleanup.
    */
   _actionDone = (status = Cr.NS_OK) => {
+    if (this._done) {
+      return;
+    }
+    this._done = true;
     this._logger.debug(`Done with status=${status}`);
     this.onDone(status);
     this._newsGroup?.cleanUp();
