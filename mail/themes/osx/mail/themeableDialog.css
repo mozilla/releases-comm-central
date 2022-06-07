@@ -87,3 +87,7 @@ tabbox {
 .tab-middle {
   padding: 0;
 }
+
+#commonDialog:not([subdialog]) {
+  background-color: var(--arrowpanel-background);
+}
