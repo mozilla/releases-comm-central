@@ -613,6 +613,7 @@ var gKeyAssistant = {
     function createKeyRow(keyMeta, isValid) {
       let row = document.createElement("li");
       let label = document.createElement("label");
+      label.classList.add("flex-center");
 
       let input = document.createElement("input");
       input.type = "radio";

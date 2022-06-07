@@ -1391,6 +1391,12 @@ button:is(
   font-weight: bold;
 }
 
+.flex-center {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .margin-top-1em {
   margin-top: 1em;
 }
@@ -1400,10 +1406,9 @@ dialog.modal-dialog[open] {
   flex-direction: column;
   width: 580px;
   color: inherit;
+  padding-inline: 0;
   max-height: 90vh;
-  padding: 0;
   overflow-x: hidden;
-  background-color: Field;
 }
 
 dialog .modal-dialog-body {
@@ -1412,7 +1417,7 @@ dialog .modal-dialog-body {
   flex-direction: column;
   justify-content: space-between;
   overflow-y: auto;
-  padding: 0 1em;
+  padding-inline: 15px;
 }
 
 dialog .container-with-link {
@@ -1437,7 +1442,7 @@ dialog .key-list {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  border: 1px solid var(--checkbox-border-color);
+  border: 1px solid var(--dialog-box-border-color);
   border-radius: 3px;
   margin-block: 12px 6px;
 }
@@ -1461,8 +1466,8 @@ dialog .key-info {
 }
 
 dialog .key-info-block {
-  margin-block-start: 0.5em;
-  margin-inline-start: 1.8em;
+  margin-block-start: 6px;
+  margin-inline-start: 28px;
 }
 
 .comma-separated a:not(:last-child):after {

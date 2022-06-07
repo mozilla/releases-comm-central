@@ -64,6 +64,7 @@
 
 @media (prefers-contrast) {
   :root {
+    --button-border-color: WindowText;
     --select-focus-text-color: SelectedItemText;
     --lwt-tabs-border-color: ThreeDShadow;
     --tabline-color: SelectedItem;
