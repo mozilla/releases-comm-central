@@ -789,6 +789,7 @@ body.is-editing #detailsPane #photoOverlay {
 
 section#notes div {
   white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .entry-type {
