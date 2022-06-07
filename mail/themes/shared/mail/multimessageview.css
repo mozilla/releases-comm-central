@@ -44,18 +44,22 @@ body {
 
 /* The heading area */
 
-#heading_wrapper {
-  flex: 0 0 auto;
+#headingWrapper {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 9px 6px;
   color: var(--head-text-color);
   background-color: var(--header-background-color);
 }
 
 #heading {
-  padding: 1ex 0 1ex 1ex;
-  margin: 0;
+  flex: 1;
   font-size: large;
   font-weight: normal;
-  vertical-align: middle;
+  margin: 0;
+  padding: 0;
 }
 
 #summary_subtitle {
@@ -195,9 +199,12 @@ a:hover {
 
 #header-view-toolbox {
   font: message-box;
-  float: inline-end;
-  display: block;
-  padding-top: 2px;
+}
+
+#header-view-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 @media print {
@@ -205,7 +212,7 @@ a:hover {
     display: none;
   }
 
-  #heading_wrapper {
+  #headingWrapper {
     position: static;
   }
 }
