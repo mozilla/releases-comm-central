@@ -2698,15 +2698,21 @@ var detailsPane = {
     list.replaceChildren();
 
     for (let entry of vCardProperties.getAllEntries("url")) {
-      if (!/https?:\/\//.test(entry.value)) {
+      let value = entry.value;
+      if (/^https?\\:/.test(value)) {
+        // Google escapes some characters in violation of RFC6350. A backslash
+        // wouldn't be expected in a URL so removing them shouldn't be a problem.
+        value = value.replace(/\\(.)/g, "$1");
+      }
+      if (!/https?:\/\//.test(value)) {
         continue;
       }
 
       let li = list.appendChild(createEntryItem());
       setEntryType(li, entry);
       let a = document.createElement("a");
-      a.href = entry.value;
-      let url = new URL(entry.value);
+      a.href = value;
+      let url = new URL(value);
       a.textContent =
         url.pathname == "/" && !url.search
           ? url.host

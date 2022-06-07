@@ -66,6 +66,7 @@ add_setup(async function() {
       TITLE:senior engineering lead
       TZ;VALUE=TEXT:Pacific/Auckland
       URL;TYPE=work:https://www.thunderbird.net/
+      URL:https\\://www.google.com/search?q=vcard+spec
       END:VCARD
     `)
   );
@@ -280,7 +281,7 @@ add_task(async function test_display() {
   // Websites section
   Assert.ok(BrowserTestUtils.is_visible(websitesSection));
   items = websitesSection.querySelectorAll("li");
-  Assert.equal(items.length, 1);
+  Assert.equal(items.length, 2);
   Assert.equal(
     items[0].children[0].dataset.l10nId,
     "about-addressbook-entry-type-work"
@@ -301,6 +302,31 @@ add_task(async function test_display() {
   );
   await TestUtils.waitForCondition(
     () => mockExternalProtocolService.urlLoaded("https://www.thunderbird.net/"),
+    "attempted to load website in a browser"
+  );
+
+  // Google escapes some characters in violation of RFC6350.
+  // Check that we unescape them as best we can.
+  Assert.equal(
+    items[1].children[1].querySelector("a").href,
+    "https://www.google.com/search?q=vcard+spec",
+    "malformed URL corrected"
+  );
+  Assert.equal(
+    items[1].children[1].querySelector("a").textContent,
+    "www.google.com/search?q=vcard+spec"
+  );
+  items[1].children[1].querySelector("a").scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(
+    items[1].children[1].querySelector("a"),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      mockExternalProtocolService.urlLoaded(
+        "https://www.google.com/search?q=vcard+spec"
+      ),
     "attempted to load website in a browser"
   );
 
