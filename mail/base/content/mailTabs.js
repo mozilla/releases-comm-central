@@ -307,7 +307,8 @@ var mailTabType = {
           // NOTE: The rss feed favicon is not currently exposed to the
           // WebExtension tabs API. To do so, use MozTabmail setTabFavIcon
           // method instead.
-          let fallbackIcon = "chrome://messenger/skin/icons/feeds-folder.svg";
+          let fallbackIcon =
+            "chrome://messenger/skin/icons/new/compact/folder-rss.svg";
           let icon = gFolderTreeView.getFolderCacheProperty(folder, "favicon");
           if (icon !== null) {
             aTabNode.setIcon(icon, fallbackIcon);
@@ -451,7 +452,7 @@ var mailTabType = {
                 FeedUtils.getFavicon(null, url, null, window, iconUrl =>
                   aTab.tabNode.setIcon(
                     iconUrl,
-                    "chrome://messenger/skin/icons/feeds-folder.svg"
+                    "chrome://messenger/skin/icons/new/compact/folder-rss.svg"
                   )
                 );
               }
