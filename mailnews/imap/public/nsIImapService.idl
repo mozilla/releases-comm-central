@@ -33,11 +33,9 @@ interface nsICacheStorage;
 [scriptable, uuid(aba44b3d-7a0f-4987-8794-96d2de66d966)]
 interface nsIImapService : nsISupports
 {
-  // You can pass in null for the url listener and the url if you don't require either.....
-  void selectFolder(in nsIMsgFolder aImapMailFolder,
-                    in nsIUrlListener aUrlListener,
-                    in nsIMsgWindow   aMsgWindow,
-                    out nsIURI aURL);
+  nsIURI selectFolder(in nsIMsgFolder aImapMailFolder,
+                      in nsIUrlListener aUrlListener,
+                      in nsIMsgWindow   aMsgWindow);
 
   /**
    * Select the folder on the imap server without doing a sync of flags or

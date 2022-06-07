@@ -14,6 +14,7 @@ var { MsgIncomingServer } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   ImapClient: "resource:///modules/ImapClient.jsm",
   ImapUtils: "resource:///modules/ImapUtils.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
@@ -21,6 +22,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  * @implements {nsIImapServerSink}
  * @implements {nsIImapIncomingServer}
  * @implements {nsIMsgIncomingServer}
+ * @implements {nsIUrlListener}
  * @implements {nsISupportsWeakReference}
  */
 class ImapIncomingServer extends MsgIncomingServer {
@@ -28,6 +30,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     "nsIImapServerSink",
     "nsIImapIncomingServer",
     "nsIMsgIncomingServer",
+    "nsIUrlListener",
     "nsISupportsWeakReference",
   ]);
 
@@ -39,6 +42,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "imap";
     this.localDatabaseType = "imap";
+    this.canBeDefaultServer = true;
 
     // nsIImapIncomingServer attributes that map directly to pref values.
     this._mapAttrsToPrefs([
@@ -57,6 +61,16 @@ class ImapIncomingServer extends MsgIncomingServer {
       ["Bool", "allowUTF8Accept", "allow_utf8_accept"],
       ["Int", "autoSyncMaxAgeDays", "autosync_max_age_days"],
     ]);
+  }
+
+  /** @see nsIUrlListener */
+  OnStartRunningUrl() {}
+
+  OnStopRunningUrl() {}
+
+  /** @see nsIMsgIncomingServer */
+  performExpand(msgWindow) {
+    MailServices.imap.discoverAllFolders(this.rootFolder, this, msgWindow);
   }
 
   /** @see nsIImapServerSink */
@@ -279,6 +293,8 @@ class ImapIncomingServer extends MsgIncomingServer {
     return MailUtils.getOrCreateFolder(this.rootFolder.URI + "/" + name);
   }
 
+  abortQueuedUrls() {}
+
   /** @see nsIImapIncomingServer */
   get deleteModel() {
     return this.getIntValue("delete_model");
@@ -286,6 +302,10 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   get usingSubscription() {
     return this.getBoolValue("using_subscription");
+  }
+
+  get trashFolderName() {
+    return this.getUnicharValue("trash_folder_name") || "Trash";
   }
 
   get maximumConnectionsNumber() {
@@ -316,10 +336,10 @@ class ImapIncomingServer extends MsgIncomingServer {
     return this;
   }
 
-  _capabilitites = [];
+  _capabilities = [];
 
   set capabilities(value) {
-    this._capabilitites = value;
+    this._capabilities = value;
   }
 
   _passwordPromise = null;
@@ -407,7 +427,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       } else if (
         !this._busyConnections.length &&
         this.useIdle &&
-        this._capabilitites.includes("IDLE")
+        this._capabilities.includes("IDLE")
       ) {
         // Nothing in queue and IDLE is configed and supported, use IDLE to
         // receive server pushes.

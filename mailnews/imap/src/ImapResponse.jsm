@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = [
-  "CapabilityResponse",
-  "FetchResponse",
-  "FlagsResponse",
-  "ImapResponse",
-];
+const EXPORTED_SYMBOLS = ["ImapResponse"];
 
 var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
@@ -86,77 +81,108 @@ class ImapResponse {
       return;
     }
 
-    if (this.tag == "*" && tokens[1].toUpperCase() == "FLAGS") {
-      // * FLAGS (\Seen \Draft $Forwarded)
-      this.flags = ImapUtils.stringsToFlags(tokens[2]);
-    } else if (this.tag == "*" && tokens[1].toUpperCase() == "LIST") {
-      // * LIST (\Subscribed \NoInferiors \UnMarked \Sent) "/" Sent
-      this.mailboxes.push(new MailboxData(tokens));
-    } else if (this.tag == "*" && Number.isInteger(+tokens[1])) {
-      let intValue = +tokens[1];
-      let type = tokens[2].toUpperCase();
-      switch (type) {
-        case "FETCH":
-          // * 1 FETCH (UID 5 FLAGS (\SEEN) BODY[HEADER.FIELDS (FROM TO)] {12}
-          let message = new MessageData(intValue, tokens[3]);
-          this.messages.push(message);
-          if (message.bodySize) {
-            if (message.bodySize + 3 <= this._response.length) {
-              // Consume the message together with the ending ")\r\n".
-              message.body = this._response.slice(0, message.bodySize);
-              this._advance(message.bodySize + 3);
-            } else {
-              this._pendingMessage = message;
-              this.done = false;
-              return;
-            }
-          }
+    let parsed;
+
+    if (this.tag == "*") {
+      parsed = true;
+      switch (tokens[1].toUpperCase()) {
+        case "CAPABILITY":
+          // * CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN
+          let { capabilities, authMethods } = new CapabilityData(
+            tokens.slice(2)
+          );
+          this.capabilities = capabilities;
+          this.authMethods = authMethods;
           break;
-        case "EXISTS":
-          // * 6 EXISTS
-          this.exists = intValue;
+        case "FLAGS":
+          // * FLAGS (\Seen \Draft $Forwarded)
+          this.flags = ImapUtils.stringsToFlags(tokens[2]);
           break;
-        case "EXPUNGE":
-          // * 2 EXPUNGE
-          this.expunged.push(intValue);
-          break;
-        case "RECENT":
-          // Deprecated in rfc9051.
+        case "LIST":
+        case "LSUB":
+          // * LIST (\Subscribed \NoInferiors \UnMarked \Sent) "/" Sent
+          this.mailboxes.push(new MailboxData(tokens));
           break;
         default:
-          throw Components.Exception(
-            `Unrecognized response: ${line}`,
-            Cr.NS_ERROR_ILLEGAL_VALUE
-          );
+          if (Number.isInteger(+tokens[1])) {
+            this._parseNumbered(tokens);
+          } else {
+            parsed = false;
+          }
+          break;
       }
-    } else if (tokens[1].toUpperCase() == "OK" && Array.isArray(tokens[2])) {
-      let type = tokens[2][0].toLowerCase();
+    }
+    if (!parsed && Array.isArray(tokens[2])) {
+      let type = tokens[2][0].toUpperCase();
       let data = tokens[2].slice(1);
       switch (type) {
-        case "capability":
+        case "CAPABILITY":
           // 32 OK [CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN]
           let { capabilities, authMethods } = new CapabilityData(data);
           this.capabilities = capabilities;
           this.authMethods = authMethods;
           break;
-        case "permanentflags":
+        case "PERMANENTFLAGS":
           // * OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)]
           this.permanentflags = ImapUtils.stringsToFlags(tokens[2][1]);
           break;
         default:
+          let field = type.toLowerCase();
           if (tokens[2].length == 1) {
             // A boolean attribute, e.g. 12 OK [READ-WRITE]
-            this[type] = true;
+            this[field] = true;
           } else if (tokens[2].length == 2) {
             // An attribute/value pair, e.g. 12 OK [UIDNEXT 600]
-            this[type] = tokens[2][1];
+            this[field] = tokens[2][1];
           } else {
             // Hold other attributes.
-            this.attributes[type] = data;
+            this.attributes[field] = data;
           }
       }
     }
     this._parse();
+  }
+
+  /**
+   * Handle the tokens of a line in the form of "* NUM TYPE".
+   * @params {Array<string|string[]>} tokens - The tokens of the line.
+   */
+  _parseNumbered(tokens) {
+    let intValue = +tokens[1];
+    let type = tokens[2].toUpperCase();
+    switch (type) {
+      case "FETCH":
+        // * 1 FETCH (UID 5 FLAGS (\SEEN) BODY[HEADER.FIELDS (FROM TO)] {12}
+        let message = new MessageData(intValue, tokens[3]);
+        this.messages.push(message);
+        if (message.bodySize) {
+          if (message.bodySize + 3 <= this._response.length) {
+            // Consume the message together with the ending ")\r\n".
+            message.body = this._response.slice(0, message.bodySize);
+            this._advance(message.bodySize + 3);
+          } else {
+            this._pendingMessage = message;
+            this.done = false;
+          }
+        }
+        break;
+      case "EXISTS":
+        // * 6 EXISTS
+        this.exists = intValue;
+        break;
+      case "EXPUNGE":
+        // * 2 EXPUNGE
+        this.expunged.push(intValue);
+        break;
+      case "RECENT":
+        // Deprecated in rfc9051.
+        break;
+      default:
+        throw Components.Exception(
+          `Unrecognized response: ${tokens.join(" ")}`,
+          Cr.NS_ERROR_ILLEGAL_VALUE
+        );
+    }
   }
 
   /**
@@ -258,17 +284,17 @@ class MessageData {
   constructor(sequence, tokens) {
     this.sequence = sequence;
     for (let i = 0; i < tokens.length; i++) {
-      let name = tokens[i].toLowerCase();
+      let name = tokens[i].toUpperCase();
       switch (name) {
-        case "uid":
+        case "UID":
           this.uid = +tokens[i + 1];
           i++;
           break;
-        case "flags":
+        case "FLAGS":
           this.flags = ImapUtils.stringsToFlags(tokens[i + 1]);
           i++;
           break;
-        case "body": {
+        case "BODY": {
           // bodySection is the part between [ and ].
           this.bodySection = tokens[i + 1];
           i++;
@@ -290,10 +316,13 @@ class MessageData {
  */
 class MailboxData {
   constructor(tokens) {
-    let [, , attributes, delimiter, name] = tokens;
+    let [, , attributes, delimiter, ...rest] = tokens;
     this.flags = this._stringsToFlags(attributes);
-    this.delimiter = delimiter.replaceAll('"', "");
-    this.name = name;
+    this.delimiter = delimiter.replace(/(^"|"$)/g, "");
+    this.name = rest
+      .join(" ")
+      .replace(/(^"|"$)/g, "")
+      .replaceAll('\\"', '"');
   }
 
   /**
@@ -309,7 +338,7 @@ class MailboxData {
         // RFC 5258 \NoInferiors implies \HasNoChildren
         ImapUtils.FLAG_NO_INFERIORS | ImapUtils.FLAG_HAS_NO_CHILDREN,
       "\\NOSELECT": ImapUtils.NO_SELECT,
-      "\\TRASH": ImapUtils.FLAG_IMAP_XLIST_TRASH,
+      "\\TRASH": ImapUtils.FLAG_IMAP_TRASH | ImapUtils.FLAG_IMAP_XLIST_TRASH,
       "\\SENT": ImapUtils.FLAG_IMAP_SENT,
       "\\SPAM": ImapUtils.FLAG_IMAP_SPAM,
       "\\JUNK": ImapUtils.FLAG_IMAP_SPAM,

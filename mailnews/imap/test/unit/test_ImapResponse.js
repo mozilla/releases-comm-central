@@ -18,6 +18,12 @@ add_task(function test_CapabilityResponse() {
 
   deepEqual(response.authMethods, ["LOGIN", "PLAIN"]);
   deepEqual(response.capabilities, ["IMAP4REV1", "IDLE", "STARTTLS"]);
+
+  response = new ImapResponse();
+  response.parse("* CAPABILITY IMAP4rev1 ID IDLE STARTTLS AUTH=PLAIN\r\n");
+
+  deepEqual(response.authMethods, ["PLAIN"]);
+  deepEqual(response.capabilities, ["IMAP4REV1", "ID", "IDLE", "STARTTLS"]);
 });
 
 /**
@@ -165,13 +171,14 @@ add_task(function test_ListResponse() {
   let response = new ImapResponse();
   response.parse(
     [
-      '* LIST (\\Subscribed \\NoInferiors \\Marked \\Trash) "/" Trash',
+      '* LIST (\\Subscribed \\NoInferiors \\Marked \\Trash) "/" "Trash"',
+      '* LIST () "/" "a \\"b\\" c"',
       '* LIST (\\Subscribed) "/" INBOX',
       "84 OK List completed (0.002 + 0.000 + 0.001 secs).",
       "",
     ].join("\r\n")
   );
-  equal(response.mailboxes.length, 2);
+  equal(response.mailboxes.length, 3);
   deepEqual(response.mailboxes[0], {
     name: "Trash",
     delimiter: "/",
@@ -180,9 +187,15 @@ add_task(function test_ListResponse() {
       ImapUtils.FLAG_NO_INFERIORS |
       ImapUtils.FLAG_HAS_NO_CHILDREN |
       ImapUtils.FLAG_MARKED |
+      ImapUtils.FLAG_IMAP_TRASH |
       ImapUtils.FLAG_IMAP_XLIST_TRASH,
   });
   deepEqual(response.mailboxes[1], {
+    name: 'a "b" c',
+    delimiter: "/",
+    flags: 0,
+  });
+  deepEqual(response.mailboxes[2], {
     name: "INBOX",
     delimiter: "/",
     flags: ImapUtils.FLAG_SUBSCRIBED,

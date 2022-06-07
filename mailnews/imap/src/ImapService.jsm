@@ -4,6 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["ImapService"];
 
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  Services: "resource://gre/modules/Services.jsm",
+});
+
 /**
  * Set mailnews.imap.jsmodule to true to use this module.
  *
@@ -15,15 +23,20 @@ class ImapService {
   selectFolder(folder, urlListener, msgWindow) {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
+    let runningUrl = Services.io
+      .newURI(`imap://${server.hostName}`)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
     server.wrappedJSObject.withClient(client => {
-      let runningUrl = client.startRunningUrl(
-        urlListener || folder.QueryInterface(Ci.nsIUrlListener)
+      client.startRunningUrl(
+        urlListener || folder.QueryInterface(Ci.nsIUrlListener),
+        runningUrl
       );
       runningUrl.updatingFolder = true;
       client.onReady = () => {
         client.selectFolder(folder, msgWindow);
       };
     });
+    return runningUrl;
   }
 
   discoverAllFolders(folder, urlListener, msgWindow) {
@@ -82,6 +95,7 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     server.wrappedJSObject.withClient(client => {
+      client.startRunningUrl(urlListener);
       client.onReady = () => {
         client.renameFolder(folder, newName, msgWindow);
       };

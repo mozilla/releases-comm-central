@@ -42,6 +42,9 @@ class ImapClient {
     this._authenticator = new ImapAuthenticator(server);
 
     this._tag = Math.floor(100 * Math.random());
+    this._charsetManager = Cc[
+      "@mozilla.org/charset-converter-manager;1"
+    ].getService(Ci.nsICharsetConverterManager);
   }
 
   /**
@@ -73,12 +76,16 @@ class ImapClient {
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @returns {nsIMsgMailNewsUrl}
    */
-  startRunningUrl(urlListener) {
+  startRunningUrl(urlListener, runningUrl) {
     this._urlListener = urlListener;
-    this.runningUrl = Services.io
-      .newURI(`imap://${this._server.hostName}`)
-      .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    this.runningUrl = runningUrl;
+    if (!this.runningUrl) {
+      this.runningUrl = Services.io
+        .newURI(`imap://${this._server.hostName}`)
+        .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    }
     this._urlListener?.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
+    this.runningUrl.SetUrlState(true, Cr.NS_OK);
     return this.runningUrl;
   }
 
@@ -88,9 +95,7 @@ class ImapClient {
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
   discoverAllFolders(folder, msgWindow) {
-    this._nextAction = this._actionListResponse;
-    this._sendTagged('LIST (SUBSCRIBED) "" "*" RETURN (SPECIAL-USE)');
-    this._listInboxSent = false;
+    this._actionList();
   }
 
   /**
@@ -121,11 +126,15 @@ class ImapClient {
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
-    let oldName = [...names, folder.name].join(delimiter);
-    newName = [...names, newName].join(delimiter);
+    let oldName = this._charsetManager.unicodeToMutf7(
+      [...names, folder.name].join(delimiter)
+    );
+    newName = this._charsetManager.unicodeToMutf7(
+      [...names, newName].join(delimiter)
+    );
 
     this._nextAction = this._actionRenameResponse(oldName, newName);
-    this._sendTagged(`RENAME ${oldName} ${newName}`);
+    this._sendTagged(`RENAME "${oldName}" "${newName}"`);
   }
 
   /**
@@ -153,7 +162,9 @@ class ImapClient {
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
-    return [...names, folder.name].join(delimiter);
+    return this._charsetManager.unicodeToMutf7(
+      [...names, folder.name].join(delimiter)
+    );
   }
 
   /**
@@ -345,8 +356,13 @@ class ImapClient {
    * @returns {number}
    */
   _actionCapabilityResponse = res => {
-    this._authMethods = res.authMethods;
-    this._actionAuth();
+    if (res.capabilities) {
+      this._capabilities = res.capabilities;
+      this._authMethods = res.authMethods;
+      this._actionAuth();
+    } else {
+      this._sendTagged("CAPABILITY");
+    }
   };
 
   /**
@@ -361,10 +377,13 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthResponse = res => {
-    this._capabilities = res.capabilities;
-    this._server.wrappedJSObject.capabilities = res.capabilities;
-    this.onReady();
-    // this._actionNamespace();
+    if (res.capabilities) {
+      this._capabilities = res.capabilities;
+      this._server.wrappedJSObject.capabilities = res.capabilities;
+      this.onReady();
+    } else {
+      this._sendTagged("CAPABILITY");
+    }
   };
 
   /**
@@ -403,10 +422,38 @@ class ImapClient {
   };
 
   /**
+   * Send LSUB or LIST command depending on the server capabilities.
+   */
+  _actionList() {
+    this._nextAction = this._actionListResponse;
+    let command = this._capabilities.includes("LIST-EXTENDED")
+      ? "LIST (SUBSCRIBED)" // rfc5258
+      : "LSUB";
+    command += ' "" "*"';
+    if (this._capabilities.includes("SPECIAL-USE")) {
+      command += " RETURN (SPECIAL-USE)"; // rfc6154
+    }
+    this._sendTagged(command);
+    this._listInboxSent = false;
+  }
+
+  /**
    * Handle LIST response.
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionListResponse(res) {
+    let hasTrash = res.mailboxes.some(
+      mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
+    );
+    if (!hasTrash) {
+      let trashFolderName = this._server.trashFolderName.toLowerCase();
+      let trashMailbox = res.mailboxes.find(
+        mailbox => mailbox.name.toLowerCase() == trashFolderName
+      );
+      if (trashMailbox) {
+        trashMailbox.flags |= ImapUtils.FLAG_IMAP_TRASH;
+      }
+    }
     for (let mailbox of res.mailboxes) {
       this._serverSink.possibleImapMailbox(
         mailbox.name,
@@ -441,18 +488,16 @@ class ImapClient {
   _actionRenameResponse = (oldName, newName) => res => {
     // Step 3: Rename the local folder and send LIST command to re-sync folders.
     let actionAfterUnsubscribe = () => {
-      this._nextAction = this._actionListResponse;
       this._serverSink.onlineFolderRename(this._msgWindow, oldName, newName);
-      this._sendTagged('LIST (SUBSCRIBED) "" "*" RETURN (SPECIAL-USE)');
-      this._listInboxSent = false;
+      this._actionList();
     };
     // Step 2: unsubscribe to the oldName.
     this._nextAction = () => {
       this._nextAction = actionAfterUnsubscribe;
-      this._sendTagged(`UNSUBSCRIBE ${oldName}`);
+      this._sendTagged(`UNSUBSCRIBE "${oldName}"`);
     };
     // Step 1: subscribe to the newName.
-    this._sendTagged(`SUBSCRIBE ${newName}`);
+    this._sendTagged(`SUBSCRIBE "${newName}"`);
   };
 
   /**
@@ -598,6 +643,7 @@ class ImapClient {
     this._logger.debug(`Done with status=${status}`);
     this._nextAction = null;
     this._urlListener?.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
+    this.runningUrl.SetUrlState(false, Cr.NS_OK);
     this.onDone?.();
   };
 }
