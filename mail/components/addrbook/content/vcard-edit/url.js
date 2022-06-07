@@ -44,6 +44,16 @@ class VCardURLComponent extends HTMLElement {
       this.urlEl.type = "url";
       document.l10n.setAttributes(urlLabel, "vcard-url-label");
 
+      this.urlEl.addEventListener("input", () => {
+        // Auto add https:// if the url is missing scheme.
+        if (
+          this.urlEl.value.length > "https://".length &&
+          !/^https?:\/\//.test(this.urlEl.value)
+        ) {
+          this.urlEl.value = "https://" + this.urlEl.value;
+        }
+      });
+
       this.selectEl = this.querySelector("select");
       let selectId = vCardIdGen.next().value;
       this.selectEl.id = selectId;
