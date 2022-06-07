@@ -196,6 +196,37 @@ body.layout-table {
   background-image: url("chrome://messenger/skin/icons/globe.svg");
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .bookRow.requesting .bookRow-icon {
+    position: relative;
+    overflow: hidden;
+    background: none;
+  }
+
+  .bookRow.requesting .bookRow-icon::before {
+    content: "";
+    position: absolute;
+    background-image: url("chrome://messenger/skin/icons/loading.svg");
+    width: 480px;
+    height: 100%;
+    animation: tab-throbber-animation 1.05s steps(30) infinite;
+  }
+
+  .bookRow.requesting .bookRow-icon:dir(rtl)::before {
+    animation-name: tab-throbber-animation-rtl;
+  }
+
+  @keyframes tab-throbber-animation {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes tab-throbber-animation-rtl {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+  }
+}
+
 .bookRow-name,
 .listRow-name {
   flex: 1;

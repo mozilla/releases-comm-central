@@ -203,7 +203,21 @@ class CardDAVDirectory extends SQLiteDirectory {
     details.userContextId =
       this._userContextId ?? CardDAVUtils.contextForUsername(username);
 
-    let response = await CardDAVUtils.makeRequest(uri, details);
+    let response;
+    try {
+      Services.obs.notifyObservers(
+        this,
+        "addrbook-directory-request-start",
+        this.UID
+      );
+      response = await CardDAVUtils.makeRequest(uri, details);
+    } finally {
+      Services.obs.notifyObservers(
+        this,
+        "addrbook-directory-request-end",
+        this.UID
+      );
+    }
     if (
       details.expectedStatuses &&
       !details.expectedStatuses.includes(response.status)
