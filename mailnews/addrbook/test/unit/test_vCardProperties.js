@@ -253,6 +253,20 @@ add_task(function testFromToPropertyMap() {
   for (let [key, value] of inProperties) {
     Assert.equal(outProperties.get(key), value, `${key} property`);
   }
+
+  // Tests that `toPropertyMap` doesn't break multi-value entries, which could
+  // happen if `toAbCard` operates on the original entry instead of a clone.
+  properties = new VCardProperties();
+  properties.addEntry(
+    new VCardPropertyEntry("org", {}, "text", ["one", "two", "three", "four"])
+  );
+  properties.toPropertyMap();
+  Assert.deepEqual(properties.getFirstValue("org"), [
+    "one",
+    "two",
+    "three",
+    "four",
+  ]);
 });
 
 /**

@@ -372,6 +372,13 @@ class AddrBookDirectory {
           ["NickName", card.getProperty("NickName", "")],
           ["Notes", card.getProperty("Notes", "")],
         ]);
+      } else if (card._properties.has("_vCard")) {
+        properties = card.vCardProperties.toPropertyMap();
+        for (let [key, value] of card._properties) {
+          if (!properties.has(key)) {
+            properties.set(key, value);
+          }
+        }
       } else {
         properties = card._properties;
       }

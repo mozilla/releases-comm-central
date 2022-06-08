@@ -43,22 +43,7 @@ var VCardUtils = {
   _parse(vProps) {
     let vPropMap = new Map();
     for (let index = 0; index < vProps.length; index++) {
-      let [name, params, , value] = vProps[index];
-
-      // Quoted-printable isn't allowed after vCard 2.1, but we'll let the
-      // parser deal with things like line wrapping before we do the decoding.
-      if (
-        params.encoding &&
-        params.encoding.toUpperCase() == "QUOTED-PRINTABLE"
-      ) {
-        if (Array.isArray(value)) {
-          for (let i = 0; i < value.length; i++) {
-            value[i] = this._decodeQuotedPrintable(value[i]);
-          }
-        } else {
-          value = this._decodeQuotedPrintable(value);
-        }
-      }
+      let { name, params, value } = vProps[index];
 
       // Work out which type in typeMap, if any, this property belongs to.
 
@@ -895,9 +880,7 @@ class VCardProperties {
    * @return {Map<string, string>} propertyMap
    */
   toPropertyMap() {
-    let vPropMap = VCardUtils._parse(
-      this.entries.map(e => [e.name, e.params, e.type, e.value])
-    );
+    let vPropMap = VCardUtils._parse(this.entries.map(e => e.clone()));
     let propertyMap = new Map();
 
     for (let [name, props] of vPropMap) {
