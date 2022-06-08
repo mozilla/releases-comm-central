@@ -278,5 +278,9 @@ function makeEvent(eventSpec = {}) {
       return eventSpec.roomId || "!test:example.com";
     },
     status: eventSpec.status || null,
+    _listeners: {},
+    once(event, listener) {
+      this._listeners[event] = listener;
+    },
   };
 }

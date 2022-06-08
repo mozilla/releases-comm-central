@@ -35,6 +35,7 @@ add_task(function test_replaceRoom() {
       this.initialized = true;
     },
     _mostRecentEventId: "foo",
+    _joiningLocks: new Set(),
   };
   const newRoom = {};
   MatrixRoom.prototype.replaceRoom.call(roomStub, newRoom);
@@ -301,6 +302,9 @@ add_task(function test_forgetWith_close() {
     // stubs for jsProtoHelper implementations
     addObserver() {},
     unInit() {},
+    _releaseJoiningLock(lock) {
+      this.releasedLock = lock;
+    },
   };
   roomList.set(roomStub._roomId, roomStub);
   IMServices.conversations.addConversation(roomStub);
@@ -308,6 +312,7 @@ add_task(function test_forgetWith_close() {
   MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));
   ok(roomStub.closeCalled);
+  equal(roomStub.releasedLock, "roomInit", "Released roomInit lock");
 });
 
 add_task(function test_forgetWithout_close() {
@@ -321,12 +326,16 @@ add_task(function test_forgetWithout_close() {
     // stubs for jsProtoHelper implementations
     addObserver() {},
     unInit() {},
+    _releaseJoiningLock(lock) {
+      this.releasedLock = lock;
+    },
   };
   roomList.set(roomStub._roomId, roomStub);
   IMServices.conversations.addConversation(roomStub);
 
   MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));
+  equal(roomStub.releasedLock, "roomInit", "Released roomInit lock");
 });
 
 add_task(function test_close() {
@@ -487,11 +496,13 @@ add_task(function test_setInitialized() {
     _resolveInitializer() {
       this.calledResolve = true;
     },
-    joining: true,
+    _releaseJoiningLock(lock) {
+      this.releasedLock = lock;
+    },
   };
   MatrixRoom.prototype._setInitialized.call(roomStub);
   ok(roomStub.calledResolve);
-  ok(!roomStub.joining);
+  equal(roomStub.releasedLock, "roomInit", "Released roomInit lock");
 });
 
 add_task(function test_addEventSticker() {
@@ -612,48 +623,51 @@ add_task(function test_createMessage() {
   roomStub.forget();
 });
 
-add_task(function test_addEventWaitingForDecryption() {
+add_task(async function test_addEventWaitingForDecryption() {
   const event = makeEvent({
     sender: "@user:example.com",
     type: MatrixSDK.EventType.RoomMessageEncrypted,
     shouldDecrypt: true,
   });
-  let createMessageCalled = false;
-  const roomStub = {
-    _account: {
-      userId: "@test:example.com",
-      _client: {
-        getHomeserverUrl() {
-          return "https://example.com/";
-        },
-      },
-    },
-    createMessage() {
-      createMessageCalled = true;
-    },
-  };
-  MatrixRoom.prototype.addEvent.call(roomStub, event);
-  equal(roomStub._mostRecentEventId, undefined);
-  ok(!createMessageCalled);
+  const roomStub = getRoom(true, "#test:example.com");
+  const writePromise = waitForNotification(roomStub, "new-text");
+  roomStub.addEvent(event);
+  const { subject: result } = await writePromise;
+  ok(!result.error, "Waiting for decryption message is not an error");
+  ok(!result.system, "Waiting for decryption message is not system");
+  roomStub.forget();
 });
 
 add_task(async function test_addEventReplaceDecryptedEvent() {
-  const event = makeEvent({
+  //TODO need to emit event on event?
+  let spec = {
     sender: "@user:example.com",
     type: MatrixSDK.EventType.RoomMessage,
     isEncrypted: true,
+    shouldDecrypt: true,
     content: {
       msgtype: MatrixSDK.MsgType.Text,
       body: "foo",
     },
-  });
+  };
+  const event = makeEvent(spec);
   const roomStub = getRoom(true, "#test:example.com");
-  roomStub._eventsWaitingForDecryption.add(event.getId());
-  const updatePromise = waitForNotification(roomStub, "update-text");
+  const writePromise = waitForNotification(roomStub, "new-text");
   roomStub.addEvent(event);
+  const { subject: initialEvent } = await writePromise;
+  ok(!initialEvent.error, "Pending event is not an error");
+  ok(!initialEvent.system, "Pending event is not a system message");
+  equal(
+    initialEvent.who,
+    "@user:example.com",
+    "Pending message has correct sender"
+  );
+  const updatePromise = waitForNotification(roomStub, "update-text");
+  spec.shouldDecrypt = false;
+  event._listeners[MatrixSDK.MatrixEventEvent.Decrypted](event);
   const { subject: result } = await updatePromise;
-  equal(result.who, "@user:example.com");
-  equal(result.message, "foo");
+  equal(result.who, "@user:example.com", "Correct message sender");
+  equal(result.message, "foo", "Message contents displayed");
   roomStub.forget();
 });
 
@@ -668,10 +682,9 @@ add_task(async function test_addEventDecryptionError() {
   const roomStub = getRoom(true, "#test:example.com");
   const writePromise = waitForNotification(roomStub, "new-text");
   roomStub.addEvent(event);
-  ok(roomStub._eventsWaitingForDecryption.has(event.getId()));
   const { subject: result } = await writePromise;
-  ok(result.error);
-  ok(!result.system);
+  ok(result.error, "Message is an error");
+  ok(!result.system, "Not displayed as system event");
   roomStub.forget();
 });
 
@@ -684,10 +697,9 @@ add_task(async function test_addEventPendingDecryption() {
   const roomStub = getRoom(true, "#test:example.com");
   const writePromise = waitForNotification(roomStub, "new-text");
   roomStub.addEvent(event);
-  ok(roomStub._eventsWaitingForDecryption.has(event.getId()));
   const { subject: result } = await writePromise;
-  ok(!result.error);
-  ok(!result.system);
+  ok(!result.error, "Not marked as error");
+  ok(!result.system, "Not displayed as system event");
   roomStub.forget();
 });
 

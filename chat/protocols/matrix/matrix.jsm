@@ -67,7 +67,7 @@ const SERVER_NOTICE_TAG = "m.server_notice";
 
 const MAX_CATCHUP_EVENTS = 300;
 // Should always be smaller or equal to MAX_CATCHUP_EVENTS
-const CATCHUP_PAGE_SIZE = 100;
+const CATCHUP_PAGE_SIZE = 25;
 
 /**
  * @param {string} who - Message sender ID.
@@ -400,7 +400,11 @@ MatrixBuddy.prototype = {
   setUser(user) {
     this._user = user;
     this._serverAlias = user.displayName;
-    this.setStatus(getStatusFromPresence(user), user.presenceStatusMsg ?? "");
+    // The contacts service might not have had a chance to add an imIBuddy yet,
+    // since it also wants the serverAlias to be set if possible.
+    if (this.buddy) {
+      this.setStatus(getStatusFromPresence(user), user.presenceStatusMsg ?? "");
+    }
   },
 
   /**
@@ -451,6 +455,22 @@ MatrixBuddy.prototype = {
 };
 
 /**
+ * Determine if the event will likely have text content composed by a user to
+ * display in a conversation based on its type.
+ *
+ * @param {MatrixEvent} event - Event to check the type of
+ * @returns {boolean} True if the event would typically be shown as text content
+ *   sent by a user in a conversation.
+ */
+function isContentEvent(event) {
+  return [
+    MatrixSDK.EventType.RoomMessage,
+    MatrixSDK.EventType.RoomMessageEncrypted,
+    MatrixSDK.EventType.Sticker,
+  ].includes(event.getType());
+}
+
+/**
  * Matrix rooms are androgynous. Sometimes they are DM conversations, other
  * times they are MUCs.
  * This class implements both conversations state and transition between the
@@ -468,6 +488,8 @@ function MatrixRoom(account, isMUC, name) {
     this._resolveInitializer = resolve;
   });
   this._eventsWaitingForDecryption = new Set();
+  this._joiningLocks = new Set();
+  this._addJoiningLock("roomInit");
 }
 MatrixRoom.prototype = {
   __proto__: GenericConvChatPrototype,
@@ -493,6 +515,38 @@ MatrixRoom.prototype = {
   _eventsWaitingForDecryption: null,
 
   /**
+   * A set of operations that are pending that want the room to show as joining.
+   *
+   * @type {Set<string>}
+   */
+  _joiningLocks: null,
+
+  /**
+   * Add a lock on the joining state during an operation.
+   *
+   * @param {string} lockName - Name of the operation that wants to lock joining
+   *  state.
+   */
+  _addJoiningLock(lockName) {
+    this._joiningLocks.add(lockName);
+    if (!this.joining) {
+      this.joining = true;
+    }
+  },
+
+  /**
+   * Release a joining state lock by an operation.
+   *
+   * @param {string} lockName - Name of the operation that completed.
+   */
+  _releaseJoiningLock(lockName) {
+    this._joiningLocks.delete(lockName);
+    if (this.joining && this._joiningLocks.size === 0) {
+      this.joining = false;
+    }
+  },
+
+  /**
    * Leave the room if we close the conversation.
    */
   close() {
@@ -501,6 +555,7 @@ MatrixRoom.prototype = {
       this.cleanUpOutgoingVerificationRequests();
     }
     this._account._client.leave(this._roomId);
+    this.left = true;
     this.forget();
   },
 
@@ -512,8 +567,11 @@ MatrixRoom.prototype = {
     if (!this.isChat) {
       this.closeDm();
     }
-    this._account.roomList.delete(this._roomId);
-    GenericConversationPrototype.close.call(this);
+    this._account?.roomList.delete(this._roomId);
+    this._releaseJoiningLock("roomInit");
+    if (this._account) {
+      GenericConversationPrototype.close.call(this);
+    }
   },
 
   /**
@@ -551,7 +609,7 @@ MatrixRoom.prototype = {
    *
    * @param {Room} room - associated room with the conversation.
    */
-  initRoom(room) {
+  async initRoom(room) {
     if (!room) {
       return;
     }
@@ -577,15 +635,20 @@ MatrixRoom.prototype = {
     this.updateConvIcon();
 
     if (this.isChat) {
-      this.initRoomMuc(room);
+      await this.initRoomMuc(room);
     } else {
       this.initRoomDm(room);
-      this.searchForVerificationRequests().catch(error =>
+      await this.searchForVerificationRequests().catch(error =>
         this._account.WARN(error)
       );
     }
 
-    this.updateUnverifiedDevices();
+    // Room may have been disposed in the mean time.
+    if (this._replacedBy || !this._account) {
+      return;
+    }
+
+    await this.updateUnverifiedDevices();
     this._setInitialized();
   },
 
@@ -595,7 +658,7 @@ MatrixRoom.prototype = {
    * _initialized.
    */
   _setInitialized() {
-    this.joining = false;
+    this._releaseJoiningLock("roomInit");
     this._resolveInitializer();
   },
 
@@ -634,8 +697,10 @@ MatrixRoom.prototype = {
    * @returns {Promise}
    */
   async catchup() {
+    this._addJoiningLock("catchup");
     await this.waitForRoom();
     if (this.isChat) {
+      await this.room.loadMembersIfNeeded();
       const members = this.room.getJoinedMembers();
       const memberUserIds = members.map(member => member.userId);
       for (const userId of this._participants.keys()) {
@@ -677,11 +742,19 @@ MatrixRoom.prototype = {
     // Start the window at the newest event.
     await timelineWindow.load(newestEvent.getId(), CATCHUP_PAGE_SIZE);
     // Check if the oldest event we want to see is already in the window
+    let checkEvent = event =>
+      event.getId() === latestOldEvent ||
+      (event.getSender() === this._account.userId && isContentEvent(event));
     let endIndex = -1;
     if (latestOldEvent) {
-      endIndex = timelineWindow
-        .getEvents()
-        .findIndex(event => event.getId() === latestOldEvent);
+      const events = timelineWindow.getEvents();
+      endIndex = events
+        .slice()
+        .reverse()
+        .findIndex(checkEvent);
+      if (endIndex >= 0) {
+        endIndex = events.length - endIndex - 1;
+      }
     }
     // Paginate backward until we either find our oldest event or we reach the max backscroll length.
     while (
@@ -699,10 +772,14 @@ MatrixRoom.prototype = {
         windowSize
       );
       // Only search in the newly added events
-      endIndex = timelineWindow
-        .getEvents()
+      const events = timelineWindow.getEvents();
+      endIndex = events
         .slice(0, -baseSize)
-        .findIndex(event => event.getId() === latestOldEvent);
+        .reverse()
+        .findIndex(checkEvent);
+      if (endIndex >= 0) {
+        endIndex = events.length - baseSize - endIndex - 1;
+      }
       if (!didLoadEvents) {
         break;
       }
@@ -715,6 +792,7 @@ MatrixRoom.prototype = {
     for (const event of newEvents) {
       this.addEvent(event, true);
     }
+    this._releaseJoiningLock("catchup");
   },
 
   /**
@@ -722,14 +800,13 @@ MatrixRoom.prototype = {
    *
    * @param {MatrixEvent} event
    * @param {boolean} [delayed=false] - Event is added while catching up to a live state.
+   * @param {boolean} [replace=false] - Event replaces an existing message.
    */
-  addEvent(event, delayed = false) {
+  addEvent(event, delayed = false, replace = false) {
     if (event.isRedaction()) {
       // Handled by the SDK.
       return;
     }
-    // Set to true to update an existing message instead.
-    let replace = false;
     // If the event we got isn't actually a new event in the conversation,
     // change this to the appropriate value.
     let newestEventId = event.getId();
@@ -745,35 +822,24 @@ MatrixRoom.prototype = {
       event,
       delayed,
     };
-    if (event.isEncrypted()) {
-      if (event.shouldAttemptDecryption()) {
-        // Wait for the decryption event for this message.
-        return;
-      }
-      if (event.isDecryptionFailure() || event.isBeingDecrypted()) {
-        this._eventsWaitingForDecryption.add(event.getId());
-      } else if (this._eventsWaitingForDecryption.has(event.getId())) {
-        replace = true;
-        this._eventsWaitingForDecryption.delete(event.getId());
-      }
+    if (
+      event.isEncrypted() &&
+      (event.shouldAttemptDecryption() ||
+        event.isBeingDecrypted() ||
+        event.isDecryptionFailure())
+    ) {
+      // Wait for the decryption event for this message.
+      event.once(MatrixSDK.MatrixEventEvent.Decrypted, event => {
+        this.addEvent(event, false, true);
+      });
     }
     const eventType = event.getType();
     if (event.isRedacted()) {
       newestEventId = event.getRedactionEvent()?.event_id;
       replace = true;
-      opts.system = ![
-        MatrixSDK.EventType.RoomMessage,
-        MatrixSDK.EventType.RoomMessageEncrypted,
-        MatrixSDK.EventType.Sticker,
-      ].includes(eventType);
+      opts.system = !isContentEvent(event);
       opts.deleted = true;
-    } else if (
-      [
-        MatrixSDK.EventType.RoomMessage,
-        MatrixSDK.EventType.RoomMessageEncrypted,
-        MatrixSDK.EventType.Sticker,
-      ].includes(eventType)
-    ) {
+    } else if (isContentEvent(event)) {
       const eventContent = event.getContent();
       // Only print server notices when we're in a server notice room.
       if (
@@ -970,14 +1036,14 @@ MatrixRoom.prototype = {
   },
 
   /**
-   * @type {Room}
+   * @type {Room|null}
    */
   get room() {
-    return this._account._client.getRoom(this._roomId);
+    return this._account?._client.getRoom(this._roomId);
   },
   get roomState() {
     return this.room
-      .getLiveTimeline()
+      ?.getLiveTimeline()
       .getState(MatrixSDK.EventTimeline.FORWARDS);
   },
   /**
@@ -1020,14 +1086,16 @@ MatrixRoom.prototype = {
     if (shouldBeMuc === this.isChat) {
       return;
     }
+    this._addJoiningLock("checkForUpdate");
     this._isChat = shouldBeMuc;
     this.notifyObservers(null, "chat-update-type");
     if (shouldBeMuc) {
-      this.makeMuc();
+      await this.makeMuc();
     } else {
-      this.makeDm();
+      await this.makeDm();
     }
     this.updateConvIcon();
+    this._releaseJoiningLock("checkForUpdate");
   },
 
   /**
@@ -1043,10 +1111,10 @@ MatrixRoom.prototype = {
    * Change the data in this conversation to match what we expect for a DM.
    * This means setting a buddy and no participants.
    */
-  makeDm() {
+  async makeDm() {
     this._participants.clear();
     this.initRoomDm(this.room);
-    this.updateUnverifiedDevices();
+    await this.updateUnverifiedDevices();
   },
 
   /**
@@ -1054,11 +1122,11 @@ MatrixRoom.prototype = {
    * This means removing the associated buddy, initializing the participants
    * list and updating the topic.
    */
-  makeMuc() {
+  async makeMuc() {
     // Cancel any pending outgoing verification request we sent.
     this.cleanUpOutgoingVerificationRequests();
     this.closeDm();
-    this.initRoomMuc(this.room);
+    await this.initRoomMuc(this.room);
   },
 
   /**
@@ -1125,29 +1193,28 @@ MatrixRoom.prototype = {
    *
    * @param {Object} room - associated room with the conversation.
    */
-  initRoomMuc(room) {
-    room.loadMembersIfNeeded().then(() => {
-      // If there are any participants, create them.
-      let participants = [];
-      room.getJoinedMembers().forEach(roomMember => {
-        if (!this._participants.has(roomMember.userId)) {
-          let participant = new MatrixParticipant(roomMember, this._account);
-          participants.push(participant);
-          this._participants.set(roomMember.userId, participant);
-        }
-      });
-      if (participants.length) {
-        this.notifyObservers(
-          new nsSimpleEnumerator(participants),
-          "chat-buddy-add"
-        );
-      }
-    });
-
+  async initRoomMuc(room) {
     let roomState = this.roomState;
     if (roomState.getStateEvents(MatrixSDK.EventType.RoomTopic).length) {
       let event = roomState.getStateEvents(MatrixSDK.EventType.RoomTopic)[0];
       this.setTopic(event.getContent().topic, event.getSender(), true);
+    }
+
+    await room.loadMembersIfNeeded();
+    // If there are any participants, create them.
+    let participants = [];
+    room.getJoinedMembers().forEach(roomMember => {
+      if (!this._participants.has(roomMember.userId)) {
+        let participant = new MatrixParticipant(roomMember, this._account);
+        participants.push(participant);
+        this._participants.set(roomMember.userId, participant);
+      }
+    });
+    if (participants.length) {
+      this.notifyObservers(
+        new nsSimpleEnumerator(participants),
+        "chat-buddy-add"
+      );
     }
   },
 
@@ -1215,6 +1282,8 @@ MatrixRoom.prototype = {
     );
     this.buddy.setUser(user);
     IMServices.contacts.accountBuddyAdded(this.buddy);
+    // We can only set the status after the contacts service set the imIBuddy.
+    this.buddy.setStatusFromPresence();
     this._account.buddies.set(dmUserId, this.buddy);
   },
 
@@ -1917,7 +1986,7 @@ MatrixAccount.prototype = {
   },
 
   get _catchingUp() {
-    return this._client?.getSyncState() !== "SYNCING";
+    return this._client?.getSyncState() !== SyncState.Syncing;
   },
 
   /**
@@ -2033,7 +2102,7 @@ MatrixAccount.prototype = {
     this._client.on(
       MatrixSDK.RoomEvent.Timeline,
       (event, room, toStartOfTimeline, removed, data) => {
-        if (toStartOfTimeline || this._catchingUp || room.isSpaceRoom()) {
+        if (this._catchingUp || room.isSpaceRoom() || !data?.liveEvent) {
           return;
         }
         let conv = this.roomList.get(room.roomId);
@@ -2119,17 +2188,6 @@ MatrixAccount.prototype = {
           conv.addEvent(redactedEvent);
         }
       }
-    });
-    this._client.on(MatrixSDK.MatrixEventEvent.Decrypted, (event, error) => {
-      if (error) {
-        this.ERROR(error);
-        return;
-      }
-      let conv = this.roomList.get(event.getRoomId());
-      if (!conv) {
-        return;
-      }
-      conv.addEvent(event);
     });
     // Update the chat participant information.
     this._client.on(
@@ -2326,7 +2384,7 @@ MatrixAccount.prototype = {
    * Update UI state to reflect the current state of the SDK after a full sync.
    * This includes adding and removing rooms and catching up their contents.
    */
-  handleCaughtUp() {
+  async handleCaughtUp() {
     const allRooms = this._client
       .getVisibleRooms()
       .filter(room => !room.isSpaceRoom());
@@ -2338,16 +2396,18 @@ MatrixAccount.prototype = {
       if (!joinedRooms.includes(roomId)) {
         conv.forget();
       } else {
-        conv
-          .checkForUpdate()
-          .then(() => conv.catchup())
-          .catch(error => this.ERROR(error));
+        try {
+          await conv.checkForUpdate();
+          await conv.catchup();
+        } catch (error) {
+          this.ERROR(error);
+        }
       }
     }
     // Create new conversations
-    let conv;
     for (const roomId of joinedRooms) {
       if (!this.roomList.has(roomId)) {
+        let conv;
         if (this.isDirectRoom(roomId)) {
           const room = this._client.getRoom(roomId);
           if (this._pendingRoomInvites.has(roomId)) {
@@ -2376,7 +2436,11 @@ MatrixAccount.prototype = {
           }
           conv = this.getGroupConversation(roomId);
         }
-        conv.catchup().catch(error => this.ERROR(error));
+        try {
+          await conv.catchup();
+        } catch (error) {
+          this.ERROR(error);
+        }
       }
     }
     // Add pending invites
@@ -2831,7 +2895,6 @@ MatrixAccount.prototype = {
     }
 
     const conv = new MatrixRoom(this, true, roomName || roomId);
-    conv.joining = true;
 
     // If we are already in the room, just initialize the conversation with it.
     const existingRoom = this._client.getRoom(roomId);
@@ -2873,15 +2936,13 @@ MatrixAccount.prototype = {
               preset: MatrixSDK.Preset.PrivateChat,
             });
           }
-          conv.joining = false;
           conv.close();
           throw error;
         }
       )
       .catch(error => {
         this.ERROR(error);
-        if (conv.joining) {
-          conv.joining = false;
+        if (!conv.room) {
           conv.forget();
         }
       });
@@ -3128,11 +3189,9 @@ MatrixAccount.prototype = {
     if (DMRoomId || roomID) {
       let conv = new MatrixRoom(this, false, roomName || DMRoomId || roomID);
       this.roomList.set(DMRoomId || roomID, conv);
-      conv.joining = true;
       this._client
         .joinRoom(DMRoomId || roomID)
         .catch(error => {
-          conv.joining = false;
           conv.close();
           throw error;
         })
@@ -3148,8 +3207,7 @@ MatrixAccount.prototype = {
           this.ERROR(
             "Error creating conversation " + (DMRoomId || roomID) + ": " + error
           );
-          if (conv.joining) {
-            conv.joining = false;
+          if (!conv.room) {
             conv.forget();
           }
         });
@@ -3195,7 +3253,6 @@ MatrixAccount.prototype = {
    * @returns {Promise} The returned promise should never reject.
    */
   async createRoom(pendingMap, key, conversation, roomInit, onCreated) {
-    conversation.joining = true;
     pendingMap.set(key, conversation);
     if (roomInit.is_direct && roomInit.invite) {
       try {
@@ -3235,10 +3292,8 @@ MatrixAccount.prototype = {
       }
     } catch (error) {
       this.ERROR(error);
-      const wasJoining = conversation.joining;
-      conversation.joining = false;
       // Only leave room if it was ever associated with the conversation
-      if (wasJoining) {
+      if (!conversation.room) {
         conversation.forget();
       } else {
         conversation.close();
@@ -3246,7 +3301,7 @@ MatrixAccount.prototype = {
     } finally {
       pendingMap.delete(key);
       if (this._pendingDirectChats.size + this._pendingRoomAliases.size === 0) {
-        this.handleCaughtUp();
+        await this.handleCaughtUp();
       }
     }
   },

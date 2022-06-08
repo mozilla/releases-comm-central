@@ -302,7 +302,7 @@ var MatrixMessageContent = {
         if (attachmentUrl) {
           return attachmentUrl;
         }
-      } else if (event.isBeingDecrypted()) {
+      } else if (event.isBeingDecrypted() || event.shouldAttemptDecryption()) {
         return _("message.decrypting");
       }
     } else if (type == MatrixSDK.EventType.Sticker) {

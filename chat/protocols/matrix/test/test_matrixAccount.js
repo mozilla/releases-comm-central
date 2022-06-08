@@ -117,27 +117,32 @@ add_task(async function test_getGroupConversation() {
   const fooRoom = getRoom(true, "bar", {}, mockAccount);
   mockAccount.roomList.set("foo", fooRoom);
 
-  equal(mockAccount.getGroupConversation(""), null);
-  equal(mockAccount.getGroupConversation("foo").name, "bar");
+  equal(mockAccount.getGroupConversation(""), null, "No room with empty ID");
+  equal(
+    mockAccount.getGroupConversation("foo").name,
+    "bar",
+    "Room with expected name"
+  );
   fooRoom.close();
 
   const existingRoom = mockAccount.getGroupConversation("baz");
+  await existingRoom.waitForRoom();
   strictEqual(existingRoom, mockAccount.roomList.get("baz"));
-  ok(!existingRoom.joining);
+  ok(!existingRoom.joining, "Not joining existing room");
   existingRoom.close();
 
   const joinedRoom = mockAccount.getGroupConversation("lorem");
-  ok(joinedRoom.joining);
+  ok(joinedRoom.joining, "joining room");
   allowedGetRoomIds.add("lorem");
-  await TestUtils.waitForTick();
+  await joinedRoom.waitForRoom();
   strictEqual(joinedRoom, mockAccount.roomList.get("lorem"));
-  ok(!joinedRoom.joining);
+  ok(!joinedRoom.joining, "Joined room");
   joinedRoom.close();
 
   const createdRoom = mockAccount.getGroupConversation("#ipsum:example.com");
-  ok(createdRoom.joining);
+  ok(createdRoom.joining, "Joining new room");
   await createdRoom.waitForRoom();
-  ok(!createdRoom.joining);
+  ok(!createdRoom.joining, "Joined new room");
   strictEqual(createdRoom, mockAccount.roomList.get("!ipsum:example.com"));
   // Wait for catchup to complete.
   await TestUtils.waitForTick();
@@ -146,28 +151,31 @@ add_task(async function test_getGroupConversation() {
   const roomAlreadyBeingCreated = mockAccount.getGroupConversation(
     "#lorem:example.com"
   );
-  ok(roomAlreadyBeingCreated.joining);
+  ok(
+    roomAlreadyBeingCreated.joining,
+    "Joining room that is about to get replaced"
+  );
   const pendingRoom = getRoom(true, "hi", {}, mockAccount);
   mockAccount._pendingRoomAliases.set("#lorem:example.com", pendingRoom);
   await roomAlreadyBeingCreated.waitForRoom();
-  ok(!roomAlreadyBeingCreated.joining);
-  ok(roomAlreadyBeingCreated._replacedBy);
+  ok(!roomAlreadyBeingCreated.joining, "Not joining replaced room");
+  ok(roomAlreadyBeingCreated._replacedBy, "Room got replaced");
   pendingRoom.forget();
 
   const missingLocalRoom = mockAccount.getGroupConversation(
     "!ipsum:example.com"
   );
   await TestUtils.waitForTick();
-  ok(!missingLocalRoom.joining);
-  ok(mockAccount.left);
+  ok(!missingLocalRoom.joining, "Not joining missing room");
+  ok(mockAccount.left, "Left missing room");
 
   mockAccount.left = false;
   const unjoinableRemoteRoom = mockAccount.getGroupConversation(
     "#test:matrix.org"
   );
   await TestUtils.waitForTick();
-  ok(!unjoinableRemoteRoom.joining);
-  ok(mockAccount.left);
+  ok(!unjoinableRemoteRoom.joining, "Not joining unjoinable room");
+  ok(mockAccount.left, "Left unjoinable room");
 });
 
 add_task(async function test_joinChat() {
