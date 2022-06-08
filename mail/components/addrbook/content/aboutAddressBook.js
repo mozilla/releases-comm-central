@@ -2287,29 +2287,7 @@ var detailsPane = {
     );
     document.querySelector("h2").textContent = card.primaryEmail;
 
-    let photoURL = null;
-
-    if (card.supportsVCard) {
-      let photoEntry = card.vCardProperties.getFirstEntry("photo");
-      if (photoEntry?.type == "binary") {
-        // TODO are these always JPEG?
-        photoURL = `data:image/jpeg;base64,${photoEntry.value}`;
-      } else if (photoEntry?.type == "uri") {
-        // TODO only allow data URLs?
-        photoURL = photoEntry.value;
-      }
-    }
-
-    if (!photoURL) {
-      let photoName = card.getProperty("PhotoName", "");
-      if (photoName) {
-        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-        file.append("Photos");
-        file.append(photoName);
-        photoURL = Services.io.newFileURI(file).spec;
-      }
-    }
-
+    let photoURL = card.photoURL;
     if (photoURL) {
       this.photo.style.backgroundImage = `url("${photoURL}")`;
       this.photo._url = photoURL;

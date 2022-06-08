@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookCard"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -234,6 +235,26 @@ AddrBookCard.prototype = {
   },
   get emailAddresses() {
     return this._vCardProperties.getAllValuesSorted("email");
+  },
+  get photoURL() {
+    let photoEntry = this.vCardProperties.getFirstEntry("photo");
+    if (photoEntry?.type == "binary") {
+      // TODO are these always JPEG?
+      return `data:image/jpeg;base64,${photoEntry.value}`;
+    } else if (photoEntry?.type == "uri") {
+      // TODO only allow data URLs?
+      return photoEntry.value;
+    }
+
+    let photoName = this.getProperty("PhotoName", "");
+    if (photoName) {
+      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      file.append("Photos");
+      file.append(photoName);
+      return Services.io.newFileURI(file).spec;
+    }
+
+    return "";
   },
 
   getProperty(name, defaultValue) {

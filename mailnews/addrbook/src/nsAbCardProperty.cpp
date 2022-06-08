@@ -452,6 +452,11 @@ NS_IMETHODIMP nsAbCardProperty::HasEmailAddress(const nsACString& aEmailAddress,
   return NS_OK;
 }
 
+NS_IMETHODIMP nsAbCardProperty::GetPhotoURL(nsAString& aPhotoURL) {
+  aPhotoURL.Truncate();
+  return NS_OK;
+}
+
 // This function may be overridden by derived classes for
 // nsAb*Card specific implementations.
 NS_IMETHODIMP nsAbCardProperty::Copy(nsIAbCard* srcCard) {

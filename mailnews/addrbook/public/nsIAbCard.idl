@@ -245,6 +245,12 @@ interface nsIAbCard : nsISupports {
   boolean hasEmailAddress(in AUTF8String aEmailAddress);
 
   /**
+   * A URL to a photo for this card, or an empty string if there isn't one.
+   * This is probably a file: or data: URL but other schemes are possible.
+   */
+  readonly attribute AString photoURL;
+
+  /**
    * Translates a card into a specific format.
    * The following types are supported:
    * - base64xml

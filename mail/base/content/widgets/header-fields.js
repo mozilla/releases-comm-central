@@ -523,29 +523,7 @@
 
       // We have a card, so let's try to fetch the image.
       let card = this.cardDetails.card;
-      let photoURL = null;
-
-      if (card.supportsVCard) {
-        let photoEntry = card.vCardProperties.getFirstEntry("photo");
-        if (photoEntry?.type == "binary") {
-          // TODO are these always JPEG?
-          photoURL = `data:image/jpeg;base64,${photoEntry.value}`;
-        } else if (photoEntry?.type == "uri") {
-          // TODO only allow data URLs?
-          photoURL = photoEntry.value;
-        }
-      }
-
-      if (!photoURL) {
-        let photoName = card.getProperty("PhotoName", "");
-        if (photoName) {
-          let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-          file.append("Photos");
-          file.append(photoName);
-          photoURL = Services.io.newFileURI(file).spec;
-        }
-      }
-
+      let photoURL = card.photoURL;
       if (photoURL) {
         let img = document.createElement("img");
         document.l10n.setAttributes(img, "message-header-recipient-avatar", {
