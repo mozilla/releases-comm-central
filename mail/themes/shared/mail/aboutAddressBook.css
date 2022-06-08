@@ -401,12 +401,14 @@ body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortCont
 ab-card-listrow {
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
-  padding-block: 5px;
   padding-inline: 38px 8px;
   white-space: nowrap;
   background-image: url("chrome://messenger/skin/icons/contact.svg");
   background-repeat: no-repeat;
   background-position: 15px center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 ab-card-listrow.MailList,

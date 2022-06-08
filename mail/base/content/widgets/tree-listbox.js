@@ -1330,6 +1330,7 @@
       row.setAttribute("role", "option");
       row.setAttribute("aria-setsize", this._view.rowCount);
       row.style.top = `${this._rowElementClass.ROW_HEIGHT * index}px`;
+      row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
       if (this._selection.isSelected(index)) {
         row.selected = true;
       }
