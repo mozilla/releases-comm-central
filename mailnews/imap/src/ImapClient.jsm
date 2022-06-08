@@ -8,6 +8,9 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailCryptoUtils } = ChromeUtils.import(
+  "resource:///modules/MailCryptoUtils.jsm"
+);
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
@@ -40,6 +43,22 @@ class ImapClient {
     this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
     this._serverSink = this._server.QueryInterface(Ci.nsIImapServerSink);
     this._authenticator = new ImapAuthenticator(server);
+
+    // Auth methods detected from the CAPABILITY response.
+    this._supportedAuthMethods = [];
+    // Subset of _supportedAuthMethods that are allowed by user preference.
+    this._possibleAuthMethods = [];
+    // Auth methods set by user preference.
+    this._preferredAuthMethods =
+      {
+        [Ci.nsMsgAuthMethod.passwordCleartext]: ["PLAIN", "LOGIN"],
+        [Ci.nsMsgAuthMethod.passwordEncrypted]: ["CRAM-MD5"],
+        [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
+        [Ci.nsMsgAuthMethod.NTLM]: ["NTLM"],
+        [Ci.nsMsgAuthMethod.OAuth2]: ["XOAUTH2"],
+      }[server.authMethod] || [];
+    // The next auth method to try if the current failed.
+    this._nextAuthMethod = null;
 
     this._tag = Math.floor(100 * Math.random());
     this._charsetManager = Cc[
@@ -358,7 +377,12 @@ class ImapClient {
   _actionCapabilityResponse = res => {
     if (res.capabilities) {
       this._capabilities = res.capabilities;
-      this._authMethods = res.authMethods;
+      this._supportedAuthMethods = res.authMethods;
+      this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
+        this._supportedAuthMethods.includes(x)
+      );
+      this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
+      this._nextAuthMethod = this._possibleAuthMethods[0];
       this._actionAuth();
     } else {
       this._sendTagged("CAPABILITY");
@@ -368,9 +392,38 @@ class ImapClient {
   /**
    * Init authentication depending on server capabilities and user prefs.
    */
-  _actionAuth = () => {
-    this._nextAction = this._actionAuthPlain;
-    this._sendTagged("AUTHENTICATE PLAIN");
+  _actionAuth = async () => {
+    if (!this._nextAuthMethod) {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
+    }
+
+    this._currentAuthMethod = this._nextAuthMethod;
+    this._nextAuthMethod = this._possibleAuthMethods[
+      this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
+    ];
+
+    switch (this._currentAuthMethod) {
+      case "PLAIN":
+        this._nextAction = this._actionAuthPlain;
+        this._sendTagged("AUTHENTICATE PLAIN");
+        break;
+      case "LOGIN":
+        this._nextAction = this._actionAuthLoginUser;
+        this._sendTagged("AUTHENTICATE LOGIN");
+        break;
+      case "CRAM-MD5":
+        this._nextAction = this._actionAuthCramMd5;
+        this._sendTagged("AUTHENTICATE CRAM-MD5");
+        break;
+      case "XOAUTH2":
+        this._nextAction = this._actionAuthResponse;
+        let token = await this._authenticator.getOAuthToken();
+        this._sendTagged(`AUTHENTICATE XOAUTH2 ${token}`, true);
+        break;
+      default:
+        this._actionDone();
+    }
   };
 
   /**
@@ -419,6 +472,48 @@ class ImapClient {
       btoa("\0" + this._authenticator.username + "\0" + password),
       true
     );
+  };
+
+  /**
+   * The second step of LOGIN auth. Send the username to the server.
+   * @param {ImapResponse} res - The server response.
+   */
+  _actionAuthLoginUser = res => {
+    this._nextAction = this._actionAuthLoginPass;
+    this._send(btoa(this._authenticator.username), true);
+  };
+
+  /**
+   * The third step of LOGIN auth. Send the password to the server.
+   * @param {ImapResponse} res - The server response.
+   */
+  _actionAuthLoginPass = async res => {
+    this._nextAction = this._actionAuthResponse;
+    let password = MailStringUtils.uint8ArrayToByteString(
+      new TextEncoder().encode(await this._getPassword())
+    );
+    this._send(btoa(password), true);
+  };
+
+  /**
+   * The second step of CRAM-MD5 auth, send a HMAC-MD5 signature to the server.
+   * @param {ImapResponse} res - The server response.
+   */
+  _actionAuthCramMd5 = async res => {
+    this._nextAction = this._actionAuthResponse;
+
+    // Server sent us a base64 encoded challenge.
+    let challenge = atob(res.statusText);
+    let password = await this._getPassword();
+    // Use password as key, challenge as payload, generate a HMAC-MD5 signature.
+    let signature = MailCryptoUtils.hmacMd5(
+      new TextEncoder().encode(password),
+      new TextEncoder().encode(challenge)
+    );
+    // Get the hex form of the signature.
+    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
+    // Send the username and signature back to the server.
+    this._send(btoa(`${this._authenticator.username} ${hex}`), true);
   };
 
   /**
