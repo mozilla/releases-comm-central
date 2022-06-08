@@ -1064,7 +1064,11 @@ class CalendarImporterController extends ImporterController {
     );
     filePicker.appendFilter("", "*.ics");
     filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
-    filePicker.init(window, "import", filePicker.modeOpen);
+    filePicker.init(
+      window,
+      await document.l10n.formatValue("file-calendar-description"),
+      filePicker.modeOpen
+    );
     let rv = await new Promise(resolve => filePicker.open(resolve));
     if (rv != Ci.nsIFilePicker.returnOK) {
       return;

@@ -213,7 +213,7 @@ dd {
 
 /* Override common.css */
 .toggle-container-with-text {
-  grid-template-columns: min-content;
+  grid-template-columns: min-content 1fr;
   display: grid;
   grid-template-areas:
     "i text"
