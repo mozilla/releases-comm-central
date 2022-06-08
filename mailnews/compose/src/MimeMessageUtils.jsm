@@ -1007,7 +1007,7 @@ var MsgUtils = {
     if (/^data:/i.test(url)) {
       let matches = /filename=(.*);/.exec(url);
       if (matches && matches[1]) {
-        return matches[1];
+        return decodeURIComponent(matches[1]);
       }
       let mimeType = url.slice(5, url.indexOf(";"));
       let extname = "";
