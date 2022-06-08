@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/icons.css");
+
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :host,
@@ -185,11 +187,11 @@ html|input[type="number"]::-moz-number-spin-down {
 }
 
 html|input[type="number"]::-moz-number-spin-up {
-  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  background-image: var(--icon-nav-up-sm);
   border-bottom-style: none;
 }
 html|input[type="number"]::-moz-number-spin-down {
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-image: var(--icon-nav-down-sm);
 }
 
 button,
@@ -310,14 +312,13 @@ menulist::part(dropmarker) {
   padding: 0;
   border: none;
   background-color: transparent;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 menulist::part(dropmarker-icon) {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 menulist.folderMenuItem::part(dropmarker) {
@@ -347,12 +348,12 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
 .menu-right {
   appearance: none;
   -moz-context-properties: fill;
-  list-style-image: url("chrome://global/skin/icons/arrow-right.svg");
+  list-style-image: var(--icon-nav-right-sm);
   fill: currentColor;
 }
 
 .menu-right:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/icons/arrow-left.svg");
+  list-style-image: var(--icon-nav-left-sm);
 }
 
 button menupopup menuseparator,

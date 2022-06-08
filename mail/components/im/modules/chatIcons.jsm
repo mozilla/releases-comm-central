@@ -77,21 +77,21 @@ var ChatIcons = {
         return "chrome://chat/skin/unknown.svg";
       case "available":
       case "connected":
-        return "chrome://messenger/skin/icons/status-online.svg";
+        return "chrome://messenger/skin/icons/new/status-online.svg";
       case "unavailable":
       case "away":
-        return "chrome://messenger/skin/icons/status-away.svg";
+        return "chrome://messenger/skin/icons/new/status-away.svg";
       case "offline":
       case "disconnected":
       case "invisible":
       case "left":
-        return "chrome://messenger/skin/icons/status-offline.svg";
+        return "chrome://messenger/skin/icons/new/status-offline.svg";
       case "connecting":
       case "disconnecting":
       case "joining":
         return "chrome://global/skin/icons/loading.png";
       case "idle":
-        return "chrome://messenger/skin/icons/status-idle.svg";
+        return "chrome://messenger/skin/icons/new/status-idle.svg";
       case "mobile":
         return "chrome://chat/skin/mobile.svg";
       case "chat":

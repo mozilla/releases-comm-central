@@ -128,14 +128,14 @@ p *:any-link img {
 
 /* used by javascript */
 .eventToggle {
-  background: url("chrome://global/skin/icons/arrow-down-12.svg") no-repeat left center;
+  background: var(--icon-nav-down-sm) no-repeat left center;
   margin-bottom: -22px;
   cursor: pointer;
   height: 22px;
   width: 20px;
   z-index: 1;
   opacity: 0.5;
-  -moz-context-properties: fill;
+  -moz-context-properties: stroke;
 }
 
 .eventToggle:hover {
@@ -147,9 +147,9 @@ p *:any-link img {
 }
 
 .hide-children .eventToggle {
-  background: url("chrome://global/skin/icons/arrow-right-12.svg") no-repeat left center;
+  background: var(--icon-nav-right-sm) no-repeat left center;
 }
 
 .hide-children .eventToggle:-moz-locale-dir(rtl) {
-  background: url("chrome://global/skin/icons/arrow-left-12.svg") no-repeat left center;
+  background: var(--icon-nav-left-sm) no-repeat right center;
 }

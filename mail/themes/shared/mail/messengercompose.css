@@ -500,12 +500,24 @@
 
 /* :::: primary toolbar buttons :::: */
 
+/* TEMPORARY: use old fill until all the new supernova icons are implemented */
+#spellingButton,
+#button-encryption,
+#button-encryption[checked],
+#button-encryption-options,
+#button-signing,
+#button-save,
+#quoteButton,
+#button-returnReceipt {
+  fill: currentColor;
+}
+
 #button-send {
-  list-style-image: url("chrome://messenger/skin/icons/send.svg");
+  list-style-image: var(--icon-sent);
 }
 
 #button-contacts {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  list-style-image: var(--icon-address-book);
   -moz-image-region: auto !important;
 }
 
@@ -514,7 +526,7 @@
 }
 
 #button-attach {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
+  list-style-image: var(--icon-attachment);
 }
 
 #button-encryption {
@@ -546,19 +558,19 @@
 }
 
 #cut-button {
-  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
+  list-style-image: var(--icon-cut);
 }
 
 #copy-button {
-  list-style-image: url("chrome://global/skin/icons/edit-copy.svg");
+  list-style-image: var(--icon-copy);
 }
 
 #paste-button {
-  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
+  list-style-image: var(--icon-paste);
 }
 
 #button-print {
-  list-style-image: url("chrome://messenger/skin/icons/print.svg");
+  list-style-image: var(--icon-print);
 }
 
 .menu-description,

@@ -4,6 +4,7 @@
 
 @import url("chrome://messenger/skin/shared/preferences/subdialog.css");
 @import url("chrome://messenger/skin/abFormFields.css");
+@import url("chrome://messenger/skin/icons.css");
 
 @media not (prefers-contrast) {
   :root {
@@ -78,19 +79,19 @@ body.layout-table {
 }
 
 #toolbarCreateBook {
-  list-style-image: url("chrome://messenger/skin/icons/new-addressbook.svg");
+  list-style-image: var(--icon-new-address-book);
 }
 
 #toolbarCreateContact {
-  list-style-image: url("chrome://messenger/skin/icons/addcontact.svg");
+  list-style-image: var(--icon-new-contact);
 }
 
 #toolbarCreateList {
-  list-style-image: url("chrome://messenger/skin/icons/addlist.svg");
+  list-style-image: var(--icon-new-user-list);
 }
 
 #toolbarImport {
-  list-style-image: url("chrome://messenger/skin/icons/import.svg");
+  list-style-image: var(--icon-import);
 }
 
 /* Books pane */

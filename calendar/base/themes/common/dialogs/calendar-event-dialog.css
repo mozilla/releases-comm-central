@@ -36,6 +36,11 @@
  *   Event dialog toolbar buttons
  *-------------------------------------------------------------------*/
 
+.cal-event-toolbarbutton {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 #button-save {
   list-style-image: url(chrome://messenger/skin/icons/save.svg);
 }

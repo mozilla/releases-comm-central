@@ -14,7 +14,7 @@
   --sidebar-background-color: #3a3a3a;
   --sidebar-text-color: #f5f5f5;
 }
-  
+
 :root[lwt-tree-brighttext]:not([lwt-tree]) treechildren::-moz-tree-row(current, focus) {
   --sidebar-highlight-background-color: SelectedItem;
   --sidebar-highlight-text-color: SelectedItemText;

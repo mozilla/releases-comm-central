@@ -24,9 +24,9 @@ button > .button-box {
   padding: 0;
   border: none;
   background-color: transparent;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-nav-down-sm);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 menulist::part(dropmarker) {

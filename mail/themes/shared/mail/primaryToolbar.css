@@ -28,108 +28,107 @@
 }
 
 #button-getmsg {
-  list-style-image: url("chrome://messenger/skin/icons/getmsg.svg");
+  list-style-image: var(--icon-get-mail);
 }
 
 #button-newmsg {
-  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
+  list-style-image: var(--icon-pencil);
 }
 
 #button-address {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  list-style-image: var(--icon-address-book);
 }
 
 #button-reply {
-  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
+  list-style-image: var(--icon-reply);
 }
 
 #button-replyall {
-  list-style-image: url("chrome://messenger/skin/icons/replyall.svg");
+  list-style-image: var(--icon-reply-all);
 }
 
 #button-replylist {
-  list-style-image: url("chrome://messenger/skin/icons/replylist.svg");
+  list-style-image: var(--icon-reply-list);
 }
 
 #button-forward {
-  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
+  list-style-image: var(--icon-forward);
 }
 
 #button-redirect {
-  list-style-image: url("chrome://messenger/skin/icons/redirect.svg");
+  list-style-image: var(--icon-redirect);
 }
 
 .delete-button {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+  list-style-image: var(--icon-trash);
 }
 
 .junk-button {
-  list-style-image: url("chrome://messenger/skin/icons/junk.svg");
+  list-style-image: var(--icon-spam);
 }
 
 #button-print {
-  list-style-image: url("chrome://messenger/skin/icons/print.svg");
+  list-style-image: var(--icon-print);
 }
 
 #button-stop {
-  list-style-image: url("chrome://messenger/skin/icons/stop.svg");
+  list-style-image: var(--icon-close);
 }
 
 #button-file {
-  list-style-image: url("chrome://messenger/skin/icons/file.svg");
+  list-style-image: var(--icon-file);
 }
 
 #button-nextUnread {
-  list-style-image: url("chrome://messenger/skin/icons/nextunread.svg");
+  list-style-image: var(--icon-nav-up-unread);
 }
 
 #button-previousUnread {
-  list-style-image: url("chrome://messenger/skin/icons/previousunread.svg");
+  list-style-image: var(--icon-nav-down-unread);
 }
 
 #button-mark {
-  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
+  list-style-image: var(--icon-unread);
 }
 
 #button-tag {
-  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
+  list-style-image: var(--icon-tag);
 }
 
 #button-goback {
-  list-style-image: url("chrome://messenger/skin/icons/goback.svg");
+  list-style-image: var(--icon-nav-back);
 }
 
 #button-goforward {
-  list-style-image: url("chrome://messenger/skin/icons/goforward.svg");
+  list-style-image: var(--icon-nav-forward);
 }
 
 #button-compact {
-  list-style-image: url("chrome://messenger/skin/icons/compact.svg");
+  list-style-image: var(--icon-compress);
 }
 
 #button-archive {
-  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
+  list-style-image: var(--icon-archive);
 }
 
 #button-chat {
-  -moz-context-properties: fill, fill-opacity, stroke-opacity;
-  stroke-opacity: 0;
+  -moz-context-properties: fill, stroke, fill-opacity;
 }
 
 #button-nextMsg {
-  list-style-image: url("chrome://messenger/skin/icons/nextmsg.svg");
+  list-style-image: var(--icon-nav-up);
 }
 
 #button-previousMsg {
-  list-style-image: url("chrome://messenger/skin/icons/previousmsg.svg");
+  list-style-image: var(--icon-nav-down);
 }
 
 #qfb-show-filter-bar {
-  list-style-image: url("chrome://messenger/skin/icons/filter.svg");
+  list-style-image: var(--icon-filter);
 }
 
 #button-showconversation {
-  list-style-image: url("chrome://messenger/skin/icons/conversation.svg");
+  list-style-image: var(--icon-conversation);
 }
 
 #button-addons {
@@ -137,18 +136,18 @@
 }
 
 .button-appmenu {
-  list-style-image: url("chrome://messenger/skin/icons/appbutton.svg");
+  list-style-image: var(--icon-app-menu);
   min-width: 35px !important;
   margin-inline: 4px;
 }
 
 .button-appmenu[badge-status="addon-alert"] {
-  list-style-image: url("chrome://messenger/skin/icons/appbutton-badged.svg");
+  list-style-image: var(--icon-app-menu-badged);
 }
 
 #button-chat[unreadMessages="true"] {
-  fill: var(--toolbarbutton-icon-fill-attention);
-  stroke-opacity: 0.5;
+  fill: fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
+  stroke: var(--toolbarbutton-icon-fill-attention);
 }
 
 toolbar[mode="text"] > #button-chat[unreadMessages="true"] {
@@ -156,7 +155,8 @@ toolbar[mode="text"] > #button-chat[unreadMessages="true"] {
 }
 
 #button-newMsgPopup .menuitem-iconic {
-  fill: currentColor;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 /* remove the small icons checkbox in Customize window */
@@ -182,7 +182,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #palette-box #button-chat {
-  background: url("chrome://messenger/skin/icons/chat.svg") no-repeat center;
+  background: var(--icon-chat) no-repeat center;
 }
 
 /* Hide the toolbarbutton-icon when the button is removed from the toolbar */
@@ -203,53 +203,54 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 .subviewbutton-iconic {
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 #appmenu_new {
-  list-style-image: url("chrome://global/skin/icons/add.svg");
+  list-style-image: var(--icon-add);
 }
 
 #appmenu_msgAttachmentMenu {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
+  list-style-image: var(--icon-attachment);
 }
 
 #appmenu-cut,
 #appmenu-editmenu-cut {
-  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
+  list-style-image: var(--icon-cut);
 }
 
 #appmenu-copy,
 #appmenu-editmenu-copy {
-  list-style-image: url("chrome://global/skin/icons/edit-copy.svg");
+  list-style-image: var(--icon-copy);
 }
 
 #appmenu-paste,
 #appmenu-editmenu-paste {
-  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
+  list-style-image: var(--icon-paste);
 }
 
 #appmenu_find {
-  list-style-image: url("chrome://global/skin/icons/search-glass.svg");
+  list-style-image: var(--icon-search);
 }
 
 #appmenu_print,
 #appmenu_print_popup {
-  list-style-image: url("chrome://messenger/skin/icons/print.svg");
+  list-style-image: var(--icon-print);
 }
 
 #appmenu_saveAs {
-  list-style-image: url("chrome://messenger/skin/icons/save-as.svg");
+  list-style-image: var(--icon-folder-save);
 }
 
 #appmenu_emptyTrash {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+  list-style-image: var(--icon-trash);
 }
 
 #appmenu_activityManager {
-  list-style-image: var(--icon-draft);
+  list-style-image: var(--icon-file);
 }
 
 #appmenu_accountmgr {
@@ -258,20 +259,19 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu_filters,
 #appmenu_filtersCmd {
-  list-style-image: url("chrome://messenger/skin/icons/filter.svg");
+  list-style-image: var(--icon-filter);
 }
 
 #appmenu_customize {
-  list-style-image: url("chrome://mozapps/skin/extensions/category-themes.svg");
+  list-style-image: var(--icon-paint-brush);
 }
 
-/* Temporary styles for the supernova icons */
 #appmenu_preferences {
   list-style-image: var(--icon-settings);
 }
 
 #appmenu-quit {
-  list-style-image: url("chrome://messenger/skin/icons/quit.svg");
+  list-style-image: var(--icon-quit);
 }
 
 #appmenu_addons,
@@ -281,37 +281,35 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu_help,
 #appmenu_openHelp {
-  list-style-image: url(chrome://global/skin/icons/help.svg);
+  list-style-image: var(--icon-question);
 }
 
 #appmenu_addressBook {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  list-style-image: var(--icon-address-book);
 }
 
 #button-getAllNewMsg,
 #menu_getnewmsgs_all_accounts,
 #appmenu_getnewmsgs_all_accounts {
-  list-style-image: url("chrome://messenger/skin/icons/get-all.svg");
+  list-style-image: var(--icon-download);
 }
 
 #spacesButtonMail {
-  list-style-image: url("chrome://messenger/skin/icons/message.svg");
+  list-style-image: var(--icon-mail);
 }
 
 #spacesButtonAddressBook {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  list-style-image: var(--icon-address-book);
 }
 
 #spacesButtonCalendar {
-  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
+  list-style-image: var(--icon-calendar);
 }
 
 #spacesButtonTasks {
-  list-style-image: url("chrome://calendar/skin/shared/icons/task-tab.svg");
+  list-style-image: var(--icon-tasks);
 }
 
 #spacesButtonChat {
-  -moz-context-properties: fill, stroke-opacity;
-  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
-  stroke-opacity: 0;
+  list-style-image: var(--icon-chat);
 }

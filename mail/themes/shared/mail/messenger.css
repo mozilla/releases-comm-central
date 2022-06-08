@@ -169,6 +169,8 @@ tree > treechildren::-moz-tree-row(selected, focus) {
 }
 
 treechildren::-moz-tree-twisty {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
   color: #505050;
 }
 
@@ -179,7 +181,7 @@ treechildren::-moz-tree-twisty {
 }
 
 treechildren::-moz-tree-twisty(selected, focus) {
-  fill: var(--select-focus-text-color);
+  stroke: var(--select-focus-text-color);
 }
 
 /* LW theme tree styling */
@@ -253,8 +255,9 @@ toolbar[customizing="true"][collapsed="true"] {
   -moz-box-orient: vertical;
   margin: 4px 1px;
   padding: 1px 5px !important;
-  -moz-context-properties: fill, fill-opacity;
-  fill: var(--toolbarbutton-icon-fill, currentColor);
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, var(--toolbarbutton-icon-fill, currentColor) 20%, transparent);
+  stroke: var(--toolbarbutton-icon-fill, currentColor);
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
@@ -348,13 +351,15 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  list-style-image: var(--icon-nav-down-sm);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
-  width: 9px;
-  height: 7px;
+  width: 12px;
+  height: 12px;
 }
 
 /* Separator between menu and split type buttons */
@@ -518,6 +523,11 @@ menulist::part(label-box) {
  font-weight: inherit;
 }
 
+menulist::part(dropmarker-icon) {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+}
+
 menupopup.no-accel-menupopup > :is(menu, menuitem) > .menu-accel-container {
   display: none;
 }
@@ -596,9 +606,9 @@ button[type="menu-button"] > .button-box > button {
 
 button > .button-box > dropmarker {
   appearance: none;
-  list-style-image: url(chrome://global/skin/icons/arrow-down-12.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-nav-down-sm);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 img.invisible-on-broken:-moz-broken {

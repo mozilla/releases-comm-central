@@ -287,15 +287,6 @@ menu.subviewbutton,
 .subviewbutton-iconic > .toolbarbutton-icon {
   width: 16px;
   height: 16px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-/* Temporary styles for the supernova icons */
-#appmenu_preferences.subviewbutton-iconic > .toolbarbutton-icon,
-#appmenu_addons.subviewbutton-iconic > .toolbarbutton-icon,
-#appmenu_accountmgr.subviewbutton-iconic > .toolbarbutton-icon,
-#appmenu_activityManager.subviewbutton-iconic > .toolbarbutton-icon {
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
@@ -325,16 +316,15 @@ menu.subviewbutton,
 }
 
 .PanelUI-subView .subviewbutton-nav::after {
-  -moz-context-properties: fill, fill-opacity;
-  content: url("chrome://global/skin/icons/arrow-right-12.svg");
-  fill: currentColor;
+  -moz-context-properties: stroke, fill-opacity;
+  content: var(--icon-nav-right-sm);
+  stroke: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
-  transform: translateY(1px);
 }
 
 .PanelUI-subView .subviewbutton-nav:-moz-locale-dir(rtl)::after {
-  transform: scaleX(-1) translateY(1px);
+  content: var(--icon-nav-left-sm);
 }
 
 .subviewbutton[shortcut]::after,
@@ -544,17 +534,17 @@ toolbaritem[overflowedItem=true],
   -moz-box-orient: horizontal;
 }
 
-.widget-overflow-list .subviewbutton-nav:-moz-locale-dir(rtl)::after {
-  transform: scaleX(-1);
-}
-
 .widget-overflow-list .subviewbutton-nav::after {
   margin-inline-start: 10px;
-  -moz-context-properties: fill, fill-opacity;
-  content: url("chrome://global/skin/icons/arrow-right-12.svg");
-  fill: currentColor;
+  -moz-context-properties: stroke, fill-opacity;
+  content: var(--icon-nav-right-sm);
+  stroke: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
+}
+
+.widget-overflow-list .subviewbutton-nav:-moz-locale-dir(rtl)::after {
+  content: var(--icon-nav-left-sm);
 }
 
 toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
@@ -633,9 +623,9 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .panel-header > .subviewbutton-back {
-  -moz-context-properties: fill;
-  fill: var(--arrowpanel-color);
-  list-style-image: url("chrome://global/skin/icons/arrow-left.svg");
+  -moz-context-properties: stroke;
+  stroke: var(--arrowpanel-color);
+  list-style-image: var(--icon-nav-left-sm);
   padding: 10px;
 }
 
@@ -645,7 +635,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .subviewbutton-back:-moz-locale-dir(rtl) {
-  transform: scaleX(-1) translateY(1px);
+  list-style-image: var(--icon-nav-right-sm);
 }
 
 .panel-header > .subviewbutton-back > .toolbarbutton-icon {

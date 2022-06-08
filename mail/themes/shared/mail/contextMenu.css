@@ -78,16 +78,14 @@ menu > .menu-right {
 }
 
 menupopup > menu::after {
-  -moz-context-properties: fill, fill-opacity;
-  content: url("chrome://global/skin/icons/arrow-right-12.svg");
-  fill: currentColor;
-  fill-opacity: 0.6;
+  -moz-context-properties: stroke, fill-opacity;
+  content: var(--icon-nav-right-sm);
+  stroke: currentColor;
   float: inline-end;
-  transform: translateY(1px);
 }
 
 menupopup > menu:-moz-locale-dir(rtl)::after {
-  transform: scaleX(-1) translateY(1px);
+  content: var(--icon-nav-left-sm);
 }
 
 menupopup > menu::after {

@@ -395,11 +395,11 @@ richlistitem:not([selected]) .protoIconDimmed {
 #statusTypeAvailable,
 #imStatusAvailable,
 #appmenu_imStatusAvailable {
-  list-style-image: url("chrome://messenger/skin/icons/status-online.svg");
+  list-style-image: var(--icon-status-online);
 }
 
 #statusTypeIcon[status="idle"] {
-  list-style-image: url("chrome://messenger/skin/icons/status-idle.svg");
+  list-style-image: var(--icon-status-idle);
 }
 
 #statusTypeIcon[status="offline"],
@@ -407,7 +407,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 #statusTypeOffline,
 #imStatusOffline,
 #appmenu_imStatusOffline {
-  list-style-image: url("chrome://messenger/skin/icons/status-offline.svg");
+  list-style-image: var(--icon-status-offline);
 }
 
 #statusTypeIcon[status="unavailable"],
@@ -415,7 +415,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 #statusTypeUnavailable,
 #imStatusUnavailable,
 #appmenu_imStatusUnavailable {
-  list-style-image: url("chrome://messenger/skin/icons/status-away.svg");
+  list-style-image: var(--icon-status-away);
 }
 
 /* corresponds to im/themes/conversation.css @media all and (min-height: 251px) */
@@ -660,10 +660,10 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   width: 10px;
   height: 10px;
   margin-inline-start: 5px;
-  background: url("chrome://global/skin/icons/arrow-down-12.svg") no-repeat center;
+  background: var(--icon-nav-down-sm) no-repeat center;
   background-size: contain;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 richlistitem[is="chat-group-richlistitem"].closed .twisty {
@@ -750,15 +750,15 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 }
 
 #button-add-buddy {
-  list-style-image: url("chrome://messenger/skin/icons/addcontact.svg");
+  list-style-image: var(--icon-new-contact);
 }
 
 #button-join-chat {
-  list-style-image: url("chrome://messenger/skin/icons/join.svg");
+  list-style-image: var(--icon-new-chat);
 }
 
 #button-chat-accounts {
-  list-style-image: url("chrome://messenger/skin/icons/accounts.svg");
+  list-style-image: var(--icon-id);
 }
 
 :root[lwt-tree] #contextPane {

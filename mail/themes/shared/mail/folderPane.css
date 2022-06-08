@@ -66,6 +66,18 @@ treechildren::-moz-tree-image(folderNameCol) {
   stroke: var(--folder-color-folder);
 }
 
+treechildren::-moz-tree-twisty {
+  list-style-image: var(--icon-nav-right-sm);
+}
+
+treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty {
+  list-style-image: var(--icon-nav-left-sm);
+}
+
+treechildren::-moz-tree-twisty(open) {
+  list-style-image: var(--icon-nav-down-sm);
+}
+
 /* ..... Mode Header ..... */
 
 treechildren::-moz-tree-image(modeHeader),

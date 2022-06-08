@@ -336,9 +336,9 @@ button dropmarker::part(icon) {
 
 button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   appearance: none;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-nav-down-sm);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
   margin-inline-end: -5px;
   border-start-start-radius: 0;
   border-start-end-radius: 0;
