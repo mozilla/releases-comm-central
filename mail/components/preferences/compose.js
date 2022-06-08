@@ -51,12 +51,11 @@ Preferences.addAll([
 
 var gComposePane = {
   mSpellChecker: null,
-  mDictCount: 0,
 
   init() {
     this.enableAutocomplete();
 
-    this.initLanguageMenu();
+    this.initLanguages();
 
     this.populateFonts();
 
@@ -202,28 +201,15 @@ var gComposePane = {
     }
   },
 
-  async initLanguageMenu() {
-    var languageMenuList = document.getElementById("languageMenuList");
+  async initLanguages() {
+    let languageList = document.getElementById("dictionaryList");
     this.mSpellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
       Ci.mozISpellCheckingEngine
     );
 
-    // Get the list of dictionaries from
-    // the spellchecker.
+    // Get the list of dictionaries from the spellchecker.
 
-    var dictList = this.mSpellChecker.getDictionaryList();
-    var count = dictList.length;
-
-    // if we don't have any dictionaries installed, disable the menu list
-    languageMenuList.disabled = !count;
-
-    // If dictionary count hasn't changed then no need to update the menu.
-    if (this.mDictCount == count) {
-      return;
-    }
-
-    // Store current dictionary count.
-    this.mDictCount = count;
+    let dictList = this.mSpellChecker.getDictionaryList();
 
     // HACK: calling sortDictionaryList may fail the first time due to
     // synchronous loading of the .ftl files. If we load the files and wait
@@ -232,22 +218,37 @@ var gComposePane = {
       "toolkit/intl/languageNames.ftl",
       "toolkit/intl/regionNames.ftl",
     ]).formatValue("language-name-en");
-
-    var inlineSpellChecker = new InlineSpellChecker();
-    var sortedList = inlineSpellChecker.sortDictionaryList(dictList);
-
-    // Remove any languages from the list.
-    languageMenuList.removeAllItems();
-
-    // append the dictionaries to the menu list...
-    for (var i = 0; i < count; i++) {
-      languageMenuList.appendItem(
-        sortedList[i].displayName,
-        sortedList[i].localeCode
-      );
-    }
-
-    languageMenuList.setInitialSelection();
+    let sortedList = new InlineSpellChecker().sortDictionaryList(dictList);
+    let activeDictionaries = Services.prefs
+      .getCharPref("spellchecker.dictionary")
+      .split(",");
+    let template = document.getElementById("dictionaryListItem");
+    languageList.replaceChildren(
+      ...sortedList.map(({ displayName, localeCode }) => {
+        let item = template.content.cloneNode(true).firstElementChild;
+        item.querySelector(".checkbox-label").textContent = displayName;
+        let input = item.querySelector("input");
+        input.setAttribute("value", localeCode);
+        input.addEventListener("change", event => {
+          let language = event.target.value;
+          let dicts = Services.prefs
+            .getCharPref("spellchecker.dictionary")
+            .split(",")
+            .filter(Boolean);
+          if (!event.target.checked) {
+            dicts = dicts.filter(item => item != language);
+          } else {
+            dicts.push(language);
+          }
+          Services.prefs.setCharPref(
+            "spellchecker.dictionary",
+            dicts.join(",")
+          );
+        });
+        input.checked = activeDictionaries.includes(localeCode);
+        return item;
+      })
+    );
   },
 
   populateFonts() {

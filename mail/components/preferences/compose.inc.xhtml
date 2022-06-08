@@ -76,20 +76,26 @@
 
       <separator class="thin"/>
 
-      <hbox align="center" pack="start">
-        <label data-l10n-id="language-popup-label" control="languageMenuList"/>
-        <hbox flex="1">
-          <menulist id="languageMenuList" preference="spellchecker.dictionary" flex="1">
-            <menupopup onpopupshowing="gComposePane.initLanguageMenu();">
-              <!-- dynamic content populated by JS -->
-            </menupopup>
-          </menulist>
-        </hbox>
+      <vbox flex="1">
+        <label data-l10n-id="language-popup-label" control="dictionaryList"/>
+
+        <html:ul id="dictionaryList" class="indent">
+          <html:template id="dictionaryListItem">
+            <html:li>
+              <html:label>
+                <html:input type="checkbox" />
+                <html:span class="checkbox-label"></html:span>
+              </html:label>
+            </html:li>
+          </html:template>
+        </html:ul>
+
         <label id="downloadDictionaries" class="text-link"
-                onclick="if (event.button == 0) { openDictionaryList('tab'); }"
-                data-l10n-id="download-dictionaries-link"/>
+               onclick="if (event.button == 0) { openDictionaryList('tab'); }"
+               data-l10n-id="download-dictionaries-link"/>
+
         <spacer flex="1"/>
-      </hbox>
+      </vbox>
     </html:fieldset>
     </html:div>
 

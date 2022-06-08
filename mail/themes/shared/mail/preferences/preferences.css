@@ -498,6 +498,17 @@ checkbox {
   margin-inline-start: 0;
 }
 
+#dictionaryList {
+  list-style-type: none;
+  padding: 0;
+  margin-block: 0.5em;
+}
+
+#dictionaryList label {
+  display: flex;
+  align-items: center;
+}
+
 /**
  * Font dialog menulist fixes
  */
