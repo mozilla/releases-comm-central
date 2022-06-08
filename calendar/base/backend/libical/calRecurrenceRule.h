@@ -26,6 +26,9 @@ class calRecurrenceRule : public calIRecurrenceRule, public cal::XpcomBase {
   bool mImmutable;
   bool mIsNegative;
   bool mIsByCount;
+
+ private:
+  bool FreqSupported();
 };
 
 #endif  // INCLUDED_CAL_RECURRENCERULE_H

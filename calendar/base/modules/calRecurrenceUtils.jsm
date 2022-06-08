@@ -15,6 +15,7 @@ const EXPORTED_SYMBOLS = [
   "splitRecurrenceRules",
   "checkRecurrenceRule",
   "countOccurrences",
+  "hasUnsupported",
 ];
 
 /**
@@ -92,6 +93,10 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
   // set recurrence info. Bail out if there's more
   // than a single rule or something other than a rule.
   recurrenceInfo = recurrenceInfo.clone();
+  if (hasUnsupported(recurrenceInfo)) {
+    return null;
+  }
+
   let rrules = splitRecurrenceRules(recurrenceInfo);
   if (rrules[0].length == 1) {
     let rule = cal.wrapInstance(rrules[0][0], Ci.calIRecurrenceRule);
@@ -409,6 +414,20 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     }
   }
   return null;
+}
+
+/**
+ * Used to test if the recurrence items of a calIRecurrenceInfo instance are
+ * supported. We do not currently allow the "SECONDLY" or "MINUTELY" frequency
+ * values.
+ *
+ * @param {calIRecurrenceInfo} recurrenceInfo
+ * @returns {boolean}
+ */
+function hasUnsupported(recurrenceInfo) {
+  return recurrenceInfo
+    .getRecurrenceItems()
+    .some(item => item.type == "SECONDLY" || item.type == "MINUTELY");
 }
 
 /**

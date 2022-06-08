@@ -34,6 +34,8 @@ interface calIRecurrenceItem : nsISupports
   /**
    * Search for the next occurrence after aTime and return its recurrence id.
    * aRecurrenceId must be the recurrence id of an occurrence to search after.
+   * If this item has an unsupported FREQ value ("SECONDLY" or "MINUTELY"), null 
+   * is returned.
    *
    * @require               (aTime >= aRecurrenceId)
    * @param aRecurrenceId   The recurrence id to start searching at.
@@ -42,9 +44,12 @@ interface calIRecurrenceItem : nsISupports
   calIDateTime getNextOccurrence(in calIDateTime aRecurrenceId,
                                  in calIDateTime aTime);
 
-  // return array of calIDateTime of the start of all occurrences of
-  // this event starting at aStartTime, between rangeStart and an
-  // optional rangeEnd
+  /**
+   * Return an array of calIDateTime of the start of all occurrences of
+   * this event starting at aStartTime, between rangeStart and an
+   * optional rangeEnd. If this item has an unsupported FREQ value ("SECONDLY"
+   * or "MINUTELY"), an empty array is returned.
+   */
   Array<calIDateTime> getOccurrences(in calIDateTime aStartTime,
                                      in calIDateTime aRangeStart,
                                      in calIDateTime aRangeEnd,

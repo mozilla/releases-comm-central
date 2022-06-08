@@ -29,6 +29,7 @@ var {
   splitRecurrenceRules,
   checkRecurrenceRule,
   countOccurrences,
+  hasUnsupported,
 } = ChromeUtils.import("resource:///modules/calendar/calRecurrenceUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -3806,7 +3807,7 @@ function updateRepeatDetails() {
   let recurrenceInfo = window.recurrenceInfo;
   let itemRepeat = document.getElementById("item-repeat");
   let repeatDetails = document.getElementById("repeat-details");
-  if (itemRepeat.value == "custom" && recurrenceInfo) {
+  if (itemRepeat.value == "custom" && recurrenceInfo && !hasUnsupported(recurrenceInfo)) {
     let item = window.calendarItem;
     document.getElementById("repeat-untilDate").hidden = true;
     // Try to create a descriptive string from the rule(s).

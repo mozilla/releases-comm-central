@@ -24,6 +24,11 @@ calRecurrenceRule::calRecurrenceRule()
   icalrecurrencetype_clear(&mIcalRecur);
 }
 
+bool calRecurrenceRule::FreqSupported() {
+  return !((mIcalRecur.freq == ICAL_SECONDLY_RECURRENCE) ||
+           (mIcalRecur.freq == ICAL_MINUTELY_RECURRENCE));
+}
+
 NS_IMETHODIMP
 calRecurrenceRule::GetIsMutable(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
@@ -312,6 +317,11 @@ calRecurrenceRule::GetNextOccurrence(calIDateTime* aStartTime,
   NS_ENSURE_ARG_POINTER(aOccurrenceTime);
   NS_ENSURE_ARG_POINTER(_retval);
 
+  if (!FreqSupported()) {
+    *_retval = nullptr;
+    return NS_OK;
+  }
+
   nsresult rv;
 
   nsCOMPtr<calIDateTimeLibical> icaldtstart =
@@ -375,6 +385,10 @@ calRecurrenceRule::GetOccurrences(calIDateTime* aStartTime,
   NS_ENSURE_ARG_POINTER(aStartTime);
   NS_ENSURE_ARG_POINTER(aRangeStart);
   aDates.ClearAndRetainStorage();
+
+  if (!FreqSupported()) {
+    return NS_OK;
+  }
 
   // make sure the request is sane; infinite recurrence
   // with no end time is bad times.

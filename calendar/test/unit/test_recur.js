@@ -784,6 +784,18 @@ function test_rules() {
       "EXDATE;TZID=Europe/Berlin:20020402T114500\n"
   );
   check_recur(item, ["20020401T114500", "20020403T114500"], "20020403T094500");
+
+  // Unsupported SECONDLY FREQ value.
+  item = makeEvent(
+    "DESCRIPTION:bug 1770984\nRRULE:FREQ=SECONDLY;COUNT=60\nDTSTART:20220606T114500Z\n"
+  );
+  check_recur(item, [], "20220606T114500Z");
+
+  // Unsupported MINUTELY FREQ value.
+  item = makeEvent(
+    "DESCRIPTION:bug 1770984\nRRULE:FREQ=MINUTELY;COUNT=60\nDTSTART:20220606T114500Z\n"
+  );
+  check_recur(item, [], "20220606T114500Z");
 }
 
 function test_limit() {

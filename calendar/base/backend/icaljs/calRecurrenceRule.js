@@ -46,13 +46,36 @@ calRecurrenceRule.prototype = {
     return this.innerObject.isFinite();
   },
 
+  /**
+   * Tests whether the "FREQ" value for this rule is supported or not. A warning
+   * is logged if an unsupported value ("SECONDLY"|"MINUTELY") is encountered.
+   *
+   * @return {boolean}
+   */
+  freqSupported() {
+    let { freq } = this.innerObject;
+    if (freq == "SECONDLY" || freq == "MINUTELY") {
+      cal.WARN(
+        `The frequency value "${freq}" is currently not supported. No occurrences will be generated.`
+      );
+      return false;
+    }
+    return true;
+  },
+
   getNextOccurrence(aStartTime, aRecId) {
+    if (!this.freqSupported()) {
+      return null;
+    }
     aStartTime = unwrapSingle(ICAL.Time, aStartTime);
     aRecId = unwrapSingle(ICAL.Time, aRecId);
     return wrapGetter(calDateTime, this.innerObject.getNextOccurrence(aStartTime, aRecId));
   },
 
   getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
+    if (!this.freqSupported()) {
+      return [];
+    }
     aStartTime = unwrapSingle(ICAL.Time, aStartTime);
     aRangeStart = unwrapSingle(ICAL.Time, aRangeStart);
     aRangeEnd = unwrapSingle(ICAL.Time, aRangeEnd);
@@ -99,7 +122,7 @@ calRecurrenceRule.prototype = {
 
       occurrences.push(new calDateTime(next));
 
-      if (aMaxCount && aMaxCount >= occurrences.length) {
+      if (aMaxCount && occurrences.length >= aMaxCount) {
         break;
       }
     }
