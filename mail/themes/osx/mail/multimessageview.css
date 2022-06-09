@@ -6,19 +6,13 @@
 
 /* osx-specific overrides for multimessageview.css*/
 
+:root {
+  --header-background-color: -moz-Dialog;
+  --header-text-color: -moz-DialogText;
+}
+
 .multimessage {
   min-height: 15px;
   margin-top: 3px;
   margin-bottom: 3px;
-}
-
-@media not all and (prefers-color-scheme: dark) {
-  .toolbarbutton-1.message-header-view-button {
-    color: -moz-DialogText !important;
-    background-color: white;
-  }
-
-  .toolbarbutton-1.message-header-view-button:hover {
-    background-color: rgb(230, 230, 230) !important;
-  }
 }

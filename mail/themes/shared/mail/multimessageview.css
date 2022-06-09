@@ -10,8 +10,6 @@
 :root {
   --body-background-color: Field;
   --body-text-color: FieldText;
-  --header-background-color: SelectedItem;
-  --head-text-color: SelectedItemText;
   --info-text-color: GrayText;
   background-color: var(--body-background-color);
   color: var(--body-text-color);
@@ -22,17 +20,19 @@
   :root {
     --body-background-color: #2a2a2e;
     --body-text-color: rgb(249, 249, 250);
-    --header-background-color: #002b57;
-    --head-text-color: var(--body-text-color);
     --info-text-color: #b1b1b3;
+  }
 
-  --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
-  --toolbarbutton-hover-bordercolor: rgba(255, 255, 255, .5);
-  --toolbarbutton-header-bordercolor: rgba(255, 255, 255, .25);
-
-  --toolbarbutton-active-background: rgba(255, 255, 255, .4);
-  --toolbarbutton-active-bordercolor: rgba(255, 255, 255, .7);
-  --toolbarbutton-active-boxshadow: 0 0 0 1px rgba(255, 255, 255, .4) inset;
+  #headingWrapper {
+    --header-background-color: #323234;
+    --header-text-color: var(--body-text-color);
+    --splitter-color: #606064;
+    --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
+    --toolbarbutton-hover-bordercolor: rgba(179, 179, 179, 0.4);
+    --toolbarbutton-header-bordercolor: rgba(179, 179, 179, 0.4);
+    --toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+    --toolbarbutton-active-bordercolor: rgba(179, 179, 179, 0.6);
+    --toolbarbutton-active-boxshadow: none;
   }
 }
 
@@ -52,8 +52,9 @@ body {
   gap: 6px;
   flex-wrap: wrap;
   padding: 9px 6px;
-  color: var(--head-text-color);
+  color: var(--header-text-color);
   background-color: var(--header-background-color);
+  border-bottom: 1px solid var(--splitter-color);
 }
 
 #heading {

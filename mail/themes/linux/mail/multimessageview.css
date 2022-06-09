@@ -6,23 +6,13 @@
 
 /* linux-specific overrides for multimessageview.css*/
 
+:root {
+  --header-background-color: AppWorkspace;
+  --header-text-color: WindowText;
+}
+
 .star {
   width: 12px;
   height: 12px;
   margin-right: 0.5em;
-}
-
-@media not all and (prefers-color-scheme: dark) {
-  .toolbarbutton-1.message-header-view-button {
-    background: -moz-Dialog;
-    color: -moz-DialogText !important;
-  }
-
-  .toolbarbutton-1.message-header-view-button:not([disabled=true],[checked=true],[open],:active):hover {
-    background: -moz-dialog linear-gradient(rgba(255, 255, 255, .5), transparent);
-  }
-
-  .toolbarbutton-1.message-header-view-button:not([disabled=true],[checked=true],[open],:active):hover {
-    background: rgb(154, 154, 154) linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .4));
-  }
 }
