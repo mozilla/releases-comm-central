@@ -16,6 +16,7 @@
   --recipient-avatar-background-color: var(--color-gray-30);
 
   --recipient-multi-line-gap: 2px;
+  --message-header-label-opacity: 0.7;
 }
 
 :root[uidensity="compact"] {
@@ -235,7 +236,7 @@ mail-tagfield[collapsed="true"] {
 /* ::::: expanded header pane ::::: */
 
 #expandedsubjectBox {
-  font-weight: bold;
+  font-weight: 700;
   flex: 1;
   margin-inline-start: calc(var(--message-header-field-offset) * -1);
   padding-inline: var(--message-header-field-offset);
@@ -381,7 +382,7 @@ mail-tagfield[collapsed="true"] {
 
 .message-header-label,
 #attachmentSize {
-  opacity: 0.7;
+  opacity: var(--message-header-label-opacity);
 }
 
 .headerValue {
@@ -736,11 +737,11 @@ button.email-action-flagged.flagged {
 .message-header-hide-label-column .row-heading:not(#subjectHeading, #fromHeading, #tagsHeading) {
   display: flow-root;
   margin-inline-end: 1ch;
-  font-weight: 700;
+  font-weight: 600;
   align-self: baseline;
   word-break: keep-all;
   white-space: nowrap;
-  opacity: 0.9;
+  opacity: var(--message-header-label-opacity);
 }
 
 .message-header-hide-label-column .multi-recipient-row .row-heading:not(#fromHeading),
@@ -870,7 +871,7 @@ button.email-action-flagged.flagged {
 }
 
 .header-recipient:hover .recipient-address-book-button img {
-  opacity: 0.7;
+  opacity: var(--message-header-label-opacity);
 }
 
 .header-recipient:hover .recipient-address-book-button:not([disabled]):hover img {
