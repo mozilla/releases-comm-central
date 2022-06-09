@@ -9,7 +9,9 @@ var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/commands.properties")
 );
 
@@ -23,7 +25,7 @@ CommandsService.prototype = {
     this.registerCommand({
       name: "say",
       get helpString() {
-        return _("sayHelpString");
+        return lazy._("sayHelpString");
       },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_HIGH,
@@ -35,7 +37,7 @@ CommandsService.prototype = {
     this.registerCommand({
       name: "raw",
       get helpString() {
-        return _("rawHelpString");
+        return lazy._("rawHelpString");
       },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
@@ -56,7 +58,7 @@ CommandsService.prototype = {
 
       name: "help",
       get helpString() {
-        return _("helpHelpString");
+        return lazy._("helpHelpString");
       },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
@@ -80,7 +82,7 @@ CommandsService.prototype = {
             .map(aCmd => aCmd.name)
             .sort()
             .join(", ");
-          let message = _("commands", cmds);
+          let message = lazy._("commands", cmds);
 
           // Display the message
           conv.systemMessage(message);
@@ -92,7 +94,7 @@ CommandsService.prototype = {
 
         if (!cmdArray.length) {
           // No command that matches.
-          let message = _("noCommand", aMsg);
+          let message = lazy._("noCommand", aMsg);
           conv.systemMessage(message);
           return true;
         }
@@ -102,7 +104,7 @@ CommandsService.prototype = {
 
         let text = cmd.helpString;
         if (!text) {
-          text = _("noHelp", cmd.name);
+          text = lazy._("noHelp", cmd.name);
         }
 
         // Display the message.
@@ -124,7 +126,7 @@ CommandsService.prototype = {
       this.registerCommand({
         name: cmd,
         get helpString() {
-          return _("statusCommand", this.name, _(this.name));
+          return lazy._("statusCommand", this.name, lazy._(this.name));
         },
         usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
         priority: Ci.imICommand.CMD_PRIORITY_HIGH,

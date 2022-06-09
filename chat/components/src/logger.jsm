@@ -10,15 +10,17 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   ClassInfo: "resource:///modules/imXPCOMUtils.jsm",
   GenericMessagePrototype: "resource:///modules/jsProtoHelper.jsm",
   l10nHelper: "resource:///modules/imXPCOMUtils.jsm",
   ToLocaleFormat: "resource:///modules/ToLocaleFormat.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/locale/logger.properties")
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  lazy.l10nHelper("chrome://chat/locale/logger.properties")
 );
 
 /*
@@ -38,7 +40,7 @@ var gPendingCleanup = new Set();
 const kPendingLogCleanupPref = "chat.logging.cleanup.pending";
 
 XPCOMUtils.defineLazyPreferenceGetter(
-  this,
+  lazy,
   "SHOULD_CLEANUP_LOGS",
   "chat.logging.cleanup",
   true
@@ -144,7 +146,7 @@ function getLogFilePathForConversation(aConv, aStartTime) {
 
 function getNewLogFileName(aStartTime) {
   let date = aStartTime ? new Date(aStartTime) : new Date();
-  let dateTime = ToLocaleFormat("%Y-%m-%d.%H%M%S", date);
+  let dateTime = lazy.ToLocaleFormat("%Y-%m-%d.%H%M%S", date);
   let offset = date.getTimezoneOffset();
   if (offset < 0) {
     dateTime += "+";
@@ -170,7 +172,7 @@ function getNewLogFileName(aStartTime) {
  * @param {string} path - Path to the logfile to clean.
  */
 function queueLogFileCleanup(path) {
-  if (gPendingCleanup.has(path) || !SHOULD_CLEANUP_LOGS) {
+  if (gPendingCleanup.has(path) || !lazy.SHOULD_CLEANUP_LOGS) {
     return;
   }
   let idleCallback = () => {
@@ -256,7 +258,7 @@ function queueLogFileCleanup(path) {
  * application was running.
  */
 function initLogCleanup() {
-  if (!SHOULD_CLEANUP_LOGS) {
+  if (!lazy.SHOULD_CLEANUP_LOGS) {
     return;
   }
   // Capture the value of the pending cleanups before it gets overridden by
@@ -480,7 +482,7 @@ function LogMessage(aData, aConversation) {
 }
 
 LogMessage.prototype = {
-  __proto__: GenericMessagePrototype,
+  __proto__: lazy.GenericMessagePrototype,
   _interfaces: [Ci.imIMessage, Ci.prplIMessage],
   get displayMessage() {
     return this.originalMessage;
@@ -494,7 +496,7 @@ function LogConversation(aMessages, aProperties) {
   }
 }
 LogConversation.prototype = {
-  __proto__: ClassInfo("imILogConversation", "Log conversation object"),
+  __proto__: lazy.ClassInfo("imILogConversation", "Log conversation object"),
   get isChat() {
     return this._isChat;
   },
@@ -568,7 +570,7 @@ function Log(aEntries) {
   this.path = aEntries[0].path;
 }
 Log.prototype = {
-  __proto__: ClassInfo("imILog", "Log object"),
+  __proto__: lazy.ClassInfo("imILog", "Log object"),
   _entryPaths: null,
   async getConversation() {
     /*
@@ -603,7 +605,7 @@ Log.prototype = {
         messages.push({
           who: "sessionstart",
           date: getDateFromFilename(filename)[0],
-          text: _("badLogfile", filename),
+          text: lazy._("badLogfile", filename),
           flags: ["noLog", "notification", "error", "system"],
         });
         continue;

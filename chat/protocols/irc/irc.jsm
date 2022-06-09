@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "ircProtocol",
   "ircChannel",
   "ircMessage",
@@ -10,9 +10,6 @@ var EXPORTED_SYMBOLS = [
   "ircConversation",
 ];
 
-var { clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
 var {
   ClassInfo,
   executeSoon,
@@ -20,9 +17,14 @@ var {
   XPCOMUtils,
   nsSimpleEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+
+var { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { _, ctcpFormatToHTML, kListRefreshInterval } = ChromeUtils.import(
+var { ctcpFormatToHTML, kListRefreshInterval } = ChromeUtils.import(
   "resource:///modules/ircUtils.jsm"
 );
 var { ircHandlers } = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
@@ -41,20 +43,25 @@ var { NormalizedMap } = ChromeUtils.import(
 );
 var { Socket } = ChromeUtils.import("resource:///modules/socket.jsm");
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "PluralForm",
   "resource://gre/modules/PluralForm.jsm"
 );
 
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_conv", () =>
+XPCOMUtils.defineLazyGetter(lazy, "_conv", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
+);
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
 );
 
 /*
@@ -316,7 +323,7 @@ var GenericIRCConversation = {
       if (!this._account.sendCTCPMessage(this.name, false, "ACTION", message)) {
         this.writeMessage(
           this._account._currentServerName,
-          _("error.sendMessageFailed"),
+          lazy._("error.sendMessageFailed"),
           { error: true, system: true }
         );
         return;
@@ -329,7 +336,7 @@ var GenericIRCConversation = {
     ) {
       this.writeMessage(
         this._account._currentServerName,
-        _("error.sendMessageFailed"),
+        lazy._("error.sendMessageFailed"),
         { error: true, system: true }
       );
       return;
@@ -405,7 +412,7 @@ var GenericIRCConversation = {
     let type = { system: true, noLog: true };
     // RFC 2812 errors 401 and 406 result in there being no entry for the nick.
     if (!account.whoisInformation.has(nick)) {
-      this.writeMessage(null, _("message.unknownNick", nick), type);
+      this.writeMessage(null, lazy._("message.unknownNick", nick), type);
       return;
     }
     // If the nick is offline, tell the user. In that case, it's WHOWAS info.
@@ -413,14 +420,14 @@ var GenericIRCConversation = {
     if ("offline" in account.whoisInformation.get(nick)) {
       msgType = "message.whowas";
     }
-    let msg = _(msgType, account.whoisInformation.get(nick).nick);
+    let msg = lazy._(msgType, account.whoisInformation.get(nick).nick);
 
     // Iterate over each field.
     for (let elt of aSubject.QueryInterface(Ci.nsISimpleEnumerator)) {
       switch (elt.type) {
         case Ci.prplITooltipInfo.pair:
         case Ci.prplITooltipInfo.sectionHeader:
-          msg += "\n" + _("message.whoisEntry", elt.label, elt.value);
+          msg += "\n" + lazy._("message.whoisEntry", elt.label, elt.value);
           break;
         case Ci.prplITooltipInfo.sectionBreak:
           break;
@@ -429,7 +436,9 @@ var GenericIRCConversation = {
             break;
           }
           // The away message has no tooltipInfo.pair entry.
-          msg += "\n" + _("message.whoisEntry", _("tooltip.away"), elt.value);
+          msg +=
+            "\n" +
+            lazy._("message.whoisEntry", lazy._("tooltip.away"), elt.value);
           break;
       }
     }
@@ -589,10 +598,10 @@ ircChannel.prototype = {
           ) {
             continue;
           }
-          msg = _("message.channelKeyAdded", aSetter, key);
+          msg = lazy._("message.channelKeyAdded", aSetter, key);
           newFields += " " + key;
         } else {
-          msg = _("message.channelKeyRemoved", aSetter);
+          msg = lazy._("message.channelKeyRemoved", aSetter);
         }
 
         this.writeMessage(aSetter, msg, { system: true });
@@ -611,7 +620,7 @@ ircChannel.prototype = {
           this.banMasks = this.banMasks.filter(aBanMask => banMask != aBanMask);
           msgKey += "Removed";
         }
-        this.writeMessage(aSetter, _(msgKey, banMask, aSetter), {
+        this.writeMessage(aSetter, lazy._(msgKey, banMask, aSetter), {
           system: true,
         });
       } else if (["e", "I", "l"].includes(aNewMode[i])) {
@@ -658,7 +667,7 @@ ircChannel.prototype = {
     _setMode.call(this, addNewMode, channelModes);
 
     // Notify the UI of changes.
-    msg = _(
+    msg = lazy._(
       "message.channelmode",
       aNewMode[0] + channelModes.join(""),
       aSetter
@@ -739,7 +748,7 @@ ircParticipant.prototype = {
     _setMode.call(this, aAddNewMode, aNewModes);
 
     // Notify the UI of changes.
-    let msg = _(
+    let msg = lazy._(
       "message.usermode",
       (aAddNewMode ? "+" : "-") + aNewModes.join(""),
       this.name,
@@ -919,7 +928,7 @@ ircSocket.prototype = {
       this.WARN(msg);
       this._account.gotDisconnected(
         Ci.prplIAccount.ERROR_NETWORK_ERROR,
-        _("connection.error.lost")
+        lazy._("connection.error.lost")
       );
     }
   },
@@ -927,14 +936,14 @@ ircSocket.prototype = {
     this.WARN("Connection reset.");
     this._account.gotDisconnected(
       Ci.prplIAccount.ERROR_NETWORK_ERROR,
-      _("connection.error.lost")
+      lazy._("connection.error.lost")
     );
   },
   onConnectionTimedOut() {
     this.WARN("Connection timed out.");
     this._account.gotDisconnected(
       Ci.prplIAccount.ERROR_NETWORK_ERROR,
-      _("connection.error.timeOut")
+      lazy._("connection.error.timeOut")
     );
   },
   onConnectionSecurityError(aTLSError, aNSSErrorMessage) {
@@ -1192,9 +1201,9 @@ ircAccount.prototype = {
     if (this._showServerTab) {
       let msg;
       if (aDisplayFullMode) {
-        msg = _("message.yourmode", Array.from(this._modes).join(""));
+        msg = lazy._("message.yourmode", Array.from(this._modes).join(""));
       } else {
-        msg = _(
+        msg = lazy._(
           "message.usermode",
           aNewModes,
           aNick,
@@ -1424,7 +1433,7 @@ ircAccount.prototype = {
 
     let whoisInformation = this.whoisInformation.get(aNick);
     if (whoisInformation.serverName && whoisInformation.serverInfo) {
-      whoisInformation.server = _(
+      whoisInformation.server = lazy._(
         "tooltip.serverValue",
         whoisInformation.serverName,
         whoisInformation.serverInfo
@@ -1449,17 +1458,17 @@ ircAccount.prototype = {
         .join(" ");
 
     // Convert booleans into a human-readable form.
-    let normalizeBool = aBool => _(aBool ? "yes" : "no");
+    let normalizeBool = aBool => lazy._(aBool ? "yes" : "no");
 
     // Convert timespan in seconds into a human-readable form.
     let normalizeTime = function(aTime) {
-      let valuesAndUnits = DownloadUtils.convertTimeUnits(aTime);
+      let valuesAndUnits = lazy.DownloadUtils.convertTimeUnits(aTime);
       // If the time is exact to the first set of units, trim off
       // the subsequent zeroes.
       if (!valuesAndUnits[2]) {
         valuesAndUnits.splice(2, 2);
       }
-      return _("tooltip.timespan", valuesAndUnits.join(" "));
+      return lazy._("tooltip.timespan", valuesAndUnits.join(" "));
     };
 
     // List of the names of the info to actually show in the tooltip and
@@ -1486,7 +1495,7 @@ ircAccount.prototype = {
         if (kFields[field]) {
           value = kFields[field](value);
         }
-        tooltipInfo.push(new TooltipInfo(_("tooltip." + field), value));
+        tooltipInfo.push(new TooltipInfo(lazy._("tooltip." + field), value));
       }
     }
 
@@ -1582,9 +1591,13 @@ ircAccount.prototype = {
         if (conversation.isChat) {
           conversation.updateNick(aOldNick, aNewNick, true);
         } else {
-          conversation.writeMessage(aOldNick, _conv("nickSet.you", aNewNick), {
-            system: true,
-          });
+          conversation.writeMessage(
+            aOldNick,
+            lazy._conv("nickSet.you", aNewNick),
+            {
+              system: true,
+            }
+          );
         }
       });
     } else {
@@ -1612,7 +1625,7 @@ ircAccount.prototype = {
       conversation.updateNick(aNewNick);
       conversation.writeMessage(
         aOldNick,
-        _conv("nickSet", aOldNick, aNewNick),
+        lazy._conv("nickSet", aOldNick, aNewNick),
         { system: true }
       );
     }
@@ -1701,7 +1714,7 @@ ircAccount.prototype = {
       // The nick we were about to try next is our current nick. This means
       // the user attempted to change to a version of the nick with a lower or
       // absent number suffix, and this failed.
-      let msg = _("message.nick.fail", this._nickname);
+      let msg = lazy._("message.nick.fail", this._nickname);
       this.conversations.forEach(conversation =>
         conversation.writeMessage(this._nickname, msg, { system: true })
       );
@@ -1735,10 +1748,10 @@ ircAccount.prototype = {
       return false;
     }
 
-    let msg = PluralForm.get(delay, _("message.ping", aSource)).replace(
-      "#2",
-      delay
-    );
+    let msg = lazy.PluralForm.get(
+      delay,
+      lazy._("message.ping", aSource)
+    ).replace("#2", delay);
     this.getConversation(aSource).writeMessage(aSource, msg, { system: true });
     return true;
   },
@@ -1991,13 +2004,13 @@ ircAccount.prototype = {
   chatRoomFields: {
     channel: {
       get label() {
-        return _("joinChat.channel");
+        return lazy._("joinChat.channel");
       },
       required: true,
     },
     password: {
       get label() {
-        return _("joinChat.password");
+        return lazy._("joinChat.password");
       },
       isPassword: true,
     },
@@ -2104,7 +2117,7 @@ ircAccount.prototype = {
     if (!this._socket || this._socket.disconnected) {
       this.gotDisconnected(
         Ci.prplIAccount.ERROR_NETWORK_ERROR,
-        _("connection.error.lost")
+        lazy._("connection.error.lost")
       );
     }
 
@@ -2141,7 +2154,7 @@ ircAccount.prototype = {
         this.ERROR("Socket error:", e);
         this.gotDisconnected(
           Ci.prplIAccount.ERROR_NETWORK_ERROR,
-          _("connection.error.lost")
+          lazy._("connection.error.lost")
         );
         return false;
       }
@@ -2394,13 +2407,13 @@ ircProtocol.prototype = {
     return "chrome://prpl-irc/skin/";
   },
   get usernameEmptyText() {
-    return _("irc.usernameHint");
+    return lazy._("irc.usernameHint");
   },
 
   usernameSplits: [
     {
       get label() {
-        return _("options.server");
+        return lazy._("options.server");
       },
       separator: "@",
       defaultValue: "irc.libera.chat",
@@ -2418,26 +2431,26 @@ ircProtocol.prototype = {
   options: {
     port: {
       get label() {
-        return _("options.port");
+        return lazy._("options.port");
       },
       default: 6697,
     },
     ssl: {
       get label() {
-        return _("options.ssl");
+        return lazy._("options.ssl");
       },
       default: true,
     },
     // TODO We should attempt to auto-detect encoding instead.
     encoding: {
       get label() {
-        return _("options.encoding");
+        return lazy._("options.encoding");
       },
       default: "UTF-8",
     },
     quitmsg: {
       get label() {
-        return _("options.quitMessage");
+        return lazy._("options.quitMessage");
       },
       get default() {
         return Services.prefs.getCharPref("chat.irc.defaultQuitMessage");
@@ -2445,19 +2458,19 @@ ircProtocol.prototype = {
     },
     partmsg: {
       get label() {
-        return _("options.partMessage");
+        return lazy._("options.partMessage");
       },
       default: "",
     },
     showServerTab: {
       get label() {
-        return _("options.showServerTab");
+        return lazy._("options.showServerTab");
       },
       default: false,
     },
     alternateNicks: {
       get label() {
-        return _("options.alternateNicks");
+        return lazy._("options.alternateNicks");
       },
       default: "",
     },

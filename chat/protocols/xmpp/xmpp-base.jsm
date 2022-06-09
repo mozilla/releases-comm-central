@@ -41,33 +41,35 @@ var { XMPPSession } = ChromeUtils.import(
   "resource:///modules/xmpp-session.jsm"
 );
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FileUtils",
   "resource://gre/modules/FileUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "NetUtil",
   "resource://gre/modules/NetUtil.jsm"
 );
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "imgTools",
   "@mozilla.org/image/tools;1",
   "imgITools"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
-XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });
@@ -285,7 +287,9 @@ var XMPPMUCConversationPrototype = {
       { type: "groupchat" },
       subject
     );
-    let notAuthorized = _("conversation.error.changeTopicFailedNotAuthorized");
+    let notAuthorized = lazy._(
+      "conversation.error.changeTopicFailedNotAuthorized"
+    );
     this._account.sendStanza(
       s,
       this._account.handleErrors(
@@ -312,7 +316,7 @@ var XMPPMUCConversationPrototype = {
     }
     // XEP-0045 (7.4): Sending a message to all occupants in a room.
     let s = Stanza.message(this.name, aMsg, null, { type: "groupchat" });
-    let notInRoom = _(
+    let notInRoom = lazy._(
       "conversation.error.sendFailedAsNotInRoom",
       this.name,
       aMsg
@@ -348,23 +352,23 @@ var XMPPMUCConversationPrototype = {
         case "not-authorized":
         case "registration-required":
           // XEP-0045 (7.2.7): Members-Only Rooms.
-          message = _("conversation.error.joinFailedNotAuthorized");
+          message = lazy._("conversation.error.joinFailedNotAuthorized");
           break;
         case "not-allowed":
-          message = _("conversation.error.creationFailedNotAllowed");
+          message = lazy._("conversation.error.creationFailedNotAllowed");
           break;
         case "remote-server-not-found":
-          message = _(
+          message = lazy._(
             "conversation.error.joinFailedRemoteServerNotFound",
             this.name
           );
           break;
         case "forbidden":
           // XEP-0045 (7.2.8): Banned users.
-          message = _("conversation.error.joinForbidden", this.name);
+          message = lazy._("conversation.error.joinForbidden", this.name);
           break;
         default:
-          message = _("conversation.error.joinFailed", this.name);
+          message = lazy._("conversation.error.joinFailed", this.name);
           this.ERROR("Failed to join MUC: " + aStanza.convertToString());
           break;
       }
@@ -479,7 +483,7 @@ var XMPPMUCConversationPrototype = {
         if (message) {
           let messageID = message + isYou + isActor + isReason;
           let params = [actorNick, affectedNick, reason].filter(s => s);
-          this.writeMessage(this.name, _(messageID, ...params), {
+          this.writeMessage(this.name, lazy._(messageID, ...params), {
             system: true,
           });
         }
@@ -537,11 +541,15 @@ var XMPPMUCConversationPrototype = {
         "chat-buddy-add"
       );
       if (this.nick != nick && !this.joining) {
-        this.writeMessage(this.name, _("conversation.message.join", nick), {
-          system: true,
-        });
+        this.writeMessage(
+          this.name,
+          lazy._("conversation.message.join", nick),
+          {
+            system: true,
+          }
+        );
       } else if (this.nick == nick && this._rejoined) {
-        this.writeMessage(this.name, _("conversation.message.rejoined"), {
+        this.writeMessage(this.name, lazy._("conversation.message.rejoined"), {
           system: true,
         });
         this._rejoined = false;
@@ -561,7 +569,7 @@ var XMPPMUCConversationPrototype = {
       flags.system = true;
       from = this.name;
     } else if (aStanza.attributes.type == "error") {
-      aMsg = _("conversation.error.notDelivered", aMsg);
+      aMsg = lazy._("conversation.error.notDelivered", aMsg);
       flags.system = true;
       flags.error = true;
     } else if (from == this._nick) {
@@ -613,12 +621,12 @@ var XMPPMUCConversationPrototype = {
       s,
       this._account.handleErrors(
         {
-          forbidden: _("conversation.error.inviteFailedForbidden"),
+          forbidden: lazy._("conversation.error.inviteFailedForbidden"),
           // ejabberd uses error not-allowed to indicate that this account does not
           // have the required privileges to invite users instead of forbidden error,
           // and this is not mentioned in the spec (XEP-0045).
-          notAllowed: _("conversation.error.inviteFailedForbidden"),
-          itemNotFound: _("conversation.error.failedJIDNotFound", aJID),
+          notAllowed: lazy._("conversation.error.inviteFailedForbidden"),
+          itemNotFound: lazy._("conversation.error.failedJIDNotFound", aJID),
         },
         this
       )
@@ -632,7 +640,7 @@ var XMPPMUCConversationPrototype = {
     if (!participant) {
       this.writeMessage(
         this.name,
-        _("conversation.error.nickNotInRoom", aNickName),
+        lazy._("conversation.error.nickNotInRoom", aNickName),
         { system: true }
       );
       return;
@@ -640,7 +648,7 @@ var XMPPMUCConversationPrototype = {
     if (!participant.accountJid) {
       this.writeMessage(
         this.name,
-        _("conversation.error.banCommandAnonymousRoom"),
+        lazy._("conversation.error.banCommandAnonymousRoom"),
         { system: true }
       );
       return;
@@ -685,8 +693,8 @@ var XMPPMUCConversationPrototype = {
   _banKickHandler(aStanza) {
     return this._account._handleResult(
       {
-        notAllowed: _("conversation.error.banKickCommandNotAllowed"),
-        conflict: _("conversation.error.banKickCommandConflict"),
+        notAllowed: lazy._("conversation.error.banKickCommandNotAllowed"),
+        conflict: lazy._("conversation.error.banKickCommandConflict"),
       },
       this
     )(aStanza);
@@ -703,12 +711,15 @@ var XMPPMUCConversationPrototype = {
           // XEP-0045 (7.6): Changing Nickname (example 53).
           // TODO: We should discover if the user has a reserved nickname (maybe
           // before joining a room), cf. XEP-0045 (7.12).
-          notAcceptable: _(
+          notAcceptable: lazy._(
             "conversation.error.changeNickFailedNotAcceptable",
             aNewNick
           ),
           // XEP-0045 (7.2.9): Nickname Conflict.
-          conflict: _("conversation.error.changeNickFailedConflict", aNewNick),
+          conflict: lazy._(
+            "conversation.error.changeNickFailedConflict",
+            aNewNick
+          ),
         },
         this
       )
@@ -728,13 +739,13 @@ var XMPPMUCConversationPrototype = {
       let reason = reasonNode ? reasonNode.innerText : "";
       let msg;
       if (reason) {
-        msg = _(
+        msg = lazy._(
           "conversation.message.invitationDeclined.reason",
           invitee,
           reason
         );
       } else {
-        msg = _("conversation.message.invitationDeclined", invitee);
+        msg = lazy._("conversation.message.invitationDeclined", invitee);
       }
 
       this.writeMessage(this.name, msg, { system: true });
@@ -942,7 +953,7 @@ var XMPPConversationPrototype = {
       if (
         this._account.handleErrors(
           {
-            default: _("conversation.error.version.unknown"),
+            default: lazy._("conversation.error.version.unknown"),
           },
           this
         )(aStanza)
@@ -980,7 +991,9 @@ var XMPPConversationPrototype = {
         messageID += "WithOS";
       }
 
-      this.writeMessage(this.name, _(messageID, ...params), { system: true });
+      this.writeMessage(this.name, lazy._(messageID, ...params), {
+        system: true,
+      });
     });
   },
 
@@ -988,7 +1001,7 @@ var XMPPConversationPrototype = {
      messages have already been escaped, and will otherwise be filtered. */
   prepareForDisplaying(aMsg) {
     if (aMsg.outgoing && !aMsg.system) {
-      aMsg.displayMessage = TXTToHTML(aMsg.displayMessage);
+      aMsg.displayMessage = lazy.TXTToHTML(aMsg.displayMessage);
     }
     GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
   },
@@ -1007,16 +1020,16 @@ var XMPPConversationPrototype = {
         // Failed outgoing message.
         switch (error.condition) {
           case "remote-server-not-found":
-            aMsg = _("conversation.error.remoteServerNotFound");
+            aMsg = lazy._("conversation.error.remoteServerNotFound");
             break;
           case "service-unavailable":
-            aMsg = _(
+            aMsg = lazy._(
               "conversation.error.sendServiceUnavailable",
               this.shortName
             );
             break;
           default:
-            aMsg = _("conversation.error.unknownSendError");
+            aMsg = lazy._("conversation.error.unknownSendError");
             break;
         }
       } else if (
@@ -1027,7 +1040,7 @@ var XMPPConversationPrototype = {
       ) {
         // XEP-0045 (7.5): MUC private messages.
         // If we try to send to participant not in a room we are in.
-        aMsg = _(
+        aMsg = lazy._(
           "conversation.error.sendFailedAsRecipientNotInRoom",
           this._targetResource,
           aMsg
@@ -1039,13 +1052,13 @@ var XMPPConversationPrototype = {
       ) {
         // If we left a room and try to send to a participant in it or the
         // room is removed.
-        aMsg = _(
+        aMsg = lazy._(
           "conversation.error.sendFailedAsNotInRoom",
           this._account.normalize(from),
           aMsg
         );
       } else {
-        aMsg = _("conversation.error.notDelivered", aMsg);
+        aMsg = lazy._("conversation.error.notDelivered", aMsg);
       }
       flags.system = true;
       flags.error = true;
@@ -1106,7 +1119,7 @@ var XMPPAccountBuddyPrototype = {
           status.idleSince
         ) {
           let now = Math.floor(Date.now() / 1000);
-          let valuesAndUnits = DownloadUtils.convertTimeUnits(
+          let valuesAndUnits = lazy.DownloadUtils.convertTimeUnits(
             now - status.idleSince
           );
           if (!valuesAndUnits[2]) {
@@ -1117,7 +1130,9 @@ var XMPPAccountBuddyPrototype = {
         if (status.statusText) {
           statusString += " - " + status.statusText;
         }
-        let label = r ? _("tooltip.status", r) : _("tooltip.statusNoResource");
+        let label = r
+          ? lazy._("tooltip.status", r)
+          : lazy._("tooltip.statusNoResource");
         tooltipInfo.push(new TooltipInfo(label, statusString));
       }
     }
@@ -1125,7 +1140,7 @@ var XMPPAccountBuddyPrototype = {
     // The subscription value is interesting to display only in unusual cases.
     if (this.subscription != "both") {
       tooltipInfo.push(
-        new TooltipInfo(_("tooltip.subscription"), this.subscription)
+        new TooltipInfo(lazy._("tooltip.subscription"), this.subscription)
       );
     }
 
@@ -1481,25 +1496,25 @@ var XMPPAccountPrototype = {
   chatRoomFields: {
     room: {
       get label() {
-        return _("chatRoomField.room");
+        return lazy._("chatRoomField.room");
       },
       required: true,
     },
     server: {
       get label() {
-        return _("chatRoomField.server");
+        return lazy._("chatRoomField.server");
       },
       required: true,
     },
     nick: {
       get label() {
-        return _("chatRoomField.nick");
+        return lazy._("chatRoomField.nick");
       },
       required: true,
     },
     password: {
       get label() {
-        return _("chatRoomField.password");
+        return lazy._("chatRoomField.password");
       },
       isPassword: true,
     },
@@ -1825,7 +1840,7 @@ var XMPPAccountPrototype = {
       for (let field of kTooltipFields) {
         if (vCardInfo.hasOwnProperty(field)) {
           tooltipInfo.push(
-            new TooltipInfo(_("tooltip." + field), vCardInfo[field])
+            new TooltipInfo(lazy._("tooltip." + field), vCardInfo[field])
           );
         }
       }
@@ -2074,7 +2089,7 @@ var XMPPAccountPrototype = {
   onConnection() {
     // Request the roster. The account will be marked as connected when this is
     // complete.
-    this.reportConnecting(_("connection.downloadingRoster"));
+    this.reportConnecting(lazy._("connection.downloadingRoster"));
     let s = Stanza.iq(
       "get",
       null,
@@ -2531,7 +2546,7 @@ var XMPPAccountPrototype = {
         // Even if the message is in plain text, the prplIMessage
         // should contain a string that's correctly escaped for
         // insertion in an HTML document.
-        body = TXTToHTML(b.innerText);
+        body = lazy.TXTToHTML(b.innerText);
       }
     }
 
@@ -2572,7 +2587,7 @@ var XMPPAccountPrototype = {
         invitation.password,
         invitation.reason,
       ].filter(s => s);
-      let message = _(messageID, ...params);
+      let message = lazy._(messageID, ...params);
 
       this.addChatRequest(
         invitation.mucJid,
@@ -2825,15 +2840,15 @@ var XMPPAccountPrototype = {
     istream.setData(content, content.length);
 
     let fileName = resource._photoHash + "." + kExt[type];
-    let file = FileUtils.getFile("ProfD", [
+    let file = lazy.FileUtils.getFile("ProfD", [
       "icons",
       this.protocol.normalizedName,
       this.normalizedName,
       fileName,
     ]);
-    let ostream = FileUtils.openSafeFileOutputStream(file);
+    let ostream = lazy.FileUtils.openSafeFileOutputStream(file);
     return new Promise(resolve => {
-      NetUtil.asyncCopy(istream, ostream, rc => {
+      lazy.NetUtil.asyncCopy(istream, ostream, rc => {
         if (Components.isSuccessCode(rc)) {
           resolve(Services.io.newFileURI(file).spec);
         }
@@ -3274,36 +3289,41 @@ var XMPPAccountPrototype = {
     }
 
     this._cachingUserIcon = true;
-    let channel = NetUtil.newChannel({
+    let channel = lazy.NetUtil.newChannel({
       uri: userIcon,
       loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       securityFlags:
         Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_INHERITS_SEC_CONTEXT,
       contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE,
     });
-    NetUtil.asyncFetch(channel, (inputStream, resultCode) => {
+    lazy.NetUtil.asyncFetch(channel, (inputStream, resultCode) => {
       if (!Components.isSuccessCode(resultCode)) {
         return;
       }
       try {
         let type = channel.contentType;
-        let buffer = NetUtil.readInputStreamToString(
+        let buffer = lazy.NetUtil.readInputStreamToString(
           inputStream,
           inputStream.available()
         );
-        let readImage = imgTools.decodeImageFromBuffer(
+        let readImage = lazy.imgTools.decodeImageFromBuffer(
           buffer,
           buffer.length,
           type
         );
         let scaledImage;
         if (readImage.width <= 96 && readImage.height <= 96) {
-          scaledImage = imgTools.encodeImage(readImage, type);
+          scaledImage = lazy.imgTools.encodeImage(readImage, type);
         } else {
           if (type != "image/jpeg") {
             type = "image/png";
           }
-          scaledImage = imgTools.encodeScaledImage(readImage, type, 64, 64);
+          scaledImage = lazy.imgTools.encodeScaledImage(
+            readImage,
+            type,
+            64,
+            64
+          );
         }
 
         let bstream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(

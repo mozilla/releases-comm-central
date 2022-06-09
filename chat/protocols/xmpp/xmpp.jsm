@@ -14,7 +14,9 @@ var { XMPPAccountPrototype } = ChromeUtils.import(
   "resource:///modules/xmpp-base.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
@@ -47,7 +49,7 @@ XMPPProtocol.prototype = {
   usernameSplits: [
     {
       get label() {
-        return _("options.domain");
+        return lazy._("options.domain");
       },
       separator: "@",
       defaultValue: "jabber.org",
@@ -57,29 +59,29 @@ XMPPProtocol.prototype = {
   options: {
     resource: {
       get label() {
-        return _("options.resource");
+        return lazy._("options.resource");
       },
       default: "",
     },
     priority: {
       get label() {
-        return _("options.priority");
+        return lazy._("options.priority");
       },
       default: 0,
     },
     connection_security: {
       get label() {
-        return _("options.connectionSecurity");
+        return lazy._("options.connectionSecurity");
       },
       listValues: {
         get require_tls() {
-          return _("options.connectionSecurity.requireEncryption");
+          return lazy._("options.connectionSecurity.requireEncryption");
         },
         get opportunistic_tls() {
-          return _("options.connectionSecurity.opportunisticTLS");
+          return lazy._("options.connectionSecurity.opportunisticTLS");
         },
         get allow_unencrypted_plain_auth() {
-          return _("options.connectionSecurity.allowUnencryptedAuth");
+          return lazy._("options.connectionSecurity.allowUnencryptedAuth");
         },
         // "old_ssl" and "none" are also supported, but not exposed in the UI.
         // Any unknown value will fallback to the opportunistic_tls behavior.
@@ -88,13 +90,13 @@ XMPPProtocol.prototype = {
     },
     server: {
       get label() {
-        return _("options.connectServer");
+        return lazy._("options.connectServer");
       },
       default: "",
     },
     port: {
       get label() {
-        return _("options.connectPort");
+        return lazy._("options.connectPort");
       },
       default: 5222,
     },

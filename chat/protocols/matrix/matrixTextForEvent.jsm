@@ -9,12 +9,14 @@ var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
 );
 var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MatrixPowerLevels",
   "resource:///modules/matrixPowerLevels.jsm"
 );
@@ -28,7 +30,7 @@ ChromeUtils.defineModuleGetter(
  * @returns {string}
  */
 const keyVerificationRequest = (matrixEvent, { sender, content }) => {
-  return _("message.verification.request2", sender, content.to);
+  return lazy._("message.verification.request2", sender, content.to);
 };
 /**
  * Shared handler for room messages, since those come in the plain text and
@@ -38,7 +40,7 @@ const roomMessage = {
   pivot: "msgtype",
   handlers: {
     [MatrixSDK.MsgType.KeyVerificationRequest]: keyVerificationRequest,
-    "m.bad.encrypted": () => _("message.decryptionError"),
+    "m.bad.encrypted": () => lazy._("message.decryptionError"),
   },
 };
 
@@ -77,7 +79,7 @@ const MATRIX_EVENT_HANDLERS = {
     },
     handlers: {
       ban(matrixEvent, { sender, target, reason, withReasonKey }) {
-        return _(
+        return lazy._(
           "message.banned" + withReasonKey,
           sender,
           target.userId,
@@ -88,15 +90,15 @@ const MATRIX_EVENT_HANDLERS = {
         const thirdPartyInvite = content.third_party_invite;
         if (thirdPartyInvite) {
           if (thirdPartyInvite.display_name) {
-            return _(
+            return lazy._(
               "message.acceptedInviteFor",
               target.userId,
               thirdPartyInvite.display_name
             );
           }
-          return _("message.acceptedInvite", target.userId);
+          return lazy._("message.acceptedInvite", target.userId);
         }
-        return _("message.invited", sender, target.userId);
+        return lazy._("message.invited", sender, target.userId);
       },
       join(matrixEvent, { sender, content, prevContent, target }) {
         if (prevContent && prevContent.membership == "join") {
@@ -105,16 +107,20 @@ const MATRIX_EVENT_HANDLERS = {
             content.displayname &&
             prevContent.displayname != content.displayname
           ) {
-            return _(
+            return lazy._(
               "message.displayName.changed",
               sender,
               prevContent.displayname,
               content.displayname
             );
           } else if (!prevContent.displayname && content.displayname) {
-            return _("message.displayName.set", sender, content.displayname);
+            return lazy._(
+              "message.displayName.set",
+              sender,
+              content.displayname
+            );
           } else if (prevContent.displayname && !content.displayname) {
-            return _(
+            return lazy._(
               "message.displayName.remove",
               sender,
               prevContent.displayname
@@ -122,7 +128,7 @@ const MATRIX_EVENT_HANDLERS = {
           }
           return null;
         }
-        return _("message.joined", target.userId);
+        return lazy._("message.joined", target.userId);
       },
       leave(
         matrixEvent,
@@ -132,20 +138,20 @@ const MATRIX_EVENT_HANDLERS = {
         // So we need to look at each transition to what happened to the user.
         if (matrixEvent.getSender() === target.userId) {
           if (prevContent.membership === "invite") {
-            return _("message.rejectedInvite", target.userId);
+            return lazy._("message.rejectedInvite", target.userId);
           }
-          return _("message.left", target.userId);
+          return lazy._("message.left", target.userId);
         } else if (prevContent.membership === "ban") {
-          return _("message.unbanned", sender, target.userId);
+          return lazy._("message.unbanned", sender, target.userId);
         } else if (prevContent.membership === "join") {
-          return _(
+          return lazy._(
             "message.kicked" + withReasonKey,
             sender,
             target.userId,
             reason
           );
         } else if (prevContent.membership === "invite") {
-          return _(
+          return lazy._(
             "message.withdrewInvite" + withReasonKey,
             sender,
             target.userId,
@@ -163,8 +169,9 @@ const MATRIX_EVENT_HANDLERS = {
       if (!prevContent?.users) {
         return null;
       }
-      const userDefault = content.users_default || MatrixPowerLevels.user;
-      const prevDefault = prevContent.users_default || MatrixPowerLevels.user;
+      const userDefault = content.users_default || lazy.MatrixPowerLevels.user;
+      const prevDefault =
+        prevContent.users_default || lazy.MatrixPowerLevels.user;
       // Construct set of userIds.
       let users = new Set(
         Object.keys(content.users).concat(Object.keys(prevContent.users))
@@ -177,11 +184,11 @@ const MATRIX_EVENT_HANDLERS = {
             // Handling the case where there are multiple changes.
             // Example : "@Mr.B:matrix.org changed the power level of
             // @Mr.B:matrix.org from Default (0) to Moderator (50)."
-            return _(
+            return lazy._(
               "message.powerLevel.fromTo",
               userId,
-              MatrixPowerLevels.toText(prevPowerLevel, prevDefault),
-              MatrixPowerLevels.toText(currentPowerLevel, userDefault)
+              lazy.MatrixPowerLevels.toText(prevPowerLevel, prevDefault),
+              lazy.MatrixPowerLevels.toText(currentPowerLevel, userDefault)
             );
           }
           return null;
@@ -192,26 +199,26 @@ const MATRIX_EVENT_HANDLERS = {
       if (!changes.length) {
         return null;
       }
-      return _("message.powerLevel.changed", sender, changes.join(", "));
+      return lazy._("message.powerLevel.changed", sender, changes.join(", "));
     },
   },
   [MatrixSDK.EventType.RoomName]: {
     handler(matrixEvent, { sender, content }) {
       let roomName = content.name;
       if (!roomName) {
-        return _("message.roomName.remove", sender);
+        return lazy._("message.roomName.remove", sender);
       }
-      return _("message.roomName.changed", sender, roomName);
+      return lazy._("message.roomName.changed", sender, roomName);
     },
   },
   [MatrixSDK.EventType.RoomGuestAccess]: {
     pivot: "guest_access",
     handlers: {
       [MatrixSDK.GuestAccess.Forbidden](matrixEvent, { sender }) {
-        return _("message.guest.prevented", sender);
+        return lazy._("message.guest.prevented", sender);
       },
       [MatrixSDK.GuestAccess.CanJoin](matrixEvent, { sender }) {
-        return _("message.guest.allowed", sender);
+        return lazy._("message.guest.allowed", sender);
       },
     },
   },
@@ -219,16 +226,16 @@ const MATRIX_EVENT_HANDLERS = {
     pivot: "history_visibility",
     handlers: {
       [MatrixSDK.HistoryVisibility.WorldReadable](matrixEvent, { sender }) {
-        return _("message.history.anyone", sender);
+        return lazy._("message.history.anyone", sender);
       },
       [MatrixSDK.HistoryVisibility.Shared](matrixEvent, { sender }) {
-        return _("message.history.shared", sender);
+        return lazy._("message.history.shared", sender);
       },
       [MatrixSDK.HistoryVisibility.Invited](matrixEvent, { sender }) {
-        return _("message.history.invited", sender);
+        return lazy._("message.history.invited", sender);
       },
       [MatrixSDK.HistoryVisibility.Joined](matrixEvent, { sender }) {
-        return _("message.history.joined", sender);
+        return lazy._("message.history.joined", sender);
       },
     },
   },
@@ -236,7 +243,7 @@ const MATRIX_EVENT_HANDLERS = {
     handler(matrixEvent, { sender, content }) {
       const prevContent = matrixEvent.getPrevContent();
       if (content.alias != prevContent.alias) {
-        return _(
+        return lazy._(
           "message.alias.main",
           sender,
           prevContent.alias,
@@ -252,16 +259,16 @@ const MATRIX_EVENT_HANDLERS = {
         .filter(alias => !aliases.includes(alias))
         .join(", ");
       if (addedAliases && removedAliases) {
-        return _(
+        return lazy._(
           "message.alias.removedAndAdded",
           sender,
           removedAliases,
           addedAliases
         );
       } else if (removedAliases) {
-        return _("message.alias.removed", sender, removedAliases);
+        return lazy._("message.alias.removed", sender, removedAliases);
       } else if (addedAliases) {
-        return _("message.alias.added", sender, addedAliases);
+        return lazy._("message.alias.added", sender, addedAliases);
       }
       // No discernible changes to aliases
       return null;
@@ -275,17 +282,17 @@ const MATRIX_EVENT_HANDLERS = {
   },
   [MatrixSDK.EventType.KeyVerificationCancel]: {
     handler(matrixEvent, { sender, content }) {
-      return _("message.verification.cancel2", sender, content.reason);
+      return lazy._("message.verification.cancel2", sender, content.reason);
     },
   },
   [MatrixSDK.EventType.KeyVerificationDone]: {
     handler(matrixEvent, { sender, content }) {
-      return _("message.verification.done");
+      return lazy._("message.verification.done");
     },
   },
   [MatrixSDK.EventType.RoomEncryption]: {
     handler(matrixEvent, { sender, content }) {
-      return _("message.encryptionStart");
+      return lazy._("message.encryptionStart");
     },
   },
 

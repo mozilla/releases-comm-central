@@ -11,18 +11,20 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+const lazy = {};
+
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "l10n",
   () => new Localization(["messenger/otr/otrUI.ftl"], true)
 );
 
 function _str(id) {
-  return l10n.formatValueSync(id);
+  return lazy.l10n.formatValueSync(id);
 }
 
 function _strArgs(id, args) {
-  return l10n.formatValueSync(id, args);
+  return lazy.l10n.formatValueSync(id, args);
 }
 
 const OTR_ADD_FINGER_DIALOG_URL =
@@ -487,9 +489,9 @@ var OTRUI = {
         let id = "state-" + trust.class;
         let msg;
         if (OTR.trust(context) == OTR.trustState.TRUST_NOT_PRIVATE) {
-          msg = l10n.formatValueSync(id);
+          msg = lazy.l10n.formatValueSync(id);
         } else {
-          msg = l10n.formatValueSync(id, { name: context.username });
+          msg = lazy.l10n.formatValueSync(id, { name: context.username });
         }
         uiConv.systemMessage(msg, false, true);
       }

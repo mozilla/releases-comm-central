@@ -11,7 +11,9 @@ var { GenericAccountPrototype, GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/yahoo.properties")
 );
 
@@ -29,7 +31,7 @@ YahooAccount.prototype = {
     );
     this.reportDisconnecting(
       Ci.prplIAccount.ERROR_OTHER_ERROR,
-      _("yahoo.disabled")
+      lazy._("yahoo.disabled")
     );
     this.reportDisconnected();
   },

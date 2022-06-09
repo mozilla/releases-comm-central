@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const EXPORTED_SYMBOLS = [
-  "_",
   "ctcpFormatToText",
   "ctcpFormatToHTML",
   "conversationErrorMessage",
@@ -11,15 +10,15 @@ const EXPORTED_SYMBOLS = [
   "kListRefreshInterval",
 ];
 
-var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 
-XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
@@ -101,7 +100,7 @@ function closeStack(aStack) {
 function ctcpFormatToHTML(aString) {
   let next,
     stack = [],
-    input = TXTToHTML(aString),
+    input = lazy.TXTToHTML(aString),
     output = "",
     newOutput,
     length;
@@ -244,7 +243,7 @@ function conversationErrorMessage(
   let conv = aAccount.getConversation(aMessage.params[1]);
   conv.writeMessage(
     aMessage.origin,
-    _(aError, aMessage.params[1], aMessage.params[2] || undefined),
+    lazy._(aError, aMessage.params[1], aMessage.params[2] || undefined),
     { error: true, system: true }
   );
   delete conv._pendingMessage;

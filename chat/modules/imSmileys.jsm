@@ -11,12 +11,14 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "gTextDecoder", () => {
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "gTextDecoder", () => {
   return new TextDecoder();
 });
 
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "NetUtil",
   "resource://gre/modules/NetUtil.jsm"
 );
@@ -24,7 +26,7 @@ ChromeUtils.defineModuleGetter(
 var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
 var kThemeFile = "theme.json";
 
-Object.defineProperty(this, "gTheme", {
+Object.defineProperty(lazy, "gTheme", {
   configurable: true,
   enumerable: true,
 
@@ -45,7 +47,7 @@ var gPrefObserver = {
       throw new Error("bad notification");
     }
 
-    gTheme = getTheme();
+    lazy.gTheme = getTheme();
   },
 };
 
@@ -80,8 +82,8 @@ function getTheme(aName) {
       Ci.nsIContentPolicy.TYPE_IMAGE
     );
     let stream = channel.open();
-    let bytes = NetUtil.readInputStream(stream, stream.available());
-    theme.json = JSON.parse(gTextDecoder.decode(bytes));
+    let bytes = lazy.NetUtil.readInputStream(stream, stream.available());
+    theme.json = JSON.parse(lazy.gTextDecoder.decode(bytes));
     stream.close();
     theme.iconsHash = {};
     for (let smiley of theme.json.smileys) {
@@ -96,25 +98,27 @@ function getTheme(aName) {
 }
 
 function getRegexp() {
-  if (gTheme.regExp) {
-    gTheme.regExp.lastIndex = 0;
-    return gTheme.regExp;
+  if (lazy.gTheme.regExp) {
+    lazy.gTheme.regExp.lastIndex = 0;
+    return lazy.gTheme.regExp;
   }
 
   // return null if smileys are disabled
-  if (!gTheme.iconsHash) {
+  if (!lazy.gTheme.iconsHash) {
     return null;
   }
 
-  if ("" in gTheme.iconsHash) {
+  if ("" in lazy.gTheme.iconsHash) {
     Cu.reportError(
-      "Emoticon " + gTheme.iconsHash[""].filename + " matches the empty string!"
+      "Emoticon " +
+        lazy.gTheme.iconsHash[""].filename +
+        " matches the empty string!"
     );
-    delete gTheme.iconsHash[""];
+    delete lazy.gTheme.iconsHash[""];
   }
 
   let emoticonList = [];
-  for (let emoticon in gTheme.iconsHash) {
+  for (let emoticon in lazy.gTheme.iconsHash) {
     emoticonList.push(emoticon);
   }
 
@@ -127,12 +131,12 @@ function getRegexp() {
   if (!emoticonList.length) {
     // the theme contains no valid emoticon, make sure we will return
     // early next time
-    gTheme.iconsHash = null;
+    lazy.gTheme.iconsHash = null;
     return null;
   }
 
-  gTheme.regExp = new RegExp(emoticonList.join("|"), "g");
-  return gTheme.regExp;
+  lazy.gTheme.regExp = new RegExp(emoticonList.join("|"), "g");
+  return lazy.gTheme.regExp;
 }
 
 function smileTextNode(aNode) {
@@ -172,7 +176,7 @@ function smileTextNode(aNode) {
     let smile = smileNode.data;
     let elt = aNode.ownerDocument.createElement("span");
     elt.appendChild(
-      aNode.ownerDocument.createTextNode(gTheme.iconsHash[smile].glyph)
+      aNode.ownerDocument.createTextNode(lazy.gTheme.iconsHash[smile].glyph)
     );
     // Add the title attribute (to show the original text in a tooltip) in case
     // the replacement was done incorrectly.

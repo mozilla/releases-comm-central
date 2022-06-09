@@ -6,8 +6,10 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "Services",
   "resource://gre/modules/Services.jsm"
 );
@@ -98,27 +100,27 @@ function timeZone(aDate) {
 }
 
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "dateTimeFormatter",
   () =>
-    new Services.intl.DateTimeFormat(undefined, {
+    new lazy.Services.intl.DateTimeFormat(undefined, {
       dateStyle: "full",
       timeStyle: "long",
     })
 );
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "dateFormatter",
   () =>
-    new Services.intl.DateTimeFormat(undefined, {
+    new lazy.Services.intl.DateTimeFormat(undefined, {
       dateStyle: "full",
     })
 );
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "timeFormatter",
   () =>
-    new Services.intl.DateTimeFormat(undefined, {
+    new lazy.Services.intl.DateTimeFormat(undefined, {
       timeStyle: "long",
     })
 );
@@ -128,7 +130,7 @@ const formatFunctions = {
   A: aDate => weekday(aDate, "long"),
   b: aDate => month(aDate, "short"),
   B: aDate => month(aDate, "long"),
-  c: aDate => dateTimeFormatter.format(aDate),
+  c: aDate => lazy.dateTimeFormatter.format(aDate),
   C: aDate => String(Math.trunc(aDate.getFullYear() / 100)),
   d: aDate => String(aDate.getDate()),
   D: aDate => ToLocaleFormat("%m/%d/%y", aDate),
@@ -158,8 +160,8 @@ const formatFunctions = {
   V: aDate => String(weekNumberISO(aDate)),
   w: aDate => String(aDate.getDay()),
   W: aDate => String(weekNumber(aDate, 1)),
-  x: aDate => dateFormatter.format(aDate),
-  X: aDate => timeFormatter.format(aDate),
+  x: aDate => lazy.dateFormatter.format(aDate),
+  X: aDate => lazy.timeFormatter.format(aDate),
   y: aDate => String(aDate.getFullYear() % 100),
   Y: aDate => String(aDate.getFullYear()),
   z: aDate => timeZoneOffset(aDate),

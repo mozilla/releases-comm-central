@@ -8,7 +8,9 @@ var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
@@ -28,17 +30,17 @@ var MatrixPowerLevels = {
    * @returns {string} Representation of the power level including the raw level.
    */
   toText(powerLevel, defaultLevel = MatrixPowerLevels.user) {
-    let levelName = _("powerLevel.custom");
+    let levelName = lazy._("powerLevel.custom");
     if (powerLevel == MatrixPowerLevels.admin) {
-      levelName = _("powerLevel.admin");
+      levelName = lazy._("powerLevel.admin");
     } else if (powerLevel == MatrixPowerLevels.moderator) {
-      levelName = _("powerLevel.moderator");
+      levelName = lazy._("powerLevel.moderator");
     } else if (powerLevel < defaultLevel) {
-      levelName = _("powerLevel.restricted");
+      levelName = lazy._("powerLevel.restricted");
     } else if (powerLevel == defaultLevel) {
-      levelName = _("powerLevel.default");
+      levelName = lazy._("powerLevel.default");
     }
-    return _("powerLevel.detailed", levelName, powerLevel);
+    return lazy._("powerLevel.detailed", levelName, powerLevel);
   },
   /**
    * @param {object} powerLevels - m.room.power_levels event contents.

@@ -11,7 +11,9 @@ var { GenericAccountPrototype, GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/twitter.properties")
 );
 
@@ -28,7 +30,7 @@ Account.prototype = {
     );
     this.reportDisconnecting(
       Ci.prplIAccount.ERROR_OTHER_ERROR,
-      _("twitter.disabled")
+      lazy._("twitter.disabled")
     );
     this.reportDisconnected();
   },
@@ -47,7 +49,7 @@ TwitterProtocol.prototype = {
     return "twitter";
   },
   get name() {
-    return _("twitter.protocolName");
+    return lazy._("twitter.protocolName");
   },
   get iconBaseURI() {
     return "chrome://prpl-twitter/skin/";

@@ -42,8 +42,8 @@ function scriptError(aModule, aLevel, aMessage, aOriginalError) {
   let logKeys = ["level"].concat(aModule.split("."));
   for (; logKeys.length > 0; logKeys.pop()) {
     let logKey = logKeys.join(".");
-    if (logKey in gLogLevels) {
-      logLevel = gLogLevels[logKey];
+    if (logKey in lazy.gLogLevels) {
+      logLevel = lazy.gLogLevels[logKey];
       break;
     }
   }
@@ -109,7 +109,8 @@ function initLogModule(aModule, aObj = {}) {
   aObj.ERROR = scriptError.bind(aObj, aModule, Ci.imIDebugMessage.LEVEL_ERROR);
   return aObj;
 }
-XPCOMUtils.defineLazyGetter(this, "gLogLevels", function() {
+const lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function() {
   // This object functions both as an obsever as well as a dict keeping the
   // log levels with prefs; the log levels all start with "level" (i.e. "level"
   // for the global level, "level.irc" for the IRC module).  The dual-purpose
@@ -119,9 +120,9 @@ XPCOMUtils.defineLazyGetter(this, "gLogLevels", function() {
     observe(aSubject, aTopic, aData) {
       let module = "level" + aData.substr(kLogLevelPref.length);
       if (Services.prefs.getPrefType(aData) == Services.prefs.PREF_INT) {
-        gLogLevels[module] = Services.prefs.getIntPref(aData);
+        lazy.gLogLevels[module] = Services.prefs.getIntPref(aData);
       } else {
-        delete gLogLevels[module];
+        delete lazy.gLogLevels[module];
       }
     },
     QueryInterface: ChromeUtils.generateQI([

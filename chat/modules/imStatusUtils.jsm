@@ -8,7 +8,9 @@ var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/status.properties")
 );
 
@@ -36,12 +38,12 @@ var Status = {
     }
 
     if (!(aStatusType in this._labels)) {
-      this._labels[aStatusType] = _(aStatusType + "StatusType");
+      this._labels[aStatusType] = lazy._(aStatusType + "StatusType");
     }
 
     let label = this._labels[aStatusType];
     if (aStatusText) {
-      label = _("statusWithStatusMessage", label, aStatusText);
+      label = lazy._("statusWithStatusMessage", label, aStatusText);
     }
 
     return label;

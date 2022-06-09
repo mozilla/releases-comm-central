@@ -14,18 +14,20 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+const lazy = {};
+
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "l10n",
   () => new Localization(["messenger/otr/otr.ftl"], true)
 );
 
 function _str(id) {
-  return l10n.formatValueSync(id);
+  return lazy.l10n.formatValueSync(id);
 }
 
 function _strArgs(id, args) {
-  return l10n.formatValueSync(id, args);
+  return lazy.l10n.formatValueSync(id, args);
 }
 
 // some helpers

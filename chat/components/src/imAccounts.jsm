@@ -16,8 +16,9 @@ var {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
@@ -34,16 +35,16 @@ var kPrefAccountAutoJoin = "autoJoin";
 var kPrefAccountAlias = "alias";
 var kPrefAccountFirstConnectionState = "firstConnectionState";
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/accounts.properties")
 );
 
-XPCOMUtils.defineLazyGetter(this, "_maxDebugMessages", () =>
+XPCOMUtils.defineLazyGetter(lazy, "_maxDebugMessages", () =>
   Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
 );
 
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "HttpProtocolHandler",
   "@mozilla.org/network/protocol;1?name=http",
   "nsIHttpProtocolHandler"
@@ -364,7 +365,10 @@ imAccount.prototype = {
     if (!this._debugMessages) {
       this._debugMessages = [];
     }
-    if (_maxDebugMessages && this._debugMessages.length >= _maxDebugMessages) {
+    if (
+      lazy._maxDebugMessages &&
+      this._debugMessages.length >= lazy._maxDebugMessages
+    ) {
       this._debugMessages.shift();
       ++this._omittedDebugMessages;
     }
@@ -406,7 +410,7 @@ imAccount.prototype = {
       let header =
         `${appInfo.name} ${appInfo.version} (${appInfo.appBuildID}), ` +
         `Gecko ${appInfo.platformVersion} (${appInfo.platformBuildID}) ` +
-        `on ${HttpProtocolHandler.oscpu}`;
+        `on ${lazy.HttpProtocolHandler.oscpu}`;
       messages.unshift(this._createDebugMessage(header));
     }
 
@@ -811,10 +815,10 @@ imAccount.prototype = {
         if (
           !prompts.promptPassword(
             null,
-            _("passwordPromptTitle", this.name),
-            _("passwordPromptText", this.name),
+            lazy._("passwordPromptTitle", this.name),
+            lazy._("passwordPromptText", this.name),
             password,
-            _("passwordPromptSaveCheckbox"),
+            lazy._("passwordPromptSaveCheckbox"),
             shouldSave
           )
         ) {
@@ -980,7 +984,7 @@ AccountsService.prototype = {
     this._accounts = [];
     this._accountsById = {};
     gAccountsService = this;
-    let accountIdArray = MailServices.accounts.accounts
+    let accountIdArray = lazy.MailServices.accounts.accounts
       .map(account => account.incomingServer.getCharValue("imAccount"))
       .filter(accountKey => accountKey?.startsWith(kAccountKeyPrefix));
     for (let account of accountIdArray) {
@@ -1005,7 +1009,7 @@ AccountsService.prototype = {
       return;
     }
 
-    const imAccounts = MailServices.accounts.accounts
+    const imAccounts = lazy.MailServices.accounts.accounts
       .map(account => account.incomingServer.getCharValue("imAccount"))
       .filter(k => k?.startsWith(kAccountKeyPrefix))
       .map(k =>

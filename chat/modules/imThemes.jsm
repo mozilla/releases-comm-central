@@ -23,8 +23,10 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm"
 );
@@ -44,16 +46,16 @@ var DEFAULT_THEMES = ["bubbles", "dark", "mail", "papersheets", "simple"];
 
 var kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
-XPCOMUtils.defineLazyGetter(this, "gPrefBranch", () =>
+XPCOMUtils.defineLazyGetter(lazy, "gPrefBranch", () =>
   Services.prefs.getBranch(kMessagesStylePrefBranch)
 );
 
-XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
-XPCOMUtils.defineLazyGetter(this, "gTimeFormatter", () => {
+XPCOMUtils.defineLazyGetter(lazy, "gTimeFormatter", () => {
   return new Services.intl.DateTimeFormat(undefined, {
     hour: "2-digit",
     minute: "2-digit",
@@ -62,7 +64,7 @@ XPCOMUtils.defineLazyGetter(this, "gTimeFormatter", () => {
 });
 
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "ToLocaleFormat",
   "resource:///modules/ToLocaleFormat.jsm"
 );
@@ -269,16 +271,16 @@ function getThemeByName(aName) {
     baseURI,
     metadata,
     html: new HTMLTheme(baseURI),
-    combineConsecutive: gPrefBranch.getBoolPref(kCombineConsecutivePref),
-    combineConsecutiveInterval: gPrefBranch.getIntPref(
+    combineConsecutive: lazy.gPrefBranch.getBoolPref(kCombineConsecutivePref),
+    combineConsecutiveInterval: lazy.gPrefBranch.getIntPref(
       kCombineConsecutiveIntervalPref
     ),
   };
 }
 
 function getCurrentTheme() {
-  let name = gPrefBranch.getCharPref(kThemePref);
-  let variant = gPrefBranch.getCharPref(kVariantPref);
+  let name = lazy.gPrefBranch.getCharPref(kThemePref);
+  let variant = lazy.gPrefBranch.getCharPref(kVariantPref);
   if (
     gCurrentTheme &&
     gCurrentTheme.name == name &&
@@ -402,10 +404,11 @@ function getStatusIconFromBuddy(aBuddy) {
 }
 
 var footerReplacements = {
-  chatName: aConv => TXTToHTML(aConv.title),
-  sourceName: aConv => TXTToHTML(aConv.account.alias || aConv.account.name),
-  destinationName: aConv => TXTToHTML(aConv.name),
-  destinationDisplayName: aConv => TXTToHTML(aConv.title),
+  chatName: aConv => lazy.TXTToHTML(aConv.title),
+  sourceName: aConv =>
+    lazy.TXTToHTML(aConv.account.alias || aConv.account.name),
+  destinationName: aConv => lazy.TXTToHTML(aConv.name),
+  destinationDisplayName: aConv => lazy.TXTToHTML(aConv.title),
   incomingIconPath(aConv) {
     let buddy;
     return (
@@ -417,9 +420,9 @@ var footerReplacements = {
   timeOpened(aConv, aFormat) {
     let date = new Date(aConv.startDate / 1000);
     if (aFormat) {
-      return ToLocaleFormat(aFormat, date);
+      return lazy.ToLocaleFormat(aFormat, date);
     }
-    return gTimeFormatter.format(date);
+    return lazy.gTimeFormatter.format(date);
   },
 };
 
@@ -437,13 +440,13 @@ var statusMessageReplacements = {
   time(aMsg, aFormat) {
     let date = new Date(aMsg.time * 1000);
     if (aFormat) {
-      return ToLocaleFormat(aFormat, date);
+      return lazy.ToLocaleFormat(aFormat, date);
     }
-    return gTimeFormatter.format(date);
+    return lazy.gTimeFormatter.format(date);
   },
   timestamp: aMsg => aMsg.time,
   shortTime(aMsg) {
-    return gTimeFormatter.format(new Date(aMsg.time * 1000));
+    return lazy.gTimeFormatter.format(new Date(aMsg.time * 1000));
   },
   messageClasses(aMsg) {
     let msgClass = [];
@@ -493,7 +496,7 @@ var statusMessageReplacements = {
 
 function formatSender(aName, isEncrypted = false) {
   let otr = isEncrypted ? " message-encrypted" : "";
-  return `<span class="ib-sender${otr}">${TXTToHTML(aName)}</span>`;
+  return `<span class="ib-sender${otr}">${lazy.TXTToHTML(aName)}</span>`;
 }
 var messageReplacements = {
   userIconPath(aMsg) {
@@ -877,7 +880,7 @@ function initHTMLDocument(aConv, aTheme, aDoc) {
     scriptTag.src = "inline.js";
     aDoc.body.appendChild(scriptTag);
   }
-  aDoc.defaultView.convertTimeUnits = DownloadUtils.convertTimeUnits;
+  aDoc.defaultView.convertTimeUnits = lazy.DownloadUtils.convertTimeUnits;
 }
 
 /* Selection stuff */

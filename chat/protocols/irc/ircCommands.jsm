@@ -6,8 +6,14 @@
 // implementing the commands field before we register them.
 const EXPORTED_SYMBOLS = ["commands"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { _ } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+const lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
+);
 
 // Shortcut to get the JavaScript conversation object.
 function getConv(aConv) {
@@ -144,14 +150,14 @@ var commands = [
   {
     name: "action",
     get helpString() {
-      return _("command.action", "action");
+      return lazy._("command.action", "action");
     },
     run: actionCommand,
   },
   {
     name: "ban",
     get helpString() {
-      return _("command.ban", "ban");
+      return lazy._("command.ban", "ban");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "b", true),
@@ -159,7 +165,7 @@ var commands = [
   {
     name: "ctcp",
     get helpString() {
-      return _("command.ctcp", "ctcp");
+      return lazy._("command.ctcp", "ctcp");
     },
     run(aMsg, aConv) {
       let separator = aMsg.indexOf(" ");
@@ -177,14 +183,14 @@ var commands = [
   {
     name: "chanserv",
     get helpString() {
-      return _("command.chanserv", "chanserv");
+      return lazy._("command.chanserv", "chanserv");
     },
     run: (aMsg, aConv) => privateMessage(aConv, aMsg, "ChanServ"),
   },
   {
     name: "deop",
     get helpString() {
-      return _("command.deop", "deop");
+      return lazy._("command.deop", "deop");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "o", false),
@@ -192,7 +198,7 @@ var commands = [
   {
     name: "devoice",
     get helpString() {
-      return _("command.devoice", "devoice");
+      return lazy._("command.devoice", "devoice");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "v", false),
@@ -200,7 +206,7 @@ var commands = [
   {
     name: "invite",
     get helpString() {
-      return _("command.invite2", "invite");
+      return lazy._("command.invite2", "invite");
     },
     run(aMsg, aConv) {
       let params = splitInput(aMsg);
@@ -238,7 +244,7 @@ var commands = [
   {
     name: "join",
     get helpString() {
-      return _("command.join", "join");
+      return lazy._("command.join", "join");
     },
     run(aMsg, aConv, aReturnedConv) {
       let params = aMsg.trim().split(/,\s*/);
@@ -273,7 +279,7 @@ var commands = [
   {
     name: "kick",
     get helpString() {
-      return _("command.kick", "kick");
+      return lazy._("command.kick", "kick");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: kickCommand,
@@ -281,7 +287,7 @@ var commands = [
   {
     name: "list",
     get helpString() {
-      return _("command.list", "list");
+      return lazy._("command.list", "list");
     },
     run(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
@@ -331,14 +337,14 @@ var commands = [
   {
     name: "me",
     get helpString() {
-      return _("command.action", "me");
+      return lazy._("command.action", "me");
     },
     run: actionCommand,
   },
   {
     name: "memoserv",
     get helpString() {
-      return _("command.memoserv", "memoserv");
+      return lazy._("command.memoserv", "memoserv");
     },
     run: (aMsg, aConv) => privateMessage(aConv, aMsg, "MemoServ"),
   },
@@ -346,9 +352,9 @@ var commands = [
     name: "mode",
     get helpString() {
       return (
-        _("command.modeUser2", "mode") +
+        lazy._("command.modeUser2", "mode") +
         "\n" +
-        _("command.modeChannel2", "mode")
+        lazy._("command.modeChannel2", "mode")
       );
     },
     run(aMsg, aConv) {
@@ -377,14 +383,14 @@ var commands = [
   {
     name: "msg",
     get helpString() {
-      return _("command.msg", "msg");
+      return lazy._("command.msg", "msg");
     },
     run: messageCommand,
   },
   {
     name: "nick",
     get helpString() {
-      return _("command.nick", "nick");
+      return lazy._("command.nick", "nick");
     },
     run(aMsg, aConv) {
       let newNick = aMsg.trim();
@@ -405,14 +411,14 @@ var commands = [
   {
     name: "nickserv",
     get helpString() {
-      return _("command.nickserv", "nickserv");
+      return lazy._("command.nickserv", "nickserv");
     },
     run: (aMsg, aConv) => privateMessage(aConv, aMsg, "NickServ"),
   },
   {
     name: "notice",
     get helpString() {
-      return _("command.notice", "notice");
+      return lazy._("command.notice", "notice");
     },
     run: (aMsg, aConv, aReturnedConv) =>
       messageCommand(aMsg, aConv, aReturnedConv, true),
@@ -420,7 +426,7 @@ var commands = [
   {
     name: "op",
     get helpString() {
-      return _("command.op", "op");
+      return lazy._("command.op", "op");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "o", true),
@@ -428,14 +434,14 @@ var commands = [
   {
     name: "operserv",
     get helpString() {
-      return _("command.operserv", "operserv");
+      return lazy._("command.operserv", "operserv");
     },
     run: (aMsg, aConv) => privateMessage(aConv, aMsg, "OperServ"),
   },
   {
     name: "part",
     get helpString() {
-      return _("command.part", "part");
+      return lazy._("command.part", "part");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -446,7 +452,7 @@ var commands = [
   {
     name: "ping",
     get helpString() {
-      return _("command.ping", "ping");
+      return lazy._("command.ping", "ping");
     },
     run(aMsg, aConv) {
       // Send a ping to the entered nick using the current time (in
@@ -464,14 +470,14 @@ var commands = [
   {
     name: "query",
     get helpString() {
-      return _("command.msg", "query");
+      return lazy._("command.msg", "query");
     },
     run: messageCommand,
   },
   {
     name: "quit",
     get helpString() {
-      return _("command.quit", "quit");
+      return lazy._("command.quit", "quit");
     },
     run(aMsg, aConv) {
       let account = getAccount(aConv);
@@ -486,7 +492,7 @@ var commands = [
   {
     name: "quote",
     get helpString() {
-      return _("command.quote", "quote");
+      return lazy._("command.quote", "quote");
     },
     run(aMsg, aConv) {
       if (!aMsg.length) {
@@ -500,7 +506,7 @@ var commands = [
   {
     name: "remove",
     get helpString() {
-      return _("command.kick", "remove");
+      return lazy._("command.kick", "remove");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: kickCommand,
@@ -508,7 +514,7 @@ var commands = [
   {
     name: "time",
     get helpString() {
-      return _("command.time", "time");
+      return lazy._("command.time", "time");
     },
     run(aMsg, aConv) {
       // Send a time command to the entered nick using the current time (in
@@ -526,7 +532,7 @@ var commands = [
   {
     name: "topic",
     get helpString() {
-      return _("command.topic", "topic");
+      return lazy._("command.topic", "topic");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -537,7 +543,7 @@ var commands = [
   {
     name: "umode",
     get helpString() {
-      return _("command.umode", "umode");
+      return lazy._("command.umode", "umode");
     },
     run(aMsg, aConv) {
       let params = aMsg ? splitInput(aMsg) : [];
@@ -548,7 +554,7 @@ var commands = [
   {
     name: "version",
     get helpString() {
-      return _("command.version", "version");
+      return lazy._("command.version", "version");
     },
     run(aMsg, aConv) {
       if (!aMsg || !aMsg.trim().length) {
@@ -561,7 +567,7 @@ var commands = [
   {
     name: "voice",
     get helpString() {
-      return _("command.voice", "voice");
+      return lazy._("command.voice", "voice");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "v", true),
@@ -569,7 +575,7 @@ var commands = [
   {
     name: "whois",
     get helpString() {
-      return _("command.whois2", "whois");
+      return lazy._("command.whois2", "whois");
     },
     run(aMsg, aConv) {
       // Note that this will automatically run whowas if the nick is offline.

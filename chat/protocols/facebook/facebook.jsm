@@ -11,7 +11,9 @@ var { GenericAccountPrototype, GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/facebook.properties")
 );
 
@@ -28,7 +30,7 @@ FacebookAccount.prototype = {
     );
     this.reportDisconnecting(
       Ci.prplIAccount.ERROR_OTHER_ERROR,
-      _("facebook.disabled")
+      lazy._("facebook.disabled")
     );
     this.reportDisconnected();
   },
@@ -45,7 +47,7 @@ FacebookProtocol.prototype = {
     return "facebook";
   },
   get name() {
-    return _("facebook.chat.name");
+    return lazy._("facebook.chat.name");
   },
   get iconBaseURI() {
     return "chrome://prpl-facebook/skin/";

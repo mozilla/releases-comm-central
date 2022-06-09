@@ -28,11 +28,13 @@ const { ClassInfo } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
-XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
@@ -1181,16 +1183,16 @@ var GenericConvChatPrototype = {
     let message;
     if (aTopicSetter) {
       if (aTopic) {
-        message = _("topicChanged", aTopicSetter, TXTToHTML(aTopic));
+        message = lazy._("topicChanged", aTopicSetter, lazy.TXTToHTML(aTopic));
       } else {
-        message = _("topicCleared", aTopicSetter);
+        message = lazy._("topicCleared", aTopicSetter);
       }
     } else {
       aTopicSetter = null;
       if (aTopic) {
-        message = _("topicSet", this.name, TXTToHTML(aTopic));
+        message = lazy._("topicSet", this.name, lazy.TXTToHTML(aTopic));
       } else {
-        message = _("topicNotSet", this.name);
+        message = lazy._("topicNotSet", this.name);
       }
     }
     this.writeMessage(aTopicSetter, message, { system: true });
@@ -1245,7 +1247,7 @@ var GenericConvChatPrototype = {
     if (isOwnNick) {
       // If this is the user's nick, change it.
       this.nick = aNewNick;
-      message = _("nickSet.you", aNewNick);
+      message = lazy._("nickSet.you", aNewNick);
 
       // If the account was disconnected, it's OK the user is not a participant.
       if (!isParticipant) {
@@ -1260,7 +1262,7 @@ var GenericConvChatPrototype = {
       );
       return;
     } else {
-      message = _("nickSet", aOldNick, aNewNick);
+      message = lazy._("nickSet", aOldNick, aNewNick);
     }
 
     // Get the original participant and then remove it.

@@ -14,7 +14,9 @@ var { Message } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var gLastUIConvId = 0;
 var gLastPrplConvId = 0;
 
-XPCOMUtils.defineLazyGetter(this, "bundle", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "bundle", () =>
   Services.strings.createBundle("chrome://chat/locale/conversations.properties")
 );
 
@@ -231,7 +233,9 @@ UIConversation.prototype = {
       this.notifyObservers(this, "target-prpl-conversation-changed");
       let target = this.target;
       let params = [target.title, target.account.protocol.name];
-      this.systemMessage(bundle.formatStringFromName("targetChanged", params));
+      this.systemMessage(
+        lazy.bundle.formatStringFromName("targetChanged", params)
+      );
     }
   },
   // Returns a boolean indicating if the ui-conversation was closed.
@@ -398,7 +402,7 @@ UIConversation.prototype = {
 
     let msg;
     if (statusType == Ci.imIStatusInfo.STATUS_UNKNOWN) {
-      msg = bundle.formatStringFromName("statusUnknown", [this.title]);
+      msg = lazy.bundle.formatStringFromName("statusUnknown", [this.title]);
     } else {
       let status = Status.toLabel(statusType);
       let stringId = wasUnknown ? "statusChangedFromUnknown" : "statusChanged";
@@ -407,13 +411,13 @@ UIConversation.prototype = {
         delete this._justReconnected;
       }
       if (statusText) {
-        msg = bundle.formatStringFromName(stringId + "WithStatusText", [
+        msg = lazy.bundle.formatStringFromName(stringId + "WithStatusText", [
           this.title,
           status,
           statusText,
         ]);
       } else {
-        msg = bundle.formatStringFromName(stringId, [this.title, status]);
+        msg = lazy.bundle.formatStringFromName(stringId, [this.title, status]);
       }
     }
     this.systemMessage(msg);
@@ -434,14 +438,14 @@ UIConversation.prototype = {
     if (this.isChat && this.left) {
       this._wasLeft = true;
     } else {
-      this.systemMessage(bundle.GetStringFromName("accountDisconnected"));
+      this.systemMessage(lazy.bundle.GetStringFromName("accountDisconnected"));
     }
     this.notifyObservers(this, "update-buddy-status");
   },
   connected() {
     if (this._disconnected) {
       delete this._disconnected;
-      let msg = bundle.GetStringFromName("accountReconnected");
+      let msg = lazy.bundle.GetStringFromName("accountReconnected");
       if (this.isChat) {
         if (!this._wasLeft) {
           this.systemMessage(msg);
@@ -684,7 +688,7 @@ UIConversation.prototype = {
     return this.target.topicSettable;
   },
   get noTopicString() {
-    return bundle.GetStringFromName("noTopic");
+    return lazy.bundle.GetStringFromName("noTopic");
   },
   get nick() {
     return this.target.nick;

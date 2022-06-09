@@ -11,12 +11,18 @@
 const EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase", "CTCPMessage"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+const lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
+);
+
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"
 );
-var { _, displayMessage } = ChromeUtils.import(
-  "resource:///modules/ircUtils.jsm"
-);
+var { displayMessage } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>
@@ -246,7 +252,7 @@ var ctcpBase = {
         let time = aMessage.ctcp.param.slice(aMessage.ctcp.param[0] == ":");
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
-          _("ctcp.time", aMessage.origin, time),
+          lazy._("ctcp.time", aMessage.origin, time),
           { system: true, tags: aMessage.tags }
         );
       }
@@ -276,7 +282,11 @@ var ctcpBase = {
       } else if (aMessage.command == "NOTICE" && aMessage.ctcp.param.length) {
         // VERSION #:#:#
         // Received VERSION response, display to the user.
-        let response = _("ctcp.version", aMessage.origin, aMessage.ctcp.param);
+        let response = lazy._(
+          "ctcp.version",
+          aMessage.origin,
+          aMessage.ctcp.param
+        );
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
           response,

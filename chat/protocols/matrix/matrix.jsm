@@ -32,17 +32,19 @@ var {
 
 Cu.importGlobalProperties(["indexedDB"]);
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
-XPCOMUtils.defineLazyGetter(this, "brandShortName", () =>
+XPCOMUtils.defineLazyGetter(lazy, "brandShortName", () =>
   Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandShortName")
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   MatrixSDK: "resource:///modules/matrix-sdk.jsm",
   MatrixCrypto: "resource:///modules/matrix-sdk.jsm",
   SyncState: "resource:///modules/matrix-sdk.jsm",
@@ -109,7 +111,8 @@ MatrixMessage.prototype = {
     if (
       this._displayed ||
       !this.event ||
-      (this.event.status && this.event.status !== MatrixSDK.EventStatus.SENT)
+      (this.event.status &&
+        this.event.status !== lazy.MatrixSDK.EventStatus.SENT)
     ) {
       return;
     }
@@ -128,7 +131,8 @@ MatrixMessage.prototype = {
       !this.event ||
       !this.conversation._account ||
       this.conversation._account.noFullyRead ||
-      (this.event.status && this.event.status !== MatrixSDK.EventStatus.SENT)
+      (this.event.status &&
+        this.event.status !== lazy.MatrixSDK.EventStatus.SENT)
     ) {
       return;
     }
@@ -156,7 +160,7 @@ MatrixMessage.prototype = {
     const actions = [];
     if (this.event?.isDecryptionFailure()) {
       actions.push({
-        label: _("message.action.requestKey"),
+        label: lazy._("message.action.requestKey"),
         run: () => {
           if (this.event) {
             this.conversation?._account?._client
@@ -174,7 +178,7 @@ MatrixMessage.prototype = {
       )
     ) {
       actions.push({
-        label: _("message.action.redact"),
+        label: lazy._("message.action.redact"),
         run: () => {
           this.conversation?._account?._client
             ?.redactEvent(
@@ -188,7 +192,7 @@ MatrixMessage.prototype = {
     }
     if (this.incoming && this.event) {
       actions.push({
-        label: _("message.action.report"),
+        label: lazy._("message.action.report"),
         run: () => {
           this.conversation?._account?._client
             ?.reportEvent(this.event.getRoomId(), this.event.getId(), -100, "")
@@ -196,9 +200,9 @@ MatrixMessage.prototype = {
         },
       });
     }
-    if (this.event?.status === MatrixSDK.EventStatus.NOT_SENT) {
+    if (this.event?.status === lazy.MatrixSDK.EventStatus.NOT_SENT) {
       actions.push({
-        label: _("message.action.retry"),
+        label: lazy._("message.action.retry"),
         run: () => {
           this.conversation?._account?._client?.resendEvent(
             this.event,
@@ -209,13 +213,13 @@ MatrixMessage.prototype = {
     }
     if (
       [
-        MatrixSDK.EventStatus.NOT_SENT,
-        MatrixSDK.EventStatus.QUEUED,
-        MatrixSDK.EventStatus.ENCRYPTING,
+        lazy.MatrixSDK.EventStatus.NOT_SENT,
+        lazy.MatrixSDK.EventStatus.QUEUED,
+        lazy.MatrixSDK.EventStatus.ENCRYPTING,
       ].includes(this.event?.status)
     ) {
       actions.push({
-        label: _("message.action.cancel"),
+        label: lazy._("message.action.cancel"),
         run: () => {
           this.conversation?._account?._client?.cancelPendingEvent(this.event);
         },
@@ -298,27 +302,29 @@ MatrixParticipant.prototype = {
     const room = this._account?._client?.getRoom(this._roomMember.roomId);
     if (room) {
       const powerLevels = room.currentState
-        .getStateEvents(MatrixSDK.EventType.RoomPowerLevels, "")
+        .getStateEvents(lazy.MatrixSDK.EventType.RoomPowerLevels, "")
         ?.getContent();
-      const defaultLevel = MatrixPowerLevels.getUserDefaultLevel(powerLevels);
-      const messageLevel = MatrixPowerLevels.getEventLevel(
+      const defaultLevel = lazy.MatrixPowerLevels.getUserDefaultLevel(
+        powerLevels
+      );
+      const messageLevel = lazy.MatrixPowerLevels.getEventLevel(
         powerLevels,
         this._account._client.isRoomEncrypted(room.roomId)
-          ? MatrixSDK.EventType.RoomMessageEncrypted
-          : MatrixSDK.EventType.RoomMessage
+          ? lazy.MatrixSDK.EventType.RoomMessageEncrypted
+          : lazy.MatrixSDK.EventType.RoomMessage
       );
       if (defaultLevel < messageLevel) {
         return room.currentState.maySendMessage(this._id);
       }
     }
     // Else use a synthetic power level for the voiced flag
-    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.voice;
+    return this._roomMember.powerLevelNorm >= lazy.MatrixPowerLevels.voice;
   },
   get moderator() {
-    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.moderator;
+    return this._roomMember.powerLevelNorm >= lazy.MatrixPowerLevels.moderator;
   },
   get admin() {
-    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.admin;
+    return this._roomMember.powerLevelNorm >= lazy.MatrixPowerLevels.admin;
   },
 
   get canVerifyIdentity() {
@@ -464,9 +470,9 @@ MatrixBuddy.prototype = {
  */
 function isContentEvent(event) {
   return [
-    MatrixSDK.EventType.RoomMessage,
-    MatrixSDK.EventType.RoomMessageEncrypted,
-    MatrixSDK.EventType.Sticker,
+    lazy.MatrixSDK.EventType.RoomMessage,
+    lazy.MatrixSDK.EventType.RoomMessageEncrypted,
+    lazy.MatrixSDK.EventType.Sticker,
   ].includes(event.getType());
 }
 
@@ -614,11 +620,15 @@ MatrixRoom.prototype = {
       return;
     }
     if (room.isSpaceRoom()) {
-      this.writeMessage(this._account.userId, _("message.spaceNotSupported"), {
-        system: true,
-        incoming: true,
-        error: true,
-      });
+      this.writeMessage(
+        this._account.userId,
+        lazy._("message.spaceNotSupported"),
+        {
+          system: true,
+          incoming: true,
+          error: true,
+        }
+      );
       this._setInitialized();
       this.left = true;
       return;
@@ -722,13 +732,15 @@ MatrixRoom.prototype = {
       latestOldEvent = this._mostRecentEventId;
     } else {
       // Last message the user has read with high certainty.
-      const fullyRead = this.room.getAccountData(MatrixSDK.EventType.FullyRead);
+      const fullyRead = this.room.getAccountData(
+        lazy.MatrixSDK.EventType.FullyRead
+      );
       if (fullyRead) {
         latestOldEvent = fullyRead.getContent().event_id;
       }
     }
     // Get the timeline for the event, or just the current live timeline of the room
-    let timelineWindow = new MatrixSDK.TimelineWindow(
+    let timelineWindow = new lazy.MatrixSDK.TimelineWindow(
       this._account._client,
       this.room.getUnfilteredTimelineSet(),
       {
@@ -760,7 +772,7 @@ MatrixRoom.prototype = {
     while (
       endIndex === -1 &&
       timelineWindow.getEvents().length < MAX_CATCHUP_EVENTS &&
-      timelineWindow.canPaginate(MatrixSDK.EventTimeline.BACKWARDS)
+      timelineWindow.canPaginate(lazy.MatrixSDK.EventTimeline.BACKWARDS)
     ) {
       const baseSize = timelineWindow.getEvents().length;
       const windowSize = Math.min(
@@ -768,7 +780,7 @@ MatrixRoom.prototype = {
         CATCHUP_PAGE_SIZE
       );
       const didLoadEvents = await timelineWindow.paginate(
-        MatrixSDK.EventTimeline.BACKWARDS,
+        lazy.MatrixSDK.EventTimeline.BACKWARDS,
         windowSize
       );
       // Only search in the newly added events
@@ -811,7 +823,7 @@ MatrixRoom.prototype = {
     // change this to the appropriate value.
     let newestEventId = event.getId();
     // Contents of the message to write/update
-    let message = MatrixMessageContent.getIncomingPlain(
+    let message = lazy.MatrixMessageContent.getIncomingPlain(
       event,
       this._account._client.getHomeserverUrl(),
       eventId => this.room.findEventById(eventId)
@@ -829,7 +841,7 @@ MatrixRoom.prototype = {
         event.isDecryptionFailure())
     ) {
       // Wait for the decryption event for this message.
-      event.once(MatrixSDK.MatrixEventEvent.Decrypted, event => {
+      event.once(lazy.MatrixSDK.MatrixEventEvent.Decrypted, event => {
         this.addEvent(event, false, true);
       });
     }
@@ -850,18 +862,19 @@ MatrixRoom.prototype = {
       }
       opts.system = [
         "m.server_notice",
-        MatrixSDK.MsgType.KeyVerificationRequest,
+        lazy.MatrixSDK.MsgType.KeyVerificationRequest,
       ].includes(eventContent.msgtype);
       opts.error = event.isDecryptionFailure();
-      opts.notification = eventContent.msgtype === MatrixSDK.MsgType.Notice;
-      opts.action = eventContent.msgtype === MatrixSDK.MsgType.Emote;
-    } else if (eventType === MatrixSDK.EventType.RoomEncryption) {
+      opts.notification =
+        eventContent.msgtype === lazy.MatrixSDK.MsgType.Notice;
+      opts.action = eventContent.msgtype === lazy.MatrixSDK.MsgType.Emote;
+    } else if (eventType === lazy.MatrixSDK.EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
       opts.system = true;
       this.updateUnverifiedDevices();
-    } else if (eventType == MatrixSDK.EventType.RoomTopic) {
+    } else if (eventType == lazy.MatrixSDK.EventType.RoomTopic) {
       this.setTopic(event.getContent().topic, event.getSender());
-    } else if (eventType == MatrixSDK.EventType.RoomTombstone) {
+    } else if (eventType == lazy.MatrixSDK.EventType.RoomTombstone) {
       // Room version update
       this.writeMessage(event.getSender(), event.getContent().body, {
         system: true,
@@ -879,7 +892,7 @@ MatrixRoom.prototype = {
       this.replaceRoom(newConversation);
       this.forget();
       //TODO link to the old logs based on the |predecessor| field of m.room.create
-    } else if (eventType == MatrixSDK.EventType.RoomAvatar) {
+    } else if (eventType == lazy.MatrixSDK.EventType.RoomAvatar) {
       // Update the icon of this room.
       this.updateConvIcon();
     } else {
@@ -1024,7 +1037,7 @@ MatrixRoom.prototype = {
    * @param {imIMessage} msg
    */
   prepareForDisplaying(msg) {
-    const formattedHTML = MatrixMessageContent.getIncomingHTML(
+    const formattedHTML = lazy.MatrixMessageContent.getIncomingHTML(
       msg.wrappedJSObject.prplMessage.wrappedJSObject.event,
       this._account._client.getHomeserverUrl(),
       eventId => this.room.findEventById(eventId)
@@ -1044,7 +1057,7 @@ MatrixRoom.prototype = {
   get roomState() {
     return this.room
       ?.getLiveTimeline()
-      .getState(MatrixSDK.EventTimeline.FORWARDS);
+      .getState(lazy.MatrixSDK.EventTimeline.FORWARDS);
   },
   /**
    * If we should send typing notifications to the remote server.
@@ -1195,8 +1208,10 @@ MatrixRoom.prototype = {
    */
   async initRoomMuc(room) {
     let roomState = this.roomState;
-    if (roomState.getStateEvents(MatrixSDK.EventType.RoomTopic).length) {
-      let event = roomState.getStateEvents(MatrixSDK.EventType.RoomTopic)[0];
+    if (roomState.getStateEvents(lazy.MatrixSDK.EventType.RoomTopic).length) {
+      let event = roomState.getStateEvents(
+        lazy.MatrixSDK.EventType.RoomTopic
+      )[0];
       this.setTopic(event.getContent().topic, event.getSender(), true);
     }
 
@@ -1232,7 +1247,7 @@ MatrixRoom.prototype = {
   get topicSettable() {
     if (this.room) {
       return this.roomState.maySendEvent(
-        MatrixSDK.EventType.RoomTopic,
+        lazy.MatrixSDK.EventType.RoomTopic,
         this._account.userId
       );
     }
@@ -1319,7 +1334,7 @@ MatrixRoom.prototype = {
     } else if (myMembership === "leave") {
       return;
     }
-    let timelineWindow = new MatrixSDK.TimelineWindow(
+    let timelineWindow = new lazy.MatrixSDK.TimelineWindow(
       this._account._client,
       this.room.getUnfilteredTimelineSet()
     );
@@ -1331,12 +1346,12 @@ MatrixRoom.prototype = {
     const newerThanMs = Date.now() - threeDaysMs;
     await timelineWindow.load(undefined, windowChunkSize);
     while (
-      timelineWindow.canPaginate(MatrixSDK.EventTimeline.BACKWARDS) &&
+      timelineWindow.canPaginate(lazy.MatrixSDK.EventTimeline.BACKWARDS) &&
       timelineWindow.getEvents()[0].getTs() >= newerThanMs
     ) {
       if (
         !(await timelineWindow.paginate(
-          MatrixSDK.EventTimeline.BACKWARDS,
+          lazy.MatrixSDK.EventTimeline.BACKWARDS,
           windowChunkSize
         ))
       ) {
@@ -1349,9 +1364,9 @@ MatrixRoom.prototype = {
       // Find verification requests that are still in the requested state that
       // were sent by the other user.
       if (
-        event.getType() === MatrixSDK.EventType.RoomMessage &&
+        event.getType() === lazy.MatrixSDK.EventType.RoomMessage &&
         event.getContent().msgtype ===
-          MatrixSDK.EventType.KeyVerificationRequest &&
+          lazy.MatrixSDK.EventType.KeyVerificationRequest &&
         event.getSender() !== this._account.userId &&
         event.verificationRequest?.requested
       ) {
@@ -1433,7 +1448,7 @@ MatrixRoom.prototype = {
       !this._account._client.isCryptoEnabled() ||
       (!this._account._client.isRoomEncrypted(this._roomId) &&
         !this.room?.currentState.mayClientSendStateEvent(
-          MatrixSDK.EventType.RoomEncryption,
+          lazy.MatrixSDK.EventType.RoomEncryption,
           this._account._client
         ))
     ) {
@@ -1453,8 +1468,8 @@ MatrixRoom.prototype = {
     }
     this._account._client.sendStateEvent(
       this._roomId,
-      MatrixSDK.EventType.RoomEncryption,
-      { algorithm: OlmLib.MEGOLM_ALGORITHM }
+      lazy.MatrixSDK.EventType.RoomEncryption,
+      { algorithm: lazy.OlmLib.MEGOLM_ALGORITHM }
     );
   },
 };
@@ -1486,7 +1501,7 @@ async function startVerification(request) {
     }
   }
   const sasEventPromise = new Promise(resolve =>
-    request.verifier.once(SasEvent.ShowSas, resolve)
+    request.verifier.once(lazy.SasEvent.ShowSas, resolve)
   );
   request.verifier.verify();
   const sasEvent = await sasEventPromise;
@@ -1533,7 +1548,7 @@ function MatrixSession(account, ownerId, deviceInfo) {
   this._ownerId = ownerId;
   let id = deviceInfo.deviceId;
   if (deviceInfo.getDisplayName()) {
-    id = _("options.encryption.session", id, deviceInfo.getDisplayName());
+    id = lazy._("options.encryption.session", id, deviceInfo.getDisplayName());
   }
   const deviceTrust = account._client.checkDeviceTrust(
     ownerId,
@@ -1575,8 +1590,8 @@ MatrixSession.prototype = {
 
 function getStatusString(status) {
   return status
-    ? _("options.encryption.statusOk")
-    : _("options.encryption.statusNotOk");
+    ? lazy._("options.encryption.statusOk")
+    : lazy._("options.encryption.statusNotOk");
 }
 
 /*
@@ -1677,7 +1692,7 @@ MatrixAccount.prototype = {
     if (this._client) {
       pendingClientOperations.finally(() => {
         // Avoid sending connection status changes.
-        this._client.removeAllListeners(MatrixSDK.ClientEvent.Sync);
+        this._client.removeAllListeners(lazy.MatrixSDK.ClientEvent.Sync);
         this._client.stopClient();
       });
     }
@@ -1700,7 +1715,7 @@ MatrixAccount.prototype = {
     // Make sure accessToken saved as deviceId is disposed of.
     if (deviceId && deviceId === accessToken) {
       // Revoke accessToken stored in deviceId
-      const tempClient = MatrixSDK.createClient({
+      const tempClient = lazy.MatrixSDK.createClient({
         useAuthorizationHeader: true,
         baseUrl: this._baseURL,
         accessToken: deviceId,
@@ -1715,7 +1730,7 @@ MatrixAccount.prototype = {
     }
 
     const opts = await this.getClientOptions();
-    this._client = MatrixSDK.createClient(opts);
+    this._client = lazy.MatrixSDK.createClient(opts);
     if (this._client.isLoggedIn()) {
       this.startClient();
       return;
@@ -1750,7 +1765,7 @@ MatrixAccount.prototype = {
     } else {
       this.reportDisconnecting(
         Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-        _("connection.error.noSupportedFlow")
+        lazy._("connection.error.noSupportedFlow")
       );
       this.reportDisconnected();
     }
@@ -1778,23 +1793,25 @@ MatrixAccount.prototype = {
         this.prefs.getIntPref("port", 443)
       );
     }
-    let discoveredInfo = await MatrixSDK.AutoDiscovery.findClientConfig(domain);
+    let discoveredInfo = await lazy.MatrixSDK.AutoDiscovery.findClientConfig(
+      domain
+    );
     let homeserverResult = discoveredInfo[HOMESERVER_WELL_KNOWN];
 
     // If the well-known lookup fails, pretend the domain has a well-known for
     // itself.
-    if (homeserverResult.state !== MatrixSDK.AutoDiscovery.SUCCESS) {
-      discoveredInfo = await MatrixSDK.AutoDiscovery.fromDiscoveryConfig({
+    if (homeserverResult.state !== lazy.MatrixSDK.AutoDiscovery.SUCCESS) {
+      discoveredInfo = await lazy.MatrixSDK.AutoDiscovery.fromDiscoveryConfig({
         [HOMESERVER_WELL_KNOWN]: {
           base_url: `https://${domain}`,
         },
       });
       homeserverResult = discoveredInfo[HOMESERVER_WELL_KNOWN];
     }
-    if (homeserverResult.state === MatrixSDK.AutoDiscovery.PROMPT) {
-      throw new Error(_("connection.error.serverNotFound"));
+    if (homeserverResult.state === lazy.MatrixSDK.AutoDiscovery.PROMPT) {
+      throw new Error(lazy._("connection.error.serverNotFound"));
     }
-    if (homeserverResult.state !== MatrixSDK.AutoDiscovery.SUCCESS) {
+    if (homeserverResult.state !== lazy.MatrixSDK.AutoDiscovery.SUCCESS) {
       //TODO these are English strings generated by the SDK.
       throw new Error(homeserverResult.error);
     }
@@ -1843,12 +1860,12 @@ MatrixAccount.prototype = {
     const opts = {
       useAuthorizationHeader: true,
       baseUrl: this._baseURL,
-      store: new MatrixSDK.IndexedDBStore({
+      store: new lazy.MatrixSDK.IndexedDBStore({
         indexedDB,
         dbName,
       }),
-      sessionStore: new MatrixSDK.WebStorageSessionStore(localStorage),
-      cryptoStore: new MatrixSDK.IndexedDBCryptoStore(
+      sessionStore: new lazy.MatrixSDK.WebStorageSessionStore(localStorage),
+      cryptoStore: new lazy.MatrixSDK.IndexedDBCryptoStore(
         indexedDB,
         dbName + ":crypto"
       ),
@@ -1861,7 +1878,7 @@ MatrixAccount.prototype = {
           const backupPassphrase = this.getString("backupPassphrase");
           if (!backupPassphrase) {
             this.WARN("Missing secret storage key");
-            this._encryptionError = _(
+            this._encryptionError = lazy._(
               "options.encryption.needBackupPassphrase"
             );
             await this.updateEncryptionStatus();
@@ -1882,7 +1899,7 @@ MatrixAccount.prototype = {
           return [keyId, key];
         },
       },
-      verificationMethods: [MatrixCrypto.verificationMethods.SAS],
+      verificationMethods: [lazy.MatrixCrypto.verificationMethods.SAS],
     };
     await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
     return opts;
@@ -1914,7 +1931,7 @@ MatrixAccount.prototype = {
       // Need to create a new client with the device ID set.
       const opts = await this.getClientOptions();
       this._client.stopClient();
-      this._client = MatrixSDK.createClient(opts);
+      this._client = lazy.MatrixSDK.createClient(opts);
       if (!this._client.isLoggedIn()) {
         throw new Error("Client has no access token after login");
       }
@@ -1945,12 +1962,15 @@ MatrixAccount.prototype = {
    * Show SSO prompt and handle response token.
    */
   requestAuthorization() {
-    this.reportConnecting(_("connection.requestAuth"));
+    this.reportConnecting(lazy._("connection.requestAuth"));
     let url = this._client.getSsoLoginUrl(
-      InteractiveBrowser.COMPLETION_URL,
+      lazy.InteractiveBrowser.COMPLETION_URL,
       "sso"
     );
-    InteractiveBrowser.waitForRedirect(url, `${this.name} - ${this._baseURL}`)
+    lazy.InteractiveBrowser.waitForRedirect(
+      url,
+      `${this.name} - ${this._baseURL}`
+    )
       .then(resultUrl => {
         let parsedUrl = new URL(resultUrl);
         let rawUrlData = parsedUrl.searchParams;
@@ -1959,13 +1979,13 @@ MatrixAccount.prototype = {
           throw new Error("No token in redirect");
         }
 
-        this.reportConnecting(_("connection.requestAccess"));
+        this.reportConnecting(lazy._("connection.requestAccess"));
         this.loginWithToken(urlData.get("loginToken"));
       })
       .catch(() => {
         this.reportDisconnecting(
           Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-          _("connection.error.authCancelled")
+          lazy._("connection.error.authCancelled")
         );
         this.reportDisconnected();
       });
@@ -1986,7 +2006,7 @@ MatrixAccount.prototype = {
   },
 
   get _catchingUp() {
-    return this._client?.getSyncState() !== SyncState.Syncing;
+    return this._client?.getSyncState() !== lazy.SyncState.Syncing;
   },
 
   /**
@@ -2003,47 +2023,50 @@ MatrixAccount.prototype = {
    * https://matrix-org.github.io/matrix-js-sdk/2.4.1/module-client.html#~event:MatrixClient%22accountData%22
    */
   startClient() {
-    this._client.on(MatrixSDK.ClientEvent.Sync, (state, prevState, data) => {
-      switch (state) {
-        case SyncState.Prepared:
-          if (prevState !== state) {
-            this.setPresence(this.imAccount.statusInfo);
-          }
-          this.reportConnected();
-          break;
-        case SyncState.Stopped:
-          this.reportDisconnected();
-          break;
-        case SyncState.Syncing:
-          if (prevState !== state) {
-            this.reportConnected();
-            this.handleCaughtUp();
-          }
-          break;
-        case SyncState.Reconnecting:
-          this.reportConnecting();
-          break;
-        case SyncState.Error:
-          if (
-            data.error.reason ==
-            MatrixSDK.InvalidStoreError.TOGGLED_LAZY_LOADING
-          ) {
-            this._client.store.deleteAllData().then(() => this.connect());
-            break;
-          }
-          this.reportDisconnecting(
-            Ci.prplIAccount.ERROR_OTHER_ERROR,
-            data.error.message
-          );
-          this.reportDisconnected();
-          break;
-        case SyncState.Catchup:
-          this.reportConnecting();
-          break;
-      }
-    });
     this._client.on(
-      MatrixSDK.RoomMemberEvent.Membership,
+      lazy.MatrixSDK.ClientEvent.Sync,
+      (state, prevState, data) => {
+        switch (state) {
+          case lazy.SyncState.Prepared:
+            if (prevState !== state) {
+              this.setPresence(this.imAccount.statusInfo);
+            }
+            this.reportConnected();
+            break;
+          case lazy.SyncState.Stopped:
+            this.reportDisconnected();
+            break;
+          case lazy.SyncState.Syncing:
+            if (prevState !== state) {
+              this.reportConnected();
+              this.handleCaughtUp();
+            }
+            break;
+          case lazy.SyncState.Reconnecting:
+            this.reportConnecting();
+            break;
+          case lazy.SyncState.Error:
+            if (
+              data.error.reason ==
+              lazy.MatrixSDK.InvalidStoreError.TOGGLED_LAZY_LOADING
+            ) {
+              this._client.store.deleteAllData().then(() => this.connect());
+              break;
+            }
+            this.reportDisconnecting(
+              Ci.prplIAccount.ERROR_OTHER_ERROR,
+              data.error.message
+            );
+            this.reportDisconnected();
+            break;
+          case lazy.SyncState.Catchup:
+            this.reportConnecting();
+            break;
+        }
+      }
+    );
+    this._client.on(
+      lazy.MatrixSDK.RoomMemberEvent.Membership,
       (event, member, oldMembership) => {
         if (this._catchingUp) {
           return;
@@ -2079,8 +2102,8 @@ MatrixAccount.prototype = {
     /*
      * Get the map of direct messaging rooms.
      */
-    this._client.on(MatrixSDK.ClientEvent.AccountData, event => {
-      if (event.getType() == MatrixSDK.EventType.Direct) {
+    this._client.on(lazy.MatrixSDK.ClientEvent.AccountData, event => {
+      if (event.getType() == lazy.MatrixSDK.EventType.Direct) {
         const oldRooms = Object.values(this._userToRoom ?? {}).flat();
         this._userToRoom = event.getContent();
         // Check type for all conversations that were added or removed from the
@@ -2100,7 +2123,7 @@ MatrixAccount.prototype = {
     });
 
     this._client.on(
-      MatrixSDK.RoomEvent.Timeline,
+      lazy.MatrixSDK.RoomEvent.Timeline,
       (event, room, toStartOfTimeline, removed, data) => {
         if (this._catchingUp || room.isSpaceRoom() || !data?.liveEvent) {
           return;
@@ -2110,7 +2133,7 @@ MatrixAccount.prototype = {
           // If our membership changed to join without us knowing about the
           // room, another client probably accepted an invite.
           if (
-            event.getType() == MatrixSDK.EventType.RoomMember &&
+            event.getType() == lazy.MatrixSDK.EventType.RoomMember &&
             event.target.userId == this.userId &&
             event.getContent().membership == "join" &&
             event.getPrevContent()?.membership == "invite"
@@ -2139,12 +2162,12 @@ MatrixAccount.prototype = {
     );
     // Queued, sending and failed events
     this._client.on(
-      MatrixSDK.RoomEvent.LocalEchoUpdated,
+      lazy.MatrixSDK.RoomEvent.LocalEchoUpdated,
       (event, room, oldEventId, oldStatus) => {
         if (
           this._catchingUp ||
           room.isSpaceRoom() ||
-          event.getType() !== MatrixSDK.EventType.RoomMessage
+          event.getType() !== lazy.MatrixSDK.EventType.RoomMessage
         ) {
           return;
         }
@@ -2152,14 +2175,14 @@ MatrixAccount.prototype = {
         if (!conv) {
           return;
         }
-        if (event.status === MatrixSDK.EventStatus.NOT_SENT) {
+        if (event.status === lazy.MatrixSDK.EventStatus.NOT_SENT) {
           if (this._failedEvents.has(event.getId())) {
             return;
           }
           this._failedEvents.add(event.getId());
           conv.writeMessage(
             this._roomId,
-            _("error.sendMessageFailed", event.getContent().body),
+            lazy._("error.sendMessageFailed", event.getContent().body),
             {
               error: true,
               system: true,
@@ -2167,20 +2190,20 @@ MatrixAccount.prototype = {
             }
           );
         } else if (
-          (event.status === MatrixSDK.EventStatus.SENT ||
+          (event.status === lazy.MatrixSDK.EventStatus.SENT ||
             event.status === null) &&
           oldEventId
         ) {
           this._failedEvents.delete(oldEventId);
           conv.removeMessage(oldEventId);
-        } else if (event.status === MatrixSDK.EventStatus.CANCELLED) {
+        } else if (event.status === lazy.MatrixSDK.EventStatus.CANCELLED) {
           this._failedEvents.delete(event.getId());
           conv.removeMessage(event.getId());
         }
       }
     );
     // An event that was already in the room timeline was redacted
-    this._client.on(MatrixSDK.RoomEvent.Redaction, (event, room) => {
+    this._client.on(lazy.MatrixSDK.RoomEvent.Redaction, (event, room) => {
       let conv = this.roomList.get(room.roomId);
       if (conv) {
         const redactedEvent = conv.room?.findEventById(event.getAssociatedId());
@@ -2191,15 +2214,15 @@ MatrixAccount.prototype = {
     });
     // Update the chat participant information.
     this._client.on(
-      MatrixSDK.RoomMemberEvent.Name,
+      lazy.MatrixSDK.RoomMemberEvent.Name,
       this.updateRoomMember.bind(this)
     );
     this._client.on(
-      MatrixSDK.RoomMemberEvent.PowerLevel,
+      lazy.MatrixSDK.RoomMemberEvent.PowerLevel,
       this.updateRoomMember.bind(this)
     );
 
-    this._client.on(MatrixSDK.RoomEvent.Name, room => {
+    this._client.on(lazy.MatrixSDK.RoomEvent.Name, room => {
       if (room.isSpaceRoom()) {
         return;
       }
@@ -2217,7 +2240,7 @@ MatrixAccount.prototype = {
      * earlier when SDK gets connected. We will use that part to to make
      * conversations, direct or group.
      */
-    this._client.on(MatrixSDK.ClientEvent.Room, room => {
+    this._client.on(lazy.MatrixSDK.ClientEvent.Room, room => {
       if (this._catchingUp || room.isSpaceRoom()) {
         return;
       }
@@ -2254,7 +2277,7 @@ MatrixAccount.prototype = {
       }
     });
 
-    this._client.on(MatrixSDK.RoomMemberEvent.Typing, (event, member) => {
+    this._client.on(lazy.MatrixSDK.RoomMemberEvent.Typing, (event, member) => {
       if (member.userId != this.userId) {
         let conv = this.roomList.get(member.roomId);
         if (!conv) {
@@ -2271,7 +2294,7 @@ MatrixAccount.prototype = {
     });
 
     this._client.on(
-      MatrixSDK.RoomStateEvent.Members,
+      lazy.MatrixSDK.RoomStateEvent.Members,
       (event, state, member) => {
         if (this.roomList.has(state.roomId)) {
           const conversation = this.roomList.get(state.roomId);
@@ -2285,7 +2308,7 @@ MatrixAccount.prototype = {
       }
     );
 
-    this._client.on(MatrixSDK.HttpApiEvent.SessionLoggedOut, error => {
+    this._client.on(lazy.MatrixSDK.HttpApiEvent.SessionLoggedOut, error => {
       this.prefs.clearUserPref("accessToken");
       // https://spec.matrix.org/unstable/client-server-api/#soft-logout
       if (!error.data.soft_logout) {
@@ -2295,24 +2318,30 @@ MatrixAccount.prototype = {
       // TODO handle soft logout with an auto reconnect
       this.reportDisconnecting(
         Ci.prplIAccount.ERROR_OTHER_ERROR,
-        _("connection.error.sessionEnded")
+        lazy._("connection.error.sessionEnded")
       );
       this.reportDisconnected();
     });
 
-    this._client.on(MatrixSDK.UserEvent.AvatarUrl, this.updateBuddy.bind(this));
     this._client.on(
-      MatrixSDK.UserEvent.DisplayName,
+      lazy.MatrixSDK.UserEvent.AvatarUrl,
       this.updateBuddy.bind(this)
     );
-    this._client.on(MatrixSDK.UserEvent.Presence, this.updateBuddy.bind(this));
     this._client.on(
-      MatrixSDK.UserEvent.CurrentlyActive,
+      lazy.MatrixSDK.UserEvent.DisplayName,
+      this.updateBuddy.bind(this)
+    );
+    this._client.on(
+      lazy.MatrixSDK.UserEvent.Presence,
+      this.updateBuddy.bind(this)
+    );
+    this._client.on(
+      lazy.MatrixSDK.UserEvent.CurrentlyActive,
       this.updateBuddy.bind(this)
     );
 
     this._client.on(
-      MatrixCrypto.CryptoEvent.UserTrustStatusChanged,
+      lazy.MatrixCrypto.CryptoEvent.UserTrustStatusChanged,
       (userId, trustLevel) => {
         this.updateConvDeviceTrust(
           conv =>
@@ -2322,7 +2351,7 @@ MatrixAccount.prototype = {
       }
     );
 
-    this._client.on(MatrixCrypto.CryptoEvent.DevicesUpdated, users => {
+    this._client.on(lazy.MatrixCrypto.CryptoEvent.DevicesUpdated, users => {
       if (users.includes(this.userId)) {
         this.reportSessionsChanged();
         this.updateEncryptionStatus();
@@ -2340,19 +2369,22 @@ MatrixAccount.prototype = {
 
     // From the SDK documentation: Fires when the user's cross-signing keys
     // have changed or cross-signing has been enabled/disabled
-    this._client.on(MatrixCrypto.CryptoEvent.KeysChanged, () => {
+    this._client.on(lazy.MatrixCrypto.CryptoEvent.KeysChanged, () => {
       this.reportSessionsChanged();
       this.updateEncryptionStatus();
       this.updateConvDeviceTrust();
     });
-    this._client.on(MatrixCrypto.CryptoEvent.KeyBackupStatus, () => {
+    this._client.on(lazy.MatrixCrypto.CryptoEvent.KeyBackupStatus, () => {
       this.bootstrapSSSS();
       this.updateEncryptionStatus();
     });
 
-    this._client.on(MatrixCrypto.CryptoEvent.VerificationRequest, request => {
-      this.handleIncomingVerificationRequest(request);
-    });
+    this._client.on(
+      lazy.MatrixCrypto.CryptoEvent.VerificationRequest,
+      request => {
+        this.handleIncomingVerificationRequest(request);
+      }
+    );
 
     // TODO Other events to handle:
     //  Room.localEchoUpdated
@@ -2365,7 +2397,7 @@ MatrixAccount.prototype = {
       .then(() =>
         Promise.all([
           this._client.startClient({
-            pendingEventOrdering: MatrixSDK.PendingEventOrdering.Detached,
+            pendingEventOrdering: lazy.MatrixSDK.PendingEventOrdering.Detached,
             lazyLoadMembers: true,
           }),
           this.updateEncryptionStatus(),
@@ -2475,23 +2507,26 @@ MatrixAccount.prototype = {
     const crossSigningReady = await this._client.isCrossSigningReady();
     const keyBackupReady = this._client.getKeyBackupEnabled();
     const statuses = [
-      _(
+      lazy._(
         "options.encryption.enabled",
         getStatusString(this._client.isCryptoEnabled())
       ),
-      _(
+      lazy._(
         "options.encryption.secretStorage",
         getStatusString(secretStorageReady)
       ),
-      _("options.encryption.keyBackup", getStatusString(keyBackupReady)),
-      _("options.encryption.crossSigning", getStatusString(crossSigningReady)),
+      lazy._("options.encryption.keyBackup", getStatusString(keyBackupReady)),
+      lazy._(
+        "options.encryption.crossSigning",
+        getStatusString(crossSigningReady)
+      ),
     ];
     if (this._encryptionError) {
       statuses.push(this._encryptionError);
     } else if (!secretStorageReady) {
-      statuses.push(_("options.encryption.setUpSecretStorage"));
+      statuses.push(lazy._("options.encryption.setUpSecretStorage"));
     } else if (!keyBackupReady && !crossSigningReady) {
-      statuses.push(_("options.encryption.setUpBackupAndCrossSigning"));
+      statuses.push(lazy._("options.encryption.setUpBackupAndCrossSigning"));
     }
     this.encryptionStatus = statuses;
   },
@@ -2598,7 +2633,7 @@ MatrixAccount.prototype = {
         request.targetDevice.deviceId
       );
       if (deviceInfo?.getDisplayName()) {
-        displayName = _(
+        displayName = lazy._(
           "options.encryption.session",
           request.targetDevice.deviceId,
           deviceInfo.getDisplayName()
@@ -2682,7 +2717,10 @@ MatrixAccount.prototype = {
                 resolve();
               }
             };
-            this._client.on(MatrixSDK.RoomStateEvent.NewMember, waitForMember);
+            this._client.on(
+              lazy.MatrixSDK.RoomStateEvent.NewMember,
+              waitForMember
+            );
             timeout = setTimeout(resolve, 2000);
             this._verificationRequestTimeouts.add(timeout);
           });
@@ -2690,7 +2728,7 @@ MatrixAccount.prototype = {
           this._verificationRequestTimeouts.delete(timeout);
           clearTimeout(timeout);
           this._client.removeListener(
-            MatrixSDK.RoomStateEvent.NewMember,
+            lazy.MatrixSDK.RoomStateEvent.NewMember,
             waitForMember
           );
         }
@@ -2831,14 +2869,14 @@ MatrixAccount.prototype = {
     } else {
       buddy._user = user;
     }
-    if (event.getType() === MatrixSDK.UserEvent.AvatarUrl) {
+    if (event.getType() === lazy.MatrixSDK.UserEvent.AvatarUrl) {
       buddy._notifyObservers("icon-changed");
     } else if (
-      event.getType() === MatrixSDK.UserEvent.Presence ||
-      event.getType() === MatrixSDK.UserEvent.CurrentlyActive
+      event.getType() === lazy.MatrixSDK.UserEvent.Presence ||
+      event.getType() === lazy.MatrixSDK.UserEvent.CurrentlyActive
     ) {
       buddy.setStatusFromPresence();
-    } else if (event.getType() === MatrixSDK.UserEvent.DisplayName) {
+    } else if (event.getType() === lazy.MatrixSDK.UserEvent.DisplayName) {
       buddy.serverAlias = user.displayName;
     }
   },
@@ -2932,8 +2970,8 @@ MatrixAccount.prototype = {
             return this.createRoom(this._pendingRoomAliases, roomId, conv, {
               room_alias_name: alias,
               name: roomName || alias,
-              visibility: MatrixSDK.Visibility.Private,
-              preset: MatrixSDK.Preset.PrivateChat,
+              visibility: lazy.MatrixSDK.Visibility.Private,
+              preset: lazy.MatrixSDK.Preset.PrivateChat,
             });
           }
           conv.close();
@@ -3062,7 +3100,7 @@ MatrixAccount.prototype = {
     if (!roomList.includes(roomId)) {
       roomList.push(roomId);
       dmRoomMap[userId] = roomList;
-      this._client.setAccountData(MatrixSDK.EventType.Direct, dmRoomMap);
+      this._client.setAccountData(lazy.MatrixSDK.EventType.Direct, dmRoomMap);
     }
   },
 
@@ -3096,7 +3134,7 @@ MatrixAccount.prototype = {
     // probably want to keep the type prefix
     roomIdOrAlias: {
       get label() {
-        return _("chatRoomField.room");
+        return lazy._("chatRoomField.room");
       },
       required: true,
     },
@@ -3229,8 +3267,8 @@ MatrixAccount.prototype = {
       {
         is_direct: true,
         invite: [userId],
-        visibility: MatrixSDK.Visibility.Private,
-        preset: MatrixSDK.Preset.TrustedPrivateChat,
+        visibility: lazy.MatrixSDK.Visibility.Private,
+        preset: lazy.MatrixSDK.Preset.TrustedPrivateChat,
       },
       roomId => {
         this.setDirectRoom(userId, roomId);
@@ -3265,10 +3303,10 @@ MatrixAccount.prototype = {
             roomInit.initial_state = [];
           }
           roomInit.initial_state.push({
-            type: MatrixSDK.EventType.RoomEncryption,
+            type: lazy.MatrixSDK.EventType.RoomEncryption,
             state_key: "",
             content: {
-              algorithm: OlmLib.MEGOLM_ALGORITHM,
+              algorithm: lazy.OlmLib.MEGOLM_ALGORITHM,
             },
           });
         }
@@ -3351,20 +3389,20 @@ MatrixAccount.prototype = {
 
     // Convert timespan in milli-seconds into a human-readable form.
     let getNormalizedTime = function(aTime) {
-      let valuesAndUnits = DownloadUtils.convertTimeUnits(aTime / 1000);
+      let valuesAndUnits = lazy.DownloadUtils.convertTimeUnits(aTime / 1000);
       // If the time is exact to the first set of units, trim off
       // the subsequent zeroes.
       if (!valuesAndUnits[2]) {
         valuesAndUnits.splice(2, 2);
       }
-      return _("tooltip.timespan", valuesAndUnits.join(" "));
+      return lazy._("tooltip.timespan", valuesAndUnits.join(" "));
     };
 
     let tooltipInfo = [];
 
     if (user.displayName) {
       tooltipInfo.push(
-        new TooltipInfo(_("tooltip.displayName"), user.displayName)
+        new TooltipInfo(lazy._("tooltip.displayName"), user.displayName)
       );
     }
 
@@ -3373,7 +3411,7 @@ MatrixAccount.prototype = {
     if (status === Ci.imIStatusInfo.STATUS_IDLE) {
       tooltipInfo.push(
         new TooltipInfo(
-          _("tooltip.lastActive"),
+          lazy._("tooltip.lastActive"),
           getNormalizedTime(user.lastActiveAgo)
         )
       );
@@ -3448,12 +3486,12 @@ MatrixProtocol.prototype = {
     return new MatrixAccount(this, aImAccount);
   },
 
-  usernameEmptyText: _("matrix.usernameHint"),
+  usernameEmptyText: lazy._("matrix.usernameHint"),
   usernamePrefix: "@",
   usernameSplits: [
     {
       get label() {
-        return _("options.homeserver");
+        return lazy._("options.homeserver");
       },
       separator: ":",
     },
@@ -3462,19 +3500,19 @@ MatrixProtocol.prototype = {
   options: {
     saveToken: {
       get label() {
-        return _("options.saveToken");
+        return lazy._("options.saveToken");
       },
       default: true,
     },
     deviceDisplayName: {
       get label() {
-        return _("options.deviceDisplayName");
+        return lazy._("options.deviceDisplayName");
       },
-      default: brandShortName,
+      default: lazy.brandShortName,
     },
     backupPassphrase: {
       get label() {
-        return _("options.backupPassphrase");
+        return lazy._("options.backupPassphrase");
       },
       default: "",
       masked: true,

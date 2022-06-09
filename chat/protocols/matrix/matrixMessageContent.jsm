@@ -4,14 +4,25 @@
 
 const EXPORTED_SYMBOLS = ["MatrixMessageContent"];
 
-var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-XPCOMUtils.defineLazyModuleGetters(this, {
-  getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
-  MatrixSDK: "resource:///modules/matrix-sdk.jsm",
+const { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+const { getHttpUriForMxc } = ChromeUtils.import(
+  "resource:///modules/matrix-sdk.jsm"
+);
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
 });
+XPCOMUtils.defineLazyGetter(lazy, "domParser", () => new DOMParser());
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
+  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  return aTxt => cs.scanTXT(aTxt, cs.kEntities);
+});
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/matrix.properties")
+);
 
 const kRichBodiedTypes = [
   MatrixSDK.MsgType.Text,
@@ -25,14 +36,6 @@ const kAttachmentTypes = [
   MatrixSDK.MsgType.Audio,
   MatrixSDK.MsgType.Video,
 ];
-XPCOMUtils.defineLazyGetter(this, "domParser", () => new DOMParser());
-XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
-  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
-  return aTxt => cs.scanTXT(aTxt, cs.kEntities);
-});
-XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/locale/matrix.properties")
-);
 
 /**
  * Gets the user-consumable URI to an attachment from an mxc URI and
@@ -126,7 +129,7 @@ function getReplyContent(replyEvent, homeserverUrl, getEvent, rich) {
  */
 function formatPlainBody(event, homeserverUrl, getEvent, includeReply = true) {
   const content = event.getContent();
-  let body = TXTToHTML(content.body);
+  let body = lazy.TXTToHTML(content.body);
   const eventId = event.replyEventId;
   if (body.startsWith("&gt;") && eventId) {
     let nonQuote = Number.MAX_SAFE_INTEGER;
@@ -184,7 +187,7 @@ ${replyContent}`;
  */
 function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
   const content = event.getContent();
-  const parsedBody = domParser.parseFromString(
+  const parsedBody = lazy.domParser.parseFromString(
     `<!DOCTYPE html><html><body>${content.formatted_body}</body></html>`,
     "text/html"
   );
@@ -286,9 +289,9 @@ var MatrixMessageContent = {
     const type = event.getType();
     const content = event.getContent();
     if (event.isRedacted()) {
-      return _("message.redacted");
+      return lazy._("message.redacted");
     }
-    const textForEvent = getMatrixTextForEvent(event);
+    const textForEvent = lazy.getMatrixTextForEvent(event);
     if (textForEvent) {
       return textForEvent;
     } else if (
@@ -303,7 +306,7 @@ var MatrixMessageContent = {
           return attachmentUrl;
         }
       } else if (event.isBeingDecrypted() || event.shouldAttemptDecryption()) {
-        return _("message.decrypting");
+        return lazy._("message.decrypting");
       }
     } else if (type == MatrixSDK.EventType.Sticker) {
       const attachmentUrl = getAttachmentUrl(content, homeserverUrl);
@@ -313,15 +316,15 @@ var MatrixMessageContent = {
     } else if (type == MatrixSDK.EventType.Reaction) {
       let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
-        return _(
+        return lazy._(
           "message.reaction",
           event.getSender(),
           annotatedEvent.getSender(),
-          TXTToHTML(content["m.relates_to"].key)
+          lazy.TXTToHTML(content["m.relates_to"].key)
         );
       }
     }
-    return TXTToHTML(content.body ?? "");
+    return lazy.TXTToHTML(content.body ?? "");
   },
   /**
    * Format the HTML body of an incoming message for display.
@@ -345,7 +348,7 @@ var MatrixMessageContent = {
     const type = event.getType();
     const content = event.getContent();
     if (event.isRedacted()) {
-      return _("message.redacted");
+      return lazy._("message.redacted");
     }
     if (type == MatrixSDK.EventType.RoomMessage) {
       if (
@@ -362,11 +365,11 @@ var MatrixMessageContent = {
     } else if (type == MatrixSDK.EventType.Reaction) {
       let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
-        return _(
+        return lazy._(
           "message.reaction",
           `<span class="ib-person">${event.getSender()}</span>`,
           `<span class="ib-person">${annotatedEvent.getSender()}</span>`,
-          TXTToHTML(content["m.relates_to"].key)
+          lazy.TXTToHTML(content["m.relates_to"].key)
         );
       }
     }

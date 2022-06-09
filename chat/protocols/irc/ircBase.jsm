@@ -19,15 +19,20 @@
  */
 const EXPORTED_SYMBOLS = ["ircBase"];
 
+const { XPCOMUtils, l10nHelper, nsSimpleEnumerator } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+const lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
+);
+
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-var { nsSimpleEnumerator } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+
 var { ircHandlers } = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 var {
-  _,
   ctcpFormatToText,
   conversationErrorMessage,
   displayMessage,
@@ -38,20 +43,20 @@ var {
 function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
   let msgId = "message." + (aKicked ? "kicked" : "parted");
   // If a part message was included, include it.
-  let reason = aReason ? _(msgId + ".reason", aReason) : "";
+  let reason = aReason ? lazy._(msgId + ".reason", aReason) : "";
   function __(aNick, aYou) {
     // If the user is kicked, we need to say who kicked them.
     let msgId2 = msgId + (aYou ? ".you" : "");
     if (aKicked) {
       if (aYou) {
-        return _(msgId2, aSource, reason);
+        return lazy._(msgId2, aSource, reason);
       }
-      return _(msgId2, aNick, aSource, reason);
+      return lazy._(msgId2, aNick, aSource, reason);
     }
     if (aYou) {
-      return _(msgId2, reason);
+      return lazy._(msgId2, reason);
     }
-    return _(msgId2, aNick, reason);
+    return lazy._(msgId2, aNick, reason);
   }
 
   for (let channelName of aChannels) {
@@ -165,7 +170,7 @@ var ircBase = {
         this.WARN("Received unexpected ERROR response:\n" + aMessage.params[0]);
         this.gotDisconnected(
           Ci.prplIAccount.ERROR_NETWORK_ERROR,
-          _("connection.error.lost")
+          lazy._("connection.error.lost")
         );
       } else {
         // We received an ERROR message when expecting it (i.e. we've sent a
@@ -188,7 +193,7 @@ var ircBase = {
             // Otherwise just notify the user.
             this.getConversation(channel).writeMessage(
               aMessage.origin,
-              _("message.inviteReceived", aMessage.origin, channel),
+              lazy._("message.inviteReceived", aMessage.origin, channel),
               { system: true }
             );
           }
@@ -221,9 +226,13 @@ var ircBase = {
 
           // If the user parted from this room earlier, confirm the rejoin.
           if (conversation._rejoined) {
-            conversation.writeMessage(aMessage.origin, _("message.rejoined"), {
-              system: true,
-            });
+            conversation.writeMessage(
+              aMessage.origin,
+              lazy._("message.rejoined"),
+              {
+                system: true,
+              }
+            );
             delete conversation._rejoined;
           }
 
@@ -241,7 +250,7 @@ var ircBase = {
           // Don't worry about adding ourself, RPL_NAMREPLY takes care of that
           // case.
           conversation.getParticipant(aMessage.origin, true);
-          let msg = _("message.join", aMessage.origin, aMessage.source);
+          let msg = lazy._("message.join", aMessage.origin, aMessage.source);
           conversation.writeMessage(aMessage.origin, msg, {
             system: true,
             noLinkification: true,
@@ -351,10 +360,10 @@ var ircBase = {
       }
       // If a quit message was included, show it.
       let nick = aMessage.origin;
-      let msg = _(
+      let msg = lazy._(
         "message.quit",
         nick,
-        quitMsg.length ? _("message.quit2", quitMsg) : ""
+        quitMsg.length ? lazy._("message.quit2", quitMsg) : ""
       );
       // Loop over every conversation with the user and display that they quit.
       this.conversations.forEach(conversation => {
@@ -1024,7 +1033,7 @@ var ircBase = {
       // above (which is as specified by RFC 2812).
       this.getConversation(aMessage.params[2]).writeMessage(
         aMessage.origin,
-        _("message.invited", aMessage.params[1], aMessage.params[2]),
+        lazy._("message.invited", aMessage.params[1], aMessage.params[2]),
         { system: true }
       );
       return true;
@@ -1035,7 +1044,7 @@ var ircBase = {
       return writeMessage(
         this,
         aMessage,
-        _("message.summoned", aMessage.params[0])
+        lazy._("message.summoned", aMessage.params[0])
       );
     },
     "346": function(aMessage) {
@@ -1181,11 +1190,11 @@ var ircBase = {
       let conv = this.getConversation(aMessage.params[1]);
       let msg;
       if (conv.banMasks.length) {
-        msg = [_("message.banMasks", aMessage.params[1])]
+        msg = [lazy._("message.banMasks", aMessage.params[1])]
           .concat(conv.banMasks)
           .join("\n");
       } else {
-        msg = _("message.noBanMasks", aMessage.params[1]);
+        msg = lazy._("message.noBanMasks", aMessage.params[1]);
       }
       conv.writeMessage(aMessage.origin, msg, { system: true });
       return true;
@@ -1280,7 +1289,7 @@ var ircBase = {
       // RPL_TIME
       // <server> :<string showing server's local time>
 
-      let msg = _("ctcp.time", aMessage.params[1], aMessage.params[2]);
+      let msg = lazy._("ctcp.time", aMessage.params[1], aMessage.params[2]);
       // Show the date returned from the server, note that this doesn't use
       // the serverMessage function: since this is in response to a command, it
       // should always be shown.
@@ -1328,7 +1337,11 @@ var ircBase = {
         }
       }
 
-      return serverErrorMessage(this, aMessage, _(msgId, aMessage.params[1]));
+      return serverErrorMessage(
+        this,
+        aMessage,
+        lazy._(msgId, aMessage.params[1])
+      );
     },
     "402": function(aMessage) {
       // ERR_NOSUCHSERVER
@@ -1374,7 +1387,7 @@ var ircBase = {
       return serverErrorMessage(
         this,
         aMessage,
-        _("error.wasNoSuchNick", aMessage.params[1])
+        lazy._("error.wasNoSuchNick", aMessage.params[1])
       );
     },
     "407": function(aMessage) {
@@ -1469,7 +1482,7 @@ var ircBase = {
     "432": function(aMessage) {
       // ERR_ERRONEUSNICKNAME
       // <nick> :Erroneous nickname
-      let msg = _("error.erroneousNickname", this._requestedNickname);
+      let msg = lazy._("error.erroneousNickname", this._requestedNickname);
       serverErrorMessage(this, aMessage, msg);
       if (this._requestedNickname == this._accountNickname) {
         // The account has been set up with an illegal nickname.
@@ -1537,7 +1550,11 @@ var ircBase = {
       // <user> <channel> :is already on channel
       this.getConversation(aMessage.params[2]).writeMessage(
         aMessage.origin,
-        _("message.alreadyInChannel", aMessage.params[1], aMessage.params[2]),
+        lazy._(
+          "message.alreadyInChannel",
+          aMessage.params[1],
+          aMessage.params[2]
+        ),
         { system: true }
       );
       return true;
@@ -1580,7 +1597,7 @@ var ircBase = {
         this.ERROR("Erroneous username: " + this.username);
         this.gotDisconnected(
           Ci.prplIAccount.ERROR_INVALID_USERNAME,
-          _("connection.error.invalidUsername", this.user)
+          lazy._("connection.error.invalidUsername", this.user)
         );
         return true;
       }
@@ -1604,23 +1621,23 @@ var ircBase = {
       // :Password incorrect
       this.gotDisconnected(
         Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-        _("connection.error.invalidPassword")
+        lazy._("connection.error.invalidPassword")
       );
       return true;
     },
     "465": function(aMessage) {
       // ERR_YOUREBANEDCREEP
       // :You are banned from this server
-      serverErrorMessage(this, aMessage, _("error.banned"));
+      serverErrorMessage(this, aMessage, lazy._("error.banned"));
       this.gotDisconnected(
         Ci.prplIAccount.ERROR_OTHER_ERROR,
-        _("error.banned")
+        lazy._("error.banned")
       ); // Notify account manager.
       return true;
     },
     "466": function(aMessage) {
       // ERR_YOUWILLBEBANNED
-      return serverErrorMessage(this, aMessage, _("error.bannedSoon"));
+      return serverErrorMessage(this, aMessage, lazy._("error.bannedSoon"));
     },
     "467": function(aMessage) {
       // ERR_KEYSET
@@ -1743,13 +1760,13 @@ var ircBase = {
       return serverErrorMessage(
         this,
         aMessage,
-        _("error.unknownMode", aMessage.params[1])
+        lazy._("error.unknownMode", aMessage.params[1])
       );
     },
     "502": function(aMessage) {
       // ERR_USERSDONTMATCH
       // :Cannot change mode for other users
-      return serverErrorMessage(this, aMessage, _("error.mode.wrongUser"));
+      return serverErrorMessage(this, aMessage, lazy._("error.mode.wrongUser"));
     },
   },
 };

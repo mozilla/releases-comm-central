@@ -17,7 +17,9 @@ var { XMPPAuthMechanisms } = ChromeUtils.import(
   "resource:///modules/xmpp-authmechs.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
@@ -35,7 +37,7 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   if (!aJID.node) {
     aAccount.reportDisconnecting(
       Ci.prplIAccount.ERROR_INVALID_USERNAME,
-      _("connection.error.invalidUsername")
+      lazy._("connection.error.invalidUsername")
     );
     aAccount.reportDisconnected();
     return;
@@ -62,7 +64,7 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   }
 
   // RFC 6120 (Section 3.2.1): SRV lookup.
-  this._account.reportConnecting(_("connection.srvLookup"));
+  this._account.reportConnecting(lazy._("connection.srvLookup"));
   DNS.srv("_xmpp-client._tcp." + this._host)
     .then(aResult => this._handleSrvQuery(aResult))
     .catch(aError => {
@@ -73,7 +75,7 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
         // service is decidedly not available at this domain.
         this._account.reportDisconnecting(
           Ci.prplIAccount.ERROR_OTHER_ERROR,
-          _("connection.error.XMPPNotSupported")
+          lazy._("connection.error.XMPPNotSupported")
         );
         this._account.reportDisconnected();
         return;
@@ -283,7 +285,7 @@ XMPPSession.prototype = {
     if (!this._encrypted && this._connectionSecurity == "require_tls") {
       this.onError(
         Ci.prplIAccount.ERROR_ENCRYPTION_ERROR,
-        _("connection.error.startTLSNotSupported")
+        lazy._("connection.error.startTLSNotSupported")
       );
       return;
     }
@@ -332,7 +334,7 @@ XMPPSession.prototype = {
     // Clear SRV results since we have connected.
     this._srvRecords = [];
 
-    this._account.reportConnecting(_("connection.initializingStream"));
+    this._account.reportConnecting(lazy._("connection.initializingStream"));
     this.startStream();
   },
 
@@ -351,17 +353,17 @@ XMPPSession.prototype = {
 
   /* The connection got disconnected without us closing it. */
   onConnectionClosed() {
-    this._networkError(_("connection.error.serverClosedConnection"));
+    this._networkError(lazy._("connection.error.serverClosedConnection"));
   },
   onConnectionSecurityError(aTLSError, aNSSErrorMessage) {
     let error = this._account.handleConnectionSecurityError(this);
     this.onError(error, aNSSErrorMessage);
   },
   onConnectionReset() {
-    this._networkError(_("connection.error.resetByPeer"));
+    this._networkError(lazy._("connection.error.resetByPeer"));
   },
   onConnectionTimedOut() {
-    this._networkError(_("connection.error.timedOut"));
+    this._networkError(lazy._("connection.error.timedOut"));
   },
   _networkError(aMessage) {
     this.onError(Ci.prplIAccount.ERROR_NETWORK_ERROR, aMessage);
@@ -375,7 +377,7 @@ XMPPSession.prototype = {
       this.ERROR(aError + ": " + aException + "\n" + this._lastReceivedData);
     }
     if (aError != "parse-warning" && aError != "parsing-characters") {
-      this._networkError(_("connection.error.receivedUnexpectedData"));
+      this._networkError(lazy._("connection.error.receivedUnexpectedData"));
     }
   },
 
@@ -387,13 +389,15 @@ XMPPSession.prototype = {
         this.ERROR(
           "Unexpected stanza " + aStanza.localName + ", expected 'features'"
         );
-        this._networkError(_("connection.error.incorrectResponse"));
+        this._networkError(lazy._("connection.error.incorrectResponse"));
         return;
       }
 
       let starttls = aStanza.getElement(["starttls"]);
       if (starttls && this._security.includes("starttls")) {
-        this._account.reportConnecting(_("connection.initializingEncryption"));
+        this._account.reportConnecting(
+          lazy._("connection.initializingEncryption")
+        );
         this.sendStanza(Stanza.node("starttls", Stanza.NS.tls));
         this.onXmppStanza = this.stanzaListeners.startTLS;
         return;
@@ -401,14 +405,14 @@ XMPPSession.prototype = {
       if (starttls && starttls.children.some(c => c.localName == "required")) {
         this.onError(
           Ci.prplIAccount.ERROR_ENCRYPTION_ERROR,
-          _("connection.error.startTLSRequired")
+          lazy._("connection.error.startTLSRequired")
         );
         return;
       }
       if (!starttls && this._connectionSecurity == "require_tls") {
         this.onError(
           Ci.prplIAccount.ERROR_ENCRYPTION_ERROR,
-          _("connection.error.startTLSNotSupported")
+          lazy._("connection.error.startTLSNotSupported")
         );
         return;
       }
@@ -419,7 +423,7 @@ XMPPSession.prototype = {
     },
     startTLS(aStanza) {
       if (aStanza.localName != "proceed") {
-        this._networkError(_("connection.error.failedToStartTLS"));
+        this._networkError(lazy._("connection.error.failedToStartTLS"));
         return;
       }
 
@@ -433,7 +437,7 @@ XMPPSession.prototype = {
         this.ERROR(
           "Unexpected stanza " + aStanza.localName + ", expected 'features'"
         );
-        this._networkError(_("connection.error.incorrectResponse"));
+        this._networkError(lazy._("connection.error.incorrectResponse"));
         return;
       }
 
@@ -443,7 +447,7 @@ XMPPSession.prototype = {
         if (auth && auth.uri == Stanza.NS.auth_feature) {
           this.startLegacyAuth();
         } else {
-          this._networkError(_("connection.error.noAuthMec"));
+          this._networkError(lazy._("connection.error.noAuthMec"));
         }
         return;
       }
@@ -475,7 +479,7 @@ XMPPSession.prototype = {
         } else {
           this.onError(
             Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-            _("connection.error.notSendingPasswordInClear")
+            lazy._("connection.error.notSendingPasswordInClear")
           );
           return;
         }
@@ -483,7 +487,7 @@ XMPPSession.prototype = {
       if (!selectedMech) {
         this.onError(
           Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-          _("connection.error.noCompatibleAuthMec")
+          lazy._("connection.error.noCompatibleAuthMec")
         );
         return;
       }
@@ -495,7 +499,7 @@ XMPPSession.prototype = {
       );
       this._password = null;
 
-      this._account.reportConnecting(_("connection.authenticating"));
+      this._account.reportConnecting(lazy._("connection.authenticating"));
       this.onXmppStanza = this.stanzaListeners.authDialog.bind(this, authMec);
       this.onXmppStanza(null); // the first auth step doesn't read anything
     },
@@ -510,7 +514,7 @@ XMPPSession.prototype = {
         }
         this.onError(
           Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-          _("connection.error." + errorMsg)
+          lazy._("connection.error." + errorMsg)
         );
         return;
       }
@@ -522,7 +526,7 @@ XMPPSession.prototype = {
         this.ERROR("Error in auth mechanism: " + e);
         this.onError(
           Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-          _("connection.error.authenticationFailure")
+          lazy._("connection.error.authenticationFailure")
         );
         return;
       }
@@ -537,7 +541,7 @@ XMPPSession.prototype = {
               // account with an authentication error.
               this.onError(
                 Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-                _("connection.error.authenticationFailure")
+                lazy._("connection.error.authenticationFailure")
               );
             } else if (value.send) {
               // Otherwise, send the XML stanza that is returned.
@@ -548,7 +552,7 @@ XMPPSession.prototype = {
             this.ERROR("Error resolving auth mechanism result: " + e);
             this.onError(
               Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-              _("connection.error.authenticationFailure")
+              lazy._("connection.error.authenticationFailure")
             );
           }
         );
@@ -561,11 +565,11 @@ XMPPSession.prototype = {
     startBind(aStanza) {
       if (!aStanza.getElement(["bind"])) {
         this.ERROR("Unexpected lack of the bind feature");
-        this._networkError(_("connection.error.incorrectResponse"));
+        this._networkError(lazy._("connection.error.incorrectResponse"));
         return;
       }
 
-      this._account.reportConnecting(_("connection.gettingResource"));
+      this._account.reportConnecting(lazy._("connection.gettingResource"));
       this._requestBind(this._resource);
       this.onXmppStanza = this.stanzaListeners.bindResult;
     },
@@ -595,13 +599,13 @@ XMPPSession.prototype = {
             this.WARN(`Unhandled bind result error ${error.condition}.`);
             message = "connection.error.failedToGetAResource";
         }
-        this._networkError(_(message));
+        this._networkError(lazy._(message));
         return;
       }
 
       let jid = aStanza.getElement(["bind", "jid"]);
       if (!jid) {
-        this._networkError(_("connection.error.failedToGetAResource"));
+        this._networkError(lazy._("connection.error.failedToGetAResource"));
         return;
       }
       jid = jid.innerText;
@@ -614,7 +618,7 @@ XMPPSession.prototype = {
       if (aStanza.attributes.type == "error") {
         let error = aStanza.getElement(["error"]);
         if (!error) {
-          this._networkError(_("connection.error.incorrectResponse"));
+          this._networkError(lazy._("connection.error.incorrectResponse"));
           return;
         }
 
@@ -623,14 +627,14 @@ XMPPSession.prototype = {
           // Failed Authentication (Incorrect Credentials)
           this.onError(
             Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-            _("connection.error.notAuthorized")
+            lazy._("connection.error.notAuthorized")
           );
           return;
         } else if (code == 406) {
           // Failed Authentication (Required Information Not Provided)
           this.onError(
             Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-            _("connection.error.authenticationFailure")
+            lazy._("connection.error.authenticationFailure")
           );
           return;
         }
@@ -645,7 +649,7 @@ XMPPSession.prototype = {
       }
 
       if (aStanza.attributes.type != "result") {
-        this._networkError(_("connection.error.incorrectResponse"));
+        this._networkError(lazy._("connection.error.incorrectResponse"));
         return;
       }
 
@@ -663,7 +667,7 @@ XMPPSession.prototype = {
       }
 
       if (!("username" in values) || !("resource" in values)) {
-        this._networkError(_("connection.error.incorrectResponse"));
+        this._networkError(lazy._("connection.error.incorrectResponse"));
         return;
       }
 
@@ -717,7 +721,7 @@ XMPPSession.prototype = {
         ) {
           this.onError(
             Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-            _("connection.error.notSendingPasswordInClear")
+            lazy._("connection.error.notSendingPasswordInClear")
           );
           return;
         }
@@ -726,7 +730,7 @@ XMPPSession.prototype = {
       } else {
         this.onError(
           Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-          _("connection.error.noCompatibleAuthMec")
+          lazy._("connection.error.noCompatibleAuthMec")
         );
         return;
       }

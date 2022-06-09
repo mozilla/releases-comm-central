@@ -14,10 +14,18 @@
  */
 const EXPORTED_SYMBOLS = ["ircNonStandard"];
 
+const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+const lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
+);
+
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"
 );
-var { _, conversationErrorMessage, kListRefreshInterval } = ChromeUtils.import(
+const { conversationErrorMessage, kListRefreshInterval } = ChromeUtils.import(
   "resource:///modules/ircUtils.jsm"
 );
 
@@ -72,7 +80,7 @@ var ircNonStandard = {
           // Otherwise, put the account in an error state.
           this.gotDisconnected(
             Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-            _("connection.error.passwordRequired")
+            lazy._("connection.error.passwordRequired")
           );
         }
 

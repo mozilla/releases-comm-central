@@ -10,7 +10,9 @@ var { XPCOMUtils, executeSoon, ClassInfo, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/contacts.properties")
 );
 
@@ -101,7 +103,7 @@ function getDBConnection() {
 // committed automatically at the end of the event loop spin so that
 // we flush buddy list data to disk only once per event loop spin.
 var gDBConnWithPendingTransaction = null;
-Object.defineProperty(this, "DBConn", {
+Object.defineProperty(lazy, "DBConn", {
   configurable: true,
   enumerable: true,
 
@@ -136,7 +138,7 @@ TagsService.prototype = {
     return this;
   },
   get defaultTag() {
-    return this.createTag(_("defaultGroup"));
+    return this.createTag(lazy._("defaultGroup"));
   },
   createTag(aName) {
     // If the tag already exists, we don't want to create a duplicate.
@@ -145,7 +147,7 @@ TagsService.prototype = {
       return tag;
     }
 
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "INSERT INTO tags (name, position) VALUES(:name, 0)"
     );
     try {
@@ -155,7 +157,7 @@ TagsService.prototype = {
       statement.finalize();
     }
 
-    tag = new Tag(DBConn.lastInsertRowID, aName);
+    tag = new Tag(lazy.DBConn.lastInsertRowID, aName);
     Tags.push(tag);
     return tag;
   },
@@ -164,7 +166,7 @@ TagsService.prototype = {
   // Get an existing tag by name (will do an SQL query). Returns null
   // if not found.
   getTagByName(aName) {
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "SELECT id FROM tags where name = :name"
     );
     statement.params.name = aName;
@@ -227,7 +229,7 @@ Tag.prototype = {
     return this._name;
   },
   set name(aNewName) {
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "UPDATE tags SET name = :name WHERE id = :id"
     );
     try {
@@ -442,7 +444,7 @@ Contact.prototype = {
   set alias(aNewAlias) {
     this._ensureNotDummy();
 
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "UPDATE contacts SET alias = :alias WHERE id = :id"
     );
     statement.params.alias = aNewAlias;
@@ -464,7 +466,7 @@ Contact.prototype = {
     }
 
     // Create a real contact for this dummy contact
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "INSERT INTO contacts DEFAULT VALUES"
     );
     try {
@@ -474,11 +476,11 @@ Contact.prototype = {
     }
     delete ContactsById[this._id];
     let oldId = this._id;
-    this._id = DBConn.lastInsertRowID;
+    this._id = lazy.DBConn.lastInsertRowID;
     ContactsById[this._id] = this;
     this._notifyObservers("no-longer-dummy", oldId.toString());
     // Update the contact_id for the single existing buddy of this contact
-    statement = DBConn.createStatement(
+    statement = lazy.DBConn.createStatement(
       "UPDATE buddies SET contact_id = :id WHERE id = :buddy_id"
     );
     statement.params.id = this._id;
@@ -496,7 +498,7 @@ Contact.prototype = {
 
     if (!aInherited) {
       this._ensureNotDummy();
-      let statement = DBConn.createStatement(
+      let statement = lazy.DBConn.createStatement(
         "INSERT INTO contact_tag (contact_id, tag_id) " +
           "VALUES(:contactId, :tagId)"
       );
@@ -534,7 +536,7 @@ Contact.prototype = {
     Services.obs.notifyObservers(this, "contact-tag-removed", aTag.id);
   },
   _removeContactTagRow(aTag) {
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "DELETE FROM contact_tag " +
         "WHERE contact_id = :contactId " +
         "AND tag_id = :tagId"
@@ -727,7 +729,7 @@ Contact.prototype = {
   _removeBuddy(aBuddy) {
     if (this._buddies.length == 1) {
       if (this._id > 0) {
-        let statement = DBConn.createStatement(
+        let statement = lazy.DBConn.createStatement(
           "DELETE FROM contacts WHERE id = :id"
         );
         statement.params.id = this._id;
@@ -739,7 +741,7 @@ Contact.prototype = {
       for (let tag of this._tags) {
         tag._removeContact(this);
       }
-      let statement = DBConn.createStatement(
+      let statement = lazy.DBConn.createStatement(
         "DELETE FROM contact_tag WHERE contact_id = :id"
       );
       statement.params.id = this._id;
@@ -780,7 +782,7 @@ Contact.prototype = {
       throw new Error("_updatePositions: Invalid indexes");
     }
 
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "UPDATE buddies SET position = :position WHERE id = :buddyId"
     );
     for (let i = aIndexBegin; i <= aIndexEnd; ++i) {
@@ -1118,7 +1120,7 @@ Buddy.prototype = {
       this._contact.addTag(TagsById[accountBuddy.tag.id], true);
     }
 
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "UPDATE buddies SET contact_id = :contactId, " +
         "position = :position " +
         "WHERE id = :buddyId"
@@ -1389,7 +1391,7 @@ Buddy.prototype = {
         if (this._isPreferredAccount(aSubject)) {
           this._srvAlias =
             this.displayName != this.userName ? this.displayName : "";
-          let statement = DBConn.createStatement(
+          let statement = lazy.DBConn.createStatement(
             "UPDATE buddies SET srv_alias = :srvAlias WHERE id = :buddyId"
           );
           statement.params.buddyId = this.id;
@@ -1418,7 +1420,7 @@ Buddy.prototype = {
         break;
       case "account-buddy-removed":
         if (this._accounts.length == 1) {
-          let statement = DBConn.createStatement(
+          let statement = lazy.DBConn.createStatement(
             "DELETE FROM buddies WHERE id = :id"
           );
           try {
@@ -1456,7 +1458,7 @@ Buddy.prototype = {
 function ContactsService() {}
 ContactsService.prototype = {
   initContacts() {
-    let statement = DBConn.createStatement("SELECT id, name FROM tags");
+    let statement = lazy.DBConn.createStatement("SELECT id, name FROM tags");
     try {
       while (statement.executeStep()) {
         Tags.push(new Tag(statement.getInt32(0), statement.getUTF8String(1)));
@@ -1465,7 +1467,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
 
-    statement = DBConn.createStatement("SELECT id, alias FROM contacts");
+    statement = lazy.DBConn.createStatement("SELECT id, alias FROM contacts");
     try {
       while (statement.executeStep()) {
         new Contact(statement.getInt32(0), statement.getUTF8String(1));
@@ -1474,7 +1476,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
 
-    statement = DBConn.createStatement(
+    statement = lazy.DBConn.createStatement(
       "SELECT contact_id, tag_id FROM contact_tag"
     );
     try {
@@ -1488,7 +1490,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
 
-    statement = DBConn.createStatement(
+    statement = lazy.DBConn.createStatement(
       "SELECT id, key, name, srv_alias, contact_id FROM buddies ORDER BY position"
     );
     try {
@@ -1506,7 +1508,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
 
-    statement = DBConn.createStatement(
+    statement = lazy.DBConn.createStatement(
       "SELECT account_id, buddy_id, tag_id FROM account_buddy"
     );
     try {
@@ -1577,7 +1579,7 @@ ContactsService.prototype = {
   },
   getBuddyById: aId => BuddiesById[aId],
   getBuddyByNameAndProtocol(aNormalizedName, aPrpl) {
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "SELECT b.id FROM buddies b " +
         "JOIN account_buddy ab ON buddy_id = b.id " +
         "JOIN accounts a ON account_id = a.id " +
@@ -1618,7 +1620,7 @@ ContactsService.prototype = {
       account.protocol
     );
     if (!buddy) {
-      let statement = DBConn.createStatement(
+      let statement = lazy.DBConn.createStatement(
         "INSERT INTO buddies " +
           "(key, name, srv_alias, position) " +
           "VALUES(:key, :name, :srvAlias, 0)"
@@ -1631,7 +1633,7 @@ ContactsService.prototype = {
         statement.params.srvAlias = srvAlias;
         statement.execute();
         buddy = new Buddy(
-          DBConn.lastInsertRowID,
+          lazy.DBConn.lastInsertRowID,
           normalizedName,
           name,
           srvAlias,
@@ -1661,7 +1663,7 @@ ContactsService.prototype = {
     }
 
     // Store the new account buddy.
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "INSERT INTO account_buddy " +
         "(account_id, buddy_id, tag_id) " +
         "VALUES(:accountId, :buddyId, :tagId)"
@@ -1680,7 +1682,7 @@ ContactsService.prototype = {
   },
   accountBuddyRemoved(aAccountBuddy) {
     let buddy = aAccountBuddy.buddy;
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "DELETE FROM account_buddy " +
         "WHERE account_id = :accountId AND " +
         "buddy_id = :buddyId AND " +
@@ -1700,7 +1702,7 @@ ContactsService.prototype = {
 
   accountBuddyMoved(aAccountBuddy, aOldTag, aNewTag) {
     let buddy = aAccountBuddy.buddy;
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "UPDATE account_buddy " +
         "SET tag_id = :newTagId " +
         "WHERE account_id = :accountId AND " +
@@ -1728,7 +1730,7 @@ ContactsService.prototype = {
   },
 
   storeAccount(aId, aUserName, aPrplId) {
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "SELECT name, prpl FROM accounts WHERE id = :id"
     );
     statement.params.id = aId;
@@ -1748,7 +1750,7 @@ ContactsService.prototype = {
     }
 
     // Actually store the account.
-    statement = DBConn.createStatement(
+    statement = lazy.DBConn.createStatement(
       "INSERT INTO accounts (id, name, prpl) " +
         "VALUES(:id, :userName, :prplId)"
     );
@@ -1762,7 +1764,7 @@ ContactsService.prototype = {
     }
   },
   accountIdExists(aId) {
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "SELECT id FROM accounts WHERE id = :id"
     );
     try {
@@ -1773,7 +1775,7 @@ ContactsService.prototype = {
     }
   },
   forgetAccount(aId) {
-    let statement = DBConn.createStatement(
+    let statement = lazy.DBConn.createStatement(
       "DELETE FROM accounts WHERE id = :accountId"
     );
     try {
@@ -1785,7 +1787,7 @@ ContactsService.prototype = {
 
     // removing the account from the accounts table is not enough,
     // we need to remove all the associated account_buddy entries too
-    statement = DBConn.createStatement(
+    statement = lazy.DBConn.createStatement(
       "DELETE FROM account_buddy WHERE account_id = :accountId"
     );
     try {

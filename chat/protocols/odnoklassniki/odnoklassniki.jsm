@@ -18,7 +18,9 @@ var { XMPPSession } = ChromeUtils.import(
   "resource:///modules/xmpp-session.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
@@ -47,7 +49,7 @@ OdnoklassnikiAccount.prototype = {
         // We can't use this.onError because this._connection doesn't exist.
         this.reportDisconnecting(
           Ci.prplIAccount.ERROR_INVALID_USERNAME,
-          _("connection.error.invalidUsername")
+          lazy._("connection.error.invalidUsername")
         );
         this.reportDisconnected();
         return;
@@ -72,13 +74,13 @@ OdnoklassnikiProtocol.prototype = {
     return "odnoklassniki";
   },
   get name() {
-    return _("odnoklassniki.protocolName");
+    return lazy._("odnoklassniki.protocolName");
   },
   get iconBaseURI() {
     return "chrome://prpl-odnoklassniki/skin/";
   },
   get usernameEmptyText() {
-    return _("odnoklassniki.usernameHint");
+    return lazy._("odnoklassniki.usernameHint");
   },
   getAccount(aImAccount) {
     return new OdnoklassnikiAccount(this, aImAccount);

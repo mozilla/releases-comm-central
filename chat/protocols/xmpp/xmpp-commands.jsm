@@ -8,7 +8,9 @@ var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
@@ -27,7 +29,7 @@ function getMUC(aConv) {
   if (conv.left) {
     conv.writeMessage(
       conv.name,
-      _("conversation.error.commandFailedNotInRoom"),
+      lazy._("conversation.error.commandFailedNotInRoom"),
       { system: true }
     );
     return null;
@@ -78,7 +80,7 @@ function splitByNick(aString, aConv) {
     let expectedNickName = offset != -1 ? params.slice(0, offset) : params;
     aConv.writeMessage(
       aConv.name,
-      _("conversation.error.nickNotInRoom", expectedNickName),
+      lazy._("conversation.error.nickNotInRoom", expectedNickName),
       { system: true }
     );
     return [];
@@ -109,7 +111,7 @@ function invite(aMsg, aConv) {
   if (!jid) {
     aConv.writeMessage(
       aConv.name,
-      _("conversation.error.invalidJID", params[0]),
+      lazy._("conversation.error.invalidJID", params[0]),
       { system: true }
     );
     return true;
@@ -123,7 +125,7 @@ var commands = [
   {
     name: "join",
     get helpString() {
-      return _("command.join3", "join");
+      return lazy._("command.join3", "join");
     },
     run(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
@@ -161,7 +163,7 @@ var commands = [
   {
     name: "part",
     get helpString() {
-      return _("command.part2", "part");
+      return lazy._("command.part2", "part");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -175,7 +177,7 @@ var commands = [
   {
     name: "topic",
     get helpString() {
-      return _("command.topic", "topic");
+      return lazy._("command.topic", "topic");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -190,7 +192,7 @@ var commands = [
   {
     name: "ban",
     get helpString() {
-      return _("command.ban", "ban");
+      return lazy._("command.ban", "ban");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -209,7 +211,7 @@ var commands = [
   {
     name: "kick",
     get helpString() {
-      return _("command.kick", "kick");
+      return lazy._("command.kick", "kick");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -229,7 +231,7 @@ var commands = [
   {
     name: "invite",
     get helpString() {
-      return _("command.invite", "invite");
+      return lazy._("command.invite", "invite");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -244,7 +246,7 @@ var commands = [
   {
     name: "inviteto",
     get helpString() {
-      return _("command.inviteto", "inviteto");
+      return lazy._("command.inviteto", "inviteto");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_IM,
     run: (aMsg, aConv) => invite(aMsg, getConv(aConv)),
@@ -252,7 +254,7 @@ var commands = [
   {
     name: "me",
     get helpString() {
-      return _("command.me", "me");
+      return lazy._("command.me", "me");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -270,7 +272,7 @@ var commands = [
   {
     name: "nick",
     get helpString() {
-      return _("command.nick", "nick");
+      return lazy._("command.nick", "nick");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv) {
@@ -289,7 +291,7 @@ var commands = [
   {
     name: "msg",
     get helpString() {
-      return _("command.msg", "msg");
+      return lazy._("command.msg", "msg");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
     run(aMsg, aConv, aReturnedConv) {
@@ -320,7 +322,7 @@ var commands = [
   {
     name: "version",
     get helpString() {
-      return _("command.version", "version");
+      return lazy._("command.version", "version");
     },
     usageContext: Ci.imICommand.CMD_CONTEXT_IM,
     run(aMsg, aConv, aReturnedConv) {
@@ -333,7 +335,7 @@ var commands = [
       if (!conv._targetResource) {
         conv.writeMessage(
           conv.name,
-          _("conversation.error.resourceNotAvailable", conv.shortName),
+          lazy._("conversation.error.resourceNotAvailable", conv.shortName),
           { system: true }
         );
         return true;

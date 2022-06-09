@@ -19,11 +19,13 @@ var { XMPPSession } = ChromeUtils.import(
 );
 var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
-XPCOMUtils.defineLazyGetter(this, "_", () =>
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
 });
@@ -62,15 +64,17 @@ function* PlainFullBindAuth(aAccount, aUsername, aPassword, aDomain) {
 // See an archived version of https://developers.google.com/talk/jep_extensions/oauth
 function* OAuth2Auth(account, username, password, domain) {
   // Get the OAuth2 information.
-  let [issuer, scope] = OAuth2Providers.getHostnameDetails("talk.google.com");
+  let [issuer, scope] = lazy.OAuth2Providers.getHostnameDetails(
+    "talk.google.com"
+  );
   let [
     clientId,
     clientSecret,
     authorizationEndpoint,
     tokenEndpoint,
-  ] = OAuth2Providers.getIssuerDetails(issuer);
+  ] = lazy.OAuth2Providers.getIssuerDetails(issuer);
   let jid = `${username}@${domain}`;
-  let oauth = new OAuth2(
+  let oauth = new lazy.OAuth2(
     authorizationEndpoint,
     tokenEndpoint,
     scope,
@@ -226,13 +230,13 @@ GTalkProtocol.prototype = {
     return "gtalk";
   },
   get name() {
-    return _("gtalk.protocolName");
+    return lazy._("gtalk.protocolName");
   },
   get iconBaseURI() {
     return "chrome://prpl-gtalk/skin/";
   },
   get usernameEmptyText() {
-    return _("gtalk.usernameHint");
+    return lazy._("gtalk.usernameHint");
   },
   getAccount(aImAccount) {
     return new GTalkAccount(this, aImAccount);
@@ -240,7 +244,7 @@ GTalkProtocol.prototype = {
   options: {
     resource: {
       get label() {
-        return _("options.resource");
+        return lazy._("options.resource");
       },
       default: "",
     },
