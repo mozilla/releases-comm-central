@@ -15,8 +15,10 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -26,7 +28,7 @@ const PREF_APP_UPDATE_UNSUPPORTED_URL = "app.update.unsupported.url";
 const ANCHOR_ID = "app-update-notification-icon";
 const NOTIFICATION_ID = "app-update";
 
-XPCOMUtils.defineLazyGetter(this, "appUpdateBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "appUpdateBundle", function() {
   return Services.strings.createBundle(
     "chrome://messenger/locale/appUpdate.properties"
   );
@@ -93,34 +95,34 @@ const AppUpdateUI_Internal = {
 
     doc.getElementById(
       "app-update-text"
-    ).textContent = appUpdateBundle.formatStringFromName(
+    ).textContent = lazy.appUpdateBundle.formatStringFromName(
       "updateRestartMessage",
       [appName]
     );
 
-    let messageString = appUpdateBundle.formatStringFromName(
+    let messageString = lazy.appUpdateBundle.formatStringFromName(
       "updateRestartTitle",
       [appName]
     );
 
     let action = {
-      label: appUpdateBundle.formatStringFromName(
+      label: lazy.appUpdateBundle.formatStringFromName(
         "updateRestartPrimaryButtonLabel",
         [appName]
       ),
-      accessKey: appUpdateBundle.GetStringFromName(
+      accessKey: lazy.appUpdateBundle.GetStringFromName(
         "updateRestartPrimaryButtonAccessKey"
       ),
       callback: () => {
-        MailUtils.restartApplication();
+        lazy.MailUtils.restartApplication();
       },
     };
     let secondaryActions = [
       {
-        label: appUpdateBundle.GetStringFromName(
+        label: lazy.appUpdateBundle.GetStringFromName(
           "updateRestartSecondaryButtonLabel"
         ),
-        accessKey: appUpdateBundle.GetStringFromName(
+        accessKey: lazy.appUpdateBundle.GetStringFromName(
           "updateRestartSecondaryButtonAccessKey"
         ),
         callback: () => {},
@@ -152,21 +154,21 @@ const AppUpdateUI_Internal = {
 
     doc.getElementById(
       "app-update-text"
-    ).textContent = appUpdateBundle.formatStringFromName(
+    ).textContent = lazy.appUpdateBundle.formatStringFromName(
       "updateAvailableMessage",
       [appName]
     );
 
-    let messageString = appUpdateBundle.formatStringFromName(
+    let messageString = lazy.appUpdateBundle.formatStringFromName(
       "updateAvailableTitle",
       [appName]
     );
 
     let action = {
-      label: appUpdateBundle.GetStringFromName(
+      label: lazy.appUpdateBundle.GetStringFromName(
         "updateAvailablePrimaryButtonLabel"
       ),
-      accessKey: appUpdateBundle.GetStringFromName(
+      accessKey: lazy.appUpdateBundle.GetStringFromName(
         "updateAvailablePrimaryButtonAccessKey"
       ),
       callback: () => {
@@ -177,10 +179,10 @@ const AppUpdateUI_Internal = {
     };
     let secondaryActions = [
       {
-        label: appUpdateBundle.GetStringFromName(
+        label: lazy.appUpdateBundle.GetStringFromName(
           "updateAvailableSecondaryButtonLabel"
         ),
-        accessKey: appUpdateBundle.GetStringFromName(
+        accessKey: lazy.appUpdateBundle.GetStringFromName(
           "updateAvailableSecondaryButtonAccessKey"
         ),
         callback: () => {},
@@ -212,22 +214,22 @@ const AppUpdateUI_Internal = {
 
     doc.getElementById(
       "app-update-text"
-    ).textContent = appUpdateBundle.formatStringFromName(
+    ).textContent = lazy.appUpdateBundle.formatStringFromName(
       "updateManualMessage",
       [appName]
     );
 
-    let messageString = appUpdateBundle.formatStringFromName(
+    let messageString = lazy.appUpdateBundle.formatStringFromName(
       "updateManualTitle",
       [appName]
     );
 
     let action = {
-      label: appUpdateBundle.formatStringFromName(
+      label: lazy.appUpdateBundle.formatStringFromName(
         "updateManualPrimaryButtonLabel",
         [appName]
       ),
-      accessKey: appUpdateBundle.GetStringFromName(
+      accessKey: lazy.appUpdateBundle.GetStringFromName(
         "updateManualPrimaryButtonAccessKey"
       ),
       callback: () => {
@@ -239,10 +241,10 @@ const AppUpdateUI_Internal = {
     };
     let secondaryActions = [
       {
-        label: appUpdateBundle.GetStringFromName(
+        label: lazy.appUpdateBundle.GetStringFromName(
           "updateManualSecondaryButtonLabel"
         ),
-        accessKey: appUpdateBundle.GetStringFromName(
+        accessKey: lazy.appUpdateBundle.GetStringFromName(
           "updateManualSecondaryButtonAccessKey"
         ),
         callback: () => {},
@@ -293,22 +295,22 @@ const AppUpdateUI_Internal = {
 
     doc.getElementById(
       "app-update-text"
-    ).textContent = appUpdateBundle.formatStringFromName(
+    ).textContent = lazy.appUpdateBundle.formatStringFromName(
       "updateUnsupportedMessage",
       [appName]
     );
 
-    let messageString = appUpdateBundle.formatStringFromName(
+    let messageString = lazy.appUpdateBundle.formatStringFromName(
       "updateUnsupportedTitle",
       [appName]
     );
 
     let action = {
-      label: appUpdateBundle.formatStringFromName(
+      label: lazy.appUpdateBundle.formatStringFromName(
         "updateUnsupportedPrimaryButtonLabel",
         [appName]
       ),
-      accessKey: appUpdateBundle.GetStringFromName(
+      accessKey: lazy.appUpdateBundle.GetStringFromName(
         "updateUnsupportedPrimaryButtonAccessKey"
       ),
       callback: () => {
@@ -319,10 +321,10 @@ const AppUpdateUI_Internal = {
     };
     let secondaryActions = [
       {
-        label: appUpdateBundle.GetStringFromName(
+        label: lazy.appUpdateBundle.GetStringFromName(
           "updateManualSecondaryButtonLabel"
         ),
-        accessKey: appUpdateBundle.GetStringFromName(
+        accessKey: lazy.appUpdateBundle.GetStringFromName(
           "updateManualSecondaryButtonAccessKey"
         ),
         callback: () => {},

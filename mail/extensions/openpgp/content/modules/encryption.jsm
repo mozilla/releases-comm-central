@@ -13,7 +13,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
@@ -25,7 +27,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
@@ -66,7 +68,7 @@ var EnigmailEncryption = {
     result.armor = false;
     result.senderKeyIsExternal = false;
 
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "encryption.jsm: getCryptParams: hashAlgorithm=" + hashAlgorithm + "\n"
     );
 
@@ -77,24 +79,24 @@ var EnigmailEncryption = {
     );
 
     try {
-      fromMailAddr = EnigmailFuncs.stripEmail(fromMailAddr);
-      toMailAddr = EnigmailFuncs.stripEmail(toMailAddr);
-      bccMailAddr = EnigmailFuncs.stripEmail(bccMailAddr);
+      fromMailAddr = lazy.EnigmailFuncs.stripEmail(fromMailAddr);
+      toMailAddr = lazy.EnigmailFuncs.stripEmail(toMailAddr);
+      bccMailAddr = lazy.EnigmailFuncs.stripEmail(bccMailAddr);
     } catch (ex) {
-      errorMsgObj.value = l10n.formatValueSync("invalid-email");
+      errorMsgObj.value = lazy.l10n.formatValueSync("invalid-email");
       return null;
     }
 
-    var signMsg = sendFlags & EnigmailConstants.SEND_SIGNED;
-    var encryptMsg = sendFlags & EnigmailConstants.SEND_ENCRYPTED;
-    var usePgpMime = sendFlags & EnigmailConstants.SEND_PGP_MIME;
+    var signMsg = sendFlags & lazy.EnigmailConstants.SEND_SIGNED;
+    var encryptMsg = sendFlags & lazy.EnigmailConstants.SEND_ENCRYPTED;
+    var usePgpMime = sendFlags & lazy.EnigmailConstants.SEND_PGP_MIME;
 
-    if (sendFlags & EnigmailConstants.SEND_SENDER_KEY_EXTERNAL) {
+    if (sendFlags & lazy.EnigmailConstants.SEND_SENDER_KEY_EXTERNAL) {
       result.senderKeyIsExternal = true;
     }
 
     var detachedSig =
-      (usePgpMime || sendFlags & EnigmailConstants.SEND_ATTACHMENT) &&
+      (usePgpMime || sendFlags & lazy.EnigmailConstants.SEND_ATTACHMENT) &&
       signMsg &&
       !encryptMsg;
 
@@ -133,7 +135,10 @@ var EnigmailEncryption = {
         result.sign = true;
       }
 
-      if (sendFlags & EnigmailConstants.SEND_ENCRYPT_TO_SELF && fromMailAddr) {
+      if (
+        sendFlags & lazy.EnigmailConstants.SEND_ENCRYPT_TO_SELF &&
+        fromMailAddr
+      ) {
         result.encryptToSender = true;
       }
 
@@ -155,11 +160,11 @@ var EnigmailEncryption = {
             result.bcc[k] = "<" + email + ">";
           }
 
-          let aliasKeyList = EnigmailKeyRing.getAliasKeyList(email);
+          let aliasKeyList = lazy.EnigmailKeyRing.getAliasKeyList(email);
           if (aliasKeyList) {
             // We have an alias definition.
 
-            let aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
+            let aliasKeys = lazy.EnigmailKeyRing.getAliasKeys(aliasKeyList);
             if (!aliasKeys.length) {
               // An empty result means there was a failure obtaining the
               // defined keys, this happens if at least one key is missing
@@ -201,13 +206,13 @@ var EnigmailEncryption = {
    *   an empty string in case the key is valid.
    */
   determineInvSignReason(keyId) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "errorHandling.jsm: determineInvSignReason: keyId: " + keyId + "\n"
     );
 
-    let key = EnigmailKeyRing.getKeyById(keyId);
+    let key = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
-      return l10n.formatValueSync("key-error-key-id-not-found", {
+      return lazy.l10n.formatValueSync("key-error-key-id-not-found", {
         keySpec: keyId,
       });
     }
@@ -228,13 +233,13 @@ var EnigmailEncryption = {
    *   an empty string in case the key is valid.
    */
   determineInvRcptReason(keyId) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "errorHandling.jsm: determineInvRcptReason: keyId: " + keyId + "\n"
     );
 
-    let key = EnigmailKeyRing.getKeyById(keyId);
+    let key = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
-      return l10n.formatValueSync("key-error-key-id-not-found", {
+      return lazy.l10n.formatValueSync("key-error-key-id-not-found", {
         keySpec: keyId,
       });
     }
@@ -257,7 +262,7 @@ var EnigmailEncryption = {
    *         - errorMsg: String - the error message if key not valid, or null if key is valid
    */
   async determineOwnKeyUsability(sendFlags, fromKeyId, isExternalGnuPG) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "encryption.jsm: determineOwnKeyUsability: sendFlags=" +
         sendFlags +
         ", sender=" +
@@ -274,12 +279,12 @@ var EnigmailEncryption = {
       return ret;
     }
 
-    let sign = !!(sendFlags & EnigmailConstants.SEND_SIGNED);
-    let encrypt = !!(sendFlags & EnigmailConstants.SEND_ENCRYPTED);
+    let sign = !!(sendFlags & lazy.EnigmailConstants.SEND_SIGNED);
+    let encrypt = !!(sendFlags & lazy.EnigmailConstants.SEND_ENCRYPTED);
 
     if (/^(0x)?[0-9a-f]+$/i.test(fromKeyId)) {
       // key ID specified
-      foundKey = EnigmailKeyRing.getKeyById(fromKeyId);
+      foundKey = lazy.EnigmailKeyRing.getKeyById(fromKeyId);
     }
 
     // even for isExternalGnuPG we require that the public key is available
@@ -289,9 +294,11 @@ var EnigmailEncryption = {
     }
 
     if (!isExternalGnuPG && foundKey.secretAvailable) {
-      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(foundKey.fpr);
+      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+        foundKey.fpr
+      );
       if (!isPersonal) {
-        ret.errorMsg = l10n.formatValueSync(
+        ret.errorMsg = lazy.l10n.formatValueSync(
           "key-error-not-accepted-as-personal",
           {
             keySpec: fromKeyId,
@@ -319,7 +326,7 @@ var EnigmailEncryption = {
 
     if (encrypt && foundKey) {
       let v;
-      if (EnigmailKeyRing.isSubkeyId(fromKeyId)) {
+      if (lazy.EnigmailKeyRing.isSubkeyId(fromKeyId)) {
         // If the configured own key ID points to a subkey, check
         // specifically that this subkey is a valid encryption key.
 
@@ -370,7 +377,7 @@ var EnigmailEncryption = {
     statusFlagsObj,
     errorMsgObj
   ) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "encryption.jsm: encryptMessageStart: uiFlags=" +
         uiFlags +
         ", from " +
@@ -380,7 +387,7 @@ var EnigmailEncryption = {
         ", hashAlgorithm=" +
         hashAlgorithm +
         " (" +
-        EnigmailData.bytesToHex(EnigmailData.pack(sendFlags, 4)) +
+        lazy.EnigmailData.bytesToHex(lazy.EnigmailData.pack(sendFlags, 4)) +
         ")\n"
     );
 
@@ -401,14 +408,14 @@ var EnigmailEncryption = {
     errorMsgObj.value = "";
 
     if (!sendFlags) {
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "encryption.jsm: encryptMessageStart: NO ENCRYPTION!\n"
       );
-      errorMsgObj.value = l10n.formatValueSync("not-required");
+      errorMsgObj.value = lazy.l10n.formatValueSync("not-required");
       return 0;
     }
 
-    if (!EnigmailCore.getService(win)) {
+    if (!lazy.EnigmailCore.getService(win)) {
       throw new Error(
         "encryption.jsm: encryptMessageStart: not yet initialized"
       );
@@ -436,7 +443,7 @@ var EnigmailEncryption = {
     }
 
     let resultStatus = {};
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     let encrypted = cApi.sync(
       cApi.encryptAndOrSign(
         listener.getInputForCrypto(),
@@ -447,14 +454,15 @@ var EnigmailEncryption = {
 
     if (resultStatus.exitCode) {
       if (resultStatus.errorMsg.length) {
-        EnigmailDialog.alert(win, resultStatus.errorMsg);
+        lazy.EnigmailDialog.alert(win, resultStatus.errorMsg);
       }
     } else if (encrypted) {
       listener.addCryptoOutput(encrypted);
     }
 
     console.debug(
-      "sendFlags=" + EnigmailData.bytesToHex(EnigmailData.pack(sendFlags, 4))
+      "sendFlags=" +
+        lazy.EnigmailData.bytesToHex(lazy.EnigmailData.pack(sendFlags, 4))
     );
 
     if (resultStatus.exitCode === 0 && !listener.getCryptoOutputLength()) {
@@ -475,7 +483,7 @@ var EnigmailEncryption = {
     statusFlagsObj,
     errorMsgObj
   ) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "enigmail.js: Enigmail.encryptMessage: " +
         plainText.length +
         " bytes from " +

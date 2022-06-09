@@ -17,7 +17,9 @@ const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   RecentlyClosedTabsAndWindowsMenuUtils:
     "resource:///modules/sessionstore/RecentlyClosedTabsAndWindowsMenuUtils.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
@@ -26,7 +28,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 const kPrefCustomizationDebug = "browser.uiCustomization.debug";
 
-XPCOMUtils.defineLazyGetter(this, "log", () => {
+XPCOMUtils.defineLazyGetter(lazy, "log", () => {
   var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
   let debug = Services.prefs.getBoolPref(kPrefCustomizationDebug, false);
   let consoleOptions = {
@@ -53,7 +55,7 @@ function setAttributes(aNode, aAttrs) {
         if (aAttrs.shortcutId) {
           let shortcut = doc.getElementById(aAttrs.shortcutId);
           if (shortcut) {
-            additionalArgs.push(ShortcutUtils.prettifyShortcut(shortcut));
+            additionalArgs.push(lazy.ShortcutUtils.prettifyShortcut(shortcut));
           }
         }
         value = CustomizableUI.getLocalizedProperty(
@@ -123,7 +125,7 @@ const CustomizableWidgets = [
       panelview.panelMultiView.addEventListener("PanelMultiViewHidden", this);
     },
     onViewHiding(event) {
-      log.debug("History view is being hidden!");
+      lazy.log.debug("History view is being hidden!");
     },
     onPanelMultiViewHidden(event) {
       let panelMultiView = event.target;
@@ -149,7 +151,7 @@ const CustomizableWidgets = [
 
       this._panelMenuView.clearAllContents(panelview);
 
-      let utils = RecentlyClosedTabsAndWindowsMenuUtils;
+      let utils = lazy.RecentlyClosedTabsAndWindowsMenuUtils;
       let method = `get${viewType}Fragment`;
       let fragment = utils[method](window, "toolbarbutton", true);
       let elementCount = fragment.childElementCount;
@@ -410,7 +412,7 @@ if (AppConstants.platform == "win") {
 }
 CustomizableWidgets.push(preferencesButton);
 
-if (PrivateBrowsingUtils.enabled) {
+if (lazy.PrivateBrowsingUtils.enabled) {
   CustomizableWidgets.push({
     id: "privatebrowsing-button",
     shortcutId: "key_privatebrowsing",

@@ -15,25 +15,27 @@ var PREF_TASKBAR_BRANCH = "mail.taskbar.lists.";
 var PREF_TASKBAR_ENABLED = "enabled";
 var PREF_TASKBAR_TASKS = "tasks.enabled";
 
-XPCOMUtils.defineLazyGetter(this, "_stringBundle", function() {
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "_stringBundle", function() {
   return Services.strings.createBundle(
     "chrome://messenger/locale/taskbar.properties"
   );
 });
 
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "_taskbarService",
   "@mozilla.org/windows-taskbar;1",
   "nsIWinTaskbar"
 );
 
-XPCOMUtils.defineLazyGetter(this, "_prefs", function() {
+XPCOMUtils.defineLazyGetter(lazy, "_prefs", function() {
   return Services.prefs.getBranch(PREF_TASKBAR_BRANCH);
 });
 
 function _getString(aName) {
-  return _stringBundle.GetStringFromName(aName);
+  return lazy._stringBundle.GetStringFromName(aName);
 }
 
 /**
@@ -211,8 +213,8 @@ var WinTaskbarJumpList = {
    */
 
   _refreshPrefs() {
-    this._enabled = _prefs.getBoolPref(PREF_TASKBAR_ENABLED);
-    this._showTasks = _prefs.getBoolPref(PREF_TASKBAR_TASKS);
+    this._enabled = lazy._prefs.getBoolPref(PREF_TASKBAR_ENABLED);
+    this._showTasks = lazy._prefs.getBoolPref(PREF_TASKBAR_TASKS);
   },
 
   /**
@@ -220,7 +222,7 @@ var WinTaskbarJumpList = {
    */
 
   _initTaskbar() {
-    this._builder = _taskbarService.createJumpListBuilder(false);
+    this._builder = lazy._taskbarService.createJumpListBuilder(false);
     if (!this._builder || !this._builder.available) {
       return false;
     }
@@ -230,18 +232,18 @@ var WinTaskbarJumpList = {
 
   _initObs() {
     Services.obs.addObserver(this, "profile-before-change");
-    _prefs.addObserver("", this);
+    lazy._prefs.addObserver("", this);
   },
 
   _freeObs() {
     Services.obs.removeObserver(this, "profile-before-change");
-    _prefs.removeObserver("", this);
+    lazy._prefs.removeObserver("", this);
   },
 
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
       case "nsPref:changed":
-        if (this._enabled && !_prefs.getBoolPref(PREF_TASKBAR_ENABLED)) {
+        if (this._enabled && !lazy._prefs.getBoolPref(PREF_TASKBAR_ENABLED)) {
           this._deleteActiveJumpList();
         }
         this._refreshPrefs();

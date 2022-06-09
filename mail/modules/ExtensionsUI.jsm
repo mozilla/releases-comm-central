@@ -13,7 +13,9 @@ const { EventEmitter } = ChromeUtils.import(
   "resource://gre/modules/EventEmitter.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
   AMTelemetry: "resource://gre/modules/AddonManager.jsm",
@@ -26,10 +28,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
 
-XPCOMUtils.defineLazyGetter(this, "addonsBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "addonsBundle", function() {
   return Services.strings.createBundle(ADDONS_PROPERTIES);
 });
-XPCOMUtils.defineLazyGetter(this, "brandShortName", function() {
+XPCOMUtils.defineLazyGetter(lazy, "brandShortName", function() {
   return Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandShortName");
@@ -143,7 +145,9 @@ var gXPInstallObserver = {
     // If all installs have already been cancelled in some way then just show
     // the next confirmation.
     if (
-      installInfo.installs.every(i => i.state != AddonManager.STATE_DOWNLOADED)
+      installInfo.installs.every(
+        i => i.state != lazy.AddonManager.STATE_DOWNLOADED
+      )
     ) {
       showNextConfirmation();
       return;
@@ -177,7 +181,7 @@ var gXPInstallObserver = {
           // The notification may have been closed because the add-ons got
           // cancelled elsewhere, only try to cancel those that are still
           // pending install.
-          if (install.state != AddonManager.STATE_CANCELLED) {
+          if (install.state != lazy.AddonManager.STATE_CANCELLED) {
             install.cancel();
           }
         }
@@ -221,27 +225,34 @@ var gXPInstallObserver = {
     let notification = document.getElementById(
       "addon-install-confirmation-notification"
     );
-    messageString = addonsBundle.GetStringFromName(
+    messageString = lazy.addonsBundle.GetStringFromName(
       "addonConfirmInstall.message"
     );
     notification.removeAttribute("warning");
     options.learnMoreURL += "find-and-install-add-ons";
 
-    messageString = PluralForm.get(installInfo.installs.length, messageString);
-    messageString = messageString.replace("#1", brandShortName);
+    messageString = lazy.PluralForm.get(
+      installInfo.installs.length,
+      messageString
+    );
+    messageString = messageString.replace("#1", lazy.brandShortName);
     messageString = messageString.replace("#2", installInfo.installs.length);
 
     let action = {
-      label: addonsBundle.GetStringFromName("addonInstall.acceptButton2.label"),
-      accessKey: addonsBundle.GetStringFromName(
+      label: lazy.addonsBundle.GetStringFromName(
+        "addonInstall.acceptButton2.label"
+      ),
+      accessKey: lazy.addonsBundle.GetStringFromName(
         "addonInstall.acceptButton2.accesskey"
       ),
       callback: acceptInstallation,
     };
 
     let secondaryAction = {
-      label: addonsBundle.GetStringFromName("addonInstall.cancelButton.label"),
-      accessKey: addonsBundle.GetStringFromName(
+      label: lazy.addonsBundle.GetStringFromName(
+        "addonInstall.cancelButton.label"
+      ),
+      accessKey: lazy.addonsBundle.GetStringFromName(
         "addonInstall.cancelButton.accesskey"
       ),
       callback: () => {},
@@ -290,17 +301,19 @@ var gXPInstallObserver = {
         let secondaryActions = null;
 
         if (Services.prefs.prefIsLocked("xpinstall.enabled")) {
-          messageString = addonsBundle.GetStringFromName(
+          messageString = lazy.addonsBundle.GetStringFromName(
             "xpinstallDisabledMessageLocked"
           );
         } else {
-          messageString = addonsBundle.GetStringFromName(
+          messageString = lazy.addonsBundle.GetStringFromName(
             "xpinstallDisabledMessage"
           );
 
           action = {
-            label: addonsBundle.GetStringFromName("xpinstallDisabledButton"),
-            accessKey: addonsBundle.GetStringFromName(
+            label: lazy.addonsBundle.GetStringFromName(
+              "xpinstallDisabledButton"
+            ),
+            accessKey: lazy.addonsBundle.GetStringFromName(
               "xpinstallDisabledButton.accesskey"
             ),
             callback: () => {
@@ -310,10 +323,10 @@ var gXPInstallObserver = {
 
           secondaryActions = [
             {
-              label: addonsBundle.GetStringFromName(
+              label: lazy.addonsBundle.GetStringFromName(
                 "addonInstall.cancelButton.label"
               ),
-              accessKey: addonsBundle.GetStringFromName(
+              accessKey: lazy.addonsBundle.GetStringFromName(
                 "addonInstall.cancelButton.accesskey"
               ),
               callback: () => {},
@@ -336,13 +349,13 @@ var gXPInstallObserver = {
       case "addon-install-policy-blocked":
       case "addon-install-origin-blocked": {
         if (topic == "addon-install-policy-blocked") {
-          messageString = addonsBundle.GetStringFromName(
+          messageString = lazy.addonsBundle.GetStringFromName(
             "addonDomainBlockedByPolicy"
           );
         } else {
-          messageString = addonsBundle.getFormattedString(
+          messageString = lazy.addonsBundle.getFormattedString(
             "xpinstallPromptMessage",
-            [brandShortName]
+            [lazy.brandShortName]
           );
         }
 
@@ -378,13 +391,13 @@ var gXPInstallObserver = {
       case "addon-install-blocked": {
         let hasHost = !!options.displayURI;
         if (hasHost) {
-          messageString = addonsBundle.formatStringFromName(
+          messageString = lazy.addonsBundle.formatStringFromName(
             "xpinstallPromptMessage.header",
             ["<>"]
           );
           options.name = options.displayURI.displayHost;
         } else {
-          messageString = addonsBundle.GetStringFromName(
+          messageString = lazy.addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.header.unknown"
           );
         }
@@ -403,7 +416,7 @@ var gXPInstallObserver = {
             message.firstChild.remove();
           }
           if (hasHost) {
-            let text = addonsBundle.GetStringFromName(
+            let text = lazy.addonsBundle.GetStringFromName(
               "xpinstallPromptMessage.message"
             );
             let b = doc.createElementNS("http://www.w3.org/1999/xhtml", "b");
@@ -411,12 +424,12 @@ var gXPInstallObserver = {
             let fragment = getLocalizedFragment(doc, text, b);
             message.appendChild(fragment);
           } else {
-            message.textContent = addonsBundle.GetStringFromName(
+            message.textContent = lazy.addonsBundle.GetStringFromName(
               "xpinstallPromptMessage.message.unknown"
             );
           }
           let learnMore = doc.getElementById("addon-install-blocked-info");
-          learnMore.textContent = addonsBundle.GetStringFromName(
+          learnMore.textContent = lazy.addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.learnMore"
           );
           learnMore.setAttribute(
@@ -428,10 +441,10 @@ var gXPInstallObserver = {
 
         let secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
         action = {
-          label: addonsBundle.GetStringFromName(
+          label: lazy.addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.install"
           ),
-          accessKey: addonsBundle.GetStringFromName(
+          accessKey: lazy.addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.install.accesskey"
           ),
           callback() {
@@ -443,15 +456,15 @@ var gXPInstallObserver = {
           },
         };
         let dontAllowAction = {
-          label: addonsBundle.GetStringFromName(
+          label: lazy.addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.dontAllow"
           ),
-          accessKey: addonsBundle.GetStringFromName(
+          accessKey: lazy.addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.dontAllow.accesskey"
           ),
           callback: () => {
             for (let install of installInfo.installs) {
-              if (install.state != AddonManager.STATE_CANCELLED) {
+              if (install.state != lazy.AddonManager.STATE_CANCELLED) {
                 install.cancel();
               }
             }
@@ -475,7 +488,7 @@ var gXPInstallObserver = {
       }
       case "addon-install-started": {
         let needsDownload = function(install) {
-          return install.state != AddonManager.STATE_DOWNLOADED;
+          return install.state != lazy.AddonManager.STATE_DOWNLOADED;
         };
         // If all installs have already been downloaded then there is no need to
         // show the download progress.
@@ -483,10 +496,10 @@ var gXPInstallObserver = {
           return;
         }
         notificationID = "addon-progress";
-        messageString = addonsBundle.GetStringFromName(
+        messageString = lazy.addonsBundle.GetStringFromName(
           "addonDownloadingAndVerifying"
         );
-        messageString = PluralForm.get(
+        messageString = lazy.PluralForm.get(
           installInfo.installs.length,
           messageString
         );
@@ -506,25 +519,25 @@ var gXPInstallObserver = {
           }
         };
         action = {
-          label: addonsBundle.GetStringFromName(
+          label: lazy.addonsBundle.GetStringFromName(
             "addonInstall.acceptButton2.label"
           ),
-          accessKey: addonsBundle.GetStringFromName(
+          accessKey: lazy.addonsBundle.GetStringFromName(
             "addonInstall.acceptButton2.accesskey"
           ),
           disabled: true,
           callback: () => {},
         };
         let secondaryAction = {
-          label: addonsBundle.GetStringFromName(
+          label: lazy.addonsBundle.GetStringFromName(
             "addonInstall.cancelButton.label"
           ),
-          accessKey: addonsBundle.GetStringFromName(
+          accessKey: lazy.addonsBundle.GetStringFromName(
             "addonInstall.cancelButton.accesskey"
           ),
           callback: () => {
             for (let install of installInfo.installs) {
-              if (install.state != AddonManager.STATE_CANCELLED) {
+              if (install.state != lazy.AddonManager.STATE_CANCELLED) {
                 install.cancel();
               }
             }
@@ -568,7 +581,7 @@ var gXPInstallObserver = {
           let args;
           if (install.error < 0) {
             error += install.error;
-            args = [brandShortName, install.name];
+            args = [lazy.brandShortName, install.name];
           } else if (
             install.addon.blocklistState == Ci.nsIBlocklistService.STATE_BLOCKED
           ) {
@@ -576,7 +589,11 @@ var gXPInstallObserver = {
             args = [install.name];
           } else {
             error += "Incompatible";
-            args = [brandShortName, Services.appinfo.version, install.name];
+            args = [
+              lazy.brandShortName,
+              Services.appinfo.version,
+              install.name,
+            ];
           }
 
           if (
@@ -597,7 +614,7 @@ var gXPInstallObserver = {
             args = [install.name, install.addon.id, message];
           }
 
-          messageString = addonsBundle.formatStringFromName(error, args);
+          messageString = lazy.addonsBundle.formatStringFromName(error, args);
 
           showNotification(
             browser,
@@ -636,7 +653,7 @@ var gXPInstallObserver = {
             Services.prefs.getIntPref("security.dialog_enable_delay") -
             downloadDuration;
           if (securityDelay > 0) {
-            setTimeout(() => {
+            lazy.setTimeout(() => {
               // The download may have been cancelled during the security delay
               if (getNotification("addon-progress", browser)) {
                 showNotification();
@@ -653,14 +670,15 @@ var gXPInstallObserver = {
         let numAddons = installInfo.installs.length;
 
         if (numAddons == 1) {
-          messageString = addonsBundle.formatStringFromName("addonInstalled", [
-            installInfo.installs[0].name,
-          ]);
+          messageString = lazy.addonsBundle.formatStringFromName(
+            "addonInstalled",
+            [installInfo.installs[0].name]
+          );
         } else {
-          messageString = addonsBundle.GetStringFromName(
+          messageString = lazy.addonsBundle.GetStringFromName(
             "addonsGenericInstalled"
           );
-          messageString = PluralForm.get(numAddons, messageString);
+          messageString = lazy.PluralForm.get(numAddons, messageString);
           messageString = messageString.replace("#1", numAddons);
         }
         action = null;
@@ -727,7 +745,7 @@ var ExtensionsUI = {
   },
 
   async _checkForSideloaded() {
-    let sideloaded = await AddonManagerPrivate.getNewSideloads();
+    let sideloaded = await lazy.AddonManagerPrivate.getNewSideloads();
 
     if (!sideloaded.length) {
       // No new side-loads. We're done.
@@ -749,12 +767,12 @@ var ExtensionsUI = {
           this._updateNotifications();
 
           if (this.sideloaded.size == 0) {
-            AddonManager.removeAddonListener(this.sideloadListener);
+            lazy.AddonManager.removeAddonListener(this.sideloadListener);
             this.sideloadListener = null;
           }
         },
       };
-      AddonManager.addAddonListener(this.sideloadListener);
+      lazy.AddonManager.addAddonListener(this.sideloadListener);
     }
 
     for (let addon of sideloaded) {
@@ -765,9 +783,9 @@ var ExtensionsUI = {
 
   _updateNotifications() {
     if (this.sideloaded.size + this.updates.size == 0) {
-      AppMenuNotifications.removeNotification("addon-alert");
+      lazy.AppMenuNotifications.removeNotification("addon-alert");
     } else {
-      AppMenuNotifications.showBadgeOnlyNotification("addon-alert");
+      lazy.AppMenuNotifications.showBadgeOnlyNotification("addon-alert");
     }
     this.emit("change");
   },
@@ -783,7 +801,7 @@ var ExtensionsUI = {
       type: "sideload",
     });
 
-    AMTelemetry.recordManageEvent(addon, "sideload_prompt", {
+    lazy.AMTelemetry.recordManageEvent(addon, "sideload_prompt", {
       num_strings: strings.msgs.length,
     });
 
@@ -803,7 +821,7 @@ var ExtensionsUI = {
   },
 
   showUpdate(browser, info) {
-    AMTelemetry.recordInstallEvent(info.install, {
+    lazy.AMTelemetry.recordInstallEvent(info.install, {
       step: "permissions_prompt",
       num_strings: info.strings.msgs.length,
     });
@@ -841,23 +859,23 @@ var ExtensionsUI = {
       }
 
       let strings = this._buildStrings(info);
-      let data = new ExtensionData(info.addon.getResourceURI());
+      let data = new lazy.ExtensionData(info.addon.getResourceURI());
       await data.loadManifest();
       if (data.manifest.experiment_apis) {
         // Add the experiment permission text and use the header for
         // extensions with permissions.
-        strings.header = addonsBundle.formatStringFromName(
+        strings.header = lazy.addonsBundle.formatStringFromName(
           "webextPerms.headerWithPerms",
           ["<>"]
         );
         strings.msgs = [
-          addonsBundle.formatStringFromName(
+          lazy.addonsBundle.formatStringFromName(
             "webextPerms.description.experiment",
-            [brandShortName]
+            [lazy.brandShortName]
           ),
         ];
         if (info.source != "AMO") {
-          strings.experimentWarning = addonsBundle.GetStringFromName(
+          strings.experimentWarning = lazy.addonsBundle.GetStringFromName(
             "webextPerms.experimentWarning"
           );
         }
@@ -866,7 +884,7 @@ var ExtensionsUI = {
       // If this is an update with no promptable permissions, just apply it. Skip
       // prompts also, if this add-on already has full access via experiment_apis.
       if (info.type == "update") {
-        let extension = ExtensionParent.GlobalManager.getExtension(
+        let extension = lazy.ExtensionParent.GlobalManager.getExtension(
           info.addon.id
         );
         if (
@@ -892,11 +910,11 @@ var ExtensionsUI = {
       }
 
       if (info.type == "sideload") {
-        AMTelemetry.recordManageEvent(info.addon, "sideload_prompt", {
+        lazy.AMTelemetry.recordManageEvent(info.addon, "sideload_prompt", {
           num_strings: strings.msgs.length,
         });
       } else {
-        AMTelemetry.recordInstallEvent(info.install, {
+        lazy.AMTelemetry.recordInstallEvent(info.install, {
           step: "permissions_prompt",
           num_strings: strings.msgs.length,
         });
@@ -942,7 +960,9 @@ var ExtensionsUI = {
 
       // If we don't prompt for any new permissions, just apply it. Skip prompts
       // also, if this add-on already has full access via experiment_apis.
-      let extension = ExtensionParent.GlobalManager.getExtension(info.addon.id);
+      let extension = lazy.ExtensionParent.GlobalManager.getExtension(
+        info.addon.id
+      );
       if (
         !strings.msgs.length ||
         (extension && extension.manifest.experiment_apis)
@@ -1023,7 +1043,7 @@ var ExtensionsUI = {
   // Create a set of formatted strings for a permission prompt
   _buildStrings(info) {
     let bundle = Services.strings.createBundle(ADDONS_PROPERTIES);
-    let info2 = Object.assign({ appName: brandShortName }, info);
+    let info2 = Object.assign({ appName: lazy.brandShortName }, info);
 
     const getKeyForPermission = perm => {
       // Map permission names to permission description keys. If a description has
@@ -1037,12 +1057,12 @@ var ExtensionsUI = {
       }
     };
 
-    let strings = ExtensionData.formatPermissionStrings(info2, bundle, {
+    let strings = lazy.ExtensionData.formatPermissionStrings(info2, bundle, {
       collapseOrigins: true,
       getKeyForPermission,
     });
     strings.addonName = info.addon.name;
-    strings.learnMore = addonsBundle.GetStringFromName(
+    strings.learnMore = lazy.addonsBundle.GetStringFromName(
       "webextPerms.learnMore2"
     );
     return strings;
@@ -1214,14 +1234,14 @@ var ExtensionsUI = {
     let { browser, window } = getTabBrowser(target);
     let document = window.document;
 
-    let message = addonsBundle.formatStringFromName(
+    let message = lazy.addonsBundle.formatStringFromName(
       "addonPostInstall.message2",
       ["<>"]
     );
 
     let icon = DEFAULT_EXTENSION_ICON;
     if (addon.isWebExtension) {
-      icon = AddonManager.getPreferredIconURL(addon, 32, window) || icon;
+      icon = lazy.AddonManager.getPreferredIconURL(addon, 32, window) || icon;
     }
 
     let options = {

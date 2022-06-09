@@ -8,16 +8,17 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "OTRUI", "resource:///modules/OTRUI.jsm");
 
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "l10n",
   () => new Localization(["messenger/otr/otrUI.ftl"], true)
 );
 
 function _str(id) {
-  return l10n.formatValueSync(id);
+  return lazy.l10n.formatValueSync(id);
 }
 
 const STATE_STRING = {
@@ -45,7 +46,7 @@ const ChatEncryption = {
    * @returns {boolean} If encryption can be configured.
    */
   canConfigureEncryption(protocol) {
-    if (this.otrEnabled && OTRUI.enabled) {
+    if (this.otrEnabled && lazy.OTRUI.enabled) {
       return true;
     }
     return protocol.canEncrypt;
@@ -57,7 +58,7 @@ const ChatEncryption = {
    * @returns {boolean}
    */
   hasEncryptionActions(conversation) {
-    if (!conversation.isChat && this.otrEnabled && OTRUI.enabled) {
+    if (!conversation.isChat && this.otrEnabled && lazy.OTRUI.enabled) {
       return true;
     }
     return (
@@ -84,7 +85,7 @@ const ChatEncryption = {
       document.querySelector(".otr-start").hidden = true;
       document.querySelector(".otr-end").hidden = true;
       document.querySelector(".otr-auth").hidden = true;
-      OTRUI.hideAllOTRNotifications();
+      lazy.OTRUI.hideAllOTRNotifications();
 
       const actionsAvailable =
         conversation.encryptionState !==
@@ -105,11 +106,11 @@ const ChatEncryption = {
         _str("state-" + trustStringLevel + "-label")
       );
       otrButton.className = "encryption-button encryption-" + trustStringLevel;
-    } else if (!conversation.isChat && OTRUI.enabled) {
+    } else if (!conversation.isChat && lazy.OTRUI.enabled) {
       document.querySelector(".otr-start").hidden = false;
       document.querySelector(".otr-end").hidden = false;
       document.querySelector(".otr-auth").hidden = false;
-      OTRUI.updateOTRButton(conversation);
+      lazy.OTRUI.updateOTRButton(conversation);
       document.querySelector(".protocol-encrypt").hidden = true;
     } else {
       this.hideEncryptionButton(document);
@@ -123,7 +124,7 @@ const ChatEncryption = {
   hideEncryptionButton(document) {
     document.querySelector(".encryption-container").hidden = true;
     if (this.otrEnabled) {
-      OTRUI.hideOTRButton();
+      lazy.OTRUI.hideOTRButton();
     }
   },
   /**

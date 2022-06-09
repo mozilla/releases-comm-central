@@ -13,7 +13,9 @@ const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
   SearchWidgetTracker: "resource:///modules/SearchWidgetTracker.jsm",
@@ -24,7 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "gWidgetsBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "gWidgetsBundle", function() {
   const kUrl =
     "chrome://browser/locale/customizableui/customizableWidgets.properties";
   return Services.strings.createBundle(kUrl);
@@ -162,21 +164,21 @@ var gUIStateBeforeReset = {
 };
 
 XPCOMUtils.defineLazyPreferenceGetter(
-  this,
+  lazy,
   "gDebuggingEnabled",
   kPrefCustomizationDebug,
   false,
   (pref, oldVal, newVal) => {
-    if (typeof log != "undefined") {
-      log.maxLogLevel = newVal ? "all" : "log";
+    if (typeof lazy.log != "undefined") {
+      lazy.log.maxLogLevel = newVal ? "all" : "log";
     }
   }
 );
 
-XPCOMUtils.defineLazyGetter(this, "log", () => {
+XPCOMUtils.defineLazyGetter(lazy, "log", () => {
   let { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
   let consoleOptions = {
-    maxLogLevel: gDebuggingEnabled ? "all" : "log",
+    maxLogLevel: lazy.gDebuggingEnabled ? "all" : "log",
     prefix: "CustomizableUI",
   };
   return new ConsoleAPI(consoleOptions);
@@ -184,12 +186,12 @@ XPCOMUtils.defineLazyGetter(this, "log", () => {
 
 var CustomizableUIInternal = {
   initialize() {
-    log.debug("Initializing");
+    lazy.log.debug("Initializing");
 
-    AddonManagerPrivate.databaseReady.then(async () => {
-      AddonManager.addAddonListener(this);
+    lazy.AddonManagerPrivate.databaseReady.then(async () => {
+      lazy.AddonManager.addAddonListener(this);
 
-      let addons = await AddonManager.getAddonsByTypes(["theme"]);
+      let addons = await lazy.AddonManager.getAddonsByTypes(["theme"]);
       gDefaultTheme = addons.find(addon => addon.id == kDefaultThemeID);
       gSelectedTheme = addons.find(addon => addon.isActive) || gDefaultTheme;
     });
@@ -274,7 +276,7 @@ var CustomizableUIInternal = {
       true
     );
 
-    SearchWidgetTracker.init();
+    lazy.SearchWidgetTracker.init();
   },
 
   onEnabled(addon) {
@@ -303,7 +305,7 @@ var CustomizableUIInternal = {
   },
 
   _defineBuiltInWidgets() {
-    for (let widgetDefinition of CustomizableWidgets) {
+    for (let widgetDefinition of lazy.CustomizableWidgets) {
       this.createBuiltinWidget(widgetDefinition);
     }
   },
@@ -910,7 +912,7 @@ var CustomizableUIInternal = {
   buildArea(aArea, aPlacements, aAreaNode) {
     let document = aAreaNode.ownerDocument;
     let window = document.defaultView;
-    let inPrivateWindow = PrivateBrowsingUtils.isWindowPrivate(window);
+    let inPrivateWindow = lazy.PrivateBrowsingUtils.isWindowPrivate(window);
     let container = this.getCustomizationTarget(aAreaNode);
     let areaIsPanel =
       gAreas.get(aArea).get("type") == CustomizableUI.TYPE_MENU_PANEL;
@@ -960,7 +962,7 @@ var CustomizableUIInternal = {
 
         let [provider, node] = this.getWidgetNode(id, window);
         if (!node) {
-          log.debug("Unknown widget: " + id);
+          lazy.log.debug("Unknown widget: " + id);
           continue;
         }
 
@@ -1032,7 +1034,7 @@ var CustomizableUIInternal = {
               }
             } else {
               node.setAttribute("removable", false);
-              log.debug(
+              lazy.log.debug(
                 "Adding non-removable widget to placements of " +
                   aArea +
                   ": " +
@@ -1139,7 +1141,7 @@ var CustomizableUIInternal = {
     if (widget) {
       // If we have an instance of this widget already, just use that.
       if (widget.instances.has(document)) {
-        log.debug(
+        lazy.log.debug(
           "An instance of widget " +
             aWidgetId +
             " already exists in this " +
@@ -1151,13 +1153,13 @@ var CustomizableUIInternal = {
       return [CustomizableUI.PROVIDER_API, this.buildWidget(document, widget)];
     }
 
-    log.debug("Searching for " + aWidgetId + " in toolbox.");
+    lazy.log.debug("Searching for " + aWidgetId + " in toolbox.");
     let node = this.findWidgetInWindow(aWidgetId, aWindow);
     if (node) {
       return [CustomizableUI.PROVIDER_XUL, node];
     }
 
-    log.debug("No node for " + aWidgetId + " found.");
+    lazy.log.debug("No node for " + aWidgetId + " found.");
     return [null, null];
   },
 
@@ -1211,7 +1213,7 @@ var CustomizableUIInternal = {
       let window = areaNode.ownerGlobal;
       if (
         !showInPrivateBrowsing &&
-        PrivateBrowsingUtils.isWindowPrivate(window)
+        lazy.PrivateBrowsingUtils.isWindowPrivate(window)
       ) {
         continue;
       }
@@ -1223,7 +1225,7 @@ var CustomizableUIInternal = {
       }
 
       if (!widgetNode || !container.contains(widgetNode)) {
-        log.info(
+        lazy.log.info(
           "Widget " + aWidgetId + " not found, unable to remove from " + aArea
         );
         continue;
@@ -1388,7 +1390,7 @@ var CustomizableUIInternal = {
 
     let placements = gPlacements.get(aArea);
     if (!placements) {
-      log.error(
+      lazy.log.error(
         "Could not find any placements for " + aArea + " when moving a widget."
       );
       return;
@@ -1409,14 +1411,14 @@ var CustomizableUIInternal = {
 
     if (
       !showInPrivateBrowsing &&
-      PrivateBrowsingUtils.isWindowPrivate(window)
+      lazy.PrivateBrowsingUtils.isWindowPrivate(window)
     ) {
       return;
     }
 
     let [, widgetNode] = this.getWidgetNode(aWidgetId, window);
     if (!widgetNode) {
-      log.error("Widget '" + aWidgetId + "' not found, unable to move");
+      lazy.log.error("Widget '" + aWidgetId + "' not found, unable to move");
       return;
     }
 
@@ -1580,7 +1582,7 @@ var CustomizableUIInternal = {
     }
 
     if (!aId) {
-      log.error("findWidgetInWindow was passed an empty string.");
+      lazy.log.error("findWidgetInWindow was passed an empty string.");
       return null;
     }
 
@@ -1660,12 +1662,12 @@ var CustomizableUIInternal = {
     }
     if (
       !aWidget.showInPrivateBrowsing &&
-      PrivateBrowsingUtils.isWindowPrivate(aDocument.defaultView)
+      lazy.PrivateBrowsingUtils.isWindowPrivate(aDocument.defaultView)
     ) {
       return null;
     }
 
-    log.debug("Building " + aWidget.id + " of type " + aWidget.type);
+    lazy.log.debug("Building " + aWidget.id + " of type " + aWidget.type);
 
     let node;
     if (aWidget.type == "custom") {
@@ -1673,7 +1675,7 @@ var CustomizableUIInternal = {
         node = aWidget.onBuild(aDocument);
       }
       if (!node || !aDocument.defaultView.XULElement.isInstance(node)) {
-        log.error(
+        lazy.log.error(
           "Custom widget with id " +
             aWidget.id +
             " does not return a valid node"
@@ -1702,10 +1704,10 @@ var CustomizableUIInternal = {
         let keyEl = aDocument.getElementById(aWidget.shortcutId);
         if (keyEl) {
           additionalTooltipArguments.push(
-            ShortcutUtils.prettifyShortcut(keyEl)
+            lazy.ShortcutUtils.prettifyShortcut(keyEl)
           );
         } else {
-          log.error(
+          lazy.log.error(
             "Key element with id '" +
               aWidget.shortcutId +
               "' for widget '" +
@@ -1734,7 +1736,7 @@ var CustomizableUIInternal = {
       // If the widget has a view, and has view showing / hiding listeners,
       // hook those up to this widget.
       if (aWidget.type == "view") {
-        log.debug(
+        lazy.log.debug(
           "Widget " +
             aWidget.id +
             " has a view. Auto-registering event handlers."
@@ -1750,7 +1752,7 @@ var CustomizableUIInternal = {
           }
           this.ensureSubviewListeners(viewNode);
         } else {
-          log.error(
+          lazy.log.error(
             "Could not find the view node with id: " +
               aWidget.viewId +
               ", for widget: " +
@@ -1793,7 +1795,7 @@ var CustomizableUIInternal = {
       }
     }
     viewNode._addedEventListeners = true;
-    log.debug(
+    lazy.log.debug(
       "Widget " + widget.id + " showing and hiding event handlers set."
     );
   },
@@ -1829,19 +1831,19 @@ var CustomizableUIInternal = {
     try {
       if (Array.isArray(aFormatArgs) && aFormatArgs.length) {
         return (
-          gWidgetsBundle.formatStringFromName(
+          lazy.gWidgetsBundle.formatStringFromName(
             name,
             aFormatArgs,
             aFormatArgs.length
           ) || def
         );
       }
-      return gWidgetsBundle.GetStringFromName(name) || def;
+      return lazy.gWidgetsBundle.GetStringFromName(name) || def;
     } catch (ex) {
       // If an empty string was explicitly passed, treat it as an actual
       // value rather than a missing property.
       if (!def && (name != "" || kReqStringProps.includes(aProp))) {
-        log.error("Could not localize property '" + name + "'.");
+        lazy.log.error("Could not localize property '" + name + "'.");
       }
     }
     return def;
@@ -1861,7 +1863,7 @@ var CustomizableUIInternal = {
     } else {
       let commandId = aShortcutNode.getAttribute("command");
       if (commandId) {
-        shortcut = ShortcutUtils.findShortcut(
+        shortcut = lazy.ShortcutUtils.findShortcut(
           document.getElementById(commandId)
         );
       }
@@ -1872,19 +1874,19 @@ var CustomizableUIInternal = {
 
     aTargetNode.setAttribute(
       "shortcut",
-      ShortcutUtils.prettifyShortcut(shortcut)
+      lazy.ShortcutUtils.prettifyShortcut(shortcut)
     );
   },
 
   handleWidgetCommand(aWidget, aNode, aEvent) {
     // Note that aEvent can be a keypress event for widgets of type "view".
-    log.debug("handleWidgetCommand");
+    lazy.log.debug("handleWidgetCommand");
 
     if (aWidget.onBeforeCommand) {
       try {
         aWidget.onBeforeCommand.call(null, aEvent);
       } catch (e) {
-        log.error(e);
+        lazy.log.error(e);
       }
     }
 
@@ -1893,7 +1895,7 @@ var CustomizableUIInternal = {
         try {
           aWidget.onCommand.call(null, aEvent);
         } catch (e) {
-          log.error(e);
+          lazy.log.error(e);
         }
       } else {
         // XXXunf Need to think this through more, and formalize.
@@ -1923,7 +1925,7 @@ var CustomizableUIInternal = {
   },
 
   handleWidgetClick(aWidget, aNode, aEvent) {
-    log.debug("handleWidgetClick");
+    lazy.log.debug("handleWidgetClick");
     if (aWidget.onClick) {
       try {
         aWidget.onClick.call(null, aEvent);
@@ -2067,7 +2069,7 @@ var CustomizableUIInternal = {
   hidePanelForNode(aNode) {
     let panel = this._getPanelForNode(aNode);
     if (panel) {
-      PanelMultiView.hidePopup(panel);
+      lazy.PanelMultiView.hidePopup(panel);
     }
   },
 
@@ -2086,7 +2088,7 @@ var CustomizableUIInternal = {
         return;
       }
       let isInteractive = this._isOnInteractiveElement(aEvent);
-      log.debug("maybeAutoHidePanel: interactive ? " + isInteractive);
+      lazy.log.debug("maybeAutoHidePanel: interactive ? " + isInteractive);
       if (isInteractive) {
         return;
       }
@@ -2114,7 +2116,7 @@ var CustomizableUIInternal = {
 
   getUnusedWidgets(aWindowPalette) {
     let window = aWindowPalette.ownerGlobal;
-    let isWindowPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
+    let isWindowPrivate = lazy.PrivateBrowsingUtils.isWindowPrivate(window);
     // We use a Set because there can be overlap between the widgets in
     // gPalette and the items in the palette, especially after the first
     // customization, since programmatically generated widgets will remain
@@ -2132,9 +2134,9 @@ var CustomizableUIInternal = {
       }
     }
 
-    log.debug("Iterating the actual nodes of the window palette");
+    lazy.log.debug("Iterating the actual nodes of the window palette");
     for (let node of aWindowPalette.children) {
-      log.debug("In palette children: " + node.id);
+      lazy.log.debug("In palette children: " + node.id);
       if (node.id && !this.getPlacementOfWidget(node.id)) {
         widgets.add(node.id);
       }
@@ -2333,7 +2335,7 @@ var CustomizableUIInternal = {
   loadSavedState() {
     let state = Services.prefs.getCharPref(kPrefCustomizationState, "");
     if (!state) {
-      log.debug("No saved state found");
+      lazy.log.debug("No saved state found");
       // Nothing has been customized, so silently fall back to the defaults.
       return;
     }
@@ -2345,7 +2347,7 @@ var CustomizableUIInternal = {
     } catch (e) {
       Services.prefs.clearUserPref(kPrefCustomizationState);
       gSavedState = {};
-      log.debug(
+      lazy.log.debug(
         "Error loading saved UI customization state, falling back to defaults."
       );
     }
@@ -2372,7 +2374,7 @@ var CustomizableUIInternal = {
 
       let restored = false;
       if (placementsPreexisted) {
-        log.debug("Restoring " + aArea + " from pre-existing placements");
+        lazy.log.debug("Restoring " + aArea + " from pre-existing placements");
         for (let [position, id] of gPlacements.get(aArea).entries()) {
           this.moveWidgetWithinArea(id, position);
         }
@@ -2383,7 +2385,7 @@ var CustomizableUIInternal = {
       }
 
       if (!restored && gSavedState && aArea in gSavedState.placements) {
-        log.debug("Restoring " + aArea + " from saved state");
+        lazy.log.debug("Restoring " + aArea + " from saved state");
         let placements = gSavedState.placements[aArea];
         for (let id of placements) {
           this.addWidgetToArea(id, aArea);
@@ -2393,7 +2395,7 @@ var CustomizableUIInternal = {
       }
 
       if (!restored) {
-        log.debug("Restoring " + aArea + " from default state");
+        lazy.log.debug("Restoring " + aArea + " from default state");
         let defaults = gAreas.get(aArea).get("defaultPlacements");
         if (defaults) {
           for (let id of defaults) {
@@ -2413,7 +2415,7 @@ var CustomizableUIInternal = {
         gFuturePlacements.delete(aArea);
       }
 
-      log.debug(
+      lazy.log.debug(
         "Placements for " +
           aArea +
           ":\n\t" +
@@ -2451,9 +2453,9 @@ var CustomizableUIInternal = {
       }
     }
 
-    log.debug("Saving state.");
+    lazy.log.debug("Saving state.");
     let serialized = JSON.stringify(state, this.serializerHelper);
-    log.debug("State saved as: " + serialized);
+    lazy.log.debug("State saved as: " + serialized);
     Services.prefs.setCharPref(kPrefCustomizationState, serialized);
     gDirty = false;
   },
@@ -2515,7 +2517,7 @@ var CustomizableUIInternal = {
           listener[aEvent].apply(listener, aArgs);
         }
       } catch (e) {
-        log.error(e + " -- " + e.fileName + ":" + e.lineNumber);
+        lazy.log.error(e + " -- " + e.fileName + ":" + e.lineNumber);
       }
     }
   },
@@ -2546,7 +2548,7 @@ var CustomizableUIInternal = {
     );
     // XXXunf This should probably throw.
     if (!widget) {
-      log.error("unable to normalize widget");
+      lazy.log.error("unable to normalize widget");
       return undefined;
     }
 
@@ -2684,11 +2686,11 @@ var CustomizableUIInternal = {
 
     let widget = this.normalizeWidget(aData, CustomizableUI.SOURCE_BUILTIN);
     if (!widget) {
-      log.error("Error creating builtin widget: " + aData.id);
+      lazy.log.error("Error creating builtin widget: " + aData.id);
       return;
     }
 
-    log.debug("Creating built-in widget with id: " + widget.id);
+    lazy.log.debug("Creating built-in widget with id: " + widget.id);
     gPalette.set(widget.id, widget);
 
     if (conditionalDestroyPromise) {
@@ -2733,7 +2735,7 @@ var CustomizableUIInternal = {
     };
 
     if (typeof aData.id != "string" || !/^[a-z0-9-_]{1,}$/i.test(aData.id)) {
-      log.error("Given an illegal id in normalizeWidget: " + aData.id);
+      lazy.log.error("Given an illegal id in normalizeWidget: " + aData.id);
       return null;
     }
 
@@ -2746,7 +2748,7 @@ var CustomizableUIInternal = {
     const kReqStringProps = ["id"];
     for (let prop of kReqStringProps) {
       if (typeof aData[prop] != "string") {
-        log.error(
+        lazy.log.error(
           "Missing required property '" +
             prop +
             "' in normalizeWidget: " +
@@ -2785,7 +2787,7 @@ var CustomizableUIInternal = {
     ) {
       widget.defaultArea = aData.defaultArea;
     } else if (!widget.removable) {
-      log.error(
+      lazy.log.error(
         "Widget '" +
           widget.id +
           "' is not removable but does not specify " +
@@ -2821,7 +2823,7 @@ var CustomizableUIInternal = {
         typeof aData.onCommand == "function" ? aData.onCommand : null;
     } else if (widget.type == "view") {
       if (typeof aData.viewId != "string") {
-        log.error(
+        lazy.log.error(
           "Expected a string for widget " +
             widget.id +
             " viewId, but got " +
@@ -3016,7 +3018,7 @@ var CustomizableUIInternal = {
     Services.prefs.clearUserPref(kPrefAutoHideDownloadsButton);
     gDefaultTheme.enable();
     gNewElementCount = 0;
-    log.debug("State reset");
+    lazy.log.debug("State reset");
 
     // Reset placements to make restoring default placements possible.
     gPlacements = new Map();
@@ -3283,7 +3285,7 @@ var CustomizableUIInternal = {
           let collapsed = container.getAttribute(attribute) == "true";
           let defaultCollapsed = props.get("defaultCollapsed");
           if (defaultCollapsed !== null && collapsed != defaultCollapsed) {
-            log.debug(
+            lazy.log.debug(
               "Found " +
                 areaId +
                 " had non-default toolbar visibility" +
@@ -3297,7 +3299,7 @@ var CustomizableUIInternal = {
           }
         }
       }
-      log.debug(
+      lazy.log.debug(
         "Checking default state for " +
           areaId +
           ":\n" +
@@ -3315,7 +3317,7 @@ var CustomizableUIInternal = {
           currentPlacements[i] != defaultPlacements[i] &&
           !this.matchingSpecials(currentPlacements[i], defaultPlacements[i])
         ) {
-          log.debug(
+          lazy.log.debug(
             "Found " +
               currentPlacements[i] +
               " in " +
@@ -3330,28 +3332,28 @@ var CustomizableUIInternal = {
     }
 
     if (Services.prefs.prefHasUserValue(kPrefUIDensity)) {
-      log.debug(kPrefUIDensity + " pref is non-default");
+      lazy.log.debug(kPrefUIDensity + " pref is non-default");
       return false;
     }
 
     if (Services.prefs.prefHasUserValue(kPrefAutoTouchMode)) {
-      log.debug(kPrefAutoTouchMode + " pref is non-default");
+      lazy.log.debug(kPrefAutoTouchMode + " pref is non-default");
       return false;
     }
 
     if (Services.prefs.prefHasUserValue(kPrefDrawInTitlebar)) {
-      log.debug(kPrefDrawInTitlebar + " pref is non-default");
+      lazy.log.debug(kPrefDrawInTitlebar + " pref is non-default");
       return false;
     }
 
     if (Services.prefs.prefHasUserValue(kPrefExtraDragSpace)) {
-      log.debug(kPrefExtraDragSpace + " pref is non-default");
+      lazy.log.debug(kPrefExtraDragSpace + " pref is non-default");
       return false;
     }
 
     // This should just be `gDefaultTheme.isActive`, but bugs...
     if (gDefaultTheme && gDefaultTheme.id != gSelectedTheme.id) {
-      log.debug(gSelectedTheme.id + " theme is non-default");
+      lazy.log.debug(gSelectedTheme.id + " theme is non-default");
       return false;
     }
 
@@ -4841,7 +4843,7 @@ OverflowableToolbar.prototype = {
         if (aEvent.target == this._chevron) {
           this._onClickChevron(aEvent);
         } else {
-          PanelMultiView.hidePopup(this._panel);
+          lazy.PanelMultiView.hidePopup(this._panel);
         }
         break;
       case "keypress":
@@ -4861,7 +4863,7 @@ OverflowableToolbar.prototype = {
         }
         break;
       case "dragend":
-        PanelMultiView.hidePopup(this._panel);
+        lazy.PanelMultiView.hidePopup(this._panel);
         break;
       case "popuphiding":
         this._onPanelHiding(aEvent);
@@ -4891,7 +4893,7 @@ OverflowableToolbar.prototype = {
         () => doc.defaultView.updateEditUIVisibility(),
         { once: true }
       );
-      PanelMultiView.openPopup(this._panel, anchor || this._chevron, {
+      lazy.PanelMultiView.openPopup(this._panel, anchor || this._chevron, {
         triggerEvent: aEvent,
       }).catch(Cu.reportError);
       this._chevron.open = true;
@@ -4914,7 +4916,7 @@ OverflowableToolbar.prototype = {
   _onClickChevron(aEvent) {
     if (this._chevron.open) {
       this._chevron.open = false;
-      PanelMultiView.hidePopup(this._panel);
+      lazy.PanelMultiView.hidePopup(this._panel);
     } else if (this._panel.state != "hiding" && !this._chevron.disabled) {
       this.show(aEvent);
     }
@@ -5022,7 +5024,7 @@ OverflowableToolbar.prototype = {
       return;
     }
     if (!this._lazyResizeHandler) {
-      this._lazyResizeHandler = new DeferredTask(
+      this._lazyResizeHandler = new lazy.DeferredTask(
         this._onLazyResize.bind(this),
         LAZY_RESIZE_INTERVAL_MS,
         0
@@ -5313,7 +5315,7 @@ OverflowableToolbar.prototype = {
       }
       this._hideTimeoutId = window.setTimeout(() => {
         if (!this._panel.firstElementChild.matches(":hover")) {
-          PanelMultiView.hidePopup(this._panel);
+          lazy.PanelMultiView.hidePopup(this._panel);
         }
       }, OVERFLOW_PANEL_HIDE_DELAY_MS);
     });

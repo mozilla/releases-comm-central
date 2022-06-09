@@ -8,25 +8,18 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailFiltersWrapper"];
 
-var gEnigmailFilters = null;
-
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
-
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
-  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
-});
-
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
+
+var gEnigmailFilters = null;
+
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 /**
  * filter action for creating a decrypted version of the mail and
  * deleting the original mail at the same time
  */
-
 const filterActionMoveDecrypt = {
   id: EnigmailConstants.FILTER_MOVE_DECRYPT,
   name: l10n.formatValueSync("filter-decrypt-move-label"),

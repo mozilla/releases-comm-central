@@ -13,7 +13,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
@@ -28,7 +30,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
@@ -107,7 +109,7 @@ var EnigmailKeyRing = {
    * @return Object - found KeyObject or null if key not found
    */
   getKeyById(keyId, noLoadKeys) {
-    EnigmailLog.DEBUG("keyRing.jsm: getKeyById: " + keyId + "\n");
+    lazy.EnigmailLog.DEBUG("keyRing.jsm: getKeyById: " + keyId + "\n");
 
     if (!keyId) {
       return null;
@@ -155,7 +157,7 @@ var EnigmailKeyRing = {
    * @return Array of KeyObjects with the found keys (array length is 0 if no key found)
    */
   getKeysByEmail(email, onlyValidUid = true, allowExpired = false) {
-    EnigmailLog.DEBUG("keyRing.jsm: getKeysByEmail: '" + email + "'\n");
+    lazy.EnigmailLog.DEBUG("keyRing.jsm: getKeysByEmail: '" + email + "'\n");
 
     let res = [];
     if (!email) {
@@ -180,13 +182,13 @@ var EnigmailKeyRing = {
         if (
           onlyValidUid &&
           userId.keyTrust != "e" &&
-          EnigmailTrust.isInvalid(userId.keyTrust)
+          lazy.EnigmailTrust.isInvalid(userId.keyTrust)
         ) {
           continue;
         }
 
         if (
-          EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase() ===
+          lazy.EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase() ===
           email
         ) {
           res.push(key);
@@ -208,7 +210,7 @@ var EnigmailKeyRing = {
       if (!key.secretAvailable) {
         continue;
       }
-      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
+      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
       if (!isPersonal) {
         continue;
       }
@@ -216,11 +218,11 @@ var EnigmailKeyRing = {
         if (userId.type !== "uid") {
           continue;
         }
-        if (EnigmailTrust.isInvalid(userId.keyTrust)) {
+        if (lazy.EnigmailTrust.isInvalid(userId.keyTrust)) {
           continue;
         }
         this.emailAddressesWithSecretKey.add(
-          EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase()
+          lazy.EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase()
         );
       }
     }
@@ -257,7 +259,7 @@ var EnigmailKeyRing = {
   },
 
   async getAllSecretKeysByEmail(emailAddr, result, allowExpired) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "keyRing.jsm: getAllSecretKeysByEmail: '" + emailAddr + "'\n"
     );
     let keyList = this.getKeysByEmail(emailAddr, true, true);
@@ -273,7 +275,7 @@ var EnigmailKeyRing = {
       if (!key.secretAvailable) {
         continue;
       }
-      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
+      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
       if (!isPersonal) {
         continue;
       }
@@ -323,7 +325,9 @@ var EnigmailKeyRing = {
                        OR String, with space-separated list of key IDs
    */
   getKeyListById(keyIdList) {
-    EnigmailLog.DEBUG("keyRing.jsm: getKeyListById: '" + keyIdList + "'\n");
+    lazy.EnigmailLog.DEBUG(
+      "keyRing.jsm: getKeyListById: '" + keyIdList + "'\n"
+    );
     let keyArr;
     if (typeof keyIdList === "string") {
       keyArr = keyIdList.split(/ +/);
@@ -350,7 +354,7 @@ var EnigmailKeyRing = {
 
     const beginIndexObj = {};
     const endIndexObj = {};
-    const blockType = EnigmailArmor.locateArmoredBlock(
+    const blockType = lazy.EnigmailArmor.locateArmoredBlock(
       contents,
       0,
       "",
@@ -371,14 +375,14 @@ var EnigmailKeyRing = {
       endIndexObj.value - beginIndexObj.value + 1
     );
 
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     let res = await cApi.importRevBlockAPI(pgpBlock);
     if (res.exitCode) {
       return;
     }
 
     EnigmailKeyRing.clearCache();
-    EnigmailWindows.keyManReloadKeys();
+    lazy.EnigmailWindows.keyManReloadKeys();
   },
 
   /**
@@ -394,12 +398,12 @@ var EnigmailKeyRing = {
     errorMsgObj,
     importedKeysObj
   ) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "keyRing.jsm: EnigmailKeyRing.importSecKeyFromFile: fileName=" +
         inputFile.path +
         "\n"
     );
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     let res;
     let tryAgain;
     let permissive = false;
@@ -418,21 +422,24 @@ var EnigmailKeyRing = {
         failed =
           !res || res.exitCode || !res.importedKeys || !res.importedKeys.length;
       } catch (ex) {
-        EnigmailDialog.alert(win, ex);
+        lazy.EnigmailDialog.alert(win, ex);
       }
 
       if (failed) {
         if (!permissive) {
-          let agreed = EnigmailDialog.confirmDlg(
+          let agreed = lazy.EnigmailDialog.confirmDlg(
             win,
-            l10n.formatValueSync("confirm-permissive-import")
+            lazy.l10n.formatValueSync("confirm-permissive-import")
           );
           if (agreed) {
             permissive = true;
             tryAgain = true;
           }
         } else {
-          EnigmailDialog.alert(win, l10n.formatValueSync("import-keys-failed"));
+          lazy.EnigmailDialog.alert(
+            win,
+            lazy.l10n.formatValueSync("import-keys-failed")
+          );
         }
       }
     } while (tryAgain);
@@ -458,7 +465,7 @@ var EnigmailKeyRing = {
    * no input or return values
    */
   clearCache() {
-    EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.clearCache\n");
+    lazy.EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.clearCache\n");
     gKeyListObj = {
       keyList: [],
       keySortList: [],
@@ -496,11 +503,11 @@ var EnigmailKeyRing = {
   getValidUidsFromKeyObj(keyObj) {
     let r = [];
     if (keyObj) {
-      const TRUSTLEVELS_SORTED = EnigmailTrust.trustLevelsSorted();
+      const TRUSTLEVELS_SORTED = lazy.EnigmailTrust.trustLevelsSorted();
       let hideInvalidUid = true;
       let maxTrustLevel = TRUSTLEVELS_SORTED.indexOf(keyObj.keyTrust);
 
-      if (EnigmailTrust.isInvalid(keyObj.keyTrust)) {
+      if (lazy.EnigmailTrust.isInvalid(keyObj.keyTrust)) {
         // pub key not valid (anymore)-> display all UID's
         hideInvalidUid = false;
       }
@@ -519,7 +526,7 @@ var EnigmailKeyRing = {
             }
             // else do not add uid
           } else if (
-            !EnigmailTrust.isInvalid(keyObj.userIds[i].keyTrust) ||
+            !lazy.EnigmailTrust.isInvalid(keyObj.userIds[i].keyTrust) ||
             !hideInvalidUid
           ) {
             // UID valid  OR  key not valid, but invalid keys allowed
@@ -564,9 +571,9 @@ var EnigmailKeyRing = {
 
     exitCodeObj.value = -1;
 
-    let keyBlock = RNP.getMultiplePublicKeys(idArrayFull, idArrayMinimal);
+    let keyBlock = lazy.RNP.getMultiplePublicKeys(idArrayFull, idArrayMinimal);
     if (!keyBlock) {
-      errorMsgObj.value = l10n.formatValueSync("fail-key-extract");
+      errorMsgObj.value = lazy.l10n.formatValueSync("fail-key-extract");
       return "";
     }
 
@@ -578,7 +585,7 @@ var EnigmailKeyRing = {
         })
         .catch(async () => {
           exitCodeObj.value = -1;
-          errorMsgObj.value = await l10n.formatValue("file-write-failed", {
+          errorMsgObj.value = await lazy.l10n.formatValue("file-write-failed", {
             output: outputFile,
           });
           return null;
@@ -588,7 +595,7 @@ var EnigmailKeyRing = {
   },
 
   promptKeyExport2AsciiFilename(window, label, defaultFilename) {
-    return EnigmailDialog.filePicker(
+    return lazy.EnigmailDialog.filePicker(
       window,
       label,
       "",
@@ -596,12 +603,12 @@ var EnigmailKeyRing = {
       false,
       "*.asc",
       defaultFilename,
-      [l10n.formatValueSync("ascii-armor-file"), "*.asc"]
+      [lazy.l10n.formatValueSync("ascii-armor-file"), "*.asc"]
     );
   },
 
   async exportPublicKeysInteractive(window, defaultFileName, keyIdArray) {
-    let label = l10n.formatValueSync("export-to-file");
+    let label = lazy.l10n.formatValueSync("export-to-file");
     let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
       label,
@@ -622,14 +629,17 @@ var EnigmailKeyRing = {
       errorMsgObj
     );
     if (exitCodeObj.value !== 0) {
-      EnigmailDialog.alert(window, l10n.formatValueSync("save-keys-failed"));
+      lazy.EnigmailDialog.alert(
+        window,
+        lazy.l10n.formatValueSync("save-keys-failed")
+      );
       return;
     }
-    EnigmailDialog.info(window, l10n.formatValueSync("save-keys-ok"));
+    lazy.EnigmailDialog.info(window, lazy.l10n.formatValueSync("save-keys-ok"));
   },
 
   backupSecretKeysInteractive(window, defaultFileName, fprArray) {
-    let label = l10n.formatValueSync("export-keypair-to-file");
+    let label = lazy.l10n.formatValueSync("export-keypair-to-file");
     let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
       label,
@@ -668,20 +678,26 @@ var EnigmailKeyRing = {
       return;
     }
 
-    let backupKeyBlock = await RNP.backupSecretKeys(fprArray, password);
+    let backupKeyBlock = await lazy.RNP.backupSecretKeys(fprArray, password);
     if (!backupKeyBlock) {
-      Services.prompt.alert(null, l10n.formatValueSync("save-keys-failed"));
+      Services.prompt.alert(
+        null,
+        lazy.l10n.formatValueSync("save-keys-failed")
+      );
       return;
     }
 
     await IOUtils.writeUTF8(file.path, backupKeyBlock)
       .then(async () => {
-        EnigmailDialog.info(null, await l10n.formatValue("save-keys-ok"));
+        lazy.EnigmailDialog.info(
+          null,
+          await lazy.l10n.formatValue("save-keys-ok")
+        );
       })
       .catch(async () => {
         Services.prompt.alert(
           null,
-          await l10n.formatValue("file-write-failed", {
+          await lazy.l10n.formatValue("file-write-failed", {
             output: file,
           })
         );
@@ -729,7 +745,7 @@ var EnigmailKeyRing = {
     passCB = null, // password callback function
     acceptance = null
   ) {
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     return cApi.sync(
       this.importKeyAsync(
         parent,
@@ -790,7 +806,7 @@ var EnigmailKeyRing = {
     passCB = null,
     acceptance = null
   ) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${askToConfirm}, ${minimizeKey})\n`
     );
 
@@ -804,7 +820,7 @@ var EnigmailKeyRing = {
     if (!isBinary) {
       const beginIndexObj = {};
       const endIndexObj = {};
-      const blockType = EnigmailArmor.locateArmoredBlock(
+      const blockType = lazy.EnigmailArmor.locateArmoredBlock(
         keyBlock,
         0,
         "",
@@ -813,12 +829,12 @@ var EnigmailKeyRing = {
         {}
       );
       if (!blockType) {
-        errorMsgObj.value = l10n.formatValueSync("no-pgp-block");
+        errorMsgObj.value = lazy.l10n.formatValueSync("no-pgp-block");
         return 1;
       }
 
       if (blockType.search(/^(PUBLIC|PRIVATE) KEY BLOCK$/) !== 0) {
-        errorMsgObj.value = l10n.formatValueSync("not-first-block");
+        errorMsgObj.value = lazy.l10n.formatValueSync("not-first-block");
         return 1;
       }
 
@@ -830,13 +846,13 @@ var EnigmailKeyRing = {
 
     if (askToConfirm) {
       if (
-        !EnigmailDialog.confirmDlg(
+        !lazy.EnigmailDialog.confirmDlg(
           parent,
-          l10n.formatValueSync("import-key-confirm"),
-          l10n.formatValueSync("key-man-button-import")
+          lazy.l10n.formatValueSync("import-key-confirm"),
+          lazy.l10n.formatValueSync("key-man-button-import")
         )
       ) {
-        errorMsgObj.value = l10n.formatValueSync("fail-cancel");
+        errorMsgObj.value = lazy.l10n.formatValueSync("fail-cancel");
         return -1;
       }
     }
@@ -845,7 +861,7 @@ var EnigmailKeyRing = {
       throw new Error("importKeyAsync with minimizeKey: not implemented");
     }
 
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     let result = undefined;
     let tryAgain;
     let permissive = false;
@@ -862,7 +878,7 @@ var EnigmailKeyRing = {
           limitedUids
         );
       } else {
-        result = await RNP.importSecKeyBlockImpl(
+        result = await lazy.RNP.importSecKeyBlockImpl(
           parent,
           passCB,
           blockParam,
@@ -879,9 +895,9 @@ var EnigmailKeyRing = {
         !result.importedKeys.length;
       if (failed) {
         if (allowPermissiveFallbackWithPrompt && !permissive) {
-          let agreed = EnigmailDialog.confirmDlg(
+          let agreed = lazy.EnigmailDialog.confirmDlg(
             parent,
-            l10n.formatValueSync("confirm-permissive-import")
+            lazy.l10n.formatValueSync("confirm-permissive-import")
           );
           if (agreed) {
             permissive = true;
@@ -889,9 +905,9 @@ var EnigmailKeyRing = {
           }
         } else if (askToConfirm) {
           // if !askToConfirm the caller is responsible to handle the error
-          EnigmailDialog.alert(
+          lazy.EnigmailDialog.alert(
             parent,
-            l10n.formatValueSync("import-keys-failed")
+            lazy.l10n.formatValueSync("import-keys-failed")
           );
         }
       }
@@ -923,7 +939,7 @@ var EnigmailKeyRing = {
     let somethingWasImported = false;
     if (preview.length > 0) {
       let outParam = {};
-      if (EnigmailDialog.confirmPubkeyImport(window, preview, outParam)) {
+      if (lazy.EnigmailDialog.confirmPubkeyImport(window, preview, outParam)) {
         let exitStatus;
         let errorMsgObj = {};
         try {
@@ -948,17 +964,17 @@ var EnigmailKeyRing = {
 
         if (exitStatus === 0) {
           let keyList = preview.map(a => a.id);
-          EnigmailDialog.keyImportDlg(window, keyList);
+          lazy.EnigmailDialog.keyImportDlg(window, keyList);
           somethingWasImported = true;
         } else {
-          l10n.formatValue("fail-key-import").then(value => {
-            EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
+          lazy.l10n.formatValue("fail-key-import").then(value => {
+            lazy.EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
           });
         }
       }
     } else {
-      l10n.formatValue("no-key-found2").then(value => {
-        EnigmailDialog.alert(window, value);
+      lazy.l10n.formatValue("no-key-found2").then(value => {
+        lazy.EnigmailDialog.alert(window, value);
       });
     }
     return somethingWasImported;
@@ -973,7 +989,7 @@ var EnigmailKeyRing = {
     let somethingWasImported = false;
     if (keyArray.length > 0) {
       let outParam = {};
-      if (EnigmailDialog.confirmPubkeyImport(window, keyArray, outParam)) {
+      if (lazy.EnigmailDialog.confirmPubkeyImport(window, keyArray, outParam)) {
         let importedKeys = [];
         let allErrors = "";
         for (let key of keyArray) {
@@ -1007,17 +1023,17 @@ var EnigmailKeyRing = {
         }
 
         if (importedKeys.length) {
-          EnigmailDialog.keyImportDlg(window, importedKeys);
+          lazy.EnigmailDialog.keyImportDlg(window, importedKeys);
           somethingWasImported = true;
         } else {
-          l10n.formatValue("fail-key-import").then(value => {
-            EnigmailDialog.alert(window, value + allErrors);
+          lazy.l10n.formatValue("fail-key-import").then(value => {
+            lazy.EnigmailDialog.alert(window, value + allErrors);
           });
         }
       }
     } else {
-      l10n.formatValue("no-key-found2").then(value => {
-        EnigmailDialog.alert(window, value);
+      lazy.l10n.formatValue("no-key-found2").then(value => {
+        lazy.EnigmailDialog.alert(window, value);
       });
     }
     return somethingWasImported;
@@ -1072,7 +1088,7 @@ var EnigmailKeyRing = {
     passphrase,
     listener
   ) {
-    EnigmailLog.WRITE("keyRing.jsm: generateKey:\n");
+    lazy.EnigmailLog.WRITE("keyRing.jsm: generateKey:\n");
     throw new Error("Not implemented");
   },
 
@@ -1126,7 +1142,7 @@ var EnigmailKeyRing = {
         }
 
         if (
-          EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() ===
+          lazy.EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() ===
           emailAddr
         ) {
           uidMatch = true;
@@ -1173,7 +1189,9 @@ var EnigmailKeyRing = {
   async _getAcceptanceLevelForEmail(keyObj, emailAddr) {
     let acceptanceLevel;
     if (keyObj.secretAvailable) {
-      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+        keyObj.fpr
+      );
       if (isPersonal) {
         acceptanceLevel = 3;
       } else {
@@ -1197,7 +1215,7 @@ var EnigmailKeyRing = {
    * @return: found key ID (without leading "0x") or null
    */
   async getValidKeyForRecipient(emailAddr, details) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       'keyRing.jsm: getValidKeyForRecipient(): emailAddr="' + emailAddr + '"\n'
     );
     const FULLTRUSTLEVEL = 2;
@@ -1247,11 +1265,11 @@ var EnigmailKeyRing = {
         "no valid encryption key with enough trust level for '" +
         emailAddr +
         "' found";
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "keyRing.jsm: getValidKeyForRecipient():  " + msg + "\n"
       );
     } else {
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "keyRing.jsm: getValidKeyForRecipient():  key=" +
           foundKeyId +
           '" found\n'
@@ -1287,7 +1305,11 @@ var EnigmailKeyRing = {
 
     let acceptanceResult = {};
     try {
-      await PgpSqliteDb2.getAcceptance(keyObj.fpr, email, acceptanceResult);
+      await lazy.PgpSqliteDb2.getAcceptance(
+        keyObj.fpr,
+        email,
+        acceptanceResult
+      );
     } catch (ex) {
       console.debug("getAcceptance failed: " + ex);
       return null;
@@ -1319,7 +1341,11 @@ var EnigmailKeyRing = {
     let acceptanceResult = {};
 
     try {
-      await PgpSqliteDb2.getAcceptance(keyObj.fpr, email, acceptanceResult);
+      await lazy.PgpSqliteDb2.getAcceptance(
+        keyObj.fpr,
+        email,
+        acceptanceResult
+      );
     } catch (ex) {
       console.debug("getAcceptance failed: " + ex);
       return null;
@@ -1390,7 +1416,7 @@ var EnigmailKeyRing = {
             key = this.getKeyById(entry.id);
           }
           if (key && this.isValidForEncryption(key)) {
-            let acceptanceResult = await PgpSqliteDb2.getFingerprintAcceptance(
+            let acceptanceResult = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
               null,
               key.fpr
             );
@@ -1440,7 +1466,7 @@ var EnigmailKeyRing = {
           detailsElem.msg = errMsg;
           details.errArray.push(detailsElem);
         }
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           'keyRing.jsm: getValidKeysForAllRecipients(): no single valid key found for="' +
             addr +
             '"\n'
@@ -1451,7 +1477,7 @@ var EnigmailKeyRing = {
   },
 
   async getMultValidKeysForOneRecipient(emailAddr, allowExpired = false) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       'keyRing.jsm: getMultValidKeysForOneRecipient(): emailAddr="' +
         emailAddr +
         '"\n'
@@ -1498,12 +1524,12 @@ var EnigmailKeyRing = {
    *                input, or null if no alias matches the address.
    */
   getAliasKeyList(email) {
-    let ekl = OpenPGPAlias.getEmailAliasKeyList(email);
+    let ekl = lazy.OpenPGPAlias.getEmailAliasKeyList(email);
     if (ekl) {
       return ekl;
     }
 
-    return OpenPGPAlias.getDomainAliasKeyList(email);
+    return lazy.OpenPGPAlias.getDomainAliasKeyList(email);
   },
 
   /**
@@ -1568,7 +1594,7 @@ var EnigmailKeyRing = {
    * @param keys: Array of String - key IDs or fingerprints
    */
   updateKeys(keys) {
-    EnigmailLog.DEBUG("keyRing.jsm: updateKeys(" + keys.join(",") + ")\n");
+    lazy.EnigmailLog.DEBUG("keyRing.jsm: updateKeys(" + keys.join(",") + ")\n");
     let uniqueKeys = [...new Set(keys)]; // make key IDs unique
 
     deleteKeysFromCache(uniqueKeys);
@@ -1579,7 +1605,7 @@ var EnigmailKeyRing = {
       loadKeyList(null, null, 1);
     }
 
-    EnigmailWindows.keyManReloadKeys();
+    lazy.EnigmailWindows.keyManReloadKeys();
   },
 
   findRevokedPersonalKeysByEmail(email) {
@@ -1601,7 +1627,7 @@ var EnigmailKeyRing = {
           continue;
         }
 
-        let emailInUid = EnigmailFuncs.getEmailFromUserID(
+        let emailInUid = lazy.EnigmailFuncs.getEmailFromUserID(
           userId.userId
         ).toLowerCase();
         if (emailInUid == email) {
@@ -1654,11 +1680,16 @@ var EnigmailKeyRing = {
     }
 
     if (
-      EnigmailFuncs.getEmailFromUserID(keyObj.userId).toLowerCase() !== email
+      lazy.EnigmailFuncs.getEmailFromUserID(keyObj.userId).toLowerCase() !==
+      email
     ) {
       return null;
     }
-    return RNP.getAutocryptKeyB64(keyId, "0x" + subKey.keyId, keyObj.userId);
+    return lazy.RNP.getAutocryptKeyB64(
+      keyId,
+      "0x" + subKey.keyId,
+      keyObj.userId
+    );
   },
 
   /**
@@ -1711,7 +1742,7 @@ var EnigmailKeyRing = {
 
     let result = [];
 
-    result.hasAliasRule = OpenPGPAlias.hasAliasDefinition(email);
+    result.hasAliasRule = lazy.OpenPGPAlias.hasAliasDefinition(email);
     if (result.hasAliasRule) {
       let keyMeta = {};
       keyMeta.readiness = "alias";
@@ -1736,7 +1767,8 @@ var EnigmailKeyRing = {
         }
 
         if (
-          EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() === email
+          lazy.EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() ===
+          email
         ) {
           uidMatch = true;
           break;
@@ -1789,7 +1821,9 @@ var EnigmailKeyRing = {
       }
 
       if (keyObj.secretAvailable) {
-        let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+        let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+          keyObj.fpr
+        );
         if (isPersonal) {
           keyMeta.readiness = "accepted";
         } else {
@@ -1813,7 +1847,7 @@ var EnigmailKeyRing = {
             break;
           case 0:
           default:
-            let other = await PgpSqliteDb2.getFingerprintAcceptance(
+            let other = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
               null,
               keyObj.fpr
             );
@@ -1833,10 +1867,10 @@ var EnigmailKeyRing = {
       result.push(keyMeta);
     }
 
-    let collDB = await CollectedKeysDB.getInstance();
+    let collDB = await lazy.CollectedKeysDB.getInstance();
     let coll = await collDB.findKeysForEmail(email);
     for (let c of coll) {
-      let k = await RNP.getKeyListFromKeyBlockImpl(c.pubKey);
+      let k = await lazy.RNP.getKeyListFromKeyBlockImpl(c.pubKey);
       if (!k) {
         continue;
       }
@@ -1942,11 +1976,11 @@ const sortFunctions = {
 
   validity(keyListObj, sortDirection) {
     return function(a, b) {
-      return EnigmailTrust.trustLevelsSorted().indexOf(
-        EnigmailTrust.getTrustCode(keyListObj.keyList[a.keyNum])
+      return lazy.EnigmailTrust.trustLevelsSorted().indexOf(
+        lazy.EnigmailTrust.getTrustCode(keyListObj.keyList[a.keyNum])
       ) <
-        EnigmailTrust.trustLevelsSorted().indexOf(
-          EnigmailTrust.getTrustCode(keyListObj.keyList[b.keyNum])
+        lazy.EnigmailTrust.trustLevelsSorted().indexOf(
+          lazy.EnigmailTrust.getTrustCode(keyListObj.keyList[b.keyNum])
         )
         ? -sortDirection
         : sortDirection;
@@ -1955,10 +1989,10 @@ const sortFunctions = {
 
   trust(keyListObj, sortDirection) {
     return function(a, b) {
-      return EnigmailTrust.trustLevelsSorted().indexOf(
+      return lazy.EnigmailTrust.trustLevelsSorted().indexOf(
         keyListObj.keyList[a.keyNum].ownerTrust
       ) <
-        EnigmailTrust.trustLevelsSorted().indexOf(
+        lazy.EnigmailTrust.trustLevelsSorted().indexOf(
           keyListObj.keyList[b.keyNum].ownerTrust
         )
         ? -sortDirection
@@ -2002,7 +2036,7 @@ function getSortFunction(type, keyListObj, sortDirection) {
  * no return value
  */
 function loadKeyList(win, sortColumn, sortDirection, onlyKeys = null) {
-  EnigmailLog.DEBUG("keyRing.jsm: loadKeyList( " + onlyKeys + ")\n");
+  lazy.EnigmailLog.DEBUG("keyRing.jsm: loadKeyList( " + onlyKeys + ")\n");
 
   if (gLoadingKeys) {
     waitForKeyList();
@@ -2011,7 +2045,7 @@ function loadKeyList(win, sortColumn, sortDirection, onlyKeys = null) {
   gLoadingKeys = true;
 
   try {
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     cApi
       .getKeys(onlyKeys)
       .then(keyList => {
@@ -2024,13 +2058,15 @@ function loadKeyList(win, sortColumn, sortDirection, onlyKeys = null) {
         gLoadingKeys = false;
       })
       .catch(e => {
-        EnigmailLog.ERROR(`keyRing.jsm: loadKeyList: error ${e}
+        lazy.EnigmailLog.ERROR(`keyRing.jsm: loadKeyList: error ${e}
 `);
         gLoadingKeys = false;
       });
     waitForKeyList();
   } catch (ex) {
-    EnigmailLog.ERROR("keyRing.jsm: loadKeyList: exception: " + ex.toString());
+    lazy.EnigmailLog.ERROR(
+      "keyRing.jsm: loadKeyList: exception: " + ex.toString()
+    );
   }
 }
 
@@ -2062,7 +2098,7 @@ function updateSortList() {
  */
 
 function deleteKeysFromCache(keyList) {
-  EnigmailLog.DEBUG(
+  lazy.EnigmailLog.DEBUG(
     "keyRing.jsm: deleteKeysFromCache(" + keyList.join(",") + ")\n"
   );
 
@@ -2098,7 +2134,7 @@ function createAndSortKeyList(
   sortDirection,
   resetKeyCache
 ) {
-  EnigmailLog.DEBUG("keyRing.jsm: createAndSortKeyList()\n");
+  lazy.EnigmailLog.DEBUG("keyRing.jsm: createAndSortKeyList()\n");
 
   if (typeof sortColumn !== "string") {
     sortColumn = "userid";
@@ -2115,7 +2151,7 @@ function createAndSortKeyList(
 
   gKeyListObj.keyList = gKeyListObj.keyList.concat(
     keyList.map(k => {
-      return newEnigmailKeyObj(k);
+      return lazy.newEnigmailKeyObj(k);
     })
   );
 

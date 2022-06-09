@@ -61,14 +61,16 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
@@ -150,7 +152,7 @@ class EnigmailKeyObj {
       if (i !== "fprFormatted") {
         if (typeof this[i] !== "function") {
           if (typeof this[i] === "object") {
-            cp[i] = EnigmailFuncs.cloneObj(this[i]);
+            cp[i] = lazy.EnigmailFuncs.cloneObj(this[i]);
           } else {
             cp[i] = this[i];
           }
@@ -184,7 +186,7 @@ class EnigmailKeyObj {
    * @return String - the formatted fingerprint
    */
   get fprFormatted() {
-    let f = EnigmailKey.formatFpr(this.fpr);
+    let f = lazy.EnigmailKey.formatFpr(this.fpr);
     if (f.length === 0) {
       f = this.fpr;
     }
@@ -205,7 +207,7 @@ class EnigmailKeyObj {
     };
     if (this.keyTrust.search(/r/i) >= 0) {
       // public key revoked
-      retVal.reason = l10n.formatValueSync("key-ring-pub-key-revoked", {
+      retVal.reason = lazy.l10n.formatValueSync("key-ring-pub-key-revoked", {
         userId: this.userId,
         keyId: "0x" + this.keyId,
       });
@@ -214,7 +216,7 @@ class EnigmailKeyObj {
       this.keyTrust.search(/e/i) >= 0
     ) {
       // public key expired
-      retVal.reason = l10n.formatValueSync("key-ring-pub-key-expired", {
+      retVal.reason = lazy.l10n.formatValueSync("key-ring-pub-key-expired", {
         userId: this.userId,
         keyId: "0x" + this.keyId,
       });
@@ -241,7 +243,7 @@ class EnigmailKeyObj {
 
     if (!this.secretAvailable) {
       retVal.keyValid = false;
-      retVal.reason = l10n.formatValueSync("key-ring-no-secret-key", {
+      retVal.reason = lazy.l10n.formatValueSync("key-ring-no-secret-key", {
         userId: this.userId,
         keyId: "0x" + this.keyId,
       });
@@ -275,22 +277,28 @@ class EnigmailKeyObj {
 
     if (!found) {
       if (exceptionReason != "ignoreExpired" && expired) {
-        retVal.reason = l10n.formatValueSync("key-ring-sign-sub-keys-expired", {
-          userId: this.userId,
-          keyId: "0x" + this.keyId,
-        });
+        retVal.reason = lazy.l10n.formatValueSync(
+          "key-ring-sign-sub-keys-expired",
+          {
+            userId: this.userId,
+            keyId: "0x" + this.keyId,
+          }
+        );
       } else if (revoked) {
-        retVal.reason = l10n.formatValueSync("key-ring-sign-sub-keys-revoked", {
-          userId: this.userId,
-          keyId: "0x" + this.keyId,
-        });
+        retVal.reason = lazy.l10n.formatValueSync(
+          "key-ring-sign-sub-keys-revoked",
+          {
+            userId: this.userId,
+            keyId: "0x" + this.keyId,
+          }
+        );
       } else if (noSecret) {
-        retVal.reason = l10n.formatValueSync("key-ring-no-secret-key", {
+        retVal.reason = lazy.l10n.formatValueSync("key-ring-no-secret-key", {
           userId: this.userId,
           keyId: "0x" + this.keyId,
         });
       } else {
-        retVal.reason = l10n.formatValueSync(
+        retVal.reason = lazy.l10n.formatValueSync(
           "key-ring-pub-key-not-for-signing",
           {
             userId: this.userId,
@@ -382,22 +390,28 @@ class EnigmailKeyObj {
       let idToShow = subId ? subId : this.keyId;
 
       if (exceptionReason != "ignoreExpired" && expired) {
-        retVal.reason = l10n.formatValueSync("key-ring-enc-sub-keys-expired", {
-          userId: this.userId,
-          keyId: "0x" + idToShow,
-        });
+        retVal.reason = lazy.l10n.formatValueSync(
+          "key-ring-enc-sub-keys-expired",
+          {
+            userId: this.userId,
+            keyId: "0x" + idToShow,
+          }
+        );
       } else if (revoked) {
-        retVal.reason = l10n.formatValueSync("key-ring-enc-sub-keys-revoked", {
-          userId: this.userId,
-          keyId: "0x" + idToShow,
-        });
+        retVal.reason = lazy.l10n.formatValueSync(
+          "key-ring-enc-sub-keys-revoked",
+          {
+            userId: this.userId,
+            keyId: "0x" + idToShow,
+          }
+        );
       } else if (noSecret) {
-        retVal.reason = l10n.formatValueSync("key-ring-no-secret-key", {
+        retVal.reason = lazy.l10n.formatValueSync("key-ring-no-secret-key", {
           userId: this.userId,
           keyId: "0x" + idToShow,
         });
       } else {
-        retVal.reason = l10n.formatValueSync(
+        retVal.reason = lazy.l10n.formatValueSync(
           "key-ring-pub-key-not-for-encryption",
           {
             userId: this.userId,
@@ -472,13 +486,13 @@ class EnigmailKeyObj {
    *    - keyData: BASE64-encded string of key data
    */
   getMinimalPubKey(emailAddr) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "keyObj.jsm: EnigmailKeyObj.getMinimalPubKey: " + this.keyId + "\n"
     );
 
     if (emailAddr) {
       try {
-        emailAddr = EnigmailFuncs.stripEmail(emailAddr.toLowerCase());
+        emailAddr = lazy.EnigmailFuncs.stripEmail(emailAddr.toLowerCase());
       } catch (x) {
         emailAddr = emailAddr.toLowerCase();
       }
@@ -487,7 +501,9 @@ class EnigmailKeyObj {
         uid = "";
       for (let i in this.userIds) {
         try {
-          uid = EnigmailFuncs.stripEmail(this.userIds[i].userId.toLowerCase());
+          uid = lazy.EnigmailFuncs.stripEmail(
+            this.userIds[i].userId.toLowerCase()
+          );
         } catch (x) {
           uid = this.userIds[i].userId.toLowerCase();
         }
@@ -507,7 +523,7 @@ class EnigmailKeyObj {
     }
 
     try {
-      emailAddr = EnigmailFuncs.stripEmail(emailAddr.toLowerCase());
+      emailAddr = lazy.EnigmailFuncs.stripEmail(emailAddr.toLowerCase());
     } catch (x) {
       emailAddr = emailAddr.toLowerCase();
     }
@@ -539,7 +555,7 @@ class EnigmailKeyObj {
     }
 
     if (!(emailAddr in this.minimalKeyBlock)) {
-      const cApi = EnigmailCryptoAPI();
+      const cApi = lazy.EnigmailCryptoAPI();
       this.minimalKeyBlock[emailAddr] = cApi.sync(
         cApi.getMinimalPubKey(this.fpr, emailAddr, subkeysArr)
       );
@@ -555,7 +571,7 @@ class EnigmailKeyObj {
    * @return Number: a virtual size
    */
   getVirtualKeySize() {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "keyObj.jsm: EnigmailKeyObj.getVirtualKeySize: " + this.keyId + "\n"
     );
 
@@ -580,7 +596,7 @@ class EnigmailKeyObj {
    *   - {String} errorMsg:  error message in case exitCode !== 0
    */
   getSecretKey(minimalKey) {
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     return cApi.sync(cApi.extractSecretKey(this.fpr, minimalKey));
   }
 
@@ -624,7 +640,7 @@ class EnigmailKeyObj {
     for (let u of this.userIds) {
       let email;
       try {
-        email = EnigmailFuncs.stripEmail(u.userId.toLowerCase());
+        email = lazy.EnigmailFuncs.stripEmail(u.userId.toLowerCase());
       } catch (x) {
         email = u.userId.toLowerCase();
       }

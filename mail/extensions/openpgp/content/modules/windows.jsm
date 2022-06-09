@@ -13,13 +13,16 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
@@ -102,7 +105,7 @@ var EnigmailWindows = {
    * @return:    the frame object or null if not found
    */
   getFrame(win, frameName) {
-    EnigmailLog.DEBUG("windows.jsm: getFrame: name=" + frameName + "\n");
+    lazy.EnigmailLog.DEBUG("windows.jsm: getFrame: name=" + frameName + "\n");
     for (var j = 0; j < win.frames.length; j++) {
       if (win.frames[j].name == frameName) {
         return win.frames[j];
@@ -155,7 +158,7 @@ var EnigmailWindows = {
    * no return value
    */
   openKeyManager(win) {
-    EnigmailCore.getService(win);
+    lazy.EnigmailCore.getService(win);
 
     EnigmailWindows.openWin(
       "enigmail:KeyManager",
@@ -170,7 +173,7 @@ var EnigmailWindows = {
    * no return value
    */
   openImportSettings(win) {
-    EnigmailCore.getService(win);
+    lazy.EnigmailCore.getService(win);
 
     EnigmailWindows.openWin(
       "",
@@ -235,7 +238,7 @@ var EnigmailWindows = {
     EnigmailWindows.openWin(
       "enigmail:logFile",
       "chrome://openpgp/content/ui/enigmailViewFile.xhtml?viewLog=1&title=" +
-        escape(l10n.formatValueSync("debug-log-title")),
+        escape(lazy.l10n.formatValueSync("debug-log-title")),
       "centerscreen"
     );
   },
@@ -339,7 +342,7 @@ var EnigmailWindows = {
     keyId = keyId.replace(/^0x/, "");
 
     if (refresh) {
-      EnigmailKeyRing.clearCache();
+      lazy.EnigmailKeyRing.clearCache();
     }
 
     const resultObj = {
@@ -349,7 +352,7 @@ var EnigmailWindows = {
       "chrome://openpgp/content/ui/keyDetailsDlg.xhtml",
       "KeyDetailsDialog",
       "dialog,modal,centerscreen,resizable",
-      { keyId, modified: EnigmailKeyRing.clearCache },
+      { keyId, modified: lazy.EnigmailKeyRing.clearCache },
       resultObj
     );
 
@@ -366,7 +369,7 @@ var EnigmailWindows = {
    * no return value
    */
   downloadKeys(win, inputObj, resultObj) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "windows.jsm: downloadKeys: searchList=" + inputObj.searchList + "\n"
     );
 
@@ -374,8 +377,8 @@ var EnigmailWindows = {
 
     const ioService = Services.io;
     if (ioService && ioService.offline) {
-      l10n.formatValue("need-online").then(value => {
-        EnigmailWindows.alert(win, value);
+      lazy.l10n.formatValue("need-online").then(value => {
+        lazy.EnigmailDialog.alert(win, value);
       });
       return;
     }
@@ -498,7 +501,7 @@ var EnigmailWindows = {
   },
 
   shutdown(reason) {
-    EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
+    lazy.EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
 
     let tabs = Services.wm
       .getMostRecentWindow("mail:3pane")

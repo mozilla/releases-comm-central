@@ -3,35 +3,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 "use strict";
 
-/* exported MailExtensionShortcuts */
 const EXPORTED_SYMBOLS = ["MailExtensionShortcuts"];
 
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { ExtensionShortcuts } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionShortcuts.jsm"
+);
+
+const lazy = {};
 
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "ExtensionParent",
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "ExtensionShortcuts",
-  "resource://gre/modules/ExtensionShortcuts.jsm"
-);
-
-XPCOMUtils.defineLazyGetter(this, "browserActionFor", () => {
-  return ExtensionParent.apiManager.global.browserActionFor;
+XPCOMUtils.defineLazyGetter(lazy, "browserActionFor", () => {
+  return lazy.ExtensionParent.apiManager.global.browserActionFor;
 });
 
-XPCOMUtils.defineLazyGetter(this, "composeActionFor", () => {
-  return ExtensionParent.apiManager.global.composeActionFor;
+XPCOMUtils.defineLazyGetter(lazy, "composeActionFor", () => {
+  return lazy.ExtensionParent.apiManager.global.composeActionFor;
 });
 
-XPCOMUtils.defineLazyGetter(this, "messageDisplayActionFor", () => {
-  return ExtensionParent.apiManager.global.messageDisplayActionFor;
+XPCOMUtils.defineLazyGetter(lazy, "messageDisplayActionFor", () => {
+  return lazy.ExtensionParent.apiManager.global.messageDisplayActionFor;
 });
 
 const EXECUTE_BROWSER_ACTION = "_execute_browser_action";
@@ -63,11 +61,11 @@ class MailExtensionShortcuts extends ExtensionShortcuts {
     keyElement.addEventListener("command", event => {
       let action;
       if (name == EXECUTE_BROWSER_ACTION) {
-        action = browserActionFor(this.extension);
+        action = lazy.browserActionFor(this.extension);
       } else if (name == EXECUTE_COMPOSE_ACTION) {
-        action = composeActionFor(this.extension);
+        action = lazy.composeActionFor(this.extension);
       } else if (name == EXECUTE_MSG_DISPLAY_ACTION) {
-        action = messageDisplayActionFor(this.extension);
+        action = lazy.messageDisplayActionFor(this.extension);
       } else {
         this.extension.tabManager.addActiveTabPermission();
         this.onCommand(name);

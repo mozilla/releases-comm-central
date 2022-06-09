@@ -12,14 +12,16 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
@@ -49,7 +51,7 @@ var EnigmailKey = {
   extractPubkey(statusMsg) {
     const matchb = statusMsg.match(/(^|\n)NO_PUBKEY (\w{8})(\w{8})/);
     if (matchb && matchb.length > 3) {
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "Enigmail.extractPubkey: NO_PUBKEY 0x" + matchb[3] + "\n"
       );
       return matchb[2] + matchb[3];
@@ -63,25 +65,25 @@ var EnigmailKey = {
    * message in case of failures.
    */
   importRevocationCert(keyId, keyBlockStr) {
-    let key = EnigmailKeyRing.getKeyById(keyId);
+    let key = lazy.EnigmailKeyRing.getKeyById(keyId);
 
     if (key) {
       if (key.keyTrust === "r") {
         // Key has already been revoked
-        l10n
+        lazy.l10n
           .formatValue("revoke-key-already-revoked", {
             keyId,
           })
           .then(value => {
-            EnigmailDialog.info(null, value);
+            lazy.EnigmailDialog.info(null, value);
           });
       } else {
         let userId = key.userId + " - 0x" + key.keyId;
         if (
-          !EnigmailDialog.confirmDlg(
+          !lazy.EnigmailDialog.confirmDlg(
             null,
-            l10n.formatValueSync("revoke-key-question", { userId }),
-            l10n.formatValueSync("key-man-button-revoke-key")
+            lazy.l10n.formatValueSync("revoke-key-question", { userId }),
+            lazy.l10n.formatValueSync("key-man-button-revoke-key")
           )
         ) {
           return;
@@ -92,7 +94,7 @@ var EnigmailKey = {
         // calling a different function for importing revocation
         // signatures, see RNP.importRevImpl
         if (
-          EnigmailKeyRing.importKey(
+          lazy.EnigmailKeyRing.importKey(
             null,
             false,
             keyBlockStr,
@@ -101,17 +103,17 @@ var EnigmailKey = {
             errorMsgObj
           ) > 0
         ) {
-          EnigmailDialog.alert(null, errorMsgObj.value);
+          lazy.EnigmailDialog.alert(null, errorMsgObj.value);
         }
       }
     } else {
       // Suitable key for revocation certificate is not present in keyring
-      l10n
+      lazy.l10n
         .formatValue("revoke-key-not-present", {
           keyId,
         })
         .then(value => {
-          EnigmailDialog.alert(null, value);
+          lazy.EnigmailDialog.alert(null, value);
         });
     }
   },
@@ -143,7 +145,7 @@ var EnigmailKey = {
     seckey,
     withPubKey = false
   ) {
-    EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
+    lazy.EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
     errorMsgObj.value = "";
 
     let cacheEntry = this._keyListCache.get(keyBlockStr);
@@ -173,7 +175,7 @@ var EnigmailKey = {
       this._keyListCache.delete(this._keyListCache.keys().next().value);
     }
 
-    const cApi = EnigmailCryptoAPI();
+    const cApi = lazy.EnigmailCryptoAPI();
     let keyList;
     let key = {};
     let blocks;

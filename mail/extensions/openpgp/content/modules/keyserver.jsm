@@ -13,7 +13,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
@@ -23,7 +25,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
@@ -42,26 +44,26 @@ function createError(errId) {
   let msg = "";
 
   switch (errId) {
-    case EnigmailConstants.KEYSERVER_ERR_ABORTED:
-      msg = l10n.formatValueSync("keyserver-error-aborted");
+    case lazy.EnigmailConstants.KEYSERVER_ERR_ABORTED:
+      msg = lazy.l10n.formatValueSync("keyserver-error-aborted");
       break;
-    case EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR:
-      msg = l10n.formatValueSync("keyserver-error-server-error");
+    case lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR:
+      msg = lazy.l10n.formatValueSync("keyserver-error-server-error");
       break;
-    case EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE:
-      msg = l10n.formatValueSync("keyserver-error-unavailable");
+    case lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE:
+      msg = lazy.l10n.formatValueSync("keyserver-error-unavailable");
       break;
-    case EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR:
-      msg = l10n.formatValueSync("keyserver-error-security-error");
+    case lazy.EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR:
+      msg = lazy.l10n.formatValueSync("keyserver-error-security-error");
       break;
-    case EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR:
-      msg = l10n.formatValueSync("keyserver-error-certificate-error");
+    case lazy.EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR:
+      msg = lazy.l10n.formatValueSync("keyserver-error-certificate-error");
       break;
-    case EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR:
-      msg = l10n.formatValueSync("keyserver-error-import-error");
+    case lazy.EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR:
+      msg = lazy.l10n.formatValueSync("keyserver-error-import-error");
       break;
-    case EnigmailConstants.KEYSERVER_ERR_UNKNOWN:
-      msg = l10n.formatValueSync("keyserver-error-unknown");
+    case lazy.EnigmailConstants.KEYSERVER_ERR_UNKNOWN:
+      msg = lazy.l10n.formatValueSync("keyserver-error-unknown");
       break;
   }
 
@@ -157,9 +159,9 @@ const accessHkpInternal = {
         return payLoad;
       */
 
-      case EnigmailConstants.DOWNLOAD_KEY:
-      case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
-      case EnigmailConstants.SEARCH_KEY:
+      case lazy.EnigmailConstants.DOWNLOAD_KEY:
+      case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
+      case lazy.EnigmailConstants.SEARCH_KEY:
         return "";
     }
 
@@ -189,18 +191,18 @@ const accessHkpInternal = {
 
     let url = protocol + "://" + keySrv.host + ":" + keySrv.port;
 
-    if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
+    if (actionFlag === lazy.EnigmailConstants.UPLOAD_KEY) {
       url += "/pks/add";
       method = "POST";
     } else if (
-      actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
-      actionFlag === EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT
+      actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY ||
+      actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT
     ) {
       if (searchTerm.indexOf("0x") !== 0) {
         searchTerm = "0x" + searchTerm;
       }
       url += "/pks/lookup?search=" + searchTerm + "&op=get&options=mr";
-    } else if (actionFlag === EnigmailConstants.SEARCH_KEY) {
+    } else if (actionFlag === lazy.EnigmailConstants.SEARCH_KEY) {
       url +=
         "/pks/lookup?search=" +
         escape(searchTerm) +
@@ -224,7 +226,7 @@ const accessHkpInternal = {
    * @return:   Promise<Number (Status-ID)>
    */
   async accessKeyServer(actionFlag, keyserver, keyId, listener) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       `keyserver.jsm: accessHkpInternal.accessKeyServer(${keyserver})\n`
     );
     if (!keyserver) {
@@ -237,75 +239,81 @@ const accessHkpInternal = {
       let xmlReq = null;
       if (listener && typeof listener === "object") {
         listener.onCancel = function() {
-          EnigmailLog.DEBUG(
+          lazy.EnigmailLog.DEBUG(
             `keyserver.jsm: accessHkpInternal.accessKeyServer - onCancel() called\n`
           );
           if (xmlReq) {
             xmlReq.abort();
           }
-          reject(createError(EnigmailConstants.KEYSERVER_ERR_ABORTED));
+          reject(createError(lazy.EnigmailConstants.KEYSERVER_ERR_ABORTED));
         };
       }
-      if (actionFlag === EnigmailConstants.REFRESH_KEY) {
+      if (actionFlag === lazy.EnigmailConstants.REFRESH_KEY) {
         // we don't (need to) distinguish between refresh and download for our internal protocol
-        actionFlag = EnigmailConstants.DOWNLOAD_KEY;
+        actionFlag = lazy.EnigmailConstants.DOWNLOAD_KEY;
       }
 
       if (payLoad === null) {
-        reject(createError(EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
+        reject(createError(lazy.EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
         return;
       }
 
       xmlReq = new XMLHttpRequest();
 
       xmlReq.onload = function() {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessHkpInternal: onload(): status=" +
             xmlReq.status +
             "\n"
         );
         switch (actionFlag) {
-          case EnigmailConstants.UPLOAD_KEY:
-            EnigmailLog.DEBUG(
+          case lazy.EnigmailConstants.UPLOAD_KEY:
+            lazy.EnigmailLog.DEBUG(
               "keyserver.jsm: accessHkpInternal: onload: " +
                 xmlReq.responseText +
                 "\n"
             );
             if (xmlReq.status >= 400) {
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               resolve(0);
             }
             return;
 
-          case EnigmailConstants.SEARCH_KEY:
+          case lazy.EnigmailConstants.SEARCH_KEY:
             if (xmlReq.status === 404) {
               // key not found
               resolve("");
             } else if (xmlReq.status >= 400) {
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               resolve(xmlReq.responseText);
             }
             return;
 
-          case EnigmailConstants.DOWNLOAD_KEY:
-          case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
+          case lazy.EnigmailConstants.DOWNLOAD_KEY:
+          case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve(1);
             } else if (xmlReq.status >= 500) {
-              EnigmailLog.DEBUG(
+              lazy.EnigmailLog.DEBUG(
                 "keyserver.jsm: accessHkpInternal: onload: " +
                   xmlReq.responseText +
                   "\n"
               );
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               let errorMsgObj = {},
                 importedKeysObj = {};
               let importMinimal = false;
-              let r = EnigmailKeyRing.importKey(
+              let r = lazy.EnigmailKeyRing.importKey(
                 null,
                 false,
                 xmlReq.responseText,
@@ -319,7 +327,7 @@ const accessHkpInternal = {
                 resolve(importedKeysObj.value);
               } else {
                 reject(
-                  createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
+                  createError(lazy.EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
                 );
               }
             }
@@ -329,39 +337,47 @@ const accessHkpInternal = {
       };
 
       xmlReq.onerror = function(e) {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessHkpInternal.accessKeyServer: onerror: " +
             e +
             "\n"
         );
-        let err = FeedUtils.createTCPErrorFromFailedXHR(e.target);
+        let err = lazy.FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
           case "SecurityCertificate":
             reject(
-              createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR)
+              createError(
+                lazy.EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR
+              )
             );
             break;
           case "SecurityProtocol":
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR));
+            reject(
+              createError(lazy.EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR)
+            );
             break;
           case "Network":
             reject(
-              createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+              createError(
+                lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE
+              )
             );
             break;
         }
-        reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
+        reject(
+          createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+        );
       };
 
       xmlReq.onloadend = function() {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessHkpInternal.accessKeyServer: loadEnd\n"
         );
       };
 
       let { url, method } = this.createRequestUrl(keyserver, actionFlag, keyId);
 
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         `keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`
       );
       xmlReq.open(method, url);
@@ -378,7 +394,9 @@ const accessHkpInternal = {
    * @return:   Promise<...>
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.download(${keyIDs})\n`);
+    lazy.EnigmailLog.DEBUG(
+      `keyserver.jsm: accessHkpInternal.download(${keyIDs})\n`
+    );
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
@@ -390,8 +408,8 @@ const accessHkpInternal = {
       try {
         let r = await this.accessKeyServer(
           autoImport
-            ? EnigmailConstants.DOWNLOAD_KEY
-            : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
+            ? lazy.EnigmailConstants.DOWNLOAD_KEY
+            : lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
           keyserver,
           keyIdArr[i],
           listener
@@ -414,7 +432,7 @@ const accessHkpInternal = {
   },
 
   refresh(keyServer, listener = null) {
-    let keyList = EnigmailKeyRing.getAllKeys()
+    let keyList = lazy.EnigmailKeyRing.getAllKeys()
       .keyList.map(keyObj => {
         return "0x" + keyObj.fpr;
       })
@@ -432,7 +450,9 @@ const accessHkpInternal = {
    * @return:   Promise<...>
    */
   async upload(keyIDs, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.upload(${keyIDs})\n`);
+    lazy.EnigmailLog.DEBUG(
+      `keyserver.jsm: accessHkpInternal.upload(${keyIDs})\n`
+    );
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
@@ -443,7 +463,7 @@ const accessHkpInternal = {
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
         let r = await this.accessKeyServer(
-          EnigmailConstants.UPLOAD_KEY,
+          lazy.EnigmailConstants.UPLOAD_KEY,
           keyserver,
           keyIdArr[i],
           listener
@@ -485,7 +505,7 @@ const accessHkpInternal = {
    *           - uid: Array of Strings with UIDs
    */
   async searchKeyserver(searchTerm, keyserver, listener = null) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       `keyserver.jsm: accessHkpInternal.search(${searchTerm})\n`
     );
     let retObj = {
@@ -499,7 +519,7 @@ const accessHkpInternal = {
 
     for (let k in searchArr) {
       let r = await this.accessKeyServer(
-        EnigmailConstants.SEARCH_KEY,
+        lazy.EnigmailConstants.SEARCH_KEY,
         keyserver,
         searchArr[k],
         listener
@@ -518,7 +538,7 @@ const accessHkpInternal = {
             if (line[1] !== "1") {
               // protocol version not supported
               retObj.result = 7;
-              retObj.errorDetails = await l10n.formatValue(
+              retObj.errorDetails = await lazy.l10n.formatValue(
                 "keyserver-error-unsupported"
               );
               retObj.pubKeys = [];
@@ -546,7 +566,7 @@ const accessHkpInternal = {
             break;
           case "uid":
             key.uid.push(
-              EnigmailData.convertToUnicode(line[1].trim(), "utf-8")
+              lazy.EnigmailData.convertToUnicode(line[1].trim(), "utf-8")
             );
         }
       }
@@ -570,12 +590,12 @@ const accessKeyBase = {
   createRequestUrl(actionFlag, searchTerm) {
     let url = "https://keybase.io/_/api/1.0/user/";
 
-    if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
+    if (actionFlag === lazy.EnigmailConstants.UPLOAD_KEY) {
       // not supported
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     } else if (
-      actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
-      actionFlag === EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT
+      actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY ||
+      actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT
     ) {
       if (searchTerm.indexOf("0x") === 0) {
         searchTerm = searchTerm.substr(0, 40);
@@ -584,7 +604,7 @@ const accessKeyBase = {
         "lookup.json?key_fingerprint=" +
         escape(searchTerm) +
         "&fields=public_keys";
-    } else if (actionFlag === EnigmailConstants.SEARCH_KEY) {
+    } else if (actionFlag === lazy.EnigmailConstants.SEARCH_KEY) {
       url += "autocomplete.json?q=" + escape(searchTerm);
     }
 
@@ -603,51 +623,55 @@ const accessKeyBase = {
    * @return:   Promise<Number (Status-ID)>
    */
   accessKeyServer(actionFlag, keyId, listener) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: accessKeyServer()\n`);
+    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: accessKeyServer()\n`);
 
     return new Promise((resolve, reject) => {
       let xmlReq = null;
       if (listener && typeof listener === "object") {
         listener.onCancel = function() {
-          EnigmailLog.DEBUG(
+          lazy.EnigmailLog.DEBUG(
             `keyserver.jsm: accessKeyBase: accessKeyServer - onCancel() called\n`
           );
           if (xmlReq) {
             xmlReq.abort();
           }
-          reject(createError(EnigmailConstants.KEYSERVER_ERR_ABORTED));
+          reject(createError(lazy.EnigmailConstants.KEYSERVER_ERR_ABORTED));
         };
       }
-      if (actionFlag === EnigmailConstants.REFRESH_KEY) {
+      if (actionFlag === lazy.EnigmailConstants.REFRESH_KEY) {
         // we don't (need to) distinguish between refresh and download for our internal protocol
-        actionFlag = EnigmailConstants.DOWNLOAD_KEY;
+        actionFlag = lazy.EnigmailConstants.DOWNLOAD_KEY;
       }
 
       xmlReq = new XMLHttpRequest();
 
       xmlReq.onload = function() {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: onload(): status=" + xmlReq.status + "\n"
         );
         switch (actionFlag) {
-          case EnigmailConstants.SEARCH_KEY:
+          case lazy.EnigmailConstants.SEARCH_KEY:
             if (xmlReq.status >= 400) {
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               resolve(xmlReq.responseText);
             }
             return;
 
-          case EnigmailConstants.DOWNLOAD_KEY:
-          case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
+          case lazy.EnigmailConstants.DOWNLOAD_KEY:
+          case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve([]);
             } else if (xmlReq.status >= 500) {
-              EnigmailLog.DEBUG(
+              lazy.EnigmailLog.DEBUG(
                 "keyserver.jsm: onload: " + xmlReq.responseText + "\n"
               );
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               try {
                 let resp = JSON.parse(xmlReq.responseText);
@@ -655,14 +679,14 @@ const accessKeyBase = {
 
                 if (resp.status.code === 0) {
                   for (let hit in resp.them) {
-                    EnigmailLog.DEBUG(
+                    lazy.EnigmailLog.DEBUG(
                       JSON.stringify(resp.them[hit].public_keys.primary) + "\n"
                     );
 
                     if (resp.them[hit] !== null) {
                       let errorMsgObj = {},
                         importedKeysObj = {};
-                      let r = EnigmailKeyRing.importKey(
+                      let r = lazy.EnigmailKeyRing.importKey(
                         null,
                         false,
                         resp.them[hit].public_keys.primary.bundle,
@@ -679,7 +703,9 @@ const accessKeyBase = {
                 }
                 resolve(imported);
               } catch (ex) {
-                reject(createError(EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
+                reject(
+                  createError(lazy.EnigmailConstants.KEYSERVER_ERR_UNKNOWN)
+                );
               }
             }
             return;
@@ -688,33 +714,45 @@ const accessKeyBase = {
       };
 
       xmlReq.onerror = function(e) {
-        EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: onerror: " + e + "\n");
-        let err = FeedUtils.createTCPErrorFromFailedXHR(e.target);
+        lazy.EnigmailLog.DEBUG(
+          "keyserver.jsm: accessKeyBase: onerror: " + e + "\n"
+        );
+        let err = lazy.FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
           case "SecurityCertificate":
             reject(
-              createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR)
+              createError(
+                lazy.EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR
+              )
             );
             break;
           case "SecurityProtocol":
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR));
+            reject(
+              createError(lazy.EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR)
+            );
             break;
           case "Network":
             reject(
-              createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+              createError(
+                lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE
+              )
             );
             break;
         }
-        reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
+        reject(
+          createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+        );
       };
 
       xmlReq.onloadend = function() {
-        EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: loadEnd\n");
+        lazy.EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: loadEnd\n");
       };
 
       let { url, method } = this.createRequestUrl(actionFlag, keyId);
 
-      EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: requesting ${url}\n`);
+      lazy.EnigmailLog.DEBUG(
+        `keyserver.jsm: accessKeyBase: requesting ${url}\n`
+      );
       xmlReq.open(method, url);
       xmlReq.send("");
     });
@@ -729,7 +767,7 @@ const accessKeyBase = {
    * @return:   Promise<...>
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: download()\n`);
+    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: download()\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
@@ -741,8 +779,8 @@ const accessKeyBase = {
       try {
         let r = await this.accessKeyServer(
           autoImport
-            ? EnigmailConstants.DOWNLOAD_KEY
-            : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
+            ? lazy.EnigmailConstants.DOWNLOAD_KEY
+            : lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
           keyIdArr[i],
           listener
         );
@@ -782,7 +820,7 @@ const accessKeyBase = {
 
    */
   async searchKeyserver(searchTerm, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: search()\n`);
+    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: search()\n`);
     let retObj = {
       result: 0,
       errorDetails: "",
@@ -791,7 +829,7 @@ const accessKeyBase = {
 
     try {
       let r = await this.accessKeyServer(
-        EnigmailConstants.SEARCH_KEY,
+        lazy.EnigmailConstants.SEARCH_KEY,
         searchTerm,
         listener
       );
@@ -839,8 +877,8 @@ const accessKeyBase = {
   },
 
   refresh(keyServer, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: refresh()\n`);
-    let keyList = EnigmailKeyRing.getAllKeys()
+    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: refresh()\n`);
+    let keyList = lazy.EnigmailKeyRing.getAllKeys()
       .keyList.map(keyObj => {
         return "0x" + keyObj.fpr;
       })
@@ -899,7 +937,7 @@ const accessVksServer = {
         return payLoad;
       */
 
-      case EnigmailConstants.GET_CONFIRMATION_LINK:
+      case lazy.EnigmailConstants.GET_CONFIRMATION_LINK:
         let payLoad = JSON.stringify({
           token: searchTerms.token,
           addresses: searchTerms.addresses,
@@ -907,9 +945,9 @@ const accessVksServer = {
         });
         return payLoad;
 
-      case EnigmailConstants.DOWNLOAD_KEY:
-      case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
-      case EnigmailConstants.SEARCH_KEY:
+      case lazy.EnigmailConstants.DOWNLOAD_KEY:
+      case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
+      case lazy.EnigmailConstants.SEARCH_KEY:
         return "";
     }
 
@@ -928,18 +966,18 @@ const accessVksServer = {
 
     let url = "https://" + keySrv.host;
 
-    if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
+    if (actionFlag === lazy.EnigmailConstants.UPLOAD_KEY) {
       url += "/vks/v1/upload";
       method = "POST";
       contentType = "application/json";
-    } else if (actionFlag === EnigmailConstants.GET_CONFIRMATION_LINK) {
+    } else if (actionFlag === lazy.EnigmailConstants.GET_CONFIRMATION_LINK) {
       url += "/vks/v1/request-verify";
       method = "POST";
       contentType = "application/json";
     } else if (
-      actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
-      actionFlag === EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT ||
-      actionFlag === EnigmailConstants.SEARCH_KEY
+      actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY ||
+      actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT ||
+      actionFlag === lazy.EnigmailConstants.SEARCH_KEY
     ) {
       if (searchTerm) {
         let lookup = "/vks/";
@@ -958,7 +996,7 @@ const accessVksServer = {
           }
         } else {
           try {
-            searchTerm = EnigmailFuncs.stripEmail(searchTerm);
+            searchTerm = lazy.EnigmailFuncs.stripEmail(searchTerm);
           } catch (x) {}
           lookup = "/vks/v1/by-email/" + searchTerm;
         }
@@ -983,7 +1021,7 @@ const accessVksServer = {
    * @return:   Promise<Number (Status-ID)>
    */
   async accessKeyServer(actionFlag, keyserver, keyId, listener) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       `keyserver.jsm: accessVksServer.accessKeyServer(${keyserver})\n`
     );
     if (keyserver === null) {
@@ -997,76 +1035,82 @@ const accessVksServer = {
       let xmlReq = null;
       if (listener && typeof listener === "object") {
         listener.onCancel = function() {
-          EnigmailLog.DEBUG(
+          lazy.EnigmailLog.DEBUG(
             `keyserver.jsm: accessVksServer.accessKeyServer - onCancel() called\n`
           );
           if (xmlReq) {
             xmlReq.abort();
           }
-          reject(createError(EnigmailConstants.KEYSERVER_ERR_ABORTED));
+          reject(createError(lazy.EnigmailConstants.KEYSERVER_ERR_ABORTED));
         };
       }
-      if (actionFlag === EnigmailConstants.REFRESH_KEY) {
+      if (actionFlag === lazy.EnigmailConstants.REFRESH_KEY) {
         // we don't (need to) distinguish between refresh and download for our internal protocol
-        actionFlag = EnigmailConstants.DOWNLOAD_KEY;
+        actionFlag = lazy.EnigmailConstants.DOWNLOAD_KEY;
       }
 
       if (payLoad === null) {
-        reject(createError(EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
+        reject(createError(lazy.EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
         return;
       }
 
       xmlReq = new XMLHttpRequest();
 
       xmlReq.onload = function() {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessVksServer.onload(): status=" +
             xmlReq.status +
             "\n"
         );
         switch (actionFlag) {
-          case EnigmailConstants.UPLOAD_KEY:
-          case EnigmailConstants.GET_CONFIRMATION_LINK:
-            EnigmailLog.DEBUG(
+          case lazy.EnigmailConstants.UPLOAD_KEY:
+          case lazy.EnigmailConstants.GET_CONFIRMATION_LINK:
+            lazy.EnigmailLog.DEBUG(
               "keyserver.jsm: accessVksServer.onload: " +
                 xmlReq.responseText +
                 "\n"
             );
             if (xmlReq.status >= 400) {
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               resolve(xmlReq.responseText);
             }
             return;
 
-          case EnigmailConstants.SEARCH_KEY:
+          case lazy.EnigmailConstants.SEARCH_KEY:
             if (xmlReq.status === 404) {
               // key not found
               resolve("");
             } else if (xmlReq.status >= 400) {
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               resolve(xmlReq.responseText);
             }
             return;
 
-          case EnigmailConstants.DOWNLOAD_KEY:
-          case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
+          case lazy.EnigmailConstants.DOWNLOAD_KEY:
+          case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve(1);
             } else if (xmlReq.status >= 500) {
-              EnigmailLog.DEBUG(
+              lazy.EnigmailLog.DEBUG(
                 "keyserver.jsm: accessVksServer.onload: " +
                   xmlReq.responseText +
                   "\n"
               );
-              reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
+              reject(
+                createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
+              );
             } else {
               let errorMsgObj = {},
                 importedKeysObj = {};
-              if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
-                let r = EnigmailKeyRing.importKey(
+              if (actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY) {
+                let r = lazy.EnigmailKeyRing.importKey(
                   null,
                   false,
                   xmlReq.responseText,
@@ -1079,7 +1123,9 @@ const accessVksServer = {
                   resolve(importedKeysObj.value);
                 } else {
                   reject(
-                    createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
+                    createError(
+                      lazy.EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR
+                    )
                   );
                 }
               } else {
@@ -1093,30 +1139,38 @@ const accessVksServer = {
       };
 
       xmlReq.onerror = function(e) {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessVksServer.accessKeyServer: onerror: " + e + "\n"
         );
-        let err = FeedUtils.createTCPErrorFromFailedXHR(e.target);
+        let err = lazy.FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
           case "SecurityCertificate":
             reject(
-              createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR)
+              createError(
+                lazy.EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR
+              )
             );
             break;
           case "SecurityProtocol":
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR));
+            reject(
+              createError(lazy.EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR)
+            );
             break;
           case "Network":
             reject(
-              createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+              createError(
+                lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE
+              )
             );
             break;
         }
-        reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
+        reject(
+          createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+        );
       };
 
       xmlReq.onloadend = function() {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessVksServer.accessKeyServer: loadEnd\n"
         );
       };
@@ -1127,7 +1181,7 @@ const accessVksServer = {
         keyId
       );
 
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         `keyserver.jsm: accessVksServer.accessKeyServer: requesting ${method} for ${url}\n`
       );
       xmlReq.open(method, url);
@@ -1145,7 +1199,9 @@ const accessVksServer = {
    * @return:   Promise<...>
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.download(${keyIDs})\n`);
+    lazy.EnigmailLog.DEBUG(
+      `keyserver.jsm: accessVksServer.download(${keyIDs})\n`
+    );
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
@@ -1157,8 +1213,8 @@ const accessVksServer = {
       try {
         let r = await this.accessKeyServer(
           autoImport
-            ? EnigmailConstants.DOWNLOAD_KEY
-            : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
+            ? lazy.EnigmailConstants.DOWNLOAD_KEY
+            : lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
           keyserver,
           keyIdArr[i],
           listener
@@ -1187,7 +1243,7 @@ const accessVksServer = {
   },
 
   refresh(keyServer, listener = null) {
-    let keyList = EnigmailKeyRing.getAllKeys()
+    let keyList = lazy.EnigmailKeyRing.getAllKeys()
       .keyList.map(keyObj => {
         return "0x" + keyObj.fpr;
       })
@@ -1197,7 +1253,7 @@ const accessVksServer = {
   },
 
   async requestConfirmationLink(keyserver, jsonFragment) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       `keyserver.jsm: accessVksServer.requestConfirmationLink()\n`
     );
 
@@ -1213,7 +1269,7 @@ const accessVksServer = {
 
     if (addr.length > 0) {
       let r = await this.accessKeyServer(
-        EnigmailConstants.GET_CONFIRMATION_LINK,
+        lazy.EnigmailConstants.GET_CONFIRMATION_LINK,
         keyserver,
         {
           token: response.token,
@@ -1239,7 +1295,9 @@ const accessVksServer = {
    * @return:   Promise<...>
    */
   async upload(keyIDs, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.upload(${keyIDs})\n`);
+    lazy.EnigmailLog.DEBUG(
+      `keyserver.jsm: accessVksServer.upload(${keyIDs})\n`
+    );
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
@@ -1248,7 +1306,7 @@ const accessVksServer = {
     };
 
     for (let i = 0; i < keyIdArr.length; i++) {
-      let keyObj = EnigmailKeyRing.getKeyById(keyIdArr[i]);
+      let keyObj = lazy.EnigmailKeyRing.getKeyById(keyIdArr[i]);
 
       if (!keyObj.secretAvailable) {
         // VKS keyservers only accept uploading own keys
@@ -1259,7 +1317,7 @@ const accessVksServer = {
 
       try {
         let r = await this.accessKeyServer(
-          EnigmailConstants.UPLOAD_KEY,
+          lazy.EnigmailConstants.UPLOAD_KEY,
           keyserver,
           keyIdArr[i],
           listener
@@ -1307,7 +1365,9 @@ const accessVksServer = {
    *           - uid: Array of Strings with UIDs
    */
   async searchKeyserver(searchTerm, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.search(${searchTerm})\n`);
+    lazy.EnigmailLog.DEBUG(
+      `keyserver.jsm: accessVksServer.search(${searchTerm})\n`
+    );
     let retObj = {
       result: 0,
       errorDetails: "",
@@ -1320,13 +1380,13 @@ const accessVksServer = {
     try {
       for (let i in searchArr) {
         let r = await this.accessKeyServer(
-          EnigmailConstants.SEARCH_KEY,
+          lazy.EnigmailConstants.SEARCH_KEY,
           keyserver,
           searchArr[i],
           listener
         );
 
-        const cApi = EnigmailCryptoAPI();
+        const cApi = lazy.EnigmailCryptoAPI();
         let keyList = await cApi.getKeyListFromKeyBlockAPI(
           r,
           true,
@@ -1392,7 +1452,7 @@ var EnigmailKeyServer = {
     let acc = getAccessType(keyserver);
     let { url } = acc.createRequestUrl(
       keyserver,
-      EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
+      lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
       keyIDs
     );
     return url;

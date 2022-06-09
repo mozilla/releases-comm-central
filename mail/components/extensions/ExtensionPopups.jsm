@@ -14,13 +14,15 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "ExtensionParent",
   "resource://gre/modules/ExtensionParent.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "setTimeout",
   "resource://gre/modules/Timer.jsm"
 );
@@ -36,7 +38,7 @@ var { DefaultWeakMap, promiseEvent } = ExtensionUtils;
 
 const POPUP_LOAD_TIMEOUT_MS = 200;
 
-XPCOMUtils.defineLazyGetter(this, "standaloneStylesheets", () => {
+XPCOMUtils.defineLazyGetter(lazy, "standaloneStylesheets", () => {
   let stylesheets = [];
 
   if (AppConstants.platform === "macosx") {
@@ -161,10 +163,10 @@ class BasePopup {
     let sheets = [];
 
     if (this.browserStyle) {
-      sheets.push(...ExtensionParent.extensionStylesheets);
+      sheets.push(...lazy.ExtensionParent.extensionStylesheets);
     }
     if (!this.fixedWidth) {
-      sheets.push(...standaloneStylesheets);
+      sheets.push(...lazy.standaloneStylesheets);
     }
 
     return sheets;
@@ -317,7 +319,10 @@ class BasePopup {
       browser.addEventListener("pagetitlechanged", this);
       browser.addEventListener("DOMWindowClose", this);
 
-      ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
+      lazy.ExtensionParent.apiManager.emit(
+        "extension-browser-inserted",
+        browser
+      );
       return browser;
     };
 
@@ -512,7 +517,7 @@ class ViewPopup extends BasePopup {
         // This promise may be rejected if the popup calls window.close()
         // before it has fully loaded.
         this.browserLoaded.catch(() => {}),
-        new Promise(resolve => setTimeout(resolve, POPUP_LOAD_TIMEOUT_MS)),
+        new Promise(resolve => lazy.setTimeout(resolve, POPUP_LOAD_TIMEOUT_MS)),
       ]),
     ]);
 

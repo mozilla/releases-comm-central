@@ -16,16 +16,18 @@ const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
+const lazy = {};
+
 // lazy module getter
 
-XPCOMUtils.defineLazyGetter(this, "gMailBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
   return Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
 });
 
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "ActorManagerParent",
   "resource://gre/modules/ActorManagerParent.jsm"
 );
@@ -202,7 +204,7 @@ let JSWINDOWACTORS = {
   },
 };
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
@@ -264,7 +266,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "handlersvc-store-initialized");
 
     // Call the lazy getter to ensure ActorManagerParent is initialized.
-    ActorManagerParent;
+    lazy.ActorManagerParent;
 
     // FindBar and LoginManager actors are included in JSWINDOWACTORS as they
     // also apply to the single-site and single-page message manager groups.
@@ -272,7 +274,7 @@ MailGlue.prototype = {
     ChromeUtils.unregisterWindowActor("FindBar");
     ChromeUtils.unregisterWindowActor("LoginManager");
 
-    ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
+    lazy.ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
   },
 
   // cleanup (called at shutdown)
@@ -289,11 +291,11 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "document-element-inserted");
     Services.obs.removeObserver(this, "handlersvc-store-initialized");
 
-    ExtensionSupport.unregisterWindowListener(
+    lazy.ExtensionSupport.unregisterWindowListener(
       "Thunderbird-internal-BrowserConsole"
     );
 
-    MailUsageTelemetry.uninit();
+    lazy.MailUsageTelemetry.uninit();
 
     if (this._lateTasksIdleObserver) {
       this._userIdleService.removeIdleObserver(
@@ -387,7 +389,7 @@ MailGlue.prototype = {
                 "lightweightthemes"
               )
             ) {
-              new LightweightThemeConsumer(aSubject.document);
+              new lazy.LightweightThemeConsumer(aSubject.document);
             }
           },
           { once: true }
@@ -418,7 +420,7 @@ MailGlue.prototype = {
         // parent only: configure default prefs, set up pref observers, register
         // pdf content handler, and initializes parent side message manager
         // shim for privileged api access.
-        PdfJs.init(this._isNewProfile);
+        lazy.PdfJs.init(this._isNewProfile);
         break;
       }
     }
@@ -427,22 +429,22 @@ MailGlue.prototype = {
   // Runs on startup, before the first command line handler is invoked
   // (i.e. before the first window is opened).
   _beforeUIStartup() {
-    TBDistCustomizer.applyPrefDefaults();
+    lazy.TBDistCustomizer.applyPrefDefaults();
 
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     this._isNewProfile = !Services.prefs.prefHasUserValue(UI_VERSION_PREF);
 
     // handle any migration work that has to happen at profile startup
-    MailMigrator.migrateAtProfileStartup();
+    lazy.MailMigrator.migrateAtProfileStartup();
 
     if (!Services.prefs.prefHasUserValue(PREF_PDFJS_ISDEFAULT_CACHE_STATE)) {
-      PdfJs.checkIsDefault(this._isNewProfile);
+      lazy.PdfJs.checkIsDefault(this._isNewProfile);
     }
 
     // Inject scripts into some devtools windows.
     function _setupBrowserConsole(domWindow) {
       // Browser Console is an XHTML document.
-      domWindow.document.title = gMailBundle.GetStringFromName(
+      domWindow.document.title = lazy.gMailBundle.GetStringFromName(
         "errorConsoleTitle"
       );
       Services.scriptloader.loadSubScript(
@@ -451,7 +453,7 @@ MailGlue.prototype = {
       );
     }
 
-    ExtensionSupport.registerWindowListener(
+    lazy.ExtensionSupport.registerWindowListener(
       "Thunderbird-internal-BrowserConsole",
       {
         chromeURLs: ["chrome://devtools/content/webconsole/index.html"],
@@ -470,12 +472,12 @@ MailGlue.prototype = {
       );
     }
 
-    AddonManager.maybeInstallBuiltinAddon(
+    lazy.AddonManager.maybeInstallBuiltinAddon(
       "thunderbird-compact-light@mozilla.org",
       "1.2",
       "resource://builtin-themes/light/"
     );
-    AddonManager.maybeInstallBuiltinAddon(
+    lazy.AddonManager.maybeInstallBuiltinAddon(
       "thunderbird-compact-dark@mozilla.org",
       "1.2",
       "resource://builtin-themes/dark/"
@@ -561,7 +563,7 @@ MailGlue.prototype = {
       LATE_TASKS_IDLE_TIME_SEC
     );
 
-    MailUsageTelemetry.init();
+    lazy.MailUsageTelemetry.init();
   },
 
   /**
@@ -652,9 +654,9 @@ MailGlue.prototype = {
     const idleTasks = [
       () => {
         // Certificates revocation list, etc.
-        RemoteSecuritySettings.init();
+        lazy.RemoteSecuritySettings.init();
       },
-      () => OsEnvironment.reportAllowedAppSources(),
+      () => lazy.OsEnvironment.reportAllowedAppSources(),
     ];
 
     for (let task of idleTasks) {

@@ -106,13 +106,15 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "CustomizableUI",
   "resource:///modules/CustomizableUI.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "gBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "gBundle", function() {
   return Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
@@ -1350,7 +1352,7 @@ var PanelView = class extends AssociatedToNode {
 
     backButton.setAttribute(
       "aria-label",
-      gBundle.GetStringFromName("panel.back")
+      lazy.gBundle.GetStringFromName("panel.back")
     );
 
     backButton.addEventListener("command", () => {
@@ -1372,7 +1374,7 @@ var PanelView = class extends AssociatedToNode {
    * Also make sure that the correct method is called on CustomizableWidget.
    */
   dispatchCustomEvent(...args) {
-    CustomizableUI.ensureSubviewListeners(this.node);
+    lazy.CustomizableUI.ensureSubviewListeners(this.node);
     return super.dispatchCustomEvent(...args);
   }
 

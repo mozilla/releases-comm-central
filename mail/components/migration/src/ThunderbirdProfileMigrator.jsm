@@ -11,8 +11,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const lazy = {};
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "l10n",
   () => new Localization(["messenger/importDialog.ftl"])
 );
@@ -117,7 +118,10 @@ class ThunderbirdProfileMigrator {
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    let [filePickerTitleZip, filePickerTitleDir] = await l10n.formatValues([
+    let [
+      filePickerTitleZip,
+      filePickerTitleDir,
+    ] = await lazy.l10n.formatValues([
       "import-select-profile-zip",
       "import-select-profile-dir",
     ]);

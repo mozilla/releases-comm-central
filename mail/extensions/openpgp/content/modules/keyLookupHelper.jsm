@@ -12,7 +12,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
@@ -22,7 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailWkdLookup: "chrome://openpgp/content/modules/wkdLookup.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
@@ -52,15 +54,15 @@ var KeyLookupHelper = {
     let foundUnchanged = false;
     let collectedForLater = false;
 
-    let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
+    let defKs = lazy.EnigmailKeyserverURIs.getDefaultKeyServer();
     if (!defKs) {
       return false;
     }
 
-    let vks = await EnigmailKeyServer.downloadNoImport(identifier, defKs);
+    let vks = await lazy.EnigmailKeyServer.downloadNoImport(identifier, defKs);
     if (vks && "keyData" in vks) {
       let errorInfo = {};
-      let keyList = await EnigmailKey.getKeyListFromKeyBlock(
+      let keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
         vks.keyData,
         errorInfo,
         false,
@@ -70,23 +72,23 @@ var KeyLookupHelper = {
       // We might get a zero length keyList, if we refuse to use the key
       // that we received because of its properties.
       if (keyList && keyList.length == 1) {
-        let oldKey = EnigmailKeyRing.getKeyById(keyList[0].fpr);
+        let oldKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
         if (oldKey) {
-          await EnigmailKeyRing.importKeyDataSilent(
+          await lazy.EnigmailKeyRing.importKeyDataSilent(
             window,
             vks.keyData,
             true,
             "0x" + keyList[0].fpr
           );
 
-          let updatedKey = EnigmailKeyRing.getKeyById(keyList[0].fpr);
+          let updatedKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
           // If new imported/merged key is equal to old key,
           // don't notify about new keys details.
           if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
             foundUpdated = true;
             keyImported = true;
             if (mode == "interactive-import") {
-              EnigmailDialog.keyImportDlg(
+              lazy.EnigmailDialog.keyImportDlg(
                 window,
                 keyList.map(a => a.id)
               );
@@ -96,7 +98,7 @@ var KeyLookupHelper = {
           }
         } else {
           if (mode == "interactive-import") {
-            keyImported = await EnigmailKeyRing.importKeyDataWithConfirmation(
+            keyImported = await lazy.EnigmailKeyRing.importKeyDataWithConfirmation(
               window,
               keyList,
               vks.keyData,
@@ -105,11 +107,14 @@ var KeyLookupHelper = {
           }
           if (!keyImported) {
             collectedForLater = true;
-            let db = await CollectedKeysDB.getInstance();
+            let db = await lazy.CollectedKeysDB.getInstance();
             for (let newKey of keyList) {
               // If key is known in the db: merge + update.
               let key = await db.mergeExisting(newKey, vks.keyData, {
-                uri: EnigmailKeyServer.serverReqURL(`0x${newKey.fpr}`, defKs),
+                uri: lazy.EnigmailKeyServer.serverReqURL(
+                  `0x${newKey.fpr}`,
+                  defKs
+                ),
                 type: "keyserver",
               });
               await db.storeKey(key);
@@ -167,8 +172,8 @@ var KeyLookupHelper = {
       } else {
         msgId = "no-key-found2";
       }
-      let value = await l10n.formatValue(msgId);
-      EnigmailDialog.alert(window, value);
+      let value = await lazy.l10n.formatValue(msgId);
+      lazy.EnigmailDialog.alert(window, value);
     }
     return importResult.keyImported;
   },
@@ -196,12 +201,18 @@ var KeyLookupHelper = {
 
     let wkdResult;
     let wkdUrl;
-    if (EnigmailWkdLookup.isWkdAvailable(email)) {
-      wkdUrl = await EnigmailWkdLookup.getDownloadUrlFromEmail(email, true);
-      wkdResult = await EnigmailWkdLookup.downloadKey(wkdUrl);
+    if (lazy.EnigmailWkdLookup.isWkdAvailable(email)) {
+      wkdUrl = await lazy.EnigmailWkdLookup.getDownloadUrlFromEmail(
+        email,
+        true
+      );
+      wkdResult = await lazy.EnigmailWkdLookup.downloadKey(wkdUrl);
       if (!wkdResult) {
-        wkdUrl = await EnigmailWkdLookup.getDownloadUrlFromEmail(email, false);
-        wkdResult = await EnigmailWkdLookup.downloadKey(wkdUrl);
+        wkdUrl = await lazy.EnigmailWkdLookup.getDownloadUrlFromEmail(
+          email,
+          false
+        );
+        wkdResult = await lazy.EnigmailWkdLookup.downloadKey(wkdUrl);
       }
     }
 
@@ -209,7 +220,7 @@ var KeyLookupHelper = {
       console.debug("searchKeysOnInternet no wkd data for " + email);
     } else {
       let errorInfo = {};
-      let keyList = await EnigmailKey.getKeyListFromKeyBlock(
+      let keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
         wkdResult,
         errorInfo,
         false,
@@ -226,16 +237,16 @@ var KeyLookupHelper = {
         let newKeys = [];
 
         for (let wkdKey of keyList) {
-          let oldKey = EnigmailKeyRing.getKeyById(wkdKey.fpr);
+          let oldKey = lazy.EnigmailKeyRing.getKeyById(wkdKey.fpr);
           if (oldKey) {
-            await EnigmailKeyRing.importKeyDataSilent(
+            await lazy.EnigmailKeyRing.importKeyDataSilent(
               window,
               wkdKey.pubKey,
               true,
               "0x" + wkdKey.fpr
             );
 
-            let updatedKey = EnigmailKeyRing.getKeyById(wkdKey.fpr);
+            let updatedKey = lazy.EnigmailKeyRing.getKeyById(wkdKey.fpr);
             // If new imported/merged key is equal to old key,
             // don't notify about new keys details.
             if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
@@ -252,7 +263,7 @@ var KeyLookupHelper = {
 
         if (existingKeys.length) {
           if (mode == "interactive-import") {
-            EnigmailDialog.keyImportDlg(window, existingKeys);
+            lazy.EnigmailDialog.keyImportDlg(window, existingKeys);
           }
           wkdKeyImported = true;
         }
@@ -260,7 +271,7 @@ var KeyLookupHelper = {
         if (newKeys.length && mode == "interactive-import") {
           wkdKeyImported =
             wkdKeyImported ||
-            (await EnigmailKeyRing.importKeyArrayWithConfirmation(
+            (await lazy.EnigmailKeyRing.importKeyArrayWithConfirmation(
               window,
               newKeys,
               true
@@ -269,7 +280,7 @@ var KeyLookupHelper = {
         if (!wkdKeyImported) {
           // If a caller ever needs information what we found,
           // this is the place to set: wkdCollectedForLater = true
-          let db = await CollectedKeysDB.getInstance();
+          let db = await lazy.CollectedKeysDB.getInstance();
           for (let newKey of newKeys) {
             // If key is known in the db: merge + update.
             let key = await db.mergeExisting(newKey, newKey.pubKey, {
@@ -300,8 +311,8 @@ var KeyLookupHelper = {
       } else {
         msgId = "no-key-found2";
       }
-      let value = await l10n.formatValue(msgId);
-      EnigmailDialog.alert(window, value);
+      let value = await lazy.l10n.formatValue(msgId);
+      lazy.EnigmailDialog.alert(window, value);
     }
 
     return resultKeyImported;

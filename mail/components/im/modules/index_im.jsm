@@ -30,13 +30,15 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AsyncShutdown",
   "resource://gre/modules/AsyncShutdown.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "GlodaDatastore",
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );
@@ -58,7 +60,7 @@ var ScriptableInputStream = CC(
 // job to actually carrying it out.
 var kIndexingDelay = 5000; // in milliseconds
 
-XPCOMUtils.defineLazyGetter(this, "MailFolder", () =>
+XPCOMUtils.defineLazyGetter(lazy, "MailFolder", () =>
   Cc["@mozilla.org/mail/folder-factory;1?name=mailbox"].createInstance(
     Ci.nsIMsgFolder
   )
@@ -317,7 +319,7 @@ var GlodaIMIndexer = {
       return;
     }
     this._shutdownBlockerAdded = true;
-    AsyncShutdown.profileBeforeChange.addBlocker(
+    lazy.AsyncShutdown.profileBeforeChange.addBlocker(
       "GlodaIMIndexer cache save",
       () => {
         if (!this._cacheSaveTimer) {
@@ -624,7 +626,7 @@ var GlodaIMIndexer = {
    * find its id.
    */
   _getIdFromPath(aPath) {
-    let selectStatement = GlodaDatastore._createAsyncStatement(
+    let selectStatement = lazy.GlodaDatastore._createAsyncStatement(
       "SELECT id FROM imConversations WHERE path = ?1"
     );
     selectStatement.bindByIndex(0, aPath);
@@ -706,7 +708,7 @@ var GlodaIMIndexer = {
             let prefix = who ? who + ": " : "";
             content.push(
               prefix +
-                MailFolder.convertMsgSnippetToPlainText(
+                lazy.MailFolder.convertMsgSnippetToPlainText(
                   "<!DOCTYPE html>" + m.message
                 )
             );
@@ -884,7 +886,7 @@ var GlodaIMIndexer = {
   // of their path relative to the logs directory. These entries are updated to
   // use relative paths below.
   fixEntriesWithAbsolutePaths() {
-    let store = GlodaDatastore;
+    let store = lazy.GlodaDatastore;
     let selectStatement = store._createAsyncStatement(
       "SELECT id, path FROM imConversations"
     );
