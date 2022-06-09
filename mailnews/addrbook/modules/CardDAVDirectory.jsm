@@ -424,6 +424,9 @@ class CardDAVDirectory extends SQLiteDirectory {
       if (abCard.UID == card.UID) {
         super.modifyCard(abCard);
       } else {
+        // Add a property so the UI can work out if it's still displaying the
+        // old card and respond appropriately.
+        abCard.setProperty("_originalUID", card.UID);
         super.dropCard(abCard, false);
         super.deleteCards([card]);
       }

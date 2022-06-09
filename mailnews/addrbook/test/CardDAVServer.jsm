@@ -561,6 +561,14 @@ var CardDAVServer = {
     let vCard = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
     this.putCardInternal(request.path, vCard);
     response.setStatusLine("1.1", 204, "No Content");
+
+    if (this.responseDelay) {
+      response.processAsync();
+      this.responseDelay.promise.then(() => {
+        delete this.responseDelay;
+        response.finish();
+      });
+    }
   },
 
   putCardInternal(name, vCard) {
@@ -595,6 +603,14 @@ var CardDAVServer = {
   deleteCard(request, response) {
     this.deleteCardInternal(request.path);
     response.setStatusLine("1.1", 204, "No Content");
+
+    if (this.responseDelay) {
+      response.processAsync();
+      this.responseDelay.promise.then(() => {
+        delete this.responseDelay;
+        response.finish();
+      });
+    }
   },
 
   deleteCardInternal(name) {

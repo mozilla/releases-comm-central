@@ -158,6 +158,7 @@ window.addEventListener("unload", () => {
   // Disconnect the view (if there is one) and tree, so that the view cleans
   // itself up and stops listening for observer service notifications.
   cardsPane.cardsList.view = null;
+  detailsPane.uninit();
 });
 
 window.addEventListener("keypress", event => {
@@ -2099,6 +2100,7 @@ var detailsPane = {
     );
 
     this.form = document.getElementById("detailsPane");
+    this.vCardEdit = this.form.querySelector("vcard-edit");
     this.actions = document.getElementById("detailsActions");
     this.writeButton = document.getElementById("detailsWriteButton");
     this.eventButton = document.getElementById("detailsEventButton");
@@ -2200,12 +2202,77 @@ var detailsPane = {
     this.photoOuter.addEventListener("keypress", event =>
       this._onPhotoActivate(event)
     );
+
+    Services.obs.addObserver(this, "addrbook-contact-created");
+    Services.obs.addObserver(this, "addrbook-contact-updated");
+    Services.obs.addObserver(this, "addrbook-contact-deleted");
+  },
+
+  uninit() {
+    Services.obs.removeObserver(this, "addrbook-contact-created");
+    Services.obs.removeObserver(this, "addrbook-contact-updated");
+    Services.obs.removeObserver(this, "addrbook-contact-deleted");
   },
 
   handleEvent(event) {
     switch (event.type) {
       case "click":
         this._onClick(event);
+        break;
+    }
+  },
+
+  async observe(subject, topic, data) {
+    if (!this.currentCard) {
+      return;
+    }
+
+    subject.QueryInterface(Ci.nsIAbCard);
+    switch (topic) {
+      case "addrbook-contact-created":
+        if (
+          this.currentCard.directoryUID != data ||
+          subject.getProperty("_originalUID", "") != this.currentCard.UID
+        ) {
+          break;
+        }
+
+        // The card being displayed had its UID changed by the server. Select
+        // the new card to display it. (If we're already editing the new card
+        // when the server responds, that's just tough luck.)
+        this.isEditing = false;
+        cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
+          subject.UID
+        );
+        break;
+      case "addrbook-contact-updated":
+        if (
+          subject.directoryUID != this.currentCard.directoryUID ||
+          !subject.equals(this.currentCard)
+        ) {
+          break;
+        }
+
+        // If there's editing in progress, we could attempt to update the
+        // editing interface with the changes, which is difficult, or alert
+        // the user. For now, changes will be overwritten if the edit is saved.
+
+        if (!this.isEditing) {
+          this.displayContact(subject);
+        }
+        break;
+      case "addrbook-contact-deleted":
+        if (
+          this.currentCard.directoryUID != data ||
+          !subject.equals(this.currentCard)
+        ) {
+          break;
+        }
+
+        // The card being displayed was deleted.
+        this.isEditing = false;
+        this.displayContact(null);
+        cardsPane.searchInput.focus();
         break;
     }
   },
@@ -2258,7 +2325,6 @@ var detailsPane = {
       }
     } else {
       this.isDirty = false;
-      this.dirtyFields.clear();
     }
   },
 
@@ -2271,6 +2337,9 @@ var detailsPane = {
   },
 
   set isDirty(dirty) {
+    if (!dirty) {
+      this.dirtyFields.clear();
+    }
     document.body.classList.toggle("is-dirty", this.isEditing && dirty);
   },
 
@@ -2551,12 +2620,11 @@ var detailsPane = {
    */
   editCurrentContact(vCard) {
     let card = this.currentCard;
-    let vCardEdit = detailsPane.form.querySelector("vcard-edit");
 
     if (card && card.supportsVCard) {
-      vCardEdit.vCardProperties = card.vCardProperties;
+      this.vCardEdit.vCardProperties = card.vCardProperties;
       // getProperty may return a "1" or "0" string, we want a boolean.
-      vCardEdit.preferDisplayName.checked =
+      this.vCardEdit.preferDisplayName.checked =
         // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
         card.getProperty("PreferDisplayName", true) == true;
     } else {
@@ -2566,7 +2634,7 @@ var detailsPane = {
       delete this.photo._blob;
       delete this.photo._cropRect;
       delete this.photo._url;
-      vCardEdit.vCardString = vCard ?? "";
+      this.vCardEdit.vCardString = vCard ?? "";
     }
 
     this.deleteButton.hidden = !card;
@@ -2574,7 +2642,7 @@ var detailsPane = {
     this.isEditing = true;
     this.form.hidden = this.splitter.isCollapsed = false;
     this.form.scrollTo(0, 0);
-    vCardEdit.setFocus();
+    this.vCardEdit.setFocus();
   },
 
   /**
@@ -2583,12 +2651,6 @@ var detailsPane = {
   async saveCurrentContact() {
     let card = this.currentCard;
     let book;
-
-    // Retrieve the vCardEdit Element.
-    let vCardEdit = detailsPane.form.querySelector("vcard-edit");
-    if (!vCardEdit) {
-      throw new Error("vCard Edit not found. Not saving the Card.");
-    }
 
     if (card) {
       book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
@@ -2601,7 +2663,7 @@ var detailsPane = {
         // This is a CardDAV book, and the server discards photos unless the
         // vCard 3 format is used. Since we know this is a new card, setting
         // the version here won't cause a problem.
-        vCardEdit.vCardProperties.addValue("version", "3.0");
+        this.vCardEdit.vCardProperties.addValue("version", "3.0");
       }
     }
     if (!book || book.readOnly) {
@@ -2614,9 +2676,12 @@ var detailsPane = {
     // Tell vcard-edit to read the input fields. Setting the _vCard property
     // MUST happen before accessing `card.vCardProperties` or creating new
     // cards will fail.
-    vCardEdit.saveVCard();
-    card.setProperty("_vCard", vCardEdit.vCardString);
-    card.setProperty("PreferDisplayName", vCardEdit.preferDisplayName.checked);
+    this.vCardEdit.saveVCard();
+    card.setProperty("_vCard", this.vCardEdit.vCardString);
+    card.setProperty(
+      "PreferDisplayName",
+      this.vCardEdit.preferDisplayName.checked
+    );
 
     // No photo or a new photo. Delete the old one.
     if (!this.photo.style.backgroundImage || this.photo._blob) {
@@ -2680,12 +2745,12 @@ var detailsPane = {
       cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
         card.UID
       );
+      // The selection change will update the UI.
     } else {
       book.modifyCard(card);
-      // Refresh the card from the book to get exactly what was saved.
-      card = book.childCards.find(c => c.UID == card.UID);
-      this.displayContact(card);
+      // The addrbook-contact-updated notification will update the UI.
     }
+
     this.editButton.focus();
   },
 
@@ -2736,9 +2801,7 @@ var detailsPane = {
       ) === 0
     ) {
       book.deleteCards([card]);
-      this.isEditing = false;
-      cardsPane.cardsList.dispatchEvent(new CustomEvent("select"));
-      cardsPane.cardsList.focus();
+      // The addrbook-contact-deleted notification will update the UI.
     }
   },
 
