@@ -10,8 +10,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGlobalGetters(lazy, ["URL"]);
-
 const PREF_LOGLEVEL = "browser.policies.loglevel";
 
 XPCOMUtils.defineLazyGetter(lazy, "log", () => {
@@ -83,7 +81,7 @@ var ProxyPolicies = {
       try {
         // Prepend https just so we can use the URL parser
         // instead of parsing manually.
-        url = new lazy.URL(`https://${address}`);
+        url = new URL(`https://${address}`);
       } catch (e) {
         lazy.log.error(`Invalid address for ${type} proxy: ${address}`);
         return;
