@@ -39,6 +39,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "multi-recipient-row");
       this.classList.add("multi-recipient-row");
 
       this.heading = document.createElement("span");
@@ -358,6 +359,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "header-recipient");
       this.classList.add("header-recipient");
       this.tabIndex = 0;
 
@@ -582,6 +584,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "simple-header-row");
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
       this.heading.classList.add("row-heading");
@@ -648,10 +651,14 @@
     extends: "div",
   });
 
-  class UrlHeaderField extends SimpleHeaderRow {
+  class UrlHeaderRow extends SimpleHeaderRow {
     connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
       super.connectedCallback();
 
+      this.setAttribute("is", "url-header-row");
       document.l10n.setAttributes(this.heading, "message-header-website-field");
 
       this.value.classList.add("text-link");
@@ -667,7 +674,7 @@
       });
     }
   }
-  customElements.define("url-header-row", UrlHeaderField, {
+  customElements.define("url-header-row", UrlHeaderRow, {
     extends: "div",
   });
 
@@ -685,6 +692,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "header-newsgroups-row");
       this.classList.add("header-newsgroups-row");
 
       this.heading = document.createElement("span");
@@ -731,6 +739,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "header-newsgroup");
       this.classList.add("header-newsgroup");
       this.tabIndex = 0;
 
@@ -758,6 +767,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "header-tags-row");
       this.classList.add("header-tags-row");
 
       this.heading = document.createElement("span");
@@ -834,6 +844,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "multi-message-ids-row");
       this.classList.add("multi-message-ids-row");
 
       this.heading = document.createElement("span");
@@ -915,6 +926,7 @@
       }
       this.hasConnected = true;
 
+      this.setAttribute("is", "header-message-id");
       this.classList.add("header-message-id");
 
       this.messageId = document.createElement("span");
