@@ -6,7 +6,9 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
+const lazy = {};
+
+ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 
 /*
  * Helpers and base class for calendar providers
@@ -57,8 +59,8 @@ var calprovider = {
     if (aForceNewAuth) {
       // A random "username" that won't be the same as any existing one.
       // The value is not used for any other reason, so a UUID will do.
-      originAttributes.userContextId = cal.auth.containerMap.getUserContextIdForUsername(
-        cal.getUUID()
+      originAttributes.userContextId = lazy.cal.auth.containerMap.getUserContextIdForUsername(
+        lazy.cal.getUUID()
       );
     } else if (!aExistingChannel) {
       try {
@@ -67,7 +69,7 @@ var calprovider = {
         // as in calendar detection.
         let calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
         if (calendar && calendar.getProperty("capabilities.username.supported") === true) {
-          originAttributes.userContextId = cal.auth.containerMap.getUserContextIdForUsername(
+          originAttributes.userContextId = lazy.cal.auth.containerMap.getUserContextIdForUsername(
             calendar.getProperty("username")
           );
         }
@@ -169,7 +171,7 @@ var calprovider = {
       // Support Auth Prompt Interfaces
       if (aIID.equals(Ci.nsIAuthPrompt2)) {
         if (!this.calAuthPrompt) {
-          this.calAuthPrompt = new cal.auth.Prompt();
+          this.calAuthPrompt = new lazy.cal.auth.Prompt();
         }
         return this.calAuthPrompt;
       } else if (aIID.equals(Ci.nsIAuthPromptProvider) || aIID.equals(Ci.nsIPrompt)) {
@@ -197,7 +199,7 @@ var calprovider = {
       // we'll just take the first available calendar window. We also need to
       // do this on a timer so that the modal window doesn't block the
       // network request.
-      let calWindow = cal.window.getCalendarWindow();
+      let calWindow = lazy.cal.window.getCalendarWindow();
 
       let timerCallback = {
         calendar: this.calendar,
@@ -300,7 +302,7 @@ var calprovider = {
    * @return {nsIMsgIdentity}             The configured identity
    */
   getEmailIdentityOfCalendar(aCalendar, outAccount) {
-    cal.ASSERT(aCalendar, "no calendar!", Cr.NS_ERROR_INVALID_ARG);
+    lazy.cal.ASSERT(aCalendar, "no calendar!", Cr.NS_ERROR_INVALID_ARG);
     let key = aCalendar.getProperty("imip.identity.key");
     if (key === null) {
       // take default account/identity:
@@ -336,7 +338,7 @@ var calprovider = {
       return null;
     }
     let identity = null;
-    cal.email.iterateIdentities((identity_, account) => {
+    lazy.cal.email.iterateIdentities((identity_, account) => {
       if (identity_.key == key) {
         identity = identity_;
         if (outAccount) {
@@ -348,7 +350,7 @@ var calprovider = {
 
     if (!identity) {
       // dangling identity:
-      cal.WARN(
+      lazy.cal.WARN(
         "Calendar " +
           (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
           " has a dangling E-Mail identity configured."
@@ -365,7 +367,7 @@ var calprovider = {
    * @return {Boolean}            True, if the item should be overwritten
    */
   promptOverwrite(aMode, aItem) {
-    let window = cal.window.getCalendarWindow();
+    let window = lazy.cal.window.getCalendarWindow();
     let args = {
       item: aItem,
       mode: aMode,
@@ -395,7 +397,7 @@ var calprovider = {
         try {
           dir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o700);
         } catch (exc) {
-          cal.ASSERT(false, exc);
+          lazy.cal.ASSERT(false, exc);
           throw exc;
         }
       }
@@ -437,7 +439,7 @@ var calprovider = {
       this.mACLEntry = null;
       this.mBatchCount = 0;
       this.transientProperties = false;
-      this.mObservers = new cal.data.ObserverSet(Ci.calIObserver);
+      this.mObservers = new lazy.cal.data.ObserverSet(Ci.calIObserver);
       this.mProperties = {};
       this.mProperties.currentStatus = Cr.NS_OK;
     }
@@ -464,7 +466,7 @@ var calprovider = {
         if (!this.constructor.mTransientProperties[aName]) {
           let value = this.mProperties[aName];
           if (value !== null) {
-            cal.manager.setCalendarPref_(this, aName, value);
+            lazy.cal.manager.setCalendarPref_(this, aName, value);
           }
         }
       }
@@ -538,7 +540,7 @@ var calprovider = {
           this.mObservers.notify("onEndBatch", [this]);
         }
       } else {
-        cal.ASSERT(this.mBatchCount > 0, "unexpected endBatch!");
+        lazy.cal.ASSERT(this.mBatchCount > 0, "unexpected endBatch!");
       }
     }
 
@@ -553,7 +555,7 @@ var calprovider = {
      * @return {calIItemBase[]}
      */
     async getItemsAsArray(itemFilter, count, rangeStart, rangeEnd) {
-      return cal.iterate.streamToArray(this.getItems(itemFilter, count, rangeStart, rangeEnd));
+      return lazy.cal.iterate.streamToArray(this.getItems(itemFilter, count, rangeStart, rangeEnd));
     }
 
     /**
@@ -571,7 +573,7 @@ var calprovider = {
         try {
           aListener.onOperationComplete(this.superCalendar, aStatus, aOperationType, aId, aDetail);
         } catch (exc) {
-          cal.ERROR(exc);
+          lazy.cal.ERROR(exc);
         }
       }
     }
@@ -677,7 +679,7 @@ var calprovider = {
           !this.transientProperties
         ) {
           if (this.id) {
-            ret = cal.manager.getCalendarPref_(this, aName);
+            ret = lazy.cal.manager.getCalendarPref_(this, aName);
           }
           switch (aName) {
             case "suppressAlarms":
@@ -708,7 +710,7 @@ var calprovider = {
             break;
         }
         if (!this.transientProperties && !this.constructor.mTransientProperties[aName] && this.id) {
-          cal.manager.setCalendarPref_(this, aName, aValue);
+          lazy.cal.manager.setCalendarPref_(this, aName, aValue);
         }
         this.mObservers.notify("onPropertyChanged", [this.superCalendar, aName, aValue, oldValue]);
       }
@@ -719,7 +721,7 @@ var calprovider = {
     deleteProperty(aName) {
       this.mObservers.notify("onPropertyDeleting", [this.superCalendar, aName]);
       delete this.mProperties[aName];
-      cal.manager.deleteCalendarPref_(this, aName);
+      lazy.cal.manager.deleteCalendarPref_(this, aName);
     }
 
     // calIOperation refresh

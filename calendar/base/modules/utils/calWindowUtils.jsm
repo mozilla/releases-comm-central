@@ -6,8 +6,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+const lazy = {};
+
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "l10nDeletePrompt",
   () => new Localization(["calendar/calendar-delete-prompt.ftl"], true)
 );
@@ -99,19 +101,19 @@ var calwindow = {
     let message;
     let disableMessage;
     if (deletingEvents && !deletingTodos) {
-      [title, message, disableMessage] = l10nDeletePrompt.formatValuesSync([
+      [title, message, disableMessage] = lazy.l10nDeletePrompt.formatValuesSync([
         { id: "calendar-delete-event-prompt-title", args: { count: items.length } },
         { id: "calendar-delete-event-prompt-message", args: { count: items.length } },
         "calendar-delete-prompt-disable-message",
       ]);
     } else if (!deletingEvents && deletingTodos) {
-      [title, message, disableMessage] = l10nDeletePrompt.formatValuesSync([
+      [title, message, disableMessage] = lazy.l10nDeletePrompt.formatValuesSync([
         { id: "calendar-delete-task-prompt-title", args: { count: items.length } },
         { id: "calendar-delete-task-prompt-message", args: { count: items.length } },
         "calendar-delete-prompt-disable-message",
       ]);
     } else {
-      [title, message, disableMessage] = l10nDeletePrompt.formatValuesSync([
+      [title, message, disableMessage] = lazy.l10nDeletePrompt.formatValuesSync([
         { id: "calendar-delete-items-prompt-title", args: { count: items.length } },
         { id: "calendar-delete-items-prompt-message", args: { count: items.length } },
         "calendar-delete-prompt-disable-message",

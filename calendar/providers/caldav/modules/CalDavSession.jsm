@@ -7,7 +7,9 @@ var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.defineModuleGetter(this, "OAuth2Providers", "resource:///modules/OAuth2Providers.jsm");
+const lazy = {};
+
+ChromeUtils.defineModuleGetter(lazy, "OAuth2Providers", "resource:///modules/OAuth2Providers.jsm");
 
 /**
  * Session and authentication tools for the caldav provider
@@ -61,7 +63,7 @@ class CalDavGoogleOAuth extends OAuth2 {
    */
   _maybeUpgrade() {
     if (!this.refreshToken) {
-      [this.clientId, this.consumerSecret] = OAuth2Providers.getIssuerDetails(
+      [this.clientId, this.consumerSecret] = lazy.OAuth2Providers.getIssuerDetails(
         "accounts.google.com"
       );
       this.origin = "oauth://accounts.google.com";
@@ -267,7 +269,7 @@ class CalDavTestOAuth extends CalDavGoogleOAuth {
 
   _maybeUpgrade() {
     if (!this.refreshToken) {
-      [this.clientId, this.consumerSecret] = OAuth2Providers.getIssuerDetails("mochi.test");
+      [this.clientId, this.consumerSecret] = lazy.OAuth2Providers.getIssuerDetails("mochi.test");
       this.origin = "oauth://mochi.test";
       this.pwMgrId = "test_scope";
     }
