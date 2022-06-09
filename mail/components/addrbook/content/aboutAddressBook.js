@@ -807,6 +807,11 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _onDrop(event) {
+    if (event.dataTransfer.dropEffect == "none") {
+      // Somehow this is possible. It should not be possible.
+      return;
+    }
+
     let cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
     let row = event.target.closest("li");
 
@@ -820,7 +825,11 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       }
     } else {
       let booksMap = new Map();
+      let bookUID = row.dataset.uid;
       for (let card of cards) {
+        if (bookUID == card.directoryUID) {
+          continue;
+        }
         row._book.dropCard(card, false);
         let bookSet = booksMap.get(card.directoryUID);
         if (!bookSet) {

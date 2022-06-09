@@ -323,6 +323,22 @@ add_task(async function test_drop_on_books_list() {
   checkCardsInDirectory(sourceBook, [sourceList]);
   checkCardsInDirectory(destBook, [contact2, contact3, destList]);
 
+  // Drag contact2 to the book it's already in. Nothing should happen.
+  // This test doesn't actually catch the bug it was written for, but maybe
+  // one day it will catch something.
+
+  openDirectory(destBook);
+  Assert.equal(cardsList.view.rowCount, 3);
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  doDragToBooksList(0, 2, {}, "none");
+  checkCardsInDirectory(destBook, [contact2, contact3, destList]);
+
+  // Drag destList to the book it's already in. Nothing should happen.
+
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
+  doDragToBooksList(0, 2, {}, "none");
+  checkCardsInDirectory(destBook, [contact2, contact3, destList]);
+
   await closeAddressBookWindow();
 
   await promiseDirectoryRemoved(sourceBook.URI);
