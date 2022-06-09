@@ -76,6 +76,8 @@ html|input.editContactTextbox[readonly] {
   border-color: var(--panel-separator-color) !important;
   box-shadow: none;
   color: inherit;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #editContactAddressBookList:not([disabled="true"],[open="true"]):hover {
