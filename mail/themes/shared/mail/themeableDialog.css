@@ -182,8 +182,8 @@ html|input[type="number"]::-moz-number-spin-down {
   background-color: var(--button-bgcolor);
   border: 1px solid var(--field-border-color);
   border-radius: 2px;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 html|input[type="number"]::-moz-number-spin-up {

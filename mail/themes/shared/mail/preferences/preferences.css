@@ -313,8 +313,8 @@ html|input[type="number"]::-moz-number-spin-down {
   border-color: var(--in-content-box-border-color);
   background-color: var(--in-content-button-background);
   background-position: center;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 html|input[type="number"]::-moz-number-spin-up:hover,
