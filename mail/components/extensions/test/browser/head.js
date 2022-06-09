@@ -351,6 +351,9 @@ async function openMessageInWindow(msgHdr) {
   let browser = messageWindow.document.getElementById("messagepane");
 
   await promiseMessageLoaded(browser, msgHdr);
+  await TestUtils.waitForCondition(
+    () => Services.focus.activeWindow == messageWindow
+  );
   return messageWindow;
 }
 
