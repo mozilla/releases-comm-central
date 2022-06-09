@@ -155,7 +155,7 @@ function do_check_transaction(fromServer, expected, withParams) {
     }
     if (withParams) {
       realTransaction.push(line.substr(components[0].length + 1));
-    } else if (components[1] == "authenticate") {
+    } else if (components[1].toUpperCase() == "AUTHENTICATE") {
       realTransaction.push(components[1] + " " + components[2].toUpperCase());
     } else {
       realTransaction.push(components[1]);

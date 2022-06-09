@@ -76,6 +76,7 @@ class ImapResponse {
     this._advance(index + 2); // Consume the line and "\r\n".
     let tokens = this._parseLine(line);
     this.tag = tokens[0];
+    this.status = tokens[1];
     if (this.tag == "+") {
       this.statusText = tokens.slice(1).join(" ");
       this.done = true;

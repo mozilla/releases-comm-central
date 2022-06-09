@@ -28,7 +28,7 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: [],
     expectSuccess: true,
-    transaction: ["capability", "login", "lsub"],
+    transaction: ["CAPABILITY", "LOGIN", "LSUB"],
   },
   {
     // Just to make sure we clean up properly - in the test and in TB, e.g. don't cache stuff
@@ -37,7 +37,7 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: [],
     expectSuccess: true,
-    transaction: ["capability", "login", "lsub"],
+    transaction: ["CAPABILITY", "LOGIN", "LSUB"],
   },
   {
     title:
@@ -45,21 +45,21 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: ["capability", "authenticate PLAIN", "lsub"],
+    transaction: ["CAPABILITY", "AUTHENTICATE PLAIN", "LSUB"],
   },
   {
     title: "Cleartext password, with server supporting only AUTH LOGIN",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: ["LOGIN"],
     expectSuccess: true,
-    transaction: ["capability", "authenticate LOGIN", "lsub"],
+    transaction: ["CAPABILITY", "AUTHENTICATE LOGIN", "LSUB"],
   },
   {
     title: "Encrypted password, with server supporting PLAIN and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
     serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: ["capability", "authenticate CRAM-MD5", "lsub"],
+    transaction: ["CAPABILITY", "AUTHENTICATE CRAM-MD5", "LSUB"],
   },
   {
     title:
@@ -67,22 +67,7 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
     serverAuthMethods: ["PLAIN", "LOGIN"],
     expectSuccess: false,
-    transaction: ["capability"],
-  },
-  {
-    title: "Any secure method, with server supporting AUTH PLAIN and CRAM",
-    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
-    expectSuccess: true,
-    transaction: ["capability", "authenticate CRAM-MD5", "lsub"],
-  },
-  {
-    title:
-      "Any secure method, with server only supporting AUTH PLAIN and LOGIN (must fail)",
-    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods: ["PLAIN"],
-    expectSuccess: false,
-    transaction: ["capability"],
+    transaction: ["CAPABILITY"],
   },
 ];
 
@@ -93,13 +78,6 @@ function nextTest() {
       endTest();
       return;
     }
-    /* doesn't work, hangs on first performTest(...)
-    {
-      dump("resetTest()\n");
-      server.resetTest();
-      dump("server.performTest()\n");
-      server.performTest();
-    }*/
 
     dump("NEXT test: " + thisTest.title + "\n");
 
@@ -123,11 +101,6 @@ function nextTest() {
 
     dump("should " + (thisTest.expectSuccess ? "" : "not ") + "be logged in\n");
     Assert.equal(true, incomingServer instanceof Ci.nsIImapServerSink);
-    // do_check_eq(thisTest.expectSuccess, incomingServer.userAuthenticated); TODO fails second time
-    // var rootFolder = incomingServer.rootFolder;
-    // Client creates fake Inbox, so check other folder
-    // do_check_eq(thisTest.expectSuccess,
-    //    rootFolder.containsChildNamed("somemailbox")); TODO
     do_check_transaction(server.playTransaction(), thisTest.transaction, false);
 
     do {
@@ -153,11 +126,7 @@ function deleteIMAPServer(incomingServer) {
   if (!incomingServer) {
     return;
   }
-  // MailServices.accounts.removeIncomingServer(incomingServer, false);  // TODO cleanup files = true fails
-  MailServices.accounts.removeAccount(
-    MailServices.accounts.defaultAccount,
-    true
-  );
+  MailServices.accounts.removeIncomingServer(incomingServer, true);
 }
 
 function run_test() {

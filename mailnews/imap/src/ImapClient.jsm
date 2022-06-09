@@ -313,7 +313,7 @@ class ImapClient {
     this.logout();
     let secInfo = event.target.transport?.securityInfo;
     if (secInfo) {
-      this.runningUri.failedSecInfo = secInfo;
+      this.runningUrl.failedSecInfo = secInfo;
     }
     this._actionDone(event.errorCode);
   };
@@ -377,10 +377,18 @@ class ImapClient {
   _actionCapabilityResponse = res => {
     if (res.capabilities) {
       this._capabilities = res.capabilities;
+      this._server.wrappedJSObject.capabilities = res.capabilities;
       this._supportedAuthMethods = res.authMethods;
       this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
         this._supportedAuthMethods.includes(x)
       );
+      if (
+        !this._possibleAuthMethods.length &&
+        this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
+        !this._capabilities.includes("LOGINDISABLED")
+      ) {
+        this._possibleAuthMethods = ["OLDLOGIN"];
+      }
       this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
       this._nextAuthMethod = this._possibleAuthMethods[0];
       this._actionAuth();
@@ -394,6 +402,7 @@ class ImapClient {
    */
   _actionAuth = async () => {
     if (!this._nextAuthMethod) {
+      this._socket.close();
       this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
     }
@@ -404,6 +413,14 @@ class ImapClient {
     ];
 
     switch (this._currentAuthMethod) {
+      case "OLDLOGIN":
+        this._nextAction = this._actionAuthResponse;
+        let password = await this._getPassword();
+        this._sendTagged(
+          `LOGIN ${this._authenticator.username} ${password}`,
+          true
+        );
+        break;
       case "PLAIN":
         this._nextAction = this._actionAuthPlain;
         this._sendTagged("AUTHENTICATE PLAIN");
@@ -416,6 +433,34 @@ class ImapClient {
         this._nextAction = this._actionAuthCramMd5;
         this._sendTagged("AUTHENTICATE CRAM-MD5");
         break;
+      case "GSSAPI": {
+        this._nextAction = this._actionAuthGssapi;
+        this._authenticator.initGssapiAuth("imap");
+        let token;
+        try {
+          token = this._authenticator.getNextGssapiToken("");
+        } catch (e) {
+          this._logger.error(e);
+          this._actionDone(Cr.NS_ERROR_FAILURE);
+          return;
+        }
+        this._sendTagged(`AUTHENTICATE GSSAPI ${token}`, true);
+        break;
+      }
+      case "NTLM": {
+        this._nextAction = this._actionAuthNtlm;
+        this._authenticator.initNtlmAuth("imap");
+        let token;
+        try {
+          token = this._authenticator.getNextNtlmToken("");
+        } catch (e) {
+          this._logger.error(e);
+          this._actionDone(Cr.NS_ERROR_FAILURE);
+          return;
+        }
+        this._sendTagged(`AUTHENTICATE NTLM ${token}`, true);
+        break;
+      }
       case "XOAUTH2":
         this._nextAction = this._actionAuthResponse;
         let token = await this._authenticator.getOAuthToken();
@@ -430,12 +475,15 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthResponse = res => {
-    if (res.capabilities) {
-      this._capabilities = res.capabilities;
-      this._server.wrappedJSObject.capabilities = res.capabilities;
+    if (res.status == "OK") {
+      if (res.capabilities) {
+        this._capabilities = res.capabilities;
+        this._server.wrappedJSObject.capabilities = res.capabilities;
+      }
       this.onReady();
     } else {
-      this._sendTagged("CAPABILITY");
+      this._logger.error("Authentication failed.");
+      this._actionDone(Cr.NS_ERROR_FAILURE);
     }
   };
 
@@ -516,6 +564,49 @@ class ImapClient {
     this._send(btoa(`${this._authenticator.username} ${hex}`), true);
   };
 
+  /**
+   * The second and next step of GSSAPI auth.
+   * @param {ImapResponse} res - The server response.
+   */
+  _actionAuthGssapi = res => {
+    if (res.tag != "+") {
+      this._actionAuthResponse(res);
+      return;
+    }
+
+    // Server returns a challenge, we send a new token. Can happen multiple times.
+    let token;
+    try {
+      token = this._authenticator.getNextGssapiToken(res.statusText);
+    } catch (e) {
+      this._logger.error(e);
+      this._actionAuthResponse(res);
+      return;
+    }
+    this._send(token, true);
+  };
+
+  /**
+   * The second and next step of NTLM auth.
+   * @param {ImapResponse} res - The server response.
+   */
+  _actionAuthNtlm = res => {
+    if (res.tag != "+") {
+      this._actionAuthResponse(res);
+      return;
+    }
+
+    // Server returns a challenge, we send a new token. Can happen multiple times.
+    let token;
+    try {
+      token = this._authenticator.getNextNtlmToken(res.statusText);
+    } catch (e) {
+      this._logger.error(e);
+      this._actionAuthResponse(res);
+      return;
+    }
+    this._send(token, true);
+  };
   /**
    * Send LSUB or LIST command depending on the server capabilities.
    */
