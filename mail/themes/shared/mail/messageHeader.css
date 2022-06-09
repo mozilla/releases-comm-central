@@ -878,36 +878,33 @@ button.email-action-flagged.flagged {
   opacity: 1;
 }
 
-.show-more-recipients {
-  padding: 3px 9px;
-  margin-inline-start: 6px !important;
+.show-more-recipients,
+.show-more-ids {
   min-height: auto;
   min-width: auto;
   border-radius: 12px;
   line-height: 1;
-  font-size: 0.9rem;
   text-transform: uppercase;
   font-weight: 600;
   background-color: SelectedItem;
   color: SelectedItemText;
 }
 
-button.show-more-recipients:hover {
-  background-color: SelectedItemText;
-  color: SelectedItem;
+.show-more-recipients {
+  padding: 3px 9px;
+  margin-inline-start: 6px !important;
+  font-size: 0.9rem;
 }
 
 .show-more-ids {
   padding: 2px 6px;
-  min-height: auto;
-  min-width: auto;
-  border-radius: 12px;
-  line-height: 1;
   font-size: 0.8rem;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: SelectedItemText;
-  background-color: SelectedItem;
+}
+
+button.show-more-recipients:hover,
+button.show-more-ids:hover {
+  background-color: SelectedItemText;
+  color: SelectedItem;
 }
 
 .show-more-recipients:focus-visible,
