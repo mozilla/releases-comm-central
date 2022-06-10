@@ -93,9 +93,9 @@ menupopup > menu::after {
 }
 
 menupopup > :is(menu, menuitem)[checked="true"] {
-  list-style-image: url(chrome://global/skin/icons/check.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-check);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
   color: inherit;
 }
 

@@ -22,7 +22,6 @@
 # Proton icon overrides
 % override chrome://global/skin/icons/add.svg chrome://messenger/skin/overrides/add.svg
 % override chrome://global/skin/icons/blocked.svg chrome://messenger/skin/overrides/blocked.svg
-% override chrome://global/skin/icons/check.svg chrome://messenger/skin/overrides/check.svg
 % override chrome://global/skin/icons/chevron.svg chrome://messenger/skin/overrides/chevron.svg
 % override chrome://global/skin/icons/close.svg chrome://messenger/skin/overrides/close.svg
 % override chrome://global/skin/icons/defaultFavicon.svg chrome://messenger/skin/overrides/defaultFavicon.svg
@@ -106,6 +105,7 @@
 % override chrome://global/skin/icons/arrow-right-12.svg chrome://messenger/skin/icons/new/nav-right-sm.svg
 % override chrome://global/skin/icons/arrow-up.svg chrome://messenger/skin/icons/new/compact/nav-up.svg
 % override chrome://global/skin/icons/arrow-up-12.svg chrome://messenger/skin/icons/new/nav-up-sm.svg
+% override chrome://global/skin/icons/check.svg chrome://messenger/skin/icons/new/compact/check.svg
 # End Supernova icon overrides
 
   skin/classic/messenger/abFormFields.css                     (../shared/mail/abFormFields.css)
@@ -478,6 +478,7 @@
   skin/classic/messenger/icons/new/compact/calendar-today.svg (../shared/mail/icons/new/compact/calendar-today.svg)
   skin/classic/messenger/icons/new/compact/calendar.svg       (../shared/mail/icons/new/compact/calendar.svg)
   skin/classic/messenger/icons/new/compact/chat.svg           (../shared/mail/icons/new/compact/chat.svg)
+  skin/classic/messenger/icons/new/compact/check.svg          (../shared/mail/icons/new/compact/check.svg)
   skin/classic/messenger/icons/new/compact/close.svg          (../shared/mail/icons/new/compact/close.svg)
   skin/classic/messenger/icons/new/compact/collapse.svg       (../shared/mail/icons/new/compact/collapse.svg)
   skin/classic/messenger/icons/new/compact/compress.svg       (../shared/mail/icons/new/compact/compress.svg)
@@ -554,6 +555,7 @@
   skin/classic/messenger/icons/new/compact/tools.svg          (../shared/mail/icons/new/compact/tools.svg)
   skin/classic/messenger/icons/new/compact/trash.svg          (../shared/mail/icons/new/compact/trash.svg)
   skin/classic/messenger/icons/new/compact/unread.svg         (../shared/mail/icons/new/compact/unread.svg)
+  skin/classic/messenger/icons/new/compact/user-list.svg      (../shared/mail/icons/new/compact/user-list.svg)
 
   skin/classic/messenger/icons/new/normal/address-book.svg    (../shared/mail/icons/new/normal/address-book.svg)
   skin/classic/messenger/icons/new/normal/archive.svg         (../shared/mail/icons/new/normal/archive.svg)

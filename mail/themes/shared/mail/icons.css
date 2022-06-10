@@ -16,6 +16,7 @@
   --icon-calendar-today: url("chrome://messenger/skin/icons/new/compact/calendar-today.svg");
   --icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
   --icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
+  --icon-check: url("chrome://messenger/skin/icons/new/compact/check.svg");
   --icon-close: url("chrome://messenger/skin/icons/new/compact/close.svg");
   --icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
   --icon-compress: url("chrome://messenger/skin/icons/new/compact/compress.svg");
@@ -96,6 +97,7 @@
   --icon-tools: url("chrome://messenger/skin/icons/new/compact/tools.svg");
   --icon-trash: url("chrome://messenger/skin/icons/new/compact/trash.svg");
   --icon-unread: url("chrome://messenger/skin/icons/new/compact/unread.svg");
+  --icon-user-list: url("chrome://messenger/skin/icons/new/compact/user-list.svg");
 
   --icon-status-away: url("chrome://messenger/skin/icons/new/status-away.svg");
   --icon-status-away-sm: url("chrome://messenger/skin/icons/new/status-away-sm.svg");
