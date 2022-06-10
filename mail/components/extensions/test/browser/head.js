@@ -352,7 +352,8 @@ async function openMessageInWindow(msgHdr) {
 
   await promiseMessageLoaded(browser, msgHdr);
   await TestUtils.waitForCondition(
-    () => Services.focus.activeWindow == messageWindow
+    () => Services.focus.activeWindow == messageWindow,
+    "waiting for message window to become active"
   );
   return messageWindow;
 }
