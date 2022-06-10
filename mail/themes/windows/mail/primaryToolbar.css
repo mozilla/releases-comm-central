@@ -234,6 +234,11 @@
     padding-bottom: 1px !important;
     padding-top: 2px;
   }
+  
+  /* Don't apply the full negative margin for the Spaces Toolbar. */
+  :root[spacestoolbar="true"] #toolbar-menubar {
+    margin-inline-start: -1px !important;
+  }
 
   #toolbar-menubar:-moz-lwtheme {
     background-color: var(--toolbar-bgcolor);
