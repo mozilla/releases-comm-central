@@ -522,14 +522,15 @@ function defer() {
   };
 }
 
-async function promiseMapSeries(promises, fn) {
+async function promiseMapSeries(promises, fn // if async/promise we don't care about the type as we only await resolution
+) {
   for (const o of promises) {
     await fn(await o);
   }
 }
 
 function promiseTry(fn) {
-  return new Promise(resolve => resolve(fn()));
+  return Promise.resolve(fn());
 } // Creates and awaits all promises, running no more than `chunkSize` at the same time
 
 
@@ -745,7 +746,13 @@ function prevString(s, alphabet = DEFAULT_ALPHABET) {
 function lexicographicCompare(a, b) {
   // Dev note: this exists because I'm sad that you can use math operators on strings, so I've
   // hidden the operation in this function.
-  return a < b ? -1 : a === b ? 0 : 1;
+  if (a < b) {
+    return -1;
+  } else if (a > b) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 const collator = new Intl.Collator();

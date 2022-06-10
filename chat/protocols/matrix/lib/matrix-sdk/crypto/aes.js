@@ -199,7 +199,7 @@ async function deriveKeysBrowser(key, name) {
       name: 'SHA-256'
     }
   }, false, ['sign', 'verify']);
-  return await Promise.all([aesProm, hmacProm]);
+  return Promise.all([aesProm, hmacProm]);
 }
 
 function encryptAES(data, key, name, ivStr) {

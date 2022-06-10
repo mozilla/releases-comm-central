@@ -173,7 +173,7 @@ class OutgoingRoomKeyRequestManager {
                 // in state ROOM_KEY_REQUEST_STATES.SENT, so we must have
                 // raced with another tab to mark the request cancelled.
                 // Try again, to make sure the request is resent.
-                return await this.queueRoomKeyRequest(requestBody, recipients, resend);
+                return this.queueRoomKeyRequest(requestBody, recipients, resend);
               } // We don't want to wait for the timer, so we send it
               // immediately. (We might actually end up racing with the timer,
               // but that's ok: even if we make the request twice, we'll do it

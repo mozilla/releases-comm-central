@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AutoDiscoveryAction = exports.AutoDiscovery = void 0;
 
-var _url = require("url");
-
 var _logger = require("./logger");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -321,16 +319,12 @@ class AutoDiscovery {
     if (!url) return false;
 
     try {
-      // We have to try and parse the URL using the NodeJS URL
-      // library if we're on NodeJS and use the browser's URL
-      // library when we're in a browser. To accomplish this, we
-      // try the NodeJS version first and fall back to the browser.
       let parsed = null;
 
       try {
-        if (_url.URL) parsed = new _url.URL(url);else parsed = new URL(url);
-      } catch (e) {
         parsed = new URL(url);
+      } catch (e) {
+        _logger.logger.error("Could not parse url", e);
       }
 
       if (!parsed || !parsed.hostname) return false;
@@ -360,7 +354,7 @@ class AutoDiscovery {
    * the following properties:
    *   raw: The JSON object returned by the server.
    *   action: One of SUCCESS, IGNORE, or FAIL_PROMPT.
-   *   reason: Relatively human readable description of what went wrong.
+   *   reason: Relatively human-readable description of what went wrong.
    *   error: The actual Error, if one exists.
    * @param {string} url The URL to fetch a JSON object from.
    * @return {Promise<object>} Resolves to the returned state.
@@ -368,8 +362,8 @@ class AutoDiscovery {
    */
 
 
-  static async fetchWellKnownObject(url) {
-    return new Promise(function (resolve, reject) {
+  static fetchWellKnownObject(url) {
+    return new Promise(function (resolve) {
       // eslint-disable-next-line
       const request = require("./matrix").getRequest();
 

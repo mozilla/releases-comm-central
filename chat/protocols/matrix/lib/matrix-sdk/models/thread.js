@@ -104,6 +104,12 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
       this.emit(ThreadEvent.Update, this);
     });
 
+    if (!opts?.room) {
+      // Logging/debugging for https://github.com/vector-im/element-web/issues/22141
+      // Hope is that we end up with a more obvious stack trace.
+      throw new Error("element-web#22141: A thread requires a room in order to function");
+    }
+
     this.room = opts.room;
     this.client = opts.client;
     this.timelineSet = new _eventTimelineSet.EventTimelineSet(this.room, {
@@ -186,11 +192,12 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
 
     if (!this._currentUserParticipated && event.getSender() === this.client.getUserId()) {
       this._currentUserParticipated = true;
-    } // Add all annotations and replace relations to the timeline so that the relations are processed accordingly
-
+    }
 
     if ([_matrix.RelationType.Annotation, _matrix.RelationType.Replace].includes(event.getRelation()?.rel_type)) {
-      this.addEventToTimeline(event, toStartOfTimeline);
+      // Apply annotations and replace relations to the relations of the timeline only
+      this.timelineSet.setRelationsTarget(event);
+      this.timelineSet.aggregateRelations(event);
       return;
     } // Add all incoming events to the thread's timeline set when there's  no server support
 

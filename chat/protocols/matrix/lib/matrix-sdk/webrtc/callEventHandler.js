@@ -263,7 +263,7 @@ class CallEventHandler {
 
 
     if (!call || !call.hasPeerConnection) {
-      _logger.logger.warn("Discarding an event, we don't have a call/peerConn", type);
+      _logger.logger.info(`Discarding possible call event ${event.getId()} as we don't have a call/peerConn`, type);
 
       return;
     } // Ignore remote echo

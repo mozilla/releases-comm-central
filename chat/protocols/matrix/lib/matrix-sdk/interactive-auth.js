@@ -148,7 +148,32 @@ class InteractiveAuth {
 
     _defineProperty(this, "currentStage", null);
 
+    _defineProperty(this, "emailAttempt", 1);
+
     _defineProperty(this, "submitPromise", null);
+
+    _defineProperty(this, "requestEmailToken", async () => {
+      if (!this.requestingEmailToken) {
+        _logger.logger.trace("Requesting email token. Attempt: " + this.emailAttempt); // If we've picked a flow with email auth, we send the email
+        // now because we want the request to fail as soon as possible
+        // if the email address is not valid (ie. already taken or not
+        // registered, depending on what the operation is).
+
+
+        this.requestingEmailToken = true;
+
+        try {
+          const requestTokenResult = await this.requestEmailTokenCallback(this.inputs.emailAddress, this.clientSecret, this.emailAttempt++, this.data.session);
+          this.emailSid = requestTokenResult.sid;
+
+          _logger.logger.trace("Email token request succeeded");
+        } finally {
+          this.requestingEmailToken = false;
+        }
+      } else {
+        _logger.logger.warn("Could not request email token: Already requesting");
+      }
+    });
 
     this.matrixClient = opts.matrixClient;
     this.data = opts.authData || {};
@@ -361,6 +386,11 @@ class InteractiveAuth {
     this.emailSid = sid;
   }
   /**
+   * Requests a new email token and sets the email sid for the validation session
+   */
+
+
+  /**
    * Fire off a request, and either resolve the promise, or call
    * startAuthStage.
    *
@@ -371,8 +401,6 @@ class InteractiveAuth {
    *    This can be set to true for requests that just poll to see if auth has
    *    been completed elsewhere.
    */
-
-
   async doRequest(auth, background = false) {
     try {
       const result = await this.requestCallback(auth, background);
@@ -416,17 +444,9 @@ class InteractiveAuth {
         return;
       }
 
-      if (!this.emailSid && !this.requestingEmailToken && this.chosenFlow.stages.includes(AuthType.Email)) {
-        // If we've picked a flow with email auth, we send the email
-        // now because we want the request to fail as soon as possible
-        // if the email address is not valid (ie. already taken or not
-        // registered, depending on what the operation is).
-        this.requestingEmailToken = true;
-
+      if (!this.emailSid && this.chosenFlow.stages.includes(AuthType.Email)) {
         try {
-          const requestTokenResult = await this.requestEmailTokenCallback(this.inputs.emailAddress, this.clientSecret, 1, // TODO: Multiple send attempts?
-          this.data.session);
-          this.emailSid = requestTokenResult.sid; // NB. promise is not resolved here - at some point, doRequest
+          await this.requestEmailToken(); // NB. promise is not resolved here - at some point, doRequest
           // will be called again and if the user has jumped through all
           // the hoops correctly, auth will be complete and the request
           // will succeed.
@@ -441,8 +461,6 @@ class InteractiveAuth {
           // send the email, for whatever reason.
           this.attemptAuthDeferred.reject(e);
           this.attemptAuthDeferred = null;
-        } finally {
-          this.requestingEmailToken = false;
         }
       }
     }

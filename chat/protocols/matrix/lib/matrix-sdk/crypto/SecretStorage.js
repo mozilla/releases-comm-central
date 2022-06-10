@@ -287,7 +287,7 @@ class SecretStorage {
       // encoded, since this is how a key would normally be stored.
 
       if (encInfo.passthrough) return (0, olmlib.encodeBase64)(decryption.get_private_key());
-      return await decryption.decrypt(encInfo);
+      return decryption.decrypt(encInfo);
     } finally {
       if (decryption && decryption.free) decryption.free();
     }
@@ -296,7 +296,6 @@ class SecretStorage {
    * Check if a secret is stored on the server.
    *
    * @param {string} name the name of the secret
-   * @param {boolean} checkKey check if the secret is encrypted by a trusted key
    *
    * @return {object?} map of key name to key info the secret is encrypted
    *     with, or null if it is not present or not encrypted with a trusted
@@ -304,16 +303,10 @@ class SecretStorage {
    */
 
 
-  async isStored(name, checkKey) {
+  async isStored(name) {
     // check if secret exists
     const secretInfo = await this.accountDataAdapter.getAccountDataFromServer(name);
-    if (!secretInfo) return null;
-
-    if (!secretInfo.encrypted) {
-      return null;
-    }
-
-    if (checkKey === undefined) checkKey = true;
+    if (!secretInfo?.encrypted) return null;
     const ret = {}; // filter secret encryption keys with supported algorithm
 
     for (const keyId of Object.keys(secretInfo.encrypted)) {
@@ -541,11 +534,11 @@ class SecretStorage {
 
     if (keys[keyId].algorithm === SECRET_STORAGE_ALGORITHM_V1_AES) {
       const decryption = {
-        encrypt: async function (secret) {
-          return await (0, _aes.encryptAES)(secret, privateKey, name);
+        encrypt: function (secret) {
+          return (0, _aes.encryptAES)(secret, privateKey, name);
         },
-        decrypt: async function (encInfo) {
-          return await (0, _aes.decryptAES)(encInfo, privateKey, name);
+        decrypt: function (encInfo) {
+          return (0, _aes.decryptAES)(encInfo, privateKey, name);
         }
       };
       return [keyId, decryption];

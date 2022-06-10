@@ -19,7 +19,6 @@ var _typedEventEmitter = require("./typed-event-emitter");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-// var DEBUG = false;
 const DEBUG = true;
 let debuglog;
 
@@ -789,13 +788,22 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
     if (event.isRedacted() || event.status === _event.EventStatus.CANCELLED) {
       return;
-    } // If the event is currently encrypted, wait until it has been decrypted.
+    }
+
+    const onEventDecrypted = event => {
+      if (event.isDecryptionFailure()) {
+        // This could for example happen if the encryption keys are not yet available.
+        // The event may still be decrypted later. Register the listener again.
+        event.once(_event.MatrixEventEvent.Decrypted, onEventDecrypted);
+        return;
+      }
+
+      this.aggregateRelations(event);
+    }; // If the event is currently encrypted, wait until it has been decrypted.
 
 
     if (event.isBeingDecrypted() || event.shouldAttemptDecryption()) {
-      event.once(_event.MatrixEventEvent.Decrypted, () => {
-        this.aggregateRelations(event);
-      });
+      event.once(_event.MatrixEventEvent.Decrypted, onEventDecrypted);
       return;
     }
 

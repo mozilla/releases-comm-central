@@ -31,7 +31,7 @@ const DEFAULT_ITERATIONS = 500000;
 const DEFAULT_BITSIZE = 256;
 /* eslint-disable camelcase */
 
-async function keyFromAuthData(authData, password) {
+function keyFromAuthData(authData, password) {
   if (!global.Olm) {
     throw new Error("Olm is not available");
   }
@@ -40,7 +40,7 @@ async function keyFromAuthData(authData, password) {
     throw new Error("Salt and/or iterations not found: " + "this backup cannot be restored with a passphrase");
   }
 
-  return await deriveKey(password, authData.private_key_salt, authData.private_key_iterations, authData.private_key_bits || DEFAULT_BITSIZE);
+  return deriveKey(password, authData.private_key_salt, authData.private_key_iterations, authData.private_key_bits || DEFAULT_BITSIZE);
 }
 
 async function keyFromPassphrase(password) {

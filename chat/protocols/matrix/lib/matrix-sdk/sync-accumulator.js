@@ -9,6 +9,8 @@ var _logger = require("./logger");
 
 var _utils = require("./utils");
 
+var _read_receipts = require("./@types/read_receipts");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /* eslint-enable camelcase */
@@ -292,17 +294,35 @@ class SyncAccumulator {
 
 
         Object.keys(e.content).forEach(eventId => {
-          if (!e.content[eventId]["m.read"]) {
+          if (!e.content[eventId][_read_receipts.ReceiptType.Read] && !e.content[eventId][_read_receipts.ReceiptType.ReadPrivate]) {
             return;
           }
 
-          Object.keys(e.content[eventId]["m.read"]).forEach(userId => {
-            // clobber on user ID
-            currentData._readReceipts[userId] = {
-              data: e.content[eventId]["m.read"][userId],
-              eventId: eventId
-            };
-          });
+          const read = e.content[eventId][_read_receipts.ReceiptType.Read];
+
+          if (read) {
+            Object.keys(read).forEach(userId => {
+              // clobber on user ID
+              currentData._readReceipts[userId] = {
+                data: e.content[eventId][_read_receipts.ReceiptType.Read][userId],
+                type: _read_receipts.ReceiptType.Read,
+                eventId: eventId
+              };
+            });
+          }
+
+          const readPrivate = e.content[eventId][_read_receipts.ReceiptType.ReadPrivate];
+
+          if (readPrivate) {
+            Object.keys(readPrivate).forEach(userId => {
+              // clobber on user ID
+              currentData._readReceipts[userId] = {
+                data: e.content[eventId][_read_receipts.ReceiptType.ReadPrivate][userId],
+                type: _read_receipts.ReceiptType.ReadPrivate,
+                eventId: eventId
+              };
+            });
+          }
         });
       });
     } // if we got a limited sync, we need to remove all timeline entries or else
@@ -436,12 +456,14 @@ class SyncAccumulator {
         const receiptData = roomData._readReceipts[userId];
 
         if (!receiptEvent.content[receiptData.eventId]) {
-          receiptEvent.content[receiptData.eventId] = {
-            "m.read": {}
-          };
+          receiptEvent.content[receiptData.eventId] = {};
         }
 
-        receiptEvent.content[receiptData.eventId]["m.read"][userId] = receiptData.data;
+        if (!receiptEvent.content[receiptData.eventId][receiptData.type]) {
+          receiptEvent.content[receiptData.eventId][receiptData.type] = {};
+        }
+
+        receiptEvent.content[receiptData.eventId][receiptData.type][userId] = receiptData.data;
       }); // add only if we have some receipt data
 
       if (Object.keys(receiptEvent.content).length > 0) {

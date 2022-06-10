@@ -27,6 +27,7 @@ const EXPORTED_SYMBOLS = [
   "SyncState",
   "OlmLib",
   "SasEvent",
+  "ReceiptType",
 ];
 
 // Set-up loading so require works properly in CommonJS modules.
@@ -111,8 +112,10 @@ let loader = Loader({
     "@types/location": matrixPath + "matrix_sdk/types/location.js",
     "@types/partials": matrixPath + "matrix_sdk/types/partials.js",
     "@types/PushRules": matrixPath + "matrix_sdk/types/PushRules.js",
+    "@types/read_receipts": matrixPath + "matrix_sdk/types/read_receipts.js",
     "@types/requests": matrixPath + "empty.js",
     "@types/search": matrixPath + "matrix_sdk/types/search.js",
+    "@types/topic": matrixPath + "matrix_sdk/types/topic.js",
 
     // crypto
     index: matrixPath + "matrix_sdk/crypto/index.js",
@@ -307,8 +310,10 @@ let getHttpUriForMxc = require("../content-repo").getHttpUriForMxc;
 
 let MatrixCrypto = require("./crypto");
 
-let { SyncState } = require("./sync.api");
+let { SyncState } = require("./sync");
 
 let OlmLib = require("./crypto/olmlib");
 
 let { SasEvent } = require("./crypto/verification/SAS");
+
+let { ReceiptType } = require("@types/read_receipts");

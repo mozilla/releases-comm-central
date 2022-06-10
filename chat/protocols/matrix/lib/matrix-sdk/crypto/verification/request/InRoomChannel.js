@@ -184,7 +184,7 @@ class InRoomChannel {
    */
 
 
-  async handleEvent(event, request, isLiveEvent = false) {
+  handleEvent(event, request, isLiveEvent = false) {
     // prevent processing the same event multiple times, as under
     // some circumstances Room.timeline can get emitted twice for the same event
     if (request.hasEventId(event.getId())) {
@@ -225,7 +225,7 @@ class InRoomChannel {
 
     const isRemoteEcho = !!event.getUnsigned().transaction_id;
     const isSentByUs = event.getSender() === this.client.getUserId();
-    return await request.handleEvent(type, event, isLiveEvent, isRemoteEcho, isSentByUs);
+    return request.handleEvent(type, event, isLiveEvent, isRemoteEcho, isSentByUs);
   }
   /**
    * Adds the transaction id (relation) back to a received event

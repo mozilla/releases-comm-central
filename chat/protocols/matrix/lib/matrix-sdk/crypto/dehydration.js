@@ -42,8 +42,8 @@ class DehydrationManager {
     this.getDehydrationKeyFromCache();
   }
 
-  async getDehydrationKeyFromCache() {
-    return await this.crypto.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+  getDehydrationKeyFromCache() {
+    return this.crypto.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.crypto.cryptoStore.getSecretStorePrivateKey(txn, async result => {
         if (result) {
           const {

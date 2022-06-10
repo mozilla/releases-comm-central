@@ -50,7 +50,7 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
       return Promise.resolve();
     }
 
-    this.prepPromise = this.crypto.downloadKeys(roomMembers).then(res => {
+    this.prepPromise = this.crypto.downloadKeys(roomMembers).then(() => {
       return this.crypto.ensureOlmSessionsForUsers(roomMembers);
     }).then(() => {
       this.sessionPrepared = true;
@@ -114,7 +114,7 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
       }
     }
 
-    return await Promise.all(promises).then(() => encryptedContent);
+    return Promise.all(promises).then(() => encryptedContent);
   }
 
 }
@@ -212,7 +212,7 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
    */
 
 
-  async decryptMessage(theirDeviceIdentityKey, message) {
+  decryptMessage(theirDeviceIdentityKey, message) {
     // This is a wrapper that serialises decryptions of prekey messages, because
     // otherwise we race between deciding we have no active sessions for the message
     // and creating a new one, which we can only do once because it removes the OTK.
@@ -225,7 +225,7 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
       }); // we want the error, but don't propagate it to the next decryption
 
       this.olmDevice.olmPrekeyPromise = myPromise.catch(() => {});
-      return await myPromise;
+      return myPromise;
     }
   }
 

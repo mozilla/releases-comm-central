@@ -29,7 +29,6 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/scheduler.js",
     "matrix-sdk/service-types.js",
     "matrix-sdk/sync-accumulator.js",
-    "matrix-sdk/sync.api.js",
     "matrix-sdk/sync.js",
     "matrix-sdk/timeline-window.js",
     "matrix-sdk/utils.js",
@@ -89,7 +88,6 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/event-timeline-set.js",
     "matrix-sdk/models/event-timeline.js",
     "matrix-sdk/models/event.js",
-    "matrix-sdk/models/group.js",
     "matrix-sdk/models/MSC3089Branch.js",
     "matrix-sdk/models/MSC3089TreeSpace.js",
     "matrix-sdk/models/related-relations.js",
@@ -125,8 +123,10 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
     "matrix-sdk/@types/location.js",
     "matrix-sdk/@types/partials.js",
     "matrix-sdk/@types/PushRules.js",
+    "matrix-sdk/@types/read_receipts.js",
     "matrix-sdk/@types/search.js",
     "matrix-sdk/@types/threepids.js",
+    "matrix-sdk/@types/topic.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [

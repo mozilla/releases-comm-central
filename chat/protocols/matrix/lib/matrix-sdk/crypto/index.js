@@ -130,8 +130,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     return _OlmDevice.OlmDevice.getOlmVersion();
   }
 
-  // setTimeout ID
-
   /**
    * Cryptography bits
    *
@@ -374,7 +372,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
 
       if (this.baseApis.cryptoCallbacks && this.baseApis.cryptoCallbacks.getBackupKey) {
-        return await this.baseApis.cryptoCallbacks.getBackupKey();
+        return this.baseApis.cryptoCallbacks.getBackupKey();
       }
 
       throw new Error("Unable to get private key");
@@ -987,8 +985,8 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     return this.secretStorage.get(name);
   }
 
-  isSecretStored(name, checkKey) {
-    return this.secretStorage.isStored(name, checkKey);
+  isSecretStored(name) {
+    return this.secretStorage.isStored(name);
   }
 
   requestSecret(name, devices) {
@@ -2187,7 +2185,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   beginKeyVerification(method, userId, deviceId, transactionId = null) {
-    // TODO types
     let request;
 
     if (transactionId) {
@@ -2768,7 +2765,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     } else {
       const content = event.getWireContent();
       const alg = this.getRoomDecryptor(event.getRoomId(), content.algorithm);
-      return await alg.decryptEvent(event);
+      return alg.decryptEvent(event);
     }
   }
   /**

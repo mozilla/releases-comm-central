@@ -89,7 +89,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
       if (this.relationType === _event2.RelationType.Annotation) {
         // Remove the redacted annotation from aggregation by key
         this.removeAnnotationFromAggregation(redactedEvent);
-      } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent) {
+      } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent && !this.targetEvent.isState()) {
         const lastReplacement = await this.getLastReplacement();
         this.targetEvent.makeReplaced(lastReplacement);
       }
@@ -139,7 +139,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
 
     if (this.relationType === _event2.RelationType.Annotation) {
       this.addAnnotationToAggregation(event);
-    } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent) {
+    } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent && !this.targetEvent.isState()) {
       const lastReplacement = await this.getLastReplacement();
       this.targetEvent.makeReplaced(lastReplacement);
     }
@@ -182,7 +182,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
 
     if (this.relationType === _event2.RelationType.Annotation) {
       this.removeAnnotationFromAggregation(event);
-    } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent) {
+    } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent && !this.targetEvent.isState()) {
       const lastReplacement = await this.getLastReplacement();
       this.targetEvent.makeReplaced(lastReplacement);
     }
@@ -387,7 +387,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
 
     this.targetEvent = event;
 
-    if (this.relationType === _event2.RelationType.Replace) {
+    if (this.relationType === _event2.RelationType.Replace && !this.targetEvent.isState()) {
       const replacement = await this.getLastReplacement(); // this is the initial update, so only call it if we already have something
       // to not emit Event.replaced needlessly
 

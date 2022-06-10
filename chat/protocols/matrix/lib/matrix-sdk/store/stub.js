@@ -134,7 +134,7 @@ class StubStore {
   /**
    * No-op.
    * @param {Room} room
-   * @param {integer} limit
+   * @param {number} limit
    * @return {Array}
    */
 

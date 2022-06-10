@@ -151,6 +151,10 @@ class LocalIndexedDBStoreBackend {
 
     _defineProperty(this, "_isNewlyCreated", false);
 
+    _defineProperty(this, "isPersisting", false);
+
+    _defineProperty(this, "pendingUserPresenceData", []);
+
     this.dbName = "matrix-js-sdk:" + (dbName || "default");
     this.syncAccumulator = new _syncAccumulator.SyncAccumulator();
   }
@@ -291,7 +295,7 @@ class LocalIndexedDBStoreBackend {
         reject(err);
       };
     }).then(events => {
-      _logger.logger.log(`LL: got ${events && events.length} membershipEvents from storage for room ${roomId} ...`);
+      _logger.logger.log(`LL: got ${events?.length} membershipEvents from storage for room ${roomId} ...`);
 
       return events;
     });
@@ -420,7 +424,22 @@ class LocalIndexedDBStoreBackend {
 
   async syncToDatabase(userTuples) {
     const syncData = this.syncAccumulator.getJSON(true);
-    await Promise.all([this.persistUserPresenceEvents(userTuples), this.persistAccountData(syncData.accountData), this.persistSyncData(syncData.nextBatch, syncData.roomsData)]);
+
+    if (this.isPersisting) {
+      _logger.logger.warn("Skipping syncToDatabase() as persist already in flight");
+
+      this.pendingUserPresenceData.push(...userTuples);
+      return;
+    } else {
+      userTuples.unshift(...this.pendingUserPresenceData);
+      this.isPersisting = true;
+    }
+
+    try {
+      await Promise.all([this.persistUserPresenceEvents(userTuples), this.persistAccountData(syncData.accountData), this.persistSyncData(syncData.nextBatch, syncData.roomsData)]);
+    } finally {
+      this.isPersisting = false;
+    }
   }
   /**
    * Persist rooms /sync data along with the next batch token.
@@ -443,7 +462,9 @@ class LocalIndexedDBStoreBackend {
         roomsData
       }); // put == UPSERT
 
-      return txnAsPromise(txn).then();
+      return txnAsPromise(txn).then(() => {
+        _logger.logger.log("Persisted sync data up to", nextBatch);
+      });
     });
   }
   /**

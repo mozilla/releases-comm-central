@@ -11,7 +11,7 @@ exports.makeHtmlNotice = makeHtmlNotice;
 exports.makeLocationContent = void 0;
 exports.makeNotice = makeNotice;
 exports.makeTextMessage = makeTextMessage;
-exports.parseLocationEvent = exports.parseBeaconInfoContent = exports.parseBeaconContent = void 0;
+exports.parseTopicContent = exports.parseLocationEvent = exports.parseBeaconInfoContent = exports.parseBeaconContent = exports.makeTopicContent = void 0;
 
 var _matrixEventsSdk = require("matrix-events-sdk");
 
@@ -20,6 +20,8 @@ var _event = require("./@types/event");
 var _extensible_events = require("./@types/extensible_events");
 
 var _location = require("./@types/location");
+
+var _topic = require("./@types/topic");
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
@@ -177,11 +179,49 @@ const parseLocationEvent = wireEventContent => {
   return makeLocationContent(fallbackText, geoUri, timestamp, description, assetType);
 };
 /**
- * Beacon event helpers
+ * Topic event helpers
  */
 
 
 exports.parseLocationEvent = parseLocationEvent;
+
+const makeTopicContent = (topic, htmlTopic) => {
+  const renderings = [{
+    body: topic,
+    mimetype: "text/plain"
+  }];
+
+  if ((0, _matrixEventsSdk.isProvided)(htmlTopic)) {
+    renderings.push({
+      body: htmlTopic,
+      mimetype: "text/html"
+    });
+  }
+
+  return {
+    topic,
+    [_topic.M_TOPIC.name]: renderings
+  };
+};
+
+exports.makeTopicContent = makeTopicContent;
+
+const parseTopicContent = content => {
+  const mtopic = _topic.M_TOPIC.findIn(content);
+
+  const text = mtopic?.find(r => !(0, _matrixEventsSdk.isProvided)(r.mimetype) || r.mimetype === "text/plain")?.body ?? content.topic;
+  const html = mtopic?.find(r => r.mimetype === "text/html")?.body;
+  return {
+    text,
+    html
+  };
+};
+/**
+ * Beacon event helpers
+ */
+
+
+exports.parseTopicContent = parseTopicContent;
 
 const makeBeaconInfoContent = (timeout, isLive, description, assetType, timestamp) => ({
   description,

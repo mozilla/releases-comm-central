@@ -257,7 +257,7 @@ class IndexedDBStore extends _memory.MemoryStore {
     const fallbackFn = super[fallback];
     return async (...args) => {
       try {
-        return func.call(this, ...args);
+        return await func.call(this, ...args);
       } catch (e) {
         _logger.logger.error("IndexedDBStore failure, degrading to MemoryStore", e);
 
@@ -285,7 +285,7 @@ class IndexedDBStore extends _memory.MemoryStore {
 
 
         if (fallbackFn) {
-          return fallbackFn(...args);
+          return fallbackFn.call(this, ...args);
         }
       }
     };

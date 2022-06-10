@@ -1,6 +1,10 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+const { ReceiptType } = ChromeUtils.import(
+  "resource:///modules/matrix-sdk.jsm"
+);
+
 const kSendReadPref = "purple.conversations.im.send_read";
 
 loadMatrix();
@@ -9,9 +13,9 @@ add_task(function test_whenDisplayed() {
   const mockConv = {
     _account: {
       _client: {
-        sendReadReceipt(event, options) {
+        sendReadReceipt(event, receiptType) {
           mockConv.readEvent = event;
-          mockConv.readOpts = options;
+          mockConv.receiptType = receiptType;
           return Promise.resolve();
         },
       },
@@ -29,7 +33,10 @@ add_task(function test_whenDisplayed() {
   message.whenDisplayed();
 
   equal(mockConv.readEvent, "baz");
-  strictEqual(mockConv.readOpts.hidden, message.hideReadReceipts);
+  equal(
+    mockConv.receiptType,
+    message.hideReadReceipts ? ReceiptType.ReadPrivate : ReceiptType.Read
+  );
 
   mockConv.readEvent = false;
 
@@ -74,10 +81,9 @@ add_task(function test_whenRead() {
     _roomId: "lorem",
     _account: {
       _client: {
-        setRoomReadMarkers(roomId, eventId, readEventId, options) {
+        setRoomReadMarkers(roomId, eventId) {
           mockConv.readRoomId = roomId;
           mockConv.readEventId = eventId;
-          mockConv.readOpts = options;
           return Promise.resolve();
         },
       },
@@ -100,7 +106,6 @@ add_task(function test_whenRead() {
 
   equal(mockConv.readEventId, "baz");
   equal(mockConv.readRoomId, "lorem");
-  equal(mockConv.readOpts.hidden, message.hideReadReceipts);
 
   mockConv.readEventId = false;
 

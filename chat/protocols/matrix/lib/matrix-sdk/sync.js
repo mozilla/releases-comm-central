@@ -220,8 +220,7 @@ class SyncApi {
     };
     return client.getOrCreateFilter(getFilterName(client.credentials.userId, "LEFT_ROOMS"), filter).then(function (filterId) {
       qps.filter = filterId;
-      return client.http.authedRequest( // TODO types
-      undefined, _httpApi.Method.Get, "/sync", qps, undefined, localTimeoutMs);
+      return client.http.authedRequest(undefined, _httpApi.Method.Get, "/sync", qps, undefined, localTimeoutMs);
     }).then(async data => {
       let leaveRooms = [];
 
@@ -353,7 +352,6 @@ class SyncApi {
       debuglog("Stopped peeking in room %s", peekRoom.roomId);
       return;
     } // FIXME: gut wrenching; hard-coded timeout values
-    // TODO types
 
 
     this.client.http.authedRequest(undefined, _httpApi.Method.Get, "/events", {
@@ -684,10 +682,7 @@ class SyncApi {
     }
 
     this.running = false;
-
-    if (this.currentSyncRequest) {
-      this.currentSyncRequest.abort();
-    }
+    this.currentSyncRequest?.abort();
 
     if (this.keepAliveTimer) {
       clearTimeout(this.keepAliveTimer);
@@ -857,8 +852,7 @@ class SyncApi {
 
   doSyncRequest(syncOptions, syncToken) {
     const qps = this.getSyncParams(syncOptions, syncToken);
-    return this.client.http.authedRequest( // TODO types
-    undefined, _httpApi.Method.Get, "/sync", qps, undefined, qps.timeout + BUFFER_PERIOD_MS);
+    return this.client.http.authedRequest(undefined, _httpApi.Method.Get, "/sync", qps, undefined, qps.timeout + BUFFER_PERIOD_MS);
   }
 
   getSyncParams(syncOptions, syncToken) {
@@ -1142,6 +1136,9 @@ class SyncApi {
         room.recalculate();
         client.store.storeRoom(room);
         client.emit(_client.ClientEvent.Room, room);
+      } else {
+        // Update room state for invite->reject->invite cycles
+        room.recalculate();
       }
 
       stateEvents.forEach(function (e) {
@@ -1250,18 +1247,6 @@ class SyncApi {
         if (e.isState() && e.getType() == "m.room.encryption" && this.opts.crypto) {
           await this.opts.crypto.onCryptoEvent(e);
         }
-
-        if (e.isState() && e.getType() === "im.vector.user_status") {
-          let user = client.store.getUser(e.getStateKey());
-
-          if (user) {
-            user.unstable_updateStatusMessage(e);
-          } else {
-            user = createNewUser(client, e.getStateKey());
-            user.unstable_updateStatusMessage(e);
-            client.store.storeUser(user);
-          }
-        }
       };
 
       await utils.promiseMapSeries(stateEvents, processRoomEvent);
@@ -1345,7 +1330,7 @@ class SyncApi {
    * Starts polling the connectivity check endpoint
    * @param {number} delay How long to delay until the first poll.
    *        defaults to a short, randomised interval (to prevent
-   *        tightlooping if /versions succeeds but /sync etc. fail).
+   *        tight-looping if /versions succeeds but /sync etc. fail).
    * @return {promise} which resolves once the connection returns
    */
 

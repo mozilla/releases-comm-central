@@ -50,6 +50,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   SyncState: "resource:///modules/matrix-sdk.jsm",
   OlmLib: "resource:///modules/matrix-sdk.jsm",
   SasEvent: "resource:///modules/matrix-sdk.jsm",
+  ReceiptType: "resource:///modules/matrix-sdk.jsm",
   MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
@@ -118,9 +119,12 @@ MatrixMessage.prototype = {
     }
     this._displayed = true;
     this.conversation._account._client
-      .sendReadReceipt(this.event, {
-        hidden: this.hideReadReceipts,
-      })
+      .sendReadReceipt(
+        this.event,
+        this.hideReadReceipts
+          ? lazy.ReceiptType.ReadPrivate
+          : lazy.ReceiptType.Read
+      )
       .catch(error => this.conversation.ERROR(error));
   },
 
@@ -138,14 +142,7 @@ MatrixMessage.prototype = {
     }
     this._read = true;
     this.conversation._account._client
-      .setRoomReadMarkers(
-        this.conversation._roomId,
-        this.event.getId(),
-        undefined,
-        {
-          hidden: this.hideReadReceipts,
-        }
-      )
+      .setRoomReadMarkers(this.conversation._roomId, this.event.getId())
       .catch(error => {
         if (error.errcode === "M_UNRECOGNIZED") {
           // Server does not support setting the fully read marker.
@@ -2476,7 +2473,6 @@ MatrixAccount.prototype = {
       }
     }
     // Add pending invites
-    //TODO currently gets no rooms, maybe an SDK state bug?
     const invites = allRooms.filter(
       room => room.getMyMembership() === "invite"
     );

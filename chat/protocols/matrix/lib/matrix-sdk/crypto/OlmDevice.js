@@ -760,12 +760,12 @@ class OlmDevice {
     await this.cryptoStore.storeEndToEndSessionProblem(deviceKey, type, fixed);
   }
 
-  async sessionMayHaveProblems(deviceKey, timestamp) {
-    return await this.cryptoStore.getEndToEndSessionProblem(deviceKey, timestamp);
+  sessionMayHaveProblems(deviceKey, timestamp) {
+    return this.cryptoStore.getEndToEndSessionProblem(deviceKey, timestamp);
   }
 
-  async filterOutNotifiedErrorDevices(devices) {
-    return await this.cryptoStore.filterOutNotifiedErrorDevices(devices);
+  filterOutNotifiedErrorDevices(devices) {
+    return this.cryptoStore.filterOutNotifiedErrorDevices(devices);
   } // Outbound group session
   // ======================
 

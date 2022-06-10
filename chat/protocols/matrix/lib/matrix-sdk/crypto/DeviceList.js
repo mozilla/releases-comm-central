@@ -117,7 +117,8 @@ class DeviceList extends _typedEventEmitter.TypedEventEmitter {
     await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_DEVICE_DATA], txn => {
       this.cryptoStore.getEndToEndDeviceData(txn, deviceData => {
         this.hasFetched = Boolean(deviceData && deviceData.devices);
-        this.devices = deviceData ? deviceData.devices : {}, this.crossSigningInfo = deviceData ? deviceData.crossSigningInfo || {} : {};
+        this.devices = deviceData ? deviceData.devices : {};
+        this.crossSigningInfo = deviceData ? deviceData.crossSigningInfo || {} : {};
         this.deviceTrackingStatus = deviceData ? deviceData.trackingStatus : {};
         this.syncToken = deviceData ? deviceData.syncToken : null;
         this.userByIdentityKey = {};
@@ -185,7 +186,7 @@ class DeviceList extends _typedEventEmitter.TypedEventEmitter {
     let savePromise = this.savePromise;
 
     if (savePromise === null) {
-      savePromise = new Promise((resolve, reject) => {
+      savePromise = new Promise(resolve => {
         this.resolveSavePromise = resolve;
       });
       this.savePromise = savePromise;
@@ -936,8 +937,7 @@ async function updateStoredDeviceKeysForUser(olmDevice, userId, userStore, userR
  */
 
 
-async function storeDeviceKeys(olmDevice, userStore, deviceResult // TODO types
-) {
+async function storeDeviceKeys(olmDevice, userStore, deviceResult) {
   if (!deviceResult.keys) {
     // no keys?
     return false;

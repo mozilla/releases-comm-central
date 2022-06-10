@@ -11,6 +11,8 @@ var _logger = require("./logger");
 
 var _PushRules = require("./@types/PushRules");
 
+var _event = require("./@types/event");
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -29,24 +31,6 @@ const RULEKINDS_IN_ORDER = [_PushRules.PushRuleKind.Override, _PushRules.PushRul
 //      and so we can put them here.
 
 const DEFAULT_OVERRIDE_RULES = [{
-  // For homeservers which don't support MSC1930 yet
-  rule_id: ".m.rule.tombstone",
-  default: true,
-  enabled: true,
-  conditions: [{
-    kind: _PushRules.ConditionKind.EventMatch,
-    key: "type",
-    pattern: "m.room.tombstone"
-  }, {
-    kind: _PushRules.ConditionKind.EventMatch,
-    key: "state_key",
-    pattern: ""
-  }],
-  actions: [_PushRules.PushRuleActionName.Notify, {
-    set_tweak: _PushRules.TweakName.Highlight,
-    value: true
-  }]
-}, {
   // For homeservers which don't support MSC2153 yet
   rule_id: ".m.rule.reaction",
   default: true,
@@ -57,6 +41,17 @@ const DEFAULT_OVERRIDE_RULES = [{
     pattern: "m.reaction"
   }],
   actions: [_PushRules.PushRuleActionName.DontNotify]
+}, {
+  // For homeservers which don't support MSC3786 yet
+  rule_id: ".org.matrix.msc3786.rule.room.server_acl",
+  default: true,
+  enabled: true,
+  conditions: [{
+    kind: _PushRules.ConditionKind.EventMatch,
+    key: "type",
+    pattern: _event.EventType.RoomServerAcl
+  }],
+  actions: []
 }];
 
 class PushProcessor {
@@ -280,7 +275,7 @@ class PushProcessor {
     }
 
     const memberCount = room.currentState.getJoinedMemberCount();
-    const m = cond.is.match(/^([=<>]*)([0-9]*)$/);
+    const m = cond.is.match(/^([=<>]*)(\d*)$/);
 
     if (!m) {
       return false;

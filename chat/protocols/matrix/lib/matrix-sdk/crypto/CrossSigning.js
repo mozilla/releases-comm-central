@@ -154,7 +154,7 @@ class CrossSigningInfo {
 
   async isStoredInSecretStorage(secretStorage) {
     // check what SSSS keys have encrypted the master key (if any)
-    const stored = (await secretStorage.isStored("m.cross_signing.master", false)) || {}; // then check which of those SSSS keys have also encrypted the SSK and USK
+    const stored = (await secretStorage.isStored("m.cross_signing.master")) || {}; // then check which of those SSSS keys have also encrypted the SSK and USK
 
     function intersect(s) {
       for (const k of Object.keys(stored)) {
@@ -165,7 +165,7 @@ class CrossSigningInfo {
     }
 
     for (const type of ["self_signing", "user_signing"]) {
-      intersect((await secretStorage.isStored(`m.cross_signing.${type}`, false)) || {});
+      intersect((await secretStorage.isStored(`m.cross_signing.${type}`)) || {});
     }
 
     return Object.keys(stored).length ? stored : null;

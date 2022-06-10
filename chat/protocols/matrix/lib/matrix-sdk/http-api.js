@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PREFIX_V1 = exports.PREFIX_UNSTABLE = exports.PREFIX_R0 = exports.PREFIX_MEDIA_R0 = exports.PREFIX_IDENTITY_V2 = exports.PREFIX_IDENTITY_V1 = exports.Method = exports.MatrixHttpApi = exports.MatrixError = exports.HttpApiEvent = exports.ConnectionError = exports.AbortError = void 0;
+exports.PREFIX_V3 = exports.PREFIX_V1 = exports.PREFIX_UNSTABLE = exports.PREFIX_R0 = exports.PREFIX_MEDIA_R0 = exports.PREFIX_IDENTITY_V2 = exports.PREFIX_IDENTITY_V1 = exports.Method = exports.MatrixHttpApi = exports.MatrixError = exports.HttpApiEvent = exports.ConnectionError = exports.AbortError = void 0;
 exports.retryNetworkOperation = retryNetworkOperation;
 
 var _contentType = require("content-type");
@@ -35,16 +35,22 @@ TODO:
  */
 const PREFIX_R0 = "/_matrix/client/r0";
 /**
- * A constant representing the URI path for release v1 of the Client-Server HTTP API.
+ * A constant representing the URI path for the legacy release v1 of the Client-Server HTTP API.
  */
 
 exports.PREFIX_R0 = PREFIX_R0;
 const PREFIX_V1 = "/_matrix/client/v1";
 /**
- * A constant representing the URI path for as-yet unspecified Client-Server HTTP APIs.
+ * A constant representing the URI path for Client-Server API endpoints versioned at v3.
  */
 
 exports.PREFIX_V1 = PREFIX_V1;
+const PREFIX_V3 = "/_matrix/client/v3";
+/**
+ * A constant representing the URI path for as-yet unspecified Client-Server HTTP APIs.
+ */
+
+exports.PREFIX_V3 = PREFIX_V3;
 const PREFIX_UNSTABLE = "/_matrix/client/unstable";
 /**
  * URI path for v1 of the the identity API
@@ -313,7 +319,7 @@ class MatrixHttpApi {
                 resp = bodyParser(resp);
               }
             } catch (err) {
-              err.http_status = xhr.status;
+              err.httpStatus = xhr.status;
               cb(err);
               return;
             }
@@ -923,7 +929,7 @@ function getResponseContentType(response) {
  * @prop {string} name Same as MatrixError.errcode but with a default unknown string.
  * @prop {string} message The Matrix 'error' value, e.g. "Missing token."
  * @prop {Object} data The raw Matrix error JSON used to construct this object.
- * @prop {integer} httpStatus The numeric HTTP status code given
+ * @prop {number} httpStatus The numeric HTTP status code given
  */
 class MatrixError extends Error {
   // set by http-api
@@ -999,10 +1005,10 @@ async function retryNetworkOperation(maxAttempts, callback) {
 
         _logger.logger.log(`network operation failed ${attempts} times,` + ` retrying in ${timeout}ms...`);
 
-        await new Promise(r => setTimeout(r, timeout));
+        await (0, utils.sleep)(timeout);
       }
 
-      return await callback();
+      return callback();
     } catch (err) {
       if (err instanceof ConnectionError) {
         attempts += 1;

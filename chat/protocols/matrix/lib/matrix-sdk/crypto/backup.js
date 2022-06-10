@@ -71,21 +71,21 @@ class BackupManager {
       throw new Error("Unknown backup algorithm: " + info.algorithm);
     }
 
-    if (!(typeof info.auth_data === "object")) {
+    if (typeof info.auth_data !== "object") {
       throw new Error("Invalid backup data returned");
     }
 
     return Algorithm.checkBackupVersion(info);
   }
 
-  static async makeAlgorithm(info, getKey) {
+  static makeAlgorithm(info, getKey) {
     const Algorithm = algorithmsByName[info.algorithm];
 
     if (!Algorithm) {
       throw new Error("Unknown backup algorithm");
     }
 
-    return await Algorithm.init(info.auth_data, getKey);
+    return Algorithm.init(info.auth_data, getKey);
   }
 
   async enableKeyBackup(info) {
@@ -363,7 +363,7 @@ class BackupManager {
       // requests from different clients hitting the server all at
       // the same time when a new key is sent
       const delay = Math.random() * maxDelay;
-      await (0, _utils.sleep)(delay, undefined);
+      await (0, _utils.sleep)(delay);
       let numFailures = 0; // number of consecutive failures
 
       for (;;) {
@@ -400,7 +400,7 @@ class BackupManager {
 
         if (numFailures) {
           // exponential backoff if we have failures
-          await (0, _utils.sleep)(1000 * Math.pow(2, Math.min(numFailures - 1, 4)), undefined);
+          await (0, _utils.sleep)(1000 * Math.pow(2, Math.min(numFailures - 1, 4)));
         }
       }
     } finally {
@@ -411,8 +411,8 @@ class BackupManager {
    * Take some e2e keys waiting to be backed up and send them
    * to the backup.
    *
-   * @param {integer} limit Maximum number of keys to back up
-   * @returns {integer} Number of sessions backed up
+   * @param {number} limit Maximum number of keys to back up
+   * @returns {number} Number of sessions backed up
    */
 
 
@@ -716,12 +716,12 @@ class Aes256 {
     return false;
   }
 
-  async encryptSession(data) {
+  encryptSession(data) {
     const plainText = Object.assign({}, data);
     delete plainText.session_id;
     delete plainText.room_id;
     delete plainText.first_known_index;
-    return await (0, _aes.encryptAES)(JSON.stringify(plainText), this.key, data.session_id);
+    return (0, _aes.encryptAES)(JSON.stringify(plainText), this.key, data.session_id);
   }
 
   async decryptSessions(sessions) {

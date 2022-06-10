@@ -18,12 +18,10 @@ exports.UserEvent = UserEvent;
   UserEvent["Presence"] = "User.presence";
   UserEvent["CurrentlyActive"] = "User.currentlyActive";
   UserEvent["LastPresenceTs"] = "User.lastPresenceTs";
-  UserEvent["_UnstableStatusMessage"] = "User.unstable_statusMessage";
 })(UserEvent || (exports.UserEvent = UserEvent = {}));
 
 class User extends _typedEventEmitter.TypedEventEmitter {
   // XXX these should be read-only
-  // eslint-disable-next-line camelcase
 
   /**
    * Construct a new User. A User must have an ID and can optionally have extra
@@ -44,9 +42,6 @@ class User extends _typedEventEmitter.TypedEventEmitter {
    *                when a user was last active.
    * @prop {Boolean} currentlyActive Whether we should consider lastActiveAgo to be
    *               an approximation and that the user should be seen as active 'now'
-   * @prop {string} unstable_statusMessage The status message for the user, if known. This is
-   *                different from the presenceStatusMsg in that this is not tied to
-   *                the user's presence, and should be represented differently.
    * @prop {Object} events The events describing this user.
    * @prop {MatrixEvent} events.presence The m.presence event for this user.
    */
@@ -76,8 +71,6 @@ class User extends _typedEventEmitter.TypedEventEmitter {
       presence: null,
       profile: null
     });
-
-    _defineProperty(this, "unstable_statusMessage", "");
 
     this.displayName = userId;
     this.rawDisplayName = userId;
@@ -221,19 +214,6 @@ class User extends _typedEventEmitter.TypedEventEmitter {
 
   getLastActiveTs() {
     return this.lastPresenceTs - this.lastActiveAgo;
-  }
-  /**
-   * Manually set the user's status message.
-   * @param {MatrixEvent} event The <code>im.vector.user_status</code> event.
-   * @fires module:client~MatrixClient#event:"User.unstable_statusMessage"
-   */
-  // eslint-disable-next-line
-
-
-  unstable_updateStatusMessage(event) {
-    if (!event.getContent()) this.unstable_statusMessage = "";else this.unstable_statusMessage = event.getContent()["status"];
-    this.updateModifiedTime();
-    this.emit(UserEvent._UnstableStatusMessage, this);
   }
 
 }

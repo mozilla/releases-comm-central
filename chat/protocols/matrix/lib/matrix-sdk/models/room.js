@@ -35,6 +35,8 @@ var _thread = require("./thread");
 
 var _typedEventEmitter = require("./typed-event-emitter");
 
+var _read_receipts = require("../@types/read_receipts");
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -1156,6 +1158,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
    * The aliases returned by this function may not necessarily
    * still point to this room.
    * @return {array} The room's alias as an array of strings
+   * @deprecated this uses m.room.aliases events, replaced by Room::getAltAliases()
    */
 
 
@@ -1164,9 +1167,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
     const aliasEvents = this.currentState.getStateEvents(_event2.EventType.RoomAliases);
 
     if (aliasEvents) {
-      for (let i = 0; i < aliasEvents.length; ++i) {
-        const aliasEvent = aliasEvents[i];
-
+      for (const aliasEvent of aliasEvents) {
         if (Array.isArray(aliasEvent.getContent().aliases)) {
           const filteredAliases = aliasEvent.getContent().aliases.filter(a => {
             if (typeof a !== "string") return false;
@@ -1175,7 +1176,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
 
             return true;
           });
-          Array.prototype.push.apply(aliasStrings, filteredAliases);
+          aliasStrings.push(...filteredAliases);
         }
       }
     }
@@ -1661,7 +1662,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
       eventsByThread[threadId]?.push(event);
     }
 
-    Object.entries(eventsByThread).map(([threadId, events]) => this.addThreadedEvents(threadId, events, toStartOfTimeline));
+    Object.entries(eventsByThread).map(([threadId, threadEvents]) => this.addThreadedEvents(threadId, threadEvents, toStartOfTimeline));
   }
 
   createThread(threadId, rootEvent, events = [], toStartOfTimeline) {
@@ -1669,8 +1670,10 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
       const tl = this.getTimelineForEvent(rootEvent.getId());
       const relatedEvents = tl?.getTimelineSet().getAllRelationsEventForEvent(rootEvent.getId());
 
-      if (relatedEvents) {
-        events = events.concat(relatedEvents);
+      if (relatedEvents?.length) {
+        // Include all relations of the root event, given it'll be visible in both timelines,
+        // except `m.replace` as that will already be applied atop the event using `MatrixEvent::makeReplaced`
+        events = events.concat(relatedEvents.filter(e => !e.isRelation(_event2.RelationType.Replace)));
       }
     }
 
@@ -1748,7 +1751,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
 
 
     if (event.sender && event.getType() !== _event2.EventType.RoomRedaction) {
-      this.addReceipt(synthesizeReceipt(event.sender.userId, event, "m.read"), true); // Any live events from a user could be taken as implicit
+      this.addReceipt(synthesizeReceipt(event.sender.userId, event, _read_receipts.ReceiptType.Read), true); // Any live events from a user could be taken as implicit
       // presence information: evidence that they are currently active.
       // ...except in a world where we use 'user.currentlyActive' to reduce
       // presence spam, this isn't very useful - we'll get a transition when
@@ -2108,23 +2111,23 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
     const threadRoots = this.findThreadRoots(events);
     const eventsByThread = {};
 
-    for (let i = 0; i < events.length; i++) {
+    for (const event of events) {
       // TODO: We should have a filter to say "only add state event types X Y Z to the timeline".
-      this.processLiveEvent(events[i]);
+      this.processLiveEvent(event);
       const {
         shouldLiveInRoom,
         shouldLiveInThread,
         threadId
-      } = this.eventShouldLiveIn(events[i], events, threadRoots);
+      } = this.eventShouldLiveIn(event, events, threadRoots);
 
       if (shouldLiveInThread && !eventsByThread[threadId]) {
         eventsByThread[threadId] = [];
       }
 
-      eventsByThread[threadId]?.push(events[i]);
+      eventsByThread[threadId]?.push(event);
 
       if (shouldLiveInRoom) {
-        this.addLiveEvent(events[i], duplicateStrategy, fromCache);
+        this.addLiveEvent(event, duplicateStrategy, fromCache);
       }
     }
 
@@ -2290,14 +2293,22 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
 
   getUsersReadUpTo(event) {
     return this.getReceiptsForEvent(event).filter(function (receipt) {
-      return receipt.type === "m.read";
+      return [_read_receipts.ReceiptType.Read, _read_receipts.ReceiptType.ReadPrivate].includes(receipt.type);
     }).map(function (receipt) {
       return receipt.userId;
     });
   }
+  /**
+   * Gets the latest receipt for a given user in the room
+   * @param userId The id of the user for which we want the receipt
+   * @param ignoreSynthesized Whether to ignore synthesized receipts or not
+   * @param receiptType Optional. The type of the receipt we want to get
+   * @returns the latest receipts of the chosen type for the chosen user
+   */
 
-  getReadReceiptForUserId(userId, ignoreSynthesized = false) {
-    const [realReceipt, syntheticReceipt] = this.receipts["m.read"]?.[userId] ?? [];
+
+  getReadReceiptForUserId(userId, ignoreSynthesized = false, receiptType = _read_receipts.ReceiptType.Read) {
+    const [realReceipt, syntheticReceipt] = this.receipts[receiptType]?.[userId] ?? [];
 
     if (ignoreSynthesized) {
       return realReceipt;
@@ -2317,8 +2328,23 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
 
 
   getEventReadUpTo(userId, ignoreSynthesized = false) {
-    const readReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized);
-    return readReceipt?.eventId ?? null;
+    const timelineSet = this.getUnfilteredTimelineSet();
+    const publicReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.Read);
+    const privateReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.ReadPrivate); // If we have both, compare them
+
+    let comparison;
+
+    if (publicReadReceipt?.eventId && privateReadReceipt?.eventId) {
+      comparison = timelineSet.compareEventOrdering(publicReadReceipt?.eventId, privateReadReceipt?.eventId);
+    } // If we didn't get a comparison try to compare the ts of the receipts
+
+
+    if (!comparison) comparison = publicReadReceipt?.data?.ts - privateReadReceipt?.data?.ts; // The public receipt is more likely to drift out of date so the private
+    // one has precedence
+
+    if (!comparison) return privateReadReceipt?.eventId ?? publicReadReceipt?.eventId ?? null; // If public read receipt is older, return the private one
+
+    return comparison < 0 ? privateReadReceipt?.eventId : publicReadReceipt?.eventId;
   }
   /**
    * Determines if the given user has read a particular event ID with the known
@@ -2476,7 +2502,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
    * client the fact that we've sent one.
    * @param {string} userId The user ID if the receipt sender
    * @param {MatrixEvent} e The event that is to be acknowledged
-   * @param {string} receiptType The type of receipt
+   * @param {ReceiptType} receiptType The type of receipt
    */
 
 
