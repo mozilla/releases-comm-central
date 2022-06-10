@@ -24,6 +24,7 @@ messenger.jar:
     content/messenger/addressbook/edit/fn.js                    (content/vcard-edit/fn.js)
     content/messenger/addressbook/edit/impp.js                  (content/vcard-edit/impp.js)
     content/messenger/addressbook/edit/n.js                     (content/vcard-edit/n.js)
+    content/messenger/addressbook/edit/nickname.js              (content/vcard-edit/nickname.js)
     content/messenger/addressbook/edit/note.js                  (content/vcard-edit/note.js)
     content/messenger/addressbook/edit/org.js                   (content/vcard-edit/org.js)
     content/messenger/addressbook/edit/special-date.js          (content/vcard-edit/special-date.js)

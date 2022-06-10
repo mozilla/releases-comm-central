@@ -12,6 +12,7 @@
 <script src="chrome://messenger/content/addressbook/edit/fn.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/impp.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/n.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/nickname.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/note.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/special-date.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/tel.js"></script>
@@ -34,7 +35,10 @@
   <fieldset id="addr-book-edit-n" class="addr-book-edit-fieldset">
     <legend class="screen-readers-only" data-l10n-id="vcard-name-header"/>
     <slot name="v-n"/>
-    <slot name="v-fn"/>
+    <div class="addr-book-edit-display-nickname">
+      <slot name="v-fn"/>
+      <slot name="v-nickname"/>
+    </div>
   </fieldset>
   <!-- Email -->
   <fieldset id="addr-book-edit-email" class="addr-book-edit-fieldset">
@@ -238,6 +242,13 @@
     <!-- SPAN element needed for fluent string. -->
     <span></span>
   </label>
+</template>
+
+<!-- NICKNAME field. -->
+<template id="template-vcard-edit-nickname">
+  <!-- FIXME: Replace this DTD string with a fluent ID after 102. -->
+  <label for="vCardNickName">&NickName.label;</label>
+  <input id="vCardNickName" type="text"/>
 </template>
 
 <!-- Email -->

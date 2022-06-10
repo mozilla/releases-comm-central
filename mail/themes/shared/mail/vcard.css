@@ -132,15 +132,17 @@ vcard-n {
   flex: 0 0 auto;
 }
 
-/* Display name / Full name styles */
-[slot="v-fn"] {
+/* Display name / Full name / Nick name styles */
+[slot="v-fn"],
+[slot="v-nickname"] {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-block-start: 12px;
 }
 
-[slot="v-fn"] label[for] {
+[slot="v-fn"] label[for],
+[slot="v-nickname"] label[for] {
   margin-block-end: 0;
 }
 

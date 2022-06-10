@@ -3,10 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals VCardAdrComponent, VCardEmailComponent, VCardIMPPComponent,
-           VCardNComponent, VCardFNComponent, VCardNoteComponent,
-           VCardOrgComponent, VCardRoleComponent, VCardSpecialDateComponent,
-           VCardTelComponent, VCardTitleComponent, VCardTZComponent,
-           VCardURLComponent */
+           VCardNComponent, VCardFNComponent, VCardNickNameComponent,
+           VCardNoteComponent, VCardOrgComponent, VCardRoleComponent,
+           VCardSpecialDateComponent, VCardTelComponent, VCardTitleComponent,
+           VCardTZComponent, VCardURLComponent */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
@@ -36,6 +36,7 @@ class VCardEdit extends HTMLElement {
     this.shadowRoot.appendChild(clonedTemplate);
 
     this.contactName = document.getElementById("viewContactName");
+    this.contactNickName = document.getElementById("viewContactNickName");
   }
 
   connectedCallback() {
@@ -106,6 +107,12 @@ class VCardEdit extends HTMLElement {
     // If no fn property is present set one.
     if (!this._vCardProperties.getFirstEntry("fn")) {
       this._vCardProperties.addEntry(VCardFNComponent.newVCardPropertyEntry());
+    }
+    // If no nickname property is present set one.
+    if (!this._vCardProperties.getFirstEntry("nickname")) {
+      this._vCardProperties.addEntry(
+        VCardNickNameComponent.newVCardPropertyEntry()
+      );
     }
     // If no email property is present set one.
     if (!this._vCardProperties.getFirstEntry("email")) {
@@ -193,6 +200,9 @@ class VCardEdit extends HTMLElement {
         "about-addressbook-prefer-display-name"
       );
     }
+
+    this.nickName = this.querySelector("vcard-nickname").nickNameEl;
+    this.nickName.addEventListener("input", () => this.updateNickName());
 
     if (this.vCardProperties) {
       this.toggleDefaultEmailView();
@@ -289,6 +299,22 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
+   * Update the nickname value of the contact header when in edit mode.
+   */
+  updateNickName() {
+    // Don't generate any preview if the contact nickname element is not
+    // available, which it might happen since this component is used in other
+    // areas outside the address book UI.
+    if (!this.contactNickName) {
+      return;
+    }
+
+    let value = this.nickName.value.trim();
+    this.contactNickName.hidden = !value;
+    this.contactNickName.textContent = value;
+  }
+
+  /**
    * Find the primary email used for this contact.
    *
    * @returns {VCardEmailComponent}
@@ -344,6 +370,11 @@ class VCardEdit extends HTMLElement {
         fn.vCardPropertyEntry = entry;
         fn.slot = "v-fn";
         return fn;
+      case "nickname":
+        let nickname = new VCardNickNameComponent();
+        nickname.vCardPropertyEntry = entry;
+        nickname.slot = "v-nickname";
+        return nickname;
       case "email":
         let email = document.createElement("tr", { is: "vcard-email" });
         email.vCardPropertyEntry = entry;
@@ -422,6 +453,8 @@ class VCardEdit extends HTMLElement {
         return VCardNComponent.newVCardPropertyEntry();
       case "fn":
         return VCardFNComponent.newVCardPropertyEntry();
+      case "nickname":
+        return VCardNickNameComponent.newVCardPropertyEntry();
       case "email":
         return VCardEmailComponent.newVCardPropertyEntry();
       case "url":

@@ -2,6 +2,14 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!-- FIXME: Temporarily use the old DTD strings for those fields that don't
+  have a fluent string, yet.  -->
+<!DOCTYPE html [
+  <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
+  %abResultsPaneDTD;
+]>
+
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -127,16 +135,17 @@
   <hr is="pane-splitter" id="detailsSplitter" resize-id="detailsPane" />
   <form id="detailsPane" autocomplete="off" hidden="hidden">
     <div id="detailsInner">
-      <section id="detailsHeader">
+      <header id="detailsHeader">
         <div id="photoOuter">
           <div id="photo"></div>
           <div id="photoOverlay" tabindex="0"></div>
         </div>
         <div id="contactHeader">
           <h1 id="viewContactName"></h1>
-          <h2 id="viewPrimaryEmail"></h2>
+          <p id="viewContactNickName"></p>
+          <p id="viewPrimaryEmail"></p>
         </div>
-      </section>
+      </header>
       <section id="detailsBody" class="view">
         <section id="detailsActions" class="button-block">
           <div>

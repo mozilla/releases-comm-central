@@ -51,6 +51,8 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector("vcard-fn #vCardDisplayName");
     case "PreferDisplayName":
       return abDocument.querySelector("vcard-fn #vCardPreferDisplayName");
+    case "NickName":
+      return abDocument.querySelector("vcard-nickname #vCardNickName");
     case "FirstName":
       return abDocument.querySelector("vcard-n #vcard-n-firstname");
     case "LastName":
@@ -186,7 +188,8 @@ add_task(async function test_basic_edit() {
   let cardsList = abDocument.getElementById("cards");
   let detailsPane = abDocument.getElementById("detailsPane");
 
-  let h1 = abDocument.querySelector("h1");
+  let viewContactName = abDocument.getElementById("viewContactName");
+  let viewContactNickName = abDocument.getElementById("viewContactNickName");
   let editButton = abDocument.getElementById("editButton");
   let cancelEditButton = abDocument.getElementById("cancelEditButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
@@ -203,8 +206,8 @@ add_task(async function test_basic_edit() {
     BrowserTestUtils.is_visible(detailsPane)
   );
 
-  Assert.ok(BrowserTestUtils.is_visible(h1));
-  Assert.equal(h1.textContent, "contact 1");
+  Assert.ok(BrowserTestUtils.is_visible(viewContactName));
+  Assert.equal(viewContactName.textContent, "contact 1");
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -265,17 +268,27 @@ add_task(async function test_basic_edit() {
     FirstName: "contact",
     LastName: "1",
     DisplayName: "contact 1",
+    NickName: "",
     PrimaryEmail: "contact.1@invalid",
     SecondEmail: null,
   });
+
+  // Make sure the header values reflect the fields values.
+  Assert.equal(viewContactName.textContent, "contact 1");
+  Assert.equal(viewContactNickName.textContent, "");
 
   // Make some changes but cancel them.
 
   setInputValues({
     LastName: "one",
     DisplayName: "contact one",
+    NickName: "contact nickname",
     SecondEmail: "i@roman.invalid",
   });
+
+  Assert.equal(viewContactName.textContent, "contact one");
+  Assert.ok(BrowserTestUtils.is_visible(viewContactNickName));
+  Assert.equal(viewContactNickName.textContent, "contact nickname");
 
   let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
@@ -284,8 +297,11 @@ add_task(async function test_basic_edit() {
   await notInEditingMode();
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
-  Assert.ok(BrowserTestUtils.is_visible(h1));
-  Assert.equal(h1.textContent, "contact 1");
+  Assert.ok(BrowserTestUtils.is_visible(viewContactName));
+  Assert.equal(viewContactName.textContent, "contact 1");
+
+  Assert.ok(BrowserTestUtils.is_hidden(viewContactNickName));
+  Assert.equal(viewContactNickName.textContent, "");
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -323,6 +339,7 @@ add_task(async function test_basic_edit() {
   setInputValues({
     LastName: "one",
     DisplayName: "contact one",
+    NickName: "contact nickname",
     SecondEmail: "i@roman.invalid",
   });
 
@@ -330,8 +347,11 @@ add_task(async function test_basic_edit() {
   await notInEditingMode();
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
-  Assert.ok(BrowserTestUtils.is_visible(h1));
-  Assert.equal(h1.textContent, "contact one");
+  Assert.ok(BrowserTestUtils.is_visible(viewContactName));
+  Assert.equal(viewContactName.textContent, "contact one");
+
+  Assert.ok(BrowserTestUtils.is_visible(viewContactNickName));
+  Assert.equal(viewContactNickName.textContent, "contact nickname");
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -439,6 +459,7 @@ add_task(async function test_basic_edit() {
     FirstName: "contact",
     LastName: "1",
     DisplayName: "contact 1",
+    NickName: "",
     SecondEmail: null,
   });
 
@@ -453,6 +474,7 @@ add_task(async function test_basic_edit() {
     FirstName: "contact",
     LastName: "1",
     DisplayName: "contact 1",
+    NickName: "",
     PrimaryEmail: "contact.1@invalid",
     SecondEmail: null,
   });

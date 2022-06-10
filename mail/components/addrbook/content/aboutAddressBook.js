@@ -2360,10 +2360,10 @@ var detailsPane = {
       return;
     }
 
-    document.querySelector("h1").textContent = card.generateName(
+    document.getElementById("viewContactName").textContent = card.generateName(
       ABView.nameFormat
     );
-    document.querySelector("h2").textContent = card.primaryEmail;
+    document.getElementById("viewPrimaryEmail").textContent = card.primaryEmail;
 
     let photoURL = card.photoURL;
     if (photoURL) {
@@ -2394,6 +2394,11 @@ var detailsPane = {
       : VCardProperties.fromPropertyMap(
           new Map(card.properties.map(p => [p.name, p.value]))
         );
+
+    let nickname = document.getElementById("viewContactNickName");
+    let nicknameValue = vCardProperties.getFirstValue("nickname");
+    nickname.hidden = !nicknameValue;
+    nickname.textContent = nicknameValue;
 
     let template = document.getElementById("entryItem");
     let createEntryItem = function(name) {
@@ -2628,8 +2633,11 @@ var detailsPane = {
         // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
         card.getProperty("PreferDisplayName", true) == true;
     } else {
-      document.querySelector("h1").textContent = "";
-      document.querySelector("h2").textContent = "";
+      document.getElementById("viewContactName").textContent = "";
+      let nickname = document.getElementById("viewContactNickName");
+      nickname.textContent = "";
+      nickname.hidden = true;
+      document.getElementById("viewPrimaryEmail").textContent = "";
       this.photo.style.backgroundImage = null;
       delete this.photo._blob;
       delete this.photo._cropRect;

@@ -97,8 +97,8 @@ add_task(async function test_display() {
   let cardsList = abDocument.getElementById("cards");
   let detailsPane = abDocument.getElementById("detailsPane");
 
-  let h1 = abDocument.querySelector("#detailsHeader h1");
-  let h2 = abDocument.querySelector("#detailsHeader h2");
+  let viewContactName = abDocument.getElementById("viewContactName");
+  let viewPrimaryEmail = abDocument.getElementById("viewPrimaryEmail");
   let editButton = abDocument.getElementById("editButton");
 
   let emailAddressesSection = abDocument.getElementById("emailAddresses");
@@ -119,8 +119,8 @@ add_task(async function test_display() {
   );
 
   // Header.
-  Assert.equal(h1.textContent, "");
-  Assert.equal(h2.textContent, "");
+  Assert.equal(viewContactName.textContent, "");
+  Assert.equal(viewPrimaryEmail.textContent, "");
 
   // Action buttons.
   await checkActionButtons();
@@ -140,8 +140,8 @@ add_task(async function test_display() {
   );
 
   // Header.
-  Assert.equal(h1.textContent, "basic person");
-  Assert.equal(h2.textContent, "basic@invalid");
+  Assert.equal(viewContactName.textContent, "basic person");
+  Assert.equal(viewPrimaryEmail.textContent, "basic@invalid");
 
   // Action buttons.
   await checkActionButtons("basic@invalid", "basic person");
@@ -179,8 +179,8 @@ add_task(async function test_display() {
   );
 
   // Header.
-  Assert.equal(h1.textContent, "complex person");
-  Assert.equal(h2.textContent, "primary@invalid");
+  Assert.equal(viewContactName.textContent, "complex person");
+  Assert.equal(viewPrimaryEmail.textContent, "primary@invalid");
 
   // Action buttons.
   await checkActionButtons(
@@ -358,8 +358,8 @@ add_task(async function test_display() {
   );
 
   // Header.
-  Assert.equal(h1.textContent, "");
-  Assert.equal(h2.textContent, "");
+  Assert.equal(viewContactName.textContent, "");
+  Assert.equal(viewPrimaryEmail.textContent, "");
 
   // Action buttons.
   await checkActionButtons();

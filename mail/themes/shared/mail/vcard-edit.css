@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:host {
+:host,
+.addr-book-edit-display-nickname {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
+  column-gap: 2em;
+}
+
+:host {
   grid-template-rows: masonry;
   row-gap: 30px;
-  column-gap: 2em;
   margin-block: 15px;
 }
 
