@@ -143,7 +143,8 @@
           </vbox>
         </box>
 
-        <splitter class="item-summary-splitter"
+        <splitter id="attendeeDescriptionSplitter"
+                  class="item-summary-splitter"
                   collapse="after"
                   orient="vertical"
                   state="open"/>
@@ -318,6 +319,11 @@
           (cal.acl.userCanModifyItem(item) ||
             (this.mIsInvitation && cal.acl.userCanRespondToInvitation(item)))
         );
+      }
+
+      if (!item.descriptionHTML || !item.getAttendees().length) {
+        // Hide the splitter when there is no description or attendees.
+        document.getElementById("attendeeDescriptionSplitter").setAttribute("hidden", "true");
       }
     }
 
