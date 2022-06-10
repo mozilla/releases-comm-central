@@ -436,7 +436,8 @@ async function enigCreateKeyMsg() {
   }
 
   await EnigmailKeyRing.extractPublicKeys(
-    keyIdArray,
+    keyIdArray, // full
+    null,
     null,
     tmpFile,
     exitCodeObj,
@@ -632,7 +633,8 @@ async function enigmailCopyToClipbrd() {
   }
 
   let keyData = await EnigmailKeyRing.extractPublicKeys(
-    keyIdArray,
+    keyIdArray, // full
+    null,
     null,
     null,
     exitCodeObj,

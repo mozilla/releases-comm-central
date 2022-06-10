@@ -762,8 +762,9 @@ Enigmail.msg = {
     var errorMsgObj = {};
 
     await EnigmailKeyRing.extractPublicKeys(
-      [primaryId],
-      revokedIds,
+      [], // full
+      [primaryId], // reduced
+      revokedIds, // minimal
       tmpFile,
       exitCodeObj,
       errorMsgObj

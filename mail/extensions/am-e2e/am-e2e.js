@@ -1257,7 +1257,8 @@ async function openPgpCopyToClipboard(keyId) {
   let exitCodeObj = {};
 
   let keyData = await EnigmailKeyRing.extractPublicKeys(
-    [keyId],
+    [keyId], // full
+    null,
     null,
     null,
     exitCodeObj,
@@ -1296,7 +1297,8 @@ async function openPgpSendKeyEmail(keyId) {
   let keyIdArray = [keyId];
 
   await EnigmailKeyRing.extractPublicKeys(
-    keyIdArray,
+    keyIdArray, // full
+    null,
     null,
     tmpFile,
     exitCodeObj,

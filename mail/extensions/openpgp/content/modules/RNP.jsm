@@ -244,6 +244,9 @@ var RNP = {
     if (onlyKeys) {
       for (let ki = 0; ki < onlyKeys.length; ki++) {
         let handle = await this.getKeyHandleByIdentifier(ffi, onlyKeys[ki]);
+        if (!handle || handle.isNull()) {
+          continue;
+        }
 
         let keyObj = {};
         try {
@@ -3060,18 +3063,19 @@ var RNP = {
   },
 
   /**
-   * Exports a public key, strips all user ID and all signatures
-   * added by others, but keeping self-signatures.
+   * Exports a public key, strips all signatures added by others,
+   * and optionally also strips user IDs. Self-signatures are kept.
    * The given key handle will not be modified. The input key will be
    * copied to a temporary area, only the temporary copy will be
    * modified. The result key will be streamed to the given output.
    *
    * @param {rnp_key_handle_t} expKey - RNP key handle
    * @param {string} id - key ID or fingerprint
+   * @param {boolean} keepUserIDs - if true keep users IDs
    * @param {rnp_output_t} out_binary - output stream handle
    *
    */
-  export_pubkey_strip_sigs_uids(expKey, id, out_binary) {
+  export_pubkey_strip_sigs_uids(expKey, id, keepUserIDs, out_binary) {
     let tempFFI = new RNPLib.rnp_ffi_t();
     if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
       throw new Error("Couldn't initialize librnp.");
@@ -3124,21 +3128,23 @@ var RNP = {
 
     // Strip
 
-    let uid_count = new ctypes.size_t();
-    if (RNPLib.rnp_key_get_uid_count(tempKey, uid_count.address())) {
-      throw new Error("rnp_key_get_uid_count failed");
-    }
-    for (let i = uid_count.value; i > 0; i--) {
-      let uid_handle = new RNPLib.rnp_uid_handle_t();
-      if (
-        RNPLib.rnp_key_get_uid_handle_at(tempKey, i - 1, uid_handle.address())
-      ) {
-        throw new Error("rnp_key_get_uid_handle_at failed");
+    if (!keepUserIDs) {
+      let uid_count = new ctypes.size_t();
+      if (RNPLib.rnp_key_get_uid_count(tempKey, uid_count.address())) {
+        throw new Error("rnp_key_get_uid_count failed");
       }
-      if (RNPLib.rnp_uid_remove(tempKey, uid_handle)) {
-        throw new Error("rnp_uid_remove failed");
+      for (let i = uid_count.value; i > 0; i--) {
+        let uid_handle = new RNPLib.rnp_uid_handle_t();
+        if (
+          RNPLib.rnp_key_get_uid_handle_at(tempKey, i - 1, uid_handle.address())
+        ) {
+          throw new Error("rnp_key_get_uid_handle_at failed");
+        }
+        if (RNPLib.rnp_uid_remove(tempKey, uid_handle)) {
+          throw new Error("rnp_uid_remove failed");
+        }
+        RNPLib.rnp_uid_handle_destroy(uid_handle);
       }
-      RNPLib.rnp_uid_handle_destroy(uid_handle);
     }
 
     if (
@@ -3167,12 +3173,15 @@ var RNP = {
    *
    * @param {String[]} idArrayFull - an array of key IDs or fingerprints
    *   that should be exported as full keys including all attributes.
+   * @param {String[]} idArrayReduced - an array of key IDs or
+   *   fingerprints that should be exported with all self-signatures,
+   *   but without signatures from others.
    * @param {String[]} idArrayMinimal - an array of key IDs or
    *   fingerprints that should be exported as minimized keys.
    * @return {String} - An ascii armored key block containing all
    *   requested (available) keys.
    */
-  getMultiplePublicKeys(idArrayFull, idArrayMinimal = null) {
+  getMultiplePublicKeys(idArrayFull, idArrayReduced, idArrayMinimal) {
     let out_final = new RNPLib.rnp_output_t();
     RNPLib.rnp_output_to_memory(out_final.address(), 0);
 
@@ -3209,6 +3218,19 @@ var RNP = {
       }
     }
 
+    if (idArrayReduced) {
+      for (let id of idArrayReduced) {
+        let key = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, id);
+        if (key.isNull()) {
+          continue;
+        }
+
+        this.export_pubkey_strip_sigs_uids(key, id, true, out_binary);
+
+        RNPLib.rnp_key_handle_destroy(key);
+      }
+    }
+
     if (idArrayMinimal) {
       for (let id of idArrayMinimal) {
         let key = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, id);
@@ -3216,7 +3238,7 @@ var RNP = {
           continue;
         }
 
-        this.export_pubkey_strip_sigs_uids(key, id, out_binary);
+        this.export_pubkey_strip_sigs_uids(key, id, false, out_binary);
 
         RNPLib.rnp_key_handle_destroy(key);
       }

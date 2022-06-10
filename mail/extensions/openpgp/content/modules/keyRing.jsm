@@ -544,6 +544,8 @@ var EnigmailKeyRing = {
    *
    * @param {String[]} idArrayFull - array of key IDs or fingerprints
    *   to export (full keys).
+   * @param {String[]} idArrayReduced - array of key IDs or fingerprints
+   *   to export (reduced keys, non-self signatures stripped).
    * @param {String[]] idArrayMinimal - array of key IDs or fingerprints
    *   to export (minimal keys, user IDs and non-self signatures stripped).
    * @param {String or nsIFile} outputFile - output file name or Object - or NULL
@@ -554,6 +556,7 @@ var EnigmailKeyRing = {
    */
   async extractPublicKeys(
     idArrayFull,
+    idArrayReduced,
     idArrayMinimal,
     outputFile,
     exitCodeObj,
@@ -562,6 +565,9 @@ var EnigmailKeyRing = {
     // At least one array must have valid input
     if (
       (!idArrayFull || !Array.isArray(idArrayFull) || !idArrayFull.length) &&
+      (!idArrayReduced ||
+        !Array.isArray(idArrayReduced) ||
+        !idArrayReduced.length) &&
       (!idArrayMinimal ||
         !Array.isArray(idArrayMinimal) ||
         !idArrayMinimal.length)
@@ -571,7 +577,11 @@ var EnigmailKeyRing = {
 
     exitCodeObj.value = -1;
 
-    let keyBlock = lazy.RNP.getMultiplePublicKeys(idArrayFull, idArrayMinimal);
+    let keyBlock = lazy.RNP.getMultiplePublicKeys(
+      idArrayFull,
+      idArrayReduced,
+      idArrayMinimal
+    );
     if (!keyBlock) {
       errorMsgObj.value = lazy.l10n.formatValueSync("fail-key-extract");
       return "";
@@ -622,7 +632,8 @@ var EnigmailKeyRing = {
     var errorMsgObj = {};
 
     await EnigmailKeyRing.extractPublicKeys(
-      keyIdArray,
+      keyIdArray, // full
+      null,
       null,
       outFile,
       exitCodeObj,
