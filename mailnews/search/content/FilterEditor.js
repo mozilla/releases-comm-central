@@ -58,7 +58,7 @@ var gActionListOrdered = null;
 
 var gFilterEditorMsgWindow = null;
 
-window.addEventListener("load", filterEditorOnLoad);
+window.addEventListener("DOMContentLoaded", filterEditorOnLoad);
 document.addEventListener("dialogaccept", onAccept);
 
 function filterEditorOnLoad() {
