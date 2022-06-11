@@ -310,19 +310,6 @@ function onAccept(aDoChecks) {
 }
 
 /**
- * Runs when Cancel button is used.
- *
- * This function must not be called onCancel(), because it would call itself
- * recursively for pages that don't have an onCancel() implementation.
- */
-function onNotAccept(event) {
-  // If onCancel() present in current page frame, call it.
-  if ("onCancel" in top.frames.contentFrame) {
-    top.frames.contentFrame.onCancel(event);
-  }
-}
-
-/**
  * See if the given path to a directory is usable on the current OS.
  *
  * aLocalPath  the nsIFile of a directory to check.
@@ -1341,6 +1328,16 @@ function savePage(account) {
   if (!accountValues) {
     return;
   }
+  // Reset accountArray so that only the current page will be saved. This is
+  // needed to prevent resetting prefs unintentionally. An example is when
+  // changing username/hostname, MsgIncomingServer.jsm will modify identities,
+  // without this, identities changes may be reverted to old values in
+  // accountArray.
+  accountArray = {};
+  accountValues = {};
+  let serverId = account.incomingServer.serverURI;
+  accountArray[serverId] = accountValues;
+  accountArray[serverId]._account = account;
 
   var pageElements = getPageFormElements();
   if (!pageElements) {

@@ -153,15 +153,10 @@ function subtest_check_account_dot_IDs(tab) {
   // Change the ID so that "server.login.At.StartUp" exists now.
   loginCheck.id = "server.login.At.StartUp";
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
-
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  mc.check(loginCheck, false);
+  mc.check(loginCheck, true);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
-  // We can't check by element property here, because the am-server.xhtml pane was
-  // reloaded and the element now has the original ID of "server.loginAtStartUp".
   rawCheckValue = tab.browser.contentWindow.getAccountValue(
     gPopAccount,
     tab.browser.contentWindow.getValueArrayFor(gPopAccount),
