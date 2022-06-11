@@ -160,6 +160,8 @@ body.layout-table {
 .bookRow .twisty {
   width: 26px;
   height: 26px;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .bookRow:not(.children) .twisty-icon {
@@ -467,8 +469,8 @@ body.layout-list #cardsHeader {
 .table-header {
   background-position: right 6px center;
   background-repeat: no-repeat;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
   margin-inline-end: 1px !important;
 }
 
@@ -481,20 +483,20 @@ body.layout-list #cardsHeader {
 }
 
 .table-header.descending {
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-image: var(--icon-nav-down-sm);
 }
 
 .table-header.ascending {
-  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  background-image: var(--icon-nav-up-sm);
 }
 
 @media (-moz-platform: linux) {
   .table-header.ascending {
-    background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+    background-image: var(--icon-nav-down-sm);
   }
 
   .table-header.descending {
-    background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+    background-image: var(--icon-nav-up-sm);
   }
 }
 
@@ -891,8 +893,8 @@ input[type="number"]::-moz-number-spin-down {
   border-radius: 0;
   background-color: var(--in-content-button-background);
   background-position: center;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 input[type="number"]::-moz-number-spin-up:hover,

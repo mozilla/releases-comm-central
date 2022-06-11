@@ -344,8 +344,7 @@ richlistitem[default="true"],
 }
 
 .content-blocking-category .checkbox-label-box,
-.extra-information-label > img,
-.arrowhead {
+.extra-information-label > img {
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -380,9 +379,11 @@ richlistitem[default="true"],
   min-width: 20px;
   max-height: 20px;
   max-width: 20px;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
   background-color: transparent;
   padding: 3px;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .arrowhead:not([disabled]):hover {
@@ -395,7 +396,7 @@ richlistitem[default="true"],
 }
 
 .arrowhead.up {
-  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
 }
 
 .content-blocking-category.expanded:not(.selected) .content-blocking-warning {
@@ -536,7 +537,9 @@ richlistitem[default="true"],
 }
 
 .openpgp-more-btn .button-menu-dropmarker {
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .intro-paragraph {

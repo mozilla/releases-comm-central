@@ -156,8 +156,8 @@
 #attachmentToggle {
   align-self: center;
   color: inherit;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
   fill-opacity: 1;
 }
 

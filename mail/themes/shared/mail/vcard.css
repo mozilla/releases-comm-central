@@ -47,6 +47,11 @@ vcard-edit input[type="number"] {
   padding-inline-end: 0;
 }
 
+vcard-edit select:not([size]) {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+}
+
 vcard-edit select {
   width: 86px;
 }

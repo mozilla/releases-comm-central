@@ -37,11 +37,11 @@ checkbox.treenode-checkbox > .checkbox-check {
   width: 10px;
   height: 10px;
   color: inherit;
-  background-image: url(chrome://global/skin/icons/arrow-down-12.svg);
+  background-image: var(--icon-nav-down-sm);
   background-size: contain;
   background-color: transparent !important;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 checkbox.treenode-checkbox:not([checked="true"]) > .checkbox-check {

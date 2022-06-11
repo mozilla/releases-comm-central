@@ -92,6 +92,8 @@ body {
 #accounttree li .twisty {
   width: 26px;
   height: 26px;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 #accounttree li:not(.children) .twisty-icon {

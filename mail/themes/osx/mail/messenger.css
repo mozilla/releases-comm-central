@@ -201,8 +201,8 @@ toolbarbutton > menupopup menu .menu-right:-moz-locale-dir(rtl) {
 .up,
 .down {
   min-width: 0;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: stroke, fill-opacity;
+  stroke: currentColor;
   fill-opacity: 1;
 }
 

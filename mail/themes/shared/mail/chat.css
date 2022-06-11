@@ -941,6 +941,8 @@ toolbar[mode="text"] .badgeButton-badge {
 
 .encryption-button .toolbarbutton-menu-dropmarker {
   appearance: none !important;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  list-style-image: var(--icon-nav-down-sm);
   margin-inline: 3px 0;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }

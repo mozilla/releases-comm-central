@@ -157,6 +157,13 @@ button > hbox > label {
   line-height: unset;
 }
 
+menulist::part(dropmarker-icon) {
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+}
+
 .abMenuItem > .menu-iconic-left {
   display: block;
 }
@@ -326,12 +333,12 @@ html|input[type="number"]::-moz-number-spin-up {
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-radius: 1px 1px 0 0;
-  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  background-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
 }
 
 html|input[type="number"]::-moz-number-spin-down {
   border-radius: 0 0 1px 1px;
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
 }
 
 separator.groove:not([orient="vertical"]) {

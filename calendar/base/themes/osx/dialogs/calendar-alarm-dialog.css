@@ -10,9 +10,9 @@
 
 .button-menu-dropmarker {
   appearance: none;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-nav-down-sm);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
   width: 12px;
   height: 12px;
 }

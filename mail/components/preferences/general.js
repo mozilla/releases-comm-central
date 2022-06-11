@@ -1818,7 +1818,7 @@ var gGeneralPane = {
       if (sort.type === header.getAttribute("sort-type")) {
         icon.setAttribute(
           "src",
-          "chrome://global/skin/icons/arrow-down-12.svg"
+          "chrome://messenger/skin/icons/new/nav-down-sm.svg"
         );
         if (sort.descending) {
           /* Rotates the src image to point up. */

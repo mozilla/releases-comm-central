@@ -297,9 +297,9 @@ button.button-menu-list {
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 12px;
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+  background-image: var(--icon-nav-down-sm);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 button:-moz-locale-dir(rtl).button-menu-list {

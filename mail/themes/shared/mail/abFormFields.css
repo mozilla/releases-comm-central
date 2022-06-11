@@ -56,8 +56,8 @@ input[type="number"]::-moz-number-spin-down {
   border-radius: 0;
   background-color: var(--in-content-button-background);
   background-position: center;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 input[type="number"]::-moz-number-spin-up:hover,
@@ -70,13 +70,13 @@ input[type="number"]::-moz-number-spin-up {
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-start-end-radius: var(--in-content-button-border-radius);
-  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  background-image: var(--icon-nav-up-sm);
 }
 
 input[type="number"]::-moz-number-spin-down {
   min-height: 12px;
   border-end-end-radius: var(--in-content-button-border-radius);
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-image: var(--icon-nav-down-sm);
 }
 
 input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
