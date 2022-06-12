@@ -146,6 +146,12 @@
   border-radius: var(--toolbarbutton-border-radius);
 }
 
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-inline-start: 6px;
+}
+
 #imip-view-toolbar > .toolbarbutton-1.message-header-view-button,
 #imip-view-toolbar > .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
 #imip-view-toolbar > .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
