@@ -16,6 +16,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { migrateServerUris } = ChromeUtils.import(
+  "resource:///modules/MsgIncomingServer.jsm"
+);
 
 var kServerPrefVersion = 1;
 var kSmtpPrefVersion = 1;
@@ -245,95 +248,6 @@ function migrateServerAuthPref() {
   }
 }
 
-/** See the exact same function in MsgIncomingServer.jsm. */
-function _migratePassword(
-  localStoreType,
-  oldHostname,
-  oldUsername,
-  newHostname,
-  newUsername
-) {
-  // When constructing nsIURI, need to wrap IPv6 address in [].
-  oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
-  let oldServerUri = `${localStoreType}://${encodeURIComponent(oldHostname)}`;
-  newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
-  let newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
-
-  let logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
-  for (let login of logins) {
-    if (login.username == oldUsername) {
-      // If a nsILoginInfo exists for the old hostname/username, update it to
-      // use the new hostname/username.
-      let newLogin = Cc[
-        "@mozilla.org/login-manager/loginInfo;1"
-      ].createInstance(Ci.nsILoginInfo);
-      newLogin.init(
-        newServerUri,
-        null,
-        newServerUri,
-        newUsername,
-        login.password,
-        "",
-        ""
-      );
-      Services.logins.modifyLogin(login, newLogin);
-    }
-  }
-}
-
-/** See the exact same function in MsgIncomingServer.jsm. */
-function _migrateFilters(
-  localStoreType,
-  oldHostname,
-  oldUsername,
-  newHostname,
-  newUsername
-) {
-  let oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
-  let newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";
-  // When constructing nsIURI, need to wrap IPv6 address in [].
-  oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
-  let oldServerUri = `${localStoreType}://${oldAuth}${encodeURIComponent(
-    oldHostname
-  )}`;
-  newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
-  let newServerUri = `${localStoreType}://${newAuth}${encodeURIComponent(
-    newHostname
-  )}`;
-
-  for (let server of MailServices.accounts.allServers) {
-    let filterList;
-    try {
-      filterList = server.getFilterList(null);
-      if (!server.canHaveFilters || !filterList) {
-        continue;
-      }
-    } catch (e) {
-      continue;
-    }
-    let changed = false;
-    for (let i = 0; i < filterList.filterCount; i++) {
-      let filter = filterList.getFilterAt(i);
-      for (let action of filter.sortedActionList) {
-        let targetFolderUri;
-        try {
-          targetFolderUri = action.targetFolderUri;
-        } catch (e) {
-          continue;
-        }
-        if (targetFolderUri.startsWith(oldServerUri)) {
-          action.targetFolderUri =
-            newServerUri + targetFolderUri.slice(oldServerUri.length);
-          changed = true;
-        }
-      }
-    }
-    if (changed) {
-      filterList.saveToDefaultFile();
-    }
-  }
-}
-
 /**
  * For each mail.server.key. branch,
  *   - migrate realhostname to hostname
@@ -374,24 +288,13 @@ function migrateServerAndUserName() {
       let localStoreType = { imap: "imap", pop3: "mailbox", nntp: "news" }[
         type
       ];
-      try {
-        _migratePassword(
-          localStoreType,
-          hostname,
-          username,
-          realHostname || hostname,
-          realUsername || username
-        );
-        _migrateFilters(
-          localStoreType,
-          hostname,
-          username,
-          realHostname || hostname,
-          realUsername || username
-        );
-      } catch (e) {
-        console.error(e);
-      }
+      migrateServerUris(
+        localStoreType,
+        hostname,
+        username,
+        realHostname || hostname,
+        realUsername || username
+      );
     }
   }
 }

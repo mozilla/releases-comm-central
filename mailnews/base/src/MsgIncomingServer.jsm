@@ -2,12 +2,175 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["MsgIncomingServer"];
+const EXPORTED_SYMBOLS = ["migrateServerUris", "MsgIncomingServer"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+
+/**
+ * When hostname/username changes, update the corresponding entry in
+ * nsILoginManager.
+ * @param {string} localStoreType - The store type of the current server.
+ * @param {string} oldHostname - The hostname before the change.
+ * @param {string} oldUsername - The username before the change.
+ * @param {string} newHostname - The hostname after the change.
+ * @param {string} newUsername - The username after the change.
+ */
+function migratePassword(
+  localStoreType,
+  oldHostname,
+  oldUsername,
+  newHostname,
+  newUsername
+) {
+  // When constructing nsIURI, need to wrap IPv6 address in [].
+  oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
+  let oldServerUri = `${localStoreType}://${encodeURIComponent(oldHostname)}`;
+  newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
+  let newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
+
+  let logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
+  for (let login of logins) {
+    if (login.username == oldUsername) {
+      // If a nsILoginInfo exists for the old hostname/username, update it to
+      // use the new hostname/username.
+      let newLogin = Cc[
+        "@mozilla.org/login-manager/loginInfo;1"
+      ].createInstance(Ci.nsILoginInfo);
+      newLogin.init(
+        newServerUri,
+        null,
+        newServerUri,
+        newUsername,
+        login.password,
+        "",
+        ""
+      );
+      Services.logins.modifyLogin(login, newLogin);
+    }
+  }
+}
+
+/**
+ * When hostname/username changes, update the folder attributes in related
+ * identities.
+ * @param {string} oldServerUri - The server uri before the change.
+ * @param {string} newServerUri - The server uri after the change.
+ */
+function migrateIdentities(oldServerUri, newServerUri) {
+  for (let identity of MailServices.accounts.allIdentities) {
+    let attributes = [
+      "fcc_folder",
+      "draft_folder",
+      "archive_folder",
+      "stationery_folder",
+    ];
+    for (let attr of attributes) {
+      let folderUri = identity.getUnicharAttribute(attr);
+      if (folderUri.startsWith(oldServerUri)) {
+        identity.setUnicharAttribute(
+          attr,
+          folderUri.replace(oldServerUri, newServerUri)
+        );
+      }
+    }
+  }
+}
+
+/**
+ * When hostname/username changes, update targetFolderUri in related filters
+ * to the new folder uri.
+ * @param {string} oldServerUri - The server uri before the change.
+ * @param {string} newServerUri - The server uri after the change.
+ */
+function migrateFilters(oldServerUri, newServerUri) {
+  for (let server of MailServices.accounts.allServers) {
+    let filterList;
+    try {
+      filterList = server.getFilterList(null);
+      if (!server.canHaveFilters || !filterList) {
+        continue;
+      }
+    } catch (e) {
+      continue;
+    }
+    let changed = false;
+    for (let i = 0; i < filterList.filterCount; i++) {
+      let filter = filterList.getFilterAt(i);
+      for (let action of filter.sortedActionList) {
+        let targetFolderUri;
+        try {
+          targetFolderUri = action.targetFolderUri;
+        } catch (e) {
+          continue;
+        }
+        if (targetFolderUri.startsWith(oldServerUri)) {
+          action.targetFolderUri = targetFolderUri.replace(
+            oldServerUri,
+            newServerUri
+          );
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      filterList.saveToDefaultFile();
+    }
+  }
+}
+
+/**
+ * Migrate server uris in LoginManager and various account/folder prefs.
+ * @param {string} localStoreType - The store type of the current server.
+ * @param {string} oldHostname - The hostname before the change.
+ * @param {string} oldUsername - The username before the change.
+ * @param {string} newHostname - The hostname after the change.
+ * @param {string} newUsername - The username after the change.
+ */
+function migrateServerUris(
+  localStoreType,
+  oldHostname,
+  oldUsername,
+  newHostname,
+  newUsername
+) {
+  try {
+    migratePassword(
+      localStoreType,
+      oldHostname,
+      oldUsername,
+      newHostname,
+      newUsername
+    );
+  } catch (e) {
+    Cu.reportError(e);
+  }
+
+  let oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
+  let newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";
+  // When constructing nsIURI, need to wrap IPv6 address in [].
+  oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
+  let oldServerUri = `${localStoreType}://${oldAuth}${encodeURIComponent(
+    oldHostname
+  )}`;
+  newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
+  let newServerUri = `${localStoreType}://${newAuth}${encodeURIComponent(
+    newHostname
+  )}`;
+
+  try {
+    migrateIdentities(oldServerUri, newServerUri);
+  } catch (e) {
+    Cu.reportError(e);
+  }
+  try {
+    migrateFilters(oldServerUri, newServerUri);
+  } catch (e) {
+    Cu.reportError(e);
+  }
+}
 
 /**
  * A base class for incoming server, should not be used directly.
@@ -547,120 +710,8 @@ class MsgIncomingServer {
     this._prefs.setComplexValue(absPrefName, Ci.nsIFile, file);
   }
 
-  /**
-   * When hostname/username changes, update the corresponding entry in
-   * nsILoginManager.
-   * @param {string} localStoreType - The store type of the current server.
-   * @param {string} oldHostname - The hostname before the change.
-   * @param {string} oldUsername - The username before the change.
-   * @param {string} newHostname - The hostname after the change.
-   * @param {string} newUsername - The username after the change.
-   */
-  _migratePassword(
-    localStoreType,
-    oldHostname,
-    oldUsername,
-    newHostname,
-    newUsername
-  ) {
-    // When constructing nsIURI, need to wrap IPv6 address in [].
-    oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
-    let oldServerUri = `${localStoreType}://${encodeURIComponent(oldHostname)}`;
-    newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
-    let newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
-
-    let logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
-    for (let login of logins) {
-      if (login.username == oldUsername) {
-        // If a nsILoginInfo exists for the old hostname/username, update it to
-        // use the new hostname/username.
-        let newLogin = Cc[
-          "@mozilla.org/login-manager/loginInfo;1"
-        ].createInstance(Ci.nsILoginInfo);
-        newLogin.init(
-          newServerUri,
-          null,
-          newServerUri,
-          newUsername,
-          login.password,
-          "",
-          ""
-        );
-        Services.logins.modifyLogin(login, newLogin);
-      }
-    }
-  }
-
-  /**
-   * When hostname/username changes, update targetFolderUri in related filters
-   * to the new folder uri.
-   * @param {string} localStoreType - The store type of the current server.
-   * @param {string} oldHostname - The hostname before the change.
-   * @param {string} oldUsername - The username before the change.
-   * @param {string} newHostname - The hostname after the change.
-   * @param {string} newUsername - The username after the change.
-   */
-  _migrateFilters(
-    localStoreType,
-    oldHostname,
-    oldUsername,
-    newHostname,
-    newUsername
-  ) {
-    let oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
-    let newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";
-    // When constructing nsIURI, need to wrap IPv6 address in [].
-    oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
-    let oldServerUri = `${localStoreType}://${oldAuth}${encodeURIComponent(
-      oldHostname
-    )}`;
-    newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
-    let newServerUri = `${localStoreType}://${newAuth}${encodeURIComponent(
-      newHostname
-    )}`;
-
-    for (let server of MailServices.accounts.allServers) {
-      let filterList;
-      try {
-        filterList = server.getFilterList(null);
-        if (!server.canHaveFilters || !filterList) {
-          continue;
-        }
-      } catch (e) {
-        continue;
-      }
-      let changed = false;
-      for (let i = 0; i < filterList.filterCount; i++) {
-        let filter = filterList.getFilterAt(i);
-        for (let action of filter.sortedActionList) {
-          let targetFolderUri;
-          try {
-            targetFolderUri = action.targetFolderUri;
-          } catch (e) {
-            continue;
-          }
-          if (targetFolderUri.startsWith(oldServerUri)) {
-            action.targetFolderUri =
-              newServerUri + targetFolderUri.slice(oldServerUri.length);
-            changed = true;
-          }
-        }
-      }
-      if (changed) {
-        filterList.saveToDefaultFile();
-      }
-    }
-  }
-
   onUserOrHostNameChanged(oldValue, newValue, hostnameChanged) {
-    this._migratePassword(
-      this.localStoreType,
-      hostnameChanged ? oldValue : this.hostName,
-      hostnameChanged ? this.username : oldValue,
-      this.hostName,
-      this.username
-    );
-    this._migrateFilters(
+    migrateServerUris(
       this.localStoreType,
       hostnameChanged ? oldValue : this.hostName,
       hostnameChanged ? this.username : oldValue,

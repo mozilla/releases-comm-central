@@ -5,9 +5,11 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // profile-after-change is not triggered in xpcshell tests, so we manually run
-// getService to load nntp-js and pop3-js.
+// getService to load nntp-js, pop3-js and imap-js.
 Cc["@mozilla.org/messenger/nntp-module-loader;1"].getService();
 Cc["@mozilla.org/messenger/pop3-module-loader;1"].getService();
+Services.prefs.setBoolPref("mailnews.imap.jsmodule", true);
+Cc["@mozilla.org/messenger/imap-module-loader;1"].getService();
 
 registerCleanupFunction(() => {
   Services.logins.removeAllLogins();
@@ -68,6 +70,62 @@ add_task(function testMigratePasswordOnChangeUsernameHostname() {
     }
   }
   equal(password, "password-pop");
+});
+
+/**
+ * Test identity folders are migrated when changing hostname/username.
+ */
+add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
+  // Create an imap server.
+  let incomingServer1 = MailServices.accounts.createIncomingServer(
+    "user-imap",
+    "imap.localhost",
+    "imap"
+  );
+  // Create a pop server.
+  let incomingServer2 = MailServices.accounts.createIncomingServer(
+    "user-pop",
+    "pop3.localhost",
+    "pop3"
+  );
+
+  // Create an identity and point folders to incomingServer1.
+  let identity1 = MailServices.accounts.createIdentity();
+  identity1.fccFolder = incomingServer1.serverURI + "/Sent";
+  identity1.draftFolder = incomingServer1.serverURI + "/Drafts";
+  identity1.archiveFolder = incomingServer1.serverURI + "/Archives";
+  identity1.stationeryFolder = incomingServer1.serverURI + "/Templates";
+  let account1 = MailServices.accounts.createAccount();
+  account1.addIdentity(identity1);
+  // Create another identity and point folders to both servers.
+  let identity2 = MailServices.accounts.createIdentity();
+  identity2.fccFolder = incomingServer1.serverURI + "/Sent";
+  identity2.draftFolder = incomingServer2.serverURI + "/Drafts";
+  let account2 = MailServices.accounts.createAccount();
+  account2.addIdentity(identity2);
+
+  // Check folders were correctly set.
+  equal(identity1.fccFolder, "imap://user-imap@imap.localhost/Sent");
+  equal(identity1.draftFolder, "imap://user-imap@imap.localhost/Drafts");
+  equal(identity1.archiveFolder, "imap://user-imap@imap.localhost/Archives");
+  equal(
+    identity1.stationeryFolder,
+    "imap://user-imap@imap.localhost/Templates"
+  );
+  equal(identity2.fccFolder, "imap://user-imap@imap.localhost/Sent");
+  equal(identity2.draftFolder, "mailbox://user-pop@pop3.localhost/Drafts");
+
+  // Change the hostname.
+  incomingServer1.hostName = "localhost";
+
+  // Check folders were correctly updated.
+  identity1 = MailServices.accounts.getIdentity(identity1.key);
+  equal(identity1.fccFolder, "imap://user-imap@localhost/Sent");
+  equal(identity1.draftFolder, "imap://user-imap@localhost/Drafts");
+  equal(identity1.archiveFolder, "imap://user-imap@localhost/Archives");
+  equal(identity1.stationeryFolder, "imap://user-imap@localhost/Templates");
+  equal(identity2.fccFolder, "imap://user-imap@localhost/Sent");
+  equal(identity2.draftFolder, "mailbox://user-pop@pop3.localhost/Drafts");
 });
 
 /**
