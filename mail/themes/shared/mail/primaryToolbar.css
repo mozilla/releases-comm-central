@@ -80,11 +80,11 @@
 }
 
 #button-nextUnread {
-  list-style-image: var(--icon-nav-up-unread);
+  list-style-image: var(--icon-nav-down-unread);
 }
 
 #button-previousUnread {
-  list-style-image: var(--icon-nav-down-unread);
+  list-style-image: var(--icon-nav-up-unread);
 }
 
 #button-mark {
@@ -116,11 +116,11 @@
 }
 
 #button-nextMsg {
-  list-style-image: var(--icon-nav-up);
+  list-style-image: var(--icon-nav-down);
 }
 
 #button-previousMsg {
-  list-style-image: var(--icon-nav-down);
+  list-style-image: var(--icon-nav-up);
 }
 
 #qfb-show-filter-bar {
