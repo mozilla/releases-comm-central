@@ -433,7 +433,13 @@ ab-table-card-listrow:hover {
   background-color: var(--in-content-item-hover);
 }
 
-ab-card-listrow .ab-card-listrow-data {
+.selected-card {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+:is(ab-card-listrow, .selected-card) .ab-card-listrow-data {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -444,8 +450,7 @@ ab-card-listrow .ab-card-listrow-data {
   flex: 1 1 auto;
 }
 
-ab-card-listrow .ab-card-second-line,
-ab-card-listrow .ab-card-first-line {
+:is(ab-card-listrow, .selected-card) :is(.ab-card-first-line, .ab-card-second-line) {
   display: flex;
   justify-content: space-between;
   margin-block: 0;
@@ -453,18 +458,17 @@ ab-card-listrow .ab-card-first-line {
   position: relative;
 }
 
-ab-card-listrow span {
+:is(ab-card-listrow, .selected-card) span {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-ab-card-listrow .name {
+:is(ab-card-listrow, .selected-card) .name {
   font-size: 1.1rem;
   font-weight: 500;
 }
 
-ab-card-listrow .name,
-ab-card-listrow .address {
+:is(ab-card-listrow, .selected-card) :is(.name, .address) {
   flex: 1 1 auto;
 }
 
@@ -653,11 +657,12 @@ body:not(.is-editing) #editContactForm {
   display: none;
 }
 
-.contact-header {
+.contact-header:not([hidden]) {
   display: grid;
   grid-template: "photo headings" auto / auto 1fr;
   align-items: center;
   gap: 1em;
+  margin-bottom: 15px;
 }
 
 #photoInput {
@@ -714,7 +719,7 @@ body:not(.is-editing) #editContactForm {
   cursor: pointer;
 }
 
-.contact-headings {
+.contact-headings:not([hidden]) {
   grid-area: headings;
   display: flex;
   flex-direction: column;
@@ -722,7 +727,7 @@ body:not(.is-editing) #editContactForm {
   word-break: break-word;
 }
 
-.contact-headings h1,
+.contact-heading-name,
 .contact-headings p {
   margin-block: 0;
 }
@@ -744,8 +749,18 @@ body:not(.is-editing) #editContactForm {
   color: var(--in-content-deemphasized-text);
 }
 
+.list-header:not([hidden]) {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.list-header .recipient-avatar {
+  width: 50px;
+  height: 50px;
+}
+
 #detailsBody {
-  margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(31.5em, 1fr));
   grid-template-rows: masonry;
@@ -764,6 +779,7 @@ body:not(.is-editing) #editContactForm {
   font-size: 1.1rem;
   line-height: 1.2;
   box-shadow: var(--address-book-blocks-box-shadow);
+  box-sizing: border-box;
 }
 
 .button-block:not([hidden]) {
@@ -822,6 +838,10 @@ body:not(.is-editing) #editContactForm {
   background-image: var(--icon-search);
 }
 
+#detailsNewListButton::before {
+  background-image: var(--icon-new-user-list);
+}
+
 #detailsBody h2 {
   margin-block: 0 15px;
   font-size: 1.1rem;
@@ -829,7 +849,7 @@ body:not(.is-editing) #editContactForm {
   font-weight: 500;
 }
 
-#detailsBody ul {
+.entry-list {
   display: grid;
   grid-template-columns: min-content auto;
   gap: 6px;
@@ -840,13 +860,8 @@ body:not(.is-editing) #editContactForm {
   list-style: none inside;
 }
 
-#detailsBody li {
+.entry-item {
   display: contents;
-}
-
-section#notes div {
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
 }
 
 .entry-type {
@@ -858,6 +873,26 @@ section#notes div {
 
 .entry-value {
   word-break: break-all;
+}
+
+section#notes div {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+section#selectedCards {
+  width: 31.5em;
+  grid-column: 1 / -1;
+  margin-inline: auto;
+}
+
+section#selectedCards ul {
+  margin: 0;
+  padding: 0;
+  list-style: none inside;
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
 }
 
 #detailsDeleteButton {
@@ -1089,5 +1124,9 @@ input[type="number"]::-moz-number-spin-down {
 
   body.layout-list #detailsPane {
     min-height: 18em;
+  }
+
+  section#selectedCards {
+    width: -moz-available;
   }
 }

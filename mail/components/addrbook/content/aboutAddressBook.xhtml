@@ -136,12 +136,20 @@
   <hr is="pane-splitter" id="detailsSplitter" resize-id="detailsPane" />
   <div id="detailsPane" hidden="hidden">
     <article id="viewContact" class="contact-details-scroll">
-      <header class="contact-header">
-        <img id="viewContactPhoto" class="contact-photo" alt="" />
-        <div class="contact-headings">
-          <h1 id="viewContactName" class="contact-heading-name"></h1>
-          <p id="viewContactNickName" class="contact-heading-nickname"></p>
-          <p id="viewPrimaryEmail" class="contact-heading-email"></p>
+      <header>
+        <div class="contact-header">
+          <img id="viewContactPhoto" class="contact-photo" alt="" />
+          <div class="contact-headings">
+            <h1 id="viewContactName" class="contact-heading-name"></h1>
+            <p id="viewContactNickName" class="contact-heading-nickname"></p>
+            <p id="viewPrimaryEmail" class="contact-heading-email"></p>
+          </div>
+        </div>
+        <div class="list-header">
+          <div class="recipient-avatar is-mail-list">
+            <img alt="" src="chrome://messenger/skin/icons/new/compact/user-list.svg" />
+          </div>
+          <h1 id="viewListName" class="contact-heading-name"></h1>
         </div>
       </header>
       <div id="detailsBody">
@@ -156,6 +164,9 @@
             <button type="button" id="detailsSearchButton"
                     class="icon-button"
                     data-l10n-id="about-addressbook-search-action-button"></button>
+            <!-- FIXME! Add a string for this button. -->
+            <button type="button" id="detailsNewListButton"
+                    class="icon-button"></button>
           </div>
           <div class="edit-block">
             <button type="button" id="editButton"
@@ -164,15 +175,15 @@
         </section>
         <section id="emailAddresses">
           <h2 data-l10n-id="about-addressbook-details-email-addresses-header"></h2>
-          <ul></ul>
+          <ul class="entry-list"></ul>
         </section>
         <section id="phoneNumbers">
           <h2 data-l10n-id="about-addressbook-details-phone-numbers-header"></h2>
-          <ul></ul>
+          <ul class="entry-list"></ul>
         </section>
         <section id="addresses">
           <h2 data-l10n-id="about-addressbook-details-addresses-header"></h2>
-          <ul></ul>
+          <ul class="entry-list"></ul>
         </section>
         <section id="notes">
           <h2 data-l10n-id="about-addressbook-details-notes-header"></h2>
@@ -182,16 +193,32 @@
           <!-- FIXME! We should use `about-addressbook-entry-name-website` for
            this fluent ID, after 102 when we can update it to a plural. -->
           <h2 data-l10n-id="vcard-url-header"></h2>
-          <ul></ul>
+          <ul class="entry-list"></ul>
         </section>
         <section id="otherInfo">
           <h2 data-l10n-id="about-addressbook-details-other-info-header"></h2>
+          <ul class="entry-list"></ul>
+        </section>
+        <section id="selectedCards">
           <ul></ul>
         </section>
         <template id="entryItem">
-          <li>
+          <li class="entry-item">
             <span class="entry-type"></span>
             <span class="entry-value"></span>
+          </li>
+        </template>
+        <template id="selectedCard">
+          <li class="selected-card">
+            <div class="recipient-avatar"></div>
+            <div class="ab-card-listrow-data">
+              <p class="ab-card-first-line">
+                <span class="name"></span>
+              </p>
+              <p class="ab-card-second-line">
+                <span class="address"></span>
+              </p>
+            </div>
           </li>
         </template>
       </div>

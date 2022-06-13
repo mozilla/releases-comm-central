@@ -162,7 +162,7 @@ window.addEventListener("unload", () => {
 });
 
 window.addEventListener("keypress", event => {
-  if (event.key != "F6" || event.aktKey || event.ctrlKey || event.metaKey) {
+  if (event.key != "F6" || event.altKey || event.ctrlKey || event.metaKey) {
     return;
   }
   if (detailsPane.isEditing) {
@@ -297,12 +297,14 @@ function createContact() {
 /**
  * Show UI to create a new list in the current address book.
  * For now this loads the old list UI, the intention is to replace it.
+ *
+ * @param {nsIAbCard[]} cards - The contacts, if any, to add to the list.
  */
-function createList() {
+function createList(cards) {
   let row = booksList.getRowAtIndex(booksList.selectedIndex);
   let bookUID = row.dataset.book ?? row.dataset.uid;
 
-  let params = {};
+  let params = { cards };
   if (bookUID) {
     let book = MailServices.ab.getDirectoryFromUID(bookUID);
     if (book.readOnly) {
@@ -1146,6 +1148,9 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
   }
 
   set index(index) {
+    if (this._index == index) {
+      return;
+    }
     super.index = index;
 
     let props = this.view.getRowProperties(index);
@@ -1232,6 +1237,9 @@ class AbTableCardListrow extends customElements.get("tree-view-listrow") {
   }
 
   set index(index) {
+    if (this._index == index) {
+      return;
+    }
     super.index = index;
     let props = this.view.getRowProperties(index);
     if (props) {
@@ -1486,7 +1494,7 @@ var cardsPane = {
     this.sortCards(sortColumn, sortDirection);
     this._updatePlaceholder();
 
-    detailsPane.displayContact(null);
+    detailsPane.displayCards();
   },
 
   /**
@@ -1520,7 +1528,13 @@ var cardsPane = {
     this.sortCards(sortColumn, sortDirection);
     this._updatePlaceholder();
 
-    detailsPane.displayContact(null);
+    detailsPane.displayCards();
+  },
+
+  get selectedCards() {
+    return this.cardsList.selectedIndices.map(i =>
+      this.cardsList.view.getCardFromRow(i)
+    );
   },
 
   /**
@@ -1646,9 +1660,7 @@ var cardsPane = {
   writeToSelected() {
     let selectedAddresses = [];
 
-    for (let index of this.cardsList.selectedIndices) {
-      let card = this.cardsList.view.getCardFromRow(index);
-
+    for (let card of this.selectedCards) {
       let email;
       if (card.isMailList) {
         email = card.getProperty("Notes", "") || card.displayName;
@@ -1670,14 +1682,7 @@ var cardsPane = {
    * Print delete the selected card(s).
    */
   printSelected() {
-    let selectedCards = [];
-
-    for (let index of this.cardsList.selectedIndices) {
-      let card = this.cardsList.view.getCardFromRow(index);
-      selectedCards.push(card);
-    }
-
-    printHandler.printCards(selectedCards);
+    printHandler.printCards(this.selectedCards);
   },
 
   _canModifySelected() {
@@ -1963,27 +1968,37 @@ var cardsPane = {
   },
 
   _onSelect(event) {
-    detailsPane.displayContact(
-      this.cardsList.view.getCardFromRow(this.cardsList.selectedIndex)
-    );
+    detailsPane.displayCards(this.selectedCards);
     this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
   },
 
   _onKeyPress(event) {
-    if (event.altKey || event.metaKey || event.shiftKey) {
+    if (event.altKey || event.shiftKey) {
+      return;
+    }
+
+    let modifier = event.ctrlKey;
+    let antiModifier = event.metaKey;
+    if (AppConstants.platform == "macosx") {
+      [modifier, antiModifier] = [antiModifier, modifier];
+    }
+    if (antiModifier) {
       return;
     }
 
     switch (event.key) {
       case "a":
-        if (event.ctrlKey) {
+        if (modifier) {
           this.cardsList.view.selection.selectAll();
+          this.cardsList.dispatchEvent(new CustomEvent("select"));
           event.preventDefault();
         }
         break;
       case "Delete":
-        this.deleteSelected();
-        event.preventDefault();
+        if (!modifier) {
+          this.deleteSelected();
+          event.preventDefault();
+        }
         break;
     }
   },
@@ -2103,6 +2118,14 @@ var detailsPane = {
 
   dirtyFields: new Set(),
 
+  _notifications: [
+    "addrbook-contact-created",
+    "addrbook-contact-updated",
+    "addrbook-contact-deleted",
+    "addrbook-list-updated",
+    "addrbook-list-deleted",
+  ],
+
   init() {
     this.splitter = document.getElementById("detailsSplitter");
     let splitterHeight = Services.xulStore.getValue(
@@ -2127,6 +2150,10 @@ var detailsPane = {
     this.writeButton = document.getElementById("detailsWriteButton");
     this.eventButton = document.getElementById("detailsEventButton");
     this.searchButton = document.getElementById("detailsSearchButton");
+    this.newListButton = document.getElementById("detailsNewListButton");
+    this.newListButton.textContent = document.getElementById(
+      "toolbarCreateList"
+    ).label;
     this.editButton = document.getElementById("editButton");
     this.form = document.getElementById("editContactForm");
     this.vCardEdit = this.form.querySelector("vcard-edit");
@@ -2206,7 +2233,7 @@ var detailsPane = {
         this.displayContact(card);
         this.editButton.focus();
       } else {
-        this.displayContact(null);
+        this.displayCards(cardsPane.selectedCards);
         cardsPane.searchInput.focus();
       }
     });
@@ -2244,15 +2271,15 @@ var detailsPane = {
       }
     });
 
-    Services.obs.addObserver(this, "addrbook-contact-created");
-    Services.obs.addObserver(this, "addrbook-contact-updated");
-    Services.obs.addObserver(this, "addrbook-contact-deleted");
+    for (let topic of this._notifications) {
+      Services.obs.addObserver(this, topic);
+    }
   },
 
   uninit() {
-    Services.obs.removeObserver(this, "addrbook-contact-created");
-    Services.obs.removeObserver(this, "addrbook-contact-updated");
-    Services.obs.removeObserver(this, "addrbook-contact-deleted");
+    for (let topic of this._notifications) {
+      Services.obs.removeObserver(this, topic);
+    }
   },
 
   handleEvent(event) {
@@ -2264,14 +2291,11 @@ var detailsPane = {
   },
 
   async observe(subject, topic, data) {
-    if (!this.currentCard) {
-      return;
-    }
-
-    subject.QueryInterface(Ci.nsIAbCard);
     switch (topic) {
       case "addrbook-contact-created":
+        subject.QueryInterface(Ci.nsIAbCard);
         if (
+          !this.currentCard ||
           this.currentCard.directoryUID != data ||
           subject.getProperty("_originalUID", "") != this.currentCard.UID
         ) {
@@ -2287,8 +2311,10 @@ var detailsPane = {
         );
         break;
       case "addrbook-contact-updated":
+        subject.QueryInterface(Ci.nsIAbCard);
         if (
-          subject.directoryUID != this.currentCard.directoryUID ||
+          !this.currentCard ||
+          this.currentCard.directoryUID != data ||
           !subject.equals(this.currentCard)
         ) {
           break;
@@ -2303,7 +2329,9 @@ var detailsPane = {
         }
         break;
       case "addrbook-contact-deleted":
+        subject.QueryInterface(Ci.nsIAbCard);
         if (
+          !this.currentCard ||
           this.currentCard.directoryUID != data ||
           !subject.equals(this.currentCard)
         ) {
@@ -2312,8 +2340,21 @@ var detailsPane = {
 
         // The card being displayed was deleted.
         this.isEditing = false;
-        this.displayContact(null);
+        this.displayCards();
         cardsPane.searchInput.focus();
+        break;
+      case "addrbook-list-updated":
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        if (this.currentList && subject.URI == this.currentList.mailListURI) {
+          this.displayList(this.currentList);
+        }
+        break;
+      case "addrbook-list-deleted":
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        if (this.currentList && subject.URI == this.currentList.mailListURI) {
+          this.displayCards();
+          cardsPane.searchInput.focus();
+        }
         break;
     }
   },
@@ -2384,6 +2425,97 @@ var detailsPane = {
     document.body.classList.toggle("is-dirty", this.isEditing && dirty);
   },
 
+  clearDisplay() {
+    this.currentCard = null;
+    this.currentList = null;
+
+    for (let section of document.querySelectorAll(
+      "#viewContact .contact-header, #viewContact .list-header, #detailsBody > section"
+    )) {
+      section.hidden = true;
+    }
+  },
+
+  displayCards(cards = []) {
+    if (this.isEditing) {
+      return;
+    }
+
+    this.clearDisplay();
+
+    if (cards.length == 0) {
+      this.node.hidden = this.splitter.isCollapsed = true;
+      return;
+    }
+    if (cards.length == 1) {
+      if (cards[0].isMailList) {
+        this.displayList(cards[0]);
+      } else {
+        this.displayContact(cards[0]);
+      }
+      return;
+    }
+
+    // TODO: Add a heading when we can create new strings again.
+
+    let contacts = cards.filter(c => !c.isMailList).filter(c => c.primaryEmail);
+    let lists = cards.filter(c => c.isMailList);
+
+    this.writeButton.hidden = contacts.length + lists.length == 0;
+    this.eventButton.hidden =
+      !contacts.length ||
+      !cal.manager
+        .getCalendars()
+        .filter(cal.acl.isCalendarWritable)
+        .filter(cal.acl.userCanAddItemsToCalendar).length;
+    this.searchButton.hidden = true;
+    this.newListButton.hidden = contacts.length == 0;
+    this.editButton.hidden = true;
+
+    this.actions.hidden = this.writeButton.hidden;
+
+    let section = document.getElementById("selectedCards");
+    let list = section.querySelector("ul");
+    list.replaceChildren();
+    let template = document.getElementById("selectedCard").content
+      .firstElementChild;
+    for (let card of cards) {
+      let li = list.appendChild(template.cloneNode(true));
+      let avatar = li.querySelector(".recipient-avatar");
+      let name = li.querySelector(".name");
+      let address = li.querySelector(".address");
+
+      if (!card.isMailList) {
+        name.textContent = card.generateName(ABView.nameFormat);
+        address.textContent = card.primaryEmail;
+
+        let photoURL = card.photoURL;
+        if (photoURL) {
+          let img = document.createElement("img");
+          img.alt = name.textContent;
+          img.src = photoURL;
+          avatar.appendChild(img);
+        } else {
+          let letter = document.createElement("span");
+          letter.textContent = name.textContent.slice(0, 1).toUpperCase();
+          letter.setAttribute("aria-hidden", "true");
+          avatar.appendChild(letter);
+        }
+      } else {
+        name.textContent = card.displayName;
+
+        let img = avatar.appendChild(document.createElement("img"));
+        img.alt = "";
+        img.src = "chrome://messenger/skin/icons/new/compact/user-list.svg";
+        avatar.classList.add("is-mail-list");
+      }
+    }
+    section.hidden = false;
+
+    this.node.hidden = this.splitter.isCollapsed = false;
+    document.getElementById("viewContact").scrollTo(0, 0);
+  },
+
   /**
    * Show a read-only representation of a card in the details pane.
    *
@@ -2395,12 +2527,13 @@ var detailsPane = {
       return;
     }
 
-    this.currentCard = card;
+    this.clearDisplay();
     if (!card || card.isMailList) {
-      this.node.hidden = this.splitter.isCollapsed = true;
       return;
     }
+    this.currentCard = card;
 
+    document.querySelector("#viewContact .contact-header").hidden = false;
     document.getElementById("viewContactName").textContent = card.generateName(
       ABView.nameFormat
     );
@@ -2409,6 +2542,11 @@ var detailsPane = {
     document.getElementById("viewContactPhoto").src =
       card.photoURL || "chrome://messenger/skin/icons/contact.svg";
 
+    // TODO no!
+    document.getElementById("viewContactPhoto").hidden = document.querySelector(
+      "#viewContact .contact-headings"
+    ).hidden = false;
+
     this.writeButton.hidden = this.searchButton.hidden = !card.primaryEmail;
     this.eventButton.hidden =
       !card.primaryEmail ||
@@ -2416,6 +2554,7 @@ var detailsPane = {
         .getCalendars()
         .filter(cal.acl.isCalendarWritable)
         .filter(cal.acl.userCanAddItemsToCalendar).length;
+    this.newListButton.hidden = true;
 
     let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     this.editButton.hidden = book.readOnly;
@@ -2885,24 +3024,107 @@ var detailsPane = {
     }
   },
 
+  displayList(listCard) {
+    if (this.isEditing) {
+      return;
+    }
+
+    this.clearDisplay();
+    if (!listCard || !listCard.isMailList) {
+      return;
+    }
+    this.currentList = listCard;
+
+    let listDirectory = MailServices.ab.getDirectory(listCard.mailListURI);
+
+    document.querySelector("#viewContact .list-header").hidden = false;
+    document.querySelector(
+      "#viewContact .list-header > h1"
+    ).textContent = `${listDirectory.dirName}`;
+
+    let cards = Array.from(listDirectory.childCards, card => {
+      return {
+        name: card.generateName(ABView.nameFormat),
+        email: card.primaryEmail,
+        photoURL: card.photoURL,
+      };
+    });
+    let { sortColumn, sortDirection } = cardsPane.cardsList.view;
+    let key = sortColumn == "EmailAddresses" ? "email" : "name";
+    cards.sort((a, b) => {
+      if (sortDirection == "descending") {
+        [b, a] = [a, b];
+      }
+      return ABView.prototype.collator.compare(a[key], b[key]);
+    });
+
+    let section = document.getElementById("selectedCards");
+    let list = section.querySelector("ul");
+    list.replaceChildren();
+    let template = document.getElementById("selectedCard").content
+      .firstElementChild;
+    for (let card of cards) {
+      let li = list.appendChild(template.cloneNode(true));
+      let avatar = li.querySelector(".recipient-avatar");
+      let name = li.querySelector(".name");
+      let address = li.querySelector(".address");
+      name.textContent = card.name;
+      address.textContent = card.email;
+
+      let photoURL = card.photoURL;
+      if (photoURL) {
+        let img = document.createElement("img");
+        img.alt = name.textContent;
+        img.src = photoURL;
+        avatar.appendChild(img);
+      } else {
+        let letter = document.createElement("span");
+        letter.textContent = name.textContent.slice(0, 1).toUpperCase();
+        letter.setAttribute("aria-hidden", "true");
+        avatar.appendChild(letter);
+      }
+    }
+    section.hidden = list.childElementCount == 0;
+
+    let book = MailServices.ab.getDirectoryFromUID(listCard.directoryUID);
+    this.writeButton.hidden = list.childElementCount == 0;
+    this.eventButton.hidden = this.writeButton.hidden;
+    this.searchButton.hidden = true;
+    this.newListButton.hidden = true;
+    this.editButton.hidden = book.readOnly;
+
+    this.actions.hidden = this.writeButton.hidden && this.editButton.hidden;
+
+    this.node.hidden = this.splitter.isCollapsed = false;
+    document.getElementById("viewContact").scrollTo(0, 0);
+  },
+
   _onClick(event) {
+    let selectedContacts = cardsPane.selectedCards.filter(
+      card => !card.isMailList && card.primaryEmail
+    );
+
     switch (event.target.id) {
       case "detailsWriteButton":
-        if (this.currentCard.primaryEmail) {
-          cardsPane.writeTo([
-            MailServices.headerParser.makeMimeAddress(
-              this.currentCard.displayName,
-              this.currentCard.primaryEmail
-            ),
-          ]);
-        }
+        cardsPane.writeToSelected();
         break;
-      case "detailsEventButton":
-        if (this.currentCard.primaryEmail) {
+      case "detailsEventButton": {
+        let contacts;
+        if (this.currentList) {
+          let directory = MailServices.ab.getDirectory(
+            this.currentList.mailListURI
+          );
+          contacts = directory.childCards;
+        } else {
+          contacts = selectedContacts;
+        }
+        let attendees = contacts.map(card => {
           let attendee = new CalAttendee();
-          attendee.id = `mailto:${this.currentCard.primaryEmail}`;
-          attendee.commonName = this.currentCard.displayName;
-
+          attendee.id = `mailto:${card.primaryEmail}`;
+          attendee.commonName = card.displayName;
+          return attendee;
+        });
+        if (attendees.length) {
           window.browsingContext.topChromeWindow.createEventWithDialog(
             null,
             null,
@@ -2910,10 +3132,11 @@ var detailsPane = {
             null,
             null,
             false,
-            [attendee]
+            attendees
           );
         }
         break;
+      }
       case "detailsSearchButton":
         if (this.currentCard.primaryEmail) {
           let searchString = this.currentCard.emailAddresses.join(" ");
@@ -2922,8 +3145,21 @@ var detailsPane = {
           });
         }
         break;
+      case "detailsNewListButton":
+        if (selectedContacts.length) {
+          createList(selectedContacts);
+        }
+        break;
       case "editButton":
-        this.editCurrentContact();
+        if (this.currentCard) {
+          this.editCurrentContact();
+        } else if (this.currentList) {
+          SubDialog.open(
+            "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
+            { features: "resizable=no" },
+            { listURI: this.currentList.mailListURI }
+          );
+        }
         break;
       case "detailsDeleteButton":
         this.deleteCurrentContact();

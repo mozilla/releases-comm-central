@@ -212,6 +212,22 @@ function OnLoadNewMailList() {
         selectedAB = abURI;
       }
     }
+
+    let cards = window.arguments[0].cards;
+    if (cards && cards.length > 0) {
+      let listbox = document.getElementById("addressingWidget");
+      let newListBoxNode = listbox.cloneNode(false);
+      let templateNode = listbox.querySelector("richlistitem");
+
+      top.MAX_RECIPIENTS = 0;
+      for (let card of cards) {
+        let address = MailServices.headerParser
+          .makeMailboxObject(card.displayName, card.primaryEmail)
+          .toString();
+        SetInputValue(address, newListBoxNode, templateNode);
+      }
+      listbox.parentNode.replaceChild(newListBoxNode, listbox);
+    }
   }
 
   if (!selectedAB) {

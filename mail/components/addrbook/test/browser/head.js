@@ -142,11 +142,11 @@ function createContact(firstName, lastName, displayName, primaryEmail) {
   let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
-  contact.displayName = displayName || `${firstName} ${lastName}`;
+  contact.displayName = displayName ?? `${firstName} ${lastName}`;
   contact.firstName = firstName;
   contact.lastName = lastName;
   contact.primaryEmail =
-    primaryEmail || `${firstName}.${lastName}@invalid`.toLowerCase();
+    primaryEmail ?? `${firstName}.${lastName}@invalid`.toLowerCase();
   return contact;
 }
 

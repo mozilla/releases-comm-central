@@ -12,7 +12,6 @@
 :host {
   grid-template-rows: masonry;
   row-gap: 30px;
-  margin-block: 15px;
 }
 
 fieldset {

@@ -107,6 +107,7 @@ add_task(async function test_display() {
   let notesSection = abDocument.getElementById("notes");
   let websitesSection = abDocument.getElementById("websites");
   let otherInfoSection = abDocument.getElementById("otherInfo");
+  let selectedCardsSection = abDocument.getElementById("selectedCards");
 
   Assert.equal(cardsList.view.rowCount, 3);
   Assert.ok(detailsPane.hidden);
@@ -131,6 +132,7 @@ add_task(async function test_display() {
   Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
   Assert.ok(BrowserTestUtils.is_hidden(notesSection));
   Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
+  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
 
   // Card 1: an basic card.
 
@@ -170,6 +172,7 @@ add_task(async function test_display() {
   Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
   Assert.ok(BrowserTestUtils.is_hidden(notesSection));
   Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
+  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
 
   // Card 2: an complex card.
 
@@ -350,6 +353,8 @@ add_task(async function test_display() {
     "Pacific/Auckland"
   );
 
+  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
+
   // Card 0, again, just to prove that everything was cleared properly.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
@@ -370,6 +375,7 @@ add_task(async function test_display() {
   Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
   Assert.ok(BrowserTestUtils.is_hidden(notesSection));
   Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
+  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
 
   await closeAddressBookWindow();
 });
@@ -487,6 +493,7 @@ async function checkActionButtons(
   let writeButton = abDocument.getElementById("detailsWriteButton");
   let eventButton = abDocument.getElementById("detailsEventButton");
   let searchButton = abDocument.getElementById("detailsSearchButton");
+  let newListButton = abDocument.getElementById("detailsNewListButton");
 
   if (primaryEmail) {
     // Write.
@@ -545,13 +552,13 @@ async function checkActionButtons(
       attendeesTabPanel,
       "attendees are displayed"
     );
-    let attendeeName = attendeesTabPanel.querySelector(
+    let attendeeNames = attendeesTabPanel.querySelectorAll(
       ".attendee-list .attendee-name"
     );
-    Assert.equal(
-      attendeeName.textContent,
-      `${displayName} <${primaryEmail}>`,
-      "contact is an attendee"
+    Assert.deepEqual(
+      Array.from(attendeeNames, a => a.textContent),
+      [`${displayName} <${primaryEmail}>`],
+      "attendees are correct"
     );
 
     eventWindowPromise = BrowserTestUtils.domWindowClosed(eventWindow);
@@ -573,4 +580,9 @@ async function checkActionButtons(
       "search button is hidden"
     );
   }
+
+  Assert.ok(
+    BrowserTestUtils.is_hidden(newListButton),
+    "new list button is hidden"
+  );
 }

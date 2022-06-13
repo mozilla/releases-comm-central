@@ -6,7 +6,6 @@ vcard-edit {
   color: var(--sidebar-text-color);
   --input-border-density: 1px;
   --input-text-height: 28px;
-  margin-block: 15px;
 }
 
 vcard-edit label[for] {
