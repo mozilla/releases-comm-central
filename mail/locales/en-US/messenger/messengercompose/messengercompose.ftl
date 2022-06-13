@@ -46,7 +46,7 @@ pill-aria-label = { $count ->
 }
 
 #   $email (String) - the email address
-pill-tooltip-invalid-address = { $email } is not a valid e-mail address
+pill-tooltip-invalid-address = { $email } is not a valid email address
 
 #   $email (String) - the email address
 pill-tooltip-not-in-address-book = { $email } is not in your address book

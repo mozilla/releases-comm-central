@@ -75,9 +75,9 @@ about-addressbook-sort-name-ascending =
 about-addressbook-sort-name-descending =
   .label = Sort by name (Z > A)
 about-addressbook-sort-email-ascending =
-  .label = Sort by e-mail address (A > Z)
+  .label = Sort by email address (A > Z)
 about-addressbook-sort-email-descending =
-  .label = Sort by e-mail address (Z > A)
+  .label = Sort by email address (Z > A)
 
 about-addressbook-horizontal-layout =
   .label = Switch to horizontal layout

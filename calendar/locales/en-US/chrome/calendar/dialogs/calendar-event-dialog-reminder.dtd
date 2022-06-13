@@ -12,7 +12,7 @@
 <!ENTITY reminder.action.label                             "Choose a Reminder Action">
 
 <!ENTITY reminder.action.alert.label                       "Show an Alert">
-<!ENTITY reminder.action.email.label                       "Send an E-mail">
+<!ENTITY reminder.action.email.label                       "Send an Email">
 
 <!ENTITY alarm.units.minutes                               "minutes" >
 <!ENTITY alarm.units.hours                                 "hours" >

@@ -130,7 +130,7 @@
 			    <string>eml</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>Thunderbird E-mail</string>
+			<string>Thunderbird Email</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
