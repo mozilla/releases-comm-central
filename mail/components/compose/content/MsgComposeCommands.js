@@ -3325,11 +3325,6 @@ async function verifyCertUsable(cert) {
 }
 
 async function checkRecipientKeys() {
-  if (!gSendEncrypted) {
-    updateKeyNotifications([]);
-    return;
-  }
-
   let recipients = getEncryptionCompatibleRecipients();
   // Calculate key notifications.
   // 1 notification at most per email address that has no valid key.
@@ -3337,9 +3332,13 @@ async function checkRecipientKeys() {
   // undecided key, or the 1st expired key, or the 1st rejected key, in this
   // order.
 
-  let emailsWithMissingKeys = [];
+  let emailsWithMissingCerts = [];
+  let haveAllCerts = false;
 
-  if (gSelectedTechnologyIsPGP) {
+  let emailsWithMissingKeys = [];
+  let haveAllKeys = false;
+
+  if (gSendEncrypted || isPgpConfigured()) {
     for (let addr of recipients) {
       let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
 
@@ -3353,56 +3352,117 @@ async function checkRecipientKeys() {
         continue;
       }
     }
-    updateKeyNotifications(emailsWithMissingKeys);
+
+    if (!emailsWithMissingKeys.length) {
+      haveAllKeys = true;
+    }
+  }
+
+  if (gSendEncrypted || isSmimeEncryptionConfigured()) {
+    Recipients2CompFields(gMsgCompose.compFields);
+    let helper = Cc[
+      "@mozilla.org/messenger-smime/smimejshelper;1"
+    ].createInstance(Ci.nsISMimeJSHelper);
+
+    let outEmailAddresses = {};
+    let outCertIssuedInfos = {};
+    let outCertExpiresInfos = {};
+    let outCerts = {};
+    let outCanEncrypt = {};
+
+    helper.getRecipientCertsInfo(
+      gMsgCompose.compFields,
+      outEmailAddresses,
+      outCertIssuedInfos,
+      outCertExpiresInfos,
+      outCerts,
+      outCanEncrypt
+    );
+
+    let checks = [];
+    for (let i = 0; i < outEmailAddresses.value.length; i++) {
+      if (!outCerts.value[i]) {
+        emailsWithMissingCerts.push(outEmailAddresses.value[i]);
+        continue;
+      }
+
+      checks.push(
+        verifyCertUsable(outCerts.value[i])
+          .then(usage => {})
+          .catch(error => {
+            emailsWithMissingCerts.push(outEmailAddresses.value[i]);
+          })
+      );
+    }
+    await Promise.all(checks);
+
+    if (!emailsWithMissingCerts.length) {
+      haveAllCerts = true;
+    }
+  }
+
+  if (!gSendEncrypted) {
+    if (recipients.length && (haveAllCerts || haveAllKeys)) {
+      await updateEncryptionReminder(haveAllKeys, haveAllCerts);
+    } else {
+      await updateEncryptionReminder(false, false);
+    }
+
+    updateKeyNotifications([]);
     return;
   }
 
-  // S/MIME
-
-  Recipients2CompFields(gMsgCompose.compFields);
-  let helper = Cc[
-    "@mozilla.org/messenger-smime/smimejshelper;1"
-  ].createInstance(Ci.nsISMimeJSHelper);
-
-  let outEmailAddresses = {};
-  let outCertIssuedInfos = {};
-  let outCertExpiresInfos = {};
-  let outCerts = {};
-  let outCanEncrypt = {};
-
-  helper.getRecipientCertsInfo(
-    gMsgCompose.compFields,
-    outEmailAddresses,
-    outCertIssuedInfos,
-    outCertExpiresInfos,
-    outCerts,
-    outCanEncrypt
+  await updateEncryptionReminder(false, false);
+  updateKeyNotifications(
+    gSelectedTechnologyIsPGP ? emailsWithMissingKeys : emailsWithMissingCerts
   );
+}
 
-  let checks = [];
-  for (let i = 0; i < outEmailAddresses.value.length; i++) {
-    if (!outCerts.value[i]) {
-      emailsWithMissingKeys.push(outEmailAddresses.value[i]);
-      continue;
-    }
-
-    checks.push(
-      verifyCertUsable(outCerts.value[i])
-        .then(usage => {})
-        .catch(error => {
-          emailsWithMissingKeys.push(outEmailAddresses.value[i]);
-        })
-    );
+/**
+ * Display (or hide) the notification that informs the user that
+ * encryption is possible (but currently not enabled).
+ *
+ * @param {boolean} canEnableOpenPGP - If OpenPGP encryption is possible
+ * @param {boolean} canEnableSMIME - If S/MIME encryption is possible
+ */
+async function updateEncryptionReminder(canEnableOpenPGP, canEnableSMIME) {
+  let enableNotification = gComposeNotification.getNotificationWithValue(
+    "enableNotification"
+  );
+  if (enableNotification) {
+    gComposeNotification.removeNotification(enableNotification);
   }
 
-  await Promise.all(checks);
-  updateKeyNotifications(emailsWithMissingKeys);
+  if (!canEnableOpenPGP && !canEnableSMIME) {
+    return;
+  }
+
+  let labelId = canEnableOpenPGP
+    ? "can-encrypt-openpgp-notification"
+    : "can-encrypt-smime-notification";
+
+  gComposeNotification.appendNotification(
+    "enableNotification",
+    {
+      label: { "l10n-id": labelId },
+      priority: gComposeNotification.PRIORITY_INFO_LOW,
+    },
+    [
+      {
+        "l10n-id": "can-e2e-encrypt-button",
+        callback() {
+          gSelectedTechnologyIsPGP = canEnableOpenPGP;
+          setSendEncryptedAndSigned(true);
+          updateEncryptionOptions();
+          checkRecipientKeys();
+          return true;
+        },
+      },
+    ]
+  );
 }
 
 function updateKeyNotifications(emailsWithMissingKeys) {
-  /**
-   * Remove all previous key notifications
-   */
   let notification = gComposeNotification.getNotificationWithValue(
     "keyNotification"
   );
@@ -3471,7 +3531,7 @@ function updateKeyNotifications(emailsWithMissingKeys) {
     };
   }
 
-  notification = gComposeNotification.appendNotification(
+  gComposeNotification.appendNotification(
     "keyNotification",
     {
       label,
