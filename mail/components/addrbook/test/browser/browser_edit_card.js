@@ -53,10 +53,44 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector("vcard-fn #vCardPreferDisplayName");
     case "NickName":
       return abDocument.querySelector("vcard-nickname #vCardNickName");
+    case "Prefix":
+      let prefixInput = abDocument.querySelector("vcard-n #vcard-n-prefix");
+      if (addIfNeeded && BrowserTestUtils.is_hidden(prefixInput)) {
+        EventUtils.synthesizeMouseAtCenter(
+          abDocument.querySelector("vcard-n #n-list-component-prefix button"),
+          {},
+          abWindow
+        );
+      }
+      return prefixInput;
     case "FirstName":
       return abDocument.querySelector("vcard-n #vcard-n-firstname");
+    case "MiddleName":
+      let middleNameInput = abDocument.querySelector(
+        "vcard-n #vcard-n-middlename"
+      );
+      if (addIfNeeded && BrowserTestUtils.is_hidden(middleNameInput)) {
+        EventUtils.synthesizeMouseAtCenter(
+          abDocument.querySelector(
+            "vcard-n #n-list-component-middlename button"
+          ),
+          {},
+          abWindow
+        );
+      }
+      return middleNameInput;
     case "LastName":
       return abDocument.querySelector("vcard-n #vcard-n-lastname");
+    case "Suffix":
+      let suffixInput = abDocument.querySelector("vcard-n #vcard-n-suffix");
+      if (addIfNeeded && BrowserTestUtils.is_hidden(suffixInput)) {
+        EventUtils.synthesizeMouseAtCenter(
+          abDocument.querySelector("vcard-n #n-list-component-suffix button"),
+          {},
+          abWindow
+        );
+      }
+      return suffixInput;
     case "PrimaryEmail":
       if (
         addIfNeeded &&
@@ -156,6 +190,28 @@ function checkCardValues(card, expected) {
   }
 }
 
+function checkVCardValues(card, expected) {
+  for (let [key, expectedEntries] of Object.entries(expected)) {
+    let cardValues = card.vCardProperties.getAllEntries(key);
+
+    Assert.equal(
+      expectedEntries.length,
+      cardValues.length,
+      `${key} is expected to occur ${expectedEntries.length} time(s) and ${cardValues.length} time(s) is found.`
+    );
+
+    for (let [index, entry] of cardValues.entries()) {
+      let expectedEntry = expectedEntries[index];
+
+      Assert.deepEqual(
+        expectedEntry.value,
+        entry.value,
+        `${key} at position ${index} should have the expected values`
+      );
+    }
+  }
+}
+
 function setInputValues(changes) {
   let abWindow = getAddressBookWindow();
 
@@ -174,6 +230,28 @@ function setInputValues(changes) {
     }
   }
   EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
+}
+
+async function editContactAtIndex(index) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+  let editButton = abDocument.getElementById("editButton");
+
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(index),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+
+  // Click to edit.
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
 }
 
 add_task(async function test_basic_edit() {
@@ -912,4 +990,347 @@ add_task(async function test_delete_button() {
 
   personalBook.deleteDirectory(list);
   await closeAddressBookWindow();
+});
+
+function checkNFieldState({ prefix, middlename, suffix }) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  Assert.equal(abDocument.querySelectorAll("vcard-n").length, 1);
+
+  Assert.ok(
+    BrowserTestUtils.is_visible(abDocument.getElementById("vcard-n-firstname")),
+    "Firstname is always shown."
+  );
+
+  Assert.ok(
+    BrowserTestUtils.is_visible(abDocument.getElementById("vcard-n-lastname")),
+    "Lastname is always shown."
+  );
+
+  for (let [subValueName, inputId, buttonSelector, inputVisible] of [
+    ["prefix", "vcard-n-prefix", "#n-list-component-prefix button", prefix],
+    [
+      "middlename",
+      "vcard-n-middlename",
+      "#n-list-component-middlename button",
+      middlename,
+    ],
+    ["suffix", "vcard-n-suffix", "#n-list-component-suffix button", suffix],
+  ]) {
+    let inputEl = abDocument.getElementById(inputId);
+    Assert.ok(inputEl);
+    let buttonEl = abDocument.querySelector(buttonSelector);
+    Assert.ok(buttonEl);
+
+    if (inputVisible) {
+      Assert.ok(
+        BrowserTestUtils.is_visible(inputEl),
+        `${subValueName} input is shown with an initial value or a click on the button.`
+      );
+      Assert.ok(
+        BrowserTestUtils.is_hidden(buttonEl),
+        `${subValueName} button is hidden when the input is shown.`
+      );
+    } else {
+      Assert.ok(
+        BrowserTestUtils.is_hidden(inputEl),
+        `${subValueName} input is not shown initially.`
+      );
+      Assert.ok(
+        BrowserTestUtils.is_visible(buttonEl),
+        `${subValueName} button is shown when the input is hidden.`
+      );
+    }
+  }
+}
+
+/**
+ * Save repeatedly names of two contacts and ensure that no fields are leaking
+ * to another card.
+ */
+add_task(async function test_name_fields() {
+  let book = createAddressBook("Test Book N Field");
+  book.addCard(createContact("contact1", "lastname1"));
+  book.addCard(createContact("contact2", "lastname2"));
+
+  let abWindow = await openAddressBookWindow();
+  openDirectory(book);
+
+  let abDocument = abWindow.document;
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+  let cancelEditButton = abDocument.getElementById("cancelEditButton");
+
+  // Edit contact1.
+  await editContactAtIndex(0);
+
+  // Check for the original values of contact1.
+  checkInputValues({ FirstName: "contact1", LastName: "lastname1" });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: false });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [{ value: ["lastname1", "contact1", "", "", ""] }],
+  });
+
+  // Edit contact1 set all n values.
+  await editContactAtIndex(0);
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: false });
+
+  setInputValues({
+    Prefix: "prefix 1",
+    FirstName: "contact1 changed",
+    MiddleName: "middle name 1",
+    LastName: "lastname1 changed",
+    Suffix: "suffix 1",
+  });
+
+  checkNFieldState({ prefix: true, middlename: true, suffix: true });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [
+      {
+        value: [
+          "lastname1 changed",
+          "contact1 changed",
+          "middle name 1",
+          "prefix 1",
+          "suffix 1",
+        ],
+      },
+    ],
+  });
+
+  // Edit contact2.
+  await editContactAtIndex(1);
+
+  // Check for the original values of contact2 after saving contact1.
+  checkInputValues({ FirstName: "contact2", LastName: "lastname2" });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: false });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  // Ensure that both vCardValues of contact1 and contact2 are correct.
+  checkVCardValues(book.childCards[0], {
+    n: [
+      {
+        value: [
+          "lastname1 changed",
+          "contact1 changed",
+          "middle name 1",
+          "prefix 1",
+          "suffix 1",
+        ],
+      },
+    ],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    n: [{ value: ["lastname2", "contact2", "", "", ""] }],
+  });
+
+  // Edit contact1 and change the values to only firstname and lastname values
+  // to see that the button/input handling of the field is correct.
+  await editContactAtIndex(0);
+
+  checkInputValues({
+    Prefix: "prefix 1",
+    FirstName: "contact1 changed",
+    MiddleName: "middle name 1",
+    LastName: "lastname1 changed",
+    Suffix: "suffix 1",
+  });
+
+  checkNFieldState({ prefix: true, middlename: true, suffix: true });
+
+  setInputValues({
+    Prefix: "",
+    FirstName: "contact1 changed",
+    MiddleName: "",
+    LastName: "lastname1 changed",
+    Suffix: "",
+  });
+
+  // Fields are still visible until the contact is saved and edited again.
+  checkNFieldState({ prefix: true, middlename: true, suffix: true });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [{ value: ["lastname1 changed", "contact1 changed", "", "", ""] }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    n: [{ value: ["lastname2", "contact2", "", "", ""] }],
+  });
+
+  // Check in contact1 that prefix, middlename and suffix inputs are hidden
+  // again. Then remove the N last values and save.
+  await editContactAtIndex(0);
+
+  checkInputValues({
+    FirstName: "contact1 changed",
+    LastName: "lastname1 changed",
+  });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: false });
+
+  // Let firstname and lastname empty for contact1.
+  setInputValues({
+    FirstName: "",
+    LastName: "",
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    n: [{ value: ["lastname2", "contact2", "", "", ""] }],
+  });
+
+  // Edit contact2.
+  await editContactAtIndex(1);
+
+  checkInputValues({ FirstName: "contact2", LastName: "lastname2" });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: false });
+
+  setInputValues({
+    FirstName: "contact2 changed",
+    LastName: "lastname2 changed",
+    Suffix: "suffix 2",
+  });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: true });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    n: [
+      { value: ["lastname2 changed", "contact2 changed", "", "", "suffix 2"] },
+    ],
+  });
+
+  // Edit contact1.
+  await editContactAtIndex(0);
+
+  checkInputValues({ FirstName: "", LastName: "" });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: false });
+
+  setInputValues({
+    FirstName: "contact1",
+    MiddleName: "middle name 1",
+    LastName: "lastname1",
+  });
+
+  checkNFieldState({ prefix: false, middlename: true, suffix: false });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [{ value: ["lastname1", "contact1", "middle name 1", "", ""] }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    n: [
+      { value: ["lastname2 changed", "contact2 changed", "", "", "suffix 2"] },
+    ],
+  });
+
+  // Now check when cancelling that no data is leaked between edits.
+  // Edit contact2 for this first.
+  await editContactAtIndex(1);
+
+  checkInputValues({
+    FirstName: "contact2 changed",
+    LastName: "lastname2 changed",
+    Suffix: "suffix 2",
+  });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: true });
+
+  setInputValues({
+    Prefix: "prefix 2",
+    FirstName: "contact2",
+    MiddleName: "middle name",
+    LastName: "lastname2",
+    Suffix: "suffix 2",
+  });
+
+  checkNFieldState({ prefix: true, middlename: true, suffix: true });
+
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await promptPromise;
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [{ value: ["lastname1", "contact1", "middle name 1", "", ""] }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    n: [
+      { value: ["lastname2 changed", "contact2 changed", "", "", "suffix 2"] },
+    ],
+  });
+
+  // Ensure that prefix, middlename and lastname are correctly shown after
+  // cancelling contact2. Then cancel contact2 again and look at contact1.
+  await editContactAtIndex(1);
+
+  checkInputValues({
+    FirstName: "contact2 changed",
+    LastName: "lastname2 changed",
+    Suffix: "suffix 2",
+  });
+
+  checkNFieldState({ prefix: false, middlename: false, suffix: true });
+
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    n: [{ value: ["lastname1", "contact1", "middle name 1", "", ""] }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    n: [
+      { value: ["lastname2 changed", "contact2 changed", "", "", "suffix 2"] },
+    ],
+  });
+
+  // Ensure that a cancel from contact2 doesn't leak to contact1.
+  await editContactAtIndex(0);
+
+  checkNFieldState({ prefix: false, middlename: true, suffix: false });
+
+  checkInputValues({
+    FirstName: "contact1",
+    MiddleName: "middle name 1",
+    LastName: "lastname1",
+  });
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
 });
