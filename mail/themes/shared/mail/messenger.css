@@ -1036,7 +1036,7 @@ tree:-moz-lwtheme:not(:focus)
 
 tree > treechildren::-moz-tree-row(dropOn) {
   border-color: SelectedItemText;
-  background-color: SelectedItem;
+  background-color: SelectedItem !important;
 }
 
 tree > treechildren::-moz-tree-cell-text(primary, dropOn) {
@@ -1044,7 +1044,8 @@ tree > treechildren::-moz-tree-cell-text(primary, dropOn) {
 }
 
 tree > treechildren::-moz-tree-image(primary, dropOn) {
-  fill: SelectedItemText !important;
+  fill: color-mix(in srgb, SelectedItemText 20%, transparent);
+  stroke: SelectedItemText !important;
 }
 
 :root:-moz-lwtheme treecol:not([hideheader="true"]),
