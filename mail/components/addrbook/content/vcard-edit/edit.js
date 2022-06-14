@@ -530,12 +530,10 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
-   * Assigns focus to an element.
-   * The element should always be present and be one of the most important
-   * contact identifiers.
+   * Move focus into the form.
    */
   setFocus() {
-    document.getElementById("vcard-n-firstname").focus();
+    this.querySelector("vcard-n input:not([hidden])").focus();
   }
 
   registerEmailFieldsetHandling() {
