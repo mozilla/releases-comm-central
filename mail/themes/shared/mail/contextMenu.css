@@ -142,3 +142,8 @@ menupopup > menuseparator {
   background-image: none !important;
   background-color: var(--arrowpanel-background) !important;
 }
+
+#ContentSelectDropdown .ContentSelectDropdown-item-0:not([_moz-menuactive="true"]) {
+  background-color: var(--arrowpanel-background) !important;
+  color: var(--arrowpanel-color) !important;
+}
