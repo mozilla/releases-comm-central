@@ -348,7 +348,7 @@
       {
         "id": "ContactProperties",
         "type": "object",
-        "description": "A set of properties for a particular contact. For a complete list of properties that Thunderbird uses, see https://hg.mozilla.org/comm-central/file/tip/mailnews/addrbook/public/nsIAbCard.idl\nIt is also possible to store custom properties. The custom property name however may only use a to z, A to Z, 1 to 9 and underscores.",
+        "description": "A set of individual properties for a particular contact and/or its vCard string in the <code>vCard</code> member. The individual properties may either be `legacy properties <https://searchfox.org/comm-central/rev/8a1ae67088acf237dab2fd704db18589e7bf119e/mailnews/addrbook/modules/VCardUtils.jsm#295-334>`__ or custom properties (name may use a to z, A to Z, 1 to 9 and underscores).\n**Note:** Using individual properties is deprecated, get/set the <code>vCard</code> member instead.",
         "patternProperties": {
           "^\\w+$": {
             "choices": [
@@ -525,12 +525,13 @@
           {
             "name": "id",
             "type": "string",
-            "description": "Assigns the contact an id. If an existing contact has this id, an exception is thrown.",
+            "description": "Assigns the contact an id. If an existing contact has this id, an exception is thrown. **Note:** Deprecated, the card's id should be specified in the vCard string instead.",
             "optional": true
           },
           {
             "name": "properties",
-            "$ref": "ContactProperties"
+            "$ref": "ContactProperties",
+            "description": "The properties object for the new contact. If it includes a <code>vCard</code> member, all specified `legacy properties <https://searchfox.org/comm-central/rev/8a1ae67088acf237dab2fd704db18589e7bf119e/mailnews/addrbook/modules/VCardUtils.jsm#295-334>`__ are ignored and the new contact will be based on the provided vCard string. If a UID is specified in the vCard string, which is already used by another contact, an exception is thrown. **Note:** Using individual properties is deprecated, use the <code>vCard</code> member instead."
           },
           {
             "type": "function",
@@ -557,10 +558,11 @@
           },
           {
             "name": "properties",
-            "$ref": "ContactProperties"
+            "$ref": "ContactProperties",
+            "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <code>null</code>. If the provided object includes a <code>vCard</code> member, all specified `legacy properties <https://searchfox.org/comm-central/rev/8a1ae67088acf237dab2fd704db18589e7bf119e/mailnews/addrbook/modules/VCardUtils.jsm#295-334>`__ are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored. **Note:** Using individual properties is deprecated, use the <code>vCard</code> member instead. "
           }
         ],
-        "description": "Edits the properties of a contact. To remove a property, specify it as <code>null</code>."
+        "description": "Updates a contact."
       },
       {
         "name": "delete",

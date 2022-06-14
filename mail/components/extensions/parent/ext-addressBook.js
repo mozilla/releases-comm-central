@@ -6,10 +6,21 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+
 var { AddrBookDirectory } = ChromeUtils.import(
   "resource:///modules/AddrBookDirectory.jsm"
 );
-var { newUID } = ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  newUID: "resource:///modules/AddrBookUtils.jsm",
+  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
+  VCardProperties: "resource:///modules/VCardUtils.jsm",
+  VCardUtils: "resource:///modules/VCardUtils.jsm",
+});
 
 // nsIAbCard.idl contains a list of properties that Thunderbird uses. Extensions are not
 // restricted to using only these properties, but the following properties cannot
@@ -21,7 +32,89 @@ const hiddenProperties = [
   "PopularityIndex",
   "RecordKey",
   "UID",
+  "_vCard",
+  "vCard",
 ];
+
+/**
+ * Gets the VCardProperties of the given card either directly or by reconstructing
+ * from a set of flat standard properties.
+ *
+ * @param {nsIAbCard/AddrBookCard} card
+ * @returns {VCardProperties}
+ */
+function vCardPropertiesFromCard(card) {
+  if (card.supportsVCard) {
+    return card.vCardProperties;
+  }
+  return VCardProperties.fromPropertyMap(
+    new Map(Array.from(card.properties, p => [p.name, p.value]))
+  );
+}
+
+/**
+ * Creates a new AddrBookCard from a set of flat standard properties.
+ *
+ * @param {ContactProperties} properties - a key/value properties object
+ * @param {string} uid - optional UID for the card
+ * @returns {AddrBookCard}
+ */
+function flatPropertiesToAbCard(properties, uid) {
+  // Do not use VCardUtils.propertyMapToVCard().
+  let vCard = VCardProperties.fromPropertyMap(
+    new Map(Object.entries(properties))
+  ).toVCard();
+  return VCardUtils.vCardToAbCard(vCard, uid);
+}
+
+/**
+ * Checks if the given property is a custom contact property, which can be exposed
+ * to WebExtensions.
+ *
+ * @param {string} name - property name
+ * @returns {boolean}
+ */
+function isCustomProperty(name) {
+  return (
+    !hiddenProperties.includes(name) &&
+    !BANISHED_PROPERTIES.includes(name) &&
+    name.match(/^\w+$/)
+  );
+}
+
+/**
+ * Adds the provided originalProperties to the card, adjusted by the changes
+ * given in updateProperties. All banished properties are skipped and the updated
+ * properties must be valid according to isCustomProperty().
+ *
+ * @param {AddrBookCard} card - a card to receive the provided properties
+ * @param {ContactProperties} updateProperties - a key/value object with properties
+ *   to update the provided originalProperties
+ * @param {nsIProperties} originalProperties - properties to be cloned onto
+ *   the provided card
+ */
+function addProperties(card, updateProperties, originalProperties) {
+  let updates = Object.entries(updateProperties).filter(e =>
+    isCustomProperty(e[0])
+  );
+  let mergedProperties = originalProperties
+    ? new Map([
+        ...Array.from(originalProperties, p => [p.name, p.value]),
+        ...updates,
+      ])
+    : new Map(updates);
+
+  for (let [name, value] of mergedProperties) {
+    if (
+      !BANISHED_PROPERTIES.includes(name) &&
+      value != "" &&
+      value != null &&
+      value != undefined
+    ) {
+      card.setProperty(name, value);
+    }
+  }
+}
 
 /**
  * Address book that supports finding cards only for a search (like LDAP).
@@ -92,16 +185,23 @@ class ExtSearchBook extends AddrBookDirectory {
         aSearchString,
         aQuery
       );
-      for (let properties of results) {
-        let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-          Ci.nsIAbCard
-        );
-        card.directoryUID = this.UID;
-        for (let [name, value] of Object.entries(properties)) {
-          if (!hiddenProperties.includes(name)) {
-            card.setProperty(name, value);
+      for (let resultData of results) {
+        let card;
+        // A specified vCard is winning over any individual standard property.
+        if (resultData.vCard) {
+          try {
+            card = VCardUtils.vCardToAbCard(resultData.vCard);
+          } catch (ex) {
+            throw new ExtensionError(
+              `Invalid vCard data: ${resultData.vCard}.`
+            );
           }
+        } else {
+          card = flatPropertiesToAbCard(resultData);
         }
+        // Add custom properties to the property bag.
+        addProperties(card, resultData);
+        card.directoryUID = this.UID;
         aListener.onSearchFoundCard(card);
       }
       aListener.onSearchFinished(Cr.NS_OK, isCompleteResult, null, "");
@@ -284,23 +384,24 @@ var addressBookCache = new (class extends EventEmitter {
         copy.remote = node.item.isRemote;
         break;
       case "contact": {
+        let vCardProperties = vCardPropertiesFromCard(node.item);
         copy.properties = {};
-        for (let property of node.item.properties) {
-          if (!hiddenProperties.includes(property.name)) {
-            switch (property.value) {
-              case undefined:
-              case null:
-              case "":
-                // If someone sets a property to one of these values,
-                // the property will be deleted from the database.
-                // However, the value still appears in the notification,
-                // so we ignore it here.
-                continue;
-            }
-            // WebExtensions complains if we use numbers.
-            copy.properties[property.name] = "" + property.value;
-          }
+
+        // Build a flat property list from vCardProperties.
+        for (let [name, value] of vCardProperties.toPropertyMap()) {
+          copy.properties[name] = "" + value;
         }
+
+        // Return all other exposed properties stored in the nodes property bag.
+        for (let property of Array.from(node.item.properties).filter(e =>
+          isCustomProperty(e.name)
+        )) {
+          copy.properties[property.name] = "" + property.value;
+        }
+
+        // Add the vCard.
+        copy.properties.vCard = vCardProperties.toVCard();
+
         let parentNode;
         try {
           parentNode = this.findAddressBookById(node.parentId);
@@ -740,39 +841,49 @@ this.addressBook = class extends ExtensionAPI {
             false
           );
         },
-        create(parentId, id, properties) {
+        create(parentId, id, createData) {
           let parentNode = addressBookCache.findAddressBookById(parentId);
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot create a contact in a read-only address book"
             );
           }
-          let card = Cc[
-            "@mozilla.org/addressbook/cardproperty;1"
-          ].createInstance(Ci.nsIAbCard);
-          for (let [name, value] of Object.entries(properties)) {
-            if (!hiddenProperties.includes(name)) {
-              card.setProperty(name, value);
+
+          let card;
+          // A specified vCard is winning over any individual standard property.
+          if (createData.vCard) {
+            try {
+              card = VCardUtils.vCardToAbCard(createData.vCard, id);
+            } catch (ex) {
+              throw new ExtensionError(
+                `Invalid vCard data: ${createData.vCard}.`
+              );
             }
+          } else {
+            card = flatPropertiesToAbCard(createData, id);
           }
-          if (id) {
+          // Add custom properties to the property bag.
+          addProperties(card, createData);
+
+          // Check if the new card has an enforced UID.
+          if (card.vCardProperties.getFirstValue("uid")) {
             let duplicateExists = false;
             try {
               // Second argument is only a hint, all address books are checked.
-              addressBookCache.findContactById(id, parentId);
+              addressBookCache.findContactById(card.UID, parentId);
               duplicateExists = true;
             } catch (ex) {
               // Do nothing. We want this to throw because no contact was found.
             }
             if (duplicateExists) {
-              throw new ExtensionError(`Duplicate contact id: ${id}`);
+              throw new ExtensionError(`Duplicate contact id: ${card.UID}`);
             }
-            card.UID = id;
           }
+
           let newCard = parentNode.item.addCard(card);
           return newCard.UID;
         },
-        update(id, properties) {
+        update(id, updateData) {
           let node = addressBookCache.findContactById(id);
           let parentNode = addressBookCache.findAddressBookById(node.parentId);
           if (parentNode.item.readOnly) {
@@ -781,12 +892,104 @@ this.addressBook = class extends ExtensionAPI {
             );
           }
 
-          for (let [name, value] of Object.entries(properties)) {
-            if (!hiddenProperties.includes(name)) {
-              node.item.setProperty(name, value);
+          // A specified vCard is winning over any individual standard property.
+          // While a vCard is replacing the entire contact, specified standard
+          // properties only update single entries (setting a value to null
+          // clears it / promotes the next value of the same kind).
+          let card;
+          if (updateData.vCard) {
+            let vCardUID;
+            try {
+              card = new AddrBookCard();
+              card.UID = node.item.UID;
+              card.setProperty(
+                "_vCard",
+                VCardUtils.translateVCard21(updateData.vCard)
+              );
+              vCardUID = card.vCardProperties.getFirstValue("uid");
+            } catch (ex) {
+              throw new ExtensionError(
+                `Invalid vCard data: ${updateData.vCard}.`
+              );
             }
+            if (vCardUID && vCardUID != node.item.UID) {
+              throw new ExtensionError(
+                `The card's UID ${node.item.UID} may not be changed: ${updateData.vCard}.`
+              );
+            }
+          } else {
+            // Get the current vCardProperties, build a propertyMap and create
+            // vCardParsed which allows to identify all currently exposed entries
+            // based on the typeName used in VCardUtils.jsm (e.g. adr.work).
+            let vCardProperties = vCardPropertiesFromCard(node.item);
+            let vCardParsed = VCardUtils._parse(vCardProperties.entries);
+            let propertyMap = vCardProperties.toPropertyMap();
+
+            // Save the old exposed state.
+            let oldProperties = VCardProperties.fromPropertyMap(propertyMap);
+            let oldParsed = VCardUtils._parse(oldProperties.entries);
+            // Update the propertyMap.
+            for (let [name, value] of Object.entries(updateData)) {
+              propertyMap.set(name, value);
+            }
+            // Save the new exposed state.
+            let newProperties = VCardProperties.fromPropertyMap(propertyMap);
+            let newParsed = VCardUtils._parse(newProperties.entries);
+
+            // Evaluate the differences and update the still existing entries,
+            // mark removed items for deletion.
+            let deleteLog = [];
+            for (let typeName of oldParsed.keys()) {
+              if (typeName == "version") {
+                continue;
+              }
+              for (let idx = 0; idx < oldParsed.get(typeName).length; idx++) {
+                if (
+                  newParsed.has(typeName) &&
+                  idx < newParsed.get(typeName).length
+                ) {
+                  let originalIndex = vCardParsed.get(typeName)[idx].index;
+                  let newEntryIndex = newParsed.get(typeName)[idx].index;
+                  vCardProperties.entries[originalIndex] =
+                    newProperties.entries[newEntryIndex];
+                  // Mark this item as handled.
+                  newParsed.get(typeName)[idx] = null;
+                } else {
+                  deleteLog.push(vCardParsed.get(typeName)[idx].index);
+                }
+              }
+            }
+
+            // Remove entries which have been marked for deletion.
+            for (let deleteIndex of deleteLog.sort((a, b) => a < b)) {
+              vCardProperties.entries.splice(deleteIndex, 1);
+            }
+
+            // Add new entries.
+            for (let typeName of newParsed.keys()) {
+              if (typeName == "version") {
+                continue;
+              }
+              for (let newEntry of newParsed.get(typeName)) {
+                if (newEntry) {
+                  vCardProperties.addEntry(
+                    newProperties.entries[newEntry.index]
+                  );
+                }
+              }
+            }
+
+            // Create a new card with the original UID from the updated vCardProperties.
+            card = VCardUtils.vCardToAbCard(
+              vCardProperties.toVCard(),
+              node.item.UID
+            );
           }
-          parentNode.item.modifyCard(node.item);
+
+          // Clone original properties and update custom properties.
+          addProperties(card, updateData, node.item.properties);
+
+          parentNode.item.modifyCard(card);
         },
         delete(id) {
           let node = addressBookCache.findContactById(id);
@@ -820,9 +1023,40 @@ this.addressBook = class extends ExtensionAPI {
           register: fire => {
             let listener = (event, node, changes) => {
               let filteredChanges = {};
-              for (let [key, value] of Object.entries(changes)) {
-                if (!hiddenProperties.includes(key) && key.match(/^\w+$/)) {
-                  filteredChanges[key] = value;
+              // Find changes in flat properties stored in the vCard.
+              if (changes.hasOwnProperty("_vCard")) {
+                let oldVCardProperties = VCardProperties.fromVCard(
+                  changes._vCard.oldValue
+                ).toPropertyMap();
+                let newVCardProperties = VCardProperties.fromVCard(
+                  changes._vCard.newValue
+                ).toPropertyMap();
+                for (let [name, value] of oldVCardProperties) {
+                  if (newVCardProperties.get(name) != value) {
+                    filteredChanges[name] = {
+                      oldValue: value,
+                      newValue: newVCardProperties.get(name) ?? null,
+                    };
+                  }
+                }
+                for (let [name, value] of newVCardProperties) {
+                  if (
+                    !filteredChanges.hasOwnProperty(name) &&
+                    oldVCardProperties.get(name) != value
+                  ) {
+                    filteredChanges[name] = {
+                      oldValue: oldVCardProperties.get(name) ?? null,
+                      newValue: value,
+                    };
+                  }
+                }
+              }
+              for (let [name, value] of Object.entries(changes)) {
+                if (
+                  !filteredChanges.hasOwnProperty(name) &&
+                  isCustomProperty(name)
+                ) {
+                  filteredChanges[name] = value;
                 }
               }
               fire.sync(addressBookCache.convert(node), filteredChanges);

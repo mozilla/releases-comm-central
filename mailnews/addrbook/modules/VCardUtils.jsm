@@ -157,14 +157,27 @@ var VCardUtils = {
     // Strip the version.
     return vCard.replace(/(\r?\n)VERSION:2.1\r?\n/i, "$1");
   },
-  vCardToAbCard(vCard) {
+  /**
+   * Return a new AddrBookCard from the provided vCard string.
+   *
+   * @param vCard - the vCard string
+   * @param [uid] - an optional UID to be used for the new card, overriding any
+   *   UID specified in the vCard string.
+   * @returns
+   */
+  vCardToAbCard(vCard, uid) {
     vCard = this.translateVCard21(vCard);
 
     let abCard = new AddrBookCard();
     abCard.setProperty("_vCard", vCard);
-    let uid = abCard.vCardProperties.getFirstValue("uid");
-    if (uid) {
-      abCard.UID = uid;
+
+    let vCardUID = abCard.vCardProperties.getFirstValue("uid");
+    if (uid || vCardUID) {
+      abCard.UID = uid || vCardUID;
+      if (abCard.UID != vCardUID) {
+        abCard.vCardProperties.clearValues("uid");
+        abCard.vCardProperties.addValue("uid", abCard.UID);
+      }
     }
 
     return abCard;
