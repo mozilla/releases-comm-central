@@ -1577,14 +1577,14 @@ async function initPanes() {
 
   let messagepaneboxwrapper = GetMessagePaneWrapper();
   for (let attrName of ["collapsed", "height", "width"]) {
-    messagepaneboxwrapper.setAttribute(
-      attrName,
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "messagepaneboxwrapper",
-        attrName
-      )
+    let attrValue = Services.xulStore.getValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "messagepaneboxwrapper",
+      attrName
     );
+    if (attrValue) {
+      messagepaneboxwrapper.setAttribute(attrName, attrValue);
+    }
   }
   messagepaneboxwrapper.setAttribute("persist", "collapsed height width");
 
