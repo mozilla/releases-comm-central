@@ -639,22 +639,36 @@ body:not(.is-editing) #editContactForm {
   gap: 1em;
 }
 
-.contact-photo {
+#photoInput {
+  display: contents;
+}
+
+#photoButton,
+#viewContactPhoto {
   grid-area: photo;
+}
+
+.contact-photo {
   width: 100px;
   height: 100px;
   border-radius: 100%;
-  background-size: cover;
-  background-position: center;
+  object-fit: cover;
+  object-position: center;
   background-color: var(--in-content-button-background);
-  background-image: url("chrome://messenger/skin/icons/contact.svg");
   box-shadow: var(--address-book-blocks-box-shadow);
   -moz-context-properties: fill;
   fill: var(--in-content-box-background);
 }
 
-#photoInput {
+#photoButton {
   position: relative;
+  border-radius: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+#photoButton:hover {
+  background: none;
 }
 
 #photoOverlay {
@@ -663,12 +677,12 @@ body:not(.is-editing) #editContactForm {
   border-radius: 100%;
 }
 
-#photoInput:focus-visible {
+#photoButton:focus-visible {
   outline: 2px solid var(--in-content-focus-outline-color);
   outline-offset: 2px;
 }
 
-#photoInput:is(:focus-visible, :hover) #photoOverlay {
+#photoButton:is(:focus-visible, :hover) #photoOverlay {
   background-color: #0003;
   background-image: url("chrome://messenger/skin/icons/more.svg");
   background-position: center center;

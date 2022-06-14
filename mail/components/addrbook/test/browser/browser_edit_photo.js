@@ -59,13 +59,13 @@ async function waitForPreviewChange() {
 
 async function waitForPhotoChange() {
   let abWindow = getAddressBookWindow();
-  let photo = abWindow.document.getElementById("photoInput");
+  let photo = abWindow.document.querySelector("#photoButton .contact-photo");
   let dialog = abWindow.document.getElementById("photoDialog");
-  let oldValue = photo.style.backgroundImage;
+  let oldValue = photo.src;
   await BrowserTestUtils.waitForMutationCondition(
     photo,
     { attributes: true },
-    () => photo.style.backgroundImage != oldValue
+    () => photo.src != oldValue
   );
   await new Promise(resolve => abWindow.requestAnimationFrame(resolve));
   Assert.ok(!dialog.open, "dialog was closed when photo changed");
@@ -226,7 +226,8 @@ async function subtest_add_photo(book) {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let saveEditButton = abDocument.getElementById("saveEditButton");
-  let editPhoto = abDocument.getElementById("photoInput");
+  let photoButton = abDocument.getElementById("photoButton");
+  let editPhoto = photoButton.querySelector(".contact-photo");
   let viewPhoto = abDocument.getElementById("viewContactPhoto");
   let dialog = abWindow.document.getElementById("photoDialog");
   let { saveButton } = dialog;
@@ -238,8 +239,12 @@ async function subtest_add_photo(book) {
 
   // Open the photo dialog by clicking on the photo.
 
-  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
-  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
+  Assert.equal(
+    editPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
+    "no photo shown"
+  );
+  EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -264,7 +269,11 @@ async function subtest_add_photo(book) {
   let photoChangePromise = waitForPhotoChange();
   EventUtils.synthesizeMouseAtCenter(saveButton, {}, abWindow);
   await photoChangePromise;
-  Assert.notEqual(editPhoto.style.backgroundImage, "", "a photo is shown");
+  Assert.notEqual(
+    editPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
+    "a photo is shown"
+  );
 
   // Save the contact.
 
@@ -277,8 +286,8 @@ async function subtest_add_photo(book) {
 
   // Photo shown in view.
   Assert.notEqual(
-    viewPhoto.style.backgroundImage,
-    "",
+    viewPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
     "a photo is shown in contact view"
   );
 
@@ -294,7 +303,8 @@ async function subtest_dont_add_photo(book) {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let saveEditButton = abDocument.getElementById("saveEditButton");
-  let editPhoto = abDocument.getElementById("photoInput");
+  let photoButton = abDocument.getElementById("photoButton");
+  let editPhoto = photoButton.querySelector(".contact-photo");
   let viewPhoto = abDocument.getElementById("viewContactPhoto");
   let dialog = abWindow.document.getElementById("photoDialog");
   let { saveButton, cancelButton, discardButton } = dialog;
@@ -305,7 +315,7 @@ async function subtest_dont_add_photo(book) {
 
   // Drop a file on the photo.
 
-  dropFile(editPhoto, "data/photo2.jpg");
+  dropFile(photoButton, "data/photo2.jpg");
   await waitForDialogOpenState(true);
   await TestUtils.waitForCondition(() => BrowserTestUtils.is_visible(svg));
 
@@ -318,11 +328,15 @@ async function subtest_dont_add_photo(book) {
 
   EventUtils.synthesizeMouseAtCenter(cancelButton, {}, abWindow);
   await waitForDialogOpenState(false);
-  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
+  Assert.equal(
+    editPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
+    "no photo shown"
+  );
 
   // Open the photo dialog by clicking on the photo.
 
-  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -358,11 +372,15 @@ async function subtest_dont_add_photo(book) {
   let photoChangePromise = waitForPhotoChange();
   EventUtils.synthesizeMouseAtCenter(saveButton, {}, abWindow);
   await photoChangePromise;
-  Assert.notEqual(editPhoto.style.backgroundImage, "", "a photo is shown");
+  Assert.notEqual(
+    editPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
+    "a photo is shown"
+  );
 
   // Open the photo dialog by clicking on the photo.
 
-  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -379,7 +397,7 @@ async function subtest_dont_add_photo(book) {
 
   // Open the photo dialog by clicking on the photo.
 
-  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -390,7 +408,11 @@ async function subtest_dont_add_photo(book) {
 
   EventUtils.synthesizeMouseAtCenter(cancelButton, {}, abWindow);
   await waitForDialogOpenState(false);
-  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
+  Assert.equal(
+    editPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
+    "no photo shown"
+  );
 
   // Save the contact and check the photo was NOT saved.
 
@@ -402,8 +424,8 @@ async function subtest_dont_add_photo(book) {
   await notInEditingMode();
 
   Assert.equal(
-    viewPhoto.style.backgroundImage,
-    "",
+    viewPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
     "no photo shown in contact view"
   );
 
@@ -420,7 +442,8 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
   let cardsList = abDocument.getElementById("cards");
   let editButton = abDocument.getElementById("editButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
-  let editPhoto = abDocument.getElementById("photoInput");
+  let photoButton = abDocument.getElementById("photoButton");
+  let editPhoto = photoButton.querySelector(".contact-photo");
   let viewPhoto = abDocument.getElementById("viewContactPhoto");
   let dialog = abWindow.document.getElementById("photoDialog");
   let { discardButton } = dialog;
@@ -429,7 +452,7 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   Assert.ok(
-    checkPhotoCallback(viewPhoto.style.backgroundImage),
+    checkPhotoCallback(viewPhoto.src),
     "saved photo shown in contact view"
   );
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
@@ -438,11 +461,11 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
   // Open the photo dialog by clicking on the photo.
 
   Assert.ok(
-    checkPhotoCallback(editPhoto.style.backgroundImage),
+    checkPhotoCallback(editPhoto.src),
     "saved photo shown in edit view"
   );
 
-  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -463,8 +486,8 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
   Assert.equal(
-    viewPhoto.style.backgroundImage,
-    "",
+    viewPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
     "photo no longer shown in contact view"
   );
 
@@ -480,7 +503,8 @@ async function subtest_paste_url() {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let cancelEditButton = abDocument.getElementById("cancelEditButton");
-  let editPhoto = abDocument.getElementById("photoInput");
+  let photoButton = abDocument.getElementById("photoButton");
+  let editPhoto = photoButton.querySelector(".contact-photo");
   let dropTarget = abDocument.getElementById("photoDropTarget");
 
   let transfer = Cc["@mozilla.org/widget/transferable;1"].createInstance(
@@ -497,13 +521,21 @@ async function subtest_paste_url() {
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
+  Assert.equal(
+    editPhoto.src,
+    "chrome://messenger/skin/icons/contact.svg",
+    "no photo shown"
+  );
 
   Assert.equal(abDocument.activeElement.id, "vcard-n-firstname");
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
   // Focus is on name prefix button.
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
-  Assert.equal(abDocument.activeElement, editPhoto);
+  Assert.equal(
+    abDocument.activeElement,
+    photoButton,
+    "photo button is focused"
+  );
 
   // Paste a URL.
 
@@ -528,7 +560,7 @@ async function subtest_paste_url() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
   await waitForDialogOpenState(false);
 
-  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
   checkDialogElements({
     dropTargetClass: "drop-target",
@@ -558,7 +590,7 @@ async function subtest_paste_url() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
   await waitForDialogOpenState(false);
 
-  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
   await waitForDialogOpenState(true);
   checkDialogElements({
     dropTargetClass: "drop-target",
@@ -622,8 +654,8 @@ add_task(async function test_local() {
 
   // Go back to the first contact and discard the photo.
 
-  let card3 = await subtest_discard_photo(personalBook, backgroundImage =>
-    backgroundImage.includes(photo1Name)
+  let card3 = await subtest_discard_photo(personalBook, src =>
+    src.endsWith(photo1Name)
   );
   Assert.equal(
     card3.getProperty("PhotoName", "NO VALUE"),
@@ -705,8 +737,8 @@ add_task(async function test_add_photo_carddav3() {
 
   // Discard the photo.
 
-  let card3 = await subtest_discard_photo(book, backgroundImage =>
-    backgroundImage.startsWith(`url("data:image/jpeg;base64,/9j/`)
+  let card3 = await subtest_discard_photo(book, src =>
+    src.startsWith("data:image/jpeg;base64,/9j/")
   );
 
   // Check the card we sent.
@@ -794,8 +826,8 @@ add_task(async function test_add_photo_carddav4() {
 
   // Discard the photo.
 
-  let card3 = await subtest_discard_photo(book, backgroundImage =>
-    backgroundImage.startsWith(`url("data:image/jpeg;base64,/9j/`)
+  let card3 = await subtest_discard_photo(book, src =>
+    src.startsWith("data:image/jpeg;base64,/9j/")
   );
 
   // Check the card we sent.

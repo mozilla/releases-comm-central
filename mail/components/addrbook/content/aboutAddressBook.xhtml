@@ -136,7 +136,7 @@
   <div id="detailsPane" hidden="hidden">
     <article id="viewContact" class="contact-details-scroll">
       <header class="contact-header">
-        <div id="viewContactPhoto" class="contact-photo"></div>
+        <img id="viewContactPhoto" class="contact-photo" alt="" />
         <div class="contact-headings">
           <h1 id="viewContactName" class="contact-heading-name"></h1>
           <p id="viewContactNickName" class="contact-heading-nickname"></p>
@@ -209,12 +209,16 @@
             </p>
             <p id="editContactHeadingEmail" class="contact-heading-email"></p>
           </div>
-          <!-- FIXME: The photo 'input' is not semantic or accessible. -->
           <!-- NOTE: We place the photo 'input' after the headings, since it is
              - functionally a form control. However, we style the photo to
              - appear at the inline-start of the contact-header. -->
-          <div id="photoInput" class="contact-photo" tabindex="0">
-            <div id="photoOverlay"></div>
+          <!-- NOTE: We wrap the button with a plain div because the button
+             - itself will not receive the paste event. -->
+          <div id="photoInput">
+            <button type="button" id="photoButton" class="plain-button">
+              <img class="contact-photo" alt="" />
+              <div id="photoOverlay"></div>
+            </button>
           </div>
         </div>
   #include vcard-edit/vCardTemplates.inc.xhtml

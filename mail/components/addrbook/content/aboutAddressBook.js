@@ -2193,15 +2193,29 @@ var detailsPane = {
     });
 
     this.photoInput = document.getElementById("photoInput");
+    // NOTE: We put the paste handler on the button parent because the
+    // html:button will not be targeted by the paste event.
     this.photoInput.addEventListener("paste", photoDialog);
     this.photoInput.addEventListener("dragover", photoDialog);
     this.photoInput.addEventListener("drop", photoDialog);
-    this.photoInput.addEventListener("click", event =>
-      this._onPhotoActivate(event)
+
+    let photoButton = document.getElementById("photoButton");
+    // FIXME: Remove this once we get new strings after 102.
+    let stringBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addressbook/addressBook.properties"
     );
-    this.photoInput.addEventListener("keypress", event =>
-      this._onPhotoActivate(event)
-    );
+    photoButton.title = stringBundle.GetStringFromName("browsePhoto");
+    photoButton.addEventListener("click", () => {
+      if (this._photoDetails.sourceURL) {
+        photoDialog.showWithURL(
+          this._photoDetails.sourceURL,
+          this._photoDetails.cropRect,
+          true
+        );
+      } else {
+        photoDialog.showEmpty();
+      }
+    });
 
     Services.obs.addObserver(this, "addrbook-contact-created");
     Services.obs.addObserver(this, "addrbook-contact-updated");
@@ -2365,9 +2379,8 @@ var detailsPane = {
     );
     document.getElementById("viewPrimaryEmail").textContent = card.primaryEmail;
 
-    document.getElementById(
-      "viewContactPhoto"
-    ).style.backgroundImage = card.photoURL ? `url(${card.photoURL})` : null;
+    document.getElementById("viewContactPhoto").src =
+      card.photoURL || "chrome://messenger/skin/icons/contact.svg";
 
     this.writeButton.hidden = this.searchButton.hidden = !card.primaryEmail;
     this.eventButton.hidden =
@@ -2607,7 +2620,8 @@ var detailsPane = {
    *   display none.
    */
   showEditPhoto(url) {
-    this.photoInput.style.backgroundImage = url ? `url(${url})` : null;
+    this.photoInput.querySelector(".contact-photo").src =
+      url || "chrome://messenger/skin/icons/contact.svg";
   },
 
   /**
@@ -2872,25 +2886,6 @@ var detailsPane = {
       case "detailsDeleteButton":
         this.deleteCurrentContact();
         break;
-    }
-  },
-
-  async _onPhotoActivate(event) {
-    if (!this.isEditing) {
-      return;
-    }
-    if (event.type == "keypress" && ![" ", "Enter"].includes(event.key)) {
-      return;
-    }
-
-    if (this._photoDetails.sourceURL) {
-      photoDialog.showWithURL(
-        this._photoDetails.sourceURL,
-        this._photoDetails.cropRect,
-        true
-      );
-    } else {
-      photoDialog.showEmpty();
     }
   },
 };
