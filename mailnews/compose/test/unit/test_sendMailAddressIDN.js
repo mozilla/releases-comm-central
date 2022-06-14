@@ -17,7 +17,7 @@ var kToValid = "to@v\u00E4lid.foo.invalid";
 var kToValidACE = "to@xn--vlid-loa.foo.invalid";
 var kToInvalid = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
-var NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
+var NS_ERROR_ILLEGAL_LOCALPART = 0x80553139;
 
 /* exported alert */
 // for alertTestUtils.js
@@ -70,7 +70,7 @@ MsgSendListener.prototype = {
         // Compare data file to what the server received
         Assert.equal(this.originalData, server._daemon.post);
       } else {
-        Assert.equal(aStatus, NS_ERROR_BUT_DONT_SHOW_ALERT);
+        Assert.equal(aStatus, NS_ERROR_ILLEGAL_LOCALPART);
         do_check_transaction(server.playTransaction(), ["EHLO test"]);
         // Local address (before the @) has non-ascii char(s) or the @ is
         // missing from the address. An alert is triggered after the EHLO is
