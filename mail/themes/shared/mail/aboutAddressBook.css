@@ -6,6 +6,23 @@
 @import url("chrome://messenger/skin/abFormFields.css");
 @import url("chrome://messenger/skin/icons.css");
 
+:root {
+  appearance: none;
+  font: message-box;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
+  --address-book-blocks-box-shadow: 0 6px 6px -5px var(--in-content-button-background);
+
+  --address-book-book-label-color: var(--color-white);
+  --address-book-book-label-background: var(--color-gray-50);
+}
+
+@media (prefers-contrast) {
+  :root {
+    --address-book-blocks-box-shadow: none;
+  }
+}
+
 @media not (prefers-contrast) {
   :root {
     --in-content-button-background-active: var(--grey-90-a30);
@@ -23,16 +40,12 @@
       --in-content-primary-button-background-hover: #65c1ff;
       --in-content-primary-button-background-active: #85e1ff;
       --in-content-focus-outline-color: #45a1ff;
+
+      --address-book-blocks-box-shadow: none;
+      --address-book-book-label-color: var(--color-white);
+      --address-book-book-label-background: var(--color-gray-50);
     }
   }
-}
-
-:root {
-  appearance: none;
-  font: message-box;
-  background-color: var(--in-content-page-background);
-  color: var(--in-content-page-color);
-  --address-book-blocks-box-shadow: 0 6px 6px -5px var(--in-content-button-background);
 }
 
 /* Globals */
@@ -403,23 +416,10 @@ body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortCont
 ab-card-listrow {
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
-  padding-inline: 38px 8px;
+  padding-inline: 9px 6px;
   white-space: nowrap;
-  background-image: url("chrome://messenger/skin/icons/contact.svg");
-  background-repeat: no-repeat;
-  background-position: 15px center;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-ab-card-listrow.MailList,
-ab-table-card-listrow.MailList {
-  background-image: url("chrome://messenger/skin/icons/ablist.svg");
-}
-
-ab-card-listrow:dir(rtl) {
-  background-position-x: right 15px;
+  align-items: center;
 }
 
 ab-card-listrow:hover,
@@ -427,32 +427,47 @@ ab-table-card-listrow:hover {
   background-color: var(--in-content-item-hover);
 }
 
-ab-card-listrow > div {
+ab-card-listrow .ab-card-listrow-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   line-height: 1.3em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1 1 auto;
 }
 
-ab-card-listrow > div.line2 {
+ab-card-listrow .ab-card-second-line,
+ab-card-listrow .ab-card-first-line {
   display: flex;
   justify-content: space-between;
+  margin-block: 0;
+  font-size: 1rem;
+  position: relative;
 }
 
-ab-card-listrow > div.line2 > div {
+ab-card-listrow span {
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 1rem;
 }
 
-ab-card-listrow > div.line2 > div.address {
-  font-size: 1rem;
-  flex: 1;
-  margin-inline-end: 1em;
+ab-card-listrow .name {
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
-ab-card-listrow:not(.selected) > div.line2 > div {
+ab-card-listrow .name,
+ab-card-listrow .address {
+  flex: 1 1 auto;
+}
+
+ab-card-listrow:not(.selected) .ab-card-second-line {
   color: var(--in-content-deemphasized-text);
+}
+
+ab-card-listrow.selected .recipient-avatar.is-mail-list {
+  color: currentColor;
 }
 
 #cardsHeader {
@@ -957,6 +972,11 @@ input[type="number"]::-moz-number-spin-down {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  ab-card-listrow,
+  ab-table-card-listrow {
+    transition: background-color 320ms ease;
+  }
+
   #photoDropTarget.drop-loading .icon {
     display: unset;
     position: relative;

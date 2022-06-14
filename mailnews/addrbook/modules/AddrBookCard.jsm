@@ -61,35 +61,51 @@ AddrBookCard.prototype = {
 
   generateName(generateFormat, bundle) {
     let result = "";
-    let format;
-    if (generateFormat == Ci.nsIAbCard.GENERATE_DISPLAY_NAME) {
-      result = this.displayName;
-    } else if (!this.lastName.length) {
-      result = this.firstName;
-    } else if (!this.firstName.length) {
-      result = this.lastName;
-    } else if (generateFormat == Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER) {
-      format = bundle ? bundle.GetStringFromName("lastFirstFormat") : "%S, %S";
-      result = format
-        .replace("%S", this.lastName)
-        .replace("%S", this.firstName);
-    } else {
-      format = bundle ? bundle.GetStringFromName("firstLastFormat") : "%S %S";
-      result = format
-        .replace("%S", this.firstName)
-        .replace("%S", this.lastName);
+    switch (generateFormat) {
+      case Ci.nsIAbCard.GENERATE_DISPLAY_NAME:
+        result = this.displayName;
+        break;
+
+      case Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER:
+        if (this.lastName) {
+          result = bundle.formatStringFromName("lastFirstFormat", [
+            this.lastName,
+            [this.prefixName, this.firstName, this.middleName, this.suffixName]
+              .filter(Boolean)
+              .join(" "),
+          ]);
+        }
+        break;
+
+      default:
+        result = bundle.formatStringFromName("firstLastFormat", [
+          [this.prefixName, this.firstName, this.middleName]
+            .filter(Boolean)
+            .join(" "),
+          [this.lastName, this.suffixName].filter(Boolean).join(" "),
+        ]);
+        break;
     }
 
-    if (result == "") {
-      let org = this._vCardProperties.getFirstValue("org");
-      if (org) {
-        result = org[0];
-      }
-    }
-    if (result == "") {
-      let email = this.primaryEmail;
-      if (email) {
-        result = this.primaryEmail.split("@", 1)[0];
+    if (result == "" || result == ", ") {
+      result =
+        this.displayName ||
+        [
+          this.prefixName,
+          this.firstName,
+          this.middleName,
+          this.lastName,
+          this.suffixName,
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+      if (result == "") {
+        // We don't have anything to show as a contact name, so let's find the
+        // primary email and show that, if we have it, otherwise pass an empty
+        // string to remove any leftover data.
+        let email = this.primaryEmail;
+        result = email ? email.split("@", 1)[0] : "";
       }
     }
 

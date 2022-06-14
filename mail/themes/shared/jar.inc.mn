@@ -465,6 +465,7 @@
   skin/classic/messenger/illustrations/sloth.svg              (../shared/mail/illustrations/sloth.svg)
 
 # New design system
+  skin/classic/messenger/avatars.css                          (../shared/mail/avatars.css)
   skin/classic/messenger/icons.css                            (../shared/mail/icons.css)
   skin/classic/messenger/colors.css                           (../shared/mail/colors.css)
 

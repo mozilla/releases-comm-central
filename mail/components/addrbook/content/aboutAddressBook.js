@@ -1124,16 +1124,21 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
     super.connectedCallback();
 
     this.setAttribute("draggable", "true");
-    this.name = this.appendChild(document.createElement("div"));
+
+    this.avatar = this.appendChild(document.createElement("div"));
+    this.avatar.classList.add("recipient-avatar");
+    let dataContainer = this.appendChild(document.createElement("div"));
+    dataContainer.classList.add("ab-card-listrow-data");
+
+    let firstLine = dataContainer.appendChild(document.createElement("p"));
+    firstLine.classList.add("ab-card-first-line");
+    this.name = firstLine.appendChild(document.createElement("span"));
     this.name.classList.add("name");
-    let secondLine = this.appendChild(document.createElement("div"));
-    secondLine.classList.add("line2");
-    this.address = secondLine.appendChild(document.createElement("div"));
+
+    let secondLine = dataContainer.appendChild(document.createElement("p"));
+    secondLine.classList.add("ab-card-second-line");
+    this.address = secondLine.appendChild(document.createElement("span"));
     this.address.classList.add("address");
-    if (!this.view.directory) {
-      this.book = secondLine.appendChild(document.createElement("div"));
-      this.book.classList.add("book");
-    }
   }
 
   get index() {
@@ -1142,21 +1147,39 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
 
   set index(index) {
     super.index = index;
+
     let props = this.view.getRowProperties(index);
     if (props) {
       this.classList.add(props);
     }
+
+    let card = this.view.getCardFromRow(index);
     this.name.textContent = this.view.getCellText(index, {
       id: "GeneratedName",
     });
-    this.address.textContent = this.view
-      .getCardFromRow(index)
-      .emailAddresses.join(", ");
-    if (!this.view.directory) {
-      this.book.textContent = this.view.getCellText(index, {
-        id: "addrbook",
-      });
+
+    // Don't try to fetch the avatar or show the parent AB if this is a list.
+    if (!card.isMailList) {
+      let photoURL = card.photoURL;
+      if (photoURL) {
+        let img = document.createElement("img");
+        img.alt = this.name.textContent;
+        img.src = photoURL;
+        this.avatar.appendChild(img);
+      } else {
+        let letter = document.createElement("span");
+        letter.textContent = this.name.textContent.slice(0, 1).toUpperCase();
+        letter.ariaHidden = true;
+        this.avatar.appendChild(letter);
+      }
+      this.address.textContent = card.primaryEmail;
+    } else {
+      let img = this.avatar.appendChild(document.createElement("img"));
+      img.alt = "";
+      img.src = "chrome://messenger/skin/icons/new/compact/user-list.svg";
+      this.avatar.classList.add("is-mail-list");
     }
+
     this.setAttribute("aria-label", this.name.textContent);
   }
 }
