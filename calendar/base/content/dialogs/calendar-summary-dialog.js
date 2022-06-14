@@ -283,3 +283,56 @@ function useEditDialog(item) {
   });
   window.close();
 }
+
+/**
+ * Initializes the context menu used for the attendees area.
+ *
+ * @param {Event} event
+ */
+function onAttendeeContextMenu(event) {
+  let copyMenu = document.getElementById("attendee-popup-copy-menu");
+  let item = window.arguments[0].calendarEvent;
+
+  let attId =
+    event.target.getAttribute("attendeeid") || event.target.parentNode.getAttribute("attendeeid");
+  let attendee = item.getAttendees().find(att => att.id == attId);
+
+  if (!attendee) {
+    copyMenu.hidden = true;
+    return;
+  }
+
+  let id = attendee.toString();
+  let idMenuItem = document.getElementById("attendee-popup-copy-menu-id");
+  idMenuItem.setAttribute("label", id);
+  idMenuItem.hidden = false;
+
+  let name = attendee.commonName;
+  let nameMenuItem = document.getElementById("attendee-popup-copy-menu-common-name");
+  if (name && name != id) {
+    nameMenuItem.setAttribute("label", name);
+    nameMenuItem.hidden = false;
+  } else {
+    nameMenuItem.hidden = true;
+  }
+
+  copyMenu.hidden = false;
+}
+
+/**
+ * Copies the label value of a menuitem to the clipboard.
+ */
+async function copyLabelToClipboard(event) {
+  return navigator.clipboard.writeText(event.target.getAttribute("label"));
+}
+
+/**
+ * Brings up the compose window to send an e-mail to all attendees.
+ */
+function sendMailToAttendees() {
+  let item = window.arguments[0].calendarEvent;
+  let toList = cal.email.createRecipientList(item.getAttendees());
+  let emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [item.title]);
+  let identity = item.calendar.getProperty("imip.identity");
+  cal.email.sendTo(toList, emailSubject, null, identity);
+}

@@ -43,6 +43,12 @@ html|input.textbox-addressingWidget:disabled {
   padding: 2px;
   display: flex;
   align-items: baseline;
+  user-select: text;
+}
+
+.attendee-label:focus {
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 .itip-icon {

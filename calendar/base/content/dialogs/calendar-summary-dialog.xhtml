@@ -35,6 +35,7 @@
       scrolling="false">
 <head>
   <title><!-- item title --></title>
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="calendar/calendar-summary-dialog.ftl" />
   <link rel="localization" href="calendar/calendar-editable-item.ftl" />
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
@@ -133,7 +134,22 @@
               accesskey="&calendar.copylink.accesskey;"
               oncommand="locationCopyLink(this.parentNode.triggerNode)"/>
   </menupopup>
-
+  <!-- ATTENDEES CONTEXT MENU -->
+  <menupopup id="attendee-popup">
+    <menu id="attendee-popup-copy-menu"
+          data-l10n-id="text-action-copy">
+      <menupopup>
+        <menuitem id="attendee-popup-copy-menu-common-name"
+                  oncommand="copyLabelToClipboard(event)"/>
+        <menuitem id="attendee-popup-copy-menu-id"
+                  oncommand="copyLabelToClipboard(event)"/>
+      </menupopup>
+    </menu>
+    <menuitem id="attendee-popup-sendemail"
+              label="&event.email.attendees.label;"
+              accesskey="&event.email.attendees.accesskey;"
+              oncommand="sendMailToAttendees()"/>
+  </menupopup>
   <hbox id="calendar-summary-dialog-custom-button-footer" hidden="true">
     <spacer class="button-spacer" flex="1"/>
 

@@ -139,7 +139,10 @@
                    class="header"/>
             <separator class="groove" flex="1"/>
           </hbox>
-          <vbox class="item-attendees-list-container" flex="1">
+          <vbox class="item-attendees-list-container"
+                flex="1"
+                context="attendee-popup"
+                oncontextmenu="onAttendeeContextMenu(event)">
           </vbox>
         </box>
 

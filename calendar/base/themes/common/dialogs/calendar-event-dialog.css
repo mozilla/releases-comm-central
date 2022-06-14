@@ -413,11 +413,6 @@ label.label {
   margin: 2px 4px;
 }
 
-#calendar-event-dialog-inner .attendee-label:focus {
-  background-color: SelectedItem;
-  color: SelectedItemText;
-}
-
 /*--------------------------------------------------------------------
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/

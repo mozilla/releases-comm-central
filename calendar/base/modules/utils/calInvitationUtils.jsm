@@ -129,6 +129,7 @@ var calinvitation = {
     // NOTE: tooltip will not appear when the top level is XUL.
     attendeeLabel.setAttribute("title", tooltip);
     attendeeLabel.setAttribute("attendeeid", attendee.id);
+    attendeeLabel.setAttribute("tabindex", "0");
 
     if (modified) {
       attendeeLabel.classList.add("modified");
