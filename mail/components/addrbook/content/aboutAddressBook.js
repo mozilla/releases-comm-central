@@ -170,7 +170,7 @@ window.addEventListener("keypress", event => {
   }
 
   let targets = [booksList, cardsPane.searchInput, cardsPane.cardsList];
-  if (!detailsPane.form.hidden) {
+  if (!detailsPane.node.hidden) {
     targets.push(detailsPane.editButton);
   }
 
@@ -2099,13 +2099,14 @@ var detailsPane = {
       )
     );
 
-    this.form = document.getElementById("detailsPane");
-    this.vCardEdit = this.form.querySelector("vcard-edit");
+    this.node = document.getElementById("detailsPane");
     this.actions = document.getElementById("detailsActions");
     this.writeButton = document.getElementById("detailsWriteButton");
     this.eventButton = document.getElementById("detailsEventButton");
     this.searchButton = document.getElementById("detailsSearchButton");
     this.editButton = document.getElementById("editButton");
+    this.form = document.getElementById("editContactForm");
+    this.vCardEdit = this.form.querySelector("vcard-edit");
     this.deleteButton = document.getElementById("detailsDeleteButton");
     this.addContactBookList = document.getElementById("addContactBookList");
     this.cancelEditButton = document.getElementById("cancelEditButton");
@@ -2191,15 +2192,14 @@ var detailsPane = {
       }
     });
 
-    this.photoOuter = document.getElementById("photoOuter");
-    this.photo = document.getElementById("photo");
-    this.photoOuter.addEventListener("paste", photoDialog);
-    this.photoOuter.addEventListener("dragover", photoDialog);
-    this.photoOuter.addEventListener("drop", photoDialog);
-    this.photoOuter.addEventListener("click", event =>
+    this.photoInput = document.getElementById("photoInput");
+    this.photoInput.addEventListener("paste", photoDialog);
+    this.photoInput.addEventListener("dragover", photoDialog);
+    this.photoInput.addEventListener("drop", photoDialog);
+    this.photoInput.addEventListener("click", event =>
       this._onPhotoActivate(event)
     );
-    this.photoOuter.addEventListener("keypress", event =>
+    this.photoInput.addEventListener("keypress", event =>
       this._onPhotoActivate(event)
     );
 
@@ -2356,7 +2356,7 @@ var detailsPane = {
 
     this.currentCard = card;
     if (!card || card.isMailList) {
-      this.form.hidden = this.splitter.isCollapsed = true;
+      this.node.hidden = this.splitter.isCollapsed = true;
       return;
     }
 
@@ -2365,17 +2365,9 @@ var detailsPane = {
     );
     document.getElementById("viewPrimaryEmail").textContent = card.primaryEmail;
 
-    let photoURL = card.photoURL;
-    if (photoURL) {
-      this.photo.style.backgroundImage = `url("${photoURL}")`;
-      this.photo._url = photoURL;
-    } else {
-      this.photo.style.backgroundImage = null;
-      delete this.photo._url;
-    }
-
-    delete this.photo._blob;
-    delete this.photo._cropRect;
+    document.getElementById(
+      "viewContactPhoto"
+    ).style.backgroundImage = card.photoURL ? `url(${card.photoURL})` : null;
 
     this.writeButton.hidden = this.searchButton.hidden = !card.primaryEmail;
     this.eventButton.hidden =
@@ -2604,8 +2596,39 @@ var detailsPane = {
     section.hidden = list.childElementCount == 0;
 
     this.isEditing = false;
-    this.form.scrollTo(0, 0);
-    this.form.hidden = this.splitter.isCollapsed = false;
+    this.node.hidden = this.splitter.isCollapsed = false;
+    document.getElementById("viewContact").scrollTo(0, 0);
+  },
+
+  /**
+   * Show this given contact photo in the edit form.
+   *
+   * @param {?string} url - The URL of the photo to display, or null to
+   *   display none.
+   */
+  showEditPhoto(url) {
+    this.photoInput.style.backgroundImage = url ? `url(${url})` : null;
+  },
+
+  /**
+   * Store the given photo details to save later, and display the photo in the
+   * edit form.
+   *
+   * @param {?object} details - The photo details to save, or null to remove the
+   *   photo.
+   * @param {Blob} details.blob - The image blob of the photo to save.
+   * @param {string} details.sourceURL - The image basis of the photo, before
+   *   cropping.
+   * @param {DOMRect} details.cropRect - The cropping rectangle for the photo.
+   */
+  setPhoto(details) {
+    this._photoChanged = true;
+    this._photoDetails = details || {};
+    this.showEditPhoto(
+      details?.blob ? URL.createObjectURL(details.blob) : null
+    );
+    this.dirtyFields.add(this.photoInput);
+    this.isDirty = true;
   },
 
   /**
@@ -2633,23 +2656,17 @@ var detailsPane = {
         // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
         card.getProperty("PreferDisplayName", true) == true;
     } else {
-      document.getElementById("viewContactName").textContent = "";
-      let nickname = document.getElementById("viewContactNickName");
-      nickname.textContent = "";
-      nickname.hidden = true;
-      document.getElementById("viewPrimaryEmail").textContent = "";
-      this.photo.style.backgroundImage = null;
-      delete this.photo._blob;
-      delete this.photo._cropRect;
-      delete this.photo._url;
       this.vCardEdit.vCardString = vCard ?? "";
     }
+    this.showEditPhoto(card?.photoURL);
+    this._photoDetails = { sourceURL: card?.photoURL };
+    this._photoChanged = false;
 
     this.deleteButton.hidden = !card;
 
     this.isEditing = true;
-    this.form.hidden = this.splitter.isCollapsed = false;
-    this.form.scrollTo(0, 0);
+    this.node.hidden = this.splitter.isCollapsed = false;
+    this.form.querySelector(".contact-details-scroll").scrollTo(0, 0);
     this.vCardEdit.setFocus();
   },
 
@@ -2692,7 +2709,7 @@ var detailsPane = {
     );
 
     // No photo or a new photo. Delete the old one.
-    if (!this.photo.style.backgroundImage || this.photo._blob) {
+    if (this._photoChanged) {
       let oldLeafName = card.getProperty("PhotoName", "");
       if (oldLeafName) {
         let oldPath = PathUtils.join(
@@ -2714,12 +2731,12 @@ var detailsPane = {
     }
 
     // Save the new photo.
-    if (this.photo._blob) {
+    if (this._photoChanged && this._photoDetails.blob) {
       if (book.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
         let reader = new FileReader();
         await new Promise(resolve => {
           reader.onloadend = resolve;
-          reader.readAsDataURL(this.photo._blob);
+          reader.readAsDataURL(this._photoDetails.blob);
         });
         if (card.vCardProperties.getFirstValue("version") == "4.0") {
           card.vCardProperties.addEntry(
@@ -2738,13 +2755,12 @@ var detailsPane = {
       } else {
         let leafName = `${AddrBookUtils.newUID()}.jpg`;
         let path = PathUtils.join(PathUtils.profileDir, "Photos", leafName);
-        let buffer = await this.photo._blob.arrayBuffer();
+        let buffer = await this._photoDetails.blob.arrayBuffer();
         await IOUtils.write(path, new Uint8Array(buffer));
         card.setProperty("PhotoName", leafName);
       }
-
-      delete this.photo._blob;
     }
+    this._photoChanged = false;
 
     this.isEditing = false;
 
@@ -2867,8 +2883,12 @@ var detailsPane = {
       return;
     }
 
-    if (this.photo._url) {
-      photoDialog.showWithURL(this.photo._url, this.photo._cropRect);
+    if (this._photoDetails.sourceURL) {
+      photoDialog.showWithURL(
+        this._photoDetails.sourceURL,
+        this._photoDetails.cropRect,
+        true
+      );
     } else {
       photoDialog.showEmpty();
     }
@@ -3048,8 +3068,7 @@ var photoDialog = {
     this._setState("target");
 
     if (!this._dialog.open) {
-      this._dialog.discardButton.hidden = !detailsPane.photo.style
-        .backgroundImage;
+      this._dialog.discardButton.hidden = true;
       this._dialog.showModal();
     }
   },
@@ -3067,10 +3086,12 @@ var photoDialog = {
    * Show the photo dialog, with `URL` as the displayed image and (optionally)
    * a pre-set crop rectangle
    *
-   * @param {string} url
-   * @param {DOMRect} cropRect
+   * @param {string} url - The URL of the image.
+   * @param {?DOMRect} cropRect - The rectangle used to crop the image.
+   * @param {boolean} [showDiscard=false] - Whether to show a discard button
+   *   when opening the dialog.
    */
-  showWithURL(url, cropRect) {
+  showWithURL(url, cropRect, showDiscard = false) {
     // Load the image from the URL, to figure out the scale factor.
     let img = document.createElement("img");
     img.addEventListener("load", () => {
@@ -3120,8 +3141,7 @@ var photoDialog = {
     this._setState("loading");
 
     if (!this._dialog.open) {
-      this._dialog.discardButton.hidden = !detailsPane.photo.style
-        .backgroundImage;
+      this._dialog.discardButton.hidden = !showDiscard;
       this._dialog.showModal();
     }
   },
@@ -3206,18 +3226,17 @@ var photoDialog = {
       FINAL_SIZE
     );
 
-    detailsPane.photo._blob = await new Promise(resolve =>
+    let blob = await new Promise(resolve =>
       canvas2.toBlob(resolve, "image/jpeg")
     );
-    detailsPane.photo._cropRect = DOMRect.fromRect(this._cropRect);
-    detailsPane.photo._url = this._preview.getAttribute("href");
-    detailsPane.photo.style.backgroundImage = `url("${URL.createObjectURL(
-      detailsPane.photo._blob
-    )}")`;
+
+    detailsPane.setPhoto({
+      blob,
+      sourceURL: this._preview.getAttribute("href"),
+      cropRect: DOMRect.fromRect(this._cropRect),
+    });
 
     this._dialog.close();
-    detailsPane.dirtyFields.add(this.photo);
-    detailsPane.isDirty = true;
   },
 
   /**
@@ -3234,10 +3253,7 @@ var photoDialog = {
    */
   _discard() {
     this._dialog.close();
-    detailsPane.photo.style.backgroundImage = null;
-    delete detailsPane.photo._blob;
-    delete detailsPane.photo._cropRect;
-    delete detailsPane.photo._url;
+    detailsPane.setPhoto(null);
   },
 
   handleEvent(event) {

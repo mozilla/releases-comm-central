@@ -265,12 +265,76 @@ add_task(async function test_basic_edit() {
   let booksList = abDocument.getElementById("books");
   let cardsList = abDocument.getElementById("cards");
   let detailsPane = abDocument.getElementById("detailsPane");
-
-  let viewContactName = abDocument.getElementById("viewContactName");
-  let viewContactNickName = abDocument.getElementById("viewContactNickName");
   let editButton = abDocument.getElementById("editButton");
   let cancelEditButton = abDocument.getElementById("cancelEditButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  let viewContactName = abDocument.getElementById("viewContactName");
+  let viewContactNickName = abDocument.getElementById("viewContactNickName");
+  let viewContactEmail = abDocument.getElementById("viewPrimaryEmail");
+  let editContactName = abDocument.getElementById("editContactHeadingName");
+  let editContactNickName = abDocument.getElementById(
+    "editContactHeadingNickName"
+  );
+  let editContactEmail = abDocument.getElementById("editContactHeadingEmail");
+
+  /**
+   * Assert that the heading has the expected text content and visibility.
+   *
+   * @param {Element} headingEl - The heading to test.
+   * @param {string} expect - The expected text content. If this is "", the
+   *   heading is expected to be hidden as well.
+   */
+  function assertHeading(headingEl, expect) {
+    Assert.equal(
+      headingEl.textContent,
+      expect,
+      `Heading ${headingEl.id} content should match`
+    );
+    if (expect) {
+      Assert.ok(
+        BrowserTestUtils.is_visible(headingEl),
+        `Heading ${headingEl.id} should be visible`
+      );
+    } else {
+      Assert.ok(
+        BrowserTestUtils.is_hidden(headingEl),
+        `Heading ${headingEl.id} should be visible`
+      );
+    }
+  }
+
+  /**
+   * Assert the headings shown in the contact view page.
+   *
+   * @param {string} name - The expected name, or an empty string if none is
+   *   expected.
+   * @param {string} nickname - The expected nickname, or an empty string if
+   *   none is expected.
+   * @param {string} email - The expected email, or an empty string if none is
+   *   expected.
+   */
+  function assertViewHeadings(name, nickname, email) {
+    assertHeading(viewContactName, name);
+    assertHeading(viewContactNickName, nickname);
+    assertHeading(viewContactEmail, email);
+  }
+
+  /**
+   * Assert the headings shown in the contact edit page.
+   *
+   * @param {string} name - The expected name, or an empty string if none is
+   *   expected.
+   * @param {string} nickname - The expected nickname, or an empty string if
+   *   none is expected.
+   * @param {string} email - The expected email, or an empty string if none is
+   *   expected.
+   */
+  function assertEditHeadings(name, nickname, email) {
+    assertHeading(editContactName, name);
+    assertHeading(editContactNickName, nickname);
+    assertHeading(editContactEmail, email);
+  }
 
   Assert.ok(detailsPane.hidden);
   Assert.ok(!document.querySelector("vcard-n"));
@@ -284,8 +348,7 @@ add_task(async function test_basic_edit() {
     BrowserTestUtils.is_visible(detailsPane)
   );
 
-  Assert.ok(BrowserTestUtils.is_visible(viewContactName));
-  Assert.equal(viewContactName.textContent, "contact 1");
+  assertViewHeadings("contact 1", "", "contact.1@invalid");
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -300,6 +363,9 @@ add_task(async function test_basic_edit() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
+  // Headings reflect initial values.
+  assertEditHeadings("contact 1", "", "contact.1@invalid");
+
   // Check that pressing Tab can't get us stuck on an element that shouldn't
   // have focus.
 
@@ -312,7 +378,7 @@ add_task(async function test_basic_edit() {
   EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
   Assert.ok(
     abDocument
-      .getElementById("detailsInner")
+      .getElementById("editContactForm")
       .contains(abDocument.activeElement),
     "focus should be on the editing form"
   );
@@ -352,8 +418,7 @@ add_task(async function test_basic_edit() {
   });
 
   // Make sure the header values reflect the fields values.
-  Assert.equal(viewContactName.textContent, "contact 1");
-  Assert.equal(viewContactNickName.textContent, "");
+  assertEditHeadings("contact 1", "", "contact.1@invalid");
 
   // Make some changes but cancel them.
 
@@ -364,9 +429,8 @@ add_task(async function test_basic_edit() {
     SecondEmail: "i@roman.invalid",
   });
 
-  Assert.equal(viewContactName.textContent, "contact one");
-  Assert.ok(BrowserTestUtils.is_visible(viewContactNickName));
-  Assert.equal(viewContactNickName.textContent, "contact nickname");
+  // Headings reflect new values.
+  assertEditHeadings("contact one", "contact nickname", "contact.1@invalid");
 
   let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
@@ -375,11 +439,8 @@ add_task(async function test_basic_edit() {
   await notInEditingMode();
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
-  Assert.ok(BrowserTestUtils.is_visible(viewContactName));
-  Assert.equal(viewContactName.textContent, "contact 1");
-
-  Assert.ok(BrowserTestUtils.is_hidden(viewContactNickName));
-  Assert.equal(viewContactNickName.textContent, "");
+  // Heading reflects initial values.
+  assertViewHeadings("contact 1", "", "contact.1@invalid");
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
@@ -404,6 +465,9 @@ add_task(async function test_basic_edit() {
   Assert.ok(BrowserTestUtils.is_visible(cancelEditButton));
   Assert.ok(BrowserTestUtils.is_visible(saveEditButton));
 
+  // Headings are restored.
+  assertEditHeadings("contact 1", "", "contact.1@invalid");
+
   checkInputValues({
     FirstName: "contact",
     LastName: "1",
@@ -421,15 +485,14 @@ add_task(async function test_basic_edit() {
     SecondEmail: "i@roman.invalid",
   });
 
+  assertEditHeadings("contact one", "contact nickname", "contact.1@invalid");
+
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
-  Assert.ok(BrowserTestUtils.is_visible(viewContactName));
-  Assert.equal(viewContactName.textContent, "contact one");
-
-  Assert.ok(BrowserTestUtils.is_visible(viewContactNickName));
-  Assert.equal(viewContactNickName.textContent, "contact nickname");
+  // Headings show new values
+  assertViewHeadings("contact one", "contact nickname", "contact.1@invalid");
 
   Assert.ok(BrowserTestUtils.is_visible(editButton));
   Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));

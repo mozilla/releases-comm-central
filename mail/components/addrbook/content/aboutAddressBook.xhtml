@@ -133,20 +133,17 @@
     </div>
   </div>
   <hr is="pane-splitter" id="detailsSplitter" resize-id="detailsPane" />
-  <form id="detailsPane" autocomplete="off" hidden="hidden">
-    <div id="detailsInner">
-      <header id="detailsHeader">
-        <div id="photoOuter">
-          <div id="photo"></div>
-          <div id="photoOverlay" tabindex="0"></div>
-        </div>
-        <div id="contactHeader">
-          <h1 id="viewContactName"></h1>
-          <p id="viewContactNickName"></p>
-          <p id="viewPrimaryEmail"></p>
+  <div id="detailsPane" hidden="hidden">
+    <article id="viewContact" class="contact-details-scroll">
+      <header class="contact-header">
+        <div id="viewContactPhoto" class="contact-photo"></div>
+        <div class="contact-headings">
+          <h1 id="viewContactName" class="contact-heading-name"></h1>
+          <p id="viewContactNickName" class="contact-heading-nickname"></p>
+          <p id="viewPrimaryEmail" class="contact-heading-email"></p>
         </div>
       </header>
-      <section id="detailsBody" class="view">
+      <div id="detailsBody">
         <section id="detailsActions" class="button-block">
           <div>
             <button type="button" id="detailsWriteButton"
@@ -196,30 +193,53 @@
             <span class="entry-value"></span>
           </li>
         </template>
-      </section>
-#include vcard-edit/vCardTemplates.inc.xhtml
-      <vcard-edit class="edit"/>
-    </div>
-
-    <div id="detailsFooter" class="edit button-block">
-      <div>
-        <button type="button" id="detailsDeleteButton"
-                class="icon-button"
-                data-l10n-id="about-addressbook-delete-edit-contact-button"></button>
       </div>
-      <div>
-        <xul:label control="addContactBookList"
-                   data-l10n-id="about-addressbook-add-contact-to"/>
-        <xul:menulist is="menulist-addrbooks" id="addContactBookList"
-                      writable="true"/>
-        <button type="reset" id="cancelEditButton"
-                data-l10n-id="about-addressbook-cancel-edit-contact-button"></button>
-        <button type="submit" id="saveEditButton"
-                class="primary"
-                data-l10n-id="about-addressbook-save-edit-contact-button"></button>
+    </article>
+    <form id="editContactForm"
+          autocomplete="off"
+          aria-labelledby="editContactHeadingName">
+      <div class="contact-details-scroll">
+        <div class="contact-header">
+          <div class="contact-headings">
+            <!-- TODO: provide an initial "New Contact" heading when creating a
+               - new contact to provide a visible Form title and an accessible
+               - name for the form. -->
+            <h1 id="editContactHeadingName" class="contact-heading-name"></h1>
+            <p id="editContactHeadingNickName" class="contact-heading-nickname">
+            </p>
+            <p id="editContactHeadingEmail" class="contact-heading-email"></p>
+          </div>
+          <!-- FIXME: The photo 'input' is not semantic or accessible. -->
+          <!-- NOTE: We place the photo 'input' after the headings, since it is
+             - functionally a form control. However, we style the photo to
+             - appear at the inline-start of the contact-header. -->
+          <div id="photoInput" class="contact-photo" tabindex="0">
+            <div id="photoOverlay"></div>
+          </div>
+        </div>
+  #include vcard-edit/vCardTemplates.inc.xhtml
+        <vcard-edit />
       </div>
-    </div>
-  </form>
+      <div id="detailsFooter" class="button-block">
+        <div>
+          <button type="button" id="detailsDeleteButton"
+                  class="icon-button"
+                  data-l10n-id="about-addressbook-delete-edit-contact-button"></button>
+        </div>
+        <div>
+          <xul:label control="addContactBookList"
+                     data-l10n-id="about-addressbook-add-contact-to"/>
+          <xul:menulist is="menulist-addrbooks" id="addContactBookList"
+                        writable="true"/>
+          <button type="reset" id="cancelEditButton"
+                  data-l10n-id="about-addressbook-cancel-edit-contact-button"></button>
+          <button type="submit" id="saveEditButton"
+                  class="primary"
+                  data-l10n-id="about-addressbook-save-edit-contact-button"></button>
+        </div>
+      </div>
+    </form>
+  </div>
   <div id="detailsPaneBackdrop"><!--
     When editing a card, this element covers everything except #detailsPane,
     preventing change to another card.

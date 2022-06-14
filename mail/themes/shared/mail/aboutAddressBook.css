@@ -573,18 +573,37 @@ body.layout-list #detailsSplitter,
 
 #detailsPane {
   grid-area: details;
-  overflow: auto;
   color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
+  min-height: 18em;
 }
 
 #detailsPane:not([hidden]) {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template: "scroll-content" 1fr
+                 "footer" auto / 1fr;
 }
 
-body.layout-table #detailsPane {
-  min-height: 18em;
+#editContactForm {
+  display: contents;
+}
+
+.contact-details-scroll {
+  grid-area: scroll-content;
+  overflow: auto;
+  padding: 21px;
+}
+
+#detailsFooter {
+  grid-area: footer;
+  padding: 21px;
+  background-color: var(--in-content-page-background);
+}
+
+.contact-details-scroll > *,
+#detailsFooter {
+  /* Fits two #detailsBody and vcard-edit columns. */
+  max-width: 64em;
 }
 
 body.is-editing #detailsPane {
@@ -605,50 +624,26 @@ body:not(.is-editing) #detailsPaneBackdrop {
   display: none;
 }
 
-#detailsInner {
-  flex: 1;
-  overflow: auto;
-  padding: 21px;
-}
-
-body.is-editing #detailsPane .view {
+body.is-editing #viewContact {
   display: none;
 }
 
-body:not(.is-editing) #detailsPane :is(.edit, .noValue) {
-  display: none !important;
+body:not(.is-editing) #editContactForm {
+  display: none;
 }
 
-#detailsHeader,
-#detailsBody,
-#detailsFooter,
-vcard-edit {
-  /* Two <vcard-edit> columns. */
-  max-width: 64em;
-}
-
-#detailsHeader {
-  display: flex;
-  align-items: center;
-}
-
-#photoOuter {
-  margin-inline-end: 1em;
-  width: 100px;
-  height: 100px;
+.contact-header {
   display: grid;
+  grid-template: "photo headings" auto / auto 1fr;
+  align-items: center;
+  gap: 1em;
 }
 
-#photo,
-#photoOverlay {
+.contact-photo {
+  grid-area: photo;
   width: 100px;
   height: 100px;
-  grid-column: 1;
-  grid-row: 1;
   border-radius: 100%;
-}
-
-#photo {
   background-size: cover;
   background-position: center;
   background-color: var(--in-content-button-background);
@@ -658,20 +653,22 @@ vcard-edit {
   fill: var(--in-content-box-background);
 }
 
+#photoInput {
+  position: relative;
+}
+
 #photoOverlay {
-  display: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 100%;
 }
 
-body.is-editing #detailsPane #photoOverlay {
-  display: block;
-}
-
-#photoOverlay:focus {
+#photoInput:focus-visible {
   outline: 2px solid var(--in-content-focus-outline-color);
   outline-offset: 2px;
 }
 
-#photoOverlay:is(:focus, :hover) {
+#photoInput:is(:focus-visible, :hover) #photoOverlay {
   background-color: #0003;
   background-image: url("chrome://messenger/skin/icons/more.svg");
   background-position: center center;
@@ -682,30 +679,30 @@ body.is-editing #detailsPane #photoOverlay {
   cursor: pointer;
 }
 
-#contactHeader {
+.contact-headings {
+  grid-area: headings;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  flex: 1;
   word-break: break-word;
 }
 
-#contactHeader h1,
-#contactHeader p {
+.contact-headings h1,
+.contact-headings p {
   margin-block: 0;
 }
 
-#viewContactName {
+.contact-heading-name {
   font-size: 1.6rem;
   font-weight: 400;
 }
 
-#viewContactNickName {
+.contact-heading-nickname {
   font-size: 1.2rem;
   color: var(--in-content-deemphasized-text);
 }
 
-#viewPrimaryEmail {
+.contact-heading-email {
   margin-block: 0;
   font-size: 1.1rem;
   font-weight: 400;
@@ -825,11 +822,6 @@ section#notes div {
 
 .entry-value {
   word-break: break-all;
-}
-
-#detailsFooter {
-  padding: 21px;
-  background-color: var(--in-content-page-background);
 }
 
 #detailsDeleteButton {

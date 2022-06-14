@@ -35,8 +35,13 @@ class VCardEdit extends HTMLElement {
     let clonedTemplate = template.content.cloneNode(true);
     this.shadowRoot.appendChild(clonedTemplate);
 
-    this.contactName = document.getElementById("viewContactName");
-    this.contactNickName = document.getElementById("viewContactNickName");
+    this.contactNameHeading = document.getElementById("editContactHeadingName");
+    this.contactNickNameHeading = document.getElementById(
+      "editContactHeadingNickName"
+    );
+    this.contactEmailHeading = document.getElementById(
+      "editContactHeadingEmail"
+    );
   }
 
   connectedCallback() {
@@ -209,6 +214,11 @@ class VCardEdit extends HTMLElement {
       this.checkForBdayOccurences();
     }
 
+    // TODO: Call updateEmailHeading when the primary email might have
+    // changed.
+
+    this.updateNickName();
+    this.updateEmailHeading();
     this.generateContactName();
   }
 
@@ -221,7 +231,7 @@ class VCardEdit extends HTMLElement {
     // Don't generate any preview if the contact name element is not available,
     // which it might happen since this component is used in other areas outside
     // the address book UI.
-    if (!this.contactName) {
+    if (!this.contactNameHeading) {
       return;
     }
 
@@ -270,11 +280,12 @@ class VCardEdit extends HTMLElement {
       // We don't have anything to show as a contact name, so let's find the
       // primary email and show that, if we have it, otherwise pass an empty
       // string to remove any leftover data.
+      // TODO: Update the heading when the primary email changes as well.
       let email = this.getPrimaryEmail();
       result = email ? email.split("@", 1)[0] : "";
     }
 
-    this.contactName.textContent = result;
+    this.contactNameHeading.textContent = result;
     this.fillDisplayName(event);
   }
 
@@ -299,19 +310,35 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
-   * Update the nickname value of the contact header when in edit mode.
+   * Update the nickname value of the contact header.
    */
   updateNickName() {
     // Don't generate any preview if the contact nickname element is not
     // available, which it might happen since this component is used in other
     // areas outside the address book UI.
-    if (!this.contactNickName) {
+    if (!this.contactNickNameHeading) {
       return;
     }
 
     let value = this.nickName.value.trim();
-    this.contactNickName.hidden = !value;
-    this.contactNickName.textContent = value;
+    this.contactNickNameHeading.hidden = !value;
+    this.contactNickNameHeading.textContent = value;
+  }
+
+  /**
+   * Update the email value of the contact header.
+   */
+  updateEmailHeading() {
+    // Don't generate any preview if the contact nickname email is not
+    // available, which it might happen since this component is used in other
+    // areas outside the address book UI.
+    if (!this.contactEmailHeading) {
+      return;
+    }
+
+    let value = this.getPrimaryEmail();
+    this.contactEmailHeading.hidden = !value;
+    this.contactEmailHeading.textContent = value;
   }
 
   /**
@@ -328,7 +355,7 @@ class VCardEdit extends HTMLElement {
     let slot = [...emails].find(
       el => el.vCardPropertyEntry.params.pref === "1"
     );
-    return slot.emailEl.value;
+    return slot?.emailEl.value || "";
   }
 
   /**
@@ -343,7 +370,7 @@ class VCardEdit extends HTMLElement {
       event?.originalTarget.id != "vCardDisplayName" &&
       !this.displayName.isDirty
     ) {
-      this.displayName.value = this.contactName.textContent;
+      this.displayName.value = this.contactNameHeading.textContent;
     }
   }
 

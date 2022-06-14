@@ -59,7 +59,7 @@ async function waitForPreviewChange() {
 
 async function waitForPhotoChange() {
   let abWindow = getAddressBookWindow();
-  let photo = abWindow.document.getElementById("photo");
+  let photo = abWindow.document.getElementById("photoInput");
   let dialog = abWindow.document.getElementById("photoDialog");
   let oldValue = photo.style.backgroundImage;
   await BrowserTestUtils.waitForMutationCondition(
@@ -226,7 +226,8 @@ async function subtest_add_photo(book) {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let saveEditButton = abDocument.getElementById("saveEditButton");
-  let photo = abDocument.getElementById("photo");
+  let editPhoto = abDocument.getElementById("photoInput");
+  let viewPhoto = abDocument.getElementById("viewContactPhoto");
   let dialog = abWindow.document.getElementById("photoDialog");
   let { saveButton } = dialog;
 
@@ -237,8 +238,8 @@ async function subtest_add_photo(book) {
 
   // Open the photo dialog by clicking on the photo.
 
-  Assert.equal(photo.style.backgroundImage, "", "no photo shown");
-  EventUtils.synthesizeMouseAtCenter(photo, {}, abWindow);
+  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
+  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -263,7 +264,7 @@ async function subtest_add_photo(book) {
   let photoChangePromise = waitForPhotoChange();
   EventUtils.synthesizeMouseAtCenter(saveButton, {}, abWindow);
   await photoChangePromise;
-  Assert.notEqual(photo.style.backgroundImage, "", "a photo is shown");
+  Assert.notEqual(editPhoto.style.backgroundImage, "", "a photo is shown");
 
   // Save the contact.
 
@@ -273,6 +274,13 @@ async function subtest_add_photo(book) {
   });
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
+
+  // Photo shown in view.
+  Assert.notEqual(
+    viewPhoto.style.backgroundImage,
+    "",
+    "a photo is shown in contact view"
+  );
 
   let [card, uid] = await createdPromise;
   Assert.equal(uid, book.UID);
@@ -286,7 +294,8 @@ async function subtest_dont_add_photo(book) {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let saveEditButton = abDocument.getElementById("saveEditButton");
-  let photo = abDocument.getElementById("photo");
+  let editPhoto = abDocument.getElementById("photoInput");
+  let viewPhoto = abDocument.getElementById("viewContactPhoto");
   let dialog = abWindow.document.getElementById("photoDialog");
   let { saveButton, cancelButton, discardButton } = dialog;
   let svg = dialog.querySelector("svg");
@@ -296,7 +305,7 @@ async function subtest_dont_add_photo(book) {
 
   // Drop a file on the photo.
 
-  dropFile(photo, "data/photo2.jpg");
+  dropFile(editPhoto, "data/photo2.jpg");
   await waitForDialogOpenState(true);
   await TestUtils.waitForCondition(() => BrowserTestUtils.is_visible(svg));
 
@@ -309,11 +318,11 @@ async function subtest_dont_add_photo(book) {
 
   EventUtils.synthesizeMouseAtCenter(cancelButton, {}, abWindow);
   await waitForDialogOpenState(false);
-  Assert.equal(photo.style.backgroundImage, "", "no photo shown");
+  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
 
   // Open the photo dialog by clicking on the photo.
 
-  EventUtils.synthesizeMouseAtCenter(photo, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -349,11 +358,11 @@ async function subtest_dont_add_photo(book) {
   let photoChangePromise = waitForPhotoChange();
   EventUtils.synthesizeMouseAtCenter(saveButton, {}, abWindow);
   await photoChangePromise;
-  Assert.notEqual(photo.style.backgroundImage, "", "a photo is shown");
+  Assert.notEqual(editPhoto.style.backgroundImage, "", "a photo is shown");
 
   // Open the photo dialog by clicking on the photo.
 
-  EventUtils.synthesizeMouseAtCenter(photo, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -370,7 +379,7 @@ async function subtest_dont_add_photo(book) {
 
   // Open the photo dialog by clicking on the photo.
 
-  EventUtils.synthesizeMouseAtCenter(photo, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -381,6 +390,7 @@ async function subtest_dont_add_photo(book) {
 
   EventUtils.synthesizeMouseAtCenter(cancelButton, {}, abWindow);
   await waitForDialogOpenState(false);
+  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
 
   // Save the contact and check the photo was NOT saved.
 
@@ -390,6 +400,12 @@ async function subtest_dont_add_photo(book) {
   });
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
+
+  Assert.equal(
+    viewPhoto.style.backgroundImage,
+    "",
+    "no photo shown in contact view"
+  );
 
   let [card, uid] = await createdPromise;
   Assert.equal(uid, book.UID);
@@ -404,24 +420,29 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
   let cardsList = abDocument.getElementById("cards");
   let editButton = abDocument.getElementById("editButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
-  let photo = abDocument.getElementById("photo");
+  let editPhoto = abDocument.getElementById("photoInput");
+  let viewPhoto = abDocument.getElementById("viewContactPhoto");
   let dialog = abWindow.document.getElementById("photoDialog");
   let { discardButton } = dialog;
 
   openDirectory(book);
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  Assert.ok(
+    checkPhotoCallback(viewPhoto.style.backgroundImage),
+    "saved photo shown in contact view"
+  );
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
   // Open the photo dialog by clicking on the photo.
 
   Assert.ok(
-    checkPhotoCallback(photo.style.backgroundImage),
-    "saved photo shown"
+    checkPhotoCallback(editPhoto.style.backgroundImage),
+    "saved photo shown in edit view"
   );
 
-  EventUtils.synthesizeMouseAtCenter(photo, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
   await waitForDialogOpenState(true);
 
   checkDialogElements({
@@ -441,6 +462,11 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
   let updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
+  Assert.equal(
+    viewPhoto.style.backgroundImage,
+    "",
+    "photo no longer shown in contact view"
+  );
 
   let [card, uid] = await updatedPromise;
   Assert.equal(uid, book.UID);
@@ -454,7 +480,7 @@ async function subtest_paste_url() {
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let cancelEditButton = abDocument.getElementById("cancelEditButton");
-  let photo = abDocument.getElementById("photo");
+  let editPhoto = abDocument.getElementById("photoInput");
   let dropTarget = abDocument.getElementById("photoDropTarget");
 
   let transfer = Cc["@mozilla.org/widget/transferable;1"].createInstance(
@@ -471,13 +497,13 @@ async function subtest_paste_url() {
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.equal(photo.style.backgroundImage, "", "no photo shown");
+  Assert.equal(editPhoto.style.backgroundImage, "", "no photo shown");
 
   Assert.equal(abDocument.activeElement.id, "vcard-n-firstname");
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
   // Focus is on name prefix button.
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
-  Assert.equal(abDocument.activeElement.id, "photoOverlay");
+  Assert.equal(abDocument.activeElement, editPhoto);
 
   // Paste a URL.
 
@@ -502,7 +528,7 @@ async function subtest_paste_url() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
   await waitForDialogOpenState(false);
 
-  EventUtils.synthesizeMouseAtCenter(photo, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
   await waitForDialogOpenState(true);
   checkDialogElements({
     dropTargetClass: "drop-target",
@@ -532,7 +558,7 @@ async function subtest_paste_url() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
   await waitForDialogOpenState(false);
 
-  EventUtils.synthesizeMouseAtCenter(photo, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(editPhoto, {}, abWindow);
   await waitForDialogOpenState(true);
   checkDialogElements({
     dropTargetClass: "drop-target",
