@@ -129,6 +129,43 @@ add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
 });
 
 /**
+ * Test spam action prefs are migrated when changing hostname/username.
+ */
+add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
+  // Create an imap server.
+  let incomingServer1 = MailServices.accounts.createIncomingServer(
+    "user-imap",
+    "imap.localhost",
+    "imap"
+  );
+  incomingServer1.setCharValue(
+    "spamActionTargetFolder",
+    incomingServer1.serverURI + "/Junk"
+  );
+
+  equal(
+    incomingServer1.spamSettings.actionTargetAccount,
+    "imap://user-imap@imap.localhost"
+  );
+  equal(
+    incomingServer1.spamSettings.actionTargetFolder,
+    "imap://user-imap@imap.localhost/Junk"
+  );
+
+  // Change the username.
+  incomingServer1.username = "user";
+
+  equal(
+    incomingServer1.spamSettings.actionTargetAccount,
+    "imap://user@imap.localhost"
+  );
+  equal(
+    incomingServer1.spamSettings.actionTargetFolder,
+    "imap://user@imap.localhost/Junk"
+  );
+});
+
+/**
  * Test filters are migrated when changing hostname/username.
  */
 add_task(function testMigrateFiltersOnChangeUsernameHostname() {

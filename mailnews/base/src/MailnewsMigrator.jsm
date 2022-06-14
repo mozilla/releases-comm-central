@@ -270,17 +270,15 @@ function migrateServerAndUserName() {
     if (realHostname) {
       branch.setCharPref(`${key}.hostname`, realHostname);
       branch.clearUserPref(`${key}.realhostname`);
-      branch.clearUserPref("spamActionTargetAccount");
     }
     let realUsername = branch.getCharPref(`${key}.realuserName`, "");
     if (realUsername) {
       branch.setCharPref(`${key}.userName`, realUsername);
       branch.clearUserPref(`${key}.realuserName`);
-      branch.clearUserPref("spamActionTargetAccount");
     }
-    // Previously, when hostname/username changed, LoginManager still contains
-    // the old hostname/username, try to migrate login info to use the new
-    // hostname/username.
+    // Previously, when hostname/username changed, LoginManager and many prefs
+    // still contain the old hostname/username, try to migrate them to use the
+    // new hostname/username.
     if (
       ["imap", "pop3", "nntp"].includes(type) &&
       (realHostname || realUsername)

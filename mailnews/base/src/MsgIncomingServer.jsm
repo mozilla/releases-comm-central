@@ -80,6 +80,31 @@ function migrateIdentities(oldServerUri, newServerUri) {
 }
 
 /**
+ * When hostname/username changes, update .spamActionTargetAccount and
+ * .spamActionTargetFolder prefs.
+ * @param {string} oldServerUri - The server uri before the change.
+ * @param {string} newServerUri - The server uri after the change.
+ */
+function migrateSpamActions(oldServerUri, newServerUri) {
+  for (let server of MailServices.accounts.allServers) {
+    let targetAccount = server.getCharValue("spamActionTargetAccount");
+    let targetFolder = server.getCharValue("spamActionTargetFolder");
+    if (targetAccount.startsWith(oldServerUri)) {
+      server.setCharValue(
+        "spamActionTargetAccount",
+        targetAccount.replace(oldServerUri, newServerUri)
+      );
+    }
+    if (targetFolder.startsWith(oldServerUri)) {
+      server.setCharValue(
+        "spamActionTargetFolder",
+        targetFolder.replace(oldServerUri, newServerUri)
+      );
+    }
+  }
+}
+
+/**
  * When hostname/username changes, update targetFolderUri in related filters
  * to the new folder uri.
  * @param {string} oldServerUri - The server uri before the change.
@@ -162,6 +187,11 @@ function migrateServerUris(
 
   try {
     migrateIdentities(oldServerUri, newServerUri);
+  } catch (e) {
+    Cu.reportError(e);
+  }
+  try {
+    migrateSpamActions(oldServerUri, newServerUri);
   } catch (e) {
     Cu.reportError(e);
   }
@@ -718,12 +748,10 @@ class MsgIncomingServer {
       this.hostName,
       this.username
     );
+    this._spamSettings = null;
 
     // Clear the clientid because the user or host have changed.
     this.clientid = "";
-
-    // Will be generated again when used.
-    this._prefs.clearUserPref("spamActionTargetAccount");
 
     let atIndex = newValue.indexOf("@");
     if (!this.prettyName || (!hostnameChanged && atIndex != -1)) {
