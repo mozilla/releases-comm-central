@@ -263,8 +263,15 @@ function switchToView(viewType) {
   ids = ["previous-view-button", "today-view-button", "next-view-button"];
   ids.forEach(x => setupViewNode(x, "tooltiptext"));
 
+  // Anyone wanting to plug in a view needs to follow this naming scheme
+  let view = document.getElementById(viewType + "-view");
   let oldView = currentView();
   if (oldView?.isActive) {
+    if (oldView == view) {
+      // Not actually changing view, there's nothing else to do.
+      return;
+    }
+
     selectedDay = oldView.selectedDay;
     currentSelection = oldView.getSelectedItems();
     oldView.isActive = false;
@@ -274,9 +281,6 @@ function switchToView(viewType) {
   if (!selectedDay) {
     selectedDay = cal.dtz.now();
   }
-
-  // Anyone wanting to plug in a view needs to follow this naming scheme
-  let view = document.getElementById(viewType + "-view");
   for (let i = 0; i < viewBox.children.length; i++) {
     if (view.id == viewBox.children[i].id) {
       viewBox.children[i].hidden = false;
