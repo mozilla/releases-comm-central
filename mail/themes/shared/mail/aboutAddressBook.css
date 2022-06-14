@@ -789,14 +789,14 @@ body.is-editing #detailsPane #photoOverlay {
   background-image: url("chrome://messenger/skin/overrides/search-glass.svg");
 }
 
-#detailsPane section h3 {
+#detailsBody h2 {
   margin-block: 0 15px;
   font-size: 1.1rem;
   line-height: 1.2;
   font-weight: 500;
 }
 
-#detailsPane section ul {
+#detailsBody ul {
   display: grid;
   grid-template-columns: min-content auto;
   gap: 6px;
@@ -807,7 +807,7 @@ body.is-editing #detailsPane #photoOverlay {
   list-style: none inside;
 }
 
-#detailsPane section li {
+#detailsBody li {
   display: contents;
 }
 
