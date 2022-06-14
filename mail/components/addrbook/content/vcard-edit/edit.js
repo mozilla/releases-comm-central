@@ -121,9 +121,9 @@ class VCardEdit extends HTMLElement {
     }
     // If no email property is present set one.
     if (!this._vCardProperties.getFirstEntry("email")) {
-      this._vCardProperties.addEntry(
-        VCardEmailComponent.newVCardPropertyEntry()
-      );
+      let emailEntry = VCardEmailComponent.newVCardPropertyEntry();
+      emailEntry.params.pref = "1"; // Set as default email.
+      this._vCardProperties.addEntry(emailEntry);
     }
     // If or more of the organizational properties is present,
     // make sure they all are.
@@ -527,6 +527,15 @@ class VCardEdit extends HTMLElement {
         this.vCardProperties.removeEntry(node.vCardPropertyEntry);
       }
     });
+
+    // If no email has a pref value of 1, set it to the first email.
+    let emailEntries = this.vCardProperties.getAllEntries("email");
+    if (
+      emailEntries.length >= 1 &&
+      emailEntries.every(entry => entry.params.pref !== "1")
+    ) {
+      emailEntries[0].params.pref = "1";
+    }
   }
 
   /**
