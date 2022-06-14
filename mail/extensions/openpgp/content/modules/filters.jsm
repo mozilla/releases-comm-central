@@ -14,19 +14,22 @@ const { MailServices } = ChromeUtils.import(
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { EnigmailConstants } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+);
 
 const lazy = {};
-
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
+
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
+
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
@@ -276,7 +279,7 @@ function isPGPEncrypted(data) {
  * filter term for OpenPGP Encrypted mail
  */
 const filterTermPGPEncrypted = {
-  id: lazy.EnigmailConstants.FILTER_TERM_PGP_ENCRYPTED,
+  id: EnigmailConstants.FILTER_TERM_PGP_ENCRYPTED,
   name: lazy.l10n.formatValueSync("filter-term-pgpencrypted-label"),
   needsBody: true,
   match(aMsgHdr, searchValue, searchOp) {

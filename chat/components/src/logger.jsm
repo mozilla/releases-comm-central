@@ -9,12 +9,15 @@ const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { GenericMessagePrototype } = ChromeUtils.import(
+  "resource:///modules/jsProtoHelper.jsm"
+);
+const { ClassInfo } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 
 const lazy = {};
-
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  ClassInfo: "resource:///modules/imXPCOMUtils.jsm",
-  GenericMessagePrototype: "resource:///modules/jsProtoHelper.jsm",
   l10nHelper: "resource:///modules/imXPCOMUtils.jsm",
   ToLocaleFormat: "resource:///modules/ToLocaleFormat.jsm",
 });
@@ -482,7 +485,7 @@ function LogMessage(aData, aConversation) {
 }
 
 LogMessage.prototype = {
-  __proto__: lazy.GenericMessagePrototype,
+  __proto__: GenericMessagePrototype,
   _interfaces: [Ci.imIMessage, Ci.prplIMessage],
   get displayMessage() {
     return this.originalMessage;
@@ -496,7 +499,7 @@ function LogConversation(aMessages, aProperties) {
   }
 }
 LogConversation.prototype = {
-  __proto__: lazy.ClassInfo("imILogConversation", "Log conversation object"),
+  __proto__: ClassInfo("imILogConversation", "Log conversation object"),
   get isChat() {
     return this._isChat;
   },
@@ -570,7 +573,7 @@ function Log(aEntries) {
   this.path = aEntries[0].path;
 }
 Log.prototype = {
-  __proto__: lazy.ClassInfo("imILog", "Log object"),
+  __proto__: ClassInfo("imILog", "Log object"),
   _entryPaths: null,
   async getConversation() {
     /*
