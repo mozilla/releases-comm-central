@@ -362,10 +362,6 @@
 
   <tooltip id="attachmentListTooltip"/>
 
-  <menupopup id="pageContextMenu"
-             onpopupshowing="InitPageMenu(this, event);">
-  </menupopup>
-
   <!-- We want to be able to do the following:
 
        1)  Open the tabContextMenu by right-clicking on individual tab selectors
@@ -704,7 +700,6 @@
                   <!-- first panel in displayBox is Account Central -->
                   <vbox id="accountCentralBox" flex="1">
                     <iframe name="accountCentralPane"
-                            contextmenu="pageContextMenu"
                             tooltip="aHTMLTooltip"
                             width="150" flex="1" src="about:blank"/>
                   </vbox>
@@ -740,7 +735,6 @@
                     <!-- This next iframe is used to display summaries of -->
                     <!-- multiple selected messages or collapsed threads -->
                     <browser id="multimessage"
-                             contextmenu="pageContextMenu"
                              style="height: 0px; min-height: 1px"
                              flex="1" name="multimessage"
                              hidden="true"
