@@ -128,9 +128,11 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
   NS_ENSURE_ARG_POINTER(aFilterFile);
   NS_ENSURE_ARG_POINTER(resultFilterList);
 
+  nsresult rv;
   if (rootFolder) {
     nsCOMPtr<nsIMsgIncomingServer> server;
-    rootFolder->GetServer(getter_AddRefs(server));
+    rv = rootFolder->GetServer(getter_AddRefs(server));
+    NS_ENSURE_SUCCESS(rv, rv);
     nsString serverName;
     server->GetPrettyName(serverName);
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
@@ -145,7 +147,7 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
            NS_ConvertUTF16toUTF8(fileName).get()));
 
   bool exists = false;
-  nsresult rv = aFilterFile->Exists(&exists);
+  rv = aFilterFile->Exists(&exists);
   if (NS_FAILED(rv) || !exists) {
     rv = aFilterFile->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
     NS_ENSURE_SUCCESS(rv, rv);
