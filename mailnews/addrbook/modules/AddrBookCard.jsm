@@ -68,47 +68,26 @@ AddrBookCard.prototype = {
 
       case Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER:
         if (this.lastName) {
-          let otherNames = [
-            this.prefixName,
-            this.firstName,
-            this.middleName,
-            this.suffixName,
-          ]
-            .filter(Boolean)
-            .join(" ");
-          if (!otherNames) {
-            // Only use the lastName if we don't have anything to add after the
-            // comma, in order to avoid for the string to finish with ", ".
-            result = this.lastName;
-          } else {
-            result =
-              bundle?.formatStringFromName("lastFirstFormat", [
-                this.lastName,
-                otherNames,
-              ]) ?? `${this.lastName}, ${otherNames}`;
-          }
+          result = bundle.formatStringFromName("lastFirstFormat", [
+            this.lastName,
+            [this.prefixName, this.firstName, this.middleName, this.suffixName]
+              .filter(Boolean)
+              .join(" "),
+          ]);
         }
         break;
 
       default:
-        let startNames = [this.prefixName, this.firstName, this.middleName]
-          .filter(Boolean)
-          .join(" ");
-        let endNames = [this.lastName, this.suffixName]
-          .filter(Boolean)
-          .join(" ");
-        result =
-          bundle?.formatStringFromName("firstLastFormat", [
-            startNames,
-            endNames,
-          ]) ?? `${startNames} ${endNames}`;
+        result = bundle.formatStringFromName("firstLastFormat", [
+          [this.prefixName, this.firstName, this.middleName]
+            .filter(Boolean)
+            .join(" "),
+          [this.lastName, this.suffixName].filter(Boolean).join(" "),
+        ]);
         break;
     }
 
-    // Remove any leftover blank spaces.
-    result = result.trim();
-
-    if (result == "" || result == ",") {
+    if (result == "" || result == ", ") {
       result =
         this.displayName ||
         [
