@@ -2,6 +2,5 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 <svg xmlns="http://www.w3.org/2000/svg" fill-opacity="context-fill-opacity" viewBox="0 0 12 12" height="12" width="12">
-  <!-- Use both fill and stroke context to account for the styling coming from toolkit for those sections we can't override. -->
-  <path d="m8.166 1.128-5 4.5a.5.5 0 0 0 0 .743l5 4.5a.5.5 0 0 0 .705-.037.5.5 0 0 0-.037-.706L4.246 6l4.588-4.13a.5.5 0 0 0 .037-.704.5.5 0 0 0-.705-.038Z" fill="context-fill context-stroke"/>
+  <path d="m8.166 1.128-5 4.5a.5.5 0 0 0 0 .743l5 4.5a.5.5 0 0 0 .705-.037.5.5 0 0 0-.037-.706L4.246 6l4.588-4.13a.5.5 0 0 0 .037-.704.5.5 0 0 0-.705-.038Z" fill="context-stroke"/>
 </svg>
