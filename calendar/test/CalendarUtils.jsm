@@ -19,8 +19,10 @@ var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm"
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "CalendarTestUtils",
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
@@ -63,7 +65,7 @@ async function execEventDialogCallback(callback) {
   let eventWindow = Services.wm.getMostRecentWindow(EVENT_DIALOG_NAME);
 
   if (!eventWindow) {
-    eventWindow = await CalendarTestUtils.waitForEventDialog("edit");
+    eventWindow = await lazy.CalendarTestUtils.waitForEventDialog("edit");
   }
 
   let iframe = eventWindow.document.getElementById("calendar-item-panel-iframe");
@@ -80,6 +82,6 @@ async function execEventDialogCallback(callback) {
  * @param {number} day - Day to check between 1-7.
  */
 function checkMonthAlarmIcon(window, week, day) {
-  let dayBox = CalendarTestUtils.monthView.getItemAt(window, week, day, 1);
+  let dayBox = lazy.CalendarTestUtils.monthView.getItemAt(window, week, day, 1);
   Assert.ok(dayBox.querySelector(".alarm-icons-box > .reminder-icon"));
 }

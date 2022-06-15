@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Helpers for the unifinder
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.unifinder namespace.
 
-const EXPORTED_SYMBOLS = ["calunifinder"]; /* exported calunifinder */
+const EXPORTED_SYMBOLS = ["calunifinder"];
 
 var calunifinder = {
   /**

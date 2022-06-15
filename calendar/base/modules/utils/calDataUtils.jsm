@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
-
-/*
+/**
  * Data structures and algorithms used within the codebase
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.data namespace.
 
-const EXPORTED_SYMBOLS = ["caldata"]; /* exported caldata */
+const EXPORTED_SYMBOLS = ["caldata"];
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 
 class ListenerSet extends Set {
   constructor(iid, iterable) {
@@ -97,7 +98,7 @@ class OperationGroup {
   }
 
   constructor(aCancelFunc) {
-    this.mId = cal.getUUID() + "-" + OperationGroup.nextGroupId();
+    this.mId = lazy.cal.getUUID() + "-" + OperationGroup.nextGroupId();
     this.mIsPending = true;
 
     this.mCancelFunc = aCancelFunc;
@@ -131,7 +132,7 @@ class OperationGroup {
   }
 
   notifyCompleted(aStatus) {
-    cal.ASSERT(this.isPending, "[OperationGroup_notifyCompleted] this.isPending");
+    lazy.cal.ASSERT(this.isPending, "[OperationGroup_notifyCompleted] this.isPending");
     if (this.isPending) {
       this.mIsPending = false;
       if (aStatus) {

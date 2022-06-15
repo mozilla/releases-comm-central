@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
-
-/*
+/**
  * Iterators for various data structures
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.iterate namespace.
 
-const EXPORTED_SYMBOLS = ["caliterate"]; /* exported caliterate */
+const EXPORTED_SYMBOLS = ["caliterate"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 
 var caliterate = {
   /**
@@ -76,7 +77,7 @@ var caliterate = {
 
             if (!done) {
               let rc = body(next.value);
-              if (rc == cal.iterate.forEach.BREAK) {
+              if (rc == lazy.cal.iterate.forEach.BREAK) {
                 done = true;
               }
             }
@@ -118,10 +119,10 @@ var caliterate = {
    */
   *icalComponent(aComponent, aCompType = "ANY") {
     if (aComponent && aComponent.componentType == "VCALENDAR") {
-      yield* cal.iterate.icalSubcomponent(aComponent, aCompType);
+      yield* lazy.cal.iterate.icalSubcomponent(aComponent, aCompType);
     } else if (aComponent && aComponent.componentType == "XROOT") {
-      for (let calComp of cal.iterate.icalSubcomponent(aComponent, "VCALENDAR")) {
-        yield* cal.iterate.icalSubcomponent(calComp, aCompType);
+      for (let calComp of lazy.cal.iterate.icalSubcomponent(aComponent, "VCALENDAR")) {
+        yield* lazy.cal.iterate.icalSubcomponent(calComp, aCompType);
       }
     } else if (aComponent && (aCompType == "ANY" || aCompType == aComponent.componentType)) {
       yield aComponent;

@@ -66,7 +66,14 @@
  * please file a bug.
  */
 
-/* exported upgradeDB */
+var EXPORTED_SYMBOLS = [
+  "DB_SCHEMA_VERSION",
+  "getSql",
+  "getAllSql",
+  "getSqlTable",
+  "upgradeDB",
+  "backupDB",
+];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -75,7 +82,9 @@ var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import
 );
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
@@ -85,15 +94,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 // The current database version. Be sure to increment this when you create a new
 // updater.
 var DB_SCHEMA_VERSION = 23;
-
-var EXPORTED_SYMBOLS = [
-  "DB_SCHEMA_VERSION",
-  "getSql",
-  "getAllSql",
-  "getSqlTable",
-  "upgradeDB",
-  "backupDB",
-];
 
 /**
  * Gets the SQL for the given table data and table name. This can be both a real
@@ -1277,7 +1277,7 @@ upgrade.v16 = function(db, version) {
         try {
           let [aOffset, aRelated, aAlarmTime, aTzId] = mapStorageArgs(storArgs);
 
-          let alarm = new CalAlarm();
+          let alarm = new lazy.CalAlarm();
           if (aOffset) {
             alarm.related = parseInt(aRelated, 10) + 1;
             alarm.offset = cal.createDuration();
@@ -1630,7 +1630,7 @@ upgrade.v22 = function(db, version) {
         try {
           let [aData, aFmtType, aEncoding] = mapStorageArgs(storArgs);
 
-          let attach = new CalAttachment();
+          let attach = new lazy.CalAttachment();
           attach.uri = Services.io.newURI(aData);
           attach.formatType = aFmtType;
           attach.encoding = aEncoding;
@@ -1654,7 +1654,7 @@ upgrade.v22 = function(db, version) {
       onFunctionCall(storArgs) {
         try {
           let [aRelType, aRelId] = mapStorageArgs(storArgs);
-          let relation = new CalRelation();
+          let relation = new lazy.CalRelation();
           relation.relType = aRelType;
           relation.relId = aRelId;
           return relation.icalString;
@@ -1681,7 +1681,7 @@ upgrade.v22 = function(db, version) {
             aProperties,
           ] = mapStorageArgs(storArgs);
 
-          let attendee = new CalAttendee();
+          let attendee = new lazy.CalAttendee();
 
           attendee.id = aAttendeeId;
           attendee.commonName = aCommonName;

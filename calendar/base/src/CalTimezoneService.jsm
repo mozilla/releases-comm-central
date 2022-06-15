@@ -13,7 +13,9 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
-XPCOMUtils.defineLazyPreferenceGetter(this, "gUseIcaljs", "calendar.icaljs", false);
+const lazy = {};
+
+XPCOMUtils.defineLazyPreferenceGetter(lazy, "gUseIcaljs", "calendar.icaljs", false);
 
 Services.scriptloader.loadSubScript("resource:///components/calTimezone.js");
 
@@ -158,7 +160,7 @@ CalTimezoneService.prototype = {
   get UTC() {
     if (!this.mZones.has("UTC")) {
       let utc;
-      if (gUseIcaljs) {
+      if (lazy.gUseIcaljs) {
         utc = new calICALJSTimezone(ICAL.Timezone.utcTimezone);
       } else {
         utc = new calLibicalTimezone("UTC", null, "", "");
@@ -174,7 +176,7 @@ CalTimezoneService.prototype = {
   get floating() {
     if (!this.mZones.has("floating")) {
       let floating;
-      if (gUseIcaljs) {
+      if (lazy.gUseIcaljs) {
         floating = new calICALJSTimezone(ICAL.Timezone.localTimezone);
       } else {
         floating = new calLibicalTimezone("floating", null, "", "");
@@ -216,7 +218,7 @@ CalTimezoneService.prototype = {
           "\r\n" +
           timezone.ics.join("\r\n") +
           "\r\nEND:VTIMEZONE";
-        if (gUseIcaljs) {
+        if (lazy.gUseIcaljs) {
           timezone.zone = new calICALJSTimezone(
             ICAL.Timezone.fromData({
               tzid,

@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
-
-/*
+/**
  * Helpers for reading and writing calendar categories
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.category namespace.
 
-const EXPORTED_SYMBOLS = ["calcategory"]; /* exported calcategory */
+const EXPORTED_SYMBOLS = ["calcategory"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 
 var calcategory = {
   /**
@@ -25,16 +26,16 @@ var calcategory = {
     let defaultBranch = Services.prefs.getDefaultBranch("");
 
     // First, set up the category names
-    let categories = cal.l10n.getString("categories", "categories2");
+    let categories = lazy.cal.l10n.getString("categories", "categories2");
     defaultBranch.setStringPref("calendar.categories.names", categories);
 
     // Now, initialize the category default colors
     let categoryArray = calcategory.stringToArray(categories);
     for (let category of categoryArray) {
-      let prefName = cal.view.formatStringForCSSRule(category);
+      let prefName = lazy.cal.view.formatStringForCSSRule(category);
       defaultBranch.setStringPref(
         "calendar.category.color." + prefName,
-        cal.view.hashColor(category)
+        lazy.cal.view.hashColor(category)
       );
     }
 

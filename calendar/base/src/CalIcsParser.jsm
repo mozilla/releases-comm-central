@@ -9,7 +9,9 @@ var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
@@ -78,11 +80,11 @@ CalIcsParser.prototype = {
 
         if (!parent) {
           // a parentless one, fake a master and override it's occurrence
-          parent = item.isEvent() ? new CalEvent() : new CalTodo();
+          parent = item.isEvent() ? new lazy.CalEvent() : new lazy.CalTodo();
           parent.id = item.id;
           parent.setProperty("DTSTART", item.recurrenceId);
           parent.setProperty("X-MOZ-FAKED-MASTER", "1"); // this tag might be useful in the future
-          parent.recurrenceInfo = new CalRecurrenceInfo(parent);
+          parent.recurrenceInfo = new lazy.CalRecurrenceInfo(parent);
           fakedParents[item.id] = true;
           state.uid2parent[item.id] = parent;
           state.items.push(parent);
@@ -268,7 +270,7 @@ parserState.prototype = {
         let item = null;
         switch (subComp.componentType) {
           case "VEVENT":
-            item = new CalEvent();
+            item = new lazy.CalEvent();
             item.icalComponent = subComp;
             if (isGCal) {
               cal.view.fixGoogleCalendarDescription(item);
@@ -277,7 +279,7 @@ parserState.prototype = {
             self.checkTimezone(item, item.endDate);
             break;
           case "VTODO":
-            item = new CalTodo();
+            item = new lazy.CalTodo();
             item.icalComponent = subComp;
             self.checkTimezone(item, item.entryDate);
             self.checkTimezone(item, item.dueDate);

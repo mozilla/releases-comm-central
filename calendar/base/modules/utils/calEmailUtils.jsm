@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
-
-/*
+/**
  * Functions for processing email addresses and sending email
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.email namespace.
 
-const EXPORTED_SYMBOLS = ["calemail"]; /* exported calemail */
+const EXPORTED_SYMBOLS = ["calemail"];
+
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 
 var calemail = {
   /**
@@ -92,7 +93,7 @@ var calemail = {
     let cbEmail = function(aVal) {
       let email = calemail.getAttendeeEmail(aVal, true);
       if (!email.length) {
-        cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
+        lazy.cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
       }
       return email;
     };

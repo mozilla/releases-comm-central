@@ -8,7 +8,9 @@ var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm")
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
@@ -526,7 +528,7 @@ CalAlarm.prototype = {
     // Set up attendees
     this.clearAttendees();
     for (let attendeeProp of cal.iterate.icalProperty(aComp, "ATTENDEE")) {
-      let attendee = new CalAttendee();
+      let attendee = new lazy.CalAttendee();
       attendee.icalProperty = attendeeProp;
       this.addAttendee(attendee);
     }
@@ -534,7 +536,7 @@ CalAlarm.prototype = {
     // Set up attachments
     this.clearAttachments();
     for (let attachProp of cal.iterate.icalProperty(aComp, "ATTACH")) {
-      let attach = new CalAttachment();
+      let attach = new lazy.CalAttachment();
       attach.icalProperty = attachProp;
       this.addAttachment(attach);
     }

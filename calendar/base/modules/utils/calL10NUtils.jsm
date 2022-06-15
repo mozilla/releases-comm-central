@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-/*
+/**
  * Localization and locale functions
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.l10n namespace.
 
-const EXPORTED_SYMBOLS = ["call10n"]; /* exported call10n */
+const EXPORTED_SYMBOLS = ["call10n"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Gets the value of a string in a .properties file.

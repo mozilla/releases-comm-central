@@ -2,26 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-const lazy = {};
-
-XPCOMUtils.defineLazyGetter(
-  lazy,
-  "l10nDeletePrompt",
-  () => new Localization(["calendar/calendar-delete-prompt.ftl"], true)
-);
-
-/*
+/**
  * Calendar window helpers, e.g. to open our dialogs
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.window namespace.
 
-const EXPORTED_SYMBOLS = ["calwindow"]; /* exported calwindow */
+const EXPORTED_SYMBOLS = ["calwindow"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+const lazy = {};
+XPCOMUtils.defineLazyGetter(
+  lazy,
+  "l10nDeletePrompt",
+  () => new Localization(["calendar/calendar-delete-prompt.ftl"], true)
+);
 
 var calwindow = {
   /**

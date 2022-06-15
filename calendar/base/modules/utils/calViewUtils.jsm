@@ -2,32 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
-
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "gParserUtils",
-  "@mozilla.org/parserutils;1",
-  "nsIParserUtils"
-);
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "gTextToHtmlConverter",
-  "@mozilla.org/txttohtmlconv;1",
-  "mozITXTToHTMLConv"
-);
-XPCOMUtils.defineLazyPreferenceGetter(
-  this,
-  "calendarSortOrder",
-  "calendar.list.sortOrder",
-  null,
-  null,
-  val => (val ? val.split(" ") : [])
-);
-
 /**
  * View and DOM related helper functions
  */
@@ -35,7 +9,33 @@ XPCOMUtils.defineLazyPreferenceGetter(
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.view namespace.
 
-const EXPORTED_SYMBOLS = ["calview"]; /* exported calview */
+const EXPORTED_SYMBOLS = ["calview"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+XPCOMUtils.defineLazyServiceGetter(
+  lazy,
+  "gParserUtils",
+  "@mozilla.org/parserutils;1",
+  "nsIParserUtils"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  lazy,
+  "gTextToHtmlConverter",
+  "@mozilla.org/txttohtmlconv;1",
+  "mozITXTToHTMLConv"
+);
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "calendarSortOrder",
+  "calendar.list.sortOrder",
+  null,
+  null,
+  val => (val ? val.split(" ") : [])
+);
 
 var calview = {
   /**
@@ -172,8 +172,8 @@ var calview = {
         },
         onCalendarDeleting(calendar) {},
       };
-      cal.manager.addObserver(calManagerObserver);
-      aWindow.addEventListener("unload", () => cal.manager.removeObserver(calManagerObserver));
+      lazy.cal.manager.addObserver(calManagerObserver);
+      aWindow.addEventListener("unload", () => lazy.cal.manager.removeObserver(calManagerObserver));
 
       comp.prefPrefix = prefix; // populate calendar from existing calendars
 
@@ -358,7 +358,9 @@ var calview = {
     }
 
     if (a.calendar && b.calendar) {
-      cmp = calendarSortOrder.indexOf(a.calendar.id) - calendarSortOrder.indexOf(b.calendar.id);
+      cmp =
+        lazy.calendarSortOrder.indexOf(a.calendar.id) -
+        lazy.calendarSortOrder.indexOf(b.calendar.id);
       if (cmp != 0) {
         return cmp;
       }
@@ -369,7 +371,7 @@ var calview = {
   },
 
   get calendarSortOrder() {
-    return calendarSortOrder;
+    return lazy.calendarSortOrder;
   },
 
   /**
@@ -386,18 +388,18 @@ var calview = {
         Ci.mozITXTToHTMLConv.kStructPhrase |
         Ci.mozITXTToHTMLConv.kGlyphSubstitution |
         Ci.mozITXTToHTMLConv.kURLs;
-      html = gTextToHtmlConverter.scanTXT(text, mode);
+      html = lazy.gTextToHtmlConverter.scanTXT(text, mode);
       html = html.replace(/\r?\n/g, "<br>");
     }
 
     // Sanitize and convert the HTML into a document fragment.
     let flags =
-      gParserUtils.SanitizerLogRemovals |
-      gParserUtils.SanitizerDropForms |
-      gParserUtils.SanitizerDropMedia;
+      lazy.gParserUtils.SanitizerLogRemovals |
+      lazy.gParserUtils.SanitizerDropForms |
+      lazy.gParserUtils.SanitizerDropMedia;
 
     let uri = Services.io.newURI(doc.baseURI);
-    return gParserUtils.parseFragment(html, flags, false, uri, doc.createElement("div"));
+    return lazy.gParserUtils.parseFragment(html, flags, false, uri, doc.createElement("div"));
   },
 
   /**
@@ -418,7 +420,7 @@ var calview = {
           ? body.innerText
           : entity; // Entity didn't decode to a character, so leave it
       });
-      description = gTextToHtmlConverter.scanHTML(description, mode);
+      description = lazy.gTextToHtmlConverter.scanHTML(description, mode);
       let stamp = item.stampTime;
       let lastModified = item.lastModifiedTime;
       item.descriptionHTML = description.replace(/\r?\n/g, "<br>");
@@ -441,9 +443,9 @@ calview.colorTracker = {
   // Deregistration is not required.
   registerWindow(aWindow) {
     if (this.calendars === null) {
-      this.calendars = new Set(cal.manager.getCalendars());
-      cal.manager.addObserver(this);
-      cal.manager.addCalendarObserver(this);
+      this.calendars = new Set(lazy.cal.manager.getCalendars());
+      lazy.cal.manager.addObserver(this);
+      lazy.cal.manager.addCalendarObserver(this);
 
       this.categoryBranch = Services.prefs.getBranch("calendar.category.color.");
       this.categoryBranch.addObserver("", this);

@@ -2,39 +2,40 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
-
-/*
+/**
  * Date, time and timezone related functions
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.dtz namespace.
 
-const EXPORTED_SYMBOLS = ["caldtz"]; /* exported caldtz */
+const EXPORTED_SYMBOLS = ["caldtz"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 
 var caldtz = {
   /**
    * Shortcut to the timezone service's defaultTimezone
    */
   get defaultTimezone() {
-    return cal.timezoneService.defaultTimezone;
+    return lazy.cal.timezoneService.defaultTimezone;
   },
 
   /**
    * Shorcut to the UTC timezone
    */
   get UTC() {
-    return cal.timezoneService.UTC;
+    return lazy.cal.timezoneService.UTC;
   },
 
   /**
    * Shortcut to the floating (local) timezone
    */
   get floating() {
-    return cal.timezoneService.floating;
+    return lazy.cal.timezoneService.floating;
   },
 
   /**
@@ -182,7 +183,7 @@ var caldtz = {
    *           but only its local time portions are be taken.
    */
   jsDateToDateTime(aDate, aTimezone) {
-    let newDate = cal.createDateTime();
+    let newDate = lazy.cal.createDateTime();
     if (aTimezone) {
       newDate.resetTo(
         aDate.getFullYear(),
@@ -228,7 +229,7 @@ var caldtz = {
   fromRFC3339(aStr, aTimezone) {
     // XXX I have not covered leapseconds (matches[8]), this might need to
     // be done. The only reference to leap seconds I found is bug 227329.
-    let dateTime = cal.createDateTime();
+    let dateTime = lazy.cal.createDateTime();
 
     // Killer regex to parse RFC3339 dates
     let re = new RegExp(
@@ -260,7 +261,7 @@ var caldtz = {
     if (matches[9] == "Z" || matches[9] == "z") {
       // If the dates timezone is "Z" or "z", then this is UTC, no matter
       // what timezone was passed
-      dateTime.timezone = cal.dtz.UTC;
+      dateTime.timezone = lazy.cal.dtz.UTC;
     } else if (matches[9] == null) {
       // We have no timezone info, only a date. We have no way to
       // know what timezone we are in, so lets assume we are in the
@@ -280,15 +281,15 @@ var caldtz = {
         // TODO A patch to Bug 363191 should make this more efficient.
 
         // Enumerate timezones, set them, check their offset
-        for (let id of cal.timezoneService.timezoneIds) {
-          dateTime.timezone = cal.timezoneService.getTimezone(id);
+        for (let id of lazy.cal.timezoneService.timezoneIds) {
+          dateTime.timezone = lazy.cal.timezoneService.getTimezone(id);
           if (dateTime.timezoneOffset == offset_in_s) {
             // This is our last step, so go ahead and return
             return dateTime;
           }
         }
         // We are still here: no timezone was found
-        dateTime.timezone = cal.dtz.UTC;
+        dateTime.timezone = lazy.cal.dtz.UTC;
         if (!dateTime.isDate) {
           dateTime.hour += (matches[11] == "-" ? -1 : 1) * matches[12];
           dateTime.minute += (matches[11] == "-" ? -1 : 1) * matches[13];
@@ -366,7 +367,7 @@ var caldtz = {
     if (aConvertZones) {
       let oldZonesLength = recentTimezones.length;
       for (let i = 0; i < recentTimezones.length; i++) {
-        let timezone = cal.timezoneService.getTimezone(recentTimezones[i]);
+        let timezone = lazy.cal.timezoneService.getTimezone(recentTimezones[i]);
         if (timezone) {
           // Replace id with found timezone
           recentTimezones[i] = timezone;
@@ -397,14 +398,14 @@ var caldtz = {
    * @return {string} A string representation of the datetime.
    */
   getStringForDateTime(dateTime) {
-    const kDefaultTimezone = cal.dtz.defaultTimezone;
+    const kDefaultTimezone = lazy.cal.dtz.defaultTimezone;
     let localTime = dateTime.getInTimezone(kDefaultTimezone);
-    let formatter = cal.dtz.formatter;
+    let formatter = lazy.cal.dtz.formatter;
     let formattedLocalTime = formatter.formatDateTime(localTime);
 
     if (!dateTime.timezone.isFloating && dateTime.timezone.tzid != kDefaultTimezone.tzid) {
       // Additionally display the original datetime with timezone.
-      let originalTime = cal.l10n.getCalString("datetimeWithTimezone", [
+      let originalTime = lazy.cal.l10n.getCalString("datetimeWithTimezone", [
         formatter.formatDateTime(dateTime),
         dateTime.timezone.tzid,
       ]);

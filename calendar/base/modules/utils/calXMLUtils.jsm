@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Helper functions for parsing and serializing XML
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.xml namespace.
 
-const EXPORTED_SYMBOLS = ["calxml"]; /* exported calxml */
+const EXPORTED_SYMBOLS = ["calxml"];
 
 var calxml = {
   /**

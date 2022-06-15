@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-/*
+/**
  * Helpers for permission checks and other ACL features
  */
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.acl namespace.
 
-const EXPORTED_SYMBOLS = ["calacl"]; /* exported calacl */
+const EXPORTED_SYMBOLS = ["calacl"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var calacl = {
   /**

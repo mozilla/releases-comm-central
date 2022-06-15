@@ -2,23 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  cal: "resource:///modules/calendar/calUtils.jsm",
-  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
-});
-
-/*
+/**
  * Authentication tools and prompts, mostly for providers
  */
 
 // NOTE: This module should not be loaded directly, it is available when including
 // calUtils.jsm under the cal.auth namespace.
 
-const EXPORTED_SYMBOLS = ["calauth"]; /* exported calauth */
+const EXPORTED_SYMBOLS = ["calauth"];
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.jsm",
+  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+});
 
 /**
  * The userContextId of nsIHttpChannel is currently implemented as a uint32, so
@@ -139,7 +141,7 @@ var calauth = {
    */
   Prompt: class {
     constructor() {
-      this.mWindow = cal.window.getCalendarWindow();
+      this.mWindow = lazy.cal.window.getCalendarWindow();
       this.mReturnedLogins = {};
       this.mProvider = null;
     }
@@ -185,7 +187,7 @@ var calauth = {
           this.mReturnedLogins[keyStr] &&
           now.getTime() - this.mReturnedLogins[keyStr].getTime() < 60000
         ) {
-          cal.LOG(
+          lazy.cal.LOG(
             "Credentials removed for: user=" +
               username +
               ", host=" +
@@ -219,7 +221,7 @@ var calauth = {
       }
       hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
 
-      let requestedUser = cal.auth.containerMap.getUsernameForUserContextId(
+      let requestedUser = lazy.cal.auth.containerMap.getUsernameForUserContextId(
         aChannel.loadInfo.originAttributes.userContextId
       );
       let pwInfo = this.getPasswordInfo(hostRealm, requestedUser);
@@ -230,10 +232,14 @@ var calauth = {
       }
       let savePasswordLabel = null;
       if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-        savePasswordLabel = cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
+        savePasswordLabel = lazy.cal.l10n.getAnyString(
+          "passwordmgr",
+          "passwordmgr",
+          "rememberPassword"
+        );
       }
       let savePassword = {};
-      let returnValue = new MsgAuthPrompt().promptAuth(
+      let returnValue = new lazy.MsgAuthPrompt().promptAuth(
         aChannel,
         aLevel,
         aAuthInfo,
@@ -290,7 +296,7 @@ var calauth = {
         },
       };
 
-      let requestedUser = cal.auth.containerMap.getUsernameForUserContextId(
+      let requestedUser = lazy.cal.auth.containerMap.getUsernameForUserContextId(
         aChannel.loadInfo.originAttributes.userContextId
       );
       let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm + ":" + requestedUser;
@@ -313,9 +319,9 @@ var calauth = {
       };
 
       let tryUntilReady = function() {
-        self.mWindow = cal.window.getCalendarWindow();
+        self.mWindow = lazy.cal.window.getCalendarWindow();
         if (!self.mWindow) {
-          setTimeout(tryUntilReady, 1000);
+          lazy.setTimeout(tryUntilReady, 1000);
           return;
         }
 
@@ -354,23 +360,23 @@ var calauth = {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
     }
 
-    let prompter = new MsgAuthPrompt();
+    let prompter = new lazy.MsgAuthPrompt();
 
     // Only show the save password box if we are supposed to.
     let savepassword = null;
     if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-      savepassword = cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
+      savepassword = lazy.cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
     }
 
     let aText;
     if (aFixedUsername) {
-      aText = cal.l10n.getAnyString("global", "commonDialogs", "EnterPasswordFor", [
+      aText = lazy.cal.l10n.getAnyString("global", "commonDialogs", "EnterPasswordFor", [
         aUsername.value,
         aCalendarName,
       ]);
       return prompter.promptPassword(aTitle, aText, aPassword, savepassword, aSavePassword);
     }
-    aText = cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [
+    aText = lazy.cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [
       aCalendarName,
     ]);
     return prompter.promptUsernameAndPassword(
@@ -412,8 +418,8 @@ var calauth = {
    * @param {String} aRealm       The password realm (unused on branch)
    */
   passwordManagerSave(aUsername, aPassword, aOrigin, aRealm) {
-    cal.ASSERT(aUsername);
-    cal.ASSERT(aPassword);
+    lazy.cal.ASSERT(aUsername);
+    lazy.cal.ASSERT(aPassword);
 
     let origin = this._ensureOrigin(aOrigin);
 
@@ -441,7 +447,7 @@ var calauth = {
     } catch (exc) {
       // Only show the message if its not an abort, which can happen if
       // the user canceled the primary password dialog
-      cal.ASSERT(exc.result == Cr.NS_ERROR_ABORT, exc);
+      lazy.cal.ASSERT(exc.result == Cr.NS_ERROR_ABORT, exc);
     }
   },
 
@@ -455,7 +461,7 @@ var calauth = {
    * @return {Boolean}            True, if an entry exists in the password manager
    */
   passwordManagerGet(aUsername, aPassword, aOrigin, aRealm) {
-    cal.ASSERT(aUsername);
+    lazy.cal.ASSERT(aUsername);
 
     if (typeof aPassword != "object") {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
@@ -475,7 +481,7 @@ var calauth = {
         }
       }
     } catch (exc) {
-      cal.ASSERT(false, exc);
+      lazy.cal.ASSERT(false, exc);
     }
     return false;
   },
@@ -489,7 +495,7 @@ var calauth = {
    * @return {Boolean}            Could the user be removed?
    */
   passwordManagerRemove(aUsername, aOrigin, aRealm) {
-    cal.ASSERT(aUsername);
+    lazy.cal.ASSERT(aUsername);
 
     let origin = this._ensureOrigin(aOrigin);
 

@@ -17,7 +17,9 @@ const { CalStorageModelBase } = ChromeUtils.import(
 
 const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
@@ -496,7 +498,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         return;
       }
 
-      let attendee = new CalAttendee(row.getResultByName("icalString"));
+      let attendee = new lazy.CalAttendee(row.getResultByName("icalString"));
       if (attendee && attendee.id) {
         if (attendee.isOrganizer) {
           item.organizer = attendee;
@@ -560,7 +562,7 @@ class CalStorageItemModel extends CalStorageModelBase {
 
       let recInfo = item.recurrenceInfo;
       if (!recInfo) {
-        recInfo = new CalRecurrenceInfo(item);
+        recInfo = new lazy.CalRecurrenceInfo(item);
         item.recurrenceInfo = recInfo;
       }
 
@@ -596,7 +598,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllAttachments, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAttachment(new CalAttachment(row.getResultByName("icalString")));
+        item.addAttachment(new lazy.CalAttachment(row.getResultByName("icalString")));
       }
     });
 
@@ -604,7 +606,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllRelations, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addRelation(new CalRelation(row.getResultByName("icalString")));
+        item.addRelation(new lazy.CalRelation(row.getResultByName("icalString")));
       }
     });
 
@@ -612,7 +614,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllAlarms, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAlarm(new CalAlarm(row.getResultByName("icalString")));
+        item.addAlarm(new lazy.CalAlarm(row.getResultByName("icalString")));
       }
     });
 
@@ -646,7 +648,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {boolean} getAdditionalData
    */
   async getEventFromRow(row, getAdditionalData = true) {
-    let item = new CalEvent();
+    let item = new lazy.CalEvent();
     let flags = row.getResultByName("flags");
 
     if (row.getResultByName("event_start")) {
@@ -683,7 +685,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {boolean} getAdditionalData
    */
   async getTodoFromRow(row, getAdditionalData = true) {
-    let item = new CalTodo();
+    let item = new lazy.CalTodo();
 
     if (row.getResultByName("todo_entry")) {
       item.entryDate = newDateTime(
@@ -740,7 +742,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
         await this.db.executeAsync(selectItem, row => {
-          let attendee = new CalAttendee(row.getResultByName("icalString"));
+          let attendee = new lazy.CalAttendee(row.getResultByName("icalString"));
           if (attendee && attendee.id) {
             if (attendee.isOrganizer) {
               item.organizer = attendee;
@@ -813,7 +815,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
 
-      let recInfo = new CalRecurrenceInfo(item);
+      let recInfo = new lazy.CalRecurrenceInfo(item);
       item.recurrenceInfo = recInfo;
 
       try {
@@ -884,7 +886,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectAttachment);
         selectAttachment.params.item_id = item.id;
         await this.db.executeAsync(selectAttachment, row => {
-          item.addAttachment(new CalAttachment(row.getResultByName("icalString")));
+          item.addAttachment(new lazy.CalAttachment(row.getResultByName("icalString")));
         });
       } catch (e) {
         this.db.logError(
@@ -904,7 +906,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectRelation);
         selectRelation.params.item_id = item.id;
         await this.db.executeAsync(selectRelation, row => {
-          item.addRelation(new CalRelation(row.getResultByName("icalString")));
+          item.addRelation(new lazy.CalRelation(row.getResultByName("icalString")));
         });
       } catch (e) {
         this.db.logError(
@@ -924,7 +926,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         selectAlarm.params.item_id = item.id;
         this.db.prepareStatement(selectAlarm);
         await this.db.executeAsync(selectAlarm, row => {
-          item.addAlarm(new CalAlarm(row.getResultByName("icalString")));
+          item.addAlarm(new lazy.CalAlarm(row.getResultByName("icalString")));
         });
       } catch (e) {
         this.db.logError(
