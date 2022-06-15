@@ -231,3 +231,49 @@ add_task(async function test_importCalendars() {
 
   Services.prefs.resetPrefs();
 });
+
+/**
+ * Test that tags can be correctly imported.
+ */
+add_task(async function test_importTags() {
+  let prefs = [
+    ["mailnews.tags.$label1.color", "#CC0011"],
+    ["mailnews.tags.$label1.tag", "tag1"],
+    ["mailnews.tags.$label2.color", "#CC0022"],
+    ["mailnews.tags.$label2.tag", "tag2"],
+  ];
+  await createTmpProfileWithPrefs(prefs);
+
+  let importer = new ThunderbirdProfileImporter();
+  await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
+
+  // Test mailnews.tags.* are imported because existing tags are in default state.
+  for (let [name, value] of prefs) {
+    equal(
+      Services.prefs.getCharPref(name, ""),
+      value,
+      `${name} should be correct`
+    );
+  }
+
+  let prefs2 = [
+    ["mailnews.tags.$label1.color", "#DD0011"],
+    ["mailnews.tags.$label1.tag", "tag11"],
+    ["mailnews.tags.$label2.color", "#DD0022"],
+    ["mailnews.tags.$label2.tag", "tag22"],
+    ["mailnews.tags.$tag3.color", "#DD0033"],
+    ["mailnews.tags.$tag3.tag", "tag3"],
+  ];
+  await createTmpProfileWithPrefs(prefs2);
+
+  await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
+
+  // $label1 and $label2 should not be imported, only $tag3 should be imported.
+  for (let [name, value] of [...prefs, ...prefs2.slice(4)]) {
+    equal(
+      Services.prefs.getCharPref(name, ""),
+      value,
+      `${name} should be correct`
+    );
+  }
+});

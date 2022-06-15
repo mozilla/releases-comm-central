@@ -761,9 +761,56 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {PrefItem[]} prefs - All source prefs to try to import.
    */
   _importOtherPrefs(prefs) {
+    let tags = {};
     for (let [type, name, value] of prefs) {
+      if (name.startsWith("mailnews.tags.")) {
+        let [, , key, attr] = name.split(".");
+        if (!tags[key]) {
+          tags[key] = {};
+        }
+        tags[key][attr] = value;
+        continue;
+      }
       if (!Services.prefs.prefHasUserValue(name)) {
         Services.prefs[`set${type}Pref`](name, value);
+      }
+    }
+
+    // Import tags, but do not overwrite existing customized tags.
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+    for (let [key, { color, tag }] of Object.entries(tags)) {
+      if (!color || !tag) {
+        continue;
+      }
+      let currentTagColor, currentTagTag;
+      try {
+        currentTagColor = MailServices.tags.getColorForKey(key);
+        currentTagTag = MailServices.tags.getTagForKey(key);
+      } catch (e) {
+        // No tag exists for this key in the current profile, safe to write.
+        Services.prefs.setCharPref(`mailnews.tags.${key}.color`, color);
+        Services.prefs.setCharPref(`mailnews.tags.${key}.tag`, tag);
+      }
+      if (currentTagColor == color && currentTagTag == tag) {
+        continue;
+      }
+      if (
+        ["$label1", "$label2", "$label3", "$label4", "$label5"].includes(key)
+      ) {
+        let seq = key.at(-1);
+        let defaultColor = Services.prefs.getCharPref(
+          `mailnews.labels.color.${seq}`
+        );
+        let defaultTag = bundle.GetStringFromName(
+          `mailnews.labels.description.${seq}`
+        );
+        if (currentTagColor == defaultColor && currentTagTag == defaultTag) {
+          // The existing tag is in default state, safe to write.
+          Services.prefs.setCharPref(`mailnews.tags.${key}.color`, color);
+          Services.prefs.setCharPref(`mailnews.tags.${key}.tag`, tag);
+        }
       }
     }
   }
