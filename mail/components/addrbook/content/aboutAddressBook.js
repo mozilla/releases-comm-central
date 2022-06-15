@@ -2186,8 +2186,10 @@ var detailsPane = {
         );
         if (buttonPressed === 0) {
           // Don't call this.form.submit, the submit event won't fire.
-          if (this.form.checkValidity()) {
+          if (this.vCardEdit.checkFormValidity()) {
             this.saveCurrentContact();
+          } else {
+            this.handleInvalidForm();
           }
           return;
         } else if (buttonPressed === 1) {
@@ -2210,8 +2212,10 @@ var detailsPane = {
     });
     this.form.addEventListener("submit", event => {
       event.preventDefault();
-      if (this.form.checkValidity()) {
+      if (this.vCardEdit.checkFormValidity()) {
         this.saveCurrentContact();
+      } else {
+        this.handleInvalidForm();
       }
     });
 
@@ -2705,6 +2709,21 @@ var detailsPane = {
     this.node.hidden = this.splitter.isCollapsed = false;
     this.form.querySelector(".contact-details-scroll").scrollTo(0, 0);
     this.vCardEdit.setFocus();
+  },
+
+  /**
+   * Properly handle a failed form validation.
+   */
+  handleInvalidForm() {
+    // FIXME: Drop this in favor of an inline notification with fluent strings.
+    let stringBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addressbook/addressBook.properties"
+    );
+    Services.prompt.alert(
+      window,
+      stringBundle.GetStringFromName("cardRequiredDataMissingTitle"),
+      stringBundle.GetStringFromName("cardRequiredDataMissingMessage")
+    );
   },
 
   /**

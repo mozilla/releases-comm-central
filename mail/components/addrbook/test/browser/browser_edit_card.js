@@ -717,6 +717,16 @@ add_task(async function test_generate_display_name() {
     PreferDisplayName: true,
   });
 
+  // Try saving an empty contact.
+  let promptPromise = BrowserTestUtils.promiseAlertDialog(
+    "accept",
+    "chrome://global/content/commonDialog.xhtml"
+  );
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => abWindow.setTimeout(resolve));
+  await inEditingMode();
+
   // First name, no last name.
   setInputValues({ FirstName: "first" });
   checkInputValues({ DisplayName: "first" });
@@ -784,11 +794,44 @@ add_task(async function test_generate_display_name() {
     DisplayName: "last, fourth",
   });
 
+  // Clear all required values.
+  setInputValues({
+    FirstName: "",
+    LastName: "",
+    DisplayName: "",
+  });
+
+  // Try saving the empty contact.
+  promptPromise = BrowserTestUtils.promiseAlertDialog(
+    "accept",
+    "chrome://global/content/commonDialog.xhtml"
+  );
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => abWindow.setTimeout(resolve));
+  await inEditingMode();
+
+  // Close the edit without saving.
+  promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => abWindow.setTimeout(resolve));
+  await notInEditingMode();
+
+  // Enter edit mode again. The values shouldn't have changed.
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+  checkInputValues({
+    FirstName: "fifth",
+    LastName: "last",
+    DisplayName: "last, fourth",
+  });
+
   // Check the saved name isn't overwritten.
   setInputValues({ FirstName: "first" });
   checkInputValues({ DisplayName: "last, fourth" });
 
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
   await promptPromise;
   await new Promise(resolve => abWindow.setTimeout(resolve));

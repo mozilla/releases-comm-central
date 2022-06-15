@@ -682,8 +682,27 @@ class VCardEdit extends HTMLElement {
     this.querySelector(`.default-column input[type="checkbox"]`).hidden =
       this.querySelectorAll(`tr[slot="v-email"]`).length <= 1;
   }
-}
 
+  /**
+   * Validate the form with the minium required data to save or update a
+   * contact. We can't use the built-in checkValidity() since our fields
+   * are in the shadowDOM and they're not handled properly by the form element.
+   * @returns {boolean} - If the form is valid or not.
+   */
+  checkFormValidity() {
+    let hasEmail = [...this.querySelectorAll(`tr[slot="v-email"]`)].find(s => {
+      let field = s.querySelector(`input[type="email"]`);
+      return field.value.trim() && field.checkValidity();
+    });
+
+    return (
+      this.firstName.value.trim() ||
+      this.lastName.value.trim() ||
+      this.displayName.value.trim() ||
+      hasEmail
+    );
+  }
+}
 customElements.define("vcard-edit", VCardEdit);
 
 function* vCardHtmlIdGen() {
