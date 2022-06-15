@@ -19,7 +19,6 @@ var kEmailValueLC = "testemail\u00D2@foo.invalid";
 var kEmailValue2 = "test@test.foo.invalid";
 // Email without the @ or anything after it.
 var kEmailReducedValue = "testEmail\u00D2";
-var kCompanyValue = "Test\u00D0 Company";
 
 add_task(function testAddrBookCard() {
   let card = new AddrBookCard();
@@ -61,9 +60,6 @@ add_task(function testAddrBookCard() {
     GENERATE_FIRST_LAST_ORDER,
   } = Ci.nsIAbCard;
 
-  // Add a company name, so we can test fallback to company name.
-  card.vCardProperties.addValue("org", [kCompanyValue, ""]);
-
   Assert.equal(card.generateName(GENERATE_DISPLAY_NAME), kDNValue);
   Assert.equal(
     card.generateName(GENERATE_LAST_FIRST_ORDER),
@@ -77,13 +73,10 @@ add_task(function testAddrBookCard() {
   // Test - generateName, with missing items.
 
   card.displayName = "";
-  Assert.equal(card.generateName(GENERATE_DISPLAY_NAME), kCompanyValue);
-
-  card.vCardProperties.clearValues("org");
-  Assert.equal(card.generateName(GENERATE_DISPLAY_NAME), kEmailReducedValue);
-
-  // Reset company name for the first/last name tests.
-  card.vCardProperties.addValue("org", [kCompanyValue, ""]);
+  Assert.equal(
+    card.generateName(GENERATE_DISPLAY_NAME),
+    kFNValue + " " + kLNValue
+  );
 
   card.firstName = "";
   Assert.equal(card.generateName(GENERATE_LAST_FIRST_ORDER), kLNValue);
@@ -95,10 +88,6 @@ add_task(function testAddrBookCard() {
   Assert.equal(card.generateName(GENERATE_FIRST_LAST_ORDER), kFNValue);
 
   card.firstName = "";
-  Assert.equal(card.generateName(GENERATE_LAST_FIRST_ORDER), kCompanyValue);
-  Assert.equal(card.generateName(GENERATE_FIRST_LAST_ORDER), kCompanyValue);
-
-  card.vCardProperties.clearValues("org");
   Assert.equal(
     card.generateName(GENERATE_LAST_FIRST_ORDER),
     kEmailReducedValue
