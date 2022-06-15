@@ -338,16 +338,15 @@ MessageSend.prototype = {
       lazy.MsgUtils.sendLogger.error(
         `Sending failed; ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
       );
+      this._sendReport.setError(
+        Ci.nsIMsgSendReport.process_Current,
+        exitCode,
+        false
+      );
       if (errorMsg) {
         this._sendReport.setMessage(
           Ci.nsIMsgSendReport.process_Current,
           errorMsg,
-          false
-        );
-      } else {
-        this._sendReport.setError(
-          Ci.nsIMsgSendReport.process_Current,
-          exitCode,
           false
         );
       }

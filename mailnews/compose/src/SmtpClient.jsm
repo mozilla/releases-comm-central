@@ -42,6 +42,8 @@ var { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
 
+const NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
+
 class SmtpClient {
   /**
    * Creates a connection object to a SMTP server and allows to send mail through it.
@@ -198,7 +200,7 @@ class SmtpClient {
         if (!recipient || firstInvalid != null) {
           if (!lastAt) {
             // Invalid char found in the localpart, throw error until we implement RFC 6532.
-            this._onNsError(MsgUtils.NS_ERROR_ILLEGAL_LOCALPART, recipient);
+            this.onerror(NS_ERROR_BUT_DONT_SHOW_ALERT, null);
             return;
           }
           // Invalid char found in the domainpart, convert it to ACE.
@@ -466,7 +468,6 @@ class SmtpClient {
         MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
         MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
         MsgUtils.NS_ERROR_SENDING_MESSAGE,
-        MsgUtils.NS_ERROR_ILLEGAL_LOCALPART,
       ].includes(nsError)
     ) {
       let bundle = Services.strings.createBundle(
