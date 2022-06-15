@@ -12,7 +12,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
 });
@@ -73,7 +75,7 @@ var EnigmailArmor = {
     endIndexObj,
     indentStrObj
   ) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "armor.jsm: Enigmail.locateArmoredBlock: " +
         offset +
         ", '" +
@@ -145,7 +147,7 @@ var EnigmailArmor = {
     var blockType = "";
     if (matches && matches.length > 1) {
       blockType = matches[1];
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "armor.jsm: Enigmail.locateArmoredBlock: blockType=" + blockType + "\n"
       );
     }
@@ -209,14 +211,14 @@ var EnigmailArmor = {
       i = endObj.value;
     }
 
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "armor.jsm: locateArmorBlocks: Found " + blocks.length + " Blocks\n"
     );
     return blocks;
   },
 
   extractSignaturePart(signatureBlock, part) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "armor.jsm: Enigmail.extractSignaturePart: part=" + part + "\n"
     );
 
@@ -230,7 +232,7 @@ var EnigmailArmor = {
           return "";
         }
 
-        if (part === EnigmailConstants.SIGNATURE_TEXT) {
+        if (part === lazy.EnigmailConstants.SIGNATURE_TEXT) {
           return signatureBlock
             .substr(offset + 1, beginIndex - offset - 1)
             .replace(/^- -/, "-")
@@ -250,14 +252,14 @@ var EnigmailArmor = {
           var signBlock = signatureBlock.substr(offset, endIndex - offset);
 
           return searchBlankLine(signBlock, function(armorIndex) {
-            if (part == EnigmailConstants.SIGNATURE_HEADERS) {
+            if (part == lazy.EnigmailConstants.SIGNATURE_HEADERS) {
               return signBlock.substr(1, armorIndex);
             }
 
             return indexOfNewline(signBlock, armorIndex + 1, function(
               armorIndex
             ) {
-              if (part == EnigmailConstants.SIGNATURE_ARMOR) {
+              if (part == lazy.EnigmailConstants.SIGNATURE_ARMOR) {
                 return signBlock
                   .substr(armorIndex, endIndex - armorIndex)
                   .replace(/\s*/g, "");

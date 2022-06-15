@@ -8,15 +8,18 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   exportAttributes: "resource:///modules/AddrBookUtils.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "d3", () => {
+XPCOMUtils.defineLazyGetter(lazy, "d3", () => {
   let d3Scope = Cu.Sandbox(null);
   Services.scriptloader.loadSubScript(
     "chrome://global/content/third_party/d3/d3.js",
@@ -95,11 +98,11 @@ class AddrBookFileImporter {
    * @returns {string[][]}
    */
   async parseCsvFile(sourceFile) {
-    let content = await MailStringUtils.readEncoded(sourceFile.path);
+    let content = await lazy.MailStringUtils.readEncoded(sourceFile.path);
 
-    let csvRows = d3.csv.parseRows(content);
-    let tsvRows = d3.tsv.parseRows(content);
-    let dsvRows = d3.dsv(";").parseRows(content);
+    let csvRows = lazy.d3.csv.parseRows(content);
+    let tsvRows = lazy.d3.tsv.parseRows(content);
+    let dsvRows = lazy.d3.dsv(";").parseRows(content);
     if (!csvRows.length && !tsvRows.length && !dsvRows.length) {
       this._csvRows = [];
       return [];
@@ -118,7 +121,7 @@ class AddrBookFileImporter {
     this._supportedCsvProperties = [];
     // Collect field names in an exported CSV file, and their corresponding
     // nsIAbCard property names.
-    for (let [property, stringId] of exportAttributes) {
+    for (let [property, stringId] of lazy.exportAttributes) {
       if (stringId) {
         this._supportedCsvProperties.push(property);
         supportedFieldNames.push(
@@ -194,7 +197,7 @@ class AddrBookFileImporter {
       if (currentLine % 10 == 0) {
         this.onProgress(currentLine, totalLines);
         // Give UI a chance to update the progress bar.
-        await new Promise(resolve => setTimeout(resolve));
+        await new Promise(resolve => lazy.setTimeout(resolve));
       }
     }
     this.onProgress(totalLines, totalLines);
@@ -267,7 +270,7 @@ class AddrBookFileImporter {
         record = [];
         this.onProgress(currentLine, totalLines);
         // Give UI a chance to update the progress bar.
-        await new Promise(resolve => setTimeout(resolve));
+        await new Promise(resolve => lazy.setTimeout(resolve));
       }
     }
     this.onProgress(totalLines, totalLines);

@@ -12,14 +12,19 @@
 const EXPORTED_SYMBOLS = ["MailMigrator", "MigrationTasks"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   EventEmitter: "resource://gre/modules/EventEmitter.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   migrateMailnews: "resource:///modules/MailnewsMigrator.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
@@ -478,7 +483,7 @@ var MailMigrator = {
         let accountList = MailServices.accounts.accounts.filter(
           a => a.incomingServer
         );
-        accountList.sort(FolderUtils.compareAccounts);
+        accountList.sort(lazy.FolderUtils.compareAccounts);
         let accountKeyList = accountList.map(account => account.key);
         try {
           MailServices.accounts.reorderAccounts(accountKeyList);
@@ -550,16 +555,16 @@ var MailMigrator = {
       if (currentUIVersion < 31 && new Date() < new Date(2021, 10, 15)) {
         MigrationTasks.addSimpleTask(
           "migration-task-test-fast",
-          () => new Promise(r => setTimeout(r, 50))
+          () => new Promise(r => lazy.setTimeout(r, 50))
         );
         MigrationTasks.addSimpleTask(
           "migration-task-test-slow",
-          () => new Promise(r => setTimeout(r, 2500))
+          () => new Promise(r => lazy.setTimeout(r, 2500))
         );
         MigrationTasks.addComplexTask(
           new (class extends MigrationTask {
             doAThing() {
-              return new Promise(resolve => setTimeout(resolve, 500));
+              return new Promise(resolve => lazy.setTimeout(resolve, 500));
             }
           })("migration-task-test-progress", async function() {
             for (let i = 0; i < 10; i++) {
@@ -571,7 +576,7 @@ var MailMigrator = {
         );
         MigrationTasks.addSimpleTask(
           "migration-task-test-fast",
-          () => new Promise(r => setTimeout(r, 500))
+          () => new Promise(r => lazy.setTimeout(r, 500))
         );
       }
 
@@ -968,7 +973,7 @@ var MailMigrator = {
    * been loaded.
    */
   migrateAtProfileStartup() {
-    migrateMailnews();
+    lazy.migrateMailnews();
     this._migrateUI();
     this._migrateRSS();
   },
@@ -1034,7 +1039,7 @@ var MigrationTasks = {
       if (task.subTasks.length) {
         task.emit("progress", task.subTasks.length, task.subTasks.length);
         // Pause long enough for the user to see the progress bar at 100%.
-        await new Promise(resolve => setTimeout(resolve, 150));
+        await new Promise(resolve => lazy.setTimeout(resolve, 150));
       }
 
       task.status = "finished";
@@ -1067,7 +1072,7 @@ var MigrationTasks = {
           Services.ww
         );
         this.addSimpleTask(undefined, async () => {
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => lazy.setTimeout(r, 1000));
           this._progressWindow.close();
         });
       }
@@ -1123,7 +1128,7 @@ class MigrationTask {
   constructor(fluentID, action) {
     this.fluentID = fluentID;
     this.action = action;
-    EventEmitter.decorate(this);
+    lazy.EventEmitter.decorate(this);
   }
 
   /**

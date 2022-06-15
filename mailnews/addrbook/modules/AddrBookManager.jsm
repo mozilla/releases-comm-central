@@ -12,14 +12,16 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   clearTimeout: "resource://gre/modules/Timer.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   MailGlue: "resource:///modules/MailGlue.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "env",
   "@mozilla.org/process/environment;1",
   "nsIEnvironment"
@@ -53,7 +55,7 @@ if (AppConstants.platform == "macosx") {
 let sortedDirectoryList = [];
 function updateSortedDirectoryList() {
   sortedDirectoryList = [...store.values()];
-  sortedDirectoryList.sort(compareAddressBooks);
+  sortedDirectoryList.sort(lazy.compareAddressBooks);
 }
 
 /**
@@ -105,7 +107,7 @@ function ensureInitialized() {
   if (store !== null) {
     return;
   }
-  if (MailGlue.isToolboxProcess) {
+  if (lazy.MailGlue.isToolboxProcess) {
     throw new Components.Exception(
       "AddrBookManager tried to start in the Developer Tools process!",
       Cr.NS_ERROR_UNEXPECTED
@@ -132,7 +134,7 @@ function ensureInitialized() {
 
         switch (dirType) {
           case Ci.nsIAbManager.MAPI_DIRECTORY_TYPE:
-            if (env.exists("MOZ_AUTOMATION")) {
+            if (lazy.env.exists("MOZ_AUTOMATION")) {
               break;
             }
             if (Services.prefs.getIntPref(`${prefName}.position`, 1) < 1) {
@@ -548,9 +550,9 @@ AddrBookManager.prototype = {
     }
 
     if (addressCacheTimer) {
-      clearTimeout(addressCacheTimer);
+      lazy.clearTimeout(addressCacheTimer);
     }
-    addressCacheTimer = setTimeout(() => {
+    addressCacheTimer = lazy.setTimeout(() => {
       addressCacheTimer = null;
       addressCache.clear();
     }, 60000);

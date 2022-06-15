@@ -4,13 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["ImapChannel"];
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
 );
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
-});
 
 /**
  * A channel to interact with IMAP server.

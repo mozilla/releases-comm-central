@@ -7,8 +7,10 @@
 
 const EXPORTED_SYMBOLS = ["AccountCreationUtils"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "Sanitizer",
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
@@ -516,10 +518,10 @@ NoLongerNeededException.prototype.constructor = NoLongerNeededException;
  */
 function AddonInstaller(args) {
   Abortable.call(this);
-  this._name = Sanitizer.label(args.name);
-  this._id = Sanitizer.string(args.id);
-  this._minVersion = Sanitizer.string(args.minVersion);
-  this._url = Sanitizer.url(args.xpiURL);
+  this._name = lazy.Sanitizer.label(args.name);
+  this._id = lazy.Sanitizer.string(args.id);
+  this._minVersion = lazy.Sanitizer.string(args.minVersion);
+  this._url = lazy.Sanitizer.url(args.xpiURL);
 }
 AddonInstaller.prototype = Object.create(Abortable.prototype);
 AddonInstaller.prototype.constructor = AddonInstaller;

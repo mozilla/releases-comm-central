@@ -33,13 +33,15 @@ var { BrowserTestUtils } = ChromeUtils.import(
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "mark_action",
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "normalize_for_json",
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -264,9 +266,9 @@ var WindowWatcher = {
     controller.sleep(0);
     this._firstWindowOpened = true;
     // wrap the creation because
-    mark_action("winhelp", "new MozMillController()", [aWindowType]);
+    lazy.mark_action("winhelp", "new MozMillController()", [aWindowType]);
     let c = new controller.MozMillController(domWindow);
-    mark_action("winhelp", "/new MozMillController()", [aWindowType]);
+    lazy.mark_action("winhelp", "/new MozMillController()", [aWindowType]);
     return c;
   },
 
@@ -482,7 +484,7 @@ var WindowWatcher = {
 
     // It would be great to be able to indicate if the window is modal or not,
     //  but nothing is really jumping out at me to enable that...
-    mark_action("winhelp", "onOpenWindow", [
+    lazy.mark_action("winhelp", "onOpenWindow", [
       getWindowTypeForAppWindow(aAppWindow, true) +
         " (" +
         getUniqueIdForAppWindow(aAppWindow) +
@@ -525,7 +527,7 @@ var WindowWatcher = {
   onCloseWindow(aAppWindow) {
     let domWindow = aAppWindow.docShell.domWindow;
     let windowType = getWindowTypeOrId(domWindow.document.documentElement);
-    mark_action("winhelp", "onCloseWindow", [
+    lazy.mark_action("winhelp", "onCloseWindow", [
       getWindowTypeForAppWindow(aAppWindow, true) +
         " (" +
         getUniqueIdForAppWindow(aAppWindow) +
@@ -551,7 +553,7 @@ var WindowWatcher = {
  *     that is augmented using augment_controller.
  */
 function wait_for_existing_window(aWindowType) {
-  mark_action("fdh", "wait_for_existing_window", [aWindowType]);
+  lazy.mark_action("fdh", "wait_for_existing_window", [aWindowType]);
   WindowWatcher.ensureInited();
   WindowWatcher.planForAlreadyOpenWindow(aWindowType);
   return augment_controller(
@@ -574,7 +576,7 @@ function wait_for_existing_window(aWindowType) {
  *     to look like "app:windowname", for example "mailnews:search".
  */
 function plan_for_new_window(aWindowType) {
-  mark_action("fdh", "plan_for_new_window", [aWindowType]);
+  lazy.mark_action("fdh", "plan_for_new_window", [aWindowType]);
   WindowWatcher.ensureInited();
   WindowWatcher.planForWindowOpen(aWindowType);
 }
@@ -588,7 +590,7 @@ function plan_for_new_window(aWindowType) {
  *     that is augmented using augment_controller.
  */
 function wait_for_new_window(aWindowType) {
-  mark_action("fdh", "wait_for_new_window", [aWindowType]);
+  lazy.mark_action("fdh", "wait_for_new_window", [aWindowType]);
   let c = augment_controller(
     WindowWatcher.waitForWindowOpen(aWindowType),
     aWindowType
@@ -597,7 +599,7 @@ function wait_for_new_window(aWindowType) {
   //  (which is arguably not a great idea), so it's important that we denote
   //  when we're actually leaving this function in case something crazy
   //  happens.
-  mark_action("fdhb", "/wait_for_new_window", [aWindowType]);
+  lazy.mark_action("fdhb", "/wait_for_new_window", [aWindowType]);
   return c;
 }
 
@@ -632,7 +634,7 @@ async function async_plan_for_new_window(aWindowType) {
  *     a MozmillController against the modal dialog.
  */
 function plan_for_modal_dialog(aWindowType, aSubTestFunction) {
-  mark_action("fdh", "plan_for_modal_dialog", [aWindowType]);
+  lazy.mark_action("fdh", "plan_for_modal_dialog", [aWindowType]);
   WindowWatcher.ensureInited();
   WindowWatcher.planForModalDialog(aWindowType, aSubTestFunction);
 }
@@ -643,9 +645,9 @@ function plan_for_modal_dialog(aWindowType, aSubTestFunction) {
  * @param aTimeout Your custom timeout (default is WINDOW_OPEN_TIMEOUT_MS)
  */
 function wait_for_modal_dialog(aWindowType, aTimeout) {
-  mark_action("fdh", "wait_for_modal_dialog", [aWindowType, aTimeout]);
+  lazy.mark_action("fdh", "wait_for_modal_dialog", [aWindowType, aTimeout]);
   WindowWatcher.waitForModalDialog(aWindowType, aTimeout);
-  mark_action("fdhb", "/wait_for_modal_dialog", [aWindowType, aTimeout]);
+  lazy.mark_action("fdhb", "/wait_for_modal_dialog", [aWindowType, aTimeout]);
 }
 
 /**
@@ -657,7 +659,7 @@ function wait_for_modal_dialog(aWindowType, aTimeout) {
  *     wait_for_new_window, whose window should be disappearing.
  */
 function plan_for_window_close(aController) {
-  mark_action("fdh", "plan_for_window_close", [
+  lazy.mark_action("fdh", "plan_for_window_close", [
     getWindowTypeForAppWindow(aController.window, true),
   ]);
   WindowWatcher.ensureInited();
@@ -669,7 +671,7 @@ function plan_for_window_close(aController) {
  *  in plan_for_window_close.
  */
 function wait_for_window_close() {
-  mark_action("fdh", "wait_for_window_close", [
+  lazy.mark_action("fdh", "wait_for_window_close", [
     "(using window from plan_for_window_close)",
   ]);
   WindowWatcher.waitForWindowClose();
@@ -816,7 +818,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
  * @param aHeight      the requested window height
  */
 function resize_to(aController, aWidth, aHeight) {
-  mark_action("test", "resize_to", [aWidth, "x", aHeight]);
+  lazy.mark_action("test", "resize_to", [aWidth, "x", aHeight]);
   aController.window.resizeTo(aWidth, aHeight);
   // Give the event loop a spin in order to let the reality of an asynchronously
   // interacting window manager have its impact. This still may not be
@@ -1217,8 +1219,8 @@ for (let mouseOp of MOUSE_OPS_TO_WRAP) {
       aTop = rect.height / 2;
     }
     // claim to be folder-display-helper since this is an explicit action
-    mark_action("fdh", thisMouseOp, [
-      normalize_for_json(el),
+    lazy.mark_action("fdh", thisMouseOp, [
+      lazy.normalize_for_json(el),
       "x:",
       aLeft,
       "y:",

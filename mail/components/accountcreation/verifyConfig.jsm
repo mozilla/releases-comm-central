@@ -4,8 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["verifyConfig"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AccountConfig",
   "resource:///modules/accountcreation/AccountConfig.jsm"
 );
@@ -63,7 +65,7 @@ function verifyConfig(
 ) {
   ddump("verify config:\n" + config);
   assert(
-    config instanceof AccountConfig,
+    config instanceof lazy.AccountConfig,
     "BUG: Arg 'config' needs to be an AccountConfig object"
   );
   assert(typeof alter == "boolean");

@@ -11,7 +11,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.jsm",
@@ -38,19 +40,19 @@ var EnigmailCore = {
   async startup(reason) {
     initializeLogDirectory();
 
-    EnigmailLog.DEBUG("core.jsm: startup()\n");
+    lazy.EnigmailLog.DEBUG("core.jsm: startup()\n");
 
-    await PgpSqliteDb2.checkDatabaseStructure();
+    await lazy.PgpSqliteDb2.checkDatabaseStructure();
 
     this.factories = [];
 
-    EnigmailVerify.registerContentTypeHandler();
+    lazy.EnigmailVerify.registerContentTypeHandler();
     //EnigmailWksMimeHandler.registerContentTypeHandler();
     //EnigmailFiltersWrapper.onStartup();
 
-    EnigmailMimeEncrypt.startup(reason);
+    lazy.EnigmailMimeEncrypt.startup(reason);
     //EnigmailOverlays.startup();
-    this.factories.push(new Factory(EnigmailMimeEncrypt.Handler));
+    this.factories.push(new Factory(lazy.EnigmailMimeEncrypt.Handler));
   },
 
   shutdown(reason) {
@@ -61,11 +63,11 @@ var EnigmailCore = {
     }
 
     //EnigmailFiltersWrapper.onShutdown();
-    EnigmailVerify.unregisterContentTypeHandler();
+    lazy.EnigmailVerify.unregisterContentTypeHandler();
 
-    EnigmailLog.onShutdown();
+    lazy.EnigmailLog.onShutdown();
 
-    EnigmailLog.setLogLevel(3);
+    lazy.EnigmailLog.setLogLevel(3);
     gEnigmailService = null;
   },
 
@@ -104,9 +106,9 @@ function initializeLogDirectory() {
     return;
   }
 
-  EnigmailLog.setLogLevel(5);
-  EnigmailLog.setLogDirectory(dir);
-  EnigmailLog.DEBUG(
+  lazy.EnigmailLog.setLogLevel(5);
+  lazy.EnigmailLog.setLogDirectory(dir);
+  lazy.EnigmailLog.DEBUG(
     "core.jsm: Logging debug output to " + dir + "/enigdbug.txt\n"
   );
 }
@@ -122,7 +124,7 @@ Enigmail.prototype = {
   initialize(domWindow) {
     this.initializationAttempted = true;
 
-    EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: START\n");
+    lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: START\n");
 
     if (this.initialized) {
       return;
@@ -132,11 +134,11 @@ Enigmail.prototype = {
 
     this.initialized = true;
 
-    EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: END\n");
+    lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: END\n");
   },
 
   reinitialize() {
-    EnigmailLog.DEBUG("core.jsm: Enigmail.reinitialize:\n");
+    lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.reinitialize:\n");
     this.initialized = false;
     this.initializationAttempted = true;
 
@@ -145,17 +147,17 @@ Enigmail.prototype = {
 
   async getService(win, startingPreferences) {
     if (!win) {
-      win = EnigmailWindows.getBestParentWin();
+      win = lazy.EnigmailWindows.getBestParentWin();
     }
 
-    EnigmailLog.DEBUG("core.jsm: svc = " + this + "\n");
+    lazy.EnigmailLog.DEBUG("core.jsm: svc = " + this + "\n");
 
     if (!this.initialized) {
       // Initialize enigmail
       this.initialize(win);
     }
     await EnigmailCore.startup(0);
-    EnigmailPgpmimeHander.startup(0);
+    lazy.EnigmailPgpmimeHander.startup(0);
     return this.initialized ? this : null;
   },
 }; // Enigmail.prototype

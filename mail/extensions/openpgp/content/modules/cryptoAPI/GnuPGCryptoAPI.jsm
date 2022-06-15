@@ -20,7 +20,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
 });
@@ -54,7 +56,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * @return {Promise<Array of Object>} - see extractSignatures()
    */
   async getKeySignatures(keyId, ignoreUnknownUid = false) {
-    EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
     throw new Error("Not implemented");
   }
 
@@ -85,7 +87,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *    - keyData: BASE64-encded string of key data
    */
   async getMinimalPubKey(fpr, email, subkeyDates) {
-    EnigmailLog.DEBUG(`gnupg.js: getMinimalPubKey: ${fpr}\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: getMinimalPubKey: ${fpr}\n`);
     throw new Error("Not implemented");
   }
 
@@ -113,7 +115,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async getFileName(byteData) {
-    EnigmailLog.DEBUG(`gnupg.js: getFileName()\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: getFileName()\n`);
     throw new Error("Not implemented");
   }
 
@@ -129,7 +131,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async verifyAttachment(filePath, sigPath) {
-    EnigmailLog.DEBUG(`gnupg.js: verifyAttachment()\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: verifyAttachment()\n`);
     throw new Error("Not implemented");
   }
 
@@ -145,7 +147,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async decryptAttachment(encrypted) {
-    EnigmailLog.DEBUG(`gnupg.js: decryptAttachment()\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: decryptAttachment()\n`);
     throw new Error("Not implemented");
   }
 
@@ -162,7 +164,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async decrypt(encrypted, options) {
-    EnigmailLog.DEBUG(`gnupg.js: decrypt()\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: decrypt()\n`);
     throw new Error("Not implemented");
   }
 
@@ -179,7 +181,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async decryptMime(encrypted, options) {
-    EnigmailLog.DEBUG(`gnupg.js: decryptMime()\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: decryptMime()\n`);
 
     // write something to gpg such that the process doesn't get stuck
     if (encrypted.length === 0) {
@@ -188,7 +190,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
     options.noOutput = false;
     options.verifyOnly = false;
-    options.uiFlags = EnigmailConstants.UI_PGP_MIME;
+    options.uiFlags = lazy.EnigmailConstants.UI_PGP_MIME;
 
     return this.decrypt(encrypted, options);
   }
@@ -206,11 +208,11 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async verifyMime(signed, options) {
-    EnigmailLog.DEBUG(`gnupg.js: verifyMime()\n`);
+    lazy.EnigmailLog.DEBUG(`gnupg.js: verifyMime()\n`);
 
     options.noOutput = true;
     options.verifyOnly = true;
-    options.uiFlags = EnigmailConstants.UI_PGP_MIME;
+    options.uiFlags = lazy.EnigmailConstants.UI_PGP_MIME;
 
     return this.decrypt(signed, options);
   }

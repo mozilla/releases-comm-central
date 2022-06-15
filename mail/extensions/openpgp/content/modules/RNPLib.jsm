@@ -9,8 +9,11 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  ctypes: "resource://gre/modules/ctypes.jsm",
+const lazy = {};
+
+const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
@@ -241,7 +244,7 @@ function enableRNPLibJS() {
       let canRepair = false;
       try {
         console.log("Trying to automatically protect the unprotected keys.");
-        let mp = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+        let mp = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
         if (mp) {
           await RNPLib.protectUnprotectedKeys();
           await RNPLib.saveKeys();
@@ -309,7 +312,7 @@ function enableRNPLibJS() {
         console.log(
           "Will attempt to automatically protect the unprotected keys in 30 seconds"
         );
-        setTimeout(RNPLib._fixUnprotectedKeys, 30000);
+        lazy.setTimeout(RNPLib._fixUnprotectedKeys, 30000);
       }
       return true;
     },
@@ -411,7 +414,7 @@ function enableRNPLibJS() {
       let iter = new RNPLib.rnp_identifier_iterator_t();
       let grip = new ctypes.char.ptr();
 
-      let newPass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+      let newPass = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
 
       if (
         RNPLib.rnp_identifier_iterator_create(
@@ -561,7 +564,7 @@ function enableRNPLibJS() {
 
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
       // cannot call async functions from this C callback
-      let pass = OpenPGPMasterpass.retrieveCachedPassword();
+      let pass = lazy.OpenPGPMasterpass.retrieveCachedPassword();
       if (pass == null) {
         throw new Error("Got null OpenPGP password");
       }

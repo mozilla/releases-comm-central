@@ -8,6 +8,9 @@ const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -15,11 +18,12 @@ var { MsgIncomingServer } = ChromeUtils.import(
   "resource:///modules/MsgIncomingServer.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CommonUtils: "resource://services-common/utils.js",
   clearInterval: "resource://gre/modules/Timer.jsm",
   setInterval: "resource://gre/modules/Timer.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   NntpClient: "resource:///modules/NntpClient.jsm",
 });
 
@@ -57,7 +61,7 @@ class NntpIncomingServer extends MsgIncomingServer {
 
     Services.obs.addObserver(this, "profile-before-change");
     // Update newsrc every 5 minutes.
-    this._newsrcTimer = setInterval(() => this.writeNewsrcFile(), 300000);
+    this._newsrcTimer = lazy.setInterval(() => this.writeNewsrcFile(), 300000);
 
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "news";
@@ -98,7 +102,7 @@ class NntpIncomingServer extends MsgIncomingServer {
   observe(subject, topic, data) {
     switch (topic) {
       case "profile-before-change":
-        clearInterval(this._newsrcTimer);
+        lazy.clearInterval(this._newsrcTimer);
         this.writeNewsrcFile();
     }
   }
@@ -401,7 +405,7 @@ class NntpIncomingServer extends MsgIncomingServer {
 
   addNewsgroupToList(name) {
     name = new TextDecoder(this.charset).decode(
-      CommonUtils.byteStringToArrayBuffer(name)
+      lazy.CommonUtils.byteStringToArrayBuffer(name)
     );
     this.addTo(name, false, true, true);
   }
@@ -575,7 +579,7 @@ class NntpIncomingServer extends MsgIncomingServer {
       this.maximumConnectionsNumber
     ) {
       // Create a new client if the pool is not full.
-      client = new NntpClient(this);
+      client = new lazy.NntpClient(this);
       this._busyConnections.push(client);
       return client;
     }

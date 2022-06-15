@@ -15,8 +15,10 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+const lazy = {};
+
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "protocolSvc",
   "@mozilla.org/uriloader/external-protocol-service;1",
   "nsIExternalProtocolService"
@@ -121,7 +123,7 @@ class LinkClickHandlerChild extends JSWindowActorChild {
     }
 
     if (
-      !protocolSvc.isExposedProtocol(eventURI.scheme) ||
+      !lazy.protocolSvc.isExposedProtocol(eventURI.scheme) ||
       eventURI.schemeIs("http") ||
       eventURI.schemeIs("https")
     ) {
@@ -166,7 +168,7 @@ class StrictLinkClickHandlerChild extends JSWindowActorChild {
     }
 
     if (
-      !protocolSvc.isExposedProtocol(eventURI.scheme) ||
+      !lazy.protocolSvc.isExposedProtocol(eventURI.scheme) ||
       eventURI.schemeIs("http") ||
       eventURI.schemeIs("https")
     ) {

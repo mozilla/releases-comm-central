@@ -14,11 +14,13 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
-XPCOMUtils.defineLazyServiceGetters(this, {
+XPCOMUtils.defineLazyServiceGetters(lazy, {
   imgTools: ["@mozilla.org/image/tools;1", "imgITools"],
   taskbar: ["@mozilla.org/windows-taskbar;1", "nsIWinTaskbar"],
 });
@@ -48,11 +50,11 @@ function getCanvasAsImgContainer(canvas, width, height) {
   );
 
   // Now turn the PNG stream into an imgIContainer.
-  let imgBuffer = NetUtil.readInputStreamToString(
+  let imgBuffer = lazy.NetUtil.readInputStreamToString(
     imgEncoder,
     imgEncoder.available()
   );
-  let iconImage = imgTools.decodeImageFromBuffer(
+  let iconImage = lazy.imgTools.decodeImageFromBuffer(
     imgBuffer,
     imgBuffer.length,
     "image/png"
@@ -201,7 +203,7 @@ var WinUnreadBadge = {
       return;
     }
     if (!this._controller) {
-      this._controller = taskbar.getOverlayIconController(window.docShell);
+      this._controller = lazy.taskbar.getOverlayIconController(window.docShell);
     }
     if (unreadCount == 0) {
       // Remove the badge if no unread.
@@ -231,7 +233,7 @@ var WinUnreadBadge = {
     // Purge image from cache to force encodeImage() to not be lazy
     icon.requestDiscard();
     // Side effect of encodeImage() is that it decodes original image
-    imgTools.encodeImage(icon, "image/png");
+    lazy.imgTools.encodeImage(icon, "image/png");
     // Somehow this is needed to prevent NS_ERROR_NOT_AVAILABLE error in
     // setOverlayIcon.
     await new Promise(resolve => window.setTimeout(resolve));

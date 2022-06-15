@@ -9,7 +9,9 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
 });
@@ -69,13 +71,13 @@ class CalendarFileImporter {
    * @returns {calICalendar[]}
    */
   getTargetCalendars() {
-    let calendars = cal.manager
+    let calendars = lazy.cal.manager
       .getCalendars()
       .filter(
         calendar =>
           !calendar.getProperty("disabled") &&
           !calendar.readOnly &&
-          cal.acl.userCanAddItemsToCalendar(calendar)
+          lazy.cal.acl.userCanAddItemsToCalendar(calendar)
       );
     let sortOrderPref = Services.prefs.getCharPref(
       "calendar.list.sortOrder",
@@ -111,7 +113,7 @@ class CalendarFileImporter {
       if (count % 10 == 0) {
         this.onProgress(count, total);
         // Give the UI a chance to update the progress bar.
-        await new Promise(resolve => setTimeout(resolve));
+        await new Promise(resolve => lazy.setTimeout(resolve));
       }
     }
     this.onProgress(total, total);

@@ -8,18 +8,22 @@ const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailUtils: "resource:///modules/MailUtils.jsm",
   WinUnreadBadge: "resource:///modules/WinUnreadBadge.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "l10n",
   () => new Localization(["messenger/messenger.ftl"])
 );
@@ -97,7 +101,7 @@ class MailNotificationManager {
         let msgHdr = Cc["@mozilla.org/messenger;1"]
           .getService(Ci.nsIMessenger)
           .msgHdrFromURI(data);
-        MailUtils.displayMessageInFolderTab(msgHdr);
+        lazy.MailUtils.displayMessageInFolderTab(msgHdr);
         return;
       case "unread-im-count-changed":
         this._logger.log(
@@ -444,11 +448,11 @@ class MailNotificationManager {
         count = 0;
       }
       if (count > 0) {
-        tooltip = await l10n.formatValue("unread-messages-os-tooltip", {
+        tooltip = await lazy.l10n.formatValue("unread-messages-os-tooltip", {
           count,
         });
       }
-      await WinUnreadBadge.updateUnreadCount(count, tooltip);
+      await lazy.WinUnreadBadge.updateUnreadCount(count, tooltip);
     }
     this._osIntegration?.updateUnreadCount(count, tooltip);
 

@@ -8,9 +8,13 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   NntpUtils: "resource:///modules/NntpUtils.jsm",
 });
 
@@ -31,7 +35,7 @@ class NntpChannel {
    * @param {nsILoadInfo} loadInfo - The loadInfo associated with the channel.
    */
   constructor(uri, loadInfo) {
-    this._server = NntpUtils.findServer(uri.asciiHost);
+    this._server = lazy.NntpUtils.findServer(uri.asciiHost);
     if (!this._server) {
       this._server = MailServices.accounts
         .createIncomingServer("", uri.asciiHost, "nntp")

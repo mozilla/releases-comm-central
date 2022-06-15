@@ -17,7 +17,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
@@ -33,7 +35,7 @@ var EnigmailAutocrypt = {
     };
 
     try {
-      fromAddr = EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
+      fromAddr = lazy.EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
     } catch (ex) {
       throw new Error("getKeyFromHeader error " + ex);
     }
@@ -50,13 +52,13 @@ var EnigmailAutocrypt = {
         }
       }
 
-      paramArr = EnigmailMime.getAllParameters(hdr);
+      paramArr = lazy.EnigmailMime.getAllParameters(hdr);
 
       for (let i in CRITICAL) {
         if (CRITICAL[i]) {
           // found mandatory parameter
           if (!(i in paramArr)) {
-            EnigmailLog.DEBUG(
+            lazy.EnigmailLog.DEBUG(
               "autocrypt.jsm: getKeyFromHeader: cannot find param '" + i + "'\n"
             );
             return null; // do nothing if not all mandatory parts are present
@@ -67,7 +69,7 @@ var EnigmailAutocrypt = {
       paramArr.addr = paramArr.addr.toLowerCase();
 
       if (fromAddr !== paramArr.addr) {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "autocrypt.jsm: getKeyFromHeader: from Addr " +
             fromAddr +
             " != " +
@@ -83,7 +85,7 @@ var EnigmailAutocrypt = {
       } else {
         paramArr.type = paramArr.type.toLowerCase();
         if (paramArr.type !== "1") {
-          EnigmailLog.DEBUG(
+          lazy.EnigmailLog.DEBUG(
             "autocrypt.jsm: getKeyFromHeader: unknown type " +
               paramArr.type +
               "\n"
@@ -95,14 +97,14 @@ var EnigmailAutocrypt = {
       try {
         atob(paramArr.keydata); // don't need result
       } catch (ex) {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "autocrypt.jsm: getKeyFromHeader: key is not base64-encoded\n"
         );
         return null;
       }
 
       if (paramArr.type in foundTypes) {
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.DEBUG(
           "autocrypt.jsm: getKeyFromHeader: duplicate header for type=" +
             paramArr.type +
             "\n"

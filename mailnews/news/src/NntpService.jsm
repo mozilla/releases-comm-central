@@ -4,14 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["NntpService"];
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
-});
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * Set the mailnews.nntp.jsmodule pref to true to use this module.

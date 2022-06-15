@@ -4,25 +4,24 @@
 
 const EXPORTED_SYMBOLS = ["FeedParser"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FeedItem",
   "resource:///modules/FeedItem.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FeedEnclosure",
   "resource:///modules/FeedItem.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FeedUtils",
   "resource:///modules/FeedUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
 );
 
 /**
@@ -54,11 +53,11 @@ FeedParser.prototype = {
     }
 
     let doc = aDOM.documentElement;
-    if (doc.namespaceURI == FeedUtils.MOZ_PARSERERROR_NS) {
+    if (doc.namespaceURI == lazy.FeedUtils.MOZ_PARSERERROR_NS) {
       // Gecko caught a basic parsing error.
       let errStr =
         doc.firstChild.textContent + "\n" + doc.firstElementChild.textContent;
-      FeedUtils.log.info("FeedParser.parseFeed: - " + errStr);
+      lazy.FeedUtils.log.info("FeedParser.parseFeed: - " + errStr);
       aFeed.onParseError(aFeed);
       return [];
     } else if (aDOM.querySelector("redirect")) {
@@ -71,11 +70,11 @@ FeedParser.prototype = {
       aFeed.onParseError(aFeed);
       return [];
     } else if (
-      doc.namespaceURI == FeedUtils.RDF_SYNTAX_NS &&
-      doc.getElementsByTagNameNS(FeedUtils.RSS_NS, "channel")[0]
+      doc.namespaceURI == lazy.FeedUtils.RDF_SYNTAX_NS &&
+      doc.getElementsByTagNameNS(lazy.FeedUtils.RSS_NS, "channel")[0]
     ) {
       aFeed.mFeedType = "RSS_1.xRDF";
-      FeedUtils.log.debug(
+      lazy.FeedUtils.log.debug(
         "FeedParser.parseFeed: type:url - " +
           aFeed.mFeedType +
           " : " +
@@ -83,27 +82,29 @@ FeedParser.prototype = {
       );
 
       return this.parseAsRSS1(aFeed, aDOM);
-    } else if (doc.namespaceURI == FeedUtils.ATOM_03_NS) {
+    } else if (doc.namespaceURI == lazy.FeedUtils.ATOM_03_NS) {
       aFeed.mFeedType = "ATOM_0.3";
-      FeedUtils.log.debug(
+      lazy.FeedUtils.log.debug(
         "FeedParser.parseFeed: type:url - " +
           aFeed.mFeedType +
           " : " +
           aFeed.url
       );
       return this.parseAsAtom(aFeed, aDOM);
-    } else if (doc.namespaceURI == FeedUtils.ATOM_IETF_NS) {
+    } else if (doc.namespaceURI == lazy.FeedUtils.ATOM_IETF_NS) {
       aFeed.mFeedType = "ATOM_IETF";
-      FeedUtils.log.debug(
+      lazy.FeedUtils.log.debug(
         "FeedParser.parseFeed: type:url - " +
           aFeed.mFeedType +
           " : " +
           aFeed.url
       );
       return this.parseAsAtomIETF(aFeed, aDOM);
-    } else if (doc.getElementsByTagNameNS(FeedUtils.RSS_090_NS, "channel")[0]) {
+    } else if (
+      doc.getElementsByTagNameNS(lazy.FeedUtils.RSS_090_NS, "channel")[0]
+    ) {
       aFeed.mFeedType = "RSS_0.90";
-      FeedUtils.log.debug(
+      lazy.FeedUtils.log.debug(
         "FeedParser.parseFeed: type:url - " +
           aFeed.mFeedType +
           " : " +
@@ -120,7 +121,7 @@ FeedParser.prototype = {
     } else {
       aFeed.mFeedType = "RSS_0.9x?";
     }
-    FeedUtils.log.debug(
+    lazy.FeedUtils.log.debug(
       "FeedParser.parseFeed: type:url - " + aFeed.mFeedType + " : " + aFeed.url
     );
     return this.parseAsRSS2(aFeed, aDOM);
@@ -149,7 +150,7 @@ FeedParser.prototype = {
     aFeed.link = this.validLink(this.getNodeValue(tags ? tags[0] : null));
 
     if (!(aFeed.title || aFeed.description) || !aFeed.link) {
-      FeedUtils.log.error(
+      lazy.FeedUtils.log.error(
         "FeedParser.parseAsRSS2: missing mandatory element " +
           "<title> and <description>, or <link>"
       );
@@ -168,7 +169,7 @@ FeedParser.prototype = {
     // better, but RSS .90 is still with us.
     let itemNodes = aDOM.getElementsByTagNameNS(nsURI, "item");
     itemNodes = itemNodes ? itemNodes : [];
-    FeedUtils.log.debug(
+    lazy.FeedUtils.log.debug(
       "FeedParser.parseAsRSS2: items to parse - " + itemNodes.length
     );
 
@@ -177,14 +178,14 @@ FeedParser.prototype = {
         continue;
       }
 
-      let item = new FeedItem();
+      let item = new lazy.FeedItem();
       item.feed = aFeed;
       item.enclosures = [];
       item.keywords = [];
 
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.FEEDBURNER_NS,
+        lazy.FeedUtils.FEEDBURNER_NS,
         "origLink"
       );
       let link = this.validLink(this.getNodeValue(tags ? tags[0] : null));
@@ -238,7 +239,7 @@ FeedParser.prototype = {
       tags = this.childrenByTagNameNS(itemNode, nsURI, "title");
       item.title = this.getNodeValue(tags ? tags[0] : null);
       if (!(item.title || item.description)) {
-        FeedUtils.log.info(
+        lazy.FeedUtils.log.info(
           "FeedParser.parseAsRSS2: <item> missing mandatory " +
             "element, either <title> or <description>; skipping"
         );
@@ -277,7 +278,11 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(itemNode, nsURI, "author");
       if (!tags) {
-        tags = this.childrenByTagNameNS(itemNode, FeedUtils.DC_NS, "creator");
+        tags = this.childrenByTagNameNS(
+          itemNode,
+          lazy.FeedUtils.DC_NS,
+          "creator"
+        );
       }
       let author = this.getNodeValue(tags ? tags[0] : null) || aFeed.title;
       author = this.cleanAuthorName(author);
@@ -285,7 +290,7 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(itemNode, nsURI, "pubDate");
       if (!tags || !this.getNodeValue(tags[0])) {
-        tags = this.childrenByTagNameNS(itemNode, FeedUtils.DC_NS, "date");
+        tags = this.childrenByTagNameNS(itemNode, lazy.FeedUtils.DC_NS, "date");
       }
       item.date = this.getNodeValue(tags ? tags[0] : null) || item.date;
 
@@ -294,7 +299,7 @@ FeedParser.prototype = {
       // This is typical aggregator behavior.
       if (item.date) {
         item.date = item.date.trim();
-        if (!FeedUtils.isValidRFC822Date(item.date)) {
+        if (!lazy.FeedUtils.isValidRFC822Date(item.date)) {
           // XXX Use this on the other formats as well.
           item.date = this.dateRescue(item.date);
         }
@@ -302,7 +307,7 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.RSS_CONTENT_NS,
+        lazy.FeedUtils.RSS_CONTENT_NS,
         "encoded"
       );
       item.content = this.getNodeValueFormatted(tags ? tags[0] : null);
@@ -319,13 +324,13 @@ FeedParser.prototype = {
             let length = this.removeUnprintableASCII(
               tag.getAttribute("length")
             );
-            item.enclosures.push(new FeedEnclosure(url, type, length));
+            item.enclosures.push(new lazy.FeedEnclosure(url, type, length));
             encUrls.push(url);
           }
         }
       }
 
-      tags = itemNode.getElementsByTagNameNS(FeedUtils.MRSS_NS, "content");
+      tags = itemNode.getElementsByTagNameNS(lazy.FeedUtils.MRSS_NS, "content");
       if (tags) {
         for (let tag of tags) {
           let url = this.validLink(tag.getAttribute("url"));
@@ -334,7 +339,7 @@ FeedParser.prototype = {
             let fileSize = this.removeUnprintableASCII(
               tag.getAttribute("fileSize")
             );
-            item.enclosures.push(new FeedEnclosure(url, type, fileSize));
+            item.enclosures.push(new lazy.FeedEnclosure(url, type, fileSize));
           }
         }
       }
@@ -348,7 +353,7 @@ FeedParser.prototype = {
       // url only or else add the <origEnclosureLink> url.
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.FEEDBURNER_NS,
+        lazy.FeedUtils.FEEDBURNER_NS,
         "origEnclosureLink"
       );
       let origEncUrl = this.validLink(this.getNodeValue(tags ? tags[0] : null));
@@ -356,7 +361,7 @@ FeedParser.prototype = {
         if (item.enclosures.length) {
           item.enclosures[0].mURL = origEncUrl;
         } else {
-          item.enclosures.push(new FeedEnclosure(origEncUrl));
+          item.enclosures.push(new lazy.FeedEnclosure(origEncUrl));
         }
       }
 
@@ -404,22 +409,30 @@ FeedParser.prototype = {
       return [];
     }
 
-    let titleNode = this.childByTagNameNS(channel, FeedUtils.RSS_NS, "title");
+    let titleNode = this.childByTagNameNS(
+      channel,
+      lazy.FeedUtils.RSS_NS,
+      "title"
+    );
     // If user entered a title manually, retain it.
     feed.title = feed.title || this.getNodeValue(titleNode) || feed.url;
 
     let descNode = this.childByTagNameNS(
       channel,
-      FeedUtils.RSS_NS,
+      lazy.FeedUtils.RSS_NS,
       "description"
     );
     feed.description = this.getNodeValueFormatted(descNode) || "";
 
-    let linkNode = this.childByTagNameNS(channel, FeedUtils.RSS_NS, "link");
+    let linkNode = this.childByTagNameNS(
+      channel,
+      lazy.FeedUtils.RSS_NS,
+      "link"
+    );
     feed.link = this.validLink(this.getNodeValue(linkNode)) || feed.url;
 
     if (!(feed.title || feed.description) || !feed.link) {
-      FeedUtils.log.error(
+      lazy.FeedUtils.log.error(
         "FeedParser.parseAsRSS1: missing mandatory element " +
           "<title> and <description>, or <link>"
       );
@@ -437,36 +450,40 @@ FeedParser.prototype = {
     feed.invalidateItems();
 
     // Now process all the individual items in the feed.
-    let itemNodes = doc.getElementsByTagNameNS(FeedUtils.RSS_NS, "item");
+    let itemNodes = doc.getElementsByTagNameNS(lazy.FeedUtils.RSS_NS, "item");
     itemNodes = itemNodes ? itemNodes : [];
 
     for (let itemNode of itemNodes) {
-      let item = new FeedItem();
+      let item = new lazy.FeedItem();
       item.feed = feed;
 
       // Prefer the value of the link tag to the item URI since the URI could be
       // a relative URN.
       let itemURI = itemNode.getAttribute("about") || "";
       itemURI = this.removeUnprintableASCII(itemURI.trim());
-      let linkNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_NS, "link");
+      let linkNode = this.childByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.RSS_NS,
+        "link"
+      );
       item.id = this.getNodeValue(linkNode) || itemURI;
       item.url = this.validLink(item.id);
 
       let descNode = this.childByTagNameNS(
         itemNode,
-        FeedUtils.RSS_NS,
+        lazy.FeedUtils.RSS_NS,
         "description"
       );
       item.description = this.getNodeValueFormatted(descNode);
 
       let titleNode = this.childByTagNameNS(
         itemNode,
-        FeedUtils.RSS_NS,
+        lazy.FeedUtils.RSS_NS,
         "title"
       );
       let subjectNode = this.childByTagNameNS(
         itemNode,
-        FeedUtils.DC_NS,
+        lazy.FeedUtils.DC_NS,
         "subject"
       );
 
@@ -476,7 +493,7 @@ FeedParser.prototype = {
         item.title = this.stripTags(item.description).substr(0, 150);
       }
       if (!item.url || !item.title) {
-        FeedUtils.log.info(
+        lazy.FeedUtils.log.info(
           "FeedParser.parseAsRSS1: <item> missing mandatory " +
             "element <item rdf:about> and <link>, or <title> and " +
             "no <description>; skipping"
@@ -487,12 +504,12 @@ FeedParser.prototype = {
       // TODO XXX: ignores multiple authors.
       let authorNode = this.childByTagNameNS(
         itemNode,
-        FeedUtils.DC_NS,
+        lazy.FeedUtils.DC_NS,
         "creator"
       );
       let channelCreatorNode = this.childByTagNameNS(
         channel,
-        FeedUtils.DC_NS,
+        lazy.FeedUtils.DC_NS,
         "creator"
       );
       let author =
@@ -502,19 +519,23 @@ FeedParser.prototype = {
       author = this.cleanAuthorName(author);
       item.author = author ? ["<" + author + ">"] : item.author;
 
-      let dateNode = this.childByTagNameNS(itemNode, FeedUtils.DC_NS, "date");
+      let dateNode = this.childByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.DC_NS,
+        "date"
+      );
       item.date = this.getNodeValue(dateNode) || item.date;
 
       let contentNode = this.childByTagNameNS(
         itemNode,
-        FeedUtils.RSS_CONTENT_NS,
+        lazy.FeedUtils.RSS_CONTENT_NS,
         "encoded"
       );
       item.content = this.getNodeValueFormatted(contentNode);
 
       this.parsedItems.push(item);
     }
-    FeedUtils.log.debug(
+    lazy.FeedUtils.log.debug(
       "FeedParser.parseAsRSS1: items parsed - " + this.parsedItems.length
     );
 
@@ -534,16 +555,24 @@ FeedParser.prototype = {
       return [];
     }
 
-    let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "title");
+    let tags = this.childrenByTagNameNS(
+      channel,
+      lazy.FeedUtils.ATOM_03_NS,
+      "title"
+    );
     aFeed.title =
       aFeed.title || this.stripTags(this.getNodeValue(tags ? tags[0] : null));
-    tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "tagline");
+    tags = this.childrenByTagNameNS(
+      channel,
+      lazy.FeedUtils.ATOM_03_NS,
+      "tagline"
+    );
     aFeed.description = this.getNodeValueFormatted(tags ? tags[0] : null);
-    tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "link");
+    tags = this.childrenByTagNameNS(channel, lazy.FeedUtils.ATOM_03_NS, "link");
     aFeed.link = this.validLink(this.findAtomLink("alternate", tags));
 
     if (!aFeed.title) {
-      FeedUtils.log.error(
+      lazy.FeedUtils.log.error(
         "FeedParser.parseAsAtom: missing mandatory element <title>"
       );
       aFeed.onParseError(aFeed);
@@ -559,11 +588,11 @@ FeedParser.prototype = {
     aFeed.invalidateItems();
     let items = this.childrenByTagNameNS(
       channel,
-      FeedUtils.ATOM_03_NS,
+      lazy.FeedUtils.ATOM_03_NS,
       "entry"
     );
     items = items ? items : [];
-    FeedUtils.log.debug(
+    lazy.FeedUtils.log.debug(
       "FeedParser.parseAsAtom: items to parse - " + items.length
     );
 
@@ -572,45 +601,61 @@ FeedParser.prototype = {
         continue;
       }
 
-      let item = new FeedItem();
+      let item = new lazy.FeedItem();
       item.feed = aFeed;
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "link");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.ATOM_03_NS,
+        "link"
+      );
       item.url = this.validLink(this.findAtomLink("alternate", tags));
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "id");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.ATOM_03_NS,
+        "id"
+      );
       item.id = this.getNodeValue(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_03_NS,
+        lazy.FeedUtils.ATOM_03_NS,
         "summary"
       );
       item.description = this.getNodeValueFormatted(tags ? tags[0] : null);
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "title");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.ATOM_03_NS,
+        "title"
+      );
       item.title =
         this.getNodeValue(tags ? tags[0] : null) ||
         (item.description ? item.description.substr(0, 150) : null);
       if (!item.title || !item.id) {
         // We're lenient about other mandatory tags, but insist on these.
-        FeedUtils.log.info(
+        lazy.FeedUtils.log.info(
           "FeedParser.parseAsAtom: <entry> missing mandatory " +
             "element <id>, or <title> and no <summary>; skipping"
         );
         continue;
       }
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "author");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.ATOM_03_NS,
+        "author"
+      );
       if (!tags) {
         tags = this.childrenByTagNameNS(
           itemNode,
-          FeedUtils.ATOM_03_NS,
+          lazy.FeedUtils.ATOM_03_NS,
           "contributor"
         );
       }
       if (!tags) {
         tags = this.childrenByTagNameNS(
           channel,
-          FeedUtils.ATOM_03_NS,
+          lazy.FeedUtils.ATOM_03_NS,
           "author"
         );
       }
@@ -619,11 +664,15 @@ FeedParser.prototype = {
 
       let author = "";
       if (authorEl) {
-        tags = this.childrenByTagNameNS(authorEl, FeedUtils.ATOM_03_NS, "name");
+        tags = this.childrenByTagNameNS(
+          authorEl,
+          lazy.FeedUtils.ATOM_03_NS,
+          "name"
+        );
         let name = this.getNodeValue(tags ? tags[0] : null);
         tags = this.childrenByTagNameNS(
           authorEl,
-          FeedUtils.ATOM_03_NS,
+          lazy.FeedUtils.ATOM_03_NS,
           "email"
         );
         let email = this.getNodeValue(tags ? tags[0] : null);
@@ -638,20 +687,20 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_03_NS,
+        lazy.FeedUtils.ATOM_03_NS,
         "modified"
       );
       if (!tags || !this.getNodeValue(tags[0])) {
         tags = this.childrenByTagNameNS(
           itemNode,
-          FeedUtils.ATOM_03_NS,
+          lazy.FeedUtils.ATOM_03_NS,
           "issued"
         );
       }
       if (!tags || !this.getNodeValue(tags[0])) {
         tags = this.childrenByTagNameNS(
           channel,
-          FeedUtils.ATOM_03_NS,
+          lazy.FeedUtils.ATOM_03_NS,
           "created"
         );
       }
@@ -668,7 +717,7 @@ FeedParser.prototype = {
       // We deal with the first two but not the third.
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_03_NS,
+        lazy.FeedUtils.ATOM_03_NS,
         "content"
       );
       let contentNode = tags ? tags[0] : null;
@@ -706,7 +755,7 @@ FeedParser.prototype = {
     // Get the first channel (assuming there is only one per Atom File).
     let channel = this.childrenByTagNameNS(
       aDOM,
-      FeedUtils.ATOM_IETF_NS,
+      lazy.FeedUtils.ATOM_IETF_NS,
       "feed"
     )[0];
     if (!channel) {
@@ -722,7 +771,7 @@ FeedParser.prototype = {
 
     let tags = this.childrenByTagNameNS(
       channel,
-      FeedUtils.ATOM_IETF_NS,
+      lazy.FeedUtils.ATOM_IETF_NS,
       "title"
     );
     aFeed.title =
@@ -731,13 +780,17 @@ FeedParser.prototype = {
 
     tags = this.childrenByTagNameNS(
       channel,
-      FeedUtils.ATOM_IETF_NS,
+      lazy.FeedUtils.ATOM_IETF_NS,
       "subtitle"
     );
     aFeed.description = this.serializeTextConstruct(tags ? tags[0] : null);
 
     // Per spec, aFeed.link and contentBase may both end up null here.
-    tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "link");
+    tags = this.childrenByTagNameNS(
+      channel,
+      lazy.FeedUtils.ATOM_IETF_NS,
+      "link"
+    );
     aFeed.link =
       this.findAtomLink("self", tags, contentBase) ||
       this.findAtomLink("alternate", tags, contentBase);
@@ -747,7 +800,7 @@ FeedParser.prototype = {
     }
 
     if (!aFeed.title) {
-      FeedUtils.log.error(
+      lazy.FeedUtils.log.error(
         "FeedParser.parseAsAtomIETF: missing mandatory element <title>"
       );
       aFeed.onParseError(aFeed);
@@ -763,11 +816,11 @@ FeedParser.prototype = {
     aFeed.invalidateItems();
     let items = this.childrenByTagNameNS(
       channel,
-      FeedUtils.ATOM_IETF_NS,
+      lazy.FeedUtils.ATOM_IETF_NS,
       "entry"
     );
     items = items ? items : [];
-    FeedUtils.log.debug(
+    lazy.FeedUtils.log.debug(
       "FeedParser.parseAsAtomIETF: items to parse - " + items.length
     );
 
@@ -776,7 +829,7 @@ FeedParser.prototype = {
         continue;
       }
 
-      let item = new FeedItem();
+      let item = new lazy.FeedItem();
       item.feed = aFeed;
       item.enclosures = [];
       item.keywords = [];
@@ -785,7 +838,7 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_IETF_NS,
+        lazy.FeedUtils.ATOM_IETF_NS,
         "source"
       );
       let source = tags ? tags[0] : null;
@@ -795,14 +848,14 @@ FeedParser.prototype = {
       // but we're lenient.
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.FEEDBURNER_NS,
+        lazy.FeedUtils.FEEDBURNER_NS,
         "origLink"
       );
       item.url = this.validLink(this.getNodeValue(tags ? tags[0] : null));
       if (!item.url) {
         tags = this.childrenByTagNameNS(
           itemNode,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "link"
         );
         item.url =
@@ -813,23 +866,27 @@ FeedParser.prototype = {
         contentBase = item.url;
       }
 
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "id");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.ATOM_IETF_NS,
+        "id"
+      );
       item.id = this.getNodeValue(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_IETF_NS,
+        lazy.FeedUtils.ATOM_IETF_NS,
         "summary"
       );
       item.description = this.serializeTextConstruct(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_IETF_NS,
+        lazy.FeedUtils.ATOM_IETF_NS,
         "title"
       );
       if (!tags || !this.getNodeValue(tags[0])) {
         tags = this.childrenByTagNameNS(
           source,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "title"
         );
       }
@@ -839,7 +896,7 @@ FeedParser.prototype = {
       );
       if (!item.title || !item.id) {
         // We're lenient about other mandatory tags, but insist on these.
-        FeedUtils.log.info(
+        lazy.FeedUtils.log.info(
           "FeedParser.parseAsAtomIETF: <entry> missing mandatory " +
             "element <id>, or <title> and no <summary>; skipping"
         );
@@ -849,20 +906,20 @@ FeedParser.prototype = {
       // Support multiple authors.
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_IETF_NS,
+        lazy.FeedUtils.ATOM_IETF_NS,
         "author"
       );
       if (!tags) {
         tags = this.childrenByTagNameNS(
           source,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "author"
         );
       }
       if (!tags) {
         tags = this.childrenByTagNameNS(
           channel,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "author"
         );
       }
@@ -873,13 +930,13 @@ FeedParser.prototype = {
         let author = "";
         tags = this.childrenByTagNameNS(
           authorTag,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "name"
         );
         let name = this.getNodeValue(tags ? tags[0] : null);
         tags = this.childrenByTagNameNS(
           authorTag,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "email"
         );
         let email = this.getNodeValue(tags ? tags[0] : null);
@@ -903,33 +960,37 @@ FeedParser.prototype = {
       }
 
       if (authors.length == 0) {
-        tags = this.childrenByTagNameNS(channel, FeedUtils.DC_NS, "publisher");
+        tags = this.childrenByTagNameNS(
+          channel,
+          lazy.FeedUtils.DC_NS,
+          "publisher"
+        );
         let author = this.getNodeValue(tags ? tags[0] : null) || aFeed.title;
         author = this.cleanAuthorName(author);
         item.author = author ? ["<" + author + ">"] : item.author;
       } else {
         item.author = authors;
       }
-      FeedUtils.log.trace(
+      lazy.FeedUtils.log.trace(
         "FeedParser.parseAsAtomIETF: author(s) - " + item.author
       );
 
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_IETF_NS,
+        lazy.FeedUtils.ATOM_IETF_NS,
         "updated"
       );
       if (!tags || !this.getNodeValue(tags[0])) {
         tags = this.childrenByTagNameNS(
           itemNode,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "published"
         );
       }
       if (!tags || !this.getNodeValue(tags[0])) {
         tags = this.childrenByTagNameNS(
           source,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "published"
         );
       }
@@ -937,7 +998,7 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_IETF_NS,
+        lazy.FeedUtils.ATOM_IETF_NS,
         "content"
       );
       item.content = this.serializeTextConstruct(tags ? tags[0] : null);
@@ -951,7 +1012,7 @@ FeedParser.prototype = {
       } else if (item.description) {
         tags = this.childrenByTagNameNS(
           itemNode,
-          FeedUtils.ATOM_IETF_NS,
+          lazy.FeedUtils.ATOM_IETF_NS,
           "summary"
         );
         item.xmlContentBase =
@@ -963,7 +1024,11 @@ FeedParser.prototype = {
       item.xmlContentBase = this.validLink(item.xmlContentBase);
 
       // Handle <link rel="enclosure"> (if present).
-      tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
+      tags = this.childrenByTagNameNS(
+        itemNode,
+        lazy.FeedUtils.ATOM_IETF_NS,
+        "link"
+      );
       let encUrls = [];
       if (tags) {
         for (let tag of tags) {
@@ -978,7 +1043,9 @@ FeedParser.prototype = {
               tag.getAttribute("length")
             );
             let title = this.removeUnprintableASCII(tag.getAttribute("title"));
-            item.enclosures.push(new FeedEnclosure(url, type, length, title));
+            item.enclosures.push(
+              new lazy.FeedEnclosure(url, type, length, title)
+            );
             encUrls.push(url);
           }
         }
@@ -986,7 +1053,7 @@ FeedParser.prototype = {
 
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.FEEDBURNER_NS,
+        lazy.FeedUtils.FEEDBURNER_NS,
         "origEnclosureLink"
       );
       let origEncUrl = this.validLink(this.getNodeValue(tags ? tags[0] : null));
@@ -994,7 +1061,7 @@ FeedParser.prototype = {
         if (item.enclosures.length) {
           item.enclosures[0].mURL = origEncUrl;
         } else {
-          item.enclosures.push(new FeedEnclosure(origEncUrl));
+          item.enclosures.push(new lazy.FeedEnclosure(origEncUrl));
         }
       }
 
@@ -1003,7 +1070,7 @@ FeedParser.prototype = {
       // value.  This is the only attr of interest in the spec for presentation.
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_THREAD_NS,
+        lazy.FeedUtils.ATOM_THREAD_NS,
         "in-reply-to"
       );
       if (tags) {
@@ -1019,7 +1086,7 @@ FeedParser.prototype = {
       // Support <category> and autotagging.
       tags = this.childrenByTagNameNS(
         itemNode,
-        FeedUtils.ATOM_IETF_NS,
+        lazy.FeedUtils.ATOM_IETF_NS,
         "category"
       );
       if (tags) {
@@ -1059,7 +1126,7 @@ FeedParser.prototype = {
       tagName = "new-feed-url";
       tags = this.childrenByTagNameNS(
         aFeedChannel,
-        FeedUtils.ITUNES_NS,
+        lazy.FeedUtils.ITUNES_NS,
         tagName
       );
       newUrl = this.getNodeValue(tags ? tags[0] : null);
@@ -1069,10 +1136,10 @@ FeedParser.prototype = {
     if (
       newUrl &&
       newUrl != oldUrl &&
-      FeedUtils.isValidScheme(newUrl) &&
-      FeedUtils.changeUrlForFeed(aFeed, newUrl)
+      lazy.FeedUtils.isValidScheme(newUrl) &&
+      lazy.FeedUtils.changeUrlForFeed(aFeed, newUrl)
     ) {
-      FeedUtils.log.info(
+      lazy.FeedUtils.log.info(
         "FeedParser.isPermanentRedirect: found <" +
           tagName +
           "> tag; updated feed url from: " +
@@ -1080,7 +1147,7 @@ FeedParser.prototype = {
           " to: " +
           newUrl +
           " in folder: " +
-          FeedUtils.getFolderPrettyPath(aFeed.folder)
+          lazy.FeedUtils.getFolderPrettyPath(aFeed.folder)
       );
       aFeed.onUrlChange(aFeed, oldUrl);
       return true;
@@ -1133,7 +1200,9 @@ FeedParser.prototype = {
     if (!authorString) {
       return "";
     }
-    FeedUtils.log.trace("FeedParser.cleanAuthor: author1 - " + authorString);
+    lazy.FeedUtils.log.trace(
+      "FeedParser.cleanAuthor: author1 - " + authorString
+    );
     let author = authorString
       .replace(/[\n\r\t]+/g, " ")
       .replace(/"/g, '\\"')
@@ -1142,7 +1211,7 @@ FeedParser.prototype = {
     if (author.match(/[<>@,"]/)) {
       author = '"' + author + '"';
     }
-    FeedUtils.log.trace("FeedParser.cleanAuthor: author2 - " + author);
+    lazy.FeedUtils.log.trace("FeedParser.cleanAuthor: author2 - " + author);
 
     return author;
   },
@@ -1314,19 +1383,23 @@ FeedParser.prototype = {
     let tag, updatePeriod, updateFrequency, updateBase;
     tag = this.childrenByTagNameNS(
       aChannel,
-      FeedUtils.RSS_SY_NS,
+      lazy.FeedUtils.RSS_SY_NS,
       "updatePeriod"
     );
     updatePeriod = this.getNodeValue(tag ? tag[0] : null) || "";
     tag = this.childrenByTagNameNS(
       aChannel,
-      FeedUtils.RSS_SY_NS,
+      lazy.FeedUtils.RSS_SY_NS,
       "updateFrequency"
     );
     updateFrequency = this.getNodeValue(tag ? tag[0] : null) || "";
-    tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateBase");
+    tag = this.childrenByTagNameNS(
+      aChannel,
+      lazy.FeedUtils.RSS_SY_NS,
+      "updateBase"
+    );
     updateBase = this.getNodeValue(tag ? tag[0] : null) || "";
-    FeedUtils.log.debug(
+    lazy.FeedUtils.log.debug(
       "FeedParser.findSyUpdateTags: updatePeriod:updateFrequency - " +
         updatePeriod +
         ":" +
@@ -1334,7 +1407,7 @@ FeedParser.prototype = {
     );
 
     if (updatePeriod) {
-      if (FeedUtils.RSS_SY_UNITS.includes(updatePeriod.toLowerCase())) {
+      if (lazy.FeedUtils.RSS_SY_UNITS.includes(updatePeriod.toLowerCase())) {
         updatePeriod = updatePeriod.toLowerCase();
       } else {
         updatePeriod = "daily";
@@ -1405,7 +1478,7 @@ FeedParser.prototype = {
       let d = new Date(parseInt(dateString) * 1000);
       let now = new Date();
       let yeardiff = now.getFullYear() - d.getFullYear();
-      FeedUtils.log.trace(
+      lazy.FeedUtils.log.trace(
         "FeedParser.dateRescue: Rescue Timestamp date - " +
           d.toString() +
           " ,year diff - " +
@@ -1418,6 +1491,6 @@ FeedParser.prototype = {
     }
 
     // Could be an ISO8601/W3C date.  If not, get the current time.
-    return FeedUtils.getValidRFC5322Date(dateString);
+    return lazy.FeedUtils.getValidRFC5322Date(dateString);
   },
 };

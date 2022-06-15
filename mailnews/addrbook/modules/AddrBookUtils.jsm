@@ -21,7 +21,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyServiceGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyServiceGetters(lazy, {
   attrMapService: [
     "@mozilla.org/addressbook/ldap-attribute-map-service;1",
     "nsIAbLDAPAttributeMapService",
@@ -445,7 +447,7 @@ var AddrBookUtils = {
     }
 
     let output = "";
-    let attrMap = attrMapService.getMapForPrefBranch(
+    let attrMap = lazy.attrMapService.getMapForPrefBranch(
       "ldap_2.servers.default.attrmap"
     );
 

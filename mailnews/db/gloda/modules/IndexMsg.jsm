@@ -17,8 +17,9 @@ const EXPORTED_SYMBOLS = ["GlodaMsgIndexer"];
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -2775,7 +2776,7 @@ var GlodaMsgIndexer = {
      *  this by not exploding if the original folder no longer exists.
      */
     _folderRenameHelper(aOrigFolder, aNewURI) {
-      let newFolder = MailUtils.getOrCreateFolder(aNewURI);
+      let newFolder = lazy.MailUtils.getOrCreateFolder(aNewURI);
       let specialFolderFlags =
         Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Junk;
       if (newFolder.isSpecialFolder(specialFolderFlags, true)) {

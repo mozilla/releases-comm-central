@@ -21,19 +21,21 @@ const LoginInfo = Components.Constructor(
   "init"
 );
 
-XPCOMUtils.defineLazyGetter(this, "dialogsBundle", function() {
+const lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "dialogsBundle", function() {
   return Services.strings.createBundle(
     "chrome://global/locale/commonDialogs.properties"
   );
 });
 
-XPCOMUtils.defineLazyGetter(this, "passwordsBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "passwordsBundle", function() {
   return Services.strings.createBundle(
     "chrome://passwordmgr/locale/passwordmgr.properties"
   );
 });
 
-XPCOMUtils.defineLazyGetter(this, "brandFullName", function() {
+XPCOMUtils.defineLazyGetter(lazy, "brandFullName", function() {
   return Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandFullName");
@@ -227,9 +229,9 @@ class MsgAuthPrompt {
 
   _getLocalizedString(key, formatArgs) {
     if (formatArgs) {
-      return passwordsBundle.formatStringFromName(key, formatArgs);
+      return lazy.passwordsBundle.formatStringFromName(key, formatArgs);
     }
-    return passwordsBundle.GetStringFromName(key);
+    return lazy.passwordsBundle.GetStringFromName(key);
   }
 
   /**
@@ -465,13 +467,14 @@ class MsgAuthPrompt {
    * @return true for OK, false for Cancel.
    */
   promptAuth(channel, level, authInfo, checkboxLabel, checkValue) {
-    let title = dialogsBundle.formatStringFromName(
+    let title = lazy.dialogsBundle.formatStringFromName(
       "PromptUsernameAndPassword3",
-      [brandFullName]
+      [lazy.brandFullName]
     );
-    let text = dialogsBundle.formatStringFromName("EnterUserPasswordFor2", [
-      `${channel.URI.scheme}://${channel.URI.host}`,
-    ]);
+    let text = lazy.dialogsBundle.formatStringFromName(
+      "EnterUserPasswordFor2",
+      [`${channel.URI.scheme}://${channel.URI.host}`]
+    );
 
     let username = { value: authInfo.username || "" };
     let password = { value: authInfo.password || "" };
@@ -532,9 +535,9 @@ function nsIPrompt_promptUsernameAndPassword(
   checkValue
 ) {
   if (!dialogTitle) {
-    dialogTitle = dialogsBundle.formatStringFromName(
+    dialogTitle = lazy.dialogsBundle.formatStringFromName(
       "PromptUsernameAndPassword3",
-      [brandFullName]
+      [lazy.brandFullName]
     );
   }
 
@@ -601,9 +604,9 @@ function nsIPrompt_promptPassword(
   checkValue
 ) {
   if (!dialogTitle) {
-    dialogTitle = dialogsBundle.formatStringFromName(
+    dialogTitle = lazy.dialogsBundle.formatStringFromName(
       "PromptUsernameAndPassword3",
-      [brandFullName]
+      [lazy.brandFullName]
     );
   }
 

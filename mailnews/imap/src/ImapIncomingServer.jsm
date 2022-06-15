@@ -7,14 +7,18 @@ const EXPORTED_SYMBOLS = ["ImapIncomingServer"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { MsgIncomingServer } = ChromeUtils.import(
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+const { MsgIncomingServer } = ChromeUtils.import(
   "resource:///modules/MsgIncomingServer.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   ImapClient: "resource:///modules/ImapClient.jsm",
   ImapUtils: "resource:///modules/ImapUtils.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
@@ -34,7 +38,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     "nsISupportsWeakReference",
   ]);
 
-  _logger = ImapUtils.logger;
+  _logger = lazy.ImapUtils.logger;
 
   constructor() {
     super();
@@ -85,7 +89,7 @@ class ImapIncomingServer extends MsgIncomingServer {
           Cr.NS_ERROR_INVALID_ARG
         );
       }
-      explicitlyVerify = !(boxFlags & ImapUtils.FLAG_NAMESPACE);
+      explicitlyVerify = !(boxFlags & lazy.ImapUtils.FLAG_NAMESPACE);
     }
 
     let slashIndex = folderPath.indexOf("/");
@@ -138,11 +142,11 @@ class ImapIncomingServer extends MsgIncomingServer {
           this.possibleImapMailbox(
             parentName,
             delimiter,
-            ImapUtils.FLAG_NO_SELECT |
+            lazy.ImapUtils.FLAG_NO_SELECT |
               (boxFlags &
-                (ImapUtils.FLAG_PUBLIC_MAILBOX |
-                  ImapUtils.FLAG_OTHER_USERS_MAILBOX |
-                  ImapUtils.FLAG_PERSONAL_MAILBOX))
+                (lazy.ImapUtils.FLAG_PUBLIC_MAILBOX |
+                  lazy.ImapUtils.FLAG_OTHER_USERS_MAILBOX |
+                  lazy.ImapUtils.FLAG_PERSONAL_MAILBOX))
           );
         }
       }
@@ -162,7 +166,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       let imapFolder = child.QueryInterface(Ci.nsIMsgImapMailFolder);
       imapFolder.verifiedAsOnlineFolder = true;
       imapFolder.hierarchyDelimiter = delimiter;
-      if (boxFlags & ImapUtils.FLAG_IMAP_TRASH) {
+      if (boxFlags & lazy.ImapUtils.FLAG_IMAP_TRASH) {
         if (this.deleteModel == Ci.nsMsgImapDeleteModels.MoveToTrash) {
           child.setFlag(Ci.nsMsgFolderFlags.Trash);
         }
@@ -174,7 +178,7 @@ class ImapIncomingServer extends MsgIncomingServer {
           folderPath = decodeURIComponent(folderPath);
         }
 
-        if (boxFlags & ImapUtils.FLAG_IMAP_INBOX) {
+        if (boxFlags & lazy.ImapUtils.FLAG_IMAP_INBOX) {
           // GMail gives us a localized name for the inbox but doesn't let
           // us select that localized name.
           imapFolder.onlineName = "INBOX";
@@ -290,7 +294,7 @@ class ImapIncomingServer extends MsgIncomingServer {
    * @returns {nsIMsgFolder} The corresponding msg folder.
    */
   _getFolder(name) {
-    return MailUtils.getOrCreateFolder(this.rootFolder.URI + "/" + name);
+    return lazy.MailUtils.getOrCreateFolder(this.rootFolder.URI + "/" + name);
   }
 
   abortQueuedUrls() {}
@@ -401,7 +405,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       this.maximumConnectionsNumber
     ) {
       // Create a new client if the pool is not full.
-      client = new ImapClient(this);
+      client = new lazy.ImapClient(this);
       this._busyConnections.push(client);
       return client;
     }

@@ -5,22 +5,25 @@
 const EXPORTED_SYMBOLS = ["CardDAVUtils", "NotificationCallbacks"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
 });
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "nssErrorsService",
   "@mozilla.org/nss_errors_service;1",
   "nsINSSErrorsService"
@@ -66,7 +69,7 @@ var CardDAVUtils = {
 
     // This could be any 32-bit integer, as long as it isn't already in use.
     let nextId = 25000 + CardDAVUtils._contextMap.size;
-    ContextualIdentityService.remove(nextId);
+    lazy.ContextualIdentityService.remove(nextId);
     CardDAVUtils._contextMap.set(username, nextId);
     return nextId;
   },
@@ -165,7 +168,7 @@ var CardDAVUtils = {
           if (!Components.isSuccessCode(status)) {
             let isCertError = false;
             try {
-              let errorType = nssErrorsService.getErrorClass(status);
+              let errorType = lazy.nssErrorsService.getErrorClass(status);
               if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
                 isCertError = true;
               }
@@ -328,7 +331,7 @@ var CardDAVUtils = {
         </propfind>`,
     };
 
-    let details = OAuth2Providers.getHostnameDetails(url.host);
+    let details = lazy.OAuth2Providers.getHostnameDetails(url.host);
     if (details) {
       let [issuer, scope] = details;
       let [
@@ -336,9 +339,9 @@ var CardDAVUtils = {
         clientSecret,
         authorizationEndpoint,
         tokenEndpoint,
-      ] = OAuth2Providers.getIssuerDetails(issuer);
+      ] = lazy.OAuth2Providers.getIssuerDetails(issuer);
 
-      oAuth = new OAuth2(
+      oAuth = new lazy.OAuth2(
         authorizationEndpoint,
         tokenEndpoint,
         scope,
@@ -564,7 +567,7 @@ var CardDAVUtils = {
             callbacks.saveAuth();
           }
 
-          let dir = CardDAVDirectory.forFile(book.fileName);
+          let dir = lazy.CardDAVDirectory.forFile(book.fileName);
           // Pass the context to the created address book. This prevents asking
           // for a username/password again in the case that we didn't save it.
           // The user won't be prompted again until Thunderbird is restarted.
@@ -648,7 +651,7 @@ class NotificationCallbacks {
       savePassword.value = true;
     }
 
-    let returnValue = new MsgAuthPrompt().promptAuth(
+    let returnValue = new lazy.MsgAuthPrompt().promptAuth(
       channel,
       level,
       authInfo,

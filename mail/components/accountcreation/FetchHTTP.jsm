@@ -19,8 +19,9 @@ const EXPORTED_SYMBOLS = ["FetchHTTP"];
 const { AccountCreationUtils } = ChromeUtils.import(
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "Sanitizer",
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
@@ -104,7 +105,7 @@ const {
 function FetchHTTP(url, args, successCallback, errorCallback) {
   assert(typeof successCallback == "function", "BUG: successCallback");
   assert(typeof errorCallback == "function", "BUG: errorCallback");
-  this._url = Sanitizer.string(url);
+  this._url = lazy.Sanitizer.string(url);
   if (!args) {
     args = {};
   }
@@ -116,14 +117,16 @@ function FetchHTTP(url, args, successCallback, errorCallback) {
   }
 
   this._args = args;
-  this._args.post = Sanitizer.boolean(args.post || false); // default false
+  this._args.post = lazy.Sanitizer.boolean(args.post || false); // default false
   this._args.allowCache =
-    "allowCache" in args ? Sanitizer.boolean(args.allowCache) : true; // default true
-  this._args.allowAuthPrompt = Sanitizer.boolean(args.allowAuthPrompt || false); // default false
-  this._args.requireSecureAuth = Sanitizer.boolean(
+    "allowCache" in args ? lazy.Sanitizer.boolean(args.allowCache) : true; // default true
+  this._args.allowAuthPrompt = lazy.Sanitizer.boolean(
+    args.allowAuthPrompt || false
+  ); // default false
+  this._args.requireSecureAuth = lazy.Sanitizer.boolean(
     args.requireSecureAuth || false
   ); // default false
-  this._args.timeout = Sanitizer.integer(args.timeout || 5000); // default 5 seconds
+  this._args.timeout = lazy.Sanitizer.integer(args.timeout || 5000); // default 5 seconds
   this._successCallback = successCallback;
   this._errorCallback = errorCallback;
   this._logger = gAccountSetupLogger;

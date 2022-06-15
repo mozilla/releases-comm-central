@@ -4,23 +4,25 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+/*
+ * Common Enigmail crypto-related GUI functionality
+ */
+
 "use strict";
 
 const EXPORTED_SYMBOLS = ["EnigmailFuncs"];
 
-/*
- * Common Enigmail crypto-related GUI functionality
- *
- */
-
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
 });
 
 var gTxtConverter = null;
@@ -48,7 +50,7 @@ var EnigmailFuncs = {
     while ((qStart = mailAddrs.indexOf('"')) >= 0) {
       qEnd = mailAddrs.indexOf('"', qStart + 1);
       if (qEnd < 0) {
-        EnigmailLog.ERROR(
+        lazy.EnigmailLog.ERROR(
           "funcs.jsm: stripEmail: Unmatched quote in mail address: '" +
             mailAddresses +
             "'\n"
@@ -72,7 +74,7 @@ var EnigmailFuncs = {
 
     // having two <..> <..> in one email, or things like <a@b.c,><d@e.f> is an error
     if (mailAddrs.search(MatchAddr) < 0) {
-      EnigmailLog.ERROR(
+      lazy.EnigmailLog.ERROR(
         "funcs.jsm: stripEmail: Invalid <..> brackets in mail address: '" +
           mailAddresses +
           "'\n"
@@ -134,7 +136,7 @@ var EnigmailFuncs = {
    */
 
   collapseAdvanced(obj, attribute, dummy) {
-    EnigmailLog.DEBUG("funcs.jsm: collapseAdvanced:\n");
+    lazy.EnigmailLog.DEBUG("funcs.jsm: collapseAdvanced:\n");
 
     var advancedUser = Services.prefs.getBoolPref("temp.openpgp.advancedUser");
 
@@ -281,7 +283,7 @@ var EnigmailFuncs = {
    * @return |array| of |arrays| containing pairs of aa/b and cc/d
    */
   getHeaderData(data) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "funcs.jsm: getHeaderData: " + data.substr(0, 100) + "\n"
     );
     var a = data.split(/\n/);
@@ -298,7 +300,7 @@ var EnigmailFuncs = {
         if (m) {
           // m[2]: identifier / m[6]: data
           res[m[2].toLowerCase()] = m[6].replace(/\s*$/, "");
-          EnigmailLog.DEBUG(
+          lazy.EnigmailLog.DEBUG(
             "funcs.jsm: getHeaderData: " +
               m[2].toLowerCase() +
               " = " +

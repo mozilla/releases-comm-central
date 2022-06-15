@@ -9,7 +9,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   isLegalIPAddress: "resource:///modules/hostnameUtils.jsm",
   isLegalLocalIPAddress: "resource:///modules/hostnameUtils.jsm",
 });
@@ -143,9 +145,14 @@ const PhishingDetector = new (class PhishingDetector {
         aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, "")
       ) {
         if (this.mCheckForIPAddresses) {
-          let unobscuredHostNameValue = isLegalIPAddress(hrefURL.host, true);
+          let unobscuredHostNameValue = lazy.isLegalIPAddress(
+            hrefURL.host,
+            true
+          );
           if (unobscuredHostNameValue) {
-            failsStaticTests = !isLegalLocalIPAddress(unobscuredHostNameValue);
+            failsStaticTests = !lazy.isLegalLocalIPAddress(
+              unobscuredHostNameValue
+            );
           }
         }
 
@@ -296,7 +303,7 @@ const PhishingDetector = new (class PhishingDetector {
     if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
       // unobscure the host name in case it's an encoded ip address..
       let unobscuredHostNameValue =
-        isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
+        lazy.isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
 
       let brandBundle = Services.strings.createBundle(
         "chrome://branding/locale/brand.properties"

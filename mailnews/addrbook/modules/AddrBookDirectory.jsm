@@ -8,7 +8,8 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookMailingList: "resource:///modules/AddrBookMailingList.jsm",
   BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
@@ -92,7 +93,7 @@ class AddrBookDirectory {
   }
 
   getCard(uid) {
-    let card = new AddrBookCard();
+    let card = new lazy.AddrBookCard();
     card.directoryUID = this.UID;
     card._uid = uid;
     card._properties = this.loadCardProperties(uid);
@@ -152,7 +153,7 @@ class AddrBookDirectory {
     if (card.supportsVCard) {
       vCardProperties = card.vCardProperties;
     } else {
-      vCardProperties = VCardProperties.fromPropertyMap(propertyMap);
+      vCardProperties = lazy.VCardProperties.fromPropertyMap(propertyMap);
     }
 
     if (uid) {
@@ -166,7 +167,7 @@ class AddrBookDirectory {
 
     // Collect only the properties we intend to keep.
     for (let [name, value] of propertyMap) {
-      if (BANISHED_PROPERTIES.includes(name)) {
+      if (lazy.BANISHED_PROPERTIES.includes(name)) {
         continue;
       }
       if (value !== null && value !== undefined && value !== "") {
@@ -250,7 +251,7 @@ class AddrBookDirectory {
       if (this._prefBranch.getPrefType("uid") == Services.prefs.PREF_STRING) {
         this._uid = this._prefBranch.getStringPref("uid");
       } else {
-        this._uid = newUID();
+        this._uid = lazy.newUID();
         this._prefBranch.setStringPref("uid", this._uid);
       }
     }
@@ -266,7 +267,7 @@ class AddrBookDirectory {
     let lists = Array.from(
       this.lists.values(),
       list =>
-        new AddrBookMailingList(
+        new lazy.AddrBookMailingList(
           list.uid,
           this,
           list.name,
@@ -274,7 +275,7 @@ class AddrBookDirectory {
           list.description
         ).asDirectory
     );
-    lists.sort(compareAddressBooks);
+    lists.sort(lazy.compareAddressBooks);
     return lists;
   }
   /** @abstract */
@@ -288,7 +289,7 @@ class AddrBookDirectory {
     let results = Array.from(
       this.lists.values(),
       list =>
-        new AddrBookMailingList(
+        new lazy.AddrBookMailingList(
           list.uid,
           this,
           list.name,
@@ -318,7 +319,7 @@ class AddrBookDirectory {
     let results = Array.from(
       this.lists.values(),
       list =>
-        new AddrBookMailingList(
+        new lazy.AddrBookMailingList(
           list.uid,
           this,
           list.name,
@@ -466,7 +467,7 @@ class AddrBookDirectory {
   getMailListFromName(name) {
     for (let list of this.lists.values()) {
       if (list.name.toLowerCase() == name.toLowerCase()) {
-        return new AddrBookMailingList(
+        return new lazy.AddrBookMailingList(
           list.uid,
           this,
           list.name,
@@ -486,7 +487,7 @@ class AddrBookDirectory {
     }
 
     let list = this.lists.get(directory.UID);
-    list = new AddrBookMailingList(
+    list = new lazy.AddrBookMailingList(
       list.uid,
       this,
       list.name,
@@ -614,7 +615,7 @@ class AddrBookDirectory {
       throw new Error("Card must have a UID to be added to this directory.");
     }
 
-    let uid = needToCopyCard ? newUID() : card.UID;
+    let uid = needToCopyCard ? lazy.newUID() : card.UID;
     let newProperties = this.prepareToSaveCard(card, uid);
     if (card.directoryUID && card.directoryUID != this._uid) {
       // These properties belong to a different directory. Don't keep them.
@@ -678,8 +679,8 @@ class AddrBookDirectory {
       }
     }
 
-    let newList = new AddrBookMailingList(
-      newUID(),
+    let newList = new lazy.AddrBookMailingList(
+      lazy.newUID(),
       this,
       list.dirName || "",
       list.listNickName || "",

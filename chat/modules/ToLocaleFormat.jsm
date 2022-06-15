@@ -2,23 +2,45 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * JS implementation of the deprecated Date.toLocaleFormat.
+ * aFormat follows strftime syntax,
+ * http://pubs.opengroup.org/onlinepubs/007908799/xsh/strftime.html
+ */
+
+const EXPORTED_SYMBOLS = ["ToLocaleFormat"];
+
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 const lazy = {};
-
-ChromeUtils.defineModuleGetter(
+XPCOMUtils.defineLazyGetter(
   lazy,
-  "Services",
-  "resource://gre/modules/Services.jsm"
+  "dateTimeFormatter",
+  () =>
+    new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "full",
+      timeStyle: "long",
+    })
 );
-
-const EXPORTED_SYMBOLS = ["ToLocaleFormat"];
-
-// JS implementation of the deprecated Date.toLocaleFormat.
-// aFormat follows strftime syntax,
-// http://pubs.opengroup.org/onlinepubs/007908799/xsh/strftime.html
+XPCOMUtils.defineLazyGetter(
+  lazy,
+  "dateFormatter",
+  () =>
+    new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "full",
+    })
+);
+XPCOMUtils.defineLazyGetter(
+  lazy,
+  "timeFormatter",
+  () =>
+    new Services.intl.DateTimeFormat(undefined, {
+      timeStyle: "long",
+    })
+);
 
 function Day(t) {
   return Math.floor(t.valueOf() / 86400000);
@@ -98,32 +120,6 @@ function timeZone(aDate) {
     .find(part => part.type === "timeZoneName");
   return timeZoneNamePart ? timeZoneNamePart.value : "";
 }
-
-XPCOMUtils.defineLazyGetter(
-  lazy,
-  "dateTimeFormatter",
-  () =>
-    new lazy.Services.intl.DateTimeFormat(undefined, {
-      dateStyle: "full",
-      timeStyle: "long",
-    })
-);
-XPCOMUtils.defineLazyGetter(
-  lazy,
-  "dateFormatter",
-  () =>
-    new lazy.Services.intl.DateTimeFormat(undefined, {
-      dateStyle: "full",
-    })
-);
-XPCOMUtils.defineLazyGetter(
-  lazy,
-  "timeFormatter",
-  () =>
-    new lazy.Services.intl.DateTimeFormat(undefined, {
-      timeStyle: "long",
-    })
-);
 
 const formatFunctions = {
   a: aDate => weekday(aDate, "short"),

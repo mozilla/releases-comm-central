@@ -15,8 +15,13 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+const lazy = {};
+
+const { EnigmailConstants } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
@@ -80,7 +85,7 @@ var EnigmailVerify = {
   },
 
   newVerifier(protocol) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "mimeVerify.jsm: newVerifier: " + (protocol || "null") + "\n"
     );
 
@@ -94,7 +99,7 @@ var EnigmailVerify = {
   },
 
   getManualUri() {
-    EnigmailLog.DEBUG("mimeVerify.jsm: getManualUri\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: getManualUri\n");
     return this.manualMsgUri;
   },
 
@@ -102,7 +107,7 @@ var EnigmailVerify = {
    * register a PGP/MIME verify object the same way PGP/MIME encrypted mail is handled
    */
   registerContentTypeHandler() {
-    EnigmailLog.DEBUG("mimeVerify.jsm: registerContentTypeHandler\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: registerContentTypeHandler\n");
     let reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
 
     let pgpMimeClass = Cc["@mozilla.org/mimecth;1?type=multipart/encrypted"];
@@ -117,7 +122,7 @@ var EnigmailVerify = {
   },
 
   unregisterContentTypeHandler() {
-    EnigmailLog.DEBUG("mimeVerify.jsm: unregisterContentTypeHandler\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: unregisterContentTypeHandler\n");
     let reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
 
     let sMimeClass = Cc["@mozilla.org/nsCMSDecoder;1"];
@@ -184,7 +189,7 @@ MimeVerify.prototype = {
 
     // Eat up CRLF's.
     contentTypeLine = contentTypeLine.replace(/[\r\n]/g, "");
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "mimeVerify.jsm: parseContentType: " + contentTypeLine + "\n"
     );
 
@@ -197,11 +202,11 @@ MimeVerify.prototype = {
       contentTypeLine.search(/multipart\/signed/i) >= 0 &&
       contentTypeLine.search(protoRx) > 0
     ) {
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "mimeVerify.jsm: parseContentType: found MIME signed message\n"
       );
       this.foundMsg = true;
-      let hdr = EnigmailFuncs.getHeaderData(contentTypeLine);
+      let hdr = lazy.EnigmailFuncs.getHeaderData(contentTypeLine);
       hdr.boundary = hdr.boundary || "";
       hdr.micalg = hdr.micalg || "";
       this.boundary = hdr.boundary.replace(/^(['"])(.*)(\1)$/, "$2");
@@ -209,7 +214,7 @@ MimeVerify.prototype = {
   },
 
   onStartRequest(request, uri) {
-    EnigmailLog.DEBUG("mimeVerify.jsm: onStartRequest\n"); // always log this one
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onStartRequest\n"); // always log this one
 
     this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
@@ -321,13 +326,13 @@ MimeVerify.prototype = {
         if (xferEnc.search(/base64/i) >= 0) {
           let bound = this.getBodyPart();
           this.keepData =
-            EnigmailData.decodeBase64(
+            lazy.EnigmailData.decodeBase64(
               this.keepData.substring(bound.start, bound.end)
             ) + "\n";
         } else if (xferEnc.search(/quoted-printable/i) >= 0) {
           let bound = this.getBodyPart();
           let qp = this.keepData.substring(bound.start, bound.end);
-          this.keepData = EnigmailData.decodeQuotedPrintable(qp) + "\n";
+          this.keepData = lazy.EnigmailData.decodeQuotedPrintable(qp) + "\n";
         }
 
         // extract signature data
@@ -430,9 +435,9 @@ MimeVerify.prototype = {
       // We are processing "1.1", which means we're the child of the
       // top mime part. Don't process the signature unless the top
       // level mime part is an encryption layer.
-      let currMsg = EnigmailURIs.msgIdentificationFromUrl(this.uri);
+      let currMsg = lazy.EnigmailURIs.msgIdentificationFromUrl(this.uri);
       if (
-        EnigmailSingletons.isLastDecryptedMessagePart(
+        lazy.EnigmailSingletons.isLastDecryptedMessagePart(
           currMsg.folder,
           currMsg.msgNum,
           "1"
@@ -447,17 +452,17 @@ MimeVerify.prototype = {
     }
 
     // is the message a subpart of a complete attachment?
-    let msgPart = EnigmailMime.getMimePartNumber(loadedUriSpec);
+    let msgPart = lazy.EnigmailMime.getMimePartNumber(loadedUriSpec);
 
     if (msgPart.length > 0) {
       if (queryMimePartNumber === msgPart + ".1") {
         return true;
       }
 
-      let currMsg = EnigmailURIs.msgIdentificationFromUrl(this.uri);
+      let currMsg = lazy.EnigmailURIs.msgIdentificationFromUrl(this.uri);
       if (
         queryMimePartNumber === msgPart + ".1.1" &&
-        EnigmailSingletons.isLastDecryptedMessagePart(
+        lazy.EnigmailSingletons.isLastDecryptedMessagePart(
           currMsg.folder,
           currMsg.msgNum,
           msgPart + ".1"
@@ -471,7 +476,7 @@ MimeVerify.prototype = {
   },
 
   onStopRequest() {
-    EnigmailLog.DEBUG("mimeVerify.jsm: onStopRequest\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onStopRequest\n");
 
     this.msgWindow = EnigmailVerify.lastMsgWindow;
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
@@ -499,7 +504,7 @@ MimeVerify.prototype = {
       return;
     }
 
-    this.protectedHeaders = EnigmailMime.extractProtectedHeaders(
+    this.protectedHeaders = lazy.EnigmailMime.extractProtectedHeaders(
       this.signedData
     );
 
@@ -534,7 +539,7 @@ MimeVerify.prototype = {
           let manUrl = {};
 
           if (EnigmailVerify.getManualUri()) {
-            manUrl = EnigmailFuncs.getUrlFromUriSpec(
+            manUrl = lazy.EnigmailFuncs.getUrlFromUriSpec(
               EnigmailVerify.getManualUri()
             );
           }
@@ -564,12 +569,12 @@ MimeVerify.prototype = {
           }
 
           let url = this.msgUriSpec
-            ? EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec)
+            ? lazy.EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec)
             : null;
 
           if (url) {
-            let otherId = EnigmailURIs.msgIdentificationFromUrl(url);
-            let thisId = EnigmailURIs.msgIdentificationFromUrl(this.uri);
+            let otherId = lazy.EnigmailURIs.msgIdentificationFromUrl(url);
+            let thisId = lazy.EnigmailURIs.msgIdentificationFromUrl(this.uri);
 
             if (
               url.host !== this.uri.host ||
@@ -581,8 +586,8 @@ MimeVerify.prototype = {
           }
         }
       } catch (ex) {
-        EnigmailLog.writeException("mimeVerify.jsm", ex);
-        EnigmailLog.DEBUG(
+        lazy.EnigmailLog.writeException("mimeVerify.jsm", ex);
+        lazy.EnigmailLog.DEBUG(
           "mimeVerify.jsm: error while processing " + this.msgUriSpec + "\n"
         );
       }
@@ -592,15 +597,15 @@ MimeVerify.prototype = {
       var windowManager = Services.wm;
       var win = windowManager.getMostRecentWindow(null);
 
-      if (!EnigmailDecryption.isReady(win)) {
+      if (!lazy.EnigmailDecryption.isReady(win)) {
         return;
       }
 
       let options = {
-        fromAddr: EnigmailDecryption.getFromAddr(win),
+        fromAddr: lazy.EnigmailDecryption.getFromAddr(win),
         mimeSignatureData: this.sigData,
       };
-      const cApi = EnigmailCryptoAPI();
+      const cApi = lazy.EnigmailCryptoAPI();
 
       // ensure all lines end with CRLF as specified in RFC 3156, section 5
       if (this.signedData.search(/[^\r]\n/) >= 0) {
@@ -629,7 +634,7 @@ MimeVerify.prototype = {
 
   // return data to libMime
   returnData(data) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "mimeVerify.jsm: returnData: " + data.length + " bytes\n"
     );
 
@@ -638,7 +643,7 @@ MimeVerify.prototype = {
       let contentType = m[2];
       if (contentType.search(/^text/i) === 0) {
         // add multipart/mixed boundary to work around TB bug (empty forwarded message)
-        let bound = EnigmailMime.createBoundary();
+        let bound = lazy.EnigmailMime.createBoundary();
         data =
           'Content-Type: multipart/mixed; boundary="' +
           bound +
@@ -657,7 +662,9 @@ MimeVerify.prototype = {
   },
 
   setMsgWindow(msgWindow, msgUriSpec) {
-    EnigmailLog.DEBUG("mimeVerify.jsm: setMsgWindow: " + msgUriSpec + "\n");
+    lazy.EnigmailLog.DEBUG(
+      "mimeVerify.jsm: setMsgWindow: " + msgUriSpec + "\n"
+    );
 
     if (!this.msgWindow) {
       this.msgWindow = msgWindow;
@@ -666,7 +673,7 @@ MimeVerify.prototype = {
   },
 
   displayStatus() {
-    EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus\n");
     if (
       this.exitCode === null ||
       this.msgWindow === null ||
@@ -678,7 +685,7 @@ MimeVerify.prototype = {
 
     try {
       LOCAL_DEBUG("mimeVerify.jsm: displayStatus displaying result\n");
-      let headerSink = EnigmailSingletons.messageReader;
+      let headerSink = lazy.EnigmailSingletons.messageReader;
 
       if (this.protectedHeaders) {
         headerSink.processDecryptionResult(
@@ -709,7 +716,7 @@ MimeVerify.prototype = {
       }
       this.statusDisplayed = true;
     } catch (ex) {
-      EnigmailLog.writeException("mimeVerify.jsm", ex);
+      lazy.EnigmailLog.writeException("mimeVerify.jsm", ex);
     }
   },
 };
@@ -719,6 +726,6 @@ MimeVerify.prototype = {
 
 function LOCAL_DEBUG(str) {
   if (gDebugLog) {
-    EnigmailLog.DEBUG(str);
+    lazy.EnigmailLog.DEBUG(str);
   }
 }

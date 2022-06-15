@@ -11,8 +11,9 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailConsts",
   "resource:///modules/MailConsts.jsm"
 );
@@ -193,10 +194,10 @@ var MailUtils = {
       "mail.openMessageBehavior"
     );
 
-    if (openMessageBehavior == MailConsts.OpenMessageBehavior.NEW_WINDOW) {
+    if (openMessageBehavior == lazy.MailConsts.OpenMessageBehavior.NEW_WINDOW) {
       this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
     } else if (
-      openMessageBehavior == MailConsts.OpenMessageBehavior.EXISTING_WINDOW
+      openMessageBehavior == lazy.MailConsts.OpenMessageBehavior.EXISTING_WINDOW
     ) {
       // Try reusing an existing window. If we can't, fall back to opening new
       // windows
@@ -206,7 +207,9 @@ var MailUtils = {
       ) {
         this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
       }
-    } else if (openMessageBehavior == MailConsts.OpenMessageBehavior.NEW_TAB) {
+    } else if (
+      openMessageBehavior == lazy.MailConsts.OpenMessageBehavior.NEW_TAB
+    ) {
       let mail3PaneWindow = null;
       if (!aTabmail) {
         // Try opening new tabs in a 3pane window

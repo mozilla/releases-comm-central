@@ -15,7 +15,9 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 Cu.importGlobalProperties(["crypto"]);
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
   EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
@@ -48,7 +50,7 @@ function calculateWaitTimeInMilliseconds(totalPublicKeys) {
   const minDelay =
     Services.prefs.getIntPref("temp.openpgp.refreshMinDelaySeconds") * 1000;
 
-  EnigmailLog.DEBUG(
+  lazy.EnigmailLog.DEBUG(
     "keyRefreshService.jsm: Wait time = random number: " +
       randomNumber +
       " % max time for refresh: " +
@@ -61,7 +63,7 @@ function calculateWaitTimeInMilliseconds(totalPublicKeys) {
     millisec += minDelay;
   }
 
-  EnigmailLog.DEBUG(
+  lazy.EnigmailLog.DEBUG(
     "keyRefreshService.jsm: Time until next refresh in milliseconds: " +
       millisec +
       "\n"
@@ -72,7 +74,7 @@ function calculateWaitTimeInMilliseconds(totalPublicKeys) {
 
 function refreshKey() {
   const timer = getTimer();
-  refreshWith(EnigmailKeyServer, timer, true);
+  refreshWith(lazy.EnigmailKeyServer, timer, true);
 }
 
 function restartTimerInOneHour(timer) {
@@ -89,31 +91,31 @@ function setupNextRefresh(timer, waitTime) {
 
 function logMissingInformation(keyIdsExist, validKeyserversExist) {
   if (!keyIdsExist) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "keyRefreshService.jsm: No keys available to refresh yet. Will recheck in an hour.\n"
     );
   }
   if (!validKeyserversExist) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "keyRefreshService.jsm: Either no keyservers exist or the protocols specified are invalid. Will recheck in an hour.\n"
     );
   }
 }
 
 function getRandomKeyId(randomNumber) {
-  const keyRingLength = EnigmailKeyRing.getAllKeys().keyList.length;
+  const keyRingLength = lazy.EnigmailKeyRing.getAllKeys().keyList.length;
 
   if (keyRingLength === 0) {
     return null;
   }
 
-  return EnigmailKeyRing.getAllKeys().keyList[randomNumber % keyRingLength]
+  return lazy.EnigmailKeyRing.getAllKeys().keyList[randomNumber % keyRingLength]
     .keyId;
 }
 
 function refreshKeyIfReady(keyserver, readyToRefresh, keyId) {
   if (readyToRefresh) {
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "keyRefreshService.jsm: refreshing key ID " + keyId + "\n"
     );
     return keyserver.download(keyId);
@@ -125,7 +127,7 @@ function refreshKeyIfReady(keyserver, readyToRefresh, keyId) {
 async function refreshWith(keyserver, timer, readyToRefresh) {
   const keyId = getRandomKeyId(crypto.getRandomValues(new Uint32Array(1)));
   const keyIdsExist = keyId !== null;
-  const validKeyserversExist = EnigmailKeyserverURIs.validKeyserversExist();
+  const validKeyserversExist = lazy.EnigmailKeyserverURIs.validKeyserversExist();
   const ioService = Services.io;
 
   if (keyIdsExist && validKeyserversExist) {
@@ -133,12 +135,12 @@ async function refreshWith(keyserver, timer, readyToRefresh) {
       // don't try to refresh if we are offline
       await refreshKeyIfReady(keyserver, readyToRefresh, keyId);
     } else {
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "keyRefreshService.jsm: offline - not refreshing any key\n"
       );
     }
     const waitTime = calculateWaitTimeInMilliseconds(
-      EnigmailKeyRing.getAllKeys().keyList.length
+      lazy.EnigmailKeyRing.getAllKeys().keyList.length
     );
     setupNextRefresh(timer, waitTime);
   } else {
@@ -162,7 +164,7 @@ async function refreshWith(keyserver, timer, readyToRefresh) {
  */
 function start(keyserver) {
   if (Services.prefs.getBoolPref("temp.openpgp.keyRefreshOn")) {
-    EnigmailLog.DEBUG("keyRefreshService.jsm: Started\n");
+    lazy.EnigmailLog.DEBUG("keyRefreshService.jsm: Started\n");
     const timer = getTimer();
     refreshWith(keyserver, timer, false);
   }

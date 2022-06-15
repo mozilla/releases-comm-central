@@ -16,8 +16,9 @@ const EXPORTED_SYMBOLS = [
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -459,7 +460,7 @@ GlodaFolder.prototype = {
    */
   getXPCOMFolder(aActivity) {
     if (!this._xpcomFolder) {
-      this._xpcomFolder = MailUtils.getExistingFolder(this.uri);
+      this._xpcomFolder = lazy.MailUtils.getExistingFolder(this.uri);
     }
     switch (aActivity) {
       case this.kActivityIndexing:

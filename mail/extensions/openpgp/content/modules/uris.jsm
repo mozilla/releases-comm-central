@@ -8,8 +8,10 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailURIs"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "EnigmailLog",
   "chrome://openpgp/content/modules/log.jsm"
 );
@@ -25,7 +27,7 @@ var EnigmailURIs = {
    * @return null
    */
   rememberEncryptedUri(uri) {
-    EnigmailLog.DEBUG("uris.jsm: rememberEncryptedUri: uri=" + uri + "\n");
+    lazy.EnigmailLog.DEBUG("uris.jsm: rememberEncryptedUri: uri=" + uri + "\n");
     if (!encryptedUris.includes(uri)) {
       encryptedUris.push(uri);
     }
@@ -39,7 +41,7 @@ var EnigmailURIs = {
    * @return null
    */
   forgetEncryptedUri(uri) {
-    EnigmailLog.DEBUG("uris.jsm: forgetEncryptedUri: uri=" + uri + "\n");
+    lazy.EnigmailLog.DEBUG("uris.jsm: forgetEncryptedUri: uri=" + uri + "\n");
     const pos = encryptedUris.indexOf(uri);
     if (pos >= 0) {
       encryptedUris.splice(pos, 1);
@@ -54,7 +56,7 @@ var EnigmailURIs = {
    * @return: Boolean true if yes, false otherwise
    */
   isEncryptedUri(uri) {
-    EnigmailLog.DEBUG("uris.jsm: isEncryptedUri: uri=" + uri + "\n");
+    lazy.EnigmailLog.DEBUG("uris.jsm: isEncryptedUri: uri=" + uri + "\n");
     return encryptedUris.includes(uri);
   },
 
@@ -80,7 +82,7 @@ var EnigmailURIs = {
       return null;
     }
 
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "uris.jsm: msgIdentificationFromUrl: url.pathQueryRef=" +
         ("path" in url ? url.path : url.pathQueryRef) +
         "\n"
@@ -106,7 +108,7 @@ var EnigmailURIs = {
       msgFolder = pathQueryRef.replace(/(.*[?&]group=)([^&]+)(&.*)?/, "$2");
     }
 
-    EnigmailLog.DEBUG(
+    lazy.EnigmailLog.DEBUG(
       "uris.jsm: msgIdentificationFromUrl: msgNum=" +
         msgNum +
         " / folder=" +

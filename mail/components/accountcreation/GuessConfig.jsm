@@ -7,13 +7,14 @@ const EXPORTED_SYMBOLS = ["GuessConfig"];
 const { AccountCreationUtils } = ChromeUtils.import(
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AccountConfig",
   "resource:///modules/accountcreation/AccountConfig.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "Sanitizer",
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
@@ -93,9 +94,9 @@ function guessConfig(
   }
 
   if (!resultConfig) {
-    resultConfig = new AccountConfig();
+    resultConfig = new lazy.AccountConfig();
   }
-  resultConfig.source = AccountConfig.kSourceGuess;
+  resultConfig.source = lazy.AccountConfig.kSourceGuess;
 
   if (!which) {
     which = "both";
@@ -115,7 +116,7 @@ function guessConfig(
   // If we're offline, we're going to pick the most common settings.
   // (Not the "best" settings, but common).
   if (Services.io.offline) {
-    resultConfig.source = AccountConfig.kSourceUser;
+    resultConfig.source = lazy.AccountConfig.kSourceUser;
     resultConfig.incoming.hostname = "mail." + domain;
     resultConfig.incoming.username = resultConfig.identity.emailAddress;
     resultConfig.outgoing.username = resultConfig.identity.emailAddress;
@@ -460,7 +461,7 @@ HostDetector.prototype = {
     if (!hostIsPrecise) {
       hostIsPrecise = false;
     }
-    var protocol = Sanitizer.translate(
+    var protocol = lazy.Sanitizer.translate(
       type,
       { imap: IMAP, pop3: POP, smtp: SMTP },
       UNKNOWN

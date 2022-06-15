@@ -15,7 +15,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
@@ -24,7 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 var PgpSqliteDb2 = {
   openDatabase() {
-    EnigmailLog.DEBUG("sqliteDb.jsm: PgpSqliteDb2 openDatabase()\n");
+    lazy.EnigmailLog.DEBUG("sqliteDb.jsm: PgpSqliteDb2 openDatabase()\n");
     return new Promise((resolve, reject) => {
       openDatabaseConn(
         "openpgp.sqlite",
@@ -37,17 +39,19 @@ var PgpSqliteDb2 = {
   },
 
   async checkDatabaseStructure() {
-    EnigmailLog.DEBUG(`sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure()\n`);
+    lazy.EnigmailLog.DEBUG(
+      `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure()\n`
+    );
     let conn;
     try {
       conn = await this.openDatabase();
       await checkAcceptanceTable(conn);
       await conn.close();
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure - success\n`
       );
     } catch (ex) {
-      EnigmailLog.ERROR(
+      lazy.EnigmailLog.ERROR(
         `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure: ERROR: ${ex}\n`
       );
       if (conn) {
@@ -130,7 +134,7 @@ var PgpSqliteDb2 = {
     }
 
     if (!count) {
-      return Boolean(await EnigmailKeyRing.getSecretKeyByEmail(email));
+      return Boolean(await lazy.EnigmailKeyRing.getSecretKeyByEmail(email));
     }
     return true;
   },
@@ -402,8 +406,8 @@ var PgpSqliteDb2 = {
  * @param {Number}   maxtime: Integer - unix epoch (in milliseconds) of the point at which we should give up.
  */
 function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
-  EnigmailLog.DEBUG("sqliteDb.jsm: openDatabaseConn()\n");
-  Sqlite.openConnection({
+  lazy.EnigmailLog.DEBUG("sqliteDb.jsm: openDatabaseConn()\n");
+  lazy.Sqlite.openConnection({
     path: filename,
     sharedMemoryCache: false,
   })
@@ -416,7 +420,7 @@ function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
         reject(error);
         return;
       }
-      setTimeout(function() {
+      lazy.setTimeout(function() {
         openDatabaseConn(filename, resolve, reject, waitms, maxtime);
       }, waitms);
     });
@@ -426,12 +430,14 @@ async function checkAcceptanceTable(connection) {
   try {
     let exists = await connection.tableExists("acceptance_email");
     let exists2 = await connection.tableExists("acceptance_decision");
-    EnigmailLog.DEBUG("sqliteDB.jsm: checkAcceptanceTable - success\n");
+    lazy.EnigmailLog.DEBUG("sqliteDB.jsm: checkAcceptanceTable - success\n");
     if (!exists || !exists2) {
       await createAcceptanceTable(connection);
     }
   } catch (error) {
-    EnigmailLog.DEBUG(`sqliteDB.jsm: checkAcceptanceTable - error ${error}\n`);
+    lazy.EnigmailLog.DEBUG(
+      `sqliteDB.jsm: checkAcceptanceTable - error ${error}\n`
+    );
     throw error;
   }
 
@@ -439,7 +445,7 @@ async function checkAcceptanceTable(connection) {
 }
 
 async function createAcceptanceTable(connection) {
-  EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable()\n");
+  lazy.EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable()\n");
 
   await connection.execute(
     "create table acceptance_email (" +
@@ -455,12 +461,12 @@ async function createAcceptanceTable(connection) {
       "unique(fpr));"
   );
 
-  EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index1\n");
+  lazy.EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index1\n");
   await connection.execute(
     "create unique index acceptance_email_i1 on acceptance_email(fpr, email);"
   );
 
-  EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index2\n");
+  lazy.EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index2\n");
   await connection.execute(
     "create unique index acceptance__decision_i1 on acceptance_decision(fpr);"
   );

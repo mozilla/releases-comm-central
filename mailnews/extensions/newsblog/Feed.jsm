@@ -4,20 +4,19 @@
 
 const EXPORTED_SYMBOLS = ["Feed"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FeedParser",
   "resource:///modules/FeedParser.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FeedUtils",
   "resource:///modules/FeedUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
 );
 
 // Cache for all of the feeds currently being downloaded, indexed by URL,
@@ -118,8 +117,10 @@ Feed.prototype = {
     // Get a unique sanitized name. Use title or description as a base;
     // these are mandatory by spec. Length of 80 is plenty.
     let folderName = (this.title || this.description || "").substr(0, 80);
-    let defaultName = FeedUtils.strings.GetStringFromName("ImportFeedsNew");
-    return (this.mFolderName = FeedUtils.getSanitizedFolderName(
+    let defaultName = lazy.FeedUtils.strings.GetStringFromName(
+      "ImportFeedsNew"
+    );
+    return (this.mFolderName = lazy.FeedUtils.getSanitizedFolderName(
       this.server.rootMsgFolder,
       folderName,
       defaultName,
@@ -139,9 +140,11 @@ Feed.prototype = {
     // Before we do anything, make sure the url is an http url.  This is just
     // a sanity check so we don't try opening mailto urls, imap urls, etc. that
     // the user may have tried to subscribe to as an rss feed.
-    if (!FeedUtils.isValidScheme(this.url)) {
+    if (!lazy.FeedUtils.isValidScheme(this.url)) {
       // Simulate an invalid feed error.
-      FeedUtils.log.info("Feed.download: invalid protocol for - " + this.url);
+      lazy.FeedUtils.log.info(
+        "Feed.download: invalid protocol for - " + this.url
+      );
       this.onParseError(this);
       return;
     }
@@ -150,7 +153,10 @@ Feed.prototype = {
     // processing the feed by looking up the url in our feed cache.
     if (FeedCache.getFeed(this.url)) {
       if (this.downloadCallback) {
-        this.downloadCallback.downloaded(this, FeedUtils.kNewsBlogFeedIsBusy);
+        this.downloadCallback.downloaded(
+          this,
+          lazy.FeedUtils.kNewsBlogFeedIsBusy
+        );
       }
 
       // Return, the feed is already in use.
@@ -186,8 +192,8 @@ Feed.prototype = {
     // Only order what you're going to eat...
     this.request.responseType = "document";
     this.request.overrideMimeType("text/xml");
-    this.request.setRequestHeader("Accept", FeedUtils.REQUEST_ACCEPT);
-    this.request.timeout = FeedUtils.REQUEST_TIMEOUT;
+    this.request.setRequestHeader("Accept", lazy.FeedUtils.REQUEST_ACCEPT);
+    this.request.timeout = lazy.FeedUtils.REQUEST_TIMEOUT;
     this.request.onload = this.onDownloaded;
     this.request.onreadystatechange = this.onReadyStateChange;
     this.request.onerror = this.onDownloadError;
@@ -214,7 +220,7 @@ Feed.prototype = {
       return;
     }
 
-    FeedUtils.log.debug(
+    lazy.FeedUtils.log.debug(
       "Feed.onDownloaded: got a download, fileSize:url - " +
         aEvent.loaded +
         " : " +
@@ -264,17 +270,19 @@ Feed.prototype = {
     let feed = FeedCache.getFeed(url);
     if (feed.downloadCallback) {
       // Generic network or 'not found' error initially.
-      let error = FeedUtils.kNewsBlogRequestFailure;
+      let error = lazy.FeedUtils.kNewsBlogRequestFailure;
       // Certain errors should disable the feed.
       let disable = false;
 
       if (request.status == 304) {
         // If the http status code is 304, the feed has not been modified
         // since we last downloaded it and does not need to be parsed.
-        error = FeedUtils.kNewsBlogNoNewItems;
+        error = lazy.FeedUtils.kNewsBlogNoNewItems;
       } else {
-        let [errType, errName] = FeedUtils.createTCPErrorFromFailedXHR(request);
-        FeedUtils.log.info(
+        let [errType, errName] = lazy.FeedUtils.createTCPErrorFromFailedXHR(
+          request
+        );
+        lazy.FeedUtils.log.info(
           "Feed.onDownloaded: request errType:errName:statusCode - " +
             errType +
             ":" +
@@ -285,17 +293,17 @@ Feed.prototype = {
         if (errType == "SecurityCertificate") {
           // This is the code for nsINSSErrorsService.ERROR_CLASS_BAD_CERT
           // overridable security certificate errors.
-          error = FeedUtils.kNewsBlogBadCertError;
+          error = lazy.FeedUtils.kNewsBlogBadCertError;
         }
 
         if (request.status == 401 || request.status == 403) {
           // Unauthorized or Forbidden.
-          error = FeedUtils.kNewsBlogNoAuthError;
+          error = lazy.FeedUtils.kNewsBlogNoAuthError;
         }
 
         if (
           request.status != 0 ||
-          error == FeedUtils.kNewsBlogBadCertError ||
+          error == lazy.FeedUtils.kNewsBlogBadCertError ||
           errName == "DomainNotFoundError"
         ) {
           disable = true;
@@ -317,7 +325,7 @@ Feed.prototype = {
     if (aFeed.downloadCallback) {
       aFeed.downloadCallback.downloaded(
         aFeed,
-        FeedUtils.kNewsBlogInvalidFeed,
+        lazy.FeedUtils.kNewsBlogInvalidFeed,
         true
       );
     }
@@ -333,7 +341,7 @@ Feed.prototype = {
     // Simulate a cancel after a url update; next cycle will check the new url.
     aFeed.mInvalidFeed = true;
     if (aFeed.downloadCallback) {
-      aFeed.downloadCallback.downloaded(aFeed, FeedUtils.kNewsBlogCancel);
+      aFeed.downloadCallback.downloaded(aFeed, lazy.FeedUtils.kNewsBlogCancel);
     }
 
     FeedCache.removeFeed(aOldUrl);
@@ -343,14 +351,14 @@ Feed.prototype = {
   OnStartRunningUrl(aUrl) {},
   OnStopRunningUrl(aUrl, aExitCode) {
     if (Components.isSuccessCode(aExitCode)) {
-      FeedUtils.log.debug(
+      lazy.FeedUtils.log.debug(
         "Feed.OnStopRunningUrl: rebuilt msgDatabase for " +
           this.folder.name +
           " - " +
           this.folder.filePath.path
       );
     } else {
-      FeedUtils.log.error(
+      lazy.FeedUtils.log.error(
         "Feed.OnStopRunningUrl: rebuild msgDatabase failed, " +
           "error " +
           aExitCode +
@@ -365,18 +373,28 @@ Feed.prototype = {
   },
 
   get title() {
-    return FeedUtils.getSubscriptionAttr(this.url, this.server, "title", "");
+    return lazy.FeedUtils.getSubscriptionAttr(
+      this.url,
+      this.server,
+      "title",
+      ""
+    );
   },
 
   set title(aNewTitle) {
     if (!aNewTitle) {
       return;
     }
-    FeedUtils.setSubscriptionAttr(this.url, this.server, "title", aNewTitle);
+    lazy.FeedUtils.setSubscriptionAttr(
+      this.url,
+      this.server,
+      "title",
+      aNewTitle
+    );
   },
 
   get lastModified() {
-    return FeedUtils.getSubscriptionAttr(
+    return lazy.FeedUtils.getSubscriptionAttr(
       this.url,
       this.server,
       "lastModified",
@@ -385,7 +403,7 @@ Feed.prototype = {
   },
 
   set lastModified(aLastModified) {
-    FeedUtils.setSubscriptionAttr(
+    lazy.FeedUtils.setSubscriptionAttr(
       this.url,
       this.server,
       "lastModified",
@@ -395,7 +413,7 @@ Feed.prototype = {
 
   get quickMode() {
     let defaultValue = this.server.getBoolValue("quickMode");
-    return FeedUtils.getSubscriptionAttr(
+    return lazy.FeedUtils.getSubscriptionAttr(
       this.url,
       this.server,
       "quickMode",
@@ -404,7 +422,7 @@ Feed.prototype = {
   },
 
   set quickMode(aNewQuickMode) {
-    FeedUtils.setSubscriptionAttr(
+    lazy.FeedUtils.setSubscriptionAttr(
       this.url,
       this.server,
       "quickMode",
@@ -413,40 +431,50 @@ Feed.prototype = {
   },
 
   get options() {
-    let options = FeedUtils.getSubscriptionAttr(
+    let options = lazy.FeedUtils.getSubscriptionAttr(
       this.url,
       this.server,
       "options",
       null
     );
-    if (options && options.version == FeedUtils._optionsDefault.version) {
+    if (options && options.version == lazy.FeedUtils._optionsDefault.version) {
       return options;
     }
 
-    let newOptions = FeedUtils.newOptions(options);
+    let newOptions = lazy.FeedUtils.newOptions(options);
     this.options = newOptions;
     return newOptions;
   },
 
   set options(aOptions) {
-    let newOptions = aOptions ? aOptions : FeedUtils.optionsTemplate;
-    FeedUtils.setSubscriptionAttr(this.url, this.server, "options", newOptions);
+    let newOptions = aOptions ? aOptions : lazy.FeedUtils.optionsTemplate;
+    lazy.FeedUtils.setSubscriptionAttr(
+      this.url,
+      this.server,
+      "options",
+      newOptions
+    );
   },
 
   get link() {
-    return FeedUtils.getSubscriptionAttr(this.url, this.server, "link", "");
+    return lazy.FeedUtils.getSubscriptionAttr(
+      this.url,
+      this.server,
+      "link",
+      ""
+    );
   },
 
   set link(aNewLink) {
     if (!aNewLink) {
       return;
     }
-    FeedUtils.setSubscriptionAttr(this.url, this.server, "link", aNewLink);
+    lazy.FeedUtils.setSubscriptionAttr(this.url, this.server, "link", aNewLink);
   },
 
   parse() {
     // Create a feed parser which will parse the feed.
-    let parser = new FeedParser();
+    let parser = new lazy.FeedParser();
     this.itemsToStore = parser.parseFeed(this, this.request.responseXML);
     parser = null;
 
@@ -466,7 +494,7 @@ Feed.prototype = {
     if (
       this.itemsToStore.length > 0 &&
       this.folder &&
-      !FeedUtils.isMsgDatabaseOpenable(this.folder, true, this)
+      !lazy.FeedUtils.isMsgDatabaseOpenable(this.folder, true, this)
     ) {
       return;
     }
@@ -482,12 +510,12 @@ Feed.prototype = {
    * @returns {void}
    */
   invalidateItems() {
-    let ds = FeedUtils.getItemsDS(this.server);
+    let ds = lazy.FeedUtils.getItemsDS(this.server);
     for (let id in ds.data) {
       let item = ds.data[id];
       if (item.feedURLs.includes(this.url)) {
         item.valid = false;
-        FeedUtils.log.trace("Feed.invalidateItems: item - " + id);
+        lazy.FeedUtils.log.trace("Feed.invalidateItems: item - " + id);
       }
     }
     ds.saveSoon();
@@ -503,8 +531,8 @@ Feed.prototype = {
    * @returns {void}
    */
   removeInvalidItems(aDeleteFeed) {
-    let ds = FeedUtils.getItemsDS(this.server);
-    FeedUtils.log.debug("Feed.removeInvalidItems: for url - " + this.url);
+    let ds = lazy.FeedUtils.getItemsDS(this.server);
+    lazy.FeedUtils.log.debug("Feed.removeInvalidItems: for url - " + this.url);
 
     let currentTime = new Date().getTime();
     for (let id in ds.data) {
@@ -516,18 +544,18 @@ Feed.prototype = {
       let lastSeenTime = item.lastSeenTime || 0;
 
       if (
-        currentTime - lastSeenTime < FeedUtils.INVALID_ITEM_PURGE_DELAY &&
+        currentTime - lastSeenTime < lazy.FeedUtils.INVALID_ITEM_PURGE_DELAY &&
         !aDeleteFeed
       ) {
         // Don't immediately purge items in active feeds; do so for deleted feeds.
         continue;
       }
 
-      FeedUtils.log.trace("Feed.removeInvalidItems: item - " + id);
+      lazy.FeedUtils.log.trace("Feed.removeInvalidItems: item - " + id);
       // Detach the item from this feed (it could be shared by multiple feeds).
       item.feedURLs = item.feedURLs.filter(url => url != this.url);
       if (item.feedURLs.length > 0) {
-        FeedUtils.log.debug(
+        lazy.FeedUtils.log.debug(
           "Feed.removeInvalidItems: " +
             id +
             " is from more than one feed; only the reference to" +
@@ -551,7 +579,7 @@ Feed.prototype = {
         .createLocalSubfolder(this.folderName);
     } catch (ex) {
       // An error creating.
-      FeedUtils.log.info(
+      lazy.FeedUtils.log.info(
         "Feed.createFolder: error creating folder - '" +
           this.folderName +
           "' in parent folder " +
@@ -569,17 +597,17 @@ Feed.prototype = {
   // to the folder.  If more items are left to be stored, fires a timer for
   // the next one, otherwise triggers a download done notification to the UI.
   storeNextItem() {
-    if (FeedUtils.CANCEL_REQUESTED) {
-      FeedUtils.CANCEL_REQUESTED = false;
-      this.cleanupParsingState(this, FeedUtils.kNewsBlogCancel);
+    if (lazy.FeedUtils.CANCEL_REQUESTED) {
+      lazy.FeedUtils.CANCEL_REQUESTED = false;
+      this.cleanupParsingState(this, lazy.FeedUtils.kNewsBlogCancel);
       return;
     }
 
     if (this.itemsToStore.length == 0) {
-      let code = FeedUtils.kNewsBlogSuccess;
+      let code = lazy.FeedUtils.kNewsBlogSuccess;
       this.createFolder();
       if (!this.folder) {
-        code = FeedUtils.kNewsBlogFileError;
+        code = lazy.FeedUtils.kNewsBlogFileError;
       }
 
       this.cleanupParsingState(this, code);
@@ -593,7 +621,7 @@ Feed.prototype = {
     }
 
     if (!this.folder) {
-      this.cleanupParsingState(this, FeedUtils.kNewsBlogFileError);
+      this.cleanupParsingState(this, lazy.FeedUtils.kNewsBlogFileError);
       return;
     }
 
@@ -636,7 +664,7 @@ Feed.prototype = {
         item.feed.folder.callFilterPlugins(null);
       }
 
-      this.cleanupParsingState(this, FeedUtils.kNewsBlogSuccess);
+      this.cleanupParsingState(this, lazy.FeedUtils.kNewsBlogSuccess);
     }
   },
 
@@ -648,14 +676,14 @@ Feed.prototype = {
       // Do this only if we're in parse/store mode.
       aFeed.removeInvalidItems(false);
 
-      if (aCode == FeedUtils.kNewsBlogSuccess && aFeed.mLastModified) {
+      if (aCode == lazy.FeedUtils.kNewsBlogSuccess && aFeed.mLastModified) {
         aFeed.lastModified = aFeed.mLastModified;
       }
 
       // Flush any feed item changes to disk.
-      let ds = FeedUtils.getItemsDS(aFeed.server);
+      let ds = lazy.FeedUtils.getItemsDS(aFeed.server);
       ds.saveSoon();
-      FeedUtils.log.debug(
+      lazy.FeedUtils.log.debug(
         "Feed.cleanupParsingState: items stored - " + this.itemsStored
       );
     }

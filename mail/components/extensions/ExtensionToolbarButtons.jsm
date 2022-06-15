@@ -8,18 +8,17 @@
 
 const EXPORTED_SYMBOLS = ["ToolbarButtonAPI", "getIconData"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "ViewPopup",
   "resource:///modules/ExtensionPopups.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "ExtensionSupport",
   "resource:///modules/ExtensionSupport.jsm"
 );
@@ -200,7 +199,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       )
     );
 
-    ExtensionSupport.registerWindowListener(this.id, {
+    lazy.ExtensionSupport.registerWindowListener(this.id, {
       chromeURLs: this.windowURLs,
       onLoadWindow: window => {
         this.paint(window);
@@ -214,8 +213,8 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * Called when the extension is disabled or removed.
    */
   close() {
-    ExtensionSupport.unregisterWindowListener(this.id);
-    for (let window of ExtensionSupport.openWindows) {
+    lazy.ExtensionSupport.unregisterWindowListener(this.id);
+    for (let window of lazy.ExtensionSupport.openWindows) {
       if (this.windowURLs.includes(window.location.href)) {
         this.unpaint(window);
       }
@@ -451,7 +450,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     if (button && enabled) {
       if (popupURL) {
         let popup =
-          ViewPopup.for(this.extension, window) ||
+          lazy.ViewPopup.for(this.extension, window) ||
           this.getPopup(window, popupURL);
         popup.viewNode.openPopup(button, "bottomcenter topleft", 0, 0);
       } else {
@@ -505,7 +504,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * @returns {ViewPopup}
    */
   getPopup(window, popupURL, blockParser = false) {
-    let popup = new ViewPopup(
+    let popup = new lazy.ViewPopup(
       this.extension,
       window,
       popupURL,
@@ -618,7 +617,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       }
     } else {
       let promises = [];
-      for (let window of ExtensionSupport.openWindows) {
+      for (let window of lazy.ExtensionSupport.openWindows) {
         if (this.windowURLs.includes(window.location.href)) {
           promises.push(this.updateWindow(window));
         }

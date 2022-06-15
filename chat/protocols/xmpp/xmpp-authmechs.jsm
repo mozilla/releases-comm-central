@@ -43,7 +43,8 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
-XPCOMUtils.defineLazyGlobalGetters(this, ["crypto"]);
+const lazy = {};
+XPCOMUtils.defineLazyGlobalGetters(lazy, ["crypto"]);
 
 // Handle PLAIN authorization mechanism.
 function* PlainAuth(aAccount, aUsername, aPassword, aDomain) {
@@ -393,14 +394,14 @@ function bytesAndHash(aMessage, aHash) {
 async function pbkdf2Generate(passphrase, salt, iterations, len, hash) {
   passphrase = CommonUtils.byteStringToArrayBuffer(passphrase);
   salt = CommonUtils.byteStringToArrayBuffer(salt);
-  const key = await crypto.subtle.importKey(
+  const key = await lazy.crypto.subtle.importKey(
     "raw",
     passphrase,
     { name: "PBKDF2" },
     false,
     ["deriveBits"]
   );
-  const output = await crypto.subtle.deriveBits(
+  const output = await lazy.crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
       hash,

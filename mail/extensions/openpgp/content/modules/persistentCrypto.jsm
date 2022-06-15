@@ -7,6 +7,9 @@
 "use strict";
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var EXPORTED_SYMBOLS = ["EnigmailPersistentCrypto"];
 
@@ -31,7 +34,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MailCryptoUtils: "resource:///modules/MailCryptoUtils.jsm",
 });
@@ -228,7 +230,7 @@ var EnigmailPersistentCrypto = {
         },
       };
 
-      lazy.MailServices.copy.copyFileMessage(
+      MailServices.copy.copyFileMessage(
         tempFile,
         destFolder,
         null,

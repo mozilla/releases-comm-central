@@ -12,7 +12,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
@@ -28,7 +30,7 @@ var EnigmailMime = {
    * @see {MimeMultiPart._makePartSeparator}
    */
   createBoundary() {
-    return "------------" + MsgUtils.randomString(24);
+    return "------------" + lazy.MsgUtils.randomString(24);
   },
 
   /***
@@ -91,7 +93,7 @@ var EnigmailMime = {
 
   getAllParameters(headerStr) {
     headerStr = headerStr.replace(/[\r\n]+[ \t]+/g, "");
-    let hdrMap = jsmime.headerparser.parseParameterHeader(
+    let hdrMap = lazy.jsmime.headerparser.parseParameterHeader(
       ";" + headerStr,
       true,
       true
@@ -129,7 +131,7 @@ var EnigmailMime = {
 
     let exp = /[^\x01-\x7F]/; // eslint-disable-line no-control-regex
     if (aStr.search(exp) >= 0) {
-      let s = EnigmailData.convertFromUnicode(aStr, "utf-8");
+      let s = lazy.EnigmailData.convertFromUnicode(aStr, "utf-8");
       ret = "=?UTF-8?B?" + btoa(s) + "?=";
     } else {
       ret = aStr;
@@ -308,7 +310,7 @@ var EnigmailMime = {
       if (headers.hasHeader(protectedHdr[i])) {
         let extracted = headers.extractHeader(protectedHdr[i], true);
         newHeaders[protectedHdr[i]] =
-          jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
+          lazy.jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
       }
     }
 
@@ -342,13 +344,13 @@ var EnigmailMime = {
       let ctBodyData = contentBody.substr(bodyStartPos);
 
       if (ctt.search(/^base64/i) === 0) {
-        ctBodyData = EnigmailData.decodeBase64(ctBodyData) + "\n";
+        ctBodyData = lazy.EnigmailData.decodeBase64(ctBodyData) + "\n";
       } else if (ctt.search(/^quoted-printable/i) === 0) {
-        ctBodyData = EnigmailData.decodeQuotedPrintable(ctBodyData) + "\n";
+        ctBodyData = lazy.EnigmailData.decodeQuotedPrintable(ctBodyData) + "\n";
       }
 
       if (charset) {
-        ctBodyData = EnigmailData.convertToUnicode(ctBodyData, charset);
+        ctBodyData = lazy.EnigmailData.convertToUnicode(ctBodyData, charset);
       }
 
       // get the headers of the MIME-subpart body --> that's the ones we need
@@ -361,7 +363,7 @@ var EnigmailMime = {
         let extracted = bodyHdr.extractHeader(protectedHdr[i], true);
         if (bodyHdr.hasHeader(protectedHdr[i])) {
           newHeaders[protectedHdr[i]] =
-            jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
+            lazy.jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
         }
       }
     } else {
@@ -460,8 +462,8 @@ var EnigmailMime = {
       callbackFunc(tree);
     }
 
-    let chan = EnigmailStreams.createChannel(url);
-    let bufferListener = EnigmailStreams.newStringStreamListener(onData);
+    let chan = lazy.EnigmailStreams.createChannel(url);
+    let bufferListener = lazy.EnigmailStreams.newStringStreamListener(onData);
     chan.asyncOpen(bufferListener, null);
   },
 
@@ -548,7 +550,7 @@ function getMimeTree(mimeStr, getBody = false) {
       if (typeof data === "string") {
         currentPart.body += data;
       } else {
-        currentPart.body += EnigmailData.arrayBufferToString(data);
+        currentPart.body += lazy.EnigmailData.arrayBufferToString(data);
       }
     },
   };
@@ -560,7 +562,7 @@ function getMimeTree(mimeStr, getBody = false) {
   };
 
   try {
-    let p = new jsmime.MimeParser(jsmimeEmitter, opt);
+    let p = new lazy.jsmime.MimeParser(jsmimeEmitter, opt);
     p.deliverData(mimeStr);
     return mimeTree.subParts[0];
   } catch (ex) {

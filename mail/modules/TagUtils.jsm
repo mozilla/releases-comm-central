@@ -7,8 +7,10 @@ const { MailServices } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "Color",
   "resource://gre/modules/Color.jsm"
 );
@@ -146,8 +148,8 @@ function isColorContrastEnough(aColor) {
   let colorHex = ("00000000" + aColor).substr(-8);
   let colorArray = colorHex.match(/../g);
   let [, cR, cG, cB] = colorArray.map(val => parseInt(val, 16));
-  return new Color(cR, cG, cB).isContrastRatioAcceptable(
-    new Color(0, 0, 0),
+  return new lazy.Color(cR, cG, cB).isContrastRatioAcceptable(
+    new lazy.Color(0, 0, 0),
     "AAA"
   );
 }

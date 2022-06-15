@@ -12,8 +12,13 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  AsyncShutdown: "resource://gre/modules/AsyncShutdown.jsm",
+const lazy = {};
+
+const { AsyncShutdown } = ChromeUtils.import(
+  "resource://gre/modules/AsyncShutdown.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   FileUtils: "resource://gre/modules/FileUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
 });
@@ -167,7 +172,7 @@ class SQLiteDirectory extends AddrBookDirectory {
 
     // Make sure we always have a file. If a file is not created, the
     // filename may be accidentally reused.
-    let file = FileUtils.getFile("ProfD", [fileName]);
+    let file = lazy.FileUtils.getFile("ProfD", [fileName]);
     if (!file.exists()) {
       file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
     }
@@ -192,7 +197,7 @@ class SQLiteDirectory extends AddrBookDirectory {
   }
 
   get _dbConnection() {
-    this._file = FileUtils.getFile("ProfD", [this.fileName]);
+    this._file = lazy.FileUtils.getFile("ProfD", [this.fileName]);
     let connection = openConnectionTo(this._file);
 
     // SQLite cache size can be set by the cacheSize preference, in KiB.
@@ -365,7 +370,7 @@ class SQLiteDirectory extends AddrBookDirectory {
       if (!uid || usedUIDs.has(uid)) {
         // A card cannot have the same UID as one that already exists.
         // Assign a new UID to avoid losing data.
-        uid = newUID();
+        uid = lazy.newUID();
       }
       usedUIDs.add(uid);
 

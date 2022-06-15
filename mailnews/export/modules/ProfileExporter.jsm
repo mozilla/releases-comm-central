@@ -8,7 +8,8 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
@@ -76,7 +77,7 @@ class ProfileExporter {
       );
       if (++i % 10 === 0) {
         this.onProgress(i, totalEntries);
-        await new Promise(resolve => setTimeout(resolve));
+        await new Promise(resolve => lazy.setTimeout(resolve));
       }
     }
     this.onProgress(totalEntries, totalEntries);

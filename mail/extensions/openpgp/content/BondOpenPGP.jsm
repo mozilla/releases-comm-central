@@ -15,7 +15,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
@@ -58,23 +60,23 @@ var BondOpenPGP = {
 
     this._alreadyTriedInit = true;
 
-    EnigmailKeyRing.init();
-    EnigmailVerify.init();
+    lazy.EnigmailKeyRing.init();
+    lazy.EnigmailVerify.init();
 
-    let initDone = await RNP.init({});
+    let initDone = await lazy.RNP.init({});
     if (!initDone) {
       return;
     }
 
     if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
-      GPGME.init({});
+      lazy.GPGME.init({});
     }
 
     // trigger service init
-    await EnigmailCore.getService();
+    await lazy.EnigmailCore.getService();
   },
 
   openKeyManager(window) {
-    EnigmailWindows.openKeyManager(window);
+    lazy.EnigmailWindows.openKeyManager(window);
   },
 };

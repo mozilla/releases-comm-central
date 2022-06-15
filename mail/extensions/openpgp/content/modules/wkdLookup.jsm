@@ -15,7 +15,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   DNS: "resource:///modules/DNS.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
@@ -237,7 +239,7 @@ var EnigmailWkdLookup = {
     ch.init(ch.SHA1);
     ch.update(data, data.length);
     let gotHash = ch.finish(false);
-    let encodedHash = EnigmailZBase32.encode(gotHash);
+    let encodedHash = lazy.EnigmailZBase32.encode(gotHash);
 
     if (advancedMethod) {
       url =
@@ -289,13 +291,15 @@ var EnigmailWkdLookup = {
 
     let response;
     try {
-      EnigmailLog.DEBUG("wkdLookup.jsm: downloadKey: requesting " + url + "\n");
+      lazy.EnigmailLog.DEBUG(
+        "wkdLookup.jsm: downloadKey: requesting " + url + "\n"
+      );
       response = await fetch(myRequest);
       if (!response.ok) {
         return null;
       }
     } catch (ex) {
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "wkdLookup.jsm: downloadKey: error " + ex.toString() + "\n"
       );
       return null;
@@ -309,11 +313,11 @@ var EnigmailWkdLookup = {
         // if we get HTML output, we return nothing (for example redirects to error catching pages)
         return null;
       }
-      return EnigmailData.arrayBufferToString(
+      return lazy.EnigmailData.arrayBufferToString(
         Cu.cloneInto(await response.arrayBuffer(), {})
       );
     } catch (ex) {
-      EnigmailLog.DEBUG(
+      lazy.EnigmailLog.DEBUG(
         "wkdLookup.jsm: downloadKey: error " + ex.toString() + "\n"
       );
       return null;
@@ -349,7 +353,7 @@ async function getSiteSpecificUrl(emailAddr) {
       break;
   }
   if (!url) {
-    let records = await DNS.mx(domain);
+    let records = await lazy.DNS.mx(domain);
     const mxHosts = records.filter(record => record.host);
 
     if (

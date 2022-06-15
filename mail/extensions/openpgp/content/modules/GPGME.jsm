@@ -8,7 +8,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   ctypes: "resource://gre/modules/ctypes.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   GPGMELibLoader: "chrome://openpgp/content/modules/GPGMELib.jsm",
@@ -22,7 +24,7 @@ var GPGME = {
   once() {
     this.hasRan = true;
     try {
-      GPGMELib = GPGMELibLoader.init();
+      GPGMELib = lazy.GPGMELibLoader.init();
       if (!GPGMELib) {
         return;
       }
@@ -53,10 +55,10 @@ var GPGME = {
     result.decryptedData = "";
 
     let arr = encrypted.split("").map(e => e.charCodeAt());
-    let encrypted_array = ctypes.uint8_t.array()(arr);
-    let tmp_array = ctypes.cast(
+    let encrypted_array = lazy.ctypes.uint8_t.array()(arr);
+    let tmp_array = lazy.ctypes.cast(
       encrypted_array,
-      ctypes.char.array(encrypted_array.length)
+      lazy.ctypes.char.array(encrypted_array.length)
     );
 
     let data_ciphertext = new GPGMELib.gpgme_data_t();
@@ -94,16 +96,16 @@ var GPGME = {
       throw new Error("gpgme_data_release failed");
     }
 
-    let result_len = new ctypes.size_t();
+    let result_len = new lazy.ctypes.size_t();
     let result_buf = GPGMELib.gpgme_data_release_and_get_mem(
       data_plain,
       result_len.address()
     );
 
     if (!result_buf.isNull()) {
-      let unwrapped = ctypes.cast(
+      let unwrapped = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(result_len.value).ptr
+        lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
 
       // The result of decrypt(GPGME_DECRYPT_UNWRAP) is an OpenPGP message.
@@ -114,9 +116,9 @@ var GPGME = {
 
       let armor_head = "-----BEGIN PGP MESSAGE-----";
 
-      let head_of_array = ctypes.cast(
+      let head_of_array = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(armor_head.length).ptr
+        lazy.ctypes.char.array(armor_head.length).ptr
       ).contents;
 
       let isArmored = false;
@@ -167,7 +169,7 @@ var GPGME = {
     let keyHandle = new GPGMELib.gpgme_key_t();
     if (!GPGMELib.gpgme_get_key(ctx, keyId, keyHandle.address(), 1)) {
       if (!GPGMELib.gpgme_signers_add(ctx, keyHandle)) {
-        var tmp_array = ctypes.char.array()(plaintext);
+        var tmp_array = lazy.ctypes.char.array()(plaintext);
         let data_plaintext = new GPGMELib.gpgme_data_t();
         if (
           !GPGMELib.gpgme_data_new_from_mem(
@@ -188,19 +190,19 @@ var GPGME = {
             if (exitCode != GPGMELib.GPG_ERR_NO_ERROR) {
               GPGMELib.gpgme_data_release(data_signed);
             } else {
-              let result_len = new ctypes.size_t();
+              let result_len = new lazy.ctypes.size_t();
               let result_buf = GPGMELib.gpgme_data_release_and_get_mem(
                 data_signed,
                 result_len.address()
               );
               if (!result_buf.isNull()) {
-                let unwrapped = ctypes.cast(
+                let unwrapped = lazy.ctypes.cast(
                   result_buf,
-                  ctypes.char.array(result_len.value).ptr
+                  lazy.ctypes.char.array(result_len.value).ptr
                 ).contents;
                 result = unwrapped.readString();
                 resultStatus.exitCode = 0;
-                resultStatus.statusFlags |= EnigmailConstants.SIG_CREATED;
+                resultStatus.statusFlags |= lazy.EnigmailConstants.SIG_CREATED;
                 GPGMELib.gpgme_free(result_buf);
               }
             }

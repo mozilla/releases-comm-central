@@ -18,8 +18,10 @@ const EXPORTED_SYMBOLS = [
   "collapse_panes",
 ];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "mc",
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -37,7 +39,7 @@ var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 function element_visible(aElt) {
   let e;
   if (typeof aElt == "string") {
-    e = mc.e(aElt);
+    e = lazy.mc.e(aElt);
   } else {
     e = aElt;
   }
@@ -97,7 +99,7 @@ function assert_element_not_visible(aElt, aWhy) {
  */
 function wait_for_element(aParent, aSelector) {
   let target = null;
-  mc.waitFor(function() {
+  lazy.mc.waitFor(function() {
     target = aParent.querySelector(aSelector);
     return target != null;
   }, "Timed out waiting for a target for selector: " + aSelector);
@@ -207,7 +209,7 @@ function check_element_visible(aController, aId) {
  * @param aId          id of the element to wait for
  */
 function wait_for_element_visible(aController, aId) {
-  mc.waitFor(function() {
+  lazy.mc.waitFor(function() {
     return check_element_visible(aController, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become visible");
 }
@@ -219,7 +221,7 @@ function wait_for_element_visible(aController, aId) {
  * @param aId          id of the element to wait for
  */
 function wait_for_element_invisible(aController, aId) {
-  mc.waitFor(function() {
+  lazy.mc.waitFor(function() {
     return !check_element_visible(aController, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become invisible");
 }
@@ -244,5 +246,5 @@ function collapse_panes(aElement, aShouldBeCollapsed) {
     }
   }
   // Spin the event loop once to let other window elements redraw.
-  mc.sleep(50);
+  lazy.mc.sleep(50);
 }

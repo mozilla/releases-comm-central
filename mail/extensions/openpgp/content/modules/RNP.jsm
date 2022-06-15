@@ -12,7 +12,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   ctypes: "resource://gre/modules/ctypes.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
@@ -36,7 +38,7 @@ var RNP = {
   async once() {
     this.hasRan = true;
     try {
-      RNPLib = RNPLibLoader.init();
+      RNPLib = lazy.RNPLibLoader.init();
       if (!RNPLib) {
         return;
       }
@@ -44,7 +46,7 @@ var RNP = {
         //this.initUiOps();
         RNP.libLoaded = true;
       }
-      await OpenPGPMasterpass.ensurePasswordIsCached();
+      await lazy.OpenPGPMasterpass.ensurePasswordIsCached();
     } catch (e) {
       console.log(e);
     }
@@ -72,11 +74,11 @@ var RNP = {
   },
 
   addKeyAttributes(handle, meta, keyObj, is_subkey, forListing) {
-    let algo = new ctypes.char.ptr();
-    let bits = new ctypes.uint32_t();
-    let key_creation = new ctypes.uint32_t();
-    let key_expiration = new ctypes.uint32_t();
-    let allowed = new ctypes.bool();
+    let algo = new lazy.ctypes.char.ptr();
+    let bits = new lazy.ctypes.uint32_t();
+    let key_creation = new lazy.ctypes.uint32_t();
+    let key_expiration = new lazy.ctypes.uint32_t();
+    let allowed = new lazy.ctypes.bool();
 
     keyObj.secretAvailable = this.getSecretAvailableFromHandle(handle);
 
@@ -137,7 +139,7 @@ var RNP = {
       return;
     }
 
-    let key_revoked = new ctypes.bool();
+    let key_revoked = new lazy.ctypes.bool();
     if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
       throw new Error("rnp_key_is_revoked failed");
     }
@@ -282,7 +284,7 @@ var RNP = {
       let rv;
 
       let iter = new RNPLib.rnp_identifier_iterator_t();
-      let grip = new ctypes.char.ptr();
+      let grip = new lazy.ctypes.char.ptr();
 
       rv = RNPLib.rnp_identifier_iterator_create(ffi, iter.address(), "grip");
       if (rv) {
@@ -341,7 +343,7 @@ var RNP = {
   },
 
   getFingerprintFromHandle(handle) {
-    let fingerprint = new ctypes.char.ptr();
+    let fingerprint = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
       throw new Error("rnp_key_get_fprint failed");
     }
@@ -351,7 +353,7 @@ var RNP = {
   },
 
   getKeyIDFromHandle(handle) {
-    let ctypes_key_id = new ctypes.char.ptr();
+    let ctypes_key_id = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_key_get_keyid(handle, ctypes_key_id.address())) {
       throw new Error("rnp_key_get_keyid failed");
     }
@@ -371,7 +373,7 @@ var RNP = {
     if (!newHandle.isNull()) {
       throw new Error("unexpected, new handle isn't null");
     }
-    let primary_grip = new ctypes.char.ptr();
+    let primary_grip = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_key_get_primary_grip(sub_handle, primary_grip.address())) {
       throw new Error("rnp_key_get_primary_grip failed");
     }
@@ -386,7 +388,7 @@ var RNP = {
 
   // We don't know if handle is a subkey. If it's not, return null handle
   getPrimaryKeyHandleIfSub(ffi, handle) {
-    let is_subkey = new ctypes.bool();
+    let is_subkey = new lazy.ctypes.bool();
     if (RNPLib.rnp_key_is_sub(handle, is_subkey.address())) {
       throw new Error("rnp_key_is_sub failed");
     }
@@ -402,7 +404,7 @@ var RNP = {
   },
 
   hasKeyWeakSelfSignature(selfId, handle) {
-    let sig_count = new ctypes.size_t();
+    let sig_count = new lazy.ctypes.size_t();
     if (RNPLib.rnp_key_get_signature_count(handle, sig_count.address())) {
       throw new Error("rnp_key_get_signature_count failed");
     }
@@ -422,7 +424,7 @@ var RNP = {
   },
 
   isWeakSelfSignature(selfId, sig_handle) {
-    let sig_id_str = new ctypes.char.ptr();
+    let sig_id_str = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
       throw new Error("rnp_signature_get_keyid failed");
     }
@@ -435,20 +437,20 @@ var RNP = {
       return false;
     }
 
-    let creation = new ctypes.uint32_t();
+    let creation = new lazy.ctypes.uint32_t();
     if (RNPLib.rnp_signature_get_creation(sig_handle, creation.address())) {
       throw new Error("rnp_signature_get_creation failed");
     }
 
-    let hash_str = new ctypes.char.ptr();
+    let hash_str = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_signature_get_hash_alg(sig_handle, hash_str.address())) {
       throw new Error("rnp_signature_get_hash_alg failed");
     }
 
-    let creation64 = new ctypes.uint64_t();
+    let creation64 = new lazy.ctypes.uint64_t();
     creation64.value = creation.value;
 
-    let level = new ctypes.uint32_t();
+    let level = new lazy.ctypes.uint32_t();
 
     if (
       RNPLib.rnp_get_security_rule(
@@ -484,9 +486,9 @@ var RNP = {
     keyObj.photoAvailable = false;
     keyObj.hasIgnoredAttributes = false;
 
-    let is_subkey = new ctypes.bool();
-    let sub_count = new ctypes.size_t();
-    let uid_count = new ctypes.size_t();
+    let is_subkey = new lazy.ctypes.bool();
+    let sub_count = new lazy.ctypes.size_t();
+    let uid_count = new lazy.ctypes.size_t();
 
     if (RNPLib.rnp_key_is_sub(handle, is_subkey.address())) {
       throw new Error("rnp_key_is_sub failed");
@@ -513,7 +515,7 @@ var RNP = {
     }
 
     if (onlyIfSecret) {
-      let have_secret = new ctypes.bool();
+      let have_secret = new lazy.ctypes.bool();
       if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
         throw new Error("rnp_key_have_secret failed");
       }
@@ -571,7 +573,7 @@ var RNP = {
         }
 
         if (uidOkToUse) {
-          let uid_str = new ctypes.char.ptr();
+          let uid_str = new lazy.ctypes.char.ptr();
           if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
             throw new Error("rnp_key_get_uid_at failed");
           }
@@ -790,7 +792,7 @@ var RNP = {
   */
 
   isBadKey(handle) {
-    let validTill64 = new ctypes.uint64_t();
+    let validTill64 = new lazy.ctypes.uint64_t();
     if (RNPLib.rnp_key_valid_till64(handle, validTill64.address())) {
       throw new Error("rnp_key_valid_till64 failed");
     }
@@ -804,7 +806,9 @@ var RNP = {
 
     // ctypes.uint64_t().value is of type ctypes.UInt64
 
-    if (ctypes.UInt64.compare(validTill64.value, ctypes.UInt64("0")) > 0) {
+    if (
+      lazy.ctypes.UInt64.compare(validTill64.value, lazy.ctypes.UInt64("0")) > 0
+    ) {
       return false;
     }
 
@@ -812,7 +816,7 @@ var RNP = {
     // If it was revoked, we don't treat is as generally bad,
     // to allow importing it and to consume the revocation information.
     // If the key was not revoked, then treat it as a bad key.
-    let key_revoked = new ctypes.bool();
+    let key_revoked = new lazy.ctypes.bool();
     if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
       throw new Error("rnp_key_is_revoked failed");
     }
@@ -820,7 +824,7 @@ var RNP = {
   },
 
   isPrimaryUid(uid_handle) {
-    let is_primary = new ctypes.bool();
+    let is_primary = new lazy.ctypes.bool();
 
     if (RNPLib.rnp_uid_is_primary(uid_handle, is_primary.address())) {
       throw new Error("rnp_uid_is_primary failed");
@@ -835,7 +839,7 @@ var RNP = {
       hasWeakSignature: false,
     };
 
-    let sig_count = new ctypes.size_t();
+    let sig_count = new lazy.ctypes.size_t();
     if (RNPLib.rnp_uid_get_signature_count(uid_handle, sig_count.address())) {
       throw new Error("rnp_uid_get_signature_count failed");
     }
@@ -849,7 +853,7 @@ var RNP = {
         throw new Error("rnp_uid_get_signature_at failed");
       }
 
-      let sig_id_str = new ctypes.char.ptr();
+      let sig_id_str = new lazy.ctypes.char.ptr();
       if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
         throw new Error("rnp_signature_get_keyid failed");
       }
@@ -878,7 +882,7 @@ var RNP = {
   },
 
   isBadUid(uid_handle) {
-    let is_valid = new ctypes.bool();
+    let is_valid = new lazy.ctypes.bool();
 
     if (RNPLib.rnp_uid_is_valid(uid_handle, is_valid.address())) {
       throw new Error("rnp_uid_is_valid failed");
@@ -888,7 +892,7 @@ var RNP = {
   },
 
   isRevokedUid(uid_handle) {
-    let is_revoked = new ctypes.bool();
+    let is_revoked = new lazy.ctypes.bool();
 
     if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
       throw new Error("rnp_uid_is_revoked failed");
@@ -939,7 +943,7 @@ var RNP = {
     let rList = [];
 
     try {
-      let uid_count = new ctypes.size_t();
+      let uid_count = new lazy.ctypes.size_t();
       if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
         throw new Error("rnp_key_get_uid_count failed");
       }
@@ -952,7 +956,7 @@ var RNP = {
         }
 
         if (!this.isBadUid(uid_handle) && !this.isRevokedUid(uid_handle)) {
-          let uid_str = new ctypes.char.ptr();
+          let uid_str = new lazy.ctypes.char.ptr();
           if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
             throw new Error("rnp_key_get_uid_at failed");
           }
@@ -974,7 +978,7 @@ var RNP = {
             subList.userId = userIdStr;
             subList.sigList = [];
 
-            let sig_count = new ctypes.size_t();
+            let sig_count = new lazy.ctypes.size_t();
             if (
               RNPLib.rnp_uid_get_signature_count(
                 uid_handle,
@@ -997,7 +1001,7 @@ var RNP = {
                 throw new Error("rnp_uid_get_signature_at failed");
               }
 
-              let creation = new ctypes.uint32_t();
+              let creation = new lazy.ctypes.uint32_t();
               if (
                 RNPLib.rnp_signature_get_creation(
                   sig_handle,
@@ -1012,7 +1016,7 @@ var RNP = {
               );
               sigObj.sigType = "?";
 
-              let sig_id_str = new ctypes.char.ptr();
+              let sig_id_str = new lazy.ctypes.char.ptr();
               if (
                 RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())
               ) {
@@ -1041,7 +1045,7 @@ var RNP = {
                   subList.sigList.push(sigObj);
                 }
               } else {
-                let signer_uid_str = new ctypes.char.ptr();
+                let signer_uid_str = new lazy.ctypes.char.ptr();
                 if (
                   RNPLib.rnp_key_get_primary_uid(
                     signerHandle,
@@ -1080,7 +1084,7 @@ var RNP = {
     resultRecipAndPrimary.keyId = "";
     resultRecipAndPrimary.primaryKeyId = "";
 
-    let c_key_id = new ctypes.char.ptr();
+    let c_key_id = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_recipient_get_keyid(recip_handle, c_key_id.address())) {
       throw new Error("rnp_recipient_get_keyid failed");
     }
@@ -1111,7 +1115,7 @@ var RNP = {
     let input_from_memory = new RNPLib.rnp_input_t();
 
     let arr = encrypted.split("").map(e => e.charCodeAt());
-    var encrypted_array = ctypes.uint8_t.array()(arr);
+    var encrypted_array = lazy.ctypes.uint8_t.array()(arr);
 
     RNPLib.rnp_input_from_memory(
       input_from_memory.address(),
@@ -1163,21 +1167,21 @@ var RNP = {
         processSignature = true;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
-        result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+        result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
         useDecodedData = true;
         processSignature = false;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
         useDecodedData = true;
         processSignature = false;
-        result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
+        result.statusFlags |= lazy.EnigmailConstants.EXPIRED_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_DECRYPT_FAILED:
         rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
         queryAllEncryptionRecipients = true;
-        result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
+        result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_FAILED;
         break;
       case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
         rnpCannotDecrypt = true;
@@ -1185,7 +1189,8 @@ var RNP = {
         processSignature = false;
         queryAllEncryptionRecipients = true;
         result.statusFlags |=
-          EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY;
+          lazy.EnigmailConstants.DECRYPTION_FAILED |
+          lazy.EnigmailConstants.NO_SECKEY;
         break;
       default:
         useDecodedData = false;
@@ -1197,11 +1202,11 @@ var RNP = {
     }
 
     if (useDecodedData && alreadyDecrypted) {
-      result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+      result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
     } else if (useDecodedData && !alreadyDecrypted) {
-      let prot_mode_str = new ctypes.char.ptr();
-      let prot_cipher_str = new ctypes.char.ptr();
-      let prot_is_valid = new ctypes.bool();
+      let prot_mode_str = new lazy.ctypes.char.ptr();
+      let prot_cipher_str = new lazy.ctypes.char.ptr();
+      let prot_is_valid = new lazy.ctypes.bool();
 
       if (
         RNPLib.rnp_op_verify_get_protection_info(
@@ -1221,10 +1226,11 @@ var RNP = {
         if (!validIntegrityProtection) {
           useDecodedData = false;
           result.statusFlags |=
-            EnigmailConstants.MISSING_MDC | EnigmailConstants.DECRYPTION_FAILED;
+            lazy.EnigmailConstants.MISSING_MDC |
+            lazy.EnigmailConstants.DECRYPTION_FAILED;
         } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
           // don't indicate decryption, because a non-protecting or insecure cipher was used
-          result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
+          result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
         } else {
           queryAllEncryptionRecipients = true;
 
@@ -1237,27 +1243,27 @@ var RNP = {
             throw new Error("rnp_op_verify_get_used_recipient failed");
           }
 
-          let c_alg = new ctypes.char.ptr();
+          let c_alg = new lazy.ctypes.char.ptr();
           rv = RNPLib.rnp_recipient_get_alg(recip_handle, c_alg.address());
           if (rv) {
             throw new Error("rnp_recipient_get_alg failed");
           }
 
           if (this.policyForbidsAlg(c_alg.readString())) {
-            result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
+            result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
           } else {
             this.getKeyIdsFromRecipHandle(
               recip_handle,
               result.encToDetails.myRecipKey
             );
-            result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+            result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
           }
         }
       }
     }
 
     if (queryAllEncryptionRecipients) {
-      let all_recip_count = new ctypes.size_t();
+      let all_recip_count = new lazy.ctypes.size_t();
       if (
         RNPLib.rnp_op_verify_get_recipient_count(
           verify_op,
@@ -1286,8 +1292,8 @@ var RNP = {
     }
 
     if (useDecodedData) {
-      let result_buf = new ctypes.uint8_t.ptr();
-      let result_len = new ctypes.size_t();
+      let result_buf = new lazy.ctypes.uint8_t.ptr();
+      let result_len = new lazy.ctypes.size_t();
       let rv = RNPLib.rnp_output_memory_get_buf(
         output_to_memory,
         result_buf.address(),
@@ -1302,9 +1308,9 @@ var RNP = {
       if (!rv) {
         // type casting the pointer type to an array type allows us to
         // access the elements by index.
-        let uint8_array = ctypes.cast(
+        let uint8_array = lazy.ctypes.cast(
           result_buf,
-          ctypes.uint8_t.array(result_len.value).ptr
+          lazy.ctypes.uint8_t.array(result_len.value).ptr
         ).contents;
 
         let str = "";
@@ -1334,10 +1340,10 @@ var RNP = {
       rnpCannotDecrypt &&
       !alreadyDecrypted &&
       Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
-      GPGME.allDependenciesLoaded()
+      lazy.GPGME.allDependenciesLoaded()
     ) {
       // failure processing with RNP, attempt decryption with GPGME
-      let r2 = await GPGME.decrypt(
+      let r2 = await lazy.GPGME.decrypt(
         encrypted,
         this.enArmorCDataMessage.bind(this)
       );
@@ -1366,7 +1372,7 @@ var RNP = {
       return false;
     }
 
-    let sig_count = new ctypes.size_t();
+    let sig_count = new lazy.ctypes.size_t();
     if (
       RNPLib.rnp_op_verify_get_signature_count(verify_op, sig_count.address())
     ) {
@@ -1389,7 +1395,7 @@ var RNP = {
       throw new Error("rnp_op_verify_signature_get_handle failed");
     }
 
-    let sig_id_str = new ctypes.char.ptr();
+    let sig_id_str = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
       throw new Error("rnp_signature_get_keyid failed");
     }
@@ -1408,29 +1414,30 @@ var RNP = {
 
     switch (sig_status) {
       case RNPLib.RNP_SUCCESS:
-        result.statusFlags |= EnigmailConstants.GOOD_SIGNATURE;
+        result.statusFlags |= lazy.EnigmailConstants.GOOD_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_KEY_NOT_FOUND:
         result.statusFlags |=
-          EnigmailConstants.UNCERTAIN_SIGNATURE | EnigmailConstants.NO_PUBKEY;
+          lazy.EnigmailConstants.UNCERTAIN_SIGNATURE |
+          lazy.EnigmailConstants.NO_PUBKEY;
         query_signer = false;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
-        result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
+        result.statusFlags |= lazy.EnigmailConstants.EXPIRED_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
-        result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+        result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
         break;
       default:
-        result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+        result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
         query_times = false;
         query_signer = false;
         break;
     }
 
     if (query_times) {
-      let created = new ctypes.uint32_t();
-      let expires = new ctypes.uint32_t(); //relative
+      let created = new lazy.ctypes.uint32_t();
+      let expires = new lazy.ctypes.uint32_t(); //relative
 
       if (
         RNPLib.rnp_op_verify_signature_get_times(
@@ -1479,7 +1486,7 @@ var RNP = {
         }
 
         if (
-          EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() ===
+          lazy.EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() ===
           fromLower
         ) {
           fromMatchesAnyUid = true;
@@ -1490,17 +1497,17 @@ var RNP = {
       let useUndecided = true;
 
       if (keyInfo.secretAvailable) {
-        let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(
+        let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
           keyInfo.fpr
         );
         if (isPersonal && fromMatchesAnyUid) {
-          result.extStatusFlags |= EnigmailConstants.EXT_SELF_IDENTITY;
+          result.extStatusFlags |= lazy.EnigmailConstants.EXT_SELF_IDENTITY;
           useUndecided = false;
         } else {
-          result.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+          result.statusFlags |= lazy.EnigmailConstants.INVALID_RECIPIENT;
           useUndecided = true;
         }
-      } else if (result.statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
+      } else if (result.statusFlags & lazy.EnigmailConstants.GOOD_SIGNATURE) {
         if (!fromMatchesAnyUid) {
           /* At the time the user had accepted the key,
            * a different set of email addresses might have been
@@ -1511,12 +1518,12 @@ var RNP = {
            * get an acceptance match, but the from is no longer found
            * in the key's UID list. That should get "undecided".
            */
-          result.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+          result.statusFlags |= lazy.EnigmailConstants.INVALID_RECIPIENT;
           useUndecided = true;
         } else {
           let acceptanceResult = {};
           try {
-            await PgpSqliteDb2.getAcceptance(
+            await lazy.PgpSqliteDb2.getAcceptance(
               keyInfo.fpr,
               fromLower,
               acceptanceResult
@@ -1538,13 +1545,13 @@ var RNP = {
             acceptanceResult.fingerprintAcceptance != "undecided"
           ) {
             if (acceptanceResult.fingerprintAcceptance == "rejected") {
-              result.statusFlags &= ~EnigmailConstants.GOOD_SIGNATURE;
+              result.statusFlags &= ~lazy.EnigmailConstants.GOOD_SIGNATURE;
               result.statusFlags |=
-                EnigmailConstants.BAD_SIGNATURE |
-                EnigmailConstants.INVALID_RECIPIENT;
+                lazy.EnigmailConstants.BAD_SIGNATURE |
+                lazy.EnigmailConstants.INVALID_RECIPIENT;
               useUndecided = false;
             } else if (acceptanceResult.fingerprintAcceptance == "verified") {
-              result.statusFlags |= EnigmailConstants.TRUSTED_IDENTITY;
+              result.statusFlags |= lazy.EnigmailConstants.TRUSTED_IDENTITY;
               useUndecided = false;
             } else if (acceptanceResult.fingerprintAcceptance == "unverified") {
               useUndecided = false;
@@ -1554,8 +1561,8 @@ var RNP = {
       }
 
       if (useUndecided) {
-        result.statusFlags &= ~EnigmailConstants.GOOD_SIGNATURE;
-        result.statusFlags |= EnigmailConstants.UNCERTAIN_SIGNATURE;
+        result.statusFlags &= ~lazy.EnigmailConstants.GOOD_SIGNATURE;
+        result.statusFlags |= lazy.EnigmailConstants.UNCERTAIN_SIGNATURE;
       }
     }
 
@@ -1576,7 +1583,7 @@ var RNP = {
     result.keyId = "";
 
     let sig_arr = options.mimeSignatureData.split("").map(e => e.charCodeAt());
-    var sig_array = ctypes.uint8_t.array()(sig_arr);
+    var sig_array = lazy.ctypes.uint8_t.array()(sig_arr);
 
     let input_sig = new RNPLib.rnp_input_t();
     RNPLib.rnp_input_from_memory(
@@ -1589,7 +1596,7 @@ var RNP = {
     let input_from_memory = new RNPLib.rnp_input_t();
 
     let arr = data.split("").map(e => e.charCodeAt());
-    var data_array = ctypes.uint8_t.array()(arr);
+    var data_array = lazy.ctypes.uint8_t.array()(arr);
 
     RNPLib.rnp_input_from_memory(
       input_from_memory.address(),
@@ -1623,7 +1630,7 @@ var RNP = {
         /* Don't allow a good exit code. Keep existing bad code. */
         result.exitCode = -1;
       }
-      result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+      result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
     }
 
     RNPLib.rnp_input_destroy(input_from_memory);
@@ -1765,7 +1772,7 @@ var RNP = {
     RNPLib.rnp_op_generate_destroy(genOp);
     RNPLib.rnp_key_handle_destroy(primaryKey);
 
-    await PgpSqliteDb2.acceptAsPersonalKey(newKeyFingerprint);
+    await lazy.PgpSqliteDb2.acceptAsPersonalKey(newKeyFingerprint);
 
     return newKeyId;
   },
@@ -1794,7 +1801,7 @@ var RNP = {
     for (let i = 0; i < keyBlockStr.length; i++) {
       arr[i] = keyBlockStr.charCodeAt(i);
     }
-    var key_array = ctypes.uint8_t.array()(arr);
+    var key_array = lazy.ctypes.uint8_t.array()(arr);
 
     if (
       RNPLib.rnp_input_from_memory(
@@ -1807,7 +1814,7 @@ var RNP = {
       throw new Error("rnp_input_from_memory failed");
     }
 
-    let jsonInfo = new ctypes.char.ptr();
+    let jsonInfo = new lazy.ctypes.char.ptr();
 
     let flags = 0;
     if (usePublic) {
@@ -1944,7 +1951,7 @@ var RNP = {
     }
 
     let arr = data.split("").map(e => e.charCodeAt());
-    var key_array = ctypes.uint8_t.array()(arr);
+    var key_array = lazy.ctypes.uint8_t.array()(arr);
 
     let input_from_memory = new RNPLib.rnp_input_t();
     if (
@@ -1958,7 +1965,7 @@ var RNP = {
       throw new Error("rnp_input_from_memory failed");
     }
 
-    let jsonInfo = new ctypes.char.ptr();
+    let jsonInfo = new lazy.ctypes.char.ptr();
 
     let flags = 0;
     let rv = RNPLib.rnp_import_signatures(
@@ -2033,7 +2040,7 @@ var RNP = {
       throw new Error("rejecting big keyblock");
     }
 
-    let newPass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+    let newPass = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
     /* Explicit comparison, because empty string might potentially
      * be allowed. */
     if (newPass == null || newPass == undefined) {
@@ -2107,7 +2114,7 @@ var RNP = {
           }
 
           if (rv == 0) {
-            let sub_count = new ctypes.size_t();
+            let sub_count = new lazy.ctypes.size_t();
             if (RNPLib.rnp_key_get_subkey_count(impKey, sub_count.address())) {
               throw new Error("rnp_key_get_subkey_count failed");
             }
@@ -2227,8 +2234,8 @@ var RNP = {
           throw new Error("rnp_key_export failed");
         }
 
-        let result_buf = new ctypes.uint8_t.ptr();
-        let result_len = new ctypes.size_t();
+        let result_buf = new lazy.ctypes.uint8_t.ptr();
+        let result_len = new lazy.ctypes.size_t();
         if (
           RNPLib.rnp_output_memory_get_buf(
             output_to_memory,
@@ -2304,7 +2311,7 @@ var RNP = {
           // currently undecided. In other words, we keep the acceptance
           // if it's rejected or verified.
 
-          let currentAcceptance = await PgpSqliteDb2.getFingerprintAcceptance(
+          let currentAcceptance = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
             null,
             k.fpr
           );
@@ -2318,12 +2325,16 @@ var RNP = {
                 continue;
               }
 
-              let uidEmail = EnigmailFuncs.getEmailFromUserID(uid.userId);
+              let uidEmail = lazy.EnigmailFuncs.getEmailFromUserID(uid.userId);
               if (uidEmail) {
                 allEmails.push(uidEmail);
               }
             }
-            await PgpSqliteDb2.updateAcceptance(k.fpr, allEmails, acceptance);
+            await lazy.PgpSqliteDb2.updateAcceptance(
+              k.fpr,
+              allEmails,
+              acceptance
+            );
           }
         }
       }
@@ -2433,7 +2444,7 @@ var RNP = {
   },
 
   isKeyUsableFor(key, usage) {
-    let allowed = new ctypes.bool();
+    let allowed = new lazy.ctypes.bool();
     if (RNPLib.rnp_key_allows_usage(key, usage, allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
@@ -2452,7 +2463,7 @@ var RNP = {
   },
 
   getSuitableSubkey(primary, usage) {
-    let sub_count = new ctypes.size_t();
+    let sub_count = new lazy.ctypes.size_t();
     if (RNPLib.rnp_key_get_subkey_count(primary, sub_count.address())) {
       throw new Error("rnp_key_get_subkey_count failed");
     }
@@ -2469,7 +2480,7 @@ var RNP = {
       }
       let skip = this.isBadKey(sub_handle) || this.isKeyExpired(sub_handle);
       if (!skip) {
-        let key_revoked = new ctypes.bool();
+        let key_revoked = new lazy.ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
           throw new Error("rnp_key_is_revoked failed");
         }
@@ -2484,7 +2495,7 @@ var RNP = {
       }
 
       if (!skip) {
-        let key_creation = new ctypes.uint32_t();
+        let key_creation = new lazy.ctypes.uint32_t();
         if (RNPLib.rnp_key_get_creation(sub_handle, key_creation.address())) {
           throw new Error("rnp_key_get_creation failed");
         }
@@ -2559,7 +2570,7 @@ var RNP = {
 
   async encryptAndOrSign(plaintext, args, resultStatus) {
     if (args.sign && args.senderKeyIsExternal) {
-      if (!GPGME.allDependenciesLoaded()) {
+      if (!lazy.GPGME.allDependenciesLoaded()) {
         throw new Error(
           "invalid configuration, request to use external GnuPG key, but GPGME isn't working"
         );
@@ -2574,7 +2585,7 @@ var RNP = {
           "unexpected signing request with external GnuPG key configuration"
         );
       }
-      return GPGME.signDetached(plaintext, args, resultStatus);
+      return lazy.GPGME.signDetached(plaintext, args, resultStatus);
     }
 
     resultStatus.exitCode = -1;
@@ -2583,7 +2594,7 @@ var RNP = {
     resultStatus.errorMsg = "";
 
     let arr = plaintext.split("").map(e => e.charCodeAt());
-    var plaintext_array = ctypes.uint8_t.array()(arr);
+    var plaintext_array = lazy.ctypes.uint8_t.array()(arr);
 
     let input = new RNPLib.rnp_input_t();
     if (
@@ -2656,7 +2667,9 @@ var RNP = {
         );
         if (senderKeySecretAvailable) {
           let senderFpr = this.getFingerprintFromHandle(senderKey);
-          isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(senderFpr);
+          isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+            senderFpr
+          );
         }
         if (!isPersonal) {
           throw new Error(
@@ -2719,11 +2732,13 @@ var RNP = {
           );
           if (aliasKeys) {
             if (!this.addAliasKeys(aliasKeys, op)) {
-              resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+              resultStatus.statusFlags |=
+                lazy.EnigmailConstants.INVALID_RECIPIENT;
               return null;
             }
           } else if (!(await this.addEncryptionKeyForEmail(rcpEmail, op))) {
-            resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+            resultStatus.statusFlags |=
+              lazy.EnigmailConstants.INVALID_RECIPIENT;
             return null;
           }
         }
@@ -2782,8 +2797,8 @@ var RNP = {
 
     let result = null;
 
-    let result_buf = new ctypes.uint8_t.ptr();
-    let result_len = new ctypes.size_t();
+    let result_buf = new lazy.ctypes.uint8_t.ptr();
+    let result_len = new lazy.ctypes.size_t();
     if (
       !RNPLib.rnp_output_memory_get_buf(
         output,
@@ -2792,9 +2807,9 @@ var RNP = {
         false
       )
     ) {
-      let char_array = ctypes.cast(
+      let char_array = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(result_len.value).ptr
+        lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
 
       result = char_array.readString();
@@ -2805,11 +2820,11 @@ var RNP = {
     resultStatus.exitCode = 0;
 
     if (args.encrypt) {
-      resultStatus.statusFlags |= EnigmailConstants.END_ENCRYPTION;
+      resultStatus.statusFlags |= lazy.EnigmailConstants.END_ENCRYPTION;
     }
 
     if (args.sign) {
-      resultStatus.statusFlags |= EnigmailConstants.SIG_CREATED;
+      resultStatus.statusFlags |= lazy.EnigmailConstants.SIG_CREATED;
     }
 
     return result;
@@ -2828,14 +2843,14 @@ var RNP = {
   },
 
   isKeyExpired(handle) {
-    let expiration = new ctypes.uint32_t();
+    let expiration = new lazy.ctypes.uint32_t();
     if (RNPLib.rnp_key_get_expiration(handle, expiration.address())) {
       throw new Error("rnp_key_get_expiration failed");
     }
     if (!expiration.value) {
       return false;
     }
-    let creation = new ctypes.uint32_t();
+    let creation = new lazy.ctypes.uint32_t();
     if (RNPLib.rnp_key_get_creation(handle, creation.address())) {
       throw new Error("rnp_key_get_creation failed");
     }
@@ -2851,7 +2866,7 @@ var RNP = {
     let emailWithoutBrackets = id.substring(1, id.length - 1);
 
     let iter = new RNPLib.rnp_identifier_iterator_t();
-    let grip = new ctypes.char.ptr();
+    let grip = new lazy.ctypes.char.ptr();
 
     if (
       RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip")
@@ -2874,8 +2889,8 @@ var RNP = {
       let handle = new RNPLib.rnp_key_handle_t();
 
       try {
-        let is_subkey = new ctypes.bool();
-        let uid_count = new ctypes.size_t();
+        let is_subkey = new lazy.ctypes.bool();
+        let uid_count = new lazy.ctypes.size_t();
 
         if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
           throw new Error("rnp_locate_key failed");
@@ -2890,7 +2905,7 @@ var RNP = {
         if (this.isBadKey(handle)) {
           continue;
         }
-        let key_revoked = new ctypes.bool();
+        let key_revoked = new lazy.ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
           throw new Error("rnp_key_is_revoked failed");
         }
@@ -2918,7 +2933,7 @@ var RNP = {
           }
 
           if (!this.isBadUid(uid_handle) && !this.isRevokedUid(uid_handle)) {
-            let uid_str = new ctypes.char.ptr();
+            let uid_str = new lazy.ctypes.char.ptr();
             if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
               throw new Error("rnp_key_get_uid_at failed");
             }
@@ -2927,7 +2942,7 @@ var RNP = {
             RNPLib.rnp_buffer_destroy(uid_str);
 
             if (
-              EnigmailFuncs.getEmailFromUserID(userId).toLowerCase() ==
+              lazy.EnigmailFuncs.getEmailFromUserID(userId).toLowerCase() ==
               emailWithoutBrackets
             ) {
               foundUid = true;
@@ -2937,12 +2952,12 @@ var RNP = {
                 // - without secret key, it's accepted verified or unverified
                 // - with secret key, must be marked as personal
 
-                let have_secret = new ctypes.bool();
+                let have_secret = new lazy.ctypes.bool();
                 if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
                   throw new Error("rnp_key_have_secret failed");
                 }
 
-                let fingerprint = new ctypes.char.ptr();
+                let fingerprint = new lazy.ctypes.char.ptr();
                 if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
                   throw new Error("rnp_key_get_fprint failed");
                 }
@@ -2950,7 +2965,7 @@ var RNP = {
                 RNPLib.rnp_buffer_destroy(fingerprint);
 
                 if (have_secret.value) {
-                  let isAccepted = await PgpSqliteDb2.isAcceptedAsPersonalKey(
+                  let isAccepted = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
                     fpr
                   );
                   if (isAccepted) {
@@ -2964,7 +2979,7 @@ var RNP = {
                 } else {
                   let acceptanceResult = {};
                   try {
-                    await PgpSqliteDb2.getAcceptance(
+                    await lazy.PgpSqliteDb2.getAcceptance(
                       fpr,
                       emailWithoutBrackets,
                       acceptanceResult
@@ -3039,8 +3054,8 @@ var RNP = {
       throw new Error("rnp_key_export failed");
     }
 
-    let result_buf = new ctypes.uint8_t.ptr();
-    let result_len = new ctypes.size_t();
+    let result_buf = new lazy.ctypes.uint8_t.ptr();
+    let result_len = new lazy.ctypes.size_t();
     let exitCode = RNPLib.rnp_output_memory_get_buf(
       output_to_memory,
       result_buf.address(),
@@ -3049,9 +3064,9 @@ var RNP = {
     );
 
     if (!exitCode) {
-      let char_array = ctypes.cast(
+      let char_array = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(result_len.value).ptr
+        lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
 
       result = char_array.readString();
@@ -3094,8 +3109,8 @@ var RNP = {
       throw new Error("rnp_key_export failed");
     }
 
-    let result_buf = new ctypes.uint8_t.ptr();
-    let result_len = new ctypes.size_t();
+    let result_buf = new lazy.ctypes.uint8_t.ptr();
+    let result_len = new lazy.ctypes.size_t();
     if (
       RNPLib.rnp_output_memory_get_buf(
         output_to_memory,
@@ -3129,7 +3144,7 @@ var RNP = {
     // Strip
 
     if (!keepUserIDs) {
-      let uid_count = new ctypes.size_t();
+      let uid_count = new lazy.ctypes.size_t();
       if (RNPLib.rnp_key_get_uid_count(tempKey, uid_count.address())) {
         throw new Error("rnp_key_get_uid_count failed");
       }
@@ -3248,8 +3263,8 @@ var RNP = {
       throw new Error("rnp_output_finish failed: " + rv);
     }
 
-    let result_buf = new ctypes.uint8_t.ptr();
-    let result_len = new ctypes.size_t();
+    let result_buf = new lazy.ctypes.uint8_t.ptr();
+    let result_len = new lazy.ctypes.size_t();
     let exitCode = RNPLib.rnp_output_memory_get_buf(
       out_final,
       result_buf.address(),
@@ -3259,9 +3274,9 @@ var RNP = {
 
     let result = "";
     if (!exitCode) {
-      let char_array = ctypes.cast(
+      let char_array = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(result_len.value).ptr
+        lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
       result = char_array.readString();
     }
@@ -3287,7 +3302,7 @@ var RNP = {
    * always applies protection after calling this function.
    */
   ensureECCSubkeyIsGnuPGCompatible(tempKey, pw) {
-    let algo = new ctypes.char.ptr();
+    let algo = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_key_get_alg(tempKey, algo.address())) {
       throw new Error("rnp_key_get_alg failed");
     }
@@ -3298,7 +3313,7 @@ var RNP = {
       return;
     }
 
-    let curve = new ctypes.char.ptr();
+    let curve = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_key_get_curve(tempKey, curve.address())) {
       throw new Error("rnp_key_get_curve failed");
     }
@@ -3309,7 +3324,7 @@ var RNP = {
       return;
     }
 
-    let tweak_status = new ctypes.bool();
+    let tweak_status = new lazy.ctypes.bool();
     let rc = RNPLib.rnp_key_25519_bits_tweaked(tempKey, tweak_status.address());
     if (rc) {
       throw new Error("rnp_key_25519_bits_tweaked failed: " + rc);
@@ -3362,7 +3377,7 @@ var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    let internalPassword = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+    let internalPassword = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
 
     let exportFlags =
       RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_SECRET;
@@ -3390,8 +3405,8 @@ var RNP = {
         RNPLib.rnp_key_lock(expKey);
       }
 
-      let result_buf = new ctypes.uint8_t.ptr();
-      let result_len = new ctypes.size_t();
+      let result_buf = new lazy.ctypes.uint8_t.ptr();
+      let result_len = new lazy.ctypes.size_t();
       if (
         RNPLib.rnp_output_memory_get_buf(
           output_to_memory,
@@ -3438,7 +3453,7 @@ var RNP = {
         RNPLib.rnp_key_lock(tempKey);
       }
 
-      let sub_count = new ctypes.size_t();
+      let sub_count = new lazy.ctypes.size_t();
       if (RNPLib.rnp_key_get_subkey_count(tempKey, sub_count.address())) {
         throw new Error("rnp_key_get_subkey_count failed");
       }
@@ -3487,8 +3502,8 @@ var RNP = {
       throw new Error("rnp_output_finish failed: " + rv);
     }
 
-    let result_buf = new ctypes.uint8_t.ptr();
-    let result_len = new ctypes.size_t();
+    let result_buf = new lazy.ctypes.uint8_t.ptr();
+    let result_len = new lazy.ctypes.size_t();
     let exitCode = RNPLib.rnp_output_memory_get_buf(
       out_final,
       result_buf.address(),
@@ -3498,9 +3513,9 @@ var RNP = {
 
     let result = "";
     if (!exitCode) {
-      let char_array = ctypes.cast(
+      let char_array = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(result_len.value).ptr
+        lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
       result = char_array.readString();
     }
@@ -3551,8 +3566,8 @@ var RNP = {
       throw new Error("rnp_output_finish failed: " + rv);
     }
 
-    let result_buf = new ctypes.uint8_t.ptr();
-    let result_len = new ctypes.size_t();
+    let result_buf = new lazy.ctypes.uint8_t.ptr();
+    let result_len = new lazy.ctypes.size_t();
     let exitCode = RNPLib.rnp_output_memory_get_buf(
       out_final,
       result_buf.address(),
@@ -3561,9 +3576,9 @@ var RNP = {
     );
 
     if (!exitCode) {
-      let char_array = ctypes.cast(
+      let char_array = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(result_len.value).ptr
+        lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
       result = char_array.readString();
     }
@@ -3576,7 +3591,7 @@ var RNP = {
 
   enArmorString(input, type) {
     let arr = input.split("").map(e => e.charCodeAt());
-    let input_array = ctypes.uint8_t.array()(arr);
+    let input_array = lazy.ctypes.uint8_t.array()(arr);
 
     return this.enArmorCData(input_array, input_array.length, type);
   },
@@ -3586,7 +3601,7 @@ var RNP = {
   },
 
   enArmorCData(buf, len, type) {
-    let input_array = ctypes.cast(buf, ctypes.uint8_t.array(len));
+    let input_array = lazy.ctypes.cast(buf, lazy.ctypes.uint8_t.array(len));
 
     let input_from_memory = new RNPLib.rnp_input_t();
     RNPLib.rnp_input_from_memory(
@@ -3606,8 +3621,8 @@ var RNP = {
     }
 
     let result = "";
-    let result_buf = new ctypes.uint8_t.ptr();
-    let result_len = new ctypes.size_t();
+    let result_buf = new lazy.ctypes.uint8_t.ptr();
+    let result_len = new lazy.ctypes.size_t();
     if (
       !RNPLib.rnp_output_memory_get_buf(
         output_to_memory,
@@ -3616,9 +3631,9 @@ var RNP = {
         false
       )
     ) {
-      let char_array = ctypes.cast(
+      let char_array = lazy.ctypes.cast(
         result_buf,
-        ctypes.char.array(result_len.value).ptr
+        lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
 
       result = char_array.readString();
@@ -3638,7 +3653,7 @@ var RNP = {
   // array, too. If it isn't, the function will fail, because the
   // primary key must be unlocked, before changing a subkey works.
   async changeExpirationDate(fingerprintArray, newExpiry) {
-    let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+    let pass = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
 
     for (let fingerprint of fingerprintArray) {
       let handle = this.getKeyHandleByKeyIdOrFingerprint(
@@ -3698,8 +3713,8 @@ var RNP = {
       ) {
         console.debug("rnp_key_export_autocrypt failed");
       } else {
-        let result_buf = new ctypes.uint8_t.ptr();
-        let result_len = new ctypes.size_t();
+        let result_buf = new lazy.ctypes.uint8_t.ptr();
+        let result_len = new lazy.ctypes.size_t();
         let rv = RNPLib.rnp_output_memory_get_buf(
           output_to_memory,
           result_buf.address(),
@@ -3714,9 +3729,9 @@ var RNP = {
 
           // type casting the pointer type to an array type allows us to
           // access the elements by index.
-          let uint8_array = ctypes.cast(
+          let uint8_array = lazy.ctypes.cast(
             result_buf,
-            ctypes.uint8_t.array(result_len.value).ptr
+            lazy.ctypes.uint8_t.array(result_len.value).ptr
           ).contents;
 
           let str = "";

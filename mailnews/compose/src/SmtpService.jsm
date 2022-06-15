@@ -8,12 +8,15 @@ const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   SmtpClient: "resource:///modules/SmtpClient.jsm",
   MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
 });
@@ -25,7 +28,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  */
 function SmtpService() {
   this._servers = [];
-  this._logger = MsgUtils.smtpLogger;
+  this._logger = lazy.MsgUtils.smtpLogger;
 }
 
 SmtpService.prototype = {
@@ -89,7 +92,7 @@ SmtpService.prototype = {
       server.password = password;
     }
     let runningUrl = this._getRunningUri(server);
-    let client = new SmtpClient(server);
+    let client = new lazy.SmtpClient(server);
     deliveryListener?.OnStartRunningUrl(runningUrl, 0);
     client.connect();
     let fresh = true;
@@ -200,7 +203,7 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   verifyLogon(server, urlListener, msgWindow) {
-    let client = new SmtpClient(server);
+    let client = new lazy.SmtpClient(server);
     client.connect();
     let runningUrl = this._getRunningUri(server);
     client.onerror = (nsError, errorMessage, secInfo) => {

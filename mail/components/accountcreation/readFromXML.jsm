@@ -4,18 +4,20 @@
 
 const EXPORTED_SYMBOLS = ["readFromXML"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AccountConfig",
   "resource:///modules/accountcreation/AccountConfig.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AccountCreationUtils",
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "Sanitizer",
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
@@ -49,27 +51,27 @@ function readFromXML(clientConfigXML, subSource) {
     dump(
       `client config xml = ${JSON.stringify(clientConfigXML).substr(0, 50)} \n`
     );
-    let stringBundle = AccountCreationUtils.getStringBundle(
+    let stringBundle = lazy.AccountCreationUtils.getStringBundle(
       "chrome://messenger/locale/accountCreationModel.properties"
     );
     throw stringBundle.GetStringFromName("no_emailProvider.error");
   }
   var xml = clientConfigXML.clientConfig.emailProvider;
 
-  var d = new AccountConfig();
-  d.source = AccountConfig.kSourceXML;
+  var d = new lazy.AccountConfig();
+  d.source = lazy.AccountConfig.kSourceXML;
   d.subSource = `xml-from-${subSource}`;
 
-  d.id = Sanitizer.hostname(xml["@id"]);
+  d.id = lazy.Sanitizer.hostname(xml["@id"]);
   d.displayName = d.id;
   try {
-    d.displayName = Sanitizer.label(xml.displayName);
+    d.displayName = lazy.Sanitizer.label(xml.displayName);
   } catch (e) {
     Cu.reportError(e);
   }
   for (var domain of xml.$domain) {
     try {
-      d.domains.push(Sanitizer.hostname(domain));
+      d.domains.push(lazy.Sanitizer.hostname(domain));
     } catch (e) {
       Cu.reportError(e);
       exception = e;
@@ -86,25 +88,25 @@ function readFromXML(clientConfigXML, subSource) {
     let iO = d.createNewIncoming(); // output (object)
     try {
       // throws if not supported
-      iO.type = Sanitizer.enum(iX["@type"], [
+      iO.type = lazy.Sanitizer.enum(iX["@type"], [
         "pop3",
         "imap",
         "nntp",
         "exchange",
       ]);
-      iO.hostname = Sanitizer.hostname(iX.hostname);
-      iO.port = Sanitizer.integerRange(iX.port, 1, 65535);
+      iO.hostname = lazy.Sanitizer.hostname(iX.hostname);
+      iO.port = lazy.Sanitizer.integerRange(iX.port, 1, 65535);
       // We need a username even for Kerberos, need it even internally.
-      iO.username = Sanitizer.string(iX.username); // may be a %VARIABLE%
+      iO.username = lazy.Sanitizer.string(iX.username); // may be a %VARIABLE%
 
       if ("password" in iX) {
         d.rememberPassword = true;
-        iO.password = Sanitizer.string(iX.password);
+        iO.password = lazy.Sanitizer.string(iX.password);
       }
 
       for (let iXsocketType of array_or_undef(iX.$socketType)) {
         try {
-          iO.socketType = Sanitizer.translate(iXsocketType, {
+          iO.socketType = lazy.Sanitizer.translate(iXsocketType, {
             plain: 1,
             SSL: 2,
             STARTTLS: 3,
@@ -121,7 +123,7 @@ function readFromXML(clientConfigXML, subSource) {
 
       for (let iXauth of array_or_undef(iX.$authentication)) {
         try {
-          iO.auth = Sanitizer.translate(iXauth, {
+          iO.auth = lazy.Sanitizer.translate(iXauth, {
             "password-cleartext": Ci.nsMsgAuthMethod.passwordCleartext,
             // @deprecated TODO remove
             plain: Ci.nsMsgAuthMethod.passwordCleartext,
@@ -145,21 +147,21 @@ function readFromXML(clientConfigXML, subSource) {
       if (iO.type == "exchange") {
         try {
           if ("owaURL" in iX) {
-            iO.owaURL = Sanitizer.url(iX.owaURL);
+            iO.owaURL = lazy.Sanitizer.url(iX.owaURL);
           }
         } catch (e) {
           Cu.reportError(e);
         }
         try {
           if ("ewsURL" in iX) {
-            iO.ewsURL = Sanitizer.url(iX.ewsURL);
+            iO.ewsURL = lazy.Sanitizer.url(iX.ewsURL);
           }
         } catch (e) {
           Cu.reportError(e);
         }
         try {
           if ("easURL" in iX) {
-            iO.easURL = Sanitizer.url(iX.easURL);
+            iO.easURL = lazy.Sanitizer.url(iX.easURL);
           }
         } catch (e) {
           Cu.reportError(e);
@@ -173,12 +175,12 @@ function readFromXML(clientConfigXML, subSource) {
       if (iO.type == "pop3" && "pop3" in iX) {
         try {
           if ("leaveMessagesOnServer" in iX.pop3) {
-            iO.leaveMessagesOnServer = Sanitizer.boolean(
+            iO.leaveMessagesOnServer = lazy.Sanitizer.boolean(
               iX.pop3.leaveMessagesOnServer
             );
           }
           if ("daysToLeaveMessagesOnServer" in iX.pop3) {
-            iO.daysToLeaveMessagesOnServer = Sanitizer.integer(
+            iO.daysToLeaveMessagesOnServer = lazy.Sanitizer.integer(
               iX.pop3.daysToLeaveMessagesOnServer
             );
           }
@@ -187,7 +189,7 @@ function readFromXML(clientConfigXML, subSource) {
         }
         try {
           if ("downloadOnBiff" in iX.pop3) {
-            iO.downloadOnBiff = Sanitizer.boolean(iX.pop3.downloadOnBiff);
+            iO.downloadOnBiff = lazy.Sanitizer.boolean(iX.pop3.downloadOnBiff);
           }
         } catch (e) {
           Cu.reportError(e);
@@ -196,7 +198,7 @@ function readFromXML(clientConfigXML, subSource) {
 
       try {
         if ("useGlobalPreferredServer" in iX) {
-          iO.useGlobalPreferredServer = Sanitizer.boolean(
+          iO.useGlobalPreferredServer = lazy.Sanitizer.boolean(
             iX.useGlobalPreferredServer
           );
         }
@@ -227,17 +229,17 @@ function readFromXML(clientConfigXML, subSource) {
     let oO = d.createNewOutgoing(); // output (object)
     try {
       if (oX["@type"] != "smtp") {
-        let stringBundle = AccountCreationUtils.getStringBundle(
+        let stringBundle = lazy.AccountCreationUtils.getStringBundle(
           "chrome://messenger/locale/accountCreationModel.properties"
         );
         throw stringBundle.GetStringFromName("outgoing_not_smtp.error");
       }
-      oO.hostname = Sanitizer.hostname(oX.hostname);
-      oO.port = Sanitizer.integerRange(oX.port, 1, 65535);
+      oO.hostname = lazy.Sanitizer.hostname(oX.hostname);
+      oO.port = lazy.Sanitizer.integerRange(oX.port, 1, 65535);
 
       for (let oXsocketType of array_or_undef(oX.$socketType)) {
         try {
-          oO.socketType = Sanitizer.translate(oXsocketType, {
+          oO.socketType = lazy.Sanitizer.translate(oXsocketType, {
             plain: 1,
             SSL: 2,
             STARTTLS: 3,
@@ -254,7 +256,7 @@ function readFromXML(clientConfigXML, subSource) {
 
       for (let oXauth of array_or_undef(oX.$authentication)) {
         try {
-          oO.auth = Sanitizer.translate(oXauth, {
+          oO.auth = lazy.Sanitizer.translate(oXauth, {
             // open relay
             none: Ci.nsMsgAuthMethod.none,
             // inside ISP or corp network
@@ -289,21 +291,21 @@ function readFromXML(clientConfigXML, subSource) {
         oO.auth == Ci.nsMsgAuthMethod.passwordCleartext ||
         oO.auth == Ci.nsMsgAuthMethod.passwordEncrypted
       ) {
-        oO.username = Sanitizer.string(oX.username);
+        oO.username = lazy.Sanitizer.string(oX.username);
       }
 
       if ("password" in oX) {
         d.rememberPassword = true;
-        oO.password = Sanitizer.string(oX.password);
+        oO.password = lazy.Sanitizer.string(oX.password);
       }
 
       try {
         // defaults are in accountConfig.js
         if ("addThisServer" in oX) {
-          oO.addThisServer = Sanitizer.boolean(oX.addThisServer);
+          oO.addThisServer = lazy.Sanitizer.boolean(oX.addThisServer);
         }
         if ("useGlobalPreferredServer" in oX) {
-          oO.useGlobalPreferredServer = Sanitizer.boolean(
+          oO.useGlobalPreferredServer = lazy.Sanitizer.boolean(
             oX.useGlobalPreferredServer
           );
         }
@@ -333,9 +335,9 @@ function readFromXML(clientConfigXML, subSource) {
   for (let inputField of array_or_undef(xml.$inputField)) {
     try {
       let fieldset = {
-        varname: Sanitizer.alphanumdash(inputField["@key"]).toUpperCase(),
-        displayName: Sanitizer.label(inputField["@label"]),
-        exampleValue: Sanitizer.label(inputField.value),
+        varname: lazy.Sanitizer.alphanumdash(inputField["@key"]).toUpperCase(),
+        displayName: lazy.Sanitizer.label(inputField["@label"]),
+        exampleValue: lazy.Sanitizer.label(inputField.value),
       };
       d.inputFields.push(fieldset);
     } catch (e) {

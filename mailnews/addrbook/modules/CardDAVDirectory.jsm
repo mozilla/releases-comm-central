@@ -9,7 +9,13 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+const { SQLiteDirectory } = ChromeUtils.import(
+  "resource:///modules/SQLiteDirectory.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
   clearInterval: "resource://gre/modules/Timer.jsm",
   NotificationCallbacks: "resource:///modules/CardDAVUtils.jsm",
@@ -17,7 +23,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   setInterval: "resource://gre/modules/Timer.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
-  SQLiteDirectory: "resource:///modules/SQLiteDirectory.jsm",
   VCardUtils: "resource:///modules/VCardUtils.jsm",
 });
 
@@ -54,7 +59,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       // Don't do this immediately, as this code runs at start-up and could
       // impact performance if there are lots of changes to process.
       if (this.getIntValue("carddav.syncinterval", 30) > 0) {
-        this._syncTimer = setTimeout(() => this.syncWithServer(), 30000);
+        this._syncTimer = lazy.setTimeout(() => this.syncWithServer(), 30000);
       }
     }
 
@@ -80,7 +85,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     await super.cleanUp();
 
     if (this._syncTimer) {
-      clearInterval(this._syncTimer);
+      lazy.clearInterval(this._syncTimer);
       this._syncTimer = null;
     }
 
@@ -187,8 +192,8 @@ class CardDAVDirectory extends SQLiteDirectory {
     let uri = serverURI.resolve(path);
 
     if (!("_oAuth" in this)) {
-      if (OAuth2Providers.getHostnameDetails(serverURI.host)) {
-        this._oAuth = new OAuth2Module();
+      if (lazy.OAuth2Providers.getHostnameDetails(serverURI.host)) {
+        this._oAuth = new lazy.OAuth2Module();
         this._oAuth.initFromABDirectory(this, serverURI.host);
       } else {
         this._oAuth = null;
@@ -197,11 +202,11 @@ class CardDAVDirectory extends SQLiteDirectory {
     details.oAuth = this._oAuth;
 
     let username = this.getStringValue("carddav.username", "");
-    let callbacks = new NotificationCallbacks(username);
+    let callbacks = new lazy.NotificationCallbacks(username);
     details.callbacks = callbacks;
 
     details.userContextId =
-      this._userContextId ?? CardDAVUtils.contextForUsername(username);
+      this._userContextId ?? lazy.CardDAVUtils.contextForUsername(username);
 
     let response;
     try {
@@ -210,7 +215,7 @@ class CardDAVDirectory extends SQLiteDirectory {
         "addrbook-directory-request-start",
         this.UID
       );
-      response = await CardDAVUtils.makeRequest(uri, details);
+      response = await lazy.CardDAVUtils.makeRequest(uri, details);
     } finally {
       Services.obs.notifyObservers(
         this,
@@ -306,7 +311,7 @@ class CardDAVDirectory extends SQLiteDirectory {
           properties.querySelector("address-data")?.textContent
         );
 
-        let abCard = VCardUtils.vCardToAbCard(vCard);
+        let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
         abCard.setProperty("_etag", etag);
         abCard.setProperty("_href", href);
 
@@ -417,7 +422,7 @@ class CardDAVDirectory extends SQLiteDirectory {
         properties.querySelector("address-data")?.textContent
       );
 
-      let abCard = VCardUtils.vCardToAbCard(vCard);
+      let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
       abCard.setProperty("_etag", etag);
       abCard.setProperty("_href", href);
 
@@ -465,7 +470,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    */
   _scheduleNextSync() {
     if (this._syncTimer) {
-      clearInterval(this._syncTimer);
+      lazy.clearInterval(this._syncTimer);
       this._syncTimer = null;
     }
 
@@ -474,7 +479,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       return;
     }
 
-    this._syncTimer = setInterval(
+    this._syncTimer = lazy.setInterval(
       () => this.syncWithServer(false),
       interval * 60000
     );
@@ -527,7 +532,7 @@ class CardDAVDirectory extends SQLiteDirectory {
         );
 
         try {
-          let abCard = VCardUtils.vCardToAbCard(vCard);
+          let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
           abCard.setProperty("_etag", etag);
           abCard.setProperty("_href", href);
           abCards.push(abCard);
@@ -789,7 +794,7 @@ class CardDAVDirectory extends SQLiteDirectory {
         }
         vCard = normalizeLineEndings(vCard);
 
-        let abCard = VCardUtils.vCardToAbCard(vCard);
+        let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
         abCard.setProperty("_etag", etag);
         abCard.setProperty("_href", href);
 

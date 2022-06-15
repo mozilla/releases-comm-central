@@ -9,12 +9,16 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   Feed: "resource:///modules/Feed.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   JSONFile: "resource://gre/modules/JSONFile.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
@@ -332,7 +336,7 @@ var FeedUtils = {
           }
 
           // Create a feed object.
-          let feed = new Feed(url, folder);
+          let feed = new lazy.Feed(url, folder);
 
           // init can be called multiple times. Checks if it should actually
           // init itself.
@@ -490,7 +494,7 @@ var FeedUtils = {
       return;
     }
 
-    let feed = new Feed(aUrl, aFolder);
+    let feed = new lazy.Feed(aUrl, aFolder);
     // Default setting for new feeds per account settings.
     feed.quickMode = feed.server.getBoolValue("quickMode");
     feed.options = FeedUtils.getOptionsAcct(feed.server);
@@ -536,7 +540,7 @@ var FeedUtils = {
     }
 
     for (let feedUrl of feedUrls) {
-      let feed = new Feed(feedUrl, aFolder);
+      let feed = new lazy.Feed(feedUrl, aFolder);
       let options = feed.options;
       options.updates.enabled = !aPause;
       feed.options = options;
@@ -553,7 +557,7 @@ var FeedUtils = {
       if (curItem.container) {
         win.FeedSubscriptions.selectFolder(curItem.folder);
       } else {
-        let feed = new Feed(curItem.url, curItem.parentFolder);
+        let feed = new lazy.Feed(curItem.url, curItem.parentFolder);
         win.FeedSubscriptions.selectFeed(feed);
       }
     }
@@ -879,7 +883,7 @@ var FeedUtils = {
       this[serverKey][aUrl].status = this.statusTemplate;
       if (FeedUtils.isValidScheme(aUrl)) {
         // Seed persisted status properties for feed urls.
-        let feed = new Feed(aUrl, aFolder);
+        let feed = new lazy.Feed(aUrl, aFolder);
         this[serverKey][aUrl].status.enabled = feed.options.updates.enabled;
         this[serverKey][aUrl].status.updateMinutes =
           feed.options.updates.updateMinutes;
@@ -1012,7 +1016,7 @@ var FeedUtils = {
     }
 
     if (aFolder) {
-      let feed = new Feed(url, aFolder);
+      let feed = new lazy.Feed(url, aFolder);
       url = feed.link && feed.link.startsWith("http") ? feed.link : url;
     }
 
@@ -1148,7 +1152,7 @@ var FeedUtils = {
     if (this.isInTrash(aFolder)) {
       // Moving to trash. Unsubscribe.
       affectedSubs.forEach(function(sub) {
-        let feed = new Feed(sub.url, aFolder);
+        let feed = new lazy.Feed(sub.url, aFolder);
         FeedUtils.deleteFeed(feed);
       });
       // note: deleteFeed() calls saveSoon(), so we don't need to.
@@ -1422,7 +1426,7 @@ var FeedUtils = {
     let rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
     let feedsFile = rssServer.subscriptionsPath; // Path to feeds.json
     let exists = feedsFile.exists();
-    let ds = new JSONFile({
+    let ds = new lazy.JSONFile({
       path: feedsFile.path,
       backupTo: feedsFile.path + ".backup",
     });
@@ -1498,7 +1502,7 @@ var FeedUtils = {
     let rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
     let itemsFile = rssServer.feedItemsPath; // Path to feeditems.json
     let exists = itemsFile.exists();
-    let ds = new JSONFile({
+    let ds = new lazy.JSONFile({
       path: itemsFile.path,
       backupTo: itemsFile.path + ".backup",
     });
@@ -1756,7 +1760,7 @@ var FeedUtils = {
    * @returns {String} prettyName or null  - Name or null if not a disk folder.
    */
   getFolderPrettyPath(aFolder) {
-    let msgFolder = MailUtils.getExistingFolder(aFolder.URI);
+    let msgFolder = lazy.MailUtils.getExistingFolder(aFolder.URI);
     if (!msgFolder) {
       // Not a real folder uri.
       return null;
@@ -1774,7 +1778,7 @@ var FeedUtils = {
     for (let i = 0; i < rawPathParts.length - 1; i++) {
       // Two or more folders deep parts here.
       folderURI += "/" + rawPathParts[i];
-      msgFolder = MailUtils.getExistingFolder(folderURI);
+      msgFolder = lazy.MailUtils.getExistingFolder(folderURI);
       pathParts.push(msgFolder.name);
     }
 
@@ -1811,7 +1815,7 @@ var FeedUtils = {
   getValidRFC5322Date(aDateString) {
     let d = new Date(aDateString || new Date().getTime());
     d = isNaN(d.getTime()) ? new Date() : d;
-    return jsmime.headeremitter
+    return lazy.jsmime.headeremitter
       .emitStructuredHeader("Date", d, {})
       .substring(6)
       .trim();

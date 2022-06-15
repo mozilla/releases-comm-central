@@ -17,7 +17,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
 });
@@ -51,7 +53,7 @@ var EnigmailMsgRead = {
    * @return Object: nsIURL or nsIMsgMailNewsUrl object
    */
   getUrlFromUriSpec(uriSpec) {
-    return EnigmailFuncs.getUrlFromUriSpec(uriSpec);
+    return lazy.EnigmailFuncs.getUrlFromUriSpec(uriSpec);
   },
 
   /**
@@ -239,12 +241,12 @@ var EnigmailMsgRead = {
     }
 
     try {
-      fromAddr = EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
+      fromAddr = lazy.EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
     } catch (ex) {
       console.debug(ex);
     }
 
-    let keyObj = EnigmailKeyRing.getKeyById(keyId);
+    let keyObj = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!keyObj) {
       return null;
     }
@@ -255,9 +257,9 @@ var EnigmailMsgRead = {
       for (let i = 0; i < userIdList.length; i++) {
         if (
           fromAddr ==
-          EnigmailFuncs.stripEmail(userIdList[i].userId).toLowerCase()
+          lazy.EnigmailFuncs.stripEmail(userIdList[i].userId).toLowerCase()
         ) {
-          let result = EnigmailFuncs.stripEmail(userIdList[i].userId);
+          let result = lazy.EnigmailFuncs.stripEmail(userIdList[i].userId);
           return result;
         }
       }

@@ -8,8 +8,12 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   NntpChannel: "resource:///modules/NntpChannel.jsm",
 });
 
@@ -39,7 +43,7 @@ class BaseMessageService {
       );
     } else {
       let streamListener = displayConsumer.QueryInterface(Ci.nsIStreamListener);
-      let channel = new NntpChannel(uri, {
+      let channel = new lazy.NntpChannel(uri, {
         QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
         loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
         securityFlags:

@@ -4,13 +4,15 @@
 
 const EXPORTED_SYMBOLS = ["CreateInBackend"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AccountConfig",
   "resource:///modules/accountcreation/AccountConfig.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AccountCreationUtils",
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
@@ -151,7 +153,7 @@ function createAccountInBackend(config) {
     username,
     config.outgoing.hostname
   );
-  AccountCreationUtils.assert(
+  lazy.AccountCreationUtils.assert(
     config.outgoing.addThisServer ||
       config.outgoing.useGlobalPreferredServer ||
       config.outgoing.existingServerKey,
@@ -284,7 +286,7 @@ function createAccountInBackend(config) {
   try {
     Services.prefs.savePrefFile(null);
   } catch (ex) {
-    AccountCreationUtils.ddump("Could not write out prefs: " + ex);
+    lazy.AccountCreationUtils.ddump("Could not write out prefs: " + ex);
   }
   return account;
 }
@@ -320,7 +322,7 @@ function rememberPassword(server, password) {
   } else if (server instanceof Ci.nsISmtpServer) {
     passwordURI = "smtp://" + server.hostname;
   } else {
-    throw new AccountCreationUtils.NotReached("Server type not supported");
+    throw new lazy.AccountCreationUtils.NotReached("Server type not supported");
   }
 
   let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
@@ -350,7 +352,7 @@ function rememberPassword(server, password) {
  *     If it's a new server, |null| is returned.
  */
 function checkIncomingServerAlreadyExists(config) {
-  AccountCreationUtils.assert(config instanceof AccountConfig);
+  lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
   let incoming = config.incoming;
   let existing = MailServices.accounts.findServer(
     incoming.username,
@@ -383,7 +385,7 @@ function checkIncomingServerAlreadyExists(config) {
  *     If it's a new server, |null| is returned.
  */
 function checkOutgoingServerAlreadyExists(config) {
-  AccountCreationUtils.assert(config instanceof AccountConfig);
+  lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
   for (let existingServer of MailServices.smtp.servers) {
     // TODO check username with full email address, too, like for incoming
     if (
@@ -456,14 +458,14 @@ function verifyLocalFoldersAccount(am) {
       try {
         localMailServer = am.localFoldersServer;
       } catch (ex) {
-        AccountCreationUtils.ddump(
+        lazy.AccountCreationUtils.ddump(
           "Error! we should have found the local mail server " +
             "after we created it."
         );
       }
     }
   } catch (ex) {
-    AccountCreationUtils.ddump("Error in verifyLocalFoldersAccount " + ex);
+    lazy.AccountCreationUtils.ddump("Error in verifyLocalFoldersAccount " + ex);
   }
 }
 

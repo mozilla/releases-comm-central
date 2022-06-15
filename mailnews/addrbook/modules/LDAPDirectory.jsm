@@ -11,11 +11,15 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   FileUtils: "resource://gre/modules/FileUtils.jsm",
   QueryStringToExpression: "resource:///modules/QueryStringToExpression.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
 });
 
 /**
@@ -70,7 +74,7 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   get replicationFile() {
-    return FileUtils.getFile("ProfD", [this.replicationFileName]);
+    return lazy.FileUtils.getFile("ProfD", [this.replicationFileName]);
   }
 
   get protocolVersion() {
@@ -176,7 +180,7 @@ class LDAPDirectory extends AddrBookDirectory {
     let args = Cc[
       "@mozilla.org/addressbook/directory/query-arguments;1"
     ].createInstance(Ci.nsIAbDirectoryQueryArguments);
-    args.expression = QueryStringToExpression.convert(queryString);
+    args.expression = lazy.QueryStringToExpression.convert(queryString);
     args.querySubDirectories = true;
     args.typeSpecificArg = this.attributeMap;
 

@@ -8,8 +8,10 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+const lazy = {};
+
 XPCOMUtils.defineLazyGetter(
-  this,
+  lazy,
   "l10n",
   () => new Localization(["messenger/importDialog.ftl"], true)
 );
@@ -107,11 +109,11 @@ class ThunderbirdImport {
   QueryInterface = ChromeUtils.generateQI(["nsIImportModule"]);
 
   get name() {
-    return l10n.formatValueSync("thunderbird-import-name");
+    return lazy.l10n.formatValueSync("thunderbird-import-name");
   }
 
   get description() {
-    return l10n.formatValueSync("thunderbird-import-description");
+    return lazy.l10n.formatValueSync("thunderbird-import-description");
   }
 
   get supports() {

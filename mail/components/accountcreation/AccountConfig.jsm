@@ -21,13 +21,15 @@
 
 const EXPORTED_SYMBOLS = ["AccountConfig"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "AccountCreationUtils",
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "Sanitizer",
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
@@ -222,7 +224,7 @@ AccountConfig.prototype = {
     // Workaround: deepCopy() fails to preserve base obj (instanceof)
     let result = new AccountConfig();
     for (let prop in this) {
-      result[prop] = AccountCreationUtils.deepCopy(this[prop]);
+      result[prop] = lazy.AccountCreationUtils.deepCopy(this[prop]);
     }
 
     return result;
@@ -399,16 +401,16 @@ AccountConfig.replaceVariables = function(
   emailfull,
   password
 ) {
-  Sanitizer.nonemptystring(emailfull);
+  lazy.Sanitizer.nonemptystring(emailfull);
   let emailsplit = emailfull.split("@");
-  AccountCreationUtils.assert(
+  lazy.AccountCreationUtils.assert(
     emailsplit.length == 2,
     "email address not in expected format: must contain exactly one @"
   );
-  let emaillocal = Sanitizer.nonemptystring(emailsplit[0]);
-  let emaildomain = Sanitizer.hostname(emailsplit[1]);
-  Sanitizer.label(realname);
-  Sanitizer.nonemptystring(realname);
+  let emaillocal = lazy.Sanitizer.nonemptystring(emailsplit[0]);
+  let emaildomain = lazy.Sanitizer.hostname(emailsplit[1]);
+  lazy.Sanitizer.label(realname);
+  lazy.Sanitizer.nonemptystring(realname);
 
   let otherVariables = {};
   otherVariables.EMAILADDRESS = emailfull;

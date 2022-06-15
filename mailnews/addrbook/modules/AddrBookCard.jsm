@@ -9,7 +9,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
   VCardProperties: "resource:///modules/VCardUtils.jsm",
@@ -41,14 +43,14 @@ function AddrBookCard() {
     let vCard = this.getProperty("_vCard", "");
     try {
       if (vCard) {
-        return VCardProperties.fromVCard(vCard);
+        return lazy.VCardProperties.fromVCard(vCard);
       }
-      return VCardProperties.fromPropertyMap(this._properties);
+      return lazy.VCardProperties.fromPropertyMap(this._properties);
     } catch (error) {
       console.error("Error creating vCard properties", error);
       // Return  an empty VCardProperties object if parsing failed
       // catastrophically.
-      return new VCardProperties("4.0");
+      return new lazy.VCardProperties("4.0");
     }
   });
 }
@@ -119,7 +121,7 @@ AddrBookCard.prototype = {
   },
   get UID() {
     if (!this._uid) {
-      this._uid = newUID();
+      this._uid = lazy.newUID();
     }
     return this._uid;
   },
@@ -173,7 +175,7 @@ AddrBookCard.prototype = {
       n.value[1] = value;
     } else {
       this._vCardProperties.addEntry(
-        new VCardPropertyEntry("n", {}, "text", ["", value, "", "", ""])
+        new lazy.VCardPropertyEntry("n", {}, "text", ["", value, "", "", ""])
       );
     }
   },
@@ -197,7 +199,7 @@ AddrBookCard.prototype = {
       n.value[0] = value;
     } else {
       this._vCardProperties.addEntry(
-        new VCardPropertyEntry("n", {}, "text", [value, "", "", "", ""])
+        new lazy.VCardPropertyEntry("n", {}, "text", [value, "", "", "", ""])
       );
     }
   },
@@ -213,7 +215,7 @@ AddrBookCard.prototype = {
       fn.value = value;
     } else {
       this._vCardProperties.addEntry(
-        new VCardPropertyEntry("fn", {}, "text", value)
+        new lazy.VCardPropertyEntry("fn", {}, "text", value)
       );
     }
   },
@@ -236,7 +238,7 @@ AddrBookCard.prototype = {
         existing.params.pref = "1";
       } else {
         this._vCardProperties.addEntry(
-          new VCardPropertyEntry("email", { pref: "1" }, "text", value)
+          new lazy.VCardPropertyEntry("email", { pref: "1" }, "text", value)
         );
       }
     } else if (entries.length) {
@@ -319,7 +321,7 @@ AddrBookCard.prototype = {
     );
   },
   setProperty(name, value) {
-    if (BANISHED_PROPERTIES.includes(name)) {
+    if (lazy.BANISHED_PROPERTIES.includes(name)) {
       throw new Components.Exception(
         `Unable to set ${name} as a property, use vCardProperties`,
         Cr.NS_ERROR_UNEXPECTED

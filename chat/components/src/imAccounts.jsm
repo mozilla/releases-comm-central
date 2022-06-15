@@ -11,6 +11,9 @@ var { ClassInfo, XPCOMUtils, executeSoon, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var {
   GenericAccountPrototype,
@@ -984,7 +987,7 @@ AccountsService.prototype = {
     this._accounts = [];
     this._accountsById = {};
     gAccountsService = this;
-    let accountIdArray = lazy.MailServices.accounts.accounts
+    let accountIdArray = MailServices.accounts.accounts
       .map(account => account.incomingServer.getCharValue("imAccount"))
       .filter(accountKey => accountKey?.startsWith(kAccountKeyPrefix));
     for (let account of accountIdArray) {
@@ -1009,7 +1012,7 @@ AccountsService.prototype = {
       return;
     }
 
-    const imAccounts = lazy.MailServices.accounts.accounts
+    const imAccounts = MailServices.accounts.accounts
       .map(account => account.incomingServer.getCharValue("imAccount"))
       .filter(k => k?.startsWith(kAccountKeyPrefix))
       .map(k =>

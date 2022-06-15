@@ -4,8 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["LDAPConnection"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "LDAPClient",
   "resource:///modules/LDAPClient.jsm"
 );
@@ -29,7 +31,7 @@ class LDAPConnection {
       // -1 corresponds to the protocol's default port.
       port = useSecureTransport ? 636 : 389;
     }
-    this.client = new LDAPClient(url.host, port, useSecureTransport);
+    this.client = new lazy.LDAPClient(url.host, port, useSecureTransport);
     this._url = url;
     this._bindName = bindName;
     this.client.onOpen = () => {

@@ -8,10 +8,13 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MimeMessage: "resource:///modules/MimeMessage.jsm",
@@ -82,7 +85,7 @@ MessageSend.prototype = {
       this._composeBundle.GetStringFromName("assemblingMessage")
     );
 
-    this._fcc = MsgUtils.getFcc(
+    this._fcc = lazy.MsgUtils.getFcc(
       userIdentity,
       compFields,
       originalMsgURI,
@@ -98,12 +101,12 @@ MessageSend.prototype = {
     // 1. An attachment content is BinaryString.
     // 2. Body text and attachment contents are handled in the same way by
     // MimeEncoder to pick encoding and encode.
-    bodyText = jsmime.mimeutils.typedArrayToString(
+    bodyText = lazy.jsmime.mimeutils.typedArrayToString(
       new TextEncoder().encode(bodyText)
     );
 
     this._restoreEditorContent(embeddedObjects);
-    this._message = new MimeMessage(
+    this._message = new lazy.MimeMessage(
       userIdentity,
       compFields,
       this._fcc,
@@ -121,15 +124,15 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("creatingMailMessage")
     );
-    MsgUtils.sendLogger.debug("Creating message file");
+    lazy.MsgUtils.sendLogger.debug("Creating message file");
     let messageFile;
     try {
       // Create a local file from MimeMessage, then pass it to _deliverMessage.
       messageFile = await this._message.createMessageFile();
     } catch (e) {
-      MsgUtils.sendLogger.error(e);
+      lazy.MsgUtils.sendLogger.error(e);
       let errorMsg = "";
-      if (e.result == MsgUtils.NS_MSG_ERROR_ATTACHING_FILE) {
+      if (e.result == lazy.MsgUtils.NS_MSG_ERROR_ATTACHING_FILE) {
         errorMsg = this._composeBundle.formatStringFromName(
           "errorAttachingFile",
           [e.data.name || e.data.url]
@@ -142,7 +145,7 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessageDone")
     );
-    MsgUtils.sendLogger.debug("Message file created");
+    lazy.MsgUtils.sendLogger.debug("Message file created");
     return this._deliverMessage(messageFile);
   },
 
@@ -188,7 +191,7 @@ MessageSend.prototype = {
       this._composeBundle.GetStringFromName("assemblingMessage")
     );
 
-    this._fcc = MsgUtils.getFcc(
+    this._fcc = lazy.MsgUtils.getFcc(
       userIdentity,
       compFields,
       null,
@@ -253,7 +256,7 @@ MessageSend.prototype = {
       return attachment;
     });
 
-    this._message = new MimeMessage(
+    this._message = new lazy.MimeMessage(
       userIdentity,
       compFields,
       null,
@@ -332,7 +335,7 @@ MessageSend.prototype = {
       exitCode != Cr.NS_ERROR_ABORT &&
       prompt
     ) {
-      MsgUtils.sendLogger.error(
+      lazy.MsgUtils.sendLogger.error(
         `Sending failed; ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
       );
       if (errorMsg) {
@@ -371,28 +374,30 @@ MessageSend.prototype = {
    * placeholders. Maybe refactor this after nsMsgSend is gone.
    */
   notifyListenerOnStartSending(msgId, msgSize) {
-    MsgUtils.sendLogger.debug("notifyListenerOnStartSending");
+    lazy.MsgUtils.sendLogger.debug("notifyListenerOnStartSending");
     if (this._sendListener) {
       this._sendListener.onStartSending(msgId, msgSize);
     }
   },
 
   notifyListenerOnStartCopy() {
-    MsgUtils.sendLogger.debug("notifyListenerOnStartCopy");
+    lazy.MsgUtils.sendLogger.debug("notifyListenerOnStartCopy");
     if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
       this._sendListener.OnStartCopy();
     }
   },
 
   notifyListenerOnProgressCopy(progress, progressMax) {
-    MsgUtils.sendLogger.debug("notifyListenerOnProgressCopy");
+    lazy.MsgUtils.sendLogger.debug("notifyListenerOnProgressCopy");
     if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
       this._sendListener.OnProgress(progress, progressMax);
     }
   },
 
   notifyListenerOnStopCopy(status) {
-    MsgUtils.sendLogger.debug(`notifyListenerOnStopCopy; status=${status}`);
+    lazy.MsgUtils.sendLogger.debug(
+      `notifyListenerOnStopCopy; status=${status}`
+    );
     this._msgCopy = null;
 
     let statusMsgEntry = Components.isSuccessCode(status)
@@ -405,7 +410,7 @@ MessageSend.prototype = {
     if (!Components.isSuccessCode(status)) {
       let localFoldersAccountName =
         MailServices.accounts.localFoldersServer.prettyName;
-      let folder = MailUtils.getOrCreateFolder(this._folderUri);
+      let folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
       let accountName = folder?.server.prettyName;
       if (!this._fcc || !localFoldersAccountName || !accountName) {
         this.fail(Cr.NS_OK, null);
@@ -498,14 +503,16 @@ MessageSend.prototype = {
   },
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
-    MsgUtils.sendLogger.debug(`notifyListenerOnStopSending; status=${status}`);
+    lazy.MsgUtils.sendLogger.debug(
+      `notifyListenerOnStopSending; status=${status}`
+    );
     try {
       this._sendListener?.onStopSending(msgId, status, msg, returnFile);
     } catch (e) {}
   },
 
   notifyListenerOnTransportSecurityError(msgId, status, secInfo, location) {
-    MsgUtils.sendLogger.debug(
+    lazy.MsgUtils.sendLogger.debug(
       `notifyListenerOnTransportSecurityError; status=${status}, location=${location}`
     );
     if (!this._sendListener) {
@@ -525,7 +532,7 @@ MessageSend.prototype = {
    * Called by nsIMsgFilterService.
    */
   onStopOperation(status) {
-    MsgUtils.sendLogger.debug(`onStopOperation; status=${status}`);
+    lazy.MsgUtils.sendLogger.debug(`onStopOperation; status=${status}`);
     if (Components.isSuccessCode(status)) {
       this._setStatusMessage(
         this._composeBundle.GetStringFromName("filterMessageComplete")
@@ -550,28 +557,30 @@ MessageSend.prototype = {
    * @param {nsreault} exitCode - The exit code of message delivery.
    */
   _deliveryExitProcessing(url, isNewsDelivery, exitCode) {
-    MsgUtils.sendLogger.debug(`Delivery exit processing; exitCode=${exitCode}`);
+    lazy.MsgUtils.sendLogger.debug(
+      `Delivery exit processing; exitCode=${exitCode}`
+    );
     if (!Components.isSuccessCode(exitCode)) {
       let isNSSError = false;
-      let errorName = MsgUtils.getErrorStringName(exitCode);
+      let errorName = lazy.MsgUtils.getErrorStringName(exitCode);
       let errorMsg;
       if (
         [
-          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER,
-          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED,
-          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
-          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
-          MsgUtils.NS_ERROR_SMTP_PASSWORD_UNDEFINED,
-          MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE,
-          MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI,
-          MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
-          MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL,
-          MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL,
-          MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT,
-          MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS,
+          lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER,
+          lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED,
+          lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
+          lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
+          lazy.MsgUtils.NS_ERROR_SMTP_PASSWORD_UNDEFINED,
+          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE,
+          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI,
+          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
+          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL,
+          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL,
+          lazy.MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT,
+          lazy.MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS,
         ].includes(exitCode)
       ) {
-        errorMsg = MsgUtils.formatStringWithSMTPHostName(
+        errorMsg = lazy.MsgUtils.formatStringWithSMTPHostName(
           this._userIdentity,
           this._composeBundle,
           errorName
@@ -587,7 +596,7 @@ MessageSend.prototype = {
           errorMsg = nssErrorsService.getErrorMessage(exitCode);
           errorMsg +=
             "\n" +
-            MsgUtils.formatStringWithSMTPHostName(
+            lazy.MsgUtils.formatStringWithSMTPHostName(
               this._userIdentity,
               this._composeBundle,
               "smtpSecurityIssue"
@@ -611,7 +620,7 @@ MessageSend.prototype = {
             errorMsg.replace("%X", `0x${exitCode.toString(16)}`);
             errorMsg =
               "\n" +
-              MsgUtils.formatStringWithSMTPHostName(
+              lazy.MsgUtils.formatStringWithSMTPHostName(
                 this._userIdentity,
                 this._composeBundle,
                 "smtpSendFailedUnknownReason"
@@ -656,9 +665,9 @@ MessageSend.prototype = {
       if (
         !Components.isSuccessCode(exitCode) &&
         exitCode != Cr.NS_ERROR_ABORT &&
-        !MsgUtils.isMsgError(exitCode)
+        !lazy.MsgUtils.isMsgError(exitCode)
       ) {
-        exitCode = MsgUtils.NS_ERROR_POST_FAILED;
+        exitCode = lazy.MsgUtils.NS_ERROR_POST_FAILED;
       }
       return this._deliveryExitProcessing(url, isNewsDelivery, exitCode);
     }
@@ -666,18 +675,18 @@ MessageSend.prototype = {
       switch (exitCode) {
         case Cr.NS_ERROR_UNKNOWN_HOST:
         case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
-          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER;
+          exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER;
           break;
         case Cr.NS_ERROR_CONNECTION_REFUSED:
         case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
-          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED;
+          exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED;
           break;
         case Cr.NS_ERROR_NET_INTERRUPT:
-          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
+          exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
           break;
         case Cr.NS_ERROR_NET_TIMEOUT:
         case Cr.NS_ERROR_NET_RESET:
-          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
+          exitCode = lazy.MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
           break;
         default:
           break;
@@ -751,7 +760,7 @@ MessageSend.prototype = {
       );
       let prompt = this.getDefaultPrompt();
       if (!prompt.confirm(null, msg)) {
-        this.fail(MsgUtils.NS_ERROR_BUT_DONT_SHOW_ALERT, msg);
+        this.fail(lazy.MsgUtils.NS_ERROR_BUT_DONT_SHOW_ALERT, msg);
         throw Components.Exception(
           "Cancelled sending large message",
           Cr.NS_ERROR_FAILURE
@@ -822,8 +831,8 @@ MessageSend.prototype = {
     // dummy envelope. The date string will be parsed by PR_ParseTimeString.
     // TODO: this should not be added to Maildir, see bug 1686852.
     let contentToWrite = `From - ${new Date().toUTCString()}\r\n`;
-    let xMozillaStatus = MsgUtils.getXMozillaStatus(this._deliverMode);
-    let xMozillaStatus2 = MsgUtils.getXMozillaStatus2(this._deliverMode);
+    let xMozillaStatus = lazy.MsgUtils.getXMozillaStatus(this._deliverMode);
+    let xMozillaStatus2 = lazy.MsgUtils.getXMozillaStatus2(this._deliverMode);
     if (xMozillaStatus) {
       contentToWrite += `X-Mozilla-Status: ${xMozillaStatus}\r\n`;
     }
@@ -850,7 +859,7 @@ MessageSend.prototype = {
    * Start copy operation according to this._fcc value.
    */
   async _doFcc() {
-    if (!this._fcc || !MsgUtils.canSaveToFolder(this._fcc)) {
+    if (!this._fcc || !lazy.MsgUtils.canSaveToFolder(this._fcc)) {
       this.notifyListenerOnStopCopy(Cr.NS_OK);
       return;
     }
@@ -876,7 +885,7 @@ MessageSend.prototype = {
     let folder;
     let folderUri;
     if (fccHeader) {
-      folder = MailUtils.getExistingFolder(fccHeader);
+      folder = lazy.MailUtils.getExistingFolder(fccHeader);
     }
     if (
       [Ci.nsIMsgSend.nsMsgDeliverNow, Ci.nsIMsgSend.nsMsgSendUnsent].includes(
@@ -903,12 +912,12 @@ MessageSend.prototype = {
       ) {
         // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
         // and then has the account name appended, e.g., .../Sent-MyImapAccount.
-        let folder = MailUtils.getOrCreateFolder(this._folderUri);
+        let folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
         folderUri += folder.name + "-";
       }
       if (this._fcc) {
         // Get the account name where the "save to" failed.
-        let accountName = MailUtils.getOrCreateFolder(this._fcc).server
+        let accountName = lazy.MailUtils.getOrCreateFolder(this._fcc).server
           .prettyName;
 
         // Now append the imap account name (escaped) to the folder uri.
@@ -916,18 +925,20 @@ MessageSend.prototype = {
         this._folderUri = folderUri;
       }
     } else {
-      this._folderUri = MsgUtils.getMsgFolderURIFromPrefs(
+      this._folderUri = lazy.MsgUtils.getMsgFolderURIFromPrefs(
         this._userIdentity,
         this._deliverMode
       );
     }
-    MsgUtils.sendLogger.debug(`Processing fcc; folderUri=${this._folderUri}`);
+    lazy.MsgUtils.sendLogger.debug(
+      `Processing fcc; folderUri=${this._folderUri}`
+    );
 
     this._msgCopy = Cc[
       "@mozilla.org/messengercompose/msgcopy;1"
     ].createInstance(Ci.nsIMsgCopy);
     this._copyFile = await this._createCopyFile();
-    MsgUtils.sendLogger.debug("fcc file created");
+    lazy.MsgUtils.sendLogger.debug("fcc file created");
 
     // Notify nsMsgCompose about the saved folder.
     if (this._sendListener) {
@@ -936,13 +947,13 @@ MessageSend.prototype = {
         this._folderUri
       );
     }
-    folder = MailUtils.getOrCreateFolder(this._folderUri);
+    folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
     let statusMsg = this._composeBundle.formatStringFromName(
       "copyMessageStart",
       [folder?.name || "?"]
     );
     this._setStatusMessage(statusMsg);
-    MsgUtils.sendLogger.debug("startCopyOperation");
+    lazy.MsgUtils.sendLogger.debug("startCopyOperation");
     try {
       this._msgCopy.startCopyOperation(
         this._userIdentity,
@@ -953,7 +964,9 @@ MessageSend.prototype = {
         this._msgToReplace
       );
     } catch (e) {
-      MsgUtils.sendLogger.warn(`startCopyOperation failed with ${e.result}`);
+      lazy.MsgUtils.sendLogger.warn(
+        `startCopyOperation failed with ${e.result}`
+      );
       if (throwOnError) {
         throw Components.Exception("startCopyOperation failed", e.result);
       }
@@ -967,7 +980,7 @@ MessageSend.prototype = {
   _doFcc2() {
     // Handle fcc2 only once.
     if (!this._fcc2Handled && this._compFields.fcc2) {
-      MsgUtils.sendLogger.debug("Processing fcc2");
+      lazy.MsgUtils.sendLogger.debug("Processing fcc2");
       this._fcc2Handled = true;
       this._mimeDoFcc(
         this._compFields.fcc2,
@@ -980,7 +993,7 @@ MessageSend.prototype = {
     // NOTE: When nsMsgCompose receives OnStopCopy, it will release nsIMsgSend
     // instance and close the compose window, which prevents the Promise from
     // resolving in MsgComposeCommands.js. Use setTimeout to work around it.
-    setTimeout(() => {
+    lazy.setTimeout(() => {
       try {
         if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
           this._sendListener.OnStopCopy(0);
@@ -1001,7 +1014,7 @@ MessageSend.prototype = {
    */
   _filterSentMessage() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Filter;
-    let folder = MailUtils.getExistingFolder(this._folderUri);
+    let folder = lazy.MailUtils.getExistingFolder(this._folderUri);
     let msgHdr = folder.GetMessageHeader(this._messageKey);
     let msgWindow = this._sendProgress?.msgWindow;
     return MailServices.filters.applyFilters(
@@ -1014,7 +1027,7 @@ MessageSend.prototype = {
   },
 
   _cleanup() {
-    MsgUtils.sendLogger.debug("Clean up temporary files");
+    lazy.MsgUtils.sendLogger.debug("Clean up temporary files");
     if (this._copyFile && this._copyFile != this._messageFile) {
       IOUtils.remove(this._copyFile.path).catch(Cu.reportError);
       this._copyFile = null;
@@ -1054,7 +1067,7 @@ MessageSend.prototype = {
         Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
       )
     );
-    MsgUtils.sendLogger.debug("Delivering mail message");
+    lazy.MsgUtils.sendLogger.debug("Delivering mail message");
     let deliveryListener = new MsgDeliveryListener(this, false);
     let msgStatus =
       this._sendProgress instanceof Ci.nsIMsgStatusFeedback
@@ -1082,7 +1095,7 @@ MessageSend.prototype = {
    */
   _deliverAsNews() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
-    MsgUtils.sendLogger.debug("Delivering news message");
+    lazy.MsgUtils.sendLogger.debug("Delivering news message");
     let deliveryListener = new MsgDeliveryListener(this, true);
     let msgWindow =
       this._sendProgress?.msgWindow ||
@@ -1208,7 +1221,7 @@ MessageSend.prototype = {
         // If an url has already been inserted as MimePart, just reuse the cid.
         cid = urlCidCache[url];
       } else {
-        cid = MsgUtils.makeContentId(
+        cid = lazy.MsgUtils.makeContentId(
           this._userIdentity,
           embeddedAttachments.length + 1
         );
@@ -1217,7 +1230,7 @@ MessageSend.prototype = {
         let attachment = Cc[
           "@mozilla.org/messengercompose/attachment;1"
         ].createInstance(Ci.nsIMsgAttachment);
-        attachment.name = name || MsgUtils.pickFileNameFromUrl(url);
+        attachment.name = name || lazy.MsgUtils.pickFileNameFromUrl(url);
         attachment.contentId = cid;
         attachment.url = url;
         embeddedAttachments.push(attachment);
@@ -1307,7 +1320,7 @@ MsgDeliveryListener.prototype = {
   },
 
   OnStopRunningUrl(url, exitCode) {
-    MsgUtils.sendLogger.debug(`OnStopRunningUrl; exitCode=${exitCode}`);
+    lazy.MsgUtils.sendLogger.debug(`OnStopRunningUrl; exitCode=${exitCode}`);
     let mailUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
     mailUrl.UnRegisterListener(this);
 

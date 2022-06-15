@@ -8,8 +8,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -60,9 +61,9 @@ MailNewsCommandLineHandler.prototype = {
             messageIDIndex + MESSAGE_ID_PARAM.length
           );
           // Make sure the folder tree is initialized
-          MailUtils.discoverFolders();
+          lazy.MailUtils.discoverFolders();
 
-          let folder = MailUtils.getExistingFolder(folderURI);
+          let folder = lazy.MailUtils.getExistingFolder(folderURI);
           // The folder might not exist, so guard against that
           if (folder && messageID.length > 0) {
             msgHdr = folder.msgDatabase.getMsgHdrForMessageID(messageID);
@@ -87,7 +88,7 @@ MailNewsCommandLineHandler.prototype = {
 
       if (msgHdr) {
         aCommandLine.preventDefault = true;
-        MailUtils.displayMessage(msgHdr);
+        lazy.MailUtils.displayMessage(msgHdr);
       } else if (
         AppConstants.MOZ_APP_NAME == "seamonkey" &&
         /\.(eml|msg)$/i.test(mailURL)

@@ -15,7 +15,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
@@ -30,7 +32,7 @@ var OpenPGPMasterpass = {
           Ci.nsISecretDecoderRing
         );
       } catch (ex) {
-        EnigmailLog.writeException("masterpass.jsm", ex);
+        lazy.EnigmailLog.writeException("masterpass.jsm", ex);
       }
     }
     return this.sdr;
@@ -55,7 +57,7 @@ var OpenPGPMasterpass = {
   },
 
   async _repairOrWarn() {
-    let [prot, unprot] = RNP.getProtectedKeysCount();
+    let [prot, unprot] = lazy.RNP.getProtectedKeysCount();
     let haveAtLeastOneSecretKey = prot || unprot;
 
     if (
@@ -137,8 +139,8 @@ var OpenPGPMasterpass = {
         }
 
         await this._ensurePasswordCreatedAndCached();
-        await RNP.protectUnprotectedKeys();
-        await RNP.saveKeyRings();
+        await lazy.RNP.protectUnprotectedKeys();
+        await lazy.RNP.saveKeyRings();
       }
     }
   },
@@ -218,7 +220,7 @@ var OpenPGPMasterpass = {
 
   // This function may trigger password creation, if necessary
   async retrieveOpenPGPPassword() {
-    EnigmailLog.DEBUG("masterpass.jsm: retrieveMasterPassword()\n");
+    lazy.EnigmailLog.DEBUG("masterpass.jsm: retrieveMasterPassword()\n");
 
     await this.ensurePasswordIsCached();
     return this.cachedPassword;

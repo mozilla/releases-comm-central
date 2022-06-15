@@ -4,8 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["LDAPOperation"];
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "LDAPClient",
   "resource:///modules/LDAPClient.jsm"
 );
@@ -170,7 +172,7 @@ class LDAPOperation {
       Cu.reportError(e);
       return;
     }
-    this._client = new LDAPClient(
+    this._client = new lazy.LDAPClient(
       url.host,
       url.port,
       url.options & Ci.nsILDAPURL.OPT_SECURE

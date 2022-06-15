@@ -7,12 +7,16 @@ const EXPORTED_SYMBOLS = ["Pop3IncomingServer"];
 var { MsgIncomingServer } = ChromeUtils.import(
   "resource:///modules/MsgIncomingServer.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   Pop3Client: "resource:///modules/Pop3Client.jsm",
 });
 
@@ -232,7 +236,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
       return;
     }
 
-    let client = new Pop3Client(this);
+    let client = new lazy.Pop3Client(this);
     // Pass a clone of this._uidlsToMark to client.markMessages, because
     // this._uidlsToMark may be changed before markMessages finishes.
     client.markMessages(new Map(this._uidlsToMark));

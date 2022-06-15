@@ -8,8 +8,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -71,7 +72,7 @@ MessageArchiver.canArchive = function(messages, isSingleFolder) {
   // Either we've selected a small number of messages or we just can't
   // fast-path the result; examine all the messages.
   return messages.every(function(msg) {
-    let [identity] = MailUtils.getIdentityForHeader(msg);
+    let [identity] = lazy.MailUtils.getIdentityForHeader(msg);
     return Boolean(identity && identity.archiveEnabled);
   });
 };
@@ -111,7 +112,7 @@ MessageArchiver.prototype = {
       let archiveGranularity;
       let archiveKeepFolderStructure;
 
-      let [identity] = MailUtils.getIdentityForHeader(msgHdr);
+      let [identity] = lazy.MailUtils.getIdentityForHeader(msgHdr);
       if (!identity || msgHdr.folder.server.type == "rss") {
         // If no identity, or a server (RSS) which doesn't have an identity
         // and doesn't want the default unrelated identity value, figure
@@ -222,7 +223,7 @@ MessageArchiver.prototype = {
     let batch = this._currentBatch;
     let srcFolder = batch.srcFolder;
     let archiveFolderURI = batch.archiveFolderURI;
-    let archiveFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
+    let archiveFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
     let dstFolder = archiveFolder;
 
     let moveArray = [];
@@ -272,7 +273,7 @@ MessageArchiver.prototype = {
 
     if (granularity >= Ci.nsIMsgIdentity.perYearArchiveFolders) {
       archiveFolderURI += "/" + batch.yearFolderName;
-      dstFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
+      dstFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
       if (!dstFolder.parent) {
         dstFolder.createStorageIfMissing(this);
         if (isAsync) {
@@ -283,7 +284,7 @@ MessageArchiver.prototype = {
     }
     if (granularity >= Ci.nsIMsgIdentity.perMonthArchiveFolders) {
       archiveFolderURI += "/" + batch.monthFolderName;
-      dstFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
+      dstFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
       if (!dstFolder.parent) {
         dstFolder.createStorageIfMissing(this);
         if (isAsync) {
@@ -302,7 +303,7 @@ MessageArchiver.prototype = {
       // excluding top-level INBOX folder
       let folderNames = [];
       let rootFolder = srcFolder.server.rootFolder;
-      let inboxFolder = MailUtils.getInboxFolder(srcFolder.server);
+      let inboxFolder = lazy.MailUtils.getInboxFolder(srcFolder.server);
       let folder = srcFolder;
       while (folder != rootFolder && folder != inboxFolder) {
         folderNames.unshift(folder.name);

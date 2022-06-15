@@ -7,9 +7,13 @@ const EXPORTED_SYMBOLS = ["Pop3Channel"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   Pop3Client: "resource:///modules/Pop3Client.jsm",
 });
 
@@ -83,7 +87,7 @@ class Pop3Channel {
       );
     }
 
-    let client = new Pop3Client(this._server);
+    let client = new lazy.Pop3Client(this._server);
     client.runningUri = this.URI;
     client.connect();
     client.onOpen = () => {

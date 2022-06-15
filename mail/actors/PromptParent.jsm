@@ -7,15 +7,14 @@
 
 var EXPORTED_SYMBOLS = ["PromptParent"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "PromptUtils",
   "resource://gre/modules/SharedPromptUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
 );
 
 /**
@@ -153,10 +152,14 @@ class PromptParent extends JSWindowActorParent {
       if (browser) {
         // The compose editor does not support enter/leaveModalState.
         browser.enterModalState?.();
-        PromptUtils.fireDialogEvent(win, "DOMWillOpenModalDialog", browser);
+        lazy.PromptUtils.fireDialogEvent(
+          win,
+          "DOMWillOpenModalDialog",
+          browser
+        );
       }
 
-      let bag = PromptUtils.objectToPropBag(args);
+      let bag = lazy.PromptUtils.objectToPropBag(args);
 
       Services.ww.openWindow(
         win,
@@ -166,11 +169,11 @@ class PromptParent extends JSWindowActorParent {
         bag
       );
 
-      PromptUtils.propBagToObject(bag, args);
+      lazy.PromptUtils.propBagToObject(bag, args);
     } finally {
       if (browser) {
         browser.leaveModalState?.();
-        PromptUtils.fireDialogEvent(win, "DOMModalDialogClosed", browser);
+        lazy.PromptUtils.fireDialogEvent(win, "DOMModalDialogClosed", browser);
       }
     }
     return args;

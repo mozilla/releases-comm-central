@@ -13,7 +13,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
@@ -26,7 +28,7 @@ var EnigmailStreams = {
    * @return: channel
    */
   createChannel(url) {
-    let c = NetUtil.newChannel({
+    let c = lazy.NetUtil.newChannel({
       uri: url,
       loadUsingSystemPrincipal: true,
     });
@@ -145,7 +147,7 @@ var EnigmailStreams = {
 };
 
 function createLoadInfo() {
-  let c = NetUtil.newChannel({
+  let c = lazy.NetUtil.newChannel({
     uri: "chrome://openpgp/content/",
     loadUsingSystemPrincipal: true,
   });

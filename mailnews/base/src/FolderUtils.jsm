@@ -19,8 +19,10 @@ var FolderUtils = {
   canRenameDeleteJunkMail,
 };
 
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FeedUtils",
   "resource:///modules/FeedUtils.jsm"
 );
@@ -245,7 +247,7 @@ function folderNameCompare(aString1, aString2) {
 
 function getFolderIcon(folder) {
   let iconName;
-  if (FeedUtils.getFeedUrlsInFolder(folder)) {
+  if (lazy.FeedUtils.getFeedUrlsInFolder(folder)) {
     iconName = "feeds-folder.svg";
   } else if (folder.isServer) {
     switch (folder.server.type) {

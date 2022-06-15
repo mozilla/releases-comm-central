@@ -17,7 +17,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
 });
 
@@ -168,7 +170,7 @@ var VCardUtils = {
   vCardToAbCard(vCard, uid) {
     vCard = this.translateVCard21(vCard);
 
-    let abCard = new AddrBookCard();
+    let abCard = new lazy.AddrBookCard();
     abCard.setProperty("_vCard", vCard);
 
     let vCardUID = abCard.vCardProperties.getFirstValue("uid");

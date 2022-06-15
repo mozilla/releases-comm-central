@@ -3,13 +3,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
 
@@ -198,12 +201,16 @@ class CollectedKeysDB {
     let newKey;
     let pubKey;
     if (existing) {
-      pubKey = await RNP.mergePublicKeyBlocks(fpr, existing.pubKey, keyBlock);
+      pubKey = await lazy.RNP.mergePublicKeyBlocks(
+        fpr,
+        existing.pubKey,
+        keyBlock
+      );
       // Don't use EnigmailKey.getKeyListFromKeyBlock interactive.
       // Use low level API for obtaining key list, we don't want to
       // poison the app key cache.
       // We also don't want to obtain any additional revocation certs.
-      let keys = await RNP.getKeyListFromKeyBlockImpl(
+      let keys = await lazy.RNP.getKeyListFromKeyBlockImpl(
         pubKey,
         true,
         false,

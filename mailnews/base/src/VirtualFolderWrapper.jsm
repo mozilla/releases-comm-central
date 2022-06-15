@@ -11,8 +11,9 @@ const EXPORTED_SYMBOLS = ["VirtualFolderHelper"];
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -125,7 +126,7 @@ VirtualFolderWrapper.prototype = {
     return this.dbFolderInfo
       .getCharProperty("searchFolderUri")
       .split("|")
-      .map(uri => MailUtils.getExistingFolder(uri))
+      .map(uri => lazy.MailUtils.getExistingFolder(uri))
       .filter(Boolean);
   },
   /**

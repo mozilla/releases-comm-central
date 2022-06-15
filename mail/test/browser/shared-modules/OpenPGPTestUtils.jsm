@@ -18,7 +18,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
@@ -76,10 +78,10 @@ const OpenPGPTestUtils = {
    * should be called at the start of testing.
    */
   async initOpenPGP() {
-    Assert.ok(await RNP.init(), "librnp did load");
-    Assert.ok(await EnigmailCore.getService({}), "EnigmailCore did load");
-    EnigmailKeyRing.init();
-    await OpenPGPAlias.load();
+    Assert.ok(await lazy.RNP.init(), "librnp did load");
+    Assert.ok(await lazy.EnigmailCore.getService({}), "EnigmailCore did load");
+    lazy.EnigmailKeyRing.init();
+    await lazy.OpenPGPAlias.load();
   },
 
   /**
@@ -170,11 +172,11 @@ const OpenPGPTestUtils = {
    */
   async importKey(parent, file, isBinary, isSecret = false) {
     let data = await IOUtils.read(file.path);
-    let txt = MailStringUtils.uint8ArrayToByteString(data);
+    let txt = lazy.MailStringUtils.uint8ArrayToByteString(data);
     let errorObj = {};
     let fingerPrintObj = {};
 
-    let result = EnigmailKeyRing.importKey(
+    let result = lazy.EnigmailKeyRing.importKey(
       parent,
       false,
       txt,
@@ -207,16 +209,16 @@ const OpenPGPTestUtils = {
   async updateKeyIdAcceptance(id, acceptance) {
     let ids = Array.isArray(id) ? id : [id];
     for (let id of ids) {
-      let key = EnigmailKeyRing.getKeyById(id);
-      let email = EnigmailFuncs.getEmailFromUserID(key.userId);
-      await PgpSqliteDb2.updateAcceptance(key.fpr, [email], acceptance);
+      let key = lazy.EnigmailKeyRing.getKeyById(id);
+      let email = lazy.EnigmailFuncs.getEmailFromUserID(key.userId);
+      await lazy.PgpSqliteDb2.updateAcceptance(key.fpr, [email], acceptance);
     }
-    EnigmailKeyRing.clearCache();
+    lazy.EnigmailKeyRing.clearCache();
     return ids.slice();
   },
 
   getProtectedKeysCount() {
-    return RNP.getProtectedKeysCount();
+    return lazy.RNP.getProtectedKeysCount();
   },
 
   /**
@@ -229,11 +231,11 @@ const OpenPGPTestUtils = {
   async removeKeyById(id, deleteSecret = false) {
     let ids = Array.isArray(id) ? id : [id];
     for (let id of ids) {
-      let key = EnigmailKeyRing.getKeyById(id);
-      await RNP.deleteKey(key.fpr, deleteSecret);
-      await PgpSqliteDb2.deleteAcceptance(key.fpr);
+      let key = lazy.EnigmailKeyRing.getKeyById(id);
+      await lazy.RNP.deleteKey(key.fpr, deleteSecret);
+      await lazy.PgpSqliteDb2.deleteAcceptance(key.fpr);
     }
-    EnigmailKeyRing.clearCache();
+    lazy.EnigmailKeyRing.clearCache();
   },
 };
 

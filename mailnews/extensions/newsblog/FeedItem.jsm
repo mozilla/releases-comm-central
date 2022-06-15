@@ -5,24 +5,26 @@
 
 const EXPORTED_SYMBOLS = ["FeedItem", "FeedEnclosure"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
+const lazy = {};
+
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "FeedUtils",
   "resource:///modules/FeedUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
-);
 
 function FeedItem() {
-  this.mDate = FeedUtils.getValidRFC5322Date();
+  this.mDate = lazy.FeedUtils.getValidRFC5322Date();
   this.mParserUtils = Cc["@mozilla.org/parserutils;1"].getService(
     Ci.nsIParserUtils
   );
@@ -94,7 +96,7 @@ FeedItem.prototype = {
     messageID.replace(/@/g, "%40");
     messageID = "<" + messageID.trim() + "@localhost.localdomain>";
 
-    FeedUtils.log.trace(
+    lazy.FeedUtils.log.trace(
       "FeedItem.normalizeMessageID: messageID - " + messageID
     );
     return messageID;
@@ -118,7 +120,7 @@ FeedItem.prototype = {
     // this.mUrl and this.contentBase contain plain text.
 
     let stored = false;
-    let ds = FeedUtils.getItemsDS(this.feed.server);
+    let ds = lazy.FeedUtils.getItemsDS(this.feed.server);
     let resource = this.findStoredResource();
     if (!this.feed.folder) {
       return stored;
@@ -133,7 +135,7 @@ FeedItem.prototype = {
       };
       ds.data[this.id] = resource;
       if (!this.content) {
-        FeedUtils.log.trace(
+        lazy.FeedUtils.log.trace(
           "FeedItem.store: " +
             this.identity +
             " no content; storing description or title"
@@ -159,7 +161,7 @@ FeedItem.prototype = {
   findStoredResource() {
     // Checks to see if the item has already been stored in its feed's
     // message folder.
-    FeedUtils.log.trace(
+    lazy.FeedUtils.log.trace(
       "FeedItem.findStoredResource: checking if stored - " + this.identity
     );
 
@@ -167,7 +169,7 @@ FeedItem.prototype = {
     let folder = this.feed.folder;
 
     if (!folder) {
-      FeedUtils.log.debug(
+      lazy.FeedUtils.log.debug(
         "FeedItem.findStoredResource: folder '" +
           this.feed.folderName +
           "' doesn't exist; creating as child of " +
@@ -178,14 +180,14 @@ FeedItem.prototype = {
       return null;
     }
 
-    let ds = FeedUtils.getItemsDS(server);
+    let ds = lazy.FeedUtils.getItemsDS(server);
     let item = ds.data[this.id];
     if (!item || !item.stored) {
-      FeedUtils.log.trace("FeedItem.findStoredResource: not stored");
+      lazy.FeedUtils.log.trace("FeedItem.findStoredResource: not stored");
       return null;
     }
 
-    FeedUtils.log.trace("FeedItem.findStoredResource: already stored");
+    lazy.FeedUtils.log.trace("FeedItem.findStoredResource: already stored");
     return item;
   },
 
@@ -207,7 +209,7 @@ FeedItem.prototype = {
   },
 
   writeToFolder() {
-    FeedUtils.log.trace(
+    lazy.FeedUtils.log.trace(
       "FeedItem.writeToFolder: " +
         this.identity +
         " writing to message folder " +
@@ -269,7 +271,7 @@ FeedItem.prototype = {
       " ".repeat(80) +
       "\n" +
       "Received: by localhost; " +
-      FeedUtils.getValidRFC5322Date() +
+      lazy.FeedUtils.getValidRFC5322Date() +
       "\n" +
       "Date: " +
       this.mDate +
@@ -319,7 +321,7 @@ FeedItem.prototype = {
         this.content;
     }
 
-    FeedUtils.log.trace(
+    lazy.FeedUtils.log.trace(
       "FeedItem.writeToFolder: " +
         this.identity +
         " is " +
@@ -408,7 +410,7 @@ FeedItem.prototype = {
       let keyForTag = MailServices.tags.getKeyForTag(keyword);
       if (!keyForTag) {
         // Add the tag if it doesn't exist.
-        MailServices.tags.addTag(keyword, "", FeedUtils.AUTOTAG);
+        MailServices.tags.addTag(keyword, "", lazy.FeedUtils.AUTOTAG);
         keyForTag = MailServices.tags.getKeyForTag(keyword);
       }
 
@@ -487,7 +489,7 @@ FeedEnclosure.prototype = {
       'Content-Disposition: attachment; filename="' +
       this.mFileName +
       '"\n\n' +
-      FeedUtils.strings.GetStringFromName("externalAttachmentMsg") +
+      lazy.FeedUtils.strings.GetStringFromName("externalAttachmentMsg") +
       "\n"
     );
   },

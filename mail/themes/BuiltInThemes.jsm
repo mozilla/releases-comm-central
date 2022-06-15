@@ -9,7 +9,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
 });
 
@@ -72,7 +74,7 @@ class _BuiltInThemes {
     );
     let activeBuiltInTheme = STANDARD_THEMES.get(activeThemeID);
     if (activeBuiltInTheme) {
-      AddonManager.maybeInstallBuiltinAddon(
+      lazy.AddonManager.maybeInstallBuiltinAddon(
         activeThemeID,
         activeBuiltInTheme.version,
         `resource://builtin-themes/${activeBuiltInTheme.path}`
@@ -87,7 +89,7 @@ class _BuiltInThemes {
     let installPromises = [];
     for (let [id, { version, path }] of STANDARD_THEMES.entries()) {
       installPromises.push(
-        AddonManager.maybeInstallBuiltinAddon(
+        lazy.AddonManager.maybeInstallBuiltinAddon(
           id,
           version,
           `resource://builtin-themes/${path}`
