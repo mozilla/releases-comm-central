@@ -8,9 +8,6 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailCryptoUtils } = ChromeUtils.import(
-  "resource:///modules/MailCryptoUtils.jsm"
-);
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
@@ -513,8 +510,8 @@ class ImapClient {
     this._nextAction = this._actionAuthResponse;
     // According to rfc4616#section-2, password should be BinaryString before
     // base64 encoded.
-    let password = MailStringUtils.uint8ArrayToByteString(
-      new TextEncoder().encode(await this._getPassword())
+    let password = MailStringUtils.stringToByteString(
+      await this._getPassword()
     );
     this._send(
       btoa("\0" + this._authenticator.username + "\0" + password),
@@ -537,8 +534,8 @@ class ImapClient {
    */
   _actionAuthLoginPass = async res => {
     this._nextAction = this._actionAuthResponse;
-    let password = MailStringUtils.uint8ArrayToByteString(
-      new TextEncoder().encode(await this._getPassword())
+    let password = MailStringUtils.stringToByteString(
+      await this._getPassword()
     );
     this._send(btoa(password), true);
   };
@@ -549,19 +546,11 @@ class ImapClient {
    */
   _actionAuthCramMd5 = async res => {
     this._nextAction = this._actionAuthResponse;
-
-    // Server sent us a base64 encoded challenge.
-    let challenge = atob(res.statusText);
     let password = await this._getPassword();
-    // Use password as key, challenge as payload, generate a HMAC-MD5 signature.
-    let signature = MailCryptoUtils.hmacMd5(
-      new TextEncoder().encode(password),
-      new TextEncoder().encode(challenge)
+    this._send(
+      this._authenticator.getCramMd5Token(password, res.statusText),
+      true
     );
-    // Get the hex form of the signature.
-    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
-    // Send the username and signature back to the server.
-    this._send(btoa(`${this._authenticator.username} ${hex}`), true);
   };
 
   /**

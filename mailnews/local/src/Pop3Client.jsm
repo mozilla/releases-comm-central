@@ -11,9 +11,6 @@ var { AppConstants } = ChromeUtils.import(
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
-var { MailCryptoUtils } = ChromeUtils.import(
-  "resource:///modules/MailCryptoUtils.jsm"
-);
 var { Pop3Authenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
@@ -759,19 +756,13 @@ class Pop3Client {
       return;
     }
     this._nextAction = this._actionAuthResponse;
-
-    // Server sent us a base64 encoded challenge.
-    let challenge = atob(res.statusText);
-    let password = this._authenticator.getPassword();
-    // Use password as key, challenge as payload, generate a HMAC-MD5 signature.
-    let signature = MailCryptoUtils.hmacMd5(
-      new TextEncoder().encode(password),
-      new TextEncoder().encode(challenge)
+    this._send(
+      this._authenticator.getCramMd5Token(
+        this._authenticator.getPassword(),
+        res.statusText
+      ),
+      true
     );
-    // Get the hex form of the signature.
-    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
-    // Send the username and signature back to the server.
-    this._send(btoa(`${this._authenticator.username} ${hex}`), true);
   };
 
   /**

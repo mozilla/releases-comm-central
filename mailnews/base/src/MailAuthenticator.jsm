@@ -13,6 +13,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailCryptoUtils } = ChromeUtils.import(
+  "resource:///modules/MailCryptoUtils.jsm"
+);
 
 /**
  * A base class for interfaces when authenticating a mail connection.
@@ -59,6 +62,23 @@ class MailAuthenticator {
       "getPassword not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
+  }
+
+  /**
+   * Get the CRAM-MD5 token for a connection.
+   * @param {string} password - The password, used as HMAC-MD5 secret.
+   * @param {string} challenge - The base64 encoded server challenge.
+   * @returns string
+   */
+  getCramMd5Token(password, challenge) {
+    // Hash the challenge.
+    let signature = MailCryptoUtils.hmacMd5(
+      new TextEncoder().encode(password),
+      new TextEncoder().encode(atob(challenge))
+    );
+    // Get the hex form of the signature.
+    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
+    return btoa(`${this.username} ${hex}`);
   }
 
   /**

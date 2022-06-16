@@ -32,6 +32,24 @@ var MailStringUtils = {
   },
 
   /**
+   * Convert a ByteString to a string.
+   * @param {ByteString} str - The ByteString to convert.
+   * @returns {string} The converted string.
+   */
+  byteStringToString(str) {
+    return new TextDecoder().decode(this.byteStringToUint8Array(str));
+  },
+
+  /**
+   * Convert a string to a ByteString.
+   * @param {string} str - The string to convert.
+   * @returns {ByteString} The converted ByteString.
+   */
+  stringToByteString(str) {
+    return this.uint8ArrayToByteString(new TextEncoder().encode(str));
+  },
+
+  /**
    * Detect the text encoding of a ByteString.
    * @param {ByteString} str - The input string.
    * @returns {string} The output charset name.

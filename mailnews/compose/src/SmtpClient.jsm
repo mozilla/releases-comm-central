@@ -32,8 +32,8 @@ var { AppConstants } = ChromeUtils.import(
 );
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailCryptoUtils } = ChromeUtils.import(
-  "resource:///modules/MailCryptoUtils.jsm"
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
 );
 var { SmtpAuthenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
@@ -555,7 +555,7 @@ class SmtpClient {
 
     // pass the chunk to the socket
     this.waitDrain = this._send(
-      MailCryptoUtils.binaryStringToTypedArray(chunk).buffer
+      MailStringUtils.byteStringToUint8Array(chunk).buffer
     );
     return this.waitDrain;
   }
@@ -638,9 +638,7 @@ class SmtpClient {
         this._currentAction = this._actionAUTHComplete;
         // According to rfc4616#section-2, password should be UTF-8 BinaryString
         // before base64 encoded.
-        let password = String.fromCharCode(
-          ...new TextEncoder().encode(this._getPassword())
-        );
+        let password = MailStringUtils.stringToByteString(this._getPassword());
 
         this._sendCommand(
           // convert to BASE64
@@ -1004,7 +1002,7 @@ class SmtpClient {
       // `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we apply
       // base64 encoding directly. Otherwise, we convert it to UTF-8
       // BinaryString first.
-      password = String.fromCharCode(...new TextEncoder().encode(password));
+      password = MailStringUtils.stringToByteString(password);
     }
     this._sendCommand(btoa(password), true);
   }
@@ -1019,19 +1017,11 @@ class SmtpClient {
       this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
-    // Server sent us a base64 encoded challenge.
-    let challenge = atob(command.data);
-    let password = this._getPassword();
-    // Use password as key, challenge as payload, generate a HMAC-MD5 signature.
-    let signature = MailCryptoUtils.hmacMd5(
-      new TextEncoder().encode(password),
-      new TextEncoder().encode(challenge)
-    );
-    // Get the hex form of the signature.
-    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
     this._currentAction = this._actionAUTHComplete;
-    // Send the username and signature back to the server.
-    this._sendCommand(btoa(`${this._authenticator.username} ${hex}`), true);
+    this._sendCommand(
+      this._authenticator.getCramMd5Token(this._getPassword(), command.data),
+      true
+    );
   }
 
   /**
