@@ -6,8 +6,6 @@
   == Styles for the Mail Filters dialog.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/messenger.css");
-
 #filterListDialog:not([lwt-tree]):-moz-lwtheme {
   background: -moz-Dialog !important;
   color: -moz-DialogText;
