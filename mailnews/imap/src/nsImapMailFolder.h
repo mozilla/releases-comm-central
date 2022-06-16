@@ -487,8 +487,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   // Pseudo-Offline operation playback timer
   static void PlaybackTimerCallback(nsITimer* aTimer, void* aClosure);
 
-  nsresult CreatePlaybackTimer();
-
   // Allocate and initialize associated auto-sync state object.
   void InitAutoSyncState();
 

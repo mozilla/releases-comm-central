@@ -6892,25 +6892,24 @@ nsImapMailFolder::CopyMessages(
     // Do not forget to change it accordingly.
     nsImapMailFolder* srcImapFolder = static_cast<nsImapMailFolder*>(srcFolder);
 
-    // lazily create playback timer if it is not already
-    // created
-    if (!srcImapFolder->m_playbackTimer) {
-      // if there is no pending request, create a new one, and set the timer.
-      // Otherwise use the existing one to reset the timer. it is callback
-      // function's responsibility to delete the new request object
-      if (!srcImapFolder->m_pendingPlaybackReq) {
-        srcImapFolder->m_pendingPlaybackReq =
-            new nsPlaybackRequest(srcImapFolder, msgWindow);
-      }
+    // if there is no pending request, create a new one, and set the timer.
+    // Otherwise use the existing one to reset the timer. it is callback
+    // function's responsibility to delete the new request object
+    if (!srcImapFolder->m_pendingPlaybackReq) {
+      srcImapFolder->m_pendingPlaybackReq =
+          new nsPlaybackRequest(srcImapFolder, msgWindow);
+    }
 
-      rv = NS_NewTimerWithFuncCallback(
-          getter_AddRefs(srcImapFolder->m_playbackTimer), PlaybackTimerCallback,
-          (void*)srcImapFolder->m_pendingPlaybackReq,
-          PLAYBACK_TIMER_INTERVAL_IN_MS, nsITimer::TYPE_ONE_SHOT,
-          "nsImapMailFolder::PlaybackTimerCallback", nullptr);
-      if (NS_FAILED(rv)) {
-        NS_WARNING("Could not start m_playbackTimer timer");
-      }
+    // Create and start a new playback one-shot timer. Callback will delete it.
+    NS_ASSERTION(!srcImapFolder->m_playbackTimer, "expected null");
+    rv = NS_NewTimerWithFuncCallback(
+        getter_AddRefs(srcImapFolder->m_playbackTimer),
+        srcImapFolder->PlaybackTimerCallback,
+        (void*)srcImapFolder->m_pendingPlaybackReq,
+        PLAYBACK_TIMER_INTERVAL_IN_MS, nsITimer::TYPE_ONE_SHOT,
+        "nsImapMailFolder::PlaybackTimerCallback", nullptr);
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Could not start m_playbackTimer timer");
     }
     return rv;
   } else {
@@ -8704,8 +8703,9 @@ void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {
     NS_ASSERTION(NS_SUCCEEDED(rv), "pseudo-offline playback is not successful");
   }
 
-  // release request struct
+  // release request struct and timer
   request->SrcFolder->m_pendingPlaybackReq = nullptr;
+  request->SrcFolder->m_playbackTimer = nullptr;
   delete request;
 }
 
