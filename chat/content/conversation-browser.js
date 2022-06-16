@@ -427,6 +427,21 @@
      * @param {imIMessage} msg - Message to use as replacement.
      */
     replaceMessage(msg) {
+      if (!msg.remoteId) {
+        // No remote id, nothing existing to replace.
+        return;
+      }
+      if (this._messageDisplayPending) {
+        let pendingIndex = this._pendingMessages.findIndex(
+          ({ msg: pendingMsg }) => pendingMsg.remoteId === msg.remoteId
+        );
+        if (
+          pendingIndex > -1 &&
+          pendingIndex >= this._nextPendingMessageIndex
+        ) {
+          this._pendingMessages[pendingIndex].msg = msg;
+        }
+      }
       if (this.browsingContext.isActive) {
         msg.message = this.prepareMessageContent(msg);
         const isNext = LazyModules.wasNextMessage(msg, this.contentDocument);
@@ -436,6 +451,11 @@
           isNext,
           false
         );
+        let ruler = this.contentDocument.getElementById("unread-ruler");
+        if (ruler?._originalMsg?.remoteId === msg.remoteId) {
+          ruler._originalMsg = msg;
+          ruler.nextMsgHtml = htmlMessage;
+        }
         LazyModules.replaceHTMLForMessage(
           msg,
           htmlMessage,
@@ -733,6 +753,7 @@
           root = root.nextElementSibling
         ) {
           root._originalMsg = ruler._originalMsg;
+          root.dataset.remoteId = ruler._originalMsg.remoteId;
         }
         moveToParent.insertBefore(documentFragment, moveTo);
 
