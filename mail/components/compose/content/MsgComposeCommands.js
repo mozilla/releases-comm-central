@@ -1624,7 +1624,7 @@ function updateAllItems(aDisable) {
             "stateBeforeSend",
             getDisabledState(commandItem)
           );
-          setDisabledState(commandItem, true);
+          setDisabledState(commandItem, "true");
         }
       } else if (commandItem.hasAttribute("stateBeforeSend")) {
         // Any element can appear multiple times in the commandItemCollections
