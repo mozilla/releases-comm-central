@@ -252,7 +252,9 @@
 
   <dialog id="photoDialog">
     <div id="photoDialogInner">
-      <div id="photoDropTarget">
+      <!-- FIXME: The dialog is not semantic or accessible.
+         - We use a tabindex and role="alert" as a temporary solution. -->
+      <div id="photoDropTarget" role="alert" tabindex="0">
         <div class="icon"></div>
         <div class="label" data-l10n-id="about-addressbook-photo-drop-target"></div>
       </div>

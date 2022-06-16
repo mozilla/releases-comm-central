@@ -2952,7 +2952,18 @@ var photoDialog = {
     this._dialog.addEventListener("dragover", this);
     this._dialog.addEventListener("drop", this);
     this._dialog.addEventListener("paste", this);
-    this._dropTarget.addEventListener("click", () => this._showFilePicker());
+    this._dropTarget.addEventListener("click", event => {
+      if (event.button != 0) {
+        return;
+      }
+      this._showFilePicker();
+    });
+    this._dropTarget.addEventListener("keydown", event => {
+      if (event.key != " " && event.key != "Enter") {
+        return;
+      }
+      this._showFilePicker();
+    });
 
     class Mover {
       constructor(element) {
