@@ -1510,6 +1510,8 @@ NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadedLine(const char* line,
     } else {
       uint32_t count = 0;
       rv = m_tempMessageStream->Write(line, strlen(line), &count);
+      NS_ENSURE_SUCCESS(rv, rv);
+      m_tempMessageStreamBytesWritten += count;
     }
   }
 

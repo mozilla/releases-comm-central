@@ -222,8 +222,14 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsCOMPtr<nsIMsgDBHdr> m_offlineHeader;
   int32_t m_numOfflineMsgLines;
   int32_t m_bytesAddedToLocalMsg;
-  // this is currently used when we do a save as of an imap or news message..
+  // This is currently used when we do a save as of an imap or news message..
+  // Also used by IMAP/News offline messsage writing.
   nsCOMPtr<nsIOutputStream> m_tempMessageStream;
+  // Tracks the number of bytes written to m_tempMessageStream.
+  // Intentionally cumbersome name. Needed to fix Bug 1742975, but should
+  // be removed as soon as nsIMsgPluggableStore implementations track byte
+  // counts properly themselves.
+  uint32_t m_tempMessageStreamBytesWritten;
 
   nsCOMPtr<nsIMsgRetentionSettings> m_retentionSettings;
   nsCOMPtr<nsIMsgDownloadSettings> m_downloadSettings;

@@ -4077,6 +4077,7 @@ NS_IMETHODIMP
 nsImapMailFolder::SetupMsgWriteStream(nsIFile* aFile, bool addDummyEnvelope) {
   nsresult rv;
   aFile->Remove(false);
+  m_tempMessageStreamBytesWritten = 0;
   rv = MsgNewBufferedFileOutputStream(
       getter_AddRefs(m_tempMessageStream), aFile,
       PR_WRONLY | PR_CREATE_FILE | PR_TRUNCATE, 00700);
@@ -4091,13 +4092,21 @@ nsImapMailFolder::SetupMsgWriteStream(nsIFile* aFile, bool addDummyEnvelope) {
     result += ct;
     result += MSG_LINEBREAK;
 
-    m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+    rv = m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+    NS_ENSURE_SUCCESS(rv, rv);
+    m_tempMessageStreamBytesWritten += writeCount;
+
     result = "X-Mozilla-Status: 0001";
     result += MSG_LINEBREAK;
-    m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+    rv = m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+    NS_ENSURE_SUCCESS(rv, rv);
+    m_tempMessageStreamBytesWritten += writeCount;
+
     result = "X-Mozilla-Status2: 00000000";
     result += MSG_LINEBREAK;
-    m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+    rv = m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+    NS_ENSURE_SUCCESS(rv, rv);
+    m_tempMessageStreamBytesWritten += writeCount;
   }
   return rv;
 }
@@ -4191,6 +4200,7 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
     rv = m_tempMessageStream->Write(adoptedMessageLine,
                                     PL_strlen(adoptedMessageLine), &count);
     NS_ENSURE_SUCCESS(rv, rv);
+    m_tempMessageStreamBytesWritten += count;
   }
   return NS_OK;
 }

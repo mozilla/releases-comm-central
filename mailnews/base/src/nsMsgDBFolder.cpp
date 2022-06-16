@@ -1586,17 +1586,25 @@ nsresult nsMsgDBFolder::WriteStartOfNewLocalMessage() {
   result += ct;
   result += MSG_LINEBREAK;
   m_bytesAddedToLocalMsg = result.Length();
-  m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+  nsresult rv =
+      m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_tempMessageStreamBytesWritten += writeCount;
 
   constexpr auto MozillaStatus = "X-Mozilla-Status: 0001"_ns MSG_LINEBREAK;
-  m_tempMessageStream->Write(MozillaStatus.get(), MozillaStatus.Length(),
-                             &writeCount);
+  rv = m_tempMessageStream->Write(MozillaStatus.get(), MozillaStatus.Length(),
+                                  &writeCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_tempMessageStreamBytesWritten += writeCount;
   m_bytesAddedToLocalMsg += writeCount;
   constexpr auto MozillaStatus2 =
       "X-Mozilla-Status2: 00000000"_ns MSG_LINEBREAK;
   m_bytesAddedToLocalMsg += MozillaStatus2.Length();
-  return m_tempMessageStream->Write(MozillaStatus2.get(),
-                                    MozillaStatus2.Length(), &writeCount);
+  rv = m_tempMessageStream->Write(MozillaStatus2.get(), MozillaStatus2.Length(),
+                                  &writeCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_tempMessageStreamBytesWritten += writeCount;
+  return NS_OK;
 }
 
 nsresult nsMsgDBFolder::StartNewOfflineMessage() {
@@ -1611,6 +1619,7 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
       return NS_MSG_FOLDER_BUSY;
     }
   }
+  m_tempMessageStreamBytesWritten = 0;
   nsresult rv = GetOfflineStoreOutputStream(
       m_offlineHeader, getter_AddRefs(m_tempMessageStream));
   if (NS_SUCCEEDED(rv) && !hasSemaphore)
@@ -1621,7 +1630,6 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
 }
 
 nsresult nsMsgDBFolder::EndNewOfflineMessage() {
-  nsCOMPtr<nsISeekableStream> seekable;
   int64_t curStorePos;
   uint64_t messageOffset;
   uint32_t messageSize;
@@ -1632,7 +1640,6 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_offlineHeader->GetMessageKey(&messageKey);
-  if (m_tempMessageStream) seekable = do_QueryInterface(m_tempMessageStream);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   GetMsgStore(getter_AddRefs(msgStore));
@@ -1641,6 +1648,14 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
   if (m_tempMessageStream) {
     m_tempMessageStream->Flush();
   }
+
+  // Some sanity checking.
+  // This will go away once nsIMsgPluggableStore stops serving up seekable
+  // output streams.
+  // If quarantining (mailnews.downloadToTempFile == true) is on we'll already
+  // have a non-seekable stream.
+  nsCOMPtr<nsISeekableStream> seekable;
+  if (m_tempMessageStream) seekable = do_QueryInterface(m_tempMessageStream);
   if (seekable) {
     int64_t tellPos;
     seekable->Tell(&tellPos);
@@ -1650,7 +1665,6 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
     // so be careful about moving the call to MarkOffline above.
     m_offlineHeader->GetMessageOffset(&messageOffset);
     curStorePos -= messageOffset;
-    m_offlineHeader->SetOfflineMessageSize(curStorePos);
     m_offlineHeader->GetMessageSize(&messageSize);
     messageSize += m_bytesAddedToLocalMsg;
     // unix/mac has a one byte line ending, but the imap server returns
@@ -1684,9 +1698,13 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
 #endif
       m_offlineHeader = nullptr;
       return NS_ERROR_FAILURE;
-    } else
-      m_offlineHeader->SetLineCount(m_numOfflineMsgLines);
+    }
   }
+
+  // Successful. Finalise the message.
+  m_offlineHeader->SetOfflineMessageSize(m_tempMessageStreamBytesWritten);
+  m_offlineHeader->SetLineCount(m_numOfflineMsgLines);
+
   if (msgStore)
     msgStore->FinishNewMessage(m_tempMessageStream, m_offlineHeader);
 
