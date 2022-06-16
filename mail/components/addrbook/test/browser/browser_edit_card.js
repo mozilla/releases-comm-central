@@ -105,6 +105,10 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector(
         `tr[slot="v-email"]:nth-of-type(1) input[type="email"]`
       );
+    case "PrimaryEmailCheckbox":
+      return getInput("PrimaryEmail")
+        .closest(`tr[slot="v-email"]`)
+        .querySelector(`input[type="checkbox"]`);
     case "SecondEmail":
       if (
         addIfNeeded &&
@@ -119,6 +123,10 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector(
         `tr[slot="v-email"]:nth-of-type(2) input[type="email"]`
       );
+    case "SecondEmailCheckbox":
+      return getInput("SecondEmail")
+        .closest(`tr[slot="v-email"]`)
+        .querySelector(`input[type="checkbox"]`);
   }
 
   return null;
@@ -222,11 +230,20 @@ function setInputValues(changes) {
       continue;
     }
 
-    input.select();
-    if (value) {
-      EventUtils.sendString(value);
+    if (input.type == "checkbox") {
+      EventUtils.synthesizeMouseAtCenter(input, {}, abWindow);
+      Assert.equal(
+        input.checked,
+        value,
+        `${key} ${value ? "checked" : "unchecked"}`
+      );
     } else {
-      EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+      input.select();
+      if (value) {
+        EventUtils.sendString(value);
+      } else {
+        EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+      }
     }
   }
   EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
@@ -426,11 +443,23 @@ add_task(async function test_basic_edit() {
     LastName: "one",
     DisplayName: "contact one",
     NickName: "contact nickname",
+    PrimaryEmail: "contact.1.edited@invalid",
     SecondEmail: "i@roman.invalid",
   });
 
   // Headings reflect new values.
-  assertEditHeadings("contact one", "contact nickname", "contact.1@invalid");
+  assertEditHeadings(
+    "contact one",
+    "contact nickname",
+    "contact.1.edited@invalid"
+  );
+
+  // Change the preferred email to the secondary.
+  setInputValues({
+    SecondEmailCheckbox: true,
+  });
+  // The new email value should be reflected in the heading.
+  assertEditHeadings("contact one", "contact nickname", "i@roman.invalid");
 
   let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);

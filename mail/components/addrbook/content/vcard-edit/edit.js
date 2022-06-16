@@ -214,9 +214,6 @@ class VCardEdit extends HTMLElement {
       this.checkForBdayOccurences();
     }
 
-    // TODO: Call updateEmailHeading when the primary email might have
-    // changed.
-
     this.updateNickName();
     this.updateEmailHeading();
     this.generateContactName();
@@ -280,7 +277,6 @@ class VCardEdit extends HTMLElement {
       // We don't have anything to show as a contact name, so let's find the
       // primary email and show that, if we have it, otherwise pass an empty
       // string to remove any leftover data.
-      // TODO: Update the heading when the primary email changes as well.
       let email = this.getPrimaryEmail();
       result = email ? email.split("@", 1)[0] : "";
     }
@@ -327,8 +323,10 @@ class VCardEdit extends HTMLElement {
 
   /**
    * Update the email value of the contact header.
+   *
+   * @param {?string} email - The email value the user is currently typing.
    */
-  updateEmailHeading() {
+  updateEmailHeading(email = null) {
     // Don't generate any preview if the contact nickname email is not
     // available, which it might happen since this component is used in other
     // areas outside the address book UI.
@@ -336,7 +334,10 @@ class VCardEdit extends HTMLElement {
       return;
     }
 
-    let value = this.getPrimaryEmail();
+    // If no email string was passed, it means this method was called when the
+    // view or edit pane refreshes, therefore we need to fetch the correct
+    // primary email address.
+    let value = email ?? this.getPrimaryEmail();
     this.contactEmailHeading.hidden = !value;
     this.contactEmailHeading.textContent = value;
   }
@@ -566,8 +567,19 @@ class VCardEdit extends HTMLElement {
       this.toggleDefaultEmailView();
     });
 
+    // Add listener to update the email written in the contact header.
+    this.addEventListener("vcard-email-primary-changed", event => {
+      this.updateEmailHeading(
+        event.target.querySelector('input[type="email"]').value
+      );
+    });
+
     // Add listener to be sure that only one checkbox from the emails is ticked.
     this.addEventListener("vcard-email-primary-checkbox", event => {
+      // Show the newly selected primary email in the contact header.
+      this.updateEmailHeading(
+        event.target.querySelector('input[type="email"]').value
+      );
       this.querySelectorAll('tr[slot="v-email"]').forEach(element => {
         if (event.target !== element) {
           element.querySelector('input[type="checkbox"]').checked = false;

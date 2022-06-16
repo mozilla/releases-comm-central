@@ -42,6 +42,15 @@ class VCardEmailComponent extends HTMLTableRowElement {
       this.emailEl = this.querySelector('input[type="email"]');
       this.selectEl = this.querySelector("select");
       this.checkboxEl = this.querySelector('input[type="checkbox"]');
+
+      this.emailEl.addEventListener("input", () => {
+        // Dispatch the event only if this field is the currently selected
+        // default/preferred email address.
+        if (this.checkboxEl.checked) {
+          this.dispatchEvent(VCardEmailComponent.EmailEvent());
+        }
+      });
+
       // Uncheck the checkbox of other VCardEmailComponents if this one is
       // checked.
       this.checkboxEl.addEventListener("change", event => {
@@ -129,6 +138,19 @@ class VCardEmailComponent extends HTMLTableRowElement {
    */
   static CheckboxEvent() {
     return new CustomEvent("vcard-email-primary-checkbox", {
+      detail: {},
+      bubbles: true,
+    });
+  }
+
+  /**
+   * This event is fired when the value of an email input field is changed. The
+   * event is fired only if the current email si set as default/preferred.
+   *
+   * @returns {CustomEvent}
+   */
+  static EmailEvent() {
+    return new CustomEvent("vcard-email-primary-changed", {
       detail: {},
       bubbles: true,
     });
