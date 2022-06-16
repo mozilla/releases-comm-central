@@ -42,8 +42,6 @@ var { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
 
-const NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
-
 class SmtpClient {
   /**
    * Creates a connection object to a SMTP server and allows to send mail through it.
@@ -200,7 +198,7 @@ class SmtpClient {
         if (!recipient || firstInvalid != null) {
           if (!lastAt) {
             // Invalid char found in the localpart, throw error until we implement RFC 6532.
-            this.onerror(NS_ERROR_BUT_DONT_SHOW_ALERT, null);
+            this._onNsError(MsgUtils.NS_ERROR_ILLEGAL_LOCALPART, recipient);
             return;
           }
           // Invalid char found in the domainpart, convert it to ACE.
@@ -453,10 +451,10 @@ class SmtpClient {
    * Error handler. Emits an nsresult value.
    *
    * @param {nsresult} nsError - A nsresult.
-   * @param {string} serverError - Error message returned from the SMTP server.
+   * @param {string} errorParam - Param to form the error message.
    * @param {string} [extra] - Some messages take two arguments to format.
    */
-  _onNsError(nsError, serverError, extra) {
+  _onNsError(nsError, errorParam, extra) {
     let errorName = MsgUtils.getErrorStringName(nsError);
     let errorMessage = "";
     if (
@@ -468,15 +466,22 @@ class SmtpClient {
         MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
         MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
         MsgUtils.NS_ERROR_SENDING_MESSAGE,
+        MsgUtils.NS_ERROR_ILLEGAL_LOCALPART,
       ].includes(nsError)
     ) {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/messengercompose/composeMsgs.properties"
       );
-      errorMessage = bundle.formatStringFromName(errorName, [
-        serverError,
-        extra,
-      ]);
+      if (nsError == MsgUtils.NS_ERROR_ILLEGAL_LOCALPART) {
+        errorMessage = bundle
+          .GetStringFromName(errorName)
+          .replace("%s", errorParam);
+      } else {
+        errorMessage = bundle.formatStringFromName(errorName, [
+          errorParam,
+          extra,
+        ]);
+      }
     }
     this.onerror(nsError, errorMessage);
     this.close();
