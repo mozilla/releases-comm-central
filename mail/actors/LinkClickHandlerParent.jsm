@@ -10,7 +10,8 @@ const EXPORTED_SYMBOLS = [
   "StrictLinkClickHandlerParent",
 ];
 
-const { XPCOMUtils } = ChromeUtils.import(
+// Do NOT use `const` here. It messes up contentAreaClick.js.
+var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
