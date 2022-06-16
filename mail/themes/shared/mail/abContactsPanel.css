@@ -16,8 +16,6 @@
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
   --field-border-color: rgba(128, 128, 128, .6);
-  --popup-item-hover: rgba(128, 128, 128, .2);
-  --popup-item-hover-text: MenuText;
 }
 
 #abContactsPanel {

@@ -24,8 +24,6 @@
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
   --highlight-color: SelectedItem;
-  --popup-item-hover: rgba(128, 128, 128, .2);
-  --popup-item-hover-text: MenuText;
   --primary-text-color: SelectedItemText;
   --primary-background-hover: color-mix(in srgb, var(--highlight-color) 85%, black);
   --primary-background-active: color-mix(in srgb, var(--highlight-color) 78%, black);
@@ -43,8 +41,6 @@
   --field-background-color: #fff;
   --field-border-color: rgba(0, 0, 0, 0.3);
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
-  --popup-item-hover: rgba(69, 161, 255, 0.2);
-  --popup-item-hover-text: var(--box-text-color);
   --primary-focus-border: var(--lwt-accent-color);
   background-color: var(--lwt-accent-color);
   color: var(--lwt-text-color);
@@ -83,8 +79,6 @@
   --field-border-hover-color: rgba(128, 128, 128, .8);
   --highlight-color: SelectedItem;
   --lwt-accent-color: -moz-Dialog;
-  --popup-item-hover: rgba(128, 128, 128, .2);
-  --popup-item-hover-text: MenuText;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
@@ -119,8 +113,6 @@
     --button-border-color: ThreeDShadow;
     --field-border-color: ThreeDShadow;
     --field-border-hover-color: SelectedItemText;
-    --popup-item-hover: SelectedItem;
-    --popup-item-hover-text: SelectedItemText;
     --tab-hover-background: SelectedItem;
     --tab-selected-background: SelectedItem;
   }

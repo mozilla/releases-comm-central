@@ -22,14 +22,10 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 
 @media not (-moz-windows-non-native-menus) {
-  menulist menupopup,
-  button[type="menu-button"] menupopup,
-  menupopup[is="folder-menupopup"],
-  panel[type="autocomplete-richlistbox"] {
-    appearance: none;
-    border: 1px solid var(--box-border-color);
-    border-radius: var(--button-border-radius);
-    background-color: var(--box-background-color);
+  menulist > menupopup {
+    --panel-background: var(--box-background-color);
+    --panel-border-radius: var(--arrowpanel-border-radius);
+    --panel-padding: var(--arrowpanel-padding);
   }
 
   button menupopup menu,
@@ -44,8 +40,8 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   button menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"],
   menulist menupopup > menu:not([disabled="true"])[_moz-menuactive="true"],
   menulist menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
-    color: var(--popup-item-hover-text);
-    background-color: var(--popup-item-hover);
+    color: var(--box-text-color);
+    background-color: color-mix(in srgb, currentColor 9%, transparent);
   }
 
   button menupopup > menu[disabled="true"],
@@ -58,10 +54,6 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
     background-color: transparent;
   }
 
-  menulist > menupopup {
-    --panel-background: transparent;
-  }
-
   menulist menupopup menu,
   menulist menupopup menuitem,
   button menupopup menu,
@@ -72,10 +64,6 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   menulist > menupopup > menuitem > .menu-iconic-left,
   menulist > menupopup > menu > .menu-iconic-left {
     display: -moz-box;
-  }
-
-  menupopup::part(content) {
-    border-width: 0;
   }
 }
 
