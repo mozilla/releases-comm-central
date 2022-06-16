@@ -267,13 +267,17 @@ CalTimezoneService.prototype = {
       // If a user already has a profile created by an earlier version
       // with floating timezone, set the correctly guessed timezone.
       if (!tzid || tzid == "floating") {
-        try {
-          tzid = guessSystemTimezone();
-        } catch (e) {
-          cal.WARN(
-            "An exception occurred guessing the system timezone, trying UTC. Exception: " + e
-          );
-          tzid = "UTC";
+        tzid = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (!this.mZones.get(tzid)) {
+          try {
+            tzid = guessSystemTimezone();
+            cal.WARN("Could not determine system default timezone, using a guess: " + tzid);
+          } catch (e) {
+            cal.WARN(
+              "An exception occurred guessing the system timezone, trying UTC. Exception: " + e
+            );
+            tzid = "UTC";
+          }
         }
       }
       this.mDefaultTimezone = this.getTimezone(tzid);
@@ -331,7 +335,7 @@ function guessSystemTimezone() {
   const offsetJun = dateJun.match(offsetRegex)[0];
   const offsetDec = dateDec.match(offsetRegex)[0];
 
-  const tzSvc = cal.getTimezoneService();
+  const tzSvc = cal.timezoneService;
 
   let continent = "Africa|America|Antarctica|Asia|Australia|Europe";
   let ocean = "Arctic|Atlantic|Indian|Pacific";
