@@ -263,7 +263,7 @@
   <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
   <command id="cmd_attachVCard" checked="false"
            oncommand="ToggleAttachVCard(event.target)"/>
-  <command id="cmd_attachPublicKey" checked="false"
+  <command id="cmd_attachPublicKey"
            oncommand="toggleAttachMyPublicKey(event.target)"/>
   <command id="cmd_remindLater" checked="false"
            oncommand="toggleAttachmentReminder()"/>
@@ -897,7 +897,7 @@
             </menupopup>
           </menu>
           <menu id="menu_Attach" label="&attachMenu.label;" accesskey="&attachMenu.accesskey;">
-            <menupopup id="menu_AttachPopup" onpopupshowing="updateAttachmentItems();">
+            <menupopup id="menu_AttachPopup" onpopupshowing="updateAttachmentItems('menu_AttachPopup');">
               <menuitem data-l10n-id="menuitem-attach-files"
                         data-l10n-attrs="acceltext"
                         command="cmd_attachFile"/>
@@ -911,7 +911,7 @@
               <menuitem type="checkbox"
                         data-l10n-id="context-menuitem-attach-vcard"
                         command="cmd_attachVCard"/>
-              <menuitem type="checkbox"
+              <menuitem id="menu_AttachPopup_attachPublicKey" type="checkbox"
                         data-l10n-id="context-menuitem-attach-openpgp-key"
                         command="cmd_attachPublicKey"/>
               <menuseparator id="menu_Attach_RemindLaterSeparator"/>
@@ -1878,7 +1878,7 @@
                    type="menu-button"
                    class="toolbarbutton-1"
                    command="cmd_attachFile">
-      <menupopup id="button-attachPopup" onpopupshowing="updateAttachmentItems();">
+      <menupopup id="button-attachPopup" onpopupshowing="updateAttachmentItems('button-attachPopup');">
         <menuitem id="button-attachPopup_attachFileItem"
                   data-l10n-id="menuitem-attach-files"
                   data-l10n-attrs="acceltext"

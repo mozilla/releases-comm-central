@@ -2013,7 +2013,7 @@ function updateOptionItems() {
   goUpdateCommand("cmd_toggleReturnReceipt");
 }
 
-function updateAttachmentItems() {
+function updateAttachmentItems(context = null) {
   goUpdateCommand("cmd_toggleAttachmentPane");
   goUpdateCommand("cmd_attachCloud");
   goUpdateCommand("cmd_convertCloud");
@@ -2025,6 +2025,12 @@ function updateAttachmentItems() {
   updateReorderAttachmentsItems();
   goUpdateCommand("cmd_selectAll");
   goUpdateCommand("cmd_openAttachment");
+
+  if (context) {
+    let box = document.getElementById(context + "_attachPublicKey");
+    box.setAttribute("hidden", !isPgpConfigured());
+    box.setAttribute("checked", gAttachMyPublicPGPKey);
+  }
 }
 
 function updateReorderAttachmentsItems() {
