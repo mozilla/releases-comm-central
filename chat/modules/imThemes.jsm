@@ -843,6 +843,7 @@ function initHTMLDocument(aConv, aTheme, aDoc) {
     aDoc.head.appendChild(link);
   }
   addCSS("chrome://chat/skin/conv.css");
+  addCSS("chrome://messenger/skin/icons.css");
 
   // add css to handle DefaultFontFamily and DefaultFontSize
   let cssText = "";
