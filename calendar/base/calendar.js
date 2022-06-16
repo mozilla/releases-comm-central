@@ -127,7 +127,7 @@ pref("calendar.view.timeIndicatorInterval", 15);
 // If true, mouse scrolling via shift+wheel will be enabled
 pref("calendar.view.mousescroll", true);
 
-// Do not set this!  If it is not there, then we determine the system default timezone.
+// Do not set this!  If it's not there, then we guess the system timezone
 //pref("calendar.timezone.local", "");
 
 // Recent timezone list
