@@ -5,9 +5,12 @@
 
 DIRS = ["libical", "icaljs"]
 
-EXTRA_COMPONENTS += [
-    "calBackendLoader.js",
-    "calBackendLoader.manifest",
+EXTRA_JS_MODULES += [
+    "CalBackendLoader.jsm",
+]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
 ]
 
 with Files("**"):

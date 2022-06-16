@@ -333,8 +333,6 @@
 @RESPATH@/@PREF_DIR@/calendar.js
 
 # Files added to components directory via `EXTRA_COMPONENTS`.
-@RESPATH@/components/calBackendLoader.js
-@RESPATH@/components/calBackendLoader.manifest
 @RESPATH@/components/calICALJSComponents.js
 
 # Files added to components directory via `FINAL_TARGET_FILES.components`.
