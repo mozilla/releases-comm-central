@@ -2211,6 +2211,10 @@ function MsgMoveMessage(aDestFolder) {
   Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", true);
 }
 
+function OpenContainingFolder() {
+  MailUtils.displayMessageInFolderTab(gMessageDisplay.displayedMessage);
+}
+
 /**
  * Calls the ComposeMessage function with the desired type, and proper default
  * based on the event that fired it.

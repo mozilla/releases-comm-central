@@ -1864,14 +1864,6 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
   }
 }
 
-function OpenContainingFolder() {
-  if (!gFolderDisplay.selectedMessage) {
-    return;
-  }
-
-  MailUtils.displayMessageInFolderTab(gFolderDisplay.selectedMessage);
-}
-
 function ThreadTreeOnClick(event) {
   var threadTree = document.getElementById("threadTree");
 

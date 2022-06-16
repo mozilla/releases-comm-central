@@ -596,7 +596,9 @@ class nsContextMenu {
     );
     this.showItem(
       "mailContext-openContainingFolder",
-      !gFolderDisplay.folderPaneVisible && this.numSelectedMessages == 1
+      !gFolderDisplay.folderPaneVisible &&
+        this.numSelectedMessages == 1 &&
+        !gMessageDisplay.isDummy
     );
 
     this.setSingleSelection("mailContext-replySender");
