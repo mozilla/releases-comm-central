@@ -95,3 +95,44 @@ add_task(async function testClientIdentityExtension() {
     "DATA",
   ]);
 });
+
+/**
+ * Test that when To and Cc/Bcc contain the same address, should send only
+ * one RCPT TO per address.
+ */
+add_task(async function testDeduplicateRecipients() {
+  server.resetTest();
+  let smtpServer = getBasicSmtpServer(server.port);
+  let identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
+
+  // Send a message, notice to1 appears twice in the recipients argument.
+  let asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  let testFile = do_get_file("data/message1.eml");
+  MailServices.smtp.sendMailMessage(
+    testFile,
+    "to1@foo.invalid,to2@foo.invalid,to1@foo.invalid",
+    identity,
+    "from@foo.invalid",
+    null,
+    asyncUrlListener,
+    null,
+    null,
+    false,
+    "",
+    {},
+    {}
+  );
+  server.performTest();
+
+  await asyncUrlListener.promise;
+
+  // Check only one RCPT TO is sent for to1.
+  let transaction = server.playTransaction();
+  do_check_transaction(transaction, [
+    "EHLO test",
+    "MAIL FROM:<from@foo.invalid> BODY=8BITMIME SIZE=159",
+    "RCPT TO:<to1@foo.invalid>",
+    "RCPT TO:<to2@foo.invalid>",
+    "DATA",
+  ]);
+});

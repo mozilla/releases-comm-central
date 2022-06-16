@@ -213,7 +213,7 @@ class SmtpClient {
     }
 
     // clone the recipients array for latter manipulation
-    this._envelope.rcptQueue = [].concat(this._envelope.to);
+    this._envelope.rcptQueue = [...new Set(this._envelope.to)];
     this._envelope.rcptFailed = [];
     this._envelope.responseQueue = [];
 
