@@ -111,7 +111,7 @@ function publishRoomDetails(account, conv) {
   });
 
   let topic = null;
-  if (roomState.getStateEvents(MatrixSDK.EventType.RoomTopic).length) {
+  if (roomState.getStateEvents(MatrixSDK.EventType.RoomTopic)?.length) {
     topic = roomState
       .getStateEvents(MatrixSDK.EventType.RoomTopic)[0]
       .getContent().topic;
@@ -123,7 +123,7 @@ function publishRoomDetails(account, conv) {
 
   let guestAccess = roomState
     .getStateEvents(MatrixSDK.EventType.RoomGuestAccess, "")
-    .getContent().guest_access;
+    ?.getContent()?.guest_access;
   let guestAccessString = lazy._("detail.guest", guestAccess);
   conv.writeMessage(account.userId, guestAccessString, {
     system: true,
@@ -155,13 +155,15 @@ function publishRoomDetails(account, conv) {
     });
   }
 
-  if (roomState.getStateEvents(MatrixSDK.EventType.RoomCanonicalAlias).length) {
-    let event = roomState.getStateEvents(
-      MatrixSDK.EventType.RoomCanonicalAlias
-    )[0];
-    let content = event.getContent();
-    let aliases = content.alt_aliases;
-    if (aliases) {
+  if (
+    roomState.getStateEvents(MatrixSDK.EventType.RoomCanonicalAlias)?.length
+  ) {
+    let canonicalAlias = room.getCanonicalAlias();
+    let aliases = room.getAltAliases();
+    if (canonicalAlias && !aliases.includes(canonicalAlias)) {
+      aliases.unshift(canonicalAlias);
+    }
+    if (aliases.length) {
       let aliasString = lazy._("detail.alias", aliases.join(","));
       conv.writeMessage(account.userId, aliasString, {
         system: true,
