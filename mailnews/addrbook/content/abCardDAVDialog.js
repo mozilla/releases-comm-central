@@ -24,7 +24,7 @@ var userContextId;
 
 window.addEventListener(
   "DOMContentLoaded",
-  async () => {
+  () => {
     for (let id of [
       "username",
       "location",
@@ -36,9 +36,15 @@ window.addEventListener(
     ]) {
       uiElements[id] = document.getElementById("carddav-" + id);
     }
-
-    await document.l10n.ready;
+  },
+  { once: true }
+);
+window.addEventListener(
+  "load",
+  async () => {
+    await document.l10n.translateRoots();
     fillLocationPlaceholder();
+    setStatus();
   },
   { once: true }
 );
@@ -67,8 +73,8 @@ function handleCardDAVURLInput(event) {
 }
 
 function changeCardDAVURL() {
-  setStatus();
   uiElements.resultsArea.hidden = true;
+  setStatus();
 }
 
 function handleCardDAVURLBlur(event) {
@@ -188,12 +194,19 @@ function setStatus(status, message, args) {
   if (status) {
     uiElements.statusArea.setAttribute("status", status);
     document.l10n.setAttributes(uiElements.statusMessage, message, args);
-    window.sizeToContent();
   } else {
     uiElements.statusArea.removeAttribute("status");
     uiElements.statusMessage.removeAttribute("data-l10n-id");
     uiElements.statusMessage.textContent = "";
   }
+
+  // Grow to fit the list of books. Uses `resizeBy` because it has special
+  // handling in SubDialog.jsm that the other resize functions don't have.
+  window.resizeBy(
+    0,
+    Math.min(250, uiElements.availableBooks.scrollHeight) -
+      uiElements.availableBooks.clientHeight
+  );
   window.dispatchEvent(new CustomEvent("status-changed"));
 }
 

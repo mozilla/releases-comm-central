@@ -49,6 +49,18 @@
   display: none;
 }
 
+#carddav-resultsArea {
+  margin-block-start: 6px;
+}
+
+#carddav-availableBooksHeader {
+  font-weight: 600;
+}
+
+#carddav-availableBooks {
+  overflow: auto;
+}
+
 #carddav-properties-table {
   display: grid;
   grid-template-columns: min-content auto;
