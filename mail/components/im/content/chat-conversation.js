@@ -1409,6 +1409,9 @@
       }
 
       if (!aOldName) {
+        if (!this._isConversationSelected) {
+          return;
+        }
         // If aOldName is null, we are changing the flags of the buddy
         let item = this.buddies.get(name);
         item.chatBuddy = aBuddy;

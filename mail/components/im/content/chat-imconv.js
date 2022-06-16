@@ -159,6 +159,12 @@
       );
     }
 
+    /**
+     * Set the conversation this item should represent. Updates appearance and
+     * adds observers to keep it up to date.
+     *
+     * @param {imIConversation} conv - Conversation this item represents.
+     */
     build(conv) {
       this.conv = conv;
       this.conv.addObserver(this.observer);
@@ -327,6 +333,18 @@
         event.preventDefault();
       }
     }
+
+    /**
+     * Replace the conversation that this item represents.
+     *
+     * @param {imIConversation} conv - Updated conversation this should
+     *   represent.
+     */
+    changeConversation(conv) {
+      this.conv?.removeObserver(this.observer);
+      this.build(conv);
+    }
+
     disconnectedCallback() {
       if (this.conv) {
         this.conv.removeObserver(this.observer);

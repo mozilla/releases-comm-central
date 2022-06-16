@@ -1655,11 +1655,14 @@ var chatHandler = {
         return;
       }
       // Update UI conversation associated with components
-      convItem.conv = aSubject;
       if (convItem.convView && convItem.convView.conv !== aSubject) {
         convItem.convView.changeConversation(aSubject);
       }
-      convItem.update();
+      if (convItem.conv !== aSubject) {
+        convItem.changeConversation(aSubject);
+      } else {
+        convItem.update();
+      }
       // If the changed conversation is the selected item, make sure
       // we update the UI elements to match the conversation type.
       let selectedItem = contactlistbox.selectedItem;
