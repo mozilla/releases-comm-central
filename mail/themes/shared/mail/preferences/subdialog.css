@@ -2,6 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+body > xul|dialog,
+xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
+  /* This allows the focus ring to display fully when scrolling is enabled. */
+  padding: 0 4px 4px;
+  font-size: 1.1rem;
+}
+
 .dialogOverlay {
   visibility: hidden;
 }
@@ -17,7 +27,7 @@
   /* `transparent` will use the dialogText color in high-contrast themes and
      when page colors are disabled */
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--arrowpanel-border-radius);
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
   display: -moz-box;
   margin: 0;
@@ -39,29 +49,21 @@
 }
 
 .dialogTitleBar {
-  margin-top: 0;
-  padding: 3.5px 0;
-  background-color: var(--in-content-dialog-header-background);
-  border-bottom: 1px solid var(--in-content-border-color);
+  padding-block: 6px 0;
 }
 
 .dialogTitle {
-  font-size: 0.9em;
+  line-height: 26px;
   font-weight: 600;
   text-align: center;
 }
 
 .close-icon {
-  border: none;
-  background-color: transparent; /* override common.css, but keep hover/active states */
-  min-width: 0;
-  min-height: auto;
-  padding-inline: 0;
-  margin-inline: 0 8px;
+  display: none;
 }
 
 .dialogFrame {
-  margin: 14px;
+  margin: 10px;
   -moz-box-flex: 1;
   /* Default dialog dimensions */
   height: 12em;

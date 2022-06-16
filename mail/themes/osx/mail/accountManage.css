@@ -4,10 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/accountManage.css");
 
-window > vbox {
-  font-size: 1.36em;
-}
-
 description {
   margin: 4px 4px 8px;
 }

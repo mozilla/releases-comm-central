@@ -15,6 +15,11 @@
   }
 }
 
+body {
+  /* Override the absolute (px) font-size value in common-shared.css. */
+  font-size: 1.1rem !important;
+}
+
 #sidebar {
   background-color: var(--in-content-categories-background);
 }
@@ -89,4 +94,23 @@ addon-options panel-item[action="preferences"] {
 recommended-addon-card .addon.card:hover {
   box-shadow: var(--card-shadow-hover);
   cursor: pointer;
+}
+
+/* Override the absolute (px) font-size values in aboutaddons.css. */
+
+.addon-name,
+.disco-addon-name {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+
+.theme-enable-button,
+.addon-description,
+.disco-addon-author,
+.disco-cta-button {
+  font-size: 1.1rem !important;
+}
+
+button.tab-button {
+  font-size: 1.1rem !important;
 }

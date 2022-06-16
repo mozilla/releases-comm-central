@@ -63,7 +63,7 @@ body {
                  "books cards details" minmax(auto, 1fr)
                  / min-content min-content minmax(auto, 1fr);
   text-shadow: none;
-  font-size: 1rem;
+  font-size: 1.1rem;
   --detailsSplitter-height: 50%;
 }
 

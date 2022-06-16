@@ -24,7 +24,6 @@ body {
   height: 100%;
   display: grid;
   grid-template-columns: min-content auto;
-  font-size: 1.2rem;
 }
 
 #accountTreeBox {

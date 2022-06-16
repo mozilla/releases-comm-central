@@ -5,10 +5,6 @@
 @import url("chrome://messenger/skin/shared/preferences/preferences.css");
 @namespace html "http://www.w3.org/1999/xhtml";
 
-body {
-  font-size: 1.2rem;
-}
-
 .treecol-sortdirection {
   /* override the Linux only toolkit rule */
   appearance: none;

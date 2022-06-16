@@ -41,16 +41,6 @@ body > dialog {
   background-color: unset;
 }
 
-.contentPane {
-  margin: 0;
-}
-
-.contentPane,
-dialog::part(content-box) {
-  /* This allows the focus ring to display fully when scrolling is enabled. */
-  padding: 4px;
-}
-
 .contentPane.doScroll,
 dialog.doScroll::part(content-box) {
   overflow-y: auto;
@@ -72,12 +62,15 @@ description,
   margin-inline: 4px;
 }
 
-tree {
-  min-height: 15em;
+/* This element (in passwordManager.xhtml) has no height until Fluent fills
+   it, but we need to calculate the document height before then. The value is
+   the same as the line-height for a label in preferences.css. */
+label#signonsIntro {
+  height: 1.8em;
 }
 
-.actionButtons {
-  margin: 3px 4px 0;
+tree {
+  min-height: 150px;
 }
 
 caption {
