@@ -229,6 +229,7 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       mLastMessageLoaded(nsMsgKey_None),
       m_numOfflineMsgLines(0),
       m_bytesAddedToLocalMsg(0),
+      m_tempMessageStreamBytesWritten(0),
       mFlags(0),
       mNumUnreadMessages(-1),
       mNumTotalMessages(-1),
