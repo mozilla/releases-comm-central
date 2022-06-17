@@ -22,7 +22,10 @@ nsByteArray::~nsByteArray() {
   PR_FREEIF(m_buffer);
 }
 
-nsresult nsByteArray::GrowBuffer(uint32_t desired_size, uint32_t quantum) {
+nsresult nsByteArray::GrowBuffer(uint64_t desired_size, uint32_t quantum) {
+  if (desired_size > PR_UINT32_MAX) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
   if (m_bufferSize < desired_size) {
     char* new_buf;
     uint32_t increment = desired_size - m_bufferSize;
@@ -61,6 +64,9 @@ nsMsgLineBuffer::~nsMsgLineBuffer() { MOZ_COUNT_DTOR(nsMsgLineBuffer); }
 
 nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
                                       int32_t net_buffer_size) {
+  if (net_buffer_size < 0) {
+    return NS_ERROR_INVALID_ARG;
+  }
   nsresult status = NS_OK;
   if (m_bufferPos > 0 && m_buffer && m_buffer[m_bufferPos - 1] == '\r' &&
       net_buffer_size > 0 && net_buffer[0] != '\n') {
@@ -109,7 +115,13 @@ nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
        chunk of data to it. */
     {
       const char* end = (newline ? newline : net_buffer_end);
-      uint32_t desired_size = (end - net_buffer) + m_bufferPos + 1;
+      uint64_t desired_size = (end - net_buffer) + (uint64_t)m_bufferPos + 1;
+      if (desired_size >= PR_INT32_MAX) {
+        // We're not willing to buffer more than 2GB data without seeing
+        // a newline, something is wrong with the input.
+        // Using this limit prevents us from overflowing.
+        return NS_ERROR_UNEXPECTED;
+      }
 
       if (desired_size >= m_bufferSize) {
         status = GrowBuffer(desired_size, 1024);

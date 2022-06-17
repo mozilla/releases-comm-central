@@ -17,7 +17,7 @@ class nsByteArray {
   virtual ~nsByteArray();
   uint32_t GetSize() { return m_bufferSize; }
   uint32_t GetBufferPos() { return m_bufferPos; }
-  nsresult GrowBuffer(uint32_t desired_size, uint32_t quantum = 1024);
+  nsresult GrowBuffer(uint64_t desired_size, uint32_t quantum = 1024);
   nsresult AppendString(const char* string);
   nsresult AppendBuffer(const char* buffer, uint32_t length);
   void ResetWritePos() { m_bufferPos = 0; }
