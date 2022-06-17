@@ -10,8 +10,6 @@ var EXPORTED_SYMBOLS = ["OAuth2"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-Cu.importGlobalProperties(["fetch"]);
-
 // Only allow one connecting window per endpoint.
 var gConnecting = {};
 

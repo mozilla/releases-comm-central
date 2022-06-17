@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["CalDAVServer"];
 
-Cu.importGlobalProperties(["crypto"]);
-
 const PREFIX_BINDINGS = {
   c: "urn:ietf:params:xml:ns:caldav",
   cs: "http://calendarserver.org/ns/",

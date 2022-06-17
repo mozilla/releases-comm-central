@@ -30,8 +30,6 @@ var {
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
-Cu.importGlobalProperties(["indexedDB"]);
-
 const lazy = {};
 
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>

@@ -6,8 +6,6 @@ const EXPORTED_SYMBOLS = ["OpenPGPAlias"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-Cu.importGlobalProperties(["fetch"]);
-
 var OpenPGPAlias = {
   _aliasDomains: null,
   _aliasEmails: null,

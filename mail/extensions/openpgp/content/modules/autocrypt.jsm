@@ -11,8 +11,6 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailAutocrypt"];
 
-//Cu.importGlobalProperties(["crypto"]);
-
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

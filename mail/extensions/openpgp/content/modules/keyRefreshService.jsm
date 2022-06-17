@@ -13,8 +13,6 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-Cu.importGlobalProperties(["crypto"]);
-
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {

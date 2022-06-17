@@ -18,8 +18,6 @@ const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/loader/base-loader.js"
 );
 
-Cu.importGlobalProperties(["crypto", "fetch"]);
-
 const EXPORTED_SYMBOLS = [
   "MatrixSDK",
   "getHttpUriForMxc",

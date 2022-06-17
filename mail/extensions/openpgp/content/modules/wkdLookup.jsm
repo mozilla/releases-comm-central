@@ -24,8 +24,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.jsm",
 });
 
-Cu.importGlobalProperties(["fetch"]);
-
 // Those domains are not expected to have WKD:
 var EXCLUDE_DOMAINS = [
   /* Default domains included */

@@ -21,8 +21,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  */
 const EXPORTED_SYMBOLS = ["CollectedKeysDB"];
 
-Cu.importGlobalProperties(["indexedDB"]);
-
 var log = console.createInstance({
   prefix: "openpgp",
   maxLogLevel: "Warn",
