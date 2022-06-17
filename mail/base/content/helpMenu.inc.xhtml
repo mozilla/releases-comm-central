@@ -25,6 +25,7 @@
                     label="&helpKeyboardShortcuts.label;"
                     accesskey="&helpKeyboardShortcuts.accesskey;"
                     oncommand="openLinkText(event, 'keyboardShortcutsURL');"/>
+          <menuseparator/>
           <menuitem id="getInvolved"
                     label="&helpGetInvolvedPage.label;"
                     accesskey="&helpGetInvolvedPage.accesskey;"
@@ -33,10 +34,10 @@
                     label="&helpDonationsPage.label;"
                     accesskey="&helpDonationsPage.accesskey;"
                     oncommand="openLinkText(event, 'donateURL');"/>
-          <menuitem id="feedbackPage" hidden="true"
+          <menuitem id="feedbackPage"
                     label="&helpFeedbackPage.label;"
                     accesskey="&helpFeedbackPage.accesskey;"
-                    oncommand="openFormattedURL('app.feedback.baseURL');"/>
+                    oncommand="openLinkText(event, 'feedbackURL');"/>
           <menuseparator id="functionsSeparator"/>
           <menuitem id="helpTroubleshootMode"
                     data-l10n-id="menu-help-enter-troubleshoot-mode"

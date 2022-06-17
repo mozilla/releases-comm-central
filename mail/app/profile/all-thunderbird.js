@@ -109,7 +109,7 @@ pref("datareporting.policy.firstRunURL", "https://www.mozilla.org/thunderbird/le
 pref("app.support.baseURL", "https://support.thunderbird.net/%APP%/%VERSION%/%OS%/%LOCALE%/");
 
 // Base url for web-based feedback pages.
-pref("app.feedback.baseURL", "https://input.mozilla.org/%LOCALE%/feedback/%APP%/%VERSION%/");
+pref("app.feedback.baseURL", "https://connect.mozilla.org/");
 
 // Allows using Thundebird without a configured email account, blocking the
 // account setup prompt at startup.
