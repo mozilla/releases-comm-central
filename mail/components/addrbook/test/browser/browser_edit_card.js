@@ -132,6 +132,32 @@ function getInput(entryName, addIfNeeded = false) {
   return null;
 }
 
+function getFields(entryName, addIfNeeded = false, count) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+  let vCardEdit = abDocument.querySelector("vcard-edit");
+
+  let fieldsSelector;
+  let addButtonId;
+  switch (entryName) {
+    case "email":
+      fieldsSelector = `tr[slot="v-email"]`;
+      addButtonId = "vcard-add-email";
+      break;
+    default:
+      throw new Error("entryName not found");
+  }
+  let fields = abDocument.querySelectorAll(fieldsSelector).length;
+  if (addIfNeeded && fields < count) {
+    for (let clickTimes = fields; clickTimes < count; clickTimes++) {
+      let addButton = vCardEdit.shadowRoot.getElementById(addButtonId);
+      addButton.scrollIntoView();
+      EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
+    }
+  }
+  return abDocument.querySelectorAll(fieldsSelector);
+}
+
 function checkToolbarState(shouldBeEnabled) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
@@ -180,6 +206,45 @@ function checkInputValues(expected) {
   }
 }
 
+function checkVCardInputValues(expected) {
+  for (let [key, expectedEntries] of Object.entries(expected)) {
+    let fields = getFields(key, false, expectedEntries.length);
+
+    Assert.equal(
+      fields.length,
+      expectedEntries.length,
+      `${key} occured ${fields.length} time(s) and ${expectedEntries.length} time(s) is expected.`
+    );
+
+    for (let [index, field] of fields.entries()) {
+      let expectedEntry = expectedEntries[index];
+      let valueField;
+      let typeField;
+      switch (key) {
+        case "email":
+          valueField = field.emailEl;
+          typeField = field.selectEl;
+      }
+
+      // Check the input value of the field.
+      Assert.equal(
+        expectedEntry.value,
+        valueField.value,
+        `Value of ${key} at position ${index}`
+      );
+
+      // Check the type of the field.
+      if (expectedEntry.type || typeField) {
+        Assert.equal(
+          expectedEntry.type || "",
+          typeField.value,
+          `Type of ${key} at position ${index}`
+        );
+      }
+    }
+  }
+}
+
 function checkCardValues(card, expected) {
   for (let [key, value] of Object.entries(expected)) {
     if (value) {
@@ -214,8 +279,24 @@ function checkVCardValues(card, expected) {
       Assert.deepEqual(
         expectedEntry.value,
         entry.value,
-        `${key} at position ${index} should have the expected values`
+        `Value of ${key} at position ${index}`
       );
+
+      if (entry.params.type || expectedEntry.type) {
+        Assert.equal(
+          expectedEntry.type,
+          entry.params.type,
+          `Type of ${key} at position ${index}`
+        );
+      }
+
+      if (entry.params.pref || expectedEntry.pref) {
+        Assert.equal(
+          expectedEntry.pref,
+          entry.params.pref,
+          `Pref of ${key} at position ${index}`
+        );
+      }
     }
   }
 }
@@ -243,6 +324,44 @@ function setInputValues(changes) {
         EventUtils.sendString(value);
       } else {
         EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+      }
+    }
+  }
+  EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
+}
+
+function setVCardInputValues(changes) {
+  let abWindow = getAddressBookWindow();
+
+  for (let [key, entries] of Object.entries(changes)) {
+    let fields = getFields(key, true, entries.length);
+    for (let [index, field] of fields.entries()) {
+      let changeEntry = entries[index];
+      switch (key) {
+        case "email":
+          field.emailEl.select();
+          if (changeEntry && changeEntry.value) {
+            EventUtils.sendString(changeEntry.value);
+          } else {
+            EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+          }
+
+          if (changeEntry && changeEntry.type) {
+            field.selectEl.value = changeEntry.type;
+          } else {
+            field.selectEl.value = "";
+          }
+
+          if (
+            (field.checkboxEl.checked && changeEntry && !changeEntry.pref) ||
+            (!field.checkboxEl.checked &&
+              changeEntry &&
+              changeEntry.pref == "1")
+          ) {
+            EventUtils.synthesizeMouseAtCenter(field.checkboxEl, {}, abWindow);
+          }
+
+          break;
       }
     }
   }
@@ -1465,6 +1584,379 @@ add_task(async function test_name_fields() {
     MiddleName: "middle name 1",
     LastName: "lastname1",
   });
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
+ * Checks if the default choice is visible or hidden.
+ * If the default choice is expected checks that at maximum one
+ * default email is ticked.
+ *
+ * @param {boolean} expectedDefaultChoiceVisible
+ * @param {number} expectedDefaultIndex
+ */
+async function checkDefaultEmailChoice(
+  expectedDefaultChoiceVisible,
+  expectedDefaultIndex
+) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let emailFields = abDocument.querySelectorAll(`tr[slot="v-email"]`);
+
+  for (let [index, emailField] of emailFields.entries()) {
+    if (expectedDefaultChoiceVisible) {
+      await TestUtils.waitForCondition(
+        () => BrowserTestUtils.is_visible(emailField.checkboxEl),
+        `Email at index ${index} has a visible default email choice.`
+      );
+    } else {
+      await TestUtils.waitForCondition(
+        () => BrowserTestUtils.is_hidden(emailField.checkboxEl),
+        `Email at index ${index} has a hidden default email choice.`
+      );
+    }
+
+    // Default email checking of the field.
+    Assert.equal(
+      expectedDefaultIndex === index,
+      emailField.checkboxEl.checked,
+      `Pref of email at position ${index}`
+    );
+  }
+
+  // Check that at max one checkbox is ticked.
+  if (expectedDefaultChoiceVisible) {
+    let checked = Array.from(emailFields).filter(
+      emailField => emailField.checkboxEl.checked
+    );
+    Assert.ok(
+      checked.length <= 1,
+      "At maximum one email is ticked for the default email."
+    );
+  }
+}
+
+add_task(async function test_email_fields() {
+  let book = createAddressBook("Test Book Email Field");
+  book.addCard(createContact("contact1", "lastname1"));
+  book.addCard(createContact("contact2", "lastname2"));
+
+  let abWindow = await openAddressBookWindow();
+  openDirectory(book);
+
+  let abDocument = abWindow.document;
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+  let cancelEditButton = abDocument.getElementById("cancelEditButton");
+
+  // Edit contact1.
+  await editContactAtIndex(0);
+
+  // Check for the original values of contact1.
+  checkVCardInputValues({
+    email: [{ value: "contact1.lastname1@invalid" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "contact1.lastname1@invalid", pref: "1" }],
+  });
+
+  // Edit contact1 set type.
+  await editContactAtIndex(0);
+
+  setVCardInputValues({
+    email: [{ value: "contact1.lastname1@invalid", type: "work" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "contact1.lastname1@invalid", type: "work", pref: "1" }],
+  });
+
+  // Check for the original values of contact2.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({
+    email: [{ value: "contact2.lastname2@invalid" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  // Ensure that both vCardValues of contact1 and contact2 are correct.
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "contact1.lastname1@invalid", type: "work", pref: "1" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [{ value: "contact2.lastname2@invalid", pref: "1" }],
+  });
+
+  // Edit contact1 and add another email to see that the default email
+  // choosing is visible.
+  await editContactAtIndex(0);
+
+  checkVCardInputValues({
+    email: [{ value: "contact1.lastname1@invalid", type: "work" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
+
+  setVCardInputValues({
+    email: [
+      { value: "contact1.lastname1@invalid", pref: "1", type: "work" },
+      { value: "another.contact1@invalid", type: "home" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 0);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [
+      { value: "contact1.lastname1@invalid", pref: "1", type: "work" },
+      { value: "another.contact1@invalid", type: "home" },
+    ],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [{ value: "contact2.lastname2@invalid", pref: "1" }],
+  });
+
+  // Choose another default email in contact1.
+  await editContactAtIndex(0);
+
+  checkVCardInputValues({
+    email: [
+      { value: "contact1.lastname1@invalid", type: "work" },
+      { value: "another.contact1@invalid", type: "home" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 0);
+
+  setVCardInputValues({
+    email: [
+      { value: "contact1.lastname1@invalid", type: "work" },
+      { value: "another.contact1@invalid", type: "home", pref: "1" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 1);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [
+      { value: "contact1.lastname1@invalid", type: "work" },
+      { value: "another.contact1@invalid", type: "home", pref: "1" },
+    ],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [{ value: "contact2.lastname2@invalid", pref: "1" }],
+  });
+
+  // Remove the first email from contact1.
+  await editContactAtIndex(0);
+
+  checkVCardInputValues({
+    email: [
+      { value: "contact1.lastname1@invalid", type: "work" },
+      { value: "another.contact1@invalid", type: "home" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 1);
+
+  setVCardInputValues({
+    email: [{}, { value: "another.contact1@invalid", type: "home", pref: "1" }],
+  });
+
+  // The default email choosing is still visible until the contact is saved.
+  await checkDefaultEmailChoice(true, 1);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "another.contact1@invalid", type: "home", pref: "1" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [{ value: "contact2.lastname2@invalid", pref: "1" }],
+  });
+
+  // Add multiple emails to contact2 and click each as the default email.
+  // The last default clicked email should be set as default email and
+  // only one should be selected.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({
+    email: [{ value: "contact2.lastname2@invalid" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
+
+  setVCardInputValues({
+    email: [
+      { value: "home.contact2@invalid", type: "home", pref: "1" },
+      { value: "work.contact2@invalid", type: "work", pref: "1" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 1);
+
+  setVCardInputValues({
+    email: [
+      { value: "home.contact2@invalid", type: "home", pref: "1" },
+      { value: "work.contact2@invalid", type: "work", pref: "1" },
+      { value: "some.contact2@invalid" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 1);
+
+  setVCardInputValues({
+    email: [
+      { value: "home.contact2@invalid", type: "home", pref: "1" },
+      { value: "work.contact2@invalid", type: "work", pref: "1" },
+      { value: "some.contact2@invalid", pref: "1" },
+      { value: "default.email.contact2@invalid", type: "home", pref: "1" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 3);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "another.contact1@invalid", type: "home", pref: "1" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [
+      { value: "home.contact2@invalid", type: "home" },
+      { value: "work.contact2@invalid", type: "work" },
+      { value: "some.contact2@invalid" },
+      { value: "default.email.contact2@invalid", type: "home", pref: "1" },
+    ],
+  });
+
+  // Remove 3 emails from contact2.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({
+    email: [
+      { value: "home.contact2@invalid", type: "home" },
+      { value: "work.contact2@invalid", type: "work" },
+      { value: "some.contact2@invalid" },
+      { value: "default.email.contact2@invalid", type: "home" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 3);
+
+  setVCardInputValues({
+    email: [{ value: "home.contact2@invalid", type: "home" }],
+  });
+
+  // The default email choosing is still visible until the contact is saved.
+  // For this case the default email is left on an empty field which will be
+  // removed.
+  await checkDefaultEmailChoice(true, 3);
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "another.contact1@invalid", type: "home", pref: "1" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [{ value: "home.contact2@invalid", type: "home", pref: "1" }],
+  });
+
+  // Now check when cancelling that no data is leaked between edits.
+  // Edit contact2 for this first.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({
+    email: [{ value: "home.contact2@invalid", type: "home" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
+
+  setVCardInputValues({
+    email: [
+      { value: "home.contact2@invalid", type: "home", pref: "1" },
+      { value: "work.contact2@invalid", type: "work", pref: "1" },
+      { value: "some.contact2@invalid", pref: "1" },
+      { value: "default.email.contact2@invalid", type: "home", pref: "1" },
+    ],
+  });
+
+  await checkDefaultEmailChoice(true, 3);
+
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await promptPromise;
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "another.contact1@invalid", type: "home", pref: "1" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [{ value: "home.contact2@invalid", type: "home", pref: "1" }],
+  });
+
+  // Ensure that the default email choosing is not shown after
+  // cancelling contact2. Then cancel contact2 again and look at contact1.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({
+    email: [{ value: "home.contact2@invalid", type: "home" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
+
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    email: [{ value: "another.contact1@invalid", type: "home", pref: "1" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    email: [{ value: "home.contact2@invalid", type: "home", pref: "1" }],
+  });
+
+  // Ensure that a cancel from contact2 doesn't leak to contact1.
+  await editContactAtIndex(0);
+
+  checkVCardInputValues({
+    email: [{ value: "another.contact1@invalid", type: "home" }],
+  });
+
+  await checkDefaultEmailChoice(false, 0);
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
