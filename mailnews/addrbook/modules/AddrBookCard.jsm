@@ -316,13 +316,16 @@ AddrBookCard.prototype = {
   },
   getPropertyAsUint32(name) {
     let value = this.getProperty(name);
-    if (isNaN(parseInt(value, 10))) {
-      throw Components.Exception(
-        `${name}: ${value} - not an int`,
-        Cr.NS_ERROR_NOT_AVAILABLE
-      );
+    if (!isNaN(parseInt(value, 10))) {
+      return parseInt(value, 10);
     }
-    return value;
+    if (!isNaN(parseInt(value, 16))) {
+      return parseInt(value, 16);
+    }
+    throw Components.Exception(
+      `${name}: ${value} - not an int`,
+      Cr.NS_ERROR_NOT_AVAILABLE
+    );
   },
   getPropertyAsBool(name) {
     let value = this.getProperty(name);
