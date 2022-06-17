@@ -6900,11 +6900,12 @@ nsImapMailFolder::CopyMessages(
           new nsPlaybackRequest(srcImapFolder, msgWindow);
     }
 
-    // Create and start a new playback one-shot timer. Callback will delete it.
-    NS_ASSERTION(!srcImapFolder->m_playbackTimer, "expected null");
+    // Create and start a new playback one-shot timer. If there is already a
+    // timer created that has not timed out, cancel it.
+    if (srcImapFolder->m_playbackTimer)
+      srcImapFolder->m_playbackTimer->Cancel();
     rv = NS_NewTimerWithFuncCallback(
-        getter_AddRefs(srcImapFolder->m_playbackTimer),
-        srcImapFolder->PlaybackTimerCallback,
+        getter_AddRefs(srcImapFolder->m_playbackTimer), PlaybackTimerCallback,
         (void*)srcImapFolder->m_pendingPlaybackReq,
         PLAYBACK_TIMER_INTERVAL_IN_MS, nsITimer::TYPE_ONE_SHOT,
         "nsImapMailFolder::PlaybackTimerCallback", nullptr);
@@ -8690,6 +8691,7 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
   return NS_OK;
 }
 
+/* static */
 void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {
   nsPlaybackRequest* request = static_cast<nsPlaybackRequest*>(aClosure);
 
@@ -8705,7 +8707,7 @@ void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {
 
   // release request struct and timer
   request->SrcFolder->m_pendingPlaybackReq = nullptr;
-  request->SrcFolder->m_playbackTimer = nullptr;
+  request->SrcFolder->m_playbackTimer = nullptr;  // Just to flag timed out
   delete request;
 }
 
