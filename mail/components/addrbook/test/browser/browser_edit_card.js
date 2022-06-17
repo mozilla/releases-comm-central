@@ -144,6 +144,22 @@ function getFields(entryName, addIfNeeded = false, count) {
       fieldsSelector = `tr[slot="v-email"]`;
       addButtonId = "vcard-add-email";
       break;
+    case "impp":
+      fieldsSelector = "vcard-impp";
+      addButtonId = "vcard-add-impp";
+      break;
+    case "url":
+      fieldsSelector = "vcard-url";
+      addButtonId = "vcard-add-url";
+      break;
+    case "tel":
+      fieldsSelector = "vcard-tel";
+      addButtonId = "vcard-add-tel";
+      break;
+    case "note":
+      fieldsSelector = "vcard-note";
+      addButtonId = "vcard-add-note";
+      break;
     default:
       throw new Error("entryName not found");
   }
@@ -224,6 +240,21 @@ function checkVCardInputValues(expected) {
         case "email":
           valueField = field.emailEl;
           typeField = field.selectEl;
+          break;
+        case "impp":
+          valueField = field.imppEl;
+          break;
+        case "url":
+          valueField = field.urlEl;
+          typeField = field.selectEl;
+          break;
+        case "tel":
+          valueField = field.inputElement;
+          typeField = field.selectEl;
+          break;
+        case "note":
+          valueField = field.textAreaEl;
+          break;
       }
 
       // Check the input value of the field.
@@ -337,20 +368,12 @@ function setVCardInputValues(changes) {
     let fields = getFields(key, true, entries.length);
     for (let [index, field] of fields.entries()) {
       let changeEntry = entries[index];
+      let valueField;
+      let typeField;
       switch (key) {
         case "email":
-          field.emailEl.select();
-          if (changeEntry && changeEntry.value) {
-            EventUtils.sendString(changeEntry.value);
-          } else {
-            EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
-          }
-
-          if (changeEntry && changeEntry.type) {
-            field.selectEl.value = changeEntry.type;
-          } else {
-            field.selectEl.value = "";
-          }
+          valueField = field.emailEl;
+          typeField = field.selectEl;
 
           if (
             (field.checkboxEl.checked && changeEntry && !changeEntry.pref) ||
@@ -360,8 +383,34 @@ function setVCardInputValues(changes) {
           ) {
             EventUtils.synthesizeMouseAtCenter(field.checkboxEl, {}, abWindow);
           }
-
           break;
+        case "impp":
+          valueField = field.imppEl;
+          break;
+        case "url":
+          valueField = field.urlEl;
+          typeField = field.selectEl;
+          break;
+        case "tel":
+          valueField = field.inputElement;
+          typeField = field.selectEl;
+          break;
+        case "note":
+          valueField = field.textAreaEl;
+          break;
+      }
+
+      valueField.select();
+      if (changeEntry && changeEntry.value) {
+        EventUtils.sendString(changeEntry.value);
+      } else {
+        EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+      }
+
+      if (typeField && changeEntry && changeEntry.type) {
+        field.selectEl.value = changeEntry.type;
+      } else if (typeField) {
+        field.selectEl.value = "";
       }
     }
   }
@@ -1957,6 +2006,295 @@ add_task(async function test_email_fields() {
   });
 
   await checkDefaultEmailChoice(false, 0);
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
+add_task(async function test_vCard_fields() {
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let book = createAddressBook("Test Book VCard Fields");
+
+  let contact1 = createContact("contact1", "lastname");
+  book.addCard(contact1);
+  let contact2 = createContact("contact2", "lastname");
+  book.addCard(contact2);
+
+  openDirectory(book);
+
+  let editButton = abDocument.getElementById("editButton");
+  let cancelEditButton = abDocument.getElementById("cancelEditButton");
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  // Check that no field is initially shown with a new contact.
+  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
+
+  for (let [selector, label] of [
+    ["vcard-impp", "Chat accounts"],
+    ["vcard-url", "Websites"],
+    ["vcard-tel", "Phone numbers"],
+    ["vcard-note", "Notes"],
+  ]) {
+    Assert.equal(
+      abDocument.querySelectorAll(selector).length,
+      0,
+      `${label} are not initially shown.`
+    );
+  }
+
+  // Cancel the new contact creation.
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  // Set values for contact1 with one entry for each field.
+  await editContactAtIndex(0);
+
+  setVCardInputValues({
+    impp: [{ value: "matrix:u/contact1:example.com" }],
+    url: [{ value: "http://www.example.com" }],
+    tel: [{ value: "+123456 789" }],
+    note: [{ value: "A note to this contact" }],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    impp: [{ value: "matrix:u/contact1:example.com" }],
+    url: [{ value: "http://www.example.com" }],
+    tel: [{ value: "+123456 789" }],
+    note: [{ value: "A note to this contact" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    impp: [],
+    url: [],
+    tel: [],
+    note: [],
+  });
+
+  // Edit the same contact and set multiple fields.
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  checkVCardInputValues({
+    impp: [{ value: "matrix:u/contact1:example.com" }],
+    url: [{ value: "http://www.example.com" }],
+    tel: [{ value: "+123456 789" }],
+    note: [{ value: "A note to this contact" }],
+  });
+
+  setVCardInputValues({
+    impp: [
+      { value: "matrix:u/contact1:example.com" },
+      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "xmpp:test@example.com" },
+    ],
+    url: [
+      { value: "http://example.com" },
+      { value: "https://hello", type: "home" },
+      { value: "https://www.example.invalid", type: "work" },
+    ],
+    tel: [
+      { value: "+123456 789", type: "home" },
+      { value: "809 77 666 8" },
+      { value: "+1113456789", type: "work" },
+    ],
+    note: [{ value: "Another note contact1\n\n\n" }],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    impp: [
+      { value: "matrix:u/contact1:example.com" },
+      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "xmpp:test@example.com" },
+    ],
+    url: [
+      { value: "http://example.com" },
+      { value: "https://hello", type: "home" },
+      { value: "https://www.example.invalid", type: "work" },
+    ],
+    tel: [
+      { value: "+123456 789", type: "home" },
+      { value: "809 77 666 8" },
+      { value: "+1113456789", type: "work" },
+    ],
+    note: [{ value: "Another note contact1\n\n\n" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    impp: [],
+    url: [],
+    tel: [],
+    note: [],
+  });
+
+  // Switch from contact1 to contact2 and set some entries.
+  // Ensure that no fields from contact1 are leaked.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({ impp: [], url: [], tel: [], note: [] });
+
+  setVCardInputValues({
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "http://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    impp: [
+      { value: "matrix:u/contact1:example.com" },
+      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "xmpp:test@example.com" },
+    ],
+    url: [
+      { value: "http://example.com" },
+      { value: "https://hello", type: "home" },
+      { value: "https://www.example.invalid", type: "work" },
+    ],
+    tel: [
+      { value: "+123456 789", type: "home" },
+      { value: "809 77 666 8" },
+      { value: "+1113456789", type: "work" },
+    ],
+    note: [{ value: "Another note contact1\n\n\n" }],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "http://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+  });
+
+  // Ensure that no fields from contact2 are leaked to contact1.
+  // Check and remove all values from contact1.
+  await editContactAtIndex(0);
+
+  checkVCardInputValues({
+    impp: [
+      { value: "matrix:u/contact1:example.com" },
+      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "xmpp:test@example.com" },
+    ],
+    url: [
+      { value: "http://example.com" },
+      { value: "https://hello", type: "home" },
+      { value: "https://www.example.invalid", type: "work" },
+    ],
+    tel: [
+      { value: "+123456 789", type: "home" },
+      { value: "809 77 666 8" },
+      { value: "+1113456789", type: "work" },
+    ],
+    note: [{ value: "Another note contact1\n\n\n" }],
+  });
+
+  setVCardInputValues({
+    impp: [{ value: "" }, { value: "" }, { value: "" }],
+    url: [{ value: "" }, { value: "" }, { value: "" }],
+    tel: [{ value: "" }, { value: "" }, { value: "" }],
+    note: [{ value: "" }],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    impp: [],
+    url: [],
+    tel: [],
+    note: [],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "http://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+  });
+
+  // Check contact2 make changes and cancel.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "http://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+  });
+
+  setVCardInputValues({
+    impp: [{ value: "" }],
+    url: [
+      { value: "http://www.thunderbird.net" },
+      { value: "www.another.url", type: "work" },
+    ],
+    tel: [{ value: "650-903-0800" }, { value: "+123 456 789", type: "home" }],
+    note: [],
+  });
+
+  // Cancel the changes.
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await promptPromise;
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    impp: [],
+    url: [],
+    tel: [],
+    note: [],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "http://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+  });
+
+  // Check that the cancel for contact2 worked cancel afterwards.
+  await editContactAtIndex(1);
+
+  checkVCardInputValues({
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "http://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await notInEditingMode();
+
+  checkVCardValues(book.childCards[0], {
+    impp: [],
+    url: [],
+    tel: [],
+    note: [],
+  });
+
+  checkVCardValues(book.childCards[1], {
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "http://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+  });
+
+  // Check that no values from contact2 are leaked to contact1 when cancelling.
+  await editContactAtIndex(0);
+
+  checkVCardInputValues({ impp: [], url: [], tel: [], note: [] });
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
