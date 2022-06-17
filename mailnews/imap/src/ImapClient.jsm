@@ -111,7 +111,7 @@ class ImapClient {
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
   discoverAllFolders(folder, msgWindow) {
-    this._actionList();
+    this._actionListOrLsub();
   }
 
   /**
@@ -478,10 +478,32 @@ class ImapClient {
         this._server.wrappedJSObject.capabilities = res.capabilities;
       }
       this.onReady();
-    } else {
-      this._logger.error("Authentication failed.");
-      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
     }
+    if (
+      ["OLDLOGIN", "PLAIN", "LOGIN", "CRAM-MD5"].includes(
+        this._currentAuthMethod
+      )
+    ) {
+      // Ask user what to do.
+      let action = this._authenticator.promptAuthFailed();
+      if (action == 1) {
+        // Cancel button pressed.
+        this._actionDone(Cr.NS_ERROR_FAILURE);
+        return;
+      }
+      if (action == 2) {
+        // 'New password' button pressed.
+        this._authenticator.forgetPassword();
+      }
+
+      // Retry.
+      this._nextAuthMethod = this._possibleAuthMethods[0];
+      this._actionAuth();
+      return;
+    }
+    this._logger.error("Authentication failed.");
+    this._actionDone(Cr.NS_ERROR_FAILURE);
   };
 
   /**
@@ -495,7 +517,6 @@ class ImapClient {
       return password;
     } catch (e) {
       if (e.result == Cr.NS_ERROR_ABORT) {
-        this._socket.close();
         this._actionDone(e.result);
       }
       throw e;
@@ -599,8 +620,8 @@ class ImapClient {
   /**
    * Send LSUB or LIST command depending on the server capabilities.
    */
-  _actionList() {
-    this._nextAction = this._actionListResponse;
+  _actionListOrLsub() {
+    this._nextAction = this._actionListResponse();
     let command = this._capabilities.includes("LIST-EXTENDED")
       ? "LIST (SUBSCRIBED)" // rfc5258
       : "LSUB";
@@ -614,19 +635,30 @@ class ImapClient {
 
   /**
    * Handle LIST response.
+   * @param {Function} actionAfterResponse - A callback after handling the response.
    * @param {ImapResponse} res - Response received from the server.
    */
-  _actionListResponse(res) {
-    let hasTrash = res.mailboxes.some(
-      mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
-    );
-    if (!hasTrash) {
-      let trashFolderName = this._server.trashFolderName.toLowerCase();
-      let trashMailbox = res.mailboxes.find(
-        mailbox => mailbox.name.toLowerCase() == trashFolderName
+  _actionListResponse = (
+    actionAfterResponse = this._actionFinishFolderDiscovery
+  ) => res => {
+    if (!this._hasInbox) {
+      this._hasInbox = res.mailboxes.some(
+        mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_INBOX
       );
-      if (trashMailbox) {
-        trashMailbox.flags |= ImapUtils.FLAG_IMAP_TRASH;
+    }
+    if (!this._hasTrash) {
+      this._hasTrash = res.mailboxes.some(
+        mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
+      );
+      if (!this._hasTrash) {
+        let trashFolderName = this._server.trashFolderName.toLowerCase();
+        let trashMailbox = res.mailboxes.find(
+          mailbox => mailbox.name.toLowerCase() == trashFolderName
+        );
+        if (trashMailbox) {
+          this._hasTrash = true;
+          trashMailbox.flags |= ImapUtils.FLAG_IMAP_TRASH;
+        }
       }
     }
     for (let mailbox of res.mailboxes) {
@@ -636,13 +668,59 @@ class ImapClient {
         mailbox.flags
       );
     }
-    if (this._listInboxSent) {
-      this._serverSink.discoveryDone();
-      this._actionDone();
+
+    actionAfterResponse();
+  };
+
+  /**
+   * Send LIST command.
+   * @param {string} folderName - The name of the folder to list.
+   * @param {Function} actionAfterResponse - A callback after handling the response.
+   */
+  _actionList(folderName, actionAfterResponse) {
+    this._nextAction = this._actionListResponse(actionAfterResponse);
+    this._sendTagged(`LIST "" "${folderName}"`);
+  }
+
+  /**
+   * Finish folder discovery after checking Inbox and Trash folders.
+   */
+  _actionFinishFolderDiscovery = () => {
+    if (!this._hasInbox && !this._listInboxSent) {
+      this._actionList("Inbox");
+      this._listInboxSent = true;
       return;
     }
-    this._sendTagged('LIST "" "INBOX"');
-    this._listInboxSent = true;
+    if (!this._hasTrash && !this._listTrashSent) {
+      this._actionCreateTrashFolderIfNeeded();
+      return;
+    }
+    this._serverSink.discoveryDone();
+    this._actionDone();
+  };
+
+  /**
+   * If Trash folder is not found on server, create one and subscribe to it.
+   */
+  _actionCreateTrashFolderIfNeeded() {
+    let trashFolderName = this._server.trashFolderName;
+    this._actionList(trashFolderName, () => {
+      if (this._hasTrash) {
+        // Trash folder exists.
+        this._actionFinishFolderDiscovery();
+      } else {
+        // Trash folder doesn't exist, create one and subscribe to it.
+        this._nextAction = res => {
+          this._actionList(trashFolderName, () => {
+            // After subscribing, finish folder discovery.
+            this._nextAction = this._actionFinishFolderDiscovery;
+            this._sendTagged(`SUBSCRIBE "${trashFolderName}"`);
+          });
+        };
+        this._sendTagged(`CREATE "${trashFolderName}"`);
+      }
+    });
+    this._listTrashSent = true;
   }
 
   /**
@@ -664,7 +742,7 @@ class ImapClient {
     // Step 3: Rename the local folder and send LIST command to re-sync folders.
     let actionAfterUnsubscribe = () => {
       this._serverSink.onlineFolderRename(this._msgWindow, oldName, newName);
-      this._actionList();
+      this._actionListOrLsub();
     };
     // Step 2: unsubscribe to the oldName.
     this._nextAction = () => {
@@ -816,6 +894,9 @@ class ImapClient {
    */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
+    if (status != Cr.NS_OK) {
+      this._socket.close();
+    }
     this._nextAction = null;
     this._urlListener?.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
     this.runningUrl.SetUrlState(false, Cr.NS_OK);
