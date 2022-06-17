@@ -391,8 +391,10 @@ body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortCont
   background-position: center top;
   background-size: contain;
   background-repeat: no-repeat;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 #placeholderEmptyBook::before,
