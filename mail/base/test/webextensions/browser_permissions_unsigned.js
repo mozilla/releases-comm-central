@@ -6,6 +6,8 @@ const WARNING_ICON = "chrome://browser/skin/warning.svg";
 add_task(async function test_unsigned() {
   await SpecialPowers.pushPrefEnv({
     set: [
+      ["extensions.InstallTrigger.enabled", true],
+      ["extensions.InstallTriggerImpl.enabled", true],
       ["extensions.webapi.testing", true],
       ["extensions.install.requireBuiltInCerts", false],
       // Relax the user input requirements while running this test.
