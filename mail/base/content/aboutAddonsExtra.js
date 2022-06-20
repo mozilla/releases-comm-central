@@ -144,6 +144,48 @@ XPCOMUtils.defineLazyPreferenceGetter(
     this.addOptionsButton();
   };
 
+  // Remove this after Bug 1773568 has been uplifted to ESR 102.
+  AddonCard.prototype.updateMessage = async function () {
+    const messageBar = this.card.querySelector(".addon-card-message");
+
+    const {
+      linkUrl,
+      messageId,
+      messageArgs,
+      type = "",
+    } = await getAddonMessageInfo(this.addon);
+
+    if (messageId) {
+      document.l10n.pauseObserving();
+      document.l10n.setAttributes(
+        messageBar.querySelector("span"),
+        messageId,
+        messageArgs
+      );
+
+      const link = messageBar.querySelector("button");
+      if (linkUrl) {
+        // Do not use the missing locale string, but instead use one having a
+        // similar wording.
+        let localeId = (messageId == "details-notification-incompatible")
+          ? "details-notification-unsigned-and-disabled-link"
+          : `${messageId}-link`
+        document.l10n.setAttributes(link, localeId);
+        link.setAttribute("url", linkUrl);
+        link.hidden = false;
+      } else {
+        link.hidden = true;
+      }
+
+      document.l10n.resumeObserving();
+      await document.l10n.translateFragment(messageBar);
+      messageBar.setAttribute("type", type);
+      messageBar.hidden = false;
+    } else {
+      messageBar.hidden = true;
+    }
+  }
+
   // Override parts of the addon-permission-list customElement to be able
   // to show the usage of Experiments in the permission list.
   await customElements.whenDefined("addon-permissions-list");
