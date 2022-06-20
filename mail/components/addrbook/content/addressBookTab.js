@@ -86,11 +86,12 @@ var addressBookTabType = {
     aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
     aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
 
-    aTab.findbar = aTab.panel.querySelector("findbar");
+    aTab.findbar = document.createXULElement("findbar");
     aTab.findbar.setAttribute(
       "browserid",
       "addressBookTabBrowser" + this.lastBrowserId
     );
+    aTab.panel.appendChild(aTab.findbar);
 
     // Default to reload being disabled.
     aTab.reloadEnabled = false;
