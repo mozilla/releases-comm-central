@@ -1173,8 +1173,10 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
         this.avatar.appendChild(img);
       } else {
         let letter = document.createElement("span");
-        letter.textContent = this.name.textContent.slice(0, 1).toUpperCase();
-        letter.ariaHidden = true;
+        letter.textContent = Array.from(
+          this.name.textContent
+        )[0]?.toUpperCase();
+        letter.setAttribute("aria-hidden", "true");
         this.avatar.appendChild(letter);
       }
       this.address.textContent = card.primaryEmail;
@@ -2497,7 +2499,7 @@ var detailsPane = {
           avatar.appendChild(img);
         } else {
           let letter = document.createElement("span");
-          letter.textContent = name.textContent.slice(0, 1).toUpperCase();
+          letter.textContent = Array.from(name.textContent)[0]?.toUpperCase();
           letter.setAttribute("aria-hidden", "true");
           avatar.appendChild(letter);
         }
@@ -3079,7 +3081,7 @@ var detailsPane = {
         avatar.appendChild(img);
       } else {
         let letter = document.createElement("span");
-        letter.textContent = name.textContent.slice(0, 1).toUpperCase();
+        letter.textContent = Array.from(name.textContent)[0]?.toUpperCase();
         letter.setAttribute("aria-hidden", "true");
         avatar.appendChild(letter);
       }
