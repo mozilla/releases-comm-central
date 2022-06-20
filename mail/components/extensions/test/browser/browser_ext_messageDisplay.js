@@ -433,7 +433,7 @@ add_task(async function testOpenMessagesInTabs() {
           // To be able to run this test with --verify, specify only the last part
           // of the expected message url, which is independent of the associated
           // account.
-          url: "@localhost/test1#1",
+          url: "/localhost/test1?number=1",
         });
 
         // Open an active message tab.
@@ -448,7 +448,7 @@ add_task(async function testOpenMessagesInTabs() {
           {
             active: true,
             message: messages1[0],
-            url: "@localhost/test1#1",
+            url: "/localhost/test1?number=1",
           }
         );
 

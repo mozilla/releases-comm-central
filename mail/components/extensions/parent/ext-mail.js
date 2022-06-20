@@ -883,13 +883,17 @@ class Tab extends TabBase {
     // All message tabs and mail tabs in a window use the same messagepane browser,
     // so inactive tabs always return the url of the currently active tab.
     // Reconstruct the url from the messageDisplay.
-    if (["mail", "messageDisplay"].includes(this.type)) {
-      let messageDisplay =
-        this.nativeTab.gMessageDisplay || this.nativeTab.messageDisplay;
-      let msg = messageDisplay?.displayedMessage;
-      if (msg) {
-        url = msg.folder.getUriForMsg(msg);
-      } else if (!this.active) {
+    if (!this.active && ["mail", "messageDisplay"].includes(this.type)) {
+      let messageDisplay = this.nativeTab.messageDisplay;
+      let msgHdr = messageDisplay?.displayedMessage;
+      if (msgHdr && msgHdr.folder) {
+        let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
+        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+          Ci.nsIMessenger
+        );
+        let service = messenger.messageServiceFromURI(msgUri);
+        url = service.getUrlForUri(msgUri).spec;
+      } else {
         url = "about:blank";
       }
     }
