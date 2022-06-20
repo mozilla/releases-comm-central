@@ -384,6 +384,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.addEventListener("dragover", this);
     this.addEventListener("drop", this);
 
+    // FIXME: Do this with HTML when we get new strings.
+    document.l10n.ready.then(() => {
+      this.firstElementChild.title = this.firstElementChild.querySelector(
+        ".bookRow-name"
+      ).textContent;
+    });
     for (let book of MailServices.ab.directories) {
       this.appendChild(this._createBookRow(book));
     }
@@ -447,6 +453,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       .content.firstElementChild.cloneNode(true);
     row.id = `book-${book.UID}`;
     row.setAttribute("aria-label", book.dirName);
+    row.title = book.dirName;
     if (
       Services.xulStore.getValue("about:addressbook", row.id, "collapsed") ==
       "true"
@@ -483,6 +490,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       .content.firstElementChild.cloneNode(true);
     row.id = `list-${list.UID}`;
     row.setAttribute("aria-label", list.dirName);
+    row.title = list.dirName;
     row.dataset.uid = list.UID;
     row.dataset.book = bookUID;
     row._list = list;

@@ -15,6 +15,7 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
   ],
 ]);
 
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionData: "resource://gre/modules/Extension.jsm",
 });
@@ -27,6 +28,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
 (async function() {
   window.MozXULElement.insertFTLIfNeeded("messenger/aboutAddonsExtra.ftl");
+  UIFontSize.registerWindow(window);
 
   // Consume clicks on a-tags and let openTrustedLinkIn() decide how to open them.
   window.addEventListener("click", event => {
@@ -45,11 +47,10 @@ XPCOMUtils.defineLazyPreferenceGetter(
   document.l10n.setAttributes(textbox, "atn-addons-heading-search-input");
 
   // Add our stylesheet.
-  let contentStylesheet = document.createProcessingInstruction(
-    "xml-stylesheet",
-    'href="chrome://messenger/skin/aboutAddonsExtra.css" type="text/css"'
-  );
-  document.insertBefore(contentStylesheet, document.documentElement);
+  let contentStylesheet = document.createElement("link");
+  contentStylesheet.rel = "stylesheet";
+  contentStylesheet.href = "chrome://messenger/skin/aboutAddonsExtra.css";
+  document.head.appendChild(contentStylesheet);
 
   // Override logic for detecting unsigned add-ons.
   window.isCorrectlySigned = function() {

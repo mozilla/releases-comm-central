@@ -70,15 +70,31 @@ search-textbox {
 
 #pref-category-box {
   background-color: var(--in-content-categories-background);
-  width: 240px;
+  width: 18em;
+}
+
+#categories > .category[selected] {
+  background-color: var(--in-content-button-background) !important;
+  color: unset !important;
+  font-weight: 500;
+}
+
+#categories:focus > .category[selected] {
+  background-color: var(--in-content-item-selected) !important;
+  color: var(--in-content-item-selected-text) !important;
+  outline: none !important;
 }
 
 /* Temporary styles for the supernova icons */
 .sidebar-footer-icon,
-#category-general .category-icon {
+:is(#category-general, #category-chat, #category-calendar) .category-icon {
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
+}
+
+.category-name {
+  font-size: 1.1rem !important;
 }
 
 /*
@@ -271,18 +287,41 @@ tabpanel > hbox > description {
 
 #categories {
   overflow: visible !important; /* Cancel scrollbar and do not clip overflow content when window size goes very small */
-  padding: 1px; /* Adding padding around richlistitem in order to make entire keyboard focusing outline visible */
 }
 
-.sidebar-footer-link:hover,
-#categories > .category:hover {
-  border-end-end-radius: 0;
-  border-start-end-radius: 0;
+#categories > .category {
+  margin-inline: 6px;
+}
+
+.sidebar-footer-list {
+  margin-inline: 0;
+}
+
+.sidebar-footer-icon {
+  margin: 10px;
+}
+
+.sidebar-footer-label {
+  margin: 0;
+}
+
+.sidebar-footer-list > .text-link {
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 @media (max-width: 830px) {
-  #pref-category-box {
-    width: 118px;
+  #pref-category-box,
+  #categories {
+    width: auto;
+  }
+
+  #categories > .category {
+    padding-inline: 12px;
+  }
+
+  #pref-category-box .sidebar-footer-list > .text-link {
+    margin-inline: 12px;
   }
 
   #preferencesContainer {

@@ -3,21 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --in-content-categories-background: #ebebef;
+  --in-content-button-border-radius: 3px;
 }
 
-@media (prefers-color-scheme: dark) {
+@media not (prefers-contrast) {
   :root {
-    --in-content-categories-background: rgba(249, 249, 250, 0.1);
-    --in-content-primary-button-background: #45a1ff !important;
-    --in-content-primary-button-background-hover: #65c1ff !important;
-    --in-content-primary-button-background-active: #85e1ff !important;
+    --in-content-button-background: var(--grey-90-a10);
+    --in-content-button-background-active: var(--grey-90-a30);
+    --in-content-categories-background: #ebebef;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --in-content-categories-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+      --in-content-primary-button-background: #45a1ff;
+      --in-content-primary-button-background-hover: #65c1ff;
+      --in-content-primary-button-background-active: #85e1ff;
+    }
   }
 }
 
 body {
   /* Override the absolute (px) font-size value in common-shared.css. */
-  font-size: 1.1rem !important;
+  font-size: 1.1rem;
+}
+
+#full {
+  grid-template-columns: 18em 1fr;
 }
 
 #sidebar {
@@ -25,7 +39,29 @@ body {
 }
 
 #sidebar > #categories {
+  width: inherit;
   padding-inline-end: 0;
+}
+
+#categories > .category {
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+#categories > .category[selected] {
+  background-color: var(--in-content-button-background) !important;
+  color: unset;
+  font-weight: 500;
+}
+
+#categories > .category[selected]:focus {
+  background-color: var(--in-content-item-selected) !important;
+  color: var(--in-content-item-selected-text);
+  outline: none;
+}
+
+.category-name {
+  font-size: 1.1rem;
 }
 
 /* Hide Plugins category */
@@ -34,13 +70,34 @@ button[name="plugin"] {
 }
 
 .sidebar-footer-list {
-  margin-bottom: 36px;
+  margin-inline: 0;
 }
 
-.sidebar-footer-link:hover,
-#categories > .category:hover {
-  border-end-end-radius: 0;
-  border-start-end-radius: 0;
+.sidebar-footer-list > li {
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+.sidebar-footer-icon {
+  margin: 10px;
+}
+
+.sidebar-footer-label {
+  margin: 0;
+}
+
+@media (max-width: 830px) {
+  #full {
+    grid-template-columns: 60px 1fr;
+  }
+
+  #categories > .category {
+    padding-inline: 12px;
+  }
+
+  .sidebar-footer-list > li > a {
+    margin-inline: auto;
+  }
 }
 
 /* Temporary styles for the supernova icons */
@@ -57,9 +114,9 @@ button[name="plugin"] {
 }
 
 .page-options-menu > .more-options-button {
-  background-image: url("chrome://messenger/skin/icons/new/touch/settings.svg") !important;
-  width: 24px !important;
-  height: 24px !important;
+  background-image: url("chrome://messenger/skin/icons/new/touch/settings.svg");
+  width: 24px;
+  height: 24px;
 }
 
 /* Hide in extension details the private browsing section */
@@ -100,17 +157,18 @@ recommended-addon-card .addon.card:hover {
 
 .addon-name,
 .disco-addon-name {
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .theme-enable-button,
 .addon-description,
 .disco-addon-author,
 .disco-cta-button {
-  font-size: 1.1rem !important;
+  font-size: 1.1rem;
 }
 
 button.tab-button {
-  font-size: 1.1rem !important;
+  font-size: 1.1rem;
 }
+

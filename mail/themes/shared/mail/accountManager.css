@@ -44,7 +44,6 @@ body {
 /* Account list */
 
 #accounttree {
-  line-height: 30px;
   flex-grow: 1;
   overflow-y: auto;
 }
@@ -171,7 +170,7 @@ body {
 }
 
 #accounttree > li > div > .name {
-  font-weight: bold;
+  font-weight: 500;
 }
 
 #accounttree > li.isDefaultServer > div > .name {
@@ -179,7 +178,7 @@ body {
 }
 
 #accounttree ul > li > div {
-  padding-inline-start: 51px;
+  padding-inline-start: 42px;
 }
 
 #accounttree ul {
@@ -256,10 +255,12 @@ body {
 
 .sidebar-footer-list {
   margin-top: 24px;
+  margin-inline: 0;
 }
 
 .sidebar-footer-list > .text-link {
-  margin-inline-start: 0;
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 #contentFrame {
@@ -285,4 +286,20 @@ body {
 
 #editVCardDialog #vCardDisplayNameCheckbox {
   display: none;
+}
+
+@media (max-width: 830px) {
+  .sidebar-footer-list {
+    -moz-box-align: unset;
+    margin-inline-start: unset;
+  }
+
+  .sidebar-footer-link {
+    width: unset;
+    height: unset;
+  }
+
+  .sidebar-footer-label {
+    display: inline-block;
+  }
 }

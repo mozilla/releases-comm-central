@@ -1677,6 +1677,7 @@ function setAccountLabel(aAccountKey, aLabel) {
   let row = document.getElementById(aAccountKey);
   if (row) {
     row.setAttribute("aria-label", aLabel);
+    row.title = aLabel;
     row.querySelector(".name").textContent = aLabel;
   }
   rebuildAccountTree(false);
@@ -1874,6 +1875,7 @@ var gAccountTree = {
         .content.firstElementChild.cloneNode(true);
       mainTree.appendChild(treeitem);
       treeitem.setAttribute("aria-label", accountName);
+      treeitem.title = accountName;
       treeitem.querySelector(".name").textContent = accountName;
       treeitem.setAttribute("PageTag", amChrome);
       // Add icons based on account type.
@@ -1898,6 +1900,7 @@ var gAccountTree = {
         let treekids = treeitem.querySelector("ul");
         for (let panel of panelsToKeep) {
           let kidtreeitem = document.createElement("li");
+          kidtreeitem.title = panel.string;
           treekids.appendChild(kidtreeitem);
           let kidtreerow = document.createElement("div");
           kidtreeitem.appendChild(kidtreerow);
