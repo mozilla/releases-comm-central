@@ -134,7 +134,6 @@ function getInput(entryName, addIfNeeded = false) {
 function getFields(entryName, addIfNeeded = false, count) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
-  let vCardEdit = abDocument.querySelector("vcard-edit");
 
   let fieldsSelector;
   let addButtonId;
@@ -165,9 +164,7 @@ function getFields(entryName, addIfNeeded = false, count) {
   let fields = abDocument.querySelectorAll(fieldsSelector).length;
   if (addIfNeeded && fields < count) {
     for (let clickTimes = fields; clickTimes < count; clickTimes++) {
-      let addButton =
-        abDocument.getElementById(addButtonId) ||
-        vCardEdit.shadowRoot.getElementById(addButtonId);
+      let addButton = abDocument.getElementById(addButtonId);
       addButton.scrollIntoView();
       EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
     }
@@ -524,7 +521,7 @@ add_task(async function test_basic_edit() {
 
   Assert.ok(detailsPane.hidden);
   Assert.ok(!document.querySelector("vcard-n"));
-  Assert.ok(!abDocument.getElementById("vcard-email"));
+  Assert.ok(!abDocument.getElementById("vcard-email").children.length);
 
   // Select a card in the list. Check the display in view mode.
 

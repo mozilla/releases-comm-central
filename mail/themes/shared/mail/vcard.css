@@ -8,6 +8,18 @@ vcard-edit {
   --input-text-height: 28px;
 }
 
+vcard-edit,
+.addr-book-edit-display-nickname {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
+  column-gap: 2em;
+}
+
+vcard-edit {
+  grid-template-rows: masonry;
+  row-gap: 30px;
+}
+
 vcard-edit label[for] {
   margin-block-end: 6px;
   font-weight: 600;
@@ -67,6 +79,10 @@ vcard-edit textarea {
   margin-block: 0 3px;
   margin-inline: 0 3px;
   resize: vertical;
+}
+
+#addr-book-edit-n {
+  grid-column: 1 / -1;
 }
 
 /* N field styles */
@@ -137,16 +153,16 @@ vcard-n {
 }
 
 /* Display name / Full name / Nick name styles */
-[slot="v-fn"],
-[slot="v-nickname"] {
+vcard-fn,
+vcard-nickname {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-block-start: 12px;
 }
 
-[slot="v-fn"] label[for],
-[slot="v-nickname"] label[for] {
+vcard-fn label[for],
+vcard-nickname label[for] {
   margin-block-end: 0;
 }
 
@@ -212,7 +228,7 @@ vcard-n {
   background-color: var(--in-content-primary-button-background-active);
 }
 
-.screen-readers-only {
+.screen-reader-only {
   position: absolute;
   clip-path: inset(50%);
 }
@@ -237,7 +253,9 @@ vcard-special-date {
 }
 
 .addr-book-edit-fieldset legend {
-  margin-block-end: 6px;
+  margin-block: 0 6px;
+  font-size: 1.1rem;
+  line-height: 1.2;
 }
 
 vcard-special-date .vcard-type-selection {
@@ -271,25 +289,22 @@ vcard-adr select {
   grid-column: 2 / 3;
 }
 
-/**
- * Bug 1773031 - Remove the slot element from the edit contact
- * Add button for the vCard fields.
- * Until the slot element for vcard-edit is fully removed this is a duplicate.
- * For elements in the shadow dom see vcard-edit.css.
- */
 .addr-book-edit-fieldset-button {
   background-color: transparent;
   -moz-context-properties: fill;
   color: var(--in-content-primary-button-background);
   fill: var(--in-content-primary-button-text-color);
   padding: 3px;
-  display: inline-flex;
   border: none;
   font-size: 1rem;
   font-weight: 500;
   align-items: center;
   border-radius: 3px;
   min-height: auto;
+}
+
+.addr-book-edit-fieldset-button:not([hidden]) {
+  display: inline-flex;
 }
 
 .addr-book-edit-fieldset-button:enabled:hover,

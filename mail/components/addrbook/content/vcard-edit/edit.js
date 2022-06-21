@@ -20,24 +20,9 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/VCardUtils.jsm"
 );
 
-/**
- * Bug 1773031 - Remove the slot element from the edit contact.
- * The shadow dom of this element will be gradually removed.
- * This is done by removing the slots for vCardPropertyEntries.
- * But adding temporary slots to move the fieldsets out of the shadow dom.
- * And finally removing the fieldset slots and the shadow dom.
- *
- * Not anymore in the shadow dom:
- *    Email Fieldset
- */
 class VCardEdit extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
-    document.l10n.connectRoot(this.shadowRoot);
-    let template = document.getElementById("template-addr-book-edit");
-    let clonedTemplate = template.content.cloneNode(true);
-    this.shadowRoot.appendChild(clonedTemplate);
 
     this.contactNameHeading = document.getElementById("editContactHeadingName");
     this.contactNickNameHeading = document.getElementById(
@@ -50,38 +35,11 @@ class VCardEdit extends HTMLElement {
 
   connectedCallback() {
     if (this.isConnected) {
-      let addURL = this.shadowRoot.getElementById("vcard-add-url");
-      this.registerAddButton(addURL, "url");
-
-      let addTel = this.shadowRoot.getElementById("vcard-add-tel");
-      this.registerAddButton(addTel, "tel");
-
-      let addTZ = this.shadowRoot.getElementById("vcard-add-tz");
-      this.registerAddButton(addTZ, "tz", () => {
-        addTZ.hidden = true;
-      });
-
-      let addIMPP = this.shadowRoot.getElementById("vcard-add-impp");
-      this.registerAddButton(addIMPP, "impp");
-
-      this.registerSpecialDateFieldsetHandling();
-
-      let addAddress = this.shadowRoot.getElementById("vcard-add-adr");
-      this.registerAddButton(addAddress, "adr");
-
-      let addNote = this.shadowRoot.getElementById("vcard-add-note");
-      this.registerAddButton(addNote, "note", () => {
-        addNote.hidden = true;
-      });
-
-      this.registerOrgFieldsetHandling();
-
       this.updateView();
     }
   }
 
   disconnectedCallback() {
-    document.l10n.disconnectRoot(this.shadowRoot);
     this.replaceChildren();
   }
 
@@ -153,31 +111,23 @@ class VCardEdit extends HTMLElement {
   }
 
   updateView() {
-    // Clear all children.
-    this.replaceChildren();
+    // Create new DOM and replacing other vCardProperties.
+    let template = document.getElementById("template-addr-book-edit");
+    let clonedTemplate = template.content.cloneNode(true);
+    this.replaceChildren(clonedTemplate);
 
     if (!this.vCardProperties) {
       return;
     }
 
-    // Create fieldsets. These are not in the shadow dom.
-    this.createFieldsets();
+    this.addFieldsetActions();
 
     this._orgComponent = null;
 
+    // Insert the vCard property entries.
     for (let vCardPropertyEntry of this.vCardProperties.entries) {
       this.insertVCardElement(vCardPropertyEntry, false);
     }
-
-    this.shadowRoot.getElementById("vcard-add-tz").hidden = this.querySelector(
-      "vcard-tz"
-    );
-    this.shadowRoot.getElementById(
-      "vcard-add-note"
-    ).hidden = this.querySelector("vcard-note");
-    this.shadowRoot.getElementById("vcard-add-org").hidden = this.querySelector(
-      "vcard-org"
-    );
 
     let nameEl = this.querySelector("vcard-n");
     this.firstName = nameEl.firstNameEl.querySelector("input");
@@ -380,12 +330,11 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
-   * Creates a custom element for an {VCardPropertyEntry}
+   * Inserts a custom element for a {VCardPropertyEntry}
    *
    *  - Assigns rich data (not bind to a html attribute) and therefore
    *    the reference.
-   *  - Sets the slot attribute for the VCardPropertyEntryView element
-   *    accordingly.
+   *  - Inserts the element in the form at the correct position.
    *
    * @param {VCardPropertyEntry} entry
    * @param {boolean} addEntry Adds the entry to the vCardProperties.
@@ -397,24 +346,36 @@ class VCardEdit extends HTMLElement {
       this.vCardProperties.addEntry(entry);
     }
 
+    let fieldset;
+    let addButton;
     switch (entry.name) {
       case "n":
         let n = new VCardNComponent();
         n.vCardPropertyEntry = entry;
-        n.slot = "v-n";
-        this.append(n);
+        fieldset = document.getElementById("addr-book-edit-n");
+        let displayNicknameContainer = this.querySelector(
+          "#addr-book-edit-n .addr-book-edit-display-nickname"
+        );
+        fieldset.insertBefore(n, displayNicknameContainer);
         return n;
       case "fn":
         let fn = new VCardFNComponent();
         fn.vCardPropertyEntry = entry;
-        fn.slot = "v-fn";
-        this.append(fn);
+        fieldset = this.querySelector(
+          "#addr-book-edit-n .addr-book-edit-display-nickname"
+        );
+        fieldset.insertBefore(fn, fieldset.firstElementChild);
         return fn;
       case "nickname":
         let nickname = new VCardNickNameComponent();
         nickname.vCardPropertyEntry = entry;
-        nickname.slot = "v-nickname";
-        this.append(nickname);
+        fieldset = this.querySelector(
+          "#addr-book-edit-n .addr-book-edit-display-nickname"
+        );
+        fieldset.insertBefore(
+          nickname,
+          fieldset.firstElementChild.nextElementSibling
+        );
         return nickname;
       case "email":
         let email = document.createElement("tr", { is: "vcard-email" });
@@ -424,68 +385,88 @@ class VCardEdit extends HTMLElement {
       case "url":
         let url = new VCardURLComponent();
         url.vCardPropertyEntry = entry;
-        url.slot = "v-url";
-        this.append(url);
+        fieldset = this.querySelector("#addr-book-edit-url");
+        addButton = document.getElementById("vcard-add-url");
+        fieldset.insertBefore(url, addButton);
         return url;
       case "tel":
         let tel = new VCardTelComponent();
         tel.vCardPropertyEntry = entry;
-        tel.slot = "v-tel";
-        this.append(tel);
+        fieldset = this.querySelector("#addr-book-edit-tel");
+        addButton = document.getElementById("vcard-add-tel");
+        fieldset.insertBefore(tel, addButton);
         return tel;
       case "tz":
         let tz = new VCardTZComponent();
         tz.vCardPropertyEntry = entry;
-        tz.slot = "v-tz";
-        this.append(tz);
+        fieldset = this.querySelector("#addr-book-edit-tz");
+        addButton = document.getElementById("vcard-add-tz");
+        fieldset.insertBefore(tz, addButton);
+        addButton.hidden = true;
         return tz;
       case "impp":
         let impp = new VCardIMPPComponent();
         impp.vCardPropertyEntry = entry;
-        impp.slot = "v-impp";
-        this.append(impp);
+        fieldset = this.querySelector("#addr-book-edit-impp");
+        addButton = document.getElementById("vcard-add-impp");
+        fieldset.insertBefore(impp, addButton);
         return impp;
       case "anniversary":
         let anniversary = new VCardSpecialDateComponent();
         anniversary.vCardPropertyEntry = entry;
-        anniversary.slot = "v-anniversary";
-        this.append(anniversary);
+        fieldset = this.querySelector("#addr-book-edit-bday-anniversary");
+        addButton = document.getElementById("vcard-add-bday-anniversary");
+        fieldset.insertBefore(anniversary, addButton);
         return anniversary;
       case "bday":
         let bday = new VCardSpecialDateComponent();
         bday.vCardPropertyEntry = entry;
-        bday.slot = "v-bday";
-        this.append(bday);
+        fieldset = this.querySelector("#addr-book-edit-bday-anniversary");
+        addButton = document.getElementById("vcard-add-bday-anniversary");
+        fieldset.insertBefore(bday, addButton);
         return bday;
       case "adr":
         let address = new VCardAdrComponent();
         address.vCardPropertyEntry = entry;
-        address.slot = "v-adr";
-        this.append(address);
+        fieldset = this.querySelector("#addr-book-edit-address");
+        addButton = document.getElementById("vcard-add-adr");
+        fieldset.insertBefore(address, addButton);
         return address;
       case "note":
         let note = new VCardNoteComponent();
         note.vCardPropertyEntry = entry;
-        note.slot = "v-note";
-        this.append(note);
+        fieldset = this.querySelector("#addr-book-edit-note");
+        addButton = document.getElementById("vcard-add-note");
+        fieldset.insertBefore(note, addButton);
+        // Only one note is allowed via UI.
+        addButton.hidden = true;
         return note;
       case "title":
         let title = new VCardTitleComponent();
         title.vCardPropertyEntry = entry;
-        title.slot = "v-title";
-        this.append(title);
+        fieldset = this.querySelector("#addr-book-edit-org");
+        addButton = document.getElementById("vcard-add-org");
+        fieldset.insertBefore(title, addButton);
+        // Only one title is allowed via UI.
+        addButton.hidden = true;
         return title;
       case "role":
         let role = new VCardRoleComponent();
         role.vCardPropertyEntry = entry;
-        role.slot = "v-role";
-        this.append(role);
+        fieldset = this.querySelector("#addr-book-edit-org");
+        addButton = document.getElementById("vcard-add-org");
+        fieldset.insertBefore(role, addButton);
+        // Only one role is allowed via UI.
+        addButton.hidden = true;
         return role;
       case "org":
         let org = new VCardOrgComponent();
         org.vCardPropertyEntry = entry;
-        org.slot = "v-org";
-        this.append(org);
+        fieldset = this.querySelector("#addr-book-edit-org");
+        addButton = document.getElementById("vcard-add-org");
+        fieldset.insertBefore(org, addButton);
+        // Only one org is allowed via UI.
+        addButton.hidden = true;
         return org;
       default:
         return undefined;
@@ -543,8 +524,20 @@ class VCardEdit extends HTMLElement {
    */
   saveVCard() {
     for (let node of [
-      ...this.children,
+      ...this.querySelectorAll("vcard-adr"),
       ...document.getElementById("vcard-email").children,
+      ...this.querySelectorAll("vcard-fn"),
+      ...this.querySelectorAll("vcard-impp"),
+      ...this.querySelectorAll("vcard-n"),
+      ...this.querySelectorAll("vcard-nickname"),
+      ...this.querySelectorAll("vcard-note"),
+      ...this.querySelectorAll("vcard-org"),
+      ...this.querySelectorAll("vcard-role"),
+      ...this.querySelectorAll("vcard-title"),
+      ...this.querySelectorAll("vcard-special-date"),
+      ...this.querySelectorAll("vcard-tel"),
+      ...this.querySelectorAll("vcard-tz"),
+      ...this.querySelectorAll("vcard-url"),
     ]) {
       if (typeof node.fromUIToVCardPropertyEntry === "function") {
         node.fromUIToVCardPropertyEntry();
@@ -573,7 +566,11 @@ class VCardEdit extends HTMLElement {
     this.querySelector("vcard-n input:not([hidden])").focus();
   }
 
-  registerEmailFieldsetHandling() {
+  /**
+   * Add buttons and further actions of the groupings for vCard property
+   * entries.
+   */
+  addFieldsetActions() {
     // Add email button.
     let addEmail = document.getElementById("vcard-add-email");
     this.registerAddButton(addEmail, "email", () => {
@@ -600,11 +597,9 @@ class VCardEdit extends HTMLElement {
         }
       }
     });
-  }
 
-  registerSpecialDateFieldsetHandling() {
     // Handling the VCardPropertyEntry change with the select.
-    let specialDatesFieldset = this.shadowRoot.getElementById(
+    let specialDatesFieldset = document.getElementById(
       "addr-book-edit-bday-anniversary"
     );
     specialDatesFieldset.addEventListener(
@@ -624,9 +619,7 @@ class VCardEdit extends HTMLElement {
     );
 
     // Add special date button.
-    let addSpecialDate = this.shadowRoot.getElementById(
-      "vcard-add-bday-anniversary"
-    );
+    let addSpecialDate = document.getElementById("vcard-add-bday-anniversary");
     addSpecialDate.addEventListener("click", e => {
       let newVCardProperty;
       if (!this.vCardProperties.getFirstEntry("bday")) {
@@ -638,10 +631,9 @@ class VCardEdit extends HTMLElement {
       this.checkForBdayOccurences();
       el.querySelector("input").focus();
     });
-  }
 
-  registerOrgFieldsetHandling() {
-    let addOrg = this.shadowRoot.getElementById("vcard-add-org");
+    // Organizational Properties.
+    let addOrg = document.getElementById("vcard-add-org");
     addOrg.addEventListener("click", event => {
       let title = VCardEdit.createVCardProperty("title");
       let role = VCardEdit.createVCardProperty("role");
@@ -654,10 +646,33 @@ class VCardEdit extends HTMLElement {
       titleEl.querySelector("input").focus();
       addOrg.hidden = true;
     });
+
+    let addAddress = document.getElementById("vcard-add-adr");
+    this.registerAddButton(addAddress, "adr");
+
+    let addURL = document.getElementById("vcard-add-url");
+    this.registerAddButton(addURL, "url");
+
+    let addTel = document.getElementById("vcard-add-tel");
+    this.registerAddButton(addTel, "tel");
+
+    let addTZ = document.getElementById("vcard-add-tz");
+    this.registerAddButton(addTZ, "tz", () => {
+      addTZ.hidden = true;
+    });
+
+    let addIMPP = document.getElementById("vcard-add-impp");
+    this.registerAddButton(addIMPP, "impp");
+
+    let addNote = document.getElementById("vcard-add-note");
+    this.registerAddButton(addNote, "note", () => {
+      addNote.hidden = true;
+    });
   }
 
   /**
-   * Registers a click event for addButton which creates a new vCardProperty.
+   * Registers a click event for addButton which creates a new vCardProperty
+   * and inserts it.
    *
    * @param {HTMLButtonElement} addButton
    * @param {string} VCardPropertyName RFC6350 vCard property name.
@@ -697,19 +712,6 @@ class VCardEdit extends HTMLElement {
     this.querySelector(".default-column").hidden = emailFieldsCount <= 1;
     document.getElementById("addr-book-edit-email-default").hidden =
       emailFieldsCount <= 1;
-  }
-
-  /**
-   * Clones fieldsets from the shadow dom to move them out of the shadow dom.
-   * See class description for progress.
-   */
-  createFieldsets() {
-    let emailFieldset = this.shadowRoot.getElementById("addr-book-edit-email");
-    let clonedEmailFieldset = emailFieldset.cloneNode(true);
-    clonedEmailFieldset.hidden = false;
-    clonedEmailFieldset.slot = "fieldset-email";
-    this.appendChild(clonedEmailFieldset);
-    this.registerEmailFieldsetHandling();
   }
 
   /**

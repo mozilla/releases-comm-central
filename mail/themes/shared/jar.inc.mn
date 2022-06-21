@@ -133,7 +133,6 @@
 #endif
   skin/classic/messenger/subscribe.css                        (../shared/mail/subscribe.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
-  skin/classic/messenger/vcard-edit.css                       (../shared/mail/vcard-edit.css)
   skin/classic/messenger/vcard.css                            (../shared/mail/vcard.css)
   skin/classic/messenger/wizard.css                           (../shared/mail/wizard.css)
   skin/classic/messenger/verifychat.css                       (../shared/mail/verifychat.css)

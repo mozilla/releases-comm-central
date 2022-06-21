@@ -25,31 +25,22 @@
 
 <!-- Edit View -->
 <template id="template-addr-book-edit">
-  <link rel="stylesheet" href="chrome://messenger/skin/vcard-edit.css"/>
   <!-- Name -->
-  <fieldset id="addr-book-edit-n" class="addr-book-edit-fieldset">
-    <legend class="screen-readers-only" data-l10n-id="vcard-name-header"/>
-    <slot name="v-n"/>
+  <fieldset id="addr-book-edit-n" class="addr-book-edit-fieldset fieldset-reset">
+    <legend class="screen-reader-only" data-l10n-id="vcard-name-header"/>
     <div class="addr-book-edit-display-nickname">
-      <slot name="v-fn"/>
-      <slot name="v-nickname"/>
     </div>
   </fieldset>
-  <!-- Bug 1773031 - Remove the slot element from the edit contact
-       This slot is used to transfer the fieldset out of the shadow dom
-       and will be removed. -->
-  <slot name="fieldset-email"></slot>
-  <fieldset id="addr-book-edit-email" class="addr-book-edit-fieldset fieldset-reset"
-            hidden="">
+  <fieldset id="addr-book-edit-email" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-email-header"/>
     <table>
       <thead>
         <tr>
-          <th id="addr-book-edit-email-type" class="screen-readers-only"
+          <th id="addr-book-edit-email-type" class="screen-reader-only"
               scope="col" data-l10n-id="vcard-entry-type-label"/>
-          <th id="addr-book-edit-email-label" class="screen-readers-only"
+          <th id="addr-book-edit-email-label" class="screen-reader-only"
               scope="col" data-l10n-id="vcard-email-label"/>
-          <th id="addr-book-edit-email-default" class="screen-readers-only"
+          <th id="addr-book-edit-email-default" class="screen-reader-only"
               scope="col" data-l10n-id="vcard-primary-email-label"/>
         </tr>
       </thead>
@@ -61,109 +52,68 @@
             type="button"></button>
   </fieldset>
   <!-- URL -->
-  <fieldset id="addr-book-edit-url" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-url" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-url-header"/>
-    <slot name="v-url"/>
-    <!-- The add button is repeated boilerplate and will be reduced -->
-    <button id="vcard-add-url" class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-url-add"/>
-    </button>
+    <button id="vcard-add-url"
+            data-l10n-id="vcard-url-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
   </fieldset>
   <!-- Address -->
-  <fieldset id="addr-book-edit-address" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-address" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-adr-header"/>
-    <slot name="v-adr"/>
-    <!-- The add button is repeated boilerplate and will be reduced -->
-    <button id="vcard-add-adr" class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-            src="chrome://global/skin/icons/add.svg"
-            alt=""/>
-      <span data-l10n-id="vcard-adr-add"/>
-    </button>
+    <button id="vcard-add-adr"
+            data-l10n-id="vcard-adr-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
   </fieldset>
   <!-- Tel -->
-  <fieldset id="addr-book-edit-tel" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-tel" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-tel-header"/>
-    <slot name="v-tel"/>
-    <!-- The add button is repeated boilerplate and will be reduced -->
-    <button id="vcard-add-tel" class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-tel-add"/>
-    </button>
+    <button id="vcard-add-tel"
+            data-l10n-id="vcard-tel-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
   </fieldset>
   <!-- Time Zone -->
-  <fieldset id="addr-book-edit-tz" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-tz" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-tz-header"/>
-    <slot name="v-tz"/>
-    <button id="vcard-add-tz" class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-tz-add"/>
-    </button>
+    <button id="vcard-add-tz"
+            data-l10n-id="vcard-tz-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
   </fieldset>
   <!-- IMPP (Chat) -->
-  <fieldset id="addr-book-edit-impp" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-impp" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-impp-header"/>
-    <slot name="v-impp"/>
-    <!-- The add button is repeated boilerplate and will be reduced -->
-    <button id="vcard-add-impp" class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-impp-add"/>
-    </button>
+    <button id="vcard-add-impp"
+            data-l10n-id="vcard-impp-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
   </fieldset>
   <!-- Birthday and Anniversary (Special dates) -->
-  <fieldset id="addr-book-edit-bday-anniversary" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-bday-anniversary" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-bday-anniversary-header"/>
-    <slot name="v-bday"/>
-    <slot name="v-anniversary"/>
-    <button id="vcard-add-bday-anniversary" class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-bday-anniversary-add"/>
-    </button>
+    <button id="vcard-add-bday-anniversary"
+            data-l10n-id="vcard-bday-anniversary-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
   </fieldset>
   <!-- Notes -->
-  <fieldset id="addr-book-edit-note" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-note" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-note-header"/>
-    <slot name="v-note"/>
-    <button id="vcard-add-note" class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-note-add"/>
-    </button>
+    <button id="vcard-add-note"
+            data-l10n-id="vcard-note-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
   </fieldset>
   <!-- Organization Info -->
-  <fieldset id="addr-book-edit-org" class="addr-book-edit-fieldset">
+  <fieldset id="addr-book-edit-org" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-org-header"/>
-    <slot name="v-title"/>
-    <slot name="v-role"/>
-    <slot name="v-org"/>
-    <!-- The add button is repeated boilerplate and will be reduced -->
     <button id="vcard-add-org"
+            data-l10n-id="vcard-org-add"
             class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-org-add"/>
-    </button>
+            type="button"></button>
   </fieldset>
 </template>
 
@@ -260,7 +210,7 @@
 
 <!-- Field with type and text -->
 <template id="template-vcard-edit-type-text">
-  <label class="screen-readers-only"
+  <label class="screen-reader-only"
          for="select"
          data-l10n-id="vcard-entry-type-label"/>
   <!-- The type selection is repeated boilerplate and will be reduced -->
@@ -269,7 +219,7 @@
     <option value="home" data-l10n-id="vcard-entry-type-home"/>
     <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
   </select>
-  <label class="screen-readers-only" for="text"/>
+  <label class="screen-reader-only" for="text"/>
   <input type="text"/>
 </template>
 
@@ -282,28 +232,28 @@
 
 <!-- Field with text -->
 <template id="template-vcard-edit-text">
-  <label class="screen-readers-only" for="text"/>
+  <label class="screen-reader-only" for="text"/>
   <input type="text"/>
 </template>
 
 <!-- Birthday and Anniversary -->
 <template id="template-vcard-edit-bday-anniversary">
-  <fieldset class="fieldset-grid">
+  <fieldset class="fieldset-grid fieldset-reset">
     <legend/>
     <select class="vcard-type-selection">
       <option value="bday" data-l10n-id="vcard-bday-label" selected="selected"/>
       <option value="anniversary" data-l10n-id="vcard-anniversary-label"/>
     </select>
     <div class="vcard-year-month-day-container">
-      <label class="screen-readers-only" for="month" data-l10n-id="vcard-date-month"/><!-- No white space here.
+      <label class="screen-reader-only" for="month" data-l10n-id="vcard-date-month"/><!-- No white space here.
    --><select id="month">
         <option value="" data-l10n-id="vcard-date-month" />
       </select><!-- No white space here.
-   --><label class="screen-readers-only" for="day" data-l10n-id="vcard-date-day"/><!-- No white space here.
+   --><label class="screen-reader-only" for="day" data-l10n-id="vcard-date-day"/><!-- No white space here.
    --><select id="day">
         <option value="" data-l10n-id="vcard-date-day"/>
       </select><!-- No white space here.
-   --><label class="screen-readers-only" for="year" data-l10n-id="vcard-date-year"/>
+   --><label class="screen-reader-only" for="year" data-l10n-id="vcard-date-year"/>
       <input id="year" type="number" min="0" max="9999"/>
     </div>
   </fieldset>
@@ -311,9 +261,9 @@
 
 <!-- Address -->
 <template id="template-vcard-edit-adr">
-  <fieldset class="fieldset-grid">
-    <legend class="screen-readers-only" data-l10n-id="vcard-adr-label"/>
-    <label class="screen-readers-only"
+  <fieldset class="fieldset-grid fieldset-reset">
+    <legend class="screen-reader-only" data-l10n-id="vcard-adr-label"/>
+    <label class="screen-reader-only"
            for="select"
            data-l10n-id="vcard-entry-type-label"/>
     <!-- The type selection is repeated boilerplate and will be reduced -->
