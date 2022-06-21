@@ -96,7 +96,8 @@ class ImapChannel {
       return false;
     }
 
-    let stream = this.URI.folder.getSlicedOfflineFileStream(this._msgKey);
+    let hdr = this.URI.folder.getMessageHeader(this._msgKey);
+    let stream = this.URI.folder.getLocalMsgStream(hdr);
     let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
@@ -108,7 +109,7 @@ class ImapChannel {
         this._listener.onStartRequest(this);
       },
       onStopRequest: (request, status) => {
-        this._listener.onStopRequest(null, status);
+        this._listener.onStopRequest(this, status);
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
@@ -147,7 +148,7 @@ class ImapChannel {
           try {
             this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
           } catch (e) {}
-          this._listener.onStopRequest(null, Cr.NS_OK);
+          this._listener.onStopRequest(this, Cr.NS_OK);
           return;
         }
         outputStream.write(data, data.length);

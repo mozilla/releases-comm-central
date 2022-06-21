@@ -53,6 +53,7 @@ class ImapClient {
         [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
         [Ci.nsMsgAuthMethod.NTLM]: ["NTLM"],
         [Ci.nsMsgAuthMethod.OAuth2]: ["XOAUTH2"],
+        [Ci.nsMsgAuthMethod.External]: ["EXTERNAL"],
       }[server.authMethod] || [];
     // The next auth method to try if the current failed.
     this._nextAuthMethod = null;
@@ -510,6 +511,12 @@ class ImapClient {
         this._nextAction = this._actionAuthResponse;
         let token = await this._authenticator.getOAuthToken();
         this._sendTagged(`AUTHENTICATE XOAUTH2 ${token}`, true);
+        break;
+      case "EXTERNAL":
+        this._nextAction = this._actionAuthResponse;
+        this._sendTagged(
+          `AUTHENTICATE EXTERNAL ${this._authenticator.username}`
+        );
         break;
       default:
         this._actionDone();
