@@ -917,6 +917,50 @@
       this.shadowRoot.appendChild(this.filler);
       this.shadowRoot.appendChild(document.createElement("slot"));
 
+      this.setAttribute("aria-multiselectable", "true");
+
+      this.addEventListener("focus", event => {
+        if (this._preventFocusHandler) {
+          this._preventFocusHandler = false;
+          return;
+        }
+        if (this.currentIndex == -1 && this._view.rowCount) {
+          let selectionChanged = false;
+          if (this.selectedIndex == -1) {
+            this._selection.select(0);
+            selectionChanged = true;
+          }
+          this.currentIndex = this.selectedIndex;
+          if (selectionChanged) {
+            this.dispatchEvent(new CustomEvent("select"));
+          }
+        }
+      });
+
+      this.addEventListener("mousedown", event => {
+        if (
+          this == document.activeElement ||
+          !event.target.closest(this._rowElementName)
+        ) {
+          return;
+        }
+        // We prevent the focus handler because it can change the selection
+        // state, which currently rebuilds the view. If this happens the mouseup
+        // event will be on a different element, which means it will not receive
+        // the "click" event.
+        // Instead, we let the click handler change the selection state instead
+        // of the focus handler.
+        // Ideally, instead of this hack, we would not rebuild the view when
+        // just the selection changes since it should be a light operation.
+        this._preventFocusHandler = true;
+        // We expect the property to be cleared in the focus handler, because
+        // the default mousedown will invoke it, but we clear the property at
+        // the next loop just in case.
+        setTimeout(() => {
+          this._preventFocusHandler = false;
+        });
+      });
+
       this.addEventListener("click", event => {
         if (event.button !== 0) {
           return;
@@ -945,63 +989,72 @@
           return;
         }
 
+        if (event.ctrlKey && event.shiftKey) {
+          return;
+        }
+
         if (event.ctrlKey) {
-          this.currentIndex = index;
-          this.toggleSelectionAtIndex(index);
+          this._toggleSelected(index);
         } else if (event.shiftKey) {
-          this._selection.rangedSelect(-1, index, false);
-          this.scrollToIndex(index);
-          this.dispatchEvent(new CustomEvent("select"));
+          this._selectRange(index);
         } else {
-          this.selectedIndex = index;
+          this._selectSingle(index);
         }
       });
 
       this.addEventListener("keydown", event => {
-        if (event.altKey || event.ctrlKey || event.metaKey) {
+        if (event.altKey || event.metaKey) {
           return;
         }
 
-        let newIndex = this.currentIndex;
+        let currentIndex = this.currentIndex == -1 ? 0 : this.currentIndex;
+        let newIndex;
         switch (event.key) {
           case "ArrowUp":
-            newIndex = this.currentIndex - 1;
+            newIndex = currentIndex - 1;
             break;
           case "ArrowDown":
-            newIndex = this.currentIndex + 1;
+            newIndex = currentIndex + 1;
             break;
           case "ArrowLeft":
           case "ArrowRight": {
+            event.preventDefault();
+            if (this.currentIndex == -1) {
+              return;
+            }
             let isArrowRight = event.key == "ArrowRight";
             let isRTL = this.matches(":dir(rtl)");
             if (isArrowRight == isRTL) {
               // Collapse action.
-              let currentLevel = this._view.getLevel(newIndex);
-              if (this._view.isContainerOpen(newIndex)) {
-                this.collapseRowAtIndex(newIndex);
+              let currentLevel = this._view.getLevel(this.currentIndex);
+              if (this._view.isContainerOpen(this.currentIndex)) {
+                this.collapseRowAtIndex(this.currentIndex);
                 return;
               } else if (currentLevel == 0) {
                 return;
               }
 
-              let parentIndex = this._view.getParentIndex(newIndex);
+              let parentIndex = this._view.getParentIndex(this.currentIndex);
               if (parentIndex != -1) {
-                this.selectedIndex = parentIndex;
+                newIndex = parentIndex;
               }
-            } else if (this._view.isContainer(newIndex)) {
+            } else if (this._view.isContainer(this.currentIndex)) {
               // Expand action.
-              if (!this._view.isContainerOpen(newIndex)) {
-                let addedRows = this.expandRowAtIndex(newIndex);
+              if (!this._view.isContainerOpen(this.currentIndex)) {
+                let addedRows = this.expandRowAtIndex(this.currentIndex);
                 this.scrollToIndex(
-                  newIndex +
+                  this.currentIndex +
                     Math.min(
                       addedRows,
                       this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
                     )
                 );
               } else {
-                this.selectedIndex++;
+                newIndex = this.currentIndex + 1;
               }
+            }
+            if (newIndex != undefined) {
+              this._selectSingle(newIndex);
             }
             return;
           }
@@ -1014,35 +1067,46 @@
           case "PageUp":
             newIndex = Math.max(
               0,
-              this.currentIndex -
+              currentIndex -
                 Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
             );
             break;
           case "PageDown":
             newIndex = Math.min(
               this._view.rowCount - 1,
-              this.currentIndex +
+              currentIndex +
                 Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
             );
             break;
-          case " ":
-            if (event.originalTarget.closest("button")) {
-              return;
-            }
-            break;
-          default:
-            return;
         }
 
-        newIndex = this._clampIndex(newIndex);
-        if (event.shiftKey) {
-          this._selection.rangedSelect(-1, newIndex, false);
-          this.scrollToIndex(newIndex);
-          this.dispatchEvent(new CustomEvent("select"));
-        } else {
-          this.selectedIndex = newIndex;
+        if (newIndex != undefined) {
+          newIndex = this._clampIndex(newIndex);
+          if (newIndex != null && (!event.ctrlKey || !event.shiftKey)) {
+            // Else, if both modifiers pressed, do nothing.
+            if (event.shiftKey) {
+              this._selectRange(newIndex);
+            } else if (event.ctrlKey) {
+              // Change focus, but not selection.
+              this.currentIndex = newIndex;
+            } else {
+              this._selectSingle(newIndex);
+            }
+          }
+          event.preventDefault();
+          return;
         }
-        event.preventDefault();
+
+        if (event.key == " ") {
+          if (this.currentIndex != -1 && !event.shiftKey) {
+            if (event.ctrlKey) {
+              this._toggleSelected(this.currentIndex);
+            } else {
+              this._selectSingle(this.currentIndex);
+            }
+          }
+          event.preventDefault();
+        }
       });
 
       let lastTime = 0;
@@ -1138,10 +1202,6 @@
           if (ex.result != Cr.NS_ERROR_XPC_BAD_CONVERT_JS) {
             throw ex;
           }
-        }
-
-        if (view.rowCount && this.currentIndex == -1) {
-          this.currentIndex = 0;
         }
       }
       this.invalidate();
@@ -1296,6 +1356,9 @@
      * @return {integer}
      */
     _clampIndex(index) {
+      if (!this._view.rowCount) {
+        return null;
+      }
       if (index < 0) {
         return 0;
       }
@@ -1445,12 +1508,55 @@
       this._selection.currentIndex = index;
 
       if (index < 0 || index > this._view.rowCount - 1) {
+        this.removeAttribute("aria-activedescendant");
         return;
       }
 
       this.getRowAtIndex(index)?.classList.add("current");
       this.scrollToIndex(index);
       this.setAttribute("aria-activedescendant", `${this.id}-row${index}`);
+    }
+
+    /**
+     * Select and focus the given index.
+     *
+     * @param {number} index - The index to select.
+     */
+    _selectSingle(index) {
+      let changeSelection =
+        this._selection.count != 1 || !this._selection.isSelected(index);
+      if (changeSelection) {
+        this._selection.select(index);
+      }
+      this.currentIndex = index;
+      if (changeSelection) {
+        this.dispatchEvent(new CustomEvent("select"));
+      }
+    }
+
+    /**
+     * Start or extend a range selection to the given index and focus it.
+     *
+     * @param {number} index - The index to select.
+     */
+    _selectRange(index) {
+      this._selection.rangedSelect(-1, index, false);
+      this.currentIndex = index;
+      this.dispatchEvent(new CustomEvent("select"));
+    }
+
+    /**
+     * Toggle the selection state at the given index and focus it.
+     *
+     * @param {number} index - The index to toggle.
+     */
+    _toggleSelected(index) {
+      this._selection.toggleSelect(index);
+      // We hack the internals of the JSTreeSelection to clear the
+      // shiftSelectPivot.
+      this._selection._shiftSelectPivot = null;
+      this.currentIndex = index;
+      this.dispatchEvent(new CustomEvent("select"));
     }
 
     /**
@@ -1469,13 +1575,7 @@
     }
 
     set selectedIndex(index) {
-      if (this._selection.count == 1 && this._selection.isSelected(index)) {
-        return;
-      }
-
-      this._selection.select(index);
-      this.currentIndex = index;
-      this.dispatchEvent(new CustomEvent("select"));
+      this._selectSingle(index);
     }
 
     /**
@@ -1565,6 +1665,7 @@
 
       this.list = this.parentNode;
       this.view = this.list.view;
+      this.setAttribute("aria-selected", !!this.selected);
     }
 
     /**
@@ -1591,13 +1692,8 @@
     }
 
     set selected(selected) {
-      this.setAttribute("aria-selected", selected);
+      this.setAttribute("aria-selected", !!selected);
       this.classList.toggle("selected", !!selected);
-
-      // Throw focus back to the list if something in this row had it.
-      if (!selected && document.activeElement == this) {
-        this.list.focus();
-      }
     }
   }
   customElements.define("tree-view-listrow", TreeViewListrow);

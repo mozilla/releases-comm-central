@@ -135,7 +135,7 @@ async function subtestKeyboardAndMouse() {
   }
 
   checkCurrent(0);
-  checkSelected();
+  checkSelected(0);
 
   // Click on some individual rows.
 
@@ -143,7 +143,7 @@ async function subtestKeyboardAndMouse() {
     "resource://testing-common/TestUtils.jsm"
   );
 
-  async function clickOnRow(index, modifiers = {}) {
+  async function clickOnRow(index, modifiers = {}, expectEvent = true) {
     if (modifiers.shiftKey) {
       info(`clicking on row ${index} with shift key`);
     } else if (modifiers.ctrlKey) {
@@ -160,12 +160,12 @@ async function subtestKeyboardAndMouse() {
     list.addEventListener("select", selectHandler, { once: true });
     EventUtils.synthesizeMouse(list, x, y, modifiers, content);
     await TestUtils.waitForCondition(
-      () => selectHandler.seenEvent,
-      "'select' event did not get fired"
+      () => !!selectHandler.seenEvent == expectEvent,
+      `'select' event should ${expectEvent ? "" : "not "}get fired`
     );
   }
 
-  await clickOnRow(0);
+  await clickOnRow(0, {}, false);
   checkCurrent(0);
   checkSelected(0);
 
@@ -206,15 +206,15 @@ async function subtestKeyboardAndMouse() {
   checkSelected(1, 2, 5);
 
   await clickOnRow(5, { ctrlKey: true });
-  checkCurrent(5); // Is this right?
+  checkCurrent(5);
   checkSelected(1, 2);
 
   await clickOnRow(1, { ctrlKey: true });
-  checkCurrent(1); // Is this right?
+  checkCurrent(1);
   checkSelected(2);
 
   await clickOnRow(2, { ctrlKey: true });
-  checkCurrent(2); // Is this right?
+  checkCurrent(2);
   checkSelected();
 
   // Move around by pressing keys.
@@ -231,7 +231,7 @@ async function subtestKeyboardAndMouse() {
     EventUtils.synthesizeKey(key, modifiers, content);
     await TestUtils.waitForCondition(
       () => !!selectHandler.seenEvent == expectEvent,
-      `'select' event ${expectEvent ? "fired" : "did not fire"} as expected`
+      `'select' event should ${expectEvent ? "" : "not "}get fired`
     );
   }
 
@@ -243,32 +243,112 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(1);
   checkSelected(1);
 
-  pressKey("VK_UP");
+  await pressKey("VK_UP", { ctrlKey: true }, false);
+  checkCurrent(0);
+  checkSelected(1);
+
+  // Without Ctrl selection moves with focus again.
+  await pressKey("VK_UP");
   checkCurrent(0);
   checkSelected(0);
 
   // Does nothing.
-  pressKey("VK_UP", undefined, false);
+  await pressKey("VK_UP", {}, false);
+  checkCurrent(0);
+  checkSelected(0);
+
+  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  checkCurrent(1);
+  checkSelected(0);
+
+  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  checkCurrent(2);
+  checkSelected(0);
+
+  // Multi select with Ctrl+Space.
+  await pressKey(" ", { ctrlKey: true });
+  checkCurrent(2);
+  checkSelected(0, 2);
+
+  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  checkCurrent(3);
+  checkSelected(0, 2);
+
+  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  checkCurrent(4);
+  checkSelected(0, 2);
+
+  await pressKey(" ", { ctrlKey: true });
+  checkCurrent(4);
+  checkSelected(0, 2, 4);
+
+  // Single selection restored with normal navigation.
+  await pressKey("VK_UP");
+  checkCurrent(3);
+  checkSelected(3);
+
+  // Can select none using Ctrl+Space.
+  await pressKey(" ", { ctrlKey: true });
+  checkCurrent(3);
+  checkSelected();
+
+  await pressKey("VK_DOWN");
+  checkCurrent(4);
+  checkSelected(4);
+
+  await pressKey("VK_HOME", { ctrlKey: true }, false);
+  checkCurrent(0);
+  checkSelected(4);
+
+  // Select only the current item with Space (no modifier).
+  await pressKey(" ");
   checkCurrent(0);
   checkSelected(0);
 
   // The list is 630px high, so rows 0-11 are fully visible.
 
-  pressKey("VK_PAGE_DOWN");
+  await pressKey("VK_PAGE_DOWN");
   await scrollingDelay();
   checkCurrent(12);
   checkSelected(12);
   Assert.equal(list.getFirstVisibleIndex(), 1, "scrolled to the correct place");
 
-  pressKey("VK_PAGE_UP", { shiftKey: true });
+  await pressKey("VK_PAGE_UP", { shiftKey: true });
   await scrollingDelay();
   checkCurrent(0);
   checkSelected(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
   Assert.equal(list.getFirstVisibleIndex(), 0, "scrolled to the correct place");
 
+  // Shrink shift selection.
+  await pressKey("VK_DOWN", { shiftKey: true });
+  checkCurrent(1);
+  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+
+  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  checkCurrent(2);
+  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+
+  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  checkCurrent(3);
+  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+
+  // Break the shift sequence by Ctrl+Space.
+  await pressKey(" ", { ctrlKey: true });
+  checkCurrent(3);
+  checkSelected(1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+
+  await pressKey("VK_DOWN", { shiftKey: true });
+  checkCurrent(4);
+  checkSelected(3, 4);
+
+  // Reverse selection direction.
+  await pressKey("VK_HOME", { shiftKey: true });
+  checkCurrent(0);
+  checkSelected(0, 1, 2, 3);
+
   // Now rows 38-49 are fully visible.
 
-  pressKey("VK_END");
+  await pressKey("VK_END");
   await scrollingDelay();
   checkCurrent(49);
   checkSelected(49);
@@ -279,7 +359,7 @@ async function subtestKeyboardAndMouse() {
   );
 
   // Does nothing.
-  pressKey("VK_DOWN", undefined, false);
+  await pressKey("VK_DOWN", {}, false);
   checkCurrent(49);
   checkSelected(49);
   Assert.equal(
@@ -288,7 +368,7 @@ async function subtestKeyboardAndMouse() {
     "scrolled to the correct place"
   );
 
-  pressKey("VK_PAGE_UP");
+  await pressKey("VK_PAGE_UP");
   await scrollingDelay();
   checkCurrent(37);
   checkSelected(37);
@@ -298,7 +378,7 @@ async function subtestKeyboardAndMouse() {
     "scrolled to the correct place"
   );
 
-  pressKey("VK_PAGE_DOWN", { shiftKey: true });
+  await pressKey("VK_PAGE_DOWN", { shiftKey: true });
   await scrollingDelay();
   checkCurrent(49);
   checkSelected(37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49);
@@ -308,7 +388,7 @@ async function subtestKeyboardAndMouse() {
     "scrolled to the correct place"
   );
 
-  pressKey("VK_HOME");
+  await pressKey("VK_HOME");
   await scrollingDelay();
   checkCurrent(0);
   checkSelected(0);
@@ -350,7 +430,7 @@ async function subtestKeyboardAndMouse() {
     "'select' event did not fire as expected"
   );
 
-  pressKey("VK_DOWN");
+  await pressKey("VK_DOWN");
   await scrollingDelay();
   checkCurrent(1);
   checkSelected(1);
@@ -371,7 +451,7 @@ async function subtestKeyboardAndMouse() {
     "'select' event did not fire as expected"
   );
 
-  pressKey("VK_UP");
+  await pressKey("VK_UP");
   checkCurrent(0);
   checkSelected(0);
   Assert.equal(list.getFirstVisibleIndex(), 0, "scrolled to the correct place");

@@ -1799,9 +1799,6 @@ var cardsPane = {
   _showContextMenu(event) {
     let row;
     if (event.target == this.cardsList) {
-      if (this.cardsList.selectedIndex == -1) {
-        return;
-      }
       row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
     } else {
       row = event.target.closest("ab-card-listrow, ab-table-card-listrow");
@@ -1811,6 +1808,8 @@ var cardsPane = {
     }
     if (!this.cardsList.selectedIndices.includes(row.index)) {
       this.cardsList.selectedIndex = row.index;
+      // Re-fetch the row in case it was replaced.
+      row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
     }
 
     this.cardsList.focus();
@@ -1979,7 +1978,6 @@ var cardsPane = {
 
   _onSelect(event) {
     detailsPane.displayCards(this.selectedCards);
-    this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
   },
 
   _onKeyPress(event) {

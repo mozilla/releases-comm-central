@@ -30,21 +30,37 @@ add_task(async function test_f6_cycle() {
 
   let editButton = abDocument.getElementById("editButton");
 
+  // Check what happens with a contact selected.
+  openDirectory(book);
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  // NOTE: When the "cards" element first receives focus it will select the
+  // first item, which causes the panel to be displayed.
+  cycle(
+    "books",
+    "searchInput",
+    "cards",
+    "editButton",
+    "books",
+    "searchInput",
+    "cards"
+  );
+  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+
+  // Check with no selection.
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(0),
+    { ctrlKey: true },
+    abWindow
+  );
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  cycle("cards", "books", "searchInput", "cards");
+  // Still hidden.
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
 
-  // Check what happens with no contact selected.
-
-  cycle("searchInput", "cards", "books", "searchInput");
-
-  // Check what happens with a contact selected.
-
+  // Check what happens while editing. It should be nothing.
   openDirectory(book);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
-
-  cycle("cards", "editButton", "books", "searchInput", "cards");
-
-  // Check what happens while editing. It should be nothing.
 
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   Assert.equal(abDocument.activeElement.id, "vcard-n-firstname");

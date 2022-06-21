@@ -31,6 +31,7 @@ add_task(async function test_additions_and_removals() {
     EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
     await promptPromise;
     await new Promise(r => abWindow.setTimeout(r));
+    await new Promise(r => abWindow.setTimeout(r));
   }
 
   let bookA = createAddressBook("book A");
