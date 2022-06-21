@@ -193,19 +193,84 @@ var gKeyAssistant = {
       // Fetch all keys for the current recipient.
       let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
       if (keyMetas.some(k => k.readiness == "alias")) {
-        // Skip if this is an alias email.
-        continue;
-      }
+        let aliasKeyList = EnigmailKeyRing.getAliasKeyList(addr);
+        let aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
+        if (!aliasKeys.length) {
+          // failure, at least one alias key is unusable/unavailable
 
-      let acceptedKeys = keyMetas.filter(k => k.readiness == "accepted");
-      if (acceptedKeys.length) {
-        this.addToReadyList(addr, acceptedKeys[0]);
-        this.usableKeys++;
-        continue;
-      }
+          let descriptionDiv = document.createElement("div");
+          document.l10n.setAttributes(
+            descriptionDiv,
+            "openpgp-compose-alias-status-error"
+          );
 
-      this.addToProblematicList(addr, keyMetas);
-      this.problematicKeys++;
+          this.addToProblematicList(addr, descriptionDiv, null);
+          this.problematicKeys++;
+        } else {
+          let aliasText = document.createElement("div");
+          document.l10n.setAttributes(
+            aliasText,
+            "openpgp-compose-alias-status-direct",
+            { count: aliasKeys.length }
+          );
+
+          this.addToReadyList(addr, aliasText);
+          this.usableKeys++;
+        }
+      } else {
+        // not alias
+
+        let acceptedKeys = keyMetas.filter(k => k.readiness == "accepted");
+        if (acceptedKeys.length) {
+          let button = document.createElement("button");
+          document.l10n.setAttributes(
+            button,
+            "openpgp-key-assistant-view-key-button"
+          );
+          button.addEventListener("click", () => {
+            gKeyAssistant.viewKeyFromOverview(addr, acceptedKeys[0]);
+          });
+
+          this.addToReadyList(addr, button);
+          this.usableKeys++;
+        } else {
+          let descriptionDiv = document.createElement("div");
+
+          let canOfferResolving = keyMetas.some(
+            k =>
+              k.readiness == "collected" ||
+              k.readiness == "expiredAccepted" ||
+              k.readiness == "expiredUndecided" ||
+              k.readiness == "expiredOtherAccepted" ||
+              k.readiness == "undecided" ||
+              k.readiness == "otherAccepted" ||
+              k.readiness == "expiredRejected" ||
+              k.readiness == "rejected"
+          );
+
+          let button = null;
+          if (canOfferResolving) {
+            this.fillKeysStatus(descriptionDiv, keyMetas);
+
+            button = document.createElement("button");
+            document.l10n.setAttributes(
+              button,
+              "openpgp-key-assistant-issue-resolve-button"
+            );
+            button.addEventListener("click", () => {
+              this.buildResolveView(addr, keyMetas);
+            });
+          } else {
+            document.l10n.setAttributes(
+              descriptionDiv,
+              "openpgp-key-assistant-no-key-available"
+            );
+          }
+
+          this.addToProblematicList(addr, descriptionDiv, button);
+          this.problematicKeys++;
+        }
+      }
     }
 
     document.getElementById("keyAssistantIssues").hidden = !this
@@ -312,7 +377,7 @@ var gKeyAssistant = {
     EnigmailWindows.openKeyDetails(window, keyMeta.keyObj.keyId, false);
   },
 
-  addToReadyList(recipient, keyMeta) {
+  addToReadyList(recipient, detailElement) {
     let list = document.getElementById("keysListValid");
     let row = document.createElement("li");
     row.classList.add("key-row");
@@ -323,17 +388,7 @@ var gKeyAssistant = {
     title.textContent = recipient;
 
     info.appendChild(title);
-
-    let button = document.createElement("button");
-    document.l10n.setAttributes(
-      button,
-      "openpgp-key-assistant-view-key-button"
-    );
-    button.addEventListener("click", () => {
-      gKeyAssistant.viewKeyFromOverview(recipient, keyMeta);
-    });
-
-    row.append(info, button);
+    row.append(info, detailElement);
     list.appendChild(row);
   },
 
@@ -445,7 +500,7 @@ var gKeyAssistant = {
     );
   },
 
-  addToProblematicList(recipient, keyMetas) {
+  addToProblematicList(recipient, descriptionDiv, resolveButton) {
     let list = document.getElementById("keysListIssues");
     let row = document.createElement("li");
     row.classList.add("key-row");
@@ -454,37 +509,11 @@ var gKeyAssistant = {
     info.classList.add("key-info");
     let title = document.createElement("b");
     title.textContent = recipient;
-    let description = document.createElement("div");
-    info.append(title, description);
+    info.append(title, descriptionDiv);
 
-    let canOfferResolving = keyMetas.some(
-      k =>
-        k.readiness == "collected" ||
-        k.readiness == "expiredAccepted" ||
-        k.readiness == "expiredUndecided" ||
-        k.readiness == "expiredOtherAccepted" ||
-        k.readiness == "undecided" ||
-        k.readiness == "otherAccepted" ||
-        k.readiness == "expiredRejected" ||
-        k.readiness == "rejected"
-    );
-
-    if (canOfferResolving) {
-      this.fillKeysStatus(description, keyMetas);
-      let button = document.createElement("button");
-      document.l10n.setAttributes(
-        button,
-        "openpgp-key-assistant-issue-resolve-button"
-      );
-      button.addEventListener("click", () => {
-        this.buildResolveView(recipient, keyMetas);
-      });
-      row.append(info, button);
+    if (resolveButton) {
+      row.append(info, resolveButton);
     } else {
-      document.l10n.setAttributes(
-        description,
-        "openpgp-key-assistant-no-key-available"
-      );
       row.appendChild(info);
     }
 
