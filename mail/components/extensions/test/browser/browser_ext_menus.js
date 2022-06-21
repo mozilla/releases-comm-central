@@ -1075,30 +1075,38 @@ async function subtest_action_menu(
       ".customize-context-removeExtension"
     );
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    let promptPromise = BrowserTestUtils.promiseAlertDialog(
+      undefined,
+      undefined,
+      {
+        async callback(promptWindow) {
+          await TestUtils.waitForCondition(
+            () => Services.focus.activeWindow == promptWindow,
+            "waiting for prompt to become active"
+          );
+
+          let promptDocument = promptWindow.document;
+          // Check if the correct add-on is being removed.
+          is(promptDocument.title, `Remove ${name}?`);
+          if (
+            !Services.prefs.getBoolPref("prompts.windowPromptSubDialog", false)
+          ) {
+            is(
+              promptDocument.getElementById("infoBody").textContent,
+              `Remove ${name} as well as its configuration and data from ${brand}?`
+            );
+          }
+          let acceptButton = promptDocument
+            .querySelector("dialog")
+            .getButton("accept");
+          is(acceptButton.label, "Remove");
+          EventUtils.synthesizeMouseAtCenter(acceptButton, {}, promptWindow);
+        },
+      }
+    );
     menu.activateItem(removeExtension);
     await hiddenPromise;
-
-    await BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
-      async callback(promptWindow) {
-        await new Promise(r => promptWindow.setTimeout(r));
-        let promptDocument = promptWindow.document;
-        // Check if the correct add-on is being removed.
-        is(promptDocument.title, `Remove ${name}?`);
-        if (
-          !Services.prefs.getBoolPref("prompts.windowPromptSubDialog", false)
-        ) {
-          is(
-            promptDocument.getElementById("infoBody").textContent,
-            `Remove ${name} as well as its configuration and data from ${brand}?`
-          );
-        }
-        let acceptButton = promptDocument
-          .querySelector("dialog")
-          .getButton("accept");
-        is(acceptButton.label, "Remove");
-        EventUtils.synthesizeMouseAtCenter(acceptButton, {}, promptWindow);
-      },
-    });
+    await promptPromise;
   }
 
   async function testContextMenuManageExtension(extension, menu, element) {

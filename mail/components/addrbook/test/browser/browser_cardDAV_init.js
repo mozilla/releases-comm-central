@@ -140,7 +140,10 @@ function handleCertError() {
 function handlePasswordPrompt(expectedUsername, password, savePassword = true) {
   return BrowserTestUtils.promiseAlertDialog(null, undefined, {
     async callback(prompt) {
-      await new Promise(resolve => prompt.setTimeout(resolve));
+      await TestUtils.waitForCondition(
+        () => Services.focus.activeWindow == prompt,
+        "waiting for prompt to become active"
+      );
 
       if (!password) {
         prompt.document
