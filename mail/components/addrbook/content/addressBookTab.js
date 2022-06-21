@@ -159,4 +159,12 @@ var addressBookTabType = {
   restoreTab(aTabmail, aPersistedState) {
     aTabmail.openTab("addressBookTab", {});
   },
+
+  doCommand(aCommand, aTab) {
+    if (aCommand == "cmd_print") {
+      aTab.browser.contentWindow.externalAction({ action: "print" });
+      return;
+    }
+    this.__proto__.doCommand(aCommand, aTab);
+  },
 };

@@ -558,6 +558,7 @@ var contentTabBaseType = {
           return true;
         }
         return [
+          "addressbook",
           "certificate",
           "crashes",
           "credits",

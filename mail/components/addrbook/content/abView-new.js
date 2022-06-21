@@ -18,6 +18,7 @@ function ABView(
 ) {
   this.__proto__.__proto__ = new PROTO_TREE_VIEW();
   this.directory = directory;
+  this.searchString = searchString;
 
   let directories = directory ? [directory] : MailServices.ab.directories;
   if (searchQuery) {

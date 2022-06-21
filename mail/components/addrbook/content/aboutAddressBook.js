@@ -229,6 +229,12 @@ function externalAction({ action, address, card, vCard } = {}) {
     if (action == "edit" && book && !book.readOnly) {
       detailsPane.editCurrentContact();
     }
+  } else if (action == "print") {
+    if (document.activeElement == booksList) {
+      booksList.printSelected();
+    } else {
+      cardsPane.printSelected();
+    }
   }
 }
 
@@ -1692,7 +1698,22 @@ var cardsPane = {
    * Print delete the selected card(s).
    */
   printSelected() {
-    printHandler.printCards(this.selectedCards);
+    let selectedCards = this.selectedCards;
+    if (selectedCards.length) {
+      // Some cards are selected. Print them.
+      printHandler.printCards(selectedCards);
+    } else if (this.cardsList.view.searchString) {
+      // Nothing's selected, so print everything. But this is a search, so we
+      // can't just print the selected book/list.
+      let allCards = [];
+      for (let i = 0; i < this.cardsList.view.rowCount; i++) {
+        allCards.push(this.cardsList.view.getCardFromRow(i));
+      }
+      printHandler.printCards(allCards);
+    } else {
+      // Nothing's selected, so print the selected book/list.
+      booksList.printSelected();
+    }
   },
 
   _canModifySelected() {
