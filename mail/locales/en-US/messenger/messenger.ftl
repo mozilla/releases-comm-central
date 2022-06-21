@@ -282,22 +282,22 @@ settings-context-open-addons-item2 =
 spaces-toolbar-pinned-tab-button =
     .tooltiptext = Spaces Menu
 
-spaces-pinned-button-menuitem-mail =
+spaces-pinned-button-menuitem-mail2 =
     .label = { spaces-toolbar-button-mail2.title }
 
-spaces-pinned-button-menuitem-address-book =
+spaces-pinned-button-menuitem-address-book2 =
     .label = { spaces-toolbar-button-address-book2.title }
 
-spaces-pinned-button-menuitem-calendar =
+spaces-pinned-button-menuitem-calendar2 =
     .label = { spaces-toolbar-button-calendar2.title }
 
-spaces-pinned-button-menuitem-tasks =
+spaces-pinned-button-menuitem-tasks2 =
     .label = { spaces-toolbar-button-tasks2.title }
 
-spaces-pinned-button-menuitem-chat =
+spaces-pinned-button-menuitem-chat2 =
     .label = { spaces-toolbar-button-chat2.title }
 
-spaces-pinned-button-menuitem-settings =
+spaces-pinned-button-menuitem-settings2 =
     .label = { spaces-toolbar-button-settings2.title }
 
 spaces-pinned-button-menuitem-show =
