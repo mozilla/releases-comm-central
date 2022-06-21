@@ -921,6 +921,13 @@ pref("devtools.browsertoolbox.fission", true);
 pref("devtools.browsertoolbox.fission", false);
 #endif
 
+// When the Multiprocess Browser Toolbox is enabled, you can configure the scope of it:
+// - "everything" will enable debugging absolutely everything in the browser
+//   All processes, all documents, all workers, all add-ons.
+// - "parent-process" will restrict debugging to the parent process
+//   All privileged javascript, documents and workers running in the parent process.
+pref("devtools.browsertoolbox.scope", "everything");
+
 // Toolbox Button preferences
 pref("devtools.command-button-pick.enabled", true);
 pref("devtools.command-button-frames.enabled", true);
