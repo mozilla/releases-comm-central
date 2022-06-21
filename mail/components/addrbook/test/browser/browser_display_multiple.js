@@ -70,7 +70,7 @@ add_task(async function testDisplayMultiple() {
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(2),
-    { accelKey: true },
+    { ctrlKey: true },
     abWindow
   );
   await checkHeader();
@@ -81,7 +81,7 @@ add_task(async function testDisplayMultiple() {
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(3),
-    { accelKey: true },
+    { ctrlKey: true },
     abWindow
   );
   await checkHeader();
@@ -119,7 +119,7 @@ add_task(async function testDisplayMultiple() {
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(4),
-    { accelKey: true },
+    { ctrlKey: true },
     abWindow
   );
   await checkHeader();
@@ -238,6 +238,7 @@ async function checkActionButtons(
     BrowserTestUtils.promiseAlertDialog("extra1");
     EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
     await eventWindowPromise;
+    await new Promise(resolve => abWindow.setTimeout(resolve));
     Assert.report(false, undefined, undefined, "Item dialog closed");
   } else {
     Assert.ok(
