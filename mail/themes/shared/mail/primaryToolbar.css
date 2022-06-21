@@ -146,7 +146,7 @@
 }
 
 #button-chat[unreadMessages="true"] {
-  fill: fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
+  fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
   stroke: var(--toolbarbutton-icon-fill-attention);
 }
 
