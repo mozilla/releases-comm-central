@@ -90,14 +90,17 @@ class ImapClient {
    * Construct an nsIMsgMailNewsUrl instance, setup urlListener to notify when
    * the current request is finished.
    * @param {nsIUrlListener} urlListener - Callback for the request.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {nsIMsgMailNewsUrl} [runningUrl] - The url to run, if provided.
    * @returns {nsIMsgMailNewsUrl}
    */
-  startRunningUrl(urlListener, runningUrl) {
+  startRunningUrl(urlListener, msgWindow, runningUrl) {
     this._urlListener = urlListener;
+    this._msgWindow = msgWindow;
     this.runningUrl = runningUrl;
     if (!this.runningUrl) {
       this.runningUrl = Services.io
-        .newURI(`imap://${this._server.hostName}`)
+        .newURI(`imap://${this._server.hostName}:${this._server.port}`)
         .QueryInterface(Ci.nsIMsgMailNewsUrl);
     }
     this._urlListener?.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
@@ -108,18 +111,16 @@ class ImapClient {
   /**
    * Discover all folders.
    * @param {nsIMsgFolder} folder - The associated folder.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  discoverAllFolders(folder, msgWindow) {
+  discoverAllFolders(folder) {
     this._actionListOrLsub();
   }
 
   /**
    * Select a folder.
    * @param {nsIMsgFolder} folder - The folder to select.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  selectFolder(folder, msgWindow) {
+  selectFolder(folder) {
     if (this.folder == folder) {
       this._nextAction = this._actionNoopResponse;
       this._sendTagged("NOOP");
@@ -135,10 +136,8 @@ class ImapClient {
    * Rename a folder.
    * @param {nsIMsgFolder} folder - The folder to rename.
    * @param {string} newName - The new folder name.
-   * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  renameFolder(folder, newName, msgWindow) {
-    this._msgWindow = msgWindow;
+  renameFolder(folder, newName) {
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
@@ -367,32 +366,81 @@ class ImapClient {
   }
 
   /**
+   * Send CAPABILITY command to the server.
+   */
+  _actionCapability() {
+    this._nextAction = this._actionCapabilityResponse;
+    this._sendTagged("CAPABILITY");
+  }
+
+  /**
    * Handle the capability response.
    * @param {ImapResponse} res - Response received from the server.
-   * @returns {number}
    */
   _actionCapabilityResponse = res => {
     if (res.capabilities) {
       this._capabilities = res.capabilities;
       this._server.wrappedJSObject.capabilities = res.capabilities;
+
       this._supportedAuthMethods = res.authMethods;
-      this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
-        this._supportedAuthMethods.includes(x)
-      );
-      if (
-        !this._possibleAuthMethods.length &&
-        this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
-        !this._capabilities.includes("LOGINDISABLED")
-      ) {
-        this._possibleAuthMethods = ["OLDLOGIN"];
-      }
-      this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
-      this._nextAuthMethod = this._possibleAuthMethods[0];
-      this._actionAuth();
+      this._actionChooseFirstAuthMethod();
     } else {
-      this._sendTagged("CAPABILITY");
+      this._actionCapability();
     }
   };
+
+  /**
+   * Decide the first auth method to try.
+   */
+  _actionChooseFirstAuthMethod = () => {
+    if (
+      [
+        Ci.nsMsgSocketType.trySTARTTLS,
+        Ci.nsMsgSocketType.alwaysSTARTTLS,
+      ].includes(this._server.socketType) &&
+      !this._secureTransport
+    ) {
+      if (this._capabilities.includes("STARTTLS")) {
+        // Init STARTTLS negotiation if required by user pref and supported.
+        this._nextAction = this._actionStarttlsResponse;
+        this._sendTagged("STARTTLS");
+      } else {
+        // Abort if not supported.
+        this._logger.error("Server doesn't support STARTTLS. Aborting.");
+        this._actionError("imapServerDisconnected");
+        this._actionDone(Cr.NS_ERROR_FAILURE);
+      }
+      return;
+    }
+
+    this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
+      this._supportedAuthMethods.includes(x)
+    );
+    if (
+      !this._possibleAuthMethods.length &&
+      this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
+      !this._capabilities.includes("LOGINDISABLED")
+    ) {
+      this._possibleAuthMethods = ["OLDLOGIN"];
+    }
+    this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
+    this._nextAuthMethod = this._possibleAuthMethods[0];
+    this._actionAuth();
+  };
+
+  /**
+   * Handle the STARTTLS response.
+   * @param {ImapResponse} res - The server response.
+   */
+  _actionStarttlsResponse(res) {
+    if (!res.status == "OK") {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
+    }
+    this._socket.upgradeToSecure();
+    this._secureTransport = true;
+    this._actionCapability();
+  }
 
   /**
    * Init authentication depending on server capabilities and user prefs.
@@ -890,6 +938,24 @@ class ImapClient {
   }
 
   /**
+   * Show an error prompt.
+   * @param {string} errorName - An error name corresponds to an entry of
+   *   imapMsgs.properties.
+   */
+  _actionError(errorName) {
+    if (!this._msgWindow) {
+      return;
+    }
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/imapMsgs.properties"
+    );
+    let errorMsg = bundle.formatStringFromName(errorName, [
+      this._server.hostName,
+    ]);
+    this._msgWindow.promptDialog.alert(null, errorMsg);
+  }
+
+  /**
    * Finish a request and do necessary cleanup.
    */
   _actionDone = (status = Cr.NS_OK) => {
@@ -898,8 +964,8 @@ class ImapClient {
       this._socket.close();
     }
     this._nextAction = null;
-    this._urlListener?.OnStopRunningUrl(this.runningUrl, Cr.NS_OK);
-    this.runningUrl.SetUrlState(false, Cr.NS_OK);
+    this._urlListener?.OnStopRunningUrl(this.runningUrl, status);
+    this.runningUrl.SetUrlState(false, status);
     this.onDone?.();
   };
 }

@@ -18,16 +18,17 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     let runningUrl = Services.io
-      .newURI(`imap://${server.hostName}`)
+      .newURI(`imap://${server.hostName}:${server.port}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(
         urlListener || folder.QueryInterface(Ci.nsIUrlListener),
+        msgWindow,
         runningUrl
       );
       runningUrl.updatingFolder = true;
       client.onReady = () => {
-        client.selectFolder(folder, msgWindow);
+        client.selectFolder(folder);
       };
     });
     return runningUrl;
@@ -37,9 +38,9 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener);
+      client.startRunningUrl(urlListener, msgWindow);
       client.onReady = () => {
-        client.discoverAllFolders(folder, msgWindow);
+        client.discoverAllFolders(folder);
       };
     });
   }
@@ -89,9 +90,9 @@ class ImapService {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
     server.wrappedJSObject.withClient(client => {
-      client.startRunningUrl(urlListener);
+      client.startRunningUrl(urlListener, msgWindow);
       client.onReady = () => {
-        client.renameFolder(folder, newName, msgWindow);
+        client.renameFolder(folder, newName);
       };
     });
   }
