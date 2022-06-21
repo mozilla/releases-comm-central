@@ -49,10 +49,6 @@
 
         this.setAttribute("is", "tree-listbox");
         this.setAttribute("role", "listbox");
-        this.setAttribute(
-          "aria-keyshortcuts",
-          "Up Down Left Right PageUp PageDown Home End"
-        );
         this.tabIndex = 0;
 
         this._initRows(this);
@@ -561,10 +557,6 @@
     connectedCallback() {
       super.connectedCallback();
       this.setAttribute("is", "orderable-tree-listbox");
-      this.setAttribute(
-        "aria-keyshortcuts",
-        this.getAttribute("aria-keyshortcuts") + " Alt+Up Alt+Down"
-      );
 
       this.addEventListener("dragstart", this);
       window.addEventListener("dragover", this);
@@ -917,10 +909,6 @@
       this.hasConnected = true;
 
       this.setAttribute("role", "listbox");
-      this.setAttribute(
-        "aria-keyshortcuts",
-        "Up Down Left Right Space Shift+Space PageUp PageDown"
-      );
       this.tabIndex = 0;
 
       this.attachShadow({ mode: "open" });
