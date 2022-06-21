@@ -1591,7 +1591,7 @@
     }
 
     set index(index) {
-      this.setAttribute("aria-posinset", index);
+      this.setAttribute("aria-posinset", index + 1);
       this.id = `${this.list.id}-row${index}`;
       this.classList.toggle("children", this.view.isContainer(index));
       this.classList.toggle("collapsed", !this.view.isContainerOpen(index));
