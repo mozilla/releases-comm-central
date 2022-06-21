@@ -114,16 +114,7 @@ body {
   width: 16px;
   height: 16px;
   position: absolute;
-  left: -4px;
-  top: 6px;
-  display: inline-block;
-  margin-left: 1ex;
-  margin-right: 1ex;
   background-repeat: no-repeat;
-}
-
-.star:-moz-locale-dir(rtl) {
-  right: -4px;
 }
 
 .starred .star {

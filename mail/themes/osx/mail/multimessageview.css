@@ -11,8 +11,6 @@
   --header-text-color: -moz-DialogText;
 }
 
-.multimessage {
-  min-height: 15px;
-  margin-top: 3px;
-  margin-bottom: 3px;
+.star {
+  top: 0.6em;
 }
