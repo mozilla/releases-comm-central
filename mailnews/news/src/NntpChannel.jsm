@@ -239,7 +239,7 @@ class NntpChannel {
         this._listener.onStartRequest(this);
       },
       onStopRequest: (request, status) => {
-        this._listener.onStopRequest(null, status);
+        this._listener.onStopRequest(this, status);
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
@@ -299,7 +299,7 @@ class NntpChannel {
           // Remove the invalid cache.
           this._cacheEntry?.asyncDoom(null);
         }
-        this._listener.onStopRequest(null, status);
+        this._listener.onStopRequest(this, status);
         this._newsFolder?.msgDatabase.Commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
