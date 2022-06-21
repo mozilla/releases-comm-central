@@ -251,8 +251,22 @@
     border-bottom: 1px solid #aabccf;
   }
 
+  #toolbar-menubar > .titlebar-buttonbox-container {
+    display: none;
+  }
+
   #tabs-toolbar:not(:-moz-lwtheme) {
     position: relative;
+  }
+
+  :root[tabsintitlebar] #toolbar-menubar[autohide=true]:not([inactive]) +
+    #tabs-toolbar > .titlebar-buttonbox-container {
+    visibility: visible;
+  }
+
+  :root[tabsintitlebar]:not([chromehidden~="menubar"]) #toolbar-menubar:not([autohide=true]) +
+    #tabs-toolbar > .titlebar-buttonbox-container {
+    display: -moz-box;
   }
 
   #navigation-toolbox:not(:-moz-lwtheme)::before {
