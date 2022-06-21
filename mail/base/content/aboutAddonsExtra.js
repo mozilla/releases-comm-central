@@ -145,7 +145,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   };
 
   // Remove this after Bug 1773568 has been uplifted to ESR 102.
-  AddonCard.prototype.updateMessage = async function () {
+  AddonCard.prototype.updateMessage = async function() {
     const messageBar = this.card.querySelector(".addon-card-message");
 
     const {
@@ -167,9 +167,10 @@ XPCOMUtils.defineLazyPreferenceGetter(
       if (linkUrl) {
         // Do not use the missing locale string, but instead use one having a
         // similar wording.
-        let localeId = (messageId == "details-notification-incompatible")
-          ? "details-notification-unsigned-and-disabled-link"
-          : `${messageId}-link`
+        let localeId =
+          messageId == "details-notification-incompatible"
+            ? "details-notification-unsigned-and-disabled-link"
+            : `${messageId}-link`;
         document.l10n.setAttributes(link, localeId);
         link.setAttribute("url", linkUrl);
         link.hidden = false;
@@ -184,7 +185,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
     } else {
       messageBar.hidden = true;
     }
-  }
+  };
 
   // Override parts of the addon-permission-list customElement to be able
   // to show the usage of Experiments in the permission list.
