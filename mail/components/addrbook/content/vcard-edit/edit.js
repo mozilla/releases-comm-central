@@ -20,12 +20,16 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/VCardUtils.jsm"
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "VCardPropertyEntry",
-  "resource:///modules/VCardUtils.jsm"
-);
-
+/**
+ * Bug 1773031 - Remove the slot element from the edit contact.
+ * The shadow dom of this element will be gradually removed.
+ * This is done by removing the slots for vCardPropertyEntries.
+ * But adding temporary slots to move the fieldsets out of the shadow dom.
+ * And finally removing the fieldset slots and the shadow dom.
+ *
+ * Not anymore in the shadow dom:
+ *    Email Fieldset
+ */
 class VCardEdit extends HTMLElement {
   constructor() {
     super();
@@ -46,8 +50,6 @@ class VCardEdit extends HTMLElement {
 
   connectedCallback() {
     if (this.isConnected) {
-      this.registerEmailFieldsetHandling();
-
       let addURL = this.shadowRoot.getElementById("vcard-add-url");
       this.registerAddButton(addURL, "url");
 
@@ -151,19 +153,21 @@ class VCardEdit extends HTMLElement {
   }
 
   updateView() {
+    // Clear all children.
+    this.replaceChildren();
+
     if (!this.vCardProperties) {
-      this.replaceChildren();
       return;
     }
 
-    this._orgComponent = null;
-    let vCardPropertyEls = this.vCardProperties.entries
-      .map(entry => {
-        return VCardEdit.createVCardElement(entry);
-      })
-      .filter(el => !!el);
+    // Create fieldsets. These are not in the shadow dom.
+    this.createFieldsets();
 
-    this.replaceChildren(...vCardPropertyEls);
+    this._orgComponent = null;
+
+    for (let vCardPropertyEntry of this.vCardProperties.entries) {
+      this.insertVCardElement(vCardPropertyEntry, false);
+    }
 
     this.shadowRoot.getElementById("vcard-add-tz").hidden = this.querySelector(
       "vcard-tz"
@@ -275,9 +279,9 @@ class VCardEdit extends HTMLElement {
 
     if (result == "" || result == ", ") {
       // We don't have anything to show as a contact name, so let's find the
-      // primary email and show that, if we have it, otherwise pass an empty
+      // default email and show that, if we have it, otherwise pass an empty
       // string to remove any leftover data.
-      let email = this.getPrimaryEmail();
+      let email = this.getDefaultEmail();
       result = email ? email.split("@", 1)[0] : "";
     }
 
@@ -336,27 +340,27 @@ class VCardEdit extends HTMLElement {
 
     // If no email string was passed, it means this method was called when the
     // view or edit pane refreshes, therefore we need to fetch the correct
-    // primary email address.
-    let value = email ?? this.getPrimaryEmail();
+    // default email address.
+    let value = email ?? this.getDefaultEmail();
     this.contactEmailHeading.hidden = !value;
     this.contactEmailHeading.textContent = value;
   }
 
   /**
-   * Find the primary email used for this contact.
+   * Find the default email used for this contact.
    *
    * @returns {VCardEmailComponent}
    */
-  getPrimaryEmail() {
-    let emails = this.querySelectorAll(`tr[slot="v-email"]`);
+  getDefaultEmail() {
+    let emails = document.getElementById("vcard-email").children;
     if (emails.length == 1) {
       return emails[0].emailEl.value;
     }
 
-    let slot = [...emails].find(
+    let defaultEmail = [...emails].find(
       el => el.vCardPropertyEntry.params.pref === "1"
     );
-    return slot?.emailEl.value || "";
+    return defaultEmail.emailEl.value;
   }
 
   /**
@@ -384,84 +388,104 @@ class VCardEdit extends HTMLElement {
    *    accordingly.
    *
    * @param {VCardPropertyEntry} entry
+   * @param {boolean} addEntry Adds the entry to the vCardProperties.
    * @returns {VCardPropertyEntryView | undefined}
    */
-  static createVCardElement(entry) {
+  insertVCardElement(entry, addEntry) {
+    // Add the entry to the vCardProperty data.
+    if (addEntry) {
+      this.vCardProperties.addEntry(entry);
+    }
+
     switch (entry.name) {
       case "n":
         let n = new VCardNComponent();
         n.vCardPropertyEntry = entry;
         n.slot = "v-n";
+        this.append(n);
         return n;
       case "fn":
         let fn = new VCardFNComponent();
         fn.vCardPropertyEntry = entry;
         fn.slot = "v-fn";
+        this.append(fn);
         return fn;
       case "nickname":
         let nickname = new VCardNickNameComponent();
         nickname.vCardPropertyEntry = entry;
         nickname.slot = "v-nickname";
+        this.append(nickname);
         return nickname;
       case "email":
         let email = document.createElement("tr", { is: "vcard-email" });
         email.vCardPropertyEntry = entry;
-        email.slot = "v-email";
+        document.getElementById("vcard-email").appendChild(email);
         return email;
       case "url":
         let url = new VCardURLComponent();
         url.vCardPropertyEntry = entry;
         url.slot = "v-url";
+        this.append(url);
         return url;
       case "tel":
         let tel = new VCardTelComponent();
         tel.vCardPropertyEntry = entry;
         tel.slot = "v-tel";
+        this.append(tel);
         return tel;
       case "tz":
         let tz = new VCardTZComponent();
         tz.vCardPropertyEntry = entry;
         tz.slot = "v-tz";
+        this.append(tz);
         return tz;
       case "impp":
         let impp = new VCardIMPPComponent();
         impp.vCardPropertyEntry = entry;
         impp.slot = "v-impp";
+        this.append(impp);
         return impp;
       case "anniversary":
         let anniversary = new VCardSpecialDateComponent();
         anniversary.vCardPropertyEntry = entry;
         anniversary.slot = "v-anniversary";
+        this.append(anniversary);
         return anniversary;
       case "bday":
         let bday = new VCardSpecialDateComponent();
         bday.vCardPropertyEntry = entry;
         bday.slot = "v-bday";
+        this.append(bday);
         return bday;
       case "adr":
         let address = new VCardAdrComponent();
         address.vCardPropertyEntry = entry;
         address.slot = "v-adr";
+        this.append(address);
         return address;
       case "note":
         let note = new VCardNoteComponent();
         note.vCardPropertyEntry = entry;
         note.slot = "v-note";
+        this.append(note);
         return note;
       case "title":
         let title = new VCardTitleComponent();
         title.vCardPropertyEntry = entry;
         title.slot = "v-title";
+        this.append(title);
         return title;
       case "role":
         let role = new VCardRoleComponent();
         role.vCardPropertyEntry = entry;
         role.slot = "v-role";
+        this.append(role);
         return role;
       case "org":
         let org = new VCardOrgComponent();
         org.vCardPropertyEntry = entry;
         org.slot = "v-org";
+        this.append(org);
         return org;
       default:
         return undefined;
@@ -514,11 +538,14 @@ class VCardEdit extends HTMLElement {
 
   /**
    * Mutates the referenced vCardPropertyEntry(s).
-   * If the value of a VCardPropertyEntry is empty, then the entry gets
+   * If the value of a VCardPropertyEntry is empty, the entry gets
    * removed from the vCardProperty.
    */
   saveVCard() {
-    this.childNodes.forEach(node => {
+    for (let node of [
+      ...this.children,
+      ...document.getElementById("vcard-email").children,
+    ]) {
       if (typeof node.fromUIToVCardPropertyEntry === "function") {
         node.fromUIToVCardPropertyEntry();
       }
@@ -527,7 +554,7 @@ class VCardEdit extends HTMLElement {
       if (typeof node.valueIsEmpty === "function" && node.valueIsEmpty()) {
         this.vCardProperties.removeEntry(node.vCardPropertyEntry);
       }
-    });
+    }
 
     // If no email has a pref value of 1, set it to the first email.
     let emailEntries = this.vCardProperties.getAllEntries("email");
@@ -547,44 +574,31 @@ class VCardEdit extends HTMLElement {
   }
 
   registerEmailFieldsetHandling() {
-    // Add slot listener for enabling to choose the primary email.
-    let slot = this.shadowRoot.querySelector('slot[name="v-email"]');
-    let emailFieldset = this.shadowRoot.querySelector("#addr-book-edit-email");
-    slot.addEventListener("slotchange", event => {
-      let withPrimaryEmailChooser = slot.assignedElements().length > 1;
-      emailFieldset.querySelectorAll("th")[2].hidden = !withPrimaryEmailChooser;
-      // Set primary email chooser.
-      this.querySelectorAll(`tr[slot="v-email"]`).forEach(
-        vCardEmailComponent => {
-          vCardEmailComponent.setPrimaryEmailChooser(!withPrimaryEmailChooser);
-        }
-      );
-    });
-
     // Add email button.
-    let addEmail = this.shadowRoot.getElementById("vcard-add-email");
+    let addEmail = document.getElementById("vcard-add-email");
     this.registerAddButton(addEmail, "email", () => {
       this.toggleDefaultEmailView();
     });
 
     // Add listener to update the email written in the contact header.
-    this.addEventListener("vcard-email-primary-changed", event => {
+    this.addEventListener("vcard-email-default-changed", event => {
       this.updateEmailHeading(
         event.target.querySelector('input[type="email"]').value
       );
     });
 
     // Add listener to be sure that only one checkbox from the emails is ticked.
-    this.addEventListener("vcard-email-primary-checkbox", event => {
-      // Show the newly selected primary email in the contact header.
+    this.addEventListener("vcard-email-default-checkbox", event => {
+      // Show the newly selected default email in the contact header.
       this.updateEmailHeading(
         event.target.querySelector('input[type="email"]').value
       );
-      this.querySelectorAll('tr[slot="v-email"]').forEach(element => {
-        if (event.target !== element) {
-          element.querySelector('input[type="checkbox"]').checked = false;
+      for (let vCardEmailComponent of document.getElementById("vcard-email")
+        .children) {
+        if (event.target !== vCardEmailComponent) {
+          vCardEmailComponent.checkboxEl.checked = false;
         }
-      });
+      }
     });
   }
 
@@ -620,10 +634,7 @@ class VCardEdit extends HTMLElement {
       } else {
         newVCardProperty = VCardEdit.createVCardProperty("anniversary");
       }
-      let el = VCardEdit.createVCardElement(newVCardProperty);
-      // Add the new entry to our vCardProperties object.
-      this.vCardProperties.addEntry(el.vCardPropertyEntry);
-      this.append(el);
+      let el = this.insertVCardElement(newVCardProperty, true);
       this.checkForBdayOccurences();
       el.querySelector("input").focus();
     });
@@ -636,17 +647,9 @@ class VCardEdit extends HTMLElement {
       let role = VCardEdit.createVCardProperty("role");
       let org = VCardEdit.createVCardProperty("org");
 
-      let titleEl = VCardEdit.createVCardElement(title);
-      let roleEl = VCardEdit.createVCardElement(role);
-      let orgEl = VCardEdit.createVCardElement(org);
-
-      this.vCardProperties.addEntry(titleEl.vCardPropertyEntry);
-      this.vCardProperties.addEntry(roleEl.vCardPropertyEntry);
-      this.vCardProperties.addEntry(orgEl.vCardPropertyEntry);
-
-      this.append(titleEl);
-      this.append(roleEl);
-      this.append(orgEl);
+      let titleEl = this.insertVCardElement(title, true);
+      this.insertVCardElement(role, true);
+      this.insertVCardElement(org, true);
 
       titleEl.querySelector("input").focus();
       addOrg.hidden = true;
@@ -658,19 +661,17 @@ class VCardEdit extends HTMLElement {
    *
    * @param {HTMLButtonElement} addButton
    * @param {string} VCardPropertyName RFC6350 vCard property name.
-   * @param {(vCardElement) => {}} payload For further refinement.
+   * @param {(vCardElement) => {}} callback For further refinement.
    * Like different focus instead of an input field.
    */
-  registerAddButton(addButton, VCardPropertyName, payload) {
+  registerAddButton(addButton, VCardPropertyName, callback) {
     addButton.addEventListener("click", event => {
       let newVCardProperty = VCardEdit.createVCardProperty(VCardPropertyName);
-      let el = VCardEdit.createVCardElement(newVCardProperty);
-      // Add the new entry to our vCardProperties object.
-      this.vCardProperties.addEntry(el.vCardPropertyEntry);
-      this.append(el);
+      let el = this.insertVCardElement(newVCardProperty, true);
+
       el.querySelector("input")?.focus();
-      if (payload) {
-        payload(el);
+      if (callback) {
+        callback(el);
       }
     });
   }
@@ -688,11 +689,27 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
-   * Hide the default checkbox if we only have one email slot.
+   * Hide the default checkbox if we only have one email field.
    */
   toggleDefaultEmailView() {
-    this.querySelector(`.default-column input[type="checkbox"]`).hidden =
-      this.querySelectorAll(`tr[slot="v-email"]`).length <= 1;
+    let emailFieldsCount = document.getElementById("vcard-email").children
+      .length;
+    this.querySelector(".default-column").hidden = emailFieldsCount <= 1;
+    document.getElementById("addr-book-edit-email-default").hidden =
+      emailFieldsCount <= 1;
+  }
+
+  /**
+   * Clones fieldsets from the shadow dom to move them out of the shadow dom.
+   * See class description for progress.
+   */
+  createFieldsets() {
+    let emailFieldset = this.shadowRoot.getElementById("addr-book-edit-email");
+    let clonedEmailFieldset = emailFieldset.cloneNode(true);
+    clonedEmailFieldset.hidden = false;
+    clonedEmailFieldset.slot = "fieldset-email";
+    this.appendChild(clonedEmailFieldset);
+    this.registerEmailFieldsetHandling();
   }
 
   /**
@@ -702,10 +719,12 @@ class VCardEdit extends HTMLElement {
    * @returns {boolean} - If the form is valid or not.
    */
   checkFormValidity() {
-    let hasEmail = [...this.querySelectorAll(`tr[slot="v-email"]`)].find(s => {
-      let field = s.querySelector(`input[type="email"]`);
-      return field.value.trim() && field.checkValidity();
-    });
+    let hasEmail = [...document.getElementById("vcard-email").children].find(
+      s => {
+        let field = s.querySelector(`input[type="email"]`);
+        return field.value.trim() && field.checkValidity();
+      }
+    );
 
     return (
       this.firstName.value.trim() ||

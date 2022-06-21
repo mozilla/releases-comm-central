@@ -23,11 +23,6 @@
 <!-- Localization -->
 <link rel="localization" href="messenger/addressbook/vcard.ftl" />
 
-<!-- A11Y -->
-<label id="vcard-email-table-header-type-label" data-l10n-id="vcard-entry-type-label" hidden=""/>
-<label id="vcard-email-table-header-email-label" data-l10n-id="vcard-email-label" hidden=""/>
-<label id="vcard-email-table-header-primary" data-l10n-id="vcard-primary-email-label" hidden=""/>
-
 <!-- Edit View -->
 <template id="template-addr-book-edit">
   <link rel="stylesheet" href="chrome://messenger/skin/vcard-edit.css"/>
@@ -40,39 +35,30 @@
       <slot name="v-nickname"/>
     </div>
   </fieldset>
-  <!-- Email -->
-  <fieldset id="addr-book-edit-email" class="addr-book-edit-fieldset">
+  <!-- Bug 1773031 - Remove the slot element from the edit contact
+       This slot is used to transfer the fieldset out of the shadow dom
+       and will be removed. -->
+  <slot name="fieldset-email"></slot>
+  <fieldset id="addr-book-edit-email" class="addr-book-edit-fieldset fieldset-reset"
+            hidden="">
     <legend data-l10n-id="vcard-email-header"/>
     <table>
       <thead>
         <tr>
-          <th class="screen-readers-only" scope="col"
-              data-l10n-id="vcard-entry-type-label"/>
-          <th class="screen-readers-only" scope="col"
-              data-l10n-id="vcard-email-label"/>
-          <th class="screen-readers-only" scope="col"
-              data-l10n-id="vcard-primary-email-label"/>
+          <th id="addr-book-edit-email-type" class="screen-readers-only"
+              scope="col" data-l10n-id="vcard-entry-type-label"/>
+          <th id="addr-book-edit-email-label" class="screen-readers-only"
+              scope="col" data-l10n-id="vcard-email-label"/>
+          <th id="addr-book-edit-email-default" class="screen-readers-only"
+              scope="col" data-l10n-id="vcard-primary-email-label"/>
         </tr>
       </thead>
-      <tbody>
-        <!--
-          @note Because we're using XHTML this works.
-          @see
-          https://github.com/WICG/webcomponents/issues/59#issuecomment-202330706
-          https://github.com/WICG/webcomponents/issues/404
-        -->
-        <slot name="v-email"/>
-      </tbody>
+      <tbody id="vcard-email"></tbody>
     </table>
-    <!-- The add button is repeated boilerplate and will be reduced -->
     <button id="vcard-add-email"
+            data-l10n-id="vcard-email-add"
             class="addr-book-edit-fieldset-button"
-            type="button">
-      <img class="addr-book-edit-fieldset-button-icon"
-           src="chrome://global/skin/icons/add.svg"
-           alt=""/>
-      <span data-l10n-id="vcard-email-add"/>
-    </button>
+            type="button"></button>
   </fieldset>
   <!-- URL -->
   <fieldset id="addr-book-edit-url" class="addr-book-edit-fieldset">
@@ -256,19 +242,19 @@
   <td>
     <!-- The type selection is repeated boilerplate and will be reduced -->
     <select class="vcard-type-selection"
-            aria-labelledby="vcard-email-table-header-type-label">
+            aria-labelledby="addr-book-edit-email-type">
       <option value="work" data-l10n-id="vcard-entry-type-work" />
       <option value="home" data-l10n-id="vcard-entry-type-home" />
-      <option value="" data-l10n-id="vcard-entry-type-none" selected="true" />
+      <option value="" data-l10n-id="vcard-entry-type-none" selected="selected" />
     </select>
   </td>
   <td class="email-column">
     <input type="email"
-           aria-labelledby="vcard-email-table-header-email-label" />
+           aria-labelledby="addr-book-edit-email-label" />
   </td>
   <td class="default-column">
     <input type="checkbox"
-           aria-labelledby="vcard-email-table-header-primary" />
+           aria-labelledby="addr-book-edit-email-default" />
   </td>
 </template>
 
@@ -281,7 +267,7 @@
   <select class="vcard-type-selection">
     <option value="work" data-l10n-id="vcard-entry-type-work"/>
     <option value="home" data-l10n-id="vcard-entry-type-home"/>
-    <option value="" data-l10n-id="vcard-entry-type-none" selected="true"/>
+    <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
   </select>
   <label class="screen-readers-only" for="text"/>
   <input type="text"/>
@@ -302,10 +288,10 @@
 
 <!-- Birthday and Anniversary -->
 <template id="template-vcard-edit-bday-anniversary">
-  <fieldset>
+  <fieldset class="fieldset-grid">
     <legend/>
     <select class="vcard-type-selection">
-      <option value="bday" data-l10n-id="vcard-bday-label" selected="true"/>
+      <option value="bday" data-l10n-id="vcard-bday-label" selected="selected"/>
       <option value="anniversary" data-l10n-id="vcard-anniversary-label"/>
     </select>
     <div class="vcard-year-month-day-container">
@@ -325,7 +311,7 @@
 
 <!-- Address -->
 <template id="template-vcard-edit-adr">
-  <fieldset>
+  <fieldset class="fieldset-grid">
     <legend class="screen-readers-only" data-l10n-id="vcard-adr-label"/>
     <label class="screen-readers-only"
            for="select"
@@ -334,7 +320,7 @@
     <select class="vcard-type-selection">
       <option value="work" data-l10n-id="vcard-entry-type-work"/>
       <option value="home" data-l10n-id="vcard-entry-type-home"/>
-      <option value="" data-l10n-id="vcard-entry-type-none" selected="true"/>
+      <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
     </select>
     <div class="vcard-adr-inputs">
       <label for="pobox" data-l10n-id="vcard-adr-pobox"/>

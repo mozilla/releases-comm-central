@@ -155,47 +155,47 @@ vcard-n {
   align-items: center;
 }
 
-/* Email field styles */
-tr[slot="v-email"] {
-  display: table-row;
-  vertical-align: middle;
+/* Email fieldset styles */
+#addr-book-edit-email table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-tr[slot="v-email"] td {
+/* Email field styles */
+#vcard-email td {
   padding: 0;
 }
 
-tr[slot="v-email"] td.email-column {
+#vcard-email td.email-column {
   width: 100%;
 }
 
-tr[slot="v-email"] input[type="checkbox"]:not([hidden]) {
+#vcard-email input[type="checkbox"]:not([hidden]) {
   border-radius: 50%;
   width: 16px;
   height: 16px;
   margin-inline: 6px;
-  margin-block-start: 0;
-  margin-block-end: 3px;
+  margin-block: 0 3px;
   display: grid;
 }
 
-tr[slot="v-email"] input[type="checkbox"]:checked {
+#vcard-email input[type="checkbox"]:checked {
   background-image: none;
   background-color: transparent;
   border-color: var(--in-content-primary-button-background);
   place-content: center;
 }
 
-tr[slot="v-email"] input[type="checkbox"]:enabled:checked:hover {
+#vcard-email input[type="checkbox"]:enabled:checked:hover {
   background-color: transparent;
   border-color: var(--in-content-primary-button-background-hover);
 }
 
-tr[slot="v-email"] input[type="checkbox"]:checked:active {
+#vcard-email input[type="checkbox"]:checked:active {
   border-color: var(--in-content-primary-button-background-active);
 }
 
-tr[slot="v-email"] input[type="checkbox"]:checked::before {
+#vcard-email input[type="checkbox"]:checked::before {
   content: "";
   display: block;
   height: 8px;
@@ -204,15 +204,14 @@ tr[slot="v-email"] input[type="checkbox"]:checked::before {
   border-radius: 50%;
 }
 
-tr[slot="v-email"] input[type="checkbox"]:enabled:checked:hover::before {
+#vcard-email input[type="checkbox"]:enabled:checked:hover::before {
   background-color: var(--in-content-primary-button-background-hover);
 }
 
-tr[slot="v-email"] input[type="checkbox"]:checked:active::before {
+#vcard-email input[type="checkbox"]:checked:active::before {
   background-color: var(--in-content-primary-button-background-active);
 }
 
-/* Field with type and text */
 .screen-readers-only {
   position: absolute;
   clip-path: inset(50%);
@@ -226,12 +225,19 @@ vcard-special-date {
   display: flex;
 }
 
-fieldset {
+.fieldset-reset {
   margin: 0;
   padding: 0;
+  border-style: none;
+}
+
+.fieldset-grid {
   display: grid;
   grid-template-columns: min-content auto;
-  border-style: none;
+}
+
+.addr-book-edit-fieldset legend {
+  margin-block-end: 6px;
 }
 
 vcard-special-date .vcard-type-selection {
@@ -263,4 +269,47 @@ vcard-adr select {
   display: flex;
   flex-direction: column;
   grid-column: 2 / 3;
+}
+
+/**
+ * Bug 1773031 - Remove the slot element from the edit contact
+ * Add button for the vCard fields.
+ * Until the slot element for vcard-edit is fully removed this is a duplicate.
+ * For elements in the shadow dom see vcard-edit.css.
+ */
+.addr-book-edit-fieldset-button {
+  background-color: transparent;
+  -moz-context-properties: fill;
+  color: var(--in-content-primary-button-background);
+  fill: var(--in-content-primary-button-text-color);
+  padding: 3px;
+  display: inline-flex;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  align-items: center;
+  border-radius: 3px;
+  min-height: auto;
+}
+
+.addr-book-edit-fieldset-button:enabled:hover,
+.addr-book-edit-fieldset-button:enabled:active,
+.addr-book-edit-fieldset-button:enabled:active:hover {
+  background-color: var(--in-content-button-background);
+  color: var(--in-content-primary-button-background);
+}
+
+.addr-book-edit-fieldset-button::before {
+  position: relative;
+  display: block;
+  content: "";
+  margin-inline-end: 3px;
+  border-radius: 8px;
+  background-color: var(--in-content-primary-button-background);
+  width: 13px;
+  height: 13px;
+  background-image: url("chrome://global/skin/icons/add.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 9px;
 }

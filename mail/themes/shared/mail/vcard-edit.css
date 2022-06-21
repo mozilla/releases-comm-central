@@ -30,22 +30,16 @@ legend {
   clip-path: inset(50%);
 }
 
-table {
-  border-collapse: collapse;
-}
-
-th[hidden] {
-  display: none;
-}
-
-#addr-book-edit-email table {
-  width: 100%;
-}
-
 #addr-book-edit-n {
   grid-column: 1 / -1;
 }
 
+/**
+ * Bug 1773031 - Remove the slot element from the edit contact
+ * Add button for the vCard fields.
+ * Until the slot element for vcard-edit is fully removed this is a duplicate.
+ * For elements not in the shadow dom see vcard.css.
+ */
 .addr-book-edit-fieldset-button:not([hidden]) {
   background-color: transparent;
   -moz-context-properties: fill;

@@ -298,7 +298,7 @@ add_task(async function testModificationUpdatesUI() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
   Assert.equal(abWindow.detailsPane.vCardEdit.displayName.value, "a person");
-  abDocument.querySelector(`tr[slot="v-email"] input[type="email"]`).value = "";
+  abDocument.querySelector(`#vcard-email tr input[type="email"]`).value = "";
 
   // Modify the card. Nothing should happen at this point.
 

@@ -38,7 +38,6 @@ class VCardEmailComponent extends HTMLTableRowElement {
 
   connectedCallback() {
     if (this.isConnected) {
-      this.setAttribute("role", "row");
       this.emailEl = this.querySelector('input[type="email"]');
       this.selectEl = this.querySelector("select");
       this.checkboxEl = this.querySelector('input[type="checkbox"]');
@@ -122,14 +121,6 @@ class VCardEmailComponent extends HTMLTableRowElement {
   }
 
   /**
-   * @param {boolean} hide
-   */
-  setPrimaryEmailChooser(hide) {
-    let parentElement = this.checkboxEl.parentElement;
-    parentElement.hidden = hide;
-  }
-
-  /**
    * This event is fired when the checkbox is checked and we need to uncheck the
    * other checkboxes from each VCardEmailComponent.
    * FIXME: This should be a radio button part of radiogroup.
@@ -137,7 +128,7 @@ class VCardEmailComponent extends HTMLTableRowElement {
    * @returns {CustomEvent}
    */
   static CheckboxEvent() {
-    return new CustomEvent("vcard-email-primary-checkbox", {
+    return new CustomEvent("vcard-email-default-checkbox", {
       detail: {},
       bubbles: true,
     });
@@ -150,7 +141,7 @@ class VCardEmailComponent extends HTMLTableRowElement {
    * @returns {CustomEvent}
    */
   static EmailEvent() {
-    return new CustomEvent("vcard-email-primary-changed", {
+    return new CustomEvent("vcard-email-default-changed", {
       detail: {},
       bubbles: true,
     });

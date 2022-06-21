@@ -44,7 +44,6 @@ async function notInEditingMode() {
 function getInput(entryName, addIfNeeded = false) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
-  let vCardEdit = abDocument.querySelector("vcard-edit");
 
   switch (entryName) {
     case "DisplayName":
@@ -94,38 +93,38 @@ function getInput(entryName, addIfNeeded = false) {
     case "PrimaryEmail":
       if (
         addIfNeeded &&
-        abDocument.querySelectorAll(`tr[slot="v-email"]`).length < 1
+        abDocument.getElementById("vcard-email").children.length < 1
       ) {
         EventUtils.synthesizeMouseAtCenter(
-          vCardEdit.shadowRoot.getElementById("vcard-add-email"),
+          abDocument.getElementById("vcard-add-email"),
           {},
           abWindow
         );
       }
       return abDocument.querySelector(
-        `tr[slot="v-email"]:nth-of-type(1) input[type="email"]`
+        `#vcard-email tr:nth-child(1) input[type="email"]`
       );
     case "PrimaryEmailCheckbox":
       return getInput("PrimaryEmail")
-        .closest(`tr[slot="v-email"]`)
+        .closest(`tr`)
         .querySelector(`input[type="checkbox"]`);
     case "SecondEmail":
       if (
         addIfNeeded &&
-        abDocument.querySelectorAll(`tr[slot="v-email"]`).length < 2
+        abDocument.getElementById("vcard-email").children.length < 2
       ) {
         EventUtils.synthesizeMouseAtCenter(
-          vCardEdit.shadowRoot.getElementById("vcard-add-email"),
+          abDocument.getElementById("vcard-add-email"),
           {},
           abWindow
         );
       }
       return abDocument.querySelector(
-        `tr[slot="v-email"]:nth-of-type(2) input[type="email"]`
+        `#vcard-email tr:nth-child(2) input[type="email"]`
       );
     case "SecondEmailCheckbox":
       return getInput("SecondEmail")
-        .closest(`tr[slot="v-email"]`)
+        .closest(`tr`)
         .querySelector(`input[type="checkbox"]`);
   }
 
@@ -141,7 +140,7 @@ function getFields(entryName, addIfNeeded = false, count) {
   let addButtonId;
   switch (entryName) {
     case "email":
-      fieldsSelector = `tr[slot="v-email"]`;
+      fieldsSelector = `#vcard-email tr`;
       addButtonId = "vcard-add-email";
       break;
     case "impp":
@@ -166,7 +165,9 @@ function getFields(entryName, addIfNeeded = false, count) {
   let fields = abDocument.querySelectorAll(fieldsSelector).length;
   if (addIfNeeded && fields < count) {
     for (let clickTimes = fields; clickTimes < count; clickTimes++) {
-      let addButton = vCardEdit.shadowRoot.getElementById(addButtonId);
+      let addButton =
+        abDocument.getElementById(addButtonId) ||
+        vCardEdit.shadowRoot.getElementById(addButtonId);
       addButton.scrollIntoView();
       EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
     }
@@ -523,7 +524,7 @@ add_task(async function test_basic_edit() {
 
   Assert.ok(detailsPane.hidden);
   Assert.ok(!document.querySelector("vcard-n"));
-  Assert.ok(!document.querySelector(`tr[slot="v-email"]`));
+  Assert.ok(!abDocument.getElementById("vcard-email"));
 
   // Select a card in the list. Check the display in view mode.
 
@@ -1653,7 +1654,7 @@ async function checkDefaultEmailChoice(
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
-  let emailFields = abDocument.querySelectorAll(`tr[slot="v-email"]`);
+  let emailFields = abDocument.querySelectorAll(`#vcard-email tr`);
 
   for (let [index, emailField] of emailFields.entries()) {
     if (expectedDefaultChoiceVisible) {

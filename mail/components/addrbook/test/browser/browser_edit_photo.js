@@ -146,7 +146,6 @@ function checkDialogElements({
 function getInput(entryName, addIfNeeded = false) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
-  let vCardEdit = abDocument.querySelector("vcard-edit");
 
   switch (entryName) {
     case "DisplayName":
@@ -158,30 +157,30 @@ function getInput(entryName, addIfNeeded = false) {
     case "PrimaryEmail":
       if (
         addIfNeeded &&
-        abDocument.querySelectorAll(`tr[slot="v-email"]`).length < 1
+        abDocument.getElementById("vcard-email").children.length < 1
       ) {
         EventUtils.synthesizeMouseAtCenter(
-          vCardEdit.shadowRoot.getElementById("vcard-add-email"),
+          abDocument.getElementById("vcard-add-email"),
           {},
           abWindow
         );
       }
       return abDocument.querySelector(
-        `tr[slot="v-email"]:nth-of-type(1) input[type="email"]`
+        `#vcard-email tr:nth-child(1) input[type="email"]`
       );
     case "SecondEmail":
       if (
         addIfNeeded &&
-        abDocument.querySelectorAll(`tr[slot="v-email"]`).length < 2
+        abDocument.getElementById("vcard-email").children.length < 2
       ) {
         EventUtils.synthesizeMouseAtCenter(
-          vCardEdit.shadowRoot.getElementById("vcard-add-email"),
+          abDocument.getElementById("vcard-add-email"),
           {},
           abWindow
         );
       }
       return abDocument.querySelector(
-        `tr[slot="v-email"]:nth-of-type(2) input[type="email"]`
+        `#vcard-email tr:nth-child(2) input[type="email"]`
       );
   }
 
