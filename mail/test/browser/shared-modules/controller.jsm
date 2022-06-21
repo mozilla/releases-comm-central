@@ -44,7 +44,6 @@ var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
-var events = ChromeUtils.import("resource://testing-common/mozmill/events.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 // Declare most used utils functions in the controller namespace
@@ -185,7 +184,7 @@ Menu.prototype = {
         var popup = item.querySelector("menupopup");
         if (popup) {
           if (popup.getAttribute("allowevents") === "true") {
-            events.fakeOpenPopup(this._controller.window, popup);
+            popup.dispatchEvent(new CustomEvent("popupshowing"));
           }
           this._buildMenu(popup);
         }
@@ -211,7 +210,7 @@ var MenuTree = function(aWindow, aMenu) {
         var popup = node.querySelector("menupopup");
         if (popup) {
           if (popup.getAttribute("allowevents") === "true") {
-            events.fakeOpenPopup(aWindow, popup);
+            popup.dispatchEvent(new CustomEvent("popupshowing"));
           }
           entry = new MenuTree(aWindow, popup);
         }
@@ -268,8 +267,9 @@ MozMillController.prototype.type = function(element, aText, aExpectedEvent) {
     throw new Error("type: Missing element");
   }
 
+  element.focus();
   Array.from(aText).forEach(function(letter) {
-    events.triggerKeyEvent(element, "keypress", letter, {}, aExpectedEvent);
+    EventUtils.synthesizeKey(letter, {}, element.ownerGlobal);
   });
 
   return true;
