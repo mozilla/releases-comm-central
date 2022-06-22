@@ -38,6 +38,17 @@ body {
   font-size: 1.1rem;
 }
 
+button,
+menulist,
+html|select,
+html|input[type="color"] {
+  min-height: var(--in-content-button-height);
+}
+
+search-textbox {
+  min-height: var(--in-content-button-height);
+}
+
 button {
   padding: 0 12px;
 }
@@ -208,7 +219,7 @@ menulist::part(dropmarker-icon) {
 }
 
 #searchInput {
-  min-height: 32px;
+  min-height: var(--in-content-button-height);
   margin: 20px 0 30px;
 }
 
@@ -331,12 +342,14 @@ tabpanel > hbox > description {
 
 html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
   padding-block: initial;
-  min-height: 30px; /* it should be 32px but input doesn't include the border */
+  /* it should be --in-content-button-height but input doesn't include the border */
+  min-height: calc(var(--in-content-button-height) - 2px);
 }
 
 html|input[type="number"] {
   margin-inline-start: 4px;
   padding: 1px;
+  min-height: calc(var(--in-content-button-height) - 4px);
 }
 /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
 html|input[type="number"].size2 {
@@ -373,6 +386,7 @@ html|input[type="number"]::-moz-number-spin-down:hover {
 }
 
 html|input[type="number"]::-moz-number-spin-up {
+  min-height: calc(1em - 3px);
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-radius: 1px 1px 0 0;
@@ -380,6 +394,7 @@ html|input[type="number"]::-moz-number-spin-up {
 }
 
 html|input[type="number"]::-moz-number-spin-down {
+  min-height: calc(1em - 4px);
   border-radius: 0 0 1px 1px;
   background-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
 }

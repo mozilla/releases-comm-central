@@ -146,7 +146,7 @@ header {
   margin-inline: 0;
   padding-block: 0;
   padding-inline-end: 33px;
-  min-height: 35px;
+  min-height: var(--in-content-button-height);
   border-radius: var(--in-content-button-border-radius);
 }
 
@@ -394,7 +394,7 @@ input:user-invalid ~ .icon-warning {
 }
 
 #manualConfigArea select {
-  padding-inline-start: 9px;
+  padding-inline-start: 6px;
   padding-block: 0;
 }
 

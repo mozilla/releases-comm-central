@@ -15,19 +15,6 @@ html|legend {
   margin: 0;
 }
 
-html|input[type="number"] {
-  min-height: 26px;
-}
-
-html|input[type="number"]::-moz-number-spin-up,
-html|input[type="number"]::-moz-number-spin-down {
-  min-height: 11px;
-}
-
-menulist:not([popuponly="true"]) {
-  min-height: 30px;
-}
-
 tab:-moz-focusring > .tab-middle > .tab-text {
   outline: none;
 }

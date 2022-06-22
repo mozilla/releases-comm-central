@@ -296,7 +296,7 @@ body.layout-table {
 #cardsPane {
   position: relative;
   grid-area: cards;
-  padding-block-start: 30px;
+  padding-block-start: 32px;
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
@@ -315,7 +315,7 @@ body.layout-list #cardsPane {
 }
 
 #searchInput {
-  height: 30px;
+  height: var(--in-content-button-height);
   max-width: 24em;
   flex: 1;
   margin-block: 0;
@@ -338,10 +338,10 @@ body.layout-list #cardsPane {
 #sortButton {
   min-width: 0;
   min-height: 0;
-  width: 30px;
-  height: 30px;
+  width: var(--in-content-button-height);
+  height: var(--in-content-button-height);
   margin: 0;
-  padding: 6px;
+  padding: calc((var(--in-content-button-height) - 18px) / 2); /* 18px = icon size + border */
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -912,9 +912,7 @@ section#selectedCards ul {
 #detailsFooter menulist:not([hidden]) {
   display: inline;
   margin-inline: 4px;
-}
-
-#detailsFooter menulist::part(icon) {
+  min-height: var(--in-content-button-height);
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -923,11 +921,6 @@ section#selectedCards ul {
   --panel-padding: 4px 0;
   --panel-border-color: var(--arrowpanel-border-color);
   --panel-border-radius: var(--arrowpanel-border-radius);
-}
-
-#detailsFooter menulist .menu-iconic-left {
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 input[type="number"] {
@@ -966,7 +959,7 @@ input[type="number"]::-moz-number-spin-down:hover {
 }
 
 input[type="number"]::-moz-number-spin-up {
-  min-height: 13px;
+  min-height: calc(1em - 2px);
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-start-end-radius: var(--in-content-button-border-radius);
@@ -974,7 +967,7 @@ input[type="number"]::-moz-number-spin-up {
 }
 
 input[type="number"]::-moz-number-spin-down {
-  min-height: 12px;
+  min-height: calc(1em - 3px);
   border-end-end-radius: var(--in-content-button-border-radius);
   background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }

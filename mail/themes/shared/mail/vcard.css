@@ -5,7 +5,6 @@
 vcard-edit {
   color: var(--sidebar-text-color);
   --input-border-density: 1px;
-  --input-text-height: 28px;
 }
 
 vcard-edit,
@@ -30,19 +29,28 @@ vcard-edit input[type="email"],
 vcard-edit input[type="url"],
 vcard-edit input[type="tel"],
 vcard-edit input[type="number"],
-vcard-edit .vcard-type-selection,
 vcard-edit input[type="date"],
+vcard-edit .vcard-type-selection,
 vcard-tz select:not([size], [multiple]),
 vcard-special-date select:not([size], [multiple]) {
   line-height: 1;
-  padding-inline: 9px;
+  padding-inline: 6px;
   margin: 0;
   border: var(--input-border-density) solid var(--toolbar-field-border-color);
   min-height: initial;
-  height: var(--input-text-height);
+  height: var(--in-content-button-height);
   color: inherit;
   margin-block-end: 3px;
   margin-inline-end: 3px;
+}
+
+vcard-edit input[type="text"],
+vcard-edit input[type="email"],
+vcard-edit input[type="url"],
+vcard-edit input[type="tel"],
+vcard-edit input[type="date"] {
+  /* it should be 2em but input doesn't include the border */
+  height: calc(var(--in-content-button-height) - 2px);
 }
 
 vcard-edit input[type="email"] {
@@ -61,6 +69,12 @@ vcard-edit input[type="number"] {
 vcard-edit select:not([size]) {
   -moz-context-properties: stroke;
   stroke: currentColor;
+  background-position-x: right 6px;
+  padding-inline-end: 15px;
+}
+
+vcard-edit select:not([size]):dir(rtl) {
+  background-position-x: left 6px;
 }
 
 vcard-edit select {
@@ -275,7 +289,6 @@ vcard-special-date input[type="number"] {
 
 vcard-special-date select:not([size], [multiple]) {
   width: min-content;
-  padding-inline-end: 12px;
   padding-block: 0;
 }
 

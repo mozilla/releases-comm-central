@@ -364,7 +364,7 @@ a.center-button {
   margin: 0;
   margin-block-end: 2em;
   margin-inline: 1em;
-  --step-size: 2em;
+  --step-size: var(--in-content-button-height);
 }
 
 #stepNav li {

@@ -10,18 +10,6 @@
   appearance: none;
 }
 
-html|input[type="number"] {
-  min-height: 28px;
-}
-
-html|input[type="number"]::-moz-number-spin-up {
-  min-height: 12px;
-}
-
-html|input[type="number"]::-moz-number-spin-down {
-  min-height: 13px;
-}
-
 tab + tab {
   margin-inline-start: 0;
 }
