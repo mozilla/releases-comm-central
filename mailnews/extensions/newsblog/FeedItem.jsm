@@ -11,16 +11,10 @@ const { MailServices } = ChromeUtils.import(
 );
 
 const lazy = {};
-
 ChromeUtils.defineModuleGetter(
   lazy,
   "FeedUtils",
   "resource:///modules/FeedUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
 );
 
 function FeedItem() {

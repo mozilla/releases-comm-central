@@ -19,11 +19,19 @@ var {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+
 const lazy = {};
-ChromeUtils.defineModuleGetter(
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/accounts.properties")
+);
+XPCOMUtils.defineLazyGetter(lazy, "_maxDebugMessages", () =>
+  Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
+);
+XPCOMUtils.defineLazyServiceGetter(
   lazy,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
+  "HttpProtocolHandler",
+  "@mozilla.org/network/protocol;1?name=http",
+  "nsIHttpProtocolHandler"
 );
 
 var kPrefAutologinPending = "messenger.accounts.autoLoginPending";
@@ -37,21 +45,6 @@ var kPrefAccountAutoLogin = "autoLogin";
 var kPrefAccountAutoJoin = "autoJoin";
 var kPrefAccountAlias = "alias";
 var kPrefAccountFirstConnectionState = "firstConnectionState";
-
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/accounts.properties")
-);
-
-XPCOMUtils.defineLazyGetter(lazy, "_maxDebugMessages", () =>
-  Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
-);
-
-XPCOMUtils.defineLazyServiceGetter(
-  lazy,
-  "HttpProtocolHandler",
-  "@mozilla.org/network/protocol;1?name=http",
-  "nsIHttpProtocolHandler"
-);
 
 var gUserCanceledPrimaryPasswordPrompt = false;
 
