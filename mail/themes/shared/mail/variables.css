@@ -19,13 +19,13 @@
   --button-active-bgcolor: color-mix(in srgb, currentColor 30%, transparent);
   --button-border-color: color-mix(in srgb, currentColor 17%, transparent);
   --button-color: currentColor;
-  --button-primary-bgcolor: -moz-accent-color;
-  --button-primary-hover-bgcolor: color-mix(in srgb, black 10%, -moz-accent-color);
-  --button-primary-active-bgcolor: color-mix(in srgb, black 20%, -moz-accent-color);
-  --button-primary-color: -moz-accent-color-foreground;
+  --button-primary-bgcolor: AccentColor;
+  --button-primary-hover-bgcolor: color-mix(in srgb, black 10%, AccentColor);
+  --button-primary-active-bgcolor: color-mix(in srgb, black 20%, AccentColor);
+  --button-primary-color: AccentColorText;
   --checkbox-border-color: var(--toolbar-field-border-color);
   --checkbox-unchecked-bgcolor: var(--toolbar-field-background-color);
-  --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, -moz-accent-color 4%, var(--checkbox-unchecked-bgcolor));
+  --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, AccentColor 4%, var(--checkbox-unchecked-bgcolor));
   --checkbox-unchecked-active-bgcolor: var(--button-active-bgcolor);
   --checkbox-checked-border-color: transparent;
   --checkbox-checked-color: var(--button-primary-color);
@@ -55,7 +55,7 @@
   --toolbarbutton-checked-background: rgba(200, 200, 200, .5);
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
-  --toolbar-field-focus-border-color: -moz-accent-color;
+  --toolbar-field-focus-border-color: AccentColor;
   --toolbar-field-highlight: SelectedItem;
   --toolbar-field-highlight-color: SelectedItemText;
   --item-focus-selected-border-color: #0060df;

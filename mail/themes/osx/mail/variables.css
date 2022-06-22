@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/variables.css");
 
 :root {
-  --tabline-color: -moz-accent-color;
+  --tabline-color: AccentColor;
   --toolbar-non-lwt-bgcolor: #f9f9fa;
   --toolbar-non-lwt-textcolor: #0c0c0d;
   --toolbar-non-lwt-bgimage: none;
