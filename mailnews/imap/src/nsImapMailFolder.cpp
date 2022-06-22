@@ -6487,9 +6487,6 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       // on the UI thread but we should check if the offline store is locked.
       bool isLocked;
       GetLocked(&isLocked);
-      nsCOMPtr<nsIInputStream> inputStream;
-      bool reusable = false;
-      nsCOMPtr<nsIOutputStream> outputStream;
       nsTArray<nsMsgKey> addedKeys;
       nsTArray<nsMsgKey> srcKeyArray;
       nsCOMArray<nsIMsgDBHdr> addedHdrs;
@@ -6598,21 +6595,28 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             destMsgHdrs.AppendElement(newMailHdr);
             srcFolder->HasMsgOffline(originalKey, &hasMsgOffline);
             newMailHdr->SetUint32Property("pseudoHdr", 1);
-            if (!reusable)
-              (void)srcFolder->GetMsgInputStream(newMailHdr, &reusable,
-                                                 getter_AddRefs(inputStream));
 
-            if (inputStream && hasMsgOffline && !isLocked) {
-              rv = GetOfflineStoreOutputStream(newMailHdr,
-                                               getter_AddRefs(outputStream));
-              NS_ENSURE_SUCCESS(rv, rv);
-
-              CopyOfflineMsgBody(srcFolder, newMailHdr, mailHdr, inputStream,
-                                 outputStream);
+            if (hasMsgOffline && !isLocked) {
+              nsCOMPtr<nsIInputStream> inputStream;
+              bool reusable;
+              stopit = srcFolder->GetMsgInputStream(
+                  newMailHdr, &reusable, getter_AddRefs(inputStream));
+              nsCOMPtr<nsIOutputStream> outputStream;
+              if (NS_SUCCEEDED(stopit)) {
+                stopit = GetOfflineStoreOutputStream(
+                    newMailHdr, getter_AddRefs(outputStream));
+              }
+              if (NS_SUCCEEDED(stopit)) {
+                stopit = CopyOfflineMsgBody(srcFolder, newMailHdr, mailHdr,
+                                            inputStream, outputStream);
+              }
               nsCOMPtr<nsIMsgPluggableStore> offlineStore;
-              (void)GetMsgStore(getter_AddRefs(offlineStore));
-              if (offlineStore)
+              GetMsgStore(getter_AddRefs(offlineStore));
+              if (NS_SUCCEEDED(stopit)) {
                 offlineStore->FinishNewMessage(outputStream, newMailHdr);
+              } else if (outputStream) {
+                offlineStore->DiscardNewMessage(outputStream, newMailHdr);
+              }
             } else
               database->MarkOffline(fakeBase + sourceKeyIndex, false, nullptr);
 
@@ -6688,7 +6692,6 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
         if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
       }
-      if (outputStream) outputStream->Close();
 
       if (isMove) sourceMailDB->Commit(nsMsgDBCommitType::kLargeCommit);
       database->Commit(nsMsgDBCommitType::kLargeCommit);
