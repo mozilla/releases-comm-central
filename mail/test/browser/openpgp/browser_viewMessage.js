@@ -151,6 +151,31 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
 });
 
 /**
+ * Test that a signed (only) message, signed by a verified key,
+ * but with an mismatching email date, is shown with invalid signature.
+ */
+add_task(async function testOpenSignedDateMismatch() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/signed-mismatch-email-date.eml"
+      )
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "mismatch"),
+    "signed unknown icon is displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+  close_window(mc);
+});
+
+/**
  * Test that opening an unsigned encrypted message shows as such.
  */
 add_task(async function testOpenVerifiedUnsignedEncrypted() {

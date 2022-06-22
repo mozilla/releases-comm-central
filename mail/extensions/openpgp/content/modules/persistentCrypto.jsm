@@ -578,6 +578,7 @@ CryptMessageIntoFolder.prototype = {
       null,
       uiFlags,
       mimePart.subParts[1].body,
+      null, // date
       signatureObj,
       exitCodeObj,
       statusFlagsObj,
@@ -731,6 +732,7 @@ CryptMessageIntoFolder.prototype = {
       null,
       uiFlags,
       mimePart.body,
+      null, // date
       signatureObj,
       exitCodeObj,
       statusFlagsObj,
@@ -879,6 +881,7 @@ CryptMessageIntoFolder.prototype = {
             null,
             uiFlags,
             ciphertext,
+            null, // date
             signatureObj,
             exitCodeObj,
             statusFlagsObj,

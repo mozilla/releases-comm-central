@@ -2490,6 +2490,7 @@ Enigmail.msg = {
       window,
       uiFlags,
       cipherText,
+      null, // date
       signatureObj,
       exitCodeObj,
       statusFlagsObj,

@@ -604,6 +604,7 @@ MimeVerify.prototype = {
       let options = {
         fromAddr: lazy.EnigmailDecryption.getFromAddr(win),
         mimeSignatureData: this.sigData,
+        msgDate: lazy.EnigmailDecryption.getMsgDate(win),
       };
       const cApi = lazy.EnigmailCryptoAPI();
 

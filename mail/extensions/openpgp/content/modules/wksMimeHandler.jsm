@@ -148,6 +148,7 @@ PgpWkdHandler.prototype = {
       win,
       0,
       this.data,
+      null, // date
       {},
       {},
       statusFlagsObj,

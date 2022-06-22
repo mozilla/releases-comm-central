@@ -190,6 +190,7 @@ class RNPCryptoAPI extends CryptoAPI {
   async decryptAttachment(encrypted) {
     let options = {};
     options.fromAddr = "";
+    options.msgDate = null;
     return RNP.decrypt(encrypted, options);
   }
 

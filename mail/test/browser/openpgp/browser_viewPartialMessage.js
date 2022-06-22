@@ -213,7 +213,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
       if (test.expectSuccess) {
         Assert.ok(
           OpenPGPTestUtils.hasSignedIconState(mc.window.document, "verified"),
-          "ok verification icon is shown"
+          "ok verification icon is shown for " + test.filename
         );
       } else {
         Assert.ok(
