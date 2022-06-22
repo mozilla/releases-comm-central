@@ -366,21 +366,15 @@ function onAccept(event) {
     }
 
     if (!errorValue) {
-      // XXX Due to the LDAP c-sdk pass a dummy url to the IO service, then
-      // update the parts (bug 473351).
-      let ldapUrl = Services.io
-        .newURI((secure.checked ? "ldaps://" : "ldap://") + "localhost/dc=???")
-        .QueryInterface(Ci.nsILDAPURL);
-
-      let newPort = port;
       if (!port) {
         port = secure.checked ? kDefaultSecureLDAPPort : kDefaultLDAPPort;
       }
-      ldapUrl = ldapUrl
-        .mutate()
-        .setHost(hostname)
-        .setPort(newPort)
-        .finalize()
+      if (hostname.includes(":")) {
+        // Wrap IPv6 address in [].
+        hostname = `[${hostname}]`;
+      }
+      let ldapUrl = Services.io
+        .newURI(`${secure.checked ? "ldaps" : "ldap"}://${hostname}:${port}`)
         .QueryInterface(Ci.nsILDAPURL);
 
       ldapUrl.dn = document.getElementById("basedn").value;
@@ -396,7 +390,7 @@ function onAccept(event) {
       // check if we are modifying an existing directory or adding a new directory
       if (gCurrentDirectory) {
         gCurrentDirectory.dirName = description;
-        gCurrentDirectory.lDAPURL = ldapUrl.QueryInterface(Ci.nsILDAPURL);
+        gCurrentDirectory.lDAPURL = ldapUrl;
         window.opener.gNewServerString = gCurrentDirectory.dirPrefId;
       } else {
         // adding a new directory
