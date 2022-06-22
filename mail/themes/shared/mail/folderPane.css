@@ -298,7 +298,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, s
 }
 
 treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
-  color: var(--noselect-folder-color) !important;
+  opacity: 0.6;
   font-style: italic;
 }
 
