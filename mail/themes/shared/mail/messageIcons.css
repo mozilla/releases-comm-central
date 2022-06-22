@@ -17,8 +17,8 @@
 
 .selectColumnHeader > .treecol-icon,
 treechildren::-moz-tree-image(selectCol) {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
   fill: currentColor;
   stroke: currentColor;
@@ -28,7 +28,7 @@ treechildren::-moz-tree-image(selectCol) {
 
 treechildren::-moz-tree-image(selectCol) {
   cursor: pointer;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  list-style-image: var(--icon-checkbox);
 }
 
 .selectColumnHeader.someselected > .treecol-icon {
@@ -48,18 +48,19 @@ treechildren::-moz-tree-image(selectCol, selected, focus) {
 /* ..... delete column ..... */
 
 treechildren::-moz-tree-image(deleteCol) {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
-  fill: currentColor;
-  opacity: 0.5;
-  width: 14px;
+  list-style-image: var(--icon-trash);
+  -moz-context-properties: stroke, fill;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 treechildren::-moz-tree-image(deleteCol, imapdeleted) {
-  list-style-image: url("chrome://messenger/skin/icons/restore.svg");
+  list-style-image: var(--icon-restore);
 }
 
 treechildren::-moz-tree-image(deleteCol, selected, focus) {
-  fill: var(--select-focus-text-color);
+  fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent);
+  stroke: var(--select-focus-text-color);
 }
 
 /* ..... thread column ..... */
@@ -70,81 +71,80 @@ treechildren::-moz-tree-image(deleteCol, selected, focus) {
 }
 
 treechildren::-moz-tree-image(threadCol, container) {
-  list-style-image: url(chrome://messenger/skin/icons/thread.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-thread);
+  -moz-context-properties: stroke, fill;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 50%, transparent);
 }
 
 treechildren::-moz-tree-image(threadCol, watch) {
-  list-style-image: url(chrome://messenger/skin/icons/visible.svg);
+  list-style-image: var(--icon-eye);
 }
 
 treechildren::-moz-tree-image(threadCol, ignore) {
-  list-style-image: url(chrome://messenger/skin/icons/thread-ignored.svg);
+  list-style-image: var(--icon-thread-ignored);
 }
 
 treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
-  list-style-image: url(chrome://messenger/skin/icons/subthread-ignored.svg);
+  list-style-image: var(--icon-subthread-ignored);
 }
 
 treechildren::-moz-tree-image(threadCol, selected, focus) {
-  fill: var(--select-focus-text-color);
+  fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent);
+  stroke: var(--select-focus-text-color);
 }
 
 /* ..... read column ..... */
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {
-  list-style-image: url(chrome://messenger/skin/icons/read.svg);
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: #5a9300;
-  fill-opacity: 0.3;
-  stroke-opacity: 0;
+  list-style-image: var(--icon-unread-dot);
+  -moz-context-properties: stroke, fill, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  fill-opacity: .25;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
-  fill: #86d129 !important; /* override the selected, focus rule */
+  fill: color-mix(in srgb, var(--color-green-60) 50%, transparent) !important; /* override the selected, focus rule */
+  stroke: var(--color-green-60) !important; /* override the selected, focus rule */
   fill-opacity: 1;
-  stroke-opacity: 0.7;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, selected, focus) {
-  fill: var(--select-focus-text-color);
+  fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent);
+  stroke: var(--select-focus-text-color);
 }
 
 /* ..... attachment column ..... */
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
-  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-attachment);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach, selected, focus) {
-  fill: var(--select-focus-text-color);
+  stroke: var(--select-focus-text-color);
 }
 
 /* ..... flag column ..... */
 
 treechildren::-moz-tree-image(flaggedCol) {
   margin-inline-start: -2px;
-  list-style-image: url(chrome://messenger/skin/icons/flagged.svg);
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
+  list-style-image: var(--icon-star);
+  -moz-context-properties: stroke, fill;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 treechildren::-moz-tree-image(flaggedCol, flagged) {
-  fill: #f4bc44 !important; /* override the selected, focus rule */
-  fill-opacity: 1;
-  stroke: #f4bc44;
-  stroke-opacity: 1;
+  fill: var(--color-orange-30) !important; /* override the selected, focus rule */
+  stroke: var(--color-orange-60) !important; /* override the selected, focus rule */
 }
 
 treechildren::-moz-tree-image(flaggedCol, selected, focus) {
-  fill: var(--select-focus-text-color);
+  fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent);
+  stroke: var(--select-focus-text-color);
 }
 
 /* ..... junkStatus column ..... */
@@ -153,30 +153,25 @@ treechildren::-moz-tree-image(flaggedCol, selected, focus) {
 treechildren::-moz-tree-image(junkStatusCol) {
   margin-inline-start: -3px;
   padding-inline-start: 0;
-  list-style-image: url(chrome://messenger/skin/icons/junk.svg);
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
+  list-style-image: var(--icon-spam);
+  -moz-context-properties: stroke, fill;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
-  fill: #f68a16 !important; /* override the selected, focus rule */
-  fill-opacity: 1;
-  stroke: #eed003;
-  stroke-opacity: 0.8;
+  fill: var(--color-red-50) !important; /* override the selected, focus rule */
+  stroke: var(--color-red-70) !important; /* override the selected, focus rule */
 }
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 treechildren::-moz-tree-image(junkStatusCol, selected, focus) {
-  fill: var(--select-focus-text-color);
+  fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent);
+  stroke: var(--select-focus-text-color);
 }
 
 /* ..... correspondent column ..... */
@@ -186,9 +181,9 @@ treechildren::-moz-tree-cell-text(subjectCol) {
 }
 
 treechildren::-moz-tree-image(correspondentCol) {
-  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg");
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  list-style-image: var(--icon-nav-forward);
+  -moz-context-properties: stroke, fill-opacity;
+  stroke: currentColor;
   fill-opacity: 0;
 }
 
@@ -197,11 +192,11 @@ treechildren::-moz-tree-image(correspondentCol, outgoing) {
 }
 
 #threadTree:-moz-locale-dir(rtl) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  list-style-image: url("chrome://messenger/skin/icons/correspondents-rtl.svg");
+  list-style-image: var(--icon-nav-back);
 }
 
 treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
-  fill: var(--select-focus-text-color);
+  stroke: var(--select-focus-text-color);
   fill-opacity: 0.5;
 }
 
@@ -215,53 +210,54 @@ treechildren::-moz-tree-image(subjectCol) {
 }
 
 treechildren::-moz-tree-image(subjectCol, replied) {
-  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
-  fill: #9c5ccc;
+  list-style-image: var(--icon-reply-col);
+  fill: var(--color-purple-50);
 }
 
 treechildren::-moz-tree-image(subjectCol, forwarded) {
-  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
-  fill: #268be0;
+  list-style-image: var(--icon-forward-col);
+  fill: var(--color-blue-50);
 }
 
 treechildren::-moz-tree-image(subjectCol, redirected) {
-  list-style-image: url("chrome://messenger/skin/icons/redirect.svg");
-  fill: #268be0;
+  list-style-image: var(--icon-redirect-col);
+  fill: var(--color-orange-50);
 }
 
 treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
-  list-style-image: url("chrome://messenger/skin/icons/reply-forward.svg");
-  fill: #268be0;
-  stroke: #9c5ccc;
+  list-style-image: var(--icon-reply-forward-col);
+  fill: var(--color-blue-50);
+  stroke: var(--color-purple-50);
 }
 
 treechildren::-moz-tree-image(subjectCol, replied, redirected) {
-  list-style-image: url("chrome://messenger/skin/icons/reply-redirect.svg");
-  fill: #f68a16;
-  stroke: #9c5ccc;
+  list-style-image: var(--icon-reply-redirect-col);
+  fill: var(--color-orange-50);
+  stroke: var(--color-purple-50);
 }
 
 treechildren::-moz-tree-image(subjectCol, forwarded, redirected) {
-  list-style-image: url("chrome://messenger/skin/icons/forward-redirect.svg");
-  fill: #268be0;
-  stroke: #f68a16;
+  list-style-image: var(--icon-forward-redirect-col);
+  fill: var(--color-blue-50);
+  stroke: var(--color-orange-50);
 }
 
 treechildren::-moz-tree-image(subjectCol, replied, forwarded, redirected) {
-  list-style-image: url("chrome://messenger/skin/icons/reply-forward-redirect.svg");
-  fill: #268be0;
-  stroke: #9c5ccc;
+  list-style-image: var(--icon-reply-forward-redirect-col);
+  fill: var(--color-blue-50);
+  stroke: var(--color-purple-50);
 }
 
 treechildren::-moz-tree-image(subjectCol, new) {
-  list-style-image: url("chrome://messenger/skin/icons/newmail.svg");
-  fill: #f0d93f !important; /* override the selected, focus rule */
-  stroke: transparent !important; /* override the selected, focus rule */
+  list-style-image: var(--icon-notify);
+  fill: var(--color-yellow-50) !important; /* override the selected, focus rule */
+  stroke: var(--color-orange-40) !important; /* override the selected, focus rule */
 }
 
 treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-  list-style-image: url("chrome://messenger/skin/icons/cancel.svg");
-  fill: #ff0039;
+  list-style-image: var(--icon-cancel-sm);
+  fill: color-mix(in srgb, var(--color-red-50) 20%, transparent);
+  fill: var(--color-red-50);
   width: 12px;
   margin-inline: 2px 4px;
 }
@@ -269,6 +265,33 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 treechildren::-moz-tree-image(subjectCol, selected, focus) {
   fill: var(--select-focus-text-color);
   stroke: var(--select-focus-text-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
+    fill: color-mix(in srgb, var(--color-green-50) 50%, transparent) !important; /* override the selected, focus rule */
+    stroke: var(--color-green-50) !important; /* override the selected, focus rule */
+  }
+
+  treechildren::-moz-tree-image(flaggedCol, flagged) {
+    fill: var(--color-orange-40) !important; /* override the selected, focus rule */
+    stroke: var(--color-orange-50) !important; /* override the selected, focus rule */
+  }
+
+  treechildren::-moz-tree-image(junkStatusCol, junk) {
+    fill: var(--color-red-40) !important; /* override the selected, focus rule */
+    stroke: var(--color-red-50) !important; /* override the selected, focus rule */
+  }
+
+  treechildren::-moz-tree-image(subjectCol, new) {
+    fill: var(--color-yellow-40) !important; /* override the selected, focus rule */
+    stroke: var(--color-orange-30) !important; /* override the selected, focus rule */
+  }
+
+  treechildren::-moz-tree-image(subjectCol, imapdeleted) {
+    fill: var(--color-red-40);
+    fill: var(--color-red-50);
+  }
 }
 
 /* ..... do not show icons ..... */

@@ -145,10 +145,18 @@ p {
   color: color-mix(in srgb, currentColor 70%, transparent);
 }
 
-.thread-tree-col-picker image,
+.tree-columnpicker-icon {
+  list-style-image: var(--icon-column-menu);
+  -moz-context-properties: stroke, fill;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+.thread-tree-col-picker > image,
 .thread-tree-icon-header img {
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke, fill;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 treechildren::-moz-tree-row(selected, current, focus) {

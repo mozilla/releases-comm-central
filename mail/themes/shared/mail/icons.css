@@ -12,11 +12,11 @@
   --icon-app-meun-badged: url("chrome://messenger/skin/icons/new/compact/app-meun-badged.svg");
   --icon-archive: url("chrome://messenger/skin/icons/new/compact/archive.svg");
   --icon-attachment: url("chrome://messenger/skin/icons/new/compact/attachment.svg");
-  --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
   --icon-calendar-today: url("chrome://messenger/skin/icons/new/compact/calendar-today.svg");
   --icon-calendar: url("chrome://messenger/skin/icons/new/compact/calendar.svg");
   --icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
   --icon-check: url("chrome://messenger/skin/icons/new/compact/check.svg");
+  --icon-checkbox: url("chrome://messenger/skin/icons/new/compact/checkbox.svg");
   --icon-close: url("chrome://messenger/skin/icons/new/compact/close.svg");
   --icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
   --icon-compress: url("chrome://messenger/skin/icons/new/compact/compress.svg");
@@ -27,6 +27,7 @@
   --icon-draft: url("chrome://messenger/skin/icons/new/compact/draft.svg");
   --icon-export: url("chrome://messenger/skin/icons/new/compact/export.svg");
   --icon-extension: url("chrome://messenger/skin/icons/new/compact/extension.svg");
+  --icon-eye: url("chrome://messenger/skin/icons/new/compact/eye.svg");
   --icon-features: url("chrome://messenger/skin/icons/new/compact/features.svg");
   --icon-file: url("chrome://messenger/skin/icons/new/compact/file.svg");
   --icon-filter: url("chrome://messenger/skin/icons/new/compact/filter.svg");
@@ -44,21 +45,16 @@
   --icon-inbox: url("chrome://messenger/skin/icons/new/compact/inbox.svg");
   --icon-key: url("chrome://messenger/skin/icons/new/compact/key.svg");
   --icon-link: url("chrome://messenger/skin/icons/new/compact/link.svg");
-  --icon-loading: url("chrome://messenger/skin/icons/new/loading.svg");
   --icon-mail-secure: url("chrome://messenger/skin/icons/new/compact/mail-secure.svg");
   --icon-mail: url("chrome://messenger/skin/icons/new/compact/mail.svg");
   --icon-nav-back: url("chrome://messenger/skin/icons/new/compact/nav-back.svg");
   --icon-nav-down-unread: url("chrome://messenger/skin/icons/new/compact/nav-down-unread.svg");
   --icon-nav-down: url("chrome://messenger/skin/icons/new/compact/nav-down.svg");
-  --icon-nav-down-sm: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
   --icon-nav-forward: url("chrome://messenger/skin/icons/new/compact/nav-forward.svg");
   --icon-nav-left: url("chrome://messenger/skin/icons/new/compact/nav-left.svg");
-  --icon-nav-left-sm: url("chrome://messenger/skin/icons/new/nav-left-sm.svg");
   --icon-nav-right: url("chrome://messenger/skin/icons/new/compact/nav-right.svg");
-  --icon-nav-right-sm: url("chrome://messenger/skin/icons/new/nav-right-sm.svg");
   --icon-nav-up-unread: url("chrome://messenger/skin/icons/new/compact/nav-up-unread.svg");
   --icon-nav-up: url("chrome://messenger/skin/icons/new/compact/nav-up.svg");
-  --icon-nav-up-sm: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
   --icon-new-address-book: url("chrome://messenger/skin/icons/new/compact/new-address-book.svg");
   --icon-new-chat: url("chrome://messenger/skin/icons/new/compact/new-chat.svg");
   --icon-new-contact: url("chrome://messenger/skin/icons/new/compact/new-contact.svg");
@@ -94,10 +90,37 @@
   --icon-tag: url("chrome://messenger/skin/icons/new/compact/tag.svg");
   --icon-tasks: url("chrome://messenger/skin/icons/new/compact/tasks.svg");
   --icon-template: url("chrome://messenger/skin/icons/new/compact/template.svg");
+  --icon-thread: url("chrome://messenger/skin/icons/new/compact/thread.svg");
+  --icon-thread-ignored: url("chrome://messenger/skin/icons/new/compact/thread-ignored.svg");
+  --icon-subthread-ignored: url("chrome://messenger/skin/icons/new/compact/subthread-ignored.svg");
   --icon-tools: url("chrome://messenger/skin/icons/new/compact/tools.svg");
   --icon-trash: url("chrome://messenger/skin/icons/new/compact/trash.svg");
   --icon-unread: url("chrome://messenger/skin/icons/new/compact/unread.svg");
   --icon-user-list: url("chrome://messenger/skin/icons/new/compact/user-list.svg");
+
+  --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
+  --icon-loading: url("chrome://messenger/skin/icons/new/loading.svg");
+  --icon-nav-down-sm: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
+  --icon-nav-left-sm: url("chrome://messenger/skin/icons/new/nav-left-sm.svg");
+  --icon-nav-right-sm: url("chrome://messenger/skin/icons/new/nav-right-sm.svg");
+  --icon-nav-up-sm: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
+  --icon-column-menu: url("chrome://messenger/skin/icons/new/column-menu.svg");
+  --icon-attachment-sm: url("chrome://messenger/skin/icons/new/attachment-sm.svg");
+  --icon-spam-sm: url("chrome://messenger/skin/icons/new/spam-sm.svg");
+  --icon-star-sm: url("chrome://messenger/skin/icons/new/star-sm.svg");
+  --icon-thread-sm: url("chrome://messenger/skin/icons/new/thread-sm.svg");
+  --icon-trash-sm: url("chrome://messenger/skin/icons/new/trash-sm.svg");
+  --icon-unread-dot: url("chrome://messenger/skin/icons/new/unread-dot.svg");
+  --icon-unread-sm: url("chrome://messenger/skin/icons/new/unread-sm.svg");
+  --icon-notify: url("chrome://messenger/skin/icons/new/notify.svg");
+
+  --icon-forward-col: url("chrome://messenger/skin/icons/new/compact/forward-col.svg");
+  --icon-reply-col: url("chrome://messenger/skin/icons/new/compact/reply-col.svg");
+  --icon-redirect-col: url("chrome://messenger/skin/icons/new/compact/redirect-col.svg");
+  --icon-forward-redirect-col: url("chrome://messenger/skin/icons/new/compact/forward-redirect-col.svg");
+  --icon-reply-forward-col: url("chrome://messenger/skin/icons/new/compact/reply-forward-col.svg");
+  --icon-reply-forward-redirect-col: url("chrome://messenger/skin/icons/new/compact/reply-forward-redirect-col.svg");
+  --icon-reply-redirect-col: url("chrome://messenger/skin/icons/new/compact/reply-redirect-col.svg");
 
   --icon-status-away: url("chrome://messenger/skin/icons/new/status-away.svg");
   --icon-status-away-sm: url("chrome://messenger/skin/icons/new/status-away-sm.svg");
@@ -134,7 +157,7 @@
   --folder-pane-folder: var(--icon-folder);
   --folder-pane-folder-filter: var(--icon-folder-filter);
   --folder-pane-folder-rss: var(--icon-folder-rss);
-  
+
   --addressbook-tree-ab: var(--icon-address-book);
   --addressbook-tree-list: var(--icon-user-list);
   --addressbook-tree-remote: var(--icon-globe);
