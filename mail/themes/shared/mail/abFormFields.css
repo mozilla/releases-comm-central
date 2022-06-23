@@ -67,7 +67,7 @@ input[type="number"]::-moz-number-spin-down:hover {
 }
 
 input[type="number"]::-moz-number-spin-up {
-  min-height: calc(1em - 3px);
+  min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-start-end-radius: var(--in-content-button-border-radius);
@@ -75,7 +75,7 @@ input[type="number"]::-moz-number-spin-up {
 }
 
 input[type="number"]::-moz-number-spin-down {
-  min-height: calc(1em - 4px);
+  min-height: calc(var(--in-content-button-height) * 0.5 - 4px);
   border-end-end-radius: var(--in-content-button-border-radius);
   background-image: var(--icon-nav-down-sm);
 }

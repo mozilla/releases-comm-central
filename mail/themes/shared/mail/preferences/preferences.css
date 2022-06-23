@@ -386,7 +386,7 @@ html|input[type="number"]::-moz-number-spin-down:hover {
 }
 
 html|input[type="number"]::-moz-number-spin-up {
-  min-height: calc(1em - 3px);
+  min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-radius: 1px 1px 0 0;
@@ -394,7 +394,7 @@ html|input[type="number"]::-moz-number-spin-up {
 }
 
 html|input[type="number"]::-moz-number-spin-down {
-  min-height: calc(1em - 4px);
+  min-height: calc(var(--in-content-button-height) * 0.5 - 4px);
   border-radius: 0 0 1px 1px;
   background-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
 }
