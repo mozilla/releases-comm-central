@@ -50,8 +50,8 @@ let afterPaintListener = () => {
 
 /**
  * The StartupRecorder component observes notifications at various stages of
- * startup and records the set of JS components and modules that were already
- * loaded at each of these points.
+ * startup and records the set of JS modules that were already loaded at
+ * each of these points.
  * The records are meant to be used by startup tests in
  * browser/base/content/test/performance
  * This component only exists in nightly and debug builds, it doesn't ship in
@@ -78,7 +78,6 @@ StartupRecorder.prototype = {
   record(name) {
     ChromeUtils.addProfilerMarker("startupRecorder:" + name);
     this.data.code[name] = {
-      components: Cu.loadedComponents,
       modules: Cu.loadedModules,
       services: Object.keys(Cc).filter(c => {
         try {
@@ -96,7 +95,7 @@ StartupRecorder.prototype = {
   observe(subject, topic, data) {
     if (topic == "app-startup" || topic == "content-process-ready-for-script") {
       // Don't do anything in xpcshell.
-      if (Services.appinfo.ID != "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
+      if (Services.appinfo.ID != "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
         return;
       }
 

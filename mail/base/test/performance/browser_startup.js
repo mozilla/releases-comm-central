@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
    http://creativecommons.org/publicdomain/zero/1.0/ */
 
-/* This test records at which phase of startup the JS components and modules
- * are first loaded.
+/* This test records at which phase of startup the JS modules are first
+ * loaded.
  * If you made changes that cause this test to fail, it's likely because you
  * are loading more JS code during startup.
  * Most code has no reason to run off of the app-startup notification
@@ -29,9 +29,9 @@ const startupPhases = {
     allowlist: {
       modules: new Set([
         "resource:///modules/MailGlue.jsm",
+        "resource:///modules/StartupRecorder.jsm",
         "resource://gre/modules/ActorManagerParent.jsm",
         "resource://gre/modules/AppConstants.jsm",
-        "resource://gre/modules/ComponentUtils.jsm",
         "resource://gre/modules/CustomElementsListener.jsm",
         "resource://gre/modules/MainProcessSingleton.jsm",
         "resource://gre/modules/Services.jsm",
@@ -78,11 +78,6 @@ const startupPhases = {
   // interacting with the first mail window.
   "before handling user events": {
     denylist: {
-      components: new Set([
-        "PageIconProtocolHandler.jsm",
-        "PlacesCategoriesStarter.jsm",
-        "PlacesExpiration.jsm",
-      ]),
       modules: new Set([
         "resource://gre/modules/Blocklist.jsm",
         "resource://gre/modules/BookmarkHTMLUtils.jsm",
@@ -134,26 +129,10 @@ add_task(async function() {
     .wrappedJSObject;
   await startupRecorder.done;
 
-  let componentStacks = new Map();
   let data = Cu.cloneInto(startupRecorder.data.code, {});
-  // Keep only the file name for components, as the path is an absolute file
-  // URL rather than a resource:// URL like for modules.
-  for (let phase in data) {
-    data[phase].components = data[phase].components
-      .map(uri => {
-        let fileName = uri.replace(/.*\//, "");
-        componentStacks.set(fileName, Cu.getComponentLoadStack(uri));
-        return fileName;
-      })
-      .filter(c => c != "startupRecorder.js");
-  }
-
   function getStack(scriptType, name) {
     if (scriptType == "modules") {
       return Cu.getModuleImportStack(name);
-    }
-    if (scriptType == "components") {
-      return componentStacks.get(name);
     }
     return "";
   }
