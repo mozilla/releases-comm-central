@@ -30,8 +30,6 @@ DIRS += ["build"]
 
 EXTRA_COMPONENTS += [
     "MailComponents.manifest",
-    "test/startupRecorder.js",
-    "test/testComponents.manifest",
 ]
 
 EXTRA_JS_MODULES += [
@@ -40,6 +38,11 @@ EXTRA_JS_MODULES += [
     "MailGlue.jsm",
     "MessengerContentHandler.jsm",
 ]
+
+if CONFIG["MOZ_DEBUG"] or CONFIG["NIGHTLY_BUILD"]:
+    EXTRA_JS_MODULES += [
+        "StartupRecorder.jsm",
+    ]
 
 XPCOM_MANIFESTS += [
     "components.conf",

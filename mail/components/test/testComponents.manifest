@@ -1,5 +1,0 @@
-# This component restricts its registration for the app-startup category
-# to the mail app so it doesn't get loaded in xpcshell.
-component {11c095b2-e42e-4bdf-9dd0-aed87595f6a4} startupRecorder.js
-contract @mozilla.org/test/startuprecorder;1 {11c095b2-e42e-4bdf-9dd0-aed87595f6a4}
-category app-startup startupRecorder service,@mozilla.org/test/startuprecorder;1 application={3550f703-e582-4d05-9a08-453d09bdfdc6}
