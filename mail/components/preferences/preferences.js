@@ -119,8 +119,6 @@ function register_module(categoryName, categoryObject) {
 }
 
 function init() {
-  Preferences.forceEnableInstantApply();
-
   register_module("paneGeneral", gGeneralPane);
   register_module("paneCompose", gComposePane);
   register_module("panePrivacy", gPrivacyPane);

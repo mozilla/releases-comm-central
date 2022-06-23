@@ -121,14 +121,10 @@ var gPrivacyPane = {
 
   /**
    * Reload the current message after a preference affecting the view
-   * has been changed and we are in instantApply mode.
+   * has been changed.
    */
   reloadMessageInOpener() {
-    if (
-      Services.prefs.getBoolPref("browser.preferences.instantApply") &&
-      window.opener &&
-      typeof window.opener.ReloadMessage == "function"
-    ) {
+    if (window.opener && typeof window.opener.ReloadMessage == "function") {
       window.opener.ReloadMessage();
     }
   },
