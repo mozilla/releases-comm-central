@@ -175,8 +175,6 @@
 @RESPATH@/components/nsBrowserContentHandler.js
 @RESPATH@/components/nsComposerCmdLineHandler.js
 @RESPATH@/components/nsComposerCmdLineHandler.manifest
-@RESPATH@/components/HandlerService.js
-@RESPATH@/components/HandlerService.manifest
 @RESPATH@/components/nsGopherProtocolStubHandler.js
 @RESPATH@/components/nsPlacesAutoComplete.js
 @RESPATH@/components/nsPlacesAutoComplete.manifest

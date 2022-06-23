@@ -322,8 +322,6 @@
 @RESPATH@/components/nsUpdateService.manifest
 #endif
 @RESPATH@/components/ProcessSingleton.manifest
-@RESPATH@/components/HandlerService.manifest
-@RESPATH@/components/HandlerService.js
 
 [calendar]
 @RESPATH@/chrome/calendar@JAREXT@
