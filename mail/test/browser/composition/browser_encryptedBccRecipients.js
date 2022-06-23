@@ -86,11 +86,14 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
     "",
     "bccAddrInput"
   );
-  Assert.ok(
-    cwc.window.gComposeNotification.getNotificationWithValue(
-      "warnEncryptedBccRecipients"
-    ),
-    "warning should show when encryption enabled"
+
+  // Warning should show when encryption enabled
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      cwc.window.gComposeNotification.getNotificationWithValue(
+        "warnEncryptedBccRecipients"
+      ),
+    "Timeout waiting for warnEncryptedBccRecipients notification"
   );
 
   close_compose_window(cwc);
@@ -120,10 +123,14 @@ add_task(async function testNotificationDismissal() {
     "bccAddrInput"
   );
 
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
-    "warnEncryptedBccRecipients"
+  // Warning should show when encryption enabled
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      cwc.window.gComposeNotification.getNotificationWithValue(
+        "warnEncryptedBccRecipients"
+      ),
+    "Timeout waiting for warnEncryptedBccRecipients notification"
   );
-  Assert.ok(notification, "notification should appear");
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
@@ -133,6 +140,9 @@ add_task(async function testNotificationDismissal() {
     "notification was not removed in time"
   );
 
+  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+    "warnEncryptedBccRecipients"
+  );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.lastElementChild,
     {},

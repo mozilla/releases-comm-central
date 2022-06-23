@@ -354,15 +354,25 @@ function setup_msg_contents(
   aBody,
   inputID = "toAddrInput"
 ) {
+  let pillcount = function() {
+    return aCwc.window.document.querySelectorAll("mail-address-pill").length;
+  };
+  let targetCount = pillcount();
+  if (aAddr.trim()) {
+    targetCount += aAddr.split(",").filter(s => s.trim()).length;
+  }
+
   let input = aCwc.e(inputID);
+  aCwc.sleep(1000);
   aCwc.type(input, aAddr);
   input.focus();
+
   EventUtils.synthesizeKey("VK_RETURN", {}, aCwc.window);
   aCwc.type(aCwc.e("msgSubject"), aSubj);
   aCwc.type(aCwc.e("messageEditor"), aBody);
 
-  // Wait 1 second for the pill to be created.
-  aCwc.sleep(1000);
+  // Wait for the pill(s) to be created.
+  aCwc.waitFor(() => pillcount() == targetCount, `Creating pill for: ${aAddr}`);
 }
 
 /**
