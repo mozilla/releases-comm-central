@@ -1168,9 +1168,9 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
   bool deleteInvalidDB = false;
 
   bool exists;
-  int64_t fileSize;
+  int64_t fileSize = 0;
   summaryFile->Exists(&exists);
-  summaryFile->GetFileSize(&fileSize);
+  if (exists) summaryFile->GetFileSize(&fileSize);
   // if the old summary doesn't exist, we're creating a new one.
   if ((!exists || !fileSize) && m_create) newFile = true;
 
@@ -1202,7 +1202,9 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
       }
     }
     if (NS_FAILED(err) && !m_leaveInvalidDB) deleteInvalidDB = true;
-  } else {
+  } else if (err != NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) {
+    // No point declaring it out-of-date and trying to delete it
+    // if it's missing.
     err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
     deleteInvalidDB = true;
   }

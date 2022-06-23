@@ -2034,9 +2034,11 @@ nsMsgDBFolder::GetStringProperty(const char* propertyName,
       bool exists;
       rv = dbPath->Exists(&exists);
       if (NS_FAILED(rv) || !exists) return NS_MSG_ERROR_FOLDER_MISSING;
+      bool weOpenedDB = !mDatabase;
       rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
       if (NS_SUCCEEDED(rv))
         rv = folderInfo->GetCharProperty(propertyName, propertyValue);
+      if (weOpenedDB) CloseDBIfFolderNotOpen();
     }
   }
   return rv;
