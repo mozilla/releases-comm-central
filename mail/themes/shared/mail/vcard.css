@@ -270,6 +270,10 @@ vcard-special-date {
   margin-block: 0 6px;
   font-size: 1.1rem;
   line-height: 1.2;
+  background-color: transparent;
+  font-weight: 600;
+  margin-inline-start: 0;
+  padding-inline: 0;
 }
 
 vcard-special-date .vcard-type-selection {

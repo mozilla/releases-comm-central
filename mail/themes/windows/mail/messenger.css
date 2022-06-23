@@ -497,11 +497,9 @@ fieldset {
 }
 
 legend {
-  font-weight: normal;
   margin-top: -1em;
   margin-inline-start: 3px;
-  padding-right: 3px;
-  padding-left: 3px;
+  padding-inline: 3px;
   background-color: -moz-dialog;
   font-weight: bold;
 }
