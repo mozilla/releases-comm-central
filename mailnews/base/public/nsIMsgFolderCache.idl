@@ -40,8 +40,9 @@ interface nsIMsgFolderCache : nsISupports
 
   /**
    * Write immediately to cacheFile if any data has been changed.
-   * This happens in the cache dtor anyway, and is exposed here purely for
-   * unit testing (so tests don't have to wait for JS garbage collection).
+   * Write immediately to cacheFile if any data has been changed.
+   * This happens in the cache dtor anyway, but we use it during shutdown and
+   * in unit testing (so tests don't have to wait for JS garbage collection).
    */
   void flush();
 };
