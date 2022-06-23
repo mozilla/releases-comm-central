@@ -919,12 +919,8 @@ function updateStarButton() {
 
   let flagButton = document.getElementById("starMessageButton");
   flagButton.hidden = false;
-  let isFlagged = msgHdr.isFlagged;
-  document.l10n.setAttributes(
-    flagButton,
-    isFlagged ? "message-header-msg-flagged" : "message-header-msg-not-flagged"
-  );
 
+  let isFlagged = msgHdr.isFlagged;
   flagButton.classList.toggle("flagged", isFlagged);
   flagButton.setAttribute("aria-checked", isFlagged);
 }

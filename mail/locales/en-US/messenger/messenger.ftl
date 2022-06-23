@@ -144,10 +144,6 @@ message-header-msg-flagged =
     .title = Starred
     .aria-label = Starred
 
-message-header-msg-not-flagged =
-    .title = Not starred
-    .aria-label = Not starred
-
 # Variables:
 # $address (String) - The email address of the recipient this picture belongs to.
 message-header-recipient-avatar =
