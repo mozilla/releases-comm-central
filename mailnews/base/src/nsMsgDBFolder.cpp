@@ -2039,6 +2039,11 @@ nsMsgDBFolder::GetStringProperty(const char* propertyName,
       if (NS_SUCCEEDED(rv))
         rv = folderInfo->GetCharProperty(propertyName, propertyValue);
       if (weOpenedDB) CloseDBIfFolderNotOpen();
+      if (NS_SUCCEEDED(rv)) {
+        // Now that we have the value, store it in our cache.
+        if (cacheElement)
+          cacheElement->SetCachedString(propertyName, propertyValue);
+      }
     }
   }
   return rv;
