@@ -191,7 +191,7 @@ if (!customElements.get("menulist")) {
         listItem.setAttribute("class", "menuitem-iconic abMenuItem");
         listItem.setAttribute(
           "image",
-          "chrome://messenger/skin/icons/address.svg"
+          "chrome://messenger/skin/icons/new/compact/address-book.svg"
         );
       }
 
@@ -210,22 +210,22 @@ if (!customElements.get("menulist")) {
         if (ab.isMailList) {
           listItem.setAttribute(
             "image",
-            "chrome://messenger/skin/icons/ablist.svg"
+            "chrome://messenger/skin/icons/new/compact/user-list.svg"
           );
         } else if (ab.isRemote && ab.isSecure) {
           listItem.setAttribute(
             "image",
-            "chrome://messenger/skin/icons/globe-secure.svg"
+            "chrome://messenger/skin/icons/new/compact/globe-secure.svg"
           );
         } else if (ab.isRemote) {
           listItem.setAttribute(
             "image",
-            "chrome://messenger/skin/icons/globe.svg"
+            "chrome://messenger/skin/icons/new/compact/globe.svg"
           );
         } else {
           listItem.setAttribute(
             "image",
-            "chrome://messenger/skin/icons/address.svg"
+            "chrome://messenger/skin/icons/new/compact/address-book.svg"
           );
         }
       }
