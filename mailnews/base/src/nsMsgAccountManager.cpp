@@ -191,10 +191,13 @@ nsresult nsMsgAccountManager::Shutdown() {
       do_GetService(NS_MSGPURGESERVICE_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv) && purgeService) purgeService->Shutdown();
 
-  // The DTOR is meant to do the flushing, but observed behaviour is
-  // that it doesn't always get called. So flush explicitly.
-  m_msgFolderCache->Flush();
-  m_msgFolderCache = nullptr;
+  if (m_msgFolderCache) {
+    // The DTOR is meant to do the flushing, but observed behaviour is
+    // that it doesn't always get called. So flush explicitly.
+    m_msgFolderCache->Flush();
+    m_msgFolderCache = nullptr;
+  }
+
   m_haveShutdown = true;
   return NS_OK;
 }
