@@ -30,7 +30,7 @@ from gecko_taskgraph.transforms.job.common import (
 from comm_taskgraph.util.hash import hash_paths_extended
 from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 from gecko_taskgraph import GECKO
-import gecko_taskgraph
+import taskgraph
 
 CACHE_TYPE = "toolchains.v3"
 
@@ -138,7 +138,7 @@ def docker_worker_toolchain(config, job, taskdesc):
     if "toolchain-alias" in run:
         attributes["toolchain-alias"] = run.pop("toolchain-alias")
 
-    if not gecko_taskgraph.fast:
+    if not taskgraph.fast:
         name = taskdesc["label"].replace("{}-".format(config.kind), "", 1)
         taskdesc["cache"] = {
             "type": CACHE_TYPE,
@@ -237,7 +237,7 @@ def docker_macos_sdk_fetch(config, job, taskdesc):
     if "toolchain-alias" in run:
         attributes["toolchain-alias"] = run.pop("toolchain-alias")
 
-    if not gecko_taskgraph.fast:
+    if not taskgraph.fast:
         name = taskdesc["label"].replace("{}-".format(config.kind), "", 1)
         taskdesc["cache"] = {
             "type": CACHE_TYPE,

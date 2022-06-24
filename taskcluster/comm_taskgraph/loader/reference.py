@@ -8,7 +8,7 @@ import os
 import logging
 
 from taskgraph.util.yaml import load_yaml
-from gecko_taskgraph.util.python_path import find_object
+from taskgraph.util.python_path import find_object
 
 logger = logging.getLogger(__name__)
 
