@@ -3480,7 +3480,9 @@ MatrixProtocol.prototype = {
     return new MatrixAccount(this, aImAccount);
   },
 
-  usernameEmptyText: lazy._("matrix.usernameHint"),
+  get usernameEmptyText() {
+    return lazy._("matrix.usernameHint");
+  },
   usernamePrefix: "@",
   usernameSplits: [
     {
@@ -3502,7 +3504,9 @@ MatrixProtocol.prototype = {
       get label() {
         return lazy._("options.deviceDisplayName");
       },
-      default: lazy.brandShortName,
+      get default() {
+        return lazy.brandShortName;
+      },
     },
     backupPassphrase: {
       get label() {

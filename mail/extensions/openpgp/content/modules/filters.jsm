@@ -36,9 +36,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
-  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
-});
+let l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 var gNewMailListenerInitiated = false;
 
@@ -68,14 +66,12 @@ const filterActionMoveDecrypt = {
   },
 
   validateActionValue(value, folder, type) {
-    lazy.l10n
-      .formatValue("filter-decrypt-move-warn-experimental")
-      .then(value => {
-        lazy.EnigmailDialog.alert(null, value);
-      });
+    l10n.formatValue("filter-decrypt-move-warn-experimental").then(value => {
+      lazy.EnigmailDialog.alert(null, value);
+    });
 
     if (value === "") {
-      return lazy.l10n.formatValueSync("filter-folder-required");
+      return l10n.formatValueSync("filter-folder-required");
     }
 
     return null;
@@ -119,7 +115,7 @@ const filterActionCopyDecrypt = {
     );
 
     if (value === "") {
-      return lazy.l10n.formatValueSync("filter-folder-required");
+      return l10n.formatValueSync("filter-folder-required");
     }
 
     return null;
@@ -202,7 +198,7 @@ const filterActionEncrypt = {
       "filters.jsm: validateActionValue: Encrypt to: " + value + "\n"
     );
     if (value === "") {
-      return lazy.l10n.formatValueSync("filter-key-required");
+      return l10n.formatValueSync("filter-key-required");
     }
 
     let keyObj = lazy.EnigmailKeyRing.getKeyById(value);
@@ -218,7 +214,7 @@ const filterActionEncrypt = {
     }
 
     if (keyObj === null) {
-      return lazy.l10n.formatValueSync("filter-key-not-found", {
+      return l10n.formatValueSync("filter-key-not-found", {
         desc: value,
       });
     }
@@ -228,7 +224,7 @@ const filterActionEncrypt = {
       // thunderbird + enigmail is used as a gateway filter with
       // the secret not available on one machine and the decryption
       // is intended to happen on different systems.
-      lazy.l10n
+      l10n
         .formatValue("filter-warn-key-not-secret", {
           desc: value,
         })
@@ -280,7 +276,7 @@ function isPGPEncrypted(data) {
  */
 const filterTermPGPEncrypted = {
   id: EnigmailConstants.FILTER_TERM_PGP_ENCRYPTED,
-  name: lazy.l10n.formatValueSync("filter-term-pgpencrypted-label"),
+  name: l10n.formatValueSync("filter-term-pgpencrypted-label"),
   needsBody: true,
   match(aMsgHdr, searchValue, searchOp) {
     var folder = aMsgHdr.folder;

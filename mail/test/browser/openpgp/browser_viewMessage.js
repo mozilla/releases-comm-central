@@ -157,9 +157,7 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
 add_task(async function testOpenSignedDateMismatch() {
   let mc = await open_message_from_file(
     new FileUtils.File(
-      getTestFilePath(
-        "data/eml/signed-mismatch-email-date.eml"
-      )
+      getTestFilePath("data/eml/signed-mismatch-email-date.eml")
     )
   );
 
