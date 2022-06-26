@@ -3900,7 +3900,11 @@ function onPasteOrDrop(e) {
 
   // For paste use e.clipboardData, for drop use e.dataTransfer.
   let dataTransfer = "clipboardData" in e ? e.clipboardData : e.dataTransfer;
-  if (!Services.io.offline) {
+  if (
+    Services.prefs.getBoolPref("mail.compose.add_link_preview", false) &&
+    !Services.io.offline &&
+    !dataTransfer.types.includes("text/html")
+  ) {
     let type = dataTransfer.types.find(t =>
       ["text/uri-list", "text/x-moz-url", "text/plain"].includes(t)
     );
@@ -3909,26 +3913,10 @@ function onPasteOrDrop(e) {
         .getData(type)
         .split("\n")[0]
         .trim();
-      if (/^https?:\/\//.test(url)) {
+      if (/^https?:\/\/\S+$/.test(url)) {
         e.preventDefault(); // We'll handle the pasting manually.
-        if (
-          Services.prefs.getBoolPref("mail.compose.add_link_preview", false)
-        ) {
-          getBrowser().contentDocument.execCommand("insertHTML", false, url);
-
-          addLinkPreview(url);
-        } else {
-          getBrowser().contentDocument.execCommand("insertHTML", false, url);
-          /*
-          // FIXME - see bug 1572648
-          // Make the below UI nicer, and remove the insertHTML above.
-          getBrowser().contentDocument.execCommand(
-            "insertHTML",
-            false,
-            `${url} <span class='add-card' data-url='${url}' data-opened='${gOpened}'>📰</span>`
-          );
-          */
-        }
+        getBrowser().contentDocument.execCommand("insertHTML", false, url);
+        addLinkPreview(url);
         return;
       }
     }
