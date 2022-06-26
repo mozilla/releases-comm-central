@@ -228,8 +228,6 @@ struct DlEntryIdOo {
 
 using namespace mozilla;
 
-static nsMapiEntry nullEntry;
-
 uint32_t nsAbWinHelper::sEntryCounter = 0;
 mozilla::StaticMutex nsAbWinHelper::sMutex;
 // There seems to be a deadlock/auto-destruction issue
@@ -335,6 +333,7 @@ BOOL nsAbWinHelper::GetPropertyString(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
+  nsMapiEntry nullEntry;
   if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
                          valueCount)) {
     return FALSE;
@@ -365,6 +364,7 @@ BOOL nsAbWinHelper::GetPropertyUString(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
+  nsMapiEntry nullEntry;
   if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
                          valueCount)) {
     return FALSE;
@@ -466,6 +466,7 @@ BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
+  nsMapiEntry nullEntry;
   if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
                          valueCount)) {
     return FALSE;
@@ -493,6 +494,7 @@ BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
+  nsMapiEntry nullEntry;
   if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
                          valueCount)) {
     return FALSE;
@@ -934,6 +936,7 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject,
     PRINTF(("Property %08lx is not a string.\n", aPropertyTag));
     return FALSE;
   }
+  nsMapiEntry nullEntry;
   return SetMAPIProperties(nullEntry, aObject, 1, &value, false);
 }
 
