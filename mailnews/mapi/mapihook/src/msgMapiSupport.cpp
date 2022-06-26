@@ -8,7 +8,6 @@
 #include "mozilla/ModuleUtils.h"
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
-#include "nsIAppStartupNotifier.h"
 #include "Registry.h"
 #include "msgMapiSupport.h"
 
