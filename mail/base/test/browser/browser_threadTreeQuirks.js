@@ -484,8 +484,10 @@ add_task(async function testNonSelectionContextMenu() {
     let composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
     await doContextMenu(testIndex, messageId, replyItem);
     let composeWindow = await composeWindowPromise;
-    let composeBody =
-      composeWindow.GetCurrentEditorElement().contentDocument.body.textContent;
+    let composeEditor = composeWindow.GetCurrentEditorElement();
+    let composeBody = await TestUtils.waitForCondition(
+      () => composeEditor.contentDocument.body.textContent
+    );
 
     Assert.stringContains(
       composeBody,
