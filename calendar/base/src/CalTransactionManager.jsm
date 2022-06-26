@@ -2,7 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["CalTransactionManager", "CalTransaction"];
+"use strict";
+
+var EXPORTED_SYMBOLS = [
+  "CalTransactionManager",
+  "CalTransaction",
+  "CalBatchTransaction",
+  "CalAddTransaction",
+  "CalModifyTransaction",
+  "CalDeleteTransaction",
+];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -13,33 +22,33 @@ const OP_DELETE = Ci.calIOperationListener.DELETE;
 let transactionManager = null;
 
 /**
- * CalTransactionManager is designed to handle nsITransactions regarding the
- * calendar.
+ * CalTransactionManager is used to track user initiated operations on calendar
+ * items. These transactions can be undone or repeated when appropriate.
+ *
+ * This implementation is used instead of nsITransactionManager because better
+ * support for async transactions and access to batch transactions is needed
+ * which nsITransactionManager does not provide.
  */
 class CalTransactionManager {
   /**
-   * Indicates whether batch mode as described in nsITransactionManager is active.
-   * @type {boolean}
+   * Contains transactions executed by the transaction manager than can be
+   * undone.
+   *
+   * @type {CalTransaction}
    */
-  batchActive = false;
+  undoStack = [];
 
   /**
-   * Contains the CalTransactions that are part of the batch when batch mode is
-   * active.
-   * @type {CalTransaction[]}
+   * Contains transactions that have been undone by the transaction manager and
+   * can be redone again later if desired.
+   *
+   * @type {CalTransaction}
    */
-  batchTransactions = [];
+  redoStack = [];
 
   /**
-   * A reference to the transaction manager for calendar operations.
-   * @type {nsITransactionManager}
-   */
-  transactionManager = Cc["@mozilla.org/transactionmanager;1"].createInstance(
-    Ci.nsITransactionManager
-  );
-
-  /**
-   * Provides a singleton instance of CalTransactionManger.
+   * Provides a singleton instance of the CalTransactionManager.
+   *
    * @return {CalTransactionManager}
    */
   static getInstance() {
@@ -49,135 +58,185 @@ class CalTransactionManager {
     return transactionManager;
   }
 
-  _checkWritable(transaction) {
-    // If the transaction is null it is possible the last transaction was a
-    // batch transaction. Check the transactions we cached because
-    // nsITransactionManager does not provide a way to query them all.
-    return !transaction && this.batchTransactions.length
-      ? this.batchTransactions.every(trn => trn.wrappedJSObject.canWrite())
-      : transaction.wrappedJSObject.canWrite();
-  }
-
   /**
    * @typedef {Object} ExtResponse
    * @property {number} responseMode One of the calIItipItem.autoResponse values.
    */
 
   /**
-   * @param {string} action                     The action to execute. This can
-   *                                            be one of:
-   *                                             * add     Adds an item
-   *                                             * modify  Modfifies an item
-   *                                             * delete  Deletes an item
-   *                                             * move    Move an item from one calendar to
-   *                                                       the next. With this operation,
-   *                                                       calendar is the calendar that the
-   *                                                       event should be moved to.
-   * @param {calICalendar} calendar             The Calendar to execute the transaction on.
-   * @param {calIItemBase} item                 The changed item for this transaction.
-   *                                            This item should be immutable.
-   * @param {calIItemBase} oldItem              The item in its original form.
-   *                                            Only needed for modify.
-   * @param {CalTransactionObserver} [observer] The observer to call when the
-   *                                            transaction has completed.
-   * @param {ExtResponse} [extResponse]         Object to provide additional
-   *                                            parameters to prepare an itip
-   *                                            message.
+   * @typedef {"add" | "modify" | "delete"} Action
    */
-  createAndCommitTxn(action, item, calendar, oldItem, observer, extResponse) {
-    let txn = new CalObservableTransaction(
-      CalTransaction.createTransaction(action, item, calendar, oldItem, extResponse),
-      observer
-    );
-    if (this.batchActive) {
-      // nsITransactionManager.peek(Undo|Redo)Stack can return null if a batch
-      // transaction is at the top of the stack. To avoid being mislead by this,
-      // keep track of the members of a batch transaction.
-      this.batchTransactions.push(txn);
-    }
-    this.transactionManager.doTransaction(txn);
+
+  /**
+   * Adds a CalTransaction to the internal stack. The transaction will be
+   * executed and its resulting Promise returned.
+   *
+   * @param {CalTransaction} trn - The CalTransaction to add to the stack and
+   *                               execute.
+   */
+  async commit(trn) {
+    this.undoStack.push(trn);
+    return trn.doTransaction();
   }
 
   /**
-   * Signals the transaction manager that a series of transactions are going
-   * to be performed, but that, for the purposes of undo and redo, they should
-   * all be regarded as a single transaction. See also
-   * nsITransactionManager::beginBatch
+   * Creates and pushes a new CalBatchTransaction onto the internal stack.
+   * The created transaction is returned and can be used to combine multiple
+   * transactions into one.
+   *
+   * @return {CalBatchTrasaction}
    */
   beginBatch() {
-    this.transactionManager.beginBatch(null);
-    this.batchActive = true;
-    this.batchTransactions = [];
+    let trn = new CalBatchTransaction();
+    this.undoStack.push(trn);
+    return trn;
   }
 
   /**
-   * Ends the batch transaction in process. See also
-   * nsITransactionManager::endBatch
+   * peekUndoStack provides the top transaction on the undo stack (if any)
+   * without modifying the stack.
+   *
+   * @return {CalTransaction?}
    */
-  endBatch() {
-    this.transactionManager.endBatch(false);
-    this.batchActive = false;
+  peekUndoStack() {
+    return this.undoStack.at(-1);
   }
 
   /**
-   * Undo the last transaction in the transaction manager's stack
+   * Undo the transaction at the top of the undo stack.
+   *
+   * @throws - NS_ERROR_FAILURE if the undo stack is empty.
    */
-  undo() {
-    this.transactionManager.undoTransaction();
+  async undo() {
+    if (!this.undoStack.length) {
+      throw new Components.Exception(
+        "CalTransactionManager: undo stack is empty!",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    let trn = this.undoStack.pop();
+    this.redoStack.push(trn);
+    return trn.undoTransaction();
   }
 
   /**
-   * Returns true if it is possible to undo a transaction at this time
+   * Returns true if it is possible to undo the transaction at the top of the
+   * undo stack.
+   *
    * @return {boolean}
    */
   canUndo() {
-    return (
-      this.transactionManager.numberOfUndoItems > 0 &&
-      this._checkWritable(this.transactionManager.peekUndoStack())
-    );
+    let trn = this.peekUndoStack();
+    return Boolean(trn?.canWrite());
   }
 
   /**
-   * Redo the last transaction
+   * peekRedoStack provides the top transaction on the redo stack (if any)
+   * without modifying the stack.
+   *
+   * @return {CalTransaction?}
    */
-  redo() {
-    this.transactionManager.redoTransaction();
+  peekRedoStack() {
+    return this.redoStack.at(-1);
   }
 
   /**
-   * Returns true if it is possible to redo a transaction at this time
+   * Redo the transaction at the top of the redo stack.
+   *
+   * @throws - NS_ERROR_FAILURE if the redo stack is empty.
+   */
+  async redo() {
+    if (!this.redoStack.length) {
+      throw new Components.Exception(
+        "CalTransactionManager: redo stack is empty!",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    let trn = this.redoStack.pop();
+    this.undoStack.push(trn);
+    return trn.doTransaction();
+  }
+
+  /**
+   * Returns true if it is possible to redo the transaction at the top of the
+   * redo stack.
+   *
    * @return {boolean}
    */
   canRedo() {
-    return (
-      this.transactionManager.numberOfRedoItems > 0 &&
-      this._checkWritable(this.transactionManager.peekRedoStack())
-    );
+    let trn = this.peekRedoStack();
+    return Boolean(trn?.canWrite());
   }
 }
 
 /**
- * CalTransaction is the base nsITransaction implementation used to make
- * calendar modifications undoable/redoable.
- *
- * @implements nsITransaction
+ * CalTransaction represents a single, atomic user operation on one or more
+ * calendar items.
  */
 class CalTransaction {
   /**
-   * @type {CalTransaction}
+   * Indicates whether the calendar of the transaction's target item(s) can be
+   * written to.
+   *
+   * @return {boolean}
    */
-  wrappedJSObject = this;
+  canWrite() {
+    return false;
+  }
 
   /**
-   * @type {Function}
+   * Executes the transaction.
    */
-  QueryInterface = ChromeUtils.generateQI(["nsITransaction"]);
+  async doTransaction() {}
 
   /**
-   * @type {boolean}
+   * Executes the "undo" action of the transaction.
    */
-  isTransient = false;
+  async undoTransaction() {}
+}
 
+/**
+ * CalBatchTransaction is used for batch transactions where multiple transactions
+ * treated as one is desired. For example; where the user selects and deletes
+ * more than one event.
+ */
+class CalBatchTransaction extends CalTransaction {
+  /**
+   * Stores the transactions that belong to the batch.
+   * @type {CalTransaction[]}
+   */
+  transactions = [];
+
+  /**
+   * Similar to the CalTransactionManager method except the transaction will be
+   * added to the batch.
+   */
+  async commit(trn) {
+    this.transactions.push(trn);
+    return trn.doTransaction();
+  }
+
+  canWrite() {
+    return Boolean(this.transactions.length && this.transactions.every(trn => trn.canWrite()));
+  }
+
+  async doTransaction() {
+    for (let trn of this.transactions) {
+      await trn.doTransaction();
+    }
+  }
+
+  async undoTransaction() {
+    for (let trn of this.transactions.slice().reverse()) {
+      await trn.undoTransaction();
+    }
+  }
+}
+
+/**
+ * CalBaseTransaction serves as the base for add/modify/delete operations.
+ */
+class CalBaseTransaction extends CalTransaction {
   /**
    * @type {calICalendar}
    */
@@ -211,69 +270,29 @@ class CalTransaction {
    * @param {object?} extResponse
    */
   constructor(item, calendar, oldItem, extResponse) {
+    super();
     this.item = item;
     this.calendar = calendar;
     this.oldItem = oldItem;
     this.extResponse = extResponse;
   }
 
-  /**
-   * Creates a CalTransaction instance based on the action desired.
-   * @param {string} action             - One of "add","modify" or "delete"
-   * @param {calIItemBase} item         - The item the operation is taking place on.
-   * @param {calICalendar} calendar     - The target calendar for the operation.
-   * @param {calIItemBase} [oldItem]    - The old item (for modifications).
-   * @param {ExtResponse} [extResponse] - Passed to checkAndSend().
-   */
-  static createTransaction(action, item, calendar, oldItem, extResponse) {
-    switch (action) {
-      case "add":
-        return new CalAddTransaction(item, calendar, oldItem, extResponse);
-      case "modify":
-        return new CalModifyTransaction(item, calendar, oldItem, extResponse);
-      case "delete":
-        return new CalDeleteTransaction(item, calendar, oldItem, extResponse);
-      default:
-        throw new Components.Exception(
-          `Invalid action specified "${action}"`,
-          Cr.NS_ERROR_ILLEGAL_VALUE
-        );
-    }
-  }
-
   _dispatch(opType, item, oldItem) {
     cal.itip.checkAndSend(opType, item, oldItem, this.extResponse);
   }
 
-  /**
-   * Checks whether the calendar of the transaction's target item can be written to.
-   * @return {boolean}
-   */
   canWrite() {
     if (itemWritable(this.item)) {
       return this instanceof CalModifyTransaction ? itemWritable(this.oldItem) : true;
     }
     return false;
   }
-
-  doTransaction() {}
-
-  undoTransaction() {}
-
-  redoTransaction() {
-    this.doTransaction();
-  }
-
-  merge(aTransaction) {
-    // No support for merging
-    return false;
-  }
 }
 
 /**
- * CalAddTransaction handles undo/redo for additions.
+ * CalAddTransaction handles additions.
  */
-class CalAddTransaction extends CalTransaction {
+class CalAddTransaction extends CalBaseTransaction {
   async doTransaction() {
     let item = await this.calendar.addItem(this.item);
     this._dispatch(OP_ADD, item, this.oldItem);
@@ -288,9 +307,9 @@ class CalAddTransaction extends CalTransaction {
 }
 
 /**
- * CalModifyTransaction handles undo/redo for modifications.
+ * CalModifyTransaction handles modifications.
  */
-class CalModifyTransaction extends CalTransaction {
+class CalModifyTransaction extends CalBaseTransaction {
   async doTransaction() {
     let item;
     if (this.item.calendar.id == this.oldItem.calendar.id) {
@@ -323,9 +342,9 @@ class CalModifyTransaction extends CalTransaction {
 }
 
 /**
- * CalDeleteTransaction handles undo/redo for deletions.
+ * CalDeleteTransaction handles deletions.
  */
-class CalDeleteTransaction extends CalTransaction {
+class CalDeleteTransaction extends CalBaseTransaction {
   async doTransaction() {
     await this.calendar.deleteItem(this.item);
     this._dispatch(OP_DELETE, this.item, this.oldItem);
@@ -334,60 +353,6 @@ class CalDeleteTransaction extends CalTransaction {
   async undoTransaction() {
     await this.calendar.addItem(this.item);
     this._dispatch(OP_ADD, this.item, this.item);
-  }
-}
-
-/**
- * Observer for CalTransaction execution.
- * @type {Object} CalTransactionObserver
- * @property {CalTransactionObserverHandler?} onTransctionComplete
- */
-
-/**
- * @callback CalTransactionObserverHandler
- * @param {calIItemBase} item
- * @param {calIItemBase?} oldItem
- */
-
-/**
- * CalObservableTransaction allows a transaction's undo/redo execution to be
- * observed by other objects. This is needed because the actual execution
- * transaction execution takes place in lower level code and is more or less
- * opaque to scripts.
- */
-class CalObservableTransaction extends CalTransaction {
-  /**
-   * @type {CalTransaction}
-   */
-  _transaction;
-
-  /**
-   * @type {CalTransactionObserver}
-   */
-  _observer;
-
-  /**
-   * @param {CalTransaction} transaction
-   * @param {CalTransactionObserver} observer
-   */
-  constructor(transaction, observer) {
-    super(null, null, null, null);
-    this._transaction = transaction;
-    this._observer = observer;
-  }
-
-  canWrite() {
-    return this._transaction.canWrite();
-  }
-
-  async doTransaction() {
-    await this._transaction.doTransaction();
-    this?._observer?.onTransactionComplete(this._transaction.item, this._transaction.oldItem);
-  }
-
-  async undoTransaction() {
-    await this._transaction.undoTransaction();
-    this?._observer?.onTransactionComplete(this._transaction.item, this._transaction.oldItem);
   }
 }
 

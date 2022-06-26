@@ -65,8 +65,8 @@ async function isDisabled(element) {
  * tests are unhindered.
  */
 function clearTransactions() {
-  calTransManager.transactionManager.clearUndoStack();
-  calTransManager.batchTransactions = [];
+  calTransManager.undoStack = [];
+  calTransManager.redoStack = [];
 }
 
 /**

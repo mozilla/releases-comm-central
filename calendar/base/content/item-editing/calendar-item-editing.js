@@ -10,14 +10,29 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { CalTransactionManager } = ChromeUtils.import("resource:///modules/CalTransactionManager.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAddTransaction: "resource:///modules/CalTransactionManager.jsm",
+  CalDeleteTransaction: "resource:///modules/CalTransactionManager.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalModifyTransaction: "resource:///modules/CalTransactionManager.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
-  CalTransactionManager: "resource:///modules/CalTransactionManager.jsm",
 });
 
 /* exported modifyEventWithDialog, undo, redo, setContextPartstat */
+
+/**
+ * The global calendar transaction manager.
+ * @type {CalTransactionManager}
+ */
+var gCalTransactionMgr = CalTransactionManager.getInstance();
+
+/**
+ * If a batch transaction is active, it is stored here.
+ * @type {CalBatchTransaction?}
+ */
+var gCalBatchTransaction = null;
 
 /**
  * Sets the default values for new items, taking values from either the passed
@@ -643,29 +658,47 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
  * Create and commit a transaction with the given arguments to the transaction
  * manager. Also updates the undo/redo menu.
  *
- * @see                 calITransactionManager
- * @param aAction       The action to do.
- * @param aItem         The new item to add/modify/delete
- * @param aCalendar     The calendar to do the transaction on
- * @param aOldItem      (optional) some actions require an old item
- * @param aObserver     (optional) the observer to call when complete.
- * @param aExtResponse  (optional) JS object with additional parameters for sending itip messages
- *                                 (see also description of checkAndSend in calItipUtils.jsm)
+ * @param action       The action to do.
+ * @param item         The new item to add/modify/delete
+ * @param calendar     The calendar to do the transaction on
+ * @param oldItem      (optional) some actions require an old item
+ * @param observer     (optional) the observer to call when complete.
+ * @param extResponse  (optional) JS object with additional parameters for sending itip messages
+ *                                (see also description of checkAndSend in calItipUtils.jsm)
  */
-function doTransaction(aAction, aItem, aCalendar, aOldItem, aObserver, aExtResponse = null) {
+async function doTransaction(action, item, calendar, oldItem, observer, extResponse = null) {
   // This is usually a user-initiated transaction, so make sure the calendar
   // this transaction is happening on is visible.
-  ensureCalendarVisible(aCalendar);
+  ensureCalendarVisible(calendar);
 
-  // Now use the transaction manager to execute the action
-  let manager = CalTransactionManager.getInstance();
-  manager.createAndCommitTxn(aAction, aItem, aCalendar, aOldItem, aObserver, aExtResponse);
+  let manager = gCalBatchTransaction || gCalTransactionMgr;
+  let trn;
+  switch (action) {
+    case "add":
+      trn = new CalAddTransaction(item, calendar, oldItem, extResponse);
+      break;
+    case "modify":
+      trn = new CalModifyTransaction(item, calendar, oldItem, extResponse);
+      break;
+    case "delete":
+      trn = new CalDeleteTransaction(item, calendar, oldItem, extResponse);
+      break;
+    default:
+      throw new Components.Exception(
+        `Invalid action specified "${action}"`,
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+  }
+
+  await manager.commit(trn);
 
   // If a batch transaction is active, do not update the menu as
   // endBatchTransaction() will take care of that.
-  if (manager && manager.batchActive) {
+  if (gCalBatchTransaction) {
     return;
   }
+
+  observer?.onTransactionComplete(trn.item, trn.oldItem);
   updateUndoRedoMenu();
 }
 
@@ -674,7 +707,7 @@ function doTransaction(aAction, aItem, aCalendar, aOldItem, aObserver, aExtRespo
  */
 function undo() {
   if (canUndo()) {
-    CalTransactionManager.getInstance().undo();
+    gCalTransactionMgr.undo();
     updateUndoRedoMenu();
   }
 }
@@ -684,17 +717,16 @@ function undo() {
  */
 function redo() {
   if (canRedo()) {
-    CalTransactionManager.getInstance().redo();
+    gCalTransactionMgr.redo();
     updateUndoRedoMenu();
   }
 }
 
 /**
- * Start a batch transaction on the transaction manager. Can be called multiple
- * times, which nests transactions.
+ * Start a batch transaction on the transaction manager.
  */
 function startBatchTransaction() {
-  CalTransactionManager.getInstance().beginBatch();
+  gCalBatchTransaction = gCalTransactionMgr.beginBatch();
 }
 
 /**
@@ -703,7 +735,7 @@ function startBatchTransaction() {
  * startBatchTransaction and this call.
  */
 function endBatchTransaction() {
-  CalTransactionManager.getInstance().endBatch();
+  gCalBatchTransaction = null;
   updateUndoRedoMenu();
 }
 
@@ -712,14 +744,14 @@ function endBatchTransaction() {
  * at all).
  */
 function canUndo() {
-  return CalTransactionManager.getInstance().canUndo();
+  return gCalTransactionMgr.canUndo();
 }
 
 /**
  * Checks if the last undone operation can be redone.
  */
 function canRedo() {
-  return CalTransactionManager.getInstance().canRedo();
+  return gCalTransactionMgr.canRedo();
 }
 
 /**
