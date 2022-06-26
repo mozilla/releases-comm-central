@@ -205,6 +205,10 @@ async function testComposeFlags(
   }
 
   await BrowserTestUtils.closeWindow(composeWin);
+  await TestUtils.waitForCondition(
+    () => document.hasFocus(),
+    "waiting for focus to return to the main window"
+  );
 }
 
 /**
