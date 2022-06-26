@@ -15,7 +15,7 @@ tree-view-listbox {
   }
 }
 
-tree-view-listbox:focus-visible {
+tree-view-listbox:focus {
   outline: none;
 }
 
@@ -30,13 +30,18 @@ tree-view-listbox > .selected {
   background-color: var(--in-content-button-background);
 }
 
-tree-view-listbox:focus-visible > .current:not(:hover) {
-  outline: 2px solid var(--in-content-focus-outline-color);
+tree-view-listbox:focus > .current {
+  outline: 2px dotted var(--in-content-focus-outline-color);
   outline-offset: -2px;
   z-index: 1;
 }
 
-tree-view-listbox:focus-within > .selected {
+tree-view-listbox:focus > .selected {
   color: var(--in-content-item-selected-text);
   background-color: var(--in-content-item-selected);
+}
+
+tree-view-listbox:focus > .current.selected {
+  outline: 1px dashed var(--in-content-item-selected-text);
+  outline-offset: -1px;
 }
