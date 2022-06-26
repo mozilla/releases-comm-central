@@ -117,13 +117,6 @@ ifdef MOZ_NOTIFICATION_SERVER
 DEFINES += -DMOZ_NOTIFICATION_SERVER=1
 endif
 
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-MOZ_PKG_MAC_DSSTORE=$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/dsstore
-MOZ_PKG_MAC_BACKGROUND=$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/background.png
-MOZ_PKG_MAC_ICON=$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/disk.icns
-MOZ_PKG_MAC_EXTRA=--symlink '/Applications:/ '
-endif
-
 # The packager minifies two different types of files: non-JS (mostly property
 # files for l10n), and JS.  Setting MOZ_PACKAGER_MINIFY only minifies the
 # former.  We don't yet minify JS, due to concerns about debuggability.
