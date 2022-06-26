@@ -985,13 +985,14 @@ function select_click_row(aViewIndex) {
 
   let win = get_about_3pane();
   let tree = win.document.getElementById("threadTree");
+  Assert.greater(
+    tree.view.rowCount,
+    aViewIndex,
+    `index ${aViewIndex} must exist to be clicked on`
+  );
   tree.scrollToIndex(aViewIndex, true);
+  utils.waitFor(() => tree.getRowAtIndex(aViewIndex));
   let row = tree.getRowAtIndex(aViewIndex);
-  if (!row) {
-    // Wait longer than TreeView does on scroll, then try again.
-    utils.sleep(120);
-    row = tree.getRowAtIndex(aViewIndex);
-  }
   EventUtils.synthesizeMouseAtCenter(row, {}, row.ownerGlobal);
   utils.sleep(0);
 
