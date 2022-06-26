@@ -806,6 +806,7 @@ body:not(.is-editing) #editContactForm {
   justify-content: center;
   gap: 5px;
   background-color: transparent;
+  --in-content-button-border-color: transparent;
 }
 
 .icon-button:hover {
@@ -898,6 +899,15 @@ section#selectedCards ul {
 #detailsDeleteButton {
   color: var(--red-60);
   outline-color: var(--red-60);
+}
+
+#detailsDeleteButton:hover {
+  background-color: var(--red-60);
+  color: var(--color-white);
+}
+
+#detailsDeleteButton:hover:active {
+  background-color: var(--red-70);
 }
 
 #detailsDeleteButton::before {

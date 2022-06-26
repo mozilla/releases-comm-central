@@ -9,6 +9,8 @@
 
 :root {
   --in-content-button-height: 2.2em;
+  --in-content-button-border-color: color-mix(in srgb, currentColor 9%, transparent);
+  --in-content-button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
 }
 
 xul|menulist::part(dropmarker) {

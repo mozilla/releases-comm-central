@@ -137,6 +137,7 @@
 
 #handlersTable tbody > tr:not(:focus-within) .actionsMenu {
   background-color: transparent;
+  --in-content-button-border-color: transparent;
 }
 
 #handlersTable tbody > tr:not(:is(:hover,:focus-within)) .actionsMenu::part(dropmarker) {

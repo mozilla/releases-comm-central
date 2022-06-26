@@ -67,6 +67,7 @@ vcard-edit input[type="number"] {
 }
 
 vcard-edit select:not([size]) {
+  border-color: var(--in-content-button-border-color);
   -moz-context-properties: stroke;
   stroke: currentColor;
   background-position-x: right 6px;
