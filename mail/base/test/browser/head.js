@@ -263,5 +263,14 @@ registerCleanupFunction(function () {
     }
 
     resetSmartMailboxes();
+
+    // Some tests that open new windows don't return focus to the main window
+    // in a way that satisfies mochitest, and the test times out.
+    Services.focus.focusedWindow = window;
+    // Focus an element in the main window, then blur it again to avoid it
+    // hijacking keypresses.
+    let mainWindowElement = document.getElementById("button-appmenu");
+    mainWindowElement.focus();
+    mainWindowElement.blur();
   });
 });
