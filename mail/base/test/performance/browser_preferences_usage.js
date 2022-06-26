@@ -139,9 +139,6 @@ add_task(async function startup() {
   // These preferences are used in PresContext or layout areas and all have a
   // similar number of errors - probably being loaded in the same component.
   let prefsUsedInLayout = [
-    "bidi.direction",
-    "bidi.numeral",
-    "bidi.texttype",
     "browser.display.auto_quality_min_font_size",
     "dom.send_after_paint_to_content",
     "image.animation_mode",
