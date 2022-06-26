@@ -127,7 +127,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/icons/t
 chrome/classic/skin/classic/messenger/icons/thread-closed-kill.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/icons/insecure.png
 chrome/classic/skin/classic/messenger/icons/insecure.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/pluginDisabled-16.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/pluginGeneric-16.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/icons/thread-new-closed-offl-kill.png
 chrome/classic/skin/classic/messenger/icons/thread-new-closed-offl-kill.png
@@ -161,7 +160,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger-newsblo
 chrome/classic/skin/classic/messenger-newsblog/icons/rss-feed.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/pluginBlocked-16.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/pluginBlocked.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/pluginDisabled.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/pluginGeneric.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/icons/info.png
 chrome/classic/skin/classic/messenger/icons/info.png
