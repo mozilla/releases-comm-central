@@ -123,6 +123,8 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   // Interrupt a Fetch, without really Interrupting (through netlib)
   bool GetLastFetchChunkReceived();
   void ClearLastFetchChunkReceived();
+  int32_t GetNumBytesFetched();
+  void ClearNumBytesFetched();
   virtual uint16_t SupportsUserFlags() { return fSupportsUserDefinedFlags; }
   virtual uint16_t SettablePermanentFlags() { return fSettablePermanentFlags; }
   void SetFlagState(nsIImapFlagAndUidState* state);

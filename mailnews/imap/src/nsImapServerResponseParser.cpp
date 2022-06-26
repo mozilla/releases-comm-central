@@ -2970,6 +2970,14 @@ void nsImapServerResponseParser::ClearLastFetchChunkReceived() {
   fLastChunk = false;
 }
 
+int32_t nsImapServerResponseParser::GetNumBytesFetched() {
+  return numberOfCharsInThisChunk;
+}
+
+void nsImapServerResponseParser::ClearNumBytesFetched() {
+  numberOfCharsInThisChunk = 0;
+}
+
 void nsImapServerResponseParser::SetHostSessionList(
     nsIImapHostSessionList* aHostSessionList) {
   fHostSessionList = aHostSessionList;

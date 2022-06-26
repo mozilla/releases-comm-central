@@ -3838,12 +3838,21 @@ void nsImapProtocol::FetchTryChunking(const nsCString& messageIds,
     while (!DeathSignalReceived() && !GetPseudoInterrupted() &&
            !GetServerStateParser().GetLastFetchChunkReceived() &&
            GetServerStateParser().ContinueParse()) {
+      GetServerStateParser().ClearNumBytesFetched();
       // This chunk is a fetch of m_chunkSize bytes. But m_chunkSize can be
       // changed inside FetchMessage(). Save the original value of m_chunkSize
       // to set the correct offset (startByte) for the next chunk.
       int32_t bytesFetched = m_chunkSize;
       FetchMessage(messageIds, whatToFetch, nullptr, startByte, bytesFetched,
                    part);
+      if (!GetServerStateParser().GetNumBytesFetched()) {
+        // Fetch returned zero bytes chunk from server. This occurs if the
+        // message was expunged during the fetch.
+        MOZ_LOG(IMAP, LogLevel::Info,
+                ("FetchTryChunking: Zero bytes chunk fetched; message probably "
+                 "expunged"));
+        break;
+      }
       startByte += bytesFetched;
     }
 
