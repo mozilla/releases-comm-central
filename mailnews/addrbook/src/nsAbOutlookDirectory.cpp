@@ -24,7 +24,7 @@
 #include "nsQueryObject.h"
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
-#include "mozilla/JSONWriter.h"
+#include "mozilla/JSONStringWriteFuncs.h"
 
 #define PRINT_TO_CONSOLE 0
 #if PRINT_TO_CONSOLE
@@ -972,21 +972,10 @@ nsresult nsAbOutlookDirectory::NotifyItemModification(
       aNotificationUID);
 }
 
-class CStringWriter final : public mozilla::JSONWriteFunc {
- public:
-  void Write(const mozilla::Span<const char>& aStr) override {
-    mBuf.Append(aStr);
-  }
-
-  const nsCString& Get() const { return mBuf; }
-
- private:
-  nsCString mBuf;
-};
-
 nsresult nsAbOutlookDirectory::NotifyCardPropertyChanges(nsIAbCard* aOld,
                                                          nsIAbCard* aNew) {
-  mozilla::JSONWriter w(mozilla::MakeUnique<CStringWriter>());
+  mozilla::JSONStringWriteFunc<nsCString> jsonString;
+  mozilla::JSONWriter w(jsonString);
   w.Start();
   w.StartObjectElement();
   bool somethingChanged = false;
@@ -1039,7 +1028,7 @@ nsresult nsAbOutlookDirectory::NotifyCardPropertyChanges(nsIAbCard* aOld,
   w.End();
 
 #if PRINT_TO_CONSOLE
-  printf("%s", static_cast<CStringWriter*>(w.WriteFunc())->Get().get());
+  printf("%s", jsonString.StringCRef().get());
 #endif
 
   if (somethingChanged) {
@@ -1047,8 +1036,7 @@ nsresult nsAbOutlookDirectory::NotifyCardPropertyChanges(nsIAbCard* aOld,
         mozilla::services::GetObserverService();
     observerService->NotifyObservers(
         aNew, "addrbook-contact-properties-updated",
-        NS_ConvertUTF8toUTF16(static_cast<CStringWriter*>(w.WriteFunc())->Get())
-            .get());
+        NS_ConvertUTF8toUTF16(jsonString.StringCRef()).get());
   }
   return NS_OK;
 }
