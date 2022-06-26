@@ -205,6 +205,7 @@ tasks:
                             HG_STORE_PATH: /builds/worker/checkouts/hg-store
                             TASKCLUSTER_CACHES: /builds/worker/checkouts
                             TASKCLUSTER_VOLUMES: /builds/worker/artifacts
+                            MOZ_UPLOAD_DIR: /builds/worker/artifacts
                             MOZ_AUTOMATION: '1'
                             # mach generates pyc files when reading `mach_commands.py`
                             # This causes cached_task digest generation to be random for
