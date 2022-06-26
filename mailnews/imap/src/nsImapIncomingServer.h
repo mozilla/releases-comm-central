@@ -131,6 +131,7 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   bool mDoingLsub;
   bool m_shuttingDown;
   bool mUtf8AcceptEnabled;
+  bool m_skipRetryQueued;
 
   mozilla::Mutex mLock;
   // subscribe dialog stuff

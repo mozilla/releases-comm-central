@@ -72,6 +72,7 @@ nsImapIncomingServer::nsImapIncomingServer()
   m_userAuthenticated = false;
   m_shuttingDown = false;
   mUtf8AcceptEnabled = false;
+  m_skipRetryQueued = false;
 }
 
 nsImapIncomingServer::~nsImapIncomingServer() {
@@ -436,9 +437,13 @@ nsImapIncomingServer::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
     m_urlConsumers.AppendElement(aConsumer);
     NS_IF_ADDREF(aConsumer);
     PR_CExitMonitor(this);
-    // let's try running it now - maybe the connection is free now.
-    bool urlRun;
-    rv = LoadNextQueuedUrl(nullptr, &urlRun);
+    if (!m_skipRetryQueued) {
+      // let's try running it now - maybe the connection is free now.
+      bool urlRun;
+      rv = LoadNextQueuedUrl(nullptr, &urlRun);
+    } else {
+      m_skipRetryQueued = false;
+    }
   }
 
   return rv;
@@ -664,8 +669,36 @@ nsresult nsImapIncomingServer::GetImapConnection(
   (void)GetMaximumConnectionsNumber(&maxConnections);
 
   int32_t cnt = m_connectionCache.Count();
-
   *aImapConnection = nullptr;
+
+  if (cnt == 1 && maxConnections > 1) {
+    // We now have one connection and can possibly have more. If the user has
+    // not yet been authenticated in this session, queue the new URL until
+    // authentication occurs on the initial connection. This is to hold off
+    // running additional URLs, typically select or folderstatus, by queuing
+    // them, until the connection for the initial URL, typically
+    // discoverallboxes, is authenticated.
+    nsresult res;
+    nsCOMPtr<nsIImapHostSessionList> hostSessionList =
+        do_GetService(kCImapHostSessionListCID, &res);
+    if (NS_SUCCEEDED(res) && hostSessionList) {
+      nsAutoCString serverKey;
+      if (NS_SUCCEEDED(GetKey(serverKey)) && !serverKey.IsEmpty()) {
+        bool hasBeenAuthenticated = true;
+        if (NS_SUCCEEDED(hostSessionList->GetPasswordVerifiedOnline(
+                serverKey.get(), hasBeenAuthenticated)) &&
+            !hasBeenAuthenticated) {
+          // Authentication has not yet occurred with this host during this
+          // session. Returning here with aImapConnection null will tell caller
+          // to queue the URL. Also tell caller to skip the immediate retry of
+          // the queued URL which, at this time, will fail.
+          m_skipRetryQueued = true;
+          return NS_OK;
+        }
+      }
+    }
+  }
+
   // iterate through the connection cache for a connection that can handle this
   // url.
   // loop until we find a connection that can run the url, or doesn't have to

@@ -8656,8 +8656,16 @@ bool nsImapProtocol::TryToLogon() {
     m_hostSessionList->SetPasswordForHost(GetImapServerKey(), password);
     rv = m_hostSessionList->GetPasswordVerifiedOnline(GetImapServerKey(),
                                                       passwordAlreadyVerified);
-    if (NS_SUCCEEDED(rv) && !passwordAlreadyVerified)
+    if (NS_SUCCEEDED(rv) && !passwordAlreadyVerified) {
+      // First successful login for this server/host during this session.
       m_hostSessionList->SetPasswordVerifiedOnline(GetImapServerKey());
+      // Create a new protocol instance for possible queued select url.
+      if (NS_SUCCEEDED(GetConnectionStatus()) && m_imapServerSink) {
+        bool urlRun;
+        m_imapServerSink->LoadNextQueuedUrl(nullptr, &urlRun);
+      }
+    }
+
     bool imapPasswordIsNew = !passwordAlreadyVerified;
     if (imapPasswordIsNew) {
       if (m_currentBiffState == nsIMsgFolder::nsMsgBiffState_Unknown) {
