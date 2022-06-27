@@ -485,13 +485,21 @@ abViewCard.prototype = {
           return getProperty("JobTitle", "");
         case "Department":
           if (supportsVCard) {
-            return vCardProperties.getFirstValue("org")?.[1];
+            let vCardValue = vCardProperties.getFirstValue("org");
+            if (Array.isArray(vCardValue)) {
+              return vCardValue[1] || "";
+            }
+            return "";
           }
           return getProperty(columnID, "");
         case "Company":
         case "Organization":
           if (supportsVCard) {
-            return vCardProperties.getFirstValue("org")?.[0];
+            let vCardValue = vCardProperties.getFirstValue("org");
+            if (Array.isArray(vCardValue)) {
+              return vCardValue[0] || "";
+            }
+            return vCardValue;
           }
           return getProperty("Company", "");
         case "NickName":
