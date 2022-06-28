@@ -98,7 +98,7 @@ search-textbox {
 
 /* Temporary styles for the supernova icons */
 .sidebar-footer-icon,
-:is(#category-general, #category-chat, #category-calendar) .category-icon {
+.category-icon {
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
