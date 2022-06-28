@@ -8,8 +8,9 @@
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/downloadheaders.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        style="max-width: 27em;"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        style="max-width: 27em; padding: 10px;"
         buttonpack="center"
         lightweightthemes="true"
         onload="OnLoad();">
@@ -18,7 +19,9 @@
   <script src="chrome://messenger/content/downloadheaders.js"/>
   <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
-  <label class="header" style="width: 25em; max-width: 25em;" id="newsgroupLabel" control="downloadGroup"/>
+  <label id="newsgroupLabel" control="downloadGroup"
+         class="header"
+         style="width: 25em; max-width: 25em; margin-inline-start: 6px;"/>
   <description style="width: 25em; max-width: 25em;" id="info" control="downloadGroup"/>
   <separator class="thin"/>
   <vbox class="indent">
