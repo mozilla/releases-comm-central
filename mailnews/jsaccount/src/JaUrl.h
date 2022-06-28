@@ -108,6 +108,12 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
 
  private:
   virtual ~JaCppUrlDelegator() {
+    NS_ReleaseOnMainThread("JaCppUrlDelegator::mJsIMsgMessageUrl",
+                           mJsIMsgMessageUrl.forget());
+    NS_ReleaseOnMainThread("JaCppUrlDelegator::mJsIInterfaceRequestor",
+                           mJsIInterfaceRequestor.forget());
+    NS_ReleaseOnMainThread("JaCppUrlDelegator::mJsISupports",
+                           mJsISupports.forget());
     NS_ReleaseOnMainThread("JaCppUrlDelegator::mDelegateList",
                            mDelegateList.forget());
   }
