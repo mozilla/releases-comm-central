@@ -12,18 +12,25 @@
 var { ComponentUtils } = ChromeUtils.import("resource://gre/modules/ComponentUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-this.NSGetFactory = cid => {
-  let scriptLoadOrder = [
-    "resource:///components/calTimezone.js",
-    "resource:///components/calDateTime.js",
-    "resource:///components/calDuration.js",
-    "resource:///components/calICSService.js",
-    "resource:///components/calPeriod.js",
-    "resource:///components/calRecurrenceRule.js",
-  ];
+/**
+ * @param {string} cid - Class ID as string.
+ * @returns {function} Constructor to create the requested class ID component.
+ */
+this.getComponentConstructor = cid => {
+  if (!this.loadedScripts) {
+    let scriptLoadOrder = [
+      "resource:///components/calTimezone.js",
+      "resource:///components/calDateTime.js",
+      "resource:///components/calDuration.js",
+      "resource:///components/calICSService.js",
+      "resource:///components/calPeriod.js",
+      "resource:///components/calRecurrenceRule.js",
+    ];
 
-  for (let script of scriptLoadOrder) {
-    Services.scriptloader.loadSubScript(script, this);
+    for (let script of scriptLoadOrder) {
+      Services.scriptloader.loadSubScript(script, this);
+    }
+    this.loadedScripts = true;
   }
 
   let components = [
@@ -36,6 +43,10 @@ this.NSGetFactory = cid => {
     calRecurrenceRule,
   ];
 
-  this.NSGetFactory = ComponentUtils.generateNSGetFactory(components);
-  return this.NSGetFactory(cid);
+  for (const component of components) {
+    if (component.prototype.classID.toString() == cid) {
+      return component;
+    }
+  }
+  throw new Error("No component for cid " + cid);
 };

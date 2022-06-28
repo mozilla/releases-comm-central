@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["registerTestProtocol", "unregisterTestProtocol"];
+var EXPORTED_SYMBOLS = [
+  "registerTestProtocol",
+  "unregisterTestProtocol",
+  "TestProtocol",
+];
 
 var {
   GenericAccountPrototype,
@@ -14,9 +18,6 @@ var {
   GenericMessagePrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-var { ComponentUtils } = ChromeUtils.import(
-  "resource://gre/modules/ComponentUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
@@ -292,30 +293,14 @@ TestProtocol.prototype = {
   getAccount(aImAccount) {
     return new Account(this, aImAccount);
   },
-  classID: Services.uuid.generateUUID(),
-  classDescription: "",
-  contractID: "@mozilla.org/chat/mochitest;1",
+  classID: Components.ID("{a4617631-b8b8-4053-8afa-5c4c43498280}"),
 };
-
-const NSGetFactory = ComponentUtils.generateNSGetFactory([TestProtocol]);
-const factory = {
-  createInstance(iid) {
-    return NSGetFactory(TestProtocol.prototype.classID).createInstance(iid);
-  },
-};
-const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
 
 function registerTestProtocol() {
-  registrar.registerFactory(
-    TestProtocol.prototype.classID,
-    "",
-    TestProtocol.prototype.contractID,
-    factory
-  );
   Services.catMan.addCategoryEntry(
     "im-protocol-plugin",
     TestProtocol.prototype.id,
-    TestProtocol.prototype.contractID,
+    "@mozilla.org/chat/mochitest;1",
     false,
     true
   );
@@ -327,5 +312,4 @@ function unregisterTestProtocol() {
     TestProtocol.prototype.id,
     true
   );
-  registrar.unregisterFactory(TestProtocol.prototype.classID, factory);
 }

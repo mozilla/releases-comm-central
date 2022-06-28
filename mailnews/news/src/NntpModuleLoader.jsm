@@ -4,9 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["NntpModuleLoader"];
 
-var { ComponentUtils } = ChromeUtils.import(
-  "resource://gre/modules/ComponentUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
@@ -86,9 +83,6 @@ NntpModuleLoader.prototype = {
         fileName = fileName || moduleName;
         // Load a module.
         let scope = ChromeUtils.import(`resource:///modules/${fileName}.jsm`);
-        let NSGetFactory = ComponentUtils.generateNSGetFactory([
-          scope[moduleName],
-        ]);
 
         // Register a module.
         let classId = Components.ID(interfaceId);
@@ -96,7 +90,7 @@ NntpModuleLoader.prototype = {
           classId,
           "",
           contractId,
-          lazyFactoryFor(NSGetFactory, classId)
+          lazyFactoryFor(scope, moduleName)
         );
       }
 
@@ -107,11 +101,11 @@ NntpModuleLoader.prototype = {
   },
 };
 
-function lazyFactoryFor(NSGetFactory, classID) {
+function lazyFactoryFor(backendScope, constructorName) {
   return {
-    createInstance(aIID) {
-      let realFactory = NSGetFactory(classID);
-      return realFactory.createInstance(aIID);
+    createInstance(interfaceID) {
+      let componentConstructor = backendScope[constructorName];
+      return new componentConstructor().QueryInterface(interfaceID);
     },
   };
 }

@@ -46,7 +46,7 @@ CalBackendLoader.prototype = {
       let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
       for (let [contractID, classID] of Object.entries(contracts)) {
         let newClassID = Components.ID(classID);
-        let newFactory = lazyFactoryFor(scope, newClassID);
+        let newFactory = lazyFactoryFor(scope, classID);
         registrar.registerFactory(newClassID, "", contractID, newFactory);
       }
 
@@ -65,9 +65,9 @@ CalBackendLoader.prototype = {
 
 function lazyFactoryFor(backendScope, classID) {
   return {
-    createInstance(aIID) {
-      let realFactory = backendScope.NSGetFactory(classID);
-      return realFactory.createInstance(aIID);
+    createInstance(interfaceID) {
+      let componentConstructor = backendScope.getComponentConstructor(classID);
+      return new componentConstructor().QueryInterface(interfaceID);
     },
   };
 }

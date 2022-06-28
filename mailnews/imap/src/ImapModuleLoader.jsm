@@ -4,9 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["ImapModuleLoader"];
 
-var { ComponentUtils } = ChromeUtils.import(
-  "resource://gre/modules/ComponentUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
@@ -56,9 +53,6 @@ ImapModuleLoader.prototype = {
       for (let [moduleName, interfaceId, contractId] of imapJSModules) {
         // Load a module.
         let scope = ChromeUtils.import(`resource:///modules/${moduleName}.jsm`);
-        scope.NSGetFactory = ComponentUtils.generateNSGetFactory([
-          scope[moduleName],
-        ]);
 
         // Register a module.
         let classId = Components.ID(interfaceId);
@@ -66,7 +60,7 @@ ImapModuleLoader.prototype = {
           classId,
           "",
           contractId,
-          lazyFactoryFor(scope, classId)
+          lazyFactoryFor(scope, moduleName)
         );
       }
 
@@ -77,11 +71,11 @@ ImapModuleLoader.prototype = {
   },
 };
 
-function lazyFactoryFor(backendScope, classID) {
+function lazyFactoryFor(backendScope, constructorName) {
   return {
-    createInstance(aIID) {
-      let realFactory = backendScope.NSGetFactory(classID);
-      return realFactory.createInstance(aIID);
+    createInstance(interfaceID) {
+      let componentConstructor = backendScope[constructorName];
+      return new componentConstructor().QueryInterface(interfaceID);
     },
   };
 }

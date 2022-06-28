@@ -28,6 +28,11 @@ XPCOM_MANIFESTS += [
     "components.conf",
 ]
 
+if CONFIG["ENABLE_TESTS"]:
+    XPCOM_MANIFESTS += [
+        "test/components.conf",
+    ]
+
 BROWSER_CHROME_MANIFESTS += [
     "test/browser/browser.ini",
 ]
