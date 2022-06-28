@@ -140,10 +140,10 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   appearance: none;
   padding: 4px;
   border-radius: 2px;
-  list-style-image: url("chrome://calendar/skin/shared/widgets/nav-arrow.svg");
+  list-style-image: var(--icon-nav-right-sm);
   -moz-user-focus: normal;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .minimonth-nav-btns:hover {
@@ -175,11 +175,11 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 
 .minimonth-nav-btns:-moz-locale-dir(ltr)[dir="-1"],
 .minimonth-nav-btns:-moz-locale-dir(rtl)[dir="1"] {
-  transform: scaleX(-1);
+  list-style-image: var(--icon-nav-left-sm);
 }
 
 .minimonth-nav-btns[dir="0"] {
-  list-style-image: url("chrome://calendar/skin/shared/widgets/nav-today.svg");
+  list-style-image: var(--icon-nav-today);
 }
 
 .minimonth-cal-box {

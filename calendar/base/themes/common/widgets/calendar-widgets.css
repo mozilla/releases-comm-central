@@ -8,7 +8,7 @@
 }
 
 .calendar-list-create {
-  list-style-image: url("chrome://global/skin/icons/add.svg");
+  list-style-image: var(--icon-add);
   margin-block: 0;
   margin-inline: 3px;
   padding: 3px !important;
@@ -82,9 +82,9 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   margin-inline: 2px;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
-  -moz-context-properties: fill;
-  fill: currentColor;
-  list-style-image: url(chrome://calendar/skin/shared/view-cycler.svg);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  list-style-image: var(--icon-nav-right);
   -moz-user-focus: normal;
 }
 
@@ -126,7 +126,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 
 .view-navigation-button:-moz-locale-dir(ltr)[type="prev"] > .toolbarbutton-icon,
 .view-navigation-button:-moz-locale-dir(rtl)[type="next"] > .toolbarbutton-icon {
-  transform: scaleX(-1);
+  list-style-image: var(--icon-nav-left-sm);
 }
 
 .view-navigation-button > .toolbarbutton-text  {
@@ -244,13 +244,14 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 
 #calendar-list > li > .calendar-displayed {
   appearance: none;
-  background-image: url("chrome://messenger/skin/icons/hidden.svg");
+  background-image: var(--icon-hidden);
   color: inherit;
   background-color: transparent !important;
   border-style: none;
   opacity: 0.7;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   transition: opacity .2s ease;
   width: 16px;
   height: 16px;
@@ -262,7 +263,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list > li > .calendar-displayed:checked {
-  background-image: url("chrome://messenger/skin/icons/visible.svg");
+  background-image: var(--icon-eye);
   opacity: 0;
 }
 

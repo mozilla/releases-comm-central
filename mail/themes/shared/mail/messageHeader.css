@@ -666,24 +666,21 @@ html|header.message-security-header html|h3 {
 button.email-action-flagged {
   margin-inline: 6px;
   cursor: pointer;
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
   align-self: center;
   border-radius: var(--toolbarbutton-border-radius);
 }
 
 button.email-action-flagged.flagged {
-  fill: #f4bc44 !important;
-  fill-opacity: 1;
-  stroke: #f4bc44;
-  stroke-opacity: 1;
+  fill: var(--color-orange-30) !important;
+  stroke: var(--color-orange-60);
 }
 
 .email-action-flagged:not(.flagged):hover {
-  fill-opacity: 0.4;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 /* Responsive style */

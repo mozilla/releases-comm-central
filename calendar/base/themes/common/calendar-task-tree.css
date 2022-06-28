@@ -18,7 +18,7 @@
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress) {
-  color: #00bd00 !important;
+  color: var(--color-green-50) !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
@@ -26,23 +26,23 @@
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
-  background-color: #00bd00 !important;
+  background-color: var(--color-green-50) !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
-  color: red !important;
+  color: var(--color-red-50) !important;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
-  color: #ff7a7a !important;
+  color: var(--color-red-40) !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-  background-color: red !important;
+  background-color: var(--color-red-50) !important;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-  background-color: #ff7a7a !important;
+  background-color: var(--color-red-40) !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(inprogress, selected, focus),
@@ -66,38 +66,38 @@
 }
 
 .calendar-task-tree-col-priority {
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority) {
   margin-inline-start: -2px;
-  -moz-context-properties: fill;
-  fill: transparent;
+  -moz-context-properties: stroke;
+  stroke: transparent;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
-  list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
-  fill: red;
+  list-style-image: var(--icon-priority);
+  stroke: red;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
-  fill: #ff7a7a;
+  stroke: var(--color-red-40);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
-  list-style-image: url(chrome://calendar/skin/shared/icons/low-priority.svg);
-  fill: blue;
+  list-style-image: var(--icon-priority-low);
+  stroke: blue;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
-  fill: #fff;
+  stroke: var(--color-white);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected) {
-  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 
 treecol.calendar-task-tree-col-percentcomplete {
@@ -119,7 +119,7 @@ treecol.calendar-task-tree-col-percentcomplete {
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  list-style-image: var(--icon-checkbox);
   fill-opacity: 0;
 }
 

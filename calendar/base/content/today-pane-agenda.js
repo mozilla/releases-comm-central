@@ -551,20 +551,20 @@
 
       if (this.overlapsDayStart) {
         if (this.overlapsDayEnd) {
-          this.overlapElement.src = "chrome://calendar/skin/shared/event-continue.svg";
+          this.overlapElement.src = "chrome://messenger/skin/icons/new/event-continue.svg";
           document.l10n.setAttributes(
             this.overlapElement,
             "calendar-editable-item-multiday-event-icon-continue"
           );
         } else {
-          this.overlapElement.src = "chrome://calendar/skin/shared/event-end.svg";
+          this.overlapElement.src = "chrome://messenger/skin/icons/new/event-end.svg";
           document.l10n.setAttributes(
             this.overlapElement,
             "calendar-editable-item-multiday-event-icon-end"
           );
         }
       } else if (this.overlapsDayEnd) {
-        this.overlapElement.src = "chrome://calendar/skin/shared/event-start.svg";
+        this.overlapElement.src = "chrome://messenger/skin/icons/new/event-start.svg";
         document.l10n.setAttributes(
           this.overlapElement,
           "calendar-editable-item-multiday-event-icon-start"

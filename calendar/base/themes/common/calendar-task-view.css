@@ -175,10 +175,11 @@
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
   margin-inline-start: 5px;
-  list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
+  list-style-image: var(--icon-new-task);
   -moz-image-region: rect(0 16px 16px 0);
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
@@ -207,19 +208,19 @@
 }
 
 #task-actions-category {
-  list-style-image: url(chrome://messenger/skin/icons/tag.svg);
+  list-style-image: var(--icon-tag);
 }
 
 #task-actions-markcompleted {
-  list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
+  list-style-image: var(--icon-check);
 }
 
 #task-actions-priority {
-  list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
+  list-style-image: var(--icon-priority);
 }
 
 #calendar-delete-task-button {
-  list-style-image: url(chrome://messenger/skin/icons/delete.svg);
+  list-style-image: var(--icon-trash);
 }
 
 .input-container {

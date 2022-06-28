@@ -393,7 +393,7 @@ function updateTodayPaneButton() {
 
   let iconEnd = document.createElement("img");
   iconEnd.setAttribute("alt", "");
-  iconEnd.setAttribute("src", "chrome://calendar/skin/shared/todayButton-arrow.svg");
+  iconEnd.setAttribute("src", "chrome://messenger/skin/icons/new/nav-up-sm.svg");
   iconEnd.classList.add("toolbarbutton-icon-end");
 
   let oldImage = todaypane.querySelector(".toolbarbutton-icon");
