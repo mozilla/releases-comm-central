@@ -4,21 +4,11 @@
 
 #item-calendar > menupopup > menuitem .menu-iconic-left,
 #calendar-ics-file-dialog-calendar-menu > menupopup > menuitem .menu-iconic-left {
-  appearance: none;
-  min-width: 0;
-}
-
-#item-calendar > menupopup > menuitem .menu-iconic-left {
-  margin-inline: 0 5px;
-}
-
-#calendar-ics-file-dialog-calendar-menu > menupopup > menuitem .menu-iconic-left {
-  margin-inline: 0 4px;
+  margin-inline-end: 6px;
 }
 
 #item-categories > menupopup > menuitem .menu-iconic-icon {
   display: inline;
-  margin-inline: 4px 0;
 }
 
 /*--------------------------------------------------------------------

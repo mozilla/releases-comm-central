@@ -185,12 +185,28 @@ label.label {
 
 #item-calendar::part(icon),
 #item-calendar > menupopup > menuitem .menu-iconic-icon,
-#item-categories::part(color),
-#item-categories > menupopup > menuitem .menu-iconic-icon {
+#item-categories::part(color) {
   width: 10px;
   height: 10px;
   border-radius: 5px;
   background-color: var(--item-color);
+}
+
+#item-categories > menupopup > menuitem .menu-iconic-left {
+  margin-inline-end: 3px;
+}
+
+#item-categories > menupopup > menuitem .menu-iconic-text {
+  padding-inline-start: 15px;
+  background-image: var(--icon-circle-small);
+  background-position: left center;
+  background-repeat: no-repeat;
+  -moz-context-properties: fill;
+  fill: var(--item-color);
+}
+
+#item-categories > menupopup > menuitem .menu-iconic-text:dir(rtl) {
+  background-position-x: right;  
 }
 
 #item-categories::part(color) {
