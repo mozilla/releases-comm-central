@@ -36,12 +36,25 @@
     <table>
       <thead>
         <tr>
-          <th id="addr-book-edit-email-type" class="screen-reader-only"
-              scope="col" data-l10n-id="vcard-entry-type-label"/>
-          <th id="addr-book-edit-email-label" class="screen-reader-only"
-              scope="col" data-l10n-id="vcard-email-label"/>
-          <th id="addr-book-edit-email-default" class="screen-reader-only"
-              scope="col" data-l10n-id="vcard-primary-email-label"/>
+          <th id="addr-book-edit-email-type" scope="col">
+            <!-- NOTE: We use the <span> so we can apply the screen-reader-only
+               - class to the <span> rather than the <th> element. If we apply
+               - the class to the <th> element directly it causes problems with
+               - Orca's "browse mode" table navigation. See bug 1776644. -->
+            <span class="screen-reader-only"
+                  data-l10n-id="vcard-entry-type-label">
+            </span>
+          </th>
+          <th id="addr-book-edit-email-label" scope="col">
+            <span class="screen-reader-only"
+                  data-l10n-id="vcard-email-label">
+            </span>
+          </th>
+          <th id="addr-book-edit-email-default" scope="col">
+            <span class="screen-reader-only"
+                  data-l10n-id="vcard-primary-email-label">
+            </span>
+          </th>
         </tr>
       </thead>
       <tbody id="vcard-email"></tbody>

@@ -193,11 +193,11 @@ vcard-nickname label[for] {
 }
 
 /* Email field styles */
-#vcard-email td {
+#addr-book-edit-email :is(th, td) {
   padding: 0;
 }
 
-#vcard-email td.email-column {
+#addr-book-edit-email td.email-column {
   width: 100%;
 }
 
