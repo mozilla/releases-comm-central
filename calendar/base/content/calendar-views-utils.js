@@ -527,7 +527,7 @@ function deleteSelectedEvents() {
 function viewSelectedEvents() {
   let items = currentView().getSelectedItems();
   if (items.length >= 1) {
-    openEventDialog(items[0], items[0].calendar, "view");
+    openEventDialogForViewing(items[0]);
   }
 }
 
