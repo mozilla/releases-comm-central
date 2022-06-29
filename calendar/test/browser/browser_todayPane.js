@@ -103,7 +103,7 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
     Assert.ok(BrowserTestUtils.is_visible(overlapElement), "overlap is visible");
     Assert.equal(
       overlapElement.src,
-      `chrome://calendar/skin/shared/event-${overlap}.svg`,
+      `chrome://messenger/skin/icons/new/event-${overlap}.svg`,
       "overlap has correct image"
     );
     Assert.equal(
