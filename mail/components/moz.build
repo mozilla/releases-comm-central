@@ -26,8 +26,6 @@ DIRS += [
     "shell",
 ]
 
-DIRS += ["build"]
-
 EXTRA_COMPONENTS += [
     "MailComponents.manifest",
 ]
@@ -49,3 +47,6 @@ XPCOM_MANIFESTS += [
 ]
 
 XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]
+
+Library("mailcomps")
+FINAL_LIBRARY = "xul"

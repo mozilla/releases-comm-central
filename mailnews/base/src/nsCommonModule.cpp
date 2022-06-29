@@ -43,9 +43,6 @@ static const mozilla::Module kCommonModule = {mozilla::Module::kVersion,
                                               nullptr,
                                               nullptr};
 
-#ifdef MOZ_THUNDERBIRD
-extern const mozilla::Module kMailCompsModule;
-#endif
 extern const mozilla::Module kMailNewsModule;
 extern const mozilla::Module kMailNewsImportModule;
 #ifdef MOZ_MAPI_SUPPORT
@@ -59,9 +56,6 @@ class ModulesInit {
  public:
   ModulesInit() {
     XRE_AddStaticComponent(&kCommonModule);
-#ifdef MOZ_THUNDERBIRD
-    XRE_AddStaticComponent(&kMailCompsModule);
-#endif
     XRE_AddStaticComponent(&kMailNewsModule);
     XRE_AddStaticComponent(&kMailNewsImportModule);
 #ifdef MOZ_MAPI_SUPPORT

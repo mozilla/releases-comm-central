@@ -38,3 +38,7 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
 XPCSHELL_TESTS_MANIFESTS += [
     "test/unit/xpcshell.ini",
 ]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]
