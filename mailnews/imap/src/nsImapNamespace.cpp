@@ -7,7 +7,7 @@
 
 #include "nsImapCore.h"
 #include "nsImapNamespace.h"
-#include "nsIImapHostSessionList.h"
+#include "../public/nsIImapHostSessionList.h"
 #include "nsMsgImapCID.h"
 #include "nsImapUrl.h"
 #include "nsString.h"

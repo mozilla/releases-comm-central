@@ -8,7 +8,7 @@
 
 #include "mozilla/Attributes.h"
 #include "nsImapCore.h"
-#include "nsIImapHostSessionList.h"
+#include "../public/nsIImapHostSessionList.h"
 #include "nsImapBodyShell.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"

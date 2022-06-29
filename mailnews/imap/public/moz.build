@@ -26,6 +26,5 @@ XPIDL_SOURCES += [
 XPIDL_MODULE = "msgimap"
 
 EXPORTS += [
-    "nsIImapHostSessionList.h",
     "nsMsgImapCID.h",
 ]

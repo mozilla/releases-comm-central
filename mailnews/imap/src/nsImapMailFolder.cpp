@@ -25,7 +25,7 @@
 #include "nsMsgLocalCID.h"
 #include "nsITransactionManager.h"
 #include "nsImapUndoTxn.h"
-#include "nsIImapHostSessionList.h"
+#include "../public/nsIImapHostSessionList.h"
 #include "nsIMsgCopyService.h"
 #include "nsICopyMessageStreamListener.h"
 #include "nsImapStringBundle.h"

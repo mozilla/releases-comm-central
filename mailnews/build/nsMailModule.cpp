@@ -78,34 +78,6 @@
 #  include "JaUrl.h"
 #endif
 
-////////////////////////////////////////////////////////////////////////////////
-// imap includes
-////////////////////////////////////////////////////////////////////////////////
-#include "nsMsgImapCID.h"
-#include "nsImapHostSessionList.h"
-#include "nsImapIncomingServer.h"
-#include "nsImapService.h"
-#include "nsImapMailFolder.h"
-#include "nsImapUrl.h"
-#include "nsImapProtocol.h"
-#include "nsAutoSyncManager.h"
-
-////////////////////////////////////////////////////////////////////////////////
-// local includes
-////////////////////////////////////////////////////////////////////////////////
-#include "nsMsgLocalCID.h"
-
-#include "nsMailboxUrl.h"
-#include "nsPop3URL.h"
-#include "nsMailboxService.h"
-#include "nsLocalMailFolder.h"
-#include "nsParseMailbox.h"
-#include "nsPop3Service.h"
-
-#include "nsNoneService.h"
-#include "nsPop3IncomingServer.h"
-#include "nsNoIncomingServer.h"
-
 ///////////////////////////////////////////////////////////////////////////////
 // msgdb includes
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,19 +102,6 @@
 #include "nsMimeRawEmitter.h"
 #include "nsMimeXmlEmitter.h"
 #include "nsMimePlainEmitter.h"
-
-///////////////////////////////////////////////////////////////////////////////
-// news includes
-///////////////////////////////////////////////////////////////////////////////
-#include "nsMsgNewsCID.h"
-#include "nsNntpUrl.h"
-#include "nsNntpService.h"
-#include "nsNntpIncomingServer.h"
-#include "nsNNTPNewsgroupPost.h"
-#include "nsNNTPNewsgroupList.h"
-#include "nsNNTPArticleList.h"
-#include "nsNewsDownloadDialogArgs.h"
-#include "nsNewsFolder.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // mail views includes
@@ -217,62 +176,6 @@ NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// imap factories
-////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapProtocol)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsImapHostSessionList, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsImapIncomingServer, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapMailFolder)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapMockChannel)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAutoSyncManager)
-
-NS_DEFINE_NAMED_CID(NS_IMAPURL_CID);
-NS_DEFINE_NAMED_CID(NS_IMAPPROTOCOL_CID);
-NS_DEFINE_NAMED_CID(NS_IMAPMOCKCHANNEL_CID);
-NS_DEFINE_NAMED_CID(NS_IIMAPHOSTSESSIONLIST_CID);
-NS_DEFINE_NAMED_CID(NS_IMAPINCOMINGSERVER_CID);
-NS_DEFINE_NAMED_CID(NS_IMAPRESOURCE_CID);
-NS_DEFINE_NAMED_CID(NS_IMAPSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_AUTOSYNCMANAGER_CID);
-
-////////////////////////////////////////////////////////////////////////////////
-// local factories
-////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMailboxUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgMailNewsUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsPop3URL)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgMailboxParser)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMailboxService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsPop3Service)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsNoneService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgLocalMailFolder)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsParseMailMessageState)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsPop3IncomingServer, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsRssIncomingServer, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsRssService)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsNoIncomingServer, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgBrkMBoxStore)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgMaildirStore)
-
-NS_DEFINE_NAMED_CID(NS_MAILBOXURL_CID);
-NS_DEFINE_NAMED_CID(NS_MSGMAILNEWSURL_CID);
-NS_DEFINE_NAMED_CID(NS_MAILBOXSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MAILBOXPARSER_CID);
-NS_DEFINE_NAMED_CID(NS_POP3URL_CID);
-NS_DEFINE_NAMED_CID(NS_POP3SERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_NONESERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_LOCALMAILFOLDERRESOURCE_CID);
-NS_DEFINE_NAMED_CID(NS_POP3INCOMINGSERVER_CID);
-NS_DEFINE_NAMED_CID(NS_NOINCOMINGSERVER_CID);
-NS_DEFINE_NAMED_CID(NS_PARSEMAILMSGSTATE_CID);
-NS_DEFINE_NAMED_CID(NS_RSSSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_RSSINCOMINGSERVER_CID);
-NS_DEFINE_NAMED_CID(NS_BRKMBOXSTORE_CID);
-NS_DEFINE_NAMED_CID(NS_MAILDIRSTORE_CID);
-
-////////////////////////////////////////////////////////////////////////////////
 // msgdb factories
 ////////////////////////////////////////////////////////////////////////////////
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgDBService)
@@ -316,27 +219,6 @@ NS_DEFINE_NAMED_CID(NS_RAW_MIME_EMITTER_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsFts3Tokenizer)
 
 NS_DEFINE_NAMED_CID(NS_FTS3TOKENIZER_CID);
-
-////////////////////////////////////////////////////////////////////////////////
-// news factories
-////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsNntpUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsNntpService)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsNntpIncomingServer, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsNNTPArticleList)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsNNTPNewsgroupPost)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsNNTPNewsgroupList)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgNewsFolder)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsNewsDownloadDialogArgs)
-
-NS_DEFINE_NAMED_CID(NS_NNTPSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_NNTPURL_CID);
-NS_DEFINE_NAMED_CID(NS_NEWSFOLDERRESOURCE_CID);
-NS_DEFINE_NAMED_CID(NS_NNTPINCOMINGSERVER_CID);
-NS_DEFINE_NAMED_CID(NS_NNTPNEWSGROUPPOST_CID);
-NS_DEFINE_NAMED_CID(NS_NNTPNEWSGROUPLIST_CID);
-NS_DEFINE_NAMED_CID(NS_NNTPARTICLELIST_CID);
-NS_DEFINE_NAMED_CID(NS_NEWSDOWNLOADDIALOGARGS_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
 // mail view factories
@@ -424,35 +306,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
      JaCppMsgFolderDelegatorConstructor},
     {&kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor},
 #endif
-    // Imap Entries
-    {&kNS_IMAPURL_CID, false, NULL, nsImapUrlConstructor},
-    {&kNS_IMAPPROTOCOL_CID, false, nullptr, nsImapProtocolConstructor},
-    {&kNS_IMAPMOCKCHANNEL_CID, false, nullptr, nsImapMockChannelConstructor},
-    {&kNS_IIMAPHOSTSESSIONLIST_CID, false, nullptr,
-     nsImapHostSessionListConstructor},
-    {&kNS_IMAPINCOMINGSERVER_CID, false, nullptr,
-     nsImapIncomingServerConstructor},
-    {&kNS_IMAPRESOURCE_CID, false, nullptr, nsImapMailFolderConstructor},
-    {&kNS_IMAPSERVICE_CID, false, nullptr, nsImapServiceConstructor},
-    {&kNS_AUTOSYNCMANAGER_CID, false, nullptr, nsAutoSyncManagerConstructor},
-    // Local Entries
-    {&kNS_MAILBOXURL_CID, false, NULL, nsMailboxUrlConstructor},
-    {&kNS_MSGMAILNEWSURL_CID, false, NULL, nsMsgMailNewsUrlConstructor},
-    {&kNS_MAILBOXSERVICE_CID, false, NULL, nsMailboxServiceConstructor},
-    {&kNS_MAILBOXPARSER_CID, false, NULL, nsMsgMailboxParserConstructor},
-    {&kNS_POP3URL_CID, false, NULL, nsPop3URLConstructor},
-    {&kNS_POP3SERVICE_CID, false, NULL, nsPop3ServiceConstructor},
-    {&kNS_NONESERVICE_CID, false, NULL, nsNoneServiceConstructor},
-    {&kNS_LOCALMAILFOLDERRESOURCE_CID, false, NULL,
-     nsMsgLocalMailFolderConstructor},
-    {&kNS_POP3INCOMINGSERVER_CID, false, NULL, nsPop3IncomingServerConstructor},
-    {&kNS_NOINCOMINGSERVER_CID, false, NULL, nsNoIncomingServerConstructor},
-    {&kNS_PARSEMAILMSGSTATE_CID, false, NULL,
-     nsParseMailMessageStateConstructor},
-    {&kNS_RSSSERVICE_CID, false, NULL, nsRssServiceConstructor},
-    {&kNS_RSSINCOMINGSERVER_CID, false, NULL, nsRssIncomingServerConstructor},
-    {&kNS_BRKMBOXSTORE_CID, false, NULL, nsMsgBrkMBoxStoreConstructor},
-    {&kNS_MAILDIRSTORE_CID, false, NULL, nsMsgMaildirStoreConstructor},
     // msgdb Entries
     {&kNS_MAILDB_CID, false, NULL, nsMailDatabaseConstructor},
     {&kNS_NEWSDB_CID, false, NULL, nsNewsDatabaseConstructor},
@@ -474,16 +327,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_RAW_MIME_EMITTER_CID, false, NULL, nsMimeRawEmitterConstructor},
     // Fts 3
     {&kNS_FTS3TOKENIZER_CID, false, NULL, nsFts3TokenizerConstructor},
-    // News Entries
-    {&kNS_NNTPURL_CID, false, NULL, nsNntpUrlConstructor},
-    {&kNS_NNTPSERVICE_CID, false, NULL, nsNntpServiceConstructor},
-    {&kNS_NEWSFOLDERRESOURCE_CID, false, NULL, nsMsgNewsFolderConstructor},
-    {&kNS_NNTPINCOMINGSERVER_CID, false, NULL, nsNntpIncomingServerConstructor},
-    {&kNS_NNTPNEWSGROUPPOST_CID, false, NULL, nsNNTPNewsgroupPostConstructor},
-    {&kNS_NNTPNEWSGROUPLIST_CID, false, NULL, nsNNTPNewsgroupListConstructor},
-    {&kNS_NNTPARTICLELIST_CID, false, NULL, nsNNTPArticleListConstructor},
-    {&kNS_NEWSDOWNLOADDIALOGARGS_CID, false, NULL,
-     nsNewsDownloadDialogArgsConstructor},
     // Mail View Entries
     {&kNS_MSGMAILVIEWLIST_CID, false, NULL, nsMsgMailViewListConstructor},
     // mdn Entries
@@ -521,42 +364,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {JACPPMSGFOLDERDELEGATOR_CONTRACTID, &kJACPPMSGFOLDERDELEGATOR_CID},
     {JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID},
 #endif
-    // Imap Entries
-    {NS_IMAPINCOMINGSERVER_CONTRACTID, &kNS_IMAPINCOMINGSERVER_CID},
-    {NS_FOLDER_FACTORY_CONTRACTID_PREFIX "imap", &kNS_IMAPRESOURCE_CID},
-    {"@mozilla.org/messenger/messageservice;1?type=imap-message",
-     &kNS_IMAPSERVICE_CID},
-    {"@mozilla.org/messenger/messageservice;1?type=imap", &kNS_IMAPSERVICE_CID},
-    {NS_IMAPSERVICE_CONTRACTID, &kNS_IMAPSERVICE_CID},
-    {NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "imap", &kNS_IMAPSERVICE_CID},
-    {NS_IMAPPROTOCOLINFO_CONTRACTID, &kNS_IMAPSERVICE_CID},
-    {NS_CONTENT_HANDLER_CONTRACTID_PREFIX "x-application-imapfolder",
-     &kNS_IMAPSERVICE_CID},
-    {NS_AUTOSYNCMANAGER_CONTRACTID, &kNS_AUTOSYNCMANAGER_CID},
-    // Local Entries
-    {NS_MAILBOXURL_CONTRACTID, &kNS_MAILBOXURL_CID},
-    {NS_MSGMAILNEWSURL_CONTRACTID, &kNS_MSGMAILNEWSURL_CID},
-    {NS_MAILBOXSERVICE_CONTRACTID1, &kNS_MAILBOXSERVICE_CID},
-    {NS_MAILBOXSERVICE_CONTRACTID2, &kNS_MAILBOXSERVICE_CID},
-    {NS_MAILBOXSERVICE_CONTRACTID3, &kNS_MAILBOXSERVICE_CID},
-    {NS_MAILBOXSERVICE_CONTRACTID4, &kNS_MAILBOXSERVICE_CID},
-    {NS_MAILBOXPARSER_CONTRACTID, &kNS_MAILBOXPARSER_CID},
-    {NS_POP3URL_CONTRACTID, &kNS_POP3URL_CID},
-    {NS_POP3SERVICE_CONTRACTID1, &kNS_POP3SERVICE_CID},
-    {NS_POP3SERVICE_CONTRACTID2, &kNS_POP3SERVICE_CID},
-    {NS_POP3SERVICE_CONTRACTID3, &kNS_POP3SERVICE_CID},
-    {NS_NONESERVICE_CONTRACTID, &kNS_NONESERVICE_CID},
-    {NS_POP3PROTOCOLINFO_CONTRACTID, &kNS_POP3SERVICE_CID},
-    {NS_NONEPROTOCOLINFO_CONTRACTID, &kNS_NONESERVICE_CID},
-    {NS_LOCALMAILFOLDERRESOURCE_CONTRACTID, &kNS_LOCALMAILFOLDERRESOURCE_CID},
-    {NS_POP3INCOMINGSERVER_CONTRACTID, &kNS_POP3INCOMINGSERVER_CID},
-    {NS_BRKMBOXSTORE_CONTRACTID, &kNS_BRKMBOXSTORE_CID},
-    {NS_MAILDIRSTORE_CONTRACTID, &kNS_MAILDIRSTORE_CID},
-    {NS_NOINCOMINGSERVER_CONTRACTID, &kNS_NOINCOMINGSERVER_CID},
-    {NS_PARSEMAILMSGSTATE_CONTRACTID, &kNS_PARSEMAILMSGSTATE_CID},
-    {NS_RSSSERVICE_CONTRACTID, &kNS_RSSSERVICE_CID},
-    {NS_RSSPROTOCOLINFO_CONTRACTID, &kNS_RSSSERVICE_CID},
-    {NS_RSSINCOMINGSERVER_CONTRACTID, &kNS_RSSINCOMINGSERVER_CID},
     // msgdb Entries
     {NS_MAILBOXDB_CONTRACTID, &kNS_MAILDB_CID},
     {NS_NEWSDB_CONTRACTID, &kNS_NEWSDB_CID},
@@ -578,25 +385,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_RAW_MIME_EMITTER_CONTRACTID, &kNS_RAW_MIME_EMITTER_CID},
     // FTS3
     {NS_FTS3TOKENIZER_CONTRACTID, &kNS_FTS3TOKENIZER_CID},
-    // News Entries
-    {NS_NNTPURL_CONTRACTID, &kNS_NNTPURL_CID},
-    {NS_NNTPSERVICE_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_NNTPPROTOCOLINFO_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_NNTPMESSAGESERVICE_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_NEWSMESSAGESERVICE_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_NEWSPROTOCOLHANDLER_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_SNEWSPROTOCOLHANDLER_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_NNTPPROTOCOLHANDLER_CONTRACTID, &kNS_NNTPSERVICE_CID},
-    {NS_CONTENT_HANDLER_CONTRACTID_PREFIX "x-application-newsgroup",
-     &kNS_NNTPSERVICE_CID},
-    {NS_CONTENT_HANDLER_CONTRACTID_PREFIX "x-application-newsgroup-listids",
-     &kNS_NNTPSERVICE_CID},
-    {NS_NEWSFOLDERRESOURCE_CONTRACTID, &kNS_NEWSFOLDERRESOURCE_CID},
-    {NS_NNTPINCOMINGSERVER_CONTRACTID, &kNS_NNTPINCOMINGSERVER_CID},
-    {NS_NNTPNEWSGROUPPOST_CONTRACTID, &kNS_NNTPNEWSGROUPPOST_CID},
-    {NS_NNTPNEWSGROUPLIST_CONTRACTID, &kNS_NNTPNEWSGROUPLIST_CID},
-    {NS_NNTPARTICLELIST_CONTRACTID, &kNS_NNTPARTICLELIST_CID},
-    {NS_NEWSDOWNLOADDIALOGARGS_CONTRACTID, &kNS_NEWSDOWNLOADDIALOGARGS_CID},
     // Mail View Entries
     {NS_MSGMAILVIEWLIST_CONTRACTID, &kNS_MSGMAILVIEWLIST_CID},
     // mdn Entries
@@ -624,8 +412,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
 static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
     // Bayesian Filter Entries
     // JsAccount Entries
-    // Imap Entries
-    // Local Entries
     // msgdb Entries
     // Mime Entries
     {"mime-emitter", NS_HTML_MIME_EMITTER_CONTRACTID,

@@ -7,7 +7,7 @@
 #include "nsMsgImapCID.h"
 
 #include "nsImapUrl.h"
-#include "nsIImapHostSessionList.h"
+#include "../public/nsIImapHostSessionList.h"
 #include "nsThreadUtils.h"
 #include "nsString.h"
 #include "prmem.h"

@@ -8,7 +8,7 @@
 
 #include "nsISupports.h"
 #include "nsImapCore.h"
-#include "nsImapNamespace.h"
+#include "../src/nsImapNamespace.h"
 
 class nsImapBodyShell;
 class nsIImapIncomingServer;

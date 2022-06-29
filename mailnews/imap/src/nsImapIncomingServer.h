@@ -8,6 +8,7 @@
 
 #include "mozilla/Attributes.h"
 #include "msgCore.h"
+#include "nsImapCore.h"
 #include "nsIImapIncomingServer.h"
 #include "nsMsgIncomingServer.h"
 #include "nsIImapServerSink.h"
