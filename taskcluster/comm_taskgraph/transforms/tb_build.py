@@ -4,7 +4,7 @@
 
 import logging
 
-from gecko_taskgraph.transforms.base import TransformSequence
+from taskgraph.transforms.base import TransformSequence
 
 logger = logging.getLogger(__name__)
 

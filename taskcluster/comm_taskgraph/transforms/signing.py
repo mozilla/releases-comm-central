@@ -4,9 +4,9 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from gecko_taskgraph.util.signed_artifacts import is_notarization_kind
+from taskgraph.transforms.base import TransformSequence
 
-from gecko_taskgraph.transforms.base import TransformSequence
+from gecko_taskgraph.util.signed_artifacts import is_notarization_kind
 
 transforms = TransformSequence()
 

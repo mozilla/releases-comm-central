@@ -6,7 +6,7 @@ Thunderbird modifications to partial update building
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
-from gecko_taskgraph.transforms.base import TransformSequence
+from taskgraph.transforms.base import TransformSequence
 
 import logging
 

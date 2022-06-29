@@ -5,9 +5,9 @@
 import logging
 import shlex
 
+from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.path import match as match_path, join as join_path
 
-from gecko_taskgraph.transforms.base import TransformSequence
 from gecko_taskgraph.files_changed import get_changed_files
 
 logger = logging.getLogger(__name__)
