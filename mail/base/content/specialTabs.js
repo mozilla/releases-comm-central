@@ -795,7 +795,7 @@ var specialTabs = {
     let onDownload = aEvent => {
       let request = aEvent.target;
       let dom = request.response;
-      if (request.status != 200 || !(dom instanceof HTMLDocument)) {
+      if (request.status != 200 || !HTMLDocument.isInstance(dom)) {
         onDownloadError(aEvent);
         return;
       }

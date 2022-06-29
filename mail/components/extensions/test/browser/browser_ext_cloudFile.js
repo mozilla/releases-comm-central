@@ -135,7 +135,7 @@ add_task(async function test_without_UI() {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
-          browser.test.assertTrue(data instanceof File);
+          browser.test.assertTrue(File.isInstance(data));
           let content = await data.text();
           browser.test.assertEq(content, "you got the moves!\n");
           browser.test.assertEq(undefined, relatedFileInfo);
@@ -552,7 +552,7 @@ add_task(async function test_compose_window() {
           browser.test.assertEq(tab.id, composeTab.id);
           browser.test.assertEq(uploadAccount.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
-          browser.test.assertTrue(data instanceof File);
+          browser.test.assertTrue(File.isInstance(data));
           let content = await data.text();
           browser.test.assertEq(content, "you got the moves!\n");
 
@@ -946,7 +946,7 @@ add_task(async function test_file_format() {
       function fileListener(account, { id, name, data }, tab, relatedFileInfo) {
         browser.cloudFile.onFileUpload.removeListener(fileListener);
         browser.test.assertEq(name, "cloudFile1.txt");
-        browser.test.assertTrue(data instanceof File);
+        browser.test.assertTrue(File.isInstance(data));
         let reader = new FileReader();
         reader.addEventListener("loadend", () => {
           browser.test.assertEq(reader.result, "you got the moves!\n");

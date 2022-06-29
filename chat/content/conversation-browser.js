@@ -64,7 +64,7 @@
         // The event target may be a descendant of the actual link.
         let url;
         for (let elem = event.target; elem; elem = elem.parentNode) {
-          if (elem instanceof HTMLAnchorElement) {
+          if (HTMLAnchorElement.isInstance(elem)) {
             url = elem.href;
             if (url) {
               break;

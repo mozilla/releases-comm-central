@@ -103,7 +103,7 @@
       });
 
       this._elList.addEventListener("change", e => {
-        if (!(e.target instanceof HTMLInputElement)) {
+        if (!HTMLInputElement.isInstance(e.target)) {
           // We only care about change event of input elements.
           return;
         }

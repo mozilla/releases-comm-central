@@ -404,7 +404,7 @@ function openAttendeesWindow(eventWindowOrArgs) {
     }
   );
 
-  if (eventWindowOrArgs instanceof Window) {
+  if (Window.isInstance(eventWindowOrArgs)) {
     EventUtils.synthesizeMouseAtCenter(
       eventWindowOrArgs.document.getElementById("button-attendees"),
       {},

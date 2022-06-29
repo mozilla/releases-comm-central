@@ -2833,7 +2833,7 @@ var FeedSubscriptions = {
             "application/xml"
           );
           if (
-            !(opmlDom instanceof XMLDocument) ||
+            !XMLDocument.isInstance(opmlDom) ||
             opmlDom.documentElement.namespaceURI ==
               FeedUtils.MOZ_PARSERERROR_NS ||
             opmlDom.documentElement.tagName != "opml" ||

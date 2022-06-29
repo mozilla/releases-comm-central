@@ -1100,7 +1100,7 @@
         // Find out if we are in a wrapper (customize toolbars mode is active).
         let inWrapper = false;
         let node = this;
-        while (node instanceof XULElement) {
+        while (XULElement.isInstance(node)) {
           if (node.id.startsWith("wrapper-")) {
             inWrapper = true;
             break;

@@ -310,11 +310,14 @@ function processCSSRules(sheet) {
     if (rule.media && neverMatches(rule.media)) {
       continue;
     }
-    if (rule instanceof CSSConditionRule || rule instanceof CSSKeyframesRule) {
+    if (
+      CSSConditionRule.isInstance(rule) ||
+      CSSKeyframesRule.isInstance(rule)
+    ) {
       processCSSRules(rule);
       continue;
     }
-    if (!(rule instanceof CSSStyleRule) && !(rule instanceof CSSKeyframeRule)) {
+    if (!CSSStyleRule.isInstance(rule) && !CSSKeyframeRule.isInstance(rule)) {
       continue;
     }
 

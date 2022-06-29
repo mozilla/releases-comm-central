@@ -1062,11 +1062,11 @@ class nsContextMenu {
    * @return true for textboxes, false for other elements
    */
   isTargetATextBox(aNode) {
-    if (aNode instanceof HTMLInputElement) {
+    if (HTMLInputElement.isInstance(aNode)) {
       return aNode.type == "text" || aNode.type == "password";
     }
 
-    return aNode instanceof HTMLTextAreaElement;
+    return HTMLTextAreaElement.isInstance(aNode);
   }
 
   /**

@@ -44,7 +44,7 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
       : aEvent.target;
 
   if (
-    target instanceof HTMLImageElement &&
+    HTMLImageElement.isInstance(target) &&
     target.hasAttribute("overflowing")
   ) {
     // Click on zoomed image.
@@ -54,9 +54,9 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
   let href = null;
   let linkText = null;
   if (
-    target instanceof HTMLAnchorElement ||
-    target instanceof HTMLAreaElement ||
-    target instanceof HTMLLinkElement
+    HTMLAnchorElement.isInstance(target) ||
+    HTMLAreaElement.isInstance(target) ||
+    HTMLLinkElement.isInstance(target)
   ) {
     if (target.hasAttribute("href")) {
       href = target.href;
@@ -64,7 +64,8 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
     }
   } else if (
     !aDontCheckInputElement &&
-    (target instanceof HTMLInputElement || target instanceof HTMLButtonElement)
+    (HTMLInputElement.isInstance(target) ||
+      HTMLButtonElement.isInstance(target))
   ) {
     if (target.form && target.form.action) {
       href = target.form.action;
@@ -72,7 +73,7 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
   } else {
     // We may be nested inside of a link node.
     let linkNode = aEvent.target;
-    while (linkNode && !(linkNode instanceof HTMLAnchorElement)) {
+    while (linkNode && !HTMLAnchorElement.isInstance(linkNode)) {
       linkNode = linkNode.parentNode;
     }
 
@@ -118,7 +119,7 @@ function isLinkToAnchorOnPage(aTargetNode) {
   }
 
   let linkNode = aTargetNode;
-  while (linkNode && !(linkNode instanceof HTMLAnchorElement)) {
+  while (linkNode && !HTMLAnchorElement.isInstance(linkNode)) {
     linkNode = linkNode.parentNode;
   }
 
@@ -156,7 +157,7 @@ function contentAreaClick(aEvent) {
   if (!href && !aEvent.button) {
     // Is this an image that we might want to scale?
 
-    if (target instanceof HTMLImageElement) {
+    if (HTMLImageElement.isInstance(target)) {
       // Make sure it loaded successfully. No action if not or a broken link.
       var req = target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
       if (!req || req.imageStatus & Ci.imgIRequest.STATUS_ERROR) {

@@ -167,7 +167,7 @@ async function tempDir(prefix) {
     } catch (e) {
       // If directory already exists, try another name. Else bail out.
       if (
-        !(e instanceof DOMException && e.name === "NoModificationAllowedError")
+        !(DOMException.isInstance(e) && e.name === "NoModificationAllowedError")
       ) {
         throw e;
       }

@@ -145,7 +145,7 @@ var accountWizard = {
       return;
     }
     for (const box of this.userNameBoxes) {
-      if (box instanceof Element) {
+      if (Element.isInstance(box)) {
         box.value = splitValues.shift();
       }
     }
