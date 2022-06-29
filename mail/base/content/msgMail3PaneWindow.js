@@ -1206,6 +1206,7 @@ function reportBooleanPreferences() {
     "messenger.options.getAttentionOnNewMessages",
     "messenger.status.reportIdle",
     "messenger.status.awayWhenIdle",
+    "mail.chat.enabled",
     "mail.chat.play_sound",
     "mail.chat.show_desktop_notifications",
     "purple.conversations.im.send_typing",
