@@ -49,49 +49,11 @@
 // mailnews base includes
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsMsgBaseCID.h"
-#include "nsMessengerBootstrap.h"
-#include "nsMessenger.h"
-#include "nsIContentViewer.h"
-#include "nsMsgMailSession.h"
-#include "nsMsgAccount.h"
-#include "nsMsgAccountManager.h"
-#include "nsMsgIdentity.h"
-#include "nsMsgIncomingServer.h"
-#include "nsMsgBiffManager.h"
-#include "nsMsgPurgeService.h"
-#include "nsStatusBarBiffManager.h"
-#include "nsCopyMessageStreamListener.h"
-#include "nsMsgCopyService.h"
-#include "nsMsgFolderCache.h"
-#include "nsMsgStatusFeedback.h"
-#include "nsMsgFilterService.h"
-#include "nsMsgWindow.h"
-#include "nsSubscribableServer.h"
-#include "nsMsgSearchSession.h"
-#include "nsMsgSearchTerm.h"
-#include "nsMsgSearchAdapter.h"
-#include "nsMsgFolderCompactor.h"
-#include "nsMsgThreadedDBView.h"
-#include "nsMsgSpecialViews.h"
-#include "nsMsgXFVirtualFolderDBView.h"
-#include "nsMsgQuickSearchDBView.h"
-#include "nsMsgGroupView.h"
-#include "nsMsgOfflineManager.h"
-#include "nsMsgProgress.h"
-#include "nsSpamSettings.h"
-#include "nsMsgContentPolicy.h"
-#include "nsCidProtocolHandler.h"
 #include "nsRssIncomingServer.h"
 #include "nsRssService.h"
 #include "nsMsgBrkMBoxStore.h"
 #include "nsMsgMaildirStore.h"
-#include "nsMsgTagService.h"
-#include "nsMsgFolderNotificationService.h"
-#include "nsMailDirProvider.h"
-
 #include "nsCURILoader.h"
-#include "nsStopwatch.h"
-#include "MailNewsDLF.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // bayesian spam filter includes
@@ -229,89 +191,6 @@
 // mailnews base factories
 ////////////////////////////////////////////////////////////////////////////////
 using namespace mozilla::mailnews;
-
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMessengerBootstrap)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgMailSession, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMessenger)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgAccountManager, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgAccount)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgIdentity)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgSearchSession)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgSearchTerm)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgSearchValidityManager)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFilterService)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgBiffManager, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgPurgeService)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsStatusBarBiffManager, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsCopyMessageStreamListener)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCopyService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFolderCache)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgStatusFeedback)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgWindow, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSubscribableServer, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFolderCompactor)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgThreadedDBView)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgThreadsWithUnreadDBView)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgWatchedThreadsWithUnreadDBView)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgSearchDBView)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgXFVirtualFolderDBView)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgQuickSearchDBView)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgGroupView)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgDBViewService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgOfflineManager)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgProgress)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsSpamSettings)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgTagService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFolderService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFolderNotificationService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsCidProtocolHandler)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMailDirProvider)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgShutdownService)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgContentPolicy, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsStopwatch)
-NS_GENERIC_FACTORY_CONSTRUCTOR(MailNewsDLF)
-
-NS_DEFINE_NAMED_CID(NS_MESSENGERBOOTSTRAP_CID);
-NS_DEFINE_NAMED_CID(NS_MESSENGERWINDOWSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGMAILSESSION_CID);
-NS_DEFINE_NAMED_CID(NS_MESSENGER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGACCOUNTMANAGER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGACCOUNT_CID);
-NS_DEFINE_NAMED_CID(NS_MSGIDENTITY_CID);
-NS_DEFINE_NAMED_CID(NS_MSGFILTERSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGSEARCHSESSION_CID);
-NS_DEFINE_NAMED_CID(NS_MSGSEARCHTERM_CID);
-NS_DEFINE_NAMED_CID(NS_MSGSEARCHVALIDITYMANAGER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGBIFFMANAGER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGPURGESERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_STATUSBARBIFFMANAGER_CID);
-NS_DEFINE_NAMED_CID(NS_COPYMESSAGESTREAMLISTENER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOPYSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGFOLDERCACHE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGSTATUSFEEDBACK_CID);
-NS_DEFINE_NAMED_CID(NS_MSGWINDOW_CID);
-NS_DEFINE_NAMED_CID(NS_SUBSCRIBABLESERVER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGFOLDERCOMPACTOR_CID);
-NS_DEFINE_NAMED_CID(NS_MSGTHREADEDDBVIEW_CID);
-NS_DEFINE_NAMED_CID(NS_MSGTHREADSWITHUNREADDBVIEW_CID);
-NS_DEFINE_NAMED_CID(NS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID);
-NS_DEFINE_NAMED_CID(NS_MSGSEARCHDBVIEW_CID);
-NS_DEFINE_NAMED_CID(NS_MSGQUICKSEARCHDBVIEW_CID);
-NS_DEFINE_NAMED_CID(NS_MSG_XFVFDBVIEW_CID);
-NS_DEFINE_NAMED_CID(NS_MSG_GROUPDBVIEW_CID);
-NS_DEFINE_NAMED_CID(NS_MSGDBVIEWSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGOFFLINEMANAGER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGPROGRESS_CID);
-NS_DEFINE_NAMED_CID(NS_SPAMSETTINGS_CID);
-NS_DEFINE_NAMED_CID(NS_CIDPROTOCOL_CID);
-NS_DEFINE_NAMED_CID(NS_MSGTAGSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGFOLDERSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGNOTIFICATIONSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCONTENTPOLICY_CID);
-NS_DEFINE_NAMED_CID(NS_MSGSHUTDOWNSERVICE_CID);
-NS_DEFINE_NAMED_CID(MAILDIRPROVIDER_CID);
-NS_DEFINE_NAMED_CID(NS_STOPWATCH_CID);
-NS_DEFINE_NAMED_CID(NS_MAILNEWSDLF_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
 // bayesian spam filter factories
@@ -531,57 +410,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsCharsetConverterManager)
 NS_DEFINE_NAMED_CID(NS_ICHARSETCONVERTERMANAGER_CID);
 
 const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
-    // MailNews Base Entries
-    {&kNS_MESSENGERBOOTSTRAP_CID, false, NULL, nsMessengerBootstrapConstructor},
-    {&kNS_MESSENGERWINDOWSERVICE_CID, false, NULL,
-     nsMessengerBootstrapConstructor},
-    {&kNS_MSGMAILSESSION_CID, false, NULL, nsMsgMailSessionConstructor},
-    {&kNS_MESSENGER_CID, false, NULL, nsMessengerConstructor},
-    {&kNS_MSGACCOUNTMANAGER_CID, false, NULL, nsMsgAccountManagerConstructor},
-    {&kNS_MSGACCOUNT_CID, false, NULL, nsMsgAccountConstructor},
-    {&kNS_MSGIDENTITY_CID, false, NULL, nsMsgIdentityConstructor},
-    {&kNS_MSGFILTERSERVICE_CID, false, NULL, nsMsgFilterServiceConstructor},
-    {&kNS_MSGSEARCHSESSION_CID, false, NULL, nsMsgSearchSessionConstructor},
-    {&kNS_MSGSEARCHTERM_CID, false, NULL, nsMsgSearchTermConstructor},
-    {&kNS_MSGSEARCHVALIDITYMANAGER_CID, false, NULL,
-     nsMsgSearchValidityManagerConstructor},
-    {&kNS_MSGBIFFMANAGER_CID, false, NULL, nsMsgBiffManagerConstructor},
-    {&kNS_MSGPURGESERVICE_CID, false, NULL, nsMsgPurgeServiceConstructor},
-    {&kNS_STATUSBARBIFFMANAGER_CID, false, NULL,
-     nsStatusBarBiffManagerConstructor},
-    {&kNS_COPYMESSAGESTREAMLISTENER_CID, false, NULL,
-     nsCopyMessageStreamListenerConstructor},
-    {&kNS_MSGCOPYSERVICE_CID, false, NULL, nsMsgCopyServiceConstructor},
-    {&kNS_MSGFOLDERCACHE_CID, false, NULL, nsMsgFolderCacheConstructor},
-    {&kNS_MSGSTATUSFEEDBACK_CID, false, NULL, nsMsgStatusFeedbackConstructor},
-    {&kNS_MSGWINDOW_CID, false, NULL, nsMsgWindowConstructor},
-    {&kNS_SUBSCRIBABLESERVER_CID, false, NULL, nsSubscribableServerConstructor},
-    {&kNS_MSGFOLDERCOMPACTOR_CID, false, NULL, nsMsgFolderCompactorConstructor},
-    {&kNS_MSGTHREADEDDBVIEW_CID, false, NULL, nsMsgThreadedDBViewConstructor},
-    {&kNS_MSGTHREADSWITHUNREADDBVIEW_CID, false, NULL,
-     nsMsgThreadsWithUnreadDBViewConstructor},
-    {&kNS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID, false, NULL,
-     nsMsgWatchedThreadsWithUnreadDBViewConstructor},
-    {&kNS_MSGSEARCHDBVIEW_CID, false, NULL, nsMsgSearchDBViewConstructor},
-    {&kNS_MSGQUICKSEARCHDBVIEW_CID, false, NULL,
-     nsMsgQuickSearchDBViewConstructor},
-    {&kNS_MSG_XFVFDBVIEW_CID, false, NULL,
-     nsMsgXFVirtualFolderDBViewConstructor},
-    {&kNS_MSG_GROUPDBVIEW_CID, false, NULL, nsMsgGroupViewConstructor},
-    {&kNS_MSGDBVIEWSERVICE_CID, false, NULL, nsMsgDBViewServiceConstructor},
-    {&kNS_MSGOFFLINEMANAGER_CID, false, NULL, nsMsgOfflineManagerConstructor},
-    {&kNS_MSGPROGRESS_CID, false, NULL, nsMsgProgressConstructor},
-    {&kNS_SPAMSETTINGS_CID, false, NULL, nsSpamSettingsConstructor},
-    {&kNS_CIDPROTOCOL_CID, false, NULL, nsCidProtocolHandlerConstructor},
-    {&kNS_MSGTAGSERVICE_CID, false, NULL, nsMsgTagServiceConstructor},
-    {&kNS_MSGFOLDERSERVICE_CID, false, NULL, nsMsgFolderServiceConstructor},
-    {&kNS_MSGNOTIFICATIONSERVICE_CID, false, NULL,
-     nsMsgFolderNotificationServiceConstructor},
-    {&kNS_MSGCONTENTPOLICY_CID, false, NULL, nsMsgContentPolicyConstructor},
-    {&kNS_MSGSHUTDOWNSERVICE_CID, false, NULL, nsMsgShutdownServiceConstructor},
-    {&kMAILDIRPROVIDER_CID, false, NULL, nsMailDirProviderConstructor},
-    {&kNS_STOPWATCH_CID, false, NULL, nsStopwatchConstructor},
-    {&kNS_MAILNEWSDLF_CID, false, NULL, MailNewsDLFConstructor},
     // Bayesian Filter Entries
     {&kNS_BAYESIANFILTER_CID, false, NULL, nsBayesianFilterConstructor},
 // JsAccount Entries
@@ -682,51 +510,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {NULL}};
 
 const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
-    // MailNews Base Entries
-    {NS_MESSENGERBOOTSTRAP_CONTRACTID, &kNS_MESSENGERBOOTSTRAP_CID},
-    {NS_MESSENGERWINDOWSERVICE_CONTRACTID, &kNS_MESSENGERWINDOWSERVICE_CID},
-    {NS_MSGMAILSESSION_CONTRACTID, &kNS_MSGMAILSESSION_CID},
-    {NS_MESSENGER_CONTRACTID, &kNS_MESSENGER_CID},
-    {NS_MSGACCOUNTMANAGER_CONTRACTID, &kNS_MSGACCOUNTMANAGER_CID},
-    {NS_MSGACCOUNT_CONTRACTID, &kNS_MSGACCOUNT_CID},
-    {NS_MSGIDENTITY_CONTRACTID, &kNS_MSGIDENTITY_CID},
-    {NS_MSGFILTERSERVICE_CONTRACTID, &kNS_MSGFILTERSERVICE_CID},
-    {NS_MSGSEARCHSESSION_CONTRACTID, &kNS_MSGSEARCHSESSION_CID},
-    {NS_MSGSEARCHTERM_CONTRACTID, &kNS_MSGSEARCHTERM_CID},
-    {NS_MSGSEARCHVALIDITYMANAGER_CONTRACTID, &kNS_MSGSEARCHVALIDITYMANAGER_CID},
-    {NS_MSGBIFFMANAGER_CONTRACTID, &kNS_MSGBIFFMANAGER_CID},
-    {NS_MSGPURGESERVICE_CONTRACTID, &kNS_MSGPURGESERVICE_CID},
-    {NS_STATUSBARBIFFMANAGER_CONTRACTID, &kNS_STATUSBARBIFFMANAGER_CID},
-    {NS_COPYMESSAGESTREAMLISTENER_CONTRACTID,
-     &kNS_COPYMESSAGESTREAMLISTENER_CID},
-    {NS_MSGCOPYSERVICE_CONTRACTID, &kNS_MSGCOPYSERVICE_CID},
-    {NS_MSGFOLDERCACHE_CONTRACTID, &kNS_MSGFOLDERCACHE_CID},
-    {NS_MSGSTATUSFEEDBACK_CONTRACTID, &kNS_MSGSTATUSFEEDBACK_CID},
-    {NS_MSGWINDOW_CONTRACTID, &kNS_MSGWINDOW_CID},
-    {NS_SUBSCRIBABLESERVER_CONTRACTID, &kNS_SUBSCRIBABLESERVER_CID},
-    {NS_MSGFOLDERCOMPACTOR_CONTRACTID, &kNS_MSGFOLDERCOMPACTOR_CID},
-    {NS_MSGTHREADEDDBVIEW_CONTRACTID, &kNS_MSGTHREADEDDBVIEW_CID},
-    {NS_MSGTHREADSWITHUNREADDBVIEW_CONTRACTID,
-     &kNS_MSGTHREADSWITHUNREADDBVIEW_CID},
-    {NS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CONTRACTID,
-     &kNS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID},
-    {NS_MSGSEARCHDBVIEW_CONTRACTID, &kNS_MSGSEARCHDBVIEW_CID},
-    {NS_MSGQUICKSEARCHDBVIEW_CONTRACTID, &kNS_MSGQUICKSEARCHDBVIEW_CID},
-    {NS_MSGXFVFDBVIEW_CONTRACTID, &kNS_MSG_XFVFDBVIEW_CID},
-    {NS_MSGGROUPDBVIEW_CONTRACTID, &kNS_MSG_GROUPDBVIEW_CID},
-    {NS_MSGDBVIEWSERVICE_CONTRACTID, &kNS_MSGDBVIEWSERVICE_CID},
-    {NS_MSGOFFLINEMANAGER_CONTRACTID, &kNS_MSGOFFLINEMANAGER_CID},
-    {NS_MSGPROGRESS_CONTRACTID, &kNS_MSGPROGRESS_CID},
-    {NS_SPAMSETTINGS_CONTRACTID, &kNS_SPAMSETTINGS_CID},
-    {NS_CIDPROTOCOLHANDLER_CONTRACTID, &kNS_CIDPROTOCOL_CID},
-    {NS_MSGTAGSERVICE_CONTRACTID, &kNS_MSGTAGSERVICE_CID},
-    {NS_MSGFOLDERSERVICE_CONTRACTID, &kNS_MSGFOLDERSERVICE_CID},
-    {NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &kNS_MSGNOTIFICATIONSERVICE_CID},
-    {NS_MSGCONTENTPOLICY_CONTRACTID, &kNS_MSGCONTENTPOLICY_CID},
-    {NS_MSGSHUTDOWNSERVICE_CONTRACTID, &kNS_MSGSHUTDOWNSERVICE_CID},
-    {NS_MAILDIRPROVIDER_CONTRACTID, &kMAILDIRPROVIDER_CID},
-    {NS_STOPWATCH_CONTRACTID, &kNS_STOPWATCH_CID},
-    {NS_MAILNEWSDLF_CONTRACTID, &kNS_MAILNEWSDLF_CID},
     // Bayesian Filter Entries
     {NS_BAYESIANFILTER_CONTRACTID, &kNS_BAYESIANFILTER_CID},
 // JsAccount Entries
@@ -839,16 +622,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NULL}};
 
 static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
-    // MailNews Base Entries
-    {XPCOM_DIRECTORY_PROVIDER_CATEGORY, "mail-directory-provider",
-     NS_MAILDIRPROVIDER_CONTRACTID},
-    {"content-policy", NS_MSGCONTENTPOLICY_CONTRACTID,
-     NS_MSGCONTENTPOLICY_CONTRACTID},
-    MAILNEWSDLF_CATEGORIES
-#ifdef XP_MACOSX
-    {"app-startup", NS_MESSENGEROSINTEGRATION_CONTRACTID,
-     "service," NS_MESSENGEROSINTEGRATION_CONTRACTID},
-#endif
     // Bayesian Filter Entries
     // JsAccount Entries
     // Imap Entries
