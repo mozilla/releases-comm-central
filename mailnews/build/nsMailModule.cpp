@@ -100,23 +100,6 @@
 #include "nsBayesianFilter.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// compose includes
-////////////////////////////////////////////////////////////////////////////////
-#include "nsMsgCompCID.h"
-
-#include "nsMsgSendLater.h"
-#include "nsSmtpUrl.h"
-#include "nsMsgComposeService.h"
-#include "nsMsgComposeContentHandler.h"
-#include "nsMsgCompose.h"
-#include "nsMsgComposeParams.h"
-#include "nsMsgComposeProgressParams.h"
-#include "nsMsgAttachment.h"
-#include "nsMsgAttachmentData.h"
-#include "nsMsgQuote.h"
-#include "nsMsgCompUtils.h"
-
-////////////////////////////////////////////////////////////////////////////////
 //  jsAccount includes
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -214,6 +197,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // smime includes
 ///////////////////////////////////////////////////////////////////////////////
+#include "nsMsgCompCID.h"
 #include "nsCMS.h"
 #include "nsCMSSecureMessage.h"
 #include "nsCertPicker.h"
@@ -335,43 +319,6 @@ NS_DEFINE_NAMED_CID(NS_MAILNEWSDLF_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsBayesianFilter, Init)
 
 NS_DEFINE_NAMED_CID(NS_BAYESIANFILTER_CID);
-
-////////////////////////////////////////////////////////////////////////////////
-// compose factories
-////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCompose)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeParams)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeSendListener)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeProgressParams)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCompFields)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgAttachment)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgAttachmentData)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgAttachedFile)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgSendLater, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgComposeService, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeContentHandler)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgQuote)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgQuoteListener)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsSmtpUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMailtoUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCompUtils)
-
-NS_DEFINE_NAMED_CID(NS_MSGCOMPOSE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOMPOSESERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOMPOSECONTENTHANDLER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOMPOSEPARAMS_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOMPOSESENDLISTENER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOMPOSEPROGRESSPARAMS_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOMPFIELDS_CID);
-NS_DEFINE_NAMED_CID(NS_MSGATTACHMENT_CID);
-NS_DEFINE_NAMED_CID(NS_MSGATTACHMENTDATA_CID);
-NS_DEFINE_NAMED_CID(NS_MSGATTACHEDFILE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGSENDLATER_CID);
-NS_DEFINE_NAMED_CID(NS_SMTPURL_CID);
-NS_DEFINE_NAMED_CID(NS_MAILTOURL_CID);
-NS_DEFINE_NAMED_CID(NS_MSGQUOTE_CID);
-NS_DEFINE_NAMED_CID(NS_MSGQUOTELISTENER_CID);
-NS_DEFINE_NAMED_CID(NS_MSGCOMPUTILS_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
 // jsAccount factories
@@ -637,26 +584,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_MAILNEWSDLF_CID, false, NULL, MailNewsDLFConstructor},
     // Bayesian Filter Entries
     {&kNS_BAYESIANFILTER_CID, false, NULL, nsBayesianFilterConstructor},
-    // Compose Entries
-    {&kNS_MSGCOMPOSE_CID, false, NULL, nsMsgComposeConstructor},
-    {&kNS_MSGCOMPOSESERVICE_CID, false, NULL, nsMsgComposeServiceConstructor},
-    {&kNS_MSGCOMPOSECONTENTHANDLER_CID, false, NULL,
-     nsMsgComposeContentHandlerConstructor},
-    {&kNS_MSGCOMPOSEPARAMS_CID, false, NULL, nsMsgComposeParamsConstructor},
-    {&kNS_MSGCOMPOSESENDLISTENER_CID, false, NULL,
-     nsMsgComposeSendListenerConstructor},
-    {&kNS_MSGCOMPOSEPROGRESSPARAMS_CID, false, NULL,
-     nsMsgComposeProgressParamsConstructor},
-    {&kNS_MSGCOMPFIELDS_CID, false, NULL, nsMsgCompFieldsConstructor},
-    {&kNS_MSGATTACHMENT_CID, false, NULL, nsMsgAttachmentConstructor},
-    {&kNS_MSGATTACHMENTDATA_CID, false, NULL, nsMsgAttachmentDataConstructor},
-    {&kNS_MSGATTACHEDFILE_CID, false, NULL, nsMsgAttachedFileConstructor},
-    {&kNS_MSGSENDLATER_CID, false, NULL, nsMsgSendLaterConstructor},
-    {&kNS_SMTPURL_CID, false, NULL, nsSmtpUrlConstructor},
-    {&kNS_MAILTOURL_CID, false, NULL, nsMailtoUrlConstructor},
-    {&kNS_MSGQUOTE_CID, false, NULL, nsMsgQuoteConstructor},
-    {&kNS_MSGQUOTELISTENER_CID, false, NULL, nsMsgQuoteListenerConstructor},
-    {&kNS_MSGCOMPUTILS_CID, false, NULL, nsMsgCompUtilsConstructor},
 // JsAccount Entries
 #if JSACCOUNT_ENABLED
     {&kJACPPABDIRECTORYDELEGATOR_CID, false, nullptr,
@@ -802,24 +729,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_MAILNEWSDLF_CONTRACTID, &kNS_MAILNEWSDLF_CID},
     // Bayesian Filter Entries
     {NS_BAYESIANFILTER_CONTRACTID, &kNS_BAYESIANFILTER_CID},
-    // Compose Entries
-    {NS_MSGCOMPOSE_CONTRACTID, &kNS_MSGCOMPOSE_CID},
-    {NS_MSGCOMPOSESERVICE_CONTRACTID, &kNS_MSGCOMPOSESERVICE_CID},
-    {NS_MSGCOMPOSESTARTUPHANDLER_CONTRACTID, &kNS_MSGCOMPOSESERVICE_CID},
-    {NS_MSGCOMPOSECONTENTHANDLER_CONTRACTID, &kNS_MSGCOMPOSECONTENTHANDLER_CID},
-    {NS_MSGCOMPOSEPARAMS_CONTRACTID, &kNS_MSGCOMPOSEPARAMS_CID},
-    {NS_MSGCOMPOSESENDLISTENER_CONTRACTID, &kNS_MSGCOMPOSESENDLISTENER_CID},
-    {NS_MSGCOMPOSEPROGRESSPARAMS_CONTRACTID, &kNS_MSGCOMPOSEPROGRESSPARAMS_CID},
-    {NS_MSGCOMPFIELDS_CONTRACTID, &kNS_MSGCOMPFIELDS_CID},
-    {NS_MSGATTACHMENT_CONTRACTID, &kNS_MSGATTACHMENT_CID},
-    {NS_MSGATTACHMENTDATA_CONTRACTID, &kNS_MSGATTACHMENTDATA_CID},
-    {NS_MSGATTACHEDFILE_CONTRACTID, &kNS_MSGATTACHEDFILE_CID},
-    {NS_MSGSENDLATER_CONTRACTID, &kNS_MSGSENDLATER_CID},
-    {NS_SMTPURL_CONTRACTID, &kNS_SMTPURL_CID},
-    {NS_MAILTOURL_CONTRACTID, &kNS_MAILTOURL_CID},
-    {NS_MSGQUOTE_CONTRACTID, &kNS_MSGQUOTE_CID},
-    {NS_MSGQUOTELISTENER_CONTRACTID, &kNS_MSGQUOTELISTENER_CID},
-    {NS_MSGCOMPUTILS_CONTRACTID, &kNS_MSGCOMPUTILS_CID},
 // JsAccount Entries
 #if JSACCOUNT_ENABLED
     {JACPPABDIRECTORYDELEGATOR_CONTRACTID, &kJACPPABDIRECTORYDELEGATOR_CID},
@@ -941,9 +850,6 @@ static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
      "service," NS_MESSENGEROSINTEGRATION_CONTRACTID},
 #endif
     // Bayesian Filter Entries
-    // Compose Entries
-    {"command-line-handler", "m-compose",
-     NS_MSGCOMPOSESTARTUPHANDLER_CONTRACTID},
     // JsAccount Entries
     // Imap Entries
     // Local Entries
