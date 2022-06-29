@@ -94,29 +94,6 @@
 #include "MailNewsDLF.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// addrbook includes
-////////////////////////////////////////////////////////////////////////////////
-#include "nsAbBaseCID.h"
-#include "nsAbCardProperty.h"
-#include "nsAbDirProperty.h"
-#include "nsAbAddressCollector.h"
-
-#include "nsAbDirectoryQuery.h"
-#include "nsAbBooleanExpression.h"
-#include "nsAbDirectoryQueryProxy.h"
-#include "nsAbLDIFService.h"
-
-#if defined(MOZ_MAPI_SUPPORT)
-#  include "nsAbOutlookInterface.h"
-#  include "nsAbOutlookDirectory.h"
-#endif
-
-#ifdef XP_MACOSX
-#  include "nsAbOSXDirectory.h"
-#  include "nsAbOSXCard.h"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
 // bayesian spam filter includes
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsBayesianFilterCID.h"
@@ -351,48 +328,6 @@ NS_DEFINE_NAMED_CID(NS_MSGSHUTDOWNSERVICE_CID);
 NS_DEFINE_NAMED_CID(MAILDIRPROVIDER_CID);
 NS_DEFINE_NAMED_CID(NS_STOPWATCH_CID);
 NS_DEFINE_NAMED_CID(NS_MAILNEWSDLF_CID);
-
-////////////////////////////////////////////////////////////////////////////////
-// addrbook factories
-////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirProperty)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbCardProperty)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsAbAddressCollector, Init)
-
-#if defined(MOZ_MAPI_SUPPORT)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOutlookDirectory)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOutlookInterface)
-#endif
-
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryArguments)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbBooleanConditionString)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbBooleanExpression)
-
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryProxy)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDIFService)
-
-#ifdef XP_MACOSX
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOSXDirectory)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOSXCard)
-#endif
-
-NS_DEFINE_NAMED_CID(NS_ABCARDPROPERTY_CID);
-NS_DEFINE_NAMED_CID(NS_ABDIRPROPERTY_CID);
-NS_DEFINE_NAMED_CID(NS_ABADDRESSCOLLECTOR_CID);
-NS_DEFINE_NAMED_CID(NS_ABDIRECTORYQUERYARGUMENTS_CID);
-NS_DEFINE_NAMED_CID(NS_BOOLEANCONDITIONSTRING_CID);
-NS_DEFINE_NAMED_CID(NS_BOOLEANEXPRESSION_CID);
-#if defined(MOZ_MAPI_SUPPORT)
-NS_DEFINE_NAMED_CID(NS_ABOUTLOOKDIRECTORY_CID);
-NS_DEFINE_NAMED_CID(NS_ABOUTLOOKINTERFACE_CID);
-#endif
-
-NS_DEFINE_NAMED_CID(NS_ABDIRECTORYQUERYPROXY_CID);
-#ifdef XP_MACOSX
-NS_DEFINE_NAMED_CID(NS_ABOSXDIRECTORY_CID);
-NS_DEFINE_NAMED_CID(NS_ABOSXCARD_CID);
-#endif
-NS_DEFINE_NAMED_CID(NS_ABLDIFSERVICE_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
 // bayesian spam filter factories
@@ -700,27 +635,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kMAILDIRPROVIDER_CID, false, NULL, nsMailDirProviderConstructor},
     {&kNS_STOPWATCH_CID, false, NULL, nsStopwatchConstructor},
     {&kNS_MAILNEWSDLF_CID, false, NULL, MailNewsDLFConstructor},
-    // Address Book Entries
-    {&kNS_ABCARDPROPERTY_CID, false, NULL, nsAbCardPropertyConstructor},
-    {&kNS_ABDIRPROPERTY_CID, false, NULL, nsAbDirPropertyConstructor},
-    {&kNS_ABADDRESSCOLLECTOR_CID, false, NULL, nsAbAddressCollectorConstructor},
-#if defined(MOZ_MAPI_SUPPORT)
-    {&kNS_ABOUTLOOKDIRECTORY_CID, false, NULL, nsAbOutlookDirectoryConstructor},
-    {&kNS_ABOUTLOOKINTERFACE_CID, false, NULL, nsAbOutlookInterfaceConstructor},
-#endif
-    {&kNS_ABDIRECTORYQUERYARGUMENTS_CID, false, NULL,
-     nsAbDirectoryQueryArgumentsConstructor},
-    {&kNS_BOOLEANCONDITIONSTRING_CID, false, NULL,
-     nsAbBooleanConditionStringConstructor},
-    {&kNS_BOOLEANEXPRESSION_CID, false, NULL, nsAbBooleanExpressionConstructor},
-
-    {&kNS_ABDIRECTORYQUERYPROXY_CID, false, NULL,
-     nsAbDirectoryQueryProxyConstructor},
-#ifdef XP_MACOSX
-    {&kNS_ABOSXDIRECTORY_CID, false, NULL, nsAbOSXDirectoryConstructor},
-    {&kNS_ABOSXCARD_CID, false, NULL, nsAbOSXCardConstructor},
-#endif
-    {&kNS_ABLDIFSERVICE_CID, false, NULL, nsAbLDIFServiceConstructor},
     // Bayesian Filter Entries
     {&kNS_BAYESIANFILTER_CID, false, NULL, nsBayesianFilterConstructor},
     // Compose Entries
@@ -886,25 +800,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_MAILDIRPROVIDER_CONTRACTID, &kMAILDIRPROVIDER_CID},
     {NS_STOPWATCH_CONTRACTID, &kNS_STOPWATCH_CID},
     {NS_MAILNEWSDLF_CONTRACTID, &kNS_MAILNEWSDLF_CID},
-    // Address Book Entries
-    {NS_ABCARDPROPERTY_CONTRACTID, &kNS_ABCARDPROPERTY_CID},
-    {NS_ABDIRPROPERTY_CONTRACTID, &kNS_ABDIRPROPERTY_CID},
-    {NS_ABADDRESSCOLLECTOR_CONTRACTID, &kNS_ABADDRESSCOLLECTOR_CID},
-#if defined(MOZ_MAPI_SUPPORT)
-    {NS_ABOUTLOOKDIRECTORY_CONTRACTID, &kNS_ABOUTLOOKDIRECTORY_CID},
-    {NS_ABOUTLOOKINTERFACE_CONTRACTID, &kNS_ABOUTLOOKINTERFACE_CID},
-#endif
-    {NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID,
-     &kNS_ABDIRECTORYQUERYARGUMENTS_CID},
-    {NS_BOOLEANCONDITIONSTRING_CONTRACTID, &kNS_BOOLEANCONDITIONSTRING_CID},
-    {NS_BOOLEANEXPRESSION_CONTRACTID, &kNS_BOOLEANEXPRESSION_CID},
-
-    {NS_ABDIRECTORYQUERYPROXY_CONTRACTID, &kNS_ABDIRECTORYQUERYPROXY_CID},
-#ifdef XP_MACOSX
-    {NS_ABOSXDIRECTORY_CONTRACTID, &kNS_ABOSXDIRECTORY_CID},
-    {NS_ABOSXCARD_CONTRACTID, &kNS_ABOSXCARD_CID},
-#endif
-    {NS_ABLDIFSERVICE_CONTRACTID, &kNS_ABLDIFSERVICE_CID},
     // Bayesian Filter Entries
     {NS_BAYESIANFILTER_CONTRACTID, &kNS_BAYESIANFILTER_CID},
     // Compose Entries
@@ -1045,7 +940,6 @@ static const mozilla::Module::CategoryEntry kMailNewsCategories[] = {
     {"app-startup", NS_MESSENGEROSINTEGRATION_CONTRACTID,
      "service," NS_MESSENGEROSINTEGRATION_CONTRACTID},
 #endif
-    // Address Book Entries
     // Bayesian Filter Entries
     // Compose Entries
     {"command-line-handler", "m-compose",
