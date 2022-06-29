@@ -45,9 +45,10 @@ async function notInEditingMode(expectedFocus) {
     "backdrop should be hidden"
   );
   checkToolbarState(true);
-  Assert.ok(
-    expectedFocus.matches(":focus"),
-    `Focus should be on the ${expectedFocus.id} element (actual: ${abDocument.activeElement?.id})`
+  Assert.equal(
+    expectedFocus,
+    abDocument.activeElement,
+    `Focus should be on the ${expectedFocus.id}`
   );
 }
 
@@ -147,36 +148,56 @@ function getFields(entryName, addIfNeeded = false, count) {
 
   let fieldsSelector;
   let addButtonId;
+  let expectFocusSelector;
   switch (entryName) {
     case "email":
       fieldsSelector = `#vcard-email tr`;
       addButtonId = "vcard-add-email";
+      expectFocusSelector = "tr:last-of-type .vcard-type-selection";
       break;
     case "impp":
       fieldsSelector = "vcard-impp";
       addButtonId = "vcard-add-impp";
+      expectFocusSelector = "vcard-impp:last-of-type input";
       break;
     case "url":
       fieldsSelector = "vcard-url";
       addButtonId = "vcard-add-url";
+      expectFocusSelector = "vcard-url:last-of-type .vcard-type-selection";
       break;
     case "tel":
       fieldsSelector = "vcard-tel";
       addButtonId = "vcard-add-tel";
+      expectFocusSelector = "vcard-tel:last-of-type .vcard-type-selection";
       break;
     case "note":
       fieldsSelector = "vcard-note";
       addButtonId = "vcard-add-note";
+      expectFocusSelector = "vcard-note:last-of-type textarea";
       break;
     default:
       throw new Error("entryName not found");
   }
   let fields = abDocument.querySelectorAll(fieldsSelector).length;
   if (addIfNeeded && fields < count) {
+    let addButton = abDocument.getElementById(addButtonId);
     for (let clickTimes = fields; clickTimes < count; clickTimes++) {
-      let addButton = abDocument.getElementById(addButtonId);
-      addButton.scrollIntoView();
-      EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
+      addButton.focus();
+      EventUtils.synthesizeKey("KEY_Enter", {}, abWindow);
+      let expectFocus = abDocument.querySelector(expectFocusSelector);
+      Assert.ok(
+        expectFocus,
+        `Expected focus element should now exist for ${entryName}`
+      );
+      Assert.ok(
+        BrowserTestUtils.is_visible(expectFocus),
+        `Expected focus element for ${entryName} should be visible`
+      );
+      Assert.equal(
+        expectFocus,
+        abDocument.activeElement,
+        `Expected focus element for ${entryName} should be active`
+      );
     }
   }
   return abDocument.querySelectorAll(fieldsSelector);
@@ -487,7 +508,7 @@ async function editContactAtIndex(index, options) {
     if (options.useMouse) {
       EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
     } else {
-      while (!editButton.matches(":focus")) {
+      while (abDocument.activeElement != editButton) {
         EventUtils.synthesizeKey("KEY_Tab", {}, abWindow);
       }
       EventUtils.synthesizeKey(" ", {}, abWindow);

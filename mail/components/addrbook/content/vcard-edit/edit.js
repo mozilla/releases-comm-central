@@ -573,6 +573,23 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
+   * Move focus to the first visible form element below the given element.
+   *
+   * @param {Element} element - The element to move focus into.
+   */
+  moveFocusIntoElement(element) {
+    for (let child of element.querySelectorAll(
+      "select,input,textarea,button"
+    )) {
+      // Make sure it is visible.
+      if (child.clientWidth != 0 && child.clientHeight != 0) {
+        child.focus();
+        return;
+      }
+    }
+  }
+
+  /**
    * Add buttons and further actions of the groupings for vCard property
    * entries.
    */
@@ -635,7 +652,7 @@ class VCardEdit extends HTMLElement {
       }
       let el = this.insertVCardElement(newVCardProperty, true);
       this.checkForBdayOccurences();
-      el.querySelector("input").focus();
+      this.moveFocusIntoElement(el);
     });
 
     // Organizational Properties.
@@ -649,7 +666,7 @@ class VCardEdit extends HTMLElement {
       this.insertVCardElement(role, true);
       this.insertVCardElement(org, true);
 
-      titleEl.querySelector("input").focus();
+      this.moveFocusIntoElement(titleEl);
       addOrg.hidden = true;
     });
 
@@ -690,7 +707,7 @@ class VCardEdit extends HTMLElement {
       let newVCardProperty = VCardEdit.createVCardProperty(VCardPropertyName);
       let el = this.insertVCardElement(newVCardProperty, true);
 
-      el.querySelector("input")?.focus();
+      this.moveFocusIntoElement(el);
       if (callback) {
         callback(el);
       }
@@ -727,7 +744,7 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
-   * Validate the form with the minium required data to save or update a
+   * Validate the form with the minimum required data to save or update a
    * contact. We can't use the built-in checkValidity() since our fields
    * are in the shadowDOM and they're not handled properly by the form element.
    * @returns {boolean} - If the form is valid or not.
