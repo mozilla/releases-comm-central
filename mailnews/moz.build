@@ -42,7 +42,6 @@ if CONFIG["MOZ_MAPI_SUPPORT"]:
     TEST_DIRS += ["mapi/test"]
 
 DIRS += [
-    "build",
     "import/build",
 ]
 
@@ -86,3 +85,6 @@ test_harness_base.mailnews.resources += [
 JS_PREFERENCE_PP_FILES += [
     "mailnews.js",
 ]
+
+Library("mail")
+FINAL_LIBRARY = "xul"

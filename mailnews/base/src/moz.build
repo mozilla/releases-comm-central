@@ -36,7 +36,6 @@ SOURCES += [
     "MailNewsDLF.cpp",
     "MailnewsLoadContextInfo.cpp",
     "nsCidProtocolHandler.cpp",
-    "nsCommonModule.cpp",
     "nsCopyMessageStreamListener.cpp",
     "nsImapMoveCoalescer.cpp",
     "nsMailAuthModule.cpp",
