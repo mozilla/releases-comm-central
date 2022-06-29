@@ -86,7 +86,8 @@ add_task(
             messages[1].id,
             attachment.partName
           );
-          browser.test.assertTrue(File.isInstance(file));
+          // eslint-disable-next-line mozilla/use-isInstance
+          browser.test.assertTrue(file instanceof File);
           browser.test.assertEq("test.txt", file.name);
           browser.test.assertEq(14, file.size);
 
@@ -122,7 +123,8 @@ add_task(
             messages[2].id,
             attachment.partName
           );
-          browser.test.assertTrue(File.isInstance(file));
+          // eslint-disable-next-line mozilla/use-isInstance
+          browser.test.assertTrue(file instanceof File);
           browser.test.assertEq("test", file.name);
           browser.test.assertEq(16, file.size);
 
@@ -158,7 +160,8 @@ add_task(
             messages[3].id,
             attachment.partName
           );
-          browser.test.assertTrue(File.isInstance(file));
+          // eslint-disable-next-line mozilla/use-isInstance
+          browser.test.assertTrue(file instanceof File);
           browser.test.assertEq("test", file.name);
           browser.test.assertEq(16, file.size);
 
@@ -174,7 +177,8 @@ add_task(
             messages[3].id,
             attachment.partName
           );
-          browser.test.assertTrue(File.isInstance(file));
+          // eslint-disable-next-line mozilla/use-isInstance
+          browser.test.assertTrue(file instanceof File);
           browser.test.assertEq("test.txt", file.name);
           browser.test.assertEq(14, file.size);
 

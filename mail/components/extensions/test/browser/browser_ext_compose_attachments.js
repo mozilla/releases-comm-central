@@ -106,7 +106,8 @@ add_task(async function test_file_attachments() {
 
       let checkData = async (attachment, size) => {
         let data = await browser.compose.getAttachmentFile(attachment.id);
-        browser.test.assertTrue(File.isInstance(data));
+        // eslint-disable-next-line mozilla/use-isInstance
+        browser.test.assertTrue(data instanceof File);
         browser.test.assertEq(size, data.size);
       };
 
@@ -559,7 +560,8 @@ add_task(async function test_compose_attachments() {
       let checkData = async (attachment, size) => {
         let data = await browser.compose.getAttachmentFile(attachment.id);
         browser.test.assertTrue(
-          File.isInstance(data),
+          // eslint-disable-next-line mozilla/use-isInstance
+          data instanceof File,
           "Returned file obj should be a File instance."
         );
         browser.test.assertEq(
@@ -1244,7 +1246,8 @@ add_task(async function test_compose_attachments_immutable() {
       let checkData = async (attachment, size) => {
         let data = await browser.compose.getAttachmentFile(attachment.id);
         browser.test.assertTrue(
-          File.isInstance(data),
+          // eslint-disable-next-line mozilla/use-isInstance
+          data instanceof File,
           "Returned file obj should be a File instance."
         );
         browser.test.assertEq(
@@ -1668,7 +1671,8 @@ add_task(async function test_compose_attachments_no_reuse() {
       let checkData = async (attachment, size) => {
         let data = await browser.compose.getAttachmentFile(attachment.id);
         browser.test.assertTrue(
-          File.isInstance(data),
+          // eslint-disable-next-line mozilla/use-isInstance
+          data instanceof File,
           "Returned file obj should be a File instance."
         );
         browser.test.assertEq(
