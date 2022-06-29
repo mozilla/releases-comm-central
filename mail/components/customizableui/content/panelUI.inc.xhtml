@@ -1263,12 +1263,12 @@
                        command="cmd_nextUnreadThread"/>
 #ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_GoNextAfterUnreadThreadSeparator"
-                          class="hide-when-calendar-deactivated"/>
+                          class="hide-before-calendar-loaded hide-when-calendar-deactivated"/>
         <!-- Label is set up automatically using the view id. When writing a
              view extension, add a `label-<myviewtype>` attribute with the
              correct label. -->
         <toolbarbutton id="appmenu_calendar-go-menu-next"
-                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
+                       class="subviewbutton subviewbutton-iconic hide-before-calendar-loaded hide-when-calendar-deactivated"
                        label=""
                        label-day="&lightning.toolbar.day.label;"
                        label-week="&lightning.toolbar.week.label;"
@@ -1301,12 +1301,12 @@
                        command="cmd_previousFlaggedMsg"/>
 #ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_goPreviousAfterFlaggedSeparator"
-                          class="hide-when-calendar-deactivated"/>
+                          class="hide-before-calendar-loaded hide-when-calendar-deactivated"/>
         <!-- Label is set up automatically using the view id. When writing a
              view extension, add a `label-<myviewtype>` attribute with the
              correct label. -->
         <toolbarbutton id="appmenu_calendar-go-menu-previous"
-                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
+                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated hide-when-calendar-deactivated"
                        label=""
                        label-day="&lightning.toolbar.day.label;"
                        label-week="&lightning.toolbar.week.label;"

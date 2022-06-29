@@ -659,12 +659,13 @@
                     key="key_nextUnreadThread"/>
 #ifdef MAIN_WINDOW
           <menuseparator id="goNextAfterUnreadThreadSeparator"
-                          class="hide-when-calendar-deactivated"/>
+                         class="hide-before-calendar-loaded hide-when-calendar-deactivated"
+                         hidden="true"/>
           <!-- Label is set up automatically using the view id. When writing
                 a view extension, add a `label-<myviewtype>` attribute with
                 the correct label. -->
           <menuitem id="calendar-go-menu-next"
-                    class="hide-when-calendar-deactivated"
+                    class="hide-before-calendar-loaded hide-when-calendar-deactivated"
                     label=""
                     label-day="&lightning.toolbar.day.label;"
                     label-week="&lightning.toolbar.week.label;"
@@ -674,7 +675,8 @@
                     accesskey-week="&lightning.toolbar.week.accesskey;"
                     accesskey-multiweek="&lightning.toolbar.week.accesskey;"
                     accesskey-month="&lightning.toolbar.month.accesskey;"
-                    command="calendar_view_next_command"/>
+                    command="calendar_view_next_command"
+                    hidden="true"/>
 #endif
         </menupopup>
       </menu>
@@ -696,12 +698,13 @@
                     command="cmd_previousFlaggedMsg"/>
 #ifdef MAIN_WINDOW
           <menuseparator id="goPreviousAfterFlaggedSeparator"
-                          class="hide-when-calendar-deactivated"/>
+                         class="hide-before-calendar-loaded hide-when-calendar-deactivated"
+                         hidden="true"/>
           <!-- Label is set up automatically using the view id. When writing
                 a view extension, add a `label-<myviewtype>` attribute with
                 the correct label. -->
           <menuitem id="calendar-go-menu-previous"
-                    class="hide-when-calendar-deactivated"
+                    class="hide-before-calendar-loaded hide-when-calendar-deactivated"
                     label=""
                     label-day="&lightning.toolbar.day.label;"
                     label-week="&lightning.toolbar.week.label;"
@@ -711,7 +714,8 @@
                     accesskey-week="&lightning.toolbar.week.accesskey;"
                     accesskey-multiweek="&lightning.toolbar.week.accesskey;"
                     accesskey-month="&lightning.toolbar.month.accesskey;"
-                    command="calendar_view_prev_command"/>
+                    command="calendar_view_prev_command"
+                    hidden="true"/>
 #endif
         </menupopup>
       </menu>

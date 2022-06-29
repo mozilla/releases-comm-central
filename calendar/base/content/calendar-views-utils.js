@@ -263,6 +263,11 @@ function switchToView(viewType) {
   ids = ["previous-view-button", "today-view-button", "next-view-button"];
   ids.forEach(x => setupViewNode(x, "tooltiptext"));
 
+  // These are hidden until the calendar is loaded.
+  for (let node of document.querySelectorAll(".hide-before-calendar-loaded")) {
+    node.removeAttribute("hidden");
+  }
+
   // Anyone wanting to plug in a view needs to follow this naming scheme
   let view = document.getElementById(viewType + "-view");
   let oldView = currentView();
