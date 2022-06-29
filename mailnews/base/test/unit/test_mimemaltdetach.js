@@ -96,7 +96,7 @@ add_task(async function startDetach() {
 });
 
 // test that the detachment was successful
-add_task(function testDetach() {
+add_task(async function testDetach() {
   // The message contained a file "head_update.txt" which should
   //  now exist in the profile directory.
   let checkFile = do_get_profile().clone();
@@ -110,7 +110,7 @@ add_task(function testDetach() {
   // Get the message header
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
-  let messageContent = getContentFromMessage(msgHdr);
+  let messageContent = await getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
   // Make sure the body survived the detach.
   Assert.ok(messageContent.includes("body hello"));
@@ -122,25 +122,16 @@ add_task(function testDetach() {
  * aMsgHdr: nsIMsgDBHdr object whose text body will be read
  *          returns: string with full message contents
  */
-function getContentFromMessage(aMsgHdr) {
-  const MAX_MESSAGE_LENGTH = 65536;
+async function getContentFromMessage(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let streamListener = Cc[
-    "@mozilla.org/network/sync-stream-listener;1"
-  ].createInstance(Ci.nsISyncStreamListener);
-  messenger
-    .messageServiceFromURI(msgUri)
-    .streamMessage(msgUri, streamListener, null, null, false, "", false);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-    Ci.nsIScriptableInputStream
+
+  let response = await fetch(
+    messenger.messageServiceFromURI(msgUri).getUrlForUri(msgUri).spec
   );
-  sis.init(streamListener.inputStream);
-  let content = sis.read(MAX_MESSAGE_LENGTH);
-  sis.close();
-  return content;
+  return response.text();
 }

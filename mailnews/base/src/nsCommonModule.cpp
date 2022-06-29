@@ -18,34 +18,20 @@ NS_DEFINE_NAMED_CID(NS_BASECOMMANDCONTROLLER_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR(TransactionManager)
 NS_DEFINE_NAMED_CID(NS_TRANSACTIONMANAGER_CID);
 
-NS_DEFINE_NAMED_CID(NS_SYNCSTREAMLISTENER_CID);
-
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsUserInfo)
 NS_DEFINE_NAMED_CID(NS_USERINFO_CID);
-
-static nsresult CreateNewSyncStreamListener(REFNSIID aIID, void** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = nullptr;
-
-  RefPtr<nsISyncStreamListener> inst = nsSyncStreamListener::Create();
-  if (!inst) return NS_ERROR_NULL_POINTER;
-
-  return inst->QueryInterface(aIID, aResult);
-}
 
 const mozilla::Module::CIDEntry kCommonCIDs[] = {
     {&kNS_BASECOMMANDCONTROLLER_CID, false, nullptr,
      nsBaseCommandControllerConstructor},
     {&kNS_TRANSACTIONMANAGER_CID, false, nullptr,
      TransactionManagerConstructor},
-    {&kNS_SYNCSTREAMLISTENER_CID, false, nullptr, CreateNewSyncStreamListener},
     {&kNS_USERINFO_CID, false, nullptr, nsUserInfoConstructor},
     {nullptr}};
 
 const mozilla::Module::ContractIDEntry kCommonContracts[] = {
     {NS_BASECOMMANDCONTROLLER_CONTRACTID, &kNS_BASECOMMANDCONTROLLER_CID},
     {NS_TRANSACTIONMANAGER_CONTRACTID, &kNS_TRANSACTIONMANAGER_CID},
-    {NS_SYNCSTREAMLISTENER_CONTRACTID, &kNS_SYNCSTREAMLISTENER_CID},
     {NS_USERINFO_CONTRACTID, &kNS_USERINFO_CID},
     {nullptr}};
 

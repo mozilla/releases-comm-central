@@ -229,7 +229,7 @@ add_task(async function test_edit_as_new_in_draft() {
 /**
  * Tests Content-Language header.
  */
-add_task(function test_content_language_header() {
+add_task(async function test_content_language_header() {
   let cwc = open_compose_new_mail();
 
   setup_msg_contents(
@@ -246,7 +246,7 @@ add_task(function test_content_language_header() {
 
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
-  let draftMsgContent = get_msg_source(draftMsg);
+  let draftMsgContent = await get_msg_source(draftMsg);
 
   // Check for a single line that contains our header.
   if (
@@ -264,7 +264,7 @@ add_task(function test_content_language_header() {
 /**
  * Tests Content-Language header suppression.
  */
-add_task(function test_content_language_header_suppression() {
+add_task(async function test_content_language_header_suppression() {
   let statusQuo = Services.prefs.getBoolPref("mail.suppress_content_language");
   Services.prefs.setBoolPref("mail.suppress_content_language", true);
 
@@ -284,7 +284,7 @@ add_task(function test_content_language_header_suppression() {
 
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
-  let draftMsgContent = get_msg_source(draftMsg);
+  let draftMsgContent = await get_msg_source(draftMsg);
 
   // Check no line contains our Content-Language.
   Assert.ok(

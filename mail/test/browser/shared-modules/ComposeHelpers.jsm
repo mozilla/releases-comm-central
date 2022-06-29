@@ -809,40 +809,36 @@ function assert_previous_text(aStart, aText) {
  * Helper to get the raw contents of a message. It only reads the first 64KiB.
  *
  * @param aMsgHdr  nsIMsgDBHdr addressing a message which will be returned as text.
- * @param aCharset Charset to use to decode the message.
  *
  * @return         String with the message source.
  */
-function get_msg_source(aMsgHdr, aCharset = "") {
+async function get_msg_source(aMsgHdr) {
   let msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
 
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let streamListener = Cc[
-    "@mozilla.org/network/sync-stream-listener;1"
-  ].createInstance(Ci.nsISyncStreamListener);
-  messenger
-    .messageServiceFromURI(msgUri)
-    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  return new Promise(resolve => {
+    let streamListener = {
+      QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-    Ci.nsIScriptableInputStream
-  );
-  sis.init(streamListener.inputStream);
-  const MAX_MESSAGE_LENGTH = 65536;
-  let content = sis.read(MAX_MESSAGE_LENGTH);
-  sis.close();
-
-  if (!aCharset) {
-    return content;
-  }
-
-  let converter = Cc[
-    "@mozilla.org/intl/scriptableunicodeconverter"
-  ].createInstance(Ci.nsIScriptableUnicodeConverter);
-  converter.charset = aCharset;
-  return converter.ConvertToUnicode(content);
+      onStartRequest(request) {},
+      onDataAvailable(request, inputStream, offset, count) {
+        let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+          Ci.nsIScriptableInputStream
+        );
+        sis.init(inputStream);
+        this.data = sis.read(65536);
+        sis.close();
+      },
+      onStopRequest(request, statusCode) {
+        resolve(this.data);
+      },
+    };
+    messenger
+      .messageServiceFromURI(msgUri)
+      .streamMessage(msgUri, streamListener, null, null, false, "", true);
+  });
 }
 
 /**
