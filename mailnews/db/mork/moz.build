@@ -63,3 +63,7 @@ FINAL_LIBRARY = "mail"
 # clang-cl complains about this.
 if CONFIG["CC_TYPE"] == "clang-cl":
     CXXFLAGS += ["-Wno-overloaded-virtual"]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]
