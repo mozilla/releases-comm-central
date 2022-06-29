@@ -50,7 +50,7 @@
     static pthread_mutex_t unk_token_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-static ical_unknown_token_handling unknownTokenHandling = ICAL_TREAT_AS_ERROR;
+static ical_unknown_token_handling unknownTokenHandling = ICAL_ASSUME_IANA_TOKEN;
 
 int icaltriggertype_is_null_trigger(struct icaltriggertype tr)
 {
