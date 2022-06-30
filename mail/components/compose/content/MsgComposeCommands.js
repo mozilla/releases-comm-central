@@ -119,6 +119,7 @@ var gCloseWindowAfterSave;
 var gSavedSendNowKey;
 var gContextMenu;
 var gLastFocusElement = null;
+var gLoadingComplete = false;
 
 var gAttachmentBucket;
 var gAttachmentCounter;
@@ -3079,6 +3080,7 @@ function ComposeFieldsReady() {
   CompFields2Recipients(gMsgCompose.compFields);
   SetComposeWindowTitle();
   updateEditableFields(false);
+  gLoadingComplete = true;
 }
 
 // checks if the passed in string is a mailto url, if it is, generates nsIMsgComposeParams
@@ -11073,9 +11075,14 @@ function setSendEncryptedAndSigned(encrypted) {
   showSendEncryptedAndSigned();
 
   updateEncryptedSubject();
-  window.dispatchEvent(
-    new CustomEvent("sendencryptedchange", { detail: { encrypted } })
-  );
+
+  // Don't broadcast change events while we're still loading,
+  // this can have side effects like bug 1774991.
+  if (gLoadingComplete) {
+    window.dispatchEvent(
+      new CustomEvent("sendencryptedchange", { detail: { encrypted } })
+    );
+  }
 }
 
 /**
