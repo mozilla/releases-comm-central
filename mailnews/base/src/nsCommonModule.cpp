@@ -43,9 +43,6 @@ static const mozilla::Module kCommonModule = {mozilla::Module::kVersion,
                                               nullptr,
                                               nullptr};
 
-#ifdef MOZ_MAPI_SUPPORT
-extern const mozilla::Module kMAPIModule;
-#endif
 #ifdef MOZ_SUITE
 extern const mozilla::Module kSuiteModule;
 #endif
@@ -54,9 +51,6 @@ class ModulesInit {
  public:
   ModulesInit() {
     XRE_AddStaticComponent(&kCommonModule);
-#ifdef MOZ_MAPI_SUPPORT
-    XRE_AddStaticComponent(&kMAPIModule);
-#endif
 #ifdef MOZ_SUITE
     XRE_AddStaticComponent(&kSuiteModule);
 #endif

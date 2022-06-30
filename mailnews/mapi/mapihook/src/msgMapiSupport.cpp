@@ -100,24 +100,3 @@ nsMapiSupport::UnRegisterServer() {
   ::UnregisterServer(CLSID_CMapiImp, L"MozillaMapi", L"MozillaMapi.1");
   return NS_OK;
 }
-
-NS_DEFINE_NAMED_CID(NS_IMAPISUPPORT_CID);
-
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMapiSupport)
-
-static const mozilla::Module::CategoryEntry kMAPICategories[] = {
-    {
-        APPSTARTUP_CATEGORY,
-        "Mapi Support",
-        "service," NS_IMAPISUPPORT_CONTRACTID,
-    },
-    {NULL}};
-
-const mozilla::Module::CIDEntry kMAPICIDs[] = {
-    {&kNS_IMAPISUPPORT_CID, false, NULL, nsMapiSupportConstructor}, {NULL}};
-
-const mozilla::Module::ContractIDEntry kMAPIContracts[] = {
-    {NS_IMAPISUPPORT_CONTRACTID, &kNS_IMAPISUPPORT_CID}, {NULL}};
-
-extern const mozilla::Module kMAPIModule = {
-    mozilla::Module::kVersion, kMAPICIDs, kMAPIContracts, kMAPICategories};
