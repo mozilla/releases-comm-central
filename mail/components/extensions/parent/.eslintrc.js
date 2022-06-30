@@ -66,4 +66,11 @@ module.exports = {
     // ext-browserAction.js
     browserActionFor: true,
   },
+  rules: {
+    // From toolkit/components/extensions/.eslintrc.js.
+    // Disable reject-importGlobalProperties because we don't want to include
+    // these in the sandbox directly as that would potentially mean the
+    // imported properties would be instantiated up-front rather than lazily.
+    "mozilla/reject-importGlobalProperties": "off",
+  },
 };
