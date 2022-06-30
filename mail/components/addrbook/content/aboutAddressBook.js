@@ -170,7 +170,7 @@ window.addEventListener("keypress", event => {
   }
 
   let targets = [booksList, cardsPane.searchInput, cardsPane.cardsList];
-  if (!detailsPane.node.hidden) {
+  if (!detailsPane.node.hidden && !detailsPane.editButton.hidden) {
     targets.push(detailsPane.editButton);
   }
 
@@ -1374,7 +1374,8 @@ var cardsPane = {
     this.sortContext.addEventListener("command", this);
     this.cardsHeader.addEventListener("click", this);
     this.cardsList.addEventListener("select", this);
-    this.cardsList.addEventListener("keypress", this);
+    this.cardsList.addEventListener("keydown", this);
+    this.cardsList.addEventListener("dblclick", this);
     this.cardsList.addEventListener("dragstart", this);
     this.cardsList.addEventListener("contextmenu", this);
     this.cardsList.addEventListener("searchstatechange", () =>
@@ -1416,8 +1417,11 @@ var cardsPane = {
       case "select":
         this._onSelect(event);
         break;
-      case "keypress":
-        this._onKeyPress(event);
+      case "keydown":
+        this._onKeyDown(event);
+        break;
+      case "dblclick":
+        this._onDoubleClick(event);
         break;
       case "dragstart":
         this._onDragStart(event);
@@ -2001,7 +2005,7 @@ var cardsPane = {
     detailsPane.displayCards(this.selectedCards);
   },
 
-  _onKeyPress(event) {
+  _onKeyDown(event) {
     if (event.altKey || event.shiftKey) {
       return;
     }
@@ -2029,7 +2033,48 @@ var cardsPane = {
           event.preventDefault();
         }
         break;
+      case "Enter":
+        if (!modifier) {
+          if (this.cardsList.currentIndex >= 0) {
+            this._activateRow(this.cardsList.currentIndex);
+          }
+          event.preventDefault();
+        }
+        break;
     }
+  },
+
+  _onDoubleClick(event) {
+    if (
+      event.button != 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    let row = event.target.closest("ab-card-listrow, ab-table-card-listrow");
+    if (row) {
+      this._activateRow(row.index);
+    }
+    event.preventDefault();
+  },
+
+  /**
+   * "Activate" the row by opening the corresponding card for editing. This will
+   * necessarily change the selection to the given index.
+   *
+   * @param {number} index - The index of the row to activate.
+   */
+  _activateRow(index) {
+    if (detailsPane.isEditing) {
+      return;
+    }
+    // Change selection to just the target.
+    this.cardsList.selectedIndex = index;
+    // We expect the selection to change the detailsPane immediately.
+    detailsPane.editCurrent();
   },
 
   _onDragStart(event) {
@@ -2260,10 +2305,18 @@ var detailsPane = {
         );
         let card = book.childCards.find(c => c.UID == this.currentCard.UID);
         this.displayContact(card);
-        this.editButton.focus();
+        if (this._focusOnCardsList) {
+          cardsPane.cardsList.focus();
+        } else {
+          this.editButton.focus();
+        }
       } else {
         this.displayCards(cardsPane.selectedCards);
-        cardsPane.searchInput.focus();
+        if (this._focusOnCardsList) {
+          cardsPane.cardsList.focus();
+        } else {
+          cardsPane.searchInput.focus();
+        }
       }
     });
     this.form.addEventListener("submit", event => {
@@ -2370,6 +2423,8 @@ var detailsPane = {
         // The card being displayed was deleted.
         this.isEditing = false;
         this.displayCards();
+        // FIXME: Focus should remain on the cardsList if it is already there
+        // and move to the next item.
         cardsPane.searchInput.focus();
         break;
       case "addrbook-list-updated":
@@ -2882,7 +2937,29 @@ var detailsPane = {
     this.isEditing = true;
     this.node.hidden = this.splitter.isCollapsed = false;
     this.form.querySelector(".contact-details-scroll").scrollTo(0, 0);
+    // If we enter editing directly from the cards list we want to return to it
+    // once we are done.
+    this._focusOnCardsList = document.activeElement == cardsPane.cardsList;
     this.vCardEdit.setFocus();
+  },
+
+  /**
+   * Edit the currently displayed contact or list.
+   */
+  editCurrent() {
+    // The editButton is disabled if the book is readOnly.
+    if (this.editButton.hidden) {
+      return;
+    }
+    if (this.currentCard) {
+      this.editCurrentContact();
+    } else if (this.currentList) {
+      SubDialog.open(
+        "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
+        { features: "resizable=no" },
+        { listURI: this.currentList.mailListURI }
+      );
+    }
   },
 
   /**
@@ -3005,7 +3082,11 @@ var detailsPane = {
       // The addrbook-contact-updated notification will update the UI.
     }
 
-    this.editButton.focus();
+    if (this._focusOnCardsList) {
+      cardsPane.cardsList.focus();
+    } else {
+      this.editButton.focus();
+    }
   },
 
   /**
@@ -3186,15 +3267,7 @@ var detailsPane = {
         }
         break;
       case "editButton":
-        if (this.currentCard) {
-          this.editCurrentContact();
-        } else if (this.currentList) {
-          SubDialog.open(
-            "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
-            { features: "resizable=no" },
-            { listURI: this.currentList.mailListURI }
-          );
-        }
+        this.editCurrent();
         break;
       case "detailsDeleteButton":
         this.deleteCurrentContact();

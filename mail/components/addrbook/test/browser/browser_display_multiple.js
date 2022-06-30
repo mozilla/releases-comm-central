@@ -160,14 +160,23 @@ function checkHeader(name) {
 
   Assert.ok(
     BrowserTestUtils.is_hidden(contactPhoto),
-    "contact photo is hidden"
+    "contact photo should be hidden"
   );
-  Assert.ok(BrowserTestUtils.is_hidden(contactName), "contact name is hidden");
+  Assert.ok(
+    BrowserTestUtils.is_hidden(contactName),
+    "contact name should be hidden"
+  );
   if (name) {
-    Assert.ok(BrowserTestUtils.is_visible(listName), "list name is hidden");
+    Assert.ok(
+      BrowserTestUtils.is_visible(listName),
+      "list name should be visible"
+    );
     Assert.equal(listName.textContent, name, "list name is correct");
   } else {
-    Assert.ok(BrowserTestUtils.is_hidden(listName), "list name is hidden");
+    Assert.ok(
+      BrowserTestUtils.is_hidden(listName),
+      "list name should be hidden"
+    );
   }
 }
 

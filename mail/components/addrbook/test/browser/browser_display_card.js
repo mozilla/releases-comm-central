@@ -438,20 +438,28 @@ add_task(async function testReadOnlyActions() {
   let abDocument = abWindow.document;
   let cardsList = abDocument.getElementById("cards");
   let detailsPane = abDocument.getElementById("detailsPane");
+  let contactView = abDocument.getElementById("viewContact");
 
   let actions = abDocument.getElementById("detailsActions");
   let editButton = abDocument.getElementById("editButton");
+  let editForm = abDocument.getElementById("editContactForm");
 
   // Check contacts with the book displayed.
 
   openDirectory(readOnlyBook);
   Assert.equal(cardsList.view.rowCount, 3);
-  Assert.ok(detailsPane.hidden);
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
 
   // Without email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
-  Assert.ok(BrowserTestUtils.is_hidden(actions), "actions section is hidden");
+  Assert.ok(
+    BrowserTestUtils.is_visible(contactView),
+    "contact view should be shown"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(actions),
+    "actions section should be hidden"
+  );
 
   // With email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
@@ -459,15 +467,83 @@ add_task(async function testReadOnlyActions() {
   await checkActionButtons("read.only@invalid", "read-only person with email");
   Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
 
+  // Double clicking on the item will select but not edit it.
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(1),
+    { clickCount: 1 },
+    abWindow
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(1),
+    { clickCount: 2 },
+    abWindow
+  );
+  // Wait one loop to see if edit form was opened.
+  await TestUtils.waitForTick();
+  Assert.ok(
+    BrowserTestUtils.is_visible(contactView),
+    "contact view should be shown"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(editForm),
+    "contact form should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(actions),
+    "actions section should be hidden"
+  );
+  Assert.ok(
+    cardsList.matches(":focus"),
+    `Cards list should have focus (actual: ${abDocument.activeElement?.id})`
+  );
+
+  // Same with Enter on the second item.
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, abWindow);
+  Assert.ok(
+    BrowserTestUtils.is_visible(contactView),
+    "contact view should be shown"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(editForm),
+    "contact form should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(actions),
+    "actions section should be shown"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(editButton),
+    "editButton should be hidden"
+  );
+
+  EventUtils.synthesizeKey("KEY_Enter", {}, abWindow);
+  await TestUtils.waitForTick();
+  Assert.ok(
+    BrowserTestUtils.is_visible(contactView),
+    "contact view should be shown"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(editForm),
+    "contact form should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(actions),
+    "actions section should be shown"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(editForm),
+    "contact form should be hidden"
+  );
+
   // Check contacts with the list displayed.
 
   openDirectory(readOnlyList);
   Assert.equal(cardsList.view.rowCount, 1);
-  Assert.ok(detailsPane.hidden);
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
 
   // With email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_visible(contactView));
   Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
   await checkActionButtons("read.only@invalid", "read-only person with email");
   Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
@@ -476,18 +552,18 @@ add_task(async function testReadOnlyActions() {
 
   openAllAddressBooks();
   Assert.equal(cardsList.view.rowCount, 6);
-  Assert.ok(detailsPane.hidden);
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
 
   // Basic person from Personal Address Books.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_visible(contactView));
   Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
   await checkActionButtons("basic@invalid", "basic person");
   Assert.ok(BrowserTestUtils.is_visible(editButton), "edit button is shown");
 
   // Without email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(4), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_visible(contactView));
   Assert.ok(BrowserTestUtils.is_hidden(actions), "actions section is hidden");
 
   // With email.
@@ -498,7 +574,7 @@ add_task(async function testReadOnlyActions() {
 
   // Basic person again, to prove the buttons aren't hidden forever.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.is_visible(contactView));
   Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
   await checkActionButtons("basic@invalid", "basic person");
   Assert.ok(BrowserTestUtils.is_visible(editButton), "edit button is shown");
