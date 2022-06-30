@@ -310,6 +310,12 @@ class VCardEdit extends HTMLElement {
     let defaultEmail = [...emails].find(
       el => el.vCardPropertyEntry.params.pref === "1"
     );
+
+    // If no email is marked as preferred, use the first one.
+    if (!defaultEmail) {
+      defaultEmail = emails[0];
+    }
+
     return defaultEmail.emailEl.value;
   }
 
