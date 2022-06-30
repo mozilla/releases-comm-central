@@ -707,11 +707,17 @@ class VCardEdit extends HTMLElement {
    * Hide the default checkbox if we only have one email field.
    */
   toggleDefaultEmailView() {
-    let emailFieldsCount = document.getElementById("vcard-email").children
-      .length;
-    this.querySelector(".default-column").hidden = emailFieldsCount <= 1;
-    document.getElementById("addr-book-edit-email-default").hidden =
-      emailFieldsCount <= 1;
+    let showDefault =
+      document.getElementById("vcard-email").children.length <= 1;
+    this.querySelector(".default-column").hidden = showDefault;
+    document.getElementById(
+      "addr-book-edit-email-default"
+    ).hidden = showDefault;
+
+    // Add class to position legend absolute.
+    document
+      .getElementById("addr-book-edit-email")
+      .classList.toggle("default-table-header", !showDefault);
   }
 
   /**

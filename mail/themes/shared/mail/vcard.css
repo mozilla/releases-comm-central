@@ -192,6 +192,18 @@ vcard-nickname label[for] {
   border-collapse: collapse;
 }
 
+/**
+ * Shows the "Default" table header for emails.
+ */
+.default-table-header {
+  position: relative;
+}
+
+.default-table-header legend {
+  /* The legend is positioned absolute over the table headers. */
+  position: absolute;
+}
+
 /* Email field styles */
 #addr-book-edit-email :is(th, td) {
   padding: 0;
@@ -201,20 +213,24 @@ vcard-nickname label[for] {
   width: 100%;
 }
 
+.default-column {
+  text-align: center;
+}
+
 #vcard-email input[type="checkbox"]:not([hidden]) {
   border-radius: 50%;
   width: 16px;
   height: 16px;
-  margin-inline: 6px;
+  margin-inline: 0;
   margin-block: 0 3px;
-  display: grid;
+  display: inline-grid;
 }
 
 #vcard-email input[type="checkbox"]:checked {
   background-image: none;
   background-color: transparent;
   border-color: var(--in-content-primary-button-background);
-  place-content: center;
+  position: relative;
 }
 
 #vcard-email input[type="checkbox"]:enabled:checked:hover {
@@ -233,6 +249,8 @@ vcard-nickname label[for] {
   width: 8px;
   background-color: var(--in-content-primary-button-background);
   border-radius: 50%;
+  position: absolute;
+  inset: 3px;
 }
 
 #vcard-email input[type="checkbox"]:enabled:checked:hover::before {
@@ -267,7 +285,8 @@ vcard-special-date {
   grid-template-columns: min-content auto;
 }
 
-.addr-book-edit-fieldset legend {
+.addr-book-edit-fieldset legend,
+#addr-book-edit-email-default {
   margin-block: 0 6px;
   font-size: 1.1rem;
   line-height: 1.2;
@@ -275,6 +294,19 @@ vcard-special-date {
   font-weight: 600;
   margin-inline-start: 0;
   padding-inline: 0;
+}
+
+/* Imitates the legend element. */
+.default-table-header #addr-book-edit-email-default {
+  font-weight: 400;
+  /* This is a th so instead of a margin a padding is used. */
+  padding-block: 0 6px;
+}
+
+.default-table-header #addr-book-edit-email-default span {
+  /* The box height of the th has to fully imitate the legend element. */
+  /* That's why the font size get adjusted directly on the span. */
+  font-size: 1rem;
 }
 
 vcard-special-date .vcard-type-selection {
