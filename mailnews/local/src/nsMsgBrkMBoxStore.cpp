@@ -35,6 +35,7 @@
 #include "nsIPrefBranch.h"
 #include "nsQuarantinedOutputStream.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/SlicedInputStream.h"
 #include "prprf.h"
 #include <cstdlib>  // for std::abs(int/long)
 #include <cmath>    // for std::abs(float/double)
@@ -1037,4 +1038,14 @@ nsresult nsMsgBrkMBoxStore::CreateDirectoryForFolder(nsIFile* path) {
     }
   }
   return rv;
+}
+
+NS_IMETHODIMP
+nsMsgBrkMBoxStore::SliceStream(nsIInputStream* inStream, uint64_t start,
+                               uint32_t length, nsIInputStream** result) {
+  nsCOMPtr<nsIInputStream> in(inStream);
+  RefPtr<mozilla::SlicedInputStream> slicedStream =
+      new mozilla::SlicedInputStream(in.forget(), start, uint64_t(length));
+  slicedStream.forget(result);
+  return NS_OK;
 }

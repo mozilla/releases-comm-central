@@ -35,6 +35,7 @@
 #include "nsLocalUndoTxn.h"
 #include "nsIMessenger.h"
 #include "mozilla/Logging.h"
+#include "mozilla/SlicedInputStream.h"
 #include "mozilla/UniquePtr.h"
 
 static mozilla::LazyLogModule MailDirLog("MailDirStore");
@@ -1375,4 +1376,14 @@ nsresult nsMsgMaildirStore::CreateDirectoryForFolder(nsIFile* path,
                     : path->Create(nsIFile::DIRECTORY_TYPE, 0700);
   }
   return rv;
+}
+
+NS_IMETHODIMP
+nsMsgMaildirStore::SliceStream(nsIInputStream* inStream, uint64_t start,
+                               uint32_t length, nsIInputStream** result) {
+  nsCOMPtr<nsIInputStream> in(inStream);
+  RefPtr<mozilla::SlicedInputStream> slicedStream =
+      new mozilla::SlicedInputStream(in.forget(), start, uint64_t(length));
+  slicedStream.forget(result);
+  return NS_OK;
 }
