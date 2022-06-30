@@ -35,3 +35,5 @@ LOCAL_INCLUDES += [
     "/%s/security/manager/pki" % CONFIG["mozreltopsrcdir"],
     "/%s/security/manager/ssl" % CONFIG["mozreltopsrcdir"],
 ]
+
+XPCOM_MANIFESTS += ["components.conf"]

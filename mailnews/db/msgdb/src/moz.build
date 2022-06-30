@@ -16,3 +16,7 @@ SOURCES += [
 ]
 
 FINAL_LIBRARY = "mail"
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]

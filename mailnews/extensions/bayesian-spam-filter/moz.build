@@ -10,3 +10,7 @@ SOURCES += [
 FINAL_LIBRARY = "mail"
 
 XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]

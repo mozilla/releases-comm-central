@@ -18,3 +18,7 @@ Library("pgpmime_s")
 LOCAL_INCLUDES += [
     "../glue",
 ]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]

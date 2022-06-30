@@ -19,3 +19,7 @@ XPIDL_MODULE = "mailview"
 FINAL_TARGET_FILES.defaults.messenger += [
     "mailViews.dat",
 ]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]

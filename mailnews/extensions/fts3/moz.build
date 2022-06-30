@@ -19,3 +19,7 @@ SOURCES += [
 FINAL_LIBRARY = "mail"
 
 CXXFLAGS += CONFIG["SQLITE_CFLAGS"]
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]

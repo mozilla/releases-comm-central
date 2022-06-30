@@ -43,7 +43,6 @@ static const mozilla::Module kCommonModule = {mozilla::Module::kVersion,
                                               nullptr,
                                               nullptr};
 
-extern const mozilla::Module kMailNewsModule;
 extern const mozilla::Module kMailNewsImportModule;
 #ifdef MOZ_MAPI_SUPPORT
 extern const mozilla::Module kMAPIModule;
@@ -56,7 +55,6 @@ class ModulesInit {
  public:
   ModulesInit() {
     XRE_AddStaticComponent(&kCommonModule);
-    XRE_AddStaticComponent(&kMailNewsModule);
     XRE_AddStaticComponent(&kMailNewsImportModule);
 #ifdef MOZ_MAPI_SUPPORT
     XRE_AddStaticComponent(&kMAPIModule);

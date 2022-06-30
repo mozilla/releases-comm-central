@@ -24,3 +24,7 @@ EXPORTS += [
 
 Library("JsAccount")
 FINAL_LIBRARY = "mail"
+
+XPCOM_MANIFESTS += [
+    "components.conf",
+]
