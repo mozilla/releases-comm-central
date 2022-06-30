@@ -90,6 +90,12 @@ XPCOMUtils.defineLazyScriptGetter(
   "chrome://messenger/content/printUtils.js"
 );
 
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
+});
+
 /**
  * Global message window object. This is used by mail-offline.js and therefore
  * should not be renamed. We need to avoid doing this kind of cross file global
@@ -7532,7 +7538,10 @@ async function messageAttachmentToFile(attachment) {
       "" //aAdditionalHeader
     );
   });
-  await IOUtils.writeUTF8(pathTempFile, bytes);
+  await IOUtils.write(
+    pathTempFile,
+    lazy.MailStringUtils.byteStringToUint8Array(bytes)
+  );
   return tempFile;
 }
 
