@@ -6,6 +6,14 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+@media (prefers-color-scheme: dark) {
+  :host,
+  :root:-moz-lwtheme {
+    --arrowpanel-background: #282829;
+    --richlist-button-background: #1e1e1e;
+  }
+}
+
 :host,
 :root {
   appearance: none;

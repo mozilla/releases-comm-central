@@ -475,6 +475,11 @@ richlistitem button:not([disabled="true"]):hover:active {
                                     var(--button-active-bgcolor));
 }
 
+menulist[open="true"],
+menulist:not([disabled="true"], [open="true"]):hover {
+  border-color: var(--button-border-color);
+}
+
 :root[lwt-tree] tree {
   appearance: none;
   border: 1px solid var(--sidebar-border-color);

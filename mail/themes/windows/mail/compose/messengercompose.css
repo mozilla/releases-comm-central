@@ -150,10 +150,6 @@
 
 /* ::::: format toolbar ::::: */
 
-#FormatToolbox {
-  appearance: none;
-}
-
 #FormatToolbar {
   margin-block-end: 2px;
 }

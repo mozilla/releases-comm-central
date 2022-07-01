@@ -423,6 +423,7 @@
 }
 
 #FormatToolbox {
+  appearance: none;
   grid-area: format-toolbar;
 }
 
