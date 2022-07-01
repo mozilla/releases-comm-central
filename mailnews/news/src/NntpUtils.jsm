@@ -13,6 +13,12 @@ const { MailServices } = ChromeUtils.import(
  * Collection of helper functions for NNTP.
  */
 var NntpUtils = {
+  logger: console.createInstance({
+    prefix: "mailnews.nntp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mailnews.nntp.loglevel",
+  }),
+
   /**
    * Find a server instance by its hostname.
    *
