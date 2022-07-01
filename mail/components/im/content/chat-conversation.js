@@ -1193,11 +1193,6 @@
       for (let node = event.target; node; node = node.parentNode) {
         if (node._originalMsg) {
           let msg = node._originalMsg;
-          let actions = msg.getActions();
-          if (actions.length >= 1) {
-            actions[0].run();
-            return;
-          }
           if (
             msg.system ||
             msg.outgoing ||
