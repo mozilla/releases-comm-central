@@ -1380,7 +1380,7 @@ class StartController extends ImporterController {
   /**
    * Handler for the Continue button on the sources pane.
    */
-  _onSelectSource() {
+  async _onSelectSource() {
     let checkedInput = document.querySelector("input[name=appSource]:checked");
 
     switch (checkedInput.value) {
@@ -1388,7 +1388,7 @@ class StartController extends ImporterController {
         this._showFile();
         break;
       default:
-        profileController._onSelectSource(checkedInput.value);
+        await profileController._onSelectSource(checkedInput.value);
         showTab("tab-app");
         // Don't change back button state, since we switch to app flow.
         return;
