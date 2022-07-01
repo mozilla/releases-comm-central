@@ -3005,6 +3005,7 @@ async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
     // internalSave() is part of saveURL() internals...
     internalSave(
       attachment.url, // aURL,
+      null, // aOriginalUrl,
       undefined, // aDocument,
       attachment.name, // aDefaultFileName,
       undefined, // aContentDisposition,
