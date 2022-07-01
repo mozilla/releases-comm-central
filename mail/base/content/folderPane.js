@@ -1309,6 +1309,16 @@ var gFolderTreeView = {
         let index = Number(aNewIndex) + Number(i) + 1;
         this._rowMap.splice(index, 0, child);
 
+        // Invalidate newly added child row to make sure it's aware of newly
+        // received messages or any other states different from the default.
+        if (this._tree) {
+          this.clearFolderCacheProperty(
+            this._rowMap[index]._folder,
+            "properties"
+          );
+          this._tree.invalidateRow(index);
+        }
+
         let kidsAdded = this.recursivelyAddToMap(child, index);
         count += kidsAdded;
         // Somehow the aNewIndex turns into a string without this.
