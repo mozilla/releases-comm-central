@@ -2643,7 +2643,9 @@ var RNP = {
     }
 
     let output = new RNPLib.rnp_output_t();
-    RNPLib.rnp_output_to_memory(output.address(), 0);
+    if (RNPLib.rnp_output_to_memory(output.address(), 0)) {
+      throw new Error("rnp_output_to_memory failed");
+    }
 
     let op;
     if (args.encrypt) {
@@ -2817,13 +2819,19 @@ var RNP = {
       }
       RNPLib.rnp_op_encrypt_destroy(op);
     } else {
-      RNPLib.rnp_op_sign_set_hash(op, "SHA256");
+      if (RNPLib.rnp_op_sign_set_hash(op, "SHA256")) {
+        throw new Error("rnp_op_sign_set_hash failed");
+      }
       // TODO, map args.signatureHash string to RNP and call
       //       rnp_op_encrypt_set_hash
 
-      RNPLib.rnp_op_sign_set_armor(op, args.armor);
+      if (RNPLib.rnp_op_sign_set_armor(op, args.armor)) {
+        throw new Error("rnp_op_sign_set_armor failed");
+      }
 
-      RNPLib.rnp_op_sign_execute(op);
+      if (RNPLib.rnp_op_sign_execute(op)) {
+        throw new Error("rnp_op_sign_execute failed");
+      }
       RNPLib.rnp_op_sign_destroy(op);
     }
 
