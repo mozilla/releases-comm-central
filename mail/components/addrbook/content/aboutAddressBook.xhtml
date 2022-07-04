@@ -70,8 +70,8 @@
     </xul:toolbar>
   </xul:toolbox>
   <div id="booksPane">
-    <ul is="ab-tree-listbox" id="books">
-      <li role="option" id="allAddressBooks" class="bookRow noDelete readOnly">
+    <ul is="ab-tree-listbox" id="books" role="tree">
+      <li id="allAddressBooks" class="bookRow noDelete readOnly">
         <div class="bookRow-container">
           <div class="twisty"></div>
           <div class="bookRow-icon"></div>
@@ -81,7 +81,7 @@
       </li>
     </ul>
     <template id="bookRow">
-      <li role="option" class="bookRow">
+      <li class="bookRow">
         <div class="bookRow-container">
           <div class="twisty">
             <img class="twisty-icon" src="chrome://messenger/skin/icons/new/nav-down-sm.svg" alt="" />
@@ -94,7 +94,7 @@
       </li>
     </template>
     <template id="listRow">
-      <li class="listRow" role="option">
+      <li class="listRow">
         <div class="listRow-container">
           <div class="listRow-icon"></div>
           <span class="listRow-name" tabindex="-1"></span>

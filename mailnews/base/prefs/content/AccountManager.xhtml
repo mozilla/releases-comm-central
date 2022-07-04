@@ -51,11 +51,12 @@
   <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
   <html:aside id="accountTreeBox">
     <html:ol is="orderable-tree-listbox" id="accounttree"
+             role="tree"
              flex="1"
              onselect="onAccountTreeSelect(null, null);">
     </html:ol>
     <template id="accountTreeItem" xmlns="http://www.w3.org/1999/xhtml">
-      <li role="option">
+      <li>
         <div draggable="true">
           <div class="twisty">
             <img class="twisty-icon" alt=""

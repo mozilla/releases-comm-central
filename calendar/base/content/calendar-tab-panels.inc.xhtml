@@ -192,7 +192,9 @@
                              mode="calendar,task"
                              refcontrol="calendar-list-header"
                              context="list-calendars-context-menu">
-            <html:ol id="calendar-list" is="orderable-tree-listbox"></html:ol>
+            <html:ol id="calendar-list" is="orderable-tree-listbox"
+                     role="listbox">
+            </html:ol>
             <template id="calendar-list-item" xmlns="http://www.w3.org/1999/xhtml">
               <li draggable="true" role="option">
                 <div class="calendar-color"></div>

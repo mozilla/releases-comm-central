@@ -48,10 +48,21 @@
         this.hasConnected = true;
 
         this.setAttribute("is", "tree-listbox");
-        this.setAttribute("role", "listbox");
+        switch (this.getAttribute("role")) {
+          case "tree":
+            this.isTree = true;
+            break;
+          case "listbox":
+            this.isTree = false;
+            break;
+          default:
+            throw new RangeError(
+              `Unsupported role ${this.getAttribute("role")}`
+            );
+        }
         this.tabIndex = 0;
 
-        this._initRows(this);
+        this._initRows();
 
         if (this.querySelector("li")) {
           this.selectedIndex = 0;
@@ -92,6 +103,9 @@
         ) {
           let rowIndex = this.rows.indexOf(row);
           let didCollapse = row.classList.toggle("collapsed");
+          if (this.isTree) {
+            row.setAttribute("aria-expanded", !didCollapse);
+          }
           if (didCollapse && row.querySelector(":is(ol, ul) > li.selected")) {
             // The selected row was hidden. Select the visible ancestor of it.
             this.selectedIndex = rowIndex;
@@ -217,6 +231,7 @@
       }
 
       _mutationObserver = new MutationObserver(mutations => {
+        this._initRows();
         for (let mutation of mutations) {
           let ancestor = mutation.target.closest("li");
 
@@ -226,10 +241,6 @@
             }
 
             node.classList.remove("selected");
-            this._initRows(node);
-            if (ancestor) {
-              ancestor.classList.add("children");
-            }
 
             if (this._selectedIndex == -1) {
               // There were no rows before this one was added. Select it.
@@ -289,41 +300,41 @@
                 this._selectedIndex -= node.querySelectorAll("li").length;
               }
             }
-
-            if (
-              ancestor &&
-              (node.localName == "ul" ||
-                (node.localName == "li" &&
-                  !mutation.target.querySelector("li")))
-            ) {
-              // There's no rows left under `ancestor`.
-              ancestor.classList.remove("children");
-              ancestor.classList.remove("collapsed");
-            }
           }
         }
       });
 
       /**
-       * Adds the 'option' role and 'children' class to `ancestor` if
-       * appropriate and any descendants that are list items.
+       * Set the role attribute and classes for all descendants of the widget.
        */
-      _initRows(ancestor) {
-        let descendants = ancestor.querySelectorAll("li");
+      _initRows() {
+        let descendantItems = this.querySelectorAll("li");
+        let descendantLists = this.querySelectorAll("ol, ul");
 
-        if (ancestor.localName == "li") {
-          ancestor.setAttribute("role", "option");
-          if (descendants.length > 0) {
-            ancestor.classList.add("children");
+        for (let i = 0; i < descendantItems.length; i++) {
+          let row = descendantItems[i];
+          row.setAttribute("role", this.isTree ? "treeitem" : "option");
+          if (
+            i + 1 < descendantItems.length &&
+            row.contains(descendantItems[i + 1])
+          ) {
+            row.classList.add("children");
+            if (this.isTree) {
+              row.setAttribute(
+                "aria-expanded",
+                !row.classList.contains("collapsed")
+              );
+            }
+          } else {
+            row.classList.remove("children");
+            row.classList.remove("collapsed");
+            row.removeAttribute("aria-expanded");
           }
         }
 
-        for (let i = 0; i < descendants.length - 1; i++) {
-          let row = descendants[i];
-          row.setAttribute("role", "option");
-          row.classList.remove("selected");
-          if (i + 1 < descendants.length && row.contains(descendants[i + 1])) {
-            row.classList.add("children");
+        if (this.isTree) {
+          for (let list of descendantLists) {
+            list.setAttribute("role", "group");
           }
         }
 
@@ -332,13 +343,7 @@
           return;
         }
 
-        // Add the height attribute to the inline style of a child list in order
-        // to override the CSS declaration and guarantee a smooth transition
-        // unaffected by the addition or removal of the `.collapsed` class.
-        if (ancestor.matches("li.collapsed > :is(ol, ul)")) {
-          ancestor.style.height = "0";
-        }
-        for (let childList of ancestor.querySelectorAll(
+        for (let childList of this.querySelectorAll(
           "li.collapsed > :is(ol, ul)"
         )) {
           childList.style.height = "0";
@@ -461,6 +466,9 @@
           !row.classList.contains("collapsed")
         ) {
           row.classList.add("collapsed");
+          if (this.isTree) {
+            row.setAttribute("aria-expanded", "false");
+          }
           row.dispatchEvent(new CustomEvent("collapsed", { bubbles: true }));
           this._animateCollapseRow(row);
         }
@@ -478,6 +486,9 @@
           row.classList.contains("collapsed")
         ) {
           row.classList.remove("collapsed");
+          if (this.isTree) {
+            row.setAttribute("aria-expanded", "true");
+          }
           row.dispatchEvent(new CustomEvent("expanded", { bubbles: true }));
           this._animateExpandRow(row);
         }
@@ -493,7 +504,7 @@
           return;
         }
 
-        let childList = row.querySelector(":is(ol, ul)");
+        let childList = row.querySelector("ol, ul");
         let childListHeight = childList.scrollHeight;
 
         let animation = childList.animate(
@@ -520,7 +531,7 @@
           return;
         }
 
-        let childList = row.querySelector(":is(ol, ul)");
+        let childList = row.querySelector("ol, ul");
         let childListHeight = childList.scrollHeight;
 
         let animation = childList.animate(
