@@ -431,7 +431,7 @@
         // No remote id, nothing existing to replace.
         return;
       }
-      if (this._messageDisplayPending) {
+      if (this._messageDisplayPending || this._pendingMessages.length) {
         let pendingIndex = this._pendingMessages.findIndex(
           ({ msg: pendingMsg }) => pendingMsg.remoteId === msg.remoteId
         );
