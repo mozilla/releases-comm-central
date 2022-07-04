@@ -26,10 +26,16 @@
   padding-inline-start: 40px;
 }
 
-/* ..... read column ..... */
+/* ..... attachment column ..... */
 
-treechildren::-moz-tree-image(unreadButtonColHeader) {
-  margin-inline-start: -2px;
+treechildren::-moz-tree-image(attachmentCol) {
+  margin-inline-start: 1px;
+}
+
+/* ..... junkStatus column ..... */
+
+treechildren::-moz-tree-image(junkStatusCol) {
+  margin-inline-start: 1px;
 }
 
 @media (-moz-windows-default-theme: 0) {

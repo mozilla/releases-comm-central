@@ -105,14 +105,18 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
-  fill: color-mix(in srgb, var(--color-green-60) 50%, transparent) !important; /* override the selected, focus rule */
-  stroke: var(--color-green-60) !important; /* override the selected, focus rule */
+  fill: color-mix(in srgb, var(--color-green-60) 50%, transparent);
+  stroke: var(--color-green-60);
   fill-opacity: 1;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, selected, focus) {
   fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent);
   stroke: var(--select-focus-text-color);
+}
+
+treechildren::-moz-tree-image(unreadButtonColHeader, unread, selected, focus) {
+  fill: var(--select-focus-text-color);
 }
 
 /* ..... attachment column ..... */

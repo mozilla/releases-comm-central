@@ -16,8 +16,14 @@
   padding-inline: 0;
 }
 
-treechildren::-moz-tree-image(attachmentCol, attach) {
-  padding-inline-start: 4px;
+treechildren::-moz-tree-image(attachmentCol) {
+  margin-inline-start: 3px;
+}
+
+/* ..... junkStatus column ..... */
+
+treechildren::-moz-tree-image(junkStatusCol) {
+  margin-inline-start: 1px;
 }
 
 /* ..... junkStatus column ..... */
@@ -44,4 +50,8 @@ treechildren::-moz-tree-image(attachmentCol, attach) {
 
 treechildren::-moz-tree-image(subjectCol) {
   margin-inline-end: 2px;
+}
+
+:root[uidensity="compact"] treechildren::-moz-tree-image {
+  margin-block-start: -1px;
 }

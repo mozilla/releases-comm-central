@@ -4,6 +4,24 @@
 
 @import url("chrome://messenger/skin/shared/messageIcons.css");
 
+/* ..... select column ..... */
+
+treechildren::-moz-tree-image(selectCol) {
+  margin-inline-start: -1px;
+}
+
+/* ..... delete column ..... */
+
+treechildren::-moz-tree-image(deleteCol) {
+  margin-inline-start: -1px;
+}
+
+/* ..... thread column ..... */
+
+.threadColumnHeader {
+  padding-inline: 3px 2px;
+}
+
 /* ..... read column ..... */
 
 .readColumnHeader {
@@ -20,6 +38,10 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
   padding-inline: 2px 3px;
 }
 
+treechildren::-moz-tree-image(attachmentCol) {
+  margin-inline-start: -2px;
+}
+
 /* ..... flag column ..... */
 
 .flagColumnHeader {
@@ -27,9 +49,8 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
 }
 
 /* ..... junkStatus column ..... */
-
-.junkStatusHeader {
-  padding-inline: 3px 5px;
+treechildren::-moz-tree-image(junkStatusCol) {
+  margin-inline-start: -1px;
 }
 
 /* ..... correspondent column ..... */
