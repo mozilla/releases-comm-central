@@ -907,6 +907,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         if (this.tabContainer.mCollapseToolbar.collapsed) {
           this.tabContainer.mCollapseToolbar.collapsed = false;
           this.tabContainer._updateCloseButtons();
+          document.documentElement.removeAttribute("tabbarhidden");
         }
 
         let oldTab = (this._mostRecentTabInfo = this.currentTabInfo);
@@ -1236,6 +1237,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         this.tabContainer.mAutoHide
       ) {
         this.tabContainer.mCollapseToolbar.collapsed = true;
+        document.documentElement.setAttribute("tabbarhidden", "true");
       }
     }
 

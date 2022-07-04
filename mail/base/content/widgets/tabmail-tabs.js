@@ -556,6 +556,7 @@
 
       if (this.mAutoHide) {
         this.mCollapseToolbar.collapsed = true;
+        document.documentElement.setAttribute("tabbarhidden", "true");
       }
 
       this.arrowScrollbox.firstElementChild.minWidth = this.mTabMinWidth;

@@ -86,6 +86,10 @@
   z-index: 2;
 }
 
+:root[tabbarhidden] .spaces-toolbar:not([hidden]) {
+  margin-top: 0;
+}
+
 .spaces-toolbar-container {
   display: flex;
   flex-direction: column;
