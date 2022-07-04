@@ -316,7 +316,7 @@ tabpanel > hbox > description {
   margin: 0;
 }
 
-.sidebar-footer-list > .text-link {
+.sidebar-footer-link {
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
 }
@@ -331,7 +331,7 @@ tabpanel > hbox > description {
     padding-inline: 12px;
   }
 
-  #pref-category-box .sidebar-footer-list > .text-link {
+  .sidebar-footer-link {
     margin-inline: 12px;
   }
 

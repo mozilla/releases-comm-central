@@ -152,23 +152,23 @@
         <spacer flex="1"/>
 
         <vbox class="sidebar-footer-list">
-          <label is="text-link" id="accountButton" class="sidebar-footer-link"
-                 onclick="MsgAccountManager(null);">
+          <html:a id="accountButton" class="sidebar-footer-link"
+                  onclick="MsgAccountManager(null);">
             <html:img class="sidebar-footer-icon account-icon"
                       src="chrome://messenger/skin/icons/new/compact/account-settings.svg"
                       alt="" />
             <label data-l10n-id="account-button" class="sidebar-footer-label" flex="1"/>
-          </label>
+          </html:a>
 
-          <label is="text-link" id="addonsButton" class="sidebar-footer-link"
-                 onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
+          <html:a id="addonsButton" class="sidebar-footer-link"
+                  onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
             <html:img class="sidebar-footer-icon"
                       src="chrome://messenger/skin/icons/new/compact/extension.svg"
                       alt="" />
             <label class="sidebar-footer-label"
                    data-l10n-id="open-addons-sidebar-button"
                    flex="1"/>
-          </label>
+          </html:a>
         </vbox>
 
       </vbox>

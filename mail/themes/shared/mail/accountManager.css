@@ -258,7 +258,7 @@ body {
   margin-inline: 0;
 }
 
-.sidebar-footer-list > .text-link {
+.sidebar-footer-link {
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
 }

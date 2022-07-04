@@ -108,24 +108,24 @@
     </button>
 
     <vbox class="sidebar-footer-list">
-      <label is="text-link" id="prefsButton" class="sidebar-footer-link"
-             onclick="openOptionsDialog();">
+      <html:a id="prefsButton" class="sidebar-footer-link"
+              onclick="openOptionsDialog();">
         <html:img class="sidebar-footer-icon"
                   src="chrome://messenger/skin/icons/new/compact/settings.svg" alt="" />
         <label class="sidebar-footer-label"
                data-l10n-id="open-preferences-sidebar-button2"
                flex="1"/>
-      </label>
+      </html:a>
 
-      <label is="text-link" id="addonsButton" class="sidebar-footer-link"
-             onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
+      <html:a id="addonsButton" class="sidebar-footer-link"
+              onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
         <html:img class="sidebar-footer-icon"
                   src="chrome://messenger/skin/icons/new/compact/extension.svg"
                   alt="" />
         <label class="sidebar-footer-label"
                data-l10n-id="open-addons-sidebar-button"
                flex="1"/>
-      </label>
+      </html:a>
     </vbox>
   </html:aside>
   <html:aside>
