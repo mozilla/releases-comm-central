@@ -75,36 +75,33 @@ var calendarExtract = {
     }
   },
 
-  async extractWithLocale(event, isEvent) {
+  extractWithLocale(event, isEvent) {
     event.stopPropagation();
     let locale = event.target.value;
-    await this.extractFromEmail(isEvent, true, locale);
+    this.extractFromEmail(isEvent, true, locale);
   },
 
-  async extractFromEmail(isEvent, fixedLang, fixedLocale) {
+  extractFromEmail(isEvent, fixedLang, fixedLocale) {
     // TODO would be nice to handle multiple selected messages,
     // though old conversion functionality didn't
     let message = gFolderDisplay.selectedMessage;
     let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+    let listener = Cc["@mozilla.org/network/sync-stream-listener;1"].createInstance(
+      Ci.nsISyncStreamListener
+    );
     let uri = message.folder.getUriForMsg(message);
+    messenger.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
     let folder = message.folder;
     let title = message.mime2DecodedSubject;
-    let content = await new Promise(resolve => {
-      let streamListener = {
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
-
-        onStartRequest(request) {},
-        onDataAvailable(request, inputStream, offset, count) {
-          resolve(
-            folder.getMsgTextFromStream(inputStream, message.Charset, 65536, 32768, false, true, {})
-          );
-        },
-        onStopRequest(request, statusCode) {},
-      };
-      messenger
-        .messageServiceFromURI(uri)
-        .streamMessage(uri, streamListener, null, null, false, "", true);
-    });
+    let content = folder.getMsgTextFromStream(
+      listener.inputStream,
+      message.Charset,
+      65536,
+      32768,
+      false,
+      true,
+      {}
+    );
     cal.LOG("[calExtract] Original email content: \n" + title + "\r\n" + content);
     let date = new Date(message.date / 1000);
     let time = new Date().getTime();

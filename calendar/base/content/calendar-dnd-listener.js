@@ -37,7 +37,7 @@ var calendarTaskButtonDNDObserver;
      * @param {Object} aItem - The target calIItemBase.
      * @param {Object} aMsgHdr - The nsIMsgHdr to convert from.
      */
-    async calendarItemFromMessage(aItem, aMsgHdr) {
+    calendarItemFromMessage(aItem, aMsgHdr) {
       let msgFolder = aMsgHdr.folder;
       let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
@@ -49,32 +49,24 @@ var calendarTaskButtonDNDObserver;
       cal.alarms.setDefaultValues(aItem);
 
       let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-      await new Promise(resolve => {
-        let streamListener = {
-          QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+      let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"].createInstance(
+        Ci.nsISyncStreamListener
+      );
+      messenger
+        .messageServiceFromURI(msgUri)
+        .streamMessage(msgUri, streamListener, null, null, false, "", false);
 
-          onStartRequest(request) {},
-          onDataAvailable(request, inputStream, offset, count) {
-            aItem.setProperty(
-              "DESCRIPTION",
-              msgFolder.getMsgTextFromStream(
-                inputStream,
-                aMsgHdr.Charset,
-                65536,
-                32768,
-                false,
-                true,
-                {}
-              )
-            );
-            resolve();
-          },
-          onStopRequest(request, statusCode) {},
-        };
-        messenger
-          .messageServiceFromURI(msgUri)
-          .streamMessage(msgUri, streamListener, null, null, false, "", true);
-      });
+      let plainTextMessage = "";
+      plainTextMessage = msgFolder.getMsgTextFromStream(
+        streamListener.inputStream,
+        aMsgHdr.Charset,
+        65536,
+        32768,
+        false,
+        true,
+        {}
+      );
+      aItem.setProperty("DESCRIPTION", plainTextMessage);
     },
 
     /**
@@ -290,7 +282,7 @@ var calendarTaskButtonDNDObserver;
      */
     async handleString(data) {
       let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-      await this.listener.onDropMessage(messenger.msgHdrFromURI(data));
+      this.listener.onDropMessage(messenger.msgHdrFromURI(data));
     }
   }
 
@@ -730,9 +722,9 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {nsIMsgHdr} msgHdr
      */
-    async onDropMessage(msgHdr) {
+    onDropMessage(msgHdr) {
       let newItem = new CalEvent();
-      await itemConversion.calendarItemFromMessage(newItem, msgHdr);
+      itemConversion.calendarItemFromMessage(newItem, msgHdr);
       createEventWithDialog(null, null, null, null, newItem);
     }
 
@@ -825,9 +817,9 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {nsIMsgHdr} msgHdr
      */
-    async onDropMessage(msgHdr) {
+    onDropMessage(msgHdr) {
       let todo = new CalTodo();
-      await itemConversion.calendarItemFromMessage(todo, msgHdr);
+      itemConversion.calendarItemFromMessage(todo, msgHdr);
       createTodoWithDialog(null, null, null, todo);
     }
 

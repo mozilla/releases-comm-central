@@ -531,4 +531,13 @@
     }                                               \
   }
 
+#define NS_SYNCSTREAMLISTENER_CONTRACTID \
+  "@mozilla.org/network/sync-stream-listener;1"
+#define NS_SYNCSTREAMLISTENER_CID                    \
+  {                                                  \
+    0x439400d3, 0x6f23, 0x43db, {                    \
+      0x8b, 0x06, 0x8a, 0xaf, 0xe1, 0x86, 0x9b, 0xd8 \
+    }                                                \
+  }
+
 #endif  // nsMessageBaseCID_h__

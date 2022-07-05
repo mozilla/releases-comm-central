@@ -111,7 +111,7 @@ add_task(async function testDetach() {
   // Get the message header
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
-  let messageContent = await getContentFromMessage(msgHdr);
+  let messageContent = getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
 });
 
@@ -121,16 +121,25 @@ add_task(async function testDetach() {
  * aMsgHdr: nsIMsgDBHdr object whose text body will be read
  *          returns: string with full message contents
  */
-async function getContentFromMessage(aMsgHdr) {
+function getContentFromMessage(aMsgHdr) {
+  const MAX_MESSAGE_LENGTH = 65536;
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-
-  let response = await fetch(
-    messenger.messageServiceFromURI(msgUri).getUrlForUri(msgUri).spec
+  let streamListener = Cc[
+    "@mozilla.org/network/sync-stream-listener;1"
+  ].createInstance(Ci.nsISyncStreamListener);
+  messenger
+    .messageServiceFromURI(msgUri)
+    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
   );
-  return response.text();
+  sis.init(streamListener.inputStream);
+  let content = sis.read(MAX_MESSAGE_LENGTH);
+  sis.close();
+  return content;
 }

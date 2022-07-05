@@ -49,7 +49,7 @@ var gTestArray = [
     let promise2 = gPOP3Pump.run();
     await Promise.all([promise1, promise2]);
   },
-  async function verifyFolders1() {
+  function verifyFolders1() {
     Assert.equal(folderCount(gMoveFolder), 2);
     // the local inbox folder should now be empty, since the second
     // operation was a move
@@ -59,11 +59,11 @@ var gTestArray = [
     let firstMsgHdr = msgs[0];
     let secondMsgHdr = msgs[1];
     // Check that the messages have content
-    let messageContent = await getContentFromMessage(firstMsgHdr);
+    let messageContent = getContentFromMessage(firstMsgHdr);
     Assert.ok(
       messageContent.includes("Some User <bugmail@example.org> changed")
     );
-    messageContent = await getContentFromMessage(secondMsgHdr);
+    messageContent = getContentFromMessage(secondMsgHdr);
     Assert.ok(
       messageContent.includes(
         "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
@@ -90,18 +90,18 @@ var gTestArray = [
     );
     await Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
   },
-  async function verifyFolders2() {
+  function verifyFolders2() {
     Assert.equal(folderCount(gMoveFolder2), 2);
 
     let msgs = [...gMoveFolder2.msgDatabase.EnumerateMessages()];
     let firstMsgHdr = msgs[0];
     let secondMsgHdr = msgs[1];
     // Check that the messages have content
-    let messageContent = await getContentFromMessage(firstMsgHdr);
+    let messageContent = getContentFromMessage(firstMsgHdr);
     Assert.ok(
       messageContent.includes("Some User <bugmail@example.org> changed")
     );
-    messageContent = await getContentFromMessage(secondMsgHdr);
+    messageContent = getContentFromMessage(secondMsgHdr);
     Assert.ok(
       messageContent.includes(
         "https://bugzilla.mozilla.org/show_bug.cgi?id=436880"
@@ -144,7 +144,7 @@ function run_test() {
  * aMsgHdr: nsIMsgDBHdr object whose text body will be read
  *          returns: string with full message contents
  */
-async function getContentFromMessage(aMsgHdr) {
+function getContentFromMessage(aMsgHdr) {
   const MAX_MESSAGE_LENGTH = 65536;
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
@@ -152,25 +152,17 @@ async function getContentFromMessage(aMsgHdr) {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  return new Promise(resolve => {
-    let streamListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
-
-      onStartRequest(request) {},
-      onDataAvailable(request, inputStream, offset, count) {
-        let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-          Ci.nsIScriptableInputStream
-        );
-        sis.init(inputStream);
-        this.data = sis.read(MAX_MESSAGE_LENGTH);
-        sis.close();
-      },
-      onStopRequest(request, statusCode) {
-        resolve(this.data);
-      },
-    };
-    messenger
-      .messageServiceFromURI(msgUri)
-      .streamMessage(msgUri, streamListener, null, null, false, "", true);
-  });
+  let streamListener = Cc[
+    "@mozilla.org/network/sync-stream-listener;1"
+  ].createInstance(Ci.nsISyncStreamListener);
+  messenger
+    .messageServiceFromURI(msgUri)
+    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
+  sis.init(streamListener.inputStream);
+  let content = sis.read(MAX_MESSAGE_LENGTH);
+  sis.close();
+  return content;
 }

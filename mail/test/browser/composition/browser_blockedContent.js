@@ -133,7 +133,7 @@ add_task(async function test_paste_file_urls() {
 
   be_in_folder(gOutboxFolder);
   let outMsg = select_click_row(0);
-  let outMsgContent = await get_msg_source(outMsg);
+  let outMsgContent = get_msg_source(outMsg);
 
   Assert.ok(
     outMsgContent.includes("file://foo/non-existent"),
