@@ -685,6 +685,7 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
   if (safe) {
     return safe->Finish();
   }
+  aOutputStream->Close();
   return NS_OK;
 }
 

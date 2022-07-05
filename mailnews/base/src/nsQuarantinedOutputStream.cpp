@@ -63,8 +63,6 @@ void nsQuarantinedOutputStream::EnterErrorState(nsresult status) {
 
 // copyStream copies all the data in the input stream to the output stream.
 // It keeps going until it sees an EOF on the input.
-// TODO: wrap this function in a filestream-aware version which records the
-// start position and truncates back to there if an error occurs!!!
 static nsresult copyStream(nsIInputStream* in, nsIOutputStream* out) {
   constexpr uint32_t BUFSIZE = 8192;
   auto buf = mozilla::MakeUnique<char[]>(BUFSIZE);
@@ -124,6 +122,7 @@ NS_IMETHODIMP nsQuarantinedOutputStream::Close() {
     mTempFile->Remove(false);
     mTempFile = nullptr;
   }
+  mTarget->Close();
   mTarget = nullptr;
   mState = eClosed;
   return rv;
@@ -169,6 +168,7 @@ NS_IMETHODIMP nsQuarantinedOutputStream::Finish() {
   }
 
   // All done!
+  mTarget->Close();
   mTempFile->Remove(false);
   mTempFile = nullptr;
   mState = eClosed;

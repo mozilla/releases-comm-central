@@ -28,6 +28,7 @@ class nsIFile;
  * If the nsQuarantinedOutputStream is closed (or released) without calling
  * finish(), the write is discarded (as per nsISafeOutputStream requirements).
  *
+ * Upon close() or finish(), the underlying target file is also closed.
  */
 class nsQuarantinedOutputStream : public nsIOutputStream, nsISafeOutputStream {
  public:
