@@ -93,6 +93,10 @@ html|input.editContactTextbox[readonly] {
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, .05) inset;
 }
 
+#spacesToolbarCustomizationPanel {
+  margin-block-end: 0;
+}
+
 .popup-panel {
   margin-block: 0;
 }
