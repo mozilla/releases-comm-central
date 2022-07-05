@@ -138,6 +138,8 @@ class Pop3Client {
     this._authenticating = false;
     // Indicates if the connection has been closed and can't be used anymore.
     this._destroyed = false;
+    // Save the incomplete server payload, start parsing after seeing \r\n.
+    this._pendingPayload = "";
   }
 
   /**
@@ -297,8 +299,18 @@ class Pop3Client {
       new Uint8Array(event.data)
     );
     this._logger.debug(`S: ${stringPayload}`);
-    let res = this._parse(stringPayload);
-    this._nextAction?.(res);
+    if (this._pendingPayload) {
+      stringPayload = this._pendingPayload + stringPayload;
+    }
+    if (stringPayload.includes("\r\n")) {
+      // Start parsing if the payload contains at least one line break.
+      this._pendingPayload = "";
+      let res = this._parse(stringPayload);
+      this._nextAction?.(res);
+    } else {
+      // Save the incomplete payload for the next ondata event.
+      this._pendingPayload = stringPayload;
+    }
   };
 
   /**
