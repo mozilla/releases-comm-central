@@ -492,9 +492,10 @@ add_task(async function testReadOnlyActions() {
     BrowserTestUtils.is_hidden(actions),
     "actions section should be hidden"
   );
-  Assert.ok(
-    cardsList.matches(":focus"),
-    `Cards list should have focus (actual: ${abDocument.activeElement?.id})`
+  Assert.equal(
+    cardsList,
+    abDocument.activeElement,
+    "Cards list should be the active element"
   );
 
   // Same with Enter on the second item.
