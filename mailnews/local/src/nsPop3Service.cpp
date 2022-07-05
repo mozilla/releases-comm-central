@@ -69,8 +69,11 @@ nsresult nsPop3Service::GetMail(bool downloadNewMail, nsIMsgWindow* aMsgWindow,
                                 nsIPop3IncomingServer* aPopServer,
                                 nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aInbox);
-  int32_t popPort = -1;
+  if (aURL) {
+    *aURL = nullptr;
+  }
 
+  int32_t popPort = -1;
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMPtr<nsIURI> url;
 

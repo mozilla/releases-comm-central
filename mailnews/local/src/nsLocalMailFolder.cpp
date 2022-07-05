@@ -1726,8 +1726,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
   // so that we don't have to have RSS foo here.
   nsCOMPtr<nsIRssIncomingServer> rssServer = do_QueryInterface(server, &rv);
   mozilla::Unused << rssServer;
-  if (NS_SUCCEEDED(rv))
-    return localMailServer->GetNewMail(aWindow, aListener, this, nullptr);
+  if (NS_SUCCEEDED(rv)) {
+    nsCOMPtr<nsIURI> resultURI;
+    return localMailServer->GetNewMail(aWindow, aListener, this,
+                                       getter_AddRefs(resultURI));
+  }
 
   nsCOMPtr<nsIMsgFolder> inbox;
   nsCOMPtr<nsIMsgFolder> rootFolder;
@@ -1744,10 +1747,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
     rv = localInbox->GetDatabaseWithReparse(nullptr, aWindow,
                                             getter_AddRefs(db));
     if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIURI> resultURI;
       db->GetSummaryValid(&valid);
-      rv = valid
-               ? localMailServer->GetNewMail(aWindow, aListener, inbox, nullptr)
-               : localInbox->SetCheckForNewMessagesAfterParsing(true);
+      rv = valid ? localMailServer->GetNewMail(aWindow, aListener, inbox,
+                                               getter_AddRefs(resultURI))
+                 : localInbox->SetCheckForNewMessagesAfterParsing(true);
     }
   }
   return rv;
@@ -2734,7 +2738,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
   nsCOMPtr<nsILocalMailIncomingServer> localMailServer =
       do_QueryInterface(server, &rv);
   NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
-  return localMailServer->GetNewMail(aWindow, this, this, nullptr);
+  nsCOMPtr<nsIURI> resultURI;
+  return localMailServer->GetNewMail(aWindow, this, this,
+                                     getter_AddRefs(resultURI));
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,

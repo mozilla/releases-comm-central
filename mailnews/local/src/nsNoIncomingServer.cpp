@@ -151,6 +151,9 @@ NS_IMETHODIMP
 nsNoIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
                                nsIUrlListener* aUrlListener,
                                nsIMsgFolder* aInbox, nsIURI** aResult) {
+  if (aResult) {
+    *aResult = nullptr;
+  }
   nsTArray<RefPtr<nsIPop3IncomingServer>> deferredServers;
   nsresult rv = GetDeferredServers(this, deferredServers);
   NS_ENSURE_SUCCESS(rv, rv);

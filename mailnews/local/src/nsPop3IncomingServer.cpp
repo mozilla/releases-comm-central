@@ -340,10 +340,11 @@ NS_IMETHODIMP nsPop3IncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
       nsCOMPtr<nsIMsgDatabase> db;
       rv = inbox->GetMsgDatabase(getter_AddRefs(db));
       if (NS_SUCCEEDED(rv) && db) rv = db->GetSummaryValid(&valid);
-      if (NS_SUCCEEDED(rv) && valid)
+      if (NS_SUCCEEDED(rv) && valid) {
+        nsCOMPtr<nsIURI> resultURI;
         rv = pop3Service->GetNewMail(aMsgWindow, urlListener, inbox, this,
-                                     nullptr);
-      else {
+                                     getter_AddRefs(resultURI));
+      } else {
         bool isLocked;
         inbox->GetLocked(&isLocked);
         if (!isLocked)
@@ -430,6 +431,9 @@ NS_IMETHODIMP nsPop3IncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
                                                nsIMsgFolder* aInbox,
                                                nsIURI** aResult) {
   nsresult rv;
+  if (aResult) {
+    *aResult = nullptr;
+  }
   nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return pop3Service->GetNewMail(aMsgWindow, aUrlListener, aInbox, this,

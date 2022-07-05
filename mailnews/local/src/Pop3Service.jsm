@@ -46,6 +46,7 @@ class Pop3Service {
     client.onOpen = () => {
       client.getMail(downloadNewMail, msgWindow, urlListener, inbox);
     };
+    return client.runningUri;
   }
 }
 

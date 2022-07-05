@@ -109,6 +109,9 @@ NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
                                               nsIMsgFolder* aFolder,
                                               nsIURI** _retval) {
   // Pass the selected folder on to the downloader.
+  if (_retval) {
+    *_retval = nullptr;
+  }
   NS_ENSURE_ARG_POINTER(aFolder);
   nsresult rv;
   bool isBiff = false;
