@@ -37,7 +37,6 @@ class VCardNoteComponent extends HTMLElement {
       this.textAreaEl = this.querySelector("textarea");
       this.textAreaEl.addEventListener("input", () => {
         this.resizeTextAreaEl();
-        this.textAreaEl.scrollIntoView();
       });
       this.fromVCardPropertyEntryToUI();
     }

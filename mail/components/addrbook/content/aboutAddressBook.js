@@ -162,6 +162,14 @@ window.addEventListener("unload", () => {
 });
 
 window.addEventListener("keypress", event => {
+  // Prevent scrolling of the html tag when space is used.
+  if (
+    event.key == " " &&
+    detailsPane.isEditing &&
+    document.activeElement.tagName == "body"
+  ) {
+    event.preventDefault();
+  }
   if (event.key != "F6" || event.altKey || event.ctrlKey || event.metaKey) {
     return;
   }
@@ -2257,6 +2265,15 @@ var detailsPane = {
       this.isDirty = this.dirtyFields.size > 0;
     });
     this.form.addEventListener("keypress", event => {
+      // Prevent scrolling of the html tag when space is used on a button or
+      // checkbox.
+      if (
+        event.key == " " &&
+        ["button", "checkbox"].includes(document.activeElement.type)
+      ) {
+        event.preventDefault();
+      }
+
       if (event.key != "Escape") {
         return;
       }

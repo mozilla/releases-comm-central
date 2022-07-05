@@ -154,7 +154,6 @@ class VCardOrgComponent extends HTMLElement {
       this.assignIds(this.orgEl, this.querySelector('label[for="org"]'));
       this.orgEl.addEventListener("input", () => {
         this.resizeOrgEl();
-        this.orgEl.scrollIntoView();
       });
 
       this.fromVCardPropertyEntryToUI();
