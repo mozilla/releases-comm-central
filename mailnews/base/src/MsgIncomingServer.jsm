@@ -385,7 +385,9 @@ class MsgIncomingServer {
   }
 
   get serverURI() {
-    return this._getServerURI(true);
+    // The presence of deprecated .userName pref for NNTP server should not
+    // affect messageUri or anything.
+    return this._getServerURI(this.type != "nntp");
   }
 
   /**
