@@ -12,18 +12,17 @@ const { XPCOMUtils } = ChromeUtils.import(
 const { GenericMessagePrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
-const { ClassInfo } = ChromeUtils.import(
+const { ClassInfo, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  l10nHelper: "resource:///modules/imXPCOMUtils.jsm",
   ToLocaleFormat: "resource:///modules/ToLocaleFormat.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
-  lazy.l10nHelper("chrome://chat/locale/logger.properties")
+  l10nHelper("chrome://chat/locale/logger.properties")
 );
 
 /*
