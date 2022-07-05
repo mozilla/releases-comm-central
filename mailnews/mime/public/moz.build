@@ -5,6 +5,7 @@
 
 XPIDL_SOURCES += [
     "msgIStructuredHeaders.idl",
+    "nsIMimeContentTypeHandler.idl",
     "nsIMimeConverter.idl",
     "nsIMimeEmitter.idl",
     "nsIMimeHeaders.idl",
@@ -18,7 +19,6 @@ XPIDL_SOURCES += [
 XPIDL_MODULE = "mime"
 
 EXPORTS += [
-    "nsIMimeContentTypeHandler.h",
     "nsIMimeObjectClassAccess.h",
     "nsMailHeaders.h",
     "nsMsgMimeCID.h",

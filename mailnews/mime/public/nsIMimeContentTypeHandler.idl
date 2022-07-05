@@ -1,0 +1,39 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * This interface is implemented by content type handlers that will be
+ * called upon by libmime to process various attachments types. The primary
+ * purpose of these handlers will be to represent the attached data in a
+ * viewable HTML format that is useful for the user
+ *
+ * Note: These will all register by their content type prefixed by the
+ *       following:  mimecth:text/vcard
+ *
+ *       libmime will then use the XPCOM Component Manager to
+ *       locate the appropriate Content Type handler
+ */
+#include "nsISupports.idl"
+
+%{C++
+typedef struct {
+  bool force_inline_display;
+} contentTypeHandlerInitStruct;
+
+#include "mimecth.h"
+%}
+
+[ptr] native MimeObjectClassPtr(MimeObjectClass);
+[ptr] native CTHInitStructPtr(contentTypeHandlerInitStruct);
+
+[scriptable, builtinclass, uuid(20DABD99-F8B5-11d2-8EE0-00A024A7D144)]
+interface nsIMimeContentTypeHandler : nsISupports {
+  readonly attribute string contentType;
+
+  [noscript,nostdcall] MimeObjectClassPtr CreateContentTypeHandlerClass(
+    in string content_type,
+    in CTHInitStructPtr initStruct
+  );
+};

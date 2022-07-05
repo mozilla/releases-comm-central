@@ -46,7 +46,7 @@ var EnigmailCore = {
 
     this.factories = [];
 
-    lazy.EnigmailVerify.registerContentTypeHandler();
+    lazy.EnigmailVerify.registerPGPMimeHandler();
     //EnigmailWksMimeHandler.registerContentTypeHandler();
     //EnigmailFiltersWrapper.onStartup();
 
@@ -63,7 +63,7 @@ var EnigmailCore = {
     }
 
     //EnigmailFiltersWrapper.onShutdown();
-    lazy.EnigmailVerify.unregisterContentTypeHandler();
+    lazy.EnigmailVerify.unregisterPGPMimeHandler();
 
     lazy.EnigmailLog.onShutdown();
 

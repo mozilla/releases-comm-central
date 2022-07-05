@@ -103,35 +103,48 @@ var EnigmailVerify = {
     return this.manualMsgUri;
   },
 
-  /***
-   * register a PGP/MIME verify object the same way PGP/MIME encrypted mail is handled
+  pgpMimeFactory: {
+    classID: Components.ID("{4f4400a8-9bcc-4b9d-9d53-d2437b377e29}"),
+    createInstance(iid) {
+      return Cc[
+        "@mozilla.org/mimecth;1?type=multipart/encrypted"
+      ].createInstance(iid);
+    },
+  },
+
+  /**
+   * Sets the PGPMime content type handler as the registered handler.
    */
-  registerContentTypeHandler() {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: registerContentTypeHandler\n");
+  registerPGPMimeHandler() {
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: registerPGPMimeHandler\n");
+
+    if (this.currentCtHandler == EnigmailConstants.MIME_HANDLER_PGPMIME) {
+      return;
+    }
+
     let reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-
-    let pgpMimeClass = Cc["@mozilla.org/mimecth;1?type=multipart/encrypted"];
-
     reg.registerFactory(
-      pgpMimeClass,
-      "Enigmail PGP/MIME verification",
+      this.pgpMimeFactory.classID,
+      "PGP/MIME verification",
       "@mozilla.org/mimecth;1?type=multipart/signed",
-      null
+      this.pgpMimeFactory
     );
+
     this.currentCtHandler = EnigmailConstants.MIME_HANDLER_PGPMIME;
   },
 
-  unregisterContentTypeHandler() {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: unregisterContentTypeHandler\n");
-    let reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+  /**
+   * Clears the PGPMime content type handler registration. If no factory is
+   * registered, S/MIME works.
+   */
+  unregisterPGPMimeHandler() {
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: unregisterPGPMimeHandler\n");
 
-    let sMimeClass = Cc["@mozilla.org/nsCMSDecoder;1"];
-    reg.registerFactory(
-      sMimeClass,
-      "S/MIME verification",
-      "@mozilla.org/mimecth;1?type=multipart/signed",
-      null
-    );
+    let reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+    if (this.currentCtHandler == EnigmailConstants.MIME_HANDLER_PGPMIME) {
+      reg.unregisterFactory(this.pgpMimeFactory.classID, this.pgpMimeFactory);
+    }
+
     this.currentCtHandler = EnigmailConstants.MIME_HANDLER_SMIME;
   },
 };

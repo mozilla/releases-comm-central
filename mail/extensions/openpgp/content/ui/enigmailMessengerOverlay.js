@@ -493,7 +493,7 @@ Enigmail.msg = {
         EnigmailConstants.MIME_HANDLER_PGPMIME
       ) {
         this.lastSMimeReloadURI = uriSpec;
-        EnigmailVerify.registerContentTypeHandler();
+        EnigmailVerify.registerPGPMimeHandler();
         this.messageReload();
         return false;
       }

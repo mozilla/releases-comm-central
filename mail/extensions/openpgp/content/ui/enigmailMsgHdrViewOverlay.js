@@ -1208,7 +1208,7 @@ Enigmail.hdrView = {
 
     handleSMimeMessage(uri) {
       if (this.isCurrentMessage(uri)) {
-        EnigmailVerify.unregisterContentTypeHandler();
+        EnigmailVerify.unregisterPGPMimeHandler();
         Enigmail.msg.messageReload(false);
       }
     },
