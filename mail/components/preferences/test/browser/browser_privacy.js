@@ -19,7 +19,7 @@ add_task(async () => {
       checkboxID: "acceptCookies",
       pref: "network.cookie.cookieBehavior",
       prefValues: [2, 0],
-      enabledElements: ["#acceptThirdPartyMenu", "#keepCookiesUntil"],
+      enabledElements: ["#acceptThirdPartyMenu"],
       unaffectedElements: ["#cookieExceptions"],
     },
     {

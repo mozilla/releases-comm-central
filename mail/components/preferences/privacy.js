@@ -42,7 +42,6 @@ Preferences.addAll([
   },
   { id: "places.history.enabled", type: "bool" },
   { id: "network.cookie.cookieBehavior", type: "int" },
-  { id: "network.cookie.lifetimePolicy", type: "int" },
   { id: "network.cookie.blockFutureCookies", type: "bool" },
   { id: "privacy.donottrackheader.enabled", type: "bool" },
   { id: "security.default_personal_cert", type: "string" },
@@ -141,8 +140,6 @@ var gPrivacyPane = {
       "acceptThirdPartyLabel"
     );
     let acceptThirdPartyMenu = document.getElementById("acceptThirdPartyMenu");
-    let keepUntil = document.getElementById("keepUntil");
-    let menu = document.getElementById("keepCookiesUntil");
     let showCookiesButton = document.getElementById("showCookiesButton");
 
     // enable the rest of the UI for anything other than "disable all cookies"
@@ -150,15 +147,10 @@ var gPrivacyPane = {
     let cookieBehaviorLocked = Services.prefs.prefIsLocked(
       "network.cookie.cookieBehavior"
     );
-    let cookieExpirationLocked = Services.prefs.prefIsLocked(
-      "network.cookie.lifetimePolicy"
-    );
 
     exceptionsButton.disabled = cookieBehaviorLocked;
     acceptThirdPartyLabel.disabled = acceptThirdPartyMenu.disabled =
       !acceptCookies || cookieBehaviorLocked;
-    keepUntil.disabled = menu.disabled =
-      !acceptCookies || cookieBehaviorLocked || cookieExpirationLocked;
     showCookiesButton.disabled = cookieBehaviorLocked;
 
     return acceptCookies;

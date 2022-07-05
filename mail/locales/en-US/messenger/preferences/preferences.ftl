@@ -685,17 +685,6 @@ third-party-never =
 third-party-visited =
     .label = From visited
 
-keep-label =
-    .value = Keep until:
-    .accesskey = K
-
-keep-expire =
-    .label = they expire
-keep-close =
-    .label = I close { -brand-short-name }
-keep-ask =
-    .label = ask me every time
-
 cookies-button =
     .label = Show Cookies…
     .accesskey = S
