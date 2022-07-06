@@ -434,6 +434,10 @@ pref("security.warn_leaving_secure", false);
 pref("security.warn_viewing_mixed", false);
 pref("security.aboutcertificate.enabled", true);
 
+// Don't automatically cleanup intermediate CA certificates that core
+// has on a preloaded list, it causes S/MIME failures. (Bug 1777336)
+pref("security.intermediate_preloading_healer.enabled", false);
+
 // Don't show a prompt for external applications.
 pref("security.external_protocol_requires_permission", false);
 
