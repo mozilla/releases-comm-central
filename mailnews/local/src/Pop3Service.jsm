@@ -15,7 +15,7 @@ class Pop3Service {
   QueryInterface = ChromeUtils.generateQI(["nsIPop3Service"]);
 
   constructor() {
-    this._listeners = [];
+    this._listeners = new Set();
   }
 
   GetNewMail(msgWindow, urlListener, inbox, server) {
@@ -37,7 +37,29 @@ class Pop3Service {
   }
 
   addListener(listener) {
-    this._listeners.push(listener);
+    this._listeners.add(listener);
+  }
+
+  removeListener(listener) {
+    this._listeners.remove(listener);
+  }
+
+  notifyDownloadStarted(folder) {
+    for (let listener of this._listeners) {
+      listener.onDownloadStarted(folder);
+    }
+  }
+
+  notifyDownloadProgress(folder, numMessages, numTotalMessages) {
+    for (let listener of this._listeners) {
+      listener.onDownloadProgress(folder, numMessages, numTotalMessages);
+    }
+  }
+
+  notifyDownloadCompleted(folder, numMessages) {
+    for (let listener of this._listeners) {
+      listener.onDownloadCompleted(folder, numMessages);
+    }
   }
 
   _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
