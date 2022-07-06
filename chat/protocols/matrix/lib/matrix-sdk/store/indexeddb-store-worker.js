@@ -118,9 +118,7 @@ class IndexedDBStoreWorker {
           result: ret
         });
       }, err => {
-        _logger.logger.error("Error running command: " + msg.command);
-
-        _logger.logger.error(err);
+        _logger.logger.error("Error running command: " + msg.command, err);
 
         this.postMessage.call(null, {
           command: 'cmd_fail',

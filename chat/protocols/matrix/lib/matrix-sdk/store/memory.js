@@ -21,7 +21,7 @@ function isValidFilterId(filterId) {
  * Construct a new in-memory data store for the Matrix Client.
  * @constructor
  * @param {Object=} opts Config options
- * @param {LocalStorage} opts.localStorage The local storage instance to persist
+ * @param {Storage} opts.localStorage The local storage instance to persist
  * some forms of data such as tokens. Rooms will NOT be stored.
  */
 class MemoryStore {
@@ -46,6 +46,8 @@ class MemoryStore {
     _defineProperty(this, "localStorage", void 0);
 
     _defineProperty(this, "oobMembers", {});
+
+    _defineProperty(this, "pendingEvents", {});
 
     _defineProperty(this, "clientOptions", {});
 
@@ -437,6 +439,14 @@ class MemoryStore {
   storeClientOptions(options) {
     this.clientOptions = Object.assign({}, options);
     return Promise.resolve();
+  }
+
+  async getPendingEvents(roomId) {
+    return this.pendingEvents[roomId] ?? [];
+  }
+
+  async setPendingEvents(roomId, events) {
+    this.pendingEvents[roomId] = events;
   }
 
 }

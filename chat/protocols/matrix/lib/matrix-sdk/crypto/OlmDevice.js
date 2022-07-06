@@ -525,7 +525,6 @@ class OlmDevice {
 
 
   async createInboundSession(theirDeviceIdentityKey, messageType, ciphertext) {
-    // eslint-disable-line camelcase
     if (messageType !== 0) {
       throw new Error("Need messageType == 0 to create inbound session");
     }

@@ -160,7 +160,6 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   // XXX: Intended private, used in code.
   // XXX: Intended private, used in code.
   // XXX: Intended private, used in code.
-  // XXX: Intended private, used in code.
   // Note: these are all `protected` to let downstream consumers make mistakes if they want to.
   // We don't technically support this usage, but have reasons to do this.
   // The pushprocessor caches useful things, so keep one and re-use it
@@ -191,11 +190,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
     _defineProperty(this, "urlPreviewCache", {});
 
-    _defineProperty(this, "unstableClientRelationAggregation", false);
-
     _defineProperty(this, "identityServer", void 0);
-
-    _defineProperty(this, "sessionStore", void 0);
 
     _defineProperty(this, "http", void 0);
 
@@ -350,9 +345,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     }
 
     this.timelineSupport = Boolean(opts.timelineSupport);
-    this.unstableClientRelationAggregation = !!opts.unstableClientRelationAggregation;
     this.cryptoStore = opts.cryptoStore;
-    this.sessionStore = opts.sessionStore;
     this.verificationMethods = opts.verificationMethods;
     this.cryptoCallbacks = opts.cryptoCallbacks || {};
     this.forceTURN = opts.forceTURN || false;
@@ -997,11 +990,6 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       return;
     }
 
-    if (!this.sessionStore) {
-      // this is temporary, the sessionstore is supposed to be going away
-      throw new Error(`Cannot enable encryption: no sessionStore provided`);
-    }
-
     if (!this.cryptoStore) {
       // the cryptostore is provided by sdk.createClient, so this shouldn't happen
       throw new Error(`Cannot enable encryption: no cryptoStore provided`);
@@ -1024,7 +1012,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       throw new Error(`Cannot enable encryption on MatrixClient with unknown deviceId: ` + `ensure deviceId is passed in createClient().`);
     }
 
-    const crypto = new _crypto.Crypto(this, this.sessionStore, userId, this.deviceId, this.store, this.cryptoStore, this.roomList, this.verificationMethods);
+    const crypto = new _crypto.Crypto(this, userId, this.deviceId, this.store, this.cryptoStore, this.roomList, this.verificationMethods);
     this.reEmitter.reEmit(crypto, [_crypto.CryptoEvent.KeyBackupFailed, _crypto.CryptoEvent.KeyBackupSessionsRemaining, _crypto.CryptoEvent.RoomKeyRequest, _crypto.CryptoEvent.RoomKeyRequestCancellation, _crypto.CryptoEvent.Warning, _crypto.CryptoEvent.DevicesUpdated, _crypto.CryptoEvent.WillUpdateDevices, _crypto.CryptoEvent.DeviceVerificationChanged, _crypto.CryptoEvent.UserTrustStatusChanged, _crypto.CryptoEvent.KeysChanged]);
 
     _logger.logger.log("Crypto: initialising crypto object...");
@@ -3060,17 +3048,20 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
 
     if (threadId && !content["m.relates_to"]?.rel_type) {
+      const isReply = !!content["m.relates_to"]?.["m.in_reply_to"];
       content["m.relates_to"] = _objectSpread(_objectSpread({}, content["m.relates_to"]), {}, {
         "rel_type": _thread.THREAD_RELATION_TYPE.name,
-        "event_id": threadId
+        "event_id": threadId,
+        // Set is_falling_back to true unless this is actually intended to be a reply
+        "is_falling_back": !isReply
       });
       const thread = this.getRoom(roomId)?.getThread(threadId);
 
-      if (thread) {
+      if (thread && !isReply) {
         content["m.relates_to"]["m.in_reply_to"] = {
           "event_id": thread.lastReply(ev => {
             return ev.isRelation(_thread.THREAD_RELATION_TYPE.name) && !ev.status;
-          })?.getId()
+          })?.getId() ?? threadId
         };
       }
     }
@@ -4382,8 +4373,9 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
    * <p>If the EventTimelineSet object already has the given event in its store, the
    * corresponding timeline will be returned. Otherwise, a /context request is
    * made, and used to construct an EventTimeline.
+   * If the event does not belong to this EventTimelineSet then undefined will be returned.
    *
-   * @param {EventTimelineSet} timelineSet  The timelineSet to look for the event in
+   * @param {EventTimelineSet} timelineSet  The timelineSet to look for the event in, must be bound to a room
    * @param {string} eventId  The ID of the event to look for
    *
    * @return {Promise} Resolves:
@@ -4427,39 +4419,41 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
     const mapper = this.getEventMapper();
     const event = mapper(res.event);
-    const events = [// we start with the last event, since that's the point at which we have known state.
+    const events = [// Order events from most recent to oldest (reverse-chronological).
+    // We start with the last event, since that's the point at which we have known state.
     // events_after is already backwards; events_before is forwards.
-    ...res.events_after.reverse().map(mapper), event, ...res.events_before.map(mapper)]; // Where the event is a thread reply (not a root) and running in MSC-enabled mode the Thread timeline only
-    // functions contiguously, so we have to jump through some hoops to get our target event in it.
-    // XXX: workaround for https://github.com/vector-im/element-meta/issues/150
+    ...res.events_after.reverse().map(mapper), event, ...res.events_before.map(mapper)];
 
-    if (_thread.Thread.hasServerSideSupport && this.supportsExperimentalThreads() && event.isRelation(_thread.THREAD_RELATION_TYPE.name)) {
-      const [, threadedEvents] = timelineSet.room.partitionThreadedEvents(events);
-      let thread = timelineSet.room.getThread(event.threadRootId);
+    if (this.supportsExperimentalThreads()) {
+      if (!timelineSet.canContain(event)) {
+        return undefined;
+      } // Where the event is a thread reply (not a root) and running in MSC-enabled mode the Thread timeline only
+      // functions contiguously, so we have to jump through some hoops to get our target event in it.
+      // XXX: workaround for https://github.com/vector-im/element-meta/issues/150
 
-      if (!thread) {
-        thread = timelineSet.room.createThread(event.threadRootId, undefined, threadedEvents, true);
-      }
 
-      const opts = {
-        direction: _eventTimeline.Direction.Backward,
-        limit: 50
-      };
-      await thread.fetchInitialEvents();
-      let nextBatch = thread.liveTimeline.getPaginationToken(_eventTimeline.Direction.Backward); // Fetch events until we find the one we were asked for, or we run out of pages
+      if (_thread.Thread.hasServerSideSupport && timelineSet.thread) {
+        const thread = timelineSet.thread;
+        const opts = {
+          direction: _eventTimeline.Direction.Backward,
+          limit: 50
+        };
+        await thread.fetchInitialEvents();
+        let nextBatch = thread.liveTimeline.getPaginationToken(_eventTimeline.Direction.Backward); // Fetch events until we find the one we were asked for, or we run out of pages
 
-      while (!thread.findEventById(eventId)) {
-        if (nextBatch) {
-          opts.from = nextBatch;
+        while (!thread.findEventById(eventId)) {
+          if (nextBatch) {
+            opts.from = nextBatch;
+          }
+
+          ({
+            nextBatch
+          } = await thread.fetchEvents(opts));
+          if (!nextBatch) break;
         }
 
-        ({
-          nextBatch
-        } = await thread.fetchEvents(opts));
-        if (!nextBatch) break;
+        return thread.liveTimeline;
       }
-
-      return thread.liveTimeline;
     } // Here we handle non-thread timelines only, but still process any thread events to populate thread summaries.
 
 
@@ -4483,6 +4477,44 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
     return timelineSet.getTimelineForEvent(eventId) ?? timelineSet.room.findThreadForEvent(event)?.liveTimeline // for Threads degraded support
     ?? timeline;
+  }
+  /**
+   * Get an EventTimeline for the latest events in the room. This will just
+   * call `/messages` to get the latest message in the room, then use
+   * `client.getEventTimeline(...)` to construct a new timeline from it.
+   *
+   * @param {EventTimelineSet} timelineSet  The timelineSet to find or add the timeline to
+   *
+   * @return {Promise} Resolves:
+   *    {@link module:models/event-timeline~EventTimeline} timeline with the latest events in the room
+   */
+
+
+  async getLatestTimeline(timelineSet) {
+    // don't allow any timeline support unless it's been enabled.
+    if (!this.timelineSupport) {
+      throw new Error("timeline support is disabled. Set the 'timelineSupport'" + " parameter to true when creating MatrixClient to enable it.");
+    }
+
+    const messagesPath = utils.encodeUri("/rooms/$roomId/messages", {
+      $roomId: timelineSet.room.roomId
+    });
+    const params = {
+      dir: 'b'
+    };
+
+    if (this.clientOpts.lazyLoadMembers) {
+      params.filter = JSON.stringify(_filter.Filter.LAZY_LOADING_MESSAGES_FILTER);
+    }
+
+    const res = await this.http.authedRequest(undefined, _httpApi.Method.Get, messagesPath, params);
+    const event = res.chunk?.[0];
+
+    if (!event) {
+      throw new Error("No message returned from /messages when trying to construct getLatestTimeline");
+    }
+
+    return this.getEventTimeline(timelineSet, event.event_id);
   }
   /**
    * Makes a request to /messages with the appropriate lazy loading filter set.

@@ -290,6 +290,14 @@ class StubStore {
     return Promise.resolve();
   }
 
+  async getPendingEvents(roomId) {
+    return [];
+  }
+
+  setPendingEvents(roomId, events) {
+    return Promise.resolve();
+  }
+
 }
 
 exports.StubStore = StubStore;

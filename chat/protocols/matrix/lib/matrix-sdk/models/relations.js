@@ -13,6 +13,8 @@ var _event2 = require("../@types/event");
 
 var _typedEventEmitter = require("./typed-event-emitter");
 
+var _room = require("./room");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 let RelationsEvent;
@@ -39,15 +41,13 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
    * "m.replace", etc.
    * @param {String} eventType
    * The relation event's type, such as "m.reaction", etc.
-   * @param {?Room} room
-   * Room for this container. May be null for non-room cases, such as the
-   * notification timeline.
+   * @param {MatrixClient|Room} client
+   * The client which created this instance. For backwards compatibility also accepts a Room.
    */
-  constructor(relationType, eventType, room) {
+  constructor(relationType, eventType, client) {
     super();
     this.relationType = relationType;
     this.eventType = eventType;
-    this.room = room;
 
     _defineProperty(this, "relationEventIds", new Set());
 
@@ -62,6 +62,8 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "targetEvent", null);
 
     _defineProperty(this, "creationEmitted", false);
+
+    _defineProperty(this, "client", void 0);
 
     _defineProperty(this, "onEventStatus", (event, status) => {
       if (!event.isSending()) {
@@ -97,6 +99,8 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
       redactedEvent.removeListener(_event.MatrixEventEvent.BeforeRedaction, this.onBeforeRedaction);
       this.emit(RelationsEvent.Redaction, redactedEvent);
     });
+
+    this.client = client instanceof _room.Room ? client.client : client;
   }
   /**
    * Add relation events to this collection.
@@ -368,7 +372,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
     }, null);
 
     if (lastReplacement?.shouldAttemptDecryption()) {
-      await lastReplacement.attemptDecryption(this.room.client.crypto);
+      await lastReplacement.attemptDecryption(this.client.crypto);
     } else if (lastReplacement?.isBeingDecrypted()) {
       await lastReplacement.getDecryptionPromise();
     }

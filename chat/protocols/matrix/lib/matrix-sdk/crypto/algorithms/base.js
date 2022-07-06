@@ -174,7 +174,7 @@ class DecryptionAlgorithm {
    *
    * @param {module:models/event.MatrixEvent} params event key event
    */
-  onRoomKeyEvent(params) {// ignore by default
+  async onRoomKeyEvent(params) {// ignore by default
   }
   /**
    * Import a room key

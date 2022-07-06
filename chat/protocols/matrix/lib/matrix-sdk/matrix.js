@@ -319,20 +319,6 @@ Object.keys(_indexeddb).forEach(function (key) {
   });
 });
 
-var _webstorage = require("./store/session/webstorage");
-
-Object.keys(_webstorage).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  if (key in exports && exports[key] === _webstorage[key]) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _webstorage[key];
-    }
-  });
-});
-
 var _indexeddbCryptoStore = require("./crypto/store/indexeddb-crypto-store");
 
 Object.keys(_indexeddbCryptoStore).forEach(function (key) {

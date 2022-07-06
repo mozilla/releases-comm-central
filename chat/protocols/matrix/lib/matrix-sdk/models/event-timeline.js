@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.EventTimeline = exports.Direction = void 0;
 
+var _logger = require("../logger");
+
 var _roomState = require("./room-state");
 
 var _event = require("../@types/event");
@@ -131,7 +133,9 @@ class EventTimeline {
    */
 
 
-  initialiseState(stateEvents) {
+  initialiseState(stateEvents, {
+    timelineWasEmpty
+  } = {}) {
     if (this.events.length > 0) {
       throw new Error("Cannot initialise state after events are added");
     } // We previously deep copied events here and used different copies in
@@ -152,8 +156,12 @@ class EventTimeline {
       Object.freeze(e);
     }
 
-    this.startState.setStateEvents(stateEvents);
-    this.endState.setStateEvents(stateEvents);
+    this.startState.setStateEvents(stateEvents, {
+      timelineWasEmpty
+    });
+    this.endState.setStateEvents(stateEvents, {
+      timelineWasEmpty
+    });
   }
   /**
    * Forks the (live) timeline, taking ownership of the existing directional state of this timeline.
@@ -354,22 +362,39 @@ class EventTimeline {
    * Add a new event to the timeline, and update the state
    *
    * @param {MatrixEvent} event   new event
-   * @param {boolean}  atStart     true to insert new event at the start
+   * @param {IAddEventOptions} options addEvent options
    */
 
 
-  addEvent(event, atStart, stateContext) {
-    if (!stateContext) {
-      stateContext = atStart ? this.startState : this.endState;
+  addEvent(event, toStartOfTimelineOrOpts, roomState) {
+    let toStartOfTimeline = !!toStartOfTimelineOrOpts;
+    let timelineWasEmpty;
+
+    if (typeof toStartOfTimelineOrOpts === 'object') {
+      ({
+        toStartOfTimeline,
+        roomState,
+        timelineWasEmpty
+      } = toStartOfTimelineOrOpts);
+    } else if (toStartOfTimelineOrOpts !== undefined) {
+      // Deprecation warning
+      // FIXME: Remove after 2023-06-01 (technical debt)
+      _logger.logger.warn('Overload deprecated: ' + '`EventTimeline.addEvent(event, toStartOfTimeline, roomState?)` ' + 'is deprecated in favor of the overload with `EventTimeline.addEvent(event, IAddEventOptions)`');
+    }
+
+    if (!roomState) {
+      roomState = toStartOfTimeline ? this.startState : this.endState;
     }
 
     const timelineSet = this.getTimelineSet();
 
     if (timelineSet.room) {
-      EventTimeline.setEventMetadata(event, stateContext, atStart); // modify state but only on unfiltered timelineSets
+      EventTimeline.setEventMetadata(event, roomState, toStartOfTimeline); // modify state but only on unfiltered timelineSets
 
       if (event.isState() && timelineSet.room.getUnfilteredTimelineSet() === timelineSet) {
-        stateContext.setStateEvents([event]); // it is possible that the act of setting the state event means we
+        roomState.setStateEvents([event], {
+          timelineWasEmpty
+        }); // it is possible that the act of setting the state event means we
         // can set more metadata (specifically sender/target props), so try
         // it again if the prop wasn't previously set. It may also mean that
         // the sender/target is updated (if the event set was a room member event)
@@ -380,15 +405,15 @@ class EventTimeline {
         // member event, whereas we want to set the .sender value for the ACTUAL
         // member event itself.
 
-        if (!event.sender || event.getType() === "m.room.member" && !atStart) {
-          EventTimeline.setEventMetadata(event, stateContext, atStart);
+        if (!event.sender || event.getType() === "m.room.member" && !toStartOfTimeline) {
+          EventTimeline.setEventMetadata(event, roomState, toStartOfTimeline);
         }
       }
     }
 
     let insertIndex;
 
-    if (atStart) {
+    if (toStartOfTimeline) {
       insertIndex = 0;
     } else {
       insertIndex = this.events.length;
@@ -396,7 +421,7 @@ class EventTimeline {
 
     this.events.splice(insertIndex, 0, event); // insert element
 
-    if (atStart) {
+    if (toStartOfTimeline) {
       this.baseIndex++;
     }
   }

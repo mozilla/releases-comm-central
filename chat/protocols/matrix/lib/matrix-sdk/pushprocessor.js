@@ -50,6 +50,10 @@ const DEFAULT_OVERRIDE_RULES = [{
     kind: _PushRules.ConditionKind.EventMatch,
     key: "type",
     pattern: _event.EventType.RoomServerAcl
+  }, {
+    kind: _PushRules.ConditionKind.EventMatch,
+    key: "state_key",
+    pattern: ""
   }],
   actions: []
 }];

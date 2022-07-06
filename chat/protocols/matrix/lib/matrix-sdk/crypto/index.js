@@ -142,9 +142,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @param {MatrixClient} baseApis base matrix api interface
    *
-   * @param {module:store/session/webstorage~WebStorageSessionStore} sessionStore
-   *    Store to be used for end-to-end crypto session data
-   *
    * @param {string} userId The user ID for the local user
    *
    * @param {string} deviceId The identifier for this device.
@@ -160,10 +157,9 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *    Each element can either be a string from MatrixClient.verificationMethods
    *    or a class that implements a verification method.
    */
-  constructor(baseApis, sessionStore, userId, deviceId, clientStore, cryptoStore, roomList, verificationMethods) {
+  constructor(baseApis, userId, deviceId, clientStore, cryptoStore, roomList, verificationMethods) {
     super();
     this.baseApis = baseApis;
-    this.sessionStore = sessionStore;
     this.userId = userId;
     this.deviceId = deviceId;
     this.clientStore = clientStore;
@@ -1565,13 +1561,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     }
 
     _logger.logger.info(`Finished device verification upgrade for ${userId}`);
-  }
-
-  async setTrustedBackupPubKey(trustedPubKey) {
-    // This should be redundant post cross-signing is a thing, so just
-    // plonk it in localStorage for now.
-    this.sessionStore.setLocalTrustedBackupPubKey(trustedPubKey);
-    await this.backupManager.checkKeyBackup();
   }
   /**
    */
@@ -3109,7 +3098,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
           event.on(_event.MatrixEventEvent.Status, statusListener);
         });
       } catch (err) {
-        _logger.logger.error("error while waiting for the verification event to be sent: " + err.message);
+        _logger.logger.error("error while waiting for the verification event to be sent: ", err);
 
         return;
       } finally {
@@ -3139,7 +3128,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     try {
       await request.channel.handleEvent(event, request, isLiveEvent);
     } catch (err) {
-      _logger.logger.error("error while handling verification event: " + err.message);
+      _logger.logger.error("error while handling verification event", err);
     }
 
     const shouldEmit = isNewRequest && !request.initiatedByMe && !request.invalid && // check it has enough events to pass the UNSENT stage

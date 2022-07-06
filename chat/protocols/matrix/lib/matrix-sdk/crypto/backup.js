@@ -28,6 +28,7 @@ var _index = require("./index");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 const KEY_BACKUP_KEYS_PER_REQUEST = 200;
+const KEY_BACKUP_CHECK_RATE_LIMIT = 5000; // ms
 
 /**
  * Manages the key backup.
@@ -36,6 +37,7 @@ class BackupManager {
   // The info dict from /room_keys/version
   // Have we checked the server for a backup we can use?
   // Are we currently sending backups?
+  // When did we last try to check the server for a given session id?
   constructor(baseApis, getKey) {
     this.baseApis = baseApis;
     this.getKey = getKey;
@@ -47,6 +49,8 @@ class BackupManager {
     _defineProperty(this, "checkedForBackup", void 0);
 
     _defineProperty(this, "sendingBackups", void 0);
+
+    _defineProperty(this, "sessionLastCheckAttemptedTime", {});
 
     this.checkedForBackup = false;
     this.sendingBackups = false;
@@ -228,6 +232,24 @@ class BackupManager {
   async checkKeyBackup() {
     this.checkedForBackup = false;
     return this.checkAndStart();
+  }
+  /**
+   * Attempts to retrieve a session from a key backup, if enough time
+   * has elapsed since the last check for this session id.
+   */
+
+
+  async queryKeyBackupRateLimited(targetRoomId, targetSessionId) {
+    if (!this.backupInfo) {
+      return;
+    }
+
+    const now = new Date().getTime();
+
+    if (!this.sessionLastCheckAttemptedTime[targetSessionId] || now - this.sessionLastCheckAttemptedTime[targetSessionId] > KEY_BACKUP_CHECK_RATE_LIMIT) {
+      this.sessionLastCheckAttemptedTime[targetSessionId] = now;
+      await this.baseApis.restoreKeyBackupWithCache(targetRoomId, targetSessionId, this.backupInfo, {});
+    }
   }
   /**
    * Check if the given backup info is trusted.

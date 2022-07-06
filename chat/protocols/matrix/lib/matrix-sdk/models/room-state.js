@@ -53,6 +53,7 @@ exports.RoomStateEvent = RoomStateEvent;
   RoomStateEvent["NewMember"] = "RoomState.newMember";
   RoomStateEvent["Update"] = "RoomState.update";
   RoomStateEvent["BeaconLiveness"] = "RoomState.BeaconLiveness";
+  RoomStateEvent["Marker"] = "RoomState.Marker";
 })(RoomStateEvent || (exports.RoomStateEvent = RoomStateEvent = {}));
 
 class RoomState extends _typedEventEmitter.TypedEventEmitter {
@@ -349,18 +350,21 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
     this.setStateEvents(unknownStateEvents);
   }
   /**
-   * Add an array of one or more state MatrixEvents, overwriting
-   * any existing state with the same {type, stateKey} tuple. Will fire
-   * "RoomState.events" for every event added. May fire "RoomState.members"
-   * if there are <code>m.room.member</code> events.
+   * Add an array of one or more state MatrixEvents, overwriting any existing
+   * state with the same {type, stateKey} tuple. Will fire "RoomState.events"
+   * for every event added. May fire "RoomState.members" if there are
+   * <code>m.room.member</code> events. May fire "RoomStateEvent.Marker" if there are
+   * <code>UNSTABLE_MSC2716_MARKER</code> events.
    * @param {MatrixEvent[]} stateEvents a list of state events for this room.
+   * @param {IMarkerFoundOptions} markerFoundOptions
    * @fires module:client~MatrixClient#event:"RoomState.members"
    * @fires module:client~MatrixClient#event:"RoomState.newMember"
    * @fires module:client~MatrixClient#event:"RoomState.events"
+   * @fires module:client~MatrixClient#event:"RoomStateEvent.Marker"
    */
 
 
-  setStateEvents(stateEvents) {
+  setStateEvents(stateEvents, markerFoundOptions) {
     this.updateModifiedTime(); // update the core event dict
 
     stateEvents.forEach(event => {
@@ -435,6 +439,8 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
         }); // assume all our sentinels are now out-of-date
 
         this.sentinels = {};
+      } else if (_event.UNSTABLE_MSC2716_MARKER.matches(event.getType())) {
+        this.emit(RoomStateEvent.Marker, event, markerFoundOptions);
       }
     });
     this.emit(RoomStateEvent.Update, this);

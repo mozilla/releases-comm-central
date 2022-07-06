@@ -81,7 +81,8 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "onEcho", event => {
       if (event.threadRootId !== this.id) return; // ignore echoes for other timelines
 
-      if (this.lastEvent === event) return; // There is a risk that the `localTimestamp` approximation will not be accurate
+      if (this.lastEvent === event) return;
+      if (!event.isRelation(THREAD_RELATION_TYPE.name)) return; // There is a risk that the `localTimestamp` approximation will not be accurate
       // when threads are used over federation. That could result in the reply
       // count value drifting away from the value returned by the server
 
@@ -113,10 +114,9 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
     this.room = opts.room;
     this.client = opts.client;
     this.timelineSet = new _eventTimelineSet.EventTimelineSet(this.room, {
-      unstableClientRelationAggregation: true,
       timelineSupport: true,
       pendingEvents: true
-    });
+    }, this.client, this);
     this.reEmitter = new _ReEmitter.TypedReEmitter(this);
     this.reEmitter.reEmit(this.timelineSet, [_matrix.RoomEvent.Timeline, _matrix.RoomEvent.TimelineReset]);
     this.room.on(_matrix.MatrixEventEvent.BeforeRedaction, this.onBeforeRedaction);
@@ -168,7 +168,11 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
 
   addEventToTimeline(event, toStartOfTimeline) {
     if (!this.findEventById(event.getId())) {
-      this.timelineSet.addEventToTimeline(event, this.liveTimeline, toStartOfTimeline, false, this.roomState);
+      this.timelineSet.addEventToTimeline(event, this.liveTimeline, {
+        toStartOfTimeline,
+        fromCache: false,
+        roomState: this.roomState
+      });
     }
   }
 
@@ -192,13 +196,6 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
 
     if (!this._currentUserParticipated && event.getSender() === this.client.getUserId()) {
       this._currentUserParticipated = true;
-    }
-
-    if ([_matrix.RelationType.Annotation, _matrix.RelationType.Replace].includes(event.getRelation()?.rel_type)) {
-      // Apply annotations and replace relations to the relations of the timeline only
-      this.timelineSet.setRelationsTarget(event);
-      this.timelineSet.aggregateRelations(event);
-      return;
     } // Add all incoming events to the thread's timeline set when there's  no server support
 
 
@@ -212,6 +209,11 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
     } else if (!toStartOfTimeline && this.initialEventsFetched && event.localTimestamp > this.lastReply()?.localTimestamp) {
       this.fetchEditsWhereNeeded(event);
       this.addEventToTimeline(event, false);
+    } else if (event.isRelation(_matrix.RelationType.Annotation) || event.isRelation(_matrix.RelationType.Replace)) {
+      // Apply annotations and replace relations to the relations of the timeline only
+      this.timelineSet.relations.aggregateParentEvent(event);
+      this.timelineSet.relations.aggregateChildEvent(event, this.timelineSet);
+      return;
     } // If no thread support exists we want to count all thread relation
     // added as a reply. We can't rely on the bundled relationships count
 
@@ -253,6 +255,8 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
 
   async fetchEditsWhereNeeded(...events) {
     return Promise.all(events.filter(e => e.isEncrypted()).map(event => {
+      if (event.isRelation()) return; // skip - relations don't get edits
+
       return this.client.relations(this.roomId, event.getId(), _matrix.RelationType.Replace, event.getType(), {
         limit: 1
       }).then(relations => {
@@ -290,7 +294,7 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
     return this.timelineSet.findEventById(eventId);
   }
   /**
-   * Return last reply to the thread
+   * Return last reply to the thread, if known.
    */
 
 
@@ -302,6 +306,8 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
         return event;
       }
     }
+
+    return null;
   }
 
   get roomId() {
@@ -318,7 +324,7 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
     return this.replyCount;
   }
   /**
-   * A getter for the last event added to the thread
+   * A getter for the last event added to the thread, if known.
    */
 
 

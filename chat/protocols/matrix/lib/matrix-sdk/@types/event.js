@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.MsgType = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
+exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC2716_MARKER = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.MsgType = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
 
 var _NamespacedValue = require("../NamespacedValue");
 
@@ -158,6 +158,15 @@ const UNSTABLE_MSC3089_LEAF = new _NamespacedValue.UnstableValue("m.leaf", "org.
 exports.UNSTABLE_MSC3089_LEAF = UNSTABLE_MSC3089_LEAF;
 const UNSTABLE_MSC3089_BRANCH = new _NamespacedValue.UnstableValue("m.branch", "org.matrix.msc3089.branch");
 /**
+ * Marker event type to point back at imported historical content in a room. See
+ * [MSC2716](https://github.com/matrix-org/matrix-spec-proposals/pull/2716).
+ * Note that this reference is UNSTABLE and subject to breaking changes,
+ * including its eventual removal.
+ */
+
+exports.UNSTABLE_MSC3089_BRANCH = UNSTABLE_MSC3089_BRANCH;
+const UNSTABLE_MSC2716_MARKER = new _NamespacedValue.UnstableValue("m.room.marker", "org.matrix.msc2716.marker");
+/**
  * Functional members type for declaring a purpose of room members (e.g. helpful bots).
  * Note that this reference is UNSTABLE and subject to breaking changes, including its
  * eventual removal.
@@ -176,7 +185,7 @@ const UNSTABLE_MSC3089_BRANCH = new _NamespacedValue.UnstableValue("m.branch", "
  * }
  */
 
-exports.UNSTABLE_MSC3089_BRANCH = UNSTABLE_MSC3089_BRANCH;
+exports.UNSTABLE_MSC2716_MARKER = UNSTABLE_MSC2716_MARKER;
 const UNSTABLE_ELEMENT_FUNCTIONAL_USERS = new _NamespacedValue.UnstableValue("io.element.functional_members", "io.element.functional_members");
 /**
  * A type of message that affects visibility of a message,

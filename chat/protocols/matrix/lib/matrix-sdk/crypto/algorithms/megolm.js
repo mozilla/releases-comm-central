@@ -137,6 +137,8 @@ class OutboundSessionInfo {
         }
       }
     }
+
+    return false;
   }
 
 }
@@ -163,7 +165,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
   constructor(params) {
     super(params);
 
-    _defineProperty(this, "setupPromise", Promise.resolve(undefined));
+    _defineProperty(this, "setupPromise", Promise.resolve(null));
 
     _defineProperty(this, "outboundSessions", {});
 
@@ -172,8 +174,6 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     _defineProperty(this, "sessionRotationPeriodMs", void 0);
 
     _defineProperty(this, "encryptionPreparation", void 0);
-
-    _defineProperty(this, "encryptionPreparationMetadata", void 0);
 
     this.sessionRotationPeriodMsgs = params.config?.rotation_period_msgs ?? 100;
     this.sessionRotationPeriodMs = params.config?.rotation_period_ms ?? 7 * 24 * 3600 * 1000;
@@ -193,188 +193,198 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
 
   async ensureOutboundSession(room, devicesInRoom, blocked, singleOlmCreationPhase = false) {
-    let session; // takes the previous OutboundSessionInfo, and considers whether to create
+    // takes the previous OutboundSessionInfo, and considers whether to create
     // a new one. Also shares the key with any (new) devices in the room.
-    // Updates `session` to hold the final OutboundSessionInfo.
+    //
+    // Returns the successful session whether keyshare succeeds or not.
     //
     // returns a promise which resolves once the keyshare is successful.
+    const setup = async oldSession => {
+      const sharedHistory = isRoomSharedHistory(room);
+      const session = await this.prepareSession(devicesInRoom, sharedHistory, oldSession);
 
-    const prepareSession = async oldSession => {
-      session = oldSession;
-      const sharedHistory = isRoomSharedHistory(room); // history visibility changed
-
-      if (session && sharedHistory !== session.sharedHistory) {
-        session = null;
-      } // need to make a brand new session?
-
-
-      if (session && session.needsRotation(this.sessionRotationPeriodMsgs, this.sessionRotationPeriodMs)) {
-        _logger.logger.log("Starting new megolm session because we need to rotate.");
-
-        session = null;
-      } // determine if we have shared with anyone we shouldn't have
-
-
-      if (session && session.sharedWithTooManyDevices(devicesInRoom)) {
-        session = null;
+      try {
+        await this.shareSession(devicesInRoom, sharedHistory, singleOlmCreationPhase, blocked, session);
+      } catch (e) {
+        _logger.logger.error(`Failed to ensure outbound session in ${this.roomId}`, e);
       }
 
-      if (!session) {
-        _logger.logger.log(`Starting new megolm session for room ${this.roomId}`);
-
-        session = await this.prepareNewSession(sharedHistory);
-
-        _logger.logger.log(`Started new megolm session ${session.sessionId} ` + `for room ${this.roomId}`);
-
-        this.outboundSessions[session.sessionId] = session;
-      } // now check if we need to share with any devices
-
-
-      const shareMap = {};
-
-      for (const [userId, userDevices] of Object.entries(devicesInRoom)) {
-        for (const [deviceId, deviceInfo] of Object.entries(userDevices)) {
-          const key = deviceInfo.getIdentityKey();
-
-          if (key == this.olmDevice.deviceCurve25519Key) {
-            // don't bother sending to ourself
-            continue;
-          }
-
-          if (!session.sharedWithDevices[userId] || session.sharedWithDevices[userId][deviceId] === undefined) {
-            shareMap[userId] = shareMap[userId] || [];
-            shareMap[userId].push(deviceInfo);
-          }
-        }
-      }
-
-      const key = this.olmDevice.getOutboundGroupSessionKey(session.sessionId);
-      const payload = {
-        type: "m.room_key",
-        content: {
-          "algorithm": olmlib.MEGOLM_ALGORITHM,
-          "room_id": this.roomId,
-          "session_id": session.sessionId,
-          "session_key": key.key,
-          "chain_index": key.chain_index,
-          "org.matrix.msc3061.shared_history": sharedHistory
-        }
-      };
-      const [devicesWithoutSession, olmSessions] = await olmlib.getExistingOlmSessions(this.olmDevice, this.baseApis, shareMap);
-      await Promise.all([(async () => {
-        // share keys with devices that we already have a session for
-        _logger.logger.debug(`Sharing keys with existing Olm sessions in ${this.roomId}`, olmSessions);
-
-        await this.shareKeyWithOlmSessions(session, key, payload, olmSessions);
-
-        _logger.logger.debug(`Shared keys with existing Olm sessions in ${this.roomId}`);
-      })(), (async () => {
-        _logger.logger.debug(`Sharing keys (start phase 1) with new Olm sessions in ${this.roomId}`, devicesWithoutSession);
-
-        const errorDevices = []; // meanwhile, establish olm sessions for devices that we don't
-        // already have a session for, and share keys with them.  If
-        // we're doing two phases of olm session creation, use a
-        // shorter timeout when fetching one-time keys for the first
-        // phase.
-
-        const start = Date.now();
-        const failedServers = [];
-        await this.shareKeyWithDevices(session, key, payload, devicesWithoutSession, errorDevices, singleOlmCreationPhase ? 10000 : 2000, failedServers);
-
-        _logger.logger.debug(`Shared keys (end phase 1) with new Olm sessions in ${this.roomId}`);
-
-        if (!singleOlmCreationPhase && Date.now() - start < 10000) {
-          // perform the second phase of olm session creation if requested,
-          // and if the first phase didn't take too long
-          (async () => {
-            // Retry sending keys to devices that we were unable to establish
-            // an olm session for.  This time, we use a longer timeout, but we
-            // do this in the background and don't block anything else while we
-            // do this.  We only need to retry users from servers that didn't
-            // respond the first time.
-            const retryDevices = {};
-            const failedServerMap = new Set();
-
-            for (const server of failedServers) {
-              failedServerMap.add(server);
-            }
-
-            const failedDevices = [];
-
-            for (const {
-              userId,
-              deviceInfo
-            } of errorDevices) {
-              const userHS = userId.slice(userId.indexOf(":") + 1);
-
-              if (failedServerMap.has(userHS)) {
-                retryDevices[userId] = retryDevices[userId] || [];
-                retryDevices[userId].push(deviceInfo);
-              } else {
-                // if we aren't going to retry, then handle it
-                // as a failed device
-                failedDevices.push({
-                  userId,
-                  deviceInfo
-                });
-              }
-            }
-
-            _logger.logger.debug(`Sharing keys (start phase 2) with new Olm sessions in ${this.roomId}`);
-
-            await this.shareKeyWithDevices(session, key, payload, retryDevices, failedDevices, 30000);
-
-            _logger.logger.debug(`Shared keys (end phase 2) with new Olm sessions in ${this.roomId}`);
-
-            await this.notifyFailedOlmDevices(session, key, failedDevices);
-          })();
-        } else {
-          await this.notifyFailedOlmDevices(session, key, errorDevices);
-        }
-
-        _logger.logger.debug(`Shared keys (all phases done) with new Olm sessions in ${this.roomId}`);
-      })(), (async () => {
-        _logger.logger.debug(`There are ${Object.entries(blocked).length} blocked devices in ${this.roomId}`, Object.entries(blocked)); // also, notify newly blocked devices that they're blocked
-
-
-        _logger.logger.debug(`Notifying newly blocked devices in ${this.roomId}`);
-
-        const blockedMap = {};
-        let blockedCount = 0;
-
-        for (const [userId, userBlockedDevices] of Object.entries(blocked)) {
-          for (const [deviceId, device] of Object.entries(userBlockedDevices)) {
-            if (!session.blockedDevicesNotified[userId] || session.blockedDevicesNotified[userId][deviceId] === undefined) {
-              blockedMap[userId] = blockedMap[userId] || {};
-              blockedMap[userId][deviceId] = {
-                device
-              };
-              blockedCount++;
-            }
-          }
-        }
-
-        await this.notifyBlockedDevices(session, blockedMap);
-
-        _logger.logger.debug(`Notified ${blockedCount} newly blocked devices in ${this.roomId}`, blockedMap);
-      })()]);
-    }; // helper which returns the session prepared by prepareSession
-
-
-    function returnSession() {
       return session;
-    } // first wait for the previous share to complete
+    }; // first wait for the previous share to complete
 
 
-    const prom = this.setupPromise.then(prepareSession); // Ensure any failures are logged for debugging
+    const prom = this.setupPromise.then(setup); // Ensure any failures are logged for debugging
 
     prom.catch(e => {
-      _logger.logger.error(`Failed to ensure outbound session in ${this.roomId}`, e);
+      _logger.logger.error(`Failed to setup outbound session in ${this.roomId}`, e);
     }); // setupPromise resolves to `session` whether or not the share succeeds
 
-    this.setupPromise = prom.then(returnSession, returnSession); // but we return a promise which only resolves if the share was successful.
+    this.setupPromise = prom; // but we return a promise which only resolves if the share was successful.
 
-    return prom.then(returnSession);
+    return prom;
+  }
+
+  async prepareSession(devicesInRoom, sharedHistory, session) {
+    // history visibility changed
+    if (session && sharedHistory !== session.sharedHistory) {
+      session = null;
+    } // need to make a brand new session?
+
+
+    if (session?.needsRotation(this.sessionRotationPeriodMsgs, this.sessionRotationPeriodMs)) {
+      _logger.logger.log("Starting new megolm session because we need to rotate.");
+
+      session = null;
+    } // determine if we have shared with anyone we shouldn't have
+
+
+    if (session?.sharedWithTooManyDevices(devicesInRoom)) {
+      session = null;
+    }
+
+    if (!session) {
+      _logger.logger.log(`Starting new megolm session for room ${this.roomId}`);
+
+      session = await this.prepareNewSession(sharedHistory);
+
+      _logger.logger.log(`Started new megolm session ${session.sessionId} ` + `for room ${this.roomId}`);
+
+      this.outboundSessions[session.sessionId] = session;
+    }
+
+    return session;
+  }
+
+  async shareSession(devicesInRoom, sharedHistory, singleOlmCreationPhase, blocked, session) {
+    // now check if we need to share with any devices
+    const shareMap = {};
+
+    for (const [userId, userDevices] of Object.entries(devicesInRoom)) {
+      for (const [deviceId, deviceInfo] of Object.entries(userDevices)) {
+        const key = deviceInfo.getIdentityKey();
+
+        if (key == this.olmDevice.deviceCurve25519Key) {
+          // don't bother sending to ourself
+          continue;
+        }
+
+        if (!session.sharedWithDevices[userId] || session.sharedWithDevices[userId][deviceId] === undefined) {
+          shareMap[userId] = shareMap[userId] || [];
+          shareMap[userId].push(deviceInfo);
+        }
+      }
+    }
+
+    const key = this.olmDevice.getOutboundGroupSessionKey(session.sessionId);
+    const payload = {
+      type: "m.room_key",
+      content: {
+        "algorithm": olmlib.MEGOLM_ALGORITHM,
+        "room_id": this.roomId,
+        "session_id": session.sessionId,
+        "session_key": key.key,
+        "chain_index": key.chain_index,
+        "org.matrix.msc3061.shared_history": sharedHistory
+      }
+    };
+    const [devicesWithoutSession, olmSessions] = await olmlib.getExistingOlmSessions(this.olmDevice, this.baseApis, shareMap);
+    await Promise.all([(async () => {
+      // share keys with devices that we already have a session for
+      _logger.logger.debug(`Sharing keys with existing Olm sessions in ${this.roomId}`, olmSessions);
+
+      await this.shareKeyWithOlmSessions(session, key, payload, olmSessions);
+
+      _logger.logger.debug(`Shared keys with existing Olm sessions in ${this.roomId}`);
+    })(), (async () => {
+      _logger.logger.debug(`Sharing keys (start phase 1) with new Olm sessions in ${this.roomId}`, devicesWithoutSession);
+
+      const errorDevices = []; // meanwhile, establish olm sessions for devices that we don't
+      // already have a session for, and share keys with them.  If
+      // we're doing two phases of olm session creation, use a
+      // shorter timeout when fetching one-time keys for the first
+      // phase.
+
+      const start = Date.now();
+      const failedServers = [];
+      await this.shareKeyWithDevices(session, key, payload, devicesWithoutSession, errorDevices, singleOlmCreationPhase ? 10000 : 2000, failedServers);
+
+      _logger.logger.debug(`Shared keys (end phase 1) with new Olm sessions in ${this.roomId}`);
+
+      if (!singleOlmCreationPhase && Date.now() - start < 10000) {
+        // perform the second phase of olm session creation if requested,
+        // and if the first phase didn't take too long
+        (async () => {
+          // Retry sending keys to devices that we were unable to establish
+          // an olm session for.  This time, we use a longer timeout, but we
+          // do this in the background and don't block anything else while we
+          // do this.  We only need to retry users from servers that didn't
+          // respond the first time.
+          const retryDevices = {};
+          const failedServerMap = new Set();
+
+          for (const server of failedServers) {
+            failedServerMap.add(server);
+          }
+
+          const failedDevices = [];
+
+          for (const {
+            userId,
+            deviceInfo
+          } of errorDevices) {
+            const userHS = userId.slice(userId.indexOf(":") + 1);
+
+            if (failedServerMap.has(userHS)) {
+              retryDevices[userId] = retryDevices[userId] || [];
+              retryDevices[userId].push(deviceInfo);
+            } else {
+              // if we aren't going to retry, then handle it
+              // as a failed device
+              failedDevices.push({
+                userId,
+                deviceInfo
+              });
+            }
+          }
+
+          _logger.logger.debug(`Sharing keys (start phase 2) with new Olm sessions in ${this.roomId}`);
+
+          await this.shareKeyWithDevices(session, key, payload, retryDevices, failedDevices, 30000);
+
+          _logger.logger.debug(`Shared keys (end phase 2) with new Olm sessions in ${this.roomId}`);
+
+          await this.notifyFailedOlmDevices(session, key, failedDevices);
+        })();
+      } else {
+        await this.notifyFailedOlmDevices(session, key, errorDevices);
+      }
+
+      _logger.logger.debug(`Shared keys (all phases done) with new Olm sessions in ${this.roomId}`);
+    })(), (async () => {
+      _logger.logger.debug(`There are ${Object.entries(blocked).length} blocked devices in ${this.roomId}`, Object.entries(blocked)); // also, notify newly blocked devices that they're blocked
+
+
+      _logger.logger.debug(`Notifying newly blocked devices in ${this.roomId}`);
+
+      const blockedMap = {};
+      let blockedCount = 0;
+
+      for (const [userId, userBlockedDevices] of Object.entries(blocked)) {
+        for (const [deviceId, device] of Object.entries(userBlockedDevices)) {
+          if (!session.blockedDevicesNotified[userId] || session.blockedDevicesNotified[userId][deviceId] === undefined) {
+            blockedMap[userId] = blockedMap[userId] || {};
+            blockedMap[userId][deviceId] = {
+              device
+            };
+            blockedCount++;
+          }
+        }
+      }
+
+      await this.notifyBlockedDevices(session, blockedMap);
+
+      _logger.logger.debug(`Notified ${blockedCount} newly blocked devices in ${this.roomId}`, blockedMap);
+    })()]);
   }
   /**
    * @private
@@ -501,8 +511,9 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
 
   encryptAndSendKeysToDevices(session, chainIndex, userDeviceMap, payload) {
-    const contentMap = {};
-    const deviceInfoByDeviceId = new Map();
+    const contentMap = {}; // Map from userId to a map of deviceId to deviceInfo
+
+    const deviceInfoByUserIdAndDeviceId = new Map();
     const promises = [];
 
     for (let i = 0; i < userDeviceMap.length; i++) {
@@ -514,8 +525,17 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       const val = userDeviceMap[i];
       const userId = val.userId;
       const deviceInfo = val.deviceInfo;
-      const deviceId = deviceInfo.deviceId;
-      deviceInfoByDeviceId.set(deviceId, deviceInfo);
+      const deviceId = deviceInfo.deviceId; // Assign to temp value to make type-checking happy
+
+      let userIdDeviceInfo = deviceInfoByUserIdAndDeviceId.get(userId);
+
+      if (userIdDeviceInfo === undefined) {
+        userIdDeviceInfo = new Map();
+        deviceInfoByUserIdAndDeviceId.set(userId, userIdDeviceInfo);
+      } // We hold by reference, this updates deviceInfoByUserIdAndDeviceId[userId]
+
+
+      userIdDeviceInfo.set(deviceId, deviceInfo);
 
       if (!contentMap[userId]) {
         contentMap[userId] = {};
@@ -558,7 +578,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
         // store that we successfully uploaded the keys of the current slice
         for (const userId of Object.keys(contentMap)) {
           for (const deviceId of Object.keys(contentMap[userId])) {
-            session.markSharedWithDevice(userId, deviceId, deviceInfoByDeviceId.get(deviceId).getIdentityKey(), chainIndex);
+            session.markSharedWithDevice(userId, deviceId, deviceInfoByUserIdAndDeviceId.get(userId).get(deviceId).getIdentityKey(), chainIndex);
           }
         }
       });
@@ -721,7 +741,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
   async shareKeyWithDevices(session, key, payload, devicesByUser, errorDevices, otkTimeout, failedServers) {
     _logger.logger.debug(`Ensuring Olm sessions for devices in ${this.roomId}`);
 
-    const devicemap = await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser, false, otkTimeout, failedServers, _logger.logger.withPrefix(`[${this.roomId}]`));
+    const devicemap = await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser, false, otkTimeout, failedServers, _logger.logger.withPrefix?.(`[${this.roomId}]`));
 
     _logger.logger.debug(`Ensured Olm sessions for devices in ${this.roomId}`);
 
@@ -846,11 +866,11 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
 
   prepareToEncrypt(room) {
-    if (this.encryptionPreparation) {
+    if (this.encryptionPreparation != null) {
       // We're already preparing something, so don't do anything else.
       // FIXME: check if we need to restart
       // (https://github.com/matrix-org/matrix-js-sdk/issues/1255)
-      const elapsedTime = Date.now() - this.encryptionPreparationMetadata.startTime;
+      const elapsedTime = Date.now() - this.encryptionPreparation.startTime;
 
       _logger.logger.debug(`Already started preparing to encrypt for ${this.roomId} ` + `${elapsedTime} ms ago, skipping`);
 
@@ -859,35 +879,33 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
     _logger.logger.debug(`Preparing to encrypt events for ${this.roomId}`);
 
-    this.encryptionPreparationMetadata = {
-      startTime: Date.now()
-    };
+    this.encryptionPreparation = {
+      startTime: Date.now(),
+      promise: (async () => {
+        try {
+          _logger.logger.debug(`Getting devices in ${this.roomId}`);
 
-    this.encryptionPreparation = (async () => {
-      try {
-        _logger.logger.debug(`Getting devices in ${this.roomId}`);
+          const [devicesInRoom, blocked] = await this.getDevicesInRoom(room);
 
-        const [devicesInRoom, blocked] = await this.getDevicesInRoom(room);
+          if (this.crypto.getGlobalErrorOnUnknownDevices()) {
+            // Drop unknown devices for now.  When the message gets sent, we'll
+            // throw an error, but we'll still be prepared to send to the known
+            // devices.
+            this.removeUnknownDevices(devicesInRoom);
+          }
 
-        if (this.crypto.getGlobalErrorOnUnknownDevices()) {
-          // Drop unknown devices for now.  When the message gets sent, we'll
-          // throw an error, but we'll still be prepared to send to the known
-          // devices.
-          this.removeUnknownDevices(devicesInRoom);
+          _logger.logger.debug(`Ensuring outbound session in ${this.roomId}`);
+
+          await this.ensureOutboundSession(room, devicesInRoom, blocked, true);
+
+          _logger.logger.debug(`Ready to encrypt events for ${this.roomId}`);
+        } catch (e) {
+          _logger.logger.error(`Failed to prepare to encrypt events for ${this.roomId}`, e);
+        } finally {
+          delete this.encryptionPreparation;
         }
-
-        _logger.logger.debug(`Ensuring outbound session in ${this.roomId}`);
-
-        await this.ensureOutboundSession(room, devicesInRoom, blocked, true);
-
-        _logger.logger.debug(`Ready to encrypt events for ${this.roomId}`);
-      } catch (e) {
-        _logger.logger.error(`Failed to prepare to encrypt events for ${this.roomId}`, e);
-      } finally {
-        delete this.encryptionPreparationMetadata;
-        delete this.encryptionPreparation;
-      }
-    })();
+      })()
+    };
   }
   /**
    * @inheritdoc
@@ -903,12 +921,12 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
   async encryptMessage(room, eventType, content) {
     _logger.logger.log(`Starting to encrypt event for ${this.roomId}`);
 
-    if (this.encryptionPreparation) {
+    if (this.encryptionPreparation != null) {
       // If we started sending keys, wait for it to be done.
       // FIXME: check if we need to cancel
       // (https://github.com/matrix-org/matrix-js-sdk/issues/1255)
       try {
-        await this.encryptionPreparation;
+        await this.encryptionPreparation.promise;
       } catch (e) {// ignore any errors -- if the preparation failed, we'll just
         // restart everything here
       }
@@ -1141,12 +1159,13 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
 
     if (res === null) {
       // We've got a message for a session we don't have.
-      //
-      // (XXX: We might actually have received this key since we started
+      // try and get the missing key from the backup first
+      this.crypto.backupManager.queryKeyBackupRateLimited(event.getRoomId(), content.session_id).catch(() => {}); // (XXX: We might actually have received this key since we started
       // decrypting, in which case we'll have scheduled a retry, and this
       // request will be redundant. We could probably check to see if the
       // event is still in the pending list; if not, a retry will have been
       // scheduled, so we needn't send out the request here.)
+
       this.requestKeysForEvent(event); // See if there was a problem with the olm session at the time the
       // event was sent.  Use a fuzz factor of 2 minutes.
 
@@ -1223,7 +1242,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       senderPendingEvents.set(sessionId, new Set());
     }
 
-    senderPendingEvents.get(sessionId).add(event);
+    senderPendingEvents.get(sessionId)?.add(event);
   }
   /**
    * Remove an event from the list of those awaiting their session keys.
@@ -1262,15 +1281,14 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
    */
 
 
-  onRoomKeyEvent(event) {
+  async onRoomKeyEvent(event) {
     const content = event.getContent();
-    const sessionId = content.session_id;
     let senderKey = event.getSenderKey();
     let forwardingKeyChain = [];
     let exportFormat = false;
     let keysClaimed;
 
-    if (!content.room_id || !sessionId || !content.session_key) {
+    if (!content.room_id || !content.session_key || !content.session_id || !content.algorithm) {
       _logger.logger.error("key event is missing fields");
 
       return;
@@ -1284,23 +1302,18 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
 
     if (event.getType() == "m.forwarded_room_key") {
       exportFormat = true;
-      forwardingKeyChain = content.forwarding_curve25519_key_chain;
-
-      if (!Array.isArray(forwardingKeyChain)) {
-        forwardingKeyChain = [];
-      } // copy content before we modify it
-
+      forwardingKeyChain = Array.isArray(content.forwarding_curve25519_key_chain) ? content.forwarding_curve25519_key_chain : []; // copy content before we modify it
 
       forwardingKeyChain = forwardingKeyChain.slice();
       forwardingKeyChain.push(senderKey);
-      senderKey = content.sender_key;
 
-      if (!senderKey) {
+      if (!content.sender_key) {
         _logger.logger.error("forwarded_room_key event is missing sender_key field");
 
         return;
       }
 
+      senderKey = content.sender_key;
       const ed25519Key = content.sender_claimed_ed25519_key;
 
       if (!ed25519Key) {
@@ -1322,29 +1335,28 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       extraSessionData.sharedHistory = true;
     }
 
-    return this.olmDevice.addInboundGroupSession(content.room_id, senderKey, forwardingKeyChain, sessionId, content.session_key, keysClaimed, exportFormat, extraSessionData).then(() => {
-      // have another go at decrypting events sent with this session.
-      this.retryDecryption(senderKey, sessionId).then(success => {
+    try {
+      await this.olmDevice.addInboundGroupSession(content.room_id, senderKey, forwardingKeyChain, content.session_id, content.session_key, keysClaimed, exportFormat, extraSessionData); // have another go at decrypting events sent with this session.
+
+      if (await this.retryDecryption(senderKey, content.session_id)) {
         // cancel any outstanding room key requests for this session.
         // Only do this if we managed to decrypt every message in the
         // session, because if we didn't, we leave the other key
         // requests in the hopes that someone sends us a key that
         // includes an earlier index.
-        if (success) {
-          this.crypto.cancelRoomKeyRequest({
-            algorithm: content.algorithm,
-            room_id: content.room_id,
-            session_id: content.session_id,
-            sender_key: senderKey
-          });
-        }
-      });
-    }).then(() => {
-      // don't wait for the keys to be backed up for the server
-      this.crypto.backupManager.backupGroupSession(senderKey, content.session_id);
-    }).catch(e => {
+        this.crypto.cancelRoomKeyRequest({
+          algorithm: content.algorithm,
+          room_id: content.room_id,
+          session_id: content.session_id,
+          sender_key: senderKey
+        });
+      } // don't wait for the keys to be backed up for the server
+
+
+      await this.crypto.backupManager.backupGroupSession(senderKey, content.session_id);
+    } catch (e) {
       _logger.logger.error(`Error handling m.room_key_event: ${e}`);
-    });
+    }
   }
   /**
    * @inheritdoc

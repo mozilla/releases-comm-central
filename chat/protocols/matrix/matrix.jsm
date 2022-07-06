@@ -1838,20 +1838,6 @@ MatrixAccount.prototype = {
   async getClientOptions() {
     let dbName = "chat:matrix:" + this.imAccount.id;
 
-    // Create a storage principal unique to this account.
-    const accountPrincipal = Services.scriptSecurityManager.createContentPrincipal(
-      Services.io.newURI("https://" + this.imAccount.id + ".matrix.localhost"),
-      {}
-    );
-    const localStorage = Services.domStorageManager.createStorage(
-      Services.appShell.hiddenDOMWindow,
-      accountPrincipal,
-      accountPrincipal,
-      ""
-    );
-    // Ensure we start a new session in our storage.
-    localStorage.clear();
-
     const opts = {
       useAuthorizationHeader: true,
       baseUrl: this._baseURL,
@@ -1859,7 +1845,6 @@ MatrixAccount.prototype = {
         indexedDB,
         dbName,
       }),
-      sessionStore: new lazy.MatrixSDK.WebStorageSessionStore(localStorage),
       cryptoStore: new lazy.MatrixSDK.IndexedDBCryptoStore(
         indexedDB,
         dbName + ":crypto"

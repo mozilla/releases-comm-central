@@ -289,8 +289,44 @@ class IndexedDBStore extends _memory.MemoryStore {
         }
       }
     };
+  } // XXX: ideally these would be stored in indexeddb as part of the room but,
+  // we don't store rooms as such and instead accumulate entire sync responses atm.
+
+
+  async getPendingEvents(roomId) {
+    if (!this.localStorage) return super.getPendingEvents(roomId);
+    const serialized = this.localStorage.getItem(pendingEventsKey(roomId));
+
+    if (serialized) {
+      try {
+        return JSON.parse(serialized);
+      } catch (e) {
+        _logger.logger.error("Could not parse persisted pending events", e);
+      }
+    }
+
+    return [];
+  }
+
+  async setPendingEvents(roomId, events) {
+    if (!this.localStorage) return super.setPendingEvents(roomId, events);
+
+    if (events.length > 0) {
+      this.localStorage.setItem(pendingEventsKey(roomId), JSON.stringify(events));
+    } else {
+      this.localStorage.removeItem(pendingEventsKey(roomId));
+    }
   }
 
 }
+/**
+ * @param {string} roomId ID of the current room
+ * @returns {string} Storage key to retrieve pending events
+ */
+
 
 exports.IndexedDBStore = IndexedDBStore;
+
+function pendingEventsKey(roomId) {
+  return `mx_pending_events_${roomId}`;
+}

@@ -408,14 +408,6 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
    */
 
 
-  get isThreadRelation() {
-    return !!this.threadRootId && this.threadId !== this.getId();
-  }
-  /**
-   * @experimental
-   */
-
-
   get isThreadRoot() {
     const threadDetails = this.getServerAggregatedRelation(_thread.THREAD_RELATION_TYPE.name); // Bundled relationships only returned when the sync response is limited
     // hence us having to check both bundled relation and inspect the thread
@@ -723,14 +715,14 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
 
         if (this.retryDecryption) {
           // decryption error, but we have a retry queued.
-          _logger.logger.log(`Got error decrypting event (id=${this.getId()}: ` + `${e}), but retrying`);
+          _logger.logger.log(`Got error decrypting event (id=${this.getId()}: ${e.detailedString}), but retrying`, e);
 
           continue;
         } // decryption error, no retries queued. Warn about the error and
         // set it to m.bad.encrypted.
 
 
-        _logger.logger.warn(`Error decrypting event (id=${this.getId()}): ${e.detailedString}`);
+        _logger.logger.warn(`Got error decrypting event (id=${this.getId()}: ${e.detailedString})`, e);
 
         res = this.badEncryptedMessage(e.message);
       } // at this point, we've either successfully decrypted the event, or have given up

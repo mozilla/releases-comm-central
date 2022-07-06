@@ -91,6 +91,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/MSC3089Branch.js",
     "matrix-sdk/models/MSC3089TreeSpace.js",
     "matrix-sdk/models/related-relations.js",
+    "matrix-sdk/models/relations-container.js",
     "matrix-sdk/models/relations.js",
     "matrix-sdk/models/room-member.js",
     "matrix-sdk/models/room-state.js",
@@ -110,10 +111,6 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
     "matrix-sdk/store/local-storage-events-emitter.js",
     "matrix-sdk/store/memory.js",
     "matrix-sdk/store/stub.js",
-]
-
-EXTRA_JS_MODULES.matrix.matrix_sdk.store.session += [
-    "matrix-sdk/store/session/webstorage.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.types += [

@@ -48,12 +48,12 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
 
     _defineProperty(this, "_isLive", void 0);
 
-    _defineProperty(this, "livenessWatchInterval", void 0);
+    _defineProperty(this, "livenessWatchTimeout", void 0);
 
-    _defineProperty(this, "_latestLocationState", void 0);
+    _defineProperty(this, "_latestLocationEvent", void 0);
 
     _defineProperty(this, "clearLatestLocation", () => {
-      this._latestLocationState = undefined;
+      this._latestLocationEvent = undefined;
       this.emit(BeaconEvent.LocationUpdate, this.latestLocationState);
     });
 
@@ -86,7 +86,11 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
   }
 
   get latestLocationState() {
-    return this._latestLocationState;
+    return this._latestLocationEvent && (0, _contentHelpers.parseBeaconContent)(this._latestLocationEvent.getContent());
+  }
+
+  get latestLocationEvent() {
+    return this._latestLocationEvent;
   }
 
   update(beaconInfoEvent) {
@@ -106,8 +110,8 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
   }
 
   destroy() {
-    if (this.livenessWatchInterval) {
-      clearInterval(this.livenessWatchInterval);
+    if (this.livenessWatchTimeout) {
+      clearTimeout(this.livenessWatchTimeout);
     }
 
     this._isLive = false;
@@ -120,8 +124,8 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
 
 
   monitorLiveness() {
-    if (this.livenessWatchInterval) {
-      clearInterval(this.livenessWatchInterval);
+    if (this.livenessWatchTimeout) {
+      clearTimeout(this.livenessWatchTimeout);
     }
 
     this.checkLiveness();
@@ -130,10 +134,16 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
       const expiryInMs = this._beaconInfo?.timestamp + this._beaconInfo?.timeout - Date.now();
 
       if (expiryInMs > 1) {
-        this.livenessWatchInterval = setInterval(() => {
+        this.livenessWatchTimeout = setTimeout(() => {
           this.monitorLiveness();
         }, expiryInMs);
       }
+    } else if (this._beaconInfo?.timestamp > Date.now()) {
+      // beacon start timestamp is in the future
+      // check liveness again then
+      this.livenessWatchTimeout = setTimeout(() => {
+        this.monitorLiveness();
+      }, this.beaconInfo?.timestamp - Date.now());
     }
   }
   /**
@@ -161,7 +171,7 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
     const latestLocationEvent = validLocationEvents.sort(_utils.sortEventsByLatestContentTimestamp)?.[0];
 
     if (latestLocationEvent) {
-      this._latestLocationState = (0, _contentHelpers.parseBeaconContent)(latestLocationEvent.getContent());
+      this._latestLocationEvent = latestLocationEvent;
       this.emit(BeaconEvent.LocationUpdate, this.latestLocationState);
     }
   }
@@ -172,8 +182,15 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
   }
 
   checkLiveness() {
-    const prevLiveness = this.isLive;
-    this._isLive = this._beaconInfo?.live && isTimestampInDuration(this._beaconInfo?.timestamp, this._beaconInfo?.timeout, Date.now());
+    const prevLiveness = this.isLive; // element web sets a beacon's start timestamp to the senders local current time
+    // when Alice's system clock deviates slightly from Bob's a beacon Alice intended to be live
+    // may have a start timestamp in the future from Bob's POV
+    // handle this by adding 6min of leniency to the start timestamp when it is in the future
+
+    const startTimestamp = this._beaconInfo?.timestamp > Date.now() ? this._beaconInfo?.timestamp - 360000
+    /* 6min */
+    : this._beaconInfo?.timestamp;
+    this._isLive = this._beaconInfo?.live && isTimestampInDuration(startTimestamp, this._beaconInfo?.timeout, Date.now());
 
     if (prevLiveness !== this.isLive) {
       this.emit(BeaconEvent.LivenessChange, this.isLive, this);
