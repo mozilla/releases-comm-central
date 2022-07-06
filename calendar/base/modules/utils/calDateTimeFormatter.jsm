@@ -397,7 +397,7 @@ function getFormatter(formatOptions) {
   }
   // Use en-US when running in a test to make the result independent of the test
   // machine.
-  let locale = Services.appinfo.name == "xpcshell" ? "en-US" : Services.locale.appLocalesAsBCP47;
+  let locale = Services.appinfo.name == "xpcshell" ? "en-US" : undefined;
   let formatter;
   if ("hourCycle" in formatOptions) {
     // FIXME: The hourCycle property is currently ignored by Services.intl, so

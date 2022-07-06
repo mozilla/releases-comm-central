@@ -505,14 +505,10 @@
         try {
           dayList[i] = cal.l10n.getDateFmtString(`day.${tempDate.getDay() + 1}.short`);
         } catch (e) {
-          dayList[i] = tempDate.toLocaleDateString(Services.locale.appLocalesAsBCP47, {
-            weekday: "short",
-          });
+          dayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "short" });
           useOSFormat = true;
         }
-        longDayList[i] = tempDate.toLocaleDateString(Services.locale.appLocalesAsBCP47, {
-          weekday: "long",
-        });
+        longDayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "long" });
         tempDate.setDate(tempDate.getDate() + 1);
       }
 
@@ -687,10 +683,7 @@
           }
 
           if (aDate.getMonth() == date.getMonth() && aDate.getFullYear() == date.getFullYear()) {
-            day.setAttribute(
-              "aria-label",
-              date.toLocaleDateString(Services.locale.appLocalesAsBCP47, { day: "numeric" })
-            );
+            day.setAttribute("aria-label", date.toLocaleDateString(undefined, { day: "numeric" }));
           } else {
             day.setAttribute("aria-label", this.dateFormatter.format(date));
           }
@@ -1010,7 +1003,7 @@
   XPCOMUtils.defineLazyGetter(
     CalendarMinimonth.prototype,
     "dateFormatter",
-    () => new Services.intl.DateTimeFormat(Services.locale.appLocalesAsBCP47, { dateStyle: "long" })
+    () => new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" })
   );
 
   MozXULElement.implementCustomInterface(CalendarMinimonth, [
