@@ -10,8 +10,7 @@ const EXPORTED_SYMBOLS = [
   "StrictLinkClickHandlerParent",
 ];
 
-// Do NOT use `const` here. It messes up contentAreaClick.js.
-var { XPCOMUtils } = ChromeUtils.import(
+const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
@@ -19,7 +18,7 @@ XPCOMUtils.defineLazyScriptGetter(
   // eslint-disable-next-line mozilla/reject-global-this
   this,
   "openLinkExternally",
-  "chrome://communicator/content/contentAreaClick.js"
+  "chrome://browser/content/utilityOverlay.js"
 );
 
 class LinkClickHandlerParent extends JSWindowActorParent {

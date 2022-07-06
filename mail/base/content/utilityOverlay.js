@@ -4,6 +4,9 @@
 
 /* import-globals-from mailWindow.js */
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { PlacesUtils } = ChromeUtils.import(
   "resource://gre/modules/PlacesUtils.jsm"
 );
@@ -335,13 +338,131 @@ function openPrivacyPolicy(where) {
   openContentTab(url, where);
 }
 
-/* Used by the Add-on manager's search box */
-function openLinkIn(aURL, aWhere, aOpenParams) {
-  if (!aURL) {
+/**
+ * Used by the developer tools (in the toolbox process) and a few toolkit pages
+ * for opening URLs.
+ *
+ * Thunderbird code should avoid using this function.
+ *
+ * This is similar, but not identical, to the same function in Firefox.
+ *
+ * @param {string} url - The URL to load.
+ * @param {string} [where] - Ignored, only here for compatibility.
+ * @param {object} [openParams] - Optional parameters for changing behaviour.
+ */
+function openTrustedLinkIn(url, where, params = {}) {
+  if (!params.triggeringPrincipal) {
+    params.triggeringPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
+  }
+
+  openLinkIn(url, where, params);
+}
+
+/**
+ * Used by the developer tools (in the toolbox process) for opening URLs.
+ * MDN URLs get send to a browser, all others are displayed in a new window.
+ *
+ * Thunderbird code should avoid using this function.
+ *
+ * This is similar, but not identical, to the same function in Firefox.
+ *
+ * @param {string} url - The URL to load.
+ * @param {string} [where] - Ignored, only here for compatibility.
+ * @param {object} [openParams] - Optional parameters for changing behaviour.
+ */
+function openWebLinkIn(url, where, params = {}) {
+  if (url.startsWith("https://developer.mozilla.org/")) {
+    openLinkExternally(url);
     return;
   }
-  // Open a new tab and set the regexp to open links from the Addons site in Thunderbird.
-  switchToTabHavingURI(aURL, true);
+
+  if (!params.triggeringPrincipal) {
+    params.triggeringPrincipal = Services.scriptSecurityManager.createNullPrincipal(
+      {}
+    );
+  }
+  if (params.triggeringPrincipal.isSystemPrincipal) {
+    throw new Error(
+      "System principal should never be passed into openWebLinkIn()"
+    );
+  }
+
+  openLinkIn(url, where, params);
+}
+
+/**
+ * Loads a URL in Thunderbird. If this is a mail:3pane window, the URL opens
+ * in a content tab, otherwise a new window is opened.
+ *
+ * This is similar, but not identical, to the same function in Firefox.
+ *
+ * @param {string} url - The URL to load.
+ * @param {string} [where] - Ignored, only here for compatibility.
+ * @param {object} [openParams] - Optional parameters for changing behaviour.
+ */
+function openLinkIn(url, where, openParams) {
+  if (!url) {
+    return;
+  }
+
+  if ("switchToTabHavingURI" in window) {
+    switchToTabHavingURI(url, true);
+    return;
+  }
+
+  // If we get here, this isn't a mail:3pane window, which means it's probably
+  // the developer tools window and therefore a completely separate program
+  // from the rest of Thunderbird. Be careful what you do here.
+
+  let args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let uri = Cc["@mozilla.org/supports-string;1"].createInstance(
+    Ci.nsISupportsString
+  );
+  uri.data = url;
+  args.appendElement(uri);
+
+  let win = Services.ww.openWindow(
+    window,
+    AppConstants.BROWSER_CHROME_URL,
+    null,
+    "chrome,dialog=no,all",
+    args
+  );
+
+  if (openParams.resolveOnContentBrowserCreated) {
+    win.addEventListener("load", () =>
+      openParams.resolveOnContentBrowserCreated(win.gBrowser.selectedBrowser)
+    );
+  }
+}
+
+/**
+ * Forces a url to open in an external application according to the protocol
+ * service settings.
+ *
+ * @param url  A url string or an nsIURI containing the url to open.
+ */
+function openLinkExternally(url) {
+  let uri = url;
+  if (!(uri instanceof Ci.nsIURI)) {
+    uri = Services.io.newURI(url);
+  }
+
+  // This can fail if there is a problem with the places database.
+  PlacesUtils.history
+    .insert({
+      url, // accepts both string and nsIURI
+      visits: [
+        {
+          date: new Date(),
+        },
+      ],
+    })
+    .catch(Cu.reportError);
+
+  Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+    .getService(Ci.nsIExternalProtocolService)
+    .loadURI(uri);
 }
 
 /**
