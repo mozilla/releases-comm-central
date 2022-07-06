@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/colors.css");
 
 :root {
-  --recipient-avatar-size: 26px;
+  --recipient-avatar-size: 28px;
   --recipient-avatar-placeholder-size: 16px;
 
   --recipient-avatar-color: var(--color-gray-50);
@@ -13,7 +13,7 @@
 }
 
 :root[uidensity="compact"] {
-  --recipient-avatar-size: 16px;
+  --recipient-avatar-size: 24px;
   --recipient-avatar-placeholder-size: contain;
   --recipient-multi-line-gap: 0;
 }

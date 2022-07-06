@@ -1151,6 +1151,20 @@ customElements.define("ab-card-search-input", AbCardSearchInput, {
 class AbCardListrow extends customElements.get("tree-view-listrow") {
   static ROW_HEIGHT = 46;
 
+  static densityChange() {
+    switch (UIDensity.prefValue) {
+      case UIDensity.MODE_COMPACT:
+        AbCardListrow.ROW_HEIGHT = 36;
+        break;
+      case UIDensity.MODE_TOUCH:
+        AbCardListrow.ROW_HEIGHT = 60;
+        break;
+      default:
+        AbCardListrow.ROW_HEIGHT = 46;
+        break;
+    }
+  }
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -1413,11 +1427,11 @@ var cardsPane = {
       }
     });
     window.addEventListener("uidensitychange", () => {
+      AbCardListrow.densityChange();
       AbTableCardListrow.densityChange();
-      if (cardsPane.cardsList.getAttribute("rows") == "ab-table-card-listrow") {
-        cardsPane.cardsList.invalidate();
-      }
+      cardsPane.cardsList.invalidate();
     });
+    AbCardListrow.densityChange();
     AbTableCardListrow.densityChange();
 
     document

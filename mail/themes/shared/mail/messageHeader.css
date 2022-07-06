@@ -20,7 +20,7 @@
 }
 
 :root[uidensity="compact"] {
-  --recipient-avatar-size: 16px;
+  --recipient-avatar-size: 20px;
   --recipient-avatar-placeholder-size: contain;
   --recipient-avatar-margin-block-start: -2px;
   --recipient-multi-line-gap: 0;
