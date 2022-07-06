@@ -363,7 +363,7 @@ DateFacetVis.prototype = {
           .font(this._AXIS_FONT)
           .textAlign("center")
           .textBaseline("top")
-          .textStyle("black")
+          .textStyle("var(--dateTextColor)")
           .text(d => d[2]);
       }
     }

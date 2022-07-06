@@ -3,15 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://messenger/skin/colors.css");
 
 html,
 body {
   margin: 0;
   padding: 0;
 }
+
 body {
   height: 100%;
   overflow-y: auto;
+}
+
+#body {
+  --dateColor: var(--color-gray-20);
+  --dateTextColor: var(--color-gray-90);
+}
+
+@media (prefers-color-scheme: dark) {
+  #body {
+    --dateColor: var(--color-gray-60);
+    --dateTextColor: var(--color-white);
+  }
 }
 
 #gloda-facet-view {
