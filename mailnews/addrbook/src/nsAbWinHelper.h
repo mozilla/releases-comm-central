@@ -6,7 +6,7 @@
 #define nsAbWinHelper_h___
 
 #include <windows.h>
-#include <mapix.h>
+#include "../../mapi/include/mapix.h"
 
 #include "nsString.h"
 #include "mozilla/StaticMutex.h"

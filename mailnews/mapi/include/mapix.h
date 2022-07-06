@@ -15,16 +15,16 @@
 
 /* Include common MAPI header files if they haven't been already. */
 #ifndef MAPIDEFS_H
-#include <mapidefs.h>
+#include "mapidefs.h"
 #endif
 #ifndef MAPICODE_H
-#include <mapicode.h>
+#include "mapicode.h"
 #endif
 #ifndef MAPIGUID_H
-#include <mapiguid.h>
+#include "mapiguid.h"
 #endif
 #ifndef MAPITAGS_H
-#include <mapitags.h>
+#include "mapitags.h"
 #endif
 
 #ifdef	__cplusplus
