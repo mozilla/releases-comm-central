@@ -65,6 +65,17 @@ XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
       ],
       resizeCallback: ({ title, frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);
+
+        // Resize the dialog to fit the content with edited font size.
+        requestAnimationFrame(() => {
+          let dialogs = frame.ownerGlobal.gSubDialog._dialogs;
+          let dialog = dialogs.find(
+            d => d._frame.contentDocument == frame.contentDocument
+          );
+          if (dialog) {
+            UIFontSize.resizeSubDialog(dialog);
+          }
+        });
       },
     },
   });

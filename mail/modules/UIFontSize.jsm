@@ -118,7 +118,7 @@ var UIFontSize = {
    */
   get size() {
     // If the pref is set to 0, it means the user never changed font size so we
-    // the default OS font size.
+    // return the default OS font size.
     return this.prefValue || this.user_value;
   },
 
@@ -271,6 +271,54 @@ var UIFontSize = {
       default:
         break;
     }
+  },
+
+  /**
+   * Ensure the subdialogs are properly resized to fit larger font size
+   * variations.
+   * This is copied from SubDialog.jsm:resizeDialog(), and we need to do that
+   * because that method triggers again the `resizeCallback` and `dialogopen`
+   * Event, which we use to detect the opening of a dialog, therefore calling
+   * the `resizeDialog()` method would cause an infinite loop.
+   * @param {SubDialog} dialog - The dialog prototype.
+   */
+  resizeSubDialog(dialog) {
+    // No need to update the dialog size if the font size wasn't changed.
+    if (this.prefValue == this.DEFAULT) {
+      return;
+    }
+    let docEl = dialog._frame.contentDocument.documentElement;
+
+    // These are deduced from styles which we don't change, so it's safe to get
+    // them now:
+    let boxHorizontalBorder =
+      2 *
+      parseFloat(dialog._window.getComputedStyle(dialog._box).borderLeftWidth);
+    let frameHorizontalMargin =
+      2 * parseFloat(dialog._window.getComputedStyle(dialog._frame).marginLeft);
+
+    // Then determine and set a bunch of width stuff:
+    let { scrollWidth } = docEl.ownerDocument.body || docEl;
+    let frameMinWidth = docEl.style.width || scrollWidth + "px";
+    let frameWidth = docEl.getAttribute("width")
+      ? docEl.getAttribute("width") + "px"
+      : frameMinWidth;
+
+    if (dialog._box.getAttribute("sizeto") != "available") {
+      dialog._frame.style.width = frameWidth;
+    }
+
+    let boxMinWidth = `calc(${boxHorizontalBorder +
+      frameHorizontalMargin}px + ${frameMinWidth})`;
+
+    // Temporary fix to allow parent chrome to collapse properly to min width.
+    // See Bug 1658722.
+    if (dialog._window.isChromeWindow) {
+      boxMinWidth = `min(80vw, ${boxMinWidth})`;
+    }
+    dialog._box.style.minWidth = boxMinWidth;
+
+    dialog.resizeVertically();
   },
 };
 
