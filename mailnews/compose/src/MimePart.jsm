@@ -306,7 +306,7 @@ class MimePart {
         this._bodyAttachment.name
       );
     }
-    this._charset = this._contentType
+    this._charset = this._contentType.startsWith("text/")
       ? MailStringUtils.detectCharset(content)
       : "";
 
