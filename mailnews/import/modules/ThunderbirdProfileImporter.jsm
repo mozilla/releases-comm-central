@@ -826,8 +826,13 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     let keyMap = new Map();
     let branch = Services.prefs.getBranch(ADDRESS_BOOK);
     for (let [type, name, value] of prefs) {
-      let key = name.split(".")[0];
+      let [key, attr] = name.split(".");
       if (["pab", "history"].includes(key)) {
+        continue;
+      }
+      if (attr == "uid") {
+        // Prevent duplicated uids when importing back, uid will be created when
+        // first used.
         continue;
       }
       let newKey = keyMap.get(key);
@@ -911,6 +916,13 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         await this._migrateMabToSqlite(sourceFile, targetFile);
       } else {
         sourceFile.copyTo(targetFile.parent, targetFile.leafName);
+        // Write-Ahead Logging file contains changes not written to .sqlite file
+        // yet.
+        let sourceWalFile = this._sourceProfileDir.clone();
+        sourceWalFile.append(filename + "-wal");
+        if (sourceWalFile.exists()) {
+          sourceWalFile.copyTo(targetFile.parent, targetFile.leafName + "-wal");
+        }
       }
     }
 

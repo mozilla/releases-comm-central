@@ -297,6 +297,16 @@ class AddrBookFileImporter {
         Services.dirsvc.get("ProfD", Ci.nsIFile),
         tmpDirectory.fileName
       );
+      // Write-Ahead Logging file contains changes not written to .sqlite file
+      // yet.
+      let sourceWalFile = this._sourceFile.parent.clone();
+      sourceWalFile.append(this._sourceFile.leafName + "-wal");
+      if (sourceWalFile.exists()) {
+        sourceWalFile.copyTo(
+          Services.dirsvc.get("ProfD", Ci.nsIFile),
+          tmpDirectory.fileName + "-wal"
+        );
+      }
       // Open a new connection to use the new database file.
       let uri = tmpDirectory.URI;
       tmpDirectory = Cc[
