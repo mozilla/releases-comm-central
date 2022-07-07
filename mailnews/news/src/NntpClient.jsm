@@ -151,8 +151,12 @@ class NntpClient {
         this._actionDone();
         return;
       default:
-        if (res.status >= 400) {
-          if (this._msgWindow) {
+        if (
+          res.status != AUTH_FAILED &&
+          res.status >= 400 &&
+          res.status < 500
+        ) {
+          if (this._msgWindow && this._articleNumber) {
             let uri = `about:newserror?r=${res.statusText}`;
             if (this._articleNumber.startsWith("<")) {
               uri += `&m=${encodeURIComponent(this._articleNumber)}`;

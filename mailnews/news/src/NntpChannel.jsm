@@ -279,13 +279,17 @@ class NntpChannel {
       client.runningUri = this.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
       this._listener.onStartRequest(this);
       client.onOpen = () => {
+        let msgWindow;
+        try {
+          msgWindow = this.URI.msgWindow;
+        } catch (e) {}
         if (this._messageId) {
-          client.getArticleByMessageId(this._messageId, this.URI.msgWindow);
+          client.getArticleByMessageId(this._messageId, msgWindow);
         } else {
           client.getArticleByArticleNumber(
             this._groupName,
             this._articleNumber,
-            this.URI.msgWindow
+            msgWindow
           );
         }
       };
