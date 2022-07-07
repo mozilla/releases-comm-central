@@ -510,3 +510,16 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 }
+
+/* Global notification popup */
+
+#notification-popup {
+  appearance: none;
+  background: transparent;
+  border: none;
+}
+
+#notification-popup::part(content) {
+  margin: 4px;
+  box-shadow: var(--windows-panel-box-shadow);
+}

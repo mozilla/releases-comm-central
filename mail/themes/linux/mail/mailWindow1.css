@@ -65,3 +65,10 @@
 #tabpanelcontainer {
   appearance: none;
 }
+
+/* Global notification popup */
+
+#notification-popup {
+  background-color: transparent;
+  border: none;
+}

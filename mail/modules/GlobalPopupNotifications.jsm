@@ -1044,7 +1044,7 @@ PopupNotifications.prototype = {
       this._popupshownListener = this._popupshownListener.bind(this);
       target.addEventListener("popupshown", this._popupshownListener, true);
 
-      this.panel.openPopup(anchorElement, "bottomcenter topleft", 0, 0);
+      this.panel.openPopup(anchorElement, "after_end", 0, 0, true);
     });
   },
 

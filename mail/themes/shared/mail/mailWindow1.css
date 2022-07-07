@@ -202,3 +202,19 @@ treechildren::-moz-tree-cell-text(dummy) {
   fill: var(--select-focus-text-color);
   stroke: var(--select-focus-text-color);
 }
+
+/* Global notification popup */
+
+#notification-popup {
+  --panel-background: var(--arrowpanel-background);
+  --panel-color: var(--arrowpanel-color);
+  --panel-border-color: var(--arrowpanel-border-color);
+  --panel-border-radius: var(--arrowpanel-border-radius);
+  --panel-padding: var(--arrowpanel-padding);
+  margin-block: 0;
+}
+
+#notification-popup::part(content) {
+  padding: 0;
+  overflow: hidden; /* Don't let panel content overflow the border */
+}

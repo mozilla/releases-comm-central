@@ -78,3 +78,15 @@ treechildren::-moz-tree-row(dummy) {
 .telemetry-text-link {
   color: #fff;
 }
+
+/* Global notification popup */
+
+#notification-popup {
+  appearance: none;
+  background: transparent;
+  margin-top: 4px;
+}
+
+#notification-popup::part(content) {
+  margin: 1px;
+}
