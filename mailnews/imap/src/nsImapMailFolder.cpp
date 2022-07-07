@@ -1264,7 +1264,6 @@ NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
     folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
   }
   if (WeAreOffline()) return NS_OK;
-  m_expunging = true;
   return Expunge(this, aMsgWindow);
 }
 
@@ -1300,6 +1299,7 @@ NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  m_expunging = true;
   return imapService->Expunge(this, aListener, aMsgWindow);
 }
 
@@ -1326,7 +1326,21 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
       do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
+  rv = folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!WeAreOffline()) {
+    // Tell all the folders to also kick off an Expunge on the server.
+    for (auto& folder : folderArray) {
+      nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(folder));
+      if (imapFolder) {
+        nsCOMPtr<nsIUrlListener> l(do_QueryInterface(folder));
+        rv = imapFolder->Expunge(l, aMsgWindow);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+    }
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener,
