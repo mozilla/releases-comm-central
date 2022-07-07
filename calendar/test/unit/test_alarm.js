@@ -11,10 +11,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-function run_test() {
-  // Initialize the floating timezone without actually starting the service.
-  cal.timezoneService.floating; // eslint-disable-line no-unused-expressions
-
+function run_tests() {
   test_initial_creation();
 
   test_display_alarm();
@@ -30,6 +27,10 @@ function run_test() {
   test_immutable();
   test_serialize();
   test_strings();
+}
+
+function run_test() {
+  do_calendar_startup(run_tests);
 }
 
 function test_initial_creation() {

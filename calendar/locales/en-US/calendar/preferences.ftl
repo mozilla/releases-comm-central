@@ -19,6 +19,11 @@ dateformat-long =
 dateformat-short =
     .label = Short: { $date }
 
+use-system-timezone-radio-button =
+    .label = Use system timezone
+set-timezone-manually-radio-button =
+    .label = Set timezone manually
+
 timezone-label =
     .value = Timezone:
 

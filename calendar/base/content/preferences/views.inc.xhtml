@@ -22,7 +22,23 @@
         </menulist>
       </hbox>
       <spacer/>
-      <hbox align="center">
+#if defined(XP_WIN) || defined(XP_MACOSX) || defined(MOZ_WIDGET_GTK) && defined(MOZ_ENABLE_DBUS)
+      <radiogroup id="timezone-source-radio-group"
+                  orient="vertical"
+                  preference="calendar.timezone.use-system-timezone">
+        <hbox align="center">
+          <radio id="use-system-timezone-radio-button"
+                 value="true"
+                 data-l10n-id="use-system-timezone-radio-button"/>
+        </hbox>
+        <hbox>
+          <radio id="set-timezone-manually-radio-button"
+                 value="false"
+                 data-l10n-id="set-timezone-manually-radio-button"/>
+        </hbox>
+      </radiogroup>
+      <spacer/><spacer/>
+      <hbox align="center" class="indent">
         <label data-l10n-id="timezone-label"
                control="calendar-timezone-menulist"/>
       </hbox>
@@ -33,6 +49,19 @@
           <menupopup id="calendar-timezone-menupopup"/>
         </menulist>
       </hbox>
+#else
+      <hbox align="center" class="indent">
+        <label data-l10n-id="timezone-label"
+               control="calendar-timezone-menulist"/>
+      </hbox>
+      <hbox align="center">
+        <menulist id="calendar-timezone-menulist"
+                  flex="1"
+                  preference="calendar.timezone.local">
+          <menupopup id="calendar-timezone-menupopup"/>
+        </menulist>
+      </hbox>
+#endif
       <spacer/>
       <hbox align="center" flex="1">
         <label data-l10n-id="weekstart-label"

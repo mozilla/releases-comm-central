@@ -6,10 +6,10 @@
 
 var EXPORTED_SYMBOLS = ["CalTimezoneService"];
 
+var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
@@ -19,6 +19,8 @@ const lazy = {};
 XPCOMUtils.defineLazyPreferenceGetter(lazy, "gUseIcaljs", "calendar.icaljs", false);
 
 Services.scriptloader.loadSubScript("resource:///components/calTimezone.js");
+
+const TIMEZONE_CHANGED_TOPIC = "default-timezone-changed";
 
 function calStringEnumerator(stringArray) {
   this.mIndex = 0;
@@ -55,7 +57,6 @@ var calTimezoneServiceInterfaces = [
 ];
 CalTimezoneService.prototype = {
   mDefaultTimezone: null,
-  mHasSetupObservers: false,
   mVersion: null,
   mZones: null,
 
@@ -143,6 +144,14 @@ CalTimezoneService.prototype = {
       })
       .then(
         () => {
+          // Initialize default timezone and, if unset, user timezone prefs
+          this._initTimezone();
+
+          // Watch for changes in system timezone or related user preferences
+          Services.prefs.addObserver("calendar.timezone.use-system-timezone", this);
+          Services.prefs.addObserver("calendar.timezone.local", this);
+          Services.obs.addObserver(this, TIMEZONE_CHANGED_TOPIC);
+
           if (aCompleteListener) {
             aCompleteListener.onResult(null, Cr.NS_OK);
           }
@@ -154,7 +163,9 @@ CalTimezoneService.prototype = {
   },
 
   shutdown(aCompleteListener) {
+    Services.obs.removeObserver(this, TIMEZONE_CHANGED_TOPIC);
     Services.prefs.removeObserver("calendar.timezone.local", this);
+    Services.prefs.removeObserver("calendar.timezone.use-system-timezone", this);
     aCompleteListener.onResult(null, Cr.NS_OK);
   },
 
@@ -260,54 +271,86 @@ CalTimezoneService.prototype = {
     return this.mVersion;
   },
 
-  get defaultTimezone() {
-    if (!this.mDefaultTimezone) {
-      let prefTzid = Services.prefs.getStringPref("calendar.timezone.local", null);
-      let tzid = prefTzid;
-      // If a user already has a profile created by an earlier version
-      // with floating timezone, set the correctly guessed timezone.
-      if (!tzid || tzid == "floating") {
-        tzid = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (!this.mZones.get(tzid)) {
-          try {
-            tzid = guessSystemTimezone();
-            cal.WARN("Could not determine system default timezone, using a guess: " + tzid);
-          } catch (e) {
-            cal.WARN(
-              "An exception occurred guessing the system timezone, trying UTC. Exception: " + e
-            );
-            tzid = "UTC";
-          }
+  _initTimezone() {
+    // If the "use system timezone" preference is unset, we default to enabling
+    // it if the user's system supports it
+    let isSetSystemTimezonePref = Services.prefs.prefHasUserValue(
+      "calendar.timezone.use-system-timezone"
+    );
+
+    if (!isSetSystemTimezonePref) {
+      let canUseSystemTimezone = AppConstants.MOZ_CAN_FOLLOW_SYSTEM_TIME;
+
+      Services.prefs.setBoolPref("calendar.timezone.use-system-timezone", canUseSystemTimezone);
+    }
+
+    this._updateDefaultTimezone();
+  },
+
+  _updateDefaultTimezone() {
+    let prefUseSystemTimezone = Services.prefs.getBoolPref(
+      "calendar.timezone.use-system-timezone",
+      true
+    );
+    let prefTzid = Services.prefs.getStringPref("calendar.timezone.local", null);
+
+    let tzid;
+    if (prefUseSystemTimezone || prefTzid === null || prefTzid === "floating") {
+      // If we do not have a timezone preference set, we default to using the
+      // system time; we may also do this if the user has set their preferences
+      // accordingly
+      tzid = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      if (!this.getTimezone(tzid)) {
+        // The zones database is incomplete or we may otherwise fail to get
+        // correct information; in this case, fall back to guessing or—in the
+        // worst case—UTC
+        try {
+          tzid = guessSystemTimezone();
+          cal.WARN(`Could not determine system default timezone, using a guess: ${tzid}`);
+        } catch (e) {
+          cal.WARN(
+            `An exception occurred guessing the system timezone, trying UTC. Exception: ${e}`
+          );
+          tzid = "UTC";
         }
       }
+    } else {
+      tzid = prefTzid;
+    }
+
+    // Update default timezone and preference if necessary
+    if (!this.mDefaultTimezone || this.mDefaultTimezone.tzid != tzid) {
       this.mDefaultTimezone = this.getTimezone(tzid);
-      cal.ASSERT(this.mDefaultTimezone, "Timezone not found: " + tzid);
-      // Update prefs if necessary:
-      if (this.mDefaultTimezone && this.mDefaultTimezone.tzid != prefTzid) {
+      cal.ASSERT(this.mDefaultTimezone, `Timezone not found: ${tzid}`);
+      Services.obs.notifyObservers(null, "defaultTimezoneChanged");
+
+      if (this.mDefaultTimezone.tzid != prefTzid) {
         Services.prefs.setStringPref("calendar.timezone.local", this.mDefaultTimezone.tzid);
       }
-
-      // We need to observe the timezone preference to update the default
-      // timezone if needed.
-      this.setupObservers();
     }
+  },
+
+  get defaultTimezone() {
+    // We expect this to be initialized when the service comes up, so we can
+    // simply return here
     return this.mDefaultTimezone;
   },
 
-  setupObservers() {
-    if (!this.mHasSetupObservers) {
-      // Now set up the observer
-      Services.prefs.addObserver("calendar.timezone.local", this);
-      this.mHasSetupObservers = true;
-    }
-  },
-
   observe(aSubject, aTopic, aData) {
-    if (aTopic == "nsPref:changed" && aData == "calendar.timezone.local") {
-      // Unsetting the default timezone will make the next call to the
-      // default timezone getter set up the correct timezone again.
-      this.mDefaultTimezone = null;
-      Services.obs.notifyObservers(null, "defaultTimezoneChanged");
+    // Update the default timezone if the system timezone has changed; we
+    // expect the update function to decide if actually making the change is
+    // appropriate based on user prefs
+    if (aTopic == TIMEZONE_CHANGED_TOPIC) {
+      this._updateDefaultTimezone();
+    } else if (
+      aTopic == "nsPref:changed" &&
+      (aData == "calendar.timezone.use-system-timezone" || aData == "calendar.timezone.local")
+    ) {
+      // We may get a bogus second update from the timezone pref if its change
+      // is a result of the system timezone changing, but it should settle, and
+      // trying to guard against it is full of corner cases
+      this._updateDefaultTimezone();
     }
   },
 };

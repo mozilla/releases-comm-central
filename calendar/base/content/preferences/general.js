@@ -13,6 +13,7 @@ Preferences.addAll([
   { id: "calendar.date.format", type: "int" },
   { id: "calendar.event.defaultlength", type: "int" },
   { id: "calendar.timezone.local", type: "string" },
+  { id: "calendar.timezone.use-system-timezone", type: "bool" },
   { id: "calendar.task.defaultstart", type: "string" },
   { id: "calendar.task.defaultstartoffset", type: "int" },
   { id: "calendar.task.defaultstartoffsetunits", type: "string" },
@@ -34,6 +35,8 @@ var gCalendarGeneralPane = {
    * values set in prefs.
    */
   init() {
+    this.onChangedUseSystemTimezonePref();
+
     let formatter = cal.dtz.formatter;
     let dateFormattedLong = formatter.formatDateLong(cal.dtz.now());
     let dateFormattedShort = formatter.formatDateShort(cal.dtz.now());
@@ -132,4 +135,15 @@ var gCalendarGeneralPane = {
       pref.value = 14;
     }
   },
+
+  onChangedUseSystemTimezonePref() {
+    let useSystemTimezonePref = Preferences.get("calendar.timezone.use-system-timezone");
+
+    document.getElementById("calendar-timezone-menulist").disabled = useSystemTimezonePref.value;
+  },
 };
+
+Preferences.get("calendar.timezone.use-system-timezone").on(
+  "change",
+  gCalendarGeneralPane.onChangedUseSystemTimezonePref
+);
