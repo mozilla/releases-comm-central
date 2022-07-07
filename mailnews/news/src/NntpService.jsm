@@ -131,7 +131,7 @@ class NntpService {
       client.urlListener = urlListener;
 
       client.onOpen = () => {
-        client.getArticleByArticleNumber(folder.name, key);
+        client.getArticleByArticleNumber(folder.name, key, msgWindow);
         streamListener?.onStartRequest(null);
       };
       client.onData = data => {

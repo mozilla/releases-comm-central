@@ -280,11 +280,12 @@ class NntpChannel {
       this._listener.onStartRequest(this);
       client.onOpen = () => {
         if (this._messageId) {
-          client.getArticleByMessageId(this._messageId);
+          client.getArticleByMessageId(this._messageId, this.URI.msgWindow);
         } else {
           client.getArticleByArticleNumber(
             this._groupName,
-            this._articleNumber
+            this._articleNumber,
+            this.URI.msgWindow
           );
         }
       };

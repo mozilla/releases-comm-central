@@ -150,6 +150,30 @@ class NntpClient {
       case SERVICE_UNAVAILABLE:
         this._actionDone();
         return;
+      default:
+        if (res.status >= 400) {
+          if (this._msgWindow) {
+            let uri = `about:newserror?r=${res.statusText}`;
+            if (this._articleNumber.startsWith("<")) {
+              uri += `&m=${encodeURIComponent(this._articleNumber)}`;
+            } else {
+              let msgId = this._newsFolder?.getMessageIdForKey(
+                this._articleNumber
+              );
+              if (msgId) {
+                uri += `&m=${encodeURIComponent(msgId)}`;
+              }
+              uri += `&k=${this._articleNumber}`;
+            }
+            this._msgWindow.displayURIInMessagePane(
+              uri,
+              true,
+              Services.scriptSecurityManager.getSystemPrincipal()
+            );
+          }
+          this._actionDone(Cr.NS_ERROR_FAILURE);
+          return;
+        }
     }
 
     this._nextAction?.(res);
@@ -260,11 +284,13 @@ class NntpClient {
    * Get a single article by group name and article number.
    * @param {string} groupName - The group name.
    * @param {string} articleNumber - The article number.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  getArticleByArticleNumber(groupName, articleNumber) {
+  getArticleByArticleNumber(groupName, articleNumber, msgWindow) {
     this._newsFolder = this._server.rootFolder.getChildNamed(groupName);
     this._nextGroupName = this._getNextGroupName(groupName);
     this._articleNumber = articleNumber;
+    this._msgWindow = msgWindow;
     this._firstGroupCommand = this._actionArticle;
     this._actionModeReader(this._actionGroup);
   }
@@ -272,9 +298,11 @@ class NntpClient {
   /**
    * Get a single article by the message id.
    * @param {string} messageId - The message id.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  getArticleByMessageId(messageId) {
+  getArticleByMessageId(messageId, msgWindow) {
     this._articleNumber = `<${messageId}>`;
+    this._msgWindow = msgWindow;
     this._actionModeReader(this._actionArticle);
   }
 
