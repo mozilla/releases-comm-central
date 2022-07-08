@@ -501,18 +501,6 @@
 
 /* :::: primary toolbar buttons :::: */
 
-/* TEMPORARY: use old fill until all the new supernova icons are implemented */
-#spellingButton,
-#button-encryption,
-#button-encryption[checked],
-#button-encryption-options,
-#button-signing,
-#button-save,
-#quoteButton,
-#button-returnReceipt {
-  fill: currentColor;
-}
-
 #button-send {
   list-style-image: var(--icon-sent);
 }
@@ -523,7 +511,7 @@
 }
 
 #spellingButton {
-  list-style-image: url("chrome://messenger/skin/icons/spelling.svg");
+  list-style-image: var(--icon-spelling);
 }
 
 #button-attach {
@@ -531,31 +519,31 @@
 }
 
 #button-encryption {
-  list-style-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+  list-style-image: var(--icon-lock-disabled);
 }
 
 #button-encryption[checked] {
-  list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
+  list-style-image: var(--icon-lock);
 }
 
 #button-encryption-options {
-  list-style-image: url("chrome://messenger/skin/icons/shield.svg");
+  list-style-image: var(--icon-shield);
 }
 
 #button-signing {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
+  list-style-image: var(--icon-ribbon);
 }
 
 #button-save {
-  list-style-image: url("chrome://messenger/skin/icons/save.svg");
+  list-style-image: var(--icon-download);
 }
 
 #quoteButton {
-  list-style-image: url("chrome://messenger/skin/icons/quote.svg");
+  list-style-image: var(--icon-quote);
 }
 
 #button-returnReceipt {
-  list-style-image: url("chrome://messenger/skin/icons/return-receipt.svg");
+  list-style-image: var(--icon-receipt);
 }
 
 #cut-button {
@@ -1117,8 +1105,8 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   width: 16px;
   height: 16px;
   color: inherit;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: stroke, fill-opacity;
+  stroke: currentColor;
   fill-opacity: 1;
 }
 
