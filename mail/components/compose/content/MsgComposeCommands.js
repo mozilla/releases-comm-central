@@ -6648,6 +6648,8 @@ function initSendFormatMenu() {
     menuitem.value = String(format);
     if (format == sendFormat) {
       menuitem.setAttribute("checked", "true");
+    } else {
+      menuitem.removeAttribute("checked");
     }
   }
 

@@ -600,13 +600,16 @@ async function setComposeDetails(composeWindow, details, extension) {
 
   // Update receipt notifications.
   if (details.returnReceipt != null) {
-    composeWindow.gMsgCompose.compFields.returnReceipt = details.returnReceipt;
-    composeWindow.gReceiptOptionChanged = true;
+    composeWindow.ToggleReturnReceipt(details.returnReceipt);
   }
-  if (details.deliveryStatusNotification != null) {
-    composeWindow.gMsgCompose.compFields.DSN =
-      details.deliveryStatusNotification;
-    composeWindow.gDSNOptionChanged = true;
+
+  if (
+    details.deliveryStatusNotification != null &&
+    details.deliveryStatusNotification !=
+      composeWindow.gMsgCompose.compFields.DSN
+  ) {
+    let target = composeWindow.document.getElementById("dsnMenu");
+    composeWindow.ToggleDSN(target);
   }
 
   if (details.deliveryFormat && composeWindow.IsHTMLEditor()) {
@@ -617,6 +620,7 @@ async function setComposeDetails(composeWindow, details, extension) {
     composeWindow.gMsgCompose.compFields.deliveryFormat = deliveryFormats.find(
       f => f.value == details.deliveryFormat
     ).id;
+    composeWindow.initSendFormatMenu();
   }
 
   if (details.attachVCard != null) {

@@ -480,40 +480,72 @@ async function checkComposeHeaders(expected) {
     );
   }
 
-  is(
-    !expected.priority || expected.priority == "normal"
-      ? ""
-      : expected.priority,
-    composeFields.priority.toLowerCase(),
-    "priority in window should be correct"
-  );
+  if (expected.hasOwnProperty("priority")) {
+    is(
+      composeFields.priority.toLowerCase(),
+      expected.priority == "normal" ? "" : expected.priority,
+      "priority in composeFields should be correct"
+    );
+  }
 
-  // If expected.returnReceipt is not specified, default to false.
-  is(
-    !!expected.returnReceipt,
-    composeFields.returnReceipt,
-    "returnReceipt in window should be correct"
-  );
+  if (expected.hasOwnProperty("returnReceipt")) {
+    is(
+      composeFields.returnReceipt,
+      expected.returnReceipt,
+      "returnReceipt in composeFields should be correct"
+    );
+    for (let item of composeDocument.querySelectorAll(`menuitem[command="cmd_toggleReturnReceipt"],
+    toolbarbutton[command="cmd_toggleReturnReceipt"]`)) {
+      is(
+        item.getAttribute("checked") == "true",
+        expected.returnReceipt,
+        "returnReceipt in window should be correct"
+      );
+    }
+  }
 
-  // If expected.deliveryStatusNotification is not specified, default to false.
-  is(
-    !!expected.deliveryStatusNotification,
-    composeFields.DSN,
-    "deliveryStatusNotification in window should be correct"
-  );
+  if (expected.hasOwnProperty("deliveryStatusNotification")) {
+    is(
+      composeFields.DSN,
+      !!expected.deliveryStatusNotification,
+      "deliveryStatusNotification in composeFields should be correct"
+    );
+    is(
+      composeDocument.getElementById("dsnMenu").getAttribute("checked") ==
+        "true",
+      !!expected.deliveryStatusNotification,
+      "deliveryStatusNotification in window should be correct"
+    );
+  }
 
-  // If expected.deliveryStatusNotification is not specified, default to auto.
-  const deliveryFormats = {
-    auto: Ci.nsIMsgCompSendFormat.Auto,
-    plaintext: Ci.nsIMsgCompSendFormat.PlainText,
-    html: Ci.nsIMsgCompSendFormat.HTML,
-    both: Ci.nsIMsgCompSendFormat.Both,
-  };
-  is(
-    deliveryFormats[expected.deliveryFormat || "auto"],
-    composeFields.deliveryFormat,
-    "deliveryFormat in window should be correct"
-  );
+  if (expected.hasOwnProperty("deliveryFormat")) {
+    const deliveryFormats = {
+      auto: Ci.nsIMsgCompSendFormat.Auto,
+      plaintext: Ci.nsIMsgCompSendFormat.PlainText,
+      html: Ci.nsIMsgCompSendFormat.HTML,
+      both: Ci.nsIMsgCompSendFormat.Both,
+    };
+    const formatToId = new Map([
+      [Ci.nsIMsgCompSendFormat.PlainText, "format_plain"],
+      [Ci.nsIMsgCompSendFormat.HTML, "format_html"],
+      [Ci.nsIMsgCompSendFormat.Both, "format_both"],
+      [Ci.nsIMsgCompSendFormat.Auto, "format_auto"],
+    ]);
+    let expectedFormat = deliveryFormats[expected.deliveryFormat || "auto"];
+    is(
+      expectedFormat,
+      composeFields.deliveryFormat,
+      "deliveryFormat in composeFields should be correct"
+    );
+    for (let [format, id] of formatToId.entries()) {
+      let menuitem = composeDocument.getElementById(id);
+      is(
+        format == expectedFormat,
+        menuitem.getAttribute("checked") == "true",
+        "checked state of the deliveryFormat menu item <${id}> in window should be correct"
+      );
+    }
+  }
 }
 
 async function openContextMenu(selector = "#img1", win = window) {
