@@ -64,9 +64,10 @@ class Pop3Service {
 
   _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
     let client = new Pop3Client(server);
+    client.urlListener = urlListener;
     client.connect();
     client.onOpen = () => {
-      client.getMail(downloadNewMail, msgWindow, urlListener, inbox);
+      client.getMail(downloadNewMail, msgWindow, inbox);
     };
     return client.runningUri;
   }

@@ -146,13 +146,11 @@ class Pop3Client {
    * Check and fetch new mails.
    * @param {boolean} downloadMail - Whether to download mails using TOP/RETR.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
-   * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgFolder} folder - The folder to save the messages to.
    */
-  async getMail(downloadMail, msgWindow, urlListener, folder) {
+  async getMail(downloadMail, msgWindow, folder) {
     this._downloadMail = downloadMail;
     this._msgWindow = msgWindow;
-    this.urlListener = urlListener;
     this._sink.folder = folder;
     this._actionAfterAuth = this._actionStat;
     this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
