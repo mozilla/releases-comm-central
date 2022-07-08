@@ -2388,3 +2388,101 @@ add_task(async function test_vCard_fields() {
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
 });
+
+add_task(async function test_special_date_field() {
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  openDirectory(personalBook);
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
+
+  checkInputValues({
+    FirstName: "",
+    LastName: "",
+    DisplayName: "",
+    PreferDisplayName: true,
+  });
+
+  // Add data to the default values to allow saving.
+  setInputValues({
+    FirstName: "contact",
+    PrimaryEmail: "contact.1.edited@invalid",
+  });
+
+  let addSpecialDate = abDocument.getElementById("vcard-add-bday-anniversary");
+  addSpecialDate.scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(addSpecialDate, {}, abWindow);
+
+  Assert.ok(
+    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-special-date")),
+    "The special date field is visible."
+  );
+
+  let firstYear = abDocument.querySelector(
+    `vcard-special-date input[type="number"]`
+  );
+  Assert.ok(!firstYear.value, "year empty");
+  let firstMonth = abDocument.querySelector(
+    `vcard-special-date .vcard-month-select`
+  );
+  Assert.ok(firstMonth.value === "0", "month on placeholder");
+  let firstDay = abDocument.querySelector(
+    `vcard-special-date .vcard-day-select`
+  );
+  Assert.ok(firstDay.value === "0", "day on placeholder");
+  Assert.ok(firstDay.childNodes.length == 1, "day options empty");
+
+  // Try saving, we should remain in edit mode with year focused.
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await inEditingMode();
+  Assert.equal(abDocument.activeElement, firstYear, "year field is focused");
+
+  // Set date to a leap year.
+  firstYear.value = 2004;
+
+  let openMonthSelect = async function() {
+    firstMonth.focus();
+
+    let menulist = document.getElementById("ContentSelectDropdown");
+    Assert.ok(menulist, "select menulist exists");
+
+    // Click on the select control to open the popup.
+    let shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
+    EventUtils.synthesizeMouseAtCenter(firstMonth, {}, abWindow);
+    await shownPromise;
+  };
+
+  await openMonthSelect();
+  EventUtils.sendKey("down", abWindow);
+  EventUtils.sendKey("down", abWindow);
+  EventUtils.sendKey("return", abWindow);
+
+  await BrowserTestUtils.waitForCondition(
+    () => firstDay.childNodes.length == 30, // 29 days + empty option 0.
+    "day options filled with leap year"
+  );
+
+  // No leap year.
+  firstYear.select();
+  EventUtils.sendString("2003");
+  await BrowserTestUtils.waitForCondition(
+    () => firstDay.childNodes.length == 29, // 28 days + empty option 0.
+    "day options filled without leap year"
+  );
+
+  // Remove the field.
+  EventUtils.synthesizeMouseAtCenter(
+    abDocument.querySelector(`vcard-special-date .remove-property-button`),
+    {},
+    abWindow
+  );
+
+  Assert.ok(
+    !abDocument.querySelector("vcard-special-date"),
+    "The special date field was removed."
+  );
+});

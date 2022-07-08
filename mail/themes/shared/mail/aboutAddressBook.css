@@ -927,7 +927,8 @@ section#selectedCards ul {
   background-color: var(--red-70);
 }
 
-#detailsDeleteButton::before {
+#detailsDeleteButton::before,
+.icon-button-delete {
   background-image: var(--icon-trash);
 }
 

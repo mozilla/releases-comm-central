@@ -269,25 +269,29 @@
 
 <!-- Birthday and Anniversary -->
 <template id="template-vcard-edit-bday-anniversary">
-  <fieldset class="fieldset-grid fieldset-reset">
-    <legend/>
-    <select class="vcard-type-selection">
-      <option value="bday" data-l10n-id="vcard-bday-label" selected="selected"/>
-      <option value="anniversary" data-l10n-id="vcard-anniversary-label"/>
+  <select class="vcard-type-selection">
+    <option value="bday" data-l10n-id="vcard-bday-label" selected="selected"/>
+    <option value="anniversary" data-l10n-id="vcard-anniversary-label"/>
+  </select>
+
+  <div class="vcard-year-month-day-container">
+    <label class="screen-reader-only" for="year" data-l10n-id="vcard-date-year"></label>
+    <input id="year" type="number" min="1000" max="9999" pattern="[0-9]{4}" class="size5" />
+
+    <label class="screen-reader-only" for="month" data-l10n-id="vcard-date-month"></label>
+    <select id="month" class="vcard-month-select">
+      <option value="0" data-l10n-id="vcard-date-month" disabled="disabled" selected="selected"></option>
     </select>
-    <div class="vcard-year-month-day-container">
-      <label class="screen-reader-only" for="month" data-l10n-id="vcard-date-month"/><!-- No white space here.
-   --><select id="month">
-        <option value="" data-l10n-id="vcard-date-month" />
-      </select><!-- No white space here.
-   --><label class="screen-reader-only" for="day" data-l10n-id="vcard-date-day"/><!-- No white space here.
-   --><select id="day">
-        <option value="" data-l10n-id="vcard-date-day"/>
-      </select><!-- No white space here.
-   --><label class="screen-reader-only" for="year" data-l10n-id="vcard-date-year"/>
-      <input id="year" type="number" min="0" max="9999"/>
-    </div>
-  </fieldset>
+
+    <label class="screen-reader-only" for="day" data-l10n-id="vcard-date-day"></label>
+    <select id="day" class="vcard-day-select">
+      <option value="0" data-l10n-id="vcard-date-day" disabled="disabled" selected="selected"></option>
+    </select>
+
+    <button type="button" class="plain-button remove-property-button">
+      <img src="chrome://messenger/skin/icons/new/compact/close.svg" alt="" />
+    </button>
+  </div>
 </template>
 
 <!-- Address -->

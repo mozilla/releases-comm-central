@@ -2218,8 +2218,10 @@ var cardsPane = {
   },
 };
 
-// Details
-
+/**
+ * Object holding the contact view pane to show all vcard info and handle data
+ * changes and mutations between the view and edit state of a contact.
+ */
 var detailsPane = {
   currentCard: null,
 
@@ -2329,11 +2331,7 @@ var detailsPane = {
         );
         if (buttonPressed === 0) {
           // Don't call this.form.submit, the submit event won't fire.
-          if (this.vCardEdit.checkFormValidity()) {
-            this.saveCurrentContact();
-          } else {
-            this.handleInvalidForm();
-          }
+          this.validateBeforeSaving();
           return;
         } else if (buttonPressed === 1) {
           return;
@@ -2363,11 +2361,7 @@ var detailsPane = {
     });
     this.form.addEventListener("submit", event => {
       event.preventDefault();
-      if (this.vCardEdit.checkFormValidity()) {
-        this.saveCurrentContact();
-      } else {
-        this.handleInvalidForm();
-      }
+      this.validateBeforeSaving();
     });
 
     this.photoInput = document.getElementById("photoInput");
@@ -3017,6 +3011,25 @@ var detailsPane = {
       stringBundle.GetStringFromName("cardRequiredDataMissingTitle"),
       stringBundle.GetStringFromName("cardRequiredDataMissingMessage")
     );
+  },
+
+  /**
+   * Make sure the data is valid before saving the contact.
+   */
+  validateBeforeSaving() {
+    // Make sure the minimum required data is present.
+    if (!this.vCardEdit.checkMinimumRequirements()) {
+      this.handleInvalidForm();
+      return;
+    }
+
+    // Make sure the dates are filled properly.
+    if (!this.vCardEdit.validateDates()) {
+      // Simply return as the validateDates() will handle focus and visual cue.
+      return;
+    }
+
+    this.saveCurrentContact();
   },
 
   /**

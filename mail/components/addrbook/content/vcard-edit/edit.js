@@ -165,7 +165,7 @@ class VCardEdit extends HTMLElement {
 
     if (this.vCardProperties) {
       this.toggleDefaultEmailView();
-      this.checkForBdayOccurences();
+      this.checkForBdayOccurrences();
     }
 
     this.updateNickName();
@@ -637,7 +637,16 @@ class VCardEdit extends HTMLElement {
         this.vCardProperties.removeEntry(event.target.vCardPropertyEntry);
         event.target.vCardPropertyEntry = newVCardPropertyEntry;
         this.vCardProperties.addEntry(newVCardPropertyEntry);
-        this.checkForBdayOccurences();
+        this.checkForBdayOccurrences();
+      }
+    );
+
+    specialDatesFieldset.addEventListener(
+      "vcard-special-date-remove",
+      event => {
+        this.vCardProperties.removeEntry(
+          event.detail.element.vCardPropertyEntry
+        );
       }
     );
 
@@ -651,7 +660,7 @@ class VCardEdit extends HTMLElement {
         newVCardProperty = VCardEdit.createVCardProperty("anniversary");
       }
       let el = this.insertVCardElement(newVCardProperty, true);
-      this.checkForBdayOccurences();
+      this.checkForBdayOccurrences();
       this.moveFocusIntoElement(el);
     });
 
@@ -719,10 +728,10 @@ class VCardEdit extends HTMLElement {
    * the option to change an Anniversary to a BDAY.
    * @see VCardSpecialDateComponent
    */
-  checkForBdayOccurences() {
-    let bdayOccurence = this.vCardProperties.getFirstEntry("bday");
+  checkForBdayOccurrences() {
+    let bdayOccurrence = this.vCardProperties.getFirstEntry("bday");
     this.querySelectorAll("vcard-special-date").forEach(specialDate => {
-      specialDate.birthdayAvailabilty({ hasBday: !!bdayOccurence });
+      specialDate.birthdayAvailability({ hasBday: !!bdayOccurrence });
     });
   }
 
@@ -746,10 +755,11 @@ class VCardEdit extends HTMLElement {
   /**
    * Validate the form with the minimum required data to save or update a
    * contact. We can't use the built-in checkValidity() since our fields
-   * are in the shadowDOM and they're not handled properly by the form element.
+   * are not handled properly by the form element.
+   *
    * @returns {boolean} - If the form is valid or not.
    */
-  checkFormValidity() {
+  checkMinimumRequirements() {
     let hasEmail = [...document.getElementById("vcard-email").children].find(
       s => {
         let field = s.querySelector(`input[type="email"]`);
@@ -763,6 +773,30 @@ class VCardEdit extends HTMLElement {
       this.displayName.value.trim() ||
       hasEmail
     );
+  }
+
+  /**
+   * Validate the special date fields making sure that at least the year is
+   * correctly specified, since month and day are optional.
+   *
+   * @returns {boolean} - If all created date fields are valid or not.
+   */
+  validateDates() {
+    let hasInvalidDate = [
+      ...document.querySelectorAll("vcard-special-date"),
+    ].find(s => {
+      let field = s.querySelector(`input[type="number"]`);
+      return !field.value.trim() || !field.checkValidity();
+    });
+
+    if (hasInvalidDate) {
+      let input = hasInvalidDate.querySelector(`input[type="number"]`);
+      input.required = true;
+      input.focus();
+    }
+
+    // If we have invalid dates, return FALSE so the validation fails.
+    return !hasInvalidDate;
   }
 }
 customElements.define("vcard-edit", VCardEdit);
