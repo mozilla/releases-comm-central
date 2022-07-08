@@ -87,7 +87,7 @@ function assert_folder_for_msg_hdr(aMsgHdr, aFolder) {
  */
 add_task(function test_switch_to_smart_folders() {
   mc.folderTreeView.activeModes = "smart";
-  //Hide the all folders view.
+  // Hide the all folders view.
   mc.folderTreeView.activeModes = "all";
 
   // The smart inbox may not have been created at setup time, so get it now.

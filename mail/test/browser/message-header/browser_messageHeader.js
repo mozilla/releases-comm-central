@@ -28,10 +28,13 @@ var {
   create_folder,
   create_message,
   gDefaultWindowHeight,
+  get_smart_folder_named,
+  inboxFolder,
   mc,
   msgGen,
   restore_default_window_size,
   select_click_row,
+  select_none,
   wait_for_message_display_completion,
   wait_for_popup_to_open,
 } = ChromeUtils.import(
@@ -849,11 +852,7 @@ add_task(async function test_show_all_header_mode() {
   await subtest_more_widget_display(node, true);
 });
 
-/**
- * Test the marking of a message as starred, be sure the header is properly
- * updated and changing selected message doesn't affect the state of others.
- */
-add_task(async function test_starred_message() {
+async function help_test_starred_messages() {
   be_in_folder(folder);
 
   // Select the last message, which will display it.
@@ -904,8 +903,47 @@ add_task(async function test_starred_message() {
 
   // The message should still be starred.
   Assert.ok(starButton.classList.contains("flagged"), "The message is starred");
+
+  let hdr = folder.msgDatabase.getMsgHdrForMessageID(curMessage.messageId);
+  // Update the starred state not through a click on the star button, to make
+  // sure the method works.
+  hdr.markFlagged(false);
+  // The message should be starred.
+  Assert.ok(
+    !starButton.classList.contains("flagged"),
+    "The message is not starred"
+  );
+}
+
+/**
+ * Test the marking of a message as starred, be sure the header is properly
+ * updated and changing selected message doesn't affect the state of others.
+ */
+add_task(async function test_starred_message() {
+  await help_test_starred_messages();
 });
 
+add_task(async function test_starred_message_unified_mode() {
+  collapse_panes(document.getElementById("folderpane_splitter"), false);
+  collapse_panes(document.getElementById("tabmail-container"), false);
+  select_none();
+  // Show the "Unified" folders view.
+  mc.folderTreeView.activeModes = "smart";
+  // Hide the all folders view. The activeModes setter takes care of removing
+  // the mode is is already visible.
+  mc.folderTreeView.activeModes = "all";
+
+  await help_test_starred_messages();
+
+  collapse_panes(document.getElementById("folderpane_splitter"), true);
+  collapse_panes(document.getElementById("tabmail-container"), true);
+  select_none();
+  // Show the "All" folders view.
+  mc.folderTreeView.activeModes = "all";
+  // Hide the "Unified" folders view. The activeModes setter takes care of
+  // removing the mode is is already visible.
+  mc.folderTreeView.activeModes = "smart";
+});
 /**
  * Test the DBListener to be sure is initialized and cleared when needed, and it
  * doesn't change when not needed.

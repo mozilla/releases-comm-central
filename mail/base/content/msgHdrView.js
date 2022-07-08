@@ -233,13 +233,13 @@ class FolderDBListener {
  * listen for any flags change happening in the currently displayed messages.
  */
 function initFolderDBListener() {
-  let messageFolder =
-    gFolderDisplay.displayedFolder || gFolderDisplay.selectedMessage.folder;
-  // Bail out if we already have a DBListener initialized and the folder didn't
-  // change.
+  let messageFolder = gMessageDisplay.displayedMessage?.folder;
+  // Bail out if we don't have a selected message, or we already have a
+  // DBListener initialized and the folder didn't change.
   if (
-    gFolderDBListener?.isRegistered &&
-    gFolderDBListener.selectedFolder == messageFolder
+    !messageFolder ||
+    (gFolderDBListener?.isRegistered &&
+      gFolderDBListener.selectedFolder == messageFolder)
   ) {
     return;
   }
