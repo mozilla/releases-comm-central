@@ -604,36 +604,34 @@ class Pop3Client {
         this._send("AUTH CRAM-MD5");
         break;
       case "GSSAPI": {
-        this._nextAction = this._actionAuthGssapi;
         this._authenticator.initGssapiAuth("pop");
-        let token;
         try {
-          token = this._authenticator.getNextGssapiToken("");
+          let token = this._authenticator.getNextGssapiToken("");
+          this._nextAction = res => this._actionAuthGssapi(res, token);
         } catch (e) {
           this._logger.error(e);
           this._actionError("pop3GssapiFailure");
           return;
         }
-        this._send(`AUTH GSSAPI ${token}`, true);
+        this._send("AUTH GSSAPI");
         break;
       }
       case "NTLM": {
-        this._nextAction = this._actionAuthNtlm;
         this._authenticator.initNtlmAuth("pop");
-        let token;
         try {
-          token = this._authenticator.getNextNtlmToken("");
+          let token = this._authenticator.getNextNtlmToken("");
+          this._nextAction = res => this._actionAuthNtlm(res, token);
         } catch (e) {
           this._logger.error(e);
           this._actionDone(Cr.NS_ERROR_FAILURE);
+          return;
         }
-        this._send(`AUTH NTLM ${token}`, true);
+        this._send("AUTH NTLM");
         break;
       }
       case "XOAUTH2":
-        this._nextAction = this._actionAuthResponse;
-        let token = await this._authenticator.getOAuthToken();
-        this._send(`AUTH XOAUTH2 ${token}`, true);
+        this._nextAction = this._actionAuthXoauth;
+        this._send("AUTH XOAUTH2");
         break;
       default:
         this._actionDone();
@@ -780,10 +778,16 @@ class Pop3Client {
   /**
    * The second and next step of GSSAPI auth.
    * @param {Pop3Response} res - AUTH response received from the server.
+   * @param {string} firstToken - The first GSSAPI token to send.
    */
-  _actionAuthGssapi = res => {
+  _actionAuthGssapi = (res, firstToken) => {
     if (res.status != "+") {
       this._actionAuthResponse(res);
+      return;
+    }
+
+    if (firstToken) {
+      this._send(firstToken, true);
       return;
     }
 
@@ -802,10 +806,16 @@ class Pop3Client {
   /**
    * The second and next step of NTLM auth.
    * @param {Pop3Response} res - AUTH response received from the server.
+   * @param {string} firstToken - The first NTLM token to send.
    */
-  _actionAuthNtlm = res => {
+  _actionAuthNtlm = (res, firstToken) => {
     if (res.status != "+") {
       this._actionAuthResponse(res);
+      return;
+    }
+
+    if (firstToken) {
+      this._send(firstToken, true);
       return;
     }
 
@@ -818,6 +828,20 @@ class Pop3Client {
       this._actionAuthResponse({ success: false, data: "AUTH NTLM" });
       return;
     }
+    this._send(token, true);
+  };
+
+  /**
+   * The second step of XOAUTH2 auth.
+   * @param {Pop3Response} res - AUTH response received from the server.
+   */
+  _actionAuthXoauth = async res => {
+    if (res.status != "+") {
+      this._actionAuthResponse(res);
+      return;
+    }
+    this._nextAction = this._actionAuthResponse;
+    let token = await this._authenticator.getOAuthToken();
     this._send(token, true);
   };
 
