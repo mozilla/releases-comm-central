@@ -79,6 +79,9 @@ async function help_test_autohide(controller, menubar) {
       return (menubar.getBoundingClientRect().height != 0) != aHidden;
     };
   }
+  await TestUtils.waitForCondition(
+    () => Services.focus.activeWindow == controller.window
+  );
   await set_autohide_menubar(controller, menubar, true);
   controller.waitFor(hiddenChecker(true), "Menubar should be hidden");
 
@@ -104,7 +107,6 @@ add_task(async function test_autohidden_menubar_message_window() {
   be_in_folder(menuFolder);
   select_click_row(0);
   let msgc = await open_selected_message_in_new_window();
-  msgc.window.focus();
   let menubar = msgc.e("toolbar-menubar");
 
   await help_test_autohide(msgc, menubar);
