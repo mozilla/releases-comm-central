@@ -420,7 +420,7 @@ var MsgUtils = {
    */
   getXMozillaCloudPart(deliverMode, attachment) {
     let value = "";
-    if (attachment.contentLocation) {
+    if (attachment.sendViaCloud && attachment.contentLocation) {
       value += `cloudFile; url=${attachment.contentLocation}`;
 
       if (
