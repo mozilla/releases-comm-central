@@ -114,7 +114,9 @@ class VCardEdit extends HTMLElement {
     // Create new DOM and replacing other vCardProperties.
     let template = document.getElementById("template-addr-book-edit");
     let clonedTemplate = template.content.cloneNode(true);
-    this.replaceChildren(clonedTemplate);
+    // Making the next two calls in one go causes a console error to be logged.
+    this.replaceChildren();
+    this.append(clonedTemplate);
 
     if (!this.vCardProperties) {
       return;
