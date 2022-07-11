@@ -155,6 +155,24 @@ add_task(async function test_drag() {
 
   dragService.endDragSession(true);
 
+  // Drag contact2 without selecting it.
+
+  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+
+  [, dataTransfer] = doDrag(1, null, {}, "none");
+
+  transferCards = dataTransfer.mozGetDataAt("moz/abcard-array", 0);
+  Assert.equal(transferCards.length, 1);
+  Assert.ok(transferCards[0].equals(contact2));
+
+  transferUnicode = dataTransfer.getData("text/unicode");
+  Assert.equal(transferUnicode, "contact 2 <contact.2@invalid>");
+
+  transferVCard = dataTransfer.getData("text/vcard");
+  Assert.stringContains(transferVCard, `\r\nUID:${contact2.UID}\r\n`);
+
+  dragService.endDragSession(true);
+
   // Drag all contacts.
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
@@ -247,26 +265,26 @@ add_task(async function test_drop_on_books_list() {
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
 
-  doDrag(0, 0, {}, "none"); // All Address Books
-  doDrag(0, 0, { ctrlKey: true }, "none");
+  doDrag(3, 0, {}, "none"); // All Address Books
+  doDrag(3, 0, { ctrlKey: true }, "none");
 
-  doDrag(0, 1, {}, "none"); // Personal Address Book
-  doDrag(0, 1, { ctrlKey: true }, "none");
+  doDrag(3, 1, {}, "none"); // Personal Address Book
+  doDrag(3, 1, { ctrlKey: true }, "none");
 
-  doDrag(0, 2, {}, "none"); // Destination Book
-  doDrag(0, 2, { ctrlKey: true }, "none");
+  doDrag(3, 2, {}, "none"); // Destination Book
+  doDrag(3, 2, { ctrlKey: true }, "none");
 
-  doDrag(0, 3, {}, "none"); // Destination List
-  doDrag(0, 3, { ctrlKey: true }, "none");
+  doDrag(3, 3, {}, "none"); // Destination List
+  doDrag(3, 3, { ctrlKey: true }, "none");
 
-  doDrag(0, 4, {}, "none"); // Source Book
-  doDrag(0, 4, { ctrlKey: true }, "none");
+  doDrag(3, 4, {}, "none"); // Source Book
+  doDrag(3, 4, { ctrlKey: true }, "none");
 
-  doDrag(0, 5, {}, "none"); // Source List
-  doDrag(0, 5, { ctrlKey: true }, "none");
+  doDrag(3, 5, {}, "none"); // Source List
+  doDrag(3, 5, { ctrlKey: true }, "none");
 
-  doDrag(0, 6, {}, "none"); // Collected Addresses
-  doDrag(0, 6, { ctrlKey: true }, "none");
+  doDrag(3, 6, {}, "none"); // Collected Addresses
+  doDrag(3, 6, { ctrlKey: true }, "none");
 
   dragService.endDragSession(true);
 
@@ -336,7 +354,7 @@ add_task(async function test_drop_on_books_list() {
   // Drag destList to the book it's already in. Nothing should happen.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
-  doDragToBooksList(0, 2, {}, "none");
+  doDragToBooksList(2, 2, {}, "none");
   checkCardsInDirectory(destBook, [contact2, contact3, destList]);
 
   await closeAddressBookWindow();

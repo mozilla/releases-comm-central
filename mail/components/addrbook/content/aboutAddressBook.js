@@ -2136,9 +2136,8 @@ var cardsPane = {
     }
 
     let indices = this.cardsList.selectedIndices;
-    if (indices.length === 0) {
-      event.preventDefault();
-      return;
+    if (!indices.includes(row.index)) {
+      indices = [row.index];
     }
     let cards = indices.map(index => this.cardsList.view.getCardFromRow(index));
 
