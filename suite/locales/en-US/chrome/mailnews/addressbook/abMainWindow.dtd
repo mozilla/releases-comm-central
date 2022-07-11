@@ -16,7 +16,6 @@
 <!ENTITY newAddressBookCmd.accesskey                    "o">
 <!ENTITY newLDAPDirectoryCmd.label                      "LDAP Directory…">
 <!ENTITY newLDAPDirectoryCmd.accesskey                  "D">
-<!ENTITY newIM.label                                    "IM">
 <!ENTITY printContactViewCmd.label                      "Print Contact…">
 <!ENTITY printContactViewCmd.accesskey                  "P">
 <!ENTITY printContactViewCmd.key                        "P">
@@ -78,8 +77,6 @@
 <!ENTITY newmsgButton.accesskey                         "C">
 <!ENTITY deleteItemButton.label                         "Delete">
 <!ENTITY deleteItemButton.accesskey                     "D">
-<!ENTITY newimButton.label                              "Instant Message">
-<!ENTITY newimButton.accesskey                          "I">
 <!ENTITY printButton.label                              "Print">
 <!ENTITY printButton.accesskey                          "r">
 <!ENTITY searchNameAndEmail.placeholder                 "Search Name and Email">
@@ -91,7 +88,6 @@
 <!ENTITY newlistButton.tooltip                          "Create a new list">
 <!ENTITY editItemButton.tooltip                         "Edit the selected item">
 <!ENTITY newmsgButton.tooltip                           "Send a mail message">
-<!ENTITY newIM.tooltip                                  "Send an instant message or chat">
 <!ENTITY printButton.tooltip                            "Print selected item">
 <!ENTITY deleteItemButton.tooltip                       "Delete selected item">
 <!ENTITY advancedButton.tooltip                         "Advanced address search">

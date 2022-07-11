@@ -33,10 +33,6 @@ var gBuiltExpandedView = false;
 var gBuiltCollapsedView = false;
 var gMessengerBundle;
 
-// Globals for setFromBuddyIcon().
-var gFileHandler;
-var gProfileDirURL;
-
 // Show the friendly display names for people I know, instead of the name + email address.
 var gShowCondensedEmailAddresses;
 
@@ -1110,62 +1106,10 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
     else
       updateEmailAddressNode(headerEntry.enclosingBox.emailAddressNode,
                              address);
-
-    if (headerEntry.enclosingBox.getAttribute("id") == "expandedfromBox") {
-      setFromBuddyIcon(addr.email);
-    }
   }
 
   if (headerEntry.useToggle)
     headerEntry.enclosingBox.buildViews();
-}
-
-function setFromBuddyIcon(email)
-{
-  var fromBuddyIcon = document.getElementById("fromBuddyIcon");
-
-  var myScreenName = null;
-  try {
-    // TODO: Cache this.
-    myScreenName = Services.prefs.getCharPref("aim.session.screenname");
-  }
-  catch (ex) {
-    // No screenname preference.
-  }
-  if (myScreenName)
-  {
-    var card = GetCardForEmail(email).card;
-    if (card)
-    {
-      // For now, retrieve the screen name only.
-      var iconURLStr = card.getProperty("_AimScreenName", "");
-      if (iconURLStr)
-      {
-        // Lazily create these globals.
-        if (!gFileHandler)
-        {
-          gFileHandler = Services.io.getProtocolHandler("file")
-                                    .QueryInterface(Ci.nsIFileProtocolHandler);
-
-          gProfileDirURL = Services.io.newFileURI(GetSpecialDirectory("ProfD"));
-        }
-
-        // If we did have a buddy icon on disk for this screenname,
-        // this would be the file url spec for it.
-        iconURLStr = gProfileDirURL.spec + "/NIM/" + myScreenName
-                                         + "/picture/" + iconURLStr + ".gif";
-
-        // check if the file exists
-        // is this a perf hit?  (how expensive is stat()?)
-        if (gFileHandler.getFileFromURLSpec(iconURLStr).exists()) {
-          fromBuddyIcon.setAttribute("src", iconURLStr);
-          return;
-        }
-      }
-    }
-  }
-
-  fromBuddyIcon.setAttribute("src", "");
 }
 
 function updateEmailAddressNode(emailAddressNode, address)

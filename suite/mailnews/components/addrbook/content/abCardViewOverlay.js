@@ -5,11 +5,8 @@
 
 //NOTE: gAddressBookBundle must be defined and set or this Overlay won't work
 
-var gProfileDirURL;
-
 var gMapItURLFormat;
 
-var gFileHandler = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
 var gPhotoDisplayHandlers = {};
 
 var zListName;
@@ -27,8 +24,6 @@ var zCustom1;
 var zCustom2;
 var zCustom3;
 var zCustom4;
-var zGtalk;
-var zAIM;
 var zYahoo;
 var zSkype;
 var zQQ;
@@ -58,8 +53,6 @@ function OnLoadCardView()
   zCustom2 = gAddressBookBundle.getString("propertyCustom2");
   zCustom3 = gAddressBookBundle.getString("propertyCustom3");
   zCustom4 = gAddressBookBundle.getString("propertyCustom4");
-  zGtalk = gAddressBookBundle.getString("propertyGtalk");
-  zAIM = gAddressBookBundle.getString("propertyAIM");
   zYahoo = gAddressBookBundle.getString("propertyYahoo");
   zSkype = gAddressBookBundle.getString("propertySkype");
   zQQ = gAddressBookBundle.getString("propertyQQ");
@@ -146,8 +139,6 @@ function OnLoadCardView()
   // Chat section
   cvData.cvbChat      = doc.getElementById("cvbChat");
   cvData.cvhChat      = doc.getElementById("cvhChat");
-  cvData.cvGtalk      = doc.getElementById("cvGtalk");
-  cvData.cvAIM        = doc.getElementById("cvAIM");
   cvData.cvYahoo      = doc.getElementById("cvYahoo");
   cvData.cvSkype      = doc.getElementById("cvSkype");
   cvData.cvQQ         = doc.getElementById("cvQQ");
@@ -293,18 +284,13 @@ function DisplayCardViewPane(realCard)
     visible = cvSetNodeWithLabel(data.cvCustom3, zCustom3, card.getProperty("Custom3")) || visible;
     visible = cvSetNodeWithLabel(data.cvCustom4, zCustom4, card.getProperty("Custom4")) || visible;
     visible = cvSetNode(data.cvNotes, card.getProperty("Notes")) || visible;
-    visible = setBuddyIcon(card, data.cvBuddyIcon) || visible;
 
     cvSetVisible(data.cvhOther, visible);
     cvSetVisible(data.cvbOther, visible);
 
     // Chat section
-    visible = cvSetNodeWithLabel(data.cvGtalk, zGtalk,
-                                 card.getProperty("_GoogleTalk"));
-    visible = cvSetNodeWithLabel(data.cvAIM, zAIM,
-                                 card.getProperty("_AimScreenName")) || visible;
     visible = cvSetNodeWithLabel(data.cvYahoo, zYahoo,
-                                 card.getProperty("_Yahoo")) || visible;
+                                 card.getProperty("_Yahoo"));
     visible = cvSetNodeWithLabel(data.cvSkype, zSkype,
                                  card.getProperty("_Skype")) || visible;
     visible = cvSetNodeWithLabel(data.cvQQ, zQQ,
@@ -358,38 +344,6 @@ function DisplayCardViewPane(realCard)
 
   // make the card view box visible
   cvSetVisible(top.cvData.CardViewBox, true);
-}
-
-function setBuddyIcon(card, buddyIcon)
-{
-  try {
-    var myScreenName = Services.prefs.getCharPref("aim.session.screenname");
-    if (myScreenName && card.primaryEmail) {
-      if (!gProfileDirURL) {
-        // lazily create these file urls, and keep them around
-        gProfileDirURL = Services.io.newFileURI(GetSpecialDirectory("ProfD"));
-      }
-
-      // if we did have a buddy icon on disk for this screenname, this would be the file url spec for it
-      var iconURLStr = gProfileDirURL.spec + "/NIM/" + myScreenName + "/picture/" + card.getProperty("_AimScreenName") + ".gif";
-
-      // check if the file exists
-      var file = gFileHandler.getFileFromURLSpec(iconURLStr);
-
-      // check if the file exists
-      // is this a perf hit?  (how expensive is stat()?)
-      if (file.exists()) {
-        buddyIcon.setAttribute("src", iconURLStr);
-        return true;
-      }
-    }
-  }
-  catch (ex) {
-    // can get here if no screenname
-  }
-
-  buddyIcon.setAttribute("src", "");
-  return false;
 }
 
 function ClearCardViewPane()

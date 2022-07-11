@@ -559,40 +559,6 @@ function LaunchUrl(url)
   catch (ex) {}
 }
 
-function AbIMSelected()
-{
-  var cards = GetSelectedAbCards();
-  var count = cards.length;
-
-  var screennames;
-  var screennameCount = 0;
-
-  for (var i=0;i<count;i++) {
-    var screenname = cards[i].getProperty("_AimScreenName", "");
-    if (screenname) {
-      if (screennameCount == 0)
-        screennames = screenname;
-      else
-        screennames += "," + screenname;
-
-      screennameCount++
-    }
-  }
-
-  var url = "aim:";
-
-  if (screennameCount == 0)
-    url += "goim";
-  else if (screennameCount == 1)
-    url += "goim?screenname=" + screennames;
-  else {
-    url += "SendChatInvite?listofscreennames=" + screennames;
-    url += "&message=" + gAddressBookBundle.getString("joinMeInThisChat");
-  }
-
-  LaunchUrl(url);
-}
-
 function getAbToolbox()
 {
   return document.getElementById("ab-toolbox");

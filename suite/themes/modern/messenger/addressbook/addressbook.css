@@ -88,22 +88,6 @@
   -moz-image-region: rect(170px 199px 203px 150px) !important;
 } 
 
-#button-newim {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im.png");
-}
-
-#button-newim:hover {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-hov.png");
-} 
-
-#button-newim:hover:active {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-act.png");
-} 
-
-#button-newim[disabled] {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-dis.png");
-} 
-
 #button-abdelete {
   list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(408px 49px 441px 0);

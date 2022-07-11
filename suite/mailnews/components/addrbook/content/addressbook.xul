@@ -72,7 +72,6 @@
     <command id="cmd_newlist" oncommand="AbNewList();"/>
     <command id="cmd_newCard" oncommand="goDoCommand('cmd_newCard');"/>
     <command id="cmd_newMessage" oncommand="AbNewMessage();"/>
-    <command id="cmd_newim" oncommand="AbIMSelected()"/>
     <command id="cmd_printSetup" oncommand="PrintUtils.showPageSetup()"/>
     <command id="cmd_print" oncommand="AbPrintCard();"/>
     <command id="cmd_printpreview" oncommand="AbPrintPreviewCard();"/>
@@ -196,10 +195,6 @@
             label="&newmsgButton.label;"
             accesskey="&newmsgButton.accesskey;"
             command="cmd_newMessage"/>
-  <menuitem id="abResultsTreeContext-newim"
-            label="&newimButton.label;"
-            accesskey="&newimButton.accesskey;"
-            command="cmd_newim"/>
   <menuseparator/>
   <menuitem id="abResultsTreeContext-print"
             label="&printButton.label;"
@@ -476,7 +471,7 @@
            grippytooltiptext="&addressbookToolbar.tooltip;"
            toolbarname="&showAbToolbarCmd.label;"
            accesskey="&showAbToolbarCmd.accesskey;"
-           defaultset="button-newcard,button-newlist,separator,button-editcard,button-newmessage,button-newim,button-abdelete,spring,searchBox,throbber-box"
+           defaultset="button-newcard,button-newlist,separator,button-editcard,button-newmessage,button-abdelete,spring,searchBox,throbber-box"
            context="toolbar-context-menu">
     <toolbarbutton id="button-newcard"
                    class="toolbarbutton-1"
@@ -502,12 +497,6 @@
                    tooltiptext="&newmsgButton.tooltip;"
                    removable="true"
                    oncommand="AbNewMessage();"/>
-    <toolbarbutton id="button-newim"
-                   class="toolbarbutton-1"
-                   label="&newIM.label;"
-                   tooltiptext="&newIM.tooltip;"
-                   removable="true"
-                   oncommand="AbIMSelected();"/>
     <toolbarbutton id="button-abdelete"
                    class="toolbarbutton-1"
                    label="&deleteItemButton.label;"
@@ -658,8 +647,6 @@
                   </vbox>
                   <vbox id="cvbChat" class="cardViewGroup">
                     <description class="CardViewHeading" id="cvhChat">&chat.heading;</description>
-                    <description class="CardViewText" id="cvGtalk"/>
-                    <description class="CardViewText" id="cvAIM"/>
                     <description class="CardViewText" id="cvYahoo"/>
                     <description class="CardViewText" id="cvSkype"/>
                     <description class="CardViewText" id="cvQQ"/>
