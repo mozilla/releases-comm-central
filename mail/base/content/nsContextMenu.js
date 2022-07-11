@@ -838,6 +838,7 @@ class nsContextMenu {
   saveLink() {
     saveURL(
       this.linkURL,
+      null,
       this.linkTextStr,
       null,
       true,
@@ -854,6 +855,7 @@ class nsContextMenu {
   saveImage() {
     saveURL(
       this.imageInfo.currentSrc,
+      null,
       null,
       "SaveImageTitle",
       false,
