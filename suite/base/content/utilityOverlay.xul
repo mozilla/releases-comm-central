@@ -618,10 +618,10 @@
       <menuseparator id="menu_HelpAboutSeparator"/>
 
       <menuitem class="about"
-                accesskey="&aboutCommPluginsCmd.accesskey;"
-                label="&aboutCommPluginsCmd.label;"
-                id="pluginInfo"
-                oncommand="goAbout('plugins');"/>
+                accesskey="&aboutBuildConfigCmd.accesskey;"
+                label="&aboutBuildConfigCmd.label;"
+                id="BuildConfigInfo"
+                oncommand="goAbout('buildconfig');"/>
       <menuitem accesskey="&aboutCmd.accesskey;"
                 label="&aboutCmd.label;"
                 id="aboutName"
