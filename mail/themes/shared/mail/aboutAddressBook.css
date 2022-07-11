@@ -185,6 +185,12 @@ body.layout-table {
   color: var(--in-content-item-selected-text);
 }
 
+.bookRow.drop-target > .bookRow-container,
+.listRow.drop-target > .listRow-container {
+  background-color: var(--in-content-item-selected);
+  color: var(--in-content-item-selected-text);
+}
+
 .bookRow .twisty {
   display: inline-flex;
   width: 26px;

@@ -406,6 +406,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.addEventListener("keypress", this);
     this.addEventListener("contextmenu", this);
     this.addEventListener("dragover", this);
+    this.addEventListener("dragleave", this);
     this.addEventListener("drop", this);
 
     // FIXME: Do this with HTML when we get new strings.
@@ -433,6 +434,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.removeEventListener("keypress", this);
     this.removeEventListener("contextmenu", this);
     this.removeEventListener("dragover", this);
+    this.removeEventListener("dragleave", this);
     this.removeEventListener("drop", this);
 
     for (let topic of this._abObserver._notifications) {
@@ -461,6 +463,9 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
         break;
       case "dragover":
         this._onDragOver(event);
+        break;
+      case "dragleave":
+        this._clearDropTarget(event);
         break;
       case "drop":
         this._onDrop(event);
@@ -838,10 +843,18 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       event.dataTransfer.dropEffect = event.ctrlKey ? "copy" : "move";
     }
 
+    this._clearDropTarget();
+    row.classList.add("drop-target");
+
     event.preventDefault();
   }
 
+  _clearDropTarget() {
+    this.querySelector(".drop-target")?.classList.remove("drop-target");
+  }
+
   _onDrop(event) {
+    this._clearDropTarget();
     if (event.dataTransfer.dropEffect == "none") {
       // Somehow this is possible. It should not be possible.
       return;
