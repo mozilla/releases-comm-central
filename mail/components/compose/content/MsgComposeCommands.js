@@ -3087,6 +3087,9 @@ function ComposeFieldsReady() {
   SetComposeWindowTitle();
   updateEditableFields(false);
   gLoadingComplete = true;
+  // Automatic checking is disabled while composer is loading,
+  // perform the check for encryption status now.
+  checkRecipientKeys();
 }
 
 // checks if the passed in string is a mailto url, if it is, generates nsIMsgComposeParams
@@ -3339,6 +3342,15 @@ async function verifyCertUsable(cert) {
 }
 
 async function checkRecipientKeys() {
+  if (!gLoadingComplete) {
+    // Let's not do this while we're still loading the composer window,
+    // it can have side effects, see bug 1777683.
+    // Also, if multiple recipients are added to an email automatically
+    // e.g. during reply-all, it doesn't make sense to execute this
+    // function every time after one of them gets added.
+    return;
+  }
+
   let recipients = getEncryptionCompatibleRecipients();
   // Calculate key notifications.
   // 1 notification at most per email address that has no valid key.
