@@ -1,0 +1,78 @@
+MIME-Version: 1.0
+Content-Transfer-Encoding: binary
+Content-Type: multipart/mixed; boundary="_----------=_1647458162153312762582"
+Date: Wed, 16 Mar 2022 15:16:02 -0400
+To: receiver@example.com
+Subject: Cancellation: Single Event @ Wed, Mar 16 2022 11:00 AST
+From: Sender <sender@example.com>
+
+This is a multi-part message in MIME format.
+
+--_----------=_1647458162153312762582
+MIME-Version: 1.0
+Content-Transfer-Encoding: binary
+Content-Type: multipart/alternative; boundary="_----------=_1647458162153312762583"
+Date: Wed, 16 Mar 2022 15:16:02 -0400
+
+This is a multi-part message in MIME format.
+
+--_----------=_1647458162153312762583
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Length: 227
+Content-Transfer-Encoding: binary
+Content-Type: text/plain; charset="utf-8"
+Date: Wed, 16 Mar 2022 15:16:02 -0400
+
+Single Event
+
+When:
+    Wed, Mar 16 2022
+    11:00 - 12:00 AST
+Where:
+    Somewhere
+
+--_----------=_1647458162153312762583
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/calendar; charset="utf-8"; method=CANCEL
+Date: Wed, 16 Mar 2022 15:16:02 -0400
+
+BEGIN:VCALENDAR
+VERSION:2.0
+METHOD:CANCEL
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:02e79b96
+SEQUENCE:1
+DTSTAMP:20220317T191602Z
+CREATED:20220316T191532Z
+DTSTART:20220316T110000Z
+DTEND:20220316T113000Z
+DURATION:PT1H
+PRIORITY:0
+SUMMARY:Single Event
+DESCRIPTION:An event invitation.
+LOCATION:Somewhere
+STATUS:CANCELLED
+TRANSP:OPAQUE
+CLASS:PUBLIC
+ORGANIZER;CN=3DSender;
+ EMAIL=3Dsender@example.com:mailto:sender@example.com
+ATTENDEE;CN=3DSender;
+ EMAIL=3Dsender@example.com;CUTYPE=3DINDIVIDUAL;
+ PARTSTAT=3DACCEPTED:mailto:sender@example.com
+ATTENDEE;CN=Receiver;EMAIL=3Dreceiver@example.com;CUTYPE=3DINDIVIDUAL;
+ PARTSTAT=3DNEEDS-ACTION:mailto:receiver@example.com
+ATTENDEE;CN=Other;EMAIL=other@example.com;CUTYPE=3DINDIVIDUAL;
+ PARTSTAT=3DNEEDS-ACTION:mailto:other@example.com
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:This is an event reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+--_----------=_1647458162153312762583--

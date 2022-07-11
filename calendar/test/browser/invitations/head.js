@@ -791,3 +791,70 @@ async function doExceptionOnlyTest(conf) {
   }
   await calendar.deleteItem(event.parentItem);
 }
+
+/**
+ * Tests the recognition and application of a cancellation to an existing event.
+ *
+ * @param {ImipBarActionTestConf} conf
+ */
+async function doCancelTest({ transport, calendar, isRecurring, event, recurrenceId }) {
+  transport.reset();
+
+  let eventId = event.id;
+  if (isRecurring) {
+    // wait for the other occurrences to appear.
+    await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1);
+    await CalendarTestUtils.monthView.waitForItemAt(window, 3, 6, 1);
+  }
+
+  let cancellationPath = isRecurring
+    ? "data/cancel-repeat-event.eml"
+    : "data/cancel-single-event.eml";
+
+  let cancelMsgFile = new FileUtils.File(getTestFilePath(cancellationPath));
+  if (recurrenceId) {
+    let srcTxt = await IOUtils.readUTF8(cancelMsgFile.path);
+    srcTxt = srcTxt.replaceAll(/RRULE:.+/g, `RECURRENCE-ID:${recurrenceId}`);
+    cancelMsgFile = FileTestUtils.getTempFile("cancel-occurrence.eml");
+    await IOUtils.writeUTF8(cancelMsgFile.path, srcTxt);
+  }
+
+  let win = await openImipMessage(cancelMsgFile);
+  let deleteButton = win.document.getElementById("imipDeleteButton");
+  Assert.ok(!deleteButton.hidden, `#${deleteButton.id} button shown`);
+  EventUtils.synthesizeMouseAtCenter(deleteButton, {}, win);
+  await BrowserTestUtils.closeWindow(win);
+
+  if (isRecurring && recurrenceId) {
+    // Expects a single occurrence to be cancelled.
+
+    let occurrences;
+    await TestUtils.waitForCondition(async () => {
+      let { parentItem } = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+      occurrences = parentItem.recurrenceInfo.getOccurrences(
+        cal.createDateTime("19700101"),
+        cal.createDateTime("30000101"),
+        Infinity
+      );
+      return occurrences.length == 2;
+    });
+
+    Assert.ok(
+      occurrences.every(occ => occ.recurrenceId && occ.recurrenceId != recurrenceId),
+      `occurrence "${recurrenceId}" removed`
+    );
+    Assert.ok(!!(await calendar.getItem(eventId)), "event was not deleted");
+  } else {
+    await CalendarTestUtils.monthView.waitForNoItemAt(window, 3, 4, 1);
+
+    if (isRecurring) {
+      await CalendarTestUtils.monthView.waitForNoItemAt(window, 3, 5, 1);
+      await CalendarTestUtils.monthView.waitForNoItemAt(window, 3, 6, 1);
+    }
+
+    Assert.ok(!(await calendar.getItem(eventId)), "event was deleted");
+  }
+
+  Assert.equal(transport.sentItems.length, 0, "itip subsystem did not attempt to send a response");
+  Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+}
