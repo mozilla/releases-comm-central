@@ -443,12 +443,7 @@ pref("security.external_protocol_requires_permission", false);
 
 // Prompt for the primary password prior to opening application windows,
 // to avoid the race that triggers multiple prompts (see bug 177175).
-#ifdef XP_MACOSX
-// disabled because of platform specific bug 1612456
-pref("security.prompt_for_master_password_on_startup", false);
-#else
 pref("security.prompt_for_master_password_on_startup", true);
-#endif
 
 pref("general.config.obscure_value", 0); // for MCD .cfg files
 
