@@ -815,6 +815,7 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
   if (recurrenceId) {
     let srcTxt = await IOUtils.readUTF8(cancelMsgFile.path);
     srcTxt = srcTxt.replaceAll(/RRULE:.+/g, `RECURRENCE-ID:${recurrenceId}`);
+    srcTxt = srcTxt.replaceAll(/SEQUENCE:.+/g, "SEQUENCE:3");
     cancelMsgFile = FileTestUtils.getTempFile("cancel-occurrence.eml");
     await IOUtils.writeUTF8(cancelMsgFile.path, srcTxt);
   }
@@ -823,7 +824,6 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
   let deleteButton = win.document.getElementById("imipDeleteButton");
   Assert.ok(!deleteButton.hidden, `#${deleteButton.id} button shown`);
   EventUtils.synthesizeMouseAtCenter(deleteButton, {}, win);
-  await BrowserTestUtils.closeWindow(win);
 
   if (isRecurring && recurrenceId) {
     // Expects a single occurrence to be cancelled.
@@ -837,7 +837,7 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
         Infinity
       );
       return occurrences.length == 2;
-    });
+    }, "occurrence was deleted");
 
     Assert.ok(
       occurrences.every(occ => occ.recurrenceId && occ.recurrenceId != recurrenceId),
@@ -852,9 +852,43 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
       await CalendarTestUtils.monthView.waitForNoItemAt(window, 3, 6, 1);
     }
 
-    Assert.ok(!(await calendar.getItem(eventId)), "event was deleted");
+    await TestUtils.waitForCondition(async () => {
+      let result = await calendar.getItem(eventId);
+      return !result;
+    }, "event was deleted");
   }
 
+  await BrowserTestUtils.closeWindow(win);
   Assert.equal(transport.sentItems.length, 0, "itip subsystem did not attempt to send a response");
   Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+}
+
+/**
+ * Tests processing of cancellations to exceptions to recurring events.
+ *
+ * @param {ImipBarActionTestConf} conf
+ */
+async function doCancelExceptionTest(conf) {
+  let { partStat, recurrenceId, calendar } = conf;
+  let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+  let win = await openImipMessage(invite);
+  await clickAction(win, actionIds.recurring.button[partStat]);
+
+  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+  await BrowserTestUtils.closeWindow(win);
+
+  let update = new FileUtils.File(getTestFilePath("data/exception-major.eml"));
+  let updateWin = await openImipMessage(update);
+  await clickAction(updateWin, actionIds.single.button[partStat]);
+
+  let exception;
+  await TestUtils.waitForCondition(async () => {
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
+    exception = event.recurrenceInfo.getExceptionFor(cal.createDateTime(recurrenceId));
+    return !!exception;
+  }, "exception applied");
+
+  await BrowserTestUtils.closeWindow(updateWin);
+  await doCancelTest({ ...conf, event });
+  await calendar.deleteItem(event);
 }
