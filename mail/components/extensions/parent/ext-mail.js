@@ -124,9 +124,9 @@ global.clickModifiersFromEvent = event => {
 };
 
 global.openOptionsPage = extension => {
-  let window = windowTracker.topWindow;
+  let window = windowTracker.topNormalWindow;
   if (!window) {
-    return Promise.reject({ message: "No browser window available" });
+    return Promise.reject({ message: "No mail window available" });
   }
 
   if (extension.manifest.options_ui.open_in_tab) {
