@@ -13,7 +13,7 @@
 /* ..... attachment column ..... */
 
 .attachmentColumnHeader {
-  padding-inline: 0;
+  padding-inline: 2px 5px;
 }
 
 treechildren::-moz-tree-image(attachmentCol) {
