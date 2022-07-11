@@ -841,7 +841,10 @@ class ComposeCommand {
         folderURI: msgHdr.folder.URI,
       });
       if (!this.classifiedMessages.has(key)) {
-        this.classifiedMessages.set(key, msgHdr);
+        this.classifiedMessages.set(
+          key,
+          convertMessage(msgHdr, this.context.extension)
+        );
       }
     }
   }
@@ -900,12 +903,11 @@ class ComposeCommand {
 
     try {
       await Promise.all([deliveryPromise, sendPromise]);
-
       let messages = [];
       for (let savedMessage of this.savedMessages) {
-        let msgHdr = this.classifiedMessages.get(savedMessage);
-        if (msgHdr) {
-          messages.push(convertMessage(msgHdr, this.context.extension));
+        let message = this.classifiedMessages.get(savedMessage);
+        if (message) {
+          messages.push(message);
         }
       }
 
