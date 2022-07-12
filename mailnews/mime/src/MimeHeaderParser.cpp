@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "mozilla/mailnews/Services.h"
 #include "mozilla/DebugOnly.h"
 #include "nsMemory.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgHeaderParser.h"
+#include "mozilla/Components.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -33,7 +33,8 @@ void MakeMimeAddress(const nsACString& aName, const nsACString& aEmail,
 
 void MakeMimeAddress(const nsAString& aName, const nsAString& aEmail,
                      nsAString& full) {
-  nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  nsCOMPtr<nsIMsgHeaderParser> headerParser(
+      components::HeaderParser::Service());
 
   nsCOMPtr<msgIAddressObject> address;
   headerParser->MakeMailboxObject(aName, aEmail, getter_AddRefs(address));
@@ -44,7 +45,8 @@ void MakeMimeAddress(const nsAString& aName, const nsAString& aEmail,
 
 void MakeDisplayAddress(const nsAString& aName, const nsAString& aEmail,
                         nsAString& full) {
-  nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  nsCOMPtr<nsIMsgHeaderParser> headerParser(
+      components::HeaderParser::Service());
 
   nsCOMPtr<msgIAddressObject> object;
   headerParser->MakeMailboxObject(aName, aEmail, getter_AddRefs(object));
@@ -54,7 +56,8 @@ void MakeDisplayAddress(const nsAString& aName, const nsAString& aEmail,
 void RemoveDuplicateAddresses(const nsACString& aHeader,
                               const nsACString& aOtherEmails,
                               nsACString& result) {
-  nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  nsCOMPtr<nsIMsgHeaderParser> headerParser(
+      components::HeaderParser::Service());
 
   headerParser->RemoveDuplicateAddresses(aHeader, aOtherEmails, result);
 }
@@ -68,7 +71,8 @@ nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString& aHeader) {
   if (aHeader.IsEmpty()) {
     return retval;
   }
-  nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  nsCOMPtr<nsIMsgHeaderParser> headerParser(
+      components::HeaderParser::Service());
   NS_ENSURE_TRUE(headerParser, retval);
   nsTArray<RefPtr<msgIAddressObject>> addresses;
   nsresult rv = headerParser->ParseDecodedHeader(aHeader, false, addresses);
@@ -88,7 +92,8 @@ nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString& aHeader,
   if (aHeader.IsEmpty()) {
     return retval;
   }
-  nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  nsCOMPtr<nsIMsgHeaderParser> headerParser(
+      components::HeaderParser::Service());
   NS_ENSURE_TRUE(headerParser, retval);
   nsTArray<RefPtr<msgIAddressObject>> addresses;
   nsresult rv =
@@ -108,7 +113,8 @@ nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString& aHeader) {
   if (aHeader.IsEmpty()) {
     return retval;
   }
-  nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
+  nsCOMPtr<nsIMsgHeaderParser> headerParser(
+      components::HeaderParser::Service());
   NS_ENSURE_TRUE(headerParser, retval);
   nsTArray<RefPtr<msgIAddressObject>> addresses;
   nsresult rv = headerParser->ParseEncodedHeaderW(aHeader, addresses);

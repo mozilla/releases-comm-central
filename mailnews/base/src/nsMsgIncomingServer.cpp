@@ -47,7 +47,6 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "mozilla/Components.h"
 #include "mozilla/Services.h"
-#include "Services.h"
 #include "nsIMsgFilter.h"
 #include "nsIObserverService.h"
 #include "mozilla/Unused.h"

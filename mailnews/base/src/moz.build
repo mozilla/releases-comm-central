@@ -27,11 +27,6 @@ EXPORTS += [
     "nsQuarantinedOutputStream.h",
 ]
 
-EXPORTS.mozilla.mailnews += [
-    "ServiceList.h",
-    "Services.h",
-]
-
 SOURCES += [
     "MailNewsDLF.cpp",
     "MailnewsLoadContextInfo.cpp",
@@ -87,7 +82,6 @@ SOURCES += [
     "nsStatusBarBiffManager.cpp",
     "nsStopwatch.cpp",
     "nsSubscribableServer.cpp",
-    "Services.cpp",
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT":

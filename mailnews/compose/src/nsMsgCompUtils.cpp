@@ -30,10 +30,8 @@
 #include "nsCRTGlue.h"
 #include <ctype.h>
 #include "mozilla/dom/Element.h"
-#include "mozilla/mailnews/Services.h"
 #include "mozilla/EncodingDetector.h"
 #include "mozilla/Components.h"
-#include "mozilla/Services.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Unused.h"
 #include "mozilla/ContentIterator.h"
@@ -384,7 +382,7 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
                                                         undisclosedRecipients);
             if (NS_SUCCEEDED(rv) && !undisclosedRecipients.IsEmpty()) {
               nsCOMPtr<nsIMsgHeaderParser> headerParser(
-                  mozilla::services::GetHeaderParser());
+                  mozilla::components::HeaderParser::Service());
               nsCOMPtr<msgIAddressObject> group;
               nsTArray<RefPtr<msgIAddressObject>> noRecipients;
               headerParser->MakeGroupObject(undisclosedRecipients, noRecipients,

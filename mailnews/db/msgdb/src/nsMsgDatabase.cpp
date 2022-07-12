@@ -37,9 +37,8 @@
 #include "nsIMemoryReporter.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsMailDirServiceDefs.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "mozilla/mailnews/Services.h"
 #include "mozilla/intl/LocaleService.h"
 
 using namespace mozilla::mailnews;
@@ -3347,7 +3346,7 @@ NS_IMETHODIMP nsMsgDatabase::SetSummaryValid(bool valid /* = true */) {
   // it may
   //  not have been added to the cache. Add it now if missing.
   if (valid) {
-    nsCOMPtr<nsIMsgDBService> serv(mozilla::services::GetDBService());
+    nsCOMPtr<nsIMsgDBService> serv(mozilla::components::DB::Service());
     static_cast<nsMsgDBService*>(serv.get())->EnsureCached(this);
   }
   // setting the version to 0 ought to make it pretty invalid.
