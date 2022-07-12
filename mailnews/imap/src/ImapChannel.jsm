@@ -116,7 +116,7 @@ class ImapChannel {
       },
       onDataAvailable: (request, stream, offset, count) => {
         this.contentLength += count;
-        this._listener.onDataAvailable(null, stream, offset, count);
+        this._listener.onDataAvailable(this, stream, offset, count);
         try {
           if (!stream.available()) {
             stream.close();
@@ -137,7 +137,7 @@ class ImapChannel {
     let outputStream = pipe.outputStream;
 
     this._server.wrappedJSObject.withClient(client => {
-      client.runningUri = this.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      client.startRunningUrl(null, null, this.URI);
       this._listener.onStartRequest(this);
       client.onReady = () => {
         client.fetchMessage(this.URI.folder, this._msgKey);
@@ -152,7 +152,7 @@ class ImapChannel {
           return;
         }
         outputStream.write(data, data.length);
-        this._listener.onDataAvailable(null, inputStream, 0, data.length);
+        this._listener.onDataAvailable(this, inputStream, 0, data.length);
       };
     });
   }

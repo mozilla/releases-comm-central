@@ -5,6 +5,15 @@
 const EXPORTED_SYMBOLS = ["ImapService"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  ImapChannel: "resource:///modules/ImapChannel.jsm",
+});
 
 /**
  * Set mailnews.imap.jsmodule to true to use this module.
@@ -95,6 +104,36 @@ class ImapService {
         client.renameFolder(folder, newName);
       };
     });
+  }
+
+  fetchMessage(
+    imapUrl,
+    imapAction,
+    folder,
+    msgSink,
+    msgWindow,
+    displayConsumer,
+    msgIds,
+    convertDataToText
+  ) {
+    if (displayConsumer instanceof Ci.nsIDocShell) {
+      imapUrl
+        .QueryInterface(Ci.nsIMsgMailNewsUrl)
+        .loadURI(
+          displayConsumer.QueryInterface(Ci.nsIDocShell),
+          Ci.nsIWebNavigation.LOAD_FLAGS_NONE
+        );
+    } else {
+      let streamListener = displayConsumer.QueryInterface(Ci.nsIStreamListener);
+      let channel = new lazy.ImapChannel(imapUrl, {
+        QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
+        loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+        securityFlags:
+          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+        internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
+      });
+      channel.asyncOpen(streamListener);
+    }
   }
 }
 

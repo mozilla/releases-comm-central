@@ -31,6 +31,12 @@ var imapJSModules = [
     "@mozilla.org/messenger/imapservice;1",
   ],
   [
+    "ImapMessageService",
+    "{d63af753-c2f3-4f1d-b650-9d12229de8ad}",
+    "@mozilla.org/messenger/messageservice;1?type=imap",
+    "ImapMessageService",
+  ],
+  [
     "ImapProtocolHandler",
     "{ebb06c58-6ccd-4bde-9087-40663e0388ae}",
     "@mozilla.org/network/protocol;1?name=imap",
