@@ -1300,7 +1300,7 @@ NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return imapService->Expunge(this, aListener, aMsgWindow, nullptr);
+  return imapService->Expunge(this, aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
@@ -6970,10 +6970,11 @@ nsImapMailFolder::CopyMessages(
           allMessageCountNotifications,
           false);  // disable message count notification
 
+    nsCOMPtr<nsIURI> resultUrl;
     nsCOMPtr<nsISupports> copySupport = do_QueryInterface(m_copyState);
-    rv = imapService->OnlineMessageCopy(srcFolder, messageIds, this, true,
-                                        isMove, urlListener, nullptr,
-                                        copySupport, msgWindow);
+    rv = imapService->OnlineMessageCopy(
+        srcFolder, messageIds, this, true, isMove, urlListener,
+        getter_AddRefs(resultUrl), copySupport, msgWindow);
     if (NS_SUCCEEDED(rv) && m_copyState->m_allowUndo) {
       RefPtr<nsImapMoveCopyMsgTxn> undoMsgTxn = new nsImapMoveCopyMsgTxn;
       if (!undoMsgTxn ||

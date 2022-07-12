@@ -135,6 +135,49 @@ class ImapService {
       channel.asyncOpen(streamListener);
     }
   }
+
+  expunge(folder, urlListener, msgWindow) {
+    this._withClient(folder, client => {
+      client.startRunningUrl(urlListener, msgWindow);
+      client.onReady = () => {
+        client.expunge(folder);
+      };
+    });
+  }
+
+  onlineMessageCopy(
+    folder,
+    messageIds,
+    dstFolder,
+    idsAreUids,
+    isMove,
+    urlListener,
+    outURL,
+    copyState,
+    msgWindow
+  ) {
+    this._withClient(folder, client => {
+      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction = isMove
+        ? Ci.nsIImapUrl.nsImapOnlineMove
+        : Ci.nsIImapUrl.nsImapOnlineCopy;
+      client.onReady = () => {
+        client.copy(folder, dstFolder, messageIds, idsAreUids, isMove);
+      };
+    });
+  }
+
+  /**
+   * Do some actions with a connection.
+   * @param {nsIMsgFolder} folder - The associated folder.
+   * @param {Function} handler - A callback function to take a ImapClient
+   *   instance, and do some actions.
+   */
+  _withClient(folder, handler) {
+    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
+      .imapIncomingServer;
+    server.wrappedJSObject.withClient(handler);
+  }
 }
 
 ImapService.prototype.classID = Components.ID(

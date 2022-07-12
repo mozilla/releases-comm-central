@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["ImapMessageService"];
+const EXPORTED_SYMBOLS = ["ImapMessageService", "ImapMessageMessageService"];
 
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 /**
  * @implements {nsIMsgMessageService}
  */
-class ImapMessageService {
+class BaseMessageService {
   QueryInterface = ChromeUtils.generateQI(["nsIMsgMessageService"]);
 
   SaveMessageToDisk(
@@ -75,6 +75,46 @@ class ImapMessageService {
     return imapUrl;
   }
 
+  streamMessage(messageUri, consumer, msgWindow, urlListener, localOnly) {
+    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let imapUrl = Services.io
+      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
+      .QueryInterface(Ci.nsIImapUrl);
+    imapUrl.localFetchOnly = localOnly;
+
+    let folder = lazy.MailUtils.getOrCreateFolder(
+      `imap://${host}/${folderName}`
+    );
+
+    let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    mailnewsUrl.folder = folder;
+    mailnewsUrl.msgWindow = msgWindow;
+    mailnewsUrl.msgIsInLocalCache = folder.hasMsgOffline(key);
+    if (urlListener) {
+      mailnewsUrl.RegisterListener(urlListener);
+    }
+
+    return MailServices.imap.fetchMessage(
+      imapUrl,
+      Ci.nsIImapUrl.nsImapMsgFetchPeek,
+      folder,
+      folder.QueryInterface(Ci.nsIImapMessageSink),
+      msgWindow,
+      consumer,
+      key,
+      false,
+      {}
+    );
+  }
+
+  messageURIToMsgHdr(messageUri) {
+    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let folder = lazy.MailUtils.getOrCreateFolder(
+      `imap://${host}/${folderName}`
+    );
+    return folder.GetMessageHeader(key);
+  }
+
   /**
    * Parse a message uri to hostname, folder and message key.
    * @param {string} uri - The imap-message:// url to parse.
@@ -88,6 +128,20 @@ class ImapMessageService {
   }
 }
 
+/**
+ * A message service for imap://.
+ */
+class ImapMessageService extends BaseMessageService {}
+
 ImapMessageService.prototype.classID = Components.ID(
   "{d63af753-c2f3-4f1d-b650-9d12229de8ad}"
+);
+
+/**
+ * A message service for imap-message://.
+ */
+class ImapMessageMessageService extends BaseMessageService {}
+
+ImapMessageMessageService.prototype.classID = Components.ID(
+  "{2532ae4f-a852-4c96-be45-1308ba23d62e}"
 );

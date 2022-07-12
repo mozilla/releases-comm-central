@@ -7,6 +7,7 @@
  * and returns success.
  */
 
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
@@ -161,9 +162,11 @@ add_task(async function compactOfflineStore() {
   let listener = new PromiseTestUtils.PromiseUrlListener();
   gRootFolder.compactAll(listener, null);
   await listener.promise;
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 300));
 });
 
-add_task(function test_checkCompactionResult() {
+add_task(function test_checkCompactionResult1() {
   checkOfflineStore(gImapInboxOfflineStoreSize);
 });
 
@@ -176,7 +179,7 @@ add_task(async function pendingRemoval() {
   await listener.promise;
 });
 
-add_task(function test_checkCompactionResult() {
+add_task(function test_checkCompactionResult2() {
   let tmpFile = gRootFolder.filePath;
   tmpFile.append("nstmp");
   Assert.ok(!tmpFile.exists());

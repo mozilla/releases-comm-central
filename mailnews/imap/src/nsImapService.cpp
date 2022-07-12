@@ -1445,11 +1445,11 @@ NS_IMETHODIMP nsImapService::UpdateFolderStatus(nsIMsgFolder* aImapMailFolder,
 // Expunge, used to "compress" an imap folder,removes deleted messages.
 NS_IMETHODIMP nsImapService::Expunge(nsIMsgFolder* aImapMailFolder,
                                      nsIUrlListener* aUrlListener,
-                                     nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
+                                     nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   return FolderCommand(aImapMailFolder, aUrlListener, "/Expunge>",
-                       nsIImapUrl::nsImapExpungeFolder, aMsgWindow, aURL);
+                       nsIImapUrl::nsImapExpungeFolder, aMsgWindow, nullptr);
 }
 
 /* old-stle biff that doesn't download headers */

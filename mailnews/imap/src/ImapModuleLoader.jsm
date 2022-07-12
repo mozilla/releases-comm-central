@@ -37,6 +37,12 @@ var imapJSModules = [
     "ImapMessageService",
   ],
   [
+    "ImapMessageMessageService",
+    "{2532ae4f-a852-4c96-be45-1308ba23d62e}",
+    "@mozilla.org/messenger/messageservice;1?type=imap-message",
+    "ImapMessageService",
+  ],
+  [
     "ImapProtocolHandler",
     "{ebb06c58-6ccd-4bde-9087-40663e0388ae}",
     "@mozilla.org/network/protocol;1?name=imap",
@@ -56,9 +62,15 @@ ImapModuleLoader.prototype = {
         Ci.nsIComponentRegistrar
       );
 
-      for (let [moduleName, interfaceId, contractId] of imapJSModules) {
+      for (let [
+        moduleName,
+        interfaceId,
+        contractId,
+        fileName,
+      ] of imapJSModules) {
+        fileName = fileName || moduleName;
         // Load a module.
-        let scope = ChromeUtils.import(`resource:///modules/${moduleName}.jsm`);
+        let scope = ChromeUtils.import(`resource:///modules/${fileName}.jsm`);
 
         // Register a module.
         let classId = Components.ID(interfaceId);

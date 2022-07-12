@@ -213,6 +213,7 @@ class ImapClient {
    * @param {number} flags - The internal flags number to update.
    */
   updateMesageFlags(action, folder, urlListener, messageIds, flags) {
+    this._urlListener = urlListener;
     let getCommand = () => {
       // _supportedFlags is available after _actionSelectResponse.
       let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
@@ -230,6 +231,39 @@ class ImapClient {
       this._nextAction = this._actionSelectResponse;
       this._sendTagged(`SELECT "${folder.name}"`);
     }
+  }
+
+  /**
+   * Send EXPUNGE command to a folder.
+   * @param {nsIMsgFolder} folder - The associated folder.
+   */
+  expunge(folder) {
+    this._actionFolderCommand(folder, () => {
+      this._nextAction = () => this._actionDone();
+      this._sendTagged("EXPUNGE");
+    });
+  }
+
+  /**
+   * Move or copy messages from a folder to another folder.
+   * @param {nsIMsgFolder} folder - The source folder.
+   * @param {nsIMsgFolder} folder - The target folder.
+   * @param {string} messageIds - The message identifiers.
+   * @param {boolean} idsAreUids - If true messageIds are UIDs, otherwise,
+   *   messageIds are sequences.
+   * @param {boolean} isMove - If true, use MOVE command when supported.
+   */
+  copy(folder, dstFolder, messageIds, idsAreUids, isMove) {
+    let command = idsAreUids ? "UID " : "";
+    command +=
+      isMove && this._capabilities.includes("MOVE")
+        ? "MOVE " // rfc6851
+        : "COPY ";
+    command += messageIds + ` "${this._getServerFolderName(dstFolder)}"`;
+    this._actionFolderCommand(folder, () => {
+      this._nextAction = () => this._actionDone();
+      this._sendTagged(command);
+    });
   }
 
   /**
@@ -672,6 +706,25 @@ class ImapClient {
     }
     this._send(token, true);
   };
+
+  /**
+   * Execute an action with a folder selected.
+   * @param {nsIMsgFolder} folder - The folder to select.
+   * @param {function} actionInFolder - The action to execute.
+   */
+  _actionFolderCommand(folder, actionInFolder) {
+    if (this.folder == folder) {
+      // If already in the folder, execute the action now.
+      actionInFolder();
+    } else {
+      // Send the SELECT command and queue the action.
+      this.folder = folder;
+      this._actionAfterSelectFolder = actionInFolder;
+      this._nextAction = this._actionSelectResponse;
+      this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
+    }
+  }
+
   /**
    * Send LSUB or LIST command depending on the server capabilities.
    */

@@ -88,13 +88,10 @@ interface nsIImapService : nsISupports
    * @param aImapMailFolder     the folder to expunge
    * @param aUrlListener        url listener, can be null
    * @param aMsgWindow          msg window url is running in, can be null
-   *
-   * @returns the url created to run the expunge.
    */
   void expunge(in nsIMsgFolder aImapMailFolder,
                in nsIUrlListener aUrlListener,
-               in nsIMsgWindow aMsgWindow,
-               out nsIURI aURL);
+               in nsIMsgWindow aMsgWindow);
 
   /**
    * Issue a STATUS on the target folder.

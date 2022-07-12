@@ -78,7 +78,9 @@ class ImapChannel {
       if (this._readFromLocalCache()) {
         return;
       }
-    } catch (e) {}
+    } catch (e) {
+      this._logger.warn(e);
+    }
 
     this._readFromServer();
   }
@@ -96,7 +98,7 @@ class ImapChannel {
       return false;
     }
 
-    let hdr = this.URI.folder.getMessageHeader(this._msgKey);
+    let hdr = this.URI.folder.GetMessageHeader(this._msgKey);
     let stream = this.URI.folder.getLocalMsgStream(hdr);
     let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
