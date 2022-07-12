@@ -26,7 +26,7 @@
 #include "nsIMsgNewsFolder.h"
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 
 static const char* kImapPrefix = "//imap:";
@@ -465,7 +465,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   buffer.SetCapacity(512);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;

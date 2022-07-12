@@ -10,7 +10,7 @@
 #include "cert.h"
 #include "keyhi.h"
 #include "mozilla/RefPtr.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "msgCore.h"
@@ -183,7 +183,7 @@ bool nsMsgComposeSecure::InitializeSMIMEBundle() {
   if (mSMIMEBundle) return true;
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   nsresult rv = bundleService->CreateBundle(SMIME_STRBUNDLE_URL,
                                             getter_AddRefs(mSMIMEBundle));
   NS_ENSURE_SUCCESS(rv, false);
@@ -475,7 +475,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
                                                 nsIMsgSendReport* sendReport) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleSvc =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> sMIMEBundle;
@@ -594,7 +594,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
 
   char* header = nullptr;
   nsCOMPtr<nsIStringBundleService> bundleSvc =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> sMIMEBundle;

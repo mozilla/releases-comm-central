@@ -25,7 +25,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "nsTextFormatter.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 
 static mozilla::LazyLogModule gMimeEmitterLogModule("MIME");
@@ -175,7 +175,7 @@ char* nsMimeBaseEmitter::MimeGetStringByName(const char* aHeaderName) {
 
   if (!m_headerStringBundle) {
     nsCOMPtr<nsIStringBundleService> sBundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     if (sBundleService) {
       res = sBundleService->CreateBundle(MIME_HEADER_URL,
                                          getter_AddRefs(m_headerStringBundle));
@@ -206,7 +206,7 @@ char* nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
     static const char propertyURL[] = MIME_URL;
 
     nsCOMPtr<nsIStringBundleService> sBundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     if (sBundleService)
       res = sBundleService->CreateBundle(propertyURL,
                                          getter_AddRefs(m_stringBundle));

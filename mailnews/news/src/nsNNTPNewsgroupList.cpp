@@ -58,7 +58,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Logging.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/BrowsingContext.h"
 
 using namespace mozilla;
@@ -273,7 +273,7 @@ nsresult nsNNTPNewsgroupList::GetRangeOfArtsToDownload(
   if (m_knownArts.set->IsMember(last_possible)) {
     nsString statusString;
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
     nsCOMPtr<nsIStringBundle> bundle;
@@ -818,7 +818,7 @@ nsresult nsNNTPNewsgroupList::FinishXOVERLINE(int status, int* newstatus) {
 
       nsString statusString;
       nsCOMPtr<nsIStringBundleService> bundleService =
-          mozilla::services::GetStringBundleService();
+          mozilla::components::StringBundle::Service();
       NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
       nsCOMPtr<nsIStringBundle> bundle;
@@ -1142,7 +1142,7 @@ void nsNNTPNewsgroupList::SetProgressStatus(const nsString& aMessage) {
       server->GetPrettyName(accountName);
       nsString statusMessage;
       nsCOMPtr<nsIStringBundleService> sbs =
-          mozilla::services::GetStringBundleService();
+          mozilla::components::StringBundle::Service();
       nsCOMPtr<nsIStringBundle> bundle;
       rv = sbs->CreateBundle(MSGS_URL, getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS_VOID(rv);
@@ -1172,7 +1172,7 @@ void nsNNTPNewsgroupList::UpdateStatus(bool filtering, int32_t numDLed,
 
   nsString statusString;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (!bundleService) return;
 
   nsCOMPtr<nsIStringBundle> bundle;

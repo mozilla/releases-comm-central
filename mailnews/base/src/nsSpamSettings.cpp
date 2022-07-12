@@ -18,7 +18,7 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIStringBundle.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
@@ -615,7 +615,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr* aMsgHdr,
   buffer.SetCapacity(512);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;

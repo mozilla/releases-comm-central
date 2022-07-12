@@ -17,7 +17,7 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsEmbedCID.h"
 #include "mozilla/ArrayUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 #include <glib.h>
 #include <limits.h>
@@ -306,7 +306,7 @@ nsresult nsGNOMEShellService::MakeDefault(const char* const* aProtocols,
   nsresult rv;
   if (giovfs) {
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
     nsCOMPtr<nsIStringBundle> brandBundle;

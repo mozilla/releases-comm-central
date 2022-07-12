@@ -9,7 +9,7 @@
 #include "nsIStringBundle.h"
 #include "nsImapStringBundle.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 #define IMAP_MSGS_URL "chrome://messenger/locale/imapMsgs.properties"
 
@@ -28,7 +28,7 @@ extern "C" nsresult IMAPGetStringByName(const char* stringName,
 nsresult IMAPGetStringBundle(nsIStringBundle** aBundle) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIStringBundleService> stringService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (!stringService) return NS_ERROR_NULL_POINTER;
   nsCOMPtr<nsIStringBundle> stringBundle;
   rv = stringService->CreateBundle(IMAP_MSGS_URL, getter_AddRefs(stringBundle));

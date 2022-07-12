@@ -7,6 +7,7 @@
 #include <shellapi.h>
 #include <strsafe.h>
 
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "mozIDOMWindow.h"
 #include "nsIBaseWindow.h"
@@ -263,7 +264,7 @@ nsresult nsMessengerWinIntegration::SetTooltip() {
   nsresult rv = NS_OK;
   if (mBrandShortName.IsEmpty()) {
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
     nsCOMPtr<nsIStringBundle> bundle;
     rv = bundleService->CreateBundle(

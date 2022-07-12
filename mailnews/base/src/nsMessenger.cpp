@@ -16,7 +16,7 @@
 #include "nsQuickSort.h"
 #include "nsNativeCharsetUtils.h"
 #include "mozilla/Path.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 
 // necko
@@ -1865,7 +1865,7 @@ nsresult nsMessenger::InitStringBundle() {
 
   const char propertyURL[] = MESSENGER_STRING_URL;
   nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(sBundleService, NS_ERROR_UNEXPECTED);
   return sBundleService->CreateBundle(propertyURL,
                                       getter_AddRefs(mStringBundle));

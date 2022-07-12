@@ -25,7 +25,7 @@
 #include "nsString.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/Logging.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/SlicedInputStream.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Utf8.h"
@@ -919,7 +919,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
       nsString statusString, confirmText;
       nsCOMPtr<nsIStringBundle> bundle;
       nsCOMPtr<nsIStringBundleService> bundleService =
-          mozilla::services::GetStringBundleService();
+          mozilla::components::StringBundle::Service();
 
       // to handle non-ASCII newsgroup names, we store them internally
       // as escaped. decode and unescape the newsgroup name so we'll
@@ -2611,7 +2611,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream* inputStream,
       nsString statusString;
 
       nsCOMPtr<nsIStringBundleService> bundleService =
-          mozilla::services::GetStringBundleService();
+          mozilla::components::StringBundle::Service();
       NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
       nsCOMPtr<nsIStringBundle> bundle;
@@ -3152,7 +3152,7 @@ nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID,
 
   if (!m_stringBundle) {
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
     rv = bundleService->CreateBundle(NEWS_MSGS_URL,
@@ -3185,7 +3185,7 @@ nsresult nsNNTPProtocol::GetNewsStringByName(const char* aName,
   nsAutoString resultString(u"???"_ns);
   if (!m_stringBundle) {
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
     rv = bundleService->CreateBundle(NEWS_MSGS_URL,
@@ -3319,7 +3319,7 @@ nsresult nsNNTPProtocol::DoCancel() {
                "code != POST_SEND_NOW");
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_OUT_OF_MEMORY);
 
   nsCOMPtr<nsIStringBundle> brandBundle;

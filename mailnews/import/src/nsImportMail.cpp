@@ -15,7 +15,7 @@
 #include "ImportDebug.h"
 #include "plstr.h"
 #include "nsThreadUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "msgCore.h"
 
 // forward decl for proxy methods
@@ -668,7 +668,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
 
   nsCOMPtr<nsIStringBundle> bundle;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (!bundleService) return false;
   rv = bundleService->CreateBundle(IMPORT_MSGS_URL, getter_AddRefs(bundle));
   if (NS_FAILED(rv)) return false;

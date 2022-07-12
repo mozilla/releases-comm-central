@@ -10,14 +10,14 @@
 #include "nsImportStringBundle.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 nsresult nsImportStringBundle::GetStringBundle(const char* aPropertyURL,
                                                nsIStringBundle** aBundle) {
   nsresult rv;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(sBundleService, NS_ERROR_UNEXPECTED);
   rv = sBundleService->CreateBundle(aPropertyURL, aBundle);
 

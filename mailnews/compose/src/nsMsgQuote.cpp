@@ -23,7 +23,7 @@
 #include "nsMsgCompCID.h"
 #include "nsMsgCompose.h"
 #include "nsMsgMailNewsUrl.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsContentUtils.h"
 
 NS_IMPL_ISUPPORTS(nsMsgQuoteListener, nsIMsgQuoteListener,
@@ -149,7 +149,7 @@ nsresult nsMsgQuote::QuoteMessage(
 
   // now we want to create a necko channel for this url and we want to open it
   mQuoteChannel = nullptr;
-  nsCOMPtr<nsIIOService> netService = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> netService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
   rv = netService->NewChannelFromURI(
       newURI, nullptr, nsContentUtils::GetSystemPrincipal(), nullptr,

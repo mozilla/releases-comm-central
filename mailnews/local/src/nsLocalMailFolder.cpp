@@ -53,7 +53,7 @@
 #include "nsReadLine.h"
 #include "nsIStringEnumerator.h"
 #include "nsIURIMutator.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/SlicedInputStream.h"
 
@@ -661,7 +661,7 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
                              &confirmDeletion);
     if (confirmDeletion) {
       nsCOMPtr<nsIStringBundleService> bundleService =
-          mozilla::services::GetStringBundleService();
+          mozilla::components::StringBundle::Service();
       NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
       nsCOMPtr<nsIStringBundle> bundle;
       rv = bundleService->CreateBundle(
@@ -2956,7 +2956,7 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
 
     if (!mCopyState->m_stringBundle) {
       nsCOMPtr<nsIStringBundleService> bundleService =
-          mozilla::services::GetStringBundleService();
+          mozilla::components::StringBundle::Service();
       NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
       rv = bundleService->CreateBundle(
           "chrome://messenger/locale/localMsgs.properties",

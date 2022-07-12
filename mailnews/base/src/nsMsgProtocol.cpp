@@ -38,7 +38,7 @@
 #include "nsIInputStreamPump.h"
 #include "nsICancelable.h"
 #include "nsMimeTypes.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/SlicedInputStream.h"
 #include "nsContentSecurityManager.h"
 #include "nsPrintfCString.h"
@@ -1476,7 +1476,7 @@ char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
   nsresult rv;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(sBundleService, nullptr);
 
   nsCOMPtr<nsIStringBundle> sBundle;

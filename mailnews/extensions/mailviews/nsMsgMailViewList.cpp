@@ -13,7 +13,7 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsIFile.h"
 #include "nsComponentManagerUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsIMsgFilter.h"
 
 #define kDefaultViewPeopleIKnow "People I Know"
@@ -48,7 +48,7 @@ NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t** aMailViewName) {
   nsresult rv = NS_OK;
   if (!mBundle) {
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
     bundleService->CreateBundle(
         "chrome://messenger/locale/mailviews.properties",

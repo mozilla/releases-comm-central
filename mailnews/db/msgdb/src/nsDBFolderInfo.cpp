@@ -15,7 +15,6 @@
 #include "nsIMsgDBView.h"
 #include "nsServiceManagerUtils.h"
 #include "nsImapCore.h"
-#include "mozilla/Services.h"
 
 static const char* kDBFolderInfoScope = "ns:msg:db:row:scope:dbfolderinfo:all";
 static const char* kDBFolderInfoTableKind = "ns:msg:db:table:kind:dbfolderinfo";

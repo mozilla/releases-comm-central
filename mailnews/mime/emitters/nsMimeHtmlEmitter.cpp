@@ -26,7 +26,7 @@
 #include "nsMsgMimeCID.h"
 #include "nsMsgUtils.h"
 #include "nsMemory.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 #define VIEW_ALL_HEADERS 2
 
@@ -405,7 +405,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
       nsresult rv;
 
       nsCOMPtr<nsIStringBundleService> bundleSvc =
-          mozilla::services::GetStringBundleService();
+          mozilla::components::StringBundle::Service();
       NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
 
       nsCOMPtr<nsIStringBundle> bundle;

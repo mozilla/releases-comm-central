@@ -65,7 +65,7 @@
 #include "nsIURIMutator.h"
 #include "nsIXULAppInfo.h"
 #include "nsPrintfCString.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SlicedInputStream.h"
@@ -2706,7 +2706,7 @@ nsresult nsMsgDBFolder::PerformBiffNotifications(void) {
 nsresult nsMsgDBFolder::initializeStrings() {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIStringBundle> bundle;
   rv = bundleService->CreateBundle(
@@ -4726,7 +4726,7 @@ NS_IMETHODIMP nsMsgDBFolder::GenerateMessageURI(nsMsgKey msgKey,
 nsresult nsMsgDBFolder::GetBaseStringBundle(nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIStringBundle> bundle;
   bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",

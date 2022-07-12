@@ -9,7 +9,7 @@
 #include "nsMsgUtils.h"
 #include "nsIStringBundle.h"
 #include "nsOutlookStringBundle.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 #define OUTLOOK_MSGS_URL \
   "chrome://messenger/locale/outlookImportMsgs.properties"
@@ -20,7 +20,7 @@ void nsOutlookStringBundle::GetStringBundle(void) {
   if (m_pBundle) return;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (sBundleService) {
     sBundleService->CreateBundle(OUTLOOK_MSGS_URL, getter_AddRefs(m_pBundle));
   }

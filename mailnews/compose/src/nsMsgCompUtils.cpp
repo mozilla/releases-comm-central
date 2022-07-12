@@ -32,6 +32,7 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/mailnews/Services.h"
 #include "mozilla/EncodingDetector.h"
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Unused.h"
@@ -370,7 +371,7 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
       fields->HasHeader("Bcc", &hasBcc);
       if (hasBcc) {
         nsCOMPtr<nsIStringBundleService> stringService =
-            mozilla::services::GetStringBundleService();
+            mozilla::components::StringBundle::Service();
         if (stringService) {
           nsCOMPtr<nsIStringBundle> composeStringBundle;
           rv = stringService->CreateBundle(
@@ -865,7 +866,7 @@ char* msg_make_filename_qtext(const char* srcText, bool stripCRLFs) {
 nsresult nsMsgNewURL(nsIURI** aInstancePtrResult, const nsCString& aSpec) {
   nsresult rv = NS_OK;
   if (nullptr == aInstancePtrResult) return NS_ERROR_NULL_POINTER;
-  nsCOMPtr<nsIIOService> pNetService = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> pNetService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(pNetService, NS_ERROR_UNEXPECTED);
   if (aSpec.Find("://") == kNotFound && !StringBeginsWith(aSpec, "data:"_ns)) {
     // XXXjag Temporary fix for bug 139362 until the real problem(bug 70083) get

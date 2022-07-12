@@ -68,6 +68,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterList.h"
 #include "nsDirectoryServiceUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "nsIFileStreams.h"
 #include "nsIOutputStream.h"
@@ -2065,7 +2066,7 @@ nsresult nsMsgAccountManager::GetLocalFoldersPrettyName(
   nsCOMPtr<nsIStringBundle> bundle;
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(sBundleService, NS_ERROR_UNEXPECTED);
 
   rv = sBundleService->CreateBundle(

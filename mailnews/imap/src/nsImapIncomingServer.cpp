@@ -39,7 +39,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsCRTGlue.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsNetUtil.h"
 #include "mozilla/Utf8.h"
 #include "mozilla/LoadInfo.h"
@@ -1790,7 +1790,7 @@ nsresult nsImapIncomingServer::GetStringBundle() {
   if (m_stringBundle) return NS_OK;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(sBundleService, NS_ERROR_UNEXPECTED);
   return sBundleService->CreateBundle(IMAP_MSGS_URL,
                                       getter_AddRefs(m_stringBundle));

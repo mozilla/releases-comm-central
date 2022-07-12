@@ -13,7 +13,7 @@
 #include "nsComposeStrings.h"
 #include "nsIStringBundle.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 NS_IMPL_ISUPPORTS(nsMsgProcessReport, nsIMsgProcessReport)
 
@@ -225,7 +225,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt* prompt,
 
   nsresult rv;  // don't step on currError.
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIStringBundle> bundle;
   rv = bundleService->CreateBundle(

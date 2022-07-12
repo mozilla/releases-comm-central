@@ -46,7 +46,7 @@
 #include "nsIMsgFilterCustomAction.h"
 #include <ctype.h>
 #include "nsIMsgPluggableStore.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsQueryObject.h"
 #include "nsIOutputStream.h"
 #include "mozilla/Attributes.h"
@@ -77,7 +77,7 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest* request) {
   // support a mailbox URL interface then we have an error.
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsIIOService> ioServ = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> ioServ = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(ioServ, NS_ERROR_UNEXPECTED);
 
   // We know the request is an nsIChannel we can get a URI from, but this is
@@ -255,7 +255,7 @@ void nsMsgMailboxParser::UpdateStatusText(const char* stringName) {
   if (m_statusFeedback) {
     nsresult rv;
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     if (!bundleService) return;
     nsCOMPtr<nsIStringBundle> bundle;
     rv = bundleService->CreateBundle(

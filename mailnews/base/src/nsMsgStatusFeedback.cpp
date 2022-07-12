@@ -21,7 +21,7 @@
 #include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsMsgUtils.h"
 
 #define MSGFEEDBACK_TIMER_INTERVAL 500
@@ -29,7 +29,7 @@
 nsMsgStatusFeedback::nsMsgStatusFeedback()
     : m_meteorsSpinning(false), m_lastPercent(0), m_lastProgressTime(0) {
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
 
   if (bundleService)
     bundleService->CreateBundle(
@@ -248,7 +248,7 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest* request,
 
   // forming the status message
   nsCOMPtr<nsIStringBundleService> sbs =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(sbs, NS_ERROR_UNEXPECTED);
   nsString str;
   rv = sbs->FormatStatusMessage(aStatus, aStatusArg, str);

@@ -29,7 +29,7 @@
 #include "nsINetUtil.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/LoadInfo.h"
 
 #define PREF_MAIL_ROOT_POP3_REL "mail.root.pop3-rel"
@@ -396,7 +396,7 @@ nsresult nsPop3Service::NewURI(const nsACString& aSpec,
 void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl* url) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (!bundleService) return;
   nsCOMPtr<nsIStringBundle> bundle;
   rv = bundleService->CreateBundle(

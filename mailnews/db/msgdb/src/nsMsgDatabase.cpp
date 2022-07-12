@@ -37,6 +37,7 @@
 #include "nsIMemoryReporter.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsMailDirServiceDefs.h"
+#include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
 #include "mozilla/intl/LocaleService.h"

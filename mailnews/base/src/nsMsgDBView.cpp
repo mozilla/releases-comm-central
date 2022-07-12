@@ -42,7 +42,7 @@
 #include "nsIAbManager.h"
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/dom/DataTransfer.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
@@ -215,7 +215,7 @@ void nsMsgDBView::GetString(const char16_t* aStringName, nsAString& aValue) {
   if (!nsMsgDBView::mMessengerStringBundle) {
     static const char propertyURL[] = MESSENGER_STRING_URL;
     nsCOMPtr<nsIStringBundleService> sBundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
 
     if (sBundleService)
       res = sBundleService->CreateBundle(

@@ -17,7 +17,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/BrowsingContext.h"
 
 NS_IMPL_ISUPPORTS(nsMsgProgress, nsIMsgStatusFeedback, nsIMsgProgress,
@@ -241,7 +241,7 @@ NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest* request, nsresult aStatus,
                                       const char16_t* aStatusArg) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> sbs =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(sbs, NS_ERROR_UNEXPECTED);
   nsString str;
   rv = sbs->FormatStatusMessage(aStatus, aStatusArg, str);

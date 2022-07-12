@@ -48,7 +48,7 @@
 #include "nsILoginInfo.h"
 #include "nsILoginManager.h"
 #include "nsEmbedCID.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/SlicedInputStream.h"
 #include "nsIInputStream.h"
 #include "nsMemory.h"
@@ -1040,7 +1040,7 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_ARG_POINTER(validCredentials);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsresult rv;

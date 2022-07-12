@@ -7,7 +7,7 @@
 #include "plstr.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsIRequest.h"
 #include "nsIStringBundle.h"
 #include "nsIPrefService.h"
@@ -81,7 +81,7 @@ static void PgpMimeGetNeedsAddonString(nsCString& aResult) {
   aResult.AssignLiteral("???");
 
   nsCOMPtr<nsIStringBundleService> stringBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
 
   nsCOMPtr<nsIStringBundle> stringBundle;
   nsresult rv = stringBundleService->CreateBundle(PGPMIME_PROPERTIES_URL,

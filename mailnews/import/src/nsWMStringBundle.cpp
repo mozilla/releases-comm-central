@@ -9,7 +9,7 @@
 #include "nsMsgUtils.h"
 #include "nsIStringBundle.h"
 #include "nsWMStringBundle.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 #define WM_MSGS_URL "chrome://messenger/locale/wmImportMsgs.properties"
 
@@ -19,7 +19,7 @@ void nsWMStringBundle::GetStringBundle(void) {
   if (m_pBundle) return;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (sBundleService) {
     sBundleService->CreateBundle(WM_MSGS_URL, getter_AddRefs(m_pBundle));
   }

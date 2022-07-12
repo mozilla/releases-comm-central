@@ -25,6 +25,7 @@
 #include "nsMemory.h"
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include <ctype.h>
@@ -1149,7 +1150,7 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
   }
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;

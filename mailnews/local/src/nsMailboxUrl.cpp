@@ -31,7 +31,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 // helper function for parsing the search field of a url
 char* extractAttributeValue(const char* searchString,
@@ -376,7 +376,7 @@ nsresult nsMailboxUrl::ParseUrl() {
     nsCString fileUri("file://");
     fileUri.Append(m_file);
     nsresult rv;
-    nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+    nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
     NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
     nsCOMPtr<nsIURI> uri;
     rv = ioService->NewURI(fileUri, nullptr, nullptr, getter_AddRefs(uri));

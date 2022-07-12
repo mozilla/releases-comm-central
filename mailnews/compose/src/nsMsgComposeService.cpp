@@ -44,7 +44,6 @@
 #include "mozilla/dom/Selection.h"
 #include "nsUTF8Utils.h"
 #include "mozilla/intl/LineBreaker.h"
-#include "mozilla/Services.h"
 #include "mimemoz2.h"
 #include "nsIURIMutator.h"
 #include "mozilla/dom/Element.h"

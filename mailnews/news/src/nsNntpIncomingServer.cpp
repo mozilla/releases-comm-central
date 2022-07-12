@@ -29,7 +29,7 @@
 #include "nsISimpleEnumerator.h"
 #include "nsMsgUtils.h"
 #include "nsITimer.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/ErrorResult.h"
 #include "mozilla/dom/XULTreeElement.h"
@@ -1409,7 +1409,7 @@ nsNntpIncomingServer::GroupNotFound(nsIMsgWindow* aMsgWindow,
   }
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;

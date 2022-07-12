@@ -14,6 +14,7 @@
 #include "nsIAbManager.h"
 #include "nsArrayUtils.h"
 #include "nsIUUIDGenerator.h"
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
 #include "mozilla/dom/Promise.h"
@@ -136,7 +137,8 @@ NS_IMETHODIMP nsAbDirProperty::GetUID(nsACString& aUID) {
     }
   }
 
-  nsCOMPtr<nsIUUIDGenerator> uuidgen = mozilla::services::GetUUIDGenerator();
+  nsCOMPtr<nsIUUIDGenerator> uuidgen =
+      mozilla::components::UUIDGenerator::Service();
   NS_ENSURE_TRUE(uuidgen, NS_ERROR_FAILURE);
 
   nsID id;

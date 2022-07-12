@@ -15,7 +15,6 @@
 #include "nsICategoryManager.h"
 #include "nsServiceManagerUtils.h"
 #include "nsDirectoryServiceUtils.h"
-#include "mozilla/Services.h"
 
 #define MAIL_DIR_50_NAME "Mail"
 #define IMAP_MAIL_DIR_50_NAME "ImapMail"

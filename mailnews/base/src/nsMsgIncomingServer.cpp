@@ -45,6 +45,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsAppDirectoryServiceDefs.h"
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "Services.h"
 #include "nsIMsgFilter.h"
@@ -1488,7 +1489,7 @@ NS_IMETHODIMP nsMsgIncomingServer::DisplayOfflineMsg(nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;

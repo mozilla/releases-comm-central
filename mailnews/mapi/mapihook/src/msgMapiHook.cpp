@@ -38,7 +38,7 @@
 #include "nsNetUtil.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/ReentrantMonitor.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsEmbedCID.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SpinEventLoopUntil.h"
@@ -156,7 +156,7 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t** aUsername,
       do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
   if (NS_SUCCEEDED(rv) && dlgService) {
     nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     if (!bundleService) return false;
 
     nsCOMPtr<nsIStringBundle> bundle;
@@ -247,7 +247,7 @@ bool nsMapiHook::IsBlindSendAllowed() {
 
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (!bundleService) return false;
 
   nsCOMPtr<nsIStringBundle> bundle;

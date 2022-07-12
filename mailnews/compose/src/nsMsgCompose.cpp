@@ -61,6 +61,7 @@
 #include "nsIAbManager.h"
 #include "nsCRT.h"
 #include "mozilla/HTMLEditor.h"
+#include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
@@ -1779,7 +1780,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
             if (subject.IsEmpty()) {
               nsresult rv;
               nsCOMPtr<nsIStringBundleService> bundleService =
-                  mozilla::services::GetStringBundleService();
+                  mozilla::components::StringBundle::Service();
               NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
               nsCOMPtr<nsIStringBundle> composeBundle;
               rv = bundleService->CreateBundle(
@@ -3501,7 +3502,7 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(
         if (bCanceled) {
           nsresult rv;
           nsCOMPtr<nsIStringBundleService> bundleService =
-              mozilla::services::GetStringBundleService();
+              mozilla::components::StringBundle::Service();
           NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
           nsCOMPtr<nsIStringBundle> bundle;
           rv = bundleService->CreateBundle(

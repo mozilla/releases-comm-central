@@ -25,7 +25,7 @@
 #include "prmem.h"
 #include <time.h>
 #include "nsMsgUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "nsProxyRelease.h"
 #include "mozilla/Encoding.h"
 #include "nsDocShellLoadState.h"
@@ -114,7 +114,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Read(nsIObjectInputStream* stream) {
   nsAutoCString urlstr;
   nsresult rv = NS_ReadOptionalCString(stream, urlstr);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIURI> url;
   rv = ioService->NewURI(urlstr, nullptr, nullptr, getter_AddRefs(url));
@@ -653,7 +653,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SchemeIs(const char* aScheme, bool* _retval) {
 nsresult nsMsgMailNewsUrl::Clone(nsIURI** _retval) {
   nsresult rv;
   nsAutoCString urlSpec;
-  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
   rv = GetSpec(urlSpec);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -689,7 +689,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString& relativePath,
     rv = m_baseURL->Resolve(relativePath, result);
   } else {
     // if relativePath is a complete url with it's own scheme then allow it...
-    nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+    nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
     NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
     nsAutoCString scheme;
 

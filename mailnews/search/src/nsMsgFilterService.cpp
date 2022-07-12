@@ -38,6 +38,7 @@
 #include "nsIMsgThread.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgOperationListener.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;
@@ -280,7 +281,7 @@ nsresult nsMsgFilterService::GetFilterStringBundle(nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIStringBundle> bundle;
   if (bundleService)
@@ -1343,7 +1344,7 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt() {
   if (!m_curFilter) return false;
   nsCOMPtr<nsIStringBundle> bundle;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (!bundleService) return false;
   bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
                               getter_AddRefs(bundle));

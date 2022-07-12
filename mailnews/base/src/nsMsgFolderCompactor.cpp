@@ -37,11 +37,12 @@
 #include "mozilla/Buffer.h"
 #include "HeaderReader.h"
 #include "LineReader.h"
+#include "mozilla/Components.h"
 
 static nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIStringBundle> bundle;
   return bundleService->CreateBundle(

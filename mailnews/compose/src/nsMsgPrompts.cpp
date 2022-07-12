@@ -12,12 +12,12 @@
 #include "nsIStringBundle.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 nsresult nsMsgGetMessageByName(const char* aName, nsString& aResult) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
@@ -34,7 +34,7 @@ static nsresult nsMsgBuildMessageByName(const char* aName, nsIFile* aFile,
   NS_ENSURE_ARG_POINTER(aFile);
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;

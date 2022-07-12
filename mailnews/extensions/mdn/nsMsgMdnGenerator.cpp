@@ -29,7 +29,7 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Unused.h"
 
@@ -99,7 +99,7 @@ nsresult nsMsgMdnGenerator::FormatStringFromName(const char* aName,
   DEBUG_MDN("nsMsgMdnGenerator::FormatStringFromName");
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
@@ -118,7 +118,7 @@ nsresult nsMsgMdnGenerator::GetStringFromName(const char* aName,
   DEBUG_MDN("nsMsgMdnGenerator::GetStringFromName");
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
@@ -974,7 +974,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI* url,
 
   nsCOMPtr<nsIStringBundle> bundle;
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   rv = bundleService->CreateBundle(

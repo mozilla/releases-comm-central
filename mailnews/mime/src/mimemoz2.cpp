@@ -49,7 +49,7 @@
 #include "nsLayoutCID.h"
 #include "nsIParserUtils.h"
 // </for>
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/Unused.h"
 
 void ValidateRealName(nsMsgAttachmentData* aAttach, MimeHeaders* aHdrs);
@@ -691,7 +691,7 @@ extern "C" nsresult nsMimeNewURI(nsIURI** aInstancePtrResult, const char* aSpec,
                                  nsIURI* aBase) {
   if (nullptr == aInstancePtrResult) return NS_ERROR_NULL_POINTER;
 
-  nsCOMPtr<nsIIOService> pService = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> pService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(pService, NS_ERROR_FACTORY_NOT_REGISTERED);
 
   return pService->NewURI(nsDependentCString(aSpec), nullptr, aBase,
@@ -1752,7 +1752,7 @@ extern "C" nsresult mimeSetNewURL(nsMIMESession* stream, char* url) {
 
 extern "C" char* MimeGetStringByID(int32_t stringID) {
   nsCOMPtr<nsIStringBundleService> stringBundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
 
   nsCOMPtr<nsIStringBundle> stringBundle;
   stringBundleService->CreateBundle(MIME_URL, getter_AddRefs(stringBundle));

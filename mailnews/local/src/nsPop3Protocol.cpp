@@ -46,7 +46,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsIProxyInfo.h"
 #include "nsCRT.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/Preferences.h"
@@ -429,7 +429,7 @@ nsresult nsPop3Protocol::Initialize(nsIURI* aURL) {
   m_lineStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   return bundleService->CreateBundle(
       "chrome://messenger/locale/localMsgs.properties",

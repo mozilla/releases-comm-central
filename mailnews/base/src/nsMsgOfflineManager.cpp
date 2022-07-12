@@ -23,7 +23,7 @@
 #include "nsINntpService.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 static NS_DEFINE_CID(kMsgSendLaterCID, NS_MSGSENDLATER_CID);
 
@@ -205,7 +205,7 @@ nsresult nsMsgOfflineManager::SendUnsentMessages() {
 nsresult nsMsgOfflineManager::ShowStatus(const char* statusMsgName) {
   if (!mStringBundle) {
     nsCOMPtr<nsIStringBundleService> sBundleService =
-        mozilla::services::GetStringBundleService();
+        mozilla::components::StringBundle::Service();
     NS_ENSURE_TRUE(sBundleService, NS_ERROR_UNEXPECTED);
     sBundleService->CreateBundle(MESSENGER_STRING_URL,
                                  getter_AddRefs(mStringBundle));
@@ -278,7 +278,7 @@ NS_IMETHODIMP nsMsgOfflineManager::SynchronizeForOffline(
 }
 
 nsresult nsMsgOfflineManager::SetOnlineState(bool online) {
-  nsCOMPtr<nsIIOService> netService = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> netService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
   return netService->SetOffline(!online);
 }

@@ -17,7 +17,7 @@
 #include "nsIMsgPluggableStore.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 #include "nsEmlxHelperUtils.h"
 #include "nsAppleMailImport.h"
@@ -39,7 +39,7 @@ nsAppleMailImportModule::nsAppleMailImportModule() {
   IMPORT_LOG0("nsAppleMailImportModule Created");
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (bundleService)
     bundleService->CreateBundle(APPLEMAIL_MSGS_URL, getter_AddRefs(mBundle));
 }
@@ -130,7 +130,7 @@ nsAppleMailImportMail::nsAppleMailImportMail() : mProgress(0), mCurDepth(0) {
 
 nsresult nsAppleMailImportMail::Initialize() {
   nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   return bundleService->CreateBundle(APPLEMAIL_MSGS_URL,

@@ -66,7 +66,7 @@
 #include "nsIParserUtils.h"
 #include "nsICharsetConverterManager.h"
 #include "nsIDocumentEncoder.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 #include "locale.h"
 #include "nsStringStream.h"
 #include "nsIInputStreamPump.h"
@@ -407,7 +407,7 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
   nsresult rv;
 
   nsCOMPtr<nsIStringBundleService> bundleSvc =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
@@ -670,7 +670,7 @@ nsresult NS_MsgDecodeUnescapeURLPath(const nsACString& aPath,
 bool WeAreOffline() {
   bool offline = false;
 
-  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
   if (ioService) ioService->GetOffline(&offline);
 
   return offline;
@@ -1541,7 +1541,7 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
   }
 
   nsCOMPtr<nsIStringBundleService> bundleSvc =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;

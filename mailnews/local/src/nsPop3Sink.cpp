@@ -34,7 +34,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIPop3Service.h"
 #include "nsMsgLocalCID.h"
-#include "mozilla/Services.h"
 #include "mozilla/Logging.h"
 
 /* for logging to Error Console */

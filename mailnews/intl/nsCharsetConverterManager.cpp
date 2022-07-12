@@ -10,7 +10,7 @@
 #include "nsICharsetConverterManager.h"
 #include "nsIStringBundle.h"
 #include "nsTArray.h"
-#include "mozilla/Services.h"
+#include "mozilla/Components.h"
 
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -36,7 +36,7 @@ nsCharsetConverterManager::~nsCharsetConverterManager() {
 static nsresult LoadBundle(const char* aBundleURLSpec,
                            nsIStringBundle** aResult) {
   nsCOMPtr<nsIStringBundleService> sbServ =
-      mozilla::services::GetStringBundleService();
+      mozilla::components::StringBundle::Service();
   if (!sbServ) return NS_ERROR_FAILURE;
 
   return sbServ->CreateBundle(aBundleURLSpec, aResult);

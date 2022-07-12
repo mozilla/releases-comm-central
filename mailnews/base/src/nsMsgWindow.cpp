@@ -37,7 +37,6 @@
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/XULFrameElement.h"
-#include "mozilla/Components.h"
 #include "nsFrameLoader.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
