@@ -28,6 +28,7 @@ let transport;
  * Initialize account, identity and calendar.
  */
 add_setup(async function() {
+  requestLongerTimeout(3);
   let account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
