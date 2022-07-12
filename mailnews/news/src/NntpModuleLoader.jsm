@@ -4,13 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["NntpModuleLoader"];
 
-var { LoginHelper } = ChromeUtils.import(
-  "resource://gre/modules/LoginHelper.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 
 /**
  * Determine whether to use nsNntpService.cpp or NntpService.jsm. When
@@ -100,16 +94,6 @@ NntpModuleLoader.prototype = {
         );
       }
 
-      if (LoginHelper.isPrimaryPasswordSet) {
-        try {
-          // In some cases, nsNntpIncomingServer.cpp is used to initialize NNTP
-          // accounts before this module is run. Unload all accounts to use the
-          // correct modules.
-          MailServices.accounts.UnloadAccounts();
-        } catch (e) {
-          Cu.reportError(e);
-        }
-      }
       dump("[NntpModuleLoader] Using NntpService.jsm\n");
     } else {
       dump("[NntpModuleLoader] Using nsNntpService.cpp\n");
