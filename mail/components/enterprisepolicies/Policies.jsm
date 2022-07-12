@@ -130,6 +130,100 @@ var Policies = {
     },
   },
 
+  AppUpdatePin: {
+    validate(param) {
+      // This is the version when pinning was introduced. Attempting to set a
+      // pin before this will not work, because Balrog's pinning table will
+      // never have the necessary entry.
+      const earliestPinMajorVersion = 102;
+      const earliestPinMinorVersion = 0;
+
+      let pinParts = param.split(".");
+
+      if (pinParts.length < 2) {
+        lazy.log.error("AppUpdatePin has too few dots.");
+        return false;
+      }
+      if (pinParts.length > 3) {
+        lazy.log.error("AppUpdatePin has too many dots.");
+        return false;
+      }
+
+      const trailingPinPart = pinParts.pop();
+      if (trailingPinPart != "") {
+        lazy.log.error("AppUpdatePin does not end with a trailing dot.");
+        return false;
+      }
+
+      const pinMajorVersionStr = pinParts.shift();
+      if (!pinMajorVersionStr.length) {
+        lazy.log.error("AppUpdatePin's major version is empty.");
+        return false;
+      }
+      if (!/^\d+$/.test(pinMajorVersionStr)) {
+        lazy.log.error(
+          "AppUpdatePin's major version contains a non-numeric character."
+        );
+        return false;
+      }
+      if (/^0/.test(pinMajorVersionStr)) {
+        lazy.log.error("AppUpdatePin's major version contains a leading 0.");
+        return false;
+      }
+      const pinMajorVersionInt = parseInt(pinMajorVersionStr, 10);
+      if (isNaN(pinMajorVersionInt)) {
+        lazy.log.error(
+          "AppUpdatePin's major version could not be parsed to an integer."
+        );
+        return false;
+      }
+      if (pinMajorVersionInt < earliestPinMajorVersion) {
+        lazy.log.error(
+          `AppUpdatePin must not be earlier than '${earliestPinMajorVersion}.${earliestPinMinorVersion}.'.`
+        );
+        return false;
+      }
+
+      if (pinParts.length) {
+        const pinMinorVersionStr = pinParts.shift();
+        if (!pinMinorVersionStr.length) {
+          lazy.log.error("AppUpdatePin's minor version is empty.");
+          return false;
+        }
+        if (!/^\d+$/.test(pinMinorVersionStr)) {
+          lazy.log.error(
+            "AppUpdatePin's minor version contains a non-numeric character."
+          );
+          return false;
+        }
+        if (/^0\d/.test(pinMinorVersionStr)) {
+          lazy.log.error("AppUpdatePin's minor version contains a leading 0.");
+          return false;
+        }
+        const pinMinorVersionInt = parseInt(pinMinorVersionStr, 10);
+        if (isNaN(pinMinorVersionInt)) {
+          lazy.log.error(
+            "AppUpdatePin's minor version could not be parsed to an integer."
+          );
+          return false;
+        }
+        if (
+          pinMajorVersionInt == earliestPinMajorVersion &&
+          pinMinorVersionInt < earliestPinMinorVersion
+        ) {
+          lazy.log.error(
+            `AppUpdatePin must not be earlier than '${earliestPinMajorVersion}.${earliestPinMinorVersion}.'.`
+          );
+          return false;
+        }
+      }
+
+      return true;
+    },
+    // No additional implementation needed here. UpdateService.jsm will check
+    // for this policy directly when determining the update URL.
+  },
+
   AppUpdateURL: {
     // No implementation needed here. UpdateService.jsm will check for this
     // policy directly when determining the update URL.
