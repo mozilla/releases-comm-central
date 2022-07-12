@@ -640,6 +640,11 @@ Section "-InstallEndCleanup"
     ${MUI_INSTALLOPTIONS_READ} $0 "summary.ini" "Field 4" "State"
     ${If} "$0" == "1"
       ${LogHeader} "Setting as the default mail application"
+      ; AddTaskbarSC is needed by MigrateTaskBarShortcut, which is called by
+      ; SetAsDefaultAppUserHKCU. If this is called via ExecCodeSegment,
+      ; MigrateTaskBarShortcut will not see the value of AddTaskbarSC, so we
+      ; send it via a register instead.
+      StrCpy $R0 $AddTaskbarSC
       ClearErrors
       ${GetParameters} $0
       ${GetOptions} "$0" "/UAC:" $0
@@ -653,7 +658,7 @@ Section "-InstallEndCleanup"
   ${EndUnless}
 
   ; Adds a pinned Task Bar shortcut (see MigrateTaskBarShortcut for details).
-  ${MigrateTaskBarShortcut}
+  ${MigrateTaskBarShortcut} "$AddTaskbarSC"
 
   ; Refresh desktop icons
   ${RefreshShellIcons}

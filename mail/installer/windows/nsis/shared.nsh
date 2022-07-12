@@ -84,7 +84,7 @@
   ; not have experienced the onboarding offer to pin to taskbar, so we're
   ; leaving it enabled there.
   ${If} ${AtMostWin2012R2}
-    ${MigrateTaskBarShortcut}
+    ${MigrateTaskBarShortcut} "$AddTaskbarSC"
   ${EndIf}
 
   ; Update the name/icon/AppModelID of our shortcuts as needed, then update the
@@ -1008,14 +1008,14 @@
 !macroend
 !define RemoveDeprecatedKeys "!insertmacro RemoveDeprecatedKeys"
 
-; Adds a pinned shortcut to Task Bar on update for Windows 7 and above if this
-; macro has never been called before and the application is default (see
-; PinToTaskBar for more details).
-; Since defaults handling is handled by Windows in Win8 and later, we always
-; attempt to pin a taskbar on that OS.  If Windows sets the defaults at
-; installation time, then we don't get the opportunity to run this code at
-; that time.
-!macro MigrateTaskBarShortcut
+; For updates, adds a pinned shortcut to Task Bar on update for Windows 7
+; and 8 if this macro has never been called before and the application
+; is default (see PinToTaskBar for more details). This doesn't get called
+; for Windows 10 and 11 on updates, so we will never pin on update there.
+;
+; For installs, adds a taskbar pin if SHOULD_PIN is 1. (Defaults to 1,
+; but is controllable through the UI, ini file, and command line flags.)
+!macro MigrateTaskBarShortcut SHOULD_PIN
   ${GetShortcutsLogPath} $0
   ${If} ${FileExists} "$0"
     ClearErrors
@@ -1027,10 +1027,10 @@
         "Software\Mozilla\${AppName}\Installer\$AppUserModelID" \
         "WasPinnedToTaskbar" 1
       ${If} ${AtLeastWin7}
-        ; If we didn't run the stub installer, AddTaskbarSC will be empty.
+        ; Because we have no stub installer, AddTaskbarSC will be empty.
         ; We determine whether to pin based on whether we're the default
-        ; browser, or if we're on win8 or later, we always pin.
-        ${If} $AddTaskbarSC == ""
+        ; mail client, or if we're on win8 or later, we always pin.
+        ${If} "${SHOULD_PIN}" == ""
           ; No need to check the default on Win8 and later
           ${If} ${AtMostWin2008R2}
             ; Check if the Thunderbird is the mailto handler for this user
@@ -1044,7 +1044,7 @@
           ${OrIf} ${AtLeastWin8}
             ${PinToTaskBar}
           ${EndIf}
-        ${ElseIf} $AddTaskbarSC == "1"
+        ${ElseIf} "${SHOULD_PIN}" == "1"
           ${PinToTaskBar}
         ${EndIf}
       ${EndIf}
@@ -1287,6 +1287,11 @@ FunctionEnd
 !ifdef NO_LOG
 
 Function SetAsDefaultAppUser
+  ; AddTaskbarSC is needed by MigrateTaskBarShortcut, which is called by
+  ; SetAsDefaultAppUserHKCU. If this is called via ExecCodeSegment,
+  ; MigrateTaskBarShortcut will not see the value of AddTaskbarSC, so we
+  ; send it via a register instead.
+  StrCpy $R0 $AddTaskbarSC
   ; It is only possible to set this installation of the application as the
   ; Mail handler if it was added to the HKLM Mail
   ; registry keys.
@@ -1388,7 +1393,7 @@ Function SetAsDefaultAppUser
   ${SetClientsCalendar} "HKLM"
 
   ${RemoveDeprecatedKeys}
-  ${MigrateTaskBarShortcut}
+  ${MigrateTaskBarShortcut} "$R0"
 
   ClearErrors
   ${GetParameters} $0
