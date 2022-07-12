@@ -32,12 +32,13 @@ class ImapResponse {
     this._response += str;
     if (this._pendingMessage) {
       // We have an unfinished message in the last chunk.
-      let bodySize = this._pendingMessage.bodySize;
-      if (bodySize + 3 <= this._response.length) {
+      let remaining =
+        this._pendingMessage.bodySize - this._pendingMessage.body.length;
+      if (remaining + ")\r\n".length <= this._response.length) {
         // Consume the message together with the ending ")\r\n".
-        this._pendingMessage.body = this._response.slice(0, bodySize);
+        this._pendingMessage.body += this._response.slice(0, remaining);
         this._pendingMessage = null;
-        this._advance(bodySize + 3);
+        this._advance(remaining + ")\r\n".length);
       } else {
         this.done = false;
         return;
@@ -158,14 +159,15 @@ class ImapResponse {
         let message = new MessageData(intValue, tokens[3]);
         this.messages.push(message);
         if (message.bodySize) {
-          if (message.bodySize + 3 <= this._response.length) {
+          if (message.bodySize + ")\r\n".length <= this._response.length) {
             // Consume the message together with the ending ")\r\n".
             message.body = this._response.slice(0, message.bodySize);
-            this._advance(message.bodySize + 3);
           } else {
+            message.body = this._response;
             this._pendingMessage = message;
             this.done = false;
           }
+          this._advance(message.bodySize + ")\r\n".length);
         }
         break;
       case "EXISTS":

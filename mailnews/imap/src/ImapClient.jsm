@@ -893,7 +893,9 @@ class ImapClient {
             msgSize: msg.body.length,
             get msgHdrs() {
               let sepIndex = msg.body.indexOf("\r\n\r\n");
-              return msg.body.slice(0, sepIndex + 2);
+              return sepIndex == -1
+                ? msg.body + "\r\n"
+                : msg.body.slice(0, sepIndex + 2);
             },
           };
         },
