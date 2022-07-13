@@ -87,7 +87,7 @@ menulist::part(icon) {
 
 .textbox-addressingWidget {
   min-height: 30px;
-  padding-inline-start: 5px;
+  padding-inline: 5px;
   outline-offset: -2px;
 }
 
