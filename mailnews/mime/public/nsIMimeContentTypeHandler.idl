@@ -32,7 +32,7 @@ typedef struct {
 interface nsIMimeContentTypeHandler : nsISupports {
   readonly attribute string contentType;
 
-  [noscript,nostdcall] MimeObjectClassPtr CreateContentTypeHandlerClass(
+  [noscript] MimeObjectClassPtr CreateContentTypeHandlerClass(
     in string content_type,
     in CTHInitStructPtr initStruct
   );
