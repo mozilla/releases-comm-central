@@ -1938,7 +1938,7 @@ var messageTracker = new (class extends EventEmitter {
   }
 
   /**
-   * Finds the first folder with new messages in the specified changedFolder and
+   * Finds all folders with new messages in the specified changedFolder and
    * returns those.
    *
    * @see MailNotificationManager._getFirstRealFolderWithNewMail()
@@ -1946,34 +1946,31 @@ var messageTracker = new (class extends EventEmitter {
   findNewMessages(changedFolder) {
     let folders = changedFolder.descendants;
     folders.unshift(changedFolder);
-    let folder = folders.find(f => {
-      let flags = f.flags;
+    for (let folder of folders) {
+      let flags = folder.flags;
       if (
         !(flags & Ci.nsMsgFolderFlags.Inbox) &&
         flags & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual)
       ) {
         // Do not notify if the folder is not Inbox but one of
         // Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or Virtual.
-        return false;
+        continue;
       }
-      return f.getNumNewMessages(false) > 0;
-    });
-
-    if (!folder) {
-      return;
+      let numNewMessages = folder.getNumNewMessages(false);
+      if (!numNewMessages) {
+        continue;
+      }
+      let msgDb = folder.msgDatabase;
+      let newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
+      if (newMsgKeys.length == 0) {
+        continue;
+      }
+      this.emit(
+        "messages-received",
+        folder,
+        newMsgKeys.map(key => msgDb.GetMsgHdrForKey(key))
+      );
     }
-
-    let numNewMessages = folder.getNumNewMessages(false);
-    let msgDb = folder.msgDatabase;
-    let newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
-    if (newMsgKeys.length == 0) {
-      return;
-    }
-    this.emit(
-      "messages-received",
-      folder,
-      newMsgKeys.map(key => msgDb.GetMsgHdrForKey(key))
-    );
   }
 
   // nsIMsgFolderListener
