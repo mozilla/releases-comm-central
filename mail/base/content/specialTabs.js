@@ -865,7 +865,6 @@ var specialTabs = {
     modes: {
       contentTab: {
         type: "contentTab",
-        maxTabs: 10,
       },
     },
 
