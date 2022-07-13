@@ -59,6 +59,24 @@ add_task(async function testQuery() {
           "Id of mail tab is correct"
         );
 
+        // Query for active tab.
+        tabs = await browser.tabs.query({ active: true });
+        browser.test.assertEq(1, tabs.length, "Found one mail tab");
+        browser.test.assertEq(
+          contentTab.id,
+          tabs[0].id,
+          "Id of mail tab is correct"
+        );
+
+        // Query for highlighted tab.
+        tabs = await browser.tabs.query({ highlighted: true });
+        browser.test.assertEq(1, tabs.length, "Found one mail tab");
+        browser.test.assertEq(
+          contentTab.id,
+          tabs[0].id,
+          "Id of mail tab is correct"
+        );
+
         await browser.tabs.remove(contentTab.id);
         browser.test.notifyPass();
       },

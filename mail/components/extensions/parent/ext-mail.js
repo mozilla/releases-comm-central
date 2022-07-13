@@ -1314,6 +1314,16 @@ class Window extends WindowBase {
     yield tabManager.getWrapper(this.window);
   }
 
+  /**
+   * Returns an iterator of TabBase objects for the highlighted tab in this
+   * window. This is an alias for the active tab.
+   *
+   * @returns {Iterator<TabBase>}
+   */
+  *getHighlightedTabs() {
+    yield this.activeTab;
+  }
+
   /** Retrieves the active tab in this window */
   get activeTab() {
     let { tabManager } = this.extension;
