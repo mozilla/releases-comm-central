@@ -65,6 +65,18 @@ class ImapClient {
   }
 
   /**
+   * Reset some internal states to be safely reused.
+   */
+  _reset() {
+    this.onData = () => {};
+    this.onDone = () => {};
+
+    this.channel = null;
+    this._urlListener = null;
+    this._msgWindow = null;
+  }
+
+  /**
    * Initiate a connection to the server
    */
   connect() {
@@ -190,6 +202,11 @@ class ImapClient {
    */
   fetchMessage(folder, uid) {
     this._logger.debug(`fetchMessage folder=${folder.name} uid=${uid}`);
+    if (folder.hasMsgOffline(uid, null, 10)) {
+      this.channel?.readFromLocalCache();
+      this._actionDone();
+      return;
+    }
     let fetchUid = () => {
       this._nextAction = this._actionUidFetchBodyResponse;
       this._sendTagged(`UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
@@ -1029,5 +1046,6 @@ class ImapClient {
     this._urlListener?.OnStopRunningUrl(this.runningUrl, status);
     this.runningUrl.SetUrlState(false, status);
     this.onDone?.();
+    this._reset();
   };
 }

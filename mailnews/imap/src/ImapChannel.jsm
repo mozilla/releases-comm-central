@@ -75,7 +75,7 @@ class ImapChannel {
     ).listOfMessageIds;
     this._msgKey = parseInt(msgIds);
     try {
-      if (this._readFromLocalCache()) {
+      if (this.readFromLocalCache()) {
         return;
       }
     } catch (e) {
@@ -89,11 +89,12 @@ class ImapChannel {
    * Try to read the message from the offline storage.
    * @returns {boolean} True if successfully read from the offline storage.
    */
-  _readFromLocalCache() {
+  readFromLocalCache() {
     if (
       !this.URI.QueryInterface(Ci.nsIImapUrl).QueryInterface(
         Ci.nsIMsgMailNewsUrl
-      ).msgIsInLocalCache
+      ).msgIsInLocalCache &&
+      !this.URI.folder.hasMsgOffline(this._msgKey, null, 10)
     ) {
       return false;
     }
@@ -140,6 +141,7 @@ class ImapChannel {
 
     this._server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(null, null, this.URI);
+      client.channel = this;
       this._listener.onStartRequest(this);
       client.onReady = () => {
         client.fetchMessage(this.URI.folder, this._msgKey);
