@@ -15,6 +15,8 @@ var NS_ERROR_FAILURE = 2147500037;
 // eslint-disable-next-line no-unused-vars
 importScripts("resource:///modules/calendar/Ical.jsm");
 
+ICAL.design.strict = false;
+
 onmessage = function(event) {
   try {
     let comp = ICAL.parse(event.data);
