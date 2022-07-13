@@ -91,7 +91,6 @@ Enigmail.msg = {
   ],
   buggyMailType: null,
   changedAttributes: [],
-  lastSMimeReloadURI: "",
   allAttachmentsDone: false,
   messageDecryptDone: false,
   showPartialDecryptionReminder: false,
@@ -486,17 +485,12 @@ Enigmail.msg = {
    *          - false if handler was changed and message is reloaded
    */
   checkPgpmimeHandler() {
-    let uriSpec = this.getCurrentMsgUriSpec();
-    if (uriSpec !== this.lastSMimeReloadURI) {
-      if (
-        EnigmailVerify.currentCtHandler !==
-        EnigmailConstants.MIME_HANDLER_PGPMIME
-      ) {
-        this.lastSMimeReloadURI = uriSpec;
-        EnigmailVerify.registerPGPMimeHandler();
-        this.messageReload();
-        return false;
-      }
+    if (
+      EnigmailVerify.currentCtHandler !== EnigmailConstants.MIME_HANDLER_PGPMIME
+    ) {
+      EnigmailVerify.registerPGPMimeHandler();
+      this.messageReload();
+      return false;
     }
 
     return true;
