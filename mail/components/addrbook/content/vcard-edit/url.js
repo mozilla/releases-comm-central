@@ -72,13 +72,7 @@ class VCardURLComponent extends HTMLElement {
   }
 
   fromVCardPropertyEntryToUI() {
-    let value = this.vCardPropertyEntry.value;
-    if (/^https?\\:/.test(value)) {
-      // Google escapes some characters in violation of RFC6350. A backslash
-      // wouldn't be expected in a URL so removing them shouldn't be a problem.
-      value = value.replace(/\\(.)/g, "$1");
-    }
-    this.urlEl.value = value;
+    this.urlEl.value = this.vCardPropertyEntry.value;
     /**
      * @TODO
      * Create an element for type selection of home, work, ...

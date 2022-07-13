@@ -651,12 +651,25 @@ class VCardProperties {
    * @param {string} vCard
    * @return {VCardProperties}
    */
-  static fromVCard(vCard) {
+  static fromVCard(vCard, { isGoogleCardDAV = false } = {}) {
     vCard = VCardUtils.translateVCard21(vCard);
 
     let rv = new VCardProperties();
     let [, properties] = ICAL.parse(vCard);
     for (let [name, params, type, value] of properties) {
+      if (isGoogleCardDAV) {
+        // Google escapes the characters \r : , ; and \ unnecessarily, in
+        // violation of RFC6350. Removing the escaping at this point means no
+        // other code requires a special case for it.
+        if (Array.isArray(value)) {
+          value = value.map(v => v.replace(/\\r/g, "\r").replace(/\\:/g, ":"));
+        } else {
+          value = value.replace(/\\r/g, "\r").replace(/\\:/g, ":");
+          if (["phone-number", "uri"].includes(type)) {
+            value = value.replace(/\\([,;\\])/g, "$1");
+          }
+        }
+      }
       rv.addEntry(new VCardPropertyEntry(name, params, type, value));
     }
     return rv;

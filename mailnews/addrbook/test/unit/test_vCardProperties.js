@@ -694,6 +694,10 @@ add_task(function testClone() {
   Assert.equal(clone.toVCard(), properties.toVCard());
 });
 
+/**
+ * Tests that entries with a group prefix are correctly handled, and the
+ * `getGroupedEntries` method of VCardProperties.
+ */
 add_task(function testGroupEntries() {
   let vCard = formatVCard`
       BEGIN:VCARD
@@ -737,4 +741,93 @@ add_task(function testGroupEntries() {
   propertyArrayEqual(clone.entries, data);
   Assert.equal(clone.toVCard(), vCard);
   propertyArrayEqual(clone.getGroupedEntries("group1"), data.slice(0, 2));
+});
+
+/**
+ * Tests that we correctly fix Google's bad escaping of colons in values, and
+ * other characters in URI values.
+ */
+add_task(function testGoogleEscaping() {
+  let vCard = formatVCard`
+    BEGIN:VCARD
+    VERSION:3.0
+    N:test;en\\\\c\\:oding;;;
+    FN:en\\\\c\\:oding test
+    TITLE:title\\:title\\;title\\,title\\\\title\\\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
+    TEL:tel\\:0123\\\\4567
+    EMAIL:test\\\\test@invalid
+    NOTE:notes\\:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
+    URL:http\\://host/url\\:url\\;url\\,url\\\\url
+    END:VCARD`;
+
+  let goodVCard = formatVCard`
+    BEGIN:VCARD
+    VERSION:3.0
+    N:test;en\\\\c:oding;;;
+    FN:en\\\\c:oding test
+    TITLE:title:title\\;title\\,title\\\\title\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
+    TEL:tel:0123\\4567
+    EMAIL:test\\\\test@invalid
+    NOTE:notes:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
+    URL:http://host/url:url;url,url\\url
+    END:VCARD`;
+
+  let data = [
+    {
+      name: "version",
+      params: {},
+      type: "text",
+      value: "3.0",
+    },
+    {
+      name: "n",
+      params: {},
+      type: "text",
+      value: ["test", "en\\c:oding", "", "", ""],
+    },
+    {
+      name: "fn",
+      params: {},
+      type: "text",
+      value: "en\\c:oding test",
+    },
+    {
+      name: "title",
+      params: {},
+      type: "text",
+      value: "title:title;title,title\\title\\:title\\;title\\,title\\\\",
+    },
+    {
+      name: "tel",
+      params: {},
+      type: "phone-number",
+      value: "tel:0123\\4567",
+    },
+    {
+      name: "email",
+      params: {},
+      type: "text",
+      value: "test\\test@invalid",
+    },
+    {
+      name: "note",
+      params: {},
+      type: "text",
+      value: "notes:\nnotes;\nnotes,\nnotes\\",
+    },
+    {
+      name: "url",
+      params: {},
+      type: "uri",
+      value: "http://host/url:url;url,url\\url",
+    },
+  ];
+
+  let properties = VCardProperties.fromVCard(vCard, { isGoogleCardDAV: true });
+  propertyArrayEqual(properties.entries, data);
+  Assert.equal(properties.toVCard(), goodVCard);
+
+  let goodProperties = VCardProperties.fromVCard(goodVCard);
+  propertyArrayEqual(goodProperties.entries, data);
+  Assert.equal(goodProperties.toVCard(), goodVCard);
 });

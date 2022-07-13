@@ -97,6 +97,7 @@ class AddrBookDirectory {
     card.directoryUID = this.UID;
     card._uid = uid;
     card._properties = this.loadCardProperties(uid);
+    card._isGoogleCardDAV = this._isGoogleCardDAV;
     return card.QueryInterface(Ci.nsIAbCard);
   }
   /** @abstract */

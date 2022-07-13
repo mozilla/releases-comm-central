@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+
 // TODO: Fix the UI so that we don't have to do this.
 window.maximize();
 
@@ -175,6 +177,11 @@ function getFields(entryName, addIfNeeded = false, count) {
       addButtonId = "vcard-add-note";
       expectFocusSelector = "vcard-note:last-of-type textarea";
       break;
+    case "title":
+      fieldsSelector = "vcard-title";
+      addButtonId = "vcard-add-org";
+      expectFocusSelector = "vcard-title:last-of-type input";
+      break;
     default:
       throw new Error("entryName not found");
   }
@@ -283,6 +290,9 @@ function checkVCardInputValues(expected) {
           break;
         case "note":
           valueField = field.textAreaEl;
+          break;
+        case "title":
+          valueField = field.titleEl;
           break;
       }
 
@@ -2485,4 +2495,57 @@ add_task(async function test_special_date_field() {
     !abDocument.querySelector("vcard-special-date"),
     "The special date field was removed."
   );
+});
+
+/**
+ * Tests that we correctly fix Google's bad escaping of colons in values, and
+ * other characters in URI values.
+ */
+add_task(async function testGoogleEscaping() {
+  let googleBook = createAddressBook("Google Book");
+  googleBook.wrappedJSObject._isGoogleCardDAV = true;
+  googleBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      VERSION:3.0
+      N:test;en\\\\c\\:oding;;;
+      FN:en\\\\c\\:oding test
+      TITLE:title\\:title\\;title\\,title\\\\title\\\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
+      TEL:tel\\:0123\\\\4567
+      EMAIL:test\\\\test@invalid
+      NOTE:notes\\:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
+      URL:http\\://host/url\\:url\\;url\\,url\\\\url
+      END:VCARD
+    `)
+  );
+
+  let abWindow = await openAddressBookWindow();
+
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+
+  openDirectory(googleBook);
+  Assert.equal(cardsList.view.rowCount, 1);
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  await editContactAtIndex(0, {});
+
+  checkInputValues({
+    FirstName: "en\\c:oding",
+    LastName: "test",
+    DisplayName: "en\\c:oding test",
+  });
+
+  checkVCardInputValues({
+    title: [
+      { value: "title:title;title,title\\title\\:title\\;title\\,title\\\\" },
+    ],
+    tel: [{ value: "tel:0123\\4567" }],
+    email: [{ value: "test\\test@invalid" }],
+    note: [{ value: "notes:\nnotes;\nnotes,\nnotes\\" }],
+    url: [{ value: "http://host/url:url;url,url\\url" }],
+  });
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(googleBook.URI);
 });

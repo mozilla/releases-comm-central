@@ -66,7 +66,6 @@ add_setup(async function() {
       TITLE:senior engineering lead
       TZ;VALUE=TEXT:Pacific/Auckland
       URL;TYPE=work:https://www.thunderbird.net/
-      URL:https\\://www.google.com/search?q=vcard+spec
       END:VCARD
     `)
   );
@@ -90,7 +89,10 @@ add_setup(async function() {
   });
 });
 
-add_task(async function test_display() {
+/**
+ * Checks basic display.
+ */
+add_task(async function testDisplay() {
   let abWindow = await openAddressBookWindow();
   openDirectory(personalBook);
 
@@ -281,7 +283,7 @@ add_task(async function test_display() {
   // Websites section
   Assert.ok(BrowserTestUtils.is_visible(websitesSection));
   items = websitesSection.querySelectorAll("li");
-  Assert.equal(items.length, 2);
+  Assert.equal(items.length, 1);
   Assert.equal(
     items[0].children[0].dataset.l10nId,
     "about-addressbook-entry-type-work"
@@ -302,31 +304,6 @@ add_task(async function test_display() {
   );
   await TestUtils.waitForCondition(
     () => mockExternalProtocolService.urlLoaded("https://www.thunderbird.net/"),
-    "attempted to load website in a browser"
-  );
-
-  // Google escapes some characters in violation of RFC6350.
-  // Check that we unescape them as best we can.
-  Assert.equal(
-    items[1].children[1].querySelector("a").href,
-    "https://www.google.com/search?q=vcard+spec",
-    "malformed URL corrected"
-  );
-  Assert.equal(
-    items[1].children[1].querySelector("a").textContent,
-    "www.google.com/search?q=vcard+spec"
-  );
-  items[1].children[1].querySelector("a").scrollIntoView();
-  EventUtils.synthesizeMouseAtCenter(
-    items[1].children[1].querySelector("a"),
-    {},
-    abWindow
-  );
-  await TestUtils.waitForCondition(
-    () =>
-      mockExternalProtocolService.urlLoaded(
-        "https://www.google.com/search?q=vcard+spec"
-      ),
     "attempted to load website in a browser"
   );
 
@@ -582,6 +559,129 @@ add_task(async function testReadOnlyActions() {
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(readOnlyBook.URI);
+});
+
+/**
+ * Tests that we correctly fix Google's bad escaping of colons in values, and
+ * other characters in URI values.
+ */
+add_task(async function testGoogleEscaping() {
+  let googleBook = createAddressBook("Google Book");
+  googleBook.wrappedJSObject._isGoogleCardDAV = true;
+  googleBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      VERSION:3.0
+      N:test;en\\\\c\\:oding;;;
+      FN:en\\\\c\\:oding test
+      TITLE:title\\:title\\;title\\,title\\\\title\\\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
+      TEL:tel\\:0123\\\\4567
+      NOTE:notes\\:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
+      URL:http\\://host/url\\:url\\;url\\,url\\\\url
+      END:VCARD
+    `)
+  );
+
+  let abWindow = await openAddressBookWindow();
+
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+
+  let viewContactName = abDocument.getElementById("viewContactName");
+  let viewPrimaryEmail = abDocument.getElementById("viewPrimaryEmail");
+  let editButton = abDocument.getElementById("editButton");
+
+  let emailAddressesSection = abDocument.getElementById("emailAddresses");
+  let phoneNumbersSection = abDocument.getElementById("phoneNumbers");
+  let addressesSection = abDocument.getElementById("addresses");
+  let notesSection = abDocument.getElementById("notes");
+  let websitesSection = abDocument.getElementById("websites");
+  let otherInfoSection = abDocument.getElementById("otherInfo");
+  let selectedCardsSection = abDocument.getElementById("selectedCards");
+
+  openDirectory(googleBook);
+  Assert.equal(cardsList.view.rowCount, 1);
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+
+  // Header.
+  Assert.equal(viewContactName.textContent, "en\\c:oding test");
+  Assert.equal(viewPrimaryEmail.textContent, "");
+
+  // Action buttons.
+  await checkActionButtons();
+  Assert.ok(BrowserTestUtils.is_visible(editButton));
+
+  // Email section.
+  Assert.ok(BrowserTestUtils.is_hidden(emailAddressesSection));
+
+  // Phone numbers section.
+  Assert.ok(BrowserTestUtils.is_visible(phoneNumbersSection));
+  let items = phoneNumbersSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+
+  Assert.equal(items[0].querySelector(".entry-type").textContent, "");
+  Assert.equal(
+    items[0].querySelector(".entry-value").textContent,
+    "0123\\4567"
+  );
+
+  // Addresses section.
+  Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
+
+  // Notes section.
+  Assert.ok(BrowserTestUtils.is_visible(notesSection));
+  Assert.equal(
+    notesSection.querySelector("div").textContent,
+    "notes:\nnotes;\nnotes,\nnotes\\"
+  );
+
+  // Websites section
+  Assert.ok(BrowserTestUtils.is_visible(websitesSection));
+  items = websitesSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[1].querySelector("a").href,
+    "http://host/url:url;url,url/url"
+  );
+  Assert.equal(
+    items[0].children[1].querySelector("a").textContent,
+    "host/url:url;url,url/url"
+  );
+  items[0].children[1].querySelector("a").scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(
+    items[0].children[1].querySelector("a"),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      mockExternalProtocolService.urlLoaded("http://host/url:url;url,url/url"),
+    "attempted to load website in a browser"
+  );
+
+  // Other sections.
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-title"
+  );
+  Assert.equal(
+    items[0].children[1].textContent,
+    "title:title;title,title\\title\\:title\\;title\\,title\\\\"
+  );
+
+  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(googleBook.URI);
 });
 
 async function checkActionButtons(

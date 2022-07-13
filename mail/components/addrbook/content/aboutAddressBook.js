@@ -2789,11 +2789,6 @@ var detailsPane = {
 
     for (let entry of vCardProperties.getAllEntries("url")) {
       let value = entry.value;
-      if (/^https?\\:/.test(value)) {
-        // Google escapes some characters in violation of RFC6350. A backslash
-        // wouldn't be expected in a URL so removing them shouldn't be a problem.
-        value = value.replace(/\\(.)/g, "$1");
-      }
       if (!/https?:\/\//.test(value)) {
         continue;
       }

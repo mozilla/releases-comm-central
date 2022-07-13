@@ -52,7 +52,10 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     let serverURL = this._serverURL;
     if (serverURL) {
-      if (serverURL.startsWith("https://www.googleapis.com/")) {
+      this._isGoogleCardDAV = serverURL.startsWith(
+        "https://www.googleapis.com/"
+      );
+      if (this._isGoogleCardDAV) {
         this.setBoolValue("carddav.vcard3", true);
       }
       // If this directory is configured, start sync'ing with the server in 30s.
