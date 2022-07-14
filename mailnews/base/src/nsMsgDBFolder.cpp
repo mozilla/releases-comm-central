@@ -2019,16 +2019,8 @@ nsMsgDBFolder::GetStringProperty(const char* propertyName,
     rv = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
     if (cacheElement)  // try to get from cache
       rv = cacheElement->GetCachedString(propertyName, propertyValue);
-    if (NS_FAILED(rv))  // if failed, then try to get from db, usually.
+    if (NS_FAILED(rv))  // if failed, then try to get from db.
     {
-      if (!strcmp(propertyName, "LastPurgeTime")) {
-        // Don't open DB. propertyValue stays blank and return NS_OK. Goes ahead
-        // and does a check for need to purge. Initial value of LastPurgeTime in
-        // folderCache.json is null or it's not present at all since a purge
-        // check for this folder has yet to occur since cache was initialized,
-        // until now.
-        return NS_OK;
-      }
       nsCOMPtr<nsIDBFolderInfo> folderInfo;
       nsCOMPtr<nsIMsgDatabase> db;
       bool exists;
@@ -2039,11 +2031,6 @@ nsMsgDBFolder::GetStringProperty(const char* propertyName,
       if (NS_SUCCEEDED(rv))
         rv = folderInfo->GetCharProperty(propertyName, propertyValue);
       if (weOpenedDB) CloseDBIfFolderNotOpen();
-      if (NS_SUCCEEDED(rv)) {
-        // Now that we have the value, store it in our cache.
-        if (cacheElement)
-          cacheElement->SetCachedString(propertyName, propertyValue);
-      }
     }
   }
   return rv;

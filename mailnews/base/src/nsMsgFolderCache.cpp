@@ -49,8 +49,9 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
   }
 
   NS_IMETHOD GetCachedString(const char* name, nsACString& _retval) override {
+    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
     Json::Value& o = Obj()[name];
-    if (!o.isNull() && o.isConvertibleTo(Json::stringValue)) {
+    if (o.isConvertibleTo(Json::stringValue)) {
       _retval = o.asString().c_str();
       return NS_OK;
     }
@@ -59,6 +60,7 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
   }
 
   NS_IMETHOD GetCachedInt32(const char* name, int32_t* _retval) override {
+    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
     Json::Value& o = Obj()[name];
     if (o.isNumeric() && o.isConvertibleTo(Json::intValue)) {
       *_retval = o.asInt();
@@ -69,6 +71,7 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
   }
 
   NS_IMETHOD GetCachedUInt32(const char* name, uint32_t* _retval) override {
+    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
     Json::Value& o = Obj()[name];
     if (o.isNumeric() && o.isConvertibleTo(Json::uintValue)) {
       *_retval = o.asUInt();
@@ -79,6 +82,7 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
   }
 
   NS_IMETHOD GetCachedInt64(const char* name, int64_t* _retval) override {
+    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
     Json::Value& o = Obj()[name];
     if (o.isNumeric()) {
       *_retval = o.asInt64();
