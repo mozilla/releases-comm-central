@@ -172,10 +172,10 @@ function DisplayCardViewPane(realCard)
 {
   var generatedName = realCard.generateName(Services.prefs.getIntPref("mail.addr_book.lastnamefirst"));
 
-  var data = top.cvData;
-  var visible;
+  let data = top.cvData;
+  let visible = false;
 
-  var card = { getProperty : function (prop) {
+  let card = { getProperty : function (prop) {
                  return realCard.getProperty(prop, "");
                },
                primaryEmail : realCard.primaryEmail,
@@ -187,7 +187,7 @@ function DisplayCardViewPane(realCard)
   // Contact photo
   displayPhoto(card, cvData.cvPhoto);
 
-  var titleString;
+  let titleString;
   if (generatedName == "")
     titleString = card.primaryEmail;  // if no generatedName, use email
   else
@@ -207,7 +207,7 @@ function DisplayCardViewPane(realCard)
     cvSetVisible(data.cvDisplayName, false);
     cvSetVisible(data.cvEmail1Box, false);
 
-    visible = HandleLink(data.cvListName, zListName, card.displayName, data.cvListNameBox, "mailto:" + encodeURIComponent(GenerateAddressFromCard(card))) || visible;
+    visible = HandleLink(data.cvListName, zListName, card.displayName, data.cvListNameBox, "mailto:" + encodeURIComponent(GenerateAddressFromCard(card)));
   }
   else {
     // listname always hidden if not a mailing list
@@ -215,7 +215,7 @@ function DisplayCardViewPane(realCard)
 
     cvSetNodeWithLabel(data.cvDisplayName, zDisplayName, card.displayName);
 
-    visible = HandleLink(data.cvEmail1, zPrimaryEmail, card.primaryEmail, data.cvEmail1Box, "mailto:" + card.primaryEmail) || visible;
+    visible = HandleLink(data.cvEmail1, zPrimaryEmail, card.primaryEmail, data.cvEmail1Box, "mailto:" + card.primaryEmail);
   }
 
   visible = HandleLink(data.cvEmail2, zSecondaryEmail, card.getProperty("SecondEmail"), data.cvEmail2Box, "mailto:" + card.getProperty("SecondEmail")) || visible;
@@ -252,13 +252,13 @@ function DisplayCardViewPane(realCard)
   else {
     // Other section
     /// setup the birthday information
-    var day = card.getProperty("BirthDay", null);
-    var month = card.getProperty("BirthMonth", null);
-    var year = card.getProperty("BirthYear", null);
-    var dateStr;
+    let day = card.getProperty("BirthDay", null);
+    let month = card.getProperty("BirthMonth", null);
+    let year = card.getProperty("BirthYear", null);
+    let dateStr;
     if (day > 0 && day < 32 && month > 0 && month < 13) {
-      var date;
-      var formatter;
+      let date;
+      let formatter;
       if (year) {
         // use UTC-based calculations to avoid off-by-one day
         // due to time zone/dst discontinuity
@@ -275,8 +275,10 @@ function DisplayCardViewPane(realCard)
       }
       dateStr = formatter.format(date);
     }
-    else if (year)
+    else if (year) {
       dateStr = year;
+    }
+  
     visible = cvSetNodeWithLabel(data.cvBirthday, zBirthday, dateStr);
 
     visible = cvSetNodeWithLabel(data.cvCustom1, zCustom1, card.getProperty("Custom1")) || visible;
@@ -321,12 +323,13 @@ function DisplayCardViewPane(realCard)
   visible = cvSetNodeWithLabel(data.cvPhPager, zPager, card.getProperty("PagerNumber")) || visible;
   cvSetVisible(data.cvhPhone, visible);
   cvSetVisible(data.cvbPhone, visible);
+
   // Work section
   visible = cvSetNode(data.cvJobTitle, card.getProperty("JobTitle"));
   visible = cvSetNode(data.cvDepartment, card.getProperty("Department")) || visible;
   visible = cvSetNode(data.cvCompany, card.getProperty("Company")) || visible;
 
-  var addressVisible = cvSetNode(data.cvWorkAddress, card.getProperty("WorkAddress"));
+  let addressVisible = cvSetNode(data.cvWorkAddress, card.getProperty("WorkAddress"));
   addressVisible = cvSetNode(data.cvWorkAddress2, card.getProperty("WorkAddress2")) || addressVisible;
   addressVisible = cvSetCityStateZip(data.cvWorkCityStZip, card.getProperty("WorkCity"), card.getProperty("WorkState"), card.getProperty("WorkZipCode")) || addressVisible;
   addressVisible = cvSetNode(data.cvWorkCountry, card.getProperty("WorkCountry")) || addressVisible;
@@ -337,7 +340,7 @@ function DisplayCardViewPane(realCard)
 
   cvSetVisible(data.cvbWorkMapItBox, addressVisible && !!mapURLList.mapURL);
 
-        visible = HandleLink(data.cvWorkWebPage, "", card.getProperty("WebPage1"), data.cvWorkWebPageBox, card.getProperty("WebPage1")) || addressVisible || visible;
+  visible = HandleLink(data.cvWorkWebPage, "", card.getProperty("WebPage1"), data.cvWorkWebPageBox, card.getProperty("WebPage1")) || addressVisible || visible;
 
   cvSetVisible(data.cvhWork, visible);
   cvSetVisible(data.cvbWork, visible);
