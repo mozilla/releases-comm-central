@@ -2495,6 +2495,8 @@ add_task(async function test_special_date_field() {
     !abDocument.querySelector("vcard-special-date"),
     "The special date field was removed."
   );
+
+  await closeAddressBookWindow();
 });
 
 /**
