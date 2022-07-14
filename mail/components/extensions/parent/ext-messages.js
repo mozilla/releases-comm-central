@@ -751,8 +751,7 @@ this.messages = class extends ExtensionAPI {
             }
 
             if (messages) {
-              while (messages.hasMoreElements()) {
-                let msg = messages.getNext();
+              for (let msg of [...messages]) {
                 if (await checkSearchCriteria(folder, msg)) {
                   messageList.add(msg);
                 }

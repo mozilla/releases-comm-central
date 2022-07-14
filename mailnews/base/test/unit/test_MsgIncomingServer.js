@@ -4,15 +4,11 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-// profile-after-change is not triggered in xpcshell tests, so we manually run
-// getService to load nntp-js, pop3-js and imap-js.
-Cc["@mozilla.org/messenger/nntp-module-loader;1"].getService();
-Cc["@mozilla.org/messenger/pop3-module-loader;1"].getService();
 Services.prefs.setBoolPref("mailnews.imap.jsmodule", true);
-Cc["@mozilla.org/messenger/imap-module-loader;1"].getService();
 
 registerCleanupFunction(() => {
   Services.logins.removeAllLogins();
+  Services.prefs.clearUserPref("mailnews.imap.jsmodule");
 });
 
 /**

@@ -120,6 +120,10 @@ class BaseMessageService {
     });
   }
 
+  streamMessage(messageUri, consumer, msgWindow, urlListener, convertData) {
+    this.DisplayMessage(messageUri, consumer, msgWindow, urlListener, false);
+  }
+
   /**
    * Parse a message uri to folder and message key.
    * @param {string} uri - The news-message:// url to parse.
@@ -136,6 +140,9 @@ class BaseMessageService {
         );
       }
       [, host, groupName, key] = matches;
+      if (host.includes("@")) {
+        host = host.slice(host.indexOf("@") + 1);
+      }
     } else {
       let url = new URL(uri);
       host = url.hostname;

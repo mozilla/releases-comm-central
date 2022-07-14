@@ -34,7 +34,7 @@ class NntpService {
     let groups = newsgroupsList.split(",");
     outNewsgroupsHeader.value = newsgroupsList;
     let hosts = groups.map(name => this._findHostFromGroupName(name));
-    hosts = [...new Set(hosts)];
+    hosts = [...new Set(hosts)].filter(Boolean);
     let host = hosts[0];
     if (!host) {
       outNewsHostHeader.value = "";

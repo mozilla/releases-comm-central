@@ -941,6 +941,18 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   // for now safeguard multiple calls to this function
   if (m_accountsLoaded) return NS_OK;
 
+  // Make sure correct modules are loaded before creating any server.
+  nsCOMPtr<nsIObserver> moduleLoader;
+  moduleLoader =
+      do_GetService("@mozilla.org/messenger/nntp-module-loader;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  moduleLoader =
+      do_GetService("@mozilla.org/messenger/pop3-module-loader;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  moduleLoader =
+      do_GetService("@mozilla.org/messenger/imap-module-loader;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<nsIMsgMailSession> mailSession =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
 
