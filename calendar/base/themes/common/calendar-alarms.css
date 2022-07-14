@@ -10,21 +10,23 @@
  * Reminder icons (used from the event dialog, reminder dialog, views, ...)
  */
 .reminder-icon,
-.reminder-list-icon {
-  -moz-context-properties: fill;
-  fill: currentColor;
+.reminder-list-icon .menu-iconic-left,
+.reminder-list-icon::part(icon) {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .reminder-list-icon[value="DISPLAY"] {
-  list-style-image: url(chrome://calendar/skin/shared/icons/alarm.svg);
+  list-style-image: var(--icon-bell)
 }
 
 .reminder-list-icon[value="EMAIL"] {
-  list-style-image: url(chrome://calendar/skin/shared/icons/email.svg);
+  list-style-image: var(--icon-mail-sm);
 }
 
 .reminder-list-icon[value="AUDIO"] {
-  list-style-image: url(chrome://global/skin/media/audio.svg);
+  list-style-image: var(--icon-bell-ring);
 }
 
 .alarm-icons-box[flashing="true"] > .reminder-icon[value="DISPLAY"] {

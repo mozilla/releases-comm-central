@@ -218,15 +218,15 @@ function setupListItem(aListItem, aReminder, aItem) {
   let l10nId;
   switch (aReminder.action) {
     case "DISPLAY":
-      src = "chrome://calendar/skin/shared/icons/alarm.svg";
+      src = "chrome://messenger/skin/icons/new/bell.svg";
       l10nId = "calendar-event-reminder-icon-display";
       break;
     case "EMAIL":
-      src = "chrome://calendar/skin/shared/icons/email.svg";
+      src = "chrome://messenger/skin/icons/new/mail-sm.svg";
       l10nId = "calendar-event-reminder-icon-email";
       break;
     case "AUDIO":
-      src = "chrome://global/skin/media/audio.svg";
+      src = "chrome://messenger/skin/icons/new/bell-ring.svg";
       l10nId = "calendar-event-reminder-icon-audio";
       break;
     default:

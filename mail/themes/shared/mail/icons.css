@@ -109,6 +109,7 @@
   --icon-trash: url("chrome://messenger/skin/icons/new/compact/trash.svg");
   --icon-unread: url("chrome://messenger/skin/icons/new/compact/unread.svg");
   --icon-user-list: url("chrome://messenger/skin/icons/new/compact/user-list.svg");
+  --icon-warning: url("chrome://messenger/skin/icons/new/compact/warning.svg");
 
   --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
   --icon-circle-small: url("chrome://messenger/skin/icons/new/circle-sm.svg");
@@ -131,6 +132,12 @@
   --icon-event-start: url("chrome://messenger/skin/icons/new/event-start.svg");
   --icon-event-end: url("chrome://messenger/skin/icons/new/event-end.svg");
   --icon-event-continue: url("chrome://messenger/skin/icons/new/event-continue.svg");
+  --icon-mail-sm: url("chrome://messenger/skin/icons/new/mail-sm.svg");
+  --icon-bell: url("chrome://messenger/skin/icons/new/bell.svg");
+  --icon-bell-disabled: url("chrome://messenger/skin/icons/new/bell-disabled.svg");
+  --icon-bell-ring: url("chrome://messenger/skin/icons/new/bell-ring.svg");
+  --icon-recurrence: url("chrome://messenger/skin/icons/new/recurrence.svg");
+  --icon-recurrence-exception: url("chrome://messenger/skin/icons/new/recurrence-exception.svg");
 
   --icon-forward-col: url("chrome://messenger/skin/icons/new/compact/forward-col.svg");
   --icon-reply-col: url("chrome://messenger/skin/icons/new/compact/reply-col.svg");

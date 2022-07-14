@@ -324,14 +324,14 @@
         if (item.parentItem.recurrenceInfo.getExceptionFor(item.recurrenceId)) {
           recurrenceIcon.setAttribute(
             "src",
-            "chrome://calendar/skin/shared/icons/recurrence-exception.svg"
+            "chrome://messenger/skin/icons/new/recurrence-exception.svg"
           );
           document.l10n.setAttributes(
             recurrenceIcon,
             "calendar-editable-item-recurrence-exception"
           );
         } else {
-          recurrenceIcon.setAttribute("src", "chrome://calendar/skin/shared/icons/recurrence.svg");
+          recurrenceIcon.setAttribute("src", "chrome://messenger/skin/icons/new/recurrence.svg");
           document.l10n.setAttributes(recurrenceIcon, "calendar-editable-item-recurrence");
         }
         recurrenceIcon.hidden = false;

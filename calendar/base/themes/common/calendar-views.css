@@ -221,8 +221,8 @@
 
 .item-classification-icon,
 .item-recurrence-icon {
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
   pointer-events: none;
 }
 

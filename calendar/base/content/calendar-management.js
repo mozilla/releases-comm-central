@@ -100,11 +100,11 @@ function updatedCalendarReadStatus(item) {
   let calendarName = item.querySelector(".calendar-name").textContent;
   let image = item.querySelector("img.calendar-readstatus");
   if (item.hasAttribute("calendar-readfailed")) {
-    image.setAttribute("src", "chrome://calendar/skin/shared/icons/warn.svg");
+    image.setAttribute("src", "chrome://messenger/skin/icons/new/compact/warning.svg");
     let tooltip = cal.l10n.getCalString("tooltipCalendarDisabled", [calendarName]);
     image.setAttribute("title", tooltip);
   } else if (item.hasAttribute("calendar-readonly")) {
-    image.setAttribute("src", "chrome://calendar/skin/shared/icons/locked.svg");
+    image.setAttribute("src", "chrome://messenger/skin/icons/new/compact/lock.svg");
     let tooltip = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendarName]);
     image.setAttribute("title", tooltip);
   } else {

@@ -158,19 +158,19 @@ var calalarms = {
       switch (reminder.action) {
         case "DISPLAY":
           if (suppressed) {
-            src = "chrome://calendar/skin/shared/icons/alarm-no.svg";
+            src = "chrome://messenger/skin/icons/new/bell-disabled.svg";
             l10nId = "calendar-editable-item-reminder-icon-suppressed-alarm";
           } else {
-            src = "chrome://calendar/skin/shared/icons/alarm.svg";
+            src = "chrome://messenger/skin/icons/new/bell.svg";
             l10nId = "calendar-editable-item-reminder-icon-alarm";
           }
           break;
         case "EMAIL":
-          src = "chrome://calendar/skin/shared/icons/email.svg";
+          src = "chrome://messenger/skin/icons/new/mail-sm.svg";
           l10nId = "calendar-editable-item-reminder-icon-email";
           break;
         case "AUDIO":
-          src = "chrome://global/skin/media/audio.svg";
+          src = "chrome://messenger/skin/icons/new/bell-ring.svg";
           l10nId = "calendar-editable-item-reminder-icon-audio";
           break;
         default:

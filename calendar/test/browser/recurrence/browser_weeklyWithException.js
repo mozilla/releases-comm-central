@@ -35,7 +35,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   let eventItem = await dayView.waitForEventBoxAt(window, 1);
   let icon = eventItem.querySelector(".item-recurrence-icon");
-  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.equal(icon.src, "chrome://messenger/skin/icons/new/recurrence.svg");
   Assert.ok(!icon.hidden);
 
   // Move 5th January occurrence to 6th January.
@@ -50,7 +50,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 6);
   eventItem = await dayView.waitForEventBoxAt(window, 1);
   icon = eventItem.querySelector(".item-recurrence-icon");
-  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence-exception.svg");
+  Assert.equal(icon.src, "chrome://messenger/skin/icons/new/recurrence-exception.svg");
 
   // Change recurrence rule.
   await CalendarTestUtils.goToDate(window, 2009, 1, 7);
@@ -110,7 +110,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   // Wait for the last occurrence because this appears last.
   eventItem = await weekView.waitForEventBoxAt(window, 6, 1);
   icon = eventItem.querySelector(".item-recurrence-icon");
-  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.equal(icon.src, "chrome://messenger/skin/icons/new/recurrence.svg");
   Assert.ok(!icon.hidden);
 
   Assert.ok(!weekView.getEventBoxAt(window, 1, 1));
@@ -153,7 +153,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   eventItem = multiweekView.getItemAt(window, 2, 4, 1);
   icon = eventItem.querySelector(".item-recurrence-icon");
-  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.equal(icon.src, "chrome:chrome://messenger/skin/icons/new/recurrence.svg");
   Assert.ok(!icon.hidden);
 
   // month view
@@ -181,7 +181,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   eventItem = monthView.getItemAt(window, 3, 6, 1);
   icon = eventItem.querySelector(".item-recurrence-icon");
-  Assert.equal(icon.src, "chrome://calendar/skin/shared/icons/recurrence.svg");
+  Assert.equal(icon.src, "chrome://messenger/skin/icons/new/recurrence.svg");
   Assert.ok(!icon.hidden);
 
   // Delete event.
