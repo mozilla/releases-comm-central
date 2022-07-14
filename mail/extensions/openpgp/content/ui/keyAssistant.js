@@ -77,7 +77,7 @@ var gKeyAssistant = {
     document
       .getElementById("disableEncryptionButton")
       .addEventListener("click", () => {
-        setSendEncryptedAndSigned(false);
+        updateE2eeOptions(false, true);
         this.close();
       });
     document
