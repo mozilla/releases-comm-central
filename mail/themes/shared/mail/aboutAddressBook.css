@@ -355,8 +355,8 @@ body.layout-list #cardsPane {
   height: var(--in-content-button-height);
   margin: 0;
   padding: calc((var(--in-content-button-height) - 18px) / 2); /* 18px = icon size + border */
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 #sortButton dropmarker {

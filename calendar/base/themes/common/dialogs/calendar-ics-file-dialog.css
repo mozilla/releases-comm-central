@@ -42,11 +42,11 @@
 }
 
 #calendar-ics-file-dialog-sort-button {
-  list-style-image: url("chrome://calendar/skin/shared/icons/sort.svg");
+  list-style-image: var(--icon-sort);
   min-width: 0;
   margin-block: 2px;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 #calendar-ics-file-dialog-sort-button > .button-box > dropmarker {
