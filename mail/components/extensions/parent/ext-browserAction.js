@@ -50,17 +50,19 @@ this.browserAction = class extends ToolbarButtonAPI {
   }
 
   /**
-   * Rectify the main toolbar: Make sure that the appmenu is shown and that it is
+   * Rectify the main toolbar: If the appmenu is shown, make sure it is
    * located at the end of the toolbar.
    *
    * @param {String} currentSet - comma separated list of button ids
    * @returns {String} the updated currentSet
    */
   rectifyCustomizableToolbarSet(currentSet) {
-    let set = currentSet
-      .split(",")
-      .filter(e => e != "" && e != "button-appmenu");
-    set.push("button-appmenu");
+    let set = currentSet.split(",").filter(e => e != "");
+    let idx = set.indexOf("button-appmenu");
+    if (idx != -1 && idx != set.length - 1) {
+      set.splice(idx, 1);
+      set.push("button-appmenu");
+    }
     return set.join(",");
   }
 
