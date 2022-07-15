@@ -153,7 +153,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   eventItem = multiweekView.getItemAt(window, 2, 4, 1);
   icon = eventItem.querySelector(".item-recurrence-icon");
-  Assert.equal(icon.src, "chrome:chrome://messenger/skin/icons/new/recurrence.svg");
+  Assert.equal(icon.src, "chrome://messenger/skin/icons/new/recurrence.svg");
   Assert.ok(!icon.hidden);
 
   // month view
