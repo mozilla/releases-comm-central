@@ -126,7 +126,7 @@ class BaseMessageService {
   }
 
   streamMessage(messageUri, consumer, msgWindow, urlListener, convertData) {
-    this._logger.debug("streamMessage", messageURI);
+    this._logger.debug("streamMessage", messageUri);
     this.DisplayMessage(messageUri, consumer, msgWindow, urlListener, false);
   }
 
