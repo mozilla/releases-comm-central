@@ -15,6 +15,7 @@ const { MailServices } = ChromeUtils.import(
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   NntpChannel: "resource:///modules/NntpChannel.jsm",
+  NntpUtils: "resource:///modules/NntpUtils.jsm",
 });
 
 /**
@@ -24,6 +25,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 class BaseMessageService {
   QueryInterface = ChromeUtils.generateQI(["nsIMsgMessageService"]);
 
+  _logger = lazy.NntpUtils.logger;
+
   DisplayMessage(
     messageURI,
     displayConsumer,
@@ -32,6 +35,8 @@ class BaseMessageService {
     autodetectCharset,
     outURL
   ) {
+    this._logger.debug("DisplayMessage", messageURI);
+
     let uri = this.getUrlForUri(messageURI, msgWindow);
     if (urlListener) {
       uri.RegisterListener(urlListener);
@@ -121,6 +126,7 @@ class BaseMessageService {
   }
 
   streamMessage(messageUri, consumer, msgWindow, urlListener, convertData) {
+    this._logger.debug("streamMessage", messageURI);
     this.DisplayMessage(messageUri, consumer, msgWindow, urlListener, false);
   }
 

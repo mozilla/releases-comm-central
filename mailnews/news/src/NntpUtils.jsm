@@ -45,9 +45,15 @@ var NntpUtils = {
       let type = branch.getCharPref(`${key}.type`, "");
       let hostnameValue = branch.getCharPref(`${key}.hostname`, "");
       if (type == "nntp" && hostnameValue == hostname) {
-        return MailServices.accounts
-          .getIncomingServer(key)
-          .QueryInterface(Ci.nsINntpIncomingServer);
+        try {
+          return MailServices.accounts
+            .getIncomingServer(key)
+            .QueryInterface(Ci.nsINntpIncomingServer);
+        } catch (e) {
+          // In some profiles, two servers have the same hostname, but only one
+          // can be loaded into AccountManager. Catch the error here and the
+          // already loaded server will be found.
+        }
       }
     }
     return null;
