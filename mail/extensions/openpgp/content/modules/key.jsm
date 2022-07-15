@@ -19,6 +19,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -241,7 +242,8 @@ var EnigmailKey = {
     seckey,
     withPubKey = false
   ) {
-    let contents = await IOUtils.readUTF8(file.path);
+    let data = await IOUtils.read(file.path);
+    let contents = lazy.MailStringUtils.uint8ArrayToByteString(data);
     return this.getKeyListFromKeyBlock(
       contents,
       errorMsgObj,
