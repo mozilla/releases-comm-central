@@ -852,13 +852,6 @@ menulist[open="true"]:not([disabled="true"]) {
 
 /* Sync */
 
-/* TODO: Temporarily hide these elements until the sync back-end is in place */
-#appmenu_signin,
-#appmenu_sync,
-#syncSeparator {
-  display: none;
-}
-
 #appmenu_signin {
   list-style-image: var(--icon-sync);
 }
@@ -889,6 +882,17 @@ menulist[open="true"]:not([disabled="true"]) {
 
 .appmenu-sync-account-email {
   font-weight: 600;
+}
+
+@keyframes syncRotate {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #appmenu-submenu-sync-now[syncstatus="active"] > .toolbarbutton-icon {
+    animation: syncRotate 0.8s linear infinite;
+  }
 }
 
 /* New Account and Create */

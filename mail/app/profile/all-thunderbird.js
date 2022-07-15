@@ -1341,3 +1341,37 @@ pref("print.print_headerright", "");
 
 // Enable Masonry Layout for AddressBook.
 pref("layout.css.grid-template-masonry-value.enabled", true);
+
+#ifdef NIGHTLY_BUILD
+// If set to false, FxAccounts and Sync will be unavailable.
+// A restart is mandatory after flipping that preference.
+pref("identity.fxaccounts.enabled", true);
+pref("identity.fxaccounts.log.sensitive", true);
+pref("services.sync.log.appender.console", "Info");
+// Auto-config URL for FxA self-hosters, makes an HTTP request to
+// [identity.fxaccounts.autoconfig.uri]/.well-known/fxa-client-configuration
+// This is now the prefered way of pointing to a custom FxA server, instead
+// of making changes to "identity.fxaccounts.*.uri".
+pref("identity.fxaccounts.autoconfig.uri", "https://accounts.stage.mozaws.net");
+// The remote FxA root content URL. Must use HTTPS.
+pref("identity.fxaccounts.remote.root", "https://accounts.stage.mozaws.net");
+// The value of the context query parameter passed in FxA requests.
+pref("identity.fxaccounts.contextParam", "fx_desktop_v3");
+// Token server used by the FxA Sync identity.
+pref("identity.sync.tokenserver.uri", "https://token.stage.mozaws.net/1.0/sync/1.5");
+// Adds stage server to the white list, because we need it.
+pref("webchannel.allowObject.urlWhitelist", "https://content.cdn.mozilla.net https://support.mozilla.org https://install.mozilla.org https://accounts.stage.mozaws.net");
+// Adds Firefox/10x.0 to the User-Agent string, because we need it.
+// TODO: Fix this.
+pref("general.useragent.compatMode.firefox", true);
+
+// Enable the sync engines we want, and disable the ones we don't want.
+pref("services.sync.engine.accounts", true);
+pref("services.sync.engine.addons", false);
+pref("services.sync.engine.addressbooks", true);
+pref("services.sync.engine.addresses", false);
+pref("services.sync.engine.calendars", true);
+pref("services.sync.engine.creditcards", false);
+pref("services.sync.engine.identities", true);
+pref("services.sync.engine.prefs", false);
+#endif

@@ -86,6 +86,9 @@ messenger.jar:
     content/messenger/spacesToolbar.inc.xhtml       (content/spacesToolbar.inc.xhtml)
     content/messenger/spacesToolbar.js              (content/spacesToolbar.js)
     content/messenger/specialTabs.js                (content/specialTabs.js)
+#ifdef NIGHTLY_BUILD
+    content/messenger/sync.js                       (content/sync.js)
+#endif
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)
     content/messenger/systemIntegrationDialog.xhtml (content/systemIntegrationDialog.xhtml)
     content/messenger/tabmail.js                    (content/tabmail.js)

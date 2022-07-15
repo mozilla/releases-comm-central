@@ -640,7 +640,9 @@ var gMailInit = {
       case "account-setup-dismissed":
         // The user closed the account setup before completing it. Be sure to
         // initialize the few important areas we need.
-        gSpacesToolbar.onLoad();
+        if (!gFolderTreeView.isInited) {
+          loadPostAccountWizard();
+        }
         break;
 
       case "open-account-setup-tab":
