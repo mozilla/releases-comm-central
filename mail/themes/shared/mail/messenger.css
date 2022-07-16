@@ -957,13 +957,13 @@ html|ul.addon-installed-list {
 }
 
 .button-more {
-  list-style-image: url("chrome://messenger/skin/icons/more.svg");
+  list-style-image: var(--icon-more);
 }
 
 .button-flat {
   appearance: none;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: stroke, fill-opacity;
+  stroke: currentColor;
   padding: 3px;
   line-height: 1em;
   border-radius: var(--toolbarbutton-border-radius);

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ @import url("chrome://messenger/skin/icons.css");
+
 :root {
   --in-content-button-border-radius: 3px;
 }
@@ -117,6 +119,12 @@ button[name="plugin"] {
   background-image: url("chrome://messenger/skin/icons/new/touch/settings.svg");
   width: 24px;
   height: 24px;
+}
+
+.more-options-button {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  background-image: var(--icon-more);
 }
 
 /* Hide in extension details the private browsing section */

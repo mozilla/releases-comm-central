@@ -280,15 +280,12 @@ body.layout-table {
 
 .bookRow-menu,
 .listRow-menu {
-  background-image: url("chrome://global/skin/icons/more.svg");
+  background-image: var(--icon-more);
   background-position: center center;
   background-repeat: no-repeat;
   width: 26px;
   height: 26px;
   display: none;
-  /* Temporary until replaced with supernova icon. */
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 .bookRow-container:hover .bookRow-menu,
@@ -727,12 +724,12 @@ body:not(.is-editing) #editContactForm {
 
 #photoButton:is(:focus-visible, :hover) #photoOverlay {
   background-color: #0003;
-  background-image: url("chrome://messenger/skin/icons/more.svg");
+  background-image: var(--icon-more);
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 48px;
-  -moz-context-properties: fill;
-  fill: #fff;
+  -moz-context-properties: stroke;
+  stroke: #fff;
   cursor: pointer;
 }
 
