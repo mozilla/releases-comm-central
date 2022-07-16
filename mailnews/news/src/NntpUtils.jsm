@@ -41,9 +41,12 @@ var NntpUtils = {
     }
 
     // Find the NNTP server that matches the hostname.
+    hostname = hostname.toLowerCase();
     for (let key of keySet) {
       let type = branch.getCharPref(`${key}.type`, "");
-      let hostnameValue = branch.getCharPref(`${key}.hostname`, "");
+      let hostnameValue = branch
+        .getCharPref(`${key}.hostname`, "")
+        .toLowerCase();
       if (type == "nntp" && hostnameValue == hostname) {
         try {
           return MailServices.accounts
