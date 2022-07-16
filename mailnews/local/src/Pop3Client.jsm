@@ -192,6 +192,7 @@ class Pop3Client {
       // msgHdr.
       try {
         this._sink.beginMailDelivery(true, null);
+        this._folderLocked = true;
         this._logger.debug(
           `Folder lock acquired uri=${this._sink.folder.URI}.`
         );
@@ -654,6 +655,8 @@ class Pop3Client {
     }
 
     if (this._verifyLogon) {
+      this.runningUri.errorCode = "pop3PasswordFailed";
+      this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
     }
 
@@ -888,6 +891,7 @@ class Pop3Client {
           this._singleUidlToDownload,
           this._msgWindow
         );
+        this._folderLocked = true;
         this._logger.debug(
           `Folder lock acquired uri=${this._sink.folder.URI}.`
         );
@@ -1093,6 +1097,7 @@ class Pop3Client {
       }
     } else {
       this._sink.endMailDelivery(this);
+      this._folderLocked = false;
       this._logger.debug("Folder lock released.");
       this._actionDone();
     }
@@ -1295,17 +1300,19 @@ class Pop3Client {
       } else {
         this._updateStatus("noNewMessages");
       }
-    } else {
-      this._sink.abortMailDelivery(this);
-      this._logger.debug("Folder lock released.");
-      if (this._currentMessage) {
-        // Put _currentMessage back to the queue to prevent loss of popstate.
-        this._messagesToHandle.unshift(this._currentMessage);
-      }
+    } else if (this._currentMessage) {
+      // Put _currentMessage back to the queue to prevent loss of popstate.
+      this._messagesToHandle.unshift(this._currentMessage);
     }
     this._writeUidlState(true);
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     this.quit();
+
+    if (this._folderLocked) {
+      this._sink.abortMailDelivery(this);
+      this._folderLocked = false;
+      this._logger.debug("Folder lock released.");
+    }
   };
 
   /**
