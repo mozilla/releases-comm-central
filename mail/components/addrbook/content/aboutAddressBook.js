@@ -2273,6 +2273,23 @@ var detailsPane = {
     this.actions.addEventListener("click", this);
     document.getElementById("detailsFooter").addEventListener("click", this);
 
+    let photoImage = document.getElementById("viewContactPhoto");
+    photoImage.addEventListener("error", event => {
+      if (!detailsPane.currentCard) {
+        return;
+      }
+
+      let vCard = detailsPane.currentCard.getProperty("_vCard", "");
+      let match = /^PHOTO.*/im.exec(vCard);
+      if (match) {
+        console.warn(
+          `Broken contact photo, vCard data starts with: ${match[0]}`
+        );
+      } else {
+        console.warn(`Broken contact photo, source is: ${photoImage.src}`);
+      }
+    });
+
     this.form.addEventListener("input", event => {
       let { type, checked, value, _originalValue } = event.target;
       let changed;

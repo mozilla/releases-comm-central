@@ -279,12 +279,27 @@ AddrBookCard.prototype = {
   },
   get photoURL() {
     let photoEntry = this.vCardProperties.getFirstEntry("photo");
-    if (photoEntry?.type == "binary") {
-      // TODO are these always JPEG?
-      return `data:image/jpeg;base64,${photoEntry.value}`;
-    } else if (photoEntry?.type == "uri") {
-      // TODO only allow data URLs?
-      return photoEntry.value;
+    if (photoEntry?.value) {
+      if (photoEntry.value?.startsWith("data:image/")) {
+        // This is a version 4.0 card
+        // OR a version 3.0 card with the URI type set (uncommon)
+        // OR a version 3.0 card that is lying about its type.
+        return photoEntry.value;
+      }
+      if (photoEntry.type == "binary" && photoEntry.value.startsWith("iVBO")) {
+        // This is a version 3.0 card.
+        // The first 3 bytes say this image is PNG.
+        return `data:image/png;base64,${photoEntry.value}`;
+      }
+      if (photoEntry.type == "binary" && photoEntry.value.startsWith("/9j/")) {
+        // This is a version 3.0 card.
+        // The first 3 bytes say this image is JPEG.
+        return `data:image/jpeg;base64,${photoEntry.value}`;
+      }
+      if (photoEntry.type == "uri" && /^https?:\/\//.test(photoEntry.value)) {
+        // A remote URI.
+        return photoEntry.value;
+      }
     }
 
     let photoName = this.getProperty("PhotoName", "");
