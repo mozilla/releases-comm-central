@@ -351,7 +351,6 @@ class WindowTracker extends WindowTrackerBase {
 
     return [
       "mail:3pane",
-      "mail:addressbook",
       "msgcompose",
       "mail:messageWindow",
       "mail:extensionPopup",
@@ -604,12 +603,9 @@ class TabTracker extends TabTrackerBase {
    */
   _handleWindowOpen(window) {
     if (
-      [
-        "mail:addressbook",
-        "msgcompose",
-        "mail:messageWindow",
-        "mail:extensionPopup",
-      ].includes(window.document.documentElement.getAttribute("windowtype"))
+      ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
+        window.document.documentElement.getAttribute("windowtype")
+      )
     ) {
       this.emit("tab-created", {
         nativeTabInfo: window,
@@ -639,12 +635,9 @@ class TabTracker extends TabTrackerBase {
    */
   _handleWindowClose(window) {
     if (
-      [
-        "mail:addressbook",
-        "msgcompose",
-        "mail:messageWindow",
-        "mail:extensionPopup",
-      ].includes(window.document.documentElement.getAttribute("windowtype"))
+      ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
+        window.document.documentElement.getAttribute("windowtype")
+      )
     ) {
       this.emit("tab-removed", {
         nativeTabInfo: window,
@@ -1037,14 +1030,14 @@ class TabmailTab extends Tab {
       case "folder":
       case "glodaList":
         return "mail";
+      case "addressBookTab":
+        return "addressBook";
       case "message":
         return "messageDisplay";
       case "contentTab": {
         let currentURI = this.nativeTab.browser.currentURI;
         if (currentURI?.schemeIs("about")) {
           switch (currentURI.filePath) {
-            case "addressbook":
-              return "addressBook";
             case "accountprovisioner":
               return "accountProvisioner";
             case "blank":
@@ -1125,8 +1118,6 @@ class Window extends WindowBase {
    */
   get type() {
     switch (this.window.document.documentElement.getAttribute("windowtype")) {
-      case "mail:addressbook":
-        return "addressBook";
       case "msgcompose":
         return "messageCompose";
       case "mail:messageWindow":
