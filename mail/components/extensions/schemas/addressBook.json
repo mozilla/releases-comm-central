@@ -348,7 +348,7 @@
       {
         "id": "ContactProperties",
         "type": "object",
-        "description": "A set of individual properties for a particular contact and/or its vCard string in the <code>vCard</code> member. The individual properties may either be `legacy properties <https://searchfox.org/comm-central/rev/8a1ae67088acf237dab2fd704db18589e7bf119e/mailnews/addrbook/modules/VCardUtils.jsm#295-334>`__ or custom properties (name may use a to z, A to Z, 1 to 9 and underscores).\n**Note:** Using individual properties is deprecated, get/set the <code>vCard</code> member instead.",
+        "description": "A set of individual properties for a particular contact, and its vCard string. Further information can be found in :ref:`howto_contacts`.",
         "patternProperties": {
           "^\\w+$": {
             "choices": [
