@@ -453,7 +453,10 @@ class VCardEdit extends HTMLElement {
         title.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-org");
         addButton = document.getElementById("vcard-add-org");
-        fieldset.insertBefore(title, addButton);
+        fieldset.insertBefore(
+          title,
+          fieldset.querySelector("vcard-role, vcard-org, #vcard-add-org")
+        );
         // Only one title is allowed via UI.
         addButton.hidden = true;
         return title;
@@ -462,7 +465,10 @@ class VCardEdit extends HTMLElement {
         role.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-org");
         addButton = document.getElementById("vcard-add-org");
-        fieldset.insertBefore(role, addButton);
+        fieldset.insertBefore(
+          role,
+          fieldset.querySelector("vcard-org, #vcard-add-org")
+        );
         // Only one role is allowed via UI.
         addButton.hidden = true;
         return role;
