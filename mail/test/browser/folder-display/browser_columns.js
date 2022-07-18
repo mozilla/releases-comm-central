@@ -25,7 +25,6 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // needed to zero inter-folder processing delay
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 

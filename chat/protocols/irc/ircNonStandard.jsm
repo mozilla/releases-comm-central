@@ -100,7 +100,10 @@ var ircNonStandard = {
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
           aMessage.params[1],
-          { incoming: true, tags: aMessage.tags }
+          {
+            incoming: true,
+            tags: aMessage.tags,
+          }
         );
         return true;
       }
@@ -252,7 +255,10 @@ var ircNonStandard = {
       this.getConversation(aMessage.origin).writeMessage(
         aMessage.origin,
         aMessage.params[1],
-        { incoming: true, noFormat: true }
+        {
+          incoming: true,
+          noFormat: true,
+        }
       );
       return true;
     },

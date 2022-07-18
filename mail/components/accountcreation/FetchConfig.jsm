@@ -26,7 +26,6 @@ ChromeUtils.defineModuleGetter(
 
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const {
   Abortable,

@@ -5,8 +5,6 @@
 
 const EXPORTED_SYMBOLS = ["BinaryServer"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 const CC = Components.Constructor;
 
 const ServerSocket = CC(

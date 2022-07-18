@@ -11,8 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["caliterate"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 const lazy = {};
 ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 

@@ -20,7 +20,6 @@ var { fsDebugAll, gThreadManager, nsMailServer } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 ExtensionTestUtils.init(this);
 

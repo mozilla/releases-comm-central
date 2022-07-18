@@ -4,7 +4,6 @@
 
 /* Provides methods to make sure our test shuts down mailnews properly. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );

@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["GPGMELibLoader"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 
 var systemOS = Services.appinfo.OS.toLowerCase();

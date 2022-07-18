@@ -31,7 +31,6 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );

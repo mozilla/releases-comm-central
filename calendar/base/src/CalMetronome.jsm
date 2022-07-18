@@ -6,7 +6,6 @@ const EXPORTED_SYMBOLS = ["CalMetronome"];
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { EventEmitter } = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const MINUTE_IN_MS = 60000;
 const HOUR_IN_MS = 3600000;

@@ -7,8 +7,6 @@
 
 const EXPORTED_SYMBOLS = ["MailUsageTelemetry"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 // Observed topic names.
 const DOMWINDOW_OPENED_TOPIC = "domwindowopened";
 

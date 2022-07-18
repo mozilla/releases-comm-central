@@ -5,7 +5,6 @@
 const EXPORTED_SYMBOLS = ["ConversationOpener"];
 
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 class ConversationOpener {
   static isMessageIndexed(message) {

@@ -17,7 +17,6 @@
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaMsgIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/IndexMsg.jsm"

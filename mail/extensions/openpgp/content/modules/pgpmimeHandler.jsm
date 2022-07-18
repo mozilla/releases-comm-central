@@ -14,7 +14,6 @@ const EXPORTED_SYMBOLS = ["EnigmailPgpmimeHander"];
 const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

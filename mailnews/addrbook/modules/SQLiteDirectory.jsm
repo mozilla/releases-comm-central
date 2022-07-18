@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["SQLiteDirectory"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { AddrBookDirectory } = ChromeUtils.import(
   "resource:///modules/AddrBookDirectory.jsm"
 );

@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["AboutRedirector"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 function AboutRedirector() {}
 AboutRedirector.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIAboutModule"]),

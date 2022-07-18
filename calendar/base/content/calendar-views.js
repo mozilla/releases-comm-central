@@ -19,7 +19,6 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-  var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
   /**
    * The calendar view for viewing a single day.

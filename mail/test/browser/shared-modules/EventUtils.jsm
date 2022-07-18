@@ -9,8 +9,6 @@ var EXPORTED_SYMBOLS = [
   "synthesizeMouseExpectEvent",
 ];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Parse the key modifier flags from aEvent. Used to share code between
  * synthesizeMouse and synthesizeKey.

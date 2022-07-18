@@ -21,7 +21,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { UpdateUtils } = ChromeUtils.import(
   "resource://gre/modules/UpdateUtils.jsm"
 );

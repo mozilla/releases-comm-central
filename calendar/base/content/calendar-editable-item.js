@@ -9,7 +9,6 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-  var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   /**
    * The MozCalendarEditableItem widget is used as a full day event item in the
    * Day and Week views of the calendar. It displays the event name, alarm icon

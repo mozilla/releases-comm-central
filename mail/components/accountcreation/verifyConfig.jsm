@@ -21,7 +21,6 @@ const { MailServices } = ChromeUtils.import(
 const { OAuth2Providers } = ChromeUtils.import(
   "resource:///modules/OAuth2Providers.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const {
   assert,

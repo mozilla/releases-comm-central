@@ -14,8 +14,6 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Bug 1358565
  * Check that a non-empty image is shown as attachment and is detected as non-empty

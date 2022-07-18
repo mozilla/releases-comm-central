@@ -4,7 +4,6 @@
 
 // This tests that renaming non-ASCII name folder works.
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

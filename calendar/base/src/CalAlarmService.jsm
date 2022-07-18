@@ -5,7 +5,6 @@
 var EXPORTED_SYMBOLS = ["CalAlarmService"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var kHoursBetweenUpdates = 6;

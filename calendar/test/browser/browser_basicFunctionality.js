@@ -4,7 +4,6 @@
 
 /* globals createCalendarUsingDialog */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 add_task(async function testBasicFunctionality() {

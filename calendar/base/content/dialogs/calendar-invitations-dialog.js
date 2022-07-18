@@ -8,8 +8,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
   class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
     constructor() {
       super();

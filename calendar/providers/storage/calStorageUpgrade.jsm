@@ -75,7 +75,6 @@ var EXPORTED_SYMBOLS = [
   "backupDB",
 ];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"

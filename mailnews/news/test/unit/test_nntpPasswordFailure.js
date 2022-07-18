@@ -13,7 +13,6 @@
  *     we get a new password prompt and can enter the password.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );

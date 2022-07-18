@@ -6,7 +6,6 @@
 /* import-globals-from am-copies.js */
 /* import-globals-from ../../../../mail/extensions/am-e2e/am-e2e.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

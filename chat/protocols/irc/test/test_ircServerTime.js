@@ -4,7 +4,6 @@
 var { tagServerTime } = ChromeUtils.import(
   "resource:///modules/ircServerTime.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ircMessage } = ChromeUtils.import("resource:///modules/irc.jsm");
 
 function getTags(aRawMsg) {

@@ -36,8 +36,6 @@ var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var cwc = null; // compose window controller
 var folder;
 var gDrafts;

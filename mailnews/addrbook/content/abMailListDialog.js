@@ -5,7 +5,6 @@
 /* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
 /* import-globals-from ../../../mail/components/compose/content/addressingWidgetOverlay.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

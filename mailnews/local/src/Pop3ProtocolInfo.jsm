@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["Pop3ProtocolInfo"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * @implements {nsIMsgProtocolInfo}
  */

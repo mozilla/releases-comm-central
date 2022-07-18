@@ -8,7 +8,6 @@
 
 /* import-globals-from ../../extensions/newsblog/feed-subscriptions.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

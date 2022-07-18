@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["NntpModuleLoader"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Determine whether to use nsNntpService.cpp or NntpService.jsm. When
  * `mailnews.nntp.jsmodule` is `true`, use NntpService.jsm.

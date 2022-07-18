@@ -7,7 +7,6 @@
 /* globals gSubDialog, Preferences */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 Preferences.add({ id: "calendar.categories.names", type: "string" });

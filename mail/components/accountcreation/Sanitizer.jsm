@@ -11,7 +11,6 @@ const { AccountCreationUtils } = ChromeUtils.import(
 const { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * This is a generic input validation lib. Use it when you process

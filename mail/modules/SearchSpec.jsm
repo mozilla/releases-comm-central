@@ -7,7 +7,6 @@ const EXPORTED_SYMBOLS = ["SearchSpec"];
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Wrapper abstraction around a view's search session.  This is basically a

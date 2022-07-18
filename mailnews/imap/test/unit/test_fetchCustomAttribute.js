@@ -12,8 +12,6 @@ var { PromiseTestUtils } = ChromeUtils.import(
 
 // IMAP pump
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 // Globals
 
 // Messages to load must have CRLF line endings, that is Windows style

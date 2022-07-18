@@ -8,8 +8,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
   /**
    * A calendar-modebox directly extends to a xul:box element with extra functionality. Like a
    * xul:hbox it has a horizontal orientation. It is designed to be displayed only:

@@ -4,8 +4,6 @@
 
 /* exported launchBrowser */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Launch the given url (string) in the external browser. If an event is passed,
  * then this is only done on left click and the event propagation is stopped.

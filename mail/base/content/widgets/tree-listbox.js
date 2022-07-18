@@ -830,7 +830,10 @@
           { transform: `translateY(${from}px)` },
           { transform: "translateY(0px)" },
         ],
-        { duration: ANIMATION_DURATION_MS, fill: "both" }
+        {
+          duration: ANIMATION_DURATION_MS,
+          fill: "both",
+        }
       );
       animation.onfinish = () => animation.cancel();
     }

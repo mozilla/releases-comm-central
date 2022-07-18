@@ -7,7 +7,6 @@
 /* globals SelectFolder */ // From messageWindow.js or msgMail3PaneWindow.js.
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

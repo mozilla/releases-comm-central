@@ -14,10 +14,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import(
-    "resource://gre/modules/Services.jsm"
-  );
-
   /**
    * The MozTabmailAlltabsMenuPopup widget is used as a menupopup to list all the
    * currently opened tabs.
@@ -1317,7 +1313,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           "_blank",
           features.join(","),
           null,
-          { action: "restore", tabs: [tab] }
+          {
+            action: "restore",
+            tabs: [tab],
+          }
         )
         .focus();
     }

@@ -8,7 +8,6 @@ const { CardDAVDirectory } = ChromeUtils.import(
 const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Cu.importGlobalProperties(["fetch"]);
 
 do_get_profile();

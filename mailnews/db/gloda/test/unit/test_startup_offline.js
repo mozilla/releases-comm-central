@@ -14,7 +14,6 @@ var { MessageGenerator } = ChromeUtils.import(
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /*
  * Test gloda starts up with indexing suppressed when offline at startup.

@@ -11,8 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["calacl"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var calacl = {
   /**
    * Check if the specified calendar is writable. This is the case when it is

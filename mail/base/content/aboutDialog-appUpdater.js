@@ -5,7 +5,6 @@
 // Note: this file is included in aboutDialog.xhtml and preferences/advanced.xhtml
 // if MOZ_UPDATER is defined.
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

@@ -485,7 +485,9 @@ var gKeyAssistant = {
       document.l10n.setAttributes(
         element,
         "openpgp-key-assistant-keys-has-collected",
-        { count: unacceptedNotYetImported.length }
+        {
+          count: unacceptedNotYetImported.length,
+        }
       );
       if (unacceptedNotYetImported.length == 1) {
         element.before("0x" + unacceptedNotYetImported[0].keyObj.keyId);
@@ -626,7 +628,10 @@ var gKeyAssistant = {
     document.l10n.setAttributes(
       document.getElementById("resolveViewTitle"),
       "openpgp-key-assistant-resolve-title",
-      { recipient, numKeys }
+      {
+        recipient,
+        numKeys,
+      }
     );
 
     document.l10n.setAttributes(

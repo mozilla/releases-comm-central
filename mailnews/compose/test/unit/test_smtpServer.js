@@ -5,8 +5,6 @@
  * Tests for nsISmtpServer implementation.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Test that cached server password is cleared when password storage changed.
  */

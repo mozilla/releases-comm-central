@@ -12,7 +12,6 @@ const EXPORTED_SYMBOLS = [
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 const {

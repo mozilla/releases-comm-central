@@ -15,7 +15,6 @@ var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );

@@ -35,7 +35,6 @@ var { async_plan_for_new_window } = ChromeUtils.import(
 var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
 var gMsgNo = 0;

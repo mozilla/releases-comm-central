@@ -5,8 +5,6 @@
 
 // Much of the original code is taken from netwerk's httpserver implementation
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var EXPORTED_SYMBOLS = [
   "nsMailServer",
   "gThreadManager", // TODO: kill this export

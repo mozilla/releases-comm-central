@@ -11,8 +11,6 @@ const EXPORTED_SYMBOLS = [
   "MimeMessageAttachment",
 ];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * The URL listener is surplus because the CallbackStreamListener ends up
  *  getting the same set of events, effectively.

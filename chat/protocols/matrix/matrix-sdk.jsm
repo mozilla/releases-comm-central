@@ -12,7 +12,6 @@ const {
 const { scriptError } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/loader/base-loader.js"

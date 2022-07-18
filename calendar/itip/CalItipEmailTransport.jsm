@@ -6,7 +6,6 @@ var EXPORTED_SYMBOLS = ["CalItipEmailTransport", "CalItipDefaultEmailTransport"]
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * CalItipEmailTransport is used to send iTIP messages via email. Outside

@@ -10,7 +10,6 @@ var { AppConstants } = ChromeUtils.import(
 var { PlacesUtils } = ChromeUtils.import(
   "resource://gre/modules/PlacesUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gShowBiDi = false;
 
@@ -276,7 +275,10 @@ function openTab(tabType, tabParams, where) {
     "_blank",
     "chrome,dialog=no,all",
     null,
-    { tabType, tabParams }
+    {
+      tabType,
+      tabParams,
+    }
   );
 }
 

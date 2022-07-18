@@ -5,7 +5,6 @@
 // toolkit/content/treeUtils.js
 /* globals gTreeUtils */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );

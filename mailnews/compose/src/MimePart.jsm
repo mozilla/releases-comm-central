@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["MimePart", "MimeMultiPart"];
 
-let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
 let { MsgUtils } = ChromeUtils.import(

@@ -13,7 +13,6 @@ const EXPORTED_SYMBOLS = [
   "generateQueryURI",
   "encodeABTermValue",
 ];
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Parse the multiword search string to extract individual search terms

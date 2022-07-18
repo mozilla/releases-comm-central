@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 var { updateAppInfo } = ChromeUtils.import("resource://testing-common/AppInfo.jsm");

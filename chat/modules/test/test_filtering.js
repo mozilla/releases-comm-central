@@ -4,7 +4,6 @@
 // These tests run into issues if there isn't a profile directory, see bug 1542397.
 do_get_profile();
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var {
   cleanupImMarkup,

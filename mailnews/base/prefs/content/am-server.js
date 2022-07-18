@@ -5,7 +5,6 @@
 /* import-globals-from am-prefs.js */
 /* import-globals-from amUtils.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gServer;

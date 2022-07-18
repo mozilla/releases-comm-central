@@ -23,7 +23,6 @@
 /* globals gTimezonesEnabled */ // Set by calendar-item-panel.js.
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {
   recurrenceRule2String,
   splitRecurrenceRules,

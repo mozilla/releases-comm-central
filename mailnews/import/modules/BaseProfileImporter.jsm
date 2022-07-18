@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["BaseProfileImporter"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 /**

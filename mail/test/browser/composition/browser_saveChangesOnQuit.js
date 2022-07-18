@@ -31,8 +31,6 @@ var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var SAVE = 0;
 var CANCEL = 1;
 var DONT_SAVE = 2;

@@ -6,8 +6,6 @@
  * Test suite for message body.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 localAccountUtils.loadLocalMailAccount();
 
 /**

@@ -28,8 +28,6 @@ var { plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var warningText = new Map();
 
 add_setup(function() {

@@ -8,9 +8,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import(
-    "resource://gre/modules/Services.jsm"
-  );
   const gGlodaCompleteStrings = Services.strings.createBundle(
     "chrome://messenger/locale/glodaComplete.properties"
   );

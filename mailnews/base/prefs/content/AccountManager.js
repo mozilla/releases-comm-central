@@ -32,7 +32,6 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { MailServices } = ChromeUtils.import(

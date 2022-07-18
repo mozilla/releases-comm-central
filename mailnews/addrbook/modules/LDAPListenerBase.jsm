@@ -5,8 +5,6 @@
 
 const EXPORTED_SYMBOLS = ["LDAPListenerBase"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * @implements {nsILDAPMessageListener}
  */

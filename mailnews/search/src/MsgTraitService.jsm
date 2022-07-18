@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["MsgTraitService"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 // local static variables
 
 var _lastIndex = 0; // the first index will be one

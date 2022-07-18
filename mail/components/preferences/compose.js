@@ -19,7 +19,6 @@ var { E10SUtils } = ChromeUtils.import("resource://gre/modules/E10SUtils.jsm");
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Preferences.addAll([
   { id: "mail.forward_message_mode", type: "int" },

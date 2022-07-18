@@ -17,8 +17,6 @@ var {
   wait_for_new_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var folder;
 
 // Message content as stored in the message folder. Non-ASCII characters as

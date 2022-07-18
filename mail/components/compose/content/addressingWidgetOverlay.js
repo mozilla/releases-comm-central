@@ -6,7 +6,6 @@
 /* import-globals-from MsgComposeCommands.js */
 /* import-globals-from ../../addrbook/content/abCommon.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { DisplayNameUtils } = ChromeUtils.import(
   "resource:///modules/DisplayNameUtils.jsm"

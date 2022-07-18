@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["InteractiveBrowser", "CancelledError"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 class CancelledError extends Error {
   constructor() {
     super("Interactive browser request was cancelled");

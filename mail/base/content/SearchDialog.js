@@ -12,7 +12,6 @@
 
 "use strict";
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"

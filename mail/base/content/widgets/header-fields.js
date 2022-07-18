@@ -5,9 +5,6 @@
 /* global gMessageHeader, gShowCondensedEmailAddresses, openUILink */
 
 {
-  const { Services } = ChromeUtils.import(
-    "resource://gre/modules/Services.jsm"
-  );
   const { DisplayNameUtils } = ChromeUtils.import(
     "resource:///modules/DisplayNameUtils.jsm"
   );
@@ -612,7 +609,9 @@
         document.l10n.setAttributes(
           this.heading,
           "message-header-custom-field",
-          { fieldName: this.dataset.prettyHeaderName }
+          {
+            fieldName: this.dataset.prettyHeaderName,
+          }
         );
       }
       this.appendChild(this.heading);

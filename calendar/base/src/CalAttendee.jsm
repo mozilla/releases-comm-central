@@ -6,7 +6,6 @@
 
 var EXPORTED_SYMBOLS = ["CalAttendee"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 Services.scriptloader.loadSubScript("resource:///components/calItemBase.js");

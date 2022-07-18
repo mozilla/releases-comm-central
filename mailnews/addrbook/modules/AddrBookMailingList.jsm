@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookMailingList"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /* Prototype for mailing lists. A mailing list can appear as nsIAbDirectory
  * or as nsIAbCard. Here we keep all relevant information in the class itself
  * and fulfill each interface on demand. This will make more sense and be

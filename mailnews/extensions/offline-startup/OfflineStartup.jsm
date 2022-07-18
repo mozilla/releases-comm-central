@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["OfflineStartup"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var kDebug = false;
 var kOfflineStartupPref = "offline.startup_state";
 var kRememberLastState = 0;

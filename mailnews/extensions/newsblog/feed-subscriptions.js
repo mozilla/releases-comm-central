@@ -17,7 +17,6 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );

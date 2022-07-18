@@ -19,7 +19,6 @@ var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 function sleep(window, time = 0) {

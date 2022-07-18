@@ -1,8 +1,6 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var { saslPrep } = ChromeUtils.import("resource:///modules/xmpp-authmechs.jsm");
 
 // RFC 4013 3.Examples

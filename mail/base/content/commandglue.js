@@ -15,7 +15,6 @@
 var { MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function UpdateMailToolbar(caller) {
   if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {

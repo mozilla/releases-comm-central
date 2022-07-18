@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["QueryStringToExpression"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * A module to parse a query string to a nsIAbBooleanExpression. A valid query
  * string is in this form:

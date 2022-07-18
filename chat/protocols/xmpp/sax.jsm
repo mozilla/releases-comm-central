@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["SAX"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 let scope = {};
 Services.scriptloader.loadSubScript("resource:///modules/sax/sax.js", scope);
 var SAX = scope.sax;

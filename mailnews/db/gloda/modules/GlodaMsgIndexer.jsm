@@ -14,7 +14,6 @@ const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
 const { FreeTagNoun } = ChromeUtils.import(
   "resource:///modules/gloda/NounFreetag.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var GlodaABIndexer = {
   _log: null,

@@ -5,8 +5,6 @@
 /* globals gDBView, GetNumSelectedMessages, gFolderDisplay */
 /* global currentHeaderData: false */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gEncryptionStatus = -1;
 var gSignatureStatus = -1;
 var gSignerCert = null;

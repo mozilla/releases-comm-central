@@ -5,7 +5,6 @@
 var EXPORTED_SYMBOLS = ["CalAlarmMonitor"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function peekAlarmWindow() {
   return Services.wm.getMostRecentWindow("Calendar:AlarmWindow");

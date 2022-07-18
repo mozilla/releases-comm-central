@@ -17,7 +17,6 @@ const EXPORTED_SYMBOLS = [
   "load_contacts_into_address_book",
 ];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

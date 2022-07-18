@@ -15,8 +15,6 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gServer, gIMAPIncomingServer, gIMAPDaemon;
 
 add_task(function setupTest() {

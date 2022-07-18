@@ -5,7 +5,6 @@
 // mail/base/content/specialTabs.js
 /* globals contentTabBaseType, DOMLinkHandler */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
@@ -48,7 +47,10 @@ var addressBookTabType = {
         this.tab.browser.addEventListener(
           "about-addressbook-ready",
           event => aArgs.onLoad(event, this.tab.browser),
-          { capture: true, once: true }
+          {
+            capture: true,
+            once: true,
+          }
         );
       } else {
         aArgs.onLoad(null, this.tab.browser);

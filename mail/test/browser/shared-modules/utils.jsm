@@ -39,8 +39,6 @@
 
 var EXPORTED_SYMBOLS = ["sleep", "TimeoutError", "waitFor"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var hwindow = Services.appShell.hiddenDOMWindow;
 
 /**

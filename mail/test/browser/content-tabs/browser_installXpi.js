@@ -15,8 +15,6 @@ var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-tabs/html/";
 

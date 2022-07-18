@@ -23,7 +23,6 @@ var { imapMessage } = ChromeUtils.import(
   "resource://testing-common/mailnews/Imapd.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { fsDebugAll } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );

@@ -13,7 +13,6 @@ var { MailMigrator } = ChromeUtils.import(
 var { localAccountUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gAccountList = [
   // POP Yahoo account + Yahoo Server.

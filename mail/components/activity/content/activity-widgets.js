@@ -8,9 +8,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import(
-    "resource://gre/modules/Services.jsm"
-  );
   const { makeFriendlyDateAgo } = ChromeUtils.import(
     "resource:///modules/TemplateUtils.jsm"
   );

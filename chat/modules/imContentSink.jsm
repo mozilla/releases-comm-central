@@ -19,8 +19,6 @@ const EXPORTED_SYMBOLS = [
   "removeGlobalAllowedStyleRule",
 ];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var kAllowedURLs = aValue => /^(https?|ftp|mailto|magnet):/.test(aValue);
 var kAllowedMozClasses = aClassName =>
   aClassName == "moz-txt-underscore" ||

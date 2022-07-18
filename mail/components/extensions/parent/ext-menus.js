@@ -18,7 +18,6 @@ var { AppConstants } = ChromeUtils.import(
 var { SelectionUtils } = ChromeUtils.import(
   "resource://gre/modules/SelectionUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { DefaultMap, ExtensionError } = ExtensionUtils;
 

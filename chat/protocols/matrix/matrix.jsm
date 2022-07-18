@@ -15,7 +15,6 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 var { XPCOMUtils, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var {
   GenericAccountPrototype,
@@ -1464,7 +1463,9 @@ MatrixRoom.prototype = {
     this._account._client.sendStateEvent(
       this._roomId,
       lazy.MatrixSDK.EventType.RoomEncryption,
-      { algorithm: lazy.OlmLib.MEGOLM_ALGORITHM }
+      {
+        algorithm: lazy.OlmLib.MEGOLM_ALGORITHM,
+      }
     );
   },
 };

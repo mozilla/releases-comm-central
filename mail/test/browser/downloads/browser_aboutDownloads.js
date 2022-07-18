@@ -31,7 +31,6 @@ var { wait_for_browser_load } = ChromeUtils.import(
 );
 
 var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var downloadsTab;
 
 var attachmentFileNames = [

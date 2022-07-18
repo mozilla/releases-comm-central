@@ -22,7 +22,6 @@ const {
   nsSimpleEnumerator,
   l10nHelper,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { ClassInfo } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"

@@ -4,8 +4,6 @@
 
 // Test of setup of localMailFolders
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
 

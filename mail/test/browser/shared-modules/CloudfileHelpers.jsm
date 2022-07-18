@@ -20,7 +20,6 @@ var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kDefaults = {
   type: "default",

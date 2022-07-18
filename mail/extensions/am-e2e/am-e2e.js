@@ -7,7 +7,6 @@
 
 /* global GetEnigmailSvc, EnigRevokeKey */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -1069,7 +1068,10 @@ function enigmailKeyDetails(keyId) {
   parent.gSubDialog.open(
     "chrome://openpgp/content/ui/keyDetailsDlg.xhtml",
     undefined,
-    { keyId, modified: onDataModified }
+    {
+      keyId,
+      modified: onDataModified,
+    }
   );
 }
 

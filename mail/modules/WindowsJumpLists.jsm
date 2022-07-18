@@ -8,7 +8,6 @@ var EXPORTED_SYMBOLS = ["WinTaskbarJumpList"];
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Prefs
 var PREF_TASKBAR_BRANCH = "mail.taskbar.lists.";

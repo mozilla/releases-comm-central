@@ -4,8 +4,6 @@
 
 /* import-globals-from ../../base/prefs/content/amUtils.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var useCustomPrefs;
 var requestReceipt;
 var leaveInInbox;

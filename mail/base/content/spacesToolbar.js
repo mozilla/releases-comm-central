@@ -4,8 +4,6 @@
 
 "use strict";
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /* import-globals-from msgMail3PaneWindow.js */
 /* import-globals-from mailCore.js */
 

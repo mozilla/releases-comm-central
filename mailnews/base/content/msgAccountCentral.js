@@ -6,7 +6,6 @@
 /* import-globals-from ../../../mail/base/content/mailCore.js */
 /* import-globals-from ../prefs/content/accountUtils.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

@@ -10,7 +10,6 @@ var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 var { OAuth2Providers } = ChromeUtils.import(
   "resource:///modules/OAuth2Providers.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * OAuth2Module is the glue layer that gives XPCOM access to an OAuth2

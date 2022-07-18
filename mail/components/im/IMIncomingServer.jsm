@@ -4,7 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["IMIncomingServer"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 
 function IMIncomingServer() {}

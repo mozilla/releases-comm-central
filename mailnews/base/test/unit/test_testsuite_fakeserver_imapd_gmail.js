@@ -13,7 +13,6 @@ var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 setupIMAPPump("GMail");
 // create our own handler so that we can call imapd functions directly

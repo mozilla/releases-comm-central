@@ -33,7 +33,6 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var messenger;
 var folder;

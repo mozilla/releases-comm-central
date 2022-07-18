@@ -7,7 +7,6 @@ const EXPORTED_SYMBOLS = ["CalExtractParserService"];
 const { CalExtractParser } = ChromeUtils.import(
   "resource:///modules/calendar/extract/CalExtractParser.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const defaultRules = [
   [

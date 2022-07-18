@@ -4,8 +4,6 @@
  * Tests nsMsgCompose expandMailingLists.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Helper to check population worked as expected.
  * @param aTo - text in the To field

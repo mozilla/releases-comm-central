@@ -6,8 +6,6 @@
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 /* import-globals-from ./extensionControlled.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 Preferences.addAll([
   // Add network.proxy.autoconfig_url before network.proxy.type so they're
   // both initialized when network.proxy.type initialization triggers a call to

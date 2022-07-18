@@ -17,8 +17,6 @@ var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/Browser
 var EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
 var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 const lazy = {};
 
 ChromeUtils.defineModuleGetter(

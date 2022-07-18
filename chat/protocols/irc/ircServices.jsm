@@ -190,7 +190,9 @@ var servicesBase = {
           this.getConversation(aMessage.origin).writeMessage(
             aMessage.origin,
             this._infoServMotd.join("\n"),
-            { incoming: true }
+            {
+              incoming: true,
+            }
           );
           delete this._infoServMotd;
         }

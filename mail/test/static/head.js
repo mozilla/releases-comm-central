@@ -15,8 +15,6 @@ const ZipReader = new Components.Constructor(
   "open"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Returns a promise that is resolved with a list of files that have one of the
  * extensions passed, represented by their nsIURI objects, which exist inside

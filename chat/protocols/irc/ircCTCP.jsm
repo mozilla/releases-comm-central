@@ -10,7 +10,6 @@
 
 const EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase", "CTCPMessage"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -290,7 +289,10 @@ var ctcpBase = {
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
           response,
-          { system: true, tags: aMessage.tags }
+          {
+            system: true,
+            tags: aMessage.tags,
+          }
         );
       }
       return true;

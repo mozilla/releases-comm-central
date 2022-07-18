@@ -20,7 +20,6 @@
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -3034,7 +3033,9 @@ Enigmail.msg = {
       document.l10n.setAttributes(
         conflictDescription,
         "openpgp-be-careful-new-key",
-        { email: Enigmail.msg.authorEmail }
+        {
+          email: Enigmail.msg.authorEmail,
+        }
       );
       conflictDescription.removeAttribute("hidden");
     }

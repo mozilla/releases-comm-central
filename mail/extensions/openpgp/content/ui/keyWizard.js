@@ -6,7 +6,6 @@
 
 /* global GetEnigmailSvc */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -807,7 +806,9 @@ async function importSecretKey() {
       document.l10n.setAttributes(
         await addImportWarningNotification(),
         "import-error-failed",
-        { error: errorMsgObj.value }
+        {
+          error: errorMsgObj.value,
+        }
       );
       continue;
     }
@@ -823,7 +824,9 @@ async function importSecretKey() {
   document.l10n.setAttributes(
     document.getElementById("keyListCount"),
     "openpgp-import-key-list-amount-2",
-    { count: keyCount }
+    {
+      count: keyCount,
+    }
   );
 
   document.getElementById("importKeyListContainer").collapsed = !keyCount;
@@ -918,7 +921,9 @@ async function openPgpImportStart() {
       document.l10n.setAttributes(
         await addImportWarningNotification(),
         "openpgp-import-keys-failed",
-        { error: errorMsgObj.value }
+        {
+          error: errorMsgObj.value,
+        }
       );
       continue;
     }

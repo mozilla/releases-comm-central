@@ -15,8 +15,6 @@ const formatDYM = 6;
 const formatMIN = 1;
 const formatMAX = 6;
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gSearchDateFormat = 0;
 var gSearchDateSeparator;
 var gSearchDateLeadingZeros;

@@ -8,8 +8,6 @@
 
 var EXPORTED_SYMBOLS = ["TestJaMsgProtocolInfo"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 function TestJaMsgProtocolInfo() {
   dump("testJaMsgProtocolInfo");
   // nsIFile object to be used for the default local path.

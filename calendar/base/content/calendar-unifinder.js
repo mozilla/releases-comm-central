@@ -22,7 +22,6 @@
  */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Set this to true when the calendar event tree is clicked to allow for
 // multiple selection

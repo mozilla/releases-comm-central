@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["MimeType", "MimeTypeNoun"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 
 var LOG = console.createInstance({
@@ -191,7 +190,6 @@ var MimeCategoryMapping = {
     "application/x-pdf",
     "image/pdf",
     "file/pdf",
-
     "application/x-bzpdf",
     "application/x-gzpdf",
   ],

@@ -15,8 +15,6 @@ var {
   open_compose_new_mail,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var kHtmlPref = "mail.identity.default.compose_html";
 var kReplyOnTopPref = "mail.identity.default.reply_on_top";
 var kReplyOnTop = 1;

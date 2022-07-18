@@ -7,8 +7,6 @@
  * is initialized.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gExpectedFiles;
 
 function create_temporary_files_for(name) {

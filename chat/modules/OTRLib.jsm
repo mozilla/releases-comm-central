@@ -6,7 +6,6 @@ const otrl_version = [4, 1, 1];
 
 const { CLib } = ChromeUtils.import("resource:///modules/CLib.jsm");
 const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var systemOS = Services.appinfo.OS.toLowerCase();
 
 var abi = ctypes.default_abi;

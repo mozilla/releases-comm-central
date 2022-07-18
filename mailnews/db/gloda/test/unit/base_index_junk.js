@@ -23,7 +23,6 @@ var { queryExpect } = ChromeUtils.import(
 var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );

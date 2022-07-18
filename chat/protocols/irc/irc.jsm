@@ -22,7 +22,6 @@ var { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ctcpFormatToHTML, kListRefreshInterval } = ChromeUtils.import(
   "resource:///modules/ircUtils.jsm"
@@ -324,7 +323,10 @@ var GenericIRCConversation = {
         this.writeMessage(
           this._account._currentServerName,
           lazy._("error.sendMessageFailed"),
-          { error: true, system: true }
+          {
+            error: true,
+            system: true,
+          }
         );
         return;
       }
@@ -337,7 +339,10 @@ var GenericIRCConversation = {
       this.writeMessage(
         this._account._currentServerName,
         lazy._("error.sendMessageFailed"),
-        { error: true, system: true }
+        {
+          error: true,
+          system: true,
+        }
       );
       return;
     }

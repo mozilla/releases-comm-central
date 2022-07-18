@@ -10,10 +10,6 @@ if (!customElements.get("menulist")) {
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import(
-    "resource://gre/modules/Services.jsm"
-  );
-
   /**
    * MozMenulistCharsetpicker is a menulist widget that is automatically
    * populated with charset selections.

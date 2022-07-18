@@ -7,7 +7,6 @@
 var EXPORTED_SYMBOLS = ["CalTodo"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Services.scriptloader.loadSubScript("resource:///components/calItemBase.js");
 

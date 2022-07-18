@@ -38,7 +38,6 @@ var { MailServices } = ChromeUtils.import(
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -5159,7 +5158,9 @@ function setComposeLabelsAndMenuItems() {
   document.l10n.setAttributes(
     document.getElementById("menu_showToField"),
     "show-to-row-main-menuitem",
-    { key: SHOW_TO_KEY }
+    {
+      key: SHOW_TO_KEY,
+    }
   );
   document.l10n.setAttributes(
     document.getElementById("addr_toShowAddressRowMenuItem"),
@@ -5168,14 +5169,18 @@ function setComposeLabelsAndMenuItems() {
   document.l10n.setAttributes(
     document.getElementById("addr_toShowAddressRowButton"),
     "show-to-row-button",
-    { key: SHOW_TO_KEY }
+    {
+      key: SHOW_TO_KEY,
+    }
   );
 
   // Cc field.
   document.l10n.setAttributes(
     document.getElementById("menu_showCcField"),
     "show-cc-row-main-menuitem",
-    { key: SHOW_CC_KEY }
+    {
+      key: SHOW_CC_KEY,
+    }
   );
   document.l10n.setAttributes(
     document.getElementById("addr_ccShowAddressRowMenuItem"),
@@ -5184,14 +5189,18 @@ function setComposeLabelsAndMenuItems() {
   document.l10n.setAttributes(
     document.getElementById("addr_ccShowAddressRowButton"),
     "show-cc-row-button",
-    { key: SHOW_CC_KEY }
+    {
+      key: SHOW_CC_KEY,
+    }
   );
 
   // Bcc field.
   document.l10n.setAttributes(
     document.getElementById("menu_showBccField"),
     "show-bcc-row-main-menuitem",
-    { key: SHOW_BCC_KEY }
+    {
+      key: SHOW_BCC_KEY,
+    }
   );
   document.l10n.setAttributes(
     document.getElementById("addr_bccShowAddressRowMenuItem"),
@@ -5200,7 +5209,9 @@ function setComposeLabelsAndMenuItems() {
   document.l10n.setAttributes(
     document.getElementById("addr_bccShowAddressRowButton"),
     "show-bcc-row-button",
-    { key: SHOW_BCC_KEY }
+    {
+      key: SHOW_BCC_KEY,
+    }
   );
 }
 
@@ -6260,7 +6271,9 @@ function checkPublicRecipientsLimit() {
     document.l10n.setAttributes(
       notification.messageText,
       "many-public-recipients-notice",
-      { count: publicAddressPillsCount }
+      {
+        count: publicAddressPillsCount,
+      }
     );
     return;
   }
@@ -6332,7 +6345,9 @@ function checkPublicRecipientsLimit() {
   document.l10n.setAttributes(
     notification.messageText,
     "many-public-recipients-notice",
-    { count: publicAddressPillsCount }
+    {
+      count: publicAddressPillsCount,
+    }
   );
 }
 
@@ -7908,7 +7923,9 @@ function updateAttachmentPane(aShowPane) {
   document.l10n.setAttributes(
     document.getElementById("attachmentBucketCount"),
     "attachment-bucket-count-value",
-    { count }
+    {
+      count,
+    }
   );
 
   let attachmentsSize = 0;
@@ -9692,13 +9709,17 @@ var envelopeDragObserver = {
         document.l10n.setAttributes(
           document.getElementById("addAsAttachmentLabel"),
           "drop-file-label-attachment",
-          { count: attachments.length || 1 }
+          {
+            count: attachments.length || 1,
+          }
         );
 
         document.l10n.setAttributes(
           document.getElementById("addInlineLabel"),
           "drop-file-label-inline",
-          { count: attachments.length || 1 }
+          {
+            count: attachments.length || 1,
+          }
         );
 
         // Show the #addInline box only if the user is dragging text that we

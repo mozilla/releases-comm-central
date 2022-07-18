@@ -9,8 +9,6 @@
 
 const EXPORTED_SYMBOLS = ["GlodaDatastore"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 const {
   GlodaAttributeDBDef,
   GlodaConversation,

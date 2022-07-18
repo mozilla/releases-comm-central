@@ -12,7 +12,6 @@
 var { AddrBookCard } = ChromeUtils.import(
   "resource:///modules/AddrBookCard.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { SQLiteDirectory } = ChromeUtils.import(
   "resource:///modules/SQLiteDirectory.jsm"
 );

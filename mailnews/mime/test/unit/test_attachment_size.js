@@ -90,7 +90,9 @@ const YENC_SIZE = 174;
 
 const PART_HTML = new SyntheticPartLeaf(
   "<html><head></head><body>I am HTML! Woo! </body></html>",
-  { contentType: "text/html" }
+  {
+    contentType: "text/html",
+  }
 );
 
 var attachedMessage1 = msgGen.makeMessage({ body: { body: TEXT_ATTACHMENT } });

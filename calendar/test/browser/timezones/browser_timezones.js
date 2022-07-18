@@ -15,7 +15,6 @@ var { CalendarTestUtils } = ChromeUtils.import(
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var DATES = [
   [2009, 1, 1],

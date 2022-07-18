@@ -6,7 +6,6 @@
 // implementing the commands field before we register them.
 const EXPORTED_SYMBOLS = ["commands"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -318,7 +317,10 @@ var commands = [
                       roomInfo.participantCount +
                       ") " +
                       roomInfo.topic,
-                    { incoming: true, noLog: true }
+                    {
+                      incoming: true,
+                      noLog: true,
+                    }
                   );
                 } while (pendingChats.length);
               })();

@@ -16,7 +16,6 @@ var { AppConstants } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 async function subtest(cardConstructor) {
   let dirPrefId = MailServices.ab.newAddressBook(

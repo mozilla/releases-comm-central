@@ -5,8 +5,6 @@
 /* import-globals-from am-prefs.js */
 /* import-globals-from ../../content/retention.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gIncomingServer;
 var gServerType;
 var gImapIncomingServer;

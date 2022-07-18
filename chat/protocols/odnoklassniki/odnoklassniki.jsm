@@ -7,7 +7,6 @@ var EXPORTED_SYMBOLS = ["OdnoklassnikiProtocol"];
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );

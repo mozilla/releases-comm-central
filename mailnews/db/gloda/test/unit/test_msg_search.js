@@ -41,7 +41,6 @@ var { MessageGenerator } = ChromeUtils.import(
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var uniqueCounter = 0;
 var messageInjection;

@@ -6,8 +6,6 @@ var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var UTF8STRING = " 💣 💥  ☣  ";
 
 add_task(async function testUTF8() {

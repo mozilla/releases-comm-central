@@ -10,7 +10,6 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 var { ClassInfo, XPCOMUtils, executeSoon, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

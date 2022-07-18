@@ -5,7 +5,6 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
 ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
 const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");

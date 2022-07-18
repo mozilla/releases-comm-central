@@ -15,7 +15,6 @@ const { GlodaAccount } = ChromeUtils.import(
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

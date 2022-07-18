@@ -5,7 +5,6 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

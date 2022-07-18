@@ -9,8 +9,6 @@
 
 const EXPORTED_SYMBOLS = ["ExtensionSupport"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var extensionHooks = new Map();
 var openWindowList;
 

@@ -5,7 +5,6 @@
 var { registerTestProtocol, unregisterTestProtocol } = ChromeUtils.import(
   "resource://testing-common/TestProtocol.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 
 async function openChatTab() {

@@ -63,7 +63,10 @@ async function startDrag(index) {
     null,
     win,
     win,
-    { clientY, _domDispatchOnly: true }
+    {
+      clientY,
+      _domDispatchOnly: true,
+    }
   );
 
   await new Promise(resolve => setTimeout(resolve, WAIT_TIME));

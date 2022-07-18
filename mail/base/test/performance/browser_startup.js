@@ -34,7 +34,6 @@ const startupPhases = {
         "resource://gre/modules/AppConstants.jsm",
         "resource://gre/modules/CustomElementsListener.jsm",
         "resource://gre/modules/MainProcessSingleton.jsm",
-        "resource://gre/modules/Services.jsm",
         "resource://gre/modules/XPCOMUtils.jsm",
       ]),
     },

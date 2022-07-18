@@ -6,7 +6,6 @@
    calendarViewController, currentView, startBatchTransaction, doTransaction,
    endBatchTransaction */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /* exported cutToClipboard, pasteFromClipboard */

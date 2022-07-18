@@ -7,7 +7,6 @@ var EXPORTED_SYMBOLS = ["PluralStringFormatter", "makeFriendlyDateAgo"];
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function PluralStringFormatter(aBundleURI) {
   this._bundle = Services.strings.createBundle(aBundleURI);

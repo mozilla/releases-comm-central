@@ -6,8 +6,6 @@
 
 const EXPORTED_SYMBOLS = ["LinkHandlerParent"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 class LinkHandlerParent extends JSWindowActorParent {
   receiveMessage(msg) {
     let browser = this.browsingContext.top.embedderElement;

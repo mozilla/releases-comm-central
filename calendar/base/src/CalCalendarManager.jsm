@@ -7,7 +7,6 @@
 var EXPORTED_SYMBOLS = ["CalCalendarManager"];
 
 const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { calCachedCalendar } = ChromeUtils.import("resource:///components/calCachedCalendar.js");

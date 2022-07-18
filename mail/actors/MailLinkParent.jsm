@@ -11,7 +11,6 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 class MailLinkParent extends JSWindowActorParent {
   receiveMessage(value) {

@@ -16,7 +16,6 @@
   gFolderTreeView initUiDensityAppMenu gSpacesToolbar
    */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { CustomizableUI } = ChromeUtils.import(
   "resource:///modules/CustomizableUI.jsm"
 );

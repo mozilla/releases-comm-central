@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["ImapModuleLoader"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Determine whether to use nsImapService.cpp or ImapService.jsm. When
  * `mailnews.imap.jsmodule` is `true`, use ImapService.jsm.

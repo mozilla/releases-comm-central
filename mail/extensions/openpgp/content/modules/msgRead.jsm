@@ -12,7 +12,6 @@ var EXPORTED_SYMBOLS = ["EnigmailMsgRead"];
  * Message-reading related functions
  */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

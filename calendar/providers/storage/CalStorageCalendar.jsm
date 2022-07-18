@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["CalStorageCalendar"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { CalReadableStreamFactory } = ChromeUtils.import(
   "resource:///modules/CalReadableStreamFactory.jsm"

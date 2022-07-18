@@ -5,8 +5,6 @@
  * This is adapted from test_messageHeaders.js
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var CompFields = CC(
   "@mozilla.org/messengercompose/composefields;1",
   Ci.nsIMsgCompFields

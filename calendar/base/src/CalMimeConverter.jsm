@@ -4,7 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["CalMimeConverter"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 function CalMimeConverter() {

@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["OTRUI"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 const { XPCOMUtils } = ChromeUtils.import(

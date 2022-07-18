@@ -9,8 +9,6 @@
 
 const EXPORTED_SYMBOLS = ["GlodaSyntheticView"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Create a synthetic view suitable for passing to |FolderDisplayWidget.show|.
  * You must pass a query, collection, or conversation in.

@@ -8,7 +8,6 @@
 
 "use strict";
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"

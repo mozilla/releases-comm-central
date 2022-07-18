@@ -22,7 +22,6 @@ var { MailServices } = ChromeUtils.import(
 var { PluralStringFormatter, makeFriendlyDateAgo } = ChromeUtils.import(
   "resource:///modules/TemplateUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   MessageArchiver: "resource:///modules/MessageArchiver.jsm",

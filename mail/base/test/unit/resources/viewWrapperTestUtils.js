@@ -8,7 +8,6 @@ var { DBViewWrapper, IDBViewWrapperListener } = ChromeUtils.import(
 var { MailViewManager, MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );

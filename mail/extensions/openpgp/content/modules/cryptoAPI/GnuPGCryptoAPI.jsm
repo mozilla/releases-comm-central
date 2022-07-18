@@ -8,8 +8,6 @@
 
 var EXPORTED_SYMBOLS = ["getGnuPGAPI"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 Services.scriptloader.loadSubScript(
   "chrome://openpgp/content/modules/cryptoAPI/interface.js",
   null,

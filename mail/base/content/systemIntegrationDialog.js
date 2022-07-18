@@ -5,7 +5,6 @@
 
 // This dialog can only be opened if we have a shell service.
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { SearchIntegration } = ChromeUtils.import(
   "resource:///modules/SearchIntegration.jsm"
 );

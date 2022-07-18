@@ -5,7 +5,6 @@
 /* import-globals-from retention.js */
 /* global BigInt */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 
 var gFolderTreeView;

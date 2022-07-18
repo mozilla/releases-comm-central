@@ -463,7 +463,11 @@ async function subtest_message_panes(...permissions) {
     permissions.includes("messagesRead"),
     messagePane,
     /^mailbox\:/,
-    { active: true, index: 0, mailTab: true }
+    {
+      active: true,
+      index: 0,
+      mailTab: true,
+    }
   );
 
   window.gFolderDisplay.tree.view.selection.clearSelection();
@@ -478,7 +482,11 @@ async function subtest_message_panes(...permissions) {
     permissions.includes("messagesRead"),
     messagePane,
     /^mailbox\:/,
-    { active: true, index: 1, mailTab: false }
+    {
+      active: true,
+      index: 1,
+      mailTab: false,
+    }
   );
 
   window.gFolderDisplay.tree.view.selection.clearSelection();
@@ -505,7 +513,11 @@ async function subtest_message_panes(...permissions) {
     permissions.includes("messagesRead"),
     messagePane,
     /^mailbox\:/,
-    { active: true, index: 0, mailTab: false }
+    {
+      active: true,
+      index: 0,
+      mailTab: false,
+    }
   );
 
   await extension.unload();
@@ -842,7 +854,11 @@ add_task(async function test_content() {
     true,
     messagePane,
     `${URL_BASE}/content.html`,
-    { active: true, index: 0, mailTab: true }
+    {
+      active: true,
+      index: 0,
+      mailTab: true,
+    }
   );
 
   await extension.unload();
@@ -864,7 +880,11 @@ add_task(async function test_content_tab() {
     true,
     tab.browser,
     `${URL_BASE}/content.html`,
-    { active: true, index: 1, mailTab: false }
+    {
+      active: true,
+      index: 1,
+      mailTab: false,
+    }
   );
 
   await extension.unload();
@@ -905,7 +925,11 @@ add_task(async function test_content_window() {
     true,
     extensionWindow.browser,
     `${URL_BASE}/content.html`,
-    { active: true, index: 0, mailTab: false }
+    {
+      active: true,
+      index: 0,
+      mailTab: false,
+    }
   );
 
   await extension.unload();
@@ -956,7 +980,11 @@ async function subtest_compose(...permissions) {
     permissions.includes("compose"),
     messagePane,
     "about:blank?compose",
-    { active: true, index: 0, mailTab: false }
+    {
+      active: true,
+      index: 0,
+      mailTab: false,
+    }
   );
 
   const chromeElementsMap = {

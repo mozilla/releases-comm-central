@@ -8,10 +8,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import(
-    "resource://gre/modules/Services.jsm"
-  );
-
   /**
    * The MozMapList widget behaves as a popup menu showing available map options
    * for an address. It is a part of the card view in the addressbook.

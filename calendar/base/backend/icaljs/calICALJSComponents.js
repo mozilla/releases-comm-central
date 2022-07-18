@@ -10,7 +10,6 @@
 /* import-globals-from calRecurrenceRule.js */
 
 var { ComponentUtils } = ChromeUtils.import("resource://gre/modules/ComponentUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * @param {string} cid - Class ID as string.

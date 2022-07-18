@@ -244,7 +244,10 @@ function conversationErrorMessage(
   conv.writeMessage(
     aMessage.origin,
     lazy._(aError, aMessage.params[1], aMessage.params[2] || undefined),
-    { error: true, system: true }
+    {
+      error: true,
+      system: true,
+    }
   );
   delete conv._pendingMessage;
 

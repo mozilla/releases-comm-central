@@ -13,8 +13,6 @@
   When all searches are finished, close the dialog.
 */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var CertAttribute = "usercertificate;binary";
 
 var gEmailAddresses;

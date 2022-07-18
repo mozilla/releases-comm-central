@@ -10,8 +10,6 @@
 
 "use strict";
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 add_task(function test_main_menu_not_collapsed() {
   let mainMenu = document.getElementById("toolbar-menubar");
   Assert.ok(

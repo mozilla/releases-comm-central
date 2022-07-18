@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["CalBackendLoader"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 function CalBackendLoader() {
   try {
     this.loadBackend();

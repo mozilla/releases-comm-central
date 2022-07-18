@@ -12,7 +12,6 @@
 
 const EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );

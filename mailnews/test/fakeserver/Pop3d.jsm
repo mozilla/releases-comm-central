@@ -13,7 +13,6 @@ var EXPORTED_SYMBOLS = [
   "POP3_RFC5034_handler",
 ];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );

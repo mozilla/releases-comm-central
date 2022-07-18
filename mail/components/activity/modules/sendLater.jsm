@@ -21,8 +21,6 @@ var nsActWarning = Components.Constructor(
   "init"
 );
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * This really, really, sucks. Due to mailnews widespread use of
  * nsIMsgStatusFeedback we're bound to the UI to get any sensible feedback of

@@ -8,7 +8,6 @@
 // A tweak to the standard <button> CE to use textContent on the <label>
 // inside the button, which allows the text to be highlighted when the user
 // is searching.
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const MozButton = customElements.get("button");
 class HighlightableButton extends MozButton {

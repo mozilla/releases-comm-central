@@ -7,7 +7,6 @@
 // mail/base/content/specialTabs.js
 /* globals specialTabs */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
 /**

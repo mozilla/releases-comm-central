@@ -7,7 +7,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 

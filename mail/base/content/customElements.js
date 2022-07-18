@@ -7,8 +7,6 @@
 // This is loaded into chrome windows with the subscript loader. Wrap in
 // a block to prevent accidentally leaking globals onto `window`.
 (() => {
-  var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
   // If toolkit customElements weren't already loaded, do it now.
   if (!window.MozXULElement) {
     Services.scriptloader.loadSubScript(

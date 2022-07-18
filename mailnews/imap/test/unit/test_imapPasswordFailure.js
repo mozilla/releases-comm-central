@@ -9,8 +9,6 @@
  *     we get a new password prompt and can enter the password.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/alertTestUtils.js");

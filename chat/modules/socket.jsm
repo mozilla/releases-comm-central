@@ -71,7 +71,6 @@
 
 const EXPORTED_SYMBOLS = ["Socket"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { executeSoon } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );

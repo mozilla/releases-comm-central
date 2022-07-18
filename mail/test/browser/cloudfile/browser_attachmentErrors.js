@@ -45,7 +45,6 @@ var { cloudFileAccounts } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kHtmlPrefKey = "mail.identity.default.compose_html";
 var kDefaultSigKey = "mail.identity.id1.htmlSigText";

@@ -9,7 +9,6 @@
 var { CardDAVDirectory } = ChromeUtils.import(
   "resource:///modules/CardDAVDirectory.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",

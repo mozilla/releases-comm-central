@@ -47,7 +47,6 @@ var { resize_to } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -815,7 +814,9 @@ add_task(async function test_show_all_header_mode() {
   async function toggle_header_mode(show) {
     mc.click_through_appmenu(
       [{ id: "appmenu_View" }, { id: "appmenu_viewHeadersMenu" }],
-      { id: show ? "appmenu_viewallheaders" : "appmenu_viewnormalheaders" }
+      {
+        id: show ? "appmenu_viewallheaders" : "appmenu_viewnormalheaders",
+      }
     );
 
     await BrowserTestUtils.waitForCondition(

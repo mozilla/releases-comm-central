@@ -5,7 +5,6 @@
 const EXPORTED_SYMBOLS = ["mailTestUtils"];
 
 var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

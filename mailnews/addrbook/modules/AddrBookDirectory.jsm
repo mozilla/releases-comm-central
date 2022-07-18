@@ -7,7 +7,6 @@ const EXPORTED_SYMBOLS = ["AddrBookDirectory"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",

@@ -8,8 +8,6 @@
 // toolkit/mozapps/preferences/fontbuilder.js
 /* globals FontBuilder */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var kDefaultFontType = "font.default.%LANG%";
 var kFontNameFmtSerif = "font.name.serif.%LANG%";
 var kFontNameFmtSansSerif = "font.name.sans-serif.%LANG%";

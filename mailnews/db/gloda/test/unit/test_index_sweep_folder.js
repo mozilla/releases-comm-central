@@ -35,7 +35,6 @@ var { GlodaIndexer } = ChromeUtils.import(
 var { GlodaMsgIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/IndexMsg.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"

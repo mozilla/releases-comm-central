@@ -21,7 +21,6 @@ var {
 );
 
 // Get original preference value
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var prefName = "mail.advance_on_spacebar";
 var prefValue = Services.prefs.getBoolPref(prefName);
 

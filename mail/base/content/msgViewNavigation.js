@@ -10,8 +10,6 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 ChromeUtils.defineModuleGetter(
   this,
   "FolderUtils",

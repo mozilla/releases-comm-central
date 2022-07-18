@@ -7,8 +7,6 @@
 /* import-globals-from ../calendar-ui-utils.js */
 /* globals Preferences */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 Preferences.addAll([
   { id: "calendar.alarms.playsound", type: "bool" },
   { id: "calendar.alarms.soundURL", type: "string" },

@@ -16,7 +16,6 @@ var kCurrentColor = "";
 var kDefaultColor = "#363959";
 var gNeedToRestoreFolderSelection = false;
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );

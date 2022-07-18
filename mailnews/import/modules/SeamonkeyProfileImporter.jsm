@@ -7,7 +7,6 @@ const EXPORTED_SYMBOLS = ["SeamonkeyProfileImporter"];
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ThunderbirdProfileImporter } = ChromeUtils.import(
   "resource:///modules/ThunderbirdProfileImporter.jsm"
 );

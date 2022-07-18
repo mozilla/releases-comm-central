@@ -2,7 +2,6 @@
 /*
  * Test suite for getting mailbox urls via the protocol handler.
  */
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_NORELATIVE |

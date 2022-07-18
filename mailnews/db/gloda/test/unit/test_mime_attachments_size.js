@@ -110,7 +110,11 @@ var yencText =
 
 var partUUText = new SyntheticPartLeaf(
   "I am text! With uuencode... noes...\n\n" + uuText,
-  { contentType: "", charset: "", format: "" }
+  {
+    contentType: "",
+    charset: "",
+    format: "",
+  }
 );
 
 var tachText = {

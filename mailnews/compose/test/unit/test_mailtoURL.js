@@ -1,7 +1,6 @@
 /*
  * Test suite for mailto: URLs
  */
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var COMPOSE_HTML = Ci.nsIMsgCompFormat.HTML;
 var COMPOSE_DEFAULT = Ci.nsIMsgCompFormat.Default;

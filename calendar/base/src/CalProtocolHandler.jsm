@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["CalProtocolHandlerWebcal", "CalProtocolHandlerWebcals"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Generic webcal constructor
  *

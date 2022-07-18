@@ -49,7 +49,6 @@ var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { SessionStoreManager } = ChromeUtils.import(
   "resource:///modules/SessionStoreManager.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folderA, folderB;
 

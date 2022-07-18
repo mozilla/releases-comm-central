@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 

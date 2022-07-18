@@ -16,8 +16,6 @@
  * Original Author: Atul Jangra<atuljangra66@gmail.com>
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );

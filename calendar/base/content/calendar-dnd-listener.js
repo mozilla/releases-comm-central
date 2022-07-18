@@ -18,7 +18,6 @@ var calendarTaskButtonDNDObserver;
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-  var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
   var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
   var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");

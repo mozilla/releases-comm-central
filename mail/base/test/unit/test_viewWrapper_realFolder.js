@@ -12,7 +12,6 @@
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils({ mode: "local" });
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );

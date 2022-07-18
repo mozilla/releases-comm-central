@@ -16,7 +16,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { countOccurrences } = ChromeUtils.import(
   "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {

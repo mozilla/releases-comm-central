@@ -16,7 +16,6 @@ var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.j
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 let calendarObserver = {
   QueryInterface: ChromeUtils.generateQI(["calIObserver"]),

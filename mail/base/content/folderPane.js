@@ -17,7 +17,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
@@ -3707,7 +3706,11 @@ var gFolderTreeController = {
       "chrome://messenger/content/virtualFolderProperties.xhtml",
       "",
       "chrome,modal,centerscreen",
-      { folder, searchTerms: aSearchTerms, newFolderName: name }
+      {
+        folder,
+        searchTerms: aSearchTerms,
+        newFolderName: name,
+      }
     );
   },
 

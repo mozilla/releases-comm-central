@@ -8,7 +8,6 @@
 /* globals gMessageDisplay, msgWindow */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Provides shortcuts to set label and collapsed attribute of imip-bar node.

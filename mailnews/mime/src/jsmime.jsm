@@ -3,8 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 // vim:set ts=2 sw=2 sts=2 et ft=javascript:
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * This file exports the JSMime code, polyfilling code as appropriate for use in
  * Gecko.

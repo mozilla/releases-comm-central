@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"

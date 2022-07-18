@@ -12,8 +12,6 @@
  * We do use the rest of the test infrastructure though.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 // -- Do configure the gloda prefs though...
 // Yes to indexing.
 Services.prefs.setBoolPref("mailnews.database.global.indexer.enabled", true);

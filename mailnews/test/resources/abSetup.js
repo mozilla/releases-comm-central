@@ -11,8 +11,6 @@
  * Note there are further configuration setup items below this.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * General Configuration Data that applies to the address book.
  */

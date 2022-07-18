@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["AbLDAPAttributeMap", "AbLDAPAttributeMapService"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 function AbLDAPAttributeMap() {
   this.mPropertyMap = {};
   this.mAttrMap = {};

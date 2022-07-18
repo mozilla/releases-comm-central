@@ -194,7 +194,9 @@ add_task(async function testMessagePane() {
     treeChildren,
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
-    { type: "contextmenu" }
+    {
+      type: "contextmenu",
+    }
   );
   checkMenuitems(mailContext);
 
@@ -241,7 +243,9 @@ add_task(async function testMessagePane() {
     treeChildren,
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
-    { type: "contextmenu" }
+    {
+      type: "contextmenu",
+    }
   );
   await shownPromise;
   let treeItems = [
@@ -280,7 +284,9 @@ add_task(async function testMessagePane() {
     treeChildren,
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
-    { type: "contextmenu" }
+    {
+      type: "contextmenu",
+    }
   );
   checkMenuitems(
     mailContext,

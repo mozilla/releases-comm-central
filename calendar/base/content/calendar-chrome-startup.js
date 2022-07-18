@@ -15,7 +15,6 @@
    refreshEventTree, gCurrentMode, InitMessageMenu, onViewToolbarsPopupShowing,
    onCommandCustomize, CustomizeMailToolbar */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

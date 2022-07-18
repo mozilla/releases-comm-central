@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["CalDavProvider"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 

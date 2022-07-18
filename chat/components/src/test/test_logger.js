@@ -4,7 +4,6 @@
 
 do_get_profile();
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 
 var gLogger = {};

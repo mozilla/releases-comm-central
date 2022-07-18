@@ -11,8 +11,6 @@
  * Forked from M-C since we don't provide a global gBrowser variable.
  **/
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var ZoomManager = {
   get MIN() {
     delete this.MIN;

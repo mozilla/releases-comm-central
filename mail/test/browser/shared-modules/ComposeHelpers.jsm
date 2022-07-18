@@ -57,8 +57,6 @@ var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var kTextNodeType = 3;
 
 var mc = folderDisplayHelper.mc;

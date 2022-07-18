@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["CalStartupService"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Helper function to asynchronously call a certain method on the objects passed
  * in 'services' in order (i.e wait until the first completes before calling the

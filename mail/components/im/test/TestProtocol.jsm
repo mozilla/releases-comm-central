@@ -18,7 +18,6 @@ var {
   GenericMessagePrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );

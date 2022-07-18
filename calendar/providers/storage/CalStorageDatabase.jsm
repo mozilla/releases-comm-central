@@ -5,7 +5,6 @@
 const EXPORTED_SYMBOLS = ["CalStorageDatabase"];
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * CalStorageDatabase is a mozIStorageAsyncConnection wrapper used by the

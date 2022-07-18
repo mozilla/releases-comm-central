@@ -10,7 +10,6 @@ const { E10SUtils } = ChromeUtils.import(
 const { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var MailE10SUtils = {
   /**

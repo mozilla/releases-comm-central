@@ -39,7 +39,6 @@ var { MailServices } = ChromeUtils.import(
 var { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",

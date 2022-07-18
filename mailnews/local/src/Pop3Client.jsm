@@ -9,7 +9,6 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
 var { Pop3Authenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"

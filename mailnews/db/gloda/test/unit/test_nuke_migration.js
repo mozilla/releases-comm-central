@@ -12,8 +12,6 @@
  * the nuke path! oh the irony!) so we don't need to get all hardcore.
  **/
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * The DB version to use.  We set this as a non-const variable so that
  * test_nuke_migration_from_future.js can change it.

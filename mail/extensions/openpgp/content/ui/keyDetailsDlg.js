@@ -10,7 +10,6 @@
 
 "use strict";
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
@@ -356,7 +355,9 @@ async function reloadData(firstLoad) {
     document.l10n.setAttributes(
       acceptanceVerification,
       acceptanceVerificationText,
-      { addr: EnigmailFuncs.getEmailFromUserID(gUserId).toLowerCase() }
+      {
+        addr: EnigmailFuncs.getEmailFromUserID(gUserId).toLowerCase(),
+      }
     );
   }
 

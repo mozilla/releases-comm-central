@@ -11,7 +11,6 @@ var wh = ChromeUtils.import(
 );
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var USE_SHEET_PREF = "toolbar.customization.usesheet";
 

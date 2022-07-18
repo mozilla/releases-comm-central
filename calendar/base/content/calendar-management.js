@@ -11,7 +11,6 @@
  */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Temporary bundle for 78 to get the "Enable" string from the addons.properties file.
 var bundle;

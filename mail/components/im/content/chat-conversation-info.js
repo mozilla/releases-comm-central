@@ -8,9 +8,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Services } = ChromeUtils.import(
-    "resource://gre/modules/Services.jsm"
-  );
   const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
   ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");

@@ -3,7 +3,6 @@
  * Most of this test was copied from test_messageHeaders.js.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var CompFields = CC(

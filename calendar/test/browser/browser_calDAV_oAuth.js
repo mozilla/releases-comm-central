@@ -7,7 +7,6 @@
 
 var { CalDavCalendar } = ChromeUtils.import("resource:///modules/CalDavCalendar.jsm");
 var { CalDavGenericRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",

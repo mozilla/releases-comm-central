@@ -20,7 +20,9 @@ var otrAddFinger = {
     document.l10n.setAttributes(
       document.getElementById("otrDescription"),
       "otr-add-finger-description",
-      { name: args.screenname }
+      {
+        name: args.screenname,
+      }
     );
 
     document.addEventListener("dialogaccept", event => {

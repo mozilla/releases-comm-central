@@ -18,8 +18,6 @@ var { drag_n_drop_element } = ChromeUtils.import(
   "resource://testing-common/mozmill/MouseEventHelpers.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gCDHelper;
 
 add_setup(function() {

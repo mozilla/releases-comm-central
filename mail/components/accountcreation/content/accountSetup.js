@@ -139,7 +139,9 @@ function confirmExchange(domain, okCallback, cancelCallback) {
   document.l10n.setAttributes(
     document.getElementById("exchangeDialogQuestion"),
     "exchange-dialog-question",
-    { domain }
+    {
+      domain,
+    }
   );
 
   document.getElementById("exchangeDialogConfirmButton").onclick = () => {
@@ -1146,7 +1148,9 @@ var gAccountSetup = {
     document.l10n.setAttributes(
       document.getElementById("resultAreaTitle"),
       "account-setup-results-area-title",
-      { count: protocols.length }
+      {
+        count: protocols.length,
+      }
     );
 
     // Ensure by default the "Done" button is enabled.

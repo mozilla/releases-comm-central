@@ -4,7 +4,6 @@
 
 /* import-globals-from ../calendar-views-utils.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalReadableStreamFactory } = ChromeUtils.import(

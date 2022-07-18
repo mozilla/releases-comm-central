@@ -4,7 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["CoreService"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ClassInfo, initLogModule } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"

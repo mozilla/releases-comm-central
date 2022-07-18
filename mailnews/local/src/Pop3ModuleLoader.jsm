@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["Pop3ModuleLoader"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Determine whether to use nsPop3Service.cpp or Pop3Service.jsm. When
  * `mailnews.pop3.jsmodule` is `true`, use Pop3Service.jsm.

@@ -11,7 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 const { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 const { MailServices } = ChromeUtils.import(

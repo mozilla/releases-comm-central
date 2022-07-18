@@ -7,7 +7,6 @@
  * MsgHdrToMimeMessage API that exposes this.
  */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 1000);
 
 var { PromiseTestUtils } = ChromeUtils.import(

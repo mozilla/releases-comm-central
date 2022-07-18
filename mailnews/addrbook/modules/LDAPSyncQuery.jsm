@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["LDAPSyncQuery"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * @implements {nsILDAPMessageListener}
  * @implements {nsILDAPSyncQuery}

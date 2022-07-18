@@ -13,7 +13,6 @@ var DNS = null;
 
 if (typeof Components !== "undefined") {
   var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-  var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   var { BasePromiseWorker } = ChromeUtils.import(
     "resource://gre/modules/PromiseWorker.jsm"
   );

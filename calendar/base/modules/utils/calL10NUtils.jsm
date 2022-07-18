@@ -11,8 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["call10n"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /**
  * Gets the value of a string in a .properties file.
  *

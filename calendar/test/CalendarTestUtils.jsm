@@ -14,7 +14,6 @@ const { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 async function clickAndWait(win, button) {

@@ -6,7 +6,6 @@
 
 "use strict";
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 );
