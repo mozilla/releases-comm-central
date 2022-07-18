@@ -1645,22 +1645,6 @@ var gAccountSetup = {
       this.adjustIncomingPortToSSLAndProtocol(config);
     }
 
-    // If the incoming server hostname supports OAuth2, enable it.
-    let iDetails = OAuth2Providers.getHostnameDetails(config.incoming.hostname);
-    document.getElementById("in-authMethod-oauth2").hidden = !iDetails;
-    if (iDetails) {
-      gAccountSetupLogger.debug(
-        `OAuth2 details for incoming server ${config.incoming.hostname} is ${iDetails}`
-      );
-      config.incoming.oauthSettings = {};
-      [
-        config.incoming.oauthSettings.issuer,
-        config.incoming.oauthSettings.scope,
-      ] = iDetails;
-      this._currentConfig.incoming.oauthSettings =
-        config.incoming.oauthSettings;
-    }
-
     // Outgoing server.
 
     document.getElementById("outgoingHostname").value =
@@ -1687,6 +1671,32 @@ var gAccountSetup = {
       document.getElementById("outgoingPort").value = config.outgoing.port;
     } else {
       this.adjustOutgoingPortToSSLAndProtocol(config);
+    }
+
+    this.adjustOAuth2Visibility(config);
+  },
+
+  /**
+   * Make OAuth2 visible as an authentication method when a hostname that
+   * OAuth2 can be used with is entered.
+   *
+   * @param {AccountConfig} config - The account configuration.
+   */
+  async adjustOAuth2Visibility(config) {
+    // If the incoming server hostname supports OAuth2, enable it.
+    let iDetails = OAuth2Providers.getHostnameDetails(config.incoming.hostname);
+    document.getElementById("in-authMethod-oauth2").hidden = !iDetails;
+    if (iDetails) {
+      gAccountSetupLogger.debug(
+        `OAuth2 details for incoming server ${config.incoming.hostname} is ${iDetails}`
+      );
+      config.incoming.oauthSettings = {};
+      [
+        config.incoming.oauthSettings.issuer,
+        config.incoming.oauthSettings.scope,
+      ] = iDetails;
+      this._currentConfig.incoming.oauthSettings =
+        config.incoming.oauthSettings;
     }
 
     // If the smtp hostname supports OAuth2, enable it.
@@ -1894,6 +1904,7 @@ var gAccountSetup = {
   },
 
   onChangeHostname() {
+    this.adjustOAuth2Visibility(this.getUserConfig());
     this.onChangedManualEdit();
   },
 
