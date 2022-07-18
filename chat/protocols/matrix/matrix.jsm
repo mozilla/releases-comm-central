@@ -12,7 +12,10 @@ var EXPORTED_SYMBOLS = [
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-var { XPCOMUtils, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");

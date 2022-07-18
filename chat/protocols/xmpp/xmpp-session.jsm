@@ -5,9 +5,10 @@
 const EXPORTED_SYMBOLS = ["XMPPSession"];
 
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
-var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { Socket } = ChromeUtils.import("resource:///modules/socket.jsm");
 var { Stanza, XMPPParser } = ChromeUtils.import(
   "resource:///modules/xmpp-xml.jsm"

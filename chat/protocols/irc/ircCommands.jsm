@@ -6,7 +6,10 @@
 // implementing the commands field before we register them.
 const EXPORTED_SYMBOLS = ["commands"];
 
-const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 const lazy = {};

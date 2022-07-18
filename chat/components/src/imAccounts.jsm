@@ -7,7 +7,10 @@ var EXPORTED_SYMBOLS = ["AccountsService"];
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-var { ClassInfo, XPCOMUtils, executeSoon, l10nHelper } = ChromeUtils.import(
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { ClassInfo, executeSoon, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 const { MailServices } = ChromeUtils.import(

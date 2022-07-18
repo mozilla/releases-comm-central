@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");

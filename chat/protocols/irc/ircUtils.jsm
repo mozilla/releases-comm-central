@@ -10,7 +10,10 @@ const EXPORTED_SYMBOLS = [
   "kListRefreshInterval",
 ];
 
-const { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 const lazy = {};

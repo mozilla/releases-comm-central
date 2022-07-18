@@ -14,8 +14,10 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 );
 const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 const {
-  XPCOMUtils,
   executeSoon,
   nsSimpleEnumerator,
   EmptyEnumerator,

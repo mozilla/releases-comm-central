@@ -5,9 +5,10 @@
 var EXPORTED_SYMBOLS = ["ConversationsService", "imMessage", "UIConversation"];
 
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-var { XPCOMUtils, ClassInfo } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+var { ClassInfo } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { Message } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var gLastUIConvId = 0;

@@ -4,9 +4,10 @@
 
 var EXPORTED_SYMBOLS = ["XMPPProtocol"];
 
-var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );

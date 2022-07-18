@@ -10,11 +10,13 @@ const EXPORTED_SYMBOLS = [
   "ircConversation",
 ];
 
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var {
   ClassInfo,
   executeSoon,
   l10nHelper,
-  XPCOMUtils,
   nsSimpleEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 

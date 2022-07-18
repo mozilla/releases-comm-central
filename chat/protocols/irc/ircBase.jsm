@@ -19,7 +19,10 @@
  */
 const EXPORTED_SYMBOLS = ["ircBase"];
 
-const { XPCOMUtils, l10nHelper, nsSimpleEnumerator } = ChromeUtils.import(
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { l10nHelper, nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 const lazy = {};

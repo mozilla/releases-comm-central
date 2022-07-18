@@ -16,12 +16,12 @@ const EXPORTED_SYMBOLS = [
   "TooltipInfo",
 ];
 
-const {
-  initLogModule,
-  XPCOMUtils,
-  nsSimpleEnumerator,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { initLogModule, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 const { ClassInfo } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"

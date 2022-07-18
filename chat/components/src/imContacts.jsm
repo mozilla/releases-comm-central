@@ -5,7 +5,10 @@
 var EXPORTED_SYMBOLS = ["TagsService", "ContactsService"];
 
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { XPCOMUtils, executeSoon, ClassInfo, l10nHelper } = ChromeUtils.import(
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { executeSoon, ClassInfo, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
