@@ -8,7 +8,7 @@ import os
 from io import StringIO
 from datetime import date
 import re
-from distutils.version import StrictVersion
+from packaging.version import parse
 
 from mozbuild.preprocessor import Preprocessor
 
@@ -23,10 +23,10 @@ def rnp_source_update(rnp_root, version_str, revision, timestamp, bug_report):
     :param float timestamp: UNIX timestamp from revision
     :param string bug_report: where to report bugs for this RNP build
     """
-    version = StrictVersion(version_str)
-    version_major = version.version[0]
-    version_minor = version.version[1]
-    version_patch = version.version[2]
+    version = parse(version_str)
+    version_major = version.major
+    version_minor = version.minor
+    version_patch = version.micro
     date_str = date.fromtimestamp(float(timestamp)).strftime("%Y%m%d")
     revision_short = revision[:8]
     version_full = "{}+git{}.{}.MZLA".format(version_str, date_str, revision_short)

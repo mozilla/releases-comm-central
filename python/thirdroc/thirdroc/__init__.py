@@ -5,7 +5,7 @@
 from __future__ import print_function, absolute_import
 
 import re
-from distutils.version import StrictVersion
+from packaging.version import parse
 
 VTAG_RE = re.compile(r"^v\d+\.\d+\.\d+$")
 
@@ -24,12 +24,12 @@ def tag2version(tag):
 
 def get_latest_version(*versions):
     """
-    Given a list of versions (that must parse with distutils.version.StrictVersion,
+    Given a list of versions (that must parse with packaging.version.parse),
     return the latest/newest version.
     :param list versions:
-    :return StrictVersion:
+    :return Version:
     """
-    version_list = [StrictVersion(tag2version(v)) for v in versions]
+    version_list = [parse(tag2version(v)) for v in versions]
     version_list.sort()
     return version_list[-1]
 
