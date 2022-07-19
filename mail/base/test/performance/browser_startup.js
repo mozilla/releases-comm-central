@@ -105,6 +105,7 @@ const startupPhases = {
         "resource://gre/modules/AsyncPrefs.jsm",
         "resource://gre/modules/LoginManagerContextMenu.jsm",
         "resource://pdf.js/PdfStreamConverter.jsm",
+        "resource:///modules/AddrBookManager.jsm",
       ]),
     },
   },

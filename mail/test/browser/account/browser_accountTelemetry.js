@@ -1,21 +1,21 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-/* global reportAccountTypes, reportAccountSizes */
-
 /**
  * Test telemetry related to account.
  */
 
+let { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+let { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+let { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 let { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-let { TelemetryTestUtils } = ChromeUtils.import(
-  "resource://testing-common/TelemetryTestUtils.jsm"
+let { MailTelemetryForTests } = ChromeUtils.import(
+  "resource:///modules/MailGlue.jsm"
 );
-let { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var {
+
+let {
   add_message_to_folder,
   create_message,
   msgGen,
@@ -24,10 +24,12 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { PromiseTestUtils } = ChromeUtils.import(
+let { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+let { TelemetryTestUtils } = ChromeUtils.import(
+  "resource://testing-common/TelemetryTestUtils.jsm"
+);
 
 // Collect all added accounts to be cleaned up at the end.
 let addedAccounts = [];
@@ -77,7 +79,7 @@ add_task(async function test_account_types() {
     addedAccounts.push(account);
   }
 
-  reportAccountTypes();
+  MailTelemetryForTests.reportAccountTypes();
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
 
   // Check if we count account types correctly.
@@ -136,7 +138,7 @@ add_task(async function test_account_sizes() {
     );
   }
 
-  reportAccountSizes();
+  MailTelemetryForTests.reportAccountSizes();
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
 
   // Check if we count total messages correctly.

@@ -1,12 +1,13 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-/* global reportAddressBookTypes */
-
 /**
  * Test telemetry related to address book.
  */
 
+let { MailTelemetryForTests } = ChromeUtils.import(
+  "resource:///modules/MailGlue.jsm"
+);
 let { TelemetryTestUtils } = ChromeUtils.import(
   "resource://testing-common/TelemetryTestUtils.jsm"
 );
@@ -33,7 +34,7 @@ add_task(async function test_address_book_count() {
   addrBook2.addCard(contact3);
 
   // Run the probe.
-  reportAddressBookTypes();
+  MailTelemetryForTests.reportAddressBookTypes();
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
