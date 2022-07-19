@@ -10,6 +10,9 @@
 {
   const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+  let dayFormatter = new Services.intl.DateTimeFormat(undefined, { day: "numeric" });
+  let dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
+
   /**
    * MiniMonth Calendar: day-of-month grid component.
    * Displays month name and year above grid of days of month by week rows.
@@ -32,7 +35,7 @@
       this.calICompositeObserver = this.getCustomInterfaceCallback(Ci.calICompositeObserver);
 
       let onPreferenceChanged = () => {
-        delete this.dayBoxes; // Days have moved, force a refresh of the grid.
+        this.dayBoxes.clear(); // Days have moved, force a refresh of the grid.
         this.refreshDisplay();
       };
 
@@ -147,7 +150,7 @@
         this.value = new Date();
       });
 
-      this.dayBoxes = null;
+      this.dayBoxes = new Map();
       this.mValue = null;
       this.mEditorDate = null;
       this.mExtraDate = null;
@@ -465,7 +468,7 @@
 
     onCalendarRemoved(aCalendar) {
       if (!aCalendar.getProperty("disabled")) {
-        for (let { box } of this.dayBoxes) {
+        for (let box of this.dayBoxes.values()) {
           this.removeCalendarFromBoxBusy(box, aCalendar);
         }
       }
@@ -583,7 +586,7 @@
       // Get today's date.
       let today = new Date();
 
-      if (!monthChanged && this.dayBoxes) {
+      if (!monthChanged && this.dayBoxes.size > 0) {
         this.mSelected = this.getBoxForDate(this.value);
         if (this.mSelected) {
           this.mSelected.setAttribute("selected", "true");
@@ -633,7 +636,7 @@
         calbox.setAttribute("aria-label", label);
       }
 
-      this.dayBoxes = [];
+      this.dayBoxes.clear();
       let defaultTz = cal.dtz.defaultTimezone;
       for (let k = 1; k < 7; k++) {
         // Set the week number.
@@ -682,9 +685,9 @@
           }
 
           if (aDate.getMonth() == date.getMonth() && aDate.getFullYear() == date.getFullYear()) {
-            day.setAttribute("aria-label", date.toLocaleDateString(undefined, { day: "numeric" }));
+            day.setAttribute("aria-label", dayFormatter.format(date));
           } else {
-            day.setAttribute("aria-label", this.dateFormatter.format(date));
+            day.setAttribute("aria-label", dateFormatter.format(date));
           }
 
           day.removeAttribute("busy");
@@ -693,7 +696,7 @@
           day.textContent = date.getDate();
           date.setDate(date.getDate() + 1);
 
-          this.resetAttributesForDate(day.date);
+          this.resetAttributesForBox(day);
         }
       }
 
@@ -722,10 +725,10 @@
      * @return {HTMLTableCellElement|null}
      */
     getBoxForDate(aDate) {
-      if (!(aDate instanceof Ci.calIDateTime)) {
-        aDate = cal.dtz.jsDateToDateTime(aDate, cal.dtz.floating);
+      if (aDate instanceof Ci.calIDateTime) {
+        aDate = cal.dtz.dateTimeToJsDate(aDate);
       }
-      return this.dayBoxes.find(obj => cal.dtz.sameDay(obj.date, aDate))?.box || null;
+      return this.dayBoxes.get(aDate.toISOString().substring(0, 10));
     }
 
     /**
@@ -735,41 +738,52 @@
      * @param {HTMLTableCellElement} aBox
      */
     setBoxForDate(aDate, aBox) {
-      this.dayBoxes.push({ date: cal.dtz.jsDateToDateTime(aDate, cal.dtz.floating), box: aBox });
+      this.dayBoxes.set(aDate.toISOString().substring(0, 10), aBox);
     }
 
-    resetAttributesForDate(aDate) {
-      function removeForBox(aBox) {
-        let allowedAttributes = 0;
-        while (aBox.attributes.length > allowedAttributes) {
-          switch (aBox.attributes[allowedAttributes].nodeName) {
-            case "selected":
-            case "othermonth":
-            case "today":
-            case "extra":
-            case "interactive":
-            case "class":
-            case "tabindex":
-            case "role":
-            case "aria-label":
-              allowedAttributes++;
-              break;
-            default:
-              aBox.removeAttribute(aBox.attributes[allowedAttributes].nodeName);
-              break;
-          }
+    /**
+     * Remove attributes that may have been added to a table cell.
+     *
+     * @param {HTMLTableCellElement} aBox
+     */
+    resetAttributesForBox(aBox) {
+      let allowedAttributes = 0;
+      while (aBox.attributes.length > allowedAttributes) {
+        switch (aBox.attributes[allowedAttributes].nodeName) {
+          case "selected":
+          case "othermonth":
+          case "today":
+          case "extra":
+          case "interactive":
+          case "class":
+          case "tabindex":
+          case "role":
+          case "aria-label":
+            allowedAttributes++;
+            break;
+          default:
+            aBox.removeAttribute(aBox.attributes[allowedAttributes].nodeName);
+            break;
         }
       }
+    }
 
+    /**
+     * Remove attributes that may have been added to a table cell, or all table cells.
+     *
+     * @param {Date} [aDate] - If specified, the date of the cell to reset,
+     *   otherwise all date cells will be reset.
+     */
+    resetAttributesForDate(aDate) {
       if (aDate) {
         let box = this.getBoxForDate(aDate);
         if (box) {
-          removeForBox(box);
+          this.resetAttributesForBox(box);
         }
       } else {
         for (let k = 1; k < 7; k++) {
           for (let i = 1; i < 8; i++) {
-            removeForBox(this._getCalBoxNode(k, i));
+            this.resetAttributesForBox(this._getCalBoxNode(k, i));
           }
         }
       }
@@ -823,7 +837,7 @@
     updateAccessibleLabel() {
       let label;
       if (this.mValue) {
-        label = this.dateFormatter.format(this.mValue);
+        label = dateFormatter.format(this.mValue);
       } else {
         label = cal.l10n.getCalString("minimonthNoSelectedDate");
       }
@@ -998,12 +1012,6 @@
       }
     }
   }
-
-  XPCOMUtils.defineLazyGetter(
-    CalendarMinimonth.prototype,
-    "dateFormatter",
-    () => new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" })
-  );
 
   MozXULElement.implementCustomInterface(CalendarMinimonth, [
     Ci.calIObserver,
