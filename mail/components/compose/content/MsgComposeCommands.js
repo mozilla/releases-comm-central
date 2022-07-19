@@ -3345,6 +3345,16 @@ async function checkRecipientKeys() {
     return;
   }
 
+  let remindSMime = Services.prefs.getBoolPref(
+    "mail.smime.remind_encryption_possible"
+  );
+  let remindOpenPGP = Services.prefs.getBoolPref(
+    "mail.openpgp.remind_encryption_possible"
+  );
+  if (!remindSMime && !remindOpenPGP) {
+    return;
+  }
+
   let recipients = getEncryptionCompatibleRecipients();
   // Calculate key notifications.
   // 1 notification at most per email address that has no valid key.
@@ -3358,7 +3368,7 @@ async function checkRecipientKeys() {
   let emailsWithMissingKeys = [];
   let haveAllKeys = false;
 
-  if (gSendEncrypted || isPgpConfigured()) {
+  if (remindOpenPGP && (gSendEncrypted || isPgpConfigured())) {
     for (let addr of recipients) {
       let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
 
@@ -3378,7 +3388,7 @@ async function checkRecipientKeys() {
     }
   }
 
-  if (gSendEncrypted || isSmimeEncryptionConfigured()) {
+  if (remindSMime && (gSendEncrypted || isSmimeEncryptionConfigured())) {
     Recipients2CompFields(gMsgCompose.compFields);
     let helper = Cc[
       "@mozilla.org/messenger-smime/smimejshelper;1"

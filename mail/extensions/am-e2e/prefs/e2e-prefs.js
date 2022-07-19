@@ -43,6 +43,14 @@ pref("mail.openpgp.alias_rules_file", "");
 
 pref("mail.openpgp.key_assistant.enable", true);
 
+// If false, disable the reminder in composer, whether email could be
+// sent with OpenPGP encryption (without further user actions/decisions).
+pref("mail.openpgp.remind_encryption_possible", true);
+
+// If false, disable the reminder in composer, whether email could be
+// sent with S/MIME encryption (without further user actions/decisions).
+pref("mail.smime.remind_encryption_possible", true);
+
 // When sending, encrypt to this additional key. Not available in release channel builds.
 pref("mail.openpgp.debug.extra_encryption_key", "");
 
