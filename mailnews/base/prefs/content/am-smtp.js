@@ -182,16 +182,16 @@ var gSmtpServerListWindow = {
   },
 
   refreshServerList(aServerKeyToSelect, aFocusList) {
-    // remove all children
     while (this.mServerList.hasChildNodes()) {
       this.mServerList.lastChild.remove();
     }
-
-    this.fillSmtpServers(
-      this.mServerList,
-      MailServices.smtp.servers,
-      MailServices.smtp.defaultServer
-    );
+    for (let server of MailServices.smtp.servers) {
+      let listitem = this.createSmtpListItem(
+        server,
+        MailServices.smtp.defaultServer.key == server.key
+      );
+      this.mServerList.appendChild(listitem);
+    }
 
     if (aServerKeyToSelect) {
       this.setSelectedServer(
@@ -206,19 +206,6 @@ var gSmtpServerListWindow = {
 
     if (aFocusList) {
       this.mServerList.focus();
-    }
-  },
-
-  fillSmtpServers(aListBox, aServers, aDefaultServer) {
-    if (!aListBox || !aServers) {
-      return;
-    }
-
-    for (let server of aServers) {
-      let isDefault = aDefaultServer.key == server.key;
-
-      let listitem = this.createSmtpListItem(server, isDefault);
-      aListBox.appendChild(listitem);
     }
   },
 
