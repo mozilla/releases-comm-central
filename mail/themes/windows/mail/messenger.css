@@ -227,6 +227,15 @@ treechildren::-moz-tree-cell-text {
   }
 }
 
+@media (prefers-contrast) {
+  #threadTree > treechildren::-moz-tree-row(tagged, selected),
+  #threadTree > treechildren::-moz-tree-row(untagged, selected),
+  tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
+    border-color: SelectedItem;
+    background-color: transparent;
+  }
+}
+
 @media (-moz-windows-default-theme: 0) {
   tree > treechildren::-moz-tree-row(hover) {
     border-color: SelectedItemText !important;
@@ -241,17 +250,6 @@ treechildren::-moz-tree-cell-text {
 
   tree > treechildren::-moz-tree-row(modeHeader, firstHeader, hover) {
     border-top-style: none;
-  }
-
-  tree > treechildren::-moz-tree-row(tagged, selected) {
-    background-color: transparent;
-    border-color: SelectedItem;
-  }
-
-  #threadTree > treechildren::-moz-tree-row(untagged, selected),
-  tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
-    border-color: SelectedItem;
-    background-color: transparent;
   }
 
   #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
