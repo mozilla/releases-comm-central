@@ -751,10 +751,10 @@ menulist[open="true"]:not([disabled="true"]) {
 /* Font scaling */
 
 #appMenu-fontSizeReduce-button {
-  list-style-image: url("chrome://messenger/skin/icons/subtract-circle-fill.svg");
+  list-style-image: var(--font-size-increase);
 }
 #appMenu-fontSizeEnlarge-button {
-  list-style-image: url("chrome://messenger/skin/icons/add-circle-fill.svg");
+  list-style-image: var(--font-size-decrease);
 }
 
 #appMenu-fontSizeReduce-button:hover,
@@ -779,9 +779,8 @@ menulist[open="true"]:not([disabled="true"]) {
   width: 20px;
   height: 20px;
   -moz-context-properties: fill, stroke;
-  fill: var(--button-color);
-  /* the stroke color is used to fill the circle in the icon */
-  stroke:var(--button-bgcolor, ButtonFace);
+  fill: var(--button-bgcolor, ButtonFace);
+  stroke: var(--button-color);
   border-radius: 50%;
   padding: 0;
 }
@@ -797,7 +796,7 @@ menulist[open="true"]:not([disabled="true"]) {
 }
 #appMenu-fontSizeReduce-button:hover > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button:hover > .toolbarbutton-icon {
-  stroke: var(--button-hover-bgcolor);
+  fill: var(--button-hover-bgcolor);
 }
 
 #appMenu-fontSizeReset-button:active > .toolbarbutton-text {
@@ -805,7 +804,7 @@ menulist[open="true"]:not([disabled="true"]) {
 }
 #appMenu-fontSizeReduce-button:active > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button:active > .toolbarbutton-icon {
-  stroke: var(--button-active-bgcolor);
+  fill: var(--button-active-bgcolor);
 }
 
 #appMenu-fontSizeReset-button:focus > .toolbarbutton-text {

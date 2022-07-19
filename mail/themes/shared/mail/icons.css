@@ -198,6 +198,9 @@
   --account-central-mail: url("chrome://messenger/skin/icons/new/normal/mail.svg");
   --account-central-newsletter: url("chrome://messenger/skin/icons/new/normal/newsletter.svg");
   --account-central-rss: url("chrome://messenger/skin/icons/new/normal/rss.svg");
+
+  --font-size-increase: url("chrome://messenger/skin/icons/new/normal/add-circle.svg");
+  --font-size-decrease: url("chrome://messenger/skin/icons/new/normal/subtract-circle.svg");
 }
 
 :root[uidensity="compact"] {
@@ -209,6 +212,9 @@
   --spaces-icon-overflow: var(--icon-overflow);
   --spaces-icon-settings: var(--icon-settings);
   --spaces-icon-collapse: var(--icon-collapse);
+
+  --font-size-increase: url("chrome://messenger/skin/icons/new/compact/add-circle.svg");
+  --font-size-decrease: url("chrome://messenger/skin/icons/new/compact/subtract-circle.svg");
 }
 
 :root[uidensity="touch"] {
@@ -238,4 +244,7 @@
   --folder-pane-folder: url("chrome://messenger/skin/icons/new/normal/folder.svg");
   --folder-pane-folder-filter: url("chrome://messenger/skin/icons/new/normal/folder-filter.svg");
   --folder-pane-folder-rss: url("chrome://messenger/skin/icons/new/normal/folder-rss.svg");
+
+  --font-size-increase: url("chrome://messenger/skin/icons/new/touch/add-circle.svg");
+  --font-size-decrease: url("chrome://messenger/skin/icons/new/touch/subtract-circle.svg");
 }
