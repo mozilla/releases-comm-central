@@ -54,16 +54,13 @@ Pop3ModuleLoader.prototype = {
       );
 
       for (let [moduleName, interfaceId, contractId] of pop3JSModules) {
-        // Load a module.
-        let scope = ChromeUtils.import(`resource:///modules/${moduleName}.jsm`);
-
         // Register a module.
         let classId = Components.ID(interfaceId);
         registrar.registerFactory(
           classId,
           "",
           contractId,
-          lazyFactoryFor(scope, moduleName)
+          lazyFactoryFor(moduleName)
         );
       }
 
@@ -74,11 +71,19 @@ Pop3ModuleLoader.prototype = {
   },
 };
 
-function lazyFactoryFor(backendScope, constructorName) {
-  return {
+function lazyFactoryFor(constructorName) {
+  let factory = {
+    get scope() {
+      delete this.scope;
+      this.scope = ChromeUtils.import(
+        `resource:///modules/${constructorName}.jsm`
+      );
+      return this.scope;
+    },
     createInstance(interfaceID) {
-      let componentConstructor = backendScope[constructorName];
+      let componentConstructor = this.scope[constructorName];
       return new componentConstructor().QueryInterface(interfaceID);
     },
   };
+  return factory;
 }

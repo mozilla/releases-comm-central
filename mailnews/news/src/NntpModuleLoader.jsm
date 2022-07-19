@@ -78,17 +78,13 @@ NntpModuleLoader.prototype = {
         contractId,
         fileName,
       ] of nntpJSModules) {
-        fileName = fileName || moduleName;
-        // Load a module.
-        let scope = ChromeUtils.import(`resource:///modules/${fileName}.jsm`);
-
         // Register a module.
         let classId = Components.ID(interfaceId);
         registrar.registerFactory(
           classId,
           "",
           contractId,
-          lazyFactoryFor(scope, moduleName)
+          lazyFactoryFor(fileName || moduleName, moduleName)
         );
       }
 
@@ -99,11 +95,17 @@ NntpModuleLoader.prototype = {
   },
 };
 
-function lazyFactoryFor(backendScope, constructorName) {
-  return {
+function lazyFactoryFor(fileName, constructorName) {
+  let factory = {
+    get scope() {
+      delete this.scope;
+      this.scope = ChromeUtils.import(`resource:///modules/${fileName}.jsm`);
+      return this.scope;
+    },
     createInstance(interfaceID) {
-      let componentConstructor = backendScope[constructorName];
+      let componentConstructor = this.scope[constructorName];
       return new componentConstructor().QueryInterface(interfaceID);
     },
   };
+  return factory;
 }
