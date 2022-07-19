@@ -71,6 +71,16 @@
       }
       this.hasConnected = true;
 
+      // For some unknown reason, `console.createInstance` isn't available when
+      // `ensureInitialized` runs.
+      this.mLog = console.createInstance({
+        prefix: `calendar.baseview (${this.constructor.name})`,
+        maxLogLevel: "Warn",
+        maxLogLevelPref: "calendar.baseview.loglevel",
+      });
+    }
+
+    ensureInitialized() {
       this.calICalendarView = this.getCustomInterfaceCallback(Ci.calICalendarView);
 
       this.addEventListener("move", event => {
@@ -198,7 +208,6 @@
       this.mViewEnd = null;
 
       this.mToggleStatus = 0;
-      this.mLog = null;
 
       this.mToggleStatusFlag = {
         WorkdaysOnly: 1,
@@ -254,12 +263,6 @@
       Services.obs.addObserver(this.mTimezoneObserver, "defaultTimezoneChanged");
 
       this.updateDaysOffPrefs();
-
-      this.mLog = console.createInstance({
-        prefix: `calendar.baseview (${this.constructor.name})`,
-        maxLogLevel: "Warn",
-        maxLogLevelPref: "calendar.baseview.loglevel",
-      });
 
       // Remove observers on window unload.
       window.addEventListener(

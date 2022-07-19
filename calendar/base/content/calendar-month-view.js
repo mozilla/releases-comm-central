@@ -447,12 +447,12 @@
    * @abstract
    */
   class CalendarMonthBaseView extends MozElements.CalendarBaseView {
-    connectedCallback() {
-      if (this.delayConnectedCallback() || this.hasConnected) {
+    ensureInitialized() {
+      if (this.initialized) {
         return;
       }
-      // this.hasConnected is set to true in super.connectedCallback.
-      super.connectedCallback();
+      this.initialized = true;
+      super.ensureInitialized();
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`

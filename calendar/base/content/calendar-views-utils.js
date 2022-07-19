@@ -298,6 +298,7 @@ function switchToView(viewType) {
   let viewTabs = document.getElementById("view-tabs");
   viewTabs.selectedIndex = viewBox.getAttribute("selectedIndex");
 
+  view.ensureInitialized();
   if (!view.controller) {
     view.timezone = cal.dtz.defaultTimezone;
     view.controller = calendarViewController;

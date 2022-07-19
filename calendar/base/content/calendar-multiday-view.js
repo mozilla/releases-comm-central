@@ -2004,10 +2004,29 @@
     scrollMinute = 0;
 
     connectedCallback() {
-      // this.hasConnected is set to true via super.connectedCallback (below).
       if (this.delayConnectedCallback() || this.hasConnected) {
         return;
       }
+      super.connectedCallback();
+
+      // Get day start/end hour from prefs and set on the view.
+      // This happens here to keep tests happy.
+      this.setDayStartEndHours(
+        Services.prefs.getIntPref("calendar.view.daystarthour", 8),
+        Services.prefs.getIntPref("calendar.view.dayendhour", 17)
+      );
+
+      // We set the scrollMinute, so that when onResize is eventually triggered
+      // by refresh, we will scroll to this.
+      // FIXME: Find a cleaner solution.
+      this.scrollMinute = this.dayStartHour * 60;
+    }
+
+    ensureInitialized() {
+      if (this.initialized) {
+        return;
+      }
+      this.initialized = true;
 
       this.grid = document.createElement("div");
       this.grid.classList.add("multiday-grid");
@@ -2047,7 +2066,7 @@
       this.initializeAttributeInheritance();
 
       // super.connectedCallback has to be called after the time bar is added to the DOM.
-      super.connectedCallback();
+      super.ensureInitialized();
 
       this.addEventListener("click", event => {
         if (event.button != 2) {
@@ -2124,12 +2143,6 @@
         this.scrollMinute = Math.round(scrollPx / this.pixelsPerMinute);
       });
 
-      // Get day start/end hour from prefs and set on the view.
-      this.setDayStartEndHours(
-        Services.prefs.getIntPref("calendar.view.daystarthour", 8),
-        Services.prefs.getIntPref("calendar.view.dayendhour", 17)
-      );
-
       // Get visible hours from prefs and set on the view.
       this.setVisibleHours(Services.prefs.getIntPref("calendar.view.visiblehours", 9));
 
@@ -2139,11 +2152,6 @@
       );
 
       this.enableTimeIndicator();
-
-      // We set the scrollMinute, so that when onResize is eventually triggered
-      // by refresh, we will scroll to this.
-      // FIXME: Find a cleaner solution.
-      this.scrollMinute = this.dayStartHour * 60;
     }
 
     // calICalendarView Properties
