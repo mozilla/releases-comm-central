@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import argparse
 from pathlib import Path
+import os.path
 
 from mach.decorators import (
     CommandArgument,
@@ -89,3 +90,39 @@ def tb_cross_channel(
     command_context._mach_context.commands.dispatch(
         "l10n-cross-channel", command_context._mach_context, **kwargs
     )
+
+
+@Command(
+    "tb-add-missing-ftls",
+    category="thunderbird",
+    description="Add missing FTL files after l10n merge.",
+)
+@CommandArgument(
+    "--merge",
+    type=Path,
+    help="Merge path base",
+)
+@CommandArgument(
+    "locale",
+    type=str,
+    help="Locale code",
+)
+def tb_add_missing_ftls(command_context, merge, locale):
+    """
+    Command to create empty FTL files for incomplete localizations to
+    avoid over-zealous en-US fallback as described in bug 1586984. This
+    mach command is based on the script used to update the l10n-central
+    repositories. It gets around the need to have write access to those
+    repositories in favor of creating the files during l10m-repackaging.
+    This code assumes that mach compare-locales --merge has already run.
+    """
+    from missing_ftl import get_source_ftls, get_lang_ftls, add_missing_ftls
+
+    print("Checking for missing .ftl files in locale {}".format(locale))
+    comm_src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    source_files = get_source_ftls(comm_src_dir)
+
+    l10n_path = os.path.join(merge, locale)
+    locale_files = get_lang_ftls(l10n_path)
+
+    add_missing_ftls(l10n_path, source_files, locale_files)

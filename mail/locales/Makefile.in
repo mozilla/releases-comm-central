@@ -57,6 +57,7 @@ l10n-%:
 # merge if we're not en-US. Conditional function because
 # we need the current value of AB_CD.
 	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) merge-$*)
+	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) post-merge-$*)
 	$(NSINSTALL) -D $(DIST)/install
 	@$(MAKE) -C $(DEPTH)/toolkit/locales l10n-$*  XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
 	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
@@ -69,6 +70,8 @@ l10n-%:
 	@$(MAKE) multilocale.txt-$* AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$*
 
+post-merge-%:
+	$(PYTHON3) $(MOZILLA_DIR)/mach tb-add-missing-ftls --merge $(BASE_MERGE) $*
 
 package-win32-installer: $(SUBMAKEFILES)
 	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen ZIP_IN='$(ZIP_OUT)' installer
