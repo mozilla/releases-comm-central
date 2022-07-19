@@ -2835,7 +2835,7 @@ Enigmail.msg = {
       errorMsgObj,
       true,
       true,
-      false
+      true
     );
 
     // If we cannot analyze the keyblock, or if it's empty, or if we
@@ -2847,12 +2847,6 @@ Enigmail.msg = {
     this.fetchParticipants();
 
     for (let newKey of preview) {
-      let keyDataOneKey = await RNP.getOnePubKeyFromKeyBlock(
-        keyData,
-        newKey.fpr,
-        false
-      );
-
       let oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
       if (!oldKey) {
         // If the key is unknown, an expired key cannot help us
@@ -2867,7 +2861,7 @@ Enigmail.msg = {
           let db = await CollectedKeysDB.getInstance();
           let existing = await db.findKeyForFingerprint(newKey.fpr);
           if (existing) {
-            let key = await db.mergeExisting(newKey, keyDataOneKey, {
+            let key = await db.mergeExisting(newKey, newKey.pubKey, {
               uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
               description,
@@ -2924,7 +2918,7 @@ Enigmail.msg = {
             binary: isBinaryAutocrypt,
           };
           Enigmail.msg.attachedSenderEmailKeysIndex.push(info);
-          Enigmail.msg.attachedKeys.push(keyDataOneKey);
+          Enigmail.msg.attachedKeys.push(newKey.pubKey);
         }
 
         // We want to collect keys for potential later use, however,
@@ -2965,8 +2959,8 @@ Enigmail.msg = {
             candidate.skip = false;
             candidate.newKeyObj = newKey;
             candidate.pubKey = isBinaryAutocrypt
-              ? RNP.enArmorString(keyDataOneKey, "public key")
-              : keyDataOneKey;
+              ? RNP.enArmorString(newKey.pubKey, "public key")
+              : newKey.pubKey;
             candidate.source = {
               uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
@@ -3004,7 +2998,7 @@ Enigmail.msg = {
       if (
         !(await EnigmailKeyRing.importKeyDataSilent(
           window,
-          keyDataOneKey,
+          newKey.pubKey,
           isBinaryAutocrypt,
           "0x" + newKey.fpr
         ))
