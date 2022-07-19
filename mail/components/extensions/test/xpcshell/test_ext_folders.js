@@ -474,8 +474,8 @@ add_task(async function test_getFolderInfo() {
       let onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      await browser.test.sendMessage("markAllAsRead");
-      await browser.test.sendMessage("setFavorite", true);
+      await window.sendMessage("markAllAsRead");
+      await window.sendMessage("setFavorite", true);
       let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual(
         { unreadMessageCount: 0, favorite: true },
@@ -493,7 +493,7 @@ add_task(async function test_getFolderInfo() {
       onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      await browser.test.sendMessage("setFavorite", false);
+      await window.sendMessage("setFavorite", false);
       [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual({ favorite: false }, mailFolderInfo);
       browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
@@ -502,7 +502,7 @@ add_task(async function test_getFolderInfo() {
       onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      await browser.test.sendMessage("markSomeAsUnread", 5);
+      await window.sendMessage("markSomeAsUnread", 5);
       [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual({ unreadMessageCount: 5 }, mailFolderInfo);
 
@@ -528,6 +528,7 @@ add_task(async function test_getFolderInfo() {
 
   extension.onMessage("markAllAsRead", () => {
     InfoTestFolder.markAllMessagesRead(null);
+    extension.sendMessage();
   });
 
   extension.onMessage("markSomeAsUnread", count => {
@@ -537,6 +538,7 @@ add_task(async function test_getFolderInfo() {
       msg.markRead(false);
       count--;
     }
+    extension.sendMessage();
   });
 
   extension.onMessage("setFavorite", value => {
@@ -545,6 +547,7 @@ add_task(async function test_getFolderInfo() {
     } else {
       InfoTestFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
     }
+    extension.sendMessage();
   });
 
   // We should now have three folders. For IMAP accounts they are Inbox, Trash,
