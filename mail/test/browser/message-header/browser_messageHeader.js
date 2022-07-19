@@ -106,8 +106,9 @@ add_setup(async function() {
   collapse_panes(document.getElementById("tabmail-container"), true);
 
   // Disable animations on the panel, so that we don't have to deal with
-  // async openings.
-  document.getElementById("editContactPanel").setAttribute("animate", false);
+  // async openings. The panel is lazy-loaded, so it needs to be referenced
+  // this way rather than finding it in the DOM.
+  window.editContactInlineUI.panel.setAttribute("animate", false);
 });
 
 registerCleanupFunction(function() {

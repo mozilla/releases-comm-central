@@ -84,11 +84,12 @@ var editContactInlineUI = {
   },
 
   get panel() {
+    // The panel is initially stored in a template for performance reasons.
+    // Load it into the DOM now.
     delete this.panel;
-    var element = document.getElementById("editContactPanel");
-    // initially the panel is hidden to avoid impacting startup / new window
-    // performance
-    element.hidden = false;
+    let template = document.getElementById("editContactPanelTemplate");
+    template.replaceWith(template.content);
+    let element = document.getElementById("editContactPanel");
     return (this.panel = element);
   },
 
@@ -107,6 +108,9 @@ var editContactInlineUI = {
     // Is this address book writeable?
     this._writeable = !this._cardDetails.book.readOnly;
     var type = this._writeable ? "edit" : "view";
+
+    // Force the panel to be created from the template, if necessary.
+    this.panel;
 
     // Update the labels accordingly.
     document.getElementById(
