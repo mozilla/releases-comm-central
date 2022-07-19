@@ -699,7 +699,7 @@ class Pop3Client {
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    this._send(`PASS ${this._authenticator.getPassword()}`, true);
+    this._send(`PASS ${this._authenticator.getByteStringPassword()}`, true);
   };
 
   /**
@@ -711,13 +711,7 @@ class Pop3Client {
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    let password = String.fromCharCode(
-      ...new TextEncoder().encode(this._authenticator.getPassword())
-    );
-    this._send(
-      btoa("\0" + this._authenticator.username + "\0" + password),
-      true
-    );
+    this._send(this._authenticator.getPlainToken(), true);
   };
 
   /**

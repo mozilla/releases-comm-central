@@ -640,19 +640,8 @@ class SmtpClient {
         // C: AUTH PLAIN BASE64(\0 USER \0 PASS)
         this.logger.debug("Authentication via AUTH PLAIN");
         this._currentAction = this._actionAUTHComplete;
-        // According to rfc4616#section-2, password should be UTF-8 BinaryString
-        // before base64 encoded.
-        let password = MailStringUtils.stringToByteString(this._getPassword());
-
         this._sendCommand(
-          // convert to BASE64
-          "AUTH PLAIN " +
-            btoa(
-              "\u0000" + // skip authorization identity as it causes problems with some servers
-                this._authenticator.username +
-                "\u0000" +
-                password
-            ),
+          "AUTH PLAIN " + this._authenticator.getPlainToken(),
           true
         );
         return;
