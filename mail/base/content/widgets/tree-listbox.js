@@ -33,13 +33,11 @@
   let TreeListboxMixin = Base =>
     class extends Base {
       /**
-       * The index of the selected row. If there are no rows, the value is -1.
-       * Otherwise, should always have a value between 0 and `rowCount - 1`.
-       * It is set to 0 in `connectedCallback` if there are rows.
+       * The selected and focused item, or null if there is none.
        *
-       * @type {integer}
+       * @type {?HTMLLIElement}
        */
-      _selectedIndex = -1;
+      _selectedRow = null;
 
       connectedCallback() {
         if (this.hasConnected) {
@@ -62,10 +60,12 @@
         }
         this.tabIndex = 0;
 
+        this.domChanged();
         this._initRows();
-
-        if (this.querySelector("li")) {
-          this.selectedIndex = 0;
+        let rows = this.rows;
+        if (!this.selectedRow && rows.length) {
+          // TODO: This should only really happen on "focus".
+          this.selectedRow = rows[0];
         }
 
         this.addEventListener("click", this);
@@ -101,39 +101,15 @@
           row.classList.contains("children") &&
           event.target.closest(".twisty")
         ) {
-          let rowIndex = this.rows.indexOf(row);
-          let didCollapse = row.classList.toggle("collapsed");
-          if (this.isTree) {
-            row.setAttribute("aria-expanded", !didCollapse);
-          }
-          if (didCollapse && row.querySelector(":is(ol, ul) > li.selected")) {
-            // The selected row was hidden. Select the visible ancestor of it.
-            this.selectedIndex = rowIndex;
-          } else if (this.selectedIndex > rowIndex) {
-            // Rows above the selected row have appeared or disappeared.
-            // Update the index of the selected row, but don't fire a 'select'
-            // event.
-            this._selectedIndex = this.rows.indexOf(
-              this.querySelector("li.selected")
-            );
-          }
-          row.dispatchEvent(
-            new CustomEvent(didCollapse ? "collapsed" : "expanded", {
-              bubbles: true,
-            })
-          );
-
-          if (didCollapse) {
-            // The row was collapsed.
-            this._animateCollapseRow(row);
+          if (row.classList.contains("collapsed")) {
+            this.expandRow(row);
           } else {
-            // The row was revealed.
-            this._animateExpandRow(row);
+            this.collapseRow(row);
           }
           return;
         }
 
-        this.selectedIndex = this.rows.findIndex(r => r == row);
+        this.selectedRow = row;
         if (document.activeElement != this) {
           // Overflowing elements with tabindex=-1 steal focus. Grab it back.
           this.focus();
@@ -159,10 +135,11 @@
             this.selectedIndex = this.rowCount - 1;
             break;
           case "PageUp": {
+            if (!this.selectedRow) {
+              break;
+            }
             // Get the top of the selected row, and remove the page height.
-            let selectedBox = this.getRowAtIndex(
-              this.selectedIndex
-            ).getBoundingClientRect();
+            let selectedBox = this.selectedRow.getBoundingClientRect();
             let y = selectedBox.top - this.clientHeight;
 
             // Find the last row below there.
@@ -175,15 +152,16 @@
             break;
           }
           case "PageDown": {
+            if (!this.selectedRow) {
+              break;
+            }
             // Get the top of the selected row, and add the page height.
-            let selectedBox = this.getRowAtIndex(
-              this.selectedIndex
-            ).getBoundingClientRect();
+            let selectedBox = this.selectedRow.getBoundingClientRect();
             let y = selectedBox.top + this.clientHeight;
 
             // Find the last row below there.
             let rows = this.rows;
-            let i = this.rowCount - 1;
+            let i = rows.length - 1;
             while (
               i > this.selectedIndex &&
               rows[i].getBoundingClientRect().top >= y
@@ -195,7 +173,10 @@
           }
           case "ArrowLeft":
           case "ArrowRight": {
-            let selected = this.getRowAtIndex(this.selectedIndex);
+            let selected = this.selectedRow;
+            if (!selected) {
+              break;
+            }
 
             let isArrowRight = event.key == "ArrowRight";
             let isRTL = this.matches(":dir(rtl)");
@@ -206,19 +187,17 @@
                 (!selected.classList.contains("children") ||
                   selected.classList.contains("collapsed"))
               ) {
-                this.selectedIndex = this.rows.indexOf(parent);
+                this.selectedRow = parent;
                 break;
               }
               if (selected.classList.contains("children")) {
-                this.collapseRowAtIndex(this.selectedIndex);
+                this.collapseRow(selected);
               }
             } else if (selected.classList.contains("children")) {
               if (selected.classList.contains("collapsed")) {
-                this.expandRowAtIndex(this.selectedIndex);
+                this.expandRow(selected);
               } else {
-                this.selectedIndex = this.rows.indexOf(
-                  selected.querySelector("li")
-                );
+                this.selectedRow = selected.querySelector("li");
               }
             }
             break;
@@ -230,78 +209,117 @@
         event.preventDefault();
       }
 
-      _mutationObserver = new MutationObserver(mutations => {
-        this._initRows();
-        for (let mutation of mutations) {
-          let ancestor = mutation.target.closest("li");
+      /**
+       * Data for the rows in the DOM.
+       *
+       * @typedef {Object} TreeRowData
+       * @property {HTMLLIElement} row - The row item.
+       * @property {HTMLLIElement[]} ancestors - The ancestors of the row,
+       *   ordered closest to furthest away.
+       */
 
-          for (let node of mutation.addedNodes) {
-            if (node.nodeType != Node.ELEMENT_NODE || node.localName != "li") {
-              continue;
-            }
+      /**
+       * Data for all items beneath this node, including collapsed items,
+       * ordered as they are in the DOM.
+       *
+       * @type {TreeRowData[]}
+       */
+      _rowsData = [];
 
-            node.classList.remove("selected");
-
-            if (this._selectedIndex == -1) {
-              // There were no rows before this one was added. Select it.
-              this.selectedIndex = 0;
-            } else if (this._selectedIndex >= this.rows.indexOf(node)) {
-              // The selected row is further down the list than the inserted
-              // row. Update the selected index.
-              this._selectedIndex += 1 + node.querySelectorAll("li").length;
-            }
+      /**
+       * Call whenever the tree nodes or ordering changes. This should only be
+       * called externally if the mutation observer has been dis-connected and
+       * re-connected.
+       */
+      domChanged() {
+        this._rowsData = Array.from(this.querySelectorAll("li"), row => {
+          let ancestors = [];
+          for (
+            let parentRow = row.parentNode.closest("li");
+            this.contains(parentRow);
+            parentRow = parentRow.parentNode.closest("li")
+          ) {
+            ancestors.push(parentRow);
           }
+          return { row, ancestors };
+        });
+      }
 
-          for (let node of mutation.removedNodes) {
-            if (node.nodeType != Node.ELEMENT_NODE) {
+      _mutationObserver = new MutationObserver(mutations => {
+        for (let mutation of mutations) {
+          for (let node of mutation.addedNodes) {
+            if (node.nodeType != Node.ELEMENT_NODE || !node.matches("li")) {
               continue;
             }
-
-            if (
-              node.classList.contains("selected") ||
-              node.querySelector(".selected")
-            ) {
-              // The selected row was removed from the tree. We need to find a
-              // new row to select.
-              if (ancestor) {
-                // An ancestor remains in the tree. Select it.
-                this.selectedIndex = this.rows.indexOf(ancestor);
-              } else {
-                let previousRow = mutation.previousSibling;
-                if (previousRow && previousRow.nodeType != Node.ELEMENT_NODE) {
-                  previousRow = previousRow.previousElementSibling;
-                }
-                if (previousRow) {
-                  // There is a previous sibling. Select it.
-                  this.selectedIndex = this.rows.indexOf(previousRow);
-                } else if (this.childElementCount) {
-                  // There is a next sibling. Select it.
-                  this._selectedIndex = -1; // Force the setter to do something.
-                  this.selectedIndex = 0;
-                } else {
-                  // There's nothing left. Clear the selection.
-                  this._selectedIndex = -1;
-                  this.dispatchEvent(new CustomEvent("select"));
-                }
-              }
-            } else {
-              let selectedRow = this.querySelector(".selected");
-              if (
-                selectedRow &&
-                mutation.previousSibling &&
-                mutation.previousSibling.compareDocumentPosition(selectedRow) &
-                  Node.DOCUMENT_POSITION_FOLLOWING
-              ) {
-                // The selected row is further down the list than the removed
-                // row. Update the selected index.
-                if (node.localName == "li") {
-                  this._selectedIndex--;
-                }
-                this._selectedIndex -= node.querySelectorAll("li").length;
-              }
-            }
+            // No item can already be selected on addition.
+            node.classList.remove("selected");
           }
         }
+        let oldRowsData = this._rowsData;
+        this.domChanged();
+        this._initRows();
+        let newRows = this.rows;
+        if (!newRows.length) {
+          this.selectedRow = null;
+          return;
+        }
+        if (!this.selectedRow) {
+          // TODO: This should only really happen on "focus".
+          this.selectedRow = newRows[0];
+          return;
+        }
+        if (newRows.includes(this.selectedRow)) {
+          // Selected row is still visible.
+          return;
+        }
+        let oldSelectedIndex = oldRowsData.findIndex(
+          entry => entry.row == this.selectedRow
+        );
+        if (oldSelectedIndex < 0) {
+          // Unexpected, the selectedRow was not in our _rowsData list.
+          this.selectedRow = newRows[0];
+          return;
+        }
+        // Find the closest ancestor that is still shown.
+        let existingAncestor = oldRowsData[
+          oldSelectedIndex
+        ].ancestors.find(row => newRows.includes(row));
+        if (existingAncestor) {
+          // We search as if the existingAncestor is the full list. This keeps
+          // the selection within the ancestor, or moves it to the ancestor if
+          // no child is found.
+          // NOTE: Includes existingAncestor itself, so should be non-empty.
+          newRows = newRows.filter(row => existingAncestor.contains(row));
+        }
+        // We have lost the selectedRow, so we select a new row.  We want to try
+        // and find the element that exists both in the new rows and in the old
+        // rows, that directly preceded the previously selected row. We then
+        // want to select the next visible row that follows this found element
+        // in the new rows.
+        // If rows were replaced with new rows, this will select the first of
+        // the new rows.
+        // If rows were simply removed, this will select the next row that was
+        // not removed.
+        let beforeIndex = -1;
+        for (let i = oldSelectedIndex; i >= 0; i--) {
+          beforeIndex = this._rowsData.findIndex(
+            entry => entry.row == oldRowsData[i].row
+          );
+          if (beforeIndex >= 0) {
+            break;
+          }
+        }
+        // Start from just after the found item, or 0 if none were found
+        // (beforeIndex == -1), find the next visible item. Otherwise we default
+        // to selecting the last row.
+        let selectRow = newRows[newRows.length - 1];
+        for (let i = beforeIndex + 1; i < this._rowsData.length; i++) {
+          if (newRows.includes(this._rowsData[i].row)) {
+            selectRow = this._rowsData[i].row;
+            break;
+          }
+        }
+        this.selectedRow = selectRow;
       });
 
       /**
@@ -330,6 +348,7 @@
             row.classList.remove("collapsed");
             row.removeAttribute("aria-expanded");
           }
+          row.setAttribute("aria-selected", row.classList.contains("selected"));
         }
 
         if (this.isTree) {
@@ -356,9 +375,13 @@
        * @type {HTMLLIElement[]}
        */
       get rows() {
-        return [...this.querySelectorAll("li")].filter(
-          r => !r.parentNode.closest(".collapsed")
-        );
+        return [...this.querySelectorAll("li")].filter(row => {
+          let collapsed = row.parentNode.closest("li.collapsed");
+          if (collapsed && this.contains(collapsed)) {
+            return false;
+          }
+          return true;
+        });
       }
 
       /**
@@ -413,39 +436,44 @@
        * @type {integer}
        */
       get selectedIndex() {
-        return this._selectedIndex;
+        return this.rows.findIndex(row => row == this.selectedRow);
       }
 
       set selectedIndex(index) {
         index = this._clampIndex(index);
-        if (index == this._selectedIndex) {
+        this.selectedRow = this.getRowAtIndex(index);
+      }
+
+      /**
+       * The selected and focused item, or null if there is none.
+       *
+       * @type {?HTMLLIElement}
+       */
+      get selectedRow() {
+        return this._selectedRow;
+      }
+
+      set selectedRow(row) {
+        if (row == this._selectedRow) {
           return;
         }
 
-        let current = this.querySelector(".selected");
-        if (current) {
-          current.classList.remove("selected");
-          current.setAttribute("aria-selected", false);
+        if (this._selectedRow) {
+          this._selectedRow.classList.remove("selected");
+          this._selectedRow.setAttribute("aria-selected", "false");
         }
 
-        let row = this.getRowAtIndex(index);
-        if (!row) {
-          if (this._selectedIndex != -1) {
-            this._selectedIndex = -1;
-            this.dispatchEvent(new CustomEvent("select"));
-          }
-          return;
+        this._selectedRow = row ?? null;
+        if (row) {
+          row.classList.add("selected");
+          row.setAttribute("aria-selected", "true");
+          this.setAttribute("aria-activedescendant", row.id);
+          row.scrollIntoView({ block: "nearest" });
+        } else {
+          this.removeAttribute("aria-activedescendant");
         }
 
-        row.classList.add("selected");
-        row.setAttribute("aria-selected", true);
-        this.setAttribute("aria-activedescendant", row.id);
-        this.scrollToIndex(index);
-
-        this._selectedIndex = index;
-        if (current != row) {
-          this.dispatchEvent(new CustomEvent("select"));
-        }
+        this.dispatchEvent(new CustomEvent("select"));
       }
 
       /**
@@ -456,15 +484,33 @@
        * @param {integer} index
        */
       collapseRowAtIndex(index) {
-        let row = this.getRowAtIndex(index);
-        if (row.querySelector(".selected")) {
-          this.selectedIndex = index;
-        }
+        this.collapseRow(this.getRowAtIndex(index));
+      }
 
+      /**
+       * Expands the row at `index` if it can be expanded.
+       *
+       * @param {integer} index
+       */
+      expandRowAtIndex(index) {
+        this.expandRow(this.getRowAtIndex(index));
+      }
+
+      /**
+       * Collapses the row if it can be collapsed. If the selected row is a
+       * descendant of the collapsing row, selection is moved to the collapsing
+       * row.
+       *
+       * @param {HTMLLIElement} row - The row to collapse.
+       */
+      collapseRow(row) {
         if (
           row.classList.contains("children") &&
           !row.classList.contains("collapsed")
         ) {
+          if (row.contains(this.selectedRow)) {
+            this.selectedRow = row;
+          }
           row.classList.add("collapsed");
           if (this.isTree) {
             row.setAttribute("aria-expanded", "false");
@@ -475,12 +521,11 @@
       }
 
       /**
-       * Expands the row at `index` if it can be expanded.
+       * Expands the row if it can be expanded.
        *
-       * @param {integer} index
+       * @param {HTMLLIElement} row - The row to expand.
        */
-      expandRowAtIndex(index) {
-        let row = this.getRowAtIndex(index);
+      expandRow(row) {
         if (
           row.classList.contains("children") &&
           row.classList.contains("collapsed")
@@ -621,8 +666,8 @@
         return;
       }
 
-      let row = this.rows[this.selectedIndex];
-      if (row.parentElement != this) {
+      let row = this.selectedRow;
+      if (!row || row.parentElement != this) {
         return;
       }
 
@@ -673,7 +718,8 @@
       }
       this._mutationObserver.observe(this, { subtree: true, childList: true });
 
-      this._selectedIndex = this.rows.findIndex(r => r == row);
+      // Rows moved.
+      this.domChanged();
       this.dispatchEvent(new CustomEvent("ordered", { detail: row }));
     }
 
@@ -783,8 +829,6 @@
 
       let { row, dropTarget } = this._dragInfo;
 
-      let selectedRow = this.rows[this.selectedIndex];
-
       let targetRow;
       if (dropTarget) {
         targetRow = dropTarget.nextElementSibling;
@@ -797,7 +841,8 @@
       this._mutationObserver.disconnect();
       this.insertBefore(row, targetRow);
       this._mutationObserver.observe(this, { subtree: true, childList: true });
-      this._selectedIndex = this.rows.findIndex(r => r == selectedRow);
+      // Rows moved.
+      this.domChanged();
       this.dispatchEvent(new CustomEvent("ordered", { detail: row }));
     }
 

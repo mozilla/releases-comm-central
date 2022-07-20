@@ -1030,17 +1030,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
           break;
         }
         case "addrbook-directory-deleted": {
-          let row = this.getRowForUID(subject.UID);
-          row.remove();
-          if (
-            row.classList.contains("selected") ||
-            row.querySelector("li.selected")
-          ) {
-            // Select "All Address Books".
-            setTimeout(() => {
-              this.selectedIndex = 0;
-            });
-          }
+          this.getRowForUID(subject.UID).remove();
           break;
         }
         case "addrbook-directory-request-start":

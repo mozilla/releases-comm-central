@@ -208,11 +208,26 @@ add_task(async function test_additions_and_removals() {
     { level: 1, directory: historyBook }
   );
 
+  let list6 = await createMailingListWithUI(newBook2, "New Book 2 - List 6");
+  checkDirectoryDisplayed(list6);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 2, directory: list3 },
+    { level: 1, directory: newBook2, open: true },
+    { level: 2, directory: list4 },
+    { level: 2, directory: list5 },
+    { level: 2, directory: list6 },
+    { level: 1, directory: historyBook }
+  );
   // Delete a list that isn't displayed, and check that we don't move.
 
   newBook1.deleteDirectory(list3);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(list5);
+  checkDirectoryDisplayed(list6);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -222,14 +237,42 @@ add_task(async function test_additions_and_removals() {
     { level: 1, directory: newBook2, open: true },
     { level: 2, directory: list4 },
     { level: 2, directory: list5 },
+    { level: 2, directory: list6 },
     { level: 1, directory: historyBook }
   );
 
-  // Delete the displayed list, and check that we return to the parent book.
+  // Select list5
+  let list5Row = abWindow.booksList.getRowForUID(list5.UID);
+  EventUtils.synthesizeMouseAtCenter(
+    list5Row.querySelector("span"),
+    {},
+    abWindow
+  );
+  checkDirectoryDisplayed(list5);
+
+  // Delete the displayed list, and check that we move to the next list under
+  // the same book.
 
   newBook2.deleteDirectory(list5);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(newBook2);
+  checkDirectoryDisplayed(list6);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 1, directory: newBook2, open: true },
+    { level: 2, directory: list4 },
+    { level: 2, directory: list6 },
+    { level: 1, directory: historyBook }
+  );
+
+  // Delete the last list, and check we move to the previous list under the same
+  // book.
+  newBook2.deleteDirectory(list6);
+  await new Promise(r => abWindow.setTimeout(r));
+  checkDirectoryDisplayed(list4);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -241,11 +284,11 @@ add_task(async function test_additions_and_removals() {
     { level: 1, directory: historyBook }
   );
 
-  // Delete the displayed book, and check that we return to "All Address Books".
+  // Delete the displayed book, and check that we move to the next book.
 
   await promiseDirectoryRemoved(newBook2.URI);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(null);
+  checkDirectoryDisplayed(historyBook);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -256,12 +299,12 @@ add_task(async function test_additions_and_removals() {
   );
 
   // Select a list in the first book, then delete the book. Check that we
-  // return to "All Address Books".
+  // move to the next book.
 
   openDirectory(list1);
   await promiseDirectoryRemoved(newBook1.URI);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(null);
+  checkDirectoryDisplayed(historyBook);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: historyBook }
@@ -411,6 +454,7 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(booksList.rowCount, 4);
   Assert.equal(booksList.getIndexForUID(newBook.UID), 2);
   Assert.equal(booksList.getIndexForUID(newList.UID), -1);
+  // Moves to parent when last list is deleted.
   Assert.equal(booksList.selectedIndex, 2);
   Assert.equal(abDocument.activeElement, booksList);
 
@@ -433,12 +477,13 @@ add_task(async function test_rename_and_delete() {
 
   Assert.equal(booksList.rowCount, 3);
   Assert.equal(booksList.getIndexForUID(newBook.UID), -1);
-  Assert.equal(booksList.selectedIndex, 0);
+  Assert.equal(booksList.selectedIndex, 2);
   Assert.equal(abDocument.activeElement, booksList);
 
   // Attempt to delete the All Address Books entry.
   // Synthesizing the delete key here does not throw immediately.
 
+  booksList.selectedIndex = 0;
   await Assert.rejects(
     booksList.deleteSelected(),
     /Cannot delete the All Address Books item/,
@@ -550,7 +595,7 @@ add_task(async function test_context_menu() {
   Assert.equal(abDocument.activeElement, booksList);
 
   Assert.equal(booksList.rowCount, 5);
-  Assert.equal(booksList.selectedIndex, 0);
+  Assert.equal(booksList.selectedIndex, 4);
   Assert.equal(menu.state, "closed");
 
   // Test and delete list at index 3, then directory at index 2.
@@ -578,10 +623,11 @@ add_task(async function test_context_menu() {
 
     if (index == 3) {
       Assert.equal(booksList.rowCount, 4);
+      // Moves to parent when last list is deleted.
       Assert.equal(booksList.selectedIndex, 2);
     } else {
       Assert.equal(booksList.rowCount, 3);
-      Assert.equal(booksList.selectedIndex, 0);
+      Assert.equal(booksList.selectedIndex, 2);
     }
     Assert.equal(menu.state, "closed");
   }
@@ -595,7 +641,7 @@ add_task(async function test_context_menu() {
     { type: "contextmenu" },
     abWindow
   );
-  Assert.equal(booksList.selectedIndex, 0);
+  Assert.equal(booksList.selectedIndex, 2);
   await new Promise(r => abWindow.setTimeout(r, 500));
   Assert.equal(menu.state, "closed", "menu stayed closed as expected");
   Assert.equal(abDocument.activeElement, booksList);

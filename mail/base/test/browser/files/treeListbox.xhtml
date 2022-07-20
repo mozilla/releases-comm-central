@@ -146,5 +146,194 @@
       </ul>
     </li>
   </template>
+  <!-- Larger tree for deleting from -->
+  <ul>
+    <li>Before</li>
+    <li>
+      <!-- Place under a plain <li> an <ul> to make sure our selector logic
+         - doesn't break down. -->
+      <ul is="tree-listbox" id="deleteTree" role="tree">
+        <li id="dRow-1" class="collapsed">
+          <div>
+            <div class="twisty"></div>
+            Item with collapsed children
+          </div>
+          <ul>
+            <li id="dRow-1-1">
+              <div>
+                <div class="twisty"></div>
+                Hidden child
+              </div>
+            </li>
+          </ul>
+        </li>
+        <li id="dRow-2">
+          <div>
+            <div class="twisty"></div>
+            Item with children
+          </div>
+          <ul>
+            <li id="dRow-2-1">
+              <div>
+                <div class="twisty"></div>
+                First child
+              </div>
+            </li>
+            <li id="dRow-2-2">
+              <div>
+                <div class="twisty"></div>
+                Second child
+              </div>
+            </li>
+          </ul>
+        </li>
+        <li id="dRow-3">
+          <div>
+            <div class="twisty"></div>
+            Item with grandchildren
+          </div>
+          <ul>
+            <li id="dRow-3-1">
+              <div>
+                <div class="twisty"></div>
+                First child
+              </div>
+              <ul>
+                <li id="dRow-3-1-1" class="collapsed">
+                  <div>
+                    <div class="twisty"></div>
+                    First grandchild
+                  </div>
+                  <ul>
+                    <li id="dRow-3-1-1-1">
+                      <div>
+                        <div class="twisty"></div>
+                        Hidden child
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li id="dRow-3-1-2">
+                  <div>
+                    <div class="twisty"></div>
+                    Second grandchild
+                  </div>
+                </li>
+                <li id="dRow-3-1-3" class="collapsed">
+                  <div>
+                    <div class="twisty"></div>
+                    Third grandchild
+                  </div>
+                  <ul>
+                    <li id="dRow-3-1-3-1">
+                      <div>
+                        <div class="twisty"></div>
+                        Hidden child
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li id="dRow-4">
+          <div>
+            <div class="twisty"></div>
+            Fourth item
+          </div>
+          <ul>
+            <li id="dRow-4-1" class="collapsed">
+              <div>
+                <div class="twisty"></div>
+                First child
+              </div>
+              <ul>
+                <li id="dRow-4-1-1">
+                  <div>
+                    <div class="twisty"></div>
+                    Hidden child 1
+                  </div>
+                </li>
+                <li id="dRow-4-1-2">
+                  <div>
+                    <div class="twisty"></div>
+                    Hidden child 2
+                  </div>
+                </li>
+              </ul>
+            </li>
+            <li id="dRow-4-2">
+              <div>
+                <div class="twisty"></div>
+                Second child
+              </div>
+            </li>
+            <li id="dRow-4-3">
+              <div>
+                <div class="twisty"></div>
+                Third child
+              </div>
+              <ul>
+                <li id="dRow-4-3-1">
+                  <div>
+                    <div class="twisty"></div>
+                    First Grand child
+                  </div>
+                </li>
+                <li id="dRow-4-3-2">
+                  <div>
+                    <div class="twisty"></div>
+                    Second Grand child
+                  </div>
+                </li>
+              </ul>
+            </li>
+            <li id="dRow-4-4" class="collapsed">
+              <div>
+                <div class="twisty"></div>
+                Fourth child
+              </div>
+              <ul>
+                <li id="dRow-4-4-1">
+                  <div>
+                    <div class="twisty"></div>
+                    Hidden child 1
+                  </div>
+                </li>
+                <li id="dRow-4-4-2">
+                  <div>
+                    <div class="twisty"></div>
+                    Hidden child 2
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li id="dRow-5">
+          <div>
+            <div class="twisty"></div>
+            Second last item
+          </div>
+          <ul>
+            <li id="dRow-5-1">
+              <div>
+                <div class="twisty"></div>
+                Last child
+              </div>
+            </li>
+          </ul>
+        </li>
+        <li id="dRow-6">
+          <div>
+            <div class="twisty"></div>
+            Last item
+          </div>
+        </li>
+      </ul>
+    </li>
+    <li>After</li>
+  </ul>
 </body>
 </html>
