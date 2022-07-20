@@ -2852,7 +2852,7 @@ var detailsPane = {
             month: "long",
             day: "numeric",
           }
-        ).format(new Date(2022, date.month - 1, date.day));
+        ).format(new Date(2024, date.month - 1, date.day));
       }
       return "";
     };

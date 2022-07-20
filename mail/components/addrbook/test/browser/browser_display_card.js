@@ -58,7 +58,7 @@ add_setup(async function() {
       TEL;TYPE=HOME;TYPE=VIDEO:tel:333-3333
       ADR:;;street,suburb;city;state;zip;country
       ANNIVERSARY:2018-06-11
-      BDAY;VALUE=DATE:--0403
+      BDAY;VALUE=DATE:--0229
       NOTE:mary had a little lamb\\nits fleece was white as snow\\nand everywhere t
        hat mary went\\nthe lamb was sure to go
       ORG:thunderbird;engineering
@@ -315,7 +315,7 @@ add_task(async function testDisplay() {
     items[0].children[0].dataset.l10nId,
     "about-addressbook-entry-name-birthday"
   );
-  Assert.equal(items[0].children[1].textContent, "April 3");
+  Assert.equal(items[0].children[1].textContent, "February 29");
   Assert.equal(
     items[1].children[0].dataset.l10nId,
     "about-addressbook-entry-name-anniversary"

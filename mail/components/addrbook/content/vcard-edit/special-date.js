@@ -222,12 +222,14 @@ class VCardSpecialDateComponent extends HTMLElement {
   /**
    * Check if the specified year is a leap year in order to add or remove the
    * extra day to February.
-   * @returns {boolean} True if the currently specified year is a leap year.
+   * @returns {boolean} True if the currently specified year is a leap year,
+   *   or if no valid year value is available.
    */
   isLeapYear() {
-    // No need to do anything if the year is empty.
+    // If the year is empty, we can't know if it's a leap year so must assume
+    // it is. Otherwise year-less dates can't show Feb 29.
     if (!this.year.checkValidity() || this.year.value === "") {
-      return false;
+      return true;
     }
 
     let year = parseInt(this.year.value);
