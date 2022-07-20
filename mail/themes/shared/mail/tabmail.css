@@ -468,13 +468,13 @@ button.tab-close-button {
 
 .nav-button {
   appearance: none;
-  list-style-image: url(chrome://messenger/skin/icons/navigation.svg);
+  list-style-image: var(--icon-nav-back);
   border: 1px solid transparent;
   border-radius: 2px;
   margin: 5px 2px;
   margin-inline-start: 2px;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 .nav-button[disabled="true"] {
@@ -496,7 +496,7 @@ button.tab-close-button {
 
 .back-btn:-moz-locale-dir(rtl),
 .forward-btn:-moz-locale-dir(ltr) {
-  transform: scaleX(-1);
+  list-style-image: var(--icon-nav-forward);
 }
 
 /*

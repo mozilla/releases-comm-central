@@ -201,6 +201,15 @@
 
   --font-size-increase: url("chrome://messenger/skin/icons/new/normal/add-circle.svg");
   --font-size-decrease: url("chrome://messenger/skin/icons/new/normal/subtract-circle.svg");
+
+  --addons-manager-recommendations: url("chrome://messenger/skin/icons/new/touch/features.svg");
+  --addons-manager-extensions: url("chrome://messenger/skin/icons/new/touch/extension.svg");
+  --addons-manager-themes: url("chrome://messenger/skin/icons/new/touch/paint-brush.svg");
+  --addons-manager-dictionaries: url("chrome://messenger/skin/icons/new/touch/dictionary.svg");
+  --addons-manager-languages: url("chrome://messenger/skin/icons/new/touch/language.svg");
+  --addons-manager-site-permissions: url("chrome://messenger/skin/icons/new/touch/globe.svg");
+  --addons-manager-available-updates: url("chrome://messenger/skin/icons/new/touch/extension-update-available.svg");
+  --addons-manager-recent-updates: url("chrome://messenger/skin/icons/new/touch/extension-update-recent.svg");
 }
 
 :root[uidensity="compact"] {

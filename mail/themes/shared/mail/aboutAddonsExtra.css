@@ -48,6 +48,9 @@ body {
 #categories > .category {
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 #categories > .category[selected] {
@@ -100,6 +103,38 @@ button[name="plugin"] {
   .sidebar-footer-list > li > a {
     margin-inline: auto;
   }
+}
+
+.category[name="discover"] {
+  background-image: var(--addons-manager-recommendations);
+}
+
+.category[name="extension"] {
+  background-image: var(--addons-manager-extensions);
+}
+
+.category[name="theme"] {
+  background-image: var(--addons-manager-themes);
+}
+
+.category[name="dictionary"] {
+  background-image: var(--addons-manager-dictionaries);
+}
+
+.category[name="locale"] {
+  background-image: var(--addons-manager-languages);
+}
+
+.category[name="sitepermission"] {
+  background-image: var(--addons-manager-site-permissions);
+}
+
+.category[name="available-updates"] {
+  background-image: var(--addons-manager-available-updates);
+}
+
+.category[name="recent-updates"] {
+  background-image: var(--addons-manager-recent-updates);
 }
 
 /* Temporary styles for the supernova icons */
@@ -159,6 +194,15 @@ addon-options panel-item[action="preferences"] {
 recommended-addon-card .addon.card:hover {
   box-shadow: var(--card-shadow-hover);
   cursor: pointer;
+}
+
+panel-item[action="remove"] {
+  --icon: var(--icon-trash);
+}
+panel-item {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 /* Override the absolute (px) font-size values in aboutaddons.css. */
