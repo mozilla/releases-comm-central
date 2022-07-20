@@ -77,7 +77,7 @@ var gKeyAssistant = {
     document
       .getElementById("disableEncryptionButton")
       .addEventListener("click", () => {
-        updateE2eeOptions(false, true);
+        updateE2eeOptions(false);
         this.close();
       });
     document
