@@ -648,8 +648,16 @@ interface nsIMsgFolder : nsISupports {
 
   attribute nsIDBFolderInfo dBTransferInfo;
 
-  ACString getStringProperty(in string propertyName);
-  void setStringProperty(in string propertyName, in ACString propertyValue);
+  /**
+   * Set a string property on the folder.
+   */
+  void setStringProperty(in string propertyName, in AUTF8String propertyValue);
+
+  /**
+   * Returns the value of a string property.
+   * Throws an error if property does not exist.
+   */
+  AUTF8String getStringProperty(in string propertyName);
 
   /* does not persist across sessions */
   attribute nsMsgKey lastMessageLoaded;

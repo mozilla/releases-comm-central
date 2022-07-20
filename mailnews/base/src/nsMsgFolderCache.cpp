@@ -49,47 +49,48 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
   }
 
   NS_IMETHOD GetCachedString(const char* name, nsACString& _retval) override {
-    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
+    if (!Obj().isMember(name)) return NS_ERROR_NOT_AVAILABLE;
     Json::Value& o = Obj()[name];
     if (o.isConvertibleTo(Json::stringValue)) {
       _retval = o.asString().c_str();
       return NS_OK;
     }
     // Leave _retval unchanged if an error occurs.
-    return NS_ERROR_FAILURE;
+    return NS_ERROR_NOT_AVAILABLE;
   }
 
   NS_IMETHOD GetCachedInt32(const char* name, int32_t* _retval) override {
-    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
+    if (!Obj().isMember(name)) return NS_ERROR_NOT_AVAILABLE;
     Json::Value& o = Obj()[name];
-    if (o.isNumeric() && o.isConvertibleTo(Json::intValue)) {
+    if (o.isConvertibleTo(Json::intValue)) {
       *_retval = o.asInt();
       return NS_OK;
     }
     // Leave _retval unchanged if an error occurs.
-    return NS_ERROR_FAILURE;
+    return NS_ERROR_NOT_AVAILABLE;
   }
 
   NS_IMETHOD GetCachedUInt32(const char* name, uint32_t* _retval) override {
-    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
+    if (!Obj().isMember(name)) return NS_ERROR_NOT_AVAILABLE;
     Json::Value& o = Obj()[name];
-    if (o.isNumeric() && o.isConvertibleTo(Json::uintValue)) {
+    if (o.isConvertibleTo(Json::uintValue)) {
       *_retval = o.asUInt();
       return NS_OK;
     }
     // Leave _retval unchanged if an error occurs.
-    return NS_ERROR_FAILURE;
+    return NS_ERROR_NOT_AVAILABLE;
   }
 
   NS_IMETHOD GetCachedInt64(const char* name, int64_t* _retval) override {
-    if (!Obj().isMember(name)) return NS_ERROR_FAILURE;
+    if (!Obj().isMember(name)) return NS_ERROR_NOT_AVAILABLE;
     Json::Value& o = Obj()[name];
-    if (o.isNumeric()) {
+    // isConvertibleTo() doesn't seem to support Int64. Hence multiple checks.
+    if (o.isNumeric() || o.isNull() || o.isBool()) {
       *_retval = o.asInt64();
       return NS_OK;
     }
     // Leave _retval unchanged if an error occurs.
-    return NS_ERROR_FAILURE;
+    return NS_ERROR_NOT_AVAILABLE;
   }
 
   NS_IMETHOD SetCachedString(const char* name,
@@ -312,7 +313,7 @@ NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(
     element.forget(result);
     return NS_OK;
   }
-  return NS_ERROR_FAILURE;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsMsgFolderCache::RemoveElement(const nsACString& key) {

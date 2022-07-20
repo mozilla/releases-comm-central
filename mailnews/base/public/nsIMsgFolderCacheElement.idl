@@ -15,6 +15,11 @@ interface nsIMsgFolderCacheElement : nsISupports
   // Notes on the getCached...() functions:
   // - They will fail if the property doesn't exist. That is, they'll
   //   throw an exception in JS, or return an NS_ERROR_* code in C++.
+  // - null values are returned as empty string (for getCachedString()),
+  //   or zero (for the numeric accessors). NOTE: there should be no
+  //   way to actually set properties to null, but the
+  //   panacea.dat->folderCache.json might have introduced some, so we
+  //   need to handle them.
   // - On the C++ side there is legacy code which calls these functions
   //   without checking the error code and relies on the return value
   //   remaining unchanged if the function fails.

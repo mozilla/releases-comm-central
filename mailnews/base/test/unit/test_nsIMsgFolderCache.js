@@ -25,7 +25,7 @@ add_task(function test_basics() {
     // getCacheElement has to be told to create non-existent keys.
     Assert.throws(function() {
       cache.getCacheElement("a/non/existent/key", false);
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
     let e1 = cache.getCacheElement("/made/up/path/Inbox", true);
 
     // Can set, get and modify Int32 values?
@@ -74,27 +74,27 @@ add_task(function test_basics() {
     // Check some disallowed conversions from String.
     Assert.throws(function() {
       e1.getCachedInt32("bar");
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
     Assert.throws(function() {
       e1.getCachedUInt32("bar");
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
     Assert.throws(function() {
       e1.getCachedInt64("bar");
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
 
     // Trying to read missing properties is an error.
     Assert.throws(function() {
       e1.getCachedInt32("non-existent-property");
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
     Assert.throws(function() {
       e1.getCachedUInt32("non-existent-property");
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
     Assert.throws(function() {
       e1.getCachedInt64("non-existent-property");
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
     Assert.throws(function() {
       e1.getCachedString("non-existent-property");
-    }, /NS_ERROR_.*/);
+    }, /NS_ERROR_NOT_AVAILABLE/);
 
     // Force a save to jsonFile. The changes we made will have queued up a
     // cache autosave but we don't want to wait that long. The cache dtor
@@ -123,6 +123,34 @@ add_task(function test_basics() {
 
   // clean up for next test
   jsonFile.remove(false);
+});
+
+add_task(async function test_null_entries() {
+  // Write out a trivial foldercache file with a null value.
+  let data = { "a-folder-key": { foo: null } };
+  let jsonFilename = PathUtils.join(PathUtils.tempDir, "foo.json");
+  await IOUtils.writeJSON(jsonFilename, data);
+
+  // Load it into an msIMsgFolderCache
+  let cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+    Ci.nsIMsgFolderCache
+  );
+  let jsonFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  jsonFile.initWithPath(jsonFilename);
+  let morkFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  morkFile.initWithPath(
+    PathUtils.join(PathUtils.tempDir, "non-existent-file.dat")
+  );
+  cache.init(jsonFile, morkFile);
+
+  //
+  let e1 = cache.getCacheElement("a-folder-key", false);
+
+  // Make sure all accessors convert the null appropriately.
+  Assert.equal(e1.getCachedInt32("foo"), 0);
+  Assert.equal(e1.getCachedUInt32("foo"), 0);
+  Assert.equal(e1.getCachedInt64("foo"), 0);
+  Assert.equal(e1.getCachedString("foo"), "");
 });
 
 /**
