@@ -28,69 +28,53 @@ var ChatCore = {
     Services.obs.addObserver(this, "contact-signed-off");
     Services.obs.addObserver(this, "contact-added");
     Services.obs.addObserver(this, "contact-removed");
+  },
+  idleStart() {
+    IMServices.core.init();
 
-    // The initialization of the im core may trigger a primary password prompt,
-    // so wrap it with the async prompter service. Note this service already
-    // waits for the asynchronous initialization of the password service.
-    Cc["@mozilla.org/messenger/msgAsyncPrompter;1"]
-      .getService(Ci.nsIMsgAsyncPrompter)
-      .queueAsyncAuthPrompt("im", false, {
-        onPromptStartAsync(callback) {
-          callback.onAuthResult(this.onPromptStart());
-        },
-        onPromptStart() {
-          IMServices.core.init();
+    // Find the accounts that exist in the im account service but
+    // not in nsMsgAccountManager. They have probably been lost if
+    // the user has used an older version of Thunderbird on a
+    // profile with IM accounts. See bug 736035.
+    let accountsById = {};
+    for (let account of IMServices.accounts.getAccounts()) {
+      accountsById[account.numericId] = account;
+    }
+    let mgr = MailServices.accounts;
+    for (let account of mgr.accounts) {
+      let incomingServer = account.incomingServer;
+      if (!incomingServer || incomingServer.type != "im") {
+        continue;
+      }
+      delete accountsById[incomingServer.wrappedJSObject.imAccount.numericId];
+    }
+    // Let's recreate each of them...
+    for (let id in accountsById) {
+      let account = accountsById[id];
+      let inServer = mgr.createIncomingServer(
+        account.name,
+        account.protocol.id, // hostname
+        "im"
+      );
+      inServer.wrappedJSObject.imAccount = account;
+      let acc = mgr.createAccount();
+      // Avoid new folder notifications.
+      inServer.valid = false;
+      acc.incomingServer = inServer;
+      inServer.valid = true;
+      mgr.notifyServerLoaded(inServer);
+    }
 
-          // Find the accounts that exist in the im account service but
-          // not in nsMsgAccountManager. They have probably been lost if
-          // the user has used an older version of Thunderbird on a
-          // profile with IM accounts. See bug 736035.
-          let accountsById = {};
-          for (let account of IMServices.accounts.getAccounts()) {
-            accountsById[account.numericId] = account;
-          }
-          let mgr = MailServices.accounts;
-          for (let account of mgr.accounts) {
-            let incomingServer = account.incomingServer;
-            if (!incomingServer || incomingServer.type != "im") {
-              continue;
-            }
-            delete accountsById[
-              incomingServer.wrappedJSObject.imAccount.numericId
-            ];
-          }
-          // Let's recreate each of them...
-          for (let id in accountsById) {
-            let account = accountsById[id];
-            let inServer = mgr.createIncomingServer(
-              account.name,
-              account.protocol.id, // hostname
-              "im"
-            );
-            inServer.wrappedJSObject.imAccount = account;
-            let acc = mgr.createAccount();
-            // Avoid new folder notifications.
-            inServer.valid = false;
-            acc.incomingServer = inServer;
-            inServer.valid = true;
-            mgr.notifyServerLoaded(inServer);
-          }
-
-          IMServices.tags.getTags().forEach(function(aTag) {
-            aTag.getContacts().forEach(function(aContact) {
-              let name = aContact.preferredBuddy.normalizedName;
-              allContacts[name] = aContact;
-            });
-          });
-
-          ChatCore.initialized = true;
-          Services.obs.notifyObservers(null, "chat-core-initialized");
-          ChatCore._initializing = false;
-          return true;
-        },
-        onPromptAuthAvailable() {},
-        onPromptCanceled() {},
+    IMServices.tags.getTags().forEach(function(aTag) {
+      aTag.getContacts().forEach(function(aContact) {
+        let name = aContact.preferredBuddy.normalizedName;
+        allContacts[name] = aContact;
       });
+    });
+
+    ChatCore.initialized = true;
+    Services.obs.notifyObservers(null, "chat-core-initialized");
+    ChatCore._initializing = false;
   },
   observe(aSubject, aTopic, aData) {
     if (aTopic == "browser-request") {

@@ -28,6 +28,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.jsm",
   AddonManager: "resource://gre/modules/AddonManager.jsm",
+  ChatCore: "resource:///modules/chatHandler.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
@@ -591,6 +592,12 @@ MailGlue.prototype = {
           // appropriately, otherwise we get error messages like the one
           // reported in bug 1635422.
           ChromeUtils.import("resource://gre/actors/AutoCompleteParent.jsm");
+        },
+      },
+      {
+        condition: Services.prefs.getBoolPref("mail.chat.enabled"),
+        task() {
+          lazy.ChatCore.idleStart();
         },
       },
       {
