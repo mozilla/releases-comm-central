@@ -751,10 +751,10 @@ menulist[open="true"]:not([disabled="true"]) {
 /* Font scaling */
 
 #appMenu-fontSizeReduce-button {
-  list-style-image: var(--font-size-increase);
+  list-style-image: var(--font-size-decrease);
 }
 #appMenu-fontSizeEnlarge-button {
-  list-style-image: var(--font-size-decrease);
+  list-style-image: var(--font-size-increase);
 }
 
 #appMenu-fontSizeReduce-button:hover,
