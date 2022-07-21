@@ -57,17 +57,10 @@ var gSanitizePromptDialog = {
     );
 
     let warningIcon = document.getElementById("sanitizeEverythingWarningIcon");
-    if (AppConstants.platform === "linux") {
-      warningIcon.setAttribute(
-        "src",
-        "moz-icon://stock/gtk-dialog-warning?size=dialog"
-      );
-    } else {
-      warningIcon.setAttribute(
-        "src",
-        "chrome://global/skin/icons/warning-large.png"
-      );
-    }
+    warningIcon.setAttribute(
+      "src",
+      "chrome://messenger/skin/icons/new/compact/warning.svg"
+    );
 
     if (this.selectedTimespan === Sanitizer.TIMESPAN_EVERYTHING) {
       this.prepareWarning();
