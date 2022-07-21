@@ -104,6 +104,38 @@ class BaseMessageService {
     }
   }
 
+  SaveMessageToDisk(
+    messageUri,
+    file,
+    addDummyEnvelope,
+    urlListener,
+    outUrl,
+    canonicalLineEnding,
+    msgWindow
+  ) {
+    this._logger.debug("SaveMessageToDisk", messageUri);
+    let url = this.getUrlForUri(messageUri, msgWindow);
+    if (urlListener) {
+      url.RegisterListener(urlListener);
+    }
+    url.newsAction = Ci.nsINntpUrl.ActionSaveMessageToDisk;
+    url.AddDummyEnvelope = addDummyEnvelope;
+    url.canonicalLineEnding = canonicalLineEnding;
+
+    let [folder, key] = this._decomposeNewsMessageURI(messageUri);
+    if (folder && folder.QueryInterface(Ci.nsIMsgNewsFolder)) {
+      url.msgIsInLocalCache = folder.hasMsgOffline(key);
+    }
+
+    this.DisplayMessage(
+      messageUri,
+      url.getSaveAsListener(addDummyEnvelope, file),
+      msgWindow,
+      urlListener,
+      false
+    );
+  }
+
   Search(searchSession, msgWindow, msgFolder, searchUri) {
     let slashIndex = searchUri.indexOf("/");
     let xpatLines = searchUri.slice(slashIndex + 1).split("/");
