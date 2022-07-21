@@ -480,8 +480,7 @@ static void remove_plaintext_tag(nsString& body) {
 static void remove_conditional_CSS(const nsAString& in, nsAString& out) {
   nsCOMPtr<nsIParserUtils> parserUtils =
       do_GetService(NS_PARSERUTILS_CONTRACTID);
-  parserUtils->Sanitize(in, nsIParserUtils::SanitizerRemoveOnlyConditionalCSS,
-                        out);
+  parserUtils->RemoveConditionalCSS(in, out);
 }
 
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP

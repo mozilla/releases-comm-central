@@ -106,9 +106,7 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
     nsString cssCondStripped;
     nsCOMPtr<nsIParserUtils> parserUtils =
         do_GetService(NS_PARSERUTILS_CONTRACTID);
-    parserUtils->Sanitize(parsed,
-                          nsIParserUtils::SanitizerRemoveOnlyConditionalCSS,
-                          cssCondStripped);
+    parserUtils->RemoveConditionalCSS(parsed, cssCondStripped);
     parsed.Truncate();
     resultCStr = NS_ConvertUTF16toUTF8(cssCondStripped);
   } else {
