@@ -417,6 +417,7 @@ async function enigmailDeleteKey() {
     await PgpSqliteDb2.deleteAcceptance(fpr);
   }
   clearKeyCache();
+  gUserList.view.selection.clearSelection();
 }
 
 async function enigCreateKeyMsg() {
@@ -1685,7 +1686,6 @@ var gKeyListView = {
   /**
    * Re-calculate the row count and instruct the view to update
    */
-
   adjustRowCount(newRowCount, selectedRow) {
     if (this.rowCount === newRowCount) {
       gUserList.invalidate();
@@ -1701,10 +1701,8 @@ var gKeyListView = {
    * Determine the row object from the a filtered row number
    *
    * @param row: Number - row number of displayed (=filtered) list
-   *
    * @return Object: keyViewList entry of corresponding row
    */
-
   getFilteredRow(row) {
     let r = this.keyFilterList[row];
     if (r !== undefined) {
