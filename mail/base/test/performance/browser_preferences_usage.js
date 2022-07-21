@@ -113,21 +113,9 @@ add_task(async function startup() {
     "network.loadinfo.skip_type_assertion": {
       // This is accessed in debug only.
     },
-    "extensions.getAddons.cache.enabled": {
-      min: 3,
-      max: 55,
-    },
-    "chrome.override_package.global": {
-      min: 0,
-      max: 50,
-    },
     "toolkit.scrollbox.verticalScrollDistance": {
-      min: 100,
-      max: 355,
-    },
-    "toolkit.scrollbox.horizontalScrollDistance": {
-      min: 1,
-      max: 130,
+      min: 40,
+      max: 100,
     },
     // Bug 944367: All gloda logs are controlled by one pref.
     "gloda.loglevel": {
