@@ -904,10 +904,7 @@
       <!-- notificationbox will be added here lazily. -->
   </vbox>
   <statuspanel id="statusbar-display"/>
-  <hbox id="status-bar"
-        class="statusbar chromeclass-status"
-        role="status"
-        aria-live="off">
+  <hbox id="status-bar" class="statusbar chromeclass-status">
     <html:button type="button" id="spacesToolbarReveal"
                  onclick="gSpacesToolbar.toggleToolbar(false);"
                  data-l10n-id="spaces-toolbar-button-show"
@@ -915,15 +912,21 @@
                  hidden="hidden">
       <html:img src="chrome://messenger/skin/icons/new/compact/collapse.svg" alt="" />
     </html:button>
+    <!-- We put the role="status" only around the information that is actually
+       - status information for the mail tabs. Specifically, we exclude the
+       - Spaces toolbar button and the calendar status bar (which is used when
+       - editing events in a tab and for the today pane button). -->
+    <hbox role="status" aria-live="off" flex="1">
 #include mainStatusbar.inc.xhtml
-    <hbox id="calendar-invitations-panel" class="statusbarpanel" hidden="true">
-      <label id="calendar-invitations-label"
-             class="text-link"
-             onclick="openInvitationsDialog()"
-             onkeypress="if (event.key == 'Enter') { openInvitationsDialog(); }"/>
+      <hbox id="calendar-invitations-panel" class="statusbarpanel" hidden="true">
+        <label id="calendar-invitations-label"
+               class="text-link"
+               onclick="openInvitationsDialog()"
+               onkeypress="if (event.key == 'Enter') { openInvitationsDialog(); }"/>
+      </hbox>
+      <label id="unreadMessageCount" class="statusbarpanel"/>
+      <label id="totalMessageCount" class="statusbarpanel"/>
     </hbox>
-    <label id="unreadMessageCount" class="statusbarpanel"/>
-    <label id="totalMessageCount" class="statusbarpanel"/>
 #include ../../../calendar/base/content/calendar-status-bar.inc.xhtml
   </hbox>
   </vbox>
