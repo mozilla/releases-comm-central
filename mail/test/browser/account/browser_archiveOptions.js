@@ -189,7 +189,11 @@ function subtest_disable_archive(tab) {
 
   Assert.ok(checkbox.checked);
   Assert.ok(!checkbox.disabled);
-  mc.click(checkbox);
+  EventUtils.synthesizeMouseAtCenter(
+    checkbox,
+    { clickCount: 1 },
+    checkbox.ownerGlobal
+  );
   utils.waitFor(
     () => !checkbox.checked,
     "Archive checkbox didn't toggle to unchecked"

@@ -77,7 +77,11 @@ function subtest_check_whitelist_init_and_save(tab) {
   // Now we'll check both address books
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
-    mc.click(abNode.firstElementChild);
+    EventUtils.synthesizeMouseAtCenter(
+      abNode.firstElementChild,
+      { clickCount: 1 },
+      abNode.firstElementChild.ownerGlobal
+    );
   }
 }
 
@@ -108,7 +112,11 @@ function subtest_check_whitelist_load_and_clear(tab) {
     // prefs
     Assert.ok(whiteListURIs.includes(abNode.getAttribute("value")));
     // Now un-check that address book
-    mc.click(abNode.firstElementChild);
+    EventUtils.synthesizeMouseAtCenter(
+      abNode.firstElementChild,
+      { clickCount: 1 },
+      abNode.firstElementChild.ownerGlobal
+    );
   }
 }
 

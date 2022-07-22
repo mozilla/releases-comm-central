@@ -20,7 +20,11 @@ add_task(function test_toolbar_and_placeholder() {
     "chat",
     "the chat tab shouldn't be selected at startup"
   );
-  mc.click(mc.e("chatButton"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("chatButton"),
+    { clickCount: 1 },
+    mc.window
+  );
   Assert.equal(
     mc.tabmail.selectedTab.mode.type,
     "chat",

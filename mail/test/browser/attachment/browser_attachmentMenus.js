@@ -381,11 +381,10 @@ async function check_toolbar_menu_states_single(expected) {
     assert_enabled("attachmentSaveAllSingle", false);
   } else {
     assert_enabled("attachmentSaveAllSingle", true);
-    mc.click(
-      mc.window.document.querySelector(
-        "#attachmentSaveAllSingle .toolbarbutton-menubutton-dropmarker"
-      )
+    let dm = mc.window.document.querySelector(
+      "#attachmentSaveAllSingle .toolbarbutton-menubutton-dropmarker"
     );
+    EventUtils.synthesizeMouseAtCenter(dm, { clickCount: 1 }, mc.window);
     await wait_for_popup_to_open(mc.e("attachmentSaveAllSingleMenu"));
 
     try {
@@ -412,11 +411,10 @@ async function check_toolbar_menu_states_multiple(expected) {
     assert_enabled("attachmentSaveAllMultiple", false);
   } else {
     assert_enabled("attachmentSaveAllMultiple", true);
-    mc.click(
-      mc.window.document.querySelector(
-        "#attachmentSaveAllMultiple .toolbarbutton-menubutton-dropmarker"
-      )
+    let dm = mc.window.document.querySelector(
+      "#attachmentSaveAllMultiple .toolbarbutton-menubutton-dropmarker"
     );
+    EventUtils.synthesizeMouseAtCenter(dm, { clickCount: 1 }, mc.window);
     await wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
 
     try {

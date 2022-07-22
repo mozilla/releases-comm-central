@@ -170,7 +170,11 @@ function save_attachment_files() {
     file.append(attachmentFileNames[i]);
     select_click_row(i);
     gMockFilePicker.returnFiles = [file];
-    mc.click(mc.e("attachmentSaveAllSingle"));
+    EventUtils.synthesizeMouseAtCenter(
+      mc.e("attachmentSaveAllSingle"),
+      { clickCount: 1 },
+      mc.window
+    );
   }
 }
 
@@ -229,7 +233,11 @@ add_task(async function test_remove_file() {
     .getAttribute("value");
 
   // select first element
-  mc.click(firstElement);
+  EventUtils.synthesizeMouseAtCenter(
+    firstElement,
+    { clickCount: 1 },
+    mc.window
+  );
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
     { type: "contextmenu" },
@@ -277,7 +285,11 @@ add_task(async function test_remove_multiple_files() {
   );
 
   // select two elements
-  mc.click(firstElement);
+  EventUtils.synthesizeMouseAtCenter(
+    firstElement,
+    { clickCount: 1 },
+    mc.window
+  );
   list.selectItemRange(firstElement, secondElement);
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
@@ -317,7 +329,7 @@ add_task(async function test_clear_all_files() {
   downloadsView.waitForFinish();
 
   let listbox = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
-  mc.click(listbox);
+  EventUtils.synthesizeMouseAtCenter(listbox, { clickCount: 1 }, mc.window);
   EventUtils.synthesizeMouseAtCenter(
     listbox,
     { type: "contextmenu" },

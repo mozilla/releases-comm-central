@@ -95,7 +95,12 @@ async function subtest_check_account_actions(
   click_account_tree_row(tab, accountRow);
 
   // click the Actions Button to bring up the popup with menuitems to test
-  mc.click(content_tab_e(tab, "accountActionsButton"), 5, 5);
+  let button = content_tab_e(tab, "accountActionsButton");
+  EventUtils.synthesizeMouseAtCenter(
+    button,
+    { clickCount: 1 },
+    button.ownerGlobal
+  );
   await wait_for_popup_to_open(content_tab_e(tab, "accountActionsDropdown"));
 
   let actionAddMailAccount = content_tab_e(tab, "accountActionsAddMailAccount");

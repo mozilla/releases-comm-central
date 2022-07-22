@@ -112,7 +112,8 @@ add_task(async function test_spellcheck_in_content_tabs() {
     "spell-suggestion"
   );
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  mc.click(mc.e("mailContext-spell-add-to-dictionary"));
+  let add = mc.e("mailContext-spell-add-to-dictionary");
+  EventUtils.synthesizeMouseAtCenter(add, { clickCount: 1 }, add.ownerGlobal);
   await close_popup(mc, mailContext);
 
   // Now check we don't have any suggestionss
@@ -129,24 +130,6 @@ add_task(async function test_spellcheck_in_content_tabs() {
   Assert.ok(suggestions.length == 0, "But I just taught you this word!");
   await close_popup(mc, mailContext);
 });
-
-/*
- // We don't have an UI to test opening content tabs twice anymore.
-add_task(function test_content_tab_open_same() {
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
-
-  mc.click(mc.menus.helpMenu.whatsNew);
-
-  controller.sleep(0);
-
-  if (mc.tabmail.tabContainer.allTabs.length != preCount)
-    throw new Error("A new content tab was opened when it shouldn't have been");
-
-  // Double-check browser is still the same.
-  if (mc.window.content.location != whatsUrl)
-    throw new Error("window.content is not set to the url loaded, incorrect type=\"...\"?");
-});
-*/
 
 add_task(function test_content_tab_default_favicon() {
   const whatsUrl2 = url + "whatsnew1.html";

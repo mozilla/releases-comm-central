@@ -117,7 +117,11 @@ add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
     );
 
     // Close the appmenu.
-    mc.click(mc.e("button-appmenu"));
+    EventUtils.synthesizeMouseAtCenter(
+      mc.e("button-appmenu"),
+      { clickCount: 1 },
+      mc.window
+    );
   }
 
   check_getAllNewMsgMenu();
@@ -125,13 +129,21 @@ add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
   plan_for_new_window("mailnews:customizeToolbar");
   // Open the customization dialog.
   mc.rightClick(mc.e("mail-bar3"));
-  mc.click(mc.e("CustomizeMailToolbar"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("CustomizeMailToolbar"),
+    { clickCount: 1 },
+    mc.window
+  );
   await close_popup(mc, mc.e("toolbar-context-menu"));
 
   let customc = wait_for_new_window("mailnews:customizeToolbar");
   wait_for_window_focused(customc.window);
   plan_for_window_close(customc);
-  customc.click(customc.e("donebutton"));
+  EventUtils.synthesizeMouseAtCenter(
+    customc.e("donebutton"),
+    { clickCount: 1 },
+    customc.window
+  );
   wait_for_window_close();
 
   check_getAllNewMsgMenu();

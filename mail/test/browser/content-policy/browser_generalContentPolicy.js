@@ -357,7 +357,7 @@ async function allowRemoteContentAndCheck(test) {
   let prefButton = get_notification_button(mc, kBoxId, kNotificationValue, {
     popup: "remoteContentOptions",
   });
-  mc.click(prefButton);
+  EventUtils.synthesizeMouseAtCenter(prefButton, { clickCount: 1 }, mc.window);
   await mc.click_menus_in_sequence(mc.e("remoteContentOptions"), [
     { id: "remoteContentOptionAllowForMsg" },
   ]);

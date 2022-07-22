@@ -132,7 +132,11 @@ function open_about_support() {
 function open_send_via_email(aTab) {
   let button = content_tab_e(aTab, "send-via-email");
   plan_for_new_window("msgcompose");
-  mc.click(button);
+  EventUtils.synthesizeMouseAtCenter(
+    button,
+    { clickCount: 1 },
+    button.ownerGlobal
+  );
   let cwc = wait_for_compose_window();
   return cwc;
 }
@@ -304,7 +308,11 @@ add_task(function test_private_data() {
   assert_content_tab_element_hidden(tab, privateElem2);
 
   // Now check the checkbox and see what happens.
-  mc.click(checkbox);
+  EventUtils.synthesizeMouseAtCenter(
+    checkbox,
+    { clickCount: 1 },
+    checkbox.ownerGlobal
+  );
   wait_for_content_tab_element_display(tab, privateElem1);
   wait_for_content_tab_element_display(tab, privateElem2);
   close_tab(tab);
@@ -389,7 +397,8 @@ add_task(function test_copy_to_clipboard_private() {
 
   // Display private data.
   let privateElem = find_private_element(tab);
-  mc.click(content_tab_e(tab, "check-show-private-data"));
+  let show = content_tab_e(tab, "check-show-private-data");
+  EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
   wait_for_content_tab_element_display(tab, privateElem);
 
   // To avoid destroying the current contents of the clipboard, instead of
@@ -507,7 +516,8 @@ add_task(function test_send_via_email_private() {
 
   // Display private data.
   let privateElem = find_private_element(tab);
-  mc.click(content_tab_e(tab, "check-show-private-data"));
+  let show = content_tab_e(tab, "check-show-private-data");
+  EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
   wait_for_content_tab_element_display(tab, privateElem);
 
   let cwc = open_send_via_email(tab);

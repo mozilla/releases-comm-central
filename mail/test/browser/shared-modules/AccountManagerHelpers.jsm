@@ -23,6 +23,9 @@ var fdh = ChromeUtils.import(
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var {
   content_tab_e,
@@ -154,8 +157,20 @@ function remove_account(
 
   account = null;
   // Use the Remove item in the Account actions menu.
-  mc.click(content_tab_e(tab, "accountActionsButton"));
-  mc.click(content_tab_e(tab, "accountActionsDropdownRemove"));
+  let actionsButton = content_tab_e(tab, "accountActionsButton");
+  EventUtils.synthesizeMouseAtCenter(
+    actionsButton,
+    { clickCount: 1 },
+    actionsButton.ownerGlobal
+  );
+  mc.sleep(100); // Wait for popup to open.
+  let remove = content_tab_e(tab, "accountActionsDropdownRemove");
+  EventUtils.synthesizeMouseAtCenter(
+    remove,
+    { clickCount: 1 },
+    remove.ownerGlobal
+  );
+  mc.sleep(100); // Wait for click to take affect.
 
   let cdc = wh.wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,

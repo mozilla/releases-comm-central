@@ -78,7 +78,7 @@ async function assert_mode_selected(aMode) {
   // We need to open the menu because only then the right mode is set in them.
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
-    mc.click(view_menu);
+    EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, mc.window);
     let popuplist = await mc.click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
@@ -110,7 +110,11 @@ async function assert_mode_selected(aMode) {
     modeList_popupmenu,
     "popupshown"
   );
-  mc.click(mc.e("folderPaneOptionsButton"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("folderPaneOptionsButton"),
+    { clickCount: 1 },
+    mc.window
+  );
   await shownPromise;
   for (let mode of tree.activeModes) {
     Assert.ok(
@@ -133,7 +137,7 @@ async function assert_mode_not_selected(mode) {
   // We need to open the menu because only then the right mode is set in them.
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
-    mc.click(view_menu);
+    EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, mc.window);
     let popuplist = await mc.click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
@@ -159,7 +163,11 @@ async function assert_mode_not_selected(mode) {
     modeList_popupmenu,
     "popupshown"
   );
-  mc.click(mc.e("folderPaneOptionsButton"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("folderPaneOptionsButton"),
+    { clickCount: 1 },
+    mc.window
+  );
   await shownPromise;
   Assert.ok(
     !modeList_popupmenu

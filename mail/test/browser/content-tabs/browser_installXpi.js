@@ -43,7 +43,7 @@ function waitForNotification(id, buttonToClickSelector, callback) {
   }
   if (buttonToClickSelector) {
     let button = notification.querySelector(buttonToClickSelector);
-    mc.click(button);
+    EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, mc.window);
   }
   mc.waitFor(() => !gDocument.querySelector(notificationSelector));
 }

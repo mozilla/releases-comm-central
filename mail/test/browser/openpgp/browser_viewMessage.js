@@ -224,7 +224,11 @@ add_task(async function testOpenForwardedEncrypted() {
   );
 
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
-  mc.click(mc.e("attachmentName"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("attachmentName"),
+    { clickCount: 1 },
+    mc.window
+  );
   let mc2 = await newWindowPromise;
   wait_for_message_display_completion(mc2, true);
   wait_for_window_focused(mc2.window);
@@ -399,7 +403,11 @@ add_task(async function testUpdateMessageSignature() {
     mc.e("messageSecurityPanel"),
     "popupshown"
   );
-  mc.click(mc.e("encryptionTechBtn"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("encryptionTechBtn"),
+    { clickCount: 1 },
+    mc.window
+  );
   // Wait for the popup panel and signature button to become visible otherwise
   // we can't click on it.
   await popupshown;
@@ -433,7 +441,11 @@ add_task(async function testUpdateMessageSignature() {
 
   // This will open the key details, the domWindowOpened handler
   // will catch it and execute the changes.
-  mc.click(mc.e("viewSignatureKey"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("viewSignatureKey"),
+    { clickCount: 1 },
+    mc.window
+  );
 
   // Wait until we are done with keyDetailsDlg.
   await dialogPromise;

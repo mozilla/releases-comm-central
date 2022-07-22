@@ -25,6 +25,9 @@ const EXPORTED_SYMBOLS = [
 var fdh = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 
@@ -65,7 +68,11 @@ function assert_quick_filter_bar_visible(aVisible) {
  * Toggle the state of the message filter bar as if by a mouse click.
  */
 function toggle_quick_filter_bar() {
-  mc.click(mc.e("qfb-show-filter-bar"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("qfb-show-filter-bar"),
+    { clickCount: 1 },
+    mc.window
+  );
   fdh.wait_for_all_messages_to_load();
 }
 
@@ -90,7 +97,13 @@ function assert_constraints_expressed(aConstraints) {
  * argument magic enabled.
  */
 function toggle_boolean_constraints(...aArgs) {
-  aArgs.forEach(arg => mc.click(mc.e(nameToBarDomId[arg])));
+  aArgs.forEach(arg =>
+    EventUtils.synthesizeMouseAtCenter(
+      mc.e(nameToBarDomId[arg]),
+      { clickCount: 1 },
+      mc.window
+    )
+  );
   fdh.wait_for_all_messages_to_load(mc);
 }
 
@@ -102,7 +115,11 @@ function toggle_tag_constraints(...aArgs) {
   aArgs.forEach(function(arg) {
     let tagId = "qfb-tag-" + arg;
     qfbButtons.ensureElementIsVisible(mc.e(tagId));
-    mc.click(mc.e(tagId));
+    EventUtils.synthesizeMouseAtCenter(
+      mc.e(tagId),
+      { clickCount: 1 },
+      mc.window
+    );
   });
   fdh.wait_for_all_messages_to_load(mc);
 }
@@ -195,7 +212,13 @@ var nameToTextDomId = {
 };
 
 function toggle_text_constraints(...aArgs) {
-  aArgs.forEach(arg => mc.click(mc.e(nameToTextDomId[arg])));
+  aArgs.forEach(arg =>
+    EventUtils.synthesizeMouseAtCenter(
+      mc.e(nameToTextDomId[arg]),
+      { clickCount: 1 },
+      mc.window
+    )
+  );
   fdh.wait_for_all_messages_to_load(mc);
 }
 

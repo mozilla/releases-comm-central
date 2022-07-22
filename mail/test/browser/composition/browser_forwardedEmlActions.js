@@ -108,7 +108,11 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   assert_selected_and_displayed(mc, msg);
 
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
-  mc.click(mc.e("attachmentName"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("attachmentName"),
+    { clickCount: 1 },
+    mc.window
+  );
   let msgWin = await newWindowPromise;
   wait_for_message_display_completion(msgWin, false);
 

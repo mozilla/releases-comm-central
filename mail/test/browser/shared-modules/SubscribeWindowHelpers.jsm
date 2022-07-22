@@ -19,6 +19,9 @@ var { input_value, delete_all_existing } = ChromeUtils.import(
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var mc = folderDisplayHelper.mc;
 
@@ -41,7 +44,11 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
     aFunction(controller);
   };
   windowHelper.plan_for_modal_dialog("mailnews:subscribe", callback);
-  mc.click(mc.e("folderPaneContext-subscribe"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("folderPaneContext-subscribe"),
+    { clickCount: 1 },
+    mc.window
+  );
   windowHelper.wait_for_modal_dialog("mailnews:subscribe");
   await folderDisplayHelper.close_popup(mc, mc.e("folderPaneContext"));
 }

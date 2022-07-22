@@ -58,7 +58,7 @@ add_task(function test_addon_prefs() {
       item.label == "MozMill"
     ) {
       foundAddon = true;
-      mc.click(item);
+      EventUtils.synthesizeMouseAtCenter(item, { clickCount: 1 }, mc.window);
       break;
     }
   }
