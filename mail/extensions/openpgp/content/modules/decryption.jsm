@@ -27,6 +27,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -655,7 +656,7 @@ var EnigmailDecryption = {
     if (!this.isDecryptFailureResult(result)) {
       await IOUtils.write(
         outFile.path,
-        new TextEncoder().encode(result.decryptedData)
+        lazy.MailStringUtils.byteStringToUint8Array(result.decryptedData)
       );
       return true;
     }
