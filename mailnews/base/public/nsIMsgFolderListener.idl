@@ -203,11 +203,9 @@ interface nsIMsgFolderListener : nsISupports {
 
 
   /**
-   * Called when nsIMsgFolderCompactor has completed compaction of
-   * the folder. This notification will be generated immediately prior to
-   * the nsIFolderListener::itemEvent() notification with a
-   * "CompactCompleted" atom.  At this point, the folder semaphore has been
-   * released and the database has been committed.
+   * Called when nsIMsgFolderCompactor has completed compaction of the folder.
+   * At this point, the folder semaphore has been released and the database
+   * has been committed.
    *
    * @param {nsIMsgFolder} folder - Target folder of the compaction.
    */
