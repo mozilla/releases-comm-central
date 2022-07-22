@@ -326,6 +326,11 @@ MailDefaultHandler.prototype = {
       cmdLine.preventDefault = true;
     }
 
+    if (cmdLine.handleFlag("calendar", false)) {
+      getOrOpen3PaneWindow().then(win => win.toCalendar());
+      cmdLine.preventDefault = true;
+    }
+
     if (cmdLine.handleFlag("setDefaultMail", false)) {
       var shell = Cc["@mozilla.org/mail/shell-service;1"].getService(
         Ci.nsIShellService
@@ -651,6 +656,7 @@ MailDefaultHandler.prototype = {
   helpInfo:
     "  -options           Open the options dialog.\n" +
     "  -addressbook       Open the address book at startup.\n" +
+    "  -calendar          Open the calendar at startup.\n" +
     "  -file              Open the specified email file or ICS calendar file.\n" +
     "  -setDefaultMail    Set this app as the default mail client.\n",
 

@@ -518,6 +518,37 @@ async function toAddressBook(openArgs) {
   });
 }
 
+/**
+ * Open the calendar.
+ */
+async function toCalendar() {
+  let messengerWindow = toMessengerWindow();
+  if (messengerWindow.document.readyState != "complete") {
+    await new Promise(resolve => {
+      Services.obs.addObserver(
+        {
+          observe(subject) {
+            if (subject == messengerWindow) {
+              Services.obs.removeObserver(this, "mail-tabs-session-restored");
+              resolve();
+            }
+          },
+        },
+        "mail-tabs-session-restored"
+      );
+    });
+  }
+
+  return new Promise(resolve => {
+    messengerWindow.tabmail.openTab("calendar", {
+      onLoad(event, browser) {
+        resolve(browser.contentWindow);
+      },
+    });
+    messengerWindow.focus();
+  });
+}
+
 function showChatTab() {
   let tabmail = document.getElementById("tabmail");
   if (gChatTab) {
