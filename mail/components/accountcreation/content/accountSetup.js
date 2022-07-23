@@ -2374,17 +2374,10 @@ var gAccountSetup = {
       account.incomingServer.type;
 
     // Store the host domain that will be used to look for CardDAV and CalDAV
-    // services. We do this because we can't safely rely on DNS SRV.
-    this._hostname = account.incomingServer.hostName;
-    try {
-      this._hostname = Services.eTLD.getBaseDomainFromHost(
-        account.incomingServer.hostName
-      );
-    } catch (ex) {
-      gAccountSetupLogger.warn(ex);
-    }
+    // services.
+    this._hostname = this._email.split("@")[1];
 
-    // Set up even listeners for the quick links.
+    // Set up event listeners for the quick links.
     document.getElementById("settingsButton").addEventListener(
       "click",
       () => {

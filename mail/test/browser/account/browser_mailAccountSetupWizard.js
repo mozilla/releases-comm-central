@@ -133,12 +133,21 @@ DNS.srv = function(name) {
   if (["_caldavs._tcp.localhost", "_carddavs._tcp.localhost"].includes(name)) {
     return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
   }
-  throw new Error("Unexpected DNS SRV lookup.");
+  if (
+    [
+      "_caldavs._tcp.example-imap.com",
+      "_carddavs._tcp.example-imap.com",
+    ].includes(name)
+  ) {
+    return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
+  }
+  throw new Error(`Unexpected DNS SRV lookup: ${name}`);
 };
 DNS.txt = function(name) {
   if (name == "_caldavs._tcp.localhost") {
     return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
-  } else if (name == "_carddavs._tcp.localhost") {
+  }
+  if (name == "_carddavs._tcp.localhost") {
     return [
       {
         data:
@@ -146,7 +155,18 @@ DNS.txt = function(name) {
       },
     ];
   }
-  throw new Error("Unexpected DNS TXT lookup.");
+  if (name == "_caldavs._tcp.example-imap.com") {
+    return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
+  }
+  if (name == "_carddavs._tcp.example-imap.com") {
+    return [
+      {
+        data:
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+      },
+    ];
+  }
+  throw new Error(`Unexpected DNS TXT lookup: ${name}`);
 };
 
 const PREF_NAME = "mailnews.auto_config_url";
@@ -626,6 +646,9 @@ add_task(async function test_full_account_setup() {
   let tab = await openAccountSetup();
   let tabDocument = tab.browser.contentWindow.document;
 
+  // If any realname is already filled, clear it out, we have our own.
+  tabDocument.getElementById("realname").value = "";
+
   // The focus should be on the "realname" input by default, so let's fill it.
   input_value(mc, imapUser.name);
   EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
@@ -710,7 +733,11 @@ add_task(async function test_full_account_setup() {
   await finalViewShowed;
 
   // The tab shouldn't change even if we created a new account.
-  Assert.equal(tab, mc.tabmail.selectedTab);
+  Assert.equal(
+    tab,
+    mc.tabmail.selectedTab,
+    "Tab should should still be the same"
+  );
 
   // Assert the UI is properly filled with the new account info.
   Assert.equal(
