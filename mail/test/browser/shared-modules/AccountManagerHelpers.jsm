@@ -163,14 +163,15 @@ function remove_account(
     { clickCount: 1 },
     actionsButton.ownerGlobal
   );
-  mc.sleep(100); // Wait for popup to open.
+  let actionsDd = content_tab_e(tab, "accountActionsDropdown");
+  mc.waitFor(() => actionsDd.state == "open" || actionsDd.state == "showing");
   let remove = content_tab_e(tab, "accountActionsDropdownRemove");
   EventUtils.synthesizeMouseAtCenter(
     remove,
     { clickCount: 1 },
     remove.ownerGlobal
   );
-  mc.sleep(100); // Wait for click to take affect.
+  mc.waitFor(() => actionsDd.state == "closed");
 
   let cdc = wh.wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,

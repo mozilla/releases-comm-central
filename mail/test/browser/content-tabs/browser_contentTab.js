@@ -112,8 +112,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     "spell-suggestion"
   );
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  let add = mc.e("mailContext-spell-add-to-dictionary");
-  EventUtils.synthesizeMouseAtCenter(add, { clickCount: 1 }, add.ownerGlobal);
+  mc.click(mc.e("mailContext-spell-add-to-dictionary"));
   await close_popup(mc, mailContext);
 
   // Now check we don't have any suggestionss

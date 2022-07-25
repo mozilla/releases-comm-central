@@ -1636,11 +1636,7 @@ async function delete_via_popup() {
     "selected messages:",
     mc.folderDisplay.selectedMessages,
   ]);
-  EventUtils.synthesizeMouseAtCenter(
-    mc.e("mailContext-delete"),
-    { clickCount: 1 },
-    mc.window
-  );
+  mc.click(mc.e("mailContext-delete"));
   // for reasons unknown, the pop-up does not close itself?
   await close_popup(mc, mc.e("mailContext"));
   wait_for_folder_events();
