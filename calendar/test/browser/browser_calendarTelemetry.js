@@ -3,12 +3,11 @@
 
 "use strict";
 
-/* global reportCalendars */
-
 /**
  * Test telemetry related to calendar.
  */
 
+let { MailTelemetryForTests } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
 let { TelemetryTestUtils } = ChromeUtils.import("resource://testing-common/TelemetryTestUtils.jsm");
 
 /**
@@ -29,7 +28,7 @@ add_task(async function testCalendarCount() {
     }
   }
 
-  await reportCalendars();
+  await MailTelemetryForTests.reportCalendars();
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
@@ -71,7 +70,7 @@ add_task(async function testHomeCalendar() {
   calendar.setProperty("disabled", false);
   calendar.readOnly = true;
   Services.telemetry.clearScalars();
-  await reportCalendars();
+  await MailTelemetryForTests.reportCalendars();
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.ok(!scalars["tb.calendar.calendar_count"], "'Home' calendar not counted when unused");
@@ -97,7 +96,7 @@ add_task(async function testHomeCalendar() {
   }, "item added to calendar");
 
   Services.telemetry.clearScalars();
-  await reportCalendars();
+  await MailTelemetryForTests.reportCalendars();
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(

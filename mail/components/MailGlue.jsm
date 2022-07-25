@@ -28,6 +28,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.jsm",
   AddonManager: "resource://gre/modules/AddonManager.jsm",
+  cal: "resource:///modules/calendar/calUtils.jsm",
   ChatCore: "resource:///modules/chatHandler.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
@@ -659,11 +660,12 @@ MailGlue.prototype = {
       // This must happen at some point so that CardDAV address books sync.
       () => lazy.MailServices.ab.directories,
       // Telemetry.
-      () => {
+      async () => {
         lazy.OsEnvironment.reportAllowedAppSources();
         reportAccountTypes();
         reportAddressBookTypes();
         reportAccountSizes();
+        await reportCalendars();
         reportBooleanPreferences();
       },
     ];
@@ -853,6 +855,55 @@ function reportAddressBookTypes() {
   }
 }
 
+/**
+ * A telemetry probe to report calendar count and read only calendar count.
+ */
+async function reportCalendars() {
+  let telemetryReport = {};
+  let home = lazy.cal.l10n.getCalString("homeCalendarName");
+
+  for (let calendar of lazy.cal.manager.getCalendars()) {
+    if (calendar.name == home && calendar.type == "storage") {
+      // Ignore the "Home" calendar if it is disabled or unused as it's
+      // automatically added.
+      if (calendar.getProperty("disabled")) {
+        continue;
+      }
+      let items = await calendar.getItemsAsArray(
+        Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
+        1,
+        null,
+        null
+      );
+      if (!items.length) {
+        continue;
+      }
+    }
+    if (!telemetryReport[calendar.type]) {
+      telemetryReport[calendar.type] = { count: 0, readOnlyCount: 0 };
+    }
+    telemetryReport[calendar.type].count++;
+    if (calendar.readOnly) {
+      telemetryReport[calendar.type].readOnlyCount++;
+    }
+  }
+
+  for (let [type, { count, readOnlyCount }] of Object.entries(
+    telemetryReport
+  )) {
+    Services.telemetry.keyedScalarSet(
+      "tb.calendar.calendar_count",
+      type.toLowerCase(),
+      count
+    );
+    Services.telemetry.keyedScalarSet(
+      "tb.calendar.read_only_calendar_count",
+      type.toLowerCase(),
+      readOnlyCount
+    );
+  }
+}
+
 function reportBooleanPreferences() {
   let booleanPrefs = [
     // General
@@ -1014,11 +1065,13 @@ function reportBooleanPreferences() {
 }
 
 /**
- * Export these functions so we can test them.
+ * Export these functions so we can test them. This object shouldn't be
+ * accessed outside of a test (hence the name).
  */
 var MailTelemetryForTests = {
   reportAccountTypes,
   reportAccountSizes,
   reportAddressBookTypes,
+  reportCalendars,
   reportBooleanPreferences,
 };

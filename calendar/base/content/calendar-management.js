@@ -385,53 +385,6 @@ async function loadCalendarManager() {
     onCalendarDeleting(calendar) {},
   };
   cal.manager.addObserver(calendarList._calendarManagerObserver);
-
-  // Called here to avoid an issue in tests where onPropertyChanged() is called
-  // before a default calendar is set.
-  await reportCalendars();
-}
-
-/**
- * A telemetry probe to report calendar count and read only calendar count.
- */
-async function reportCalendars() {
-  let telemetryReport = {};
-  let home = cal.l10n.getCalString("homeCalendarName");
-
-  for (let calendar of cal.manager.getCalendars()) {
-    if (calendar.name == home && calendar.type == "storage") {
-      // Ignore the "Home" calendar if it is disabled or unused as it's
-      // automatically added.
-      if (calendar.getProperty("disabled")) {
-        continue;
-      }
-      let items = await calendar.getItemsAsArray(
-        Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
-        1,
-        null,
-        null
-      );
-      if (!items.length) {
-        continue;
-      }
-    }
-    if (!telemetryReport[calendar.type]) {
-      telemetryReport[calendar.type] = { count: 0, readOnlyCount: 0 };
-    }
-    telemetryReport[calendar.type].count++;
-    if (calendar.readOnly) {
-      telemetryReport[calendar.type].readOnlyCount++;
-    }
-  }
-
-  for (let [type, { count, readOnlyCount }] of Object.entries(telemetryReport)) {
-    Services.telemetry.keyedScalarSet("tb.calendar.calendar_count", type.toLowerCase(), count);
-    Services.telemetry.keyedScalarSet(
-      "tb.calendar.read_only_calendar_count",
-      type.toLowerCase(),
-      readOnlyCount
-    );
-  }
 }
 
 /**
