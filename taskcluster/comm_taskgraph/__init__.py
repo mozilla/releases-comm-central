@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-import sys
 import os
 import logging
 from importlib import import_module
@@ -29,15 +28,7 @@ def register(graph_config):
     logger.info("{} path registered".format(__name__))
     register_parameters()
 
-    # set_optimization_schema(thunderbird_optimizations)   -- bug 1762712
-    try:
-        task_m = sys.modules["gecko_taskgraph.transforms.task"]
-    except KeyError:
-        from gecko_taskgraph.transforms import task  # noqa: F401
-
-        task_m = sys.modules["gecko_taskgraph.transforms.task"]
-
-    task_m.OptimizationSchema.validators = thunderbird_optimizations
+    set_optimization_schema(thunderbird_optimizations)
 
     _import_modules(
         [
