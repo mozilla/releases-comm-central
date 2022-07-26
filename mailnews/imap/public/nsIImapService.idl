@@ -179,7 +179,6 @@ interface nsIImapService : nsISupports
                              in boolean idsAreUids,
                              in boolean aInSelectedState,
                              in nsIUrlListener aUrlListener,
-                             out nsIURI aURL,
                              in nsISupports aCopyState,
                              in nsIMsgWindow aMsgWindow);
 
@@ -219,10 +218,10 @@ interface nsIImapService : nsISupports
   // not subscribed to, in which case it will subscribe to the folder.
   // otherwise, it will try to create the folder. It will try to do this
   // with one url.
-  nsIURI ensureFolderExists(in nsIMsgFolder aParentFolder,
-                            in AString aLeafName,
-                            in nsIMsgWindow aMsgWindow,
-                            in nsIUrlListener aUrlListener);
+  void ensureFolderExists(in nsIMsgFolder aParentFolder,
+                          in AString aLeafName,
+                          in nsIMsgWindow aMsgWindow,
+                          in nsIUrlListener aUrlListener);
 
 
   nsIURI getFolderAdminUrl(in nsIMsgFolder aMailFolder,

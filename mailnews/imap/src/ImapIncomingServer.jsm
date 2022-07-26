@@ -201,6 +201,7 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   discoveryDone() {
+    this.hasDiscoveredFolders = true;
     // No need to verify the root.
     this.rootFolder.QueryInterface(
       Ci.nsIMsgImapMailFolder

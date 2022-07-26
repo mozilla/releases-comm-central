@@ -125,6 +125,7 @@ class ImapClient {
    * @param {nsIMsgFolder} folder - The associated folder.
    */
   discoverAllFolders(folder) {
+    this._logger.debug("discoverAllFolders", folder.URI);
     this._actionListOrLsub();
   }
 
@@ -133,6 +134,7 @@ class ImapClient {
    * @param {nsIMsgFolder} folder - The folder to select.
    */
   selectFolder(folder) {
+    this._logger.debug("selectFolder", folder.URI);
     if (this.folder == folder) {
       this._nextAction = this._actionNoopResponse;
       this._sendTagged("NOOP");
@@ -165,6 +167,34 @@ class ImapClient {
   }
 
   /**
+   * Ensure a folder exists on the server. Create one if not already exists.
+   * @param {nsIMsgFolder} parent - The parent folder to check.
+   * @param {string} folderName - The folder name.
+   */
+  ensureFolderExists(parent, folderName) {
+    this._logger.debug("ensureFolderExists", parent.URI, folderName);
+    let mailboxName = this._getServerFolderName(parent);
+    if (folderName) {
+      let delimiter =
+        parent.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter ||
+        "/";
+      mailboxName += delimiter + folderName;
+    }
+    this._nextAction = res => {
+      if (res.mailboxes.length) {
+        // Already exists.
+        this._actionDone();
+        return;
+      }
+      // Create one and subscribe to it.
+      this._actionCreateAndSubscribe(mailboxName, res => {
+        this._actionList(mailboxName, () => this._actionDone());
+      });
+    };
+    this._sendTagged(`LIST "" "${mailboxName}"`);
+  }
+
+  /**
    * Get the names of all ancestor folders. For example,
    *   folder a/b/c will return ['a', 'b'].
    * @param {nsIMsgFolder} folder - The input folder.
@@ -186,6 +216,9 @@ class ImapClient {
    * @returns {string}
    */
   _getServerFolderName(folder) {
+    if (folder.onlineName) {
+      return folder.onlineName;
+    }
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
@@ -280,6 +313,33 @@ class ImapClient {
       this._nextAction = () => this._actionDone();
       this._sendTagged(command);
     });
+  }
+
+  /**
+   * Upload a message file to a folder.
+   * @param {nsIFile} file - The message file to upload.
+   * @param {nsIMsgFolder} dstFolder - The target folder.
+   * @param {nsImapMailCopyState} copyState - A state used by nsImapMailFolder.
+   */
+  async uploadMessageFromFile(file, dstFolder, copyState) {
+    this._logger.debug("uploadMessageFromFile", file.path, dstFolder.URI);
+    let mailbox = this._getServerFolderName(dstFolder);
+    let content = MailStringUtils.uint8ArrayToByteString(
+      await IOUtils.read(file.path)
+    );
+    this._nextAction = res => {
+      if (res.tag != "+") {
+        this._actionDone(Cr.NS_ERROR_FAILURE);
+        return;
+      }
+      this._nextAction = res => {
+        this._folderSink = dstFolder.QueryInterface(Ci.nsIImapMailFolderSink);
+        this._actionDone();
+        this._folderSink.copyNextStreamMessage(true, copyState);
+      };
+      this._send(content);
+    };
+    this._sendTagged(`APPEND "${mailbox}" {${content.length}}`);
   }
 
   /**
@@ -845,6 +905,22 @@ class ImapClient {
       }
     });
     this._listTrashSent = true;
+  }
+
+  /**
+   * Create and subscribe to a folder.
+   * @param {string} folderName - The folder name.
+   * @param {Function} callbackAfterSubscribe - The action after the subscribe
+   *   command.
+   */
+  _actionCreateAndSubscribe(folderName, callbackAfterSubscribe) {
+    this._nextAction = res => {
+      this._actionList(folderName, () => {
+        this._nextAction = callbackAfterSubscribe;
+        this._sendTagged(`SUBSCRIBE "${folderName}"`);
+      });
+    };
+    this._sendTagged(`CREATE "${folderName}"`);
   }
 
   /**

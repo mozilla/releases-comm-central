@@ -45,6 +45,9 @@ class ImapService {
   discoverAllFolders(folder, urlListener, msgWindow) {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
+    if (server.wrappedJSObject.hasDiscoveredFolders) {
+      return;
+    }
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(urlListener, msgWindow);
       client.onReady = () => {
@@ -162,6 +165,37 @@ class ImapService {
         : Ci.nsIImapUrl.nsImapOnlineCopy;
       client.onReady = () => {
         client.copy(folder, dstFolder, messageIds, idsAreUids, isMove);
+      };
+    });
+  }
+
+  appendMessageFromFile(
+    file,
+    dstFolder,
+    messageId,
+    idsAreUids,
+    inSelectedState,
+    urlListener,
+    copyState,
+    msgWindow
+  ) {
+    this._withClient(dstFolder, client => {
+      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapAppendMsgFromFile;
+      client.onReady = () => {
+        client.uploadMessageFromFile(file, dstFolder, copyState);
+      };
+    });
+  }
+
+  ensureFolderExists(parent, folderName, msgWindow, urlListener) {
+    this._withClient(parent, client => {
+      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapEnsureExistsFolder;
+      client.onReady = () => {
+        client.ensureFolderExists(parent, folderName);
       };
     });
   }

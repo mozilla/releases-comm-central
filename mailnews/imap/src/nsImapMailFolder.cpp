@@ -1045,9 +1045,8 @@ NS_IMETHODIMP nsImapMailFolder::CreateStorageIfMissing(
     nsCOMPtr<nsIImapService> imapService =
         do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIURI> uri;
-    imapService->EnsureFolderExists(msgParent, folderName, nullptr, urlListener,
-                                    getter_AddRefs(uri));
+    imapService->EnsureFolderExists(msgParent, folderName, nullptr,
+                                    urlListener);
   }
   return rv;
 }
@@ -3074,7 +3073,7 @@ NS_IMETHODIMP nsImapMailFolder::EndCopy(bool copySucceeded) {
         QueryInterface(NS_GET_IID(nsIUrlListener), getter_AddRefs(urlListener));
     rv = imapService->AppendMessageFromFile(
         m_copyState->m_tmpFile, this, EmptyCString(), true,
-        m_copyState->m_selectedState, urlListener, nullptr, m_copyState,
+        m_copyState->m_selectedState, urlListener, m_copyState,
         m_copyState->m_msgWindow);
   }
   if (NS_FAILED(rv) || !copySucceeded)
@@ -7081,7 +7080,7 @@ nsresult nsImapFolderCopyState::StartNextCopy() {
   nsString folderName;
   m_curSrcFolder->GetName(folderName);
   return imapService->EnsureFolderExists(m_curDestParent, folderName,
-                                         m_msgWindow, this, nullptr);
+                                         m_msgWindow, this);
 }
 
 nsresult nsImapFolderCopyState::AdvanceToNextFolder(nsresult aStatus) {
@@ -7378,8 +7377,8 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
 
   m_copyState->m_streamCopy = true;
   rv = imapService->AppendMessageFromFile(file, this, messageId, true,
-                                          isDraftOrTemplate, this, nullptr,
-                                          m_copyState, msgWindow);
+                                          isDraftOrTemplate, this, m_copyState,
+                                          msgWindow);
   if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   return rv;

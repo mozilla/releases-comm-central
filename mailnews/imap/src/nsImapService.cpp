@@ -1943,7 +1943,7 @@ NS_IMETHODIMP nsImapService::AppendMessageFromFile(
     const nsACString& messageId,  // to be replaced
     bool idsAreUids,
     bool inSelectedState,  // needs to be in
-    nsIUrlListener* aListener, nsIURI** aURL, nsISupports* aCopyState,
+    nsIUrlListener* aListener, nsISupports* aCopyState,
     nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aFile);
   NS_ENSURE_ARG_POINTER(aDstFolder);
@@ -1993,11 +1993,11 @@ NS_IMETHODIMP nsImapService::AppendMessageFromFile(
     if (WeAreOffline()) {
       // handle offline append to drafts or templates folder here.
       return OfflineAppendFromFile(aFile, mailnewsurl, aDstFolder, messageId,
-                                   inSelectedState, aListener, aURL,
+                                   inSelectedState, aListener, nullptr,
                                    aCopyState);
     }
     if (NS_SUCCEEDED(rv))
-      rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, aURL);
+      rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, nullptr);
   }
   return rv;
 }
@@ -2199,8 +2199,7 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
 NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
                                                 const nsAString& newFolderName,
                                                 nsIMsgWindow* msgWindow,
-                                                nsIUrlListener* urlListener,
-                                                nsIURI** url) {
+                                                nsIUrlListener* urlListener) {
   NS_ENSURE_ARG_POINTER(parent);
 
   nsCOMPtr<nsIImapUrl> imapUrl;
@@ -2243,7 +2242,7 @@ NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
       if (msgWindow) mailnewsurl->SetMsgWindow(msgWindow);
 
       if (NS_SUCCEEDED(rv))
-        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, url);
+        rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, nullptr);
     }
   }
   return rv;
