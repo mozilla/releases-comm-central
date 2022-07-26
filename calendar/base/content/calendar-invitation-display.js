@@ -12,18 +12,37 @@
    */
   const CalInvitationDisplay = {
     /**
-     * The node we render the invitation to.
+     * The hbox element that wraps the invitation. We need to make this
+     * scrollable so larger invitations can be seen.
+     *
+     * @type {XULElement}
+     */
+    container: null,
+
+    /**
+     * The node the invitation details are rendered into.
+     *
      * @type {HTMLElement}
      */
     display: null,
 
     /**
+     * The <browser> element that displays the message body. This is hidden
+     * when the invitation details are displayed.
+     */
+    body: null,
+
+    /**
      * Creates a new instance and sets up listeners.
      */
     init() {
+      this.container = document.getElementById("messagepaneContainer");
       this.display = document.getElementById("calendarInvitationDisplay");
+      this.body = document.getElementById("messagepane");
+
       window.addEventListener("onItipItemCreation", this);
       window.addEventListener("messagepane-unloaded", this);
+      document.getElementById("msgHeaderView").addEventListener("message-header-pane-hidden", this);
       gMessageListeners.push(this);
     },
 
@@ -38,28 +57,58 @@
         case "DOMContentLoaded":
           this.init();
           break;
-
         case "onItipItemCreation":
-          let panel = document.createElement("calendar-invitation-panel");
-          this.display.replaceChildren(panel);
-          panel.itipItem = evt.detail;
-          this.display.hidden = false;
+          this.show(evt.detail);
           break;
-
+        case "messagepane-unloaded":
+        case "message-header-pane-hidden":
+          this.hide();
+          break;
         default:
           break;
       }
     },
 
     /**
-     * Removes the panel from view each time a new message is loaded.
+     * Hide the invitation display each time a new message to display is
+     * detected. If the message contains an invitation it will be displayed
+     * in the "onItipItemCreation" handler.
      */
     onStartHeaders() {
-      this.display.hidden = true;
-      this.display.replaceChildren();
+      this.hide();
     },
 
+    /**
+     * Called by messageHeaderSink.
+     */
     onEndHeaders() {},
+
+    /**
+     * Displays the invitation display with the data from the provided
+     * calIItipItem.
+     *
+     * @param {calIItipItem} item
+     */
+    show(item) {
+      this.container.classList.add("scrollable");
+
+      let panel = document.createElement("calendar-invitation-panel");
+      this.display.replaceChildren(panel);
+      panel.itipItem = item;
+      this.display.hidden = false;
+      this.body.hidden = true;
+    },
+
+    /**
+     * Removes the invitation display from view, resetting any changes made
+     * to the container and message pane.
+     */
+    hide() {
+      this.container.classList.remove("scrollable");
+      this.display.hidden = true;
+      this.display.replaceChildren();
+      this.body.hidden = false;
+    },
   };
 
   window.addEventListener("DOMContentLoaded", CalInvitationDisplay, { once: true });

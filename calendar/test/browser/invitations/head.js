@@ -23,7 +23,7 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
-registerCleanupFunction(() => {
+registerCleanupFunction(async () => {
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
@@ -32,6 +32,8 @@ registerCleanupFunction(() => {
   let searchInput = document.getElementById("searchInput");
   searchInput.focus();
   searchInput.blur();
+
+  await CalendarTestUtils.closeCalendarTab(window);
 });
 
 class EmailTransport extends CalItipDefaultEmailTransport {
