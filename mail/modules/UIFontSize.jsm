@@ -89,11 +89,6 @@ var UIFontSize = {
   // Keeps track of the custom value while in safe mode.
   safe_mode_value: 0,
 
-  // Store the user pref for font size in order to scale the message font
-  // relative to the desired sizing.
-  VARIABLE_SIZE: Services.prefs.getIntPref("font.size.variable." + langGroup),
-  MONOSPACE_SIZE: Services.prefs.getIntPref("font.size.monospace." + langGroup),
-
   // Keep track of the state of the custom font size. We use this instead of the
   // size attribute because we need to keep track of when things changed back to
   // a default state, and using the size attribute wouldn't be accurate.
@@ -129,10 +124,18 @@ var UIFontSize = {
    *   the default preferences.
    */
   browserSize(isPlainText) {
-    return (
-      (isPlainText ? this.MONOSPACE_SIZE : this.VARIABLE_SIZE) +
-      (this.size - this.user_value)
+    if (isPlainText) {
+      let monospaceSize = Services.prefs.getIntPref(
+        "font.size.monospace." + langGroup,
+        this.size
+      );
+      return monospaceSize + (this.size - this.user_value);
+    }
+    let variableSize = Services.prefs.getIntPref(
+      "font.size.variable." + langGroup,
+      this.size
     );
+    return variableSize + (this.size - this.user_value);
   },
 
   /**
