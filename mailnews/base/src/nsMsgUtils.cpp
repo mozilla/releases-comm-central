@@ -98,7 +98,7 @@ NS_MSG_BASE void MsgLogToConsole4(const nsAString& aErrorText,
       do_GetService(NS_CONSOLESERVICE_CONTRACTID);
   if (NS_WARN_IF(!console)) return;
   if (NS_FAILED(scriptError->Init(aErrorText, aFilename, EmptyString(),
-                                  aLinenumber, 0, aFlag, "mailnews", false,
+                                  aLinenumber, 0, aFlag, "mailnews"_ns, false,
                                   false)))
     return;
   console->LogMessage(scriptError);
