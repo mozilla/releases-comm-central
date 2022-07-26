@@ -84,6 +84,11 @@ vcard-edit select:not([size], [multiple]) {
   margin-block-end: 0;
 }
 
+vcard-edit select:user-invalid {
+  outline: 2px solid var(--in-content-border-invalid);
+  outline-offset: -1px;
+}
+
 vcard-edit textarea {
   /* 3px is for the margin-end. */
   width: calc(100% - 3px);

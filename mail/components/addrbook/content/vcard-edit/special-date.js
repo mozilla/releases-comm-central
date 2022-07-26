@@ -63,92 +63,80 @@ class VCardSpecialDateComponent extends HTMLElement {
     return new VCardPropertyEntry("bday", {}, "date", "");
   }
 
-  constructor() {
-    super();
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
     let template = document.getElementById(
       "template-vcard-edit-bday-anniversary"
     );
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
-  }
 
-  connectedCallback() {
-    if (this.isConnected) {
-      this.selectEl = this.querySelector(".vcard-type-selection");
-      let selectId = vCardIdGen.next().value;
-      this.selectEl.id = selectId;
+    this.selectEl = this.querySelector(".vcard-type-selection");
+    let selectId = vCardIdGen.next().value;
+    this.selectEl.id = selectId;
 
-      this.selectEl.addEventListener("change", event => {
-        this.dispatchEvent(
-          VCardSpecialDateComponent.ChangeVCardPropertyEntryEvent(
-            event.target.value
-          )
-        );
+    this.selectEl.addEventListener("change", event => {
+      this.dispatchEvent(
+        VCardSpecialDateComponent.ChangeVCardPropertyEntryEvent(
+          event.target.value
+        )
+      );
+    });
+
+    this.month = this.querySelector("#month");
+    let monthId = vCardIdGen.next().value;
+    this.month.id = monthId;
+    this.querySelector('label[for="month"]').htmlFor = monthId;
+    this.month.addEventListener("change", () => {
+      this.fillDayOptions();
+    });
+
+    this.day = this.querySelector("#day");
+    let dayId = vCardIdGen.next().value;
+    this.day.id = dayId;
+    this.querySelector('label[for="day"]').htmlFor = dayId;
+
+    this.year = this.querySelector("#year");
+    let yearId = vCardIdGen.next().value;
+    this.year.id = yearId;
+    this.querySelector('label[for="year"]').htmlFor = yearId;
+    this.year.addEventListener("input", () => {
+      this.fillDayOptions();
+    });
+
+    let button = this.querySelector(`button[type="button"]`);
+
+    document.l10n
+      .formatValues([
+        { id: "vcard-date-year" },
+        // FIXME: Temporarily use the existing "Delete" string for the remove
+        // button. We should add a "Remove" fluent string for this after 102.
+        { id: "about-addressbook-delete-edit-contact-button" },
+      ])
+      .then(([yearLabel, deleteLabel]) => {
+        this.year.placeholder = yearLabel;
+        button.title = deleteLabel;
       });
 
-      this.month = this.querySelector("#month");
-      let monthId = vCardIdGen.next().value;
-      this.month.id = monthId;
-      this.querySelector('label[for="month"]').htmlFor = monthId;
-      this.month.addEventListener("change", () => {
-        this.fillDayOptions();
-      });
+    button.addEventListener("click", () => {
+      this.dispatchEvent(
+        VCardSpecialDateComponent.RemoveVCardDateEntryEvent(this)
+      );
+      this.remove();
+    });
 
-      this.day = this.querySelector("#day");
-      let dayId = vCardIdGen.next().value;
-      this.day.id = dayId;
-      this.querySelector('label[for="day"]').htmlFor = dayId;
-
-      this.year = this.querySelector("#year");
-      let yearId = vCardIdGen.next().value;
-      this.year.id = yearId;
-      this.querySelector('label[for="year"]').htmlFor = yearId;
-      this.year.addEventListener("input", () => {
-        if (this.month.value === "2") {
-          this.fillDayOptions();
-        }
-      });
-
-      let button = this.querySelector(`button[type="button"]`);
-
-      document.l10n
-        .formatValues([
-          { id: "vcard-date-year" },
-          // FIXME: Temporarily use the existing "Delete" string for the remove
-          // button. We should add a "Remove" fluent string for this after 102.
-          { id: "about-addressbook-delete-edit-contact-button" },
-        ])
-        .then(([yearLabel, deleteLabel]) => {
-          this.year.placeholder = yearLabel;
-          button.title = deleteLabel;
-        });
-
-      button.addEventListener("click", () => {
-        this.dispatchEvent(
-          VCardSpecialDateComponent.RemoveVCardDateEntryEvent(this)
-        );
-        this.remove();
-      });
-
-      this.fillMonthOptions();
-      this.fromVCardPropertyEntryToUI();
-    }
-  }
-
-  disconnectedCallback() {
-    if (!this.isConnected) {
-      this.inputEl = null;
-      this.selectEl = null;
-      this.vCardPropertyEntry = null;
-    }
+    this.fillMonthOptions();
+    this.fromVCardPropertyEntryToUI();
   }
 
   fromVCardPropertyEntryToUI() {
     this.selectEl.value = this.vCardPropertyEntry.name;
     if (this.vCardPropertyEntry.type === "text") {
-      /**
-       * @TODO support of text type
-       */
+      // TODO: support of text type for special-date
       this.hidden = true;
       return;
     }
@@ -158,17 +146,15 @@ class VCardSpecialDateComponent extends HTMLElement {
       "date-and-or-time"
     );
     // Always set the month first since that controls the available days.
-    this.month.value = dateValue.month || 0;
+    this.month.value = dateValue.month || "";
     this.fillDayOptions();
-    this.day.value = dateValue.day || 0;
-    this.year.value = dateValue.year === 0 ? "" : dateValue.year;
+    this.day.value = dateValue.day || "";
+    this.year.value = dateValue.year || "";
   }
 
   fromUIToVCardPropertyEntry() {
     if (this.vCardPropertyEntry.type === "text") {
-      /**
-       * @TODO support of text type
-       */
+      // TODO: support of text type for special-date
       return;
     }
     // Default value is date-and-or-time.
@@ -177,17 +163,12 @@ class VCardSpecialDateComponent extends HTMLElement {
     // constructor argument, which causes null values to become 0.
     dateValue.year = this.year.value ? Number(this.year.value) : null;
     dateValue.month = this.month.value ? Number(this.month.value) : null;
-    dateValue.day =
-      dateValue.month && this.day.value ? Number(this.day.value) : null;
+    dateValue.day = this.day.value ? Number(this.day.value) : null;
     this.vCardPropertyEntry.value = dateValue.toString();
   }
 
   valueIsEmpty() {
-    return (
-      this.year.value === "" &&
-      this.month.value === "0" &&
-      this.day.value === "0"
-    );
+    return !this.year.value && !this.month.value && !this.day.value;
   }
 
   /**
@@ -259,8 +240,7 @@ class VCardSpecialDateComponent extends HTMLElement {
 
     // Always clear old options.
     let defaultOption = document.createElement("option");
-    defaultOption.value = 0;
-    defaultOption.disabled = true;
+    defaultOption.value = "";
     document.l10n
       .formatValues([{ id: "vcard-date-day" }])
       .then(([dayLabel]) => {
@@ -268,11 +248,7 @@ class VCardSpecialDateComponent extends HTMLElement {
       });
     this.day.replaceChildren(defaultOption);
 
-    if (this.month.value === "0") {
-      return;
-    }
-
-    let monthValue = this.month.value;
+    let monthValue = this.month.value || 1;
     // Add a day to February if this is a leap year and we're in February.
     if (monthValue === "2") {
       this.monthDays["2"] = this.isLeapYear() ? 29 : 28;
@@ -287,7 +263,7 @@ class VCardSpecialDateComponent extends HTMLElement {
     }
     // Reset the previously selected day, if it's available in the currently
     // selected month.
-    this.day.value = prevDay <= this.monthDays[monthValue] ? prevDay : 0;
+    this.day.value = prevDay <= this.monthDays[monthValue] ? prevDay : "";
   }
 
   /**

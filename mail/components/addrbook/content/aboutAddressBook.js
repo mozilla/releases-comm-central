@@ -2838,19 +2838,29 @@ var detailsPane = {
 
     let formatDate = function(date) {
       date = ICAL.VCardTime.fromDateAndOrTimeString(date);
+      if (date.year && date.month && date.day) {
+        return new Services.intl.DateTimeFormat(
+          Services.locale.appLocalesAsBCP47,
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        ).format(new Date(date.year, date.month - 1, date.day));
+      }
+      if (date.year && date.month) {
+        return new Services.intl.DateTimeFormat(
+          Services.locale.appLocalesAsBCP47,
+          {
+            year: "numeric",
+            month: "long",
+          }
+        ).format(new Date(date.year, date.month - 1, 1));
+      }
       if (date.year) {
-        if (date.month && date.day) {
-          return new Services.intl.DateTimeFormat(
-            Services.locale.appLocalesAsBCP47,
-            {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            }
-          ).format(new Date(date.year, date.month - 1, date.day));
-        }
         return date.year;
-      } else if (date.month && date.day) {
+      }
+      if (date.month && date.day) {
         return new Services.intl.DateTimeFormat(
           Services.locale.appLocalesAsBCP47,
           {
@@ -2858,6 +2868,17 @@ var detailsPane = {
             day: "numeric",
           }
         ).format(new Date(2024, date.month - 1, date.day));
+      }
+      if (date.month) {
+        return new Services.intl.DateTimeFormat(
+          Services.locale.appLocalesAsBCP47,
+          {
+            month: "long",
+          }
+        ).format(new Date(2024, date.month - 1, 1));
+      }
+      if (date.day) {
+        return date.day;
       }
       return "";
     };

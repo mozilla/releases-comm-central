@@ -34,9 +34,11 @@ let mockExternalProtocolService = {
 };
 
 add_setup(async function() {
+  // Card 0.
   personalBook.addCard(
     VCardUtils.vCardToAbCard("BEGIN:VCARD\r\nEND:VCARD\r\n")
   );
+  // Card 1.
   personalBook.addCard(
     VCardUtils.vCardToAbCard(formatVCard`
       BEGIN:VCARD
@@ -45,6 +47,7 @@ add_setup(async function() {
       END:VCARD
     `)
   );
+  // Card 2.
   personalBook.addCard(
     VCardUtils.vCardToAbCard(formatVCard`
       BEGIN:VCARD
@@ -66,6 +69,51 @@ add_setup(async function() {
       TITLE:senior engineering lead
       TZ;VALUE=TEXT:Pacific/Auckland
       URL;TYPE=work:https://www.thunderbird.net/
+      END:VCARD
+    `)
+  );
+  // Card 3.
+  personalBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      EMAIL:xbasic3@invalid
+      ANNIVERSARY:2005
+      END:VCARD
+    `)
+  );
+  // Card 4.
+  personalBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      EMAIL:xbasic4@invalid
+      ANNIVERSARY:2006-06
+      END:VCARD
+    `)
+  );
+  // Card 5.
+  personalBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      EMAIL:xbasic5@invalid
+      ANNIVERSARY:--12
+      END:VCARD
+    `)
+  );
+  // Card 6.
+  personalBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      EMAIL:xbasic6@invalid
+      ANNIVERSARY;VALUE=DATE:--0704
+      END:VCARD
+    `)
+  );
+  // Card 7.
+  personalBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      EMAIL:xbasic7@invalid
+      ANNIVERSARY:---30
       END:VCARD
     `)
   );
@@ -112,7 +160,7 @@ add_task(async function testDisplay() {
   let otherInfoSection = abDocument.getElementById("otherInfo");
   let selectedCardsSection = abDocument.getElementById("selectedCards");
 
-  Assert.equal(cardsList.view.rowCount, 3);
+  Assert.equal(cardsList.view.rowCount, 8);
   Assert.ok(detailsPane.hidden);
 
   // Card 0: an empty card.
@@ -321,6 +369,7 @@ add_task(async function testDisplay() {
     "about-addressbook-entry-name-anniversary"
   );
   Assert.equal(items[1].children[1].textContent, "June 11, 2018");
+
   Assert.equal(
     items[2].children[0].dataset.l10nId,
     "about-addressbook-entry-name-title"
@@ -355,6 +404,76 @@ add_task(async function testDisplay() {
     items[5].children[1].lastChild.getAttribute("tz"),
     "Pacific/Auckland"
   );
+
+  // Test card 3:
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(3), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "2005");
+
+  // Test card 4:
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(4), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "June 2006");
+
+  // Test card 5:
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(5), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "December");
+
+  // Test card 6:
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(6), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "July 4");
+
+  // Test card 7:
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(7), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "30");
 
   Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
 
@@ -529,7 +648,7 @@ add_task(async function testReadOnlyActions() {
   // Check contacts with All Address Books displayed.
 
   openAllAddressBooks();
-  Assert.equal(cardsList.view.rowCount, 6);
+  Assert.equal(cardsList.view.rowCount, 11);
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
 
   // Basic person from Personal Address Books.

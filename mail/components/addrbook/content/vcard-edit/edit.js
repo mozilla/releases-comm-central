@@ -783,27 +783,30 @@ class VCardEdit extends HTMLElement {
   }
 
   /**
-   * Validate the special date fields making sure that at least the year is
-   * correctly specified, since month and day are optional.
+   * Validate the special date fields making sure that we have a valid
+   * DATE-AND-OR-TIME. See date, date-noreduc.
+   * That is, valid if any of the fields are valid, but the combination of
+   * only year and day is not valid.
    *
-   * @returns {boolean} - If all created date fields are valid or not.
+   * @returns {boolean} - True all created special date fields are valid.
+   * @see https://datatracker.ietf.org/doc/html/rfc6350#section-4.3.4
    */
   validateDates() {
-    let hasInvalidDate = [
-      ...document.querySelectorAll("vcard-special-date"),
-    ].find(s => {
-      let field = s.querySelector(`input[type="number"]`);
-      return !field.value.trim() || !field.checkValidity();
-    });
-
-    if (hasInvalidDate) {
-      let input = hasInvalidDate.querySelector(`input[type="number"]`);
-      input.required = true;
-      input.focus();
+    for (let field of document.querySelectorAll("vcard-special-date")) {
+      let y = field.querySelector(`input[type="number"][name="year"]`);
+      let m = field.querySelector(`select[name="month"]`);
+      let d = field.querySelector(`select[name="day"]`);
+      if (!y.checkValidity()) {
+        y.focus();
+        return false;
+      }
+      if (y.value && d.value && !m.value) {
+        m.required = true;
+        m.focus();
+        return false;
+      }
     }
-
-    // If we have invalid dates, return FALSE so the validation fails.
-    return !hasInvalidDate;
+    return true;
   }
 }
 customElements.define("vcard-edit", VCardEdit);
