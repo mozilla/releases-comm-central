@@ -661,12 +661,12 @@
       document.l10n.setAttributes(this.heading, "message-header-website-field");
 
       this.value.classList.add("text-link");
-      this.value.addEventListener("click", event => {
+      this.addEventListener("click", event => {
         if (event.button != 2) {
           openUILink(encodeURI(this.value.textContent), event);
         }
       });
-      this.value.addEventListener("keypress", event => {
+      this.addEventListener("keydown", event => {
         if (event.key == "Enter") {
           openUILink(encodeURI(this.value.textContent), event);
         }
