@@ -577,6 +577,7 @@ select[disabled] {
   display: flex;
   align-items: center;
   background-color: transparent;
+  border-width: 0;
   appearance: none;
   margin: 0;
   padding-inline: 0;
