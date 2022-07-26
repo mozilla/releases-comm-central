@@ -3095,9 +3095,52 @@ function ComposeFieldsReady() {
   SetComposeWindowTitle();
   updateEditableFields(false);
   gLoadingComplete = true;
-  // Automatic checking is disabled while composer is loading,
-  // perform the check for encryption status now.
+
+  // Set up observers to recheck limit and encyption on recipients change.
+  observeRecipientsChange();
+
+  // Perform the initial checks.
+  checkPublicRecipientsLimit();
   checkRecipientKeys();
+  checkEncryptedBccRecipients();
+}
+
+/**
+ * Set up observers to recheck limit and encyption on recipients change.
+ */
+function observeRecipientsChange() {
+  // Observe childList changes of `To` and `Cc` address rows to check if we need
+  // to show the public bulk recipients notification according to the threshold.
+  // So far we're only counting recipient pills, not plain text addresses.
+  gRecipientObserver = new MutationObserver(function(mutations) {
+    if (mutations.some(m => m.type == "childList")) {
+      checkPublicRecipientsLimit();
+    }
+  });
+  gRecipientObserver.observe(document.getElementById("toAddrContainer"), {
+    childList: true,
+  });
+  gRecipientObserver.observe(document.getElementById("ccAddrContainer"), {
+    childList: true,
+  });
+
+  gBccObserver = new MutationObserver(checkEncryptedBccRecipients);
+  gBccObserver.observe(document.getElementById("bccAddrContainer"), {
+    childList: true,
+  });
+  window.addEventListener("sendencryptedchange", checkEncryptedBccRecipients);
+
+  gRecipientKeysObserver = new MutationObserver(checkRecipientKeys);
+  gRecipientKeysObserver.observe(document.getElementById("toAddrContainer"), {
+    childList: true,
+  });
+  gRecipientKeysObserver.observe(document.getElementById("ccAddrContainer"), {
+    childList: true,
+  });
+  gRecipientKeysObserver.observe(document.getElementById("bccAddrContainer"), {
+    childList: true,
+  });
+  window.addEventListener("sendencryptedchange", checkRecipientKeys);
 }
 
 // checks if the passed in string is a mailto url, if it is, generates nsIMsgComposeParams
@@ -3350,15 +3393,6 @@ async function verifyCertUsable(cert) {
 }
 
 async function checkRecipientKeys() {
-  if (!gLoadingComplete) {
-    // Let's not do this while we're still loading the composer window,
-    // it can have side effects, see bug 1777683.
-    // Also, if multiple recipients are added to an email automatically
-    // e.g. during reply-all, it doesn't make sense to execute this
-    // function every time after one of them gets added.
-    return;
-  }
-
   let remindSMime = Services.prefs.getBoolPref(
     "mail.smime.remind_encryption_possible"
   );
@@ -3403,7 +3437,10 @@ async function checkRecipientKeys() {
   }
 
   if (remindSMime && (gSendEncrypted || isSmimeEncryptionConfigured())) {
-    Recipients2CompFields(gMsgCompose.compFields);
+    let compFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+    Recipients2CompFields(compFields);
     let helper = Cc[
       "@mozilla.org/messenger-smime/smimejshelper;1"
     ].createInstance(Ci.nsISMimeJSHelper);
@@ -3415,7 +3452,7 @@ async function checkRecipientKeys() {
     let outCanEncrypt = {};
 
     helper.getRecipientCertsInfo(
-      gMsgCompose.compFields,
+      compFields,
       outEmailAddresses,
       outCertIssuedInfos,
       outCertExpiresInfos,
@@ -4684,39 +4721,6 @@ async function ComposeStartup() {
   }
 
   gAutoSaveKickedIn = false;
-
-  // Observe childList changes of `To` and `Cc` address rows to check if we need
-  // to show the public bulk recipients notification according to the threshold.
-  // So far we're only counting recipient pills, not plain text addresses.
-  gRecipientObserver = new MutationObserver(function(mutations) {
-    if (mutations.some(m => m.type == "childList")) {
-      checkPublicRecipientsLimit();
-    }
-  });
-  gRecipientObserver.observe(document.getElementById("toAddrContainer"), {
-    childList: true,
-  });
-  gRecipientObserver.observe(document.getElementById("ccAddrContainer"), {
-    childList: true,
-  });
-
-  gBccObserver = new MutationObserver(checkEncryptedBccRecipients);
-  gBccObserver.observe(document.getElementById("bccAddrContainer"), {
-    childList: true,
-  });
-  window.addEventListener("sendencryptedchange", checkEncryptedBccRecipients);
-
-  gRecipientKeysObserver = new MutationObserver(checkRecipientKeys);
-  gRecipientKeysObserver.observe(document.getElementById("toAddrContainer"), {
-    childList: true,
-  });
-  gRecipientKeysObserver.observe(document.getElementById("ccAddrContainer"), {
-    childList: true,
-  });
-  gRecipientKeysObserver.observe(document.getElementById("bccAddrContainer"), {
-    childList: true,
-  });
-  window.addEventListener("sendencryptedchange", checkRecipientKeys);
 }
 /* eslint-enable complexity */
 
