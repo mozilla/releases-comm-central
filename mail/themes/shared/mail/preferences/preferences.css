@@ -3,6 +3,7 @@
    - You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/preferences/subdialog.css");
+@import url("chrome://messenger/skin/icons.css");
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
@@ -739,9 +740,9 @@ calendar-notifications-setting {
 }
 
 calendar-notifications-setting .add-button {
-  list-style-image: url(chrome://global/skin/icons/add.svg);
-  fill: currentColor;
-  -moz-context-properties: fill;
+  list-style-image: var(--icon-add);
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 calendar-notifications-setting .add-button .button-icon {
@@ -752,10 +753,11 @@ calendar-notifications-setting .remove-button {
   width: 32px;
   min-width: 0;
   padding: 0;
-  list-style-image: url(chrome://global/skin/icons/delete.svg);
-  fill: currentColor;
+  list-style-image: var(--icon-trash);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   background: none;
-  -moz-context-properties: fill;
   --in-content-button-horizontal-padding: 0;
 }
 
