@@ -13,7 +13,7 @@ async function inEditingMode() {
 
   await TestUtils.waitForCondition(
     () => abWindow.detailsPane.isEditing,
-    "entering editing mode"
+    "Waiting on entering editing mode"
   );
 
   Assert.ok(
@@ -2404,7 +2404,6 @@ add_task(async function test_special_date_field() {
   let abDocument = abWindow.document;
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
 
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -2439,17 +2438,12 @@ add_task(async function test_special_date_field() {
   let firstMonth = abDocument.querySelector(
     `vcard-special-date .vcard-month-select`
   );
-  Assert.ok(firstMonth.value === "0", "month on placeholder");
+  Assert.equal(firstMonth.value, "", "month should be on placeholder");
   let firstDay = abDocument.querySelector(
     `vcard-special-date .vcard-day-select`
   );
-  Assert.ok(firstDay.value === "0", "day on placeholder");
-  Assert.ok(firstDay.childNodes.length == 1, "day options empty");
-
-  // Try saving, we should remain in edit mode with year focused.
-  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await inEditingMode();
-  Assert.equal(abDocument.activeElement, firstYear, "year field is focused");
+  Assert.equal(firstDay.value, "", "day should be on placeholder");
+  Assert.equal(firstDay.childNodes.length, 32, "all days should be possible");
 
   // Set date to a leap year.
   firstYear.value = 2004;

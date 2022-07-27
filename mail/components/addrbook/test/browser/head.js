@@ -20,7 +20,7 @@ registerCleanupFunction(function() {
     Assert.equal(
       MailServices.ab.directories.length,
       2,
-      "all test directories have been removed"
+      "Only Personal ab and Collected Addresses should be left."
     );
     for (let directory of MailServices.ab.directories) {
       if (
@@ -30,7 +30,7 @@ registerCleanupFunction(function() {
         Assert.equal(
           directory.childCardCount,
           0,
-          `all contacts have been removed from ${directory.dirName}`
+          `All contacts should have been removed from ${directory.dirName}`
         );
         if (directory.childCardCount) {
           directory.deleteCards(directory.childCards);
