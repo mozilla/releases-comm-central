@@ -489,6 +489,12 @@ checkbox {
   height: 16px;
   margin-inline: 6px 4px;
 }
+ 
+/* Work around bug 560067 - animated images in visibility: hidden
+ * still eat CPU. */
+#updateDeck > *:not(.selected) > .update-throbber {
+  display: none;
+}
 
 .updateSettingCrossUserWarningContainer {
   background: var(--in-content-box-info-background);
