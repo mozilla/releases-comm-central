@@ -30,21 +30,6 @@
    * glanced at quickly to figure out the date of an event.
    */
   class CalendarMinidate extends HTMLElement {
-    /**
-     * @type {HTMLElement}
-     */
-    _monthSpan;
-
-    /**
-     * @type {HTMLElement}
-     */
-    _daySpan;
-
-    /**
-     * @type {HTMLElement}
-     */
-    _yearSpan;
-
     constructor() {
       super();
       this.attachShadow({ mode: "open" });
@@ -52,9 +37,6 @@
       this.shadowRoot.appendChild(
         document.getElementById("calendarMinidate").content.cloneNode(true)
       );
-      this._monthSpan = this.shadowRoot.querySelector(".calendar-minidate-month");
-      this._daySpan = this.shadowRoot.querySelector(".calendar-minidate-day");
-      this._yearSpan = this.shadowRoot.querySelector(".calendar-minidate-year");
     }
 
     /**
@@ -63,18 +45,12 @@
      */
     set date(value) {
       let { month, day, year } = getParts(cal.dtz.dateTimeToJsDate(value));
-      this._monthSpan.textContent = month;
-      this._daySpan.textContent = day;
-      this._yearSpan.textContent = year;
-    }
-
-    /**
-     * Provides the displayed date as a string in the format
-     * "month day year".
-     * @type {string}
-     */
-    get fullDate() {
-      return `${this._monthSpan.textContent} ${this._daySpan.textContent} ${this._yearSpan.textContent}`;
+      let monthSpan = this.shadowRoot.querySelector(".calendar-minidate-month");
+      let daySpan = this.shadowRoot.querySelector(".calendar-minidate-day");
+      let yearSpan = this.shadowRoot.querySelector(".calendar-minidate-year");
+      monthSpan.textContent = month;
+      daySpan.textContent = day;
+      yearSpan.textContent = year;
     }
   }
   customElements.define("calendar-minidate", CalendarMinidate);

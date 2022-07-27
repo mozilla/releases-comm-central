@@ -753,11 +753,8 @@
                       <vbox id="mail-notification-top">
                         <!-- notificationbox will be added here lazily. -->
                       </vbox>
-                      <vbox id="messagepaneContainer" flex="1">
-                        <html:div id="calendarInvitationDisplay" hidden="true">
-                          <!-- The calendar invitation display widget is loaded
-                               here. -->
-                        </html:div>
+                      <vbox flex="1" class="messagepane-container">
+                        <html:div id="calendarInvitationDisplay" hidden="hidden"></html:div>
                         <!-- The messagepanewrapper hbox exists to allow
                              extensions to add sidebars to the message. -->
                         <hbox id="messagepanewrapper" flex="1">

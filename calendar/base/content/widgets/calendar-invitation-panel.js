@@ -97,20 +97,6 @@
       }
     }
 
-    /**
-     * Provides the value of the title displayed as a string.
-     * @type {string}
-     */
-    get fullTitle() {
-      return [
-        ...this.shadowRoot.querySelectorAll(
-          ".calendar-invitation-panel-intro, .calendar-invitation-panel-title"
-        ),
-      ]
-        .map(node => node.textContent)
-        .join(" ");
-    }
-
     disconnectedCallback() {
       document.l10n.disconnectRoot(this.shadowRoot);
     }

@@ -60,11 +60,16 @@ var calImipBar = {
     // Add a listener to gMessageListeners defined in msgHdrView.js
     gMessageListeners.push(calImipBar);
 
-    // Hook into this event to hide the message header pane otherwise, the imip
-    // bar will still be shown when changing folders.
-    document.getElementById("msgHeaderView").addEventListener("message-header-pane-hidden", () => {
-      calImipBar.resetBar();
-    });
+    // We need to extend the HideMessageHeaderPane function to also hide the
+    // message header pane. Otherwise, the imip bar will still be shown when
+    // changing folders.
+    if (!calImipBar.tbHideMessageHeaderPane) {
+      calImipBar.tbHideMessageHeaderPane = HideMessageHeaderPane;
+      HideMessageHeaderPane = function(...args) {
+        calImipBar.resetBar();
+        calImipBar.tbHideMessageHeaderPane(...args);
+      };
+    }
 
     // Set up our observers
     Services.obs.addObserver(calImipBar, "onItipItemCreation");

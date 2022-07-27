@@ -1298,9 +1298,6 @@ function HideMessageHeaderPane() {
   gMessageNotificationBar.clearMsgNotifications();
   // Clear the DBListener since we don't have any visible UI to update.
   clearFolderDBListener();
-
-  // Now let interested listeners know the pane has been hidden.
-  header.dispatchEvent(new Event("message-header-pane-hidden"));
 }
 
 /**
