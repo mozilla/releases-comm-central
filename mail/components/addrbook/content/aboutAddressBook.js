@@ -2414,6 +2414,19 @@ var detailsPane = {
       }
     });
 
+    this.cancelEditButton.addEventListener("keypress", event => {
+      // Prevent scrolling of the html tag when space is used on this button.
+      if (event.key == " ") {
+        event.preventDefault();
+      }
+    });
+    this.saveEditButton.addEventListener("keypress", event => {
+      // Prevent scrolling of the html tag when space is used on this button.
+      if (event.key == " ") {
+        event.preventDefault();
+      }
+    });
+
     for (let topic of this._notifications) {
       Services.obs.addObserver(this, topic);
     }
