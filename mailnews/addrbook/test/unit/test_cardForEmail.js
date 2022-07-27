@@ -58,6 +58,23 @@ function run_test() {
 
   check_correct_card(card);
 
+  // Check that we match cards that have more than two email addresses.
+  card = AB.cardForEmailAddress("first@SOMETHING.invalid");
+  Assert.equal(card.UID, "f68fbac4-158b-4bdc-95c6-592a5f93cfa1");
+  Assert.equal(card.displayName, "A vCard!");
+
+  card = AB.cardForEmailAddress("second@something.INVALID");
+  Assert.equal(card.UID, "f68fbac4-158b-4bdc-95c6-592a5f93cfa1");
+  Assert.equal(card.displayName, "A vCard!");
+
+  card = AB.cardForEmailAddress("THIRD@something.invalid");
+  Assert.equal(card.UID, "f68fbac4-158b-4bdc-95c6-592a5f93cfa1");
+  Assert.equal(card.displayName, "A vCard!");
+
+  card = AB.cardForEmailAddress("FOURTH@SOMETHING.INVALID");
+  Assert.equal(card.UID, "f68fbac4-158b-4bdc-95c6-592a5f93cfa1");
+  Assert.equal(card.displayName, "A vCard!");
+
   // Check getCardFromProperty returns null correctly for non-extant properties
   Assert.equal(AB.getCardFromProperty("NickName", "", false), null);
   Assert.equal(AB.getCardFromProperty("NickName", "NickName", false), null);

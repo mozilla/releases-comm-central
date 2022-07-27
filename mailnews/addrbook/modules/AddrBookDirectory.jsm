@@ -445,10 +445,32 @@ class AddrBookDirectory {
     return this.dirName;
   }
   cardForEmailAddress(emailAddress) {
-    return (
-      this.getCardFromProperty("PrimaryEmail", emailAddress, false) ||
-      this.getCardFromProperty("SecondEmail", emailAddress, false)
-    );
+    if (!emailAddress) {
+      return null;
+    }
+
+    // Check the properties. We copy the first two addresses to properties for
+    // this purpose, so it should be fast.
+    let card = this.getCardFromProperty("PrimaryEmail", emailAddress, false);
+    if (card) {
+      return card;
+    }
+    card = this.getCardFromProperty("SecondEmail", emailAddress, false);
+    if (card) {
+      return card;
+    }
+
+    // Nothing so far? Go through all the cards checking all of the addresses.
+    // This could be slow.
+    emailAddress = emailAddress.toLowerCase();
+    for (let uid of this.cards.keys()) {
+      card = this.getCard(uid);
+      if (card.emailAddresses.some(e => e.toLowerCase() == emailAddress)) {
+        return card;
+      }
+    }
+
+    return null;
   }
   /** @abstract */
   getCardFromProperty(property, value, caseSensitive) {

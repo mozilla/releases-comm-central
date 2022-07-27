@@ -43,5 +43,5 @@ function run_test() {
   gc();
 
   // Now try and get the card that has been replicated for offline use.
-  Assert.equal(abDir.childCards.length, 4);
+  Assert.equal(abDir.childCards.length, 5);
 }

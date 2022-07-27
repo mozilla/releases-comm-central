@@ -81,4 +81,15 @@ INSERT INTO properties (card, name, value) VALUES
   ('b73bffd5-850d-4a59-8c72-12272d2616a6', 'LastModifiedDate', '0'),
   ('b73bffd5-850d-4a59-8c72-12272d2616a6', 'AllowRemoteContent', '0'),
   ('b73bffd5-850d-4a59-8c72-12272d2616a6', 'PopularityIndex', '0'),
-  ('b73bffd5-850d-4a59-8c72-12272d2616a6', 'PreferMailFormat', '0');
+  ('b73bffd5-850d-4a59-8c72-12272d2616a6', 'PreferMailFormat', '0'),
+
+  ('f68fbac4-158b-4bdc-95c6-592a5f93cfa1', 'DisplayName', 'A vCard!'),
+  ('f68fbac4-158b-4bdc-95c6-592a5f93cfa1', 'PrimaryEmail', 'first@something.invalid'),
+  ('f68fbac4-158b-4bdc-95c6-592a5f93cfa1', 'SecondEmail', 'second@something.invalid'),
+  ('f68fbac4-158b-4bdc-95c6-592a5f93cfa1', '_vCard', 'BEGIN:VCARD
+FN:A vCard!
+EMAIL:first@something.invalid
+EMAIL:second@something.invalid
+EMAIL:third@something.invalid
+EMAIL:fourth@something.invalid
+END:VCARD');
