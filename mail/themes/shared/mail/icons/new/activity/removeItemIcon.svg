@@ -1,0 +1,18 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32">
+  <defs>
+    <linearGradient id="a">
+      <stop offset="0" style="stop-color:#85c2ff;stop-opacity:1"/>
+      <stop offset="1" style="stop-color:#45a1ff;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="b" x1="16" x2="16" y1="610.52" y2="642.52" gradientUnits="userSpaceOnUse"/>
+  </defs>
+  <g transform="translate(0 -610.52)">
+    <circle cx="16" cy="626.52" r="16" style="font-variation-settings:'wght' 700;opacity:1;fill:url(#b);stroke-width:1.00323;stroke-linecap:round;stroke-linejoin:round;stop-color:#000;fill-opacity:1"/>
+    <path d="M31.947 625.268A16 16 0 0 1 16 640.52a16 16 0 0 1-15.93-15 16 16 0 0 0-.07 1 16 16 0 0 0 16 16 16 16 0 0 0 16-16 16 16 0 0 0-.053-1.252z" style="font-variation-settings:'wght' 700;opacity:.15;fill:#000;stroke-width:1.00323;stroke-linecap:round;stroke-linejoin:round;stop-color:#000;fill-opacity:1"/>
+    <path d="M8 625.52a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2H8z" style="color:#000;opacity:.5;fill:#fff;fill-opacity:1;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"/>
+    <path d="M8 624.52a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2H8z" style="color:#000;fill:#000f40;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"/>
+  </g>
+</svg>

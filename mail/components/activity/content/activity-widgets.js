@@ -41,13 +41,12 @@
         this.classList.add("activityitem");
 
         let icon = document.createElement("img");
-        let iconName = this._activity.iconClass;
-        if (iconName) {
-          iconName = `chrome://messenger/skin/activity/${iconName}Icon.png`;
-        } else {
-          iconName = this.constructor.defaultIconSrc;
-        }
-        icon.setAttribute("src", iconName);
+        icon.setAttribute(
+          "src",
+          this._activity.iconClass
+            ? `chrome://messenger/skin/icons/new/activity/${this._activity.iconClass}Icon.svg`
+            : this.constructor.defaultIconSrc
+        );
         icon.setAttribute("alt", "");
         this.appendChild(icon);
 
@@ -172,7 +171,7 @@
    */
   class ActivityEventItem extends ActivityItemBase {
     static defaultIconSrc =
-      "chrome://messenger/skin/activity/defaultEventIcon.png";
+      "chrome://messenger/skin/icons/new/activity/defaultEventIcon.svg";
     static activityInterface = Ci.nsIActivityEvent;
 
     connectedCallback() {
@@ -243,7 +242,7 @@
    */
   class ActivityProcessItem extends ActivityItemBase {
     static defaultIconSrc =
-      "chrome://messenger/skin/activity/deafultProcessIcon.png";
+      "chrome://messenger/skin/icons/new/activity/deafultProcessIcon.svg";
     static activityInterface = Ci.nsIActivityProcess;
     static textMap = {
       paused: activityStrings.GetStringFromName("paused2"),
@@ -361,7 +360,8 @@
    * @extends ActivityItemBase
    */
   class ActivityWarningItem extends ActivityItemBase {
-    static defaultIconSrc = "chrome://messenger/skin/activity/warning.png";
+    static defaultIconSrc =
+      "chrome://messenger/skin/icons/new/activity/warning.svg";
     static activityInterface = Ci.nsIActivityWarning;
 
     connectedCallback() {

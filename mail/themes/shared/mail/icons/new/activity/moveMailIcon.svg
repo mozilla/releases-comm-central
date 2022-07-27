@@ -1,0 +1,16 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32">
+  <defs>
+    <linearGradient id="a">
+      <stop offset="0" style="stop-color:#85c2ff;stop-opacity:1"/>
+      <stop offset="1" style="stop-color:#45a1ff;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="b" x1="6" x2="6" y1="612.52" y2="622.52" gradientTransform="matrix(-1 0 0 1 14 1)" gradientUnits="userSpaceOnUse"/>
+  </defs>
+  <g style="stroke-width:.5">
+    <path d="M8 613.52a1 1 0 0 1 .707.293l4 4a1 1 0 0 1 .057.074 1 1 0 0 1 .066.086 1 1 0 0 1 .086.17 1 1 0 0 1 .04.093 1 1 0 0 1 .044.284 1 1 0 0 1-.045.279 1 1 0 0 1-.04.102 1 1 0 0 1-.085.166 1 1 0 0 1-.066.085 1 1 0 0 1-.057.075l-4 4a1 1 0 0 1-1.414 0 1 1 0 0 1 0-1.414l2.293-2.293H4c-.554 0-1-.42-1-.944v-.113c0-.523.446-.943 1-.943h5.586l-2.293-2.293a1 1 0 0 1 0-1.414A1 1 0 0 1 8 613.52z" style="color:#000;fill:url(#b);fill-opacity:1;stroke-width:.5;stroke-linecap:round;stroke-linejoin:round" transform="matrix(2 0 0 2 0 -1221.04)"/>
+    <path d="M7.135 614.02a1 1 0 0 0 .158.207l3.293 3.293h-1l-2.293-2.293a1 1 0 0 1-.158-1.207zm5.719 4c.023.04.044.08.062.123.015.03.028.062.04.093a1 1 0 0 1 .044.284 1.001 1.001 0 0 1-.045.279.996.996 0 0 1-.04.101 1.08 1.08 0 0 1-.085.166 1 1 0 0 1-.066.086.99.99 0 0 1-.057.075l-4 4a1 1 0 0 1-1.572-1.207 1 1 0 0 0 1.572.207l4-4a.992.992 0 0 0 .057-.075.932.932 0 0 0 .066-.086.976.976 0 0 0 .024-.046zm-2.268.5-1 1H4c-.554 0-1-.42-1-.944v-.056z" style="color:#000;opacity:.15;fill:#000;fill-opacity:1;stroke-width:.5;stroke-linecap:round;stroke-linejoin:round" transform="matrix(2 0 0 2 0 -1221.04)"/>
+  </g>
+</svg>
