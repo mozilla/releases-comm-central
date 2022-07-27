@@ -40,3 +40,15 @@ ID02:
         - ab-label
         - keep-ask
     files: []
+# Hard-coded brand names like Firefox or Mozilla should be used only in
+# specific cases, in all other cases the corresponding terms should be used.
+# Check with the localization team for advice.
+CO01:
+    messages:
+        # comm/mail/locales/en-US/messenger/aboutRights.ftl
+        - rights-intro-point-1
+        - rights-intro-point-2
+        # comm/mail/locales/en-US/messenger/accountcreation/accountSetup.ftl
+        - account-setup-looking-up-db
+        - account-setup-success-settings-db
+    files: []
