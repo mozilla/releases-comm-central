@@ -84,7 +84,7 @@ class VCardEdit extends HTMLElement {
       emailEntry.params.pref = "1"; // Set as default email.
       this._vCardProperties.addEntry(emailEntry);
     }
-    // If or more of the organizational properties is present,
+    // If one of the organizational properties is present,
     // make sure they all are.
     let title = this._vCardProperties.getFirstEntry("title");
     let role = this._vCardProperties.getFirstEntry("role");
@@ -773,12 +773,16 @@ class VCardEdit extends HTMLElement {
         return field.value.trim() && field.checkValidity();
       }
     );
+    let hasOrg = [...this.querySelectorAll("vcard-org")].find(n =>
+      n.orgEl.value.trim()
+    );
 
     return (
       this.firstName.value.trim() ||
       this.lastName.value.trim() ||
       this.displayName.value.trim() ||
-      hasEmail
+      hasEmail ||
+      hasOrg
     );
   }
 

@@ -2399,6 +2399,57 @@ add_task(async function test_vCard_fields() {
   await promiseDirectoryRemoved(book.URI);
 });
 
+add_task(async function test_vCard_minimal() {
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+
+  openDirectory(personalBook);
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
+
+  checkInputValues({
+    FirstName: "",
+    LastName: "",
+    DisplayName: "",
+    PreferDisplayName: true,
+  });
+
+  let addOrgButton = abDocument.getElementById("vcard-add-org");
+  addOrgButton.scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(addOrgButton, {}, abWindow);
+
+  Assert.ok(
+    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-title")),
+    "Title should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-role")),
+    "Role should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-org")),
+    "Organization should be visible"
+  );
+
+  abDocument.querySelector("vcard-org textarea").value = "FBI";
+
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+  let editButton = abDocument.getElementById("editButton");
+
+  // Should allow to save with only Organization filled.
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  checkVCardValues(personalBook.childCards[0], {
+    org: [{ value: "FBI" }],
+  });
+
+  await closeAddressBookWindow();
+  personalBook.deleteCards(personalBook.childCards);
+});
+
 add_task(async function test_special_date_field() {
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
