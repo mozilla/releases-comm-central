@@ -25,7 +25,7 @@ tab {
 }
 
 tab[busy] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 .tab-icon {
