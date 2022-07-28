@@ -46,7 +46,7 @@ html|input.textbox-addressingWidget:disabled {
   user-select: text;
 }
 
-.attendee-label:focus {
+.attendee-list .attendee-label:focus {
   background-color: SelectedItem;
   color: SelectedItemText;
 }
