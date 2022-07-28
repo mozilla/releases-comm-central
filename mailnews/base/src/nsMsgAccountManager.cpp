@@ -944,9 +944,6 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   // Make sure correct modules are loaded before creating any server.
   nsCOMPtr<nsIObserver> moduleLoader;
   moduleLoader =
-      do_GetService("@mozilla.org/messenger/nntp-module-loader;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  moduleLoader =
       do_GetService("@mozilla.org/messenger/pop3-module-loader;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   moduleLoader =

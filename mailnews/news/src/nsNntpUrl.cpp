@@ -461,3 +461,26 @@ nsresult nsNntpUrl::Clone(nsIURI** _retval) {
 
   return newsurl->SetUri(mURI);
 }
+
+nsresult nsNntpUrl::NewURI(const nsACString& aSpec, nsIURI* aBaseURI,
+                           nsIURI** _retval) {
+  nsresult rv;
+
+  nsCOMPtr<nsIMsgMailNewsUrl> nntpUri =
+      do_CreateInstance(NS_NNTPURL_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (aBaseURI) {
+    nsAutoCString newSpec;
+    aBaseURI->Resolve(aSpec, newSpec);
+    rv = nntpUri->SetSpecInternal(newSpec);
+    // XXX Consider: rv = NS_MutateURI(new
+    // nsNntpUrl::Mutator()).SetSpec(newSpec).Finalize(nntpUri);
+  } else {
+    rv = nntpUri->SetSpecInternal(aSpec);
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nntpUri.forget(_retval);
+  return NS_OK;
+}

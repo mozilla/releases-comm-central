@@ -55,30 +55,6 @@ function testRFC977() {
       "MODE READER",
       "ARTICLE <TSS1@nntp.invalid>",
     ]);
-
-    // Test - news expiration
-    if (!Services.prefs.getBoolPref("mailnews.nntp.jsmodule", false)) {
-      test = "news:GROUP?list-ids";
-      server.resetTest();
-      setupProtocolTest(NNTP_PORT, prefix + "test.filter?list-ids");
-      server.performTest();
-      transaction = server.playTransaction();
-      do_check_transaction(transaction, [
-        "MODE READER",
-        "listgroup test.filter",
-      ]);
-    }
-
-    // Test - posting
-    if (!Services.prefs.getBoolPref("mailnews.nntp.jsmodule", false)) {
-      test = "news with post";
-      server.resetTest();
-      var url = create_post(prefix, "postings/post1.eml");
-      setupProtocolTest(NNTP_PORT, url);
-      server.performTest();
-      transaction = server.playTransaction();
-      do_check_transaction(transaction, ["MODE READER", "POST"]);
-    }
   } catch (e) {
     dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {

@@ -19,7 +19,7 @@
 #include "../../compose/src/nsSmtpUrl.h"
 #include "../../addrbook/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
-#include "../../news/src/nsNntpService.h"
+#include "../../news/src/nsNntpUrl.h"
 #include "../src/nsCidProtocolHandler.h"
 
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
@@ -82,7 +82,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
   }
   if (scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews") ||
       scheme.EqualsLiteral("news-message") || scheme.EqualsLiteral("nntp")) {
-    return nsNntpService::NewURI(aSpec, aCharset, aBaseURI, aURI);
+    return nsNntpUrl::NewURI(aSpec, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("cid")) {
     return nsCidProtocolHandler::NewURI(aSpec, aCharset, aBaseURI, aURI);

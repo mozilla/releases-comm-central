@@ -9,8 +9,6 @@ const { MailServices } = ChromeUtils.import(
 );
 
 /**
- * Set the mailnews.nntp.jsmodule pref to true to use this module.
- *
  * @implements {nsINntpService}
  */
 class NntpService {

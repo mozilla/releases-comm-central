@@ -335,8 +335,6 @@ pref("mail.forward_message_mode", 2);
 
 pref("mailnews.send.loglevel", "Warn");
 
-pref("mailnews.nntp.jsmodule", true);
-
 pref("mailnews.pop3.jsmodule", true);
 
 pref("mail.import.in_new_tab", true);
@@ -1345,4 +1343,3 @@ pref("print.print_headerright", "");
 
 // Enable Masonry Layout for AddressBook.
 pref("layout.css.grid-template-masonry-value.enabled", true);
-

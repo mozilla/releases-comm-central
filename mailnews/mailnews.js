@@ -326,8 +326,6 @@ pref("mailnews.reply_quoting_selection.multi_word", true);
 
 pref("mailnews.smtp.loglevel", "Warn");
 
-// If true, NntpService.jsm is used. Otherwise, nsNntpService.cpp is used.
-pref("mailnews.nntp.jsmodule", false);
 pref("mailnews.nntp.loglevel", "Warn");
 
 // If true, Pop3Service.jsm is used. Otherwise, nsPop3Service.cpp is used.

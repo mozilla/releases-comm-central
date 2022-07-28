@@ -32,6 +32,8 @@ class nsNntpUrl : public nsINntpUrl,
 
   // nsNntpUrl
   nsNntpUrl();
+  static nsresult NewURI(const nsACString& aSpec, nsIURI* aBaseURI,
+                         nsIURI** _retval);
 
   NS_DECL_ISUPPORTS_INHERITED
 
