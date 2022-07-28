@@ -210,14 +210,14 @@ function selectServer(server, selectPageId) {
   // Default to showing the first account.
   let accountRow = accountTree.rows[0];
 
-  // Find the tree-node for the account we want to select
+  // Find the tree-node for the account we want to select.
   if (server) {
     for (let row of accountTree.children) {
       let account = row._account;
       if (account && server == account.incomingServer) {
         accountRow = row;
         // Make sure all the panes of the account to be selected are shown.
-        accountRow.classList.remove("collapsed");
+        accountTree.expandRow(accountRow);
         break;
       }
     }
