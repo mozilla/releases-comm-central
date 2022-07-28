@@ -122,18 +122,25 @@ AddrBookCard.prototype = {
           this.suffixName,
         ]
           .filter(Boolean)
-          .join(" ");
+          .join(" ")
+          .trim();
 
-      if (result == "") {
-        // We don't have anything to show as a contact name, so let's find the
-        // primary email and show that, if we have it, otherwise pass an empty
-        // string to remove any leftover data.
-        let email = this.primaryEmail;
-        result = email ? email.split("@", 1)[0] : "";
+      if (!result) {
+        // So far we don't have anything to show as a contact name.
+
+        if (this.primaryEmail) {
+          // Let's use the primary email localpart.
+          result = this.primaryEmail.split("@", 1)[0];
+        } else {
+          // We don't have a primary email either, let's try with the
+          // organization name.
+          result = !this._hasVCard
+            ? this.getProperty("Company", "")
+            : this._vCardProperties.getFirstValue("org");
+        }
       }
     }
-
-    return result;
+    return result || "";
   },
   get directoryUID() {
     return this._directoryUID;

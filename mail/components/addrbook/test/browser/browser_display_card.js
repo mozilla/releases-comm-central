@@ -117,6 +117,14 @@ add_setup(async function() {
       END:VCARD
     `)
   );
+  // Card 8.
+  personalBook.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      ORG:xbasic8org
+      END:VCARD
+    `)
+  );
 
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
@@ -160,7 +168,7 @@ add_task(async function testDisplay() {
   let otherInfoSection = abDocument.getElementById("otherInfo");
   let selectedCardsSection = abDocument.getElementById("selectedCards");
 
-  Assert.equal(cardsList.view.rowCount, 8);
+  Assert.equal(cardsList.view.rowCount, personalBook.childCardCount);
   Assert.ok(detailsPane.hidden);
 
   // Card 0: an empty card.
@@ -475,6 +483,13 @@ add_task(async function testDisplay() {
   );
   Assert.equal(items[0].children[1].textContent, "30");
 
+  // Test card 8:
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(8), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+  Assert.equal(viewContactName.textContent, "xbasic8org");
+
   Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
 
   // Card 0, again, just to prove that everything was cleared properly.
@@ -648,7 +663,7 @@ add_task(async function testReadOnlyActions() {
   // Check contacts with All Address Books displayed.
 
   openAllAddressBooks();
-  Assert.equal(cardsList.view.rowCount, 11);
+  Assert.equal(cardsList.view.rowCount, 12);
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
 
   // Basic person from Personal Address Books.
