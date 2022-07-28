@@ -7,11 +7,6 @@
 
 interface nsIFile;
 interface nsIMsgNewsFolder;
-interface nsINNTPProtocol;
-[ptr] native nsNNTPProtocol(nsNNTPProtocol);
-%{C++
-class nsNNTPProtocol;
-%}
 interface nsIChannel;
 interface nsIURI;
 interface nsIMsgWindow;
@@ -84,24 +79,10 @@ interface nsINntpIncomingServer : nsISupports {
      *
      * @param uri      The URI to run.
      * @param window   The standard message window object.
-     * @param consumer An argument to be passed to nsINNTPProtocol:LoadNewUrl.
+     * @param consumer A listener for the response data.
      */
     void loadNewsUrl(in nsIURI uri, in nsIMsgWindow window,
                      in nsISupports consumer);
-
-    /**
-     * Remove a connection from our connection cache.
-     *
-     * @param aNntpConnection The connection to be removed.
-     */
-    void removeConnection(in nsINNTPProtocol aNntpConnection);
-
-    /**
-     * Load the next URI in the queue to the given connection.
-     *
-     * @param aNntpConnection The newly-freed connection.
-     */
-    [noscript] void prepareForNextUrl(in nsNNTPProtocol aNntpConnection);
 
     /**
      * Returns whether or not the server has subscribed to the given newsgroup.

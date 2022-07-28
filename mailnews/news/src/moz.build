@@ -8,9 +8,6 @@ SOURCES += [
     "nsNewsDownloader.cpp",
     "nsNewsFolder.cpp",
     "nsNewsUtils.cpp",
-    "nsNNTPArticleList.cpp",
-    "nsNNTPNewsgroupList.cpp",
-    "nsNNTPNewsgroupPost.cpp",
     "nsNntpUrl.cpp",
 ]
 
