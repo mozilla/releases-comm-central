@@ -3585,14 +3585,22 @@ nsresult nsMsgDBFolder::CreateDirectoryForFolder(nsIFile** resultFile) {
   rv = GetIsServer(&isServer);
   NS_ENSURE_SUCCESS(rv, rv);
   if (isServer) {
-    bool isDir;
-    rv = path->IsDirectory(&isDir);
+    // Server dir doesn't have .sbd suffix.
+    // Ensure it exists and is a directory.
+    bool pathExists;
+    path->Exists(&pathExists);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (!isDir) {
-      return NS_ERROR_FAILURE;
+    if (!pathExists) {
+      rv = path->Create(nsIFile::DIRECTORY_TYPE, 0700);
+      NS_ENSURE_SUCCESS(rv, rv);
+    } else {
+      bool isDir;
+      rv = path->IsDirectory(&isDir);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!isDir) {
+        return NS_ERROR_UNEXPECTED;
+      }
     }
-
-    // Server dir doesn't have .sbd suffix. It should already exist.
     path.forget(resultFile);
     return NS_OK;
   }
