@@ -280,8 +280,10 @@
 #include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
 #include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
 
-        <!-- The calendar invitation panel is displayed here. -->
-        <html:div id="calendarInvitationDisplay" hidden="hidden"></html:div>
+        <vbox id="messagepaneContainer" flex="1">
+          <!-- The calendar invitation panel is displayed here. -->
+          <html:div id="calendarInvitationDisplay" hidden="hidden"></html:div>
+        </vbox>
 
         <!-- message view -->
         <browser id="messagepane"
