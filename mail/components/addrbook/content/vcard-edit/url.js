@@ -18,8 +18,6 @@ class VCardURLComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
-  /** @type {HTMLSelectElement} */
-  selectEl;
   /** @type {HTMLInputElement} */
   urlEl;
 
@@ -27,78 +25,49 @@ class VCardURLComponent extends HTMLElement {
     return new VCardPropertyEntry("url", {}, "uri", "");
   }
 
-  constructor() {
-    super();
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
     let template = document.getElementById("template-vcard-edit-type-text");
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
-  }
 
-  connectedCallback() {
-    if (this.isConnected) {
-      this.urlEl = this.querySelector('input[type="text"]');
-      let urlId = vCardIdGen.next().value;
-      this.urlEl.id = urlId;
-      let urlLabel = this.querySelector('label[for="text"]');
-      urlLabel.htmlFor = urlId;
-      this.urlEl.type = "url";
-      document.l10n.setAttributes(urlLabel, "vcard-url-label");
+    this.urlEl = this.querySelector('input[type="text"]');
+    let urlId = vCardIdGen.next().value;
+    this.urlEl.id = urlId;
+    let urlLabel = this.querySelector('label[for="text"]');
+    urlLabel.htmlFor = urlId;
+    this.urlEl.type = "url";
+    document.l10n.setAttributes(urlLabel, "vcard-url-label");
 
-      this.urlEl.addEventListener("input", () => {
-        // Auto add https:// if the url is missing scheme.
-        if (
-          this.urlEl.value.length > "https://".length &&
-          !/^https?:\/\//.test(this.urlEl.value)
-        ) {
-          this.urlEl.value = "https://" + this.urlEl.value;
-        }
-      });
+    this.urlEl.addEventListener("input", () => {
+      // Auto add https:// if the url is missing scheme.
+      if (
+        this.urlEl.value.length > "https://".length &&
+        !/^https?:\/\//.test(this.urlEl.value)
+      ) {
+        this.urlEl.value = "https://" + this.urlEl.value;
+      }
+    });
 
-      this.selectEl = this.querySelector("select");
-      let selectId = vCardIdGen.next().value;
-      this.selectEl.id = selectId;
-      this.querySelector('label[for="select"]').htmlFor = selectId;
+    // Create the url type selection.
+    this.vCardType = this.querySelector("vcard-type");
+    this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
+      createLabel: true,
+    });
 
-      this.fromVCardPropertyEntryToUI();
-    }
-  }
-
-  disconnectedCallback() {
-    if (!this.isConnected) {
-      this.urlEl = null;
-      this.selectEl = null;
-      this.vCardPropertyEntry = null;
-    }
+    this.fromVCardPropertyEntryToUI();
   }
 
   fromVCardPropertyEntryToUI() {
     this.urlEl.value = this.vCardPropertyEntry.value;
-    /**
-     * @TODO
-     * Create an element for type selection of home, work, ...
-     */
-    let paramsType = this.vCardPropertyEntry.params.type;
-    if (paramsType && !Array.isArray(paramsType)) {
-      this.selectEl.value = this.vCardPropertyEntry.params.type;
-    }
   }
 
   fromUIToVCardPropertyEntry() {
     this.vCardPropertyEntry.value = this.urlEl.value;
-    /**
-     * @TODO
-     * Create an element for type selection of home, work, ...
-     */
-    let paramsType = this.selectEl.value;
-    if (paramsType && !Array.isArray(paramsType) && paramsType !== "") {
-      this.vCardPropertyEntry.params.type = this.selectEl.value;
-    } else if (paramsType && !Array.isArray(paramsType)) {
-      /**
-       * @TODO params.type is string | Array<string> | falsy.
-       * Right now the case is only handled for string.
-       */
-      delete this.vCardPropertyEntry.params.type;
-    }
   }
 
   valueIsEmpty() {

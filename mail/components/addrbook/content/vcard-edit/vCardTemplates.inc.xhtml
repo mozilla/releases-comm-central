@@ -201,13 +201,7 @@
 <!-- Email -->
 <template id="template-vcard-edit-email">
   <td>
-    <!-- The type selection is repeated boilerplate and will be reduced -->
-    <select class="vcard-type-selection"
-            aria-labelledby="addr-book-edit-email-type">
-      <option value="work" data-l10n-id="vcard-entry-type-work" />
-      <option value="home" data-l10n-id="vcard-entry-type-home" />
-      <option value="" data-l10n-id="vcard-entry-type-none" selected="selected" />
-    </select>
+    <vcard-type></vcard-type>
   </td>
   <td class="email-column">
     <input type="email"
@@ -221,35 +215,14 @@
 
 <!-- Phone -->
 <template id="template-vcard-edit-tel">
-  <label class="screen-reader-only"
-         for="select"
-         data-l10n-id="vcard-entry-type-label"/>
-  <!-- The type selection is repeated boilerplate and will be reduced -->
-  <select class="vcard-type-selection">
-    <option value="work" data-l10n-id="vcard-entry-type-work"/>
-    <option value="home" data-l10n-id="vcard-entry-type-home"/>
-    <!-- FIXME: Replace these strings and remove aboutAddressBook.ftl from
-         AccountManager.xhtml. -->
-    <option value="cell" data-l10n-id="about-addressbook-entry-type-cell"/>
-    <option value="fax" data-l10n-id="about-addressbook-entry-type-fax"/>
-    <option value="pager" data-l10n-id="about-addressbook-entry-type-pager"/>
-    <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
-  </select>
+  <vcard-type></vcard-type>
   <label class="screen-reader-only" for="text"/>
   <input type="text"/>
 </template>
 
 <!-- Field with type and text -->
 <template id="template-vcard-edit-type-text">
-  <label class="screen-reader-only"
-         for="select"
-         data-l10n-id="vcard-entry-type-label"/>
-  <!-- The type selection is repeated boilerplate and will be reduced -->
-  <select class="vcard-type-selection">
-    <option value="work" data-l10n-id="vcard-entry-type-work"/>
-    <option value="home" data-l10n-id="vcard-entry-type-home"/>
-    <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
-  </select>
+  <vcard-type></vcard-type>
   <label class="screen-reader-only" for="text"/>
   <input type="text"/>
 </template>
@@ -269,6 +242,8 @@
 
 <!-- Birthday and Anniversary -->
 <template id="template-vcard-edit-bday-anniversary">
+  <label class="vcard-type-label screen-reader-only"
+         data-l10n-id="vcard-entry-type-label"></label>
   <select class="vcard-type-selection">
     <option value="bday" data-l10n-id="vcard-bday-label" selected="selected"/>
     <option value="anniversary" data-l10n-id="vcard-anniversary-label"/>
@@ -298,15 +273,7 @@
 <template id="template-vcard-edit-adr">
   <fieldset class="fieldset-grid fieldset-reset">
     <legend class="screen-reader-only" data-l10n-id="vcard-adr-label"/>
-    <label class="screen-reader-only"
-           for="select"
-           data-l10n-id="vcard-entry-type-label"/>
-    <!-- The type selection is repeated boilerplate and will be reduced -->
-    <select class="vcard-type-selection">
-      <option value="work" data-l10n-id="vcard-entry-type-work"/>
-      <option value="home" data-l10n-id="vcard-entry-type-home"/>
-      <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
-    </select>
+    <vcard-type></vcard-type>
     <div class="vcard-adr-inputs">
       <label for="pobox" data-l10n-id="vcard-adr-pobox"/>
       <input type="text" name="pobox"/>
@@ -361,4 +328,25 @@
     <label for="org" data-l10n-id="vcard-org-org"/>
     <textarea name="org"></textarea>
   </div>
+</template>
+
+<template id="template-vcard-edit-type">
+  <select class="vcard-type-selection">
+    <option value="work" data-l10n-id="vcard-entry-type-work"/>
+    <option value="home" data-l10n-id="vcard-entry-type-home"/>
+    <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
+  </select>
+</template>
+
+<template id="template-vcard-edit-type-tel">
+  <select class="vcard-type-selection">
+    <option value="work" data-l10n-id="vcard-entry-type-work"/>
+    <option value="home" data-l10n-id="vcard-entry-type-home"/>
+    <!-- FIXME: Replace these strings and remove aboutAddressBook.ftl from
+         AccountManager.xhtml. -->
+    <option value="cell" data-l10n-id="about-addressbook-entry-type-cell"/>
+    <option value="fax" data-l10n-id="about-addressbook-entry-type-fax"/>
+    <option value="pager" data-l10n-id="about-addressbook-entry-type-pager"/>
+    <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
+  </select>
 </template>

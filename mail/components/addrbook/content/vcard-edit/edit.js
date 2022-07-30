@@ -825,6 +825,103 @@ function* vCardHtmlIdGen() {
 let vCardIdGen = vCardHtmlIdGen();
 
 /**
+ * Responsible for the type selection of a vCard property.
+ *
+ * Couples the given vCardPropertyEntry with a <select> element.
+ * This is safe because contact editing always creates a new contact, even
+ * when an existing contact is selected for editing.
+ *
+ * @see RFC6350 TYPE
+ */
+class VCardTypeSelectionComponent extends HTMLElement {
+  /**
+   * The select element created by this custom element.
+   *
+   * @type {HTMLSelectElement}
+   */
+  selectEl;
+
+  /**
+   * Initializes the type selector elements to control the given
+   * vCardPropertyEntry.
+   *
+   * @param {VCardPropertyEntry} vCardPropertyEntry - The VCardPropertyEntry
+   *   this element should control.
+   * @param {boolean} [options.createLabel] - Whether a Type label should be
+   *   created for the selectEl element. If this is not `true`, then the label
+   *   for the selectEl should be provided through some other means, such as the
+   *   labelledBy property.
+   * @param {string} [options.labelledBy] - Optional `id` of the element that
+   *   should label the selectEl element (through aria-labelledby).
+   * @param {string} [options.propertyType] - Specifies the set of types that
+   *   should be available and shown for the corresponding property. Set as
+   *   "tel" to use the set of telephone types. Otherwise defaults to only using
+   *   the `home`, `work` and `(None)` types.
+   */
+  createTypeSelection(vCardPropertyEntry, options) {
+    let template;
+    let types;
+    switch (options.propertyType) {
+      case "tel":
+        types = ["work", "home", "cell", "fax", "pager"];
+        template = document.getElementById("template-vcard-edit-type-tel");
+        break;
+      default:
+        types = ["work", "home"];
+        template = document.getElementById("template-vcard-edit-type");
+        break;
+    }
+
+    let clonedTemplate = template.content.cloneNode(true);
+    this.replaceChildren(clonedTemplate);
+
+    this.selectEl = this.querySelector("select");
+    let selectId = vCardIdGen.next().value;
+    this.selectEl.id = selectId;
+
+    // Just abandon any values we don't have UI for. We don't have any way to
+    // know whether to keep them or not, and they're very rarely used.
+    let paramsType = vCardPropertyEntry.params.type;
+    if (Array.isArray(paramsType)) {
+      this.selectEl.value = paramsType.find(t => types.includes(t)) || "";
+    } else if (types.includes(paramsType)) {
+      this.selectEl.value = vCardPropertyEntry.params.type;
+    }
+
+    // Change the value on the vCardPropertyEntry.
+    this.selectEl.addEventListener("change", e => {
+      if (this.selectEl.value) {
+        vCardPropertyEntry.params.type = this.selectEl.value;
+      } else {
+        delete vCardPropertyEntry.params.type;
+      }
+    });
+
+    // Set an aria-labelledyby on the select.
+    if (options.labelledBy) {
+      if (!document.getElementById(options.labelledBy)) {
+        throw new Error(`No such label element with id ${options.labelledBy}`);
+      }
+      this.querySelector("select").setAttribute(
+        "aria-labelledby",
+        options.labelledBy
+      );
+    }
+
+    // Create a label element for the select.
+    if (options.createLabel) {
+      let labelEl = document.createElement("label");
+      labelEl.htmlFor = selectId;
+      labelEl.setAttribute("data-l10n-id", "vcard-entry-type-label");
+      labelEl.classList.add("screen-reader-only");
+      this.insertBefore(labelEl, this.selectEl);
+    }
+  }
+}
+
+customElements.define("vcard-type", VCardTypeSelectionComponent);
+
+/**
  * Interface for vCard Fields in the edit view.
  *
  * @interface VCardPropertyEntryView

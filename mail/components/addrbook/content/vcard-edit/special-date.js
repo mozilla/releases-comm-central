@@ -78,6 +78,7 @@ class VCardSpecialDateComponent extends HTMLElement {
     this.selectEl = this.querySelector(".vcard-type-selection");
     let selectId = vCardIdGen.next().value;
     this.selectEl.id = selectId;
+    this.querySelector(".vcard-type-label").htmlFor = selectId;
 
     this.selectEl.addEventListener("change", event => {
       this.dispatchEvent(

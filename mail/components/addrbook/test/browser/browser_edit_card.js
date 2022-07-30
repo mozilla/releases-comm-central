@@ -7,6 +7,8 @@ var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 // TODO: Fix the UI so that we don't have to do this.
 window.maximize();
 
+requestLongerTimeout(2);
+
 async function inEditingMode() {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
@@ -275,18 +277,18 @@ function checkVCardInputValues(expected) {
       switch (key) {
         case "email":
           valueField = field.emailEl;
-          typeField = field.selectEl;
+          typeField = field.vCardType.selectEl;
           break;
         case "impp":
           valueField = field.imppEl;
           break;
         case "url":
           valueField = field.urlEl;
-          typeField = field.selectEl;
+          typeField = field.vCardType.selectEl;
           break;
         case "tel":
           valueField = field.inputElement;
-          typeField = field.selectEl;
+          typeField = field.vCardType.selectEl;
           break;
         case "note":
           valueField = field.textAreaEl;
@@ -400,7 +402,42 @@ function setInputValues(changes) {
   EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
 }
 
-function setVCardInputValues(changes) {
+/**
+ * Uses EventUtils.synthesizeMouseAtCenter and XULPopup.activateItem to
+ * activate optionValue from the select element typeField.
+ *
+ * @param {HTMLSelectElement} typeField Select element.
+ * @param {string} optionValue The value attribute of the option element from
+ * typeField.
+ */
+async function activateTypeSelect(typeField, optionValue) {
+  let abWindow = getAddressBookWindow();
+  // Ensure that the select field is inside the viewport.
+  typeField.scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(typeField, {}, abWindow);
+  let selectPopup = await BrowserTestUtils.waitForSelectPopupShown(window);
+
+  // Get the index of the optionValue from typeField
+  let index = Array.from(typeField.children).findIndex(
+    child => child.value === optionValue
+  );
+  Assert.ok(index >= 0, "Type in select field found");
+
+  // No change event is fired if the same option is activated.
+  if (index === typeField.selectedIndex) {
+    let popupHidden = BrowserTestUtils.waitForEvent(selectPopup, "popuphidden");
+    selectPopup.hidePopup();
+    await popupHidden;
+    return;
+  }
+
+  // The change event saves the vCard value.
+  let changeEvent = BrowserTestUtils.waitForEvent(typeField, "change");
+  selectPopup.activateItem(selectPopup.children[index]);
+  await changeEvent;
+}
+
+async function setVCardInputValues(changes) {
   let abWindow = getAddressBookWindow();
 
   for (let [key, entries] of Object.entries(changes)) {
@@ -412,7 +449,7 @@ function setVCardInputValues(changes) {
       switch (key) {
         case "email":
           valueField = field.emailEl;
-          typeField = field.selectEl;
+          typeField = field.vCardType.selectEl;
 
           if (
             (field.checkboxEl.checked && changeEntry && !changeEntry.pref) ||
@@ -428,11 +465,11 @@ function setVCardInputValues(changes) {
           break;
         case "url":
           valueField = field.urlEl;
-          typeField = field.selectEl;
+          typeField = field.vCardType.selectEl;
           break;
         case "tel":
           valueField = field.inputElement;
-          typeField = field.selectEl;
+          typeField = field.vCardType.selectEl;
           break;
         case "note":
           valueField = field.textAreaEl;
@@ -447,9 +484,9 @@ function setVCardInputValues(changes) {
       }
 
       if (typeField && changeEntry && changeEntry.type) {
-        field.selectEl.value = changeEntry.type;
+        await activateTypeSelect(typeField, changeEntry.type);
       } else if (typeField) {
-        field.selectEl.value = "";
+        await activateTypeSelect(typeField, "");
       }
     }
   }
@@ -1817,7 +1854,7 @@ add_task(async function test_email_fields() {
   // Edit contact1 set type.
   await editContactAtIndex(0, { useMouse: true, useActivate: true });
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [{ value: "contact1.lastname1@invalid", type: "work" }],
   });
 
@@ -1861,7 +1898,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(false, 0);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [
       { value: "contact1.lastname1@invalid", pref: "1", type: "work" },
       { value: "another.contact1@invalid", type: "home" },
@@ -1896,7 +1933,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(true, 0);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [
       { value: "contact1.lastname1@invalid", type: "work" },
       { value: "another.contact1@invalid", type: "home", pref: "1" },
@@ -1931,7 +1968,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(true, 1);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [{}, { value: "another.contact1@invalid", type: "home", pref: "1" }],
   });
 
@@ -1960,7 +1997,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(false, 0);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [
       { value: "home.contact2@invalid", type: "home", pref: "1" },
       { value: "work.contact2@invalid", type: "work", pref: "1" },
@@ -1969,7 +2006,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(true, 1);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [
       { value: "home.contact2@invalid", type: "home", pref: "1" },
       { value: "work.contact2@invalid", type: "work", pref: "1" },
@@ -1979,7 +2016,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(true, 1);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [
       { value: "home.contact2@invalid", type: "home", pref: "1" },
       { value: "work.contact2@invalid", type: "work", pref: "1" },
@@ -2020,7 +2057,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(true, 3);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [{ value: "home.contact2@invalid", type: "home" }],
   });
 
@@ -2050,7 +2087,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(false, 0);
 
-  setVCardInputValues({
+  await setVCardInputValues({
     email: [
       { value: "home.contact2@invalid", type: "home", pref: "1" },
       { value: "work.contact2@invalid", type: "work", pref: "1" },
@@ -2151,7 +2188,7 @@ add_task(async function test_vCard_fields() {
   // Set values for contact1 with one entry for each field.
   await editContactAtIndex(0, { useMouse: true, useActivate: true });
 
-  setVCardInputValues({
+  await setVCardInputValues({
     impp: [{ value: "matrix:u/contact1:example.com" }],
     url: [{ value: "http://www.example.com" }],
     tel: [{ value: "+123456 789" }],
@@ -2186,7 +2223,7 @@ add_task(async function test_vCard_fields() {
     note: [{ value: "A note to this contact" }],
   });
 
-  setVCardInputValues({
+  await setVCardInputValues({
     impp: [
       { value: "matrix:u/contact1:example.com" },
       { value: "irc:irc.example.com/contact1,isuser" },
@@ -2240,7 +2277,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardInputValues({ impp: [], url: [], tel: [], note: [] });
 
-  setVCardInputValues({
+  await setVCardInputValues({
     impp: [{ value: "invalid:example.com" }],
     url: [{ value: "http://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
@@ -2299,7 +2336,7 @@ add_task(async function test_vCard_fields() {
     note: [{ value: "Another note contact1\n\n\n" }],
   });
 
-  setVCardInputValues({
+  await setVCardInputValues({
     impp: [{ value: "" }, { value: "" }, { value: "" }],
     url: [{ value: "" }, { value: "" }, { value: "" }],
     tel: [{ value: "" }, { value: "" }, { value: "" }],
@@ -2333,7 +2370,7 @@ add_task(async function test_vCard_fields() {
     note: [{ value: "Another note\nfor contact 2" }],
   });
 
-  setVCardInputValues({
+  await setVCardInputValues({
     impp: [{ value: "" }],
     url: [
       { value: "http://www.thunderbird.net" },
@@ -2448,6 +2485,145 @@ add_task(async function test_vCard_minimal() {
 
   await closeAddressBookWindow();
   personalBook.deleteCards(personalBook.childCards);
+});
+
+/**
+ * Switches to different types to verify that all works accordingly.
+ */
+add_task(async function test_type_selection() {
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let book = createAddressBook("Test Book Type Selection");
+
+  let contact1 = createContact("contact1", "lastname");
+  book.addCard(contact1);
+
+  openDirectory(book);
+
+  let editButton = abDocument.getElementById("editButton");
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  await editContactAtIndex(0, {});
+
+  await setVCardInputValues({
+    email: [
+      { value: "contact1@invalid" },
+      { value: "home.contact1@invalid", type: "home" },
+      { value: "work.contact1@invalid", type: "work" },
+    ],
+    url: [
+      { value: "http://none.example.com" },
+      { value: "https://home.example.com", type: "home" },
+      { value: "https://work.example.com", type: "work" },
+    ],
+    tel: [
+      { value: "+123456 789" },
+      { value: "809 HOME 77 666 8", type: "home" },
+      { value: "+111 WORK 3456789", type: "work" },
+      { value: "+123 CELL 456 789", type: "cell" },
+      { value: "809 FAX 77 666 8", type: "fax" },
+      { value: "+111 PAGER 3456789", type: "pager" },
+    ],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  checkVCardValues(book.childCards[0], {
+    email: [
+      { value: "contact1@invalid", pref: "1" },
+      { value: "home.contact1@invalid", type: "home" },
+      { value: "work.contact1@invalid", type: "work" },
+    ],
+    url: [
+      { value: "http://none.example.com" },
+      { value: "https://home.example.com", type: "home" },
+      { value: "https://work.example.com", type: "work" },
+    ],
+    tel: [
+      { value: "+123456 789" },
+      { value: "809 HOME 77 666 8", type: "home" },
+      { value: "+111 WORK 3456789", type: "work" },
+      { value: "+123 CELL 456 789", type: "cell" },
+      { value: "809 FAX 77 666 8", type: "fax" },
+      { value: "+111 PAGER 3456789", type: "pager" },
+    ],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  checkVCardInputValues({
+    email: [
+      { value: "contact1@invalid", pref: "1" },
+      { value: "home.contact1@invalid", type: "home" },
+      { value: "work.contact1@invalid", type: "work" },
+    ],
+    url: [
+      { value: "http://none.example.com" },
+      { value: "https://home.example.com", type: "home" },
+      { value: "https://work.example.com", type: "work" },
+    ],
+    tel: [
+      { value: "+123456 789" },
+      { value: "809 HOME 77 666 8", type: "home" },
+      { value: "+111 WORK 3456789", type: "work" },
+      { value: "+123 CELL 456 789", type: "cell" },
+      { value: "809 FAX 77 666 8", type: "fax" },
+      { value: "+111 PAGER 3456789", type: "pager" },
+    ],
+  });
+
+  await setVCardInputValues({
+    email: [
+      { value: "contact1@invalid", type: "work" },
+      { value: "home.contact1@invalid" },
+      { value: "work.contact1@invalid", type: "home" },
+    ],
+    url: [
+      { value: "http://none.example.com", type: "work" },
+      { value: "https://home.example.com" },
+      { value: "https://work.example.com", type: "home" },
+    ],
+    tel: [
+      { value: "+123456 789", type: "pager" },
+      { value: "809 HOME 77 666 8" },
+      { value: "+111 WORK 3456789", type: "home" },
+      { value: "+123 CELL 456 789" },
+      { value: "809 FAX 77 666 8", type: "fax" },
+      { value: "+111 PAGER 3456789", type: "cell" },
+    ],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  checkVCardValues(book.childCards[0], {
+    email: [
+      { value: "contact1@invalid", type: "work", pref: "1" },
+      { value: "home.contact1@invalid" },
+      { value: "work.contact1@invalid", type: "home" },
+    ],
+    url: [
+      { value: "http://none.example.com", type: "work" },
+      { value: "https://home.example.com" },
+      { value: "https://work.example.com", type: "home" },
+    ],
+    tel: [
+      { value: "+123456 789", type: "pager" },
+      { value: "809 HOME 77 666 8" },
+      { value: "+111 WORK 3456789", type: "home" },
+      { value: "+123 CELL 456 789" },
+      { value: "809 FAX 77 666 8", type: "fax" },
+      { value: "+111 PAGER 3456789", type: "cell" },
+    ],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
 });
 
 add_task(async function test_special_date_field() {

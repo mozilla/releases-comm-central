@@ -18,8 +18,6 @@ class VCardEmailComponent extends HTMLTableRowElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
-  /** @type {HTMLSelectElement} */
-  selectEl;
   /** @type {HTMLInputElement} */
   emailEl;
   /** @type {HTMLInputElement} */
@@ -29,57 +27,47 @@ class VCardEmailComponent extends HTMLTableRowElement {
     return new VCardPropertyEntry("email", {}, "text", "");
   }
 
-  constructor() {
-    super();
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
     let template = document.getElementById("template-vcard-edit-email");
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
-  }
 
-  connectedCallback() {
-    if (this.isConnected) {
-      this.emailEl = this.querySelector('input[type="email"]');
-      this.selectEl = this.querySelector("select");
-      this.checkboxEl = this.querySelector('input[type="checkbox"]');
+    this.emailEl = this.querySelector('input[type="email"]');
+    this.checkboxEl = this.querySelector('input[type="checkbox"]');
 
-      this.emailEl.addEventListener("input", () => {
-        // Dispatch the event only if this field is the currently selected
-        // default/preferred email address.
-        if (this.checkboxEl.checked) {
-          this.dispatchEvent(VCardEmailComponent.EmailEvent());
-        }
-      });
+    this.emailEl.addEventListener("input", () => {
+      // Dispatch the event only if this field is the currently selected
+      // default/preferred email address.
+      if (this.checkboxEl.checked) {
+        this.dispatchEvent(VCardEmailComponent.EmailEvent());
+      }
+    });
 
-      // Uncheck the checkbox of other VCardEmailComponents if this one is
-      // checked.
-      this.checkboxEl.addEventListener("change", event => {
-        if (event.target.checked === true) {
-          this.dispatchEvent(VCardEmailComponent.CheckboxEvent());
-        }
-      });
-      this.fromVCardPropertyEntryToUI();
-    }
-  }
+    // Uncheck the checkbox of other VCardEmailComponents if this one is
+    // checked.
+    this.checkboxEl.addEventListener("change", event => {
+      if (event.target.checked === true) {
+        this.dispatchEvent(VCardEmailComponent.CheckboxEvent());
+      }
+    });
 
-  disconnectedCallback() {
-    if (!this.isConnected) {
-      this.checkboxEl = null;
-      this.emailEl = null;
-      this.selectEl = null;
-      this.vCardPropertyEntry = null;
-    }
+    // Create the email type selection.
+    this.vCardType = this.querySelector("vcard-type");
+    this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
+      labelledBy: "addr-book-edit-email-type",
+    });
+
+    this.fromVCardPropertyEntryToUI();
   }
 
   fromVCardPropertyEntryToUI() {
     this.emailEl.value = this.vCardPropertyEntry.value;
-    /**
-     * @TODO
-     * Create an element for type selection of home, work, ...
-     */
-    let paramsType = this.vCardPropertyEntry.params.type;
-    if (paramsType && !Array.isArray(paramsType)) {
-      this.selectEl.value = this.vCardPropertyEntry.params.type;
-    }
+
     let pref = this.vCardPropertyEntry.params.pref;
     if (pref === "1") {
       this.checkboxEl.checked = true;
@@ -88,20 +76,6 @@ class VCardEmailComponent extends HTMLTableRowElement {
 
   fromUIToVCardPropertyEntry() {
     this.vCardPropertyEntry.value = this.emailEl.value;
-    /**
-     * @TODO
-     * Create an element for type selection of home, work, ...
-     */
-    let paramsType = this.selectEl.value;
-    if (paramsType && paramsType !== "") {
-      this.vCardPropertyEntry.params.type = this.selectEl.value;
-    } else if (paramsType && !Array.isArray(paramsType)) {
-      /**
-       * @TODO params.type is string | Array<string> | falsy.
-       * Right now the case is only handled for string.
-       */
-      delete this.vCardPropertyEntry.params.type;
-    }
 
     if (this.checkboxEl.checked) {
       this.vCardPropertyEntry.params.pref = "1";

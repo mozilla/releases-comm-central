@@ -18,9 +18,6 @@ class VCardAdrComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
-  /** @type {HTMLSelectElement} */
-  selectEl;
-
   static newVCardPropertyEntry() {
     return new VCardPropertyEntry("adr", {}, "text", [
       "",
@@ -33,66 +30,50 @@ class VCardAdrComponent extends HTMLElement {
     ]);
   }
 
-  constructor() {
-    super();
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
     let template = document.getElementById("template-vcard-edit-adr");
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
-  }
 
-  connectedCallback() {
-    if (this.isConnected) {
-      this.poboxEl = this.querySelector('input[name="pobox"]');
-      this.assignIds(this.poboxEl, this.querySelector('label[for="pobox"]'));
+    this.poboxEl = this.querySelector('input[name="pobox"]');
+    this.assignIds(this.poboxEl, this.querySelector('label[for="pobox"]'));
 
-      this.extEl = this.querySelector('input[name="ext"]');
-      this.assignIds(this.extEl, this.querySelector('label[for="ext"]'));
+    this.extEl = this.querySelector('input[name="ext"]');
+    this.assignIds(this.extEl, this.querySelector('label[for="ext"]'));
 
-      this.streetEl = this.querySelector('textarea[name="street"]');
-      this.assignIds(this.streetEl, this.querySelector('label[for="street"]'));
-      this.streetEl.addEventListener("input", () => {
-        this.resizeStreetEl();
-      });
+    this.streetEl = this.querySelector('textarea[name="street"]');
+    this.assignIds(this.streetEl, this.querySelector('label[for="street"]'));
+    this.streetEl.addEventListener("input", () => {
+      this.resizeStreetEl();
+    });
 
-      this.localityEl = this.querySelector('input[name="locality"]');
-      this.assignIds(
-        this.localityEl,
-        this.querySelector('label[for="locality"]')
-      );
+    this.localityEl = this.querySelector('input[name="locality"]');
+    this.assignIds(
+      this.localityEl,
+      this.querySelector('label[for="locality"]')
+    );
 
-      this.regionEl = this.querySelector('input[name="region"]');
-      this.assignIds(this.regionEl, this.querySelector('label[for="region"]'));
+    this.regionEl = this.querySelector('input[name="region"]');
+    this.assignIds(this.regionEl, this.querySelector('label[for="region"]'));
 
-      this.codeEl = this.querySelector('input[name="code"]');
-      this.assignIds(this.regionEl, this.querySelector('label[for="code"]'));
+    this.codeEl = this.querySelector('input[name="code"]');
+    this.assignIds(this.regionEl, this.querySelector('label[for="code"]'));
 
-      this.countryEl = this.querySelector('input[name="country"]');
-      this.assignIds(
-        this.countryEl,
-        this.querySelector('label[for="country"]')
-      );
+    this.countryEl = this.querySelector('input[name="country"]');
+    this.assignIds(this.countryEl, this.querySelector('label[for="country"]'));
 
-      this.selectEl = this.querySelector("select");
-      let selectId = vCardIdGen.next().value;
-      this.selectEl.id = selectId;
-      this.querySelector('label[for="select"]').htmlFor = selectId;
+    // Create the adr type selection.
+    this.vCardType = this.querySelector("vcard-type");
+    this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
+      createLabel: true,
+    });
 
-      this.fromVCardPropertyEntryToUI();
-    }
-  }
-
-  disconnectedCallback() {
-    if (!this.isConnected) {
-      this.selectEl = null;
-      this.vCardPropertyEntry = null;
-      this.poboxEl = null;
-      this.extEl = null;
-      this.streetEl = null;
-      this.localityEl = null;
-      this.regionEl = null;
-      this.codeEl = null;
-      this.countryEl = null;
-    }
+    this.fromVCardPropertyEntryToUI();
   }
 
   fromVCardPropertyEntryToUI() {
@@ -110,27 +91,9 @@ class VCardAdrComponent extends HTMLElement {
     this.regionEl.value = this.vCardPropertyEntry.value[4] || "";
     this.codeEl.value = this.vCardPropertyEntry.value[5] || "";
     this.countryEl.value = this.vCardPropertyEntry.value[6] || "";
-
-    /**
-     * @TODO
-     * Create an element for type selection of home, work, ...
-     */
-    let paramsType = this.vCardPropertyEntry.params.type;
-    if (paramsType && !Array.isArray(paramsType)) {
-      this.selectEl.value = this.vCardPropertyEntry.params.type;
-    }
   }
 
   fromUIToVCardPropertyEntry() {
-    /**
-     * @TODO
-     * Create an element for type selection of home, work, ...
-     */
-    let paramsType = this.selectEl.value;
-    if (paramsType) {
-      this.vCardPropertyEntry.params.type = paramsType;
-    }
-
     let streetValue = this.streetEl.value || "";
     streetValue = streetValue.trim();
     if (streetValue.includes("\n")) {
