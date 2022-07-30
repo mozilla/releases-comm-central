@@ -106,6 +106,10 @@ class ImapResponse {
           // * LIST (\Subscribed \NoInferiors \UnMarked \Sent) "/" Sent
           this.mailboxes.push(new MailboxData(tokens));
           break;
+        case "STATUS":
+          // * STATUS \"folder 2\" (UIDNEXT 2 MESSAGES 1 UNSEEN 1)
+          this.attributes = new StatusData(tokens).attributes;
+          break;
         default:
           if (Number.isInteger(+tokens[1])) {
             this._parseNumbered(tokens);
@@ -323,10 +327,7 @@ class MailboxData {
     let [, , attributes, delimiter, ...rest] = tokens;
     this.flags = this._stringsToFlags(attributes);
     this.delimiter = delimiter.replace(/(^"|"$)/g, "");
-    this.name = rest
-      .join(" ")
-      .replace(/(^"|"$)/g, "")
-      .replaceAll('\\"', '"');
+    this.name = unescapeMailboxName(rest);
   }
 
   /**
@@ -364,4 +365,39 @@ class MailboxData {
     }
     return flags;
   }
+}
+
+/**
+ * A structure to represent STATUS data.
+ *   * STATUS \"folder 2\" (UIDNEXT 2 MESSAGES 1 UNSEEN 1)
+ */
+class StatusData {
+  /**
+   * @params {Array<string|string[]>} tokens - The tokens of the line.
+   */
+  constructor(tokens) {
+    this.attributes = {};
+
+    // The first two tokens are ["*", "STATUS"], the last token is the attribute
+    // list, the middle part is the mailbox name.
+    this.attributes.mailbox = unescapeMailboxName(tokens.slice(2, -1));
+
+    let attributes = tokens.at(-1);
+    for (let i = 0; i < attributes.length; i += 2) {
+      let type = attributes[i].toLowerCase();
+      this.attributes[type] = attributes[i + 1];
+    }
+  }
+}
+
+/**
+ * Restore the mailbox name from tokens.
+ * @params {string[]} tokens - E.g. "sub folder" may be tokenized as
+ *   ["\"sub", "folder\""]
+ */
+function unescapeMailboxName(tokens) {
+  return tokens
+    .join(" ")
+    .replace(/(^"|"$)/g, "")
+    .replaceAll('\\"', '"');
 }

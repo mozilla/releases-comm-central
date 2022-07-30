@@ -200,6 +200,17 @@ class ImapService {
     });
   }
 
+  updateFolderStatus(folder, urlListener) {
+    this._withClient(folder, client => {
+      let runningUrl = client.startRunningUrl(urlListener);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapFolderStatus;
+      client.onReady = () => {
+        client.updateFolderStatus(folder);
+      };
+    });
+  }
+
   /**
    * Do some actions with a connection.
    * @param {nsIMsgFolder} folder - The associated folder.

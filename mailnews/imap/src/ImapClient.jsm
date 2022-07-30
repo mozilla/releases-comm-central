@@ -136,8 +136,7 @@ class ImapClient {
   selectFolder(folder) {
     this._logger.debug("selectFolder", folder.URI);
     if (this.folder == folder) {
-      this._nextAction = this._actionNoopResponse;
-      this._sendTagged("NOOP");
+      this._actionNoop();
       return;
     }
     this.folder = folder;
@@ -340,6 +339,38 @@ class ImapClient {
       this._send(content);
     };
     this._sendTagged(`APPEND "${mailbox}" {${content.length}}`);
+  }
+
+  /**
+   * Check the status of a folder.
+   * @param {nsIMsgFolder} folder - The folder to check.
+   */
+  updateFolderStatus(folder) {
+    this._logger.debug("updateFolderStatus", folder.URI);
+    if (this._folder == folder) {
+      // According to rfc3501, "the STATUS command SHOULD NOT be used on the
+      // currently selected mailbox", so use NOOP instead.
+      this._actionNoop();
+      return;
+    }
+
+    this._nextAction = res => {
+      if (res.status == "OK") {
+        folder
+          .QueryInterface(Ci.nsIImapMailFolderSink)
+          .UpdateImapMailboxStatus(this, {
+            QueryInterface: ChromeUtils.generateQI(["nsIMailboxSpec"]),
+            nextUID: res.attributes.uidnext,
+            numMessages: res.attributes.messages,
+            numUnseenMessages: res.attributes.unseen,
+          });
+        folder.msgDatabase = null;
+      }
+      this._actionDone();
+    };
+    this._sendTagged(
+      `STATUS "${this._getServerFolderName(folder)}" (UIDNEXT MESSAGES UNSEEN)`
+    );
   }
 
   /**
@@ -1058,6 +1089,14 @@ class ImapClient {
     }
     this.onData?.();
     this._actionDone();
+  }
+
+  /**
+   * Send NOOP command.
+   */
+  _actionNoop() {
+    this._nextAction = this._actionNoopResponse;
+    this._sendTagged("NOOP");
   }
 
   /**

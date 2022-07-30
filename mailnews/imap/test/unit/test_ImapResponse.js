@@ -201,3 +201,20 @@ add_task(function test_ListResponse() {
     flags: ImapUtils.FLAG_SUBSCRIBED,
   });
 });
+
+/**
+ * Test STATUS response can be correctly parsed.
+ */
+add_task(function test_StatusResponse() {
+  let response = new ImapResponse();
+  response.parse(
+    '* STATUS "sub folder 2" (UIDNEXT 2 MESSAGES 1 UNSEEN 1 RECENT 0)\r\n'
+  );
+  deepEqual(response.attributes, {
+    mailbox: "sub folder 2",
+    uidnext: 2,
+    messages: 1,
+    unseen: 1,
+    recent: 0,
+  });
+});

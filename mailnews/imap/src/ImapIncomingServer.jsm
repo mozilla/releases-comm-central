@@ -77,6 +77,14 @@ class ImapIncomingServer extends MsgIncomingServer {
     MailServices.imap.discoverAllFolders(this.rootFolder, this, msgWindow);
   }
 
+  closeCachedConnections() {
+    for (let client of [...this._freeConnections, ...this._busyConnections]) {
+      client.logout();
+    }
+    this._freeConnections = [];
+    this._busyConnections = [];
+  }
+
   /** @see nsIImapServerSink */
   possibleImapMailbox(folderPath, delimiter, boxFlags) {
     let explicitlyVerify = false;
@@ -327,6 +335,51 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   set maximumConnectionsNumber(value) {
     this.setIntValue("max_cached_connections", value);
+  }
+
+  GetNewMessagesForNonInboxFolders(
+    folder,
+    msgWindow,
+    forceAllFolders,
+    performingBiff
+  ) {
+    let flags = folder.flags;
+
+    if (
+      folder.QueryInterface(Ci.nsIMsgImapMailFolder).canOpenFolder &&
+      ((forceAllFolders &&
+        !(
+          flags &
+          (Ci.nsMsgFolderFlags.Inbox |
+            Ci.nsMsgFolderFlags.Trash |
+            Ci.nsMsgFolderFlags.Junk |
+            Ci.nsMsgFolderFlags.Virtual)
+        )) ||
+        flags & Ci.nsMsgFolderFlags.CheckNew)
+    ) {
+      folder.gettingNewMessages = true;
+      if (performingBiff) {
+        folder.performingBiff = true;
+      }
+    }
+
+    if (
+      Services.prefs.getBoolPref("mail.imap.use_status_for_biff", false) &&
+      !MailServices.mailSession.IsFolderOpenInWindow(folder)
+    ) {
+      folder.updateStatus(this, msgWindow);
+    } else {
+      folder.updateFolder(msgWindow);
+    }
+
+    for (let subFolder of folder.subFolders) {
+      this.GetNewMessagesForNonInboxFolders(
+        subFolder,
+        msgWindow,
+        forceAllFolders,
+        performingBiff
+      );
+    }
   }
 
   CloseConnectionForFolder(folder) {
