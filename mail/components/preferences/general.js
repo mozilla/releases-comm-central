@@ -553,8 +553,7 @@ var gGeneralPane = {
   },
 
   browseForSoundFile() {
-    const nsIFilePicker = Ci.nsIFilePicker;
-    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     // if we already have a sound file, then use the path for that sound file
     // as the initial path in the dialog.
@@ -571,13 +570,13 @@ var gGeneralPane = {
       document
         .getElementById("bundlePreferences")
         .getString("soundFilePickerTitle"),
-      nsIFilePicker.modeOpen
+      Ci.nsIFilePicker.modeOpen
     );
     fp.appendFilters(Ci.nsIFilePicker.filterAudio);
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
     fp.open(rv => {
-      if (rv != nsIFilePicker.returnOK || !fp.file) {
+      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
         return;
       }
       // convert the nsIFile into a nsIFile url
@@ -2463,18 +2462,17 @@ class HandlerRow {
         params
       );
     } else {
-      const nsIFilePicker = Ci.nsIFilePicker;
-      let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+      let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
       let winTitle = gGeneralPane._prefsBundle.getString("fpTitleChooseApp");
-      fp.init(window, winTitle, nsIFilePicker.modeOpen);
-      fp.appendFilters(nsIFilePicker.filterApps);
+      fp.init(window, winTitle, Ci.nsIFilePicker.modeOpen);
+      fp.appendFilters(Ci.nsIFilePicker.filterApps);
 
       // Prompt the user to pick an app.  If they pick one, and it's a valid
       // selection, then add it to the list of possible handlers.
 
       fp.open(rv => {
         if (
-          rv == nsIFilePicker.returnOK &&
+          rv == Ci.nsIFilePicker.returnOK &&
           fp.file &&
           gGeneralPane._isValidHandlerExecutable(fp.file)
         ) {

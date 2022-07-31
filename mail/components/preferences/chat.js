@@ -130,8 +130,7 @@ var gChatPane = {
   },
 
   browseForSoundFile() {
-    const nsIFilePicker = Ci.nsIFilePicker;
-    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     // If we already have a sound file, then use the path for that sound file
     // as the initial path in the dialog.
@@ -148,13 +147,13 @@ var gChatPane = {
       document
         .getElementById("bundlePreferences")
         .getString("soundFilePickerTitle"),
-      nsIFilePicker.modeOpen
+      Ci.nsIFilePicker.modeOpen
     );
     fp.appendFilters(Ci.nsIFilePicker.filterAudio);
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
     fp.open(rv => {
-      if (rv != nsIFilePicker.returnOK) {
+      if (rv != Ci.nsIFilePicker.returnOK) {
         return;
       }
 
