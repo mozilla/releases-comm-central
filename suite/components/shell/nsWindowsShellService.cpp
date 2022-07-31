@@ -362,10 +362,10 @@ nsWindowsShellService::TestForDefault(SETTING aSettings[], int32_t aSize)
     NS_ConvertUTF8toUTF16 key(settings->keyName);
     NS_ConvertUTF8toUTF16 value(settings->valueName);
     if (settings->flags & APP_PATH_SUBSTITUTION) {
-      int32_t offset = dataLongPath.Find("%APPPATH%");
+      int32_t offset = dataLongPath.Find(u"%APPPATH%");
       dataLongPath.Replace(offset, 9, mAppLongPath);
       // Remove the quotes around %APPPATH% in VAL_OPEN for short paths
-      int32_t offsetQuoted = dataShortPath.Find("\"%APPPATH%\"");
+      int32_t offsetQuoted = dataShortPath.Find(u"\"%APPPATH%\"");
       if (offsetQuoted != -1)
         dataShortPath.Replace(offsetQuoted, 11, mAppShortPath);
       else
