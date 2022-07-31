@@ -460,12 +460,11 @@ static nsMsgAttachmentData* mime_draft_process_attachments(
   // It's possible we must treat the message body as attachment!
   bool bodyAsAttachment = false;
   if (mdd->messageBody && !mdd->messageBody->m_type.IsEmpty() &&
-      mdd->messageBody->m_type.Find("text/html", /* ignoreCase = */ true) ==
-          -1 &&
-      mdd->messageBody->m_type.Find("text/plain", /* ignoreCase = */ true) ==
-          -1 &&
-      !mdd->messageBody->m_type.LowerCaseEqualsLiteral("text"))
+      mdd->messageBody->m_type.LowerCaseFindASCII("text/html") == kNotFound &&
+      mdd->messageBody->m_type.LowerCaseFindASCII("text/plain") == kNotFound &&
+      !mdd->messageBody->m_type.LowerCaseEqualsLiteral("text")) {
     bodyAsAttachment = true;
+  }
 
   if (!mdd->attachments.Length() && !bodyAsAttachment) return nullptr;
 
@@ -498,8 +497,7 @@ static nsMsgAttachmentData* mime_draft_process_attachments(
         if (!tmpFile->m_realName.IsEmpty())
           tmp->m_realName = tmpFile->m_realName;
         else {
-          if (tmpFile->m_type.Find(MESSAGE_RFC822, /* ignoreCase = */ true) !=
-              -1)
+          if (tmpFile->m_type.LowerCaseFindASCII(MESSAGE_RFC822) != kNotFound)
             // we have the odd case of processing an e-mail that had an unnamed
             // eml message attached
             tmp->m_realName = "ForwardedMessage.eml";
@@ -1354,11 +1352,11 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     if (mdd->messageBody) {
       MSG_ComposeFormat composeFormat = nsIMsgCompFormat::Default;
       if (!mdd->messageBody->m_type.IsEmpty()) {
-        if (mdd->messageBody->m_type.Find("text/html",
-                                          /* ignoreCase = */ true) != -1)
+        if (mdd->messageBody->m_type.LowerCaseFindASCII("text/html") !=
+            kNotFound)
           composeFormat = nsIMsgCompFormat::HTML;
-        else if (mdd->messageBody->m_type.Find("text/plain",
-                                               /* ignoreCase = */ true) != -1 ||
+        else if (mdd->messageBody->m_type.LowerCaseFindASCII("text/plain") !=
+                     kNotFound ||
                  mdd->messageBody->m_type.LowerCaseEqualsLiteral("text"))
           composeFormat = nsIMsgCompFormat::PlainText;
         else

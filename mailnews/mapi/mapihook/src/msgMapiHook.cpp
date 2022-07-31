@@ -675,7 +675,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(
 
     // This is needed when Simple MAPI is used without a compose window.
     // See bug 1366196.
-    if (Body.Find("<html>") == kNotFound) aCompFields->SetForcePlainText(true);
+    if (Body.Find(u"<html>") == kNotFound) aCompFields->SetForcePlainText(true);
 
     rv = aCompFields->SetBody(Body);
   } else {
@@ -761,7 +761,7 @@ nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
 
     // This is needed when Simple MAPI is used without a compose window.
     // See bug 1366196.
-    if (Body.Find("<html>") == kNotFound) aCompFields->SetForcePlainText(true);
+    if (Body.Find(u"<html>") == kNotFound) aCompFields->SetForcePlainText(true);
 
     rv = aCompFields->SetBody(Body);
   } else {

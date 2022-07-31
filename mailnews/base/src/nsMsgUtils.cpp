@@ -285,7 +285,7 @@ int32_t MsgFindCharInSet(const nsCString& aString, const char* aChars,
   return aString.FindCharInSet(aChars, aOffset);
 }
 
-int32_t MsgFindCharInSet(const nsString& aString, const char* aChars,
+int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
                          uint32_t aOffset) {
   return aString.FindCharInSet(aChars, aOffset);
 }
@@ -361,8 +361,8 @@ nsresult NS_MsgHashIfNecessary(nsAutoCString& name) {
 nsresult NS_MsgHashIfNecessary(nsAutoString& name) {
   if (name.IsEmpty()) return NS_OK;  // Nothing to do.
   int32_t illegalCharacterIndex = MsgFindCharInSet(
-      name, FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS ILLEGAL_FOLDER_CHARS,
-      0);
+      name,
+      u"" FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS ILLEGAL_FOLDER_CHARS, 0);
 
   // Need to check the first ('.') and last ('.', '~' and ' ') char
   if (illegalCharacterIndex == -1) {
@@ -1312,7 +1312,7 @@ bool MsgFindKeyword(const nsCString& keyword, nsCString& keywords,
 //                       int32_t aOffset=0,
 //                       int32_t aCount=-1 ) const;
 #define FIND_KEYWORD(keywords, keyword, offset) \
-  ((keywords).Find((keyword), false, (offset)))
+  ((keywords).Find((keyword), (offset)))
   // 'keyword' is the single keyword we're looking for
   // 'keywords' is a space delimited list of keywords to be searched,
   // which may be just a single keyword or even be empty

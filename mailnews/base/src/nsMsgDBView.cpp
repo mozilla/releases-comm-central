@@ -760,9 +760,9 @@ nsresult nsMsgDBView::FetchKeywords(nsIMsgDBHdr* aHdr,
   if (label > 0) {
     nsAutoCString labelStr("$label");
     labelStr.Append((char)(label + '0'));
-    if (keywords.Find(labelStr, /* ignoreCase = */ true) == -1) {
+    if (!FindInReadable(labelStr, keywords,
+                        nsCaseInsensitiveCStringComparator)) {
       if (!keywords.IsEmpty()) keywords.Append(' ');
-
       keywords.Append(labelStr);
     }
   }
@@ -828,7 +828,7 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
   if (label > 0) {
     nsAutoCString labelStr("$label");
     labelStr.Append((char)(label + '0'));
-    if (keywords.Find(labelStr, /* ignoreCase = */ true) == -1)
+    if (!FindInReadable(labelStr, keywords, nsCaseInsensitiveCStringComparator))
       FetchLabel(aHdr, tags);
   }
 

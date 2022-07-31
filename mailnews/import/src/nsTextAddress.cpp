@@ -317,10 +317,10 @@ bool nsTextAddress::GetField(const nsAString& aLine, int32_t index,
   field.Trim(kWhitespace);
 
   if (quoted) {
-    int32_t offset = field.Find("\"\"");
+    int32_t offset = field.Find(u"\"\"");
     while (offset != -1) {
       field.Cut(offset, 1);
-      offset = field.Find("\"\"", false, offset + 1);
+      offset = field.Find(u"\"\"", offset + 1);
     }
   }
 

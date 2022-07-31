@@ -50,6 +50,7 @@
 #include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
 #include "nsSmtpUrl.h"
+#include "nsUnicharUtils.h"
 #include "mozilla/NullPrincipal.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
@@ -312,8 +313,10 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
     }
 
     if (!charsOnlyIf.IsEmpty()) {
-      if (MsgFindCharInSet(selPlain, charsOnlyIf.get()) < 0)
+      if (selPlain.FindCharInSet(NS_ConvertUTF8toUTF16(charsOnlyIf)) ==
+          kNotFound) {
         return NS_ERROR_ABORT;
+      }
     }
   }
 
@@ -857,8 +860,10 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
     nsAutoCString identityEmail;
     anIdentity->GetEmail(identityEmail);
 
-    if (recipients.Find(identityEmail, /* ignoreCase = */ true) != kNotFound ||
-        ccList.Find(identityEmail, /* ignoreCase = */ true) != kNotFound) {
+    if (FindInReadable(identityEmail, recipients,
+                       nsCaseInsensitiveCStringComparator) ||
+        FindInReadable(identityEmail, ccList,
+                       nsCaseInsensitiveCStringComparator)) {
       identity = anIdentity;
       break;
     }

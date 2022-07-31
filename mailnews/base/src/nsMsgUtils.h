@@ -259,7 +259,8 @@ NS_MSG_BASE nsresult MsgExamineForProxyAsync(nsIChannel* channel,
 NS_MSG_BASE int32_t MsgFindCharInSet(const nsCString& aString,
                                      const char* aChars, uint32_t aOffset = 0);
 NS_MSG_BASE int32_t MsgFindCharInSet(const nsString& aString,
-                                     const char* aChars, uint32_t aOffset = 0);
+                                     const char16_t* aChars,
+                                     uint32_t aOffset = 0);
 
 // advances bufferOffset to the beginning of the next line, if we don't
 // get to maxBufferOffset first. Returns false if we didn't get to the

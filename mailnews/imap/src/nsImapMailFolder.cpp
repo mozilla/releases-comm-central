@@ -88,6 +88,7 @@
 #include "nsStringStream.h"
 #include "nsIStreamListener.h"
 #include "nsITimer.h"
+#include "nsReadableUtils.h"
 
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
@@ -4374,16 +4375,16 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
 
   ToLowerCase(keywords);
   bool messageClassified = true;
+  // ### TODO: we really should parse the keywords into space delimited keywords
+  // before checking
   // Mac Mail uses "NotJunk"
-  if (keywords.Find("NonJunk", /* ignoreCase = */ true) != kNotFound ||
-      keywords.Find("NotJunk", /* ignoreCase = */ true) != kNotFound) {
+  if (FindInReadable("NonJunk"_ns, keywords,
+                     nsCaseInsensitiveCStringComparator)) {
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
     mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore.get());
-  }
-  // ### TODO: we really should parse the keywords into space delimited keywords
-  // before checking
-  else if (keywords.Find("Junk", /* ignoreCase = */ true) != kNotFound) {
+  } else if (FindInReadable("Junk"_ns, keywords,
+                            nsCaseInsensitiveCStringComparator)) {
     uint32_t newFlags;
     dbHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
     nsAutoCString msgJunkScore;
@@ -8803,8 +8804,8 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
           if (labelNames[i].EqualsLiteral("\"\\\\Sent\""))
             rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::SentMail,
                                                 getter_AddRefs(subMsgFolder));
-          if (labelNames[i].Find("[Imap]/", /* ignoreCase = */ true) !=
-              kNotFound) {
+          if (FindInReadable("[Imap]/"_ns, labelNames[i],
+                             nsCaseInsensitiveCStringComparator)) {
             labelNames[i].ReplaceSubstring("[Imap]/", "");
             imapRootFolder->FindOnlineSubFolder(labelNames[i],
                                                 getter_AddRefs(subFolder));

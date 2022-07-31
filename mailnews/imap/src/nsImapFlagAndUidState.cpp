@@ -242,7 +242,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(
         return NS_OK;
       // else, advance to next flag
       existingCustomFlagPos = oldValue.Find(
-          customFlagString, false, existingCustomFlagPos + customFlagLen);
+          customFlagString, existingCustomFlagPos + customFlagLen);
     }
     ourCustomFlags.Assign(oldValue);
     ourCustomFlags.Append(' ');

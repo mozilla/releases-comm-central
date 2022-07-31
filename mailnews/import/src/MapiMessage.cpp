@@ -668,7 +668,7 @@ bool CMapiMessage::FetchBody(void) {
     // To detect the "true" plain text messages, we look for our string
     // immediately following the <BODY> tag.
     if (!m_body.IsEmpty() &&
-        m_body.Find("<BODY>\r\n<!-- Converted from text/plain format -->") ==
+        m_body.Find(u"<BODY>\r\n<!-- Converted from text/plain format -->") ==
             kNotFound) {
       m_bodyIsHtml = true;
     } else {

@@ -461,15 +461,14 @@ static void remove_plaintext_tag(nsString& body) {
   // Replace all <plaintext> and </plaintext> tags.
   int32_t index = 0;
   bool replaced = false;
-  while ((index = body.Find("<plaintext", /* ignoreCase = */ true, index)) !=
-         kNotFound) {
+  while ((index = body.LowerCaseFindASCII("<plaintext", index)) != kNotFound) {
     body.Insert(u"x-", index + 1);
     index += 12;
     replaced = true;
   }
   if (replaced) {
     index = 0;
-    while ((index = body.Find("</plaintext", /* ignoreCase = */ true, index)) !=
+    while ((index = body.LowerCaseFindASCII("</plaintext", index)) !=
            kNotFound) {
       body.Insert(u"x-", index + 2);
       index += 13;
@@ -1798,7 +1797,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
             attachment->SetSize(messageSize);
 
             // change all '.' to '_'  see bug #271211
-            sanitizedSubj.ReplaceChar(".", '_');
+            sanitizedSubj.ReplaceChar(u".", u'_');
             if (addExtension) sanitizedSubj.AppendLiteral(".eml");
             attachment->SetName(sanitizedSubj);
             attachment->SetUrl(nsDependentCString(uri));
@@ -2000,7 +1999,7 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
           rv = originalMsgHdr->GetDate(&originalMsgDate);
           if (NS_SUCCEEDED(rv)) {
             nsAutoString citeDatePart;
-            if ((placeholderIndex = mCitePrefix.Find("#2")) != kNotFound) {
+            if ((placeholderIndex = mCitePrefix.Find(u"#2")) != kNotFound) {
               mozilla::intl::DateTimeFormat::StyleBag style;
               style.date =
                   mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
@@ -2009,7 +2008,7 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
               if (NS_SUCCEEDED(rv))
                 mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);
             }
-            if ((placeholderIndex = mCitePrefix.Find("#3")) != kNotFound) {
+            if ((placeholderIndex = mCitePrefix.Find(u"#3")) != kNotFound) {
               mozilla::intl::DateTimeFormat::StyleBag style;
               style.time =
                   mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
@@ -2021,7 +2020,7 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
           }
         }
 
-        if ((placeholderIndex = mCitePrefix.Find("#1")) != kNotFound) {
+        if ((placeholderIndex = mCitePrefix.Find(u"#1")) != kNotFound) {
           nsAutoCString author;
           rv = originalMsgHdr->GetAuthor(getter_Copies(author));
           if (NS_SUCCEEDED(rv)) {
@@ -2164,7 +2163,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
         mMimeConverter->DecodeMimeHeader(outCString.get(), charset.get(), false,
                                          true, listPost);
       if (!listPost.IsEmpty()) {
-        int32_t startPos = listPost.Find("<mailto:");
+        int32_t startPos = listPost.Find(u"<mailto:");
         int32_t endPos = listPost.FindChar('>', startPos);
         // Extract the e-mail address.
         if (endPos > startPos) {
@@ -3659,7 +3658,7 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
   if (removeSigCharset) {
     nsAutoCString metaCharset("charset=");
     metaCharset.Append(sigEncoding);
-    int32_t pos = sigData.Find(metaCharset.BeginReading(), true);
+    int32_t pos = sigData.LowerCaseFindASCII(metaCharset);
     if (pos != kNotFound) sigData.Cut(pos, metaCharset.Length());
   }
   return NS_OK;
@@ -3671,13 +3670,15 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
  * images loaded into the editor are available on send.
  */
 nsresult nsMsgCompose::ReplaceFileURLs(nsString& aData) {
-  int32_t fPos;
-  // We're using RFind(), so offset -1 is from the very right.
-  int32_t offset = -1;
-
   // XXX This code is rather incomplete since it looks for "file://" even
   // outside tags.
-  while ((fPos = aData.RFind("file://", true, offset)) != kNotFound) {
+
+  int32_t offset = 0;
+  while (true) {
+    int32_t fPos = aData.LowerCaseFindASCII("file://", offset);
+    if (fPos == kNotFound) {
+      break;  // All done.
+    }
     bool quoted = false;
     char16_t q = 'x';  // initialise to anything to keep compilers happy.
     if (fPos > 0) {
@@ -3705,13 +3706,14 @@ nsresult nsMsgCompose::ReplaceFileURLs(nsString& aData) {
     fileURL = Substring(aData, fPos, end - fPos);
     nsString dataURL;
     nsresult rv = DataURLForFileURL(fileURL, dataURL);
-    // If this one failed, maybe because the file wasn't found,
-    // continue to process the next one.
     if (NS_SUCCEEDED(rv)) {
-      aData.Replace(fPos, end - fPos, dataURL);
+      aData.Replace(fPos, fileURL.Length(), dataURL);
+      offset = fPos + dataURL.Length();
+    } else {
+      // If this one failed, maybe because the file wasn't found,
+      // continue to process the next one.
+      offset = fPos + fileURL.Length();
     }
-    if (fPos == 0) break;
-    offset = fPos - 1;
   }
   return NS_OK;
 }
@@ -3975,9 +3977,8 @@ nsresult nsMsgCompose::ProcessSignature(nsIMsgIdentity* identity, bool aQuoted,
     }
 
     if ((reply_on_top != 1 || sig_bottom || !aQuoted) &&
-        sigData.Find("\r-- \r", true) < 0 &&
-        sigData.Find("\n-- \n", true) < 0 &&
-        sigData.Find("\n-- \r", true) < 0) {
+        sigData.Find(u"\r-- \r") < 0 && sigData.Find(u"\n-- \n") < 0 &&
+        sigData.Find(u"\n-- \r") < 0) {
       nsDependentSubstring firstFourChars(sigData, 0, 4);
 
       if ((mType == nsIMsgCompType::NewsPost || !suppressSigSep) &&
@@ -4818,14 +4819,15 @@ nsresult nsMsgCompose::MoveToAboveQuote(void) {
 
       // Now check for the cite prefix, so an element with
       // class="moz-cite-prefix".
-      if (attributeValue.Find("moz-cite-prefix", true) != kNotFound) {
+      if (attributeValue.LowerCaseFindASCII("moz-cite-prefix") != kNotFound) {
         break;
       }
 
       // Next check for forwarded content.
       // The forwarded part is inside an element with
       // class="moz-forward-container".
-      if (attributeValue.Find("moz-forward-container", true) != kNotFound) {
+      if (attributeValue.LowerCaseFindASCII("moz-forward-container") !=
+          kNotFound) {
         break;
       }
     }
@@ -4942,7 +4944,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity* aIdentity) {
 
         element->GetAttribute(attributeName, attributeValue);
 
-        if (attributeValue.Find("moz-signature", true) != kNotFound) {
+        if (attributeValue.LowerCaseFindASCII("moz-signature") != kNotFound) {
           signatureFound = true;
           break;
         }

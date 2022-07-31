@@ -3678,15 +3678,15 @@ void nsImapProtocol::FetchMessage(const nsCString& messageIds,
           nsCString arbitraryHeaders;
           GetArbitraryHeadersToDownload(arbitraryHeaders);
           for (uint32_t i = 0; i < mCustomDBHeaders.Length(); i++) {
-            if (arbitraryHeaders.Find(mCustomDBHeaders[i],
-                                      /* ignoreCase = */ true) == kNotFound) {
+            if (!FindInReadable(mCustomDBHeaders[i], arbitraryHeaders,
+                                nsCaseInsensitiveCStringComparator)) {
               if (!arbitraryHeaders.IsEmpty()) arbitraryHeaders.Append(' ');
               arbitraryHeaders.Append(mCustomDBHeaders[i]);
             }
           }
           for (uint32_t i = 0; i < mCustomHeaders.Length(); i++) {
-            if (arbitraryHeaders.Find(mCustomHeaders[i],
-                                      /* ignoreCase = */ true) == kNotFound) {
+            if (!FindInReadable(mCustomHeaders[i], arbitraryHeaders,
+                                nsCaseInsensitiveCStringComparator)) {
               if (!arbitraryHeaders.IsEmpty()) arbitraryHeaders.Append(' ');
               arbitraryHeaders.Append(mCustomHeaders[i]);
             }
@@ -5160,8 +5160,9 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
 
         // Don't set the Trash flag if not using the Trash model
         if (GetDeleteIsMoveToTrash() && !onlineTrashFolderExists &&
-            adoptedBoxSpec->mAllocatedPathName.Find(
-                m_trashFolderPath, /* ignoreCase = */ true) != -1) {
+            FindInReadable(m_trashFolderPath,
+                           adoptedBoxSpec->mAllocatedPathName,
+                           nsCaseInsensitiveCStringComparator)) {
           bool trashExists = false;
           if (StringBeginsWith(m_trashFolderPath, "INBOX/"_ns,
                                nsCaseInsensitiveCStringComparator)) {
@@ -7734,11 +7735,12 @@ void nsImapProtocol::RenameMailbox(const char* existingName,
 bool nsImapProtocol::GetListSubscribedIsBrokenOnServer() {
   // This is a workaround for an issue with LIST(SUBSCRIBED) crashing older
   // versions of Zimbra
-  if (GetServerStateParser().GetServerID().Find(
-          "\"NAME\" \"Zimbra\"", /* ignoreCase = */ true) != kNotFound) {
+  if (FindInReadable("\"NAME\" \"Zimbra\""_ns,
+                     GetServerStateParser().GetServerID(),
+                     nsCaseInsensitiveCStringComparator)) {
     nsCString serverID(GetServerStateParser().GetServerID());
-    int start = serverID.Find("\"VERSION\" \"", /* ignoreCase = */ true) + 11;
-    int length = serverID.Find("\" ", true, start);
+    int start = serverID.LowerCaseFindASCII("\"version\" \"") + 11;
+    int length = serverID.LowerCaseFindASCII("\" ", start);
     const nsDependentCSubstring serverVersionSubstring =
         Substring(serverID, start, length);
     nsCString serverVersionStr(serverVersionSubstring);

@@ -676,12 +676,12 @@ nsresult nsOutlookMail::CreateList(const nsString& pName,
 
 void nsOutlookMail::SanitizeValue(nsString& val) {
   val.ReplaceSubstring(u"\r\n"_ns, u", "_ns);
-  val.ReplaceChar("\r\n", ',');
+  val.ReplaceChar(u"\r\n", u',');
 }
 
 void nsOutlookMail::SplitString(nsString& val1, nsString& val2) {
   // Find the last line if there is more than one!
-  int32_t idx = val1.RFind("\x0D\x0A");
+  int32_t idx = val1.RFind(u"\x0D\x0A");
   int32_t cnt = 2;
   if (idx == -1) {
     cnt = 1;

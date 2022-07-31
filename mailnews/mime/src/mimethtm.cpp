@@ -168,7 +168,7 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
     return;
 
   // Make sure we have a <body> before we start.
-  int32_t index = message.Find("<body", /* ignoreCase = */ true);
+  int32_t index = message.LowerCaseFindASCII("<body");
   if (index == kNotFound) return;
   index = message.FindChar('>', index) + 1;
 
@@ -188,8 +188,14 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
     message.Insert("<div class=\"moz-text-html\">"_ns, index);
   }
 
-  index = message.RFind("</body>", /* ignoreCase = */ true);
-  if (index != kNotFound) message.Insert("</div>"_ns, index);
+  nsACString::const_iterator begin, end;
+  message.BeginReading(begin);
+  message.EndReading(end);
+  nsACString::const_iterator messageBegin = begin;
+  if (RFindInReadable("</body>"_ns, begin, end,
+                      nsCaseInsensitiveCStringComparator)) {
+    message.InsertLiteral("</div>", begin - messageBegin);
+  }
 }
 
 /*
@@ -206,7 +212,7 @@ void MimeInlineTextHTML_remove_plaintext_tag(MimeObject* obj,
   // Replace all <plaintext> and </plaintext> tags.
   int32_t index = 0;
   bool replaced = false;
-  while ((index = message.Find("<plaintext", /* ignoreCase = */ true, index)) !=
+  while ((index = message.LowerCaseFindASCII("<plaintext", index)) !=
          kNotFound) {
     message.Insert("x-", index + 1);
     index += 12;
@@ -214,8 +220,8 @@ void MimeInlineTextHTML_remove_plaintext_tag(MimeObject* obj,
   }
   if (replaced) {
     index = 0;
-    while ((index = message.Find("</plaintext", /* ignoreCase = */ true,
-                                 index)) != kNotFound) {
+    while ((index = message.LowerCaseFindASCII("</plaintext", index)) !=
+           kNotFound) {
       message.Insert("x-", index + 2);
       index += 13;
     }

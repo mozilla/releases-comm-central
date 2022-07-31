@@ -486,7 +486,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const nsACString& aMessageURI,
       if (keySeparator != -1) {
         int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "/?&", keySeparator);
         int32_t mpodFetchPos =
-            uriStr.Find("fetchCompleteMessage=true", false, keyEndSeparator);
+            uriStr.Find("fetchCompleteMessage=true", keyEndSeparator);
         if (mpodFetchPos != -1) useMimePartsOnDemand = false;
       }
 

@@ -12,6 +12,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsIStandardURL.h"
 #include "nsMsgUtils.h"
+#include "nsUnicharUtils.h"
 #include "mozilla/Encoding.h"
 
 // The two schemes we support, LDAP and LDAPS
@@ -391,8 +392,10 @@ NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString& aAttribute) {
     // Check to see if the attribute is already stored. If it is, then also
     // check to see if it is the last attribute in the string, or if the next
     // character is a comma, this means we won't match substrings.
-    int32_t pos = mAttributes.Find(findAttribute, /* ignoreCase = */ true);
-    if (pos != -1) return NS_OK;
+    if (FindInReadable(findAttribute, mAttributes,
+                       nsCaseInsensitiveCStringComparator)) {
+      return NS_OK;
+    }
 
     mAttributes.Append(Substring(findAttribute, 1));
   }
@@ -410,17 +413,19 @@ NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString& aAttribute) {
 
   if (mAttributes.IsEmpty()) return NS_OK;
 
+  // We use comma as delimiter (even first attr has a leading comma).
   nsAutoCString findAttribute(",");
   findAttribute.Append(aAttribute);
   findAttribute.Append(',');
 
-  if (mAttributes.Equals(findAttribute, nsCaseInsensitiveCStringComparator))
+  if (!FindInReadable(findAttribute, mAttributes,
+                      nsCaseInsensitiveCStringComparator)) {
+    return NS_OK;
+  }
+  if (mAttributes.Equals(findAttribute, nsCaseInsensitiveCStringComparator)) {
     mAttributes.Truncate();
-  else {
-    int32_t pos = mAttributes.Find(findAttribute, /* ignoreCase = */ true);
-    if (pos == -1) return NS_OK;
-
-    mAttributes.Cut(pos, findAttribute.Length() - 1);
+  } else {
+    mAttributes.ReplaceSubstring(findAttribute, ","_ns);
   }
 
   // Now get the current path
@@ -435,11 +440,13 @@ NS_IMETHODIMP nsLDAPURL::HasAttribute(const nsACString& aAttribute,
                                       bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
+  // We use comma as delimiter (even first attr has a leading comma).
   nsAutoCString findAttribute(",");
   findAttribute.Append(aAttribute);
   findAttribute.Append(',');
 
-  *_retval = mAttributes.Find(findAttribute, /* ignoreCase = */ true) != -1;
+  *_retval = FindInReadable(findAttribute, mAttributes,
+                            nsCaseInsensitiveCStringComparator);
   return NS_OK;
 }
 

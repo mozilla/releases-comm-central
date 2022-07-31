@@ -1103,8 +1103,8 @@ nsresult nsMsgFilterList::ComputeArbitraryHeaders() {
       if (!arbitraryHeader.IsEmpty()) {
         if (m_arbitraryHeaders.IsEmpty())
           m_arbitraryHeaders.Assign(arbitraryHeader);
-        else if (m_arbitraryHeaders.Find(arbitraryHeader,
-                                         /* ignoreCase = */ true) == -1) {
+        else if (!FindInReadable(arbitraryHeader, m_arbitraryHeaders,
+                                 nsCaseInsensitiveCStringComparator)) {
           m_arbitraryHeaders.Append(' ');
           m_arbitraryHeaders.Append(arbitraryHeader);
         }

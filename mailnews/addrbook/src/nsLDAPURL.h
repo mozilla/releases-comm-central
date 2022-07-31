@@ -88,6 +88,8 @@ class nsLDAPURL : public nsILDAPURL {
   int32_t mScope;     // Search scope (base, one or sub)
   nsCString mFilter;  // LDAP search filter
   uint32_t mOptions;  // Options
-  nsCString mAttributes;
+  nsCString
+      mAttributes;  // Either empty ("") or comma-separated list with
+                    // leading _and_ trailing commas (i.e ",attr1,attr2,").
   nsCOMPtr<nsIURI> mBaseURL;
 };

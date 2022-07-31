@@ -2855,7 +2855,7 @@ nsImapIncomingServer::GetUriWithNamespacePrefixIfNecessary(
       // it may be the case that this is the INBOX uri, in which case
       // we don't want to prepend the namespace. In that case, the uri ends with
       // "INBOX", but the namespace is "INBOX/", so they don't match.
-      if (uri.Find(namespacePrefix, false, index + 1) != index + 1 &&
+      if (uri.Find(namespacePrefix, index + 1) != index + 1 &&
           !Substring(uri, index + 1).LowerCaseEqualsLiteral("inbox"))
         uri.Insert(namespacePrefix, index + 1);  // insert namespace prefix
       convertedUri = uri;

@@ -80,7 +80,7 @@ nsresult nsParseImapMessageURI(const nsACString& uri, nsCString& folderURI,
     *key = strtoul(keyStr.get(), nullptr, 10);
 
     if (part && keyEndSeparator != -1) {
-      int32_t partPos = uriStr.Find("part=", false, keyEndSeparator);
+      int32_t partPos = uriStr.Find("part=", keyEndSeparator);
       if (partPos != -1) {
         *part = ToNewCString(Substring(uriStr, keyEndSeparator));
       }

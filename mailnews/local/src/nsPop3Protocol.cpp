@@ -1187,19 +1187,25 @@ int32_t nsPop3Protocol::WaitForResponse(nsIInputStream* inputStream,
     // search for the response codes (RFC 2449, chapter 8 and RFC 3206)
     if (TestCapFlag(POP3_HAS_RESP_CODES | POP3_HAS_AUTH_RESP_CODE)) {
       // code for authentication failure due to the user's credentials
-      if (m_commandResponse.Find("[AUTH", true) >= 0) {
+      if (FindInReadable("[AUTH"_ns, m_commandResponse,
+                         nsCaseInsensitiveCStringComparator)) {
         MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
                 (POP3LOG("setting auth failure")));
         SetFlag(POP3_AUTH_FAILURE);
       }
 
       // codes for failures due to other reasons
-      if (m_commandResponse.Find("[LOGIN-DELAY", true) >= 0 ||
-          m_commandResponse.Find("[IN-USE", true) >= 0 ||
-          m_commandResponse.Find("[SYS", true) >= 0)
+      if (FindInReadable("[LOGIN-DELAY"_ns, m_commandResponse,
+                         nsCaseInsensitiveCStringComparator) ||
+          FindInReadable("[IN-USE"_ns, m_commandResponse,
+                         nsCaseInsensitiveCStringComparator) ||
+          FindInReadable("[SYS"_ns, m_commandResponse,
+                         nsCaseInsensitiveCStringComparator)) {
         SetFlag(POP3_STOPLOGIN);
+      }
 
-      if (m_commandResponse.Find("[SYS/TEMP", true) >= 0) {
+      if (FindInReadable("[SYS/TEMP"_ns, m_commandResponse,
+                         nsCaseInsensitiveCStringComparator)) {
         m_pop3ConData->command_temp_fail = true;
       }
 
@@ -1454,26 +1460,24 @@ int32_t nsPop3Protocol::CapaResponse(nsIInputStream* inputStream,
     nsAutoCString responseLine;
     responseLine.Assign(line + 5);
 
-    if (responseLine.Find("PLAIN", /* ignoreCase = */ true) >= 0)
-      SetCapFlag(POP3_HAS_AUTH_PLAIN);
-
-    if (responseLine.Find("LOGIN", /* ignoreCase = */ true) >= 0)
-      SetCapFlag(POP3_HAS_AUTH_LOGIN);
-
-    if (responseLine.Find("GSSAPI", /* ignoreCase = */ true) >= 0)
-      SetCapFlag(POP3_HAS_AUTH_GSSAPI);
-
-    if (responseLine.Find("CRAM-MD5", /* ignoreCase = */ true) >= 0)
-      SetCapFlag(POP3_HAS_AUTH_CRAM_MD5);
-
-    if (responseLine.Find("NTLM", /* ignoreCase = */ true) >= 0)
-      SetCapFlag(POP3_HAS_AUTH_NTLM);
-
-    if (responseLine.Find("MSN", /* ignoreCase = */ true) >= 0)
-      SetCapFlag(POP3_HAS_AUTH_NTLM | POP3_HAS_AUTH_MSN);
-
-    if (responseLine.Find("XOAUTH2", /* ignoreCase = */ true) >= 0)
-      SetCapFlag(POP3_HAS_AUTH_XOAUTH2);
+    const struct {
+      nsLiteralCString name;
+      uint32_t flags;
+    } caps[] = {
+        {"PLAIN"_ns, POP3_HAS_AUTH_PLAIN},
+        {"LOGIN"_ns, POP3_HAS_AUTH_LOGIN},
+        {"GSSAPI"_ns, POP3_HAS_AUTH_GSSAPI},
+        {"CRAM-MD5"_ns, POP3_HAS_AUTH_CRAM_MD5},
+        {"NTLM"_ns, POP3_HAS_AUTH_NTLM},
+        {"MSN"_ns, POP3_HAS_AUTH_NTLM | POP3_HAS_AUTH_MSN},
+        {"XOAUTH2"_ns, POP3_HAS_AUTH_XOAUTH2},
+    };
+    for (auto const& cap : caps) {
+      if (FindInReadable(cap.name, responseLine,
+                         nsCaseInsensitiveCStringComparator)) {
+        SetCapFlag(cap.flags);
+      }
+    }
 
     m_pop3Server->SetPop3CapabilityFlags(m_pop3ConData->capability_flags);
   }

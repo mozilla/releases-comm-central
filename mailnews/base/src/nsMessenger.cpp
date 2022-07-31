@@ -120,7 +120,7 @@ static void ConvertAndSanitizeFileName(const nsACString& displayName,
 
   // replace platform specific path separator and illegale characters to avoid
   // any confusion
-  aResult.ReplaceChar(FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS, '-');
+  aResult.ReplaceChar(u"" FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS, u'-');
 }
 
 // ***************************************************
@@ -568,8 +568,10 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
     uriString.Replace(0, 5, u"mailbox:"_ns);
     loadingFromFile = true;
     getDummyMsgHdr = true;
-  } else if (uriString.Find("type=application/x-message-display") >= 0)
+  } else if (uriString.Find(u"type=application/x-message-display") !=
+             kNotFound) {
     getDummyMsgHdr = true;
+  }
 
   nsCOMPtr<nsIURI> uri;
   rv = NS_NewURI(getter_AddRefs(uri), uriString);
