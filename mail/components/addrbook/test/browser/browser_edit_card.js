@@ -2626,6 +2626,113 @@ add_task(async function test_type_selection() {
   await promiseDirectoryRemoved(book.URI);
 });
 
+/**
+ * Other vCard contacts are using uppercase types for the predefined spec
+ * labels. This tests our support for them for the edit of a contact.
+ */
+add_task(async function test_support_types_uppercase() {
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let book = createAddressBook("Test Book Uppercase Type Support");
+
+  let editButton = abDocument.getElementById("editButton");
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  // Add a card with uppercase types.
+  book.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+  BEGIN:VCARD
+  FN:contact 1
+  TEL:+123456 789
+  TEL;TYPE=HOME:809 HOME 77 666 8
+  TEL;TYPE=WORK:+111 WORK 3456789
+  TEL;TYPE=CELL:+123 CELL 456 789
+  TEL;TYPE=FAX:809 FAX 77 666 8
+  TEL;TYPE=PAGER:+111 PAGER 3456789
+  END:VCARD
+`)
+  );
+
+  openDirectory(book);
+
+  // First open the edit and check that the values are shown.
+  // Do not change anything.
+  await editContactAtIndex(0, {});
+
+  // The UI uses lowercase types but only changes them when the type is
+  // touched.
+  checkVCardInputValues({
+    tel: [
+      { value: "+123456 789" },
+      { value: "809 HOME 77 666 8", type: "home" },
+      { value: "+111 WORK 3456789", type: "work" },
+      { value: "+123 CELL 456 789", type: "cell" },
+      { value: "809 FAX 77 666 8", type: "fax" },
+      { value: "+111 PAGER 3456789", type: "pager" },
+    ],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  // We haven't touched these values so they are not changed to lower case.
+  checkVCardValues(book.childCards[0], {
+    tel: [
+      { value: "+123456 789" },
+      { value: "809 HOME 77 666 8", type: "HOME" },
+      { value: "+111 WORK 3456789", type: "WORK" },
+      { value: "+123 CELL 456 789", type: "CELL" },
+      { value: "809 FAX 77 666 8", type: "FAX" },
+      { value: "+111 PAGER 3456789", type: "PAGER" },
+    ],
+  });
+
+  // Now make changes to the types.
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  checkVCardInputValues({
+    tel: [
+      { value: "+123456 789" },
+      { value: "809 HOME 77 666 8", type: "home" },
+      { value: "+111 WORK 3456789", type: "work" },
+      { value: "+123 CELL 456 789", type: "cell" },
+      { value: "809 FAX 77 666 8", type: "fax" },
+      { value: "+111 PAGER 3456789", type: "pager" },
+    ],
+  });
+
+  await setVCardInputValues({
+    tel: [
+      { value: "+123456 789", type: "home" },
+      { value: "809 HOME 77 666 8", type: "cell" },
+      { value: "+111 WORK 3456789", type: "pager" },
+      { value: "+123 CELL 456 789", type: "fax" },
+      { value: "809 FAX 77 666 8", type: "" },
+      { value: "+111 PAGER 3456789", type: "work" },
+    ],
+  });
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  // As we touched the type values they are now saved in lowercase.
+  // At this point it is up to the other vCard implementation to handle this.
+  checkVCardValues(book.childCards[0], {
+    tel: [
+      { value: "+123456 789", type: "home" },
+      { value: "809 HOME 77 666 8", type: "cell" },
+      { value: "+111 WORK 3456789", type: "pager" },
+      { value: "+123 CELL 456 789", type: "fax" },
+      { value: "809 FAX 77 666 8", type: "" },
+      { value: "+111 PAGER 3456789", type: "work" },
+    ],
+  });
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
 add_task(async function test_special_date_field() {
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;

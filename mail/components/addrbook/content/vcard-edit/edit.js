@@ -882,10 +882,13 @@ class VCardTypeSelectionComponent extends HTMLElement {
     // Just abandon any values we don't have UI for. We don't have any way to
     // know whether to keep them or not, and they're very rarely used.
     let paramsType = vCardPropertyEntry.params.type;
+    // toLowerCase is called because other vCard sources are saving the type
+    // in upper case. E.g. from Google.
     if (Array.isArray(paramsType)) {
-      this.selectEl.value = paramsType.find(t => types.includes(t)) || "";
-    } else if (types.includes(paramsType)) {
-      this.selectEl.value = vCardPropertyEntry.params.type;
+      let lowerCaseTypes = paramsType.map(type => type.toLowerCase());
+      this.selectEl.value = lowerCaseTypes.find(t => types.includes(t)) || "";
+    } else if (paramsType && types.includes(paramsType.toLowerCase())) {
+      this.selectEl.value = paramsType.toLowerCase();
     }
 
     // Change the value on the vCardPropertyEntry.
