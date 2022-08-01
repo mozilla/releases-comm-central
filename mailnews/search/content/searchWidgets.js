@@ -814,15 +814,15 @@
             );
             break;
           case "junk-status":
-            // FIXME: Is this unused? It only has one menu item.
+            // "Junk Status is/isn't/is empty/isn't empty 'Junk'".
             input = this.constructor._createMenulist([
               { stringId: "junk", value: Ci.nsIJunkMailPlugin.JUNK },
             ]);
             break;
           case "attachment-status":
-            // FIXME: Is this unused? It only has one menu item.
+            // "Attachment Status is/isn't 'Has Attachments'".
             input = this.constructor._createMenulist([
-              { stringId: "hasAttachment", value: "0" },
+              { stringId: "hasAttachments", value: "0" },
             ]);
             break;
           case "junk-origin":
