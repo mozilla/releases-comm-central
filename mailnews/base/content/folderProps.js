@@ -18,8 +18,12 @@ window.addEventListener("DOMContentLoaded", folderPropsOnLoad);
 document.addEventListener("dialogaccept", folderPropsOKButton);
 document.addEventListener("dialogcancel", folderCancelButton);
 
-// The folderPropsSink is the class that gets notified of an imap folder's properties
-
+/**
+ * The folderPropsSink is the class that gets notified of an imap folder's
+ * properties.
+ *
+ * @implements {nsIMsgImapFolderProps}
+ */
 var gFolderPropsSink = {
   setFolderType(folderTypeString) {
     var typeLabel = document.getElementById("folderType.text");
@@ -243,8 +247,6 @@ function folderPropsOnLoad() {
       gMsgFolder,
       "folderIconColor"
     );
-  } else {
-    dump("passed null for folder, do nothing\n");
   }
 
   if (window.arguments[0].name) {
@@ -253,9 +255,6 @@ function folderPropsOnLoad() {
     // when the dialog is accepted.
     var nameTextbox = document.getElementById("name");
     nameTextbox.value = window.arguments[0].name;
-
-    // name.setSelectionRange(0,-1);
-    // name.focusTextField();
   }
 
   const serverType = window.arguments[0].serverType;
@@ -346,10 +345,8 @@ function folderPropsOnLoad() {
   }
 
   if (serverType == "imap") {
-    var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-    if (imapFolder) {
-      imapFolder.fillInFolderProps(gFolderPropsSink);
-    }
+    let imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
+    imapFolder.fillInFolderProps(gFolderPropsSink);
 
     let users = [...imapFolder.getOtherUsersWithAccess()];
     if (users.length) {
@@ -358,6 +355,11 @@ function folderPropsOnLoad() {
         ", "
       );
     }
+
+    // Disable "Repair Folder" when offline as that would cause the offline store
+    // to get deleted and redownloaded.
+    document.getElementById("folderRebuildSummaryButton").disabled =
+      gMsgFolder.supportsOffline && Services.io.offline;
   }
 
   var retentionSettings = gMsgFolder.retentionSettings;
@@ -475,5 +477,5 @@ function onUseDefaultRetentionSettings() {
 }
 
 function RebuildSummaryInformation() {
-  window.arguments[0].rebuildSummaryCallback(gMsgFolder);
+  window.arguments[0].rebuildSummaryCallback();
 }

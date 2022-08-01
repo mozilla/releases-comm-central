@@ -3406,22 +3406,16 @@ var gFolderTreeController = {
       }
     }
 
-    // xxx useless param
-    function rebuildSummary(aFolder) {
-      // folder is already introduced in our containing function and is
-      // lexically captured and available to us.
+    async function rebuildSummary() {
       if (folder.locked) {
         folder.throwAlertMsg("operationFailedFolderBusy", msgWindow);
         return;
       }
       if (folder.supportsOffline) {
         // Remove the offline store, if any.
-        let offlineStore = folder.filePath;
-        // XXX todo: figure out how to delete a maildir directory async. This
-        // delete causes main thread lockup for large maildir folders.
-        if (offlineStore.exists()) {
-          offlineStore.remove(true);
-        }
+        await IOUtils.remove(folder.filePath.path, { recursive: true }).catch(
+          Cu.reportError
+        );
       }
 
       // We may be rebuilding a folder that is not the displayed one.
