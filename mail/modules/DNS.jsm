@@ -37,11 +37,18 @@ load_libresolv.prototype = {
   _open() {
     function findLibrary() {
       let lastException = null;
-      let candidates = [
-        { name: "resolv.9", suffix: "" },
-        { name: "resolv", suffix: ".2" },
-        { name: "resolv", suffix: "" },
-      ];
+      let candidates = [];
+      if (Services.appinfo.OS == "FreeBSD") {
+        candidates = [{ name: "c", suffix: ".7" }];
+      } else if (Services.appinfo.OS == "OpenBSD") {
+        candidates = [{ name: "c", suffix: "" }];
+      } else {
+        candidates = [
+          { name: "resolv.9", suffix: "" },
+          { name: "resolv", suffix: ".2" },
+          { name: "resolv", suffix: "" },
+        ];
+      }
       let tried = [];
       for (let candidate of candidates) {
         try {
@@ -124,13 +131,13 @@ load_libresolv.prototype = {
       ctypes.unsigned_char.ptr
     );
     this.ns_get16 = declare(
-      ["res_9_ns_get16", "ns_get16"],
+      ["res_9_ns_get16", "ns_get16", "_getshort"],
       ctypes.default_abi,
       ctypes.unsigned_int,
       ctypes.unsigned_char.ptr
     );
     this.ns_get32 = declare(
-      ["res_9_ns_get32", "ns_get32"],
+      ["res_9_ns_get32", "ns_get32", "_getlong"],
       ctypes.default_abi,
       ctypes.unsigned_long,
       ctypes.unsigned_char.ptr
