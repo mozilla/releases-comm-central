@@ -26,7 +26,8 @@ var NS_T_SRV = 33; // DNS_TYPE_SRV
 var NS_T_MX = 15; // DNS_TYPE_MX
 
 // For Linux and Mac.
-function load_libresolv() {
+function load_libresolv(os) {
+  this._os = os;
   this._open();
 }
 
@@ -38,9 +39,9 @@ load_libresolv.prototype = {
     function findLibrary() {
       let lastException = null;
       let candidates = [];
-      if (Services.appinfo.OS == "FreeBSD") {
+      if (this._os == "FreeBSD") {
         candidates = [{ name: "c", suffix: ".7" }];
-      } else if (Services.appinfo.OS == "OpenBSD") {
+      } else if (this._os == "OpenBSD") {
         candidates = [{ name: "c", suffix: "" }];
       } else {
         candidates = [
@@ -442,7 +443,7 @@ if (typeof Components === "undefined") {
 
   // eslint-disable-next-line no-unused-vars
   function execute(aOS, aMethod, aArgs) {
-    let DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv();
+    let DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv(aOS);
     return DNS[aMethod].apply(DNS, aArgs);
   }
 } else {
