@@ -13,6 +13,27 @@ var gAccount;
 function onInit() {
   setAccountTitle();
   setupSignatureItems();
+  Services.obs.addObserver(
+    onDefaultIdentityChange,
+    "account-default-identity-changed"
+  );
+}
+
+window.addEventListener("unload", function() {
+  Services.obs.removeObserver(
+    onDefaultIdentityChange,
+    "account-default-identity-changed"
+  );
+});
+
+/**
+ * If the default identity for the current account changes, loads the values
+ * from the new default identity.
+ */
+function onDefaultIdentityChange(subject, topic, data) {
+  if (data == gAccount.key) {
+    initIdentityValues(subject.QueryInterface(Ci.nsIMsgIdentity));
+  }
 }
 
 /**
@@ -81,9 +102,6 @@ function manageIdentities() {
 
   function onCloseIdentities() {
     if (args.result) {
-      // now re-initialize the default identity settings in case they changed
-      identity = gAccount.defaultIdentity; // Refetch the default identity in case it changed.
-      initIdentityValues(identity);
       // Refresh the SMTP list in case the user changed server properties
       // from the identity dialog.
       loadSMTPServerList();

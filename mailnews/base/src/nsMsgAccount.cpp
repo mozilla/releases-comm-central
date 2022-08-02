@@ -239,7 +239,16 @@ nsMsgAccount::SetDefaultIdentity(nsIMsgIdentity* aDefaultIdentity) {
   m_identities.RemoveElementAt(position);
   m_identities.InsertElementAt(0, aDefaultIdentity);
 
-  return saveIdentitiesPref();
+  nsresult rv = saveIdentitiesPref();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+  if (obs) {
+    obs->NotifyObservers(aDefaultIdentity, "account-default-identity-changed",
+                         NS_ConvertUTF8toUTF16(m_accountKey).get());
+  }
+
+  return NS_OK;
 }
 
 /* void addIdentity (in nsIMsgIdentity identity); */

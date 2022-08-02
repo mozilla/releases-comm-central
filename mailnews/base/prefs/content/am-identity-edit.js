@@ -80,9 +80,12 @@ function initIdentityValues(identity) {
 
     initSmtpServer(identity.smtpServerKey);
 
-    let servers = MailServices.accounts.getServersForIdentity(identity);
-    document.getElementById("identityCatchAllBox").hidden =
-      servers.length > 0 && servers[0].type == "nntp";
+    // In am-main.xhtml this field has no ID, because it's hidden by other means.
+    let catchAllBox = document.getElementById("identityCatchAllBox");
+    if (catchAllBox) {
+      let servers = MailServices.accounts.getServersForIdentity(identity);
+      catchAllBox.hidden = servers.length > 0 && servers[0].type == "nntp";
+    }
 
     // This field does not exist for the default identity shown in the am-main.xhtml pane.
     let idLabel = document.getElementById("identity.label");
