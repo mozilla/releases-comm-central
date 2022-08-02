@@ -1253,17 +1253,31 @@ NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
   if (mDatabase) ApplyRetentionSettings();
 
   m_urlListener = aListener;
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool storeSupportsCompaction;
+  msgStore->GetSupportsCompaction(&storeSupportsCompaction);
+
   // We should be able to compact the offline store now that this should
   // just be called by the UI.
-  if (aMsgWindow && (mFlags & nsMsgFolderFlags::Offline)) {
+  if (storeSupportsCompaction && aMsgWindow &&
+      (mFlags & nsMsgFolderFlags::Offline)) {
     m_compactingOfflineStore = true;
-    nsresult rv;
     nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
         do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
   }
-  if (WeAreOffline()) return NS_OK;
+  if (WeAreOffline()) {
+    if (!m_compactingOfflineStore) {
+      // Not compacting or expunging, so manually signal completion.
+      aListener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+    return NS_OK;
+  }
   return Expunge(this, aMsgWindow);
 }
 
@@ -1306,11 +1320,12 @@ NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
 NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
                                            nsIMsgWindow* aMsgWindow) {
   nsresult rv;
-  nsTArray<RefPtr<nsIMsgFolder>> folderArray;
 
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
-  if (NS_SUCCEEDED(rv) && rootFolder) {
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<RefPtr<nsIMsgFolder>> folderArray;
+  {
     nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
     rootFolder->GetDescendants(allDescendants);
     for (auto folder : allDescendants) {
@@ -1321,13 +1336,21 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
         folderArray.AppendElement(folder);
       }
     }
-    if (folderArray.IsEmpty()) return NotifyCompactCompleted();
   }
-  nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
-  NS_ENSURE_SUCCESS(rv, rv);
+  bool storeSupportsCompaction;
+  msgStore->GetSupportsCompaction(&storeSupportsCompaction);
+
+  if (storeSupportsCompaction) {
+    nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
+        do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   if (!WeAreOffline()) {
     // Tell all the folders to also kick off an Expunge on the server.

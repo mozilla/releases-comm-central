@@ -756,18 +756,10 @@ nsMsgBrkMBoxStore::GetSupportsCompaction(bool* aSupportsCompaction) {
 NS_IMETHODIMP nsMsgBrkMBoxStore::CompactFolder(nsIMsgFolder* aFolder,
                                                nsIUrlListener* aListener,
                                                nsIMsgWindow* aMsgWindow) {
-  NS_ENSURE_ARG_POINTER(aFolder);
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  int64_t expungedBytes = 0;
-  aFolder->GetExpungedBytes(&expungedBytes);
-  // check if we need to compact the folder
-  return (expungedBytes > 0)
-             ? folderCompactor->CompactFolders({aFolder}, aListener, aMsgWindow)
-             : aFolder->NotifyCompactCompleted();
+  // Eventually, folder compaction should be managed by nsMsgBrkMBoxStore, but
+  // for now it's separate (see nsMsgFolderCompactor) and invoked via the
+  // folder methods Compact() and CompactAll().
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder* aFolder,

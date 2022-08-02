@@ -184,8 +184,11 @@ add_task(async function testOfflineBodyCopy() {
   let enumerator = gIMAPTrashFolder.msgDatabase.EnumerateMessages();
   let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   gMovedMsgId = msgHdr.messageId;
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.compact(urlListener, gDummyMsgWindow);
+  let compactionListener = new PromiseTestUtils.PromiseUrlListener();
+  // NOTE: calling compact() even if msgStore doesn't support compaction.
+  // It should be a safe no-op, and we're just testing that the listener is
+  // still invoked.
+  IMAPPump.inbox.compact(compactionListener, gDummyMsgWindow);
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gIMAPTrashFolder,
@@ -206,11 +209,16 @@ add_task(async function testOfflineBodyCopy() {
   } catch (ex) {
     throw new Error(ex);
   }
-  await urlListener.promise;
+  await compactionListener.promise;
   await copyListener.promise;
 });
 
 add_task(async function test_checkAlert() {
+  if (!IMAPPump.inbox.canCompact) {
+    // If there was no compaction, then no alert will have occurred.
+    return;
+  }
+
   let alertText = await gGotAlert;
   Assert.ok(
     alertText.startsWith(

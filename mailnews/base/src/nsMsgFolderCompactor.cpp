@@ -34,6 +34,7 @@
 #include "nsIStringBundle.h"
 #include "nsICopyMessageStreamListener.h"
 #include "nsIMsgWindow.h"
+#include "nsIMsgPluggableStore.h"
 #include "mozilla/Buffer.h"
 #include "HeaderReader.h"
 #include "LineReader.h"
@@ -1291,7 +1292,23 @@ void nsMsgFolderCompactor::NextFolder() {
   while (!mQueue.IsEmpty()) {
     // Should only ever have one compactor running.
     MOZ_ASSERT(mCompactor == nullptr);
+
     nsCOMPtr<nsIMsgFolder> folder = mQueue.PopLastElement();
+
+    // Sanity check - should we be compacting this folder?
+    nsCOMPtr<nsIMsgPluggableStore> msgStore;
+    nsresult rv = folder->GetMsgStore(getter_AddRefs(msgStore));
+    if (NS_FAILED(rv)) {
+      NS_WARNING("Skipping folder with no msgStore");
+      continue;
+    }
+    bool storeSupportsCompaction;
+    msgStore->GetSupportsCompaction(&storeSupportsCompaction);
+    if (!storeSupportsCompaction) {
+      NS_WARNING("Trying to compact a non-mbox folder");
+      continue;  // just skip it.
+    }
+
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(folder));
     if (imapFolder) {
       uint32_t flags;
@@ -1325,7 +1342,7 @@ void nsMsgFolderCompactor::NextFolder() {
       self->NextFolder();
     };
 
-    nsresult rv = mCompactor->Compact(folder, completionFn, mWindow);
+    rv = mCompactor->Compact(folder, completionFn, mWindow);
     if (NS_SUCCEEDED(rv)) {
       // Now wait for the compactor to let us know it's finished,
       // via the completion callback fn.

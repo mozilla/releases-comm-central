@@ -488,14 +488,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  GetMsgStore(getter_AddRefs(msgStore));
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
   bool storeSupportsCompaction;
   msgStore->GetSupportsCompaction(&storeSupportsCompaction);
-  if (!storeSupportsCompaction) return NotifyCompactCompleted();
-
   nsTArray<RefPtr<nsIMsgFolder>> folderArray;
-  if (NS_SUCCEEDED(rv) && rootFolder) {
+  if (storeSupportsCompaction) {
     nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
     rv = rootFolder->GetDescendants(allDescendants);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -508,8 +508,16 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
 
       if (expungedBytes > 0) folderArray.AppendElement(folder);
     }
-    if (folderArray.IsEmpty()) return NotifyCompactCompleted();
   }
+
+  if (folderArray.IsEmpty()) {
+    // Nothing to do - early out.
+    if (aListener) {
+      aListener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+    return NS_OK;
+  }
+
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
       do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
   return folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
@@ -520,15 +528,22 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
+  int64_t expungedBytes = 0;
+  GetExpungedBytes(&expungedBytes);
   bool supportsCompaction;
   msgStore->GetSupportsCompaction(&supportsCompaction);
-  if (!supportsCompaction) {
+  if (!supportsCompaction || expungedBytes == 0) {
+    // Nothing to do. Early out.
     if (aListener) {
       aListener->OnStopRunningUrl(nullptr, NS_OK);
     }
     return NS_OK;
   }
-  return msgStore->CompactFolder(this, aListener, aMsgWindow);
+
+  nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
+      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIMsgWindow* msgWindow,
