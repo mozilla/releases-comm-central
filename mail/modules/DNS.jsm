@@ -27,21 +27,20 @@ var NS_T_MX = 15; // DNS_TYPE_MX
 
 // For Linux and Mac.
 function load_libresolv(os) {
-  this._os = os;
-  this._open();
+  this._open(os);
 }
 
 load_libresolv.prototype = {
   library: null,
 
   // Tries to find and load library.
-  _open() {
+  _open(os) {
     function findLibrary() {
       let lastException = null;
       let candidates = [];
-      if (this._os == "FreeBSD") {
+      if (os == "FreeBSD") {
         candidates = [{ name: "c", suffix: ".7" }];
-      } else if (this._os == "OpenBSD") {
+      } else if (os == "OpenBSD") {
         candidates = [{ name: "c", suffix: "" }];
       } else {
         candidates = [
