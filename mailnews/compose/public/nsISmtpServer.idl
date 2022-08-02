@@ -24,6 +24,12 @@ interface nsISmtpServer : nsISupports {
   /// A unique identifier for the server.
   attribute string key;
 
+  /**
+   * A unique identifier for this server that can be used for the same
+   * server synced across multiple profiles. Auto-generated on first use.
+   */
+  attribute AUTF8String UID;
+
   /// A user supplied description for the server.
   attribute AUTF8String description;
 
