@@ -179,7 +179,12 @@ class NntpClient {
         }
     }
 
-    this._nextAction?.(res);
+    try {
+      this._nextAction?.(res);
+    } catch (e) {
+      this._logger.error(`Failed to process server response ${res}.`, e);
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+    }
   };
 
   /**
