@@ -20,6 +20,12 @@ interface nsIMsgIdentity : nsISupports {
   attribute ACString key;
 
   /**
+   * A unique identifier for this identity that can be used for the same
+   * identity synced across multiple profiles. Auto-generated on first use.
+   */
+  attribute AUTF8String UID;
+
+  /**
    * Label describing this identity. May be empty.
    */
   attribute AString label;

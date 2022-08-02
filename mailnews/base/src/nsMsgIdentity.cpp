@@ -19,6 +19,8 @@
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
+#include "nsIUUIDGenerator.h"
+#include "mozilla/Components.h"
 
 #define REL_FILE_PREF_SUFFIX "-rel"
 
@@ -52,6 +54,41 @@ nsMsgIdentity::SetKey(const nsACString& identityKey) {
   rv = prefs->GetBranch("mail.identity.default.",
                         getter_AddRefs(mDefPrefBranch));
   return rv;
+}
+
+NS_IMETHODIMP
+nsMsgIdentity::GetUID(nsACString& uid) {
+  bool hasValue;
+  nsresult rv = mPrefBranch->PrefHasUserValue("uid", &hasValue);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (hasValue) {
+    return mPrefBranch->GetCharPref("uid", uid);
+  }
+
+  nsCOMPtr<nsIUUIDGenerator> uuidgen =
+      mozilla::components::UUIDGenerator::Service();
+  NS_ENSURE_TRUE(uuidgen, NS_ERROR_FAILURE);
+
+  nsID id;
+  rv = uuidgen->GenerateUUIDInPlace(&id);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  char idString[NSID_LENGTH];
+  id.ToProvidedString(idString);
+
+  uid.AppendASCII(idString + 1, NSID_LENGTH - 3);
+  return SetUID(uid);
+}
+
+NS_IMETHODIMP
+nsMsgIdentity::SetUID(const nsACString& uid) {
+  bool hasValue;
+  nsresult rv = mPrefBranch->PrefHasUserValue("uid", &hasValue);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (hasValue) {
+    return NS_ERROR_ABORT;
+  }
+  return SetCharAttribute("uid", uid);
 }
 
 nsresult nsMsgIdentity::GetIdentityName(nsAString& idName) {
