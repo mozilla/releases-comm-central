@@ -5,6 +5,7 @@
 
 EXTRA_JS_MODULES += [
     "AttachmentChecker.jsm",
+    "BrowserWindowTracker.jsm",
     "ConversationOpener.jsm",
     "DBViewWrapper.jsm",
     "DisplayNameUtils.jsm",
