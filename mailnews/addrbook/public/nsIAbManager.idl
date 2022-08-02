@@ -63,12 +63,11 @@ interface nsIAbManager : nsISupports
    * @param  aURI       The URI for the address book. This is specific to each
    *                    type of address book.
    * @param  aType      One of the *_DIRECTORY_TYPE constants.
-   * @param  aPrefName  Overrides the default of ldap_2.servers.<aDirName>
-   *                    (note that the caller must ensure its uniqueness).
+   * @param  aUID       Sets the UID of the new Address Book.
    */
   ACString newAddressBook(in AString aDirName, in ACString aURI,
                           in unsigned long aType,
-                          [optional] in ACString aPrefName);
+                          [optional] in AUTF8String aUID);
 
   /**
    * Adds a previously created address book object. If it has not been removed

@@ -299,7 +299,7 @@ AddrBookManager.prototype = {
     }
     return null;
   },
-  newAddressBook(dirName, uri, type, prefName) {
+  newAddressBook(dirName, uri, type, uid) {
     function ensureUniquePrefName() {
       let leafName = dirName.replace(/\W/g, "");
       if (!leafName) {
@@ -320,7 +320,14 @@ AddrBookManager.prototype = {
         Cr.NS_ERROR_INVALID_ARG
       );
     }
+    if (uid && this.getDirectoryFromUID(uid)) {
+      throw new Components.Exception(
+        `An address book with the UID ${uid} already exists`,
+        Cr.NS_ERROR_ABORT
+      );
+    }
 
+    let prefName;
     ensureInitialized();
 
     switch (type) {
@@ -333,6 +340,9 @@ AddrBookManager.prototype = {
         Services.prefs.setStringPref(`${prefName}.description`, dirName);
         Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
         Services.prefs.setStringPref(`${prefName}.uri`, uri);
+        if (uid) {
+          Services.prefs.setStringPref(`${prefName}.uid`, uid);
+        }
 
         uri = `moz-abldapdirectory://${prefName}`;
         let dir = createDirectoryObject(uri, true);
@@ -375,6 +385,9 @@ AddrBookManager.prototype = {
           "chrome://messenger/locale/addressbook/addressBook.properties"
         );
         Services.prefs.setStringPref(`${prefName}.uri`, uri);
+        if (uid) {
+          Services.prefs.setStringPref(`${prefName}.uid`, uid);
+        }
 
         if (AppConstants.platform == "macosx") {
           let dir = createDirectoryObject(uri, true);
@@ -402,6 +415,9 @@ AddrBookManager.prototype = {
         Services.prefs.setStringPref(`${prefName}.description`, dirName);
         Services.prefs.setIntPref(`${prefName}.dirType`, type);
         Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
+        if (uid) {
+          Services.prefs.setStringPref(`${prefName}.uid`, uid);
+        }
 
         let scheme =
           type == Ci.nsIAbManager.JS_DIRECTORY_TYPE
