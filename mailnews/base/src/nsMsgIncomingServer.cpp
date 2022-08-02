@@ -50,6 +50,7 @@
 #include "nsIMsgFilter.h"
 #include "nsIObserverService.h"
 #include "mozilla/Unused.h"
+#include "nsIUUIDGenerator.h"
 
 #define PORT_NOT_SET -1
 
@@ -155,6 +156,41 @@ nsMsgIncomingServer::SetKey(const nsACString& serverKey) {
 
   return prefs->GetBranch("mail.server.default.",
                           getter_AddRefs(mDefPrefBranch));
+}
+
+NS_IMETHODIMP
+nsMsgIncomingServer::GetUID(nsACString& uid) {
+  bool hasValue;
+  nsresult rv = mPrefBranch->PrefHasUserValue("uid", &hasValue);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (hasValue) {
+    return GetCharValue("uid", uid);
+  }
+
+  nsCOMPtr<nsIUUIDGenerator> uuidgen =
+      mozilla::components::UUIDGenerator::Service();
+  NS_ENSURE_TRUE(uuidgen, NS_ERROR_FAILURE);
+
+  nsID id;
+  rv = uuidgen->GenerateUUIDInPlace(&id);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  char idString[NSID_LENGTH];
+  id.ToProvidedString(idString);
+
+  uid.AppendASCII(idString + 1, NSID_LENGTH - 3);
+  return SetUID(uid);
+}
+
+NS_IMETHODIMP
+nsMsgIncomingServer::SetUID(const nsACString& uid) {
+  bool hasValue;
+  nsresult rv = mPrefBranch->PrefHasUserValue("uid", &hasValue);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (hasValue) {
+    return NS_ERROR_ABORT;
+  }
+  return SetCharValue("uid", uid);
 }
 
 NS_IMETHODIMP

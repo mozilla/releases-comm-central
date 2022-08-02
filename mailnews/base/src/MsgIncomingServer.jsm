@@ -286,6 +286,24 @@ class MsgIncomingServer {
     this._defaultPrefs = Services.prefs.getBranch("mail.server.default.");
   }
 
+  get UID() {
+    let uid = this._prefs.getStringPref("uid", "");
+    if (uid) {
+      return uid;
+    }
+    return (this.UID = Services.uuid
+      .generateUUID()
+      .toString()
+      .substring(1, 37));
+  }
+
+  set UID(uid) {
+    if (this._prefs.prefHasUserValue("uid")) {
+      throw new Components.Exception("uid is already set", Cr.NS_ERROR_ABORT);
+    }
+    this._prefs.setStringPref("uid", uid);
+  }
+
   get hostName() {
     let hostname = this.getUnicharValue("hostname");
     if (hostname.includes(":")) {

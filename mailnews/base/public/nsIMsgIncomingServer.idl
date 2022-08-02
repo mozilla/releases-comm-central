@@ -36,6 +36,12 @@ interface nsIMsgIncomingServer : nsISupports {
   attribute ACString key;
 
   /**
+   * A unique identifier for this server that can be used for the same
+   * server synced across multiple profiles. Auto-generated on first use.
+   */
+  attribute AUTF8String UID;
+
+  /**
    * pretty name - should be "userid on hostname"
    * if the pref is not set
    */
