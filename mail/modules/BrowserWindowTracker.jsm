@@ -4,3 +4,5 @@
 
 // This module is deliberately not implemented. It only exists to keep
 // the automated tests happy. See bug 1782621.
+
+var EXPORTED_SYMBOLS = [];
