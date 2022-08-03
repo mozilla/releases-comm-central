@@ -72,59 +72,6 @@ add_setup(async function() {
       END:VCARD
     `)
   );
-  // Card 3.
-  personalBook.addCard(
-    VCardUtils.vCardToAbCard(formatVCard`
-      BEGIN:VCARD
-      EMAIL:xbasic3@invalid
-      ANNIVERSARY:2005
-      END:VCARD
-    `)
-  );
-  // Card 4.
-  personalBook.addCard(
-    VCardUtils.vCardToAbCard(formatVCard`
-      BEGIN:VCARD
-      EMAIL:xbasic4@invalid
-      ANNIVERSARY:2006-06
-      END:VCARD
-    `)
-  );
-  // Card 5.
-  personalBook.addCard(
-    VCardUtils.vCardToAbCard(formatVCard`
-      BEGIN:VCARD
-      EMAIL:xbasic5@invalid
-      ANNIVERSARY:--12
-      END:VCARD
-    `)
-  );
-  // Card 6.
-  personalBook.addCard(
-    VCardUtils.vCardToAbCard(formatVCard`
-      BEGIN:VCARD
-      EMAIL:xbasic6@invalid
-      ANNIVERSARY;VALUE=DATE:--0704
-      END:VCARD
-    `)
-  );
-  // Card 7.
-  personalBook.addCard(
-    VCardUtils.vCardToAbCard(formatVCard`
-      BEGIN:VCARD
-      EMAIL:xbasic7@invalid
-      ANNIVERSARY:---30
-      END:VCARD
-    `)
-  );
-  // Card 8.
-  personalBook.addCard(
-    VCardUtils.vCardToAbCard(formatVCard`
-      BEGIN:VCARD
-      ORG:xbasic8org
-      END:VCARD
-    `)
-  );
 
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
@@ -412,84 +359,6 @@ add_task(async function testDisplay() {
     items[5].children[1].lastChild.getAttribute("tz"),
     "Pacific/Auckland"
   );
-
-  // Test card 3:
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(3), {}, abWindow);
-  await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
-  );
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
-  items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 1);
-  Assert.equal(
-    items[0].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-anniversary"
-  );
-  Assert.equal(items[0].children[1].textContent, "2005");
-
-  // Test card 4:
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(4), {}, abWindow);
-  await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
-  );
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
-  items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 1);
-  Assert.equal(
-    items[0].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-anniversary"
-  );
-  Assert.equal(items[0].children[1].textContent, "June 2006");
-
-  // Test card 5:
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(5), {}, abWindow);
-  await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
-  );
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
-  items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 1);
-  Assert.equal(
-    items[0].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-anniversary"
-  );
-  Assert.equal(items[0].children[1].textContent, "December");
-
-  // Test card 6:
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(6), {}, abWindow);
-  await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
-  );
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
-  items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 1);
-  Assert.equal(
-    items[0].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-anniversary"
-  );
-  Assert.equal(items[0].children[1].textContent, "July 4");
-
-  // Test card 7:
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(7), {}, abWindow);
-  await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
-  );
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
-  items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 1);
-  Assert.equal(
-    items[0].children[0].dataset.l10nId,
-    "about-addressbook-entry-name-anniversary"
-  );
-  Assert.equal(items[0].children[1].textContent, "30");
-
-  // Test card 8:
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(8), {}, abWindow);
-  await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
-  );
-  Assert.equal(viewContactName.textContent, "xbasic8org");
-
   Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
 
   // Card 0, again, just to prove that everything was cleared properly.
@@ -515,6 +384,161 @@ add_task(async function testDisplay() {
   Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
 
   await closeAddressBookWindow();
+});
+
+/**
+ * Test the display of dates with various components missing.
+ */
+add_task(async function testDates() {
+  let abWindow = await openAddressBookWindow();
+  let otherInfoSection = abWindow.document.getElementById("otherInfo");
+
+  // Year only.
+
+  let yearCard = await addAndDisplayCard(formatVCard`
+    BEGIN:VCARD
+    EMAIL:xbasic3@invalid
+    ANNIVERSARY:2005
+    END:VCARD
+  `);
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  let items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "2005");
+
+  // Year and month.
+
+  let yearMonthCard = await addAndDisplayCard(formatVCard`
+    BEGIN:VCARD
+    EMAIL:xbasic4@invalid
+    ANNIVERSARY:2006-06
+    END:VCARD
+  `);
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "June 2006");
+
+  // Month only.
+  let monthCard = await addAndDisplayCard(formatVCard`
+    BEGIN:VCARD
+    EMAIL:xbasic5@invalid
+    ANNIVERSARY:--12
+    END:VCARD
+  `);
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "December");
+
+  // Month and day.
+  let monthDayCard = await addAndDisplayCard(formatVCard`
+    BEGIN:VCARD
+    EMAIL:xbasic6@invalid
+    ANNIVERSARY;VALUE=DATE:--0704
+    END:VCARD
+  `);
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "July 4");
+
+  // Day only.
+  let dayCard = await addAndDisplayCard(formatVCard`
+    BEGIN:VCARD
+    EMAIL:xbasic7@invalid
+    ANNIVERSARY:---30
+    END:VCARD
+  `);
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[0].dataset.l10nId,
+    "about-addressbook-entry-name-anniversary"
+  );
+  Assert.equal(items[0].children[1].textContent, "30");
+
+  await closeAddressBookWindow();
+  personalBook.deleteCards([
+    yearCard,
+    yearMonthCard,
+    monthCard,
+    monthDayCard,
+    dayCard,
+  ]);
+});
+
+/**
+ * Only an organisation name.
+ */
+add_task(async function testOrganisationNameOnly() {
+  let card = await addAndDisplayCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      ORG:organisation
+      END:VCARD
+    `)
+  );
+
+  let abWindow = await getAddressBookWindow();
+  let viewContactName = abWindow.document.getElementById("viewContactName");
+  Assert.equal(viewContactName.textContent, "organisation");
+
+  await closeAddressBookWindow();
+  personalBook.deleteCards([card]);
+});
+
+/**
+ * Tests that custom properties (Custom1 etc.) are displayed.
+ */
+add_task(async function testCustomProperties() {
+  let card = VCardUtils.vCardToAbCard(formatVCard`
+    BEGIN:VCARD
+    FN:custom person
+    X-CUSTOM3:x-custom three
+    X-CUSTOM4:x-custom four
+    END:VCARD
+  `);
+  card.setProperty("Custom2", "custom two");
+  card.setProperty("Custom4", "custom four");
+  card = await addAndDisplayCard(card);
+
+  let abWindow = await getAddressBookWindow();
+  let otherInfoSection = abWindow.document.getElementById("otherInfo");
+
+  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  let items = otherInfoSection.querySelectorAll("li");
+  Assert.equal(items.length, 3);
+  // Custom 1 has no value, should not display.
+  // Custom 2 has an old property value, should display that.
+  Assert.equal(items[0].children[0].textContent, "Custom 2");
+  Assert.equal(items[0].children[1].textContent, "custom two");
+  // Custom 3 has a vCard property value, should display that.
+  Assert.equal(items[1].children[0].textContent, "Custom 3");
+  Assert.equal(items[1].children[1].textContent, "x-custom three");
+  // Custom 4 has both types of value, the vCard value should be displayed.
+  Assert.equal(items[2].children[0].textContent, "Custom 4");
+  Assert.equal(items[2].children[1].textContent, "x-custom four");
+
+  await closeAddressBookWindow();
+  personalBook.deleteCards([card]);
 });
 
 /**
@@ -663,7 +687,7 @@ add_task(async function testReadOnlyActions() {
   // Check contacts with All Address Books displayed.
 
   openAllAddressBooks();
-  Assert.equal(cardsList.view.rowCount, 12);
+  Assert.equal(cardsList.view.rowCount, 6);
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
 
   // Basic person from Personal Address Books.
@@ -817,6 +841,30 @@ add_task(async function testGoogleEscaping() {
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(googleBook.URI);
 });
+
+async function addAndDisplayCard(card) {
+  if (typeof card == "string") {
+    card = VCardUtils.vCardToAbCard(card);
+  }
+  card = personalBook.addCard(card);
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+
+  let index = cardsList.view.getIndexForUID(card.UID);
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(index),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+
+  return card;
+}
 
 async function checkActionButtons(
   primaryEmail,

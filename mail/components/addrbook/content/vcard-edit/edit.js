@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardAdrComponent, VCardEmailComponent, VCardIMPPComponent,
-           VCardNComponent, VCardFNComponent, VCardNickNameComponent,
-           VCardNoteComponent, VCardOrgComponent, VCardRoleComponent,
-           VCardSpecialDateComponent, VCardTelComponent, VCardTitleComponent,
-           VCardTZComponent, VCardURLComponent */
+/* globals VCardAdrComponent, VCardCustomComponent, VCardEmailComponent,
+           VCardIMPPComponent, VCardNComponent, VCardFNComponent,
+           VCardNickNameComponent, VCardNoteComponent, VCardOrgComponent,
+           VCardRoleComponent, VCardSpecialDateComponent, VCardTelComponent,
+           VCardTitleComponent, VCardTZComponent, VCardURLComponent */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -106,6 +106,15 @@ class VCardEdit extends HTMLElement {
         );
       }
     }
+
+    for (let i = 1; i <= 4; i++) {
+      if (!this._vCardProperties.getFirstEntry(`x-custom${i}`)) {
+        this._vCardProperties.addEntry(
+          new VCardPropertyEntry(`x-custom${i}`, {}, "text", "")
+        );
+      }
+    }
+
     this.updateView();
   }
 
@@ -123,11 +132,26 @@ class VCardEdit extends HTMLElement {
 
     this.addFieldsetActions();
 
-    this._orgComponent = null;
-
     // Insert the vCard property entries.
     for (let vCardPropertyEntry of this.vCardProperties.entries) {
       this.insertVCardElement(vCardPropertyEntry, false);
+    }
+
+    let customProperties = ["x-custom1", "x-custom2", "x-custom3", "x-custom4"];
+    if (
+      customProperties.some(name => this.vCardProperties.getFirstValue(name))
+    ) {
+      // If one of these properties has a value, display all of them.
+      let customFieldset = this.querySelector("#addr-book-edit-custom");
+      let customEl =
+        customFieldset.querySelector("vcard-custom") ||
+        new VCardCustomComponent();
+      customEl.vCardPropertyEntries = customProperties.map(name =>
+        this._vCardProperties.getFirstEntry(name)
+      );
+      let addCustom = document.getElementById("vcard-add-custom");
+      customFieldset.insertBefore(customEl, addCustom);
+      addCustom.hidden = true;
     }
 
     let nameEl = this.querySelector("vcard-n");
@@ -538,6 +562,7 @@ class VCardEdit extends HTMLElement {
   saveVCard() {
     for (let node of [
       ...this.querySelectorAll("vcard-adr"),
+      ...this.querySelectorAll("vcard-custom"),
       ...document.getElementById("vcard-email").children,
       ...this.querySelectorAll("vcard-fn"),
       ...this.querySelectorAll("vcard-impp"),
@@ -569,6 +594,13 @@ class VCardEdit extends HTMLElement {
       emailEntries.every(entry => entry.params.pref !== "1")
     ) {
       emailEntries[0].params.pref = "1";
+    }
+
+    for (let i = 1; i <= 4; i++) {
+      let entry = this._vCardProperties.getFirstEntry(`x-custom${i}`);
+      if (!entry.value) {
+        this._vCardProperties.removeEntry(entry);
+      }
     }
   }
 
@@ -706,6 +738,21 @@ class VCardEdit extends HTMLElement {
     let addNote = document.getElementById("vcard-add-note");
     this.registerAddButton(addNote, "note", () => {
       addNote.hidden = true;
+    });
+
+    let addCustom = document.getElementById("vcard-add-custom");
+    addCustom.addEventListener("click", event => {
+      let el = new VCardCustomComponent();
+      el.vCardPropertyEntries = [
+        this._vCardProperties.getFirstEntry("x-custom1"),
+        this._vCardProperties.getFirstEntry("x-custom2"),
+        this._vCardProperties.getFirstEntry("x-custom3"),
+        this._vCardProperties.getFirstEntry("x-custom4"),
+      ];
+      addCustom.parentNode.insertBefore(el, addCustom);
+
+      this.moveFocusIntoElement(el);
+      addCustom.hidden = true;
     });
   }
 

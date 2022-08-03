@@ -505,6 +505,10 @@ var typeMap = {
   "tel.cell": singleTextProperty("CellularNumber", "tel", { type: "cell" }),
   "url.work": singleTextProperty("WebPage1", "url", { type: "work" }, "url"),
   "url.home": singleTextProperty("WebPage2", "url", { type: "home" }, "url"),
+  "x-custom1": singleTextProperty("Custom1", "x-custom1"),
+  "x-custom2": singleTextProperty("Custom2", "x-custom2"),
+  "x-custom3": singleTextProperty("Custom3", "x-custom3"),
+  "x-custom4": singleTextProperty("Custom4", "x-custom4"),
 };
 
 /**

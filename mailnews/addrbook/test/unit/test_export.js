@@ -16,6 +16,9 @@ var { AppConstants } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { VCardPropertyEntry } = ChromeUtils.import(
+  "resource:///modules/VCardUtils.jsm"
+);
 
 async function subtest(cardConstructor) {
   let dirPrefId = MailServices.ab.newAddressBook(
@@ -35,6 +38,10 @@ async function subtest(cardConstructor) {
 
   let contact2 = cardConstructor();
   contact2.UID = "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy";
+  contact2.setProperty("Custom1", "custom, 1");
+  contact2.setProperty("Custom2", "custom\t2");
+  contact2.setProperty("Custom3", "custom\r3");
+  contact2.setProperty("Custom4", "custom\n4");
   contact2.displayName = "contact number two";
   contact2.firstName = "contact";
   contact2.lastName = "two";
@@ -46,10 +53,6 @@ async function subtest(cardConstructor) {
     contact2.setProperty("JobTitle", `"worker"`);
     contact2.setProperty("Notes", "here's some unicode text…");
   }
-  contact2.setProperty("Custom1", "custom, 1");
-  contact2.setProperty("Custom2", "custom\t2");
-  contact2.setProperty("Custom3", "custom\r3");
-  contact2.setProperty("Custom4", "custom\n4");
   contact2 = book.addCard(contact2);
 
   let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(

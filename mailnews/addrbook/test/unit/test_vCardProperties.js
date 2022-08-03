@@ -200,13 +200,17 @@ add_task(function testFromToPropertyMap() {
     ["LastName", "Test"],
     ["FirstName", "Mike"],
     ["PrimaryEmail", "mike@test.invalid"],
+    ["Custom1", "custom one"],
+    ["Custom2", "custom two"],
+    ["Custom3", "custom three"],
+    ["Custom4", "custom four"],
   ];
   let properties = VCardProperties.fromPropertyMap(
     new Map(inProperties),
     "3.0"
   );
 
-  Assert.equal(properties.entries.length, 4, "entry count");
+  Assert.equal(properties.entries.length, 8, "entry count");
   propertyEqual(
     properties.getFirstEntry("version"),
     {
@@ -247,9 +251,49 @@ add_task(function testFromToPropertyMap() {
     },
     "email entry"
   );
+  propertyEqual(
+    properties.getFirstEntry("x-custom1"),
+    {
+      name: "x-custom1",
+      params: {},
+      type: "text",
+      value: "custom one",
+    },
+    "custom1 entry"
+  );
+  propertyEqual(
+    properties.getFirstEntry("x-custom2"),
+    {
+      name: "x-custom2",
+      params: {},
+      type: "text",
+      value: "custom two",
+    },
+    "custom2 entry"
+  );
+  propertyEqual(
+    properties.getFirstEntry("x-custom3"),
+    {
+      name: "x-custom3",
+      params: {},
+      type: "text",
+      value: "custom three",
+    },
+    "custom3 entry"
+  );
+  propertyEqual(
+    properties.getFirstEntry("x-custom4"),
+    {
+      name: "x-custom4",
+      params: {},
+      type: "text",
+      value: "custom four",
+    },
+    "custom4 entry"
+  );
 
   let outProperties = properties.toPropertyMap();
-  Assert.equal(outProperties.size, 4, "property count");
+  Assert.equal(outProperties.size, 8, "property count");
   for (let [key, value] of inProperties) {
     Assert.equal(outProperties.get(key), value, `${key} property`);
   }

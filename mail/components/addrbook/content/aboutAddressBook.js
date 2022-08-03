@@ -67,6 +67,11 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
     },
   });
 });
+XPCOMUtils.defineLazyGetter(this, "bundle", function() {
+  return Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
+  );
+});
 
 UIDensity.registerWindow(window);
 UIFontSize.registerWindow(window);
@@ -2398,10 +2403,7 @@ var detailsPane = {
 
     let photoButton = document.getElementById("photoButton");
     // FIXME: Remove this once we get new strings after 102.
-    let stringBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/addressbook/addressBook.properties"
-    );
-    photoButton.title = stringBundle.GetStringFromName("browsePhoto");
+    photoButton.title = bundle.GetStringFromName("browsePhoto");
     photoButton.addEventListener("click", () => {
       if (this._photoDetails.sourceURL) {
         photoDialog.showWithURL(
@@ -2954,6 +2956,28 @@ var detailsPane = {
       time.setAttribute("tz", tz);
       li.querySelector(".entry-value").appendChild(time);
     }
+
+    for (let key of ["Custom1", "Custom2", "Custom3", "Custom4"]) {
+      // Custom properties can be nsIAbCard properties or vCard properties.
+      // If there's both, the vCard property has precedence.
+      let value = card.getProperty(key, "");
+      if (card.supportsVCard) {
+        value =
+          card.vCardProperties.getFirstValue(`x-${key.toLowerCase()}`) ?? value;
+      }
+      if (value) {
+        let li = list.appendChild(createEntryItem());
+        li.querySelector(".entry-type").textContent = bundle.GetStringFromName(
+          `property${key}`
+        );
+        li.querySelector(".entry-type").style.setProperty(
+          "white-space",
+          "nowrap"
+        );
+        li.querySelector(".entry-value").textContent = value;
+      }
+    }
+
     section.hidden = list.childElementCount == 0;
 
     this.isEditing = false;
@@ -3012,6 +3036,20 @@ var detailsPane = {
     let card = this.currentCard;
 
     if (card && card.supportsVCard) {
+      for (let key of ["Custom1", "Custom2", "Custom3", "Custom4"]) {
+        // Custom properties could still exist as nsIAbCard properties.
+        // If they do, and no vCard equivalent exists, add them to the vCard
+        // so that they get displayed.
+        let value = card.getProperty(key, "");
+        if (
+          value &&
+          card.vCardProperties.getFirstEntry(`x-${key.toLowerCase()}`) === null
+        ) {
+          card.vCardProperties.addEntry(
+            new VCardPropertyEntry(`x-${key.toLowerCase()}`, {}, "text", value)
+          );
+        }
+      }
       this.vCardEdit.vCardProperties = card.vCardProperties;
       // getProperty may return a "1" or "0" string, we want a boolean.
       this.vCardEdit.preferDisplayName.checked =
@@ -3059,13 +3097,10 @@ var detailsPane = {
    */
   handleInvalidForm() {
     // FIXME: Drop this in favor of an inline notification with fluent strings.
-    let stringBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/addressbook/addressBook.properties"
-    );
     Services.prompt.alert(
       window,
-      stringBundle.GetStringFromName("cardRequiredDataMissingTitle"),
-      stringBundle.GetStringFromName("cardRequiredDataMissingMessage")
+      bundle.GetStringFromName("cardRequiredDataMissingTitle"),
+      bundle.GetStringFromName("cardRequiredDataMissingMessage")
     );
   },
 
@@ -3125,6 +3160,12 @@ var detailsPane = {
       "PreferDisplayName",
       this.vCardEdit.preferDisplayName.checked
     );
+
+    // By now, nsIAbCard custom properties should be on the vCard. Delete them.
+    card.deleteProperty("Custom1");
+    card.deleteProperty("Custom2");
+    card.deleteProperty("Custom3");
+    card.deleteProperty("Custom4");
 
     // No photo or a new photo. Delete the old one.
     if (this._photoChanged) {

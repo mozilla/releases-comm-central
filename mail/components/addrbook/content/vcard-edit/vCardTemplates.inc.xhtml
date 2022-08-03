@@ -7,6 +7,7 @@
 
 <!-- Scripts -->
 <script src="chrome://messenger/content/addressbook/edit/adr.js"></script>
+<script src="chrome://messenger/content/addressbook/edit/custom.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/org.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/email.js"></script>
 <script src="chrome://messenger/content/addressbook/edit/fn.js"></script>
@@ -123,6 +124,14 @@
     <legend data-l10n-id="vcard-org-header"/>
     <button id="vcard-add-org"
             data-l10n-id="vcard-org-add"
+            class="addr-book-edit-fieldset-button"
+            type="button"></button>
+  </fieldset>
+  <!-- Custom -->
+  <fieldset id="addr-book-edit-custom" class="addr-book-edit-fieldset fieldset-reset">
+    <legend data-l10n-id="vcard-custom-header"/>
+    <button id="vcard-add-custom"
+            data-l10n-id="vcard-custom-add"
             class="addr-book-edit-fieldset-button"
             type="button"></button>
   </fieldset>
@@ -319,6 +328,26 @@
   <div class="vcard-adr-inputs">
     <label for="org" data-l10n-id="vcard-org-org"/>
     <textarea name="org"></textarea>
+  </div>
+</template>
+
+<!-- Custom -->
+<template id="template-vcard-edit-custom">
+  <div class="vcard-adr-inputs">
+    <label for="custom1"/>
+    <input type="text"/>
+  </div>
+  <div class="vcard-adr-inputs">
+    <label for="custom2"/>
+    <input type="text"/>
+  </div>
+  <div class="vcard-adr-inputs">
+    <label for="custom3"/>
+    <input type="text"/>
+  </div>
+  <div class="vcard-adr-inputs">
+    <label for="custom4"/>
+    <input type="text"/>
   </div>
 </template>
 

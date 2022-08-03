@@ -184,6 +184,11 @@ function getFields(entryName, addIfNeeded = false, count) {
       addButtonId = "vcard-add-org";
       expectFocusSelector = "vcard-title:last-of-type input";
       break;
+    case "custom":
+      fieldsSelector = "vcard-custom";
+      addButtonId = "vcard-add-custom";
+      expectFocusSelector = "vcard-custom:last-of-type input";
+      break;
     default:
       throw new Error("entryName not found");
   }
@@ -2825,6 +2830,72 @@ add_task(async function test_special_date_field() {
   );
 
   await closeAddressBookWindow();
+});
+
+/**
+ * Tests that custom properties (Custom1 etc.) are editable.
+ */
+add_task(async function testCustomProperties() {
+  let card = VCardUtils.vCardToAbCard(formatVCard`
+    BEGIN:VCARD
+    FN:custom person
+    X-CUSTOM3:x-custom three
+    X-CUSTOM4:x-custom four
+    END:VCARD
+  `);
+  card.setProperty("Custom2", "custom two");
+  card.setProperty("Custom4", "custom four");
+  card = personalBook.addCard(card);
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+  let editButton = abDocument.getElementById("editButton");
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  let index = cardsList.view.getIndexForUID(card.UID);
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(index),
+    {},
+    abWindow
+  );
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  let customField = getFields("custom")[0];
+  let inputs = customField.querySelectorAll("input");
+  Assert.equal(inputs.length, 4);
+  Assert.equal(inputs[0].value, "");
+  Assert.equal(inputs[1].value, "custom two");
+  Assert.equal(inputs[2].value, "x-custom three");
+  Assert.equal(inputs[3].value, "x-custom four");
+
+  inputs[0].value = "x-custom one";
+  inputs[1].value = "x-custom two";
+  inputs[3].value = "";
+
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  card = personalBook.childCards.find(c => c.UID == card.UID);
+  checkCardValues(card, {
+    Custom2: null,
+    Custom4: null,
+  });
+  checkVCardValues(card, {
+    "x-custom1": [{ value: "x-custom one" }],
+    "x-custom2": [{ value: "x-custom two" }],
+    "x-custom3": [{ value: "x-custom three" }],
+    "x-custom4": [],
+  });
+
+  await closeAddressBookWindow();
+  personalBook.deleteCards([card]);
 });
 
 /**

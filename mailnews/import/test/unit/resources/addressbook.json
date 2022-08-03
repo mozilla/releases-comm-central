@@ -31,12 +31,12 @@
         "TEL;TYPE=cell;VALUE=TEXT:567-890-1234",
         "URL;TYPE=work;VALUE=URL:http://127.0.0.1",
         "URL;TYPE=home;VALUE=URL:http://localhost",
+        "X-CUSTOM1;VALUE=TEXT:Custom Field 1",
+        "X-CUSTOM2;VALUE=TEXT:Custom Field 2",
+        "X-CUSTOM3;VALUE=TEXT:Custom Field 3",
+        "X-CUSTOM4;VALUE=TEXT:Custom Field 4",
         "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      ],
-      "Custom1": "Custom Field 1",
-      "Custom2": "Custom Field 2",
-      "Custom3": "Custom Field 3",
-      "Custom4": "Custom Field 4"
+      ]
     }
   ],
   "bug_263304": [

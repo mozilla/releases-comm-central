@@ -12,5 +12,9 @@ FN:contact number two
 NOTE:here's some unicode text…
 TITLE:"worker"
 N:two;contact;;;
+X-CUSTOM1;VALUE=TEXT:custom\, 1
+X-CUSTOM2;VALUE=TEXT:custom	2
+X-CUSTOM3;VALUE=TEXT:custom3
+X-CUSTOM4;VALUE=TEXT:custom\n4
 UID:yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 END:VCARD
