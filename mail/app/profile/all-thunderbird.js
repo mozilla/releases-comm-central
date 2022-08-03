@@ -451,11 +451,6 @@ pref("view_source.syntax_highlight", false);
 
 pref("dom.serviceWorkers.enabled", true);
 
-// Platform collects data for session store
-pref("browser.sessionstore.platform_collection", false);
-// Platform collects session storage data for session store
-pref("browser.sessionstore.collect_session_storage", false);
-
 /////////////////////////////////////////////////////////////////
 // End core all.js pref overrides
 /////////////////////////////////////////////////////////////////
