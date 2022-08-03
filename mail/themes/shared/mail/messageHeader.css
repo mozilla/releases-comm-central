@@ -333,11 +333,6 @@ mail-tagfield[collapsed="true"] {
   outline-offset: -1px;
 }
 
-#attachmentList {
-  background-color: Field;
-  color: FieldText;
-}
-
 #attachment-splitter {
   appearance: none;
   background-color: transparent;
@@ -473,8 +468,7 @@ button.email-action-button:focus-visible {
 }
 
 :root[lwt-tree] #singleMessage,
-:root[lwt-tree] #attachmentView,
-:root[lwt-tree] #attachmentList {
+:root[lwt-tree] #attachmentView {
   background-color: var(--toolbar-bgcolor) !important;
   background-image: none !important;
   color: var(--lwt-text-color);

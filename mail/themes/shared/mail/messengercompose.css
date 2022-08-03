@@ -85,11 +85,9 @@
 }
 
 #attachmentBucket {
-  appearance: none;
+  grid-area: attachment-list;
   border-block: 1px solid var(--splitter-color); /* The same color as the splitters */
   padding: 1px;
-  background-color: Field;
-  color: FieldText;
 }
 
 :root[lwt-tree] #attachmentArea > summary {
@@ -98,6 +96,7 @@
 }
 
 #attachmentArea > summary {
+  grid-area: attachment-header;
   padding: 6px;
   /* Position self for the #newAttachmentIndicator. */
   position: relative;
@@ -459,14 +458,6 @@
 #attachmentArea {
   /* Children are grid items. */
   display: contents;
-}
-
-#attachmentArea > summary {
-  grid-area: attachment-header;
-}
-
-#attachmentBucket {
-  grid-area: attachment-list;
 }
 
 /* When the attachment area is hidden, or the visibility of the attachmentBucket
