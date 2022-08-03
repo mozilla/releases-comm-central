@@ -172,7 +172,7 @@
      */
     _addNewRow(value, unit, relation) {
       let fragment = MozXULElement.parseXULToFragment(`
-        <hbox class="calendar-notifications-row">
+        <hbox class="calendar-notifications-row" align="center">
           <html:input class="size3" value="${value}" type="number" min="0"/>
           <menulist class="unit-menu" crop="none" value="${unit}">
             <menupopup>
