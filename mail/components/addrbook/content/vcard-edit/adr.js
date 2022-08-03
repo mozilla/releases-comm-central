@@ -40,12 +40,6 @@ class VCardAdrComponent extends HTMLElement {
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
-    this.poboxEl = this.querySelector('input[name="pobox"]');
-    this.assignIds(this.poboxEl, this.querySelector('label[for="pobox"]'));
-
-    this.extEl = this.querySelector('input[name="ext"]');
-    this.assignIds(this.extEl, this.querySelector('label[for="ext"]'));
-
     this.streetEl = this.querySelector('textarea[name="street"]');
     this.assignIds(this.streetEl, this.querySelector('label[for="street"]'));
     this.streetEl.addEventListener("input", () => {
@@ -77,15 +71,23 @@ class VCardAdrComponent extends HTMLElement {
   }
 
   fromVCardPropertyEntryToUI() {
-    this.poboxEl.value = this.vCardPropertyEntry.value[0] || "";
-    this.poboxEl.parentNode.hidden = !this.poboxEl.value;
-    this.extEl.value = this.vCardPropertyEntry.value[1] || "";
-    this.extEl.parentNode.hidden = !this.extEl.value;
     if (Array.isArray(this.vCardPropertyEntry.value[2])) {
       this.streetEl.value = this.vCardPropertyEntry.value[2].join("\n");
     } else {
       this.streetEl.value = this.vCardPropertyEntry.value[2] || "";
     }
+    // Per RFC 6350, post office box and extended address SHOULD be empty.
+    let pobox = this.vCardPropertyEntry.value[0] || "";
+    let extendedAddr = this.vCardPropertyEntry.value[1] || "";
+    if (extendedAddr) {
+      this.streetEl.value = this.streetEl.value + "\n" + extendedAddr.trim();
+      delete this.vCardPropertyEntry.value[1];
+    }
+    if (pobox) {
+      this.streetEl.value = pobox.trim() + "\n" + this.streetEl.value;
+      delete this.vCardPropertyEntry.value[0];
+    }
+
     this.resizeStreetEl();
     this.localityEl.value = this.vCardPropertyEntry.value[3] || "";
     this.regionEl.value = this.vCardPropertyEntry.value[4] || "";
@@ -102,8 +104,8 @@ class VCardAdrComponent extends HTMLElement {
     }
 
     this.vCardPropertyEntry.value = [
-      this.poboxEl.value || "",
-      this.extEl.value || "",
+      "",
+      "",
       streetValue,
       this.localityEl.value || "",
       this.regionEl.value || "",
@@ -113,16 +115,13 @@ class VCardAdrComponent extends HTMLElement {
   }
 
   valueIsEmpty() {
-    let filterdValues = [
-      this.poboxEl,
-      this.extEl,
+    return [
       this.streetEl,
       this.localityEl,
       this.regionEl,
       this.codeEl,
       this.countryEl,
-    ].filter(e => e.value !== "");
-    return filterdValues.length === 0;
+    ].every(e => !e.value);
   }
 
   assignIds(inputEl, labelEl) {

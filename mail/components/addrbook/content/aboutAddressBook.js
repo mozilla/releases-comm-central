@@ -2792,14 +2792,9 @@ var detailsPane = {
     list = section.querySelector("ul");
     list.replaceChildren();
     for (let entry of vCardProperties.getAllEntries("adr")) {
-      let parts = [];
-      for (let part of entry.value) {
-        if (Array.isArray(part)) {
-          parts.push(...part);
-        } else {
-          parts.push(part);
-        }
-      }
+      let parts = entry.value.flat();
+      // Put extended address after street address.
+      parts[2] = parts.splice(1, 1, parts[2])[0];
 
       let li = list.appendChild(createEntryItem());
       setEntryType(li, entry);

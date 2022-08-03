@@ -116,10 +116,6 @@ vcard-adr-label = Address
 
 vcard-adr-delivery-label = Delivery label
 
-vcard-adr-pobox = Post office box
-
-vcard-adr-ext = Extended address
-
 vcard-adr-street = Street address
 
 # Or "Locality"
