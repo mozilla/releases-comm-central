@@ -347,6 +347,8 @@ class VCardEdit extends HTMLElement {
   /**
    * Auto fill the display name only if the pref is set, the user is not
    * editing the display name field, and the field was never edited.
+   * The intention is to prefill while entering a new contact. Don't fill
+   * if we don't have a proper default name to show, but only a placeholder.
    *
    * @param {?Event} event - The DOM event if we have one.
    */
@@ -354,7 +356,8 @@ class VCardEdit extends HTMLElement {
     if (
       Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration") &&
       event?.originalTarget.id != "vCardDisplayName" &&
-      !this.displayName.isDirty
+      !this.displayName.isDirty &&
+      this.buildDefaultName()
     ) {
       this.displayName.value = this.contactNameHeading.textContent;
     }
