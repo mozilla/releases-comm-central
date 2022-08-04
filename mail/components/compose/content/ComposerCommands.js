@@ -574,13 +574,13 @@ function PromptForSaveLocation(
   aDocumentURLString
 ) {
   var dialogResult = {};
-  dialogResult.filepickerClick = nsIFilePicker.returnCancel;
+  dialogResult.filepickerClick = Ci.nsIFilePicker.returnCancel;
   dialogResult.resultingURI = "";
   dialogResult.resultingLocalFile = null;
 
   var fp = null;
   try {
-    fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   } catch (e) {}
   if (!fp) {
     return dialogResult;
@@ -594,15 +594,15 @@ function PromptForSaveLocation(
     promptString = GetString("SaveDocumentAs");
   }
 
-  fp.init(window, promptString, nsIFilePicker.modeSave);
+  fp.init(window, promptString, Ci.nsIFilePicker.modeSave);
 
   // Set filters according to the type of output
   if (aDoSaveAsText) {
-    fp.appendFilters(nsIFilePicker.filterText);
+    fp.appendFilters(Ci.nsIFilePicker.filterText);
   } else {
-    fp.appendFilters(nsIFilePicker.filterHTML);
+    fp.appendFilters(Ci.nsIFilePicker.filterHTML);
   }
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   // now let's actually set the filepicker's suggested filename
   var suggestedFileName = GetSuggestedFileName(aDocumentURLString, aMIMEType);
@@ -645,7 +645,7 @@ function PromptForSaveLocation(
   return new Promise(resolve => {
     fp.open(rv => {
       dialogResult.filepickerClick = rv;
-      if (rv != nsIFilePicker.returnCancel && fp.file) {
+      if (rv != Ci.nsIFilePicker.returnCancel && fp.file) {
         // Allow OK and replace.
         // reset urlstring to new save location
         dialogResult.resultingURIString = fileHandler.getURLSpecFromActualFile(
@@ -703,7 +703,6 @@ var gPersistObj;
 //      editor.resetModificationCount();
 // this should cause notification to listeners that document has changed
 
-const webPersist = Ci.nsIWebBrowserPersist;
 function OutputFileWithPersistAPI(
   editorDoc,
   aDestinationLocation,
@@ -731,7 +730,7 @@ function OutputFileWithPersistAPI(
     // we should supply a parent directory if/when we turn on functionality to save related documents
     var persistObj = Cc[
       "@mozilla.org/embedding/browser/nsWebBrowserPersist;1"
-    ].createInstance(webPersist);
+    ].createInstance(Ci.nsIWebBrowserPersist);
     persistObj.progressListener = gEditorOutputProgressListener;
 
     var wrapColumn = GetWrapColumn();
@@ -742,14 +741,15 @@ function OutputFileWithPersistAPI(
     if (!isLocalFile) {
       // if we aren't saving locally then send both cr and lf
       outputFlags |=
-        webPersist.ENCODE_FLAGS_CR_LINEBREAKS |
-        webPersist.ENCODE_FLAGS_LF_LINEBREAKS;
+        Ci.nsIWebBrowserPersist.ENCODE_FLAGS_CR_LINEBREAKS |
+        Ci.nsIWebBrowserPersist.ENCODE_FLAGS_LF_LINEBREAKS;
 
       // we want to serialize the output for all remote publishing
       // some servers can handle only one connection at a time
       // some day perhaps we can make this user-configurable per site?
       persistObj.persistFlags =
-        persistObj.persistFlags | webPersist.PERSIST_FLAGS_SERIALIZE_OUTPUT;
+        persistObj.persistFlags |
+        Ci.nsIWebBrowserPersist.PERSIST_FLAGS_SERIALIZE_OUTPUT;
     }
 
     // note: we always want to set the replace existing files flag since we have
@@ -757,11 +757,11 @@ function OutputFileWithPersistAPI(
     // or the user picked an option where the file is implicitly being replaced (save)
     persistObj.persistFlags =
       persistObj.persistFlags |
-      webPersist.PERSIST_FLAGS_NO_BASE_TAG_MODIFICATIONS |
-      webPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
-      webPersist.PERSIST_FLAGS_DONT_FIXUP_LINKS |
-      webPersist.PERSIST_FLAGS_DONT_CHANGE_FILENAMES |
-      webPersist.PERSIST_FLAGS_FIXUP_ORIGINAL_DOM;
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_NO_BASE_TAG_MODIFICATIONS |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_DONT_FIXUP_LINKS |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_DONT_CHANGE_FILENAMES |
+      Ci.nsIWebBrowserPersist.PERSIST_FLAGS_FIXUP_ORIGINAL_DOM;
     persistObj.saveDocument(
       editorDoc,
       aDestinationLocation,
@@ -785,28 +785,31 @@ function GetOutputFlags(aMimeType, aWrapColumn) {
   var editor = GetCurrentEditor();
   var outputEntity =
     editor && editor.documentCharacterSet == "ISO-8859-1"
-      ? webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES
-      : webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
+      ? Ci.nsIWebBrowserPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES
+      : Ci.nsIWebBrowserPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
   if (aMimeType == "text/plain") {
     // When saving in "text/plain" format, always do formatting
-    outputFlags |= webPersist.ENCODE_FLAGS_FORMATTED;
+    outputFlags |= Ci.nsIWebBrowserPersist.ENCODE_FLAGS_FORMATTED;
   } else {
     // Should we prettyprint? Check the pref
     if (Services.prefs.getBoolPref("editor.prettyprint")) {
-      outputFlags |= webPersist.ENCODE_FLAGS_FORMATTED;
+      outputFlags |= Ci.nsIWebBrowserPersist.ENCODE_FLAGS_FORMATTED;
     }
 
     try {
       // How much entity names should we output? Check the pref
       switch (Services.prefs.getCharPref("editor.encode_entity")) {
         case "basic":
-          outputEntity = webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
+          outputEntity =
+            Ci.nsIWebBrowserPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
           break;
         case "latin1":
-          outputEntity = webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES;
+          outputEntity =
+            Ci.nsIWebBrowserPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES;
           break;
         case "html":
-          outputEntity = webPersist.ENCODE_FLAGS_ENCODE_HTML_ENTITIES;
+          outputEntity =
+            Ci.nsIWebBrowserPersist.ENCODE_FLAGS_ENCODE_HTML_ENTITIES;
           break;
         case "none":
           outputEntity = 0;
@@ -817,7 +820,7 @@ function GetOutputFlags(aMimeType, aWrapColumn) {
   outputFlags |= outputEntity;
 
   if (aWrapColumn > 0) {
-    outputFlags |= webPersist.ENCODE_FLAGS_WRAP;
+    outputFlags |= Ci.nsIWebBrowserPersist.ENCODE_FLAGS_WRAP;
   }
 
   return outputFlags;
@@ -838,9 +841,6 @@ const gShowDebugOutputStatusChange = false;
 const gShowDebugOutputLocationChange = false;
 const gShowDebugOutputSecurityChange = false;
 
-const nsIWebProgressListener = Ci.nsIWebProgressListener;
-const nsIChannel = Ci.nsIChannel;
-
 const kErrorBindingAborted = 2152398850;
 const kErrorBindingRedirected = 2152398851;
 const kFileNotFound = 2152857618;
@@ -850,7 +850,7 @@ var gEditorOutputProgressListener = {
     // Use this to access onStateChange flags
     var requestSpec;
     try {
-      var channel = aRequest.QueryInterface(nsIChannel);
+      var channel = aRequest.QueryInterface(Ci.nsIChannel);
       requestSpec = StripUsernamePasswordFromURI(channel.URI);
     } catch (e) {
       if (gShowDebugOutputStateChange) {
@@ -862,13 +862,13 @@ var gEditorOutputProgressListener = {
       dump("\n***** onStateChange request: " + requestSpec + "\n");
       dump("      state flags: ");
 
-      if (aStateFlags & nsIWebProgressListener.STATE_START) {
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
         dump(" STATE_START, ");
       }
-      if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
         dump(" STATE_STOP, ");
       }
-      if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
         dump(" STATE_IS_NETWORK ");
       }
 
@@ -895,7 +895,7 @@ var gEditorOutputProgressListener = {
         "\n onProgressChange: gPersistObj.result=" + gPersistObj.result + "\n"
       );
       try {
-        var channel = aRequest.QueryInterface(nsIChannel);
+        var channel = aRequest.QueryInterface(Ci.nsIChannel);
         dump("***** onProgressChange request: " + channel.URI.spec + "\n");
       } catch (e) {}
       dump(
@@ -929,7 +929,7 @@ var gEditorOutputProgressListener = {
     if (gShowDebugOutputLocationChange) {
       dump("***** onLocationChange: " + aLocation.spec + "\n");
       try {
-        var channel = aRequest.QueryInterface(nsIChannel);
+        var channel = aRequest.QueryInterface(Ci.nsIChannel);
         dump("*****          request: " + channel.URI.spec + "\n");
       } catch (e) {}
     }
@@ -939,7 +939,7 @@ var gEditorOutputProgressListener = {
     if (gShowDebugOutputStatusChange) {
       dump("***** onStatusChange: " + aMessage + "\n");
       try {
-        var channel = aRequest.QueryInterface(nsIChannel);
+        var channel = aRequest.QueryInterface(Ci.nsIChannel);
         dump("*****        request: " + channel.URI.spec + "\n");
       } catch (e) {
         dump("          couldn't get request\n");
@@ -966,7 +966,7 @@ var gEditorOutputProgressListener = {
   onSecurityChange(aWebProgress, aRequest, state) {
     if (gShowDebugOutputSecurityChange) {
       try {
-        var channel = aRequest.QueryInterface(nsIChannel);
+        var channel = aRequest.QueryInterface(Ci.nsIChannel);
         dump("***** onSecurityChange request: " + channel.URI.spec + "\n");
       } catch (e) {}
     }
@@ -1166,7 +1166,7 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
       // What is this unused 'replacing' var supposed to be doing?
       /* eslint-disable-next-line no-unused-vars */
       var replacing =
-        dialogResult.filepickerClick == nsIFilePicker.returnReplace;
+        dialogResult.filepickerClick == Ci.nsIFilePicker.returnReplace;
 
       urlstring = dialogResult.resultingURIString;
       tempLocalFile = dialogResult.resultingLocalFile;

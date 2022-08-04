@@ -167,9 +167,6 @@ function GetSelectionAsText() {
 }
 
 /** *********** Get Current Editor and associated interfaces or info ***************/
-const nsIHTMLEditor = Ci.nsIHTMLEditor;
-const nsITableEditor = Ci.nsITableEditor;
-const nsIEditingSession = Ci.nsIEditingSession;
 
 function GetCurrentEditor() {
   // Get the active editor from the <editor> tag
@@ -194,7 +191,7 @@ function GetCurrentEditor() {
 
 function GetCurrentTableEditor() {
   var editor = GetCurrentEditor();
-  return editor && editor instanceof nsITableEditor ? editor : null;
+  return editor && editor instanceof Ci.nsITableEditor ? editor : null;
 }
 
 function GetCurrentEditorElement() {

@@ -87,8 +87,6 @@ var gFontSizeNames = [
   "xx-large",
 ];
 
-var nsIFilePicker = Ci.nsIFilePicker;
-
 var kUseCssPref = "editor.use_css";
 var kCRInParagraphsPref = "editor.CR_creates_new_p";
 
@@ -140,21 +138,21 @@ var gEditorDocumentObserver = {
           commandManager.getCommandState(aTopic, gContentWindow, params);
           var errorStringId = 0;
           var editorStatus = params.getLongValue("state_data");
-          if (!editor && editorStatus == nsIEditingSession.eEditorOK) {
+          if (!editor && editorStatus == Ci.nsIEditingSession.eEditorOK) {
             dump(
               "\n ****** NO EDITOR BUT NO EDITOR ERROR REPORTED ******* \n\n"
             );
-            editorStatus = nsIEditingSession.eEditorErrorUnknown;
+            editorStatus = Ci.nsIEditingSession.eEditorErrorUnknown;
           }
 
           switch (editorStatus) {
-            case nsIEditingSession.eEditorErrorCantEditFramesets:
+            case Ci.nsIEditingSession.eEditorErrorCantEditFramesets:
               errorStringId = "CantEditFramesetMsg";
               break;
-            case nsIEditingSession.eEditorErrorCantEditMimeType:
+            case Ci.nsIEditingSession.eEditorErrorCantEditMimeType:
               errorStringId = "CantEditMimeTypeMsg";
               break;
-            case nsIEditingSession.eEditorErrorUnknown:
+            case Ci.nsIEditingSession.eEditorErrorUnknown:
               errorStringId = "CantEditDocumentMsg";
               break;
             // Note that for "eEditorErrorFileNotFound,
@@ -1661,16 +1659,16 @@ function GetAlignmentString() {
   if (mixedObj.value) {
     return "mixed";
   }
-  if (alignObj.value == nsIHTMLEditor.eLeft) {
+  if (alignObj.value == Ci.nsIHTMLEditor.eLeft) {
     return "left";
   }
-  if (alignObj.value == nsIHTMLEditor.eCenter) {
+  if (alignObj.value == Ci.nsIHTMLEditor.eCenter) {
     return "center";
   }
-  if (alignObj.value == nsIHTMLEditor.eRight) {
+  if (alignObj.value == Ci.nsIHTMLEditor.eRight) {
     return "right";
   }
-  if (alignObj.value == nsIHTMLEditor.eJustify) {
+  if (alignObj.value == Ci.nsIHTMLEditor.eJustify) {
     return "justify";
   }
 

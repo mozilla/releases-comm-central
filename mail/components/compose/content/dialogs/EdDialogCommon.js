@@ -350,43 +350,41 @@ function SwitchToValidatePanel() {
   // Only EdTableProps.js currently implements this
 }
 
-const nsIFilePicker = Ci.nsIFilePicker;
-
 /**
  * @return {Promise} URL spec of the file chosen, or null
  */
 function GetLocalFileURL(filterType) {
-  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   var fileType = "html";
 
   if (filterType == "img") {
-    fp.init(window, GetString("SelectImageFile"), nsIFilePicker.modeOpen);
-    fp.appendFilters(nsIFilePicker.filterImages);
+    fp.init(window, GetString("SelectImageFile"), Ci.nsIFilePicker.modeOpen);
+    fp.appendFilters(Ci.nsIFilePicker.filterImages);
     fileType = "image";
   } else if (filterType.startsWith("html")) {
     // Current usage of this is in Link dialog,
     //  where we always want HTML first
-    fp.init(window, GetString("OpenHTMLFile"), nsIFilePicker.modeOpen);
+    fp.init(window, GetString("OpenHTMLFile"), Ci.nsIFilePicker.modeOpen);
 
     // When loading into Composer, direct user to prefer HTML files and text files,
     //   so we call separately to control the order of the filter list
-    fp.appendFilters(nsIFilePicker.filterHTML);
-    fp.appendFilters(nsIFilePicker.filterText);
+    fp.appendFilters(Ci.nsIFilePicker.filterHTML);
+    fp.appendFilters(Ci.nsIFilePicker.filterText);
 
     // Link dialog also allows linking to images
     if (filterType.includes("img", 1)) {
-      fp.appendFilters(nsIFilePicker.filterImages);
+      fp.appendFilters(Ci.nsIFilePicker.filterImages);
     }
   }
   // Default or last filter is "All Files"
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   // set the file picker's current directory to last-opened location saved in prefs
   SetFilePickerDirectory(fp, fileType);
 
   return new Promise(resolve => {
     fp.open(rv => {
-      if (rv != nsIFilePicker.returnOK || !fp.file) {
+      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
         resolve(null);
         return;
       }
