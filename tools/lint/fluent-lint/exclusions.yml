@@ -51,4 +51,23 @@ CO01:
         # comm/mail/locales/en-US/messenger/accountcreation/accountSetup.ftl
         - account-setup-looking-up-db
         - account-setup-success-settings-db
+        - account-setup-insecure-description
+        # Importers keep "Thunderbird" since that refers to a profile import
+        # of an installed Thunderbird application on the user's machine
+        # aboutImport.ftl
+        - app-name-thunderbird
+        - file-profile-description
+        # importDialog.ftl
+        - thunderbird-import-name
+        - thunderbird-import-description
+        - import-from-thunderbird-zip
+        - import-from-thunderbird-dir
+        # accountCentral.ftl - Donation appeals and descriptions about the Org
+        # rather than the product
+        - about-paragraph
+        - about-paragraph-consider-donation
+        # accountProvisioner.ftl - Refers to agreements made between the Org and
+        # third parties
+        - account-provisioner-mail-account-description
+        - account-provisioner-domain-description
     files: []
