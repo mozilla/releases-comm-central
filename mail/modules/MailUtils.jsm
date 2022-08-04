@@ -371,7 +371,7 @@ var MailUtils = {
 
   /**
    * The number of milliseconds to wait between loading of folders in
-   * |setStringPropertyOnFolderAndDescendents|.  We wait at all because
+   * |takeActionOnFolderAndDescendents|.  We wait at all because
    * opening msf databases is a potentially expensive synchronous operation that
    * can approach the order of a second in pathological cases like gmail's
    * all mail folder.
@@ -409,66 +409,45 @@ var MailUtils = {
    * in severe danger of extreme memory bloat unless you force garbage
    * collections after every time you close a database.
    *
-   * @param aPropertyName The name of the property to set.
-   * @param aPropertyValue The (string) value of the property to set.
-   *     Alternately, you can pass a function that takes the nsIMsgFolder and
-   *     returns a string value.
-   * @param aFolder The parent folder; we set the string property on it and all
+   * @param {nsIMsgFolder} folder - The parent folder; we take action on it and all
    *     of its descendents.
-   * @param [aCallback] The optional callback to invoke once we finish our work.
-   *     The callback is provided a boolean success value; true means we
-   *     managed to set the values on all folders, false means we encountered a
-   *     problem.
+   * @param {Function} action - the function to call on each folder.
    */
-  setStringPropertyOnFolderAndDescendents(
-    aPropertyName,
-    aPropertyValue,
-    aFolder,
-    aCallback
-  ) {
+  async takeActionOnFolderAndDescendents(folder, action) {
     // We need to add the base folder as it is not included by .descendants.
-    let allFolders = [aFolder, ...aFolder.descendants];
+    let allFolders = [folder, ...folder.descendants];
 
     // - worker function
-    function* folder_string_setter_worker() {
+    function* folderWorker() {
       for (let folder of allFolders) {
-        // set the property; this may open the database...
-        let value =
-          typeof aPropertyValue == "function"
-            ? aPropertyValue(folder)
-            : aPropertyValue;
-        folder.setStringProperty(aPropertyName, value);
-        // force the reference to be forgotten.
-        folder.msgDatabase = null;
+        action(folder);
         yield undefined;
       }
     }
-    let worker = folder_string_setter_worker();
+    let worker = folderWorker();
 
-    // - driver logic
-    let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    function folder_string_setter_driver() {
-      try {
-        if (worker.next().done) {
-          timer.cancel();
-          if (aCallback) {
-            aCallback(true);
+    return new Promise((resolve, reject) => {
+      // - driver logic
+      let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+      function folderDriver() {
+        try {
+          if (worker.next().done) {
+            timer.cancel();
+            resolve();
           }
-        }
-      } catch (ex) {
-        // Any type of exception kills the generator.
-        timer.cancel();
-        if (aCallback) {
-          aCallback(false);
+        } catch (ex) {
+          // Any type of exception kills the generator.
+          timer.cancel();
+          reject(ex);
         }
       }
-    }
-    // make sure there is at least 100 ms of not us between doing things.
-    timer.initWithCallback(
-      folder_string_setter_driver,
-      this.INTER_FOLDER_PROCESSING_DELAY_MS,
-      Ci.nsITimer.TYPE_REPEATING_SLACK
-    );
+      // make sure there is at least 100 ms of not us between doing things.
+      timer.initWithCallback(
+        folderDriver,
+        this.INTER_FOLDER_PROCESSING_DELAY_MS,
+        Ci.nsITimer.TYPE_REPEATING_SLACK
+      );
+    });
   },
 
   /**

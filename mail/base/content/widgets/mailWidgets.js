@@ -141,6 +141,7 @@
       if (this.delayConnectedCallback()) {
         return;
       }
+      MozXULElement.insertFTLIfNeeded("messenger/mailWidgets.ftl");
       let popup = this.querySelector(`menupopup[anonid="popup"]`);
 
       // We'll add an "Apply columns to..." menu
@@ -166,12 +167,31 @@
               </menu>
             </menupopup>
           </menu>
+          <menu class="applyViewTo-menu" data-l10n-id="apply-current-view-to-menu">
+            <menupopup>
+              <menu class="applyViewToFolder-menu"
+                    label="&columnPicker.applyToFolder.label;">
+                <menupopup is="folder-menupopup"
+                           class="applyViewToFolder"
+                           showFileHereLabel="true"
+                           position="start_before"></menupopup>
+              </menu>
+              <menu class="applyViewToFolderAndChildren-menu"
+                    label="&columnPicker.applyToFolderAndChildren.label;">
+                <menupopup is="folder-menupopup"
+                           class="applyViewToFolderAndChildren"
+                           showFileHereLabel="true"
+                           showAccountsFileHere="true"
+                           position="start_before"></menupopup>
+              </menu>
+            </menupopup>
+          </menu>
           `,
           ["chrome://messenger/locale/messenger.dtd"]
         )
       );
 
-      let confirmApply = (destFolder, useChildren) => {
+      let confirmApplyCols = (destFolder, useChildren) => {
         // Confirm the action with the user.
         let bundle = document.getElementById("bundle_messenger");
         let title = useChildren
@@ -190,17 +210,46 @@
         }
       };
 
-      let applyToFolderMenu = this.querySelector(".applyToFolder-menu");
-      applyToFolderMenu.addEventListener("command", event => {
-        confirmApply(event.target._folder, false);
-      });
-
-      let applyToFolderAndChildrenMenu = this.querySelector(
-        ".applyToFolderAndChildren-menu"
+      this.querySelector(".applyToFolder-menu").addEventListener(
+        "command",
+        event => {
+          confirmApplyCols(event.target._folder, false);
+        }
       );
-      applyToFolderAndChildrenMenu.addEventListener("command", event => {
-        confirmApply(event.target._folder, true);
-      });
+
+      this.querySelector(".applyToFolderAndChildren-menu").addEventListener(
+        "command",
+        event => {
+          confirmApplyCols(event.target._folder, true);
+        }
+      );
+
+      let confirmApplyView = async (destFolder, useChildren) => {
+        let msgId = useChildren
+          ? "threadpane-apply-changes-prompt-with-children-text"
+          : "threadpane-apply-changes-prompt-no-children-text";
+        let [title, message] = await document.l10n.formatValues([
+          { id: "threadpane-apply-changes-prompt-title" },
+          { id: msgId, args: { name: destFolder.prettyName } },
+        ]);
+        if (Services.prompt.confirm(null, title, message)) {
+          this._applyView(destFolder, useChildren);
+        }
+      };
+
+      this.querySelector(".applyViewToFolder-menu").addEventListener(
+        "command",
+        event => {
+          confirmApplyView(event.target._folder, false);
+        }
+      );
+
+      this.querySelector(".applyViewToFolderAndChildren-menu").addEventListener(
+        "command",
+        event => {
+          confirmApplyView(event.target._folder, true);
+        }
+      );
     }
 
     _applyColumns(destFolder, useChildren) {
@@ -239,23 +288,52 @@
       // Now propagate appropriately...
       const propName = gFolderDisplay.PERSISTED_COLUMN_PROPERTY_NAME;
       if (useChildren) {
-        // Generate an observer notification when we have finished
-        // configuring all folders.  This is currently done for the benefit
-        // of our tests.
-        let observerCallback = function() {
+        LazyModules.MailUtils.takeActionOnFolderAndDescendents(
+          destFolder,
+          folder => {
+            folder.setStringProperty(propName, colStateString(folder));
+            // Force the reference to be forgotten.
+            folder.msgDatabase = null;
+          }
+        ).then(() => {
           Services.obs.notifyObservers(
             gFolderDisplay.displayedFolder,
             "msg-folder-columns-propagated"
           );
-        };
-        LazyModules.MailUtils.setStringPropertyOnFolderAndDescendents(
-          propName,
-          colStateString,
-          destFolder,
-          observerCallback
-        );
+        });
       } else {
         destFolder.setStringProperty(propName, colStateString(destFolder));
+        // null out to avoid memory bloat.
+        destFolder.msgDatabase = null;
+      }
+    }
+
+    _applyView(destFolder, useChildren) {
+      let viewFlags =
+        gFolderDisplay.displayedFolder.msgDatabase.dBFolderInfo.viewFlags;
+      let sortType =
+        gFolderDisplay.displayedFolder.msgDatabase.dBFolderInfo.sortType;
+      let sortOrder =
+        gFolderDisplay.displayedFolder.msgDatabase.dBFolderInfo.sortOrder;
+      if (useChildren) {
+        LazyModules.MailUtils.takeActionOnFolderAndDescendents(
+          destFolder,
+          folder => {
+            folder.msgDatabase.dBFolderInfo.viewFlags = viewFlags;
+            folder.msgDatabase.dBFolderInfo.sortType = sortType;
+            folder.msgDatabase.dBFolderInfo.sortOrder = sortOrder;
+            folder.msgDatabase = null;
+          }
+        ).then(() => {
+          Services.obs.notifyObservers(
+            gFolderDisplay.displayedFolder,
+            "msg-folder-views-propagated"
+          );
+        });
+      } else {
+        destFolder.msgDatabase.dBFolderInfo.viewFlags = viewFlags;
+        destFolder.msgDatabase.dBFolderInfo.sortType = sortType;
+        destFolder.msgDatabase.dBFolderInfo.sortOrder = sortOrder;
         // null out to avoid memory bloat
         destFolder.msgDatabase = null;
       }
