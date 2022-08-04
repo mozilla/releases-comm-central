@@ -119,7 +119,7 @@ function checkAttachment(expectedCD, expectedCT) {
     pos++;
   } while (contentType.startsWith(" ", pos));
   contentType = contentType.substr(0, pos);
-  Assert.equal(contentType, expectedCT);
+  Assert.equal(contentType.toLowerCase(), expectedCT.toLowerCase());
 }
 
 async function testInput0() {

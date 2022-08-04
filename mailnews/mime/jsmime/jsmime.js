@@ -3169,7 +3169,7 @@
     // A list of ASCII characters forbidden in RFC 2047 encoded-words
     var qpForbidden = "\"#$%&'(),.:;<=>?@[\\]^_`{|}~";
 
-    var hexString = "0123456789abcdef";
+    var hexString = "0123456789ABCDEF";
 
     /**
      * Add a block of text as a single RFC 2047 encoded word. This does not try to

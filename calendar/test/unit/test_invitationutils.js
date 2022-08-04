@@ -1158,7 +1158,7 @@ add_task(async function getHeaderSection_test() {
         "Return-path: =?UTF-8?B?TWF4ICYgUmVuw6k=?= <no-reply@example.net>\r\n" +
         "From: =?UTF-8?B?UmVuw6k=?= <sender@example.net>\r\n" +
         "Organization: =?UTF-8?B?TWF4ICYgUmVuw6k=?=\r\n" +
-        "To: =?UTF-8?Q?Max_M=c3=bcller?= <mueller@example.net>\r\n" +
+        "To: =?UTF-8?Q?Max_M=C3=BCller?= <mueller@example.net>\r\n" +
         "Subject: =?UTF-8?B?SW52aXRhdGlvbjogRGlhY3JpdGlzIGNoZWNrICjDvMOk?=\r\n =?UTF-8?B" +
         "?w6kp?=\r\n" +
         "Cc: =?UTF-8?B?UmVuw6k=?= <cc@example.net>\r\n" +
@@ -1168,7 +1168,7 @@ add_task(async function getHeaderSection_test() {
   let i = 0;
   for (let test of data) {
     i++;
-    info(`testing test #${i}`);
+    info(`Running test #${i}`);
     let identity = MailServices.accounts.createIdentity();
     identity.email = test.input.identity.email || null;
     identity.fullName = test.input.identity.fullName || null;
@@ -1290,7 +1290,7 @@ add_task(async function encodeMimeHeader_test() {
         header: "Max Müller <m.mueller@example.net>",
         isEmail: true,
       },
-      expected: "=?UTF-8?Q?Max_M=c3=bcller?= <m.mueller@example.net>",
+      expected: "=?UTF-8?Q?Max_M=C3=BCller?= <m.mueller@example.net>",
     },
     {
       // test #2

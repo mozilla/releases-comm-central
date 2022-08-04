@@ -151,12 +151,12 @@ async function testI18NEnvelope() {
   checkDraftHeaders({
     From:
       "=?UTF-8?B?44Kx44OE44Kh44Or44Kz44Ki44OI44Or?= <from@tinderbox.invalid>",
-    Organization: "=?UTF-8?Q?Comit=c3=a9_de_la_destruction_du_monde?=",
+    Organization: "=?UTF-8?Q?Comit=C3=A9_de_la_destruction_du_monde?=",
     To: "=?UTF-8?B?w4ltaWxl?= <nobody@tinderbox.invalid>",
-    Cc: "=?UTF-8?Q?Andr=c3=a9_Chopin?= <alex@tinderbox.invalid>",
-    Bcc: "=?UTF-8?Q?=c3=89tienne?= <boris@tinderbox.invalid>",
+    Cc: "=?UTF-8?Q?Andr=C3=A9_Chopin?= <alex@tinderbox.invalid>",
+    Bcc: "=?UTF-8?Q?=C3=89tienne?= <boris@tinderbox.invalid>",
     "Reply-To": "=?UTF-8?B?RnLDqWTDqXJpYw==?= <charles@tinderbox.invalid>",
-    Subject: "=?UTF-8?Q?Ceci_n=27est_pas_un_r=c3=a9f=c3=a9rence_obscure?=",
+    Subject: "=?UTF-8?Q?Ceci_n=27est_pas_un_r=C3=A9f=C3=A9rence_obscure?=",
   });
 }
 
