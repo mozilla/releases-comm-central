@@ -13,8 +13,6 @@
 interface nsIMsgWindow;
 interface nsINntpIncomingServer;
 
-[ref] native nsMsgKeyArrayRef(nsTArray<nsMsgKey>);
-
 [scriptable, uuid(9a12c3a5-9de5-4c57-ace3-d51802b525a9)]
 interface nsIMsgNewsFolder : nsISupports {
   readonly attribute AString unicodeName;
@@ -105,7 +103,7 @@ interface nsIMsgNewsFolder : nsISupports {
   void SetNewsrcHasChanged(in boolean newsrcHasChanged);
   void updateSummaryFromNNTPInfo(in long oldest, in long youngest, in long total);
   void removeMessage(in nsMsgKey key);
-  [noscript] void removeMessages(in nsMsgKeyArrayRef aMsgKeys);
+  void removeMessages(in Array<nsMsgKey> keys);
   void cancelComplete();
   void cancelFailed();
 

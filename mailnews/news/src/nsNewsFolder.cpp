@@ -1371,7 +1371,8 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key) {
   return mDatabase->DeleteMessage(key, nullptr, false);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(nsTArray<nsMsgKey>& aMsgKeys) {
+NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(
+    const nsTArray<nsMsgKey>& aMsgKeys) {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv,
                     rv);  // if GetDatabase succeeds, mDatabase will be non-null

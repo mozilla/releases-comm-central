@@ -168,11 +168,19 @@ class NntpClient {
               }
               uri += `&k=${this._articleNumber}`;
             }
-            this._msgWindow.displayURIInMessagePane(
-              uri,
-              true,
-              Services.scriptSecurityManager.getSystemPrincipal()
-            );
+            if (this._newsFolder) {
+              uri += `&f=${this._newsFolder.URI}`;
+            }
+            try {
+              this._msgWindow.displayURIInMessagePane(
+                uri,
+                true,
+                Services.scriptSecurityManager.getSystemPrincipal()
+              );
+            } catch (e) {
+              // Can happen when copying an expired message to another folder.
+              this._logger.error(e);
+            }
           }
           this._actionDone(Cr.NS_ERROR_FAILURE);
           return;
@@ -227,10 +235,12 @@ class NntpClient {
    * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
    */
   _sendCommand(str, suppressLogging) {
-    if (this._socket.readyState !== "open") {
-      this._logger.warn(
-        `Failed to send "${str}" because socket state is ${this._socket.readyState}`
-      );
+    if (this._socket.readyState != "open") {
+      if (str != "QUIT") {
+        this._logger.warn(
+          `Failed to send "${str}" because socket state is ${this._socket.readyState}`
+        );
+      }
       return;
     }
     if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
@@ -385,6 +395,17 @@ class NntpClient {
   }
 
   /**
+   * Send LISTGROUP request to the server.
+   * @param {string} groupName - The group to request.
+   */
+  listgroup(groupName) {
+    this._actionModeReader(() => {
+      this._nextAction = this._actionListgroupResponse;
+      this._sendCommand(`LISTGROUP ${groupName}`);
+    });
+  }
+
+  /**
    * Send `POST` request to the server.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
@@ -485,6 +506,32 @@ class NntpClient {
       return;
     }
     this._firstGroupCommand(res);
+  };
+
+  /**
+   * Consume the status line of LISTGROUP response.
+   */
+  _actionListgroupResponse = res => {
+    this._nextAction = this._actionListgroupDataResponse;
+    if (res.data) {
+      this._actionListgroupDataResponse(res);
+    }
+  };
+
+  /**
+   * Consume the multi-line data of LISTGROUP response.
+   * @param {NntpResponse} res - The server response.
+   */
+  _actionListgroupDataResponse = ({ data }) => {
+    this._lineReader.read(
+      data,
+      line => {
+        this.onData(line);
+      },
+      () => {
+        this._actionDone();
+      }
+    );
   };
 
   /**

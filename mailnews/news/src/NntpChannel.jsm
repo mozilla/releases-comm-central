@@ -21,6 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  * A channel to interact with NNTP server.
  * @implements {nsIChannel}
  * @implements {nsIRequest}
+ * @implements {nsICacheEntryOpenCallback}
  */
 class NntpChannel {
   QueryInterface = ChromeUtils.generateQI([
@@ -140,6 +141,15 @@ class NntpChannel {
   }
 
   asyncOpen(listener) {
+    this._logger.debug("asyncOpen", this.URI.spec);
+    this._listener = listener;
+    if (this.URI.spec.endsWith("?list-ids")) {
+      // Triggered by newsError.js.
+      let url = new URL(this.URI.spec);
+      this._removeExpired(decodeURIComponent(url.pathname.slice(1)));
+      return;
+    }
+
     if (this._groupName && !this._server.containsNewsgroup(this._groupName)) {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
@@ -163,7 +173,6 @@ class NntpChannel {
       return;
     }
 
-    this._listener = listener;
     this._cacheEntry = null;
     if (this.URI.spec.includes("?part=") || this.URI.spec.includes("&part=")) {
       let converter = Cc["@mozilla.org/streamConverters;1"].getService(
@@ -312,6 +321,32 @@ class NntpChannel {
         this._newsFolder?.msgDatabase.Commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
+      };
+    });
+  }
+
+  /**
+   * Fetch all the article keys on the server, then remove expired keys from the
+   * local folder.
+   * @param {string} groupName - The group to check.
+   */
+  _removeExpired(groupName) {
+    this._logger.debug("_removeExpired", groupName);
+    let newsFolder = this._server.findGroup(groupName);
+    let allKeys = new Set(newsFolder.msgDatabase.listAllKeys());
+    this._server.wrappedJSObject.withClient(client => {
+      this._listener.onStartRequest(this);
+      client.onOpen = () => {
+        client.listgroup(groupName);
+      };
+
+      client.onData = data => {
+        allKeys.delete(+data);
+      };
+
+      client.onDone = status => {
+        newsFolder.removeMessages([...allKeys]);
+        this._listener.onStopRequest(this, status);
       };
     });
   }

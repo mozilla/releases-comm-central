@@ -86,7 +86,6 @@ interface nsMsgDBCommitType : nsISupports
   const long kCompressCommit = 3;
 };
 
-[ref] native nsMsgKeyArrayRef(nsTArray<nsMsgKey>);
 [ptr] native nsMsgKeyArrayPtr(nsTArray<nsMsgKey>);
 
 /**
