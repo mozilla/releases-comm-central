@@ -43,7 +43,7 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
     hostname
   );
 
-  // Override the default greeting so we get something predicitable
+  // Override the default greeting so we get something predictable
   // in the ELHO message
   Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
 
@@ -161,11 +161,31 @@ add_task(async function test_fail() {
         return { cancel: true };
       });
 
+      // Add onAfterSend listener
+      let collectedEventsMap = new Map();
+      function onAfterSendListener(tab, info) {
+        collectedEventsMap.set(tab.id, info);
+      }
+      browser.compose.onAfterSend.addListener(onAfterSendListener);
+
       // Send now. It should fail due to the aborting onBeforeSend listener.
       await browser.test.assertRejects(
         browser.compose.sendMessage(tab.id),
         /Send aborted by an onBeforeSend event/,
         "browser.compose.sendMessage() should reject, if the message could not be send."
+      );
+
+      // Check onAfterSend listener
+      browser.compose.onAfterSend.removeListener(onAfterSendListener);
+      browser.test.assertEq(
+        1,
+        collectedEventsMap.size,
+        "Should have received the correct number of onAfterSend events"
+      );
+      browser.test.assertEq(
+        "Send aborted by an onBeforeSend event",
+        collectedEventsMap.get(tab.id).error,
+        "Should have received the correct error"
       );
 
       // Clean up.
@@ -217,6 +237,13 @@ add_task(async function test_send() {
 
       let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
+      // Add onAfterSend listener
+      let collectedEventsMap = new Map();
+      function onAfterSendListener(tab, info) {
+        collectedEventsMap.set(tab.id, info);
+      }
+      browser.compose.onAfterSend.addListener(onAfterSendListener);
+
       // Send now.
       let removedWindowPromise = window.waitForEvent("windows.onRemoved");
       let rv = await browser.compose.sendMessage(tab.id);
@@ -245,6 +272,33 @@ add_task(async function test_send() {
 
       // Window should have closed after send.
       await removedWindowPromise;
+
+      // Check onAfterSend listener
+      browser.compose.onAfterSend.removeListener(onAfterSendListener);
+      browser.test.assertEq(
+        1,
+        collectedEventsMap.size,
+        "Should have received the correct number of onAfterSend events"
+      );
+      browser.test.assertTrue(
+        collectedEventsMap.has(tab.id),
+        "The received event should belong to the correct tab."
+      );
+      browser.test.assertEq(
+        "sendNow",
+        collectedEventsMap.get(tab.id).mode,
+        "The received event should have the correct mode."
+      );
+      browser.test.assertEq(
+        rv.headerMessageId,
+        collectedEventsMap.get(tab.id).headerMessageId,
+        "The received event should have the correct headerMessageId."
+      );
+      browser.test.assertEq(
+        rv.headerMessageId,
+        collectedEventsMap.get(tab.id).messages[0].headerMessageId,
+        "The message in the received event should have the correct headerMessageId."
+      );
 
       browser.test.notifyPass("finished");
     },

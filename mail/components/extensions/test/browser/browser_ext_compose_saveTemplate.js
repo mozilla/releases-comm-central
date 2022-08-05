@@ -43,7 +43,7 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
     hostname
   );
 
-  // Override the default greeting so we get something predicitable
+  // Override the default greeting so we get something predictable
   // in the ELHO message
   Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
 
@@ -161,6 +161,13 @@ async function runTest(config) {
         details.tab = await browser.compose.beginNew(details);
       }
 
+      // Add onAfterSave listener
+      let collectedEventsMap = new Map();
+      function onAfterSaveListener(tab, info) {
+        collectedEventsMap.set(tab.id, info);
+      }
+      browser.compose.onAfterSave.addListener(onAfterSaveListener);
+
       // Initiate saving of all compose windows at the same time.
       let allPromises = [];
       for (let details of allDetails) {
@@ -228,6 +235,29 @@ async function runTest(config) {
         browser.tabs.remove(details.tab.id);
         await removedWindowPromise;
       }
+
+      // Check onAfterSave listener
+      browser.compose.onAfterSave.removeListener(onAfterSaveListener);
+      browser.test.assertEq(
+        allDetails.length,
+        collectedEventsMap.size,
+        "Should have received the correct number of onAfterSave events"
+      );
+      let collectedEvents = [...collectedEventsMap.values()];
+      for (let detail of allDetails) {
+        let msg = collectedEvents.find(
+          e => e.messages[0].subject == detail.subject
+        );
+        browser.test.assertTrue(
+          msg,
+          "Should have received an onAfterSave event for every single message"
+        );
+      }
+      browser.test.assertEq(
+        collectedEventsMap.size,
+        collectedEvents.filter(e => e.mode == config.expected.mode).length,
+        "All events should have the correct mode."
+      );
 
       // Remove all saved messages.
       for (let fcc of config.expected.fcc) {

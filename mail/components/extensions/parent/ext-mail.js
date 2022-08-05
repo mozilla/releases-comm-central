@@ -1773,7 +1773,10 @@ function convertMessage(msgHdr, extension) {
     headerMessageId: msgHdr.messageId,
     size: msgHdr.messageSize,
   };
-  if (extension.hasPermission("accountsRead")) {
+  // convertMessage can be called without providing an extension, if the info is
+  // needed for multiple extensions. The caller has to ensure that the folder info
+  // is not forwarded to extensions, which do not have the required permission.
+  if (!extension || extension.hasPermission("accountsRead")) {
     messageObject.folder = convertFolder(msgHdr.folder);
   }
   let tags = msgHdr.getProperty("keywords");

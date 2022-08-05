@@ -360,6 +360,91 @@
         }
       },
       {
+        "name": "onAfterSend",
+        "type": "function",
+        "description": "Fired when sending a message succeeded or failed.",
+        "permissions": [
+          "compose"
+        ],
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "sendInfo",
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "The used send mode.",
+                "enum": [
+                  "sendNow",
+                  "sendLater"
+                ]
+              },
+              "error": {
+                "type": "string",
+                "description": "An error description, if sending the message failed.",
+                "optional": true
+              },
+              "headerMessageId": {
+                "type": "string",
+                "description": "The header messageId of the outgoing message. Only included for actually sent messages.",
+                "optional": true
+              },
+              "messages": {
+                "type": "array",
+                "items": {
+                  "$ref": "messages.MessageHeader"
+                },
+                "description": "Copies of the sent message. The number of created copies depends on the applied file carbon copy configuration (fcc)."
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "onAfterSave",
+        "type": "function",
+        "description": "Fired when saving a message as draft or template succeeded or failed.",
+        "permissions": [
+          "compose"
+        ],
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "saveInfo",
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "The used save mode.",
+                "enum": [
+                  "draft",
+                  "template"
+                ]
+              },
+              "error": {
+                "type": "string",
+                "description": "An error description, if saving the message failed.",
+                "optional": true
+              },
+              "messages": {
+                "type": "array",
+                "items": {
+                  "$ref": "messages.MessageHeader"
+                },
+                "description": "The saved message(s). The number of saved messages depends on the applied file carbon copy configuration (fcc)."
+              }
+            }
+          }
+        ]
+      },
+      {
         "name": "onAttachmentAdded",
         "type": "function",
         "description": "Fired when an attachment is added to a message being composed.",

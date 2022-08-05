@@ -40,7 +40,7 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
     hostname
   );
 
-  // Override the default greeting so we get something predicitable
+  // Override the default greeting so we get something predictable
   // in the ELHO message
   Services.prefs.setCharPref("mail.smtpserver.default.hello_argument", "test");
 

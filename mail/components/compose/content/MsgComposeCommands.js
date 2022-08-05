@@ -995,7 +995,7 @@ var defaultController = {
         return !gWindowLocked;
       },
       doCommand() {
-        SaveAsDraft().catch(Cu.reportError);
+        SaveAsDraft();
       },
     },
 
@@ -1004,7 +1004,7 @@ var defaultController = {
         return !gWindowLocked;
       },
       doCommand() {
-        SaveAsTemplate().catch(Cu.reportError);
+        SaveAsTemplate();
       },
     },
 
@@ -1014,9 +1014,9 @@ var defaultController = {
       },
       doCommand() {
         if (Services.io.offline) {
-          SendMessageLater().catch(Cu.reportError);
+          SendMessageLater();
         } else {
-          SendMessage().catch(Cu.reportError);
+          SendMessage();
         }
       },
     },
@@ -1031,7 +1031,7 @@ var defaultController = {
         );
       },
       doCommand() {
-        SendMessage().catch(Cu.reportError);
+        SendMessage();
       },
     },
 
@@ -1040,7 +1040,7 @@ var defaultController = {
         return !gWindowLocked && !gNumUploadingAttachments && !gSendLocked;
       },
       doCommand() {
-        SendMessageLater().catch(Cu.reportError);
+        SendMessageLater();
       },
     },
 
@@ -1049,7 +1049,7 @@ var defaultController = {
         return !gWindowLocked && !gNumUploadingAttachments && !gSendLocked;
       },
       doCommand() {
-        SendMessageWithCheck().catch(Cu.reportError);
+        SendMessageWithCheck();
       },
     },
 
@@ -5615,244 +5615,259 @@ async function GenericSendMessage(msgType) {
     msgType == Ci.nsIMsgCompDeliverMode.Now ||
     msgType == Ci.nsIMsgCompDeliverMode.Later ||
     msgType == Ci.nsIMsgCompDeliverMode.Background;
-  if (sending) {
-    expandRecipients();
-    // Check if e-mail addresses are complete, in case user turned off
-    // autocomplete to local domain.
-    if (!CheckValidEmailAddress(msgCompFields)) {
-      throw new Error(`Send aborted: invalid recipient address found`);
-    }
 
-    // Do we need to check the spelling?
-    if (DoSpellCheckBeforeSend()) {
-      // We disable spellcheck for the following -subject line, attachment
-      // pane, identity and addressing widget therefore we need to explicitly
-      // focus on the mail body when we have to do a spellcheck.
-      focusMsgBody();
-      window.cancelSendMessage = false;
-      window.openDialog(
-        "chrome://messenger/content/messengercompose/EdSpellCheck.xhtml",
-        "_blank",
-        "dialog,close,titlebar,modal,resizable",
-        true,
-        true,
-        false
-      );
+  // Notify about a new message being prepared for sending.
+  window.dispatchEvent(
+    new CustomEvent("compose-prepare-message-start", {
+      detail: { msgType },
+    })
+  );
 
-      if (window.cancelSendMessage) {
-        throw new Error(`Send aborted by the user: spelling errors found`);
+  try {
+    if (sending) {
+      expandRecipients();
+      // Check if e-mail addresses are complete, in case user turned off
+      // autocomplete to local domain.
+      if (!CheckValidEmailAddress(msgCompFields)) {
+        throw new Error(`Send aborted: invalid recipient address found`);
       }
-    }
 
-    // Strip trailing spaces and long consecutive WSP sequences from the
-    // subject line to prevent getting only WSP chars on a folded line.
-    let fixedSubject = subject.replace(/\s{74,}/g, "    ").trimRight();
-    if (fixedSubject != subject) {
-      subject = fixedSubject;
-      msgCompFields.subject = fixedSubject;
-      document.getElementById("msgSubject").value = fixedSubject;
-    }
+      // Do we need to check the spelling?
+      if (DoSpellCheckBeforeSend()) {
+        // We disable spellcheck for the following -subject line, attachment
+        // pane, identity and addressing widget therefore we need to explicitly
+        // focus on the mail body when we have to do a spellcheck.
+        focusMsgBody();
+        window.cancelSendMessage = false;
+        window.openDialog(
+          "chrome://messenger/content/messengercompose/EdSpellCheck.xhtml",
+          "_blank",
+          "dialog,close,titlebar,modal,resizable",
+          true,
+          true,
+          false
+        );
 
-    // Remind the person if there isn't a subject
-    if (subject == "") {
-      if (
-        Services.prompt.confirmEx(
-          window,
-          getComposeBundle().getString("subjectEmptyTitle"),
-          getComposeBundle().getString("subjectEmptyMessage"),
-          Services.prompt.BUTTON_TITLE_IS_STRING *
-            Services.prompt.BUTTON_POS_0 +
+        if (window.cancelSendMessage) {
+          throw new Error(`Send aborted by the user: spelling errors found`);
+        }
+      }
+
+      // Strip trailing spaces and long consecutive WSP sequences from the
+      // subject line to prevent getting only WSP chars on a folded line.
+      let fixedSubject = subject.replace(/\s{74,}/g, "    ").trimRight();
+      if (fixedSubject != subject) {
+        subject = fixedSubject;
+        msgCompFields.subject = fixedSubject;
+        document.getElementById("msgSubject").value = fixedSubject;
+      }
+
+      // Remind the person if there isn't a subject
+      if (subject == "") {
+        if (
+          Services.prompt.confirmEx(
+            window,
+            getComposeBundle().getString("subjectEmptyTitle"),
+            getComposeBundle().getString("subjectEmptyMessage"),
             Services.prompt.BUTTON_TITLE_IS_STRING *
-              Services.prompt.BUTTON_POS_1,
-          getComposeBundle().getString("sendWithEmptySubjectButton"),
-          getComposeBundle().getString("cancelSendingButton"),
+              Services.prompt.BUTTON_POS_0 +
+              Services.prompt.BUTTON_TITLE_IS_STRING *
+                Services.prompt.BUTTON_POS_1,
+            getComposeBundle().getString("sendWithEmptySubjectButton"),
+            getComposeBundle().getString("cancelSendingButton"),
+            null,
+            null,
+            { value: 0 }
+          ) == 1
+        ) {
+          document.getElementById("msgSubject").focus();
+          throw new Error(`Send aborted by the user: subject missing`);
+        }
+      }
+
+      // Attachment Reminder: Alert the user if
+      //  - the user requested "Remind me later" from either the notification bar or the menu
+      //    (alert regardless of the number of files already attached: we can't guess for how many
+      //    or which files users want the reminder, and guessing wrong will annoy them a lot), OR
+      //  - the aggressive pref is set and the latest notification is still showing (implying
+      //    that the message has no attachment(s) yet, message still contains some attachment
+      //    keywords, and notification was not dismissed).
+      if (
+        gManualAttachmentReminder ||
+        (Services.prefs.getBoolPref(
+          "mail.compose.attachment_reminder_aggressive"
+        ) &&
+          gComposeNotification.getNotificationWithValue("attachmentReminder"))
+      ) {
+        let flags =
+          Services.prompt.BUTTON_POS_0 *
+            Services.prompt.BUTTON_TITLE_IS_STRING +
+          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
+        let hadForgotten = Services.prompt.confirmEx(
+          window,
+          getComposeBundle().getString("attachmentReminderTitle"),
+          getComposeBundle().getString("attachmentReminderMsg"),
+          flags,
+          getComposeBundle().getString("attachmentReminderFalseAlarm"),
+          getComposeBundle().getString("attachmentReminderYesIForgot"),
           null,
           null,
           { value: 0 }
-        ) == 1
+        );
+        // Deactivate manual attachment reminder after showing the alert to avoid alert loop.
+        // We also deactivate reminder when user ignores alert with [x] or [ESC].
+        if (gManualAttachmentReminder) {
+          toggleAttachmentReminder(false);
+        }
+
+        if (hadForgotten) {
+          throw new Error(`Send aborted by the user: attachment missing`);
+        }
+      }
+
+      // Aggressive many public recipients prompt.
+      let publicRecipientCount = getPublicAddressPillsCount();
+      if (
+        Services.prefs.getBoolPref(
+          "mail.compose.warn_public_recipients.aggressive"
+        ) &&
+        publicRecipientCount >=
+          Services.prefs.getIntPref(
+            "mail.compose.warn_public_recipients.threshold"
+          )
       ) {
-        document.getElementById("msgSubject").focus();
-        throw new Error(`Send aborted by the user: subject missing`);
-      }
-    }
-
-    // Attachment Reminder: Alert the user if
-    //  - the user requested "Remind me later" from either the notification bar or the menu
-    //    (alert regardless of the number of files already attached: we can't guess for how many
-    //    or which files users want the reminder, and guessing wrong will annoy them a lot), OR
-    //  - the aggressive pref is set and the latest notification is still showing (implying
-    //    that the message has no attachment(s) yet, message still contains some attachment
-    //    keywords, and notification was not dismissed).
-    if (
-      gManualAttachmentReminder ||
-      (Services.prefs.getBoolPref(
-        "mail.compose.attachment_reminder_aggressive"
-      ) &&
-        gComposeNotification.getNotificationWithValue("attachmentReminder"))
-    ) {
-      let flags =
-        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
-        Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
-      let hadForgotten = Services.prompt.confirmEx(
-        window,
-        getComposeBundle().getString("attachmentReminderTitle"),
-        getComposeBundle().getString("attachmentReminderMsg"),
-        flags,
-        getComposeBundle().getString("attachmentReminderFalseAlarm"),
-        getComposeBundle().getString("attachmentReminderYesIForgot"),
-        null,
-        null,
-        { value: 0 }
-      );
-      // Deactivate manual attachment reminder after showing the alert to avoid alert loop.
-      // We also deactivate reminder when user ignores alert with [x] or [ESC].
-      if (gManualAttachmentReminder) {
-        toggleAttachmentReminder(false);
-      }
-
-      if (hadForgotten) {
-        throw new Error(`Send aborted by the user: attachment missing`);
-      }
-    }
-
-    // Aggressive many public recipients prompt.
-    let publicRecipientCount = getPublicAddressPillsCount();
-    if (
-      Services.prefs.getBoolPref(
-        "mail.compose.warn_public_recipients.aggressive"
-      ) &&
-      publicRecipientCount >=
-        Services.prefs.getIntPref(
-          "mail.compose.warn_public_recipients.threshold"
-        )
-    ) {
-      let flags =
-        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
-        Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
-      let [title, msg, cancel, send] = l10nComposeSync.formatValuesSync([
-        "many-public-recipients-prompt-title",
-        {
-          id: "many-public-recipients-prompt-msg",
-          args: { count: getPublicAddressPillsCount() },
-        },
-        "many-public-recipients-prompt-cancel",
-        "many-public-recipients-prompt-send",
-      ]);
-      let willCancel = Services.prompt.confirmEx(
-        window,
-        title,
-        msg,
-        flags,
-        send,
-        cancel,
-        null,
-        null,
-        { value: 0 }
-      );
-
-      if (willCancel) {
-        if (!gRecipientObserver) {
-          // Re-create this observer as it is destroyed when the user dismisses
-          // the warning.
-          gRecipientObserver = new MutationObserver(function(mutations) {
-            if (mutations.some(m => m.type == "childList")) {
-              checkPublicRecipientsLimit();
-            }
-          });
-        }
-        checkPublicRecipientsLimit();
-        throw new Error(
-          `Send aborted by the user: too many public recipients found`
-        );
-      }
-    }
-
-    // Check if the user tries to send a message to a newsgroup through a mail
-    // account.
-    var currentAccountKey = getCurrentAccountKey();
-    let account = MailServices.accounts.getAccount(currentAccountKey);
-    if (!account) {
-      throw new Error(
-        "currentAccountKey '" + currentAccountKey + "' has no matching account!"
-      );
-    }
-    if (
-      account.incomingServer.type != "nntp" &&
-      msgCompFields.newsgroups != ""
-    ) {
-      const kDontAskAgainPref = "mail.compose.dontWarnMail2Newsgroup";
-      // default to ask user if the pref is not set
-      let dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
-      if (!dontAskAgain) {
-        let checkbox = { value: false };
-        let okToProceed = Services.prompt.confirmCheck(
-          window,
-          getComposeBundle().getString("noNewsgroupSupportTitle"),
-          getComposeBundle().getString("recipientDlogMessage"),
-          getComposeBundle().getString("CheckMsg"),
-          checkbox
-        );
-        if (!okToProceed) {
-          throw new Error(`Send aborted by the user: wrong account used`);
-        }
-
-        if (checkbox.value) {
-          Services.prefs.setBoolPref(kDontAskAgainPref, true);
-        }
-      }
-
-      // remove newsgroups to prevent news_p to be set
-      // in nsMsgComposeAndSend::DeliverMessage()
-      msgCompFields.newsgroups = "";
-    }
-
-    if (Services.prefs.getBoolPref("mail.compose.add_link_preview", true)) {
-      // Remove any card "close" button from content before sending.
-      for (let close of getBrowser().contentDocument.querySelectorAll(
-        ".moz-card .remove-card"
-      )) {
-        close.remove();
-      }
-    }
-
-    let sendFormat = determineSendFormat();
-    switch (sendFormat) {
-      case Ci.nsIMsgCompSendFormat.PlainText:
-        msgCompFields.forcePlainText = true;
-        msgCompFields.useMultipartAlternative = false;
-        break;
-      case Ci.nsIMsgCompSendFormat.HTML:
-        msgCompFields.forcePlainText = false;
-        msgCompFields.useMultipartAlternative = false;
-        break;
-      case Ci.nsIMsgCompSendFormat.Both:
-        msgCompFields.forcePlainText = false;
-        msgCompFields.useMultipartAlternative = true;
-        break;
-      default:
-        throw new Error(`Invalid send format ${sendFormat}`);
-    }
-
-    try {
-      await new Promise((resolve, reject) => {
-        let beforeSendEvent = new CustomEvent("beforesend", {
-          cancelable: true,
-          detail: {
-            resolve,
-            reject,
+        let flags =
+          Services.prompt.BUTTON_POS_0 *
+            Services.prompt.BUTTON_TITLE_IS_STRING +
+          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
+        let [title, msg, cancel, send] = l10nComposeSync.formatValuesSync([
+          "many-public-recipients-prompt-title",
+          {
+            id: "many-public-recipients-prompt-msg",
+            args: { count: getPublicAddressPillsCount() },
           },
-        });
-        window.dispatchEvent(beforeSendEvent);
-        if (!beforeSendEvent.defaultPrevented) {
-          resolve();
-        }
-      });
-    } catch (ex) {
-      throw new Error(`Send aborted by an onBeforeSend event`);
-    }
-  }
+          "many-public-recipients-prompt-cancel",
+          "many-public-recipients-prompt-send",
+        ]);
+        let willCancel = Services.prompt.confirmEx(
+          window,
+          title,
+          msg,
+          flags,
+          send,
+          cancel,
+          null,
+          null,
+          { value: 0 }
+        );
 
-  await CompleteGenericSendMessage(msgType);
+        if (willCancel) {
+          if (!gRecipientObserver) {
+            // Re-create this observer as it is destroyed when the user dismisses
+            // the warning.
+            gRecipientObserver = new MutationObserver(function(mutations) {
+              if (mutations.some(m => m.type == "childList")) {
+                checkPublicRecipientsLimit();
+              }
+            });
+          }
+          checkPublicRecipientsLimit();
+          throw new Error(
+            `Send aborted by the user: too many public recipients found`
+          );
+        }
+      }
+
+      // Check if the user tries to send a message to a newsgroup through a mail
+      // account.
+      var currentAccountKey = getCurrentAccountKey();
+      let account = MailServices.accounts.getAccount(currentAccountKey);
+      if (
+        account.incomingServer.type != "nntp" &&
+        msgCompFields.newsgroups != ""
+      ) {
+        const kDontAskAgainPref = "mail.compose.dontWarnMail2Newsgroup";
+        // default to ask user if the pref is not set
+        let dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
+        if (!dontAskAgain) {
+          let checkbox = { value: false };
+          let okToProceed = Services.prompt.confirmCheck(
+            window,
+            getComposeBundle().getString("noNewsgroupSupportTitle"),
+            getComposeBundle().getString("recipientDlogMessage"),
+            getComposeBundle().getString("CheckMsg"),
+            checkbox
+          );
+          if (!okToProceed) {
+            throw new Error(`Send aborted by the user: wrong account used`);
+          }
+
+          if (checkbox.value) {
+            Services.prefs.setBoolPref(kDontAskAgainPref, true);
+          }
+        }
+
+        // remove newsgroups to prevent news_p to be set
+        // in nsMsgComposeAndSend::DeliverMessage()
+        msgCompFields.newsgroups = "";
+      }
+
+      if (Services.prefs.getBoolPref("mail.compose.add_link_preview", true)) {
+        // Remove any card "close" button from content before sending.
+        for (let close of getBrowser().contentDocument.querySelectorAll(
+          ".moz-card .remove-card"
+        )) {
+          close.remove();
+        }
+      }
+
+      let sendFormat = determineSendFormat();
+      switch (sendFormat) {
+        case Ci.nsIMsgCompSendFormat.PlainText:
+          msgCompFields.forcePlainText = true;
+          msgCompFields.useMultipartAlternative = false;
+          break;
+        case Ci.nsIMsgCompSendFormat.HTML:
+          msgCompFields.forcePlainText = false;
+          msgCompFields.useMultipartAlternative = false;
+          break;
+        case Ci.nsIMsgCompSendFormat.Both:
+          msgCompFields.forcePlainText = false;
+          msgCompFields.useMultipartAlternative = true;
+          break;
+        default:
+          throw new Error(`Invalid send format ${sendFormat}`);
+      }
+
+      try {
+        await new Promise((resolve, reject) => {
+          let beforeSendEvent = new CustomEvent("beforesend", {
+            cancelable: true,
+            detail: {
+              resolve,
+              reject,
+            },
+          });
+          window.dispatchEvent(beforeSendEvent);
+          if (!beforeSendEvent.defaultPrevented) {
+            resolve();
+          }
+        });
+      } catch (ex) {
+        throw new Error(`Send aborted by an onBeforeSend event`);
+      }
+    }
+
+    await CompleteGenericSendMessage(msgType);
+    window.dispatchEvent(new CustomEvent("compose-prepare-message-success"));
+  } catch (exception) {
+    Cu.reportError(exception);
+    window.dispatchEvent(
+      new CustomEvent("compose-prepare-message-failure", {
+        detail: { exception },
+      })
+    );
+  }
 }
 
 /**
