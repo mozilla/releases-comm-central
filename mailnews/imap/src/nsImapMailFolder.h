@@ -381,6 +381,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
   virtual ~nsImapMailFolder();
   // Helper methods
 
+  nsresult ExpungeAndCompact(nsIUrlListener* aListener,
+                             nsIMsgWindow* aMsgWindow);
   virtual nsresult CreateChildFromURI(const nsACString& uri,
                                       nsIMsgFolder** folder) override;
   void FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
@@ -545,10 +547,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   bool m_folderNeedsACLListed;
   bool m_performingBiff;
   bool m_updatingFolder;
-  // These two vars are used to keep track of compaction state so we can know
-  // when to send a done notification.
-  bool m_compactingOfflineStore;
-  bool m_expunging;
   bool m_applyIncomingFilters;  // apply filters to this folder, even if not the
                                 // inbox
   nsMsgIMAPFolderACL* m_folderACL;

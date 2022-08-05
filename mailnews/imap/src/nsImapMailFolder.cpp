@@ -89,6 +89,7 @@
 #include "nsIStreamListener.h"
 #include "nsITimer.h"
 #include "nsReadableUtils.h"
+#include "UrlListener.h"
 
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
@@ -218,8 +219,6 @@ nsImapMailFolder::nsImapMailFolder()
       m_folderNeedsACLListed(true),
       m_performingBiff(false),
       m_updatingFolder(false),
-      m_compactingOfflineStore(false),
-      m_expunging(false),
       m_applyIncomingFilters(false),
       m_downloadingFolderForOfflineUse(false),
       m_filterListRequiresBody(false),
@@ -615,7 +614,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolder(nsIMsgWindow* inMsgWindow) {
 NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener) {
   nsresult rv;
-
   // If this is the inbox, filters will be applied. Otherwise, we test the
   // inherited folder property "applyIncomingFilters" (which defaults to empty).
   // If this inherited property has the string value "true", we will apply
@@ -1243,8 +1241,8 @@ NS_IMETHODIMP nsImapMailFolder::ApplyRetentionSettings() {
  * The listener will get called when both the online expunge and the offline
  * store compaction are finished (if the latter is needed).
  */
-NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
-                                        nsIMsgWindow* aMsgWindow) {
+nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
+                                             nsIMsgWindow* aMsgWindow) {
   GetDatabase();
   // now's a good time to apply the retention settings. If we do delete any
   // messages, the expunge is going to have to wait until the delete to
@@ -1252,44 +1250,56 @@ NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
   // should handle that.
   if (mDatabase) ApplyRetentionSettings();
 
-  m_urlListener = aListener;
+  // Things to hold in existence until both expunge and compact are complete.
+  RefPtr<nsImapMailFolder> folder = this;
+  nsCOMPtr<nsIUrlListener> finalListener = aListener;
+  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool storeSupportsCompaction;
-  msgStore->GetSupportsCompaction(&storeSupportsCompaction);
-
-  // We should be able to compact the offline store now that this should
-  // just be called by the UI.
-  if (storeSupportsCompaction && aMsgWindow &&
-      (mFlags & nsMsgFolderFlags::Offline)) {
-    m_compactingOfflineStore = true;
-    nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-        do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
-  }
-  if (WeAreOffline()) {
-    if (!m_compactingOfflineStore) {
-      // Not compacting or expunging, so manually signal completion.
-      aListener->OnStopRunningUrl(nullptr, NS_OK);
+  // doCompact implements OnStopRunningUrl()
+  // NOTE: The caller will be expecting that their listener will be invoked, so
+  // we need to be careful that all execution paths in here do that. We either
+  // call it directly, or pass it along to the foldercompactor to call.
+  auto doCompact = [folder, finalListener, msgWindow](
+                       nsIURI* url, nsresult status) -> nsresult {
+    nsCOMPtr<nsIMsgPluggableStore> msgStore;
+    nsresult rv = folder->GetMsgStore(getter_AddRefs(msgStore));
+    if (NS_FAILED(rv)) {
+      return finalListener->OnStopRunningUrl(nullptr, rv);
     }
-    return NS_OK;
+    bool storeSupportsCompaction;
+    msgStore->GetSupportsCompaction(&storeSupportsCompaction);
+    if (storeSupportsCompaction && folder->mFlags & nsMsgFolderFlags::Offline) {
+      nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
+          do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+      if (NS_FAILED(rv)) {
+        return finalListener->OnStopRunningUrl(nullptr, rv);
+      }
+      return folderCompactor->CompactFolders({folder}, finalListener,
+                                             msgWindow);
+    }
+    // Not going to run a compaction, so signal that we're all done.
+    return finalListener->OnStopRunningUrl(nullptr, NS_OK);
+  };
+
+  if (WeAreOffline()) {
+    // Can't run an expunge. Kick off the next stage (compact) immediately.
+    return doCompact(nullptr, NS_OK);
   }
-  return Expunge(this, aMsgWindow);
+
+  // Run the expunge, followed by the compaction.
+  RefPtr<UrlListener> expungeListener = new UrlListener();
+  expungeListener->mStopFn = doCompact;
+  return Expunge(expungeListener, aMsgWindow);
+}
+
+// IMAP compact implies an Expunge.
+NS_IMETHODIMP nsImapMailFolder::Compact(nsIUrlListener* aListener,
+                                        nsIMsgWindow* aMsgWindow) {
+  return ExpungeAndCompact(aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::NotifyCompactCompleted() {
-  if (!m_expunging && m_urlListener) {
-    m_urlListener->OnStopRunningUrl(nullptr, NS_OK);
-    m_urlListener = nullptr;
-  }
-  m_compactingOfflineStore = false;
-  return NS_OK;
-}
+nsImapMailFolder::NotifyCompactCompleted() { return NS_OK; }
 
 NS_IMETHODIMP nsImapMailFolder::MarkPendingRemoval(nsIMsgDBHdr* aHdr,
                                                    bool aMark) {
@@ -1313,7 +1323,6 @@ NS_IMETHODIMP nsImapMailFolder::Expunge(nsIUrlListener* aListener,
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  m_expunging = true;
   return imapService->Expunge(this, aListener, aMsgWindow);
 }
 
@@ -4805,6 +4814,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
   return NS_OK;
 }
 
+// nsIUrlListener implementation.
 NS_IMETHODIMP
 nsImapMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
   NS_ASSERTION(aUrl, "sanity check - need to be be running non-null url");
@@ -4818,6 +4828,10 @@ nsImapMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
   return NS_OK;
 }
 
+// nsIUrlListener implementation.
+// nsImapMailFolder passes itself as a listener when it kicks off operations
+// on the nsIImapService. So, when the operation completes, this gets called
+// to handle all the different operations, using a big switch statement.
 NS_IMETHODIMP
 nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   nsresult rv;
@@ -5171,7 +5185,6 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           }
           break;
         case nsIImapUrl::nsImapExpungeFolder:
-          m_expunging = false;
           break;
         default:
           break;
@@ -5182,9 +5195,12 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   }
   // if we're not running a url, we must not be getting new mail.
   SetGettingNewMessages(false);
-  // don't send OnStopRunning notification if still compacting offline store.
-  if (m_urlListener && (imapAction != nsIImapUrl::nsImapExpungeFolder ||
-                        !m_compactingOfflineStore)) {
+
+  // If we're planning to inform another listener then do that now.
+  // Some folder methods can take a listener to inform when the operation
+  // is complete e.g. UpdateFolderWithListener(), DownloadAllForOffline(),
+  // GetNewMessages(). That listener is stashed in m_urlListener.
+  if (m_urlListener) {
     nsCOMPtr<nsIUrlListener> saveListener = m_urlListener;
     m_urlListener = nullptr;
     saveListener->OnStopRunningUrl(aUrl, aExitCode);

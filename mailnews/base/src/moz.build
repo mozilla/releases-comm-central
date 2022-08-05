@@ -25,6 +25,7 @@ EXPORTS += [
     "nsMsgUtils.h",
     "nsNewMailnewsURI.h",
     "nsQuarantinedOutputStream.h",
+    "UrlListener.h",
 ]
 
 SOURCES += [
