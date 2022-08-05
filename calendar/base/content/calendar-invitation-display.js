@@ -12,8 +12,7 @@
    */
   const CalInvitationDisplay = {
     /**
-     * The hbox element that wraps the invitation. We need to make this
-     * scrollable so larger invitations can be seen.
+     * The XUL element that wraps the invitation.
      *
      * @type {XULElement}
      */
@@ -36,7 +35,7 @@
      * Creates a new instance and sets up listeners.
      */
     init() {
-      this.container = document.getElementById("messagepaneContainer");
+      this.container = document.getElementById("calendarInvitationDisplayContainer");
       this.display = document.getElementById("calendarInvitationDisplay");
       this.body = document.getElementById("messagepane");
 
@@ -90,12 +89,10 @@
      * @param {calIItipItem} item
      */
     show(item) {
-      this.container.classList.add("scrollable");
-
       let panel = document.createElement("calendar-invitation-panel");
       this.display.replaceChildren(panel);
       panel.itipItem = item;
-      this.display.hidden = false;
+      this.container.hidden = false;
       this.body.hidden = true;
     },
 
@@ -104,8 +101,7 @@
      * to the container and message pane.
      */
     hide() {
-      this.container.classList.remove("scrollable");
-      this.display.hidden = true;
+      this.container.hidden = true;
       this.display.replaceChildren();
       this.body.hidden = false;
     },

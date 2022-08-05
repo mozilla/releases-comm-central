@@ -754,41 +754,42 @@
                       <vbox id="mail-notification-top">
                         <!-- notificationbox will be added here lazily. -->
                       </vbox>
-                      <vbox id="messagepaneContainer" flex="1">
-                        <html:div id="calendarInvitationDisplay" hidden="true">
-                          <!-- The calendar invitation display widget is loaded
-                               here. -->
+                      <vbox id="calendarInvitationDisplayContainer"
+                            hidden="true"
+                            flex="1">
+                        <html:div id="calendarInvitationDisplay">
+                          <!-- The calendar invitation panel is displayed here. -->
                         </html:div>
-                        <!-- The messagepanewrapper hbox exists to allow
-                             extensions to add sidebars to the message. -->
-                        <hbox id="messagepanewrapper" flex="1">
-                          <stack flex="1">
-                            <browser id="messagepane"
-                                     context="mailContext"
-                                     autocompletepopup="PopupAutoComplete"
-                                     datetimepicker="DateTimePickerPanel"
-                                     selectmenulist="ContentSelectDropdown"
-                                     autofind="false"
-                                     style="min-height:1px;"
-                                     flex="1"
-                                     name="messagepane"
-                                     tooltip="aHTMLTooltip"
-                                     disablehistory="true"
-                                     type="content"
-                                     primary="true"
-                                     src="about:blank"
-                                     disablesecurity="true"
-                                     messagemanagergroup="single-page"
-                                     onclick="return contentAreaClick(event);"
-                                     onresize="return messagePaneOnResize(event);"/>
-                          </stack>
-                        </hbox>
-                        <splitter id="attachment-splitter" collapse="after"
-                                  resizebefore="closest" resizeafter="closest"
-                                  collapsed="true"/>
-                        <vbox id="attachmentView" collapsed="true">
+                      </vbox>
+                      <!-- The messagepanewrapper hbox exists to allow
+                           extensions to add sidebars to the message. -->
+                      <hbox id="messagepanewrapper" flex="1">
+                        <stack flex="1">
+                          <browser id="messagepane"
+                                   context="mailContext"
+                                   autocompletepopup="PopupAutoComplete"
+                                   datetimepicker="DateTimePickerPanel"
+                                   selectmenulist="ContentSelectDropdown"
+                                   autofind="false"
+                                   style="min-height:1px;"
+                                   flex="1"
+                                   name="messagepane"
+                                   tooltip="aHTMLTooltip"
+                                   disablehistory="true"
+                                   type="content"
+                                   primary="true"
+                                   src="about:blank"
+                                   disablesecurity="true"
+                                   messagemanagergroup="single-page"
+                                   onclick="return contentAreaClick(event);"
+                                   onresize="return messagePaneOnResize(event);"/>
+                        </stack>
+                      </hbox>
+                      <splitter id="attachment-splitter" collapse="after"
+                                resizebefore="closest" resizeafter="closest"
+                                collapsed="true"/>
+                      <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
-                        </vbox>
                       </vbox>
                     </vbox>
                     <findbar id="FindToolbar" browserid="messagepane"/>
