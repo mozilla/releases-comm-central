@@ -6,6 +6,7 @@
 #ifndef nsMsgMailNewsUrl_h___
 #define nsMsgMailNewsUrl_h___
 
+#include "msgCore.h"
 #include "nscore.h"
 #include "nsISupports.h"
 #include "nsIUrlListener.h"

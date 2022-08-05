@@ -7,8 +7,6 @@ const EXPORTED_SYMBOLS = ["Pop3Service"];
 var { Pop3Client } = ChromeUtils.import("resource:///modules/Pop3Client.jsm");
 
 /**
- * Set mailnews.pop3.jsmodule to true to use this module.
- *
  * @implements {nsIPop3Service}
  */
 class Pop3Service {

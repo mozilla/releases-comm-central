@@ -14,6 +14,8 @@ class nsPop3URL : public nsIPop3URL, public nsMsgMailNewsUrl {
  public:
   NS_DECL_NSIPOP3URL
   nsPop3URL();
+  static nsresult NewURI(const nsACString& aSpec, nsIURI* aBaseURI,
+                         nsIURI** _retval);
   NS_DECL_ISUPPORTS_INHERITED
 
  protected:
@@ -23,6 +25,12 @@ class nsPop3URL : public nsIPop3URL, public nsMsgMailNewsUrl {
 
   /* Pop3 specific event sinks */
   nsCOMPtr<nsIPop3Sink> m_pop3Sink;
+
+  // convenience function to make constructing of the pop3 url easier...
+  static nsresult BuildPop3Url(const char* urlSpec, nsIMsgFolder* inbox,
+                               nsIPop3IncomingServer*,
+                               nsIUrlListener* aUrlListener, nsIURI** aUrl,
+                               nsIMsgWindow* aMsgWindow);
 };
 
 #endif  // nsPop3URL_h__

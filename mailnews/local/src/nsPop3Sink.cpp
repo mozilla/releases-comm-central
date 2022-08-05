@@ -39,7 +39,7 @@
 /* for logging to Error Console */
 #include "nsIScriptError.h"
 
-extern mozilla::LazyLogModule POP3LOGMODULE;  // defined in nsPop3Protocol.cpp
+mozilla::LazyLogModule POP3LOGMODULE("POP3");
 #define POP3LOG(str) "sink: [this=%p] " str, this
 
 NS_IMPL_ISUPPORTS(nsPop3Sink, nsIPop3Sink)

@@ -63,22 +63,13 @@ add_task(async function() {
 
   // There should still be the one login left for kUser2
   Assert.equal(logins.length, 1);
-  if (Services.prefs.getBoolPref("mailnews.pop3.jsmodule")) {
-    // LoginInfo should be migrated in MsgIncomingServer.jsm.
-    Assert.equal(logins[0].username, incomingServer2.username);
-  } else {
-    Assert.equal(logins[0].username, kUser2);
-  }
+  // LoginInfo should be migrated in MsgIncomingServer.jsm.
+  Assert.equal(logins[0].username, incomingServer2.username);
 
   // Change username to another one.
   incomingServer2.username = "testpop";
   logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
 
-  if (Services.prefs.getBoolPref("mailnews.pop3.jsmodule")) {
-    // LoginInfo should be migrated in MsgIncomingServer.jsm.
-    Assert.equal(logins.length, 1);
-  } else {
-    // There should be no login left.
-    Assert.equal(logins.length, 0);
-  }
+  // LoginInfo should be migrated in MsgIncomingServer.jsm.
+  Assert.equal(logins.length, 1);
 });

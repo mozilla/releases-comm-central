@@ -14,7 +14,7 @@
 #include "nsIComponentRegistrar.h"
 #include "nsXULAppAPI.h"
 
-#include "../../local/src/nsPop3Service.h"
+#include "../../local/src/nsPop3URL.h"
 #include "../../local/src/nsMailboxService.h"
 #include "../../compose/src/nsSmtpUrl.h"
 #include "../../addrbook/src/nsLDAPURL.h"
@@ -78,7 +78,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     return rv;
   }
   if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
-    return nsPop3Service::NewURI(aSpec, aCharset, aBaseURI, aURI);
+    return nsPop3URL::NewURI(aSpec, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews") ||
       scheme.EqualsLiteral("news-message") || scheme.EqualsLiteral("nntp")) {

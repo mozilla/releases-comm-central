@@ -328,8 +328,6 @@ pref("mailnews.smtp.loglevel", "Warn");
 
 pref("mailnews.nntp.loglevel", "Warn");
 
-// If true, Pop3Service.jsm is used. Otherwise, nsPop3Service.cpp is used.
-pref("mailnews.pop3.jsmodule", false);
 pref("mailnews.pop3.loglevel", "Warn");
 
 // If true, ImapService.jsm is used. Otherwise, nsImapService.cpp is used.
