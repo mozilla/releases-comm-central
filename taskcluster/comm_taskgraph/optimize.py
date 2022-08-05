@@ -9,7 +9,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 
-from taskgraph.optimize.base import (
+from gecko_taskgraph.optimize import (
     register_strategy,
     Any,
     OptimizationStrategy,
