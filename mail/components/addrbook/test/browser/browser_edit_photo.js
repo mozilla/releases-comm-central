@@ -240,7 +240,7 @@ async function subtest_add_photo(book) {
 
   Assert.equal(
     editPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "no photo shown"
   );
   EventUtils.synthesizeMouseAtCenter(photoButton, {}, abWindow);
@@ -270,7 +270,7 @@ async function subtest_add_photo(book) {
   await photoChangePromise;
   Assert.notEqual(
     editPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "a photo is shown"
   );
 
@@ -286,7 +286,7 @@ async function subtest_add_photo(book) {
   // Photo shown in view.
   Assert.notEqual(
     viewPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "a photo is shown in contact view"
   );
 
@@ -329,7 +329,7 @@ async function subtest_dont_add_photo(book) {
   await waitForDialogOpenState(false);
   Assert.equal(
     editPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "no photo shown"
   );
 
@@ -373,7 +373,7 @@ async function subtest_dont_add_photo(book) {
   await photoChangePromise;
   Assert.notEqual(
     editPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "a photo is shown"
   );
 
@@ -409,7 +409,7 @@ async function subtest_dont_add_photo(book) {
   await waitForDialogOpenState(false);
   Assert.equal(
     editPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "no photo shown"
   );
 
@@ -424,7 +424,7 @@ async function subtest_dont_add_photo(book) {
 
   Assert.equal(
     viewPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "no photo shown in contact view"
   );
 
@@ -486,7 +486,7 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
   await notInEditingMode();
   Assert.equal(
     viewPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "photo no longer shown in contact view"
   );
 
@@ -522,7 +522,7 @@ async function subtest_paste_url() {
 
   Assert.equal(
     editPhoto.src,
-    "chrome://messenger/skin/icons/contact.svg",
+    "chrome://messenger/skin/icons/new/compact/user.svg",
     "no photo shown"
   );
 

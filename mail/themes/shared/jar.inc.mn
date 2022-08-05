@@ -484,6 +484,7 @@
   skin/classic/messenger/icons/new/compact/close.svg          (../shared/mail/icons/new/compact/close.svg)
   skin/classic/messenger/icons/new/compact/collapse.svg       (../shared/mail/icons/new/compact/collapse.svg)
   skin/classic/messenger/icons/new/compact/compress.svg       (../shared/mail/icons/new/compact/compress.svg)
+  skin/classic/messenger/icons/new/compact/contact.svg        (../shared/mail/icons/new/compact/contact.svg)
   skin/classic/messenger/icons/new/compact/conversation.svg   (../shared/mail/icons/new/compact/conversation.svg)
   skin/classic/messenger/icons/new/compact/copy.svg           (../shared/mail/icons/new/compact/copy.svg)
   skin/classic/messenger/icons/new/compact/cut.svg            (../shared/mail/icons/new/compact/cut.svg)
@@ -575,6 +576,7 @@
   skin/classic/messenger/icons/new/compact/tools.svg          (../shared/mail/icons/new/compact/tools.svg)
   skin/classic/messenger/icons/new/compact/trash.svg          (../shared/mail/icons/new/compact/trash.svg)
   skin/classic/messenger/icons/new/compact/unread.svg         (../shared/mail/icons/new/compact/unread.svg)
+  skin/classic/messenger/icons/new/compact/user.svg           (../shared/mail/icons/new/compact/user.svg)
   skin/classic/messenger/icons/new/compact/user-list.svg      (../shared/mail/icons/new/compact/user-list.svg)
   skin/classic/messenger/icons/new/compact/warning.svg        (../shared/mail/icons/new/compact/warning.svg)
 

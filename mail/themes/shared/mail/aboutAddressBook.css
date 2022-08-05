@@ -701,8 +701,8 @@ body:not(.is-editing) #editContactForm {
   object-position: center;
   background-color: var(--in-content-button-background);
   box-shadow: var(--address-book-blocks-box-shadow);
-  -moz-context-properties: fill;
-  fill: var(--in-content-box-background);
+  -moz-context-properties: stroke;
+  stroke: var(--in-content-box-background);
 }
 
 #photoButton {
@@ -1013,11 +1013,11 @@ input[type="number"]::-moz-number-spin-down {
 #photoDropTarget {
   height: 100px;
   background-color: var(--in-content-button-background);
-  background-image: url("chrome://messenger/skin/icons/contact.svg");
+  background-image: var(--icon-user);
   background-size: 80px;
   background-position: center;
-  -moz-context-properties: fill;
-  fill: var(--in-content-box-background);
+  -moz-context-properties: stroke;
+  stroke: var(--in-content-box-background);
   background-repeat: no-repeat;
   display: flex;
   justify-content: center;
@@ -1033,8 +1033,8 @@ input[type="number"]::-moz-number-spin-down {
   margin-inline-end: 8px;
   width: 16px;
   height: 16px;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 @media (prefers-reduced-motion: no-preference) {

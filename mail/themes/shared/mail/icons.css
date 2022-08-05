@@ -21,6 +21,7 @@
   --icon-close: url("chrome://messenger/skin/icons/new/compact/close.svg");
   --icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
   --icon-compress: url("chrome://messenger/skin/icons/new/compact/compress.svg");
+  --icon-contact: url("chrome://messenger/skin/icons/new/compact/contact.svg");
   --icon-conversation: url("chrome://messenger/skin/icons/new/compact/conversation.svg");
   --icon-copy: url("chrome://messenger/skin/icons/new/compact/copy.svg");
   --icon-cut: url("chrome://messenger/skin/icons/new/compact/cut.svg");
@@ -110,6 +111,7 @@
   --icon-tools: url("chrome://messenger/skin/icons/new/compact/tools.svg");
   --icon-trash: url("chrome://messenger/skin/icons/new/compact/trash.svg");
   --icon-unread: url("chrome://messenger/skin/icons/new/compact/unread.svg");
+  --icon-user: url("chrome://messenger/skin/icons/new/compact/user.svg");
   --icon-user-list: url("chrome://messenger/skin/icons/new/compact/user-list.svg");
   --icon-warning: url("chrome://messenger/skin/icons/new/compact/warning.svg");
 
