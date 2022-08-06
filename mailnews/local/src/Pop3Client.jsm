@@ -465,7 +465,7 @@ class Pop3Client {
     this._lineReader.read(
       res.data,
       line => {
-        line = line.trim();
+        line = line.trim().toUpperCase();
         if (line == "USER") {
           this._supportedAuthMethods.push("USERPASS");
         } else if (line.startsWith("SASL ")) {

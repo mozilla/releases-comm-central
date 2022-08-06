@@ -195,7 +195,6 @@ POP3_RFC1939_handler.prototype = {
   },
   TOP(args) {
     let [messageNumber, numberOfBodyLines] = args.split(" ");
-    console.log({ args });
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }

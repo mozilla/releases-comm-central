@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let [daemon, server] = setupServerDaemon();
+let [daemon, server, handler] = setupServerDaemon();
+handler.kCapabilities = ["uidl", "top"]; // CAPA response is case-insensitive.
 server.start();
 registerCleanupFunction(() => {
   server.stop();
