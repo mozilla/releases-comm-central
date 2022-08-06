@@ -194,6 +194,27 @@ class ImapClient {
   }
 
   /**
+   * Fetch the attribute of messages.
+   * @param {nsIMsgFolder} folder - The folder to check.
+   * @param {string} uids - The message uids.
+   * @param {string} attribute - The message attribute to fetch
+   */
+  fetchMsgAttribute(folder, uids, attribute) {
+    this._logger.debug("fetchMsgAttribute", folder.URI, uids, attribute);
+    this._nextAction = res => {
+      if (res.done) {
+        let resultAttributes = res.messages.map(m => m[attribute]).flat();
+        this.runningUrl.QueryInterface(Ci.nsIImapUrl).customAttributeResult =
+          resultAttributes.length > 1
+            ? `(${resultAttributes.join(" ")})`
+            : resultAttributes[0];
+        this._actionDone();
+      }
+    };
+    this._sendTagged(`UID FETCH ${uids} (${attribute})`);
+  }
+
+  /**
    * Get the names of all ancestor folders. For example,
    *   folder a/b/c will return ['a', 'b'].
    * @param {nsIMsgFolder} folder - The input folder.

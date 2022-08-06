@@ -74,6 +74,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   /** @see nsIMsgIncomingServer */
   performExpand(msgWindow) {
+    this.hasDiscoveredFolders = false;
     MailServices.imap.discoverAllFolders(this.rootFolder, this, msgWindow);
   }
 
@@ -209,7 +210,6 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   discoveryDone() {
-    this.hasDiscoveredFolders = true;
     // No need to verify the root.
     this.rootFolder.QueryInterface(
       Ci.nsIMsgImapMailFolder

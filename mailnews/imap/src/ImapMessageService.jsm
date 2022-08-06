@@ -10,6 +10,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 const lazy = {};
 
@@ -23,6 +24,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 class BaseMessageService {
   QueryInterface = ChromeUtils.generateQI(["nsIMsgMessageService"]);
 
+  _logger = ImapUtils.logger;
+
   SaveMessageToDisk(
     messageUri,
     file,
@@ -32,6 +35,7 @@ class BaseMessageService {
     canonicalLineEnding,
     msgWindow
   ) {
+    this._logger.debug("SaveMessageToDisk", messageUri);
     let { host, folderName, key } = this._decomposeMessageUri(messageUri);
     let imapUrl = Services.io
       .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)

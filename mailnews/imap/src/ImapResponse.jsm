@@ -291,16 +291,14 @@ class MessageData {
    */
   constructor(sequence, tokens) {
     this.sequence = sequence;
-    for (let i = 0; i < tokens.length; i++) {
+    for (let i = 0; i < tokens.length; i += 2) {
       let name = tokens[i].toUpperCase();
       switch (name) {
         case "UID":
           this.uid = +tokens[i + 1];
-          i++;
           break;
         case "FLAGS":
           this.flags = ImapUtils.stringsToFlags(tokens[i + 1]);
-          i++;
           break;
         case "BODY": {
           // bodySection is the part between [ and ].
@@ -314,6 +312,9 @@ class MessageData {
           }
           break;
         }
+        default:
+          this[tokens[i]] = tokens[i + 1];
+          break;
       }
     }
   }

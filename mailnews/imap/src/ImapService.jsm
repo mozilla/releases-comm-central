@@ -48,6 +48,7 @@ class ImapService {
     if (server.wrappedJSObject.hasDiscoveredFolders) {
       return;
     }
+    server.wrappedJSObject.hasDiscoveredFolders = true;
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(urlListener, msgWindow);
       client.onReady = () => {
@@ -138,6 +139,15 @@ class ImapService {
     }
   }
 
+  fetchCustomMsgAttribute(folder, msgWindow, attribute, uids) {
+    return this._withClient(folder, (client, runningUrl) => {
+      client.startRunningUrl(null, msgWindow, runningUrl);
+      client.onReady = () => {
+        client.fetchMsgAttribute(folder, uids, attribute);
+      };
+    });
+  }
+
   expunge(folder, urlListener, msgWindow) {
     this._withClient(folder, client => {
       client.startRunningUrl(urlListener, msgWindow);
@@ -220,7 +230,11 @@ class ImapService {
   _withClient(folder, handler) {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
-    server.wrappedJSObject.withClient(handler);
+    let runningUrl = Services.io
+      .newURI(`imap://${server.hostName}:${server.port}`)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    server.wrappedJSObject.withClient(client => handler(client, runningUrl));
+    return runningUrl;
   }
 }
 

@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = ["ImapChannel"];
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 /**
  * A channel to interact with IMAP server.
@@ -16,11 +17,7 @@ const { MailServices } = ChromeUtils.import(
 class ImapChannel {
   QueryInterface = ChromeUtils.generateQI(["nsIChannel", "nsIRequest"]);
 
-  _logger = console.createInstance({
-    prefix: "mailnews.imap",
-    maxLogLevel: "Warn",
-    maxLogLevelPref: "mailnews.imap.loglevel",
-  });
+  _logger = ImapUtils.logger;
 
   /**
    * @param {nsIURI} uri - The uri to construct the channel from.
@@ -76,6 +73,7 @@ class ImapChannel {
     this._msgKey = parseInt(msgIds);
     try {
       if (this.readFromLocalCache()) {
+        this._logger.debug("Read from local cache");
         return;
       }
     } catch (e) {
@@ -110,9 +108,11 @@ class ImapChannel {
     pump.asyncRead({
       onStartRequest: () => {
         this._listener.onStartRequest(this);
+        this.URI.SetUrlState(true, Cr.NS_OK);
       },
       onStopRequest: (request, status) => {
         this._listener.onStopRequest(this, status);
+        this.URI.SetUrlState(false, status);
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
@@ -134,6 +134,7 @@ class ImapChannel {
    * Retrieve the message from the server.
    */
   _readFromServer() {
+    this._logger.debug("Read from server");
     let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
     let inputStream = pipe.inputStream;
