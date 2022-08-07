@@ -526,6 +526,12 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
+  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+  if (obs) {
+    obs->NotifyObservers(aServer, "message-server-removed",
+                         NS_ConvertUTF8toUTF16(serverKey).get());
+  }
+
   // now clear out the server once and for all.
   // watch out! could be scary
   aServer->ClearAllValues();

@@ -36,6 +36,7 @@ EXTRA_JS_MODULES += [
 
 EXTRA_JS_MODULES.sessionstore += [
     "SessionStore.jsm",
+    "TabStateFlusher.jsm",
 ]
 
 if CONFIG["MOZ_UPDATER"]:
