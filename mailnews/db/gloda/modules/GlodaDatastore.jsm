@@ -23,6 +23,9 @@ const { GlodaDatabind } = ChromeUtils.import(
 const { GlodaCollection, GlodaCollectionManager } = ChromeUtils.import(
   "resource:///modules/gloda/Collection.jsm"
 );
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 
 var MIN_CACHE_SIZE = 8 * 1048576;
 var MAX_CACHE_SIZE = 64 * 1048576;
@@ -733,15 +736,6 @@ var DB_SCHEMA_ACCEPT_LEAVE_LOW = 31,
  */
 var GlodaDatastore = {
   _log: null,
-
-  /* see Gloda's documentation for these constants */
-  kSpecialNotAtAll: 0,
-  kSpecialColumn: 16,
-  kSpecialColumnChildren: 16 | 1,
-  kSpecialColumnParent: 16 | 2,
-  kSpecialString: 32,
-  kSpecialFulltext: 64,
-  IGNORE_FACET: {},
 
   kConstraintIdIn: 0,
   kConstraintIn: 1,
@@ -3739,7 +3733,7 @@ var GlodaDatastore = {
               //  feels wrong to do it. (just double the quote character...)
               if (
                 "special" in attrDef &&
-                attrDef.special == this.kSpecialString
+                attrDef.special == GlodaConstants.kSpecialString
               ) {
                 clausePart +=
                   valueColumnName +
@@ -4007,7 +4001,7 @@ var GlodaDatastore = {
 
       if (
         "special" in attrib &&
-        attrib.special === this.kSpecialColumnChildren
+        attrib.special === GlodaConstants.kSpecialColumnChildren
       ) {
         let invReferences = aInverseReferencesByNounID[objectNounDef.id];
         if (invReferences === undefined) {
@@ -4027,7 +4021,7 @@ var GlodaDatastore = {
         }
       } else if (
         "special" in attrib &&
-        attrib.special === this.kSpecialColumnParent
+        attrib.special === GlodaConstants.kSpecialColumnParent
       ) {
         let references = aReferencesByNounID[objectNounDef.id];
         if (references === undefined) {
@@ -4189,12 +4183,12 @@ var GlodaDatastore = {
       let objectNounDef = attrib.objectNounDef;
       let references = aReferencesByNounID[objectNounDef.id];
       if (attrib.special) {
-        if (attrib.special === this.kSpecialColumnChildren) {
+        if (attrib.special === GlodaConstants.kSpecialColumnChildren) {
           let inverseReferences = aInverseReferencesByNounID[objectNounDef.id];
           // this._log.info("inverse assignment: " + objectNounDef.id +
           //    " of " + aItem.id)
           aItem[attrib.storageAttributeName] = inverseReferences[aItem.id];
-        } else if (attrib.special === this.kSpecialColumnParent) {
+        } else if (attrib.special === GlodaConstants.kSpecialColumnParent) {
           // this._log.info("parent column load: " + objectNounDef.id +
           //    " storage value: " + aItem[attrib.idStorageAttributeName]);
           aItem[attrib.valueStorageAttributeName] =

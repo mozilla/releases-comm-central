@@ -17,6 +17,9 @@ var { queryExpect } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaQueryHelper.jsm"
 );
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 var { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
@@ -30,7 +33,7 @@ var { GlodaIndexer, IndexingJob } = ChromeUtils.import(
 var WidgetProvider = {
   providerName: "widget",
   *process() {
-    yield Gloda.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 };
 
@@ -82,10 +85,10 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "inum",
     singular: true,
-    special: Gloda.kSpecialColumn,
+    special: GlodaConstants.kSpecialColumn,
     specialColumnName: "intCol",
     subjectNouns: [WidgetNoun.id],
     objectNoun: Gloda.NOUN_NUMBER,
@@ -94,10 +97,10 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "date",
     singular: true,
-    special: Gloda.kSpecialColumn,
+    special: GlodaConstants.kSpecialColumn,
     specialColumnName: "dateCol",
     subjectNouns: [WidgetNoun.id],
     objectNoun: Gloda.NOUN_DATE,
@@ -106,10 +109,10 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "str",
     singular: true,
-    special: Gloda.kSpecialString,
+    special: GlodaConstants.kSpecialString,
     specialColumnName: "strCol",
     subjectNouns: [WidgetNoun.id],
     objectNoun: Gloda.NOUN_STRING,
@@ -120,10 +123,10 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "text1",
     singular: true,
-    special: Gloda.kSpecialFulltext,
+    special: GlodaConstants.kSpecialFulltext,
     specialColumnName: "fulltextOne",
     subjectNouns: [WidgetNoun.id],
     objectNoun: Gloda.NOUN_FULLTEXT,
@@ -132,10 +135,10 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "text2",
     singular: true,
-    special: Gloda.kSpecialFulltext,
+    special: GlodaConstants.kSpecialFulltext,
     specialColumnName: "fulltextTwo",
     subjectNouns: [WidgetNoun.id],
     objectNoun: Gloda.NOUN_FULLTEXT,
@@ -144,10 +147,10 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "fulltextAll",
     singular: true,
-    special: Gloda.kSpecialFulltext,
+    special: GlodaConstants.kSpecialFulltext,
     specialColumnName: WidgetNoun.tableName + "Text",
     subjectNouns: [WidgetNoun.id],
     objectNoun: Gloda.NOUN_FULLTEXT,
@@ -158,7 +161,7 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "singleIntAttr",
     singular: true,
     subjectNouns: [WidgetNoun.id],
@@ -169,7 +172,7 @@ add_task(function setup_test_noun_and_attributes() {
   Gloda.defineAttribute({
     provider: WidgetProvider,
     extensionName: EXT_NAME,
-    attributeType: Gloda.kAttrFundamental,
+    attributeType: GlodaConstants.kAttrFundamental,
     attributeName: "multiIntAttr",
     singular: false,
     emptySetIsSignificant: true,
@@ -513,7 +516,7 @@ var GenericIndexer = {
       item._stash();
     }
 
-    yield GlodaIndexer.kWorkDone;
+    yield GlodaConstants.kWorkDone;
     this._log.debug("Done indexing");
   },
 };
@@ -526,7 +529,7 @@ var promiseGenericIndexerCallback = new Promise(resolve => {
 function genericIndexerCallback(aStatus) {
   // If indexingInProgress is false, we've received the synthetic
   // notification, so ignore it.
-  if (indexingInProgress && aStatus == Gloda.kIndexerIdle) {
+  if (indexingInProgress && aStatus == GlodaConstants.kIndexerIdle) {
     indexingInProgress = false;
     promiseGenericIndexerCallbackResolve();
   }

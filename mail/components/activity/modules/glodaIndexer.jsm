@@ -24,6 +24,7 @@ const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
+  GlodaConstants: "resource:///modules/gloda/GlodaConstants.jsm",
   GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
@@ -97,7 +98,7 @@ var glodaIndexerActivity = {
     this.log.debug("Gloda Indexer Job: " + aJobNumber);
     this.log.debug("Gloda Indexer Item: " + aItemNumber + "/" + aTotalItemNum);
 
-    if (aStatus == lazy.Gloda.kIndexerIdle) {
+    if (aStatus == lazy.GlodaConstants.kIndexerIdle) {
       if (this.currentJob) {
         this.onJobCompleted();
       }

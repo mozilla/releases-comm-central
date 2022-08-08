@@ -4,6 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["GlodaQueryClassFactory"];
 
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 // GlodaDatastore has some constants we need, and oddly enough, there was no
 //  load dependency preventing us from doing this.
 const { GlodaDatastore } = ChromeUtils.import(
@@ -148,7 +151,7 @@ GlodaQueryClass.prototype = {
         let boundName = attrDef ? attrDef.boundName : "id";
         if (
           boundName in aObj &&
-          aObj[boundName] === GlodaDatastore.IGNORE_FACET
+          aObj[boundName] === GlodaConstants.IGNORE_FACET
         ) {
           querySatisfied = false;
           break;

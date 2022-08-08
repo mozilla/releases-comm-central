@@ -8,7 +8,14 @@
 
 var EXPORTED_SYMBOLS = ["FacetDriver", "FacetUtils"];
 
-const { Gloda } = ChromeUtils.import(
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "Gloda",
   "resource:///modules/gloda/GlodaPublic.jsm"
 );
 
@@ -181,7 +188,7 @@ DiscreteFaceter.prototype = {
 
     for (let item of aItems) {
       let val = attrKey in item ? item[attrKey] : null;
-      if (val === Gloda.IGNORE_FACET) {
+      if (val === GlodaConstants.IGNORE_FACET) {
         continue;
       }
 
@@ -228,7 +235,7 @@ DiscreteFaceter.prototype = {
 
     for (let item of aItems) {
       let val = attrKey in item ? item[attrKey] : null;
-      if (val === Gloda.IGNORE_FACET) {
+      if (val === GlodaConstants.IGNORE_FACET) {
         continue;
       }
 
@@ -301,7 +308,7 @@ DiscreteSetFaceter.prototype = {
 
     for (let item of aItems) {
       let vals = attrKey in item ? item[attrKey] : null;
-      if (vals === Gloda.IGNORE_FACET) {
+      if (vals === GlodaConstants.IGNORE_FACET) {
         continue;
       }
 
@@ -354,7 +361,7 @@ DiscreteSetFaceter.prototype = {
 
     for (let item of aItems) {
       let vals = attrKey in item ? item[attrKey] : null;
-      if (vals === Gloda.IGNORE_FACET) {
+      if (vals === GlodaConstants.IGNORE_FACET) {
         continue;
       }
 
@@ -434,7 +441,7 @@ NonEmptySetFaceter.prototype = {
     this.groupCount = this.orderedGroups.length;
   },
   makeQuery(aGroupValues, aInclusive) {
-    let query = (this.query = Gloda.newQuery(Gloda.NOUN_MESSAGE));
+    let query = (this.query = lazy.Gloda.newQuery(lazy.Gloda.NOUN_MESSAGE));
 
     let constraintFunc = query[this.attrDef.boundName];
     constraintFunc.call(query);

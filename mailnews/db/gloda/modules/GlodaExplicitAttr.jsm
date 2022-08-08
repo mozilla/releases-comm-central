@@ -12,6 +12,9 @@
 const EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
 
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 const { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -58,8 +61,8 @@ var GlodaExplicitAttr = {
     // Tag
     this._attrTag = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrExplicit,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "tag",
       bindName: "tags",
       singular: false,
@@ -75,8 +78,8 @@ var GlodaExplicitAttr = {
     // Star
     this._attrStar = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrExplicit,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "star",
       bindName: "starred",
       singular: true,
@@ -88,8 +91,8 @@ var GlodaExplicitAttr = {
     // Read/Unread
     this._attrRead = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrExplicit,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "read",
       // Make the message query-able but without using the database.
       canQuery: "truthy-but-not-true",
@@ -104,8 +107,8 @@ var GlodaExplicitAttr = {
      */
     this._attrRepliedTo = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrExplicit,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "repliedTo",
       singular: true,
       subjectNouns: [Gloda.NOUN_MESSAGE],
@@ -118,8 +121,8 @@ var GlodaExplicitAttr = {
      */
     this._attrForwarded = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrExplicit,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "forwarded",
       singular: true,
       subjectNouns: [Gloda.NOUN_MESSAGE],
@@ -168,7 +171,7 @@ var GlodaExplicitAttr = {
         (tags.length - 1) * this.NOTABILITY_TAGGED_ADDL;
     }
 
-    yield Gloda.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 
   /**

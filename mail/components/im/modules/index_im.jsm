@@ -12,6 +12,9 @@ const { Gloda } = ChromeUtils.import(
 const { GlodaAccount } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDataModel.jsm"
 );
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
@@ -124,7 +127,7 @@ GlodaIMConversation.prototype = {
     return new Date(this._time * 1000);
   },
   get involves() {
-    return Gloda.IGNORE_FACET;
+    return GlodaConstants.IGNORE_FACET;
   },
   _recipients: null,
   get recipients() {
@@ -161,7 +164,7 @@ GlodaIMConversation.prototype = {
     return true;
   },
   get folder() {
-    return Gloda.IGNORE_FACET;
+    return GlodaConstants.IGNORE_FACET;
   },
 
   // for glodaFacetView.js _removeDupes
@@ -175,7 +178,7 @@ var WidgetProvider = {
   providerName: "widget",
   *process() {
     // XXX What is this supposed to do?
-    yield Gloda.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 };
 
@@ -224,10 +227,10 @@ var EXT_NAME = "im";
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,
-  attributeType: Gloda.kAttrFundamental,
+  attributeType: GlodaConstants.kAttrFundamental,
   attributeName: "time",
   singular: true,
-  special: Gloda.kSpecialColumn,
+  special: GlodaConstants.kSpecialColumn,
   specialColumnName: "time",
   subjectNouns: [IMConversationNoun.id],
   objectNoun: Gloda.NOUN_NUMBER,
@@ -236,10 +239,10 @@ Gloda.defineAttribute({
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,
-  attributeType: Gloda.kAttrFundamental,
+  attributeType: GlodaConstants.kAttrFundamental,
   attributeName: "title",
   singular: true,
-  special: Gloda.kSpecialString,
+  special: GlodaConstants.kSpecialString,
   specialColumnName: "title",
   subjectNouns: [IMConversationNoun.id],
   objectNoun: Gloda.NOUN_STRING,
@@ -248,10 +251,10 @@ Gloda.defineAttribute({
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,
-  attributeType: Gloda.kAttrFundamental,
+  attributeType: GlodaConstants.kAttrFundamental,
   attributeName: "path",
   singular: true,
-  special: Gloda.kSpecialString,
+  special: GlodaConstants.kSpecialString,
   specialColumnName: "path",
   subjectNouns: [IMConversationNoun.id],
   objectNoun: Gloda.NOUN_STRING,
@@ -262,10 +265,10 @@ Gloda.defineAttribute({
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,
-  attributeType: Gloda.kAttrFundamental,
+  attributeType: GlodaConstants.kAttrFundamental,
   attributeName: "content",
   singular: true,
-  special: Gloda.kSpecialFulltext,
+  special: GlodaConstants.kSpecialFulltext,
   specialColumnName: "content",
   subjectNouns: [IMConversationNoun.id],
   objectNoun: Gloda.NOUN_FULLTEXT,
@@ -278,10 +281,10 @@ Gloda.defineAttribute({
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,
-  attributeType: Gloda.kAttrDerived,
+  attributeType: GlodaConstants.kAttrDerived,
   attributeName: "fulltextMatches",
   singular: true,
-  special: Gloda.kSpecialFulltext,
+  special: GlodaConstants.kSpecialFulltext,
   specialColumnName: "imConversationsText",
   subjectNouns: [IMConversationNoun.id],
   objectNoun: Gloda.NOUN_FULLTEXT,
@@ -290,10 +293,10 @@ Gloda.defineAttribute({
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,
-  attributeType: Gloda.kAttrDerived,
+  attributeType: GlodaConstants.kAttrDerived,
   attributeName: "date",
   singular: true,
-  special: Gloda.kSpecialColumn,
+  special: GlodaConstants.kSpecialColumn,
   subjectNouns: [IMConversationNoun.id],
   objectNoun: Gloda.NOUN_NUMBER,
   facet: {
@@ -687,7 +690,7 @@ var GlodaIMIndexer = {
 
     // Ignore corrupted log files.
     if (!logConv) {
-      return Gloda.kWorkDone;
+      return GlodaConstants.kWorkDone;
     }
 
     let fileName = PathUtils.filename(aLogPath);
@@ -782,7 +785,7 @@ var GlodaIMIndexer = {
     ).then(() => GlodaIndexer.callbackDriver());
     // Tell the Indexer that we're doing async indexing. We'll be left alone
     // until callbackDriver() is called above.
-    yield Gloda.kWorkAsync;
+    yield GlodaConstants.kWorkAsync;
 
     // Resolve the promise for this job.
     this._indexingJobCallbacks.get(aJob.conversation.id)();
@@ -790,14 +793,14 @@ var GlodaIMIndexer = {
     this._indexingJobPromise = null;
     aJob.conversation.indexPending = false;
     aJob.conversation.glodaConv = glodaConv.value;
-    yield Gloda.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 
   *_worker_logsFolderSweep(aJob) {
     let dir = FileUtils.getFile("ProfD", ["logs"]);
     if (!dir.exists() || !dir.isDirectory()) {
       // If the folder does not exist, then we are done.
-      yield GlodaIndexer.kWorkDone;
+      yield GlodaConstants.kWorkDone;
     }
 
     // Sweep the logs directory for log files, adding any new entries to the
@@ -837,7 +840,7 @@ var GlodaIMIndexer = {
       }
     }
 
-    yield GlodaIndexer.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 
   *_worker_convFolderSweep(aJob, aCallbackHandle) {
@@ -863,9 +866,9 @@ var GlodaIMIndexer = {
       ).then(() => GlodaIndexer.callbackDriver());
       // Tell the Indexer that we're doing async indexing. We'll be left alone
       // until callbackDriver() is called above.
-      yield Gloda.kWorkAsync;
+      yield GlodaConstants.kWorkAsync;
     }
-    yield Gloda.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 
   get workers() {

@@ -8,6 +8,7 @@ EXTRA_JS_MODULES.gloda += [
     "Everybody.jsm",
     "Facet.jsm",
     "Gloda.jsm",
+    "GlodaConstants.jsm",
     "GlodaContent.jsm",
     "GlodaDatabind.jsm",
     "GlodaDataModel.jsm",

@@ -12,12 +12,20 @@
 
 const EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
 
-const { GlodaDatastore } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDatastore.jsm"
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
 );
-const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
-const { GlodaCollectionManager } = ChromeUtils.import(
+
+const lazy = {};
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "GlodaCollectionManager",
   "resource:///modules/gloda/Collection.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "GlodaDatastore",
+  "resource:///modules/gloda/GlodaDatastore.jsm"
 );
 
 /**
@@ -125,7 +133,6 @@ var GlodaIndexer = {
    *  we rather inter-mingle our use of this field with the singleton global
    *  GlodaDatastore.
    */
-  _datastore: GlodaDatastore,
   _log: console.createInstance({
     prefix: "gloda.indexer",
     maxLogLevel: "Warn",
@@ -411,7 +418,7 @@ var GlodaIndexer = {
     // disable ourselves and all of the specific indexers
     this.enabled = false;
 
-    GlodaDatastore.shutdown();
+    lazy.GlodaDatastore.shutdown();
   },
 
   /**
@@ -636,12 +643,6 @@ var GlodaIndexer = {
     }
   },
 
-  kWorkSync: Gloda.kWorkSync,
-  kWorkAsync: Gloda.kWorkAsync,
-  kWorkDone: Gloda.kWorkDone,
-  kWorkPause: Gloda.kWorkPause,
-  kWorkDoneWithResult: Gloda.kWorkDoneWithResult,
-
   /**
    * Our current job number.  Meaningless value that increments with every job
    *  we process that resets to 0 when we run out of jobs.  Currently used by
@@ -691,7 +692,7 @@ var GlodaIndexer = {
     // if we aren't indexing, give them an idle indicator, otherwise they can
     //  just be happy when we hit the next actual status point.
     if (!this.indexing) {
-      aListener(Gloda.kIndexerIdle, null, 0, 0, 1);
+      aListener(GlodaConstants.kIndexerIdle, null, 0, 0, 1);
     }
     return aListener;
   },
@@ -720,7 +721,7 @@ var GlodaIndexer = {
 
     if (this.indexing && this._curIndexingJob) {
       let job = this._curIndexingJob;
-      status = Gloda.kIndexerIndexing;
+      status = GlodaConstants.kIndexerIndexing;
 
       let indexer = this._indexerWorkerDefs[job.jobType].indexer;
       if ("_indexingFolder" in indexer) {
@@ -737,7 +738,7 @@ var GlodaIndexer = {
       jobItemGoal = job.goal;
       jobType = job.jobType;
     } else {
-      status = Gloda.kIndexerIdle;
+      status = GlodaConstants.kIndexerIdle;
       prettyName = null;
       jobIndex = 0;
       jobItemIndex = 0;
@@ -861,12 +862,12 @@ var GlodaIndexer = {
       switch (result) {
         // job's done, close the batch and re-schedule ourselves if there's more
         //  to do.
-        case this.kWorkDone:
+        case GlodaConstants.kWorkDone:
           this._batch.return();
           this._batch = null;
         // the batch wants to get re-scheduled, do so.
         // (intentional fall-through to re-scheduling logic)
-        case this.kWorkPause:
+        case GlodaConstants.kWorkPause:
           if (this.indexing) {
             this._timer.initWithCallback(
               this._timerCallbackDriver,
@@ -878,7 +879,7 @@ var GlodaIndexer = {
             this._indexingActive = false;
           }
           break;
-        case this.kWorkAsync:
+        case GlodaConstants.kWorkAsync:
           // there is nothing to do.  some other code is now responsible for
           //  calling us.
           break;
@@ -925,7 +926,7 @@ var GlodaIndexer = {
      */
     pushAndGo(aIterator, aContext) {
       this.push(aIterator, aContext);
-      return GlodaIndexer.kWorkSync;
+      return GlodaConstants.kWorkSync;
     },
     /**
      * Pop the active generator off the stack.
@@ -979,7 +980,7 @@ var GlodaIndexer = {
      */
     doneWithResult(aResult) {
       this._result = aResult;
-      return Gloda.kWorkDoneWithResult;
+      return GlodaConstants.kWorkDoneWithResult;
     },
 
     /* be able to serve as a collection listener, resuming the active iterator's
@@ -1006,7 +1007,7 @@ var GlodaIndexer = {
   *workBatch() {
     // Do we still have an open transaction? If not, start a new one.
     if (!this._idleToCommit) {
-      GlodaDatastore._beginTransaction();
+      lazy.GlodaDatastore._beginTransaction();
     } else {
       // We'll manage commit ourself while this routine is active.
       this._idleToCommit = false;
@@ -1069,17 +1070,17 @@ var GlodaIndexer = {
           switch (
             this._callbackHandle.activeIterator.next(this._workBatchData).value
           ) {
-            case this.kWorkSync:
+            case GlodaConstants.kWorkSync:
               this._workBatchData = undefined;
               break;
-            case this.kWorkAsync:
-              this._workBatchData = yield this.kWorkAsync;
+            case GlodaConstants.kWorkAsync:
+              this._workBatchData = yield GlodaConstants.kWorkAsync;
               break;
-            case this.kWorkDone:
+            case GlodaConstants.kWorkDone:
               this._callbackHandle.pop();
               this._workBatchData = undefined;
               break;
-            case this.kWorkDoneWithResult:
+            case GlodaConstants.kWorkDoneWithResult:
               this._workBatchData = this._callbackHandle.popWithResult();
               break;
             default:
@@ -1198,7 +1199,7 @@ var GlodaIndexer = {
         ) {
           this._perfPauseStopwatch.start();
 
-          yield this.kWorkPause;
+          yield GlodaConstants.kWorkPause;
 
           this._perfPauseStopwatch.stop();
           // We repeat the pause if the pause was longer than
@@ -1271,19 +1272,19 @@ var GlodaIndexer = {
         (elapsed > this._MAXIMUM_COMMIT_TIME ||
           (inIdle && (elapsed > this._MINIMUM_COMMIT_TIME || !haveMoreWork)));
       if (doCommit) {
-        GlodaCollectionManager.cacheCommitDirty();
+        lazy.GlodaCollectionManager.cacheCommitDirty();
         // Set up an async notification to happen after the commit completes so
         //  that we can avoid the indexer doing something with the database that
         //  causes the main thread to block against the completion of the commit
         //  (which can be a while) on 1.9.1.
-        GlodaDatastore.runPostCommit(this._callbackHandle.wrappedCallback);
+        lazy.GlodaDatastore.runPostCommit(this._callbackHandle.wrappedCallback);
         // kick off the commit
-        GlodaDatastore._commitTransaction();
-        yield this.kWorkAsync;
+        lazy.GlodaDatastore._commitTransaction();
+        yield GlodaConstants.kWorkAsync;
         this._lastCommitTime = Date.now();
         // Restart the transaction if we still have work.
         if (haveMoreWork) {
-          GlodaDatastore._beginTransaction();
+          lazy.GlodaDatastore._beginTransaction();
         } else {
           transactionToCommit = false;
         }
@@ -1298,7 +1299,7 @@ var GlodaIndexer = {
       this._idleToCommit = true;
     }
 
-    yield this.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
   /* eslint-enable complexity */
 
@@ -1466,8 +1467,8 @@ var GlodaIndexer = {
       // Do we need to commit an indexer transaction?
       if (this._idleToCommit) {
         this._idleToCommit = false;
-        GlodaCollectionManager.cacheCommitDirty();
-        GlodaDatastore._commitTransaction();
+        lazy.GlodaCollectionManager.cacheCommitDirty();
+        lazy.GlodaDatastore._commitTransaction();
         this._lastCommitTime = Date.now();
         this._notifyListeners();
       }

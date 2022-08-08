@@ -248,10 +248,10 @@ class CallbackHandle {
   async glodaWorkerAdapter(aIter, resolve) {
     while (!error_is_thrown) {
       switch (aIter.next().value) {
-        case GlodaIndexer.kWorkSync:
+        case GlodaConstants.kWorkSync:
           break;
-        case GlodaIndexer.kWorkDone:
-        case GlodaIndexer.kWorkDoneWithResult:
+        case GlodaConstants.kWorkDone:
+        case GlodaConstants.kWorkDoneWithResult:
           resolve();
           return;
         default:

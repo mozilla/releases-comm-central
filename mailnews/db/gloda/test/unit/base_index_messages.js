@@ -18,6 +18,9 @@
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 var { GlodaMsgIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/IndexMsg.jsm"
 );
@@ -820,7 +823,7 @@ async function test_attributes_cant_query() {
   Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
   Assert.equal(gmsg.read, false);
 
-  let readDbAttr = Gloda.getAttrDef(Gloda.BUILT_IN, "read");
+  let readDbAttr = Gloda.getAttrDef(GlodaConstants.BUILT_IN, "read");
   let readId = readDbAttr.id;
 
   await sqlExpectCount(

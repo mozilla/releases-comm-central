@@ -38,6 +38,9 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaCollectionManager } = ChromeUtils.import(
   "resource:///modules/gloda/Collection.jsm"
 );
+var { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 var { GlodaIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
@@ -478,7 +481,7 @@ class TestAttributeProvider {
   *process(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
     indexMessageState._numFullIndexed++;
 
-    yield Gloda.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   }
 }
 

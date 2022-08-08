@@ -8,6 +8,9 @@ const { GlodaCollectionManager } = ChromeUtils.import(
   "resource:///modules/gloda/Collection.jsm"
 );
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
@@ -66,7 +69,7 @@ var GlodaABIndexer = {
       // we currently normalize all e-mail addresses to be lowercase
       query.value(card.primaryEmail.toLowerCase());
       let identityCollection = query.getCollection(aCallbackHandle);
-      yield Gloda.kWorkAsync;
+      yield GlodaConstants.kWorkAsync;
 
       if (identityCollection.items.length) {
         let identity = identityCollection.items[0];
@@ -87,7 +90,7 @@ var GlodaABIndexer = {
       }
     }
 
-    yield GlodaIndexer.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 
   initialSweep() {},
@@ -159,11 +162,11 @@ var GlodaABAttrs = {
     /* ***** Contacts ***** */
     this._attrIdentityContact = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrDerived,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrDerived,
       attributeName: "identities",
       singular: false,
-      special: Gloda.kSpecialColumnChildren,
+      special: GlodaConstants.kSpecialColumnChildren,
       // specialColumnName: "contactID",
       storageAttributeName: "_identities",
       subjectNouns: [Gloda.NOUN_CONTACT],
@@ -171,11 +174,11 @@ var GlodaABAttrs = {
     }); // tested-by: test_attributes_fundamental
     this._attrContactName = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrFundamental,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrFundamental,
       attributeName: "name",
       singular: true,
-      special: Gloda.kSpecialString,
+      special: GlodaConstants.kSpecialString,
       specialColumnName: "name",
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_STRING,
@@ -183,11 +186,11 @@ var GlodaABAttrs = {
     }); // tested-by: test_attributes_fundamental
     this._attrContactPopularity = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrDerived,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrDerived,
       attributeName: "popularity",
       singular: true,
-      special: Gloda.kSpecialColumn,
+      special: GlodaConstants.kSpecialColumn,
       specialColumnName: "popularity",
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_NUMBER,
@@ -195,11 +198,11 @@ var GlodaABAttrs = {
     }); // not-tested
     this._attrContactFrecency = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrDerived,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrDerived,
       attributeName: "frecency",
       singular: true,
-      special: Gloda.kSpecialColumn,
+      special: GlodaConstants.kSpecialColumn,
       specialColumnName: "frecency",
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_NUMBER,
@@ -209,11 +212,11 @@ var GlodaABAttrs = {
     /* ***** Identities ***** */
     this._attrIdentityContact = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrDerived,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrDerived,
       attributeName: "contact",
       singular: true,
-      special: Gloda.kSpecialColumnParent,
+      special: GlodaConstants.kSpecialColumnParent,
       specialColumnName: "contactID", // the column in the db
       idStorageAttributeName: "_contactID",
       valueStorageAttributeName: "_contact",
@@ -223,11 +226,11 @@ var GlodaABAttrs = {
     }); // tested-by: test_attributes_fundamental
     this._attrIdentityKind = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrFundamental,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrFundamental,
       attributeName: "kind",
       singular: true,
-      special: Gloda.kSpecialString,
+      special: GlodaConstants.kSpecialString,
       specialColumnName: "kind",
       subjectNouns: [Gloda.NOUN_IDENTITY],
       objectNoun: Gloda.NOUN_STRING,
@@ -235,11 +238,11 @@ var GlodaABAttrs = {
     }); // tested-by: test_attributes_fundamental
     this._attrIdentityValue = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrFundamental,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrFundamental,
       attributeName: "value",
       singular: true,
-      special: Gloda.kSpecialString,
+      special: GlodaConstants.kSpecialString,
       specialColumnName: "value",
       subjectNouns: [Gloda.NOUN_IDENTITY],
       objectNoun: Gloda.NOUN_STRING,
@@ -252,8 +255,8 @@ var GlodaABAttrs = {
     //  differences.
     this._attrFreeTag = Gloda.defineAttribute({
       provider: this,
-      extensionName: Gloda.BUILT_IN,
-      attributeType: Gloda.kAttrExplicit,
+      extensionName: GlodaConstants.BUILT_IN,
+      attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "freetag",
       bind: true,
       bindName: "freeTags",
@@ -302,6 +305,6 @@ var GlodaABAttrs = {
       }
     }
 
-    yield Gloda.kWorkDone;
+    yield GlodaConstants.kWorkDone;
   },
 };
