@@ -91,7 +91,7 @@ add_task(function setup_test_noun_and_attributes() {
     special: GlodaConstants.kSpecialColumn,
     specialColumnName: "intCol",
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_NUMBER,
+    objectNoun: GlodaConstants.NOUN_NUMBER,
     canQuery: true,
   });
   Gloda.defineAttribute({
@@ -103,7 +103,7 @@ add_task(function setup_test_noun_and_attributes() {
     special: GlodaConstants.kSpecialColumn,
     specialColumnName: "dateCol",
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_DATE,
+    objectNoun: GlodaConstants.NOUN_DATE,
     canQuery: true,
   });
   Gloda.defineAttribute({
@@ -115,7 +115,7 @@ add_task(function setup_test_noun_and_attributes() {
     special: GlodaConstants.kSpecialString,
     specialColumnName: "strCol",
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_STRING,
+    objectNoun: GlodaConstants.NOUN_STRING,
     canQuery: true,
   });
 
@@ -129,7 +129,7 @@ add_task(function setup_test_noun_and_attributes() {
     special: GlodaConstants.kSpecialFulltext,
     specialColumnName: "fulltextOne",
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_FULLTEXT,
+    objectNoun: GlodaConstants.NOUN_FULLTEXT,
     canQuery: true,
   });
   Gloda.defineAttribute({
@@ -141,7 +141,7 @@ add_task(function setup_test_noun_and_attributes() {
     special: GlodaConstants.kSpecialFulltext,
     specialColumnName: "fulltextTwo",
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_FULLTEXT,
+    objectNoun: GlodaConstants.NOUN_FULLTEXT,
     canQuery: true,
   });
   Gloda.defineAttribute({
@@ -153,7 +153,7 @@ add_task(function setup_test_noun_and_attributes() {
     special: GlodaConstants.kSpecialFulltext,
     specialColumnName: WidgetNoun.tableName + "Text",
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_FULLTEXT,
+    objectNoun: GlodaConstants.NOUN_FULLTEXT,
     canQuery: true,
   });
 
@@ -165,7 +165,7 @@ add_task(function setup_test_noun_and_attributes() {
     attributeName: "singleIntAttr",
     singular: true,
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_NUMBER,
+    objectNoun: GlodaConstants.NOUN_NUMBER,
     canQuery: true,
   });
 
@@ -177,7 +177,7 @@ add_task(function setup_test_noun_and_attributes() {
     singular: false,
     emptySetIsSignificant: true,
     subjectNouns: [WidgetNoun.id],
-    objectNoun: Gloda.NOUN_NUMBER,
+    objectNoun: GlodaConstants.NOUN_NUMBER,
     canQuery: true,
   });
 });

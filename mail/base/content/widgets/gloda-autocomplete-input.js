@@ -19,6 +19,9 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const { AppConstants } = ChromeUtils.import(
     "resource://gre/modules/AppConstants.jsm"
   );
+  const { GlodaConstants } = ChromeUtils.import(
+    "resource:///modules/gloda/GlodaConstants.jsm"
+  );
   const { XPCOMUtils } = ChromeUtils.import(
     "resource://gre/modules/XPCOMUtils.jsm"
   );
@@ -143,7 +146,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
               // the event loop by using setTimeout.
               setTimeout(this.doSearch.bind(this), 0);
             } else if (row.nounDef) {
-              let theQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+              let theQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
               if (row.nounDef.name == "tag") {
                 theQuery = theQuery.tags(row.item);
               } else if (row.nounDef.name == "identity") {

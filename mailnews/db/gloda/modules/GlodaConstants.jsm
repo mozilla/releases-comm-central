@@ -124,4 +124,119 @@ var GlodaConstants = {
    * when an attribute has this value.
    */
   IGNORE_FACET: "ignore-facet",
+
+  /*
+   * The following are explicit noun IDs.  While most extension-provided nouns
+   *  will have dynamically allocated id's that are looked up by name, these
+   *  id's can be relied upon to exist and be accessible via these
+   *  pseudo-constants.  It's not really clear that we need these, although it
+   *  does potentially simplify code to not have to look up all of their nouns
+   *  at initialization time.
+   */
+  /**
+   * Boolean values, expressed as 0/1 in the database and non-continuous for
+   *  constraint purposes.  Like numbers, such nouns require their attributes
+   *  to provide them with context, lacking any of their own.
+   * Having this as a noun type may be a bad idea; a change of nomenclature
+   *  (so that we are not claiming a boolean value is a noun, but still using
+   *  it in the same way) or implementation to require each boolean noun
+   *  actually be its own noun may be in order.
+   */
+  NOUN_BOOLEAN: 1,
+  /**
+   * A number, which could mean an integer or floating point values.  We treat
+   *  these as continuous, meaning that queries on them can have ranged
+   *  constraints expressed on them.  Lacking any inherent context, numbers
+   *  depend on their attributes to parameterize them as required.
+   * Same deal as with NOUN_BOOLEAN, we may need to change this up conceptually.
+   */
+  NOUN_NUMBER: 2,
+  /**
+   * A (non-fulltext) string.
+   * Same deal as with NOUN_BOOLEAN, we may need to change this up conceptually.
+   */
+  NOUN_STRING: 3,
+  /** A date, encoded as a PRTime, represented as a js Date object. */
+  NOUN_DATE: 10,
+  /**
+   * Fulltext search support, somewhat magical.  This is only intended to be
+   *  used for kSpecialFulltext attributes, and exclusively as a constraint
+   *  mechanism.  The values are always represented as strings.  It is presumed
+   *  that the user of this functionality knows how to generate SQLite FTS3
+   *  style MATCH queries, or is okay with us just gluing them together with
+   *  " OR " when used in an or-constraint case.  Gloda's query mechanism
+   *  currently lacks the ability to to compile Gloda-style and-constraints
+   *  into a single MATCH query, but it will turn out okay, just less
+   *  efficiently than it could.
+   */
+  NOUN_FULLTEXT: 20,
+  /**
+   * Represents a MIME Type.  We currently lack any human-intelligible
+   *  descriptions of mime types.
+   */
+  NOUN_MIME_TYPE: 40,
+  /**
+   * Captures a message tag as well as when the tag's presence was observed,
+   *  hoping to approximate when the tag was applied.  It's a somewhat dubious
+   *  attempt to not waste our opporunity to store a value along with the tag.
+   *  (The tag is actually stored as an attribute parameter on the attribute
+   *  definition, rather than a value in the attribute 'instance' for the
+   *  message.)
+   */
+  NOUN_TAG: 50,
+  /**
+   * Doesn't actually work owing to a lack of an object to represent a folder.
+   *  We do expose the folderURI and folderID of a message, but need to map that
+   *  to a good abstraction.  Probably something thin around a SteelFolder or
+   *  the like; we would contribute the functionality to easily move from a
+   *  folder to the list of gloda messages in that folder, as well as the
+   *  indexing preferences for that folder.
+   * @TODO folder noun and related abstraction
+   */
+  NOUN_FOLDER: 100,
+  /**
+   * All messages belong to a conversation.  See GlodaDataModel.jsm for the
+   *  definition of the GlodaConversation class.
+   */
+  NOUN_CONVERSATION: 101,
+  /**
+   * A one-to-one correspondence with underlying (indexed) nsIMsgDBHdr
+   *  instances.  See GlodaDataModel.jsm for the definition of the GlodaMessage class.
+   */
+  NOUN_MESSAGE: 102,
+  /**
+   * Corresponds to a human being, who may have multiple electronic identities
+   *  (a la NOUN_IDENTITY).  There is no requirement for association with an
+   *  address book contact, although when the address book contact exists,
+   *  we want to be associated with it.  See GlodaDataModel.jsm for the definition
+   *  of the GlodaContact class.
+   */
+  NOUN_CONTACT: 103,
+  /**
+   * A single identity of a contact, who may have one or more.  E-mail accounts,
+   *  instant messaging accounts, social network site accounts, etc. are each
+   *  identities.  See GlodaDataModel.jsm for the definition of the GlodaIdentity
+   *  class.
+   */
+  NOUN_IDENTITY: 104,
+  /**
+   * An attachment to a message. A message may have many different attachments.
+   */
+  NOUN_ATTACHMENT: 105,
+  /**
+   * An account related to a message. A message can have only one account.
+   */
+  NOUN_ACCOUNT: 106,
+
+  /**
+   * Parameterized identities, for use in the from-me, to-me, cc-me optimization
+   *  cases.  Not for reuse without some thought.  These nouns use the parameter
+   *  to store the 'me' identity that we are talking about, and the value to
+   *  store the identity of the other party.  So in both the from-me and to-me
+   *  cases involving 'me' and 'foo@bar', the 'me' identity is always stored via
+   *  the attribute parameter, and the 'foo@bar' identity is always stored as
+   *  the attribute value.  See GlodaFundAttr.jsm for more information on this, but
+   *  you probably shouldn't be touching this unless you are fundattr.
+   */
+  NOUN_PARAM_IDENTITY: 200,
 };

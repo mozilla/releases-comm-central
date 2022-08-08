@@ -5,6 +5,9 @@
 const EXPORTED_SYMBOLS = ["MimeType", "MimeTypeNoun"];
 
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 
 var LOG = console.createInstance({
   prefix: "gloda.noun.mimetype",
@@ -569,7 +572,7 @@ var MimeTypeNoun = {
     return this._mimeTypesByID[aMimeTypeID];
   },
 };
-Gloda.defineNoun(MimeTypeNoun, Gloda.NOUN_MIME_TYPE);
+Gloda.defineNoun(MimeTypeNoun, GlodaConstants.NOUN_MIME_TYPE);
 try {
   MimeTypeNoun._init();
 } catch (ex) {

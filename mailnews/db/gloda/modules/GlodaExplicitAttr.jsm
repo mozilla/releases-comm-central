@@ -68,8 +68,8 @@ var GlodaExplicitAttr = {
       singular: false,
       emptySetIsSignificant: true,
       facet: true,
-      subjectNouns: [Gloda.NOUN_MESSAGE],
-      objectNoun: Gloda.NOUN_TAG,
+      subjectNouns: [GlodaConstants.NOUN_MESSAGE],
+      objectNoun: GlodaConstants.NOUN_TAG,
       parameterNoun: null,
       // Property change notifications that we care about:
       propertyChanges: ["keywords"],
@@ -84,8 +84,8 @@ var GlodaExplicitAttr = {
       bindName: "starred",
       singular: true,
       facet: true,
-      subjectNouns: [Gloda.NOUN_MESSAGE],
-      objectNoun: Gloda.NOUN_BOOLEAN,
+      subjectNouns: [GlodaConstants.NOUN_MESSAGE],
+      objectNoun: GlodaConstants.NOUN_BOOLEAN,
       parameterNoun: null,
     }); // tested-by: test_attributes_explicit
     // Read/Unread
@@ -97,8 +97,8 @@ var GlodaExplicitAttr = {
       // Make the message query-able but without using the database.
       canQuery: "truthy-but-not-true",
       singular: true,
-      subjectNouns: [Gloda.NOUN_MESSAGE],
-      objectNoun: Gloda.NOUN_BOOLEAN,
+      subjectNouns: [GlodaConstants.NOUN_MESSAGE],
+      objectNoun: GlodaConstants.NOUN_BOOLEAN,
       parameterNoun: null,
     }); // tested-by: test_attributes_explicit
 
@@ -111,8 +111,8 @@ var GlodaExplicitAttr = {
       attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "repliedTo",
       singular: true,
-      subjectNouns: [Gloda.NOUN_MESSAGE],
-      objectNoun: Gloda.NOUN_BOOLEAN,
+      subjectNouns: [GlodaConstants.NOUN_MESSAGE],
+      objectNoun: GlodaConstants.NOUN_BOOLEAN,
       parameterNoun: null,
     }); // tested-by: test_attributes_explicit
 
@@ -125,8 +125,8 @@ var GlodaExplicitAttr = {
       attributeType: GlodaConstants.kAttrExplicit,
       attributeName: "forwarded",
       singular: true,
-      subjectNouns: [Gloda.NOUN_MESSAGE],
-      objectNoun: Gloda.NOUN_BOOLEAN,
+      subjectNouns: [GlodaConstants.NOUN_MESSAGE],
+      objectNoun: GlodaConstants.NOUN_BOOLEAN,
       parameterNoun: null,
     }); // tested-by: test_attributes_explicit
   },

@@ -20,6 +20,9 @@ var { MailServices } = ChromeUtils.import(
 );
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 var { FacetDriver, FacetUtils } = ChromeUtils.import(
   "resource:///modules/gloda/Facet.jsm"
 );
@@ -194,7 +197,7 @@ ActiveSingularConstraint.prototype = {
       return;
     }
 
-    let query = (this.query = Gloda.newQuery(Gloda.NOUN_MESSAGE));
+    let query = (this.query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE));
     let constraintFunc;
     // If the facet definition references a queryHelper defined by the noun
     //  type, use that instead of the standard constraint function.
@@ -317,7 +320,7 @@ ActiveNonSingularConstraint.prototype = {
       return this.faceter.makeQuery(aGroupValues, aInclusive);
     }
 
-    let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
     let constraintFunc;
     // If the facet definition references a queryHelper defined by the noun
     //  type, use that instead of the standard constraint function.
@@ -996,7 +999,10 @@ var FacetContext = {
   showActiveSetInTab() {
     let tabmail = this.rootWin.document.getElementById("tabmail");
     tabmail.openTab("glodaList", {
-      collection: Gloda.explicitCollection(Gloda.NOUN_MESSAGE, this.activeSet),
+      collection: Gloda.explicitCollection(
+        GlodaConstants.NOUN_MESSAGE,
+        this.activeSet
+      ),
       title: this.tab.title,
     });
   },

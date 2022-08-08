@@ -26,6 +26,9 @@ var { queryExpect } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaQueryHelper.jsm"
 );
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
@@ -238,7 +241,7 @@ var post_setup_populate_hook = function default_post_setup_populate_hook() {};
 // First, we must populate our message store with delicious messages.
 async function setup_populate() {
   world.glodaHolderCollection = Gloda.explicitCollection(
-    Gloda.NOUN_MESSAGE,
+    GlodaConstants.NOUN_MESSAGE,
     []
   );
 
@@ -329,7 +332,7 @@ var ts_convCollections = [];
  */
 async function test_query_messages_by_conversation() {
   let convNum = ts_convNum++;
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.conversation(world.glodaConversationIds[convNum]);
 
   ts_convQueries.push(query);
@@ -354,7 +357,7 @@ var ts_folderCollections = [];
  */
 async function test_query_messages_by_folder() {
   let folderNum = ts_folderNum++;
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.folder(world.glodaFolders[folderNum]);
 
   ts_folderQueries.push(query);
@@ -385,7 +388,7 @@ async function test_get_message_for_header() {
       queryFunc: Gloda.getMessageCollectionForHeader,
       queryThis: Gloda,
       args: [glodaMessage.folderMessage],
-      nounId: Gloda.NOUN_MESSAGE,
+      nounId: GlodaConstants.NOUN_MESSAGE,
     },
     [synthMessage]
   );
@@ -402,7 +405,7 @@ async function test_get_messages_for_headers() {
       queryFunc: Gloda.getMessageCollectionForHeaders,
       queryThis: Gloda,
       args: [headers],
-      nounId: Gloda.NOUN_MESSAGE,
+      nounId: GlodaConstants.NOUN_MESSAGE,
     },
     world.conversationLists[0]
   );
@@ -417,7 +420,7 @@ var ts_messageIdentityCollections = [];
  * @tests gloda.datastore.sqlgen.kConstraintIn
  */
 async function test_query_messages_by_identity_peoples() {
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.involves(peoplesIdentityCollection.items[0]);
 
   ts_messageIdentityQueries.push(query);
@@ -430,7 +433,7 @@ async function test_query_messages_by_identity_peoples() {
  * @tests gloda.noun.message.attr.involves
  */
 async function test_query_messages_by_identity_outlier() {
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.involves(outlierIdentityCollection.items[0]);
   // This also tests our ability to have two intersecting constraints! hooray!.
   query.involves(outlierIdentityCollection.items[1]);
@@ -459,7 +462,7 @@ var ts_messagesDateQuery;
  * @tests gloda.datastore.sqlgen.kConstraintRanges
  */
 async function test_query_messages_by_date() {
-  ts_messagesDateQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  ts_messagesDateQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   // We are clearly relying on knowing the generation sequence here,
   //  fuggedaboutit.
   ts_messagesDateQuery.dateRange([
@@ -508,7 +511,7 @@ async function test_query_messages_by_subject_text() {
   // We only need to use one conversation.
   let convNum = 0;
 
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   let convSubjectTerm = uniqueTermGenerator(
     UNIQUE_OFFSET_SUBJECT + UNIQUE_OFFSET_CONV + convNum
   );
@@ -525,7 +528,7 @@ async function test_query_messages_by_subject_text() {
 async function test_query_messages_by_body_text() {
   // We only need to use one conversation.
   let convNum = 0;
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   let convBodyTerm = uniqueTermGenerator(
     UNIQUE_OFFSET_BODY + UNIQUE_OFFSET_CONV + convNum
   );
@@ -544,7 +547,7 @@ async function test_query_messages_by_body_text() {
  */
 async function test_query_messages_by_attachment_names() {
   let convNum = 0;
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   let convUniqueAttachment = uniqueTermGenerator(
     UNIQUE_OFFSET_ATTACHMENT + UNIQUE_OFFSET_CONV + convNum
   );
@@ -563,7 +566,7 @@ async function test_query_messages_by_attachment_names() {
  */
 async function test_query_messages_by_authorMatches_name() {
   let [authorName, authorMail] = world.peoples[0];
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.authorMatches(authorName);
   await queryExpect(query, world.authorGroups[authorMail]);
 }
@@ -576,7 +579,7 @@ async function test_query_messages_by_authorMatches_name() {
  */
 async function test_query_messages_by_authorMatches_email() {
   let [, authorMail] = world.peoples[0];
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.authorMatches(authorMail);
   await queryExpect(query, world.authorGroups[authorMail]);
 }
@@ -591,7 +594,7 @@ async function test_query_messages_by_authorMatches_email() {
  */
 async function test_query_messages_by_recipients_name() {
   let name = world.peoples[0][0];
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.recipientsMatch(name);
   await queryExpect(query, world.peoplesMessages);
 }
@@ -606,7 +609,7 @@ async function test_query_messages_by_recipients_name() {
  */
 async function test_query_messages_by_recipients_email() {
   let [, mail] = world.peoples[0];
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.recipientsMatch(mail);
   await queryExpect(query, world.peoplesMessages);
 }
@@ -620,7 +623,7 @@ var contactLikeQuery;
  */
 async function test_query_contacts_by_name() {
   // Let's use like... we need to test that.
-  contactLikeQuery = Gloda.newQuery(Gloda.NOUN_CONTACT);
+  contactLikeQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
   let personName = world.peoples[0][0];
   // Chop off the first and last letter...  this isn't the most edge-case
   //  handling way to roll, but LOOK OVER THERE? IS THAT ELVIS?
@@ -649,7 +652,7 @@ function test_query_contacts_by_name_nonmatch() {
 var peoplesIdentityQuery;
 var peoplesIdentityCollection;
 async function test_query_identities_for_peoples() {
-  peoplesIdentityQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
+  peoplesIdentityQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
   peoplesIdentityQuery.kind("email");
   let peopleAddrs = world.peoples.map(nameAndAddr => nameAndAddr[1]);
   peoplesIdentityQuery.value.apply(peoplesIdentityQuery, peopleAddrs);
@@ -662,7 +665,7 @@ async function test_query_identities_for_peoples() {
 var outlierIdentityQuery;
 var outlierIdentityCollection;
 async function test_query_identities_for_outliers() {
-  outlierIdentityQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
+  outlierIdentityQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
   outlierIdentityQuery.kind("email");
   let outlierAddrs = [world.outlierAuthor[1], world.outlierFriend[1]];
   outlierIdentityQuery.value.apply(outlierIdentityQuery, outlierAddrs);

@@ -101,7 +101,7 @@ add_task(async function test_fromjson_of_removed_tag() {
   nukeGlodaCachesAndCollections();
 
   // -- Re-load the message.
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.id(glodaId);
   let coll = await queryExpect(query, msgSet);
 

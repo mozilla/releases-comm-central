@@ -13,6 +13,9 @@ const EXPORTED_SYMBOLS = [
   "GlodaAttachment",
 ];
 
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -234,7 +237,7 @@ function GlodaConversation(
 }
 
 GlodaConversation.prototype = {
-  NOUN_ID: 101,
+  NOUN_ID: GlodaConstants.NOUN_CONVERSATION,
   // set by GlodaDatastore
   _datastore: null,
   get id() {
@@ -288,7 +291,7 @@ function GlodaFolder(
 }
 
 GlodaFolder.prototype = {
-  NOUN_ID: 100,
+  NOUN_ID: GlodaConstants.NOUN_FOLDER,
   // set by GlodaDatastore
   _datastore: null,
 
@@ -588,7 +591,7 @@ function GlodaMessage(
 }
 
 GlodaMessage.prototype = {
-  NOUN_ID: 102,
+  NOUN_ID: GlodaConstants.NOUN_MESSAGE,
   // set by GlodaDatastore
   _datastore: null,
   get id() {
@@ -876,7 +879,7 @@ function GlodaContact(
 }
 
 GlodaContact.prototype = {
-  NOUN_ID: 103,
+  NOUN_ID: GlodaConstants.NOUN_CONTACT,
   // set by GlodaDatastore
   _datastore: null,
 
@@ -966,7 +969,7 @@ function GlodaIdentity(
 }
 
 GlodaIdentity.prototype = {
-  NOUN_ID: 104,
+  NOUN_ID: GlodaConstants.NOUN_IDENTITY,
   // set by GlodaDatastore
   _datastore: null,
   get id() {
@@ -1052,7 +1055,7 @@ function GlodaAttachment(
 }
 
 GlodaAttachment.prototype = {
-  NOUN_ID: 105,
+  NOUN_ID: GlodaConstants.NOUN_ATTACHMENT,
   // set by GlodaDatastore
   get name() {
     return this._name;

@@ -64,7 +64,7 @@ var GlodaABIndexer = {
 
     if (card.primaryEmail) {
       // load the identity
-      let query = Gloda.newQuery(Gloda.NOUN_IDENTITY);
+      let query = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
       query.kind("email");
       // we currently normalize all e-mail addresses to be lowercase
       query.value(card.primaryEmail.toLowerCase());
@@ -105,7 +105,7 @@ var GlodaABIndexer = {
         this._log.debug("Received Card Add Notification");
 
         let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
-          Gloda.NOUN_IDENTITY,
+          GlodaConstants.NOUN_IDENTITY,
           "email@" + subject.primaryEmail.toLowerCase()
         );
         if (identity) {
@@ -126,7 +126,7 @@ var GlodaABIndexer = {
         this._log.debug("Received Card Removal Notification");
 
         let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
-          Gloda.NOUN_IDENTITY,
+          GlodaConstants.NOUN_IDENTITY,
           "email@" + subject.primaryEmail.toLowerCase()
         );
         if (identity) {
@@ -169,8 +169,8 @@ var GlodaABAttrs = {
       special: GlodaConstants.kSpecialColumnChildren,
       // specialColumnName: "contactID",
       storageAttributeName: "_identities",
-      subjectNouns: [Gloda.NOUN_CONTACT],
-      objectNoun: Gloda.NOUN_IDENTITY,
+      subjectNouns: [GlodaConstants.NOUN_CONTACT],
+      objectNoun: GlodaConstants.NOUN_IDENTITY,
     }); // tested-by: test_attributes_fundamental
     this._attrContactName = Gloda.defineAttribute({
       provider: this,
@@ -180,8 +180,8 @@ var GlodaABAttrs = {
       singular: true,
       special: GlodaConstants.kSpecialString,
       specialColumnName: "name",
-      subjectNouns: [Gloda.NOUN_CONTACT],
-      objectNoun: Gloda.NOUN_STRING,
+      subjectNouns: [GlodaConstants.NOUN_CONTACT],
+      objectNoun: GlodaConstants.NOUN_STRING,
       canQuery: true,
     }); // tested-by: test_attributes_fundamental
     this._attrContactPopularity = Gloda.defineAttribute({
@@ -192,8 +192,8 @@ var GlodaABAttrs = {
       singular: true,
       special: GlodaConstants.kSpecialColumn,
       specialColumnName: "popularity",
-      subjectNouns: [Gloda.NOUN_CONTACT],
-      objectNoun: Gloda.NOUN_NUMBER,
+      subjectNouns: [GlodaConstants.NOUN_CONTACT],
+      objectNoun: GlodaConstants.NOUN_NUMBER,
       canQuery: true,
     }); // not-tested
     this._attrContactFrecency = Gloda.defineAttribute({
@@ -204,8 +204,8 @@ var GlodaABAttrs = {
       singular: true,
       special: GlodaConstants.kSpecialColumn,
       specialColumnName: "frecency",
-      subjectNouns: [Gloda.NOUN_CONTACT],
-      objectNoun: Gloda.NOUN_NUMBER,
+      subjectNouns: [GlodaConstants.NOUN_CONTACT],
+      objectNoun: GlodaConstants.NOUN_NUMBER,
       canQuery: true,
     }); // not-tested
 
@@ -220,8 +220,8 @@ var GlodaABAttrs = {
       specialColumnName: "contactID", // the column in the db
       idStorageAttributeName: "_contactID",
       valueStorageAttributeName: "_contact",
-      subjectNouns: [Gloda.NOUN_IDENTITY],
-      objectNoun: Gloda.NOUN_CONTACT,
+      subjectNouns: [GlodaConstants.NOUN_IDENTITY],
+      objectNoun: GlodaConstants.NOUN_CONTACT,
       canQuery: true,
     }); // tested-by: test_attributes_fundamental
     this._attrIdentityKind = Gloda.defineAttribute({
@@ -232,8 +232,8 @@ var GlodaABAttrs = {
       singular: true,
       special: GlodaConstants.kSpecialString,
       specialColumnName: "kind",
-      subjectNouns: [Gloda.NOUN_IDENTITY],
-      objectNoun: Gloda.NOUN_STRING,
+      subjectNouns: [GlodaConstants.NOUN_IDENTITY],
+      objectNoun: GlodaConstants.NOUN_STRING,
       canQuery: true,
     }); // tested-by: test_attributes_fundamental
     this._attrIdentityValue = Gloda.defineAttribute({
@@ -244,8 +244,8 @@ var GlodaABAttrs = {
       singular: true,
       special: GlodaConstants.kSpecialString,
       specialColumnName: "value",
-      subjectNouns: [Gloda.NOUN_IDENTITY],
-      objectNoun: Gloda.NOUN_STRING,
+      subjectNouns: [GlodaConstants.NOUN_IDENTITY],
+      objectNoun: GlodaConstants.NOUN_STRING,
       canQuery: true,
     }); // tested-by: test_attributes_fundamental
 
@@ -261,7 +261,7 @@ var GlodaABAttrs = {
       bind: true,
       bindName: "freeTags",
       singular: false,
-      subjectNouns: [Gloda.NOUN_CONTACT],
+      subjectNouns: [GlodaConstants.NOUN_CONTACT],
       objectNoun: Gloda.lookupNoun("freetag"),
       parameterNoun: null,
       canQuery: true,
@@ -278,7 +278,7 @@ var GlodaABAttrs = {
 
   *process(aContact, aRawReps, aIsNew, aCallbackHandle) {
     let card = aRawReps.card;
-    if (aContact.NOUN_ID != Gloda.NOUN_CONTACT) {
+    if (aContact.NOUN_ID != GlodaConstants.NOUN_CONTACT) {
       this._log.warn("Somehow got a non-contact: " + aContact);
       return; // this will produce an exception; we like.
     }

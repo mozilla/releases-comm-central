@@ -57,7 +57,7 @@ add_task(async function setup_create_identity() {
   //  identity.
   nukeGlodaCachesAndCollections();
 
-  let identQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
+  let identQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
   identQuery.kind("email");
   identQuery.value(EMAIL_ADDRESS);
   await queryExpect(identQuery, [EMAIL_ADDRESS]);
@@ -133,7 +133,7 @@ function delete_card(aEmailAddress) {
 
 function get_cached_gloda_identity_for_email(aEmailAddress) {
   return GlodaCollectionManager.cacheLookupOneByUniqueValue(
-    Gloda.NOUN_IDENTITY,
+    GlodaConstants.NOUN_IDENTITY,
     "email@" + aEmailAddress.toLowerCase()
   );
 }

@@ -14,6 +14,9 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 var { GlodaMsgIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/IndexMsg.jsm"
 );
@@ -174,7 +177,7 @@ async function test_message_moving_to_junk_folder_is_deletion() {
 
   // We do not index the junk folder so this should actually make them appear
   //  deleted to an unprivileged query.
-  let msgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let msgQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   msgQuery.id(firstGlodaId, secondGlodaId);
   await queryExpect(msgQuery, []);
 
@@ -186,12 +189,12 @@ async function test_message_moving_to_junk_folder_is_deletion() {
   Assert.ok(...assertExpectedMessagesIndexed([]));
 
   // The conversation should be gone.
-  let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
+  let convQuery = Gloda.newQuery(GlodaConstants.NOUN_CONVERSATION);
   convQuery.id(convId);
   await queryExpect(convQuery, []);
 
   // The messages should be entirely gone.
-  let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+  let msgPrivQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);

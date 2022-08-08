@@ -8,7 +8,9 @@ const EXPORTED_SYMBOLS = ["queryExpect", "sqlExpectCount", "sqlRun"];
  * This file provides gloda query helpers for the test infrastructure.
  */
 
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 var { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );
@@ -20,7 +22,7 @@ var log = console.createInstance({
 });
 
 var _defaultExpectationExtractors = {};
-_defaultExpectationExtractors[Gloda.NOUN_MESSAGE] = [
+_defaultExpectationExtractors[GlodaConstants.NOUN_MESSAGE] = [
   function expectExtract_message_gloda(aGlodaMessage) {
     return aGlodaMessage.headerMessageID;
   },
@@ -28,7 +30,7 @@ _defaultExpectationExtractors[Gloda.NOUN_MESSAGE] = [
     return aSynthMessage.messageId;
   },
 ];
-_defaultExpectationExtractors[Gloda.NOUN_CONTACT] = [
+_defaultExpectationExtractors[GlodaConstants.NOUN_CONTACT] = [
   function expectExtract_contact_gloda(aGlodaContact) {
     return aGlodaContact.name;
   },
@@ -36,7 +38,7 @@ _defaultExpectationExtractors[Gloda.NOUN_CONTACT] = [
     return aName;
   },
 ];
-_defaultExpectationExtractors[Gloda.NOUN_IDENTITY] = [
+_defaultExpectationExtractors[GlodaConstants.NOUN_IDENTITY] = [
   function expectExtract_identity_gloda(aGlodaIdentity) {
     return aGlodaIdentity.value;
   },

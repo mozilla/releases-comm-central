@@ -233,7 +233,7 @@ Gloda.defineAttribute({
   special: GlodaConstants.kSpecialColumn,
   specialColumnName: "time",
   subjectNouns: [IMConversationNoun.id],
-  objectNoun: Gloda.NOUN_NUMBER,
+  objectNoun: GlodaConstants.NOUN_NUMBER,
   canQuery: true,
 });
 Gloda.defineAttribute({
@@ -245,7 +245,7 @@ Gloda.defineAttribute({
   special: GlodaConstants.kSpecialString,
   specialColumnName: "title",
   subjectNouns: [IMConversationNoun.id],
-  objectNoun: Gloda.NOUN_STRING,
+  objectNoun: GlodaConstants.NOUN_STRING,
   canQuery: true,
 });
 Gloda.defineAttribute({
@@ -257,7 +257,7 @@ Gloda.defineAttribute({
   special: GlodaConstants.kSpecialString,
   specialColumnName: "path",
   subjectNouns: [IMConversationNoun.id],
-  objectNoun: Gloda.NOUN_STRING,
+  objectNoun: GlodaConstants.NOUN_STRING,
   canQuery: true,
 });
 
@@ -271,7 +271,7 @@ Gloda.defineAttribute({
   special: GlodaConstants.kSpecialFulltext,
   specialColumnName: "content",
   subjectNouns: [IMConversationNoun.id],
-  objectNoun: Gloda.NOUN_FULLTEXT,
+  objectNoun: GlodaConstants.NOUN_FULLTEXT,
   canQuery: true,
 });
 
@@ -287,7 +287,7 @@ Gloda.defineAttribute({
   special: GlodaConstants.kSpecialFulltext,
   specialColumnName: "imConversationsText",
   subjectNouns: [IMConversationNoun.id],
-  objectNoun: Gloda.NOUN_FULLTEXT,
+  objectNoun: GlodaConstants.NOUN_FULLTEXT,
 });
 // For Facet.jsm DateFaceter
 Gloda.defineAttribute({
@@ -298,7 +298,7 @@ Gloda.defineAttribute({
   singular: true,
   special: GlodaConstants.kSpecialColumn,
   subjectNouns: [IMConversationNoun.id],
-  objectNoun: Gloda.NOUN_NUMBER,
+  objectNoun: GlodaConstants.NOUN_NUMBER,
   facet: {
     type: "date",
   },

@@ -1727,7 +1727,7 @@ var GlodaMsgIndexer = {
     );
 
     // get a block of messages to delete.
-    let query = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
       noDbQueryValidityConstraints: true,
     });
     query._deleted(1);
@@ -1820,7 +1820,7 @@ var GlodaMsgIndexer = {
         // update the in-memory rep of the identity to know about the contact
         //  if there is one.
         let identity = GlodaCollectionManager.cacheLookupOne(
-          Gloda.NOUN_IDENTITY,
+          GlodaConstants.NOUN_IDENTITY,
           info.identityId,
           false
         );
@@ -3063,7 +3063,7 @@ var GlodaMsgIndexer = {
     //  messages to other code and getting it confused.  The only way code
     //  can find a message is if it shows up in their queries or gets announced
     //  via GlodaCollectionManager.itemsAdded, neither of which will happen.)
-    let query = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
       noDbQueryValidityConstraints: true,
     });
     query.headerMessageID.apply(query, aMessageIDs);
@@ -3405,7 +3405,7 @@ var GlodaMsgIndexer = {
     //  messages to other code and getting it confused.  The only way code
     //  can find a message is if it shows up in their queries or gets announced
     //  via GlodaCollectionManager.itemsAdded, neither of which will happen.)
-    let convPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+    let convPrivQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
       noDbQueryValidityConstraints: true,
     });
     convPrivQuery.conversation(aMessage.conversation);

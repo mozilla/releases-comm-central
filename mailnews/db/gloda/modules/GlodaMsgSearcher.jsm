@@ -7,6 +7,9 @@ const EXPORTED_SYMBOLS = ["GlodaMsgSearcher"];
 const { Gloda } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaPublic.jsm"
 );
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 
 /**
  * How much time boost should a 'score point' amount to?  The authoritative,
@@ -265,7 +268,7 @@ GlodaMsgSearcher.prototype = {
   },
 
   buildFulltextQuery() {
-    let query = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
       noMagic: true,
       explicitSQL: NUEVO_FULLTEXT_SQL,
       limitClauseAlreadyIncluded: true,

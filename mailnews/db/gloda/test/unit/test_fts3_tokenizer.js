@@ -220,7 +220,7 @@ function verify_index(smsg, gmsg) {
  */
 async function test_fulltextsearch(aPhrase) {
   for (let searchPhrase of aPhrase.searchPhrases) {
-    let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
     query.bodyMatches(searchPhrase.body);
     await queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);
   }

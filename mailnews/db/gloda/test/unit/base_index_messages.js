@@ -696,7 +696,9 @@ async function test_moved_message_attributes() {
 async function test_attributes_fundamental_from_disk() {
   nukeGlodaCachesAndCollections();
 
-  let query = Gloda.newQuery(Gloda.NOUN_MESSAGE).id(fundamentalGlodaMessageId);
+  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE).id(
+    fundamentalGlodaMessageId
+  );
   await queryExpect(
     query,
     [fundamentalSyntheticMessage],
@@ -945,7 +947,7 @@ async function test_message_deletion() {
   let secondSet = convSet.slice(1, 2); // The un-twinned second thread message.
 
   // Make sure we can find the message (paranoia).
-  let firstQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let firstQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   firstQuery.id(firstSet.glodaMessages[0].id);
   let firstColl = await queryExpect(firstQuery, firstSet);
 
@@ -961,7 +963,7 @@ async function test_message_deletion() {
   firstColl = await queryExpect(firstQuery, []);
 
   // Make sure it shows up in a privileged query.
-  let privQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+  let privQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   let firstGlodaId = firstSet.glodaMessages[0].id;
@@ -986,14 +988,14 @@ async function test_message_deletion() {
 
   // Make sure the conversation still exists.
   let conv = twinSet.glodaMessages[0].conversation;
-  let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
+  let convQuery = Gloda.newQuery(GlodaConstants.NOUN_CONVERSATION);
   convQuery.id(conv.id);
   let convColl = await queryExpect(convQuery, [conv]);
 
   // -- Non-last message, no longer a twin => ghost.
 
   // Make sure nuking the twin didn't somehow kill them both.
-  let twinQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let twinQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   // Let's search on the message-id now that there is no ambiguity.
   twinQuery.headerMessageID(twinSet.synMessages[0].messageId);
   let twinColl = await queryExpect(twinQuery, twinSet);
@@ -1010,7 +1012,7 @@ async function test_message_deletion() {
   twinColl = await queryExpect(twinQuery, []);
 
   // Still show up in a privileged query.
-  privQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+  privQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   privQuery.headerMessageID(twinSet.synMessages[0].messageId);
@@ -1043,7 +1045,7 @@ async function test_message_deletion() {
   // This should blow away the message, the ghosts, and the conversation.
 
   // Second message should still be around.
-  let secondQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let secondQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   secondQuery.headerMessageID(secondSet.synMessages[0].messageId);
   let secondColl = await queryExpect(secondQuery, secondSet);
 
@@ -1054,7 +1056,7 @@ async function test_message_deletion() {
   Assert.equal(secondColl.items.length, 0);
 
   // Still show up in a privileged query.
-  privQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+  privQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   privQuery.headerMessageID(secondSet.synMessages[0].messageId);
@@ -1098,7 +1100,7 @@ async function test_moving_to_trash_marks_deletion() {
 
   // We do not index the trash folder so this should actually make them appear
   //  deleted to an unprivileged query.
-  let msgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let msgQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   msgQuery.id(firstGlodaId, secondGlodaId);
   await queryExpect(msgQuery, []);
 
@@ -1114,12 +1116,12 @@ async function test_moving_to_trash_marks_deletion() {
   Assert.ok(...assertExpectedMessagesIndexed([]));
 
   // The conversation should be gone.
-  let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
+  let convQuery = Gloda.newQuery(GlodaConstants.NOUN_CONVERSATION);
   convQuery.id(convId);
   await queryExpect(convQuery, []);
 
   // The messages should be entirely gone.
-  let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+  let msgPrivQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);
@@ -1151,7 +1153,7 @@ async function test_folder_nuking_message_deletion() {
 
   // This should have caused us to mark all the messages as deleted; the
   //  messages should no longer show up in an unprivileged query.
-  let msgQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+  let msgQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   msgQuery.id(firstGlodaId, secondGlodaId);
   await queryExpect(msgQuery, []);
 
@@ -1163,12 +1165,12 @@ async function test_folder_nuking_message_deletion() {
   Assert.ok(...assertExpectedMessagesIndexed([]));
 
   // The conversation should be gone.
-  let convQuery = Gloda.newQuery(Gloda.NOUN_CONVERSATION);
+  let convQuery = Gloda.newQuery(GlodaConstants.NOUN_CONVERSATION);
   convQuery.id(convId);
   await queryExpect(convQuery, []);
 
   // The messages should be entirely gone.
-  let msgPrivQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
+  let msgPrivQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE, {
     noDbQueryValidityConstraints: true,
   });
   msgPrivQuery.id(firstGlodaId, secondGlodaId);

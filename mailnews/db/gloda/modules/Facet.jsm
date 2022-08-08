@@ -441,7 +441,7 @@ NonEmptySetFaceter.prototype = {
     this.groupCount = this.orderedGroups.length;
   },
   makeQuery(aGroupValues, aInclusive) {
-    let query = (this.query = lazy.Gloda.newQuery(lazy.Gloda.NOUN_MESSAGE));
+    let query = (this.query = lazy.Gloda.newQuery(GlodaConstants.NOUN_MESSAGE));
 
     let constraintFunc = query[this.attrDef.boundName];
     constraintFunc.call(query);

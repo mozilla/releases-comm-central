@@ -468,7 +468,7 @@ class TestAttributeProvider {
     // Register us with gloda as an attribute provider so that we can
     //  distinguish between fully reindexed messages and fastpath indexed
     //  messages.
-    Gloda._attrProviderOrderByNoun[Gloda.NOUN_MESSAGE].push({
+    Gloda._attrProviderOrderByNoun[GlodaConstants.NOUN_MESSAGE].push({
       providerName: this.providerName,
       process: this.process,
     });
@@ -494,7 +494,9 @@ class GlodaCollectionListener {
   // Our catch-all message collection that nets us all messages passing by.
   catchAllCollection = null;
   constructor() {
-    this.catchAllCollection = Gloda._wildcardCollection(Gloda.NOUN_MESSAGE);
+    this.catchAllCollection = Gloda._wildcardCollection(
+      GlodaConstants.NOUN_MESSAGE
+    );
     this.catchAllCollection.listener = this;
   }
   /*

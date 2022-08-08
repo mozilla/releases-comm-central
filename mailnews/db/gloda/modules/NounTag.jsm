@@ -9,6 +9,9 @@ const { MailServices } = ChromeUtils.import(
 );
 
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
 
 /**
  * @namespace Tag noun provider.
@@ -90,4 +93,4 @@ var TagNoun = {
 };
 
 TagNoun._init();
-Gloda.defineNoun(TagNoun, Gloda.NOUN_TAG);
+Gloda.defineNoun(TagNoun, GlodaConstants.NOUN_TAG);

@@ -12,6 +12,10 @@
 
 var EXPORTED_SYMBOLS = ["GlodaAutoComplete"];
 
+const { GlodaConstants } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaConstants.jsm"
+);
+
 var Gloda = null;
 var MultiSuffixTree = null;
 var TagNoun = null;
@@ -180,7 +184,7 @@ var MAX_POPULAR_CONTACTS = 200;
  */
 function ContactIdentityCompleter() {
   // get all the contacts
-  let contactQuery = Gloda.newQuery(Gloda.NOUN_CONTACT);
+  let contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
   contactQuery.orderBy("-popularity").limit(MAX_POPULAR_CONTACTS);
   this.contactCollection = contactQuery.getCollection(this, null);
   this.contactCollection.becomeExplicit();
@@ -218,11 +222,11 @@ ContactIdentityCompleter.prototype = {
     for (let iMatch = 0; iMatch < matches.length; iMatch++) {
       let thing = matches[iMatch];
       if (
-        thing.NOUN_ID == Gloda.NOUN_CONTACT &&
+        thing.NOUN_ID == GlodaConstants.NOUN_CONTACT &&
         !(thing.id in contactToThing)
       ) {
         contactToThing[thing.id] = thing;
-      } else if (thing.NOUN_ID == Gloda.NOUN_IDENTITY) {
+      } else if (thing.NOUN_ID == GlodaConstants.NOUN_IDENTITY) {
         contactToThing[thing.contactID] = thing;
       }
     }
@@ -231,7 +235,7 @@ ContactIdentityCompleter.prototype = {
     matches = Object.keys(contactToThing)
       .map(id => contactToThing[id])
       .map(val =>
-        val.NOUN_ID == Gloda.NOUN_IDENTITY ? val : val.identities[0]
+        val.NOUN_ID == GlodaConstants.NOUN_IDENTITY ? val : val.identities[0]
       );
 
     let rows = matches.map(
@@ -242,7 +246,7 @@ ContactIdentityCompleter.prototype = {
     // - match against database contacts / identities
     let pending = { contactToThing, pendingCount: 2 };
 
-    let contactQuery = Gloda.newQuery(Gloda.NOUN_CONTACT);
+    let contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
     contactQuery.nameLike(
       contactQuery.WILDCARD,
       aString,
@@ -251,7 +255,7 @@ ContactIdentityCompleter.prototype = {
     pending.contactColl = contactQuery.getCollection(this, aResult);
     pending.contactColl.becomeExplicit();
 
-    let identityQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
+    let identityQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
     identityQuery
       .kind("email")
       .valueLike(identityQuery.WILDCARD, aString, identityQuery.WILDCARD);
@@ -280,7 +284,7 @@ ContactIdentityCompleter.prototype = {
       //  of the contact loading...
       // (but only if we actually have any contacts)
       this.identityCollection = this.contactCollection.subCollections[
-        Gloda.NOUN_IDENTITY
+        GlodaConstants.NOUN_IDENTITY
       ];
 
       let contactNames = this.contactCollection.items.map(
@@ -396,10 +400,10 @@ ContactTagCompleter.prototype = {
     let tags = this._suffixTree.findMatches(aString.toLowerCase());
     let rows = [];
     for (let tag of tags) {
-      let query = Gloda.newQuery(Gloda.NOUN_CONTACT);
+      let query = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
       query.freeTags(tag);
       let resRow = new ResultRowMulti(
-        Gloda.NOUN_CONTACT,
+        GlodaConstants.NOUN_CONTACT,
         "tag",
         tag.name,
         query
