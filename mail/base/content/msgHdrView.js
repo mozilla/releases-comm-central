@@ -17,23 +17,21 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { DisplayNameUtils } = ChromeUtils.import(
-  "resource:///modules/DisplayNameUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { GlodaUtils } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaUtils.jsm"
-);
-var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
-  Ci.nsIMsgDBService
-);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
 
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gDbService",
+  "@mozilla.org/msgDatabase/msgDBService;1",
+  "nsIMsgDBService"
+);
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gMIMEService",

@@ -19,18 +19,29 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const { AppConstants } = ChromeUtils.import(
     "resource://gre/modules/AppConstants.jsm"
   );
+  const { XPCOMUtils } = ChromeUtils.import(
+    "resource://gre/modules/XPCOMUtils.jsm"
+  );
 
-  const LazyModules = {};
+  const lazy = {};
 
   ChromeUtils.defineModuleGetter(
-    LazyModules,
+    lazy,
     "GlodaIMSearcher",
     "resource:///modules/GlodaIMSearcher.jsm"
   );
   ChromeUtils.defineModuleGetter(
-    LazyModules,
+    lazy,
     "GlodaMsgSearcher",
     "resource:///modules/gloda/GlodaMsgSearcher.jsm"
+  );
+  XPCOMUtils.defineLazyGetter(
+    lazy,
+    "glodaCompleter",
+    () =>
+      Cc["@mozilla.org/autocomplete/search;1?name=gloda"].getService(
+        Ci.nsIAutoCompleteSearch
+      ).wrappedJSObject
   );
 
   /**
@@ -81,7 +92,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
       super.connectedCallback();
 
       this.setAttribute("is", "gloda-autocomplete-input");
-      this.glodaCompleter = null;
 
       // @implements {nsIObserver}
       this.searchInputDNDObserver = {
@@ -111,7 +121,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
             document.activeElement == this
           ) {
             let selectedIndex = this.popup.selectedIndex;
-            let curResult = this.glodaCompleter.curResult;
+            let curResult = lazy.glodaCompleter.curResult;
             if (!curResult) {
               // autocomplete didn't even finish.
               return;
@@ -157,9 +167,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
 
       this.setAttribute("placeholder", placeholder);
 
-      this.glodaCompleter = Cc[
-        "@mozilla.org/autocomplete/search;1?name=gloda"
-      ].getService(Ci.nsIAutoCompleteSearch).wrappedJSObject;
       Services.obs.addObserver(
         this.textObserver,
         "autocomplete-did-enter-text"
@@ -197,10 +204,10 @@ customElements.whenDefined("autocomplete-input").then(() => {
         }
         this.value = ""; // clear our value, to avoid persistence
         let args = {
-          searcher: new LazyModules.GlodaMsgSearcher(null, searchString),
+          searcher: new lazy.GlodaMsgSearcher(null, searchString),
         };
         if (Services.prefs.getBoolPref("mail.chat.enabled")) {
-          args.IMSearcher = new LazyModules.GlodaIMSearcher(null, searchString);
+          args.IMSearcher = new lazy.GlodaIMSearcher(null, searchString);
         }
         tabmail.openTab("glodaFacet", args);
       }

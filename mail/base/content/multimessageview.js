@@ -5,26 +5,18 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
-var { mimeMsgToContentSnippetAndMeta } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaContent.jsm"
-);
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
-);
-var { DisplayNameUtils } = ChromeUtils.import(
-  "resource:///modules/DisplayNameUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { PluralStringFormatter, makeFriendlyDateAgo } = ChromeUtils.import(
-  "resource:///modules/TemplateUtils.jsm"
-);
-
 XPCOMUtils.defineLazyModuleGetters(this, {
+  DisplayNameUtils: "resource:///modules/DisplayNameUtils.jsm",
+  Gloda: "resource:///modules/gloda/Gloda.jsm",
+  makeFriendlyDateAgo: "resource:///modules/TemplateUtils.jsm",
   MessageArchiver: "resource:///modules/MessageArchiver.jsm",
+  mimeMsgToContentSnippetAndMeta: "resource:///modules/gloda/GlodaContent.jsm",
+  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
+  PluralStringFormatter: "resource:///modules/TemplateUtils.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
 

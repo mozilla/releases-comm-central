@@ -8,10 +8,19 @@ var EXPORTED_SYMBOLS = [
   "MessageDisplayContentHandler",
 ];
 
-var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { MailServices } = ChromeUtils.import(
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+const lazy = {};
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "MimeParser",
+  "resource:///modules/mimeParser.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "NetUtil",
+  "resource://gre/modules/NetUtil.jsm"
 );
 
 var URI_INHERITS_SECURITY_CONTEXT =
@@ -417,11 +426,11 @@ MailDefaultHandler.prototype = {
               "@mozilla.org/network/file-input-stream;1"
             ].createInstance(Ci.nsIFileInputStream);
             fstream.init(file, -1, 0, 0);
-            let data = NetUtil.readInputStreamToString(
+            let data = lazy.NetUtil.readInputStreamToString(
               fstream,
               fstream.available()
             );
-            headers = MimeParser.extractHeaders(data);
+            headers = lazy.MimeParser.extractHeaders(data);
           } catch (e) {
             // Ignore errors on reading the eml or extracting its headers. The
             // test for the X-Unsent header below will fail and the message
@@ -515,14 +524,14 @@ MailDefaultHandler.prototype = {
         if (file.exists() && file.fileSize > 0) {
           let winPromise = getOrOpen3PaneWindow();
           let uriSpec = Services.io.newFileURI(file).spec;
-          NetUtil.asyncFetch(
+          lazy.NetUtil.asyncFetch(
             { uri: uriSpec, loadUsingSystemPrincipal: true },
             function(inputStream, status) {
               if (!Components.isSuccessCode(status)) {
                 return;
               }
 
-              let data = NetUtil.readInputStreamToString(
+              let data = lazy.NetUtil.readInputStreamToString(
                 inputStream,
                 inputStream.available()
               );

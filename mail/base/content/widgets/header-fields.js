@@ -5,13 +5,21 @@
 /* global gMessageHeader, gShowCondensedEmailAddresses, openUILink */
 
 {
-  const { DisplayNameUtils } = ChromeUtils.import(
-    "resource:///modules/DisplayNameUtils.jsm"
-  );
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
-  const { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+
+  const lazy = {};
+  ChromeUtils.defineModuleGetter(
+    lazy,
+    "DisplayNameUtils",
+    "resource:///modules/DisplayNameUtils.jsm"
+  );
+  ChromeUtils.defineModuleGetter(
+    lazy,
+    "TagUtils",
+    "resource:///modules/TagUtils.jsm"
+  );
 
   class MultiRecipientRow extends HTMLDivElement {
     /**
@@ -463,11 +471,11 @@
       }
 
       this.abIndicator.hidden = false;
-      this.cardDetails = DisplayNameUtils.getCardForEmail(
+      this.cardDetails = lazy.DisplayNameUtils.getCardForEmail(
         this.#recipient.emailAddress
       );
 
-      let displayName = DisplayNameUtils.formatDisplayName(
+      let displayName = lazy.DisplayNameUtils.formatDisplayName(
         this.emailAddress,
         this.displayName,
         this.dataset.headerName,
@@ -808,7 +816,7 @@
 
         let color = MailServices.tags.getColorForKey(tag);
         if (color) {
-          let textColor = !TagUtils.isColorContrastEnough(color)
+          let textColor = !lazy.TagUtils.isColorContrastEnough(color)
             ? "white"
             : "black";
           li.setAttribute(

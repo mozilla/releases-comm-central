@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals DisplayNameUtils, MailServices, MailUtils */
+/* globals MailServices, MailUtils */
 
+var { DisplayNameUtils } = ChromeUtils.import(
+  "resource:///modules/DisplayNameUtils.jsm"
+);
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );

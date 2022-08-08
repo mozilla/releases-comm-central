@@ -19,13 +19,18 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+const lazy = {};
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
-const { GlodaIndexer } = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "GlodaIndexer",
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
 // we need to be able to create gloda message searcher instances for upsells:
-const { GlodaMsgSearcher } = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "GlodaMsgSearcher",
   "resource:///modules/gloda/GlodaMsgSearcher.jsm"
 );
 
@@ -1179,7 +1184,7 @@ var MessageTextFilter = {
         upsell.hidePopup();
         let tabmail = aDocument.getElementById("tabmail");
         tabmail.openTab("glodaFacet", {
-          searcher: new GlodaMsgSearcher(null, aState.text),
+          searcher: new lazy.GlodaMsgSearcher(null, aState.text),
         });
       }
       return [aState, false];
@@ -1263,7 +1268,7 @@ var MessageTextFilter = {
       !aFiltering ||
       !aState.text ||
       aViewWrapper.dbView.numMsgsInView ||
-      !GlodaIndexer.enabled
+      !lazy.GlodaIndexer.enabled
     ) {
       return [aState, "nosale", false];
     }

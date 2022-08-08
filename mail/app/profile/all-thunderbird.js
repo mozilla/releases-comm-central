@@ -1019,6 +1019,8 @@ pref("devtools.memory.max-retaining-paths", 10);
 
 // Enable the Performance tools
 pref("devtools.performance.enabled", true);
+// But not the pop-up.
+pref("devtools.performance.popup.feature-flag", false);
 
 // The default cache UI setting
 pref("devtools.cache.disabled", false);

@@ -50,10 +50,13 @@ const startupPhases = {
         "chrome://openpgp/content/modules/constants.jsm",
         "resource:///modules/IMServices.jsm",
         "resource:///modules/imXPCOMUtils.jsm",
+        "resource:///modules/jsmime.jsm",
         "resource:///modules/jsProtoHelper.jsm",
         "resource:///modules/logger.jsm",
         "resource:///modules/MailNotificationManager.jsm",
         "resource:///modules/MailNotificationService.jsm",
+        "resource:///modules/mimeParser.jsm",
+        "resource:///modules/MsgIncomingServer.jsm",
       ]),
       services: new Set([
         "@mozilla.org/chat/logger;1",
@@ -69,19 +72,21 @@ const startupPhases = {
   "before first paint": {
     denylist: {
       modules: new Set([
+        "chrome://openpgp/content/BondOpenPGP.jsm",
+        "resource:///modules/MsgDBCacheManager.jsm",
+        "resource:///modules/PeriodicFilterManager.jsm",
         "resource://gre/modules/NewTabUtils.jsm",
         "resource://gre/modules/Sqlite.jsm",
-        "chrome://openpgp/content/modules/core.jsm",
-        "chrome://openpgp/content/BondOpenPGP.jsm",
         // Bug 1660907: These core modules shouldn't really be being loaded
         // until sometime after first paint.
         // "resource://gre/modules/PlacesUtils.jsm",
         // "resource://gre/modules/Preferences.jsm",
         // These can probably be pushed back even further.
-        "resource:///modules/MsgDBCacheManager.jsm",
-        "resource:///modules/PeriodicFilterManager.jsm",
       ]),
-      services: new Set(["@mozilla.org/browser/search-service;1"]),
+      services: new Set([
+        "@mozilla.org/browser/search-service;1",
+        "@mozilla.org/msgDatabase/msgDBService;1",
+      ]),
     },
   },
 
@@ -91,6 +96,7 @@ const startupPhases = {
   "before handling user events": {
     denylist: {
       modules: new Set([
+        "chrome://openpgp/content/modules/core.jsm",
         "resource://gre/modules/Blocklist.jsm",
         "resource://gre/modules/BookmarkHTMLUtils.jsm",
         "resource://gre/modules/Bookmarks.jsm",
@@ -115,10 +121,12 @@ const startupPhases = {
   "before becoming idle": {
     denylist: {
       modules: new Set([
-        "resource://gre/modules/AsyncPrefs.jsm",
-        "resource://gre/modules/LoginManagerContextMenu.jsm",
-        "resource://pdf.js/PdfStreamConverter.jsm",
         "resource:///modules/AddrBookManager.jsm",
+        "resource:///modules/DisplayNameUtils.jsm",
+        "resource:///modules/gloda/Facet.jsm",
+        "resource:///modules/gloda/GlodaMsgSearcher.jsm",
+        "resource:///modules/gloda/SuffixTree.jsm",
+        "resource:///modules/GlodaAutoComplete.jsm",
         "resource:///modules/ImapIncomingServer.jsm",
         "resource:///modules/ImapMessageMessageService.jsm",
         "resource:///modules/ImapMessageService.jsm",
@@ -137,7 +145,12 @@ const startupPhases = {
         "resource:///modules/SMTPProtocolHandler.jsm",
         "resource:///modules/SmtpServer.jsm",
         "resource:///modules/SmtpService.jsm",
+        "resource:///modules/TemplateUtils.jsm",
+        "resource://gre/modules/AsyncPrefs.jsm",
+        "resource://gre/modules/LoginManagerContextMenu.jsm",
+        "resource://pdf.js/PdfStreamConverter.jsm",
       ]),
+      services: new Set(["@mozilla.org/autocomplete/search;1?name=gloda"]),
     },
   },
 };

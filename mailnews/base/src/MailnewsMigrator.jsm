@@ -12,10 +12,13 @@
 
 const EXPORTED_SYMBOLS = ["migrateMailnews"];
 
-var { MailServices } = ChromeUtils.import(
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { migrateServerUris } = ChromeUtils.import(
+const lazy = {};
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "migrateServerUris",
   "resource:///modules/MsgIncomingServer.jsm"
 );
 
@@ -260,6 +263,7 @@ function migrateServerAndUserName() {
   for (let name of branch.getChildList("")) {
     keySet.add(name.split(".")[0]);
   }
+  keySet.delete("default");
 
   for (let key of keySet) {
     let type = branch.getCharPref(`${key}.type`, "");
@@ -285,7 +289,7 @@ function migrateServerAndUserName() {
       let localStoreType = { imap: "imap", pop3: "mailbox", nntp: "news" }[
         type
       ];
-      migrateServerUris(
+      lazy.migrateServerUris(
         localStoreType,
         hostname,
         username,

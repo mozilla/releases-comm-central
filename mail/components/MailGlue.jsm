@@ -605,6 +605,12 @@ MailGlue.prototype = {
         },
       },
       {
+        task() {
+          // Make sure Gloda's up and running.
+          ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+        },
+      },
+      {
         condition: Services.prefs.getBoolPref("mail.chat.enabled"),
         task() {
           lazy.ChatCore.idleStart();

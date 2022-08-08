@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/Facet.jsm");
-var { GlodaMsgSearcher } = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  this,
+  "GlodaMsgSearcher",
   "resource:///modules/gloda/GlodaMsgSearcher.jsm"
 );
 
