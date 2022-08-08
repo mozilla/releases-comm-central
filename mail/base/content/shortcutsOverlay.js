@@ -89,7 +89,10 @@
 
     window.addEventListener("keydown", event => {
       let shortcut = ShortcutsManager.matches(event);
-      if (!shortcut) {
+      // FIXME: Temporarily ignore numbers coming from the Numpad to prevent
+      // hijacking Alt characters typing in Windows. This can be removed once
+      // we implement customizable shortcuts.
+      if (!shortcut || event.location == 3) {
         return;
       }
       event.preventDefault();
