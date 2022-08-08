@@ -333,7 +333,7 @@ nsMsgAccount::RemoveIdentity(nsIMsgIdentity* aIdentity) {
   // update notifications.
   nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
   if (obs) {
-    obs->NotifyObservers(aIdentity, "account-identity-removed",
+    obs->NotifyObservers(nullptr, "account-identity-removed",
                          NS_ConvertUTF8toUTF16(key).get());
   }
 
