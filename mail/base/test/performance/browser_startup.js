@@ -48,10 +48,15 @@ const startupPhases = {
     denylist: {
       modules: new Set([
         "chrome://openpgp/content/modules/constants.jsm",
+        "resource:///modules/IMServices.jsm",
+        "resource:///modules/imXPCOMUtils.jsm",
+        "resource:///modules/jsProtoHelper.jsm",
+        "resource:///modules/logger.jsm",
         "resource:///modules/MailNotificationManager.jsm",
         "resource:///modules/MailNotificationService.jsm",
       ]),
       services: new Set([
+        "@mozilla.org/chat/logger;1",
         "@mozilla.org/mail/notification-manager;1",
         "@mozilla.org/newMailNotificationService;1",
       ]),

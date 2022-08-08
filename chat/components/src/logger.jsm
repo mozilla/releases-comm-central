@@ -730,7 +730,25 @@ function logsGroupedByDay(aEntries) {
   return days.map(dayID => new Log(entries[dayID]));
 }
 
-function Logger() {}
+function Logger() {
+  IOUtils.profileBeforeChange.addBlocker(
+    "Chat logger: writing all pending messages",
+    async function() {
+      for (let promise of gFilePromises.values()) {
+        try {
+          await promise;
+        } catch (aError) {
+          // Ignore the error, whatever queued the operation will take care of it.
+        }
+      }
+    }
+  );
+
+  Services.obs.addObserver(this, "new-text");
+  Services.obs.addObserver(this, "conversation-closed");
+  Services.obs.addObserver(this, "conversation-left-chat");
+  initLogCleanup();
+}
 Logger.prototype = {
   // Returned Promise resolves to an array of entries for the
   // log folder if it exists, otherwise null.
@@ -927,32 +945,6 @@ Logger.prototype = {
 
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
-      case "profile-after-change":
-        Services.obs.addObserver(this, "final-ui-startup");
-        break;
-      case "final-ui-startup":
-        IOUtils.profileBeforeChange.addBlocker(
-          "Chat logger: writing all pending messages",
-          async function() {
-            for (let promise of gFilePromises.values()) {
-              try {
-                await promise;
-              } catch (aError) {
-                // Ignore the error, whatever queued the operation will take care of it.
-              }
-            }
-          }
-        );
-
-        Services.obs.removeObserver(this, "final-ui-startup");
-        ["new-text", "conversation-closed", "conversation-left-chat"].forEach(
-          function(aEvent) {
-            Services.obs.addObserver(this, aEvent);
-          },
-          this
-        );
-        initLogCleanup();
-        break;
       case "new-text":
         let excludeBecauseEncrypted = false;
         if (aSubject.isEncrypted) {

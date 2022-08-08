@@ -496,6 +496,7 @@ MailGlue.prototype = {
     Cc["@mozilla.org/mail/notification-manager;1"].getService(
       Ci.mozINewMailListener
     );
+    Cc["@mozilla.org/chat/logger;1"].getService(Ci.imILogger);
 
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
