@@ -35,8 +35,15 @@ function NewMailNotificationService() {
     maxLogLevelPref: "mail.notification.loglevel",
   });
 
-  // Listen for mail-startup-done to do the rest of our setup after folders are initialized
-  Services.obs.addObserver(this, "mail-startup-done");
+  Services.obs.addObserver(this, "profile-before-change");
+  MailServices.mailSession.AddFolderListener(
+    this,
+    Ci.nsIFolderListener.intPropertyChanged |
+      Ci.nsIFolderListener.added |
+      Ci.nsIFolderListener.removed |
+      Ci.nsIFolderListener.propertyFlagChanged
+  );
+  this._initUnreadCount();
 }
 
 NewMailNotificationService.prototype = {
@@ -60,25 +67,7 @@ NewMailNotificationService.prototype = {
     this._log.info("NMNS_Observe: " + aTopic);
 
     try {
-      if (aTopic == "mail-startup-done") {
-        try {
-          Services.obs.removeObserver(this, "mail-startup-done");
-        } catch (e) {
-          this._log.error(
-            "NMNS_Observe: unable to deregister mail-startup-done listener: " +
-              e
-          );
-        }
-        Services.obs.addObserver(this, "profile-before-change");
-        MailServices.mailSession.AddFolderListener(
-          this,
-          Ci.nsIFolderListener.intPropertyChanged |
-            Ci.nsIFolderListener.added |
-            Ci.nsIFolderListener.removed |
-            Ci.nsIFolderListener.propertyFlagChanged
-        );
-        this._initUnreadCount();
-      } else if (aTopic == "profile-before-change") {
+      if (aTopic == "profile-before-change") {
         try {
           MailServices.mailSession.RemoveFolderListener(this);
           Services.obs.removeObserver(this, "profile-before-change");

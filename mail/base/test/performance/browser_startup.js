@@ -46,7 +46,15 @@ const startupPhases = {
   // We are at this phase after creating the first browser window (ie. after final-ui-startup).
   "before opening first browser window": {
     denylist: {
-      modules: new Set(["chrome://openpgp/content/modules/constants.jsm"]),
+      modules: new Set([
+        "chrome://openpgp/content/modules/constants.jsm",
+        "resource:///modules/MailNotificationManager.jsm",
+        "resource:///modules/MailNotificationService.jsm",
+      ]),
+      services: new Set([
+        "@mozilla.org/mail/notification-manager;1",
+        "@mozilla.org/newMailNotificationService;1",
+      ]),
     },
   },
 
@@ -161,7 +169,7 @@ add_task(async function() {
   let previous;
   for (let phase in data) {
     for (let scriptType in data[phase]) {
-      for (let f of data[phase][scriptType]) {
+      for (let f of data[phase][scriptType].sort()) {
         // phases are ordered, so if a script wasn't loaded yet at the immediate
         // previous phase, it wasn't loaded during any of the previous phases
         // either, and is new in the current phase.

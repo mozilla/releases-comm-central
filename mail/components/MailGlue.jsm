@@ -489,6 +489,14 @@ MailGlue.prototype = {
   },
 
   _onFirstWindowLoaded() {
+    // Start these services.
+    Cc["@mozilla.org/newMailNotificationService;1"].getService(
+      Ci.mozINewMailNotificationService
+    );
+    Cc["@mozilla.org/mail/notification-manager;1"].getService(
+      Ci.mozINewMailListener
+    );
+
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
     if (
