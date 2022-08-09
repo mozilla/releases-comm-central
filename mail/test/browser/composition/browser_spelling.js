@@ -192,6 +192,7 @@ add_task(async function() {
 
   hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
   languageList.activateItem(languageList.children[0]);
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
   await hiddenPromise;
 
   await checkMisspelledWords(subjectEditor);
@@ -214,6 +215,7 @@ add_task(async function() {
 
   hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
   languageList.activateItem(languageList.children[1]);
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
   await hiddenPromise;
 
   await checkMisspelledWords(subjectEditor, "harbor");
