@@ -732,23 +732,25 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 /* :::: autocomplete icons :::: */
 
 .autocomplete-richlistitem > .ac-site-icon {
-  opacity: 0.85;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  list-style-image: var(--icon-address-book);
 }
 
 .autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
+  list-style-image: var(--icon-globe);
 }
 
 .autocomplete-richlistitem[type="remote-err"] > .ac-site-icon {
-  list-style-image: url("chrome://global/skin/icons/error.svg");
+  list-style-image: var(--icon-error-circle);
 }
 
 .autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/icons/newsgroup.svg");
+  list-style-image: var(--icon-newsletter);
 }
 
 /* :::: attachment notification :::: */
@@ -767,10 +769,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   margin-inline-start: 0;
   text-decoration: underline;
   cursor: pointer;
-}
-
-#attachmentNotificationBox > hbox > .messageImage {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
 #identityLabel,
