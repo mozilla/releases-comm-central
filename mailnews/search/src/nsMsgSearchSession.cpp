@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
-#include "nsArray.h"
 #include "nsMsgSearchCore.h"
 #include "nsMsgSearchAdapter.h"
 #include "nsMsgSearchBoolExpression.h"
@@ -16,6 +15,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsIMsgMailSession.h"
+#include "nsIMsgWindow.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgLocalSearch.h"

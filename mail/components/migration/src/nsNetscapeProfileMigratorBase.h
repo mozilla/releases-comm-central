@@ -16,7 +16,6 @@
 #include "nsIMailProfileMigrator.h"
 
 class nsIPrefBranch;
-class nsIMutableArray;
 
 struct fileTransactionEntry {
   nsCOMPtr<nsIFile> srcFile;   // the src path including leaf name

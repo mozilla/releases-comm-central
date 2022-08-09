@@ -11,7 +11,6 @@
 #include "nsIMsgFilter.h"
 #include "nsIMsgSearchScopeTerm.h"
 #include "nsMsgSearchBoolExpression.h"
-#include "nsIMutableArray.h"
 #include "nsIMsgFilterCustomAction.h"
 
 class nsMsgRuleAction : public nsIMsgRuleAction {

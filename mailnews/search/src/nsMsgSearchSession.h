@@ -10,12 +10,8 @@
 #include "nsMsgSearchCore.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIUrlListener.h"
-#include "nsIMsgWindow.h"
 #include "nsITimer.h"
-#include "nsIMutableArray.h"
-#include "nsCOMArray.h"
 #include "nsWeakReference.h"
-#include "nsTObserverArray.h"
 
 class nsMsgSearchAdapter;
 class nsMsgSearchBoolExpression;

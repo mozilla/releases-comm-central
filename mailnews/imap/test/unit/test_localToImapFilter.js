@@ -30,7 +30,6 @@ var { PromiseTestUtils } = ChromeUtils.import(
 );
 
 var gEmptyLocal1, gEmptyLocal2;
-var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gFiles = ["../../../data/bugmail1", "../../../data/draft1"];
 
 add_task(async function setupTest() {
@@ -149,7 +148,6 @@ add_task(async function verifyLocalFolder() {
 });
 
 add_task(function endTest() {
-  gMessages.clear();
   gEmptyLocal1 = null;
   gEmptyLocal2 = null;
   gPOP3Pump = null;

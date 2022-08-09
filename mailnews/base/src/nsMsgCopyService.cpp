@@ -9,7 +9,6 @@
 #include "nsIFile.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsMsgBaseCID.h"
-#include "nsIMutableArray.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
