@@ -7,11 +7,6 @@ const EXPORTED_SYMBOLS = ["GlodaQueryClassFactory"];
 const { GlodaConstants } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaConstants.jsm"
 );
-// GlodaDatastore has some constants we need, and oddly enough, there was no
-//  load dependency preventing us from doing this.
-const { GlodaDatastore } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDatastore.jsm"
-);
 
 /**
  * @class Query class core; each noun gets its own sub-class where attributes
@@ -159,14 +154,14 @@ GlodaQueryClass.prototype = {
 
         let constraintValues = constraint.slice(2);
 
-        if (constraintType === GlodaDatastore.kConstraintIdIn) {
+        if (constraintType === GlodaConstants.kConstraintIdIn) {
           if (!constraintValues.includes(aObj.id)) {
             querySatisfied = false;
             break;
           }
         } else if (
-          constraintType === GlodaDatastore.kConstraintIn ||
-          constraintType === GlodaDatastore.kConstraintEquals
+          constraintType === GlodaConstants.kConstraintIn ||
+          constraintType === GlodaConstants.kConstraintEquals
         ) {
           // @testpoint gloda.query.test.kConstraintIn
           let objectNounDef = attrDef.objectNounDef;
@@ -290,7 +285,7 @@ GlodaQueryClass.prototype = {
               break;
             }
           }
-        } else if (constraintType === GlodaDatastore.kConstraintRanges) {
+        } else if (constraintType === GlodaConstants.kConstraintRanges) {
           // @testpoint gloda.query.test.kConstraintRanges
           let objectNounDef = attrDef.objectNounDef;
 
@@ -351,7 +346,7 @@ GlodaQueryClass.prototype = {
             querySatisfied = false;
             break;
           }
-        } else if (constraintType === GlodaDatastore.kConstraintStringLike) {
+        } else if (constraintType === GlodaConstants.kConstraintStringLike) {
           // @testpoint gloda.query.test.kConstraintStringLike
           let curIndex = 0;
           let value = boundName in aObj ? aObj[boundName] : "";
@@ -384,7 +379,7 @@ GlodaQueryClass.prototype = {
           if (querySatisfied && curIndex !== null && curIndex != value.length) {
             querySatisfied = false;
           }
-        } else if (constraintType === GlodaDatastore.kConstraintFulltext) {
+        } else if (constraintType === GlodaConstants.kConstraintFulltext) {
           // @testpoint gloda.query.test.kConstraintFulltext
           // this is beyond our powers. Even if we have the fulltext content in
           //  memory, which we may not, the tokenization and such to perform
@@ -418,7 +413,7 @@ GlodaQueryClass.prototype = {
    * @protected
    */
   _inConstraintHelper(aAttrDef, aValues) {
-    let constraint = [GlodaDatastore.kConstraintIn, aAttrDef].concat(aValues);
+    let constraint = [GlodaConstants.kConstraintIn, aAttrDef].concat(aValues);
     this._constraints.push(constraint);
     return this;
   },
@@ -432,7 +427,7 @@ GlodaQueryClass.prototype = {
    * @protected
    */
   _rangedConstraintHelper(aAttrDef, aRanges) {
-    let constraint = [GlodaDatastore.kConstraintRanges, aAttrDef].concat(
+    let constraint = [GlodaConstants.kConstraintRanges, aAttrDef].concat(
       aRanges
     );
     this._constraints.push(constraint);

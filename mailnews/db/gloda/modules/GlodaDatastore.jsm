@@ -737,13 +737,6 @@ var DB_SCHEMA_ACCEPT_LEAVE_LOW = 31,
 var GlodaDatastore = {
   _log: null,
 
-  kConstraintIdIn: 0,
-  kConstraintIn: 1,
-  kConstraintRanges: 2,
-  kConstraintEquals: 3,
-  kConstraintStringLike: 4,
-  kConstraintFulltext: 5,
-
   /* ******************* SCHEMA ******************* */
 
   /**
@@ -3685,7 +3678,7 @@ var GlodaDatastore = {
         let constraintValues = constraint.slice(2);
 
         let tableName, idColumnName, valueColumnName;
-        if (constraintType == this.kConstraintIdIn) {
+        if (constraintType == GlodaConstants.kConstraintIdIn) {
           // we don't need any of the next cases' setup code, and we especially
           //  would prefer that attrDef isn't accessed since it's null for us.
         } else if (attrDef.special) {
@@ -3702,14 +3695,14 @@ var GlodaDatastore = {
 
         let select = null,
           test = null;
-        if (constraintType === this.kConstraintIdIn) {
+        if (constraintType === GlodaConstants.kConstraintIdIn) {
           // this is somewhat of a trick.  this does mean that this can be the
           //  only constraint.  Namely, our idiom is:
           // SELECT * FROM blah WHERE id IN (a INTERSECT b INTERSECT c)
           //  but if we only have 'a', then that becomes "...IN (a)", and if
           //  'a' is not a select but a list of id's... tricky, no?
           select = constraintValues.join(",");
-        } else if (constraintType === this.kConstraintIn) {
+        } else if (constraintType === GlodaConstants.kConstraintIn) {
           // @testpoint gloda.datastore.sqlgen.kConstraintIn
           let clauses = [];
           for (let [
@@ -3752,7 +3745,7 @@ var GlodaDatastore = {
             clauses.push(clausePart);
           }
           test = clauses.join(" OR ");
-        } else if (constraintType === this.kConstraintRanges) {
+        } else if (constraintType === GlodaConstants.kConstraintRanges) {
           // @testpoint gloda.datastore.sqlgen.kConstraintRanges
           let clauses = [];
           for (let [
@@ -3776,7 +3769,7 @@ var GlodaDatastore = {
             }
           }
           test = clauses.join(" OR ");
-        } else if (constraintType === this.kConstraintEquals) {
+        } else if (constraintType === GlodaConstants.kConstraintEquals) {
           // @testpoint gloda.datastore.sqlgen.kConstraintEquals
           let clauses = [];
           for (let [
@@ -3804,7 +3797,7 @@ var GlodaDatastore = {
             boundArgs.push.apply(boundArgs, values);
           }
           test = clauses.join(" OR ");
-        } else if (constraintType === this.kConstraintStringLike) {
+        } else if (constraintType === GlodaConstants.kConstraintStringLike) {
           // @testpoint gloda.datastore.sqlgen.kConstraintStringLike
           let likePayload = "";
           for (let valuePart of constraintValues) {
@@ -3819,7 +3812,7 @@ var GlodaDatastore = {
           }
           test = valueColumnName + " LIKE ? ESCAPE '/'";
           boundArgs.push(likePayload);
-        } else if (constraintType === this.kConstraintFulltext) {
+        } else if (constraintType === GlodaConstants.kConstraintFulltext) {
           // @testpoint gloda.datastore.sqlgen.kConstraintFulltext
           let matchStr = constraintValues[0];
           select =

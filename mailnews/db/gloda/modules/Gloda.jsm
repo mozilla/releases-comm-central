@@ -709,7 +709,7 @@ var Gloda = {
 
       // - define the 'id' constrainer
       let idConstrainer = function(...aArgs) {
-        let constraint = [GlodaDatastore.kConstraintIdIn, null, ...aArgs];
+        let constraint = [GlodaConstants.kConstraintIdIn, null, ...aArgs];
         this._constraints.push(constraint);
         return this;
       };
@@ -1400,7 +1400,7 @@ var Gloda = {
       ) {
         constrainer = function(...aArgs) {
           let constraint = [
-            GlodaDatastore.kConstraintFulltext,
+            GlodaConstants.kConstraintFulltext,
             aAttrDef,
             ...aArgs,
           ];
@@ -1409,7 +1409,7 @@ var Gloda = {
         };
       } else if (aAttrDef.canQuery || aAttrDef.attributeName.startsWith("_")) {
         constrainer = function(...aArgs) {
-          let constraint = [GlodaDatastore.kConstraintIn, aAttrDef, ...aArgs];
+          let constraint = [GlodaConstants.kConstraintIn, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
           return this;
         };
@@ -1439,7 +1439,7 @@ var Gloda = {
         // takes one or more tuples of [lower bound, upper bound]
         let rangedConstrainer = function(...aArgs) {
           let constraint = [
-            GlodaDatastore.kConstraintRanges,
+            GlodaConstants.kConstraintRanges,
             aAttrDef,
             ...aArgs,
           ];
@@ -1461,7 +1461,7 @@ var Gloda = {
       ) {
         let likeConstrainer = function(...aArgs) {
           let constraint = [
-            GlodaDatastore.kConstraintStringLike,
+            GlodaConstants.kConstraintStringLike,
             aAttrDef,
             ...aArgs,
           ];

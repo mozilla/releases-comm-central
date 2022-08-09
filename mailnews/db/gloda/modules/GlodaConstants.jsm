@@ -239,4 +239,11 @@ var GlodaConstants = {
    *  you probably shouldn't be touching this unless you are fundattr.
    */
   NOUN_PARAM_IDENTITY: 200,
+
+  kConstraintIdIn: 0,
+  kConstraintIn: 1,
+  kConstraintRanges: 2,
+  kConstraintEquals: 3,
+  kConstraintStringLike: 4,
+  kConstraintFulltext: 5,
 };
