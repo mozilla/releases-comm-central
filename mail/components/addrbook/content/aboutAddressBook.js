@@ -389,6 +389,45 @@ function importBook() {
   }
 }
 
+/**
+ * Sets the total count for the current selected address book at the bottom
+ * of the address book view.
+ *
+ * @FIXME Replace with fluent strings for 103+.
+ *
+ * @param {number} total
+ */
+async function setAddressBookCount(total) {
+  let statusTextElement = document.getElementById("about-addr-book-count");
+  let stringBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addressbook/addressBook.properties"
+  );
+  let totalCountMessage = "";
+  if (booksList.selectedRow._book) {
+    totalCountMessage = stringBundle.formatStringFromName(
+      "totalContactStatus",
+      [booksList.selectedRow._book.dirName, total]
+    );
+  } else if (booksList.selectedRow._list) {
+    totalCountMessage = stringBundle.formatStringFromName(
+      "totalContactStatus",
+      [booksList.selectedRow._list.dirName, total]
+    );
+  } else if (booksList.selectedIndex == 0) {
+    let [allAddressBookString] = await document.l10n.formatValues([
+      {
+        id: "all-address-books",
+      },
+    ]);
+    totalCountMessage = stringBundle.formatStringFromName(
+      "totalContactStatus",
+      [allAddressBookString, total]
+    );
+  }
+
+  statusTextElement.textContent = totalCountMessage;
+}
+
 // Books
 
 /**
@@ -430,6 +469,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     }
 
     window.addEventListener("unload", this);
+
+    // Add event listener to update the total count of the selected address
+    // book.
+    this.addEventListener("select", e => {
+      setAddressBookCount(document.getElementById("cards").childElementCount);
+    });
   }
 
   destroy() {
@@ -608,7 +653,9 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
     let directory = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
     directory = CardDAVDirectory.forFile(directory.fileName);
-    directory.syncWithServer();
+    directory.syncWithServer().then(res => {
+      setAddressBookCount(document.getElementById("cards").childElementCount);
+    });
   }
 
   /**

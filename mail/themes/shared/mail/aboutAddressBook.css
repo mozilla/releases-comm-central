@@ -126,7 +126,7 @@ body.layout-table {
 #booksPane {
   grid-area: books;
   width: 18em;
-  padding-block: 30px;
+  padding-block-start: 30px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1153,4 +1153,16 @@ input[type="number"]::-moz-number-spin-down {
   section#selectedCards {
     width: -moz-available;
   }
+}
+
+#about-addr-book-count {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--in-content-categories-background);
+  color: color-mix(in srgb, var(--in-content-page-color) 75%, transparent);
+  border-top: 1px solid var(--button-border-color);
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 9px;
+  margin-block-start: 6px;
 }

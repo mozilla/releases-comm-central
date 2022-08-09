@@ -904,3 +904,37 @@ add_task(async function test_startup_directory() {
   Assert.ok(!Services.prefs.getBoolPref(DEFAULT_PREF));
   Assert.ok(!Services.prefs.prefHasUserValue(URI_PREF));
 });
+
+add_task(async function test_total_address_book_count() {
+  let book1 = createAddressBook("First Book");
+  let book2 = createAddressBook("Second Book");
+  book1.addMailList(createMailingList("Ordinary List"));
+
+  book1.addCard(createContact("contact1", "book 1"));
+  book1.addCard(createContact("contact2", "book 1"));
+  book1.addCard(createContact("contact3", "book 1"));
+
+  book2.addCard(createContact("contact1", "book 2"));
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let booksList = abWindow.booksList;
+  let addressBookCountEl = abDocument.getElementById("about-addr-book-count");
+
+  for (let [index, [addressBookLabel, count]] of [
+    ["All Address Book", 5],
+    ["Personal Address Book", 0],
+    ["First Book", 4],
+    ["Ordinary List", 0],
+    ["Second Book", 1],
+  ].entries()) {
+    // Click programmatically to fire a "select" event from the booksList.
+    booksList.getRowAtIndex(index).click();
+    Assert.ok(addressBookCountEl.textContent.includes(addressBookLabel));
+    Assert.ok(addressBookCountEl.textContent.includes(count));
+  }
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book1.URI);
+  await promiseDirectoryRemoved(book2.URI);
+});
