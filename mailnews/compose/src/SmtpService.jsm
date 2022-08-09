@@ -38,23 +38,19 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   get defaultServer() {
-    this._loadSmtpServers();
     let defaultServerKey = Services.prefs.getCharPref(
       "mail.smtp.defaultserver",
       ""
     );
     if (defaultServerKey) {
-      // Try to get it from the prefs.
+      // Get it from the prefs.
       return this.getServerByKey(defaultServerKey);
     }
 
     // No pref set, so set the first one as default, and return it.
-    if (this._servers.length > 0) {
-      Services.prefs.setCharPref(
-        "mail.smtp.defaultserver",
-        this._servers[0].key
-      );
-      return this._servers[0];
+    if (this.servers.length > 0) {
+      this.defaultServer = this.servers[0];
+      return this.servers[0];
     }
     return null;
   },
@@ -64,7 +60,12 @@ SmtpService.prototype = {
   },
 
   get servers() {
-    this._loadSmtpServers();
+    if (!this._servers.length) {
+      // Load SMTP servers from prefs.
+      this._servers = this._getSmtpServerKeys().map(key =>
+        this._keyToServer(key)
+      );
+    }
     return this._servers;
   },
 
@@ -233,8 +234,7 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   getServerByKey(key) {
-    let server = this._servers.find(s => s.key == key);
-    return server || this._createKeyedServer(key);
+    return this.servers.find(s => s.key == key);
   },
 
   /**
@@ -250,7 +250,8 @@ SmtpService.prototype = {
 
     serverKeys.push(key);
     this._saveSmtpServerKeys(serverKeys);
-    return this._createKeyedServer(key);
+    this._servers = []; // Reset to force repopulation of this.servers.
+    return this.servers.at(-1);
   },
 
   /**
@@ -258,7 +259,7 @@ SmtpService.prototype = {
    */
   deleteServer(server) {
     let serverKeys = this._getSmtpServerKeys().filter(k => k != server.key);
-    this._servers = this._servers.filter(s => s.key != server.key);
+    this._servers = this.servers.filter(s => s.key != server.key);
     this._saveSmtpServerKeys(serverKeys);
   },
 
@@ -277,18 +278,6 @@ SmtpService.prototype = {
       }
       return true;
     });
-  },
-
-  /**
-   * Load SMTP servers from prefs.
-   */
-  _loadSmtpServers() {
-    if (this._servers.length) {
-      return;
-    }
-    this._servers = this._getSmtpServerKeys().map(key =>
-      this.getServerByKey(key)
-    );
   },
 
   /**
@@ -312,15 +301,17 @@ SmtpService.prototype = {
 
   /**
    * Create an nsISmtpServer from a key.
+   *
    * @param {string} key - The key for the SmtpServer.
    * @returns {nsISmtpServer}
    */
-  _createKeyedServer(key) {
+  _keyToServer(key) {
     let server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
       Ci.nsISmtpServer
     );
+    // Setting the server key will set up all of its other properties by
+    // reading them from the prefs.
     server.key = key;
-    this._servers.push(server);
     return server;
   },
 

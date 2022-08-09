@@ -120,8 +120,7 @@ interface nsISmtpService : nsISupports {
   nsISmtpServer findServer(in string username, in string hostname);
 
   /**
-   * Look up the server with the given key
-   * If the server does not exist, create it and add it to our list
+   * Look up the server with the given key.
    */
   nsISmtpServer getServerByKey(in string key);
 

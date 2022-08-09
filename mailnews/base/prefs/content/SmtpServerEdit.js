@@ -115,7 +115,9 @@ function initSmtpSettings(server) {
   }
 
   // Hide OAuth2 option if we can't use it.
-  let details = OAuth2Providers.getHostnameDetails(server.hostname);
+  let details = server
+    ? OAuth2Providers.getHostnameDetails(server.hostname)
+    : null;
   document.getElementById("authMethod-oauth2").hidden = !details;
 
   // Hide deprecated/hidden auth options, unless selected
