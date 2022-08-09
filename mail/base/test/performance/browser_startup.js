@@ -97,6 +97,7 @@ const startupPhases = {
     denylist: {
       modules: new Set([
         "chrome://openpgp/content/modules/core.jsm",
+        "resource:///modules/index_im.jsm",
         "resource://gre/modules/Blocklist.jsm",
         "resource://gre/modules/BookmarkHTMLUtils.jsm",
         "resource://gre/modules/Bookmarks.jsm",

@@ -614,6 +614,7 @@ MailGlue.prototype = {
         condition: Services.prefs.getBoolPref("mail.chat.enabled"),
         task() {
           lazy.ChatCore.idleStart();
+          ChromeUtils.import("resource:///modules/index_im.jsm");
         },
       },
       {
