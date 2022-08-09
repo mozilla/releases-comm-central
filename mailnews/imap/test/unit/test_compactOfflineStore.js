@@ -162,8 +162,6 @@ add_task(async function compactOfflineStore() {
   let listener = new PromiseTestUtils.PromiseUrlListener();
   gRootFolder.compactAll(listener, null);
   await listener.promise;
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 300));
 });
 
 add_task(function test_checkCompactionResult1() {

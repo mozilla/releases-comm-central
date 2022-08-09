@@ -1330,48 +1330,98 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
                                            nsIMsgWindow* aMsgWindow) {
   nsresult rv;
 
+  nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
+      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsTArray<RefPtr<nsIMsgFolder>> folderArray;
-  {
+
+  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
+
+  // Set up a callable which will start the compaction phase.
+  auto doCompact = [folderCompactor, rootFolder,
+                    listener = nsCOMPtr<nsIUrlListener>(aListener),
+                    msgWindow]() {
+    // Collect all the compactable folders.
+    nsTArray<RefPtr<nsIMsgFolder>> foldersToCompact;
     nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
     rootFolder->GetDescendants(allDescendants);
     for (auto folder : allDescendants) {
-      uint32_t folderFlags;
-      folder->GetFlags(&folderFlags);
-      if (!(folderFlags &
-            (nsMsgFolderFlags::Virtual | nsMsgFolderFlags::ImapNoselect))) {
-        folderArray.AppendElement(folder);
+      uint32_t flags;
+      folder->GetFlags(&flags);
+      if (flags &
+          (nsMsgFolderFlags::Virtual | nsMsgFolderFlags::ImapNoselect)) {
+        continue;
       }
+      // Folder can be compacted?
+      nsCOMPtr<nsIMsgPluggableStore> msgStore;
+      folder->GetMsgStore(getter_AddRefs(msgStore));
+      if (!msgStore) {
+        continue;
+      }
+      bool storeSupportsCompaction;
+      msgStore->GetSupportsCompaction(&storeSupportsCompaction);
+      if (storeSupportsCompaction) {
+        foldersToCompact.AppendElement(folder);
+      }
+    }
+    nsresult rv =
+        folderCompactor->CompactFolders(foldersToCompact, listener, msgWindow);
+    if (NS_FAILED(rv) && listener) {
+      // Make sure the listener hears about the failure.
+      listener->OnStopRunningUrl(nullptr, rv);
+    }
+  };
+
+  // Collect all the expungeable folders.
+  nsTArray<RefPtr<nsIMsgImapMailFolder>> foldersToExpunge;
+  nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+  rootFolder->GetDescendants(allDescendants);
+  for (auto folder : allDescendants) {
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(folder));
+    if (!imapFolder) {
+      continue;
+    }
+    uint32_t folderFlags;
+    folder->GetFlags(&folderFlags);
+    if (!(folderFlags &
+          (nsMsgFolderFlags::Virtual | nsMsgFolderFlags::ImapNoselect))) {
+      foldersToExpunge.AppendElement(imapFolder);
     }
   }
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  bool storeSupportsCompaction;
-  msgStore->GetSupportsCompaction(&storeSupportsCompaction);
+  if (!WeAreOffline() && !foldersToExpunge.IsEmpty()) {
+    // Kick off expunge on all the folders (the IMAP protocol will handle
+    // queuing them up as needed).
 
-  if (storeSupportsCompaction) {
-    nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-        do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  if (!WeAreOffline()) {
-    // Tell all the folders to also kick off an Expunge on the server.
-    for (auto& folder : folderArray) {
-      nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(folder));
-      if (imapFolder) {
-        nsCOMPtr<nsIUrlListener> l(do_QueryInterface(folder));
-        rv = imapFolder->Expunge(l, aMsgWindow);
-        NS_ENSURE_SUCCESS(rv, rv);
+    // A listener to track the completed expunges.
+    UrlListener* l = new UrlListener();
+    l->mStopFn = [expungeCount = foldersToExpunge.Length(), doCompact](
+                     nsIURI* url, nsresult status) mutable -> nsresult {
+      // NOTE: we're ignoring expunge result code - nothing much we can do
+      // here to recover, so just plough on.
+      --expungeCount;
+      if (expungeCount == 0) {
+        // All the expunges are done so start compacting.
+        doCompact();
+      }
+      return NS_OK;
+    };
+    // Go!
+    for (auto& imapFolder : foldersToExpunge) {
+      rv = imapFolder->Expunge(l, aMsgWindow);
+      if (NS_FAILED(rv)) {
+        // Make sure expungeCount is kept in sync!
+        l->OnStopRunningUrl(nullptr, rv);
       }
     }
+  } else {
+    // No expunging. Start the compaction immediately.
+    doCompact();
   }
+
   return NS_OK;
 }
 
