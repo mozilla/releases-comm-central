@@ -105,6 +105,10 @@ body.layout-table {
   font-size: 1rem;
 }
 
+.toolbarbutton-1:focus-visible {
+  outline: var(--in-content-focus-outline);
+}
+
 #toolbarCreateBook {
   list-style-image: var(--icon-new-address-book);
 }
