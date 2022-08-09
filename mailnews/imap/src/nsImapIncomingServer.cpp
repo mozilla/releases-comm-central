@@ -684,7 +684,7 @@ nsresult nsImapIncomingServer::GetImapConnection(
     if (NS_SUCCEEDED(res) && hostSessionList) {
       nsAutoCString serverKey;
       if (NS_SUCCEEDED(GetKey(serverKey)) && !serverKey.IsEmpty()) {
-        bool hasBeenAuthenticated = true;
+        bool hasBeenAuthenticated = false;
         if (NS_SUCCEEDED(hostSessionList->GetPasswordVerifiedOnline(
                 serverKey.get(), hasBeenAuthenticated)) &&
             !hasBeenAuthenticated) {
@@ -692,9 +692,18 @@ nsresult nsImapIncomingServer::GetImapConnection(
           // session. Returning here with aImapConnection null will tell caller
           // to queue the URL. Also tell caller to skip the immediate retry of
           // the queued URL which, at this time, will fail.
-          m_skipRetryQueued = true;
-          return NS_OK;
+          // However, don't want to queue the URL if the host has seen a TLS
+          // related error that can possibly be overriden. Let the URL run even
+          // though it will fail.
+          nsresult tlsError;
+          hostSessionList->GetSavedTlsError(serverKey.get(), tlsError);
+          if (NS_SUCCEEDED(tlsError)) {
+            m_skipRetryQueued = true;
+            return NS_OK;
+          }
         }
+        if (hasBeenAuthenticated)
+          hostSessionList->SetSavedTlsError(serverKey.get(), NS_OK);
       }
     }
   }

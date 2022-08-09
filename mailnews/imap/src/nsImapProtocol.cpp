@@ -5005,12 +5005,27 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
           // SSL_ERROR_BAD_CERT_DOMAIN from security/nss/lib/ssl/sslerr.h
           // rv = 0x80000000 + 0x00450000 + 0x00150000 + 0x00002ff4 = 0x805A2ff4
           int32_t sec_error = -1 * NS_ERROR_GET_CODE(rv);  // = 0xFFFFD00C
-          if (!mozilla::psm::ErrorIsOverridable(sec_error))
+          if (!mozilla::psm::ErrorIsOverridable(sec_error)) {
             AlertUserEventUsingName("imapTlsError");
+          } else {
+            m_hostSessionList->SetSavedTlsError(GetImapServerKey(), rv);
+            bool authenticated = false;
+            if (NS_SUCCEEDED(m_hostSessionList->GetPasswordVerifiedOnline(
+                    GetImapServerKey(), authenticated)) &&
+                !authenticated) {
+              // Create a new protocol instance for queued select url and let
+              // it run and fail so it can trigger the exception dialog.
+              if (m_imapServerSink) {
+                bool urlRun;
+                m_imapServerSink->LoadNextQueuedUrl(nullptr, &urlRun);
+              }
+            }
+          }
 
           // Stash the socket transport's securityInfo on the URL so it will be
           // available in nsIUrlListener OnStopRunningUrl() callbacks to trigger
           // the override dialog or a security related error message.
+          // Currently this is only used to trigger the override dialog.
           if (m_runningUrl) {
             nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl =
                 do_QueryInterface(m_runningUrl);
