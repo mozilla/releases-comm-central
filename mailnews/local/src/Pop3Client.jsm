@@ -125,7 +125,9 @@ class Pop3Client {
     this._logger.debug(
       `Connecting to pop://${this._server.hostName}:${this._server.port}`
     );
-    this.runningUri.SetUrlState(true, Cr.NS_OK);
+    this.runningUri
+      .QueryInterface(Ci.nsIMsgMailNewsUrl)
+      .SetUrlState(true, Cr.NS_OK);
     this._server.serverBusy = true;
     this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
     this._socket = new TCPSocket(this._server.hostName, this._server.port, {
@@ -1305,6 +1307,7 @@ class Pop3Client {
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     this.quit();
     this.runningUri.SetUrlState(false, Cr.NS_OK);
+    this.onDone?.(status);
 
     if (this._folderLocked) {
       this._sink.abortMailDelivery(this);

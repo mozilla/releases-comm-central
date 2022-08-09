@@ -91,10 +91,14 @@ class Pop3Channel {
     client.runningUri = this.URI;
     client.connect();
     client.onOpen = () => {
+      listener.onStartRequest(this);
       client.fetchBodyForUidl(
         this.URI.QueryInterface(Ci.nsIPop3URL).pop3Sink,
         uidl
       );
+    };
+    client.onDone = status => {
+      listener.onStopRequest(this, status);
     };
   }
 }

@@ -141,7 +141,7 @@ function copyFileMessageInLocalFolder(
 function do_check_transaction(real, expected) {
   // If we don't spin the event loop before starting the next test, the readers
   // aren't expired. In this case, the "real" real transaction is the last one.
-  if (real instanceof Array) {
+  if (Array.isArray(real)) {
     real = real[real.length - 1];
   }
 
