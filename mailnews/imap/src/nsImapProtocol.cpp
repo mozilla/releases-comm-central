@@ -1418,7 +1418,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
   MOZ_LOG(IMAP, LogLevel::Debug,
           ("ImapThreadMainLoop entering [this=%p]", this));
 
-  PRIntervalTime sleepTime = PR_MillisecondsToInterval(1000);
+  PRIntervalTime sleepTime = kImapSleepTime;
   bool idlePending = false;
   while (!DeathSignalReceived()) {
     nsresult rv = NS_OK;
@@ -8357,15 +8357,8 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
       ReentrantMonitorAutoEnter mon(m_passwordReadyMonitor);
       while (!m_passwordObtained && !NS_FAILED(m_passwordStatus) &&
              m_passwordStatus != NS_MSG_PASSWORD_PROMPT_CANCELLED &&
-             !DeathSignalReceived()) {
-        bool shuttingDown;
-        (void)m_imapServerSink->GetServerShuttingDown(&shuttingDown);
-        if (shuttingDown) {
-          // Note: If we fix bug 1783573 this check could be ditched.
-          break;
-        }
+             !DeathSignalReceived())
         mon.Wait(sleepTime);
-      }
       rv = m_passwordStatus;
       password = m_password;
     }
