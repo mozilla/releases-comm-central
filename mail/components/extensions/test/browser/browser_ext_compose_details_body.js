@@ -449,4 +449,4 @@ add_task(async function testCJK() {
   );
   plainTextWindow.close();
   await Promise.all(closePromises);
-});
+}).__skipMe = AppConstants.platform == "linux" && AppConstants.DEBUG; // Permanent failure on CI, bug 1766758.
