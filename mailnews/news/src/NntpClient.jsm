@@ -389,8 +389,8 @@ class NntpClient {
       outputStream.write(data, data.length);
       streamListener.onDataAvailable(null, inputStream, 0, data.length);
     };
-    this.onDone = () => {
-      streamListener.onStopRequest(null, Cr.NS_OK);
+    this.onDone = status => {
+      streamListener.onStopRequest(null, status);
     };
   }
 
@@ -725,11 +725,15 @@ class NntpClient {
       );
     }
     if (!this._newsFolder.groupUsername) {
-      this._newsFolder.getAuthenticationCredentials(
+      let gotPassword = this._newsFolder.getAuthenticationCredentials(
         this._msgWindow,
         true,
         forcePrompt
       );
+      if (!gotPassword) {
+        this._actionDone(Cr.NS_ERROR_ABORT);
+        return;
+      }
     }
     this._sendCommand(`AUTHINFO user ${this._newsFolder.groupUsername}`, true);
     this._nextAction = this._actionAuthResult;
