@@ -2179,23 +2179,9 @@ Enigmail.msg = {
   },
 
   // handle a selected attachment (decrypt & open or save)
-  handleAttachmentSel(actionType, selectedItem = null) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: handleAttachmentSel: actionType=" +
-        actionType +
-        "\n"
-    );
-
-    let selectedAttachments, anAttachment, contextMenu;
-
-    // Thunderbird
-    contextMenu = document.getElementById("attachmentItemContext");
-
-    if (contextMenu) {
-      // Thunderbird
-      selectedAttachments = contextMenu.attachments;
-      anAttachment = selectedAttachments[0];
-    }
+  handleAttachmentSel(actionType) {
+    let contextMenu = document.getElementById("attachmentItemContext");
+    let anAttachment = contextMenu.attachments[0];
 
     switch (actionType) {
       case "saveAttachment":

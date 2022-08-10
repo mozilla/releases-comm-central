@@ -654,97 +654,82 @@ Enigmail.hdrView = {
   },
 
   onShowAttachmentContextMenu(event) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgHdrViewOverlay.js: this.onShowAttachmentContextMenu\n"
-    );
+    let contextMenu = document.getElementById("attachmentItemContext");
+    let separator = document.getElementById("openpgpCtxItemsSeparator");
+    let decryptOpenMenu = document.getElementById("enigmail_ctxDecryptOpen");
+    let decryptSaveMenu = document.getElementById("enigmail_ctxDecryptSave");
+    let importMenu = document.getElementById("enigmail_ctxImportKey");
+    let verifyMenu = document.getElementById("enigmail_ctxVerifyAtt");
 
-    let contextMenu, selectedAttachments;
-    // Thunderbird
-    contextMenu = document.getElementById("attachmentItemContext");
-    selectedAttachments = contextMenu.attachments;
+    if (contextMenu.attachments.length == 1) {
+      let attachment = contextMenu.attachments[0];
 
-    var decryptOpenMenu = document.getElementById("enigmail_ctxDecryptOpen");
-    var decryptSaveMenu = document.getElementById("enigmail_ctxDecryptSave");
-    var importMenu = document.getElementById("enigmail_ctxImportKey");
-    var verifyMenu = document.getElementById("enigmail_ctxVerifyAtt");
-
-    if (selectedAttachments.length > 0) {
-      this.enableContextMenuEntries(
-        selectedAttachments[0],
-        decryptOpenMenu,
-        decryptSaveMenu,
-        importMenu,
-        verifyMenu
-      );
-    } else {
-      decryptOpenMenu.hidden = true;
-      decryptSaveMenu.hidden = true;
-      importMenu.hidden = true;
-      verifyMenu.hidden = true;
-    }
-  },
-
-  enableContextMenuEntries(
-    attachment,
-    decryptOpenMenu,
-    decryptSaveMenu,
-    importMenu,
-    verifyMenu
-  ) {
-    if (/^application\/pgp-keys/i.test(attachment.contentType)) {
-      importMenu.hidden = false;
-
-      decryptOpenMenu.hidden = true;
-      decryptSaveMenu.hidden = true;
-      verifyMenu.hidden = true;
-    } else if (Enigmail.msg.checkEncryptedAttach(attachment)) {
-      if (
-        (typeof attachment.name !== "undefined" &&
-          attachment.name.match(/\.asc\.(gpg|pgp)$/i)) ||
-        (typeof attachment.displayName !== "undefined" &&
-          attachment.displayName.match(/\.asc\.(gpg|pgp)$/i))
-      ) {
+      if (/^application\/pgp-keys/i.test(attachment.contentType)) {
         importMenu.hidden = false;
-      } else {
-        importMenu.hidden = true;
-      }
-      decryptOpenMenu.hidden = false;
-      decryptSaveMenu.hidden = false;
-      if (
+        decryptOpenMenu.hidden = true;
+        decryptSaveMenu.hidden = true;
+        verifyMenu.hidden = true;
+      } else if (Enigmail.msg.checkEncryptedAttach(attachment)) {
+        if (
+          (typeof attachment.name !== "undefined" &&
+            attachment.name.match(/\.asc\.(gpg|pgp)$/i)) ||
+          (typeof attachment.displayName !== "undefined" &&
+            attachment.displayName.match(/\.asc\.(gpg|pgp)$/i))
+        ) {
+          importMenu.hidden = false;
+        } else {
+          importMenu.hidden = true;
+        }
+        decryptOpenMenu.hidden = false;
+        decryptSaveMenu.hidden = false;
+        if (
+          EnigmailMsgRead.checkSignedAttachment(
+            attachment,
+            null,
+            currentAttachments
+          )
+        ) {
+          verifyMenu.hidden = false;
+        } else {
+          verifyMenu.hidden = true;
+        }
+        if (typeof attachment.displayName == "undefined") {
+          if (!attachment.name) {
+            attachment.name = "message.pgp";
+          }
+        } else if (!attachment.displayName) {
+          attachment.displayName = "message.pgp";
+        }
+      } else if (
         EnigmailMsgRead.checkSignedAttachment(
           attachment,
           null,
           currentAttachments
         )
       ) {
+        importMenu.hidden = true;
+        decryptOpenMenu.hidden = true;
+        decryptSaveMenu.hidden = true;
+
         verifyMenu.hidden = false;
       } else {
+        importMenu.hidden = true;
+        decryptOpenMenu.hidden = true;
+        decryptSaveMenu.hidden = true;
         verifyMenu.hidden = true;
       }
-      if (typeof attachment.displayName == "undefined") {
-        if (!attachment.name) {
-          attachment.name = "message.pgp";
-        }
-      } else if (!attachment.displayName) {
-        attachment.displayName = "message.pgp";
-      }
-    } else if (
-      EnigmailMsgRead.checkSignedAttachment(
-        attachment,
-        null,
-        currentAttachments
-      )
-    ) {
-      importMenu.hidden = true;
-      decryptOpenMenu.hidden = true;
-      decryptSaveMenu.hidden = true;
 
-      verifyMenu.hidden = false;
+      separator.hidden =
+        decryptOpenMenu.hidden &&
+        decryptSaveMenu.hidden &&
+        importMenu.hidden &&
+        verifyMenu.hidden;
     } else {
-      importMenu.hidden = true;
       decryptOpenMenu.hidden = true;
       decryptSaveMenu.hidden = true;
+      importMenu.hidden = true;
       verifyMenu.hidden = true;
+      separator.hidden = true;
     }
   },
 
