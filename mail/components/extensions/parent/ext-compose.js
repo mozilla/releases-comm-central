@@ -931,7 +931,11 @@ async function goDoCommand(composeWindow, extension, mode) {
       onSuccess(window, mode, messages, headerMessageId) {
         if (window == composeWindow) {
           afterSaveSendEventTracker.removeListener(listener);
-          resolve({ mode, messages, headerMessageId });
+          let info = { mode, messages };
+          if (mode == "sendNow") {
+            info.headerMessageId = headerMessageId;
+          }
+          resolve(info);
         }
       },
       onFailure(window, mode, exception) {
@@ -1210,11 +1214,14 @@ this.compose = class extends ExtensionAPI {
             let listener = {
               onSuccess(window, mode, messages, headerMessageId) {
                 let win = windowManager.wrapWindow(window);
-                return fire.async(tabManager.convert(win.activeTab.nativeTab), {
-                  mode,
-                  messages,
-                  headerMessageId,
-                });
+                let sendInfo = { mode, messages };
+                if (mode == "sendNow") {
+                  sendInfo.headerMessageId = headerMessageId;
+                }
+                return fire.async(
+                  tabManager.convert(win.activeTab.nativeTab),
+                  sendInfo
+                );
               },
               onFailure(window, mode, exception) {
                 let win = windowManager.wrapWindow(window);
@@ -1242,11 +1249,11 @@ this.compose = class extends ExtensionAPI {
             let listener = {
               onSuccess(window, mode, messages, headerMessageId) {
                 let win = windowManager.wrapWindow(window);
-                return fire.async(tabManager.convert(win.activeTab.nativeTab), {
-                  mode,
-                  messages,
-                  headerMessageId,
-                });
+                let saveInfo = { mode, messages };
+                return fire.async(
+                  tabManager.convert(win.activeTab.nativeTab),
+                  saveInfo
+                );
               },
               onFailure(window, mode, exception) {
                 let win = windowManager.wrapWindow(window);
