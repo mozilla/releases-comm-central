@@ -4883,6 +4883,8 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
       // Encrypt/sign if the new identity asks for it.
       updateE2eeOptions(gCurrentIdentity.encryptionPolicy > 0);
     }
+  } else {
+    gSendSigned = false;
   }
 
   if (configuredOpenPGP && gSelectedTechnologyIsPGP) {
