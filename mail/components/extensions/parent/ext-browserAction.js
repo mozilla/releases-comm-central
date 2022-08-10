@@ -37,12 +37,14 @@ this.browserAction = class extends ToolbarButtonAPI {
 
   constructor(extension) {
     super(extension, global);
-    this.manifest_name = "browser_action";
-    this.manifestName = "browserAction";
+    this.manifest_name =
+      extension.manifestVersion < 3 ? "browser_action" : "action";
+    this.manifestName =
+      extension.manifestVersion < 3 ? "browserAction" : "action";
     this.windowURLs = ["chrome://messenger/content/messenger.xhtml"];
 
     let isTabsToolbar =
-      extension.manifest.browser_action.default_area == "tabstoolbar";
+      extension.manifest[this.manifest_name].default_area == "tabstoolbar";
     this.toolboxId = isTabsToolbar ? "navigation-toolbox" : "mail-toolbox";
     this.toolbarId = isTabsToolbar ? "tabbar-toolbar" : "mail-bar3";
 

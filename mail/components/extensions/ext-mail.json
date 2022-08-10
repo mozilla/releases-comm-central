@@ -36,12 +36,16 @@
       "addon_parent"
     ],
     "manifest": [
+      "action",
       "browser_action"
     ],
     "events": [
       "uninstall"
     ],
     "paths": [
+      [
+        "action"
+      ],
       [
         "browserAction"
       ]

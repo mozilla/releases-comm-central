@@ -119,6 +119,9 @@ var ExtensionSupport = {
   },
 
   get openWindows() {
+    if (!openWindowList) {
+      return [];
+    }
     return openWindowList.values();
   },
 
