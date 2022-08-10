@@ -186,6 +186,11 @@ var gSendEncryptedInitial = false;
 var gOptionalEncryption = false; // Only encrypt if possible. Ignored if !gSendEncrypted.
 var gOptionalEncryptionInitial = false;
 
+// gEncryptSubject contains the preference for subject encryption,
+// considered only if encryption is enabled and the technology allows it.
+// In other words, gEncryptSubject might be set to true, but if
+// encryption is disabled, or if S/MIME is used,
+// gEncryptSubject==true is ignored.
 var gEncryptSubject = false;
 
 var gUserTouchedSendEncrypted = false;
@@ -1720,19 +1725,15 @@ function toggleEncryptMessage() {
   }
 
   if (!gUserTouchedEncryptSubject) {
-    setEncryptSubject(gCurrentIdentity.protectSubject);
+    gEncryptSubject = gCurrentIdentity.protectSubject;
   }
+  updateEncryptedSubject();
 }
 
 function toggleAttachMyPublicKey(target) {
   gAttachMyPublicPGPKey = target.getAttribute("checked") != "true";
   target.setAttribute("checked", gAttachMyPublicPGPKey);
   gUserTouchedAttachMyPubKey = true;
-}
-
-function setEncryptSubject(state) {
-  gEncryptSubject = state;
-  updateEncryptedSubject();
 }
 
 function updateEncryptedSubject() {
@@ -1753,6 +1754,7 @@ function updateEncryptedSubject() {
 
 function toggleEncryptedSubject() {
   gEncryptSubject = !gEncryptSubject;
+  gUserTouchedEncryptSubject = true;
   updateEncryptedSubject();
 }
 
@@ -4887,14 +4889,8 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     gSendSigned = false;
   }
 
-  if (configuredOpenPGP && gSelectedTechnologyIsPGP) {
-    if (!gUserTouchedEncryptSubject) {
-      setEncryptSubject(gCurrentIdentity.protectSubject);
-    } else {
-      setEncryptSubject(gEncryptSubject);
-    }
-  } else {
-    setEncryptSubject(false);
+  if (!gUserTouchedEncryptSubject) {
+    gEncryptSubject = gCurrentIdentity.protectSubject;
   }
 
   if (gAttachMyPublicPGPKey && !configuredOpenPGP) {
@@ -4929,7 +4925,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   }
 
   showSendEncryptedAndSigned();
-
+  updateEncryptedSubject();
   updateEncryptionOptions();
 }
 
@@ -5344,8 +5340,9 @@ function onEncryptionChoice(value) {
       break;
 
     case "encsub":
-      setEncryptSubject(!gEncryptSubject);
+      gEncryptSubject = !gEncryptSubject;
       gUserTouchedEncryptSubject = true;
+      updateEncryptedSubject();
       break;
 
     case "sig":

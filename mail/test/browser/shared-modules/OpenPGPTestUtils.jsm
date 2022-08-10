@@ -51,6 +51,16 @@ const OpenPGPTestUtils = {
   },
 
   /**
+   * Given a compose message window, clicks on the "Encrypt Subject"
+   * menu item.
+   */
+  async toggleMessageEncryptSubject(win) {
+    return clickToolbarButtonMenuItem(win, "#button-encryption-options", [
+      "#menu_securityEncryptSubject_Toolbar",
+    ]);
+  },
+
+  /**
    * Given a compose message window, clicks on the "Attach My Public Key"
    * menu item.
    */

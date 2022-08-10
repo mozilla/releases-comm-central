@@ -1183,7 +1183,7 @@ Enigmail.msg = {
 
     draftStatus += gAttachMyPublicPGPKey ? "1" : "0";
 
-    draftStatus += doEncrypt && gEncryptSubject ? "1" : "0";
+    draftStatus += gSendEncrypted && gEncryptSubject ? "1" : "0";
 
     this.setAdditionalHeader("X-Enigmail-Draft-Status", draftStatus);
   },
@@ -1559,7 +1559,7 @@ Enigmail.msg = {
       f |= EnigmailConstants.SEND_TWO_MIME_LAYERS;
     }
 
-    if (gEncryptSubject) {
+    if (gSendEncrypted && gEncryptSubject) {
       f |= EnigmailConstants.ENCRYPT_SUBJECT;
     }
 
