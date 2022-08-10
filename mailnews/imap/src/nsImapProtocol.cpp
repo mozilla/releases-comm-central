@@ -8355,27 +8355,54 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
   NS_ENSURE_TRUE(m_server, NS_ERROR_NULL_POINTER);
   nsresult rv;
 
+  password = nsString();
   // Get the password already stored in mem
   rv = m_imapServerSink->GetServerPassword(password);
   if (NS_FAILED(rv) || password.IsEmpty()) {
     AutoProxyReleaseMsgWindow msgWindow;
     GetMsgWindow(getter_AddRefs(msgWindow));
     NS_ENSURE_TRUE(msgWindow, NS_ERROR_NOT_AVAILABLE);  // biff case
+    m_passwordStatus = NS_OK;
+    m_passwordObtained = false;
 
     // Get the password from pw manager (harddisk) or user (dialog)
-    m_passwordObtained = false;
     rv = m_imapServerSink->AsyncGetPassword(this, newPasswordRequested,
                                             password);
-    if (password.IsEmpty()) {
-      PRIntervalTime sleepTime = kImapSleepTime;
-      m_passwordStatus = NS_OK;
-      ReentrantMonitorAutoEnter mon(m_passwordReadyMonitor);
-      while (!m_passwordObtained && !NS_FAILED(m_passwordStatus) &&
-             m_passwordStatus != NS_MSG_PASSWORD_PROMPT_CANCELLED &&
-             !DeathSignalReceived())
-        mon.Wait(sleepTime);
-      rv = m_passwordStatus;
-      password = m_password;
+
+    if (NS_SUCCEEDED(rv)) {
+      while (password.IsEmpty()) {
+        bool shuttingDown = false;
+        (void)m_imapServerSink->GetServerShuttingDown(&shuttingDown);
+        if (shuttingDown) {
+          // Note: If we fix bug 1783573 this check could be ditched.
+          rv = NS_ERROR_FAILURE;
+          break;
+        }
+
+        ReentrantMonitorAutoEnter mon(m_passwordReadyMonitor);
+        if (!m_passwordObtained && !NS_FAILED(m_passwordStatus) &&
+            m_passwordStatus != NS_MSG_PASSWORD_PROMPT_CANCELLED &&
+            !DeathSignalReceived()) {
+          mon.Wait(PR_MillisecondsToInterval(1000));
+        }
+
+        if (NS_FAILED(m_passwordStatus) ||
+            m_passwordStatus == NS_MSG_PASSWORD_PROMPT_CANCELLED) {
+          rv = m_passwordStatus;
+          break;
+        }
+
+        if (DeathSignalReceived()) {
+          rv = NS_ERROR_FAILURE;
+          break;
+        }
+
+        if (m_passwordObtained) {
+          rv = m_passwordStatus;
+          password = m_password;
+          break;
+        }
+      }
     }
   }
   if (!password.IsEmpty()) m_lastPasswordSent = password;
@@ -8401,13 +8428,15 @@ nsImapProtocol::OnPromptStart(bool* aResult) {
   GetMsgWindow(getter_AddRefs(msgWindow));
   nsString password = m_lastPasswordSent;
   rv = imapServer->PromptPassword(msgWindow, password);
+
+  ReentrantMonitorAutoEnter passwordMon(m_passwordReadyMonitor);
+
   m_password = password;
   m_passwordStatus = rv;
   if (!m_password.IsEmpty()) *aResult = true;
 
   // Notify the imap thread that we have a password.
   m_passwordObtained = true;
-  ReentrantMonitorAutoEnter passwordMon(m_passwordReadyMonitor);
   passwordMon.Notify();
   return rv;
 }
@@ -8417,10 +8446,14 @@ nsImapProtocol::OnPromptAuthAvailable() {
   nsresult rv;
   nsCOMPtr<nsIMsgIncomingServer> imapServer = do_QueryReferent(m_server, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  m_passwordStatus = imapServer->GetPassword(m_password);
+
+  nsresult status = imapServer->GetPassword(m_password);
+
+  ReentrantMonitorAutoEnter passwordMon(m_passwordReadyMonitor);
+
+  m_passwordStatus = status;
   // Notify the imap thread that we have a password.
   m_passwordObtained = true;
-  ReentrantMonitorAutoEnter passwordMon(m_passwordReadyMonitor);
   passwordMon.Notify();
   return m_passwordStatus;
 }
@@ -8428,8 +8461,8 @@ nsImapProtocol::OnPromptAuthAvailable() {
 NS_IMETHODIMP
 nsImapProtocol::OnPromptCanceled() {
   // A prompt was cancelled, so notify the imap thread.
-  m_passwordStatus = NS_MSG_PASSWORD_PROMPT_CANCELLED;
   ReentrantMonitorAutoEnter passwordMon(m_passwordReadyMonitor);
+  m_passwordStatus = NS_MSG_PASSWORD_PROMPT_CANCELLED;
   passwordMon.Notify();
   return NS_OK;
 }
