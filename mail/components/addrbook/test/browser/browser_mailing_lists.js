@@ -453,6 +453,7 @@ add_task(async () => {
     `address book ("${inputs.abName}") is displayed in the address book list`
   );
 
+  global.booksList.focus();
   global.booksList.selectedIndex = 2;
   EventUtils.sendKey("DELETE", global.abWindow);
 
