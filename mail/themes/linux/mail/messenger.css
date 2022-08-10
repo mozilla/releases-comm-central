@@ -189,6 +189,7 @@
     width: 16px;
   }
   .titlebar-button > .toolbarbutton-icon:-moz-lwtheme {
+    display: -moz-inline-box;
     padding: 3px;
     -moz-context-properties: stroke;
     stroke: currentColor;
