@@ -314,6 +314,10 @@ add_task(async function testRegister() {
     false,
     CONTENT_PAGE + "?tab2"
   );
+  // Despite the fact we've just waited for the page to load, sometimes the
+  // content script mechanism gets triggered late. Wait a moment.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 1000));
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 128, 0)",
     color: "rgb(255, 255, 255)",
@@ -384,9 +388,8 @@ add_task(async function testManifest() {
     false,
     CONTENT_PAGE + "?tab1"
   );
-
   // Despite the fact we've just waited for the page to load, sometimes the
-  // content script mechanism gets triggered anyway. Wait a moment.
+  // content script mechanism gets triggered late. Wait a moment.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 1000));
 
@@ -401,6 +404,10 @@ add_task(async function testManifest() {
     false,
     CONTENT_PAGE + "?tab2"
   );
+  // Despite the fact we've just waited for the page to load, sometimes the
+  // content script mechanism gets triggered late. Wait a moment.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 1000));
 
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 255, 0)",
