@@ -258,14 +258,6 @@ treechildren::-moz-tree-image(subjectCol, new) {
   stroke: var(--color-orange-40) !important; /* override the selected, focus rule */
 }
 
-treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-  list-style-image: var(--icon-cancel-sm);
-  fill: color-mix(in srgb, var(--color-red-50) 20%, transparent);
-  fill: var(--color-red-50);
-  width: 12px;
-  margin-inline: 2px 4px;
-}
-
 treechildren::-moz-tree-image(subjectCol, selected, focus) {
   fill: var(--select-focus-text-color);
   stroke: var(--select-focus-text-color);
@@ -290,11 +282,6 @@ treechildren::-moz-tree-image(subjectCol, selected, focus) {
   treechildren::-moz-tree-image(subjectCol, new) {
     fill: var(--color-yellow-40) !important; /* override the selected, focus rule */
     stroke: var(--color-orange-30) !important; /* override the selected, focus rule */
-  }
-
-  treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-    fill: var(--color-red-40);
-    fill: var(--color-red-50);
   }
 }
 

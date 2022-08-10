@@ -306,6 +306,12 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   text-decoration: line-through;
 }
 
+@media not (prefers-contrast) {
+  treechildren::-moz-tree-cell-text(imapdeleted) {
+    opacity: 0.6;
+  }
+} 
+
 .tree-folder-checkbox {
   list-style-image: none;
 }
