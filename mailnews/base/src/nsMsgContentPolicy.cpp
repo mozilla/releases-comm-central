@@ -452,9 +452,18 @@ bool nsMsgContentPolicy::IsExposedProtocol(nsIURI* aContentLocation) {
   // admitted purely based on their scheme.
   // news, snews, nntp, imap and mailbox are checked before the call
   // to this function by matching content location and requesting location.
-  if (contentScheme.LowerCaseEqualsLiteral("mailto") ||
-      contentScheme.LowerCaseEqualsLiteral("about"))
+  if (contentScheme.LowerCaseEqualsLiteral("mailto")) return true;
+
+  if (contentScheme.LowerCaseEqualsLiteral("about")) {
+    // We want to allow about pages to load content freely. But not about:blank.
+    nsAutoCString fullSpec;
+    rv = aContentLocation->GetSpec(fullSpec);
+    NS_ENSURE_SUCCESS(rv, false);
+    if (fullSpec.EqualsLiteral("about:blank")) {
+      return false;
+    }
     return true;
+  }
 
   // check if customized exposed scheme
   if (mCustomExposedProtocols.Contains(contentScheme)) return true;
@@ -485,8 +494,17 @@ bool nsMsgContentPolicy::IsExposedProtocol(nsIURI* aContentLocation) {
 bool nsMsgContentPolicy::ShouldBlockUnexposedProtocol(
     nsIURI* aContentLocation) {
   // Error condition - we must return true so that we block.
+
+  // about:blank is "web", it should not be blocked.
+  nsAutoCString fullSpec;
+  nsresult rv = aContentLocation->GetSpec(fullSpec);
+  NS_ENSURE_SUCCESS(rv, true);
+  if (fullSpec.EqualsLiteral("about:blank")) {
+    return false;
+  }
+
   bool isHttp;
-  nsresult rv = aContentLocation->SchemeIs("http", &isHttp);
+  rv = aContentLocation->SchemeIs("http", &isHttp);
   NS_ENSURE_SUCCESS(rv, true);
 
   bool isHttps;
