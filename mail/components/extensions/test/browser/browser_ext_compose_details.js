@@ -598,3 +598,127 @@ add_task(async function testSimpleDetails() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+add_task(async function testAutoComplete() {
+  let files = {
+    "background.js": async () => {
+      async function checkWindow(createdTab, expected) {
+        let state = await browser.compose.getComposeDetails(createdTab.id);
+
+        for (let [id, value] of Object.entries(expected.pills)) {
+          browser.test.assertEq(
+            value,
+            state[id].length ? state[id][0] : "",
+            `value for ${id} should be correct`
+          );
+        }
+
+        await window.sendMessage("checkWindow", expected);
+      }
+
+      // Start a new message.
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew();
+      let [createdWindow] = await createdWindowPromise;
+      let [createdTab] = await browser.tabs.query({
+        windowId: createdWindow.id,
+      });
+
+      // Create a test contact.
+      let [addressBook] = await browser.addressBooks.list(true);
+      let contactId = await browser.contacts.create(addressBook.id, {
+        PrimaryEmail: "autocomplete@invalid",
+        DisplayName: "Autocomplete Test",
+      });
+
+      // Confirm the addrTo field has focus and addrTo and replyTo fields are empty.
+      await checkWindow(createdTab, {
+        activeElement: "toAddrInput",
+        pills: { to: "", replyTo: "" },
+        values: { toAddrInput: "", replyAddrInput: "" },
+      });
+
+      // Set the replyTo field, which should not break autocomplete for the currently active addrTo
+      // field.
+      await browser.compose.setComposeDetails(createdTab.id, {
+        replyTo: "test@user.net",
+      });
+
+      // Confirm the addrTo field has focus and replyTo field is set.
+      await checkWindow(createdTab, {
+        activeElement: "toAddrInput",
+        pills: { to: "", replyTo: "test@user.net" },
+        values: { toAddrInput: "", replyAddrInput: "" },
+      });
+
+      // Manually type "Autocomplete" into the active field, which should be the toAddr field and it
+      // should autocomplete.
+      await window.sendMessage("typeIntoActiveAddrField", "Autocomplete");
+
+      // Confirm the addrTo field has focus and replyTo field is set and the addrTo field has been
+      // autocompleted.
+      await checkWindow(createdTab, {
+        activeElement: "toAddrInput",
+        pills: { to: "", replyTo: "test@user.net" },
+        values: {
+          toAddrInput: "Autocomplete Test <autocomplete@invalid>",
+          replyAddrInput: "",
+        },
+      });
+
+      // Clean up.
+      await browser.contacts.delete(contactId);
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdWindow.id);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose", "addressBooks"],
+    },
+  });
+
+  extension.onMessage("typeIntoActiveAddrField", async value => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+
+    for (const s of value) {
+      EventUtils.synthesizeKey(s, {}, composeWindows[0]);
+      await new Promise(r => composeWindows[0].setTimeout(r));
+    }
+
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkWindow", async expected => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+    let composeDocument = composeWindows[0].document;
+    await new Promise(resolve => composeWindows[0].setTimeout(resolve));
+
+    Assert.equal(
+      composeDocument.activeElement.id,
+      expected.activeElement,
+      `Active element should be correct`
+    );
+
+    for (let [id, value] of Object.entries(expected.values)) {
+      await TestUtils.waitForCondition(
+        () => composeDocument.getElementById(id).value == value,
+        `Value of field ${id} should be correct`
+      );
+    }
+
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

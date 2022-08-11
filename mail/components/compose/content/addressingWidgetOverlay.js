@@ -854,8 +854,10 @@ function recipientAddPills(input, automatic = false) {
   // to be filled with the previously selected address when the "blur" event
   // gets triggered.
   input.detachController();
-  // Attach it again to enable autocomplete.
-  input.attachController();
+  // If it was detached, attach it again to enable autocomplete.
+  if (!input.controller.input) {
+    input.attachController();
+  }
 
   // Prevent triggering some methods if the pill creation was done automatically
   // for example during the move of an existing pill between addressing fields.
