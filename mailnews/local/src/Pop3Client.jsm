@@ -10,6 +10,9 @@ var { AppConstants } = ChromeUtils.import(
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { Pop3Authenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
@@ -867,6 +870,7 @@ class Pop3Client {
         this._uidlMapChanged = true;
       }
       // Finish if there is no message.
+      MailServices.pop3.notifyDownloadCompleted(this._sink.folder, 0);
       this._actionDone();
       return;
     }
