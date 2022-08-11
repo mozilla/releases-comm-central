@@ -122,11 +122,11 @@ add_task(async () => {
   // Confirm that the mailing list and addresses were saved in the backend.
 
   Assert.ok(
-    DisplayNameUtils.getCardForEmail(inputs.addresses[0]).card,
+    MailServices.ab.cardForEmailAddress(inputs.addresses[0]),
     "address zero was saved"
   );
   Assert.ok(
-    DisplayNameUtils.getCardForEmail(inputs.addresses[1]).card,
+    MailServices.ab.cardForEmailAddress(inputs.addresses[1]),
     "address one was saved"
   );
 
@@ -281,11 +281,11 @@ add_task(async () => {
   );
 
   Assert.ok(
-    DisplayNameUtils.getCardForEmail(inputs.addresses[2]).card,
+    MailServices.ab.cardForEmailAddress(inputs.addresses[2]),
     "address two was saved"
   );
   Assert.ok(
-    DisplayNameUtils.getCardForEmail(inputs.addresses[3]).card,
+    MailServices.ab.cardForEmailAddress(inputs.addresses[3]),
     "address three was saved"
   );
 

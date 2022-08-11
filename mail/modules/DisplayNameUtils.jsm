@@ -11,38 +11,12 @@ const { MailServices } = ChromeUtils.import(
 var DisplayNameUtils = {
   formatDisplayName,
   formatDisplayNameList,
-  getCardForEmail,
 };
 
 // XXX: Maybe the strings for this file should go in a separate bundle?
 var gMessengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
-
-/**
- * Returns an object with two properties, .book and .card. If the email address
- * is found in the address books, then the book will contain an nsIAbDirectory,
- * and card will contain an nsIAbCard. If the email address is not found, both
- * items will contain null.
- *
- * @param aEmailAddress The address to look for.
- * @return An object with two properties, .book and .card.
- */
-function getCardForEmail(aEmailAddress) {
-  // Email address is searched for in any of the address books that support
-  // the cardForEmailAddress function.
-  // Future expansion could be to domain matches
-  for (let book of MailServices.ab.directories) {
-    try {
-      let card = book.cardForEmailAddress(aEmailAddress);
-      if (card) {
-        return { book, card };
-      }
-    } catch (ex) {}
-  }
-
-  return { book: null, card: null };
-}
 
 function _getIdentityForAddress(aEmailAddress) {
   let emailAddress = aEmailAddress.toLowerCase();
@@ -74,7 +48,7 @@ function _getIdentityForAddress(aEmailAddress) {
 function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
   var displayName = null;
   var identity = _getIdentityForAddress(aEmailAddress);
-  var card = aCard || getCardForEmail(aEmailAddress).card;
+  var card = MailServices.ab.cardForEmailAddress(aEmailAddress);
 
   // If this address is one of the user's identities...
   if (identity) {

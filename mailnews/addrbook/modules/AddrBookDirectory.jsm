@@ -463,7 +463,13 @@ class AddrBookDirectory {
     // Nothing so far? Go through all the cards checking all of the addresses.
     // This could be slow.
     emailAddress = emailAddress.toLowerCase();
-    for (let uid of this.cards.keys()) {
+    for (let [uid, properties] of this.cards) {
+      let vCard = properties.get("_vCard");
+      // If the vCard string doesn't include the email address, the parsed
+      // vCard won't include it either, so don't waste time parsing it.
+      if (!vCard?.toLowerCase().includes(emailAddress)) {
+        continue;
+      }
       card = this.getCard(uid);
       if (card.emailAddresses.some(e => e.toLowerCase() == emailAddress)) {
         return card;
@@ -606,12 +612,23 @@ class AddrBookDirectory {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_POINTER);
     }
 
+    let updateDisplayNameVersion = false;
     for (let card of cards) {
+      updateDisplayNameVersion = updateDisplayNameVersion || card.displayName;
       // TODO: delete photo if there is one
       this.deleteCard(card.UID);
       if (this.hasOwnProperty("cards")) {
         this.cards.delete(card.UID);
       }
+    }
+
+    // Increment this preference if one or more cards has a display name.
+    // This will cause the UI to throw away cached values.
+    if (updateDisplayNameVersion) {
+      Services.prefs.setIntPref(
+        "mail.displayname.version",
+        Services.prefs.getIntPref("mail.displayname.version", 0) + 1
+      );
     }
 
     for (let card of cards) {
@@ -649,6 +666,15 @@ class AddrBookDirectory {
       this.cards.set(uid, newProperties);
     }
     this.saveCardProperties(uid, newProperties);
+
+    // Increment this preference if the card has a display name.
+    // This will cause the UI to throw away cached values.
+    if (card.displayName) {
+      Services.prefs.setIntPref(
+        "mail.displayname.version",
+        Services.prefs.getIntPref("mail.displayname.version", 0) + 1
+      );
+    }
 
     let newCard = this.getCard(uid);
     Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);

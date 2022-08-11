@@ -75,6 +75,9 @@ function run_test() {
   Assert.equal(card.UID, "f68fbac4-158b-4bdc-95c6-592a5f93cfa1");
   Assert.equal(card.displayName, "A vCard!");
 
+  card = AB.cardForEmailAddress("A vCard!");
+  Assert.equal(card, null);
+
   // Check getCardFromProperty returns null correctly for non-extant properties
   Assert.equal(AB.getCardFromProperty("NickName", "", false), null);
   Assert.equal(AB.getCardFromProperty("NickName", "NickName", false), null);

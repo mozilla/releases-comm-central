@@ -471,9 +471,15 @@
       }
 
       this.abIndicator.hidden = false;
-      this.cardDetails = lazy.DisplayNameUtils.getCardForEmail(
+      let card = MailServices.ab.cardForEmailAddress(
         this.#recipient.emailAddress
       );
+      this.cardDetails = {
+        card,
+        book: card
+          ? MailServices.ab.getDirectoryFromUID(card.directoryUID)
+          : null,
+      };
 
       let displayName = lazy.DisplayNameUtils.formatDisplayName(
         this.emailAddress,
