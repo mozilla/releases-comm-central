@@ -184,18 +184,21 @@ function UpdateStatusQuota(folder) {
         highest.usage,
         highest.limit,
       ]);
+      let quotaPanel = document.getElementById("quotaPanel");
       if (
         percent <
         Services.prefs.getIntPref("mail.quota.mainwindow_threshold.warning")
       ) {
-        document.getElementById("quotaPanel").removeAttribute("alert");
+        quotaPanel.classList.remove("alert-warning", "alert-critical");
       } else if (
         percent <
         Services.prefs.getIntPref("mail.quota.mainwindow_threshold.critical")
       ) {
-        document.getElementById("quotaPanel").classList.add("alert-warning");
+        quotaPanel.classList.remove("alert-critical");
+        quotaPanel.classList.add("alert-warning");
       } else {
-        document.getElementById("quotaPanel").classList.add("alert-critical");
+        quotaPanel.classList.remove("alert-warning");
+        quotaPanel.classList.add("alert-critical");
       }
     }
   } else {
