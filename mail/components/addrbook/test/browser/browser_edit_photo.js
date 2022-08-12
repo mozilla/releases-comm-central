@@ -10,9 +10,6 @@ const { CardDAVServer } = ChromeUtils.import(
 );
 const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
-// TODO: Fix the UI so that we don't have to do this.
-window.maximize();
-
 const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );

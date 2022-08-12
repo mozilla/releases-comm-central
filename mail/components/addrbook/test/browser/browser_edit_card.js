@@ -4,9 +4,6 @@
 
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
-// TODO: Fix the UI so that we don't have to do this.
-window.maximize();
-
 requestLongerTimeout(2);
 
 async function inEditingMode() {
@@ -110,11 +107,9 @@ function getInput(entryName, addIfNeeded = false) {
         addIfNeeded &&
         abDocument.getElementById("vcard-email").children.length < 1
       ) {
-        EventUtils.synthesizeMouseAtCenter(
-          abDocument.getElementById("vcard-add-email"),
-          {},
-          abWindow
-        );
+        let addButton = abDocument.getElementById("vcard-add-email");
+        addButton.scrollIntoView({ block: "nearest" });
+        EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
       }
       return abDocument.querySelector(
         `#vcard-email tr:nth-child(1) input[type="email"]`
@@ -128,11 +123,9 @@ function getInput(entryName, addIfNeeded = false) {
         addIfNeeded &&
         abDocument.getElementById("vcard-email").children.length < 2
       ) {
-        EventUtils.synthesizeMouseAtCenter(
-          abDocument.getElementById("vcard-add-email"),
-          {},
-          abWindow
-        );
+        let addButton = abDocument.getElementById("vcard-add-email");
+        addButton.scrollIntoView({ block: "nearest" });
+        EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
       }
       return abDocument.querySelector(
         `#vcard-email tr:nth-child(2) input[type="email"]`
@@ -418,9 +411,10 @@ function setInputValues(changes) {
 async function activateTypeSelect(typeField, optionValue) {
   let abWindow = getAddressBookWindow();
   // Ensure that the select field is inside the viewport.
-  typeField.scrollIntoView();
+  typeField.scrollIntoView({ block: "nearest" });
+  let shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
   EventUtils.synthesizeMouseAtCenter(typeField, {}, abWindow);
-  let selectPopup = await BrowserTestUtils.waitForSelectPopupShown(window);
+  let selectPopup = await shownPromise;
 
   // Get the index of the optionValue from typeField
   let index = Array.from(typeField.children).findIndex(
@@ -447,6 +441,10 @@ async function setVCardInputValues(changes) {
 
   for (let [key, entries] of Object.entries(changes)) {
     let fields = getFields(key, true, entries.length);
+    // Somehow prevents an error on macOS when using <select> widgets that
+    // have just been added.
+    await new Promise(resolve => abWindow.setTimeout(resolve, 250));
+
     for (let [index, field] of fields.entries()) {
       let changeEntry = entries[index];
       let valueField;
@@ -462,6 +460,7 @@ async function setVCardInputValues(changes) {
               changeEntry &&
               changeEntry.pref == "1")
           ) {
+            field.checkboxEl.scrollIntoView({ block: "nearest" });
             EventUtils.synthesizeMouseAtCenter(field.checkboxEl, {}, abWindow);
           }
           break;
@@ -2459,7 +2458,7 @@ add_task(async function test_vCard_minimal() {
   });
 
   let addOrgButton = abDocument.getElementById("vcard-add-org");
-  addOrgButton.scrollIntoView();
+  addOrgButton.scrollIntoView({ block: "nearest" });
   EventUtils.synthesizeMouseAtCenter(addOrgButton, {}, abWindow);
 
   Assert.ok(
@@ -2762,13 +2761,16 @@ add_task(async function test_special_date_field() {
   });
 
   let addSpecialDate = abDocument.getElementById("vcard-add-bday-anniversary");
-  addSpecialDate.scrollIntoView();
+  addSpecialDate.scrollIntoView({ block: "nearest" });
   EventUtils.synthesizeMouseAtCenter(addSpecialDate, {}, abWindow);
 
   Assert.ok(
     BrowserTestUtils.is_visible(abDocument.querySelector("vcard-special-date")),
     "The special date field is visible."
   );
+  // Somehow prevents an error on macOS when using <select> widgets that have
+  // just been added.
+  await new Promise(resolve => abWindow.setTimeout(resolve, 250));
 
   let firstYear = abDocument.querySelector(
     `vcard-special-date input[type="number"]`
@@ -2787,22 +2789,14 @@ add_task(async function test_special_date_field() {
   // Set date to a leap year.
   firstYear.value = 2004;
 
-  let openMonthSelect = async function() {
-    firstMonth.focus();
+  let shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  firstMonth.scrollIntoView({ block: "nearest" });
+  EventUtils.synthesizeMouseAtCenter(firstMonth, {}, abWindow);
+  let selectPopup = await shownPromise;
 
-    let menulist = document.getElementById("ContentSelectDropdown");
-    Assert.ok(menulist, "select menulist exists");
-
-    // Click on the select control to open the popup.
-    let shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
-    EventUtils.synthesizeMouseAtCenter(firstMonth, {}, abWindow);
-    await shownPromise;
-  };
-
-  await openMonthSelect();
-  EventUtils.sendKey("down", abWindow);
-  EventUtils.sendKey("down", abWindow);
-  EventUtils.sendKey("return", abWindow);
+  let changePromise = BrowserTestUtils.waitForEvent(firstMonth, "change");
+  selectPopup.activateItem(selectPopup.children[2]);
+  await changePromise;
 
   await BrowserTestUtils.waitForCondition(
     () => firstDay.childNodes.length == 30, // 29 days + empty option 0.
