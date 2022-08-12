@@ -54,7 +54,7 @@ var { MailServices } = ChromeUtils.import(
 const LINES_PREF = "mailnews.headers.show_n_lines_before_more";
 
 // Used to get the accessible object for a DOM node.
-const gAccService = Cc["@mozilla.org/accessibilityService;1"].getService(
+var gAccService = Cc["@mozilla.org/accessibilityService;1"].getService(
   Ci.nsIAccessibilityService
 );
 
@@ -997,4 +997,15 @@ add_task(async function test_folder_db_listener() {
     mc.window.gFolderDBListener.selectedFolder,
     "The current folder was stored correctly"
   );
+});
+
+/**
+ * Remove the reference to the accessibility service so that it stops observing
+ * vsync notifications at the end of the test.
+ */
+add_task(function cleanup() {
+  gAccService = null;
+  // The actual reference to the XPCOM object will be dropped at the next GC,
+  // so force one to happen immediately.
+  Cu.forceGC();
 });
