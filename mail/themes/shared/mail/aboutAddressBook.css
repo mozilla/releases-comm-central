@@ -494,6 +494,24 @@ ab-table-card-listrow:hover {
   flex: 1 1 auto;
 }
 
+ab-card-listrow :is(.ab-card-first-line, .ab-card-second-line) {
+  line-height: 1.3;
+}
+
+:root[uidensity="compact"] ab-card-listrow :is(.ab-card-first-line, .ab-card-second-line) {
+  line-height: 1.2;
+}
+
+:root[uidensity="touch"] ab-card-listrow :is(.ab-card-first-line, .ab-card-second-line) {
+  line-height: 1.4;
+}
+
+@media (-moz-platform: windows) {
+  :root[uidensity="compact"] ab-card-listrow :is(.ab-card-first-line, .ab-card-second-line) {
+    line-height: 1.4;
+  }
+}
+
 ab-card-listrow:not(.selected) .ab-card-second-line {
   color: var(--in-content-deemphasized-text);
 }
