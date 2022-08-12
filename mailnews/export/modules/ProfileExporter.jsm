@@ -67,13 +67,16 @@ class ProfileExporter {
     let totalEntries = zipEntryMap.size;
     let i = 0;
     for (let [path, file] of zipEntryMap) {
-      this._logger.debug("Adding entry file:", path);
-      zipW.addEntryFile(
-        path,
-        0, // no compression, bigger file but much faster
-        file,
-        false
-      );
+      try {
+        zipW.addEntryFile(
+          path,
+          0, // no compression, bigger file but much faster
+          file,
+          false
+        );
+      } catch (e) {
+        this._logger.error(`Failed to add ${path}`, e);
+      }
       if (++i % 10 === 0) {
         this.onProgress(i, totalEntries);
         await new Promise(resolve => lazy.setTimeout(resolve));
@@ -91,6 +94,9 @@ class ProfileExporter {
    */
   async _collectFilesToZip(zipEntryMap, rootPathCount, folder) {
     for (let file of folder.directoryEntries) {
+      if (!file.exists()) {
+        continue;
+      }
       if (file.isDirectory()) {
         await this._collectFilesToZip(zipEntryMap, rootPathCount, file);
       } else {
