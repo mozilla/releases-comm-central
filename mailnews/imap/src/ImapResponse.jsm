@@ -204,7 +204,7 @@ class ImapResponse {
     let tokens = [];
     while (line) {
       // Find the first separator.
-      let match = line.match(/[()\[\] ]/);
+      let match = line.match(/[()\[\]" ]/);
       if (!match) {
         tokens.push(line);
         break;
@@ -215,7 +215,27 @@ class ImapResponse {
       if (token) {
         tokens.push(token);
       }
-      if (sep != " ") {
+      if (sep == '"') {
+        // Parse the whole string as a token.
+        line = line.slice(index + 1);
+        let str = "";
+        while (true) {
+          index = line.indexOf('"');
+          if (line[index - 1] == "\\") {
+            // Not the ending quote.
+            str += line.slice(0, index + 1);
+            line = line.slice(index + 1);
+            continue;
+          } else {
+            // The ending quote.
+            str += line.slice(0, index);
+            tokens.push(str.replaceAll('\\"', '"'));
+            line = line.slice(index + 1);
+            break;
+          }
+        }
+        continue;
+      } else if (sep != " ") {
         tokens.push(sep);
       }
       line = line.slice(index + 1);
@@ -325,10 +345,10 @@ class MessageData {
  */
 class MailboxData {
   constructor(tokens) {
-    let [, , attributes, delimiter, ...rest] = tokens;
+    let [, , attributes, delimiter, name] = tokens;
     this.flags = this._stringsToFlags(attributes);
-    this.delimiter = delimiter.replace(/(^"|"$)/g, "");
-    this.name = unescapeMailboxName(rest);
+    this.delimiter = delimiter;
+    this.name = name;
   }
 
   /**
@@ -381,7 +401,7 @@ class StatusData {
 
     // The first two tokens are ["*", "STATUS"], the last token is the attribute
     // list, the middle part is the mailbox name.
-    this.attributes.mailbox = unescapeMailboxName(tokens.slice(2, -1));
+    this.attributes.mailbox = tokens[2];
 
     let attributes = tokens.at(-1);
     for (let i = 0; i < attributes.length; i += 2) {
@@ -389,16 +409,4 @@ class StatusData {
       this.attributes[type] = attributes[i + 1];
     }
   }
-}
-
-/**
- * Restore the mailbox name from tokens.
- * @params {string[]} tokens - E.g. "sub folder" may be tokenized as
- *   ["\"sub", "folder\""]
- */
-function unescapeMailboxName(tokens) {
-  return tokens
-    .join(" ")
-    .replace(/(^"|"$)/g, "")
-    .replaceAll('\\"', '"');
 }

@@ -61,10 +61,6 @@ add_task(async function setupTest() {
 add_task(function checkFilterResults() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr.isRead);
-});
-
-// Cleanup
-add_task(function endTest() {
   IMAPPump.server.performTest("UID STORE");
   teardownIMAPPump();
 });

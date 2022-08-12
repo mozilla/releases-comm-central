@@ -203,6 +203,29 @@ add_task(function test_ListResponse() {
 });
 
 /**
+ * Test folder names containg [] or () or "" can be correctly parsed.
+ */
+add_task(function test_parseFolderNames() {
+  let response = new ImapResponse();
+  response.parse(
+    [
+      '* LSUB () "/" "[Gmail]"',
+      '* LSUB () "/" "[Gmail]/All Mail"',
+      '* LSUB () "/" "[Gmail]/Sent"',
+      '* LSUB () "/" "[a(b)])"',
+      '* LSUB () "/" "a \\"b \\"c\\""',
+      "84 OK LSUB completed",
+      "",
+    ].join("\r\n")
+  );
+  equal(response.mailboxes.length, 5);
+  deepEqual(
+    response.mailboxes.map(x => x.name),
+    ["[Gmail]", "[Gmail]/All Mail", "[Gmail]/Sent", "[a(b)])", 'a "b "c"']
+  );
+});
+
+/**
  * Test STATUS response can be correctly parsed.
  */
 add_task(function test_StatusResponse() {
