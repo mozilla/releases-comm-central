@@ -310,7 +310,9 @@ this.mailTabs = class extends ExtensionAPI {
         async getSelectedMessages(tabId) {
           let tab = getTabOrActive(tabId);
           let { folderDisplay } = tab.nativeTab;
-          let messageList = folderDisplay.view.dbView.getSelectedMsgHdrs();
+          let messageList = folderDisplay.view.dbView
+            ? folderDisplay.view.dbView.getSelectedMsgHdrs()
+            : [];
           return messageListTracker.startList(messageList, extension);
         },
 
