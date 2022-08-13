@@ -76,12 +76,10 @@ XPCOMUtils.defineLazyGetter(this, "PrintUtils", () => {
     let stack = document.createXULElement("stack");
     stack.className = "browserStack";
     stack.appendChild(b);
-    stack.setAttribute("flex", "10000");
 
     let browserContainer = document.createXULElement("vbox");
     browserContainer.className = "browserContainer";
     browserContainer.appendChild(stack);
-    browserContainer.setAttribute("flex", "10000");
 
     let browserSidebarContainer = document.createXULElement("hbox");
     browserSidebarContainer.className = "browserSidebarContainer";

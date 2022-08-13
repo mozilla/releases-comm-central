@@ -39,9 +39,8 @@
   text-align: left;
 }
 
-#folderNameCol [sortDirection="ascending"],
-#folderNameCol [sortDirection="descending"] {
-  list-style-image: none;
+#folderNameCol {
+  -moz-box-flex: 5;
 }
 
 /* ::::: thread decoration ::::: */
@@ -92,6 +91,7 @@ treechildren::-moz-tree-cell-text(dummy) {
    header content over the statusbar. */
 
 #messagepanebox {
+  -moz-box-flex: 2;
   overflow: hidden;
 }
 

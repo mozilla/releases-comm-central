@@ -6,6 +6,18 @@ treecolpicker {
   display: none;
 }
 
+#checkedHeader {
+  -moz-box-flex: 3;
+}
+
+#fieldNameHeader {
+  -moz-box-flex: 7;
+}
+
+#sampleDataHeader {
+  -moz-box-flex: 13;
+}
+
 richlistitem > hbox > checkbox {
   margin: 0;
 }

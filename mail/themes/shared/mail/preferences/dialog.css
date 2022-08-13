@@ -118,6 +118,22 @@ textbox.tree-input {
   margin-inline-start: 8px;
 }
 
+#siteCol {
+  -moz-box-flex: 3;
+}
+
+#statusCol {
+  -moz-box-flex: 1;
+}
+
+#domainCol {
+  -moz-box-flex: 2;
+}
+
+#nameCol {
+  -moz-box-flex: 1;
+}
+
 /* Adjust the Lightning Edit Category dialog */
 #colorSelectRow {
   margin-top: 10px;

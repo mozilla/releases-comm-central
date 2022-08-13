@@ -3279,7 +3279,6 @@ function manageAttachmentNotification(aForce = false) {
 
   // Construct the notification as we don't have one.
   let msg = document.createXULElement("hbox");
-  msg.setAttribute("flex", "100");
   msg.onclick = function(event) {
     openOptionsDialog("paneCompose", "compositionAttachmentsCategory", {
       subdialog: "attachment_reminder_button",
@@ -3296,7 +3295,6 @@ function manageAttachmentNotification(aForce = false) {
   msg.appendChild(msgKeywords);
   msgKeywords.id = "attachmentKeywords";
   msgKeywords.setAttribute("crop", "end");
-  msgKeywords.setAttribute("flex", "1000");
   msgKeywords.setAttribute("value", keywords);
   let addButton = {
     "l10n-id": "add-attachment-notification-reminder2",
@@ -7178,7 +7176,6 @@ function FillIdentityList(menulist) {
       desc.value = item.getAttribute("description");
       desc.classList.add("menu-description");
       desc.setAttribute("crop", "right");
-      desc.setAttribute("flex", "10000");
       item.querySelector("label:last-child").after(desc);
     }
   }

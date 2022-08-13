@@ -16,6 +16,7 @@
 }
 
 #messagepanebox {
+  -moz-box-flex: 3;
   text-shadow: none;
   background-color: -moz-Dialog;
 }

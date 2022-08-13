@@ -51,10 +51,6 @@ treechildren::-moz-tree-image(syncCol, isServer-true) {
   list-style-image: none;
 }
 
-#folderNameCol [sortDirection="ascending"] {
-  list-style-image: none;
-}
-
-#folderNameCol [sortDirection="descending"] {
-  list-style-image: none;
+#folderNameCol {
+  -moz-box-flex: 5;
 }

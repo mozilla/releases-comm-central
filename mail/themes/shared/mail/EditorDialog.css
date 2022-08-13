@@ -321,3 +321,17 @@ html|table html|th {
 html|input[type="checkbox"] {
   -moz-appearance: checkbox;
 }
+
+/* Advanced Edit dialog */
+
+#HTMLAttrCol,
+#CSSPropCol,
+#AttrCol {
+  -moz-box-flex: 35;
+}
+
+#HTMLValCol,
+#CSSValCol,
+#HeaderCol {
+  -moz-box-flex: 65;
+}

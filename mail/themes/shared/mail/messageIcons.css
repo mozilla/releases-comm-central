@@ -8,6 +8,30 @@
   text-align: end;
 }
 
+#subjectCol {
+  -moz-box-flex: 7;
+}
+
+#senderCol {
+  -moz-box-flex: 4;
+}
+
+#recipientCol {
+  -moz-box-flex: 4;
+}
+
+#correspondentCol {
+  -moz-box-flex: 4;
+}
+
+#receivedCol {
+  -moz-box-flex: 2;
+}
+
+#dateCol {
+  -moz-box-flex: 2;
+}
+
 /* ..... select column ..... */
 
 .selectColumnHeader {

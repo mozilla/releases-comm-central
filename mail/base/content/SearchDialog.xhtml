@@ -86,18 +86,18 @@
 #endif
   </keyset>
 
-    <vbox id="searchTerms" class="themeable-brighttext" flex="3" persist="height">
+    <vbox id="searchTerms" class="themeable-brighttext" persist="height">
       <vbox>
         <hbox align="center">
           <label value="&searchHeading.label;" accesskey="&searchHeading.accesskey;"
                  control="searchableFolders"/>
-          <menulist id="searchableFolders" flex="2" class="folderMenuItem"
+          <menulist id="searchableFolders" class="folderMenuItem"
                     displayformat="verbose">
             <menupopup is="folder-menupopup" class="menulist-menupopup"
                        mode="search" showAccountsFileHere="true" showFileHereLabel="true"
                        oncommand="updateSearchFolderPicker(event.target._folder);"/>
           </menulist>
-          <spacer flex="10"/>
+          <spacer style="-moz-box-flex: 10;"/>
           <button id="search-button" oncommand="onSearchButton(event);" default="true"/>
         </hbox>
 
@@ -107,7 +107,7 @@
                     accesskey="&searchSubfolders.accesskey;"
                     checked="true"
                     persist="checked"/>
-          <spacer flex="10"/>
+          <spacer style="-moz-box-flex: 10;"/>
           <button label="&resetButton.label;" oncommand="onResetSearch(event);" accesskey="&resetButton.accesskey;"/>
         </hbox>
         <hbox align="center">
@@ -127,7 +127,7 @@
 
     <splitter id="gray_horizontal_splitter" persist="state" orient="vertical"/>
 
-    <vbox id="searchResults" flex="4" persist="height">
+    <vbox id="searchResults" persist="height">
       <vbox id="searchResultListBox" flex="1">
 #include threadTree.inc.xhtml
       </vbox>

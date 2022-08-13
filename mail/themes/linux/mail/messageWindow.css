@@ -15,11 +15,7 @@
 }
 
 #messagepanebox {
+  -moz-box-flex: 3;
   text-shadow: none;
-}
-
-/* ..... message pane adjustments ..... */
-
-#messagepanebox {
   border-bottom: 1px solid ThreeDShadow;
 }

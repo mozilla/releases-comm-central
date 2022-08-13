@@ -279,6 +279,10 @@ button.ghost-button:not(.semi-transparent):enabled:hover:active {
   font-weight: 500;
 }
 
+.notification-message > hbox {
+  -moz-box-flex: 100;
+}
+
 .notification-button {
   border: 1px solid var(--in-content-button-border);
   border-radius: 3px;
@@ -410,6 +414,7 @@ strong {
 /* Attachment reminder variations */
 
 #attachmentKeywords {
+  -moz-box-flex: 1000;
   font-weight: bold;
   margin-inline-start: 3px;
   text-decoration: underline;

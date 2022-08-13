@@ -7,3 +7,19 @@
 treecolpicker {
   display: none;
 }
+
+#recipientKeyIdCol {
+  -moz-box-flex: 3;
+}
+
+#recipientStatusCol {
+  -moz-box-flex: 4;
+}
+
+#recipientComposeKeyCol {
+  -moz-box-flex: 3;
+}
+
+#statusComposeKeyCol {
+  -moz-box-flex: 2;
+}

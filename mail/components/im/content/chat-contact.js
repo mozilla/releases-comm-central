@@ -110,7 +110,7 @@
                           hidden="hidden"/>
             </stack>
             <label crop="end"
-                   flex="100000"
+                   style="-moz-box-flex: 100000;"
                    class="contactStatusText">
             </label>
             <button class="startChatBubble"

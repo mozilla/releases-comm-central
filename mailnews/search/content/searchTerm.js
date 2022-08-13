@@ -454,8 +454,8 @@ function constructRow(aChildren) {
   listitem.setAttribute("allowevents", "true");
   for (let i = 0; i < aChildren.length; i++) {
     let listcell = document.createXULElement("hbox");
-    if (cols[i].hasAttribute("flex")) {
-      listcell.setAttribute("flex", cols[i].getAttribute("flex"));
+    if (cols[i].hasAttribute("style")) {
+      listcell.setAttribute("style", cols[i].getAttribute("style"));
     }
     let child = aChildren[i];
 

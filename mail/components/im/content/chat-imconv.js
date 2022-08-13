@@ -69,7 +69,7 @@
             <box class="convUnreadTargetedCount">
               <label class="convUnreadTargetedCountLabel" crop="end"></label>
             </box>
-            <spacer flex="1000000"></spacer>
+            <spacer style="-moz-box-flex: 1000000;"></spacer>
           </hbox>
           `,
           ["chrome://messenger/locale/chat.dtd"]

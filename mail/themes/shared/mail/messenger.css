@@ -145,6 +145,10 @@ p {
   color: color-mix(in srgb, currentColor 70%, transparent);
 }
 
+#threadTree {
+  -moz-box-flex: 2;
+}
+
 .tree-columnpicker-icon {
   list-style-image: var(--icon-column-menu);
   -moz-context-properties: stroke, fill;
@@ -1573,6 +1577,11 @@ iframe.devtools-highlighter-renderer {
 }
 
 /* Print UI, mostly from browser.css */
+
+.browserContainer,
+.browserStack {
+  -moz-box-flex: 10000;
+}
 
 .printPreviewStack {
   position: relative;

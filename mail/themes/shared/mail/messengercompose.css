@@ -553,6 +553,10 @@
   list-style-image: var(--icon-print);
 }
 
+.menu-description {
+  -moz-box-flex: 10000;
+}
+
 .menu-description,
 menulist::part(description) {
   font-style: italic;

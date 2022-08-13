@@ -883,7 +883,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           t.maxWidth = this.tabContainer.mTabMaxWidth;
           t.minWidth = this.tabContainer.mTabMinWidth;
           t.width = 0;
-          t.setAttribute("flex", "100");
           t.setAttribute("validate", "never");
           t.className = "tabmail-tab";
 

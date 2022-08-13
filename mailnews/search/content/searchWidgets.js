@@ -1451,7 +1451,7 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-          <menulist is="ruleactiontype-menulist" flex="&filterActionTypeFlexValue;">
+          <menulist is="ruleactiontype-menulist" style="-moz-box-flex: &filterActionTypeFlexValue;">
             <menupopup>
               <menuitem label="&moveMessage.label;"
                         value="movemessage"
@@ -1501,7 +1501,8 @@
             </menupopup>
           </menulist>
           <ruleactiontarget-wrapper class="ruleactiontarget"
-                                    flex="&filterActionTargetFlexValue;"></ruleactiontarget-wrapper>
+                                    style="-moz-box-flex: &filterActionTargetFlexValue;">
+          </ruleactiontarget-wrapper>
           <hbox>
             <button class="small-button"
                     label="+"

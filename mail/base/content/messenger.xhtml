@@ -529,7 +529,7 @@
                           clicktoscroll="true"
                           style="min-width: 1px;">
             <tab is="tabmail-tab" selected="true" validate="never"
-                 style="min-width:100px; max-width:250px;" width="0" flex="100"
+                 style="min-width:100px; max-width:250px; " width="0"
                  class="tabmail-tab" crop="end"/>
           </arrowscrollbox>
         </tabs>
@@ -648,7 +648,6 @@
                   <treecol id="folderNameCol"
                            closemenu="none"
                            label2="&folderNameColumn.label;"
-                           flex="5"
                            crop="center"
                            persist="width"
                            hideheader="true"
@@ -730,7 +729,7 @@
                       flex="1"
                       style="min-height:100px; min-width:100px;"
                       height="200" width="200">
-                  <vbox id="messagepanebox" flex="2">
+                  <vbox id="messagepanebox">
                     <!-- This next iframe is used to display summaries of -->
                     <!-- multiple selected messages or collapsed threads -->
                     <browser id="multimessage"

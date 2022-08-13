@@ -68,6 +68,14 @@
   color: #f66;
 }
 
+#qfb-qs-textbox {
+  -moz-box-flex: 3;
+}
+
+#quick-filter-bar-tab-bar {
+  -moz-box-flex: 2;
+}
+
 #qfb-filter-bar-spacer {
   min-width: 4px !important;
 }
