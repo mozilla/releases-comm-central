@@ -135,7 +135,9 @@ class Pop3IncomingServer extends MsgIncomingServer {
   /** @see nsILocalMailIncomingServer */
   createDefaultMailboxes() {
     for (let name of ["Inbox", "Trash"]) {
-      if (!this.rootFolder.containsChildNamed(name)) {
+      let folderUri = this.rootFolder.URI + "/" + name;
+      // Check by URI instead of by name, because folder name can be localized.
+      if (!this.rootFolder.getChildWithURI(folderUri, false, false)) {
         this.msgStore.createFolder(this.rootFolder, name);
       }
     }
