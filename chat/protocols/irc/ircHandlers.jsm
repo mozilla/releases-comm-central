@@ -4,6 +4,42 @@
 
 const EXPORTED_SYMBOLS = ["ircHandlers"];
 
+let { ircBase } = ChromeUtils.import("resource:///modules/ircBase.jsm");
+let { ircISUPPORT, isupportBase } = ChromeUtils.import(
+  "resource:///modules/ircISUPPORT.jsm"
+);
+let { ircCAP, capNotify } = ChromeUtils.import(
+  "resource:///modules/ircCAP.jsm"
+);
+let { ircCTCP, ctcpBase } = ChromeUtils.import(
+  "resource:///modules/ircCTCP.jsm"
+);
+let { ircServices, servicesBase } = ChromeUtils.import(
+  "resource:///modules/ircServices.jsm"
+);
+let { ctcpDCC } = ChromeUtils.import("resource:///modules/ircDCC.jsm");
+let { capEchoMessage } = ChromeUtils.import(
+  "resource:///modules/ircEchoMessage.jsm"
+);
+let { isupportNAMESX, capMultiPrefix } = ChromeUtils.import(
+  "resource:///modules/ircMultiPrefix.jsm"
+);
+let { ircNonStandard } = ChromeUtils.import(
+  "resource:///modules/ircNonStandard.jsm"
+);
+let {
+  ircWATCH,
+  isupportWATCH,
+  ircMONITOR,
+  isupportMONITOR,
+} = ChromeUtils.import("resource:///modules/ircWatchMonitor.jsm");
+let { ircSASL, capSASL } = ChromeUtils.import(
+  "resource:///modules/ircSASL.jsm"
+);
+let { capServerTime, tagServerTime } = ChromeUtils.import(
+  "resource:///modules/ircServerTime.jsm"
+);
+
 var ircHandlers = {
   /*
    * Object to hold the IRC handlers, each handler is an object that implements:
@@ -18,23 +54,57 @@ var ircHandlers = {
    *               object. It should return whether the message was successfully
    *               handler or not.
    */
-  _ircHandlers: [],
+  _ircHandlers: [
+    // High priority
+    ircCTCP,
+    ircServices,
+    // Default priority + 10
+    ircCAP,
+    ircISUPPORT,
+    ircWATCH,
+    ircMONITOR,
+    // Default priority + 1
+    ircNonStandard,
+    // Default priority
+    ircSASL,
+    ircBase,
+  ],
   // Object to hold the ISUPPORT handlers, expects the same fields as
   // _ircHandlers.
-  _isupportHandlers: [],
+  _isupportHandlers: [
+    // Default priority + 10
+    isupportNAMESX,
+    isupportWATCH,
+    isupportMONITOR,
+    // Default priority
+    isupportBase,
+  ],
   // Object to hold the Client Capabilities handlers, expects the same fields as
   // _ircHandlers.
-  _capHandlers: [],
+  _capHandlers: [
+    // High priority
+    capMultiPrefix,
+    // Default priority
+    capNotify,
+    capEchoMessage,
+    capSASL,
+    capServerTime,
+  ],
   // Object to hold the CTCP handlers, expects the same fields as _ircHandlers.
-  _ctcpHandlers: [],
+  _ctcpHandlers: [
+    // High priority + 10
+    ctcpDCC,
+    // Default priority
+    ctcpBase,
+  ],
   // Object to hold the DCC handlers, expects the same fields as _ircHandlers.
   _dccHandlers: [],
   // Object to hold the Services handlers, expects the same fields as
   // _ircHandlers.
-  _servicesHandlers: [],
+  _servicesHandlers: [servicesBase],
   // Object to hold irc message tag handlers, expects the same fields as
   // _ircHandlers.
-  _tagHandlers: [],
+  _tagHandlers: [tagServerTime],
 
   _registerHandler(aArray, aHandler) {
     // Protect ourselves from adding broken handlers.
@@ -130,7 +200,7 @@ var ircHandlers = {
         if (
           handler.isEnabled.call(aAccount) &&
           aCommand in handler.commands &&
-          handler.commands[aCommand].call(aAccount, aMessage)
+          handler.commands[aCommand].call(aAccount, aMessage, ircHandlers)
         ) {
           return true;
         }
@@ -240,16 +310,5 @@ var ircHandlers = {
   },
   get hasTagHandlers() {
     return this._tagHandlers.length > 0;
-  },
-
-  // Some constant priorities.
-  get LOW_PRIORITY() {
-    return -100;
-  },
-  get DEFAULT_PRIORITY() {
-    return 0;
-  },
-  get HIGH_PRIORITY() {
-    return 100;
   },
 };

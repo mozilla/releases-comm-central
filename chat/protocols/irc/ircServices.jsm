@@ -21,8 +21,8 @@ const EXPORTED_SYMBOLS = ["ircServices", "servicesBase"];
 const { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 /*
@@ -54,7 +54,7 @@ function ServiceMessage(aAccount, aMessage) {
 
 var ircServices = {
   name: "IRC Services",
-  priority: ircHandlers.HIGH_PRIORITY,
+  priority: ircHandlerPriorities.HIGH_PRIORITY,
   isEnabled: () => true,
   sendIdentify(aAccount) {
     if (
@@ -73,12 +73,12 @@ var ircServices = {
   commands: {
     // If we automatically reply to a NOTICE message this does not abide by RFC
     // 2812. Oh well.
-    NOTICE(aMessage) {
+    NOTICE(ircMessage, ircHandlers) {
       if (!ircHandlers.hasServicesHandlers) {
         return false;
       }
 
-      let message = ServiceMessage(this, aMessage);
+      let message = ServiceMessage(this, ircMessage);
 
       // If no service was found, return early.
       if (!message.hasOwnProperty("serviceName")) {
@@ -143,7 +143,7 @@ var ircServices = {
 
 var servicesBase = {
   name: "IRC Services",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled: () => true,
 
   commands: {
@@ -205,7 +205,7 @@ var servicesBase = {
       return false;
     },
 
-    NickServ(aMessage) {
+    NickServ(message, ircHandlers) {
       // Since we feed the messages back through the system at the end of the
       // timeout when waiting for a log-in, we need to NOT try to handle them
       // here and let them fall through to the default handler.
@@ -213,7 +213,7 @@ var servicesBase = {
         return false;
       }
 
-      let text = aMessage.params[1];
+      let text = message.params[1];
 
       // If we have a queue of messages, we're waiting for authentication.
       if (this.nickservMessageQueue) {
@@ -232,7 +232,7 @@ var servicesBase = {
         } else {
           // Queue any other messages that occur during the timeout so they
           // appear in the proper order.
-          this.nickservMessageQueue.push(aMessage);
+          this.nickservMessageQueue.push(message);
         }
         return true;
       }
@@ -249,7 +249,7 @@ var servicesBase = {
 
         // Wait one second before showing the message to the user (giving the
         // the server time to process the log-in).
-        this.nickservMessageQueue = [aMessage];
+        this.nickservMessageQueue = [message];
         this.nickservAuthTimeout = setTimeout(
           function() {
             this.isHandlingQueuedMessages = true;

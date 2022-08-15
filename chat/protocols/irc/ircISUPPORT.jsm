@@ -14,8 +14,8 @@
 
 const EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 /*
@@ -50,14 +50,14 @@ function isupportMessage(aMessage) {
 var ircISUPPORT = {
   name: "ISUPPORT",
   // Slightly above default RFC 2812 priority.
-  priority: ircHandlers.DEFAULT_PRIORITY + 10,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 10,
   isEnabled: () => true,
 
   commands: {
     // RPL_ISUPPORT
     // [-]<parameter>[=<value>] :are supported by this server
-    "005": function(aMessage) {
-      let messages = isupportMessage(aMessage);
+    "005": function(message, ircHandlers) {
+      let messages = isupportMessage(message);
 
       messages = messages.filter(
         aMessage => !ircHandlers.handleISUPPORTMessage(this, aMessage)
@@ -71,7 +71,7 @@ var ircISUPPORT = {
           "Unhandled ISUPPORT messages: " +
             unhandledMessages +
             "\nRaw message: " +
-            aMessage.rawMessage
+            message.rawMessage
         );
       }
 
@@ -96,7 +96,7 @@ function generateNormalize(a, b) {
 
 var isupportBase = {
   name: "ISUPPORT",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled: () => true,
 
   commands: {

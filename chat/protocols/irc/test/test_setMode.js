@@ -3,7 +3,7 @@
 
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { ircAccount, ircChannel } = ChromeUtils.import(
-  "resource:///modules/irc.jsm"
+  "resource:///modules/ircAccount.jsm"
 );
 
 IMServices.conversations.initConversations();

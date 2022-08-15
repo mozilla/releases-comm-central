@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { ircAccount } = ChromeUtils.import("resource:///modules/irc.jsm");
+var { ircAccount } = ChromeUtils.import("resource:///modules/ircAccount.jsm");
 
 var input = [
   undefined,

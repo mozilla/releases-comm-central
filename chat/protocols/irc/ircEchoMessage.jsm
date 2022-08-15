@@ -14,13 +14,13 @@
 
 const EXPORTED_SYMBOLS = ["capEchoMessage"];
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 var capEchoMessage = {
   name: "echo-message CAP",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled: () => true,
 
   commands: {

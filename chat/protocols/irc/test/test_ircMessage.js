@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { ircAccount, ircMessage } = ChromeUtils.import(
-  "resource:///modules/irc.jsm"
+  "resource:///modules/ircAccount.jsm"
 );
 
 var testData = [

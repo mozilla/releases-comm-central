@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { ircAccount } = ChromeUtils.import("resource:///modules/irc.jsm");
+var { ircAccount } = ChromeUtils.import("resource:///modules/ircAccount.jsm");
 var { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );

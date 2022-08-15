@@ -11,8 +11,8 @@
 
 const EXPORTED_SYMBOLS = ["ctcpDCC" /* , "dccBase"*/];
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 // Parse a CTCP message into a DCC message. A DCC message is a CTCP message of
@@ -52,19 +52,19 @@ function DCCMessage(aMessage, aAccount) {
 var ctcpDCC = {
   name: "DCC",
   // Slightly above default CTCP priority.
-  priority: ircHandlers.HIGH_PRIORITY + 10,
+  priority: ircHandlerPriorities.HIGH_PRIORITY + 10,
   isEnabled: () => true,
 
   commands: {
     // Handle a DCC message by parsing the message and executing any handlers.
-    DCC(aMessage) {
+    DCC(message, ircHandlers) {
       // If there are no DCC handlers, then don't parse the DCC message.
       if (!ircHandlers.hasDCCHandlers) {
         return false;
       }
 
       // Parse the message and attempt to handle it.
-      return ircHandlers.handleDCCMessage(this, DCCMessage(aMessage, this));
+      return ircHandlers.handleDCCMessage(this, DCCMessage(message, this));
     },
   },
 };

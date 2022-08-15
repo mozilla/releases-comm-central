@@ -18,8 +18,8 @@
 
 const EXPORTED_SYMBOLS = ["ircCAP", "capNotify", "capMessage"];
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 /*
@@ -89,25 +89,25 @@ function capMessage(aMessage, aAccount) {
 var ircCAP = {
   name: "Client Capabilities",
   // Slightly above default RFC 2812 priority.
-  priority: ircHandlers.DEFAULT_PRIORITY + 10,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 10,
   isEnabled: () => true,
 
   commands: {
-    CAP(aMessage) {
+    CAP(message, ircHandlers) {
       // [* | <nick>] <subcommand> :<parameters>
-      let messages = capMessage(aMessage, this);
+      let messages = capMessage(message, this);
 
-      for (const message of messages) {
+      for (const capCommandMessage of messages) {
         if (
-          message.cap.subcommand === "LS" ||
-          message.cap.subcommand === "NEW"
+          capCommandMessage.cap.subcommand === "LS" ||
+          capCommandMessage.cap.subcommand === "NEW"
         ) {
-          this._availableCAPs.add(message.cap.parameter);
-        } else if (message.cap.subcommand === "ACK") {
-          this._activeCAPs.add(message.cap.parameter);
-        } else if (message.cap.subcommand === "DEL") {
-          this._availableCAPs.delete(message.cap.parameter);
-          this._activeCAPs.delete(message.cap.parameter);
+          this._availableCAPs.add(capCommandMessage.cap.parameter);
+        } else if (capCommandMessage.cap.subcommand === "ACK") {
+          this._activeCAPs.add(capCommandMessage.cap.parameter);
+        } else if (capCommandMessage.cap.subcommand === "DEL") {
+          this._availableCAPs.delete(capCommandMessage.cap.parameter);
+          this._activeCAPs.delete(capCommandMessage.cap.parameter);
         }
       }
 
@@ -123,13 +123,13 @@ var ircCAP = {
           "Unhandled CAP messages: " +
             unhandledMessages +
             "\nRaw message: " +
-            aMessage.rawMessage
+            message.rawMessage
         );
       }
 
       // If no CAP handlers were added, just tell the server we're done.
       if (
-        aMessage.cap.subcommand == "LS" &&
+        message.cap.subcommand == "LS" &&
         !this._requestedCAPs.size &&
         !this._queuedCAPs.length
       ) {
@@ -150,7 +150,7 @@ var ircCAP = {
 
 var capNotify = {
   name: "Client Capabilities",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   // This is implicitly enabled as part of CAP v3.2, so always enable it.
   isEnabled: () => true,
 

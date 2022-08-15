@@ -25,8 +25,8 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 const { conversationErrorMessage, kListRefreshInterval } = ChromeUtils.import(
   "resource:///modules/ircUtils.jsm"
@@ -34,7 +34,7 @@ const { conversationErrorMessage, kListRefreshInterval } = ChromeUtils.import(
 
 var ircNonStandard = {
   name: "Non-Standard IRC Extensions",
-  priority: ircHandlers.DEFAULT_PRIORITY + 1,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 1,
   isEnabled: () => true,
 
   commands: {

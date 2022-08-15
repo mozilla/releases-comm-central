@@ -7,12 +7,14 @@ XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
 
 EXTRA_JS_MODULES += [
     "irc.jsm",
+    "ircAccount.jsm",
     "ircBase.jsm",
     "ircCAP.jsm",
     "ircCommands.jsm",
     "ircCTCP.jsm",
     "ircDCC.jsm",
     "ircEchoMessage.jsm",
+    "ircHandlerPriorities.jsm",
     "ircHandlers.jsm",
     "ircISUPPORT.jsm",
     "ircMultiPrefix.jsm",

@@ -4,7 +4,7 @@
 var { tagServerTime } = ChromeUtils.import(
   "resource:///modules/ircServerTime.jsm"
 );
-var { ircMessage } = ChromeUtils.import("resource:///modules/irc.jsm");
+var { ircMessage } = ChromeUtils.import("resource:///modules/ircAccount.jsm");
 
 function getTags(aRawMsg) {
   const { tags } = ircMessage(aRawMsg, "does.not@matter");

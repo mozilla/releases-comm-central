@@ -10,13 +10,13 @@
 
 const EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 var ircSASL = {
   name: "SASL AUTHENTICATE",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled() {
     return this._activeCAPs.has("sasl");
   },
@@ -144,7 +144,7 @@ var ircSASL = {
 
 var capSASL = {
   name: "SASL CAP",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled: () => true,
 
   commands: {

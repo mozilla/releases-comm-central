@@ -9,8 +9,8 @@
 
 const EXPORTED_SYMBOLS = ["capServerTime", "tagServerTime"];
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 function handleServerTimeTag(aMsg) {
@@ -24,7 +24,7 @@ function handleServerTimeTag(aMsg) {
 
 var tagServerTime = {
   name: "server-time Tags",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled() {
     return (
       this._activeCAPs.has("server-time") ||
@@ -40,7 +40,7 @@ var tagServerTime = {
 
 var capServerTime = {
   name: "server-time CAP",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled: () => true,
 
   commands: {

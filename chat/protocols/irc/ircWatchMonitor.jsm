@@ -20,8 +20,8 @@ const EXPORTED_SYMBOLS = [
 ];
 
 const { clearTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 function setStatus(aAccount, aNick, aStatus) {
@@ -107,7 +107,7 @@ function untrackBuddyWatch(aNick) {
 var isupportWATCH = {
   name: "WATCH",
   // Slightly above default ISUPPORT priority.
-  priority: ircHandlers.DEFAULT_PRIORITY + 10,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 10,
   isEnabled: () => true,
 
   commands: {
@@ -155,7 +155,7 @@ var isupportWATCH = {
 var ircWATCH = {
   name: "WATCH",
   // Slightly above default IRC priority.
-  priority: ircHandlers.DEFAULT_PRIORITY + 10,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 10,
   // Use WATCH if it is supported.
   isEnabled() {
     return !!this.watchEnabled;
@@ -312,7 +312,7 @@ var ircWATCH = {
 var isupportMONITOR = {
   name: "MONITOR",
   // Slightly above default ISUPPORT priority.
-  priority: ircHandlers.DEFAULT_PRIORITY + 10,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 10,
   isEnabled: () => true,
 
   commands: {
@@ -396,7 +396,7 @@ function untrackBuddyMonitor(aNick) {
 var ircMONITOR = {
   name: "MONITOR",
   // Slightly above default IRC priority.
-  priority: ircHandlers.DEFAULT_PRIORITY + 10,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 10,
   // Use MONITOR only if MONITOR is enabled and WATCH is not enabled, as WATCH
   // supports more features.
   isEnabled() {

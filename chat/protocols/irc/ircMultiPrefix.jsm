@@ -17,14 +17,14 @@
 
 const EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 
 var isupportNAMESX = {
   name: "ISUPPORT NAMESX",
   // Slightly above default ISUPPORT priority.
-  priority: ircHandlers.DEFAULT_PRIORITY + 10,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY + 10,
   isEnabled: () => true,
 
   commands: {
@@ -38,7 +38,7 @@ var isupportNAMESX = {
 var capMultiPrefix = {
   name: "CAP multi-prefix",
   // Slightly above default ISUPPORT priority.
-  priority: ircHandlers.HIGH_PRIORITY,
+  priority: ircHandlerPriorities.HIGH_PRIORITY,
   isEnabled: () => true,
 
   commands: {

@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { ircMessage } = ChromeUtils.import("resource:///modules/irc.jsm");
+var { ircMessage } = ChromeUtils.import("resource:///modules/ircAccount.jsm");
 const { ircNonStandard } = ChromeUtils.import(
   "resource:///modules/ircNonStandard.jsm"
 );

@@ -34,7 +34,9 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 
-var { ircHandlers } = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+var { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
+);
 var {
   ctcpFormatToText,
   conversationErrorMessage,
@@ -159,7 +161,7 @@ function addMotd(aAccount, aMessage) {
 var ircBase = {
   // Parameters
   name: "RFC 2812", // Name identifier
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled: () => true,
 
   // The IRC commands that can be handled.

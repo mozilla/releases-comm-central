@@ -21,8 +21,8 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 
-const { ircHandlers } = ChromeUtils.import(
-  "resource:///modules/ircHandlers.jsm"
+const { ircHandlerPriorities } = ChromeUtils.import(
+  "resource:///modules/ircHandlerPriorities.jsm"
 );
 var { displayMessage } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
@@ -64,7 +64,7 @@ function CTCPMessage(aMessage, aRawCTCPMessage) {
 var ircCTCP = {
   name: "CTCP",
   // Slightly above default RFC 2812 priority.
-  priority: ircHandlers.HIGH_PRIORITY,
+  priority: ircHandlerPriorities.HIGH_PRIORITY,
   isEnabled: () => true,
 
   // CTCP uses only PRIVMSG and NOTICE commands.
@@ -74,14 +74,14 @@ var ircCTCP = {
   },
 };
 // Parse the message and call all CTCP handlers on the message.
-function ctcpHandleMessage(aMessage) {
+function ctcpHandleMessage(message, ircHandlers) {
   // If there are no CTCP handlers, then don't parse the CTCP message.
   if (!ircHandlers.hasCTCPHandlers) {
     return false;
   }
 
   // The raw CTCP message is in the last parameter of the IRC message.
-  let rawCTCPParam = aMessage.params.slice(-1)[0];
+  let rawCTCPParam = message.params.slice(-1)[0];
 
   // Split the raw message into the multiple CTCP messages and pull out the
   // command and parameters.
@@ -92,7 +92,7 @@ function ctcpHandleMessage(aMessage) {
     aMsg
   ) {
     if (aMsg) {
-      ctcpMessages.push(new CTCPMessage(aMessage, aMsg));
+      ctcpMessages.push(new CTCPMessage(message, aMsg));
     }
     return "";
   });
@@ -106,7 +106,6 @@ function ctcpHandleMessage(aMessage) {
   // stripping out the CTCP information. I highly doubt this will ever happen,
   // but just in case. ;)
   if (otherMessage) {
-    let message = aMessage;
     message.params.pop();
     message.params.push(otherMessage);
     ircHandlers.handleMessage(this, message);
@@ -138,7 +137,7 @@ function ctcpHandleMessage(aMessage) {
 var ctcpBase = {
   // Parameters
   name: "CTCP",
-  priority: ircHandlers.DEFAULT_PRIORITY,
+  priority: ircHandlerPriorities.DEFAULT_PRIORITY,
   isEnabled: () => true,
 
   // These represent CTCP commands.
@@ -171,8 +170,8 @@ var ctcpBase = {
     // "FINGER": function(aMessage) { return false; },
 
     // Dynamic master index of what a client knows.
-    CLIENTINFO(aMessage) {
-      if (aMessage.command == "PRIVMSG") {
+    CLIENTINFO(message, ircHandlers) {
+      if (message.command == "PRIVMSG") {
         // Received a CLIENTINFO request, respond with the support CTCP
         // messages.
         let info = new Set();
@@ -186,17 +185,12 @@ var ctcpBase = {
         this.LOG(
           "Reporting support for the following CTCP messages: " + supportedCtcp
         );
-        this.sendCTCPMessage(
-          aMessage.origin,
-          true,
-          "CLIENTINFO",
-          supportedCtcp
-        );
+        this.sendCTCPMessage(message.origin, true, "CLIENTINFO", supportedCtcp);
       } else {
         // Received a CLIENTINFO response, store the information for future
         // use.
-        let info = aMessage.ctcp.param.split(" ");
-        this.setWhois(aMessage.origin, { clientInfo: info });
+        let info = message.ctcp.param.split(" ");
+        this.setWhois(message.origin, { clientInfo: info });
       }
       return true;
     },

@@ -3,8 +3,9 @@
 
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { commands } = ChromeUtils.import("resource:///modules/ircCommands.jsm");
-var { ircProtocol, ircAccount, ircConversation } = ChromeUtils.import(
-  "resource:///modules/irc.jsm"
+var { ircProtocol } = ChromeUtils.import("resource:///modules/irc.jsm");
+var { ircAccount, ircConversation } = ChromeUtils.import(
+  "resource:///modules/ircAccount.jsm"
 );
 
 // Ensure the commands have been initialized.
