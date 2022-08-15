@@ -322,7 +322,8 @@ class Pop3Client {
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = event => {
-    this._logger.error(event, event.name, event.message, event.errorCode);
+    this._logger.error(`${event.name}: a ${event.message} error occurred`);
+    this._server.serverBusy = false;
     this.quit();
     let secInfo = event.target.transport?.securityInfo;
     if (secInfo) {
@@ -427,6 +428,15 @@ class Pop3Client {
    * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
    */
   _send(str, suppressLogging) {
+    if (this._socket?.readyState != "open") {
+      if (str != "QUIT") {
+        this._logger.warn(
+          `Socket state is ${this._socket?.readyState} - won't send command.`
+        );
+      }
+      return;
+    }
+
     if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
       this._logger.debug(
         "C: Logging suppressed (it probably contained auth information)"
@@ -435,13 +445,6 @@ class Pop3Client {
       // Do not suppress for non-release builds, so that debugging auth problems
       // is easier.
       this._logger.debug(`C: ${str}`);
-    }
-
-    if (this._socket?.readyState != "open") {
-      this._logger.warn(
-        `Failed to send because socket state is ${this._socket?.readyState}`
-      );
-      return;
     }
 
     this._socket.send(CommonUtils.byteStringToArrayBuffer(str + "\r\n").buffer);
