@@ -1479,6 +1479,8 @@ var XMPPAccountPrototype = {
 
     this._buddies = new NormalizedMap(this.normalize.bind(this));
     this._mucs = new NormalizedMap(this.normalize.bind(this));
+
+    this._pendingVCardRequests = [];
   },
 
   get canJoinChat() {
@@ -3434,8 +3436,3 @@ var XMPPAccountPrototype = {
     }
   },
 };
-function XMPPAccount(aProtocol, aImAccount) {
-  this._pendingVCardRequests = [];
-  this._init(aProtocol, aImAccount);
-}
-XMPPAccount.prototype = XMPPAccountPrototype;

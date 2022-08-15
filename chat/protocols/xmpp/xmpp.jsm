@@ -11,20 +11,25 @@ var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
-var { XMPPAccountPrototype } = ChromeUtils.import(
-  "resource:///modules/xmpp-base.jsm"
-);
 
 const lazy = {};
 
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "XMPPAccountPrototype",
+  "resource:///modules/xmpp-base.jsm"
+);
 
-function XMPPAccount(aProtoInstance, aImAccount) {
-  this._init(aProtoInstance, aImAccount);
-}
-XMPPAccount.prototype = XMPPAccountPrototype;
+XPCOMUtils.defineLazyGetter(lazy, "XMPPAccount", () => {
+  function XMPPAccount(aProtoInstance, aImAccount) {
+    this._init(aProtoInstance, aImAccount);
+  }
+  XMPPAccount.prototype = lazy.XMPPAccountPrototype;
+  return XMPPAccount;
+});
 
 function XMPPProtocol() {
   this.commands = ChromeUtils.import(
@@ -44,7 +49,7 @@ XMPPProtocol.prototype = {
     return "chrome://prpl-jabber/skin/";
   },
   getAccount(aImAccount) {
-    return new XMPPAccount(this, aImAccount);
+    return new lazy.XMPPAccount(this, aImAccount);
   },
 
   usernameSplits: [
