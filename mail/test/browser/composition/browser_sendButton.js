@@ -33,9 +33,11 @@ var {
   open_compose_new_mail,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { wait_for_frame_load } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var {
+  plan_for_modal_dialog,
+  wait_for_frame_load,
+  wait_for_modal_dialog,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
@@ -271,5 +273,59 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
 
   // FIXME: Use UI to close contacts sidebar.
   cwc.window.toggleContactsSidebar();
+  close_compose_window(cwc);
+});
+
+/**
+ * Tests that when editing a pill and clicking send while the edit is active
+ * the pill gets updated before the send of the email.
+ */
+add_task(async function test_update_pill_before_send() {
+  let cwc = open_compose_new_mail();
+
+  setup_msg_contents(cwc, "recipient@fake.invalid", "Subject", "");
+
+  let pill = get_first_pill(cwc);
+
+  // Edit the first pill.
+  // First, we need to get into the edit mode by clicking the pill twice.
+  EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc.window);
+  let clickPromise = BrowserTestUtils.waitForEvent(pill, "click");
+  // We do not want a double click, but two separate clicks.
+  EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc.window);
+  await clickPromise;
+
+  Assert.ok(!pill.querySelector("input").hidden);
+
+  // Set the pill which is in edit mode to an invalid email.
+  EventUtils.synthesizeKey("KEY_Home", { shiftKey: true }, cwc.window);
+  EventUtils.synthesizeKey("VK_BACK_SPACE", {}, cwc.window);
+  EventUtils.sendString("invalidEmail", cwc.window);
+
+  // Click send while the pill is in the edit mode and check the dialog title
+  // if the pill is updated we get an invalid recipient error. Otherwise the
+  // error would be an imap error because the email would still be sent to
+  // `recipient@fake.invalid`.
+  let dialogTitle;
+  plan_for_modal_dialog("commonDialogWindow", cwc => {
+    dialogTitle = cwc.window.document.getElementById("infoTitle").textContent;
+    cwc.window.document
+      .querySelector("dialog")
+      .getButton("accept")
+      .click();
+  });
+  // Click the send button.
+  EventUtils.synthesizeMouseAtCenter(
+    cwc.window.document.getElementById("button-send"),
+    {},
+    cwc.window
+  );
+  wait_for_modal_dialog("commonDialogWindow");
+
+  Assert.ok(
+    dialogTitle.includes("Invalid Recipient Address"),
+    "The pill edit has been updated before sending the email"
+  );
+
   close_compose_window(cwc);
 });

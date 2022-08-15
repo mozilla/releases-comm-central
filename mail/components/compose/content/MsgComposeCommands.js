@@ -6155,6 +6155,21 @@ function pillifyRecipients() {
 }
 
 /**
+ * Cycle through all mail address pills and call updatePill on the pills which
+ * are in edit mode. This is necessary when clicking send while a pill is in
+ * edit. The value of the pill is not updated and the email is sent to the
+ * value of the pill before the edit.
+ */
+async function updatePillsInEdit() {
+  let mailAddressPills = document.querySelectorAll("mail-address-pill");
+  for (let mailAddressPill of mailAddressPills) {
+    if (mailAddressPill.isEditing) {
+      await mailAddressPill.updatePill();
+    }
+  }
+}
+
+/**
  *  Handle the dragover event on a recipient disclosure label.
  *
  *  @param {Event} - The DOM dragover event on a recipient disclosure label.
@@ -6425,6 +6440,7 @@ async function checkEncryptedBccRecipients() {
 
 async function SendMessage() {
   pillifyRecipients();
+  await updatePillsInEdit();
   let sendInBackground = Services.prefs.getBoolPref(
     "mailnews.sendInBackground"
   );
@@ -6445,6 +6461,7 @@ async function SendMessage() {
 
 async function SendMessageWithCheck() {
   pillifyRecipients();
+  await updatePillsInEdit();
   var warn = Services.prefs.getBoolPref("mail.warn_on_send_accel_key");
 
   if (warn) {
@@ -6488,6 +6505,7 @@ async function SendMessageWithCheck() {
 
 async function SendMessageLater() {
   pillifyRecipients();
+  await updatePillsInEdit();
   await GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
   ExitFullscreenMode();
 }
