@@ -559,21 +559,10 @@ this.folders = class extends ExtensionAPI {
 
           let mailFolderInfo = {
             favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
-            totalMessageCount: 0,
-            unreadMessageCount: 0,
+            totalMessageCount: folder.getTotalMessages(false),
+            unreadMessageCount: folder.getNumUnread(false),
           };
 
-          // Not using folder.getNumUnread() here, as it is unreliable.
-          if (folder.messages) {
-            let messages = folder.messages;
-            while (messages.hasMoreElements()) {
-              let msg = messages.getNext();
-              mailFolderInfo.totalMessageCount++;
-              if (!msg.isRead) {
-                mailFolderInfo.unreadMessageCount++;
-              }
-            }
-          }
           return mailFolderInfo;
         },
         async getParentFolders({ accountId, path }, includeFolders) {
