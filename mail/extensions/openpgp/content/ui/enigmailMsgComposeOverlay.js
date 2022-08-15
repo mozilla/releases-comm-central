@@ -6,18 +6,8 @@
 
 "use strict";
 
-/*globally available Thunderbird variables/object/functions: */
-/*global gMsgCompose: false, gComposeNotification: false */
-/*global UpdateAttachmentBucket: false, gContentChanged: true */
-/*global AddAttachments: false, AddAttachment: false, ChangeAttachmentBucketVisibility: false, GetResourceFromUri: false */
-/*global Recipients2CompFields: false, Attachments2CompFields: false, gWindowLocked: false */
-/*global CommandUpdate_MsgCompose: false, gSMFields: false, setSecuritySettings: false, getCurrentAccountKey: false */
-/*global Sendlater3Composing: false, gCurrentIdentity: false, showMessageComposeSecurityStatus: false */
-/*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
-/*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
-/*global gEncryptSubject: true, setEncSigStatusUI: false, gEncryptedURIService: false */
-/* global setSendEncryptedAndSigned: true */
-/* global gAttachmentBucket: true */
+/* import-globals-from ../../../../components/compose/content/MsgComposeCommands.js */
+/* import-globals-from ../../../../components/compose/content/addressingWidgetOverlay.js */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -427,11 +417,11 @@ Enigmail.msg = {
         case EnigmailConstants.ENIG_UNDEF:
           break;
         case EnigmailConstants.ENIG_ALWAYS:
-          setSendEncryptedAndSigned(true);
+          updateE2eeOptions(true);
           break;
         case EnigmailConstants.ENIG_NEVER:
         default:
-          setSendEncryptedAndSigned(false);
+          updateE2eeOptions(false);
           break;
       }
       gOptionalEncryption = false;
@@ -636,7 +626,7 @@ Enigmail.msg = {
             EnigmailLog.DEBUG(
               "originalMsgURI=" + gMsgCompose.originalMsgURI + "\n"
             );
-            setSendEncryptedAndSigned(true);
+            updateE2eeOptions(true);
             gSelectedTechnologyIsPGP = true;
             useEncryptionUnlessWeHaveDraftInfo = false;
             usePGPUnlessWeKnowOtherwise = false;
@@ -647,7 +637,7 @@ Enigmail.msg = {
       }
 
       if (useEncryptionUnlessWeHaveDraftInfo) {
-        setSendEncryptedAndSigned(true);
+        updateE2eeOptions(true);
       }
       if (gSendEncrypted && !obtainedDraftFlagsObj.value) {
         gSendSigned = true;
@@ -2514,7 +2504,7 @@ Enigmail.msg = {
       // automatic enabling encryption currently depends on
       // adjustSignEncryptAfterIdentityChanged to be always reached
       gIsRelatedToEncryptedOriginal = true;
-      setSendEncryptedAndSigned(gSendEncrypted);
+      updateE2eeOptions(gSendEncrypted);
       gSendSigned = true;
     }
     //}
