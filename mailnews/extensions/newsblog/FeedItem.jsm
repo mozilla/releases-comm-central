@@ -45,6 +45,7 @@ FeedItem.prototype = {
   ENCLOSURE_HEADER_BOUNDARY_PREFIX: "------------", // 12 dashes
   MESSAGE_TEMPLATE:
     "\n" +
+    "<!DOCTYPE html>\n" +
     "<html>\n" +
     "  <head>\n" +
     "    <title>%TITLE%</title>\n" +

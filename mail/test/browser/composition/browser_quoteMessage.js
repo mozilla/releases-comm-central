@@ -36,7 +36,7 @@ add_task(async function test_quoteMessage() {
   let file = new FileUtils.File(getTestFilePath("data/iso-2022-jp.eml"));
   let msgc = await open_message_from_file(file);
   // Copy the message to a folder, so that Quote Message menu item is enabled.
-  let documentChild = msgc.e("messagepane").contentDocument.firstChild;
+  let documentChild = msgc.e("messagepane").contentDocument.documentElement;
   msgc.rightClick(documentChild);
   await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },

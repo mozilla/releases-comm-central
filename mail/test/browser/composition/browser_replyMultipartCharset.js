@@ -63,7 +63,7 @@ async function subtest_replyEditAsNewForward_charset(
   // since replying/editing as new/forwarding directly to the message
   // opened from a file gives different results on different platforms.
   // All platforms behave the same when using a folder-stored message.
-  let documentChild = msgc.e("messagepane").contentDocument.firstChild;
+  let documentChild = msgc.e("messagepane").contentDocument.documentElement;
   msgc.rightClick(documentChild);
   await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },

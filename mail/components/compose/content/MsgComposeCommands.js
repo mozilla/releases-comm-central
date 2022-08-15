@@ -10539,6 +10539,13 @@ function InitEditor() {
   window.content.browsingContext.docShell.allowAuth = false;
   gMsgCompose.initEditor(editor, window.content);
 
+  if (!editor.document.doctype) {
+    editor.document.insertBefore(
+      editor.document.implementation.createDocumentType("html", "", ""),
+      editor.document.firstChild
+    );
+  }
+
   // Then, we enable related UI entries.
   enableInlineSpellCheck(Services.prefs.getBoolPref("mail.spellcheck.inline"));
   gAttachmentNotifier.init(editor.document);

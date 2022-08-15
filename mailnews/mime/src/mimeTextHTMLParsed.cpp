@@ -114,6 +114,11 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   }
 
   // Write it out.
+
+  // XXX: adding the doc source resultCStr to what we have here is not nice:
+  //   We already have the stuff up to and including <body> written.
+  //   So we are dumping <head> content into <body>. Tagsoup ohoy!
+
   MimeInlineTextHTML_insert_lang_div(obj, resultCStr);
   MimeInlineTextHTML_remove_plaintext_tag(obj, resultCStr);
   status =

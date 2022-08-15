@@ -83,7 +83,7 @@ async function forwardViaFolder(aFilePath) {
   let msgc = await open_message_from_file(file);
 
   // Copy the message to a folder.
-  let documentChild = msgc.e("messagepane").contentDocument.firstChild;
+  let documentChild = msgc.e("messagepane").contentDocument.documentElement;
   msgc.rightClick(documentChild);
   await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
