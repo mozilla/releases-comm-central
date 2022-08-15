@@ -32,6 +32,7 @@
  * called will be treated as unexpected, and therefore they will call
  * do_throw().
  */
+/* globals alert, confirm, prompt */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
