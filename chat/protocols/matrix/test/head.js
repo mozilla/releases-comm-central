@@ -2,12 +2,10 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-const {
-  MatrixProtocol,
-  MatrixRoom,
-  MatrixAccount,
-  MatrixMessage,
-} = ChromeUtils.import("resource:///modules/matrix.jsm");
+const { MatrixProtocol } = ChromeUtils.import("resource:///modules/matrix.jsm");
+const { MatrixRoom, MatrixAccount, MatrixMessage } = ChromeUtils.import(
+  "resource:///modules/matrixAccount.jsm"
+);
 var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 function loadMatrix() {
   IMServices.conversations.initConversations();

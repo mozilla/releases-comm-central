@@ -8,7 +8,6 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
 const lazy = {};
 
@@ -21,6 +20,30 @@ ChromeUtils.defineModuleGetter(
   "MatrixPowerLevels",
   "resource:///modules/matrixPowerLevels.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "MatrixSDK",
+  "resource:///modules/matrix-sdk.jsm"
+);
+
+XPCOMUtils.defineLazyGetter(lazy, "EVENT_TO_STRING", () => ({
+  ban: "powerLevel.ban",
+  [lazy.MatrixSDK.EventType.RoomAvatar]: "powerLevel.roomAvatar",
+  [lazy.MatrixSDK.EventType.RoomCanonicalAlias]: "powerLevel.mainAddress",
+  [lazy.MatrixSDK.EventType.RoomHistoryVisibility]: "powerLevel.history",
+  [lazy.MatrixSDK.EventType.RoomName]: "powerLevel.roomName",
+  [lazy.MatrixSDK.EventType.RoomPowerLevels]: "powerLevel.changePermissions",
+  [lazy.MatrixSDK.EventType.RoomServerAcl]: "powerLevel.server_acl",
+  [lazy.MatrixSDK.EventType.RoomTombstone]: "powerLevel.upgradeRoom",
+  invite: "powerLevel.inviteUser",
+  kick: "powerLevel.kickUsers",
+  redact: "powerLevel.remove",
+  state_default: "powerLevel.state_default",
+  users_default: "powerLevel.defaultRole",
+  events_default: "powerLevel.events_default",
+  [lazy.MatrixSDK.EventType.RoomEncryption]: "powerLevel.encryption",
+  [lazy.MatrixSDK.EventType.RoomTopic]: "powerLevel.topic",
+}));
 
 // Commands from element that we're not yet supporting (including equivalents):
 // - /nick (no proper display name change support in matrix.jsm yet)
@@ -43,25 +66,6 @@ function getAccount(conv) {
   return getConv(conv)._account;
 }
 
-var EVENT_TO_STRING = {
-  ban: "powerLevel.ban",
-  [MatrixSDK.EventType.RoomAvatar]: "powerLevel.roomAvatar",
-  [MatrixSDK.EventType.RoomCanonicalAlias]: "powerLevel.mainAddress",
-  [MatrixSDK.EventType.RoomHistoryVisibility]: "powerLevel.history",
-  [MatrixSDK.EventType.RoomName]: "powerLevel.roomName",
-  [MatrixSDK.EventType.RoomPowerLevels]: "powerLevel.changePermissions",
-  [MatrixSDK.EventType.RoomServerAcl]: "powerLevel.server_acl",
-  [MatrixSDK.EventType.RoomTombstone]: "powerLevel.upgradeRoom",
-  invite: "powerLevel.inviteUser",
-  kick: "powerLevel.kickUsers",
-  redact: "powerLevel.remove",
-  state_default: "powerLevel.state_default",
-  users_default: "powerLevel.defaultRole",
-  events_default: "powerLevel.events_default",
-  [MatrixSDK.EventType.RoomEncryption]: "powerLevel.encryption",
-  [MatrixSDK.EventType.RoomTopic]: "powerLevel.topic",
-};
-
 /**
  * Generates a string representing the required power level to send an event
  * in a room.
@@ -72,8 +76,8 @@ var EVENT_TO_STRING = {
  * required power level.
  */
 function getEventString(eventType, userPower) {
-  if (EVENT_TO_STRING.hasOwnProperty(eventType)) {
-    return lazy._(EVENT_TO_STRING[eventType], userPower);
+  if (lazy.EVENT_TO_STRING.hasOwnProperty(eventType)) {
+    return lazy._(lazy.EVENT_TO_STRING[eventType], userPower);
   }
   return null;
 }
@@ -88,7 +92,7 @@ function getEventString(eventType, userPower) {
 function publishRoomDetails(account, conv) {
   let roomState = conv.roomState;
   let powerLevelEvent = roomState.getStateEvents(
-    MatrixSDK.EventType.RoomPowerLevels,
+    lazy.MatrixSDK.EventType.RoomPowerLevels,
     ""
   );
   let room = conv.room;
@@ -112,9 +116,9 @@ function publishRoomDetails(account, conv) {
   });
 
   let topic = null;
-  if (roomState.getStateEvents(MatrixSDK.EventType.RoomTopic)?.length) {
+  if (roomState.getStateEvents(lazy.MatrixSDK.EventType.RoomTopic)?.length) {
     topic = roomState
-      .getStateEvents(MatrixSDK.EventType.RoomTopic)[0]
+      .getStateEvents(lazy.MatrixSDK.EventType.RoomTopic)[0]
       .getContent().topic;
   }
   let topicString = lazy._("detail.topic", topic);
@@ -123,7 +127,7 @@ function publishRoomDetails(account, conv) {
   });
 
   let guestAccess = roomState
-    .getStateEvents(MatrixSDK.EventType.RoomGuestAccess, "")
+    .getStateEvents(lazy.MatrixSDK.EventType.RoomGuestAccess, "")
     ?.getContent()?.guest_access;
   let guestAccessString = lazy._("detail.guest", guestAccess);
   conv.writeMessage(account.userId, guestAccessString, {
@@ -157,7 +161,8 @@ function publishRoomDetails(account, conv) {
   }
 
   if (
-    roomState.getStateEvents(MatrixSDK.EventType.RoomCanonicalAlias)?.length
+    roomState.getStateEvents(lazy.MatrixSDK.EventType.RoomCanonicalAlias)
+      ?.length
   ) {
     let canonicalAlias = room.getCanonicalAlias();
     let aliases = room.getAltAliases();
@@ -345,7 +350,7 @@ var commands = [
       formatParams(conv, [userId, powerLevelString]) {
         const powerLevel = Number.parseInt(powerLevelString);
         let powerLevelEvent = conv.roomState.getStateEvents(
-          MatrixSDK.EventType.RoomPowerLevels,
+          lazy.MatrixSDK.EventType.RoomPowerLevels,
           ""
         );
         return [conv._roomId, userId, powerLevel, powerLevelEvent];
@@ -361,7 +366,7 @@ var commands = [
     run: clientCommand("setPowerLevel", 1, {
       formatParams(conv, [userId]) {
         const powerLevelEvent = conv.roomState.getStateEvents(
-          MatrixSDK.EventType.RoomPowerLevels,
+          lazy.MatrixSDK.EventType.RoomPowerLevels,
           ""
         );
         return [
@@ -399,8 +404,8 @@ var commands = [
       formatParams(conv, [visibilityString]) {
         const visibility =
           Number.parseInt(visibilityString) === 1
-            ? MatrixSDK.Visibility.Public
-            : MatrixSDK.Visibility.Private;
+            ? lazy.MatrixSDK.Visibility.Public
+            : lazy.MatrixSDK.Visibility.Private;
         return [conv._roomId, visibility];
       },
     }),

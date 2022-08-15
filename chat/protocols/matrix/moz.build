@@ -13,6 +13,7 @@ DIRS += [
 EXTRA_JS_MODULES += [
     "matrix-sdk.jsm",
     "matrix.jsm",
+    "matrixAccount.jsm",
     "matrixCommands.jsm",
     "matrixMessageContent.jsm",
     "matrixPowerLevels.jsm",
