@@ -541,6 +541,7 @@ spellcheck-inline-label =
 
 language-popup-label =
     .value = Language:
+    .accesskey = L
 
 download-dictionaries-link = Download More Dictionaries
 
