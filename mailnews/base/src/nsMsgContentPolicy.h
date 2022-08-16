@@ -76,7 +76,8 @@ class nsMsgContentPolicy : public nsIContentPolicy,
                                           int16_t* aDecision);
   void ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
                          nsISupports* aRequestingContext,
-                         nsIURI* aContentLocation, int16_t* aDecision);
+                         nsIURI* aOriginatorLocation, nsIURI* aContentLocation,
+                         int16_t* aDecision);
   already_AddRefed<nsIMsgCompose> GetMsgComposeForContext(
       nsISupports* aRequestingContext);
 

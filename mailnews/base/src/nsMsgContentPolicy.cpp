@@ -356,8 +356,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
         GetMsgComposeForContext(aRequestingContext);
     // Work out if we're in a compose window or not.
     if (msgCompose) {
-      ComposeShouldLoad(msgCompose, aRequestingContext, aContentLocation,
-                        aDecision);
+      ComposeShouldLoad(msgCompose, aRequestingContext, originatorLocation,
+                        aContentLocation, aDecision);
       return NS_OK;
     }
   }
@@ -706,10 +706,10 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
 
 /**
  * Content policy logic for compose windows
- *
  */
 void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
                                            nsISupports* aRequestingContext,
+                                           nsIURI* aOriginatorLocation,
                                            nsIURI* aContentLocation,
                                            int16_t* aDecision) {
   NS_ASSERTION(*aDecision == nsIContentPolicy::REJECT_REQUEST,
@@ -737,6 +737,11 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
     NS_ENSURE_SUCCESS_VOID(rv);
     *aDecision =
         ShouldAcceptRemoteContentForMsgHdr(msgHdr, nullptr, aContentLocation);
+
+    if (!aOriginatorLocation->GetSpecOrDefault().EqualsLiteral(
+            "about:blank?compose")) {
+      return;
+    }
 
     // Special case image elements. When replying to a message, we want to allow
     // the user to add remote images to the message. But we don't want remote
