@@ -475,9 +475,6 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.addEventListener("select", e => {
       setAddressBookCount(document.getElementById("cards").childElementCount);
     });
-
-    // Row 0 is the "All Address Books" item.
-    document.body.classList.toggle("all-ab-selected", this.selectedIndex === 0);
   }
 
   destroy() {
@@ -802,7 +799,6 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     if (this.selectedIndex === 0) {
       document.getElementById("toolbarCreateContact").disabled = false;
       document.getElementById("toolbarCreateList").disabled = false;
-      document.body.classList.add("all-ab-selected");
     } else {
       let bookUID = row.dataset.book ?? row.dataset.uid;
       let book = MailServices.ab.getDirectoryFromUID(bookUID);
@@ -810,7 +806,6 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       document.getElementById("toolbarCreateContact").disabled = book.readOnly;
       document.getElementById("toolbarCreateList").disabled =
         book.readOnly || !book.supportsMailingLists;
-      document.body.classList.remove("all-ab-selected");
     }
   }
 
@@ -1274,29 +1269,6 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
       id: "GeneratedName",
     });
 
-    // Add the address book name for All Address Books if in the sort Context
-    // Address Book is checked. This is done for the list view only.
-    if (
-      document.getElementById("books").selectedIndex == "0" &&
-      document
-        .getElementById("sortContext")
-        .querySelector(`menuitem[value="addrbook"]`)
-        .getAttribute("checked") === "true"
-    ) {
-      let addressBookName = document.createElement("span");
-      addressBookName.classList.add("address-book-name");
-      let firstLine = this.querySelector(".ab-card-first-line");
-      if (card.isMailList) {
-        let dir = MailServices.ab.getDirectoryFromUID(card.directoryUID);
-        addressBookName.textContent = dir.dirName;
-      } else {
-        addressBookName.textContent = this.view.getCellText(index, {
-          id: "addrbook",
-        });
-      }
-      firstLine.appendChild(addressBookName);
-    }
-
     // Don't try to fetch the avatar or show the parent AB if this is a list.
     if (!card.isMailList) {
       let photoURL = card.photoURL;
@@ -1388,15 +1360,6 @@ class AbTableCardListrow extends customElements.get("tree-view-listrow") {
       let cell = this.querySelector(`.${column.toLowerCase()}-column`);
       if (shown) {
         cell.textContent = this.view.getCellText(index, { id: column });
-
-        // Retrieve the Address Book name for mailing lists.
-        if (cell.textContent == "") {
-          let card = this.view.getCardFromRow(index);
-          if (column == "addrbook" && card.isMailList) {
-            let dir = MailServices.ab.getDirectoryFromUID(card.directoryUID);
-            cell.textContent = dir.dirName;
-          }
-        }
       } else {
         cell.hidden = true;
       }
