@@ -24,7 +24,7 @@ var { close_window } = ChromeUtils.import(
  */
 function check_content(aWindow, aExpected, aDontWantToSee) {
   let messagePane = aWindow.document.getElementById("messagepane");
-  let messageContent = messagePane.contentDocument.firstChild.textContent;
+  let messageContent = messagePane.contentDocument.documentElement.textContent;
 
   if (aExpected != aDontWantToSee) {
     Assert.ok(

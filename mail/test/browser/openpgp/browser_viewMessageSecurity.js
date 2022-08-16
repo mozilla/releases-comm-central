@@ -49,7 +49,7 @@ const MSG_TEXT = "Sundays are nothing without callaloo.";
 
 function getMsgBodyTxt(mc) {
   let msgPane = mc.window.document.getElementById("messagepane");
-  return msgPane.contentDocument.firstChild.textContent;
+  return msgPane.contentDocument.documentElement.textContent;
 }
 
 var aliceAcct;
