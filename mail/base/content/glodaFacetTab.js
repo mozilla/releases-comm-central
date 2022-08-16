@@ -22,8 +22,8 @@ var glodaFacetTabType = {
     },
   },
   openTab(aTab, aArgs) {
-    // If aArgs is omitted, default to a blank user search.
-    if (!aArgs) {
+    // If aArgs is empty, default to a blank user search.
+    if (!Object.keys(aArgs).length) {
       aArgs = { searcher: new GlodaMsgSearcher(null, "") };
     }
     // we have no browser until our XUL document loads
