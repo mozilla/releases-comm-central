@@ -378,6 +378,19 @@ body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortCont
   display: none;
 }
 
+.all-ab-selected .address-book-name {
+  margin-block-start: auto;
+  opacity: 0.8;
+  flex-shrink: 0;
+  font-weight: initial;
+}
+
+body.layout-list.all-ab-selected ~ menupopup#sortContext > :is(menuitem[value="addrbook"], #sortContextTableLayout) {
+  /* Show address book toggle in the list view if All Address Book is
+     selected. */
+  display: initial;
+}
+
 #cards {
   flex: 1;
   font-size: 1.1rem;
