@@ -1397,7 +1397,7 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener* aListener,
     // queuing them up as needed).
 
     // A listener to track the completed expunges.
-    UrlListener* l = new UrlListener();
+    RefPtr<UrlListener> l = new UrlListener();
     l->mStopFn = [expungeCount = foldersToExpunge.Length(), doCompact](
                      nsIURI* url, nsresult status) mutable -> nsresult {
       // NOTE: we're ignoring expunge result code - nothing much we can do
