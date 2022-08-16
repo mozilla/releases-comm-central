@@ -312,3 +312,42 @@ function checkList(names) {
     names
   );
 }
+
+/**
+ * Tests that when the last contacts of an address book are deleted via a
+ * multiple selection the display of the selected cards gets updated and do not
+ * shows the deleted contacts.
+ */
+add_task(async function testLastContactsViaSelectionRemoved() {
+  let book1 = createAddressBook("Book 1");
+  book1.addCard(createContact("daniel", "test"));
+  book1.addCard(createContact("jonathan", "test"));
+
+  let abWindow = await openAddressBookWindow();
+  openDirectory(book1);
+
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+
+  // Select all contacts.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(1),
+    { shiftKey: true },
+    abWindow
+  );
+  await checkList(["daniel test", "jonathan test"]);
+
+  // Delete all selected contacts.
+  let deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await deletePromise;
+
+  await TestUtils.topicObserved("addrbook-contact-deleted");
+  // await TestUtils.topicObserved("addrbook-contact-deleted");
+  Assert.ok(detailsPane.hidden, "The details pane is cleared.");
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book1.URI);
+});
