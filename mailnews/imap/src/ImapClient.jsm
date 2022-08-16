@@ -355,7 +355,11 @@ class ImapClient {
       this._nextAction = res => {
         this._folderSink = dstFolder.QueryInterface(Ci.nsIImapMailFolderSink);
         this._actionDone();
-        this._folderSink.copyNextStreamMessage(true, copyState);
+        try {
+          this._folderSink.copyNextStreamMessage(true, copyState);
+        } catch (e) {
+          this._logger.warn("copyNextStreamMessage failed", e);
+        }
       };
       this._send(content);
     };

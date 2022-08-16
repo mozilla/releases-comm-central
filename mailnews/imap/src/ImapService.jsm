@@ -135,7 +135,19 @@ class ImapService {
           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
         internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
       });
-      channel.asyncOpen(streamListener);
+      let listener = streamListener;
+      if (convertDataToText) {
+        let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+          Ci.nsIStreamConverterService
+        );
+        listener = converter.asyncConvertData(
+          "message/rfc822",
+          "*/*",
+          streamListener,
+          channel
+        );
+      }
+      channel.asyncOpen(listener);
     }
   }
 

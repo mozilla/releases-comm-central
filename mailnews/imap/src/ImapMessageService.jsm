@@ -26,6 +26,41 @@ class BaseMessageService {
 
   _logger = ImapUtils.logger;
 
+  DisplayMessage(
+    messageUri,
+    displayConsumer,
+    msgWindow,
+    urlListener,
+    autodetectCharset,
+    outURL
+  ) {
+    this._logger.debug("DisplayMessage", messageUri);
+    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let imapUrl = Services.io
+      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
+      .QueryInterface(Ci.nsIImapUrl);
+
+    let folder = lazy.MailUtils.getOrCreateFolder(
+      `imap://${host}/${folderName}`
+    );
+    let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    if (urlListener) {
+      mailnewsUrl.RegisterListener(urlListener);
+    }
+
+    return MailServices.imap.fetchMessage(
+      imapUrl,
+      Ci.nsIImapUrl.nsImapMsgFetch,
+      folder,
+      folder.QueryInterface(Ci.nsIImapMessageSink),
+      msgWindow,
+      displayConsumer,
+      key,
+      false,
+      {}
+    );
+  }
+
   SaveMessageToDisk(
     messageUri,
     file,
@@ -78,11 +113,22 @@ class BaseMessageService {
     return imapUrl;
   }
 
-  streamMessage(messageUri, consumer, msgWindow, urlListener, localOnly) {
+  streamMessage(
+    messageUri,
+    consumer,
+    msgWindow,
+    urlListener,
+    convertData,
+    additionalHeader,
+    localOnly
+  ) {
+    this._logger.debug("streamMessage", messageUri);
     let { host, folderName, key } = this._decomposeMessageUri(messageUri);
-    let imapUrl = Services.io
-      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
-      .QueryInterface(Ci.nsIImapUrl);
+    let url = `imap://${host}/fetch>UID>/${folderName}>${key}`;
+    if (additionalHeader) {
+      url += `?header=${additionalHeader}`;
+    }
+    let imapUrl = Services.io.newURI(url).QueryInterface(Ci.nsIImapUrl);
     imapUrl.localFetchOnly = localOnly;
 
     let folder = lazy.MailUtils.getOrCreateFolder(
@@ -105,7 +151,7 @@ class BaseMessageService {
       msgWindow,
       consumer,
       key,
-      false,
+      convertData,
       {}
     );
   }
