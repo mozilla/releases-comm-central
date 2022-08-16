@@ -446,8 +446,8 @@ menupopup[type="arrow"] .menu-accel-container {
   opacity: 0.5;
 }
 
-menuitem:not([disabled]):hover .menu-accel-container,
-menuitem:not([disabled]):focus .menu-accel-container {
+menuitem:not([disabled="true"]):hover .menu-accel-container,
+menuitem:not([disabled="true"]):focus .menu-accel-container {
   opacity: 1;
 }
 

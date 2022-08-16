@@ -99,24 +99,26 @@ menupopup > :is(menu, menuitem)[checked="true"] {
   color: inherit;
 }
 
-menupopup > :is(menu, menuitem):not([disabled],:active)[_moz-menuactive] {
+menupopup > :is(menu, menuitem):not([disabled="true"],:active)[_moz-menuactive] {
   color: inherit;
   background-color: var(--arrowpanel-dimmed);
 }
 
-menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive]:active {
+menupopup > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive]:active {
   color: inherit;
   background-color: var(--arrowpanel-dimmed-further);
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
 }
 
-menubar:not(:-moz-lwtheme) > menu menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
+menubar:not(:-moz-lwtheme) > menu menupopup >
+  :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
   color: -moz-MenuHoverText;
   background-color: -moz-MenuHover;
 }
 
 @media (-moz-platform: windows-win10) and (-moz-windows-default-theme){
-  menubar:not(:-moz-lwtheme) > menu menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
+  menubar:not(:-moz-lwtheme) > menu menupopup >
+    :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
     color: inherit;
     background-color: var(--arrowpanel-dimmed-further);
   }

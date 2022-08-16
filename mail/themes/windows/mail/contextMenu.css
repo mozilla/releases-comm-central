@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/contextMenu.css");
 
 /* Disabled empty item looks too small otherwise, because it has no icon. */
-menuitem[disabled]:not(.menuitem-iconic) {
+menuitem[disabled="true"]:not(.menuitem-iconic) {
   /* This is 16px for an icon + 3px for its margins + 1px for its padding +
    * 2px for its border. */
   min-height: 22px;
@@ -26,7 +26,7 @@ menulist > menupopup:not([type="arrow"]) {
 }
 
 @media (prefers-contrast) {
-  menupopup > :is(menu, menuitem):not([disabled])[_moz-menuactive] {
+  menupopup > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
     color: SelectedItemText;
   }
 }
