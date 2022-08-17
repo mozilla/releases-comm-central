@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgContentPolicy.h"
+#include "nsIMsgMailSession.h"
 #include "nsIPermissionManager.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -621,33 +622,26 @@ void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
   rv = msgUrl->GetUri(resourceURI);
   NS_ENSURE_SUCCESS_VOID(rv);
 
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(
-      do_QueryInterface(aOriginatorLocation, &rv));
+  // Get the window from the session since not all urls have a msgWindow.
+  nsCOMPtr<nsIMsgMailSession> mailSession(
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv));
+  NS_ENSURE_SUCCESS_VOID(rv);
+  nsCOMPtr<nsIMsgWindow> msgWindow;
+  rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
   NS_ENSURE_SUCCESS_VOID(rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) {
-    // Maybe we can get a dummy header.
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    rv = mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-    if (msgWindow) {
-      nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
-      rv = msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
-      if (msgHdrSink)
-        rv = msgHdrSink->GetDummyMsgHeader(getter_AddRefs(msgHdr));
-    }
+    nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
+    msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
+    if (msgHdrSink) msgHdrSink->GetDummyMsgHeader(getter_AddRefs(msgHdr));
   }
 
-  nsCOMPtr<nsIMsgWindow> msgWindow;
-  (void)mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-  if (msgWindow) {
-    nsCOMPtr<nsIRunnable> event = new RemoteContentNotifierEvent(
-        msgWindow, msgHdr, aContentLocation, aCanOverride);
-    // Post this as an event because it can cause dom mutations, and we
-    // get called at a bad time to be causing dom mutations.
-    if (event) NS_DispatchToCurrentThread(event);
-  }
+  // Post this as an event because it can cause dom mutations, and we
+  // get called at a bad time to be causing dom mutations.
+  NS_DispatchToCurrentThread(new RemoteContentNotifierEvent(
+      msgWindow, msgHdr, aContentLocation, aCanOverride));
 }
 
 /**
@@ -679,21 +673,21 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   rv = msgUrl->GetUri(resourceURI);
   NS_ENSURE_SUCCESS_VOID(rv);
 
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(
-      do_QueryInterface(aOriginatorLocation, &rv));
-  NS_ENSURE_SUCCESS_VOID(rv);
-
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) {
     // Maybe we can get a dummy header.
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    rv = mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-    if (msgWindow) {
-      nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
-      rv = msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
-      if (msgHdrSink)
-        rv = msgHdrSink->GetDummyMsgHeader(getter_AddRefs(msgHdr));
+    // Get the window from the session since not all urls have a msgWindow.
+    nsCOMPtr<nsIMsgMailSession> mailSession(
+        do_GetService("@mozilla.org/messenger/services/session;1"));
+    if (mailSession) {
+      nsCOMPtr<nsIMsgWindow> msgWindow;
+      mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+      if (msgWindow) {
+        nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
+        msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
+        if (msgHdrSink) msgHdrSink->GetDummyMsgHeader(getter_AddRefs(msgHdr));
+      }
     }
   }
 
@@ -706,15 +700,7 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   // this url that this is the case, so that the UI knows to show the remote
   // content header bar, so the user can override if they wish.
   if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    (void)mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-    if (msgWindow) {
-      nsCOMPtr<nsIRunnable> event =
-          new RemoteContentNotifierEvent(msgWindow, msgHdr, aContentLocation);
-      // Post this as an event because it can cause dom mutations, and we
-      // get called at a bad time to be causing dom mutations.
-      if (event) NS_DispatchToCurrentThread(event);
-    }
+    NotifyContentWasBlocked(aOriginatorLocation, aContentLocation, true);
   }
 }
 
