@@ -104,6 +104,7 @@
 #include "mozilla/NullPrincipal.h"
 #include "mozilla/dom/RemoteType.h"
 #include "nsQueryObject.h"
+#include "mozilla/JSONStringWriteFuncs.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -2433,18 +2434,6 @@ nsDelAttachListener::OnProgress(uint32_t aProgress, uint32_t aProgressMax) {
   return NS_OK;
 }
 
-class CStringWriter final : public mozilla::JSONWriteFunc {
- public:
-  void Write(const mozilla::Span<const char>& aStr) override {
-    mBuf.Append(aStr);
-  }
-
-  const nsCString& Get() const { return mBuf; }
-
- private:
-  nsCString mBuf;
-};
-
 NS_IMETHODIMP
 nsDelAttachListener::SetMessageKey(nsMsgKey aKey) {
   // called during the copy of the modified message back into the message
@@ -2455,7 +2444,8 @@ nsDelAttachListener::SetMessageKey(nsMsgKey aKey) {
   nsresult rv = mMessageFolder->GetURI(folderURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  mozilla::JSONWriter data(mozilla::MakeUnique<CStringWriter>());
+  mozilla::JSONStringWriteFunc<nsCString> jsonString;
+  mozilla::JSONWriter data(jsonString);
   data.Start();
   data.IntProperty("oldMessageKey", mOriginalMessageKey);
   data.IntProperty("newMessageKey", aKey);
@@ -2464,11 +2454,8 @@ nsDelAttachListener::SetMessageKey(nsMsgKey aKey) {
 
   nsCOMPtr<nsIObserverService> obs = services::GetObserverService();
   if (obs) {
-    obs->NotifyObservers(
-        nullptr, "attachment-delete-msgkey-changed",
-        NS_ConvertUTF8toUTF16(
-            static_cast<CStringWriter*>(data.WriteFunc())->Get())
-            .get());
+    obs->NotifyObservers(nullptr, "attachment-delete-msgkey-changed",
+                         NS_ConvertUTF8toUTF16(jsonString.StringCRef()).get());
   }
   return NS_OK;
 }
