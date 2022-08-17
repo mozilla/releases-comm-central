@@ -52,10 +52,6 @@
   margin-inline-end: 6px;
 }
 
-#toolbar-menubar[customizing=true] + #tabs-toolbar > .titlebar-buttonbox-container {
-  visibility: hidden;
-}
-
 /**
  * Titlebar drawing:
  *
@@ -239,7 +235,6 @@
 
   @media (-moz-gtk-csd-reversed-placement) {
     .titlebar-buttonbox-container {
-      -moz-box-ordinal-group: 0;
       margin-inline-start: 6px;
     }
 

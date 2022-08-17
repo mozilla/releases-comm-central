@@ -66,12 +66,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-/* Prevent window controls from overlapping the nav bar's shadow on the tab
- * bar. */
-#tabs-toolbar > .titlebar-buttonbox-container {
-  margin-bottom: var(--tabs-tabbar-border-size);
-}
-
 /* The button box must appear on top of the navigation-toolbox in order for
  * click and hover mouse events to work properly for the button in the restored
  * window state. Otherwise, elements in the navigation-toolbox, like the menubar,

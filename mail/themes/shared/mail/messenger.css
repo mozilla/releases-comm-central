@@ -43,16 +43,6 @@ p {
   display: none;
 }
 
-:root[tabsintitlebar] #toolbar-menubar[autohide=true]:not([inactive]) +
-  #tabs-toolbar > .titlebar-buttonbox-container {
-  visibility: hidden;
-}
-
-:root[tabsintitlebar]:not([chromehidden~="menubar"]) #toolbar-menubar:not([autohide=true]) +
-  #tabs-toolbar > .titlebar-buttonbox-container {
-  display: none;
-}
-
 #toolbar-menubar[autohide="true"] {
   overflow: hidden;
 }
@@ -65,10 +55,6 @@ p {
 
 #titlebar-spacer {
   pointer-events: none;
-}
-
-.titlebar-buttonbox-container {
-  -moz-box-ordinal-group: 1000;
 }
 
 #navigation-toolbox:-moz-lwtheme,

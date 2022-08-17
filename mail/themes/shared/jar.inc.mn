@@ -394,6 +394,7 @@
   skin/classic/messenger/shared/panelUI.css                   (../shared/mail/panelUI.css)
   skin/classic/messenger/shared/grid-layout.css               (../shared/mail/grid-layout.css)
   skin/classic/messenger/shared/input-fields.css              (../shared/mail/input-fields.css)
+  skin/classic/messenger/shared/unifiedToolbar.css            (../shared/mail/unifiedToolbar.css)
   skin/classic/messenger/shared/variables.css                 (../shared/mail/variables.css)
   skin/classic/messenger/messengercompose/format-dropmarker.svg (../shared/mail/icons/format-dropmarker.svg)
   skin/classic/messenger/images/account-watermark.png         (../shared/mail/images/account-watermark.png)

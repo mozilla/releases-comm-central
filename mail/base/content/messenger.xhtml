@@ -24,6 +24,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/spacesToolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/unifiedToolbar.css" type="text/css"?>
 
 <!-- Calendar CSS -->
 <?xml-stylesheet href="chrome://calendar/skin/calendar.css" type="text/css"?>
@@ -481,6 +482,7 @@
   <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
 
     <vbox id="titlebar">
+#include ../../components/unifiedToolbar/content/unifiedToolbar.inc.xhtml
       <!-- Menu -->
       <toolbar is="customizable-toolbar" id="toolbar-menubar"
                class="chromeclass-menubar themeable-full"
@@ -506,7 +508,6 @@
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
         </toolbaritem>
-#include messenger-titlebar-items.inc.xhtml
       </toolbar>
 
       <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
@@ -564,8 +565,6 @@
                       position="after_end"
                       tabcontainer="tabmail-tabs"/>
         </toolbarbutton>
-
-#include messenger-titlebar-items.inc.xhtml
 
       </toolbar>
 
