@@ -385,7 +385,6 @@
           this._description = document.createXULElement("label");
           this._description.id = this._description.part = "description";
           this._description.setAttribute("crop", "right");
-          this._description.setAttribute("flex", "10000");
           this._description.setAttribute("role", "none");
           this.shadowRoot.getElementById("label").after(this._description);
         }
