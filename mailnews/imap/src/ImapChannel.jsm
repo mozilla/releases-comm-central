@@ -33,6 +33,11 @@ class ImapChannel {
     this.URI = uri;
     this.loadInfo = loadInfo;
     this.contentLength = 0;
+    try {
+      this.contentLength = uri.QueryInterface(
+        Ci.nsIMsgMessageUrl
+      ).messageHeader.messageSize;
+    } catch (e) {}
   }
 
   /**
@@ -71,6 +76,7 @@ class ImapChannel {
       Ci.nsIMsgMailNewsUrl
     ).listOfMessageIds;
     this._msgKey = parseInt(msgIds);
+    this.contentLength = 0;
     try {
       if (this.readFromLocalCache()) {
         this._logger.debug("Read from local cache");
@@ -102,7 +108,6 @@ class ImapChannel {
     let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
-    this.contentLength = 0;
     this._contentType = "";
     pump.init(stream, 0, 0, true);
     pump.asyncRead({
@@ -156,6 +161,7 @@ class ImapChannel {
           this._listener.onStopRequest(this, Cr.NS_OK);
           return;
         }
+        this.contentLength += data.length;
         outputStream.write(data, data.length);
         this._listener.onDataAvailable(this, inputStream, 0, data.length);
       };
