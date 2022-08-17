@@ -16,8 +16,6 @@ var nsActEvent = Components.Constructor(
   "init"
 );
 
-var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
-
 /**
  * This code aims to mediate between the auto-sync code and the activity mgr.
  *
@@ -171,7 +169,7 @@ var autosyncModule = {
     try {
       if (
         folder instanceof Ci.nsIMsgFolder &&
-        queue == nsIAutoSyncMgrListener.PriorityQueue
+        queue == Ci.nsIAutoSyncMgrListener.PriorityQueue
       ) {
         this._inQFolderList.push(folder);
         this.log.info(
@@ -217,7 +215,7 @@ var autosyncModule = {
     try {
       if (
         folder instanceof Ci.nsIMsgFolder &&
-        queue == nsIAutoSyncMgrListener.PriorityQueue
+        queue == Ci.nsIAutoSyncMgrListener.PriorityQueue
       ) {
         let i = this._inQFolderList.indexOf(folder);
         if (i > -1) {
