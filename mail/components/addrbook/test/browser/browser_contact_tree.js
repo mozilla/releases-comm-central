@@ -1095,3 +1095,126 @@ add_task(async function test_placeholders() {
   await promiseDirectoryRemoved(writableBook.URI);
   await promiseDirectoryRemoved(readOnlyBook.URI);
 });
+
+/**
+ * Checks that mailling lists address books are shown in the table layout.
+ */
+add_task(async function test_list_table_layout() {
+  let book = createAddressBook("Book");
+  book.addCard(createContact("contact", "one"));
+  let list = createMailingList("list one");
+  book.addMailList(list);
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abWindow.cardsPane.cardsList;
+  let cardsHeader = abDocument.getElementById("cardsHeader");
+
+  // Switch layout to table.
+
+  await toggleLayout(true);
+
+  await showSortMenu("toggle", "addrbook");
+  await TestUtils.waitForCondition(
+    () => !cardsHeader.querySelector(`[value="addrbook"]`).hidden
+  );
+
+  // Check for the contact that the column is shown.
+  Assert.ok(
+    !cardsList.getRowAtIndex(0).querySelector(".addrbook-column").hidden,
+    "Address book column is shown."
+  );
+
+  Assert.ok(
+    cardsList
+      .getRowAtIndex(0)
+      .querySelector(".addrbook-column")
+      .textContent.includes("Book"),
+    "Address book column has the correct name for a contact."
+  );
+
+  Assert.ok(
+    cardsList
+      .getRowAtIndex(0)
+      .querySelector(".addrbook-column")
+      .textContent.includes("Book"),
+    "Address book column has the correct name for a list."
+  );
+
+  Services.xulStore.removeDocument("about:addressbook");
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
+ * Tests the option of showing the address book for All Address Book for the
+ * list view (vertical layout).
+ */
+add_task(async function test_list_all_address_book() {
+  let firstBook = createAddressBook("First Book");
+  let secondBook = createAddressBook("Second Book");
+  firstBook.addCard(createContact("contact", "one"));
+  secondBook.addCard(createContact("contact", "two"));
+  let list = createMailingList("list two");
+  secondBook.addMailList(list);
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abWindow.cardsPane.cardsList;
+  let cardsHeader = abDocument.getElementById("cardsHeader");
+
+  info("Check that no address book suffix is present.");
+  Assert.ok(
+    !cardsList.getRowAtIndex(0).querySelector(".address-book-name"),
+    "No address book suffix is present."
+  );
+  Assert.ok(
+    !cardsList.getRowAtIndex(1).querySelector(".address-book-name"),
+    "No address book suffix is present."
+  );
+  Assert.ok(
+    !cardsList.getRowAtIndex(2).querySelector(".address-book-name"),
+    "No address book suffix is present."
+  );
+
+  info("Toggle the option to show address books.");
+  await showSortMenu("toggle", "addrbook");
+  await TestUtils.waitForCondition(
+    () => !cardsHeader.querySelector(`[value="addrbook"]`).hidden
+  );
+
+  Assert.ok(
+    cardsList
+      .getRowAtIndex(0)
+      .querySelector(".address-book-name")
+      .textContent.includes("First Book"),
+    "Address book suffix is present."
+  );
+  Assert.ok(
+    cardsList
+      .getRowAtIndex(1)
+      .querySelector(".address-book-name")
+      .textContent.includes("Second Book"),
+    "Address book suffix is present."
+  );
+  Assert.ok(
+    cardsList
+      .getRowAtIndex(2)
+      .querySelector(".address-book-name")
+      .textContent.includes("Second Book"),
+    "Address book suffix is present for a list."
+  );
+
+  info(`Select another address book and check that no address book suffix is
+  present for another book besides All Address Book`);
+  await openDirectory(secondBook);
+  Assert.ok(
+    !cardsList.getRowAtIndex(0).querySelector(".address-book-name"),
+    "Address book suffix is only present in All Address Book."
+  );
+
+  Services.xulStore.removeDocument("about:addressbook");
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(firstBook.URI);
+  await promiseDirectoryRemoved(secondBook.URI);
+});
