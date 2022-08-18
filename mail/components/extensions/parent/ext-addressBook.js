@@ -13,11 +13,14 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+XPCOMUtils.defineLazyGlobalGetters(this, ["btoa", "IOUtils", "PathUtils"]);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   newUID: "resource:///modules/AddrBookUtils.jsm",
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
   VCardProperties: "resource:///modules/VCardUtils.jsm",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
   VCardUtils: "resource:///modules/VCardUtils.jsm",
 });
 
@@ -31,8 +34,13 @@ const hiddenProperties = [
   "PopularityIndex",
   "RecordKey",
   "UID",
+  "_etag",
+  "_href",
   "_vCard",
   "vCard",
+  "PhotoName",
+  "PhotoURL",
+  "PhotoType",
 ];
 
 /**
@@ -180,7 +188,9 @@ class ExtSearchBook extends AddrBookDirectory {
   async search(aQuery, aSearchString, aListener) {
     try {
       let { results, isCompleteResult } = await this.fire.async(
-        addressBookCache.convert(addressBookCache.addressBooks.get(this.UID)),
+        await addressBookCache.convert(
+          addressBookCache.addressBooks.get(this.UID)
+        ),
         aSearchString,
         aQuery
       );
@@ -351,12 +361,15 @@ var addressBookCache = new (class extends EventEmitter {
       `contact with id=${id} could not be found.`
     );
   }
-  convert(node, complete) {
+  async convert(node, complete) {
     if (node === null) {
       return node;
     }
     if (Array.isArray(node)) {
-      return node.map(i => this.convert(i, complete));
+      let cards = await Promise.allSettled(
+        node.map(i => this.convert(i, complete))
+      );
+      return cards.filter(card => card.value).map(card => card.value);
     }
 
     let copy = {};
@@ -368,11 +381,14 @@ var addressBookCache = new (class extends EventEmitter {
 
     if (complete) {
       if (node.type == "addressBook") {
-        copy.mailingLists = this.convert(this.getMailingLists(node), true);
-        copy.contacts = this.convert(this.getContacts(node), true);
+        copy.mailingLists = await this.convert(
+          this.getMailingLists(node),
+          true
+        );
+        copy.contacts = await this.convert(this.getContacts(node), true);
       }
       if (node.type == "mailingList") {
-        copy.contacts = this.convert(this.getListContacts(node), true);
+        copy.contacts = await this.convert(this.getListContacts(node), true);
       }
     }
 
@@ -396,6 +412,63 @@ var addressBookCache = new (class extends EventEmitter {
           isCustomProperty(e.name)
         )) {
           copy.properties[property.name] = "" + property.value;
+        }
+
+        // If this card has no photo vCard entry, but a local photo, add it to its vCard: Thunderbird
+        // does not store photos of local address books in the internal _vCard property, to reduce
+        // the amount of data stored in its database.
+        let photoName = node.item.getProperty("PhotoName", "");
+        let vCardPhoto = vCardProperties.getFirstValue("photo");
+        if (!vCardPhoto && photoName) {
+          try {
+            let path = PathUtils.join(
+              PathUtils.profileDir,
+              "Photos",
+              photoName
+            );
+            let buffer = await IOUtils.read(path);
+            let data = btoa(
+              buffer.reduce(
+                (string, byte) => string + String.fromCharCode(byte),
+                ""
+              )
+            );
+
+            let type;
+            if (data.startsWith("iVBO")) {
+              // The first 3 bytes say this image is PNG.
+              type = "png";
+            } else if (data.startsWith("/9j/")) {
+              // The first 3 bytes say this image is JPEG.
+              type = "jpeg";
+            } else {
+              throw new Error("Unsupported image format");
+            }
+
+            if (vCardProperties.getFirstValue("version") == "4.0") {
+              vCardProperties.addEntry(
+                new VCardPropertyEntry(
+                  "photo",
+                  {},
+                  "url",
+                  `data:image/${type};base64,${data}`
+                )
+              );
+            } else {
+              vCardProperties.addEntry(
+                new VCardPropertyEntry(
+                  "photo",
+                  { encoding: "B", type: type.toUpperCase() },
+                  "binary",
+                  data
+                )
+              );
+            }
+          } catch (ex) {
+            Cu.reportError(
+              `Failed to read photo information for ${node.id}: ` + ex
+            );
+          }
         }
 
         // Add the vCard.
@@ -699,8 +772,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "addressBooks.onCreated",
           register: fire => {
-            let listener = (event, node) => {
-              fire.sync(addressBookCache.convert(node));
+            let listener = async (event, node) => {
+              fire.sync(await addressBookCache.convert(node));
             };
 
             addressBookCache.on("address-book-created", listener);
@@ -713,8 +786,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "addressBooks.onUpdated",
           register: fire => {
-            let listener = (event, node) => {
-              fire.sync(addressBookCache.convert(node));
+            let listener = async (event, node) => {
+              fire.sync(await addressBookCache.convert(node));
             };
 
             addressBookCache.on("address-book-updated", listener);
@@ -1006,8 +1079,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "contacts.onCreated",
           register: fire => {
-            let listener = (event, node) => {
-              fire.sync(addressBookCache.convert(node));
+            let listener = async (event, node) => {
+              fire.sync(await addressBookCache.convert(node));
             };
 
             addressBookCache.on("contact-created", listener);
@@ -1020,7 +1093,7 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "contacts.onUpdated",
           register: fire => {
-            let listener = (event, node, changes) => {
+            let listener = async (event, node, changes) => {
               let filteredChanges = {};
               // Find changes in flat properties stored in the vCard.
               if (changes.hasOwnProperty("_vCard")) {
@@ -1058,7 +1131,7 @@ this.addressBook = class extends ExtensionAPI {
                   filteredChanges[name] = value;
                 }
               }
-              fire.sync(addressBookCache.convert(node), filteredChanges);
+              fire.sync(await addressBookCache.convert(node), filteredChanges);
             };
 
             addressBookCache.on("contact-updated", listener);
@@ -1173,8 +1246,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "mailingLists.onCreated",
           register: fire => {
-            let listener = (event, node) => {
-              fire.sync(addressBookCache.convert(node));
+            let listener = async (event, node) => {
+              fire.sync(await addressBookCache.convert(node));
             };
 
             addressBookCache.on("mailing-list-created", listener);
@@ -1187,8 +1260,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "mailingLists.onUpdated",
           register: fire => {
-            let listener = (event, node) => {
-              fire.sync(addressBookCache.convert(node));
+            let listener = async (event, node) => {
+              fire.sync(await addressBookCache.convert(node));
             };
 
             addressBookCache.on("mailing-list-updated", listener);
@@ -1215,8 +1288,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "mailingLists.onMemberAdded",
           register: fire => {
-            let listener = (event, node) => {
-              fire.sync(addressBookCache.convert(node));
+            let listener = async (event, node) => {
+              fire.sync(await addressBookCache.convert(node));
             };
 
             addressBookCache.on("mailing-list-member-added", listener);
