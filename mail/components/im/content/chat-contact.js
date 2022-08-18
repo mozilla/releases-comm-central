@@ -29,39 +29,6 @@
         ".contactStatusText": "value=statusTextWithDash",
       };
     }
-
-    static get markup() {
-      return `
-      <vbox class="box-line"></vbox>
-      <stack class="prplBuddyIcon">
-        <html:img class="protoIcon" alt="" />
-        <html:img class="smallStatusIcon" />
-      </stack>
-      <hbox flex="1" class="contact-hbox">
-        <stack>
-          <label crop="end"
-                 flex="1"
-                 class="contactDisplayName blistDisplayName">
-          </label>
-          <html:input type="text"
-                      class="contactDisplayNameInput"
-                      hidden="hidden"/>
-        </stack>
-        <label crop="end"
-               style="-moz-box-flex: 100000;"
-               class="contactStatusText">
-        </label>
-        <button class="startChatBubble"
-                tooltiptext="&openConversationButton.tooltip;">
-        </button>
-      </hbox>
-      `;
-    }
-
-    static get entities() {
-      return ["chrome://messenger/locale/chat.dtd"];
-    }
-
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
@@ -124,7 +91,36 @@
         }.bind(this),
       };
 
-      this.appendChild(this.constructor.fragment);
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
+          <vbox class="box-line"></vbox>
+          <stack class="prplBuddyIcon">
+            <html:img class="protoIcon" alt="" />
+            <html:img class="smallStatusIcon" />
+          </stack>
+          <hbox flex="1" class="contact-hbox">
+            <stack>
+              <label crop="end"
+                     flex="1"
+                     class="contactDisplayName blistDisplayName">
+              </label>
+              <html:input type="text"
+                          class="contactDisplayNameInput"
+                          hidden="hidden"/>
+            </stack>
+            <label crop="end"
+                   style="-moz-box-flex: 100000;"
+                   class="contactStatusText">
+            </label>
+            <button class="startChatBubble"
+                    tooltiptext="&openConversationButton.tooltip;">
+            </button>
+          </hbox>
+          `,
+          ["chrome://messenger/locale/chat.dtd"]
+        )
+      );
 
       this.initializeAttributeInheritance();
     }

@@ -29,63 +29,61 @@
       return { ".displayName": "value=displayName" };
     }
 
-    static get markup() {
-      return `
-      <linkset>
-        <html:link rel="localization" href="messenger/otr/chat.ftl"/>
-      </linkset>
-
-      <html:div class="displayUserAccount">
-        <stack>
-          <html:img class="userIcon" alt="" />
-          <html:img class="statusTypeIcon" alt="" />
-        </stack>
-        <html:div class="nameAndStatusGrid">
-          <description class="displayName" crop="end"></description>
-          <html:img class="protoIcon" alt="" />
-          <html:hr />
-          <description class="statusMessage" crop="end"></description>
-          <!-- FIXME: A keyboard user cannot focus the hidden input, nor
-             - click the above description box in order to reveal it. -->
-          <html:input class="statusMessageInput input-inline"
-                      hidden="hidden"/>
-        </html:div>
-      </html:div>
-      <hbox class="encryption-container themeable-brighttext"
-            align="center"
-            hidden="true">
-        <label class="encryption-label"
-               crop="end"
-               data-l10n-id="state-label"
-               flex="1"/>
-        <toolbarbutton id="chatEncryptionButton"
-                       mode="dialog"
-                       class="encryption-button"
-                       type="menu"
-                       wantdropmarker="true"
-                       label="Insecure"
-                       data-l10n-id="start-tooltip">
-          <menupopup class="encryption-menu-popup">
-            <menuitem class="otr-start" data-l10n-id="start-label"
-                      oncommand='this.closest("chat-conversation-info").onOtrStartClicked();'/>
-            <menuitem class="otr-end" data-l10n-id="end-label"
-                      oncommand='this.closest("chat-conversation-info").onOtrEndClicked();'/>
-            <menuitem class="otr-auth" data-l10n-id="auth-label"
-                      oncommand='this.closest("chat-conversation-info").onOtrAuthClicked();'/>
-            <menuitem class="protocol-encrypt" data-l10n-id="start-label"/>
-          </menupopup>
-        </toolbarbutton>
-      </hbox>
-      `;
-    }
-
     connectedCallback() {
       if (this.hasChildNodes() || this.delayConnectedCallback()) {
         return;
       }
       this.setAttribute("orient", "vertical");
 
-      this.appendChild(this.constructor.fragment);
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`
+          <linkset>
+            <html:link rel="localization" href="messenger/otr/chat.ftl"/>
+          </linkset>
+
+          <html:div class="displayUserAccount">
+            <stack>
+              <html:img class="userIcon" alt="" />
+              <html:img class="statusTypeIcon" alt="" />
+            </stack>
+            <html:div class="nameAndStatusGrid">
+              <description class="displayName" crop="end"></description>
+              <html:img class="protoIcon" alt="" />
+              <html:hr />
+              <description class="statusMessage" crop="end"></description>
+              <!-- FIXME: A keyboard user cannot focus the hidden input, nor
+                 - click the above description box in order to reveal it. -->
+              <html:input class="statusMessageInput input-inline"
+                          hidden="hidden"/>
+            </html:div>
+          </html:div>
+          <hbox class="encryption-container themeable-brighttext"
+                align="center"
+                hidden="true">
+            <label class="encryption-label"
+                   crop="end"
+                   data-l10n-id="state-label"
+                   flex="1"/>
+            <toolbarbutton id="chatEncryptionButton"
+                           mode="dialog"
+                           class="encryption-button"
+                           type="menu"
+                           wantdropmarker="true"
+                           label="Insecure"
+                           data-l10n-id="start-tooltip">
+              <menupopup class="encryption-menu-popup">
+                <menuitem class="otr-start" data-l10n-id="start-label"
+                          oncommand='this.closest("chat-conversation-info").onOtrStartClicked();'/>
+                <menuitem class="otr-end" data-l10n-id="end-label"
+                          oncommand='this.closest("chat-conversation-info").onOtrEndClicked();'/>
+                <menuitem class="otr-auth" data-l10n-id="auth-label"
+                          oncommand='this.closest("chat-conversation-info").onOtrAuthClicked();'/>
+                <menuitem class="protocol-encrypt" data-l10n-id="start-label"/>
+              </menupopup>
+            </toolbarbutton>
+          </hbox>
+        `)
+      );
 
       this.topicEditable = false;
       this.editingTopic = false;

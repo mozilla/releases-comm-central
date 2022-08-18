@@ -33,32 +33,6 @@
         ".convUnreadTargetedCountLabel": "value=unreadTargetedCount",
       };
     }
-
-    static get markup() {
-      return `
-      <vbox class="box-line"></vbox>
-      <button class="closeConversationButton close-icon"
-              tooltiptext="&closeConversationButton.tooltip;"></button>
-      <stack class="prplBuddyIcon">
-        <html:img class="protoIcon" alt="" />
-        <html:img class="smallStatusIcon" />
-      </stack>
-      <hbox flex="1" class="conv-hbox">
-        <label crop="end" flex="1" class="convDisplayName blistDisplayName">
-        </label>
-        <label class="convUnreadCount" crop="end"></label>
-        <box class="convUnreadTargetedCount">
-          <label class="convUnreadTargetedCountLabel" crop="end"></label>
-        </box>
-        <spacer style="-moz-box-flex: 1000000;"></spacer>
-      </hbox>
-      `;
-    }
-
-    static get entities() {
-      return ["chrome://messenger/locale/chat.dtd"];
-    }
-
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
@@ -78,7 +52,29 @@
         true
       );
 
-      this.appendChild(this.constructor.fragment);
+      this.appendChild(
+        MozXULElement.parseXULToFragment(
+          `
+          <vbox class="box-line"></vbox>
+          <button class="closeConversationButton close-icon"
+                  tooltiptext="&closeConversationButton.tooltip;"></button>
+          <stack class="prplBuddyIcon">
+            <html:img class="protoIcon" alt="" />
+            <html:img class="smallStatusIcon" />
+          </stack>
+          <hbox flex="1" class="conv-hbox">
+            <label crop="end" flex="1" class="convDisplayName blistDisplayName">
+            </label>
+            <label class="convUnreadCount" crop="end"></label>
+            <box class="convUnreadTargetedCount">
+              <label class="convUnreadTargetedCountLabel" crop="end"></label>
+            </box>
+            <spacer style="-moz-box-flex: 1000000;"></spacer>
+          </hbox>
+          `,
+          ["chrome://messenger/locale/chat.dtd"]
+        )
+      );
 
       this.convView = null;
 
