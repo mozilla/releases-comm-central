@@ -61,6 +61,17 @@ class ImapClient {
     this._charsetManager = Cc[
       "@mozilla.org/charset-converter-manager;1"
     ].getService(Ci.nsICharsetConverterManager);
+
+    this._loadPrefs();
+  }
+
+  /**
+   * Load imap related preferences, many behaviors depend on these pref values.
+   */
+  _loadPrefs() {
+    this._prefs = {
+      tcpTimeout: Services.prefs.getIntPref("mailnews.tcptimeout"),
+    };
   }
 
   /**
@@ -172,13 +183,7 @@ class ImapClient {
    */
   ensureFolderExists(parent, folderName) {
     this._logger.debug("ensureFolderExists", parent.URI, folderName);
-    let mailboxName = this._getServerFolderName(parent);
-    if (folderName) {
-      let delimiter =
-        parent.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter ||
-        "/";
-      mailboxName += delimiter + folderName;
-    }
+    let mailboxName = this._getServerSubFolderName(parent, folderName);
     this._nextAction = res => {
       if (res.mailboxes.length) {
         // Already exists.
@@ -191,6 +196,19 @@ class ImapClient {
       });
     };
     this._sendTagged(`LIST "" "${mailboxName}"`);
+  }
+
+  /**
+   * Create a folder on the server.
+   * @param {nsIMsgFolder} parent - The parent folder to check.
+   * @param {string} folderName - The folder name.
+   */
+  createFolder(parent, folderName) {
+    this._logger.debug("createFolder", parent.URI, folderName);
+    let mailboxName = this._getServerSubFolderName(parent, folderName);
+    this._actionCreateAndSubscribe(mailboxName, res => {
+      this._actionList(mailboxName, () => this._actionDone());
+    });
   }
 
   /**
@@ -236,6 +254,10 @@ class ImapClient {
    * @returns {string}
    */
   _getServerFolderName(folder) {
+    if (folder.isServer) {
+      return "";
+    }
+
     if (folder.onlineName) {
       return folder.onlineName;
     }
@@ -245,6 +267,24 @@ class ImapClient {
     return this._charsetManager.unicodeToMutf7(
       [...names, folder.name].join(delimiter)
     );
+  }
+
+  /**
+   * Get the server name of a sub folder. The sub folder may or may not exist on
+   * the server.
+   * @param {nsIMsgFolder} parent - The parent folder.
+   * @param {string} folderName - The sub folder name.
+   * @returns {string}
+   */
+  _getServerSubFolderName(parent, folderName) {
+    let mailboxName = this._getServerFolderName(parent);
+    if (mailboxName) {
+      let delimiter =
+        parent.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter ||
+        "/";
+      return mailboxName + delimiter + folderName;
+    }
+    return folderName;
   }
 
   /**
@@ -446,6 +486,11 @@ class ImapClient {
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
     this._nextAction = this._actionCapabilityResponse;
+
+    this._socket.transport.setTimeout(
+      Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
+      this._prefs.tcpTimeout
+    );
   };
 
   /**
@@ -473,6 +518,11 @@ class ImapClient {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
+    if (event.errorCode == Cr.NS_ERROR_NET_TIMEOUT) {
+      this._actionError("imapNetTimeoutError");
+      this._actionDone(event.errorCode);
+      return;
+    }
     this.logout();
     let secInfo = event.target.transport?.securityInfo;
     if (secInfo) {

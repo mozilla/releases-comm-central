@@ -233,6 +233,17 @@ class ImapService {
     });
   }
 
+  createFolder(parent, folderName, urlListener) {
+    return this._withClient(parent, (client, runningUrl) => {
+      client.startRunningUrl(urlListener, null, runningUrl);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapCreateFolder;
+      client.onReady = () => {
+        client.createFolder(parent, folderName);
+      };
+    });
+  }
+
   /**
    * Do some actions with a connection.
    * @param {nsIMsgFolder} folder - The associated folder.
