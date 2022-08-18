@@ -23,20 +23,23 @@
         ".toolbarbutton-text": "value=label,accesskey,crop",
       };
     }
+
+    static get markup() {
+      return `
+      <stack>
+        <html:img class="toolbarbutton-icon" alt="" />
+        <html:span class="badgeButton-badge" hidden="hidden"></html:span>
+      </stack>
+      <label class="toolbarbutton-text" crop="right" flex="1"></label>
+      `;
+    }
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
       this.setAttribute("is", "toolbarbutton-badge-button");
-      this.appendChild(
-        MozXULElement.parseXULToFragment(`
-          <stack>
-            <html:img class="toolbarbutton-icon" alt="" />
-            <html:span class="badgeButton-badge" hidden="hidden"></html:span>
-          </stack>
-          <label class="toolbarbutton-text" crop="right" flex="1"></label>
-        `)
-      );
+      this.appendChild(this.constructor.fragment);
 
       this._badgeCount = 0;
       this.initializeAttributeInheritance();
