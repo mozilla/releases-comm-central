@@ -718,6 +718,23 @@
       this.dispatchEvent(new CustomEvent(aEventName, { bubbles: true }));
     }
 
+    _boxKeyForDate(aDate) {
+      if (aDate instanceof Ci.calIDateTime) {
+        return aDate
+          .getInTimezone(cal.dtz.defaultTimezone)
+          .toString()
+          .substring(0, 10);
+      }
+      return [
+        aDate.getFullYear(),
+        (aDate.getMonth() + 1).toString().padStart(2, "0"),
+        aDate
+          .getDate()
+          .toString()
+          .padStart(2, "0"),
+      ].join("-");
+    }
+
     /**
      * Fetches the table cell for the given date, or null if the date isn't displayed.
      *
@@ -725,10 +742,7 @@
      * @return {HTMLTableCellElement|null}
      */
     getBoxForDate(aDate) {
-      if (aDate instanceof Ci.calIDateTime) {
-        aDate = cal.dtz.dateTimeToJsDate(aDate);
-      }
-      return this.dayBoxes.get(aDate.toISOString().substring(0, 10));
+      return this.dayBoxes.get(this._boxKeyForDate(aDate)) ?? null;
     }
 
     /**
@@ -738,7 +752,7 @@
      * @param {HTMLTableCellElement} aBox
      */
     setBoxForDate(aDate, aBox) {
-      this.dayBoxes.set(aDate.toISOString().substring(0, 10), aBox);
+      this.dayBoxes.set(this._boxKeyForDate(aDate), aBox);
     }
 
     /**
