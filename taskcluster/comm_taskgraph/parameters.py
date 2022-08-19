@@ -29,6 +29,9 @@ logger = logging.getLogger(__name__)
 BALROG_PRODUCT = "Thunderbird"
 
 PER_PROJECT_PARAMETERS = {
+    "ash": {
+        "target_tasks_method": "ash_tasks",
+    },
     "jamun": {
         "target_tasks_method": "nightly_desktop",
         "release_type": "nightly",

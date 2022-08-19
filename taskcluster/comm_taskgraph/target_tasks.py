@@ -9,7 +9,9 @@ import logging
 from gecko_taskgraph.target_tasks import (
     _target_task,
     _try_task_config,
+    filter_on_platforms,
     filter_out_shipping_phase,
+    filter_out_shippable,
     standard_filter,
 )
 from comm_taskgraph.try_option_syntax import _try_cc_option_syntax
@@ -49,3 +51,23 @@ def target_tasks_try(full_task_graph, parameters, graph_config):
         # With no try mode, we schedule nothing, allowing the user to add tasks
         # later via treeherder.
         return []
+
+
+@_target_task("ash_tasks")
+def target_tasks_ash(full_task_graph, parameters, graph_config):
+    run_for_platforms = (
+        "linux64",
+        "macosx64",
+        "win64",
+    )
+
+    def _filter(task, _parameters):
+        return all(
+            [
+                filter_on_platforms(task, run_for_platforms),
+                standard_filter(task, _parameters),
+                filter_out_shippable(task),
+            ]
+        )
+
+    return [l for l, t in full_task_graph.tasks.items() if _filter(t, parameters)]
