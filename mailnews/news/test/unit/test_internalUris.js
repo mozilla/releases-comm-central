@@ -34,7 +34,7 @@ var kCancelArticle =
 
 var dummyMsgWindow;
 
-add_task(function setupTest() {
+add_setup(function setupTest() {
   daemon = setupNNTPDaemon();
   server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
@@ -80,7 +80,32 @@ add_task(async function test_cancel() {
   Assert.ok(article.fullText.startsWith(kCancelArticle));
 });
 
+function generateLongArticle() {
+  // After converting to base64, the message body will be 65536 * 4 = 256KB.
+  let arr = new Uint8Array(65536);
+  crypto.getRandomValues(arr);
+  return `Date: Mon, 23 Jun 2008 19:58:07 +0400
+From: Normal Person <fake@acme.invalid>
+MIME-Version: 1.0
+Subject: Odd Subject
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-ID: <2@regular.invalid>
+
+${btoa(arr)}
+${btoa(arr)}
+${btoa(arr)}
+`;
+}
+
 add_task(async function test_fetchMessage() {
+  // Replace the second article with a large message.
+  daemon.addArticleToGroup(
+    new newsArticle(generateLongArticle()),
+    "test.filter",
+    2
+  );
+
   // Tests nsNntpService::CreateMessageIDURL via FetchMessage.
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
@@ -90,6 +115,15 @@ add_task(async function test_fetchMessage() {
   let data = await streamListener.promise;
   // To point out that the streamListener Promise shouldn't reject.
   Assert.ok(data);
+});
+
+add_task(async function test_fetchMessageNoStreamListener() {
+  // Tests nsNntpService::CreateMessageIDURL via FetchMessage.
+  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  let folder = localserver.rootFolder.getChildNamed("test.filter");
+  MailServices.nntp.fetchMessage(folder, 2, null, null, urlListener);
+  await urlListener.promise;
 });
 
 add_task(async function test_search() {

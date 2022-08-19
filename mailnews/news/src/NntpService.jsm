@@ -114,14 +114,14 @@ class NntpService {
   }
 
   fetchMessage(folder, key, msgWindow, consumer, urlListener) {
-    let streamListener;
+    let streamListener, inputStream, outputStream;
     if (consumer instanceof Ci.nsIStreamListener) {
       streamListener = consumer;
+      let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+      pipe.init(true, true, 0, 0);
+      inputStream = pipe.inputStream;
+      outputStream = pipe.outputStream;
     }
-    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
-    pipe.init(true, true, 0, 0);
-    let inputStream = pipe.inputStream;
-    let outputStream = pipe.outputStream;
 
     let server = folder.server.QueryInterface(Ci.nsINntpIncomingServer);
     server.wrappedJSObject.withClient(client => {
@@ -132,7 +132,7 @@ class NntpService {
         streamListener?.onStartRequest(null);
       };
       client.onData = data => {
-        outputStream.write(data, data.length);
+        outputStream?.write(data, data.length);
         streamListener?.onDataAvailable(null, inputStream, 0, data.length);
       };
       client.onDone = () => {
