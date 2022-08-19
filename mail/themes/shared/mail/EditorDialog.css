@@ -314,8 +314,10 @@ html|table html|th {
 
 #dictionary-list {
   list-style-type: none;
-  padding: 0;
+  padding: 6px 3px;
   margin: 0;
+  max-height: 5em;
+  overflow-y: auto;
 }
 
 html|input[type="checkbox"] {
