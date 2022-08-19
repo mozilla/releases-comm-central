@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals calFilter, calFilter, getViewBox, openEventDialogForViewing,
-   createEventWithDialog, currentView, calendarController, editSelectedEvents,
-   deleteSelectedEvents, calendarUpdateDeleteCommand, getEventStatusString,
-   goToggleToolbar */
+   modifyEventWithDialog, createEventWithDialog, currentView,
+   calendarController, editSelectedEvents, deleteSelectedEvents,
+   calendarUpdateDeleteCommand, getEventStatusString, goToggleToolbar */
 
 /* exported gCalendarEventTreeClicked, unifinderDoubleClick, unifinderKeyPress,
  *          focusSearch, ensureUnifinderLoaded, toggleUnifinder
@@ -306,6 +306,10 @@ function unifinderDoubleClick(event) {
   let calendarEvent = unifinderTreeView.getItemFromEvent(event);
 
   if (calendarEvent) {
+    if (Services.prefs.getBoolPref("calendar.events.defaultActionEdit", true)) {
+      modifyEventWithDialog(calendarEvent, true);
+      return;
+    }
     openEventDialogForViewing(calendarEvent);
   } else {
     createEventWithDialog();

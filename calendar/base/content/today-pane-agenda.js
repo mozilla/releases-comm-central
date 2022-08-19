@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals CalendarFilteredViewMixin, calendarCalendarButtonDNDObserver, setupAttendanceMenu,
-   openEventDialogForViewing, calendarViewController, showToolTip, openEventDialogForViewing,
+   openEventDialogForViewing, modifyEventWithDialog, calendarViewController, showToolTip,
    TodayPane */
 
 {
@@ -260,6 +260,10 @@
      * Opens the UI for editing the selected event.
      */
     editSelectedItem() {
+      if (Services.prefs.getBoolPref("calendar.events.defaultActionEdit", true)) {
+        modifyEventWithDialog(this.selectedItem, true);
+        return;
+      }
       openEventDialogForViewing(this.selectedItem);
     }
 
@@ -340,7 +344,13 @@
       this.relativeElement = this.querySelector(".agenda-listitem-relative");
       this.overlapElement = this.querySelector(".agenda-listitem-overlap");
 
-      this.detailsElement.addEventListener("dblclick", () => openEventDialogForViewing(this.item));
+      this.detailsElement.addEventListener("dblclick", () => {
+        if (Services.prefs.getBoolPref("calendar.events.defaultActionEdit", true)) {
+          modifyEventWithDialog(this.item, true);
+          return;
+        }
+        openEventDialogForViewing(this.item);
+      });
     }
 
     connectedCallback() {

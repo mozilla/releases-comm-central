@@ -86,6 +86,10 @@
 
         if (this.calendarView && this.calendarView.controller) {
           let item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
+          if (Services.prefs.getBoolPref("calendar.events.defaultActionEdit", true)) {
+            this.calendarView.controller.modifyOccurrence(item);
+            return;
+          }
           this.calendarView.controller.viewOccurrence(item);
         }
       });

@@ -25,6 +25,9 @@ pref("calendar.task.defaultdueoffsetunits", "minutes");
 pref("calendar.events.defaultTransparency.allday.transparent", true);
 pref("calendar.events.defaultTransparency.standard.transparent", false);
 
+// Make "Edit" the default action for events.
+pref("calendar.events.defaultActionEdit", false);
+
 // Number of days in Today Pane agenda
 pref("calendar.agenda.days", 14);
 
