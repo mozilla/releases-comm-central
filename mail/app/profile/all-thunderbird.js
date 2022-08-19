@@ -1021,6 +1021,9 @@ pref("devtools.memory.max-retaining-paths", 10);
 pref("devtools.performance.enabled", true);
 // But not the pop-up.
 pref("devtools.performance.popup.feature-flag", false);
+// Override the default preset, which is "web-developer" on beta and release.
+pref("devtools.performance.recording.preset", "firefox-platform");
+pref("devtools.performance.recording.preset.remote", "firefox-platform");
 
 // The default cache UI setting
 pref("devtools.cache.disabled", false);
