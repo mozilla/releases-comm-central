@@ -808,7 +808,8 @@ body:not(.is-editing) #editContactForm {
   color: var(--in-content-deemphasized-text);
 }
 
-.list-header:not([hidden]) {
+.list-header:not([hidden]),
+.selection-header:not([hidden]) {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
@@ -1194,7 +1195,7 @@ input[type="number"]::-moz-number-spin-down {
   }
 }
 
-#aboutAddressBookCount {
+#cardCount {
   position: sticky;
   bottom: 0;
   background-color: var(--counter-bg-color);

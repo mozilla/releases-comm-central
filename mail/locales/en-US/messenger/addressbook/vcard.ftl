@@ -50,6 +50,10 @@ vcard-n-suffix = Suffix
 vcard-n-add-suffix =
     .title = Add suffix
 
+# Nickname
+
+vcard-nickname = Nickname
+
 # Email vCard field
 
 vcard-email-header = Email Addresses
@@ -75,6 +79,13 @@ vcard-tel-header = Phone Numbers
 vcard-tel-add = Add phone number
 
 vcard-tel-label = Phone number
+
+# Or "Mobile"
+vcard-entry-type-cell = Cell
+
+vcard-entry-type-fax = Fax
+
+vcard-entry-type-pager = Pager
 
 # TZ vCard field
 

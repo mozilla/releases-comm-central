@@ -48,7 +48,7 @@ add_task(async function testDisplayMultiple() {
 
   // Select list 1 and check the list display.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  await checkHeader("list 1");
+  await checkHeader({ listName: "list 1" });
   await checkActionButtons(
     ["list 1 <list 1>"],
     [],
@@ -62,7 +62,7 @@ add_task(async function testDisplayMultiple() {
     { shiftKey: true },
     abWindow
   );
-  await checkHeader();
+  await checkHeader({ selectionCount: 2, selectionType: "lists" });
   await checkActionButtons(["list 1 <list 1>", "list 2 <list 2>"]);
   await checkList(["list 1", "list 2"]);
 
@@ -73,7 +73,7 @@ add_task(async function testDisplayMultiple() {
     { ctrlKey: true },
     abWindow
   );
-  await checkHeader();
+  await checkHeader({ selectionCount: 2, selectionType: "mixed" });
   await checkActionButtons(["list 1 <list 1>"]);
   await checkList(["list 1", "mike test"]);
 
@@ -84,7 +84,7 @@ add_task(async function testDisplayMultiple() {
     { ctrlKey: true },
     abWindow
   );
-  await checkHeader();
+  await checkHeader({ selectionCount: 2, selectionType: "mixed" });
   await checkActionButtons(
     ["list 1 <list 1>"],
     ["oscar test <oscar.test@invalid>"]
@@ -98,7 +98,7 @@ add_task(async function testDisplayMultiple() {
     { shiftKey: true },
     abWindow
   );
-  await checkHeader();
+  await checkHeader({ selectionCount: 2, selectionType: "contacts" });
   await checkActionButtons([], ["oscar test <oscar.test@invalid>"]);
   await checkList(["mike test", "oscar test"]);
 
@@ -108,7 +108,7 @@ add_task(async function testDisplayMultiple() {
     { shiftKey: true },
     abWindow
   );
-  await checkHeader();
+  await checkHeader({ selectionCount: 4, selectionType: "contacts" });
   await checkActionButtons(
     [],
     ["oscar test <oscar.test@invalid>", "victor test <victor.test@invalid>"]
@@ -122,7 +122,7 @@ add_task(async function testDisplayMultiple() {
     { ctrlKey: true },
     abWindow
   );
-  await checkHeader();
+  await checkHeader({ selectionCount: 2, selectionType: "contacts" });
   await checkActionButtons();
   await checkList(["mike test", "romeo test"]);
 
@@ -133,7 +133,7 @@ add_task(async function testDisplayMultiple() {
     { shiftKey: true },
     abWindow
   );
-  await checkHeader();
+  await checkHeader({ selectionCount: 6, selectionType: "mixed" });
   await checkActionButtons(
     ["list 1 <list 1>", "list 2 <list 2>"],
     ["oscar test <oscar.test@invalid>", "victor test <victor.test@invalid>"]
@@ -150,13 +150,14 @@ add_task(async function testDisplayMultiple() {
   await closeAddressBookWindow();
 });
 
-function checkHeader(name) {
+function checkHeader({ listName, selectionCount, selectionType } = {}) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
   let contactPhoto = abDocument.getElementById("viewContactPhoto");
   let contactName = abDocument.getElementById("viewContactName");
-  let listName = abDocument.getElementById("viewListName");
+  let listHeader = abDocument.getElementById("viewListName");
+  let selectionHeader = abDocument.getElementById("viewSelectionCount");
 
   Assert.ok(
     BrowserTestUtils.is_hidden(contactPhoto),
@@ -166,17 +167,35 @@ function checkHeader(name) {
     BrowserTestUtils.is_hidden(contactName),
     "contact name should be hidden"
   );
-  if (name) {
+  if (listName) {
     Assert.ok(
-      BrowserTestUtils.is_visible(listName),
-      "list name should be visible"
+      BrowserTestUtils.is_visible(listHeader),
+      "list header should be visible"
     );
-    Assert.equal(listName.textContent, name, "list name is correct");
+    Assert.equal(
+      listHeader.textContent,
+      listName,
+      "list header text is correct"
+    );
+    Assert.ok(
+      BrowserTestUtils.is_hidden(selectionHeader),
+      "selection header should be hidden"
+    );
   } else {
     Assert.ok(
-      BrowserTestUtils.is_hidden(listName),
-      "list name should be hidden"
+      BrowserTestUtils.is_hidden(listHeader),
+      "list header should be hidden"
     );
+    Assert.ok(
+      BrowserTestUtils.is_visible(selectionHeader),
+      "selection header should be visible"
+    );
+    Assert.deepEqual(abDocument.l10n.getAttributes(selectionHeader), {
+      id: `about-addressbook-selection-${selectionType}-header`,
+      args: {
+        count: selectionCount,
+      },
+    });
   }
 }
 
