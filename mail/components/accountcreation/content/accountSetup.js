@@ -587,7 +587,7 @@ var gAccountSetup = {
     );
 
     let toggleImage = document.getElementById("passwordInfo");
-    toggleImage.src = "chrome://messenger/skin/icons/visible.svg";
+    toggleImage.src = "chrome://messenger/skin/icons/new/compact/eye.svg";
     toggleImage.classList.add("password-toggled");
 
     this._showPassword = true;
@@ -609,7 +609,7 @@ var gAccountSetup = {
     );
 
     let toggleImage = document.getElementById("passwordInfo");
-    toggleImage.src = "chrome://messenger/skin/icons/hidden.svg";
+    toggleImage.src = "chrome://messenger/skin/icons/new/compact/hidden.svg";
     toggleImage.classList.remove("password-toggled");
 
     this._showPassword = false;

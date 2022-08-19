@@ -47,6 +47,7 @@
   --icon-id: url("chrome://messenger/skin/icons/new/compact/id.svg");
   --icon-import: url("chrome://messenger/skin/icons/new/compact/import.svg");
   --icon-inbox: url("chrome://messenger/skin/icons/new/compact/inbox.svg");
+  --icon-info: url("chrome://messenger/skin/icons/new/compact/info.svg");
   --icon-key: url("chrome://messenger/skin/icons/new/compact/key.svg");
   --icon-link: url("chrome://messenger/skin/icons/new/compact/link.svg");
   --icon-lock: url("chrome://messenger/skin/icons/new/compact/lock.svg");
@@ -77,6 +78,7 @@
   --icon-paint-brush: url("chrome://messenger/skin/icons/new/compact/paint-brush.svg");
   --icon-paste: url("chrome://messenger/skin/icons/new/compact/paste.svg");
   --icon-pencil: url("chrome://messenger/skin/icons/new/compact/pencil.svg");
+  --icon-photo-ban: url("chrome://messenger/skin/icons/new/compact/photo-ban.svg");
   --icon-pin: url("chrome://messenger/skin/icons/new/compact/pin.svg");
   --icon-print: url("chrome://messenger/skin/icons/new/compact/print.svg");
   --icon-priority: url("chrome://messenger/skin/icons/new/compact/priority.svg");

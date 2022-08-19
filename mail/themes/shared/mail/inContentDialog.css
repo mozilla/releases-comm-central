@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ @import url("chrome://messenger/skin/colors.css");
+
 dialog {
   --dialog-text-color: var(--arrowpanel-color);
   --dialog-background-color: var(--arrowpanel-background);
@@ -98,8 +100,9 @@ dialog :focus-visible {
 }
 
 .dialog-header-image {
-  -moz-context-properties: fill;
-  fill: var(--dialog-highlight-color);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--dialog-highlight-color) 20%, transparent);
+  stroke: var(--dialog-highlight-color);
   margin-inline-end: 12px;
   height: 32px;
 }
@@ -124,13 +127,14 @@ dialog.dialog-critical {
   align-items: center;
   margin-top: 0;
   background-color: var(--red-60);
-  color: #fff;
+  color: var(--color-white);
   border-radius: var(--toolbarbutton-border-radius);
   padding: 6px;
 }
 
 .warning-icon {
-  fill: #fff;
+  fill: color-mix(in srgb, var(--color-white) 20%, transparent);
+  stroke: var(--color-white);
 }
 
 .insecure-section h3 {

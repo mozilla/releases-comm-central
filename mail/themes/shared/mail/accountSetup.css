@@ -43,10 +43,10 @@ header {
 
 .title.success {
   padding-inline-start: 24px;
-  background: url("chrome://global/skin/icons/check.svg") 0 center no-repeat;
+  background: var(--icon-check) 0 center no-repeat;
   background-size: 22px;
-  -moz-context-properties: fill;
-  fill: #12bc00;
+  -moz-context-properties: stroke;
+  stroke: var(--color-green-50);
 }
 
 .title.success:dir(rtl) {
@@ -152,8 +152,9 @@ header {
 
 .form-icon {
   cursor: pointer;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   fill-opacity: 0.7;
   margin-inline: -26px 10px;
 }
@@ -230,7 +231,8 @@ input:user-invalid ~ .icon-warning {
 
 .password-toggled {
   color: var(--in-content-primary-button-background);
-  fill: currentColor;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .remember-button-container {
@@ -334,8 +336,9 @@ input:user-invalid ~ .icon-warning {
 
 .result-details-row img {
   grid-area: icon;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   color: inherit;
   width: 16px;
   height: 16px;
@@ -565,8 +568,9 @@ select[disabled] {
   border-radius: var(--in-content-button-border-radius);
   min-height: 39px;
   line-height: 1em;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .account-type-image {
@@ -632,8 +636,9 @@ button.linked-services-button:hover:active {
 
 .quick-link {
   appearance: none;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   border: none;
   padding: 6px;
   padding-inline-start: 27px;
@@ -666,29 +671,29 @@ button.quick-link:hover:active {
 }
 
 #settingsButton {
-  background-image: url("chrome://global/skin/icons/settings.svg");
+  background-image: var(--icon-settings);
 }
 
 #signatureButton {
-  background-image: url("chrome://messenger/skin/icons/newmsg.svg");
+  background-image: var(--icon-pencil);
 }
 
 #encryptionButton {
-  background-image: url("chrome://messenger/skin/icons/encryption-key.svg");
+  background-image: var(--icon-key);
 }
 
 #dictionariesButton {
-  background-image: url("chrome://messenger/skin/icons/file.svg");
+  background-image: var(--icon-download);
 }
 
 #addressBookCardDAVButton,
 #addressBookLDAPButton {
-  background-image: url("chrome://messenger/skin/icons/new-addressbook.svg");
+  background-image: var(--icon-new-address-book);
   align-self: start;
 }
 
 #createCalendarButton {
-  background-image: url("chrome://messenger/skin/icons/new-calendar.svg");
+  background-image: var(--icon-new-event);
   align-self: start;
 }
 
@@ -773,15 +778,15 @@ button.quick-link:hover:active {
 }
 
 .linked-service-dropdown img {
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
 button.existing {
-  background: url("chrome://global/skin/icons/check.svg") 0 center no-repeat;
+  background: var(--icon-check) 0 center no-repeat;
   background-size: 16px;
-  -moz-context-properties: fill;
-  fill: #12bc00;
+  -moz-context-properties: stroke;
+  stroke: var(--color-green-50);
   opacity: 1;
   padding-inline-start: 18px;
 }
@@ -838,9 +843,9 @@ button.existing:dir(rtl) {
 /* Account Provisioner variations */
 
 #backButton {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  background-image: url("chrome://global/skin/icons/arrow-left.svg");
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  background-image: var(--icon-nav-back);
   background-repeat: no-repeat;
   background-position-x: 6px;
   background-position-y: center;
@@ -849,7 +854,7 @@ button.existing:dir(rtl) {
 }
 
 #backButton:dir(rtl) {
-  background-image: url("chrome://global/skin/icons/arrow-right.svg");
+  background-image: var(--icon-nav-forward);
   background-position-x: right 6px;
 }
 
