@@ -6,6 +6,8 @@
  * If you manually generate a news URI somewhere, please add it to this test.
  */
 
+Cu.importGlobalProperties(["crypto"]);
+
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 
@@ -119,10 +121,10 @@ add_task(async function test_fetchMessage() {
 
 add_task(async function test_fetchMessageNoStreamListener() {
   // Tests nsNntpService::CreateMessageIDURL via FetchMessage.
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  let streamListener = null;
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
   let folder = localserver.rootFolder.getChildNamed("test.filter");
-  MailServices.nntp.fetchMessage(folder, 2, null, null, urlListener);
+  MailServices.nntp.fetchMessage(folder, 2, null, streamListener, urlListener);
   await urlListener.promise;
 });
 
