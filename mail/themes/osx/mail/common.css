@@ -13,6 +13,10 @@
   --in-content-button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
 }
 
+:root:not(.system-font-size) {
+  font: message-box;
+}
+
 xul|tabs {
   padding-inline: 0;
   position: static;

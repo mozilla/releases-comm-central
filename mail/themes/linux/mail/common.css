@@ -20,6 +20,10 @@
   }
 }
 
+:root:not(.system-font-size) {
+  font: message-box;
+}
+
 xul|tab[visuallyselected] {
   /* Override styles for tab[selected] from
      toolkit/themes/linux/global/tabbox.css */
