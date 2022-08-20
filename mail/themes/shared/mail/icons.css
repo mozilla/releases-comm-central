@@ -18,6 +18,7 @@
   --icon-chat: url("chrome://messenger/skin/icons/new/compact/chat.svg");
   --icon-check: url("chrome://messenger/skin/icons/new/compact/check.svg");
   --icon-checkbox: url("chrome://messenger/skin/icons/new/compact/checkbox.svg");
+  --icon-clock: url("chrome://messenger/skin/icons/new/compact/clock.svg");
   --icon-close: url("chrome://messenger/skin/icons/new/compact/close.svg");
   --icon-collapse: url("chrome://messenger/skin/icons/new/compact/collapse.svg");
   --icon-compress: url("chrome://messenger/skin/icons/new/compact/compress.svg");
@@ -30,6 +31,7 @@
   --icon-error-circle: url("chrome://messenger/skin/icons/new/compact/error-circle.svg");
   --icon-export: url("chrome://messenger/skin/icons/new/compact/export.svg");
   --icon-extension: url("chrome://messenger/skin/icons/new/compact/extension.svg");
+  --icon-event-status: url("chrome://messenger/skin/icons/new/compact/event-status.svg");
   --icon-eye: url("chrome://messenger/skin/icons/new/compact/eye.svg");
   --icon-features: url("chrome://messenger/skin/icons/new/compact/features.svg");
   --icon-file: url("chrome://messenger/skin/icons/new/compact/file.svg");

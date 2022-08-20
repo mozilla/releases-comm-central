@@ -37,72 +37,73 @@
  *-------------------------------------------------------------------*/
 
 .cal-event-toolbarbutton {
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 #button-save {
-  list-style-image: url(chrome://messenger/skin/icons/save.svg);
+  list-style-image: var(--icon-download);
 }
 
 #button-save[mode="send"] {
-  list-style-image: url("chrome://messenger/skin/icons/send.svg");
+  list-style-image: var(--icon-sent);
 }
 
 #saveandcloseButton,
 #button-saveandclose {
-  list-style-image: url(chrome://calendar/skin/shared/icons/save-close.svg);
+  list-style-image: var(--icon-download);
 }
 
 #button-saveandclose[mode="send"] {
-  list-style-image: url("chrome://messenger/skin/icons/send.svg");
+  list-style-image: var(--icon-sent);
 }
 
 #button-attendees {
-  list-style-image: url(chrome://messenger/skin/icons/address.svg);
+  list-style-image: var(--icon-address-book);
 }
 
 #button-privacy {
-  list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
+  list-style-image: var(--icon-lock);
 }
 
 #button-url {
-  list-style-image: url(chrome://messenger/skin/icons/attach.svg);
+  list-style-image: var(--icon-attachment);
 }
 
 #deleteButton,
 #button-delete.cal-event-toolbarbutton {
   /* !important to override the SM #button-delete states */
-  list-style-image: url(chrome://messenger/skin/icons/delete.svg) !important;
+  list-style-image: var(--icon-trash) !important;
   -moz-image-region: auto !important;
 }
 
 #button-priority {
-  list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
+  list-style-image: var(--icon-priority);
 }
 
 #button-status {
-  list-style-image: url(chrome://calendar/skin/shared/icons/status.svg);
+  list-style-image: var(--icon-event-status);
 }
 
 #button-freebusy {
-  list-style-image: url(chrome://calendar/skin/shared/icons/freebusy.svg);
+  list-style-image: var(--icon-clock);
 }
 
 #button-timezones {
-  list-style-image: url(chrome://calendar/skin/shared/icons/timezones.svg);
+  list-style-image: var(--icon-globe);
 }
 
 #acceptButton {
-  list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
+  list-style-image: var(--icon-check);
 }
 
 #tentativeButton {
-  list-style-image: url(chrome://calendar/skin/shared/icons/tentative.svg);
+  list-style-image: var(--icon-tentative);
 }
 
 #declineButton {
-  list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
+  list-style-image: var(--icon-close);
 }
 
 /*--------------------------------------------------------------------
@@ -206,7 +207,7 @@ label.label {
 }
 
 #item-categories > menupopup > menuitem .menu-iconic-text:dir(rtl) {
-  background-position-x: right;  
+  background-position-x: right;
 }
 
 #item-categories::part(color) {
