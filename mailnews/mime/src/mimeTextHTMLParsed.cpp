@@ -24,8 +24,10 @@
 #include "prmem.h"
 #include "prlog.h"
 #include "msgCore.h"
+#include "nsContentUtils.h"
 #include "mozilla/dom/DOMParser.h"
 #include "mozilla/dom/Document.h"
+#include "nsGenericHTMLElement.h"
 #include "mozilla/Preferences.h"
 #include "nsIParserUtils.h"
 #include "nsIDocumentEncoder.h"
@@ -87,6 +89,20 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   nsCOMPtr<mozilla::dom::Document> document = parser->ParseFromString(
       rawHTML, mozilla::dom::SupportedType::Text_html, rv2);
   if (rv2.Failed()) return -1;
+
+  // Remove meta http-equiv="refresh".
+  RefPtr<nsContentList> metas = document->GetElementsByTagName(u"meta"_ns);
+  uint32_t length = metas->Length(true);
+  for (uint32_t i = 0; i < length; i++) {
+    RefPtr<nsGenericHTMLElement> node =
+        nsGenericHTMLElement::FromNodeOrNull(metas->Item(i));
+    nsAutoString header;
+    node->GetAttr(kNameSpaceID_None, nsGkAtoms::httpEquiv, header);
+    nsContentUtils::ASCIIToLower(header);
+    if (nsGkAtoms::refresh->Equals(header)) {
+      node->Remove();
+    }
+  }
 
   // Serialize it back to HTML source again.
   nsCOMPtr<nsIDocumentEncoder> encoder = do_createDocumentEncoder("text/html");
