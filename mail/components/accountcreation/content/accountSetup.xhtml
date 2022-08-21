@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html>
-
 <html id="accountSetup" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -794,7 +793,7 @@
 
         <aside class="services-buttons-container">
           <section id="linkedAddressBooks"
-                   class="content-blocking-category linked-services-section"
+                   class="content-blocking-category linked-services-section opened"
                    hidden="hidden">
             <button type="button" class="linked-services-button"
                     onclick="gAccountSetup.toggleSetupContainer(event);">
@@ -811,8 +810,7 @@
               </span>
             </button>
 
-            <div id="addressBooksSetup" class="linked-services-container"
-                 hidden="hidden">
+            <div id="addressBooksSetup" class="linked-services-container">
               <ul class="linked-services-list"></ul>
               <button id="addressBooksSetupAll"
                       data-l10n-id="account-setup-connect-all-address-books"
@@ -838,7 +836,7 @@
           </section>
 
           <section id="linkedCalendars"
-                   class="content-blocking-category linked-services-section"
+                   class="content-blocking-category linked-services-section opened"
                    hidden="hidden">
             <button type="button" class="linked-services-button"
                     onclick="gAccountSetup.toggleSetupContainer(event);">
@@ -855,8 +853,7 @@
               </span>
             </button>
 
-            <div id="calendarsSetup" class="linked-services-container"
-                 hidden="hidden">
+            <div id="calendarsSetup" class="linked-services-container">
               <ul class="linked-services-list"></ul>
               <button id="calendarsSetupAll"
                       data-l10n-id="account-setup-connect-all-calendars"

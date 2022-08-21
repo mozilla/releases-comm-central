@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Cu.importGlobalProperties(["TextEncoder"]);
+
 function handleRequest(request, response) {
   if (!request.hasHeader("Authorization")) {
     response.setStatusLine("1.1", 401, "Unauthorized");
@@ -10,7 +12,7 @@ function handleRequest(request, response) {
   }
 
   response.setStatusLine("1.1", 207, "Multi-Status");
-  response.setHeader("Content-Type", "text/xml", false);
+  response.setHeader("Content-Type", "text/xml; charset=utf-8", false);
 
   // Request:
   // <propfind>
@@ -22,7 +24,7 @@ function handleRequest(request, response) {
   //   </prop>
   // </propfind>
 
-  response.write(`<multistatus xmlns="DAV:"
+  let res = `<multistatus xmlns="DAV:"
                                xmlns:A="http://apple.com/ns/ical/"
                                xmlns:C="urn:ietf:params:xml:ns:caldav"
                                xmlns:CS="http://calendarserver.org/ns/">
@@ -66,5 +68,59 @@ function handleRequest(request, response) {
         <status>HTTP/1.1 404 Not Found</status>
       </propstat>
     </response>
-  </multistatus>`);
+    <response>
+      <href>/browser/comm/calendar/test/browser/data/calendar2.sjs</href>
+      <propstat>
+        <prop>
+          <resourcetype>
+            <collection/>
+            <C:calendar/>
+            <CS:shared/>
+          </resourcetype>
+          <displayname>Röda dagar</displayname>
+          <A:calendar-color>#ff0000</A:calendar-color>
+          <current-user-privilege-set>
+           <privilege>
+            <read/>
+           </privilege>
+           <privilege>
+            <C:read-free-busy/>
+           </privilege>
+           <privilege>
+            <read-current-user-privilege-set/>
+           </privilege>
+           <privilege>
+            <write/>
+           </privilege>
+           <privilege>
+            <write-content/>
+           </privilege>
+           <privilege>
+            <write-properties/>
+           </privilege>
+           <privilege>
+            <bind/>
+           </privilege>
+           <privilege>
+            <unbind/>
+           </privilege>
+          </current-user-privilege-set>
+        </prop>
+        <status>HTTP/1.1 200 OK</status>
+      </propstat>
+      <propstat>
+        <prop>
+          <current-user-privilege-set/>
+        </prop>
+        <status>HTTP/1.1 404 Not Found</status>
+      </propstat>
+    </response>
+  </multistatus>`;
+
+  let bytes = new TextEncoder().encode(res);
+  let str = "";
+  for (let i = 0; i < bytes.length; i += 65536) {
+    str += String.fromCharCode.apply(null, bytes.subarray(i, i + 65536));
+  }
+  response.write(str);
 }

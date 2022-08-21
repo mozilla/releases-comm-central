@@ -725,8 +725,10 @@ button.quick-link:hover:active {
 
 .linked-services-list {
   list-style: none;
-  padding-inline: 0;
+  padding-inline: 0 3px;
   margin-block: 0;
+  max-height: 15em;
+  overflow: auto;
 }
 
 .linked-services-list li {

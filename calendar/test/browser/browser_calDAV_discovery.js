@@ -140,6 +140,11 @@ add_task(async function testDNS() {
         name: "You found me!",
         color: "rgb(0, 128, 0)",
       },
+      {
+        uri: "https://example.org/browser/comm/calendar/test/browser/data/calendar2.sjs",
+        name: "Röda dagar",
+        color: "rgb(255, 0, 0)",
+      },
     ],
   });
 

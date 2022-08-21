@@ -767,12 +767,7 @@ add_task(async function test_full_account_setup() {
     250
   );
 
-  // Expand the section.
-  EventUtils.synthesizeMouseAtCenter(
-    tabDocument.querySelector("#linkedAddressBooks .linked-services-button"),
-    {},
-    tab.browser.contentWindow
-  );
+  // The section should be expanded already.
   let abList = tabDocument.querySelector(
     "#addressBooksSetup .linked-services-list"
   );
@@ -812,19 +807,14 @@ add_task(async function test_full_account_setup() {
     250
   );
 
-  // Expand the section.
-  EventUtils.synthesizeMouseAtCenter(
-    tabDocument.querySelector("#linkedCalendars .linked-services-button"),
-    {},
-    tab.browser.contentWindow
-  );
+  // The section should be expanded already.
   let calendarList = tabDocument.querySelector(
     "#calendarsSetup .linked-services-list"
   );
   Assert.ok(BrowserTestUtils.is_visible(calendarList), "calendar list visible");
 
   // Check the linked calendar was found.
-  Assert.equal(calendarList.childElementCount, 1);
+  Assert.equal(calendarList.childElementCount, 2);
   Assert.equal(
     calendarList.querySelector("li > span.protocol-type").textContent,
     "CalDAV"
@@ -832,6 +822,16 @@ add_task(async function test_full_account_setup() {
   Assert.equal(
     calendarList.querySelector("li > span.list-item-name").textContent,
     "You found me!"
+  );
+  Assert.equal(
+    calendarList.querySelector("li:nth-child(2) > span.protocol-type")
+      .textContent,
+    "CalDAV"
+  );
+  Assert.equal(
+    calendarList.querySelector("li:nth-child(2) > span.list-item-name")
+      .textContent,
+    "Röda dagar"
   );
 
   // Connect the linked calendar.
