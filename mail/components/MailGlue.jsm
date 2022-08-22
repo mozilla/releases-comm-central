@@ -339,6 +339,13 @@ MailGlue.prototype = {
         }
         break;
       case "final-ui-startup":
+        // Initialise the permission manager. If this happens before telling
+        // the folder service that strings are available, it's a *much* less
+        // expensive operation than if it happens afterwards, because if
+        // strings are available, some types of mail URL go looking for things
+        // in message databases, causing massive amounts of I/O.
+        Services.perms.all;
+
         Cc["@mozilla.org/msgFolder/msgFolderService;1"]
           .getService(Ci.nsIMsgFolderService)
           .initializeFolderStrings();
