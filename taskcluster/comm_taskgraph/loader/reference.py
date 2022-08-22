@@ -52,7 +52,7 @@ def loader(kind, path, config, params, loaded_tasks):
     Loads selected jobs from a different taskgraph hierarchy.
 
     This loads jobs of the given kind from the taskgraph rooted at `base-path`,
-    and includes all the jobs with names or aliaes matching the names in the
+    and includes all the jobs with names or aliases matching the names in the
     `jobs` key.
     """
     base_path = config.pop("reference-base-path")
