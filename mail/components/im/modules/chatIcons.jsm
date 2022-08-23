@@ -95,7 +95,7 @@ var ChatIcons = {
       case "mobile":
         return "chrome://chat/skin/mobile.svg";
       case "chat":
-        return "chrome://chat/skin/chat.svg";
+        return "chrome://messenger/skin/icons/new/compact/chat.svg";
       case "chat-left":
         return "chrome://chat/skin/chat-left.svg";
       case "active-typing":

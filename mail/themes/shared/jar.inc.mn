@@ -682,6 +682,12 @@
   skin/classic/messenger/icons/new/status-online.svg          (../shared/mail/icons/new/status-online.svg)
   skin/classic/messenger/icons/new/status-online-sm.svg       (../shared/mail/icons/new/status-online-sm.svg)
 
+  skin/classic/messenger/icons/new/chat-lock.svg              (../shared/mail/icons/new/chat-lock.svg)
+  skin/classic/messenger/icons/new/chat-lock-finished.svg     (../shared/mail/icons/new/chat-lock-finished.svg)
+  skin/classic/messenger/icons/new/chat-lock-insecure.svg     (../shared/mail/icons/new/chat-lock-insecure.svg)
+  skin/classic/messenger/icons/new/chat-lock-private.svg      (../shared/mail/icons/new/chat-lock-private.svg)
+  skin/classic/messenger/icons/new/chat-lock-unverified.svg   (../shared/mail/icons/new/chat-lock-unverified.svg)
+
   skin/classic/messenger/icons/new/activity/addItemIcon.svg   (../shared/mail/icons/new/activity/addItemIcon.svg)
   skin/classic/messenger/icons/new/activity/compactMailIcon.svg (../shared/mail/icons/new/activity/compactMailIcon.svg)
   skin/classic/messenger/icons/new/activity/copyMailIcon.svg  (../shared/mail/icons/new/activity/copyMailIcon.svg)

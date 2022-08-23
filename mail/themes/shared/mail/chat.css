@@ -277,7 +277,10 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
 
 .startChatBubble {
   display: none;
-  list-style-image: url('chrome://chat/skin/prpl-generic/icon.png');
+  list-style-image: var(--icon-new-chat);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
@@ -351,6 +354,9 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
 .statusTypeIcon {
   width: 16px;
   height: 16px;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--color-ink-50) 20%, transparent);
+  stroke: var(--color-ink-50);
 }
 
 #statusTypeIcon:not([disabled]) {
@@ -624,6 +630,9 @@ richlistitem:not([selected]) .protoIconDimmed {
   pointer-events: none;
   width: 16px;
   margin: 0 2px;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .conv-nicklist-image:not([src]) {
@@ -895,19 +904,19 @@ toolbar[mode="text"] .badgeButton-badge {
 }
 
 .encryption-not-private > image {
-  list-style-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/chat-lock-insecure.svg");
 }
 
 .encryption-unverified > image {
-  list-style-image: url("chrome://messenger/skin/icons/connection-mixed.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/chat-lock-unverified.svg");
 }
 
 .encryption-finished > image {
-  list-style-image: url("chrome://chat/skin/otr-connection-finished.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/chat-lock-finished.svg");
 }
 
 .encryption-private > image {
-  list-style-image: url("chrome://chat/skin/otr-connection-encrypted.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new/chat-lock-private.svg");
 }
 
 .encryption-button {
@@ -919,8 +928,9 @@ toolbar[mode="text"] .badgeButton-badge {
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .encryption-button:not([disabled="true"]):not([open="true"]):hover {
