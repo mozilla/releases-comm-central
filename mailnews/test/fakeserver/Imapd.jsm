@@ -66,23 +66,23 @@ var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
 
-function imapDaemon(flags, syncFunc) {
-  this._flags = flags;
+class imapDaemon {
+  constructor(flags, syncFunc) {
+    this._flags = flags;
 
-  this.namespaces = [];
-  this.idResponse = "NIL";
-  this.root = new imapMailbox("", null, { type: IMAP_NAMESPACE_PERSONAL });
-  this.uidvalidity = Math.round(Date.now() / 1000);
-  this.inbox = new imapMailbox("INBOX", null, this.uidvalidity++);
-  this.root.addMailbox(this.inbox);
-  this.namespaces.push(this.root);
-  this.syncFunc = syncFunc;
-  // This can be used to cause the artificial failure of any given command.
-  this.commandToFail = "";
-  // This can be used to simulate timeouts on large copies
-  this.copySleep = 0;
-}
-imapDaemon.prototype = {
+    this.namespaces = [];
+    this.idResponse = "NIL";
+    this.root = new imapMailbox("", null, { type: IMAP_NAMESPACE_PERSONAL });
+    this.uidvalidity = Math.round(Date.now() / 1000);
+    this.inbox = new imapMailbox("INBOX", null, this.uidvalidity++);
+    this.root.addMailbox(this.inbox);
+    this.namespaces.push(this.root);
+    this.syncFunc = syncFunc;
+    // This can be used to cause the artificial failure of any given command.
+    this.commandToFail = "";
+    // This can be used to simulate timeouts on large copies
+    this.copySleep = 0;
+  }
   synchronize(mailbox, update) {
     if (this.syncFunc) {
       this.syncFunc.call(null, this);
@@ -92,7 +92,7 @@ imapDaemon.prototype = {
         message.recent = false;
       }
     }
-  },
+  }
   getNamespace(name) {
     for (var namespace of this.namespaces) {
       if (
@@ -103,11 +103,11 @@ imapDaemon.prototype = {
       }
     }
     return this.root;
-  },
+  }
   createNamespace(name, type) {
     var newbox = this.createMailbox(name, { type });
     this.namespaces.push(newbox);
-  },
+  }
   getMailbox(name) {
     if (name == "") {
       return this.root;
@@ -155,7 +155,7 @@ imapDaemon.prototype = {
       }
     }
     return mailbox;
-  },
+  }
   createMailbox(name, oldBox) {
     var namespace = this.getNamespace(name);
     if (namespace.name != "") {
@@ -215,7 +215,7 @@ imapDaemon.prototype = {
       box.addMailbox(childBox);
     }
     return true;
-  },
+  }
   deleteMailbox(mailbox) {
     if (mailbox._children.length == 0) {
       // We don't preserve the subscribed state for deleted mailboxes
@@ -226,59 +226,59 @@ imapDaemon.prototype = {
       mailbox._messages = [];
       mailbox.flags.push("\\Noselect");
     }
-  },
-};
-
-function imapMailbox(name, parent, state) {
-  this.name = name;
-  this._parent = parent;
-  this._children = [];
-  this._messages = [];
-  this._updates = [];
-
-  // Shorthand for uidvalidity
-  if (typeof state == "number") {
-    this.uidvalidity = state;
-    state = {};
   }
-
-  if (!state) {
-    state = {};
-  }
-
-  for (var prop in state) {
-    this[prop] = state[prop];
-  }
-
-  this.setDefault("subscribed", false);
-  this.setDefault("nonExistent", false);
-  this.setDefault("delimiter", "/");
-  this.setDefault("flags", []);
-  this.setDefault("specialUseFlag", "");
-  this.setDefault("uidnext", 1);
-  this.setDefault("msgflags", [
-    "\\Seen",
-    "\\Answered",
-    "\\Flagged",
-    "\\Deleted",
-    "\\Draft",
-  ]);
-  this.setDefault("permflags", [
-    "\\Seen",
-    "\\Answered",
-    "\\Flagged",
-    "\\Deleted",
-    "\\Draft",
-    "\\*",
-  ]);
 }
-imapMailbox.prototype = {
+
+class imapMailbox {
+  constructor(name, parent, state) {
+    this.name = name;
+    this._parent = parent;
+    this._children = [];
+    this._messages = [];
+    this._updates = [];
+
+    // Shorthand for uidvalidity
+    if (typeof state == "number") {
+      this.uidvalidity = state;
+      state = {};
+    }
+
+    if (!state) {
+      state = {};
+    }
+
+    for (var prop in state) {
+      this[prop] = state[prop];
+    }
+
+    this.setDefault("subscribed", false);
+    this.setDefault("nonExistent", false);
+    this.setDefault("delimiter", "/");
+    this.setDefault("flags", []);
+    this.setDefault("specialUseFlag", "");
+    this.setDefault("uidnext", 1);
+    this.setDefault("msgflags", [
+      "\\Seen",
+      "\\Answered",
+      "\\Flagged",
+      "\\Deleted",
+      "\\Draft",
+    ]);
+    this.setDefault("permflags", [
+      "\\Seen",
+      "\\Answered",
+      "\\Flagged",
+      "\\Deleted",
+      "\\Draft",
+      "\\*",
+    ]);
+  }
   setDefault(prop, def) {
     this[prop] = prop in this ? this[prop] : def;
-  },
+  }
   addMailbox(mailbox) {
     this._children.push(mailbox);
-  },
+  }
   getChild(name) {
     for (var mailbox of this._children) {
       if (name == mailbox.name) {
@@ -286,7 +286,7 @@ imapMailbox.prototype = {
       }
     }
     return null;
-  },
+  }
   matchKids(pattern) {
     if (pattern == "") {
       return this._parent ? this._parent.matchKids("") : [this];
@@ -325,24 +325,24 @@ imapMailbox.prototype = {
       });
     }
     return matching;
-  },
+  }
   get fullName() {
     return (
       (this._parent ? this._parent.fullName + this.delimiter : "") + this.name
     );
-  },
+  }
   get displayName() {
     let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
       Ci.nsICharsetConverterManager
     );
     // Escape backslash and double-quote with another backslash before encoding.
     return manager.unicodeToMutf7(this.fullName.replace(/([\\"])/g, "\\$1"));
-  },
+  }
   get allChildren() {
     return this._children.reduce(function(arr, elem) {
       return arr.concat(elem._allChildrenInternal);
     }, []);
-  },
+  }
   get _allChildrenInternal() {
     return this._children.reduce(
       function(arr, elem) {
@@ -350,7 +350,7 @@ imapMailbox.prototype = {
       },
       [this]
     );
-  },
+  }
   addMessage(message) {
     this._messages.push(message);
     if (message.uid >= this.uidnext) {
@@ -362,7 +362,7 @@ imapMailbox.prototype = {
     if ("__highestuid" in this && message.uid > this.__highestuid) {
       this.__highestuid = message.uid;
     }
-  },
+  }
   get _highestuid() {
     if ("__highestuid" in this) {
       return this.__highestuid;
@@ -375,7 +375,7 @@ imapMailbox.prototype = {
     }
     this.__highestuid = highest;
     return highest;
-  },
+  }
   expunge() {
     var response = "";
     for (var i = 0; i < this._messages.length; i++) {
@@ -388,20 +388,20 @@ imapMailbox.prototype = {
       delete this.__highestuid;
     }
     return response;
-  },
-};
-
-function imapMessage(URI, uid, flags) {
-  this._URI = URI;
-  this.uid = uid;
-  this.size = 0;
-  this.flags = [];
-  for (let flag in flags) {
-    this.flags.push(flag);
   }
-  this.recent = false;
 }
-imapMessage.prototype = {
+
+class imapMessage {
+  constructor(URI, uid, flags) {
+    this._URI = URI;
+    this.uid = uid;
+    this.size = 0;
+    this.flags = [];
+    for (let flag in flags) {
+      this.flags.push(flag);
+    }
+    this.recent = false;
+  }
   get channel() {
     return Services.io.newChannel(
       this._URI,
@@ -413,22 +413,22 @@ imapMessage.prototype = {
       Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
-  },
+  }
   setFlag(flag) {
     if (!this.flags.includes(flag)) {
       this.flags.push(flag);
     }
-  },
+  }
   // This allows us to simulate servers that approximate the rfc822 size.
   setSize(size) {
     this.size = size;
-  },
+  }
   clearFlag(flag) {
     let index = this.flags.indexOf(flag);
     if (index != -1) {
       this.flags.splice(index, 1);
     }
-  },
+  }
   getText(start, length) {
     if (!start) {
       start = 0;
@@ -452,7 +452,7 @@ imapMessage.prototype = {
     }
     str = bstream.readBytes(length);
     return str;
-  },
+  }
 
   get _partMap() {
     if (this.__partMap) {
@@ -472,10 +472,10 @@ imapMessage.prototype = {
       stripcontinuations: false,
     });
     return (this.__partMap = partMap);
-  },
+  }
   getPartHeaders(partNum) {
     return this._partMap[partNum][1];
-  },
+  }
   getPartBody(partNum) {
     var body = "";
     var emitter = {
@@ -489,8 +489,8 @@ imapMessage.prototype = {
       bodyformat: "raw",
     });
     return body;
-  },
-};
+  }
+}
 
 // IMAP FLAGS
 // If you don't specify any flag, no flags are set.
@@ -718,128 +718,128 @@ function formatArg(argument, spec) {
  * argument that is an array of data items instead of a string representing the
  * rest of the line.
  */
-function IMAP_RFC3501_handler(daemon) {
-  this.kUsername = "user";
-  this.kPassword = "password";
-  this.kAuthSchemes = []; // Added by RFC2195 extension. Test may modify as needed.
-  this.kCapabilities = [
-    /* "LOGINDISABLED", "STARTTLS", */
-    "CLIENTID",
-  ]; // Test may modify as needed.
-  this.kUidCommands = ["FETCH", "STORE", "SEARCH", "COPY"];
-
-  this._daemon = daemon;
-  this.closing = false;
-  this.dropOnStartTLS = false;
-  // map: property = auth scheme {String}, value = start function on this obj
-  this._kAuthSchemeStartFunction = {};
-
-  this._enabledCommands = {
-    // IMAP_STATE_NOT_AUTHED
-    0: [
-      "CAPABILITY",
-      "NOOP",
-      "LOGOUT",
-      "STARTTLS",
+class IMAP_RFC3501_handler {
+  constructor(daemon) {
+    this.kUsername = "user";
+    this.kPassword = "password";
+    this.kAuthSchemes = []; // Added by RFC2195 extension. Test may modify as needed.
+    this.kCapabilities = [
+      /* "LOGINDISABLED", "STARTTLS", */
       "CLIENTID",
-      "AUTHENTICATE",
-      "LOGIN",
-    ],
-    // IMAP_STATE_AUTHED
-    1: [
-      "CAPABILITY",
-      "NOOP",
-      "LOGOUT",
-      "SELECT",
-      "EXAMINE",
-      "CREATE",
-      "DELETE",
-      "RENAME",
-      "SUBSCRIBE",
-      "UNSUBSCRIBE",
-      "LIST",
-      "LSUB",
-      "STATUS",
-      "APPEND",
-    ],
-    // IMAP_STATE_SELECTED
-    2: [
-      "CAPABILITY",
-      "NOOP",
-      "LOGOUT",
-      "SELECT",
-      "EXAMINE",
-      "CREATE",
-      "DELETE",
-      "RENAME",
-      "SUBSCRIBE",
-      "UNSUBSCRIBE",
-      "LIST",
-      "LSUB",
-      "STATUS",
-      "APPEND",
-      "CHECK",
-      "CLOSE",
-      "EXPUNGE",
-      "SEARCH",
-      "FETCH",
-      "STORE",
-      "COPY",
-      "UID",
-    ],
-  };
-  // Format explanation:
-  // atom -> UPPERCASE
-  // string -> don't touch!
-  // mailbox -> Apply ->UTF16 transformation with case-insensitivity stuff
-  // flag -> Titlecase (or \Titlecase, $Titlecase, etc.)
-  // date -> Make it a JSDate object
-  // number -> Make it a number, if possible
-  // ( ) -> list, apply flags as specified
-  // [ ] -> optional argument.
-  // x|y -> either x or y format.
-  // ... -> variable args, don't parse
-  this._argFormat = {
-    CAPABILITY: [],
-    NOOP: [],
-    LOGOUT: [],
-    STARTTLS: [],
-    CLIENTID: ["string", "string"],
-    AUTHENTICATE: ["atom", "..."],
-    LOGIN: ["string", "string"],
-    SELECT: ["mailbox"],
-    EXAMINE: ["mailbox"],
-    CREATE: ["mailbox"],
-    DELETE: ["mailbox"],
-    RENAME: ["mailbox", "mailbox"],
-    SUBSCRIBE: ["mailbox"],
-    UNSUBSCRIBE: ["mailbox"],
-    LIST: ["mailbox", "mailbox"],
-    LSUB: ["mailbox", "mailbox"],
-    STATUS: ["mailbox", "(atom)"],
-    APPEND: ["mailbox", "[(flag)]", "[date]", "string"],
-    CHECK: [],
-    CLOSE: [],
-    EXPUNGE: [],
-    SEARCH: ["atom", "..."],
-    FETCH: ["number", "atom|(atom|(atom))"],
-    STORE: ["number", "atom", "flag|(flag)"],
-    COPY: ["number", "mailbox"],
-    UID: ["atom", "..."],
-  };
+    ]; // Test may modify as needed.
+    this.kUidCommands = ["FETCH", "STORE", "SEARCH", "COPY"];
 
-  this.resetTest();
-}
-IMAP_RFC3501_handler.prototype = {
+    this._daemon = daemon;
+    this.closing = false;
+    this.dropOnStartTLS = false;
+    // map: property = auth scheme {String}, value = start function on this obj
+    this._kAuthSchemeStartFunction = {};
+
+    this._enabledCommands = {
+      // IMAP_STATE_NOT_AUTHED
+      0: [
+        "CAPABILITY",
+        "NOOP",
+        "LOGOUT",
+        "STARTTLS",
+        "CLIENTID",
+        "AUTHENTICATE",
+        "LOGIN",
+      ],
+      // IMAP_STATE_AUTHED
+      1: [
+        "CAPABILITY",
+        "NOOP",
+        "LOGOUT",
+        "SELECT",
+        "EXAMINE",
+        "CREATE",
+        "DELETE",
+        "RENAME",
+        "SUBSCRIBE",
+        "UNSUBSCRIBE",
+        "LIST",
+        "LSUB",
+        "STATUS",
+        "APPEND",
+      ],
+      // IMAP_STATE_SELECTED
+      2: [
+        "CAPABILITY",
+        "NOOP",
+        "LOGOUT",
+        "SELECT",
+        "EXAMINE",
+        "CREATE",
+        "DELETE",
+        "RENAME",
+        "SUBSCRIBE",
+        "UNSUBSCRIBE",
+        "LIST",
+        "LSUB",
+        "STATUS",
+        "APPEND",
+        "CHECK",
+        "CLOSE",
+        "EXPUNGE",
+        "SEARCH",
+        "FETCH",
+        "STORE",
+        "COPY",
+        "UID",
+      ],
+    };
+    // Format explanation:
+    // atom -> UPPERCASE
+    // string -> don't touch!
+    // mailbox -> Apply ->UTF16 transformation with case-insensitivity stuff
+    // flag -> Titlecase (or \Titlecase, $Titlecase, etc.)
+    // date -> Make it a JSDate object
+    // number -> Make it a number, if possible
+    // ( ) -> list, apply flags as specified
+    // [ ] -> optional argument.
+    // x|y -> either x or y format.
+    // ... -> variable args, don't parse
+    this._argFormat = {
+      CAPABILITY: [],
+      NOOP: [],
+      LOGOUT: [],
+      STARTTLS: [],
+      CLIENTID: ["string", "string"],
+      AUTHENTICATE: ["atom", "..."],
+      LOGIN: ["string", "string"],
+      SELECT: ["mailbox"],
+      EXAMINE: ["mailbox"],
+      CREATE: ["mailbox"],
+      DELETE: ["mailbox"],
+      RENAME: ["mailbox", "mailbox"],
+      SUBSCRIBE: ["mailbox"],
+      UNSUBSCRIBE: ["mailbox"],
+      LIST: ["mailbox", "mailbox"],
+      LSUB: ["mailbox", "mailbox"],
+      STATUS: ["mailbox", "(atom)"],
+      APPEND: ["mailbox", "[(flag)]", "[date]", "string"],
+      CHECK: [],
+      CLOSE: [],
+      EXPUNGE: [],
+      SEARCH: ["atom", "..."],
+      FETCH: ["number", "atom|(atom|(atom))"],
+      STORE: ["number", "atom", "flag|(flag)"],
+      COPY: ["number", "mailbox"],
+      UID: ["atom", "..."],
+    };
+
+    this.resetTest();
+  }
   resetTest() {
     this._state = IMAP_STATE_NOT_AUTHED;
     this._multiline = false;
     this._nextAuthFunction = undefined; // should be in RFC2195_ext, but too lazy
-  },
+  }
   onStartup() {
     this._state = IMAP_STATE_NOT_AUTHED;
     return "* OK IMAP4rev1 Fakeserver started up";
-  },
+  }
 
   // CENTRALIZED DISPATCH FUNCTIONS
 
@@ -869,7 +869,7 @@ IMAP_RFC3501_handler.prototype = {
 
     // If we're here, we have a command with arguments. Dispatch!
     return this._dispatchCommand(command, args);
-  },
+  }
   onMultiline(line) {
     // A multiline arising form a literal being passed
     if (this._partial) {
@@ -924,7 +924,7 @@ IMAP_RFC3501_handler.prototype = {
       }
     }
     return undefined;
-  },
+  }
   _dispatchCommand(command, args) {
     this.sendingLiteral = false;
     command = command.toUpperCase();
@@ -985,7 +985,7 @@ IMAP_RFC3501_handler.prototype = {
       response += line + "\r\n";
     }
     return response;
-  },
+  }
   _treatArgs(args, command) {
     var format = this._argFormat[command];
     var treatedArgs = [];
@@ -1033,7 +1033,7 @@ IMAP_RFC3501_handler.prototype = {
       throw new Error("BAD Too many arguments");
     }
     return treatedArgs;
-  },
+  }
 
   // PROTOCOL COMMANDS (ordered as in spec)
 
@@ -1044,10 +1044,10 @@ IMAP_RFC3501_handler.prototype = {
     }
     capa += "\0OK CAPABILITY completed";
     return capa;
-  },
+  }
   CLIENTID(args) {
     return "OK Recognized a valid CLIENTID command, used for authentication methods";
-  },
+  }
   LOGOUT(args) {
     this.closing = true;
     if (this._selectedMailbox) {
@@ -1055,10 +1055,10 @@ IMAP_RFC3501_handler.prototype = {
     }
     this._state = IMAP_STATE_NOT_AUTHED;
     return "* BYE IMAP4rev1 Logging out\0OK LOGOUT completed";
-  },
+  }
   NOOP(args) {
     return "OK NOOP completed";
-  },
+  }
   STARTTLS(args) {
     // simulate annoying server that drops connection on STARTTLS
     if (this.dropOnStartTLS) {
@@ -1066,8 +1066,8 @@ IMAP_RFC3501_handler.prototype = {
       return "";
     }
     return "BAD maild doesn't support TLS ATM";
-  },
-  _nextAuthFunction: undefined,
+  }
+  _nextAuthFunction = undefined;
   AUTHENTICATE(args) {
     var scheme = args[0]; // already uppercased by type "atom"
     // |scheme| contained in |kAuthSchemes|?
@@ -1086,7 +1086,7 @@ IMAP_RFC3501_handler.prototype = {
       );
     }
     return func.apply(this, args.slice(1));
-  },
+  }
   LOGIN(args) {
     if (
       this.kCapabilities.some(function(c) {
@@ -1100,7 +1100,7 @@ IMAP_RFC3501_handler.prototype = {
       return "OK authenticated";
     }
     return "BAD invalid password, I won't authenticate you";
-  },
+  }
   SELECT(args) {
     var box = this._daemon.getMailbox(args[0]);
     if (!box) {
@@ -1132,7 +1132,7 @@ IMAP_RFC3501_handler.prototype = {
       response += "* OK [UIDVALIDITY " + box.uidvalidity + "]\0";
     }
     return response + "OK [READ-WRITE] SELECT completed";
-  },
+  }
   EXAMINE(args) {
     var box = this._daemon.getMailbox(args[0]);
     if (!box) {
@@ -1162,7 +1162,7 @@ IMAP_RFC3501_handler.prototype = {
     response += "* OK [UIDNEXT " + box.uidnext + "]\0";
     response += "* OK [UIDVALIDITY " + box.uidvalidity + "]\0";
     return response + "OK [READ-ONLY] EXAMINE completed";
-  },
+  }
   CREATE(args) {
     if (this._daemon.getMailbox(args[0])) {
       return "NO mailbox already exists";
@@ -1171,7 +1171,7 @@ IMAP_RFC3501_handler.prototype = {
       return "NO cannot create mailbox";
     }
     return "OK CREATE completed";
-  },
+  }
   DELETE(args) {
     var mbox = this._daemon.getMailbox(args[0]);
     if (!mbox || mbox.name == "") {
@@ -1186,7 +1186,7 @@ IMAP_RFC3501_handler.prototype = {
     }
     this._daemon.deleteMailbox(mbox);
     return "OK DELETE completed";
-  },
+  }
   RENAME(args) {
     var mbox = this._daemon.getMailbox(args[0]);
     if (!mbox || mbox.name == "") {
@@ -1196,7 +1196,7 @@ IMAP_RFC3501_handler.prototype = {
       return "NO cannot rename mailbox";
     }
     return "OK RENAME completed";
-  },
+  }
   SUBSCRIBE(args) {
     var mailbox = this._daemon.getMailbox(args[0]);
     if (!mailbox) {
@@ -1204,14 +1204,14 @@ IMAP_RFC3501_handler.prototype = {
     }
     mailbox.subscribed = true;
     return "OK SUBSCRIBE completed";
-  },
+  }
   UNSUBSCRIBE(args) {
     var mailbox = this._daemon.getMailbox(args[0]);
     if (mailbox) {
       mailbox.subscribed = false;
     }
     return "OK UNSUBSCRIBE completed";
-  },
+  }
   LIST(args) {
     // even though this is the LIST function for RFC 3501, code for
     // LIST-EXTENDED (RFC 5258) is included here to keep things simple and
@@ -1273,7 +1273,7 @@ IMAP_RFC3501_handler.prototype = {
       }
     }
     return response + "OK LIST completed";
-  },
+  }
   // _LIST is the standard LIST command response
   _LIST(aBox) {
     if (aBox.nonExistent) {
@@ -1288,7 +1288,7 @@ IMAP_RFC3501_handler.prototype = {
       aBox.displayName +
       '"\0'
     );
-  },
+  }
   LSUB(args) {
     var base = this._daemon.getMailbox(args[0]);
     if (!base) {
@@ -1303,7 +1303,7 @@ IMAP_RFC3501_handler.prototype = {
       }
     }
     return response + "OK LSUB completed";
-  },
+  }
   STATUS(args) {
     var box = this._daemon.getMailbox(args[0]);
     if (!box) {
@@ -1349,7 +1349,7 @@ IMAP_RFC3501_handler.prototype = {
       parts.join(" ") +
       ")\0OK STATUS completed"
     );
-  },
+  }
   APPEND(args) {
     var mailbox = this._daemon.getMailbox(args[0]);
     if (!mailbox) {
@@ -1383,24 +1383,24 @@ IMAP_RFC3501_handler.prototype = {
     msg.date = date;
     mailbox.addMessage(msg);
     return "OK APPEND complete";
-  },
+  }
   CHECK(args) {
     this._daemon.synchronize(this._selectedMailbox, false);
     return "OK CHECK completed";
-  },
+  }
   CLOSE(args) {
     this._selectedMailbox.expunge();
     this._daemon.synchronize(this._selectedMailbox, !this._readOnly);
     this._selectedMailbox = null;
     this._state = IMAP_STATE_AUTHED;
     return "OK CLOSE completed";
-  },
+  }
   EXPUNGE(args) {
     // Will be either empty or LF-terminated already
     var response = this._selectedMailbox.expunge();
     this._daemon.synchronize(this._selectedMailbox);
     return response + "OK EXPUNGE completed";
-  },
+  }
   SEARCH(args, uid) {
     if (args[0] == "UNDELETED") {
       let response = "* SEARCH";
@@ -1414,7 +1414,7 @@ IMAP_RFC3501_handler.prototype = {
       return response + "OK SEARCH COMPLETED\0";
     }
     return "BAD not here yet";
-  },
+  }
   FETCH(args, uid) {
     // Step 1: Get the messages to fetch
     var ids = [];
@@ -1482,7 +1482,7 @@ IMAP_RFC3501_handler.prototype = {
       response += parts.join(" ") + ")\0";
     }
     return response + "OK FETCH completed";
-  },
+  }
   STORE(args, uid) {
     var ids = [];
     var messages = this._parseSequenceSet(args[0], uid, ids);
@@ -1528,7 +1528,7 @@ IMAP_RFC3501_handler.prototype = {
       response = "";
     }
     return response + "OK STORE completed";
-  },
+  }
   COPY(args, uid) {
     var messages = this._parseSequenceSet(args[0], uid);
 
@@ -1559,7 +1559,7 @@ IMAP_RFC3501_handler.prototype = {
       }
     }
     return "OK COPY completed";
-  },
+  }
   UID(args) {
     var name = args.shift();
     if (!this.kUidCommands.includes(name)) {
@@ -1568,7 +1568,7 @@ IMAP_RFC3501_handler.prototype = {
 
     args = this._treatArgs(args, name);
     return this[name](args, true);
-  },
+  }
 
   postCommand(reader) {
     if (this.closing) {
@@ -1582,20 +1582,20 @@ IMAP_RFC3501_handler.prototype = {
     if (this._lastCommand == reader.watchWord) {
       reader.stopTest();
     }
-  },
+  }
   onServerFault(e) {
     return (
       ("_tag" in this ? this._tag : "*") + " BAD Internal server error: " + e
     );
-  },
+  }
 
   // FETCH sub commands and helpers
 
-  fetchMacroExpansions: {
+  fetchMacroExpansions = {
     ALL: ["FLAGS", "INTERNALDATE", "RFC822.SIZE" /* , "ENVELOPE" */],
     FAST: ["FLAGS", "INTERNALDATE", "RFC822.SIZE"],
     FULL: ["FLAGS", "INTERNALDATE", "RFC822.SIZE" /* , "ENVELOPE", "BODY" */],
-  },
+  };
   _parseSequenceSet(set, uid, ids /* optional */) {
     if (typeof set == "number") {
       if (uid) {
@@ -1683,7 +1683,7 @@ IMAP_RFC3501_handler.prototype = {
       }
     }
     return messages;
-  },
+  }
   _FETCH_BODY(message, query) {
     if (query == "BODY") {
       return "BODYSTRUCTURE " + bodystructure(message.getText(), false);
@@ -1804,10 +1804,10 @@ IMAP_RFC3501_handler.prototype = {
     response += "{" + data.length + "}\r\n";
     response += data;
     return response;
-  },
+  }
   _FETCH_BODYSTRUCTURE(message, query) {
     return "BODYSTRUCTURE " + bodystructure(message.getText(), true);
-  },
+  }
   // _FETCH_ENVELOPE,
   _FETCH_FLAGS(message) {
     var response = "FLAGS (";
@@ -1817,7 +1817,7 @@ IMAP_RFC3501_handler.prototype = {
     }
     response += ")";
     return response;
-  },
+  }
   _FETCH_INTERNALDATE(message) {
     let date = message.date;
     // Format timestamp as: "%d-%b-%Y %H:%M:%S %z" (%b in English).
@@ -1845,7 +1845,7 @@ IMAP_RFC3501_handler.prototype = {
     response += `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${timeZone}`;
     response += '"';
     return response;
-  },
+  }
   _FETCH_RFC822(message, query) {
     if (query == "RFC822") {
       return this._FETCH_BODY(message, "BODY[]").replace("BODY[]", "RFC822");
@@ -1874,11 +1874,11 @@ IMAP_RFC3501_handler.prototype = {
       return "RFC822.SIZE " + length;
     }
     throw new Error("Unknown item " + query);
-  },
+  }
   _FETCH_UID(message) {
     return "UID " + message.uid;
-  },
-};
+  }
+}
 
 // IMAP4 RFC extensions
 // --------------------

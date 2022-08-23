@@ -89,41 +89,42 @@ var TIMEOUT = 3 * 60 * 1000;
  *
  * do_test_finished();
  */
-function nsMailServer(handlerCreator, daemon) {
-  this._debug = fsDebugNone;
+class nsMailServer {
+  constructor(handlerCreator, daemon) {
+    this._debug = fsDebugNone;
 
-  /** The port on which this server listens. */
-  this._port = -1;
+    /** The port on which this server listens. */
+    this._port = -1;
 
-  /** The socket associated with this. */
-  this._socket = null;
+    /** The socket associated with this. */
+    this._socket = null;
 
-  /**
-   * True if the socket in this is closed (and closure notifications have been
-   * sent and processed if the socket was ever opened), false otherwise.
-   */
-  this._socketClosed = true;
+    /**
+     * True if the socket in this is closed (and closure notifications have been
+     * sent and processed if the socket was ever opened), false otherwise.
+     */
+    this._socketClosed = true;
 
-  /**
-   * Should we log transactions?  This only matters if you want to inspect the
-   * protocol traffic.  Defaults to true because this was written for protocol
-   * testing.
-   */
-  this._logTransactions = true;
+    /**
+     * Should we log transactions?  This only matters if you want to inspect the
+     * protocol traffic.  Defaults to true because this was written for protocol
+     * testing.
+     */
+    this._logTransactions = true;
 
-  this._handlerCreator = handlerCreator;
-  this._daemon = daemon;
-  this._readers = [];
-  this._test = false;
-  this._watchWord = undefined;
+    this._handlerCreator = handlerCreator;
+    this._daemon = daemon;
+    this._readers = [];
+    this._test = false;
+    this._watchWord = undefined;
 
-  /**
-   * An array to hold refs to all the input streams below, so that they don't
-   * get GCed
-   */
-  this._inputStreams = [];
-}
-nsMailServer.prototype = {
+    /**
+     * An array to hold refs to all the input streams below, so that they don't
+     * get GCed
+     */
+    this._inputStreams = [];
+  }
+
   onSocketAccepted(socket, trans) {
     if (this._debug != fsDebugNone) {
       dump("Received Connection from " + trans.host + ":" + trans.port + "\n");
@@ -151,7 +152,7 @@ nsMailServer.prototype = {
     //       you can actually do things in multi-threaded JS.  :-(
     input.asyncWait(reader, 0, 0, Services.tm.mainThread);
     this._test = true;
-  },
+  }
 
   onStopListening(socket, status) {
     if (this._debug != fsDebugNone) {
@@ -165,14 +166,14 @@ nsMailServer.prototype = {
       this._readers[i]._handler.resetTest();
       this._readers[i]._realCloseSocket();
     }
-  },
+  }
 
   setDebugLevel(debug) {
     this._debug = debug;
     for (var i = 0; i < this._readers.length; i++) {
       this._readers[i].setDebugLevel(debug);
     }
-  },
+  }
 
   start(port = -1) {
     if (this._socket) {
@@ -192,7 +193,7 @@ nsMailServer.prototype = {
 
     socket.asyncListen(this);
     this._socket = socket;
-  },
+  }
 
   stop() {
     if (!this._socket) {
@@ -216,24 +217,24 @@ nsMailServer.prototype = {
       // Don't wait for the next event, just in case there isn't one.
       thr.processNextEvent(false);
     }
-  },
+  }
   stopTest() {
     this._test = false;
-  },
+  }
 
   get port() {
     if (this._port == -1) {
       this._port = this._socket.port;
     }
     return this._port;
-  },
+  }
 
   // NSISUPPORTS
 
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener"]),
+  QueryInterface = ChromeUtils.generateQI(["nsIServerSocketListener"]);
 
   // NON-XPCOM PUBLIC API
 
@@ -244,7 +245,7 @@ nsMailServer.prototype = {
    */
   isStopped() {
     return this._socketClosed;
-  },
+  }
 
   /**
    * Runs the test. It will not exit until the test has finished.
@@ -256,14 +257,14 @@ nsMailServer.prototype = {
     while (!this.isTestFinished()) {
       thread.processNextEvent(false);
     }
-  },
+  }
 
   /**
    * Returns true if the current processing test has finished.
    */
   isTestFinished() {
     return this._readers.length > 0 && !this._test;
-  },
+  }
 
   /**
    * Returns the commands run between the server and client.
@@ -278,7 +279,7 @@ nsMailServer.prototype = {
       return this._readers[0].transaction;
     }
     return this._readers.map(e => e.transaction);
-  },
+  }
 
   /**
    * Prepares for the next test.
@@ -291,8 +292,8 @@ nsMailServer.prototype = {
     for (var i = 0; i < this._readers.length; i++) {
       this._readers[i]._handler.resetTest();
     }
-  },
-};
+  }
+}
 
 function readTo(input, count, arr) {
   var old = new BinaryInputStream(input).readByteArray(count);
@@ -325,64 +326,65 @@ function readTo(input, count, arr) {
  * closeSocket  Performs a server-side socket closing
  * setMultiline Sets the multiline mode based on the argument
  */
-function nsMailReader(server, handler, transport, debug, logTransaction) {
-  this._debug = debug;
-  this._server = server;
-  this._buffer = [];
-  this._lines = [];
-  this._handler = handler;
-  this._transport = transport;
-  // We don't seem to properly handle large streams when the buffer gets
-  // exhausted, which causes issues trying to test large messages. So just
-  // allow a really big buffer.
-  var output = transport.openOutputStream(
-    Ci.nsITransport.OPEN_BLOCKING,
-    1024,
-    4096
-  );
-  this._output = output;
-  if (logTransaction) {
-    this.transaction = { us: [], them: [] };
-  } else {
-    this.transaction = null;
+class nsMailReader {
+  constructor(server, handler, transport, debug, logTransaction) {
+    this._debug = debug;
+    this._server = server;
+    this._buffer = [];
+    this._lines = [];
+    this._handler = handler;
+    this._transport = transport;
+    // We don't seem to properly handle large streams when the buffer gets
+    // exhausted, which causes issues trying to test large messages. So just
+    // allow a really big buffer.
+    var output = transport.openOutputStream(
+      Ci.nsITransport.OPEN_BLOCKING,
+      1024,
+      4096
+    );
+    this._output = output;
+    if (logTransaction) {
+      this.transaction = { us: [], them: [] };
+    } else {
+      this.transaction = null;
+    }
+
+    // Send response line
+    var response = this._handler.onStartup();
+    response = response.replace(/([^\r])\n/g, "$1\r\n");
+    if (!response.endsWith("\n")) {
+      response = response + "\r\n";
+    }
+    if (this.transaction) {
+      this.transaction.us.push(response);
+    }
+    this._output.write(response, response.length);
+    this._output.flush();
+
+    this._multiline = false;
+
+    this._isRunning = true;
+
+    this.observer = {
+      server,
+      forced: false,
+      notify(timer) {
+        this.forced = true;
+        this.server.stopTest();
+        this.server.stop();
+      },
+      QueryInterface: ChromeUtils.generateQI(["nsITimerCallback"]),
+    };
+    this.timer = Cc["@mozilla.org/timer;1"]
+      .createInstance()
+      .QueryInterface(Ci.nsITimer);
+    this.timer.initWithCallback(
+      this.observer,
+      TIMEOUT,
+      Ci.nsITimer.TYPE_ONE_SHOT
+    );
   }
 
-  // Send response line
-  var response = this._handler.onStartup();
-  response = response.replace(/([^\r])\n/g, "$1\r\n");
-  if (!response.endsWith("\n")) {
-    response = response + "\r\n";
-  }
-  if (this.transaction) {
-    this.transaction.us.push(response);
-  }
-  this._output.write(response, response.length);
-  this._output.flush();
-
-  this._multiline = false;
-
-  this._isRunning = true;
-
-  this.observer = {
-    server,
-    forced: false,
-    notify(timer) {
-      this.forced = true;
-      this.server.stopTest();
-      this.server.stop();
-    },
-    QueryInterface: ChromeUtils.generateQI(["nsITimerCallback"]),
-  };
-  this.timer = Cc["@mozilla.org/timer;1"]
-    .createInstance()
-    .QueryInterface(Ci.nsITimer);
-  this.timer.initWithCallback(
-    this.observer,
-    TIMEOUT,
-    Ci.nsITimer.TYPE_ONE_SHOT
-  );
-}
-nsMailReader.prototype = {
   _findLines() {
     var buf = this._buffer;
     for (
@@ -403,7 +405,7 @@ nsMailReader.prototype = {
     this._buffer = buf.slice(crlfLoc + 2);
     this._lines.push(line);
     this._findLines();
-  },
+  }
 
   onInputStreamReady(stream) {
     if (this.observer.forced) {
@@ -528,37 +530,37 @@ nsMailReader.prototype = {
         Ci.nsITimer.TYPE_ONE_SHOT
       );
     }
-  },
+  }
 
   closeSocket() {
     this._signalStop = true;
-  },
+  }
   _realCloseSocket() {
     this._isRunning = false;
     this._output.close();
     this._transport.close(Cr.NS_OK);
     this._server.stopTest();
-  },
+  }
 
   setMultiline(multi) {
     this._multiline = multi;
-  },
+  }
 
   setDebugLevel(debug) {
     this._debug = debug;
-  },
+  }
 
   preventLFMunge() {
     this._preventLFMunge = true;
-  },
+  }
 
   get watchWord() {
     return this._server._watchWord;
-  },
+  }
 
   stopTest() {
     this._server.stopTest();
-  },
+  }
 
-  QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback"]),
-};
+  QueryInterface = ChromeUtils.generateQI(["nsIInputStreamCallback"]);
+}
