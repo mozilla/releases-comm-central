@@ -1534,6 +1534,35 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     /**
+     * The content window of the current tab, if it is a 3-pane tab.
+     *
+     * @type {?Window}
+     */
+    get currentAbout3Pane() {
+      if (this.currentTabInfo.mode.name == "mail3PaneTab") {
+        return this.currentTabInfo.chromeBrowser.contentWindow;
+      }
+      return null;
+    }
+
+    /**
+     * The content window of the current tab, if it is a message tab, OR if it
+     * is a 3-pane tab, the content window of the message browser within.
+     *
+     * @type {?Window}
+     */
+    get currentAboutMessage() {
+      switch (this.currentTabInfo.mode.name) {
+        case "mail3PaneTab":
+          return this.currentAbout3Pane.messageBrowser.contentWindow;
+        case "mailMessageTab":
+          return this.currentTabInfo.chromeBrowser.contentWindow;
+        default:
+          return null;
+      }
+    }
+
+    /**
      * getBrowserForSelectedTab is required as some toolkit functions
      * require a getBrowser() function.
      */

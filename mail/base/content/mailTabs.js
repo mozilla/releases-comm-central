@@ -860,7 +860,9 @@ var newMailTabType = {
     tab.title = "";
     tab.panel.id = `${tab.mode.name}${tab.mode._nextId}`;
     tab.panel.appendChild(clone);
-    tab.browser = browser;
+    // `chromeBrowser` refers to the outermost browser in the tab, i.e. the
+    // browser displaying about:3pane or about:message.
+    tab.chromeBrowser = browser;
     tab.mode._nextId++;
   },
 
@@ -878,52 +880,89 @@ var newMailTabType = {
           win.restoreState(args)
         );
 
-        tab.folderURI = args.folderURI;
-        tab.__defineGetter__("accountCentralVisible", () =>
-          tab.browser.contentDocument.body.classList.contains("account-central")
-        );
-        tab.__defineGetter__(
-          "folderPaneVisible",
-          () => !tab.browser.contentWindow.splitter1.isCollapsed
-        );
-        tab.__defineSetter__("folderPaneVisible", visible => {
-          tab.browser.contentWindow.splitter1.isCollapsed = !visible;
+        // `browser` and `linkedBrowser` refer to the message display browser
+        // within this tab. They may be null if the browser isn't visible.
+        // Extension APIs refer to these properties.
+        Object.defineProperty(tab, "browser", {
+          get() {
+            let { messageBrowser } = tab.chromeBrowser.contentWindow;
+            if (messageBrowser && !messageBrowser.hidden) {
+              return messageBrowser.contentDocument.getElementById(
+                "messagepane"
+              );
+            }
+            return null;
+          },
         });
-        tab.__defineGetter__(
-          "messagePaneVisible",
-          () => !tab.browser.contentWindow.splitter2.isCollapsed
-        );
-        tab.__defineSetter__("messagePaneVisible", visible => {
-          tab.browser.contentWindow.splitter2.isCollapsed = !visible;
-        });
-        tab.__defineGetter__("sort", () => {
-          return {
-            type: tab.browser.contentWindow.gViewWrapper.primarySortType,
-            order: tab.browser.contentWindow.gViewWrapper.primarySortOrder,
-            grouped: tab.browser.contentWindow.gViewWrapper.showGroupedBySort,
-            threaded: tab.browser.contentWindow.gViewWrapper.showThreaded,
-          };
+        Object.defineProperty(tab, "linkedBrowser", {
+          get() {
+            return tab.browser;
+          },
         });
 
-        tab.__defineGetter__(
-          "message",
-          () => tab.browser.contentWindow.gDBView?.hdrForFirstSelectedMessage
-        );
-        tab.__defineGetter__(
-          "folder",
-          () => tab.browser.contentWindow.gViewWrapper?.displayedFolder
-        );
+        // Layout properties.
+        Object.defineProperty(tab, "accountCentralVisible", {
+          get() {
+            return tab.chromeBrowser.contentDocument.body.classList.contains(
+              "account-central"
+            );
+          },
+        });
+        Object.defineProperty(tab, "folderPaneVisible", {
+          get() {
+            return !tab.chromeBrowser.contentWindow.splitter1.isCollapsed;
+          },
+          set(visible) {
+            tab.chromeBrowser.contentWindow.splitter1.isCollapsed = !visible;
+          },
+        });
+        Object.defineProperty(tab, "messagePaneVisible", {
+          get() {
+            return !tab.chromeBrowser.contentWindow.splitter2.isCollapsed;
+          },
+          set(visible) {
+            tab.chromeBrowser.contentWindow.splitter2.isCollapsed = !visible;
+          },
+        });
+        Object.defineProperty(tab, "sort", {
+          get() {
+            return {
+              type:
+                tab.chromeBrowser.contentWindow.gViewWrapper?.primarySortType,
+              order:
+                tab.chromeBrowser.contentWindow.gViewWrapper?.primarySortOrder,
+              grouped:
+                tab.chromeBrowser.contentWindow.gViewWrapper?.showGroupedBySort,
+              threaded:
+                tab.chromeBrowser.contentWindow.gViewWrapper?.showThreaded,
+            };
+          },
+        });
+
+        // Content properties.
+        Object.defineProperty(tab, "message", {
+          get() {
+            return tab.chromeBrowser.contentWindow.gDBView
+              ?.hdrForFirstSelectedMessage;
+          },
+        });
+        Object.defineProperty(tab, "folder", {
+          get() {
+            return tab.chromeBrowser.contentWindow.gFolder;
+          },
+          set(folder) {
+            tab.chromeBrowser.contentWindow.displayFolder(folder.URI);
+          },
+        });
 
         // The same as `doCommand` but with an extra argument.
         tab.performCommand = function(command, event) {
-          let commandController = tab.browser?.contentWindow.commandController;
+          let commandController =
+            tab.chromeBrowser?.contentWindow.commandController;
           if (commandController?.isCommandEnabled(command)) {
             commandController.doCommand(command, event);
           }
         };
-        tab.browser.addEventListener("folderURIChanged", function(event) {
-          tab.folderURI = event.detail;
-        });
         tab.canClose = !tab.first;
         return tab;
       },
@@ -931,7 +970,7 @@ var newMailTabType = {
         return {
           firstTab: tab.first,
           folderPaneVisible: tab.folderPaneVisible,
-          folderURI: tab.folderURI,
+          folderURI: tab.folder.URI,
           messagePaneVisible: tab.messagePaneVisible,
         };
       },
@@ -939,38 +978,42 @@ var newMailTabType = {
         if (persistedState.firstTab) {
           let tab = tabmail.tabInfo[0];
           if (
-            tab.browser.currentURI.spec != "about:3pane" ||
-            tab.browser.contentDocument.readyState != "complete"
+            tab.chromeBrowser.currentURI.spec != "about:3pane" ||
+            tab.chromeBrowser.contentDocument.readyState != "complete"
           ) {
-            tab.browser.contentWindow.addEventListener(
+            tab.chromeBrowser.contentWindow.addEventListener(
               "load",
               () => {
-                tab.browser.contentWindow.displayFolder(
+                tab.chromeBrowser.contentWindow.displayFolder(
                   persistedState.folderURI
                 );
               },
               { once: true }
             );
           } else {
-            tab.browser.contentWindow.displayFolder(persistedState.folderURI);
+            tab.chromeBrowser.contentWindow.displayFolder(
+              persistedState.folderURI
+            );
           }
-          tab.folderURI = persistedState.folderURI;
         } else {
           tabmail.openTab("mail3PaneTab", persistedState);
         }
       },
       supportsCommand(command, tab) {
-        return tab.browser?.contentWindow.commandController?.supportsCommand(
+        return tab.chromeBrowser?.contentWindow.commandController?.supportsCommand(
           command
         );
       },
       isCommandEnabled(command, tab) {
-        return tab.browser.contentWindow.commandController?.isCommandEnabled(
+        return tab.chromeBrowser.contentWindow.commandController?.isCommandEnabled(
           command
         );
       },
       doCommand(command, tab) {
-        tab.browser.contentWindow.commandController?.doCommand(command);
+        tab.chromeBrowser.contentWindow.commandController?.doCommand(command);
+      },
+      getBrowser(tab) {
+        return tab.browser;
       },
     },
     mailMessageTab: {
@@ -980,24 +1023,47 @@ var newMailTabType = {
           win.displayMessage(messageURI, viewWrapper)
         );
 
+        // `browser` and `linkedBrowser` refer to the message display browser
+        // within this tab. They may be null if the browser isn't visible.
+        // Extension APIs refer to these properties.
+        Object.defineProperty(tab, "browser", {
+          get() {
+            return tab.chromeBrowser.contentDocument.getElementById(
+              "messagepane"
+            );
+          },
+        });
+        Object.defineProperty(tab, "linkedBrowser", {
+          get() {
+            return tab.browser;
+          },
+        });
+
+        // Content properties.
         tab.messageURI = messageURI;
-        tab.__defineGetter__(
-          "message",
-          () => tab.browser.contentWindow.gMessage
-        );
-        tab.__defineGetter__(
-          "folder",
-          () => tab.browser.contentWindow.gViewWrapper?.displayedFolder
-        );
+        Object.defineProperty(tab, "message", {
+          get() {
+            return tab.chromeBrowser.contentWindow.gMessage;
+          },
+        });
+        Object.defineProperty(tab, "folder", {
+          get() {
+            return tab.chromeBrowser.contentWindow.gViewWrapper
+              ?.displayedFolder;
+          },
+        });
 
         // The same as `doCommand` but with an extra argument.
         tab.performCommand = function(command, event) {
-          let commandController = tab.browser?.contentWindow.commandController;
+          let commandController =
+            tab.chromeBrowser?.contentWindow.commandController;
           if (commandController?.isCommandEnabled(command)) {
             commandController.doCommand(command, event);
           }
         };
-        tab.browser.addEventListener("messageURIChanged", function(event) {
+        tab.chromeBrowser.addEventListener("messageURIChanged", function(
+          event
+        ) {
           tab.messageURI = event.detail;
         });
         return tab;
@@ -1009,17 +1075,17 @@ var newMailTabType = {
         tabmail.openTab("mailMessageTab", persistedState);
       },
       supportsCommand(command, tab) {
-        return tab.browser?.contentWindow.commandController?.supportsCommand(
+        return tab.chromeBrowser?.contentWindow.commandController?.supportsCommand(
           command
         );
       },
       isCommandEnabled(command, tab) {
-        return tab.browser.contentWindow.commandController?.isCommandEnabled(
+        return tab.chromeBrowser.contentWindow.commandController?.isCommandEnabled(
           command
         );
       },
       doCommand(command, tab) {
-        tab.browser.contentWindow.commandController?.doCommand(command);
+        tab.chromeBrowser.contentWindow.commandController?.doCommand(command);
       },
       getBrowser(tab) {
         return tab.browser;
