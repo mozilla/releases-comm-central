@@ -52,13 +52,7 @@ class BaseMessageService {
       );
     } else {
       let streamListener = displayConsumer.QueryInterface(Ci.nsIStreamListener);
-      let channel = new lazy.NntpChannel(uri, {
-        QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
-        loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-        securityFlags:
-          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-        internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
-      });
+      let channel = new lazy.NntpChannel(uri);
       channel.asyncOpen(streamListener);
     }
   }

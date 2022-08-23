@@ -34,7 +34,7 @@ class NntpChannel {
 
   /**
    * @param {nsIURI} uri - The uri to construct the channel from.
-   * @param {nsILoadInfo} loadInfo - The loadInfo associated with the channel.
+   * @param {nsILoadInfo} [loadInfo] - The loadInfo associated with the channel.
    */
   constructor(uri, loadInfo) {
     this._server = lazy.NntpUtils.findServer(uri.asciiHost);
@@ -74,7 +74,12 @@ class NntpChannel {
     // nsIChannel attributes.
     this.originalURI = uri;
     this.URI = uri;
-    this.loadInfo = loadInfo;
+    this.loadInfo = loadInfo || {
+      QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
+      loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
+    };
     this.contentLength = 0;
   }
 
@@ -278,7 +283,9 @@ class NntpChannel {
     let inputStream = pipe.inputStream;
     let outputStream = pipe.outputStream;
     if (this._newsFolder) {
-      this._newsFolder.saveArticleOffline = this._newsFolder.shouldStoreMsgOffline(
+      this._newsFolder.QueryInterface(
+        Ci.nsIMsgNewsFolder
+      ).saveArticleOffline = this._newsFolder.shouldStoreMsgOffline(
         this._articleNumber
       );
     }

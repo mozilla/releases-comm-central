@@ -123,9 +123,11 @@ class NntpClient {
     this._inReadingMode = false;
     this._currentGroupName = null;
     this._nextAction = ({ status }) => {
-      if (status == 200) {
+      if ([200, 201].includes(status)) {
         this._nextAction = null;
         this.onOpen();
+      } else {
+        this.quit(Cr.NS_ERROR_FAILURE);
       }
     };
   };

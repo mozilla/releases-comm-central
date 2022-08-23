@@ -203,6 +203,10 @@ function resetFolder(folder) {
 }
 
 function do_check_transaction(real, expected) {
+  if (Array.isArray(real)) {
+    real = real.at(-1);
+  }
+
   // real.them may have an extra QUIT on the end, where the stream is only
   // closed after we have a chance to process it and not them. We therefore
   // excise this from the list
