@@ -731,12 +731,8 @@ class MsgIncomingServer {
 
   getFileValue(relPrefName, absPrefName) {
     try {
-      let file = this._prefs.getComplexValue(
-        relPrefName,
-        Ci.nsIRelativeFilePref
-      );
-      file.normalize();
-      return file;
+      return this._prefs.getComplexValue(relPrefName, Ci.nsIRelativeFilePref)
+        .file;
     } catch (e) {
       try {
         let file = this._prefs.getComplexValue(absPrefName, Ci.nsIFile);
