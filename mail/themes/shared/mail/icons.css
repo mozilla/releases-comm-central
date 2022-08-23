@@ -36,6 +36,7 @@
   --icon-features: url("chrome://messenger/skin/icons/new/compact/features.svg");
   --icon-file: url("chrome://messenger/skin/icons/new/compact/file.svg");
   --icon-filter: url("chrome://messenger/skin/icons/new/compact/filter.svg");
+  --icon-fingerprint: url("chrome://messenger/skin/icons/new/compact/fingerprint.svg");
   --icon-folder-filter: url("chrome://messenger/skin/icons/new/compact/folder-filter.svg");
   --icon-folder-rss: url("chrome://messenger/skin/icons/new/compact/folder-rss.svg");
   --icon-folder-save: url("chrome://messenger/skin/icons/new/compact/folder-save.svg");
@@ -69,6 +70,7 @@
   --icon-new-chat: url("chrome://messenger/skin/icons/new/compact/new-chat.svg");
   --icon-new-contact: url("chrome://messenger/skin/icons/new/compact/new-contact.svg");
   --icon-new-event: url("chrome://messenger/skin/icons/new/compact/new-event.svg");
+  --icon-new-key: url("chrome://messenger/skin/icons/new/compact/new-key.svg");
   --icon-new-mail: url("chrome://messenger/skin/icons/new/compact/new-mail.svg");
   --icon-new-task: url("chrome://messenger/skin/icons/new/compact/new-task.svg");
   --icon-new-user-list: url("chrome://messenger/skin/icons/new/compact/new-user-list.svg");

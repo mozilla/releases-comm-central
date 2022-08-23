@@ -822,7 +822,10 @@ async function reloadOpenPgpUI() {
       if (Math.round(Date.now() / 1000) > key.expiryTime) {
         // Has expired.
         dateContainer.classList.add("key-expired");
-        dateIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
+        dateIcon.setAttribute(
+          "src",
+          "chrome://messenger/skin/icons/new/compact/warning.svg"
+        );
         // Sets the title attribute.
         // The alt attribute is not set because the accessible name is already
         // set by the title.
@@ -843,7 +846,7 @@ async function reloadOpenPgpUI() {
           dateContainer.classList.add("key-is-expiring");
           dateIcon.setAttribute(
             "src",
-            "chrome://messenger/skin/icons/info.svg"
+            "chrome://messenger/skin/icons/new/compact/info.svg"
           );
           // Sets the title attribute.
           // The alt attribute is not set because the accessible name is already
@@ -881,7 +884,7 @@ async function reloadOpenPgpUI() {
     let fingerprintImage = document.createElement("img");
     fingerprintImage.setAttribute(
       "src",
-      "chrome://messenger/skin/icons/fingerprint.svg"
+      "chrome://messenger/skin/icons/new/compact/fingerprint.svg"
     );
     fingerprintImage.setAttribute("alt", "");
 
@@ -912,7 +915,7 @@ async function reloadOpenPgpUI() {
     let createdImage = document.createElement("img");
     createdImage.setAttribute(
       "src",
-      "chrome://messenger/skin/shared/preferences/calendar.svg"
+      "chrome://messenger/skin/icons/new/compact/calendar.svg"
     );
     createdImage.setAttribute("alt", "");
 
@@ -1226,7 +1229,10 @@ function updateUIForSelectedOpenPgpKey() {
   if (gKeyId) {
     let key = EnigmailKeyRing.getKeyById(gKeyId, true);
     if (key?.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime) {
-      image.setAttribute("src", "chrome://messenger/skin/icons/stop.svg");
+      image.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/new/compact/close.svg"
+      );
       image.classList.add("status-error");
       document.l10n.setAttributes(
         statusLabel,
@@ -1234,7 +1240,10 @@ function updateUIForSelectedOpenPgpKey() {
         { key: `0x${gKeyId}` }
       );
     } else {
-      image.setAttribute("src", "chrome://global/skin/icons/check.svg");
+      image.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/new/compact/check.svg"
+      );
       image.classList.add("status-success");
       document.l10n.setAttributes(
         statusLabel,

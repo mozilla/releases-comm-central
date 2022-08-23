@@ -9,6 +9,7 @@
 @import url("chrome://global/skin/global.css");
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/preferences/preferences.css");
+@import url("chrome://messenger/skin/colors.css");
 
 @media (prefers-contrast) {
   :root {
@@ -296,8 +297,9 @@ richlistitem[default="true"],
 /* ::::: e2e encryption ::::: */
 
 #openPgpKey {
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   fill-opacity: 0.5;
   width: 48px;
   height: 48px;
@@ -316,17 +318,19 @@ richlistitem[default="true"],
 
 .openpgp-status {
   vertical-align: text-top;
-  -moz-context-properties: fill;
+  -moz-context-properties: fill, stroke;
   margin-inline-end: 2px;
   width: 16px;
 }
 
 .openpgp-status.status-success {
-  fill: #12bc00;
+  fill: color-mix(in srgb, var(--color-green-50) 20%, transparent);
+  stroke: var(--color-green-50);
 }
 
 .openpgp-status.status-error {
-  fill: #d70022;
+  fill: color-mix(in srgb, var(--color-red-50) 20%, transparent);
+  stroke: var(--color-red-50);
 }
 
 /* ::::: OpenPGP key selection ::::: */
@@ -345,8 +349,9 @@ richlistitem[default="true"],
 
 .content-blocking-category .checkbox-label-box,
 .extra-information-label > img {
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .content-blocking-category {
@@ -462,9 +467,10 @@ richlistitem[default="true"],
 
 .expiration-date-icon {
   vertical-align: text-top;
-  -moz-context-properties: fill;
+  -moz-context-properties: fill, stroke;
   margin-inline-end: 4px;
-  fill: currentColor;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   width: 16px;
 }
 
@@ -473,12 +479,13 @@ richlistitem[default="true"],
 }
 
 .expiration-date-container.key-expired description {
-  color: #D70022;
+  color: var(--color-red-50);
   font-weight: 600;
 }
 
 .expiration-date-container.key-expired .expiration-date-icon {
-  fill: #FF9400;
+  fill: color-mix(in srgb, var(--color-amber-50) 20%, transparent);
+  stroke: var(--color-amber-50);
 }
 
 .first-element {
@@ -524,16 +531,17 @@ richlistitem[default="true"],
 
 .openpgp-image-btn .button-icon {
   margin-inline-end: 4px;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 .openpgp-add-key-button {
-  list-style-image: url("chrome://messenger/skin/icons/new-key.svg");
+  list-style-image: var(--icon-new-key);
 }
 
 .openpgp-props-btn {
-  list-style-image: url("chrome://messenger/skin/icons/developer.svg");
+  list-style-image: var(--icon-tools);
 }
 
 .openpgp-more-btn .button-menu-dropmarker {
