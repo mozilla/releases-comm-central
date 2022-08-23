@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
  * A server offers GSSAPI (Kerberos), but auth fails, due to client or server.
  *
@@ -173,12 +173,8 @@ function deletePop3Server() {
   incomingServer = null;
 }
 
-function GSSAPIFail_handler(daemon_) {
-  POP3_RFC5034_handler.call(this, daemon_);
-}
-GSSAPIFail_handler.prototype = {
-  __proto__: POP3_RFC5034_handler.prototype, // inherit
-  _needGSSAPI: false,
+class GSSAPIFail_handler extends POP3_RFC5034_handler {
+  _needGSSAPI = false;
   // kAuthSchemes will be set by test
 
   AUTH(restLine) {
@@ -188,8 +184,8 @@ GSSAPIFail_handler.prototype = {
       this._needGSSAPI = true;
       return "+";
     }
-    return POP3_RFC5034_handler.prototype.AUTH.call(this, restLine); // call parent
-  },
+    return super.AUTH(restLine); // call parent
+  }
   onMultiline(line) {
     if (this._needGSSAPI) {
       this._multiline = false;
@@ -197,13 +193,13 @@ GSSAPIFail_handler.prototype = {
       return "-ERR hm.... shall I allow you? hm... NO.";
     }
 
-    if (POP3_RFC5034_handler.prototype.onMultiline) {
+    if (super.onMultiline) {
       // Call parent.
-      return POP3_RFC5034_handler.prototype.onMultiline.call(this, line);
+      return super.onMultiline(line);
     }
     return undefined;
-  },
-};
+  }
+}
 
 function run_test() {
   // Disable new mail notifications

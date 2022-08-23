@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
  * Contributors:
  *   Ben Bucksch <ben.bucksch beonex.com> <http://business.beonex.com> (RFC 5034 Authentication)
@@ -58,12 +58,10 @@ function readFile(fileName) {
   return mailTestUtils.loadFileToString(file);
 }
 
-function pop3Daemon(flags) {
-  this._messages = [];
-}
-pop3Daemon.prototype = {
-  _messages: null,
-  _totalMessageSize: 0,
+class pop3Daemon {
+  messages = [];
+  _messages = [];
+  _totalMessageSize = 0;
 
   /**
    * Set the messages that the POP3 daemon will provide to its clients.
@@ -92,14 +90,14 @@ pop3Daemon.prototype = {
       this._messages[i].uidl = "UIDL" + gUIDLCount++;
       this._totalMessageSize += this._messages[i].size;
     }
-  },
+  }
   getTotalMessages() {
     return this._messages.length;
-  },
+  }
   getTotalMessageSize() {
     return this._totalMessageSize;
-  },
-};
+  }
+}
 
 // POP3 TEST SERVERS
 // -----------------
@@ -113,20 +111,21 @@ var kStateTransaction = 3; // Authenticated, can fetch and delete mail
  * If dropOnAuthFailure is set, the server will drop the connection
  * on authentication errors, to simulate servers that do the same.
  */
-function POP3_RFC1939_handler(daemon) {
-  this._daemon = daemon;
-  this.closing = false;
-  this.dropOnAuthFailure = false;
-  this._multiline = false;
-  this.resetTest();
-}
-POP3_RFC1939_handler.prototype = {
-  kUsername: "fred",
-  kPassword: "wilma",
+class POP3_RFC1939_handler {
+  kUsername = "fred";
+  kPassword = "wilma";
+
+  constructor(daemon) {
+    this._daemon = daemon;
+    this.closing = false;
+    this.dropOnAuthFailure = false;
+    this._multiline = false;
+    this.resetTest();
+  }
 
   resetTest() {
     this._state = kStateAuthNeeded;
-  },
+  }
 
   USER(args) {
     if (this._state != kStateAuthNeeded) {
@@ -139,7 +138,7 @@ POP3_RFC1939_handler.prototype = {
     }
 
     return "-ERR sorry, no such mailbox";
-  },
+  }
   PASS(args) {
     if (this._state != kStateAuthPASS) {
       return "-ERR invalid state";
@@ -155,7 +154,7 @@ POP3_RFC1939_handler.prototype = {
       this.closing = true;
     }
     return "-ERR invalid password";
-  },
+  }
   STAT(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
@@ -167,7 +166,7 @@ POP3_RFC1939_handler.prototype = {
       " " +
       this._daemon.getTotalMessageSize()
     );
-  },
+  }
   LIST(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
@@ -180,7 +179,7 @@ POP3_RFC1939_handler.prototype = {
 
     result += ".";
     return result;
-  },
+  }
   UIDL(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
@@ -192,7 +191,7 @@ POP3_RFC1939_handler.prototype = {
 
     result += ".";
     return result;
-  },
+  }
   TOP(args) {
     let [messageNumber, numberOfBodyLines] = args.split(" ");
     if (this._state != kStateTransaction) {
@@ -209,7 +208,7 @@ POP3_RFC1939_handler.prototype = {
     }
     result += "\r\n.";
     return result;
-  },
+  }
   RETR(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
@@ -219,61 +218,56 @@ POP3_RFC1939_handler.prototype = {
     result += this._daemon._messages[args - 1].fileData;
     result += ".";
     return result;
-  },
+  }
   DELE(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
     return "+OK";
-  },
+  }
   NOOP(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
     return "+OK";
-  },
+  }
   RSET(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
     this._state = kStateAuthNeeded;
     return "+OK";
-  },
+  }
   QUIT(args) {
     // Let the client close the socket
     // this.closing = true;
     return "+OK fakeserver signing off";
-  },
+  }
   onStartup() {
     this.closing = false;
     this._state = kStateAuthNeeded;
     return "+OK Fake POP3 server ready";
-  },
+  }
   onError(command, args) {
     return "-ERR command " + command + " not implemented";
-  },
+  }
   onServerFault(e) {
     return "-ERR internal server error: " + e;
-  },
+  }
   postCommand(reader) {
     reader.setMultiline(this._multiline);
     if (this.closing) {
       reader.closeSocket();
     }
-  },
-};
+  }
+}
 
 /**
  * This implements CAPA
  * @see RFC 2449
  */
-function POP3_RFC2449_handler(daemon) {
-  POP3_RFC1939_handler.call(this, daemon);
-}
-POP3_RFC2449_handler.prototype = {
-  __proto__: POP3_RFC1939_handler.prototype, // inherit
-
-  kCapabilities: ["UIDL", "TOP"], // the test may adapt this as necessary
+class POP3_RFC2449_handler extends POP3_RFC1939_handler {
+  kCapabilities = ["UIDL", "TOP"]; // the test may adapt this as necessary
 
   CAPA(args) {
     var capa = "+OK List of our wanna-be capabilities follows:\r\n";
@@ -285,29 +279,27 @@ POP3_RFC2449_handler.prototype = {
     }
     capa += "IMPLEMENTATION fakeserver\r\n.";
     return capa;
-  },
-};
+  }
+}
 
 /**
  * This implements the AUTH command, i.e. authentication using CRAM-MD5 etc.
  * @see RFC 5034
  * @author Ben Bucksch <ben.bucksch beonex.com> <http://business.beonex.com>
  */
-function POP3_RFC5034_handler(daemon) {
-  POP3_RFC2449_handler.call(this, daemon);
+class POP3_RFC5034_handler extends POP3_RFC2449_handler {
+  kAuthSchemes = ["CRAM-MD5", "PLAIN", "LOGIN"]; // the test may adapt this as necessary
+  _usedCRAMMD5Challenge = null; // not base64-encoded
 
-  this._kAuthSchemeStartFunction = {
-    "CRAM-MD5": this.authCRAMStart,
-    PLAIN: this.authPLAINStart,
-    LOGIN: this.authLOGINStart,
-  };
-}
-POP3_RFC5034_handler.prototype = {
-  __proto__: POP3_RFC2449_handler.prototype, // inherit
+  constructor(daemon) {
+    super(daemon);
 
-  kAuthSchemes: ["CRAM-MD5", "PLAIN", "LOGIN"], // the test may adapt this as necessary
-
-  _usedCRAMMD5Challenge: null, // not base64-encoded
+    this._kAuthSchemeStartFunction = {
+      "CRAM-MD5": this.authCRAMStart,
+      PLAIN: this.authPLAINStart,
+      LOGIN: this.authLOGINStart,
+    };
+  }
 
   // called by this.CAPA()
   capaAdditions() {
@@ -320,7 +312,7 @@ POP3_RFC5034_handler.prototype = {
       capa += "\r\n";
     }
     return capa;
-  },
+  }
   AUTH(lineRest) {
     // |lineRest| is a string containing the rest of line after "AUTH "
     if (this._state != kStateAuthNeeded) {
@@ -355,7 +347,7 @@ POP3_RFC5034_handler.prototype = {
       );
     }
     return func.call(this, "1" in args ? args[1] : undefined);
-  },
+  }
 
   onMultiline(line) {
     if (this._nextAuthFunction) {
@@ -375,19 +367,19 @@ POP3_RFC5034_handler.prototype = {
       }
     }
 
-    if (POP3_RFC2449_handler.prototype.onMultiline) {
+    if (super.onMultiline) {
       // Call parent.
-      return POP3_RFC2449_handler.prototype.onMultiline.call(this, line);
+      return super.onMultiline.call(this, line);
     }
     return undefined;
-  },
+  }
 
   authPLAINStart(lineRest) {
     this._nextAuthFunction = this.authPLAINCred;
     this._multiline = true;
 
     return "+";
-  },
+  }
   authPLAINCred(line) {
     var req = AuthPLAIN.decodeLine(line);
     if (req.username == this.kUsername && req.password == this.kPassword) {
@@ -398,7 +390,7 @@ POP3_RFC5034_handler.prototype = {
       this.closing = true;
     }
     return "-ERR Wrong username or password, crook!";
-  },
+  }
 
   authCRAMStart(lineRest) {
     this._nextAuthFunction = this.authCRAMDigest;
@@ -406,7 +398,7 @@ POP3_RFC5034_handler.prototype = {
 
     this._usedCRAMMD5Challenge = AuthCRAM.createChallenge("localhost");
     return "+ " + this._usedCRAMMD5Challenge;
-  },
+  }
   authCRAMDigest(line) {
     var req = AuthCRAM.decodeLine(line);
     var expectedDigest = AuthCRAM.encodeCRAMMD5(
@@ -421,14 +413,14 @@ POP3_RFC5034_handler.prototype = {
       this.closing = true;
     }
     return "-ERR Wrong username or password, crook!";
-  },
+  }
 
   authLOGINStart(lineRest) {
     this._nextAuthFunction = this.authLOGINUsername;
     this._multiline = true;
 
     return "+ " + btoa("Username:");
-  },
+  }
   authLOGINUsername(line) {
     var req = AuthLOGIN.decodeLine(line);
     if (req == this.kUsername) {
@@ -439,13 +431,13 @@ POP3_RFC5034_handler.prototype = {
     }
     this._multiline = true;
     return "+ " + btoa("Password:");
-  },
+  }
   authLOGINBadUsername(line) {
     if (this.dropOnAuthFailure) {
       this.closing = true;
     }
     return "-ERR Wrong username or password, crook!";
-  },
+  }
   authLOGINPassword(line) {
     var req = AuthLOGIN.decodeLine(line);
     if (req == this.kPassword) {
@@ -456,5 +448,5 @@ POP3_RFC5034_handler.prototype = {
       this.closing = true;
     }
     return "-ERR Wrong username or password, crook!";
-  },
-};
+  }
+}
