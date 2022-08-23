@@ -61,6 +61,7 @@
   --item-focus-selected-border-color: #0060df;
   --default: #4f526d;
   --primary: #0a84ff;
+  --select-focus-background-color: SelectedItem;
 }
 
 /* LW-themes enabled */
@@ -70,6 +71,7 @@
   --button-background: #d2d2d3;
   --button-background-hover: #c2c2c3;
   --button-background-active: #b2b2b3;
+  --panel-separator-color: hsla(210, 4%, 10%, 0.14);
   --toolbar-color: var(--lwt-text-color, inherit);
   --toolbar-bgcolor: rgba(255, 255, 255, .4);
   --toolbar-bgimage: none;
@@ -81,6 +83,7 @@
 
 :root[lwt-tree] {
   --splitter-color: var(--sidebar-border-color);
+  --select-focus-background-color: var(--sidebar-highlight-background-color, SelectedItem);
   --select-focus-text-color: var(--sidebar-highlight-text-color,
                                  var(--sidebar-text-color));
   --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
@@ -118,6 +121,7 @@
 
 :root[lwt-popup-brighttext] {
   --autocomplete-popup-url-color: #0a84ff;
+  --panel-separator-color: rgba(249, 249, 250, 0.1);
 }
 
 toolbar[brighttext] {

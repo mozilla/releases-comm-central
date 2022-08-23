@@ -16,6 +16,7 @@
   --arrowpanel-menuitem-border-radius: 3px;
   --appmenu-button-margin: 0 8px;
   --appmenu-button-padding: 6px;
+  --appmenu-button-border-color: hsla(210, 4%, 10%, 0.14);
   --appmenu-warning-background-color: #ffefbf;
   --appmenu-warning-background-color-hover: #ffe8a2;
   --appmenu-warning-background-color-active: #ffe38f;
@@ -58,6 +59,7 @@
 }
 
 :root[lwt-popup-brighttext] {
+  --appmenu-button-border-color: rgba(249, 249, 250, 0.2);
   --appmenu-warning-background-color: hsla(55, 100%, 50%, .1);
   --appmenu-warning-background-color-hover: hsla(55, 100%, 50%, .2);
   --appmenu-warning-background-color-active: hsla(55, 100%, 50%, .3);
@@ -382,12 +384,44 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
 }
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic > .toolbarbutton-text,
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) >
+  .toolbarbutton-icon {
   display: none;
 }
 
 .toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-text {
   padding-inline-start: 0;
+}
+
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"] {
+  margin-inline-start: 0;
+  margin-block: 1px;
+  padding: 2px 3px;
+  min-height: 22px;
+  border: 1px solid var(--appmenu-button-border-color);
+  border-radius: 0;
+}
+
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:nth-child(2) {
+  border-inline-end: none;
+  border-start-start-radius: var(--arrowpanel-menuitem-border-radius);
+  border-end-start-radius: var(--arrowpanel-menuitem-border-radius);
+}
+
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:last-child {
+  border-inline-start: none;
+  border-start-end-radius: var(--arrowpanel-menuitem-border-radius);
+  border-end-end-radius: var(--arrowpanel-menuitem-border-radius);
+}
+
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"][checked="true"] {
+  background-color: var(--select-focus-background-color);
+  color: var(--select-focus-text-color);
+}
+
+:root[uidensity="touch"] .PanelUI-subView .toolbaritem-combined-buttons >
+  .subviewbutton[type="radio"] {
+  padding: 6px 9px;
 }
 
 .subview-subheader {
@@ -782,13 +816,16 @@ menulist[open="true"]:not([disabled="true"]) {
   fill: var(--button-bgcolor, ButtonFace);
   stroke: var(--button-color);
   border-radius: 50%;
+  margin-block-start: 1px;
   padding: 0;
 }
 
 #appMenu-fontSizeReset-button > .toolbarbutton-text {
+  border: 1px solid var(--appmenu-button-border-color);
   border-radius: 2px;
   min-width: calc(4ch + 8px);
   text-align: center;
+  padding: 2px;
 }
 
 #appMenu-fontSizeReset-button:hover > .toolbarbutton-text {
@@ -818,13 +855,14 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appMenu-fontSize-controls > .subviewbutton {
   margin-inline-start: 2px;
-  padding: 4px 4px;
+  padding: 4px;
 }
 
 :root[uidensity="compact"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
 :root[uidensity="compact"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
   width: 16px;
   height: 16px;
+  margin-block-start: 2px;
 }
 
 :root[uidensity="touch"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,

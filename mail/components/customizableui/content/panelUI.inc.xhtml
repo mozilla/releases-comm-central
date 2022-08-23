@@ -108,11 +108,50 @@
                        label="&fileMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-fileView', this)"/>
+        <toolbarseparator/>
         <toolbarbutton id="appmenu_View"
                        class="subviewbutton subviewbutton-nav"
                        label="&viewMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-viewView', this)"/>
+        <toolbaritem id="appMenu-uiDensity-controls"
+                     class="subviewbutton toolbaritem-combined-buttons"
+                     closemenu="none">
+          <label class="toolbarbutton-text" data-l10n-id="appmenu-mail-uidensity-value"/>
+          <toolbarbutton id="appmenu_uiDensityCompact"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-compact"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+          <toolbarbutton id="appmenu_uiDensityNormal"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-normal"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+          <toolbarbutton id="appmenu_uiDensityTouch"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-touch"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+        </toolbaritem>
+        <toolbaritem id="appMenu-fontSize-controls"
+                     class="subviewbutton toolbaritem-combined-buttons"
+                     closemenu="none">
+          <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
+          <toolbarbutton id="appMenu-fontSizeReduce-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeReduce"
+                         data-l10n-id="appmenuitem-font-size-reduce"/>
+          <toolbarbutton id="appMenu-fontSizeReset-button"
+                         class="subviewbutton"
+                         command="cmd_fontSizeReset"
+                         tooltip="fontSizeReset"/>
+          <toolbarbutton id="appMenu-fontSizeEnlarge-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeEnlarge"
+                         data-l10n-id="appmenuitem-font-size-enlarge"/>
+        </toolbaritem>
+        <toolbarseparator/>
         <toolbarbutton id="appmenu_Go"
                        class="subviewbutton subviewbutton-nav"
                        label="&goMenu.label;"
@@ -402,31 +441,6 @@
       </vbox>
     </panelview>
 
-    <!-- View / UI Density -->
-    <panelview id="appMenu_uiDensityView"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_uiDensityCompact"
-                       class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="mail-uidensity-compact"
-                       type="radio"
-                       closemenu="none"
-                       oncommand="PanelUI.setUIDensity(event);"/>
-        <toolbarbutton id="appmenu_uiDensityNormal"
-                       class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="mail-uidensity-normal"
-                       type="radio"
-                       closemenu="none"
-                       oncommand="PanelUI.setUIDensity(event);"/>
-        <toolbarbutton id="appmenu_uiDensityTouch"
-                       class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="mail-uidensity-touch"
-                       type="radio"
-                       closemenu="none"
-                       oncommand="PanelUI.setUIDensity(event);"/>
-      </vbox>
-    </panelview>
-
     <!-- View / Layout -->
     <panelview id="appMenu-preferencesLayoutView"
                title="&messagePaneLayoutStyle.label;"
@@ -626,33 +640,11 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-foldersView', this)"/>
         <toolbarseparator/>
-        <toolbarbutton id="appmenu_uiDensity"
-                       class="subviewbutton subviewbutton-nav"
-                       data-l10n-id="mail-uidensity-label"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu_uiDensityView', this)"/>
         <toolbarbutton id="appmenu_viewFullZoomMenu"
                        class="subviewbutton subviewbutton-nav"
                        label="&fullZoom.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-viewZoomView', this)"/>
-        <toolbaritem id="appMenu-fontSize-controls"
-                     class="subviewbutton toolbaritem-combined-buttons"
-                     closemenu="none">
-          <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
-          <toolbarbutton id="appMenu-fontSizeReduce-button"
-                         class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeReduce"
-                         data-l10n-id="appmenuitem-font-size-reduce"/>
-          <toolbarbutton id="appMenu-fontSizeReset-button"
-                         class="subviewbutton"
-                         command="cmd_fontSizeReset"
-                         tooltip="fontSizeReset"/>
-          <toolbarbutton id="appMenu-fontSizeEnlarge-button"
-                         class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeEnlarge"
-                         data-l10n-id="appmenuitem-font-size-enlarge"/>
-        </toolbaritem>
 #ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_calendar-view-menu-separator"
                           class="hide-when-calendar-deactivated"/>

@@ -473,7 +473,9 @@ function initUiDensityAppMenu(event) {
   // Fetch the currently active identity.
   let currentDensity = UIDensity.prefValue;
 
-  for (let item of event.originalTarget.querySelectorAll("toolbarbutton")) {
+  for (let item of event.originalTarget.querySelectorAll(
+    "#appMenu-uiDensity-controls > toolbarbutton"
+  )) {
     if (item.mode == currentDensity) {
       item.setAttribute("checked", "true");
     } else {

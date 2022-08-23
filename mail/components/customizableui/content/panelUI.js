@@ -317,6 +317,8 @@ const PanelUI = {
     switch (event.type) {
       case "popupshowing":
         initAppMenuPopup();
+        UIFontSize.updateAppMenuButton(window);
+        initUiDensityAppMenu(event);
       // Fall through
       case "popupshown":
         if (event.type == "popupshown") {
@@ -393,9 +395,6 @@ const PanelUI = {
           true
         );
         break;
-      case "appMenu_uiDensityView":
-        initUiDensityAppMenu(event);
-        break;
       case "appMenu-preferencesLayoutView":
         PanelUI._onPreferencesLayoutViewShow(event);
         break;
@@ -440,9 +439,6 @@ const PanelUI = {
         break;
       case "appMenu-findView":
         initSearchMessagesMenu();
-        break;
-      case "appMenu-viewView":
-        UIFontSize.updateAppMenuButton(window);
         break;
     }
   },
