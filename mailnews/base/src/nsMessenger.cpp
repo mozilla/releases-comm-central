@@ -656,16 +656,16 @@ nsMessenger::DetachAttachmentsWOPrompts(
   // This method is used in filters, where we don't want to warn
   saveState->m_withoutWarning = true;
   rv = SaveAttachment(attachmentDestination, aUrlArray[0], aMessageUriArray[0],
-                      aContentTypeArray[0], (void*)saveState, aListener);
+                      aContentTypeArray[0], saveState, aListener);
   return rv;
 }
 
 nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
                                      const nsACString& aMessageUri,
                                      const nsACString& aContentType,
-                                     void* closure, nsIUrlListener* aListener) {
+                                     nsSaveAllAttachmentsState* saveState,
+                                     nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgMessageService> messageService;
-  nsSaveAllAttachmentsState* saveState = (nsSaveAllAttachmentsState*)closure;
   nsCOMPtr<nsIMsgMessageFetchPartService> fetchService;
   nsAutoCString urlString;
   nsAutoCString fullMessageUri(aMessageUri);
@@ -878,8 +878,8 @@ nsresult nsMessenger::SaveOneAttachment(const nsACString& aContentType,
       contentTypeArray, urlArray, displayNameArray, messageUriArray,
       dirName.get(), detaching);
 
-  return SaveAttachment(localFile, aURL, aMessageUri, aContentType,
-                        (void*)saveState, nullptr);
+  return SaveAttachment(localFile, aURL, aMessageUri, aContentType, saveState,
+                        nullptr);
 }
 
 NS_IMETHODIMP
@@ -947,7 +947,7 @@ nsresult nsMessenger::SaveAllAttachments(
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = SaveAttachment(localFile, urlArray[0], messageUriArray[0],
-                      contentTypeArray[0], (void*)saveState, nullptr);
+                      contentTypeArray[0], saveState, nullptr);
   return rv;
 }
 
@@ -1778,7 +1778,7 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsresult status) {
       }
       rv = m_messenger->SaveAttachment(
           localFile, state->m_urlArray[i], state->m_messageUriArray[i],
-          state->m_contentTypeArray[i], (void*)state, nullptr);
+          state->m_contentTypeArray[i], state, nullptr);
     done:
       if (NS_FAILED(rv)) {
         delete state;

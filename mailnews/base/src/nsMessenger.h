@@ -22,6 +22,8 @@
 #include "nsIFolderListener.h"
 #include "nsIMsgStatusFeedback.h"
 
+class nsSaveAllAttachmentsState;
+
 class nsMessenger : public nsIMessenger,
                     public nsSupportsWeakReference,
                     public nsIFolderListener {
@@ -38,7 +40,8 @@ class nsMessenger : public nsIMessenger,
 
   nsresult SaveAttachment(nsIFile* file, const nsACString& unescapedUrl,
                           const nsACString& messageUri,
-                          const nsACString& contentType, void* closure,
+                          const nsACString& contentType,
+                          nsSaveAllAttachmentsState* saveState,
                           nsIUrlListener* aListener);
   nsresult PromptIfFileExists(nsIFile* file);
   nsresult DetachAttachments(const nsTArray<nsCString>& aContentTypeArray,
