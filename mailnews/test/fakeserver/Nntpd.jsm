@@ -18,19 +18,19 @@ var EXPORTED_SYMBOLS = [
   "NNTP_RFC4643_extension",
 ];
 
-function nntpDaemon(flags) {
-  this._groups = {};
-  this._messages = {};
-  this._flags = flags;
-}
-nntpDaemon.prototype = {
+class nntpDaemon {
+  constructor(flags) {
+    this._groups = {};
+    this._messages = {};
+    this._flags = flags;
+  }
   addGroup(group, postable) {
     var flags = 0;
     if (postable) {
       flags |= NNTP_POSTABLE;
     }
     this._groups[group] = { keys: [], flags, nextKey: 1 };
-  },
+  }
   addArticle(article) {
     this._messages[article.messageID] = article;
     for (let group of article.groups) {
@@ -40,7 +40,7 @@ nntpDaemon.prototype = {
         this._groups[group].keys.push(key);
       }
     }
-  },
+  }
   addArticleToGroup(article, group, key) {
     this._groups[group][key] = article;
     this._messages[article.messageID] = article;
@@ -48,13 +48,13 @@ nntpDaemon.prototype = {
     if (this._groups[group].nextKey <= key) {
       this._groups[group].nextKey = key + 1;
     }
-  },
+  }
   getGroup(group) {
     if (this._groups.hasOwnProperty(group)) {
       return this._groups[group];
     }
     return null;
-  },
+  }
   getGroupStats(group) {
     if (group.keys.length == 0) {
       return [0, 0, 0];
@@ -78,14 +78,14 @@ nntpDaemon.prototype = {
     }
 
     return [length, min, max];
-  },
+  }
   getArticle(msgid) {
     if (msgid in this._messages) {
       return this._messages[msgid];
     }
     return null;
-  },
-};
+  }
+}
 
 function newsArticle(text) {
   this.headers = new Map();
@@ -168,17 +168,17 @@ function hasFlag(flags, flag) {
 // This handler implements the bare minimum required by RFC 977. Actually, not
 // even that much: IHAVE and SLAVE are not implemented, as those two are
 // explicitly server implementations.
-function NNTP_RFC977_handler(daemon) {
-  this._daemon = daemon;
-  this.closing = false;
-  this.resetTest();
-}
-NNTP_RFC977_handler.prototype = {
+class NNTP_RFC977_handler {
+  constructor(daemon) {
+    this._daemon = daemon;
+    this.closing = false;
+    this.resetTest();
+  }
   resetTest() {
     this.extraCommands = "";
     this.articleKey = null;
     this.group = null;
-  },
+  }
   ARTICLE(args) {
     var info = this._selectArticle(args, 220);
     if (info[0] == null) {
@@ -189,7 +189,7 @@ NNTP_RFC977_handler.prototype = {
     response += info[0].fullText.replace(/^\./gm, "..");
     response += ".";
     return response;
-  },
+  }
   BODY(args) {
     var info = this._selectArticle(args, 222);
     if (info[0] == null) {
@@ -200,7 +200,7 @@ NNTP_RFC977_handler.prototype = {
     response += info[0].body.replace(/^\./gm, "..");
     response += ".";
     return response;
-  },
+  }
   GROUP(args) {
     var group = this._daemon.getGroup(args);
     if (group == null) {
@@ -222,7 +222,7 @@ NNTP_RFC977_handler.prototype = {
       args +
       " group selected"
     );
-  },
+  }
   HEAD(args) {
     var info = this._selectArticle(args, 221);
     if (info[0] == null) {
@@ -235,7 +235,7 @@ NNTP_RFC977_handler.prototype = {
     }
     response += ".";
     return response;
-  },
+  }
   HELP(args) {
     var response = "100 Why certainly, here is my help:\n";
     response += "Mozilla fake NNTP RFC 977 testing server";
@@ -256,7 +256,7 @@ NNTP_RFC977_handler.prototype = {
     response += this.extraCommands;
     response += ".";
     return response;
-  },
+  }
   LAST(args) {
     if (this.group == null) {
       return "412 no newsgroup selected";
@@ -265,7 +265,7 @@ NNTP_RFC977_handler.prototype = {
       return "420 no current article has been selected";
     }
     return "502 Command not implemented";
-  },
+  }
   LIST(args) {
     var response = "215 list of newsgroup follows\n";
     for (let groupname in this._daemon._groups) {
@@ -283,13 +283,13 @@ NNTP_RFC977_handler.prototype = {
     }
     response += ".";
     return response;
-  },
+  }
   NEWGROUPS(args) {
     return "502 Command not implemented";
-  },
+  }
   NEWNEWS(args) {
     return "502 Command not implemented";
-  },
+  }
   NEXT(args) {
     if (this.group == null) {
       return "412 no newsgroup selected";
@@ -298,20 +298,20 @@ NNTP_RFC977_handler.prototype = {
       return "420 no current article has been selected";
     }
     return "502 Command not implemented";
-  },
+  }
   POST(args) {
     this.posting = true;
     this.post = "";
     return "340 Please continue";
-  },
+  }
   QUIT(args) {
     this.closing = true;
     return "205 closing connection - goodbye!";
-  },
+  }
   STAT(args) {
     var info = this._selectArticle(args, 223);
     return info[1];
-  },
+  }
   LISTGROUP(args) {
     // Yes, I know this isn't RFC 977, but I doubt that mailnews will ever drop
     // its requirement for this, so I'll stuff it in here anyways...
@@ -326,21 +326,21 @@ NNTP_RFC977_handler.prototype = {
     }
     response += ".\n";
     return response;
-  },
+  }
 
   onError(command, args) {
     return "500 command not recognized";
-  },
+  }
   onServerFault(e) {
     return "500 internal server error: " + e;
-  },
+  }
   onStartup() {
     this.closing = false;
     this.group = null;
     this.article = null;
     this.posting = false;
     return "200 posting allowed";
-  },
+  }
   onMultiline(line) {
     if (line == ".") {
       if (this.posting) {
@@ -360,13 +360,13 @@ NNTP_RFC977_handler.prototype = {
     }
 
     return undefined;
-  },
+  }
   postCommand(reader) {
     if (this.closing) {
       reader.closeSocket();
     }
     reader.setMultiline(this.posting);
-  },
+  }
 
   /**
    * Selects an article based on args.
@@ -411,43 +411,13 @@ NNTP_RFC977_handler.prototype = {
     var respCode =
       responseCode + " " + key + " " + art.messageID + " article selected";
     return [art, respCode];
-  },
-};
-
-/**
- * Utility method to define a subclass
- *
- * @param sub   The function object of the subclass
- * @param super The function object of the superclass
- * @param def   The object definition of the subclass prototype.
- */
-function subclass(sub, sup, def) {
-  sub.prototype = new sup();
-  for (let obj in def) {
-    sub.prototype[obj] = def[obj];
   }
 }
-function subconstructor(sub, sup, ...aArgs) {
-  sup.apply(sub, aArgs);
-  sub.parent = new Proxy(sub, {
-    get(target, name) {
-      let res = sup.prototype[name];
-      if (typeof res === "function") {
-        return res.bind(sub);
-      }
-      return res;
-    },
-  });
-}
-function NNTP_RFC2980_handler(daemon) {
-  subconstructor(this, NNTP_RFC977_handler, daemon);
-}
-subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
-  // NNTP_RFC2980_handler.prototype = new NNTP_RFC977_handler();
-  // var subprototype = {
+
+class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
   DATE(args) {
     return "502 Command not implemented";
-  },
+  }
   LIST(args) {
     var index = args.indexOf(" ");
     var command = index == -1 ? args : args.substring(0, index);
@@ -456,17 +426,17 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     if ("LIST_" + command in this) {
       return this["LIST_" + command](args);
     }
-    return this.parent.LIST(command + " " + args);
-  },
+    return super.LIST(command + " " + args);
+  }
   LIST_ACTIVE(args) {
-    return this.parent.LIST(args);
-  },
+    return super.LIST(args);
+  }
   MODE(args) {
     if (args == "READER") {
       return this.onStartup();
     }
     return "500 What do you think you're trying to pull here?";
-  },
+  }
   XHDR(args) {
     if (!this.group) {
       return "412 No group selected";
@@ -488,7 +458,7 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     }
     response += ".";
     return response;
-  },
+  }
   XOVER(args) {
     if (!this.group) {
       return "412 No group selected";
@@ -519,7 +489,7 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     }
     response += ".\n";
     return response;
-  },
+  }
   XPAT(args) {
     if (!this.group) {
       return "412 No group selected";
@@ -541,7 +511,7 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
       }
     }
     return response + ".";
-  },
+  }
 
   _filterRange(range, keys) {
     let dash = range.indexOf("-");
@@ -560,36 +530,33 @@ subclass(NNTP_RFC2980_handler, NNTP_RFC977_handler, {
     return keys.filter(function(e) {
       return low <= e && e <= high;
     });
-  },
-});
-
-function NNTP_Giganews_handler(daemon) {
-  subconstructor(this, NNTP_RFC2980_handler, daemon);
+  }
 }
-subclass(NNTP_Giganews_handler, NNTP_RFC2980_handler, {
+
+class NNTP_Giganews_handler extends NNTP_RFC2980_handler {
   XHDR(args) {
     var header = args.split(" ")[0].toLowerCase();
     if (
       header in ["subject", "from", "xref", "date", "message-id", "references"]
     ) {
-      return this.parent.XHDR(args);
+      return super.XHDR(args);
     }
     return "503 unsupported header field";
-  },
-});
-
-function NNTP_RFC4643_extension(daemon) {
-  subconstructor(this, NNTP_RFC2980_handler, daemon);
-
-  this.extraCommands += "\tAUTHINFO USER\n";
-  this.extraCommands += "\tAUTHINFO PASS\n";
+  }
 }
-subclass(NNTP_RFC4643_extension, NNTP_RFC2980_handler, {
-  expectedUsername: "testnews",
-  expectedPassword: "newstest",
-  requireBoth: true,
-  authenticated: false,
-  usernameReceived: false,
+
+class NNTP_RFC4643_extension extends NNTP_RFC2980_handler {
+  constructor(daemon) {
+    super(daemon);
+
+    this.extraCommands += "\tAUTHINFO USER\n";
+    this.extraCommands += "\tAUTHINFO PASS\n";
+    this.expectedUsername = "testnews";
+    this.expectedPassword = "newstest";
+    this.requireBoth = true;
+    this.authenticated = false;
+    this.usernameReceived = false;
+  }
 
   AUTHINFO(args) {
     if (this.authenticated) {
@@ -637,23 +604,23 @@ subclass(NNTP_RFC4643_extension, NNTP_RFC2980_handler, {
       return "281 Authentication Accepted";
     }
     return "502 Invalid Command";
-  },
+  }
   LIST(args) {
     if (this.authenticated) {
-      return args ? this.parent.LIST(args) : "502 Invalid command: LIST";
+      return args ? super.LIST(args) : "502 Invalid command: LIST";
     }
     return "480 Authentication required";
-  },
+  }
   GROUP(args) {
     if (
       (this._daemon.groupCredentials != null && this.authenticated == args) ||
       (this._daemon.groupCredentials == null && this.authenticated)
     ) {
-      return this.parent.GROUP(args);
+      return super.GROUP(args);
     }
     if (this._daemon.groupCredentials != null) {
       this.lastGroupTried = args;
     }
     return "480 Authentication required";
-  },
-});
+  }
+}
