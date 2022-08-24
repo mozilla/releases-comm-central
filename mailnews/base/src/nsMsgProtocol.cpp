@@ -13,6 +13,7 @@
 #include "nsIStreamTransportService.h"
 #include "nsISocketTransportService.h"
 #include "nsISocketTransport.h"
+#include "nsISSLSocketControl.h"
 #include "nsILoadGroup.h"
 #include "nsILoadInfo.h"
 #include "nsIIOService.h"
@@ -650,13 +651,17 @@ NS_IMETHODIMP nsMsgProtocol::SetContentLength(int64_t aContentLength) {
 }
 
 NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(nsISupports** secInfo) {
+  *secInfo = nullptr;
   if (m_transport) {
     nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
     if (strans) {
-      return strans->GetSecurityInfo(secInfo);
+      nsCOMPtr<nsISSLSocketControl> tlsSocketControl;
+      if (NS_SUCCEEDED(
+              strans->GetTlsSocketControl(getter_AddRefs(tlsSocketControl)))) {
+        tlsSocketControl.forget(secInfo);
+      }
     }
   }
-  *secInfo = nullptr;
   return NS_OK;
 }
 
