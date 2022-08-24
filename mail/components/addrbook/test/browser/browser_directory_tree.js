@@ -919,7 +919,7 @@ add_task(async function test_total_address_book_count() {
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
   let booksList = abWindow.booksList;
-  let addressBookCountEl = abDocument.getElementById("about-addr-book-count");
+  let addressBookCountEl = abDocument.getElementById("aboutAddressBookCount");
 
   for (let [index, [addressBookLabel, count]] of [
     ["All Address Book", 5],
@@ -933,6 +933,30 @@ add_task(async function test_total_address_book_count() {
     Assert.ok(addressBookCountEl.textContent.includes(addressBookLabel));
     Assert.ok(addressBookCountEl.textContent.includes(count));
   }
+
+  // Create a contact and check that the count updates.
+  // Select second book.
+  booksList.getRowAtIndex(4).click();
+  let createdPromise = TestUtils.topicObserved("addrbook-contact-created");
+  book2.addCard(createContact("contact2", "book 2"));
+  await createdPromise;
+  Assert.ok(
+    addressBookCountEl.textContent.includes("2"),
+    "Address Book count is updated on contact creation."
+  );
+
+  // Delete a contact an check that the count updates.
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  let deletedPromise = TestUtils.topicObserved("addrbook-contact-deleted");
+  let cards = abDocument.getElementById("cards");
+  EventUtils.synthesizeMouseAtCenter(cards.getRowAtIndex(0), {}, abWindow);
+  EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
+  await promptPromise;
+  await deletedPromise;
+  Assert.ok(
+    addressBookCountEl.textContent.includes("1"),
+    "Address Book count is updated on contact deletion."
+  );
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book1.URI);

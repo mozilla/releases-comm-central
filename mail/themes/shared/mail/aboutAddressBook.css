@@ -19,6 +19,8 @@
 
   --ab-card-line-height: 1.3em;
   --ab-card-table-row-height: 22px;
+
+  --counter-bg-color: var(--color-gray-20)
 }
 
 :root[uidensity="compact"] {
@@ -58,6 +60,8 @@
       --address-book-blocks-box-shadow: none;
       --address-book-book-label-color: var(--color-white);
       --address-book-book-label-background: var(--color-gray-50);
+
+      --counter-bg-color: var(--color-gray-80);
     }
   }
 }
@@ -1190,14 +1194,14 @@ input[type="number"]::-moz-number-spin-down {
   }
 }
 
-#about-addr-book-count {
+#aboutAddressBookCount {
   position: sticky;
   bottom: 0;
-  background-color: var(--in-content-categories-background);
-  color: color-mix(in srgb, var(--in-content-page-color) 75%, transparent);
+  background-color: var(--counter-bg-color);
   border-top: 1px solid var(--button-border-color);
-  font-weight: 500;
-  font-size: 1rem;
+  color: color-mix(in srgb, var(--in-content-page-color) 75%, transparent);
   padding: 9px;
   margin-block-start: 6px;
+  font-weight: 500;
+  font-size: 1rem;
 }
