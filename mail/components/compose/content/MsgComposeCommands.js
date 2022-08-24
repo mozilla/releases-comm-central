@@ -10537,6 +10537,7 @@ function InitEditor() {
 
   window.content.browsingContext.allowJavascript = false;
   window.content.browsingContext.docShell.allowAuth = false;
+  window.content.browsingContext.docShell.allowMetaRedirects = false;
   gMsgCompose.initEditor(editor, window.content);
 
   if (!editor.document.doctype) {
