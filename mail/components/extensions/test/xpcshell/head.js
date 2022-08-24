@@ -153,12 +153,12 @@ async function getUtilsJS() {
 
 var IMAPServer = {
   open() {
-    let { imapDaemon, imapMessage, IMAP_RFC3501_handler } = ChromeUtils.import(
+    let { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } = ChromeUtils.import(
       "resource://testing-common/mailnews/Imapd.jsm"
     );
-    IMAPServer.imapMessage = imapMessage;
+    IMAPServer.ImapMessage = ImapMessage;
 
-    this.daemon = new imapDaemon();
+    this.daemon = new ImapDaemon();
     this.server = new nsMailServer(
       daemon => new IMAP_RFC3501_handler(daemon),
       this.daemon
@@ -183,7 +183,7 @@ var IMAPServer = {
       let msgURI = Services.io.newURI(
         "data:text/plain;base64," + btoa(message)
       );
-      let imapMsg = new IMAPServer.imapMessage(
+      let imapMsg = new IMAPServer.ImapMessage(
         msgURI.spec,
         fakeFolder.uidnext++,
         []

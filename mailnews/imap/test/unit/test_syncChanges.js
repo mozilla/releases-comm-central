@@ -35,7 +35,7 @@ add_task(async function setupTest() {
   let msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(gSynthMessage.toMessageString())
   );
-  gMessage = new imapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
+  gMessage = new ImapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
 
   // update folder to download header.

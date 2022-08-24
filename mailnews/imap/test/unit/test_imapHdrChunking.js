@@ -101,13 +101,13 @@ add_task(async function uploadImapMessages() {
 
   // Add OVERALL_MESSAGES messages with uids 1,2,3...,OVERALL_MESSAGES.
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  // Create the imapMessages and store them on the mailbox.
+  // Create the ImapMessages and store them on the mailbox.
   messages.forEach(function(message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
     imapInbox.addMessage(
-      new imapMessage(dataUri.spec, imapInbox.uidnext++, [])
+      new ImapMessage(dataUri.spec, imapInbox.uidnext++, [])
     );
   });
   // Do not wait for the listener to finish.

@@ -22,7 +22,7 @@ add_task(async function setup() {
   Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
 
-  daemon = new imapDaemon();
+  daemon = new ImapDaemon();
   server = makeServer(daemon, "");
 
   let messages = [];
@@ -31,7 +31,7 @@ add_task(async function setup() {
   let dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let imapMsg = new imapMessage(dataUri.spec, daemon.inbox.uidnext++, []);
+  let imapMsg = new ImapMessage(dataUri.spec, daemon.inbox.uidnext++, []);
   daemon.inbox.addMessage(imapMsg);
 
   NetworkTestUtils.configureProxy("imap.tinderbox.invalid", PORT, server.port);

@@ -82,7 +82,7 @@ function nextTest() {
     dump("NEXT test: " + thisTest.title + "\n");
 
     // (re)create fake server
-    var daemon = new imapDaemon();
+    var daemon = new ImapDaemon();
     var server = makeServer(daemon, "", {
       kAuthSchemes: thisTest.serverAuthMethods,
     });

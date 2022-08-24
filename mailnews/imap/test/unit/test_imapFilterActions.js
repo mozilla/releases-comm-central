@@ -422,7 +422,7 @@ async function setupTest(aFilter, aAction) {
   gInboxListener = new DBListener();
   gDbService.registerPendingListener(IMAPPump.inbox, gInboxListener);
   IMAPPump.mailbox.addMessage(
-    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);

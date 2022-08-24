@@ -80,7 +80,7 @@ add_task(async function() {
 
   registerAlertTestUtils();
 
-  let daemon = new imapDaemon();
+  let daemon = new ImapDaemon();
   daemon.createMailbox("Subscribed", { subscribed: true });
   server = makeServer(daemon, "", {
     // Make username of server match the singons.txt file

@@ -39,7 +39,7 @@ add_task(async function setup_messages() {
   let dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messageString)
   );
-  let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  let imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
   let listener = new PromiseTestUtils.PromiseUrlListener();

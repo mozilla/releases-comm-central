@@ -295,7 +295,7 @@ add_task(async function setupTest() {
 
   // Load imap message.
   IMAPPump.mailbox.addMessage(
-    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);

@@ -66,13 +66,13 @@ add_task(async function addOfflineMessages() {
   let dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  let imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
   dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[1].toMessageString())
   );
-  imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
   // Extend local IMAP inbox to over 4 GiB.

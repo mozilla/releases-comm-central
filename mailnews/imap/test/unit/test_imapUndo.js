@@ -41,8 +41,8 @@ function addMessagesToServer(messages, mailbox) {
     let URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
-    // Create the imapMessage and store it on the mailbox.
-    mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
+    // Create the ImapMessage and store it on the mailbox.
+    mailbox.addMessage(new ImapMessage(URI.spec, mailbox.uidnext++, []));
   });
 }
 

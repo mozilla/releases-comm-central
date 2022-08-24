@@ -129,8 +129,8 @@ function addMessagesToServer(messages, mailbox, localFolder) {
     let URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
-    // Create the imapMessage and store it on the mailbox.
-    mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
+    // Create the ImapMessage and store it on the mailbox.
+    mailbox.addMessage(new ImapMessage(URI.spec, mailbox.uidnext++, []));
     // We can't get the headers again, so just pass on the message id
     gExpectedEvents.push([
       MailServices.mfn.msgAdded,
@@ -264,7 +264,7 @@ function run_test() {
   // This is before any of the actual tests, so...
   gTest = 0;
 
-  gIMAPDaemon = new imapDaemon();
+  gIMAPDaemon = new ImapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
 
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);

@@ -29,7 +29,7 @@ add_task(async function setupTest() {
     .QueryInterface(Ci.nsIFileURL);
 
   IMAPPump.mailbox.addMessage(
-    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
 
   // ...and download for offline use.

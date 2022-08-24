@@ -22,12 +22,12 @@ var gFolder1, gRootFolder;
 
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessagesToServer(messages, mailbox) {
-  // Create the imapMessages and store them on the mailbox
+  // Create the ImapMessages and store them on the mailbox
   messages.forEach(function(message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
-    mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
+    mailbox.addMessage(new ImapMessage(dataUri.spec, mailbox.uidnext++, []));
   });
 }
 
@@ -37,7 +37,7 @@ add_task(function setupTest() {
   /*
    * Set up an IMAP server.
    */
-  gIMAPDaemon = new imapDaemon();
+  gIMAPDaemon = new ImapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
   gIMAPDaemon.createMailbox("folder 1", { subscribed: true });
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);

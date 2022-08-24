@@ -163,12 +163,12 @@ async function setup() {
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, ["\\Seen"]);
+  let message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, ["\\Seen"]);
   imapInbox.addMessage(message);
   msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[1].toMessageString())
   );
-  message = new imapMessage(msgURI.spec, imapInbox.uidnext++, ["\\Seen"]);
+  message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, ["\\Seen"]);
   imapInbox.addMessage(message);
 
   // update folder to download header.

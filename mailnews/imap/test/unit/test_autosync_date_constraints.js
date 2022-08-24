@@ -17,10 +17,10 @@ var gMsgImapInboxFolder;
 
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessagesToServer(messages, mailbox) {
-  // Create the imapMessages and store them on the mailbox
+  // Create the ImapMessages and store them on the mailbox
   messages.forEach(function(message) {
     let dataUri = "data:text/plain," + message.toMessageString();
-    mailbox.addMessage(new imapMessage(dataUri, mailbox.uidnext++, []));
+    mailbox.addMessage(new ImapMessage(dataUri, mailbox.uidnext++, []));
   });
 }
 

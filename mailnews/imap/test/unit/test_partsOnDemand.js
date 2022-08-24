@@ -39,14 +39,14 @@ add_task(async function loadImapMessage() {
   let msgURI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
 
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
+  let message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
   // add a second message with no external parts. We want to make
   // sure that streaming this message doesn't mark it read, even
   // though we will fallback to fetching the whole message.
   file = do_get_file("../../../data/bodystructuretest3");
   msgURI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
-  message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
+  message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);

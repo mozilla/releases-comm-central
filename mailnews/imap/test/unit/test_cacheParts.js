@@ -81,11 +81,11 @@ async function setup() {
   var msgfileuri;
   msgfileuri = Services.io.newFileURI(gMsgFile1).QueryInterface(Ci.nsIFileURL);
   IMAPPump.mailbox.addMessage(
-    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
   msgfileuri = Services.io.newFileURI(gMsgFile2).QueryInterface(Ci.nsIFileURL);
   IMAPPump.mailbox.addMessage(
-    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
 
   let listener = new PromiseTestUtils.PromiseUrlListener();

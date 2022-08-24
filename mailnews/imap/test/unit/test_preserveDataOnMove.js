@@ -36,7 +36,7 @@ add_task(async function createSubfolder() {
 // load and update a message in the imap fake server
 add_task(async function loadImapMessage() {
   IMAPPump.mailbox.addMessage(
-    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   IMAPPump.inbox.updateFolder(null);
   await PromiseTestUtils.promiseFolderNotification(IMAPPump.inbox, "msgAdded");

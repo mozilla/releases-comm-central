@@ -51,7 +51,7 @@ add_task(async function setupTest() {
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
 
   IMAPPump.mailbox.addMessage(
-    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
   let listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);

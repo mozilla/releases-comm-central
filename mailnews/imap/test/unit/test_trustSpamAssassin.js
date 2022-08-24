@@ -59,7 +59,7 @@ add_task(async function createJunkFolder() {
  */
 add_task(async function loadImapMessage() {
   IMAPPump.mailbox.addMessage(
-    new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
   /*
    * The message matched the SpamAssassin header, so it moved

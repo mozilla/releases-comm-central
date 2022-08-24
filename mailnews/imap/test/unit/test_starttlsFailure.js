@@ -30,7 +30,7 @@ function alert(aDialogTitle, aText) {
 
 add_task(async function setupTest() {
   // Set up IMAP fakeserver and incoming server.
-  IMAPPump.daemon = new imapDaemon();
+  IMAPPump.daemon = new ImapDaemon();
   IMAPPump.server = makeServer(IMAPPump.daemon, "", { dropOnStartTLS: true });
   IMAPPump.incomingServer = createLocalIMAPServer(IMAPPump.server.port);
   IMAPPump.incomingServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;

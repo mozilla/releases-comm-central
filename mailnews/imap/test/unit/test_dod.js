@@ -18,7 +18,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var gServer, gIMAPIncomingServer, gIMAPDaemon;
 
 add_task(function setupTest() {
-  gIMAPDaemon = new imapDaemon();
+  gIMAPDaemon = new ImapDaemon();
   // pref tuning: one connection only, turn off notifications
   Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
@@ -53,7 +53,7 @@ add_task(async function streamMessages() {
   for (let file of do_get_file("../../../data/").directoryEntries) {
     let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
     if (msgfileuri.fileName.toLowerCase().startsWith("bodystructure")) {
-      inbox.addMessage(new imapMessage(msgfileuri.spec, inbox.uidnext++, []));
+      inbox.addMessage(new ImapMessage(msgfileuri.spec, inbox.uidnext++, []));
       fileNames.push(msgfileuri.fileName);
     }
   }

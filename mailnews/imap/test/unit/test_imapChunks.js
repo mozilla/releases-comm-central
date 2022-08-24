@@ -17,7 +17,7 @@ add_task(async function run_the_test() {
    * Set up an IMAP server. The bug is only triggered when nsMsgSaveAsListener
    * is used (i.e., for IMAP and NNTP).
    */
-  gIMAPDaemon = new imapDaemon();
+  gIMAPDaemon = new ImapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
 
@@ -48,7 +48,7 @@ add_task(async function run_the_test() {
     .newFileURI(gMsgFile)
     .QueryInterface(Ci.nsIFileURL);
 
-  let message = new imapMessage(msgfileuri.spec, inbox.uidnext++, []);
+  let message = new ImapMessage(msgfileuri.spec, inbox.uidnext++, []);
   // report an artificially low size, like gmail and Exchange do
   message.setSize(gMsgFile.fileSize - 100);
   inbox.addMessage(message);

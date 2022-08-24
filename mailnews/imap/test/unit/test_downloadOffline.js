@@ -29,7 +29,7 @@ async function setup() {
     .QueryInterface(Ci.nsIFileURL);
 
   IMAPPump.mailbox.addMessage(
-    new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
+    new ImapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
 
   let messages = [];
@@ -38,7 +38,7 @@ async function setup() {
   let dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  let imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   imapMsg.setSize(5000);
   IMAPPump.mailbox.addMessage(imapMsg);
 

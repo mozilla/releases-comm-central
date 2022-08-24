@@ -21,7 +21,7 @@ var gIMAPDaemon, gIMAPServer, gIMAPIncomingServer;
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessageToServer(file, mailbox) {
   let URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
-  let msg = new imapMessage(URI.spec, mailbox.uidnext++, []);
+  let msg = new ImapMessage(URI.spec, mailbox.uidnext++, []);
   // underestimate the actual file size, like some IMAP servers do
   msg.setSize(file.fileSize - 55);
   mailbox.addMessage(msg);
@@ -45,7 +45,7 @@ add_task(async function verifyContentLength() {
   Services.prefs.setIntPref("mail.imap.chunk_add", 0);
 
   // set up IMAP fakeserver and incoming server
-  gIMAPDaemon = new imapDaemon();
+  gIMAPDaemon = new ImapDaemon();
   gIMAPServer = makeServer(gIMAPDaemon, "");
   gIMAPIncomingServer = createLocalIMAPServer(gIMAPServer.port);
 

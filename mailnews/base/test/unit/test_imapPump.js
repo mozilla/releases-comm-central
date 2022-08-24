@@ -19,7 +19,7 @@ const { PromiseTestUtils } = ChromeUtils.import(
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
-var { imapMessage } = ChromeUtils.import(
+var { ImapMessage } = ChromeUtils.import(
   "resource://testing-common/mailnews/Imapd.jsm"
 );
 
@@ -48,7 +48,7 @@ var gTestArray = [
   // the main test
   async function loadImapMessage() {
     IMAPPump.mailbox.addMessage(
-      new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
+      new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
     );
     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     IMAPPump.inbox.updateFolderWithListener(

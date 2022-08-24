@@ -64,7 +64,7 @@ add_task(async function loadImapMessage() {
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  var gMessage = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
+  var gMessage = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
 
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();

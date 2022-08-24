@@ -45,8 +45,8 @@ var {
 } = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
 
 var {
-  imapDaemon,
-  imapMessage,
+  ImapDaemon,
+  ImapMessage,
   configurations,
   IMAP_RFC3501_handler,
   mixinExtension,
@@ -174,7 +174,7 @@ function addImapMessage() {
   let dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  let imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 }
 

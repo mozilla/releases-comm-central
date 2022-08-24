@@ -36,12 +36,12 @@ function alert(aDialogTitle, aText) {
 }
 
 function addGeneratedMessagesToServer(messages, mailbox) {
-  // Create the imapMessages and store them on the mailbox
+  // Create the ImapMessages and store them on the mailbox
   messages.forEach(function(message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
-    mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
+    mailbox.addMessage(new ImapMessage(dataUri.spec, mailbox.uidnext++, []));
   });
 }
 

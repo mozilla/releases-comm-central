@@ -231,10 +231,10 @@ function addMessageToFolder(folder) {
   let msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let imapMailbox = IMAPPump.daemon.getMailbox(folder.name);
+  let ImapMailbox = IMAPPump.daemon.getMailbox(folder.name);
   // We add messages with \Seen flag set so that we won't accidentally
   // trigger the code that updates imap folders that have unread messages moved
   // into them.
-  let message = new imapMessage(msgURI.spec, imapMailbox.uidnext++, ["\\Seen"]);
-  imapMailbox.addMessage(message);
+  let message = new ImapMessage(msgURI.spec, ImapMailbox.uidnext++, ["\\Seen"]);
+  ImapMailbox.addMessage(message);
 }
