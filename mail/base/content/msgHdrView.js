@@ -3368,10 +3368,9 @@ const gMessageHeader = {
    */
   get newsgroupServer() {
     if (gFolderDisplay.selectedMessageIsNews) {
-      let server = gFolderDisplay.selectedMessage.folder.server;
-      if (server) {
-        return server.QueryInterface(Ci.nsISubscribableServer);
-      }
+      return gFolderDisplay.selectedMessage.folder.server?.QueryInterface(
+        Ci.nsISubscribableServer
+      );
     }
 
     return null;
@@ -3460,19 +3459,13 @@ const gMessageHeader = {
       .getElementById("newsgroupPlaceHolder")
       .setAttribute("label", element.textContent);
 
-    let server = this.newsgroupServer;
-    if (server) {
-      // XXX Why is this necessary when nsISubscribableServer contains
-      // |isSubscribed|?
-      server = server.QueryInterface(Ci.nsINntpIncomingServer);
-      if (!server.containsNewsgroup(element.textContent)) {
-        document.getElementById("subscribeToNewsgroupItem").hidden = false;
-        document.getElementById("subscribeToNewsgroupSeparator").hidden = false;
-        return;
-      }
-    }
-    document.getElementById("subscribeToNewsgroupItem").hidden = true;
-    document.getElementById("subscribeToNewsgroupSeparator").hidden = true;
+    let subscribed = this.newsgroupServer
+      ?.QueryInterface(Ci.nsINntpIncomingServer)
+      .containsNewsgroup(element.textContent);
+    document.getElementById("subscribeToNewsgroupItem").hidden = subscribed;
+    document.getElementById(
+      "subscribeToNewsgroupSeparator"
+    ).hidden = subscribed;
 
     let popup = document.getElementById("newsgroupPopup");
     popup.headerField = element;
