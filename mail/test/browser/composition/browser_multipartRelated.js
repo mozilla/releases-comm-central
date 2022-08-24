@@ -79,7 +79,7 @@ function getMsgHeaders(aMsgHdr) {
 
 /**
  */
-add_task(function test_basic_multipart_related() {
+add_task(async function test_basic_multipart_related() {
   let compWin = open_compose_new_mail();
   compWin.type(compWin.window, "someone@example.com");
   compWin.type(compWin.e("msgSubject"), "multipart/related");
@@ -113,6 +113,10 @@ add_task(function test_basic_multipart_related() {
     compWin.window
   );
   waitForSaveOperation(compWin);
+  await TestUtils.waitForCondition(
+    () => gDrafts.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
   close_compose_window(compWin);
 
   // Make sure that the headers are right on this one.

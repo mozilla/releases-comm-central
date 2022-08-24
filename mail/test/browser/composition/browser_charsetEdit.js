@@ -117,6 +117,10 @@ add_task(async function test_wrong_reply_charset() {
     rwc.window
   );
   waitForSaveOperation(rwc);
+  await TestUtils.waitForCondition(
+    () => folder.getTotalMessages(false) == 2,
+    "message saved to drafts folder"
+  );
   close_compose_window(rwc);
 
   let draftMsg = select_click_row(1);
@@ -143,7 +147,10 @@ add_task(async function test_wrong_reply_charset() {
   waitForSaveOperation(rwc);
   close_compose_window(rwc);
   msg = select_click_row(0);
-  Assert.equal(getMsgHeaders(msg).get("").charset, "UTF-8");
+  await TestUtils.waitForCondition(
+    () => getMsgHeaders(msg).get("").charset == "UTF-8",
+    "The charset matches"
+  );
   press_delete(mc); // Delete message
 });
 
@@ -161,7 +168,10 @@ add_task(async function test_no_mojibake() {
   be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
-  Assert.equal(getMsgHeaders(msg).get("").charset, "utf-7");
+  await TestUtils.waitForCondition(
+    () => getMsgHeaders(msg).get("").charset == "utf-7",
+    "message charset correctly set"
+  );
   Assert.equal(
     getMsgHeaders(msg, true)
       .get("")
@@ -177,6 +187,10 @@ add_task(async function test_no_mojibake() {
     rwc.window
   );
   waitForSaveOperation(rwc);
+  await TestUtils.waitForCondition(
+    () => folder.getTotalMessages(false) == 2,
+    "message saved to drafts folder"
+  );
   close_compose_window(rwc);
 
   let draftMsg = select_click_row(1);

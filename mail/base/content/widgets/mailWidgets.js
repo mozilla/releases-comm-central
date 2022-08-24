@@ -1271,6 +1271,11 @@
      * html:input element.
      */
     startEditing() {
+      // Record the intention of editing a pill as a change in the recipient
+      // even if the text is not actually changed in order to prevent accidental
+      // data loss.
+      onRecipientsChanged();
+
       // We need to set the min and max width before hiding and showing the
       // child nodes in order to prevent unwanted jumps in the resizing of the
       // edited pill. Both properties are necessary to handle flexbox.

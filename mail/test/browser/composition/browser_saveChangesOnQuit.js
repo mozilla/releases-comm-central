@@ -15,6 +15,7 @@ var {
   open_compose_new_mail,
   open_compose_with_forward,
   open_compose_with_reply,
+  wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   add_message_to_folder,
@@ -22,6 +23,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_special_folder,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -30,6 +32,12 @@ var {
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
+var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
+var { plan_for_new_window, wait_for_window_focused } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var SAVE = 0;
 var CANCEL = 1;
@@ -37,6 +45,7 @@ var DONT_SAVE = 2;
 
 var cwc = null; // compose window controller
 var folder = null;
+var gDraftFolder = null;
 
 add_setup(async function() {
   requestLongerTimeout(3);
@@ -47,6 +56,7 @@ add_setup(async function() {
   let localFolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   localFolder.addMessage(msgSource("content type: text", "text")); // row 1
   localFolder.addMessage(msgSource("content type missing", null)); // row 2
+  gDraftFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
 function msgSource(aSubject, aContentType) {
@@ -299,4 +309,81 @@ add_task(function test_no_prompt_on_close_for_unmodified_no_content_type() {
     "forwarding msg created attachment"
   );
   close_compose_window(fwc, false);
+});
+
+add_task(async function test_prompt_save_on_pill_editing() {
+  cwc = open_compose_new_mail(mc);
+
+  // Focus should be on the To field, so just type an address.
+  EventUtils.sendString("test@foo.invalid", cwc.window);
+  let pillCreated = TestUtils.waitForCondition(
+    () => cwc.window.document.querySelectorAll("mail-address-pill").length == 1,
+    "One pill was created"
+  );
+  // Trigger the saving of the draft.
+  EventUtils.synthesizeKey("s", { accelKey: true }, cwc.window);
+  await pillCreated;
+  // All leftover text should have been cleared and pill should have been
+  // created before the draft is actually saved.
+  Assert.ok(
+    cwc.window.document.activeElement.value == 0,
+    "The input field is empty."
+  );
+
+  Assert.ok(cwc.window.gSaveOperationInProgress, "Should start save operation");
+  await TestUtils.waitForCondition(
+    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    "Waiting for the save operation to complete"
+  );
+  // Close the compose window after the saving operation is completed.
+  close_compose_window(cwc, false);
+
+  // Move to the drafts folder and select the recently saved message.
+  be_in_folder(gDraftFolder);
+  let msg = select_click_row(0);
+  assert_selected_and_displayed(mc, msg);
+
+  // Click on the "edit draft" notification.
+  let kBoxId = "mail-notification-top";
+  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
+  let box = get_notification(mc, kBoxId, "draftMsgContent");
+
+  plan_for_new_window("msgcompose");
+  // Click on the "Edit" button in the draft notification.
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  cwc = wait_for_compose_window();
+
+  // Make sure the address was saved correctly.
+  let pill = cwc.window.document.querySelector("mail-address-pill");
+  Assert.equal(
+    pill.fullAddress,
+    "test@foo.invalid",
+    "the email address matches"
+  );
+  let isEditing = TestUtils.waitForCondition(
+    () => pill.isEditing,
+    "Pill is being edited"
+  );
+
+  let focusPromise = TestUtils.waitForCondition(
+    () => cwc.window.document.activeElement == pill,
+    "Pill is focused"
+  );
+  // The focus should be on the subject since we didn't write anything,
+  // so shift+tab to move the focus on the To field, and pressing Arrow Left
+  // should correctly focus the previously generated pill.
+  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, cwc.window);
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc.window);
+  await focusPromise;
+  EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+  await isEditing;
+
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  // Try to quit after entering the pill edit mode, a "unsaved changes" dialog
+  // should be triggered.
+  cwc.window.goDoCommand("cmd_close");
+  await promptPromise;
+  await new Promise(resolve => cwc.window.setTimeout(resolve));
+
+  close_compose_window(cwc);
 });

@@ -40,6 +40,10 @@ add_task(async function test_customHeaders() {
 
   cwc.window.SaveAsDraft();
   waitForSaveOperation(cwc);
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
   close_compose_window(cwc);
 
   be_in_folder(draftsFolder);

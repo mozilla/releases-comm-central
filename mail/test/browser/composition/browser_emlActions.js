@@ -55,6 +55,10 @@ add_task(async function test_reply_to_eml_save_as_draft() {
     replyWin.window
   );
   waitForSaveOperation(replyWin);
+  await TestUtils.waitForCondition(
+    () => gDrafts.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
 
   // Drafts folder should exist now.
   be_in_folder(gDrafts);
@@ -86,6 +90,10 @@ add_task(async function test_forward_eml_save_as_draft() {
     replyWin.window
   );
   waitForSaveOperation(replyWin);
+  await TestUtils.waitForCondition(
+    () => gDrafts.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
 
   // Drafts folder should exist now.
   be_in_folder(gDrafts);

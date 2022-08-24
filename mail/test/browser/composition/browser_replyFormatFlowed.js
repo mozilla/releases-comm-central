@@ -55,6 +55,10 @@ async function subtest_reply_format_flowed(aFlowed) {
     cwc.window
   );
   waitForSaveOperation(cwc);
+  await TestUtils.waitForCondition(
+    () => gDrafts.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
   close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.

@@ -89,8 +89,8 @@ add_task(async function test_open_draft_again() {
     cwc.window
   );
   waitForSaveOperation(cwc);
-  close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
+  close_compose_window(cwc);
 
   press_delete(mc); // clean up after ourselves
 });
@@ -216,8 +216,11 @@ add_task(async function test_edit_as_new_in_draft() {
   );
   waitForSaveOperation(cwc);
 
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(false) == 2,
+    "message saved to drafts folder"
+  );
   close_compose_window(cwc);
-  Assert.equal(draftsFolder.getTotalMessages(false), 2);
 
   // Clean up the created drafts and count again.
   press_delete(mc);
@@ -228,7 +231,7 @@ add_task(async function test_edit_as_new_in_draft() {
 /**
  * Tests Content-Language header.
  */
-add_task(function test_content_language_header() {
+add_task(async function test_content_language_header() {
   let cwc = open_compose_new_mail();
 
   setup_msg_contents(
@@ -240,6 +243,10 @@ add_task(function test_content_language_header() {
 
   cwc.window.SaveAsDraft();
   waitForSaveOperation(cwc);
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
   wait_for_window_focused(cwc.window);
   close_compose_window(cwc);
 
@@ -263,7 +270,7 @@ add_task(function test_content_language_header() {
 /**
  * Tests Content-Language header suppression.
  */
-add_task(function test_content_language_header_suppression() {
+add_task(async function test_content_language_header_suppression() {
   let statusQuo = Services.prefs.getBoolPref("mail.suppress_content_language");
   Services.prefs.setBoolPref("mail.suppress_content_language", true);
 
@@ -278,6 +285,10 @@ add_task(function test_content_language_header_suppression() {
 
   cwc.window.SaveAsDraft();
   waitForSaveOperation(cwc);
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
   wait_for_window_focused(cwc.window);
   close_compose_window(cwc);
 
@@ -300,7 +311,7 @@ add_task(function test_content_language_header_suppression() {
 /**
  * Tests space stuffing of plaintext message.
  */
-add_task(function test_remove_space_stuffing_format_flowed() {
+add_task(async function test_remove_space_stuffing_format_flowed() {
   // Prepare for plaintext email.
   let oldHtmlPref = Services.prefs.getBoolPref(
     "mail.identity.default.compose_html"
@@ -318,6 +329,10 @@ add_task(function test_remove_space_stuffing_format_flowed() {
 
   cwc.window.SaveAsDraft();
   waitForSaveOperation(cwc);
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
   wait_for_window_focused(cwc.window);
 
   close_compose_window(cwc);

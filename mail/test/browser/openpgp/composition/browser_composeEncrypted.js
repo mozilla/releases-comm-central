@@ -480,12 +480,12 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
   let replyWindow = await replyWindowPromise;
   await BrowserTestUtils.waitForEvent(replyWindow, "focus", true);
   replyWindow.document.querySelector("#button-save").click();
-  replyWindow.close();
 
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(true) > 0,
     "message should be saved to drafts folder"
   );
+  replyWindow.close();
 
   if (Services.focus.activeWindow != window) {
     await BrowserTestUtils.waitForEvent(window, "focus");

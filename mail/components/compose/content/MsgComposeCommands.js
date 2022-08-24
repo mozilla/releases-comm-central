@@ -6138,11 +6138,13 @@ function CheckValidEmailAddress(aMsgCompFields) {
 
 /**
  * Cycle through all the currently visible autocomplete addressing rows and
- * generate pills for those inputs with leftover strings. This is necessary in
- * case a user writes an extra address and clicks "Send" before the text is
- * converted into a pill. We don't know why input's onblur doesn't do the trick.
+ * generate pills for those inputs with leftover strings. Do the same if we
+ * have a pill currently being edited. This is necessary in case a user writes
+ * an extra address and clicks "Send" or "Save as..." before the text is
+ * converted into a pill. The input onBlur doesn't work if the click interaction
+ * happens on the window's menu bar.
  */
-function pillifyRecipients() {
+async function pillifyRecipients() {
   for (let input of document.querySelectorAll(
     ".address-row:not(.hidden):not(.address-row-raw) .address-row-input"
   )) {
@@ -6152,21 +6154,10 @@ function pillifyRecipients() {
       recipientAddPills(input);
     }
   }
-}
 
-/**
- * Cycle through all mail address pills and call updatePill on the pills which
- * are in edit mode. This is necessary when clicking send while a pill is in
- * edit. The value of the pill is not updated and the email is sent to the
- * value of the pill before the edit.
- */
-async function updatePillsInEdit() {
-  let mailAddressPills = document.querySelectorAll("mail-address-pill");
-  for (let mailAddressPill of mailAddressPills) {
-    if (mailAddressPill.isEditing) {
-      await mailAddressPill.updatePill();
-    }
-  }
+  // Update the currently editing pill, if any.
+  // It's impossible to edit more than one pill at once.
+  await document.querySelector("mail-address-pill.editing")?.updatePill();
 }
 
 /**
@@ -6439,8 +6430,7 @@ async function checkEncryptedBccRecipients() {
 }
 
 async function SendMessage() {
-  pillifyRecipients();
-  await updatePillsInEdit();
+  await pillifyRecipients();
   let sendInBackground = Services.prefs.getBoolPref(
     "mailnews.sendInBackground"
   );
@@ -6460,8 +6450,7 @@ async function SendMessage() {
 }
 
 async function SendMessageWithCheck() {
-  pillifyRecipients();
-  await updatePillsInEdit();
+  await pillifyRecipients();
   var warn = Services.prefs.getBoolPref("mail.warn_on_send_accel_key");
 
   if (warn) {
@@ -6504,8 +6493,7 @@ async function SendMessageWithCheck() {
 }
 
 async function SendMessageLater() {
-  pillifyRecipients();
-  await updatePillsInEdit();
+  await pillifyRecipients();
   await GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
   ExitFullscreenMode();
 }
@@ -6548,6 +6536,7 @@ async function SaveAsDraft() {
   gAutoSaveKickedIn = false;
   gEditingDraft = true;
 
+  await pillifyRecipients();
   await GenericSendMessage(Ci.nsIMsgCompDeliverMode.SaveAsDraft);
   defaultSaveOperation = "draft";
 }
@@ -6556,6 +6545,7 @@ async function SaveAsTemplate() {
   gAutoSaveKickedIn = false;
   gEditingDraft = false;
 
+  await pillifyRecipients();
   let savedReferences = null;
   if (gMsgCompose && gMsgCompose.compFields) {
     // Clear References header. When we use the template, we don't want that

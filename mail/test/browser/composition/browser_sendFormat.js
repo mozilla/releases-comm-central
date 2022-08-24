@@ -301,15 +301,20 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
 }
 
 async function saveDraft(composeWindow) {
+  let oldDraftsCounts = draftsFolder.getTotalMessages(false);
   // Save as draft.
   EventUtils.synthesizeKey("s", { accelKey: true }, composeWindow);
-  Assert.ok(
-    composeWindow.gSaveOperationInProgress,
+  await TestUtils.waitForCondition(
+    () => composeWindow.gSaveOperationInProgress,
     "Should start save operation"
   );
   await TestUtils.waitForCondition(
     () => !composeWindow.gSaveOperationInProgress && !composeWindow.gWindowLock,
     "Waiting for the save operation to complete"
+  );
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(false) > oldDraftsCounts,
+    "message saved to drafts folder"
   );
   await BrowserTestUtils.closeWindow(composeWindow);
 }
