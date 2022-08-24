@@ -211,11 +211,11 @@ function createNewsgroup(group) {
 
 var NNTPServer = {
   open() {
-    let { NNTP_RFC977_handler, nntpDaemon } = ChromeUtils.import(
+    let { NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
       "resource://testing-common/mailnews/Nntpd.jsm"
     );
 
-    this.daemon = new nntpDaemon();
+    this.daemon = new NntpDaemon();
     this.server = new nsMailServer(
       daemon => new NNTP_RFC977_handler(daemon),
       this.daemon
@@ -241,7 +241,7 @@ var NNTPServer = {
   },
 
   addMessages(folder, messages) {
-    let { newsArticle } = ChromeUtils.import(
+    let { NewsArticle } = ChromeUtils.import(
       "resource://testing-common/mailnews/Nntpd.jsm"
     );
 
@@ -254,7 +254,7 @@ var NNTPServer = {
       if (!message.endsWith("\r\n")) {
         message = message + "\r\n";
       }
-      let article = new newsArticle(message);
+      let article = new NewsArticle(message);
       article.groups = [group];
       this.daemon.addArticle(article);
     });

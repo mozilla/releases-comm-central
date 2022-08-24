@@ -7,7 +7,7 @@
  */
 
 var EXPORTED_SYMBOLS = [
-  "pop3Daemon",
+  "Pop3Daemon",
   "POP3_RFC1939_handler",
   "POP3_RFC2449_handler",
   "POP3_RFC5034_handler",
@@ -58,7 +58,7 @@ function readFile(fileName) {
   return mailTestUtils.loadFileToString(file);
 }
 
-class pop3Daemon {
+class Pop3Daemon {
   messages = [];
   _messages = [];
   _totalMessageSize = 0;

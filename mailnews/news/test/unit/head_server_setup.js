@@ -26,12 +26,12 @@ var { fsDebugAll, gThreadManager, nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
 var {
-  newsArticle,
+  NewsArticle,
   NNTP_Giganews_handler,
   NNTP_RFC2980_handler,
   NNTP_RFC4643_extension,
   NNTP_RFC977_handler,
-  nntpDaemon,
+  NntpDaemon,
 } = ChromeUtils.import("resource://testing-common/mailnews/Nntpd.jsm");
 
 var kSimpleNewsArticle =
@@ -55,7 +55,7 @@ var groups = [
 ];
 // Sets up the NNTP daemon object for use in fake server
 function setupNNTPDaemon() {
-  var daemon = new nntpDaemon();
+  var daemon = new NntpDaemon();
 
   groups.forEach(function(element) {
     daemon.addGroup(element[0]);
@@ -89,10 +89,10 @@ function setupNNTPDaemon() {
     }
     sstream.close();
     fstream.close();
-    daemon.addArticle(new newsArticle(post));
+    daemon.addArticle(new NewsArticle(post));
   });
 
-  var article = new newsArticle(kSimpleNewsArticle);
+  var article = new NewsArticle(kSimpleNewsArticle);
   daemon.addArticleToGroup(article, "test.subscribe.simple", 1);
 
   return daemon;
@@ -236,7 +236,7 @@ function make_article(file) {
   }
   sstream.close();
   fstream.close();
-  return new newsArticle(post);
+  return new NewsArticle(post);
 }
 
 var articleTextListener = {

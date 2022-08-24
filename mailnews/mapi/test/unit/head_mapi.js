@@ -17,7 +17,7 @@ do_get_profile();
 var { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
-var { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
+var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
   "resource://testing-common/mailnews/Smtpd.jsm"
 );
 
@@ -31,7 +31,7 @@ function setupServerDaemon(handler) {
       return new SMTP_RFC2821_handler(d);
     };
   }
-  let daemon = new smtpDaemon();
+  let daemon = new SmtpDaemon();
   let server = new nsMailServer(handler, daemon);
   return [daemon, server];
 }

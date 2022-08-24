@@ -7,8 +7,8 @@
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var EXPORTED_SYMBOLS = [
-  "nntpDaemon",
-  "newsArticle",
+  "NntpDaemon",
+  "NewsArticle",
   "NNTP_POSTABLE",
   "NNTP_REAL_LENGTH",
   "NNTP_RFC977_handler",
@@ -18,7 +18,7 @@ var EXPORTED_SYMBOLS = [
   "NNTP_RFC4643_extension",
 ];
 
-class nntpDaemon {
+class NntpDaemon {
   constructor(flags) {
     this._groups = {};
     this._messages = {};
@@ -87,7 +87,7 @@ class nntpDaemon {
   }
 }
 
-function newsArticle(text) {
+function NewsArticle(text) {
   this.headers = new Map();
   this.body = "";
   this.messageID = "";
@@ -344,7 +344,7 @@ class NNTP_RFC977_handler {
   onMultiline(line) {
     if (line == ".") {
       if (this.posting) {
-        var article = new newsArticle(this.post);
+        var article = new NewsArticle(this.post);
         this._daemon.addArticle(article);
         this.posting = false;
         return "240 Wonderful article, your style is gorgeous!";

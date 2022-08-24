@@ -15,7 +15,7 @@ const EXPORTED_SYMBOLS = [
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { newsArticle, NNTP_RFC977_handler, nntpDaemon } = ChromeUtils.import(
+var { NewsArticle, NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
   "resource://testing-common/mailnews/Nntpd.jsm"
 );
 var { nsMailServer } = ChromeUtils.import(
@@ -43,13 +43,13 @@ var groups = [
 
 // Sets up the NNTP daemon object for use in fake server
 function setupNNTPDaemon() {
-  var daemon = new nntpDaemon();
+  var daemon = new NntpDaemon();
 
   groups.forEach(function(element) {
     daemon.addGroup(element[0]);
   });
 
-  var article = new newsArticle(kSimpleNewsArticle);
+  var article = new NewsArticle(kSimpleNewsArticle);
   daemon.addArticleToGroup(article, "test.subscribe.simple", 1);
 
   return daemon;

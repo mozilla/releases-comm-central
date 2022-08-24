@@ -98,14 +98,14 @@ var IMAPServer = {
 
 var SMTPServer = {
   open() {
-    const { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
+    const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
       "resource://testing-common/mailnews/Smtpd.jsm"
     );
     const { nsMailServer } = ChromeUtils.import(
       "resource://testing-common/mailnews/Maild.jsm"
     );
 
-    this.daemon = new smtpDaemon();
+    this.daemon = new SmtpDaemon();
     this.server = new nsMailServer(daemon => {
       let handler = new SMTP_RFC2821_handler(daemon);
       handler.kUsername = "john.doe@example-imap.com";

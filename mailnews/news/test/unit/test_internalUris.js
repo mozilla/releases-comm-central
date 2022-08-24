@@ -103,7 +103,7 @@ ${btoa(arr)}
 add_task(async function test_fetchMessage() {
   // Replace the second article with a large message.
   daemon.addArticleToGroup(
-    new newsArticle(generateLongArticle()),
+    new NewsArticle(generateLongArticle()),
     "test.filter",
     2
   );

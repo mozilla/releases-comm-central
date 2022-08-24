@@ -208,7 +208,7 @@ function run_test() {
   Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
 
-  daemon = new pop3Daemon();
+  daemon = new Pop3Daemon();
   function createHandler(d) {
     var handler = new GSSAPIFail_handler(d);
     handler.kAuthSchemes = authSchemes;

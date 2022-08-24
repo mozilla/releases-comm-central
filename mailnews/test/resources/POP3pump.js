@@ -39,7 +39,7 @@ var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
 var {
-  pop3Daemon,
+  Pop3Daemon,
   POP3_RFC1939_handler,
   POP3_RFC2449_handler,
   POP3_RFC5034_handler,
@@ -91,7 +91,7 @@ POP3Pump.prototype.OnStopRunningUrl = function(aUrl, aResult) {
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.
 POP3Pump.prototype._setupServerDaemon = function(aDebugOption) {
-  this._daemon = new pop3Daemon();
+  this._daemon = new Pop3Daemon();
   function createHandler(d) {
     return new POP3_RFC1939_handler(d);
   }

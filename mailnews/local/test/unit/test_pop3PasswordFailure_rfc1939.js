@@ -43,7 +43,7 @@ add_task(async function setupTest() {
   registerAlertTestUtils();
 
   // Set up the Server
-  daemon = new pop3Daemon();
+  daemon = new Pop3Daemon();
   function createHandler(d) {
     var handler = new POP3_RFC1939_handler(d);
     handler.dropOnAuthFailure = true;

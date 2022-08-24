@@ -1,13 +1,13 @@
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 // This file implements test SMTP servers
 
-var EXPORTED_SYMBOLS = ["smtpDaemon", "SMTP_RFC2821_handler"];
+var EXPORTED_SYMBOLS = ["SmtpDaemon", "SMTP_RFC2821_handler"];
 
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
 
-class smtpDaemon {
+class SmtpDaemon {
   _messages = {};
 }
 

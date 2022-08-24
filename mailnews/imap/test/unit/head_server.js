@@ -60,7 +60,7 @@ var {
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
-var { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
+var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
   "resource://testing-common/mailnews/Smtpd.jsm"
 );
 
@@ -189,7 +189,7 @@ function setupSmtpServerDaemon(handler) {
       return new SMTP_RFC2821_handler(d);
     };
   }
-  var server = new nsMailServer(handler, new smtpDaemon());
+  var server = new nsMailServer(handler, new SmtpDaemon());
   return server;
 }
 
