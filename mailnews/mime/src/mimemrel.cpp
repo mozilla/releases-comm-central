@@ -393,9 +393,6 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
                                                 MimeObject* child) {
   MimeMultipartRelated* relobj = (MimeMultipartRelated*)obj;
 
-  /* rhp - Changed from "if (relobj->head_loaded)" alone to support the
-           start parameter
-   */
   if ((relobj->head_loaded) ||
       (MimeStartParamExists(obj, child) && !MimeThisIsStartPart(obj, child))) {
     /* This is a child part.  Just remember the mapping between the URL
@@ -422,10 +419,9 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
     }
 
     if (location) {
-      char* absolute;
       char* base_url =
           MimeHeaders_get(child->headers, HEADER_CONTENT_BASE, false, false);
-      absolute =
+      char* absolute =
           MakeAbsoluteURL(base_url ? base_url : relobj->base_url, location);
 
       PR_FREEIF(base_url);
@@ -530,25 +526,26 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
     }
   } else {
     /* Ah-hah!  We're the head object.  */
-    char* base_url;
     relobj->head_loaded = true;
     relobj->headobj = child;
     relobj->buffered_hdrs = MimeHeaders_copy(child->headers);
-    base_url =
+    char* base_url =
         MimeHeaders_get(child->headers, HEADER_CONTENT_BASE, false, false);
-    /* rhp: need this for supporting Content-Location */
     if (!base_url) {
       base_url = MimeHeaders_get(child->headers, HEADER_CONTENT_LOCATION, false,
                                  false);
     }
-    /* rhp: need this for supporting Content-Location */
 
     if (base_url) {
       /* If the head object has a base_url associated with it, use
          that instead of any base_url that may have been associated
          with the multipart/related. */
       PR_FREEIF(relobj->base_url);
-      relobj->base_url = base_url;
+      nsCOMPtr<nsIURI> url;
+      nsresult rv = nsMimeNewURI(getter_AddRefs(url), base_url, nullptr);
+      if (NS_SUCCEEDED(rv)) {
+        relobj->base_url = base_url;
+      }
     }
   }
   if (obj->options && !obj->options->write_html_p
