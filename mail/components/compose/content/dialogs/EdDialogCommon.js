@@ -562,10 +562,10 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       //  (this may miss nearby anchors, but at least we don't insert another
       //   under the same heading)
       if (
-        element instanceof HTMLHeadingElement &&
+        HTMLHeadingElement.isInstance(element) &&
         element.textContent &&
         !(
-          element.firstChild instanceof HTMLAnchorElement &&
+          HTMLAnchorElement.isInstance(element.firstChild) &&
           element.firstChild.name
         )
       ) {
@@ -573,7 +573,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       }
 
       // grab named anchors
-      if (element instanceof HTMLAnchorElement && element.name) {
+      if (HTMLAnchorElement.isInstance(element) && element.name) {
         anchor = "#" + element.name;
         if (!(anchor in anchorMap)) {
           anchorList.push({ anchor, sortkey: anchor.toLowerCase() });
