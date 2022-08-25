@@ -8,9 +8,7 @@
  * If you would like to change anything in ical.js, it is required to do so
  * upstream first.
  *
- * Current ical.js git revision: 3ec17951aad61bd53818f934879cc0857ee7b42d (v1.5.0)
- * plus https://github.com/mozilla-comm/ical.js/pull/512
- * and https://github.com/mozilla-comm/ical.js/pull/513
+ * Current ical.js git revision: 3f09e48be94c5026229e858b84545b9aea79e1a7
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -2721,7 +2719,7 @@ ICAL.Component = (function() {
      */
     addProperty: function(property) {
       if (!(property instanceof ICAL.Property)) {
-        throw new TypeError('must instance of ICAL.Property');
+        throw new TypeError('must be instance of ICAL.Property');
       }
 
       if (!this._properties) {
@@ -5714,15 +5712,22 @@ ICAL.TimezoneService = (function() {
      */
     fromUnixTime: function fromUnixTime(seconds) {
       this.zone = ICAL.Timezone.utcTimezone;
-      var epoch = ICAL.Time.epochTime.clone();
-      epoch.adjust(0, 0, 0, seconds);
-
-      this.year = epoch.year;
-      this.month = epoch.month;
-      this.day = epoch.day;
-      this.hour = epoch.hour;
-      this.minute = epoch.minute;
-      this.second = Math.floor(epoch.second);
+      // We could use `fromJSDate` here, but this is about twice as fast.
+      // We could also clone `epochTime` and use `adjust` for a more
+      // ical.js-centric approach, but this is about 100 times as fast.
+      var date = new Date(seconds * 1000);
+      this.year = date.getUTCFullYear();
+      this.month = date.getUTCMonth() + 1;
+      this.day = date.getUTCDate();
+      if (this._time.isDate) {
+        this.hour = 0;
+        this.minute = 0;
+        this.second = 0;
+      } else {
+        this.hour = date.getUTCHours();
+        this.minute = date.getUTCMinutes();
+        this.second = date.getUTCSeconds();
+      }
 
       this._cachedUnixTime = null;
     },

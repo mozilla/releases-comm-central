@@ -193,7 +193,17 @@ var caldtz = {
         aTimezone
       );
     } else {
-      newDate.nativeTime = aDate.getTime() * 1000;
+      newDate.resetTo(
+        aDate.getUTCFullYear(),
+        aDate.getUTCMonth(),
+        aDate.getUTCDate(),
+        aDate.getUTCHours(),
+        aDate.getUTCMinutes(),
+        aDate.getUTCSeconds(),
+        // Use the existing timezone instead of caldtz.UTC, or starting the
+        // timezone service becomes a requirement in tests.
+        newDate.timezone
+      );
     }
     return newDate;
   },
