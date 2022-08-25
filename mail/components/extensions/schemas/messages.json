@@ -49,6 +49,10 @@
           "date": {
             "$ref": "extensionTypes.Date"
           },
+          "external": {
+            "type": "boolean",
+            "description": "Whether this message is a real message or an external message (opened from a file or from an attachment)."
+          },
           "flagged": {
             "type": "boolean"
           },
@@ -70,16 +74,19 @@
             "minimum": 1
           },
           "junk": {
-            "description": "Not populated for news/nntp messages.",
+            "description": "Whether the message has been marked as junk. Always ``false`` for news/nntp messages and external messages.",
             "type": "boolean"
           },
           "junkScore": {
             "type": "integer",
+            "description": "The junk score associated with the message. Always ``0`` for news/nntp messages and external messages.",
             "minimum": 0,
             "maximum": 100
           },
           "read": {
-            "type": "boolean"
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether the message has been marked as read. Not available for external or attached messages."
           },
           "recipients": {
             "description": "The To recipients. Not populated for news/nntp messages.",
@@ -628,7 +635,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Marks or unmarks a message as junk, read, flagged, or tagged.",
+        "description": "Marks or unmarks a message as junk, read, flagged, or tagged. Updating external messages will throw an ``ExtensionError``.",
         "async": true,
         "parameters": [
           {
@@ -645,7 +652,7 @@
       {
         "name": "move",
         "type": "function",
-        "description": "Moves messages to a specified folder.",
+        "description": "Moves messages to a specified folder. If the messages cannot be removed from the source folder, they will be copied instead of moved. Moving external messages will throw an ``ExtensionError``.",
         "async": true,
         "permissions": [
           "accountsRead",
@@ -697,7 +704,7 @@
       {
         "name": "delete",
         "type": "function",
-        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.\n**Note**: Consider using :ref:`messages.move` to manually move messages to the account's trash folder, instead of requesting the overly powerful permission to actually delete messages. The account's trash folder can be extracted as follows: <literalinclude>includes/messages/getTrash.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an ``ExtensionError``. The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.\n**Note**: Consider using :ref:`messages.move` to manually move messages to the account's trash folder, instead of requesting the overly powerful permission to actually delete messages. The account's trash folder can be extracted as follows: <literalinclude>includes/messages/getTrash.js<lang>JavaScript</lang></literalinclude>",
         "async": true,
         "permissions": [
           "messagesDelete"
@@ -723,7 +730,7 @@
       {
         "name": "archive",
         "type": "function",
-        "description": "Archives messages using the current settings.",
+        "description": "Archives messages using the current settings. Archiving external messages will throw an ``ExtensionError``.",
         "async": true,
         "permissions": [
           "messagesMove"

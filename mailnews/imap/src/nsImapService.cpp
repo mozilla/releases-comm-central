@@ -1049,6 +1049,41 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   nsAutoCString mimePart;
   nsAutoCString folderURI;
   nsMsgKey key;
+  nsAutoCString messageURI(aMessageURI);
+
+  int32_t typeIndex = messageURI.Find("&type=application/x-message-display");
+  if (typeIndex != kNotFound) {
+    // This happens with forward inline of a message/rfc822 attachment opened in
+    // a standalone msg window.
+    // So, just cut to the chase and call AsyncOpen on a channel.
+    nsCOMPtr<nsIURI> uri;
+    messageURI.Cut(typeIndex,
+                   sizeof("&type=application/x-message-display") - 1);
+    nsresult rv = NS_NewURI(getter_AddRefs(uri), messageURI.get());
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (aURL) NS_IF_ADDREF(*aURL = uri);
+    nsCOMPtr<nsIStreamListener> aStreamListener =
+        do_QueryInterface(aConsumer, &rv);
+    if (NS_SUCCEEDED(rv) && aStreamListener) {
+      nsCOMPtr<nsIChannel> aChannel;
+      nsCOMPtr<nsILoadGroup> aLoadGroup;
+      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(uri, &rv);
+      if (NS_SUCCEEDED(rv) && mailnewsUrl)
+        mailnewsUrl->GetLoadGroup(getter_AddRefs(aLoadGroup));
+
+      nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+          nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+          nsIContentPolicy::TYPE_OTHER);
+      rv = NewChannel(uri, loadInfo, getter_AddRefs(aChannel));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      //  now try to open the channel passing in our display consumer as the
+      //  listener
+      rv = aChannel->AsyncOpen(aStreamListener);
+      return rv;
+    }
+  }
 
   nsresult rv = DecomposeImapURI(aMessageURI, getter_AddRefs(folder), msgKey);
   NS_ENSURE_SUCCESS(rv, rv);

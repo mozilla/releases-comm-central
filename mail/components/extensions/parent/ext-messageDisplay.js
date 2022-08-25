@@ -5,7 +5,7 @@
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-function getDisplayedMessages(tab, extension) {
+async function getDisplayedMessages(tab, extension) {
   let displayedMessages;
 
   if (tab instanceof TabmailTab) {
@@ -22,7 +22,7 @@ function getDisplayedMessages(tab, extension) {
 
   let result = [];
   for (let msg of displayedMessages) {
-    let hdr = convertMessage(msg, extension);
+    let hdr = await convertMessageOrAttachedMessage(msg, extension);
     if (hdr) {
       result.push(hdr);
     }
@@ -91,9 +91,11 @@ this.messageDisplay = class extends ExtensionAPI {
             let listener = {
               handleEvent(event) {
                 let win = windowManager.wrapWindow(event.target);
-                fire.async(
-                  tabManager.convert(win.activeTab.nativeTab),
-                  convertMessage(event.detail, extension)
+                let tab = tabManager.convert(win.activeTab.nativeTab);
+                convertMessageOrAttachedMessage(event.detail, extension).then(
+                  msg => {
+                    fire.async(tab, msg);
+                  }
                 );
               },
             };
@@ -112,8 +114,9 @@ this.messageDisplay = class extends ExtensionAPI {
               handleEvent(event) {
                 let win = windowManager.wrapWindow(event.target);
                 let tab = tabManager.convert(win.activeTab.nativeTab);
-                let msgs = getDisplayedMessages(win.activeTab, extension);
-                fire.async(tab, msgs);
+                getDisplayedMessages(win.activeTab, extension).then(msgs => {
+                  fire.async(tab, msgs);
+                });
               },
             };
 
@@ -139,13 +142,34 @@ this.messageDisplay = class extends ExtensionAPI {
             displayedMessage = tab.nativeTab.gMessageDisplay.displayedMessage;
           }
 
-          return convertMessage(displayedMessage, extension);
+          return convertMessageOrAttachedMessage(displayedMessage, extension);
         },
         async getDisplayedMessages(tabId) {
           return getDisplayedMessages(tabManager.get(tabId), extension);
         },
         async open(properties) {
           let msgHdr = getMsgHdr(properties);
+          if (!msgHdr.folder) {
+            // If this is a temporary file of an attached message, open the original
+            // url instead.
+            let msgUrl = msgHdr.getStringProperty("dummyMsgUrl");
+            let attachedMessage = Array.from(
+              messageTracker._attachedMessageUrls.entries()
+            ).find(e => e[1] == msgUrl);
+            if (attachedMessage) {
+              msgUrl = attachedMessage[0];
+            }
+
+            let window = await getNormalWindowReady(context);
+            let msgWindow = window.openDialog(
+              "chrome://messenger/content/messageWindow.xhtml",
+              "_blank",
+              "all,chrome,dialog=no,status,toolbar",
+              Services.io.newURI(msgUrl)
+            );
+            return tabManager.convert(msgWindow);
+          }
+
           let tab;
           switch (properties.location || getDefaultMessageOpenLocation()) {
             case "tab":

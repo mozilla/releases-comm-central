@@ -273,6 +273,7 @@ add_task(
         message = await browser.messages.get(message.id);
         browser.test.assertFalse(message.flagged);
         browser.test.assertFalse(message.read);
+        browser.test.assertFalse(message.external);
         browser.test.assertFalse(message.junk);
         browser.test.assertEq(0, message.junkScore);
         browser.test.assertEq(0, message.tags.length);
@@ -606,9 +607,11 @@ add_task(
         browser.test.log(JSON.stringify(messages)); // 101, 109, 103, 110, 105
 
         // Move a non-existent message.
-        await browser.messages.move([9999], testFolder1);
-        await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
-        browser.test.log(JSON.stringify(messages)); // 101, 109, 103, 110, 105
+        await browser.test.assertRejects(
+          browser.messages.move([9999], testFolder1),
+          /Error moving message/,
+          "something should happen"
+        );
 
         // Move to a non-existent folder.
         await browser.test.assertRejects(
@@ -616,7 +619,7 @@ add_task(
             accountId,
             path: "/missing",
           }),
-          /Unexpected error moving messages/,
+          /Error moving message/,
           "something should happen"
         );
 

@@ -3917,12 +3917,16 @@ function OnMsgParsed(aUrl) {
 }
 
 function OnMsgLoaded(aUrl) {
-  if (!aUrl || gMessageDisplay.isDummy) {
+  if (!aUrl) {
     return;
   }
 
   var msgHdr = gMessageDisplay.displayedMessage;
   window.dispatchEvent(new CustomEvent("MsgLoaded", { detail: msgHdr }));
+
+  if (gMessageDisplay.isDummy) {
+    return;
+  }
 
   let win =
     location.href == "about:message"

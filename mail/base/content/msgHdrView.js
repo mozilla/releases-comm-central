@@ -3071,6 +3071,12 @@ function nsDummyMsgHeader() {}
 
 nsDummyMsgHeader.prototype = {
   mProperties: [],
+  getProperty(aProperty) {
+    return this.getStringProperty(aProperty);
+  },
+  setProperty(aProperty, aVal) {
+    return this.setStringProperty(aProperty, aVal);
+  },
   getStringProperty(aProperty) {
     if (aProperty in this.mProperties) {
       return this.mProperties[aProperty];
@@ -3091,7 +3097,6 @@ nsDummyMsgHeader.prototype = {
   },
   markHasAttachments(hasAttachments) {},
   messageSize: 0,
-  recipients: null,
   author: null,
   get mime2DecodedAuthor() {
     return this.author;
@@ -3099,6 +3104,10 @@ nsDummyMsgHeader.prototype = {
   subject: "",
   get mime2DecodedSubject() {
     return this.subject;
+  },
+  recipients: null,
+  get mime2DecodedRecipients() {
+    return this.recipients;
   },
   ccList: null,
   listPost: null,

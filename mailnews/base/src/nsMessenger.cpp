@@ -537,6 +537,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
   bool loadingFromFile = false;
   bool getDummyMsgHdr = false;
   int64_t fileSize;
+  int64_t lastModifiedTime = 0;
 
   if (StringBeginsWith(uriString, u"file:"_ns)) {
     nsCOMPtr<nsIURI> fileUri;
@@ -548,6 +549,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
     rv = fileUrl->GetFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
     file->GetFileSize(&fileSize);
+    file->GetLastModifiedTime(&lastModifiedTime);
     uriString.Replace(0, 5, u"mailbox:"_ns);
     uriString.AppendLiteral(u"&number=0");
     loadingFromFile = true;
@@ -596,8 +598,15 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
         if (headerSink) {
           nsCOMPtr<nsIMsgDBHdr> dummyHeader;
           headerSink->GetDummyMsgHeader(getter_AddRefs(dummyHeader));
-          if (dummyHeader && loadingFromFile)
-            dummyHeader->SetMessageSize((uint32_t)fileSize);
+          if (dummyHeader) {
+            dummyHeader->SetUint32Property("dummyMsgLastModifiedTime",
+                                           (uint32_t)lastModifiedTime);
+            dummyHeader->SetStringProperty("dummyMsgUrl",
+                                           PromiseFlatCString(aURL).get());
+            if (loadingFromFile) {
+              dummyHeader->SetMessageSize((uint32_t)fileSize);
+            }
+          }
         }
       }
     }

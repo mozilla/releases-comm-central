@@ -51,6 +51,7 @@ module.exports = {
     traverseSubfolders: true,
     convertMailIdentity: true,
     convertMessage: true,
+    convertMessageOrAttachedMessage: true,
     folderPathToURI: true,
     folderURIToPath: true,
     getNormalWindowReady: true,

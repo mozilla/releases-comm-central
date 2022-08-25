@@ -111,12 +111,12 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 1,
-                "description": "The id of a message to be opened. Will throw, if the provided ``messageId`` is unknown or invalid."
+                "description": "The id of a message to be opened. Will throw an ``ExtensionError``, if the provided ``messageId`` is unknown or invalid."
               },
               "headerMessageId": {
                 "type": "string",
                 "optional": true,
-                "description": "The headerMessageId of a message to be opened. Will throw, if the provided ``headerMessageId`` is unknown or invalid."
+                "description": "The headerMessageId of a message to be opened. Will throw an ``ExtensionError``, if the provided ``headerMessageId`` is unknown or invalid. Not supported for external messages."
               },
               "location": {
                 "type": "string",
@@ -125,7 +125,7 @@
                   "window"
                 ],
                 "optional": true,
-                "description": "Where to open the message. If not specified, the users preference is honoured."
+                "description": "Where to open the message. If not specified, the users preference is honoured. Ignored for external messages, which are always opened in a new window."
               },
               "active": {
                 "type": "boolean",

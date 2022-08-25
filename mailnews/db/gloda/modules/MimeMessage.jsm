@@ -56,7 +56,12 @@ var shutdownCleanupObserver = {
 
 function CallbackStreamListener(aMsgHdr, aCallbackThis, aCallback) {
   this._msgHdr = aMsgHdr;
-  let hdrURI = aMsgHdr.folder.getUriForMsg(aMsgHdr);
+  // Messages opened from file or attachments do not have a folder property, but
+  // have their url stored as a string property.
+  let hdrURI = aMsgHdr.folder
+    ? aMsgHdr.folder.getUriForMsg(aMsgHdr)
+    : aMsgHdr.getStringProperty("dummyMsgUrl");
+
   this._request = null;
   this._stream = null;
   if (aCallback === undefined) {
@@ -77,7 +82,11 @@ CallbackStreamListener.prototype = {
     this._request = aRequest;
   },
   onStopRequest(aRequest, aStatusCode) {
-    let msgURI = this._msgHdr.folder.getUriForMsg(this._msgHdr);
+    // Messages opened from file or attachments do not have a folder property,
+    // but have their url stored as a string property.
+    let msgURI = this._msgHdr.folder
+      ? this._msgHdr.folder.getUriForMsg(this._msgHdr)
+      : this._msgHdr.getStringProperty("dummyMsgUrl");
     delete activeStreamListeners[msgURI];
 
     aRequest.QueryInterface(Ci.nsIChannel);
@@ -182,8 +191,12 @@ function MsgHdrToMimeMessage(
   shutdownCleanupObserver.ensureInitialized();
 
   let requireOffline = !aAllowDownload;
+  // Messages opened from file or attachments do not have a folder property, but
+  // have their url stored as a string property.
+  let msgURI = aMsgHdr.folder
+    ? aMsgHdr.folder.getUriForMsg(aMsgHdr)
+    : aMsgHdr.getStringProperty("dummyMsgUrl");
 
-  let msgURI = aMsgHdr.folder.getUriForMsg(aMsgHdr);
   let msgService = gMessenger.messageServiceFromURI(msgURI);
 
   MsgHdrToMimeMessage.OPTION_TUNNEL = aOptions;

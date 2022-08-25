@@ -105,7 +105,7 @@
           "overrideDefaultFcc": {
             "type": "boolean",
             "optional": true,
-            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting ``false`` will clear the override. Setting ``true`` will throw an exception, if ``overrideDefaultFccFolder`` is not set as well."
+            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting ``false`` will clear the override. Setting ``true`` will throw an ``ExtensionError``, if ``overrideDefaultFccFolder`` is not set as well."
           },
           "overrideDefaultFccFolder": {
             "choices": [
