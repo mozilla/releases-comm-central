@@ -702,25 +702,28 @@ class Pop3Client {
   /**
    * The second step of USER/PASS auth, send the password to the server.
    */
-  _actionAuthUserPass = res => {
+  _actionAuthUserPass = async res => {
     if (!res.success) {
       this._actionError("pop3UsernameFailure", [], res.statusText);
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    this._send(`PASS ${this._authenticator.getByteStringPassword()}`, true);
+    this._send(
+      `PASS ${await this._authenticator.getByteStringPassword()}`,
+      true
+    );
   };
 
   /**
    * The second step of PLAIN auth, send the auth token to the server.
    */
-  _actionAuthPlain = res => {
+  _actionAuthPlain = async res => {
     if (!res.success) {
       this._actionError("pop3UsernameFailure", [], res.statusText);
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    this._send(this._authenticator.getPlainToken(), true);
+    this._send(await this._authenticator.getPlainToken(), true);
   };
 
   /**
@@ -735,14 +738,14 @@ class Pop3Client {
   /**
    * The third step of LOGIN auth, send the password to the server.
    */
-  _actionAuthLoginPass = res => {
+  _actionAuthLoginPass = async res => {
     if (!res.success) {
       this._actionError("pop3UsernameFailure", [], res.statusText);
       return;
     }
     this._nextAction = this._actionAuthResponse;
     this._logger.debug("AUTH LOGIN PASS");
-    let password = this._authenticator.getPassword();
+    let password = await this._authenticator.getPassword();
     if (
       !Services.prefs.getBoolPref(
         "mail.smtp_login_pop3_user_pass_auth_is_latin1",
@@ -763,7 +766,7 @@ class Pop3Client {
    * The second step of CRAM-MD5 auth, send a HMAC-MD5 signature to the server.
    * @param {Pop3Response} res - AUTH response received from the server.
    */
-  _actionAuthCramMd5 = res => {
+  _actionAuthCramMd5 = async res => {
     if (!res.success) {
       this._actionError("pop3UsernameFailure", [], res.statusText);
       return;
@@ -771,7 +774,7 @@ class Pop3Client {
     this._nextAction = this._actionAuthResponse;
     this._send(
       this._authenticator.getCramMd5Token(
-        this._authenticator.getPassword(),
+        await this._authenticator.getPassword(),
         res.statusText
       ),
       true

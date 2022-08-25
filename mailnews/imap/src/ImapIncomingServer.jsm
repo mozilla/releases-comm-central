@@ -390,44 +390,10 @@ class ImapIncomingServer extends MsgIncomingServer {
     }
   }
 
-  get wrappedJSObject() {
-    return this;
-  }
-
   _capabilities = [];
 
   set capabilities(value) {
     this._capabilities = value;
-  }
-
-  _passwordPromise = null;
-
-  /**
-   * Show a password prompt. If a prompt is currently shown, just wait for it.
-   * @param {string} message - The text inside the prompt.
-   * @param {string} title - The title of the prompt.
-   * @param {nsIMsgWindow} - The associated msg window.
-   */
-  async getPasswordFromAuthPrompt(message, title, msgWindow) {
-    if (this._passwordPromise) {
-      await this._passwordPromise;
-      return this.password;
-    }
-    let deferred = {};
-    this._passwordPromise = new Promise((resolve, reject) => {
-      deferred.resolve = resolve;
-      deferred.reject = reject;
-    });
-    try {
-      this.getPasswordWithUI(message, title, msgWindow);
-    } catch (e) {
-      deferred.reject(e);
-      throw e;
-    } finally {
-      this._passwordPromise = null;
-    }
-    deferred.resolve();
-    return this.password;
   }
 
   // @type {ImapClient[]} - An array of connections can be used.

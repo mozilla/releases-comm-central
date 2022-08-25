@@ -558,10 +558,6 @@ class NntpIncomingServer extends MsgIncomingServer {
     );
   }
 
-  get wrappedJSObject() {
-    return this;
-  }
-
   /**
    * Get an idle connection that can be used.
    * @returns {NntpClient}

@@ -800,15 +800,7 @@ class ImapClient {
    */
   _actionAuthPlain = async res => {
     this._nextAction = this._actionAuthResponse;
-    // According to rfc4616#section-2, password should be BinaryString before
-    // base64 encoded.
-    let password = MailStringUtils.stringToByteString(
-      await this._getPassword()
-    );
-    this._send(
-      btoa("\0" + this._authenticator.username + "\0" + password),
-      true
-    );
+    this._send(await this._authenticator.getPlainToken(), true);
   };
 
   /**
