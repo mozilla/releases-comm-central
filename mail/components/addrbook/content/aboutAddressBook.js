@@ -1316,7 +1316,7 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
     } else {
       let img = this.avatar.appendChild(document.createElement("img"));
       img.alt = "";
-      img.src = "chrome://messenger/skin/icons/new/compact/user-list.svg";
+      img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
       this.avatar.classList.add("is-mail-list");
     }
 
@@ -2752,7 +2752,7 @@ var detailsPane = {
 
         let img = avatar.appendChild(document.createElement("img"));
         img.alt = "";
-        img.src = "chrome://messenger/skin/icons/new/compact/user-list.svg";
+        img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
         avatar.classList.add("is-mail-list");
       }
     }
