@@ -9,9 +9,7 @@ function run_test() {
 function really_run_test() {
   test_roundtrip();
   test_async();
-  if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
-    test_failures();
-  }
+  test_failures();
   test_fake_parent();
   test_props_comps();
   test_timezone();

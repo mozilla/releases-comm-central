@@ -8,7 +8,6 @@ DIRS += [
     "extract",
     "import-export",
     "itip",
-    "libical",
     "locales",
     "providers",
 ]

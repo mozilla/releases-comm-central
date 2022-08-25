@@ -58,23 +58,21 @@ function test_period() {
   equal(period.duration.icalString, "PT1S");
 
   period.makeImmutable();
-  if (!Services.prefs.getBoolPref("calendar.icaljs", false)) {
-    // ical.js doesn't support immutability yet
-    throws(
-      () => {
-        period.start = cal.createDateTime("20120202T020202");
-      },
-      /0x80460002/,
-      "Object is Immutable"
-    );
-    throws(
-      () => {
-        period.end = cal.createDateTime("20120202T020202");
-      },
-      /0x80460002/,
-      "Object is Immutable"
-    );
-  }
+  // ical.js doesn't support immutability yet
+  // throws(
+  //   () => {
+  //     period.start = cal.createDateTime("20120202T020202");
+  //   },
+  //   /0x80460002/,
+  //   "Object is Immutable"
+  // );
+  // throws(
+  //   () => {
+  //     period.end = cal.createDateTime("20120202T020202");
+  //   },
+  //   /0x80460002/,
+  //   "Object is Immutable"
+  // );
 
   let copy = period.clone();
   equal(copy.start.icalString, "20120101T010105");

@@ -16,21 +16,27 @@ EXTRA_JS_MODULES += [
     "CalAttachment.jsm",
     "CalAttendee.jsm",
     "CalCalendarManager.jsm",
+    "CalDateTime.jsm",
     "CalDefaultACLManager.jsm",
     "CalDeletedItems.jsm",
+    "CalDuration.jsm",
     "CalEvent.jsm",
     "CalFreeBusyService.jsm",
     "CalIcsParser.jsm",
     "CalIcsSerializer.jsm",
+    "CalICSService.jsm",
     "CalItipItem.jsm",
     "CalMetronome.jsm",
     "CalMimeConverter.jsm",
+    "CalPeriod.jsm",
     "CalProtocolHandler.jsm",
     "CalReadableStreamFactory.jsm",
     "CalRecurrenceDate.jsm",
     "CalRecurrenceInfo.jsm",
+    "CalRecurrenceRule.jsm",
     "CalRelation.jsm",
     "CalStartupService.jsm",
+    "CalTimezone.jsm",
     "CalTimezoneService.jsm",
     "CalTodo.jsm",
     "CalTransactionManager.jsm",
@@ -44,8 +50,8 @@ XPCOM_MANIFESTS += [
 # These files go in components so they can be packaged correctly.
 FINAL_TARGET_FILES.components += [
     "calCachedCalendar.js",
+    "calICSService-worker.js",
     "calItemBase.js",
-    "calTimezone.js",
 ]
 
 with Files("**"):

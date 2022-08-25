@@ -5,11 +5,6 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
-// Usually the backend loader gets loaded via profile-after-change, but in case
-// a calendar component hooks in earlier, its very likely it will use calUtils.
-// Getting the service here will load if its not already loaded
-Cc["@mozilla.org/calendar/backend-loader;1"].getService();
-
 // The calendar console instance
 var gCalendarConsole = new ConsoleAPI({
   prefix: "Calendar",

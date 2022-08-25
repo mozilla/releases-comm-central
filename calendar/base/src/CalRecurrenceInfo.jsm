@@ -463,10 +463,6 @@ CalRecurrenceInfo.prototype = {
   },
 
   getPreviousOccurrence(aTime) {
-    // TODO libical currently does not provide us with easy means of
-    // getting the previous occurrence. This could be fixed to improve
-    // performance greatly. Filed as libical feature request 1944020.
-
     // HACK We never know how early an RDATE might be before the actual
     // recurrence start. Since rangeStart cannot be null for recurrence
     // items like calIRecurrenceRule, we need to work around by supplying a
