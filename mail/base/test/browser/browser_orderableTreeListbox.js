@@ -48,7 +48,7 @@ async function orderWithKeys(key) {
   list.removeEventListener("select", selectHandler);
   list.removeEventListener("ordered", orderedHandler);
 
-  checkNoTransformations();
+  await checkNoTransformations();
 }
 
 async function startDrag(index) {
@@ -152,11 +152,10 @@ function checkYPositions(...expectedPositions) {
   }
 }
 
-function checkNoTransformations() {
+async function checkNoTransformations() {
   for (let row of list.children) {
-    Assert.equal(
-      getComputedStyle(row).transform,
-      "none",
+    await TestUtils.waitForCondition(
+      () => win.getComputedStyle(row).transform == "none",
       `${row.id} has no transforms`
     );
     Assert.equal(
@@ -332,7 +331,7 @@ async function subtestDragReorder1() {
   Assert.ok(orderedHandler.seenEvent);
   checkYPositions(353, 1, 97, 225, 257);
   checkRowOrder("2 2-1 2-2 3 3-1 3-2 3-3 4 5 5-1 5-2 1");
-  checkNoTransformations();
+  await checkNoTransformations();
 }
 
 /** Drag the (now) last item back to the start. */
@@ -361,7 +360,7 @@ async function subtestDragReorder2() {
   Assert.ok(orderedHandler.seenEvent);
   checkYPositions(1, 33, 129, 257, 289);
   checkRowOrder("1 2 2-1 2-2 3 3-1 3-2 3-3 4 5 5-1 5-2");
-  checkNoTransformations();
+  await checkNoTransformations();
 }
 
 /**
@@ -404,7 +403,7 @@ async function subtestDragUndroppable() {
   Assert.ok(orderedHandler.seenEvent);
   checkYPositions(257, 1, 97, 225, 289);
   checkRowOrder("2 2-1 2-2 3 3-1 3-2 3-3 4 1 5 5-1 5-2");
-  checkNoTransformations();
+  await checkNoTransformations();
 
   // Move row-3 down with the keyboard.
 
