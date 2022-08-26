@@ -485,10 +485,6 @@ CalRecurrenceInfo.prototype = {
     this.ensureBaseItem();
     this.ensureSortedRecurrenceRules();
 
-    function ridDateSortComptor(a, b) {
-      return a.rstart.compare(b.rstart);
-    }
-
     // workaround for UTC- timezones
     let rangeStart = cal.dtz.ensureDateTime(aRangeStart);
     let rangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
@@ -524,11 +520,7 @@ CalRecurrenceInfo.prototype = {
       let occDate = cal.item.checkIfInRange(item, aRangeStart, aRangeEnd, true);
       occurrenceMap[ex] = true;
       if (occDate) {
-        cal.data.binaryInsert(
-          dates,
-          { id: item.recurrenceId, rstart: occDate },
-          ridDateSortComptor
-        );
+        dates.push({ id: item.recurrenceId, rstart: occDate });
       }
     }
 
@@ -538,7 +530,7 @@ CalRecurrenceInfo.prototype = {
     let baseOccDateKey = getRidKey(baseOccDate);
     if (baseOccDate && !occurrenceMap[baseOccDateKey]) {
       occurrenceMap[baseOccDateKey] = true;
-      cal.data.binaryInsert(dates, { id: baseOccDate, rstart: baseOccDate }, ridDateSortComptor);
+      dates.push({ id: baseOccDate, rstart: baseOccDate });
     }
 
     // if both range start and end are specified, we ask for all of the occurrences,
@@ -582,12 +574,12 @@ CalRecurrenceInfo.prototype = {
           // already added before)
           continue;
         }
-        // TODO if cur_dates[] is also sorted, then this binary
-        // search could be optimized further
-        cal.data.binaryInsert(dates, { id: date, rstart: date }, ridDateSortComptor);
+        dates.push({ id: date, rstart: date });
         occurrenceMap[dateKey] = true;
       }
     }
+
+    dates.sort((a, b) => a.rstart.compare(b.rstart));
 
     // Apply negative rules
     for (let ritem of this.mNegativeRules) {
