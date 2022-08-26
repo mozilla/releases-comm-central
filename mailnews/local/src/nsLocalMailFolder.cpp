@@ -1659,7 +1659,10 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   rv = InitCopyState(fileSupport, messages, msgToReplace ? true : false,
                      listener, msgWindow, false, false);
   if (NS_SUCCEEDED(rv)) {
-    if (mCopyState) mCopyState->m_newMsgKeywords = aNewMsgKeywords;
+    if (mCopyState) {
+      mCopyState->m_newMsgKeywords = aNewMsgKeywords;
+      mCopyState->m_flags = newMsgFlags;
+    }
 
     parseMsgState = new nsParseMailMessageState();
     NS_ENSURE_TRUE(parseMsgState, NS_ERROR_OUT_OF_MEMORY);
@@ -2198,6 +2201,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           // Copy other message properties.
           CopyPropertiesToMsgHdr(newHdr, mCopyState->m_message,
                                  mCopyState->m_isMove);
+        } else {
+          newHdr->SetFlags(mCopyState->m_flags);
         }
         msgDb->AddNewHdrToDB(newHdr, true);
         if (localUndoTxn) {
