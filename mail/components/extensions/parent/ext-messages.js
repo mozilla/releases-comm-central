@@ -34,7 +34,7 @@ ChromeUtils.defineModuleGetter(
 );
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
-Cu.importGlobalProperties(["File", "FileReader", "IOUtils", "PathUtils"]);
+Cu.importGlobalProperties(["fetch", "File"]);
 
 var { DefaultMap } = ExtensionUtils;
 
@@ -1001,125 +1001,6 @@ this.messages = class extends ExtensionAPI {
           } catch (ex) {
             Cu.reportError(ex);
             throw new ExtensionError(`Error deleting message: ${ex.message}`);
-          }
-        },
-        async import(file, { accountId, path }, properties) {
-          if (
-            !context.extension.hasPermission("accountsRead") ||
-            !context.extension.hasPermission("messagesImport")
-          ) {
-            throw new ExtensionError(
-              `Using messages.import() requires the "accountsRead" and the "messagesImport" permission`
-            );
-          }
-          let destinationURI = folderPathToURI(accountId, path);
-          let destinationFolder = MailServices.folderLookup.getFolderForURL(
-            destinationURI
-          );
-          if (!destinationFolder) {
-            throw new ExtensionError(`Folder not found: ${path}`);
-          }
-          if (!["none", "pop3"].includes(destinationFolder.server.type)) {
-            throw new ExtensionError(
-              `browser.messenger.import() is not supported for ${destinationFolder.server.type} accounts`
-            );
-          }
-          try {
-            let tempFile = await getRealFileForFile(file);
-            let msgHeader = await new Promise((resolve, reject) => {
-              let newKey = null;
-              let msgHdrs = new Map();
-
-              let folderListener = {
-                onMessageAdded(parentItem, msgHdr) {
-                  if (destinationFolder.URI != msgHdr.folder.URI) {
-                    return;
-                  }
-                  let key = msgHdr.messageKey;
-                  msgHdrs.set(key, msgHdr);
-                  if (msgHdrs.has(newKey)) {
-                    finish(msgHdrs.get(newKey));
-                  }
-                },
-                onFolderAdded(parent, child) {},
-              };
-
-              // Note: Currently this API is not supported for IMAP. Once this gets added (Bug 1787104),
-              // please note that the MailServices.mfn.addListener will fire only when the IMAP message
-              // is visibly shown in the UI, while MailServices.mailSession.AddFolderListener fires as
-              // soon as it has been added to the database .
-              MailServices.mailSession.AddFolderListener(
-                folderListener,
-                Ci.nsIFolderListener.added
-              );
-
-              let finish = msgHdr => {
-                MailServices.mailSession.RemoveFolderListener(folderListener);
-                resolve(msgHdr);
-              };
-
-              let tags = "";
-              let flags = 0;
-              if (properties) {
-                if (properties.tags) {
-                  let knownTags = MailServices.tags
-                    .getAllTags()
-                    .map(tag => tag.key);
-                  tags = properties.tags
-                    .filter(tag => knownTags.includes(tag))
-                    .join(" ");
-                }
-                flags |= properties.new ? Ci.nsMsgMessageFlags.New : 0;
-                flags |= properties.read ? Ci.nsMsgMessageFlags.Read : 0;
-                flags |= properties.flagged ? Ci.nsMsgMessageFlags.Marked : 0;
-              }
-              MailServices.copy.copyFileMessage(
-                tempFile,
-                destinationFolder,
-                /* msgToReplace */ null,
-                /* isDraftOrTemplate */ false,
-                /* aMsgFlags */ flags,
-                /* aMsgKeywords */ tags,
-                {
-                  OnStartCopy() {},
-                  OnProgress(progress, progressMax) {},
-                  SetMessageKey(aKey) {
-                    /* Note: Not fired for offline IMAP. Add missing
-                     * if (aCopyState) {
-                     *  ((nsImapMailCopyState*)aCopyState)->m_listener->SetMessageKey(fakeKey);
-                     * }
-                     * before firing the OnStopRunningUrl listener in
-                     * nsImapService::OfflineAppendFromFile
-                     */
-                    newKey = aKey;
-                    if (msgHdrs.has(newKey)) {
-                      finish(msgHdrs.get(newKey));
-                    }
-                  },
-                  GetMessageId(messageId) {},
-                  OnStopCopy(status) {
-                    if (status == Cr.NS_OK) {
-                      if (newKey && msgHdrs.has(newKey)) {
-                        finish(msgHdrs.get(newKey));
-                      }
-                    } else {
-                      reject(status);
-                    }
-                  },
-                },
-                /* msgWindow */ null
-              );
-            });
-
-            // Do not wait till the temp file is removed on app shutdown. However, skip deletion if
-            // the provided DOM File was already linked to a real file.
-            if (!file.mozFullPath) {
-              await IOUtils.remove(tempFile.path);
-            }
-            return convertMessage(msgHeader, context.extension);
-          } catch (ex) {
-            Cu.reportError(ex);
-            throw new ExtensionError(`Error importing message: ${ex.message}`);
           }
         },
         async archive(messageIds) {

@@ -55,7 +55,6 @@ module.exports = {
     folderPathToURI: true,
     folderURIToPath: true,
     getNormalWindowReady: true,
-    getRealFileForFile: true,
     getTabBrowser: true,
     getTabTabmail: true,
     getTabWindow: true,

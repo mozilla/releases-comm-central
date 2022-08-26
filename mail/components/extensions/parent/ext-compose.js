@@ -631,8 +631,42 @@ async function setComposeDetails(composeWindow, details, extension) {
   activeElement.focus();
 }
 
+async function realFileForFile(file) {
+  if (file.mozFullPath) {
+    let realFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    realFile.initWithPath(file.mozFullPath);
+    return realFile;
+  }
+
+  let pathTempDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
+  let pathTempFile = await IOUtils.createUniqueFile(
+    pathTempDir,
+    file.name,
+    0o600
+  );
+
+  let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  tempFile.initWithPath(pathTempFile);
+  let extAppLauncher = Cc[
+    "@mozilla.org/uriloader/external-helper-app-service;1"
+  ].getService(Ci.nsPIExternalAppLauncher);
+  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+  let bytes = await new Promise(function(resolve) {
+    let reader = new FileReader();
+    reader.onloadend = function() {
+      let _arrayBuffer = reader.result;
+      let _bytes = new Uint8Array(_arrayBuffer);
+      resolve(_bytes);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  await IOUtils.write(pathTempFile, bytes);
+  return tempFile;
+}
 async function fileURLForFile(file) {
-  let realFile = await getRealFileForFile(file);
+  let realFile = await realFileForFile(file);
   return Services.io.newFileURI(realFile).spec;
 }
 
@@ -1548,7 +1582,7 @@ this.compose = class extends ExtensionAPI {
             );
           }
 
-          let realFile = data.file ? await getRealFileForFile(data.file) : null;
+          let realFile = data.file ? await realFileForFile(data.file) : null;
           try {
             await window.UpdateAttachment(attachmentItem, {
               file: realFile,

@@ -144,50 +144,12 @@ global.openOptionsPage = extension => {
   return window.openAddonsMgr(viewId);
 };
 
-/**
- * Returns a real file for the given DOM File.
- *
- * @param {File} file - the DOM File
- * @return {nsIFile}
- */
-async function getRealFileForFile(file) {
-  if (file.mozFullPath) {
-    let realFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    realFile.initWithPath(file.mozFullPath);
-    return realFile;
-  }
-
-  let pathTempFile = await IOUtils.createUniqueFile(
-    PathUtils.tempDir,
-    file.name,
-    0o600
-  );
-
-  let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  tempFile.initWithPath(pathTempFile);
-  let extAppLauncher = Cc[
-    "@mozilla.org/uriloader/external-helper-app-service;1"
-  ].getService(Ci.nsPIExternalAppLauncher);
-  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
-
-  let bytes = await new Promise(function(resolve) {
-    let reader = new FileReader();
-    reader.onloadend = function() {
-      resolve(new Uint8Array(reader.result));
-    };
-    reader.readAsArrayBuffer(file);
-  });
-
-  await IOUtils.write(pathTempFile, bytes);
-  return tempFile;
-}
-
-/**
+/*
  * Get raw message for a given msgHdr. This is not using aConvertData
  * and therefore also works for nntp/news.
  *
- * @param aMsgHdr - The message header to retrieve the raw message for.
- * @return {string} - A Promise for a binary string of the raw message.
+ * @param aMsgHdr The message header to retrieve the raw message for.
+ * @return {string} - A Promise for the raw message.
  */
 function MsgHdrToRawMessage(msgHdr) {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
@@ -1913,7 +1875,6 @@ function convertMessage(msgHdr, extension) {
     bccList: composeFields.splitRecipients(msgHdr.bccList, false),
     subject: msgHdr.mime2DecodedSubject,
     read: msgHdr.isRead,
-    new: !!(msgHdr.flags & Ci.nsMsgMessageFlags.New),
     headersOnly: !!(msgHdr.flags & Ci.nsMsgMessageFlags.Partial),
     flagged: !!msgHdr.isFlagged,
     junk: junkScore >= gJunkThreshold,
@@ -2107,29 +2068,24 @@ var messageTracker = new (class extends EventEmitter {
   // nsIFolderListener
 
   onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {
-    let changes = {};
     switch (property) {
       case "Status":
         if ((oldFlag ^ newFlag) & Ci.nsMsgMessageFlags.Read) {
-          changes.read = item.isRead;
-        }
-        if ((oldFlag ^ newFlag) & Ci.nsMsgMessageFlags.New) {
-          changes.new = !!(newFlag & Ci.nsMsgMessageFlags.New);
+          this.emit("message-updated", item, { read: item.isRead });
         }
         break;
       case "Flagged":
-        changes.flagged = item.isFlagged;
+        this.emit("message-updated", item, { flagged: item.isFlagged });
         break;
       case "Keywords":
         {
           let tags = item.getProperty("keywords");
           tags = tags ? tags.split(" ") : [];
-          changes.tags = tags.filter(MailServices.tags.isValidKey);
+          this.emit("message-updated", item, {
+            tags: tags.filter(MailServices.tags.isValidKey),
+          });
         }
         break;
-    }
-    if (Object.keys(changes).length) {
-      this.emit("message-updated", item, changes);
     }
   }
 
