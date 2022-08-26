@@ -459,10 +459,6 @@ function initUiDensityMenu(event) {
 }
 
 function initUiDensityAppMenu(event) {
-  // Prevent submenus from unnecessarily triggering onViewToolbarsPopupShowing
-  // via bubbling of events.
-  event.stopImmediatePropagation();
-
   // Apply the correct mode attribute to the various items.
   document.getElementById("appmenu_uiDensityCompact").mode =
     UIDensity.MODE_COMPACT;

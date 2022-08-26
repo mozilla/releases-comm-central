@@ -262,7 +262,7 @@ var Socket = {
   disconnected: true,
 
   startTLS() {
-    this.transport.securityInfo
+    this.transport.tlsSocketControl
       .QueryInterface(Ci.nsISSLSocketControl)
       .StartTLS();
   },
@@ -465,7 +465,7 @@ var Socket = {
       let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
         Ci.nsINSSErrorsService
       );
-      this.securityInfo = this.transport.securityInfo.QueryInterface(
+      this.securityInfo = this.transport.tlsSocketControl.QueryInterface(
         Ci.nsITransportSecurityInfo
       );
       this.onConnectionSecurityError(

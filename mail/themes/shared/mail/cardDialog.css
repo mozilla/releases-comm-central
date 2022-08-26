@@ -7,6 +7,7 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://messenger/skin/icons.css");
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
@@ -115,13 +116,17 @@ panel[type="autocomplete-richlistbox"]::part(content) {
 
 .person-icon {
   margin: 0 3px;
-  list-style-image: url("chrome://messenger/skin/icons/contact.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+  list-style-image: var(--icon-contact);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 #photo {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.svg");
+  list-style-image: var(--icon-user);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
   box-shadow: 0 0 5px rgba(127, 127, 127, 0.7);
 }
 

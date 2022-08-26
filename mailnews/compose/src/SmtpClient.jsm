@@ -439,7 +439,7 @@ class SmtpClient {
     let secInfo = null;
     if (TCPSocketErrorEvent.isInstance(e)) {
       nsError = e.errorCode;
-      secInfo = e.target.transport?.securityInfo;
+      secInfo = e.target.transport?.tlsSocketControl;
     }
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.

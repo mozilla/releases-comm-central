@@ -524,7 +524,7 @@ class ImapClient {
       return;
     }
     this.logout();
-    let secInfo = event.target.transport?.securityInfo;
+    let secInfo = event.target.transport?.tlsSocketControl;
     if (secInfo) {
       this.runningUrl.failedSecInfo = secInfo;
     }
