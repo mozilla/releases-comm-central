@@ -377,6 +377,7 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   min-width: auto;
   padding-inline: 5px;
   padding-block: var(--appmenu-button-padding);
+  --focus-outline-offset: 1px;
 }
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic {
@@ -400,6 +401,11 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   min-height: 22px;
   border: 1px solid var(--appmenu-button-border-color);
   border-radius: 0;
+}
+
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:focus {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:nth-child(2) {
@@ -844,9 +850,7 @@ menulist[open="true"]:not([disabled="true"]) {
   fill: var(--button-active-bgcolor);
 }
 
-#appMenu-fontSizeReset-button:focus > .toolbarbutton-text {
-  box-shadow: inset 0 0 0 2px var(--focus-outline-color);;
-}
+#appMenu-fontSizeReset-button:focus > .toolbarbutton-text,
 #appMenu-fontSizeReduce-button:focus > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button:focus > .toolbarbutton-icon {
   outline: var(--focus-outline);
