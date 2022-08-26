@@ -325,7 +325,7 @@ class Pop3Client {
     this._logger.error(`${event.name}: a ${event.message} error occurred`);
     this._server.serverBusy = false;
     this.quit();
-    let secInfo = event.target.transport?.securityInfo;
+    let secInfo = event.target.transport?.tlsSocketControl;
     if (secInfo) {
       this.runningUri.failedSecInfo = secInfo;
     }

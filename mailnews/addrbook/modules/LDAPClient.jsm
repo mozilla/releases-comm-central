@@ -250,7 +250,7 @@ class LDAPClient {
   _onError = event => {
     this._logger.error(event);
     this._socket.close();
-    this.onError(event.errorCode, event.target.transport?.securityInfo);
+    this.onError(event.errorCode, event.target.transport?.tlsSocketControl);
   };
 
   /**
