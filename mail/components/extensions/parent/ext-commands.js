@@ -43,7 +43,10 @@ this.commands = class extends ExtensionAPI {
           inputHandling: true,
           register: fire => {
             let listener = (eventName, commandName) => {
-              fire.async(commandName);
+              let tab = context.extension.tabManager.convert(
+                tabTracker.activeTab
+              );
+              fire.async(commandName, tab);
             };
             this.on("command", listener);
             return () => {

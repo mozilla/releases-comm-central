@@ -42,7 +42,7 @@ messenger.jar:
     content/messenger/schemas/browserAction.json   (schemas/browserAction.json)
     content/messenger/schemas/chrome_settings_overrides.json       (schemas/chrome_settings_overrides.json)
     content/messenger/schemas/cloudFile.json       (schemas/cloudFile.json)
-    content/messenger/schemas/commands.json        (../../../../browser/components/extensions/schemas/commands.json)
+    content/messenger/schemas/commands.json        (schemas/commands.json)
     content/messenger/schemas/compose.json         (schemas/compose.json)
     content/messenger/schemas/composeAction.json   (schemas/composeAction.json)
     content/messenger/schemas/extensionScripts.json  (schemas/extensionScripts.json)

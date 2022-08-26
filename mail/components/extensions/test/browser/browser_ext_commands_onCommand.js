@@ -9,6 +9,8 @@ add_task(async function test_user_defined_commands() {
       name: "toggle-ctrl-a",
       shortcut: "Ctrl+A",
       key: "A",
+      // Does not work in compose window on Linux.
+      skip: ["messageCompose"],
       modifiers: {
         accelKey: true,
       },
@@ -26,6 +28,8 @@ add_task(async function test_user_defined_commands() {
       name: "toggle-alt-a",
       shortcut: "Alt+A",
       key: "A",
+      // Does not work in compose window on Mac.
+      skip: ["messageCompose"],
       modifiers: {
         altKey: true,
       },
@@ -91,6 +95,8 @@ add_task(async function test_user_defined_commands() {
       name: "toggle-alt-shift-a",
       shortcut: "Alt+Shift+A",
       key: "A",
+      // Does not work in compose window on Mac.
+      skip: ["messageCompose"],
       modifiers: {
         altKey: true,
         shiftKey: true,
@@ -211,8 +217,8 @@ add_task(async function test_user_defined_commands() {
   }
 
   function background() {
-    browser.commands.onCommand.addListener(commandName => {
-      browser.test.sendMessage("oncommand", commandName);
+    browser.commands.onCommand.addListener((commandName, activeTab) => {
+      browser.test.sendMessage("oncommand", { commandName, activeTab });
     });
     browser.test.sendMessage("ready");
   }
@@ -238,17 +244,25 @@ add_task(async function test_user_defined_commands() {
   ExtensionTestUtils.failOnSchemaWarnings(true);
   await extension.awaitMessage("ready");
 
-  async function runTest(window) {
+  async function runTest(window, expectedTabType) {
     for (let testCommand of testCommands) {
+      if (testCommand.skip && testCommand.skip.includes(expectedTabType)) {
+        continue;
+      }
       if (testCommand.shortcutMac && !testCommand.shortcut && !isMac) {
         continue;
       }
       EventUtils.synthesizeKey(testCommand.key, testCommand.modifiers, window);
       let message = await extension.awaitMessage("oncommand");
       is(
-        message,
+        message.commandName,
         testCommand.name,
         `Expected onCommand listener to fire with the correct name: ${testCommand.name}`
+      );
+      is(
+        message.activeTab.type,
+        expectedTabType,
+        `Expected onCommand listener to fire with the correct tab type: ${expectedTabType}`
       );
     }
   }
@@ -262,14 +276,21 @@ add_task(async function test_user_defined_commands() {
     ? totalTestCommands
     : totalTestCommands - totalMacOnlyCommands;
 
+  let account = createAccount();
+  addIdentity(account);
+  let win3 = await openComposeWindow(account);
+  // Some key combinations do not work if the TO field has focus.
+  win3.document.querySelector("editor").focus();
+
   // Confirm the keysets have been added to both windows.
   let keysetID = `ext-keyset-id-${makeWidgetId(extension.id)}`;
+
   let keyset = win1.document.getElementById(keysetID);
   ok(keyset != null, "Expected keyset to exist");
   is(
     keyset.children.length,
     expectedCommandsRegistered,
-    "Expected keyset to have the correct number of children"
+    "Expected keyset of window #1 to have the correct number of children"
   );
 
   keyset = win2.document.getElementById(keysetID);
@@ -277,27 +298,45 @@ add_task(async function test_user_defined_commands() {
   is(
     keyset.children.length,
     expectedCommandsRegistered,
-    "Expected keyset to have the correct number of children"
+    "Expected keyset of window #2 to have the correct number of children"
+  );
+
+  keyset = win3.document.getElementById(keysetID);
+  ok(keyset != null, "Expected keyset to exist");
+  is(
+    keyset.children.length,
+    expectedCommandsRegistered,
+    "Expected keyset of window #3 to have the correct number of children"
   );
 
   // Confirm that the commands are registered to both windows.
   await focusWindow(win1);
-  await runTest(win1);
+  await runTest(win1, "mail");
 
   await focusWindow(win2);
-  await runTest(win2);
+  await runTest(win2, "mail");
 
+  await focusWindow(win3);
+  await runTest(win3, "messageCompose");
+
+  // Mitigation for "waiting for vsync to be disabled" error.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => win3.setTimeout(r, 250));
   await extension.unload();
 
   // Confirm that the keysets have been removed from both windows after the extension is unloaded.
   keyset = win1.document.getElementById(keysetID);
-  is(keyset, null, "Expected keyset to be removed from the window");
+  is(keyset, null, "Expected keyset to be removed from the window #1");
 
   keyset = win2.document.getElementById(keysetID);
-  is(keyset, null, "Expected keyset to be removed from the window");
+  is(keyset, null, "Expected keyset to be removed from the window #2");
+
+  keyset = win3.document.getElementById(keysetID);
+  is(keyset, null, "Expected keyset to be removed from the window #3");
 
   await BrowserTestUtils.closeWindow(win1);
   await BrowserTestUtils.closeWindow(win2);
+  await BrowserTestUtils.closeWindow(win3);
 
   SimpleTest.endMonitorConsole();
   await waitForConsole;
