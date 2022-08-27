@@ -100,6 +100,13 @@ class ImapResponse {
         case "FLAGS":
           // * FLAGS (\Seen \Draft $Forwarded)
           this.flags = ImapUtils.stringsToFlags(tokens[2]);
+          if (tokens[2].includes("\\*")) {
+            this.supportedUserFlags =
+              ImapUtils.FLAG_LABEL |
+              ImapUtils.FLAG_MDN_SENT |
+              ImapUtils.FLAG_FORWARDED |
+              ImapUtils.FLAG_SUPPORT_USER_FLAG;
+          }
           break;
         case "LIST":
         case "LSUB":
@@ -132,6 +139,13 @@ class ImapResponse {
         case "PERMANENTFLAGS":
           // * OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)]
           this.permanentflags = ImapUtils.stringsToFlags(tokens[2][1]);
+          if (tokens[2][1].includes("\\*")) {
+            this.supportedUserFlags =
+              ImapUtils.FLAG_LABEL |
+              ImapUtils.FLAG_MDN_SENT |
+              ImapUtils.FLAG_FORWARDED |
+              ImapUtils.FLAG_SUPPORT_USER_FLAG;
+          }
           break;
         default:
           let field = type.toLowerCase();
@@ -319,6 +333,9 @@ class MessageData {
           break;
         case "FLAGS":
           this.flags = ImapUtils.stringsToFlags(tokens[i + 1]);
+          this.keywords = tokens[i + 1]
+            .filter(x => !x.startsWith("\\"))
+            .join(" ");
           break;
         case "BODY": {
           // bodySection is the part between [ and ].

@@ -26,6 +26,44 @@ class BaseMessageService {
 
   _logger = ImapUtils.logger;
 
+  CopyMessage(
+    messageUri,
+    copyListener,
+    moveMessage,
+    urlListener,
+    msgWindow,
+    outUrl
+  ) {
+    this._logger.debug("CopyMessage", messageUri, moveMessage);
+    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let imapUrl = Services.io
+      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
+      .QueryInterface(Ci.nsIImapUrl);
+
+    let folder = lazy.MailUtils.getOrCreateFolder(
+      `imap://${host}/${folderName}`
+    );
+    if (urlListener) {
+      imapUrl
+        .QueryInterface(Ci.nsIMsgMailNewsUrl)
+        .RegisterListener(urlListener);
+    }
+
+    return MailServices.imap.fetchMessage(
+      imapUrl,
+      moveMessage
+        ? Ci.nsIImapUrl.nsImapOnlineToOfflineMove
+        : Ci.nsIImapUrl.nsImapOnlineToOfflineCopy,
+      folder,
+      folder.QueryInterface(Ci.nsIImapMessageSink),
+      msgWindow,
+      copyListener,
+      key,
+      false,
+      {}
+    );
+  }
+
   DisplayMessage(
     messageUri,
     displayConsumer,

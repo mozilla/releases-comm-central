@@ -8319,8 +8319,14 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoCString msgIds;
   AllocateUidStringFromKeys(aKeysToStore, msgIds);
-  return imapService->StoreCustomKeywords(this, aMsgWindow, aFlagsToAdd,
-                                          aFlagsToSubtract, msgIds, _retval);
+  nsCOMPtr<nsIURI> retUri;
+  rv = imapService->StoreCustomKeywords(this, aMsgWindow, aFlagsToAdd,
+                                        aFlagsToSubtract, msgIds,
+                                        getter_AddRefs(retUri));
+  if (_retval) {
+    retUri.forget(_retval);
+  }
+  return rv;
 }
 
 NS_IMETHODIMP nsImapMailFolder::NotifyIfNewMail() {

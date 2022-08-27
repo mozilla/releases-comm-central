@@ -428,7 +428,7 @@ class ImapClient {
           .UpdateImapMailboxStatus(this, {
             QueryInterface: ChromeUtils.generateQI(["nsIMailboxSpec"]),
             nextUID: res.attributes.uidnext,
-            numMessages: res.attributes.messages,
+            numMessages: res.attributes.messages.length,
             numUnseenMessages: res.attributes.unseen,
           });
         folder.msgDatabase = null;
@@ -438,6 +438,57 @@ class ImapClient {
     this._sendTagged(
       `STATUS "${this._getServerFolderName(folder)}" (UIDNEXT MESSAGES UNSEEN)`
     );
+  }
+
+  /**
+   * Update message flags.
+   * @param {nsIMsgFolder} folder - The associated folder.
+   * @param {string} flagsToAdd - The flags to add.
+   * @param {string} flagsToSubtract - The flags to subtract.
+   * @param {string} uids - The message uids.
+   */
+  storeCustomKeywords(folder, flagsToAdd, flagsToSubtract, uids) {
+    this._logger.debug(
+      "storeCustomKeywords",
+      folder.URI,
+      flagsToAdd,
+      flagsToSubtract,
+      uids
+    );
+    this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
+    let handleResponse = res => {
+      for (let msg of res.messages) {
+        let uid = this._messageUids[msg.sequence];
+        this._msgSink.notifyMessageFlags(
+          msg.flags,
+          msg.keywords,
+          uid,
+          this._folderState.highestmodseq
+        );
+      }
+    };
+    let subtractFlags = () => {
+      if (flagsToSubtract) {
+        this._nextAction = res => {
+          handleResponse(res);
+          this._actionDone();
+        };
+        this._sendTagged(`UID STORE ${uids} -FLAGS (${flagsToAdd})`);
+      } else {
+        this._actionDone();
+      }
+    };
+    this._actionFolderCommand(folder, () => {
+      if (flagsToAdd) {
+        this._nextAction = res => {
+          handleResponse(res);
+          subtractFlags();
+        };
+        this._sendTagged(`UID STORE ${uids} +FLAGS (${flagsToAdd})`);
+      } else {
+        subtractFlags();
+      }
+    });
   }
 
   /**
@@ -1081,7 +1132,7 @@ class ImapClient {
         .QueryInterface(Ci.nsIImapMessageSink)
         .notifyMessageFlags(
           msg.flags,
-          "",
+          msg.keywords,
           msg.uid,
           this._folderState.highestmodseq
         );
@@ -1109,6 +1160,10 @@ class ImapClient {
       QueryInterface: ChromeUtils.generateQI(["nsIMailboxSpec"]),
       folder_UIDVALIDITY: this._folderState.uidvalidity,
       box_flags: this._folderState.flags,
+      supportedUserFlags: this._folderState.supportedUserFlags,
+      nextUID: this._folderState.attributes.uidnext,
+      numMessages: this._messages.size,
+      numUnseenMessages: this._folderState.attributes.unseen,
       flagState: this.flagAndUidState,
     };
   }
@@ -1119,8 +1174,8 @@ class ImapClient {
    */
   _actionUidFetchBodyResponse(res) {
     this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
+    this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
     for (let msg of res.messages) {
-      this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
       this._folderSink.StartMessage(this.runningUrl);
       let hdrXferInfo = {
         numHeaders: 1,
@@ -1148,6 +1203,7 @@ class ImapClient {
       this._folderSink.EndMessage(this.runningUrl, msg.uid);
       this.onData?.(msg.body);
     }
+    this._folderSink.headerFetchCompleted(this);
     this.onData?.();
     this._actionDone();
   }
@@ -1172,7 +1228,7 @@ class ImapClient {
         .QueryInterface(Ci.nsIImapMessageSink)
         .notifyMessageFlags(
           msg.flags,
-          "",
+          msg.keywords,
           uid,
           this._folderState.highestmodseq
         );
@@ -1225,12 +1281,26 @@ class ImapClient {
   };
 
   /** @see nsIImapProtocol */
+  NotifyBodysToDownload(keys) {
+    this._logger.debug("NotifyBodysToDownload", keys);
+  }
+
+  GetRunningUrl() {
+    this._logger.debug("GetRunningUrl");
+  }
+
   get flagAndUidState() {
+    // The server sequence is 1 based, nsIImapFlagAndUidState sequence is 0 based.
+    let getUidOfMessage = index => this._messageUids[index + 1];
+    let getMessageFlagsByUid = uid => this._messages.get(uid)?.flags;
+
     return {
       QueryInterface: ChromeUtils.generateQI(["nsIImapFlagAndUidState"]),
       numberOfMessages: this._messages.size,
-      getUidOfMessage: index => this._messageUids[index],
-      getMessageFlagsByUid: uid => this._messages.get(uid)?.flags,
+      getUidOfMessage,
+      getMessageFlags: index => getMessageFlagsByUid(getUidOfMessage(index)),
+      hasMessage: uid => this._messages.has(uid),
+      getMessageFlagsByUid,
       getCustomFlags: uid => this._messages.get(uid)?.keywords,
     };
   }
