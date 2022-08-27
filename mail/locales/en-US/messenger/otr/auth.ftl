@@ -18,9 +18,6 @@ auth-your-fp-value = Fingerprint for you, { $own_name }:
 #   $their_name (String) - the screen name of a chat contact
 auth-their-fp-value = Fingerprint for { $their_name }:
 
-auth-help = Verifying a contact’s identity helps ensure that the conversation is truly private, making it very difficult for a third party to eavesdrop or manipulate the conversation.
-auth-help-title = Verification help
-
 auth-question-received = This is the question asked by your contact:
 
 auth-yes =

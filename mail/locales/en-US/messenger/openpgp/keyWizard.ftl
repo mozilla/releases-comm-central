@@ -6,9 +6,9 @@
 key-wizard-dialog-window =
     .title = Add a Personal OpenPGP Key for { $identity }
 
-key-wizard-button =
+key-wizard-dialog =
     .buttonlabelaccept = Continue
-    .buttonlabelhelp = Go back
+    .buttonlabelextra1 = Go back
 
 key-wizard-warning = <b>If you have an existing personal key</b> for this email address, you should import it. Otherwise you will not have access to your archives of encrypted emails, nor be able to read incoming encrypted emails from people who are still using your existing key.
 

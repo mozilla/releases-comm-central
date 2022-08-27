@@ -89,10 +89,6 @@ var otrAuth = {
       return this.cancel();
     });
 
-    document.addEventListener("dialoghelp", () => {
-      return this.help();
-    });
-
     let context, theirs;
     switch (mode) {
       case "start":
@@ -200,14 +196,5 @@ var otrAuth = {
         break;
     }
     showSection(how);
-  },
-
-  async help() {
-    let [helpTitle, helpText] = await document.l10n.formatValues([
-      { id: "auth-help-title" },
-      { id: "auth-help" },
-    ]);
-
-    Services.prompt.alert(window, helpTitle, helpText);
   },
 };
