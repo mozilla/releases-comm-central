@@ -36,6 +36,18 @@ const DEFAULT_START_TIME = -9223372036854776000;
 // endTime needs to be the max value a PRTime can be
 const DEFAULT_END_TIME = 9223372036854776000;
 
+// Calls to get items from the database await this Promise. In normal operation
+// the Promise resolves after most application start-up operations, so that we
+// don't start hitting the database during start-up. Fox XPCShell tests, normal
+// start-up doesn't happen, so we just resolve the Promise instantly.
+let startupPromise;
+if (Services.appinfo.name == "xpcshell") {
+  startupPromise = Promise.resolve();
+} else {
+  const { MailGlue } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
+  startupPromise = MailGlue.afterStartUp;
+}
+
 /**
  * CalStorageItemModel provides methods for manipulating item data.
  */
@@ -160,6 +172,7 @@ class CalStorageItemModel extends CalStorageModelBase {
       CalReadableStreamFactory.defaultQueueSize,
       {
         async start(controller) {
+          await startupPromise;
           // first get non-recurring events that happen to fall within the range
           try {
             self.db.prepareStatement(self.statements.mSelectNonRecurringEventsByRange);
@@ -253,6 +266,7 @@ class CalStorageItemModel extends CalStorageModelBase {
       CalReadableStreamFactory.defaultQueueSize,
       {
         async start(controller) {
+          await startupPromise;
           // first get non-recurring todos that happen to fall within the range
           try {
             self.db.prepareStatement(self.statements.mSelectNonRecurringTodosByRange);
@@ -417,6 +431,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @returns {[Map<string, calIEvent>, Map<string, number>]}
    */
   async getRecurringEventAndFlagMaps(callback) {
+    await startupPromise;
     let events = new Map();
     let flags = new Map();
     this.db.prepareStatement(this.statements.mSelectEventsWithRecurrence);
@@ -452,6 +467,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @returns {[Map<string, calITodo>, Map<string, number>]}
    */
   async getRecurringTodoAndFlagMaps(callback) {
+    await startupPromise;
     let todos = new Map();
     let flags = new Map();
     this.db.prepareStatement(this.statements.mSelectTodosWithRecurrence);
@@ -487,6 +503,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @return {Map<string, calIItem>} The original Map with items modified.
    */
   async getAdditionalDataForItemMap(itemsMap) {
+    await startupPromise;
     //NOTE: There seems to be a bug in the SQLite subsystem that causes callers
     //awaiting on this method to continue prematurely. This can cause unexpected
     //behaviour. After investigating, it appears triggering the bug is related
