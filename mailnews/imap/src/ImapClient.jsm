@@ -62,6 +62,8 @@ class ImapClient {
       "@mozilla.org/charset-converter-manager;1"
     ].getService(Ci.nsICharsetConverterManager);
 
+    this._messages = new Map();
+
     this._loadPrefs();
   }
 
@@ -1071,8 +1073,10 @@ class ImapClient {
       0
     );
     this._messageUids = [];
+    this._messages.clear();
     for (let msg of res.messages) {
       this._messageUids[msg.sequence] = msg.uid;
+      this._messages.set(msg.uid, msg);
       this.folder
         .QueryInterface(Ci.nsIImapMessageSink)
         .notifyMessageFlags(
@@ -1083,10 +1087,7 @@ class ImapClient {
         );
     }
     this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
-    this._folderSink.UpdateImapMailboxInfo(
-      this,
-      this._getMailboxSpec(res.messages)
-    );
+    this._folderSink.UpdateImapMailboxInfo(this, this._getMailboxSpec());
     let latestUid = this._messageUids.at(-1);
     if (latestUid > highestUid) {
       this._nextAction = this._actionUidFetchBodyResponse;
@@ -1101,21 +1102,14 @@ class ImapClient {
 
   /**
    * Make an nsIMailboxSpec instance to interact with nsIImapMailFolderSink.
-   * @param {MessageData[]} messages - An array of messages.
    * @returns {nsIMailboxSpec}
    */
-  _getMailboxSpec(messages) {
-    let flagState = {
-      QueryInterface: ChromeUtils.generateQI(["nsIImapFlagAndUidState"]),
-      numberOfMessages: messages.length,
-      getUidOfMessage: index => messages[index]?.uid,
-      getMessageFlags: index => messages[index]?.flags,
-    };
+  _getMailboxSpec() {
     return {
       QueryInterface: ChromeUtils.generateQI(["nsIMailboxSpec"]),
       folder_UIDVALIDITY: this._folderState.uidvalidity,
       box_flags: this._folderState.flags,
-      flagState,
+      flagState: this.flagAndUidState,
     };
   }
 
@@ -1229,4 +1223,15 @@ class ImapClient {
     this.onDone?.();
     this._reset();
   };
+
+  /** @see nsIImapProtocol */
+  get flagAndUidState() {
+    return {
+      QueryInterface: ChromeUtils.generateQI(["nsIImapFlagAndUidState"]),
+      numberOfMessages: this._messages.size,
+      getUidOfMessage: index => this._messageUids[index],
+      getMessageFlagsByUid: uid => this._messages.get(uid)?.flags,
+      getCustomFlags: uid => this._messages.get(uid)?.keywords,
+    };
+  }
 }

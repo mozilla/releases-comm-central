@@ -4111,12 +4111,20 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
     tweakMe->SetMessageSize(m_nextMessageByteLength);
 
     bool foundIt = false;
-    imapMessageFlagsType imap_flags;
 
-    nsCString customFlags;
-    nsresult rv = aProtocol->GetFlagsForUID(m_curMsgUid, &foundIt, &imap_flags,
-                                            getter_Copies(customFlags));
+    nsCOMPtr<nsIImapFlagAndUidState> flagState;
+    nsresult rv = aProtocol->GetFlagAndUidState(getter_AddRefs(flagState));
+    NS_ENSURE_SUCCESS_VOID(rv);
+    rv = flagState->HasMessage(m_curMsgUid, &foundIt);
+
     if (NS_SUCCEEDED(rv) && foundIt) {
+      imapMessageFlagsType imap_flags;
+      nsCString customFlags;
+      flagState->GetMessageFlagsByUid(m_curMsgUid, &imap_flags);
+      if (imap_flags & kImapMsgCustomKeywordFlag) {
+        flagState->GetCustomFlags(m_curMsgUid, getter_Copies(customFlags));
+      }
+
       // make a mask and clear these message flags
       uint32_t mask = nsMsgMessageFlags::Read | nsMsgMessageFlags::Replied |
                       nsMsgMessageFlags::Marked |
