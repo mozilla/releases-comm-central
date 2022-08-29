@@ -1264,7 +1264,10 @@ nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
     nsCOMPtr<nsIMsgPluggableStore> msgStore;
     nsresult rv = folder->GetMsgStore(getter_AddRefs(msgStore));
     if (NS_FAILED(rv)) {
-      return finalListener->OnStopRunningUrl(nullptr, rv);
+      if (finalListener) {
+        return finalListener->OnStopRunningUrl(nullptr, rv);
+      }
+      return rv;
     }
     bool storeSupportsCompaction;
     msgStore->GetSupportsCompaction(&storeSupportsCompaction);
@@ -1272,13 +1275,19 @@ nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
       nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
           do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
       if (NS_FAILED(rv)) {
-        return finalListener->OnStopRunningUrl(nullptr, rv);
+        if (finalListener) {
+          return finalListener->OnStopRunningUrl(nullptr, rv);
+        }
+        return rv;
       }
       return folderCompactor->CompactFolders({folder}, finalListener,
                                              msgWindow);
     }
     // Not going to run a compaction, so signal that we're all done.
-    return finalListener->OnStopRunningUrl(nullptr, NS_OK);
+    if (finalListener) {
+      return finalListener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+    return NS_OK;
   };
 
   if (WeAreOffline()) {
