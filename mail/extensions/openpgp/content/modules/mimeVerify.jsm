@@ -444,6 +444,12 @@ MimeVerify.prototype = {
     }
 
     if (queryMimePartNumber == "1.1") {
+      if (!this.uri) {
+        // We aren't loading in message displaying, but some other
+        // context, could be e.g. forwarding.
+        return false;
+      }
+
       // We are processing "1.1", which means we're the child of the
       // top mime part. Don't process the signature unless the top
       // level mime part is an encryption layer.
