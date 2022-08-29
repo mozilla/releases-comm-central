@@ -192,15 +192,9 @@ add_task(async function test_managers() {
                   );
 
                   return [
-                    await context.extension.addressBookManager.convert(
-                      foundBook
-                    ),
-                    await context.extension.addressBookManager.convert(
-                      foundContact
-                    ),
-                    await context.extension.addressBookManager.convert(
-                      foundList
-                    ),
+                    await context.extension.addressBookManager.convert(foundBook),
+                    await context.extension.addressBookManager.convert(foundContact),
+                    await context.extension.addressBookManager.convert(foundList),
                   ];
                 },
               },
