@@ -8,30 +8,15 @@ var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
-});
-
 add_task(async function setup() {
   Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);
 });
 
 add_task(async function test_addressBooks() {
-  // Copy photo file into the required Photos subfolder of the profile folder.
-  await IOUtils.copy(
-    do_get_file("images/pixel.png").path,
-    PathUtils.join(PathUtils.profileDir, "Photos", "pixel.png")
-  );
-
   async function background() {
     let firstBookId, secondBookId, newContactId;
 
     let events = [];
-    let eventPromise;
     let eventPromiseResolve;
     for (let eventNamespace of ["addressBooks", "contacts", "mailingLists"]) {
       for (let eventName of [
@@ -54,17 +39,7 @@ add_task(async function test_addressBooks() {
       }
     }
 
-    let outsideEvent = function(action, ...args) {
-      eventPromise = new Promise(resolve => {
-        eventPromiseResolve = resolve;
-      });
-      return window.sendMessage("outsideEventsTest", action, ...args);
-    };
-    let checkEvents = async function(...expectedEvents) {
-      if (eventPromiseResolve) {
-        await eventPromise;
-      }
-
+    let checkEvents = function(...expectedEvents) {
       browser.test.assertEq(
         expectedEvents.length,
         events.length,
@@ -132,9 +107,10 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq(0, secondBook.contacts.length);
       browser.test.assertTrue(Array.isArray(secondBook.mailingLists));
       browser.test.assertEq(0, secondBook.mailingLists.length);
+
       let newBookId = await browser.addressBooks.create({ name: "test name" });
       browser.test.assertEq(36, newBookId.length);
-      await checkEvents([
+      checkEvents([
         "addressBooks",
         "onCreated",
         { type: "addressBook", id: newBookId },
@@ -149,7 +125,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("test name", newBook.name);
 
       await browser.addressBooks.update(newBookId, { name: "new name" });
-      await checkEvents([
+      checkEvents([
         "addressBooks",
         "onUpdated",
         { type: "addressBook", id: newBookId },
@@ -161,7 +137,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq(3, list.length);
 
       await browser.addressBooks.delete(newBookId);
-      await checkEvents(["addressBooks", "onDeleted", newBookId]);
+      checkEvents(["addressBooks", "onDeleted", newBookId]);
 
       list = await browser.addressBooks.list();
       browser.test.assertEq(2, list.length);
@@ -213,7 +189,7 @@ add_task(async function test_addressBooks() {
         SomethingCustom: "Custom property",
       });
       browser.test.assertEq(36, newContactId.length);
-      await checkEvents([
+      checkEvents([
         "contacts",
         "onCreated",
         { type: "contact", parentId: firstBookId, id: newContactId },
@@ -275,7 +251,7 @@ add_task(async function test_addressBooks() {
         OtherCustom: "Yet another custom property",
         Notes: "Ignored Notes",
       });
-      await checkEvents([
+      checkEvents([
         "contacts",
         "onUpdated",
         { type: "contact", parentId: firstBookId, id: newContactId },
@@ -330,7 +306,7 @@ add_task(async function test_addressBooks() {
         SomethingCustom: null,
         OtherCustom: null,
       });
-      await checkEvents([
+      checkEvents([
         "contacts",
         "onUpdated",
         { type: "contact", parentId: firstBookId, id: newContactId },
@@ -370,7 +346,7 @@ add_task(async function test_addressBooks() {
         PrimaryEmail: "new1@invalid.de",
         SecondEmail: "new2@invalid.de",
       });
-      await checkEvents([
+      checkEvents([
         "contacts",
         "onUpdated",
         { type: "contact", parentId: firstBookId, id: newContactId },
@@ -404,7 +380,7 @@ add_task(async function test_addressBooks() {
       await browser.contacts.update(newContactId, {
         SecondEmail: null,
       });
-      await checkEvents([
+      checkEvents([
         "contacts",
         "onUpdated",
         { type: "contact", parentId: firstBookId, id: newContactId },
@@ -435,7 +411,7 @@ add_task(async function test_addressBooks() {
         }
       );
       browser.test.assertEq("this is a test", fixedContactId);
-      await checkEvents([
+      checkEvents([
         "contacts",
         "onCreated",
         { type: "contact", parentId: firstBookId, id: "this is a test" },
@@ -445,12 +421,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("this is a test", fixedContact.id);
 
       await browser.contacts.delete("this is a test");
-      await checkEvents([
-        "contacts",
-        "onDeleted",
-        firstBookId,
-        "this is a test",
-      ]);
+      checkEvents(["contacts", "onDeleted", firstBookId, "this is a test"]);
 
       try {
         await browser.contacts.create(firstBookId, newContactId, {
@@ -480,7 +451,7 @@ add_task(async function test_addressBooks() {
         name: "name",
       });
       browser.test.assertEq(36, newMailingListId.length);
-      await checkEvents([
+      checkEvents([
         "mailingLists",
         "onCreated",
         { type: "mailingList", parentId: firstBookId, id: newMailingListId },
@@ -541,7 +512,7 @@ add_task(async function test_addressBooks() {
         nickName: "nickname!",
         description: "description!",
       });
-      await checkEvents([
+      checkEvents([
         "mailingLists",
         "onUpdated",
         { type: "mailingList", parentId: firstBookId, id: newMailingListId },
@@ -553,7 +524,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("description!", updatedMailingList.description);
 
       await browser.mailingLists.addMember(newMailingListId, newContactId);
-      await checkEvents([
+      checkEvents([
         "mailingLists",
         "onMemberAdded",
         { type: "contact", parentId: newMailingListId, id: newContactId },
@@ -570,7 +541,7 @@ add_task(async function test_addressBooks() {
         LastName: "last",
         PrimaryEmail: "em@il",
       });
-      await checkEvents([
+      checkEvents([
         "contacts",
         "onCreated",
         {
@@ -582,7 +553,7 @@ add_task(async function test_addressBooks() {
       ]);
 
       await browser.mailingLists.addMember(newMailingListId, anotherContactId);
-      await checkEvents([
+      checkEvents([
         "mailingLists",
         "onMemberAdded",
         { type: "contact", parentId: newMailingListId, id: anotherContactId },
@@ -592,7 +563,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq(2, listMembers.length);
 
       await browser.contacts.delete(anotherContactId);
-      await checkEvents(
+      checkEvents(
         ["contacts", "onDeleted", firstBookId, anotherContactId],
         ["mailingLists", "onMemberRemoved", newMailingListId, anotherContactId]
       );
@@ -600,7 +571,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq(1, listMembers.length);
 
       await browser.mailingLists.removeMember(newMailingListId, newContactId);
-      await checkEvents([
+      checkEvents([
         "mailingLists",
         "onMemberRemoved",
         newMailingListId,
@@ -610,12 +581,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq(0, listMembers.length);
 
       await browser.mailingLists.delete(newMailingListId);
-      await checkEvents([
-        "mailingLists",
-        "onDeleted",
-        firstBookId,
-        newMailingListId,
-      ]);
+      checkEvents(["mailingLists", "onDeleted", firstBookId, newMailingListId]);
 
       mailingLists = await browser.mailingLists.list(firstBookId);
       browser.test.assertEq(0, mailingLists.length);
@@ -688,7 +654,7 @@ add_task(async function test_addressBooks() {
     async function contactRemovalTest() {
       browser.test.log("Starting contactRemovalTest");
       await browser.contacts.delete(newContactId);
-      await checkEvents(["contacts", "onDeleted", firstBookId, newContactId]);
+      checkEvents(["contacts", "onDeleted", firstBookId, newContactId]);
 
       for (let operation of ["get", "update", "delete"]) {
         let args = [newContactId];
@@ -720,52 +686,54 @@ add_task(async function test_addressBooks() {
     async function outsideEventsTest() {
       browser.test.log("Starting outsideEventsTest");
 
-      let [bookId, newBookPrefId] = await outsideEvent("createAddressBook");
-      let [newBook] = await checkEvents([
+      let [bookId, newBookPrefId] = await window.sendMessage(
+        "outsideEventsTest",
+        "createAddressBook"
+      );
+      let [newBook] = checkEvents([
         "addressBooks",
         "onCreated",
         { type: "addressBook", id: bookId },
       ]);
       browser.test.assertEq("external add", newBook.name);
 
-      await outsideEvent("updateAddressBook", newBookPrefId);
-      let [updatedBook] = await checkEvents([
+      await window.sendMessage(
+        "outsideEventsTest",
+        "updateAddressBook",
+        newBookPrefId
+      );
+      let [updatedBook] = checkEvents([
         "addressBooks",
         "onUpdated",
         { type: "addressBook", id: bookId },
       ]);
       browser.test.assertEq("external edit", updatedBook.name);
 
-      await outsideEvent("deleteAddressBook", newBookPrefId);
-      await checkEvents(["addressBooks", "onDeleted", bookId]);
+      let eventPromise = new Promise(resolve => {
+        eventPromiseResolve = resolve;
+      });
+      await window.sendMessage(
+        "outsideEventsTest",
+        "deleteAddressBook",
+        newBookPrefId
+      );
+      await eventPromise;
+      checkEvents(["addressBooks", "onDeleted", bookId]);
 
-      let [parentId1, contactId] = await outsideEvent("createContact");
-      let [newContact] = await checkEvents([
+      let [parentId1, contactId] = await window.sendMessage(
+        "outsideEventsTest",
+        "createContact"
+      );
+      let [newContact] = checkEvents([
         "contacts",
         "onCreated",
         { type: "contact", parentId: parentId1, id: contactId },
       ]);
       browser.test.assertEq("external", newContact.properties.FirstName);
       browser.test.assertEq("add", newContact.properties.LastName);
-      browser.test.assertTrue(
-        newContact.properties.vCard.includes("VERSION:4.0"),
-        "vCard should be version 4.0"
-      );
-      let vCard4Photo = `PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC`.replaceAll(
-        "\r\n",
-        "\n"
-      );
 
-      browser.test.assertTrue(
-        newContact.properties.vCard
-          .replaceAll("\r\n", "\n")
-          .includes(vCard4Photo),
-        `vCard should include the correct Photo property [${newContact.properties.vCard}] vs [${vCard4Photo}]`
-      );
-
-      await outsideEvent("updateContact", contactId);
-      let [updatedContact] = await checkEvents([
+      await window.sendMessage("outsideEventsTest", "updateContact", contactId);
+      let [updatedContact] = checkEvents([
         "contacts",
         "onUpdated",
         { type: "contact", parentId: parentId1, id: contactId },
@@ -774,24 +742,36 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("external", updatedContact.properties.FirstName);
       browser.test.assertEq("edit", updatedContact.properties.LastName);
 
-      let [parentId2, listId] = await outsideEvent("createMailingList");
-      let [newList] = await checkEvents([
+      let [parentId2, listId] = await window.sendMessage(
+        "outsideEventsTest",
+        "createMailingList"
+      );
+      let [newList] = checkEvents([
         "mailingLists",
         "onCreated",
         { type: "mailingList", parentId: parentId2, id: listId },
       ]);
       browser.test.assertEq("external add", newList.name);
 
-      await outsideEvent("updateMailingList", listId);
-      let [updatedList] = await checkEvents([
+      await window.sendMessage(
+        "outsideEventsTest",
+        "updateMailingList",
+        listId
+      );
+      let [updatedList] = checkEvents([
         "mailingLists",
         "onUpdated",
         { type: "mailingList", parentId: parentId2, id: listId },
       ]);
       browser.test.assertEq("external edit", updatedList.name);
 
-      await outsideEvent("addMailingListMember", listId, contactId);
-      await checkEvents([
+      await window.sendMessage(
+        "outsideEventsTest",
+        "addMailingListMember",
+        listId,
+        contactId
+      );
+      checkEvents([
         "mailingLists",
         "onMemberAdded",
         { type: "contact", parentId: listId, id: contactId },
@@ -799,73 +779,23 @@ add_task(async function test_addressBooks() {
       let listMembers = await browser.mailingLists.listMembers(listId);
       browser.test.assertEq(1, listMembers.length);
 
-      await outsideEvent("removeMailingListMember", listId, contactId);
-      await checkEvents(["mailingLists", "onMemberRemoved", listId, contactId]);
-
-      await outsideEvent("deleteMailingList", listId);
-      await checkEvents(["mailingLists", "onDeleted", parentId2, listId]);
-
-      await outsideEvent("deleteContact", contactId);
-      await checkEvents(["contacts", "onDeleted", parentId1, contactId]);
-
-      let [parentId3, contactId3] = await outsideEvent(
-        "createContactWithBothPhotoProps"
+      await window.sendMessage(
+        "outsideEventsTest",
+        "removeMailingListMember",
+        listId,
+        contactId
       );
-      let [newContact3] = await checkEvents([
-        "contacts",
-        "onCreated",
-        { type: "contact", parentId: parentId3, id: contactId3 },
-      ]);
-      browser.test.assertEq("external", newContact3.properties.FirstName);
-      browser.test.assertEq("add", newContact3.properties.LastName);
-      browser.test.assertTrue(
-        newContact3.properties.vCard.includes("VERSION:4.0"),
-        "vCard should be version 4.0"
+      checkEvents(["mailingLists", "onMemberRemoved", listId, contactId]);
+
+      await window.sendMessage(
+        "outsideEventsTest",
+        "deleteMailingList",
+        listId
       );
+      checkEvents(["mailingLists", "onDeleted", parentId2, listId]);
 
-      // The card should not include vCard4Photo (which photoName points to), but the value already
-      // stored in the vCard photo property.
-      let vCard4Photo3 = `PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQm==`.replaceAll(
-        "\r\n",
-        "\n"
-      );
-
-      browser.test.assertTrue(
-        newContact3.properties.vCard
-          .replaceAll("\r\n", "\n")
-          .includes(vCard4Photo3),
-        `vCard should include the correct Photo property [${newContact3.properties.vCard}] vs [${vCard4Photo3}]`
-      );
-
-      await outsideEvent("deleteContact", contactId3);
-      await checkEvents(["contacts", "onDeleted", parentId3, contactId3]);
-
-      let [parentId4, contactId4] = await outsideEvent("createContactV3");
-      let [newContact4] = await checkEvents([
-        "contacts",
-        "onCreated",
-        { type: "contact", parentId: parentId4, id: contactId4 },
-      ]);
-      browser.test.assertEq("external", newContact4.properties.FirstName);
-      browser.test.assertEq("add", newContact4.properties.LastName);
-      browser.test.assertTrue(
-        newContact4.properties.vCard.includes("VERSION:3.0"),
-        "vCard should be version 3.0"
-      );
-
-      let vCard3Photo4 = `PHOTO;ENCODING=B;TYPE=PNG:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAD
- ElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC`;
-
-      browser.test.assertTrue(
-        newContact4.properties.vCard
-          .replaceAll("\r\n", "\n")
-          .includes(vCard3Photo4),
-        `vCard should include the correct Photo property [${newContact4.properties.vCard}] vs [${vCard3Photo4}]`
-      );
-
-      await outsideEvent("deleteContact", contactId4);
-      await checkEvents(["contacts", "onDeleted", parentId4, contactId4]);
+      await window.sendMessage("outsideEventsTest", "deleteContact", contactId);
+      checkEvents(["contacts", "onDeleted", parentId1, contactId]);
 
       browser.test.log("Completed outsideEventsTest");
     }
@@ -940,42 +870,6 @@ add_task(async function test_addressBooks() {
         contact.firstName = "external";
         contact.lastName = "add";
         contact.primaryEmail = "test@invalid";
-        contact.setProperty("PhotoName", "pixel.png");
-
-        let newContact = parent.addCard(contact);
-        extension.sendMessage(parent.UID, newContact.UID);
-        return;
-      }
-      case "createContactWithBothPhotoProps": {
-        let contact = new AddrBookCard();
-        contact.setProperty("PhotoName", "pixel.png");
-        contact.setProperty(
-          "_vCard",
-          `BEGIN:VCARD
-VERSION:4.0
-EMAIL;PREF=1:test@invalid
-N:add;external;;;
-UID:fd9aecf9-2453-4ba1-bec6-574a15bb380b
-PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQm==
-END:VCARD`
-        );
-        let newContact = parent.addCard(contact);
-        extension.sendMessage(parent.UID, newContact.UID);
-        return;
-      }
-      case "createContactV3": {
-        let contact = new AddrBookCard();
-        contact.setProperty("PhotoName", "pixel.png");
-        contact.setProperty(
-          "_vCard",
-          `BEGIN:VCARD
-VERSION:3.0
-EMAIL:test@invalid
-N:add;external
-UID:fd9aecf9-2453-4ba1-bec6-574a15bb380c
-END:VCARD`
-        );
         let newContact = parent.addCard(contact);
         extension.sendMessage(parent.UID, newContact.UID);
         return;
@@ -1065,10 +959,6 @@ END:VCARD`
   await extension.startup();
   await extension.awaitFinish("addressBooks");
   await extension.unload();
-
-  await IOUtils.remove(
-    PathUtils.join(PathUtils.profileDir, "Photos", "pixel.png")
-  );
 });
 
 registerCleanupFunction(() => {
