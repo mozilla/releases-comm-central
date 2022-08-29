@@ -41,10 +41,17 @@ this.browserAction = class extends ToolbarButtonAPI {
       extension.manifestVersion < 3 ? "browser_action" : "action";
     this.manifestName =
       extension.manifestVersion < 3 ? "browserAction" : "action";
-    this.windowURLs = ["chrome://messenger/content/messenger.xhtml"];
+    let manifest = extension.manifest[this.manifest_name];
 
-    let isTabsToolbar =
-      extension.manifest[this.manifest_name].default_area == "tabstoolbar";
+    this.windowURLs = [];
+    if (manifest.default_windows.includes("normal")) {
+      this.windowURLs.push("chrome://messenger/content/messenger.xhtml");
+    }
+    if (manifest.default_windows.includes("messageDisplay")) {
+      this.windowURLs.push("chrome://messenger/content/messageWindow.xhtml");
+    }
+
+    let isTabsToolbar = manifest.default_area == "tabstoolbar";
     this.toolboxId = isTabsToolbar ? "navigation-toolbox" : "mail-toolbox";
     this.toolbarId = isTabsToolbar ? "tabbar-toolbar" : "mail-bar3";
 
@@ -71,24 +78,29 @@ this.browserAction = class extends ToolbarButtonAPI {
   static onUninstall(extensionId) {
     let widgetId = makeWidgetId(extensionId);
     let id = `${widgetId}-browserAction-toolbarbutton`;
-    let windowURL = "chrome://messenger/content/messenger.xhtml";
+    let windowURLs = [
+      "chrome://messenger/content/messenger.xhtml",
+      "chrome://messenger/content/messageWindow.xhtml",
+    ];
 
     // Check all possible toolbars and remove the toolbarbutton if found.
     // Sadly we have to hardcode these values here, as the add-on is already
     // shutdown when onUninstall is called.
     let toolbars = ["mail-bar3", "tabbar-toolbar", "toolbar-menubar"];
-    for (let toolbar of toolbars) {
-      let currentSet = Services.xulStore
-        .getValue(windowURL, toolbar, "currentset")
-        .split(",");
-      let newSet = currentSet.filter(e => e != id);
-      if (newSet.length < currentSet.length) {
-        Services.xulStore.setValue(
-          windowURL,
-          toolbar,
-          "currentset",
-          newSet.join(",")
-        );
+    for (let windowURL of windowURLs) {
+      for (let toolbar of toolbars) {
+        let currentSet = Services.xulStore
+          .getValue(windowURL, toolbar, "currentset")
+          .split(",");
+        let newSet = currentSet.filter(e => e != id);
+        if (newSet.length < currentSet.length) {
+          Services.xulStore.setValue(
+            windowURL,
+            toolbar,
+            "currentset",
+            newSet.join(",")
+          );
+        }
       }
     }
   }
@@ -108,9 +120,13 @@ this.browserAction = class extends ToolbarButtonAPI {
         ];
 
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
+          // This needs to work in normal window and message window.
+          let tab = tabTracker.activeTab;
+          let browser = tab.linkedBrowser || tab.getBrowser();
+
           global.actionContextMenu({
-            tab: tabTracker.activeTab,
-            pageUrl: tabTracker.activeTab.linkedBrowser.currentURI.spec,
+            tab,
+            pageUrl: browser.currentURI.spec,
             extension: this.extension,
             onBrowserAction: true,
             menu,
