@@ -12,8 +12,6 @@ interface nsIURI;
 [scriptable, uuid(ceabfc6b-f139-4c25-890f-efb7c3069d40)]
 interface nsIPop3Sink : nsISupports {
 
-  attribute boolean userAuthenticated;
-  attribute AUTF8String mailAccountURL;
   attribute boolean buildMessageUri;
   attribute AUTF8String messageUri;
   attribute AUTF8String baseMessageUri;
@@ -26,13 +24,9 @@ interface nsIPop3Sink : nsISupports {
   void abortMailDelivery(in nsIPop3Protocol protocol);
 
   void incorporateBegin(in string uidlString, in unsigned long flags);
-
   void incorporateWrite(in string block, in long length);
-
   void incorporateComplete(in nsIMsgWindow aMsgWindow, in int32_t aSize);
   void incorporateAbort(in boolean uidlDownload);
-
-  void biffGetNewMail();
 
   /**
    * Tell the pop3sink how many messages we're going to download.
@@ -42,8 +36,6 @@ interface nsIPop3Sink : nsISupports {
   void setMsgsToDownload(in unsigned long aNumMessages);
 
   void setBiffStateAndUpdateFE(in unsigned long biffState, in long numNewMessages, in boolean notify);
-
-  void setSenderAuthedFlag(in boolean authed);
 
   attribute nsIPop3IncomingServer popServer;
   attribute nsIMsgFolder folder;

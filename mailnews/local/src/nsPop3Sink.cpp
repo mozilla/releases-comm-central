@@ -45,7 +45,6 @@ mozilla::LazyLogModule POP3LOGMODULE("POP3");
 NS_IMPL_ISUPPORTS(nsPop3Sink, nsIPop3Sink)
 
 nsPop3Sink::nsPop3Sink() {
-  m_authed = false;
   m_biffState = 0;
   m_numNewMessages = 0;
   m_numNewMessagesInFolder = 0;
@@ -60,31 +59,6 @@ nsPop3Sink::~nsPop3Sink() {
   MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug,
           (POP3LOG("Calling ReleaseFolderLock from ~nsPop3Sink")));
   ReleaseFolderLock();
-}
-
-nsresult nsPop3Sink::SetUserAuthenticated(bool authed) {
-  m_authed = authed;
-  m_popServer->SetAuthenticated(authed);
-  return NS_OK;
-}
-
-nsresult nsPop3Sink::GetUserAuthenticated(bool* authed) {
-  return m_popServer->GetAuthenticated(authed);
-}
-
-nsresult nsPop3Sink::SetSenderAuthedFlag(bool authed) {
-  m_authed = authed;
-  return NS_OK;
-}
-
-nsresult nsPop3Sink::SetMailAccountURL(const nsACString& urlString) {
-  m_accountUrl.Assign(urlString);
-  return NS_OK;
-}
-
-nsresult nsPop3Sink::GetMailAccountURL(nsACString& urlString) {
-  urlString.Assign(m_accountUrl);
-  return NS_OK;
 }
 
 partialRecord::partialRecord() : m_msgDBHdr(nullptr) {}
@@ -671,13 +645,6 @@ nsPop3Sink::IncorporateAbort(bool uidlDownload) {
   printf("Incorporate message abort.\n");
 #endif
   return rv;
-}
-
-nsresult nsPop3Sink::BiffGetNewMail() {
-#ifdef DEBUG
-  printf("Biff get new mail.\n");
-#endif
-  return NS_OK;
 }
 
 nsresult nsPop3Sink::SetBiffStateAndUpdateFE(uint32_t aBiffState,
