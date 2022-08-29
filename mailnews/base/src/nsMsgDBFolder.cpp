@@ -1131,6 +1131,8 @@ NS_IMETHODIMP nsMsgDBFolder::OnParentChanged(nsMsgKey aKeyChanged,
                                              nsMsgKey oldParent,
                                              nsMsgKey newParent,
                                              nsIDBChangeListener* aInstigator) {
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDBHdr> hdrChanged;
   mDatabase->GetMsgHdrForKey(aKeyChanged, getter_AddRefs(hdrChanged));
   // In reality we probably want to just change the parent because otherwise we
