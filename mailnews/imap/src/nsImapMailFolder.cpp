@@ -4459,8 +4459,10 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
   bool messageClassified = true;
   // ### TODO: we really should parse the keywords into space delimited keywords
   // before checking
-  // Mac Mail uses "NotJunk"
+  // Mac Mail, Yahoo uses "NotJunk"
   if (FindInReadable("NonJunk"_ns, keywords,
+                     nsCaseInsensitiveCStringComparator) ||
+      FindInReadable("NotJunk"_ns, keywords,
                      nsCaseInsensitiveCStringComparator)) {
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
