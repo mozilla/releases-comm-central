@@ -14,8 +14,6 @@
 %baseMenuOverlayDTD;
 <!ENTITY % sourceDTD SYSTEM "chrome://messenger/locale/viewSource.dtd" >
 %sourceDTD;
-<!ENTITY % editMenuDTD SYSTEM "chrome://global/locale/editMenuOverlay.dtd" >
-%editMenuDTD;
 ]>
 
 <window id="viewSource"
@@ -34,6 +32,7 @@
   <html:link rel="localization" href="messenger/messenger.ftl"/>
   <html:link rel="localization" href="messenger/menubar.ftl"/>
   <html:link rel="localization" href="messenger/appmenu.ftl"/>
+  <html:link rel="localization" href="messenger/viewSource.ftl"/>
   <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
   <html:link rel="localization" href="toolkit/printing/printUI.ftl" />
 </linkset>
@@ -68,7 +67,6 @@
   <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
   <command id="cmd_textZoomReset" oncommand="ZoomManager.reset();"/>
 
-#includesubst @TOOLKIT_DIR@/content/editMenuKeys.inc.xhtml
   <keyset id="viewSourceKeys">
     <key id="key_savePage" key="&savePageCmd.commandkey;" modifiers="accel" command="cmd_savePage"/>
     <key id="key_print" key="&printCmd.commandkey;" modifiers="accel" command="cmd_print"/>
@@ -87,6 +85,9 @@
     <key key="&reloadCmd.commandkey;" command="cmd_reload" modifiers="accel,shift"/>
     <key keycode="VK_F5" command="cmd_reload"/>
     <key keycode="VK_F5" command="cmd_reload" modifiers="accel"/>
+
+    <key id="key_copy" data-l10n-id="text-action-copy-shortcut" modifiers="accel" command="cmd_copy"/>
+    <key id="key_selectAll" data-l10n-id="text-action-select-all-shortcut" modifiers="accel" command="cmd_selectAll"/>
     <key id="key_find" key="&findOnCmd.commandkey;" command="cmd_find" modifiers="accel"/>
     <key id="key_findAgain" key="&findAgainCmd.commandkey;" command="cmd_findAgain" modifiers="accel"/>
     <key id="key_findPrevious" key="&findAgainCmd.commandkey;" command="cmd_findPrevious" modifiers="accel,shift"/>
@@ -131,12 +132,10 @@
               command="cmd_selectAll"/>
     <menuseparator/>
     <menuitem id="cMenu_find"
-              label="&findCmd.label;"
-              accesskey="&findCmd.accesskey;"
+              data-l10n-id="context-text-action-find"
               command="cmd_find"/>
     <menuitem id="cMenu_findAgain"
-              label="&findAgainCmd.label;"
-              accesskey="&findAgainCmd.accesskey;"
+              data-l10n-id="context-text-action-find-again"
               command="cmd_findAgain"/>
   </menupopup>
 
@@ -171,11 +170,13 @@
                     key="key_selectAll"
                     command="cmd_selectAll"/>
           <menuseparator/>
-          <menuitem id="menu_find" label="&findCmd.label;"
-                    key="key_find" accesskey="&findCmd.accesskey;"
+          <menuitem id="menu_find"
+                    data-l10n-id="text-action-find"
+                    key="key_find"
                     command="cmd_find"/>
-          <menuitem id="menu_findAgain" label="&findAgainCmd.label;"
-                    key="key_findAgain" accesskey="&findAgainCmd.accesskey;"
+          <menuitem id="menu_findAgain"
+                    data-l10n-id="text-action-find-again"
+                    key="key_findAgain"
                     command="cmd_findAgain"/>
           <menuseparator/>
           <menuitem id="menu_goToLine" key="key_goToLine" command="cmd_goToLine"

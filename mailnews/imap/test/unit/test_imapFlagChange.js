@@ -158,6 +158,44 @@ add_task(async function checkTagSet() {
   await listener.promise;
 });
 
+/** Test that the NonJunk tag from the server is noticed. */
+add_task(async function checkNonJunkTagSet() {
+  gMessage.clearFlag("NotJunk");
+  gMessage.setFlag("NonJunk");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  let junkScore = msgHdr.getStringProperty("junkscore");
+  Assert.equal(
+    junkScore,
+    Ci.nsIJunkMailPlugin.IS_HAM_SCORE,
+    "NonJunk flag on server should mark as ham"
+  );
+});
+
+/** Test that the NotJunk tag from the server is noticed. */
+add_task(async function checkNotJunkTagSet() {
+  gMessage.clearFlag("NonJunk");
+  gMessage.setFlag("NotJunk");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  let junkScore = msgHdr.getStringProperty("junkscore");
+  Assert.equal(
+    junkScore,
+    Ci.nsIJunkMailPlugin.IS_HAM_SCORE,
+    "NotJunk flag on server should mark as ham"
+  );
+});
+
 add_task(async function clearTag() {
   gMessage.clearFlag("randomtag");
   let listener = new PromiseTestUtils.PromiseUrlListener();

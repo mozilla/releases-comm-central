@@ -6,8 +6,35 @@ const { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm"
 );
 
+let account;
+let messages;
+
+add_task(async () => {
+  account = createAccount();
+  let rootFolder = account.incomingServer.rootFolder;
+  let subFolders = rootFolder.subFolders;
+  createMessages(subFolders[0], 10);
+  messages = subFolders[0].messages;
+
+  // This tests selects a folder, so make sure the folder pane is visible.
+  if (
+    document.getElementById("folderpane_splitter").getAttribute("state") ==
+    "collapsed"
+  ) {
+    window.MsgToggleFolderPane();
+  }
+  if (window.IsMessagePaneCollapsed()) {
+    window.MsgToggleMessagePane();
+  }
+
+  window.gFolderTreeView.selectFolder(subFolders[0]);
+  window.gFolderDisplay.selectViewIndex(0);
+  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
+});
+
 // This test clicks on the action button to open the popup.
 add_task(async function test_popup_open_with_click() {
+  info("3-pane tab");
   await run_popup_test({
     actionType: "browser_action",
     testType: "open-with-mouse-click",
@@ -51,13 +78,36 @@ add_task(async function test_popup_open_with_click() {
     window,
   });
 
-  Services.xulStore.removeDocument(
-    "chrome://messenger/content/messenger.xhtml"
-  );
+  info("Message window");
+  let messageWindow = await openMessageInWindow(messages.getNext());
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-mouse-click",
+    default_windows: ["messageDisplay"],
+    window: messageWindow,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-mouse-click",
+    default_windows: ["messageDisplay"],
+    disable_button: true,
+    window: messageWindow,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-mouse-click",
+    default_windows: ["messageDisplay"],
+    use_default_popup: true,
+    window: messageWindow,
+  });
+  messageWindow.close();
 });
 
 // This test uses a command from the menus API to open the popup.
 add_task(async function test_popup_open_with_menu_command() {
+  info("3-pane tab");
   await run_popup_test({
     actionType: "browser_action",
     testType: "open-with-menu-command",
@@ -100,6 +150,32 @@ add_task(async function test_popup_open_with_menu_command() {
     default_area: "tabstoolbar",
     window,
   });
+
+  info("Message window");
+  let messageWindow = await openMessageInWindow(messages.getNext());
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    use_default_popup: true,
+    default_windows: ["messageDisplay"],
+    window: messageWindow,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    disable_button: true,
+    default_windows: ["messageDisplay"],
+    window: messageWindow,
+  });
+
+  await run_popup_test({
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    default_windows: ["messageDisplay"],
+    window: messageWindow,
+  });
+  messageWindow.close();
 });
 
 add_task(async function test_theme_icons() {
@@ -163,6 +239,7 @@ add_task(async function test_theme_icons() {
 });
 
 add_task(async function test_button_order() {
+  info("3-pane tab");
   await run_action_button_order_test(
     [
       {
@@ -189,4 +266,26 @@ add_task(async function test_button_order() {
     window,
     "browser_action"
   );
+
+  info("Message window");
+  let messageWindow = await openMessageInWindow(messages.getNext());
+  await run_action_button_order_test(
+    [
+      {
+        name: "addon1",
+        area: "maintoolbar",
+        toolbar: "mail-bar3",
+        default_windows: ["messageDisplay"],
+      },
+      {
+        name: "addon2",
+        area: "maintoolbar",
+        toolbar: "mail-bar3",
+        default_windows: ["messageDisplay"],
+      },
+    ],
+    messageWindow,
+    "browser_action"
+  );
+  messageWindow.close();
 });

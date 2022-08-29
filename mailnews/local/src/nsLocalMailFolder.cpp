@@ -1659,7 +1659,10 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   rv = InitCopyState(fileSupport, messages, msgToReplace ? true : false,
                      listener, msgWindow, false, false);
   if (NS_SUCCEEDED(rv)) {
-    if (mCopyState) mCopyState->m_newMsgKeywords = aNewMsgKeywords;
+    if (mCopyState) {
+      mCopyState->m_newMsgKeywords = aNewMsgKeywords;
+      mCopyState->m_flags = newMsgFlags;
+    }
 
     parseMsgState = new nsParseMailMessageState();
     NS_ENSURE_TRUE(parseMsgState, NS_ERROR_OUT_OF_MEMORY);
@@ -2178,6 +2181,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       mCopyState->m_newHdr = newHdr;
       if (NS_SUCCEEDED(result) && newHdr) {
         // Copy message metadata.
+        uint32_t newFlags;
+        newHdr->GetFlags(&newFlags);
         if (mCopyState->m_message) {
           // Propagate the new flag on an imap to local folder filter action
           // Flags may get changed when deleting the original source message in
@@ -2190,14 +2195,21 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           uint32_t carryOver = nsMsgMessageFlags::New |
                                nsMsgMessageFlags::Read |
                                nsMsgMessageFlags::HasRe;
-          uint32_t newFlags;
-          newHdr->GetFlags(&newFlags);
           newHdr->SetFlags((newFlags & ~carryOver) |
                            ((mCopyState->m_flags) & carryOver));
 
           // Copy other message properties.
           CopyPropertiesToMsgHdr(newHdr, mCopyState->m_message,
                                  mCopyState->m_isMove);
+        } else {
+          // Carry over some of the enforced flags, but do not clear any of the
+          // already set flags (for example nsMsgMessageFlags::Queued or
+          // nsMsgMessageFlags::MDNReportSent).
+          uint32_t carryOver = nsMsgMessageFlags::New |
+                               nsMsgMessageFlags::Read |
+                               nsMsgMessageFlags::Marked;
+          newHdr->SetFlags((newFlags & ~carryOver) |
+                           ((mCopyState->m_flags) & carryOver));
         }
         msgDb->AddNewHdrToDB(newHdr, true);
         if (localUndoTxn) {

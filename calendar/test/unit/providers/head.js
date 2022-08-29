@@ -9,6 +9,9 @@ var { CalendarTestUtils } = ChromeUtils.import(
 var { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 
+var { updateAppInfo } = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+updateAppInfo();
+
 // The tests in this directory each do the same thing, with slight variations as needed for each
 // calendar provider. The core of the test lives in this file and the tests call it when ready.
 

@@ -8,9 +8,10 @@
           {
             "type": "string",
             "enum": [
+              "messagesDelete",
+              "messagesImport",
               "messagesMove",
               "messagesRead",
-              "messagesDelete",
               "messagesTags"
             ]
           }
@@ -54,7 +55,8 @@
             "description": "Whether this message is a real message or an external message (opened from a file or from an attachment)."
           },
           "flagged": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether this message is flagged (a.k.a. 'starred')."
           },
           "folder": {
             "$ref": "folders.MailFolder",
@@ -88,6 +90,10 @@
             "optional": true,
             "description": "Whether the message has been marked as read. Not available for external or attached messages."
           },
+          "new": {
+            "type": "boolean",
+            "description": "Whether the message has been received recently and is marked as new."
+          },
           "recipients": {
             "description": "The To recipients. Not populated for news/nntp messages.",
             "type": "array",
@@ -100,13 +106,15 @@
             "type": "integer"
           },
           "subject": {
-            "type": "string"
+            "type": "string",
+            "description": "The subject of the message."
           },
           "tags": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "Tags associated with this message. For a list of available tags, call the listTags method."
           }
         }
       },
@@ -176,23 +184,28 @@
         }
       },
       {
-        "id": "MessageChangeProperties",
+        "id": "MessageProperties",
         "type": "object",
-        "description": "Message properties that can be updated by the :ref:`messages.update` and that are monitored by :ref:`messages.onUpdated`.",
+        "description": "Message properties used in :ref:`messages.update` and :ref:`messages.import`. They can also be monitored by :ref:`messages.onUpdated`.",
         "properties": {
-          "read": {
+          "flagged": {
             "type": "boolean",
-            "description": "Message is read.",
+            "description": "Whether the message is flagged (a.k.a 'starred').",
             "optional": true
           },
           "junk": {
             "type": "boolean",
             "optional": true,
-            "description": "Message is junk."
+            "description": "Whether the message is marked as junk. Only supported in :ref:`messages.update`"
           },
-          "flagged": {
+          "new": {
             "type": "boolean",
-            "description": "Message is flagged.",
+            "description": "Whether the message is marked as new. Only supported in :ref:`messages.import`",
+            "optional": true
+          },
+          "read": {
+            "type": "boolean",
+            "description": "Whether the message is marked as read.",
             "optional": true
           },
           "tags": {
@@ -287,7 +300,7 @@
           },
           {
             "name": "changedProperties",
-            "$ref": "messages.MessageChangeProperties"
+            "$ref": "messages.MessageProperties"
           }
         ]
       },
@@ -645,7 +658,7 @@
           },
           {
             "name": "newProperties",
-            "$ref": "MessageChangeProperties"
+            "$ref": "MessageProperties"
           }
         ]
       },
@@ -724,6 +737,43 @@
             "type": "boolean",
             "description": "If true, the message will be deleted permanently, regardless of the account's deletion behavior settings.",
             "optional": true
+          }
+        ]
+      },
+      {
+        "name": "import",
+        "type": "function",
+        "description": "Imports a message into a local Thunderbird folder. To import a message into an IMAP folder, add it to a local folder first and then move it to the IMAP folder.",
+        "async": "callback",
+        "permissions": [
+          "accountsRead",
+          "messagesImport"
+        ],
+        "parameters": [
+          {
+            "type": "object",
+            "isInstanceOf": "File",
+            "additionalProperties": true
+          },
+          {
+            "name": "destination",
+            "$ref": "folders.MailFolder",
+            "description": "The folder to import the messages into."
+          },
+          {
+            "name": "properties",
+            "$ref": "messages.MessageProperties",
+            "optional": true
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "messages.MessageHeader"
+              }
+            ]
           }
         ]
       },

@@ -56,6 +56,21 @@
               "tabstoolbar"
             ],
             "optional": true
+          },
+          "default_windows": {
+            "description": "Defines the windows, the action should appear in. Defaults to showing it only in the ``normal`` Thunderbird window, but can also be shown in the ``messageDisplay`` window.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "messageDisplay"
+              ]
+            },
+            "default": [
+              "normal"
+            ],
+            "optional": true
           }
         }
       },

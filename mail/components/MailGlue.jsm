@@ -241,6 +241,11 @@ function MailGlue() {
 MailGlue.BROWSER_TOOLBOX_WINDOW_URL =
   "chrome://devtools/content/framework/browser-toolbox/window.html";
 
+// A Promise that is resolved by an idle task after most start-up operations.
+MailGlue.afterStartUp = new Promise(resolve => {
+  MailGlue.resolveAfterStartUp = resolve;
+});
+
 MailGlue.prototype = {
   _isNewProfile: undefined,
 
@@ -615,6 +620,11 @@ MailGlue.prototype = {
         task() {
           // Make sure Gloda's up and running.
           ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+        },
+      },
+      {
+        task() {
+          MailGlue.resolveAfterStartUp();
         },
       },
       {

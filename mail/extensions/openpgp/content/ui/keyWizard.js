@@ -75,7 +75,7 @@ var syncl10n = new Localization(["messenger/openpgp/keyWizard.ftl"], true);
 
 // Dialog event listeners.
 document.addEventListener("dialogaccept", wizardContinue);
-document.addEventListener("dialoghelp", goBack);
+document.addEventListener("dialogextra1", goBack);
 document.addEventListener("dialogcancel", onClose);
 
 /**
@@ -247,8 +247,8 @@ function switchSection() {
       break;
   }
 
-  // Show the `Go Back` button.
-  kDialog.getButton("help").removeAttribute("hidden");
+  // Show the `Go back` button.
+  kDialog.getButton("extra1").hidden = false;
   resizeDialog();
 }
 
@@ -292,7 +292,7 @@ function goBack() {
  */
 function backToStart(event) {
   // Hide the `Go Back` button.
-  kDialog.getButton("help").setAttribute("hidden", true);
+  kDialog.getButton("extra1").hidden = true;
 
   // Enable the `Continue` button.
   kDialog.getButton("accept").removeAttribute("disabled");
@@ -939,8 +939,8 @@ async function openPgpImportStart() {
   // Show the successful final screen only if at least one key was imported.
   if (keyCount) {
     // Update the dialog buttons for the final stage.
-    kDialog.getButton("help").setAttribute("hidden", true);
-    kDialog.getButton("cancel").setAttribute("hidden", true);
+    kDialog.getButton("extra1").hidden = true;
+    kDialog.getButton("cancel").hidden = true;
 
     // Update the `Continue` button.
     document.l10n.setAttributes(

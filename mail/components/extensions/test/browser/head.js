@@ -1095,6 +1095,10 @@ async function run_popup_test(configData) {
   if (configData.hasOwnProperty("permissions")) {
     extensionDetails.manifest.permissions = configData.permissions;
   }
+  if (configData.default_windows) {
+    extensionDetails.manifest[configData.actionType].default_windows =
+      configData.default_windows;
+  }
 
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await backend_script(extension, configData);
@@ -1152,6 +1156,10 @@ async function run_action_button_order_test(configs, window, actionType) {
     };
     if (config.area) {
       config.extensionData.manifest[actionType].default_area = config.area;
+    }
+    if (config.default_windows) {
+      config.extensionData.manifest[actionType].default_windows =
+        config.default_windows;
     }
   }
 
