@@ -45,7 +45,7 @@ add_setup(async function() {
 add_task(
   async function test_close_message_window_on_delete_from_message_window() {
     set_close_message_on_delete(true);
-    be_in_folder(folder);
+    await be_in_folder(folder);
 
     // select the first message
     select_click_row(0);
@@ -81,7 +81,7 @@ add_task(
 add_task(
   async function test_close_multiple_message_windows_on_delete_from_message_window() {
     set_close_message_on_delete(true);
-    be_in_folder(folder);
+    await be_in_folder(folder);
 
     // select the first message
     select_click_row(0);
@@ -121,7 +121,7 @@ add_task(
 add_task(
   async function test_close_multiple_message_windows_on_delete_from_3pane_window() {
     set_close_message_on_delete(true);
-    be_in_folder(folder);
+    await be_in_folder(folder);
 
     // select the first message
     select_click_row(0);
@@ -159,20 +159,20 @@ add_task(
  * Delete a message and check that the message tab is closed
  * where appropriate.
  */
-add_task(function test_close_message_tab_on_delete_from_message_tab() {
+add_task(async function test_close_message_tab_on_delete_from_message_tab() {
   set_close_message_on_delete(true);
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // select the first message
   select_click_row(0);
   // display it
-  let msgc = open_selected_message_in_new_tab(true);
+  let msgc = await open_selected_message_in_new_tab(true);
 
   select_click_row(1);
-  let msgc2 = open_selected_message_in_new_tab(true);
+  let msgc2 = await open_selected_message_in_new_tab(true);
 
   let preCount = folder.getTotalMessages(false);
-  switch_tab(msgc);
+  await switch_tab(msgc);
   press_delete();
 
   if (folder.getTotalMessages(false) != preCount - 1) {
@@ -195,21 +195,21 @@ add_task(function test_close_message_tab_on_delete_from_message_tab() {
  * message is deleted from one of them.
  */
 add_task(
-  function test_close_multiple_message_tabs_on_delete_from_message_tab() {
+  async function test_close_multiple_message_tabs_on_delete_from_message_tab() {
     set_close_message_on_delete(true);
-    be_in_folder(folder);
+    await be_in_folder(folder);
 
     // select the first message
     select_click_row(0);
     // display it
-    let msgc = open_selected_message_in_new_tab(true);
-    open_selected_message_in_new_tab(true);
+    let msgc = await open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
 
     select_click_row(1);
-    let msgc2 = open_selected_message_in_new_tab(true);
+    let msgc2 = await open_selected_message_in_new_tab(true);
 
     let preCount = folder.getTotalMessages(false);
-    switch_tab(msgc);
+    await switch_tab(msgc);
     press_delete();
 
     if (folder.getTotalMessages(false) != preCount - 1) {
@@ -233,18 +233,18 @@ add_task(
  * message is deleted from the 3-pane window.
  */
 add_task(
-  function test_close_multiple_message_tabs_on_delete_from_3pane_window() {
+  async function test_close_multiple_message_tabs_on_delete_from_3pane_window() {
     set_close_message_on_delete(true);
-    be_in_folder(folder);
+    await be_in_folder(folder);
 
     // select the first message
     select_click_row(0);
     // display it
-    open_selected_message_in_new_tab(true);
-    open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
 
     select_click_row(1);
-    let msgc2 = open_selected_message_in_new_tab(true);
+    let msgc2 = await open_selected_message_in_new_tab(true);
 
     let preCount = folder.getTotalMessages(false);
     mc.window.focus();
@@ -274,16 +274,16 @@ add_task(
 add_task(
   async function test_close_multiple_windows_tabs_on_delete_from_3pane_window() {
     set_close_message_on_delete(true);
-    be_in_folder(folder);
+    await be_in_folder(folder);
 
     // select the first message
     select_click_row(0);
     // display it
-    open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
     let msgcA = await open_selected_message_in_new_window();
 
     select_click_row(1);
-    let msgc2 = open_selected_message_in_new_tab(true);
+    let msgc2 = await open_selected_message_in_new_tab(true);
     let msgc2A = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);

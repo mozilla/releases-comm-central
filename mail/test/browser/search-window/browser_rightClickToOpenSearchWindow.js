@@ -36,7 +36,7 @@ add_setup(async function() {
  */
 add_task(async function test_open_search_window_with_nothing_selected() {
   // Make sure the folders we need are visible
-  enter_folder(folderB);
+  await enter_folder(folderB);
   select_no_folders();
   assert_no_folders_selected();
 

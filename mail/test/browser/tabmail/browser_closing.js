@@ -46,19 +46,19 @@ add_setup(async function() {
  * Test that if we open up a message in a tab from the inbox tab, that
  * if we immediately close that tab, we switch back to the inbox tab.
  */
-add_task(function test_closed_single_message_tab_returns_to_inbox() {
-  be_in_folder(gFolder);
+add_task(async function test_closed_single_message_tab_returns_to_inbox() {
+  await be_in_folder(gFolder);
   make_display_threaded();
   let inboxTab = mc.tabmail.currentTabInfo;
 
   select_click_row(0);
   // Open a message in a new tab...
-  open_selected_message_in_new_tab(false);
+  await open_selected_message_in_new_tab(false);
 
   // Open a second message in a new tab...
-  switch_tab(0);
+  await switch_tab(0);
   select_click_row(1);
-  open_selected_message_in_new_tab(false);
+  await open_selected_message_in_new_tab(false);
 
   // Close the second tab
   mc.tabmail.closeTab(2);
@@ -75,25 +75,25 @@ add_task(function test_closed_single_message_tab_returns_to_inbox() {
  * switch around in those tabs, closing the tabs doesn't immediately jump
  * you back to the inbox tab.
  */
-add_task(function test_does_not_go_to_opener_if_switched() {
-  be_in_folder(gFolder);
+add_task(async function test_does_not_go_to_opener_if_switched() {
+  await be_in_folder(gFolder);
   make_display_threaded();
 
   select_click_row(0);
   // Open a message in a new tab...
-  open_selected_message_in_new_tab(false);
+  await open_selected_message_in_new_tab(false);
 
   // Open a second message in a new tab...
-  switch_tab(0);
+  await switch_tab(0);
   select_click_row(1);
-  open_selected_message_in_new_tab(false);
+  await open_selected_message_in_new_tab(false);
 
   // Switch to the first tab
-  switch_tab(1);
+  await switch_tab(1);
   let firstTab = mc.tabmail.currentTabInfo;
 
   // Switch back to the second tab
-  switch_tab(2);
+  await switch_tab(2);
 
   // Close the second tab
   mc.tabmail.closeTab(2);
@@ -110,8 +110,8 @@ add_task(function test_does_not_go_to_opener_if_switched() {
  * the last message tab takes us to the second last message tab as opposed
  * to the inbox tab.
  */
-add_task(function test_opening_thread_in_tabs_closing_behaviour() {
-  be_in_folder(gFolder);
+add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
+  await be_in_folder(gFolder);
   make_display_threaded();
   collapse_all_threads();
 
@@ -149,11 +149,11 @@ add_task(function test_opening_thread_in_tabs_closing_behaviour() {
  * @param {TestTab[]} An array of tab objects corresponding to all the open
  *   tabs.
  */
-function openTabs(numAdd) {
-  be_in_folder(gFolder);
+async function openTabs(numAdd) {
+  await be_in_folder(gFolder);
   select_click_row(0);
   for (let i = 0; i < numAdd; i++) {
-    open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
   }
   let tabs = mc.tabmail.tabInfo.map((info, index) => {
     return {
@@ -315,7 +315,7 @@ async function closeOtherTabsWithContextMenu(tab) {
  * Test closing unselected tabs with the mouse or keyboard.
  */
 add_task(async function test_close_unselected_tab_methods() {
-  let tabs = openTabs(3);
+  let tabs = await openTabs(3);
 
   // Can't close the first tab.
   Assert.ok(
@@ -347,7 +347,7 @@ add_task(async function test_close_unselected_tab_methods() {
  * Test closing selected tabs with the mouse or keyboard.
  */
 add_task(async function test_close_selected_tab_methods() {
-  let tabs = openTabs(4);
+  let tabs = await openTabs(4);
 
   // Select tab by clicking it.
   EventUtils.synthesizeMouseAtCenter(tabs[4].node, {}, mc.window);
@@ -383,7 +383,7 @@ add_task(async function test_close_selected_tab_methods() {
  * Test closing other tabs with the context menu.
  */
 add_task(async function test_close_other_tabs() {
-  let tabs = openTabs(3);
+  let tabs = await openTabs(3);
 
   EventUtils.synthesizeMouseAtCenter(tabs[3].node, {}, mc.window);
   assert_selected_tab(tabs[3].info);

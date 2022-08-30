@@ -35,7 +35,7 @@ add_setup(async function() {
   thread3 = create_thread(5);
   await add_message_sets_to_folders([folder], [thread1, thread2, thread3]);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   make_display_threaded();
   expand_all_threads();
 });
@@ -54,7 +54,7 @@ function clickViewMessagesItem(menuId) {
 /**
  * Test that Ignore Thread works as expected.
  */
-add_task(function test_ignore_thread() {
+add_task(async function test_ignore_thread() {
   let t1root = thread1.getMsgHdr(0);
 
   let t1second = select_click_row(1);
@@ -71,8 +71,8 @@ add_task(function test_ignore_thread() {
   assert_visible(t1root);
 
   // Go to another folder then back. Ignored messages should now be hidden.
-  be_in_folder(inboxFolder);
-  be_in_folder(folder);
+  await be_in_folder(inboxFolder);
+  await be_in_folder(folder);
   select_click_row(0);
   assert_selected_and_displayed(t2root);
 });

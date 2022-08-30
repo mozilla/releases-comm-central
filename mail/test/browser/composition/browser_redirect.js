@@ -171,7 +171,7 @@ add_task(async function testRedirectToMe() {
   });
   await add_message_to_folder([folder], msg0);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = select_click_row(i++);
   assert_selected_and_displayed(mc, msg);
 

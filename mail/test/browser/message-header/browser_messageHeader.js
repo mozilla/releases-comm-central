@@ -141,8 +141,8 @@ function get_last_visible_address(recipientsList) {
   return last;
 }
 
-add_task(function test_add_tag_with_really_long_label() {
-  be_in_folder(folder);
+add_task(async function test_add_tag_with_really_long_label() {
+  await be_in_folder(folder);
 
   // Select the first message, which will display it.
   let curMessage = select_click_row(0);
@@ -278,8 +278,8 @@ async function verify_header_a11y(header) {
  * INFO: The gInterestingMessage has no tags until after
  * test_add_tag_with_really_long_label, so ensure it runs after that one.
  */
-add_task(function test_a11y_attrs() {
-  be_in_folder(folder);
+add_task(async function test_a11y_attrs() {
+  await be_in_folder(folder);
   // Convert the SyntheticMessage gInterestingMessage into an actual nsIMsgDBHdr
   // XPCOM message.
   let hdr = folder.msgDatabase.getMsgHdrForMessageID(
@@ -355,7 +355,7 @@ function subtest_more_widget_ab_button_click(recipientsList) {
  */
 add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
   // Make sure we're in the right folder.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   // Add a new message.
   let msg = create_message();
   await add_message_to_folder([folder], msg);
@@ -405,7 +405,7 @@ add_task(async function test_msg_id_context_menu() {
     },
   });
   await add_message_to_folder([folder], msg);
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Open the latest message.
   select_click_row(-1);
@@ -450,7 +450,7 @@ add_task(
     await add_message_to_folder([folder], msg);
 
     // Make sure we're in the right folder.
-    be_in_folder(folder);
+    await be_in_folder(folder);
 
     // Open the latest message.
     select_click_row(-1);
@@ -587,7 +587,7 @@ add_task(async function test_add_contact_from_context_menu() {
 });
 
 add_task(async function test_that_msg_without_date_clears_previous_headers() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Create a message with a descriptive subject.
   let msg = create_message({ subject: "this is without date" });
@@ -700,7 +700,7 @@ function subtest_more_widget_activate(node) {
  */
 add_task(async function test_view_more_button() {
   // Generate message with 35 recipients to guarantee overflow.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = create_message({
     toCount: 35,
     subject: "Many To addresses to test_more_widget",
@@ -737,7 +737,7 @@ add_task(async function test_view_more_button() {
  */
 add_task(async function test_view_more_button_focus() {
   // Generate message with 35 recipients to guarantee overflow.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = create_message({
     toCount: 35,
     subject: "Test more button focus",
@@ -827,7 +827,7 @@ add_task(async function test_show_all_header_mode() {
   }
 
   // Generate message with 35 recipients.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = create_message({
     toCount: 35,
     subject: "many To addresses for test_show_all_header_mode",
@@ -855,7 +855,7 @@ add_task(async function test_show_all_header_mode() {
 });
 
 async function help_test_starred_messages() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Select the last message, which will display it.
   let curMessage = select_click_row(-1);
@@ -951,7 +951,7 @@ add_task(async function test_starred_message_unified_mode() {
  * doesn't change when not needed.
  */
 add_task(async function test_folder_db_listener() {
-  be_in_folder(folderMore);
+  await be_in_folder(folderMore);
   // Select the last message, which will display it.
   let curMessage = select_click_row(-1);
   wait_for_message_display_completion(mc);
@@ -981,7 +981,7 @@ add_task(async function test_folder_db_listener() {
   );
 
   // Change folder
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Select the last message, which will display it.
   curMessage = select_click_row(-1);

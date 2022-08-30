@@ -95,7 +95,7 @@ add_task(async function test_send_inline_image() {
   cwc.window.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
-  be_in_folder(gOutboxFolder);
+  await be_in_folder(gOutboxFolder);
   let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   let outMsg = select_click_row(0);
   await msgLoaded;

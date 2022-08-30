@@ -276,7 +276,7 @@ add_task(async function test_show_oldest_new_unread_since_last_notification() {
     "Should have notified for the first message"
   );
 
-  be_in_folder(gFolder);
+  await be_in_folder(gFolder);
   gFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   gMockAlertsService._reset();
 

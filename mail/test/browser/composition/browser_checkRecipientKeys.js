@@ -54,7 +54,7 @@ add_task(async function test_checkRecipientKeys() {
     "openpgp.example",
     "imap"
   );
-  be_in_folder(account.incomingServer.rootFolder);
+  await be_in_folder(account.incomingServer.rootFolder);
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, true);
   });

@@ -79,7 +79,7 @@ let tests = [
 add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
   window.focus();
   folder = await create_folder("SearchedFolder");
-  be_in_folder(folder);
+  await be_in_folder(folder);
   threads = await make_message_sets_in_folders(
     [folder],
     [
@@ -149,8 +149,8 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
   }
 });
 
-registerCleanupFunction(() => {
-  be_in_folder(inboxFolder);
+registerCleanupFunction(async function() {
+  await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
   while (window.tabmail.tabInfo.length > 1) {
     window.tabmail.closeTab(1);

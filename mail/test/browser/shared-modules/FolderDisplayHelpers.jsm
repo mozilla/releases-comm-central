@@ -379,7 +379,7 @@ async function get_special_folder(
   // Ensure the folder is empty so that each test file can puts its new messages in it
   // and they are always at reliable positions (starting from 0).
   if (aEmpty) {
-    empty_folder(folder);
+    await empty_folder(folder);
   }
 
   return folder;
@@ -467,11 +467,12 @@ async function make_message_sets_in_folders(aFolders, aOptions) {
 async function delete_messages(aSynMessageSet) {
   await MessageInjection.deleteMessages(aSynMessageSet);
 }
+
 /**
  * Make sure we are entering the folder from not having been in the folder.  We
  *  will leave the folder and come back if we have to.
  */
-function enter_folder(aFolder) {
+async function enter_folder(aFolder) {
   // Drain the event queue prior to doing any work.  It's possible that there's
   //  a pending setTimeout(0) that needs to get fired.
   controller.sleep(0);
@@ -482,7 +483,7 @@ function enter_folder(aFolder) {
 
   // if we're already selected, go back to the root...
   if (mc.folderDisplay.displayedFolder == aFolder) {
-    enter_folder(aFolder.rootFolder);
+    await enter_folder(aFolder.rootFolder);
   }
 
   mark_action("fdh", "enter_folder", [aFolder]);
@@ -510,9 +511,9 @@ function enter_folder(aFolder) {
  * @return The tab info of the current tab (a more persistent identifier for
  *     tabs than the index, which will change as tabs open/close).
  */
-function be_in_folder(aFolder) {
+async function be_in_folder(aFolder) {
   if (mc.folderDisplay.displayedFolder != aFolder) {
-    enter_folder(aFolder);
+    await enter_folder(aFolder);
   }
   return mc.tabmail.currentTabInfo;
 }
@@ -529,7 +530,7 @@ function be_in_folder(aFolder) {
  * @return The tab info of the current tab (a more persistent identifier for
  *     tabs than the index, which will change as tabs open/close).
  */
-function open_folder_in_new_tab(aFolder) {
+async function open_folder_in_new_tab(aFolder) {
   // save the current tab as the 'other' tab
   otherTab = mc.tabmail.currentTabInfo;
   mc.tabmail.openTab("folder", { folder: aFolder });
@@ -594,7 +595,7 @@ var open_selected_message = open_selected_messages;
  * @return The tab info of the new tab (a more persistent identifier for tabs
  *     than the index, which will change as tabs open/close).
  */
-function open_selected_message_in_new_tab(aBackground) {
+async function open_selected_message_in_new_tab(aBackground) {
   // get the current tab count so we can make sure the tab actually opened.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 
@@ -745,7 +746,7 @@ function _jsonize_tabmail_tab(tab) {
  *
  * @param aNewTab Optional, index of the other tab to switch to.
  */
-function switch_tab(aNewTab) {
+async function switch_tab(aNewTab) {
   if (typeof aNewTab == "number") {
     aNewTab = mc.tabmail.tabInfo[aNewTab];
   }
@@ -1581,7 +1582,7 @@ function select_shift_click_folder(aFolder) {
  *
  * @return The view index that you clicked on.
  */
-function right_click_on_folder(aFolder) {
+async function right_click_on_folder(aFolder) {
   // Figure out the view index
   let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
   mark_action("fdh", "right_click_on_folder", [aFolder]);
@@ -1714,12 +1715,12 @@ function press_delete(aController, aModifiers) {
  * @param aController The controller in whose context to do this, defaults to
  *                    |mc| if omitted.
  */
-function empty_folder(aFolder, aController = mc) {
+async function empty_folder(aFolder, aController = mc) {
   if (!aFolder) {
     throw new Error("No folder for emptying given");
   }
 
-  be_in_folder(aFolder);
+  await be_in_folder(aFolder);
   let msgCount;
   while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
     select_click_row(0, aController);

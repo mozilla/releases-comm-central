@@ -147,8 +147,8 @@ function checkReply(replyWin, expectedFromEmail) {
   }
 }
 
-add_task(function test_reply_no_matching_identity() {
-  be_in_folder(testFolder);
+add_task(async function test_reply_no_matching_identity() {
+  await be_in_folder(testFolder);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
@@ -159,8 +159,8 @@ add_task(function test_reply_no_matching_identity() {
   close_compose_window(replyWin);
 });
 
-add_task(function test_reply_matching_only_deliveredto() {
-  be_in_folder(testFolder);
+add_task(async function test_reply_matching_only_deliveredto() {
+  await be_in_folder(testFolder);
 
   let msg = select_click_row(1);
   assert_selected_and_displayed(mc, msg);
@@ -171,8 +171,8 @@ add_task(function test_reply_matching_only_deliveredto() {
   close_compose_window(replyWin);
 });
 
-add_task(function test_reply_matching_subaddress() {
-  be_in_folder(testFolder);
+add_task(async function test_reply_matching_subaddress() {
+  await be_in_folder(testFolder);
 
   let msg = select_click_row(2);
   assert_selected_and_displayed(mc, msg);
@@ -184,8 +184,8 @@ add_task(function test_reply_matching_subaddress() {
   close_compose_window(replyWin);
 });
 
-add_task(function test_reply_to_matching_second_id() {
-  be_in_folder(testFolder);
+add_task(async function test_reply_to_matching_second_id() {
+  await be_in_folder(testFolder);
 
   let msg = select_click_row(3);
   assert_selected_and_displayed(mc, msg);
@@ -196,8 +196,8 @@ add_task(function test_reply_to_matching_second_id() {
   close_compose_window(replyWin);
 });
 
-add_task(function test_deliveredto_to_matching_only_parlty() {
-  be_in_folder(testFolder);
+add_task(async function test_deliveredto_to_matching_only_parlty() {
+  await be_in_folder(testFolder);
 
   let msg = select_click_row(4);
   assert_selected_and_displayed(mc, msg);
@@ -212,8 +212,8 @@ add_task(function test_deliveredto_to_matching_only_parlty() {
  * A reply from self is treated as a follow-up. And this self
  * was the second identity, so the reply should also be from the second identity.
  */
-add_task(function test_reply_to_self_second_id() {
-  be_in_folder(testFolder);
+add_task(async function test_reply_to_self_second_id() {
+  await be_in_folder(testFolder);
 
   let msg = select_click_row(5);
   assert_selected_and_displayed(mc, msg);

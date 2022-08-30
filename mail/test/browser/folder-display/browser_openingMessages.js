@@ -60,11 +60,11 @@ add_setup(async function() {
 /**
  * Test opening a single message in a new tab.
  */
-add_task(function test_open_single_message_in_tab() {
+add_task(async function test_open_single_message_in_tab() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
   let preCount = mc.tabmail.tabContainer.allTabs.length;
-  be_in_folder(folder);
+  await be_in_folder(folder);
   // Select one message
   let msgHdr = select_click_row(1);
   // Open it
@@ -84,18 +84,18 @@ add_task(function test_open_single_message_in_tab() {
   check_message_pane_in_tab_full_height();
   // Clean up, close the tab
   close_tab(mc.tabmail.currentTabInfo);
-  switch_tab(folderTab);
+  await switch_tab(folderTab);
   reset_open_message_behavior();
 });
 
 /**
  * Test opening multiple messages in new tabs.
  */
-add_task(function test_open_multiple_messages_in_tabs() {
+add_task(async function test_open_multiple_messages_in_tabs() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
   let preCount = mc.tabmail.tabContainer.allTabs.length;
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Select a bunch of messages
   select_click_row(1);
@@ -126,7 +126,7 @@ add_task(function test_open_multiple_messages_in_tabs() {
     assert_message_pane_focused();
     close_tab(mc.tabmail.currentTabInfo);
   }
-  switch_tab(folderTab);
+  await switch_tab(folderTab);
   reset_open_message_behavior();
 });
 
@@ -135,7 +135,7 @@ add_task(function test_open_multiple_messages_in_tabs() {
  */
 add_task(async function test_open_message_in_new_window() {
   set_open_message_behavior("NEW_WINDOW");
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Select a message
   let msgHdr = select_click_row(1);
@@ -161,7 +161,7 @@ add_task(async function test_open_message_in_new_window() {
  */
 add_task(async function test_open_message_in_existing_window() {
   set_open_message_behavior("EXISTING_WINDOW");
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Open up a window
   select_click_row(1);

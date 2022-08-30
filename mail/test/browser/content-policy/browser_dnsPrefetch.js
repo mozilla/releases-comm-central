@@ -136,7 +136,7 @@ function checkComposeWindow(replyType) {
   composeHelper.close_compose_window(replyWindow);
 }
 
-add_task(function test_dnsPrefetch_message() {
+add_task(async function test_dnsPrefetch_message() {
   // Now we have started up, simply check that DNS prefetch is disabled
   Assert.ok(
     !mc.e("messagepane").docShell.allowDNSPrefetch,
@@ -147,7 +147,7 @@ add_task(function test_dnsPrefetch_message() {
     "Should disable DNS Prefetch on multimessage at startup"
   );
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_nothing_selected();
 

@@ -110,7 +110,7 @@ add_setup(async function() {
  * opening.
  */
 add_task(async function testDraftSec() {
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   await doTestSecState(true, false); // draft, not secure
   await doTestSecState(true, true); // draft, secure
 });
@@ -120,7 +120,7 @@ add_task(async function testDraftSec() {
  * opening.
  */
 add_task(async function testTemplSec() {
-  be_in_folder(templatesFolder);
+  await be_in_folder(templatesFolder);
   await doTestSecState(true, false); // template, not secure
   await doTestSecState(true, true); // template, secure
 });
@@ -134,7 +134,7 @@ async function doTestSecState(isDraft, secure) {
   let inbox = aliceAcct.incomingServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
-  be_in_folder(inbox);
+  await be_in_folder(inbox);
 
   let cwc = open_compose_new_mail();
   let type = isDraft ? "draft" : "template";
@@ -167,7 +167,7 @@ async function doTestSecState(isDraft, secure) {
   info(`Saved as ${type} with secure=${secure}`);
   cwc.window.close();
 
-  be_in_folder(theFolder);
+  await be_in_folder(theFolder);
   select_click_row(0);
 
   info(`Will double click to open the ${type}`);

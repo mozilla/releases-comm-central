@@ -62,11 +62,11 @@ add_setup(async function() {
 /**
  * Test opening a single message without a backing view in a new tab.
  */
-function test_open_single_message_without_backing_view_in_tab() {
+async function test_open_single_message_without_backing_view_in_tab() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
   let preCount = mc.tabmail.tabContainer.allTabs.length;
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   if (!msgHdrsInFolder) {
     msgHdrsInFolder = [];
@@ -94,7 +94,7 @@ function test_open_single_message_without_backing_view_in_tab() {
   assert_message_pane_focused();
   // Clean up, close the tab
   close_tab(mc.tabmail.currentTabInfo);
-  switch_tab(folderTab);
+  await switch_tab(folderTab);
   reset_open_message_behavior();
 }
 add_task(test_open_single_message_without_backing_view_in_tab);
@@ -102,11 +102,11 @@ add_task(test_open_single_message_without_backing_view_in_tab);
 /**
  * Test opening multiple messages without backing views in new tabs.
  */
-function test_open_multiple_messages_without_backing_views_in_tabs() {
+async function test_open_multiple_messages_without_backing_views_in_tabs() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
   let preCount = mc.tabmail.tabContainer.allTabs.length;
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Get a reference to a bunch of headers
   let msgHdrs = msgHdrsInFolder.slice(0, NUM_MESSAGES_TO_OPEN);
@@ -136,7 +136,7 @@ function test_open_multiple_messages_without_backing_views_in_tabs() {
     assert_message_pane_focused();
     close_tab(mc.tabmail.currentTabInfo);
   }
-  switch_tab(folderTab);
+  await switch_tab(folderTab);
   reset_open_message_behavior();
 }
 add_task(test_open_multiple_messages_without_backing_views_in_tabs);
@@ -146,7 +146,7 @@ add_task(test_open_multiple_messages_without_backing_views_in_tabs);
  */
 async function test_open_message_without_backing_view_in_new_window() {
   set_open_message_behavior("NEW_WINDOW");
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Select a message
   let msgHdr = msgHdrsInFolder[6];
@@ -169,7 +169,7 @@ add_task(test_open_message_without_backing_view_in_new_window);
  */
 async function test_open_message_without_backing_view_in_existing_window() {
   set_open_message_behavior("EXISTING_WINDOW");
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Open up a window
   let firstMsgHdr = msgHdrsInFolder[3];
@@ -206,14 +206,14 @@ add_task(function test_filter_out_all_messages() {
  * Re-run all the tests.
  */
 add_task(
-  function test_open_single_message_without_backing_view_in_tab_filtered() {
-    test_open_single_message_without_backing_view_in_tab();
+  async function test_open_single_message_without_backing_view_in_tab_filtered() {
+    await test_open_single_message_without_backing_view_in_tab();
   }
 );
 
 add_task(
-  function test_open_multiple_messages_without_backing_views_in_tabs_filtered() {
-    test_open_multiple_messages_without_backing_views_in_tabs();
+  async function test_open_multiple_messages_without_backing_views_in_tabs_filtered() {
+    await test_open_multiple_messages_without_backing_views_in_tabs();
   }
 );
 

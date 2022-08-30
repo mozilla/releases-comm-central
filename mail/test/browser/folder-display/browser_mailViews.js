@@ -45,9 +45,9 @@ add_task(function test_put_view_picker_on_toolbar() {
 /**
  * https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c97
  */
-add_task(function test_save_view_as_folder() {
+add_task(async function test_save_view_as_folder() {
   // - enter the folder
-  be_in_folder(baseFolder);
+  await be_in_folder(baseFolder);
 
   // - apply the mail view
   // okay, mozmill is just not ready to click on the view picker...
@@ -82,7 +82,7 @@ function subtest_save_mail_view(savc) {
   savc.window.onOK();
 }
 
-add_task(function test_verify_saved_mail_view() {
+add_task(async function test_verify_saved_mail_view() {
   // - make sure the folder got created
   savedFolder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
   if (!savedFolder) {
@@ -90,7 +90,7 @@ add_task(function test_verify_saved_mail_view() {
   }
 
   // - go in the folder and make sure the right messages are displayed
-  be_in_folder(savedFolder);
+  await be_in_folder(savedFolder);
   assert_messages_in_view(setTagged, mc);
 
   Assert.report(

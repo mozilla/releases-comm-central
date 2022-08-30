@@ -40,8 +40,8 @@ add_setup(async function() {
  * Test that the subject is set properly in the forwarded message content
  * when you hit forward.
  */
-add_task(function test_forwarded_subj() {
-  be_in_folder(folder);
+add_task(async function test_forwarded_subj() {
+  await be_in_folder(folder);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);

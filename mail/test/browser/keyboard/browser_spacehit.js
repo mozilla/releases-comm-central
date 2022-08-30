@@ -28,7 +28,7 @@ add_setup(async function() {
   // Create four unread messages in a sample folder
   let folder = await create_folder("Sample");
   await make_message_sets_in_folders([folder], [{ count: 4 }]);
-  be_in_folder(folder);
+  await be_in_folder(folder);
 });
 
 registerCleanupFunction(function() {

@@ -91,7 +91,7 @@ add_setup(async function() {
   );
 
   gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
 });
 
 add_task(async function testPermanentDecrypt() {
@@ -138,7 +138,7 @@ add_task(async function testPermanentDecrypt() {
 
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
 
-  be_in_folder(gDecFolder);
+  await be_in_folder(gDecFolder);
 
   select_click_row(0);
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");

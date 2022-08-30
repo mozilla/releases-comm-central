@@ -67,7 +67,7 @@ add_setup(async function() {
  * Test the warning is shown when encryption is enabled.
  */
 add_task(async function testWarningShowsWhenEncryptionEnabled() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   Assert.ok(!cwc.window.gSendEncrypted);
@@ -103,7 +103,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
  * Test dismissing the warning works.
  */
 add_task(async function testNotificationDismissal() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   Assert.ok(!cwc.window.gSendEncrypted);
@@ -177,7 +177,7 @@ add_task(async function testNotificationDismissal() {
  * Test the warning does not show when encryption is not enabled.
  */
 add_task(async function testNoWarningWhenEncryptionDisabled() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   Assert.ok(!window.gSendEncrypted);
@@ -213,7 +213,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
  * Test the warning does not show when the Bcc recipient is the sender.
  */
 add_task(async function testNoWarningWhenBccRecipientIsSender() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   Assert.ok(!window.gSendEncrypted);

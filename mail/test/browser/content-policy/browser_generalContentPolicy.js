@@ -525,7 +525,7 @@ function checkAllowForHostsWithPerms(test) {
 }
 
 add_task(async function test_generalContentPolicy() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_nothing_selected();
 
@@ -616,7 +616,7 @@ add_task(async function test_imgAuth() {
   );
 
   // Select the newly created message.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(gMsgNo);
 
   // Open reply/fwd. If we get a prompt the test will timeout.
@@ -648,7 +648,7 @@ function putHTMLOnClipboard(html) {
   Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }
 
-function subtest_insertImageIntoReplyForward(aReplyType) {
+async function subtest_insertImageIntoReplyForward(aReplyType) {
   let msgDbHdr = addToFolder(
     "Test insert image into reply or forward",
     "Stand by for image insertion ;-)",
@@ -657,7 +657,7 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
   gMsgNo++;
 
   // Select the newly created message.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msgHdr = select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
@@ -744,10 +744,10 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
   close_compose_window(replyWindow);
 }
 
-add_task(function test_insertImageIntoReply() {
-  subtest_insertImageIntoReplyForward(true);
+add_task(async function test_insertImageIntoReply() {
+  await subtest_insertImageIntoReplyForward(true);
 });
 
-add_task(function test_insertImageIntoForward() {
-  subtest_insertImageIntoReplyForward(false);
+add_task(async function test_insertImageIntoForward() {
+  await subtest_insertImageIntoReplyForward(false);
 });

@@ -52,8 +52,8 @@ add_setup(async function() {
 /**
  * Switch to the unread folder mode.
  */
-add_task(function test_switch_to_unread_folders() {
-  be_in_folder(inboxFolder);
+add_task(async function test_switch_to_unread_folders() {
+  await be_in_folder(inboxFolder);
   mc.folderTreeView.activeModes = "unread";
   // Hide the all folder views.
   mc.folderTreeView.activeModes = "all";

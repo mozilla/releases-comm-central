@@ -24,7 +24,7 @@ add_setup(async function() {
   folderParent.createSubfolder("Child2", null);
   folderChild2 = folderParent.getChildNamed("Child2");
 
-  be_in_folder(folderSource);
+  await be_in_folder(folderSource);
 
   registerCleanupFunction(function teardown() {
     folderParent.deleteSelf(null);
@@ -183,7 +183,7 @@ add_task(async function test_apply_to_folder_no_children() {
  *  Make sure the folder and its children change.
  */
 add_task(async function test_apply_to_folder_and_children() {
-  be_in_folder(folderSource);
+  await be_in_folder(folderSource);
 
   let child1Info = folderChild1.msgDatabase.dBFolderInfo;
   Assert.equal(

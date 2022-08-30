@@ -80,11 +80,12 @@ add_setup(async function() {
     clobberHeaders: { "Return-Receipt-To": "ex1@example.com, ex2@example.com" },
   });
   await add_message_to_folder([folder], msg6);
+
+  await be_in_folder(folder);
 });
 
 /** Utility to select a message. */
 function gotoMsg(row) {
-  be_in_folder(folder);
   let curMessage = select_click_row(row);
   assert_selected_and_displayed(mc, curMessage);
 }

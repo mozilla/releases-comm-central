@@ -35,7 +35,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   let term = "atermtosearchfor";
 
   registerCleanupFunction(async () => {
-    be_in_folder(inboxFolder);
+    await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
@@ -53,7 +53,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
     msg.bodyPart = new SyntheticPartLeaf(term);
   }
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {

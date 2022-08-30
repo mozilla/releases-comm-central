@@ -93,7 +93,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     aliceAcct.incomingServer.localFoldersServer
   );
 
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
 
   // Delete the messages we saved to drafts.
   registerCleanupFunction(

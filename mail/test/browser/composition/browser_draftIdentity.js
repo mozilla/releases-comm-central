@@ -146,7 +146,7 @@ function checkCompIdentity(cwc, aIdentityKey, aFrom) {
  * Test that starting a new message from a draft with various combinations
  * of From and X-Identity-Key gets the expected initial identity selected.
  */
-add_task(function test_draft_identity_selection() {
+add_task(async function test_draft_identity_selection() {
   let tests = [
     // X-Identity-Key header exists:
     // 1. From header matches X-Identity-Key identity exactly
@@ -233,7 +233,7 @@ add_task(function test_draft_identity_selection() {
 
   for (let test of tests) {
     dump("Running draft identity test" + tests.indexOf(test) + "\n");
-    be_in_folder(gDrafts);
+    await be_in_folder(gDrafts);
     select_click_row(test.draftIndex);
     assert_selected_and_displayed(test.draftIndex);
     wait_for_notification_to_show(
@@ -267,7 +267,7 @@ add_task(function test_draft_identity_selection() {
   /*
   // TODO: fix this in bug 1238264, the identity selector does not properly close.
   // Open a draft again that shows the notification.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   select_click_row(tests[tests.length-1].draftIndex);
   let cwc = open_compose_from_draft();
   wait_for_notification_to_show(cwc, "compose-notification-bottom",
@@ -283,7 +283,7 @@ add_task(function test_draft_identity_selection() {
 */
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(async function() {
   for (let id = 1; id < gIdentities.length; id++) {
     gAccount.removeIdentity(
       MailServices.accounts.getIdentity(gIdentities[id].key)
@@ -297,7 +297,7 @@ registerCleanupFunction(function() {
   gAccount = null;
 
   // Clear our drafts.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let draftCount;
   while ((draftCount = gDrafts.getTotalMessages(false)) > 0) {
     press_delete();

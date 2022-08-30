@@ -32,8 +32,8 @@ add_setup(async function() {
   await make_message_sets_in_folders([folder], [{ count: 1 }]);
 });
 
-add_task(function test_message_reloads_work_with_message_pane_toggles() {
-  be_in_folder(folder);
+add_task(async function test_message_reloads_work_with_message_pane_toggles() {
+  await be_in_folder(folder);
 
   assert_message_pane_visible();
   select_click_row(0);
@@ -43,13 +43,13 @@ add_task(function test_message_reloads_work_with_message_pane_toggles() {
   toggle_message_pane();
   assert_message_pane_visible();
   // Open a new tab with the same message
-  let tab = open_folder_in_new_tab(folder);
+  let tab = await open_folder_in_new_tab(folder);
   // Toggle the message pane off
   assert_message_pane_visible();
   toggle_message_pane();
   assert_message_pane_hidden();
   // Go back to the first tab, and make sure the message is actually displayed
-  switch_tab(0);
+  await switch_tab(0);
   assert_message_pane_visible();
   assert_selected_and_displayed(0);
 

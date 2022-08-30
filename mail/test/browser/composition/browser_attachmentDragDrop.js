@@ -261,7 +261,7 @@ add_task(async function test_message_drag() {
   let folder = await create_folder("dragondrop");
   let subject = "Dragons don't drop from the sky";
   let body = "Dragons can fly after all.";
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_to_folder(
     [folder],
     create_message({ subject, body: { body } })
@@ -304,7 +304,7 @@ add_task(async function test_message_drag() {
   Assert.notEqual(attachment, 0, "Message is not 0 bytes");
 
   close_compose_window(cwc);
-  be_in_folder(inboxFolder);
+  await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
 });
 
@@ -631,7 +631,7 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
       }),
     })
   );
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(0);
   let srcAttachmentArea = mc.window.document.getElementById("attachmentView");
   Assert.ok(!srcAttachmentArea.collapsed, "Attachment area is visible");

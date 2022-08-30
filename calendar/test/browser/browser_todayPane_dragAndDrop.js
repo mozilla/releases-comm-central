@@ -41,7 +41,7 @@ add_task(async function testDropMozMessage() {
   let folder = await create_folder("Mochitest");
   let subject = "The Grand Event";
   let body = "Parking is available.";
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_to_folder([folder], create_message({ subject, body: { body } }));
   select_click_row(0);
 
@@ -83,7 +83,7 @@ add_task(async function testDropMozMessage() {
   );
 
   await BrowserTestUtils.closeWindow(eventWindow);
-  be_in_folder(inboxFolder);
+  await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
 });
 

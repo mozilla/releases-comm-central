@@ -31,7 +31,7 @@ add_setup(async function() {
 });
 
 add_task(async function test_quoteMessage() {
-  be_in_folder(folderToStoreMessages);
+  await be_in_folder(folderToStoreMessages);
 
   let file = new FileUtils.File(getTestFilePath("data/iso-2022-jp.eml"));
   let msgc = await open_message_from_file(file);

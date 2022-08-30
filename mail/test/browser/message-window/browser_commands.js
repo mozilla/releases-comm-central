@@ -35,7 +35,7 @@ add_task(async function test_copy_eml_message() {
   // First, copy an email to a folder and delete it immediately just so it shows
   // up in the recent folders list. This simplifies navigation of the copy
   // context menu.
-  be_in_folder(folder1);
+  await be_in_folder(folder1);
   let message = select_click_row(0);
   MailServices.copy.copyMessages(
     folder1,
@@ -46,7 +46,7 @@ add_task(async function test_copy_eml_message() {
     mc.window.msgWindow,
     true
   );
-  be_in_folder(folder2);
+  await be_in_folder(folder2);
   select_click_row(0);
   press_delete(mc);
 

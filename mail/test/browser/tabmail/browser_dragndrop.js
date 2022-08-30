@@ -67,8 +67,8 @@ registerCleanupFunction(async function() {
  * Verifies our test environment is setup correctly and initializes
  * all global variables.
  */
-add_task(function test_tab_reorder_setup_globals() {
-  be_in_folder(folder);
+add_task(async function test_tab_reorder_setup_globals() {
+  await be_in_folder(folder);
   // Scroll to the top
   mc.folderDisplay.ensureRowIsVisible(0);
   let msgHdr = mc.dbView.getMsgHdrAt(1);
@@ -86,7 +86,7 @@ add_task(function test_tab_reorder_setup_globals() {
 
   // Stash messages into arrays for convenience. We do it this way so that the
   // order of messages in the arrays is the same as in the views.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   for (let i = 0; i < NUM_MESSAGES_IN_FOLDER; i++) {
     msgHdrsInFolder.push(mc.dbView.getMsgHdrAt(i));
   }
@@ -102,17 +102,17 @@ add_task(function test_tab_reorder_setup_globals() {
  * It opens additional movable and closable tabs. The picks the first
  * movable tab and drops it onto the third movable tab.
  */
-add_task(function test_tab_reorder_tabbar() {
+add_task(async function test_tab_reorder_tabbar() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Open four tabs
   for (let idx = 0; idx < 4; idx++) {
     select_click_row(idx);
-    open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
   }
 
   // Check if every thing is correctly initialized
@@ -134,7 +134,7 @@ add_task(function test_tab_reorder_tabbar() {
   );
 
   // Start dragging the first tab
-  switch_tab(1);
+  await switch_tab(1);
   assert_selected_and_displayed(msgHdrsInFolder[0]);
 
   let tab1 = mc.tabmail.tabContainer.allTabs[1];
@@ -157,12 +157,12 @@ add_task(function test_tab_reorder_tabbar() {
 
   // ... we should find tab1 at the third position...
   Assert.equal(tab1, mc.tabmail.tabContainer.allTabs[3], "Moving tab1 failed");
-  switch_tab(3);
+  await switch_tab(3);
   assert_selected_and_displayed(msgHdrsInFolder[0]);
 
   // ... while tab3 moves one up and gets second.
   Assert.ok(tab3 == mc.tabmail.tabContainer.allTabs[2], "Moving tab3 failed");
-  switch_tab(2);
+  await switch_tab(2);
   assert_selected_and_displayed(msgHdrsInFolder[2]);
 
   // we have one "message" tab and three "folder" tabs, thus tabInfo[1-3] and
@@ -195,15 +195,15 @@ add_task(async function test_tab_reorder_window() {
 
   let mc2 = null;
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Open a new tab...
   select_click_row(1);
-  open_selected_message_in_new_tab(false);
+  await open_selected_message_in_new_tab(false);
 
   assert_number_of_tabs_open(2);
 
-  switch_tab(1);
+  await switch_tab(1);
   assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ...and then a new 3 pane as our drop target.
@@ -270,11 +270,11 @@ add_task(async function test_tab_reorder_detach() {
 
   let mc2 = null;
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Open a new tab...
   select_click_row(2);
-  open_selected_message_in_new_tab(false);
+  await open_selected_message_in_new_tab(false);
 
   assert_number_of_tabs_open(2);
 
@@ -320,22 +320,22 @@ add_task(async function test_tab_reorder_detach() {
 /**
  * Test undo of recently closed tabs.
  */
-add_task(function test_tab_undo() {
+add_task(async function test_tab_undo() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Open five tabs...
   for (let idx = 0; idx < 5; idx++) {
     select_click_row(idx);
-    open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
   }
 
   assert_number_of_tabs_open(6);
 
-  switch_tab(2);
+  await switch_tab(2);
   assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   mc.tabmail.closeTab(2);
@@ -393,16 +393,16 @@ add_task(async function test_tab_recentlyClosed() {
   Assert.equal(mc.tabmail.recentlyClosedTabs.length, 0);
 
   // The history is cleaned so let's open 15 tabs...
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   for (let idx = 0; idx < 15; idx++) {
     select_click_row(idx);
-    open_selected_message_in_new_tab(true);
+    await open_selected_message_in_new_tab(true);
   }
 
   assert_number_of_tabs_open(16);
 
-  switch_tab(2);
+  await switch_tab(2);
   assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ... and store the tab titles, to ensure they match with the menu items.

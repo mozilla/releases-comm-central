@@ -62,30 +62,30 @@ add_setup(async function() {
 });
 
 /** Test sig strip true for format flowed. */
-add_task(function test_sig_strip_true_ff() {
+add_task(async function test_sig_strip_true_ff() {
   Services.prefs.setBoolPref("mail.strip_sig_on_reply", true);
-  check_sig_strip_works(0, true);
+  await check_sig_strip_works(0, true);
   Services.prefs.clearUserPref("mail.strip_sig_on_reply");
 });
 
 /** Test sig strip false for format flowed. */
-add_task(function test_sig_strip_false_ff() {
+add_task(async function test_sig_strip_false_ff() {
   Services.prefs.setBoolPref("mail.strip_sig_on_reply", false);
-  check_sig_strip_works(0, false);
+  await check_sig_strip_works(0, false);
   Services.prefs.clearUserPref("mail.strip_sig_on_reply");
 });
 
 /** Test sig strip true for non-format flowed. */
-add_task(function test_sig_strip_true_nonff() {
+add_task(async function test_sig_strip_true_nonff() {
   Services.prefs.setBoolPref("mail.strip_sig_on_reply", true);
-  check_sig_strip_works(1, true);
+  await check_sig_strip_works(1, true);
   Services.prefs.clearUserPref("mail.strip_sig_on_reply");
 });
 
 /** Test sig strip false for non-format flowed. */
-add_task(function test_sig_strip_false_nonff() {
+add_task(async function test_sig_strip_false_nonff() {
   Services.prefs.setBoolPref("mail.strip_sig_on_reply", false);
-  check_sig_strip_works(1, false);
+  await check_sig_strip_works(1, false);
   Services.prefs.clearUserPref("mail.strip_sig_on_reply");
 });
 
@@ -94,8 +94,8 @@ add_task(function test_sig_strip_false_nonff() {
  * @param aRow the row index of the message to test
  * @param aShouldStrip true if the signature should be stripped
  */
-function check_sig_strip_works(aRow, aShouldStrip) {
-  be_in_folder(folder);
+async function check_sig_strip_works(aRow, aShouldStrip) {
+  await be_in_folder(folder);
   let msg = select_click_row(aRow);
   assert_selected_and_displayed(mc, msg);
 

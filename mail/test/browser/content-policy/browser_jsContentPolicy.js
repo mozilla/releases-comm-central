@@ -144,7 +144,7 @@ add_setup(async function() {
  * Check JavaScript is disabled when loading messages in the message pane.
  */
 add_task(async function testJsInMail() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
@@ -201,7 +201,7 @@ add_task(async function testJsInRemoteContent() {
  * after remote content has been displayed there.
  */
 add_task(async function testJsInMailAgain() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
@@ -241,7 +241,7 @@ function assertJSDisabledInEditor() {
  * Check JavaScript is disabled in the editor.
  */
 add_task(async function testJsInMailReply() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   var body = jsMsgBody.replace(
     "</body>",

@@ -51,7 +51,7 @@ add_setup(async function() {
 var msgc;
 
 add_task(async function test_open_message_window() {
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
 
   // select the first message
   curMessage = select_click_row(0);
@@ -134,7 +134,7 @@ add_task(async function test_next_unread() {
   wait_for_message_display_completion(msgc, true);
 
   // move to folder B
-  be_in_folder(folderB);
+  await be_in_folder(folderB);
 
   // select the first message, and make sure it's not read
   let msg = select_click_row(0);

@@ -57,7 +57,7 @@ add_setup(async function() {
     mc.window.gFolderTreeView.selectFolder(folder.rootFolder);
     folder.deleteSelf(null);
   });
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // Let's check window dimensions so we can enlarge from them.
   restore_default_window_size();

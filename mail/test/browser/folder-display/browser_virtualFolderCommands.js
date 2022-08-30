@@ -35,8 +35,8 @@ add_setup(async function() {
   multiVirtFolder = create_virtual_folder([folderOne, folderTwo], {});
 });
 
-add_task(function test_single_folder_select_thread() {
-  be_in_folder(singleVirtFolder);
+add_task(async function test_single_folder_select_thread() {
+  await be_in_folder(singleVirtFolder);
   make_display_threaded();
   expand_all_threads();
 
@@ -57,8 +57,8 @@ add_task(function test_single_folder_select_thread() {
   );
 });
 
-add_task(function test_cross_folder_select_thread() {
-  be_in_folder(multiVirtFolder);
+add_task(async function test_cross_folder_select_thread() {
+  await be_in_folder(multiVirtFolder);
   make_display_threaded();
   expand_all_threads();
 

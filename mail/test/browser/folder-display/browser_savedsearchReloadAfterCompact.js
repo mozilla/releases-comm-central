@@ -45,7 +45,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
    * selection on the compaction notification to fail. We test the saved search
    * view still gets rebuilt, such that there is a valid msg hdr at row 0.
    */
-  be_in_folder(otherFolder);
+  await be_in_folder(otherFolder);
   select_click_row(0);
   press_delete();
 
@@ -55,7 +55,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
     true,
     "SavedSearch"
   );
-  be_in_folder(folderVirtual);
+  await be_in_folder(folderVirtual);
   select_click_row(0);
   let urlListener = {
     compactDone: false,

@@ -518,7 +518,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
 
   return { upload, url, itemIcon, itemSize, totalSize };
 }

@@ -168,7 +168,7 @@ async function checkStandaloneMessageWindow(loadAllowed) {
 }
 
 add_task(async function test_3paneWindowDenied() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_nothing_selected();
 

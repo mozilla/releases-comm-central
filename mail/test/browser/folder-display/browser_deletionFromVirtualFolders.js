@@ -91,9 +91,9 @@ var VERIFY_ALL = 0xf;
  * Verify that the message is displayed in the given tabs. The index is
  * optional.
  */
-function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
+async function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   if (aFlags & VERIFY_FOLDER_TAB) {
-    switch_tab(tabFolder);
+    await switch_tab(tabFolder);
     assert_selected_and_displayed(aMessage);
     if (aIndex !== undefined) {
       assert_selected_and_displayed(aIndex);
@@ -102,7 +102,7 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   if (aFlags & VERIFY_MESSAGE_TAB) {
     // Verify the title first
     assert_tab_titled_from(tabMessage, aMessage);
-    switch_tab(tabMessage);
+    await switch_tab(tabMessage);
     // Verify the title again, just in case
     assert_tab_titled_from(tabMessage, aMessage);
     assert_selected_and_displayed(aMessage);
@@ -122,8 +122,8 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   }
 }
 
-add_task(function test_create_virtual_folders() {
-  be_in_folder(baseFolder);
+add_task(async function test_create_virtual_folders() {
+  await be_in_folder(baseFolder);
 
   // Apply the mail view
   mc.window.RefreshAllViewPopups(mc.e("viewPickerPopup"));
@@ -147,23 +147,23 @@ function subtest_save_mail_view(savc) {
 
 async function _open_first_message() {
   // Enter the folder and open a message
-  tabFolder = be_in_folder(folder);
+  tabFolder = await be_in_folder(folder);
   curMessage = select_click_row(0);
   assert_selected_and_displayed(curMessage);
 
   // Open the tab with the message
-  tabMessage = open_selected_message_in_new_tab();
+  tabMessage = await open_selected_message_in_new_tab();
   assert_selected_and_displayed(curMessage);
   assert_tab_titled_from(tabMessage, curMessage);
 
-  switch_tab(tabFolder);
+  await switch_tab(tabFolder);
 
   // Open another tab with the message, this time in the background
-  tabMessageBackground = open_selected_message_in_new_tab(true);
+  tabMessageBackground = await open_selected_message_in_new_tab(true);
   assert_tab_titled_from(tabMessageBackground, curMessage);
 
   // Open the window with the message
-  switch_tab(tabFolder);
+  await switch_tab(tabFolder);
   msgc = await open_selected_message_in_new_window();
   assert_selected_and_displayed(msgc, curMessage);
 }
@@ -181,7 +181,7 @@ add_task(async function test_open_first_message_in_virtual_folder() {
  * Perform a deletion from the folder tab, verify the others update correctly
  * (advancing to the next message).
  */
-add_task(function test_delete_from_virtual_folder_in_folder_tab() {
+add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 1
   curMessage = mc.dbView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
@@ -190,21 +190,21 @@ add_task(function test_delete_from_virtual_folder_in_folder_tab() {
   press_delete();
 
   // - verify all displays
-  _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
 
 /**
  * Perform a deletion from the message tab, verify the others update correctly
  *  (advancing to the next message).
  */
-add_task(function test_delete_from_virtual_folder_in_message_tab() {
-  switch_tab(tabMessage);
+add_task(async function test_delete_from_virtual_folder_in_message_tab() {
+  await switch_tab(tabMessage);
   // nextMessage is the guy we want to see once the delete completes.
   press_delete();
   curMessage = nextMessage;
 
   // - verify all displays
-  _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // figure out the next guy...
   nextMessage = mc.dbView.getMsgHdrAt(1);
@@ -217,12 +217,12 @@ add_task(function test_delete_from_virtual_folder_in_message_tab() {
  * Perform a deletion from the message window, verify the others update
  *  correctly (advancing to the next message).
  */
-add_task(function test_delete_from_virtual_folder_in_message_window() {
+add_task(async function test_delete_from_virtual_folder_in_message_window() {
   // - delete
   press_delete(msgc);
   curMessage = nextMessage;
   // - verify all displays
-  _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
 
 /**
@@ -230,7 +230,7 @@ add_task(function test_delete_from_virtual_folder_in_message_window() {
  *  displays.
  */
 add_task(
-  function test_delete_last_message_from_virtual_folder_closes_message_displays() {
+  async function test_delete_last_message_from_virtual_folder_closes_message_displays() {
     // - since we have both foreground and background message tabs, we don't need
     // to open yet another tab to test
 
@@ -238,7 +238,7 @@ add_task(
     plan_for_window_close(msgc);
 
     // - let's arbitrarily perform the deletion on this message tab
-    switch_tab(tabMessage);
+    await switch_tab(tabMessage);
     press_delete();
 
     // - the message window should have gone away...
@@ -266,7 +266,7 @@ add_task(async function test_open_first_message_in_smart_inbox() {
   mc.folderTreeView.activeModes = "smart";
   // Select the smart inbox
   folder = get_smart_folder_named("Inbox");
-  be_in_folder(folder);
+  await be_in_folder(folder);
   assert_messages_in_view(setNormal);
   // Open the first message
   await _open_first_message();
@@ -276,7 +276,7 @@ add_task(async function test_open_first_message_in_smart_inbox() {
  * Perform a deletion from the folder tab, verify the others update correctly
  * (advancing to the next message).
  */
-add_task(function test_delete_from_smart_inbox_in_folder_tab() {
+add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 1
   curMessage = mc.dbView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
@@ -285,21 +285,21 @@ add_task(function test_delete_from_smart_inbox_in_folder_tab() {
   press_delete();
 
   // - verify all displays
-  _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
 
 /**
  * Perform a deletion from the message tab, verify the others update correctly
  *  (advancing to the next message).
  */
-add_task(function test_delete_from_smart_inbox_in_message_tab() {
-  switch_tab(tabMessage);
+add_task(async function test_delete_from_smart_inbox_in_message_tab() {
+  await switch_tab(tabMessage);
   // nextMessage is the guy we want to see once the delete completes.
   press_delete();
   curMessage = nextMessage;
 
   // - verify all displays
-  _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // figure out the next guy...
   nextMessage = mc.dbView.getMsgHdrAt(1);
@@ -312,12 +312,12 @@ add_task(function test_delete_from_smart_inbox_in_message_tab() {
  * Perform a deletion from the message window, verify the others update
  *  correctly (advancing to the next message).
  */
-add_task(function test_delete_from_smart_inbox_in_message_window() {
+add_task(async function test_delete_from_smart_inbox_in_message_window() {
   // - delete
   press_delete(msgc);
   curMessage = nextMessage;
   // - verify all displays
-  _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
 
 /**
@@ -325,7 +325,7 @@ add_task(function test_delete_from_smart_inbox_in_message_window() {
  *  displays.
  */
 add_task(
-  function test_delete_last_message_from_smart_inbox_closes_message_displays() {
+  async function test_delete_last_message_from_smart_inbox_closes_message_displays() {
     // - since we have both foreground and background message tabs, we don't need
     // to open yet another tab to test
 
@@ -333,7 +333,7 @@ add_task(
     plan_for_window_close(msgc);
 
     // - let's arbitrarily perform the deletion on this message tab
-    switch_tab(tabMessage);
+    await switch_tab(tabMessage);
     press_delete();
 
     // - the message window should have gone away...

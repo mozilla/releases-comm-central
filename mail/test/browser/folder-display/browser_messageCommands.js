@@ -151,7 +151,7 @@ async function mark_read_via_menu(index, read) {
 }
 
 add_task(async function test_mark_one_read() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(false);
@@ -160,7 +160,7 @@ add_task(async function test_mark_one_read() {
 });
 
 add_task(async function test_mark_one_unread() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(true);
@@ -169,7 +169,7 @@ add_task(async function test_mark_one_unread() {
 });
 
 add_task(async function test_mark_n_read() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
@@ -181,7 +181,7 @@ add_task(async function test_mark_n_read() {
 });
 
 add_task(async function test_mark_n_unread() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
@@ -193,7 +193,7 @@ add_task(async function test_mark_n_unread() {
 });
 
 add_task(async function test_mark_n_read_mixed() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
@@ -209,7 +209,7 @@ add_task(async function test_mark_n_read_mixed() {
 });
 
 add_task(async function test_mark_n_unread_mixed() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
@@ -224,8 +224,8 @@ add_task(async function test_mark_n_unread_mixed() {
   check_read_status(curMessages, false);
 });
 
-add_task(function test_toggle_read() {
-  be_in_folder(unreadFolder);
+add_task(async function test_toggle_read() {
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(false);
@@ -233,8 +233,8 @@ add_task(function test_toggle_read() {
   check_read_status([curMessage], true);
 });
 
-add_task(function test_toggle_unread() {
-  be_in_folder(unreadFolder);
+add_task(async function test_toggle_unread() {
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(true);
@@ -242,8 +242,8 @@ add_task(function test_toggle_unread() {
   check_read_status([curMessage], false);
 });
 
-add_task(function test_toggle_mixed() {
-  be_in_folder(unreadFolder);
+add_task(async function test_toggle_mixed() {
+  await be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
@@ -259,7 +259,7 @@ add_task(function test_toggle_mixed() {
 });
 
 add_task(async function test_mark_menu_read() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(false);
@@ -267,7 +267,7 @@ add_task(async function test_mark_menu_read() {
 });
 
 add_task(async function test_mark_menu_unread() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(true);
@@ -275,7 +275,7 @@ add_task(async function test_mark_menu_unread() {
 });
 
 add_task(async function test_mark_menu_mixed() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
@@ -286,7 +286,7 @@ add_task(async function test_mark_menu_mixed() {
 });
 
 add_task(async function test_mark_all_read() {
-  be_in_folder(unreadFolder);
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
   curMessage.markRead(false);
 
@@ -321,7 +321,7 @@ add_task(async function test_mark_all_read() {
 add_task(async function test_mark_thread_as_read() {
   let unreadThreadFolder = await create_folder("UnreadThreadFolder");
   await add_message_sets_to_folders([unreadThreadFolder], [create_thread(3)]);
-  be_in_folder(unreadThreadFolder);
+  await be_in_folder(unreadThreadFolder);
   make_display_threaded();
 
   let serviceState = Services.prefs.getBoolPref(
@@ -388,7 +388,7 @@ add_task(async function test_mark_thread_as_read() {
 }).__skipMe = true; // See bug 654362.
 
 add_task(async function test_shift_delete_prompt() {
-  be_in_folder(shiftDeleteFolder);
+  await be_in_folder(shiftDeleteFolder);
   let curMessage = select_click_row(0);
 
   // First, try shift-deleting and then cancelling at the prompt.
@@ -422,7 +422,7 @@ add_task(async function test_shift_delete_prompt() {
 });
 
 add_task(async function test_thread_delete_prompt() {
-  be_in_folder(threadDeleteFolder);
+  await be_in_folder(threadDeleteFolder);
   make_display_threaded();
   collapse_all_threads();
 
@@ -457,12 +457,12 @@ add_task(async function test_thread_delete_prompt() {
   Services.prefs.clearUserPref("mail.warn_on_collapsed_thread_operation");
 });
 
-add_task(function test_yearly_archive() {
-  yearly_archive(false);
+add_task(async function test_yearly_archive() {
+  await yearly_archive(false);
 });
 
-function yearly_archive(keep_structure) {
-  be_in_folder(archiveSrcFolder);
+async function yearly_archive(keep_structure) {
+  await be_in_folder(archiveSrcFolder);
   make_display_unthreaded();
   mc.folderDisplay.view.sort(
     Ci.nsMsgViewSortType.byDate,
@@ -500,14 +500,14 @@ function yearly_archive(keep_structure) {
   }
   let firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
   let lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
-  be_in_folder(firstArchiveFolder);
+  await be_in_folder(firstArchiveFolder);
   Assert.ok(
     mc.dbView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
     "Message should have been archived to " +
       firstArchiveUri +
       ", but it isn't present there"
   );
-  be_in_folder(lastArchiveFolder);
+  await be_in_folder(lastArchiveFolder);
 
   Assert.ok(
     mc.dbView.getMsgHdrAt(0).messageId == lastMsgHdrMsgId,
@@ -517,13 +517,13 @@ function yearly_archive(keep_structure) {
   );
 }
 
-add_task(function test_monthly_archive() {
+add_task(async function test_monthly_archive() {
   enable_archiving(true);
-  monthly_archive(false);
+  await monthly_archive(false);
 });
 
-function monthly_archive(keep_structure) {
-  be_in_folder(archiveSrcFolder);
+async function monthly_archive(keep_structure) {
+  await be_in_folder(archiveSrcFolder);
   let identity = MailServices.accounts.getFirstIdentityForServer(
     mc.folderDisplay.view.dbView.getMsgHdrAt(0).folder.server
   );
@@ -563,7 +563,7 @@ function monthly_archive(keep_structure) {
   }
   let firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
   let lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
-  be_in_folder(firstArchiveFolder);
+  await be_in_folder(firstArchiveFolder);
   Assert.ok(
     mc.dbView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
     "Message should have been archived to Local Folders/" +
@@ -572,7 +572,7 @@ function monthly_archive(keep_structure) {
       firstMonthFolderName +
       "/Archives, but it isn't present there"
   );
-  be_in_folder(lastArchiveFolder);
+  await be_in_folder(lastArchiveFolder);
   Assert.ok(
     mc.dbView.getMsgHdrAt(0).messageId == lastMsgHdrMsgId,
     "Message should have been archived to Local Folders/" +
@@ -583,19 +583,19 @@ function monthly_archive(keep_structure) {
   );
 }
 
-add_task(function test_folder_structure_archiving() {
+add_task(async function test_folder_structure_archiving() {
   enable_archiving(true);
   Services.prefs.setBoolPref(
     "mail.identity.default.archive_keep_folder_structure",
     true
   );
-  monthly_archive(true);
-  yearly_archive(true);
+  await monthly_archive(true);
+  await yearly_archive(true);
 });
 
-add_task(function test_selection_after_archive() {
+add_task(async function test_selection_after_archive() {
   enable_archiving(true);
-  be_in_folder(archiveSrcFolder);
+  await be_in_folder(archiveSrcFolder);
   let identity = MailServices.accounts.getFirstIdentityForServer(
     mc.folderDisplay.view.dbView.getMsgHdrAt(0).folder.server
   );
@@ -610,9 +610,9 @@ add_task(function test_selection_after_archive() {
   assert_selected_and_displayed(hdrToSelect);
 });
 
-add_task(function test_disabled_archive() {
+add_task(async function test_disabled_archive() {
   enable_archiving(false);
-  be_in_folder(archiveSrcFolder);
+  await be_in_folder(archiveSrcFolder);
 
   // test single message
   let current = select_click_row(0);
@@ -667,8 +667,8 @@ function check_tag_in_message(message, tag, isSet) {
   }
 }
 
-add_task(function test_tag_keys() {
-  be_in_folder(unreadFolder);
+add_task(async function test_tag_keys() {
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   EventUtils.synthesizeKey("1", {});
@@ -683,8 +683,8 @@ add_task(function test_tag_keys() {
   check_tag_in_message(curMessage, tagArray[1], false);
 });
 
-add_task(function test_tag_keys_disabled_in_content_tab() {
-  be_in_folder(unreadFolder);
+add_task(async function test_tag_keys_disabled_in_content_tab() {
+  await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   mc.window.openAddonsMgr("addons://list/theme");

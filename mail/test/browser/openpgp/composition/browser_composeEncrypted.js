@@ -98,7 +98,7 @@ add_setup(async function() {
  * the Outbox.
  */
 add_task(async function testEncryptedMessageComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -114,7 +114,7 @@ add_task(async function testEncryptedMessageComposition() {
   await OpenPGPTestUtils.toggleMessageSigning(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
 
   Assert.ok(
@@ -142,7 +142,7 @@ add_task(async function testEncryptedMessageComposition() {
  * enabled, shows as encrypted in the Outbox.
  */
 add_task(async function testEncryptedMessageWithKeyComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -159,7 +159,7 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
   await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
 
   Assert.ok(
@@ -196,7 +196,7 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
  */
 add_task(
   async function testEncryptedRecipientKeyNotAvailabeMessageComposition() {
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -248,7 +248,7 @@ add_task(
         level
       );
 
-      be_in_folder(bobAcct.incomingServer.rootFolder);
+      await be_in_folder(bobAcct.incomingServer.rootFolder);
 
       let cwc = open_compose_new_mail();
       let composeWin = cwc.window;
@@ -292,7 +292,7 @@ add_task(
       OpenPGPTestUtils.ACCEPTANCE_UNVERIFIED
     );
 
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -307,7 +307,7 @@ add_task(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await sendMessage(composeWin);
 
-    be_in_folder(gOutbox);
+    await be_in_folder(gOutbox);
     select_click_row(0);
 
     Assert.ok(
@@ -327,7 +327,7 @@ add_task(
  */
 add_task(
   async function testEncryptedOneRecipientKeyNotAvailableMessageComposition() {
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -379,7 +379,7 @@ add_task(
         level
       );
 
-      be_in_folder(bobAcct.incomingServer.rootFolder);
+      await be_in_folder(bobAcct.incomingServer.rootFolder);
 
       let cwc = open_compose_new_mail();
       let composeWin = cwc.window;
@@ -424,7 +424,7 @@ add_task(
       OpenPGPTestUtils.ACCEPTANCE_UNVERIFIED
     );
 
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -439,7 +439,7 @@ add_task(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await sendMessage(composeWin);
 
-    be_in_folder(gOutbox);
+    await be_in_folder(gOutbox);
     select_click_row(0);
 
     await TestUtils.waitForCondition(
@@ -457,7 +457,7 @@ add_task(
  * Tests composing a reply to an encrypted message is encrypted by default.
  */
 add_task(async function testEncryptedMessageReplyIsEncrypted() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
@@ -491,7 +491,7 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
     await BrowserTestUtils.waitForEvent(window, "focus");
   }
 
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   select_click_row(0);
 
   Assert.ok(

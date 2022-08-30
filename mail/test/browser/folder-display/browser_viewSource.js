@@ -37,7 +37,7 @@ add_setup(async function() {
   addToFolder("UTF-8 header/ISO-8859-1 body", "UTF-8", contentLatin1);
   addToFolder("UTF-8 header/UTF-8 body", "UTF-8", contentUTF8);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 });
 
 registerCleanupFunction(() => {

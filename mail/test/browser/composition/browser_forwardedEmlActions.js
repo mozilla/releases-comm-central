@@ -102,7 +102,7 @@ add_setup(async function() {
  * properties of the composition content we get.
  */
 async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);

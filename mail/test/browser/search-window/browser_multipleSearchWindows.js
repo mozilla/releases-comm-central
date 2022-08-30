@@ -29,55 +29,59 @@ add_setup(async function() {
 /**
  * Test bringing up multiple search windows for multiple folders.
  */
-add_task(function test_show_multiple_search_windows_for_multiple_folders() {
-  be_in_folder(folderA);
+add_task(
+  async function test_show_multiple_search_windows_for_multiple_folders() {
+    await be_in_folder(folderA);
 
-  let swcA = open_search_window();
-  // Check whether the window's displaying the right folder
-  assert_search_window_folder_displayed(swcA, folderA);
+    let swcA = open_search_window();
+    // Check whether the window's displaying the right folder
+    assert_search_window_folder_displayed(swcA, folderA);
 
-  mc.window.focus();
-  be_in_folder(folderB);
-  // This should time out if a second search window isn't opened
-  let swcB = open_search_window();
+    mc.window.focus();
+    await be_in_folder(folderB);
+    // This should time out if a second search window isn't opened
+    let swcB = open_search_window();
 
-  // Now check whether both windows are displaying the right folders
-  assert_search_window_folder_displayed(swcA, folderA);
-  assert_search_window_folder_displayed(swcB, folderB);
+    // Now check whether both windows are displaying the right folders
+    assert_search_window_folder_displayed(swcA, folderA);
+    assert_search_window_folder_displayed(swcB, folderB);
 
-  // Clean up, close both windows
-  close_search_window(swcA);
-  close_search_window(swcB);
-});
+    // Clean up, close both windows
+    close_search_window(swcA);
+    close_search_window(swcB);
+  }
+);
 
 /**
  * Test bringing up multiple search windows for the same folder.
  */
-add_task(function test_show_multiple_search_windows_for_the_same_folder() {
-  be_in_folder(folderA);
-  let swc1 = open_search_window();
-  // Check whether the window's displaying the right folder
-  assert_search_window_folder_displayed(swc1, folderA);
+add_task(
+  async function test_show_multiple_search_windows_for_the_same_folder() {
+    await be_in_folder(folderA);
+    let swc1 = open_search_window();
+    // Check whether the window's displaying the right folder
+    assert_search_window_folder_displayed(swc1, folderA);
 
-  mc.window.focus();
-  // This should time out if a second search window isn't opened
-  let swc2 = open_search_window();
+    mc.window.focus();
+    // This should time out if a second search window isn't opened
+    let swc2 = open_search_window();
 
-  // Now check whether both windows are displaying the right folders
-  assert_search_window_folder_displayed(swc1, folderA);
-  assert_search_window_folder_displayed(swc2, folderA);
+    // Now check whether both windows are displaying the right folders
+    assert_search_window_folder_displayed(swc1, folderA);
+    assert_search_window_folder_displayed(swc2, folderA);
 
-  // Clean up, close both windows
-  close_search_window(swc1);
-  close_search_window(swc2);
+    // Clean up, close both windows
+    close_search_window(swc1);
+    close_search_window(swc2);
 
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
-});
+    Assert.report(
+      false,
+      undefined,
+      undefined,
+      "Test ran to completion successfully"
+    );
+  }
+);
 
 registerCleanupFunction(() => {
   // Some tests that open new windows don't return focus to the main window

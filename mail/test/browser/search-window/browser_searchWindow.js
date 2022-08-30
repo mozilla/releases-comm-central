@@ -73,9 +73,9 @@ var swc = null;
 /**
  * Bring up the search window.
  */
-add_task(function test_show_search_window() {
+add_task(async function test_show_search_window() {
   // put us in the folder we care about so it defaults to that
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   swc = open_search_window();
   assert_search_window_folder_displayed(swc, folder);
@@ -152,7 +152,7 @@ add_task(function test_go_search() {
 /**
  * Test opening a single search result in a new tab.
  */
-add_task(function test_open_single_search_result_in_tab() {
+add_task(async function test_open_single_search_result_in_tab() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
@@ -174,14 +174,14 @@ add_task(function test_open_single_search_result_in_tab() {
   assert_selected_and_displayed(msgHdr);
   // Clean up, close the tab
   close_tab(mc.tabmail.currentTabInfo);
-  switch_tab(folderTab);
+  await switch_tab(folderTab);
   reset_open_message_behavior();
 });
 
 /**
  * Test opening multiple search results in new tabs.
  */
-add_task(function test_open_multiple_search_results_in_new_tabs() {
+add_task(async function test_open_multiple_search_results_in_new_tabs() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.tabmail.currentTabInfo;
@@ -216,7 +216,7 @@ add_task(function test_open_multiple_search_results_in_new_tabs() {
     assert_selected_and_displayed(selectedMessages.pop());
     close_tab(mc.tabmail.currentTabInfo);
   }
-  switch_tab(folderTab);
+  await switch_tab(folderTab);
   reset_open_message_behavior();
 });
 
@@ -324,13 +324,13 @@ add_task(function test_close_search_window() {
  * Make sure the folder showed up with the right name, and that displaying it
  *  has the right contents.
  */
-add_task(function test_verify_saved_search() {
+add_task(async function test_verify_saved_search() {
   let savedFolder = folder.getChildNamed("SearchSaved");
   if (savedFolder == null) {
     throw new Error("Saved folder did not show up.");
   }
 
-  be_in_folder(savedFolder);
+  await be_in_folder(savedFolder);
   assert_messages_in_view(setFooBar);
 
   Assert.report(

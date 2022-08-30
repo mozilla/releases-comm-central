@@ -114,8 +114,8 @@ function toggle_folder_pane() {
 /**
  * By default, the folder pane should be visible.
  */
-add_task(function test_folder_pane_visible_state_is_right() {
-  be_in_folder(folder);
+add_task(async function test_folder_pane_visible_state_is_right() {
+  await be_in_folder(folder);
   assert_folder_pane_visible();
   Assert.ok(true, "test_folder_pane_visible_state_is_right ran to completion");
 });
@@ -143,21 +143,21 @@ add_task(function test_toggle_folder_pane_on() {
  * folder pane state does not break. This test should cover all transition
  * states.
  */
-add_task(function test_folder_pane_is_sticky() {
-  let tabFolderA = be_in_folder(folder);
+add_task(async function test_folder_pane_is_sticky() {
+  let tabFolderA = await be_in_folder(folder);
   assert_folder_pane_visible();
 
   // [folder+ => (new) message]
   select_click_row(0);
-  let tabMessage = open_selected_message_in_new_tab();
+  let tabMessage = await open_selected_message_in_new_tab();
   assert_folder_pane_hidden(true);
 
   // [message => folder+]
-  switch_tab(tabFolderA);
+  await switch_tab(tabFolderA);
   assert_folder_pane_visible();
 
   // [folder+ => (new) folder+]
-  let tabFolderB = open_folder_in_new_tab(folder);
+  let tabFolderB = await open_folder_in_new_tab(folder);
   assert_folder_pane_visible();
 
   // [folder pane toggle + => -]
@@ -165,7 +165,7 @@ add_task(function test_folder_pane_is_sticky() {
   assert_folder_pane_hidden();
 
   // [folder- => folder+]
-  switch_tab(tabFolderA);
+  await switch_tab(tabFolderA);
   assert_folder_pane_visible();
 
   // (redundant) [ folder pane toggle + => -]
@@ -173,7 +173,7 @@ add_task(function test_folder_pane_is_sticky() {
   assert_folder_pane_hidden();
 
   // [folder- => message]
-  switch_tab(tabMessage);
+  await switch_tab(tabMessage);
   assert_folder_pane_hidden(true);
 
   // [message => folder-]
@@ -182,14 +182,14 @@ add_task(function test_folder_pane_is_sticky() {
 
   // [folder- => (new) folder-]
   // (we are testing inheritance here)
-  let tabFolderC = open_folder_in_new_tab(folder);
+  let tabFolderC = await open_folder_in_new_tab(folder);
   assert_folder_pane_hidden();
 
   // [folder- => folder-]
   close_tab(tabFolderC);
   // the tab we are on now doesn't matter, so we don't care
   assert_folder_pane_hidden();
-  switch_tab(tabFolderB);
+  await switch_tab(tabFolderB);
 
   // [ folder pane toggle - => + ]
   toggle_folder_pane();
@@ -212,18 +212,18 @@ add_task(function test_folder_pane_is_sticky() {
  * situation, we need to do this twice to test each case for the first tab.  For
  * additional thoroughness we also flip the state we have the other tabs be in.
  */
-add_task(function test_folder_pane_persistence_generally_works() {
-  be_in_folder(folder);
+add_task(async function test_folder_pane_persistence_generally_works() {
+  await be_in_folder(folder);
 
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)
-  function openTabs(aConfig) {
+  async function openTabs(aConfig) {
     let curState;
     for (let [iTab, folderPaneVisible] of aConfig.entries()) {
       if (iTab == 0) {
         curState = folderPaneVisible;
       } else {
-        open_folder_in_new_tab(folder);
+        await open_folder_in_new_tab(folder);
         if (curState != folderPaneVisible) {
           toggle_folder_pane();
           curState = folderPaneVisible;
@@ -239,9 +239,9 @@ add_task(function test_folder_pane_persistence_generally_works() {
     }
   }
 
-  function verifyTabs(aConfig) {
+  async function verifyTabs(aConfig) {
     for (let [iTab, folderPaneVisible] of aConfig.entries()) {
-      switch_tab(iTab);
+      await switch_tab(iTab);
       dump(" checking tab: " + iTab + "\n");
       if (folderPaneVisible) {
         assert_folder_pane_visible();
@@ -259,8 +259,8 @@ add_task(function test_folder_pane_persistence_generally_works() {
   ];
 
   for (let config of configs) {
-    openTabs(config);
-    verifyTabs(config); // make sure openTabs did its job right
+    await openTabs(config);
+    await verifyTabs(config); // make sure openTabs did its job right
     let state = mc.tabmail.persistTabs();
     closeTabs();
     // toggle the state for the current tab so we can be sure that it knows how
@@ -268,7 +268,7 @@ add_task(function test_folder_pane_persistence_generally_works() {
     toggle_folder_pane();
     SimpleTest.ignoreAllUncaughtExceptions(true);
     mc.tabmail.restoreTabs(state);
-    verifyTabs(config);
+    await verifyTabs(config);
     SimpleTest.ignoreAllUncaughtExceptions(false);
     closeTabs();
 

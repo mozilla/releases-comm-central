@@ -59,7 +59,7 @@ async function subtest_reply_format_flowed(aFlowed) {
   );
 
   // Now check the message content in the drafts folder.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   let message = select_click_row(0);
   await msgLoaded;

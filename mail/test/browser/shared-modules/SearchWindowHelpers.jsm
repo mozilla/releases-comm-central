@@ -42,7 +42,7 @@ function open_search_window() {
  * @returns the controller for the search window
  */
 async function open_search_window_from_context_menu(aFolder) {
-  folderDisplayHelper.right_click_on_folder(aFolder);
+  await folderDisplayHelper.right_click_on_folder(aFolder);
 
   windowHelper.plan_for_new_window("mailnews:search");
   mc.folderTreeController.searchMessages();

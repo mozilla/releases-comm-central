@@ -53,7 +53,7 @@ add_setup(async function() {
  */
 add_task(async function test_open_draft_again() {
   await make_message_sets_in_folders([draftsFolder], [{ count: 1 }]);
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
@@ -143,7 +143,7 @@ async function internal_check_delivery_format(editDraft) {
 
   close_compose_window(cwc);
 
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
@@ -188,7 +188,7 @@ add_task(async function test_save_delivery_format_with_edit_template() {
  */
 add_task(async function test_edit_as_new_in_draft() {
   await make_message_sets_in_folders([draftsFolder], [{ count: 1 }]);
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
 
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
@@ -237,7 +237,7 @@ add_task(async function test_content_language_header() {
     "message saved to drafts folder"
   );
 
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
   let draftMsgContent = get_msg_source(draftMsg);
 
@@ -278,7 +278,7 @@ add_task(async function test_content_language_header_suppression() {
     "message saved to drafts folder"
   );
 
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
   let draftMsgContent = get_msg_source(draftMsg);
 
@@ -321,7 +321,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
     "message saved to drafts folder"
   );
 
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
 
   select_click_row(0);
 

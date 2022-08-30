@@ -211,7 +211,7 @@ add_setup(async function() {
   }
 });
 
-function check_display_name(index, columnName, expectedName) {
+async function check_display_name(index, columnName, expectedName) {
   let columnId;
   switch (columnName) {
     case "from":
@@ -225,7 +225,7 @@ function check_display_name(index, columnName, expectedName) {
   }
 
   // Select the nth message
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(index);
 
   let tree = mc.folderDisplay.tree;
@@ -236,8 +236,12 @@ function check_display_name(index, columnName, expectedName) {
 
 // Generate a test for each message in |messages|.
 for (let [i, message] of messages.entries()) {
-  this["test_" + message.name] = function(i, message) {
-    check_display_name(i, message.expected.column, message.expected.value);
+  this["test_" + message.name] = async function(i, message) {
+    await check_display_name(
+      i,
+      message.expected.column,
+      message.expected.value
+    );
   }.bind(this, i, message);
   add_task(this[`test_${message.name}`]);
 }

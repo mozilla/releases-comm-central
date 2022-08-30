@@ -44,7 +44,7 @@ function getNsIFileFromPath(path) {
 
 add_setup(async function() {
   folder = await create_folder("OpenAttachment");
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // @see logic for tmpD in msgHdrView.js
   tmpD = PathUtils.join(

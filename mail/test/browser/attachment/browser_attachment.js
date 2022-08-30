@@ -188,8 +188,8 @@ function ensure_starts_expanded(expand) {
   );
 }
 
-add_task(function test_attachment_view_collapsed() {
-  be_in_folder(folder);
+add_task(async function test_attachment_view_collapsed() {
+  await be_in_folder(folder);
 
   select_click_row(0);
   assert_selected_and_displayed(0);
@@ -199,8 +199,8 @@ add_task(function test_attachment_view_collapsed() {
   }
 });
 
-add_task(function test_attachment_view_expanded() {
-  be_in_folder(folder);
+add_task(async function test_attachment_view_expanded() {
+  await be_in_folder(folder);
 
   for (let i = 1; i < messages.length; i++) {
     select_click_row(i);
@@ -214,8 +214,8 @@ add_task(function test_attachment_view_expanded() {
   }
 });
 
-add_task(function test_attachment_name_sanitization() {
-  be_in_folder(folder);
+add_task(async function test_attachment_name_sanitization() {
+  await be_in_folder(folder);
 
   let attachmentList = mc.e("attachmentList");
 
@@ -242,8 +242,8 @@ add_task(function test_attachment_name_sanitization() {
   }
 });
 
-add_task(function test_long_attachment_name() {
-  be_in_folder(folder);
+add_task(async function test_long_attachment_name() {
+  await be_in_folder(folder);
 
   select_click_row(4);
   assert_selected_and_displayed(4);
@@ -264,7 +264,7 @@ add_task(function test_long_attachment_name() {
  * message).
  */
 add_task(async function test_attached_message_attachments() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   select_click_row(5);
   assert_selected_and_displayed(5);
@@ -288,8 +288,8 @@ add_task(async function test_attached_message_attachments() {
   close_window(msgc);
 });
 
-add_task(function test_attachment_name_click() {
-  be_in_folder(folder);
+add_task(async function test_attachment_name_click() {
+  await be_in_folder(folder);
 
   select_click_row(1);
   assert_selected_and_displayed(1);
@@ -337,7 +337,7 @@ async function subtest_attachment_right_click(elementId, contextMenuId) {
 }
 
 add_task(async function test_attachment_right_click_single() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   select_click_row(1);
   assert_selected_and_displayed(1);
@@ -374,7 +374,7 @@ add_task(async function test_attachment_right_click_single() {
 });
 
 add_task(async function test_attachment_right_click_multiple() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   select_click_row(3);
   assert_selected_and_displayed(3);
@@ -431,8 +431,8 @@ function subtest_attachment_list_toggle(elementId) {
   assert_message_pane_focused();
 }
 
-add_task(function test_attachment_list_expansion() {
-  be_in_folder(folder);
+add_task(async function test_attachment_list_expansion() {
+  await be_in_folder(folder);
 
   select_click_row(1);
   assert_selected_and_displayed(1);
@@ -460,9 +460,9 @@ add_task(function test_attachment_list_expansion() {
   );
 });
 
-add_task(function test_attachment_list_starts_expanded() {
+add_task(async function test_attachment_list_starts_expanded() {
   ensure_starts_expanded(true);
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   select_click_row(2);
   assert_selected_and_displayed(2);
@@ -473,9 +473,9 @@ add_task(function test_attachment_list_starts_expanded() {
   );
 });
 
-add_task(function test_selected_attachments_are_cleared() {
+add_task(async function test_selected_attachments_are_cleared() {
   ensure_starts_expanded(false);
-  be_in_folder(folder);
+  await be_in_folder(folder);
   // First, select the message with two attachments.
   select_click_row(3);
 
@@ -533,8 +533,8 @@ add_task(function test_selected_attachments_are_cleared() {
   );
 });
 
-add_task(function test_select_all_attachments_key() {
-  be_in_folder(folder);
+add_task(async function test_select_all_attachments_key() {
+  await be_in_folder(folder);
 
   // First, select the message with two attachments.
   select_none();
@@ -558,7 +558,7 @@ add_task(function test_select_all_attachments_key() {
 });
 
 add_task(async function test_delete_attachment_key() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // First, select the message with two attachments.
   select_none();
@@ -593,8 +593,8 @@ add_task(async function test_delete_attachment_key() {
   await dialogPromise;
 });
 
-add_task(function test_attachments_compose_menu() {
-  be_in_folder(folder);
+add_task(async function test_attachments_compose_menu() {
+  await be_in_folder(folder);
 
   // First, select the message with two attachments.
   select_none();
@@ -684,8 +684,8 @@ add_task(function test_attachments_compose_menu() {
   close_compose_window(cwc);
 });
 
-add_task(function test_delete_from_toolbar() {
-  be_in_folder(folder);
+add_task(async function test_delete_from_toolbar() {
+  await be_in_folder(folder);
 
   // First, select the message with two attachments.
   select_none();

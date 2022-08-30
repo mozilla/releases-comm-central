@@ -172,7 +172,7 @@ add_task(async function test_address_types() {
   }
 
   // Open compose window on the existing POP3 account.
-  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  await be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
   check_mail_address_types(cwc.window);
   close_compose_window(cwc);
@@ -181,7 +181,7 @@ add_task(async function test_address_types() {
 
   // From now on, we should always get all possible address types offered,
   // regardless of which account is used of composing (bug 922614).
-  be_in_folder(accountNNTP.incomingServer.rootFolder);
+  await be_in_folder(accountNNTP.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
   check_nntp_address_types(cwc.window);
   check_collapsed_pop_recipient(cwc);
@@ -189,7 +189,7 @@ add_task(async function test_address_types() {
 
   // Now try the same accounts but choosing them in the From dropdown
   // inside compose window.
-  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  await be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
   check_nntp_address_types(cwc.window);
 
@@ -213,14 +213,14 @@ add_task(async function test_address_types() {
   remove_NNTP_account();
 
   // Now the NNTP account is lost, so we should be back to mail only addresses.
-  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  await be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
   check_mail_address_types(cwc.window);
   close_compose_window(cwc);
 });
 
 add_task(async function test_address_suppress_leading_comma_space() {
-  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  await be_in_folder(accountPOP3.incomingServer.rootFolder);
   let controller = open_compose_new_mail();
 
   let addrInput = controller.window.document.getElementById("toAddrInput");
@@ -359,7 +359,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
 });
 
 add_task(async function test_pill_creation_in_all_fields() {
-  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  await be_in_folder(accountPOP3.incomingServer.rootFolder);
   let cwc = open_compose_new_mail();
 
   let addresses = ["person@org", "foo@address.valid", "invalid", "foo@address"];
@@ -569,7 +569,7 @@ add_task(async function test_pill_creation_in_all_fields() {
 });
 
 add_task(async function test_addressing_fields_shortcuts() {
-  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  await be_in_folder(accountPOP3.incomingServer.rootFolder);
   let cwc = open_compose_new_mail();
 
   let addrToInput = cwc.window.document.getElementById("toAddrInput");
@@ -625,7 +625,7 @@ add_task(async function test_addressing_fields_shortcuts() {
 });
 
 add_task(async function test_pill_deletion_and_focus() {
-  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  await be_in_folder(accountPOP3.incomingServer.rootFolder);
   let cwc = open_compose_new_mail();
 
   // When the compose window is opened, the focus should be on the To field.

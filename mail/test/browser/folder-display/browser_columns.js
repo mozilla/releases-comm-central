@@ -182,10 +182,10 @@ function reorder_column(aColumnId, aBeforeId) {
 /**
  * Make sure we set the proper defaults for an Inbox.
  */
-add_task(function test_column_defaults_inbox() {
+add_task(async function test_column_defaults_inbox() {
   // just use the inbox; comes from test-folder-display-helpers
   folderInbox = inboxFolder;
-  enter_folder(folderInbox);
+  await enter_folder(folderInbox);
   assert_visible_columns(INBOX_DEFAULTS);
 });
 
@@ -196,14 +196,14 @@ add_task(async function test_column_defaults_sent() {
   folderSent = await create_folder("ColumnsSent");
   folderSent.setFlag(Ci.nsMsgFolderFlags.SentMail);
 
-  be_in_folder(folderSent);
+  await be_in_folder(folderSent);
   assert_visible_columns(SENT_DEFAULTS);
 });
 
 /**
  * Make sure we set the proper defaults for a multi-folder virtual folder.
  */
-add_task(function test_column_defaults_cross_folder_virtual_folder() {
+add_task(async function test_column_defaults_cross_folder_virtual_folder() {
   folderVirtual = create_virtual_folder(
     [folderInbox, folderSent],
     {},
@@ -211,7 +211,7 @@ add_task(function test_column_defaults_cross_folder_virtual_folder() {
     "ColumnsVirtual"
   );
 
-  be_in_folder(folderVirtual);
+  await be_in_folder(folderVirtual);
   assert_visible_columns(VIRTUAL_DEFAULTS);
 });
 
@@ -223,12 +223,12 @@ add_task(function test_column_defaults_cross_folder_virtual_folder() {
 add_task(async function test_column_defaults_inherit_from_inbox() {
   folderA = await create_folder("ColumnsA");
   // - the folder should inherit from the inbox...
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
   assert_visible_columns(INBOX_DEFAULTS);
 
   // - if we go back to the inbox and change things then the folder's settings
   //  should not change.
-  be_in_folder(folderInbox);
+  await be_in_folder(folderInbox);
   // show tags, hide date
   hide_column("dateCol");
   show_column("tagsCol");
@@ -238,39 +238,39 @@ add_task(async function test_column_defaults_inherit_from_inbox() {
   assert_visible_columns(columnsB);
 
   // make sure A did not change; it should still have dateCol.
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
   assert_visible_columns(INBOX_DEFAULTS);
 
   // - but folder B should pick up on the modified set
   folderB = await create_folder("ColumnsB");
-  be_in_folder(folderB);
+  await be_in_folder(folderB);
   assert_visible_columns(columnsB);
 
   // - and if we restore the inbox, folder B should stay modified too.
-  be_in_folder(folderInbox);
+  await be_in_folder(folderInbox);
   show_column("dateCol");
   hide_column("tagsCol");
   assert_visible_columns(INBOX_DEFAULTS);
 
-  be_in_folder(folderB);
+  await be_in_folder(folderB);
   assert_visible_columns(columnsB);
 });
 
 /**
  * Make sure that when we change tabs that things persist/restore correctly.
  */
-add_task(function test_column_visibility_persists_through_tab_changes() {
-  let tabA = be_in_folder(folderA);
+add_task(async function test_column_visibility_persists_through_tab_changes() {
+  let tabA = await be_in_folder(folderA);
   assert_visible_columns(INBOX_DEFAULTS);
 
-  let tabB = open_folder_in_new_tab(folderB);
+  let tabB = await open_folder_in_new_tab(folderB);
   assert_visible_columns(columnsB);
 
   // - switch back and forth among the loaded and verify
-  switch_tab(tabA);
+  await switch_tab(tabA);
   assert_visible_columns(INBOX_DEFAULTS);
 
-  switch_tab(tabB);
+  await switch_tab(tabB);
   assert_visible_columns(columnsB);
 
   // - change things and make sure the changes stick
@@ -279,7 +279,7 @@ add_task(function test_column_visibility_persists_through_tab_changes() {
   show_column("accountCol");
   assert_visible_columns(bWithExtra);
 
-  switch_tab(tabA);
+  await switch_tab(tabA);
   assert_visible_columns(INBOX_DEFAULTS);
 
   // A loses junk
@@ -288,12 +288,12 @@ add_task(function test_column_visibility_persists_through_tab_changes() {
   aSansJunk.push("dateCol"); // put date back
   assert_visible_columns(aSansJunk);
 
-  switch_tab(tabB);
+  await switch_tab(tabB);
   assert_visible_columns(bWithExtra);
   // B goes back to normal
   hide_column("accountCol");
 
-  switch_tab(tabA);
+  await switch_tab(tabA);
   assert_visible_columns(aSansJunk);
   // A goes back to "normal"
   show_column("junkStatusCol");
@@ -305,55 +305,57 @@ add_task(function test_column_visibility_persists_through_tab_changes() {
 /**
  * Make sure that when we change folders that things persist/restore correctly.
  */
-add_task(function test_column_visibility_persists_through_folder_changes() {
-  be_in_folder(folderA);
-  assert_visible_columns(INBOX_DEFAULTS);
+add_task(
+  async function test_column_visibility_persists_through_folder_changes() {
+    await be_in_folder(folderA);
+    assert_visible_columns(INBOX_DEFAULTS);
 
-  // more for A
-  let aWithExtra = INBOX_DEFAULTS.concat(["sizeCol", "tagsCol"]);
-  show_column("sizeCol");
-  show_column("tagsCol");
-  assert_visible_columns(aWithExtra);
+    // more for A
+    let aWithExtra = INBOX_DEFAULTS.concat(["sizeCol", "tagsCol"]);
+    show_column("sizeCol");
+    show_column("tagsCol");
+    assert_visible_columns(aWithExtra);
 
-  be_in_folder(folderB);
-  assert_visible_columns(columnsB);
+    await be_in_folder(folderB);
+    assert_visible_columns(columnsB);
 
-  // B gain accountCol
-  let bWithExtra = columnsB.concat(["accountCol"]);
-  show_column("accountCol");
-  assert_visible_columns(bWithExtra);
+    // B gain accountCol
+    let bWithExtra = columnsB.concat(["accountCol"]);
+    show_column("accountCol");
+    assert_visible_columns(bWithExtra);
 
-  // check A
-  be_in_folder(folderA);
-  assert_visible_columns(aWithExtra);
+    // check A
+    await be_in_folder(folderA);
+    assert_visible_columns(aWithExtra);
 
-  // check B
-  be_in_folder(folderB);
-  assert_visible_columns(bWithExtra);
+    // check B
+    await be_in_folder(folderB);
+    assert_visible_columns(bWithExtra);
 
-  // restore B
-  hide_column("accountCol");
+    // restore B
+    hide_column("accountCol");
 
-  // restore A
-  be_in_folder(folderA);
-  hide_column("sizeCol");
-  hide_column("tagsCol");
+    // restore A
+    await be_in_folder(folderA);
+    hide_column("sizeCol");
+    hide_column("tagsCol");
 
-  // check B
-  be_in_folder(folderB);
-  assert_visible_columns(columnsB);
+    // check B
+    await be_in_folder(folderB);
+    assert_visible_columns(columnsB);
 
-  // check A
-  be_in_folder(folderA);
-  assert_visible_columns(INBOX_DEFAULTS);
-});
+    // check A
+    await be_in_folder(folderA);
+    assert_visible_columns(INBOX_DEFAULTS);
+  }
+);
 
 /**
  * Test that reordering persists through tab changes and folder changes.
  */
-add_task(function test_column_reordering_persists() {
-  let tabA = be_in_folder(folderA);
-  let tabB = open_folder_in_new_tab(folderB);
+add_task(async function test_column_reordering_persists() {
+  let tabA = await be_in_folder(folderA);
+  let tabB = await open_folder_in_new_tab(folderB);
 
   // put correspondent/sender before subject
   reorder_column(
@@ -365,16 +367,16 @@ add_task(function test_column_reordering_persists() {
   reorderdB.splice(3, 0, useCorrespondent ? "correspondentCol" : "senderCol");
   assert_visible_columns(reorderdB);
 
-  switch_tab(tabA);
+  await switch_tab(tabA);
   assert_visible_columns(INBOX_DEFAULTS);
 
-  switch_tab(tabB);
+  await switch_tab(tabB);
   assert_visible_columns(reorderdB);
 
-  be_in_folder(folderInbox);
+  await be_in_folder(folderInbox);
   assert_visible_columns(INBOX_DEFAULTS);
 
-  be_in_folder(folderB);
+  await be_in_folder(folderB);
   assert_visible_columns(reorderdB);
 
   close_tab(tabB);
@@ -462,7 +464,7 @@ add_task(async function test_apply_to_folder_no_children() {
   folderParent.createSubfolder("Child2", null);
   folderChild2 = folderParent.getChildNamed("Child2");
 
-  be_in_folder(folderSource);
+  await be_in_folder(folderSource);
 
   // reset!
   await invoke_column_picker_option([{ anonid: "menuitem" }]);
@@ -476,13 +478,13 @@ add_task(async function test_apply_to_folder_no_children() {
   await _apply_to_folder_common(false, folderParent);
 
   // make sure it copied to the parent
-  be_in_folder(folderParent);
+  await be_in_folder(folderParent);
   assert_visible_columns(conExtra);
 
   // but not the children
-  be_in_folder(folderChild1);
+  await be_in_folder(folderChild1);
   assert_visible_columns(INBOX_DEFAULTS);
-  be_in_folder(folderChild2);
+  await be_in_folder(folderChild2);
   assert_visible_columns(INBOX_DEFAULTS);
 });
 
@@ -494,7 +496,7 @@ add_task(async function test_apply_to_folder_and_children() {
   // no need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
-  be_in_folder(folderSource);
+  await be_in_folder(folderSource);
 
   await invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
   let cols = get_visible_threadtree_columns();
@@ -508,11 +510,11 @@ add_task(async function test_apply_to_folder_and_children() {
   await _apply_to_folder_common(true, folderParent);
 
   // make sure it copied to the parent and his children
-  be_in_folder(folderParent);
+  await be_in_folder(folderParent);
   assert_visible_columns(conExtra);
-  be_in_folder(folderChild1);
+  await be_in_folder(folderChild1);
   assert_visible_columns(conExtra);
-  be_in_folder(folderChild2);
+  await be_in_folder(folderChild2);
   assert_visible_columns(conExtra);
 });
 
@@ -528,7 +530,7 @@ add_task(async function test_apply_to_folder_no_children_swapped() {
   folderParent.createSubfolder("Child2", null);
   folderChild2 = folderParent.getChildNamed("Child2");
 
-  be_in_folder(folderSource);
+  await be_in_folder(folderSource);
 
   await invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
   // Hide the columns that were added in other tests, since reset now
@@ -555,13 +557,13 @@ add_task(async function test_apply_to_folder_no_children_swapped() {
   // Make sure it copied to the parent.
   let conExtraSwapped = [...SENT_DEFAULTS];
   conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
-  be_in_folder(folderParent);
+  await be_in_folder(folderParent);
   assert_visible_columns(conExtraSwapped);
 
   // But not the children.
-  be_in_folder(folderChild1);
+  await be_in_folder(folderChild1);
   assert_visible_columns(SENT_DEFAULTS);
-  be_in_folder(folderChild2);
+  await be_in_folder(folderChild2);
   assert_visible_columns(SENT_DEFAULTS);
 });
 
@@ -573,7 +575,7 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
   // No need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
-  be_in_folder(folderSource);
+  await be_in_folder(folderSource);
 
   await invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
 
@@ -596,11 +598,11 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
   // Make sure it copied to the parent and his children.
   let conExtraSwapped = [...SENT_DEFAULTS];
   conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
-  be_in_folder(folderParent);
+  await be_in_folder(folderParent);
   assert_visible_columns(conExtraSwapped);
-  be_in_folder(folderChild1);
+  await be_in_folder(folderChild1);
   assert_visible_columns(conExtraSwapped);
-  be_in_folder(folderChild2);
+  await be_in_folder(folderChild2);
   assert_visible_columns(conExtraSwapped);
 });
 

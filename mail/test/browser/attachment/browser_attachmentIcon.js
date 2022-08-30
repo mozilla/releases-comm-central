@@ -223,7 +223,7 @@ function check_attachment_icon(index, expectedIcon) {
  * @param index the index of the message to check in the thread pane
  */
 async function help_test_attachment_icon(index) {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(index);
   info(`Testing message ${index}: ${messages[index].name}`);
   let attachments = messages[index].attachments;

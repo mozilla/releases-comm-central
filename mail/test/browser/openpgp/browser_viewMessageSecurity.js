@@ -95,7 +95,7 @@ add_setup(async function() {
   );
 
   gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
 });
 
 /**

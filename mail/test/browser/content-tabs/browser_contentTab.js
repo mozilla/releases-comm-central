@@ -37,9 +37,9 @@ var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-tabs/html/";
 var whatsUrl = url + "whatsnew.html";
 
-add_task(function test_content_tab_open() {
+add_task(async function test_content_tab_open() {
   // Need to open the thread pane to load the appropriate context menus.
-  be_in_folder(inboxFolder);
+  await be_in_folder(inboxFolder);
   let tab = open_content_tab_with_url(whatsUrl);
 
   assert_tab_has_title(tab, "What's New Content Test");

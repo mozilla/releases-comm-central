@@ -47,7 +47,7 @@ add_task(async function test_filter_unread() {
   );
   read.setRead(true);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   toggle_boolean_constraints("unread");
   assert_messages_in_view(unread);
   teardownTest();
@@ -61,7 +61,7 @@ add_task(async function test_filter_starred() {
   );
   starred.setStarred(true);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   toggle_boolean_constraints("starred");
   assert_messages_in_view(starred);
   teardownTest();
@@ -83,7 +83,7 @@ add_task(async function test_filter_simple_intersection_unread_and_starred() {
   readStarred.setRead(true);
   readStarred.setStarred(true);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   toggle_boolean_constraints("unread", "starred");
 
   assert_messages_in_view(unreadStarred);
@@ -114,7 +114,7 @@ add_task(async function test_filter_attachments() {
     [noAttachSetDef, attachSetDef]
   );
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   toggle_boolean_constraints("attachments");
 
   assert_messages_in_view(setAttach);
@@ -150,7 +150,7 @@ add_task(async function test_filter_in_address_book() {
     [folder],
     [bookSetDef, { count: 1 }]
   );
-  be_in_folder(folder);
+  await be_in_folder(folder);
   toggle_boolean_constraints("addrbook");
   assert_messages_in_view(setBook);
   teardownTest();
@@ -177,7 +177,7 @@ add_task(async function test_filter_tags() {
   setTagAB.addTag(tagB);
   setTagC.addTag(tagC);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   toggle_boolean_constraints("tags"); // must have a tag
   assert_messages_in_view([setTagA, setTagB, setTagAB, setTagC]);
 
@@ -233,7 +233,7 @@ add_task(async function test_filter_text_single_word_and_predicates() {
       { count: 1, body: { body: "foo" } },
     ]
   );
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // by default, sender/recipients/subject are selected
   assert_text_constraints_checked("sender", "recipients", "subject");
@@ -299,7 +299,7 @@ add_task(async function test_filter_text_multi_word() {
       { count: 1, from: whoFoo },
     ]
   );
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // (precondition)
   assert_text_constraints_checked("sender", "recipients", "subject");
@@ -340,7 +340,7 @@ add_task(async function test_filter_or_operator() {
       { count: 1, from: whoFoo, to: [whoBar], subject: "test" },
     ]
   );
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_text_constraints_checked("sender", "recipients", "subject");
   set_filter_text("foo | bar");
@@ -393,7 +393,7 @@ add_task(async function test_filter_text_constraints_propagate() {
     ]
   );
 
-  be_in_folder(folderOne);
+  await be_in_folder(folderOne);
   set_filter_text("foo");
   // (precondition)
   assert_text_constraints_checked("sender", "recipients", "subject");
@@ -411,7 +411,7 @@ add_task(async function test_filter_text_constraints_propagate() {
   assert_text_constraints_checked("sender", "recipients");
 
   // -- now change folders and make sure the settings stick
-  be_in_folder(folderTwo);
+  await be_in_folder(folderTwo);
   set_filter_text("bar");
   assert_messages_in_view([setWhoBar]);
   assert_text_constraints_checked("sender", "recipients");
@@ -438,7 +438,7 @@ add_task(async function test_results_label() {
     [{ count: 1 }, { count: 1 }, { count: 1 }]
   );
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   // no filter, the label should not be visible
   if (mc.e("qfb-results-label").visible) {

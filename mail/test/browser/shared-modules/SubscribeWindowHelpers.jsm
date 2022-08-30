@@ -34,7 +34,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   // available on startup.
   mc.e("folderPaneBox").collapsed = false;
 
-  folderDisplayHelper.right_click_on_folder(aFolder);
+  await folderDisplayHelper.right_click_on_folder(aFolder);
   let callback = function(controller) {
     // When the "stop button" is disabled, the panel is populated.
     controller.waitFor(() => controller.e("stopButton").disabled);

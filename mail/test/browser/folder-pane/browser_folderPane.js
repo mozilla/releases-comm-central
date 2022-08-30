@@ -73,7 +73,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   // close the tinderbox server.
   mc.folderTreeView.toggleOpenState(0);
   let folderA = await create_folder("FolderPaneA");
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
 
   // After creating our first folder we should have 6 rows visible
   assert_folder_tree_view_row_count(
@@ -87,8 +87,8 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   let folderB = folderA.getChildNamed("FolderPaneB");
   // Enter folderB, then enter folderA. This makes sure that folderA is not
   // collapsed.
-  enter_folder(folderB);
-  enter_folder(folderA);
+  await enter_folder(folderB);
+  await enter_folder(folderA);
 
   // At this point folderA should be open, so the view should have one more
   // item than before (FolderPaneB).

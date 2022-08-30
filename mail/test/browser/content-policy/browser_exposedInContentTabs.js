@@ -150,7 +150,7 @@ async function checkContentTab(msgURL) {
 }
 
 add_task(async function test_exposedInContentTabs() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_nothing_selected();
 

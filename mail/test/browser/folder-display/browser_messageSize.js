@@ -39,8 +39,8 @@ add_setup(async function() {
   await add_message_to_folder([folder], mbmsg);
 });
 
-function _help_test_message_size(index, unit) {
-  be_in_folder(folder);
+async function _help_test_message_size(index, unit) {
+  await be_in_folder(folder);
 
   // Select the nth message
   let curMessage = select_click_row(index);
@@ -61,16 +61,16 @@ function _help_test_message_size(index, unit) {
   }
 }
 
-add_task(function test_byte_message_size() {
-  _help_test_message_size(0, 1);
+add_task(async function test_byte_message_size() {
+  await _help_test_message_size(0, 1);
 });
 
-add_task(function test_kb_message_size() {
-  _help_test_message_size(1, 1);
+add_task(async function test_kb_message_size() {
+  await _help_test_message_size(1, 1);
 });
 
-add_task(function test_mb_message_size() {
-  _help_test_message_size(2, 2);
+add_task(async function test_mb_message_size() {
+  await _help_test_message_size(2, 2);
 
   Assert.report(
     false,

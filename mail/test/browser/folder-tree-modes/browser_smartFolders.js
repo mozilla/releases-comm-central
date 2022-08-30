@@ -121,12 +121,12 @@ add_task(function test_get_parent_of_folder() {
 /**
  * Test the getFolderForMsgHdr function.
  */
-add_task(function test_get_folder_for_msg_hdr() {
-  be_in_folder(inboxFolder);
+add_task(async function test_get_folder_for_msg_hdr() {
+  await be_in_folder(inboxFolder);
   let inboxMsgHdr = mc.dbView.getMsgHdrAt(0);
   assert_folder_for_msg_hdr(inboxMsgHdr, smartInboxFolder);
 
-  be_in_folder(inboxSubfolder);
+  await be_in_folder(inboxSubfolder);
   let inboxSubMsgHdr = mc.dbView.getMsgHdrAt(0);
   assert_folder_for_msg_hdr(inboxSubMsgHdr, inboxSubfolder);
 });

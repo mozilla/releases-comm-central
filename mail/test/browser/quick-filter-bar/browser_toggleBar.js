@@ -41,15 +41,15 @@ add_setup(async function() {
   setStarred.setStarred(true);
 });
 
-add_task(function test_hidden_on_account_central() {
-  be_in_folder(folder.rootFolder);
+add_task(async function test_hidden_on_account_central() {
+  await be_in_folder(folder.rootFolder);
   assert_quick_filter_button_enabled(false);
   assert_quick_filter_bar_visible(false);
   teardownTest();
 });
 
-add_task(function test_visible_by_default() {
-  be_in_folder(folder);
+add_task(async function test_visible_by_default() {
+  await be_in_folder(folder);
   assert_quick_filter_button_enabled(true);
   assert_quick_filter_bar_visible(true);
   teardownTest();

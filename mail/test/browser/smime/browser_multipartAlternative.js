@@ -75,7 +75,7 @@ add_task(async function test_multipart_alternative() {
   close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let message = select_click_row(0);
   let messageContent = get_msg_source(message);
 

@@ -47,7 +47,7 @@ add_setup(async function() {
 });
 
 add_task(async function test_move_message() {
-  be_in_folder(folder1);
+  await be_in_folder(folder1);
   let msgHdr = select_click_row(0);
   // This will cause the initial build of the move recent context menu,
   // which should be empty and disabled.
@@ -159,7 +159,7 @@ add_task(async function test_archive_message() {
     false,
     false
   );
-  be_in_folder(archive.descendants[0]);
+  await be_in_folder(archive.descendants[0]);
   await right_click_on_row(0);
   let popups = await mc.click_menus_in_sequence(
     mc.e("mailContext"),

@@ -58,7 +58,7 @@ add_setup(async function() {
     false,
     server
   );
-  be_in_folder(inbox);
+  await be_in_folder(inbox);
 });
 
 registerCleanupFunction(function() {

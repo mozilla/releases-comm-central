@@ -60,7 +60,7 @@ add_task(async function test_secure_mails_read() {
   }
 
   // Select (read) all added mails.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   for (
     let i = 0;
     i < NUM_PLAIN_MAILS + NUM_SMIME_MAILS + NUM_OPENPGP_MAILS;

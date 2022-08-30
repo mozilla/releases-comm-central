@@ -145,7 +145,7 @@ function click_link_if_available() {
  * notification.
  */
 add_task(async function test_ignore_phishing_warning_from_message() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(0);
   await assert_ignore_works(mc);
 
@@ -202,21 +202,20 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
  * get a warning when clicking the link.
  * We'll have http://130.128.4.1 vs. http://130.128.4.1/
  */
-function test_no_phishing_warning_for_ip_sameish_text() {
-  be_in_folder(folder);
+add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
+  await be_in_folder(folder);
   select_click_row(2); // Mail with Public IP address.
   click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
-}
-add_task(test_no_phishing_warning_for_ip_sameish_text);
+});
 
 /**
  * Test that when viewing a message with a link whose base domain matches but
  * has a different subdomain (e.g. http://subdomain.google.com/ vs
  * http://google.com/), we don't get a warning if the link is pressed.
  */
-function test_no_phishing_warning_for_subdomain() {
-  be_in_folder(folder);
+add_task(async function test_no_phishing_warning_for_subdomain() {
+  await be_in_folder(folder);
   select_click_row(3);
   click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
@@ -224,15 +223,14 @@ function test_no_phishing_warning_for_subdomain() {
   select_click_row(4);
   click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
-}
-add_task(test_no_phishing_warning_for_subdomain);
+});
 
 /**
  * Test that when clicking a link where the text and/or href
  * has no TLD, we still warn as appropriate.
  */
-function test_phishing_warning_for_local_domain() {
-  be_in_folder(folder);
+add_task(async function test_phishing_warning_for_local_domain() {
+  await be_in_folder(folder);
   select_click_row(5);
 
   let dialogAppeared = false;
@@ -244,14 +242,13 @@ function test_phishing_warning_for_local_domain() {
   click_link_if_available();
 
   Assert.ok(dialogAppeared);
-}
-add_task(test_phishing_warning_for_local_domain);
+});
 
 /**
  * Test that we warn about emails which contain <form>s with action attributes.
  */
-add_task(function test_phishing_warning_for_action_form() {
-  be_in_folder(folder);
+add_task(async function test_phishing_warning_for_action_form() {
+  await be_in_folder(folder);
   select_click_row(6);
   assert_notification_displayed(mc, kBoxId, kNotificationValue, true); // shown
 
@@ -263,7 +260,7 @@ add_task(function test_phishing_warning_for_action_form() {
   );
 });
 
-registerCleanupFunction(function teardown() {
-  be_in_folder(inboxFolder);
+registerCleanupFunction(async function teardown() {
+  await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
 });

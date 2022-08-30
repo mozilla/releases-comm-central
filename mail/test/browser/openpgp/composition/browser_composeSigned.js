@@ -80,7 +80,7 @@ add_setup(async function() {
  * Outbox.
  */
 add_task(async function testSignedMessageComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -96,7 +96,7 @@ add_task(async function testSignedMessageComposition() {
   await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
   assert_selected_and_displayed(0);
 
@@ -125,7 +125,7 @@ add_task(async function testSignedMessageComposition() {
  * enabled, shows as signed in the Outbox.
  */
 add_task(async function testSignedMessageWithKeyComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -140,7 +140,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
   await OpenPGPTestUtils.toggleMessageSigning(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
   assert_selected_and_displayed(0);
 
@@ -178,7 +178,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
  * encrypted in the Outbox.
  */
 add_task(async function testSignedEncryptedMessageComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -194,7 +194,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
   await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
   assert_selected_and_displayed(0);
 
@@ -223,7 +223,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
  * enabled, is shown signed, encrypted in the Outbox.
  */
 add_task(async function testSignedEncryptedMessageWithKeyComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -238,7 +238,7 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
   assert_selected_and_displayed(0);
 

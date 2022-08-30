@@ -130,7 +130,7 @@ add_task(async function test_paste_file_urls() {
   cwc.window.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
-  be_in_folder(gOutboxFolder);
+  await be_in_folder(gOutboxFolder);
   let outMsg = select_click_row(0);
   let outMsgContent = get_msg_source(outMsg);
 

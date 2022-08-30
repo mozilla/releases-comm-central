@@ -77,7 +77,7 @@ async function forwardDirect(aFilePath) {
 }
 
 async function forwardViaFolder(aFilePath) {
-  be_in_folder(folderToSendFrom);
+  await be_in_folder(folderToSendFrom);
 
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
   let msgc = await open_message_from_file(file);

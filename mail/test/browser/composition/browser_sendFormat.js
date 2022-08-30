@@ -44,11 +44,11 @@ add_setup(async () => {
   outboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue, true);
 });
 
-registerCleanupFunction(() => {
+registerCleanupFunction(async function() {
   Services.prefs.setIntPref("mail.default_send_format", sendFormatPreference);
   Services.prefs.setIntPref("mailnews.display.html_as", htmlAsPreference);
-  empty_folder(draftsFolder);
-  empty_folder(outboxFolder);
+  await empty_folder(draftsFolder);
+  await empty_folder(outboxFolder);
 });
 
 async function checkMsgFile(aFilePath, aConvertibility) {
@@ -229,7 +229,7 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   await closePromise;
 
   // Open the "sent" message.
-  be_in_folder(outboxFolder);
+  await be_in_folder(outboxFolder);
   // Should be the last message in the tree.
   select_click_row(-1);
 
@@ -320,7 +320,7 @@ async function saveDraft(composeWindow) {
 }
 
 async function assertDraftFormat(expectSavedFormat) {
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   select_click_row(0);
 
   let newComposeWindow = open_compose_from_draft().window;

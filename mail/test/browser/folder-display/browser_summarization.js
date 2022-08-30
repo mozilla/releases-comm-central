@@ -79,8 +79,8 @@ add_setup(async function() {
   await add_message_sets_to_folders([folder], [thread1, msg1, thread2, msg2]);
 });
 
-add_task(function test_basic_summarization() {
-  be_in_folder(folder);
+add_task(async function test_basic_summarization() {
+  await be_in_folder(folder);
 
   // - make sure we get a summary
   select_click_row(0);
@@ -97,38 +97,38 @@ add_task(function test_summarization_goes_away() {
 /**
  * Verify that we update summarization when switching amongst tabs.
  */
-add_task(function test_folder_tabs_update_correctly() {
+add_task(async function test_folder_tabs_update_correctly() {
   // tab with summary
-  let tabA = be_in_folder(folder);
+  let tabA = await be_in_folder(folder);
   select_click_row(0);
   select_control_click_row(2);
   assert_selected_and_displayed(0, 2);
 
   // tab with nothing
-  let tabB = open_folder_in_new_tab(folder);
+  let tabB = await open_folder_in_new_tab(folder);
   wait_for_blank_content_pane();
   assert_nothing_selected();
 
   // correct changes, none <=> summary
-  switch_tab(tabA);
+  await switch_tab(tabA);
   assert_selected_and_displayed(0, 2);
-  switch_tab(tabB);
+  await switch_tab(tabB);
   assert_nothing_selected();
 
   // correct changes, one <=> summary
   select_click_row(0);
   assert_selected_and_displayed(0);
-  switch_tab(tabA);
+  await switch_tab(tabA);
   assert_selected_and_displayed(0, 2);
-  switch_tab(tabB);
+  await switch_tab(tabB);
   assert_selected_and_displayed(0);
 
   // correct changes, summary <=> summary
   select_shift_click_row(3);
   assert_selected_and_displayed([0, 3]);
-  switch_tab(tabA);
+  await switch_tab(tabA);
   assert_selected_and_displayed(0, 2);
-  switch_tab(tabB);
+  await switch_tab(tabB);
   assert_selected_and_displayed([0, 3]);
 
   // closing tab returns state correctly...
@@ -136,22 +136,22 @@ add_task(function test_folder_tabs_update_correctly() {
   assert_selected_and_displayed(0, 2);
 });
 
-add_task(function test_message_tabs_update_correctly() {
-  let tabFolder = be_in_folder(folder);
+add_task(async function test_message_tabs_update_correctly() {
+  let tabFolder = await be_in_folder(folder);
   let message = select_click_row(0);
   assert_selected_and_displayed(0);
 
-  let tabMessage = open_selected_message_in_new_tab();
+  let tabMessage = await open_selected_message_in_new_tab();
   assert_selected_and_displayed(message);
 
-  switch_tab(tabFolder);
+  await switch_tab(tabFolder);
   select_shift_click_row(2);
   assert_selected_and_displayed([0, 2]);
 
-  switch_tab(tabMessage);
+  await switch_tab(tabMessage);
   assert_selected_and_displayed(message);
 
-  switch_tab(tabFolder);
+  await switch_tab(tabFolder);
   assert_selected_and_displayed([0, 2]);
 
   close_tab(tabMessage);
@@ -237,7 +237,7 @@ add_task(function test_summarization_thread_detection() {
  * - The thread does not move.
  */
 add_task(async function test_new_thread_that_was_not_summarized_expands() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   make_display_threaded();
   // - create the base messages
   let [willMoveMsg, willNotMoveMsg] = await make_message_sets_in_folders(
@@ -278,7 +278,7 @@ add_task(async function test_new_thread_that_was_not_summarized_expands() {
  */
 add_task(
   async function test_summary_updates_when_new_message_added_to_collapsed_thread() {
-    be_in_folder(folder);
+    await be_in_folder(folder);
     make_display_threaded();
     collapse_all_threads();
 
@@ -305,12 +305,12 @@ add_task(async function test_summary_when_multiple_identities() {
   // First half of the test, makes sure messageDisplay.js understands there's
   // only one thread
   let folder1 = await create_folder("Search1");
-  be_in_folder(folder1);
+  await be_in_folder(folder1);
   let thread1 = create_thread(1);
   await add_message_sets_to_folders([folder1], [thread1]);
 
   let folder2 = await create_folder("Search2");
-  be_in_folder(folder2);
+  await be_in_folder(folder2);
   await make_message_sets_in_folders(
     [folder2],
     [{ count: 1, inReplyTo: thread1 }]
@@ -324,7 +324,7 @@ add_task(async function test_summary_when_multiple_identities() {
   );
 
   // Do the needed tricks
-  be_in_folder(folder1);
+  await be_in_folder(folder1);
   select_click_row(0);
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
@@ -333,7 +333,7 @@ add_task(async function test_summary_when_multiple_identities() {
   mc.window.MsgMoveMessage(folder2);
   wait_for_folder_events();
 
-  be_in_folder(folder2);
+  await be_in_folder(folder2);
   select_click_row(1);
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
@@ -342,7 +342,7 @@ add_task(async function test_summary_when_multiple_identities() {
   mc.window.MsgMoveMessage(folder1);
   wait_for_folder_events();
 
-  be_in_folder(folderVirtual);
+  await be_in_folder(folderVirtual);
   make_display_threaded();
   collapse_all_threads();
 
@@ -357,7 +357,7 @@ add_task(async function test_summary_when_multiple_identities() {
   // according to their view thread id
   thread1 = create_thread(1);
   await add_message_sets_to_folders([folder1], [thread1]);
-  be_in_folder(folderVirtual);
+  await be_in_folder(folderVirtual);
   select_shift_click_row(1);
 
   assert_summary_contains_N_elts(".item_header > .subject", 2);
@@ -384,8 +384,8 @@ function check_address_name(name) {
   }
 }
 
-add_task(function test_display_name_no_abook() {
-  be_in_folder(folder);
+add_task(async function test_display_name_no_abook() {
+  await be_in_folder(folder);
 
   let address = extract_first_address(thread1);
   ensure_no_card_exists(address.email);
@@ -397,8 +397,8 @@ add_task(function test_display_name_no_abook() {
   check_address_name(address.name + " <" + address.email + ">");
 });
 
-add_task(function test_display_name_abook() {
-  be_in_folder(folder);
+add_task(async function test_display_name_abook() {
+  await be_in_folder(folder);
 
   let address = extract_first_address(thread1);
   ensure_card_exists(address.email, "My Friend", true);
@@ -409,8 +409,8 @@ add_task(function test_display_name_abook() {
   check_address_name("My Friend");
 });
 
-add_task(function test_display_name_abook_no_pdn() {
-  be_in_folder(folder);
+add_task(async function test_display_name_abook_no_pdn() {
+  await be_in_folder(folder);
 
   let address = extract_first_address(thread1);
   ensure_card_exists(address.email, "My Friend", false);
@@ -431,7 +431,7 @@ add_task(function test_display_name_abook_no_pdn() {
 });
 
 add_task(async function test_archive_and_delete_messages() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_none();
   assert_nothing_selected();
   make_display_unthreaded();

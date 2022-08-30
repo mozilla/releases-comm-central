@@ -42,8 +42,8 @@ add_setup(async function() {
 /**
  * Test archiving messages that are not currently selected.
  */
-add_task(function test_batch_archiver() {
-  be_in_folder(folder);
+add_task(async function test_batch_archiver() {
+  await be_in_folder(folder);
 
   select_none();
   assert_nothing_selected();

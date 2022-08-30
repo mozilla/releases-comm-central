@@ -54,7 +54,7 @@ async function subtest_replyEditAsNewForward_charset(
   aFile,
   aViewed = true
 ) {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   let file = new FileUtils.File(getTestFilePath(`data/${aFile}`));
   let msgc = await open_message_from_file(file);
@@ -119,7 +119,7 @@ add_task(async function test_reply_noUTF16() {
 add_task(async function test_replyEditAsNewForward_noPreview() {
   // Check that it works even if the message wasn't viewed before, so
   // switch off the preview pane (bug 1323377).
-  be_in_folder(folder);
+  await be_in_folder(folder);
   mc.window.goDoCommand("cmd_toggleMessagePane");
 
   await subtest_replyEditAsNewForward_charset(1, "./format-flowed.eml", false);

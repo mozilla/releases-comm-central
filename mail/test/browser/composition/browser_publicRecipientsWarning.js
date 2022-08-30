@@ -75,7 +75,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
   });
   await add_message_to_folder([folder], msg0);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
   let cwc = open_compose_with_reply_to_all();

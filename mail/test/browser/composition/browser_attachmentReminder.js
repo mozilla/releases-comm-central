@@ -400,7 +400,7 @@ add_task(async function test_manual_attachment_reminder() {
   close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
@@ -687,7 +687,7 @@ add_task(async function test_reminder_in_draft() {
   close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
@@ -777,7 +777,7 @@ add_task(async function test_disabling_attachment_reminder() {
   wait_for_window_close();
 
   // There should be no alert so it is saved in Outbox.
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
 
   select_click_row(0);
   // Delete the leftover outgoing message.
@@ -785,7 +785,7 @@ add_task(async function test_disabling_attachment_reminder() {
 
   // Get back to the mail account for other tests.
   let mail = MailServices.accounts.defaultAccount.incomingServer.rootFolder;
-  be_in_folder(mail);
+  await be_in_folder(mail);
 });
 
 /**

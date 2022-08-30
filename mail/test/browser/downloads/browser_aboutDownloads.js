@@ -109,7 +109,7 @@ async function prepare_messages() {
       },
     ]
   );
-  be_in_folder(folder);
+  await be_in_folder(folder);
 }
 
 function prepare_downloads_view() {
@@ -150,17 +150,17 @@ function open_about_downloads() {
 /**
  * Test that there is no file in the list at first.
  */
-add_task(function test_empty_list() {
+add_task(async function test_empty_list() {
   setupTest();
-  switch_tab(downloadsTab);
+  await switch_tab(downloadsTab);
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
   Assert.equal(list.children.length, 0, "Downloads list should be empty");
   teardownTest();
 });
 
-function save_attachment_files() {
-  switch_tab(0);
+async function save_attachment_files() {
+  await switch_tab(0);
 
   let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
 
@@ -181,8 +181,8 @@ function save_attachment_files() {
 /**
  * Test that all downloaded files are showed up in the list.
  */
-function subtest_save_attachment_files_in_list() {
-  save_attachment_files();
+async function subtest_save_attachment_files_in_list() {
+  await save_attachment_files();
 
   mc.tabmail.switchToTab(downloadsTab);
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
@@ -212,9 +212,9 @@ function subtest_save_attachment_files_in_list() {
     Assert.equal(attachmentFileNames[i], actualNames[i]);
   }
 }
-add_task(function test_save_attachment_files_in_list() {
+add_task(async function test_save_attachment_files_in_list() {
   setupTest();
-  subtest_save_attachment_files_in_list();
+  await subtest_save_attachment_files_in_list();
   teardownTest();
 });
 
@@ -224,7 +224,7 @@ add_task(function test_save_attachment_files_in_list() {
  */
 add_task(async function test_remove_file() {
   setupTest();
-  subtest_save_attachment_files_in_list();
+  await subtest_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
   let firstElement = list.firstElementChild;
@@ -270,7 +270,7 @@ add_task(async function test_remove_file() {
  */
 add_task(async function test_remove_multiple_files() {
   setupTest();
-  subtest_save_attachment_files_in_list();
+  await subtest_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
   let firstElement = list.firstElementChild.nextElementSibling;
@@ -325,7 +325,7 @@ add_task(async function test_remove_multiple_files() {
  */
 add_task(async function test_clear_all_files() {
   setupTest();
-  subtest_save_attachment_files_in_list();
+  await subtest_save_attachment_files_in_list();
   downloadsView.waitForFinish();
 
   let listbox = content_tab_e(downloadsTab, "msgDownloadsRichListBox");

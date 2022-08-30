@@ -116,7 +116,7 @@ add_task(async function test_basic_multipart_related() {
   );
 
   // Make sure that the headers are right on this one.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
   let { headers, text } = getMsgHeaders(draftMsg, true);
   Assert.equal(headers.get("").contentType.type, "multipart/related");

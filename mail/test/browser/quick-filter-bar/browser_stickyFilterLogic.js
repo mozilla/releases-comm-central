@@ -52,17 +52,17 @@ add_task(async function test_sticky_basics() {
   readTwo.setRead(true);
 
   // -- setup
-  be_in_folder(folderOne);
+  await be_in_folder(folderOne);
   toggle_boolean_constraints("sticky", "unread");
   assert_messages_in_view(unreadOne);
 
   // -- change folders
-  be_in_folder(folderTwo);
+  await be_in_folder(folderTwo);
   assert_constraints_expressed({ sticky: true, unread: true });
   assert_messages_in_view(unreadTwo);
 
   // -- inherit into a new folder
-  let tabB = open_folder_in_new_tab(folderOne);
+  let tabB = await open_folder_in_new_tab(folderOne);
   assert_constraints_expressed({ sticky: true, unread: true });
   assert_messages_in_view(unreadOne);
 
@@ -101,26 +101,26 @@ add_task(async function test_sticky_tags() {
   setTagA2.addTag(tagA);
   setTagC2.addTag(tagC);
 
-  be_in_folder(folderOne);
+  await be_in_folder(folderOne);
   toggle_boolean_constraints("sticky", "tags");
   assert_tag_constraints_visible(tagA, tagB);
   assert_messages_in_view([setTagA1, setTagB1]);
 
   // -- re-facet when we change folders since constraint was just true
-  be_in_folder(folderTwo);
+  await be_in_folder(folderTwo);
   assert_tag_constraints_visible(tagA, tagC);
   assert_messages_in_view([setTagA2, setTagC2]);
 
   // -- do not re-facet since tag A was selected
   toggle_tag_constraints(tagA);
-  be_in_folder(folderOne);
+  await be_in_folder(folderOne);
   assert_tag_constraints_visible(tagA, tagC);
   assert_messages_in_view([setTagA1]);
 
   // -- if we turn off sticky, make sure that things clear when we change
   //     folders.  (we had a bug with this before.)
   toggle_boolean_constraints("sticky");
-  be_in_folder(folderTwo);
+  await be_in_folder(folderTwo);
   assert_constraints_expressed({});
   teardownTest();
 });
@@ -134,11 +134,11 @@ add_task(async function test_sticky_text() {
   let folderOne = await create_folder("QuickFilterBarStickyText1");
   let folderTwo = await create_folder("QuickFilterBarStickyText2");
 
-  be_in_folder(folderOne);
+  await be_in_folder(folderOne);
   toggle_boolean_constraints("sticky");
   set_filter_text("foo");
 
-  be_in_folder(folderTwo);
+  await be_in_folder(folderTwo);
   assert_filter_text("foo");
   teardownTest();
 });

@@ -56,9 +56,9 @@ function _assert_folder_total_messages(aFolder, aNumMessages) {
 /**
  * Test deleting junk messages with no messages marked as junk.
  */
-add_task(function test_delete_no_junk_messages() {
+add_task(async function test_delete_no_junk_messages() {
   let initialNumMessages = folder.getTotalMessages(false);
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_none();
   delete_mail_marked_as_junk(0);
   // Check if we still have the same number of messages
@@ -68,9 +68,9 @@ add_task(function test_delete_no_junk_messages() {
 /**
  * Test deleting junk messages with some messages marked as junk.
  */
-add_task(function test_delete_junk_messages() {
+add_task(async function test_delete_junk_messages() {
   let initialNumMessages = folder.getTotalMessages(false);
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(1);
   let selectedMessages = select_shift_click_row(NUM_MESSAGES_TO_JUNK);
   // Mark these messages as junk

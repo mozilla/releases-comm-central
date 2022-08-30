@@ -77,12 +77,12 @@ async function forward_selected_messages_and_go_to_drafts_folder(f) {
   wait_for_window_close();
 
   // Visit the existing Drafts folder.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   make_display_unthreaded();
 }
 
 add_task(async function test_forward_inline() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   // original message header
   let oMsgHdr = select_click_row(0);
 
@@ -120,7 +120,7 @@ add_task(async function test_forward_inline() {
 });
 
 add_task(async function test_forward_as_attachments() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   make_display_unthreaded();
 
   // original message header

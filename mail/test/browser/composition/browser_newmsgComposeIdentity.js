@@ -128,7 +128,7 @@ function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
  * expected initial identity.
  */
 add_task(async function test_compose_from_composer() {
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
 
   let cwc = open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key);
@@ -170,7 +170,7 @@ add_task(async function test_compose_from_composer() {
  */
 add_task(async function test_editing_identity() {
   Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", true);
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
 
   let compWin = open_compose_new_mail();
   checkCompIdentity(compWin, account.defaultIdentity.key, identity1Email);
@@ -209,7 +209,7 @@ add_task(async function test_editing_identity() {
   // This should not save the identity2 to the draft message.
   close_compose_window(compWin);
 
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let curMessage = select_click_row(0);
   Assert.equal(curMessage.author, identityCustom);
   // Remove the saved draft.
@@ -223,7 +223,7 @@ add_task(async function test_editing_identity() {
  * Test how an identity displays and behaves in the compose window.
  */
 add_task(async function test_display_of_identities() {
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
 
   let cwc = open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key, identity1Email);
@@ -252,7 +252,7 @@ add_task(async function test_display_of_identities() {
   await save_compose_message(cwc.window);
   close_compose_window(cwc);
 
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let curMessage = select_click_row(0);
   Assert.equal(curMessage.author, identity3From);
   // Remove the saved draft.

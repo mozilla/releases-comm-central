@@ -33,12 +33,12 @@ add_setup(async function() {
 /**
  * Check if the db of a folder assumed to be invalid can be restored.
  */
-add_task(function test_load_folder_with_invalidDB() {
+add_task(async function test_load_folder_with_invalidDB() {
   folder.msgDatabase.dBFolderInfo.sortType = Ci.nsMsgViewSortType.bySubject;
   folder.msgDatabase.summaryValid = false;
   folder.msgDatabase.ForceClosed();
   folder.msgDatabase = null;
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_messages_in_view(setA);
   var curMessage = select_click_row(0);
