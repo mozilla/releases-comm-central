@@ -529,7 +529,10 @@
      * Sets up the tree view, calendar event observer, and preference observer.
      */
     refresh() {
-      this.view = this.mTreeView;
+      // Only set the view if it's not already mTreeView, otherwise things get confused.
+      if (this.view.wrappedJSObject != this.mTreeView) {
+        this.view = this.mTreeView;
+      }
 
       cal.view.getCompositeCalendar(window).addObserver(this.mTaskTreeObserver);
 
