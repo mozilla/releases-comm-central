@@ -33,13 +33,6 @@ registerCleanupFunction(() => {
   }
 });
 
-function waitForSaveOperation(cwc) {
-  utils.waitFor(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-    "Saving of draft did not finish"
-  );
-}
-
 /**
  * Get the body part of an MIME message.
  * @param {string} content - The message content.

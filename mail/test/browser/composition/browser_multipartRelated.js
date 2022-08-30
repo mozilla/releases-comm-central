@@ -10,9 +10,11 @@
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
+var {
+  close_compose_window,
+  open_compose_new_mail,
+  save_compose_message,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
   get_special_folder,
@@ -106,18 +108,12 @@ add_task(async function test_basic_multipart_related() {
   wait_for_modal_dialog();
   wait_for_window_close();
 
-  // Ctrl+S = save as draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    compWin.window
-  );
-  waitForSaveOperation(compWin);
+  await save_compose_message(compWin.window);
+  close_compose_window(compWin);
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,
     "message saved to drafts folder"
   );
-  close_compose_window(compWin);
 
   // Make sure that the headers are right on this one.
   be_in_folder(gDrafts);

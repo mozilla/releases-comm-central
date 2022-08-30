@@ -119,6 +119,7 @@ class ImapService {
     msgIds,
     convertDataToText
   ) {
+    imapUrl.imapAction = imapAction;
     if (displayConsumer instanceof Ci.nsIDocShell) {
       imapUrl
         .QueryInterface(Ci.nsIMsgMailNewsUrl)
@@ -240,6 +241,17 @@ class ImapService {
         Ci.nsIImapUrl.nsImapCreateFolder;
       client.onReady = () => {
         client.createFolder(parent, folderName);
+      };
+    });
+  }
+
+  storeCustomKeywords(folder, msgWindow, flagsToAdd, flagsToSubtract, uids) {
+    return this._withClient(folder, (client, runningUrl) => {
+      client.startRunningUrl(null, msgWindow, runningUrl);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapMsgStoreCustomKeywords;
+      client.onReady = () => {
+        client.storeCustomKeywords(folder, flagsToAdd, flagsToSubtract, uids);
       };
     });
   }

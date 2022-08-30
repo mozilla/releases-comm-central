@@ -14,6 +14,7 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
   open_compose_with_reply,
+  save_compose_message,
   wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
@@ -110,13 +111,7 @@ add_task(async function test_wrong_reply_charset() {
   Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");
 
   let rwc = open_compose_with_reply();
-  // Ctrl+S = save as draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    rwc.window
-  );
-  waitForSaveOperation(rwc);
+  await save_compose_message(rwc.window);
   await TestUtils.waitForCondition(
     () => folder.getTotalMessages(false) == 2,
     "message saved to drafts folder"
@@ -139,12 +134,7 @@ add_task(async function test_wrong_reply_charset() {
   // Click on the "Edit" button in the draft notification.
   EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   rwc = wait_for_compose_window();
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    rwc.window
-  );
-  waitForSaveOperation(rwc);
+  await save_compose_message(rwc.window);
   close_compose_window(rwc);
   msg = select_click_row(0);
   await TestUtils.waitForCondition(
@@ -180,13 +170,7 @@ add_task(async function test_no_mojibake() {
   );
 
   let rwc = open_compose_with_reply();
-  // Ctrl+S = save as draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    rwc.window
-  );
-  waitForSaveOperation(rwc);
+  await save_compose_message(rwc.window);
   await TestUtils.waitForCondition(
     () => folder.getTotalMessages(false) == 2,
     "message saved to drafts folder"
@@ -218,12 +202,7 @@ add_task(async function test_no_mojibake() {
   // Click on the "Edit" button in the draft notification.
   EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   rwc = wait_for_compose_window();
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    rwc.window
-  );
-  waitForSaveOperation(rwc);
+  await save_compose_message(rwc.window);
   close_compose_window(rwc);
   msg = select_click_row(0);
   Assert.equal(

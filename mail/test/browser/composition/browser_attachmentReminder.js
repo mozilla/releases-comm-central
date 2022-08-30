@@ -12,6 +12,7 @@ var {
   add_attachments,
   close_compose_window,
   open_compose_new_mail,
+  save_compose_message,
   setup_msg_contents,
   wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -659,7 +660,7 @@ add_task(async function test_disabled_attachment_reminder() {
  * Bug 833909
  * Test reminder comes up when a draft with keywords is opened.
  */
-add_task(function test_reminder_in_draft() {
+add_task(async function test_reminder_in_draft() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
   setup_msg_contents(
@@ -682,10 +683,8 @@ add_task(function test_reminder_in_draft() {
   wait_for_reminder_state(cwc, true);
 
   // Now close the message with saving it as draft.
-  plan_for_modal_dialog("commonDialogWindow", click_save_message);
-  cwc.window.goDoCommand("cmd_close");
-  wait_for_modal_dialog("commonDialogWindow");
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
   be_in_folder(gDrafts);

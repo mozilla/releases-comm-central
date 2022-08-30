@@ -12,6 +12,7 @@ var {
   close_compose_window,
   get_msg_source,
   open_compose_with_reply,
+  save_compose_message,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
@@ -49,17 +50,13 @@ async function subtest_reply_format_flowed(aFlowed) {
   close_window(msgc);
 
   // Now save the message as a draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
+
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,
     "message saved to drafts folder"
   );
-  close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.
   be_in_folder(gDrafts);

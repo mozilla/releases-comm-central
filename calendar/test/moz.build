@@ -26,6 +26,5 @@ TESTING_JS_MODULES.calendar += [
 
 XPCSHELL_TESTS_MANIFESTS += [
     "unit/providers/xpcshell.ini",
-    "unit/xpcshell-icaljs.ini",
-    "unit/xpcshell-libical.ini",
+    "unit/xpcshell.ini",
 ]

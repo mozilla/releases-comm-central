@@ -13,6 +13,7 @@ var {
   get_compose_body,
   open_compose_with_forward,
   open_compose_with_reply,
+  save_compose_message,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
@@ -49,12 +50,9 @@ add_task(async function test_reply_to_eml_save_as_draft() {
   let replyWin = open_compose_with_reply(msgc);
 
   // Ctrl+S saves as draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    replyWin.window
-  );
-  waitForSaveOperation(replyWin);
+  await save_compose_message(replyWin.window);
+  close_compose_window(replyWin);
+
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,
     "message saved to drafts folder"
@@ -68,7 +66,6 @@ add_task(async function test_reply_to_eml_save_as_draft() {
   }
   press_delete(); // Delete the draft.
 
-  close_compose_window(replyWin); // close compose window
   close_window(msgc); // close base .eml message
 });
 
@@ -83,13 +80,9 @@ add_task(async function test_forward_eml_save_as_draft() {
 
   let replyWin = open_compose_with_forward(msgc);
 
-  // Ctrl+S saves as draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    replyWin.window
-  );
-  waitForSaveOperation(replyWin);
+  await save_compose_message(replyWin.window);
+  close_compose_window(replyWin);
+
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,
     "message saved to drafts folder"
@@ -103,7 +96,6 @@ add_task(async function test_forward_eml_save_as_draft() {
   }
   press_delete(); // Delete the draft.
 
-  close_compose_window(replyWin); // close compose window
   close_window(msgc); // close base .eml message
 });
 

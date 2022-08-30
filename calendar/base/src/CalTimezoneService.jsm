@@ -2,22 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from calTimezone.js */
-
 var EXPORTED_SYMBOLS = ["CalTimezoneService"];
 
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
-const lazy = {};
-
-XPCOMUtils.defineLazyPreferenceGetter(lazy, "gUseIcaljs", "calendar.icaljs", false);
-
-Services.scriptloader.loadSubScript("resource:///components/calTimezone.js");
+const { CalTimezone } = ChromeUtils.import("resource:///modules/CalTimezone.jsm");
 
 const TIMEZONE_CHANGED_TOPIC = "default-timezone-changed";
 
@@ -170,14 +163,7 @@ CalTimezoneService.prototype = {
 
   get UTC() {
     if (!this.mZones.has("UTC")) {
-      let utc;
-      if (lazy.gUseIcaljs) {
-        utc = new calICALJSTimezone(ICAL.Timezone.utcTimezone);
-      } else {
-        utc = new calLibicalTimezone("UTC", null, "", "");
-        utc.mUTC = true;
-      }
-
+      let utc = new CalTimezone(ICAL.Timezone.utcTimezone);
       this.mZones.set("UTC", { zone: utc });
     }
 
@@ -186,13 +172,7 @@ CalTimezoneService.prototype = {
 
   get floating() {
     if (!this.mZones.has("floating")) {
-      let floating;
-      if (lazy.gUseIcaljs) {
-        floating = new calICALJSTimezone(ICAL.Timezone.localTimezone);
-      } else {
-        floating = new calLibicalTimezone("floating", null, "", "");
-        floating.isFloating = true;
-      }
+      let floating = new CalTimezone(ICAL.Timezone.localTimezone);
       this.mZones.set("floating", { zone: floating });
     }
 
@@ -229,18 +209,14 @@ CalTimezoneService.prototype = {
           "\r\n" +
           timezone.ics.join("\r\n") +
           "\r\nEND:VTIMEZONE";
-        if (lazy.gUseIcaljs) {
-          timezone.zone = new calICALJSTimezone(
-            ICAL.Timezone.fromData({
-              tzid,
-              component: ics,
-              latitude: timezone.latitude,
-              longitude: timezone.longitude,
-            })
-          );
-        } else {
-          timezone.zone = new calLibicalTimezone(tzid, ics, timezone.latitude, timezone.longitude);
-        }
+        timezone.zone = new CalTimezone(
+          ICAL.Timezone.fromData({
+            tzid,
+            component: ics,
+            latitude: timezone.latitude,
+            longitude: timezone.longitude,
+          })
+        );
       }
     }
     return timezone.zone;

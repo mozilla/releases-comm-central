@@ -20,11 +20,7 @@ function really_run_test() {
   test_icsservice();
   test_icalstring();
   test_param();
-
-  // Only supported with ical.js
-  if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
-    test_icalproperty();
-  }
+  test_icalproperty();
 }
 
 function test_icalstring() {
@@ -87,19 +83,10 @@ function test_icalstring() {
   );
   equal(rrule.getComponent("BYDAY").toString(), [2].toString());
 
-  if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
-    let rdate = checkComp(cal.createRecurrenceDate.bind(cal), "RDATE:20120101T000000", {
-      isNegative: false,
-    });
-    equal(rdate.date.compare(cal.createDateTime("20120101T000000")), 0);
-  } else {
-    let rdate = checkComp(
-      cal.createRecurrenceDate.bind(cal),
-      "RDATE;VALUE=DATE-TIME:20120101T000000",
-      { isNegative: false }
-    );
-    equal(rdate.date.compare(cal.createDateTime("20120101T000000")), 0);
-  }
+  let rdate = checkComp(cal.createRecurrenceDate.bind(cal), "RDATE:20120101T000000", {
+    isNegative: false,
+  });
+  equal(rdate.date.compare(cal.createDateTime("20120101T000000")), 0);
 
   /* TODO consider removing period support, ics throws badarg
     let rdateperiod = checkComp(cal.createRecurrenceDate.bind(cal),
