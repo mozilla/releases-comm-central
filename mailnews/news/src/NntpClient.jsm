@@ -266,13 +266,6 @@ class NntpClient {
   }
 
   /**
-   * Send a single dot line to end the data block.
-   */
-  sendEnd() {
-    this.send("\r\n.\r\n");
-  }
-
-  /**
    * Send a LIST command to get all the groups in the current server.
    */
   getListOfGroups() {

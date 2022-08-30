@@ -176,11 +176,7 @@ POP3Pump.prototype._checkBusy = function() {
   }
 
   // If the server hasn't quite finished, just delay a little longer.
-  if (
-    this._incomingServer.serverBusy ||
-    (this._incomingServer instanceof Ci.nsIPop3IncomingServer &&
-      this._incomingServer.runningProtocol)
-  ) {
+  if (this._incomingServer.serverBusy) {
     do_timeout(20, _checkPumpBusy);
     return;
   }

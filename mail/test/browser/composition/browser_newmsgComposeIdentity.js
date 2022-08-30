@@ -12,6 +12,7 @@
 var {
   close_compose_window,
   open_compose_new_mail,
+  save_compose_message,
   wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
@@ -248,8 +249,7 @@ add_task(async function test_display_of_identities() {
 
   // Bug 1152045, check that the email address from the selected identity
   // is properly used for the From field in the created message.
-  cwc.window.SaveAsDraft();
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
   close_compose_window(cwc);
 
   be_in_folder(gDrafts);

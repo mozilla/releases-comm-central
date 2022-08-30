@@ -1264,7 +1264,10 @@ nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
     nsCOMPtr<nsIMsgPluggableStore> msgStore;
     nsresult rv = folder->GetMsgStore(getter_AddRefs(msgStore));
     if (NS_FAILED(rv)) {
-      return finalListener->OnStopRunningUrl(nullptr, rv);
+      if (finalListener) {
+        return finalListener->OnStopRunningUrl(nullptr, rv);
+      }
+      return rv;
     }
     bool storeSupportsCompaction;
     msgStore->GetSupportsCompaction(&storeSupportsCompaction);
@@ -1272,13 +1275,19 @@ nsresult nsImapMailFolder::ExpungeAndCompact(nsIUrlListener* aListener,
       nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
           do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
       if (NS_FAILED(rv)) {
-        return finalListener->OnStopRunningUrl(nullptr, rv);
+        if (finalListener) {
+          return finalListener->OnStopRunningUrl(nullptr, rv);
+        }
+        return rv;
       }
       return folderCompactor->CompactFolders({folder}, finalListener,
                                              msgWindow);
     }
     // Not going to run a compaction, so signal that we're all done.
-    return finalListener->OnStopRunningUrl(nullptr, NS_OK);
+    if (finalListener) {
+      return finalListener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+    return NS_OK;
   };
 
   if (WeAreOffline()) {
@@ -4102,12 +4111,20 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
     tweakMe->SetMessageSize(m_nextMessageByteLength);
 
     bool foundIt = false;
-    imapMessageFlagsType imap_flags;
 
-    nsCString customFlags;
-    nsresult rv = aProtocol->GetFlagsForUID(m_curMsgUid, &foundIt, &imap_flags,
-                                            getter_Copies(customFlags));
+    nsCOMPtr<nsIImapFlagAndUidState> flagState;
+    nsresult rv = aProtocol->GetFlagAndUidState(getter_AddRefs(flagState));
+    NS_ENSURE_SUCCESS_VOID(rv);
+    rv = flagState->HasMessage(m_curMsgUid, &foundIt);
+
     if (NS_SUCCEEDED(rv) && foundIt) {
+      imapMessageFlagsType imap_flags;
+      nsCString customFlags;
+      flagState->GetMessageFlagsByUid(m_curMsgUid, &imap_flags);
+      if (imap_flags & kImapMsgCustomKeywordFlag) {
+        flagState->GetCustomFlags(m_curMsgUid, getter_Copies(customFlags));
+      }
+
       // make a mask and clear these message flags
       uint32_t mask = nsMsgMessageFlags::Read | nsMsgMessageFlags::Replied |
                       nsMsgMessageFlags::Marked |
@@ -8302,8 +8319,14 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoCString msgIds;
   AllocateUidStringFromKeys(aKeysToStore, msgIds);
-  return imapService->StoreCustomKeywords(this, aMsgWindow, aFlagsToAdd,
-                                          aFlagsToSubtract, msgIds, _retval);
+  nsCOMPtr<nsIURI> retUri;
+  rv = imapService->StoreCustomKeywords(this, aMsgWindow, aFlagsToAdd,
+                                        aFlagsToSubtract, msgIds,
+                                        getter_AddRefs(retUri));
+  if (_retval) {
+    retUri.forget(_retval);
+  }
+  return rv;
 }
 
 NS_IMETHODIMP nsImapMailFolder::NotifyIfNewMail() {

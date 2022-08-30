@@ -14,6 +14,7 @@ var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
 var {
   close_compose_window,
   open_compose_new_mail,
+  save_compose_message,
   setup_msg_contents,
   wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -513,10 +514,8 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   );
 
   // Now close the message with saving it as draft.
-  plan_for_modal_dialog("commonDialogWindow", click_save_message);
-  cwc.window.goDoCommand("cmd_close");
-  wait_for_modal_dialog("commonDialogWindow");
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
   be_in_folder(gDrafts);

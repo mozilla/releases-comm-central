@@ -5973,6 +5973,13 @@ async function CompleteGenericSendMessage(msgType) {
     ) {
       Services.telemetry.scalarAdd("tb.filelink.ignored", 1);
     }
+  } else if (
+    msgType == Ci.nsIMsgCompDeliverMode.Save ||
+    msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
+    msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft ||
+    msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate
+  ) {
+    window.dispatchEvent(new CustomEvent("aftersave"));
   }
 
   if (sendError) {

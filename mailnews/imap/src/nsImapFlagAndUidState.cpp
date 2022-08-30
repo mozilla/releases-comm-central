@@ -31,6 +31,13 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetUidOfMessage(int32_t zeroBasedIndex,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsImapFlagAndUidState::HasMessage(uint32_t uid, bool* result) {
+  NS_ENSURE_ARG_POINTER(result);
+  *result = fUids.Contains(uid);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsImapFlagAndUidState::GetMessageFlags(int32_t zeroBasedIndex,
                                                      uint16_t* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
@@ -215,6 +222,17 @@ imapMessageFlagsType nsImapFlagAndUidState::GetMessageFlagsFromUID(
   imapMessageFlagsType retFlags = (*foundIt) ? fFlags[*ndx] : kNoImapMsgFlag;
   PR_CExitMonitor(this);
   return retFlags;
+}
+
+NS_IMETHODIMP
+nsImapFlagAndUidState::GetMessageFlagsByUid(uint32_t uid,
+                                            imapMessageFlagsType* retFlags) {
+  PR_CEnterMonitor(this);
+  int32_t ndx = (int32_t)fUids.IndexOf(uid);
+  bool foundIt = ndx >= 0;
+  *retFlags = foundIt ? fFlags[ndx] : kNoImapMsgFlag;
+  PR_CExitMonitor(this);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(

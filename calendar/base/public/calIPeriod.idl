@@ -56,12 +56,3 @@ interface calIPeriod : nsISupports
    */
   attribute ACString icalString;
 };
-
-/** Libical specific interfaces */
-
-[ptr] native icalperiodtypeptr(struct icalperiodtype);
-[builtinclass,scriptable,uuid(04ee525f-96db-4731-8d61-688e754df24f)]
-interface calIPeriodLibical : calIPeriod
-{
-  [noscript,notxpcom] void toIcalPeriod(in icalperiodtypeptr idt);
-};

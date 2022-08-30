@@ -9,6 +9,7 @@ var {
   close_compose_window,
   get_msg_source,
   open_compose_new_mail,
+  save_compose_message,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { be_in_folder, select_click_row, get_special_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -38,13 +39,12 @@ add_task(async function test_customHeaders() {
   inputs[2].value = "moderator@tinderbox.com";
   inputs[3].value = "<message-id-1234@tinderbox.com>";
 
-  cwc.window.SaveAsDraft();
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
     "message saved to drafts folder"
   );
-  close_compose_window(cwc);
 
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);

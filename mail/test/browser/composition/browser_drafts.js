@@ -14,6 +14,7 @@ var {
   get_compose_body,
   get_msg_source,
   open_compose_new_mail,
+  save_compose_message,
   setup_msg_contents,
   wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -83,14 +84,9 @@ add_task(async function test_open_draft_again() {
 
   // Type something and save, then check that we only have one draft.
   cwc.type(cwc.e("messageEditor"), "Hello!");
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
-  waitForSaveOperation(cwc);
-  Assert.equal(draftsFolder.getTotalMessages(false), 1);
+  await save_compose_message(cwc.window);
   close_compose_window(cwc);
+  Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
   press_delete(mc); // clean up after ourselves
 });
@@ -136,10 +132,7 @@ async function internal_check_delivery_format(editDraft) {
     cwc.close_popup_sequence(formatMenu);
   }
 
-  cwc.window.SaveAsDraft();
-  waitForSaveOperation(cwc);
-  wait_for_window_focused(cwc.window);
-
+  await save_compose_message(cwc.window);
   close_compose_window(cwc);
 
   // Open a new composition see if the menu is again at default value, not the one
@@ -209,18 +202,13 @@ add_task(async function test_edit_as_new_in_draft() {
   let cwc = wait_for_compose_window();
 
   cwc.type(cwc.e("messageEditor"), "Hello!");
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 2,
     "message saved to drafts folder"
   );
-  close_compose_window(cwc);
 
   // Clean up the created drafts and count again.
   press_delete(mc);
@@ -241,14 +229,13 @@ add_task(async function test_content_language_header() {
     "Hello, we speak en-US"
   );
 
-  cwc.window.SaveAsDraft();
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
+
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
     "message saved to drafts folder"
   );
-  wait_for_window_focused(cwc.window);
-  close_compose_window(cwc);
 
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
@@ -283,14 +270,13 @@ add_task(async function test_content_language_header_suppression() {
     "Hello, we speak blank"
   );
 
-  cwc.window.SaveAsDraft();
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
+
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
     "message saved to drafts folder"
   );
-  wait_for_window_focused(cwc.window);
-  close_compose_window(cwc);
 
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
@@ -327,15 +313,13 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
     "NoSpace\n OneSpace\n  TwoSpaces"
   );
 
-  cwc.window.SaveAsDraft();
-  waitForSaveOperation(cwc);
+  await save_compose_message(cwc.window);
+  close_compose_window(cwc);
+
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
     "message saved to drafts folder"
   );
-  wait_for_window_focused(cwc.window);
-
-  close_compose_window(cwc);
 
   be_in_folder(draftsFolder);
 

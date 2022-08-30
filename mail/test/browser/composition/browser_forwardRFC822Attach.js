@@ -13,6 +13,7 @@ var {
   close_compose_window,
   get_msg_source,
   open_compose_with_forward_as_attachments,
+  save_compose_message,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
@@ -44,14 +45,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
 
   let cwc = open_compose_with_forward_as_attachments(msgc);
 
-  // Ctrl+S saves as draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
-  waitForSaveOperation(cwc);
-
+  await save_compose_message(cwc.window);
   close_compose_window(cwc);
   close_window(msgc);
 

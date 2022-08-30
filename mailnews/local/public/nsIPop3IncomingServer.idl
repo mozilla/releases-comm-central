@@ -19,11 +19,9 @@ interface nsIPop3IncomingServer : nsISupports {
   attribute unsigned long pop3CapabilityFlags;
   attribute boolean deleteByAgeFromServer;
   attribute long numDaysToLeaveOnServer;
-  attribute nsIPop3Protocol runningProtocol;
   // client adds uidls to mark one by one, then calls markMessages
   void addUidlToMark(in string aUidl, in int32_t newStatus);
   void markMessages();
-  attribute boolean authenticated;
   /* account to which this server defers storage, for global inbox */
   attribute ACString deferredToAccount;
   // whether get new mail in deferredToAccount gets

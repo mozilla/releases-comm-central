@@ -4,6 +4,9 @@
 
 "use strict";
 
+const { save_compose_message } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
 const {
   open_message_from_file,
   be_in_folder,
@@ -126,13 +129,13 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
 
     let replyWindow = await replyWindowPromise;
     await BrowserTestUtils.waitForEvent(replyWindow, "focus", true);
-    replyWindow.document.querySelector("#button-save").click();
+    await save_compose_message(replyWindow);
+    replyWindow.close();
 
     await TestUtils.waitForCondition(
       () => draftsFolder.getTotalMessages(true) > 0,
       "message saved to drafts folder"
     );
-    replyWindow.close();
 
     let draftWindowPromise = waitForComposeWindow();
     select_click_row(0);

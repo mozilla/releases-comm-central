@@ -26,6 +26,7 @@ const EXPORTED_SYMBOLS = [
   "open_compose_with_reply",
   "open_compose_with_reply_to_all",
   "open_compose_with_reply_to_list",
+  "save_compose_message",
   "setup_msg_contents",
   "type_in_composer",
   "wait_for_compose_window",
@@ -237,6 +238,17 @@ function open_compose_from_draft(aController) {
 }
 
 /**
+ * Saves the message being composed and waits for the save to complete.
+ *
+ * @param {Window} win - A messengercompose.xhtml window.
+ */
+async function save_compose_message(win) {
+  let savePromise = BrowserTestUtils.waitForEvent(win, "aftersave");
+  win.document.querySelector("#button-save").click();
+  await savePromise;
+}
+
+/**
  * Closes the requested compose window.
  *
  * @param aController the controller whose window is to be closed.
@@ -292,46 +304,15 @@ function _wait_for_compose_window(aController, replyWindow) {
     aController = mc;
   }
 
-  let editor = replyWindow.window.document.querySelector("editor");
-
-  if (editor.docShell.busyFlags != Ci.nsIDocShell.BUSY_FLAGS_NONE) {
-    let editorObserver = {
-      editorLoaded: false,
-
-      observe(aSubject, aTopic, aData) {
-        if (aTopic == "obs_documentCreated") {
-          this.editorLoaded = true;
-        }
-      },
-    };
-
-    editor.commandManager.addCommandObserver(
-      editorObserver,
-      "obs_documentCreated"
-    );
-
-    utils.waitFor(
-      () => editorObserver.editorLoaded,
-      "Timeout waiting for compose window editor to load",
-      10000,
-      100
-    );
-
-    // Let the event queue clear.
-    aController.sleep(0);
-
-    editor.commandManager.removeCommandObserver(
-      editorObserver,
-      "obs_documentCreated"
-    );
-  }
-
-  // Although the above is reasonable, testing has shown that the some elements
-  // need to have a little longer to try and load the initial data.
-  // As I can't see a simpler way at the moment, we'll just have to make it a
-  // sleep :-(
-
-  aController.sleep(1000);
+  utils.waitFor(
+    () => Services.focus.activeWindow == replyWindow.window,
+    "waiting for the compose window to have focus"
+  );
+  utils.waitFor(
+    () => replyWindow.window.composeEditorReady,
+    "waiting for the compose editor to be ready"
+  );
+  replyWindow.sleep(0);
 
   return replyWindow;
 }

@@ -5,7 +5,6 @@
 
 DIRS = [
     "public",
-    "backend",
     "src",
     "modules",
     "themes",

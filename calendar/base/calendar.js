@@ -169,9 +169,6 @@ pref("calendar.paste.intoSelectedCalendar", false);
 
 pref("calendar.baseview.loglevel", "Warn");
 
-// Backend to use. false: libical, true: ical.js
-pref("calendar.icaljs", true);
-
 // Enables the prompt when deleting from the item views or trees.
 pref("calendar.item.promptDelete", true);
 

@@ -4,7 +4,6 @@
 # `mach clang-format` will likely not pick up this file.
 
 # Specific modules to exclude.
-calendar/libical/.*
 mailnews/mapi/include/.*
 suite/.*
 third_party/.*

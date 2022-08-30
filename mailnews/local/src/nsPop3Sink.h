@@ -44,8 +44,6 @@ class nsPop3Sink : public nsIPop3Sink {
   nsresult WriteLineToMailbox(const nsACString& buffer);
   nsresult ReleaseFolderLock();
 
-  bool m_authed;
-  nsCString m_accountUrl;
   uint32_t m_biffState;
   int32_t m_numNewMessages;
   int32_t m_numNewMessagesInFolder;
