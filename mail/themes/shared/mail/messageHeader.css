@@ -736,8 +736,10 @@ button.email-action-flagged.flagged {
   opacity: var(--message-header-label-opacity);
 }
 
-.message-header-hide-label-column .multi-recipient-row .row-heading:not(#fromHeading),
-.message-header-hide-label-column .row-heading:is(#message-idHeading, #referencesHeading, #in-reply-toHeading) {
+.message-header-hide-label-column .multi-recipient-row
+  .row-heading:not(#fromHeading),
+.message-header-hide-label-column
+  .row-heading:is(#newsgroupsHeading, #message-idHeading, #referencesHeading, #in-reply-toHeading) {
   padding-block: var(--message-header-field-offset);
 }
 
