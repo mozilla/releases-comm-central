@@ -67,18 +67,20 @@ class NntpService {
         ].createInstance(Ci.nsIFileInputStream);
         // PR_RDONLY
         fstream.init(messageFile, 0x01, 0, 0);
-        let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-          Ci.nsIScriptableInputStream
-        );
-        sstream.init(fstream);
-
-        while (sstream.available()) {
-          let chunk = sstream.read(65536);
-          client.send(chunk);
-        }
-        sstream.close();
+        let lineInputStream = fstream.QueryInterface(Ci.nsILineInputStream);
+        let hasMore;
+        do {
+          let outLine = {};
+          hasMore = lineInputStream.readLine(outLine);
+          let line = outLine.value;
+          if (line.startsWith(".")) {
+            // Dot stuffing, see rfc3977#section-3.1.1.
+            line = "." + line;
+          }
+          client.send(line + "\r\n");
+        } while (hasMore);
         fstream.close();
-        client.sendEnd();
+        client.send(".\r\n");
       };
     });
   }
@@ -197,7 +199,7 @@ class NntpService {
           )}`,
         ];
         client.send(content.join("\r\n"));
-        client.sendEnd();
+        client.send("\r\n.\r\n");
 
         newsFolder.removeMessage(messageKey);
         newsFolder.cancelComplete();
