@@ -13,13 +13,7 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGlobalGetters(this, [
-  "fetch",
-  "File",
-  "btoa",
-  "IOUtils",
-  "PathUtils",
-]);
+XPCOMUtils.defineLazyGlobalGetters(this, ["fetch", "File", "FileReader"]);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   newUID: "resource:///modules/AddrBookUtils.jsm",
@@ -48,6 +42,25 @@ const hiddenProperties = [
   "PhotoURL",
   "PhotoType",
 ];
+
+/**
+ * Reads a DOM File and returns a Promise for its dataUrl.
+ *
+ * @param {File} file
+ * @returns {string}
+ */
+function getDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function() {
+      resolve(reader.result);
+    };
+    reader.onerror = function(error) {
+      reject(new Error(error));
+    };
+  });
+}
 
 /**
  * Returns a DOM File object for the contact photo of the given contact.
@@ -473,46 +486,32 @@ var addressBookCache = new (class extends EventEmitter {
         let vCardPhoto = vCardProperties.getFirstValue("photo");
         if (!vCardPhoto && photoName) {
           try {
-            let path = PathUtils.join(
-              PathUtils.profileDir,
-              "Photos",
-              photoName
-            );
-            let buffer = await IOUtils.read(path);
-            let data = btoa(
-              buffer.reduce(
-                (string, byte) => string + String.fromCharCode(byte),
-                ""
-              )
-            );
-
-            let type;
-            if (data.startsWith("iVBO")) {
-              // The first 3 bytes say this image is PNG.
-              type = "png";
-            } else if (data.startsWith("/9j/")) {
-              // The first 3 bytes say this image is JPEG.
-              type = "jpeg";
-            } else {
-              throw new Error("Unsupported image format");
-            }
+            let realPhotoFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+            realPhotoFile.append("Photos");
+            realPhotoFile.append(photoName);
+            let photoFile = await File.createFromNsIFile(realPhotoFile);
+            let dataUrl = await getDataUrl(photoFile);
 
             if (vCardProperties.getFirstValue("version") == "4.0") {
               vCardProperties.addEntry(
-                new VCardPropertyEntry(
-                  "photo",
-                  {},
-                  "url",
-                  `data:image/${type};base64,${data}`
-                )
+                new VCardPropertyEntry("photo", {}, "url", dataUrl)
               );
             } else {
+              let typeParts = photoFile.type.toLowerCase().split("/");
+              if (
+                !typeParts ||
+                !typeParts.length > 1 ||
+                typeParts[0] != "image"
+              ) {
+                throw new Error("Unsupported image format");
+              }
+              let type = typeParts[1].toUpperCase();
               vCardProperties.addEntry(
                 new VCardPropertyEntry(
                   "photo",
-                  { encoding: "B", type: type.toUpperCase() },
+                  { encoding: "B", type },
                   "binary",
-                  data
+                  dataUrl.substring(dataUrl.indexOf(",") + 1)
                 )
               );
             }
