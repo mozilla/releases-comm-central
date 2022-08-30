@@ -60,7 +60,7 @@
           },
           "folder": {
             "$ref": "folders.MailFolder",
-            "description": "The <permission>accountsRead</permission> permission is required for this property to be included.",
+            "description": "The <permission>accountsRead</permission> permission is required for this property to be included. Not available for external or attached messages.",
             "optional": true
           },
           "headerMessageId": {
