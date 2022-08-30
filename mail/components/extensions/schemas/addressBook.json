@@ -514,6 +514,31 @@
         "description": "Gets a single contact."
       },
       {
+        "name": "getPhoto",
+        "type": "function",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "object",
+                "optional": true,
+                "isInstanceOf": "File",
+                "additionalProperties": true
+              }
+            ]
+          }
+        ],
+        "description": "Gets the photo associated with this contact, if any."
+      },
+      {
         "name": "create",
         "type": "function",
         "async": "callback",

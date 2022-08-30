@@ -13,7 +13,13 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-XPCOMUtils.defineLazyGlobalGetters(this, ["btoa", "IOUtils", "PathUtils"]);
+XPCOMUtils.defineLazyGlobalGetters(this, [
+  "fetch",
+  "File",
+  "btoa",
+  "IOUtils",
+  "PathUtils",
+]);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   newUID: "resource:///modules/AddrBookUtils.jsm",
@@ -42,6 +48,50 @@ const hiddenProperties = [
   "PhotoURL",
   "PhotoType",
 ];
+
+/**
+ * Returns a DOM File object for the contact photo of the given contact.
+ *
+ * @param {string} id - The id of the contact
+ * @returns {File}
+ */
+async function getPhotoFile(id) {
+  let { item } = addressBookCache.findContactById(id);
+  let photoUrl = item.photoURL;
+  if (!photoUrl) {
+    return null;
+  }
+
+  if (photoUrl.startsWith("file://")) {
+    let realFile = Services.io.newURI(photoUrl).QueryInterface(Ci.nsIFileURL)
+      .file;
+    let file = await File.createFromNsIFile(realFile);
+    let typeParts = file.type.toLowerCase().split("/");
+    if (typeParts && typeParts.length > 1 && typeParts[0] == "image") {
+      // Clone the File object to be able to give it the correct name, matching
+      // the dataUrl/webUrl code path below.
+      return new File([file], `${id}.${typeParts[1]}`, {
+        type: `image/${typeParts[1]}`,
+      });
+    }
+    return null;
+  }
+
+  // Retrieve dataUrls or webUrls.
+  let result = await fetch(photoUrl);
+  let typeParts = result.headers
+    .get("content-type")
+    .toLowerCase()
+    .split("/");
+  if (typeParts && typeParts.length > 1 && typeParts[0] == "image") {
+    let blob = await result.blob();
+    return new File([blob], `${id}.${typeParts[1]}`, {
+      type: `image/${typeParts[1]}`,
+    });
+  }
+
+  return null;
+}
 
 /**
  * Gets the VCardProperties of the given card either directly or by reconstructing
@@ -399,7 +449,9 @@ var addressBookCache = new (class extends EventEmitter {
         copy.remote = node.item.isRemote;
         break;
       case "contact": {
-        let vCardProperties = vCardPropertiesFromCard(node.item);
+        // Clone the vCardProperties of this contact, so we can manipulate them
+        // for the WebExtension, but do not actually change the stored data.
+        let vCardProperties = vCardPropertiesFromCard(node.item).clone();
         copy.properties = {};
 
         // Build a flat property list from vCardProperties.
@@ -810,6 +862,7 @@ this.addressBook = class extends ExtensionAPI {
             };
           },
         }).api(),
+
         provider: {
           onSearchRequest: new EventManager({
             context,
@@ -912,6 +965,9 @@ this.addressBook = class extends ExtensionAPI {
             addressBookCache.findContactById(id),
             false
           );
+        },
+        async getPhoto(id) {
+          return getPhotoFile(id);
         },
         create(parentId, id, createData) {
           let parentNode = addressBookCache.findAddressBookById(parentId);

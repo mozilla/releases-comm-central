@@ -54,6 +54,19 @@ add_task(async function test_addressBooks() {
       }
     }
 
+    function getDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          resolve(reader.result);
+        };
+        reader.onerror = function(error) {
+          reject(new Error(error));
+        };
+      });
+    }
+
     let outsideEvent = function(action, ...args) {
       eventPromise = new Promise(resolve => {
         eventPromiseResolve = resolve;
@@ -764,6 +777,21 @@ add_task(async function test_addressBooks() {
         `vCard should include the correct Photo property [${newContact.properties.vCard}] vs [${vCard4Photo}]`
       );
 
+      // Check internal photoUrl is a fileUrl.
+      await window.sendMessage("verifyPhotoUrl", contactId, "file:");
+      let photo = await browser.contacts.getPhoto(contactId);
+      // eslint-disable-next-line mozilla/use-isInstance
+      browser.test.assertTrue(photo instanceof File);
+      browser.test.assertEq("image/png", photo.type);
+      browser.test.assertEq(`${contactId}.png`, photo.name);
+      browser.test.assertEq(
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
+        await getDataUrl(photo),
+        "vCard 4.0 contact with photo from internal fileUrl from photoName should return the correct photo file"
+      );
+      // Re-check internal photoUrl is a fileUrl (getPhoto() should not change it).
+      await window.sendMessage("verifyPhotoUrl", contactId, "file:");
+
       await outsideEvent("updateContact", contactId);
       let [updatedContact] = await checkEvents([
         "contacts",
@@ -826,7 +854,7 @@ add_task(async function test_addressBooks() {
       // The card should not include vCard4Photo (which photoName points to), but the value already
       // stored in the vCard photo property.
       let vCard4Photo3 = `PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQm==`.replaceAll(
+ ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==`.replaceAll(
         "\r\n",
         "\n"
       );
@@ -837,6 +865,21 @@ add_task(async function test_addressBooks() {
           .includes(vCard4Photo3),
         `vCard should include the correct Photo property [${newContact3.properties.vCard}] vs [${vCard4Photo3}]`
       );
+
+      // Check internal photoUrl is a dataUrl.
+      await window.sendMessage("verifyPhotoUrl", contactId3, "data:");
+      let photo3 = await browser.contacts.getPhoto(contactId3);
+      // eslint-disable-next-line mozilla/use-isInstance
+      browser.test.assertTrue(photo3 instanceof File);
+      browser.test.assertEq("image/png", photo3.type);
+      browser.test.assertEq(`${contactId3}.png`, photo3.name);
+      browser.test.assertEq(
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==",
+        await getDataUrl(photo3),
+        "vCard 4.0 contact with photo from internal dataUrl from vCard (vCard wins over photoName) should return the correct photo file"
+      );
+      // Re-check internal photoUrl is a dataUrl (getPhoto() should not change it).
+      await window.sendMessage("verifyPhotoUrl", contactId3, "data:");
 
       await outsideEvent("deleteContact", contactId3);
       await checkEvents(["contacts", "onDeleted", parentId3, contactId3]);
@@ -864,6 +907,21 @@ add_task(async function test_addressBooks() {
         `vCard should include the correct Photo property [${newContact4.properties.vCard}] vs [${vCard3Photo4}]`
       );
 
+      // Check internal photoUrl is a fileUrl.
+      await window.sendMessage("verifyPhotoUrl", contactId4, "file:");
+      let photo4 = await browser.contacts.getPhoto(contactId4);
+      // eslint-disable-next-line mozilla/use-isInstance
+      browser.test.assertTrue(photo4 instanceof File);
+      browser.test.assertEq("image/png", photo4.type);
+      browser.test.assertEq(`${contactId4}.png`, photo4.name);
+      browser.test.assertEq(
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
+        await getDataUrl(photo4),
+        "vCard 3.0 contact with photo from internal fileUrl from photoName should return the correct photo file"
+      );
+      // Re-check internal photoUrl is a fileUrl (getPhoto() should not change it).
+      await window.sendMessage("verifyPhotoUrl", contactId4, "file:");
+
       await outsideEvent("deleteContact", contactId4);
       await checkEvents(["contacts", "onDeleted", parentId4, contactId4]);
 
@@ -890,25 +948,35 @@ add_task(async function test_addressBooks() {
     },
   });
 
-  extension.onMessage("outsideEventsTest", (action, ...args) => {
-    function findContact(id) {
-      for (let child of parent.childCards) {
-        if (child.UID == id) {
-          return child;
-        }
+  let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  function findContact(id) {
+    for (let child of parent.childCards) {
+      if (child.UID == id) {
+        return child;
       }
-      return null;
     }
-    function findMailingList(id) {
-      for (let list of parent.childNodes) {
-        if (list.UID == id) {
-          return list;
-        }
+    return null;
+  }
+  function findMailingList(id) {
+    for (let list of parent.childNodes) {
+      if (list.UID == id) {
+        return list;
       }
-      return null;
     }
+    return null;
+  }
 
-    let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  extension.onMessage("verifyPhotoUrl", (id, expectedScheme) => {
+    let contact = findContact(id);
+    let photoUrl = contact.photoURL;
+    Assert.ok(
+      photoUrl.startsWith(expectedScheme),
+      `photoURL should start with <${expectedScheme}> : (${photoUrl})`
+    );
+    extension.sendMessage();
+  });
+
+  extension.onMessage("outsideEventsTest", (action, ...args) => {
     switch (action) {
       case "createAddressBook": {
         let dirPrefId = MailServices.ab.newAddressBook(
@@ -934,9 +1002,7 @@ add_task(async function test_addressBooks() {
       }
 
       case "createContact": {
-        let contact = Cc[
-          "@mozilla.org/addressbook/cardproperty;1"
-        ].createInstance(Ci.nsIAbCard);
+        let contact = new AddrBookCard();
         contact.firstName = "external";
         contact.lastName = "add";
         contact.primaryEmail = "test@invalid";
@@ -957,7 +1023,7 @@ EMAIL;PREF=1:test@invalid
 N:add;external;;;
 UID:fd9aecf9-2453-4ba1-bec6-574a15bb380b
 PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQm==
+ ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==
 END:VCARD`
         );
         let newContact = parent.addCard(contact);
