@@ -530,7 +530,7 @@
      */
     refresh() {
       // Only set the view if it's not already mTreeView, otherwise things get confused.
-      if (this.view.wrappedJSObject != this.mTreeView) {
+      if (this.view?.wrappedJSObject != this.mTreeView) {
         this.view = this.mTreeView;
       }
 
