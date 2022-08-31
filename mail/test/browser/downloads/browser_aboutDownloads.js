@@ -236,7 +236,7 @@ add_task(async function test_remove_file() {
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
     { clickCount: 1 },
-    mc.window
+    firstElement.ownerGlobal
   );
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
@@ -288,7 +288,7 @@ add_task(async function test_remove_multiple_files() {
   EventUtils.synthesizeMouseAtCenter(
     firstElement,
     { clickCount: 1 },
-    mc.window
+    firstElement.ownerGlobal
   );
   list.selectItemRange(firstElement, secondElement);
   EventUtils.synthesizeMouseAtCenter(
@@ -329,7 +329,11 @@ add_task(async function test_clear_all_files() {
   downloadsView.waitForFinish();
 
   let listbox = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
-  EventUtils.synthesizeMouseAtCenter(listbox, { clickCount: 1 }, mc.window);
+  EventUtils.synthesizeMouseAtCenter(
+    listbox,
+    { clickCount: 1 },
+    listbox.ownerGlobal
+  );
   EventUtils.synthesizeMouseAtCenter(
     listbox,
     { type: "contextmenu" },
