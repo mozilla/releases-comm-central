@@ -31,27 +31,11 @@ const calTransManager = CalTransactionManager.getInstance();
  *                               bar, if "appmenu" then the app menu.
  */
 async function isDisabled(element) {
-  let targetMenu;
-  if (element.id.startsWith("menu")) {
-    targetMenu = document.getElementById("menu_EditPopup");
+  let targetMenu = document.getElementById("menu_EditPopup");
 
-    let shownPromise = BrowserTestUtils.waitForEvent(targetMenu, "popupshown");
-    EventUtils.synthesizeMouseAtCenter(document.getElementById("menu_Edit"), {});
-    await shownPromise;
-  } else if (element.id.startsWith("appmenu")) {
-    targetMenu = document.getElementById("appMenu-popup");
-
-    let shownPromise = BrowserTestUtils.waitForEvent(targetMenu, "popupshown");
-    EventUtils.synthesizeMouseAtCenter(document.getElementById("button-appmenu"), {});
-    await shownPromise;
-
-    let viewShownPromise = BrowserTestUtils.waitForEvent(
-      document.getElementById("appMenu-editView"),
-      "ViewShown"
-    );
-    EventUtils.synthesizeMouseAtCenter(document.getElementById("appmenu-edit-button"), {});
-    await viewShownPromise;
-  }
+  let shownPromise = BrowserTestUtils.waitForEvent(targetMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("menu_Edit"), {});
+  await shownPromise;
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(targetMenu, "popuphidden");
   let status = element.disabled;
@@ -241,13 +225,6 @@ add_setup(async function() {
 });
 
 /**
- * Tests the app menu's undo/redo after adding an event.
- */
-add_task(async function testAppMenuAddTaskUndoRedo() {
-  return taskAddUndoRedoTask("appmenu-editmenu-undo", "appmenu-editmenu-redo");
-});
-
-/**
  * Tests the menu bar's undo/redo after adding an event.
  */
 add_task(async function testMenuBarAddTaskUndoRedo() {
@@ -255,25 +232,11 @@ add_task(async function testMenuBarAddTaskUndoRedo() {
 }).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
 
 /**
- * Tests the app menu's undo/redo after modifying an event.
- */
-add_task(async function testAppMenuModifyTaskUndoRedo() {
-  return testModifyUndoRedoTask("appmenu-editmenu-undo", "appmenu-editmenu-redo");
-});
-
-/**
  * Tests the menu bar's undo/redo after modifying an event.
  */
 add_task(async function testMenuBarModifyTaskUndoRedo() {
   return testModifyUndoRedoTask("menu_undo", "menu_redo");
 }).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
-
-/**
- * Tests the app menu's undo/redo after deleting an event.
- */
-add_task(async function testAppMenuDeleteTaskUndoRedo() {
-  return testDeleteUndoRedoTask("appmenu-editmenu-undo", "appmenu-editmenu-redo");
-});
 
 /**
  * Tests the menu bar's undo/redo after deleting an event.

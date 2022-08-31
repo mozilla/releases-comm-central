@@ -596,10 +596,7 @@
 <!-- AppMenu Popup -->
 <!ENTITY appmenuNewMsgCmd.label "New Message">
 <!ENTITY appmenuNewContactCmd.label "Address Book Contact…">
-<!ENTITY appmenuEditMenu.label "Edit">
 <!ENTITY appmenuToolbarLayout.label "Toolbar Layout…">
-<!ENTITY appmenuSelectThread.label "Select Thread">
-<!ENTITY appmenuSelectFlagged.label "Select Starred Messages">
 
 <!-- Tags Menu Popup -->
 <!ENTITY addNewTag.label "New Tag…">

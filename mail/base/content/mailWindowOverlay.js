@@ -215,7 +215,6 @@ function initSearchMessagesMenu() {
     "mailnews.database.global.indexer.enabled"
   );
   document.getElementById("glodaSearchCmd").hidden = !glodaEnabled;
-  document.getElementById("appmenu_glodaSearchCmd").hidden = !glodaEnabled;
 }
 
 function InitAppFolderViewsMenu() {
