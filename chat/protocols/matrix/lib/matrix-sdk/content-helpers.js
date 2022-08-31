@@ -245,17 +245,15 @@ const parseBeaconInfoContent = content => {
     live
   } = content;
 
-  const {
-    type: assetType
-  } = _location.M_ASSET.findIn(content);
-
   const timestamp = _location.M_TIMESTAMP.findIn(content);
+
+  const asset = _location.M_ASSET.findIn(content);
 
   return {
     description,
     timeout,
     live,
-    assetType,
+    assetType: asset?.type,
     timestamp
   };
 };

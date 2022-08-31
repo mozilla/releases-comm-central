@@ -167,6 +167,18 @@ class RemoteIndexedDBStoreBackend {
     return this.doCmd('getUserPresenceEvents');
   }
 
+  async saveToDeviceBatches(batches) {
+    return this.doCmd('saveToDeviceBatches', [batches]);
+  }
+
+  async getOldestToDeviceBatch() {
+    return this.doCmd('getOldestToDeviceBatch');
+  }
+
+  async removeToDeviceBatch(id) {
+    return this.doCmd('removeToDeviceBatch', [id]);
+  }
+
   ensureStarted() {
     if (this.startPromise === null) {
       this.worker = this.workerFactory();

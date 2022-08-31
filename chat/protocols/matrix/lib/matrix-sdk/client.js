@@ -81,9 +81,13 @@ var _typedEventEmitter = require("./models/typed-event-emitter");
 
 var _read_receipts = require("./@types/read_receipts");
 
+var _slidingSyncSdk = require("./sliding-sync-sdk");
+
 var _thread = require("./models/thread");
 
 var _beacon = require("./@types/beacon");
+
+var _ToDeviceMessageQueue = require("./ToDeviceMessageQueue");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -144,6 +148,8 @@ exports.ClientEvent = ClientEvent;
   ClientEvent["DeleteRoom"] = "deleteRoom";
   ClientEvent["SyncUnexpectedError"] = "sync.unexpectedError";
   ClientEvent["ClientWellKnown"] = "WellKnown.client";
+  ClientEvent["TurnServers"] = "turnServers";
+  ClientEvent["TurnServersError"] = "turnServers.error";
 })(ClientEvent || (exports.ClientEvent = ClientEvent = {}));
 
 /**
@@ -230,6 +236,8 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
     _defineProperty(this, "syncApi", void 0);
 
+    _defineProperty(this, "roomNameGenerator", void 0);
+
     _defineProperty(this, "pushRules", void 0);
 
     _defineProperty(this, "syncLeftRoomsPromise", void 0);
@@ -256,7 +264,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
     _defineProperty(this, "turnServersExpiry", 0);
 
-    _defineProperty(this, "checkTurnServersIntervalID", void 0);
+    _defineProperty(this, "checkTurnServersIntervalID", null);
 
     _defineProperty(this, "exportedOlmDeviceToImport", void 0);
 
@@ -265,6 +273,8 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "mediaHandler", new _mediaHandler.MediaHandler(this));
 
     _defineProperty(this, "pendingEventEncryption", new Map());
+
+    _defineProperty(this, "toDeviceMessageQueue", void 0);
 
     _defineProperty(this, "startCallEventHandler", () => {
       if (this.isInitialSyncComplete()) {
@@ -277,6 +287,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     opts.idBaseUrl = utils.ensureNoTrailingSlash(opts.idBaseUrl);
     this.baseUrl = opts.baseUrl;
     this.idBaseUrl = opts.idBaseUrl;
+    this.identityServer = opts.identityServer;
     this.usingExternalCrypto = opts.usingExternalCrypto;
     this.store = opts.store || new _stub.StubStore();
     this.deviceId = opts.deviceId || null;
@@ -355,7 +366,9 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     // we still want to know which rooms are encrypted even if crypto is disabled:
     // we don't want to start sending unencrypted events to them.
 
-    this.roomList = new _RoomList.RoomList(this.cryptoStore); // The SDK doesn't really provide a clean way for events to recalculate the push
+    this.roomList = new _RoomList.RoomList(this.cryptoStore);
+    this.roomNameGenerator = opts.roomNameGenerator;
+    this.toDeviceMessageQueue = new _ToDeviceMessageQueue.ToDeviceMessageQueue(this); // The SDK doesn't really provide a clean way for events to recalculate the push
     // actions for themselves, so we have to kinda help them out when they are encrypted.
     // We do this so that push rules are correctly executed on events in their decrypted
     // state, such as highlights when the user's name is mentioned.
@@ -397,10 +410,12 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
         // Figure out if we've read something or if it's just informational
         const content = event.getContent();
         const isSelf = Object.keys(content).filter(eid => {
-          const read = content[eid][_read_receipts.ReceiptType.Read];
-          if (read && Object.keys(read).includes(this.getUserId())) return true;
-          const readPrivate = content[eid][_read_receipts.ReceiptType.ReadPrivate];
-          if (readPrivate && Object.keys(readPrivate).includes(this.getUserId())) return true;
+          for (const [key, value] of Object.entries(content[eid])) {
+            if (!utils.isSupportedReceiptType(key)) continue;
+            if (!value) continue;
+            if (Object.keys(value).includes(this.getUserId())) return true;
+          }
+
           return false;
         }).length > 0;
         if (!isSelf) return; // Work backwards to determine how many events are unread. We also set
@@ -508,7 +523,12 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       return this.canResetTimelineCallback(roomId);
     };
 
-    this.syncApi = new _sync.SyncApi(this, this.clientOpts);
+    if (this.clientOpts.slidingSync) {
+      this.syncApi = new _slidingSyncSdk.SlidingSyncSdk(this.clientOpts.slidingSync, this, this.clientOpts);
+    } else {
+      this.syncApi = new _sync.SyncApi(this, this.clientOpts);
+    }
+
     this.syncApi.sync();
 
     if (this.clientOpts.clientWellKnownPollPeriod !== undefined) {
@@ -517,6 +537,8 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       }, 1000 * this.clientOpts.clientWellKnownPollPeriod);
       this.fetchClientWellKnown();
     }
+
+    this.toDeviceMessageQueue.start();
   }
   /**
    * High level helper method to stop the client from polling and allow a
@@ -538,10 +560,13 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     this.callEventHandler?.stop();
     this.callEventHandler = null;
     global.clearInterval(this.checkTurnServersIntervalID);
+    this.checkTurnServersIntervalID = null;
 
     if (this.clientWellKnownIntervalID !== undefined) {
       global.clearInterval(this.clientWellKnownIntervalID);
     }
+
+    this.toDeviceMessageQueue.stop();
   }
   /**
    * Try to rehydrate a device if available.  The client must have been
@@ -903,11 +928,15 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Retry a backed off syncing request immediately. This should only be used when
    * the user <b>explicitly</b> attempts to retry their lost connection.
+   * Will also retry any outbound to-device messages currently in the queue to be sent
+   * (retries of regular outgoing events are handled separately, per-event).
    * @return {boolean} True if this resulted in a request being retried.
    */
 
 
   retryImmediately() {
+    // don't await for this promise: we just want to kick it off
+    this.toDeviceMessageQueue.sendQueue();
     return this.syncApi.retryImmediately();
   }
   /**
@@ -1940,6 +1969,29 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     return this.roomList.isRoomEncrypted(roomId);
   }
   /**
+   * Encrypts and sends a given object via Olm to-device messages to a given
+   * set of devices.
+   *
+   * @param {object[]} userDeviceInfoArr
+   *   mapping from userId to deviceInfo
+   *
+   * @param {object} payload fields to include in the encrypted payload
+   *      *
+   * @return {Promise<{contentMap, deviceInfoByDeviceId}>} Promise which
+   *     resolves once the message has been encrypted and sent to the given
+   *     userDeviceMap, and returns the { contentMap, deviceInfoByDeviceId }
+   *     of the successfully sent messages.
+   */
+
+
+  encryptAndSendToDevices(userDeviceInfoArr, payload) {
+    if (!this.crypto) {
+      throw new Error("End-to-End encryption disabled");
+    }
+
+    return this.crypto.encryptAndSendToDevices(userDeviceInfoArr, payload);
+  }
+  /**
    * Forces the current outbound group session to be discarded such
    * that another one will be created next time an event is sent.
    *
@@ -2831,7 +2883,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     }
   }
   /**
-   * Resend an event.
+   * Resend an event. Will also retry any to-device messages waiting to be sent.
    * @param {MatrixEvent} event The event to resend.
    * @param {Room} room Optional. The room the event is in. Will update the
    * timeline entry if provided.
@@ -2841,6 +2893,8 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
 
   resendEvent(event, room) {
+    // also kick the to-device queue to retry
+    this.toDeviceMessageQueue.sendQueue();
     this.updatePendingEventStatus(room, event, _event.EventStatus.SENDING);
     return this.encryptAndSendEvent(room, event);
   }
@@ -3740,7 +3794,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       room?.addLocalEchoReceipt(this.credentials.userId, rpEvent, _read_receipts.ReceiptType.ReadPrivate);
     }
 
-    return this.setRoomReadMarkersHttpRequest(roomId, rmEventId, rrEventId, rpEventId);
+    return await this.setRoomReadMarkersHttpRequest(roomId, rmEventId, rrEventId, rpEventId);
   }
   /**
    * Get a preview of the given URL as of (roughly) the given point in time,
@@ -3954,7 +4008,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       address: address
     };
 
-    if (this.identityServer && this.identityServer.getAccessToken && (await this.doesServerAcceptIdentityAccessToken())) {
+    if (this.identityServer?.getAccessToken && (await this.doesServerAcceptIdentityAccessToken())) {
       const identityAccessToken = await this.identityServer.getAccessToken();
 
       if (identityAccessToken) {
@@ -4967,6 +5021,10 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     // There can be only room-kind push rule per room
     // and its id is the room id.
     if (this.pushRules) {
+      if (!this.pushRules[scope] || !this.pushRules[scope].room) {
+        return;
+      }
+
       for (let i = 0; i < this.pushRules[scope].room.length; i++) {
         const rule = this.pushRules[scope].room[i];
 
@@ -5364,14 +5422,18 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     return this.turnServers || [];
   }
   /**
-   * Get the unix timestamp (in seconds) at which the current
+   * Get the unix timestamp (in milliseconds) at which the current
    * TURN credentials (from getTurnServers) expire
-   * @return {number} The expiry timestamp, in seconds, or null if no credentials
+   * @return {number} The expiry timestamp, in milliseconds, or null if no credentials
    */
 
 
   getTurnServersExpiry() {
     return this.turnServersExpiry;
+  }
+
+  get pollingTurnServers() {
+    return this.checkTurnServersIntervalID !== null;
   } // XXX: Intended private, used in code.
 
 
@@ -5406,19 +5468,23 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
           this.turnServersExpiry = Date.now() + res.ttl * 1000;
           credentialsGood = true;
+          this.emit(ClientEvent.TurnServers, this.turnServers);
         }
       } catch (err) {
-        _logger.logger.error("Failed to get TURN URIs", err); // If we get a 403, there's no point in looping forever.
-
+        _logger.logger.error("Failed to get TURN URIs", err);
 
         if (err.httpStatus === 403) {
+          // We got a 403, so there's no point in looping forever.
           _logger.logger.info("TURN access unavailable for this account: stopping credentials checks");
 
           if (this.checkTurnServersIntervalID !== null) global.clearInterval(this.checkTurnServersIntervalID);
           this.checkTurnServersIntervalID = null;
+          this.emit(ClientEvent.TurnServersError, err, true); // fatal
+        } else {
+          // otherwise, if we failed for whatever reason, try again the next time we're called.
+          this.emit(ClientEvent.TurnServersError, err, false); // non-fatal
         }
-      } // otherwise, if we failed for whatever reason, try again the next time we're called.
-
+      }
     }
 
     return credentialsGood;
@@ -6299,7 +6365,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     // inject the id_access_token if inviting 3rd party addresses
     const invitesNeedingToken = (options.invite_3pid || []).filter(i => !i.id_access_token);
 
-    if (invitesNeedingToken.length > 0 && this.identityServer && this.identityServer.getAccessToken && (await this.doesServerAcceptIdentityAccessToken())) {
+    if (invitesNeedingToken.length > 0 && this.identityServer?.getAccessToken && (await this.doesServerAcceptIdentityAccessToken())) {
       const identityAccessToken = await this.identityServer.getAccessToken();
 
       if (identityAccessToken) {
@@ -6522,15 +6588,20 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
    */
 
 
-  setRoomReadMarkersHttpRequest(roomId, rmEventId, rrEventId, rpEventId) {
+  async setRoomReadMarkersHttpRequest(roomId, rmEventId, rrEventId, rpEventId) {
     const path = utils.encodeUri("/rooms/$roomId/read_markers", {
       $roomId: roomId
     });
     const content = {
       [_read_receipts.ReceiptType.FullyRead]: rmEventId,
-      [_read_receipts.ReceiptType.Read]: rrEventId,
-      [_read_receipts.ReceiptType.ReadPrivate]: rpEventId
+      [_read_receipts.ReceiptType.Read]: rrEventId
     };
+    const privateField = await utils.getPrivateReadReceiptField(this);
+
+    if (privateField) {
+      content[privateField] = rpEventId;
+    }
+
     return this.http.authedRequest(undefined, _httpApi.Method.Post, path, undefined, content);
   }
   /**
@@ -7715,7 +7786,10 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     return this.http.idServerRequest(undefined, _httpApi.Method.Get, "/account", undefined, _httpApi.PREFIX_IDENTITY_V2, identityAccessToken);
   }
   /**
-   * Send an event to a specific list of devices
+   * Send an event to a specific list of devices.
+   * This is a low-level API that simply wraps the HTTP API
+   * call to send to-device messages. We recommend using
+   * queueToDevice() which is a higher level API.
    *
    * @param {string} eventType  type of event to send
    * @param {Object.<string, Object<string, Object>>} contentMap
@@ -7742,6 +7816,18 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     _logger.logger.log(`PUT ${path}`, targets);
 
     return this.http.authedRequest(undefined, _httpApi.Method.Put, path, undefined, body);
+  }
+  /**
+   * Sends events directly to specific devices using Matrix's to-device
+   * messaging system. The batch will be split up into appropriately sized
+   * batches for sending and stored in the store so they can be retried
+   * later if they fail to send. Retries will happen automatically.
+   * @param batch The to-device messages to send
+   */
+
+
+  queueToDevice(batch) {
+    return this.toDeviceMessageQueue.queueBatch(batch);
   }
   /**
    * Get the third party protocols that can be reached using
@@ -7929,6 +8015,36 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     return new _MSC3089TreeSpace.MSC3089TreeSpace(this, roomId);
   }
   /**
+   * Perform a single MSC3575 sliding sync request.
+   * @param {MSC3575SlidingSyncRequest} req The request to make.
+   * @param {string} proxyBaseUrl The base URL for the sliding sync proxy.
+   * @returns {MSC3575SlidingSyncResponse} The sliding sync response, or a standard error.
+   * @throws on non 2xx status codes with an object with a field "httpStatus":number.
+   */
+
+
+  slidingSync(req, proxyBaseUrl) {
+    const qps = {};
+
+    if (req.pos) {
+      qps.pos = req.pos;
+      delete req.pos;
+    }
+
+    if (req.timeout) {
+      qps.timeout = req.timeout;
+      delete req.timeout;
+    }
+
+    const clientTimeout = req.clientTimeout;
+    delete req.clientTimeout;
+    return this.http.authedRequest(undefined, _httpApi.Method.Post, "/sync", qps, req, {
+      prefix: "/_matrix/client/unstable/org.matrix.msc3575",
+      baseUrl: proxyBaseUrl,
+      localTimeoutMs: clientTimeout
+    });
+  }
+  /**
    * @experimental
    */
 
@@ -7967,10 +8083,8 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   }
 
   processBeaconEvents(room, events) {
-    if (!events?.length) {
-      return;
-    }
-
+    if (!events?.length) return;
+    if (!room) return;
     room.currentState.processBeaconEvents(events, this);
   }
   /**

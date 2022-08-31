@@ -1,25 +1,26 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v19.0.0.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v19.4.0.
 
 The following npm dependencies are included:
 
 * @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages/10 v3.2.12
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
-* base-x: https://www.npmjs.com/package/base-x v3.0.9
+* base-x: https://www.npmjs.com/package/base-x v4.0.0
 * browser-request: https://www.npmjs.com/package/browser-request v0.3.3
-* bs58: https://www.npmjs.com/package/bs58 v4.0.1
+* bs58: https://www.npmjs.com/package/bs58 v5.0.0
 * content-type: https://www.npmjs.com/package/content-type v1.0.4
 * events: https://www.npmjs.com/package/events v3.3.0
 * matrix-events-sdk: https://www.npmjs.com/package/matrix-events-sdk v0.0.1-beta.7
 * p-retry: https://www.npmjs.com/package/p-retry v4.6.2
-* qs: https://www.npmjs.com/package/qs v6.10.3
+* qs: https://www.npmjs.com/package/qs v6.11.0
 * retry: https://www.npmjs.com/package/retry v0.13.1
 * unhomoglyph: https://www.npmjs.com/package/unhomoglyph v1.0.6
 
 The following npm dependencies are shimmed:
 
 * loglevel: The chat framework's logging methods are used internally.
-* safe-buffer: Buffer implementation used by base-x.
+* safe-buffer: A buffer shim, initially modeled after the safe-buffer NPM package,
+    now used to provide a Buffer object to the crypto stack.
 * url: The global URL object is used directly.
 
 There is not any automated way to update the libraries.

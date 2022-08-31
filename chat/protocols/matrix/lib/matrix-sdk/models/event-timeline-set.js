@@ -86,7 +86,7 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
     _defineProperty(this, "timelines", void 0);
 
-    _defineProperty(this, "_eventIdToTimeline", void 0);
+    _defineProperty(this, "_eventIdToTimeline", new Map());
 
     _defineProperty(this, "filter", void 0);
 
@@ -95,7 +95,7 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
     this.displayPendingEvents = opts.pendingEvents !== false; // just a list - *not* ordered.
 
     this.timelines = [this.liveTimeline];
-    this._eventIdToTimeline = {};
+    this._eventIdToTimeline = new Map();
     this.filter = opts.filter;
     this.relations = this.room?.relations ?? new _relationsContainer.RelationsContainer(room?.client ?? client);
   }
@@ -173,7 +173,7 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
 
   eventIdToTimeline(eventId) {
-    return this._eventIdToTimeline[eventId];
+    return this._eventIdToTimeline.get(eventId);
   }
   /**
    * Track a new event as if it were in the same timeline as an old event,
@@ -184,11 +184,12 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
 
   replaceEventId(oldEventId, newEventId) {
-    const existingTimeline = this._eventIdToTimeline[oldEventId];
+    const existingTimeline = this._eventIdToTimeline.get(oldEventId);
 
     if (existingTimeline) {
-      delete this._eventIdToTimeline[oldEventId];
-      this._eventIdToTimeline[newEventId] = existingTimeline;
+      this._eventIdToTimeline.delete(oldEventId);
+
+      this._eventIdToTimeline.set(newEventId, existingTimeline);
     }
   }
   /**
@@ -219,7 +220,7 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
     if (resetAllTimelines) {
       this.timelines = [newTimeline];
-      this._eventIdToTimeline = {};
+      this._eventIdToTimeline = new Map();
     } else {
       this.timelines.push(newTimeline);
     }
@@ -248,7 +249,8 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
 
   getTimelineForEvent(eventId) {
-    const res = this._eventIdToTimeline[eventId];
+    const res = this._eventIdToTimeline.get(eventId);
+
     return res === undefined ? null : res;
   }
   /**
@@ -400,7 +402,8 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
     for (let i = 0; i < events.length; i++) {
       const event = events[i];
       const eventId = event.getId();
-      const existingTimeline = this._eventIdToTimeline[eventId];
+
+      const existingTimeline = this._eventIdToTimeline.get(eventId);
 
       if (!existingTimeline) {
         // we don't know about this event yet. Just add it to the timeline.
@@ -522,7 +525,7 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
       }
     }
 
-    const timeline = this._eventIdToTimeline[event.getId()];
+    const timeline = this._eventIdToTimeline.get(event.getId());
 
     if (timeline) {
       if (duplicateStrategy === DuplicateStrategy.Replace) {
@@ -594,7 +597,9 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
       roomState,
       timelineWasEmpty
     });
-    this._eventIdToTimeline[eventId] = timeline;
+
+    this._eventIdToTimeline.set(eventId, timeline);
+
     this.relations.aggregateParentEvent(event);
     this.relations.aggregateChildEvent(event, this);
     const data = {
@@ -617,11 +622,12 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
   handleRemoteEcho(localEvent, oldEventId, newEventId) {
     // XXX: why don't we infer newEventId from localEvent?
-    const existingTimeline = this._eventIdToTimeline[oldEventId];
+    const existingTimeline = this._eventIdToTimeline.get(oldEventId);
 
     if (existingTimeline) {
-      delete this._eventIdToTimeline[oldEventId];
-      this._eventIdToTimeline[newEventId] = existingTimeline;
+      this._eventIdToTimeline.delete(oldEventId);
+
+      this._eventIdToTimeline.set(newEventId, existingTimeline);
     } else {
       if (this.filter) {
         if (this.filter.filterRoomTimeline([localEvent]).length) {
@@ -647,7 +653,7 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
 
 
   removeEvent(eventId) {
-    const timeline = this._eventIdToTimeline[eventId];
+    const timeline = this._eventIdToTimeline.get(eventId);
 
     if (!timeline) {
       return null;
@@ -656,7 +662,8 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
     const removed = timeline.removeEvent(eventId);
 
     if (removed) {
-      delete this._eventIdToTimeline[eventId];
+      this._eventIdToTimeline.delete(eventId);
+
       const data = {
         timeline: timeline
       };
@@ -684,8 +691,9 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
       return 0;
     }
 
-    const timeline1 = this._eventIdToTimeline[eventId1];
-    const timeline2 = this._eventIdToTimeline[eventId2];
+    const timeline1 = this._eventIdToTimeline.get(eventId1);
+
+    const timeline2 = this._eventIdToTimeline.get(eventId2);
 
     if (timeline1 === undefined) {
       return null;

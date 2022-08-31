@@ -116,7 +116,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
 
     _defineProperty(this, "sentinels", {});
 
-    _defineProperty(this, "displayNameToUserIds", {});
+    _defineProperty(this, "displayNameToUserIds", new Map());
 
     _defineProperty(this, "userIdsToDisplayNames", {});
 
@@ -737,7 +737,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
 
 
   getUserIdsWithDisplayName(displayName) {
-    return this.displayNameToUserIds[utils.removeHiddenChars(displayName)] || [];
+    return this.displayNameToUserIds.get(utils.removeHiddenChars(displayName)) ?? [];
   }
   /**
    * Returns true if userId is in room, event is not redacted and either sender of
@@ -982,12 +982,12 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
       // means we need to remove that user ID from that array rather than nuking
       // the lot.
       const strippedOldName = utils.removeHiddenChars(oldName);
-      const existingUserIds = this.displayNameToUserIds[strippedOldName];
+      const existingUserIds = this.displayNameToUserIds.get(strippedOldName);
 
       if (existingUserIds) {
         // remove this user ID from this array
         const filteredUserIDs = existingUserIds.filter(id => id !== userId);
-        this.displayNameToUserIds[strippedOldName] = filteredUserIDs;
+        this.displayNameToUserIds.set(strippedOldName, filteredUserIDs);
       }
     }
 
@@ -995,11 +995,9 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
     const strippedDisplayname = displayName && utils.removeHiddenChars(displayName); // an empty stripped displayname (undefined/'') will be set to MXID in room-member.js
 
     if (strippedDisplayname) {
-      if (!this.displayNameToUserIds[strippedDisplayname]) {
-        this.displayNameToUserIds[strippedDisplayname] = [];
-      }
-
-      this.displayNameToUserIds[strippedDisplayname].push(userId);
+      const arr = this.displayNameToUserIds.get(strippedDisplayname) ?? [];
+      arr.push(userId);
+      this.displayNameToUserIds.set(strippedDisplayname, arr);
     }
   }
 

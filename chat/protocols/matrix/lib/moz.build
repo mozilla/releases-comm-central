@@ -28,9 +28,12 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/room-hierarchy.js",
     "matrix-sdk/scheduler.js",
     "matrix-sdk/service-types.js",
+    "matrix-sdk/sliding-sync-sdk.js",
+    "matrix-sdk/sliding-sync.js",
     "matrix-sdk/sync-accumulator.js",
     "matrix-sdk/sync.js",
     "matrix-sdk/timeline-window.js",
+    "matrix-sdk/ToDeviceMessageQueue.js",
     "matrix-sdk/utils.js",
 ]
 

@@ -9,8 +9,6 @@ var _logger = require("./logger");
 
 var _utils = require("./utils");
 
-var _read_receipts = require("./@types/read_receipts");
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /* eslint-enable camelcase */
@@ -294,35 +292,17 @@ class SyncAccumulator {
 
 
         Object.keys(e.content).forEach(eventId => {
-          if (!e.content[eventId][_read_receipts.ReceiptType.Read] && !e.content[eventId][_read_receipts.ReceiptType.ReadPrivate]) {
-            return;
-          }
-
-          const read = e.content[eventId][_read_receipts.ReceiptType.Read];
-
-          if (read) {
-            Object.keys(read).forEach(userId => {
+          Object.entries(e.content[eventId]).forEach(([key, value]) => {
+            if (!(0, _utils.isSupportedReceiptType)(key)) return;
+            Object.keys(value).forEach(userId => {
               // clobber on user ID
               currentData._readReceipts[userId] = {
-                data: e.content[eventId][_read_receipts.ReceiptType.Read][userId],
-                type: _read_receipts.ReceiptType.Read,
+                data: e.content[eventId][key][userId],
+                type: key,
                 eventId: eventId
               };
             });
-          }
-
-          const readPrivate = e.content[eventId][_read_receipts.ReceiptType.ReadPrivate];
-
-          if (readPrivate) {
-            Object.keys(readPrivate).forEach(userId => {
-              // clobber on user ID
-              currentData._readReceipts[userId] = {
-                data: e.content[eventId][_read_receipts.ReceiptType.ReadPrivate][userId],
-                type: _read_receipts.ReceiptType.ReadPrivate,
-                eventId: eventId
-              };
-            });
-          }
+          });
         });
       });
     } // if we got a limited sync, we need to remove all timeline entries or else

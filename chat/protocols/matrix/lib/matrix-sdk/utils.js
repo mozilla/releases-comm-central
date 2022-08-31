@@ -8,7 +8,6 @@ exports.alphabetPad = alphabetPad;
 exports.averageBetweenStrings = averageBetweenStrings;
 exports.baseToString = baseToString;
 exports.checkObjectHasKeys = checkObjectHasKeys;
-exports.checkObjectHasNoAdditionalKeys = checkObjectHasNoAdditionalKeys;
 exports.chunkPromises = chunkPromises;
 exports.compare = compare;
 exports.decodeParams = decodeParams;
@@ -21,15 +20,16 @@ exports.encodeUri = encodeUri;
 exports.ensureNoTrailingSlash = ensureNoTrailingSlash;
 exports.escapeRegExp = escapeRegExp;
 exports.getCrypto = getCrypto;
+exports.getPrivateReadReceiptField = getPrivateReadReceiptField;
 exports.globToRegexp = globToRegexp;
-exports.inherits = inherits;
+exports.internaliseString = internaliseString;
 exports.isFunction = isFunction;
 exports.isNullOrUndefined = isNullOrUndefined;
 exports.isNumber = isNumber;
+exports.isSupportedReceiptType = isSupportedReceiptType;
 exports.lexicographicCompare = lexicographicCompare;
 exports.nextString = nextString;
 exports.normalize = normalize;
-exports.polyfillSuper = polyfillSuper;
 exports.prevString = prevString;
 exports.promiseMapSeries = promiseMapSeries;
 exports.promiseTry = promiseTry;
@@ -48,6 +48,8 @@ var _unhomoglyph = _interopRequireDefault(require("unhomoglyph"));
 var _pRetry = _interopRequireDefault(require("p-retry"));
 
 var _location = require("./@types/location");
+
+var _read_receipts = require("./@types/read_receipts");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -72,7 +74,29 @@ limitations under the License.
  * This is an internal module.
  * @module utils
  */
+const interns = new Map();
+/**
+ * Internalises a string, reusing a known pointer or storing the pointer
+ * if needed for future strings.
+ * @param str The string to internalise.
+ * @returns The internalised string.
+ */
 
+function internaliseString(str) {
+  // Unwrap strings before entering the map, if we somehow got a wrapped
+  // string as our input. This should only happen from tests.
+  if (str instanceof String) {
+    str = str.toString();
+  } // Check the map to see if we can store the value
+
+
+  if (!interns.has(str)) {
+    interns.set(str, str);
+  } // Return any cached string reference
+
+
+  return interns.get(str);
+}
 /**
  * Encode a dictionary of query parameters.
  * Omits any undefined/null values.
@@ -80,6 +104,8 @@ limitations under the License.
  * {"foo": "bar", "baz": "taz"}
  * @return {string} The encoded string e.g. foo=bar&baz=taz
  */
+
+
 function encodeParams(params) {
   const searchParams = new URLSearchParams();
 
@@ -189,25 +215,6 @@ function checkObjectHasKeys(obj, keys) {
   for (let i = 0; i < keys.length; i++) {
     if (!obj.hasOwnProperty(keys[i])) {
       throw new Error("Missing required key: " + keys[i]);
-    }
-  }
-}
-/**
- * Checks that the given object has no extra keys other than the specified ones.
- * @param {Object} obj The object to check.
- * @param {string[]} allowedKeys The list of allowed key names.
- * @throws If there are extra keys.
- */
-
-
-function checkObjectHasNoAdditionalKeys(obj, allowedKeys) {
-  for (const key in obj) {
-    if (!obj.hasOwnProperty(key)) {
-      continue;
-    }
-
-    if (allowedKeys.indexOf(key) === -1) {
-      throw new Error("Unknown key: " + key);
     }
   }
 }
@@ -339,71 +346,6 @@ function deepSortedObjectEntries(obj) {
   return pairs;
 }
 /**
- * Inherit the prototype methods from one constructor into another. This is a
- * port of the Node.js implementation with an Object.create polyfill.
- *
- * @param {function} ctor Constructor function which needs to inherit the
- *     prototype.
- * @param {function} superCtor Constructor function to inherit prototype from.
- */
-
-
-function inherits(ctor, superCtor) {
-  // Add util.inherits from Node.js
-  // Source:
-  // https://github.com/joyent/node/blob/master/lib/util.js
-  // Copyright Joyent, Inc. and other Node contributors.
-  //
-  // Permission is hereby granted, free of charge, to any person obtaining a
-  // copy of this software and associated documentation files (the
-  // "Software"), to deal in the Software without restriction, including
-  // without limitation the rights to use, copy, modify, merge, publish,
-  // distribute, sublicense, and/or sell copies of the Software, and to permit
-  // persons to whom the Software is furnished to do so, subject to the
-  // following conditions:
-  //
-  // The above copyright notice and this permission notice shall be included
-  // in all copies or substantial portions of the Software.
-  //
-  // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-  // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-  // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-  // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-  // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-  // USE OR OTHER DEALINGS IN THE SOFTWARE.
-  ctor.super_ = superCtor;
-  ctor.prototype = Object.create(superCtor.prototype, {
-    constructor: {
-      value: ctor,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-}
-/**
- * Polyfills inheritance for prototypes by allowing different kinds of
- * super types. Typically prototypes would use `SuperType.call(this, params)`
- * though this doesn't always work in some environments - this function
- * falls back to using `Object.assign()` to clone a constructed copy
- * of the super type onto `thisArg`.
- * @param {any} thisArg The child instance. Modified in place.
- * @param {any} SuperType The type to act as a super instance
- * @param {any} params Arguments to supply to the super type's constructor
- */
-
-
-function polyfillSuper(thisArg, SuperType, ...params) {
-  try {
-    SuperType.call(thisArg, ...params);
-  } catch (e) {
-    // fall back to Object.assign to just clone the thing
-    const fakeSuper = new SuperType(...params);
-    Object.assign(thisArg, fakeSuper);
-  }
-}
-/**
  * Returns whether the given value is a finite number without type-coercion
  *
  * @param {*} value the value to test
@@ -468,24 +410,13 @@ function escapeRegExp(string) {
 }
 
 function globToRegexp(glob, extended) {
-  extended = typeof extended === 'boolean' ? extended : true; // From
+  // From
   // https://github.com/matrix-org/synapse/blob/abbee6b29be80a77e05730707602f3bbfc3f38cb/synapse/push/__init__.py#L132
   // Because micromatch is about 130KB with dependencies,
   // and minimatch is not much better.
-
-  let pat = escapeRegExp(glob);
-  pat = pat.replace(/\\\*/g, '.*');
-  pat = pat.replace(/\?/g, '.');
-
-  if (extended) {
-    pat = pat.replace(/\\\[(!|)(.*)\\]/g, function (match, p1, p2, offset, string) {
-      const first = p1 && '^' || '';
-      const second = p2.replace(/\\-/, '-');
-      return '[' + first + second + ']';
-    });
-  }
-
-  return pat;
+  const replacements = [[/\\\*/g, '.*'], [/\?/g, '.'], extended !== false && [/\\\[(!|)(.*)\\]/g, (_match, neg, pat) => ['[', neg ? '^' : '', pat.replace(/\\-/, '-'), ']'].join('')]];
+  return replacements.reduce( // https://github.com/microsoft/TypeScript/issues/30134
+  (pat, args) => args ? pat.replace(args[0], args[1]) : pat, escapeRegExp(glob));
 }
 
 function ensureNoTrailingSlash(url) {
@@ -802,4 +733,14 @@ function getContentTimestampWithFallback(event) {
 
 function sortEventsByLatestContentTimestamp(left, right) {
   return getContentTimestampWithFallback(right) - getContentTimestampWithFallback(left);
+}
+
+async function getPrivateReadReceiptField(client) {
+  if (await client.doesServerSupportUnstableFeature("org.matrix.msc2285.stable")) return _read_receipts.ReceiptType.ReadPrivate;
+  if (await client.doesServerSupportUnstableFeature("org.matrix.msc2285")) return _read_receipts.ReceiptType.UnstableReadPrivate;
+  return null;
+}
+
+function isSupportedReceiptType(receiptType) {
+  return [_read_receipts.ReceiptType.Read, _read_receipts.ReceiptType.ReadPrivate, _read_receipts.ReceiptType.UnstableReadPrivate].includes(receiptType);
 }

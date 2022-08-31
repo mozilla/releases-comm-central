@@ -26,5 +26,6 @@ exports.ReceiptType = ReceiptType;
 (function (ReceiptType) {
   ReceiptType["Read"] = "m.read";
   ReceiptType["FullyRead"] = "m.fully_read";
-  ReceiptType["ReadPrivate"] = "org.matrix.msc2285.read.private";
+  ReceiptType["ReadPrivate"] = "m.read.private";
+  ReceiptType["UnstableReadPrivate"] = "org.matrix.msc2285.read.private";
 })(ReceiptType || (exports.ReceiptType = ReceiptType = {}));

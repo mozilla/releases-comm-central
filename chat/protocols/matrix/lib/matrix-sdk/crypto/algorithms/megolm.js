@@ -510,78 +510,16 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
    */
 
 
-  encryptAndSendKeysToDevices(session, chainIndex, userDeviceMap, payload) {
-    const contentMap = {}; // Map from userId to a map of deviceId to deviceInfo
-
-    const deviceInfoByUserIdAndDeviceId = new Map();
-    const promises = [];
-
-    for (let i = 0; i < userDeviceMap.length; i++) {
-      const encryptedContent = {
-        algorithm: olmlib.OLM_ALGORITHM,
-        sender_key: this.olmDevice.deviceCurve25519Key,
-        ciphertext: {}
-      };
-      const val = userDeviceMap[i];
-      const userId = val.userId;
-      const deviceInfo = val.deviceInfo;
-      const deviceId = deviceInfo.deviceId; // Assign to temp value to make type-checking happy
-
-      let userIdDeviceInfo = deviceInfoByUserIdAndDeviceId.get(userId);
-
-      if (userIdDeviceInfo === undefined) {
-        userIdDeviceInfo = new Map();
-        deviceInfoByUserIdAndDeviceId.set(userId, userIdDeviceInfo);
-      } // We hold by reference, this updates deviceInfoByUserIdAndDeviceId[userId]
-
-
-      userIdDeviceInfo.set(deviceId, deviceInfo);
-
-      if (!contentMap[userId]) {
-        contentMap[userId] = {};
+  encryptAndSendKeysToDevices(session, chainIndex, devices, payload) {
+    return this.crypto.encryptAndSendToDevices(devices, payload).then(() => {
+      // store that we successfully uploaded the keys of the current slice
+      for (const device of devices) {
+        session.markSharedWithDevice(device.userId, device.deviceInfo.deviceId, device.deviceInfo.getIdentityKey(), chainIndex);
       }
+    }).catch(error => {
+      _logger.logger.error("failed to encryptAndSendToDevices", error);
 
-      contentMap[userId][deviceId] = encryptedContent;
-      promises.push(olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.userId, this.deviceId, this.olmDevice, userId, deviceInfo, payload));
-    }
-
-    return Promise.all(promises).then(() => {
-      // prune out any devices that encryptMessageForDevice could not encrypt for,
-      // in which case it will have just not added anything to the ciphertext object.
-      // There's no point sending messages to devices if we couldn't encrypt to them,
-      // since that's effectively a blank message.
-      for (const userId of Object.keys(contentMap)) {
-        for (const deviceId of Object.keys(contentMap[userId])) {
-          if (Object.keys(contentMap[userId][deviceId].ciphertext).length === 0) {
-            _logger.logger.log("No ciphertext for device " + userId + ":" + deviceId + ": pruning");
-
-            delete contentMap[userId][deviceId];
-          }
-        } // No devices left for that user? Strip that too.
-
-
-        if (Object.keys(contentMap[userId]).length === 0) {
-          _logger.logger.log("Pruned all devices for user " + userId);
-
-          delete contentMap[userId];
-        }
-      } // Is there anything left?
-
-
-      if (Object.keys(contentMap).length === 0) {
-        _logger.logger.log("No users left to send to: aborting");
-
-        return;
-      }
-
-      return this.baseApis.sendToDevice("m.room.encrypted", contentMap).then(() => {
-        // store that we successfully uploaded the keys of the current slice
-        for (const userId of Object.keys(contentMap)) {
-          for (const deviceId of Object.keys(contentMap[userId])) {
-            session.markSharedWithDevice(userId, deviceId, deviceInfoByUserIdAndDeviceId.get(userId).get(deviceId).getIdentityKey(), chainIndex);
-          }
-        }
-      });
+      throw error;
     });
   }
   /**
@@ -622,7 +560,6 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       contentMap[userId][deviceId] = message;
     }
 
-    await this.baseApis.sendToDevice("org.matrix.room_key.withheld", contentMap);
     await this.baseApis.sendToDevice("m.room_key.withheld", contentMap); // record the fact that we notified these blocked devices
 
     for (const userId of Object.keys(contentMap)) {
@@ -1107,7 +1044,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
   constructor(...args) {
     super(...args);
 
-    _defineProperty(this, "pendingEvents", {});
+    _defineProperty(this, "pendingEvents", new Map());
 
     _defineProperty(this, "olmlib", olmlib);
   }
@@ -1232,11 +1169,11 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
     const senderKey = content.sender_key;
     const sessionId = content.session_id;
 
-    if (!this.pendingEvents[senderKey]) {
-      this.pendingEvents[senderKey] = new Map();
+    if (!this.pendingEvents.has(senderKey)) {
+      this.pendingEvents.set(senderKey, new Map());
     }
 
-    const senderPendingEvents = this.pendingEvents[senderKey];
+    const senderPendingEvents = this.pendingEvents.get(senderKey);
 
     if (!senderPendingEvents.has(sessionId)) {
       senderPendingEvents.set(sessionId, new Set());
@@ -1257,7 +1194,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
     const content = event.getWireContent();
     const senderKey = content.sender_key;
     const sessionId = content.session_id;
-    const senderPendingEvents = this.pendingEvents[senderKey];
+    const senderPendingEvents = this.pendingEvents.get(senderKey);
     const pendingEvents = senderPendingEvents?.get(sessionId);
 
     if (!pendingEvents) {
@@ -1271,7 +1208,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
     }
 
     if (senderPendingEvents.size === 0) {
-      delete this.pendingEvents[senderKey];
+      this.pendingEvents.delete(senderKey);
     }
   }
   /**
@@ -1549,7 +1486,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
 
 
   async retryDecryption(senderKey, sessionId) {
-    const senderPendingEvents = this.pendingEvents[senderKey];
+    const senderPendingEvents = this.pendingEvents.get(senderKey);
 
     if (!senderPendingEvents) {
       return true;
@@ -1572,17 +1509,17 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       }
     })); // If decrypted successfully, they'll have been removed from pendingEvents
 
-    return !this.pendingEvents[senderKey]?.has(sessionId);
+    return !this.pendingEvents.get(senderKey)?.has(sessionId);
   }
 
   async retryDecryptionFromSender(senderKey) {
-    const senderPendingEvents = this.pendingEvents[senderKey];
+    const senderPendingEvents = this.pendingEvents.get(senderKey);
 
     if (!senderPendingEvents) {
       return true;
     }
 
-    delete this.pendingEvents[senderKey];
+    this.pendingEvents.delete(senderKey);
     await Promise.all([...senderPendingEvents].map(async ([_sessionId, pending]) => {
       await Promise.all([...pending].map(async ev => {
         try {
@@ -1591,7 +1528,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
         }
       }));
     }));
-    return !this.pendingEvents[senderKey];
+    return !this.pendingEvents.has(senderKey);
   }
 
   async sendSharedHistoryInboundSessions(devicesByUser) {
