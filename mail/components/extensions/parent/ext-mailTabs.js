@@ -52,18 +52,25 @@ function convertMailTab(tab, context) {
   };
 
   let nativeTab = tab.nativeTab;
-  let { folderDisplay, mode } = nativeTab;
-  if (mode.name == "folder" && folderDisplay.view.displayedFolder) {
-    let { folderPaneVisible, messagePaneVisible } = nativeTab.mode.persistTab(
-      nativeTab
-    );
-    mailTabObject.folderPaneVisible = folderPaneVisible;
-    mailTabObject.messagePaneVisible = messagePaneVisible;
-  } else if (mode.name == "glodaList") {
+  if (nativeTab.mode.name == "mail3PaneTab") {
+    mailTabObject.folderPaneVisible = nativeTab.folderPaneVisible;
+    mailTabObject.messagePaneVisible = nativeTab.messagePaneVisible;
+    mailTabObject.sortType = SORT_TYPE_MAP.get(nativeTab.sort.type);
+    mailTabObject.sortOrder = SORT_ORDER_MAP.get(nativeTab.sort.order);
+    if (nativeTab.sort.grouped) {
+      mailTabObject.viewType = "groupedBySortType";
+    } else if (nativeTab.sort.threaded) {
+      mailTabObject.viewType = "groupedByThread";
+    } else {
+      mailTabObject.viewType = "ungrouped";
+    }
+    if (context.extension.hasPermission("accountsRead")) {
+      mailTabObject.displayedFolder = convertFolder(nativeTab.folder);
+    }
+  } else if (nativeTab.mode.name == "glodaList") {
+    let folderDisplay = nativeTab.folderDisplay;
     mailTabObject.folderPaneVisible = false;
     mailTabObject.messagePaneVisible = true;
-  }
-  if (mode.name == "glodaList" || folderDisplay.view.displayedFolder) {
     mailTabObject.sortType = SORT_TYPE_MAP.get(
       folderDisplay.view.primarySortType
     );
@@ -78,12 +85,12 @@ function convertMailTab(tab, context) {
     } else {
       mailTabObject.viewType = "ungrouped";
     }
-  }
 
-  if (context.extension.hasPermission("accountsRead")) {
-    mailTabObject.displayedFolder = convertFolder(
-      folderDisplay.displayedFolder
-    );
+    if (context.extension.hasPermission("accountsRead")) {
+      mailTabObject.displayedFolder = convertFolder(
+        folderDisplay.displayedFolder
+      );
+    }
   }
   return mailTabObject;
 }
@@ -203,7 +210,7 @@ this.mailTabs = class extends ExtensionAPI {
         async update(tabId, args) {
           let tab = getTabOrActive(tabId);
           let { nativeTab } = tab;
-          let window = tab.window;
+          let about3Pane = nativeTab.chromeBrowser.contentWindow;
 
           let {
             displayedFolder,
@@ -220,20 +227,9 @@ this.mailTabs = class extends ExtensionAPI {
               displayedFolder.accountId,
               displayedFolder.path
             );
-            if (tab.active) {
-              let treeView = Cu.getGlobalForObject(nativeTab).gFolderTreeView;
-              let folder = MailServices.folderLookup.getFolderForURL(uri);
-              if (folder) {
-                treeView.selectFolder(folder);
-              } else {
-                throw new ExtensionError(
-                  `Folder "${displayedFolder.path}" for account ` +
-                    `"${displayedFolder.accountId}" not found.`
-                );
-              }
-            } else {
-              nativeTab.folderDisplay.showFolderUri(uri);
-            }
+            about3Pane.restoreState({
+              folderURI: uri,
+            });
           }
 
           if (sortType) {
@@ -244,7 +240,7 @@ this.mailTabs = class extends ExtensionAPI {
               sortOrder &&
               sortOrder in Ci.nsMsgViewSortOrder
             ) {
-              nativeTab.folderDisplay.view.sort(
+              about3Pane.gViewWrapper.sort(
                 Ci.nsMsgViewSortType[sortType],
                 Ci.nsMsgViewSortOrder[sortOrder]
               );
@@ -253,13 +249,13 @@ this.mailTabs = class extends ExtensionAPI {
 
           switch (viewType) {
             case "groupedBySortType":
-              nativeTab.folderDisplay.view.showGroupedBySort = true;
+              about3Pane.gViewWrapper.showGroupedBySort = true;
               break;
             case "groupedByThread":
-              nativeTab.folderDisplay.view.showThreaded = true;
+              about3Pane.gViewWrapper.showThreaded = true;
               break;
             case "ungrouped":
-              nativeTab.folderDisplay.view.showUnthreaded = true;
+              about3Pane.gViewWrapper.showUnthreaded = true;
               break;
           }
 
@@ -271,48 +267,20 @@ this.mailTabs = class extends ExtensionAPI {
             );
           }
 
-          if (
-            typeof folderPaneVisible == "boolean" &&
-            nativeTab.mode.name == "folder"
-          ) {
-            if (tab.active) {
-              let document = window.document;
-              let folderPaneSplitter = document.getElementById(
-                "folderpane_splitter"
-              );
-              folderPaneSplitter.setAttribute(
-                "state",
-                folderPaneVisible ? "open" : "collapsed"
-              );
-            } else {
-              nativeTab.folderDisplay.folderPaneVisible = folderPaneVisible;
+          if (nativeTab.mode.name == "mail3PaneTab") {
+            if (typeof folderPaneVisible == "boolean") {
+              nativeTab.folderPaneVisible = folderPaneVisible;
             }
-          }
-
-          if (
-            typeof messagePaneVisible == "boolean" &&
-            nativeTab.mode.name == "folder"
-          ) {
-            if (tab.active) {
-              if (messagePaneVisible == window.IsMessagePaneCollapsed()) {
-                window.MsgToggleMessagePane();
-              }
-            } else {
-              nativeTab.messageDisplay._visible = messagePaneVisible;
-              if (!messagePaneVisible) {
-                // Prevent the messagePane from showing if a message is selected.
-                nativeTab.folderDisplay._aboutToSelectMessage = true;
-              }
+            if (typeof messagePaneVisible == "boolean") {
+              nativeTab.messagePaneVisible = messagePaneVisible;
             }
           }
         },
 
         async getSelectedMessages(tabId) {
           let tab = getTabOrActive(tabId);
-          let { folderDisplay } = tab.nativeTab;
-          let messageList = folderDisplay.view.dbView
-            ? folderDisplay.view.dbView.getSelectedMsgHdrs()
-            : [];
+          let dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
+          let messageList = dbView ? dbView.getSelectedMsgHdrs() : [];
           return messageListTracker.startList(messageList, extension);
         },
 

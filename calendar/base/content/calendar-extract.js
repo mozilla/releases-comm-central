@@ -302,4 +302,5 @@ var calendarExtract = {
   },
 };
 
-window.addEventListener("load", calendarExtract.addListeners.bind(calendarExtract));
+// TODO: Fix and reinstate this.
+// window.addEventListener("load", calendarExtract.addListeners.bind(calendarExtract));

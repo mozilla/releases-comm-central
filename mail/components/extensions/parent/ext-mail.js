@@ -515,22 +515,22 @@ class TabTracker extends TabTrackerBase {
    * @return {Integer}                  The tab's numeric ID
    */
   getBrowserTabId(browser) {
-    let id = this._browsers.get(`${browser.browserId}#${browser._activeTabId}`);
+    let id = this._browsers.get(browser.browserId);
     if (id) {
       return id;
     }
 
-    let tabmail = browser.ownerDocument.getElementById("tabmail");
-    let tab =
-      tabmail &&
-      tabmail.tabInfo.find(info => info.tabId == browser._activeTabId);
+    let tabmail = browser.browsingContext.topChromeWindow.document.getElementById(
+      "tabmail"
+    );
+    let tab = tabmail && tabmail.getTabForBrowser(browser);
 
     if (tab) {
-      id = this.getId(tab);
-      this._browsers.set(`${browser.browserId}#${tab.tabId}`, id);
+      let id = this.getId(tab);
+      this._browsers.set(browser.browserId, id);
       return id;
     }
-    return -1;
+    return this.getId(browser.browsingContext.topChromeWindow);
   }
 
   /**
@@ -543,7 +543,7 @@ class TabTracker extends TabTrackerBase {
     this._tabs.set(nativeTabInfo, id);
     let browser = getTabBrowser(nativeTabInfo);
     if (browser) {
-      this._browsers.set(`${browser.browserId}#${nativeTabInfo.tabId}`, id);
+      this._browsers.set(browser.browserId, id);
     }
     this._tabIds.set(id, nativeTabInfo);
   }
@@ -559,9 +559,7 @@ class TabTracker extends TabTrackerBase {
     if (id) {
       this._tabs.delete(nativeTabInfo);
       if (nativeTabInfo.browser) {
-        this._browsers.delete(
-          `${nativeTabInfo.browser.browserId}#${nativeTabInfo.tabId}`
-        );
+        this._browsers.delete(nativeTabInfo.browser.browserId);
       }
       if (this._tabIds.get(id) === nativeTabInfo) {
         this._tabIds.delete(id);
@@ -914,28 +912,7 @@ class Tab extends TabBase {
     if (this.type == "messageCompose") {
       return undefined;
     }
-
-    let url = this.browser?.currentURI?.spec;
-
-    // All message tabs and mail tabs in a window use the same messagepane browser,
-    // so inactive tabs always return the url of the currently active tab.
-    // Reconstruct the url from the messageDisplay.
-    if (!this.active && ["mail", "messageDisplay"].includes(this.type)) {
-      let messageDisplay = this.nativeTab.messageDisplay;
-      let msgHdr = messageDisplay?.displayedMessage;
-      if (msgHdr && msgHdr.folder) {
-        let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
-        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-          Ci.nsIMessenger
-        );
-        let service = messenger.messageServiceFromURI(msgUri);
-        url = service.getUrlForUri(msgUri).spec;
-      } else {
-        url = "about:blank";
-      }
-    }
-
-    return url;
+    return this.browser?.currentURI?.spec;
   }
 
   /** Returns the current title of this tab, without permission checks. */
@@ -1073,10 +1050,12 @@ class TabmailTab extends Tab {
     switch (this.nativeTab.mode.name) {
       case "folder":
       case "glodaList":
+      case "mail3PaneTab":
         return "mail";
       case "addressBookTab":
         return "addressBook";
       case "message":
+      case "mailMessageTab":
         return "messageDisplay";
       case "contentTab": {
         let currentURI = this.nativeTab.browser.currentURI;
@@ -1138,6 +1117,9 @@ class TabmailTab extends Tab {
 
   /** Returns the title of the tab, without permission checks. */
   get _title() {
+    if (this.browser && this.browser.contentTitle) {
+      return this.browser.contentTitle;
+    }
     // Do we want to be using this.nativeTab.title instead? The difference is
     // that the tabNode label may use defaultTabTitle instead, but do we want to
     // send this out?

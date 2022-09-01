@@ -587,14 +587,8 @@ var DefaultController = {
       case "cmd_undo":
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
-      case "cmd_renameFolder": {
-        let folders = gFolderTreeView.getSelectedFolders();
-        return (
-          folders.length == 1 &&
-          folders[0].canRename &&
-          folders[0].isCommandEnabled("cmd_renameFolder")
-        );
-      }
+      case "cmd_renameFolder":
+        return false;
       case "cmd_sendUnsentMsgs":
         return IsSendUnsentMsgsEnabled(null);
       case "cmd_subscribe":

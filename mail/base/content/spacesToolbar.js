@@ -215,7 +215,7 @@ var gSpacesToolbar = {
                 existingTab.folderDisplay.displayedFolder?.URI || null;
               break;
             case "mail3PaneTab":
-              folderURI = existingTab.folderURI || null;
+              folderURI = existingTab.folder.URI || null;
               break;
           }
           if (where == "window") {

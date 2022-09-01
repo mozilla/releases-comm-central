@@ -1331,7 +1331,7 @@ pref("mail.compose.warn_public_recipients.aggressive", false);
 
 // Temporary pref while both 3-pane UIs exist.
 // Opens folders in about:3pane and messages in about:message if true.
-pref("mail.useNewMailTabs", false);
+pref("mail.useNewMailTabs", true);
 
 // The URL of most things that can be printed is useless information.
 // Hide it and move the title to the center.

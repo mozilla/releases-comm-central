@@ -31,6 +31,7 @@
 
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/draft.svg" />
 
+  <link rel="stylesheet" href="chrome://calendar/skin/calendar.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageWindow.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/popupPanel.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageHeader.css" />
@@ -53,6 +54,7 @@
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
   <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
@@ -64,6 +66,8 @@
   <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
+  <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
@@ -118,7 +122,8 @@
                  src="about:blank"
                  forcemessagemanager="true"
                  maychangeremoteness="true"
-                 messagemanagergroup="single-page"/>
+                 messagemanagergroup="single-page"
+                 onclick="return contentAreaClick(event);"/>
         <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
         <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml

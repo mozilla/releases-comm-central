@@ -983,7 +983,7 @@
           this._preventFocusHandler = false;
           return;
         }
-        if (this.currentIndex == -1 && this._view.rowCount) {
+        if (this.currentIndex == -1 && this._view?.rowCount) {
           let selectionChanged = false;
           if (this.selectedIndex == -1) {
             this._selection.select(0);
@@ -1404,6 +1404,10 @@
      * @param {integer} index
      */
     rowCountChanged(index, delta) {
+      if (!this._selection) {
+        return;
+      }
+
       this._selection.adjustSelection(index, delta);
       this.dispatchEvent(new CustomEvent("rowcountchange"));
     }
@@ -1550,7 +1554,7 @@
      * @type {integer}
      */
     get currentIndex() {
-      return this._selection.currentIndex;
+      return this._selection ? this._selection.currentIndex : -1;
     }
 
     set currentIndex(index) {

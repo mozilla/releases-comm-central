@@ -859,7 +859,12 @@ var messageHeaderSink = {
   },
 
   onMsgHasRemoteContent(aMsgHdr, aContentURI, aCanOverride) {
-    gMessageNotificationBar.setRemoteContentMsg(
+    // This always runs in the context of the top chrome window, so we have to
+    // find the right message display. Hopefully it's the current tab.
+    // TODO: Check this works properly or fix it.
+    let tabmail = document.getElementById("tabmail");
+    let aboutMessage = tabmail ? tabmail.currentAboutMessage : window;
+    aboutMessage.gMessageNotificationBar.setRemoteContentMsg(
       aMsgHdr,
       aContentURI,
       aCanOverride
@@ -1512,7 +1517,7 @@ AttachmentInfo.prototype = {
       // Just use the old method for handling messages, it works.
 
       if (this.contentType == "message/rfc822") {
-        messenger.openAttachment(
+        window.browsingContext.topChromeWindow.messenger.openAttachment(
           this.contentType,
           this.url,
           encodeURIComponent(this.name),
@@ -1630,7 +1635,7 @@ AttachmentInfo.prototype = {
               filePicker.defaultString = this.name;
               filePicker.defaultExtension = extension;
               filePicker.init(
-                window,
+                window.browsingContext.topChromeWindow,
                 bundleMessenger.getString("SaveAttachment"),
                 Ci.nsIFilePicker.modeSave
               );
@@ -1669,7 +1674,7 @@ AttachmentInfo.prototype = {
           promptForSaveDestination() {
             appLauncherDialog.promptForSaveToFileAsync(
               this,
-              window,
+              window.browsingContext.topChromeWindow,
               this.suggestedFileName,
               "." + extension, // Dot stripped by promptForSaveToFileAsync.
               false
@@ -1693,7 +1698,7 @@ AttachmentInfo.prototype = {
           contentLength: this.size,
           browsingContextId: getMessagePaneBrowser().browsingContext.id,
         },
-        window,
+        window.browsingContext.topChromeWindow,
         null
       );
     }
@@ -2188,6 +2193,9 @@ var AttachmentMenuController = {
   },
 
   supportsCommand(aCommand) {
+    if (!gFolderDisplay) {
+      return false;
+    }
     return aCommand in this.commands;
   },
 
@@ -2214,10 +2222,13 @@ var AttachmentMenuController = {
 };
 
 function goUpdateAttachmentCommands() {
-  goUpdateCommand("cmd_openAllAttachments");
-  goUpdateCommand("cmd_saveAllAttachments");
-  goUpdateCommand("cmd_detachAllAttachments");
-  goUpdateCommand("cmd_deleteAllAttachments");
+  for (let action of ["open", "save", "detach", "delete"]) {
+    document.getElementById(
+      `context-${action}AllAttachments`
+    ).disabled = !AttachmentMenuController.isCommandEnabled(
+      `cmd_${action}AllAttachments`
+    );
+  }
 }
 
 async function displayAttachmentsForExpandedView() {

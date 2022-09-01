@@ -885,7 +885,8 @@ var newMailTabType = {
         // Extension APIs refer to these properties.
         Object.defineProperty(tab, "browser", {
           get() {
-            let { messageBrowser } = tab.chromeBrowser.contentWindow;
+            let messageBrowser =
+              tab.chromeBrowser.contentWindow?.messageBrowser;
             if (messageBrowser && !messageBrowser.hidden) {
               return messageBrowser.contentDocument.getElementById(
                 "messagepane"
@@ -991,9 +992,7 @@ var newMailTabType = {
               { once: true }
             );
           } else {
-            tab.chromeBrowser.contentWindow.displayFolder(
-              persistedState.folderURI
-            );
+            tab.chromeBrowser.contentWindow.restoreState(persistedState);
           }
         } else {
           tabmail.openTab("mail3PaneTab", persistedState);
@@ -1028,7 +1027,7 @@ var newMailTabType = {
         // Extension APIs refer to these properties.
         Object.defineProperty(tab, "browser", {
           get() {
-            return tab.chromeBrowser.contentDocument.getElementById(
+            return tab.chromeBrowser.contentDocument?.getElementById(
               "messagepane"
             );
           },

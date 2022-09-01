@@ -160,7 +160,7 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
   } else if (tab?.folderDisplay) {
     message = tab.folderDisplay.selectedMessage;
   } else {
-    message = gFolderDisplay.selectedMessage;
+    message = gFolderDisplay?.selectedMessage;
   }
 
   let folder = message?.folder;
@@ -2599,7 +2599,7 @@ function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
       "_blank",
       "all,chrome,dialog=no,status,toolbar",
       aMsgHdr,
-      aView || gFolderDisplay.view
+      aView || gFolderDisplay?.view
     );
   }
 }
@@ -3250,41 +3250,7 @@ function CommandUpdate_UndoRedo() {
 }
 
 function SetupUndoRedoCommand(command) {
-  // If we have selected a server, and are viewing account central
-  // there is no loaded folder.
-  var loadedFolder = gFolderDisplay.displayedFolder;
-  if (!loadedFolder || !loadedFolder.server.canUndoDeleteOnServer) {
-    return false;
-  }
-
-  let canUndoOrRedo = false;
-  let txnType;
-  try {
-    if (command == "cmd_undo") {
-      canUndoOrRedo = messenger.canUndo();
-      txnType = messenger.getUndoTransactionType();
-    } else {
-      canUndoOrRedo = messenger.canRedo();
-      txnType = messenger.getRedoTransactionType();
-    }
-  } catch (ex) {
-    // If this fails, assume we can't undo or redo.
-    Cu.reportError(ex);
-  }
-
-  if (canUndoOrRedo) {
-    var commands = [
-      "valueDefault",
-      "valueDeleteMsg",
-      "valueMoveMsg",
-      "valueCopyMsg",
-      "valueUnmarkAllMsgs",
-    ];
-    goSetMenuValue(command, commands[txnType]);
-  } else {
-    goSetMenuValue(command, "valueDefault");
-  }
-  return canUndoOrRedo;
+  return false;
 }
 
 /**
@@ -3920,6 +3886,13 @@ function OnMsgLoaded(aUrl) {
 
   var msgHdr = gMessageDisplay.displayedMessage;
   window.dispatchEvent(new CustomEvent("MsgLoaded", { detail: msgHdr }));
+  // TODO: Use only one event, for WebExtension scripts.
+  window.browsingContext.topChromeWindow.dispatchEvent(
+    new CustomEvent("MsgLoaded2", {
+      detail: getMessagePaneBrowser(),
+      bubbles: true,
+    })
+  );
 
   if (gMessageDisplay.isDummy) {
     return;

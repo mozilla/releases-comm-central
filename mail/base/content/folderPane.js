@@ -1884,57 +1884,7 @@ var gFolderTreeView = {
    * Completely discards the current tree and rebuilds it based on current
    * settings.
    */
-  _rebuild() {
-    let newRowMap = [];
-    for (let mode of this.activeModes) {
-      try {
-        newRowMap = [...this._modes[mode].generateMap(this), ...newRowMap];
-      } catch (ex) {
-        Services.console.logStringMessage(
-          "generator " + mode + " failed with exception: " + ex
-        );
-      }
-    }
-
-    if (!newRowMap.length) {
-      newRowMap = [...this._modes[kDefaultMode].generateMap(this)];
-    }
-
-    let selectedFolders = this.getSelectedFolders();
-    if (this.selection) {
-      this.selection.clearSelection();
-    }
-    // There's a chance the call to the map generator altered this._rowMap, so
-    // evaluate oldCount after calling it rather than before
-    let oldCount = this._rowMap ? this._rowMap.length : null;
-    this._rowMap = newRowMap;
-
-    this._treeElement.dispatchEvent(
-      new Event(
-        "mapRebuild", // Introduced in bug 474822 for add-ons.
-        { bubbles: true, cancelable: false }
-      )
-    );
-
-    if (this._tree) {
-      if (oldCount !== null) {
-        this._tree.rowCountChanged(0, this._rowMap.length - oldCount);
-      }
-      this._tree.invalidate();
-    }
-    this._restoreOpenStates();
-    this._restoreCustomColors();
-
-    // restore selection.
-    for (let folder of selectedFolders) {
-      if (folder) {
-        let index = this.getIndexOfFolder(folder);
-        if (index != null) {
-          this.selection.toggleSelect(index);
-        }
-      }
-    }
-  },
+  _rebuild() {},
 
   _sortedAccounts() {
     let accounts = FolderUtils.allAccountsSorted(true);

@@ -14,6 +14,9 @@
 /* globals HideMessageHeaderPane, messageHeaderSink, gMessageListeners,
    OnLoadMsgHeaderPane, OnTagsChange, OnUnloadMsgHeaderPane */
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -103,6 +106,7 @@ var MsgStatusFeedback =
 var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
+msgWindow.domWindow = window;
 msgWindow.msgHeaderSink = window.messageHeaderSink;
 msgWindow.statusFeedback = Cc[
   "@mozilla.org/messenger/statusfeedback;1"
@@ -116,11 +120,21 @@ window.addEventListener("DOMContentLoaded", event => {
   content = document.querySelector("browser");
   OnLoadMsgHeaderPane();
 
+  // The folder listener only does something interesting if this is a
+  // standalone window or tab, so don't add it if we're inside about:3pane.
+  if (window.browsingContext.parent.currentURI.spec != "about:3pane") {
+    MailServices.mailSession.AddFolderListener(
+      folderListener,
+      Ci.nsIFolderListener.removed
+    );
+  }
+
   preferenceObserver.init();
 });
 
 window.addEventListener("unload", () => {
   OnUnloadMsgHeaderPane();
+  MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
 });
 
@@ -136,7 +150,9 @@ window.addEventListener("keypress", event => {
 
 function displayMessage(uri, viewWrapper) {
   ClearPendingReadTimer();
+  gMessageURI = uri;
   if (!uri) {
+    gMessage = null;
     HideMessageHeaderPane();
     // Don't use MailE10SUtils.loadURI here, it will try to change remoteness
     // and we don't want that.
@@ -148,8 +164,6 @@ function displayMessage(uri, viewWrapper) {
     );
     return;
   }
-
-  gMessageURI = uri;
 
   let protocol = new URL(uri).protocol.replace(/:$/, "");
   let messageService = Cc[
@@ -178,6 +192,8 @@ function displayMessage(uri, viewWrapper) {
   }
 
   MailE10SUtils.changeRemoteness(content, null);
+  content.docShell.allowAuth = false;
+  content.docShell.allowDNSPrefetch = false;
   content.docShell
     ?.QueryInterface(Ci.nsIWebProgress)
     .addProgressListener(
@@ -228,6 +244,26 @@ function RestoreFocusAfterHdrButton() {
   // set focus to the message pane
   content.focus();
 }
+
+var folderListener = {
+  QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
+
+  onFolderRemoved(parentFolder, childFolder) {},
+  onMessageRemoved(parentFolder, msg) {
+    // Close the tab or window if the displayed message is deleted.
+    if (
+      Services.prefs.getBoolPref("mail.close_message_window.on_delete") &&
+      msg == gMessage
+    ) {
+      let topWindow = window.browsingContext.topChromeWindow;
+      let tabmail = topWindow.document.getElementById("tabmail");
+      if (tabmail) {
+        let tab = tabmail.getTabForBrowser(content);
+        tabmail.closeTab(tab);
+      } // else close window
+    }
+  },
+};
 
 var preferenceObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),

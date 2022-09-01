@@ -733,9 +733,6 @@ var gMailInit = {
    */
   onUnload() {
     Services.obs.notifyObservers(window, "mail-unloading-messenger");
-    accountManager.removeIncomingServerListener(
-      gThreePaneIncomingServerListener
-    );
     Services.prefs.removeObserver("mail.pane_config.dynamic", MailPrefObserver);
     Services.prefs.removeObserver(
       "mail.showCondensedAddresses",
@@ -868,7 +865,6 @@ async function loadPostAccountWizard() {
   } catch (e) {
     Cu.reportError(e);
   }
-  accountManager.addIncomingServerListener(gThreePaneIncomingServerListener);
 
   // Add to session before trying to load the start folder otherwise the
   // listeners aren't set up correctly.
@@ -1200,13 +1196,16 @@ async function loadStartFolder(initialUri) {
     }
     if (loadFolder) {
       try {
-        gFolderTreeView.selectFolder(startFolder);
+        // TODO: Do a better job of this.
+        let tab = document.getElementById("tabmail").currentTabInfo;
+        tab.chromeBrowser.addEventListener(
+          "load",
+          () => (tab.folder = startFolder),
+          true
+        );
       } catch (ex) {
-        // This means we tried to select a folder that isn't in the current
-        // view. Just select the first one in the view then.
-        if (gFolderTreeView._rowMap.length) {
-          gFolderTreeView.selectFolder(gFolderTreeView._rowMap[0]._folder);
-        }
+        // This means we tried to select a folder that isn't in the current view.
+        Cu.reportError(ex);
       }
     }
   } catch (ex) {
@@ -1535,7 +1534,6 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
     return;
   }
 
-  tabParams.messageURI = msgHdr.folder.getUriForMsg(msgHdr);
   if (tabParams.background === undefined) {
     tabParams.background = Services.prefs.getBoolPref(
       "mail.tabs.loadInBackground"
@@ -1545,10 +1543,14 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
     }
   }
 
+  let tabmail = document.getElementById("tabmail");
   if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    openTab("mailMessageTab", tabParams);
+    tabmail.openTab("mailMessageTab", {
+      ...tabParams,
+      messageURI: msgHdr.folder.getUriForMsg(msgHdr),
+    });
   } else {
-    document.getElementById("tabmail").openTab("message", {
+    tabmail.openTab("message", {
       msgHdr,
       viewWrapperToClone: tabParams.viewWrapper ?? gFolderDisplay.view,
       background: tabParams.background,
@@ -1578,16 +1580,7 @@ function SelectFolder(folderUri) {
   gFolderTreeView.selectFolder(MailUtils.getOrCreateFolder(folderUri));
 }
 
-function ReloadMessage() {
-  if (!gFolderDisplay.selectedMessage) {
-    return;
-  }
-
-  let view = gFolderDisplay.view.dbView;
-  if (view) {
-    view.reloadMessage();
-  }
-}
+function ReloadMessage() {}
 
 // Some of the per account junk mail settings have been
 // converted to global prefs. Let's try to migrate some

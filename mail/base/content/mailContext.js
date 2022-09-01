@@ -689,6 +689,7 @@ var commandController = {
     cmd_editDraftMsg: Ci.nsIMsgCompType.Draft,
     cmd_newMsgFromTemplate: Ci.nsIMsgCompType.Template,
     cmd_editTemplateMsg: Ci.nsIMsgCompType.EditTemplate,
+    cmd_newMessage: Ci.nsIMsgCompType.New,
     cmd_replyGroup: Ci.nsIMsgCompType.ReplyToGroup,
     cmd_replySender: Ci.nsIMsgCompType.ReplyToSender,
     cmd_replyall: Ci.nsIMsgCompType.ReplyAll,
@@ -769,12 +770,12 @@ var commandController = {
         gFolder
       );
     },
-    cmd_markAsFlagged(event) {
-      if (event.target.getAttribute("checked") == "true") {
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.flagMessages);
-      } else {
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.unflagMessages);
-      }
+    cmd_markAsFlagged() {
+      gViewWrapper.dbView.doCommand(
+        gDBView.hdrForFirstSelectedMessage.isFlagged
+          ? Ci.nsMsgViewCommandType.unflagMessages
+          : Ci.nsMsgViewCommandType.flagMessages
+      );
     },
     cmd_markAsJunk() {
       if (
@@ -850,6 +851,11 @@ var commandController = {
       return this._isCallbackEnabled[command]();
     } else if (type == "boolean") {
       return this._isCallbackEnabled[command];
+    }
+
+    if (command == "cmd_newMessage") {
+      // TODO: This shouldn't be here, or should return false if there are no identities.
+      return true;
     }
 
     if (!gViewWrapper) {
@@ -1044,7 +1050,7 @@ var commandController = {
     // If we're the hidden window, then we're not going to have a gFolderDisplay
     // to work out existing folders, so just use null.
     let msgFolder = gFolder;
-    let msgUris = gDBView.getURIsForSelection();
+    let msgUris = gDBView?.getURIsForSelection();
 
     if (event && event.shiftKey) {
       window.browsingContext.topChromeWindow.ComposeMessage(
@@ -1125,12 +1131,14 @@ var dbViewWrapperListener = {
   onLoadingFolder(dbFolderInfo) {},
   onDisplayingFolder() {},
   onLeavingFolder() {},
-  onMessagesLoaded(all) {},
+  onMessagesLoaded(all) {
+    if (all) {
+      window.threadTree?.invalidate();
+    }
+  },
   onMailViewChanged() {},
   onSortChanged() {
-    if (window.threadTree) {
-      window.threadTree.invalidate();
-    }
+    window.threadTree?.invalidate();
   },
   onMessagesRemoved() {},
   onMessageRemovalFailed() {},

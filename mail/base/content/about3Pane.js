@@ -192,55 +192,55 @@ window.addEventListener("DOMContentLoaded", event => {
       );
       document.body.classList.add("account-central");
       accountCentralBrowser.hidden = false;
-      return;
+    } else {
+      document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
+      document.body.classList.remove("account-central");
+      accountCentralBrowser.hidden = true;
+
+      gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+      gViewWrapper._viewFlags = 1;
+      gViewWrapper.open(gFolder);
+      gDBView = gViewWrapper.dbView;
+
+      // Tell the view about the tree. nsITreeView.setTree can't be used because
+      // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
+      // the shim passed here isn't a tree either (TreeViewListbox can't be made
+      // to QI to anything) but it does implement the required methods.
+      gViewWrapper.dbView?.setJSTree({
+        QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
+        _inBatch: false,
+        beginUpdateBatch() {
+          this._inBatch = true;
+        },
+        endUpdateBatch() {
+          this._inBatch = false;
+        },
+        ensureRowIsVisible(index) {
+          if (!this._inBatch) {
+            threadTree.scrollToIndex(index);
+          }
+        },
+        invalidate() {
+          if (!this._inBatch) {
+            threadTree.invalidate();
+          }
+        },
+        invalidateRange(startIndex, endIndex) {
+          if (this._inBatch) {
+            return;
+          }
+
+          for (let index = startIndex; index <= endIndex; index++) {
+            threadTree.invalidateRow(index);
+          }
+        },
+        rowCountChanged(index, count) {
+          if (!this._inBatch) {
+            threadTree.rowCountChanged(index, count);
+          }
+        },
+      });
     }
-    document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
-    document.body.classList.remove("account-central");
-    accountCentralBrowser.hidden = true;
-
-    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-    gViewWrapper._viewFlags = 1;
-    gViewWrapper.open(gFolder);
-    gDBView = gViewWrapper.dbView;
-
-    // Tell the view about the tree. nsITreeView.setTree can't be used because
-    // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
-    // the shim passed here isn't a tree either (TreeViewListbox can't be made
-    // to QI to anything) but it does implement the required methods.
-    gViewWrapper.dbView.setJSTree({
-      QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
-      _inBatch: false,
-      beginUpdateBatch() {
-        this._inBatch = true;
-      },
-      endUpdateBatch() {
-        this._inBatch = false;
-      },
-      ensureRowIsVisible(index) {
-        if (!this._inBatch) {
-          threadTree.scrollToIndex(index);
-        }
-      },
-      invalidate() {
-        if (!this._inBatch) {
-          threadTree.invalidate();
-        }
-      },
-      invalidateRange(startIndex, endIndex) {
-        if (this._inBatch) {
-          return;
-        }
-
-        for (let index = startIndex; index <= endIndex; index++) {
-          threadTree.invalidateRow(index);
-        }
-      },
-      rowCountChanged(index, count) {
-        if (!this._inBatch) {
-          threadTree.rowCountChanged(index, count);
-        }
-      },
-    });
 
     window.dispatchEvent(
       new CustomEvent("folderURIChanged", { bubbles: true, detail: uri })
@@ -328,12 +328,6 @@ window.addEventListener("keypress", event => {
       break;
     case "F5":
       location.reload();
-      break;
-    case "a":
-      if (event.ctrlKey && !event.altKey && !event.metaKey) {
-        commandController.doCommand("cmd_selectAll");
-        event.preventDefault();
-      }
       break;
   }
 });
@@ -700,7 +694,7 @@ var folderListener = {
     }
   },
 
-  _addAccount(account) {
+  _addAccount(account, addFolders = true) {
     let accountItem = folderTree.appendChild(
       this._folderTemplate.content.firstElementChild.cloneNode(true)
     );
@@ -713,7 +707,9 @@ var folderListener = {
     )}")`;
     accountItem.querySelector(".name").textContent =
       account.incomingServer.prettyName;
-    this._addSubFolders(account.incomingServer.rootFolder, accountItem);
+    if (addFolders) {
+      this._addSubFolders(account.incomingServer.rootFolder, accountItem);
+    }
   },
   _addFolder(folder, childList, before = null) {
     let folderItem = childList.insertBefore(
@@ -805,7 +801,9 @@ var folderListener = {
       row.remove();
     }
   },
-  onMessageRemoved(parentFolder, msg) {},
+  onMessageRemoved(parentFolder, msg) {
+    threadTree.invalidate();
+  },
   onFolderPropertyChanged(item, property, oldValue, newValue) {},
   onFolderIntPropertyChanged(item, property, oldValue, newValue) {
     if (property == "TotalUnreadMessages") {

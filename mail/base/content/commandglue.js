@@ -334,43 +334,7 @@ function OnMouseUpThreadAndMessagePaneSplitter() {
  * The tabbing logic sets this global to help us out.
  */
 var gIgnoreSyntheticFolderPaneSelectionChange = false;
-function FolderPaneSelectionChange() {
-  let folders = GetSelectedMsgFolders();
-  if (!folders.length) {
-    clearFolderDBListener();
-    return;
-  }
-
-  let msgFolder = folders[0];
-  let locationItem = document.getElementById("locationFolders");
-  if (locationItem) {
-    locationItem.setAttribute("label", msgFolder.prettyName);
-    document
-      .getElementById("folderLocationPopup")
-      ._setCssSelectors(msgFolder, locationItem);
-  }
-
-  if (gIgnoreSyntheticFolderPaneSelectionChange) {
-    gIgnoreSyntheticFolderPaneSelectionChange = false;
-    return;
-  }
-
-  let folderSelection = gFolderTreeView.selection;
-
-  // This prevents a folder from being loaded in the case that the user
-  // has right-clicked on a folder different from the one that was
-  // originally highlighted.  On a right-click, the highlight (selection)
-  // of a row will be different from the value of currentIndex, thus if
-  // the currentIndex is not selected, it means the user right-clicked
-  // and we don't want to load the contents of the folder.
-  if (!folderSelection.isSelected(folderSelection.currentIndex)) {
-    return;
-  }
-
-  gFolderDisplay.show(folders.length ? folders[0] : null);
-  SetGetMsgButtonTooltip();
-  initFolderDBListener();
-}
+function FolderPaneSelectionChange() {}
 
 function Undo() {
   messenger.undo(msgWindow);

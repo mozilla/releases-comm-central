@@ -60,7 +60,6 @@ const MESSENGER_UI_CONTAINER_IDS = {
   messageIdContext: "message-display",
   attachmentItemContext: "message-display",
   attachmentListContext: "message-display",
-  attachmentMenuList: "message-display",
   "attachment-toolbar-context-menu": "message-display",
   copyUrlPopup: "message-display",
   newsgroupPopup: "message-display",

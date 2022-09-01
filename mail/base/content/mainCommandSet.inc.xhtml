@@ -178,7 +178,7 @@
               events="create-menu-message"
               oncommandupdate="goUpdateMailMenuItems(this)">
     <command id="cmd_archive" oncommand="goDoCommand('cmd_archive')"/>
-    <command id="cmd_newMessage" oncommand="MsgNewMessage(event)"/>
+    <command id="cmd_newMessage" oncommand="goDoCommand('cmd_newMessage')"/>
     <command id="cmd_reply" oncommand="MsgReplyMessage(event)"/>
     <command id="cmd_replySender" oncommand="MsgReplySender(event);"/>
     <command id="cmd_replyGroup" oncommand="MsgReplyGroup(event);"/>

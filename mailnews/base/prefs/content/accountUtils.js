@@ -369,7 +369,7 @@ function updateMailPaneUI() {
   // Set the folderPaneVisible to true in the tabmail to prevent collapsing
   // on tab switch.
   let tabmail = mail3Pane.document.getElementById("tabmail");
-  tabmail.tabInfo[0].folderDisplay.folderPaneVisible = true;
+  tabmail.tabInfo[0].folderPaneVisible = true;
 }
 
 /**

@@ -1533,7 +1533,16 @@ function QuoteSelectedMessage() {
 
 function GetSelectedMessages() {
   let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  return mailWindow ? mailWindow.gFolderDisplay.selectedMessageUris : null;
+  if (!mailWindow) {
+    return null;
+  }
+  let tab = mailWindow.document.getElementById("tabmail").currentTabInfo;
+  if (tab.mode.name == "mail3PaneTab" && tab.message) {
+    return tab.chromeBrowser.contentWindow?.gDBView?.getURIsForSelection();
+  } else if (tab.mode.name == "mailMessageTab") {
+    return [tab.messageURI];
+  }
+  return null;
 }
 
 function SetupCommandUpdateHandlers() {

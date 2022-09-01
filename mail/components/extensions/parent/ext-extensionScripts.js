@@ -26,20 +26,51 @@ ExtensionSupport.registerWindowListener("ext-composeScripts", {
       window.addEventListener("compose-editor-ready", resolve, { once: true })
     );
     for (let script of scripts) {
-      script.executeInWindow(window, "compose");
+      if (script.type == "compose") {
+        script.executeInWindow(
+          window,
+          script.extension.tabManager.getWrapper(window)
+        );
+      }
     }
   },
 });
 
 ExtensionSupport.registerWindowListener("ext-messageDisplayScripts", {
-  chromeURLs: [
-    "chrome://messenger/content/messenger.xhtml",
-    "chrome://messenger/content/messageWindow.xhtml",
-  ],
+  chromeURLs: ["chrome://messenger/content/messageWindow.xhtml"],
   onLoadWindow(window) {
     window.addEventListener("MsgLoaded", () => {
       for (let script of scripts) {
-        script.executeInWindow(window, "messageDisplay");
+        if (script.type == "messageDisplay") {
+          script.executeInWindow(
+            window,
+            script.extension.tabManager.getWrapper(window)
+          );
+        }
+      }
+    });
+  },
+});
+
+// TODO: Refine this once messageWindow is based on about:message.
+ExtensionSupport.registerWindowListener("ext-messageDisplayScripts2", {
+  chromeURLs: ["chrome://messenger/content/messenger.xhtml"],
+  onLoadWindow(window) {
+    window.addEventListener("MsgLoaded2", event => {
+      let browser = event.detail.browsingContext.embedderElement;
+      let tabId = tabTracker.getBrowserData(browser).tabId;
+      let tab = tabTracker.getTab(tabId);
+      if (!tab || ["mail", "messageDisplay"].includes(tab.type)) {
+        return;
+      }
+
+      for (let script of scripts) {
+        if (script.type == "messageDisplay") {
+          script.executeInWindow(
+            window,
+            script.extension.tabManager.getWrapper(tab)
+          );
+        }
       }
     });
   },
@@ -114,29 +145,12 @@ class ExtensionScriptParent {
     return options;
   }
 
-  async executeInWindow(window, type) {
-    if (this.type != type) {
-      return;
-    }
-
-    let { activeTab } = this.extension.windowManager.wrapWindow(window);
-    let activeURL = activeTab.browser?.currentURI;
-
-    if (type == "compose" && activeURL.spec != "about:blank?compose") {
-      return;
-    }
-    if (
-      type == "messageDisplay" &&
-      !MESSAGE_PROTOCOLS.includes(activeURL.scheme)
-    ) {
-      return;
-    }
-
+  async executeInWindow(window, tab) {
     for (let css of this.options.css) {
-      await activeTab.insertCSS(this.context, { ...css, frameId: null });
+      await tab.insertCSS(this.context, { ...css, frameId: null });
     }
     for (let js of this.options.js) {
-      await activeTab.executeScript(this.context, { ...js, frameId: null });
+      await tab.executeScript(this.context, { ...js, frameId: null });
     }
     window.dispatchEvent(new window.CustomEvent("extension-scripts-added"));
   }

@@ -55,7 +55,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
     // This function reads from currentHeaderData, which is only useful if we're
     // looking at the currently-displayed message. Otherwise, just return
     // immediately so we don't waste time.
-    if (hdr != gMessageDisplay.displayedMessage) {
+    if (hdr != gMessageDisplay?.displayedMessage) {
       return "";
     }
 
@@ -93,7 +93,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
   let msgKey;
   if (messageArray && messageArray.length == 1) {
     msgKey = GetMsgKeyFromURI(messageArray[0]);
-    if (msgKey != gMessageDisplay.keyForCharsetOverride) {
+    if (msgKey != gMessageDisplay?.keyForCharsetOverride) {
       msgWindow.charsetOverride = false;
     }
     if (
@@ -105,7 +105,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
       type == Ci.nsIMsgCompType.ReplyToList
     ) {
       let displayKey =
-        gMessageDisplay.displayedMessage &&
+        gMessageDisplay?.displayedMessage &&
         "messageKey" in gMessageDisplay.displayedMessage
           ? gMessageDisplay.displayedMessage.messageKey
           : null;
