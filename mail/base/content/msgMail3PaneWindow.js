@@ -1893,8 +1893,6 @@ var TabsInTitlebar = {
     window.addEventListener("resolutionchange", this);
     window.addEventListener("resize", this);
 
-    gDragSpaceObserver.init();
-
     this._initialized = true;
     this.update();
   },
@@ -2016,7 +2014,6 @@ var TabsInTitlebar = {
 
   uninit() {
     this._initialized = false;
-    gDragSpaceObserver.uninit();
     Services.prefs.removeObserver(this._drawInTitlePref, this);
   },
 };
@@ -2029,30 +2026,6 @@ function onTitlebarMaxClick() {
     window.maximize();
   }
 }
-
-// Adds additional drag space to the window by listening to
-// the corresponding preference.
-var gDragSpaceObserver = {
-  pref: "mail.tabs.extraDragSpace",
-
-  init() {
-    Services.prefs.addObserver(this.pref, this);
-    this.observe();
-  },
-
-  uninit() {
-    Services.prefs.removeObserver(this.pref, this);
-  },
-
-  observe() {
-    if (Services.prefs.getBoolPref(this.pref)) {
-      document.documentElement.setAttribute("extradragspace", "true");
-    } else {
-      document.documentElement.removeAttribute("extradragspace");
-    }
-    TabsInTitlebar.update();
-  },
-};
 
 var BrowserAddonUI = {
   async promptRemoveExtension(addon) {

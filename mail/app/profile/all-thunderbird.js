@@ -531,10 +531,6 @@ pref("mail.tabs.closeWindowWithLastTab", true);
 // Allow the tabs to be in the titlebar on supported systems
 pref("mail.tabs.drawInTitlebar", true);
 
-// Offer additional drag space to the user. The drag space
-// will only be shown if browser.tabs.drawInTitlebar is true.
-pref("mail.tabs.extraDragSpace", false);
-
 // The breakpad report server to link to in about:crashes
 pref("breakpad.reportURL", "https://crash-stats.mozilla.com/report/index/");
 
