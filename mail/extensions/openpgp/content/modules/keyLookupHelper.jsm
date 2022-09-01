@@ -97,7 +97,7 @@ var KeyLookupHelper = {
             foundUnchanged = true;
           }
         } else {
-          keyList = keyList.filter(k => k.userIds.length > 1);
+          keyList = keyList.filter(k => k.userIds.length);
           if (keyList.length && mode == "interactive-import") {
             keyImported = await lazy.EnigmailKeyRing.importKeyDataWithConfirmation(
               window,
@@ -257,7 +257,7 @@ var KeyLookupHelper = {
             } else {
               wkdFoundUnchanged = true;
             }
-          } else if (wkdKey.userIds.length > 0) {
+          } else if (wkdKey.userIds.length) {
             newKeys.push(wkdKey);
           }
         }
