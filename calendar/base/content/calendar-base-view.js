@@ -78,6 +78,8 @@
         maxLogLevel: "Warn",
         maxLogLevelPref: "calendar.baseview.loglevel",
       });
+
+      this.mSelectedItems = [];
     }
 
     ensureInitialized() {
@@ -193,8 +195,6 @@
 
       this.mTimezone = null;
       this.mFlashingEvents = {};
-
-      this.mSelectedItems = [];
 
       this.mDropShadowsLength = null;
 

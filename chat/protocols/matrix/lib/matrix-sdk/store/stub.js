@@ -298,6 +298,18 @@ class StubStore {
     return Promise.resolve();
   }
 
+  async saveToDeviceBatches(batch) {
+    return Promise.resolve();
+  }
+
+  getOldestToDeviceBatch() {
+    return Promise.resolve(null);
+  }
+
+  async removeToDeviceBatch(id) {
+    return Promise.resolve();
+  }
+
 }
 
 exports.StubStore = StubStore;

@@ -685,26 +685,24 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       _logger.logger.warn(`Ignoring stream with id ${stream.id} because we didn't get any metadata about it`);
 
       return;
-    } // Try to find a feed with the same purpose as the new stream,
-    // if we find it replace the old stream with the new one
-
-
-    const existingFeed = this.getRemoteFeeds().find(feed => feed.purpose === purpose);
-
-    if (existingFeed) {
-      existingFeed.setNewStream(stream);
-    } else {
-      this.feeds.push(new _callFeed.CallFeed({
-        client: this.client,
-        roomId: this.roomId,
-        userId,
-        stream,
-        purpose,
-        audioMuted,
-        videoMuted
-      }));
-      this.emit(CallEvent.FeedsChanged, this.feeds);
     }
+
+    if (this.getFeedByStreamId(stream.id)) {
+      _logger.logger.warn(`Ignoring stream with id ${stream.id} because we already have a feed for it`);
+
+      return;
+    }
+
+    this.feeds.push(new _callFeed.CallFeed({
+      client: this.client,
+      roomId: this.roomId,
+      userId,
+      stream,
+      purpose,
+      audioMuted,
+      videoMuted
+    }));
+    this.emit(CallEvent.FeedsChanged, this.feeds);
 
     _logger.logger.info(`Pushed remote stream (id="${stream.id}", active="${stream.active}", purpose=${purpose})`);
   }
@@ -726,26 +724,24 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       _logger.logger.warn(`Ignoring new stream ID ${stream.id}: we already have stream ID ${oldRemoteStream.id}`);
 
       return;
-    } // Try to find a feed with the same stream id as the new stream,
-    // if we find it replace the old stream with the new one
-
-
-    const feed = this.getFeedByStreamId(stream.id);
-
-    if (feed) {
-      feed.setNewStream(stream);
-    } else {
-      this.feeds.push(new _callFeed.CallFeed({
-        client: this.client,
-        roomId: this.roomId,
-        audioMuted: false,
-        videoMuted: false,
-        userId,
-        stream,
-        purpose
-      }));
-      this.emit(CallEvent.FeedsChanged, this.feeds);
     }
+
+    if (this.getFeedByStreamId(stream.id)) {
+      _logger.logger.warn(`Ignoring stream with id ${stream.id} because we already have a feed for it`);
+
+      return;
+    }
+
+    this.feeds.push(new _callFeed.CallFeed({
+      client: this.client,
+      roomId: this.roomId,
+      audioMuted: false,
+      videoMuted: false,
+      userId,
+      stream,
+      purpose
+    }));
+    this.emit(CallEvent.FeedsChanged, this.feeds);
 
     _logger.logger.info(`Pushed remote stream (id="${stream.id}", active="${stream.active}")`);
   }
@@ -756,24 +752,23 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     // you'd set to disabled (presumably because it clones them internally).
 
     setTracksEnabled(stream.getAudioTracks(), true);
-    setTracksEnabled(stream.getVideoTracks(), true); // We try to replace an existing feed if there already is one with the same purpose
+    setTracksEnabled(stream.getVideoTracks(), true);
 
-    const existingFeed = this.getLocalFeeds().find(feed => feed.purpose === purpose);
+    if (this.getFeedByStreamId(stream.id)) {
+      _logger.logger.warn(`Ignoring stream with id ${stream.id} because we already have a feed for it`);
 
-    if (existingFeed) {
-      existingFeed.setNewStream(stream);
-    } else {
-      this.pushLocalFeed(new _callFeed.CallFeed({
-        client: this.client,
-        roomId: this.roomId,
-        audioMuted: false,
-        videoMuted: false,
-        userId,
-        stream,
-        purpose
-      }), addToPeerConnection);
-      this.emit(CallEvent.FeedsChanged, this.feeds);
+      return;
     }
+
+    this.pushLocalFeed(new _callFeed.CallFeed({
+      client: this.client,
+      roomId: this.roomId,
+      audioMuted: false,
+      videoMuted: false,
+      userId,
+      stream,
+      purpose
+    }), addToPeerConnection);
   }
   /**
    * Pushes supplied feed to the call
@@ -861,7 +856,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     const statsReport = await this.peerConn.getStats();
     const stats = [];
     statsReport.forEach(item => {
-      stats.push(item[1]);
+      stats.push(item);
     });
     return stats;
   }
@@ -1023,9 +1018,6 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
 
   answerWithCallFeeds(callFeeds) {
     if (this.inviteOrAnswerSent) return;
-
-    _logger.logger.debug(`Answering call ${this.callId}`);
-
     this.gotCallFeedsForAnswer(callFeeds);
   }
   /**
@@ -1292,7 +1284,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       return this.isLocalVideoMuted();
     }
 
-    this.localUsermediaFeed?.setVideoMuted(muted);
+    this.localUsermediaFeed?.setAudioVideoMuted(null, muted);
     this.updateMuteStatus();
     return this.isLocalVideoMuted();
   }
@@ -1327,7 +1319,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       return this.isMicrophoneMuted();
     }
 
-    this.localUsermediaFeed?.setAudioMuted(muted);
+    this.localUsermediaFeed?.setAudioVideoMuted(muted, null);
     this.updateMuteStatus();
     return this.isMicrophoneMuted();
   }
@@ -1638,7 +1630,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       _logger.logger.info(`Got select_answer for party ID ${selectedPartyId}: we are party ID ${this.ourPartyId}.`); // The other party has picked somebody else's answer
 
 
-      this.terminate(CallParty.Remote, CallErrorCode.AnsweredElsewhere, true);
+      await this.terminate(CallParty.Remote, CallErrorCode.AnsweredElsewhere, true);
     }
   }
 
@@ -1706,8 +1698,8 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
 
     for (const feed of this.getRemoteFeeds()) {
       const streamId = feed.stream.id;
-      feed.setAudioMuted(this.remoteSDPStreamMetadata[streamId]?.audio_muted);
-      feed.setVideoMuted(this.remoteSDPStreamMetadata[streamId]?.video_muted);
+      const metadata = this.remoteSDPStreamMetadata[streamId];
+      feed.setAudioVideoMuted(metadata?.audio_muted, metadata?.video_muted);
       feed.purpose = this.remoteSDPStreamMetadata[streamId]?.purpose;
     }
   }

@@ -51,6 +51,10 @@ class MemoryStore {
 
     _defineProperty(this, "clientOptions", {});
 
+    _defineProperty(this, "pendingToDeviceBatches", []);
+
+    _defineProperty(this, "nextToDeviceBatchId", 0);
+
     _defineProperty(this, "onRoomMember", (event, state, member) => {
       if (member.membership === "invite") {
         // We do NOT add invited members because people love to typo user IDs
@@ -447,6 +451,29 @@ class MemoryStore {
 
   async setPendingEvents(roomId, events) {
     this.pendingEvents[roomId] = events;
+  }
+
+  saveToDeviceBatches(batches) {
+    for (const batch of batches) {
+      this.pendingToDeviceBatches.push({
+        id: this.nextToDeviceBatchId++,
+        eventType: batch.eventType,
+        txnId: batch.txnId,
+        batch: batch.batch
+      });
+    }
+
+    return Promise.resolve();
+  }
+
+  async getOldestToDeviceBatch() {
+    if (this.pendingToDeviceBatches.length === 0) return null;
+    return this.pendingToDeviceBatches[0];
+  }
+
+  removeToDeviceBatch(id) {
+    this.pendingToDeviceBatches = this.pendingToDeviceBatches.filter(batch => batch.id !== id);
+    return Promise.resolve();
   }
 
 }

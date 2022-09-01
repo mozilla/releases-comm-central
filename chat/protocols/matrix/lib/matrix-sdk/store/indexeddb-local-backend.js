@@ -19,7 +19,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-const VERSION = 3;
+const VERSION = 4;
 
 function createDatabase(db) {
   // Make user store, clobber based on user ID. (userId property of User objects)
@@ -47,6 +47,12 @@ function upgradeSchemaV2(db) {
 function upgradeSchemaV3(db) {
   db.createObjectStore("client_options", {
     keyPath: ["clobber"]
+  });
+}
+
+function upgradeSchemaV4(db) {
+  db.createObjectStore("to_device_queue", {
+    autoIncrement: true
   });
 }
 /**
@@ -196,6 +202,10 @@ class LocalIndexedDBStoreBackend {
 
       if (oldVersion < 3) {
         upgradeSchemaV3(db);
+      }
+
+      if (oldVersion < 4) {
+        upgradeSchemaV4(db);
       } // Expand as needed.
 
     };
@@ -423,8 +433,6 @@ class LocalIndexedDBStoreBackend {
   }
 
   async syncToDatabase(userTuples) {
-    const syncData = this.syncAccumulator.getJSON(true);
-
     if (this.isPersisting) {
       _logger.logger.warn("Skipping syncToDatabase() as persist already in flight");
 
@@ -436,6 +444,7 @@ class LocalIndexedDBStoreBackend {
     }
 
     try {
+      const syncData = this.syncAccumulator.getJSON(true);
       await Promise.all([this.persistUserPresenceEvents(userTuples), this.persistAccountData(syncData.accountData), this.persistSyncData(syncData.nextBatch, syncData.roomsData)]);
     } finally {
       this.isPersisting = false;
@@ -595,6 +604,38 @@ class LocalIndexedDBStoreBackend {
       options: options
     }); // put == UPSERT
 
+    await txnAsPromise(txn);
+  }
+
+  async saveToDeviceBatches(batches) {
+    const txn = this.db.transaction(["to_device_queue"], "readwrite");
+    const store = txn.objectStore("to_device_queue");
+
+    for (const batch of batches) {
+      store.add(batch);
+    }
+
+    await txnAsPromise(txn);
+  }
+
+  async getOldestToDeviceBatch() {
+    const txn = this.db.transaction(["to_device_queue"], "readonly");
+    const store = txn.objectStore("to_device_queue");
+    const cursor = await reqAsCursorPromise(store.openCursor());
+    if (!cursor) return null;
+    const resultBatch = cursor.value;
+    return {
+      id: cursor.key,
+      txnId: resultBatch.txnId,
+      eventType: resultBatch.eventType,
+      batch: resultBatch.batch
+    };
+  }
+
+  async removeToDeviceBatch(id) {
+    const txn = this.db.transaction(["to_device_queue"], "readwrite");
+    const store = txn.objectStore("to_device_queue");
+    store.delete(id);
     await txnAsPromise(txn);
   }
 

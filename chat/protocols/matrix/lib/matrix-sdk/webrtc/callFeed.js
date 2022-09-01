@@ -193,34 +193,22 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
     return this.speaking;
   }
   /**
-   * Replaces the current MediaStream with a new one.
-   * This method should be only used by MatrixCall.
-   * @param newStream new stream with which to replace the current one
-   */
-
-
-  setNewStream(newStream) {
-    this.updateStream(this.stream, newStream);
-  }
-  /**
-   * Set feed's internal audio mute state
-   * @param muted is the feed's audio muted?
-   */
-
-
-  setAudioMuted(muted) {
-    this.audioMuted = muted;
-    this.speakingVolumeSamples.fill(-Infinity);
-    this.emit(CallFeedEvent.MuteStateChanged, this.audioMuted, this.videoMuted);
-  }
-  /**
-   * Set feed's internal video mute state
+   * Set one or both of feed's internal audio and video video mute state
+   * Either value may be null to leave it as-is
    * @param muted is the feed's video muted?
    */
 
 
-  setVideoMuted(muted) {
-    this.videoMuted = muted;
+  setAudioVideoMuted(audioMuted, videoMuted) {
+    if (audioMuted !== null) {
+      if (this.audioMuted !== audioMuted) {
+        this.speakingVolumeSamples.fill(-Infinity);
+      }
+
+      this.audioMuted = audioMuted;
+    }
+
+    if (videoMuted !== null) this.videoMuted = videoMuted;
     this.emit(CallFeedEvent.MuteStateChanged, this.audioMuted, this.videoMuted);
   }
   /**

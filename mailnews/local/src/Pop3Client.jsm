@@ -9,6 +9,7 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { CryptoUtils } = ChromeUtils.import("resource://services-crypto/utils.js");
 var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -264,7 +265,13 @@ class Pop3Client {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
-    this._nextAction = () => {
+    this._nextAction = res => {
+      // See if there is an APOP timestamp.
+      // eslint-disable-next-line no-control-regex
+      let matches = res.statusText.match(/<[\x00-\x7F]+@[\x00-\x7F]+>/);
+      if (matches?.[0]) {
+        this._apopTimestamp = matches[0];
+      }
       this.onOpen();
     };
   };
@@ -514,15 +521,18 @@ class Pop3Client {
     this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
       this._supportedAuthMethods.includes(x)
     );
+    if (!this._possibleAuthMethods.length) {
+      if (this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext) {
+        this._possibleAuthMethods.unshift("USERPASS");
+      } else if (
+        this._server.authMethod == Ci.nsMsgAuthMethod.passwordEncrypted &&
+        this._apopTimestamp
+      ) {
+        this._possibleAuthMethods.unshift("APOP");
+      }
+    }
     this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
     this._nextAuthMethod = this._nextAuthMethod || this._possibleAuthMethods[0];
-    if (
-      !this._supportedAuthMethods.length &&
-      this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext
-    ) {
-      this._possibleAuthMethods.unshift("USERPASS");
-      this._nextAuthMethod = "USERPASS";
-    }
 
     if (this._nextAuthMethod) {
       this._updateStatus("hostContact");
@@ -610,6 +620,20 @@ class Pop3Client {
         this._nextAction = this._actionAuthCramMd5;
         this._send("AUTH CRAM-MD5");
         break;
+      case "APOP": {
+        let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
+          Ci.nsICryptoHash
+        );
+        hasher.init(hasher.MD5);
+        let data =
+          this._apopTimestamp +
+          (await this._authenticator.getByteStringPassword());
+        let digest = CommonUtils.bytesAsHex(
+          CryptoUtils.digestBytes(data, hasher)
+        );
+        this._send(`APOP ${this._authenticator.username} ${digest}`, true);
+        break;
+      }
       case "GSSAPI": {
         this._authenticator.initGssapiAuth("pop");
         try {

@@ -10,6 +10,8 @@ exports.verificationMethods = void 0;
 
 var _anotherJson = _interopRequireDefault(require("another-json"));
 
+var _event = require("../@types/event");
+
 var _ReEmitter = require("../ReEmitter");
 
 var _logger = require("../logger");
@@ -62,7 +64,7 @@ var _room = require("../models/room");
 
 var _roomMember = require("../models/room-member");
 
-var _event = require("../models/event");
+var _event2 = require("../models/event");
 
 var _client = require("../client");
 
@@ -73,6 +75,10 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -102,6 +108,8 @@ function isCryptoAvailable() {
 }
 
 const MIN_FORCE_SESSION_INTERVAL_MS = 60 * 60 * 1000;
+
+/* eslint-enable camelcase */
 let CryptoEvent;
 exports.CryptoEvent = CryptoEvent;
 
@@ -196,9 +204,9 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
     _defineProperty(this, "oneTimeKeyCheckInProgress", false);
 
-    _defineProperty(this, "roomEncryptors", {});
+    _defineProperty(this, "roomEncryptors", new Map());
 
-    _defineProperty(this, "roomDecryptors", {});
+    _defineProperty(this, "roomDecryptors", new Map());
 
     _defineProperty(this, "deviceKeys", {});
 
@@ -286,7 +294,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
           this.secretStorage.onRequestReceived(event);
         } else if (event.getType() === "m.secret.send") {
           this.secretStorage.onSecretReceived(event);
-        } else if (event.getType() === "m.room_key.withheld" || event.getType() === "org.matrix.room_key.withheld") {
+        } else if (event.getType() === "m.room_key.withheld") {
           this.onRoomKeyWithheldEvent(event);
         } else if (event.getContent().transaction_id) {
           this.onKeyVerificationMessage(event);
@@ -298,7 +306,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
           } // once the event has been decrypted, try again
 
 
-          event.once(_event.MatrixEventEvent.Decrypted, ev => {
+          event.once(_event2.MatrixEventEvent.Decrypted, ev => {
             this.onToDeviceEvent(ev);
           });
         }
@@ -379,7 +387,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
     this.deviceList.on(CryptoEvent.UserCrossSigningUpdated, this.onDeviceListUserCrossSigningUpdated);
     this.reEmitter.reEmit(this.deviceList, [CryptoEvent.DevicesUpdated, CryptoEvent.WillUpdateDevices]);
-    this.supportedAlgorithms = Object.keys(algorithms.DECRYPTION_CLASSES);
+    this.supportedAlgorithms = Array.from(algorithms.DECRYPTION_CLASSES.keys());
     this.outgoingRoomKeyRequestManager = new _OutgoingRoomKeyRequestManager.OutgoingRoomKeyRequestManager(baseApis, this.deviceId, this.cryptoStore);
     this.toDeviceVerificationRequests = new _ToDeviceChannel.ToDeviceRequests();
     this.inRoomVerificationRequests = new _InRoomChannel.InRoomRequests();
@@ -1582,7 +1590,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     eventEmitter.on(_roomMember.RoomMemberEvent.Membership, this.onMembership);
     eventEmitter.on(_client.ClientEvent.ToDeviceEvent, this.onToDeviceEvent);
     eventEmitter.on(_room.RoomEvent.Timeline, this.onTimelineEvent);
-    eventEmitter.on(_event.MatrixEventEvent.Decrypted, this.onTimelineEvent);
+    eventEmitter.on(_event2.MatrixEventEvent.Decrypted, this.onTimelineEvent);
   }
   /** Start background processes related to crypto */
 
@@ -2383,7 +2391,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
 
   forceDiscardSession(roomId) {
-    const alg = this.roomEncryptors[roomId];
+    const alg = this.roomEncryptors.get(roomId);
     if (alg === undefined) throw new Error("Room not encrypted");
 
     if (alg.forceDiscardSession === undefined) {
@@ -2438,7 +2446,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     // it signals a bug on client or server.
 
 
-    const existingAlg = this.roomEncryptors[roomId];
+    const existingAlg = this.roomEncryptors.get(roomId);
 
     if (existingAlg) {
       return;
@@ -2454,7 +2462,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
       storeConfigPromise = this.roomList.setRoomEncryption(roomId, config);
     }
 
-    const AlgClass = algorithms.ENCRYPTION_CLASSES[config.algorithm];
+    const AlgClass = algorithms.ENCRYPTION_CLASSES.get(config.algorithm);
 
     if (!AlgClass) {
       throw new Error("Unable to encrypt with " + config.algorithm);
@@ -2469,7 +2477,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
       roomId,
       config
     });
-    this.roomEncryptors[roomId] = alg;
+    this.roomEncryptors.set(roomId, alg);
 
     if (storeConfigPromise) {
       await storeConfigPromise;
@@ -2501,7 +2509,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   trackRoomDevices(roomId) {
     const trackMembers = async () => {
       // not an encrypted room
-      if (!this.roomEncryptors[roomId]) {
+      if (!this.roomEncryptors.has(roomId)) {
         return;
       }
 
@@ -2657,7 +2665,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
 
   prepareToEncrypt(room) {
-    const alg = this.roomEncryptors[room.roomId];
+    const alg = this.roomEncryptors.get(room.roomId);
 
     if (alg) {
       alg.prepareToEncrypt(room);
@@ -2681,7 +2689,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     }
 
     const roomId = event.getRoomId();
-    const alg = this.roomEncryptors[roomId];
+    const alg = this.roomEncryptors.get(roomId);
 
     if (!alg) {
       // MatrixClient has already checked that this room should be encrypted,
@@ -2739,7 +2747,9 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
   async decryptEvent(event) {
     if (event.isRedacted()) {
-      const redactionEvent = new _event.MatrixEvent(event.getUnsigned().redacted_because);
+      const redactionEvent = new _event2.MatrixEvent(_objectSpread({
+        room_id: event.getRoomId()
+      }, event.getUnsigned().redacted_because));
       const decryptedEvent = await this.decryptEvent(redactionEvent);
       return {
         clearEvent: {
@@ -2958,7 +2968,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   getTrackedE2eRooms() {
     return this.clientStore.getRooms().filter(room => {
       // check for rooms with encryption enabled
-      const alg = this.roomEncryptors[room.roomId];
+      const alg = this.roomEncryptors.get(room.roomId);
 
       if (!alg) {
         return false;
@@ -2972,6 +2982,72 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
       const myMembership = room.getMyMembership();
       return myMembership === "join" || myMembership === "invite";
     });
+  }
+  /**
+   * Encrypts and sends a given object via Olm to-device messages to a given
+   * set of devices.
+   * @param {object[]} userDeviceInfoArr the devices to send to
+   * @param {object} payload fields to include in the encrypted payload
+   * @return {Promise<{contentMap, deviceInfoByDeviceId}>} Promise which
+   *     resolves once the message has been encrypted and sent to the given
+   *     userDeviceMap, and returns the { contentMap, deviceInfoByDeviceId }
+   *     of the successfully sent messages.
+   */
+
+
+  async encryptAndSendToDevices(userDeviceInfoArr, payload) {
+    const toDeviceBatch = {
+      eventType: _event.EventType.RoomMessageEncrypted,
+      batch: []
+    };
+
+    try {
+      await Promise.all(userDeviceInfoArr.map(async ({
+        userId,
+        deviceInfo
+      }) => {
+        const deviceId = deviceInfo.deviceId;
+        const encryptedContent = {
+          algorithm: olmlib.OLM_ALGORITHM,
+          sender_key: this.olmDevice.deviceCurve25519Key,
+          ciphertext: {}
+        };
+        toDeviceBatch.batch.push({
+          userId,
+          deviceId,
+          payload: encryptedContent
+        });
+        await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, {
+          [userId]: [deviceInfo]
+        });
+        await olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.userId, this.deviceId, this.olmDevice, userId, deviceInfo, payload);
+      })); // prune out any devices that encryptMessageForDevice could not encrypt for,
+      // in which case it will have just not added anything to the ciphertext object.
+      // There's no point sending messages to devices if we couldn't encrypt to them,
+      // since that's effectively a blank message.
+
+      toDeviceBatch.batch = toDeviceBatch.batch.filter(msg => {
+        if (Object.keys(msg.payload.ciphertext).length > 0) {
+          return true;
+        } else {
+          _logger.logger.log(`No ciphertext for device ${msg.userId}:${msg.deviceId}: pruning`);
+
+          return false;
+        }
+      });
+
+      try {
+        await this.baseApis.queueToDevice(toDeviceBatch);
+      } catch (e) {
+        _logger.logger.error("sendToDevice failed", e);
+
+        throw e;
+      }
+    } catch (e) {
+      _logger.logger.error("encryptAndSendToDevices promises failed", e);
+
+      throw e;
+    }
   }
 
   /**
@@ -3080,7 +3156,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
   async handleVerificationEvent(event, requestsMap, createRequest, isLiveEvent = true) {
     // Wait for event to get its final ID with pendingEventOrdering: "chronological", since DM channels depend on it.
-    if (event.isSending() && event.status != _event.EventStatus.SENT) {
+    if (event.isSending() && event.status != _event2.EventStatus.SENT) {
       let eventIdListener;
       let statusListener;
 
@@ -3089,21 +3165,21 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
           eventIdListener = resolve;
 
           statusListener = () => {
-            if (event.status == _event.EventStatus.CANCELLED) {
+            if (event.status == _event2.EventStatus.CANCELLED) {
               reject(new Error("Event status set to CANCELLED."));
             }
           };
 
-          event.once(_event.MatrixEventEvent.LocalEventIdReplaced, eventIdListener);
-          event.on(_event.MatrixEventEvent.Status, statusListener);
+          event.once(_event2.MatrixEventEvent.LocalEventIdReplaced, eventIdListener);
+          event.on(_event2.MatrixEventEvent.Status, statusListener);
         });
       } catch (err) {
         _logger.logger.error("error while waiting for the verification event to be sent: ", err);
 
         return;
       } finally {
-        event.removeListener(_event.MatrixEventEvent.LocalEventIdReplaced, eventIdListener);
-        event.removeListener(_event.MatrixEventEvent.Status, statusListener);
+        event.removeListener(_event2.MatrixEventEvent.LocalEventIdReplaced, eventIdListener);
+        event.removeListener(_event2.MatrixEventEvent.Status, statusListener);
       }
     }
 
@@ -3254,7 +3330,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     // Further, it is automatically registered and called when new members
     // arrive in the room.
     const roomId = member.roomId;
-    const alg = this.roomEncryptors[roomId];
+    const alg = this.roomEncryptors.get(roomId);
 
     if (!alg) {
       // not encrypting in this room
@@ -3358,13 +3434,13 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     _logger.logger.log(`m.room_key_request from ${userId}:${deviceId}` + ` for ${roomId} / ${body.session_id} (id ${req.requestId})`);
 
     if (userId !== this.userId) {
-      if (!this.roomEncryptors[roomId]) {
+      if (!this.roomEncryptors.get(roomId)) {
         _logger.logger.debug(`room key request for unencrypted room ${roomId}`);
 
         return;
       }
 
-      const encryptor = this.roomEncryptors[roomId];
+      const encryptor = this.roomEncryptors.get(roomId);
       const device = this.deviceList.getStoredDevice(userId, deviceId);
 
       if (!device) {
@@ -3400,13 +3476,13 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     // the keys for the requested events, and can drop the requests.
 
 
-    if (!this.roomDecryptors[roomId]) {
+    if (!this.roomDecryptors.has(roomId)) {
       _logger.logger.log(`room key request for unencrypted room ${roomId}`);
 
       return;
     }
 
-    const decryptor = this.roomDecryptors[roomId][alg];
+    const decryptor = this.roomDecryptors.get(roomId).get(alg);
 
     if (!decryptor) {
       _logger.logger.log(`room key request for unknown alg ${alg} in room ${roomId}`);
@@ -3475,20 +3551,21 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     roomId = roomId || null;
 
     if (roomId) {
-      decryptors = this.roomDecryptors[roomId];
+      decryptors = this.roomDecryptors.get(roomId);
 
       if (!decryptors) {
-        this.roomDecryptors[roomId] = decryptors = {};
+        decryptors = new Map();
+        this.roomDecryptors.set(roomId, decryptors);
       }
 
-      alg = decryptors[algorithm];
+      alg = decryptors.get(algorithm);
 
       if (alg) {
         return alg;
       }
     }
 
-    const AlgClass = algorithms.DECRYPTION_CLASSES[algorithm];
+    const AlgClass = algorithms.DECRYPTION_CLASSES.get(algorithm);
 
     if (!AlgClass) {
       throw new algorithms.DecryptionError('UNKNOWN_ENCRYPTION_ALGORITHM', 'Unknown encryption algorithm "' + algorithm + '".');
@@ -3503,7 +3580,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     });
 
     if (decryptors) {
-      decryptors[algorithm] = alg;
+      decryptors.set(algorithm, alg);
     }
 
     return alg;
@@ -3520,9 +3597,9 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   getRoomDecryptors(algorithm) {
     const decryptors = [];
 
-    for (const d of Object.values(this.roomDecryptors)) {
-      if (algorithm in d) {
-        decryptors.push(d[algorithm]);
+    for (const d of this.roomDecryptors.values()) {
+      if (d.has(algorithm)) {
+        decryptors.push(d.get(algorithm));
       }
     }
 

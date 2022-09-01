@@ -36,7 +36,7 @@ limitations under the License.
  *
  * @type {Object.<string, function(new: module:crypto/algorithms/base.EncryptionAlgorithm)>}
  */
-const ENCRYPTION_CLASSES = {};
+const ENCRYPTION_CLASSES = new Map();
 exports.ENCRYPTION_CLASSES = ENCRYPTION_CLASSES;
 
 /**
@@ -45,7 +45,7 @@ exports.ENCRYPTION_CLASSES = ENCRYPTION_CLASSES;
  *
  * @type {Object.<string, function(new: module:crypto/algorithms/base.DecryptionAlgorithm)>}
  */
-const DECRYPTION_CLASSES = {};
+const DECRYPTION_CLASSES = new Map();
 exports.DECRYPTION_CLASSES = DECRYPTION_CLASSES;
 
 /**
@@ -301,6 +301,6 @@ class UnknownDeviceError extends Error {
 exports.UnknownDeviceError = UnknownDeviceError;
 
 function registerAlgorithm(algorithm, encryptor, decryptor) {
-  ENCRYPTION_CLASSES[algorithm] = encryptor;
-  DECRYPTION_CLASSES[algorithm] = decryptor;
+  ENCRYPTION_CLASSES.set(algorithm, encryptor);
+  DECRYPTION_CLASSES.set(algorithm, decryptor);
 }

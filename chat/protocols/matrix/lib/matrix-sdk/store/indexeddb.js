@@ -318,6 +318,18 @@ class IndexedDBStore extends _memory.MemoryStore {
     }
   }
 
+  saveToDeviceBatches(batches) {
+    return this.backend.saveToDeviceBatches(batches);
+  }
+
+  getOldestToDeviceBatch() {
+    return this.backend.getOldestToDeviceBatch();
+  }
+
+  removeToDeviceBatch(id) {
+    return this.backend.removeToDeviceBatch(id);
+  }
+
 }
 /**
  * @param {string} roomId ID of the current room

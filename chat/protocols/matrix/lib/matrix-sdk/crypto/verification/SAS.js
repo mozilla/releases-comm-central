@@ -126,6 +126,7 @@ function generateSas(sasBytes, methods) {
 
 const macMethods = {
   "hkdf-hmac-sha256": "calculate_mac",
+  "org.matrix.msc3783.hkdf-hmac-sha256": "calculate_mac_fixed_base64",
   "hmac-sha256": "calculate_mac_long_kdf"
 };
 
@@ -162,7 +163,7 @@ const calculateKeyAgreement = {
 
 const KEY_AGREEMENT_LIST = ["curve25519-hkdf-sha256", "curve25519"];
 const HASHES_LIST = ["sha256"];
-const MAC_LIST = ["hkdf-hmac-sha256", "hmac-sha256"];
+const MAC_LIST = ["org.matrix.msc3783.hkdf-hmac-sha256", "hkdf-hmac-sha256", "hmac-sha256"];
 const SAS_LIST = Object.keys(sasGenerators);
 const KEY_AGREEMENT_SET = new Set(KEY_AGREEMENT_LIST);
 const HASHES_SET = new Set(HASHES_LIST);

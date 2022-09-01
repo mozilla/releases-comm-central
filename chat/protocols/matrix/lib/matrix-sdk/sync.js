@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SyncState = exports.SyncApi = void 0;
+exports._createAndReEmitRoom = _createAndReEmitRoom;
 
 var _user = require("./models/user");
 
@@ -162,60 +163,12 @@ class SyncApi {
 
 
   createRoom(roomId) {
-    const client = this.client;
-    const {
-      timelineSupport
-    } = client;
-    const room = new _room.Room(roomId, client, client.getUserId(), {
-      lazyLoadMembers: this.opts.lazyLoadMembers,
-      pendingEventOrdering: this.opts.pendingEventOrdering,
-      timelineSupport
-    });
-    client.reEmitter.reEmit(room, [_room.RoomEvent.Name, _room.RoomEvent.Redaction, _room.RoomEvent.RedactionCancelled, _room.RoomEvent.Receipt, _room.RoomEvent.Tags, _room.RoomEvent.LocalEchoUpdated, _room.RoomEvent.AccountData, _room.RoomEvent.MyMembership, _room.RoomEvent.Timeline, _room.RoomEvent.TimelineReset]);
-    this.registerStateListeners(room); // Register listeners again after the state reference changes
+    const room = _createAndReEmitRoom(this.client, roomId, this.opts);
 
-    room.on(_room.RoomEvent.CurrentStateUpdated, (targetRoom, previousCurrentState) => {
-      if (targetRoom !== room) {
-        return;
-      }
-
-      this.deregisterStateListeners(previousCurrentState);
-      this.registerStateListeners(room);
-    });
-    return room;
-  }
-  /**
-   * @param {Room} room
-   * @private
-   */
-
-
-  registerStateListeners(room) {
-    const client = this.client; // we need to also re-emit room state and room member events, so hook it up
-    // to the client now. We need to add a listener for RoomState.members in
-    // order to hook them correctly. (TODO: find a better way?)
-
-    client.reEmitter.reEmit(room.currentState, [_roomState.RoomStateEvent.Events, _roomState.RoomStateEvent.Members, _roomState.RoomStateEvent.NewMember, _roomState.RoomStateEvent.Update, _beacon.BeaconEvent.New, _beacon.BeaconEvent.Update, _beacon.BeaconEvent.Destroy, _beacon.BeaconEvent.LivenessChange]);
-    room.currentState.on(_roomState.RoomStateEvent.NewMember, function (event, state, member) {
-      member.user = client.getUser(member.userId);
-      client.reEmitter.reEmit(member, [_roomMember.RoomMemberEvent.Name, _roomMember.RoomMemberEvent.Typing, _roomMember.RoomMemberEvent.PowerLevel, _roomMember.RoomMemberEvent.Membership]);
-    });
-    room.currentState.on(_roomState.RoomStateEvent.Marker, (markerEvent, markerFoundOptions) => {
+    room.on(_roomState.RoomStateEvent.Marker, (markerEvent, markerFoundOptions) => {
       this.onMarkerStateEvent(room, markerEvent, markerFoundOptions);
     });
-  }
-  /**
-   * @param {RoomState} roomState The roomState to clear listeners from
-   * @private
-   */
-
-
-  deregisterStateListeners(roomState) {
-    // could do with a better way of achieving this.
-    roomState.removeAllListeners(_roomState.RoomStateEvent.Events);
-    roomState.removeAllListeners(_roomState.RoomStateEvent.Members);
-    roomState.removeAllListeners(_roomState.RoomStateEvent.NewMember);
-    roomState.removeAllListeners(_roomState.RoomStateEvent.Marker);
+    return room;
   }
   /** When we see the marker state change in the room, we know there is some
    * new historical messages imported by MSC2716 `/batch_send` somewhere in
@@ -1710,4 +1663,25 @@ function createNewUser(client, userId) {
   const user = new _user.User(userId);
   client.reEmitter.reEmit(user, [_user.UserEvent.AvatarUrl, _user.UserEvent.DisplayName, _user.UserEvent.Presence, _user.UserEvent.CurrentlyActive, _user.UserEvent.LastPresenceTs]);
   return user;
+} // /!\ This function is not intended for public use! It's only exported from
+// here in order to share some common logic with sliding-sync-sdk.ts.
+
+
+function _createAndReEmitRoom(client, roomId, opts) {
+  const {
+    timelineSupport
+  } = client;
+  const room = new _room.Room(roomId, client, client.getUserId(), {
+    lazyLoadMembers: opts.lazyLoadMembers,
+    pendingEventOrdering: opts.pendingEventOrdering,
+    timelineSupport
+  });
+  client.reEmitter.reEmit(room, [_room.RoomEvent.Name, _room.RoomEvent.Redaction, _room.RoomEvent.RedactionCancelled, _room.RoomEvent.Receipt, _room.RoomEvent.Tags, _room.RoomEvent.LocalEchoUpdated, _room.RoomEvent.AccountData, _room.RoomEvent.MyMembership, _room.RoomEvent.Timeline, _room.RoomEvent.TimelineReset, _roomState.RoomStateEvent.Events, _roomState.RoomStateEvent.Members, _roomState.RoomStateEvent.NewMember, _roomState.RoomStateEvent.Update, _beacon.BeaconEvent.New, _beacon.BeaconEvent.Update, _beacon.BeaconEvent.Destroy, _beacon.BeaconEvent.LivenessChange]); // We need to add a listener for RoomState.members in order to hook them
+  // correctly.
+
+  room.on(_roomState.RoomStateEvent.NewMember, (event, state, member) => {
+    member.user = client.getUser(member.userId);
+    client.reEmitter.reEmit(member, [_roomMember.RoomMemberEvent.Name, _roomMember.RoomMemberEvent.Typing, _roomMember.RoomMemberEvent.PowerLevel, _roomMember.RoomMemberEvent.Membership]);
+  });
+  return room;
 }

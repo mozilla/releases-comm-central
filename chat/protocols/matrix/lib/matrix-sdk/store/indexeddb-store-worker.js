@@ -99,6 +99,18 @@ class IndexedDBStoreWorker {
         case 'storeClientOptions':
           prom = this.backend.storeClientOptions(msg.args[0]);
           break;
+
+        case 'saveToDeviceBatches':
+          prom = this.backend.saveToDeviceBatches(msg.args[0]);
+          break;
+
+        case 'getOldestToDeviceBatch':
+          prom = this.backend.getOldestToDeviceBatch();
+          break;
+
+        case 'removeToDeviceBatch':
+          prom = this.backend.removeToDeviceBatch(msg.args[0]);
+          break;
       }
 
       if (prom === undefined) {

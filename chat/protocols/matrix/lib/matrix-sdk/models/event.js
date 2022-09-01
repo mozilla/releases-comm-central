@@ -29,18 +29,6 @@ var _eventStatus = require("./event-status");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-const interns = {};
-
-function intern(str) {
-  if (!interns[str]) {
-    interns[str] = str;
-  }
-
-  return interns[str];
-}
-/* eslint-disable camelcase */
-
-
 // A singleton implementing `IMessageVisibilityVisible`.
 const MESSAGE_VISIBLE = Object.freeze({
   visible: true
@@ -199,15 +187,15 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
 
     ["state_key", "type", "sender", "room_id", "membership"].forEach(prop => {
       if (typeof event[prop] !== "string") return;
-      event[prop] = intern(event[prop]);
+      event[prop] = (0, _utils.internaliseString)(event[prop]);
     });
     ["membership", "avatar_url", "displayname"].forEach(prop => {
       if (typeof event.content?.[prop] !== "string") return;
-      event.content[prop] = intern(event.content[prop]);
+      event.content[prop] = (0, _utils.internaliseString)(event.content[prop]);
     });
     ["rel_type"].forEach(prop => {
       if (typeof event.content?.["m.relates_to"]?.[prop] !== "string") return;
-      event.content["m.relates_to"][prop] = intern(event.content["m.relates_to"][prop]);
+      event.content["m.relates_to"][prop] = (0, _utils.internaliseString)(event.content["m.relates_to"][prop]);
     });
     this.txnId = event.txn_id || null;
     this.localTimestamp = Date.now() - (this.getAge() ?? 0);
@@ -689,7 +677,8 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
         if (e.name !== "DecryptionError") {
           // not a decryption error: log the whole exception as an error
           // (and don't bother with a retry)
-          const re = options.isRetry ? 're' : '';
+          const re = options.isRetry ? 're' : ''; // For find results: this can produce "Error decrypting event (id=$ev)" and
+          // "Error redecrypting event (id=$ev)".
 
           _logger.logger.error(`Error ${re}decrypting event ` + `(id=${this.getId()}): ${e.stack || e}`);
 

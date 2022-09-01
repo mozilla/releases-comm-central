@@ -13,12 +13,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 class RelationsContainer {
   // A tree of objects to access a set of related children for an event, as in:
-  // this.relations[parentEventId][relationType][relationEventType]
+  // this.relations.get(parentEventId).get(relationType).get(relationEventType)
   constructor(client, room) {
     this.client = client;
     this.room = room;
 
-    _defineProperty(this, "relations", {});
+    _defineProperty(this, "relations", new Map());
   }
   /**
    * Get a collection of child events to a given event in this timeline set.
@@ -40,15 +40,15 @@ class RelationsContainer {
 
 
   getChildEventsForEvent(eventId, relationType, eventType) {
-    return this.relations[eventId]?.[relationType]?.[eventType];
+    return this.relations.get(eventId)?.get(relationType)?.get(eventType);
   }
 
   getAllChildEventsForEvent(parentEventId) {
-    const relationsForEvent = this.relations[parentEventId] ?? {};
+    const relationsForEvent = this.relations.get(parentEventId) ?? new Map();
     const events = [];
 
-    for (const relationsRecord of Object.values(relationsForEvent)) {
-      for (const relations of Object.values(relationsRecord)) {
+    for (const relationsRecord of relationsForEvent.values()) {
+      for (const relations of relationsRecord.values()) {
         events.push(...relations.getRelations());
       }
     }
@@ -65,11 +65,11 @@ class RelationsContainer {
 
 
   aggregateParentEvent(event) {
-    const relationsForEvent = this.relations[event.getId()];
+    const relationsForEvent = this.relations.get(event.getId());
     if (!relationsForEvent) return;
 
-    for (const relationsWithRelType of Object.values(relationsForEvent)) {
-      for (const relationsWithEventType of Object.values(relationsWithRelType)) {
+    for (const relationsWithRelType of relationsForEvent.values()) {
+      for (const relationsWithEventType of relationsWithRelType.values()) {
         relationsWithEventType.setTargetEvent(event);
       }
     }
@@ -112,22 +112,25 @@ class RelationsContainer {
       rel_type: relationType
     } = relation;
     const eventType = event.getType();
-    let relationsForEvent = this.relations[relatesToEventId];
+    let relationsForEvent = this.relations.get(relatesToEventId);
 
     if (!relationsForEvent) {
-      relationsForEvent = this.relations[relatesToEventId] = {};
+      relationsForEvent = new Map();
+      this.relations.set(relatesToEventId, relationsForEvent);
     }
 
-    let relationsWithRelType = relationsForEvent[relationType];
+    let relationsWithRelType = relationsForEvent.get(relationType);
 
     if (!relationsWithRelType) {
-      relationsWithRelType = relationsForEvent[relationType] = {};
+      relationsWithRelType = new Map();
+      relationsForEvent.set(relationType, relationsWithRelType);
     }
 
-    let relationsWithEventType = relationsWithRelType[eventType];
+    let relationsWithEventType = relationsWithRelType.get(eventType);
 
     if (!relationsWithEventType) {
-      relationsWithEventType = relationsWithRelType[eventType] = new _relations.Relations(relationType, eventType, this.client);
+      relationsWithEventType = new _relations.Relations(relationType, eventType, this.client);
+      relationsWithRelType.set(eventType, relationsWithEventType);
       const room = this.room ?? timelineSet?.room;
       const relatesToEvent = timelineSet?.findEventById(relatesToEventId) ?? room?.findEventById(relatesToEventId) ?? room?.getPendingEvent(relatesToEventId);
 
