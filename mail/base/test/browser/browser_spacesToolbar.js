@@ -6,6 +6,8 @@
  * Test the spaces toolbar features.
  */
 
+/* globals gSpacesToolbar */
+
 var folderA;
 var folderB;
 var testAccount;
@@ -37,7 +39,9 @@ registerCleanupFunction(async () => {
 
 async function assertMailShown(win = window) {
   await TestUtils.waitForCondition(
-    () => win.document.getElementById("mailContent").hasAttribute("selected"),
+    () =>
+      win.document.getElementById("tabmail").currentTabInfo.mode.name ==
+      "mail3PaneTab",
     "The mail tab should be visible"
   );
 }
@@ -200,7 +204,8 @@ add_task(async function testSpacesToolbarVisibility() {
       `The pinned button should be ${isVisible ? "hidden" : "visible"}: ${msg}`
     );
   };
-
+  // TODO: Restore this when there's a menu again.
+  /*
   async function toggleVisibilityWithAppMenu(expectChecked) {
     let appMenu = document.getElementById("appMenu-popup");
     let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
@@ -249,7 +254,7 @@ add_task(async function testSpacesToolbarVisibility() {
       window
     );
   }
-
+  */
   await assertVisibility(true, "on initial load");
 
   // Collapse with a mouse click.
@@ -258,7 +263,8 @@ add_task(async function testSpacesToolbarVisibility() {
   EventUtils.synthesizeMouseAtCenter(collapseButton, {}, window);
   await assertVisibility(false, "after clicking collapse button");
 
-  await toggleVisibilityWithAppMenu(false);
+  // await toggleVisibilityWithAppMenu(false);
+  gSpacesToolbar.toggleToolbar(false);
   await assertVisibility(true, "after revealing with the app menu");
 
   // We already clicked the collapse button, so it should already be the
@@ -322,7 +328,8 @@ add_task(async function testSpacesToolbarVisibility() {
   );
 
   // Hide the spaces toolbar using the app menu.
-  await toggleVisibilityWithAppMenu(true);
+  // await toggleVisibilityWithAppMenu(true);
+  gSpacesToolbar.toggleToolbar(true);
   await assertVisibility(false, "after hiding with the app menu");
   // Focus should have remained the same
   Assert.equal(
@@ -351,7 +358,9 @@ add_task(async function testSpacesToolbarVisibility() {
 });
 
 add_task(async function testSpacesToolbarContextMenu() {
-  window.gFolderTreeView.selectFolder(folderB);
+  let tabmail = document.getElementById("tabmail");
+  let firstMailTabInfo = tabmail.currentTabInfo;
+  firstMailTabInfo.folder = folderB;
 
   // Fetch context menu elements.
   let contextMenu = document.getElementById("spacesContextMenu");
@@ -609,13 +618,26 @@ add_task(async function testSpacesToolbarContextMenu() {
   await assertTab(secondMailTab, mailButton, "Opened second mail tab");
   await assertMailShown();
   // Displayed folder should be the same as in the first mail tab.
+  let [, secondMailTabInfo] = tabmail._getTabContextForTabbyThing(
+    secondMailTab
+  );
+  if (
+    secondMailTabInfo.chromeBrowser.contentDocument.readyState != "complete"
+  ) {
+    await BrowserTestUtils.browserLoaded(secondMailTabInfo.chromeBrowser);
+    await BrowserTestUtils.waitForEvent(
+      secondMailTabInfo.chromeBrowser,
+      "folderURIChanged"
+    );
+  }
   Assert.equal(
-    window.gFolderDisplay.displayedFolder?.URI,
+    secondMailTabInfo.folder.URI,
     folderB.URI,
     "Should display folder B in the second mail tab"
   );
 
-  window.gFolderTreeView.selectFolder(folderA);
+  secondMailTabInfo.folder = folderA;
+
   // Open a new mail tab whilst in a mail tab.
   await useContextMenu(
     { button: mailButton, item: newTabItem },
@@ -627,8 +649,16 @@ add_task(async function testSpacesToolbarContextMenu() {
   await assertMailShown();
   // Displayed folder should be the same as in the mail tab that was in view
   // when the context menu was opened, rather than the folder in the first tab.
+  let [, thirdMailTabInfo] = tabmail._getTabContextForTabbyThing(thirdMailTab);
+  if (thirdMailTabInfo.chromeBrowser.contentDocument.readyState != "complete") {
+    await BrowserTestUtils.browserLoaded(thirdMailTabInfo.chromeBrowser);
+    await BrowserTestUtils.waitForEvent(
+      thirdMailTabInfo.chromeBrowser,
+      "folderURIChanged"
+    );
+  }
   Assert.equal(
-    window.gFolderDisplay.displayedFolder?.URI,
+    thirdMailTabInfo.folder.URI,
     folderA.URI,
     "Should display folder A in the third mail tab"
   );
@@ -669,7 +699,7 @@ add_task(async function testSpacesToolbarContextMenu() {
   await assertTab(thirdMailTab, mailButton, "Remain in third tab");
   await assertMailShown();
   Assert.equal(
-    window.gFolderDisplay.displayedFolder?.URI,
+    thirdMailTabInfo.folder.URI,
     folderA.URI,
     "Still display folder A in the third mail tab"
   );
@@ -681,7 +711,7 @@ add_task(async function testSpacesToolbarContextMenu() {
   await assertTab(firstTab, mailButton, "Switch to the first mail tab");
   await assertMailShown();
   Assert.equal(
-    window.gFolderDisplay.displayedFolder?.URI,
+    firstMailTabInfo.folder.URI,
     folderB.URI,
     "Still display folder B in the first mail tab"
   );
@@ -695,9 +725,10 @@ add_task(async function testSpacesToolbarContextMenu() {
     "Opening mail tab in new window"
   );
   let newMailWindow = await windowPromise;
+  let newTabmail = newMailWindow.document.getElementById("tabmail");
   // Expect the same folder as the previously focused tab.
   await TestUtils.waitForCondition(
-    () => newMailWindow.gFolderDisplay.displayedFolder?.URI == folderB.URI,
+    () => newTabmail.currentTabInfo.folder?.URI == folderB.URI,
     "Waiting for folder B to be displayed in the new window"
   );
   Assert.equal(

@@ -11,7 +11,8 @@ add_setup(async function() {
   addIdentity(gAccount);
   let rootFolder = gAccount.incomingServer.rootFolder;
 
-  window.gFolderTreeView.selectFolder(rootFolder);
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(rootFolder.URI);
   await new Promise(resolve => executeSoon(resolve));
 });
 

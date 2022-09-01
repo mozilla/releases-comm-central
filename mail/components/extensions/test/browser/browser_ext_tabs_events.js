@@ -200,14 +200,6 @@ add_task(async () => {
 
       browser.test.sendMessage("openMessageTab", false);
 
-      // In some circumstances this onUpdated event and the onCreated event
-      // happen out of order. We're not interested in the onUpdated event
-      // so just throw it away.
-      let unwantedEvent = await listener.nextEvent();
-      if (unwantedEvent[0] == "onUpdated") {
-        listener.events.shift();
-      }
-
       let [{ id: messageTab1 }] = await listener.checkEvent("onCreated", {
         index: 6,
         windowId: initialWindow,
@@ -225,7 +217,6 @@ add_task(async () => {
           folderTab,
         ].includes(messageTab1)
       );
-      await listener.pageLoad(messageTab1);
 
       browser.test.log(
         "Open a second message in a tab. In the background, just because."
@@ -266,26 +257,10 @@ add_task(async () => {
         contentTab2,
       ]) {
         await browser.tabs.update(tab, { active: true });
-        if ([messageTab1, messageTab2].includes(tab)) {
-          await listener.checkEvent(
-            "onUpdated",
-            tab,
-            { status: "loading" },
-            {
-              id: tab,
-              windowId: initialWindow,
-              active: true,
-              mailTab: false,
-            }
-          );
-        }
         await listener.checkEvent("onActivated", {
           tabId: tab,
           windowId: initialWindow,
         });
-        if ([messageTab1, messageTab2].includes(tab)) {
-          await listener.pageLoad(tab);
-        }
       }
 
       browser.test.log(
@@ -356,12 +331,18 @@ add_task(async () => {
   });
 
   extension.onMessage("openFolderTab", async () => {
-    tabmail.openTab("folder", { folder: rootFolder, background: false });
+    tabmail.openTab("mail3PaneTab", {
+      folderURI: rootFolder.URI,
+      background: false,
+    });
   });
 
   extension.onMessage("openMessageTab", async background => {
     let msgHdr = messages.shift();
-    tabmail.openTab("message", { msgHdr, background });
+    tabmail.openTab("mailMessageTab", {
+      messageURI: testFolder.getUriForMsg(msgHdr),
+      background,
+    });
   });
 
   await extension.startup();

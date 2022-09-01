@@ -45,7 +45,7 @@ async function closeTasksTab() {
  */
 async function selectFolderTab() {
   const tabmail = document.getElementById("tabmail");
-  const folderMode = tabmail.tabModes.folder;
+  const folderMode = tabmail.tabModes.mail3PaneTab;
 
   tabmail.selectedTab = folderMode.tabs[0];
 

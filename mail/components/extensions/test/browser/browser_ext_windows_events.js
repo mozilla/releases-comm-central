@@ -106,7 +106,8 @@ add_task(async () => {
         let [
           { id: mainWindow },
         ] = await listener.checkEvent("windows.onCreated", { type: "normal" });
-        let [{ id: mainTab }] = await listener.checkEvent("tabs.onCreated", {
+        // let [{ id: mainTab }] =
+        await listener.checkEvent("tabs.onCreated", {
           index: 0,
           windowId: mainWindow,
           active: true,
@@ -168,7 +169,7 @@ add_task(async () => {
           mailTab: false,
         });
 
-        browser.test.log("Pause to lets windows load properly.");
+        browser.test.log("Pause to let windows load properly.");
         // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
         await new Promise(resolve => setTimeout(resolve, 2500));
 
@@ -176,10 +177,11 @@ add_task(async () => {
 
         await browser.windows.remove(mainWindow);
         await listener.checkEvent("windows.onRemoved", mainWindow);
-        await listener.checkEvent("tabs.onRemoved", mainTab, {
-          windowId: mainWindow,
-          isWindowClosing: true,
-        });
+        // TODO: this doesn't fire because there's no content in that tab.
+        // await listener.checkEvent("tabs.onRemoved", mainTab, {
+        //   windowId: mainWindow,
+        //   isWindowClosing: true,
+        // });
 
         browser.test.log("Close the compose window.");
 

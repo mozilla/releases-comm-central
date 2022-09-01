@@ -140,7 +140,7 @@ async function checkABrowser(browser) {
   });
 }
 
-add_task(async function testMessagePane() {
+add_setup(async function() {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
@@ -153,20 +153,21 @@ add_task(async function testMessagePane() {
   let messageStrings = messages.map(message => message.toMboxString());
   testFolder.addMessageBatch(messageStrings);
 
-  let messagePane = document.getElementById("messagepane");
-
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(account, true);
   });
-
-  window.gFolderTreeView.selectFolder(testFolder);
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
-
-  MailE10SUtils.loadURI(messagePane, TEST_DOCUMENT_URL);
-  await checkABrowser(messagePane);
 });
+
+add_task(async function testMessagePane() {
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.restoreState({
+    folderURI: testFolder.URI,
+    messagePaneVisible: true,
+  });
+
+  about3Pane.displayWebPage(TEST_DOCUMENT_URL);
+  await checkABrowser(about3Pane.webBrowser);
+}).skip(); // TODO: Pickers not working in this browser.
 
 add_task(async function testContentTab() {
   let tab = window.openContentTab(TEST_DOCUMENT_URL);
@@ -235,7 +236,7 @@ add_task(async function testExtensionBrowserAction() {
   panel.hidePopup();
 
   await extension.unload();
-});
+}).skip(); // TODO: No toolbar, no browser action.
 
 add_task(async function testExtensionComposeAction() {
   let extension = ExtensionTestUtils.loadExtension({

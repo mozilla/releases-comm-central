@@ -45,7 +45,9 @@ add_task(async function testDropMozMessage() {
   await add_message_to_folder([folder], create_message({ subject, body: { body } }));
   select_click_row(0);
 
-  let [msgStr] = window.gFolderDisplay.selectedMessageUris;
+  let about3PaneTab = document.getElementById("tabmail").currentTabInfo;
+  let msg = about3PaneTab.message;
+  let msgStr = about3PaneTab.folder.getUriForMsg(msg);
   let msgUrl = window.messenger.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
   // Setup a DataTransfer to mimic what ThreadPaneOnDragStart sends.

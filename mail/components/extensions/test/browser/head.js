@@ -32,7 +32,7 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
   /Receiving end does not exist/
 );
 
-check3PaneInInitialState();
+add_setup(check3PaneInInitialState);
 registerCleanupFunction(() => {
   let tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1);
@@ -63,42 +63,32 @@ registerCleanupFunction(() => {
   check3PaneInInitialState();
 });
 
-function check3PaneInInitialState() {
-  check3PaneState(false, true);
+async function check3PaneInInitialState() {
+  await check3PaneState(true, true);
 }
 
-function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
+async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
+  let tab = document.getElementById("tabmail").currentTabInfo;
+  if (tab.chromeBrowser.contentDocument.readyState != "complete") {
+    await BrowserTestUtils.waitForEvent(
+      tab.chromeBrowser.contentWindow,
+      "load"
+    );
+  }
+
   if (folderPaneOpen !== null) {
     Assert.equal(
-      document.getElementById("folderpane_splitter").getAttribute("state") ==
-        "collapsed",
-      !folderPaneOpen,
+      tab.folderPaneVisible,
+      folderPaneOpen,
       "State of folder pane splitter is correct"
-    );
-    Assert.equal(
-      document.getElementById("folderPaneBox").collapsed,
-      !folderPaneOpen,
-      "State of folder pane box is correct"
     );
   }
 
   if (messagePaneOpen !== null) {
     Assert.equal(
-      document.getElementById("threadpane-splitter").getAttribute("state") ==
-        "collapsed",
-      !messagePaneOpen,
-      "State of message pane splitter is correct"
-    );
-    if (!messagePaneOpen) {
-      Assert.ok(
-        document.getElementById("messagepaneboxwrapper").collapsed,
-        "State of message pane box is correct"
-      );
-    }
-    Assert.equal(
-      window.gMessageDisplay.visible,
+      tab.messagePaneVisible,
       messagePaneOpen,
-      "State of message display is correct"
+      "State of message pane splitter is correct"
     );
   }
 }
@@ -327,8 +317,8 @@ async function openMessageInTab(msgHdr) {
 
   let win = Services.wm.getMostRecentWindow("mail:3pane");
   let tab = win.document.getElementById("tabmail").currentTabInfo;
-  let browser = tab.browser;
 
+  let browser = await TestUtils.waitForCondition(() => tab.browser);
   await promiseMessageLoaded(browser, msgHdr);
   return tab;
 }
