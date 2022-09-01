@@ -1902,21 +1902,6 @@ var TabsInTitlebar = {
   init() {
     this._readPref();
     Services.prefs.addObserver(this._drawInTitlePref, this);
-    Services.prefs.addObserver(this._autoHidePref, this);
-
-    // We need to update the appearance of the titlebar when the menu changes
-    // from the active to the inactive state. We can't, however, rely on
-    // DOMMenuBarInactive, because the menu fires this event and then removes
-    // the inactive attribute after an event-loop spin.
-    //
-    // Because updating the appearance involves sampling the heights and margins
-    // of various elements, it's important that the layout be more or less
-    // settled before updating the titlebar. So instead of listening to
-    // DOMMenuBarActive and DOMMenuBarInactive, we use a MutationObserver to
-    // watch the "invalid" attribute directly.
-    let menu = document.getElementById("toolbar-menubar");
-    this._menuObserver = new MutationObserver(this._onMenuMutate);
-    this._menuObserver.observe(menu, { attributes: true });
 
     window.addEventListener("resolutionchange", this);
     window.addEventListener("resize", this);
@@ -1999,29 +1984,14 @@ var TabsInTitlebar = {
     }
   },
 
-  _onMenuMutate(aMutations) {
-    for (let mutation of aMutations) {
-      if (
-        mutation.attributeName == "inactive" ||
-        mutation.attributeName == "autohide"
-      ) {
-        TabsInTitlebar.update();
-        return;
-      }
-    }
-  },
-
   _initialized: false,
   _disallowed: {},
   _drawInTitlePref: "mail.tabs.drawInTitlebar",
-  _autoHidePref: "mail.tabs.autoHide",
   _lastSizeMode: null,
 
   _readPref() {
-    // check is only true when drawInTitlebar=true and autoHide=false
-    let check =
-      Services.prefs.getBoolPref(this._drawInTitlePref) &&
-      !Services.prefs.getBoolPref(this._autoHidePref);
+    // check is only true when drawInTitlebar=true
+    let check = Services.prefs.getBoolPref(this._drawInTitlePref);
     this.allowedBy("pref", check);
   },
 
@@ -2064,8 +2034,6 @@ var TabsInTitlebar = {
     this._initialized = false;
     gDragSpaceObserver.uninit();
     Services.prefs.removeObserver(this._drawInTitlePref, this);
-    Services.prefs.removeObserver(this._autoHidePref, this);
-    this._menuObserver.disconnect();
   },
 };
 
