@@ -14,6 +14,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_3pane,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -45,9 +46,7 @@ async function _help_test_message_size(index, unit) {
   // Select the nth message
   let curMessage = select_click_row(index);
   // Look at the size column's data
-  let tree = mc.folderDisplay.tree;
-  let sizeCol = tree.columns.sizeCol;
-  let sizeStr = tree.view.getCellText(index, sizeCol);
+  let sizeStr = get_about_3pane().gDBView.cellTextForColumn(index, "sizeCol");
 
   // Note: this assumes that the numeric part of the size string is first
   let realSize = curMessage.messageSize;

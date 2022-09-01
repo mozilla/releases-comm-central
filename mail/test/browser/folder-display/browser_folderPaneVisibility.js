@@ -13,6 +13,7 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
   open_folder_in_new_tab,
@@ -35,80 +36,69 @@ add_setup(async function() {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_visible() {
-  if (!mc.folderDisplay.folderPaneVisible) {
-    throw new Error(
-      "The folder display does not think that the folder pane " +
-        "is visible, but it should!"
-    );
-  }
+  let tab = mc.tabmail.currentTabInfo;
+  let win = get_about_3pane();
 
-  // - folder pane should be visible
-  if (mc.e("folderPaneBox").collapsed === true) {
-    throw new Error("folderPaneBox should not be collapsed!");
-  }
+  Assert.equal(
+    tab.folderPaneVisible,
+    true,
+    "The tab does not think that the folder pane is visible, but it should!"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(win.folderTree),
+    "The folder tree should not be collapsed!"
+  );
+  Assert.equal(
+    win.splitter1.isCollapsed,
+    false,
+    "The folder tree splitter should not be collapsed!"
+  );
 
-  // - the folder pane splitter should not be collapsed
-  if (mc.e("folderpane_splitter").collapsed === true) {
-    throw new Error("folderpane_splitter should not be collapsed!");
-  }
-
-  // - the menu item should be checked
-  // force the view menu to update.
-  mc.window.view_init();
+  mc.window.view_init(); // Force the view menu to update.
   let paneMenuItem = mc.e("menu_showFolderPane");
-  if (paneMenuItem.getAttribute("checked") != "true") {
-    throw new Error("The Folder Pane menu item should be checked.");
-  }
-  Assert.ok(true, "assert_folder_pane_visible ran to completion");
+  Assert.equal(
+    paneMenuItem.getAttribute("checked"),
+    "true",
+    "The Folder Pane menu item should be checked."
+  );
 }
 
 /**
  * When displaying a folder, assert that the folder pane is hidden and all the
  * menus, splitters, etc. are set up right.
- *
- * @param aFolderPaneIllegal Is the folder pane illegal to display at this time?
- *     This impacts whether the folder pane splitter should be visible.
  */
-function assert_folder_pane_hidden(aFolderPaneIllegal) {
-  if (mc.folderDisplay.folderPaneVisible) {
-    throw new Error(
-      "The folder display thinks that the folder pane is " +
-        "visible, but it shouldn't!"
-    );
-  }
+function assert_folder_pane_hidden() {
+  let tab = mc.tabmail.currentTabInfo;
+  let win = get_about_3pane();
 
-  // - folder pane shouldn't be visible
-  if (mc.e("folderPaneBox").collapsed === false) {
-    throw new Error("folderPaneBox should be collapsed!");
-  }
+  Assert.equal(
+    tab.folderPaneVisible,
+    false,
+    "The tab thinks that the folder pane is visible, but it shouldn't!"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(win.folderTree),
+    "The folder tree should be collapsed!"
+  );
+  Assert.equal(
+    win.splitter1.isCollapsed,
+    true,
+    "The folder tree splitter should be collapsed!"
+  );
 
-  // force the view menu to update.
-  mc.window.view_init();
+  mc.window.view_init(); // Force the view menu to update.
   let paneMenuItem = mc.e("menu_showFolderPane");
-  // - the folder pane splitter should or should not be collapsed, depending on
-  //   aFolderPaneIllegal
-  if (aFolderPaneIllegal) {
-    if (mc.e("folderpane_splitter").collapsed === false) {
-      throw new Error("folderpane_splitter should be collapsed!");
-    }
-    // if (paneMenuItem.getAttribute("disabled") != "true")
-    //  throw new Error("The Folder Pane menu item should be disabled.");
-  } else {
-    if (mc.e("folderpane_splitter").collapsed === true) {
-      throw new Error("folderpane_splitter should not be collapsed!");
-    }
-    if (paneMenuItem.getAttribute("checked") == "true") {
-      throw new Error("The Folder Pane menu item should not be checked.");
-    }
-  }
-  Assert.ok(true, "assert_folder_pane_hidden ran to completion");
+  Assert.notEqual(
+    paneMenuItem.getAttribute("checked"),
+    "true",
+    "The Folder Pane menu item should not be checked."
+  );
 }
 
 function toggle_folder_pane() {
   // Since we don't have a shortcut to toggle the folder pane, we're going to
   // have to collapse it ourselves
-  mc.window.MsgToggleFolderPane();
-  Assert.ok(true, "toggle_folder_pane ran to completion");
+  get_about_3pane().commandController.doCommand("cmd_toggleFolderPane");
 }
 
 /**
@@ -117,7 +107,6 @@ function toggle_folder_pane() {
 add_task(async function test_folder_pane_visible_state_is_right() {
   await be_in_folder(folder);
   assert_folder_pane_visible();
-  Assert.ok(true, "test_folder_pane_visible_state_is_right ran to completion");
 });
 
 /**
@@ -126,7 +115,6 @@ add_task(async function test_folder_pane_visible_state_is_right() {
 add_task(function test_toggle_folder_pane_off() {
   toggle_folder_pane();
   assert_folder_pane_hidden();
-  Assert.ok(true, "test_toggle_folder_pane_off ran to completion");
 });
 
 /**
@@ -135,7 +123,6 @@ add_task(function test_toggle_folder_pane_off() {
 add_task(function test_toggle_folder_pane_on() {
   toggle_folder_pane();
   assert_folder_pane_visible();
-  Assert.ok(true, "test_toggle_folder_pane_on ran to completion");
 });
 
 /**
@@ -144,13 +131,13 @@ add_task(function test_toggle_folder_pane_on() {
  * states.
  */
 add_task(async function test_folder_pane_is_sticky() {
+  Assert.equal(document.getElementById("tabmail").tabInfo.length, 1);
   let tabFolderA = await be_in_folder(folder);
   assert_folder_pane_visible();
 
   // [folder+ => (new) message]
   select_click_row(0);
   let tabMessage = await open_selected_message_in_new_tab();
-  assert_folder_pane_hidden(true);
 
   // [message => folder+]
   await switch_tab(tabFolderA);
@@ -174,19 +161,11 @@ add_task(async function test_folder_pane_is_sticky() {
 
   // [folder- => message]
   await switch_tab(tabMessage);
-  assert_folder_pane_hidden(true);
 
   // [message => folder-]
   close_tab(tabMessage);
   assert_folder_pane_hidden();
 
-  // [folder- => (new) folder-]
-  // (we are testing inheritance here)
-  let tabFolderC = await open_folder_in_new_tab(folder);
-  assert_folder_pane_hidden();
-
-  // [folder- => folder-]
-  close_tab(tabFolderC);
   // the tab we are on now doesn't matter, so we don't care
   assert_folder_pane_hidden();
   await switch_tab(tabFolderB);
@@ -202,8 +181,6 @@ add_task(async function test_folder_pane_is_sticky() {
   // (redundant) [ folder pane toggle - => + ]
   toggle_folder_pane();
   assert_folder_pane_visible();
-
-  Assert.ok(true, "test_folder_pane_is_sticky ran to completion");
 });
 
 /**
@@ -218,16 +195,12 @@ add_task(async function test_folder_pane_persistence_generally_works() {
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)
   async function openTabs(aConfig) {
-    let curState;
     for (let [iTab, folderPaneVisible] of aConfig.entries()) {
-      if (iTab == 0) {
-        curState = folderPaneVisible;
-      } else {
+      if (iTab != 0) {
         await open_folder_in_new_tab(folder);
-        if (curState != folderPaneVisible) {
-          toggle_folder_pane();
-          curState = folderPaneVisible;
-        }
+      }
+      if (mc.tabmail.currentTabInfo.folderPaneVisible != folderPaneVisible) {
+        toggle_folder_pane();
       }
     }
   }
@@ -241,8 +214,19 @@ add_task(async function test_folder_pane_persistence_generally_works() {
 
   async function verifyTabs(aConfig) {
     for (let [iTab, folderPaneVisible] of aConfig.entries()) {
+      info("tab " + iTab);
+
       await switch_tab(iTab);
-      dump(" checking tab: " + iTab + "\n");
+      if (mc.tabmail.currentAbout3Pane.document.readyState != "complete") {
+        await BrowserTestUtils.waitForEvent(
+          mc.tabmail.currentAbout3Pane,
+          "load"
+        );
+        await new Promise(resolve =>
+          mc.tabmail.currentAbout3Pane.setTimeout(resolve)
+        );
+      }
+
       if (folderPaneVisible) {
         assert_folder_pane_visible();
       } else {
@@ -263,24 +247,25 @@ add_task(async function test_folder_pane_persistence_generally_works() {
     await verifyTabs(config); // make sure openTabs did its job right
     let state = mc.tabmail.persistTabs();
     closeTabs();
+
+    Assert.equal(state.tabs[0].state.folderPaneVisible, config[0]);
+    Assert.equal(state.tabs[1].state.folderPaneVisible, config[1]);
+    Assert.equal(state.tabs[2].state.folderPaneVisible, config[2]);
+    Assert.equal(state.tabs[3].state.folderPaneVisible, config[3]);
+    Assert.equal(state.tabs[4].state.folderPaneVisible, config[4]);
+
     // toggle the state for the current tab so we can be sure that it knows how
     // to change things.
     toggle_folder_pane();
-    SimpleTest.ignoreAllUncaughtExceptions(true);
+
     mc.tabmail.restoreTabs(state);
     await verifyTabs(config);
-    SimpleTest.ignoreAllUncaughtExceptions(false);
     closeTabs();
 
-    // toggle the first tab again.  This sets - properly for the second pass and
-    // restores it to + for when we are done.
+    // toggle the first tab again.  This sets closed properly for the second pass and
+    // restores it to open for when we are done.
     toggle_folder_pane();
   }
   // For one last time, make sure.
   assert_folder_pane_visible();
-
-  Assert.ok(
-    true,
-    "test_folder_pane_persistence_generally_works ran to completion"
-  );
 });

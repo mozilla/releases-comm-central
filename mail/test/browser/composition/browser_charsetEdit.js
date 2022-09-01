@@ -23,6 +23,7 @@ var {
   be_in_folder,
   create_message,
   get_special_folder,
+  get_about_message,
   make_display_unthreaded,
   mc,
   press_delete,
@@ -44,6 +45,8 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+
+let aboutMessage = get_about_message();
 
 var gDrafts;
 
@@ -126,13 +129,25 @@ add_task(async function test_wrong_reply_charset() {
   msg = select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
+  wait_for_notification_to_show(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
 
   plan_for_new_window("msgcompose");
 
-  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
+  let box = get_notification(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   rwc = wait_for_compose_window();
   await save_compose_message(rwc.window);
   close_compose_window(rwc);
@@ -195,12 +210,24 @@ add_task(async function test_no_mojibake() {
   msg = select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
+  wait_for_notification_to_show(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
 
   plan_for_new_window("msgcompose");
-  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
+  let box = get_notification(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   rwc = wait_for_compose_window();
   await save_compose_message(rwc.window);
   close_compose_window(rwc);

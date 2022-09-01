@@ -12,6 +12,7 @@
 var {
   be_in_folder,
   create_folder,
+  get_about_message,
   make_message_sets_in_folders,
   mc,
   select_click_row,
@@ -50,9 +51,9 @@ function subtest_advance_on_spacebar(aAdvance, aShift) {
   let oldmessage = select_click_row(1);
   wait_for_message_display_completion(mc);
   // Press [Shift-]Space
-  EventUtils.synthesizeKey(" ", { shiftKey: aShift });
+  EventUtils.synthesizeKey(" ", { shiftKey: aShift }, get_about_message());
   // Check that message focus changes iff aAdvance is true
-  let newmessage = mc.folderDisplay.selectedMessage;
+  let newmessage = get_about_message().gMessage;
   aAdvance
     ? Assert.notEqual(oldmessage, newmessage)
     : Assert.equal(oldmessage, newmessage);

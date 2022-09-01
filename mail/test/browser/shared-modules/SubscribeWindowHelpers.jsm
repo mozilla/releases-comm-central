@@ -10,17 +10,15 @@ const EXPORTED_SYMBOLS = [
   "check_newsgroup_displayed",
 ];
 
-var folderDisplayHelper = ChromeUtils.import(
+var { get_about_3pane, mc, right_click_on_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
-var windowHelper = ChromeUtils.import(
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-
-var mc = folderDisplayHelper.mc;
 
 /**
  * Open a subscribe dialog from the context menu.
@@ -30,20 +28,23 @@ var mc = folderDisplayHelper.mc;
  *        for the subscribe dialogue as parameter
  */
 async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
+  let win = get_about_3pane();
   // Make the folder pane visible as it starts collapsed when no accounts are
   // available on startup.
   mc.e("folderPaneBox").collapsed = false;
 
-  await folderDisplayHelper.right_click_on_folder(aFolder);
+  await right_click_on_folder(aFolder);
   let callback = function(controller) {
     // When the "stop button" is disabled, the panel is populated.
     controller.waitFor(() => controller.e("stopButton").disabled);
     aFunction(controller);
   };
-  windowHelper.plan_for_modal_dialog("mailnews:subscribe", callback);
-  mc.click(mc.e("folderPaneContext-subscribe"));
-  windowHelper.wait_for_modal_dialog("mailnews:subscribe");
-  await folderDisplayHelper.close_popup(mc, mc.e("folderPaneContext"));
+  plan_for_modal_dialog("mailnews:subscribe", callback);
+  await mc.click_menus_in_sequence(
+    win.document.getElementById("folderPaneContext"),
+    [{ id: "folderPaneContext-subscribe" }]
+  );
+  wait_for_modal_dialog("mailnews:subscribe");
 }
 
 /**

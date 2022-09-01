@@ -44,18 +44,6 @@ add_task(async function test_message_pane_visible_state_is_right() {
 });
 
 /**
- * Make sure the account central page does not have the message pane splitter
- *  visible.  This should go elsewhere once we have more tests involving
- *  account central.  (Layout tests?)
- */
-add_task(async function test_account_central_has_no_splitter() {
-  await be_in_folder(folder.rootFolder);
-  assert_message_pane_hidden(true);
-  await be_in_folder(folder);
-  Assert.ok(true, "test_account_central_has_no_splitter ran to completion");
-});
-
-/**
  * Toggle the message off.
  */
 add_task(function test_toggle_message_pane_off() {
@@ -88,7 +76,6 @@ add_task(
     // - open message tab, make sure the message pane is visible
     select_click_row(0);
     let tabMessage = await open_selected_message_in_new_tab();
-    assert_message_pane_visible(true);
 
     // - close the tab, sanity check the transition was okay
     close_tab(tabMessage);
@@ -116,7 +103,6 @@ add_task(async function test_message_pane_is_sticky() {
   // [folder+ => (new) message]
   select_click_row(0);
   let tabMessage = await open_selected_message_in_new_tab();
-  assert_message_pane_visible(true);
 
   // [message => folder+]
   await switch_tab(tabFolderA);
@@ -140,7 +126,6 @@ add_task(async function test_message_pane_is_sticky() {
 
   // [folder- => message]
   await switch_tab(tabMessage);
-  assert_message_pane_visible(true);
 
   // [message => folder-]
   close_tab(tabMessage);
@@ -182,19 +167,15 @@ add_task(async function test_message_pane_is_sticky() {
 add_task(async function test_message_pane_persistence_generally_works() {
   await be_in_folder(folder);
 
-  // helper to open tabs with the message pane in the desired states (1 for
+  // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)
   async function openTabs(aConfig) {
-    let curState;
     for (let [iTab, messagePaneVisible] of aConfig.entries()) {
-      if (iTab == 0) {
-        curState = messagePaneVisible;
-      } else {
+      if (iTab != 0) {
         await open_folder_in_new_tab(folder);
-        if (curState != messagePaneVisible) {
-          toggle_message_pane();
-          curState = messagePaneVisible;
-        }
+      }
+      if (mc.tabmail.currentTabInfo.messagePaneVisible != messagePaneVisible) {
+        toggle_message_pane();
       }
     }
   }
@@ -208,8 +189,19 @@ add_task(async function test_message_pane_persistence_generally_works() {
 
   async function verifyTabs(aConfig) {
     for (let [iTab, messagePaneVisible] of aConfig.entries()) {
+      info("tab " + iTab);
+
       await switch_tab(iTab);
-      dump(" checking tab: " + iTab + "\n");
+      if (mc.tabmail.currentAbout3Pane.document.readyState != "complete") {
+        await BrowserTestUtils.waitForEvent(
+          mc.tabmail.currentAbout3Pane,
+          "load"
+        );
+        await new Promise(resolve =>
+          mc.tabmail.currentAbout3Pane.setTimeout(resolve)
+        );
+      }
+
       if (messagePaneVisible) {
         assert_message_pane_visible();
       } else {
@@ -227,23 +219,21 @@ add_task(async function test_message_pane_persistence_generally_works() {
   for (let config of configs) {
     await openTabs(config);
     await verifyTabs(config); // make sure openTabs did its job right
-
-    // Switch to the first tab, so that we don't cause a double message load
-    // while restoring tabs (one by the first tab, one by the currently selected
-    // one). This is fine because we only restore tabs at startup, and we know
-    // that we don't select a message at startup.
-    // XXX This should probably be fixed properly, though.
-    await switch_tab(0);
-
     let state = mc.tabmail.persistTabs();
     closeTabs();
+
+    Assert.equal(state.tabs[0].state.messagePaneVisible, config[0]);
+    Assert.equal(state.tabs[1].state.messagePaneVisible, config[1]);
+    Assert.equal(state.tabs[2].state.messagePaneVisible, config[2]);
+    Assert.equal(state.tabs[3].state.messagePaneVisible, config[3]);
+    Assert.equal(state.tabs[4].state.messagePaneVisible, config[4]);
+
     // toggle the state for the current tab so we can be sure that it knows how
     //  to change things.
     toggle_message_pane();
-    SimpleTest.ignoreAllUncaughtExceptions(true);
+
     mc.tabmail.restoreTabs(state);
     await verifyTabs(config);
-    SimpleTest.ignoreAllUncaughtExceptions(false);
     closeTabs();
 
     // toggle the first tab again.  This sets - properly for the second pass and

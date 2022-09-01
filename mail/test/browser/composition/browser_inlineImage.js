@@ -14,13 +14,11 @@ var {
 var {
   be_in_folder,
   get_special_folder,
+  get_about_message,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { wait_for_notification_to_show } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
@@ -96,7 +94,10 @@ add_task(async function test_send_inline_image() {
   wait_for_window_close();
 
   await be_in_folder(gOutboxFolder);
-  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  let msgLoaded = BrowserTestUtils.waitForEvent(
+    get_about_message(),
+    "MsgLoaded"
+  );
   let outMsg = select_click_row(0);
   await msgLoaded;
   let outMsgContent = get_msg_source(outMsg);

@@ -33,6 +33,7 @@ var {
   be_in_folder,
   close_message_window,
   create_folder,
+  get_about_message,
   mc,
   open_message_from_file,
   open_selected_message,
@@ -348,26 +349,37 @@ function saveAsEMLFile(msgNo) {
 async function allowRemoteContentAndCheck(test) {
   addMsgToFolderAndCheckContent(folder, test);
 
-  plan_for_message_display(mc);
+  let aboutMessage = get_about_message();
 
   // Click on the allow remote content button
   const kBoxId = "mail-notification-top";
   const kNotificationValue = "remoteContent";
-  wait_for_notification_to_show(mc, kBoxId, kNotificationValue);
-  let prefButton = get_notification_button(mc, kBoxId, kNotificationValue, {
-    popup: "remoteContentOptions",
-  });
-  EventUtils.synthesizeMouseAtCenter(prefButton, { clickCount: 1 }, mc.window);
-  await mc.click_menus_in_sequence(mc.e("remoteContentOptions"), [
-    { id: "remoteContentOptionAllowForMsg" },
-  ]);
-  wait_for_notification_to_stop(mc, kBoxId, kNotificationValue);
+  wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
+  let prefButton = get_notification_button(
+    aboutMessage,
+    kBoxId,
+    kNotificationValue,
+    {
+      popup: "remoteContentOptions",
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    prefButton,
+    { clickCount: 1 },
+    aboutMessage
+  );
+  aboutMessage.document
+    .getElementById("remoteContentOptions")
+    .activateItem(
+      aboutMessage.document.getElementById("remoteContentOptionAllowForMsg")
+    );
+  wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
 
   wait_for_message_display_completion(mc, true);
 
   if (
     !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
+      aboutMessage.content.contentDocument.getElementById("testelement")
     )
   ) {
     throw new Error(

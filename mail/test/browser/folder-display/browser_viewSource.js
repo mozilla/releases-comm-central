@@ -8,7 +8,13 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, mc, select_click_row } = ChromeUtils.import(
+var {
+  be_in_folder,
+  create_folder,
+  get_about_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
@@ -98,7 +104,8 @@ function addToFolder(subject, charset, body) {
 async function subtest(row, expectedDisplayed, expectedSource) {
   select_click_row(row);
 
-  let displayContent = mc.e("messagepane").contentDocument.body.textContent;
+  let win = get_about_message();
+  let displayContent = win.content.contentDocument.body.textContent;
   Assert.stringContains(
     displayContent,
     expectedDisplayed,

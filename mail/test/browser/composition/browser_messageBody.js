@@ -14,6 +14,7 @@ var {
 var {
   be_in_folder,
   get_special_folder,
+  get_about_message,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -49,7 +50,10 @@ add_task(async function test_invalid_data_uri() {
   wait_for_window_close();
 
   await be_in_folder(gOutboxFolder);
-  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  let msgLoaded = BrowserTestUtils.waitForEvent(
+    get_about_message(),
+    "MsgLoaded"
+  );
   let outMsg = select_click_row(0);
   await msgLoaded;
   let outMsgContent = get_msg_source(outMsg);
@@ -88,7 +92,10 @@ add_task(async function test_freeTextLink() {
   wait_for_window_close();
 
   await be_in_folder(gOutboxFolder);
-  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  let msgLoaded = BrowserTestUtils.waitForEvent(
+    get_about_message(),
+    "MsgLoaded"
+  );
   let outMsg = select_click_row(0);
   await msgLoaded;
   let outMsgContent = get_msg_source(outMsg);

@@ -9,6 +9,29 @@ var EXPORTED_SYMBOLS = [
   "synthesizeMouseExpectEvent",
 ];
 
+function computeButton(aEvent) {
+  if (typeof aEvent.button != "undefined") {
+    return aEvent.button;
+  }
+  return aEvent.type == "contextmenu" ? 2 : 0;
+}
+
+function computeButtons(aEvent, utils) {
+  if (typeof aEvent.buttons != "undefined") {
+    return aEvent.buttons;
+  }
+
+  if (typeof aEvent.button != "undefined") {
+    return utils.MOUSE_BUTTONS_NOT_SPECIFIED;
+  }
+
+  if (typeof aEvent.type != "undefined" && aEvent.type != "mousedown") {
+    return utils.MOUSE_BUTTONS_NO_BUTTON;
+  }
+
+  return utils.MOUSE_BUTTONS_NOT_SPECIFIED;
+}
+
 /**
  * Parse the key modifier flags from aEvent. Used to share code between
  * synthesizeMouse and synthesizeKey.
@@ -95,37 +118,94 @@ function sendString(aStr, aWindow) {
 
 /**
  * Synthesize a mouse event on a target. The actual client point is determined
- * by taking the aTarget's client box and offsetting it by aOffsetX and
+ * by taking the aTarget's client box and offseting it by aOffsetX and
  * aOffsetY. This allows mouse clicks to be simulated by calling this method.
  *
  * aEvent is an object which may contain the properties:
- *   shiftKey, ctrlKey, altKey, metaKey, accessKey, clickCount, button, type
+ *   `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `accessKey`, `clickCount`,
+ *   `button`, `type`.
+ *   For valid `type`s see nsIDOMWindowUtils' `sendMouseEvent`.
  *
  * If the type is specified, an mouse event of that type is fired. Otherwise,
- * a mousedown followed by a mouse up is performed.
+ * a mousedown followed by a mouseup is performed.
+ *
+ * aWindow is optional, and defaults to the current window object.
+ *
+ * Returns whether the event had preventDefault() called on it.
+ */
+function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
+  var rect = aTarget.getBoundingClientRect();
+  return synthesizeMouseAtPoint(
+    rect.left + aOffsetX,
+    rect.top + aOffsetY,
+    aEvent,
+    aWindow
+  );
+}
+
+/*
+ * Synthesize a mouse event at a particular point in aWindow.
+ *
+ * aEvent is an object which may contain the properties:
+ *   `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `accessKey`, `clickCount`,
+ *   `button`, `type`.
+ *   For valid `type`s see nsIDOMWindowUtils' `sendMouseEvent`.
+ *
+ * If the type is specified, an mouse event of that type is fired. Otherwise,
+ * a mousedown followed by a mouseup is performed.
  *
  * aWindow is optional, and defaults to the current window object.
  */
-function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
+function synthesizeMouseAtPoint(left, top, aEvent, aWindow) {
   var utils = aWindow.windowUtils;
+  var defaultPrevented = false;
+
   if (utils) {
-    var button = aEvent.button || 0;
+    var button = computeButton(aEvent);
     var clickCount = aEvent.clickCount || 1;
-    var modifiers = _parseModifiers(aEvent);
+    var modifiers = _parseModifiers(aEvent, aWindow);
+    var pressure = "pressure" in aEvent ? aEvent.pressure : 0;
 
-    var rect = aTarget.getBoundingClientRect();
+    // aWindow might be cross-origin from us.
+    var MouseEvent = aWindow.MouseEvent;
 
-    var left = rect.left + aOffsetX;
-    var top = rect.top + aOffsetY;
+    // Default source to mouse.
+    var inputSource =
+      "inputSource" in aEvent
+        ? aEvent.inputSource
+        : MouseEvent.MOZ_SOURCE_MOUSE;
+    // Compute a pointerId if needed.
+    var id;
+    if ("id" in aEvent) {
+      id = aEvent.id;
+    } else {
+      var isFromPen = inputSource === MouseEvent.MOZ_SOURCE_PEN;
+      id = isFromPen
+        ? utils.DEFAULT_PEN_POINTER_ID
+        : utils.DEFAULT_MOUSE_POINTER_ID;
+    }
 
+    var isDOMEventSynthesized =
+      "isSynthesized" in aEvent ? aEvent.isSynthesized : true;
+    var isWidgetEventSynthesized =
+      "isWidgetEventSynthesized" in aEvent
+        ? aEvent.isWidgetEventSynthesized
+        : false;
     if ("type" in aEvent && aEvent.type) {
-      utils.sendMouseEvent(
+      defaultPrevented = utils.sendMouseEvent(
         aEvent.type,
         left,
         top,
         button,
         clickCount,
-        modifiers
+        modifiers,
+        false,
+        pressure,
+        inputSource,
+        isDOMEventSynthesized,
+        isWidgetEventSynthesized,
+        computeButtons(aEvent, utils),
+        id
       );
     } else {
       utils.sendMouseEvent(
@@ -134,24 +214,37 @@ function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
         top,
         button,
         clickCount,
-        modifiers
+        modifiers,
+        false,
+        pressure,
+        inputSource,
+        isDOMEventSynthesized,
+        isWidgetEventSynthesized,
+        computeButtons(Object.assign({ type: "mousedown" }, aEvent), utils),
+        id
       );
-      utils.sendMouseEvent("mouseup", left, top, button, clickCount, modifiers);
+      utils.sendMouseEvent(
+        "mouseup",
+        left,
+        top,
+        button,
+        clickCount,
+        modifiers,
+        false,
+        pressure,
+        inputSource,
+        isDOMEventSynthesized,
+        isWidgetEventSynthesized,
+        computeButtons(Object.assign({ type: "mouseup" }, aEvent), utils),
+        id
+      );
     }
   }
+
+  return defaultPrevented;
 }
 
-/**
- * Call synthesizeMouse with coordinates at the center of aTarget.
- *
- * aEvent is an object which may contain the properties:
- *   shiftKey, ctrlKey, altKey, metaKey, accessKey, clickCount, button, type
- *
- * If the type is specified, an mouse event of that type is fired. Otherwise,
- * a mousedown followed by a mouse up is performed.
- *
- * aWindow is optional, and defaults to the current window object.
- */
+// Call synthesizeMouse with coordinates at the center of aTarget.
 function synthesizeMouseAtCenter(aTarget, aEvent, aWindow) {
   var rect = aTarget.getBoundingClientRect();
   return synthesizeMouse(

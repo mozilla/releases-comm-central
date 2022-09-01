@@ -14,6 +14,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -94,14 +95,19 @@ function gotoMsg(row) {
  * Utility to make sure the MDN bar is shown / not shown.
  */
 function assert_mdn_shown(shouldShow) {
-  assert_notification_displayed(mc, kBoxId, kNotificationValue, shouldShow);
+  assert_notification_displayed(
+    get_about_message(),
+    kBoxId,
+    kNotificationValue,
+    shouldShow
+  );
 }
 
 /**
  * Utility function to make sure the notification contains a certain text.
  */
 function assert_mdn_text_contains(text, shouldContain) {
-  let nb = mc.window.document.getElementById(kBoxId);
+  let nb = get_about_message().document.getElementById(kBoxId);
   let box = nb.querySelector(".notificationbox-stack")._notificationBox;
   let notificationText = box.currentNotification.messageText.textContent;
   if (shouldContain && !notificationText.includes(text)) {
@@ -127,6 +133,7 @@ function assert_mdn_text_contains(text, shouldContain) {
  * and Return-Receipt-To isn't set.
  */
 add_task(function test_no_mdn_for_normal_msgs() {
+  gotoMsg(0); // TODO this shouldn't be needed but the selection goes to 0 on focus.
   gotoMsg(1); // This message doesn't request a return receipt.
   assert_mdn_shown(false);
 });

@@ -32,10 +32,7 @@ async function extract_eml_body_textcontent(eml) {
 
   // Be sure to view message body as Original HTML
   msgc.window.MsgBodyAllowHTML();
-
-  let textContent =
-    msgc.window.msgWindow.messageWindowDocShell.contentViewer.DOMDocument
-      .documentElement.textContent;
+  let textContent = msgc.window.content.document.documentElement.textContent;
 
   close_window(msgc);
   return textContent;
@@ -46,7 +43,8 @@ async function extract_eml_body_textcontent(eml) {
  */
 async function check_eml_textcontent(eml) {
   let textContent = await extract_eml_body_textcontent(eml);
-  Assert.equal(gReferenceTextContent, textContent);
+  Assert.stringContains(textContent, "árvíztűrő tükörfúrógép");
+  Assert.stringContains(textContent, "ÁRVÍZTŰRŐ TÜKÖRFÚRÓGÉP");
 }
 
 /**

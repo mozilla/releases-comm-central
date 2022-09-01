@@ -34,8 +34,6 @@ var kAttachmentRenamed = "attachment-renamed";
  * attachment.
  */
 add_task(function test_attachments_added_on_single() {
-  gFolderTreeView.selectFolder(gFolderTreeView._enumerateFolders[1]);
-
   // Prepare to listen for attachments-added
   let eventCount = 0;
   let lastEvent;
@@ -463,5 +461,4 @@ registerCleanupFunction(() => {
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
-  window.gFolderDisplay.tree.focus();
 });

@@ -17,6 +17,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_3pane,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -209,6 +210,8 @@ add_setup(async function() {
   for (let contact of contacts) {
     ensure_card_exists(contact.email, contact.name, contact.pdn);
   }
+
+  await be_in_folder(folder);
 });
 
 async function check_display_name(index, columnName, expectedName) {
@@ -224,13 +227,7 @@ async function check_display_name(index, columnName, expectedName) {
       throw new Error("unknown column name: " + columnName);
   }
 
-  // Select the nth message
-  await be_in_folder(folder);
-  select_click_row(index);
-
-  let tree = mc.folderDisplay.tree;
-  let cellText = tree.view.getCellText(index, tree.columns[columnId]);
-
+  let cellText = get_about_3pane().gDBView.cellTextForColumn(index, columnId);
   Assert.equal(cellText, expectedName, columnName);
 }
 

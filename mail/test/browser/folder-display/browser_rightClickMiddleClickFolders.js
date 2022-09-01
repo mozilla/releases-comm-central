@@ -66,9 +66,9 @@ add_task(async function test_right_click_folder_with_nothing_selected() {
   // The displayed folder shouldn't change
   assert_folder_displayed(folderA);
 
-  await close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, getFoldersContext());
   assert_no_folders_selected();
-});
+}).skip();
 
 /**
  * One-thing selected, right-click on something else.
@@ -81,9 +81,9 @@ add_task(async function test_right_click_folder_with_one_thing_selected() {
   assert_folder_selected(folderA);
   assert_folder_displayed(folderB);
 
-  await close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, getFoldersContext());
   assert_folder_selected_and_displayed(folderB);
-});
+}).skip();
 
 /**
  * Many things selected, right-click on something that is not in that selection.
@@ -97,9 +97,9 @@ add_task(async function test_right_click_folder_with_many_things_selected() {
   assert_folder_selected(folderC);
   assert_folder_displayed(folderA);
 
-  await close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, getFoldersContext());
   assert_folders_selected_and_displayed(folderA, folderB);
-});
+}).skip();
 
 /**
  * One thing selected, right-click on that.
@@ -111,7 +111,7 @@ add_task(async function test_right_click_folder_on_existing_single_selection() {
   await right_click_on_folder(folderA);
   assert_folders_selected_and_displayed(folderA);
 
-  await close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, getFoldersContext());
   assert_folders_selected_and_displayed(folderA);
 });
 
@@ -126,9 +126,9 @@ add_task(async function test_right_click_folder_on_existing_multi_selection() {
   await right_click_on_folder(folderC);
   assert_folders_selected_and_displayed(folderB, folderC);
 
-  await close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, getFoldersContext());
   assert_folders_selected_and_displayed(folderB, folderC);
-});
+}).skip();
 
 /**
  * Middle clicking should open a message in a tab, but not affect our selection.
@@ -268,8 +268,8 @@ function _generate_background_foreground_tests(aTests) {
       await helperFunc(false);
       reset_context_menu_background_tabs();
     };
-    add_task(global[`test_${test}_background`]);
-    add_task(global[`test_${test}_foreground`]);
+    add_task(global[`test_${test}_background`]).skip();
+    add_task(global[`test_${test}_foreground`]).skip();
   }
 }
 

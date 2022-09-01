@@ -2,11 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+function getFoldersContext() {
+  return document
+    .getElementById("tabmail")
+    .currentAbout3Pane.document.getElementById("folderPaneContext");
+}
+
+function getMailContext() {
+  return document
+    .getElementById("tabmail")
+    .currentAbout3Pane.document.getElementById("mailContext");
+}
+
 registerCleanupFunction(() => {
   let tabmail = document.getElementById("tabmail");
-  is(tabmail.tabInfo.length, 1, "only the first tab should remain open");
-
-  while (tabmail.tabInfo.length > 1) {
-    tabmail.closeTab(tabmail.tabInfo[1]);
-  }
+  Assert.equal(
+    tabmail.tabInfo.length,
+    1,
+    "only the first tab should remain open"
+  );
+  tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+  tabmail.currentTabInfo.folderPaneVisible = true;
+  tabmail.currentTabInfo.messagePaneVisible = true;
 });

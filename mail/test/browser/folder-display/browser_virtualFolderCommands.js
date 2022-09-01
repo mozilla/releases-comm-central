@@ -13,6 +13,7 @@ var {
   create_folder,
   create_virtual_folder,
   expand_all_threads,
+  get_about_3pane,
   make_display_threaded,
   make_message_sets_in_folders,
   mc,
@@ -37,6 +38,7 @@ add_setup(async function() {
 
 add_task(async function test_single_folder_select_thread() {
   await be_in_folder(singleVirtFolder);
+  let win = get_about_3pane();
   make_display_threaded();
   expand_all_threads();
 
@@ -44,7 +46,7 @@ add_task(async function test_single_folder_select_thread() {
   select_click_row(0);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
-    mc.folderDisplay.selectedCount == msgsPerThread,
+    win.gDBView.selection.count == msgsPerThread,
     "Didn't select all messages in the thread!"
   );
 
@@ -52,13 +54,14 @@ add_task(async function test_single_folder_select_thread() {
   select_click_row(1);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
-    mc.folderDisplay.selectedCount == msgsPerThread,
+    win.gDBView.selection.count == msgsPerThread,
     "Didn't select all messages in the thread!"
   );
 });
 
 add_task(async function test_cross_folder_select_thread() {
   await be_in_folder(multiVirtFolder);
+  let win = get_about_3pane();
   make_display_threaded();
   expand_all_threads();
 
@@ -66,7 +69,7 @@ add_task(async function test_cross_folder_select_thread() {
   select_click_row(0);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
-    mc.folderDisplay.selectedCount == msgsPerThread,
+    win.gDBView.selection.count == msgsPerThread,
     "Didn't select all messages in the thread!"
   );
 
@@ -74,7 +77,7 @@ add_task(async function test_cross_folder_select_thread() {
   select_click_row(1);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
-    mc.folderDisplay.selectedCount == msgsPerThread,
+    win.gDBView.selection.count == msgsPerThread,
     "Didn't select all messages in the thread!"
   );
 });

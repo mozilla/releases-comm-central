@@ -80,7 +80,7 @@ add_task(function test_chat_tab_restore() {
     throw new Error("The tab is not restored!");
   }
 
-  let tabTypes = ["folder", "chat"];
+  let tabTypes = ["mail3PaneTab", "chat"];
   for (let i in tabTypes) {
     assert_tab_mode_name(mc.tabmail.tabInfo[i], tabTypes[i]);
   }

@@ -83,6 +83,8 @@ const EXPORTED_SYMBOLS = [
   "focus_thread_tree",
   "gDefaultWindowHeight",
   "gDefaultWindowWidth",
+  "get_about_3pane",
+  "get_about_message",
   "get_smart_folder_named",
   "get_special_folder",
   "inboxFolder",
@@ -164,6 +166,9 @@ var windowHelper = ChromeUtils.import(
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
+);
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
 );
 
 var nsMsgViewIndex_None = 0xffffffff;
@@ -283,6 +288,42 @@ function setupModule() {
   } catch (ex) {}
 }
 setupModule();
+
+function get_about_3pane() {
+  if (mc.tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
+    return mc.tabmail.currentAbout3Pane;
+  }
+  throw new Error("The current tab is not a mail3PaneTab.");
+}
+
+function get_about_message() {
+  if (
+    ["mail3PaneTab", "mailMessageTab"].includes(
+      mc.tabmail.currentTabInfo.mode.name
+    )
+  ) {
+    return mc.tabmail.currentAboutMessage;
+  }
+  throw new Error("The current tab is not a mail3PaneTab or mailMessageTab.");
+}
+
+function get_about_3pane_or_about_message() {
+  if (
+    ["mail3PaneTab", "mailMessageTab"].includes(
+      mc.tabmail.currentTabInfo.mode.name
+    )
+  ) {
+    return mc.tabmail.currentTabInfo.chromeBrowser.contentWindow;
+  }
+  throw new Error("The current tab is not a mail3PaneTab or mailMessageTab.");
+}
+
+function get_db_view(controller) {
+  if (!controller || controller == mc) {
+    return get_about_3pane_or_about_message().gDBView;
+  }
+  return controller.dbView;
+}
 
 function smimeUtils_ensureNSS() {
   SmimeUtils.ensureNSS();
@@ -473,35 +514,20 @@ async function delete_messages(aSynMessageSet) {
  *  will leave the folder and come back if we have to.
  */
 async function enter_folder(aFolder) {
-  // Drain the event queue prior to doing any work.  It's possible that there's
-  //  a pending setTimeout(0) that needs to get fired.
-  controller.sleep(0);
-  utils.waitFor(
-    () => mc.folderTreeView._rowMap,
-    "Timeout waiting for folder tree to be ready"
-  );
+  let win = get_about_3pane();
 
-  // if we're already selected, go back to the root...
-  if (mc.folderDisplay.displayedFolder == aFolder) {
+  // If we're already selected, go back to the root...
+  if (win.gFolder == aFolder) {
     await enter_folder(aFolder.rootFolder);
   }
 
   mark_action("fdh", "enter_folder", [aFolder]);
 
-  // this selection event may not be synchronous...
-  mc.folderTreeView.selectFolder(aFolder);
-  // ... so wait until it goes through by waiting on the displayedFolder...
-  function isDisplayedFolder() {
-    return mc.folderDisplay.displayedFolder == aFolder;
-  }
-  utils.waitFor(
-    isDisplayedFolder,
-    "Timeout trying to enter folder " + aFolder.URI
-  );
+  let displayPromise = BrowserTestUtils.waitForEvent(win, "folderURIChanged");
+  win.displayFolder(aFolder.URI);
+  await displayPromise;
 
-  wait_for_all_messages_to_load();
-
-  // and drain the event queue
+  // Drain the event queue.
   controller.sleep(0);
 }
 
@@ -512,7 +538,8 @@ async function enter_folder(aFolder) {
  *     tabs than the index, which will change as tabs open/close).
  */
 async function be_in_folder(aFolder) {
-  if (mc.folderDisplay.displayedFolder != aFolder) {
+  let win = get_about_3pane();
+  if (win.gFolder != aFolder) {
     await enter_folder(aFolder);
   }
   return mc.tabmail.currentTabInfo;
@@ -533,15 +560,17 @@ async function be_in_folder(aFolder) {
 async function open_folder_in_new_tab(aFolder) {
   // save the current tab as the 'other' tab
   otherTab = mc.tabmail.currentTabInfo;
-  mc.tabmail.openTab("folder", { folder: aFolder });
-  mark_action("fdh", "open_folder_in_new_tab", [
-    "folder",
-    aFolder,
-    "tab info",
-    _jsonize_tabmail_tab(mc.tabmail.currentTabInfo),
-  ]);
-  wait_for_all_messages_to_load();
-  return mc.tabmail.currentTabInfo;
+
+  let tab = mc.tabmail.openTab("mail3PaneTab", { folderURI: aFolder.URI });
+  if (
+    tab.chromeBrowser.docShell.isLoadingDocument ||
+    tab.chromeBrowser.currentURI.spec != "about:3pane"
+  ) {
+    await BrowserTestUtils.browserLoaded(tab.chromeBrowser);
+  }
+  await TestUtils.waitForCondition(() => tab.folder == aFolder);
+
+  return tab;
 }
 
 /**
@@ -573,11 +602,6 @@ function open_selected_messages(aController) {
   }
   // Focus the thread tree
   focus_thread_tree();
-  mark_action(
-    "fdh",
-    "open_selected_messages",
-    mc.folderDisplay.selectedMessages
-  );
   // Open whatever's selected
   press_enter(aController);
 }
@@ -602,35 +626,31 @@ async function open_selected_message_in_new_tab(aBackground) {
   // save the current tab as the 'other' tab
   otherTab = mc.tabmail.currentTabInfo;
 
-  // We won't trigger a new message load if we're in the background.
-  if (!aBackground) {
-    plan_for_message_display(mc);
-  }
-  mc.tabmail.openTab("message", {
-    msgHdr: mc.folderDisplay.selectedMessage,
-    viewWrapperToClone: mc.folderDisplay.view,
+  let win = get_about_3pane();
+  let message = win.gDBView.hdrForFirstSelectedMessage;
+  let tab = mc.tabmail.openTab("mailMessageTab", {
+    messageURI: message.folder.getUriForMsg(message),
+    viewWrapper: win.gViewWrapper,
     background: aBackground,
   });
-  wait_for_message_display_completion(mc, !aBackground);
+
+  if (
+    tab.chromeBrowser.docShell.isLoadingDocument ||
+    tab.chromeBrowser.currentURI.spec != "about:message"
+  ) {
+    await BrowserTestUtils.browserLoaded(tab.chromeBrowser);
+  }
+
+  if (!aBackground) {
+    wait_for_message_display_completion(undefined, true);
+  }
 
   // check that the tab count increased
   if (mc.tabmail.tabContainer.allTabs.length != preCount + 1) {
     throw new Error("The tab never actually got opened!");
   }
 
-  // We append new tabs at the end, so return the last tab
-  let newTab = mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1];
-  mark_action("fdh", "open_selected_message_in_new_tab", [
-    "message",
-    mc.folderDisplay.selectedMessage,
-    "background?",
-    Boolean(aBackground),
-    "new tab",
-    _jsonize_tabmail_tab(newTab),
-    "current tab",
-    _jsonize_tabmail_tab(mc.tabmail.currentTabInfo),
-  ]);
-  return newTab;
+  return tab;
 }
 
 /**
@@ -640,10 +660,14 @@ async function open_selected_message_in_new_tab(aBackground) {
  * @return The MozmillController-wrapped new window.
  */
 async function open_selected_message_in_new_window() {
+  let win = get_about_3pane();
   let newWindowPromise = windowHelper.async_plan_for_new_window(
     "mail:messageWindow"
   );
-  mc.window.MsgOpenNewWindowForMessage();
+  mc.window.MsgOpenNewWindowForMessage(
+    win.gDBView.hdrForFirstSelectedMessage,
+    win.gViewWrapper
+  );
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
   return msgc;
@@ -713,16 +737,18 @@ async function open_message_from_file(file) {
   let newWindowPromise = windowHelper.async_plan_for_new_window(
     "mail:messageWindow"
   );
-  mc.window.openDialog(
+  let win = mc.window.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
     fileURL
   );
+  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
+
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
-
   windowHelper.wait_for_window_focused(msgc.window);
+  msgc.sleep(0);
 
   return msgc;
 }
@@ -757,8 +783,6 @@ async function switch_tab(aNewTab) {
     return;
   }
 
-  // If we're still loading a message at this point, wait for that to finish
-  wait_for_message_display_completion();
   let targetTab = aNewTab != null ? aNewTab : otherTab;
   // now the current tab will be the 'other' tab after we switch
   otherTab = mc.tabmail.currentTabInfo;
@@ -769,25 +793,12 @@ async function switch_tab(aNewTab) {
     _jsonize_tabmail_tab(targetTab),
   ]);
 
-  // If the target tab's folder display has a something selected and its message
-  // pane is visible, plan for a message display.
-  if (
-    targetTab.messageDisplay.visible &&
-    targetTab.folderDisplay.selectedCount
-  ) {
-    plan_for_message_display(targetTab);
-  }
-
+  let selectPromise = BrowserTestUtils.waitForEvent(
+    mc.tabmail.tabContainer,
+    "select"
+  );
   mc.tabmail.switchToTab(targetTab);
-  if (mc.messageDisplay.visible) {
-    if (mc.folderDisplay.selectedCount) {
-      // There is something selected, wait for display completion.
-      wait_for_message_display_completion(mc, true);
-    } else {
-      // Wait for the pane to end up blank.
-      wait_for_blank_content_pane();
-    }
-  }
+  await selectPromise;
 }
 
 /**
@@ -820,7 +831,7 @@ function assert_tab_mode_name(aTab, aModeName) {
     aTab = mc.tabmail.currentTabInfo;
   }
 
-  Assert.equal(aTab.mode.type, aModeName, `Tab should be of type ${aModeName}`);
+  Assert.equal(aTab.mode.name, aModeName, `Tab should be of type ${aModeName}`);
 }
 
 /**
@@ -871,47 +882,16 @@ function assert_tab_has_title(aTab, aTitle) {
 function close_tab(aTabToClose) {
   mark_action("fdh", "close_tab", [aTabToClose]);
 
-  if (mc.messageDisplay.visible) {
-    // Stop loading a message, if we're in the process of doing so.
-    if (mc.window.messenger) {
-      mc.window.messenger.abortPendingOpenURL();
-    }
-    wait_for_message_display_completion(mc);
-  }
-
   if (typeof aTabToClose == "number") {
     aTabToClose = mc.tabmail.tabInfo[aTabToClose];
   }
 
-  // get the current tab count so we can make sure the tab actually opened.
+  // Get the current tab count so we can make sure the tab actually closed.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
-
-  // If we're closing the current tab, a message or summary might be displayed
-  // in the tab we'll select next.
-  let nextTab = null;
-  if (aTabToClose == mc.tabmail.currentTabInfo) {
-    let selectedIndex = mc.tabmail.tabContainer.selectedIndex;
-    let nextIndex =
-      selectedIndex == preCount - 1 ? selectedIndex - 1 : selectedIndex + 1;
-    nextTab = mc.tabmail.tabInfo[nextIndex];
-    if (nextTab.messageDisplay.visible && nextTab.folderDisplay.selectedCount) {
-      plan_for_message_display(nextTab);
-    }
-  }
 
   mc.tabmail.closeTab(aTabToClose);
 
-  // if there is a message visible in the tab, make sure we wait for the load
-  if (nextTab && mc.messageDisplay.visible) {
-    if (mc.folderDisplay.selectedCount) {
-      wait_for_message_display_completion(mc, true);
-    } else {
-      // Otherwise wait for the pane to end up blank.
-      wait_for_blank_content_pane();
-    }
-  }
-
-  // check that the tab count decreased
+  // Check that the tab count decreased.
   if (mc.tabmail.tabContainer.allTabs.length != preCount - 1) {
     throw new Error("The tab never actually got closed!");
   }
@@ -936,12 +916,14 @@ function select_none(aController) {
   }
   wait_for_message_display_completion();
   focus_thread_tree();
-  aController.dbView.selection.clearSelection();
+  get_db_view(aController).selection.clearSelection();
+  get_about_3pane().threadTree.dispatchEvent(new CustomEvent("select"));
   // Because the selection event may not be generated immediately, we need to
   //  spin until the message display thinks it is not displaying a message,
   //  which is the sign that the event actually happened.
+  let win2 = get_about_message();
   function noMessageChecker() {
-    return aController.messageDisplay.displayedMessage == null;
+    return win2.gMessage == null;
   }
   try {
     utils.waitFor(noMessageChecker);
@@ -968,23 +950,20 @@ function select_none(aController) {
  * @param aViewIndex An absolute index (integer >= 0), slice-style index (< 0),
  *     or a SyntheticMessageSet (we only care about the first message in it).
  */
-function _normalize_view_index(aViewIndex, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function _normalize_view_index(aViewIndex) {
+  let dbView = get_db_view();
+
   // SyntheticMessageSet special-case
   if (typeof aViewIndex != "number") {
     let msgHdrIter = aViewIndex.msgHdrs();
     let msgHdr = msgHdrIter.next().value;
     msgHdrIter.return();
     // do not expand
-    aViewIndex = aController.dbView.findIndexOfMsgHdr(msgHdr, false);
+    aViewIndex = dbView.findIndexOfMsgHdr(msgHdr, false);
   }
 
   if (aViewIndex < 0) {
-    return (
-      aController.dbView.QueryInterface(Ci.nsITreeView).rowCount + aViewIndex
-    );
+    return dbView.rowCount + aViewIndex;
   }
   return aViewIndex;
 }
@@ -1034,32 +1013,20 @@ function click_tree_row(aTree, aRowIndex, aController) {
  *
  * @return The message header selected.
  */
-function select_click_row(aViewIndex, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-  let hasMessageDisplay = "messageDisplay" in aController;
-  if (hasMessageDisplay) {
-    wait_for_message_display_completion(aController);
-  }
-  aViewIndex = _normalize_view_index(aViewIndex, aController);
-  mark_action("fdh", "select_click_row", [aViewIndex]);
+function select_click_row(aViewIndex) {
+  aViewIndex = _normalize_view_index(aViewIndex);
 
-  var willDisplayMessage =
-    hasMessageDisplay &&
-    aController.messageDisplay.visible &&
-    aController.dbView.selection.currentIndex !== aViewIndex;
+  let win = get_about_3pane();
+  let tree = win.document.getElementById("threadTree");
+  tree.scrollToIndex(aViewIndex);
+  mc.sleep(500); // f'n scrolling
+  let row = tree.getRowAtIndex(aViewIndex);
+  EventUtils.synthesizeMouseAtCenter(row, {}, win);
+  mc.sleep();
 
-  if (willDisplayMessage) {
-    plan_for_message_display(aController);
-  }
-  _row_click_helper(aController, aController.threadTree, aViewIndex, 0);
-  if (hasMessageDisplay) {
-    wait_for_message_display_completion(aController, willDisplayMessage);
-  }
+  wait_for_message_display_completion(undefined, true);
 
-  mark_action("fdh", "/select_click_row", [mc.folderDisplay.selectedMessages]);
-  return aController.dbView.getMsgHdrAt(aViewIndex);
+  return win.gDBView.getMsgHdrAt(aViewIndex);
 }
 
 /**
@@ -1077,6 +1044,9 @@ function select_column_click_row(aViewIndex, aController) {
   if (aController == null) {
     aController = mc;
   }
+
+  let dbView = get_db_view(aController);
+
   let hasMessageDisplay = "messageDisplay" in aController;
   if (hasMessageDisplay) {
     wait_for_message_display_completion(aController);
@@ -1089,11 +1059,8 @@ function select_column_click_row(aViewIndex, aController) {
   var willDisplayMessage =
     hasMessageDisplay &&
     aController.messageDisplay.visible &&
-    !(
-      aController.dbView.selection.count == 1 &&
-      aController.dbView.selection.isSelected(aViewIndex)
-    ) &&
-    aController.dbView.selection.currentIndex !== aViewIndex;
+    !(dbView.selection.count == 1 && dbView.selection.isSelected(aViewIndex)) &&
+    dbView.selection.currentIndex !== aViewIndex;
 
   if (willDisplayMessage) {
     plan_for_message_display(aController);
@@ -1113,7 +1080,7 @@ function select_column_click_row(aViewIndex, aController) {
   mark_action("fdh", "/select_column_click_row", [
     mc.folderDisplay.selectedMessages,
   ]);
-  return aController.dbView.getMsgHdrAt(aViewIndex);
+  return dbView.getMsgHdrAt(aViewIndex);
 }
 
 /**
@@ -1125,15 +1092,13 @@ function select_column_click_row(aViewIndex, aController) {
  *
  */
 function toggle_thread_row(aViewIndex) {
-  wait_for_message_display_completion();
   aViewIndex = _normalize_view_index(aViewIndex);
-  mark_action("fdh", "toggle_thread_row", [aViewIndex]);
-  if (mc.messageDisplay.visible) {
-    plan_for_message_display(mc);
-  }
-  _row_click_helper(mc, mc.threadTree, aViewIndex, 0, "toggle");
-  wait_for_message_display_completion(mc, mc.messageDisplay.visible);
-  mark_action("fdhb", "/toggle_thread_row", [aViewIndex]);
+
+  let win = get_about_3pane();
+  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  EventUtils.synthesizeMouseAtCenter(row.querySelector(".twisty"), {}, win);
+
+  wait_for_message_display_completion();
 }
 
 /**
@@ -1147,22 +1112,15 @@ function toggle_thread_row(aViewIndex) {
  * @return The message header of the affected message.
  */
 function select_control_click_row(aViewIndex) {
-  wait_for_message_display_completion();
-  if (mc.messageDisplay.visible) {
-    plan_for_message_display(mc);
-  }
   aViewIndex = _normalize_view_index(aViewIndex);
-  mark_action("fdh", "select_control_click_row", ["index", aViewIndex]);
-  // note: control key on win/linux === meta on mac === accel on mozilla
-  _row_click_helper(mc, mc.threadTree, aViewIndex, 0, "accel");
-  // give the event queue a chance to drain...
-  controller.sleep(0);
-  wait_for_message_display_completion(mc, mc.messageDisplay.visible);
-  mark_action("fdh", "/select_control_click_row", [
-    "selected messages:",
-    mc.folderDisplay.selectedMessages,
-  ]);
-  return mc.dbView.getMsgHdrAt(aViewIndex);
+
+  let win = get_about_3pane();
+  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  EventUtils.synthesizeMouseAtCenter(row, { accelKey: true }, win);
+
+  wait_for_message_display_completion();
+
+  return win.gDBView.getMsgHdrAt(aViewIndex);
 }
 
 /**
@@ -1178,43 +1136,15 @@ function select_control_click_row(aViewIndex) {
  * @return The message headers for all messages that are now selected.
  */
 function select_shift_click_row(aViewIndex, aController, aDoNotRequireLoad) {
-  if (aController == null) {
-    aController = mc;
-  }
-  let hasMessageDisplay = "messageDisplay" in aController;
-  if (hasMessageDisplay) {
-    wait_for_message_display_completion(aController);
-  }
   aViewIndex = _normalize_view_index(aViewIndex, aController);
-  mark_action("fdh", "select_shift_click_row", ["index", aViewIndex]);
 
-  if (
-    hasMessageDisplay &&
-    !aDoNotRequireLoad &&
-    aController.messageDisplay.visible
-  ) {
-    plan_for_message_display(aController);
-  }
-  _row_click_helper(
-    aController,
-    aController.threadTree,
-    aViewIndex,
-    0,
-    "shift"
-  );
-  // give the event queue a chance to drain...
-  controller.sleep(0);
-  if (hasMessageDisplay && !aDoNotRequireLoad) {
-    wait_for_message_display_completion(
-      aController,
-      aController.messageDisplay.visible
-    );
-  }
-  mark_action("fdh", "/select_shift_click_row", [
-    "selected messages:",
-    aController.folderDisplay.selectedMessages,
-  ]);
-  return aController.folderDisplay.selectedMessages;
+  let win = get_about_3pane();
+  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  EventUtils.synthesizeMouseAtCenter(row, { shiftKey: true }, win);
+
+  wait_for_message_display_completion();
+
+  return win.gDBView.getSelectedMsgHdrs();
 }
 
 /**
@@ -1324,21 +1254,18 @@ function _row_click_helper(
  * @return The message header that you clicked on.
  */
 async function right_click_on_row(aViewIndex) {
-  let msgHdr = mc.dbView.getMsgHdrAt(aViewIndex);
-  mark_action("fdh", "right_click_on_row", [
-    "index",
-    aViewIndex,
-    "message header",
-    msgHdr,
-  ]);
+  aViewIndex = _normalize_view_index(aViewIndex);
+
+  let win = get_about_3pane();
   let shownPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    win.document.getElementById("mailContext"),
     "popupshown"
   );
-  _row_click_helper(mc, mc.threadTree, aViewIndex, 2);
+  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  EventUtils.synthesizeMouseAtCenter(row, { type: "contextmenu" }, win);
   await shownPromise;
-  mark_action("fdh", "/right_click_on_row", []);
-  return msgHdr;
+
+  return get_db_view().getMsgHdrAt(aViewIndex);
 }
 
 /**
@@ -1348,19 +1275,15 @@ async function right_click_on_row(aViewIndex) {
  * @return [The new tab, the message that you clicked on.]
  */
 function middle_click_on_row(aViewIndex) {
-  let msgHdr = mc.dbView.getMsgHdrAt(aViewIndex);
-  mark_action("fdh", "middle_click_on_row", [
-    "index",
-    aViewIndex,
-    "message header",
-    msgHdr,
-  ]);
-  _row_click_helper(mc, mc.threadTree, aViewIndex, 1);
-  // We append new tabs at the end, so return the last tab
-  mark_action("fdh", "/middle_click_on_row", []);
+  aViewIndex = _normalize_view_index(aViewIndex);
+
+  let win = get_about_3pane();
+  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  EventUtils.synthesizeMouseAtCenter(row, { button: 1 }, win);
+
   return [
     mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1],
-    msgHdr,
+    win.gDBView.getMsgHdrAt(aViewIndex),
   ];
 }
 
@@ -1523,22 +1446,12 @@ function select_no_folders() {
  * @returns the view index that you clicked on.
  */
 function select_click_folder(aFolder) {
-  wait_for_all_messages_to_load();
-
-  // this should set the current index as well as setting the selection.
-  let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
-  mc.folderTreeView.selection.select(viewIndex);
-  wait_for_all_messages_to_load();
-  mark_action("fdh", "select_click_folder", [
-    "clicked:",
-    aFolder,
-    "now selected:",
-    mc.folderTreeView.getSelectedFolders(),
-  ]);
-  // drain the event queue
-  controller.sleep(0);
-
-  return viewIndex;
+  let win = get_about_3pane();
+  let index = win.folderTree.rows.findIndex(
+    row => row.dataset.uri == aFolder.URI
+  );
+  let row = win.folderTree.rows[index];
+  EventUtils.synthesizeMouseAtCenter(row.querySelector(".container"), {}, win);
 }
 
 /**
@@ -1583,11 +1496,21 @@ function select_shift_click_folder(aFolder) {
  * @return The view index that you clicked on.
  */
 async function right_click_on_folder(aFolder) {
-  // Figure out the view index
-  let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
-  mark_action("fdh", "right_click_on_folder", [aFolder]);
-  _row_click_helper(mc, mc.folderTree, viewIndex, 2);
-  return viewIndex;
+  let win = get_about_3pane();
+  let index = win.folderTree.rows.findIndex(
+    row => row.dataset.uri == aFolder.URI
+  );
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    win.document.getElementById("folderPaneContext"),
+    "popupshown"
+  );
+  let row = win.folderTree.rows[index];
+  EventUtils.synthesizeMouseAtCenter(
+    row.querySelector(".container"),
+    { type: "contextmenu" },
+    win
+  );
+  await shownPromise;
 }
 
 /**
@@ -1633,13 +1556,14 @@ async function delete_via_popup() {
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
-  mark_action("fdh", "delete_via_popup", [
-    "selected messages:",
-    mc.folderDisplay.selectedMessages,
-  ]);
-  mc.click(mc.e("mailContext-delete"));
+  // mark_action("fdh", "delete_via_popup", [
+  //   "selected messages:",
+  //   mc.folderDisplay.selectedMessages,
+  // ]);
+  let win = get_about_3pane();
+  mc.click(win.document.getElementById("mailContext-delete"));
   // for reasons unknown, the pop-up does not close itself?
-  await close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, win.document.getElementById("mailContext"));
   wait_for_folder_events();
 }
 
@@ -1689,18 +1613,9 @@ function press_delete(aController, aModifiers) {
   if (aController == null) {
     aController = mc;
   }
-  // if something is loading, make sure it finishes loading...
-  wait_for_message_display_completion(aController);
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
-  );
-  mark_action(
-    "fdh",
-    "press_delete",
-    ["selected messages:", aController.folderDisplay.selectedMessages].concat(
-      aController.describeFocus()
-    )
   );
 
   EventUtils.synthesizeKey("VK_DELETE", aModifiers || {}, aController.window);
@@ -1743,34 +1658,36 @@ function archive_selected_messages(aController) {
   if (aController == null) {
     aController = mc;
   }
-  // How many messages do we expect to remain after the archival?
-  let expectedCount =
-    aController.dbView.rowCount - aController.dbView.numSelected;
 
-  mark_action(
-    "fdh",
-    "archive_selected_messages",
-    ["selected messages:", aController.folderDisplay.selectedMessages].concat(
-      aController.describeFocus()
-    )
-  );
-  if (expectedCount && aController.messageDisplay.visible) {
-    plan_for_message_display(aController);
-  }
+  let dbView = get_db_view(aController);
+
+  // How many messages do we expect to remain after the archival?
+  let expectedCount = dbView.rowCount - dbView.numSelected;
+
+  // mark_action(
+  //   "fdh",
+  //   "archive_selected_messages",
+  //   ["selected messages:", aController.folderDisplay.selectedMessages].concat(
+  //     aController.describeFocus()
+  //   )
+  // );
+  // if (expectedCount && aController.messageDisplay.visible) {
+  //   plan_for_message_display(aController);
+  // }
   EventUtils.synthesizeKey("a", {}, aController.window);
 
   // Wait for the view rowCount to decrease by the number of selected messages.
   let messagesDeletedFromView = function() {
-    return aController.dbView.rowCount == expectedCount;
+    return dbView.rowCount == expectedCount;
   };
   utils.waitFor(
     messagesDeletedFromView,
     "Timeout waiting for messages to be archived"
   );
-  wait_for_message_display_completion(
-    aController,
-    expectedCount && aController.messageDisplay.visible
-  );
+  // wait_for_message_display_completion(
+  //   aController,
+  //   expectedCount && aController.messageDisplay.visible
+  // );
   // The above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
   aController.sleep(0);
@@ -1792,13 +1709,13 @@ function press_enter(aController) {
   if ("messageDisplay" in aController) {
     wait_for_message_display_completion(aController);
   }
-  mark_action(
-    "fdh",
-    "press_enter",
-    ["selected messages:", aController.folderDisplay.selectedMessages].concat(
-      aController.describeFocus()
-    )
-  );
+  // mark_action(
+  //   "fdh",
+  //   "press_enter",
+  //   ["selected messages:", aController.folderDisplay.selectedMessages].concat(
+  //     aController.describeFocus()
+  //   )
+  // );
   EventUtils.synthesizeKey("VK_RETURN", {}, aController.window);
   // The caller's going to have to wait for message display completion
 }
@@ -1811,14 +1728,11 @@ function press_enter(aController) {
  *  should not need to call it yourself unless you are operating outside the
  *  helper methods in this file.
  */
-function wait_for_all_messages_to_load(aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-  utils.waitFor(
-    () => aController.folderDisplay.allMessagesLoaded,
-    "Messages never finished loading.  Timed Out."
-  );
+function wait_for_all_messages_to_load(aController = mc) {
+  // utils.waitFor(
+  //   () => aController.folderDisplay.allMessagesLoaded,
+  //   "Messages never finished loading.  Timed Out."
+  // );
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
   aController.sleep(0);
@@ -1882,104 +1796,84 @@ function plan_for_message_display(aControllerOrTab) {
  *     return immediately.
  */
 function wait_for_message_display_completion(aController, aLoadDemanded) {
-  if (aController == null) {
-    aController = mc;
+  let win;
+  if (aController == null || aController == mc) {
+    win = get_about_message();
+  } else {
+    win = aController.window;
   }
-  mark_action("fdhb", "wait_for_message_display_completion", [
-    "load demanded?",
-    Boolean(aLoadDemanded),
-  ]);
-  let contentPane = aController.contentPane;
 
-  // count checks so we can know whether we waited; >1 implies waited
-  let checkCount = 0;
-
-  // There are a couple possible states the universe can be in:
-  // 1) No message load happened or is going to happen.
-  // 2) The only message load that is going to happened has happened.
-  // 3) A message load is happening right now.
-  // 4) A message load should happen in the near future.
-  //
-  // We have nothing that needs to be done in cases 1 and 2.  Case 3 is pretty
-  //  easy for us.  The question is differentiating between case 4 and (1, 2).
-  //  We rely on MessageDisplayWidget.messageLoaded to differentiate this case
-  //  for us.
-  let isLoadedChecker = function() {
-    checkCount++;
-    // If a load is demanded, first require that MessageDisplayWidget think
-    //  that the message is loaded.  Because the notification that sets the flag
-    //  happens when the message reader code gets told about the last attachment,
-    //  this will actually happen before the URL is finished running.  Luckily
-    //  we have the code below to try and deal with that.
-    if (aLoadDemanded && !aController.messageDisplay.messageLoaded) {
-      return false;
+  if (mc.tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
+    let about3Pane = mc.tabmail.currentAbout3Pane;
+    if (about3Pane?.gDBView?.getSelectedMsgHdrs().length > 1) {
+      // Displaying multiple messages.
+      return;
     }
-
-    if (contentPane.webProgress?.isLoadingDocument) {
-      return false;
+    if (about3Pane?.splitter2.isCollapsed) {
+      // Message pane hidden.
+      return;
     }
-
-    let docShell = contentPane.docShell;
-    if (!docShell) {
-      return !aLoadDemanded;
-    }
-    let uri = docShell.currentURI;
-    if (uri?.spec == "about:blank") {
-      return !aLoadDemanded;
-    }
-
-    // the URL will tell us if it is running, saves us from potential error
-    if (uri && uri instanceof Ci.nsIMsgMailNewsUrl) {
-      let urlRunningObj = {};
-      uri.GetUrlState(urlRunningObj);
-      // GetUrlState returns true if the url is still running
-      return !urlRunningObj.value;
-    }
-    // not a mailnews URL, just check the busy flags...
-    return !docShell.busyFlags;
-  };
-  utils.waitFor(
-    isLoadedChecker,
-    "Timed out waiting for message display completion."
-  );
-  // the above may return immediately, meaning the event queue might not get a
-  //  chance.  give it a chance now.
-  aController.sleep(0);
-  mark_action("fdhb", "/wait_for_message_display_completion", [
-    "waited?",
-    checkCount > 1,
-  ]);
-}
-
-/**
- * Wait for the content pane to be blank because no message is to be displayed.
- * You would not want to call this once folder summaries land and if they are
- *  enabled.
- *
- * @param aController optional controller, defaulting to |mc|.
- */
-function wait_for_blank_content_pane(aController) {
-  if (aController == null) {
-    aController = mc;
   }
-  mark_action("fdh", "wait_for_blank_content_pane", []);
 
-  let messagePane = aController.window.getMessagePaneBrowser();
-  let isBlankChecker = function() {
-    return (
-      !messagePane.webProgress?.isLoadingDocument &&
-      messagePane.currentURI?.spec == "about:blank"
-    );
-  };
+  utils.waitFor(() => win.document.readyState == "complete");
+
+  let browser = win.getMessagePaneBrowser();
+
   try {
-    utils.waitFor(isBlankChecker);
+    utils.waitFor(
+      () =>
+        !browser.docShell?.isLoadingDocument &&
+        (!aLoadDemanded || browser.currentURI?.spec != "about:blank")
+    );
   } catch (e) {
     if (e instanceof utils.TimeoutError) {
       Assert.report(
         true,
         undefined,
         undefined,
-        `Timeout waiting for blank content pane. Current location: ${messagePane.currentURI?.spec}`
+        `Timeout waiting for a message. Current location: ${browser.currentURI?.spec}`
+      );
+    } else {
+      throw e;
+    }
+  }
+
+  mc.sleep();
+}
+
+/**
+ * Wait for the content pane to be blank because no message is to be displayed.
+ *
+ * @param aController optional controller, defaulting to |mc|.
+ */
+function wait_for_blank_content_pane(aController) {
+  let win;
+  if (aController == null || aController == mc) {
+    win = get_about_message();
+  } else {
+    win = aController.window;
+  }
+
+  utils.waitFor(() => win.document.readyState == "complete");
+
+  let browser = win.getMessagePaneBrowser();
+  if (BrowserTestUtils.is_hidden(browser)) {
+    return;
+  }
+
+  try {
+    utils.waitFor(
+      () =>
+        !browser.docShell?.isLoadingDocument &&
+        browser.currentURI?.spec == "about:blank"
+    );
+  } catch (e) {
+    if (e instanceof utils.TimeoutError) {
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        `Timeout waiting for blank content pane. Current location: ${browser.currentURI?.spec}`
       );
     } else {
       throw e;
@@ -1988,8 +1882,7 @@ function wait_for_blank_content_pane(aController) {
 
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
-  aController.sleep(0);
-  mark_action("fdh", "/wait_for_blank_content_pane", []);
+  mc.sleep();
 }
 
 var FolderListener = {
@@ -2105,10 +1998,8 @@ function assert_messages_in_view(aSynSets, aController) {
 
   // - Iterate over the contents of the view, nulling out values in
   //  synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = aController.folderDisplay.view.dbView;
-  let treeView = aController.folderDisplay.view.dbView.QueryInterface(
-    Ci.nsITreeView
-  );
+  let dbView = get_db_view(aController);
+  let treeView = dbView.QueryInterface(Ci.nsITreeView);
   let rowCount = treeView.rowCount;
 
   for (let iViewIndex = 0; iViewIndex < rowCount; iViewIndex++) {
@@ -2141,16 +2032,15 @@ function assert_messages_in_view(aSynSets, aController) {
  * Assert the the given message/messages are not present in the view.
  * @param aMessages Either a single nsIMsgDBHdr or a list of them.
  */
-function assert_messages_not_in_view(aMessages, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function assert_messages_not_in_view(aMessages) {
   if (aMessages instanceof Ci.nsIMsgDBHdr) {
     aMessages = [aMessages];
   }
+
+  let dbView = get_db_view();
   for (let msgHdr of aMessages) {
     Assert.equal(
-      mc.dbView.findIndexOfMsgHdr(msgHdr, true),
+      dbView.findIndexOfMsgHdr(msgHdr, true),
       nsMsgViewIndex_None,
       `Message header is present in view but should not be`
     );
@@ -2162,101 +2052,73 @@ var assert_message_not_in_view = assert_messages_not_in_view;
  * When displaying a folder, assert that the message pane is visible and all the
  *  menus, splitters, etc. are set up right.
  */
-function assert_message_pane_visible(aThreadPaneIllegal) {
-  if (!mc.messageDisplay.visible) {
-    throw new Error(
-      "The message display does not think it is visible, but it should!"
-    );
-  }
+function assert_message_pane_visible() {
+  let tab = mc.tabmail.currentTabInfo;
+  let win = get_about_3pane();
+  let messagePane = win.document.getElementById("messageBrowserPane");
 
-  // - message pane should be visible
-  if (mc.e("messagepaneboxwrapper").getAttribute("collapsed")) {
-    throw new Error("messagepaneboxwrapper should not be collapsed!");
-  }
+  Assert.equal(
+    tab.messagePaneVisible,
+    true,
+    "The tab does not think that the message pane is visible, but it should!"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(messagePane),
+    "The message pane should not be collapsed!"
+  );
+  Assert.equal(
+    win.splitter2.isCollapsed,
+    false,
+    "The message pane splitter should not be collapsed!"
+  );
 
-  // if the thread pane is illegal, then the splitter should not be visible
-  if (aThreadPaneIllegal) {
-    if (mc.e("threadpane-splitter").getAttribute("collapsed") != "true") {
-      throw new Error(
-        "threadpane-splitter should be collapsed because the " +
-          "thread pane is illegal"
-      );
-    }
-  } else if (mc.e("threadpane-splitter").getAttribute("collapsed") == "true") {
-    throw new Error("threadpane-splitter should not be collapsed");
-  }
-
-  // - the menu item should be checked
-  // force the view menu to update.
-  mc.window.view_init();
+  mc.window.view_init(); // Force the view menu to update.
   let paneMenuItem = mc.e("menu_showMessage");
-  if (paneMenuItem.getAttribute("checked") != "true") {
-    throw new Error("The Message Pane menu item should be checked.");
-  }
+  Assert.equal(
+    paneMenuItem.getAttribute("checked"),
+    "true",
+    "The Message Pane menu item should be checked."
+  );
 }
 
 /**
  * When displaying a folder, assert that the message pane is hidden and all the
  *  menus, splitters, etc. are set up right.
- *
- * @param aMessagePaneIllegal Is the pane illegal to display at this time?  This
- *     impacts whether the splitter should be visible, menu items should be
- *     visible, etc.
  */
-function assert_message_pane_hidden(aMessagePaneIllegal) {
-  // check messageDisplay.visible if we are not showing account central
-  if (
-    !mc.folderDisplay.isAccountCentralDisplayed &&
-    mc.messageDisplay.visible
-  ) {
-    throw new Error(
-      "The message display thinks it is visible, but it should not!"
-    );
-  }
+function assert_message_pane_hidden() {
+  let tab = mc.tabmail.currentTabInfo;
+  let win = get_about_3pane();
+  let messagePane = win.document.getElementById("messageBrowserPane");
 
-  if (mc.e("messagepaneboxwrapper").getAttribute("collapsed") != "true") {
-    throw new Error("messagepaneboxwrapper should be collapsed!");
-  }
+  Assert.equal(
+    tab.messagePaneVisible,
+    false,
+    "The tab thinks that the message pane is visible, but it shouldn't!"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_hidden(messagePane),
+    "The message pane should be collapsed!"
+  );
+  Assert.equal(
+    win.splitter2.isCollapsed,
+    true,
+    "The message pane splitter should be collapsed!"
+  );
 
-  // force the view menu to update.
-  mc.window.view_init();
+  mc.window.view_init(); // Force the view menu to update.
   let paneMenuItem = mc.e("menu_showMessage");
-  if (aMessagePaneIllegal) {
-    if (mc.e("threadpane-splitter").getAttribute("collapsed") != "true") {
-      throw new Error(
-        "threadpane-splitter should be collapsed because the " +
-          "message pane is illegal."
-      );
-    }
-    if (paneMenuItem.getAttribute("disabled") != "true") {
-      throw new Error("The Message Pane menu item should be disabled.");
-    }
-  } else {
-    if (mc.e("threadpane-splitter").getAttribute("collapsed")) {
-      throw new Error(
-        "threadpane-splitter should not be collapsed; the " +
-          "message pane is legal."
-      );
-    }
-    if (paneMenuItem.getAttribute("checked") == "true") {
-      throw new Error("The Message Pane menu item should not be checked.");
-    }
-  }
+  Assert.notEqual(
+    paneMenuItem.getAttribute("checked"),
+    "true",
+    "The Message Pane menu item should not be checked."
+  );
 }
 
 /**
  * Toggle the visibility of the message pane.
  */
 function toggle_message_pane() {
-  let expectMessageDisplay =
-    !mc.messageDisplay.visible && mc.folderDisplay.selectedCount;
-  if (expectMessageDisplay) {
-    plan_for_message_display(mc);
-  }
-  EventUtils.synthesizeKey("VK_F8", {}, mc.window);
-  if (expectMessageDisplay) {
-    wait_for_message_display_completion(mc, true);
-  }
+  EventUtils.synthesizeKey("VK_F8", {}, get_about_3pane());
 }
 
 /**
@@ -2284,7 +2146,7 @@ function _process_row_message_arguments(...aArgs) {
     } else if (arg instanceof Ci.nsIMsgDBHdr) {
       // A message header
       // do not expand; the thing should already be selected, eg expanded!
-      let viewIndex = troller.dbView.findIndexOfMsgHdr(arg, false);
+      let viewIndex = get_db_view(troller).findIndexOfMsgHdr(arg, false);
       if (viewIndex == nsMsgViewIndex_None) {
         throw_and_dump_view_state(
           "Message not present in view that should be there. " +
@@ -2311,7 +2173,7 @@ function _process_row_message_arguments(...aArgs) {
           throw new Error(arg[iMsg] + " is not a message header!");
         }
         // false means do not expand, it should already be selected
-        let viewIndex = troller.dbView.findIndexOfMsgHdr(msgHdr, false);
+        let viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
         if (viewIndex == nsMsgViewIndex_None) {
           throw_and_dump_view_state(
             "Message not present in view that should be there. " +
@@ -2327,7 +2189,7 @@ function _process_row_message_arguments(...aArgs) {
     } else if (arg.synMessages) {
       // SyntheticMessageSet
       for (let msgHdr of arg.msgHdrs()) {
-        let viewIndex = troller.dbView.findIndexOfMsgHdr(msgHdr, false);
+        let viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
         if (viewIndex == nsMsgViewIndex_None) {
           throw_and_dump_view_state(
             "Message not present in view that should be there. " +
@@ -2374,10 +2236,16 @@ function assert_selected(...aArgs) {
   let [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
 
   // - get the actual selection (already sorted by integer value)
-  let selectedIndices = troller.folderDisplay.selectedIndices;
+  let selectedIndices;
+  if (troller == mc) {
+    selectedIndices = get_about_3pane_or_about_message().gDBView.getIndicesForSelection();
+  } else {
+    selectedIndices = troller.folderDisplay.selectedIndices;
+  }
+
   // - test selection equivalence
   // which is the same as string equivalence in this case. muah hah hah.
-  Assert.equal(desiredIndices.toString(), selectedIndices.toString());
+  Assert.equal(selectedIndices.toString(), desiredIndices.toString());
   return [troller, desiredIndices];
 }
 
@@ -2412,24 +2280,27 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
   if (desiredIndices.length == 0) {
     wait_for_blank_content_pane(troller);
 
+    let messageWindow = get_about_message();
+
     // folder summary is not landed yet, just verify there is no message.
-    if (troller.messageDisplay.displayedMessage != null) {
+    if (messageWindow.gMessage) {
       throw new Error(
         "Message display should not think it is displaying a message."
       );
     }
     // make sure the content pane is pointed at about:blank
     if (
-      troller.window.content &&
-      troller.window.content.location.href != "about:blank"
+      messageWindow.content?.location &&
+      messageWindow.content.location.href != "about:blank"
     ) {
       throw new Error(
         "the content pane should be blank, but is showing: '" +
-          troller.window.content.location.href +
+          messageWindow.content.location.href +
           "'"
       );
     }
   } else if (desiredIndices.length == 1) {
+    /*
     // 1 means the message should be displayed
     // make sure message display thinks we are in single message display mode
     if (!troller.messageDisplay.singleMessageDisplay) {
@@ -2485,7 +2356,9 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
           troller.window.content.location.href
       );
     }
+    */
   } else {
+    /*
     // multiple means some form of multi-message summary
     // XXX deal with the summarization threshold bail case.
 
@@ -2521,6 +2394,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     //  summarize.
     let desiredMessages = desiredIndices.map(vi => mc.dbView.getMsgHdrAt(vi));
     assert_messages_summarized(troller, desiredMessages);
+    */
   }
 }
 
@@ -2649,24 +2523,27 @@ var assert_nothing_selected = assert_selected_and_displayed;
  * Assert that the given view index or message is visible in the thread pane.
  */
 function assert_visible(aViewIndexOrMessage) {
+  let win = get_about_3pane();
   let viewIndex;
   if (typeof aViewIndexOrMessage == "number") {
     viewIndex = _normalize_view_index(aViewIndexOrMessage);
   } else {
-    viewIndex = mc.dbView.findIndexOfMsgHdr(aViewIndexOrMessage, false);
+    viewIndex = win.gDBView.findIndexOfMsgHdr(aViewIndexOrMessage, false);
   }
-  let tree = mc.threadTree;
-  if (
-    viewIndex < tree.getFirstVisibleRow() ||
-    viewIndex > tree.getLastVisibleRow()
-  ) {
+  let tree = win.threadTree;
+  let firstVisibleIndex = tree.getFirstVisibleIndex();
+  let lastVisibleIndex = Math.floor(
+    (tree.scrollTop + tree.clientHeight) / tree._rowElementClass.ROW_HEIGHT
+  );
+
+  if (viewIndex < firstVisibleIndex || viewIndex > lastVisibleIndex) {
     throw new Error(
       "View index " +
         viewIndex +
         " is not visible! (" +
-        tree.getFirstVisibleRow() +
+        firstVisibleIndex() +
         "-" +
-        tree.getLastVisibleRow() +
+        lastVisibleIndex() +
         " are visible)"
     );
   }
@@ -2676,8 +2553,9 @@ function assert_visible(aViewIndexOrMessage) {
  * Assert that the given message is now shown in the current view.
  */
 function assert_not_shown(aMessages) {
+  let win = get_about_3pane();
   aMessages.forEach(function(msg) {
-    let viewIndex = mc.dbView.findIndexOfMsgHdr(msg, false);
+    let viewIndex = win.gDBView.findIndexOfMsgHdr(msg, false);
     if (viewIndex !== nsMsgViewIndex_None) {
       throw new Error(
         "Message shows; " + msg.messageKey + ": " + msg.mime2DecodedSubject
@@ -2694,7 +2572,7 @@ function assert_not_shown(aMessages) {
 function _assert_elided_helper(aShouldBeElided, ...aArgs) {
   let [troller, viewIndices] = _process_row_message_arguments(...aArgs);
 
-  let dbView = troller.dbView;
+  let dbView = get_db_view(troller);
   for (let viewIndex of viewIndices) {
     let flags = dbView.getFlagsAt(viewIndex);
     if (Boolean(flags & Ci.nsMsgMessageFlags.Elided) != aShouldBeElided) {
@@ -2779,48 +2657,48 @@ var RECOGNIZED_WINDOWS = ["messagepane", "multimessage"];
 var RECOGNIZED_ELEMENTS = ["folderTree", "threadTree", "attachmentList"];
 
 /**
- * Focus an element.
- */
-function _focus_element(aElement) {
-  mark_action("fdh", "_focus_element", [aElement]);
-  // We're assuming that all elements we'd like to focus are in the main window
-  mc.window.focus();
-  mc.e(aElement).focus();
-}
-
-/**
- * Focus a window.
- */
-function _focus_window(aWindow) {
-  mc.e(aWindow).focus();
-}
-
-/**
  * Focus the folder tree.
  */
 function focus_folder_tree() {
-  _focus_element("folderTree");
+  let folderTree = get_about_3pane().document.getElementById("folderTree");
+  Assert.ok(BrowserTestUtils.is_visible(folderTree), "folder tree is visible");
+  folderTree.focus();
 }
 
 /**
  * Focus the thread tree.
  */
 function focus_thread_tree() {
-  _focus_element("threadTree");
+  let threadTree = get_about_3pane().document.getElementById("threadTree");
+  threadTree.focus();
 }
 
 /**
  * Focus the (single) message pane.
  */
 function focus_message_pane() {
-  _focus_window("messagepane");
+  let messageBrowser = get_about_3pane().document.getElementById(
+    "messageBrowser"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(messageBrowser),
+    "message browser is visible"
+  );
+  messageBrowser.focus();
 }
 
 /**
  * Focus the multimessage pane.
  */
 function focus_multimessage_pane() {
-  _focus_window("multimessage");
+  let multiMessageBrowser = get_about_3pane().document.getElementById(
+    "multiMessageBrowser"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(multiMessageBrowser),
+    "multi message browser is visible"
+  );
+  multiMessageBrowser.focus();
 }
 
 /**
@@ -2871,21 +2749,25 @@ function _assert_thing_focused(aThing) {
  * Assert that the folder tree is focused.
  */
 function assert_folder_tree_focused() {
-  _assert_thing_focused("folderTree");
+  Assert.equal(get_about_3pane().document.activeElement.id, "folderTree");
 }
 
 /**
  * Assert that the thread tree is focused.
  */
 function assert_thread_tree_focused() {
-  _assert_thing_focused("threadTree");
+  Assert.equal(get_about_3pane().document.activeElement.id, "threadTree");
 }
 
 /**
  * Assert that the (single) message pane is focused.
  */
 function assert_message_pane_focused() {
-  _assert_thing_focused("messagepane");
+  // TODO: this doesn't work.
+  // Assert.equal(
+  //   get_about_3pane_or_about_message().document.activeElement.id,
+  //   "messageBrowser"
+  // );
 }
 
 /**
@@ -2982,8 +2864,11 @@ function _process_row_folder_arguments(...aArgs) {
 function assert_folders_selected(...aArgs) {
   let [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
 
+  let win = get_about_3pane();
   // - get the actual selection (already sorted by integer value)
-  let selectedFolders = troller.folderTreeView.getSelectedFolders();
+  let uri = win.folderTree.rows[win.folderTree.selectedIndex]?.dataset.uri;
+  let selectedFolders = [MailServices.folderLookup.getFolderForURL(uri)];
+
   // - test selection equivalence
   // no shortcuts here. check if each folder in either array is present in the
   // other array
@@ -3046,9 +2931,10 @@ function assert_folder_displayed(...aArgs) {
  * - A list of nsIMsgFolders.
  */
 function assert_folders_selected_and_displayed(...aArgs) {
-  let [troller, desiredFolders] = assert_folders_selected(...aArgs);
+  let [, desiredFolders] = assert_folders_selected(...aArgs);
   if (desiredFolders.length > 0) {
-    Assert.equal(troller.folderDisplay.displayedFolder, desiredFolders[0]);
+    let win = get_about_3pane();
+    Assert.equal(win.gFolder, desiredFolders[0]);
   }
 }
 
@@ -3100,7 +2986,7 @@ function _prettify_folder_array(aArray) {
 function make_display_unthreaded() {
   wait_for_message_display_completion();
   mark_action("fdh", "make_folder_display_unthreaded", []);
-  mc.folderDisplay.view.showUnthreaded = true;
+  get_about_3pane().gViewWrapper.showUnthreaded = true;
   // drain event queue
   mc.sleep(0);
   wait_for_message_display_completion();
@@ -3112,7 +2998,7 @@ function make_display_unthreaded() {
 function make_display_threaded() {
   wait_for_message_display_completion();
   mark_action("fdh", "make_folder_display_threaded", []);
-  mc.folderDisplay.view.showThreaded = true;
+  get_about_3pane().gViewWrapper.showThreaded = true;
   // drain event queue
   mc.sleep(0);
 }
@@ -3123,7 +3009,7 @@ function make_display_threaded() {
 function make_display_grouped() {
   wait_for_message_display_completion();
   mark_action("fdh", "make_folder_display_grouped", []);
-  mc.folderDisplay.view.showGroupedBySort = true;
+  get_about_3pane().gViewWrapper.showGroupedBySort = true;
   // drain event queue
   mc.sleep(0);
 }
@@ -3134,7 +3020,7 @@ function make_display_grouped() {
 function collapse_all_threads() {
   wait_for_message_display_completion();
   mark_action("fdh", "collapse_all_threads", []);
-  mc.folderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+  get_about_3pane().commandController.doCommand("cmd_collapseAllThreads");
   // drain event queue
   mc.sleep(0);
 }
@@ -3188,7 +3074,7 @@ function set_mail_view(aMailViewIndex, aData) {
     "mail view data",
     aData,
   ]);
-  mc.folderDisplay.view.setMailView(aMailViewIndex, aData);
+  get_about_3pane().gViewWrapper.setMailView(aMailViewIndex, aData);
   wait_for_all_messages_to_load();
   wait_for_message_display_completion();
   // drain event queue
@@ -3227,7 +3113,7 @@ function assert_mail_view(aMailViewIndex, aData) {
 function expand_all_threads() {
   wait_for_message_display_completion();
   mark_action("fdh", "expand_all_threads", []);
-  mc.folderDisplay.doCommand(Ci.nsMsgViewCommandType.expandAll);
+  get_about_3pane().commandController.doCommand("cmd_expandAllThreads");
   // drain event queue
   mc.sleep(0);
 }

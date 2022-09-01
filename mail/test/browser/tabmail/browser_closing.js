@@ -132,7 +132,7 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
       "Expected tab at index " + (i - 1) + " to be selected."
     );
   }
-});
+}).skip();
 
 /**
  * @typedef {Object} TestTab

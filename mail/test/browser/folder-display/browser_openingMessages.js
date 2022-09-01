@@ -69,19 +69,24 @@ add_task(async function test_open_single_message_in_tab() {
   let msgHdr = select_click_row(1);
   // Open it
   open_selected_message();
-  // This is going to trigger a message display in the main 3pane window
-  wait_for_message_display_completion(mc);
   // Check that the tab count has increased by 1
   assert_number_of_tabs_open(preCount + 1);
   // Check that the currently displayed tab is a message tab (i.e. our newly
   // opened tab is in the foreground)
-  assert_tab_mode_name(null, "message");
+  assert_tab_mode_name(null, "mailMessageTab");
+
+  let tab = mc.tabmail.currentTabInfo;
+  if (
+    tab.chromeBrowser.docShell.isLoadingDocument ||
+    tab.chromeBrowser.currentURI.spec != "about:message"
+  ) {
+    await BrowserTestUtils.browserLoaded(tab.chromeBrowser);
+  }
+
   // Check that the message header displayed is the right one
   assert_selected_and_displayed(msgHdr);
   // Check that the message pane is focused
   assert_message_pane_focused();
-  // Check that the message pane in a newly opened tab has full height.
-  check_message_pane_in_tab_full_height();
   // Clean up, close the tab
   close_tab(mc.tabmail.currentTabInfo);
   await switch_tab(folderTab);
@@ -102,13 +107,11 @@ add_task(async function test_open_multiple_messages_in_tabs() {
   let selectedMessages = select_shift_click_row(NUM_MESSAGES_TO_OPEN);
   // Open them
   open_selected_messages();
-  // This is going to trigger a message display in the main 3pane window
-  wait_for_message_display_completion(mc);
   // Check that the tab count has increased by the correct number
   assert_number_of_tabs_open(preCount + NUM_MESSAGES_TO_OPEN);
   // Check that the currently displayed tab is a message tab (i.e. one of our
   // newly opened tabs is in the foreground)
-  assert_tab_mode_name(null, "message");
+  assert_tab_mode_name(null, "mailMessageTab");
 
   // Now check whether each of the NUM_MESSAGES_TO_OPEN tabs has the correct
   // title
@@ -148,9 +151,6 @@ add_task(async function test_open_message_in_new_window() {
 
   assert_selected_and_displayed(msgc, msgHdr);
 
-  // Check that the message pane in a newly opened window has full height.
-  check_message_pane_in_window_full_height(msgc.window);
-
   // Clean up, close the window
   close_message_window(msgc);
   reset_open_message_behavior();
@@ -182,57 +182,3 @@ add_task(async function test_open_message_in_existing_window() {
   close_message_window(msgc);
   reset_open_message_behavior();
 });
-
-/**
- * Check if the message pane in a new tab has the full height, so no
- * empty box is visible below it.
- */
-
-function check_message_pane_in_tab_full_height() {
-  let messagesBoxHeight = mc.e("messagesBox").getBoundingClientRect().height;
-  let displayBoxHeight = mc.e("displayBox").getBoundingClientRect().height;
-  let messagePaneBoxWrapperHeight = mc
-    .e("messagepaneboxwrapper")
-    .getBoundingClientRect().height;
-  let notificationBoxHeight = mc
-    .e("messenger-notification-footer")
-    .getBoundingClientRect().height;
-
-  Assert.equal(
-    messagesBoxHeight,
-    displayBoxHeight + messagePaneBoxWrapperHeight + notificationBoxHeight,
-    "messages box height (" +
-      messagesBoxHeight +
-      ") not equal to the sum of displayBox height (" +
-      displayBoxHeight +
-      ") and message pane box wrapper height (" +
-      messagePaneBoxWrapperHeight +
-      ") and message notification box height (" +
-      notificationBoxHeight +
-      ")"
-  );
-}
-
-/**
- * Check if the message pane in a new window has the full height, so no
- * empty box is visible below it.
- */
-
-function check_message_pane_in_window_full_height(win) {
-  let messengerWindowHeight = win.document.body.getBoundingClientRect().height;
-  let messengerChildren = win.document.body.children;
-  let childrenHeightsSum = 0;
-  let childrenHeightsStr = "";
-  for (let child of messengerChildren) {
-    let childRect = child.getBoundingClientRect();
-    childrenHeightsSum += childRect.height;
-    childrenHeightsStr += '"' + child.id + '": ' + childRect.height + ", ";
-  }
-
-  Assert.equal(
-    Math.round(messengerWindowHeight),
-    Math.round(childrenHeightsSum),
-    "messenger window height not equal to the sum of children heights: " +
-      childrenHeightsStr
-  );
-}

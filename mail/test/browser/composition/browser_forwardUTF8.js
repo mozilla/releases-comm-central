@@ -17,6 +17,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_message,
   mc,
   open_message_from_file,
   press_delete,
@@ -96,7 +97,9 @@ async function forwardViaFolder(aFilePath) {
   assert_selected_and_displayed(mc, msg);
 
   Assert.ok(
-    mc.e("messagepane").contentDocument.body.textContent.includes("áóúäöüß")
+    get_about_message()
+      .document.getElementById("messagepane")
+      .contentDocument.body.textContent.includes("áóúäöüß")
   );
 
   let fwdWin = open_compose_with_forward();

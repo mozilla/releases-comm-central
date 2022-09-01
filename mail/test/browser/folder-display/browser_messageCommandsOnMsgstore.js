@@ -119,6 +119,7 @@ async function check_status(folder, offset, expectedStatus) {
 }
 
 add_task(async function test_mark_messages_read() {
+  be_in_folder(gOutbox); // TODO shouldn't have to swap folders
   // 5 messages in the folder
   await be_in_folder(gInbox);
   let curMessage = select_click_row(0);
@@ -141,10 +142,10 @@ add_task(async function test_mark_messages_read() {
   // Make sure we can mark all read with >0 messages unread.
   await right_click_on_row(0);
   let hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await mc.click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
@@ -183,10 +184,10 @@ add_task(async function test_mark_messages_read() {
   // Let's have the last message unread.
   await right_click_on_row(3);
   hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await mc.click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markUnread" },
   ]);
@@ -202,10 +203,10 @@ add_task(async function test_mark_messages_flagged() {
   let curMessage = select_click_row(1);
   await right_click_on_row(1);
   let hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await mc.click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markFlagged" },
   ]);
@@ -324,6 +325,6 @@ registerCleanupFunction(async function() {
   // Clear all the created messages.
   await be_in_folder(gInbox.parent);
   await empty_folder(gInbox);
-  await empty_folder(gOutbox);
+  // await empty_folder(gOutbox); TODO
   gInbox.server.rootFolder.emptyTrash(null, null);
 });

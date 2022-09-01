@@ -24,10 +24,7 @@ let {
 let { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-let {
-  get_notification_button,
-  wait_for_notification_to_stop,
-} = ChromeUtils.import(
+let { wait_for_notification_to_stop } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 let { cloudFileAccounts } = ChromeUtils.import(
@@ -79,7 +76,7 @@ add_task(async function test_filelink_uploaded_size() {
 
   add_cloud_attachments(cwc, account, false);
   gMockCloudfileManager.resolveUploads();
-  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
+  wait_for_notification_to_stop(cwc.window, kBoxId, "bigAttachmentUploading");
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(

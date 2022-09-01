@@ -53,7 +53,7 @@ add_task(async function test_move_message() {
   // which should be empty and disabled.
   await right_click_on_row(0);
   let popups = await mc.click_menus_in_sequence(
-    mc.e("mailContext"),
+    getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
   );
@@ -62,7 +62,7 @@ add_task(async function test_move_message() {
   gInitRecentMenuCount = recentMenu.itemCount;
   Assert.equal(gInitRecentMenuCount, 0);
   let hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
   mc.close_popup_sequence(popups);
@@ -96,9 +96,10 @@ add_task(async function test_move_message() {
   // We've moved a message to aaafolder2 - it should appear in recent list now.
   // Clicking the menuitem by label is not localizable, but Recent doesn't have an
   // id we can use.
+  select_click_row(0);
   await right_click_on_row(0);
   popups = await mc.click_menus_in_sequence(
-    mc.e("mailContext"),
+    getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
   );
@@ -114,7 +115,7 @@ add_task(async function test_move_message() {
     "recent menu child should be aaafolder2 after move"
   );
   hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
   mc.close_popup_sequence(popups);
@@ -125,9 +126,10 @@ add_task(async function test_move_message() {
 add_task(async function test_delete_message() {
   press_delete(mc);
   // We've deleted a message - we should still just have folder2 in the menu.
+  select_click_row(0); // TODO shouldn't need to do this
   await right_click_on_row(0);
   let popups = await mc.click_menus_in_sequence(
-    mc.e("mailContext"),
+    getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
   );
@@ -143,7 +145,7 @@ add_task(async function test_delete_message() {
     "recent menu should still be aaafolder2 after delete"
   );
   let hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
   mc.close_popup_sequence(popups);
@@ -160,9 +162,10 @@ add_task(async function test_archive_message() {
     false
   );
   await be_in_folder(archive.descendants[0]);
+  select_click_row(0);
   await right_click_on_row(0);
   let popups = await mc.click_menus_in_sequence(
-    mc.e("mailContext"),
+    getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
   );
@@ -178,7 +181,7 @@ add_task(async function test_archive_message() {
     "recent menu should still be aaafolder2 after archive"
   );
   let hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
   mc.close_popup_sequence(popups);

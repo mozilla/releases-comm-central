@@ -22,6 +22,7 @@ var {
   be_in_folder,
   empty_folder,
   get_special_folder,
+  get_about_message,
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.import(
@@ -237,7 +238,8 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // multipart/alternative.
   // TODO: Is there a better way to expose the content-type of the displayed
   // message?
-  let contentType = window.currentHeaderData["content-type"].headerValue;
+  let contentType = get_about_message().currentHeaderData["content-type"]
+    .headerValue;
   if (plain && html) {
     Assert.ok(
       contentType.startsWith("multipart/alternative"),
@@ -261,7 +263,8 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // NOTE: We have set the mailnews.display.html_as preference to show all parts
   // of the message, which means it will show both the plain text and html parts
   // if both were sent.
-  let messageBody = document.getElementById("messagepane").contentDocument.body;
+  let messageBody = get_about_message().document.getElementById("messagepane")
+    .contentDocument.body;
   let plainBody = messageBody.querySelector(".moz-text-flowed");
   let htmlBody = messageBody.querySelector(".moz-text-html");
   Assert.equal(

@@ -5,6 +5,31 @@
 /**
  * Test the message header customization features.
  */
+var {
+  add_message_to_folder,
+  assert_selected_and_displayed,
+  be_in_folder,
+  close_popup,
+  create_folder,
+  create_message,
+  gDefaultWindowHeight,
+  get_smart_folder_named,
+  get_about_3pane,
+  get_about_message,
+  inboxFolder,
+  mc,
+  msgGen,
+  restore_default_window_size,
+  select_click_row,
+  select_none,
+  wait_for_message_display_completion,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
+let about3Pane = get_about_3pane();
+let aboutMessage = get_about_message();
 
 var gFolder;
 
@@ -27,33 +52,35 @@ add_setup(async function() {
 });
 
 add_task(async function test_customize_toolbar_buttons() {
-  window.gFolderTreeView.selectFolder(gFolder);
-  window.gFolderDisplay.selectViewIndex(0);
+  be_in_folder(gFolder);
+  select_click_row(0);
 
-  let moreBtn = document.getElementById("otherActionsButton");
+  let moreBtn = aboutMessage.document.getElementById("otherActionsButton");
   // Make sure we loaded the expected message.
   await assertVisibility(moreBtn, true, "The more button is visible");
 
   // Confirm we're starting from a clean state.
-  let header = document.getElementById("messageHeader");
+  let header = aboutMessage.document.getElementById("messageHeader");
   Assert.ok(
     !header.classList.contains("message-header-show-recipient-avatar"),
     "The From recipient is not showing the avatar"
   );
-  let avatar = document.querySelector(".recipient-avatar");
+  let avatar = aboutMessage.document.querySelector(".recipient-avatar");
   await assertVisibility(avatar, false, "The recipient avatar is hidden");
 
   Assert.ok(
     !header.classList.contains("message-header-show-sender-full-address"),
     "The From recipient is not showing the full address on two lines"
   );
-  let multiLine = document.querySelector(".recipient-multi-line");
+  let multiLine = aboutMessage.document.querySelector(".recipient-multi-line");
   await assertVisibility(
     multiLine,
     false,
     "The recipient multi line is hidden"
   );
-  let singleLine = document.querySelector(".recipient-single-line");
+  let singleLine = aboutMessage.document.querySelector(
+    ".recipient-single-line"
+  );
   await assertVisibility(
     singleLine,
     true,
@@ -65,7 +92,7 @@ add_task(async function test_customize_toolbar_buttons() {
     "The labels column is visible"
   );
 
-  let firstLabel = document.querySelector(".message-header-label");
+  let firstLabel = aboutMessage.document.querySelector(".message-header-label");
   Assert.ok(
     firstLabel.style.minWidth != "0px",
     "The first label has a min-width value"
@@ -85,57 +112,64 @@ add_task(async function test_customize_toolbar_buttons() {
     "The message header buttons aren't showing only text"
   );
 
-  let popup = document.getElementById("otherActionsPopup");
+  let popup = aboutMessage.document.getElementById("otherActionsPopup");
   let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(moreBtn, {});
+  EventUtils.synthesizeMouseAtCenter(moreBtn, {}, aboutMessage);
   await popupShown;
 
-  let panel = document.getElementById("messageHeaderCustomizationPanel");
-  let customizeBtn = document.getElementById("messageHeaderMoreMenuCustomize");
+  let panel = aboutMessage.document.getElementById(
+    "messageHeaderCustomizationPanel"
+  );
+  let customizeBtn = aboutMessage.document.getElementById(
+    "messageHeaderMoreMenuCustomize"
+  );
   let panelShown = BrowserTestUtils.waitForEvent(panel, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(customizeBtn, {});
+  EventUtils.synthesizeMouseAtCenter(customizeBtn, {}, aboutMessage);
   await panelShown;
 
-  let buttonStyle = document.getElementById("headerButtonStyle");
+  let buttonStyle = aboutMessage.document.getElementById("headerButtonStyle");
   // Assert the options are in a default state.
   Assert.equal(
     buttonStyle.value,
     "default",
     "The buttons style is in the default state"
   );
-  let subjectLarge = document.getElementById("headerSubjectLarge");
+  let subjectLarge = aboutMessage.document.getElementById("headerSubjectLarge");
   Assert.ok(!subjectLarge.checked, "The subject field is in the default state");
 
-  let showAvatar = document.getElementById("headerShowAvatar");
+  let showAvatar = aboutMessage.document.getElementById("headerShowAvatar");
   Assert.ok(
     !showAvatar.checked,
     "The show avatar field is in the default state"
   );
 
-  let showFullAddress = document.getElementById("headerShowFullAddress");
+  let showFullAddress = aboutMessage.document.getElementById(
+    "headerShowFullAddress"
+  );
   Assert.ok(
     !showFullAddress.checked,
     "The show full address field is in the default state"
   );
 
-  let hideLabels = document.getElementById("headerHideLabels");
+  let hideLabels = aboutMessage.document.getElementById("headerHideLabels");
   Assert.ok(
     !hideLabels.checked,
     "The hide labels field is in the default state"
   );
 
   let openMenuPopup = async function() {
-    document.getElementById("headerButtonStyle").focus();
+    aboutMessage.document.getElementById("headerButtonStyle").focus();
 
     let menuPopupShown = BrowserTestUtils.waitForEvent(
-      document.querySelector("#headerButtonStyle menupopup"),
+      aboutMessage.document.querySelector("#headerButtonStyle menupopup"),
       "popupshown"
     );
     // Use the keyboard to open and cycle through the menulist items because the
     // mouse events are unreliable in tests.
     EventUtils.synthesizeMouseAtCenter(
-      document.getElementById("headerButtonStyle"),
-      {}
+      aboutMessage.document.getElementById("headerButtonStyle"),
+      {},
+      aboutMessage
     );
     await menuPopupShown;
   };
@@ -144,8 +178,8 @@ add_task(async function test_customize_toolbar_buttons() {
   // Use the keyboard to open and cycle through the menulist items because the
   // mouse events are unreliable in tests.
   await openMenuPopup();
-  EventUtils.sendKey("down", window);
-  EventUtils.sendKey("return", window);
+  EventUtils.sendKey("down", aboutMessage);
+  EventUtils.sendKey("return", aboutMessage);
 
   await BrowserTestUtils.waitForCondition(
     () => header.classList.contains("message-header-buttons-only-text"),
@@ -169,8 +203,8 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   await openMenuPopup();
-  EventUtils.sendKey("down", window);
-  EventUtils.sendKey("return", window);
+  EventUtils.sendKey("down", aboutMessage);
+  EventUtils.sendKey("return", aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () => header.classList.contains("message-header-buttons-only-icons"),
     "The buttons are showing only icons"
@@ -181,9 +215,9 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   await openMenuPopup();
-  EventUtils.sendKey("up", window);
-  EventUtils.sendKey("up", window);
-  EventUtils.sendKey("return", window);
+  EventUtils.sendKey("up", aboutMessage);
+  EventUtils.sendKey("up", aboutMessage);
+  EventUtils.sendKey("return", aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () =>
       !header.classList.contains("message-header-buttons-only-icons") &&
@@ -195,20 +229,20 @@ add_task(async function test_customize_toolbar_buttons() {
     "The message header is clear of any custom style"
   );
 
-  EventUtils.synthesizeMouseAtCenter(subjectLarge, {});
+  EventUtils.synthesizeMouseAtCenter(subjectLarge, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () => header.classList.contains("message-header-large-subject"),
     "The subject line was changed"
   );
 
-  EventUtils.synthesizeMouseAtCenter(showAvatar, {});
+  EventUtils.synthesizeMouseAtCenter(showAvatar, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () => header.classList.contains("message-header-show-recipient-avatar"),
     "The avatar style was changed"
   );
   await assertVisibility(avatar, true, "The recipient avatar is visible");
 
-  EventUtils.synthesizeMouseAtCenter(showFullAddress, {});
+  EventUtils.synthesizeMouseAtCenter(showFullAddress, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () => header.classList.contains("message-header-show-sender-full-address"),
     "The full address style was changed"
@@ -224,7 +258,7 @@ add_task(async function test_customize_toolbar_buttons() {
     "The recipient single line is hidden"
   );
 
-  EventUtils.synthesizeMouseAtCenter(hideLabels, {});
+  EventUtils.synthesizeMouseAtCenter(hideLabels, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () => header.classList.contains("message-header-hide-label-column"),
     "The labels column style was changed"
@@ -236,9 +270,9 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   await openMenuPopup();
-  EventUtils.sendKey("down", window);
-  EventUtils.sendKey("down", window);
-  EventUtils.sendKey("return", window);
+  EventUtils.sendKey("down", aboutMessage);
+  EventUtils.sendKey("down", aboutMessage);
+  EventUtils.sendKey("return", aboutMessage);
   await BrowserTestUtils.waitForCondition(
     () => header.classList.contains("message-header-buttons-only-icons"),
     "The buttons are showing only icons"
@@ -249,7 +283,7 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   let panelHidden = BrowserTestUtils.waitForEvent(panel, "popuphidden");
-  EventUtils.synthesizeKey("VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, aboutMessage);
   await panelHidden;
 
   await BrowserTestUtils.waitForCondition(
@@ -263,17 +297,17 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(moreBtn, {});
+  EventUtils.synthesizeMouseAtCenter(moreBtn, {}, aboutMessage);
   await popupShown;
 
   panelShown = BrowserTestUtils.waitForEvent(panel, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(customizeBtn, {});
+  EventUtils.synthesizeMouseAtCenter(customizeBtn, {}, aboutMessage);
   await panelShown;
 
   await openMenuPopup();
-  EventUtils.sendKey("up", window);
-  EventUtils.sendKey("up", window);
-  EventUtils.sendKey("return", window);
+  EventUtils.sendKey("up", aboutMessage);
+  EventUtils.sendKey("up", aboutMessage);
+  EventUtils.sendKey("return", aboutMessage);
 
   await BrowserTestUtils.waitForCondition(
     () =>
@@ -282,13 +316,13 @@ add_task(async function test_customize_toolbar_buttons() {
     "The buttons style was reverted to the default"
   );
 
-  EventUtils.synthesizeMouseAtCenter(subjectLarge, {});
-  EventUtils.synthesizeMouseAtCenter(showAvatar, {});
-  EventUtils.synthesizeMouseAtCenter(showFullAddress, {});
-  EventUtils.synthesizeMouseAtCenter(hideLabels, {});
+  EventUtils.synthesizeMouseAtCenter(subjectLarge, {}, aboutMessage);
+  EventUtils.synthesizeMouseAtCenter(showAvatar, {}, aboutMessage);
+  EventUtils.synthesizeMouseAtCenter(showFullAddress, {}, aboutMessage);
+  EventUtils.synthesizeMouseAtCenter(hideLabels, {}, aboutMessage);
 
   panelHidden = BrowserTestUtils.waitForEvent(panel, "popuphidden");
-  EventUtils.synthesizeKey("VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, aboutMessage);
   await panelHidden;
 
   await BrowserTestUtils.waitForCondition(

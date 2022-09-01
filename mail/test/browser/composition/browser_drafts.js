@@ -21,6 +21,7 @@ var {
 var {
   be_in_folder,
   get_special_folder,
+  get_about_message,
   make_message_sets_in_folders,
   mc,
   press_delete,
@@ -38,6 +39,8 @@ var { plan_for_new_window, wait_for_window_focused } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+
+let aboutMessage = get_about_message();
 
 var kBoxId = "mail-notification-top";
 var draftsFolder;
@@ -57,18 +60,26 @@ add_task(async function test_open_draft_again() {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
-  let box = get_notification(mc, kBoxId, "draftMsgContent");
+  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   let cwc = wait_for_compose_window();
 
   let cwins = [...Services.wm.getEnumerator("msgcompose")].length;
 
   // click edit in main win again
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
 
   mc.sleep(1000); // wait a sec to see if it caused a new window
 
@@ -88,6 +99,7 @@ add_task(async function test_open_draft_again() {
   close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
+  select_click_row(0);
   press_delete(mc); // clean up after ourselves
 });
 
@@ -147,15 +159,16 @@ async function internal_check_delivery_format(editDraft) {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
-  let box = get_notification(mc, kBoxId, "draftMsgContent");
+  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   if (editDraft) {
     // Trigger "edit draft".
     EventUtils.synthesizeMouseAtCenter(
       box.buttonContainer.firstElementChild,
-      {}
+      {},
+      aboutMessage
     );
   } else {
     // Trigger "edit as new" resulting in template processing.
@@ -195,7 +208,7 @@ add_task(async function test_edit_as_new_in_draft() {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
+  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
@@ -212,6 +225,7 @@ add_task(async function test_edit_as_new_in_draft() {
 
   // Clean up the created drafts and count again.
   press_delete(mc);
+  select_click_row(0);
   press_delete(mc);
   Assert.equal(draftsFolder.getTotalMessages(false), 0);
 });
@@ -326,12 +340,16 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
-  let box = get_notification(mc, kBoxId, "draftMsgContent");
+  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   cwc = wait_for_compose_window();
 
   let bodyText = get_compose_body(cwc).innerHTML;
@@ -344,7 +362,4 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   press_delete(mc);
 
   Services.prefs.setBoolPref("mail.identity.default.compose_html", oldHtmlPref);
-
-  // Work around this test timing out at completion because of focus weirdness.
-  window.gFolderDisplay.tree.focus();
 });

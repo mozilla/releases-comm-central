@@ -7,10 +7,13 @@ const {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+
+let aboutMessage = get_about_message();
 
 const mimeService = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService);
 const handlerService = Cc[
@@ -98,6 +101,8 @@ registerCleanupFunction(async function() {
 
   // Remove created folders.
   folder.deleteSelf(null);
+
+  Services.focus.focusedWindow = window;
 });
 
 function createMockedHandler(type, preferredAction, alwaysAskBeforeHandling) {
@@ -214,21 +219,21 @@ async function singleClickAttachmentAndWaitForDialog(
     }
   );
 
-  info(document.getElementById("attachmentName").value);
+  info(aboutMessage.document.getElementById("attachmentName").value);
   EventUtils.synthesizeMouseAtCenter(
-    document.getElementById("attachmentName"),
+    aboutMessage.document.getElementById("attachmentName"),
     {},
-    window
+    aboutMessage
   );
   await dialogPromise;
 }
 
 async function singleClickAttachment() {
-  info(document.getElementById("attachmentName").value);
+  info(aboutMessage.document.getElementById("attachmentName").value);
   EventUtils.synthesizeMouseAtCenter(
-    document.getElementById("attachmentName"),
+    aboutMessage.document.getElementById("attachmentName"),
     {},
-    window
+    aboutMessage
   );
 }
 
@@ -269,10 +274,10 @@ function checkHandler(type, preferredAction, alwaysAskBeforeHandling) {
 }
 
 function promiseFileOpened() {
-  let __openFile = window.AttachmentInfo.prototype._openFile;
+  let __openFile = aboutMessage.AttachmentInfo.prototype._openFile;
   return new Promise(resolve => {
-    window.AttachmentInfo.prototype._openFile = function(mimeInfo, file) {
-      window.AttachmentInfo.prototype._openFile = __openFile;
+    aboutMessage.AttachmentInfo.prototype._openFile = function(mimeInfo, file) {
+      aboutMessage.AttachmentInfo.prototype._openFile = __openFile;
       resolve({ mimeInfo, file });
     };
   });

@@ -23,6 +23,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   mc,
   msgGen,
   select_click_row,
@@ -208,7 +209,8 @@ add_setup(async function() {
  * @param expectedSize the URL of the expected icon of the attachment
  */
 function check_attachment_icon(index, expectedIcon) {
-  let list = mc.e("attachmentList");
+  let win = get_about_message();
+  let list = win.document.getElementById("attachmentList");
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   Assert.equal(

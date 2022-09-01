@@ -21,6 +21,7 @@ var {
   make_display_threaded,
   mc,
   select_click_row,
+  wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -81,18 +82,20 @@ add_task(async function test_ignore_thread() {
  * Test that ignored threads are shown when the View | Threads |
  * Ignored Threads option is checked.
  */
-add_task(function test_view_threads_ignored_threads() {
+add_task(async function test_view_threads_ignored_threads() {
   let t1root = thread1.getMsgHdr(0);
   let t2root = thread2.getMsgHdr(0);
 
   // Check "Ignored Threads" - the ignored messages should appear =>
   // the first row is the first message of the first thread.
-  clickViewMessagesItem("appmenu_viewIgnoredThreadsMenuItem");
+  // await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
+  goDoCommand("cmd_viewIgnoredThreads");
   select_click_row(0);
   assert_selected_and_displayed(t1root);
 
   // Uncheck "Ignored Threads" - the ignored messages should get hidden.
-  clickViewMessagesItem("appmenu_viewIgnoredThreadsMenuItem");
+  // await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
+  goDoCommand("cmd_viewIgnoredThreads");
   select_click_row(0);
   assert_selected_and_displayed(t2root);
   assert_not_shown(thread1.msgHdrList);
@@ -101,7 +104,7 @@ add_task(function test_view_threads_ignored_threads() {
 /**
  * Test that Watch Thread makes the thread watched.
  */
-add_task(function test_watch_thread() {
+add_task(async function test_watch_thread() {
   let t2second = select_click_row(1);
   let t3root = thread3.getMsgHdr(0);
   assert_selected_and_displayed(t2second);
@@ -110,14 +113,16 @@ add_task(function test_watch_thread() {
   EventUtils.synthesizeKey("W", { shiftKey: false, accelKey: false });
 
   // Choose "Watched Threads with Unread".
-  clickViewMessagesItem("appmenu_viewWatchedThreadsWithUnreadMenuItem");
+  // await clickViewMessagesItem("viewWatchedThreadsWithUnreadMenuItem");
+  goDoCommand("cmd_viewWatchedThreadsWithUnread");
   select_click_row(1);
   assert_selected_and_displayed(t2second);
   assert_not_shown(thread1.msgHdrList);
   assert_not_shown(thread3.msgHdrList);
 
   // Choose "All Messages" again.
-  clickViewMessagesItem("appmenu_viewAllMessagesMenuItem");
+  // await clickViewMessagesItem("viewAllMessagesMenuItem");
+  goDoCommand("cmd_viewAllMsgs");
   assert_not_shown(thread1.msgHdrList); // still ignored (and now shown)
   select_click_row(thread2.msgHdrList.length);
   assert_selected_and_displayed(t3root);

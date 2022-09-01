@@ -23,6 +23,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   get_special_folder,
   mc,
   select_click_row,
@@ -355,13 +356,18 @@ add_task(async function test_prompt_save_on_pill_editing() {
   assert_selected_and_displayed(mc, msg);
 
   // Click on the "edit draft" notification.
+  let aboutMessage = get_about_message();
   let kBoxId = "mail-notification-top";
-  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
-  let box = get_notification(mc, kBoxId, "draftMsgContent");
+  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   cwc = wait_for_compose_window();
 
   // Make sure the address was saved correctly.

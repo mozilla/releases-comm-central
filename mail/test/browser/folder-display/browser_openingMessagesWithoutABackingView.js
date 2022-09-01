@@ -22,6 +22,7 @@ var {
   close_message_window,
   close_tab,
   create_folder,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
   plan_for_message_display,
@@ -68,11 +69,13 @@ async function test_open_single_message_without_backing_view_in_tab() {
   let preCount = mc.tabmail.tabContainer.allTabs.length;
   await be_in_folder(folder);
 
+  let win = get_about_3pane();
+
   if (!msgHdrsInFolder) {
     msgHdrsInFolder = [];
     // Make a list of all the message headers in this folder
     for (let i = 0; i < 10; i++) {
-      msgHdrsInFolder.push(mc.dbView.getMsgHdrAt(i));
+      msgHdrsInFolder.push(win.gDBView.getMsgHdrAt(i));
     }
   }
   // Get a reference to a header
@@ -87,7 +90,7 @@ async function test_open_single_message_without_backing_view_in_tab() {
   assert_number_of_tabs_open(preCount + 1);
   // Check that the currently displayed tab is a message tab (i.e. our newly
   // opened tab is in the foreground)
-  assert_tab_mode_name(null, "message");
+  assert_tab_mode_name(null, "mailMessageTab");
   // Check that the message header displayed is the right one
   assert_selected_and_displayed(msgHdr);
   // Check that the message pane is focused
@@ -121,7 +124,7 @@ async function test_open_multiple_messages_without_backing_views_in_tabs() {
   assert_number_of_tabs_open(preCount + NUM_MESSAGES_TO_OPEN);
   // Check that the currently displayed tab is a message tab (i.e. one of our
   // newly opened tabs is in the foreground)
-  assert_tab_mode_name(null, "message");
+  assert_tab_mode_name(null, "mailMessageTab");
 
   // Now check whether each of the NUM_MESSAGES_TO_OPEN tabs has the correct
   // title

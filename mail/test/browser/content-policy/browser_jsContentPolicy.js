@@ -17,6 +17,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_message,
   select_click_row,
   select_none,
 } = ChromeUtils.import(
@@ -33,11 +34,15 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
+let aboutMessage = get_about_message();
+
 var folder;
 registerCleanupFunction(async () => {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   folder.deleteSelf(window.msgWindow);
   await promptPromise;
+
+  Services.focus.focusedWindow = window;
 });
 
 var url =
@@ -134,7 +139,7 @@ var jsMsgBody =
 
 var gMsgNo = 0;
 
-var messagePane = document.getElementById("messagepane");
+var messagePane = aboutMessage.document.getElementById("messagepane");
 
 add_setup(async function() {
   folder = await create_folder("jsContentPolicy");

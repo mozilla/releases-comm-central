@@ -29,8 +29,6 @@ var accountNNTP = null;
 var originalAccountCount;
 
 add_setup(function() {
-  gFolderTreeView._tree.focus();
-
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
   let server = MailServices.accounts.findServer(

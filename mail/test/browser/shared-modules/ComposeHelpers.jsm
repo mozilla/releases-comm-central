@@ -35,7 +35,7 @@ const EXPORTED_SYMBOLS = [
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var folderDisplayHelper = ChromeUtils.import(
+var { get_about_message, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { gMockCloudfileManager } = ChromeUtils.import(
@@ -59,8 +59,6 @@ var { TestUtils } = ChromeUtils.import(
 );
 
 var kTextNodeType = 3;
-
-var mc = folderDisplayHelper.mc;
 
 /**
  * Opens the compose window by starting a new message
@@ -166,7 +164,7 @@ function open_compose_with_forward_as_attachments(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aController.e("menu_forwardAsAttachment"));
+  aController.window.goDoCommand("cmd_forwardAttachment");
 
   return wait_for_compose_window();
 }
@@ -184,7 +182,7 @@ function open_compose_with_edit_as_new(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aController.e("menu_editMsgAsNew"));
+  aController.window.goDoCommand("cmd_editAsNew");
 
   return wait_for_compose_window();
 }
@@ -218,21 +216,13 @@ function open_compose_with_forward(aController) {
  * @return The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
-function open_compose_from_draft(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_from_draft(win = get_about_message()) {
   windowHelper.plan_for_new_window("msgcompose");
-  let box = get_notification(
-    aController,
-    "mail-notification-top",
-    "draftMsgContent"
-  );
+  let box = get_notification(win, "mail-notification-top", "draftMsgContent");
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
-    aController.window
+    win
   );
   return wait_for_compose_window();
 }

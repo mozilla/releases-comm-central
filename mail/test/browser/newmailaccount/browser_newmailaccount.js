@@ -77,7 +77,6 @@ registerCleanupFunction(async function() {
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
-  window.gFolderDisplay.tree.focus();
 });
 
 /**
@@ -272,7 +271,7 @@ add_task(async function test_account_creation_from_provisioner() {
   // The account setup tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser.currentURI?.spec == "about:accountsetup",
+      mc.tabmail.selectedTab.browser?.currentURI?.spec == "about:accountsetup",
     "The Account Setup Tab was opened"
   );
   // A new account should have been created.
@@ -284,7 +283,7 @@ add_task(async function test_account_creation_from_provisioner() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser.contentWindow.gAccountSetup
+      mc.tabmail.selectedTab.browser?.contentWindow.gAccountSetup
         ?._currentModename == "success",
     "The success view was shown"
   );
@@ -323,7 +322,7 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
   // The account setup tab should NOT be opened.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser.currentURI?.spec != "about:accountsetup",
+      mc.tabmail.selectedTab.browser?.currentURI?.spec != "about:accountsetup",
     "The Account Setup Tab was not opened"
   );
 
@@ -344,7 +343,7 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
   // The account setup tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser.currentURI?.spec == "about:accountsetup",
+      mc.tabmail.selectedTab.browser?.currentURI?.spec == "about:accountsetup",
     "The Account Setup Tab was opened"
   );
 
@@ -361,7 +360,7 @@ add_task(async function open_provisioner_from_menu_bar() {
   // The account Provisioner tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser.currentURI?.spec ==
+      mc.tabmail.selectedTab.browser?.currentURI?.spec ==
       "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );
@@ -387,7 +386,7 @@ add_task(async function open_provisioner_from_app_menu() {
   // The account Provisioner tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser.currentURI?.spec ==
+      mc.tabmail.selectedTab.browser?.currentURI?.spec ==
       "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );
@@ -395,7 +394,7 @@ add_task(async function open_provisioner_from_app_menu() {
 
   // Close the account provisioner tab.
   mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
-});
+}).skip();
 
 /**
  * Test that names with HTML characters are escaped properly when displayed back
@@ -546,7 +545,7 @@ add_task(async function test_error_on_corrupt_XML() {
   );
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser.currentURI?.spec ==
+      mc.tabmail.selectedTab.browser?.currentURI?.spec ==
       "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );

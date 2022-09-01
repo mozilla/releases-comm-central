@@ -16,6 +16,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   get_special_folder,
+  get_about_message,
   mc,
   press_delete,
   select_click_row,
@@ -32,6 +33,8 @@ var {
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+
+let aboutMessage = get_about_message();
 
 var gDrafts;
 var gAccount;
@@ -237,7 +240,7 @@ add_task(async function test_draft_identity_selection() {
     select_click_row(test.draftIndex);
     assert_selected_and_displayed(test.draftIndex);
     wait_for_notification_to_show(
-      mc,
+      aboutMessage,
       "mail-notification-top",
       "draftMsgContent"
     );
@@ -249,13 +252,13 @@ add_task(async function test_draft_identity_selection() {
     );
     if (test.warning) {
       wait_for_notification_to_show(
-        cwc,
+        cwc.window,
         "compose-notification-bottom",
         "identityWarning"
       );
     } else {
       assert_notification_displayed(
-        cwc,
+        cwc.window,
         "compose-notification-bottom",
         "identityWarning",
         false
@@ -298,12 +301,8 @@ registerCleanupFunction(async function() {
 
   // Clear our drafts.
   await be_in_folder(gDrafts);
-  let draftCount;
-  while ((draftCount = gDrafts.getTotalMessages(false)) > 0) {
+  while (gDrafts.getTotalMessages(false) > 0) {
+    select_click_row(-1); // TODO Remove this when selection-on-delete works.
     press_delete();
-    mc.waitFor(() => gDrafts.getTotalMessages(false) < draftCount);
   }
-
-  // Work around this test timing out at completion because of focus weirdness.
-  window.gFolderDisplay.tree.focus();
 });

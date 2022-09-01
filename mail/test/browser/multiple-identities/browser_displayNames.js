@@ -17,6 +17,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -120,7 +121,7 @@ async function help_test_display_name(message, field, expectedValue) {
   select_click_row(message);
 
   Assert.equal(
-    document.querySelector(
+    get_about_message().document.querySelector(
       `#expanded${field}Box .header-recipient .recipient-single-line`
     ).textContent,
     expectedValue,

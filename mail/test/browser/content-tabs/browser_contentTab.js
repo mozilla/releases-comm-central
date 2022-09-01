@@ -168,6 +168,4 @@ registerCleanupFunction(function() {
   while (mc.tabmail.tabInfo.length > 1) {
     mc.tabmail.closeTab(1);
   }
-
-  gFolderTreeView._tree.focus();
 });

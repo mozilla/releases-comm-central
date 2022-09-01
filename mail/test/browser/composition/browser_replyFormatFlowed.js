@@ -17,9 +17,11 @@ var {
 var {
   be_in_folder,
   get_special_folder,
+  get_about_message,
   open_message_from_file,
   press_delete,
   select_click_row,
+  select_none,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -60,7 +62,10 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Now check the message content in the drafts folder.
   await be_in_folder(gDrafts);
-  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  let msgLoaded = BrowserTestUtils.waitForEvent(
+    get_about_message(),
+    "MsgLoaded"
+  );
   let message = select_click_row(0);
   await msgLoaded;
   let messageContent = get_msg_source(message);
@@ -77,6 +82,7 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Delete the outgoing message.
   press_delete();
+  select_none(); // TODO This should be unnecessary.
 }
 
 add_task(async function test_reply_format_flowed() {

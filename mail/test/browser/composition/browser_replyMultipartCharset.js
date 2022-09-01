@@ -45,7 +45,7 @@ var { close_window } = ChromeUtils.import(
 var folder;
 
 add_setup(async function() {
-  requestLongerTimeout(5);
+  requestLongerTimeout(2);
   folder = await create_folder("FolderWithMessages");
 });
 

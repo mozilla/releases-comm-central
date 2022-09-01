@@ -18,6 +18,7 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  get_about_message,
   make_message_sets_in_folders,
   mc,
   select_click_row,
@@ -164,6 +165,7 @@ async function save_attachment_files() {
 
   let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
 
+  let aboutMessage = get_about_message();
   let length = attachmentFileNames.length;
   for (let i = 0; i < length; i++) {
     let file = profileDir.clone();
@@ -171,9 +173,9 @@ async function save_attachment_files() {
     select_click_row(i);
     gMockFilePicker.returnFiles = [file];
     EventUtils.synthesizeMouseAtCenter(
-      mc.e("attachmentSaveAllSingle"),
+      aboutMessage.document.getElementById("attachmentSaveAllSingle"),
       { clickCount: 1 },
-      mc.window
+      aboutMessage
     );
   }
 }
