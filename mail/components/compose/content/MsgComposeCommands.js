@@ -912,10 +912,8 @@ var defaultController = {
     cmd_attachVCard: {
       isEnabled() {
         let cmd = document.getElementById("cmd_attachVCard");
-        cmd.setAttribute("checked", gCurrentIdentity?.attachVCard);
-        return (
-          !!gCurrentIdentity?.attachVCard && !!gCurrentIdentity?.escapedVCard
-        );
+        cmd.setAttribute("checked", gMsgCompose.compFields.attachVCard);
+        return !!gCurrentIdentity?.escapedVCard;
       },
       doCommand() {},
     },
