@@ -122,7 +122,7 @@
                        oncommand="PanelUI.showSubView('appMenu-toolsView', this)"/>
         <toolbarbutton id="appmenu_help"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
-                       label="&helpMenuWin.label;"
+                       data-l10n-id="menu-help-help-title"
                        closemenu="none"
                        oncommand="buildHelpMenu(); PanelUI.showSubView('appMenu-helpView', this)"/>
       </vbox>
@@ -1560,49 +1560,48 @@
 
     <!-- Help -->
     <panelview id="appMenu-helpView"
-               title="&helpMenuWin.label;"
+               data-l10n-id="appmenu-help-panel-title"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
         <toolbarbutton id="appmenu_openHelp"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&productHelp.label;"
+                       data-l10n-id="appmenu-help-get-help"
                        key="key_openHelp"
                        oncommand="openSupportURL();"/>
         <toolbarbutton id="appmenu_openTour"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&helpShowTour2.label;"
-                       accesskey="&helpShowTour2.accesskey;"
+                       data-l10n-id="appmenu-help-explore-features"
                        oncommand="openLinkText(event, 'tourURL');"/>
-        <toolbarbutton id="menu_keyboardShortcuts"
+        <toolbarbutton id="appmenu_keyboardShortcuts"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&helpKeyboardShortcuts.label;"
+                       data-l10n-id="appmenu-help-shortcuts"
                        oncommand="openLinkText(event, 'keyboardShortcutsURL');"/>
         <toolbarseparator/>
-        <toolbarbutton id="getInvolved"
+        <toolbarbutton id="appmenu_getInvolved"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&helpGetInvolvedPage.label;"
+                       data-l10n-id="appmenu-help-get-involved"
                        oncommand="openLinkText(event, 'getInvolvedURL');"/>
-        <toolbarbutton id="donationsPage"
+        <toolbarbutton id="appmenu_makeDonation"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&helpDonationsPage.label;"
+                       data-l10n-id="appmenu-help-donation"
                        oncommand="openLinkText(event, 'donateURL');"/>
-        <toolbarbutton id="feedbackPage"
+        <toolbarbutton id="appmenu_submitFeedback"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&helpFeedbackPage.label;"
+                       data-l10n-id="appmenu-help-feedback"
                        oncommand="openLinkText(event, 'feedbackURL');"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_troubleshootMode"
                        class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="appmenu-help-enter-troubleshoot-mode"
+                       data-l10n-id="appmenu-help-enter-troubleshoot-mode2"
                        oncommand="safeModeRestart();"/>
         <toolbarbutton id="appmenu_troubleshootingInfo"
                        class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="appmenu-help-more-troubleshooting-info"
+                       data-l10n-id="appmenu-help-troubleshooting-info"
                        oncommand="openAboutSupport();"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_about"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&aboutProduct2.label;"
+                       data-l10n-id="appmenu-help-about-product"
                        oncommand="openAboutDialog();"/>
       </vbox>
     </panelview>

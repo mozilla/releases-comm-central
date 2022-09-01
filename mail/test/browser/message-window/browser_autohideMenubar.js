@@ -113,17 +113,6 @@ add_task(async function test_autohidden_menubar_message_window() {
   close_message_window(msgc);
 });
 
-// We don't have an autohidable menu bar item for compose.
-/*
-add_task(async function test_autohidden_menubar_compose_window() {
-  let cwc = open_compose_new_mail();
-  let menubar = cwc.e("compose-toolbar-menubar2");
-
-  await help_test_autohide(cwc, menubar);
-  close_compose_window(cwc);
-});
-*/
-
 registerCleanupFunction(function() {
   toggle_main_menu(menuState);
   be_in_folder(inboxFolder);

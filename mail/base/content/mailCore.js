@@ -972,7 +972,7 @@ function updateTroubleshootMenuItem() {
     if (appSafeMode) {
       document.l10n.setAttributes(
         appSafeMode,
-        "appmenu-help-exit-troubleshoot-mode"
+        "appmenu-help-exit-troubleshoot-mode2"
       );
     }
   }

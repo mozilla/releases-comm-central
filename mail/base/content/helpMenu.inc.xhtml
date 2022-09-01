@@ -3,54 +3,41 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <menu id="helpMenu"
-#ifdef XP_WIN
-            label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;"
-#else
-            label="&helpMenu.label;" accesskey="&helpMenu.accesskey;"
-#endif
-            onpopupshowing="buildHelpMenu();">
+      data-l10n-id="menu-help-help-title"
+      onpopupshowing="buildHelpMenu();">
         <menupopup id="menu_HelpPopup">
           <menuitem id="menu_openHelp"
-                    label="&productHelp.label;"
-#ifndef XP_MACOSX
-                    accesskey="&productHelp.accesskey;"
-#endif
+                    data-l10n-id="menu-help-get-help"
                     key="key_openHelp"
                     oncommand="openSupportURL();"/>
           <menuitem id="menu_openTour"
-                    label="&helpShowTour2.label;"
-                    accesskey="&helpShowTour2.accesskey;"
+                    data-l10n-id="menu-help-explore-features"
                     oncommand="openLinkText(event, 'tourURL');"/>
           <menuitem id="menu_keyboardShortcuts"
-                    label="&helpKeyboardShortcuts.label;"
-                    accesskey="&helpKeyboardShortcuts.accesskey;"
+                    data-l10n-id="menu-help-shortcuts"
                     oncommand="openLinkText(event, 'keyboardShortcutsURL');"/>
           <menuseparator/>
           <menuitem id="getInvolved"
-                    label="&helpGetInvolvedPage.label;"
-                    accesskey="&helpGetInvolvedPage.accesskey;"
+                    data-l10n-id="menu-help-get-involved"
                     oncommand="openLinkText(event, 'getInvolvedURL');"/>
           <menuitem id="donationsPage"
-                    label="&helpDonationsPage.label;"
-                    accesskey="&helpDonationsPage.accesskey;"
+                    data-l10n-id="menu-help-donation"
                     oncommand="openLinkText(event, 'donateURL');"/>
           <menuitem id="feedbackPage"
-                    label="&helpFeedbackPage.label;"
-                    accesskey="&helpFeedbackPage.accesskey;"
+                    data-l10n-id="menu-help-feedback"
                     oncommand="openLinkText(event, 'feedbackURL');"/>
           <menuseparator id="functionsSeparator"/>
           <menuitem id="helpTroubleshootMode"
                     data-l10n-id="menu-help-enter-troubleshoot-mode"
                     oncommand="safeModeRestart();"/>
           <menuitem id="aboutsupport_open"
-                    data-l10n-id="menu-help-more-troubleshooting-info"
+                    data-l10n-id="menu-help-troubleshooting-info"
                     oncommand="openAboutSupport();"/>
 #ifndef XP_MACOSX
           <menuseparator id="aboutSeparator"/>
 #endif
           <menuitem id="aboutName"
-                    label="&aboutProduct2.label;"
-                    accesskey="&aboutProduct2.accesskey;"
+                    data-l10n-id="menu-help-about-product"
                     oncommand="openAboutDialog();"/>
         </menupopup>
       </menu>
