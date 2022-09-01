@@ -220,7 +220,7 @@ window.addEventListener("keypress", event => {
 /**
  * Called on load from `toAddressBook` to create, display or edit a card.
  *
- * @param {"create"|"display"|"edit"} action - What to do with the args given.
+ * @param {"create"|"display"|"edit"|"create_ab_*"} action - What to do with the args given.
  * @param {?string} address - Create a new card with this email address.
  * @param {?string} vCard - Create a new card from this vCard.
  * @param {?nsIAbCard} card - Display or edit this card.
@@ -258,6 +258,12 @@ function externalAction({ action, address, card, vCard } = {}) {
     } else {
       cardsPane.printSelected();
     }
+  } else if (action == "create_ab_JS") {
+    createBook();
+  } else if (action == "create_ab_CARDDAV") {
+    createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
+  } else if (action == "create_ab_LDAP") {
+    createBook(Ci.nsIAbManager.LDAP_DIRECTORY_TYPE);
   }
 }
 

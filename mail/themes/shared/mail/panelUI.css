@@ -813,37 +813,77 @@ menulist[open="true"]:not([disabled="true"]) {
   border-color: var(--button-border-color);
 }
 
-#appmenu_import {
-  list-style-image: var(--icon-import);
+/* App Menu items icons */
+
+/* New Account and Create */
+
+#appmenu_new {
+  list-style-image: var(--icon-new-contact);
 }
 
-#appmenu_export {
-  list-style-image: var(--icon-export);
+#appmenu_create {
+  list-style-image: var(--icon-add);
 }
 
-#appmenu_searchCmd {
-  list-style-image: var(--icon-search);
+#appmenu_newNewMsgCmd,
+#appmenu_newCreateEmailAccountMenuItem {
+  list-style-image: var(--icon-new-mail);
 }
 
-#appmenu_filtersCmd {
-  list-style-image: var(--icon-filter);
+#appmenu_newMailAccountMenuItem {
+  list-style-image: var(--icon-mail);
 }
 
-#appmenu_openSavedFilesWnd {
-  list-style-image: var(--icon-download);
+#appmenu_calendar-new-calendar-menu-item {
+  list-style-image: var(--icon-calendar);
 }
 
-#appmenu_manageKeysOpenPGP {
-  list-style-image: var(--icon-key);
+#appmenu_newAB {
+  list-style-image: var(--icon-address-book);
 }
 
-#appmenu_activityManager {
-  list-style-image: var(--icon-paste);
+#appmenu_newABMenuItem,
+#appmenu_newCardDAVMenuItem,
+#appmenu_newLdapMenuItem {
+  list-style-image: var(--icon-new-address-book);
 }
 
-#appmenu_toolsMenu,
-#appmenu_devtoolsToolbox {
-  list-style-image: var(--icon-tools);
+#appmenu_newIMAccountMenuItem {
+  list-style-image: var(--icon-chat);
+}
+
+#appmenu_newFeedAccountMenuItem {
+  list-style-image: var(--icon-rss);
+}
+
+#appmenu_newNewsgroupAccountMenuItem {
+  list-style-image: var(--icon-newsletter);
+}
+
+#appmenu_calendar-new-event-menu-item {
+  list-style-image: var(--icon-new-event);
+}
+
+#appmenu_calendar-new-task-menu-item {
+  list-style-image: var(--icon-new-task);
+}
+
+#appmenu_newCard {
+  list-style-image: var(--icon-new-contact);
+}
+
+/* Settings */
+
+#appmenu_addons {
+  list-style-image: var(--icon-extension);
+}
+
+#appmenu_accountmgr {
+  list-style-image: var(--icon-account-settings);
+}
+
+#appmenu_preferences {
+  list-style-image: var(--icon-settings);
 }
 
 /* Font scaling */
@@ -940,7 +980,47 @@ menulist[open="true"]:not([disabled="true"]) {
   margin-block: -5px 6px;
 }
 
-/* App Menu items icons */
+/* Tools */
+
+#appmenu_import {
+  list-style-image: var(--icon-import);
+}
+
+#appmenu_export {
+  list-style-image: var(--icon-export);
+}
+
+#appmenu_searchCmd {
+  list-style-image: var(--icon-search);
+}
+
+#appmenu_filtersCmd {
+  list-style-image: var(--icon-filter);
+}
+
+#appmenu_openSavedFilesWnd {
+  list-style-image: var(--icon-download);
+}
+
+#appmenu_manageKeysOpenPGP {
+  list-style-image: var(--icon-key);
+}
+
+#appmenu_activityManager {
+  list-style-image: var(--icon-paste);
+}
+
+#appmenu_toolsMenu,
+#appmenu_devtoolsToolbox {
+  list-style-image: var(--icon-tools);
+}
+
+/* Help */
+
+#appmenu_help,
+#appmenu_openHelp {
+  list-style-image: var(--icon-question);
+}
 
 #appmenu_openTour {
   list-style-image: var(--icon-features);
