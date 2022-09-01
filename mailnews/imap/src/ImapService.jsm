@@ -245,6 +245,17 @@ class ImapService {
     });
   }
 
+  moveFolder(srcFolder, dstFolder, urlListener, msgWindow) {
+    this._withClient(srcFolder, client => {
+      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapMoveFolderHierarchy;
+      client.onReady = () => {
+        client.moveFolder(srcFolder, dstFolder);
+      };
+    });
+  }
+
   storeCustomKeywords(folder, msgWindow, flagsToAdd, flagsToSubtract, uids) {
     return this._withClient(folder, (client, runningUrl) => {
       client.startRunningUrl(null, msgWindow, runningUrl);

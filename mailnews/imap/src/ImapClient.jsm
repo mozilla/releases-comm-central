@@ -86,6 +86,7 @@ class ImapClient {
     this.channel = null;
     this._urlListener = null;
     this._msgWindow = null;
+    this._authenticating = false;
   }
 
   /**
@@ -174,6 +175,19 @@ class ImapClient {
       [...names, newName].join(delimiter)
     );
 
+    this._nextAction = this._actionRenameResponse(oldName, newName);
+    this._sendTagged(`RENAME "${oldName}" "${newName}"`);
+  }
+
+  /**
+   * Move a source folder to be a child of another folder.
+   * @param {nsIMsgFolder} srcFolder - The source folder to move.
+   * @param {nsIMsgFolder} dstFolder - The target parent folder.
+   */
+  moveFolder(srcFolder, dstFolder) {
+    this._logger.debug("moveFolder", srcFolder.URI, dstFolder.URI);
+    let oldName = this._getServerFolderName(srcFolder);
+    let newName = this._getServerSubFolderName(dstFolder, srcFolder.name);
     this._nextAction = this._actionRenameResponse(oldName, newName);
     this._sendTagged(`RENAME "${oldName}" "${newName}"`);
   }
@@ -560,6 +574,16 @@ class ImapClient {
     }
     this._response.parse(stringPayload);
     this._logger.debug("Parsed:", this._response);
+    if (
+      !this._authenticating &&
+      this._response.done &&
+      this._response.status &&
+      this._response.tag != "+" &&
+      !["OK", "+"].includes(this._response.status)
+    ) {
+      this._actionDone(ImapUtils.NS_MSG_ERROR_IMAP_COMMAND_FAILED);
+      return;
+    }
     if (!this._capabilities || this._idling || this._response.done) {
       this._nextAction?.(this._response);
     }
@@ -608,9 +632,11 @@ class ImapClient {
     }
 
     if (this._socket?.readyState != "open") {
-      this._logger.warn(
-        `Failed to send because socket state is ${this._socket?.readyState}`
-      );
+      if (!str.includes("LOGOUT")) {
+        this._logger.warn(
+          `Failed to send because socket state is ${this._socket?.readyState}`
+        );
+      }
       return;
     }
 
@@ -722,6 +748,8 @@ class ImapClient {
       return;
     }
 
+    this._authenticating = true;
+
     this._currentAuthMethod = this._nextAuthMethod;
     this._nextAuthMethod = this._possibleAuthMethods[
       this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
@@ -796,6 +824,8 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthResponse = res => {
+    this._authenticating = false;
+
     if (res.status == "OK") {
       if (res.capabilities) {
         this._capabilities = res.capabilities;
@@ -813,6 +843,7 @@ class ImapClient {
       let action = this._authenticator.promptAuthFailed();
       if (action == 1) {
         // Cancel button pressed.
+        this._socket.close();
         this._actionDone(Cr.NS_ERROR_FAILURE);
         return;
       }
@@ -1242,6 +1273,15 @@ class ImapClient {
       this._actionAfterSelectFolder = this._actionUidFetch;
       this._nextAction = this._actionSelectResponse;
       this._sendTagged(`SELECT "${this.folder.name}"`);
+    } else if (res.messages.length || res.exists) {
+      let outFolderInfo = {};
+      this.folder.getDBFolderInfoAndDB(outFolderInfo);
+      let highestUid = outFolderInfo.value.getUint32Property(
+        "highestRecordedUID",
+        0
+      );
+      this._nextAction = this._actionUidFetchResponse;
+      this._sendTagged(`UID FETCH ${highestUid + 1}:* (FLAGS)`);
     } else {
       this._actionDone();
     }
@@ -1270,9 +1310,6 @@ class ImapClient {
    */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
-    if (status != Cr.NS_OK) {
-      this._socket.close();
-    }
     this._nextAction = null;
     this._urlListener?.OnStopRunningUrl(this.runningUrl, status);
     this.runningUrl.SetUrlState(false, status);

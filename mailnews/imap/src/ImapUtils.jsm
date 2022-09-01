@@ -8,6 +8,8 @@ const EXPORTED_SYMBOLS = ["ImapUtils"];
  * Collection of helper functions for IMAP.
  */
 var ImapUtils = {
+  NS_MSG_ERROR_IMAP_COMMAND_FAILED: 0x80550021,
+
   /** @see nsImapCore.h */
   FLAG_NONE: 0x0000,
   /** mailbox flags */
@@ -45,6 +47,7 @@ var ImapUtils = {
   FLAG_MDN_SENT: 0x0080,
   FLAG_CUSTOM_KEYWORD: 0x0100,
   FLAG_LABEL: 0x0e00,
+  FLAG_SUPPORT_FORWARDED_FLAG: 0x4000,
   FLAG_SUPPORT_USER_FLAG: 0x8000,
 
   logger: console.createInstance({
