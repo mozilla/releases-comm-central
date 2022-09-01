@@ -150,13 +150,19 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   addTo(name, addAsSubscribed, subscribale, changeIfExists) {
-    this._groups.push(name);
-    this._subscribable.addTo(
-      name,
-      addAsSubscribed,
-      subscribale,
-      changeIfExists
-    );
+    try {
+      this._subscribable.addTo(
+        name,
+        addAsSubscribed,
+        subscribale,
+        changeIfExists
+      );
+      this._groups.push(name);
+    } catch (e) {
+      // Group names with double dot, like alt.binaries.sounds..mp3.zappa are
+      // not working. Bug 1788572.
+      Cu.reportError(`Failed to add group ${name}. ${e}`);
+    }
   }
 
   subscribe(name) {
