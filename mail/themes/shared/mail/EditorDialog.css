@@ -310,6 +310,7 @@ html|table html|th {
 
 #SuggestedList {
   flex-direction: column;
+  max-height: 10em;
 }
 
 #dictionary-list {
