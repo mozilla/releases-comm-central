@@ -2021,8 +2021,19 @@ nsMsgDBFolder::GetStringProperty(const char* propertyName,
     rv = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
     if (cacheElement)  // try to get from cache
       rv = cacheElement->GetCachedString(propertyName, propertyValue);
-    if (NS_FAILED(rv))  // if failed, then try to get from db.
+    if (NS_FAILED(rv))  // if failed, then try to get from db, usually.
     {
+      if (strcmp(propertyName, MRU_TIME_PROPERTY) == 0 ||
+          strcmp(propertyName, MRM_TIME_PROPERTY) == 0 ||
+          strcmp(propertyName, "LastPurgeTime") == 0) {
+        // Don't open DB for missing time properties.
+        // Missing time properties can happen if the folder was never
+        // accessed, for exaple after an import. They happen if
+        // folderCache.json is removed or becomes invalid after moving
+        // a profile (see bug 1726660).
+        propertyValue.Truncate();
+        return NS_OK;
+      }
       nsCOMPtr<nsIDBFolderInfo> folderInfo;
       nsCOMPtr<nsIMsgDatabase> db;
       bool exists;
@@ -2033,6 +2044,12 @@ nsMsgDBFolder::GetStringProperty(const char* propertyName,
       if (NS_SUCCEEDED(rv))
         rv = folderInfo->GetCharProperty(propertyName, propertyValue);
       if (weOpenedDB) CloseDBIfFolderNotOpen();
+      if (NS_SUCCEEDED(rv)) {
+        // Now that we have the value, store it in our cache.
+        if (cacheElement) {
+          cacheElement->SetCachedString(propertyName, propertyValue);
+        }
+      }
     }
   }
   return rv;
