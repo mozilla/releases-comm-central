@@ -327,18 +327,25 @@ add_task(async function test_prompt_save_on_pill_editing() {
   // Trigger the saving of the draft.
   EventUtils.synthesizeKey("s", { accelKey: true }, cwc.window);
   await pillCreated;
-  // All leftover text should have been cleared and pill should have been
-  // created before the draft is actually saved.
-  Assert.ok(
-    cwc.window.document.activeElement.value == 0,
-    "The input field is empty."
-  );
-
   Assert.ok(cwc.window.gSaveOperationInProgress, "Should start save operation");
   await TestUtils.waitForCondition(
     () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
     "Waiting for the save operation to complete"
   );
+
+  // All leftover text should have been cleared and pill should have been
+  // created before the draft is actually saved.
+  Assert.equal(
+    cwc.window.document.activeElement.id,
+    "toAddrInput",
+    "The input field is focused."
+  );
+  Assert.equal(
+    cwc.window.document.activeElement.value,
+    "",
+    "The input field is empty."
+  );
+
   // Close the compose window after the saving operation is completed.
   close_compose_window(cwc, false);
 

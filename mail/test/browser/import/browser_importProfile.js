@@ -219,6 +219,8 @@ add_task(async function testProfileImport() {
 });
 
 add_task(async function testImportLargeZIP() {
+  // Writing the fake zip and deleting it can take some time.
+  requestLongerTimeout(2);
   const profileDir = await IOUtils.createUniqueDirectory(
     PathUtils.tempDir,
     "profile-tmp"
@@ -229,8 +231,10 @@ add_task(async function testImportLargeZIP() {
   {
     const halfAGigabyte = new Uint8Array(2 ** 29);
     await IOUtils.write(profileZip, halfAGigabyte);
+    info("ZIP is 0.5 GB big now");
     for (let i = 0; i < 3; ++i) {
       await IOUtils.write(profileZip, halfAGigabyte, { mode: "append" });
+      info(`ZIP is ${(i + 2) * 0.5} GB big now`);
     }
   }
   await IOUtils.write(

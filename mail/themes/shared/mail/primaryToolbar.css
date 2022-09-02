@@ -274,10 +274,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   list-style-image: var(--icon-settings);
 }
 
-#appmenu-quit {
-  list-style-image: var(--icon-quit);
-}
-
 #appmenu_addons,
 #appmenu_Add-Ons {
   list-style-image: var(--icon-extension);

@@ -19,3 +19,48 @@ appmenuitem-font-size-reduce =
 appmenuitem-font-size-reset =
   .label = { $size }px
   .tooltiptext = Reset Font Size
+
+## Help
+
+appmenu-help-panel-title =
+    .title = Help
+
+appmenu-help-get-help =
+    .label = Get Help
+    .accesskey = H
+
+appmenu-help-explore-features =
+    .label = Explore Features
+    .accesskey = F
+
+appmenu-help-shortcuts =
+    .label = Keyboard Shortcuts
+    .accesskey = K
+
+appmenu-help-get-involved =
+    .label = Get Involved
+    .accesskey = G
+
+appmenu-help-donation =
+    .label = Make a Donation
+    .accesskey = D
+
+appmenu-help-feedback =
+    .label = Submit Feedback and Ideas
+    .accesskey = S
+
+appmenu-help-enter-troubleshoot-mode2 =
+    .label = Troubleshoot Mode…
+    .accesskey = T
+
+appmenu-help-exit-troubleshoot-mode2 =
+    .label = Turn Troubleshoot Mode Off
+    .accesskey = O
+
+appmenu-help-troubleshooting-info =
+    .label = Troubleshooting Information
+    .accesskey = I
+
+appmenu-help-about-product =
+    .label = About { -brand-short-name }
+    .accesskey = A

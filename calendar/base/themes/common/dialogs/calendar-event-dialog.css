@@ -581,9 +581,8 @@ label.label {
   min-width: 35em;
 }
 
-#calendar-event-summary-dialog,
-#calendar-task-summary-dialog {
-  width: 35em;
+#calendar-item-summary {
+  width: 0;
 }
 
 #calendar-summary-dialog .item-location,

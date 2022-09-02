@@ -22,6 +22,23 @@
   --appmenu-warning-background-color-active: #ffe38f;
   --appmenu-warning-color: black;
   --appmenu-warning-border-color: hsl(45, 100%, 77%);
+
+  --appmenu-icons-fill: color-mix(in srgb, var(--color-ink-70) 20%, transparent);
+  --appmenu-icons-stroke: var(--color-ink-70);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --appmenu-icons-fill: color-mix(in srgb, var(--color-ink-10) 20%, transparent);
+    --appmenu-icons-stroke: var(--color-ink-10);
+  }
+}
+
+@media (prefers-contrast) {
+  :root {
+    --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
+    --appmenu-icons-stroke: currentColor;
+  }
 }
 
 .cui-widget-panel {
@@ -293,9 +310,17 @@ menu.subviewbutton,
 .subviewbutton-iconic > .toolbarbutton-icon {
   width: 16px;
   height: 16px;
-  -moz-context-properties: fill, stroke, stroke-opacity;
+  -moz-context-properties: fill, stroke;
+}
+
+.addon-banner-item > .toolbarbutton-icon {
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
+}
+
+.subviewbutton-iconic > .toolbarbutton-icon {
+  fill: var(--appmenu-icons-fill);
+  stroke: var(--appmenu-icons-stroke);
 }
 
 /* We don't always display: none this item, and if it has forced width (like above)
@@ -880,4 +905,38 @@ menulist[open="true"]:not([disabled="true"]) {
   font-size: 0.95rem;
   opacity: 0.8;
   margin-block: -5px 6px;
+}
+
+/* App Menu items icons */
+
+#appmenu_openTour {
+  list-style-image: var(--icon-features);
+}
+
+#appmenu_keyboardShortcuts {
+  list-style-image: var(--icon-shortcut);
+}
+
+#appmenu_getInvolved {
+  list-style-image: var(--icon-handshake);
+}
+
+#appmenu_makeDonation {
+  list-style-image: var(--icon-heart);
+}
+
+#appmenu_submitFeedback {
+  list-style-image: var(--icon-chat);
+}
+
+#appmenu_troubleshootMode {
+  list-style-image: var(--icon-tools);
+}
+
+#appmenu_troubleshootingInfo {
+  list-style-image: var(--icon-draft);
+}
+
+#appmenu_about {
+  list-style-image: var(--icon-info);
 }

@@ -529,6 +529,9 @@ class Pop3Client {
         this._apopTimestamp
       ) {
         this._possibleAuthMethods.unshift("APOP");
+      } else if (this._server.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+        // Some servers don't return XOAUTH2 in CAPA correctly.
+        this._possibleAuthMethods.unshift("XOAUTH2");
       }
     }
     this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);

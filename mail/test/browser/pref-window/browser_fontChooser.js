@@ -174,6 +174,7 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
 
   let advancedFonts = contentDoc.getElementById("advancedFonts");
   advancedFonts.scrollIntoView(false);
+  mc.sleep(500);
   // Now open the advanced dialog.
   EventUtils.synthesizeMouseAtCenter(advancedFonts, {}, prefsWindow);
   let fontc = wait_for_frame_load(

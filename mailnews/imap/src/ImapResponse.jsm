@@ -104,7 +104,7 @@ class ImapResponse {
             this.supportedUserFlags =
               ImapUtils.FLAG_LABEL |
               ImapUtils.FLAG_MDN_SENT |
-              ImapUtils.FLAG_FORWARDED |
+              ImapUtils.FLAG_SUPPORT_FORWARDED_FLAG |
               ImapUtils.FLAG_SUPPORT_USER_FLAG;
           }
           break;
@@ -143,7 +143,7 @@ class ImapResponse {
             this.supportedUserFlags =
               ImapUtils.FLAG_LABEL |
               ImapUtils.FLAG_MDN_SENT |
-              ImapUtils.FLAG_FORWARDED |
+              ImapUtils.FLAG_SUPPORT_FORWARDED_FLAG |
               ImapUtils.FLAG_SUPPORT_USER_FLAG;
           }
           break;

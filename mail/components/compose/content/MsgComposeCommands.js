@@ -912,10 +912,8 @@ var defaultController = {
     cmd_attachVCard: {
       isEnabled() {
         let cmd = document.getElementById("cmd_attachVCard");
-        cmd.setAttribute("checked", gCurrentIdentity?.attachVCard);
-        return (
-          !!gCurrentIdentity?.attachVCard && !!gCurrentIdentity?.escapedVCard
-        );
+        cmd.setAttribute("checked", gMsgCompose.compFields.attachVCard);
+        return !!gCurrentIdentity?.escapedVCard;
       },
       doCommand() {},
     },
@@ -3008,11 +3006,17 @@ function DoCommandPrint() {
  * @param aDisable  true = lock the window. false = unlock the window.
  */
 function ToggleWindowLock(aDisable) {
+  if (aDisable) {
+    // Save the active element so we can focus it again.
+    ToggleWindowLock.activeElement = document.activeElement;
+  }
   gWindowLocked = aDisable;
   updateAllItems(aDisable);
   updateEditableFields(aDisable);
   if (!aDisable) {
     updateComposeItems();
+    // Refocus what had focus when the lock began.
+    ToggleWindowLock.activeElement?.focus();
   }
 }
 

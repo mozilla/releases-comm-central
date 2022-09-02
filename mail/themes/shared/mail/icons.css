@@ -46,6 +46,7 @@
   --icon-globe-secure: url("chrome://messenger/skin/icons/new/compact/globe-secure.svg");
   --icon-globe: url("chrome://messenger/skin/icons/new/compact/globe.svg");
   --icon-handshake: url("chrome://messenger/skin/icons/new/compact/handshake.svg");
+  --icon-heart: url("chrome://messenger/skin/icons/new/compact/heart.svg");
   --icon-hidden: url("chrome://messenger/skin/icons/new/compact/hidden.svg");
   --icon-id: url("chrome://messenger/skin/icons/new/compact/id.svg");
   --icon-import: url("chrome://messenger/skin/icons/new/compact/import.svg");
@@ -103,6 +104,7 @@
   --icon-sent: url("chrome://messenger/skin/icons/new/compact/sent.svg");
   --icon-settings: url("chrome://messenger/skin/icons/new/compact/settings.svg");
   --icon-shield: url("chrome://messenger/skin/icons/new/compact/shield.svg");
+  --icon-shortcut: url("chrome://messenger/skin/icons/new/compact/shortcut.svg");
   --icon-sort: url("chrome://messenger/skin/icons/new/compact/sort.svg");
   --icon-spaces-menu: url("chrome://messenger/skin/icons/new/compact/spaces-menu.svg");
   --icon-spam: url("chrome://messenger/skin/icons/new/compact/spam.svg");

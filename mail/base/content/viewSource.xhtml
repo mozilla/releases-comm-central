@@ -29,6 +29,7 @@
         persist="screenX screenY width height sizemode">
 
 <linkset>
+  <html:link rel="localization" href="branding/brand.ftl"/>
   <html:link rel="localization" href="messenger/messenger.ftl"/>
   <html:link rel="localization" href="messenger/menubar.ftl"/>
   <html:link rel="localization" href="messenger/appmenu.ftl"/>
@@ -214,17 +215,10 @@
         </menupopup>
       </menu>
       <menu id="helpMenu"
-#ifdef XP_WIN
-            label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;">
-#else
-            label="&helpMenu.label;" accesskey="&helpMenu.accesskey;">
-#endif
+            data-l10n-id="menu-help-help-title">
         <menupopup id="menu_HelpPopup">
           <menuitem id="menu_openHelp"
-                    label="&productHelp.label;"
-#ifndef XP_MACOSX
-                    accesskey="&productHelp.accesskey;"
-#endif
+                    data-l10n-id="appmenu-help-get-help"
                     key="key_openHelp"
                     oncommand="openSupportURL();"/>
         </menupopup>

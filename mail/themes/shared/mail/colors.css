@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- :root {
+:root {
   --color-white: rgb(255, 255, 255);
   --color-gray-10: rgb(249, 249, 250);
   --color-gray-20: rgb(237, 237, 240);
@@ -107,3 +107,4 @@
   --color-ink-70: rgb(054, 057, 089);
   --color-ink-80: rgb(032, 035, 064);
   --color-ink-90: rgb(15, 017, 038);
+ }

@@ -690,6 +690,12 @@ add_task(async function test_full_account_setup() {
   );
 
   // Press "Enter" again to proceed with the account creation.
+  Assert.equal(
+    tabDocument.activeElement.id,
+    "resultSelect-imap",
+    "The IMAP radio button has focus"
+  );
+  tabDocument.getElementById("createButton").focus();
   EventUtils.synthesizeKey("VK_RETURN", {}, mc.window);
 
   // Since we're using plain authentication in the mock IMAP server, the

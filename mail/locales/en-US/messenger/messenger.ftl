@@ -108,15 +108,6 @@ appmenu-settings =
 appmenu-addons-and-themes =
     .label = Add-ons and Themes
 
-appmenu-help-enter-troubleshoot-mode =
-    .label = Troubleshoot Mode…
-
-appmenu-help-exit-troubleshoot-mode =
-    .label = Turn Troubleshoot Mode Off
-
-appmenu-help-more-troubleshooting-info =
-    .label = More Troubleshooting Information
-
 appmenu-redirect-msg =
     .label = Redirect
 
