@@ -328,9 +328,7 @@ var gSpacesToolbar = {
     this.isLoaded = true;
     window.dispatchEvent(new CustomEvent("spaces-toolbar-ready"));
     // Update the window UI after the spaces toolbar has been loaded.
-    this.updateUI(
-      document.documentElement.getAttribute("tabsintitlebar") == "true"
-    );
+    this.updateUI();
   },
 
   setupEventListeners() {
@@ -838,9 +836,7 @@ var gSpacesToolbar = {
 
     // Update the window UI after the visibility state of the spaces toolbar
     // has changed.
-    this.updateUI(
-      document.documentElement.getAttribute("tabsintitlebar") == "true"
-    );
+    this.updateUI();
   },
 
   /**
@@ -851,12 +847,10 @@ var gSpacesToolbar = {
   },
 
   /**
-   * Update the main navigation toolbox alignment to guarantee proper window UI
-   * styling on Linux distros that support CSD.
-   *
-   * @param {boolean} tabsInTitlebar - If the UI currently has tabs in titlebar.
+   * Update the addons buttons and propagate toolbar visibility to a global
+   * attribute.
    */
-  updateUI(tabsInTitlebar) {
+  updateUI() {
     // Interrupt if the spaces toolbar isn't loaded yet.
     if (!this.isLoaded) {
       return;
@@ -882,39 +876,6 @@ var gSpacesToolbar = {
       document.documentElement.setAttribute("spacestoolbar", "true");
       this.updateAddonButtonsUI();
     }
-
-    // Reset the style whenever something changes.
-    this.resetInlineStyle();
-
-    // Don't do anything else if the toolbar is hidden or we're on macOS.
-    if (this.isHidden || AppConstants.platform == "macosx") {
-      return;
-    }
-
-    // Add inline margin to the titlebar or the navigation-toolbox to
-    // account for the spaces toolbar.
-    let size = this.element.getBoundingClientRect().width;
-    let style = `margin-inline-start: ${size}px;`;
-    let menubar = document.getElementById("toolbar-menubar");
-
-    if (
-      tabsInTitlebar &&
-      menubar.getAttribute("autohide") &&
-      menubar.getAttribute("inactive")
-    ) {
-      // If we have tabs in titlebar, we only need to push the navigation
-      // toolbox to account for the spaces toolbar.
-      document
-        .getElementById("navigation-toolbox")
-        .setAttribute("style", style);
-    } else {
-      // Otherwise, we push the entire titlebar so the spaces toolbar doesn't
-      // interfere with it, but we pull back the menubar to properly align it.
-      document.getElementById("titlebar").setAttribute("style", style);
-      document
-        .getElementById("toolbar-menubar")
-        .setAttribute("style", `margin-inline-start: -${size}px;`);
-    }
   },
 
   /**
@@ -922,9 +883,6 @@ var gSpacesToolbar = {
    * with the spaces toolbar.
    */
   resetInlineStyle() {
-    document.getElementById("titlebar").removeAttribute("style");
-    document.getElementById("toolbar-menubar").removeAttribute("style");
-    document.getElementById("navigation-toolbox").removeAttribute("style");
     document.getElementById("tabmail-tabs").removeAttribute("style");
   },
 

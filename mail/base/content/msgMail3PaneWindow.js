@@ -2012,9 +2012,6 @@ var TabsInTitlebar = {
         document.documentElement.setAttribute("drawtitle", "true");
       }
     }
-
-    // Update the spaces toolbar to reflect the tabs in titlebar changes.
-    gSpacesToolbar.updateUI(allowed);
   },
 
   uninit() {

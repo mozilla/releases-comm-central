@@ -73,6 +73,12 @@
   --spaces-menuitem-current-indicator-size: 4px;
 }
 
+/* The spaces toolbar is using fixed positioning instead of being the left most
+ * element in the window, because the toolbox has to touch both sides of the
+ * window to properly draw client-side window decorations on GTK. To account for
+ * the spaces toolbar having fixed positioning, the window contents are moved to
+ * the right by its width. */
+
 .spaces-toolbar:not([hidden]) {
   display: flex;
   flex-direction: column;
@@ -81,13 +87,17 @@
   background-color: var(--spaces-bg-color);
   background-image: var(--spaces-bg-image);
   border-inline-end: 1px solid var(--spaces-border-color);
-  margin-top: calc(-1 * var(--tab-min-height));
+  position: fixed;
+  inset-inline-start: 0;
+  inset-block: 0;
   padding: var(--spaces-padding);
   z-index: 2;
 }
 
-:root[tabbarhidden] .spaces-toolbar:not([hidden]) {
-  margin-top: 0;
+.spaces-toolbar:not([hidden]) ~ #messengerBody,
+.spaces-toolbar:not([hidden]) ~ #navigation-toolbox-background #titlebar {
+  /* Move the window content in by the width of the spaces toolbar */
+  margin-inline-start: calc(2 * var(--spaces-padding) + var(--spaces-icon-size) + 2 * var(--spaces-button-padding) + 1px);
 }
 
 .spaces-toolbar-container {

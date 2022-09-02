@@ -473,6 +473,9 @@
 
 #include ../../../calendar/base/content/calendar-context-menus-and-tooltips.inc.xhtml
 
+
+#include spacesToolbar.inc.xhtml
+
 <!--
   GTK needs to draw behind the lightweight theme toolbox backgrounds, thus the
   extra box. Also this box allows a negative margin-top to slide the toolbox off
@@ -511,7 +514,6 @@
       </toolbar>
 
       <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
-#include spacesToolbarPin.inc.xhtml
         <tabs is="tabmail-tabs" id="tabmail-tabs"
               flex="1"
               align="end"
@@ -573,11 +575,7 @@
   </toolbox>
 </box>
 
-<!-- Primary container to properly align the spaces toolbar. -->
-<hbox id="messengerContainer">
-#include spacesToolbar.inc.xhtml
-
-  <vbox id="messengerBody">
+<vbox id="messengerBody">
   <!-- XXX This extension point (tabmail-container) is only temporary!
        Horizontal space shouldn't be wasted if it isn't absolutely critical.
        A mechanism for adding sidebar panes will be added in bug 476154. -->
@@ -931,8 +929,7 @@
     </hbox>
 #include ../../../calendar/base/content/calendar-status-bar.inc.xhtml
   </hbox>
-  </vbox>
-</hbox><!-- Closing #messengerContainer. -->
+</vbox><!-- Closing #messengerBody. -->
 
 #include tabDialogs.inc.xhtml
 </html:body>
