@@ -536,12 +536,6 @@ var gMailInit = {
       if (devtoolsMenu) {
         devtoolsMenu.hidden = true;
       }
-      let appmenu_devtoolsMenu = document.getElementById(
-        "appmenu_devtoolsMenu"
-      );
-      if (appmenu_devtoolsMenu) {
-        appmenu_devtoolsMenu.hidden = true;
-      }
     }
 
     // - initialize tabmail system

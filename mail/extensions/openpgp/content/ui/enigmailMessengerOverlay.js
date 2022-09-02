@@ -397,7 +397,7 @@ Enigmail.msg = {
       return;
     }
 
-    let tsk = document.getElementById("appmenu_tasksMenu");
+    let tsk = document.getElementById("appmenu_toolsMenu");
     let e = document.createXULElement("toolbarbutton");
     e.setAttribute("label", "xxEnigmail");
     e.id = "appmenu-Enigmail";

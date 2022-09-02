@@ -399,8 +399,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
 #statusTypeIcon[status="available"],
 #statusTypeAvailable,
-#imStatusAvailable,
-#appmenu_imStatusAvailable {
+#imStatusAvailable {
   list-style-image: var(--icon-status-online);
 }
 
@@ -411,16 +410,14 @@ richlistitem:not([selected]) .protoIconDimmed {
 #statusTypeIcon[status="offline"],
 #statusTypeIcon[status="invisible"],
 #statusTypeOffline,
-#imStatusOffline,
-#appmenu_imStatusOffline {
+#imStatusOffline {
   list-style-image: var(--icon-status-offline);
 }
 
 #statusTypeIcon[status="unavailable"],
 #statusTypeIcon[status="away"],
 #statusTypeUnavailable,
-#imStatusUnavailable,
-#appmenu_imStatusUnavailable {
+#imStatusUnavailable {
   list-style-image: var(--icon-status-away);
 }
 

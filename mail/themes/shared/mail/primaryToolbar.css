@@ -253,17 +253,8 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   list-style-image: var(--icon-trash);
 }
 
-#appmenu_activityManager {
-  list-style-image: var(--icon-file);
-}
-
 #appmenu_accountmgr {
   list-style-image: var(--icon-account-settings);
-}
-
-#appmenu_filters,
-#appmenu_filtersCmd {
-  list-style-image: var(--icon-filter);
 }
 
 #appmenu_customize {
@@ -282,10 +273,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #appmenu_help,
 #appmenu_openHelp {
   list-style-image: var(--icon-question);
-}
-
-#appmenu_addressBook {
-  list-style-image: var(--icon-address-book);
 }
 
 #button-getAllNewMsg,

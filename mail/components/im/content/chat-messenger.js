@@ -636,10 +636,7 @@ var chatHandler = {
 
   setStatusMenupopupCommand(aEvent) {
     let target = aEvent.target;
-    if (
-      target.getAttribute("id") == "imStatusShowAccounts" ||
-      target.getAttribute("id") == "appmenu_imStatusShowAccounts"
-    ) {
+    if (target.getAttribute("id") == "imStatusShowAccounts") {
       openIMAccountMgr();
       return;
     }
@@ -1786,10 +1783,7 @@ var chatHandler = {
         "joinChatMenuItem",
         "newIMAccountMenuItem",
         "newIMContactMenuItem",
-        "appmenu_joinChatMenuItem",
-        "appmenu_afterChatSeparator",
         "appmenu_goChat",
-        "appmenu_imAccountsStatus",
         "appmenu_goChatSeparator",
         "appmenu_newIMAccountMenuItem",
         "appmenu_newIMContactMenuItem",

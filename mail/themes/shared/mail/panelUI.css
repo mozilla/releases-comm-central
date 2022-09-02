@@ -813,6 +813,39 @@ menulist[open="true"]:not([disabled="true"]) {
   border-color: var(--button-border-color);
 }
 
+#appmenu_import {
+  list-style-image: var(--icon-import);
+}
+
+#appmenu_export {
+  list-style-image: var(--icon-export);
+}
+
+#appmenu_searchCmd {
+  list-style-image: var(--icon-search);
+}
+
+#appmenu_filtersCmd {
+  list-style-image: var(--icon-filter);
+}
+
+#appmenu_openSavedFilesWnd {
+  list-style-image: var(--icon-download);
+}
+
+#appmenu_manageKeysOpenPGP {
+  list-style-image: var(--icon-key);
+}
+
+#appmenu_activityManager {
+  list-style-image: var(--icon-paste);
+}
+
+#appmenu_toolsMenu,
+#appmenu_devtoolsToolbox {
+  list-style-image: var(--icon-tools);
+}
+
 /* Font scaling */
 
 #appMenu-fontSizeReduce-button {
