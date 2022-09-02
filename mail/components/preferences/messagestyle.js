@@ -27,7 +27,9 @@ Conversation.prototype = {
     protocol: { name: "Fake Protocol" },
     alias: "",
     name: "Fake Account",
-    statusInfo: IMServices.core.globalUserStatus,
+    get statusInfo() {
+      return IMServices.core.globalUserStatus;
+    },
   },
 };
 
