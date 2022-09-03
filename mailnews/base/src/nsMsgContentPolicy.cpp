@@ -655,7 +655,7 @@ void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
  * determine if we are going to allow remote content.
  */
 void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
-    nsIURI* aOriginatorLocation, nsIURI* aContentLocation, int16_t* aDecision) {
+    nsIURI* aRequestingLocation, nsIURI* aContentLocation, int16_t* aDecision) {
   NS_ASSERTION(
       *aDecision == nsIContentPolicy::REJECT_REQUEST,
       "AllowContentForPotentialMessage expects default decision to be reject!");
@@ -663,7 +663,7 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   // Is it a mailnews url?
   nsresult rv;
   nsCOMPtr<nsIMsgMessageUrl> msgUrl(
-      do_QueryInterface(aOriginatorLocation, &rv));
+      do_QueryInterface(aRequestingLocation, &rv));
   if (NS_FAILED(rv)) {
     // It isn't a mailnews url - so we accept the load here, and let other
     // content policies make the decision if we should be loading it or not.
@@ -695,14 +695,14 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
 
   // Get a decision on whether or not to allow remote content for this message
   // header.
-  *aDecision = ShouldAcceptRemoteContentForMsgHdr(msgHdr, aOriginatorLocation,
+  *aDecision = ShouldAcceptRemoteContentForMsgHdr(msgHdr, aRequestingLocation,
                                                   aContentLocation);
 
   // If we're not allowing the remote content, tell the nsIMsgWindow loading
   // this url that this is the case, so that the UI knows to show the remote
   // content header bar, so the user can override if they wish.
   if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
-    NotifyContentWasBlocked(aOriginatorLocation, aContentLocation, true);
+    NotifyContentWasBlocked(aRequestingLocation, aContentLocation, true);
   }
 }
 
