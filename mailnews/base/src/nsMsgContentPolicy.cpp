@@ -393,9 +393,11 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     }
   }
 
-  // The default decision is still to reject.
-  ShouldAcceptContentForPotentialMsg(aRequestingLocation, aContentLocation,
-                                     aDecision);
+  if (aRequestingContext) {
+    // The default decision is still to reject.
+    ShouldAcceptContentForPotentialMsg(aRequestingLocation, aContentLocation,
+                                       aDecision);
+  }
   return NS_OK;
 }
 
