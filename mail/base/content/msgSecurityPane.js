@@ -60,7 +60,7 @@ function showMessageSecurityPanel() {
     .getElementById("messageSecurityPanel")
     .openPopup(
       document.getElementById("encryptionTechBtn"),
-      "bottomcenter topright",
+      "bottomright topright",
       0,
       0,
       false

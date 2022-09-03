@@ -15,3 +15,8 @@ html|input.editContactTextbox {
 .popup-panel-buttons-container > button.primary {
   order: -1;
 }
+
+#messageHeaderCustomizationPanel {
+  margin-top: -10px;
+  margin-inline-end: 2px;
+}
