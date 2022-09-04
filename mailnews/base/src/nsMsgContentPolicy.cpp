@@ -350,16 +350,14 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     return NS_OK;
   }
 
-  // Extract the windowtype to handle compose windows separately from mail
-  if (aRequestingContext) {
-    nsCOMPtr<nsIMsgCompose> msgCompose =
-        GetMsgComposeForContext(aRequestingContext);
-    // Work out if we're in a compose window or not.
-    if (msgCompose) {
-      ComposeShouldLoad(msgCompose, aRequestingContext, originatorLocation,
-                        aContentLocation, aDecision);
-      return NS_OK;
-    }
+  // Handle compose windows separately from mail. Work out if we're in a compose
+  // window or not.
+  nsCOMPtr<nsIMsgCompose> msgCompose =
+      GetMsgComposeForBrowsingContext(targetContext);
+  if (msgCompose) {
+    ComposeShouldLoad(msgCompose, aRequestingContext, originatorLocation,
+                      aContentLocation, aDecision);
+    return NS_OK;
   }
 
   // Allow content when using a remote page.
@@ -776,11 +774,12 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
   }
 }
 
-already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(
-    nsISupports* aRequestingContext) {
+already_AddRefed<nsIMsgCompose>
+nsMsgContentPolicy::GetMsgComposeForBrowsingContext(
+    mozilla::dom::BrowsingContext* aBrowsingContext) {
   nsresult rv;
 
-  nsIDocShell* shell = NS_CP_GetDocShellFromContext(aRequestingContext);
+  nsIDocShell* shell = aBrowsingContext->GetDocShell();
   if (!shell) return nullptr;
   nsCOMPtr<nsIDocShellTreeItem> docShellTreeItem(shell);
 

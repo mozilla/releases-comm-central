@@ -78,8 +78,8 @@ class nsMsgContentPolicy : public nsIContentPolicy,
                          nsISupports* aRequestingContext,
                          nsIURI* aOriginatorLocation, nsIURI* aContentLocation,
                          int16_t* aDecision);
-  already_AddRefed<nsIMsgCompose> GetMsgComposeForContext(
-      nsISupports* aRequestingContext);
+  already_AddRefed<nsIMsgCompose> GetMsgComposeForBrowsingContext(
+      mozilla::dom::BrowsingContext* aRequestingContext);
 
   nsresult GetRootDocShellForContext(nsISupports* aRequestingContext,
                                      nsIDocShell** aDocShell);
