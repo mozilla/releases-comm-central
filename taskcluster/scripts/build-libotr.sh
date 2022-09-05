@@ -224,7 +224,7 @@ case "${_TARGET_OS}" in
         export PATH
 
         export _TARGET_TRIPLE="x86_64-apple-darwin"
-        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.0.sdk"
+        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.3.sdk"
         export CROSS_PRIVATE_FRAMEWORKS="${MACOS_SDK_DIR}/System/Library/PrivateFrameworks"
         export CROSS_SYSROOT="${MACOS_SDK_DIR}"
 
@@ -247,7 +247,7 @@ case "${_TARGET_OS}" in
         export PATH
 
         export _TARGET_TRIPLE="aarch64-apple-darwin"
-        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.0.sdk"
+        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.3.sdk"
         export CROSS_PRIVATE_FRAMEWORKS="${MACOS_SDK_DIR}/System/Library/PrivateFrameworks"
         export CROSS_SYSROOT="${MACOS_SDK_DIR}"
 

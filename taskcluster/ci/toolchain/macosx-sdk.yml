@@ -30,3 +30,14 @@ macosx64-sdk-11.0:
         symbol: TM(sdk11)
     run:
         toolchain-artifact: project/comm/mac-sdk/MacOSX11.0.sdk.tar.zst
+
+macosx64-sdk-11.3:
+    description: "MacOSX11.3 SDK"
+    attributes:
+        gecko_index: gecko.cache.level-{level}.toolchains.v3.macosx64-sdk-11.3.latest
+        gecko_artifact_path: project/gecko/mac-sdk/MacOSX11.3.sdk.tar.zst
+    treeherder:
+        symbol: TM(sdk11.3)
+    run:
+        toolchain-artifact: project/comm/mac-sdk/MacOSX11.3.sdk.tar.zst
+        toolchain-alias: macosx64-sdk
