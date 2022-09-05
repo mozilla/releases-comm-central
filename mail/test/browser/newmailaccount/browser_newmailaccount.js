@@ -240,7 +240,7 @@ add_task(async function test_account_creation_from_provisioner() {
 
   // A special tab with the provisioner's API url should be loaded.
   wait_for_content_tab_load(undefined, function(aURL) {
-    return aURL.host == "mochi.test";
+    return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
@@ -255,7 +255,7 @@ add_task(async function test_account_creation_from_provisioner() {
   mc.tabmail.undoCloseTab();
   // Wait for the page to be loaded again...
   wait_for_content_tab_load(undefined, function(aURL) {
-    return aURL.host == "mochi.test";
+    return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
   tab = mc.tabmail.currentTabInfo;
 
@@ -532,7 +532,7 @@ add_task(async function test_error_on_corrupt_XML() {
 
   // A special tab with the provisioner's API url should be loaded.
   wait_for_content_tab_load(undefined, function(aURL) {
-    return aURL.host == "mochi.test";
+    return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
   tab = mc.tabmail.currentTabInfo;
 
