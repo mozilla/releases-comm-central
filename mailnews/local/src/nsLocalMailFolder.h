@@ -179,6 +179,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD DownloadMessagesForOffline(
       nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages,
       nsIMsgWindow* aWindow) override;
+  NS_IMETHOD HasMsgOffline(nsMsgKey msgKey, bool* result) override;
   NS_IMETHOD GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                nsIInputStream** stream) override;
   NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,

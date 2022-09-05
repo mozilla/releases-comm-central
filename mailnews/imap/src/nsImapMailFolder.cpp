@@ -6457,74 +6457,6 @@ nsresult nsImapMailFolder::GetOriginalOp(
   return rv;
 }
 
-nsresult nsImapMailFolder::CopyOfflineMsgBody(nsIMsgFolder* srcFolder,
-                                              nsIMsgDBHdr* destHdr,
-                                              nsIMsgDBHdr* origHdr,
-                                              nsIInputStream* inputStream,
-                                              nsIOutputStream* outputStream) {
-  nsresult rv = NS_OK;
-  uint64_t messageOffset;
-  origHdr->GetMessageOffset(&messageOffset);
-  if (!messageOffset) {
-    // Some offline stores may contain a bug where the storeToken is set but
-    // the messageOffset is zero. Detect cases like this, and use storeToken
-    // to set the missing messageOffset. Note this assumes mbox.
-    nsCOMPtr<nsIMsgPluggableStore> offlineStore;
-    (void)GetMsgStore(getter_AddRefs(offlineStore));
-    if (offlineStore) {
-      nsAutoCString type;
-      offlineStore->GetStoreType(type);
-      if (type.EqualsLiteral("mbox")) {
-        nsCString storeToken;
-        origHdr->GetStringProperty("storeToken", getter_Copies(storeToken));
-        if (!storeToken.IsEmpty())
-          messageOffset = ParseUint64Str(storeToken.get());
-      }
-    }
-  }
-  uint32_t messageSize;
-  origHdr->GetOfflineMessageSize(&messageSize);
-  if (!messageSize) {
-    nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(srcFolder);
-    if (localFolder)  // can just use regular message size
-      origHdr->GetMessageSize(&messageSize);
-  }
-  nsCOMPtr<nsISeekableStream> seekStream = do_QueryInterface(inputStream);
-  NS_ASSERTION(seekStream, "non seekable stream - can't read from offline msg");
-  if (seekStream) {
-    rv = seekStream->Seek(nsISeekableStream::NS_SEEK_SET, messageOffset);
-    if (NS_SUCCEEDED(rv)) {
-      // now, copy the dest folder offline store msg to the temp file
-      char* inputBuffer = (char*)PR_Malloc(FILE_IO_BUFFER_SIZE);
-      int32_t bytesLeft;
-      uint32_t bytesRead, bytesWritten;
-      bytesLeft = messageSize;
-      rv = (inputBuffer) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
-      while (bytesLeft > 0 && NS_SUCCEEDED(rv)) {
-        rv = inputStream->Read(inputBuffer, FILE_IO_BUFFER_SIZE, &bytesRead);
-        if (NS_SUCCEEDED(rv) && bytesRead > 0) {
-          rv = outputStream->Write(inputBuffer,
-                                   std::min((int32_t)bytesRead, bytesLeft),
-                                   &bytesWritten);
-          NS_ASSERTION(
-              (int32_t)bytesWritten == std::min((int32_t)bytesRead, bytesLeft),
-              "wrote out incorrect number of bytes");
-        } else
-          break;
-        bytesLeft -= bytesRead;
-      }
-      PR_FREEIF(inputBuffer);
-    }
-  }
-  if (NS_SUCCEEDED(rv)) {
-    outputStream->Flush();
-    uint32_t resultFlags;
-    destHdr->OrFlags(nsMsgMessageFlags::Offline, &resultFlags);
-    destHdr->SetOfflineMessageSize(messageSize);
-  }
-  return rv;
-}
-
 nsresult nsImapMailFolder::FindOpenRange(nsMsgKey& fakeBase,
                                          uint32_t srcCount) {
   nsresult rv = GetDatabase();
@@ -6546,7 +6478,41 @@ nsresult nsImapMailFolder::FindOpenRange(nsMsgKey& fakeBase,
   return NS_OK;
 }
 
-// this imap folder is the destination of an offline move/copy.
+// Helper to synchronously copy a message from one msgStore to another.
+static nsresult CopyStoreMessage(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* destHdr,
+                                 uint64_t& bytesCopied) {
+  nsresult rv;
+
+  // Boilerplate setup.
+  nsCOMPtr<nsIMsgFolder> srcFolder;
+  rv = srcHdr->GetFolder(getter_AddRefs(srcFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgFolder> destFolder;
+  rv = destHdr->GetFolder(getter_AddRefs(destFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgPluggableStore> destStore;
+  rv = destFolder->GetMsgStore(getter_AddRefs(destStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Copy message into the msgStore.
+  nsCOMPtr<nsIInputStream> srcStream;
+  rv = srcFolder->GetLocalMsgStream(srcHdr, getter_AddRefs(srcStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIOutputStream> destStream;
+  rv = destFolder->GetOfflineStoreOutputStream(destHdr,
+                                               getter_AddRefs(destStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = SyncCopyStream(srcStream, destStream, bytesCopied);
+  if (NS_SUCCEEDED(rv)) {
+    rv = destStore->FinishNewMessage(destStream, destHdr);
+  } else {
+    destStore->DiscardNewMessage(destStream, destHdr);
+  }
+  return rv;
+}
+
+// This imap folder is the destination of an offline move/copy.
 // We are either offline, or doing a pseudo-offline delete (where we do an
 // offline delete, load the next message, then playback the offline delete).
 nsresult nsImapMailFolder::CopyMessagesOffline(
@@ -6622,17 +6588,17 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
       // put fake message in destination db, delete source if move
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
+      nsCString originalSrcFolderURI;
+      srcFolder->GetURI(originalSrcFolderURI);
       for (uint32_t sourceKeyIndex = 0;
            NS_SUCCEEDED(stopit) && (sourceKeyIndex < srcCount);
            sourceKeyIndex++) {
         bool messageReturningHome = false;
-        nsCString originalSrcFolderURI;
-        srcFolder->GetURI(originalSrcFolderURI);
         RefPtr<nsIMsgDBHdr> message = messages[sourceKeyIndex];
         nsMsgKey originalKey;
-        if (message)
+        if (message) {
           rv = message->GetMessageKey(&originalKey);
-        else {
+        } else {
           NS_ERROR("bad msg in src array");
           continue;
         }
@@ -6683,21 +6649,23 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
               if (msgFlags & nsMsgMessageFlags::Forwarded)
                 newImapFlags |= kImapMsgForwardedFlag;
               sourceOp->SetNewFlags(newImapFlags);
-            } else
+            } else {
               sourceOp->AddMessageCopyOperation(folderURI);  // offline copy
+            }
 
             sourceOp->GetOperation(&moveCopyOpType);
             srcMsgs.AppendObject(message);
           }
-          bool hasMsgOffline = false;
-          srcFolder->HasMsgOffline(originalKey, &hasMsgOffline);
-        } else
+        } else {
           stopit = NS_ERROR_FAILURE;
+        }
 
         nsCOMPtr<nsIMsgDBHdr> mailHdr;
         rv =
             sourceMailDB->GetMsgHdrForKey(originalKey, getter_AddRefs(mailHdr));
+
         if (NS_SUCCEEDED(rv) && mailHdr) {
+          // Copy the DB hdr into the destination folder.
           bool successfulCopy = false;
           nsMsgKey srcDBhighWaterMark;
           srcDbFolderInfo->GetHighWater(&srcDBhighWaterMark);
@@ -6719,28 +6687,16 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             newMailHdr->SetUint32Property("pseudoHdr", 1);
 
             if (hasMsgOffline && !isLocked) {
-              nsCOMPtr<nsIInputStream> inputStream;
-              bool reusable;
-              stopit = srcFolder->GetMsgInputStream(
-                  newMailHdr, &reusable, getter_AddRefs(inputStream));
-              nsCOMPtr<nsIOutputStream> outputStream;
+              uint64_t bytesCopied;
+              stopit = CopyStoreMessage(mailHdr, newMailHdr, bytesCopied);
               if (NS_SUCCEEDED(stopit)) {
-                stopit = GetOfflineStoreOutputStream(
-                    newMailHdr, getter_AddRefs(outputStream));
+                uint32_t unused;
+                newMailHdr->OrFlags(nsMsgMessageFlags::Offline, &unused);
+                newMailHdr->SetOfflineMessageSize(bytesCopied);
               }
-              if (NS_SUCCEEDED(stopit)) {
-                stopit = CopyOfflineMsgBody(srcFolder, newMailHdr, mailHdr,
-                                            inputStream, outputStream);
-              }
-              nsCOMPtr<nsIMsgPluggableStore> offlineStore;
-              GetMsgStore(getter_AddRefs(offlineStore));
-              if (NS_SUCCEEDED(stopit)) {
-                offlineStore->FinishNewMessage(outputStream, newMailHdr);
-              } else if (outputStream) {
-                offlineStore->DiscardNewMessage(outputStream, newMailHdr);
-              }
-            } else
+            } else {
               database->MarkOffline(fakeBase + sourceKeyIndex, false, nullptr);
+            }
 
             nsCOMPtr<nsIMsgOfflineImapOperation> destOp;
             database->GetOfflineOpForKey(fakeBase + sourceKeyIndex, true,
@@ -6748,17 +6704,18 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             if (destOp) {
               // check if this is a move back to the original mailbox, in which
               // case we just delete the offline operation.
-              if (messageReturningHome)
+              if (messageReturningHome) {
                 database->RemoveOfflineOp(destOp);
-              else {
+              } else {
                 SetFlag(nsMsgFolderFlags::OfflineEvents);
                 destOp->SetSourceFolderURI(originalSrcFolderURI);
                 destOp->SetSrcMessageKey(originalKey);
                 addedKeys.AppendElement(fakeBase + sourceKeyIndex);
                 addedHdrs.AppendObject(newMailHdr);
               }
-            } else
+            } else {
               stopit = NS_ERROR_FAILURE;
+            }
           }
           successfulCopy = NS_SUCCEEDED(stopit);
           nsMsgKey msgKey;
@@ -6770,11 +6727,12 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
               sourceMailDB->MarkImapDeleted(msgKey, true,
                                             nullptr);  // offline delete
           }
-          if (successfulCopy)
+          if (successfulCopy) {
             // This is for both moves and copies
             msgHdrsCopied.AppendElement(mailHdr);
+          }
         }
-      }
+      }  // End message loop.
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
       RefPtr<nsImapOfflineTxn> addHdrMsgTxn = new nsImapOfflineTxn(
           this, &addedKeys, nullptr, this, isMove,
@@ -6795,8 +6753,9 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 static_cast<nsImapMailFolder*>(srcFolder);
             srcImapFolder->m_pendingOfflineMoves.AppendElement(undoMsgTxn);
           }
-        } else
+        } else {
           undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+        }
         // we're adding this undo action before the delete is successful. This
         // is evil, but 4.5 did it as well.
         if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
@@ -6806,12 +6765,14 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                                isMove, deleteOpType, srcMsgs);
       if (undoMsgTxn) {
         if (isMove) {
-          if (mFlags & nsMsgFolderFlags::Trash)
+          if (mFlags & nsMsgFolderFlags::Trash) {
             undoMsgTxn->SetTransactionType(nsIMessenger::eDeleteMsg);
-          else
+          } else {
             undoMsgTxn->SetTransactionType(nsIMessenger::eMoveMsg);
-        } else
+          }
+        } else {
           undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
+        }
         if (txnMgr) txnMgr->DoTransaction(undoMsgTxn);
       }
 
@@ -6845,9 +6806,10 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
   nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
   OnCopyCompleted(srcSupport, rv);
 
-  if (isMove)
+  if (isMove) {
     srcFolder->NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted
                                                   : kDeleteOrMoveMsgFailed);
+  }
   return rv;
 }
 

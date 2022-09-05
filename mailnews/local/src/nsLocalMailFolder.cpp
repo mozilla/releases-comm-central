@@ -2770,6 +2770,31 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
                                      getter_AddRefs(resultURI));
 }
 
+NS_IMETHODIMP nsMsgLocalMailFolder::HasMsgOffline(nsMsgKey msgKey,
+                                                  bool* result) {
+  NS_ENSURE_ARG(result);
+  *result = false;
+  GetDatabase();
+  if (!mDatabase) return NS_ERROR_FAILURE;
+
+  nsresult rv;
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
+  if (NS_FAILED(rv)) return rv;
+
+  if (hdr) {
+    uint32_t flags = 0;
+    hdr->GetFlags(&flags);
+    // Would be nice to check nsMsgMessageFlags::Offline... but local
+    // folders don't set it.
+    // Don't want partial messages.
+    if (!(flags & nsMsgMessageFlags::Partial)) {
+      *result = true;
+    }
+  }
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgLocalMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                                       nsIInputStream** stream) {
   uint64_t offset = 0;

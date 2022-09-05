@@ -1246,8 +1246,7 @@ NS_IMETHODIMP nsMsgDBFolder::ShouldStoreMsgOffline(nsMsgKey msgKey,
              : NS_OK;
 }
 
-// Note: this probably always returns false for local folders!
-// Looks like it's only ever used for IMAP folders.
+// Looks like this implementation is only ever used for IMAP folders.
 NS_IMETHODIMP nsMsgDBFolder::HasMsgOffline(nsMsgKey msgKey, bool* result) {
   NS_ENSURE_ARG(result);
   *result = false;
