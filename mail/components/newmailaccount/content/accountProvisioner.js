@@ -825,6 +825,9 @@ var gAccountProvisioner = {
    * @returns {Object} - A list of available emails or domains.
    */
   async submitFormRequest(name, providers) {
+    // If the focused element is disabled by `updateSearchingState`, focus is
+    // lost. Save the focused element to restore it later.
+    let activeElement = document.activeElement;
     this.updateSearchingState(true);
 
     let [firstName, lastName] = splitName(name);
@@ -844,6 +847,8 @@ var gAccountProvisioner = {
     }
 
     this.updateSearchingState(false);
+    // Restore focus.
+    activeElement.focus();
     return data;
   },
 
