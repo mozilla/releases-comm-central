@@ -21,8 +21,8 @@ DevToolsStartup.prototype = {
   },
 
   handleDevToolsFlag(cmdLine) {
-    const { BrowserToolboxLauncher } = ChromeUtils.import(
-      "resource://devtools/client/framework/browser-toolbox/Launcher.jsm"
+    const { BrowserToolboxLauncher } = ChromeUtils.importESModule(
+      "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs"
     );
     BrowserToolboxLauncher.init();
 

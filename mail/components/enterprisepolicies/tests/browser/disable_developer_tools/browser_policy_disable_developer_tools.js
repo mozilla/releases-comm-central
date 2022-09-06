@@ -30,13 +30,6 @@ add_task(async function test_updates_post_policy() {
   info("Check that devtools menu items are hidden");
   let devtoolsMenu = window.document.getElementById("devtoolsMenu");
   ok(devtoolsMenu.hidden, "The Web Developer item of the tools menu is hidden");
-  let appmenu_devtoolsMenu = window.document.getElementById(
-    "appmenu_devtoolsMenu"
-  );
-  ok(
-    appmenu_devtoolsMenu.hidden,
-    "The Web Developer item of the hamburger menu is hidden"
-  );
 });
 
 const expectErrorPage = async function(url) {

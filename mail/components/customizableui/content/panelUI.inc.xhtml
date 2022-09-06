@@ -115,9 +115,9 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appmenu_Event_Task_View', this)"/>
 #endif
-        <toolbarbutton id="appmenu_tasksMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&tasksMenu.label;"
+        <toolbarbutton id="appmenu_toolsMenu"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       data-l10n-id="appmenu-tools-panel"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-toolsView', this)"/>
         <toolbarbutton id="appmenu_help"
@@ -1423,138 +1423,46 @@
 
     <!-- Tools -->
     <panelview id="appMenu-toolsView"
-               title="&tasksMenu.label;"
+               data-l10n-id="appmenu-tools-panel-title"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
-        <toolbarbutton hidden="true"
-                       id="appmenu_tasksMenuMail"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&messengerCmd.label;"
-                       key="key_mail"
-                       oncommand="toMessengerWindow();"/>
-        <toolbarbutton id="appmenu_addressBook"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&addressBookCmd.label;"
-                       key="key_addressbook"
-                       oncommand="toAddressBook();"/>
-        <toolbarseparator id="devToolsSeparator"/>
-        <toolbarbutton id="appmenu_filtersCmd"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&filtersCmd2.label;"
-                       command="cmd_displayMsgFilters"/>
-        <toolbarbutton id="appmenu_applyFilters"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&filtersApply.label;"
-                       command="cmd_applyFilters"/>
-        <toolbarbutton id="appmenu_applyFiltersToSelection"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&filtersApplyToMessage.label;"
-                       command="cmd_applyFiltersToSelection"/>
-        <toolbarseparator/>
-        <toolbarbutton id="appmenu_runJunkControls"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&runJunkControls.label;"
-                       command="cmd_runJunkControls"/>
-        <toolbarbutton id="appmenu_deleteJunk"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&deleteJunk.label;"
-                       command="cmd_deleteJunk"/>
-        <toolbarseparator id="tasksMenuAfterDeleteSeparator"/>
-        <toolbarbutton id="appmenu_openSavedFilesWnd"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&savedFiles.label;"
-                       key="key_savedFiles"
-                       oncommand="openSavedFilesWnd();"/>
-        <toolbarbutton id="appmenu_imAccountsStatus"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&imAccountsStatus.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-toolsChatStatusView', this)"/>
-        <toolbarbutton id="appmenu_joinChatMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&joinChatCmd.label;"
-                       command="cmd_joinChat"/>
-        <toolbarseparator id="appmenu_afterChatSeparator"/>
         <toolbarbutton id="appmenu_import"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&importCmd.label;"
+                       data-l10n-id="appmenu-tools-import"
                        oncommand="toImport();"/>
         <toolbarbutton id="appmenu_export"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&exportCmd.label;"
+                       data-l10n-id="appmenu-tools-export"
                        oncommand="toExport();"/>
+        <toolbarseparator id="importExportSeparator"/>
+        <toolbarbutton id="appmenu_searchCmd"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-tools-message-search"
+                       key="key_searchMail"
+                       command="cmd_search"/>
+        <toolbarbutton id="appmenu_filtersCmd"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-tools-message-filters"
+                       command="cmd_displayMsgFilters"/>
         <toolbarbutton id="appmenu_manageKeysOpenPGP"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="openpgp-manage-keys-openpgp-cmd"
                        oncommand="openKeyManager()"/>
-        <toolbarbutton id="appmenu_devtoolsMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&devtoolsMenu.label;"
-                       accesskey="&devtoolsMenu.accesskey;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-toolsDevtoolsView', this)"/>
-        <toolbarbutton id="appmenu_sanitizeHistory"
+        <toolbarbutton id="appmenu_openSavedFilesWnd"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&clearRecentHistory.label;"
-                       key="key_sanitizeHistory"
-                       oncommand="toSanitize();"/>
-        <toolbarseparator/>
+                       data-l10n-id="appmenu-tools-download-manager"
+                       key="key_savedFiles"
+                       oncommand="openSavedFilesWnd();"/>
         <toolbarbutton id="appmenu_activityManager"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&activitymanager.label;"
+                       data-l10n-id="appmenu-tools-activity-manager"
                        oncommand="openActivityMgr();"/>
-      </vbox>
-    </panelview>
-
-    <!-- Tools / Chat Status -->
-    <panelview id="appMenu-toolsChatStatusView"
-               title="&imAccountsStatus.label;"
-               class="PanelUI-subView"
-               command="cmd_chatStatus">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_imStatusAvailable"
-                       class="subviewbutton subviewbutton-iconic"
-                       status="available"
-                       label="&imStatus.available;"/>
-        <toolbarbutton id="appmenu_imStatusUnavailable"
-                       class="subviewbutton subviewbutton-iconic"
-                       status="unavailable"
-                       label="&imStatus.unavailable;"/>
-        <toolbarseparator id="appmenu_imStatusOfflineSeparator"/>
-        <toolbarbutton id="appmenu_imStatusOffline"
-                       class="subviewbutton subviewbutton-iconic"
-                       status="offline"
-                       label="&imStatus.offline;"/>
-        <toolbarseparator id="appmenu_imStatusShowAccountsSeparator"/>
-        <toolbarbutton id="appmenu_imStatusShowAccounts"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&imStatus.showAccounts;"/>
-      </vbox>
-    </panelview>
-
-    <!-- Tools / Developer Tools -->
-    <panelview id="appMenu-toolsDevtoolsView"
-               title="&devtoolsMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
+        <toolbarseparator id="devToolsSeparator"/>
         <toolbarbutton id="appmenu_devtoolsToolbox"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&devToolboxCmd.label;"
-                       accesskey="&devToolboxCmd.accesskey;"
+                       data-l10n-id="appmenu-tools-dev-tools"
                        key="key_devtoolsToolbox"
                        oncommand="BrowserToolboxLauncher.init();"/>
-        <toolbarbutton id="appmenu_addonDebugging"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&debugAddonsCmd.label;"
-                       accesskey="&debugAddonsCmd.accesskey;"
-                       oncommand="openAboutDebugging('addons')"/>
-        <toolbarseparator id="appmenu_debuggingSeparator"/>
-        <toolbarbutton id="appmenu_javascriptConsole"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&errorConsoleCmd.label;"
-                       accesskey="&errorConsoleCmd.accesskey;"
-                       key="key_errorConsole"
-                       oncommand="toJavaScriptConsole();"/>
       </vbox>
     </panelview>
 

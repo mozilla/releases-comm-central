@@ -85,8 +85,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 }
 
 #setStatusTypeMenupopup .menu-iconic-icon,
-#imAccountsStatus .menu-iconic-icon,
-#appmenu_imAccountsStatus .menu-iconic-icon {
+#imAccountsStatus .menu-iconic-icon {
   visibility: visible;
 }
 

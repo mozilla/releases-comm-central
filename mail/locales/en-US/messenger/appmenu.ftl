@@ -20,6 +20,43 @@ appmenuitem-font-size-reset =
   .label = { $size }px
   .tooltiptext = Reset Font Size
 
+## Tools
+
+appmenu-tools-panel-title =
+  .title = Tools
+
+appmenu-tools-panel =
+  .label = Tools
+  .accesskey = T
+
+appmenu-tools-import =
+  .label = Import
+  .accesskey = I
+
+appmenu-tools-export =
+  .label = Export
+  .accesskey = E
+
+appmenu-tools-message-search =
+  .label = Search Messages
+  .accesskey = S
+
+appmenu-tools-message-filters =
+  .label = Message Filters
+  .accesskey = F
+
+appmenu-tools-download-manager =
+  .label = Download Manager
+  .accesskey = D
+
+appmenu-tools-activity-manager =
+  .label = Activity Manager
+  .accesskey = A
+
+appmenu-tools-dev-tools =
+  .label = Developer Tools
+  .accesskey = T
+
 ## Help
 
 appmenu-help-panel-title =

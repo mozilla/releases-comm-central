@@ -610,10 +610,6 @@ function ShowMenus() {
   if (openMail3Pane_menuitem) {
     openMail3Pane_menuitem.removeAttribute("hidden");
   }
-  openMail3Pane_menuitem = document.getElementById("appmenu_tasksMenuMail");
-  if (openMail3Pane_menuitem) {
-    openMail3Pane_menuitem.removeAttribute("hidden");
-  }
 }
 
 /* eslint-disable complexity */

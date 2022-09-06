@@ -79,6 +79,8 @@ def get_digest_data(config, run, taskdesc):
     # Accumulate dependency hashes for index generation.
     data = [hash_paths(GECKO, files)]
 
+    data.append(taskdesc["attributes"]["toolchain-artifact"])
+
     # If the task uses an in-tree docker image, we want it to influence
     # the index path as well. Ideally, the content of the docker image itself
     # should have an influence, but at the moment, we can't get that
@@ -94,6 +96,11 @@ def get_digest_data(config, run, taskdesc):
     args = run.get("arguments")
     if args:
         data.extend(args)
+
+    sdk_task_id = run.pop("sdk_task_id", None)
+    if sdk_task_id:
+        data.append(sdk_task_id)
+
     return data
 
 
@@ -205,6 +212,8 @@ def docker_macos_sdk_fetch(config, job, taskdesc):
             continue
     if sdk_task_id is None:
         raise KeyError("toolchain index path {} not found".format(gecko_index))
+
+    run["sdk_task_id"] = sdk_task_id
 
     # Sets the MOZ_FETCHES environment variable with the task id and artifact
     # path of the gecko artifact. This bypasses the usual setup done in

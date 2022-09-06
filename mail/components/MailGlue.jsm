@@ -235,7 +235,7 @@ function MailGlue() {
 }
 
 // This should match the constant of the same name in devtools
-// (devtools/client/framework/browser-toolbox/Launcher.jsm). Otherwise the logic
+// (devtools/client/framework/browser-toolbox/Launcher.sys.mjs). Otherwise the logic
 // in command-line-startup will fail. We have a test to ensure it matches, at
 // mail/base/test/unit/test_devtools_url.js.
 MailGlue.BROWSER_TOOLBOX_WINDOW_URL =

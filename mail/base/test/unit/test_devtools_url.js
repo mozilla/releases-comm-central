@@ -10,7 +10,7 @@ var { MailGlue } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
 add_task(async () => {
   let expectedURL = `"${MailGlue.BROWSER_TOOLBOX_WINDOW_URL}"`;
   let containingFile =
-    "resource://devtools/client/framework/browser-toolbox/Launcher.jsm";
+    "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs";
 
   let response = await fetch(containingFile);
   let text = await response.text();

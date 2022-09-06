@@ -350,16 +350,14 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     return NS_OK;
   }
 
-  // Extract the windowtype to handle compose windows separately from mail
-  if (aRequestingContext) {
-    nsCOMPtr<nsIMsgCompose> msgCompose =
-        GetMsgComposeForContext(aRequestingContext);
-    // Work out if we're in a compose window or not.
-    if (msgCompose) {
-      ComposeShouldLoad(msgCompose, aRequestingContext, originatorLocation,
-                        aContentLocation, aDecision);
-      return NS_OK;
-    }
+  // Handle compose windows separately from mail. Work out if we're in a compose
+  // window or not.
+  nsCOMPtr<nsIMsgCompose> msgCompose =
+      GetMsgComposeForBrowsingContext(targetContext);
+  if (msgCompose) {
+    ComposeShouldLoad(msgCompose, aRequestingContext, originatorLocation,
+                      aContentLocation, aDecision);
+    return NS_OK;
   }
 
   // Allow content when using a remote page.
@@ -653,7 +651,7 @@ void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
  * determine if we are going to allow remote content.
  */
 void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
-    nsIURI* aOriginatorLocation, nsIURI* aContentLocation, int16_t* aDecision) {
+    nsIURI* aRequestingLocation, nsIURI* aContentLocation, int16_t* aDecision) {
   NS_ASSERTION(
       *aDecision == nsIContentPolicy::REJECT_REQUEST,
       "AllowContentForPotentialMessage expects default decision to be reject!");
@@ -661,7 +659,7 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   // Is it a mailnews url?
   nsresult rv;
   nsCOMPtr<nsIMsgMessageUrl> msgUrl(
-      do_QueryInterface(aOriginatorLocation, &rv));
+      do_QueryInterface(aRequestingLocation, &rv));
   if (NS_FAILED(rv)) {
     // It isn't a mailnews url - so we accept the load here, and let other
     // content policies make the decision if we should be loading it or not.
@@ -693,14 +691,14 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
 
   // Get a decision on whether or not to allow remote content for this message
   // header.
-  *aDecision = ShouldAcceptRemoteContentForMsgHdr(msgHdr, aOriginatorLocation,
+  *aDecision = ShouldAcceptRemoteContentForMsgHdr(msgHdr, aRequestingLocation,
                                                   aContentLocation);
 
   // If we're not allowing the remote content, tell the nsIMsgWindow loading
   // this url that this is the case, so that the UI knows to show the remote
   // content header bar, so the user can override if they wish.
   if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
-    NotifyContentWasBlocked(aOriginatorLocation, aContentLocation, true);
+    NotifyContentWasBlocked(aRequestingLocation, aContentLocation, true);
   }
 }
 
@@ -776,11 +774,12 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
   }
 }
 
-already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(
-    nsISupports* aRequestingContext) {
+already_AddRefed<nsIMsgCompose>
+nsMsgContentPolicy::GetMsgComposeForBrowsingContext(
+    mozilla::dom::BrowsingContext* aBrowsingContext) {
   nsresult rv;
 
-  nsIDocShell* shell = NS_CP_GetDocShellFromContext(aRequestingContext);
+  nsIDocShell* shell = aBrowsingContext->GetDocShell();
   if (!shell) return nullptr;
   nsCOMPtr<nsIDocShellTreeItem> docShellTreeItem(shell);
 
