@@ -194,6 +194,47 @@ class BaseMessageService {
     );
   }
 
+  streamHeaders(messageUri, consumer, urlListener, localOnly) {
+    this._logger.debug("streamHeaders", messageUri);
+    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let folder = lazy.MailUtils.getOrCreateFolder(
+      `imap://${host}/${folderName}`
+    );
+
+    let hasMsgOffline = folder.hasMsgOffline(key);
+    if (!hasMsgOffline) {
+      return;
+    }
+
+    let localMsgStream = folder.getLocalMsgStream(folder.GetMessageHeader(key));
+    let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
+    sstream.init(localMsgStream);
+    let headers = "";
+    let str = "";
+    do {
+      str = sstream.read(4096);
+      let index = str.indexOf("\r\n\r\n");
+      if (index != -1) {
+        headers += str.slice(0, index) + "\r\n";
+        break;
+      } else {
+        headers += str;
+      }
+    } while (str.length);
+
+    let headersStream = Cc[
+      "@mozilla.org/io/string-input-stream;1"
+    ].createInstance(Ci.nsIStringInputStream);
+    headersStream.setData(headers, headers.length);
+    let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+      Ci.nsIInputStreamPump
+    );
+    pump.init(headersStream, 0, 0, true);
+    pump.asyncRead(consumer);
+  }
+
   messageURIToMsgHdr(messageUri) {
     let { host, folderName, key } = this._decomposeMessageUri(messageUri);
     let folder = lazy.MailUtils.getOrCreateFolder(
