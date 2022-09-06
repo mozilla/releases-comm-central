@@ -88,7 +88,7 @@ appmenu-help-feedback =
 
 appmenu-help-enter-troubleshoot-mode2 =
     .label = Troubleshoot Mode…
-    .accesskey = T
+    .accesskey = M
 
 appmenu-help-exit-troubleshoot-mode2 =
     .label = Turn Troubleshoot Mode Off
@@ -96,7 +96,7 @@ appmenu-help-exit-troubleshoot-mode2 =
 
 appmenu-help-troubleshooting-info =
     .label = Troubleshooting Information
-    .accesskey = I
+    .accesskey = T
 
 appmenu-help-about-product =
     .label = About { -brand-short-name }
