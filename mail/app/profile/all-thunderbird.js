@@ -529,11 +529,7 @@ pref("mail.tabs.autoHide", true);
 pref("mail.tabs.closeWindowWithLastTab", true);
 
 // Allow the tabs to be in the titlebar on supported systems
-#ifdef UNIX_BUT_NOT_MAC
-pref("mail.tabs.drawInTitlebar", false);
-#else
 pref("mail.tabs.drawInTitlebar", true);
-#endif
 
 // Offer additional drag space to the user. The drag space
 // will only be shown if browser.tabs.drawInTitlebar is true.
