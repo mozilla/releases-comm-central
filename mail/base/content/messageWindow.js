@@ -17,6 +17,7 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messageDisplay.js */
+/* import-globals-from messenger-customization.js */
 /* import-globals-from msgHdrView.js */
 /* import-globals-from msgViewNavigation.js */
 /* import-globals-from toolbarIconColor.js */
@@ -42,9 +43,6 @@ var nsMsgKey_None = 0xffffffff;
 var nsMsgViewIndex_None = 0xffffffff;
 
 /* globals for a particular window */
-
-// we have no tree view; let people know that.
-var gFolderTreeView = null;
 
 var gFolderDisplay;
 var gMessageDisplay;

@@ -12,6 +12,7 @@ EXTRA_JS_MODULES += [
     "DNS.jsm",
     "ExtensionsUI.jsm",
     "ExtensionSupport.jsm",
+    "FolderTreeProperties.jsm",
     "GlobalPopupNotifications.jsm",
     "MailConsts.jsm",
     "MailE10SUtils.jsm",

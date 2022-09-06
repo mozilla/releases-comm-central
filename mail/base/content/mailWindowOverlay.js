@@ -194,17 +194,7 @@ function InitEditMessagesMenu() {
   // initialize the favorite Folder checkbox in the edit menu
   let favoriteFolderMenu = document.getElementById("menu_favoriteFolder");
   if (!favoriteFolderMenu.hasAttribute("disabled")) {
-    let folders = gFolderTreeView.getSelectedFolders();
-    if (folders.length == 1 && !folders[0].isServer) {
-      // Adjust the checked state on the menu item.
-      favoriteFolderMenu.setAttribute(
-        "checked",
-        folders[0].getFlag(Ci.nsMsgFolderFlags.Favorite)
-      );
-      favoriteFolderMenu.hidden = false;
-    } else {
-      favoriteFolderMenu.hidden = true;
-    }
+    // TODO: Reimplement this as a command.
   }
 }
 
@@ -227,17 +217,7 @@ function InitAppFolderViewsMenu() {
   // Initialize the favorite Folder checkbox in the appmenu menu.
   let favoriteAppFolderMenu = document.getElementById("appmenu_favoriteFolder");
   if (!favoriteAppFolderMenu.hasAttribute("disabled")) {
-    let folders = gFolderTreeView.getSelectedFolders();
-    if (folders.length == 1 && !folders[0].isServer) {
-      // Adjust the checked state on the menu item.
-      favoriteAppFolderMenu.setAttribute(
-        "checked",
-        folders[0].getFlag(Ci.nsMsgFolderFlags.Favorite)
-      );
-      favoriteAppFolderMenu.hidden = false;
-    } else {
-      favoriteAppFolderMenu.hidden = true;
-    }
+    // TODO: Reimplement this as a command.
   }
 }
 
@@ -500,42 +480,7 @@ function InitViewLayoutStyleMenu(event, appmenu) {
 /**
  * Initialize (check) appropriate folder mode under the View | Folder menu.
  */
-function InitViewFolderViewsMenu(event) {
-  let tab = document.getElementById("tabmail")?.currentTabInfo;
-  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
-    // TODO Folder views not supported yet.
-    return;
-  }
-
-  for (let mode of gFolderTreeView.activeModes) {
-    let selected = event.target.querySelector(`[value=${mode}]`);
-    if (selected) {
-      selected.setAttribute("checked", "true");
-    }
-  }
-
-  // Check if only the All Folders mode is currently active.
-  if (
-    gFolderTreeView.activeModes.includes("all") &&
-    gFolderTreeView.activeModes.length == 1
-  ) {
-    event.target.querySelector(`[value="all"]`).disabled = true;
-  }
-
-  let compactItem = event.target.querySelector(`[value="compact"]`);
-  if (document.getElementById("folderTree").getAttribute("compact") == "true") {
-    compactItem.setAttribute("checked", "true");
-  }
-
-  // Check if the currently active modes have a compact variation.
-  let hasCompact = gFolderTreeView.activeModes.find(
-    mode => mode == "favorite" || mode == "unread"
-  );
-  compactItem.disabled = !hasCompact;
-  if (!hasCompact) {
-    compactItem.removeAttribute("checked");
-  }
-}
+function InitViewFolderViewsMenu(event) {}
 
 function setSortByMenuItemCheckState(id, value) {
   var menuitem = document.getElementById(id);
@@ -1659,8 +1604,6 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
 function NavigateToUri(target) {
   var historyIndex = target.getAttribute("value");
   var msgUri = messenger.getMsgUriAtNavigatePos(historyIndex);
-  var folder = target.folder;
-  var msgHdr = messenger.msgHdrFromURI(msgUri);
   navDebug(
     "navigating from " +
       messenger.navigatePos +
@@ -1673,15 +1616,7 @@ function NavigateToUri(target) {
 
   // this "- 0" seems to ensure that historyIndex is treated as an int, not a string.
   messenger.navigatePos += historyIndex - 0;
-
-  if (gFolderDisplay.displayedFolder != folder) {
-    if (gFolderTreeView) {
-      gFolderTreeView.selectFolder(folder);
-    } else {
-      gFolderDisplay.show(folder);
-    }
-  }
-  gFolderDisplay.selectMessage(msgHdr);
+  // TODO: Reimplement the rest of this or throw out the feature altogether.
 }
 
 function forwardToolbarMenu_init(menuPopup) {
@@ -2298,10 +2233,9 @@ function ConfirmUnsubscribe(folders) {
 
 /**
  * Unsubscribe from selected or passed in newsgroup/s.
- * @param {nsIMsgFolder[]} [selectedFolders] - The folders to unsubscribe
- *   from or, if not given, the selected folders.
+ * @param {nsIMsgFolder[]} selectedFolders - The folders to unsubscribe.
  */
-function MsgUnsubscribe(folders = gFolderTreeView.getSelectedFolders()) {
+function MsgUnsubscribe(folders) {
   if (!ConfirmUnsubscribe(folders)) {
     return;
   }
@@ -2331,30 +2265,13 @@ function MsgSaveAsTemplate() {
 }
 
 function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
-  if (folderURI) {
-    window.openDialog(
-      "chrome://messenger/content/messenger.xhtml",
-      "_blank",
-      "chrome,all,dialog=no",
-      folderURI,
-      msgKeyToSelect
-    );
-    return;
-  }
-
-  // If there is a right-click happening, gFolderTreeView.getSelectedFolders()
-  // will tell us about it (while the selection's currentIndex would reflect
-  // the node that was selected/displayed before the right-click.)
-  let selectedFolders = gFolderTreeView.getSelectedFolders();
-  for (let i = 0; i < selectedFolders.length; i++) {
-    window.openDialog(
-      "chrome://messenger/content/messenger.xhtml",
-      "_blank",
-      "chrome,all,dialog=no",
-      selectedFolders[i].URI,
-      msgKeyToSelect
-    );
-  }
+  window.openDialog(
+    "chrome://messenger/content/messenger.xhtml",
+    "_blank",
+    "chrome,all,dialog=no",
+    folderURI,
+    msgKeyToSelect
+  );
 }
 
 /**
@@ -2529,41 +2446,7 @@ function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
  * @param aMsgHdr The message header to display.
  */
 function MsgDisplayMessageInFolderTab(aMsgHdr) {
-  // Look for a folder tab
-  let tabmail = document.getElementById("tabmail");
-  let folderTab = tabmail.getTabInfoForCurrentOrFirstModeInstance(
-    tabmail.tabModes.folder
-  );
-  let folderDisplay = folderTab.folderDisplay;
-  let folder = gFolderTreeView.getFolderForMsgHdr(aMsgHdr);
-
-  // XXX Yuck. We really need to have the tabmail be able to handle an extra
-  // param with data to send to showTab, and to have the folder display have
-  // a |selectFolderAndMessage| method that handles most of the messiness.
-  folderDisplay.selectMessageComingUp();
-
-  // Switch to the tab
-  tabmail.switchToTab(folderTab);
-
-  // We don't want to drop view filters at first
-  if (
-    folderDisplay.view.getViewIndexForMsgHdr(aMsgHdr, false) !=
-    nsMsgViewIndex_None
-  ) {
-    folderDisplay.selectMessage(aMsgHdr);
-  } else {
-    if (
-      folderDisplay.displayedFolder != folder ||
-      folderDisplay.view.isVirtual
-    ) {
-      // Force select the folder
-      folderDisplay.show(folder);
-      gFolderTreeView.selectFolder(folder, true);
-    }
-
-    // Force select the message
-    folderDisplay.selectMessage(aMsgHdr, true);
-  }
+  // TODO: Reimplement or fix the callers.
 }
 
 function MsgJunk() {
@@ -2630,7 +2513,7 @@ function MsgMarkReadByDate() {
   );
 }
 
-function MsgMarkAllRead(folders = gFolderTreeView.getSelectedFolders()) {
+function MsgMarkAllRead(folders) {
   for (let i = 0; i < folders.length; i++) {
     folders[i].markAllMessagesRead(msgWindow);
   }
@@ -2639,12 +2522,10 @@ function MsgMarkAllRead(folders = gFolderTreeView.getSelectedFolders()) {
 /**
  * Go through each selected server and mark all its folders read.
  *
- * @param {nsIMsgFolder[]} [selectedFolders] - Folders in the servers to be
- *   marked as read or, if not given, the selected folders.
+ * @param {nsIMsgFolder[]} selectedFolders - Folders in the servers to be
+ *   marked as read.
  */
-function MsgMarkAllFoldersRead(
-  selectedFolders = gFolderTreeView.getSelectedFolders()
-) {
+function MsgMarkAllFoldersRead(selectedFolders) {
   let selectedServers = selectedFolders.filter(folder => folder.isServer);
   if (!selectedServers.length) {
     return;
@@ -4029,10 +3910,7 @@ function MsgSearchMessages(aFolder) {
     "_blank",
     "chrome,resizable,status,centerscreen,dialog=no",
     {
-      folder:
-        aFolder ||
-        gFolderDisplay.displayedFolder ||
-        gFolderTreeView.getSelectedFolders()[0],
+      folder: aFolder || gFolderDisplay.displayedFolder,
     }
   );
 }

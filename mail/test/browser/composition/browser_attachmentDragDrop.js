@@ -7,8 +7,6 @@
  * message compose window.
  */
 
-/* globals gFolderTreeView */
-
 "use strict";
 
 var { AppConstants } = ChromeUtils.import(

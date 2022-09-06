@@ -668,9 +668,7 @@ function nsMsgWindowCommands() {}
 nsMsgWindowCommands.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgWindowCommands"]),
 
-  selectFolder(folderUri) {
-    gFolderTreeView.selectFolder(MailUtils.getOrCreateFolder(folderUri));
-  },
+  selectFolder(folderUri) {},
 
   selectMessage(messageUri) {
     let msgHdr = messenger.msgHdrFromURI(messageUri);
@@ -759,13 +757,7 @@ function getNotificationBox(aWindow) {
 // on inbox of that server.
 // prompt if offline.
 function OpenInboxForServer(server) {
-  gFolderTreeView.selectFolder(MailUtils.getInboxFolder(server));
-
-  if (MailOfflineMgr.isOnline() || MailOfflineMgr.getNewMail()) {
-    if (server.type != "imap") {
-      GetMessagesForInboxOnServer(server);
-    }
-  }
+  // TODO: Reimplement this or fix the caller?
 }
 
 /** Update state of zoom type (text vs. full) menu item. */

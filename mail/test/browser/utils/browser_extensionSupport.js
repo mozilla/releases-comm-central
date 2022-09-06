@@ -6,8 +6,6 @@
  * Tests ExtensionSupport.jsm functions.
  */
 
-/* globals gFolderTreeView */
-
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );

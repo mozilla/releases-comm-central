@@ -19,13 +19,6 @@ var FolderUtils = {
   canRenameDeleteJunkMail,
 };
 
-const lazy = {};
-
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "FeedUtils",
-  "resource:///modules/FeedUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -247,9 +240,7 @@ function folderNameCompare(aString1, aString2) {
 
 function getFolderIcon(folder) {
   let iconName;
-  if (lazy.FeedUtils.getFeedUrlsInFolder(folder)) {
-    iconName = "feeds-folder.svg";
-  } else if (folder.isServer) {
+  if (folder.isServer) {
     switch (folder.server.type) {
       case "nntp":
         iconName = folder.server.isSecure ? "globe-secure.svg" : "globe.svg";

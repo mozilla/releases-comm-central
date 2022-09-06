@@ -170,14 +170,6 @@ var mailTabType = {
           aTab.folderDisplay.selectMessage(msgHdr, forceSelectMessage);
         }
 
-        if (!background && aArgs.folder) {
-          // This only makes sure the selection in the folder pane is correct --
-          // the actual displaying is handled by the show() call above. This
-          // also means that we don't have to bother about making
-          // gFolderTreeView believe that a selection change has happened.
-          gFolderTreeView.selectFolder(aArgs.folder);
-        }
-
         aTab.mode.onTitleChanged.call(this, aTab, aTab.tabNode);
       },
       persistTab(aTab) {
@@ -237,15 +229,6 @@ var mailTabType = {
                 }
               }
 
-              if (
-                !(
-                  "dontRestoreFirstTab" in aPersistedState &&
-                  aPersistedState.dontRestoreFirstTab
-                )
-              ) {
-                gFolderTreeView.selectFolder(folder);
-              }
-
               // We need to manually trigger the tab monitor restore trigger
               // for this tab.  In theory this should be in tabmail, but the
               // special nature of the first tab will last exactly long as this
@@ -292,40 +275,6 @@ var mailTabType = {
         aTab.title = folder.prettyName;
         if (!folder.isServer && this._getNumberOfRealAccounts() > 1) {
           aTab.title += " - " + folder.server.prettyName;
-        }
-
-        // Update the appropriate attributes on the tab.
-        let specialFolderStr = FolderUtils.getSpecialFolderString(folder);
-        let feedUrls = FeedUtils.getFeedUrlsInFolder(folder);
-
-        if (
-          folder.server.type == "rss" &&
-          !folder.isServer &&
-          feedUrls &&
-          specialFolderStr == "none"
-        ) {
-          // NOTE: The rss feed favicon is not currently exposed to the
-          // WebExtension tabs API. To do so, use MozTabmail setTabFavIcon
-          // method instead.
-          let fallbackIcon =
-            "chrome://messenger/skin/icons/new/compact/folder-rss.svg";
-          let icon = gFolderTreeView.getFolderCacheProperty(folder, "favicon");
-          if (icon !== null) {
-            aTabNode.setIcon(icon, fallbackIcon);
-            return;
-          }
-          // If we have a background tab, or the first tab on startup, the
-          // favicon is unlikely to be cached yet.
-          FeedUtils.getFavicon(folder, null, null, window, favicon => {
-            aTabNode.setIcon(favicon, fallbackIcon);
-
-            // Cache it for folderpane.
-            gFolderTreeView.setFolderCacheProperty(folder, "favicon", favicon);
-            gFolderTreeView.clearFolderCacheProperty(folder, "properties");
-            let row = gFolderTreeView.getIndexOfFolder(folder);
-            gFolderTreeView._tree.invalidateRow(row);
-          });
-          return;
         }
 
         aTabNode.setIcon(FolderUtils.getFolderIcon(folder));
@@ -757,18 +706,6 @@ var mailTabType = {
     document.getElementById("messagepane").setAttribute("primary", "true");
 
     aTab.folderDisplay.makeActive();
-
-    // - restore folder pane/tree selection
-    if (aTab.folderDisplay.displayedFolder) {
-      // but don't generate any events while doing so!
-      gFolderTreeView.selection.selectEventsSuppressed = true;
-      try {
-        gFolderTreeView.selectFolder(aTab.folderDisplay.displayedFolder);
-      } finally {
-        gIgnoreSyntheticFolderPaneSelectionChange = true;
-        gFolderTreeView.selection.selectEventsSuppressed = false;
-      }
-    }
 
     // restore focus
     this.restoreFocus(aTab);

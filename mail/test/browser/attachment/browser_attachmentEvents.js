@@ -7,7 +7,6 @@
  */
 
 /* eslint-disable @microsoft/sdl/no-insecure-url */
-/* globals gFolderTreeView */
 
 "use strict";
 

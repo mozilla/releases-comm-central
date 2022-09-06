@@ -13,7 +13,7 @@
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
   updateEditUIVisibility UpdateFullZoomMenu
-  gFolderTreeView initUiDensityAppMenu gSpacesToolbar
+  initUiDensityAppMenu gSpacesToolbar
    */
 
 var { CustomizableUI } = ChromeUtils.import(
@@ -822,11 +822,11 @@ const PanelUI = {
   },
 
   folderViewMenuOnCommand(event) {
-    gFolderTreeView.activeModes = event.target.getAttribute("value");
+    // TODO: Reimplement?
   },
 
   folderCompactMenuOnCommand(event) {
-    gFolderTreeView.toggleCompactMode(event.target.checked);
+    // TODO: Reimplement?
   },
 
   setUIDensity(event) {

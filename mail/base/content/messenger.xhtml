@@ -398,8 +398,6 @@
               accesskey="&closeTabCmd2.accesskey;"/>
   </menupopup>
 
-  <tooltip is="folder-tooltip" id="folderpopup"/>
-
   <tooltip id="aHTMLTooltip" page="true"/>
 
   <panel id="notification-popup"
@@ -620,26 +618,12 @@
                     data-l10n-attrs="toolbarname"
                     toolboxid="mail-toolbox"
                     align="center">
-                <label data-l10n-id="folder-pane-header-label" flex="1"/>
-                <toolbarbutton id="folderPaneOptionsButton"
-                               data-l10n-id="folder-pane-toolbar-options-button"
-                               class="button-flat button-more"
-                               oncommand="gFolderTreeView.folderPaneOptionsButtonOnCommand(event);"
-                               tabindex="0"/>
-                <menupopup id="folderPaneOptionsPopup"
-                           onpopupshowing="gFolderTreeView.initFolderPaneOptionsPopup();">
-                </menupopup>
               </hbox>
               <tree id="folderTree" class="plain" flex="1"
                     hidecolumnpicker="true" persist="mode" mode="all"
                     keepcurrentinview="true"
                     context="folderPaneContext"
-                    disableKeyNavigation="true"
-                    ondragstart="gFolderTreeView._onDragStart(event);"
-                    ondragover="gFolderTreeView._onDragOver(event);"
-                    ondrop="gFolderTreeView._onDragDrop(event);"
-                    ondblclick="gFolderTreeView.onDoubleClick(event);"
-                    onselect="FolderPaneSelectionChange();">
+                    disableKeyNavigation="true">
                 <treecols id="folderPaneCols"
                           pickertooltiptext="&columnChooser2.tooltip;">
                   <treecol id="folderNameCol"

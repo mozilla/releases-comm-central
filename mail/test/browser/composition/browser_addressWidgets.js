@@ -6,8 +6,6 @@
  * Tests proper enabling of addressing widgets.
  */
 
-/* globals gFolderTreeView */
-
 "use strict";
 
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(

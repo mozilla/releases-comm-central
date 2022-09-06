@@ -849,14 +849,9 @@ function markDefaultServer(newDefault, oldDefault) {
 
 /**
  * Notify the UI to rebuild the account tree.
- *
- * @param {boolean} [reloadAccountManager=true] - When set to false, the
- *   account manager for the current window is not reloaded.
  */
-function rebuildAccountTree(reloadAccountManager = true) {
-  for (let win of Services.wm.getEnumerator("mail:3pane")) {
-    win.gFolderTreeView._rebuild();
-  }
+function rebuildAccountTree() {
+  // TODO: Reimplement or replace.
 }
 
 /**

@@ -359,20 +359,6 @@ var FeedSubscriptions = {
         return item.favicon;
       }
 
-      if (
-        item.folder &&
-        FeedSubscriptions.mMainWin &&
-        "gFolderTreeView" in FeedSubscriptions.mMainWin
-      ) {
-        let favicon = FeedSubscriptions.mMainWin.gFolderTreeView.getFolderCacheProperty(
-          item.folder,
-          "favicon"
-        );
-        if (favicon != null) {
-          return (item.favicon = favicon);
-        }
-      }
-
       let callback = iconUrl => {
         item.favicon = iconUrl;
         if (item.folder) {

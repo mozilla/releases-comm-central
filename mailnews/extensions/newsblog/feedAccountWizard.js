@@ -42,19 +42,8 @@ var FeedAccountWizard = {
   onFinish() {
     let account = FeedUtils.createRssAccount(this.accountName);
     let openerWindow = window.opener.top;
-    // The following if..else block is the same as in AccountWizard.js.
-    if ("gFolderTreeView" in openerWindow) {
-      // Opened from 3pane File->New or Appmenu New, or Account Central.
-      let rootMsgFolder = account.incomingServer.rootMsgFolder;
-
-      if (openerWindow.gFolderTreeView.isInited) {
-        // Can use selectFolder if folderPane already initialized.
-        openerWindow.gFolderTreeView.selectFolder(rootMsgFolder);
-      } else {
-        // See selectFirstFolder() in msgMail3PaneWindow.js.
-        openerWindow.arguments[0] = rootMsgFolder.URI;
-      }
-    } else if ("selectServer" in openerWindow) {
+    // The following block is the same as in AccountWizard.js.
+    if ("selectServer" in openerWindow) {
       // Opened from Account Settings.
       openerWindow.selectServer(account.incomingServer);
     }

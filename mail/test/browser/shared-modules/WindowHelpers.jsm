@@ -1252,7 +1252,6 @@ var PerWindowTypeAugmentations = {
      * Globals from the controller's windows global scope at augmentation time.
      */
     globalsToExposeAtStartup: {
-      folderTreeView: "gFolderTreeView",
       folderTreeController: "gFolderTreeController",
     },
     /**

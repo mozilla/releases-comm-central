@@ -14,16 +14,17 @@ var { MockRegistrar } = ChromeUtils.import(
 
 add_task(async () => {
   function folderTreeClick(row, event = {}) {
-    mailTestUtils.treeClick(EventUtils, window, folderTree, row, 0, event);
+    EventUtils.synthesizeMouseAtCenter(
+      folderTree.rows[row].querySelector(".name"),
+      event,
+      about3Pane
+    );
   }
   function threadTreeClick(row, event = {}) {
-    mailTestUtils.treeClick(
-      EventUtils,
-      window,
-      threadTree,
-      row,
-      threadTree.columns.subjectCol.index,
-      event
+    EventUtils.synthesizeMouseAtCenter(
+      threadTree.getRowAtIndex(row),
+      event,
+      about3Pane
     );
   }
 
@@ -52,25 +53,27 @@ add_task(async () => {
 
     // Some tests that open new windows don't return focus to the main window
     // in a way that satisfies mochitest, and the test times out.
-    Services.focus.focusedWindow = window;
-    window.threadTree.focus();
+    Services.focus.focusedWindow = about3Pane;
   });
 
-  let folderTree = document.getElementById("folderTree");
-  let threadTree = document.getElementById("threadTree");
-  let messagePane = document.getElementById("messagepane");
-  let menu = document.getElementById("folderPaneContext");
-  let menuItem = document.getElementById("folderPaneContext-subscribe");
+  let tabmail = document.getElementById("tabmail");
+  let about3Pane = tabmail.currentAbout3Pane;
+  let aboutMessage = tabmail.currentAboutMessage;
+  let { folderTree, threadTree } = about3Pane;
+  let menu = about3Pane.document.getElementById("folderPaneContext");
+  let menuItem = about3Pane.document.getElementById(
+    "folderPaneContext-subscribe"
+  );
+  let messagePane = aboutMessage.content;
 
   let account = MailServices.accounts.getAccount("account1");
   let rootFolder = account.incomingServer.rootFolder;
-  let index = window.gFolderTreeView.getIndexOfFolder(rootFolder);
+  about3Pane.displayFolder(rootFolder.URI);
+  let index = about3Pane.folderTree.selectedIndex;
   Assert.equal(index, 0);
 
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  folderTreeClick(index, { type: "mousedown", button: 2 });
   folderTreeClick(index, { type: "contextmenu" });
-  folderTreeClick(index, { type: "mouseup", button: 2 });
   await shownPromise;
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
@@ -120,10 +123,9 @@ add_task(async () => {
   let folder = rootFolder.subFolders.find(f => f.name == "Test Feed");
   Assert.ok(folder);
 
-  index = window.gFolderTreeView.getIndexOfFolder(folder);
-  folderTreeClick(index);
-
-  Assert.equal(threadTree.view.rowCount, 1);
+  about3Pane.displayFolder(folder.URI);
+  index = folderTree.selectedIndex;
+  Assert.equal(about3Pane.threadTree.view.rowCount, 1);
 
   // Description mode.
 
@@ -147,23 +149,23 @@ add_task(async () => {
   });
 
   Assert.ok(
-    window.document.getElementById("expandedtoRow").hidden,
+    aboutMessage.document.getElementById("expandedtoRow").hidden,
     "The To field is not visible"
   );
   Assert.equal(
-    window.document.getElementById("dateLabel").textContent,
-    window.document.getElementById("dateLabelSubject").textContent,
+    aboutMessage.document.getElementById("dateLabel").textContent,
+    aboutMessage.document.getElementById("dateLabelSubject").textContent,
     "The regular date label and the subject date have the same value"
   );
   Assert.ok(
     BrowserTestUtils.is_hidden(
-      window.document.getElementById("dateLabel"),
+      aboutMessage.document.getElementById("dateLabel"),
       "The regular date label is not visible"
     )
   );
   Assert.ok(
     BrowserTestUtils.is_visible(
-      window.document.getElementById("dateLabelSubject")
+      aboutMessage.document.getElementById("dateLabelSubject")
     ),
     "The date label on the subject line is visible"
   );
@@ -203,20 +205,20 @@ add_task(async () => {
   // Clean up.
 
   shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  folderTreeClick(index, { type: "mousedown", button: 2 });
-  folderTreeClick(index, { type: "contextmenu" });
-  folderTreeClick(index, { type: "mouseup", button: 2 });
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.folderTree.selectedRow,
+    { type: "contextmenu" },
+    about3Pane
+  );
   await shownPromise;
 
   hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  menuItem = document.getElementById("folderPaneContext-remove");
+  menuItem = about3Pane.document.getElementById("folderPaneContext-remove");
   menu.activateItem(menuItem);
   await Promise.all([hiddenPromise, promptPromise]);
 
   window.FeedMessageHandler.onSelectPref = 1;
 
-  window.gFolderTreeView.selectFolder(
-    window.gFolderTreeView.getFolderForIndex(0)
-  );
+  folderTree.selectedIndex = 0;
 });

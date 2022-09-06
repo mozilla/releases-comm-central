@@ -281,11 +281,6 @@ function setupModule() {
   ]);
 
   setupAccountStuff();
-  // This will throw if we've not got the main window set up yet e.g. the
-  // account wizard is open on an initial startup type test.
-  try {
-    mc.folderTreeView.toggleOpenState(1);
-  } catch (ex) {}
 }
 setupModule();
 
@@ -368,7 +363,6 @@ async function create_folder(aFolderName, aSpecialFlags) {
     aFolderName,
     aSpecialFlags
   );
-  mc.folderTreeView.mode = "all";
   return folder;
 }
 
@@ -380,7 +374,6 @@ async function create_folder(aFolderName, aSpecialFlags) {
  */
 function create_virtual_folder(...aArgs) {
   let folder = messageInjection.makeVirtualFolder(...aArgs);
-  mc.folderTreeView.mode = "all";
   return folder;
 }
 

@@ -244,66 +244,6 @@ function ServerContainsFolder(server, folder) {
   return server.equals(folder.server);
 }
 
-function SelectServer(server) {
-  gFolderTreeView.selectFolder(server.rootFolder);
-}
-
-// we have this incoming server listener in case we need to
-// alter the folder pane selection when a server is removed
-// or changed (currently, when the real username or real hostname change)
-var gThreePaneIncomingServerListener = {
-  onServerLoaded(server) {},
-  onServerUnloaded(server) {
-    let defaultAccount = accountManager.defaultAccount;
-    if (!defaultAccount) {
-      // If there is no default server we have nothing to do.
-      return;
-    }
-
-    let defaultServer = defaultAccount.incomingServer;
-    var selectedFolders = GetSelectedMsgFolders();
-    for (var i = 0; i < selectedFolders.length; i++) {
-      if (ServerContainsFolder(server, selectedFolders[i])) {
-        SelectServer(defaultServer);
-        // we've made a new selection, we're done
-        return;
-      }
-    }
-
-    // if nothing is selected at this point, better go select the default
-    // this could happen if nothing was selected when the server was removed
-    selectedFolders = GetSelectedMsgFolders();
-    if (selectedFolders.length == 0) {
-      SelectServer(defaultServer);
-    }
-  },
-  onServerChanged(server) {
-    // if the current selected folder is on the server that changed
-    // and that server is an imap or news server,
-    // we need to update the selection.
-    // on those server types, we'll be reconnecting to the server
-    // and our currently selected folder will need to be reloaded
-    // or worse, be invalid.
-    if (server.type != "imap" && server.type != "nntp") {
-      return;
-    }
-
-    var selectedFolders = GetSelectedMsgFolders();
-    for (var i = 0; i < selectedFolders.length; i++) {
-      // if the selected item is a server, we don't have to update
-      // the selection
-      if (
-        !selectedFolders[i].isServer &&
-        ServerContainsFolder(server, selectedFolders[i])
-      ) {
-        SelectServer(server);
-        // we've made a new selection, we're done
-        return;
-      }
-    }
-  },
-};
-
 // aMsgWindowInitialized: false if we are calling from the onload handler, otherwise true
 function UpdateMailPaneConfig(aMsgWindowInitialized) {
   if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
@@ -613,12 +553,7 @@ var gMailInit = {
       case "account-created-from-provisioner":
         // Set the pref to false in case it was previously changed.
         Services.prefs.setBoolPref("app.use_without_mail_account", false);
-
-        // If the gFolderTreeView was never initialized it means we're in a
-        // first run scenario and we need to load the full UI.
-        if (!gFolderTreeView.isInited) {
-          loadPostAccountWizard();
-        }
+        loadPostAccountWizard();
 
         // Always update the mail UI to guarantee all the panes are visible even
         // if the mail tab is not the currently active tab.
@@ -1279,18 +1214,10 @@ async function initPanes() {
   }
   messagepaneboxwrapper.setAttribute("persist", "collapsed height width");
 
-  await gFolderTreeView.load(
-    document.getElementById("folderTree"),
-    "folderTree.json"
-  );
-  var folderTree = document.getElementById("folderTree");
-  folderTree.addEventListener("click", FolderPaneOnClick, true);
-  folderTree.addEventListener("mousedown", TreeOnMouseDown, true);
   var threadTree = document.getElementById("threadTree");
   threadTree.addEventListener("click", ThreadTreeOnClick, true);
 
   OnLoadThreadPane();
-  SetupCommandUpdateHandlers();
 
   for (let browser of ["messagepane", "multimessage"]) {
     let element = document.getElementById(browser);
@@ -1317,12 +1244,7 @@ async function initPanes() {
 function UnloadPanes() {
   var threadTree = document.getElementById("threadTree");
   threadTree.removeEventListener("click", ThreadTreeOnClick, true);
-  var folderTree = document.getElementById("folderTree");
-  folderTree.removeEventListener("click", FolderPaneOnClick, true);
-  folderTree.removeEventListener("mousedown", TreeOnMouseDown, true);
-  gFolderTreeView.unload("folderTree.json");
   gSpacesToolbar.onUnload();
-  UnloadCommandUpdateHandlers();
 }
 
 function OnLoadThreadPane() {
@@ -1495,40 +1417,6 @@ function TreeOnMouseDown(event) {
   }
 }
 
-function FolderPaneContextMenuNewTab(event) {
-  // If there is a right-click happening, gFolderTreeView.getSelectedFolders()
-  // will tell us about it (while the selection's currentIndex would reflect
-  // the node that was selected/displayed before the right-click.)
-  MsgOpenNewTabForFolders(gFolderTreeView.getSelectedFolders(), { event });
-}
-
-function FolderPaneOnClick(event) {
-  var folderTree = document.getElementById("folderTree");
-
-  // Middle click on a folder opens the folder in a tab
-  if (
-    event.button == 1 &&
-    event.target.localName != "slider" &&
-    event.target.localName != "scrollbarbutton"
-  ) {
-    FolderPaneContextMenuNewTab(event);
-    RestoreSelectionWithoutContentLoad(folderTree);
-  } else if (event.button == 0) {
-    var treeCellInfo = folderTree.getCellAt(event.clientX, event.clientY);
-    if (treeCellInfo.row == -1) {
-      if (event.target.localName == "treecol") {
-        // clicking on the name column in the folder pane should not sort
-        event.stopPropagation();
-      }
-    } else if (
-      event.target.localName == "slider" ||
-      event.target.localName == "scrollbarbutton"
-    ) {
-      event.stopPropagation();
-    }
-  }
-}
-
 function OpenMessageInNewTab(msgHdr, tabParams = {}) {
   if (!msgHdr) {
     return;
@@ -1573,11 +1461,11 @@ function ThreadTreeOnClick(event) {
 }
 
 function GetSelectedMsgFolders() {
-  return gFolderTreeView.getSelectedFolders();
+  // TODO: Replace this.
 }
 
 function SelectFolder(folderUri) {
-  gFolderTreeView.selectFolder(MailUtils.getOrCreateFolder(folderUri));
+  // TODO: Replace this.
 }
 
 function ReloadMessage() {}

@@ -4,7 +4,6 @@
 
 /* import-globals-from ../../search/content/searchTerm.js */
 
-var gFolderTreeView;
 var gPickedFolder;
 var gMailView = null;
 var msgWindow; // important, don't change the name of this variable. it's really a global used by commandglue.js
@@ -16,16 +15,19 @@ var kCurrentColor = "";
 var kDefaultColor = "#363959";
 var gNeedToRestoreFolderSelection = false;
 
-var { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
+var { FolderTreeProperties } = ChromeUtils.import(
+  "resource:///modules/FolderTreeProperties.jsm"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { PluralForm } = ChromeUtils.import(
+  "resource://gre/modules/PluralForm.jsm"
+);
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 window.addEventListener("DOMContentLoaded", onLoad);
 
@@ -158,11 +160,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   // Show the icon color options.
   document.getElementById("iconColorContainer").collapsed = false;
   // Store the current icon color to allow discarding edits.
-  gFolderTreeView = window.arguments[0].treeView;
-  kCurrentColor = gFolderTreeView.getFolderCacheProperty(
-    aVirtualFolder,
-    "folderIconColor"
-  );
+  kCurrentColor = FolderTreeProperties.getColor(aVirtualFolder.URI);
 
   let colorInput = document.getElementById("color");
   colorInput.value = kCurrentColor ? kCurrentColor : kDefaultColor;
@@ -230,16 +228,10 @@ function onOK(event) {
 
     MailServices.accounts.saveVirtualFolders();
 
-    // Check if the icon color was updated.
-    if (
-      kCurrentColor !=
-      gFolderTreeView.getFolderCacheProperty(
-        window.arguments[0].folder,
-        "folderIconColor"
-      )
-    ) {
-      window.arguments[0].updateColorCallback(window.arguments[0].folder);
-    }
+    FolderTreeProperties.setColor(
+      window.arguments[0].folder.URI,
+      document.getElementById("color").value
+    );
 
     if (window.arguments[0].onOKCallback) {
       window.arguments[0].onOKCallback(virtualFolderWrapper.virtualFolder.URI);

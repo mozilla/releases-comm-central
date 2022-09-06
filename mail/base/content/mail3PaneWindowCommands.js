@@ -48,77 +48,6 @@ var FolderPaneController = {
     }
     return this._notificationBox;
   },
-
-  supportsCommand(command) {
-    switch (command) {
-      case "cmd_delete":
-      case "cmd_shiftDelete":
-      case "button_delete":
-      case "button_shiftDelete":
-        // Even if the folder pane has focus, don't do a folder delete if
-        // we have a selected message, but do a message delete instead.
-        // Return false here supportsCommand and let the command fall back
-        // to the DefaultController.
-        if (gFolderDisplay.selectedCount != 0) {
-          return false;
-        }
-      // else fall through
-      case "cmd_cut":
-      case "cmd_copy":
-      case "cmd_paste":
-        return true;
-
-      default:
-        return false;
-    }
-  },
-
-  isCommandEnabled(command) {
-    switch (command) {
-      case "cmd_cut":
-      case "cmd_copy":
-      case "cmd_paste":
-        return false;
-      case "cmd_delete":
-      case "cmd_shiftDelete":
-      case "button_delete":
-      case "button_shiftDelete": {
-        // Make sure the button doesn't show "Undelete" for folders.
-        UpdateDeleteToolbarButton();
-        let folders = gFolderTreeView.getSelectedFolders();
-        if (folders.length) {
-          // XXX Figure out some better way/place to update the folder labels.
-          UpdateDeleteLabelsFromFolderCommand(folders[0], command);
-          return (
-            CanDeleteFolder(folders[0]) && folders[0].isCommandEnabled(command)
-          );
-        }
-        return false;
-      }
-      default:
-        return false;
-    }
-  },
-
-  doCommand(command) {
-    // if the user invoked a key short cut then it is possible that we got here for a command which is
-    // really disabled. kick out if the command should be disabled.
-    if (!this.isCommandEnabled(command)) {
-      return;
-    }
-
-    switch (command) {
-      case "cmd_delete":
-      case "cmd_shiftDelete":
-      case "button_delete":
-      case "button_shiftDelete":
-      case "cmd_deleteFolder":
-        gFolderTreeController.deleteFolder();
-        break;
-    }
-  },
-
-  onEvent(event) {},
 };
 
 function UpdateDeleteLabelsFromFolderCommand(folder, command) {
@@ -168,7 +97,6 @@ var DefaultController = {
       case "cmd_createFilterFromMenu":
       case "cmd_delete":
       case "cmd_cancel":
-      case "cmd_deleteFolder":
       case "button_delete":
       case "button_junk":
       case "button_showconversation":
@@ -195,7 +123,6 @@ var DefaultController = {
       case "cmd_viewWideMailLayout":
       case "cmd_viewVerticalMailLayout":
       case "cmd_toggleFolderPane":
-      case "cmd_toggleFolderPaneCols":
       case "cmd_toggleMessagePane":
       case "cmd_viewAllMsgs":
       case "cmd_viewUnreadMsgs":
@@ -206,7 +133,6 @@ var DefaultController = {
       case "cmd_redo":
       case "cmd_expandAllThreads":
       case "cmd_collapseAllThreads":
-      case "cmd_renameFolder":
       case "cmd_sendUnsentMsgs":
       case "cmd_subscribe":
       case "cmd_openMessage":
@@ -215,9 +141,7 @@ var DefaultController = {
       case "cmd_print":
       case "cmd_saveAsFile":
       case "cmd_saveAsTemplate":
-      case "cmd_properties":
       case "cmd_viewPageSource":
-      case "cmd_setFolderCharset":
       case "cmd_reload":
       case "button_getNewMessages":
       case "cmd_getNewMessages":
@@ -226,7 +150,6 @@ var DefaultController = {
       case "cmd_find":
       case "cmd_findAgain":
       case "cmd_findPrevious":
-      case "cmd_search":
       case "button_mark":
       case "cmd_tag":
       case "cmd_addTag":
@@ -257,13 +180,9 @@ var DefaultController = {
       case "cmd_runJunkControls":
       case "cmd_deleteJunk":
       case "button_file":
-      case "cmd_emptyTrash":
-      case "cmd_compactFolder":
-      case "button_compact":
       case "cmd_settingsOffline":
       case "cmd_selectAll":
       case "cmd_selectThread":
-      case "cmd_moveToFolderAgain":
       case "cmd_selectFlagged":
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -286,11 +205,6 @@ var DefaultController = {
       case "cmd_downloadSelected":
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
-      case "cmd_newFolder":
-      case "cmd_newVirtualFolder":
-        return !!gFolderTreeController;
-      case "cmd_goFolder":
-        return !!gFolderTreeView;
       case "cmd_joinChat":
       case "cmd_addChatBuddy":
       case "cmd_chatStatus":
@@ -321,17 +235,6 @@ var DefaultController = {
           gFolderDisplay.selectedCount == 1 &&
           gFolderDisplay.selectedMessageIsNews
         );
-      case "cmd_deleteFolder":
-        var folders = gFolderTreeView.getSelectedFolders();
-        if (folders.length == 1) {
-          let folder = folders[0];
-          if (folder.server.type == "nntp") {
-            // Just disable the command for news unless it is a Saved search folder.
-            return folder.getFlag(Ci.nsMsgFolderFlags.Virtual);
-          }
-          return CanDeleteFolder(folder);
-        }
-        return false;
       case "button_junk":
         UpdateJunkToolbarButton();
         return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
@@ -547,8 +450,6 @@ var DefaultController = {
 
         // Otherwise, only allow searching if we're showing the message pane.
         return !IsMessagePaneCollapsed();
-      case "cmd_search":
-        return MailServices.accounts.accounts.length > 0;
       case "cmd_selectAll":
       case "cmd_selectFlagged":
         return !!gDBView;
@@ -571,7 +472,6 @@ var DefaultController = {
       case "cmd_viewWideMailLayout":
       case "cmd_viewVerticalMailLayout":
       case "cmd_toggleFolderPane":
-      case "cmd_toggleFolderPaneCols":
       case "cmd_toggleMessagePane":
         // this is overridden per-mail tab
         return true;
@@ -587,50 +487,16 @@ var DefaultController = {
       case "cmd_undo":
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
-      case "cmd_renameFolder":
-        return false;
       case "cmd_sendUnsentMsgs":
         return IsSendUnsentMsgsEnabled(null);
       case "cmd_subscribe":
         return IsSubscribeEnabled();
-      case "cmd_properties":
-        return IsPropertiesEnabled(command);
       case "button_getNewMessages":
       case "cmd_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
         return IsGetNewMessagesEnabled();
       case "cmd_getNextNMessages":
         return IsGetNextNMessagesEnabled();
-      case "cmd_emptyTrash": {
-        let folder = GetSelectedMsgFolders()[0];
-        return folder && folder.server.canEmptyTrashOnExit
-          ? IsMailFolderSelected()
-          : false;
-      }
-      case "button_compact": {
-        let folders = gFolderTreeView.getSelectedFolders();
-        let canCompact = function(folder) {
-          return (
-            !folder.isServer &&
-            !folder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
-            folder.server.canCompactFoldersOnServer &&
-            folder.isCommandEnabled("button_compact")
-          );
-        };
-        return folders && folders.every(canCompact);
-      }
-      case "cmd_compactFolder": {
-        let folders = gFolderTreeView.getSelectedFolders();
-        let canCompactAll = function(folder) {
-          return (
-            folder.server.canCompactFoldersOnServer &&
-            folder.isCommandEnabled("cmd_compactFolder")
-          );
-        };
-        return folders && folders.every(canCompactAll);
-      }
-      case "cmd_setFolderCharset":
-        return IsFolderCharsetEnabled();
       case "cmd_downloadFlagged":
         return IsFolderSelected() && MailOfflineMgr.isOnline();
       case "cmd_downloadSelected":
@@ -643,24 +509,6 @@ var DefaultController = {
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
         return IsAccountOfflineEnabled();
-      case "cmd_moveToFolderAgain":
-        // Disable "Move to <folder> Again" for news and other read only
-        // folders since we can't really move messages from there - only copy.
-        if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-          let loadedFolder = gFolderTreeView.getSelectedFolders()[0];
-          if (loadedFolder && !loadedFolder.canDeleteMessages) {
-            return false;
-          }
-        }
-        let targetURI = Services.prefs.getCharPref(
-          "mail.last_msg_movecopy_target_uri"
-        );
-        if (!targetURI) {
-          return false;
-        }
-        let targetFolder = MailUtils.getExistingFolder(targetURI);
-        // If null, folder doesn't exist.
-        return targetFolder !== null && gFolderDisplay.selectedCount > 0;
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
@@ -680,11 +528,6 @@ var DefaultController = {
       case "cmd_fontSizeReset":
       case "cmd_chat":
         return true;
-      case "cmd_newFolder":
-      case "cmd_newVirtualFolder":
-        return !!gFolderTreeController;
-      case "cmd_goFolder":
-        return !!gFolderTreeView;
       case "cmd_joinChat":
       case "cmd_addChatBuddy":
       case "cmd_chatStatus":
@@ -789,9 +632,6 @@ var DefaultController = {
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
         UpdateDeleteToolbarButton();
         break;
-      case "cmd_deleteFolder":
-        gFolderTreeController.deleteFolder();
-        break;
       case "cmd_killThread":
         if (!gFolderDisplay.selectedMessageIsNews) {
           if (!gFolderDisplay.selectedMessageThreadIgnored) {
@@ -870,9 +710,6 @@ var DefaultController = {
       case "cmd_toggleFolderPane":
         MsgToggleFolderPane();
         break;
-      case "cmd_toggleFolderPaneCols":
-        gFolderTreeView.toggleCols();
-        break;
       case "cmd_toggleMessagePane":
         MsgToggleMessagePane();
         break;
@@ -898,9 +735,6 @@ var DefaultController = {
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
         gFolderDisplay.ensureSelectionIsVisible();
         break;
-      case "cmd_renameFolder":
-        gFolderTreeController.renameFolder();
-        return;
       case "cmd_sendUnsentMsgs":
         // if offline, prompt for sendUnsentMessages
         if (MailOfflineMgr.isOnline()) {
@@ -933,9 +767,6 @@ var DefaultController = {
       case "cmd_viewPageSource":
         ViewPageSource(gFolderDisplay.selectedMessageUris);
         return;
-      case "cmd_setFolderCharset":
-        gFolderTreeController.editFolder();
-        return;
       case "cmd_reload":
         ReloadMessage();
         return;
@@ -959,12 +790,6 @@ var DefaultController = {
         return;
       case "cmd_markReadByDate":
         MsgMarkReadByDate();
-        return;
-      case "cmd_properties":
-        gFolderTreeController.editFolder();
-        return;
-      case "cmd_search":
-        MsgSearchMessages();
         return;
       case "cmd_addTag":
         AddTag();
@@ -1045,15 +870,6 @@ var DefaultController = {
         // it get past us
         deleteJunkInFolder();
         return;
-      case "cmd_emptyTrash":
-        gFolderTreeController.emptyTrash();
-        return;
-      case "cmd_compactFolder":
-        gFolderTreeController.compactAllFoldersForAccount();
-        return;
-      case "button_compact":
-        gFolderTreeController.compactFolders();
-        return;
       case "cmd_downloadFlagged":
         gFolderDisplay.doCommand(
           Ci.nsMsgViewCommandType.downloadFlaggedForOffline
@@ -1069,16 +885,6 @@ var DefaultController = {
         break;
       case "cmd_settingsOffline":
         MailOfflineMgr.openOfflineAccountSettings();
-        break;
-      case "cmd_moveToFolderAgain":
-        var folder = MailUtils.getOrCreateFolder(
-          Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
-        );
-        if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-          MsgMoveMessage(folder);
-        } else {
-          MsgCopyMessage(folder);
-        }
         break;
       case "cmd_selectAll":
         // XXX If the message pane is selected but the tab focused, this ends
@@ -1121,12 +927,6 @@ var DefaultController = {
         break;
       case "cmd_chat":
         showChatTab();
-        break;
-      case "cmd_newFolder":
-        gFolderTreeController.newFolder();
-        break;
-      case "cmd_newVirtualFolder":
-        gFolderTreeController.newVirtualFolder();
         break;
     }
   },
@@ -1307,16 +1107,6 @@ function RestoreFocusAfterHdrButton() {
   // gPenultimateFocusedElement.
   SetFocusThreadPane();
 }
-
-function SetupCommandUpdateHandlers() {
-  // folder pane
-  var widget = document.getElementById("folderTree");
-  if (widget) {
-    widget.controllers.appendController(FolderPaneController);
-  }
-}
-
-function UnloadCommandUpdateHandlers() {}
 
 function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
   // If no account has been configured, there are no messages for sending.

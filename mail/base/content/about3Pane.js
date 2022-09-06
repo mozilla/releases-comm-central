@@ -9,6 +9,9 @@
 var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
 );
+var { FolderTreeProperties } = ChromeUtils.import(
+  "resource:///modules/FolderTreeProperties.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -676,13 +679,13 @@ var folderPaneContextMenu = {
         gFolder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
         break;
       case "folderPaneContext-properties":
-        topChromeWindow.gFolderTreeController.editFolder(undefined, gFolder);
+        topChromeWindow.gFolderTreeController.editFolder(gFolder);
         break;
       case "folderPaneContext-markAllFoldersRead":
         topChromeWindow.MsgMarkAllFoldersRead([gFolder]);
         break;
       case "folderPaneContext-settings":
-        topChromeWindow.gFolderTreeController.editFolder(undefined, gFolder);
+        topChromeWindow.gFolderTreeController.editFolder(gFolder);
         break;
     }
   },
