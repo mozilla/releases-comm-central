@@ -151,7 +151,7 @@ MessageDisplayWidget.prototype = {
    * completed.
    */
   onLoadCompleted() {
-    window.dispatchEvent(new CustomEvent("MsgsLoaded"));
+    window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
     this.messageLoading = false;
     this.messageLoaded = true;
 

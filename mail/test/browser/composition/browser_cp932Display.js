@@ -8,7 +8,7 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.import(
+var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
@@ -18,9 +18,12 @@ var { close_window } = ChromeUtils.import(
 add_task(async function test_cp932_display() {
   let file = new FileUtils.File(getTestFilePath("data/charset-cp932.eml"));
   let msgc = await open_message_from_file(file);
-  let subjectText = msgc.e("expandedsubjectBox").textContent;
-  let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
+  let aboutMessage = get_about_message(msgc.window);
+  let subjectText = aboutMessage.document.getElementById("expandedsubjectBox")
     .textContent;
+  let bodyText = aboutMessage.document
+    .getElementById("messagepane")
+    .contentDocument.querySelector("body").textContent;
   close_window(msgc);
 
   Assert.ok(

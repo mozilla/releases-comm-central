@@ -10,13 +10,11 @@
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from commandglue.js */
-/* import-globals-from folderDisplay.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
-/* import-globals-from messageDisplay.js */
 /* import-globals-from messenger-customization.js */
 /* import-globals-from msgHdrView.js */
 /* import-globals-from msgViewNavigation.js */
@@ -30,334 +28,29 @@ var { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  CustomizableUI: "resource:///modules/CustomizableUI.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
-// from MailNewsTypes.h
-var nsMsgKey_None = 0xffffffff;
-var nsMsgViewIndex_None = 0xffffffff;
+var messageBrowser;
 
-/* globals for a particular window */
-
-var gFolderDisplay;
-var gMessageDisplay;
+function getBrowser() {
+  return document
+    .getElementById("messageBrowser")
+    .contentDocument.getElementById("messagepane");
+}
 
 this.__defineGetter__("browser", getBrowser);
 
-/**
- * We subclass FolderDisplayWidget:
- * - Because it assumes some thread-pane things that do not apply to us and we
- *    want to no-op those things out.
- * - To intercept queries about the selected message so that we can do the
- *    .eml file thing.  We were originally trying to avoid involving the
- *    nsMsgDBView, but that might not be important anymore. (future work)
- */
-function StandaloneFolderDisplayWidget(aMessageDisplayWidget) {
-  FolderDisplayWidget.call(this, null, aMessageDisplayWidget);
-  // do not set the actual treeBox variable or our superclass might try and do
-  //  weird rooting things we don't want to have to think about right now.
-  //  Oh, and since we don't have a real tree selection, the fake tree
-  //  selection is going to be our real one. :)
-  this._magicTreeSelection = this._fakeTreeSelection;
-}
-StandaloneFolderDisplayWidget.prototype = {
-  __proto__: FolderDisplayWidget.prototype,
+window.addEventListener("DOMContentLoaded", event => {
+  if (event.target != document) {
+    return;
+  }
 
-  /**
-   * If we have a displayed message, then we've got 1 message, otherwise 0.
-   */
-  get selectedCount() {
-    return this.messageDisplay.displayedMessage ? 1 : 0;
-  },
-
-  /**
-   * If we have a selected message, it's the one displayed!  This is more
-   *  straight-forward than having you trace through the tree selection and
-   *  db view logic.
-   */
-  get selectedMessage() {
-    return this.messageDisplay.displayedMessage;
-  },
-
-  /**
-   * If we have a selected message, it's the one displayed!  This is more
-   *  straight-forward than having you trace through the tree selection and
-   *  db view logic.
-   */
-  get selectedMessages() {
-    return this.messageDisplay.displayedMessage
-      ? [this.messageDisplay.displayedMessage]
-      : [];
-  },
-
-  /**
-   * We never have a real treeview, so we always want to tell the view about
-   *  the fake tree box so it will actually do something in NoteChange.
-   */
-  onCreatedView() {
-    this._fakeTree.view = this.view.dbView;
-    // Need to clear out this reference later.
-    this._magicTreeSelection.view = this.view.dbView;
-
-    // only if we're not dealing with a dummy message (from .eml file /
-    //  attachment should we try and hook up the selection object.)  Otherwise
-    //  the view will not operate in stand alone message mode.
-    // XXX the sequencing here may break re-using a message window that is
-    //  showing an .eml file to go to a real message, at least in terms of
-    //  having the selection object properly associated with the tree.
-    if (!this.messageDisplay.isDummy) {
-      this.view.dbView.setTree(this._fakeTree);
-      this.view.dbView.selection = this._magicTreeSelection;
-      // This lets the dbView know we don't really have a tree, so it can
-      // avoid operating on messages in collapsed threads.
-      this._magicTreeSelection.tree = null;
-    }
-    this.__proto__.__proto__.onCreatedView.call(this);
-  },
-
-  /**
-   * Override this to make sure that we don't try to do stuff with
-   * quick-search.
-   *
-   * XXX This should ideally be the default behavior, with a 3pane subclass
-   * implementing the quick-search stuff.
-   */
-  onDisplayingFolder() {
-    let msgDatabase =
-      this.view.displayedFolder && this.view.displayedFolder.msgDatabase;
-    if (msgDatabase) {
-      msgDatabase.resetHdrCacheSize(this.PERF_HEADER_CACHE_SIZE);
-    }
-
-    if (this.active) {
-      this.makeActive();
-    }
-  },
-
-  _superSelectedMessageUrisGetter: FolderDisplayWidget.prototype.__lookupGetter__(
-    "selectedMessageUris"
-  ),
-  /**
-   * Check with the message display widget to see if it has a dummy; if so, just
-   *  return the dummy's URI, as the nsMsgDBView logic that our superclass uses
-   *  falls down in that case.
-   */
-  get selectedMessageUris() {
-    if (this.messageDisplay.displayedUri) {
-      return [this.messageDisplay.displayedUri];
-    }
-    return this._superSelectedMessageUrisGetter();
-  },
-
-  // folder display will want to show the thread pane; we need do nothing
-  _showThreadPane() {},
-  _showAccountCentral() {},
-
-  _updateThreadDisplay() {},
-
-  // we don't care about columns.
-  setColumnStates() {},
-  getColumnStates() {
-    return {};
-  },
-  _depersistColumnStateFromDbFolderInfo() {
-    return {};
-  },
-  _getDefaultColumnsForCurrentFolder() {
-    return {};
-  },
-  _persistColumnStates() {},
-  _saveColumnStates() {},
-  _restoreColumnStates() {},
-
-  onMessageCountsChanged() {
-    UpdateStatusMessageCounts();
-  },
-};
-
-/**
- * Display widget abstraction for a standalone message display.  Right now
- *  I think this means the standalone message window, and not the 'message in a
- *  tab' thing, which is really just a perverted configuration of the 3-pane
- *  format.
- */
-function StandaloneMessageDisplayWidget() {
-  MessageDisplayWidget.call(this);
-  /**
-   * When displaying a dummy message, this is the URI of the message that we are
-   *  displaying.  If we are not displaying a dummy message, this is null.
-   */
-  this.displayedUri = null;
-  /**
-   * This is supposed to be true when we know we're going to load another message
-   * shortly, so clearDisplay et al shouldn't close the window. It is the
-   * responsibility of calling code to set this to true when needed. This is
-   * automatically set to false once a message has been loaded.
-   *
-   * This is true initially, because we know we're going to load another message
-   * shortly.
-   */
-  this.aboutToLoadMessage = true;
-}
-StandaloneMessageDisplayWidget.prototype = {
-  __proto__: MessageDisplayWidget.prototype,
-
-  /**
-   * The message pane is a standalone display widget is always visible.
-   */
-  get visible() {
-    return true;
-  },
-  set visible(aIgnored) {},
-  // We're always active
-  _active: true,
-  active: true,
-  /**
-   * Since we're always active, there's no reason for us to do anything with
-   * makeActive or makeInactive.
-   */
-  makeActive() {},
-
-  makeInactive() {},
-
-  /**
-   * Display the external message (from disk or attachment) named by the URI.
-   */
-  displayExternalMessage(aUri) {
-    this.isDummy = true;
-    this.displayedUri = aUri;
-    this.onDisplayingMessage(messageHeaderSink.dummyMsgHeader);
-    // null out the selection on the view so it operates in stand alone mode
-    this.folderDisplay.view.dbView.selection = null;
-    this.folderDisplay.view.dbView.loadMessageByUrl(aUri);
-  },
-
-  clearDisplay() {
-    this.messageLoading = false;
-    this.messageLoaded = false;
-  },
-  _updateActiveMessagePane() {
-    // no-op.  the message pane is always visible.
-  },
-
-  onDisplayingMessage(aMsgHdr) {
-    this.__proto__.__proto__.onDisplayingMessage.call(this, aMsgHdr);
-
-    // - set the window title to the message subject (and maybe the app name)
-    let docTitle = aMsgHdr.mime2DecodedSubject;
-
-    // If the tab hasn't got a title, or we're on Mac, don't display
-    // the separator.
-    if (docTitle && AppConstants.platform != "macosx") {
-      docTitle += document.documentElement.getAttribute("titlemenuseparator");
-    }
-
-    // If we haven't got a title at this stage add the modifier, or if
-    // we are on a non-mac platform, add the modifier.
-    if (!docTitle || AppConstants.platform != "macosx") {
-      docTitle += document.documentElement.getAttribute("titlemodifier");
-    }
-
-    document.title = docTitle;
-    if (AppConstants.platform == "macosx") {
-      document.getElementById("titlebar-title-label").value = docTitle;
-    }
-
-    this.isDummy = aMsgHdr.folder == null;
-    if (!this.isDummy) {
-      this.displayedUri = null;
-    }
-
-    // We've loaded a message, so this should be set to false
-    this.aboutToLoadMessage = false;
-  },
-
-  onSelectedMessagesChanged() {
-    // When switching folders, we won't have any selection for a while.
-    if (!this.folderDisplay.view.dbView) {
-      return true;
-    }
-
-    // If the message we're displaying is deleted, we won't have any selection
-    // for a while, but we'll soon select a new message. So don't test the
-    // selection count -- instead see if there are any messages in the db view
-    // at all.
-    if (
-      !this.aboutToLoadMessage &&
-      this.folderDisplay.view.dbView.rowCount == 0
-    ) {
-      window.close();
-      return true;
-    }
-    return false;
-  },
-
-  onMessagesRemoved() {
-    if (!this.folderDisplay.treeSelection) {
-      return true;
-    }
-
-    if (
-      this.folderDisplay._deleteInProgress &&
-      Services.prefs.getBoolPref("mail.close_message_window.on_delete")
-    ) {
-      window.close();
-      return true;
-    }
-    return false;
-  },
-};
-
-let messagepaneObserver = {
-  onDrop(event) {
-    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
-      .getService(Ci.nsIDragService)
-      .getCurrentSession();
-    if (!this.canDrop(event, dragSession)) {
-      return;
-    }
-    let sourceUri = event.dataTransfer.getData("text/x-moz-message");
-    if (
-      !gFolderDisplay.selectedMessage ||
-      sourceUri != gFolderDisplay.selectedMessageUris[0]
-    ) {
-      let msgHdr = messenger.msgHdrFromURI(sourceUri);
-      let originGlobal = dragSession.sourceNode.ownerGlobal;
-      gFolderDisplay.cloneView(originGlobal.gFolderDisplay.view);
-      gFolderDisplay.selectMessage(msgHdr);
-    }
-    event.stopPropagation();
-  },
-
-  onDragOver(event) {
-    let messagepanebox = document.getElementById("messagepanebox");
-    messagepanebox.setAttribute("dragover", "true");
-    event.stopPropagation();
-    event.preventDefault();
-  },
-
-  onDragLeave(event) {
-    let messagepanebox = document.getElementById("messagepanebox");
-    messagepanebox.removeAttribute("dragover");
-  },
-
-  canDrop(event, dragSession) {
-    // allow drop from mail:3pane window only - 4xp
-    let doc = dragSession.sourceNode.ownerDocument;
-    let elem = doc.getElementById("messengerWindow");
-    return elem && elem.getAttribute("windowtype") == "mail:3pane";
-  },
-};
-
-function UpdateStatusMessageCounts() {
-  // hook for extra toolbar items
-  Services.obs.notifyObservers(window, "mail:updateStandAloneMessageCounts");
-}
+  messageBrowser = document.getElementById("messageBrowser");
+});
+window.addEventListener("load", OnLoadMessageWindow);
+window.addEventListener("unload", OnUnloadMessageWindow);
 
 // we won't show the window until the onload() handler is finished
 // so we do this trick (suggested by hyatt / blaker)
@@ -381,11 +74,6 @@ function OnLoadMessageWindow() {
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
 
-  // By reassigning this here, we fix the find bar (bug 1562677).
-  document.getElementById("FindToolbar").browser = document.getElementById(
-    "messagepane"
-  );
-
   updateTroubleshootMenuItem();
   ToolbarIconColor.init();
   PanelUI.init();
@@ -393,23 +81,27 @@ function OnLoadMessageWindow() {
 
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 
-  Enigmail.msg.messengerStartup.bind(Enigmail.msg);
-  Enigmail.msg.messengerStartup();
-  Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
-  Enigmail.hdrView.hdrViewLoad();
-
-  let messagePaneBrowser = document.getElementById("messagepane");
-  messagePaneBrowser.addEventListener(
+  messageBrowser.addEventListener("pagetitlechanged", () => {
+    if (messageBrowser.contentTitle) {
+      document.title =
+        messageBrowser.contentTitle +
+        document.documentElement.getAttribute("titlemenuseparator") +
+        document.documentElement.getAttribute("titlemodifier");
+    } else {
+      document.title = document.documentElement.getAttribute("titlemodifier");
+    }
+  });
+  messageBrowser.addEventListener(
     "DoZoomEnlargeBy10",
     () => {
-      ZoomManager.scrollZoomEnlarge(messagePaneBrowser);
+      ZoomManager.scrollZoomEnlarge(messageBrowser);
     },
     true
   );
-  messagePaneBrowser.addEventListener(
+  messageBrowser.addEventListener(
     "DoZoomReduceBy10",
     () => {
-      ZoomManager.scrollReduceEnlarge(messagePaneBrowser);
+      ZoomManager.scrollReduceEnlarge(messageBrowser);
     },
     true
   );
@@ -424,30 +116,14 @@ function delayedOnLoadMessageWindow() {
   MailOfflineMgr.init();
   CreateMailWindowGlobals();
 
-  /**
-   * Create a message listener so that we can update the title once the message
-   *  finishes streaming when it's a dummy.
-   */
-  gMessageListeners.push({
-    onStartHeaders() {},
-    onEndHeaders() {
-      if (gMessageDisplay.isDummy) {
-        gMessageDisplay.onDisplayingMessage(messageHeaderSink.dummyMsgHeader);
-      }
-    },
-    onEndAttachments() {},
-  });
   // Run menubar initialization first, to avoid TabsInTitlebar code picking
   // up mutations from it and causing a reflow.
   if (AppConstants.platform != "macosx") {
     AutoHideMenubar.init();
   }
 
-  InitMsgWindow();
-
+  msgWindow.msgHeaderSink = messageBrowser.contentWindow.messageHeaderSink;
   messenger.setWindow(window, msgWindow);
-  // FIX ME - later we will be able to use onload from the overlay
-  OnLoadMsgHeaderPane();
 
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("mail-toolbox");
@@ -456,12 +132,6 @@ function delayedOnLoadMessageWindow() {
   };
 
   SetupCommandUpdateHandlers();
-
-  gMessageDisplay = new StandaloneMessageDisplayWidget();
-  // eslint-disable-next-line no-global-assign
-  gFolderDisplay = new StandaloneFolderDisplayWidget(gMessageDisplay);
-  gFolderDisplay.msgWindow = msgWindow;
-  gFolderDisplay.messenger = messenger;
 
   setTimeout(actuallyLoadMessage, 0);
 }
@@ -497,67 +167,24 @@ function actuallyLoadMessage() {
    *   2: The nsIMsgDBView used to open us.
    */
   if (window.arguments && window.arguments.length) {
-    let msgHdr = null,
-      originViewWrapper = null;
+    let contentWindow = messageBrowser.contentWindow;
+    if (window.arguments[0] instanceof Ci.nsIURI) {
+      contentWindow.displayExternalMessage(window.arguments[0].spec);
+      return;
+    }
+
+    let msgHdr = null;
     // message header as an object?
     if ("wrappedJSObject" in window.arguments[0]) {
       let hdrObject = window.arguments[0].wrappedJSObject;
       msgHdr = hdrObject.msgHdr;
-      if ("viewWrapperToClone" in hdrObject) {
-        originViewWrapper = hdrObject.viewWrapperToClone;
-      }
     } else if (window.arguments[0] instanceof Ci.nsIMsgDBHdr) {
       // message header as a separate param?
       msgHdr = window.arguments[0];
-      originViewWrapper =
-        window.arguments.length > 1 ? window.arguments[1] : null;
     }
 
-    // this is a message header, so show it
-    if (msgHdr) {
-      if (originViewWrapper) {
-        // The original view must have a collapsed group header thread's
-        // message(s) found in expand mode before it's cloned, for any to
-        // be selected.
-        if (originViewWrapper.showGroupedBySort) {
-          originViewWrapper.dbView.findIndexOfMsgHdr(msgHdr, true);
-        }
-
-        gFolderDisplay.cloneView(originViewWrapper);
-      } else {
-        // Create a synthetic message view for the header
-        let synView = new MsgHdrSyntheticView(msgHdr);
-        gFolderDisplay.show(synView);
-      }
-      gFolderDisplay.selectMessage(msgHdr);
-    } else {
-      // it must be a URI for a message lacking a backing header
-      // Here's how this goes.  nsMessenger::LoadURL checks out the URL we
-      //  pass it, and if it sees that the URI starts with "file:" or contains
-      //  "type=application/x-message-display" then it knows it needs to
-      //  create a dummy header.  It gets the 'dummyMsgHeader' property from
-      //  the js message header sink.
-      // Additionally, nsMessenger::MsgHdrFromURI checks the URI we pass it
-      //  and if it meets either of those same constraints (assuming it has a
-      //  msgWindow), it will retrieve the header sink off the msgWindow, get
-      //  the dummy header, and return that.
-      // so...
-      // - create a search view for the standalone dude
-      gFolderDisplay.view.openSearchView();
-      // - load the message
-      let messageURI = window.arguments[0];
-      if (messageURI instanceof Ci.nsIURI) {
-        messageURI = messageURI.spec;
-      }
-      gMessageDisplay.displayExternalMessage(messageURI);
-    }
+    contentWindow.displayMessage(msgHdr.folder.getUriForMsg(msgHdr));
   }
-
-  gFolderDisplay.makeActive();
-
-  // Initialize the folder listener of the message header only after the
-  // gFolderDisplay has been created.
-  initFolderDBListener();
 
   // set focus to the message pane
   window.content.focus();
@@ -573,29 +200,11 @@ function actuallyLoadMessage() {
  *                            message window
  */
 function displayMessage(aMsgHdr, aViewWrapperToClone) {
-  // We're about to load another message, so make sure we don't close this
-  // window
-  gMessageDisplay.aboutToLoadMessage = true;
-
-  // Clear our old selection, so that we don't load the old URL onCreatedView.
-  // Setting aboutToLoadMessage = true above means that we won't close the
-  // window because of this.
-  gFolderDisplay.clearSelection();
-
-  if (aViewWrapperToClone) {
-    if (aViewWrapperToClone.showGroupedBySort) {
-      aViewWrapperToClone.dbView.findIndexOfMsgHdr(aMsgHdr, true);
-    }
-
-    gFolderDisplay.cloneView(aViewWrapperToClone);
-  } else {
-    // Create a synthetic message view for the header
-    let synView = new MsgHdrSyntheticView(aMsgHdr);
-    gFolderDisplay.show(synView);
-  }
-
-  // show the message
-  gFolderDisplay.selectMessage(aMsgHdr);
+  let contentWindow = messageBrowser.contentWindow;
+  contentWindow.displayMessage(
+    aMsgHdr.folder.getUriForMsg(aMsgHdr),
+    aViewWrapperToClone
+  );
 
   // bring this window to the front
   window.focus();
@@ -858,60 +467,23 @@ function HideMenus() {
 /* eslint-enable complexity */
 
 function OnUnloadMessageWindow() {
-  if (gFolderDisplay._magicTreeSelection) {
-    // Avoid cycle leaks.
-    gFolderDisplay._magicTreeSelection.tree = null;
-    gFolderDisplay._magicTreeSelection.view = null;
-    gFolderDisplay._magicTreeSelection = null;
-  }
-  gFolderDisplay.close();
   UnloadCommandUpdateHandlers();
-  // FIX ME - later we will be able to use onunload from the overlay
-  OnUnloadMsgHeaderPane();
   ToolbarIconColor.uninit();
   PanelUI.uninit();
   OnMailWindowUnload();
 }
 
-function GetSelectedMsgFolders() {
-  if (gFolderDisplay.displayedFolder) {
-    return [gFolderDisplay.displayedFolder];
-  }
-  return [];
-}
-
-function GetNumSelectedMessages() {
-  return gFolderDisplay.selectedCount;
-}
-
 function ReloadMessage() {
-  // If the current message was loaded from a file or attachment, so the dbView
-  // can't handle reloading it. Let's do it ourselves, instead.
-  if (window.arguments[0] instanceof Ci.nsIURI) {
-    gMessageDisplay.displayExternalMessage(window.arguments[0].spec);
-  } else {
-    gFolderDisplay.view.dbView.reloadMessage();
-  }
+  messageBrowser.contentWindow.ReloadMessage();
 }
 
 // MessageWindowController object (handles commands when one of the trees does not have focus)
 var MessageWindowController = {
-  /* eslint-disable complexity */
   supportsCommand(command) {
     switch (command) {
       // external messages cannot be deleted, mutated, or subjected to filtering
-      case "cmd_delete":
-      case "cmd_killThread":
-      case "cmd_killSubthread":
-      case "cmd_watchThread":
       case "button_delete":
       case "button_junk":
-      case "cmd_shiftDelete":
-      case "button_shiftDelete":
-      case "cmd_tag":
-      case "cmd_addTag":
-      case "cmd_manageTags":
-      case "cmd_removeTags":
       case "cmd_tag1":
       case "cmd_tag2":
       case "cmd_tag3":
@@ -921,66 +493,24 @@ var MessageWindowController = {
       case "cmd_tag7":
       case "cmd_tag8":
       case "cmd_tag9":
-      case "button_mark":
-      case "cmd_toggleRead":
-      case "cmd_markAsRead":
-      case "cmd_markAsUnread":
-      case "cmd_markAllRead":
-      case "cmd_markThreadAsRead":
-      case "cmd_markReadByDate":
-      case "cmd_markAsFlagged":
-      case "cmd_markAsJunk":
-      case "cmd_markAsNotJunk":
-      case "cmd_recalculateJunkScore":
       case "cmd_applyFiltersToSelection":
       case "cmd_applyFilters":
       case "cmd_runJunkControls":
       case "cmd_deleteJunk":
-        return !gMessageDisplay.isDummy;
+        return false;
       case "cmd_undo":
       case "cmd_redo":
       case "cmd_saveAsFile":
       case "cmd_saveAsTemplate":
-      case "cmd_viewPageSource":
       case "cmd_getMsgsForAuthAccounts":
       case "button_file":
-      case "button_previousMsg":
-      case "cmd_previousMsg":
-      case "button_previous":
-      case "cmd_previousUnreadMsg":
-      case "cmd_previousFlaggedMsg":
-      case "button_nextMsg":
-      case "cmd_nextMsg":
-      case "button_next":
-      case "cmd_nextUnreadMsg":
-      case "cmd_nextFlaggedMsg":
-      case "cmd_nextUnreadThread":
       case "cmd_goForward":
       case "cmd_goBack":
       case "button_goForward":
       case "button_goBack":
-        return gFolderDisplay.selectedMessage != null;
+        return false;
       case "cmd_newMessage":
-      case "cmd_reply":
-      case "button_reply":
-      case "cmd_replySender":
-      case "cmd_replyGroup":
       case "button_followup":
-      case "cmd_replyall":
-      case "button_replyall":
-      case "cmd_replylist":
-      case "button_replylist":
-      case "cmd_archive":
-      case "button_archive":
-      case "cmd_forward":
-      case "button_forward":
-      case "cmd_forwardInline":
-      case "cmd_forwardAttachment":
-      case "cmd_redirect":
-      case "cmd_editAsNew":
-      case "cmd_editDraftMsg":
-      case "cmd_newMsgFromTemplate":
-      case "cmd_editTemplateMsg":
       case "cmd_getNextNMessages":
       case "cmd_find":
       case "cmd_findAgain":
@@ -993,8 +523,6 @@ var MessageWindowController = {
       case "cmd_print":
       case "cmd_settingsOffline":
       case "cmd_createFilterFromPopup":
-      case "cmd_createFilterFromMenu":
-      case "cmd_moveToFolderAgain":
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
@@ -1022,80 +550,25 @@ var MessageWindowController = {
     let loadedFolder;
     switch (command) {
       case "cmd_createFilterFromPopup":
-      case "cmd_createFilterFromMenu":
         loadedFolder = gFolderDisplay.displayedFolder;
         return loadedFolder && loadedFolder.server.canHaveFilters;
-      case "cmd_delete":
-        UpdateDeleteCommand();
-      // fall through
       case "button_delete":
         UpdateDeleteToolbarButton();
         return gFolderDisplay.getCommandStatus(
           Ci.nsMsgViewCommandType.deleteMsg
         );
-      case "cmd_shiftDelete":
-      case "button_shiftDelete":
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.deleteNoTrash
-        );
       case "button_junk":
         UpdateJunkToolbarButton();
       // fall through
-      case "cmd_markAsJunk":
-      case "cmd_markAsNotJunk":
-        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
-      case "cmd_recalculateJunkScore":
-        return (
-          gFolderDisplay.selectedMessage &&
-          gFolderDisplay.getCommandStatus(
-            Ci.nsMsgViewCommandType.runJunkControls
-          )
-        );
-      case "cmd_archive":
-      case "button_archive":
-        return gFolderDisplay.canArchiveSelectedMessages;
-      case "cmd_reply":
-      case "button_reply":
-      case "cmd_replyall":
-      case "button_replyall":
-        return (
-          gFolderDisplay.selectedMessage &&
-          IsReplyEnabled() &&
-          CanComposeMessages()
-        );
-      case "cmd_replylist":
-      case "button_replylist":
-        return (
-          gFolderDisplay.selectedMessage &&
-          IsReplyListEnabled() &&
-          CanComposeMessages()
-        );
       case "cmd_newMessage":
-        return CanComposeMessages();
-      case "cmd_replySender":
-      case "cmd_replyGroup":
       case "button_followup":
-      case "cmd_forward":
-      case "button_forward":
-      case "cmd_forwardInline":
-      case "cmd_forwardAttachment":
-      case "cmd_redirect":
-      case "cmd_editAsNew":
         return CanComposeMessages();
-      case "cmd_editDraftMsg":
-      case "cmd_newMsgFromTemplate":
-      case "cmd_editTemplateMsg":
       case "cmd_print":
       case "button_print":
       case "cmd_saveAsFile":
       case "cmd_saveAsTemplate":
-      case "cmd_viewPageSource":
       case "cmd_reload":
       case "cmd_find":
-      case "cmd_tag":
-      case "cmd_addTag":
-      case "cmd_manageTags":
-      case "cmd_removeTags":
       case "cmd_tag1":
       case "cmd_tag2":
       case "cmd_tag3":
@@ -1105,24 +578,11 @@ var MessageWindowController = {
       case "cmd_tag7":
       case "cmd_tag8":
       case "cmd_tag9":
-      case "button_mark":
-      case "cmd_markReadByDate":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
-      case "cmd_toggleRead":
-        return true;
-      case "cmd_markAllRead":
-        return false;
-      case "cmd_markThreadAsRead":
-        return gFolderDisplay.canMarkThreadAsRead;
-      case "cmd_markAsRead":
-        return CanMarkMsgAsRead(true);
-      case "cmd_markAsUnread":
-        return CanMarkMsgAsRead(false);
-      case "cmd_markAsFlagged":
       case "button_file":
-        return gFolderDisplay.selectedMessage != null;
+        return false;
       case "cmd_getNewMessages":
       case "button_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
@@ -1135,17 +595,6 @@ var MessageWindowController = {
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
         return IsAccountOfflineEnabled();
-      case "button_nextMsg":
-      case "cmd_nextMsg":
-      case "button_next":
-      case "cmd_nextUnreadMsg":
-      case "cmd_nextFlaggedMsg":
-      case "cmd_nextUnreadThread":
-      case "button_previousMsg":
-      case "cmd_previousMsg":
-      case "button_previous":
-      case "cmd_previousUnreadMsg":
-      case "cmd_previousFlaggedMsg":
       case "cmd_findAgain":
       case "cmd_findPrevious":
       case "cmd_applyFiltersToSelection":
@@ -1163,38 +612,12 @@ var MessageWindowController = {
       case "button_goBack":
       case "cmd_goForward":
       case "cmd_goBack":
-        return gFolderDisplay.navigateStatus(
-          command == "cmd_goBack" || command == "button_goBack"
-            ? Ci.nsMsgNavigationType.back
-            : Ci.nsMsgNavigationType.forward
-        );
+        return false;
       case "cmd_search":
-        loadedFolder = gFolderDisplay.displayedFolder;
-        if (!loadedFolder) {
-          return false;
-        }
-        return loadedFolder.server.canSearchMessages;
+        return false;
       case "cmd_undo":
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
-      case "cmd_moveToFolderAgain":
-        loadedFolder = gFolderDisplay.displayedFolder;
-        if (
-          !loadedFolder ||
-          (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move") &&
-            !loadedFolder.canDeleteMessages)
-        ) {
-          return false;
-        }
-        let targetURI = Services.prefs.getCharPref(
-          "mail.last_msg_movecopy_target_uri"
-        );
-        if (!targetURI) {
-          return false;
-        }
-        let targetFolder = MailUtils.getExistingFolder(targetURI);
-        // If null, folder doesn't exist.
-        return targetFolder !== null;
       case "cmd_applyFilters":
       case "cmd_runJunkControls":
       case "cmd_deleteJunk":
@@ -1229,74 +652,13 @@ var MessageWindowController = {
       case "cmd_getNextNMessages":
         MsgGetNextNMessages();
         break;
-      case "cmd_archive":
-        MsgArchiveSelectedMessages(null);
-        break;
       case "cmd_newMessage":
         MsgNewMessage(null);
         break;
-      case "cmd_reply":
-        MsgReplyMessage(null);
-        break;
-      case "cmd_replySender":
-        MsgReplySender(null);
-        break;
-      case "cmd_replyGroup":
-        MsgReplyGroup(null);
-        break;
-      case "cmd_replyall":
-        MsgReplyToAllMessage(null);
-        break;
-      case "cmd_replylist":
-        MsgReplyToListMessage(null);
-        break;
-      case "cmd_forward":
-        MsgForwardMessage(null);
-        break;
-      case "cmd_forwardInline":
-        MsgForwardAsInline(null);
-        break;
-      case "cmd_forwardAttachment":
-        MsgForwardAsAttachment(null);
-        break;
-      case "cmd_redirect":
-        MsgRedirectMessage(null);
-        break;
-      case "cmd_editAsNew":
-        MsgEditMessageAsNew(null);
-        break;
-      case "cmd_editDraftMsg":
-        MsgEditDraftMessage(null);
-        break;
-      case "cmd_newMsgFromTemplate":
-        MsgNewMessageFromTemplate(null);
-        break;
-      case "cmd_editTemplateMsg":
-        MsgEditTemplateMessage(null);
-        break;
-      case "cmd_moveToFolderAgain":
-        var folder = MailUtils.getOrCreateFolder(
-          Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
-        );
-        if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-          MsgMoveMessage(folder);
-        } else {
-          MsgCopyMessage(folder);
-        }
-        break;
       case "cmd_createFilterFromPopup":
         break; // This does nothing because the createfilter is invoked from the popupnode oncommand.
-      case "cmd_createFilterFromMenu":
-        MsgCreateFilter();
-        break;
       case "button_delete":
-      case "cmd_delete":
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
-        UpdateDeleteToolbarButton();
-        break;
-      case "button_shiftDelete":
-      case "cmd_shiftDelete":
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
         UpdateDeleteToolbarButton();
         break;
       case "button_junk":
@@ -1311,9 +673,6 @@ var MessageWindowController = {
         break;
       case "cmd_saveAsTemplate":
         MsgSaveAsTemplate();
-        break;
-      case "cmd_viewPageSource":
-        ViewPageSource(gFolderDisplay.selectedMessageUris);
         break;
       case "cmd_reload":
         ReloadMessage();
@@ -1330,15 +689,6 @@ var MessageWindowController = {
       case "cmd_search":
         MsgSearchMessages();
         break;
-      case "cmd_addTag":
-        AddTag();
-        return;
-      case "cmd_manageTags":
-        ManageTags();
-        return;
-      case "cmd_removeTags":
-        RemoveAllMessageTags();
-        return;
       case "cmd_tag1":
       case "cmd_tag2":
       case "cmd_tag3":
@@ -1351,45 +701,11 @@ var MessageWindowController = {
         var tagNumber = parseInt(command[7]);
         ToggleMessageTagKey(tagNumber);
         return;
-      case "button_mark":
-        MsgMarkMsgAsRead();
-        return;
-      case "cmd_toggleRead":
-        MsgMarkMsgAsRead();
-        return;
-      case "cmd_markAsRead":
-        MsgMarkMsgAsRead(true);
-        return;
-      case "cmd_markAsUnread":
-        MsgMarkMsgAsRead(false);
-        return;
-      case "cmd_markThreadAsRead":
-        ClearPendingReadTimer();
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.markThreadRead);
-        return;
-      case "cmd_markAllRead":
-        MsgMarkAllRead(); // Won't run since always disabled.
-        return;
-      case "cmd_markReadByDate":
-        MsgMarkReadByDate();
-        return;
       case "cmd_viewAllHeader":
         MsgViewAllHeaders();
         return;
       case "cmd_viewNormalHeader":
         MsgViewNormalHeaders();
-        return;
-      case "cmd_markAsFlagged":
-        MsgMarkAsFlagged();
-        return;
-      case "cmd_markAsJunk":
-        JunkSelectedMessages(true);
-        return;
-      case "cmd_markAsNotJunk":
-        JunkSelectedMessages(false);
-        return;
-      case "cmd_recalculateJunkScore":
-        analyzeMessagesForJunk();
         return;
       case "cmd_downloadFlagged":
         gFolderDisplay.doCommand(
@@ -1407,31 +723,6 @@ var MessageWindowController = {
       case "cmd_settingsOffline":
         MailOfflineMgr.openOfflineAccountSettings();
         return;
-      case "button_next":
-      case "cmd_nextUnreadMsg":
-        performNavigation(Ci.nsMsgNavigationType.nextUnreadMessage);
-        break;
-      case "cmd_nextUnreadThread":
-        performNavigation(Ci.nsMsgNavigationType.nextUnreadThread);
-        break;
-      case "button_nextMsg":
-      case "cmd_nextMsg":
-        performNavigation(Ci.nsMsgNavigationType.nextMessage);
-        break;
-      case "cmd_nextFlaggedMsg":
-        performNavigation(Ci.nsMsgNavigationType.nextFlagged);
-        break;
-      case "button_previousMsg":
-      case "cmd_previousMsg":
-        performNavigation(Ci.nsMsgNavigationType.previousMessage);
-        break;
-      case "button_previous":
-      case "cmd_previousUnreadMsg":
-        performNavigation(Ci.nsMsgNavigationType.previousUnreadMessage);
-        break;
-      case "cmd_previousFlaggedMsg":
-        performNavigation(Ci.nsMsgNavigationType.previousFlagged);
-        break;
       case "cmd_goForward":
         performNavigation(Ci.nsMsgNavigationType.forward);
         break;
@@ -1482,7 +773,6 @@ var MessageWindowController = {
         break;
     }
   },
-  /* eslint-enable complexity */
 
   onEvent(event) {},
 };
@@ -1499,23 +789,15 @@ function performNavigation(type) {
 
 function SetupCommandUpdateHandlers() {
   top.controllers.insertControllerAt(0, MessageWindowController);
+  top.controllers.insertControllerAt(
+    0,
+    messageBrowser.contentWindow.commandController
+  );
 }
 
 function UnloadCommandUpdateHandlers() {
   top.controllers.removeController(MessageWindowController);
-}
-
-function getMailToolbox() {
-  return document.getElementById("mail-toolbox");
-}
-
-function RestoreFocusAfterHdrButton() {
-  // set focus to the message pane
-  window.content.focus();
-}
-
-function SelectFolder(aFolderUri) {
-  gFolderDisplay.clearSelection();
-  gFolderDisplay.treeSelection.currentIndex = -1;
-  gFolderDisplay.show(MailUtils.getExistingFolder(aFolderUri));
+  top.controllers.removeController(
+    messageBrowser.contentWindow.commandController
+  );
 }

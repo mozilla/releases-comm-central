@@ -4,10 +4,7 @@
 
 "use strict";
 
-var { wait_for_element_visible } = ChromeUtils.import(
-  "resource://testing-common/mozmill/DOMHelpers.jsm"
-);
-var { open_message_from_file } = ChromeUtils.import(
+var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
@@ -25,14 +22,21 @@ add_task(async function test_attachment_not_empty() {
   let file = new FileUtils.File(getTestFilePath("data/bug1358565.eml"));
 
   let msgc = await open_message_from_file(file);
+  let aboutMessage = get_about_message(msgc.window);
 
-  wait_for_element_visible(msgc, "attachmentToggle");
-  msgc.click(msgc.e("attachmentToggle"));
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentToggle"),
+    {},
+    aboutMessage
+  );
+  Assert.equal(
+    aboutMessage.document.getElementById("attachmentList").itemCount,
+    1
+  );
 
-  wait_for_element_visible(msgc, "attachmentList");
-  Assert.equal(msgc.e("attachmentList").itemCount, 1);
-
-  let attachmentElem = msgc.e("attachmentList").getItemAtIndex(0);
+  let attachmentElem = aboutMessage.document
+    .getElementById("attachmentList")
+    .getItemAtIndex(0);
   Assert.equal(attachmentElem.attachment.contentType, "image/jpeg");
   Assert.equal(attachmentElem.attachment.name, "bug.png");
   Assert.ok(attachmentElem.attachment.hasFile);

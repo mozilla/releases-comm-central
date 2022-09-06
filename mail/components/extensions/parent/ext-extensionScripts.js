@@ -21,15 +21,15 @@ ExtensionSupport.registerWindowListener("ext-composeScripts", {
   chromeURLs: [
     "chrome://messenger/content/messengercompose/messengercompose.xhtml",
   ],
-  onLoadWindow: async window => {
+  onLoadWindow: async win => {
     await new Promise(resolve =>
-      window.addEventListener("compose-editor-ready", resolve, { once: true })
+      win.addEventListener("compose-editor-ready", resolve, { once: true })
     );
     for (let script of scripts) {
       if (script.type == "compose") {
         script.executeInWindow(
-          window,
-          script.extension.tabManager.getWrapper(window)
+          win,
+          script.extension.tabManager.getWrapper(win)
         );
       }
     }
@@ -37,39 +37,19 @@ ExtensionSupport.registerWindowListener("ext-composeScripts", {
 });
 
 ExtensionSupport.registerWindowListener("ext-messageDisplayScripts", {
-  chromeURLs: ["chrome://messenger/content/messageWindow.xhtml"],
-  onLoadWindow(window) {
-    window.addEventListener("MsgLoaded", () => {
+  chromeURLs: [
+    "chrome://messenger/content/messageWindow.xhtml",
+    "chrome://messenger/content/messenger.xhtml",
+  ],
+  onLoadWindow(win) {
+    win.addEventListener("MsgLoaded", event => {
+      // `event.target` is an about:message window.
+      let tabId = tabTracker.getBrowserTabId(
+        event.target.document.getElementById("messagepane")
+      );
       for (let script of scripts) {
         if (script.type == "messageDisplay") {
-          script.executeInWindow(
-            window,
-            script.extension.tabManager.getWrapper(window)
-          );
-        }
-      }
-    });
-  },
-});
-
-// TODO: Refine this once messageWindow is based on about:message.
-ExtensionSupport.registerWindowListener("ext-messageDisplayScripts2", {
-  chromeURLs: ["chrome://messenger/content/messenger.xhtml"],
-  onLoadWindow(window) {
-    window.addEventListener("MsgLoaded2", event => {
-      let browser = event.detail.browsingContext.embedderElement;
-      let tabId = tabTracker.getBrowserData(browser).tabId;
-      let tab = tabTracker.getTab(tabId);
-      if (!tab || ["mail", "messageDisplay"].includes(tab.type)) {
-        return;
-      }
-
-      for (let script of scripts) {
-        if (script.type == "messageDisplay") {
-          script.executeInWindow(
-            window,
-            script.extension.tabManager.getWrapper(tab)
-          );
+          script.executeInWindow(win, script.extension.tabManager.get(tabId));
         }
       }
     });

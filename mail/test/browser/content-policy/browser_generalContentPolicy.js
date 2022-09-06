@@ -310,10 +310,11 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
  */
 async function checkEMLMessageWindow(test, emlFile) {
   let msgc = await open_message_from_file(emlFile);
-  if (!msgc.e("mail-notification-top")) {
+  let aboutMessage = get_about_message(msgc.window);
+  if (!aboutMessage.document.getElementById("mail-notification-top")) {
     throw new Error(test.type + " has no content notification bar.");
   }
-  if (msgc.e("mail-notification-top").collapsed) {
+  if (aboutMessage.document.getElementById("mail-notification-top").collapsed) {
     throw new Error(test.type + " content notification bar not shown.");
   }
 

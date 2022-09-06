@@ -19,6 +19,7 @@ var {
   be_in_folder,
   close_message_window,
   create_folder,
+  get_about_message,
   mc,
   open_selected_message,
   select_click_row,
@@ -153,8 +154,11 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   // for long enough in all situations, so this will have to do for now.
   mc.sleep(1000);
 
+  let aboutMessage = get_about_message(msgc.window);
   if (
-    (await isPluginLoaded(msgc.window.getMessagePaneBrowser())) != loadAllowed
+    (await isPluginLoaded(
+      aboutMessage.document.getElementById("messagepane")
+    )) != loadAllowed
   ) {
     throw new Error(
       loadAllowed

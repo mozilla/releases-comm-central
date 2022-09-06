@@ -79,7 +79,7 @@ function getMsgHdr(properties) {
 this.messageDisplay = class extends ExtensionAPI {
   getAPI(context) {
     let { extension } = context;
-    let { tabManager, windowManager } = extension;
+    let { tabManager } = extension;
     return {
       messageDisplay: {
         onMessageDisplayed: new EventManager({
@@ -88,8 +88,11 @@ this.messageDisplay = class extends ExtensionAPI {
           register: fire => {
             let listener = {
               handleEvent(event) {
-                let win = windowManager.wrapWindow(event.target);
-                let tab = tabManager.convert(win.activeTab.nativeTab);
+                // `event.target` is an about:message window.
+                let tabId = tabTracker.getBrowserTabId(
+                  event.target.document.getElementById("messagepane")
+                );
+                let tab = tabManager.get(tabId).convert();
                 let msg = convertMessage(event.detail, extension);
                 fire.async(tab, msg);
               },
@@ -107,9 +110,12 @@ this.messageDisplay = class extends ExtensionAPI {
           register: fire => {
             let listener = {
               handleEvent(event) {
-                let win = windowManager.wrapWindow(event.target);
-                let tab = tabManager.convert(win.activeTab.nativeTab);
-                getDisplayedMessages(win.activeTab, extension).then(msgs => {
+                // `event.target` is an about:message window.
+                let tabId = tabTracker.getBrowserTabId(
+                  event.target.document.getElementById("messagepane")
+                );
+                let tab = tabManager.get(tabId).convert();
+                getDisplayedMessages(tab, extension).then(msgs => {
                   fire.async(tab, msgs);
                 });
               },

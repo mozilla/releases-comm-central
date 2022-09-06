@@ -11,7 +11,7 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.import(
+var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
@@ -31,13 +31,15 @@ add_setup(async function() {
 async function check_display_charset(eml, expectedCharset) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
-  is(msgc.window.msgWindow.mailCharacterSet, expectedCharset);
+  let aboutMessage = get_about_message(msgc.window);
+  is(aboutMessage.msgWindow.mailCharacterSet, expectedCharset);
   close_window(msgc);
 }
 
 async function extract_eml_body_textcontent(eml, autodetect = true) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
+  let aboutMessage = get_about_message(msgc.window);
   // Be sure to view message body as Original HTML
   msgc.window.MsgBodyAllowHTML();
 
@@ -77,9 +79,8 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
   }
 
   let textContent =
-    msgc.window.msgWindow.messageWindowDocShell.contentViewer.DOMDocument
-      .documentElement.textContent;
-  let charset = msgc.window.msgWindow.mailCharacterSet;
+    aboutMessage.content.contentDocument.documentElement.textContent;
+  let charset = aboutMessage.msgWindow.mailCharacterSet;
   close_window(msgc);
   return { textContent, charset };
 }

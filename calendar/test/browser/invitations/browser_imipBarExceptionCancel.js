@@ -119,10 +119,11 @@ add_task(async function testCancelSeriesWithExceptionOnly() {
 
     let cancel = new FileUtils.File(getTestFilePath("data/cancel-repeat-event.eml"));
     let cancelWin = await openImipMessage(cancel);
+    let aboutMessage = cancelWin.document.getElementById("messageBrowser").contentWindow;
 
-    let deleteButton = cancelWin.document.getElementById("imipDeleteButton");
+    let deleteButton = aboutMessage.document.getElementById("imipDeleteButton");
     Assert.ok(!deleteButton.hidden, `#${deleteButton.id} button shown`);
-    EventUtils.synthesizeMouseAtCenter(deleteButton, {}, cancelWin);
+    EventUtils.synthesizeMouseAtCenter(deleteButton, {}, aboutMessage);
     await BrowserTestUtils.closeWindow(cancelWin);
     await CalendarTestUtils.monthView.waitForNoItemAt(window, 3, 5, 1);
     Assert.ok(!(await calendar.getItem(event.id)), "event was deleted");

@@ -41,8 +41,6 @@ var {
   wait_for_new_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-let aboutMessage = get_about_message();
-
 var folder;
 
 var kBoxId = "mail-notification-top";
@@ -119,6 +117,7 @@ registerCleanupFunction(() => {
  * is clicked.
  */
 async function assert_ignore_works(aController) {
+  let aboutMessage = get_about_message(aController.window);
   wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
   let prefButton = get_notification_button(
     aboutMessage,
@@ -128,7 +127,7 @@ async function assert_ignore_works(aController) {
   );
   aController.click(prefButton);
   await aController.click_menus_in_sequence(
-    get_about_message().document.getElementById("phishingOptions"),
+    aboutMessage.document.getElementById("phishingOptions"),
     [{ id: "phishingOptionIgnore" }]
   );
   wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
@@ -149,6 +148,8 @@ function click_link_if_available() {
  * notification.
  */
 add_task(async function test_ignore_phishing_warning_from_message() {
+  let aboutMessage = get_about_message();
+
   await be_in_folder(folder);
   select_click_row(0);
   await assert_ignore_works(mc);
@@ -191,25 +192,30 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
   let file = new FileUtils.File(getTestFilePath("data/evil-attached.eml"));
 
   let msgc = await open_message_from_file(file);
+  let aboutMessage = get_about_message(msgc.window);
 
   // Make sure the root message shows the phishing bar.
-  wait_for_notification_to_show(msgc.window, kBoxId, kNotificationValue);
+  wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
 
   // Open the attached message.
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
-  msgc
-    .e("attachmentList")
+  aboutMessage.document
+    .getElementById("attachmentList")
     .getItemAtIndex(0)
     .attachment.open();
   let msgc2 = await newWindowPromise;
   wait_for_message_display_completion(msgc2, true);
 
   // Now make sure the attached message shows the phishing bar.
-  wait_for_notification_to_show(msgc2.window, kBoxId, kNotificationValue);
+  wait_for_notification_to_show(
+    get_about_message(msgc2.window),
+    kBoxId,
+    kNotificationValue
+  );
 
   close_window(msgc2);
   close_window(msgc);
-});
+}).skip();
 
 /**
  * Test that when viewing a message with an auto-linked ip address, we don't
@@ -221,7 +227,7 @@ add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
   select_click_row(2); // Mail with Public IP address.
   click_link_if_available();
   assert_notification_displayed(
-    aboutMessage,
+    get_about_message(),
     kBoxId,
     kNotificationValue,
     false
@@ -234,6 +240,7 @@ add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
  * http://google.com/), we don't get a warning if the link is pressed.
  */
 add_task(async function test_no_phishing_warning_for_subdomain() {
+  let aboutMessage = get_about_message();
   await be_in_folder(folder);
   select_click_row(3);
   click_link_if_available();
@@ -279,7 +286,12 @@ add_task(async function test_phishing_warning_for_local_domain() {
 add_task(async function test_phishing_warning_for_action_form() {
   await be_in_folder(folder);
   select_click_row(6);
-  assert_notification_displayed(aboutMessage, kBoxId, kNotificationValue, true); // shown
+  assert_notification_displayed(
+    get_about_message(),
+    kBoxId,
+    kNotificationValue,
+    true
+  ); // shown
 
   Assert.report(
     false,

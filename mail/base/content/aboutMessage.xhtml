@@ -32,6 +32,7 @@
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/draft.svg" />
 
   <link rel="stylesheet" href="chrome://calendar/skin/calendar.css" />
+  <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-invitation-display.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageWindow.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/popupPanel.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageHeader.css" />
@@ -46,6 +47,7 @@
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="toolkit/main-window/findbar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="calendar/calendar-invitation-panel.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
   <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
@@ -68,6 +70,8 @@
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
   <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-invitation-display.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-invitation-panel.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
@@ -105,6 +109,17 @@
              information like: junk, mdn, remote content and phishing warnings -->
         <vbox id="mail-notification-top">
           <!-- notificationbox will be added here lazily. -->
+        </vbox>
+
+#include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
+#include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
+
+        <vbox id="calendarInvitationDisplayContainer"
+              flex="1"
+              hidden="true">
+          <html:div id="calendarInvitationDisplay">
+           <!-- The calendar invitation panel is displayed here. -->
+          </html:div>
         </vbox>
 
         <!-- message view -->

@@ -467,7 +467,7 @@ add_task(async function testRegister() {
   // Open the message in a new window.
   loadPromise = extension.awaitMessage("ScriptLoaded");
   let newWindow = await openMessageInWindow(messages[7]);
-  let newWindowMessagePane = newWindow.document.getElementById("messagepane");
+  let newWindowMessagePane = newWindow.getBrowser();
   let windowTabId = await loadPromise;
 
   await checkMessageBody(

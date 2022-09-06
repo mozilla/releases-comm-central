@@ -3667,14 +3667,9 @@ function OnMsgLoaded(aUrl) {
     return;
   }
 
-  var msgHdr = gMessageDisplay.displayedMessage;
-  window.dispatchEvent(new CustomEvent("MsgLoaded", { detail: msgHdr }));
-  // TODO: Use only one event, for WebExtension scripts.
-  window.browsingContext.topChromeWindow.dispatchEvent(
-    new CustomEvent("MsgLoaded2", {
-      detail: getMessagePaneBrowser(),
-      bubbles: true,
-    })
+  let msgHdr = gMessageDisplay.displayedMessage;
+  window.dispatchEvent(
+    new CustomEvent("MsgLoaded", { detail: msgHdr, bubbles: true })
   );
 
   if (gMessageDisplay.isDummy) {
@@ -3691,7 +3686,7 @@ function OnMsgLoaded(aUrl) {
 
   goUpdateCommand("button_delete");
 
-  var markReadAutoMode = Services.prefs.getBoolPref(
+  let markReadAutoMode = Services.prefs.getBoolPref(
     "mailnews.mark_message_read.auto"
   );
 

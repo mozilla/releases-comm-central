@@ -13,6 +13,11 @@ var { MailServices } = ChromeUtils.import(
 );
 ChromeUtils.defineModuleGetter(
   this,
+  "FeedUtils",
+  "resource:///modules/FeedUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -55,7 +60,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
     // This function reads from currentHeaderData, which is only useful if we're
     // looking at the currently-displayed message. Otherwise, just return
     // immediately so we don't waste time.
-    if (hdr != gMessageDisplay?.displayedMessage) {
+    if (hdr != window.gMessageDisplay?.displayedMessage) {
       return "";
     }
 
@@ -93,7 +98,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
   let msgKey;
   if (messageArray && messageArray.length == 1) {
     msgKey = GetMsgKeyFromURI(messageArray[0]);
-    if (msgKey != gMessageDisplay?.keyForCharsetOverride) {
+    if (msgKey != window.gMessageDisplay?.keyForCharsetOverride) {
       msgWindow.charsetOverride = false;
     }
     if (
@@ -105,7 +110,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
       type == Ci.nsIMsgCompType.ReplyToList
     ) {
       let displayKey =
-        gMessageDisplay?.displayedMessage &&
+        window.gMessageDisplay?.displayedMessage &&
         "messageKey" in gMessageDisplay.displayedMessage
           ? gMessageDisplay.displayedMessage.messageKey
           : null;

@@ -31,6 +31,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_message,
   mc,
   open_message_from_file,
   press_delete,
@@ -63,13 +64,17 @@ async function subtest_replyEditAsNewForward_charset(
   // since replying/editing as new/forwarding directly to the message
   // opened from a file gives different results on different platforms.
   // All platforms behave the same when using a folder-stored message.
-  let documentChild = msgc.e("messagepane").contentDocument.documentElement;
+  let documentChild = msgc.window.content.document.documentElement;
   msgc.rightClick(documentChild);
-  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    { id: "mailContext-copyMenu" },
-    { label: "Local Folders" },
-    { label: "FolderWithMessages" },
-  ]);
+  let aboutMessage = get_about_message(msgc.window);
+  await msgc.click_menus_in_sequence(
+    aboutMessage.document.getElementById("mailContext"),
+    [
+      { id: "mailContext-copyMenu" },
+      { label: "Local Folders" },
+      { label: "FolderWithMessages" },
+    ]
+  );
   close_window(msgc);
 
   let msg = select_click_row(0);

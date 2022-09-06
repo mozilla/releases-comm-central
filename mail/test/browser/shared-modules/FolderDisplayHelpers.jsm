@@ -153,9 +153,6 @@ const EXPORTED_SYMBOLS = [
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
-var controller = ChromeUtils.import(
-  "resource://testing-common/mozmill/controller.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 // the windowHelper module
@@ -284,40 +281,52 @@ function setupModule() {
 }
 setupModule();
 
-function get_about_3pane() {
-  if (mc.tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
-    return mc.tabmail.currentAbout3Pane;
+function get_about_3pane(win = mc.window) {
+  let tabmail = win.document.getElementById("tabmail");
+  if (tabmail?.currentTabInfo.mode.name == "mail3PaneTab") {
+    return tabmail.currentAbout3Pane;
   }
   throw new Error("The current tab is not a mail3PaneTab.");
 }
 
-function get_about_message() {
+function get_about_message(win = mc.window) {
+  let doc = win.document;
+  let tabmail = doc.getElementById("tabmail");
   if (
+    tabmail &&
     ["mail3PaneTab", "mailMessageTab"].includes(
-      mc.tabmail.currentTabInfo.mode.name
+      tabmail.currentTabInfo.mode.name
     )
   ) {
-    return mc.tabmail.currentAboutMessage;
+    return tabmail.currentAboutMessage;
+  } else if (
+    doc.documentElement.getAttribute("windowtype") == "mail:messageWindow"
+  ) {
+    return doc.getElementById("messageBrowser").contentWindow;
   }
   throw new Error("The current tab is not a mail3PaneTab or mailMessageTab.");
 }
 
-function get_about_3pane_or_about_message() {
+function get_about_3pane_or_about_message(win = mc.window) {
+  let doc = win.document;
+  let tabmail = doc.getElementById("tabmail");
   if (
+    tabmail &&
     ["mail3PaneTab", "mailMessageTab"].includes(
-      mc.tabmail.currentTabInfo.mode.name
+      tabmail.currentTabInfo.mode.name
     )
   ) {
-    return mc.tabmail.currentTabInfo.chromeBrowser.contentWindow;
+    return tabmail.currentTabInfo.chromeBrowser.contentWindow;
+  } else if (
+    doc.documentElement.getAttribute("windowtype") == "mail:messageWindow"
+  ) {
+    return doc.getElementById("messageBrowser").contentWindow;
   }
   throw new Error("The current tab is not a mail3PaneTab or mailMessageTab.");
 }
 
-function get_db_view(controller) {
-  if (!controller || controller == mc) {
-    return get_about_3pane_or_about_message().gDBView;
-  }
-  return controller.dbView;
+function get_db_view(win = mc.window) {
+  return get_about_3pane_or_about_message(win).gDBView;
 }
 
 function smimeUtils_ensureNSS() {
@@ -521,7 +530,7 @@ async function enter_folder(aFolder) {
   await displayPromise;
 
   // Drain the event queue.
-  controller.sleep(0);
+  mc.sleep(0);
 }
 
 /**
@@ -736,7 +745,9 @@ async function open_message_from_file(file) {
     "all,chrome,dialog=no,status,toolbar",
     fileURL
   );
-  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
+  await BrowserTestUtils.waitForEvent(win, "load");
+  let aboutMessage = get_about_message(win);
+  await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
 
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
@@ -909,7 +920,7 @@ function select_none(aController) {
   }
   wait_for_message_display_completion();
   focus_thread_tree();
-  get_db_view(aController).selection.clearSelection();
+  get_db_view(aController.window).selection.clearSelection();
   get_about_3pane().threadTree.dispatchEvent(new CustomEvent("select"));
   // Because the selection event may not be generated immediately, we need to
   //  spin until the message display thinks it is not displaying a message,
@@ -1038,7 +1049,7 @@ function select_column_click_row(aViewIndex, aController) {
     aController = mc;
   }
 
-  let dbView = get_db_view(aController);
+  let dbView = get_db_view(aController.window);
 
   let hasMessageDisplay = "messageDisplay" in aController;
   if (hasMessageDisplay) {
@@ -1427,7 +1438,7 @@ function select_no_folders() {
   mc.folderTreeView.selection.clearSelection();
   mark_action("fdh", "select_no_folder", []);
   // give the event queue a chance to drain...
-  controller.sleep(0);
+  mc.sleep(0);
 }
 
 /**
@@ -1473,7 +1484,7 @@ function select_shift_click_folder(aFolder) {
     mc.folderTreeView.getSelectedFolders(),
   ]);
   // give the event queue a chance to drain...
-  controller.sleep(0);
+  mc.sleep(0);
 
   return mc.folderTreeView.getSelectedFolders();
 }
@@ -1652,7 +1663,7 @@ function archive_selected_messages(aController) {
     aController = mc;
   }
 
-  let dbView = get_db_view(aController);
+  let dbView = get_db_view(aController.window);
 
   // How many messages do we expect to remain after the archival?
   let expectedCount = dbView.rowCount - dbView.numSelected;
@@ -1742,15 +1753,7 @@ function wait_for_all_messages_to_load(aController = mc) {
  *     the message display is going to be caused by a tab switch, a reference to
  *     the tab to switch to should be passed in.
  */
-function plan_for_message_display(aControllerOrTab) {
-  if (aControllerOrTab == null) {
-    aControllerOrTab = mc;
-  }
-  mark_action("fdhb", "plan_for_message_display", []);
-  // We're relying on duck typing here -- both controllers and tabs expose their
-  // message displays as the property |messageDisplay|.
-  aControllerOrTab.messageDisplay.messageLoaded = false;
-}
+function plan_for_message_display(aControllerOrTab) {}
 
 /**
  * If a message or summary is in the process of loading, let it finish;
@@ -1793,7 +1796,8 @@ function wait_for_message_display_completion(aController, aLoadDemanded) {
   if (aController == null || aController == mc) {
     win = get_about_message();
   } else {
-    win = aController.window;
+    win = aController.window.document.getElementById("messageBrowser")
+      .contentWindow;
   }
 
   if (mc.tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
@@ -1991,7 +1995,7 @@ function assert_messages_in_view(aSynSets, aController) {
 
   // - Iterate over the contents of the view, nulling out values in
   //  synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = get_db_view(aController);
+  let dbView = get_db_view(aController.window);
   let treeView = dbView.QueryInterface(Ci.nsITreeView);
   let rowCount = treeView.rowCount;
 
@@ -2139,7 +2143,7 @@ function _process_row_message_arguments(...aArgs) {
     } else if (arg instanceof Ci.nsIMsgDBHdr) {
       // A message header
       // do not expand; the thing should already be selected, eg expanded!
-      let viewIndex = get_db_view(troller).findIndexOfMsgHdr(arg, false);
+      let viewIndex = get_db_view(troller.window).findIndexOfMsgHdr(arg, false);
       if (viewIndex == nsMsgViewIndex_None) {
         throw_and_dump_view_state(
           "Message not present in view that should be there. " +
@@ -2166,7 +2170,10 @@ function _process_row_message_arguments(...aArgs) {
           throw new Error(arg[iMsg] + " is not a message header!");
         }
         // false means do not expand, it should already be selected
-        let viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
+        let viewIndex = get_db_view(troller.window).findIndexOfMsgHdr(
+          msgHdr,
+          false
+        );
         if (viewIndex == nsMsgViewIndex_None) {
           throw_and_dump_view_state(
             "Message not present in view that should be there. " +
@@ -2182,7 +2189,10 @@ function _process_row_message_arguments(...aArgs) {
     } else if (arg.synMessages) {
       // SyntheticMessageSet
       for (let msgHdr of arg.msgHdrs()) {
-        let viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
+        let viewIndex = get_db_view(troller.window).findIndexOfMsgHdr(
+          msgHdr,
+          false
+        );
         if (viewIndex == nsMsgViewIndex_None) {
           throw_and_dump_view_state(
             "Message not present in view that should be there. " +
@@ -2229,12 +2239,7 @@ function assert_selected(...aArgs) {
   let [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
 
   // - get the actual selection (already sorted by integer value)
-  let selectedIndices;
-  if (troller == mc) {
-    selectedIndices = get_about_3pane_or_about_message().gDBView.getIndicesForSelection();
-  } else {
-    selectedIndices = troller.folderDisplay.selectedIndices;
-  }
+  let selectedIndices = get_about_3pane_or_about_message().gDBView.getIndicesForSelection();
 
   // - test selection equivalence
   // which is the same as string equivalence in this case. muah hah hah.
@@ -2472,7 +2477,7 @@ function assert_messages_summarized(aController, aSelectedMessages) {
   // Although WindowHelpers sets the stabilization interval to 0, we
   //  still need to make sure we have drained the event queue so that it has
   //  actually gotten a chance to run.
-  controller.sleep(0);
+  aController.sleep(0);
 
   // - Verify summary object knows about right messages
   if (aSelectedMessages == null) {
@@ -2565,7 +2570,7 @@ function assert_not_shown(aMessages) {
 function _assert_elided_helper(aShouldBeElided, ...aArgs) {
   let [troller, viewIndices] = _process_row_message_arguments(...aArgs);
 
-  let dbView = get_db_view(troller);
+  let dbView = get_db_view(troller.window);
   for (let viewIndex of viewIndices) {
     let flags = dbView.getFlagsAt(viewIndex);
     if (Boolean(flags & Ci.nsMsgMessageFlags.Elided) != aShouldBeElided) {

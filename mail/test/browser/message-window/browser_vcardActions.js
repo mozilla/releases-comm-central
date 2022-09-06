@@ -32,22 +32,11 @@ async function openMessageFromFile(file) {
     fileURL
   );
   let win = await winPromise;
-
-  let browser = win.document.getElementById("messagepane");
-  if (
-    browser.webProgress?.isLoadingDocument ||
-    browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(browser);
+  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
+  if (win.content.document.readyState != "complete") {
+    await BrowserTestUtils.waitForEvent(win.content, "load", true);
   }
-
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
-  await TestUtils.waitForCondition(
-    () => Services.focus.focusedWindow == browser.contentWindow
-  );
-  // Even after waiting for all these things the message may not be ready for
-  // clicking on. I wish I knew why.
-  await new Promise(resolve => win.setTimeout(resolve, 1000));
   return win;
 }
 
@@ -65,13 +54,10 @@ add_task(async function test_check_vcard_icon() {
 
   let file = new FileUtils.File(getTestFilePath("data/test-vcard-icon.eml"));
   let messageWindow = await openMessageFromFile(file);
-  messageWindow.moveBy(10, 0);
 
   // Click icon on the vcard block.
-  let messagePane = messageWindow.document.getElementById("messagepane");
-  let vcard = messagePane.contentDocument.querySelector(".moz-vcard-badge");
-  EventUtils.synthesizeMouseAtCenter(vcard, {}, messagePane.contentWindow);
-
+  let vcard = messageWindow.content.document.querySelector(".moz-vcard-badge");
+  EventUtils.synthesizeMouseAtCenter(vcard, {}, vcard.ownerGlobal);
   await tabPromise;
   await TestUtils.waitForCondition(
     () => Services.focus.activeWindow == window,

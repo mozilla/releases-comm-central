@@ -8,7 +8,7 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.import(
+var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
@@ -20,8 +20,10 @@ add_task(async function test_base64_display() {
     getTestFilePath("data/base64-with-whitespace.eml")
   );
   let msgc = await open_message_from_file(file);
-  let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
-    .textContent;
+  let aboutMessage = get_about_message(msgc.window);
+  let bodyText = aboutMessage.document
+    .getElementById("messagepane")
+    .contentDocument.querySelector("body").textContent;
   close_window(msgc);
 
   Assert.ok(
@@ -33,8 +35,10 @@ add_task(async function test_base64_display() {
 add_task(async function test_base64_display2() {
   let file = new FileUtils.File(getTestFilePath("data/base64-bug1586890.eml"));
   let msgc = await open_message_from_file(file);
-  let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
-    .textContent;
+  let aboutMessage = get_about_message(msgc.window);
+  let bodyText = aboutMessage.document
+    .getElementById("messagepane")
+    .contentDocument.querySelector("body").textContent;
   close_window(msgc);
 
   Assert.ok(

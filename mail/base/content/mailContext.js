@@ -56,8 +56,10 @@ function openContextMenu({ data, target }) {
   }
 
   mailContextMenu.fillMessageContextMenu(data, target.browsingContext);
+  let screenX = data.context.screenXDevPx / window.devicePixelRatio;
+  let screenY = data.context.screenYDevPx / window.devicePixelRatio;
   let popup = document.getElementById("mailContext");
-  popup.openPopupAtScreen(data.context.screenX, data.context.screenY, true);
+  popup.openPopupAtScreen(screenX, screenY, true);
 }
 
 var mailContextMenu = {
@@ -244,10 +246,16 @@ var mailContextMenu = {
       enableItem(id, commandController.isCommandEnabled(command));
     }
 
-    let message = gDBView.hdrForFirstSelectedMessage;
+    let isDummyMessage = !gFolder;
+    let message = isDummyMessage
+      ? window.messageHeaderSink.dummyMsgHeader
+      : gDBView.hdrForFirstSelectedMessage;
     let folder = gViewWrapper.displayedFolder;
-    let numSelectedMessages = gDBView.numSelected;
-    let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+    let numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
+    let isNewsgroup = gFolder?.isSpecialFolder(
+      Ci.nsMsgFolderFlags.Newsgroup,
+      true
+    );
     let canMove =
       numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
     let canCopy = numSelectedMessages >= 1;
@@ -260,7 +268,12 @@ var mailContextMenu = {
     );
     // setSingleSelection("mailContext-openContainingFolder");
     setSingleSelection("mailContext-forwardAsMenu");
-    this._initMessageTags();
+    if (isDummyMessage) {
+      enableItem("mailContext-tags", false);
+    } else {
+      enableItem("mailContext-tags", true);
+      this._initMessageTags();
+    }
     checkItem("mailContext-markFlagged", message?.isFlagged);
 
     setSingleSelection("mailContext-copyMessageUrl", isNewsgroup);
@@ -283,7 +296,7 @@ var mailContextMenu = {
 
     checkItem(
       "mailContext-ignoreThread",
-      folder?.msgDatabase.IsIgnored(message.messageKey)
+      folder?.msgDatabase.IsIgnored(message?.messageKey)
     );
     checkItem(
       "mailContext-ignoreSubthread",
@@ -291,7 +304,7 @@ var mailContextMenu = {
     );
     checkItem(
       "mailContext-watchThread",
-      folder?.msgDatabase.IsWatched(message.messageKey)
+      folder?.msgDatabase.IsWatched(message?.messageKey)
     );
 
     // showItem("mailContext-downloadSelected", numSelectedMessages > 1);
@@ -672,10 +685,26 @@ var mailContextMenu = {
    * @param destFolder  the destination folder
    */
   copyMessage(destFolder) {
-    gViewWrapper.dbView.doCommandWithFolder(
-      Ci.nsMsgViewCommandType.copyMessages,
-      destFolder
-    );
+    if (window.messageHeaderSink?.dummyMsgHeader) {
+      let file = Services.io
+        .newURI(window.gMessageURI)
+        .QueryInterface(Ci.nsIFileURL).file;
+      MailServices.copy.copyFileMessage(
+        file,
+        destFolder,
+        null,
+        false,
+        Ci.nsMsgMessageFlags.Read,
+        "",
+        null,
+        window.msgWindow
+      );
+    } else {
+      gViewWrapper.dbView.doCommandWithFolder(
+        Ci.nsMsgViewCommandType.copyMessages,
+        destFolder
+      );
+    }
     Services.prefs.setCharPref(
       "mail.last_msg_movecopy_target_uri",
       destFolder.URI
@@ -719,7 +748,7 @@ var commandController = {
   },
   _callbackCommands: {
     cmd_reply(event) {
-      if (gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup) {
+      if (gFolder?.flags & Ci.nsMsgFolderFlags.Newsgroup) {
         commandController.doCommand("cmd_replyGroup", event);
       } else {
         commandController.doCommand("cmd_replySender", event);
@@ -862,12 +891,17 @@ var commandController = {
       return false;
     }
 
+    let isDummyMessage = !gFolder;
+
     if (command in this._navigationCommands) {
-      return true;
+      return !isDummyMessage;
     }
 
-    let numSelectedMessages = gDBView.numSelected;
-    let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+    let numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
+    let isNewsgroup = gFolder?.isSpecialFolder(
+      Ci.nsMsgFolderFlags.Newsgroup,
+      true
+    );
     let canMove =
       numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
 
@@ -883,6 +917,7 @@ var commandController = {
         return numSelectedMessages == 1;
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
+        return numSelectedMessages >= 1;
       case "cmd_openMessage":
       case "cmd_tag":
       case "cmd_addTag":
@@ -894,36 +929,38 @@ var commandController = {
       case "cmd_markAsFlagged":
       case "cmd_killThread":
       case "cmd_killSubthread":
-        return numSelectedMessages >= 1;
+        return numSelectedMessages >= 1 && !isDummyMessage;
       case "cmd_editDraftMsg":
         return (
           numSelectedMessages == 1 &&
-          gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)
+          gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)
         );
       case "cmd_newMsgFromTemplate":
       case "cmd_editTemplateMsg":
         return (
           numSelectedMessages == 1 &&
-          gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
+          gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
         );
       case "cmd_replyGroup":
         return isNewsgroup;
       case "cmd_markAsRead":
         return (
           numSelectedMessages >= 1 &&
+          !isDummyMessage &&
           gViewWrapper.dbView.getSelectedMsgHdrs().some(msg => !msg.isRead)
         );
       case "cmd_markAsUnread":
         return (
           numSelectedMessages >= 1 &&
+          !isDummyMessage &&
           gViewWrapper.dbView.getSelectedMsgHdrs().some(msg => msg.isRead)
         );
       case "cmd_markThreadAsRead": {
-        if (numSelectedMessages != 1) {
+        if (numSelectedMessages != 1 || isDummyMessage) {
           return false;
         }
         let selectedIndex = {};
-        gViewWrapper.dbView.selection.getRangeAt(0, selectedIndex, {});
+        gViewWrapper.dbView.selection?.getRangeAt(0, selectedIndex, {});
         return (
           gViewWrapper.dbView.getThreadContainingIndex(selectedIndex.value)
             .numUnreadChildren > 0
@@ -1050,7 +1087,9 @@ var commandController = {
     // If we're the hidden window, then we're not going to have a gFolderDisplay
     // to work out existing folders, so just use null.
     let msgFolder = gFolder;
-    let msgUris = gDBView?.getURIsForSelection();
+    let msgUris = window.messageHeaderSink?.dummyMsgHeader
+      ? [window.gMessageURI]
+      : gDBView?.getURIsForSelection();
 
     if (event && event.shiftKey) {
       window.browsingContext.topChromeWindow.ComposeMessage(

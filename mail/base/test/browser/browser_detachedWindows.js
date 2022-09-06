@@ -86,14 +86,7 @@ async function openMessageFromFile(file) {
     fileURL
   );
   let win = await winPromise;
-
-  let browser = win.document.getElementById("messagepane");
-  if (
-    browser.webProgress?.isLoadingDocument ||
-    browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
-
+  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
   return win;
 }

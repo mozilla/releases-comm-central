@@ -33,6 +33,9 @@ registerCleanupFunction(() => {
   }
 
   Services.focus.focusedWindow = window;
+  let mailButton = document.getElementById("mailButton");
+  mailButton.focus();
+  mailButton.blur();
 });
 
 /**

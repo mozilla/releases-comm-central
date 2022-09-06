@@ -317,9 +317,7 @@ async function openMessageInTab(msgHdr) {
 
   let win = Services.wm.getMostRecentWindow("mail:3pane");
   let tab = win.document.getElementById("tabmail").currentTabInfo;
-
-  let browser = await TestUtils.waitForCondition(() => tab.browser);
-  await promiseMessageLoaded(browser, msgHdr);
+  await BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded");
   return tab;
 }
 
@@ -337,13 +335,7 @@ async function openMessageInWindow(msgHdr) {
   MailUtils.openMessageInNewWindow(msgHdr);
 
   let messageWindow = await messageWindowPromise;
-  let browser = messageWindow.document.getElementById("messagepane");
-
-  await promiseMessageLoaded(browser, msgHdr);
-  await TestUtils.waitForCondition(
-    () => Services.focus.activeWindow == messageWindow,
-    "waiting for message window to become active"
-  );
+  await BrowserTestUtils.waitForEvent(messageWindow, "MsgLoaded");
   return messageWindow;
 }
 

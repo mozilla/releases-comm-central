@@ -26,7 +26,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   DownloadPaths: "resource://gre/modules/DownloadPaths.jsm",
   JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
-  PhishingDetector: "resource:///modules/PhishingDetector.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(
@@ -97,7 +96,16 @@ function reportMsgRead() {
 }
 
 function ReloadMessage() {
-  displayMessage(gMessageURI, gViewWrapper);
+  if (!gMessageURI) {
+    return;
+  }
+  // If the current message was loaded from a file or attachment, the dbView
+  // can't handle reloading it. Let's do it ourselves, instead.
+  if (gMessageDisplay.isDummy) {
+    displayExternalMessage(gMessageURI);
+  } else {
+    displayMessage(gMessageURI, gViewWrapper);
+  }
 }
 
 var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
@@ -136,6 +144,7 @@ window.addEventListener("unload", () => {
   OnUnloadMsgHeaderPane();
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
+  msgWindow.msgHeaderSink = null;
   msgWindow.closeWindow();
   msgWindow = null;
   gViewWrapper?.close();
@@ -151,11 +160,27 @@ window.addEventListener("keypress", event => {
   }
 });
 
+function displayExternalMessage(uri) {
+  // This should just happen as part of displayMessage.
+  gFolder = null;
+  gMessageURI = uri;
+  gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+  gViewWrapper.openSearchView();
+  gDBView = gViewWrapper.dbView;
+
+  messenger.setWindow(window, msgWindow);
+  messenger.loadURL(null, uri);
+
+  gMessage = messageHeaderSink.dummyMsgHeader;
+}
+
 function displayMessage(uri, viewWrapper) {
   ClearPendingReadTimer();
   gMessageURI = uri;
   if (!uri) {
     gMessage = null;
+    gViewWrapper = null;
+    gDBView = null;
     HideMessageHeaderPane();
     // Don't use MailE10SUtils.loadURI here, it will try to change remoteness
     // and we don't want that.
@@ -263,7 +288,9 @@ var folderListener = {
       if (tabmail) {
         let tab = tabmail.getTabForBrowser(content);
         tabmail.closeTab(tab);
-      } // else close window
+      } else {
+        topWindow.close();
+      }
     }
   },
 };

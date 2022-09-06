@@ -16,7 +16,7 @@ class ConversationOpener {
     ) {
       return false;
     }
-    if (!message) {
+    if (!message || !message.folder) {
       return false;
     }
     return Gloda.isMessageIndexed(message);
