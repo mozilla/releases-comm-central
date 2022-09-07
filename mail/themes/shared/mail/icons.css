@@ -125,6 +125,9 @@
   --icon-user-list: url("chrome://messenger/skin/icons/new/compact/user-list.svg");
   --icon-warning: url("chrome://messenger/skin/icons/new/compact/warning.svg");
 
+  --icon-import-lg : url("chrome://messenger/skin/icons/new/touch/import.svg");
+  --icon-export-lg : url("chrome://messenger/skin/icons/new/touch/export.svg");
+
   --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
   --icon-circle-small: url("chrome://messenger/skin/icons/new/circle-sm.svg");
   --icon-loading: url("chrome://messenger/skin/icons/new/loading.svg");
