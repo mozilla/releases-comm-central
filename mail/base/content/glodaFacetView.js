@@ -23,6 +23,9 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaConstants } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaConstants.jsm"
 );
+var { GlodaSyntheticView } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaSyntheticView.jsm"
+);
 var { FacetDriver, FacetUtils } = ChromeUtils.import(
   "resource:///modules/gloda/Facet.jsm"
 );
@@ -994,21 +997,24 @@ var FacetContext = {
   },
 
   /**
-   * Show the active message set in a glodaList tab.
+   * Show the active message set in a 3-pane tab.
    */
   showActiveSetInTab() {
     let tabmail = this.rootWin.document.getElementById("tabmail");
-    tabmail.openTab("glodaList", {
-      collection: Gloda.explicitCollection(
-        GlodaConstants.NOUN_MESSAGE,
-        this.activeSet
-      ),
+    tabmail.openTab("mail3PaneTab", {
+      folderPaneVisible: false,
+      syntheticView: new GlodaSyntheticView({
+        collection: Gloda.explicitCollection(
+          GlodaConstants.NOUN_MESSAGE,
+          this.activeSet
+        ),
+      }),
       title: this.tab.title,
     });
   },
 
   /**
-   * Show the conversation in a new glodaList tab.
+   * Show the conversation in a new 3-pane tab.
    *
    * @param {glodaFacetBindings.xml#result-message} aResultMessage The
    *     result the user wants to see in more details.
@@ -1029,28 +1035,13 @@ var FacetContext = {
       });
       return;
     }
-    tabmail.openTab("glodaList", {
-      conversation: message.conversation,
-      message,
+    tabmail.openTab("mail3PaneTab", {
+      folderPaneVisible: false,
+      syntheticView: new GlodaSyntheticView({
+        conversation: message.conversation,
+        message,
+      }),
       title: message.conversation.subject,
-      background: aBackground,
-    });
-  },
-
-  /**
-   * Show the message in a new tab.
-   *
-   * @param {GlodaMessage} aMessage The message to show.
-   * @param {Boolean} [aBackground] Whether it should be in the background.
-   */
-  showMessageInTab(aMessage, aBackground) {
-    let tabmail = this.rootWin.document.getElementById("tabmail");
-    let msgHdr = aMessage.folderMessage;
-    if (!msgHdr) {
-      throw new Error("Unable to translate gloda message to message header.");
-    }
-    tabmail.openTab("message", {
-      msgHdr,
       background: aBackground,
     });
   },

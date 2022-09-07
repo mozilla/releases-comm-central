@@ -22,7 +22,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
-  GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
 });
 
@@ -343,6 +342,7 @@ function restoreState({
   folderPaneVisible,
   messagePaneVisible,
   folderURI,
+  syntheticView,
   first = false,
 } = {}) {
   if (folderPaneVisible === undefined) {
@@ -362,6 +362,15 @@ function restoreState({
 
   if (folderURI) {
     displayFolder(folderURI);
+  } else if (syntheticView) {
+    // TODO: Move this.
+    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+    gViewWrapper._viewFlags = 1;
+    gViewWrapper.openSynthetic(syntheticView);
+    gDBView = gViewWrapper.dbView;
+
+    document.body.classList.remove("account-central");
+    accountCentralBrowser.hidden = true;
   }
 
   if (first && Services.prefs.getBoolPref("mailnews.start_page.enabled")) {
