@@ -39,6 +39,57 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-createView', this)"/>
         <toolbarseparator id="appmenu_createPopupMenuSeparator"/>
+        <toolbarbutton id="appmenu_open"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       data-l10n-id="appmenu-open-panel"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-openView', this)"/>
+        <toolbarseparator/>
+        <toolbarbutton id="appmenu_View"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       data-l10n-id="appmenu-view-panel"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-viewView', this)"/>
+        <toolbaritem id="appMenu-uiDensity-controls"
+                     class="subviewbutton subviewbutton-iconic toolbaritem-combined-buttons"
+                     closemenu="none">
+          <image class="toolbarbutton-icon"/>
+          <label class="toolbarbutton-text" data-l10n-id="appmenu-mail-uidensity-value"/>
+          <toolbarbutton id="appmenu_uiDensityCompact"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-compact"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+          <toolbarbutton id="appmenu_uiDensityNormal"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-normal"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+          <toolbarbutton id="appmenu_uiDensityTouch"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-touch"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+        </toolbaritem>
+        <toolbaritem id="appMenu-fontSize-controls"
+                     class="subviewbutton subviewbutton-iconic toolbaritem-combined-buttons"
+                     closemenu="none">
+          <image class="toolbarbutton-icon"/>
+          <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
+          <toolbarbutton id="appMenu-fontSizeReduce-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeReduce"
+                         data-l10n-id="appmenuitem-font-size-reduce"/>
+          <toolbarbutton id="appMenu-fontSizeReset-button"
+                         class="subviewbutton"
+                         command="cmd_fontSizeReset"
+                         tooltip="fontSizeReset"/>
+          <toolbarbutton id="appMenu-fontSizeEnlarge-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeEnlarge"
+                         data-l10n-id="appmenuitem-font-size-enlarge"/>
+        </toolbaritem>
+        <toolbarseparator/>
         <toolbarbutton id="appmenu_addons"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-addons-and-themes"
@@ -59,49 +110,6 @@
                        label="&fileMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-fileView', this)"/>
-        <toolbarseparator/>
-        <toolbarbutton id="appmenu_View"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&viewMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewView', this)"/>
-        <toolbaritem id="appMenu-uiDensity-controls"
-                     class="subviewbutton toolbaritem-combined-buttons"
-                     closemenu="none">
-          <label class="toolbarbutton-text" data-l10n-id="appmenu-mail-uidensity-value"/>
-          <toolbarbutton id="appmenu_uiDensityCompact"
-                         class="subviewbutton subviewbutton"
-                         data-l10n-id="mail-uidensity-compact"
-                         type="radio"
-                         oncommand="PanelUI.setUIDensity(event);"/>
-          <toolbarbutton id="appmenu_uiDensityNormal"
-                         class="subviewbutton subviewbutton"
-                         data-l10n-id="mail-uidensity-normal"
-                         type="radio"
-                         oncommand="PanelUI.setUIDensity(event);"/>
-          <toolbarbutton id="appmenu_uiDensityTouch"
-                         class="subviewbutton subviewbutton"
-                         data-l10n-id="mail-uidensity-touch"
-                         type="radio"
-                         oncommand="PanelUI.setUIDensity(event);"/>
-        </toolbaritem>
-        <toolbaritem id="appMenu-fontSize-controls"
-                     class="subviewbutton toolbaritem-combined-buttons"
-                     closemenu="none">
-          <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
-          <toolbarbutton id="appMenu-fontSizeReduce-button"
-                         class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeReduce"
-                         data-l10n-id="appmenuitem-font-size-reduce"/>
-          <toolbarbutton id="appMenu-fontSizeReset-button"
-                         class="subviewbutton"
-                         command="cmd_fontSizeReset"
-                         tooltip="fontSizeReset"/>
-          <toolbarbutton id="appMenu-fontSizeEnlarge-button"
-                         class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeEnlarge"
-                         data-l10n-id="appmenuitem-font-size-enlarge"/>
-        </toolbaritem>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_Go"
                        class="subviewbutton subviewbutton-nav"
@@ -222,6 +230,23 @@
       </vbox>
     </panelview>
 
+    <!-- Open -->
+    <panelview id="appMenu-openView"
+               data-l10n-id="appmenu-open-panel-title"
+               class="PanelUI-subView">
+      <vbox id="appMenu-openViewItems"
+            class="panel-subview-body">
+        <toolbarbutton id="appmenu_OpenMessageFileMenuitem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-open-message"
+                       oncommand="MsgOpenFromFile();"/>
+        <toolbarbutton id="appmenu_OpenCalendarFileMenuitem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-open-calendar"
+                       oncommand="openLocalCalendar();"/>
+      </vbox>
+    </panelview>
+
     <!-- View / Toolbars -->
     <panelview id="appMenu-toolbarsView"
                title="&viewToolbarsMenu.label;"
@@ -306,13 +331,6 @@
                class="PanelUI-subView">
       <vbox id="appMenu-fileViewItems"
             class="panel-subview-body">
-        <toolbarbutton id="appmenu_Open"
-                       class="subviewbutton subviewbutton-nav"
-                       mode="calendar"
-                       label="&openMenuCmd.label;"
-                       closemenu="none"
-                       accesskey="&openMenuCmd.accesskey;"
-                       oncommand="PanelUI.showSubView('appMenu-fileOpenView', this)"/>
         <toolbarbutton id="appmenu_close"
                        class="subviewbutton subviewbutton-iconic"
                        label="&closeCmd.label;"
@@ -359,23 +377,6 @@
                        label="&offlineMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-fileOfflineView', this)"/>
-      </vbox>
-    </panelview>
-
-    <!-- File / Open -->
-    <panelview id="appMenu-fileOpenView"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_OpenMessageFileMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&openMessageFileCmd.label;"
-                       accesskey="&openMessageFileCmd.accesskey;"
-                       oncommand="MsgOpenFromFile();"/>
-        <toolbarbutton id="appmenu_OpenCalendarFileMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&lightning.menupopup.open.calendar.label;"
-                       accesskey="&lightning.menupopup.open.calendar.accesskey;"
-                       oncommand="openLocalCalendar();"/>
       </vbox>
     </panelview>
 
@@ -435,8 +436,8 @@
 
     <!-- View -->
     <panelview id="appMenu-viewView"
-               title="&viewMenu.label;"
-               class="PanelUI-subView">
+               class="PanelUI-subView"
+               data-l10n-id="appmenu-view-panel-title">
       <vbox id="appMenu-viewViewItems"
             class="panel-subview-body">
         <toolbarbutton id="appmenu_Toolbars"

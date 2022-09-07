@@ -422,13 +422,13 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   outline-offset: var(--focus-outline-offset);
 }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:nth-child(2) {
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:first-of-type {
   border-inline-end: none;
   border-start-start-radius: var(--arrowpanel-menuitem-border-radius);
   border-end-start-radius: var(--arrowpanel-menuitem-border-radius);
 }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:last-child {
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:last-of-type {
   border-inline-start: none;
   border-start-end-radius: var(--arrowpanel-menuitem-border-radius);
   border-end-end-radius: var(--arrowpanel-menuitem-border-radius);
@@ -855,6 +855,30 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appmenu_calendar-new-task-menu-item {
   list-style-image: var(--icon-new-task);
+}
+
+#appmenu_open {
+  list-style-image: var(--icon-draft);
+}
+
+#appmenu_OpenMessageFileMenuitem {
+  list-style-image: var(--icon-mail);
+}
+
+#appmenu_OpenCalendarFileMenuitem {
+  list-style-image: var(--icon-calendar);
+}
+
+#appmenu_View {
+  list-style-image: var(--icon-eye);
+}
+
+#appMenu-uiDensity-controls {
+  list-style-image: var(--icon-spaces-menu);
+}
+
+#appMenu-fontSize-controls {
+  list-style-image: var(--icon-font);
 }
 
 #appmenu_newCard {

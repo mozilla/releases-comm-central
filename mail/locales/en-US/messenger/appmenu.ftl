@@ -81,7 +81,31 @@ appmenu-create-contact =
   .label = Contact
   .accesskey = C
 
+## Open
+
+appmenu-open-panel =
+  .label = Open
+  .accesskey = O
+
+appmenu-open-panel-title =
+  .title = Open
+
+appmenu-open-message =
+  .label = Message…
+  .accesskey = M
+
+appmenu-open-calendar =
+  .label = Calendar…
+  .accesskey = C
+
 ## View / Layout
+
+appmenu-view-panel-title =
+  .title = View
+
+appmenu-view-panel =
+  .label = View
+  .accesskey = V
 
 appmenu-font-size-value = Font Size
 
