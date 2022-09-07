@@ -267,6 +267,28 @@ class ImapService {
     });
   }
 
+  downloadMessagesForOffline(messageIds, folder, urlListener, msgWindow) {
+    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
+      .imapIncomingServer;
+    let imapUrl = Services.io
+      .newURI(
+        `imap://${server.hostName}:${server.port}/fetch>UID>/${folder.name}>${messageIds}`
+      )
+      .QueryInterface(Ci.nsIImapUrl);
+    imapUrl.storeResultsOffline = true;
+    if (urlListener) {
+      imapUrl
+        .QueryInterface(Ci.nsIMsgMailNewsUrl)
+        .RegisterListener(urlListener);
+    }
+    this._withClient(folder, client => {
+      client.startRunningUrl(urlListener, msgWindow, imapUrl);
+      client.onReady = () => {
+        client.fetchMessage(folder, messageIds);
+      };
+    });
+  }
+
   /**
    * Do some actions with a connection.
    * @param {nsIMsgFolder} folder - The associated folder.
