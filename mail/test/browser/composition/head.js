@@ -31,6 +31,8 @@ registerCleanupFunction(() => {
       MailServices.ab.deleteAddressBook(book.URI);
     }
   }
+
+  Services.focus.focusedWindow = window;
 });
 
 /**

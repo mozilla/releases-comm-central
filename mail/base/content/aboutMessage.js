@@ -136,6 +136,9 @@ window.addEventListener("unload", () => {
   OnUnloadMsgHeaderPane();
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
+  msgWindow.closeWindow();
+  msgWindow = null;
+  gViewWrapper?.close();
 });
 
 window.addEventListener("keypress", event => {

@@ -176,6 +176,9 @@ window.addEventListener("DOMContentLoaded", event => {
       `link[rel="icon"]`
     ).href = FolderUtils.getFolderIcon(gFolder);
 
+    // Clean up any existing view wrapper.
+    gViewWrapper?.close();
+
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
       gViewWrapper = gDBView = threadTree.view = null;
@@ -198,7 +201,7 @@ window.addEventListener("DOMContentLoaded", event => {
       accountCentralBrowser.hidden = true;
 
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-      gViewWrapper._viewFlags = 1;
+      gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
       gViewWrapper.open(gFolder);
       gDBView = gViewWrapper.dbView;
 
@@ -314,6 +317,7 @@ window.addEventListener("DOMContentLoaded", event => {
 
 window.addEventListener("unload", () => {
   MailServices.mailSession.RemoveFolderListener(folderListener);
+  gViewWrapper?.close();
 });
 
 window.addEventListener("keypress", event => {
