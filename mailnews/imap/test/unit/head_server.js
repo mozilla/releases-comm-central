@@ -161,7 +161,10 @@ function do_check_transaction(fromServer, expected, withParams) {
     }
   }
 
-  Assert.equal(realTransaction.join(", "), expected.join(", "));
+  Assert.equal(
+    realTransaction.join(", ").toUpperCase(),
+    expected.join(", ").toUpperCase()
+  );
 }
 
 /**

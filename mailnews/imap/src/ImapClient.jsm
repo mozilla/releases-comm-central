@@ -140,7 +140,37 @@ class ImapClient {
    */
   discoverAllFolders(folder) {
     this._logger.debug("discoverAllFolders", folder.URI);
-    this._actionListOrLsub();
+    let handleListResponse = res => {
+      this._hasTrash = res.mailboxes.some(
+        mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
+      );
+      if (!this._hasTrash) {
+        let trashFolderName = this._server.trashFolderName.toLowerCase();
+        let trashMailbox = res.mailboxes.find(
+          mailbox => mailbox.name.toLowerCase() == trashFolderName
+        );
+        if (trashMailbox) {
+          this._hasTrash = true;
+          trashMailbox.flags |= ImapUtils.FLAG_IMAP_TRASH;
+        }
+      }
+      for (let mailbox of res.mailboxes) {
+        this._serverSink.possibleImapMailbox(
+          mailbox.name,
+          mailbox.delimiter,
+          mailbox.flags
+        );
+      }
+    };
+
+    this._nextAction = res => {
+      this._nextAction = res => {
+        handleListResponse(res);
+        this._actionFinishFolderDiscovery();
+      };
+      this._sendTagged('LSUB "" "*"');
+    };
+    this._sendTagged('LIST "" "*"');
   }
 
   /**
@@ -721,7 +751,18 @@ class ImapClient {
     }
     this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
     this._nextAuthMethod = this._possibleAuthMethods[0];
-    this._actionAuth();
+    if (this._capabilities.includes("CLIENTID") && this._server.clientid) {
+      this._nextAction = res => {
+        if (res.status == "OK") {
+          this._actionAuth();
+        } else {
+          this._actionDone(Cr.NS_ERROR_FAILURE);
+        }
+      };
+      this._sendTagged(`CLIENTID UUID ${this._server.clientid}`);
+    } else {
+      this._actionAuth();
+    }
   };
 
   /**
@@ -827,11 +868,31 @@ class ImapClient {
     this._authenticating = false;
 
     if (res.status == "OK") {
+      let actionId = () => {
+        if (this._capabilities.includes("ID") && Services.appinfo.name) {
+          this._nextAction = res => {
+            this._server.serverIDPref = res.id;
+            this.onReady();
+          };
+          this._sendTagged(
+            `ID ("name" "${Services.appinfo.name}" "version" "${Services.appinfo.version}")`
+          );
+        } else {
+          this.onReady();
+        }
+      };
       if (res.capabilities) {
         this._capabilities = res.capabilities;
         this._server.wrappedJSObject.capabilities = res.capabilities;
+        actionId();
+      } else {
+        this._nextAction = res => {
+          this._capabilities = res.capabilities;
+          this._server.wrappedJSObject.capabilities = res.capabilities;
+          actionId();
+        };
+        this._sendTagged("CAPABILITY");
       }
-      this.onReady();
       return;
     }
     if (
@@ -1011,21 +1072,6 @@ class ImapClient {
       this._hasInbox = res.mailboxes.some(
         mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_INBOX
       );
-    }
-    if (!this._hasTrash) {
-      this._hasTrash = res.mailboxes.some(
-        mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
-      );
-      if (!this._hasTrash) {
-        let trashFolderName = this._server.trashFolderName.toLowerCase();
-        let trashMailbox = res.mailboxes.find(
-          mailbox => mailbox.name.toLowerCase() == trashFolderName
-        );
-        if (trashMailbox) {
-          this._hasTrash = true;
-          trashMailbox.flags |= ImapUtils.FLAG_IMAP_TRASH;
-        }
-      }
     }
     for (let mailbox of res.mailboxes) {
       this._serverSink.possibleImapMailbox(

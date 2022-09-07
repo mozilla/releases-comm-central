@@ -93,8 +93,8 @@ var calendarTabType = {
         };
       },
 
-      restoreTab(tabmail) {
-        tabmail.openTab("calendar");
+      restoreTab(tabmail, state) {
+        tabmail.openTab("calendar", state);
       },
 
       onTitleChanged(tab) {
@@ -126,8 +126,8 @@ var calendarTabType = {
         };
       },
 
-      restoreTab(tabmail) {
-        tabmail.openTab("tasks");
+      restoreTab(tabmail, state) {
+        tabmail.openTab("tasks", state);
       },
 
       onTitleChanged(tab) {

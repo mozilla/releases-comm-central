@@ -93,9 +93,9 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   // Remove meta http-equiv="refresh".
   RefPtr<nsContentList> metas = document->GetElementsByTagName(u"meta"_ns);
   uint32_t length = metas->Length(true);
-  for (uint32_t i = 0; i < length; i++) {
+  for (uint32_t i = length; i > 0; i--) {
     RefPtr<nsGenericHTMLElement> node =
-        nsGenericHTMLElement::FromNodeOrNull(metas->Item(i));
+        nsGenericHTMLElement::FromNodeOrNull(metas->Item(i - 1));
     nsAutoString header;
     node->GetAttr(kNameSpaceID_None, nsGkAtoms::httpEquiv, header);
     nsContentUtils::ASCIIToLower(header);

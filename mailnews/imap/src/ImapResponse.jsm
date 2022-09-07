@@ -108,6 +108,10 @@ class ImapResponse {
               ImapUtils.FLAG_SUPPORT_USER_FLAG;
           }
           break;
+        case "ID":
+          // * ID ("name" "imap" "vendor" "Example, Inc.")
+          this.id = line.slice("* ID ".length);
+          break;
         case "LIST":
         case "LSUB":
           // * LIST (\Subscribed \NoInferiors \UnMarked \Sent) "/" Sent

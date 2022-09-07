@@ -779,12 +779,11 @@ Enigmail.msg = {
     if (revokedIds && revokedIds.length) {
       withRevSuffix = "_and_old_rev";
     }
-    // let normalizedEmail = emailForFilename.replace(" ", "_");
-    // emailForFilename is currently unused
     keyAttachment.name =
       "OpenPGP_" + keyAttachment.name + withRevSuffix + ".asc";
     keyAttachment.temporary = true;
     keyAttachment.contentType = "application/pgp-keys";
+    keyAttachment.size = tmpFile.fileSize;
 
     if (
       !gAttachmentBucket.itemChildren.find(

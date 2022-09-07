@@ -39,12 +39,20 @@
     }
 
     onAddItem(item) {
+      if (!this.tree.hasBeenVisible) {
+        return;
+      }
+
       if (item.isTodo()) {
         this.tree.mTreeView.addItems(this.tree.mFilter.getOccurrences(item));
       }
     }
 
     onModifyItem(newItem, oldItem) {
+      if (!this.tree.hasBeenVisible) {
+        return;
+      }
+
       if (newItem.isTodo() || oldItem.isTodo()) {
         this.tree.mTreeView.modifyItems(
           this.tree.mFilter.getOccurrences(newItem),
@@ -58,6 +66,10 @@
     }
 
     onDeleteItem(deletedItem) {
+      if (!this.tree.hasBeenVisible) {
+        return;
+      }
+
       if (deletedItem.isTodo()) {
         this.tree.mTreeView.removeItems(this.tree.mFilter.getOccurrences(deletedItem));
       }
@@ -472,6 +484,10 @@
     }
 
     refreshFromCalendar(calendar) {
+      if (!this.hasBeenVisible) {
+        return;
+      }
+
       let refreshJob = {
         QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
         tree: this,
