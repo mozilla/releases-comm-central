@@ -152,6 +152,7 @@ nsMsgSendLater::Observe(nsISupports* aSubject, const char* aTopic,
       if (folder) {
         rv = folder->RemoveFolderListener(this);
         NS_ENSURE_SUCCESS(rv, rv);
+        folder->ForceDBClosed();
       }
     }
 
