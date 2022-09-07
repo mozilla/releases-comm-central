@@ -42,8 +42,8 @@ menu-help-donation =
     .label = Make a Donation
     .accesskey = D
 
-menu-help-feedback =
-    .label = Submit Feedback and Ideas
+menu-help-share-feedback =
+    .label = Share Ideas and Feedback
     .accesskey = S
 
 menu-help-enter-troubleshoot-mode =
