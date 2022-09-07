@@ -82,8 +82,8 @@ appmenu-help-donation =
     .label = Make a Donation
     .accesskey = D
 
-appmenu-help-feedback =
-    .label = Submit Feedback and Ideas
+appmenu-help-share-feedback =
+    .label = Share Ideas and Feedback
     .accesskey = S
 
 appmenu-help-enter-troubleshoot-mode2 =
