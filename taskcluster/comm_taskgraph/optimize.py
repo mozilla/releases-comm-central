@@ -19,7 +19,7 @@ from gecko_taskgraph.optimize.schema import (
 )
 from taskgraph.util.memoize import memoize
 from taskgraph.util.path import match as match_path
-from gecko_taskgraph.files_changed import get_changed_files
+from comm_taskgraph import files_changed
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +43,27 @@ def get_non_suite_changed_files(repository, revision):
     with suite/** and editor/** files removed.
     """
     return {
-        file for file in get_changed_files(repository, revision) if not is_suite(file)
+        file
+        for file in files_changed.get_changed_files(repository, revision)
+        if not is_suite(file)
     }
+
+
+@register_strategy("comm-skip-unless-changed")
+class SkipUnlessChanged(OptimizationStrategy):
+    def should_remove_task(self, task, params, file_patterns):
+        # pushlog_id == -1 - this is the case when run from a cron.yml job
+        if params.get("pushlog_id") == -1:
+            return False
+
+        changed = files_changed.check(params, file_patterns)
+        if not changed:
+            logger.debug(
+                "no files found matching a pattern in `skip-unless-changed` for "
+                + task.label
+            )
+            return True
+        return False
 
 
 @register_strategy("skip-suite-only")
@@ -73,7 +92,7 @@ register_strategy(
 )(Any)
 
 register_strategy(
-    "skip-unless-changed-no-suite", args=("skip-unless-changed", "skip-suite-only")
+    "skip-unless-changed-no-suite", args=("comm-skip-unless-changed", "skip-suite-only")
 )(Any)
 
 optimizations = (
