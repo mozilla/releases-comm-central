@@ -2948,6 +2948,27 @@ var detailsPane = {
     }
     section.hidden = list.childElementCount == 0;
 
+    section = document.getElementById("instantMessaging");
+    list = section.querySelector("ul");
+    list.replaceChildren();
+
+    for (let entry of vCardProperties.getAllEntries("impp")) {
+      let li = list.appendChild(createEntryItem());
+      let url;
+      try {
+        url = new URL(entry.value);
+      } catch (e) {
+        li.querySelector(".entry-value").textContent = entry.value;
+        continue;
+      }
+      let a = document.createElement("a");
+      a.href = entry.value;
+      a.target = "_blank";
+      a.textContent = url.toString();
+      li.querySelector(".entry-value").append(a);
+    }
+    section.hidden = list.childElementCount == 0;
+
     section = document.getElementById("otherInfo");
     list = section.querySelector("ul");
     list.replaceChildren();
@@ -3223,6 +3244,13 @@ var detailsPane = {
     // Make sure the dates are filled properly.
     if (!this.vCardEdit.validateDates()) {
       // Simply return as the validateDates() will handle focus and visual cue.
+      return;
+    }
+
+    // Extra validation for any form field that has validatity requirements
+    // set on them (through pattern etc.).
+    if (!this.form.checkValidity()) {
+      this.form.querySelector("input:invalid").focus();
       return;
     }
 

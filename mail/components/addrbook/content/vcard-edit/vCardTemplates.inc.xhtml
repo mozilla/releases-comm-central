@@ -97,7 +97,7 @@
   </fieldset>
   <!-- IMPP (Chat) -->
   <fieldset id="addr-book-edit-impp" class="addr-book-edit-fieldset fieldset-reset">
-    <legend data-l10n-id="vcard-impp-header"/>
+    <legend data-l10n-id="vcard-impp2-header"/>
     <button id="vcard-add-impp"
             data-l10n-id="vcard-impp-add"
             class="addr-book-edit-fieldset-button"
@@ -243,10 +243,19 @@
   </select>
 </template>
 
-<!-- Field with text -->
-<template id="template-vcard-edit-text">
-  <label class="screen-reader-only" for="text"/>
-  <input type="text"/>
+<!-- IMPP -->
+<template id="template-vcard-edit-impp">
+  <label class="screen-reader-only" for="protocol" data-l10n-id="vcard-impp-select"></label>
+  <select name="protocol" class="vcard-type-selection">
+    <option value="matrix:u/john:example.org" data-pattern="matrix:.+/.+:.+">Matrix</option>
+    <option value="xmpp:john@example.org" data-pattern="xmpp:.+@.+">XMPP</option>
+    <option value="ircs:irc.example.org/john,isuser" data-pattern="ircs?:.+/.+,.+">IRC</option>
+    <option value="sip:1-555-123-4567@voip.example.org" data-pattern="sip:.+@.+">SIP</option>
+    <option value="skype:johndoe" data-pattern="skype:[A-Za-z\d\,\-\.\_]{6,32}">Skype</option>
+    <option value="" data-l10n-id="vcard-impp-option-other" data-pattern="..+:..+"></option>
+  </select>
+  <label class="screen-reader-only" for="impp" data-l10n-id="vcard-impp-input-label"></label>
+  <input type="text" name="impp" pattern="..+:..+" />
 </template>
 
 <!-- Birthday and Anniversary -->

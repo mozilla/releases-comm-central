@@ -67,6 +67,7 @@ add_setup(async function() {
       TITLE:senior engineering lead
       TZ;VALUE=TEXT:Pacific/Auckland
       URL;TYPE=work:https://www.thunderbird.net/
+      IMPP:xmpp:cowboy@example.org
       END:VCARD
     `)
   );
@@ -110,6 +111,7 @@ add_task(async function testDisplay() {
   let addressesSection = abDocument.getElementById("addresses");
   let notesSection = abDocument.getElementById("notes");
   let websitesSection = abDocument.getElementById("websites");
+  let imppSection = abDocument.getElementById("instantMessaging");
   let otherInfoSection = abDocument.getElementById("otherInfo");
   let selectedCardsSection = abDocument.getElementById("selectedCards");
 
@@ -308,10 +310,19 @@ add_task(async function testDisplay() {
     "attempted to load website in a browser"
   );
 
+  // Instant messaging section
+  Assert.ok(BrowserTestUtils.is_visible(imppSection));
+  items = imppSection.querySelectorAll("li");
+  Assert.equal(items.length, 1);
+  Assert.equal(
+    items[0].children[1].querySelector("a").href,
+    "xmpp:cowboy@example.org"
+  );
+
   // Other sections.
   Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
-  Assert.equal(items.length, 6);
+  Assert.equal(items.length, 6, "number of <li> in section should be correct");
   Assert.equal(
     items[0].children[0].dataset.l10nId,
     "about-addressbook-entry-name-birthday"
@@ -753,6 +764,7 @@ add_task(async function testGoogleEscaping() {
   let addressesSection = abDocument.getElementById("addresses");
   let notesSection = abDocument.getElementById("notes");
   let websitesSection = abDocument.getElementById("websites");
+  let imppSection = abDocument.getElementById("instantMessaging");
   let otherInfoSection = abDocument.getElementById("otherInfo");
   let selectedCardsSection = abDocument.getElementById("selectedCards");
 
@@ -820,6 +832,9 @@ add_task(async function testGoogleEscaping() {
       mockExternalProtocolService.urlLoaded("https://host/url:url;url,url/url"),
     "attempted to load website in a browser"
   );
+
+  // Instant messaging section.
+  Assert.ok(BrowserTestUtils.is_hidden(imppSection));
 
   // Other sections.
   Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
