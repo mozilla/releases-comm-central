@@ -1128,7 +1128,7 @@ class FreeBusyResponse extends CalDavSimpleResponse {
         if (caldata) {
           let component;
           try {
-            component = cal.icsService.parseICS(caldata, null);
+            component = cal.icsService.parseICS(caldata);
           } catch (e) {
             cal.LOG("CalDAV: Could not parse freebusy data: " + e);
             continue;

@@ -258,7 +258,7 @@ function test_iterator() {
 
   // Property iterator with multiple values
   // eslint-disable-next-line no-useless-concat
-  comp = cal.icsService.parseICS("BEGIN:VEVENT\r\n" + "CATEGORIES:a,b,c\r\n" + "END:VEVENT", null);
+  comp = cal.icsService.parseICS("BEGIN:VEVENT\r\n" + "CATEGORIES:a,b,c\r\n" + "END:VEVENT");
   let propValues = ["a", "b", "c"];
   for (
     let prop = comp.getFirstProperty("CATEGORIES");

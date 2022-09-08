@@ -87,7 +87,7 @@ CalItipItem.prototype = {
 
   init(aIcalString) {
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-    parser.parseString(aIcalString, null);
+    parser.parseString(aIcalString);
 
     // - User specific alarms as well as X-MOZ- properties are irrelevant w.r.t. iTIP messages,
     //   should not be sent out and should not be relevant for incoming messages

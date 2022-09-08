@@ -354,7 +354,7 @@ CalAlarm.prototype = {
   },
   set icalString(val) {
     this.ensureMutable();
-    this.icalComponent = cal.icsService.parseICS(val, null);
+    this.icalComponent = cal.icsService.parseICS(val);
   },
 
   promotedProps: {

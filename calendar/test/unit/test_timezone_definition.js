@@ -45,23 +45,6 @@ add_task(async function zone_test() {
   ok(foundZone, "There is at least one timezone");
 });
 
-// check whether all tz aliases resolve to a tz definition
-add_task(async function alias_test() {
-  function resolveAlias(aAliasId) {
-    let timezone = cal.timezoneService.getTimezone(aAliasId);
-    let tzid = timezone && timezone.tzid ? timezone.tzid : "";
-    notEqual(tzid, "", "Alias resolution " + aAliasId + " -> " + tzid);
-  }
-
-  let foundAlias = false;
-  for (let aliasId of cal.timezoneService.aliasIds) {
-    foundAlias = true;
-    resolveAlias(aliasId);
-  }
-
-  ok(foundAlias, "There is at least one alias");
-});
-
 // Check completeness to avoid unintended removing of zones/aliases when updating zones.json
 // removed zones should at least remain as alias to not break UI like in bug 1210723.
 // previous.json is generated automatically by executing update-zones.py script

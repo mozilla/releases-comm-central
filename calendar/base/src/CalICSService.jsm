@@ -571,14 +571,12 @@ CalICSService.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIICSService"]),
   classID: Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}"),
 
-  parseICS(serialized, tzProvider) {
-    // TODO ical.js doesn't support tz providers, but this is usually null
-    // or our timezone service anyway.
+  parseICS(serialized) {
     let comp = ICAL.parse(serialized);
     return new calIcalComponent(new ICAL.Component(comp));
   },
 
-  parseICSAsync(serialized, tzProvider, listener) {
+  parseICSAsync(serialized, listener) {
     // There are way too many error checking messages here, but I had so
     // much pain with this method that I don't want it to break again.
     try {

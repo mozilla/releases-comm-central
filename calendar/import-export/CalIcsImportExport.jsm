@@ -30,7 +30,7 @@ CalIcsImporter.prototype = {
 
   importFromStream(aStream) {
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-    parser.parseFromStream(aStream, null);
+    parser.parseFromStream(aStream);
     return parser.getItems();
   },
 };

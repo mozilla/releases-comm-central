@@ -9,7 +9,6 @@ interface calIIcalProperty;
 interface calIIcalComponent;
 interface calIItemBase;
 interface nsIInputStream;
-interface calITimezoneProvider;
 interface calIIcsParser;
 
 /**
@@ -35,15 +34,11 @@ interface calIIcsParser : nsISupports
    *
    * @param aICSString
    *    The ICS string to parse
-   * @param optional aTzProvider
-   *    The timezone provider used to resolve timezones not contained in the
-   *    parent VCALENDAR or null (falls back to timezone service)
    * @param optional aAsyncParsing
    *    If non-null, parsing will be performed on a worker thread,
    *    and the passed listener is called when it's done
    */
   void parseString(in AString aICSString,
-                   [optional] in calITimezoneProvider aTzProvider,
                    [optional] in calIIcsParsingListener aAsyncParsing);
 
   /**
@@ -52,15 +47,11 @@ interface calIIcsParser : nsISupports
    * @see parseString
    * @param aICSString
    *    The stream to parse
-   * @param optional aTzProvider
-   *    The timezone provider used to resolve timezones not contained in the
-   *    parent VCALENDAR or null (falls back to timezone service)
    * @param optional aAsyncParsing
    *    If non-null, parsing will be performed on a worker thread,
    *    and the passed listener is called when it's done
    */
   void parseFromStream(in nsIInputStream aStream,
-                       [optional] in calITimezoneProvider aTzProvider,
                        [optional] in calIIcsParsingListener aAsyncParsing);
 
   /**

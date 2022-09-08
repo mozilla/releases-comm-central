@@ -31,7 +31,7 @@ function test_freebusy() {
     "\n" +
     "END:VFREEBUSY\n" +
     "END:VCALENDAR\n";
-  let fbComp = icsService.parseICS(data, null).getFirstSubcomponent("VFREEBUSY");
+  let fbComp = icsService.parseICS(data).getFirstSubcomponent("VFREEBUSY");
   equal(fbComp.getFirstProperty("FREEBUSY").value, fbVal1);
   equal(fbComp.getNextProperty("FREEBUSY").value, fbVal2);
   equal(fbComp.getNextProperty("FREEBUSY").value, fbVal3);
