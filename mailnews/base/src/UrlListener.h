@@ -6,6 +6,10 @@
 #ifndef UrlListener_h__
 #define UrlListener_h__
 
+#include <functional>  // For std::function.
+#include "nsIUrlListener.h"
+class nsIURI;
+
 /**
  * UrlListener is a small nsIUrlListener implementation which allows
  * callable objects (including lambdas) to be plugged in instead of deriving
@@ -19,10 +23,11 @@
  *
  * void Kick() {
  *   UrlListener* listener = new UrlListener;
- *   listener.mStopFn = [](ns{
+ *   listener->mStopFn = [](nsIURI* url, nsresult status) -> nsresult {
  *     // Note that we may get here waaaaaaay after Kick() has returned...
- *     printf("LongRunningOperation is finished.\n"); return NS_OK;
- *   }
+ *     printf("LongRunningOperation is finished.\n");
+ *     return NS_OK;
+ *   };
  *   thingService.startLongRunningOperation(listener);
  *   //...continue doing other stuff while operation is ongoing...
  * }
@@ -63,21 +68,5 @@ class UrlListener : public nsIUrlListener {
  protected:
   virtual ~UrlListener() {}
 };
-
-NS_IMPL_ISUPPORTS(UrlListener, nsIUrlListener)
-
-NS_IMETHODIMP UrlListener::OnStartRunningUrl(nsIURI* url) {
-  if (!mStartFn) {
-    return NS_OK;
-  }
-  return mStartFn(url);
-}
-
-NS_IMETHODIMP UrlListener::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
-  if (!mStopFn) {
-    return NS_OK;
-  }
-  return mStopFn(url, exitCode);
-}
 
 #endif  // UrlListener_h__
