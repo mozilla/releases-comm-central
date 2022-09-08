@@ -137,7 +137,7 @@ add_task(async function test_bad_web_handler1() {
             handlers: [
               {
                 name: "Name",
-                uriTemplate: "http://www.example.org/?%s",
+                uriTemplate: "https://www.example.org/?%s",
               },
             ],
           },
@@ -166,7 +166,7 @@ add_task(async function test_bad_web_handler2() {
             handlers: [
               {
                 name: "Name",
-                uriTemplate: "http://www.example.org/",
+                uriTemplate: "https://www.example.org/",
               },
             ],
           },

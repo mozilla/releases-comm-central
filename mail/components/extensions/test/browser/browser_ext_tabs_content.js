@@ -231,20 +231,20 @@ add_task(async function testMultipleContentTabs() {
             expectedUrl: browser.runtime.getURL("test.html"),
           },
           {
-            url: "http://www.example.com",
-            expectedUrl: "http://www.example.com/",
+            url: "https://www.example.com",
+            expectedUrl: "https://www.example.com/",
           },
           {
-            url: "http://www.example.com",
-            expectedUrl: "http://www.example.com/",
+            url: "https://www.example.com",
+            expectedUrl: "https://www.example.com/",
           },
           {
-            url: "http://www.example.com/",
-            expectedUrl: "http://www.example.com/",
+            url: "https://www.example.com/",
+            expectedUrl: "https://www.example.com/",
           },
           {
-            url: "http://www.example.com/",
-            expectedUrl: "http://www.example.com/",
+            url: "https://www.example.com/",
+            expectedUrl: "https://www.example.com/",
           },
           {
             url: "https://www.example.com/",

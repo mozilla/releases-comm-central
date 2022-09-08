@@ -6,6 +6,8 @@
  * Test that the IMIP bar behaves properly for eml files with invites.
  */
 
+/* eslint-disable @microsoft/sdl/no-insecure-url */
+
 function getFileFromChromeURL(leafName) {
   let ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
 

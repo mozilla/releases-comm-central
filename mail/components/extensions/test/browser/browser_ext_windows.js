@@ -40,6 +40,7 @@ add_task(async () => {
   let extension = ExtensionTestUtils.loadExtension({
     async background() {
       const urls = {
+        // eslint-disable-next-line @microsoft/sdl/no-insecure-url
         "http://www.google.de/": true,
         "https://www.google.de/": true,
         "ftp://www.google.de/": false,

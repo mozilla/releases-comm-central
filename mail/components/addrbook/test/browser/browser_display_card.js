@@ -733,7 +733,7 @@ add_task(async function testGoogleEscaping() {
       TITLE:title\\:title\\;title\\,title\\\\title\\\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
       TEL:tel\\:0123\\\\4567
       NOTE:notes\\:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
-      URL:http\\://host/url\\:url\\;url\\,url\\\\url
+      URL:https\\://host/url\\:url\\;url\\,url\\\\url
       END:VCARD
     `)
   );
@@ -803,7 +803,7 @@ add_task(async function testGoogleEscaping() {
   Assert.equal(items.length, 1);
   Assert.equal(
     items[0].children[1].querySelector("a").href,
-    "http://host/url:url;url,url/url"
+    "https://host/url:url;url,url/url"
   );
   Assert.equal(
     items[0].children[1].querySelector("a").textContent,
@@ -817,7 +817,7 @@ add_task(async function testGoogleEscaping() {
   );
   await TestUtils.waitForCondition(
     () =>
-      mockExternalProtocolService.urlLoaded("http://host/url:url;url,url/url"),
+      mockExternalProtocolService.urlLoaded("https://host/url:url;url,url/url"),
     "attempted to load website in a browser"
   );
 

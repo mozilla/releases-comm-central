@@ -90,7 +90,7 @@ add_task(async () => {
         EventUtils.synthesizeMouseAtCenter(locationInput, {}, dialogWindow);
         await TestUtils.waitForCondition(() => !addFeedButton.disabled);
         EventUtils.sendString(
-          "http://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml",
+          "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml",
           dialogWindow
         );
         EventUtils.synthesizeKey("VK_TAB", {}, dialogWindow);
@@ -170,7 +170,7 @@ add_task(async () => {
 
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
   Assert.deepEqual(mockExternalProtocolService._loadedURLs, [
-    "http://example.org/link/from/description",
+    "https://example.org/link/from/description",
   ]);
   mockExternalProtocolService._loadedURLs.length = 0;
 
@@ -196,7 +196,7 @@ add_task(async () => {
   });
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
   Assert.deepEqual(mockExternalProtocolService._loadedURLs, [
-    "http://example.org/link/from/article",
+    "https://example.org/link/from/article",
   ]);
   mockExternalProtocolService._loadedURLs.length = 0;
 

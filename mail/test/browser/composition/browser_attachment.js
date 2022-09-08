@@ -206,7 +206,7 @@ add_task(function test_file_attachment() {
 add_task(function test_webpage_attachment() {
   let cwc = open_compose_new_mail();
 
-  add_attachments(cwc, "http://www.mozilla.org/");
+  add_attachments(cwc, "https://www.mozilla.org/");
   check_no_attachment_size(cwc, 0);
   check_total_attachment_size(cwc, 1);
 

@@ -394,14 +394,14 @@ function subtest_errors_during_rename(error) {
     uploads,
     [
       {
-        url: "http://www.example.com/providerA/testFile1",
+        url: "https://www.example.com/providerA/testFile1",
         name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
         serviceUrl: "https://www.provider-A.org",
       },
       {
-        url: "http://www.example.com/providerA/testFile2",
+        url: "https://www.example.com/providerA/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",

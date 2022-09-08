@@ -21,7 +21,7 @@ const EVENTTITLE = "Event";
 const EVENTLOCATION = "Location";
 const EVENTDESCRIPTION = "Event Description";
 const EVENTATTENDEE = "foo@bar.com";
-const EVENTURL = "http://mozilla.org/";
+const EVENTURL = "https://mozilla.org/";
 var firstDay;
 
 var { dayView, monthView } = CalendarTestUtils;

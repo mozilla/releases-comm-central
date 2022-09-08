@@ -47,8 +47,8 @@ async function test_cookie_settings({
   thirdPartyCookiesEnabled,
   cookieJarSettingsLocked,
 }) {
-  let firstPartyURI = NetUtil.newURI("http://example.com/");
-  let thirdPartyURI = NetUtil.newURI("http://example.org/");
+  let firstPartyURI = NetUtil.newURI("https://example.com/");
+  let thirdPartyURI = NetUtil.newURI("https://example.org/");
   let channel = NetUtil.newChannel({
     uri: firstPartyURI,
     loadUsingSystemPrincipal: true,

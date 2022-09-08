@@ -125,7 +125,7 @@ function setupData() {
         status: "confirmed",
         freebusy: "busy",
         timezonedisplay: true,
-        attachment: { add: "http://mozilla.org" },
+        attachment: { add: "https://mozilla.org" },
         attendees: { add: "foo@bar.de,foo@bar.com" },
       },
       {

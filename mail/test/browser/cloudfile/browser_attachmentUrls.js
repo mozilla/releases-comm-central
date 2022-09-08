@@ -381,7 +381,7 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
     uploads,
     [
       {
-        url: "http://www.example.com/providerF/testFile1",
+        url: "https://www.example.com/providerF/testFile1",
         name: "testFile1",
         serviceName: "MochiTest F",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -389,7 +389,7 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
         downloadLimit: 2,
       },
       {
-        url: "http://www.example.com/providerF/testFile2",
+        url: "https://www.example.com/providerF/testFile2",
         name: "testFile2",
         serviceName: "MochiTest F",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -445,7 +445,7 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
     uploads,
     [
       {
-        url: "http://www.example.com/providerG/testFile1",
+        url: "https://www.example.com/providerG/testFile1",
         name: "testFile1",
         serviceName: "MochiTest G",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -453,7 +453,7 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
         downloadExpiryDate: { timestamp: 1639827408073 },
       },
       {
-        url: "http://www.example.com/providerG/testFile2",
+        url: "https://www.example.com/providerG/testFile2",
         name: "testFile2",
         serviceName: "MochiTest G",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -557,7 +557,7 @@ function subtest_inserts_linebreak_on_empty_compose() {
     uploads,
     [
       {
-        url: "http://www.example.com/someKey/testFile1",
+        url: "https://www.example.com/someKey/testFile1",
         name: "testFile1",
         serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
@@ -565,7 +565,7 @@ function subtest_inserts_linebreak_on_empty_compose() {
         downloadPasswordProtected: false,
       },
       {
-        url: "http://www.example.com/someKey/testFile2",
+        url: "https://www.example.com/someKey/testFile2",
         name: "testFile2",
         serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
@@ -615,7 +615,7 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
     uploads,
     [
       {
-        url: "http://www.example.com/someKey/testFile1",
+        url: "https://www.example.com/someKey/testFile1",
         name: "testFile1",
         serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
@@ -623,7 +623,7 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
         downloadPasswordProtected: true,
       },
       {
-        url: "http://www.example.com/someKey/testFile2",
+        url: "https://www.example.com/someKey/testFile2",
         name: "testFile2",
         serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
@@ -673,7 +673,7 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
     uploads,
     [
       {
-        url: "http://www.example.com/someKey/testFile1",
+        url: "https://www.example.com/someKey/testFile1",
         name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
@@ -681,7 +681,7 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
         downloadPasswordProtected: true,
       },
       {
-        url: "http://www.example.com/someKey/testFile2",
+        url: "https://www.example.com/someKey/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
@@ -778,14 +778,14 @@ function subtest_adding_filelinks_to_written_message() {
     uploads,
     [
       {
-        url: "http://www.example.com/someKey/testFile1",
+        url: "https://www.example.com/someKey/testFile1",
         name: "testFile1",
         serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceUrl: "",
       },
       {
-        url: "http://www.example.com/someKey/testFile2",
+        url: "https://www.example.com/someKey/testFile2",
         name: "testFile2",
         serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
@@ -1166,14 +1166,14 @@ function subtest_converting_filelink_updates_urls() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerA/testFile1",
+        url: "https://www.example.com/providerA/testFile1",
         name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
         serviceUrl: "https://www.provider-A.org",
       },
       {
-        url: "http://www.example.com/providerA/testFile2",
+        url: "https://www.example.com/providerA/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
@@ -1194,14 +1194,14 @@ function subtest_converting_filelink_updates_urls() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerB/testFile1",
+        url: "https://www.example.com/providerB/testFile1",
         name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest B",
         serviceUrl: "https://www.provider-B.org",
       },
       {
-        url: "http://www.example.com/providerB/testFile2",
+        url: "https://www.example.com/providerB/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest B",
@@ -1248,7 +1248,7 @@ function subtest_renaming_filelink_updates_urls() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerA/testFile1",
+        url: "https://www.example.com/providerA/testFile1",
         name: "testFile1",
         serviceName: "MochiTest A",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -1259,7 +1259,7 @@ function subtest_renaming_filelink_updates_urls() {
         },
       },
       {
-        url: "http://www.example.com/providerA/testFile2",
+        url: "https://www.example.com/providerA/testFile2",
         name: "testFile2",
         serviceName: "MochiTest A",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -1293,7 +1293,7 @@ function subtest_renaming_filelink_updates_urls() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerA/testFile1Renamed",
+        url: "https://www.example.com/providerA/testFile1Renamed",
         name: "testFile1Renamed",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
@@ -1304,7 +1304,7 @@ function subtest_renaming_filelink_updates_urls() {
         },
       },
       {
-        url: "http://www.example.com/providerA/testFile2Renamed",
+        url: "https://www.example.com/providerA/testFile2Renamed",
         name: "testFile2Renamed",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
@@ -1358,14 +1358,14 @@ function subtest_converting_filelink_to_normal_removes_url() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerC/testFile1",
+        url: "https://www.example.com/providerC/testFile1",
         name: "testFile1",
         serviceName: "MochiTest C",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceUrl: "https://www.provider-C.org",
       },
       {
-        url: "http://www.example.com/providerC/testFile2",
+        url: "https://www.example.com/providerC/testFile2",
         name: "testFile2",
         serviceName: "MochiTest C",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -1435,14 +1435,14 @@ function subtest_filelinks_work_after_manual_removal() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerD/testFile1",
+        url: "https://www.example.com/providerD/testFile1",
         name: "testFile1",
         serviceName: "MochiTest D",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceUrl: "https://www.provider-D.org",
       },
       {
-        url: "http://www.example.com/providerD/testFile2",
+        url: "https://www.example.com/providerD/testFile2",
         name: "testFile2",
         serviceName: "MochiTest D",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -1462,7 +1462,7 @@ function subtest_filelinks_work_after_manual_removal() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerD/testFile3",
+        url: "https://www.example.com/providerD/testFile3",
         name: "testFile3",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest D",
@@ -1514,14 +1514,14 @@ function subtest_insertion_restores_caret_point() {
     uploads,
     [
       {
-        url: "http://www.example.com/providerE/testFile1",
+        url: "https://www.example.com/providerE/testFile1",
         name: "testFile1",
         serviceName: "MochiTest E",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceUrl: "https://www.provider-E.org",
       },
       {
-        url: "http://www.example.com/providerE/testFile2",
+        url: "https://www.example.com/providerE/testFile2",
         name: "testFile2",
         serviceName: "MochiTest E",
         serviceIcon: "chrome://messenger/content/extension.svg",

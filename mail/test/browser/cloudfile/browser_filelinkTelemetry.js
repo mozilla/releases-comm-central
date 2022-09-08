@@ -105,9 +105,9 @@ add_task(async function test_filelink_ignored() {
   );
 
   // Multiple big attachments should be counted as one ignoring.
-  add_attachments(cwc, "http://www.example.com/1", maxSize);
-  add_attachments(cwc, "http://www.example.com/2", maxSize + 10);
-  add_attachments(cwc, "http://www.example.com/3", maxSize - 1);
+  add_attachments(cwc, "https://www.example.com/1", maxSize);
+  add_attachments(cwc, "https://www.example.com/2", maxSize + 10);
+  add_attachments(cwc, "https://www.example.com/3", maxSize - 1);
   let aftersend = BrowserTestUtils.waitForEvent(cwc.window, "aftersend");
   cwc.click(cwc.e("button-send"));
   await aftersend;
