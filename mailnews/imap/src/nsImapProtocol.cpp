@@ -9932,6 +9932,19 @@ NS_IMETHODIMP nsImapMockChannel::SetImapProtocol(nsIImapProtocol* aProtocol) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsImapMockChannel::SetCanceledReason(const nsACString& aReason) {
+  return SetCanceledReasonImpl(aReason);
+}
+
+NS_IMETHODIMP nsImapMockChannel::GetCanceledReason(nsACString& aReason) {
+  return GetCanceledReasonImpl(aReason);
+}
+
+NS_IMETHODIMP nsImapMockChannel::CancelWithReason(nsresult aStatus,
+                                                  const nsACString& aReason) {
+  return CancelWithReasonImpl(aStatus, aReason);
+}
+
 NS_IMETHODIMP nsImapMockChannel::Cancel(nsresult status) {
   MOZ_DIAGNOSTIC_ASSERT(
       NS_IsMainThread(),
